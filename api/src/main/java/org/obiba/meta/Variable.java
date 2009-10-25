@@ -36,4 +36,11 @@ class Variable implements IVariable {
   public ValueType getValueType() {
     return valueType;
   }
+
+  @Override
+  public String getAttribute(String name) {
+    // TODO: Implement attributes
+    return null;
+  }
+
 }

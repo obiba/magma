@@ -50,4 +50,6 @@ public interface IVariable {
    */
   public String getMimeType();
 
+  public String getAttribute(String name);
+
 }

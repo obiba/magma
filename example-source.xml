@@ -25,12 +25,10 @@
     </beanVariableValueSourceProvider>
 
     <scriptedVariableSource>
-      <variable class="variable">
-        <name>Participant.birthYear</name>
-        <valueType>integer</valueType>
+      <variable name="Participant.birthYear" valueType="integer">
+        <!-- The script should be made an attribute of the variable. Such that we know how it was derived. It's the variable's algorithm. -->
+        <script>dateYear($('Participant.birthDate'))</script>
       </variable>
-      <!-- The script should be made an attribute of the variable. Such that we know how it was derived. It's the variable's algorithm. -->
-      <script>dateYear($('Participant.birthDate'))</script>
     </scriptedVariableSource>
   </variables>
 

@@ -21,16 +21,16 @@ public class DecimalType extends AbstractNumberType {
 
   @Override
   public String getName() {
-    return null;
+    return "decimal";
   }
 
   @Override
   public QName getXsdType() {
-    return null;
+    return new QName("xsd", "decimal");
   }
 
   @Override
   public boolean acceptsJavaClass(Class<?> clazz) {
-    return Double.class.isAssignableFrom(clazz) || Float.class.isAssignableFrom(clazz);
+    return Double.class.isAssignableFrom(clazz) || Float.class.isAssignableFrom(clazz) || BigDecimal.class.isAssignableFrom(clazz);
   }
 }

@@ -35,4 +35,9 @@ public class DelegatingVariable implements IVariable {
     return delegate.getValueType();
   }
 
+  @Override
+  public String getAttribute(String name) {
+    return delegate.getAttribute(name);
+  }
+
 }

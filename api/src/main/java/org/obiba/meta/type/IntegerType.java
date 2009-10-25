@@ -26,7 +26,7 @@ public class IntegerType extends AbstractNumberType {
 
   @Override
   public QName getXsdType() {
-    return null;
+    return new QName("xsd", "integer");
   }
 
   @Override

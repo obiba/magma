@@ -11,7 +11,7 @@ public class ValueFactory {
   }
 
   public Value newValue(ValueType type, Object o) {
-    // TODO
+    // TODO: Use ValueType to create the proper Value object for the Object's real type.
     return new Value(type, (Serializable) o);
   }
 }

@@ -29,7 +29,7 @@ public class BinaryType implements ValueType {
   }
 
   public QName getXsdType() {
-    return new QName("xsd", "string");
+    return new QName("xsd", "base64Binary");
   }
 
   public boolean isDateTime() {
