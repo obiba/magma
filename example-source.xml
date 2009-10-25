@@ -24,22 +24,14 @@
       </nameMap>
     </beanVariableValueSourceProvider>
 
-    <derivedVariableSourceProvider>
+    <scriptedVariableSource>
       <variable class="variable">
         <name>Participant.birthYear</name>
         <valueType>integer</valueType>
       </variable>
-      <source class="scriptedSource">
-        <valueType>integer</valueType>
-        <script>dateYear($('Participant.birthDate')</script>
-      </source>
-      <!--source class="datePart">
-        <dateSource class="variableValueSource">
-          <name>Participant.birthDate</name>
-        </dateSource>
-        <part>year</part>
-      </source-->
-    </derivedVariableSourceProvider>
+      <!-- The script should be made an attribute of the variable. Such that we know how it was derived. It's the variable's algorithm. -->
+      <script>dateYear($('Participant.birthDate'))</script>
+    </scriptedVariableSource>
   </variables>
 
 </datasource>
