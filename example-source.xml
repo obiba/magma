@@ -1,6 +1,6 @@
 <datasource>
 
-  <valueSetReferenceProvider>
+  <valueSets>
     <jpaProvider>
       <entityClass>org.obiba.onyx.core.domain.Interview</entityClass>
       <entityType>Participant</entityType>
@@ -8,11 +8,12 @@
       <identifierProperty>participant.barcode</identifierProperty>
       <dateProperty>startDate</dateProperty>
     </jpaProvider>
-  </valueSetReferenceProvider>
+  </valueSets>
 
-  <variableProviders>
-    <beanPropertyVariableProvider>
+  <variables>
+    <beanVariableValueSourceProvider>
       <prefix>Participant</prefix>
+      <beanClass>org.obiba.onyx.core.domain.Participant</beanClass>
       <properties>
         <string>firstName</string>
         <string>lastName</string>
@@ -20,18 +21,17 @@
         <string>birthDate</string>
       </properties>
       <nameMap>
-        <entry key="appointment.date" value="appointmentDate"/>
+        <entry key="appointment.date" value="appointmentDate" />
       </nameMap>
-    </beanPropertyVariableProvider>
+    </beanVariableValueSourceProvider>
 
-    <sourceProvider>
+    <derivedVariableSourceProvider>
       <name>Participant.birthYear</name>
       <source class="datePart">
         <dateSource class="variable">Participant.birthDate</dateSource>
         <part>year</part>
       </source>
-    </sourceProvider>
-
-  </variableProviders>
+    </derivedVariableSourceProvider>
+  </variables>
 
 </datasource>

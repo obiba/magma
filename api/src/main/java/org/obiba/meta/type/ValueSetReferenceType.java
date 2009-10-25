@@ -19,6 +19,12 @@ public class ValueSetReferenceType implements ValueType {
     return "valueSetReference";
   }
 
+  @Override
+  public boolean acceptsJavaClass(Class<?> clazz) {
+    // TODO Auto-generated method stub
+    return false;
+  }
+
   public Class<?> getJavaClass() {
     return String.class;
   }

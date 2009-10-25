@@ -26,13 +26,10 @@ public class BeanPropertyVariableValueSource implements IVariableValueSource {
 
   private IVariable variable;
 
-  private IValueSetReferenceBeanResolver resolver;
-
   private String propertyPath;
 
-  public BeanPropertyVariableValueSource(IVariable variable, IValueSetReferenceBeanResolver resolver, String propertyPath) {
+  public BeanPropertyVariableValueSource(IVariable variable, String propertyPath) {
     this.variable = variable;
-    this.resolver = resolver;
     this.propertyPath = propertyPath;
   }
 
@@ -46,9 +43,10 @@ public class BeanPropertyVariableValueSource implements IVariableValueSource {
   }
 
   public Value getValue(IValueSetReference reference) {
-    Object bean = resolver.resolveReference(reference);
+    Object bean = reference.resolve();
     if(bean == null) {
       // TODO: what's the policy? Throw, return null, return null-value?
+      throw new IllegalStateException("resolved bean cannot be null.");
     }
     Object object = getPropertyValue(propertyPath, PropertyAccessorFactory.forBeanPropertyAccess(bean));
     return ValueFactory.INSTANCE.newValue(variable.getValueType(), object);

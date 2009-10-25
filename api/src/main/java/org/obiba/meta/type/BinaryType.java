@@ -4,28 +4,28 @@ import javax.xml.namespace.QName;
 
 import org.obiba.meta.ValueType;
 
-public class TextType implements ValueType {
+public class BinaryType implements ValueType {
 
   private static final long serialVersionUID = -5271259966499174607L;
 
-  public static final TextType INSTANCE = new TextType();
+  public static final BinaryType INSTANCE = new BinaryType();
 
-  private TextType() {
+  private BinaryType() {
 
   }
 
   @Override
   public String getName() {
-    return "text";
+    return "binary";
   }
 
   public Class<?> getJavaClass() {
-    return String.class;
+    return byte[].class;
   }
 
   @Override
   public boolean acceptsJavaClass(Class<?> clazz) {
-    return String.class.isAssignableFrom(clazz);
+    return byte[].class.isAssignableFrom(clazz);
   }
 
   public QName getXsdType() {

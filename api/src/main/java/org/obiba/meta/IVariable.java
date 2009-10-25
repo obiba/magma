@@ -14,6 +14,24 @@ package org.obiba.meta;
  */
 public interface IVariable {
 
+  public static class Builder {
+
+    private Variable variable = new Variable();
+
+    public Builder(String name, ValueType type) {
+      variable.name = name;
+      variable.valueType = type;
+    }
+
+    public static Builder newVariable(String name, ValueType type) {
+      return new Builder(name, type);
+    }
+
+    public IVariable build() {
+      return variable;
+    }
+  }
+
   public String getName();
 
   public String getEntityType();

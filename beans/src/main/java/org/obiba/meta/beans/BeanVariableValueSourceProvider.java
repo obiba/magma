@@ -11,32 +11,27 @@ package org.obiba.meta.beans;
 
 import java.beans.PropertyDescriptor;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.obiba.meta.IValueSetReference;
-import org.obiba.meta.IValueSource;
 import org.obiba.meta.IVariable;
-import org.obiba.meta.IVariableData;
-import org.obiba.meta.IVariableProvider;
+import org.obiba.meta.IVariableValueSource;
+import org.obiba.meta.IVariableValueSourceProvider;
 import org.obiba.meta.ValueType;
-import org.obiba.meta.VariableData;
 import org.obiba.meta.type.ValueTypeFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.PropertyAccessorUtils;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
-import com.google.common.collect.ImmutableList;
 
 /**
  *
  */
-public class BeanVariableProvider implements IVariableProvider {
+public class BeanVariableValueSourceProvider implements IVariableValueSourceProvider {
 
-  private IValueSetReferenceBeanResolver resolver;
+  private Class<?> beanClass;
 
   /** The set of bean properties that are returned as variables */
   private Set<String> properties = Collections.emptySet();
@@ -44,10 +39,10 @@ public class BeanVariableProvider implements IVariableProvider {
   /** Maps property names to variable name */
   private BiMap<String, String> propertyNameToVariableName = HashBiMap.create();
 
-  private Map<IVariable, IValueSource> variableToEntityDatasource;
+  private Set<IVariableValueSource> sources;
 
-  public BeanVariableProvider(IValueSetReferenceBeanResolver resolver) {
-    this.resolver = resolver;
+  public BeanVariableValueSourceProvider(Class<?> beanClass) {
+    this.beanClass = beanClass;
   }
 
   public void setProperties(Set<String> properties) {
@@ -58,17 +53,9 @@ public class BeanVariableProvider implements IVariableProvider {
     this.propertyNameToVariableName = HashBiMap.create(propertyNameToVariableName);
   }
 
-  public IVariableData getData(IVariable variable, IValueSetReference reference) {
-    IValueSource dataSource = variableToEntityDatasource.get(variable);
-    if(dataSource == null) {
-      throw new IllegalArgumentException("This provider does not handle variable " + variable.getName());
-    }
-    return new VariableData(variable, reference, dataSource.getValue(reference));
-  }
-
-  public List<IVariable> getVariables() {
+  public Set<IVariableValueSource> getVariables() {
     doBuildVariables();
-    return new ImmutableList.Builder<IVariable>().addAll(variableToEntityDatasource.keySet()).build();
+    return sources;
   }
 
   /**
@@ -127,7 +114,7 @@ public class BeanVariableProvider implements IVariableProvider {
   }
 
   private Class<?> getBeanClass() {
-    return this.resolver.getResolvedBeanClass();
+    return beanClass;
   }
 
   /**
@@ -136,20 +123,20 @@ public class BeanVariableProvider implements IVariableProvider {
    * @param parent the parent {@code IVariable} of all provided {@code IVariable}
    */
   private void doBuildVariables() {
-    if(variableToEntityDatasource != null) {
+    if(sources != null) {
       return;
     }
     synchronized(this) {
-      if(variableToEntityDatasource == null) {
-        variableToEntityDatasource = new HashMap<IVariable, IValueSource>();
+      if(sources == null) {
+        sources = new HashSet<IVariableValueSource>();
         for(String propertyPath : properties) {
           PropertyDescriptor descriptor = getPropertyDescriptor(propertyPath);
           if(descriptor == null) {
             throw new IllegalArgumentException("Invalid property path'" + propertyPath + "' for type " + getBeanClass().getName());
           }
           ValueType type = ValueTypeFactory.INSTANCE.forClass(descriptor.getPropertyType());
-          IVariable variable = new Variable(type, lookupVariableName(propertyPath));
-          variableToEntityDatasource.put(variable, new BeanPropertyVariableValueSource(variable, resolver, propertyPath));
+          IVariable variable = IVariable.Builder.newVariable(lookupVariableName(propertyPath), type).build();
+          sources.add(new BeanPropertyVariableValueSource(variable, propertyPath));
         }
       }
     }

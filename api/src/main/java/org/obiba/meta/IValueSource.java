@@ -10,7 +10,7 @@
 package org.obiba.meta;
 
 /**
- *
+ * Defines the contract for obtaining a particular {@link Value} from a {@code IValueSetReference}.
  */
 public interface IValueSource {
 

@@ -9,15 +9,13 @@
  ******************************************************************************/
 package org.obiba.meta;
 
-import java.util.List;
+import java.util.Set;
 
 /**
  *
  */
-public interface IVariableProvider {
+public interface IVariableValueSourceProvider {
 
-  public List<IVariable> getVariables();
-
-  public IVariableData getData(IVariable variable, IValueSetReference valueSetReference);
+  public Set<IVariableValueSource> getVariables();
 
 }

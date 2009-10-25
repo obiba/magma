@@ -4,28 +4,28 @@ import javax.xml.namespace.QName;
 
 import org.obiba.meta.ValueType;
 
-public class TextType implements ValueType {
+public class EnumType implements ValueType {
 
   private static final long serialVersionUID = -5271259966499174607L;
 
-  public static final TextType INSTANCE = new TextType();
+  public static final EnumType INSTANCE = new EnumType();
 
-  private TextType() {
+  private EnumType() {
 
   }
 
   @Override
   public String getName() {
-    return "text";
+    return "enumerated";
   }
 
   public Class<?> getJavaClass() {
-    return String.class;
+    return Enum.class;
   }
 
   @Override
   public boolean acceptsJavaClass(Class<?> clazz) {
-    return String.class.isAssignableFrom(clazz);
+    return clazz.isEnum();
   }
 
   public QName getXsdType() {

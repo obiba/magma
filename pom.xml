@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.obiba.meta</groupId>
   <artifactId>meta</artifactId>
@@ -8,7 +7,7 @@
   <version>1.0-SNAPSHOT</version>
   <name>meta</name>
   <url>http://www.obiba.org</url>
-  
+
   <dependencyManagement>
     <dependencies>
       <dependency>
@@ -17,13 +16,25 @@
         <version>${junit.version}</version>
         <scope>test</scope>
       </dependency>
+
+      <dependency>
+        <groupId>org.easymock</groupId>
+        <artifactId>easymock</artifactId>
+        <version>${easymock.version}</version>
+        <scope>test</scope>
+      </dependency>
     </dependencies>
+
   </dependencyManagement>
 
   <dependencies>
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.easymock</groupId>
+      <artifactId>easymock</artifactId>
     </dependency>
   </dependencies>
 
@@ -37,5 +48,6 @@
     <maven.compiler.source>1.5</maven.compiler.source>
     <project.build.sourceEncoding>ISO-8859-1</project.build.sourceEncoding>
     <junit.version>4.4</junit.version>
+    <easymock.version>2.4</easymock.version>
   </properties>
 </project>

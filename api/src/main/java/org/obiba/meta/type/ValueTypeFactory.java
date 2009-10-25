@@ -17,7 +17,7 @@ public class ValueTypeFactory {
 
   public ValueType forClass(Class<?> javaClass) {
     for(ValueType type : types) {
-      if(type.getJavaClass().isAssignableFrom(javaClass)) {
+      if(type.acceptsJavaClass(javaClass)) {
         return type;
       }
     }
@@ -26,6 +26,10 @@ public class ValueTypeFactory {
 
   private void registerBuiltInTypes() {
     types.add(TextType.INSTANCE);
+    types.add(DecimalType.INSTANCE);
+    types.add(IntegerType.INSTANCE);
+    types.add(EnumType.INSTANCE);
+    types.add(BinaryType.INSTANCE);
     types.add(ValueSetReferenceType.INSTANCE);
   }
 

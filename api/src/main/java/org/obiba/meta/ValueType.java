@@ -12,6 +12,8 @@ public interface ValueType extends Serializable {
 
   public Class<?> getJavaClass();
 
+  public boolean acceptsJavaClass(Class<?> clazz);
+
   public boolean isDateTime();
 
   public boolean isNumeric();

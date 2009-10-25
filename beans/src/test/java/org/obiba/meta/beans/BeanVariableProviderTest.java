@@ -11,16 +11,15 @@ package org.obiba.meta.beans;
 
 import java.util.Collection;
 import java.util.Date;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.easymock.EasyMock;
 import org.junit.Assert;
 import org.junit.Test;
 import org.obiba.meta.IValueSetReference;
-import org.obiba.meta.IVariable;
-import org.obiba.meta.IVariableData;
-import org.obiba.meta.IVariableEntity;
+import org.obiba.meta.IVariableValueSource;
+import org.obiba.meta.Value;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
@@ -33,7 +32,7 @@ public class BeanVariableProviderTest {
   @Test
   public void testSimpleProperties() {
     Set<String> properties = Sets.newHashSet("firstName", "lastName", "integer", "enumProperty");
-    BeanVariableProvider bvp = new BeanVariableProvider(getResolver());
+    BeanVariableValueSourceProvider bvp = new BeanVariableValueSourceProvider(TestBean.class);
     bvp.setProperties(properties);
 
     assertVariablesFromProperties(bvp, properties);
@@ -42,7 +41,7 @@ public class BeanVariableProviderTest {
   @Test
   public void testPropertyWithoutField() {
     Set<String> properties = Sets.newHashSet("composedProperty");
-    BeanVariableProvider bvp = new BeanVariableProvider(getResolver());
+    BeanVariableValueSourceProvider bvp = new BeanVariableValueSourceProvider(TestBean.class);
     bvp.setProperties(properties);
 
     assertVariablesFromProperties(bvp, properties);
@@ -51,7 +50,7 @@ public class BeanVariableProviderTest {
   @Test
   public void testNestedProperties() {
     Set<String> properties = Sets.newHashSet("nestedBean.decimal", "nestedBean.data");
-    BeanVariableProvider bvp = new BeanVariableProvider(getResolver());
+    BeanVariableValueSourceProvider bvp = new BeanVariableValueSourceProvider(TestBean.class);
     bvp.setProperties(properties);
     assertVariablesFromProperties(bvp, properties);
   }
@@ -61,21 +60,26 @@ public class BeanVariableProviderTest {
     Set<String> properties = Sets.newHashSet("nestedBean.decimal", "firstName");
     Map<String, String> nameOverride = new ImmutableMap.Builder<String, String>().put("nestedBean.decimal", "NestedDecimal").put("firstName", "FirstName").build();
 
-    BeanVariableProvider bvp = new BeanVariableProvider(getResolver());
+    BeanVariableValueSourceProvider bvp = new BeanVariableValueSourceProvider(TestBean.class);
     bvp.setProperties(properties);
     bvp.setPropertyNameToVariableName(nameOverride);
     assertVariablesFromProperties(bvp, properties, nameOverride);
   }
 
   @Test
-  public void testAdaptedBean() {
-    Set<String> properties = Sets.newHashSet("decimal", "data");
-    BeanVariableProvider bvp = new BeanVariableProvider(NestedTestBean.class);
+  public void testValues() {
+    Set<String> properties = Sets.newHashSet("firstName", "nestedBean.decimal", "nestedBean.data", "anotherNestedBean.decimal");
+    BeanVariableValueSourceProvider bvp = new BeanVariableValueSourceProvider(TestBean.class);
     bvp.setProperties(properties);
-    List<IVariable> variables = assertVariablesFromProperties(bvp, properties);
+
+    Set<IVariableValueSource> variableValueSources = assertVariablesFromProperties(bvp, properties);
+
+    TestBean tb = new TestBean();
+    tb.setFirstName("TestBean");
     NestedTestBean nb = new NestedTestBean();
     nb.setDecimal(42.0);
     nb.setData(new byte[] { 0x01, 0x02 });
+    tb.setNestedBean(nb);
 
     VariableEntityBeanAdaptor<NestedTestBean> adaptor = new VariableEntityBeanAdaptor<NestedTestBean>(nb) {
 
@@ -89,48 +93,35 @@ public class BeanVariableProviderTest {
         return getAdaptedBean().getDecimal().toString();
       }
     };
-    for(IVariable variable : variables) {
-      IVariableData value = bvp.getData(variable, adaptor);
-      Assert.assertNotNull(value);
-      Assert.assertNotNull(value.getDataType());
-      Assert.assertNotNull(value.getData());
+
+    IValueSetReference referenceMock = EasyMock.createMock(IValueSetReference.class);
+    EasyMock.expect(referenceMock.resolve()).andReturn(tb).anyTimes();
+    EasyMock.replay(referenceMock);
+    for(IVariableValueSource variable : variableValueSources) {
+      Value value = variable.getValue(referenceMock);
+      Assert.assertNotNull("Value cannot be null " + variable.getVariable().getName(), value);
+      Assert.assertNotNull("ValueType cannot be null " + variable.getVariable().getName(), value.getValueType());
+      Assert.assertNotNull("Value's value cannot be null " + variable.getVariable().getName(), value.getValue());
     }
   }
 
-  protected IValueSetReferenceBeanResolver getResolver() {
-    return new IValueSetReferenceBeanResolver() {
-
-      @Override
-      public Object resolveReference(IValueSetReference reference) {
-        return new TestBean("1234");
-      }
-
-      @Override
-      public Class<?> getResolvedBeanClass() {
-        return TestBean.class;
-      }
-    };
-  }
-
-  protected List<IVariable> assertVariablesFromProperties(BeanVariableProvider bvp, Set<String> properties) {
+  protected Set<IVariableValueSource> assertVariablesFromProperties(BeanVariableValueSourceProvider bvp, Set<String> properties) {
     return assertVariablesFromProperties(bvp, properties, null);
   }
 
-  protected List<IVariable> assertVariablesFromProperties(BeanVariableProvider bvp, Set<String> properties, Map<String, String> nameOverride) {
-    List<IVariable> variables = bvp.getVariables();
+  protected Set<IVariableValueSource> assertVariablesFromProperties(BeanVariableValueSourceProvider bvp, Set<String> properties, Map<String, String> nameOverride) {
+    Set<IVariableValueSource> variables = bvp.getVariables();
     // There are no more and no less than what was specified
     Assert.assertEquals(properties.size(), variables.size());
     Collection<String> nameSet = nameOverride != null ? nameOverride.values() : properties;
-    for(IVariable variable : variables) {
-      String variableName = variable.getName();
-      Assert.assertTrue("Unexpected variable name " + variable.getName(), nameSet.contains(variableName));
+    for(IVariableValueSource variableValueSource : variables) {
+      String variableName = variableValueSource.getVariable().getName();
+      Assert.assertTrue("Unexpected variable name " + variableName, nameSet.contains(variableName));
     }
     return variables;
   }
 
-  public static class TestBean implements IVariableEntity {
-
-    private String id;
+  public static class TestBean {
 
     private String firstName;
 
@@ -146,8 +137,9 @@ public class BeanVariableProviderTest {
 
     private NestedTestBean nestedBean;
 
-    public TestBean(String id) {
-      this.id = id;
+    private NestedTestBean anotherNestedBean;
+
+    public TestBean() {
     }
 
     public final String getFirstName() {
@@ -211,12 +203,12 @@ public class BeanVariableProviderTest {
       this.integer = integer;
     }
 
-    public String getIdentifier() {
-      return id;
+    public NestedTestBean getAnotherNestedBean() {
+      return anotherNestedBean;
     }
 
-    public String getType() {
-      return "TestEntity";
+    public void setAnotherNestedBean(NestedTestBean anotherNestedBean) {
+      this.anotherNestedBean = anotherNestedBean;
     }
 
   }
