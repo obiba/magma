@@ -41,6 +41,7 @@
   <modules>
     <module>api</module>
     <module>beans</module>
+    <module>js</module>
   </modules>
 
   <properties>

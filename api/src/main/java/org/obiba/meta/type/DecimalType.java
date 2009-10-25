@@ -6,6 +6,8 @@ import javax.xml.namespace.QName;
 
 public class DecimalType extends AbstractNumberType {
 
+  private static final long serialVersionUID = -149385659514790222L;
+
   public static final DecimalType INSTANCE = new DecimalType();
 
   private DecimalType() {

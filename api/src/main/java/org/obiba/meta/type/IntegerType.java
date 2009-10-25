@@ -6,6 +6,8 @@ import javax.xml.namespace.QName;
 
 public class IntegerType extends AbstractNumberType {
 
+  private static final long serialVersionUID = 2345566305016760446L;
+
   public static final IntegerType INSTANCE = new IntegerType();
 
   private IntegerType() {

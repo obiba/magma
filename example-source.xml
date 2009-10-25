@@ -4,7 +4,6 @@
     <jpaProvider>
       <entityClass>org.obiba.onyx.core.domain.Interview</entityClass>
       <entityType>Participant</entityType>
-      <!--entityClass>org.obiba.onyx.core.domain.Participant</entityClass-->
       <identifierProperty>participant.barcode</identifierProperty>
       <dateProperty>startDate</dateProperty>
     </jpaProvider>
@@ -26,11 +25,20 @@
     </beanVariableValueSourceProvider>
 
     <derivedVariableSourceProvider>
-      <name>Participant.birthYear</name>
-      <source class="datePart">
-        <dateSource class="variable">Participant.birthDate</dateSource>
-        <part>year</part>
+      <variable class="variable">
+        <name>Participant.birthYear</name>
+        <valueType>integer</valueType>
+      </variable>
+      <source class="scriptedSource">
+        <valueType>integer</valueType>
+        <script>dateYear($('Participant.birthDate')</script>
       </source>
+      <!--source class="datePart">
+        <dateSource class="variableValueSource">
+          <name>Participant.birthDate</name>
+        </dateSource>
+        <part>year</part>
+      </source-->
     </derivedVariableSourceProvider>
   </variables>
 
