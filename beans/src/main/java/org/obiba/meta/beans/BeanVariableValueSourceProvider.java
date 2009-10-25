@@ -18,8 +18,8 @@ import java.util.Set;
 import org.obiba.meta.IVariable;
 import org.obiba.meta.IVariableValueSource;
 import org.obiba.meta.IVariableValueSourceProvider;
+import org.obiba.meta.MetaEngine;
 import org.obiba.meta.ValueType;
-import org.obiba.meta.type.ValueTypeFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.PropertyAccessorUtils;
 
@@ -134,7 +134,7 @@ public class BeanVariableValueSourceProvider implements IVariableValueSourceProv
           if(descriptor == null) {
             throw new IllegalArgumentException("Invalid property path'" + propertyPath + "' for type " + getBeanClass().getName());
           }
-          ValueType type = ValueTypeFactory.INSTANCE.forClass(descriptor.getPropertyType());
+          ValueType type = MetaEngine.get().getValueTypeFactory().forClass(descriptor.getPropertyType());
           IVariable variable = IVariable.Builder.newVariable(lookupVariableName(propertyPath), type).build();
           sources.add(new BeanPropertyVariableValueSource(variable, propertyPath));
         }

@@ -6,8 +6,8 @@ import org.mozilla.javascript.ScriptableObject;
 import org.obiba.meta.IValueSetReference;
 import org.obiba.meta.IValueSource;
 import org.obiba.meta.Initialisable;
+import org.obiba.meta.MetaEngine;
 import org.obiba.meta.Value;
-import org.obiba.meta.ValueFactory;
 import org.obiba.meta.ValueType;
 
 import com.google.common.collect.Iterables;
@@ -45,7 +45,7 @@ public class JavascriptValueSource implements IValueSource, Initialisable {
     ctx.putThreadLocal(IValueSetReference.class, valueSetReference);
     try {
       Object value = ctx.evaluateString(scope, getScript(), "source", 1, null);
-      return ValueFactory.INSTANCE.newValue(type, value);
+      return MetaEngine.get().getValueFactory().newValue(type, value);
     } finally {
       Context.exit();
     }

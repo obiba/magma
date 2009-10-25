@@ -1,17 +1,24 @@
 package org.obiba.meta.type;
 
+import java.lang.ref.WeakReference;
+
 import javax.xml.namespace.QName;
 
+import org.obiba.meta.MetaEngine;
 import org.obiba.meta.ValueType;
 
 public class BinaryType implements ValueType {
 
   private static final long serialVersionUID = -5271259966499174607L;
 
-  public static final BinaryType INSTANCE = new BinaryType();
+  private static final WeakReference<BinaryType> instance = MetaEngine.get().registerInstance(new BinaryType());
 
   private BinaryType() {
 
+  }
+
+  public static BinaryType get() {
+    return instance.get();
   }
 
   @Override

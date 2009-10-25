@@ -1,13 +1,7 @@
 package org.obiba.meta;
 
-import java.util.Set;
+public interface Datasource extends IValueSetReferenceProvider, IVariableValueSourceProvider {
 
-public class Datasource {
-
-  private String entityType;
-
-  private IValueSetReferenceProvider provider;
-
-  private Set<IVariableValueSource> sources;
+  public String getName();
 
 }

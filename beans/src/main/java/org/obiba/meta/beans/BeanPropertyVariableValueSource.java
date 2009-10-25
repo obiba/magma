@@ -12,8 +12,8 @@ package org.obiba.meta.beans;
 import org.obiba.meta.IValueSetReference;
 import org.obiba.meta.IVariable;
 import org.obiba.meta.IVariableValueSource;
+import org.obiba.meta.MetaEngine;
 import org.obiba.meta.Value;
-import org.obiba.meta.ValueFactory;
 import org.obiba.meta.ValueType;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.NullValueInNestedPathException;
@@ -49,7 +49,7 @@ public class BeanPropertyVariableValueSource implements IVariableValueSource {
       throw new IllegalStateException("resolved bean cannot be null.");
     }
     Object object = getPropertyValue(propertyPath, PropertyAccessorFactory.forBeanPropertyAccess(bean));
-    return ValueFactory.INSTANCE.newValue(variable.getValueType(), object);
+    return MetaEngine.get().getValueFactory().newValue(variable.getValueType(), object);
   }
 
   protected Object getPropertyValue(String propertyPath, BeanWrapper bw) {
@@ -59,9 +59,4 @@ public class BeanPropertyVariableValueSource implements IVariableValueSource {
       return null;
     }
   }
-  /*
-   * protected Value toData(ValueType type, Object value) { if(value == null) { return new Value(type, null); }
-   * if(value.getClass().isEnum()) { value = value.toString(); } if(value instanceof Serializable == false) { throw new
-   * IllegalArgumentException(""); } return new Value(type, (Serializable) value); }
-   */
 }

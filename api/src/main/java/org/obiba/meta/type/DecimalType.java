@@ -1,17 +1,24 @@
 package org.obiba.meta.type;
 
+import java.lang.ref.WeakReference;
 import java.math.BigDecimal;
 
 import javax.xml.namespace.QName;
+
+import org.obiba.meta.MetaEngine;
 
 public class DecimalType extends AbstractNumberType {
 
   private static final long serialVersionUID = -149385659514790222L;
 
-  public static final DecimalType INSTANCE = new DecimalType();
+  private static final WeakReference<DecimalType> instance = MetaEngine.get().registerInstance(new DecimalType());
 
   private DecimalType() {
 
+  }
+
+  public static DecimalType get() {
+    return instance.get();
   }
 
   @Override
@@ -31,6 +38,6 @@ public class DecimalType extends AbstractNumberType {
 
   @Override
   public boolean acceptsJavaClass(Class<?> clazz) {
-    return Double.class.isAssignableFrom(clazz) || Float.class.isAssignableFrom(clazz) || BigDecimal.class.isAssignableFrom(clazz);
+    return Double.class.isAssignableFrom(clazz) || double.class.isAssignableFrom(clazz) || Float.class.isAssignableFrom(clazz) || float.class.isAssignableFrom(clazz) || BigDecimal.class.isAssignableFrom(clazz);
   }
 }

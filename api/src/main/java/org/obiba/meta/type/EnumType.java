@@ -1,17 +1,24 @@
 package org.obiba.meta.type;
 
+import java.lang.ref.WeakReference;
+
 import javax.xml.namespace.QName;
 
+import org.obiba.meta.MetaEngine;
 import org.obiba.meta.ValueType;
 
 public class EnumType implements ValueType {
 
   private static final long serialVersionUID = -5271259966499174607L;
 
-  public static final EnumType INSTANCE = new EnumType();
+  private static final WeakReference<EnumType> instance = MetaEngine.get().registerInstance(new EnumType());
 
   private EnumType() {
 
+  }
+
+  public static EnumType get() {
+    return instance.get();
   }
 
   @Override

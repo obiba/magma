@@ -1,17 +1,24 @@
 package org.obiba.meta.type;
 
+import java.lang.ref.WeakReference;
+
 import javax.xml.namespace.QName;
 
+import org.obiba.meta.MetaEngine;
 import org.obiba.meta.ValueType;
 
 public class TextType implements ValueType {
 
   private static final long serialVersionUID = -5271259966499174607L;
 
-  public static final TextType INSTANCE = new TextType();
+  private static final WeakReference<TextType> instance = MetaEngine.get().registerInstance(new TextType());
 
   private TextType() {
 
+  }
+
+  public static TextType get() {
+    return instance.get();
   }
 
   @Override

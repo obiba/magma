@@ -4,9 +4,7 @@ import java.io.Serializable;
 
 public class ValueFactory {
 
-  public static final ValueFactory INSTANCE = new ValueFactory();
-
-  private ValueFactory() {
+  ValueFactory() {
 
   }
 
