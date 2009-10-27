@@ -53,6 +53,11 @@ public class BeanVariableValueSourceProvider implements IVariableValueSourceProv
     this.propertyNameToVariableName = HashBiMap.create(propertyNameToVariableName);
   }
 
+  @Override
+  public String getEntityType() {
+    return entityType;
+  }
+
   public Set<IVariableValueSource> getVariables() {
     doBuildVariables();
     return sources;

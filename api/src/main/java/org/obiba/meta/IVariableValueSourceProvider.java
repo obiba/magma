@@ -16,6 +16,8 @@ import java.util.Set;
  */
 public interface IVariableValueSourceProvider {
 
+  public String getEntityType();
+
   public Set<IVariableValueSource> getVariables();
 
 }

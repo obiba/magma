@@ -12,6 +12,8 @@ class Variable implements IVariable {
 
   ValueType valueType;
 
+  String referencedEntityType;
+
   @Override
   public String getName() {
     return name;
@@ -24,12 +26,12 @@ class Variable implements IVariable {
 
   @Override
   public String getMimeType() {
-    return null;
+    return mimeType;
   }
 
   @Override
   public String getUnit() {
-    return null;
+    return unit;
   }
 
   @Override
@@ -41,6 +43,11 @@ class Variable implements IVariable {
   public String getAttribute(String name) {
     // TODO: Implement attributes
     return null;
+  }
+
+  @Override
+  public String getReferencedEntityType() {
+    return referencedEntityType;
   }
 
 }

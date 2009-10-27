@@ -52,4 +52,13 @@ public interface IVariable {
 
   public String getAttribute(String name);
 
+  /**
+   * Used when this variable value is a pointer to another {@code IVariableEntity}. The value is considered to point to
+   * the referenced entity's {@code identifier}.
+   * 
+   * @return the {@code entityType} that this value points to, this method returns null when the variable doesn't point
+   * to another entity.
+   */
+  public String getReferencedEntityType();
+
 }

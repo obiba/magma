@@ -10,6 +10,4 @@ public interface IValueSetReference {
 
   public String getIdentifier();
 
-  public <T> T resolve();
-
 }

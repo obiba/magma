@@ -40,4 +40,8 @@ public class DelegatingVariable implements IVariable {
     return delegate.getAttribute(name);
   }
 
+  @Override
+  public String getReferencedEntityType() {
+    return delegate.getReferencedEntityType();
+  }
 }

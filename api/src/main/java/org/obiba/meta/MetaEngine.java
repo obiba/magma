@@ -3,6 +3,7 @@ package org.obiba.meta;
 import java.lang.ref.WeakReference;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 public class MetaEngine {
 
@@ -14,6 +15,8 @@ public class MetaEngine {
   private ValueFactory valueFactory = new ValueFactory();
 
   private ValueTypeFactory valueTypeFactory = new ValueTypeFactory();
+
+  private Set<Datasource> datasources;
 
   public MetaEngine() {
     if(instance != null) {
@@ -32,6 +35,25 @@ public class MetaEngine {
 
   public ValueTypeFactory getValueTypeFactory() {
     return valueTypeFactory;
+  }
+
+  public IVariableValueSource lookupVariable(String entityType, String name) {
+    int index = name.indexOf(':');
+    if(index > -1) {
+
+      String collection = name.substring(0, index);
+      String variable = name.substring(index + 1);
+
+      for(Datasource ds : datasources) {
+        for(Collection c : ds.getCollections()) {
+          if(c.getName().equals(collection)) {
+            return c.getVariable(entityType, variable);
+          }
+        }
+      }
+    }
+    // No such collection
+    throw new IllegalArgumentException();
   }
 
   public <T> WeakReference<T> registerInstance(T singleton) {
