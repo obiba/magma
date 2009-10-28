@@ -1,17 +1,17 @@
 package org.obiba.meta.support;
 
-import org.obiba.meta.IVariable;
+import org.obiba.meta.Variable;
 import org.obiba.meta.ValueType;
 
-public class DelegatingVariable implements IVariable {
+public class DelegatingVariable implements Variable {
 
-  private IVariable delegate;
+  private Variable delegate;
 
-  public DelegatingVariable(IVariable variable) {
+  public DelegatingVariable(Variable variable) {
     this.delegate = variable;
   }
 
-  public IVariable getDelegate() {
+  public Variable getDelegate() {
     return delegate;
   }
 

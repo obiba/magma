@@ -3,8 +3,8 @@ package org.obiba.meta.js;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
-import org.obiba.meta.IValueSetReference;
-import org.obiba.meta.IValueSource;
+import org.obiba.meta.ValueSetReference;
+import org.obiba.meta.ValueSource;
 import org.obiba.meta.Initialisable;
 import org.obiba.meta.MetaEngine;
 import org.obiba.meta.Value;
@@ -16,7 +16,7 @@ import com.google.common.collect.Iterables;
  * 
  * 
  */
-public class JavascriptValueSource implements IValueSource, Initialisable {
+public class JavascriptValueSource implements ValueSource, Initialisable {
 
   private ValueType type;
 
@@ -37,12 +37,12 @@ public class JavascriptValueSource implements IValueSource, Initialisable {
   }
 
   @Override
-  public Value getValue(IValueSetReference valueSetReference) {
+  public Value getValue(ValueSetReference valueSetReference) {
     Context ctx = Context.enter();
     Scriptable scope = ctx.newObject(sharedScope);
     scope.setPrototype(sharedScope);
     scope.setParentScope(null);
-    ctx.putThreadLocal(IValueSetReference.class, valueSetReference);
+    ctx.putThreadLocal(ValueSetReference.class, valueSetReference);
     try {
       Object value = ctx.evaluateString(scope, getScript(), "source", 1, null);
       return MetaEngine.get().getValueFactory().newValue(type, value);

@@ -12,9 +12,9 @@ public class MetaEngine {
 
   private static MetaEngine instance;
 
-  private ValueFactory valueFactory = new ValueFactory();
+  private ValueFactory valueFactory;
 
-  private ValueTypeFactory valueTypeFactory = new ValueTypeFactory();
+  private ValueTypeFactory valueTypeFactory;
 
   private Set<Datasource> datasources;
 
@@ -23,6 +23,9 @@ public class MetaEngine {
       throw new IllegalStateException("MetaEngine already instanciated. Only one instance of MetaEngine should be instantiated.");
     }
     instance = this;
+
+    valueFactory = new ValueFactory();
+    valueTypeFactory = new ValueTypeFactory();
   }
 
   public static MetaEngine get() {
@@ -37,7 +40,7 @@ public class MetaEngine {
     return valueTypeFactory;
   }
 
-  public IVariableValueSource lookupVariable(String entityType, String name) {
+  public VariableValueSource lookupVariable(String entityType, String name) {
     int index = name.indexOf(':');
     if(index > -1) {
 
@@ -47,7 +50,7 @@ public class MetaEngine {
       for(Datasource ds : datasources) {
         for(Collection c : ds.getCollections()) {
           if(c.getName().equals(collection)) {
-            return c.getVariable(entityType, variable);
+            return c.getVariableValueSource(entityType, variable);
           }
         }
       }

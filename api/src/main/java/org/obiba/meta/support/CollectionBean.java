@@ -1,12 +1,12 @@
 package org.obiba.meta.support;
 
+import java.util.List;
 import java.util.Set;
 
 import org.obiba.meta.Collection;
-import org.obiba.meta.IValueSetReference;
-import org.obiba.meta.IValueSetReferenceProvider;
-import org.obiba.meta.IVariableValueSource;
-import org.obiba.meta.IVariableValueSourceProvider;
+import org.obiba.meta.CollectionConnector;
+import org.obiba.meta.ValueSetReference;
+import org.obiba.meta.VariableValueSource;
 import org.obiba.meta.NoSuchVariableException;
 
 import com.google.common.collect.ImmutableSet;
@@ -15,17 +15,13 @@ public class CollectionBean implements Collection {
 
   private String name;
 
-  private Set<IValueSetReferenceProvider> valueSets;
-
-  private Set<IVariableValueSourceProvider> variableValueSourceProviders;
-
-  private Set<IVariableValueSource> variableValueSources;
+  private List<CollectionConnector> connectors;
 
   @Override
   public Set<String> getEntityTypes() {
     ImmutableSet.Builder<String> builder = ImmutableSet.builder();
-    for(IValueSetReferenceProvider valueSet : valueSets) {
-      builder.add(valueSet.getEntityType());
+    for(CollectionConnector connector : connectors) {
+      builder.add(connector.getEntityType());
     }
     return builder.build();
   }
@@ -36,38 +32,38 @@ public class CollectionBean implements Collection {
   }
 
   @Override
-  public Set<IValueSetReference> getValueSetReferences(String entityType) {
-    return getValueSetProvider(entityType).getValueSetReferences();
-  }
-
-  @Override
-  public IValueSetReferenceProvider getValueSetProvider(String entityType) {
-    for(IValueSetReferenceProvider valueSet : valueSets) {
-      if(valueSet.getEntityType().equals(entityType)) {
-        return valueSet;
+  public Set<ValueSetReference> getValueSetReferences(String entityType) {
+    ImmutableSet.Builder<ValueSetReference> builder = ImmutableSet.builder();
+    for(CollectionConnector connector : connectors) {
+      if(connector.isForEntityType(entityType)) {
+        builder.addAll(connector.getValueSetReferences());
       }
     }
-    // No such provider
-    throw new IllegalArgumentException(entityType);
+    return builder.build();
   }
 
   @Override
-  public Set<IVariableValueSource> getVariables(String entityType) {
-    ImmutableSet.Builder<IVariableValueSource> b = ImmutableSet.builder();
-    b.addAll(variableValueSources);
-    for(IVariableValueSourceProvider provider : variableValueSourceProviders) {
-      b.addAll(provider.getVariables());
-    }
-    return b.build();
-  }
-
-  @Override
-  public IVariableValueSource getVariable(String entityType, String variableName) {
-    for(IVariableValueSource source : getVariables(entityType)) {
-      if(source.getVariable().getName().equals(name)) {
-        return source;
+  public Set<VariableValueSource> getVariableValueSources(String entityType) {
+    ImmutableSet.Builder<VariableValueSource> builder = ImmutableSet.builder();
+    for(CollectionConnector connector : connectors) {
+      if(connector.isForEntityType(entityType)) {
+        builder.addAll(connector.getVariableValueSources());
       }
     }
-    throw new NoSuchVariableException(getName(), name);
+    return builder.build();
   }
+
+  @Override
+  public VariableValueSource getVariableValueSource(String entityType, String variableName) {
+    for(CollectionConnector connector : connectors) {
+      if(connector.isForEntityType(entityType)) {
+        VariableValueSource source = connector.getVariableValueSource(variableName);
+        if(source != null) {
+          return source;
+        }
+      }
+    }
+    throw new NoSuchVariableException(getName(), variableName);
+  }
+
 }

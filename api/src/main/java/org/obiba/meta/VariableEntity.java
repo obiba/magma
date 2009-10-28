@@ -12,7 +12,7 @@ package org.obiba.meta;
 /**
  *
  */
-public interface IVariableEntity {
+public interface VariableEntity {
 
   public String getType();
 

@@ -9,31 +9,41 @@
  ******************************************************************************/
 package org.obiba.meta.beans;
 
-import org.obiba.meta.IValueSetReference;
-import org.obiba.meta.IVariable;
-import org.obiba.meta.IVariableValueSource;
 import org.obiba.meta.MetaEngine;
+import org.obiba.meta.NoSuchValueSetException;
 import org.obiba.meta.Value;
+import org.obiba.meta.ValueSetReference;
+import org.obiba.meta.ValueSetReferenceResolver;
 import org.obiba.meta.ValueType;
+import org.obiba.meta.Variable;
+import org.obiba.meta.VariableValueSource;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.NullValueInNestedPathException;
 import org.springframework.beans.PropertyAccessorFactory;
+import org.springframework.util.Assert;
 
 /**
  * Connects a {@code IVariable} to a bean property.
  */
-public class BeanPropertyVariableValueSource implements IVariableValueSource {
+public class BeanPropertyVariableValueSource implements VariableValueSource {
 
-  private IVariable variable;
+  private ValueSetReferenceResolver resolver;
+
+  private Variable variable;
 
   private String propertyPath;
 
-  public BeanPropertyVariableValueSource(IVariable variable, String propertyPath) {
+  public BeanPropertyVariableValueSource(ValueSetReferenceResolver resolver, Variable variable, String propertyPath) {
+    Assert.notNull(resolver, "resolver cannot be null");
+    Assert.notNull(variable, "variable cannot be null");
+    Assert.notNull(propertyPath, "propertyPath cannot be null");
+
     this.variable = variable;
     this.propertyPath = propertyPath;
+    this.resolver = resolver;
   }
 
-  public IVariable getVariable() {
+  public Variable getVariable() {
     return variable;
   }
 
@@ -42,8 +52,11 @@ public class BeanPropertyVariableValueSource implements IVariableValueSource {
     return variable.getValueType();
   }
 
-  public Value getValue(IValueSetReference reference) {
-    Object bean = reference.resolve();
+  public Value getValue(ValueSetReference reference) {
+    if(resolver.canResolve(reference) == false) {
+      throw new NoSuchValueSetException(reference);
+    }
+    Object bean = resolver.resolve(reference);
     if(bean == null) {
       // TODO: what's the policy? Throw, return null, return null-value?
       throw new IllegalStateException("resolved bean cannot be null.");

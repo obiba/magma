@@ -1,25 +1,25 @@
 package org.obiba.meta.support;
 
-import org.obiba.meta.IValueSetReference;
-import org.obiba.meta.IValueSource;
-import org.obiba.meta.IVariable;
-import org.obiba.meta.IVariableValueSource;
+import org.obiba.meta.ValueSetReference;
+import org.obiba.meta.ValueSource;
+import org.obiba.meta.Variable;
+import org.obiba.meta.VariableValueSource;
 import org.obiba.meta.Value;
 import org.obiba.meta.ValueType;
 
-public class DerivedVariableValueSource implements IVariableValueSource {
+public class DerivedVariableValueSource implements VariableValueSource {
 
-  private IVariable variable;
+  private Variable variable;
 
-  private IValueSource source;
+  private ValueSource source;
 
   @Override
-  public IVariable getVariable() {
+  public Variable getVariable() {
     return variable;
   }
 
   @Override
-  public Value getValue(IValueSetReference valueSetReference) {
+  public Value getValue(ValueSetReference valueSetReference) {
     return source.getValue(valueSetReference);
   }
 

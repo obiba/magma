@@ -1,15 +1,15 @@
 package org.obiba.meta.js;
 
-import org.obiba.meta.IVariable;
-import org.obiba.meta.IVariableValueSource;
+import org.obiba.meta.Variable;
+import org.obiba.meta.VariableValueSource;
 import org.obiba.meta.Initialisable;
 
-public class JavascriptVariableValueSource extends JavascriptValueSource implements IVariableValueSource, Initialisable {
+public class JavascriptVariableValueSource extends JavascriptValueSource implements VariableValueSource, Initialisable {
 
-  private IVariable variable;
+  private Variable variable;
 
   @Override
-  public IVariable getVariable() {
+  public Variable getVariable() {
     return variable;
   }
 

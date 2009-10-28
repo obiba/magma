@@ -1,8 +1,8 @@
 package org.obiba.meta.js;
 
 import org.mozilla.javascript.Context;
-import org.obiba.meta.IValueSetReference;
-import org.obiba.meta.IVariableValueSource;
+import org.obiba.meta.ValueSetReference;
+import org.obiba.meta.VariableValueSource;
 import org.obiba.meta.MetaEngine;
 import org.obiba.meta.Value;
 
@@ -19,15 +19,15 @@ public final class EngineMethods {
    * @return
    */
   public static Object valueOf(String name) {
-    IValueSetReference reference = (IValueSetReference) Context.getCurrentContext().getThreadLocal(IValueSetReference.class);
+    ValueSetReference reference = (ValueSetReference) Context.getCurrentContext().getThreadLocal(ValueSetReference.class);
 
-    IVariableValueSource source = lookupSource(reference, name);
+    VariableValueSource source = lookupSource(reference, name);
 
     Value value = source.getValue(reference);
     return value.getValue();
   }
 
-  private static IVariableValueSource lookupSource(IValueSetReference reference, String name) {
+  private static VariableValueSource lookupSource(ValueSetReference reference, String name) {
     return MetaEngine.get().lookupVariable(reference.getVariableEntity().getType(), name);
   }
 

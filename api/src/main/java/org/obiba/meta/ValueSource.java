@@ -9,15 +9,13 @@
  ******************************************************************************/
 package org.obiba.meta;
 
-import java.util.Set;
-
 /**
- *
+ * Defines the contract for obtaining a particular {@link Value} from a {@code IValueSetReference}.
  */
-public interface IVariableValueSourceProvider {
+public interface ValueSource {
 
-  public String getEntityType();
+  public ValueType getValueType();
 
-  public Set<IVariableValueSource> getVariables();
+  public Value getValue(ValueSetReference valueSetReference);
 
 }

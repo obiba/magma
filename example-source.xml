@@ -16,61 +16,61 @@
       <collection class="collectionBean">
         <name>onyx-baseline</name>
 
-        <valueSets>
-          <valueSetReferenceProvider class="jpaProvider">
-            <entityClass>org.obiba.onyx.core.domain.Interview</entityClass>
+        <connectors>
+          <jpaConnector>
             <entityType>Participant</entityType>
+            <entityClass>org.obiba.onyx.core.domain.Interview</entityClass>
             <entityIdentifierProperty>participant.barcode</entityIdentifierProperty>
             <identifierProperty>startDate</identifierProperty>
-          </valueSetReferenceProvider>
-          <valueSetReferenceProvider class="jpaProvider">
-            <entityClass>org.obiba.onyx.jade.core.domain.Instrument</entityClass>
+
+            <variableValueSources>
+              <beanVariableValueSourceFactory>
+                <entityType>Participant</entityType>
+                <beanClass>org.obiba.onyx.core.domain.Participant</beanClass>
+                <prefix>Participant</prefix>
+                <properties>
+                  <string>firstName</string>
+                  <string>lastName</string>
+                  <string>gender</string>
+                  <string>appointment.date</string>
+                  <string>birthDate</string>
+                </properties>
+                <nameMap>
+                  <entry key="appointment.date" value="appointmentDate" />
+                </nameMap>
+              </beanVariableValueSourceFactory>
+              <scriptedVariableSource>
+                <variable name="Participant.birthYear" valueType="integer" entityType="Participant">
+                  <!--
+                    The script should be made an attribute of the variable. Such that we know how it was derived. It's
+                    the variable's algorithm.
+                  -->
+                  <script>dateYear($('Participant.birthDate'))</script>
+                </variable>
+              </scriptedVariableSource>
+            </variableValueSources>
+          </jpaConnector>
+
+          <jpaConnector>
             <entityType>Instrument</entityType>
+            <entityClass>org.obiba.onyx.jade.core.domain.Instrument</entityClass>
             <entityIdentifierProperty>barcode</entityIdentifierProperty>
             <identifierProperty>startDate</identifierProperty>
-          </valueSetReferenceProvider>
-        </valueSets>
 
-        <variableValueSourceProviders>
-          <beanVariableValueSourceProvider>
-            <entityType>Participant</entityType>
-            <beanClass>org.obiba.onyx.core.domain.Participant</beanClass>
-            <prefix>Participant</prefix>
-            <properties>
-              <string>firstName</string>
-              <string>lastName</string>
-              <string>gender</string>
-              <string>appointment.date</string>
-              <string>birthDate</string>
-            </properties>
-            <nameMap>
-              <entry key="appointment.date" value="appointmentDate" />
-            </nameMap>
-          </beanVariableValueSourceProvider>
+            <beanVariableValueSourceFactory>
+              <entityType>Instrument</entityType>
+              <beanClass>org.obiba.onyx.jade.core.domain.Instrument</beanClass>
+              <prefix>Instrument</prefix>
+              <properties>
+                <string>vendor</string>
+                <string>serialNumber</string>
+                <string>barcode</string>
+              </properties>
+            </beanVariableValueSourceFactory>
 
-          <beanVariableValueSourceProvider>
-            <entityType>Instrument</entityType>
-            <beanClass>org.obiba.onyx.jade.core.domain.Instrument</beanClass>
-            <prefix>Instrument</prefix>
-            <properties>
-              <string>vendor</string>
-              <string>serialNumber</string>
-              <string>barcode</string>
-            </properties>
-          </beanVariableValueSourceProvider>
-        </variableValueSourceProviders>
+          </jpaConnector>
+        </connectors>
 
-        <variableValueSources>
-          <scriptedVariableSource>
-            <variable name="Participant.birthYear" valueType="integer" entityType="Participant">
-              <!--
-                The script should be made an attribute of the variable. Such that we know how it was derived. It's the
-                variable's algorithm.
-              -->
-              <script>dateYear($('Participant.birthDate'))</script>
-            </variable>
-          </scriptedVariableSource>
-        </variableValueSources>
       </collection>
 
     </collections>

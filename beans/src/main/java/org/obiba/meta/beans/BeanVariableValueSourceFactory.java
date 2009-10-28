@@ -15,11 +15,12 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.obiba.meta.IVariable;
-import org.obiba.meta.IVariableValueSource;
-import org.obiba.meta.IVariableValueSourceProvider;
 import org.obiba.meta.MetaEngine;
+import org.obiba.meta.ValueSetReferenceResolver;
 import org.obiba.meta.ValueType;
+import org.obiba.meta.Variable;
+import org.obiba.meta.VariableValueSource;
+import org.obiba.meta.VariableValueSourceFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.PropertyAccessorUtils;
 
@@ -29,9 +30,11 @@ import com.google.common.collect.HashBiMap;
 /**
  *
  */
-public class BeanVariableValueSourceProvider implements IVariableValueSourceProvider {
+public class BeanVariableValueSourceFactory implements VariableValueSourceFactory {
 
   private Class<?> beanClass;
+
+  private String entityType;
 
   /** The set of bean properties that are returned as variables */
   private Set<String> properties = Collections.emptySet();
@@ -39,9 +42,9 @@ public class BeanVariableValueSourceProvider implements IVariableValueSourceProv
   /** Maps property names to variable name */
   private BiMap<String, String> propertyNameToVariableName = HashBiMap.create();
 
-  private Set<IVariableValueSource> sources;
+  private Set<VariableValueSource> sources;
 
-  public BeanVariableValueSourceProvider(Class<?> beanClass) {
+  public BeanVariableValueSourceFactory(Class<?> beanClass) {
     this.beanClass = beanClass;
   }
 
@@ -54,13 +57,8 @@ public class BeanVariableValueSourceProvider implements IVariableValueSourceProv
   }
 
   @Override
-  public String getEntityType() {
-    return entityType;
-  }
-
-  public Set<IVariableValueSource> getVariables() {
-    doBuildVariables();
-    return sources;
+  public Set<VariableValueSource> createSources(ValueSetReferenceResolver connector) {
+    return doBuildVariables(connector);
   }
 
   /**
@@ -127,24 +125,24 @@ public class BeanVariableValueSourceProvider implements IVariableValueSourceProv
    * for each variable.
    * @param parent the parent {@code IVariable} of all provided {@code IVariable}
    */
-  private void doBuildVariables() {
-    if(sources != null) {
-      return;
-    }
-    synchronized(this) {
-      if(sources == null) {
-        sources = new HashSet<IVariableValueSource>();
-        for(String propertyPath : properties) {
-          PropertyDescriptor descriptor = getPropertyDescriptor(propertyPath);
-          if(descriptor == null) {
-            throw new IllegalArgumentException("Invalid property path'" + propertyPath + "' for type " + getBeanClass().getName());
+  private Set<VariableValueSource> doBuildVariables(ValueSetReferenceResolver connector) {
+    if(sources == null) {
+      synchronized(this) {
+        if(sources == null) {
+          sources = new HashSet<VariableValueSource>();
+          for(String propertyPath : properties) {
+            PropertyDescriptor descriptor = getPropertyDescriptor(propertyPath);
+            if(descriptor == null) {
+              throw new IllegalArgumentException("Invalid property path'" + propertyPath + "' for type " + getBeanClass().getName());
+            }
+            ValueType type = MetaEngine.get().getValueTypeFactory().forClass(descriptor.getPropertyType());
+            Variable variable = Variable.Builder.newVariable(lookupVariableName(propertyPath), type, entityType).build();
+            sources.add(new BeanPropertyVariableValueSource(connector, variable, propertyPath));
           }
-          ValueType type = MetaEngine.get().getValueTypeFactory().forClass(descriptor.getPropertyType());
-          IVariable variable = IVariable.Builder.newVariable(lookupVariableName(propertyPath), type).build();
-          sources.add(new BeanPropertyVariableValueSource(variable, propertyPath));
         }
       }
     }
+    return sources;
   }
 
 }
