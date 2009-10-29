@@ -1,5 +1,6 @@
 package org.obiba.meta.type;
 
+import org.obiba.meta.Value;
 import org.obiba.meta.ValueType;
 
 public abstract class AbstractNumberType implements ValueType {
@@ -18,4 +19,8 @@ public abstract class AbstractNumberType implements ValueType {
     return true;
   }
 
+  @Override
+  public String toString(Value value) {
+    return value.isNull() ? null : value.getValue().toString();
+  }
 }

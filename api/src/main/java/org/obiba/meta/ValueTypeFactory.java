@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.obiba.meta.type.BinaryType;
+import org.obiba.meta.type.DateType;
 import org.obiba.meta.type.DecimalType;
 import org.obiba.meta.type.EnumType;
 import org.obiba.meta.type.IntegerType;
@@ -37,6 +38,7 @@ public class ValueTypeFactory {
     types.add(IntegerType.get());
     types.add(EnumType.get());
     types.add(BinaryType.get());
+    types.add(DateType.get());
   }
 
 }

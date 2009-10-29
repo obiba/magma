@@ -43,4 +43,5 @@ public class IntegerType extends AbstractNumberType {
   public boolean acceptsJavaClass(Class<?> clazz) {
     return Integer.class.isAssignableFrom(clazz) || int.class.isAssignableFrom(clazz) || Long.class.isAssignableFrom(clazz) || long.class.isAssignableFrom(clazz) || BigInteger.class.isAssignableFrom(clazz);
   }
+
 }

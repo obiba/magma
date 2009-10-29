@@ -29,6 +29,11 @@ public class ValueSetReferenceBean implements ValueSetReference {
     return entityBean;
   }
 
+  @Override
+  public String toString() {
+    return "ValueSetReference[" + getVariableEntity() + ":" + getIdentifier() + "]";
+  }
+
   private class VariableEntityBean implements VariableEntity {
 
     @Override
@@ -41,5 +46,9 @@ public class ValueSetReferenceBean implements ValueSetReference {
       return entityType;
     }
 
+    @Override
+    public String toString() {
+      return "entity[" + getType() + ":" + getIdentifier() + "]";
+    }
   }
 }

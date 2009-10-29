@@ -18,4 +18,6 @@ public interface ValueType extends Serializable {
 
   public boolean isNumeric();
 
+  public String toString(Value value);
+
 }

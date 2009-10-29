@@ -5,6 +5,7 @@ import java.lang.ref.WeakReference;
 import javax.xml.namespace.QName;
 
 import org.obiba.meta.MetaEngine;
+import org.obiba.meta.Value;
 import org.obiba.meta.ValueType;
 
 public class TextType implements ValueType {
@@ -48,6 +49,11 @@ public class TextType implements ValueType {
 
   public boolean isNumeric() {
     return false;
+  }
+
+  @Override
+  public String toString(Value value) {
+    return (String) value.getValue();
   }
 
 }

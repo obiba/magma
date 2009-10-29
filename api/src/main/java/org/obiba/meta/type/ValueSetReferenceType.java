@@ -2,6 +2,7 @@ package org.obiba.meta.type;
 
 import javax.xml.namespace.QName;
 
+import org.obiba.meta.Value;
 import org.obiba.meta.ValueType;
 
 public class ValueSetReferenceType implements ValueType {
@@ -41,4 +42,8 @@ public class ValueSetReferenceType implements ValueType {
     return false;
   }
 
+  @Override
+  public String toString(Value value) {
+    return null;
+  }
 }

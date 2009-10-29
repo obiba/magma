@@ -1,6 +1,7 @@
 package org.obiba.meta.type;
 
 import java.lang.ref.WeakReference;
+import java.util.Date;
 
 import javax.xml.namespace.QName;
 
@@ -8,55 +9,56 @@ import org.obiba.meta.MetaEngine;
 import org.obiba.meta.Value;
 import org.obiba.meta.ValueType;
 
-public class BooleanType implements ValueType {
+public class DateType implements ValueType {
 
   private static final long serialVersionUID = -149385659514790222L;
 
-  private static WeakReference<BooleanType> instance;
+  private static WeakReference<DateType> instance;
 
-  private BooleanType() {
+  private DateType() {
 
   }
 
-  public static BooleanType get() {
+  public static DateType get() {
     if(instance == null) {
-      instance = MetaEngine.get().registerInstance(new BooleanType());
+      instance = MetaEngine.get().registerInstance(new DateType());
     }
     return instance.get();
   }
 
   @Override
   public boolean isDateTime() {
-    return false;
+    return true;
   }
 
   @Override
   public boolean isNumeric() {
-    return false;
+    return true;
   }
 
   @Override
   public Class<?> getJavaClass() {
-    return Boolean.class;
+    return Date.class;
   }
 
   @Override
   public String getName() {
-    return "boolean";
+    return "date";
   }
 
   @Override
   public QName getXsdType() {
-    return new QName("xsd", "boolean");
+    return new QName("xsd", "date");
   }
 
   @Override
   public boolean acceptsJavaClass(Class<?> clazz) {
-    return Boolean.class.isAssignableFrom(clazz) || boolean.class.isAssignableFrom(clazz);
+    return Date.class.isAssignableFrom(clazz) || java.sql.Date.class.isAssignableFrom(clazz) || java.sql.Timestamp.class.isAssignableFrom(clazz);
   }
 
   @Override
   public String toString(Value value) {
-    return value.isNull() ? null : value.getValue().toString();
+    Date date = (Date) value.getValue();
+    return date == null ? null : date.toString();
   }
 }

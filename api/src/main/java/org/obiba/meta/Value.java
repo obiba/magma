@@ -27,4 +27,9 @@ public class Value implements Serializable {
     return value == null;
   }
 
+  @Override
+  public String toString() {
+    return getValueType().toString(this);
+  }
+
 }
