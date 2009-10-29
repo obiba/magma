@@ -14,4 +14,6 @@ public interface Collection extends Initialisable {
 
   public VariableValueSource getVariableValueSource(String entityType, String variableName);
 
+  public Set<Variable> getVariables();
+
 }

@@ -2,15 +2,20 @@ package org.obiba.meta.integration;
 
 import java.io.InputStreamReader;
 import java.util.List;
+import java.util.Set;
 
 import org.obiba.meta.Collection;
 import org.obiba.meta.MetaEngine;
+import org.obiba.meta.OccurrenceReference;
+import org.obiba.meta.OccurrenceReferenceBean;
+import org.obiba.meta.OccurrenceReferenceResolver;
 import org.obiba.meta.ValueSetReference;
 import org.obiba.meta.ValueSetReferenceResolver;
 import org.obiba.meta.Variable;
 import org.obiba.meta.VariableValueSource;
 import org.obiba.meta.beans.BeanValueSetReferenceProvider;
 import org.obiba.meta.beans.BeanVariableValueSourceFactory;
+import org.obiba.meta.integration.model.Action;
 import org.obiba.meta.integration.model.Participant;
 import org.obiba.meta.integration.service.IntegrationService;
 import org.obiba.meta.integration.service.XStreamIntegrationServiceFactory;
@@ -40,6 +45,17 @@ public class IntegrationApp {
       protected List<?> getBeans() {
         return service.getInterviews();
       }
+
+      @Override
+      public Set<OccurrenceReference> getOccurrenceReferences(ValueSetReference reference, Variable variable) {
+        Participant participant = service.getParticipant(reference.getVariableEntity().getIdentifier());
+        ImmutableSet.Builder<OccurrenceReference> builder = ImmutableSet.builder();
+        int order = 0;
+        for(Action action : service.getActions(participant)) {
+          builder.add(new OccurrenceReferenceBean(reference, variable, order++));
+        }
+        return builder.build();
+      }
     });
 
     ValueSetReferenceResolver<Participant> participantResolver = new ValueSetReferenceResolver<Participant>() {
@@ -58,6 +74,13 @@ public class IntegrationApp {
     builder.add(new JavascriptVariableValueSource(Variable.Builder.newVariable("integration-app", "interviewYear", IntegerType.get(), "Participant").addAttribute("script", "dateYear($('interview.startDate'))").build()));
     builder.add(new JavascriptVariableValueSource(Variable.Builder.newVariable("integration-app", "isMale", BooleanType.get(), "Participant").addAttribute("script", "$('gender') == 'Male'").build()));
     builder.add(new JavascriptVariableValueSource(Variable.Builder.newVariable("integration-app", "isFemale", BooleanType.get(), "Participant").addAttribute("script", "$('gender') == 'Female'").build()));
+
+    OccurrenceReferenceResolver<Action> actionResolver = new OccurrenceReferenceResolver<Action>() {
+      public Action resolve(OccurrenceReference reference) {
+        Participant participant = service.getParticipant(reference.getVariableEntity().getIdentifier());
+        return service.getActions(participant).get(reference.getOrder());
+      };
+    };
 
     Collection collection = builder.build();
 

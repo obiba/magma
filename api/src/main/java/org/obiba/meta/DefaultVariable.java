@@ -21,6 +21,10 @@ class DefaultVariable implements Variable {
 
   String referencedEntityType;
 
+  boolean repeatable;
+
+  String repeatedVariable;
+
   Map<String, String> attributes = new HashMap<String, String>();
 
   @Override
@@ -73,4 +77,13 @@ class DefaultVariable implements Variable {
     return referencedEntityType;
   }
 
+  @Override
+  public boolean isRepeatable() {
+    return repeatable;
+  }
+
+  @Override
+  public String getRepeatedVariable() {
+    return repeatedVariable;
+  }
 }

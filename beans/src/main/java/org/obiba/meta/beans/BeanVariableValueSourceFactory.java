@@ -41,6 +41,8 @@ public class BeanVariableValueSourceFactory<T> implements VariableValueSourceFac
   /** The set of bean properties that are returned as variables */
   private Set<String> properties = Collections.emptySet();
 
+  private String prefix;
+
   /** Maps property names to variable name */
   private BiMap<String, String> propertyNameToVariableName = HashBiMap.create();
 
@@ -56,12 +58,16 @@ public class BeanVariableValueSourceFactory<T> implements VariableValueSourceFac
     this.properties = properties;
   }
 
+  public void setPrefix(String prefix) {
+    this.prefix = prefix;
+  }
+
   public void setPropertyNameToVariableName(Map<String, String> propertyNameToVariableName) {
     this.propertyNameToVariableName = HashBiMap.create(propertyNameToVariableName);
   }
 
-  public Set<VariableValueSource> createSources() {
-    return doBuildVariables();
+  public Set<VariableValueSource> createSources(String collection) {
+    return doBuildVariables(collection);
   }
 
   /**
@@ -102,7 +108,15 @@ public class BeanVariableValueSourceFactory<T> implements VariableValueSourceFac
    */
   protected String lookupVariableName(String propertyName) {
     String name = propertyNameToVariableName.get(propertyName);
-    return name != null ? name : propertyName;
+    return name != null ? prefixName(name) : prefixName(propertyName);
+  }
+
+  protected String prefixName(String name) {
+    return prefix != null ? prefix + '.' + name : name;
+  }
+
+  protected String unprefixName(String name) {
+    return prefix != null ? name.replaceFirst(prefix, "") : name;
   }
 
   /**
@@ -112,7 +126,7 @@ public class BeanVariableValueSourceFactory<T> implements VariableValueSourceFac
    * @return
    */
   protected String lookupPropertyName(String name) {
-    String propertyName = propertyNameToVariableName.inverse().get(name);
+    String propertyName = propertyNameToVariableName.inverse().get(unprefixName(name));
     if(propertyName == null) {
       propertyName = name;
     }
@@ -128,7 +142,7 @@ public class BeanVariableValueSourceFactory<T> implements VariableValueSourceFac
    * for each variable.
    * @param parent the parent {@code IVariable} of all provided {@code IVariable}
    */
-  private Set<VariableValueSource> doBuildVariables() {
+  private Set<VariableValueSource> doBuildVariables(String collection) {
     if(sources == null) {
       synchronized(this) {
         if(sources == null) {
@@ -139,7 +153,7 @@ public class BeanVariableValueSourceFactory<T> implements VariableValueSourceFac
               throw new IllegalArgumentException("Invalid property path'" + propertyPath + "' for type " + getBeanClass().getName());
             }
             ValueType type = MetaEngine.get().getValueTypeFactory().forClass(descriptor.getPropertyType());
-            Variable variable = Variable.Builder.newVariable(null, lookupVariableName(propertyPath), type, entityType).build();
+            Variable variable = Variable.Builder.newVariable(collection, lookupVariableName(propertyPath), type, entityType).build();
             sources.add(new BeanPropertyVariableValueSource(resolver, variable, propertyPath));
           }
         }

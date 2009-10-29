@@ -33,4 +33,17 @@
       <endDate>2009-02-23 07:20:00.0 EST</endDate>
     </interview>
   </participant>
+  
+  <action>
+    <participant reference="phil"/>
+    <stage>BloodPressure</stage>
+  </action>
+  <action>
+    <participant reference="phil"/>
+    <stage>Questionnaire</stage>
+  </action>
+  <action>
+    <participant reference="phil"/>
+    <stage>Samples</stage>
+  </action>
 </linked-list>

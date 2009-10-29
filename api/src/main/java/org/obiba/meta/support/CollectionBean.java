@@ -10,6 +10,7 @@ import org.obiba.meta.NoSuchValueSetException;
 import org.obiba.meta.NoSuchVariableException;
 import org.obiba.meta.ValueSetReference;
 import org.obiba.meta.ValueSetReferenceProvider;
+import org.obiba.meta.Variable;
 import org.obiba.meta.VariableValueSource;
 import org.obiba.meta.VariableValueSourceFactory;
 
@@ -41,7 +42,7 @@ public class CollectionBean implements Collection {
   }
 
   public void addVariableValueSource(VariableValueSourceFactory factory) {
-    this.variableSources.addAll(factory.createSources());
+    this.variableSources.addAll(factory.createSources(getName()));
   }
 
   @Override
@@ -86,6 +87,17 @@ public class CollectionBean implements Collection {
         return input.getVariable().isForEntityType(entityType);
       }
     }));
+  }
+
+  @Override
+  public Set<Variable> getVariables() {
+    return ImmutableSet.copyOf(Iterables.transform(variableSources, new Function<VariableValueSource, Variable>() {
+      @Override
+      public Variable apply(VariableValueSource from) {
+        return from.getVariable();
+      }
+    }));
+
   }
 
   @Override

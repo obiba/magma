@@ -35,6 +35,16 @@ public interface Variable {
       return variable;
     }
 
+    public Builder repeatedWith(String name) {
+      variable.repeatedVariable = name;
+      return this;
+    }
+
+    public Builder repeatable() {
+      variable.repeatable = true;
+      return this;
+    }
+
     public Builder addAttribute(String name, String value) {
       variable.attributes.put(name, value);
       return this;
@@ -50,6 +60,10 @@ public interface Variable {
   public String getEntityType();
 
   public boolean isForEntityType(String type);
+
+  public boolean isRepeatable();
+
+  public String getRepeatedVariable();
 
   public ValueType getValueType();
 

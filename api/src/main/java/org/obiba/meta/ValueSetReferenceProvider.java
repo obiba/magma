@@ -13,4 +13,6 @@ public interface ValueSetReferenceProvider {
 
   public Set<ValueSetReference> getValueSetReferences();
 
+  public Set<OccurrenceReference> getOccurrenceReferences(ValueSetReference reference, Variable variable);
+
 }

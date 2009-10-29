@@ -47,18 +47,21 @@ public class MetaEngine {
 
       String collection = name.substring(0, index);
       String variable = name.substring(index + 1);
-
-      for(Datasource ds : datasources) {
-        for(Collection c : ds.getCollections()) {
-          if(c.getName().equals(collection)) {
-            return c.getVariableValueSource(entityType, variable);
-          }
-        }
-      }
-      // No such collection
-      throw new IllegalArgumentException(collection);
+      return lookupCollection(collection).getVariableValueSource(entityType, variable);
     }
     throw new NoSuchVariableException(name);
+  }
+
+  public Collection lookupCollection(String name) {
+    for(Datasource ds : datasources) {
+      for(Collection c : ds.getCollections()) {
+        if(c.getName().equals(name)) {
+          return c;
+        }
+      }
+    }
+    // No such collection
+    throw new IllegalArgumentException(name);
   }
 
   public void addDatasource(Datasource datasource) {
