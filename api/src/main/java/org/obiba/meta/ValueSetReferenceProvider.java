@@ -13,6 +13,4 @@ public interface ValueSetReferenceProvider {
 
   public Set<ValueSetReference> getValueSetReferences();
 
-  public boolean contains(ValueSetReference reference);
-
 }

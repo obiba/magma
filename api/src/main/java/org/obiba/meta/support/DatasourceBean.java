@@ -1,6 +1,7 @@
 package org.obiba.meta.support;
 
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
 
@@ -15,7 +16,7 @@ public class DatasourceBean implements Datasource {
 
   private Properties properties;
 
-  private Set<Collection> collections;
+  private Set<Collection> collections = new HashSet<Collection>();
 
   @Override
   public String getName() {
@@ -40,6 +41,10 @@ public class DatasourceBean implements Datasource {
   @Override
   public Set<Collection> getCollections() {
     return Collections.unmodifiableSet(collections);
+  }
+
+  public void addCollection(Collection collection) {
+    collections.add(collection);
   }
 
 }

@@ -55,9 +55,10 @@ public class MetaEngine {
           }
         }
       }
+      // No such collection
+      throw new IllegalArgumentException(collection);
     }
-    // No such collection
-    throw new IllegalArgumentException();
+    throw new NoSuchVariableException(name);
   }
 
   public void addDatasource(Datasource datasource) {

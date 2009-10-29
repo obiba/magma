@@ -14,7 +14,6 @@ import java.util.Date;
 import java.util.Map;
 import java.util.Set;
 
-import org.easymock.EasyMock;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -33,12 +32,9 @@ import com.google.common.collect.Sets;
  */
 public class BeanVariableProviderTest {
 
-  ValueSetReferenceResolver<TestBean> referenceResolverMock = EasyMock.createMock(ValueSetReferenceResolver.class);
-
   @Before
   public void createMetaEngine() {
     new MetaEngine();
-    EasyMock.reset(referenceResolverMock);
   }
 
   @After
@@ -49,7 +45,7 @@ public class BeanVariableProviderTest {
   @Test
   public void testSimpleProperties() {
     Set<String> properties = Sets.newHashSet("firstName", "lastName", "integer", "enumProperty");
-    BeanVariableValueSourceFactory bvp = new BeanVariableValueSourceFactory(TestBean.class);
+    BeanVariableValueSourceFactory<TestBean> bvp = new BeanVariableValueSourceFactory<TestBean>("Test", TestBean.class, null);
     bvp.setProperties(properties);
 
     assertVariablesFromProperties(bvp, properties);
@@ -58,7 +54,7 @@ public class BeanVariableProviderTest {
   @Test
   public void testPropertyWithoutField() {
     Set<String> properties = Sets.newHashSet("composedProperty");
-    BeanVariableValueSourceFactory bvp = new BeanVariableValueSourceFactory(TestBean.class);
+    BeanVariableValueSourceFactory<TestBean> bvp = new BeanVariableValueSourceFactory<TestBean>("Test", TestBean.class, null);
     bvp.setProperties(properties);
 
     assertVariablesFromProperties(bvp, properties);
@@ -67,7 +63,7 @@ public class BeanVariableProviderTest {
   @Test
   public void testNestedProperties() {
     Set<String> properties = Sets.newHashSet("nestedBean.decimal", "nestedBean.data");
-    BeanVariableValueSourceFactory bvp = new BeanVariableValueSourceFactory(TestBean.class);
+    BeanVariableValueSourceFactory<TestBean> bvp = new BeanVariableValueSourceFactory<TestBean>("Test", TestBean.class, null);
     bvp.setProperties(properties);
     assertVariablesFromProperties(bvp, properties);
   }
@@ -77,7 +73,7 @@ public class BeanVariableProviderTest {
     Set<String> properties = Sets.newHashSet("nestedBean.decimal", "firstName");
     Map<String, String> nameOverride = new ImmutableMap.Builder<String, String>().put("nestedBean.decimal", "NestedDecimal").put("firstName", "FirstName").build();
 
-    BeanVariableValueSourceFactory bvp = new BeanVariableValueSourceFactory(TestBean.class);
+    BeanVariableValueSourceFactory<TestBean> bvp = new BeanVariableValueSourceFactory<TestBean>("Test", TestBean.class, null);
     bvp.setProperties(properties);
     bvp.setPropertyNameToVariableName(nameOverride);
     assertVariablesFromProperties(bvp, properties, nameOverride);
@@ -85,42 +81,50 @@ public class BeanVariableProviderTest {
 
   @Test
   public void testValues() {
-    Set<String> properties = Sets.newHashSet("firstName", "nestedBean.decimal", "nestedBean.data");
-    BeanVariableValueSourceFactory bvp = new BeanVariableValueSourceFactory(TestBean.class);
-    bvp.setProperties(properties);
-
-    Set<VariableValueSource> variableValueSources = assertVariablesFromProperties(bvp, properties);
-
-    TestBean tb = new TestBean();
+    final TestBean tb = new TestBean();
     tb.setFirstName("TestBean");
     NestedTestBean nb = new NestedTestBean();
     nb.setDecimal(42.0);
     nb.setData(new byte[] { 0x01, 0x02 });
     tb.setNestedBean(nb);
 
-    EasyMock.expect(referenceResolverMock.canResolve((ValueSetReference) EasyMock.anyObject())).andReturn(true).anyTimes();
-    EasyMock.expect(referenceResolverMock.resolve((ValueSetReference) EasyMock.anyObject())).andReturn(tb).anyTimes();
-    EasyMock.replay(referenceResolverMock);
+    ValueSetReferenceResolver<TestBean> resolver = new ValueSetReferenceResolver<TestBean>() {
+      @Override
+      public TestBean resolve(ValueSetReference reference) {
+        return tb;
+      }
+    };
+
+    Set<String> properties = Sets.newHashSet("firstName", "nestedBean.decimal", "nestedBean.data");
+    BeanVariableValueSourceFactory<TestBean> bvp = new BeanVariableValueSourceFactory<TestBean>("Test", TestBean.class, resolver);
+    bvp.setProperties(properties);
+
+    Set<VariableValueSource> variableValueSources = assertVariablesFromProperties(bvp, properties);
+
     for(VariableValueSource source : variableValueSources) {
       Value value = source.getValue(null);
       Assert.assertNotNull("Value cannot be null " + source.getVariable().getName(), value);
       Assert.assertNotNull("ValueType cannot be null " + source.getVariable().getName(), value.getValueType());
       Assert.assertNotNull("Value's value cannot be null " + source.getVariable().getName(), value.getValue());
     }
-    EasyMock.verify(referenceResolverMock);
   }
 
   @Test
   public void testNullValueInPropertyPath() {
+
+    ValueSetReferenceResolver<TestBean> resolver = new ValueSetReferenceResolver<TestBean>() {
+      @Override
+      public TestBean resolve(ValueSetReference reference) {
+        return new TestBean();
+      }
+    };
+
     Set<String> properties = Sets.newHashSet("anotherNestedBean.data");
-    BeanVariableValueSourceFactory bvp = new BeanVariableValueSourceFactory(TestBean.class);
+    BeanVariableValueSourceFactory<TestBean> bvp = new BeanVariableValueSourceFactory<TestBean>("Test", TestBean.class, resolver);
     bvp.setProperties(properties);
 
     Set<VariableValueSource> variableValueSources = assertVariablesFromProperties(bvp, properties);
 
-    EasyMock.expect(referenceResolverMock.canResolve((ValueSetReference) EasyMock.anyObject())).andReturn(true).anyTimes();
-    EasyMock.expect(referenceResolverMock.resolve((ValueSetReference) EasyMock.anyObject())).andReturn(new TestBean()).anyTimes();
-    EasyMock.replay(referenceResolverMock);
     for(VariableValueSource source : variableValueSources) {
       Value value = source.getValue(null);
       Assert.assertNotNull("Value cannot be null " + source.getVariable().getName(), value);
@@ -129,15 +133,13 @@ public class BeanVariableProviderTest {
       // The value's value should be null
       Assert.assertNull("Value's value should be null " + source.getVariable().getName(), value.getValue());
     }
-    EasyMock.verify(referenceResolverMock);
   }
 
-  protected Set<VariableValueSource> assertVariablesFromProperties(BeanVariableValueSourceFactory bvp, Set<String> properties) {
+  protected Set<VariableValueSource> assertVariablesFromProperties(BeanVariableValueSourceFactory<TestBean> bvp, Set<String> properties) {
     return assertVariablesFromProperties(bvp, properties, null);
   }
 
-  protected Set<VariableValueSource> assertVariablesFromProperties(BeanVariableValueSourceFactory bvp, Set<String> properties, Map<String, String> nameOverride) {
-    bvp.setResolver(referenceResolverMock);
+  protected Set<VariableValueSource> assertVariablesFromProperties(BeanVariableValueSourceFactory<TestBean> bvp, Set<String> properties, Map<String, String> nameOverride) {
     Set<VariableValueSource> variables = bvp.createSources();
     // There are no more and no less than what was specified
     Assert.assertEquals(properties.size(), variables.size());

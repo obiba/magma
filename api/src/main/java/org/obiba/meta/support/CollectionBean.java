@@ -1,37 +1,57 @@
 package org.obiba.meta.support;
 
-import java.util.List;
+import java.util.HashSet;
+import java.util.NoSuchElementException;
 import java.util.Set;
 
 import org.obiba.meta.Collection;
-import org.obiba.meta.CollectionConnector;
+import org.obiba.meta.Initialisable;
+import org.obiba.meta.NoSuchValueSetException;
 import org.obiba.meta.NoSuchVariableException;
 import org.obiba.meta.ValueSetReference;
+import org.obiba.meta.ValueSetReferenceProvider;
 import org.obiba.meta.VariableValueSource;
+import org.obiba.meta.VariableValueSourceFactory;
 
+import com.google.common.base.Function;
+import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Iterables;
 
 public class CollectionBean implements Collection {
 
   private String name;
 
-  private List<CollectionConnector> connectors;
+  private Set<ValueSetReferenceProvider> valueSetProviders = new HashSet<ValueSetReferenceProvider>();
 
-  public List<CollectionConnector> getConnectors() {
-    return connectors;
+  private Set<VariableValueSource> variableSources = new HashSet<VariableValueSource>();
+
+  CollectionBean(String name) {
+    this.name = name;
   }
 
-  public void setConnectors(List<CollectionConnector> connectors) {
-    this.connectors = connectors;
+  public void addValueSetReferenceProvider(ValueSetReferenceProvider provider) {
+    this.valueSetProviders.add(provider);
+  }
+
+  public void addVariableValueSource(VariableValueSource... sources) {
+    for(VariableValueSource source : sources) {
+      this.variableSources.add(source);
+    }
+  }
+
+  public void addVariableValueSource(VariableValueSourceFactory factory) {
+    this.variableSources.addAll(factory.createSources());
   }
 
   @Override
   public Set<String> getEntityTypes() {
-    ImmutableSet.Builder<String> builder = ImmutableSet.builder();
-    for(CollectionConnector connector : getConnectors()) {
-      builder.add(connector.getEntityType());
-    }
-    return builder.build();
+    return ImmutableSet.copyOf(Iterables.transform(valueSetProviders, new Function<ValueSetReferenceProvider, String>() {
+      @Override
+      public String apply(ValueSetReferenceProvider from) {
+        return from.getEntityType();
+      }
+    }));
   }
 
   @Override
@@ -41,37 +61,50 @@ public class CollectionBean implements Collection {
 
   @Override
   public Set<ValueSetReference> getValueSetReferences(String entityType) {
-    ImmutableSet.Builder<ValueSetReference> builder = ImmutableSet.builder();
-    for(CollectionConnector connector : getConnectors()) {
-      if(connector.isForEntityType(entityType)) {
-        builder.addAll(connector.getValueSetReferences());
-      }
-    }
-    return builder.build();
+    return lookupProvider(entityType).getValueSetReferences();
   }
 
   @Override
-  public Set<VariableValueSource> getVariableValueSources(String entityType) {
-    ImmutableSet.Builder<VariableValueSource> builder = ImmutableSet.builder();
-    for(CollectionConnector connector : getConnectors()) {
-      if(connector.isForEntityType(entityType)) {
-        builder.addAll(connector.getVariableValueSources());
-      }
-    }
-    return builder.build();
-  }
-
-  @Override
-  public VariableValueSource getVariableValueSource(String entityType, String variableName) {
-    for(CollectionConnector connector : getConnectors()) {
-      if(connector.isForEntityType(entityType)) {
-        VariableValueSource source = connector.getVariableValueSource(variableName);
-        if(source != null) {
-          return source;
+  public VariableValueSource getVariableValueSource(final String entityType, final String variableName) {
+    try {
+      return Iterables.find(variableSources, new Predicate<VariableValueSource>() {
+        @Override
+        public boolean apply(VariableValueSource input) {
+          return input.getVariable().getName().equals(variableName) && input.getVariable().isForEntityType(entityType);
         }
-      }
+      });
+    } catch(NoSuchElementException e) {
+      throw new NoSuchVariableException(getName(), variableName);
     }
-    throw new NoSuchVariableException(getName(), variableName);
   }
 
+  @Override
+  public Set<VariableValueSource> getVariableValueSources(final String entityType) {
+    return ImmutableSet.copyOf(Iterables.filter(variableSources, new Predicate<VariableValueSource>() {
+      @Override
+      public boolean apply(VariableValueSource input) {
+        return input.getVariable().isForEntityType(entityType);
+      }
+    }));
+  }
+
+  @Override
+  public void initialise() {
+    for(Initialisable init : Iterables.filter(Iterables.concat(variableSources, valueSetProviders), Initialisable.class)) {
+      init.initialise();
+    }
+  }
+
+  protected ValueSetReferenceProvider lookupProvider(final String entityType) {
+    try {
+      return Iterables.find(this.valueSetProviders, new Predicate<ValueSetReferenceProvider>() {
+        @Override
+        public boolean apply(ValueSetReferenceProvider input) {
+          return input.isForEntityType(entityType);
+        }
+      });
+    } catch(NoSuchElementException e) {
+      throw new NoSuchValueSetException(null);
+    }
+  }
 }

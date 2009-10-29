@@ -14,6 +14,11 @@ public class NoSuchVariableException extends RuntimeException {
     this.name = name;
   }
 
+  public NoSuchVariableException(String name) {
+    super("No such variable '" + name + "'");
+    this.name = name;
+  }
+
   public String getCollection() {
     return collection;
   }

@@ -11,6 +11,7 @@ public class Value implements Serializable {
   private Serializable value;
 
   Value(ValueType type, Serializable value) {
+    if(type == null) throw new IllegalArgumentException("type cannot be null");
     this.type = type;
     this.value = value;
   }

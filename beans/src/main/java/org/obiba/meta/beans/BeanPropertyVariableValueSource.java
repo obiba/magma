@@ -53,13 +53,9 @@ public class BeanPropertyVariableValueSource implements VariableValueSource {
   }
 
   public Value getValue(ValueSetReference reference) {
-    if(resolver.canResolve(reference) == false) {
-      throw new NoSuchValueSetException(reference);
-    }
     Object bean = resolver.resolve(reference);
     if(bean == null) {
-      // TODO: what's the policy? Throw, return null, return null-value?
-      throw new IllegalStateException("resolved bean cannot be null.");
+      throw new NoSuchValueSetException(reference);
     }
     Object object = getPropertyValue(propertyPath, PropertyAccessorFactory.forBeanPropertyAccess(bean));
     return MetaEngine.get().getValueFactory().newValue(variable.getValueType(), object);

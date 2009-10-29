@@ -34,6 +34,11 @@ public interface Variable {
     public Variable build() {
       return variable;
     }
+
+    public Builder addAttribute(String name, String value) {
+      variable.attributes.put(name, value);
+      return this;
+    }
   }
 
   public QName getQName();
@@ -43,6 +48,8 @@ public interface Variable {
   public String getName();
 
   public String getEntityType();
+
+  public boolean isForEntityType(String type);
 
   public ValueType getValueType();
 

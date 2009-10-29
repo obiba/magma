@@ -2,7 +2,7 @@ package org.obiba.meta;
 
 import java.util.Set;
 
-public interface Collection {
+public interface Collection extends Initialisable {
 
   public String getName();
 

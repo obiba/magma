@@ -30,11 +30,11 @@ import com.google.common.collect.HashBiMap;
 /**
  *
  */
-public class BeanVariableValueSourceFactory implements VariableValueSourceFactory {
+public class BeanVariableValueSourceFactory<T> implements VariableValueSourceFactory {
 
-  private ValueSetReferenceResolver<?> resolver;
+  private Class<T> beanClass;
 
-  private Class<?> beanClass;
+  private ValueSetReferenceResolver<T> resolver;
 
   private String entityType;
 
@@ -46,16 +46,10 @@ public class BeanVariableValueSourceFactory implements VariableValueSourceFactor
 
   private Set<VariableValueSource> sources;
 
-  public BeanVariableValueSourceFactory(Class<?> beanClass) {
+  public BeanVariableValueSourceFactory(String entityType, Class<T> beanClass, ValueSetReferenceResolver<T> resolver) {
+    this.entityType = entityType;
     this.beanClass = beanClass;
-  }
-
-  public void setResolver(ValueSetReferenceResolver<?> resolver) {
     this.resolver = resolver;
-  }
-
-  public void setBeanClass(Class<?> beanClass) {
-    this.beanClass = beanClass;
   }
 
   public void setProperties(Set<String> properties) {

@@ -24,11 +24,6 @@ public abstract class BeanValueSetReferenceProvider extends AbstractValueSetRefe
   }
 
   @Override
-  public boolean contains(ValueSetReference reference) {
-    return false;
-  }
-
-  @Override
   public Set<ValueSetReference> getValueSetReferences() {
     ImmutableSet.Builder<ValueSetReference> builder = new ImmutableSet.Builder<ValueSetReference>();
     for(Object bean : getBeans()) {

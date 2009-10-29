@@ -17,8 +17,8 @@ public class InMemoryIntegrationService implements IntegrationService {
 
   @Override
   public Participant getParticipant(String barcode) {
-    for (Participant p : getParticipants()) {
-      if (barcode.equals(p.getBarcode())) {
+    for(Participant p : getParticipants()) {
+      if(barcode.equals(p.getBarcode())) {
         return p;
       }
     }
@@ -28,8 +28,8 @@ public class InMemoryIntegrationService implements IntegrationService {
   @Override
   public List<Interview> getInterviews() {
     List<Interview> interviews = new ArrayList<Interview>();
-    for (Participant p : getParticipants()) {
-      if (p.getInterview() != null) {
+    for(Participant p : getParticipants()) {
+      if(p.getInterview() != null) {
         interviews.add(p.getInterview());
       }
     }

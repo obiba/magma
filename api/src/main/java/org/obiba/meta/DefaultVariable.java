@@ -1,5 +1,8 @@
 package org.obiba.meta;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.xml.namespace.QName;
 
 class DefaultVariable implements Variable {
@@ -17,6 +20,8 @@ class DefaultVariable implements Variable {
   ValueType valueType;
 
   String referencedEntityType;
+
+  Map<String, String> attributes = new HashMap<String, String>();
 
   @Override
   public QName getQName() {
@@ -39,6 +44,11 @@ class DefaultVariable implements Variable {
   }
 
   @Override
+  public boolean isForEntityType(String type) {
+    return getEntityType().equals(type);
+  }
+
+  @Override
   public String getMimeType() {
     return mimeType;
   }
@@ -55,8 +65,7 @@ class DefaultVariable implements Variable {
 
   @Override
   public String getAttribute(String name) {
-    // TODO: Implement attributes
-    return null;
+    return attributes.get(name);
   }
 
   @Override
