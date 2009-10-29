@@ -11,13 +11,16 @@ public class BooleanType implements ValueType {
 
   private static final long serialVersionUID = -149385659514790222L;
 
-  private static final WeakReference<BooleanType> instance = MetaEngine.get().registerInstance(new BooleanType());
+  private static WeakReference<BooleanType> instance;
 
   private BooleanType() {
 
   }
 
   public static BooleanType get() {
+    if(instance == null) {
+      instance = MetaEngine.get().registerInstance(new BooleanType());
+    }
     return instance.get();
   }
 

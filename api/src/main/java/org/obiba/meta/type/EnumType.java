@@ -11,13 +11,16 @@ public class EnumType implements ValueType {
 
   private static final long serialVersionUID = -5271259966499174607L;
 
-  private static final WeakReference<EnumType> instance = MetaEngine.get().registerInstance(new EnumType());
+  private static WeakReference<EnumType> instance;
 
   private EnumType() {
 
   }
 
   public static EnumType get() {
+    if(instance == null) {
+      instance = MetaEngine.get().registerInstance(new EnumType());
+    }
     return instance.get();
   }
 

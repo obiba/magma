@@ -1,7 +1,9 @@
 package org.obiba.meta.support;
 
-import org.obiba.meta.Variable;
+import javax.xml.namespace.QName;
+
 import org.obiba.meta.ValueType;
+import org.obiba.meta.Variable;
 
 public class DelegatingVariable implements Variable {
 
@@ -13,6 +15,16 @@ public class DelegatingVariable implements Variable {
 
   public Variable getDelegate() {
     return delegate;
+  }
+
+  @Override
+  public QName getQName() {
+    return delegate.getQName();
+  }
+
+  @Override
+  public String getCollection() {
+    return delegate.getCollection();
   }
 
   public String getEntityType() {

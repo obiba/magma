@@ -11,13 +11,16 @@ public class TextType implements ValueType {
 
   private static final long serialVersionUID = -5271259966499174607L;
 
-  private static final WeakReference<TextType> instance = MetaEngine.get().registerInstance(new TextType());
+  private static WeakReference<TextType> instance;
 
   private TextType() {
 
   }
 
   public static TextType get() {
+    if(instance == null) {
+      instance = MetaEngine.get().registerInstance(new TextType());
+    }
     return instance.get();
   }
 

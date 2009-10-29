@@ -1,6 +1,7 @@
 package org.obiba.meta;
 
 import java.lang.ref.WeakReference;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -16,7 +17,7 @@ public class MetaEngine {
 
   private ValueTypeFactory valueTypeFactory;
 
-  private Set<Datasource> datasources;
+  private Set<Datasource> datasources = new HashSet<Datasource>();
 
   public MetaEngine() {
     if(instance != null) {
@@ -57,6 +58,10 @@ public class MetaEngine {
     }
     // No such collection
     throw new IllegalArgumentException();
+  }
+
+  public void addDatasource(Datasource datasource) {
+    datasources.add(datasource);
   }
 
   public <T> WeakReference<T> registerInstance(T singleton) {

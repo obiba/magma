@@ -33,7 +33,7 @@ import com.google.common.collect.Sets;
  */
 public class BeanVariableProviderTest {
 
-  ValueSetReferenceResolver referenceResolverMock = EasyMock.createMock(ValueSetReferenceResolver.class);
+  ValueSetReferenceResolver<TestBean> referenceResolverMock = EasyMock.createMock(ValueSetReferenceResolver.class);
 
   @Before
   public void createMetaEngine() {
@@ -137,7 +137,8 @@ public class BeanVariableProviderTest {
   }
 
   protected Set<VariableValueSource> assertVariablesFromProperties(BeanVariableValueSourceFactory bvp, Set<String> properties, Map<String, String> nameOverride) {
-    Set<VariableValueSource> variables = bvp.createSources(referenceResolverMock);
+    bvp.setResolver(referenceResolverMock);
+    Set<VariableValueSource> variables = bvp.createSources();
     // There are no more and no less than what was specified
     Assert.assertEquals(properties.size(), variables.size());
     Collection<String> nameSet = nameOverride != null ? nameOverride.values() : properties;

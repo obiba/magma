@@ -32,6 +32,8 @@ import com.google.common.collect.HashBiMap;
  */
 public class BeanVariableValueSourceFactory implements VariableValueSourceFactory {
 
+  private ValueSetReferenceResolver<?> resolver;
+
   private Class<?> beanClass;
 
   private String entityType;
@@ -48,6 +50,14 @@ public class BeanVariableValueSourceFactory implements VariableValueSourceFactor
     this.beanClass = beanClass;
   }
 
+  public void setResolver(ValueSetReferenceResolver<?> resolver) {
+    this.resolver = resolver;
+  }
+
+  public void setBeanClass(Class<?> beanClass) {
+    this.beanClass = beanClass;
+  }
+
   public void setProperties(Set<String> properties) {
     this.properties = properties;
   }
@@ -56,9 +66,8 @@ public class BeanVariableValueSourceFactory implements VariableValueSourceFactor
     this.propertyNameToVariableName = HashBiMap.create(propertyNameToVariableName);
   }
 
-  @Override
-  public Set<VariableValueSource> createSources(ValueSetReferenceResolver connector) {
-    return doBuildVariables(connector);
+  public Set<VariableValueSource> createSources() {
+    return doBuildVariables();
   }
 
   /**
@@ -125,7 +134,7 @@ public class BeanVariableValueSourceFactory implements VariableValueSourceFactor
    * for each variable.
    * @param parent the parent {@code IVariable} of all provided {@code IVariable}
    */
-  private Set<VariableValueSource> doBuildVariables(ValueSetReferenceResolver connector) {
+  private Set<VariableValueSource> doBuildVariables() {
     if(sources == null) {
       synchronized(this) {
         if(sources == null) {
@@ -136,8 +145,8 @@ public class BeanVariableValueSourceFactory implements VariableValueSourceFactor
               throw new IllegalArgumentException("Invalid property path'" + propertyPath + "' for type " + getBeanClass().getName());
             }
             ValueType type = MetaEngine.get().getValueTypeFactory().forClass(descriptor.getPropertyType());
-            Variable variable = Variable.Builder.newVariable(lookupVariableName(propertyPath), type, entityType).build();
-            sources.add(new BeanPropertyVariableValueSource(connector, variable, propertyPath));
+            Variable variable = Variable.Builder.newVariable(null, lookupVariableName(propertyPath), type, entityType).build();
+            sources.add(new BeanPropertyVariableValueSource(resolver, variable, propertyPath));
           }
         }
       }

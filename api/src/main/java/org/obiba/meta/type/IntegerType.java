@@ -11,13 +11,16 @@ public class IntegerType extends AbstractNumberType {
 
   private static final long serialVersionUID = 2345566305016760446L;
 
-  private static final WeakReference<IntegerType> instance = MetaEngine.get().registerInstance(new IntegerType());
+  private static WeakReference<IntegerType> instance;
 
   private IntegerType() {
 
   }
 
   public static IntegerType get() {
+    if(instance == null) {
+      instance = MetaEngine.get().registerInstance(new IntegerType());
+    }
     return instance.get();
   }
 

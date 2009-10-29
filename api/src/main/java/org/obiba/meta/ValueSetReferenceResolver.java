@@ -3,7 +3,7 @@ package org.obiba.meta;
 /**
  * Resolves a {@code ValueSetReference} to an object. The resolved type is implementation specific.
  */
-public interface ValueSetReferenceResolver {
+public interface ValueSetReferenceResolver<T> {
 
   /**
    * Returns true when this resolver can resolve the referenced value set to an implementation specific object.
@@ -13,6 +13,6 @@ public interface ValueSetReferenceResolver {
    */
   public boolean canResolve(ValueSetReference reference);
 
-  public <T> T resolve(ValueSetReference reference);
+  public T resolve(ValueSetReference reference);
 
 }

@@ -11,13 +11,16 @@ public class DecimalType extends AbstractNumberType {
 
   private static final long serialVersionUID = -149385659514790222L;
 
-  private static final WeakReference<DecimalType> instance = MetaEngine.get().registerInstance(new DecimalType());
+  private static WeakReference<DecimalType> instance;
 
   private DecimalType() {
 
   }
 
   public static DecimalType get() {
+    if(instance == null) {
+      instance = MetaEngine.get().registerInstance(new DecimalType());
+    }
     return instance.get();
   }
 

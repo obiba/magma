@@ -11,13 +11,16 @@ public class BinaryType implements ValueType {
 
   private static final long serialVersionUID = -5271259966499174607L;
 
-  private static final WeakReference<BinaryType> instance = MetaEngine.get().registerInstance(new BinaryType());
+  private static WeakReference<BinaryType> instance;
 
   private BinaryType() {
 
   }
 
   public static BinaryType get() {
+    if(instance == null) {
+      instance = MetaEngine.get().registerInstance(new BinaryType());
+    }
     return instance.get();
   }
 

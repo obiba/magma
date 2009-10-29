@@ -9,6 +9,8 @@
  ******************************************************************************/
 package org.obiba.meta;
 
+import javax.xml.namespace.QName;
+
 /**
  *
  */
@@ -18,20 +20,25 @@ public interface Variable {
 
     private DefaultVariable variable = new DefaultVariable();
 
-    public Builder(String name, ValueType type, String entityType) {
+    public Builder(String collection, String name, ValueType type, String entityType) {
+      variable.collection = collection;
       variable.name = name;
       variable.valueType = type;
       variable.entityType = entityType;
     }
 
-    public static Builder newVariable(String name, ValueType type, String entityType) {
-      return new Builder(name, type, entityType);
+    public static Builder newVariable(String collection, String name, ValueType type, String entityType) {
+      return new Builder(collection, name, type, entityType);
     }
 
     public Variable build() {
       return variable;
     }
   }
+
+  public QName getQName();
+
+  public String getCollection();
 
   public String getName();
 

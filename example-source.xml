@@ -1,5 +1,5 @@
 <datasources>
-  <datasource class="datasourceBean">
+  <datasource>
 
     <name>onyx</name>
     <type>onyx-1.6.x</type>
@@ -16,17 +16,21 @@
       <collection class="collectionBean">
         <name>onyx-baseline</name>
 
-        <connectors>
-          <jpaConnector>
-            <entityType>Participant</entityType>
-            <entityClass>org.obiba.onyx.core.domain.Interview</entityClass>
-            <entityIdentifierProperty>participant.barcode</entityIdentifierProperty>
-            <identifierProperty>startDate</identifierProperty>
+        <valueSets>
+          <valueSet>
+
+            <hibernateProvider>
+              <entityType>Participant</entityType>
+              <entityClass>org.obiba.onyx.core.domain.Interview</entityClass>
+              <entityIdentifierProperty>participant.barcode</entityIdentifierProperty>
+              <identifierProperty>id</identifierProperty>
+            </hibernateProvider>
 
             <variableValueSources>
               <beanVariableValueSourceFactory>
                 <entityType>Participant</entityType>
                 <beanClass>org.obiba.onyx.core.domain.Participant</beanClass>
+                <resolver class="onyxParticipantResolver"/>
                 <prefix>Participant</prefix>
                 <properties>
                   <string>firstName</string>
@@ -49,7 +53,7 @@
                 </variable>
               </scriptedVariableSource>
             </variableValueSources>
-          </jpaConnector>
+          </valueSet>
 
           <jpaConnector>
             <entityType>Instrument</entityType>
@@ -69,7 +73,7 @@
             </beanVariableValueSourceFactory>
 
           </jpaConnector>
-        </connectors>
+        </valueSets>
 
       </collection>
 

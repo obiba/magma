@@ -27,13 +27,13 @@ import org.springframework.util.Assert;
  */
 public class BeanPropertyVariableValueSource implements VariableValueSource {
 
-  private ValueSetReferenceResolver resolver;
+  private ValueSetReferenceResolver<?> resolver;
 
   private Variable variable;
 
   private String propertyPath;
 
-  public BeanPropertyVariableValueSource(ValueSetReferenceResolver resolver, Variable variable, String propertyPath) {
+  public BeanPropertyVariableValueSource(ValueSetReferenceResolver<?> resolver, Variable variable, String propertyPath) {
     Assert.notNull(resolver, "resolver cannot be null");
     Assert.notNull(variable, "variable cannot be null");
     Assert.notNull(propertyPath, "propertyPath cannot be null");

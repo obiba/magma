@@ -1,6 +1,10 @@
 package org.obiba.meta;
 
+import javax.xml.namespace.QName;
+
 class DefaultVariable implements Variable {
+
+  String collection;
 
   String name;
 
@@ -13,6 +17,16 @@ class DefaultVariable implements Variable {
   ValueType valueType;
 
   String referencedEntityType;
+
+  @Override
+  public QName getQName() {
+    return new QName(getCollection(), getName());
+  }
+
+  @Override
+  public String getCollection() {
+    return collection;
+  }
 
   @Override
   public String getName() {

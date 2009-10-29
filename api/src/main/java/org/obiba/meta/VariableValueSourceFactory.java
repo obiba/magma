@@ -4,6 +4,6 @@ import java.util.Set;
 
 public interface VariableValueSourceFactory {
 
-  public Set<VariableValueSource> createSources(ValueSetReferenceResolver connector);
+  public Set<VariableValueSource> createSources();
 
 }
