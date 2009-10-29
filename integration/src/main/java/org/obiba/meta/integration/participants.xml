@@ -26,5 +26,11 @@
     <firstName>Raphaëlle</firstName>
     <lastName>Laflamme</lastName>
     <gender>Female</gender>
+    <barcode>111</barcode>
+    <interview>
+      <participant reference="raph" />
+      <startDate>2008-02-22 18:30:00.0 EST</startDate>
+      <endDate>2009-02-23 07:20:00.0 EST</endDate>
+    </interview>
   </participant>
 </linked-list>

@@ -17,6 +17,7 @@ import org.obiba.meta.integration.service.XStreamIntegrationServiceFactory;
 import org.obiba.meta.js.JavascriptVariableValueSource;
 import org.obiba.meta.support.CollectionBuilder;
 import org.obiba.meta.support.DatasourceBean;
+import org.obiba.meta.type.BooleanType;
 import org.obiba.meta.type.IntegerType;
 import org.obiba.meta.type.TextType;
 
@@ -55,6 +56,8 @@ public class IntegrationApp {
 
     builder.add(new JavascriptVariableValueSource(Variable.Builder.newVariable("integration-app", "fullName", TextType.get(), "Participant").addAttribute("script", "$('firstName') + ' ' + $('lastName')").build()));
     builder.add(new JavascriptVariableValueSource(Variable.Builder.newVariable("integration-app", "interviewYear", IntegerType.get(), "Participant").addAttribute("script", "dateYear($('interview.startDate'))").build()));
+    builder.add(new JavascriptVariableValueSource(Variable.Builder.newVariable("integration-app", "isMale", BooleanType.get(), "Participant").addAttribute("script", "$('gender') == 'Male'").build()));
+    builder.add(new JavascriptVariableValueSource(Variable.Builder.newVariable("integration-app", "isFemale", BooleanType.get(), "Participant").addAttribute("script", "$('gender') == 'Female'").build()));
 
     Collection collection = builder.build();
 
