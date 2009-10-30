@@ -21,6 +21,7 @@ import org.obiba.meta.ValueType;
 import org.obiba.meta.Variable;
 import org.obiba.meta.VariableValueSource;
 import org.obiba.meta.VariableValueSourceFactory;
+import org.obiba.meta.type.EnumeratedType;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.PropertyAccessorUtils;
 
@@ -152,14 +153,22 @@ public class BeanVariableValueSourceFactory<T> implements VariableValueSourceFac
             if(descriptor == null) {
               throw new IllegalArgumentException("Invalid property path'" + propertyPath + "' for type " + getBeanClass().getName());
             }
-            ValueType type = MetaEngine.get().getValueTypeFactory().forClass(descriptor.getPropertyType());
-            Variable variable = Variable.Builder.newVariable(collection, lookupVariableName(propertyPath), type, entityType).build();
-            sources.add(new BeanPropertyVariableValueSource(resolver, variable, propertyPath));
+            sources.add(new BeanPropertyVariableValueSource(resolver, buildVariable(collection, descriptor.getPropertyType(), lookupVariableName(propertyPath)), propertyPath));
           }
         }
       }
     }
     return sources;
+  }
+
+  private Variable buildVariable(String collection, Class<?> propertyType, String name) {
+    ValueType type = MetaEngine.get().getValueTypeFactory().forClass(propertyType);
+
+    Variable.Builder builder = Variable.Builder.newVariable(collection, name, type, entityType);
+    if(type instanceof EnumeratedType) {
+      builder.addCategories(((EnumeratedType) type).enumerate(propertyType));
+    }
+    return builder.build();
   }
 
 }

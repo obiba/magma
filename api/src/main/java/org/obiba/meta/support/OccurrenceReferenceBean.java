@@ -1,6 +1,8 @@
-package org.obiba.meta;
+package org.obiba.meta.support;
 
-import org.obiba.meta.support.ValueSetReferenceBean;
+import org.obiba.meta.OccurrenceReference;
+import org.obiba.meta.ValueSetReference;
+import org.obiba.meta.Variable;
 
 public class OccurrenceReferenceBean extends ValueSetReferenceBean implements OccurrenceReference {
 

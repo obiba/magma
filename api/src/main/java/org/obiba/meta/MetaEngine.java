@@ -65,6 +65,7 @@ public class MetaEngine {
   }
 
   public void addDatasource(Datasource datasource) {
+    datasource.initialise();
     datasources.add(datasource);
   }
 

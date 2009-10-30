@@ -1,14 +1,17 @@
 package org.obiba.meta.type;
 
 import java.lang.ref.WeakReference;
+import java.util.Arrays;
 
 import javax.xml.namespace.QName;
 
 import org.obiba.meta.MetaEngine;
 import org.obiba.meta.Value;
-import org.obiba.meta.ValueType;
 
-public class EnumType implements ValueType {
+import com.google.common.base.Functions;
+import com.google.common.collect.Iterables;
+
+public class EnumType implements EnumeratedType {
 
   private static final long serialVersionUID = -5271259966499174607L;
 
@@ -49,6 +52,14 @@ public class EnumType implements ValueType {
 
   public boolean isNumeric() {
     return false;
+  }
+
+  public String[] enumerate(Class<?> enumClass) {
+    if(enumClass.isEnum()) {
+      Enum<?>[] enums = (Enum<?>[]) enumClass.getEnumConstants();
+      return Iterables.toArray(Iterables.transform(Arrays.asList(enums), Functions.toStringFunction()), String.class);
+    }
+    throw new IllegalArgumentException(enumClass.getName() + " is not an enum.");
   }
 
   @Override

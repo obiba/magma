@@ -1,7 +1,10 @@
 package org.obiba.meta;
 
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Set;
 
 import javax.xml.namespace.QName;
 
@@ -26,6 +29,9 @@ class DefaultVariable implements Variable {
   String repeatedVariable;
 
   Map<String, String> attributes = new HashMap<String, String>();
+
+  /** Use a linked hash set to keep insertion order */
+  Set<Category> categories = new LinkedHashSet<Category>();
 
   @Override
   public QName getQName() {
@@ -85,5 +91,10 @@ class DefaultVariable implements Variable {
   @Override
   public String getRepeatedVariable() {
     return repeatedVariable;
+  }
+
+  @Override
+  public Set<Category> getCategories() {
+    return Collections.unmodifiableSet(categories);
   }
 }

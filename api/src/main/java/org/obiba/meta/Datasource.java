@@ -3,7 +3,7 @@ package org.obiba.meta;
 import java.util.Properties;
 import java.util.Set;
 
-public interface Datasource {
+public interface Datasource extends Initialisable {
 
   public String getName();
 

@@ -5,31 +5,38 @@ import org.obiba.meta.ValueSetReferenceProvider;
 import org.obiba.meta.VariableValueSource;
 import org.obiba.meta.VariableValueSourceFactory;
 
+import com.google.common.collect.ImmutableSet;
+
 public class CollectionBuilder {
 
   private CollectionBean collection;
+
+  private ImmutableSet.Builder<ValueSetReferenceProvider> providerBuilder = new ImmutableSet.Builder<ValueSetReferenceProvider>();
+
+  private ImmutableSet.Builder<VariableValueSource> sourceBuilder = new ImmutableSet.Builder<VariableValueSource>();
 
   public CollectionBuilder(String name) {
     collection = new CollectionBean(name);
   }
 
   public CollectionBuilder add(ValueSetReferenceProvider provider) {
-    collection.addValueSetReferenceProvider(provider);
+    providerBuilder.add(provider);
     return this;
   }
 
   public CollectionBuilder add(VariableValueSource... sources) {
-    collection.addVariableValueSource(sources);
+    sourceBuilder.add(sources);
     return this;
   }
 
   public CollectionBuilder add(VariableValueSourceFactory factory) {
-    collection.addVariableValueSource(factory);
+    sourceBuilder.addAll(factory.createSources(collection.getName()));
     return this;
   }
 
   public Collection build() {
-    collection.initialise();
+    collection.setValueSetProviders(providerBuilder.build());
+    collection.setVariableValueSources(sourceBuilder.build());
     return collection;
   }
 

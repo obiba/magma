@@ -12,14 +12,13 @@ import org.obiba.meta.ValueSetReference;
 import org.obiba.meta.ValueSetReferenceProvider;
 import org.obiba.meta.Variable;
 import org.obiba.meta.VariableValueSource;
-import org.obiba.meta.VariableValueSourceFactory;
 
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 
-public class CollectionBean implements Collection {
+public class CollectionBean implements Collection, Initialisable {
 
   private String name;
 
@@ -31,18 +30,12 @@ public class CollectionBean implements Collection {
     this.name = name;
   }
 
-  public void addValueSetReferenceProvider(ValueSetReferenceProvider provider) {
-    this.valueSetProviders.add(provider);
+  void setValueSetProviders(Set<ValueSetReferenceProvider> valueSetProviders) {
+    this.valueSetProviders = valueSetProviders;
   }
 
-  public void addVariableValueSource(VariableValueSource... sources) {
-    for(VariableValueSource source : sources) {
-      this.variableSources.add(source);
-    }
-  }
-
-  public void addVariableValueSource(VariableValueSourceFactory factory) {
-    this.variableSources.addAll(factory.createSources(getName()));
+  void setVariableValueSources(Set<VariableValueSource> variableSources) {
+    this.variableSources = variableSources;
   }
 
   @Override

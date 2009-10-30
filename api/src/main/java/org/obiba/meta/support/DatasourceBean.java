@@ -7,6 +7,9 @@ import java.util.Set;
 
 import org.obiba.meta.Collection;
 import org.obiba.meta.Datasource;
+import org.obiba.meta.Initialisable;
+
+import com.google.common.collect.Iterables;
 
 public class DatasourceBean implements Datasource {
 
@@ -41,6 +44,13 @@ public class DatasourceBean implements Datasource {
   @Override
   public Set<Collection> getCollections() {
     return Collections.unmodifiableSet(collections);
+  }
+
+  @Override
+  public void initialise() {
+    for(Initialisable initialisable : Iterables.filter(getCollections(), Initialisable.class)) {
+      initialisable.initialise();
+    }
   }
 
   public void addCollection(Collection collection) {

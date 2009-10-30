@@ -9,6 +9,8 @@
  ******************************************************************************/
 package org.obiba.meta;
 
+import java.util.Set;
+
 import javax.xml.namespace.QName;
 
 /**
@@ -47,6 +49,24 @@ public interface Variable {
 
     public Builder addAttribute(String name, String value) {
       variable.attributes.put(name, value);
+      return this;
+    }
+
+    public Builder addCategory(String name, String code) {
+      variable.categories.add(new CategoryBean(variable, name, code));
+      return this;
+    }
+
+    /**
+     * Add an array of category labels. The resulting categories will have a null {@code code} attribute.
+     * 
+     * @param names
+     * @return
+     */
+    public Builder addCategories(String... names) {
+      for(String name : names) {
+        variable.categories.add(new CategoryBean(variable, name, null));
+      }
       return this;
     }
   }
@@ -89,5 +109,7 @@ public interface Variable {
    * to another entity.
    */
   public String getReferencedEntityType();
+
+  public Set<Category> getCategories();
 
 }

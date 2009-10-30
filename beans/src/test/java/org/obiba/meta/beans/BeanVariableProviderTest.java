@@ -14,10 +14,12 @@ import java.util.Date;
 import java.util.Map;
 import java.util.Set;
 
+import org.easymock.EasyMock;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.obiba.meta.Category;
 import org.obiba.meta.MetaEngine;
 import org.obiba.meta.Value;
 import org.obiba.meta.ValueSetReference;
@@ -25,12 +27,15 @@ import org.obiba.meta.ValueSetReferenceResolver;
 import org.obiba.meta.VariableValueSource;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 
 /**
  *
  */
 public class BeanVariableProviderTest {
+
+  ValueSetReferenceResolver mockResolver = EasyMock.createMock(ValueSetReferenceResolver.class);
 
   @Before
   public void createMetaEngine() {
@@ -45,16 +50,33 @@ public class BeanVariableProviderTest {
   @Test
   public void testSimpleProperties() {
     Set<String> properties = Sets.newHashSet("firstName", "lastName", "integer", "enumProperty");
-    BeanVariableValueSourceFactory<TestBean> bvp = new BeanVariableValueSourceFactory<TestBean>("Test", TestBean.class, null);
+    BeanVariableValueSourceFactory<TestBean> bvp = new BeanVariableValueSourceFactory<TestBean>("Test", TestBean.class, mockResolver);
     bvp.setProperties(properties);
 
     assertVariablesFromProperties(bvp, properties);
   }
 
   @Test
+  public void testEnumHasCategories() {
+    Set<String> properties = Sets.newHashSet("enumProperty");
+    BeanVariableValueSourceFactory<TestBean> bvp = new BeanVariableValueSourceFactory<TestBean>("Test", TestBean.class, mockResolver);
+    bvp.setProperties(properties);
+
+    Set<VariableValueSource> sources = assertVariablesFromProperties(bvp, properties);
+    Set<Category> categories = Iterables.get(sources, 0).getVariable().getCategories();
+    Assert.assertNotNull(categories);
+    Assert.assertTrue(categories.size() > 0);
+
+    for(Category c : categories) {
+      TestEnum e = TestEnum.valueOf(c.getName());
+      Assert.assertNotNull(e);
+    }
+  }
+
+  @Test
   public void testPropertyWithoutField() {
     Set<String> properties = Sets.newHashSet("composedProperty");
-    BeanVariableValueSourceFactory<TestBean> bvp = new BeanVariableValueSourceFactory<TestBean>("Test", TestBean.class, null);
+    BeanVariableValueSourceFactory<TestBean> bvp = new BeanVariableValueSourceFactory<TestBean>("Test", TestBean.class, mockResolver);
     bvp.setProperties(properties);
 
     assertVariablesFromProperties(bvp, properties);
@@ -63,7 +85,7 @@ public class BeanVariableProviderTest {
   @Test
   public void testNestedProperties() {
     Set<String> properties = Sets.newHashSet("nestedBean.decimal", "nestedBean.data");
-    BeanVariableValueSourceFactory<TestBean> bvp = new BeanVariableValueSourceFactory<TestBean>("Test", TestBean.class, null);
+    BeanVariableValueSourceFactory<TestBean> bvp = new BeanVariableValueSourceFactory<TestBean>("Test", TestBean.class, mockResolver);
     bvp.setProperties(properties);
     assertVariablesFromProperties(bvp, properties);
   }
@@ -73,7 +95,7 @@ public class BeanVariableProviderTest {
     Set<String> properties = Sets.newHashSet("nestedBean.decimal", "firstName");
     Map<String, String> nameOverride = new ImmutableMap.Builder<String, String>().put("nestedBean.decimal", "NestedDecimal").put("firstName", "FirstName").build();
 
-    BeanVariableValueSourceFactory<TestBean> bvp = new BeanVariableValueSourceFactory<TestBean>("Test", TestBean.class, null);
+    BeanVariableValueSourceFactory<TestBean> bvp = new BeanVariableValueSourceFactory<TestBean>("Test", TestBean.class, mockResolver);
     bvp.setProperties(properties);
     bvp.setPropertyNameToVariableName(nameOverride);
     assertVariablesFromProperties(bvp, properties, nameOverride);
