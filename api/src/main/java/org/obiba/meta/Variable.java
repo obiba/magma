@@ -37,8 +37,8 @@ public interface Variable {
       return variable;
     }
 
-    public Builder repeatedWith(String name) {
-      variable.repeatedVariable = name;
+    public Builder occurrenceGroup(String name) {
+      variable.occurrenceGroup = name;
       return this;
     }
 
@@ -83,7 +83,7 @@ public interface Variable {
 
   public boolean isRepeatable();
 
-  public String getRepeatedVariable();
+  public String getOccurrenceGroup();
 
   public ValueType getValueType();
 

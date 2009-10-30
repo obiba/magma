@@ -6,7 +6,7 @@ import org.obiba.meta.Variable;
 
 public class OccurrenceReferenceBean extends ValueSetReferenceBean implements OccurrenceReference {
 
-  Variable variable;
+  String occurrenceGroup;
 
   int order;
 
@@ -19,13 +19,13 @@ public class OccurrenceReferenceBean extends ValueSetReferenceBean implements Oc
   }
 
   @Override
-  public int getOrder() {
-    return order;
+  public String getOccurrenceGroup() {
+    return occurrenceGroup;
   }
 
   @Override
-  public Variable getVariable() {
-    return variable;
+  public int getOrder() {
+    return order;
   }
 
 }

@@ -14,7 +14,7 @@ public class TextType implements ValueType {
 
   private static WeakReference<TextType> instance;
 
-  private TextType() {
+  protected TextType() {
 
   }
 

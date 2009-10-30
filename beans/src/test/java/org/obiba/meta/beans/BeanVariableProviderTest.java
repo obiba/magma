@@ -11,6 +11,7 @@ package org.obiba.meta.beans;
 
 import java.util.Collection;
 import java.util.Date;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
@@ -49,7 +50,7 @@ public class BeanVariableProviderTest {
 
   @Test
   public void testSimpleProperties() {
-    Set<String> properties = Sets.newHashSet("firstName", "lastName", "integer", "enumProperty");
+    Set<String> properties = Sets.newHashSet("firstName", "lastName", "integer", "enumProperty", "language", "state");
     BeanVariableValueSourceFactory<TestBean> bvp = new BeanVariableValueSourceFactory<TestBean>("Test", TestBean.class, mockResolver);
     bvp.setProperties(properties);
 
@@ -191,6 +192,8 @@ public class BeanVariableProviderTest {
 
     private NestedTestBean anotherNestedBean;
 
+    private Locale language;
+
     public TestBean() {
     }
 
@@ -261,6 +264,14 @@ public class BeanVariableProviderTest {
 
     public void setAnotherNestedBean(NestedTestBean anotherNestedBean) {
       this.anotherNestedBean = anotherNestedBean;
+    }
+
+    public final Locale getLanguage() {
+      return language;
+    }
+
+    public final void setLanguage(Locale language) {
+      this.language = language;
     }
 
   }

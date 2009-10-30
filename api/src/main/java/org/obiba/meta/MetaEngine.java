@@ -50,7 +50,7 @@ public class MetaEngine {
     if(index > -1) {
       String collection = name.substring(0, index);
       String variableName = name.substring(index + 1);
-      lookupVariable(entityType, collection, variableName);
+      return lookupVariable(entityType, collection, variableName);
     }
     throw new NoSuchVariableException(name);
   }

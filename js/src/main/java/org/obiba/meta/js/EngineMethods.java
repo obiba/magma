@@ -52,12 +52,18 @@ public final class EngineMethods {
     }
 
     VariableValueSource source = lookupSource(reference, name);
-    Value value = source.getValue(reference);
-    if(source.getValueType().isDateTime()) {
-      Date date = (Date) value.getValue();
-      return Context.toObject(ScriptRuntime.wrapNumber(date.getTime()), thisObj);
+
+    if(source.getVariable().isRepeatable()) {
+      // Return an object that can be indexed (e.g.: $('BP.Systolic')[2] or avg($('BP.Systolic')) )
+      throw new UnsupportedOperationException("$() on repeatable variables is not supported, variable '" + source.getVariable().getQName() + "'");
+    } else {
+      Value value = source.getValue(reference);
+      if(source.getValueType().isDateTime()) {
+        Date date = (Date) value.getValue();
+        return Context.toObject(ScriptRuntime.wrapNumber(date.getTime()), thisObj);
+      }
+      return ScriptRuntime.toObject(thisObj, value.getValue());
     }
-    return ScriptRuntime.toObject(thisObj, value.getValue());
   }
 
   private static VariableValueSource lookupSource(ValueSetReference reference, String name) {

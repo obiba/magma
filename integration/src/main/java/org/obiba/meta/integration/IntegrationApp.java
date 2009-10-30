@@ -76,11 +76,18 @@ public class IntegrationApp {
     builder.add(new JavascriptVariableValueSource(Variable.Builder.newVariable("integration-app", "isFemale", BooleanType.get(), "Participant").addAttribute("script", "$('gender') == 'Female'").build()));
 
     OccurrenceReferenceResolver<Action> actionResolver = new OccurrenceReferenceResolver<Action>() {
-      public Action resolve(OccurrenceReference reference) {
-        Participant participant = service.getParticipant(reference.getVariableEntity().getIdentifier());
-        return service.getActions(participant).get(reference.getOrder());
+      public Action resolve(ValueSetReference reference) {
+        if(reference instanceof OccurrenceReference) {
+          OccurrenceReference occurrenceReference = (OccurrenceReference) reference;
+          Participant participant = service.getParticipant(reference.getVariableEntity().getIdentifier());
+          return service.getActions(participant).get(occurrenceReference.getOrder());
+        }
+        throw new IllegalArgumentException();
       };
     };
+
+    // BeanVariableValueSourceFactory<Action> factory = new BeanVariableValueSourceFactory<Action>("Participant",
+    // Action.class, actionResolver);
 
     Collection collection = builder.build();
 

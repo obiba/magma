@@ -26,7 +26,7 @@ class VariableBean implements Variable {
 
   boolean repeatable;
 
-  String repeatedVariable;
+  String occurrenceGroup;
 
   Map<String, String> attributes = new HashMap<String, String>();
 
@@ -89,8 +89,8 @@ class VariableBean implements Variable {
   }
 
   @Override
-  public String getRepeatedVariable() {
-    return repeatedVariable;
+  public String getOccurrenceGroup() {
+    return occurrenceGroup;
   }
 
   @Override

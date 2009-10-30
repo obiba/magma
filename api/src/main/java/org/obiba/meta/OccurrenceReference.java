@@ -2,7 +2,7 @@ package org.obiba.meta;
 
 public interface OccurrenceReference extends ValueSetReference {
 
-  public Variable getVariable();
+  public String getOccurrenceGroup();
 
   public int getOrder();
 
