@@ -8,7 +8,7 @@ import java.util.Set;
 
 import javax.xml.namespace.QName;
 
-class DefaultVariable implements Variable {
+class VariableBean implements Variable {
 
   String collection;
 

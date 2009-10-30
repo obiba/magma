@@ -20,7 +20,7 @@ public interface Variable {
 
   public static class Builder {
 
-    private DefaultVariable variable = new DefaultVariable();
+    private VariableBean variable = new VariableBean();
 
     public Builder(String collection, String name, ValueType type, String entityType) {
       variable.collection = collection;
