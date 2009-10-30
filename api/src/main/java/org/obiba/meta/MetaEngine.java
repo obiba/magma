@@ -41,18 +41,21 @@ public class MetaEngine {
     return valueTypeFactory;
   }
 
-  public VariableValueSource lookupVariable(String entityType, String name) {
+  public VariableValueSource lookupVariable(String entityType, String collection, String name) throws NoSuchCollectionException, NoSuchVariableException {
+    return lookupCollection(collection).getVariableValueSource(entityType, name);
+  }
+
+  public VariableValueSource lookupVariable(String entityType, String name) throws NoSuchCollectionException, NoSuchVariableException {
     int index = name.indexOf(':');
     if(index > -1) {
-
       String collection = name.substring(0, index);
-      String variable = name.substring(index + 1);
-      return lookupCollection(collection).getVariableValueSource(entityType, variable);
+      String variableName = name.substring(index + 1);
+      lookupVariable(entityType, collection, variableName);
     }
     throw new NoSuchVariableException(name);
   }
 
-  public Collection lookupCollection(String name) {
+  public Collection lookupCollection(String name) throws NoSuchCollectionException {
     for(Datasource ds : datasources) {
       for(Collection c : ds.getCollections()) {
         if(c.getName().equals(name)) {
@@ -60,8 +63,7 @@ public class MetaEngine {
         }
       }
     }
-    // No such collection
-    throw new IllegalArgumentException(name);
+    throw new NoSuchCollectionException(name);
   }
 
   public void addDatasource(Datasource datasource) {

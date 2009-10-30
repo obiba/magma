@@ -12,7 +12,7 @@ public interface Collection {
 
   public Set<VariableValueSource> getVariableValueSources(String entityType);
 
-  public VariableValueSource getVariableValueSource(String entityType, String variableName);
+  public VariableValueSource getVariableValueSource(String entityType, String variableName) throws NoSuchVariableException;
 
   public Set<Variable> getVariables();
 

@@ -59,7 +59,7 @@ public class CollectionBean implements Collection, Initialisable {
   }
 
   @Override
-  public VariableValueSource getVariableValueSource(final String entityType, final String variableName) {
+  public VariableValueSource getVariableValueSource(final String entityType, final String variableName) throws NoSuchVariableException {
     try {
       return Iterables.find(variableSources, new Predicate<VariableValueSource>() {
         @Override
