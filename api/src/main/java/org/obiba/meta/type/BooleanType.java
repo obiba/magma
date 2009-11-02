@@ -59,4 +59,9 @@ public class BooleanType implements ValueType {
   public String toString(Value value) {
     return value.isNull() ? null : value.getValue().toString();
   }
+
+  @Override
+  public Value valueOf(String string) {
+    return MetaEngine.get().getValueFactory().newValue(this, Boolean.valueOf(string));
+  }
 }

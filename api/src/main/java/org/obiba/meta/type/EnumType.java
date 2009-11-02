@@ -67,4 +67,11 @@ public class EnumType implements EnumeratedType {
     return value.isNull() ? null : value.getValue().toString();
   }
 
+  @Override
+  public Value valueOf(String string) {
+    // Since we don't know what enum type we represent, we cannot use the proper enum constant. We can only use its
+    // String representation
+    return MetaEngine.get().getValueFactory().newValue(this, string);
+  }
+
 }

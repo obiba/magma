@@ -6,6 +6,7 @@ import java.math.BigInteger;
 import javax.xml.namespace.QName;
 
 import org.obiba.meta.MetaEngine;
+import org.obiba.meta.Value;
 
 public class IntegerType extends AbstractNumberType {
 
@@ -26,7 +27,7 @@ public class IntegerType extends AbstractNumberType {
 
   @Override
   public Class<?> getJavaClass() {
-    return BigInteger.class;
+    return Long.class;
   }
 
   @Override
@@ -42,6 +43,11 @@ public class IntegerType extends AbstractNumberType {
   @Override
   public boolean acceptsJavaClass(Class<?> clazz) {
     return Integer.class.isAssignableFrom(clazz) || int.class.isAssignableFrom(clazz) || Long.class.isAssignableFrom(clazz) || long.class.isAssignableFrom(clazz) || BigInteger.class.isAssignableFrom(clazz);
+  }
+
+  @Override
+  public Value valueOf(String string) {
+    return MetaEngine.get().getValueFactory().newValue(this, Long.valueOf(string));
   }
 
 }

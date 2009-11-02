@@ -1,6 +1,8 @@
 package org.obiba.meta.type;
 
 import java.lang.ref.WeakReference;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import javax.xml.namespace.QName;
@@ -14,6 +16,8 @@ public class DateType implements ValueType {
   private static final long serialVersionUID = -149385659514790222L;
 
   private static WeakReference<DateType> instance;
+
+  private static SimpleDateFormat ISO_8601 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSzzz");
 
   private DateType() {
 
@@ -59,6 +63,15 @@ public class DateType implements ValueType {
   @Override
   public String toString(Value value) {
     Date date = (Date) value.getValue();
-    return date == null ? null : date.toString();
+    return date == null ? null : ISO_8601.format(date);
+  }
+
+  @Override
+  public Value valueOf(String string) {
+    try {
+      return MetaEngine.get().getValueFactory().newValue(this, ISO_8601.parse(string));
+    } catch(ParseException e) {
+      throw new IllegalArgumentException(e);
+    }
   }
 }

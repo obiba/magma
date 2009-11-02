@@ -6,6 +6,7 @@ import java.math.BigDecimal;
 import javax.xml.namespace.QName;
 
 import org.obiba.meta.MetaEngine;
+import org.obiba.meta.Value;
 
 public class DecimalType extends AbstractNumberType {
 
@@ -42,5 +43,10 @@ public class DecimalType extends AbstractNumberType {
   @Override
   public boolean acceptsJavaClass(Class<?> clazz) {
     return Double.class.isAssignableFrom(clazz) || double.class.isAssignableFrom(clazz) || Float.class.isAssignableFrom(clazz) || float.class.isAssignableFrom(clazz) || BigDecimal.class.isAssignableFrom(clazz);
+  }
+
+  @Override
+  public Value valueOf(String string) {
+    return MetaEngine.get().getValueFactory().newValue(this, Integer.valueOf(string));
   }
 }

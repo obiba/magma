@@ -56,4 +56,8 @@ public class TextType implements ValueType {
     return (String) value.getValue();
   }
 
+  @Override
+  public Value valueOf(String string) {
+    return MetaEngine.get().getValueFactory().newValue(this, string);
+  }
 }

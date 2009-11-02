@@ -53,7 +53,14 @@ public class BinaryType implements ValueType {
 
   @Override
   public String toString(Value value) {
-    return value.isNull() ? null : value.getValue().toString();
+    // TODO: Base64 encode
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public Value valueOf(String string) {
+    // TODO: Base64 decode
+    throw new UnsupportedOperationException();
   }
 
 }

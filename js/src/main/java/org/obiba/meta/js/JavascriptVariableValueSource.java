@@ -33,7 +33,7 @@ public class JavascriptVariableValueSource extends JavascriptValueSource impleme
 
   @Override
   public void initialise() {
-    super.setScript(variable.getAttribute("script"));
+    super.setScript(variable.getAttribute("script").getValue().toString());
     super.initialise();
   }
 

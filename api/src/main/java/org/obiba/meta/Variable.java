@@ -9,6 +9,7 @@
  ******************************************************************************/
 package org.obiba.meta;
 
+import java.util.Locale;
 import java.util.Set;
 
 import javax.xml.namespace.QName;
@@ -48,7 +49,12 @@ public interface Variable {
     }
 
     public Builder addAttribute(String name, String value) {
-      variable.attributes.put(name, value);
+      variable.attributes.put(name, Attribute.Builder.newAttribute(name).withValue(value).build());
+      return this;
+    }
+
+    public Builder addAttribute(String name, String value, Locale locale) {
+      variable.attributes.put(name, Attribute.Builder.newAttribute(name).withValue(locale, value).build());
       return this;
     }
 
@@ -99,7 +105,11 @@ public interface Variable {
    */
   public String getMimeType();
 
-  public String getAttribute(String name);
+  public boolean hasAttribute(String name);
+
+  public Attribute getAttribute(String name);
+
+  public Attribute getAttribute(String name, Locale locale);
 
   /**
    * Used when this variable value is a pointer to another {@code IVariableEntity}. The value is considered to point to
