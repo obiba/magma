@@ -62,6 +62,12 @@ public class BooleanType implements ValueType {
 
   @Override
   public Value valueOf(String string) {
-    return MetaEngine.get().getValueFactory().newValue(this, Boolean.valueOf(string));
+    return Factory.newValue(this, Boolean.valueOf(string));
+  }
+
+  @Override
+  public Value valueOf(Object object) {
+    String str = object != null ? object.toString() : null;
+    return Factory.newValue(this, Boolean.valueOf(str));
   }
 }

@@ -9,7 +9,6 @@
  ******************************************************************************/
 package org.obiba.meta.beans;
 
-import org.obiba.meta.MetaEngine;
 import org.obiba.meta.NoSuchValueSetException;
 import org.obiba.meta.Value;
 import org.obiba.meta.ValueSetReference;
@@ -58,7 +57,7 @@ public class BeanPropertyVariableValueSource implements VariableValueSource {
       throw new NoSuchValueSetException(reference);
     }
     Object object = getPropertyValue(propertyPath, PropertyAccessorFactory.forBeanPropertyAccess(bean));
-    return MetaEngine.get().getValueFactory().newValue(variable.getValueType(), object);
+    return getValueType().valueOf(object);
   }
 
   protected Object getPropertyValue(String propertyPath, BeanWrapper bw) {

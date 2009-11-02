@@ -25,7 +25,7 @@ public interface Attribute {
 
     public Builder withValue(Locale locale, String value) {
       attribute.locale = locale;
-      attribute.value = MetaEngine.get().getValueFactory().newValue(TextType.get(), value);
+      attribute.value = TextType.get().valueOf(value);
       return this;
     }
 

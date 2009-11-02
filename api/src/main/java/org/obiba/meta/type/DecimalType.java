@@ -47,6 +47,11 @@ public class DecimalType extends AbstractNumberType {
 
   @Override
   public Value valueOf(String string) {
-    return MetaEngine.get().getValueFactory().newValue(this, Integer.valueOf(string));
+    return Factory.newValue(this, Integer.valueOf(string));
+  }
+
+  @Override
+  public Value valueOf(Object object) {
+    throw new UnsupportedOperationException("method not implemented");
   }
 }

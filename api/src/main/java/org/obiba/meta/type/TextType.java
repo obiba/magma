@@ -58,6 +58,11 @@ public class TextType implements ValueType {
 
   @Override
   public Value valueOf(String string) {
-    return MetaEngine.get().getValueFactory().newValue(this, string);
+    return Factory.newValue(this, string);
+  }
+
+  @Override
+  public Value valueOf(Object object) {
+    return Factory.newValue(this, object != null ? object.toString() : null);
   }
 }

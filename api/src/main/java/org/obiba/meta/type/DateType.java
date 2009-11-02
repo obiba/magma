@@ -3,6 +3,7 @@ package org.obiba.meta.type;
 import java.lang.ref.WeakReference;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 
 import javax.xml.namespace.QName;
@@ -57,7 +58,7 @@ public class DateType implements ValueType {
 
   @Override
   public boolean acceptsJavaClass(Class<?> clazz) {
-    return Date.class.isAssignableFrom(clazz) || java.sql.Date.class.isAssignableFrom(clazz) || java.sql.Timestamp.class.isAssignableFrom(clazz);
+    return Date.class.isAssignableFrom(clazz) || java.sql.Date.class.isAssignableFrom(clazz) || java.sql.Timestamp.class.isAssignableFrom(clazz) || Calendar.class.isAssignableFrom(clazz);
   }
 
   @Override
@@ -69,9 +70,15 @@ public class DateType implements ValueType {
   @Override
   public Value valueOf(String string) {
     try {
-      return MetaEngine.get().getValueFactory().newValue(this, ISO_8601.parse(string));
+      return Factory.newValue(this, ISO_8601.parse(string));
     } catch(ParseException e) {
       throw new IllegalArgumentException(e);
     }
+  }
+
+  @Override
+  public Value valueOf(Object object) {
+    // TODO: normalize acceptable types to java.util.Date
+    throw new UnsupportedOperationException("method not implemented");
   }
 }

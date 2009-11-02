@@ -15,7 +15,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.obiba.meta.MetaEngine;
 import org.obiba.meta.OccurrenceReferenceResolver;
 import org.obiba.meta.ValueSetReferenceResolver;
 import org.obiba.meta.ValueType;
@@ -163,15 +162,19 @@ public class BeanVariableValueSourceFactory<T> implements VariableValueSourceFac
   }
 
   private Variable buildVariable(String collection, Class<?> propertyType, String name) {
-    ValueType type = MetaEngine.get().getValueTypeFactory().forClass(propertyType);
+    ValueType type = ValueType.Factory.forClass(propertyType);
 
     Variable.Builder builder = Variable.Builder.newVariable(collection, name, type, entityType);
     if(type instanceof EnumeratedType) {
       builder.addCategories(((EnumeratedType) type).enumerate(propertyType));
     }
-    if(resolver instanceof OccurrenceReferenceResolver) {
-      builder.repeatable();
+
+    // Is this clean? It's transparent, but uses instanceof.
+    if(resolver instanceof OccurrenceReferenceResolver<?>) {
+      OccurrenceReferenceResolver<?> occurrenceResolver = (OccurrenceReferenceResolver<?>) resolver;
+      builder.repeatable().occurrenceGroup(occurrenceResolver.getOccurrentGroup());
     }
+
     return builder.build();
   }
 

@@ -13,8 +13,6 @@ public class MetaEngine {
 
   private static MetaEngine instance;
 
-  private ValueFactory valueFactory;
-
   private ValueTypeFactory valueTypeFactory;
 
   private Set<Datasource> datasources = new HashSet<Datasource>();
@@ -25,16 +23,11 @@ public class MetaEngine {
     }
     instance = this;
 
-    valueFactory = new ValueFactory();
     valueTypeFactory = new ValueTypeFactory();
   }
 
   public static MetaEngine get() {
     return instance;
-  }
-
-  public ValueFactory getValueFactory() {
-    return valueFactory;
   }
 
   public ValueTypeFactory getValueTypeFactory() {

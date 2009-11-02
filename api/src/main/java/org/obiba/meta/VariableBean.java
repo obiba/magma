@@ -2,12 +2,14 @@ package org.obiba.meta;
 
 import java.util.Collections;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
 import javax.xml.namespace.QName;
 
 import com.google.common.base.Predicate;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.ListMultimap;
@@ -97,6 +99,16 @@ class VariableBean implements Variable {
   }
 
   @Override
+  public List<Attribute> getAttributes() {
+    return ImmutableList.copyOf(attributes.values());
+  }
+
+  @Override
+  public boolean hasAttributes() {
+    return attributes.size() > 0;
+  }
+
+  @Override
   public String getReferencedEntityType() {
     return referencedEntityType;
   }
@@ -114,5 +126,10 @@ class VariableBean implements Variable {
   @Override
   public Set<Category> getCategories() {
     return Collections.unmodifiableSet(categories);
+  }
+
+  @Override
+  public boolean hasCategories() {
+    return categories.size() > 0;
   }
 }

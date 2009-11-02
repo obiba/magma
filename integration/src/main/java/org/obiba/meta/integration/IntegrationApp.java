@@ -78,6 +78,10 @@ public class IntegrationApp {
     builder.add(new JavascriptVariableValueSource(Variable.Builder.newVariable("integration-app", "isFemale", BooleanType.get(), "Participant").extend(JavascriptVariableBuilder.class).setScript("$('gender') == 'Female'").build()));
 
     OccurrenceReferenceResolver<Action> actionResolver = new AbstractOccurrenceReferenceResolver<Action>() {
+      @Override
+      public String getOccurrentGroup() {
+        return "Action";
+      }
 
       @Override
       protected Action resolveOccurrence(OccurrenceReference occurrence) {

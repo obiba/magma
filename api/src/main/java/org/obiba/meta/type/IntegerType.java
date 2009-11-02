@@ -47,7 +47,12 @@ public class IntegerType extends AbstractNumberType {
 
   @Override
   public Value valueOf(String string) {
-    return MetaEngine.get().getValueFactory().newValue(this, Long.valueOf(string));
+    return Factory.newValue(this, Long.valueOf(string));
+  }
+
+  @Override
+  public Value valueOf(Object object) {
+    throw new UnsupportedOperationException("method not implemented");
   }
 
 }

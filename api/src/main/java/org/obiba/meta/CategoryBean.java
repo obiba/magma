@@ -2,14 +2,11 @@ package org.obiba.meta;
 
 class CategoryBean implements Category {
 
-  private Variable variable;
+  String name;
 
-  private String name;
+  String code;
 
-  private String code;
-
-  CategoryBean(Variable variable, String name, String code) {
-    this.variable = variable;
+  CategoryBean(String name, String code) {
     this.name = name;
     this.code = code;
   }
@@ -22,11 +19,6 @@ class CategoryBean implements Category {
   @Override
   public String getName() {
     return name;
-  }
-
-  @Override
-  public Variable getVariable() {
-    return variable;
   }
 
 }

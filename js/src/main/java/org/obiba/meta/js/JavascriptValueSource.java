@@ -6,7 +6,6 @@ import org.mozilla.javascript.ContextFactory;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
 import org.obiba.meta.Initialisable;
-import org.obiba.meta.MetaEngine;
 import org.obiba.meta.Value;
 import org.obiba.meta.ValueSetReference;
 import org.obiba.meta.ValueSource;
@@ -49,7 +48,7 @@ public class JavascriptValueSource implements ValueSource, Initialisable {
 
         enterContext(ctx, sharedScope, valueSetReference);
         Object value = ctx.evaluateString(sharedScope, getScript(), "source", 1, null);
-        return MetaEngine.get().getValueFactory().newValue(getValueType(), value);
+        return getValueType().valueOf(value);
       }
     });
   }

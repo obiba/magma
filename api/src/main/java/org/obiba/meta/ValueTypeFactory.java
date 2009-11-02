@@ -2,6 +2,7 @@ package org.obiba.meta;
 
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.NoSuchElementException;
 import java.util.Set;
 
 import org.obiba.meta.type.BinaryType;
@@ -13,6 +14,9 @@ import org.obiba.meta.type.IntegerType;
 import org.obiba.meta.type.LocaleType;
 import org.obiba.meta.type.TextType;
 
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
+
 public class ValueTypeFactory {
 
   private Set<ValueType> types = new HashSet<ValueType>();
@@ -21,13 +25,30 @@ public class ValueTypeFactory {
     registerBuiltInTypes();
   }
 
-  public ValueType forClass(Class<?> javaClass) {
-    for(ValueType type : types) {
-      if(type.acceptsJavaClass(javaClass)) {
-        return type;
-      }
+  public ValueType forClass(final Class<?> javaClass) {
+    try {
+      return Iterables.find(types, new Predicate<ValueType>() {
+        @Override
+        public boolean apply(ValueType input) {
+          return input.acceptsJavaClass(javaClass);
+        }
+      });
+    } catch(NoSuchElementException e) {
+      throw new IllegalArgumentException("No ValueType for Java type " + javaClass.getName());
     }
-    throw new IllegalArgumentException("No ValueType for Java type " + javaClass.getName());
+  }
+
+  public ValueType forName(final String name) {
+    try {
+      return Iterables.find(types, new Predicate<ValueType>() {
+        @Override
+        public boolean apply(ValueType input) {
+          return input.getName().equals(name);
+        }
+      });
+    } catch(NoSuchElementException e) {
+      throw new IllegalArgumentException("No ValueType named " + name);
+    }
   }
 
   public Set<ValueType> getValueTypes() {

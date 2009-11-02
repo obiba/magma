@@ -54,13 +54,19 @@ public class BinaryType implements ValueType {
   @Override
   public String toString(Value value) {
     // TODO: Base64 encode
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException("method not implemented");
   }
 
   @Override
   public Value valueOf(String string) {
     // TODO: Base64 decode
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException("method not implemented");
+  }
+
+  @Override
+  public Value valueOf(Object object) {
+    // input type is expected to be byte[]
+    throw new UnsupportedOperationException("method not implemented");
   }
 
 }

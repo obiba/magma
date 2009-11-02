@@ -5,4 +5,6 @@ package org.obiba.meta;
  */
 public interface OccurrenceReferenceResolver<T> extends ValueSetReferenceResolver<T> {
 
+  public String getOccurrentGroup();
+
 }

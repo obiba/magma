@@ -10,6 +10,7 @@
 package org.obiba.meta;
 
 import java.lang.reflect.Constructor;
+import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
@@ -63,8 +64,18 @@ public interface Variable {
       return this;
     }
 
+    public Builder addAttribute(Attribute attribute) {
+      variable.attributes.put(attribute.getName(), attribute);
+      return this;
+    }
+
     public Builder addCategory(String name, String code) {
-      variable.categories.add(new CategoryBean(variable, name, code));
+      variable.categories.add(Category.Builder.newCategory(name).withCode(code).build());
+      return this;
+    }
+
+    public Builder addCategory(Category category) {
+      variable.categories.add(category);
       return this;
     }
 
@@ -77,7 +88,7 @@ public interface Variable {
      */
     public Builder addCategories(String... names) {
       for(String name : names) {
-        variable.categories.add(new CategoryBean(variable, name, null));
+        variable.categories.add(Category.Builder.newCategory(name).build());
       }
       return this;
     }
@@ -148,11 +159,19 @@ public interface Variable {
    */
   public String getMimeType();
 
+  /**
+   * Returns true if this variable has at least one {@code Attribute}
+   * @return
+   */
+  public boolean hasAttributes();
+
   public boolean hasAttribute(String name);
 
   public Attribute getAttribute(String name);
 
   public Attribute getAttribute(String name, Locale locale);
+
+  public List<Attribute> getAttributes();
 
   /**
    * Used when this variable value is a pointer to another {@code IVariableEntity}. The value is considered to point to
@@ -162,6 +181,12 @@ public interface Variable {
    * to another entity.
    */
   public String getReferencedEntityType();
+
+  /**
+   * Returns true if this variable has at least on {@code Category}
+   * @return
+   */
+  public boolean hasCategories();
 
   public Set<Category> getCategories();
 
