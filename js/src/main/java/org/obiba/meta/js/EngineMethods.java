@@ -44,6 +44,10 @@ public final class EngineMethods {
    * @return
    */
   public static Scriptable valueOf(Context ctx, Scriptable thisObj, Object[] args, Function funObj) {
+    if(args.length != 1) {
+      throw new UnsupportedOperationException("$() expects exactly one argument: a variable name.");
+    }
+
     String name = (String) args[0];
     ValueSetReference reference = (ValueSetReference) ctx.getThreadLocal(ValueSetReference.class);
     Variable variable = (Variable) ctx.getThreadLocal(Variable.class);
@@ -54,8 +58,8 @@ public final class EngineMethods {
     VariableValueSource source = lookupSource(reference, name);
 
     if(source.getVariable().isRepeatable()) {
-      // Return an object that can be indexed (e.g.: $('BP.Systolic')[2] or avg($('BP.Systolic')) )
-      throw new UnsupportedOperationException("$() on repeatable variables is not supported, variable '" + source.getVariable().getQName() + "'");
+      // Return an object that can be indexed (e.g.: $('BP.Systolic')[2] or chained $('BP.Systolic').avg() )
+      throw new UnsupportedOperationException("$() on repeatable variables is not supported. Requested variable: '" + source.getVariable().getQName() + "'");
     } else {
       Value value = source.getValue(reference);
       if(source.getValueType().isDateTime()) {
