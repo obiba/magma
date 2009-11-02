@@ -10,6 +10,8 @@ public interface Collection {
 
   public Set<ValueSetReference> getValueSetReferences(String entityType);
 
+  public Set<OccurrenceReference> getOccurrenceReferences(ValueSetReference reference, Variable variable);
+
   public Set<VariableValueSource> getVariableValueSources(String entityType);
 
   public VariableValueSource getVariableValueSource(String entityType, String variableName) throws NoSuchVariableException;

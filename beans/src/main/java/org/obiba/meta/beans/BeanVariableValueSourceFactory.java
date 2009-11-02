@@ -16,6 +16,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.obiba.meta.MetaEngine;
+import org.obiba.meta.OccurrenceReferenceResolver;
 import org.obiba.meta.ValueSetReferenceResolver;
 import org.obiba.meta.ValueType;
 import org.obiba.meta.Variable;
@@ -167,6 +168,9 @@ public class BeanVariableValueSourceFactory<T> implements VariableValueSourceFac
     Variable.Builder builder = Variable.Builder.newVariable(collection, name, type, entityType);
     if(type instanceof EnumeratedType) {
       builder.addCategories(((EnumeratedType) type).enumerate(propertyType));
+    }
+    if(resolver instanceof OccurrenceReferenceResolver) {
+      builder.repeatable();
     }
     return builder.build();
   }

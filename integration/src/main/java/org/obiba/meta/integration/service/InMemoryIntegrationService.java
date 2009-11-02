@@ -20,6 +20,7 @@ public class InMemoryIntegrationService implements IntegrationService {
 
   public InMemoryIntegrationService(List<Participant> participants, List<Action> actions) {
     this.participants = participants;
+    this.actions = actions;
   }
 
   @Override

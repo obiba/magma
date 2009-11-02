@@ -8,6 +8,7 @@ import org.obiba.meta.Collection;
 import org.obiba.meta.Initialisable;
 import org.obiba.meta.NoSuchValueSetException;
 import org.obiba.meta.NoSuchVariableException;
+import org.obiba.meta.OccurrenceReference;
 import org.obiba.meta.ValueSetReference;
 import org.obiba.meta.ValueSetReferenceProvider;
 import org.obiba.meta.Variable;
@@ -56,6 +57,11 @@ public class CollectionBean implements Collection, Initialisable {
   @Override
   public Set<ValueSetReference> getValueSetReferences(String entityType) {
     return lookupProvider(entityType).getValueSetReferences();
+  }
+
+  @Override
+  public Set<OccurrenceReference> getOccurrenceReferences(ValueSetReference reference, Variable variable) {
+    return lookupProvider(reference.getVariableEntity().getType()).getOccurrenceReferences(reference, variable);
   }
 
   @Override

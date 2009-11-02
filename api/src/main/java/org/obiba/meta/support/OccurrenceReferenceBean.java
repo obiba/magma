@@ -12,6 +12,8 @@ public class OccurrenceReferenceBean extends ValueSetReferenceBean implements Oc
 
   public OccurrenceReferenceBean(String entityType, String entityIdentifier, String valueSetIdentifier, Variable variable, int order) {
     super(entityType, entityIdentifier, valueSetIdentifier);
+    this.occurrenceGroup = variable.getOccurrenceGroup();
+    this.order = order;
   }
 
   public OccurrenceReferenceBean(ValueSetReference reference, Variable variable, int order) {
@@ -28,4 +30,8 @@ public class OccurrenceReferenceBean extends ValueSetReferenceBean implements Oc
     return order;
   }
 
+  @Override
+  public String toString() {
+    return super.toString() + "@" + getOccurrenceGroup() + "[" + getOrder() + "]";
+  }
 }

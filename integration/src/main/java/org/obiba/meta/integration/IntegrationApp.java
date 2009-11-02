@@ -4,6 +4,7 @@ import java.io.InputStreamReader;
 import java.util.List;
 import java.util.Set;
 
+import org.obiba.meta.AbstractOccurrenceReferenceResolver;
 import org.obiba.meta.Collection;
 import org.obiba.meta.MetaEngine;
 import org.obiba.meta.OccurrenceReference;
@@ -18,6 +19,7 @@ import org.obiba.meta.integration.model.Action;
 import org.obiba.meta.integration.model.Participant;
 import org.obiba.meta.integration.service.IntegrationService;
 import org.obiba.meta.integration.service.XStreamIntegrationServiceFactory;
+import org.obiba.meta.js.JavascriptVariableBuilder;
 import org.obiba.meta.js.JavascriptVariableValueSource;
 import org.obiba.meta.support.CollectionBuilder;
 import org.obiba.meta.support.DatasourceBean;
@@ -70,24 +72,24 @@ public class IntegrationApp {
 
     builder.add(variables);
 
-    builder.add(new JavascriptVariableValueSource(Variable.Builder.newVariable("integration-app", "fullName", TextType.get(), "Participant").addAttribute("script", "$('firstName') + ' ' + $('lastName')").build()));
-    builder.add(new JavascriptVariableValueSource(Variable.Builder.newVariable("integration-app", "interviewYear", IntegerType.get(), "Participant").addAttribute("script", "dateYear($('interview.startDate'))").build()));
-    builder.add(new JavascriptVariableValueSource(Variable.Builder.newVariable("integration-app", "isMale", BooleanType.get(), "Participant").addAttribute("script", "$('gender') == 'Male'").build()));
-    builder.add(new JavascriptVariableValueSource(Variable.Builder.newVariable("integration-app", "isFemale", BooleanType.get(), "Participant").addAttribute("script", "$('gender') == 'Female'").build()));
+    builder.add(new JavascriptVariableValueSource(Variable.Builder.newVariable("integration-app", "fullName", TextType.get(), "Participant").extend(JavascriptVariableBuilder.class).setScript("$('firstName') + ' ' + $('lastName')").build()));
+    builder.add(new JavascriptVariableValueSource(Variable.Builder.newVariable("integration-app", "interviewYear", IntegerType.get(), "Participant").extend(JavascriptVariableBuilder.class).setScript("dateYear($('interview.startDate'))").build()));
+    builder.add(new JavascriptVariableValueSource(Variable.Builder.newVariable("integration-app", "isMale", BooleanType.get(), "Participant").extend(JavascriptVariableBuilder.class).setScript("$('gender') == 'Male'").build()));
+    builder.add(new JavascriptVariableValueSource(Variable.Builder.newVariable("integration-app", "isFemale", BooleanType.get(), "Participant").extend(JavascriptVariableBuilder.class).setScript("$('gender') == 'Female'").build()));
 
-    OccurrenceReferenceResolver<Action> actionResolver = new OccurrenceReferenceResolver<Action>() {
-      public Action resolve(ValueSetReference reference) {
-        if(reference instanceof OccurrenceReference) {
-          OccurrenceReference occurrenceReference = (OccurrenceReference) reference;
-          Participant participant = service.getParticipant(reference.getVariableEntity().getIdentifier());
-          return service.getActions(participant).get(occurrenceReference.getOrder());
-        }
-        throw new IllegalArgumentException();
-      };
+    OccurrenceReferenceResolver<Action> actionResolver = new AbstractOccurrenceReferenceResolver<Action>() {
+
+      @Override
+      protected Action resolveOccurrence(OccurrenceReference occurrence) {
+        Participant participant = service.getParticipant(occurrence.getVariableEntity().getIdentifier());
+        return service.getActions(participant).get(occurrence.getOrder());
+      }
     };
 
-    // BeanVariableValueSourceFactory<Action> factory = new BeanVariableValueSourceFactory<Action>("Participant",
-    // Action.class, actionResolver);
+    BeanVariableValueSourceFactory<Action> actionFactory = new BeanVariableValueSourceFactory<Action>("Participant", Action.class, actionResolver);
+    actionFactory.setProperties(ImmutableSet.of("stage"));
+    actionFactory.setPrefix("Action");
+    builder.add(actionFactory);
 
     Collection collection = builder.build();
 
@@ -98,7 +100,13 @@ public class IntegrationApp {
     for(String entityType : collection.getEntityTypes()) {
       for(ValueSetReference reference : collection.getValueSetReferences(entityType)) {
         for(VariableValueSource source : collection.getVariableValueSources(entityType)) {
-          System.out.println(source.getVariable().getName() + "[" + source.getValueType().getName() + "]: " + source.getValue(reference));
+          if(source.getVariable().isRepeatable()) {
+            for(OccurrenceReference occurrence : collection.getOccurrenceReferences(reference, source.getVariable())) {
+              System.out.println(source.getVariable().getName() + "[" + source.getValueType().getName() + "]@" + occurrence.getOrder() + ": " + source.getValue(occurrence));
+            }
+          } else {
+            System.out.println(source.getVariable().getName() + "[" + source.getValueType().getName() + "]: " + source.getValue(reference));
+          }
         }
       }
     }

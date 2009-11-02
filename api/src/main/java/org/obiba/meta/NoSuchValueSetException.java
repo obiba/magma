@@ -8,4 +8,7 @@ public class NoSuchValueSetException extends RuntimeException {
     super("Value set reference cannot be resolved '" + reference + "'");
   }
 
+  public NoSuchValueSetException(ValueSetReference reference, String message) {
+    super("Value set reference cannot be resolved '" + reference + "'. " + message);
+  }
 }
