@@ -8,7 +8,6 @@ import org.obiba.meta.Variable;
 import org.obiba.meta.VariableValueSource;
 
 public class JavascriptVariableValueSource extends JavascriptValueSource implements VariableValueSource {
-
   private Variable variable;
 
   public JavascriptVariableValueSource(Variable variable) {
@@ -33,7 +32,7 @@ public class JavascriptVariableValueSource extends JavascriptValueSource impleme
 
   @Override
   public void initialise() {
-    super.setScript(variable.getAttribute("script").getValue().toString());
+    super.setScript(variable.getAttribute(JavascriptVariableBuilder.SCRIPT_ATTRIBUTE_NAME).getValue().toString());
     super.initialise();
   }
 

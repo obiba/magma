@@ -9,6 +9,7 @@
  ******************************************************************************/
 package org.obiba.meta;
 
+import java.lang.reflect.Constructor;
 import java.util.Locale;
 import java.util.Set;
 
@@ -28,6 +29,10 @@ public interface Variable {
       variable.name = name;
       variable.valueType = type;
       variable.entityType = entityType;
+    }
+
+    protected Builder(Builder builder) {
+      this.variable = builder.variable;
     }
 
     public static Builder newVariable(String collection, String name, ValueType type, String entityType) {
@@ -64,7 +69,8 @@ public interface Variable {
     }
 
     /**
-     * Add an array of category labels. The resulting categories will have a null {@code code} attribute.
+     * Add an array of category labels. The resulting {@code Category} instances will have a null {@code code} value.
+     * This method is useful for creating categories out of {@code enum} constants for example.
      * 
      * @param names
      * @return
@@ -74,6 +80,43 @@ public interface Variable {
         variable.categories.add(new CategoryBean(variable, name, null));
       }
       return this;
+    }
+
+    /**
+     * Extends this builder to perform additional building capabilities for different variable nature. The specified
+     * type must extend {@code Variable.Builder} and expose a public constructor that takes a single {@code
+     * Variable.Builder} parameter; the constructor should call its super class' constructor with the same signature.
+     * <p/>
+     * An example class
+     * 
+     * <pre>
+     * public class BuilderExtension extends Variable.Builder {
+     *   public BuilderExtension(Variable.Builder builder) {
+     *     super(builder);
+     *   }
+     * 
+     *   public BuilderExtension withExtension(String value) {
+     *     addAttribute(&quot;extension&quot;, value);
+     *     return this;
+     *   }
+     * }
+     * </pre>
+     * 
+     * @param <T>
+     * @param type the {@code Builder} type to construct
+     * @return an instance of {@code T} that extends {@code Builder}
+     */
+    public <T extends Builder> T extend(Class<T> type) {
+      try {
+        Constructor<T> ctor = type.getConstructor(Variable.Builder.class);
+        return ctor.newInstance(this);
+      } catch(NoSuchMethodException e) {
+        throw new IllegalArgumentException("Builder extension type '" + type.getName() + "' must expose a public constructor that takes a single argument of type '" + Variable.Builder.class.getName() + "'.");
+      } catch(RuntimeException e) {
+        throw new IllegalArgumentException("Cannot instantiate builder extension type '" + type.getName() + "'", e);
+      } catch(Exception e) {
+        throw new IllegalArgumentException("Cannot instantiate builder extension type '" + type.getName() + "'", e);
+      }
     }
   }
 
