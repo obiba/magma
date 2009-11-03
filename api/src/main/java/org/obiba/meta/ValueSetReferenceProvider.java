@@ -11,8 +11,8 @@ public interface ValueSetReferenceProvider {
 
   public boolean isForEntityType(String entityType);
 
-  public Set<ValueSetReference> getValueSetReferences();
+  public Set<VariableEntity> getVariableEntities();
 
-  public Set<OccurrenceReference> getOccurrenceReferences(ValueSetReference reference, Variable variable);
+  public ValueSet loadValueSet(Collection collection, VariableEntity entity);
 
 }

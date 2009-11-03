@@ -66,6 +66,12 @@ public class BinaryType implements ValueType {
   @Override
   public Value valueOf(Object object) {
     // input type is expected to be byte[]
+    if(object == null) {
+      return Factory.newValue(this, null);
+    }
+    if(byte[].class.equals(object.getClass())) {
+      return Factory.newValue(this, (byte[]) object);
+    }
     throw new UnsupportedOperationException("method not implemented");
   }
 

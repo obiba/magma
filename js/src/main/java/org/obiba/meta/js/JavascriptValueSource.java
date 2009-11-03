@@ -7,7 +7,7 @@ import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
 import org.obiba.meta.Initialisable;
 import org.obiba.meta.Value;
-import org.obiba.meta.ValueSetReference;
+import org.obiba.meta.ValueSet;
 import org.obiba.meta.ValueSource;
 import org.obiba.meta.ValueType;
 
@@ -38,7 +38,7 @@ public class JavascriptValueSource implements ValueSource, Initialisable {
   }
 
   @Override
-  public Value getValue(final ValueSetReference valueSetReference) {
+  public Value getValue(final ValueSet valueSet) {
     return (Value) ContextFactory.getGlobal().call(new ContextAction() {
       public Object run(Context ctx) {
         Scriptable scope = ctx.newObject(sharedScope);
@@ -46,7 +46,7 @@ public class JavascriptValueSource implements ValueSource, Initialisable {
         scope.setPrototype(sharedScope);
         scope.setParentScope(null);
 
-        enterContext(ctx, sharedScope, valueSetReference);
+        enterContext(ctx, sharedScope, valueSet);
         Object value = ctx.evaluateString(sharedScope, getScript(), "source", 1, null);
         return getValueType().valueOf(value);
       }
@@ -71,8 +71,8 @@ public class JavascriptValueSource implements ValueSource, Initialisable {
     }
   }
 
-  protected void enterContext(Context ctx, Scriptable scope, ValueSetReference valueSetReference) {
-    ctx.putThreadLocal(ValueSetReference.class, valueSetReference);
+  protected void enterContext(Context ctx, Scriptable scope, ValueSet valueSet) {
+    ctx.putThreadLocal(ValueSet.class, valueSet);
   }
 
   protected void exitContext(Context ctx) {

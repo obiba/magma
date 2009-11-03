@@ -1,6 +1,7 @@
 package org.obiba.meta.support;
 
 import org.obiba.meta.Collection;
+import org.obiba.meta.ValueSetExtension;
 import org.obiba.meta.ValueSetReferenceProvider;
 import org.obiba.meta.VariableValueSource;
 import org.obiba.meta.VariableValueSourceFactory;
@@ -31,6 +32,11 @@ public class CollectionBuilder {
 
   public CollectionBuilder add(VariableValueSourceFactory factory) {
     sourceBuilder.addAll(factory.createSources(collection.getName()));
+    return this;
+  }
+
+  public CollectionBuilder add(String name, ValueSetExtension extension) {
+    collection.addExtension(name, extension);
     return this;
   }
 

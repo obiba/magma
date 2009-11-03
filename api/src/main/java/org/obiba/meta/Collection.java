@@ -8,9 +8,11 @@ public interface Collection {
 
   public Set<String> getEntityTypes();
 
-  public Set<ValueSetReference> getValueSetReferences(String entityType);
+  public Set<VariableEntity> getEntities(String entityType);
 
-  public Set<OccurrenceReference> getOccurrenceReferences(ValueSetReference reference, Variable variable);
+  public ValueSet loadValueSet(VariableEntity entity);
+
+  public ValueSetExtension<?, ?> getExtension(String name);
 
   public Set<VariableValueSource> getVariableValueSources(String entityType);
 

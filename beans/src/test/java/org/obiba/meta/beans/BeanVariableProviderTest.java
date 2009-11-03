@@ -23,8 +23,7 @@ import org.junit.Test;
 import org.obiba.meta.Category;
 import org.obiba.meta.MetaEngine;
 import org.obiba.meta.Value;
-import org.obiba.meta.ValueSetReference;
-import org.obiba.meta.ValueSetReferenceResolver;
+import org.obiba.meta.ValueSet;
 import org.obiba.meta.VariableValueSource;
 
 import com.google.common.collect.ImmutableMap;
@@ -35,8 +34,6 @@ import com.google.common.collect.Sets;
  *
  */
 public class BeanVariableProviderTest {
-
-  ValueSetReferenceResolver mockResolver = EasyMock.createMock(ValueSetReferenceResolver.class);
 
   @Before
   public void createMetaEngine() {
@@ -51,7 +48,7 @@ public class BeanVariableProviderTest {
   @Test
   public void testSimpleProperties() {
     Set<String> properties = Sets.newHashSet("firstName", "lastName", "integer", "enumProperty", "language", "state");
-    BeanVariableValueSourceFactory<TestBean> bvp = new BeanVariableValueSourceFactory<TestBean>("Test", TestBean.class, mockResolver);
+    BeanVariableValueSourceFactory<TestBean> bvp = new BeanVariableValueSourceFactory<TestBean>("Test", TestBean.class);
     bvp.setProperties(properties);
 
     assertVariablesFromProperties(bvp, properties);
@@ -60,7 +57,7 @@ public class BeanVariableProviderTest {
   @Test
   public void testEnumHasCategories() {
     Set<String> properties = Sets.newHashSet("enumProperty");
-    BeanVariableValueSourceFactory<TestBean> bvp = new BeanVariableValueSourceFactory<TestBean>("Test", TestBean.class, mockResolver);
+    BeanVariableValueSourceFactory<TestBean> bvp = new BeanVariableValueSourceFactory<TestBean>("Test", TestBean.class);
     bvp.setProperties(properties);
 
     Set<VariableValueSource> sources = assertVariablesFromProperties(bvp, properties);
@@ -77,7 +74,7 @@ public class BeanVariableProviderTest {
   @Test
   public void testPropertyWithoutField() {
     Set<String> properties = Sets.newHashSet("composedProperty");
-    BeanVariableValueSourceFactory<TestBean> bvp = new BeanVariableValueSourceFactory<TestBean>("Test", TestBean.class, mockResolver);
+    BeanVariableValueSourceFactory<TestBean> bvp = new BeanVariableValueSourceFactory<TestBean>("Test", TestBean.class);
     bvp.setProperties(properties);
 
     assertVariablesFromProperties(bvp, properties);
@@ -86,7 +83,7 @@ public class BeanVariableProviderTest {
   @Test
   public void testNestedProperties() {
     Set<String> properties = Sets.newHashSet("nestedBean.decimal", "nestedBean.data");
-    BeanVariableValueSourceFactory<TestBean> bvp = new BeanVariableValueSourceFactory<TestBean>("Test", TestBean.class, mockResolver);
+    BeanVariableValueSourceFactory<TestBean> bvp = new BeanVariableValueSourceFactory<TestBean>("Test", TestBean.class);
     bvp.setProperties(properties);
     assertVariablesFromProperties(bvp, properties);
   }
@@ -96,7 +93,7 @@ public class BeanVariableProviderTest {
     Set<String> properties = Sets.newHashSet("nestedBean.decimal", "firstName");
     Map<String, String> nameOverride = new ImmutableMap.Builder<String, String>().put("nestedBean.decimal", "NestedDecimal").put("firstName", "FirstName").build();
 
-    BeanVariableValueSourceFactory<TestBean> bvp = new BeanVariableValueSourceFactory<TestBean>("Test", TestBean.class, mockResolver);
+    BeanVariableValueSourceFactory<TestBean> bvp = new BeanVariableValueSourceFactory<TestBean>("Test", TestBean.class);
     bvp.setProperties(properties);
     bvp.setPropertyNameToVariableName(nameOverride);
     assertVariablesFromProperties(bvp, properties, nameOverride);
@@ -111,21 +108,17 @@ public class BeanVariableProviderTest {
     nb.setData(new byte[] { 0x01, 0x02 });
     tb.setNestedBean(nb);
 
-    ValueSetReferenceResolver<TestBean> resolver = new ValueSetReferenceResolver<TestBean>() {
-      @Override
-      public TestBean resolve(ValueSetReference reference) {
-        return tb;
-      }
-    };
-
     Set<String> properties = Sets.newHashSet("firstName", "nestedBean.decimal", "nestedBean.data");
-    BeanVariableValueSourceFactory<TestBean> bvp = new BeanVariableValueSourceFactory<TestBean>("Test", TestBean.class, resolver);
+    BeanVariableValueSourceFactory<TestBean> bvp = new BeanVariableValueSourceFactory<TestBean>("Test", TestBean.class);
     bvp.setProperties(properties);
 
     Set<VariableValueSource> variableValueSources = assertVariablesFromProperties(bvp, properties);
 
+    ValueSet mockValueSet = EasyMock.createMock(ValueSet.class);
+    EasyMock.expect(mockValueSet.extend(TestBean.class.getName())).andReturn(tb).anyTimes();
+    EasyMock.replay(mockValueSet);
     for(VariableValueSource source : variableValueSources) {
-      Value value = source.getValue(null);
+      Value value = source.getValue(mockValueSet);
       Assert.assertNotNull("Value cannot be null " + source.getVariable().getName(), value);
       Assert.assertNotNull("ValueType cannot be null " + source.getVariable().getName(), value.getValueType());
       Assert.assertNotNull("Value's value cannot be null " + source.getVariable().getName(), value.getValue());
@@ -135,21 +128,18 @@ public class BeanVariableProviderTest {
   @Test
   public void testNullValueInPropertyPath() {
 
-    ValueSetReferenceResolver<TestBean> resolver = new ValueSetReferenceResolver<TestBean>() {
-      @Override
-      public TestBean resolve(ValueSetReference reference) {
-        return new TestBean();
-      }
-    };
-
     Set<String> properties = Sets.newHashSet("anotherNestedBean.data");
-    BeanVariableValueSourceFactory<TestBean> bvp = new BeanVariableValueSourceFactory<TestBean>("Test", TestBean.class, resolver);
+    BeanVariableValueSourceFactory<TestBean> bvp = new BeanVariableValueSourceFactory<TestBean>("Test", TestBean.class);
     bvp.setProperties(properties);
 
     Set<VariableValueSource> variableValueSources = assertVariablesFromProperties(bvp, properties);
 
+    ValueSet mockValueSet = EasyMock.createMock(ValueSet.class);
+    EasyMock.expect(mockValueSet.extend(TestBean.class.getName())).andReturn(new TestBean()).anyTimes();
+    EasyMock.replay(mockValueSet);
+
     for(VariableValueSource source : variableValueSources) {
-      Value value = source.getValue(null);
+      Value value = source.getValue(mockValueSet);
       Assert.assertNotNull("Value cannot be null " + source.getVariable().getName(), value);
       Assert.assertNotNull("ValueType cannot be null " + source.getVariable().getName(), value.getValueType());
 

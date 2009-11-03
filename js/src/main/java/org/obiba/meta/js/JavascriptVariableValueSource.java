@@ -2,7 +2,7 @@ package org.obiba.meta.js;
 
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Scriptable;
-import org.obiba.meta.ValueSetReference;
+import org.obiba.meta.ValueSet;
 import org.obiba.meta.ValueType;
 import org.obiba.meta.Variable;
 import org.obiba.meta.VariableValueSource;
@@ -25,8 +25,8 @@ public class JavascriptVariableValueSource extends JavascriptValueSource impleme
   }
 
   @Override
-  protected void enterContext(Context ctx, Scriptable scope, ValueSetReference valueSetReference) {
-    super.enterContext(ctx, scope, valueSetReference);
+  protected void enterContext(Context ctx, Scriptable scope, ValueSet valueSet) {
+    super.enterContext(ctx, scope, valueSet);
     ctx.putThreadLocal(Variable.class, variable);
   }
 

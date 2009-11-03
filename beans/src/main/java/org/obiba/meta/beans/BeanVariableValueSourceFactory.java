@@ -15,8 +15,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.obiba.meta.OccurrenceReferenceResolver;
-import org.obiba.meta.ValueSetReferenceResolver;
 import org.obiba.meta.ValueType;
 import org.obiba.meta.Variable;
 import org.obiba.meta.VariableValueSource;
@@ -35,8 +33,6 @@ public class BeanVariableValueSourceFactory<T> implements VariableValueSourceFac
 
   private Class<T> beanClass;
 
-  private ValueSetReferenceResolver<T> resolver;
-
   private String entityType;
 
   /** The set of bean properties that are returned as variables */
@@ -47,12 +43,13 @@ public class BeanVariableValueSourceFactory<T> implements VariableValueSourceFac
   /** Maps property names to variable name */
   private BiMap<String, String> propertyNameToVariableName = HashBiMap.create();
 
+  private String occurrenceGroup;
+
   private Set<VariableValueSource> sources;
 
-  public BeanVariableValueSourceFactory(String entityType, Class<T> beanClass, ValueSetReferenceResolver<T> resolver) {
+  public BeanVariableValueSourceFactory(String entityType, Class<T> beanClass) {
     this.entityType = entityType;
     this.beanClass = beanClass;
-    this.resolver = resolver;
   }
 
   public void setProperties(Set<String> properties) {
@@ -65,6 +62,10 @@ public class BeanVariableValueSourceFactory<T> implements VariableValueSourceFac
 
   public void setPropertyNameToVariableName(Map<String, String> propertyNameToVariableName) {
     this.propertyNameToVariableName = HashBiMap.create(propertyNameToVariableName);
+  }
+
+  public void setOccurrenceGroup(String occurrenceGroup) {
+    this.occurrenceGroup = occurrenceGroup;
   }
 
   public Set<VariableValueSource> createSources(String collection) {
@@ -153,7 +154,7 @@ public class BeanVariableValueSourceFactory<T> implements VariableValueSourceFac
             if(descriptor == null) {
               throw new IllegalArgumentException("Invalid property path'" + propertyPath + "' for type " + getBeanClass().getName());
             }
-            sources.add(new BeanPropertyVariableValueSource(resolver, buildVariable(collection, descriptor.getPropertyType(), lookupVariableName(propertyPath)), propertyPath));
+            sources.add(new BeanPropertyVariableValueSource(buildVariable(collection, descriptor.getPropertyType(), lookupVariableName(propertyPath)), beanClass, propertyPath));
           }
         }
       }
@@ -169,12 +170,9 @@ public class BeanVariableValueSourceFactory<T> implements VariableValueSourceFac
       builder.addCategories(((EnumeratedType) type).enumerate(propertyType));
     }
 
-    // Is this clean? It's transparent, but uses instanceof.
-    if(resolver instanceof OccurrenceReferenceResolver<?>) {
-      OccurrenceReferenceResolver<?> occurrenceResolver = (OccurrenceReferenceResolver<?>) resolver;
-      builder.repeatable().occurrenceGroup(occurrenceResolver.getOccurrentGroup());
+    if(occurrenceGroup != null) {
+      builder.repeatable().occurrenceGroup(occurrenceGroup);
     }
-
     return builder.build();
   }
 

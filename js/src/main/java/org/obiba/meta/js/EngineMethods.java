@@ -12,8 +12,9 @@ import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
 import org.obiba.meta.MetaEngine;
 import org.obiba.meta.Value;
-import org.obiba.meta.ValueSetReference;
+import org.obiba.meta.ValueSet;
 import org.obiba.meta.Variable;
+import org.obiba.meta.VariableEntity;
 import org.obiba.meta.VariableValueSource;
 
 import com.google.common.base.Predicate;
@@ -49,19 +50,19 @@ public final class EngineMethods {
     }
 
     String name = (String) args[0];
-    ValueSetReference reference = (ValueSetReference) ctx.getThreadLocal(ValueSetReference.class);
+    ValueSet reference = (ValueSet) ctx.getThreadLocal(ValueSet.class);
     Variable variable = (Variable) ctx.getThreadLocal(Variable.class);
     if(name.indexOf(':') < 0) {
       name = variable.getCollection() + ':' + name;
     }
 
-    VariableValueSource source = lookupSource(reference, name);
+    VariableValueSource source = lookupSource(reference.getVariableEntity(), name);
 
     if(source.getVariable().isRepeatable()) {
       // Return an object that can be indexed (e.g.: $('BP.Systolic')[2] or chained $('BP.Systolic').avg() )
       throw new UnsupportedOperationException("$() on repeatable variables is not supported. Requested variable: '" + source.getVariable().getQName() + "'");
     } else {
-      Value value = source.getValue(reference);
+      Value value = source.getValue(lookupValueSet(reference.getVariableEntity(), source.getVariable().getCollection()));
       if(source.getValueType().isDateTime()) {
         Date date = (Date) value.getValue();
         return Context.toObject(ScriptRuntime.wrapNumber(date.getTime()), thisObj);
@@ -70,8 +71,11 @@ public final class EngineMethods {
     }
   }
 
-  private static VariableValueSource lookupSource(ValueSetReference reference, String name) {
-    return MetaEngine.get().lookupVariable(reference.getVariableEntity().getType(), name);
+  private static VariableValueSource lookupSource(VariableEntity entity, String name) {
+    return MetaEngine.get().lookupVariable(entity.getType(), name);
   }
 
+  private static ValueSet lookupValueSet(VariableEntity entity, String collection) {
+    return MetaEngine.get().lookupCollection(collection).loadValueSet(entity);
+  }
 }

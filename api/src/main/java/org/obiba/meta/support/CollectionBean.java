@@ -1,6 +1,8 @@
 package org.obiba.meta.support;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
@@ -8,10 +10,11 @@ import org.obiba.meta.Collection;
 import org.obiba.meta.Initialisable;
 import org.obiba.meta.NoSuchValueSetException;
 import org.obiba.meta.NoSuchVariableException;
-import org.obiba.meta.OccurrenceReference;
-import org.obiba.meta.ValueSetReference;
+import org.obiba.meta.ValueSet;
+import org.obiba.meta.ValueSetExtension;
 import org.obiba.meta.ValueSetReferenceProvider;
 import org.obiba.meta.Variable;
+import org.obiba.meta.VariableEntity;
 import org.obiba.meta.VariableValueSource;
 
 import com.google.common.base.Function;
@@ -27,6 +30,8 @@ public class CollectionBean implements Collection, Initialisable {
 
   private Set<VariableValueSource> variableSources = new HashSet<VariableValueSource>();
 
+  private Map<String, ValueSetExtension> extensions = new HashMap<String, ValueSetExtension>();
+
   CollectionBean(String name) {
     this.name = name;
   }
@@ -37,6 +42,10 @@ public class CollectionBean implements Collection, Initialisable {
 
   void setVariableValueSources(Set<VariableValueSource> variableSources) {
     this.variableSources = variableSources;
+  }
+
+  void addExtension(String name, ValueSetExtension extension) {
+    extensions.put(name, extension);
   }
 
   @Override
@@ -55,13 +64,13 @@ public class CollectionBean implements Collection, Initialisable {
   }
 
   @Override
-  public Set<ValueSetReference> getValueSetReferences(String entityType) {
-    return lookupProvider(entityType).getValueSetReferences();
+  public Set<VariableEntity> getEntities(String entityType) {
+    return lookupProvider(entityType).getVariableEntities();
   }
 
   @Override
-  public Set<OccurrenceReference> getOccurrenceReferences(ValueSetReference reference, Variable variable) {
-    return lookupProvider(reference.getVariableEntity().getType()).getOccurrenceReferences(reference, variable);
+  public ValueSet loadValueSet(VariableEntity entity) {
+    return lookupProvider(entity.getType()).loadValueSet(this, entity);
   }
 
   @Override
@@ -104,6 +113,15 @@ public class CollectionBean implements Collection, Initialisable {
     for(Initialisable init : Iterables.filter(Iterables.concat(variableSources, valueSetProviders), Initialisable.class)) {
       init.initialise();
     }
+  }
+
+  @Override
+  public ValueSetExtension<?, ?> getExtension(String name) {
+    ValueSetExtension<?, ?> extension = extensions.get(name);
+    if(extension == null) {
+      throw new IllegalArgumentException("Cannot extend ValueSet for '" + name + "'");
+    }
+    return extension;
   }
 
   protected ValueSetReferenceProvider lookupProvider(final String entityType) {
