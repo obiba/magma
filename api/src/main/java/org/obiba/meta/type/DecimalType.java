@@ -3,8 +3,6 @@ package org.obiba.meta.type;
 import java.lang.ref.WeakReference;
 import java.math.BigDecimal;
 
-import javax.xml.namespace.QName;
-
 import org.obiba.meta.MetaEngine;
 import org.obiba.meta.Value;
 
@@ -36,11 +34,6 @@ public class DecimalType extends AbstractNumberType {
   }
 
   @Override
-  public QName getXsdType() {
-    return new QName("xsd", "decimal");
-  }
-
-  @Override
   public boolean acceptsJavaClass(Class<?> clazz) {
     return Double.class.isAssignableFrom(clazz) || double.class.isAssignableFrom(clazz) || Float.class.isAssignableFrom(clazz) || float.class.isAssignableFrom(clazz) || BigDecimal.class.isAssignableFrom(clazz);
   }
@@ -52,6 +45,15 @@ public class DecimalType extends AbstractNumberType {
 
   @Override
   public Value valueOf(Object object) {
-    throw new UnsupportedOperationException("method not implemented");
+    if(object == null) {
+      return Factory.newValue(this, null);
+    }
+    Class<?> type = object.getClass();
+    if(Number.class.isAssignableFrom(type)) {
+      return Factory.newValue(this, new Double(((Number) object).doubleValue()));
+    } else if(type.isPrimitive()) {
+      throw new UnsupportedOperationException();
+    }
+    throw new IllegalArgumentException("Cannot construct " + getClass().getSimpleName() + " from type " + object.getClass() + ".");
   }
 }

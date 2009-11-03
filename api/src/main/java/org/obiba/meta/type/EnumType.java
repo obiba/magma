@@ -30,7 +30,7 @@ public class EnumType implements EnumeratedType {
 
   @Override
   public String getName() {
-    return "enumerated";
+    return "text-enumerated";
   }
 
   public Class<?> getJavaClass() {
@@ -76,7 +76,14 @@ public class EnumType implements EnumeratedType {
 
   @Override
   public Value valueOf(Object object) {
-    throw new UnsupportedOperationException("method not implemented");
+    if(object == null) {
+      return Factory.newValue(this, null);
+    }
+    Class<?> type = object.getClass();
+    if(type.isEnum()) {
+      return Factory.newValue(this, object.toString());
+    }
+    throw new IllegalArgumentException("Cannot construct " + getClass().getSimpleName() + " from type " + object.getClass() + ".");
   }
 
 }

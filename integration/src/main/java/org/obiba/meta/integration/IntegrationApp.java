@@ -1,6 +1,7 @@
 package org.obiba.meta.integration;
 
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.util.List;
 import java.util.Set;
 
@@ -34,13 +35,13 @@ import com.google.common.collect.ImmutableSet;
  */
 public class IntegrationApp {
 
-  public static void main(String[] args) {
+  public static void main(String[] args) throws UnsupportedEncodingException {
     new MetaEngine();
 
     CollectionBuilder builder = new CollectionBuilder("integration-app");
 
     XStreamIntegrationServiceFactory factory = new XStreamIntegrationServiceFactory();
-    final IntegrationService service = factory.buildService(new InputStreamReader(IntegrationApp.class.getResourceAsStream("participants.xml")));
+    final IntegrationService service = factory.buildService(new InputStreamReader(IntegrationApp.class.getResourceAsStream("participants.xml"), "UTF-8"));
 
     builder.add(new BeanValueSetReferenceProvider("Participant", "participant.barcode", "startDate") {
       @Override

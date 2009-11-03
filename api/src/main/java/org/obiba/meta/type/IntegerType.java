@@ -3,8 +3,6 @@ package org.obiba.meta.type;
 import java.lang.ref.WeakReference;
 import java.math.BigInteger;
 
-import javax.xml.namespace.QName;
-
 import org.obiba.meta.MetaEngine;
 import org.obiba.meta.Value;
 
@@ -36,11 +34,6 @@ public class IntegerType extends AbstractNumberType {
   }
 
   @Override
-  public QName getXsdType() {
-    return new QName("xsd", "integer");
-  }
-
-  @Override
   public boolean acceptsJavaClass(Class<?> clazz) {
     return Integer.class.isAssignableFrom(clazz) || int.class.isAssignableFrom(clazz) || Long.class.isAssignableFrom(clazz) || long.class.isAssignableFrom(clazz) || BigInteger.class.isAssignableFrom(clazz);
   }
@@ -52,7 +45,16 @@ public class IntegerType extends AbstractNumberType {
 
   @Override
   public Value valueOf(Object object) {
-    throw new UnsupportedOperationException("method not implemented");
+    if(object == null) {
+      return Factory.newValue(this, null);
+    }
+    Class<?> type = object.getClass();
+    if(Number.class.isAssignableFrom(type)) {
+      return Factory.newValue(this, new Long(((Number) object).longValue()));
+    } else if(type.isPrimitive()) {
+      throw new UnsupportedOperationException();
+    }
+    throw new IllegalArgumentException("Cannot construct " + getClass().getSimpleName() + " from type " + object.getClass() + ".");
   }
 
 }

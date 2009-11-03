@@ -2,8 +2,6 @@ package org.obiba.meta;
 
 import java.io.Serializable;
 
-import javax.xml.namespace.QName;
-
 public interface ValueType extends Serializable {
 
   public static class Factory {
@@ -21,16 +19,38 @@ public interface ValueType extends Serializable {
     }
   }
 
+  /**
+   * The unique name of this {@code ValueType}
+   * @return this type's unique name
+   */
   public String getName();
 
-  public QName getXsdType();
-
+  /**
+   * The java class of the value held in a {@code Value} instance of this {@code ValueType}. That is, when a {@code
+   * Value} instance if of this {@code ValueType}, the contained object should be of the type returned by this method.
+   * 
+   * @return the normalized java class for this {@code ValueType}
+   */
   public Class<?> getJavaClass();
 
+  /**
+   * Returns true if an instance of the specified class is suitable for invoking the {@link #valueOf(Object)} method.
+   * 
+   * @param clazz the type to check
+   * @return true if the {@code #valueOf(Object)} can be called with an instance of the specified class.
+   */
   public boolean acceptsJavaClass(Class<?> clazz);
 
+  /**
+   * Returns true if this type represents a date, time or both
+   * @return
+   */
   public boolean isDateTime();
 
+  /**
+   * Returns true if this type represents a number
+   * @return
+   */
   public boolean isNumeric();
 
   /**
@@ -50,6 +70,18 @@ public interface ValueType extends Serializable {
    */
   public Value valueOf(String string);
 
+  /**
+   * Builds a {@code Value} instance after converting the specified object to the normalized type returned by {@code
+   * #getJavaClass()} method. Note that this method accepts null values and should return a non-null {@code Value}
+   * instance.
+   * <p/>
+   * For example, this method would convert instances of {@code java.util.Date}, {@code java.sql.Date}, {@code
+   * java.sql.Timestamp}, {@code java.util.Calendar} to an instance of {@code java.util.Date} and return a {@code Value}
+   * instance containing the normalized instance.
+   * 
+   * @param object the instance to normalize
+   * @return a {@code Value} instance with the specified value
+   */
   public Value valueOf(Object object);
 
 }

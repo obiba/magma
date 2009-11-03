@@ -2,8 +2,6 @@ package org.obiba.meta.type;
 
 import java.lang.ref.WeakReference;
 
-import javax.xml.namespace.QName;
-
 import org.obiba.meta.MetaEngine;
 import org.obiba.meta.Value;
 import org.obiba.meta.ValueType;
@@ -43,11 +41,6 @@ public class BooleanType implements ValueType {
   @Override
   public String getName() {
     return "boolean";
-  }
-
-  @Override
-  public QName getXsdType() {
-    return new QName("xsd", "boolean");
   }
 
   @Override
