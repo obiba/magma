@@ -11,6 +11,15 @@ import com.thoughtworks.xstream.converters.UnmarshallingContext;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
 
+/**
+ * Converts an {@code Attribute} instance.
+ * <p>
+ * Resulting XML:
+ * 
+ * <pre>
+ * &lt;attribute name="attributeName" valueType="integer" locale="en"&gt;12345&lt;/attribute>
+ * </pre>
+ */
 public class AttributeConverter implements Converter {
 
   public AttributeConverter() {
@@ -28,9 +37,7 @@ public class AttributeConverter implements Converter {
     if(variable.isLocalised()) {
       writer.addAttribute("locale", variable.getLocale().getLanguage());
     }
-    writer.startNode("value");
     writer.setValue(variable.getValue().toString());
-    writer.endNode();
   }
 
   public Object unmarshal(HierarchicalStreamReader reader, UnmarshallingContext context) {
@@ -39,9 +46,7 @@ public class AttributeConverter implements Converter {
     ValueType valueType = ValueType.Factory.forName(reader.getAttribute("valueType"));
     String locale = reader.getAttribute("locale");
 
-    reader.moveDown();
     String valueString = reader.getValue();
-    reader.moveUp();
 
     if(locale == null) {
       return Attribute.Builder.newAttribute(name).withValue(valueType.valueOf(valueString)).build();

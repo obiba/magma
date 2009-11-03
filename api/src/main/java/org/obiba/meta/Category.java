@@ -1,6 +1,6 @@
 package org.obiba.meta;
 
-public interface Category {
+public interface Category extends AttributeAware {
 
   public static class Builder {
 
@@ -16,6 +16,11 @@ public interface Category {
 
     public Builder withCode(String code) {
       category.code = code;
+      return this;
+    }
+
+    public Builder addAttribute(Attribute attribute) {
+      category.attributes.put(attribute.getName(), attribute);
       return this;
     }
 

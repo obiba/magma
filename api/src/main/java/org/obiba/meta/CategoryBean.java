@@ -1,6 +1,6 @@
 package org.obiba.meta;
 
-class CategoryBean implements Category {
+class CategoryBean extends AbstractAttributeAware implements Category {
 
   String name;
 

@@ -10,7 +10,6 @@
 package org.obiba.meta;
 
 import java.lang.reflect.Constructor;
-import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
@@ -19,7 +18,7 @@ import javax.xml.namespace.QName;
 /**
  *
  */
-public interface Variable {
+public interface Variable extends AttributeAware {
 
   public static class Builder {
 
@@ -158,20 +157,6 @@ public interface Variable {
    * @return the IANA mime-type
    */
   public String getMimeType();
-
-  /**
-   * Returns true if this variable has at least one {@code Attribute}
-   * @return
-   */
-  public boolean hasAttributes();
-
-  public boolean hasAttribute(String name);
-
-  public Attribute getAttribute(String name);
-
-  public Attribute getAttribute(String name, Locale locale);
-
-  public List<Attribute> getAttributes();
 
   /**
    * Used when this variable value is a pointer to another {@code IVariableEntity}. The value is considered to point to

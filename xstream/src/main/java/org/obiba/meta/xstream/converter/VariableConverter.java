@@ -7,13 +7,44 @@ import org.obiba.meta.Variable;
 
 import com.thoughtworks.xstream.converters.MarshallingContext;
 import com.thoughtworks.xstream.converters.UnmarshallingContext;
-import com.thoughtworks.xstream.converters.collections.AbstractCollectionConverter;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
 import com.thoughtworks.xstream.mapper.Mapper;
 import com.thoughtworks.xstream.mapper.MapperWrapper;
 
-public class VariableConverter extends AbstractCollectionConverter {
+/**
+ * Converts an {@code Variable} instance.
+ * <p>
+ * Resulting XML:
+ * 
+ * <pre>
+ * &lt;variable collection="onyx-basline" name="HQ.SMOKER" valueType="text" entityType="Participant"&gt;
+ *   &lt;attributes&gt;
+ *     &lt;attribute name="label" valueType="text" locale="en"&gt;
+ *       &lt;value&gt;Do you smoke?&lt;/value&gt;
+ *     &lt;/attribute>
+ *     &lt;attribute name="label" valueType="text" locale="fr"&gt;
+ *       &lt;value&gt;Fumez-vous?&lt;/value&gt;
+ *     &lt;/attribute>
+ *     ...
+ *   &lt;/attributes&gt;
+ *   &lt;categories&gt;
+ *     &lt;category name="YES" code="1"&gt;
+ *       &lt;attributes&gt;
+ *         &lt;attribute name="label" valueType="text" locale="en"&gt;
+ *           &lt;value&gt;Yes&lt;/value&gt;
+ *         &lt;/attribute>
+ *         &lt;attribute name="label" valueType="text" locale="fr"&gt;
+ *           &lt;value&gt;Oui&lt;/value&gt;
+ *         &lt;/attribute>
+ *       &lt;/attributes&gt;
+ *     &lt;/category&gt;
+ *     ...
+ *   &lt;/categories&gt;
+ * &lt;/variable>
+ * </pre>
+ */
+public class VariableConverter extends AbstractAttributeAwareConverter {
 
   public VariableConverter(Mapper mapper) {
     super(new MapperWrapper(mapper) {
@@ -21,9 +52,7 @@ public class VariableConverter extends AbstractCollectionConverter {
       @Override
       @SuppressWarnings("unchecked")
       public String serializedClass(Class type) {
-        if(Attribute.class.isAssignableFrom(type)) {
-          return "attribute";
-        }
+
         if(Category.class.isAssignableFrom(type)) {
           return "category";
         }
@@ -33,9 +62,7 @@ public class VariableConverter extends AbstractCollectionConverter {
       @Override
       @SuppressWarnings("unchecked")
       public Class realClass(String elementName) {
-        if("attribute".equals(elementName)) {
-          return Attribute.class;
-        }
+
         if("category".equals(elementName)) {
           return Category.class;
         }
@@ -62,13 +89,10 @@ public class VariableConverter extends AbstractCollectionConverter {
   public Object unmarshal(HierarchicalStreamReader reader, UnmarshallingContext context) {
     Variable.Builder builder = Variable.Builder.newVariable(reader.getAttribute("collection"), reader.getAttribute("name"), ValueType.Factory.forName(reader.getAttribute("valueType")), reader.getAttribute("entityType"));
 
-    if(reader.hasMoreChildren()) {
+    while(reader.hasMoreChildren()) {
       reader.moveDown();
-      if("attributes".equals(reader.getNodeName())) {
-        while(reader.hasMoreChildren()) {
-          Attribute attribute = readChildItem(reader, context, builder);
-          builder.addAttribute(attribute);
-        }
+      if(isAttributesNode(reader.getNodeName())) {
+        unmarshallAttributes(builder, reader, context);
       } else if("categories".equals(reader.getNodeName())) {
         while(reader.hasMoreChildren()) {
           Category category = readChildItem(reader, context, builder);
@@ -81,14 +105,10 @@ public class VariableConverter extends AbstractCollectionConverter {
     return builder.build();
   }
 
-  protected void marshallAttributes(Variable variable, HierarchicalStreamWriter writer, MarshallingContext context) {
-    if(variable.hasAttributes()) {
-      writer.startNode("attributes");
-      for(Attribute a : variable.getAttributes()) {
-        writeItem(a, context, writer);
-      }
-      writer.endNode();
-    }
+  @Override
+  void addAttribute(Object current, Attribute attribute) {
+    Variable.Builder builder = (Variable.Builder) current;
+    builder.addAttribute(attribute);
   }
 
   protected void marshallCategories(Variable variable, HierarchicalStreamWriter writer, MarshallingContext context) {
@@ -99,19 +119,6 @@ public class VariableConverter extends AbstractCollectionConverter {
       }
       writer.endNode();
     }
-  }
-
-  /**
-   * Utility method for reading an item of a collection. It was created because the {@code readItem} method from the
-   * parent class does not move the reader ({@code HierarchicalStreamReader#moveDown()} and{@code
-   * HierarchicalStreamReader#moveUp()})
-   */
-  @SuppressWarnings("unchecked")
-  protected <T> T readChildItem(HierarchicalStreamReader reader, UnmarshallingContext context, Object current) {
-    reader.moveDown();
-    T o = (T) super.readItem(reader, context, current);
-    reader.moveUp();
-    return o;
   }
 
 }
