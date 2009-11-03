@@ -2,6 +2,7 @@ package org.obiba.meta;
 
 import java.util.List;
 import java.util.Locale;
+import java.util.NoSuchElementException;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
@@ -13,23 +14,33 @@ public abstract class AbstractAttributeAware implements AttributeAware {
 
   ListMultimap<String, Attribute> attributes = LinkedListMultimap.create();
 
+  abstract String getName();
+
   public boolean hasAttribute(final String name) {
     return attributes.containsKey(name);
   }
 
   @Override
   public Attribute getAttribute(final String name) {
-    return Iterables.get(attributes.get(name), 0);
+    try {
+      return Iterables.get(attributes.get(name), 0);
+    } catch(IndexOutOfBoundsException e) {
+      throw new NoSuchAttributeException(name, getName());
+    }
   }
 
   @Override
   public Attribute getAttribute(final String name, final Locale locale) {
-    return Iterables.find(attributes.get(name), new Predicate<Attribute>() {
-      @Override
-      public boolean apply(Attribute input) {
-        return input.isLocalised() && input.getLocale().equals(locale);
-      }
-    });
+    try {
+      return Iterables.find(attributes.get(name), new Predicate<Attribute>() {
+        @Override
+        public boolean apply(Attribute input) {
+          return input.isLocalised() && input.getLocale().equals(locale);
+        }
+      });
+    } catch(NoSuchElementException e) {
+      throw new NoSuchAttributeException(name, locale, getName());
+    }
   }
 
   @Override
