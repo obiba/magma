@@ -1,12 +1,12 @@
 package org.obiba.meta.support;
 
-import org.obiba.meta.ValueSetReferenceProvider;
+import org.obiba.meta.ValueSetProvider;
 
-public abstract class AbstractValueSetReferenceProvider implements ValueSetReferenceProvider {
+public abstract class AbstractValueSetProvider implements ValueSetProvider {
 
   private String entityType;
 
-  protected AbstractValueSetReferenceProvider(String entityType) {
+  protected AbstractValueSetProvider(String entityType) {
     this.entityType = entityType;
   }
 

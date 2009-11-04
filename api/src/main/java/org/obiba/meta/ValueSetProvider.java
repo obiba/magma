@@ -5,7 +5,7 @@ import java.util.Set;
 /**
  * 
  */
-public interface ValueSetReferenceProvider {
+public interface ValueSetProvider {
 
   public String getEntityType();
 

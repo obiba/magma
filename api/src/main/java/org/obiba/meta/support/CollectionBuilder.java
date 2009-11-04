@@ -2,7 +2,7 @@ package org.obiba.meta.support;
 
 import org.obiba.meta.Collection;
 import org.obiba.meta.ValueSetExtension;
-import org.obiba.meta.ValueSetReferenceProvider;
+import org.obiba.meta.ValueSetProvider;
 import org.obiba.meta.VariableValueSource;
 import org.obiba.meta.VariableValueSourceFactory;
 
@@ -12,7 +12,7 @@ public class CollectionBuilder {
 
   private CollectionBean collection;
 
-  private ImmutableSet.Builder<ValueSetReferenceProvider> providerBuilder = new ImmutableSet.Builder<ValueSetReferenceProvider>();
+  private ImmutableSet.Builder<ValueSetProvider> providerBuilder = new ImmutableSet.Builder<ValueSetProvider>();
 
   private ImmutableSet.Builder<VariableValueSource> sourceBuilder = new ImmutableSet.Builder<VariableValueSource>();
 
@@ -20,7 +20,7 @@ public class CollectionBuilder {
     collection = new CollectionBean(name);
   }
 
-  public CollectionBuilder add(ValueSetReferenceProvider provider) {
+  public CollectionBuilder add(ValueSetProvider provider) {
     providerBuilder.add(provider);
     return this;
   }

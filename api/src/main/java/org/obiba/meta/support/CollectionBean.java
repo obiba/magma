@@ -12,7 +12,7 @@ import org.obiba.meta.NoSuchValueSetException;
 import org.obiba.meta.NoSuchVariableException;
 import org.obiba.meta.ValueSet;
 import org.obiba.meta.ValueSetExtension;
-import org.obiba.meta.ValueSetReferenceProvider;
+import org.obiba.meta.ValueSetProvider;
 import org.obiba.meta.Variable;
 import org.obiba.meta.VariableEntity;
 import org.obiba.meta.VariableValueSource;
@@ -26,7 +26,7 @@ public class CollectionBean implements Collection, Initialisable {
 
   private String name;
 
-  private Set<ValueSetReferenceProvider> valueSetProviders = new HashSet<ValueSetReferenceProvider>();
+  private Set<ValueSetProvider> valueSetProviders = new HashSet<ValueSetProvider>();
 
   private Set<VariableValueSource> variableSources = new HashSet<VariableValueSource>();
 
@@ -36,7 +36,7 @@ public class CollectionBean implements Collection, Initialisable {
     this.name = name;
   }
 
-  void setValueSetProviders(Set<ValueSetReferenceProvider> valueSetProviders) {
+  void setValueSetProviders(Set<ValueSetProvider> valueSetProviders) {
     this.valueSetProviders = valueSetProviders;
   }
 
@@ -50,9 +50,9 @@ public class CollectionBean implements Collection, Initialisable {
 
   @Override
   public Set<String> getEntityTypes() {
-    return ImmutableSet.copyOf(Iterables.transform(valueSetProviders, new Function<ValueSetReferenceProvider, String>() {
+    return ImmutableSet.copyOf(Iterables.transform(valueSetProviders, new Function<ValueSetProvider, String>() {
       @Override
-      public String apply(ValueSetReferenceProvider from) {
+      public String apply(ValueSetProvider from) {
         return from.getEntityType();
       }
     }));
@@ -124,11 +124,11 @@ public class CollectionBean implements Collection, Initialisable {
     return extension;
   }
 
-  protected ValueSetReferenceProvider lookupProvider(final String entityType) {
+  protected ValueSetProvider lookupProvider(final String entityType) {
     try {
-      return Iterables.find(this.valueSetProviders, new Predicate<ValueSetReferenceProvider>() {
+      return Iterables.find(this.valueSetProviders, new Predicate<ValueSetProvider>() {
         @Override
-        public boolean apply(ValueSetReferenceProvider input) {
+        public boolean apply(ValueSetProvider input) {
           return input.isForEntityType(entityType);
         }
       });

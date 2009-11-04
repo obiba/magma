@@ -6,18 +6,18 @@ import org.obiba.meta.Collection;
 import org.obiba.meta.NoSuchValueSetException;
 import org.obiba.meta.ValueSet;
 import org.obiba.meta.VariableEntity;
-import org.obiba.meta.support.AbstractValueSetReferenceProvider;
+import org.obiba.meta.support.AbstractValueSetProvider;
 import org.obiba.meta.support.VariableEntityBean;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.PropertyAccessorFactory;
 
 import com.google.common.collect.ImmutableSet;
 
-public abstract class BeanValueSetReferenceProvider<T> extends AbstractValueSetReferenceProvider {
+public abstract class BeanValueSetProvider<T> extends AbstractValueSetProvider {
 
   private String entityIdentifierPropertyPath;
 
-  public BeanValueSetReferenceProvider(String entityType, String entityIdentifierPropertyPath) {
+  public BeanValueSetProvider(String entityType, String entityIdentifierPropertyPath) {
     super(entityType);
     this.entityIdentifierPropertyPath = entityIdentifierPropertyPath;
   }

@@ -14,7 +14,7 @@ import org.obiba.meta.Variable;
 import org.obiba.meta.VariableEntity;
 import org.obiba.meta.VariableValueSource;
 import org.obiba.meta.beans.BeanValueSet;
-import org.obiba.meta.beans.BeanValueSetReferenceProvider;
+import org.obiba.meta.beans.BeanValueSetProvider;
 import org.obiba.meta.beans.BeanVariableValueSourceFactory;
 import org.obiba.meta.integration.model.Action;
 import org.obiba.meta.integration.model.Interview;
@@ -46,7 +46,7 @@ public class IntegrationApp {
     XStreamIntegrationServiceFactory factory = new XStreamIntegrationServiceFactory();
     final IntegrationService service = factory.buildService(new InputStreamReader(IntegrationApp.class.getResourceAsStream("participants.xml"), "UTF-8"));
 
-    builder.add(new BeanValueSetReferenceProvider<Interview>("Participant", "participant.barcode") {
+    builder.add(new BeanValueSetProvider<Interview>("Participant", "participant.barcode") {
 
       @Override
       protected Interview loadBean(final VariableEntity entity) {

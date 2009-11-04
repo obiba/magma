@@ -46,6 +46,7 @@ public class BeanValueSet<T> implements ValueSet {
   }
 
   @Override
+  @SuppressWarnings("unchecked")
   public <E> E extend(String extensionName) {
     return ((ValueSetExtension<BeanValueSet, E>) getCollection().getExtension(extensionName)).extend(this);
   }
