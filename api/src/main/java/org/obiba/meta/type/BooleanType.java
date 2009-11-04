@@ -17,7 +17,7 @@ public class BooleanType implements ValueType {
   }
 
   public static BooleanType get() {
-    if(instance == null) {
+    if(instance == null || instance.get() == null) {
       instance = MetaEngine.get().registerInstance(new BooleanType());
     }
     return instance.get();

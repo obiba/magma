@@ -23,7 +23,7 @@ public class DateType implements ValueType {
   }
 
   public static DateType get() {
-    if(instance == null) {
+    if(instance == null || instance.get() == null) {
       instance = MetaEngine.get().registerInstance(new DateType());
     }
     return instance.get();

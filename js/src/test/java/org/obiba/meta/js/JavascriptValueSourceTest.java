@@ -1,5 +1,8 @@
 package org.obiba.meta.js;
 
+import java.util.Calendar;
+import java.util.GregorianCalendar;
+
 import junit.framework.Assert;
 
 import org.junit.After;
@@ -40,8 +43,7 @@ public class JavascriptValueSourceTest {
     source.setValueType(IntegerType.get());
     source.setScript("dateYear(now())");
     Value value = source.getValue(null);
-    Assert.assertEquals(new Integer(2009), value.getValue());
-
+    Assert.assertEquals(IntegerType.get().valueOf(GregorianCalendar.getInstance().get(Calendar.YEAR)), value);
   }
 
 }

@@ -19,7 +19,7 @@ public class BinaryType implements ValueType {
   }
 
   public static BinaryType get() {
-    if(instance == null) {
+    if(instance == null || instance.get() == null) {
       instance = MetaEngine.get().registerInstance(new BinaryType());
     }
     return instance.get();

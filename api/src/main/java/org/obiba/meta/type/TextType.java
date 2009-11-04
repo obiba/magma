@@ -19,7 +19,7 @@ public class TextType implements ValueType {
   }
 
   public static TextType get() {
-    if(instance == null) {
+    if(instance == null || instance.get() == null) {
       instance = MetaEngine.get().registerInstance(new TextType());
     }
     return instance.get();

@@ -22,7 +22,7 @@ public class EnumType implements EnumeratedType {
   }
 
   public static EnumType get() {
-    if(instance == null) {
+    if(instance == null || instance.get() == null) {
       instance = MetaEngine.get().registerInstance(new EnumType());
     }
     return instance.get();

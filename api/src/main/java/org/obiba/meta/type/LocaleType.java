@@ -21,7 +21,7 @@ public class LocaleType extends TextType {
   }
 
   public static TextType get() {
-    if(instance == null) {
+    if(instance == null || instance.get() == null) {
       instance = MetaEngine.get().registerInstance(new LocaleType());
     }
     return instance.get();

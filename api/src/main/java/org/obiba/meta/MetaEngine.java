@@ -9,7 +9,7 @@ import java.util.Set;
 public class MetaEngine {
 
   /** Keeps a reference on all singletons */
-  private static List<Object> singletons = new LinkedList<Object>();
+  private static List<Object> singletons;
 
   private static MetaEngine instance;
 
@@ -23,6 +23,7 @@ public class MetaEngine {
     }
     instance = this;
 
+    singletons = new LinkedList<Object>();
     valueTypeFactory = new ValueTypeFactory();
   }
 

@@ -17,7 +17,7 @@ public class IntegerType extends AbstractNumberType {
   }
 
   public static IntegerType get() {
-    if(instance == null) {
+    if(instance == null || instance.get() == null) {
       instance = MetaEngine.get().registerInstance(new IntegerType());
     }
     return instance.get();

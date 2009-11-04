@@ -17,7 +17,7 @@ public class DecimalType extends AbstractNumberType {
   }
 
   public static DecimalType get() {
-    if(instance == null) {
+    if(instance == null || instance.get() == null) {
       instance = MetaEngine.get().registerInstance(new DecimalType());
     }
     return instance.get();

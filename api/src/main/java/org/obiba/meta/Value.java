@@ -33,4 +33,20 @@ public class Value implements Serializable {
     return getValueType().toString(this);
   }
 
+  @Override
+  public boolean equals(Object obj) {
+    if(obj instanceof Value) {
+      Value rhs = (Value) obj;
+      return valueType == rhs.valueType && (isNull() ? rhs.isNull() : value.equals(rhs.value));
+    }
+    return super.equals(obj);
+  }
+
+  @Override
+  public int hashCode() {
+    int hashcode = 37;
+    hashcode *= hashcode + valueType.hashCode();
+    hashcode *= hashcode + (isNull() ? 0 : value.hashCode());
+    return hashcode;
+  }
 }
