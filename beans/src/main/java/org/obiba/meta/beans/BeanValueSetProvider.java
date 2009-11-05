@@ -23,6 +23,10 @@ public abstract class BeanValueSetProvider<T> extends AbstractValueSetProvider {
     this.entityIdentifierPropertyPath = entityIdentifierPropertyPath;
   }
 
+  public String getEntityIdentifierPropertyPath() {
+    return entityIdentifierPropertyPath;
+  }
+
   @Override
   public Set<VariableEntity> getVariableEntities() {
     ImmutableSet.Builder<VariableEntity> builder = new ImmutableSet.Builder<VariableEntity>();

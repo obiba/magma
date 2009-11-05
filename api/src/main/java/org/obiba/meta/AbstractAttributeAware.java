@@ -44,6 +44,11 @@ public abstract class AbstractAttributeAware implements AttributeAware {
   }
 
   @Override
+  public String getAttributeStringValue(String name) throws NoSuchAttributeException {
+    return getAttribute(name).getValue().toString();
+  }
+
+  @Override
   public List<Attribute> getAttributes() {
     return ImmutableList.copyOf(attributes.values());
   }

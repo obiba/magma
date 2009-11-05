@@ -28,6 +28,9 @@ public class MetaEngine {
   }
 
   public static MetaEngine get() {
+    if(instance == null) {
+      throw new IllegalStateException("MetaEngine not instanciated. Make sure you instantiate the engine before accessing other static methods in the api.");
+    }
     return instance;
   }
 

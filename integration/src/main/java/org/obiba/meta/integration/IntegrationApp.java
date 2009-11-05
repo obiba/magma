@@ -40,7 +40,7 @@ public class IntegrationApp {
 
     IntegrationDatasource integrationDatasource = new IntegrationDatasource(service);
 
-    CollectionBuilder builder = new CollectionBuilder(integrationDatasource, "integration-app");
+    CollectionBuilder builder = new CollectionBuilder("integration-app");
 
     builder.add(new BeanValueSetProvider<Interview>("Participant", "participant.barcode") {
 
@@ -85,15 +85,19 @@ public class IntegrationApp {
     actionFactory.setOccurrenceGroup("Action");
     builder.add(actionFactory);
 
-    Collection collection = builder.build();
+    Collection collection = builder.build(integrationDatasource);
 
     integrationDatasource.addCollection(collection);
     MetaEngine.get().addDatasource(integrationDatasource);
 
     for(String entityType : collection.getEntityTypes()) {
+
       for(VariableEntity entity : collection.getEntities(entityType)) {
+
         ValueSet valueSet = collection.loadValueSet(entity);
+
         for(VariableValueSource source : collection.getVariableValueSources(entityType)) {
+
           if(source.getVariable().isRepeatable()) {
             for(Occurrence occurrence : valueSet.connect().loadOccurrences(source.getVariable())) {
               System.out.println(source.getVariable().getName() + "[" + source.getValueType().getName() + "]@" + occurrence.getOrder() + ": " + source.getValue(occurrence));

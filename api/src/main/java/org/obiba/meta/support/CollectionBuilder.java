@@ -10,14 +10,14 @@ import com.google.common.collect.ImmutableSet;
 
 public class CollectionBuilder {
 
-  private CollectionBean collection;
+  private String name;
 
   private ImmutableSet.Builder<ValueSetProvider> providerBuilder = new ImmutableSet.Builder<ValueSetProvider>();
 
   private ImmutableSet.Builder<VariableValueSource> sourceBuilder = new ImmutableSet.Builder<VariableValueSource>();
 
-  public CollectionBuilder(Datasource datasource, String name) {
-    collection = new CollectionBean(datasource, name);
+  public CollectionBuilder(String name) {
+    this.name = name;
   }
 
   public CollectionBuilder add(ValueSetProvider provider) {
@@ -30,12 +30,22 @@ public class CollectionBuilder {
     return this;
   }
 
-  public CollectionBuilder add(VariableValueSourceFactory factory) {
-    sourceBuilder.addAll(factory.createSources(collection.getName()));
+  public CollectionBuilder add(Iterable<VariableValueSourceFactory> factories) {
+    System.out.println("Adding :" + factories);
+    for(VariableValueSourceFactory factory : factories) {
+      add(factory);
+    }
     return this;
   }
 
-  public Collection build() {
+  public CollectionBuilder add(VariableValueSourceFactory factory) {
+    System.out.println("Adding :" + factory + " to " + sourceBuilder);
+    sourceBuilder.addAll(factory.createSources(name));
+    return this;
+  }
+
+  public Collection build(Datasource datasource) {
+    CollectionBean collection = new CollectionBean(datasource, name);
     collection.setValueSetProviders(providerBuilder.build());
     collection.setVariableValueSources(sourceBuilder.build());
     return collection;

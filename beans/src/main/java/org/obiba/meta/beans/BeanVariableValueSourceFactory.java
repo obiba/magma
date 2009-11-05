@@ -22,6 +22,7 @@ import org.obiba.meta.VariableValueSourceFactory;
 import org.obiba.meta.type.EnumeratedType;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.PropertyAccessorUtils;
+import org.springframework.util.Assert;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
@@ -48,11 +49,14 @@ public class BeanVariableValueSourceFactory<T> implements VariableValueSourceFac
   private Set<VariableValueSource> sources;
 
   public BeanVariableValueSourceFactory(String entityType, Class<T> beanClass) {
+    Assert.notNull(entityType);
+    Assert.notNull(beanClass);
     this.entityType = entityType;
     this.beanClass = beanClass;
   }
 
   public void setProperties(Set<String> properties) {
+    Assert.notNull(properties);
     this.properties = properties;
   }
 
@@ -140,11 +144,10 @@ public class BeanVariableValueSourceFactory<T> implements VariableValueSourceFac
   }
 
   /**
-   * Builds the {@code IVariable} that this provider supports and also the {@code IVariableEntityDataSource} instances
-   * for each variable.
-   * @param parent the parent {@code IVariable} of all provided {@code IVariable}
+   * Builds the {@code Variable} that this provider supports and also the {@code VariableEntityDataSource} instances for
+   * each variable.
    */
-  private Set<VariableValueSource> doBuildVariables(String collection) {
+  protected Set<VariableValueSource> doBuildVariables(String collection) {
     if(sources == null) {
       synchronized(this) {
         if(sources == null) {
@@ -154,7 +157,7 @@ public class BeanVariableValueSourceFactory<T> implements VariableValueSourceFac
             if(descriptor == null) {
               throw new IllegalArgumentException("Invalid property path'" + propertyPath + "' for type " + getBeanClass().getName());
             }
-            sources.add(new BeanPropertyVariableValueSource(buildVariable(collection, descriptor.getPropertyType(), lookupVariableName(propertyPath)), beanClass, propertyPath));
+            sources.add(new BeanPropertyVariableValueSource(doBuildVariable(collection, descriptor.getPropertyType(), lookupVariableName(propertyPath)), beanClass, propertyPath));
           }
         }
       }
@@ -162,7 +165,7 @@ public class BeanVariableValueSourceFactory<T> implements VariableValueSourceFac
     return sources;
   }
 
-  private Variable buildVariable(String collection, Class<?> propertyType, String name) {
+  protected Variable doBuildVariable(String collection, Class<?> propertyType, String name) {
     ValueType type = ValueType.Factory.forClass(propertyType);
 
     Variable.Builder builder = Variable.Builder.newVariable(collection, name, type, entityType);
@@ -173,7 +176,11 @@ public class BeanVariableValueSourceFactory<T> implements VariableValueSourceFac
     if(occurrenceGroup != null) {
       builder.repeatable().occurrenceGroup(occurrenceGroup);
     }
-    return builder.build();
+    return buildVariable(builder).build();
+  }
+
+  protected Variable.Builder buildVariable(Variable.Builder builder) {
+    return builder;
   }
 
 }
