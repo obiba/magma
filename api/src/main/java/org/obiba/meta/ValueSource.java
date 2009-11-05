@@ -16,6 +16,6 @@ public interface ValueSource {
 
   public ValueType getValueType();
 
-  public Value getValue(ValueSet connection);
+  public Value getValue(ValueSet valueSet);
 
 }

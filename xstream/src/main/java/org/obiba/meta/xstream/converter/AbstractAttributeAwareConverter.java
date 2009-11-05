@@ -9,33 +9,11 @@ import com.thoughtworks.xstream.converters.collections.AbstractCollectionConvert
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
 import com.thoughtworks.xstream.mapper.Mapper;
-import com.thoughtworks.xstream.mapper.MapperWrapper;
 
 public abstract class AbstractAttributeAwareConverter extends AbstractCollectionConverter {
 
   public AbstractAttributeAwareConverter(Mapper mapper) {
-    super(new MapperWrapper(mapper) {
-
-      @Override
-      @SuppressWarnings("unchecked")
-      public String serializedClass(Class type) {
-        if(Attribute.class.isAssignableFrom(type)) {
-          return "attribute";
-        }
-
-        return super.serializedClass(type);
-      }
-
-      @Override
-      @SuppressWarnings("unchecked")
-      public Class realClass(String elementName) {
-        if("attribute".equals(elementName)) {
-          return Attribute.class;
-        }
-
-        return super.realClass(elementName);
-      }
-    });
+    super(mapper);
   }
 
   protected void marshallAttributes(AttributeAware attributeAware, HierarchicalStreamWriter writer, MarshallingContext context) {

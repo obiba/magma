@@ -10,7 +10,6 @@ import com.thoughtworks.xstream.converters.UnmarshallingContext;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
 import com.thoughtworks.xstream.mapper.Mapper;
-import com.thoughtworks.xstream.mapper.MapperWrapper;
 
 /**
  * Converts an {@code Variable} instance.
@@ -47,28 +46,7 @@ import com.thoughtworks.xstream.mapper.MapperWrapper;
 public class VariableConverter extends AbstractAttributeAwareConverter {
 
   public VariableConverter(Mapper mapper) {
-    super(new MapperWrapper(mapper) {
-
-      @Override
-      @SuppressWarnings("unchecked")
-      public String serializedClass(Class type) {
-
-        if(Category.class.isAssignableFrom(type)) {
-          return "category";
-        }
-        return super.serializedClass(type);
-      }
-
-      @Override
-      @SuppressWarnings("unchecked")
-      public Class realClass(String elementName) {
-
-        if("category".equals(elementName)) {
-          return Category.class;
-        }
-        return super.realClass(elementName);
-      }
-    });
+    super(mapper);
   }
 
   @SuppressWarnings("unchecked")
@@ -82,6 +60,10 @@ public class VariableConverter extends AbstractAttributeAwareConverter {
     writer.addAttribute("collection", variable.getCollection());
     writer.addAttribute("valueType", variable.getValueType().getName());
     writer.addAttribute("entityType", variable.getEntityType());
+    if(variable.isRepeatable()) {
+      writer.addAttribute("repeatable", "true");
+      writer.addAttribute("occurrenceGroup", variable.getOccurrenceGroup());
+    }
     marshallAttributes(variable, writer, context);
     marshallCategories(variable, writer, context);
   }
