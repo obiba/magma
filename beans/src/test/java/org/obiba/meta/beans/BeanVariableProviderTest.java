@@ -116,12 +116,13 @@ public class BeanVariableProviderTest {
     Set<VariableValueSource> variableValueSources = assertVariablesFromProperties(bvp, properties);
 
     BeanValueSetConnection mockConnection = EasyMock.createMock(BeanValueSetConnection.class);
-    EasyMock.expect(mockConnection.findBean(TestBean.class, (Variable) EasyMock.anyObject())).andReturn(tb).anyTimes();
+    // "If you use an argument matcher for one argument, you must use an argument matcher for all the arguments."
+    EasyMock.expect(mockConnection.findBean(EasyMock.same(TestBean.class), (Variable) EasyMock.anyObject())).andReturn(tb).anyTimes();
 
     ValueSet mockValueSet = EasyMock.createMock(ValueSet.class);
-
     EasyMock.expect(mockValueSet.connect()).andReturn(mockConnection).anyTimes();
-    EasyMock.replay(mockValueSet);
+
+    EasyMock.replay(mockValueSet, mockConnection);
     for(VariableValueSource source : variableValueSources) {
       Value value = source.getValue(mockValueSet);
       Assert.assertNotNull("Value cannot be null " + source.getVariable().getName(), value);
@@ -140,10 +141,13 @@ public class BeanVariableProviderTest {
     Set<VariableValueSource> variableValueSources = assertVariablesFromProperties(bvp, properties);
 
     BeanValueSetConnection mockConnection = EasyMock.createMock(BeanValueSetConnection.class);
-    EasyMock.expect(mockConnection.findBean(TestBean.class, (Variable) EasyMock.anyObject())).andReturn(new TestBean()).anyTimes();
+    // "If you use an argument matcher for one argument, you must use an argument matcher for all the arguments."
+    EasyMock.expect(mockConnection.findBean(EasyMock.same(TestBean.class), (Variable) EasyMock.anyObject())).andReturn(new TestBean()).anyTimes();
+
     ValueSet mockValueSet = EasyMock.createMock(ValueSet.class);
     EasyMock.expect(mockValueSet.connect()).andReturn(mockConnection).anyTimes();
-    EasyMock.replay(mockValueSet);
+
+    EasyMock.replay(mockValueSet, mockConnection);
 
     for(VariableValueSource source : variableValueSources) {
       Value value = source.getValue(mockValueSet);
