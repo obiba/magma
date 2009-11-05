@@ -7,6 +7,7 @@ import org.obiba.meta.NoSuchValueSetException;
 import org.obiba.meta.ValueSet;
 import org.obiba.meta.VariableEntity;
 import org.obiba.meta.support.AbstractValueSetProvider;
+import org.obiba.meta.support.ValueSetBean;
 import org.obiba.meta.support.VariableEntityBean;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.PropertyAccessorFactory;
@@ -38,7 +39,7 @@ public abstract class BeanValueSetProvider<T> extends AbstractValueSetProvider {
   }
 
   @Override
-  public ValueSet loadValueSet(Collection collection, VariableEntity entity) {
+  public ValueSet getValueSet(Collection collection, VariableEntity entity) {
     T bean = loadBean(entity);
     if(bean == null) {
       throw new NoSuchValueSetException(entity);
@@ -46,11 +47,12 @@ public abstract class BeanValueSetProvider<T> extends AbstractValueSetProvider {
     return buildValueSet(collection, entity, bean);
   }
 
-  protected BeanValueSet<T> buildValueSet(Collection collection, VariableEntity entity, T bean) {
-    return new BeanValueSet<T>(collection, entity, bean);
+  protected ValueSet buildValueSet(Collection collection, VariableEntity entity, T bean) {
+    return new ValueSetBean(collection, entity, null, null);
   }
 
   protected abstract T loadBean(VariableEntity entity);
 
   protected abstract Iterable<T> loadBeans();
+
 }

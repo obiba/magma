@@ -11,7 +11,7 @@ import org.obiba.meta.Initialisable;
 
 import com.google.common.collect.Iterables;
 
-public class DatasourceBean implements Datasource {
+public abstract class DatasourceBean implements Datasource {
 
   private String name;
 

@@ -6,13 +6,13 @@ public interface Collection {
 
   public String getName();
 
+  public Datasource getDatasource();
+
   public Set<String> getEntityTypes();
 
   public Set<VariableEntity> getEntities(String entityType);
 
   public ValueSet loadValueSet(VariableEntity entity);
-
-  public ValueSetExtension<?, ?> getExtension(String name);
 
   public Set<VariableValueSource> getVariableValueSources(String entityType);
 

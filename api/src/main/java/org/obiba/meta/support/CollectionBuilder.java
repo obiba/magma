@@ -1,7 +1,7 @@
 package org.obiba.meta.support;
 
 import org.obiba.meta.Collection;
-import org.obiba.meta.ValueSetExtension;
+import org.obiba.meta.Datasource;
 import org.obiba.meta.ValueSetProvider;
 import org.obiba.meta.VariableValueSource;
 import org.obiba.meta.VariableValueSourceFactory;
@@ -16,8 +16,8 @@ public class CollectionBuilder {
 
   private ImmutableSet.Builder<VariableValueSource> sourceBuilder = new ImmutableSet.Builder<VariableValueSource>();
 
-  public CollectionBuilder(String name) {
-    collection = new CollectionBean(name);
+  public CollectionBuilder(Datasource datasource, String name) {
+    collection = new CollectionBean(datasource, name);
   }
 
   public CollectionBuilder add(ValueSetProvider provider) {
@@ -32,11 +32,6 @@ public class CollectionBuilder {
 
   public CollectionBuilder add(VariableValueSourceFactory factory) {
     sourceBuilder.addAll(factory.createSources(collection.getName()));
-    return this;
-  }
-
-  public CollectionBuilder add(String name, ValueSetExtension extension) {
-    collection.addExtension(name, extension);
     return this;
   }
 

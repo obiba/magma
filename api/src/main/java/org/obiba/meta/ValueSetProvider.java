@@ -13,6 +13,6 @@ public interface ValueSetProvider {
 
   public Set<VariableEntity> getVariableEntities();
 
-  public ValueSet loadValueSet(Collection collection, VariableEntity entity);
+  public ValueSet getValueSet(Collection collection, VariableEntity entity);
 
 }

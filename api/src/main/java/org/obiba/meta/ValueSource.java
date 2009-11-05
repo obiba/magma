@@ -10,12 +10,12 @@
 package org.obiba.meta;
 
 /**
- * Defines the contract for obtaining a particular {@link Value} from a {@code IValueSetReference}.
+ * Defines the contract for obtaining a particular {@link Value} from a {@code ValueSetConnection}.
  */
 public interface ValueSource {
 
   public ValueType getValueType();
 
-  public Value getValue(ValueSet valueSet);
+  public Value getValue(ValueSet connection);
 
 }

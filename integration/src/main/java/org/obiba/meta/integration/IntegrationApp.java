@@ -2,18 +2,14 @@ package org.obiba.meta.integration;
 
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
-import java.util.Date;
-import java.util.Set;
 
 import org.obiba.meta.Collection;
 import org.obiba.meta.MetaEngine;
 import org.obiba.meta.Occurrence;
 import org.obiba.meta.ValueSet;
-import org.obiba.meta.ValueSetExtension;
 import org.obiba.meta.Variable;
 import org.obiba.meta.VariableEntity;
 import org.obiba.meta.VariableValueSource;
-import org.obiba.meta.beans.BeanValueSet;
 import org.obiba.meta.beans.BeanValueSetProvider;
 import org.obiba.meta.beans.BeanVariableValueSourceFactory;
 import org.obiba.meta.integration.model.Action;
@@ -24,8 +20,6 @@ import org.obiba.meta.integration.service.XStreamIntegrationServiceFactory;
 import org.obiba.meta.js.JavascriptVariableBuilder;
 import org.obiba.meta.js.JavascriptVariableValueSource;
 import org.obiba.meta.support.CollectionBuilder;
-import org.obiba.meta.support.DatasourceBean;
-import org.obiba.meta.support.OccurrenceBean;
 import org.obiba.meta.type.BooleanType;
 import org.obiba.meta.type.IntegerType;
 import org.obiba.meta.type.TextType;
@@ -41,10 +35,12 @@ public class IntegrationApp {
   public static void main(String[] args) throws UnsupportedEncodingException {
     new MetaEngine();
 
-    CollectionBuilder builder = new CollectionBuilder("integration-app");
-
     XStreamIntegrationServiceFactory factory = new XStreamIntegrationServiceFactory();
     final IntegrationService service = factory.buildService(new InputStreamReader(IntegrationApp.class.getResourceAsStream("participants.xml"), "UTF-8"));
+
+    IntegrationDatasource integrationDatasource = new IntegrationDatasource(service);
+
+    CollectionBuilder builder = new CollectionBuilder(integrationDatasource, "integration-app");
 
     builder.add(new BeanValueSetProvider<Interview>("Participant", "participant.barcode") {
 
@@ -63,36 +59,6 @@ public class IntegrationApp {
         return service.getInterviews();
       }
 
-    });
-
-    builder.add(Participant.class.getName(), new ValueSetExtension<BeanValueSet<Interview>, Participant>() {
-      @Override
-      public Participant extend(BeanValueSet<Interview> valueSet) {
-        return valueSet.getBean().getParticipant();
-      }
-    });
-
-    builder.add("Action", new ValueSetExtension<BeanValueSet<Interview>, Set<Occurrence>>() {
-
-      @Override
-      public Set<Occurrence> extend(BeanValueSet<Interview> valueSet) {
-        Participant participant = valueSet.getBean().getParticipant();
-        ImmutableSet.Builder<Occurrence> builder = ImmutableSet.builder();
-        int order = 0;
-        for(Action action : service.getActions(participant)) {
-          builder.add(new OccurrenceBean(valueSet, "Action", order++));
-        }
-        return builder.build();
-      }
-    });
-
-    builder.add(Action.class.getName(), new ValueSetExtension<Occurrence, Action>() {
-      @Override
-      public Action extend(Occurrence valueSet) {
-        BeanValueSet<Interview> parent = (BeanValueSet<Interview>) valueSet.getParent();
-        Participant participant = parent.getBean().getParticipant();
-        return Iterables.get(service.getActions(participant), valueSet.getOrder());
-      }
     });
 
     BeanVariableValueSourceFactory<Participant> variables = new BeanVariableValueSourceFactory<Participant>("Participant", Participant.class);
@@ -121,16 +87,15 @@ public class IntegrationApp {
 
     Collection collection = builder.build();
 
-    DatasourceBean d = new DatasourceBean();
-    d.addCollection(collection);
-    MetaEngine.get().addDatasource(d);
+    integrationDatasource.addCollection(collection);
+    MetaEngine.get().addDatasource(integrationDatasource);
 
     for(String entityType : collection.getEntityTypes()) {
       for(VariableEntity entity : collection.getEntities(entityType)) {
         ValueSet valueSet = collection.loadValueSet(entity);
         for(VariableValueSource source : collection.getVariableValueSources(entityType)) {
           if(source.getVariable().isRepeatable()) {
-            for(Occurrence occurrence : (Set<Occurrence>) valueSet.extend(source.getVariable().getOccurrenceGroup())) {
+            for(Occurrence occurrence : valueSet.connect().loadOccurrences(source.getVariable())) {
               System.out.println(source.getVariable().getName() + "[" + source.getValueType().getName() + "]@" + occurrence.getOrder() + ": " + source.getValue(occurrence));
             }
 
@@ -143,45 +108,4 @@ public class IntegrationApp {
 
   }
 
-  public class IntegrationAppValueSet implements ValueSet {
-
-    private VariableEntity entity;
-
-    private Interview interview;
-
-    IntegrationAppValueSet(VariableEntity entity, Interview interview) {
-      this.entity = entity;
-      this.interview = interview;
-    }
-
-    @Override
-    public VariableEntity getVariableEntity() {
-      return entity;
-    }
-
-    @Override
-    public Date getEndDate() {
-      return null;
-    }
-
-    @Override
-    public Date getStartDate() {
-      return null;
-    }
-
-    @Override
-    public Collection getCollection() {
-      return null;
-    }
-
-    @Override
-    public <T> T extend(String extensionName) {
-      return ((ValueSetExtension<IntegrationAppValueSet, T>) getCollection().getExtension(extensionName)).extend(this);
-    }
-
-    public Interview getInterview() {
-      return interview;
-    }
-
-  }
 }

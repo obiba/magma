@@ -24,6 +24,7 @@ import org.obiba.meta.Category;
 import org.obiba.meta.MetaEngine;
 import org.obiba.meta.Value;
 import org.obiba.meta.ValueSet;
+import org.obiba.meta.Variable;
 import org.obiba.meta.VariableValueSource;
 
 import com.google.common.collect.ImmutableMap;
@@ -114,8 +115,12 @@ public class BeanVariableProviderTest {
 
     Set<VariableValueSource> variableValueSources = assertVariablesFromProperties(bvp, properties);
 
+    BeanValueSetConnection mockConnection = EasyMock.createMock(BeanValueSetConnection.class);
+    EasyMock.expect(mockConnection.findBean(TestBean.class, (Variable) EasyMock.anyObject())).andReturn(tb).anyTimes();
+
     ValueSet mockValueSet = EasyMock.createMock(ValueSet.class);
-    EasyMock.expect(mockValueSet.extend(TestBean.class.getName())).andReturn(tb).anyTimes();
+
+    EasyMock.expect(mockValueSet.connect()).andReturn(mockConnection).anyTimes();
     EasyMock.replay(mockValueSet);
     for(VariableValueSource source : variableValueSources) {
       Value value = source.getValue(mockValueSet);
@@ -134,8 +139,10 @@ public class BeanVariableProviderTest {
 
     Set<VariableValueSource> variableValueSources = assertVariablesFromProperties(bvp, properties);
 
+    BeanValueSetConnection mockConnection = EasyMock.createMock(BeanValueSetConnection.class);
+    EasyMock.expect(mockConnection.findBean(TestBean.class, (Variable) EasyMock.anyObject())).andReturn(new TestBean()).anyTimes();
     ValueSet mockValueSet = EasyMock.createMock(ValueSet.class);
-    EasyMock.expect(mockValueSet.extend(TestBean.class.getName())).andReturn(new TestBean()).anyTimes();
+    EasyMock.expect(mockValueSet.connect()).andReturn(mockConnection).anyTimes();
     EasyMock.replay(mockValueSet);
 
     for(VariableValueSource source : variableValueSources) {

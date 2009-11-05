@@ -50,19 +50,19 @@ public final class EngineMethods {
     }
 
     String name = (String) args[0];
-    ValueSet reference = (ValueSet) ctx.getThreadLocal(ValueSet.class);
+    ValueSet valueSet = (ValueSet) ctx.getThreadLocal(ValueSet.class);
     Variable variable = (Variable) ctx.getThreadLocal(Variable.class);
     if(name.indexOf(':') < 0) {
       name = variable.getCollection() + ':' + name;
     }
 
-    VariableValueSource source = lookupSource(reference.getVariableEntity(), name);
+    VariableValueSource source = lookupSource(valueSet.getVariableEntity(), name);
 
     if(source.getVariable().isRepeatable()) {
       // Return an object that can be indexed (e.g.: $('BP.Systolic')[2] or chained $('BP.Systolic').avg() )
       throw new UnsupportedOperationException("$() on repeatable variables is not supported. Requested variable: '" + source.getVariable().getQName() + "'");
     } else {
-      Value value = source.getValue(lookupValueSet(reference.getVariableEntity(), source.getVariable().getCollection()));
+      Value value = source.getValue(lookupValueSet(valueSet.getVariableEntity(), source.getVariable().getCollection()));
       if(source.getValueType().isDateTime()) {
         Date date = (Date) value.getValue();
         return Context.toObject(ScriptRuntime.wrapNumber(date.getTime()), thisObj);

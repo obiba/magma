@@ -12,6 +12,6 @@ public interface ValueSet {
 
   public Date getEndDate();
 
-  public <T> T extend(String extensionName);
+  public ValueSetConnection connect();
 
 }
