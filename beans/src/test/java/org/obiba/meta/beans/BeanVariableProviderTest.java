@@ -101,6 +101,17 @@ public class BeanVariableProviderTest {
   }
 
   @Test
+  public void testMapAttributes() {
+    Set<String> properties = Sets.newHashSet("attributes[phoneNumber].data");
+    Map<String, Class<?>> mappedPropertyType = new ImmutableMap.Builder<String, Class<?>>().put("attributes", NestedTestBean.class).build();
+
+    BeanVariableValueSourceFactory<TestBean> bvp = new BeanVariableValueSourceFactory<TestBean>("Test", TestBean.class);
+    bvp.setProperties(properties);
+    bvp.setMappedPropertyType(mappedPropertyType);
+    assertVariablesFromProperties(bvp, properties);
+  }
+
+  @Test
   public void testValues() {
     final TestBean tb = new TestBean();
     tb.setFirstName("TestBean");
@@ -195,6 +206,8 @@ public class BeanVariableProviderTest {
 
     private Locale language;
 
+    private Map<String, NestedTestBean> attributes;
+
     public TestBean() {
     }
 
@@ -275,6 +288,13 @@ public class BeanVariableProviderTest {
       this.language = language;
     }
 
+    public final Map<String, NestedTestBean> getAttributes() {
+      return attributes;
+    }
+
+    public final void setAttributes(Map<String, NestedTestBean> attributes) {
+      this.attributes = attributes;
+    }
   }
 
   public static class NestedTestBean {

@@ -1,4 +1,6 @@
 <linked-list>
+
+
   <participant id="phil">
     <firstName>Philippe</firstName>
     <lastName>Laflamme</lastName>
@@ -46,4 +48,10 @@
     <participant reference="phil"/>
     <stage>Samples</stage>
   </action>
+  
+  <action>
+    <participant reference="mart"/>
+    <stage>CIQ</stage>
+  </action>
+  
 </linked-list>

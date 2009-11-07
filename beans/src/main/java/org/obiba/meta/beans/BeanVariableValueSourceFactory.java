@@ -11,6 +11,7 @@ package org.obiba.meta.beans;
 
 import java.beans.PropertyDescriptor;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -44,6 +45,9 @@ public class BeanVariableValueSourceFactory<T> implements VariableValueSourceFac
   /** Maps property names to variable name */
   private BiMap<String, String> propertyNameToVariableName = HashBiMap.create();
 
+  /** Maps mapped property names to property type */
+  private Map<String, Class<?>> mappedPropertyType = new HashMap<String, Class<?>>();
+
   private String occurrenceGroup;
 
   private Set<VariableValueSource> sources;
@@ -68,6 +72,10 @@ public class BeanVariableValueSourceFactory<T> implements VariableValueSourceFac
     this.propertyNameToVariableName = HashBiMap.create(propertyNameToVariableName);
   }
 
+  public void setMappedPropertyType(Map<String, Class<?>> mappedPropertyType) {
+    this.mappedPropertyType = mappedPropertyType;
+  }
+
   public void setOccurrenceGroup(String occurrenceGroup) {
     this.occurrenceGroup = occurrenceGroup;
   }
@@ -77,13 +85,12 @@ public class BeanVariableValueSourceFactory<T> implements VariableValueSourceFac
   }
 
   /**
-   * Finds the {@code PropertyDescriptor} for a given {@code propertyName} which may denote a nested property (property
-   * path). Note that the returned {@code PropertyDescriptor} may be for a different class than the {@code beanClass}
-   * (when property is nested).
+   * Finds the type ({@code Class}) for a given {@code propertyName} which may denote a nested property (property path
+   * e.g: a.b.c) or mapped property (attribute[key]) or a combination of both (e.g.: a.b[c].d).
    * @param propertyName
    * @return
    */
-  protected PropertyDescriptor getPropertyDescriptor(String propertyName) {
+  protected Class<?> getPropertyType(String propertyName) {
     Class<?> currentType = getBeanClass();
 
     String propertyPath = propertyName;
@@ -91,19 +98,56 @@ public class BeanVariableValueSourceFactory<T> implements VariableValueSourceFac
     while(PropertyAccessorUtils.isNestedOrIndexedProperty(propertyPath)) {
       int pos = PropertyAccessorUtils.getFirstNestedPropertySeparatorIndex(propertyPath);
 
-      // Represents a property of the currentType
-      String nestedProperty = propertyPath.substring(0, pos);
-      PropertyDescriptor currentProperty = BeanUtils.getPropertyDescriptor(currentType, nestedProperty);
-      if(currentProperty == null) {
-        throw new IllegalArgumentException("Invalid path '" + propertyName + "' for type " + getBeanClass().getName() + ": nested property '" + nestedProperty + "' does not exist on type " + currentType.getName());
+      String nestedProperty = propertyPath;
+      if(pos > -1) {
+        nestedProperty = propertyPath.substring(0, pos);
       }
-      // Change the current type so it points to the nested type
-      currentType = currentProperty.getPropertyType();
-      // Extract the nested type's property path from the original path
-      propertyPath = propertyPath.substring(pos + 1);
+
+      // Check whether this is a mapped property (a[b])
+      if(PropertyAccessorUtils.isNestedOrIndexedProperty(nestedProperty)) {
+        // We cannot determine the type of these properties through reflection (even when they contain type parameters
+        // i.e. Map<String, String>).
+        // The type of these properties has to be specified through configuration
+        currentType = getMapAttributeType(PropertyAccessorUtils.getPropertyName(nestedProperty));
+        if(pos == -1) {
+          return currentType;
+        }
+        propertyPath = propertyPath.substring(pos + 1);
+      } else {
+        PropertyDescriptor currentProperty = BeanUtils.getPropertyDescriptor(currentType, nestedProperty);
+        if(currentProperty == null) {
+          throw new IllegalArgumentException("Invalid path '" + propertyName + "' for type " + getBeanClass().getName() + ": nested property '" + nestedProperty + "' does not exist on type " + currentType.getName());
+        }
+        // Change the current type so it points to the nested type
+        currentType = currentProperty.getPropertyType();
+        // Extract the nested type's property path from the original path
+        propertyPath = propertyPath.substring(pos + 1);
+      }
     }
+
     // propertyPath is a direct reference to a property of the currentType (no longer a path)
-    return BeanUtils.getPropertyDescriptor(currentType, propertyPath);
+    PropertyDescriptor descriptor = BeanUtils.getPropertyDescriptor(currentType, propertyPath);
+    if(descriptor == null) {
+      throw new IllegalArgumentException("Invalid path '" + propertyName + "' for type " + getBeanClass().getName() + ": property '" + propertyPath + "' does not exist on type " + currentType.getName());
+    }
+    return descriptor.getPropertyType();
+  }
+
+  /**
+   * Returns the type for values in a mapped property. It is not possible (or at least, I haven't found how) to
+   * determine the type of a mapped property (i.e.: property[key]). For this reason, the type to use for such properties
+   * has to be specified through configuration. This method must return the type for values in the {@code Map}.
+   * 
+   * @param propertyName the name of the property (without any key element). Given "property[key]", this method will be
+   * passed "property".
+   * @return the type of the values in the Map
+   */
+  protected Class<?> getMapAttributeType(String propertyName) {
+    Class<?> type = mappedPropertyType.get(propertyName);
+    if(type == null) {
+      throw new IllegalStateException("Property '" + propertyName + "' is a mapped property; the value type cannot be determined by relfection. As such, the type of values in the map must be specified through configuration. Use the setMappedPropertyType() method to provide the mapping between property names and value types. Ensure that an entry with the key '" + propertyName + "' exists in this map.");
+    }
+    return type;
   }
 
   /**
@@ -153,11 +197,11 @@ public class BeanVariableValueSourceFactory<T> implements VariableValueSourceFac
         if(sources == null) {
           sources = new HashSet<VariableValueSource>();
           for(String propertyPath : properties) {
-            PropertyDescriptor descriptor = getPropertyDescriptor(propertyPath);
-            if(descriptor == null) {
+            Class<?> propertyType = getPropertyType(propertyPath);
+            if(propertyType == null) {
               throw new IllegalArgumentException("Invalid property path'" + propertyPath + "' for type " + getBeanClass().getName());
             }
-            sources.add(new BeanPropertyVariableValueSource(doBuildVariable(collection, descriptor.getPropertyType(), lookupVariableName(propertyPath)), beanClass, propertyPath));
+            sources.add(new BeanPropertyVariableValueSource(doBuildVariable(collection, propertyType, lookupVariableName(propertyPath)), beanClass, propertyPath));
           }
         }
       }

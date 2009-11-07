@@ -13,6 +13,6 @@ public interface Datasource extends Initialisable, ValueSetConnectionFactory {
 
   public Properties getProperties();
 
-  public void setProperties(Properties properties);
+  public Set<Occurrence> loadOccurrences(ValueSetConnection connection, Variable variable);
 
 }

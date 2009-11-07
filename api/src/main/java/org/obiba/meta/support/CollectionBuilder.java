@@ -31,7 +31,6 @@ public class CollectionBuilder {
   }
 
   public CollectionBuilder add(Iterable<VariableValueSourceFactory> factories) {
-    System.out.println("Adding :" + factories);
     for(VariableValueSourceFactory factory : factories) {
       add(factory);
     }
@@ -39,7 +38,6 @@ public class CollectionBuilder {
   }
 
   public CollectionBuilder add(VariableValueSourceFactory factory) {
-    System.out.println("Adding :" + factory + " to " + sourceBuilder);
     sourceBuilder.addAll(factory.createSources(name));
     return this;
   }

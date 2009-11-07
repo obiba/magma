@@ -11,7 +11,7 @@ import org.obiba.meta.Initialisable;
 
 import com.google.common.collect.Iterables;
 
-public abstract class DatasourceBean implements Datasource {
+public abstract class AbstractDatasource implements Datasource {
 
   private String name;
 
@@ -37,24 +37,23 @@ public abstract class DatasourceBean implements Datasource {
   }
 
   @Override
-  public void setProperties(Properties properties) {
-    this.properties = properties;
-  }
-
-  @Override
   public Set<Collection> getCollections() {
     return Collections.unmodifiableSet(collections);
   }
 
   @Override
   public void initialise() {
+
+    for(String collection : getCollectionNames()) {
+      collections.add(initialiseCollection(collection));
+    }
+
     for(Initialisable initialisable : Iterables.filter(getCollections(), Initialisable.class)) {
       initialisable.initialise();
     }
   }
 
-  public void addCollection(Collection collection) {
-    collections.add(collection);
-  }
+  protected abstract Set<String> getCollectionNames();
 
+  protected abstract Collection initialiseCollection(String collection);
 }

@@ -3,7 +3,6 @@ package org.obiba.meta.beans;
 import java.util.Set;
 
 import org.obiba.meta.Collection;
-import org.obiba.meta.NoSuchValueSetException;
 import org.obiba.meta.ValueSet;
 import org.obiba.meta.VariableEntity;
 import org.obiba.meta.support.AbstractValueSetProvider;
@@ -44,18 +43,12 @@ public abstract class BeanValueSetProvider<T> extends AbstractValueSetProvider {
 
   @Override
   public ValueSet getValueSet(Collection collection, VariableEntity entity) {
-    T bean = loadBean(entity);
-    if(bean == null) {
-      throw new NoSuchValueSetException(entity);
-    }
-    return buildValueSet(collection, entity, bean);
+    return buildValueSet(collection, entity);
   }
 
-  protected ValueSet buildValueSet(Collection collection, VariableEntity entity, T bean) {
+  protected ValueSet buildValueSet(Collection collection, VariableEntity entity) {
     return new ValueSetBean(collection, entity, null, null);
   }
-
-  protected abstract T loadBean(VariableEntity entity);
 
   protected abstract Iterable<T> loadBeans();
 
