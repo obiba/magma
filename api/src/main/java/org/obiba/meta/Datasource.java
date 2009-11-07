@@ -3,7 +3,7 @@ package org.obiba.meta;
 import java.util.Properties;
 import java.util.Set;
 
-public interface Datasource extends Initialisable, ValueSetConnectionFactory {
+public interface Datasource extends Initialisable {
 
   public String getName();
 
@@ -12,7 +12,5 @@ public interface Datasource extends Initialisable, ValueSetConnectionFactory {
   public Set<Collection> getCollections();
 
   public Properties getProperties();
-
-  public Set<Occurrence> loadOccurrences(ValueSetConnection connection, Variable variable);
 
 }

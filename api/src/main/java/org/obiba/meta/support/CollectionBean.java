@@ -9,6 +9,7 @@ import org.obiba.meta.Datasource;
 import org.obiba.meta.Initialisable;
 import org.obiba.meta.NoSuchValueSetException;
 import org.obiba.meta.NoSuchVariableException;
+import org.obiba.meta.Occurrence;
 import org.obiba.meta.ValueSet;
 import org.obiba.meta.ValueSetProvider;
 import org.obiba.meta.Variable;
@@ -70,7 +71,12 @@ public class CollectionBean implements Collection, Initialisable {
 
   @Override
   public ValueSet loadValueSet(VariableEntity entity) {
-    return lookupProvider(entity.getType()).getValueSet(this, entity);
+    return lookupProvider(entity.getType()).getValueSet(entity);
+  }
+
+  @Override
+  public Set<Occurrence> loadOccurrences(ValueSet valueSet, Variable variable) {
+    return lookupProvider(valueSet.getVariableEntity().getType()).loadOccurrences(valueSet, variable);
   }
 
   @Override

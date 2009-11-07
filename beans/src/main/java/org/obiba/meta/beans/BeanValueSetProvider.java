@@ -2,18 +2,19 @@ package org.obiba.meta.beans;
 
 import java.util.Set;
 
-import org.obiba.meta.Collection;
+import org.obiba.meta.Occurrence;
 import org.obiba.meta.ValueSet;
+import org.obiba.meta.ValueSetAdaptor;
+import org.obiba.meta.Variable;
 import org.obiba.meta.VariableEntity;
 import org.obiba.meta.support.AbstractValueSetProvider;
-import org.obiba.meta.support.ValueSetBean;
 import org.obiba.meta.support.VariableEntityBean;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.PropertyAccessorFactory;
 
 import com.google.common.collect.ImmutableSet;
 
-public abstract class BeanValueSetProvider<T> extends AbstractValueSetProvider {
+public abstract class BeanValueSetProvider<T> extends AbstractValueSetProvider implements ValueSetAdaptor {
 
   private String entityIdentifierPropertyPath;
 
@@ -42,13 +43,10 @@ public abstract class BeanValueSetProvider<T> extends AbstractValueSetProvider {
   }
 
   @Override
-  public ValueSet getValueSet(Collection collection, VariableEntity entity) {
-    return buildValueSet(collection, entity);
-  }
+  public abstract ValueSet getValueSet(VariableEntity entity);
 
-  protected ValueSet buildValueSet(Collection collection, VariableEntity entity) {
-    return new ValueSetBean(collection, entity, null, null);
-  }
+  @Override
+  public abstract Set<Occurrence> loadOccurrences(ValueSet valueSet, Variable variable);
 
   protected abstract Iterable<T> loadBeans();
 

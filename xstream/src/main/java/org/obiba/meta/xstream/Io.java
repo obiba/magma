@@ -42,7 +42,7 @@ public class Io {
         XStreamValueSet valueSet = new XStreamValueSet(collection.loadValueSet(entity));
         for(VariableValueSource source : collection.getVariableValueSources(entityType)) {
           if(source.getVariable().isRepeatable()) {
-            for(Occurrence occurrence : valueSet.connect().loadOccurrences(source.getVariable())) {
+            for(Occurrence occurrence : collection.loadOccurrences(valueSet, source.getVariable())) {
               valueSet.addValue(occurrence, source);
             }
 

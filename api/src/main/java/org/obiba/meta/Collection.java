@@ -14,6 +14,8 @@ public interface Collection {
 
   public ValueSet loadValueSet(VariableEntity entity);
 
+  public Set<Occurrence> loadOccurrences(ValueSet valueSet, Variable variable);
+
   public Set<VariableValueSource> getVariableValueSources(String entityType);
 
   public VariableValueSource getVariableValueSource(String entityType, String variableName) throws NoSuchVariableException;

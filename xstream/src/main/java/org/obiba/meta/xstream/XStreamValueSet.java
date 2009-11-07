@@ -16,7 +16,12 @@ public class XStreamValueSet extends ValueSetBean {
   private List<XStreamValueSetValue> values = new LinkedList<XStreamValueSetValue>();
 
   public XStreamValueSet(ValueSet valueSet) {
-    super(valueSet.getCollection(), valueSet.getVariableEntity(), valueSet.getStartDate(), valueSet.getEndDate());
+    super(null, valueSet.getCollection(), valueSet.getVariableEntity(), valueSet.getStartDate(), valueSet.getEndDate());
+  }
+
+  @Override
+  public <T> T adapt(Class<T> type) {
+    return null;
   }
 
   public void addValue(VariableValueSource source) {

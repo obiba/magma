@@ -12,6 +12,6 @@ public interface ValueSet {
 
   public Date getEndDate();
 
-  public ValueSetConnection connect();
+  public <T> T adapt(Class<T> type);
 
 }

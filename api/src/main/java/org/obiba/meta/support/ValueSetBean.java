@@ -4,7 +4,7 @@ import java.util.Date;
 
 import org.obiba.meta.Collection;
 import org.obiba.meta.ValueSet;
-import org.obiba.meta.ValueSetConnection;
+import org.obiba.meta.ValueSetAdaptor;
 import org.obiba.meta.VariableEntity;
 
 public class ValueSetBean implements ValueSet {
@@ -17,11 +17,14 @@ public class ValueSetBean implements ValueSet {
 
   private Date endDate;
 
-  public ValueSetBean(Collection collection, VariableEntity entity, Date startDate, Date endDate) {
+  private ValueSetAdaptor valueSetAdaptor;
+
+  public ValueSetBean(ValueSetAdaptor valueSetAdaptor, Collection collection, VariableEntity entity, Date startDate, Date endDate) {
     this.collection = collection;
     this.entity = entity;
     this.startDate = startDate;
     this.endDate = endDate;
+    this.valueSetAdaptor = valueSetAdaptor;
   }
 
   @Override
@@ -45,8 +48,8 @@ public class ValueSetBean implements ValueSet {
   }
 
   @Override
-  public ValueSetConnection connect() {
-    return getCollection().getDatasource().createConnection(this);
+  public <T> T adapt(Class<T> type) {
+    return valueSetAdaptor.adapt(type, this);
   }
 
 }

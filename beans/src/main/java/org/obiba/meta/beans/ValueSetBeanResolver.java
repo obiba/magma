@@ -1,9 +1,10 @@
 package org.obiba.meta.beans;
 
+import org.obiba.meta.ValueSet;
 import org.obiba.meta.Variable;
 
 public interface ValueSetBeanResolver {
 
-  public <B> B resolveBean(BeanValueSetConnection connection, Class<B> type, Variable variable);
+  public Object resolveBean(ValueSet valueSet, Class<?> type, Variable variable);
 
 }

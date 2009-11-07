@@ -32,7 +32,7 @@ public class IntegrationApp {
           for(VariableValueSource source : collection.getVariableValueSources(entityType)) {
 
             if(source.getVariable().isRepeatable()) {
-              for(Occurrence occurrence : valueSet.connect().loadOccurrences(source.getVariable())) {
+              for(Occurrence occurrence : collection.loadOccurrences(valueSet, source.getVariable())) {
                 System.out.println(source.getVariable().getName() + "[" + source.getValueType().getName() + "]@" + occurrence.getOrder() + ": " + source.getValue(occurrence));
               }
 
