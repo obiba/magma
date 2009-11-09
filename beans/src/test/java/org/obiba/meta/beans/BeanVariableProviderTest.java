@@ -126,14 +126,14 @@ public class BeanVariableProviderTest {
 
     Set<VariableValueSource> variableValueSources = assertVariablesFromProperties(bvp, properties);
 
-    BeansValueSet beansValueSet = EasyMock.createMock(BeansValueSet.class);
+    BeansValueSetProvider valueSetProvider = EasyMock.createMock(BeansValueSetProvider.class);
     // "If you use an argument matcher for one argument, you must use an argument matcher for all the arguments."
-    EasyMock.expect(beansValueSet.findBean(EasyMock.same(TestBean.class), (Variable) EasyMock.anyObject())).andReturn(tb).anyTimes();
+    EasyMock.expect(valueSetProvider.resolveBean((ValueSet) EasyMock.anyObject(), EasyMock.same(TestBean.class), (Variable) EasyMock.anyObject())).andReturn(tb).anyTimes();
 
     ValueSet mockValueSet = EasyMock.createMock(ValueSet.class);
-    EasyMock.expect(mockValueSet.adapt((Class<BeansValueSet>) EasyMock.anyObject())).andReturn(beansValueSet).anyTimes();
+    EasyMock.expect(mockValueSet.getValueSetProvider()).andReturn(valueSetProvider).anyTimes();
 
-    EasyMock.replay(mockValueSet, beansValueSet);
+    EasyMock.replay(mockValueSet, valueSetProvider);
     for(VariableValueSource source : variableValueSources) {
       Value value = source.getValue(mockValueSet);
       Assert.assertNotNull("Value cannot be null " + source.getVariable().getName(), value);
@@ -151,14 +151,14 @@ public class BeanVariableProviderTest {
 
     Set<VariableValueSource> variableValueSources = assertVariablesFromProperties(bvp, properties);
 
-    BeansValueSet beansValueSet = EasyMock.createMock(BeansValueSet.class);
+    BeansValueSetProvider valueSetProvider = EasyMock.createMock(BeansValueSetProvider.class);
     // "If you use an argument matcher for one argument, you must use an argument matcher for all the arguments."
-    EasyMock.expect(beansValueSet.findBean(EasyMock.same(TestBean.class), (Variable) EasyMock.anyObject())).andReturn(new TestBean()).anyTimes();
+    EasyMock.expect(valueSetProvider.resolveBean((ValueSet) EasyMock.anyObject(), EasyMock.same(TestBean.class), (Variable) EasyMock.anyObject())).andReturn(new TestBean()).anyTimes();
 
     ValueSet mockValueSet = EasyMock.createMock(ValueSet.class);
-    EasyMock.expect(mockValueSet.adapt((Class<BeansValueSet>) EasyMock.anyObject())).andReturn(beansValueSet).anyTimes();
+    EasyMock.expect(mockValueSet.getValueSetProvider()).andReturn(valueSetProvider).anyTimes();
 
-    EasyMock.replay(mockValueSet, beansValueSet);
+    EasyMock.replay(mockValueSet, valueSetProvider);
 
     for(VariableValueSource source : variableValueSources) {
       Value value = source.getValue(mockValueSet);

@@ -2,7 +2,7 @@ package org.obiba.meta.support;
 
 import org.obiba.meta.Occurrence;
 import org.obiba.meta.ValueSet;
-import org.obiba.meta.ValueSetAdaptor;
+import org.obiba.meta.ValueSetProvider;
 
 public class OccurrenceBean extends ValueSetBean implements Occurrence {
 
@@ -12,8 +12,8 @@ public class OccurrenceBean extends ValueSetBean implements Occurrence {
 
   private int order;
 
-  public OccurrenceBean(ValueSetAdaptor valueSetAdaptor, ValueSet valueSet, String group, int order) {
-    super(valueSetAdaptor, valueSet.getCollection(), valueSet.getVariableEntity(), valueSet.getStartDate(), valueSet.getEndDate());
+  public OccurrenceBean(ValueSetProvider valueSetProvider, ValueSet valueSet, String group, int order) {
+    super(valueSetProvider, valueSet.getVariableEntity(), valueSet.getStartDate(), valueSet.getEndDate());
     this.valueSet = valueSet;
     this.group = group;
     this.order = order;

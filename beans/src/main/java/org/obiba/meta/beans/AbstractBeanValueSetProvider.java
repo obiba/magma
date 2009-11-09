@@ -4,7 +4,6 @@ import java.util.Set;
 
 import org.obiba.meta.Occurrence;
 import org.obiba.meta.ValueSet;
-import org.obiba.meta.ValueSetAdaptor;
 import org.obiba.meta.Variable;
 import org.obiba.meta.VariableEntity;
 import org.obiba.meta.support.AbstractValueSetProvider;
@@ -14,11 +13,11 @@ import org.springframework.beans.PropertyAccessorFactory;
 
 import com.google.common.collect.ImmutableSet;
 
-public abstract class BeanValueSetProvider<T> extends AbstractValueSetProvider implements ValueSetAdaptor {
+public abstract class AbstractBeanValueSetProvider<T> extends AbstractValueSetProvider implements BeansValueSetProvider {
 
   private String entityIdentifierPropertyPath;
 
-  public BeanValueSetProvider(String entityType, String entityIdentifierPropertyPath) {
+  public AbstractBeanValueSetProvider(String entityType, String entityIdentifierPropertyPath) {
     super(entityType);
     this.entityIdentifierPropertyPath = entityIdentifierPropertyPath;
   }

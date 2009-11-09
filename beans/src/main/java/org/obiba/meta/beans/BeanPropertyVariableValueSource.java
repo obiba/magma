@@ -50,13 +50,11 @@ public class BeanPropertyVariableValueSource implements VariableValueSource {
   }
 
   public Value getValue(ValueSet valueSet) {
-    return getValue(valueSet.adapt(BeansValueSet.class));
-  }
-
-  protected Value getValue(BeansValueSet valueSet) {
-    Object bean = valueSet.findBean(beanClass, variable);
+    BeansValueSetProvider resolver = (BeansValueSetProvider) valueSet.getValueSetProvider();
+    Object bean = resolver.resolveBean(valueSet, beanClass, variable);
     Object object = getPropertyValue(propertyPath, PropertyAccessorFactory.forBeanPropertyAccess(bean));
     return getValueType().valueOf(object);
+
   }
 
   protected Object getPropertyValue(String propertyPath, BeanWrapper bw) {

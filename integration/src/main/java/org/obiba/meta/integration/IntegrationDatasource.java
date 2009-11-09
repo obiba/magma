@@ -8,10 +8,10 @@ import org.obiba.meta.Occurrence;
 import org.obiba.meta.ValueSet;
 import org.obiba.meta.Variable;
 import org.obiba.meta.VariableEntity;
+import org.obiba.meta.beans.AbstractBeanValueSetProvider;
 import org.obiba.meta.beans.AbstractBeansDatasource;
-import org.obiba.meta.beans.BeanValueSetProvider;
 import org.obiba.meta.beans.BeanVariableValueSourceFactory;
-import org.obiba.meta.beans.DefaultBeansValueSet;
+import org.obiba.meta.beans.NoSuchBeanException;
 import org.obiba.meta.beans.ValueSetBeanResolver;
 import org.obiba.meta.integration.model.Action;
 import org.obiba.meta.integration.model.Interview;
@@ -46,7 +46,7 @@ public class IntegrationDatasource extends AbstractBeansDatasource {
   protected Collection initialiseCollection(String collection) {
 
     CollectionBuilder builder = new CollectionBuilder(collection);
-    builder.add(new BeanValueSetProvider<Interview>("Participant", "participant.barcode") {
+    builder.add(new AbstractBeanValueSetProvider<Interview>("Participant", "participant.barcode") {
 
       @Override
       protected Iterable<Interview> loadBeans() {
@@ -54,13 +54,18 @@ public class IntegrationDatasource extends AbstractBeansDatasource {
       }
 
       @Override
-      public <T> T adapt(Class<T> type, ValueSet valueSet) {
-        return (T) new DefaultBeansValueSet(valueSet, getBeanResolvers());
+      public ValueSet getValueSet(VariableEntity entity) {
+        return new ValueSetBean(this, entity, null, null);
       }
 
       @Override
-      public ValueSet getValueSet(VariableEntity entity) {
-        return new ValueSetBean(this, null, entity, null, null);
+      public Object resolveBean(ValueSet valueSet, Class<?> type, Variable variable) {
+        for(ValueSetBeanResolver resolver : getBeanResolvers()) {
+          if(resolver.resolves(type)) {
+            return resolver.resolve(valueSet, variable);
+          }
+        }
+        throw new NoSuchBeanException("No bean of type " + type.getName() + " in ValueSet " + this + " for variable " + variable + " could be found.");
       }
 
       @Override
@@ -100,21 +105,27 @@ public class IntegrationDatasource extends AbstractBeansDatasource {
   @Override
   protected Builder<ValueSetBeanResolver> buildResolvers(Builder<ValueSetBeanResolver> builder) {
     return builder.add(new ValueSetBeanResolver() {
+
       @Override
-      public Object resolveBean(ValueSet valueSet, Class<?> type, Variable variable) {
-        if(Participant.class.equals(type)) {
-          return getParticipant(valueSet);
-        }
-        return null;
+      public boolean resolves(Class<?> type) {
+        return Participant.class.equals(type);
+      }
+
+      @Override
+      public Object resolve(ValueSet valueSet, Variable variable) {
+        return getParticipant(valueSet);
       }
     }).add(new ValueSetBeanResolver() {
+
       @Override
-      public Object resolveBean(ValueSet valueSet, Class<?> type, Variable variable) {
-        if(Action.class.equals(type)) {
-          Occurrence occurrence = (Occurrence) valueSet;
-          return service.getActions(getParticipant(occurrence)).get(occurrence.getOrder());
-        }
-        return null;
+      public boolean resolves(Class<?> type) {
+        return Action.class.equals(type);
+      }
+
+      @Override
+      public Object resolve(ValueSet valueSet, Variable variable) {
+        Occurrence occurrence = (Occurrence) valueSet;
+        return service.getActions(getParticipant(occurrence)).get(occurrence.getOrder());
       }
     });
   }

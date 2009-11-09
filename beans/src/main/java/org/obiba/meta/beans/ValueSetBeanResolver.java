@@ -4,7 +4,7 @@ import org.obiba.meta.ValueSet;
 import org.obiba.meta.Variable;
 
 public interface ValueSetBeanResolver {
+  public boolean resolves(Class<?> type);
 
-  public Object resolveBean(ValueSet valueSet, Class<?> type, Variable variable);
-
+  public Object resolve(ValueSet valueSet, Variable Variable);
 }

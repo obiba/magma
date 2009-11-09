@@ -4,14 +4,12 @@ import java.util.Date;
 
 public interface ValueSet {
 
-  public Collection getCollection();
+  public ValueSetProvider getValueSetProvider();
 
   public VariableEntity getVariableEntity();
 
   public Date getStartDate();
 
   public Date getEndDate();
-
-  public <T> T adapt(Class<T> type);
 
 }
