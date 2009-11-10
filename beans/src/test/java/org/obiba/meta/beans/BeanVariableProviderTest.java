@@ -26,6 +26,7 @@ import org.obiba.meta.Value;
 import org.obiba.meta.ValueSet;
 import org.obiba.meta.Variable;
 import org.obiba.meta.VariableValueSource;
+import org.obiba.meta.support.ValueSetBean;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
@@ -36,9 +37,12 @@ import com.google.common.collect.Sets;
  */
 public class BeanVariableProviderTest {
 
+  ValueSetBeanResolver resolver;
+
   @Before
   public void createMetaEngine() {
     new MetaEngine();
+    resolver = EasyMock.createMock(ValueSetBeanResolver.class);
   }
 
   @After
@@ -126,16 +130,11 @@ public class BeanVariableProviderTest {
 
     Set<VariableValueSource> variableValueSources = assertVariablesFromProperties(bvp, properties);
 
-    BeansValueSetProvider valueSetProvider = EasyMock.createMock(BeansValueSetProvider.class);
     // "If you use an argument matcher for one argument, you must use an argument matcher for all the arguments."
-    EasyMock.expect(valueSetProvider.resolveBean((ValueSet) EasyMock.anyObject(), EasyMock.same(TestBean.class), (Variable) EasyMock.anyObject())).andReturn(tb).anyTimes();
-
-    ValueSet mockValueSet = EasyMock.createMock(ValueSet.class);
-    EasyMock.expect(mockValueSet.getValueSetProvider()).andReturn(valueSetProvider).anyTimes();
-
-    EasyMock.replay(mockValueSet, valueSetProvider);
+    EasyMock.expect(resolver.resolve((Class) EasyMock.anyObject(), (ValueSet) EasyMock.anyObject(), (Variable) EasyMock.anyObject())).andReturn(tb).anyTimes();
+    EasyMock.replay(resolver);
     for(VariableValueSource source : variableValueSources) {
-      Value value = source.getValue(mockValueSet);
+      Value value = source.getValue(new ValueSetBean(null, null));
       Assert.assertNotNull("Value cannot be null " + source.getVariable().getName(), value);
       Assert.assertNotNull("ValueType cannot be null " + source.getVariable().getName(), value.getValueType());
       Assert.assertNotNull("Value's value cannot be null " + source.getVariable().getName(), value.getValue());
@@ -151,17 +150,12 @@ public class BeanVariableProviderTest {
 
     Set<VariableValueSource> variableValueSources = assertVariablesFromProperties(bvp, properties);
 
-    BeansValueSetProvider valueSetProvider = EasyMock.createMock(BeansValueSetProvider.class);
     // "If you use an argument matcher for one argument, you must use an argument matcher for all the arguments."
-    EasyMock.expect(valueSetProvider.resolveBean((ValueSet) EasyMock.anyObject(), EasyMock.same(TestBean.class), (Variable) EasyMock.anyObject())).andReturn(new TestBean()).anyTimes();
-
-    ValueSet mockValueSet = EasyMock.createMock(ValueSet.class);
-    EasyMock.expect(mockValueSet.getValueSetProvider()).andReturn(valueSetProvider).anyTimes();
-
-    EasyMock.replay(mockValueSet, valueSetProvider);
+    EasyMock.expect(resolver.resolve((Class) EasyMock.anyObject(), (ValueSet) EasyMock.anyObject(), (Variable) EasyMock.anyObject())).andReturn(new TestBean()).anyTimes();
+    EasyMock.replay(resolver);
 
     for(VariableValueSource source : variableValueSources) {
-      Value value = source.getValue(mockValueSet);
+      Value value = source.getValue(new ValueSetBean(null, null));
       Assert.assertNotNull("Value cannot be null " + source.getVariable().getName(), value);
       Assert.assertNotNull("ValueType cannot be null " + source.getVariable().getName(), value.getValueType());
 
@@ -175,7 +169,7 @@ public class BeanVariableProviderTest {
   }
 
   protected Set<VariableValueSource> assertVariablesFromProperties(BeanVariableValueSourceFactory<TestBean> bvp, Set<String> properties, Map<String, String> nameOverride) {
-    Set<VariableValueSource> variables = bvp.createSources("collection");
+    Set<VariableValueSource> variables = bvp.createSources("collection", resolver);
     // There are no more and no less than what was specified
     Assert.assertEquals(properties.size(), variables.size());
     Collection<String> nameSet = nameOverride != null ? nameOverride.values() : properties;

@@ -25,12 +25,6 @@ public class ValueSetConverter extends AbstractCollectionConverter {
     ValueSet valueSet = (ValueSet) source;
     writer.addAttribute("entityType", valueSet.getVariableEntity().getType());
     writer.addAttribute("entityId", valueSet.getVariableEntity().getIdentifier());
-    if(valueSet.getStartDate() != null) {
-      writer.addAttribute("startDate", valueSet.getStartDate().toString());
-    }
-    if(valueSet.getStartDate() != null) {
-      writer.addAttribute("endDate", valueSet.getEndDate().toString());
-    }
   }
 
   @Override

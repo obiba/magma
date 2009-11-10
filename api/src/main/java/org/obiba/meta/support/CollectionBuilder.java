@@ -4,7 +4,6 @@ import org.obiba.meta.Collection;
 import org.obiba.meta.Datasource;
 import org.obiba.meta.ValueSetProvider;
 import org.obiba.meta.VariableValueSource;
-import org.obiba.meta.VariableValueSourceFactory;
 
 import com.google.common.collect.ImmutableSet;
 
@@ -30,15 +29,8 @@ public class CollectionBuilder {
     return this;
   }
 
-  public CollectionBuilder add(Iterable<VariableValueSourceFactory> factories) {
-    for(VariableValueSourceFactory factory : factories) {
-      add(factory);
-    }
-    return this;
-  }
-
-  public CollectionBuilder add(VariableValueSourceFactory factory) {
-    sourceBuilder.addAll(factory.createSources(name));
+  public CollectionBuilder add(Iterable<VariableValueSource> sources) {
+    sourceBuilder.addAll(sources);
     return this;
   }
 

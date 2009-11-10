@@ -19,7 +19,6 @@ import java.util.Set;
 import org.obiba.meta.ValueType;
 import org.obiba.meta.Variable;
 import org.obiba.meta.VariableValueSource;
-import org.obiba.meta.VariableValueSourceFactory;
 import org.obiba.meta.type.EnumeratedType;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.PropertyAccessorUtils;
@@ -31,7 +30,7 @@ import com.google.common.collect.HashBiMap;
 /**
  *
  */
-public class BeanVariableValueSourceFactory<T> implements VariableValueSourceFactory {
+public class BeanVariableValueSourceFactory<T> {
 
   private Class<T> beanClass;
 
@@ -80,8 +79,8 @@ public class BeanVariableValueSourceFactory<T> implements VariableValueSourceFac
     this.occurrenceGroup = occurrenceGroup;
   }
 
-  public Set<VariableValueSource> createSources(String collection) {
-    return doBuildVariables(collection);
+  public Set<VariableValueSource> createSources(String collection, ValueSetBeanResolver resolver) {
+    return doBuildVariables(collection, resolver);
   }
 
   /**
@@ -191,7 +190,7 @@ public class BeanVariableValueSourceFactory<T> implements VariableValueSourceFac
    * Builds the {@code Variable} that this provider supports and also the {@code VariableEntityDataSource} instances for
    * each variable.
    */
-  protected Set<VariableValueSource> doBuildVariables(String collection) {
+  protected Set<VariableValueSource> doBuildVariables(String collection, ValueSetBeanResolver resolver) {
     if(sources == null) {
       synchronized(this) {
         if(sources == null) {
@@ -201,7 +200,7 @@ public class BeanVariableValueSourceFactory<T> implements VariableValueSourceFac
             if(propertyType == null) {
               throw new IllegalArgumentException("Invalid property path'" + propertyPath + "' for type " + getBeanClass().getName());
             }
-            sources.add(new BeanPropertyVariableValueSource(doBuildVariable(collection, propertyType, lookupVariableName(propertyPath)), beanClass, propertyPath));
+            sources.add(new BeanPropertyVariableValueSource(doBuildVariable(collection, propertyType, lookupVariableName(propertyPath)), beanClass, resolver, propertyPath));
           }
         }
       }
