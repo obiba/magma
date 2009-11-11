@@ -75,7 +75,7 @@ public class IntegrationDatasource extends AbstractDatasource {
     return builder.add(new OccurrenceProvider() {
 
       @Override
-      public boolean occurenceOf(Variable variable) {
+      public boolean providesOccurrencesOf(Variable variable) {
         return "Action".equals(variable.getOccurrenceGroup());
       }
 

@@ -8,7 +8,7 @@ import org.obiba.meta.Variable;
 
 public interface OccurrenceProvider {
 
-  public boolean occurenceOf(Variable variable);
+  public boolean providesOccurrencesOf(Variable variable);
 
   public Set<Occurrence> loadOccurrences(ValueSet valueSet, Variable variable);
 

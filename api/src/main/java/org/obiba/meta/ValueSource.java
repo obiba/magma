@@ -10,12 +10,20 @@
 package org.obiba.meta;
 
 /**
- * Defines the contract for obtaining a particular {@link Value} from a {@code ValueSetConnection}.
+ * Defines the contract for obtaining a particular {@link Value} from a {@code ValueSet}.
  */
 public interface ValueSource {
 
   public ValueType getValueType();
 
+  /**
+   * This method should never return null.
+   * 
+   * @param valueSet
+   * @return
+   * @throws IllegalArgumentException when the provided valueSet is for a entityType different than the variable's
+   * entityType
+   */
   public Value getValue(ValueSet valueSet);
 
 }

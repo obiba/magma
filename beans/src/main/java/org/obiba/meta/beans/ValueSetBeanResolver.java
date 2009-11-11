@@ -7,6 +7,6 @@ public interface ValueSetBeanResolver {
 
   public boolean resolves(Class<?> type);
 
-  public Object resolve(Class<?> type, ValueSet valueSet, Variable variable);
+  public Object resolve(Class<?> type, ValueSet valueSet, Variable variable) throws NoSuchBeanException;
 
 }

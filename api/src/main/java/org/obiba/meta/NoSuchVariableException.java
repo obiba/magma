@@ -1,6 +1,6 @@
 package org.obiba.meta;
 
-public class NoSuchVariableException extends RuntimeException {
+public class NoSuchVariableException extends MetaRuntimeException {
 
   private static final long serialVersionUID = 5887330656285998606L;
 

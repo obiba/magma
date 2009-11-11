@@ -1,7 +1,9 @@
 package org.obiba.meta.beans;
 
+import java.util.Collections;
 import java.util.Set;
 
+import org.obiba.meta.Collection;
 import org.obiba.meta.NoSuchValueSetException;
 import org.obiba.meta.Occurrence;
 import org.obiba.meta.ValueSet;
@@ -19,7 +21,7 @@ public abstract class AbstractBeanValueSetProvider<T> extends AbstractValueSetPr
 
   private String entityIdentifierPropertyPath;
 
-  private Set<OccurrenceProvider> occurrenceProviders;
+  private Set<OccurrenceProvider> occurrenceProviders = Collections.emptySet();
 
   public AbstractBeanValueSetProvider(String entityType, String entityIdentifierPropertyPath) {
     super(entityType);
@@ -31,11 +33,19 @@ public abstract class AbstractBeanValueSetProvider<T> extends AbstractValueSetPr
   }
 
   public void setOccurrenceProviders(Set<OccurrenceProvider> occurrenceProviders) {
+    if(occurrenceProviders == null) {
+      throw new IllegalArgumentException("occurrenceProviders cannot be null");
+    }
     this.occurrenceProviders = occurrenceProviders;
   }
 
   public Set<OccurrenceProvider> getOccurrenceProviders() {
     return occurrenceProviders;
+  }
+
+  @Override
+  public ValueSet getValueSet(Collection collection, VariableEntity entity) {
+    return new ValueSetBean(collection, entity);
   }
 
   @Override
@@ -54,14 +64,9 @@ public abstract class AbstractBeanValueSetProvider<T> extends AbstractValueSetPr
   }
 
   @Override
-  public ValueSet getValueSet(VariableEntity entity) {
-    return new ValueSetBean(this, entity);
-  }
-
-  @Override
   public Set<Occurrence> loadOccurrences(ValueSet valueSet, Variable variable) {
     for(OccurrenceProvider provider : occurrenceProviders) {
-      if(provider.occurenceOf(variable)) {
+      if(provider.providesOccurrencesOf(variable)) {
         return provider.loadOccurrences(valueSet, variable);
       }
     }

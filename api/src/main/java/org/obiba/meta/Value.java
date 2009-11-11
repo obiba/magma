@@ -6,12 +6,17 @@ public class Value implements Serializable {
 
   private static final long serialVersionUID = 779426587031645153L;
 
+  private static final Serializable NULL = "org.obiba.meta.Value.NULL".intern();
+
   private ValueType valueType;
 
   private Serializable value;
 
   Value(ValueType valueType, Serializable value) {
-    if(valueType == null) throw new IllegalArgumentException("type cannot be null");
+    if(valueType == null) throw new IllegalArgumentException("valueType cannot be null");
+    if(value == null) {
+      value = NULL;
+    }
     this.valueType = valueType;
     this.value = value;
   }
@@ -25,28 +30,40 @@ public class Value implements Serializable {
   }
 
   public boolean isNull() {
-    return value == null;
+    return value == NULL;
   }
 
   @Override
   public String toString() {
+    if(isNull()) {
+      return value.toString();
+    }
     return getValueType().toString(this);
   }
 
   @Override
   public boolean equals(Object obj) {
-    if(obj instanceof Value) {
-      Value rhs = (Value) obj;
-      return valueType == rhs.valueType && (isNull() ? rhs.isNull() : value.equals(rhs.value));
+    if(this == obj) {
+      return true;
     }
-    return super.equals(obj);
+    if(obj == null) {
+      return false;
+    }
+    if(getClass() != obj.getClass()) {
+      return false;
+    }
+
+    Value other = (Value) obj;
+
+    return value.equals(other.value) && valueType.equals(other.valueType);
   }
 
   @Override
   public int hashCode() {
-    int hashcode = 37;
-    hashcode *= hashcode + valueType.hashCode();
-    hashcode *= hashcode + (isNull() ? 0 : value.hashCode());
-    return hashcode;
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + value.hashCode();
+    result = prime * result + valueType.hashCode();
+    return result;
   }
 }

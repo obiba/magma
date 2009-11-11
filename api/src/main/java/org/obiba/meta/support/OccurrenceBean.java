@@ -12,7 +12,7 @@ public class OccurrenceBean extends ValueSetBean implements Occurrence {
   private int order;
 
   public OccurrenceBean(ValueSet valueSet, String group, int order) {
-    super(valueSet.getValueSetProvider(), valueSet.getVariableEntity());
+    super(valueSet.getCollection(), valueSet.getVariableEntity());
     this.valueSet = valueSet;
     this.group = group;
     this.order = order;

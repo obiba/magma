@@ -1,23 +1,28 @@
 package org.obiba.meta.support;
 
+import org.obiba.meta.Collection;
 import org.obiba.meta.ValueSet;
-import org.obiba.meta.ValueSetProvider;
 import org.obiba.meta.VariableEntity;
 
 public class ValueSetBean implements ValueSet {
 
-  private ValueSetProvider valueSetProvider;
+  private Collection collection;
 
   private VariableEntity entity;
 
-  public ValueSetBean(ValueSetProvider valueSetProvider, VariableEntity entity) {
-    this.valueSetProvider = valueSetProvider;
+  public ValueSetBean(Collection collection, VariableEntity entity) {
+    this.collection = collection;
     this.entity = entity;
   }
 
+  protected ValueSetBean(ValueSet valueSet) {
+    this.collection = valueSet.getCollection();
+    this.entity = valueSet.getVariableEntity();
+  }
+
   @Override
-  public ValueSetProvider getValueSetProvider() {
-    return valueSetProvider;
+  public Collection getCollection() {
+    return collection;
   }
 
   @Override

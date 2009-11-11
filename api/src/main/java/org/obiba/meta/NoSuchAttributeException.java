@@ -2,7 +2,7 @@ package org.obiba.meta;
 
 import java.util.Locale;
 
-public class NoSuchAttributeException extends RuntimeException {
+public class NoSuchAttributeException extends MetaRuntimeException {
 
   private static final long serialVersionUID = 5887330656285998606L;
 

@@ -71,7 +71,7 @@ public class CollectionBean implements Collection, Initialisable {
 
   @Override
   public ValueSet loadValueSet(VariableEntity entity) {
-    return lookupProvider(entity.getType()).getValueSet(entity);
+    return new ValueSetBean(this, entity);
   }
 
   @Override
