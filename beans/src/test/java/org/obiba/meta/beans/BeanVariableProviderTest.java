@@ -160,7 +160,7 @@ public class BeanVariableProviderTest {
       Assert.assertNotNull("ValueType cannot be null " + source.getVariable().getName(), value.getValueType());
 
       // The value's value should be null
-      Assert.assertNull("Value's value should be null " + source.getVariable().getName(), value.getValue());
+      Assert.assertTrue("Value's value should be null " + source.getVariable().getName(), value.isNull());
     }
   }
 

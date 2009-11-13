@@ -10,6 +10,7 @@
 package org.obiba.meta.beans;
 
 import java.beans.PropertyDescriptor;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -19,13 +20,14 @@ import java.util.Set;
 import org.obiba.meta.ValueType;
 import org.obiba.meta.Variable;
 import org.obiba.meta.VariableValueSource;
-import org.obiba.meta.type.EnumeratedType;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.PropertyAccessorUtils;
 import org.springframework.util.Assert;
 
+import com.google.common.base.Functions;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
+import com.google.common.collect.Iterables;
 
 /**
  *
@@ -212,13 +214,17 @@ public class BeanVariableValueSourceFactory<T> {
     ValueType type = ValueType.Factory.forClass(propertyType);
 
     Variable.Builder builder = Variable.Builder.newVariable(collection, name, type, entityType);
-    if(type instanceof EnumeratedType) {
-      builder.addCategories(((EnumeratedType) type).enumerate(propertyType));
+    if(propertyType.isEnum()) {
+      Enum<?>[] constants = (Enum<?>[]) propertyType.getEnumConstants();
+      String[] names = Iterables.toArray(Iterables.transform(Arrays.asList(constants), Functions.toStringFunction()), String.class);
+      builder.addCategories(names);
     }
 
     if(occurrenceGroup != null) {
       builder.repeatable().occurrenceGroup(occurrenceGroup);
     }
+
+    // Allow extended classes to contribute to the builder
     return buildVariable(builder).build();
   }
 
