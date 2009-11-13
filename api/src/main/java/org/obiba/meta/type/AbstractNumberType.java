@@ -1,9 +1,8 @@
 package org.obiba.meta.type;
 
 import org.obiba.meta.Value;
-import org.obiba.meta.ValueType;
 
-public abstract class AbstractNumberType implements ValueType {
+public abstract class AbstractNumberType extends AbstractValueType {
 
   private static final long serialVersionUID = -5271259966499174607L;
 

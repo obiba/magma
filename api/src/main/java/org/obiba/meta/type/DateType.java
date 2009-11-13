@@ -8,9 +8,8 @@ import java.util.Date;
 
 import org.obiba.meta.MetaEngine;
 import org.obiba.meta.Value;
-import org.obiba.meta.ValueType;
 
-public class DateType implements ValueType {
+public class DateType extends AbstractValueType {
 
   private static final long serialVersionUID = -149385659514790222L;
 
@@ -36,7 +35,7 @@ public class DateType implements ValueType {
 
   @Override
   public boolean isNumeric() {
-    return true;
+    return false;
   }
 
   @Override
@@ -72,7 +71,7 @@ public class DateType implements ValueType {
   @Override
   public Value valueOf(Object object) {
     if(object == null) {
-      return Factory.newValue(this, null);
+      return nullValue();
     }
     Class<?> type = object.getClass();
     if(type.equals(Date.class)) {

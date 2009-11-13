@@ -12,8 +12,13 @@ public class BooleanType implements ValueType {
 
   private static WeakReference<BooleanType> instance;
 
-  private BooleanType() {
+  private Value trueValue;
 
+  private Value falseValue;
+
+  private BooleanType() {
+    trueValue = Factory.newValue(this, new Boolean(true));
+    falseValue = Factory.newValue(this, new Boolean(false));
   }
 
   public static BooleanType get() {
@@ -49,6 +54,11 @@ public class BooleanType implements ValueType {
   }
 
   @Override
+  public Value nullValue() {
+    return Factory.newValue(this, null);
+  }
+
+  @Override
   public String toString(Value value) {
     return value.isNull() ? null : value.getValue().toString();
   }
@@ -62,5 +72,30 @@ public class BooleanType implements ValueType {
   public Value valueOf(Object object) {
     String str = object != null ? object.toString() : null;
     return Factory.newValue(this, Boolean.valueOf(str));
+  }
+
+  public Value trueValue() {
+    return trueValue;
+  }
+
+  public Value falseValue() {
+    return falseValue;
+  }
+
+  public Value not(Value value) {
+    if(value.getValueType() != this) {
+      throw new IllegalArgumentException("value is not of BooleanType: " + value);
+    }
+    if(value.isNull()) {
+      return value;
+    }
+    if(trueValue.equals(value)) {
+      return falseValue;
+    }
+    if(falseValue.equals(value)) {
+      return trueValue;
+    }
+    // This really isn't possible
+    throw new IllegalArgumentException("value of BooleanType is neither true nor false: " + value);
   }
 }

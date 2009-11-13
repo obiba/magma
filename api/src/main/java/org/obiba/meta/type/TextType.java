@@ -6,9 +6,8 @@ import javax.xml.namespace.QName;
 
 import org.obiba.meta.MetaEngine;
 import org.obiba.meta.Value;
-import org.obiba.meta.ValueType;
 
-public class TextType implements ValueType {
+public class TextType extends AbstractValueType {
 
   private static final long serialVersionUID = -5271259966499174607L;
 
@@ -36,7 +35,7 @@ public class TextType implements ValueType {
 
   @Override
   public boolean acceptsJavaClass(Class<?> clazz) {
-    return String.class.isAssignableFrom(clazz);
+    return String.class.isAssignableFrom(clazz) || clazz.isEnum();
   }
 
   public QName getXsdType() {

@@ -6,9 +6,8 @@ import javax.xml.namespace.QName;
 
 import org.obiba.meta.MetaEngine;
 import org.obiba.meta.Value;
-import org.obiba.meta.ValueType;
 
-public class BinaryType implements ValueType {
+public class BinaryType extends AbstractValueType {
 
   private static final long serialVersionUID = -5271259966499174607L;
 
@@ -67,7 +66,7 @@ public class BinaryType implements ValueType {
   public Value valueOf(Object object) {
     // input type is expected to be byte[]
     if(object == null) {
-      return Factory.newValue(this, null);
+      return nullValue();
     }
     if(byte[].class.equals(object.getClass())) {
       return Factory.newValue(this, (byte[]) object);

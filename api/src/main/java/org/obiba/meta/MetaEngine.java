@@ -34,6 +34,15 @@ public class MetaEngine {
     return instance;
   }
 
+  public MetaEngine extend(Initialisable extension) {
+    try {
+      extension.initialise();
+    } catch(RuntimeException e) {
+
+    }
+    return this;
+  }
+
   public ValueTypeFactory getValueTypeFactory() {
     return valueTypeFactory;
   }

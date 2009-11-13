@@ -9,7 +9,6 @@ import org.obiba.meta.type.BinaryType;
 import org.obiba.meta.type.BooleanType;
 import org.obiba.meta.type.DateType;
 import org.obiba.meta.type.DecimalType;
-import org.obiba.meta.type.EnumType;
 import org.obiba.meta.type.IntegerType;
 import org.obiba.meta.type.LocaleType;
 import org.obiba.meta.type.TextType;
@@ -60,7 +59,6 @@ public class ValueTypeFactory {
     types.add(LocaleType.get());
     types.add(DecimalType.get());
     types.add(IntegerType.get());
-    types.add(EnumType.get());
     types.add(BooleanType.get());
     types.add(BinaryType.get());
     types.add(DateType.get());

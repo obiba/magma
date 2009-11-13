@@ -54,6 +54,12 @@ public interface ValueType extends Serializable {
   public boolean isNumeric();
 
   /**
+   * Returns a {@code Value} instance that represents the null value for this type
+   * @return a {@code Value} instance for null
+   */
+  public Value nullValue();
+
+  /**
    * Returns a string representation of the {@code value}. The string returned can be passed to the {@code
    * #valueOf(String)} method which should return an equivalent {@code Value} instance.
    * @param value the value to convert to a string
