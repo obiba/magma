@@ -10,13 +10,15 @@ import org.obiba.meta.ValueSet;
 import org.obiba.meta.VariableEntity;
 import org.obiba.meta.VariableValueSource;
 import org.obiba.meta.integration.service.XStreamIntegrationServiceFactory;
+import org.obiba.meta.js.MagmaJsExtension;
 
 /**
  */
 public class IntegrationApp {
 
   public static void main(String[] args) throws UnsupportedEncodingException {
-    new MetaEngine();
+    new MetaEngine().extend(new MagmaJsExtension());
+
     XStreamIntegrationServiceFactory factory = new XStreamIntegrationServiceFactory();
     IntegrationDatasource integrationDatasource = new IntegrationDatasource(factory.buildService(new InputStreamReader(IntegrationApp.class.getResourceAsStream("participants.xml"), "UTF-8")));
 

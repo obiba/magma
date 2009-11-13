@@ -1,25 +1,12 @@
 package org.obiba.meta.js;
 
-import org.junit.After;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 import org.obiba.meta.Attribute;
-import org.obiba.meta.MetaEngine;
 import org.obiba.meta.Variable;
 import org.obiba.meta.type.BooleanType;
 
-public class JavascriptVariableBuilderTest {
-
-  @Before
-  public void startYourEngine() {
-    new MetaEngine();
-  }
-
-  @After
-  public void stopYourEngine() {
-    MetaEngine.get().shutdown();
-  }
+public class JavascriptVariableBuilderTest extends AbstractJsTest {
 
   @Test
   public void testSimpleVariable() {

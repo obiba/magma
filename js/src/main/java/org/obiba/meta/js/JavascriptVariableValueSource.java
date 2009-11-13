@@ -25,15 +25,19 @@ public class JavascriptVariableValueSource extends JavascriptValueSource impleme
   }
 
   @Override
+  public String getScriptName() {
+    return getVariable().getName();
+  }
+
+  @Override
   protected void enterContext(Context ctx, Scriptable scope, ValueSet valueSet) {
     super.enterContext(ctx, scope, valueSet);
     ctx.putThreadLocal(Variable.class, variable);
   }
 
   @Override
-  public void initialise() {
-    super.setScript(variable.getAttribute(JavascriptVariableBuilder.SCRIPT_ATTRIBUTE_NAME).getValue().toString());
-    super.initialise();
+  public String getScript() {
+    return variable.getAttribute(JavascriptVariableBuilder.SCRIPT_ATTRIBUTE_NAME).getValue().toString();
   }
 
 }

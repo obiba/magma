@@ -3,19 +3,24 @@ package org.obiba.meta.js;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ContextAction;
 import org.mozilla.javascript.ContextFactory;
+import org.mozilla.javascript.EvaluatorException;
+import org.mozilla.javascript.Script;
 import org.mozilla.javascript.Scriptable;
-import org.mozilla.javascript.ScriptableObject;
 import org.obiba.meta.Initialisable;
 import org.obiba.meta.Value;
 import org.obiba.meta.ValueSet;
 import org.obiba.meta.ValueSource;
 import org.obiba.meta.ValueType;
 
-import com.google.common.collect.Iterables;
-
 /**
+ * A {@code ValueSource} implementation that uses a Javascript script to evaluate the {@code Value} to return.
+ * <p>
+ * Within the javascript engine, {@code Value} instances are represented by {@code ScriptableValue} host objects.
+ * <p>
+ * This class implements {@code Initialisable}. During the {@code #initialise()} method, the provided script is
+ * compiled. Any compile error is thrown as a {@code EvaluatorException} which contains the details of the error.
  * 
- * 
+ * @see ScriptableValue
  */
 public class JavascriptValueSource implements ValueSource, Initialisable {
 
@@ -23,7 +28,17 @@ public class JavascriptValueSource implements ValueSource, Initialisable {
 
   private String script;
 
-  private ScriptableObject sharedScope;
+  private String scriptName = "customScript";
+
+  private Script compiledScript;
+
+  public String getScriptName() {
+    return scriptName;
+  }
+
+  public void setScriptName(String name) {
+    this.scriptName = name;
+  }
 
   public void setScript(String script) {
     this.script = script;
@@ -39,18 +54,26 @@ public class JavascriptValueSource implements ValueSource, Initialisable {
 
   @Override
   public Value getValue(final ValueSet valueSet) {
-    return (Value) ContextFactory.getGlobal().call(new ContextAction() {
+    if(compiledScript == null) {
+      throw new IllegalStateException("script hasn't been compile. Call initialise() before calling getValue().");
+    }
+    return ((ScriptableValue) ContextFactory.getGlobal().call(new ContextAction() {
       public Object run(Context ctx) {
-        Scriptable scope = ctx.newObject(sharedScope);
+        MagmaContext context = (MagmaContext) ctx;
+        // Don't pollute the global scope
+        Scriptable scope = context.newLocalScope();
 
-        scope.setPrototype(sharedScope);
-        scope.setParentScope(null);
+        enterContext(ctx, scope, valueSet);
 
-        enterContext(ctx, sharedScope, valueSet);
-        Object value = ctx.evaluateString(sharedScope, getScript(), "source", 1, null);
-        return getValueType().valueOf(value);
+        Object value = compiledScript.exec(ctx, scope);
+
+        exitContext(ctx);
+        if(value instanceof Scriptable) {
+          return value;
+        }
+        return new ScriptableValue(scope, getValueType().valueOf(value));
       }
-    });
+    })).getSingleValue();
   }
 
   @Override
@@ -59,18 +82,35 @@ public class JavascriptValueSource implements ValueSource, Initialisable {
   }
 
   @Override
-  public void initialise() {
-    Context ctx = Context.enter();
+  public void initialise() throws EvaluatorException {
+    String script = getScript();
+    if(script == null) {
+      throw new NullPointerException("script cannot be null");
+    }
     try {
-      sharedScope = ctx.initStandardObjects();
-      // Register engine methods and custom methods
-      sharedScope.defineFunctionProperties(Iterables.toArray(DateTimeMethods.exposedMethods, String.class), DateTimeMethods.class, ScriptableObject.DONTENUM);
-      EngineMethods.registerMethods(sharedScope);
-    } finally {
-      Context.exit();
+      compiledScript = (Script) ContextFactory.getGlobal().call(new ContextAction() {
+        @Override
+        public Object run(Context cx) {
+          return cx.compileString(getScript(), getScriptName(), 1, null);
+        }
+      });
+    } catch(EvaluatorException e) {
+      throw e;
     }
   }
 
+  /**
+   * This method is invoked before evaluating the script. It provides a chance for derived classes to initialise values
+   * within the context. This method will add the current {@code ValueSet} as a {@code ThreadLocal} variable with
+   * {@code ValueSet#class} as its key. This allows other classes to have access to the current {@code ValueSet} during
+   * the script's execution.
+   * <p>
+   * Classes overriding this method must call their super class' method
+   * 
+   * @param ctx the current context
+   * @param scope the scope of execution of this script
+   * @param valueSet the current {@code ValueSet}
+   */
   protected void enterContext(Context ctx, Scriptable scope, ValueSet valueSet) {
     ctx.putThreadLocal(ValueSet.class, valueSet);
   }
