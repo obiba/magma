@@ -2,11 +2,11 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <groupId>org.obiba.meta</groupId>
-  <artifactId>meta</artifactId>
+  <groupId>org.obiba.magma</groupId>
+  <artifactId>magma</artifactId>
   <packaging>pom</packaging>
   <version>1.0-SNAPSHOT</version>
-  <name>meta</name>
+  <name>magma</name>
   <url>http://www.obiba.org</url>
 
   <dependencyManagement>
@@ -14,7 +14,7 @@
       <dependency>
         <groupId>com.google.collections</groupId>
         <artifactId>google-collections</artifactId>
-        <version>1.0-rc3</version>
+        <version>${google-collections.version}</version>
       </dependency>
 
       <dependency>
@@ -120,6 +120,7 @@
     <maven.compiler.source>1.6</maven.compiler.source>
     <project.build.sourceEncoding>ISO-8859-1</project.build.sourceEncoding>
 
+    <google-collections.version>1.0-rc4</google-collections.version>
     <junit.version>4.4</junit.version>
     <easymock.version>2.4</easymock.version>
     <slf4j.version>1.5.8</slf4j.version>

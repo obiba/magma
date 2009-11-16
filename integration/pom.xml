@@ -1,36 +1,34 @@
 <?xml version="1.0"?>
 <project>
   <parent>
-    <artifactId>meta</artifactId>
-    <groupId>org.obiba.meta</groupId>
+    <artifactId>magma</artifactId>
+    <groupId>org.obiba.magma</groupId>
     <version>1.0-SNAPSHOT</version>
   </parent>
+
   <modelVersion>4.0.0</modelVersion>
-  <groupId>org.obiba.meta</groupId>
-  <artifactId>integration</artifactId>
+  <artifactId>magma-integration</artifactId>
   <name>integration</name>
-  <version>1.0-SNAPSHOT</version>
-  <url>http://maven.apache.org</url>
 
   <dependencies>
     <dependency>
-      <groupId>org.obiba.meta</groupId>
-      <artifactId>api</artifactId>
+      <groupId>org.obiba.magma</groupId>
+      <artifactId>magma-api</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.obiba.meta</groupId>
-      <artifactId>beans</artifactId>
+      <groupId>org.obiba.magma</groupId>
+      <artifactId>magma-beans</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.obiba.meta</groupId>
-      <artifactId>js</artifactId>
+      <groupId>org.obiba.magma</groupId>
+      <artifactId>magma-js</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.obiba.meta</groupId>
-      <artifactId>xstream</artifactId>
+      <groupId>org.obiba.magma</groupId>
+      <artifactId>magma-xstream</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
@@ -39,4 +37,5 @@
       <version>${slf4j.version}</version>
     </dependency>
   </dependencies>
+
 </project>
