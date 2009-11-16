@@ -9,7 +9,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.obiba.magma.Attribute;
 import org.obiba.magma.Category;
-import org.obiba.magma.MetaEngine;
+import org.obiba.magma.MagmaEngine;
 import org.obiba.magma.Variable;
 import org.obiba.magma.type.TextType;
 
@@ -22,12 +22,12 @@ public class VariableConverterTest {
 
   @Before
   public void startYourEngine() {
-    new MetaEngine();
+    new MagmaEngine();
   }
 
   @After
   public void stopYourEngine() {
-    MetaEngine.get().shutdown();
+    MagmaEngine.get().shutdown();
   }
 
   @Test

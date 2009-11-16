@@ -1,8 +1,9 @@
 package org.obiba.magma.beans;
 
+import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.ValueSet;
 
-public class NoSuchBeanException extends RuntimeException {
+public class NoSuchBeanException extends MagmaRuntimeException {
 
   private static final long serialVersionUID = 559153486087896008L;
 

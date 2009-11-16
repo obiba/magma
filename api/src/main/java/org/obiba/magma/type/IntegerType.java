@@ -3,7 +3,7 @@ package org.obiba.magma.type;
 import java.lang.ref.WeakReference;
 import java.math.BigInteger;
 
-import org.obiba.magma.MetaEngine;
+import org.obiba.magma.MagmaEngine;
 import org.obiba.magma.Value;
 
 public class IntegerType extends AbstractNumberType {
@@ -18,7 +18,7 @@ public class IntegerType extends AbstractNumberType {
 
   public static IntegerType get() {
     if(instance == null || instance.get() == null) {
-      instance = MetaEngine.get().registerInstance(new IntegerType());
+      instance = MagmaEngine.get().registerInstance(new IntegerType());
     }
     return instance.get();
   }

@@ -7,11 +7,11 @@ public interface ValueType extends Serializable {
   public static class Factory {
 
     public static ValueType forName(String name) {
-      return MetaEngine.get().getValueTypeFactory().forName(name);
+      return MagmaEngine.get().getValueTypeFactory().forName(name);
     }
 
     public static ValueType forClass(Class<?> javaClass) {
-      return MetaEngine.get().getValueTypeFactory().forClass(javaClass);
+      return MagmaEngine.get().getValueTypeFactory().forClass(javaClass);
     }
 
     public static Value newValue(ValueType type, Serializable value) {

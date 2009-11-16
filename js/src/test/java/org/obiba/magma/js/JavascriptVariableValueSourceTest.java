@@ -4,7 +4,7 @@ import org.easymock.EasyMock;
 import org.junit.Assert;
 import org.junit.Test;
 import org.obiba.magma.Collection;
-import org.obiba.magma.MetaEngine;
+import org.obiba.magma.MagmaEngine;
 import org.obiba.magma.NoSuchCollectionException;
 import org.obiba.magma.NoSuchVariableException;
 import org.obiba.magma.Value;
@@ -22,9 +22,9 @@ public class JavascriptVariableValueSourceTest extends AbstractJsTest {
 
   Collection mockCollection = EasyMock.createMock(Collection.class);
 
-  protected MetaEngine newEngine() {
+  protected MagmaEngine newEngine() {
 
-    return new MetaEngine() {
+    return new MagmaEngine() {
       public VariableValueSource lookupVariable(String entityType, String name) throws NoSuchCollectionException, NoSuchVariableException {
         return mockSource;
       };

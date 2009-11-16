@@ -6,18 +6,18 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
-public class MetaEngine {
+public class MagmaEngine {
 
   /** Keeps a reference on all singletons */
   private static List<Object> singletons;
 
-  private static MetaEngine instance;
+  private static MagmaEngine instance;
 
   private ValueTypeFactory valueTypeFactory;
 
   private Set<Datasource> datasources = new HashSet<Datasource>();
 
-  public MetaEngine() {
+  public MagmaEngine() {
     if(instance != null) {
       throw new IllegalStateException("MetaEngine already instanciated. Only one instance of MetaEngine should be instantiated.");
     }
@@ -27,14 +27,14 @@ public class MetaEngine {
     valueTypeFactory = new ValueTypeFactory();
   }
 
-  public static MetaEngine get() {
+  public static MagmaEngine get() {
     if(instance == null) {
       throw new IllegalStateException("MetaEngine not instanciated. Make sure you instantiate the engine before accessing other static methods in the api.");
     }
     return instance;
   }
 
-  public MetaEngine extend(Initialisable extension) {
+  public MagmaEngine extend(Initialisable extension) {
     try {
       extension.initialise();
     } catch(RuntimeException e) {

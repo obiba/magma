@@ -5,7 +5,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ContextFactory;
-import org.obiba.magma.MetaEngine;
+import org.obiba.magma.MagmaEngine;
 
 public abstract class AbstractJsTest {
 
@@ -25,11 +25,11 @@ public abstract class AbstractJsTest {
 
   @After
   public void stopYourEngine() {
-    MetaEngine.get().shutdown();
+    MagmaEngine.get().shutdown();
   }
 
-  protected MetaEngine newEngine() {
-    return new MetaEngine();
+  protected MagmaEngine newEngine() {
+    return new MagmaEngine();
   }
 
 }

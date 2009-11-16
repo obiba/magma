@@ -3,7 +3,7 @@ package org.obiba.magma.type;
 import java.lang.ref.WeakReference;
 import java.util.Locale;
 
-import org.obiba.magma.MetaEngine;
+import org.obiba.magma.MagmaEngine;
 import org.obiba.magma.Value;
 
 public class LocaleType extends TextType {
@@ -18,7 +18,7 @@ public class LocaleType extends TextType {
 
   public static TextType get() {
     if(instance == null || instance.get() == null) {
-      instance = MetaEngine.get().registerInstance(new LocaleType());
+      instance = MagmaEngine.get().registerInstance(new LocaleType());
     }
     return instance.get();
   }

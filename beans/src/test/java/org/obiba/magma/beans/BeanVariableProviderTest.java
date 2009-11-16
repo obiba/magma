@@ -21,7 +21,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.obiba.magma.Category;
-import org.obiba.magma.MetaEngine;
+import org.obiba.magma.MagmaEngine;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueSet;
 import org.obiba.magma.Variable;
@@ -41,13 +41,13 @@ public class BeanVariableProviderTest {
 
   @Before
   public void createMetaEngine() {
-    new MetaEngine();
+    new MagmaEngine();
     resolver = EasyMock.createMock(ValueSetBeanResolver.class);
   }
 
   @After
   public void shutdownMetaEngine() {
-    MetaEngine.get().shutdown();
+    MagmaEngine.get().shutdown();
   }
 
   @Test

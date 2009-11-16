@@ -4,7 +4,7 @@ import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 
 import org.obiba.magma.Collection;
-import org.obiba.magma.MetaEngine;
+import org.obiba.magma.MagmaEngine;
 import org.obiba.magma.Occurrence;
 import org.obiba.magma.ValueSet;
 import org.obiba.magma.VariableEntity;
@@ -17,12 +17,12 @@ import org.obiba.magma.js.MagmaJsExtension;
 public class IntegrationApp {
 
   public static void main(String[] args) throws UnsupportedEncodingException {
-    new MetaEngine().extend(new MagmaJsExtension());
+    new MagmaEngine().extend(new MagmaJsExtension());
 
     XStreamIntegrationServiceFactory factory = new XStreamIntegrationServiceFactory();
     IntegrationDatasource integrationDatasource = new IntegrationDatasource(factory.buildService(new InputStreamReader(IntegrationApp.class.getResourceAsStream("participants.xml"), "UTF-8")));
 
-    MetaEngine.get().addDatasource(integrationDatasource);
+    MagmaEngine.get().addDatasource(integrationDatasource);
 
     for(Collection collection : integrationDatasource.getCollections()) {
       for(String entityType : collection.getEntityTypes()) {

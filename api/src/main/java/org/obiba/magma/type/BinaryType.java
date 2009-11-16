@@ -4,7 +4,7 @@ import java.lang.ref.WeakReference;
 
 import javax.xml.namespace.QName;
 
-import org.obiba.magma.MetaEngine;
+import org.obiba.magma.MagmaEngine;
 import org.obiba.magma.Value;
 
 public class BinaryType extends AbstractValueType {
@@ -19,7 +19,7 @@ public class BinaryType extends AbstractValueType {
 
   public static BinaryType get() {
     if(instance == null || instance.get() == null) {
-      instance = MetaEngine.get().registerInstance(new BinaryType());
+      instance = MagmaEngine.get().registerInstance(new BinaryType());
     }
     return instance.get();
   }

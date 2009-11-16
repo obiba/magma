@@ -6,7 +6,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
-import org.obiba.magma.MetaEngine;
+import org.obiba.magma.MagmaEngine;
 import org.obiba.magma.Value;
 
 public class DateType extends AbstractValueType {
@@ -23,7 +23,7 @@ public class DateType extends AbstractValueType {
 
   public static DateType get() {
     if(instance == null || instance.get() == null) {
-      instance = MetaEngine.get().registerInstance(new DateType());
+      instance = MagmaEngine.get().registerInstance(new DateType());
     }
     return instance.get();
   }

@@ -2,7 +2,7 @@ package org.obiba.magma;
 
 import java.util.Locale;
 
-public class NoSuchAttributeException extends MetaRuntimeException {
+public class NoSuchAttributeException extends MagmaRuntimeException {
 
   private static final long serialVersionUID = 5887330656285998606L;
 

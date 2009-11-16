@@ -1,6 +1,6 @@
 package org.obiba.magma;
 
-public class NoSuchValueSetException extends MetaRuntimeException {
+public class NoSuchValueSetException extends MagmaRuntimeException {
 
   private static final long serialVersionUID = 5887330656285998606L;
 

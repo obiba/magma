@@ -6,7 +6,7 @@ import java.util.Set;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.Scriptable;
-import org.obiba.magma.MetaEngine;
+import org.obiba.magma.MagmaEngine;
 import org.obiba.magma.Occurrence;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueSet;
@@ -77,10 +77,10 @@ public final class GlobalMethods {
   }
 
   private static VariableValueSource lookupSource(VariableEntity entity, String name) {
-    return MetaEngine.get().lookupVariable(entity.getType(), name);
+    return MagmaEngine.get().lookupVariable(entity.getType(), name);
   }
 
   private static ValueSet lookupValueSet(VariableEntity entity, String collection) {
-    return MetaEngine.get().lookupCollection(collection).loadValueSet(entity);
+    return MagmaEngine.get().lookupCollection(collection).loadValueSet(entity);
   }
 }

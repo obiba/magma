@@ -12,7 +12,7 @@ import org.obiba.magma.xstream.converter.AttributeConverter;
 import org.obiba.magma.xstream.converter.CategoryConverter;
 import org.obiba.magma.xstream.converter.ValueConverter;
 import org.obiba.magma.xstream.converter.VariableConverter;
-import org.obiba.magma.xstream.mapper.MetaMapper;
+import org.obiba.magma.xstream.mapper.MagmaMapper;
 
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.mapper.MapperWrapper;
@@ -23,7 +23,7 @@ public class Io {
     XStream xstream = new XStream() {
       @Override
       protected MapperWrapper wrapMapper(MapperWrapper next) {
-        return new MetaMapper(next);
+        return new MagmaMapper(next);
       }
     };
     xstream.registerConverter(new VariableConverter(xstream.getMapper()));

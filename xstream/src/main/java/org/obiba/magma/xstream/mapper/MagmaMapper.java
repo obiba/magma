@@ -7,9 +7,9 @@ import org.obiba.magma.Variable;
 import com.thoughtworks.xstream.mapper.Mapper;
 import com.thoughtworks.xstream.mapper.MapperWrapper;
 
-public class MetaMapper extends MapperWrapper {
+public class MagmaMapper extends MapperWrapper {
 
-  public MetaMapper(Mapper wrapped) {
+  public MagmaMapper(Mapper wrapped) {
     super(wrapped);
   }
 

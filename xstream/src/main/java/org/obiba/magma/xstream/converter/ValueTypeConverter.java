@@ -1,6 +1,5 @@
 package org.obiba.magma.xstream.converter;
 
-import org.obiba.magma.MetaEngine;
 import org.obiba.magma.ValueType;
 
 import com.thoughtworks.xstream.converters.basic.AbstractSingleValueConverter;
@@ -22,7 +21,7 @@ public class ValueTypeConverter extends AbstractSingleValueConverter {
 
   @Override
   public Object fromString(String str) {
-    return MetaEngine.get().getValueTypeFactory().forName(str);
+    return ValueType.Factory.forName(str);
   }
 
 }

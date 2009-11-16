@@ -4,7 +4,7 @@ import java.lang.ref.WeakReference;
 
 import javax.xml.namespace.QName;
 
-import org.obiba.magma.MetaEngine;
+import org.obiba.magma.MagmaEngine;
 import org.obiba.magma.Value;
 
 public class TextType extends AbstractValueType {
@@ -19,7 +19,7 @@ public class TextType extends AbstractValueType {
 
   public static TextType get() {
     if(instance == null || instance.get() == null) {
-      instance = MetaEngine.get().registerInstance(new TextType());
+      instance = MagmaEngine.get().registerInstance(new TextType());
     }
     return instance.get();
   }

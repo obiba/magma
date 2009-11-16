@@ -12,7 +12,7 @@ import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.PropertyModel;
 import org.obiba.magma.Category;
 import org.obiba.magma.Collection;
-import org.obiba.magma.MetaEngine;
+import org.obiba.magma.MagmaEngine;
 import org.obiba.magma.Variable;
 
 import com.google.common.base.Predicate;
@@ -115,7 +115,7 @@ public class CollectionPanel extends Panel {
       return new LoadableDetachableModel<Variable>(variable) {
         @Override
         protected Variable load() {
-          return MetaEngine.get().lookupVariable(type, name).getVariable();
+          return MagmaEngine.get().lookupVariable(type, name).getVariable();
         }
       };
     }

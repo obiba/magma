@@ -1,7 +1,7 @@
 package org.obiba.magma.xstream.converter;
 
-import org.obiba.magma.MetaEngine;
 import org.obiba.magma.Value;
+import org.obiba.magma.ValueType;
 
 import com.thoughtworks.xstream.converters.Converter;
 import com.thoughtworks.xstream.converters.MarshallingContext;
@@ -29,7 +29,7 @@ public class ValueConverter implements Converter {
   @Override
   public Object unmarshal(HierarchicalStreamReader reader, UnmarshallingContext context) {
     String value = reader.getValue();
-    return MetaEngine.get().getValueTypeFactory().forName(reader.getAttribute("valueType")).valueOf(value == null ? null : value);
+    return ValueType.Factory.forName(reader.getAttribute("valueType")).valueOf(value == null ? null : value);
   }
 
 }

@@ -2,7 +2,7 @@ package org.obiba.magma.type;
 
 import java.lang.ref.WeakReference;
 
-import org.obiba.magma.MetaEngine;
+import org.obiba.magma.MagmaEngine;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueType;
 
@@ -23,7 +23,7 @@ public class BooleanType implements ValueType {
 
   public static BooleanType get() {
     if(instance == null || instance.get() == null) {
-      instance = MetaEngine.get().registerInstance(new BooleanType());
+      instance = MagmaEngine.get().registerInstance(new BooleanType());
     }
     return instance.get();
   }
