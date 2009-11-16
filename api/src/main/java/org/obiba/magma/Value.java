@@ -1,4 +1,4 @@
-package org.obiba.meta;
+package org.obiba.magma;
 
 import java.io.Serializable;
 
@@ -6,7 +6,7 @@ public class Value implements Serializable {
 
   private static final long serialVersionUID = 779426587031645153L;
 
-  private static final Serializable NULL = "org.obiba.meta.Value.NULL".intern();
+  private static final Serializable NULL = "org.obiba.magma.Value.NULL".intern();
 
   private ValueType valueType;
 

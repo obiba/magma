@@ -1,17 +1,17 @@
-package org.obiba.meta.beans;
+package org.obiba.magma.beans;
 
 import java.util.Collections;
 import java.util.Set;
 
-import org.obiba.meta.Collection;
-import org.obiba.meta.NoSuchValueSetException;
-import org.obiba.meta.Occurrence;
-import org.obiba.meta.ValueSet;
-import org.obiba.meta.Variable;
-import org.obiba.meta.VariableEntity;
-import org.obiba.meta.support.AbstractValueSetProvider;
-import org.obiba.meta.support.ValueSetBean;
-import org.obiba.meta.support.VariableEntityBean;
+import org.obiba.magma.Collection;
+import org.obiba.magma.NoSuchValueSetException;
+import org.obiba.magma.Occurrence;
+import org.obiba.magma.ValueSet;
+import org.obiba.magma.Variable;
+import org.obiba.magma.VariableEntity;
+import org.obiba.magma.support.AbstractValueSetProvider;
+import org.obiba.magma.support.ValueSetBean;
+import org.obiba.magma.support.VariableEntityBean;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.PropertyAccessorFactory;
 

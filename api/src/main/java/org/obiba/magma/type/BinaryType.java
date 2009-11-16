@@ -1,11 +1,11 @@
-package org.obiba.meta.type;
+package org.obiba.magma.type;
 
 import java.lang.ref.WeakReference;
 
 import javax.xml.namespace.QName;
 
-import org.obiba.meta.MetaEngine;
-import org.obiba.meta.Value;
+import org.obiba.magma.MetaEngine;
+import org.obiba.magma.Value;
 
 public class BinaryType extends AbstractValueType {
 

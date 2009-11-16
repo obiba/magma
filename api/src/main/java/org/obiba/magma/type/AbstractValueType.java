@@ -1,7 +1,7 @@
-package org.obiba.meta.type;
+package org.obiba.magma.type;
 
-import org.obiba.meta.Value;
-import org.obiba.meta.ValueType;
+import org.obiba.magma.Value;
+import org.obiba.magma.ValueType;
 
 public abstract class AbstractValueType implements ValueType {
 

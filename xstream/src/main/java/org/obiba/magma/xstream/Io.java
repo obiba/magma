@@ -1,18 +1,18 @@
-package org.obiba.meta.xstream;
+package org.obiba.magma.xstream;
 
 import java.io.OutputStream;
 
-import org.obiba.meta.Collection;
-import org.obiba.meta.Occurrence;
-import org.obiba.meta.ValueType;
-import org.obiba.meta.VariableEntity;
-import org.obiba.meta.VariableValueSource;
-import org.obiba.meta.support.ValueSetBean;
-import org.obiba.meta.xstream.converter.AttributeConverter;
-import org.obiba.meta.xstream.converter.CategoryConverter;
-import org.obiba.meta.xstream.converter.ValueConverter;
-import org.obiba.meta.xstream.converter.VariableConverter;
-import org.obiba.meta.xstream.mapper.MetaMapper;
+import org.obiba.magma.Collection;
+import org.obiba.magma.Occurrence;
+import org.obiba.magma.ValueType;
+import org.obiba.magma.VariableEntity;
+import org.obiba.magma.VariableValueSource;
+import org.obiba.magma.support.ValueSetBean;
+import org.obiba.magma.xstream.converter.AttributeConverter;
+import org.obiba.magma.xstream.converter.CategoryConverter;
+import org.obiba.magma.xstream.converter.ValueConverter;
+import org.obiba.magma.xstream.converter.VariableConverter;
+import org.obiba.magma.xstream.mapper.MetaMapper;
 
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.mapper.MapperWrapper;

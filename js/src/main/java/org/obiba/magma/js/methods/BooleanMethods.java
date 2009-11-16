@@ -1,11 +1,11 @@
-package org.obiba.meta.js.methods;
+package org.obiba.magma.js.methods;
 
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.Scriptable;
-import org.obiba.meta.Value;
-import org.obiba.meta.js.ScriptableValue;
-import org.obiba.meta.type.BooleanType;
+import org.obiba.magma.Value;
+import org.obiba.magma.js.ScriptableValue;
+import org.obiba.magma.type.BooleanType;
 
 /**
  * Methods of the {@code ScriptableValue} javascript class that returns {@code ScriptableValue} of {@code BooleanType}

@@ -1,9 +1,9 @@
-package org.obiba.meta.xstream.converter;
+package org.obiba.magma.xstream.converter;
 
-import org.obiba.meta.Attribute;
-import org.obiba.meta.Category;
-import org.obiba.meta.ValueType;
-import org.obiba.meta.Variable;
+import org.obiba.magma.Attribute;
+import org.obiba.magma.Category;
+import org.obiba.magma.ValueType;
+import org.obiba.magma.Variable;
 
 import com.thoughtworks.xstream.converters.MarshallingContext;
 import com.thoughtworks.xstream.converters.UnmarshallingContext;

@@ -1,10 +1,10 @@
-package org.obiba.meta.beans;
+package org.obiba.magma.beans;
 
 import java.util.Set;
 
-import org.obiba.meta.Occurrence;
-import org.obiba.meta.ValueSet;
-import org.obiba.meta.Variable;
+import org.obiba.magma.Occurrence;
+import org.obiba.magma.ValueSet;
+import org.obiba.magma.Variable;
 
 public interface OccurrenceProvider {
 

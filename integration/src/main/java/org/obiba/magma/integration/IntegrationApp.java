@@ -1,16 +1,16 @@
-package org.obiba.meta.integration;
+package org.obiba.magma.integration;
 
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 
-import org.obiba.meta.Collection;
-import org.obiba.meta.MetaEngine;
-import org.obiba.meta.Occurrence;
-import org.obiba.meta.ValueSet;
-import org.obiba.meta.VariableEntity;
-import org.obiba.meta.VariableValueSource;
-import org.obiba.meta.integration.service.XStreamIntegrationServiceFactory;
-import org.obiba.meta.js.MagmaJsExtension;
+import org.obiba.magma.Collection;
+import org.obiba.magma.MetaEngine;
+import org.obiba.magma.Occurrence;
+import org.obiba.magma.ValueSet;
+import org.obiba.magma.VariableEntity;
+import org.obiba.magma.VariableValueSource;
+import org.obiba.magma.integration.service.XStreamIntegrationServiceFactory;
+import org.obiba.magma.js.MagmaJsExtension;
 
 /**
  */

@@ -1,4 +1,4 @@
-package org.obiba.meta;
+package org.obiba.magma;
 
 import java.io.Serializable;
 

@@ -1,6 +1,6 @@
-package org.obiba.meta.xstream.converter;
+package org.obiba.magma.xstream.converter;
 
-import org.obiba.meta.ValueSet;
+import org.obiba.magma.ValueSet;
 
 import com.thoughtworks.xstream.converters.MarshallingContext;
 import com.thoughtworks.xstream.converters.UnmarshallingContext;

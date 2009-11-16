@@ -1,9 +1,9 @@
-package org.obiba.meta.xstream.converter;
+package org.obiba.magma.xstream.converter;
 
 import java.util.Locale;
 
-import org.obiba.meta.Attribute;
-import org.obiba.meta.ValueType;
+import org.obiba.magma.Attribute;
+import org.obiba.magma.ValueType;
 
 import com.thoughtworks.xstream.converters.Converter;
 import com.thoughtworks.xstream.converters.MarshallingContext;

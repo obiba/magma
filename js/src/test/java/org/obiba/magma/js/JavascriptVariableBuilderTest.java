@@ -1,10 +1,10 @@
-package org.obiba.meta.js;
+package org.obiba.magma.js;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.obiba.meta.Attribute;
-import org.obiba.meta.Variable;
-import org.obiba.meta.type.BooleanType;
+import org.obiba.magma.Attribute;
+import org.obiba.magma.Variable;
+import org.obiba.magma.type.BooleanType;
 
 public class JavascriptVariableBuilderTest extends AbstractJsTest {
 

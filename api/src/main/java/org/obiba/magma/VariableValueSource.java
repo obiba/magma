@@ -1,4 +1,4 @@
-package org.obiba.meta;
+package org.obiba.magma;
 
 /**
  * Defines the contract for obtaining a {@link Value} of a specific {@link Variable} within a

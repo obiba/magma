@@ -1,4 +1,4 @@
-package org.obiba.meta.js;
+package org.obiba.magma.js;
 
 import java.util.Arrays;
 import java.util.Date;
@@ -8,7 +8,7 @@ import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ScriptRuntime;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
-import org.obiba.meta.Value;
+import org.obiba.magma.Value;
 
 /**
  * A {@code Scriptable} implementation for {@code Value} objects.

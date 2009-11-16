@@ -1,4 +1,4 @@
-package org.obiba.meta.js;
+package org.obiba.magma.js;
 
 import java.util.Date;
 
@@ -6,10 +6,10 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 import org.mozilla.javascript.EvaluatorException;
-import org.obiba.meta.Value;
-import org.obiba.meta.type.DateType;
-import org.obiba.meta.type.DecimalType;
-import org.obiba.meta.type.IntegerType;
+import org.obiba.magma.Value;
+import org.obiba.magma.type.DateType;
+import org.obiba.magma.type.DecimalType;
+import org.obiba.magma.type.IntegerType;
 
 public class JavascriptValueSourceTest extends AbstractJsTest {
 

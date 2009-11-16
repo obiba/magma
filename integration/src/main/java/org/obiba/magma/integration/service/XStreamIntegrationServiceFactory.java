@@ -1,11 +1,11 @@
-package org.obiba.meta.integration.service;
+package org.obiba.magma.integration.service;
 
 import java.io.Reader;
 import java.util.List;
 
-import org.obiba.meta.integration.model.Action;
-import org.obiba.meta.integration.model.Interview;
-import org.obiba.meta.integration.model.Participant;
+import org.obiba.magma.integration.model.Action;
+import org.obiba.magma.integration.model.Interview;
+import org.obiba.magma.integration.model.Participant;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;

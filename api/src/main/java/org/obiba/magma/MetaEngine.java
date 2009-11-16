@@ -1,4 +1,4 @@
-package org.obiba.meta;
+package org.obiba.magma;
 
 import java.lang.ref.WeakReference;
 import java.util.HashSet;

@@ -1,4 +1,4 @@
-package org.obiba.meta.js;
+package org.obiba.magma.js;
 
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ContextFactory;

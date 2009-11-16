@@ -1,20 +1,20 @@
-package org.obiba.meta.support;
+package org.obiba.magma.support;
 
 import java.util.HashSet;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
-import org.obiba.meta.Collection;
-import org.obiba.meta.Datasource;
-import org.obiba.meta.Initialisable;
-import org.obiba.meta.NoSuchValueSetException;
-import org.obiba.meta.NoSuchVariableException;
-import org.obiba.meta.Occurrence;
-import org.obiba.meta.ValueSet;
-import org.obiba.meta.ValueSetProvider;
-import org.obiba.meta.Variable;
-import org.obiba.meta.VariableEntity;
-import org.obiba.meta.VariableValueSource;
+import org.obiba.magma.Collection;
+import org.obiba.magma.Datasource;
+import org.obiba.magma.Initialisable;
+import org.obiba.magma.NoSuchValueSetException;
+import org.obiba.magma.NoSuchVariableException;
+import org.obiba.magma.Occurrence;
+import org.obiba.magma.ValueSet;
+import org.obiba.magma.ValueSetProvider;
+import org.obiba.magma.Variable;
+import org.obiba.magma.VariableEntity;
+import org.obiba.magma.VariableValueSource;
 
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;

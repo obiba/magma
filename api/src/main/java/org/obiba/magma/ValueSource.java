@@ -7,7 +7,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
-package org.obiba.meta;
+package org.obiba.magma;
 
 /**
  * Defines the contract for obtaining a particular {@link Value} from a {@code ValueSet}.

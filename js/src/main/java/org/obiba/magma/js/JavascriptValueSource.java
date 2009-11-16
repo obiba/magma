@@ -1,4 +1,4 @@
-package org.obiba.meta.js;
+package org.obiba.magma.js;
 
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ContextAction;
@@ -6,11 +6,11 @@ import org.mozilla.javascript.ContextFactory;
 import org.mozilla.javascript.EvaluatorException;
 import org.mozilla.javascript.Script;
 import org.mozilla.javascript.Scriptable;
-import org.obiba.meta.Initialisable;
-import org.obiba.meta.Value;
-import org.obiba.meta.ValueSet;
-import org.obiba.meta.ValueSource;
-import org.obiba.meta.ValueType;
+import org.obiba.magma.Initialisable;
+import org.obiba.magma.Value;
+import org.obiba.magma.ValueSet;
+import org.obiba.magma.ValueSource;
+import org.obiba.magma.ValueType;
 
 /**
  * A {@code ValueSource} implementation that uses a Javascript script to evaluate the {@code Value} to return.

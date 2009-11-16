@@ -1,4 +1,4 @@
-package org.obiba.meta.integration.model;
+package org.obiba.magma.integration.model;
 
 import java.util.Date;
 

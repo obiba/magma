@@ -1,4 +1,4 @@
-package org.obiba.meta.js;
+package org.obiba.magma.js;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
@@ -9,8 +9,8 @@ import org.mozilla.javascript.FunctionObject;
 import org.mozilla.javascript.NativeObject;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
-import org.obiba.meta.js.methods.BooleanMethods;
-import org.obiba.meta.js.methods.DateTimeMethods;
+import org.obiba.magma.js.methods.BooleanMethods;
+import org.obiba.magma.js.methods.DateTimeMethods;
 
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;

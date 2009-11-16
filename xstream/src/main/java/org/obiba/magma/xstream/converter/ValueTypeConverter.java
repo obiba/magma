@@ -1,7 +1,7 @@
-package org.obiba.meta.xstream.converter;
+package org.obiba.magma.xstream.converter;
 
-import org.obiba.meta.MetaEngine;
-import org.obiba.meta.ValueType;
+import org.obiba.magma.MetaEngine;
+import org.obiba.magma.ValueType;
 
 import com.thoughtworks.xstream.converters.basic.AbstractSingleValueConverter;
 

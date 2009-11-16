@@ -7,7 +7,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
-package org.obiba.meta.beans;
+package org.obiba.magma.beans;
 
 import java.util.Collection;
 import java.util.Date;
@@ -20,13 +20,13 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.obiba.meta.Category;
-import org.obiba.meta.MetaEngine;
-import org.obiba.meta.Value;
-import org.obiba.meta.ValueSet;
-import org.obiba.meta.Variable;
-import org.obiba.meta.VariableValueSource;
-import org.obiba.meta.support.ValueSetBean;
+import org.obiba.magma.Category;
+import org.obiba.magma.MetaEngine;
+import org.obiba.magma.Value;
+import org.obiba.magma.ValueSet;
+import org.obiba.magma.Variable;
+import org.obiba.magma.VariableValueSource;
+import org.obiba.magma.support.ValueSetBean;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;

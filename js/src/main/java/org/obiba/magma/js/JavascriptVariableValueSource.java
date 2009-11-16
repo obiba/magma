@@ -1,11 +1,11 @@
-package org.obiba.meta.js;
+package org.obiba.magma.js;
 
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Scriptable;
-import org.obiba.meta.ValueSet;
-import org.obiba.meta.ValueType;
-import org.obiba.meta.Variable;
-import org.obiba.meta.VariableValueSource;
+import org.obiba.magma.ValueSet;
+import org.obiba.magma.ValueType;
+import org.obiba.magma.Variable;
+import org.obiba.magma.VariableValueSource;
 
 public class JavascriptVariableValueSource extends JavascriptValueSource implements VariableValueSource {
   private Variable variable;

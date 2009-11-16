@@ -1,13 +1,13 @@
-package org.obiba.meta.support;
+package org.obiba.magma.support;
 
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
 
-import org.obiba.meta.Collection;
-import org.obiba.meta.Datasource;
-import org.obiba.meta.Initialisable;
+import org.obiba.magma.Collection;
+import org.obiba.magma.Datasource;
+import org.obiba.magma.Initialisable;
 
 import com.google.common.collect.Iterables;
 

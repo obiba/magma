@@ -1,7 +1,7 @@
-package org.obiba.meta.support;
+package org.obiba.magma.support;
 
-import org.obiba.meta.Occurrence;
-import org.obiba.meta.ValueSet;
+import org.obiba.magma.Occurrence;
+import org.obiba.magma.ValueSet;
 
 public class OccurrenceBean extends ValueSetBean implements Occurrence {
 

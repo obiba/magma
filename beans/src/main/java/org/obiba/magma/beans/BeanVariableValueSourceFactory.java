@@ -7,7 +7,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
-package org.obiba.meta.beans;
+package org.obiba.magma.beans;
 
 import java.beans.PropertyDescriptor;
 import java.util.Arrays;
@@ -17,9 +17,9 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.obiba.meta.ValueType;
-import org.obiba.meta.Variable;
-import org.obiba.meta.VariableValueSource;
+import org.obiba.magma.ValueType;
+import org.obiba.magma.Variable;
+import org.obiba.magma.VariableValueSource;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.PropertyAccessorUtils;
 import org.springframework.util.Assert;

@@ -1,4 +1,4 @@
-package org.obiba.meta;
+package org.obiba.magma;
 
 import java.util.List;
 import java.util.Locale;

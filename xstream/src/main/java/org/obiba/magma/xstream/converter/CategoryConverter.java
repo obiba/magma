@@ -1,7 +1,7 @@
-package org.obiba.meta.xstream.converter;
+package org.obiba.magma.xstream.converter;
 
-import org.obiba.meta.Attribute;
-import org.obiba.meta.Category;
+import org.obiba.magma.Attribute;
+import org.obiba.magma.Category;
 
 import com.thoughtworks.xstream.converters.Converter;
 import com.thoughtworks.xstream.converters.MarshallingContext;

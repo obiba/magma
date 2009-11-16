@@ -1,8 +1,8 @@
-package org.obiba.meta.xstream.mapper;
+package org.obiba.magma.xstream.mapper;
 
-import org.obiba.meta.Attribute;
-import org.obiba.meta.Category;
-import org.obiba.meta.Variable;
+import org.obiba.magma.Attribute;
+import org.obiba.magma.Category;
+import org.obiba.magma.Variable;
 
 import com.thoughtworks.xstream.mapper.Mapper;
 import com.thoughtworks.xstream.mapper.MapperWrapper;

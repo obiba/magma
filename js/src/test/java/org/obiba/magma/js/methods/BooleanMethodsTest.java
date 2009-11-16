@@ -1,12 +1,12 @@
-package org.obiba.meta.js.methods;
+package org.obiba.magma.js.methods;
 
 import org.junit.Assert;
 import org.junit.Test;
 import org.mozilla.javascript.Context;
-import org.obiba.meta.js.AbstractScriptableValueTest;
-import org.obiba.meta.js.ScriptableValue;
-import org.obiba.meta.type.BooleanType;
-import org.obiba.meta.type.TextType;
+import org.obiba.magma.js.AbstractScriptableValueTest;
+import org.obiba.magma.js.ScriptableValue;
+import org.obiba.magma.type.BooleanType;
+import org.obiba.magma.type.TextType;
 
 public class BooleanMethodsTest extends AbstractScriptableValueTest {
 

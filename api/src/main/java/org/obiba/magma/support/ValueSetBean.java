@@ -1,8 +1,8 @@
-package org.obiba.meta.support;
+package org.obiba.magma.support;
 
-import org.obiba.meta.Collection;
-import org.obiba.meta.ValueSet;
-import org.obiba.meta.VariableEntity;
+import org.obiba.magma.Collection;
+import org.obiba.magma.ValueSet;
+import org.obiba.magma.VariableEntity;
 
 public class ValueSetBean implements ValueSet {
 

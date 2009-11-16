@@ -1,6 +1,6 @@
-package org.obiba.meta.support;
+package org.obiba.magma.support;
 
-import org.obiba.meta.VariableEntity;
+import org.obiba.magma.VariableEntity;
 
 public class VariableEntityBean implements VariableEntity {
 

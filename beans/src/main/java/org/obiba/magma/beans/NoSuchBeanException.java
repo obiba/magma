@@ -1,6 +1,6 @@
-package org.obiba.meta.beans;
+package org.obiba.magma.beans;
 
-import org.obiba.meta.ValueSet;
+import org.obiba.magma.ValueSet;
 
 public class NoSuchBeanException extends RuntimeException {
 

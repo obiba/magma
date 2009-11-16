@@ -1,20 +1,20 @@
-package org.obiba.meta.js;
-
-import junit.framework.Assert;
+package org.obiba.magma.js;
 
 import org.easymock.EasyMock;
+import org.junit.Assert;
 import org.junit.Test;
-import org.obiba.meta.Collection;
-import org.obiba.meta.MetaEngine;
-import org.obiba.meta.NoSuchCollectionException;
-import org.obiba.meta.Value;
-import org.obiba.meta.ValueSet;
-import org.obiba.meta.Variable;
-import org.obiba.meta.VariableEntity;
-import org.obiba.meta.VariableValueSource;
-import org.obiba.meta.support.ValueSetBean;
-import org.obiba.meta.support.VariableEntityBean;
-import org.obiba.meta.type.TextType;
+import org.obiba.magma.Collection;
+import org.obiba.magma.MetaEngine;
+import org.obiba.magma.NoSuchCollectionException;
+import org.obiba.magma.NoSuchVariableException;
+import org.obiba.magma.Value;
+import org.obiba.magma.ValueSet;
+import org.obiba.magma.Variable;
+import org.obiba.magma.VariableEntity;
+import org.obiba.magma.VariableValueSource;
+import org.obiba.magma.support.ValueSetBean;
+import org.obiba.magma.support.VariableEntityBean;
+import org.obiba.magma.type.TextType;
 
 public class JavascriptVariableValueSourceTest extends AbstractJsTest {
 
@@ -25,7 +25,7 @@ public class JavascriptVariableValueSourceTest extends AbstractJsTest {
   protected MetaEngine newEngine() {
 
     return new MetaEngine() {
-      public VariableValueSource lookupVariable(String entityType, String name) throws org.obiba.meta.NoSuchCollectionException, org.obiba.meta.NoSuchVariableException {
+      public VariableValueSource lookupVariable(String entityType, String name) throws NoSuchCollectionException, NoSuchVariableException {
         return mockSource;
       };
 

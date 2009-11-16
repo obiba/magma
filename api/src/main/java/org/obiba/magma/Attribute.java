@@ -1,8 +1,8 @@
-package org.obiba.meta;
+package org.obiba.magma;
 
 import java.util.Locale;
 
-import org.obiba.meta.type.TextType;
+import org.obiba.magma.type.TextType;
 
 public interface Attribute {
 

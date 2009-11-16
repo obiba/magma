@@ -1,9 +1,9 @@
-package org.obiba.meta.support;
+package org.obiba.magma.support;
 
-import org.obiba.meta.Collection;
-import org.obiba.meta.Datasource;
-import org.obiba.meta.ValueSetProvider;
-import org.obiba.meta.VariableValueSource;
+import org.obiba.magma.Collection;
+import org.obiba.magma.Datasource;
+import org.obiba.magma.ValueSetProvider;
+import org.obiba.magma.VariableValueSource;
 
 import com.google.common.collect.ImmutableSet;
 

@@ -1,9 +1,9 @@
-package org.obiba.meta.js;
+package org.obiba.magma.js;
 
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ContextAction;
 import org.mozilla.javascript.ContextFactory;
-import org.obiba.meta.Initialisable;
+import org.obiba.magma.Initialisable;
 
 /**
  * A {@code MagmaEngine} extension for creating manipulating variables using javascript.

@@ -1,6 +1,6 @@
-package org.obiba.meta.xstream;
+package org.obiba.magma.xstream;
 
-import org.obiba.meta.Value;
+import org.obiba.magma.Value;
 
 import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
 

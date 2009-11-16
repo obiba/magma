@@ -1,6 +1,6 @@
-package org.obiba.meta.type;
+package org.obiba.magma.type;
 
-import org.obiba.meta.Value;
+import org.obiba.magma.Value;
 
 public abstract class AbstractNumberType extends AbstractValueType {
 

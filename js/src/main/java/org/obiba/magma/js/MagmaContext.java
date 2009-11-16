@@ -1,4 +1,4 @@
-package org.obiba.meta.js;
+package org.obiba.magma.js;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
@@ -7,7 +7,7 @@ import org.mozilla.javascript.Context;
 import org.mozilla.javascript.FunctionObject;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
-import org.obiba.meta.js.methods.GlobalMethods;
+import org.obiba.magma.js.methods.GlobalMethods;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;

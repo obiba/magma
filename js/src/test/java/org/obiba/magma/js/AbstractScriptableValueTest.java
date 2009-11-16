@@ -1,10 +1,10 @@
-package org.obiba.meta.js;
+package org.obiba.magma.js;
 
 import org.junit.After;
 import org.junit.Before;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Scriptable;
-import org.obiba.meta.Value;
+import org.obiba.magma.Value;
 
 public abstract class AbstractScriptableValueTest extends AbstractJsTest {
 

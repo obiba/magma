@@ -1,4 +1,4 @@
-package org.obiba.meta.wicket;
+package org.obiba.magma.wicket;
 
 import java.util.Iterator;
 
@@ -10,10 +10,10 @@ import org.apache.wicket.markup.repeater.data.IDataProvider;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.PropertyModel;
-import org.obiba.meta.Category;
-import org.obiba.meta.Collection;
-import org.obiba.meta.MetaEngine;
-import org.obiba.meta.Variable;
+import org.obiba.magma.Category;
+import org.obiba.magma.Collection;
+import org.obiba.magma.MetaEngine;
+import org.obiba.magma.Variable;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;

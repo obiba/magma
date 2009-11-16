@@ -1,4 +1,4 @@
-package org.obiba.meta.xstream.converter;
+package org.obiba.magma.xstream.converter;
 
 import java.util.Locale;
 import java.util.Set;
@@ -7,11 +7,11 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.obiba.meta.Attribute;
-import org.obiba.meta.Category;
-import org.obiba.meta.MetaEngine;
-import org.obiba.meta.Variable;
-import org.obiba.meta.type.TextType;
+import org.obiba.magma.Attribute;
+import org.obiba.magma.Category;
+import org.obiba.magma.MetaEngine;
+import org.obiba.magma.Variable;
+import org.obiba.magma.type.TextType;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableSet;

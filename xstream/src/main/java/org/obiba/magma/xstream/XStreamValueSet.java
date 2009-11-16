@@ -1,12 +1,12 @@
-package org.obiba.meta.xstream;
+package org.obiba.magma.xstream;
 
 import java.util.LinkedList;
 import java.util.List;
 
-import org.obiba.meta.Occurrence;
-import org.obiba.meta.ValueSet;
-import org.obiba.meta.VariableValueSource;
-import org.obiba.meta.support.ValueSetBean;
+import org.obiba.magma.Occurrence;
+import org.obiba.magma.ValueSet;
+import org.obiba.magma.VariableValueSource;
+import org.obiba.magma.support.ValueSetBean;
 
 import com.thoughtworks.xstream.annotations.XStreamImplicit;
 

@@ -7,13 +7,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
-package org.obiba.meta.beans;
+package org.obiba.magma.beans;
 
-import org.obiba.meta.Value;
-import org.obiba.meta.ValueSet;
-import org.obiba.meta.ValueType;
-import org.obiba.meta.Variable;
-import org.obiba.meta.VariableValueSource;
+import org.obiba.magma.Value;
+import org.obiba.magma.ValueSet;
+import org.obiba.magma.ValueType;
+import org.obiba.magma.Variable;
+import org.obiba.magma.VariableValueSource;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.NullValueInNestedPathException;
 import org.springframework.beans.PropertyAccessorFactory;

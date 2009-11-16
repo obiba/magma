@@ -1,17 +1,17 @@
-package org.obiba.meta;
+package org.obiba.magma;
 
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
-import org.obiba.meta.type.BinaryType;
-import org.obiba.meta.type.BooleanType;
-import org.obiba.meta.type.DateType;
-import org.obiba.meta.type.DecimalType;
-import org.obiba.meta.type.IntegerType;
-import org.obiba.meta.type.LocaleType;
-import org.obiba.meta.type.TextType;
+import org.obiba.magma.type.BinaryType;
+import org.obiba.magma.type.BooleanType;
+import org.obiba.magma.type.DateType;
+import org.obiba.magma.type.DecimalType;
+import org.obiba.magma.type.IntegerType;
+import org.obiba.magma.type.LocaleType;
+import org.obiba.magma.type.TextType;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;

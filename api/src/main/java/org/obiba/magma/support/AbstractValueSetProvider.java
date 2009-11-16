@@ -1,6 +1,6 @@
-package org.obiba.meta.support;
+package org.obiba.magma.support;
 
-import org.obiba.meta.ValueSetProvider;
+import org.obiba.magma.ValueSetProvider;
 
 public abstract class AbstractValueSetProvider implements ValueSetProvider {
 

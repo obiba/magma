@@ -1,6 +1,6 @@
-package org.obiba.meta.js;
+package org.obiba.magma.js;
 
-import org.obiba.meta.Variable.Builder;
+import org.obiba.magma.Variable.Builder;
 
 /**
  * A {@code Variable.Builder} extension for building javascript variables. To obtain an instance of this builder, use
