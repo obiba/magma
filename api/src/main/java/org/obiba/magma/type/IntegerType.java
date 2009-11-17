@@ -50,7 +50,7 @@ public class IntegerType extends AbstractNumberType {
     }
     Class<?> type = object.getClass();
     if(Number.class.isAssignableFrom(type)) {
-      return Factory.newValue(this, new Long(((Number) object).longValue()));
+      return Factory.newValue(this, Long.valueOf(((Number) object).longValue()));
     } else if(type.isPrimitive()) {
       throw new UnsupportedOperationException();
     }
