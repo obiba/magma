@@ -6,7 +6,6 @@ import org.junit.Test;
 import org.obiba.magma.Collection;
 import org.obiba.magma.MagmaEngine;
 import org.obiba.magma.NoSuchCollectionException;
-import org.obiba.magma.NoSuchVariableException;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueSet;
 import org.obiba.magma.Variable;
@@ -18,16 +17,11 @@ import org.obiba.magma.type.TextType;
 
 public class JavascriptVariableValueSourceTest extends AbstractJsTest {
 
-  VariableValueSource mockSource = EasyMock.createMock(VariableValueSource.class);
-
   Collection mockCollection = EasyMock.createMock(Collection.class);
 
   protected MagmaEngine newEngine() {
 
     return new MagmaEngine() {
-      public VariableValueSource lookupVariable(String entityType, String name) throws NoSuchCollectionException, NoSuchVariableException {
-        return mockSource;
-      };
 
       @Override
       public Collection lookupCollection(String name) throws NoSuchCollectionException {
@@ -46,12 +40,16 @@ public class JavascriptVariableValueSourceTest extends AbstractJsTest {
     source.initialise();
 
     // Create the VariableValueSource for AnotherVariable
+
     Variable anotherVariable = Variable.Builder.newVariable("my-collection", "AnotherVariable", TextType.get(), "Participant").build();
+
+    VariableValueSource mockSource = EasyMock.createMock(VariableValueSource.class);
     EasyMock.expect(mockSource.getVariable()).andReturn(anotherVariable).anyTimes();
     EasyMock.expect(mockSource.getValue((ValueSet) EasyMock.anyObject())).andReturn(TextType.get().valueOf("The Value")).anyTimes();
 
     ValueSet valueSet = new ValueSetBean(mockCollection, new VariableEntityBean("Participant", "1234"));
     EasyMock.expect(mockCollection.getName()).andReturn("my-collection").anyTimes();
+    EasyMock.expect(mockCollection.getVariableValueSource("Participant", "AnotherVariable")).andReturn(mockSource).anyTimes();
     EasyMock.expect(mockCollection.loadValueSet((VariableEntity) EasyMock.anyObject())).andReturn(valueSet).anyTimes();
 
     EasyMock.replay(mockSource, mockCollection);

@@ -63,11 +63,11 @@ public class JavascriptValueSource implements ValueSource, Initialisable {
         // Don't pollute the global scope
         Scriptable scope = context.newLocalScope();
 
-        enterContext(ctx, scope, valueSet);
+        enterContext(context, scope, valueSet);
 
         Object value = compiledScript.exec(ctx, scope);
 
-        exitContext(ctx);
+        exitContext(context);
         if(value instanceof Scriptable) {
           return value;
         }
@@ -111,11 +111,11 @@ public class JavascriptValueSource implements ValueSource, Initialisable {
    * @param scope the scope of execution of this script
    * @param valueSet the current {@code ValueSet}
    */
-  protected void enterContext(Context ctx, Scriptable scope, ValueSet valueSet) {
-    ctx.putThreadLocal(ValueSet.class, valueSet);
+  protected void enterContext(MagmaContext ctx, Scriptable scope, ValueSet valueSet) {
+    ctx.push(ValueSet.class, valueSet);
   }
 
-  protected void exitContext(Context ctx) {
-
+  protected void exitContext(MagmaContext ctx) {
+    ctx.pop(ValueSet.class);
   }
 }

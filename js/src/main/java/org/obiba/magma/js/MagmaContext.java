@@ -2,6 +2,8 @@ package org.obiba.magma.js;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.EmptyStackException;
+import java.util.Stack;
 
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.FunctionObject;
@@ -61,6 +63,44 @@ public class MagmaContext extends Context {
     // Remove its parent scope (makes it a top-level scope)
     scope.setParentScope(null);
     return scope;
+  }
+
+  @SuppressWarnings("unchecked")
+  public <T> void push(Class<T> type, T value) {
+    Stack<T> stack = (Stack<T>) getThreadLocal(type);
+    if(stack == null) {
+      stack = new Stack<T>();
+      putThreadLocal(type, stack);
+    }
+    stack.push(value);
+  }
+
+  @SuppressWarnings("unchecked")
+  public <T> T pop(Class<T> type) {
+    Stack<T> stack = (Stack<T>) getThreadLocal(type);
+    if(stack == null) {
+      throw new IllegalStateException("Cannot pop stack for type " + type.getName());
+    }
+
+    try {
+      return stack.pop();
+    } catch(EmptyStackException e) {
+      throw new IllegalStateException("Cannot pop ValueSet");
+    }
+  }
+
+  @SuppressWarnings("unchecked")
+  public <T> T peek(Class<T> type) {
+    Stack<T> stack = (Stack<T>) getThreadLocal(type);
+    if(stack == null) {
+      throw new IllegalStateException("Cannot pop stack for type " + type.getName());
+    }
+
+    try {
+      return stack.peek();
+    } catch(EmptyStackException e) {
+      throw new IllegalStateException("Cannot pop ValueSet");
+    }
   }
 
   /**

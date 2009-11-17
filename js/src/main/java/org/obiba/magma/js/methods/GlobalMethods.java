@@ -7,11 +7,13 @@ import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.Scriptable;
 import org.obiba.magma.MagmaEngine;
+import org.obiba.magma.NoSuchValueSetException;
 import org.obiba.magma.Occurrence;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueSet;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.VariableValueSource;
+import org.obiba.magma.js.MagmaContext;
 import org.obiba.magma.js.ScriptableValue;
 import org.obiba.magma.type.DateType;
 
@@ -49,18 +51,36 @@ public final class GlobalMethods {
       throw new UnsupportedOperationException("$() expects exactly one argument: a variable name.");
     }
 
+    MagmaContext context = (MagmaContext) ctx;
+
     String name = (String) args[0];
-    ValueSet valueSet = (ValueSet) ctx.getThreadLocal(ValueSet.class);
-    if(valueSet == null) {
-      throw new IllegalStateException("valueSet cannot be null");
-    }
+    ValueSet valueSet = (ValueSet) context.peek(ValueSet.class);
+
+    // Find the named source
+    final VariableValueSource source;
+    // Is this a fully qualified name?
     if(name.indexOf(':') < 0) {
-      name = valueSet.getCollection().getName() + ':' + name;
+      // No, then lookup the source within the ValueSet's Collection
+      source = valueSet.getCollection().getVariableValueSource(valueSet.getVariableEntity().getType(), name);
+    } else {
+      // Yes, then lookup the source within the engine.
+      source = lookupSource(valueSet.getVariableEntity(), name);
     }
 
-    final VariableValueSource source = lookupSource(valueSet.getVariableEntity(), name);
+    // If the source is in a different Collection, then we need to resolve the other ValueSet
+    if(source.getVariable().getCollection().equals(valueSet.getCollection().getName()) == false) {
+      // Resolve the joined valueSet
+      try {
+        valueSet = lookupValueSet(valueSet.getVariableEntity(), source.getVariable().getCollection());
+      } catch(NoSuchValueSetException e) {
+        // Entity does not have a ValueSet in joined collection
+        // Return a null value
+        return new ScriptableValue(thisObj, source.getVariable().getValueType().nullValue());
+      }
+    }
 
     if(source.getVariable().isRepeatable()) {
+      // Handle repeatable variables by looking up all Occurrences and building a ScriptableValue with multiple values
       Set<Occurrence> occurrences = valueSet.getCollection().loadOccurrences(valueSet, source.getVariable());
       Iterable<Value> values = Iterables.transform(occurrences, new com.google.common.base.Function<Occurrence, Value>() {
         @Override
@@ -71,7 +91,7 @@ public final class GlobalMethods {
       // Return an object that can be indexed (e.g.: $('BP.Systolic')[2] or chained $('BP.Systolic').avg() )
       return new ScriptableValue(thisObj, Iterables.toArray(values, Value.class));
     } else {
-      Value value = source.getValue(lookupValueSet(valueSet.getVariableEntity(), source.getVariable().getCollection()));
+      Value value = source.getValue(valueSet);
       return new ScriptableValue(thisObj, value);
     }
   }

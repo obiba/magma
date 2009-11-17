@@ -1,6 +1,5 @@
 package org.obiba.magma.js;
 
-import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Scriptable;
 import org.obiba.magma.ValueSet;
 import org.obiba.magma.ValueType;
@@ -30,9 +29,15 @@ public class JavascriptVariableValueSource extends JavascriptValueSource impleme
   }
 
   @Override
-  protected void enterContext(Context ctx, Scriptable scope, ValueSet valueSet) {
+  protected void enterContext(MagmaContext ctx, Scriptable scope, ValueSet valueSet) {
     super.enterContext(ctx, scope, valueSet);
-    ctx.putThreadLocal(Variable.class, variable);
+    ctx.push(Variable.class, variable);
+  }
+
+  @Override
+  protected void exitContext(MagmaContext ctx) {
+    super.exitContext(ctx);
+    ctx.pop(Variable.class);
   }
 
   @Override
