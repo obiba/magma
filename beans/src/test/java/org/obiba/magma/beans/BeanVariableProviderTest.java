@@ -131,7 +131,7 @@ public class BeanVariableProviderTest {
     Set<VariableValueSource> variableValueSources = assertVariablesFromProperties(bvp, properties);
 
     // "If you use an argument matcher for one argument, you must use an argument matcher for all the arguments."
-    EasyMock.expect(resolver.resolve((Class) EasyMock.anyObject(), (ValueSet) EasyMock.anyObject(), (Variable) EasyMock.anyObject())).andReturn(tb).anyTimes();
+    EasyMock.expect(resolver.resolve((Class<?>) EasyMock.anyObject(), (ValueSet) EasyMock.anyObject(), (Variable) EasyMock.anyObject())).andReturn(tb).anyTimes();
     EasyMock.replay(resolver);
     for(VariableValueSource source : variableValueSources) {
       Value value = source.getValue(new ValueSetBean(null, null));
@@ -151,7 +151,7 @@ public class BeanVariableProviderTest {
     Set<VariableValueSource> variableValueSources = assertVariablesFromProperties(bvp, properties);
 
     // "If you use an argument matcher for one argument, you must use an argument matcher for all the arguments."
-    EasyMock.expect(resolver.resolve((Class) EasyMock.anyObject(), (ValueSet) EasyMock.anyObject(), (Variable) EasyMock.anyObject())).andReturn(new TestBean()).anyTimes();
+    EasyMock.expect(resolver.resolve((Class<?>) EasyMock.anyObject(), (ValueSet) EasyMock.anyObject(), (Variable) EasyMock.anyObject())).andReturn(new TestBean()).anyTimes();
     EasyMock.replay(resolver);
 
     for(VariableValueSource source : variableValueSources) {
