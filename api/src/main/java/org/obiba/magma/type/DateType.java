@@ -15,7 +15,7 @@ public class DateType extends AbstractValueType {
 
   private static WeakReference<DateType> instance;
 
-  private static SimpleDateFormat ISO_8601 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSzzz");
+  private SimpleDateFormat ISO_8601 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSzzz");
 
   private DateType() {
 
@@ -56,13 +56,19 @@ public class DateType extends AbstractValueType {
   @Override
   public String toString(Value value) {
     Date date = (Date) value.getValue();
-    return date == null ? null : ISO_8601.format(date);
+    // DateFormat is not thread safe
+    synchronized(ISO_8601) {
+      return date == null ? null : ISO_8601.format(date);
+    }
   }
 
   @Override
   public Value valueOf(String string) {
     try {
-      return Factory.newValue(this, ISO_8601.parse(string));
+      // DateFormat is not thread safe
+      synchronized(ISO_8601) {
+        return Factory.newValue(this, ISO_8601.parse(string));
+      }
     } catch(ParseException e) {
       throw new IllegalArgumentException(e);
     }
