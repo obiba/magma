@@ -50,7 +50,7 @@ public class DecimalType extends AbstractNumberType {
     }
     Class<?> type = object.getClass();
     if(Number.class.isAssignableFrom(type)) {
-      return Factory.newValue(this, new Double(((Number) object).doubleValue()));
+      return Factory.newValue(this, Double.valueOf(((Number) object).doubleValue()));
     } else if(type.isPrimitive()) {
       throw new UnsupportedOperationException();
     }
