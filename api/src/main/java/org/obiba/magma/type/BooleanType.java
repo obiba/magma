@@ -17,8 +17,8 @@ public class BooleanType implements ValueType {
   private Value falseValue;
 
   private BooleanType() {
-    trueValue = Factory.newValue(this, new Boolean(true));
-    falseValue = Factory.newValue(this, new Boolean(false));
+    trueValue = Factory.newValue(this, Boolean.TRUE);
+    falseValue = Factory.newValue(this, Boolean.FALSE);
   }
 
   public static BooleanType get() {
