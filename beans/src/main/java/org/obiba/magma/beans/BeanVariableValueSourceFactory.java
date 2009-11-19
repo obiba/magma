@@ -20,6 +20,7 @@ import java.util.Set;
 import org.obiba.magma.ValueType;
 import org.obiba.magma.Variable;
 import org.obiba.magma.VariableValueSource;
+import org.obiba.magma.Variable.BuilderVisitor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.PropertyAccessorUtils;
 import org.springframework.util.Assert;
@@ -49,6 +50,8 @@ public class BeanVariableValueSourceFactory<T> {
   /** Maps mapped property names to property type */
   private Map<String, Class<?>> mappedPropertyType = new HashMap<String, Class<?>>();
 
+  private Set<? extends BuilderVisitor> variableBuilderContributors = Collections.emptySet();
+
   private String occurrenceGroup;
 
   private Set<VariableValueSource> sources;
@@ -70,11 +73,18 @@ public class BeanVariableValueSourceFactory<T> {
   }
 
   public void setPropertyNameToVariableName(Map<String, String> propertyNameToVariableName) {
+    Assert.notNull(propertyNameToVariableName);
     this.propertyNameToVariableName = HashBiMap.create(propertyNameToVariableName);
   }
 
   public void setMappedPropertyType(Map<String, Class<?>> mappedPropertyType) {
+    Assert.notNull(mappedPropertyType);
     this.mappedPropertyType = mappedPropertyType;
+  }
+
+  public void setVariableBuilderContributors(Set<? extends BuilderVisitor> variableBuilderContributors) {
+    Assert.notNull(variableBuilderContributors);
+    this.variableBuilderContributors = variableBuilderContributors;
   }
 
   public void setOccurrenceGroup(String occurrenceGroup) {
@@ -223,6 +233,8 @@ public class BeanVariableValueSourceFactory<T> {
     if(occurrenceGroup != null) {
       builder.repeatable().occurrenceGroup(occurrenceGroup);
     }
+
+    builder.accept(variableBuilderContributors);
 
     // Allow extended classes to contribute to the builder
     return buildVariable(builder).build();

@@ -19,6 +19,11 @@ public interface Category extends AttributeAware {
       return this;
     }
 
+    public Builder missing(boolean missing) {
+      category.missing = missing;
+      return this;
+    }
+
     public Builder addAttribute(Attribute attribute) {
       category.attributes.put(attribute.getName(), attribute);
       return this;
@@ -33,5 +38,7 @@ public interface Category extends AttributeAware {
   public String getName();
 
   public String getCode();
+
+  public boolean isMissing();
 
 }

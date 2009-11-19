@@ -6,6 +6,8 @@ class CategoryBean extends AbstractAttributeAware implements Category {
 
   String code;
 
+  boolean missing;
+
   CategoryBean(String name, String code) {
     this.name = name;
     this.code = code;
@@ -19,6 +21,11 @@ class CategoryBean extends AbstractAttributeAware implements Category {
   @Override
   public String getName() {
     return name;
+  }
+
+  @Override
+  public boolean isMissing() {
+    return missing;
   }
 
 }

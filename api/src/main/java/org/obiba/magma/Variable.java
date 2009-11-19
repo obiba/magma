@@ -44,6 +44,16 @@ public interface Variable extends AttributeAware {
       return new Builder(collection, name, type, entityType);
     }
 
+    /**
+     * Tests whether this {@code Builder} instance is constructing a variable with the specified name.
+     * 
+     * @param string the name to test
+     * @return true if the specified name is equal to the varible's name
+     */
+    public boolean isName(String string) {
+      return variable.name.equals(string);
+    }
+
     public Variable build() {
       return variable;
     }
@@ -94,6 +104,11 @@ public interface Variable extends AttributeAware {
       return this;
     }
 
+    public Builder addCategory(String name, String code, boolean missing) {
+      variable.categories.add(Category.Builder.newCategory(name).withCode(code).missing(missing).build());
+      return this;
+    }
+
     public Builder addCategory(Category category) {
       variable.categories.add(category);
       return this;
@@ -104,11 +119,33 @@ public interface Variable extends AttributeAware {
      * This method is useful for creating categories out of {@code enum} constants for example.
      * 
      * @param names
-     * @return
+     * @return this
      */
     public Builder addCategories(String... names) {
       for(String name : names) {
         variable.categories.add(Category.Builder.newCategory(name).build());
+      }
+      return this;
+    }
+
+    /**
+     * Accepts a {@code BuilderVisitor} to allow it to visit this {@code Builder} instance.
+     * @param visitor the visitor to accept; cannot be null.
+     * @return this
+     */
+    public Builder accept(BuilderVisitor visitor) {
+      visitor.visit(this);
+      return this;
+    }
+
+    /**
+     * Accepts a collection of visitors and calls {@code #accept(BuilderVisitor)} on each instance.
+     * @param visitors the collection of visitors to accept
+     * @return this
+     */
+    public Builder accept(Iterable<? extends BuilderVisitor> visitors) {
+      for(BuilderVisitor visitor : visitors) {
+        accept(visitor);
       }
       return this;
     }
@@ -149,6 +186,19 @@ public interface Variable extends AttributeAware {
         throw new IllegalArgumentException("Cannot instantiate builder extension type '" + type.getName() + "'", e);
       }
     }
+  }
+
+  /**
+   * Visitor pattern for contributing to a {@code Builder} instance through composition.
+   */
+  public interface BuilderVisitor {
+
+    /**
+     * Visit a builder instance and contribute to the variable being built.
+     * @param builder the instance to contribute to.
+     */
+    public void visit(Builder builder);
+
   }
 
   /**
