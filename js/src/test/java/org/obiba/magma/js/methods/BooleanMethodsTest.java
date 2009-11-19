@@ -15,7 +15,7 @@ public class BooleanMethodsTest extends AbstractScriptableValueTest {
     ScriptableValue value = newValue(TextType.get().valueOf("CAT2"));
     ScriptableValue result = BooleanMethods.any(Context.getCurrentContext(), value, new String[] { "CAT1", "CAT2" }, null);
     Assert.assertNotNull(result);
-    Assert.assertEquals(BooleanType.get().trueValue(), result.getSingleValue());
+    Assert.assertEquals(BooleanType.get().trueValue(), result.getValue());
   }
 
   @Test
@@ -23,7 +23,7 @@ public class BooleanMethodsTest extends AbstractScriptableValueTest {
     ScriptableValue value = newValue(TextType.get().valueOf(null));
     ScriptableValue result = BooleanMethods.any(Context.getCurrentContext(), value, new String[] { "CAT1", "CAT2" }, null);
     Assert.assertNotNull(result);
-    Assert.assertTrue(result.getSingleValue().isNull());
+    Assert.assertTrue(result.getValue().isNull());
   }
 
   @Test
@@ -31,7 +31,7 @@ public class BooleanMethodsTest extends AbstractScriptableValueTest {
     ScriptableValue value = newValue(BooleanType.get().trueValue());
     ScriptableValue result = BooleanMethods.not(Context.getCurrentContext(), value, null, null);
     Assert.assertNotNull(result);
-    Assert.assertEquals(BooleanType.get().falseValue(), result.getSingleValue());
+    Assert.assertEquals(BooleanType.get().falseValue(), result.getValue());
   }
 
 }

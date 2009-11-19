@@ -3,7 +3,6 @@ package org.obiba.magma.xstream;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.obiba.magma.Occurrence;
 import org.obiba.magma.ValueSet;
 import org.obiba.magma.VariableValueSource;
 import org.obiba.magma.support.ValueSetBean;
@@ -21,10 +20,6 @@ public class XStreamValueSet extends ValueSetBean {
 
   public void addValue(VariableValueSource source) {
     values.add(new XStreamValueSetValue(source.getVariable().getName(), source.getValue(this)));
-  }
-
-  public void addValue(Occurrence occurrence, VariableValueSource source) {
-    values.add(new XStreamValueSetValue(source.getVariable().getName(), source.getValue(occurrence), occurrence.getOrder()));
   }
 
 }

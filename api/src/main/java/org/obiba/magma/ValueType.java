@@ -17,6 +17,10 @@ public interface ValueType extends Serializable {
     public static Value newValue(ValueType type, Serializable value) {
       return new Value(type, value);
     }
+
+    public static ValueSequence newSequence(ValueType type, Iterable<Value> values) {
+      return new ValueSequence(type, values);
+    }
   }
 
   /**
@@ -60,6 +64,12 @@ public interface ValueType extends Serializable {
   public Value nullValue();
 
   /**
+   * Returns a {@code Value} instance that represents the null value for this type
+   * @return a {@code Value} instance for null
+   */
+  public ValueSequence nullSequence();
+
+  /**
    * Returns a string representation of the {@code value}. The string returned can be passed to the {@code
    * #valueOf(String)} method which should return an equivalent {@code Value} instance.
    * @param value the value to convert to a string
@@ -89,5 +99,11 @@ public interface ValueType extends Serializable {
    * @return a {@code Value} instance with the specified value
    */
   public Value valueOf(Object object);
+
+  /**
+   * 
+   * @param values
+   */
+  public ValueSequence sequenceOf(Iterable<Value> values);
 
 }

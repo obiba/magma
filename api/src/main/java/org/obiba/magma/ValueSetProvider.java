@@ -15,6 +15,4 @@ public interface ValueSetProvider {
 
   public ValueSet getValueSet(Collection collection, VariableEntity entity);
 
-  public Set<Occurrence> loadOccurrences(ValueSet valueSet, Variable variable);
-
 }

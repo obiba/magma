@@ -1,8 +1,6 @@
 package org.obiba.magma.js;
 
-import java.util.Arrays;
 import java.util.Date;
-import java.util.Iterator;
 
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ScriptRuntime;
@@ -17,13 +15,13 @@ import org.obiba.magma.Value;
  * It allows extending the methods of {@code ScriptableValue}.
  * @see ScriptableValuePrototypeFactory
  */
-public class ScriptableValue extends ScriptableObject implements Iterable<Value> {
+public class ScriptableValue extends ScriptableObject {
 
   private static final long serialVersionUID = -4342110775412157728L;
 
   static final String VALUE_CLASS_NAME = "Value";
 
-  private Value[] values;
+  private Value value;
 
   /**
    * No-arg ctor for building the prototype
@@ -32,12 +30,12 @@ public class ScriptableValue extends ScriptableObject implements Iterable<Value>
 
   }
 
-  public ScriptableValue(Scriptable scope, Value... values) {
+  public ScriptableValue(Scriptable scope, Value value) {
     super(scope, ScriptableObject.getClassPrototype(scope, VALUE_CLASS_NAME));
-    if(values == null) {
+    if(value == null) {
       throw new NullPointerException("values cannot be null");
     }
-    this.values = values;
+    this.value = value;
   }
 
   @Override
@@ -47,7 +45,10 @@ public class ScriptableValue extends ScriptableObject implements Iterable<Value>
 
   @Override
   public Object getDefaultValue(Class<?> typeHint) {
-    Value value = getSingleValue();
+    Value value = getValue();
+    if(value.isSequence()) {
+      return value.asSequence().getValues();
+    }
     Object defaultValue = value.getValue();
     if(value.getValueType().isDateTime()) {
       Date date = (Date) defaultValue;
@@ -56,20 +57,8 @@ public class ScriptableValue extends ScriptableObject implements Iterable<Value>
     return defaultValue;
   }
 
-  public Value getSingleValue() {
-    return values[0];
+  public Value getValue() {
+    return value;
   }
 
-  public Value[] getValues() {
-    return values;
-  }
-
-  public int getSize() {
-    return values.length;
-  }
-
-  @Override
-  public Iterator<Value> iterator() {
-    return Arrays.asList(values).iterator();
-  }
 }

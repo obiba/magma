@@ -3,7 +3,6 @@ package org.obiba.magma.xstream;
 import java.io.OutputStream;
 
 import org.obiba.magma.Collection;
-import org.obiba.magma.Occurrence;
 import org.obiba.magma.ValueType;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.VariableValueSource;
@@ -41,14 +40,7 @@ public class Io {
       for(VariableEntity entity : collection.getEntities(entityType)) {
         XStreamValueSet valueSet = new XStreamValueSet(collection.loadValueSet(entity));
         for(VariableValueSource source : collection.getVariableValueSources(entityType)) {
-          if(source.getVariable().isRepeatable()) {
-            for(Occurrence occurrence : collection.loadOccurrences(valueSet, source.getVariable())) {
-              valueSet.addValue(occurrence, source);
-            }
-
-          } else {
-            valueSet.addValue(source);
-          }
+          valueSet.addValue(source);
         }
         xstream.toXML(valueSet, os);
       }

@@ -19,6 +19,9 @@ import org.springframework.beans.NullValueInNestedPathException;
 import org.springframework.beans.PropertyAccessorFactory;
 import org.springframework.util.Assert;
 
+import com.google.common.base.Function;
+import com.google.common.collect.Iterables;
+
 /**
  * Connects a {@code Variable} to a bean property.
  */
@@ -55,11 +58,25 @@ public class BeanPropertyVariableValueSource implements VariableValueSource {
 
   public Value getValue(ValueSet valueSet) {
     Object bean = resolver.resolve(beanClass, valueSet, variable);
+
     if(bean == null) {
-      return getValueType().nullValue();
+      return variable.isRepeatable() ? getValueType().nullSequence() : getValueType().nullValue();
     }
-    Object object = getPropertyValue(propertyPath, PropertyAccessorFactory.forBeanPropertyAccess(bean));
-    return getValueType().valueOf(object);
+
+    if(variable.isRepeatable()) {
+      Iterable<?> iterable = (Iterable<?>) bean;
+      Iterable<Value> values = Iterables.transform(iterable, new Function<Object, Value>() {
+        @Override
+        public Value apply(Object bean) {
+          Object object = getPropertyValue(propertyPath, PropertyAccessorFactory.forBeanPropertyAccess(bean));
+          return getValueType().valueOf(object);
+        }
+      });
+      return getValueType().sequenceOf(values);
+    } else {
+      Object object = getPropertyValue(propertyPath, PropertyAccessorFactory.forBeanPropertyAccess(bean));
+      return getValueType().valueOf(object);
+    }
   }
 
   protected Object getPropertyValue(String propertyPath, BeanWrapper bw) {

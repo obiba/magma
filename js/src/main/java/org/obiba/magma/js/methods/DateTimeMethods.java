@@ -130,7 +130,7 @@ public class DateTimeMethods {
    */
   private static Calendar asCalendar(Scriptable obj) {
     ScriptableValue sv = (ScriptableValue) obj;
-    Value value = sv.getSingleValue();
+    Value value = sv.getValue();
     if(value.isNull() == false) {
       Date date = (Date) value.getValue();
       Calendar c = GregorianCalendar.getInstance();

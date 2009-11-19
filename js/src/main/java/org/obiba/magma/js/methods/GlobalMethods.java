@@ -8,7 +8,6 @@ import org.mozilla.javascript.Function;
 import org.mozilla.javascript.Scriptable;
 import org.obiba.magma.MagmaEngine;
 import org.obiba.magma.NoSuchValueSetException;
-import org.obiba.magma.Occurrence;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueSet;
 import org.obiba.magma.VariableEntity;
@@ -18,7 +17,6 @@ import org.obiba.magma.js.ScriptableValue;
 import org.obiba.magma.type.DateType;
 
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Iterables;
 
 public final class GlobalMethods {
 
@@ -79,21 +77,8 @@ public final class GlobalMethods {
       }
     }
 
-    if(source.getVariable().isRepeatable()) {
-      // Handle repeatable variables by looking up all Occurrences and building a ScriptableValue with multiple values
-      Set<Occurrence> occurrences = valueSet.getCollection().loadOccurrences(valueSet, source.getVariable());
-      Iterable<Value> values = Iterables.transform(occurrences, new com.google.common.base.Function<Occurrence, Value>() {
-        @Override
-        public Value apply(Occurrence from) {
-          return source.getValue(from);
-        }
-      });
-      // Return an object that can be indexed (e.g.: $('BP.Systolic')[2] or chained $('BP.Systolic').avg() )
-      return new ScriptableValue(thisObj, Iterables.toArray(values, Value.class));
-    } else {
-      Value value = source.getValue(valueSet);
-      return new ScriptableValue(thisObj, value);
-    }
+    Value value = source.getValue(valueSet);
+    return new ScriptableValue(thisObj, value);
   }
 
   private static VariableValueSource lookupSource(VariableEntity entity, String name) {

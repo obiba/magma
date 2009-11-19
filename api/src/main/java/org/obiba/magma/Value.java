@@ -10,9 +10,9 @@ public class Value implements Serializable {
 
   private ValueType valueType;
 
-  private Serializable value;
+  private Object value;
 
-  Value(ValueType valueType, Serializable value) {
+  Value(ValueType valueType, Object value) {
     if(valueType == null) throw new IllegalArgumentException("valueType cannot be null");
     if(value == null) {
       value = NULL;
@@ -25,12 +25,32 @@ public class Value implements Serializable {
     return valueType;
   }
 
-  public Serializable getValue() {
+  public Object getValue() {
     return value;
   }
 
   public boolean isNull() {
     return value == NULL;
+  }
+
+  /**
+   * Returns true when this {@code Value} instance holds a sequence of other {@code Value} instances. In this situation,
+   * the {@code ValueType} of this {@code Value} is the same as the {@code ValueType} of the items in the sequence. That
+   * is if the sequence holds {@code Value} instances of type {@code TextType}, then this {@code Value} also has {@code
+   * TextType} as its {@code ValueType}.
+   * 
+   * @return true when this {@code Value} holds a sequence of other {@code Value} instances
+   */
+  public boolean isSequence() {
+    return false;
+  }
+
+  /**
+   * Returns a {@code ValueSequence} view of this {@code Value} when {@code #isSequence()} returns true.
+   * @return
+   */
+  public ValueSequence asSequence() {
+    throw new IllegalStateException("value is not a sequence");
   }
 
   @Override

@@ -9,7 +9,6 @@ import org.obiba.magma.Datasource;
 import org.obiba.magma.Initialisable;
 import org.obiba.magma.NoSuchValueSetException;
 import org.obiba.magma.NoSuchVariableException;
-import org.obiba.magma.Occurrence;
 import org.obiba.magma.ValueSet;
 import org.obiba.magma.ValueSetProvider;
 import org.obiba.magma.Variable;
@@ -72,11 +71,6 @@ public class CollectionBean implements Collection, Initialisable {
   @Override
   public ValueSet loadValueSet(VariableEntity entity) {
     return new ValueSetBean(this, entity);
-  }
-
-  @Override
-  public Set<Occurrence> loadOccurrences(ValueSet valueSet, Variable variable) {
-    return lookupProvider(valueSet.getVariableEntity().getType()).loadOccurrences(valueSet, variable);
   }
 
   @Override

@@ -5,7 +5,6 @@ import java.util.Set;
 import org.obiba.magma.Collection;
 import org.obiba.magma.Datasource;
 import org.obiba.magma.NoSuchVariableException;
-import org.obiba.magma.Occurrence;
 import org.obiba.magma.ValueSet;
 import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
@@ -48,11 +47,6 @@ public abstract class AbstractCollectionWrapper implements CollectionWrapper {
   @Override
   public Set<Variable> getVariables() {
     return collection.getVariables();
-  }
-
-  @Override
-  public Set<Occurrence> loadOccurrences(ValueSet valueSet, Variable variable) {
-    return collection.loadOccurrences(valueSet, variable);
   }
 
   @Override

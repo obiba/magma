@@ -23,8 +23,8 @@ public abstract class AbstractScriptableValueTest extends AbstractJsTest {
     return context.sharedScope();
   }
 
-  public ScriptableValue newValue(Value... values) {
-    return new ScriptableValue(getSharedScope(), values);
+  public ScriptableValue newValue(Value value) {
+    return new ScriptableValue(getSharedScope(), value);
   }
 
 }

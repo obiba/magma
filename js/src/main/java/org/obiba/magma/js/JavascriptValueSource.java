@@ -73,7 +73,7 @@ public class JavascriptValueSource implements ValueSource, Initialisable {
         }
         return new ScriptableValue(scope, getValueType().valueOf(value));
       }
-    })).getSingleValue();
+    })).getValue();
   }
 
   @Override

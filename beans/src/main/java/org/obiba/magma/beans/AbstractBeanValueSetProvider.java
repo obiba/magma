@@ -1,13 +1,9 @@
 package org.obiba.magma.beans;
 
-import java.util.Collections;
 import java.util.Set;
 
 import org.obiba.magma.Collection;
-import org.obiba.magma.NoSuchValueSetException;
-import org.obiba.magma.Occurrence;
 import org.obiba.magma.ValueSet;
-import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.support.AbstractValueSetProvider;
 import org.obiba.magma.support.ValueSetBean;
@@ -21,8 +17,6 @@ public abstract class AbstractBeanValueSetProvider<T> extends AbstractValueSetPr
 
   private String entityIdentifierPropertyPath;
 
-  private Set<OccurrenceProvider> occurrenceProviders = Collections.emptySet();
-
   public AbstractBeanValueSetProvider(String entityType, String entityIdentifierPropertyPath) {
     super(entityType);
     this.entityIdentifierPropertyPath = entityIdentifierPropertyPath;
@@ -30,17 +24,6 @@ public abstract class AbstractBeanValueSetProvider<T> extends AbstractValueSetPr
 
   public String getEntityIdentifierPropertyPath() {
     return entityIdentifierPropertyPath;
-  }
-
-  public void setOccurrenceProviders(Set<OccurrenceProvider> occurrenceProviders) {
-    if(occurrenceProviders == null) {
-      throw new IllegalArgumentException("occurrenceProviders cannot be null");
-    }
-    this.occurrenceProviders = occurrenceProviders;
-  }
-
-  public Set<OccurrenceProvider> getOccurrenceProviders() {
-    return occurrenceProviders;
   }
 
   @Override
@@ -61,16 +44,6 @@ public abstract class AbstractBeanValueSetProvider<T> extends AbstractValueSetPr
       builder.add(new VariableEntityBean(getEntityType(), entityId.toString()));
     }
     return builder.build();
-  }
-
-  @Override
-  public Set<Occurrence> loadOccurrences(ValueSet valueSet, Variable variable) {
-    for(OccurrenceProvider provider : occurrenceProviders) {
-      if(provider.providesOccurrencesOf(variable)) {
-        return provider.loadOccurrences(valueSet, variable);
-      }
-    }
-    throw new NoSuchValueSetException(valueSet.getVariableEntity(), "No OccurrenceProvider for Variable " + variable);
   }
 
   /**

@@ -5,7 +5,8 @@ import java.io.UnsupportedEncodingException;
 
 import org.obiba.magma.Collection;
 import org.obiba.magma.MagmaEngine;
-import org.obiba.magma.Occurrence;
+import org.obiba.magma.Value;
+import org.obiba.magma.ValueSequence;
 import org.obiba.magma.ValueSet;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.VariableValueSource;
@@ -33,14 +34,18 @@ public class IntegrationApp {
 
           for(VariableValueSource source : collection.getVariableValueSources(entityType)) {
 
-            if(source.getVariable().isRepeatable()) {
-              for(Occurrence occurrence : collection.loadOccurrences(valueSet, source.getVariable())) {
-                System.out.println(source.getVariable().getName() + "[" + source.getValueType().getName() + "]@" + occurrence.getOrder() + ": " + source.getValue(occurrence));
-              }
+            Value value = source.getValue(valueSet);
 
+            if(value.isSequence()) {
+              ValueSequence seq = value.asSequence();
+              int order = 0;
+              for(Value item : seq.getValues()) {
+                System.out.println(source.getVariable().getName() + "[" + source.getValueType().getName() + "]@" + (order++) + ": " + item);
+              }
             } else {
               System.out.println(source.getVariable().getName() + "[" + source.getValueType().getName() + "]: " + source.getValue(valueSet));
             }
+
           }
         }
       }

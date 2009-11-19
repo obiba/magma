@@ -1,11 +1,17 @@
 package org.obiba.magma.js.methods;
 
+import java.util.Set;
+
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.Scriptable;
 import org.obiba.magma.Value;
 import org.obiba.magma.js.ScriptableValue;
 import org.obiba.magma.type.BooleanType;
+
+import com.google.common.base.Functions;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Iterables;
 
 /**
  * Methods of the {@code ScriptableValue} javascript class that returns {@code ScriptableValue} of {@code BooleanType}
@@ -19,12 +25,14 @@ public class BooleanMethods {
    */
   public static ScriptableValue any(Context ctx, Scriptable thisObj, Object[] args, Function funObj) {
     ScriptableValue sv = (ScriptableValue) thisObj;
-    if(sv.getSingleValue().isNull()) {
+    if(sv.getValue().isNull()) {
       return new ScriptableValue(thisObj, BooleanType.get().nullValue());
     }
-    String value = sv.getSingleValue().toString();
+
+    Value value = sv.getValue();
+    Set<String> values = ImmutableSet.copyOf(Iterables.transform((value.isSequence() ? value.asSequence().getValue() : ImmutableSet.of(value)), Functions.toStringFunction()));
     for(Object test : args) {
-      if(value.equals(test.toString())) {
+      if(values.contains(test.toString())) {
         return buildValue(thisObj, true);
       }
     }
@@ -42,7 +50,7 @@ public class BooleanMethods {
     ScriptableValue sv = (ScriptableValue) thisObj;
     if(args != null && args.length > 0) {
       // Is of form this.not(value)
-      String value = sv.getSingleValue().toString();
+      String value = sv.getValue().toString();
       for(Object test : args) {
         if(value.equals(test.toString())) {
           return buildValue(thisObj, false);
@@ -51,7 +59,7 @@ public class BooleanMethods {
       return buildValue(thisObj, true);
     } else {
       // Is of form .not()
-      Value value = sv.getSingleValue();
+      Value value = sv.getValue();
       if(value.getValueType() == BooleanType.get()) {
         return new ScriptableValue(thisObj, BooleanType.get().not(value));
       }
