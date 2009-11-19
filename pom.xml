@@ -86,6 +86,7 @@
     <module>xstream</module>
     <module>integration</module>
     <module>wicket</module>
+    <module>filter</module>
   </modules>
 
   <build>

@@ -4,10 +4,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import com.thoughtworks.xstream.annotations.XStreamImplicit;
+
 public class CollectionFilterChain<T> implements FilterChain<T> {
 
   private String entityType;
 
+  @XStreamImplicit
   private List<Filter<T>> filters;
 
   @Override
