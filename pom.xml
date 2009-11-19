@@ -45,6 +45,12 @@
         <version>${easymock.version}</version>
         <scope>test</scope>
       </dependency>
+      
+      <dependency>
+        <groupId>com.thoughtworks.xstream</groupId>
+        <artifactId>xstream</artifactId>
+        <version>${xstream.version}</version>
+      </dependency>
     </dependencies>
 
   </dependencyManagement>
@@ -136,5 +142,6 @@
     <junit.version>4.7</junit.version>
     <easymock.version>2.5.2</easymock.version>
     <slf4j.version>1.5.8</slf4j.version>
+    <xstream.version>1.3.1</xstream.version>
   </properties>
 </project>
