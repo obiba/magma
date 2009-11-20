@@ -10,10 +10,10 @@ import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.VariableValueSource;
 
-/***********************************************************************************************************************
+/**
  * This abstract class delegates its method calls to the implementation of the wrapped Collection. This is to facilitate
- * the implementation of the CollectionWrapper, so only the necessary methods have to be overridden.
- **********************************************************************************************************************/
+ * the implementation of the {@code CollectionWrapper} interface, so only the necessary methods have to be overridden.
+ */
 public abstract class AbstractCollectionWrapper implements CollectionWrapper {
 
   protected Collection collection;
