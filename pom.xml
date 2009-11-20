@@ -45,7 +45,7 @@
         <version>${easymock.version}</version>
         <scope>test</scope>
       </dependency>
-      
+
       <dependency>
         <groupId>com.thoughtworks.xstream</groupId>
         <artifactId>xstream</artifactId>
@@ -96,7 +96,11 @@
         <plugin>
           <groupId>org.codehaus.mojo</groupId>
           <artifactId>findbugs-maven-plugin</artifactId>
-          <version>2.1</version>
+          <version>2.2</version>
+          <configuration>
+            <failOnError>false</failOnError>
+            <excludeFilterFile>src/main/resources/findbugs-exclude.xml</excludeFilterFile>
+          </configuration>
         </plugin>
       </plugins>
     </pluginManagement>
