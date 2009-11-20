@@ -12,7 +12,7 @@ public interface Collection {
 
   public Set<VariableEntity> getEntities(String entityType);
 
-  public ValueSet loadValueSet(VariableEntity entity);
+  public ValueSet loadValueSet(VariableEntity entity) throws NoSuchValueSetException;
 
   public Set<VariableValueSource> getVariableValueSources(String entityType);
 
