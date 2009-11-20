@@ -4,6 +4,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.obiba.magma.Collection;
+import org.obiba.magma.NoSuchValueSetException;
 import org.obiba.magma.NoSuchVariableException;
 import org.obiba.magma.ValueSet;
 import org.obiba.magma.Variable;
@@ -27,13 +28,13 @@ public class FilteredCollection extends AbstractCollectionWrapper {
   public Set<VariableEntity> getEntities(String entityType) {
     Set<VariableEntity> entities = super.getEntities(entityType);
 
-    Set<ValueSet> unfilteredSet = new HashSet<ValueSet>();
+    Set<ValueSet> filteredSet = new HashSet<ValueSet>();
     for(VariableEntity variableEntity : entities) {
-      unfilteredSet.add(super.loadValueSet(variableEntity));
+      filteredSet.add(loadValueSet(variableEntity));
     }
 
     Set<VariableEntity> filteredEntities = new HashSet<VariableEntity>();
-    for(ValueSet valueSet : entityFilterChain.filter(unfilteredSet)) {
+    for(ValueSet valueSet : filteredSet) {
       filteredEntities.add(valueSet.getVariableEntity());
     }
 
@@ -103,7 +104,7 @@ public class FilteredCollection extends AbstractCollectionWrapper {
 
     Set<ValueSet> filteredValueSet = entityFilterChain.filter(unfilteredValueSet);
     if(filteredValueSet.size() == 0) {
-      return null;
+      throw new NoSuchValueSetException(entity);
     }
 
     return (ValueSet) filteredValueSet.toArray()[0];
