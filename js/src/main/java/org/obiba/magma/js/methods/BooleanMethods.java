@@ -1,16 +1,13 @@
 package org.obiba.magma.js.methods;
 
-import java.util.Set;
-
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.Scriptable;
 import org.obiba.magma.Value;
+import org.obiba.magma.js.MagmaJsEvaluationRuntimeException;
 import org.obiba.magma.js.ScriptableValue;
 import org.obiba.magma.type.BooleanType;
 
-import com.google.common.base.Functions;
-import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 
 /**
@@ -29,10 +26,9 @@ public class BooleanMethods {
       return new ScriptableValue(thisObj, BooleanType.get().nullValue());
     }
 
-    Value value = sv.getValue();
-    Set<String> values = ImmutableSet.copyOf(Iterables.transform((value.isSequence() ? value.asSequence().getValue() : ImmutableSet.of(value)), Functions.toStringFunction()));
     for(Object test : args) {
-      if(values.contains(test.toString())) {
+      Value testValue = sv.getValueType().valueOf(test);
+      if(sv.contains(testValue)) {
         return buildValue(thisObj, true);
       }
     }
@@ -42,6 +38,7 @@ public class BooleanMethods {
   /**
    * <pre>
    *   $('BooleanVar').not()
+   *   $('Categorical').any('CAT1').not()
    *   $('Categorical').not('CAT1', 'CAT2')
    *   $('Categorical').not($('Other Categorical'))
    * </pre>
@@ -49,10 +46,10 @@ public class BooleanMethods {
   public static ScriptableValue not(Context ctx, Scriptable thisObj, Object[] args, Function funObj) {
     ScriptableValue sv = (ScriptableValue) thisObj;
     if(args != null && args.length > 0) {
-      // Is of form this.not(value)
-      String value = sv.getValue().toString();
+      // Is of form .not(value)
       for(Object test : args) {
-        if(value.equals(test.toString())) {
+        Value testValue = sv.getValueType().valueOf(test);
+        if(sv.contains(testValue)) {
           return buildValue(thisObj, false);
         }
       }
@@ -61,9 +58,21 @@ public class BooleanMethods {
       // Is of form .not()
       Value value = sv.getValue();
       if(value.getValueType() == BooleanType.get()) {
+        if(value.isSequence()) {
+          // Transform the sequence of Boolean values to a sequence of !values
+          Value notSeq = BooleanType.get().sequenceOf(Iterables.transform(value.asSequence().getValue(), new com.google.common.base.Function<Value, Value>() {
+            @Override
+            public Value apply(Value from) {
+              // Transform the input into its invert boolean value
+              return BooleanType.get().not(from);
+            }
+
+          }));
+          return new ScriptableValue(thisObj, notSeq);
+        }
         return new ScriptableValue(thisObj, BooleanType.get().not(value));
       }
-      throw new UnsupportedOperationException();
+      throw new MagmaJsEvaluationRuntimeException("cannot invoke not() for Value of type " + value.getValueType().getName());
     }
   }
 

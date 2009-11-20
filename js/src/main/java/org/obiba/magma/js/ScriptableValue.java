@@ -7,6 +7,7 @@ import org.mozilla.javascript.ScriptRuntime;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
 import org.obiba.magma.Value;
+import org.obiba.magma.ValueType;
 
 /**
  * A {@code Scriptable} implementation for {@code Value} objects.
@@ -47,7 +48,7 @@ public class ScriptableValue extends ScriptableObject {
   public Object getDefaultValue(Class<?> typeHint) {
     Value value = getValue();
     if(value.isSequence()) {
-      return value.asSequence().getValues();
+      return value.asSequence().toString();
     }
     Object defaultValue = value.getValue();
     if(value.getValueType().isDateTime()) {
@@ -61,4 +62,14 @@ public class ScriptableValue extends ScriptableObject {
     return value;
   }
 
+  public ValueType getValueType() {
+    return getValue().getValueType();
+  }
+
+  public boolean contains(Value testValue) {
+    if(getValue().isSequence()) {
+      return getValue().asSequence().contains(testValue);
+    }
+    return getValue().equals(testValue);
+  }
 }

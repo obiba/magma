@@ -1,7 +1,5 @@
 package org.obiba.magma.js;
 
-import org.mozilla.javascript.Context;
-import org.mozilla.javascript.ContextAction;
 import org.mozilla.javascript.ContextFactory;
 import org.obiba.magma.Initialisable;
 
@@ -12,16 +10,12 @@ public class MagmaJsExtension implements Initialisable {
 
   @Override
   public void initialise() {
+    MagmaContextFactory factory = new MagmaContextFactory();
+
     // Set MagmaContextFactory as the global factory
-    ContextFactory.initGlobal(new MagmaContextFactory());
+    ContextFactory.initGlobal(factory);
 
     // Initialise the shared scope
-    ContextFactory.getGlobal().call(new ContextAction() {
-      @Override
-      public Object run(Context cx) {
-        return cx.initStandardObjects(null, true);
-      }
-    });
-
+    factory.initialise();
   }
 }
