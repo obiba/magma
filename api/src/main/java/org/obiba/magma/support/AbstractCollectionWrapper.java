@@ -12,7 +12,11 @@ import org.obiba.magma.VariableValueSource;
 
 public abstract class AbstractCollectionWrapper implements CollectionWrapper {
 
-  Collection collection;
+  protected Collection collection;
+
+  public AbstractCollectionWrapper(Collection collection) {
+    this.collection = collection;
+  }
 
   @Override
   public Datasource getDatasource() {
