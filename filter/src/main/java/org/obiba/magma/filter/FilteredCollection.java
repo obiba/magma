@@ -25,15 +25,13 @@ public class FilteredCollection extends AbstractCollectionWrapper {
 
   @Override
   public Set<VariableEntity> getEntities(String entityType) {
+    Set<VariableEntity> entities = super.getEntities(entityType);
 
-    // Get the list of ValueSets from the Collection, for the requested entityType.
-    Set<VariableEntity> entities = collection.getEntities(entityType);
     Set<ValueSet> unfilteredSet = new HashSet<ValueSet>();
     for(VariableEntity variableEntity : entities) {
-      unfilteredSet.add(collection.loadValueSet(variableEntity));
+      unfilteredSet.add(super.loadValueSet(variableEntity));
     }
 
-    // Filter these ValueSets and retrieve the list of filtered VariableEntity from them.
     Set<VariableEntity> filteredEntities = new HashSet<VariableEntity>();
     for(ValueSet valueSet : entityFilterChain.filter(unfilteredSet)) {
       filteredEntities.add(valueSet.getVariableEntity());
@@ -44,7 +42,8 @@ public class FilteredCollection extends AbstractCollectionWrapper {
 
   @Override
   public Set<String> getEntityTypes() {
-    Set<String> entityTypes = collection.getEntityTypes();
+    Set<String> entityTypes = super.getEntityTypes();
+
     Set<VariableEntity> filteredEntities = new HashSet<VariableEntity>();
     for(String entityType : entityTypes) {
       filteredEntities.addAll(getEntities(entityType));
@@ -61,14 +60,15 @@ public class FilteredCollection extends AbstractCollectionWrapper {
 
   @Override
   public Set<Variable> getVariables() {
-    Set<String> entityTypes = collection.getEntityTypes();
-    Set<VariableValueSource> unfilteredValueSources = new HashSet<VariableValueSource>();
+    Set<String> entityTypes = getEntityTypes();
+
+    Set<VariableValueSource> filteredValueSources = new HashSet<VariableValueSource>();
     for(String entityType : entityTypes) {
-      unfilteredValueSources.addAll(collection.getVariableValueSources(entityType));
+      filteredValueSources.addAll(getVariableValueSources(entityType));
     }
 
     Set<Variable> filteredVariables = new HashSet<Variable>();
-    for(VariableValueSource variableValueSource : variableFilterChain.filter(unfilteredValueSources)) {
+    for(VariableValueSource variableValueSource : filteredValueSources) {
       filteredVariables.add(variableValueSource.getVariable());
     }
 
@@ -77,31 +77,36 @@ public class FilteredCollection extends AbstractCollectionWrapper {
 
   @Override
   public VariableValueSource getVariableValueSource(String entityType, String variableName) throws NoSuchVariableException {
-    Set<VariableValueSource> unfilteredValueSources = new HashSet<VariableValueSource>();
-    unfilteredValueSources.add(collection.getVariableValueSource(entityType, variableName));
+    Set<VariableValueSource> unfilteredValueSource = new HashSet<VariableValueSource>();
+    unfilteredValueSource.add(super.getVariableValueSource(entityType, variableName));
 
-    Set<VariableValueSource> filteredValueSources;
-    filteredValueSources = variableFilterChain.filter(unfilteredValueSources);
-    if(filteredValueSources.size() == 0) {
+    Set<VariableValueSource> filteredValueSource = variableFilterChain.filter(unfilteredValueSource);
+    if(filteredValueSource.size() == 0) {
       throw new NoSuchVariableException(getName(), variableName);
     }
 
-    return (VariableValueSource) filteredValueSources.toArray()[0];
+    return (VariableValueSource) filteredValueSource.toArray()[0];
 
   }
 
   @Override
   public Set<VariableValueSource> getVariableValueSources(String entityType) {
     Set<VariableValueSource> unfilteredValueSources = new HashSet<VariableValueSource>();
-    unfilteredValueSources.addAll(collection.getVariableValueSources(entityType));
+    unfilteredValueSources.addAll(super.getVariableValueSources(entityType));
     return variableFilterChain.filter(unfilteredValueSources);
   }
 
   @Override
   public ValueSet loadValueSet(VariableEntity entity) {
-    Set<ValueSet> unfilteredSet = new HashSet<ValueSet>();
-    unfilteredSet.add(collection.loadValueSet(entity));
-    return (ValueSet) entityFilterChain.filter(unfilteredSet).toArray()[0];
+    Set<ValueSet> unfilteredValueSet = new HashSet<ValueSet>();
+    unfilteredValueSet.add(super.loadValueSet(entity));
+
+    Set<ValueSet> filteredValueSet = entityFilterChain.filter(unfilteredValueSet);
+    if(filteredValueSet.size() == 0) {
+      return null;
+    }
+
+    return (ValueSet) filteredValueSet.toArray()[0];
   }
 
 }
