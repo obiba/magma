@@ -20,30 +20,42 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 
 public class CollectionPanel extends Panel {
+
+  private static final long serialVersionUID = 8820125143513457684L;
+
   public CollectionPanel(String id, IModel<Collection> collectionModel) {
     super(id, collectionModel);
 
     add(new DataView<Variable>("variables", new VariableDataProvider()) {
+
+      private static final long serialVersionUID = -8601452436304391332L;
+
       @Override
       protected void populateItem(Item<Variable> item) {
-        item.add(new Label("name", new PropertyModel(item.getModel(), "name")));
-        item.add(new Label("type", new PropertyModel(item.getModel(), "valueType.name")));
+        item.add(new Label("name", new PropertyModel<String>(item.getModel(), "name")));
+        item.add(new Label("type", new PropertyModel<String>(item.getModel(), "valueType.name")));
         item.add(new DataView<Category>("categories", new CategoryDataProvider(item.getModel())) {
+
+          private static final long serialVersionUID = 4615644513438302396L;
+
           @Override
           protected void populateItem(Item<Category> item) {
-            item.add(new Label("name", new PropertyModel(item.getModel(), "name")));
-            item.add(new Label("code", new PropertyModel(item.getModel(), "code")));
+            item.add(new Label("name", new PropertyModel<String>(item.getModel(), "name")));
+            item.add(new Label("code", new PropertyModel<String>(item.getModel(), "code")));
           }
         });
       }
     });
   }
 
+  @SuppressWarnings("unchecked")
   public IModel<Collection> getModel() {
     return (IModel<Collection>) super.getDefaultModel();
   }
 
-  private class CategoryDataProvider implements IDataProvider<Category> {
+  private static class CategoryDataProvider implements IDataProvider<Category> {
+
+    private static final long serialVersionUID = -4740198039337060239L;
 
     IModel<Variable> variableModel;
 
@@ -60,6 +72,9 @@ public class CollectionPanel extends Panel {
     public IModel<Category> model(Category c) {
       final String name = c.getName();
       return new IModel<Category>() {
+
+        private static final long serialVersionUID = 3599901956227418900L;
+
         @Override
         public Category getObject() {
           return Iterables.find(variableModel.getObject().getCategories(), new Predicate<Category>() {
@@ -95,6 +110,8 @@ public class CollectionPanel extends Panel {
 
   private class VariableDataProvider implements IDataProvider<Variable> {
 
+    private static final long serialVersionUID = -6929361212788032632L;
+
     public VariableDataProvider() {
 
     }
@@ -113,6 +130,9 @@ public class CollectionPanel extends Panel {
       final String type = variable.getEntityType();
       final String name = variable.getCollection() + ':' + variable.getName();
       return new LoadableDetachableModel<Variable>(variable) {
+
+        private static final long serialVersionUID = -5709197229495004502L;
+
         @Override
         protected Variable load() {
           return MagmaEngine.get().lookupVariable(type, name).getVariable();

@@ -35,11 +35,7 @@ public class MagmaEngine {
   }
 
   public MagmaEngine extend(Initialisable extension) {
-    try {
-      extension.initialise();
-    } catch(RuntimeException e) {
-
-    }
+    extension.initialise();
     return this;
   }
 

@@ -33,6 +33,9 @@ public class MagmaContextFactory extends ContextFactory implements Initialisable
   }
 
   public ScriptableObject sharedScope() {
+    if(sharedScope == null) {
+      throw new MagmaJsRuntimeException("Shared scope not initialised. Make sure the MagmaJsExtension has been added to the MagmaEngine before evaluating scripts.");
+    }
     return sharedScope;
   }
 
@@ -59,6 +62,7 @@ public class MagmaContextFactory extends ContextFactory implements Initialisable
         });
 
         for(Method globalMethod : methods) {
+          // Rename "valueOf" to "$"
           String name = globalMethod.getName().equals("valueOf") ? "$" : globalMethod.getName();
           FunctionObject fo = new FunctionObject(name, globalMethod, sharedScope);
           sharedScope.defineProperty(name, fo, ScriptableObject.DONTENUM);

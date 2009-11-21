@@ -3,7 +3,6 @@ package org.obiba.magma.xstream.converter;
 import org.obiba.magma.Attribute;
 import org.obiba.magma.Category;
 
-import com.thoughtworks.xstream.converters.Converter;
 import com.thoughtworks.xstream.converters.MarshallingContext;
 import com.thoughtworks.xstream.converters.UnmarshallingContext;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
@@ -23,7 +22,7 @@ import com.thoughtworks.xstream.mapper.Mapper;
  * &lt;/attribute>
  * </pre>
  */
-public class CategoryConverter extends AbstractAttributeAwareConverter implements Converter {
+public class CategoryConverter extends AbstractAttributeAwareConverter {
 
   public CategoryConverter(Mapper mapper) {
     super(mapper);

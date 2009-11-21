@@ -10,12 +10,14 @@ public class MagmaJsExtension implements Initialisable {
 
   @Override
   public void initialise() {
-    MagmaContextFactory factory = new MagmaContextFactory();
+    // Set MagmaContextFactory as the global factory. We can only do this if it hasn't been done already.
+    if(ContextFactory.hasExplicitGlobal() == false) {
+      MagmaContextFactory factory = new MagmaContextFactory();
+      ContextFactory.initGlobal(factory);
 
-    // Set MagmaContextFactory as the global factory
-    ContextFactory.initGlobal(factory);
+      // Initialise the shared scope
+      factory.initialise();
+    }
 
-    // Initialise the shared scope
-    factory.initialise();
   }
 }

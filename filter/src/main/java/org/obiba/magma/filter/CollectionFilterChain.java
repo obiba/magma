@@ -14,6 +14,10 @@ public class CollectionFilterChain<T> implements FilterChain<T> {
   @XStreamImplicit
   private List<Filter<T>> filters;
 
+  public CollectionFilterChain(String entityType) {
+    this.entityType = entityType;
+  }
+
   @Override
   public Set<T> filter(Set<T> unfilteredSet) {
 

@@ -92,7 +92,10 @@ public class BeanVariableValueSourceFactory<T> {
   }
 
   public Set<VariableValueSource> createSources(String collection, ValueSetBeanResolver resolver) {
-    return doBuildVariables(collection, resolver);
+    if(sources == null) {
+      doBuildVariables(collection, resolver);
+    }
+    return sources;
   }
 
   /**
@@ -202,22 +205,15 @@ public class BeanVariableValueSourceFactory<T> {
    * Builds the {@code Variable} that this provider supports and also the {@code VariableEntityDataSource} instances for
    * each variable.
    */
-  protected Set<VariableValueSource> doBuildVariables(String collection, ValueSetBeanResolver resolver) {
-    if(sources == null) {
-      synchronized(this) {
-        if(sources == null) {
-          sources = new HashSet<VariableValueSource>();
-          for(String propertyPath : properties) {
-            Class<?> propertyType = getPropertyType(propertyPath);
-            if(propertyType == null) {
-              throw new IllegalArgumentException("Invalid property path'" + propertyPath + "' for type " + getBeanClass().getName());
-            }
-            sources.add(new BeanPropertyVariableValueSource(doBuildVariable(collection, propertyType, lookupVariableName(propertyPath)), beanClass, resolver, propertyPath));
-          }
-        }
+  protected synchronized void doBuildVariables(String collection, ValueSetBeanResolver resolver) {
+    sources = new HashSet<VariableValueSource>();
+    for(String propertyPath : properties) {
+      Class<?> propertyType = getPropertyType(propertyPath);
+      if(propertyType == null) {
+        throw new IllegalArgumentException("Invalid property path'" + propertyPath + "' for type " + getBeanClass().getName());
       }
+      sources.add(new BeanPropertyVariableValueSource(doBuildVariable(collection, propertyType, lookupVariableName(propertyPath)), beanClass, resolver, propertyPath));
     }
-    return sources;
   }
 
   protected Variable doBuildVariable(String collection, Class<?> propertyType, String name) {

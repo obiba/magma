@@ -49,7 +49,7 @@ public final class GlobalMethods {
       throw new UnsupportedOperationException("$() expects exactly one argument: a variable name.");
     }
 
-    MagmaContext context = (MagmaContext) ctx;
+    MagmaContext context = MagmaContext.asMagmaContext(ctx);
 
     String name = (String) args[0];
     ValueSet valueSet = (ValueSet) context.peek(ValueSet.class);

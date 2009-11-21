@@ -14,8 +14,12 @@ public class MagmaContext extends Context {
   }
 
   public static MagmaContext getCurrentMagmaContext() {
+    return asMagmaContext(getCurrentContext());
+  }
+
+  public static MagmaContext asMagmaContext(Context ctx) {
     try {
-      return (MagmaContext) getCurrentContext();
+      return (MagmaContext) ctx;
     } catch(ClassCastException e) {
       throw new MagmaJsRuntimeException("No MagmaContext available. Make sure MagmaJsExtension has been intialized before using JavascriptValueSource instances.");
     }
@@ -28,9 +32,6 @@ public class MagmaContext extends Context {
    * @return the {@code sharedScope}
    */
   public ScriptableObject sharedScope() {
-    if(getMagmaContextFactory().sharedScope() == null) {
-      throw new IllegalStateException();
-    }
     return getMagmaContextFactory().sharedScope();
   }
 

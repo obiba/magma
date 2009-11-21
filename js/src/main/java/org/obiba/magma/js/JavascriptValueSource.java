@@ -59,7 +59,7 @@ public class JavascriptValueSource implements ValueSource, Initialisable {
     }
     return ((ScriptableValue) ContextFactory.getGlobal().call(new ContextAction() {
       public Object run(Context ctx) {
-        MagmaContext context = (MagmaContext) ctx;
+        MagmaContext context = MagmaContext.asMagmaContext(ctx);
         // Don't pollute the global scope
         Scriptable scope = context.newLocalScope();
 

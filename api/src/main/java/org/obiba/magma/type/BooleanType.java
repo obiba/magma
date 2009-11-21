@@ -4,9 +4,8 @@ import java.lang.ref.WeakReference;
 
 import org.obiba.magma.MagmaEngine;
 import org.obiba.magma.Value;
-import org.obiba.magma.ValueType;
 
-public class BooleanType extends AbstractValueType implements ValueType {
+public class BooleanType extends AbstractValueType {
 
   private static final long serialVersionUID = -149385659514790222L;
 
