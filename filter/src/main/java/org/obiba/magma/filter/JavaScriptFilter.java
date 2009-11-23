@@ -1,11 +1,16 @@
 package org.obiba.magma.filter;
 
+import org.obiba.magma.Value;
 import org.obiba.magma.ValueSet;
+import org.obiba.magma.js.JavascriptValueSource;
+import org.obiba.magma.type.BooleanType;
 
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 @XStreamAlias("script")
 public class JavaScriptFilter extends AbstractFilter<ValueSet> {
+
+  private static final String SCRIPT_NAME = "JAVASCRIPT_FILTER_SCRIPT";
 
   private String javascript;
 
@@ -20,13 +25,18 @@ public class JavaScriptFilter extends AbstractFilter<ValueSet> {
 
   @Override
   protected boolean runFilter(ValueSet item) {
-    // TODO Auto-generated method stub
-    // must make js available to filter!
-    // JavascriptValueSource j = new JavascriptValueSource();
-    return false;
+    JavascriptValueSource javascriptSource = new JavascriptValueSource();
+    javascriptSource.setScript(javascript);
+    javascriptSource.setScriptName(SCRIPT_NAME);
+    javascriptSource.setValueType(BooleanType.get());
+    javascriptSource.initialise();
+    Value value = javascriptSource.getValue(item);
+    Boolean booleanValue = (Boolean) value.getValue();
+    return booleanValue.booleanValue();
   }
 
   private Object readResolve() {
+    validateArguments(javascript);
     validateType();
     return this;
   }
