@@ -19,7 +19,7 @@ public class StateEnvelope<T> {
     return item;
   }
 
-  public void setState(FilterState state) {
+  void setState(FilterState state) {
     this.state = state;
   }
 

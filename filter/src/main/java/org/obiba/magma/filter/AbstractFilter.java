@@ -4,23 +4,18 @@ import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
 
 public abstract class AbstractFilter<T> implements Filter<T> {
 
-  protected static final String EXCLUDE = "EXCLUDE";
+  protected static final String EXCLUDE = "exclude";
 
-  protected static final String INCLUDE = "INCLUDE";
+  protected static final String INCLUDE = "include";
 
   @XStreamAsAttribute
   protected String type;
 
-  abstract boolean runFilter(T item);
+  protected abstract boolean runFilter(T item);
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.obiba.magma.filter.Filter#doIt(org.obiba.magma.filter.StateEnvelope)
-   */
   @Override
   public StateEnvelope<T> doIt(StateEnvelope<T> stateEnvelope) {
-    if(type == null) type = "exclude";
+    if(type == null) type = EXCLUDE;
     if(type.equalsIgnoreCase(EXCLUDE) && stateEnvelope.getState().equals(FilterState.OUT)) {
       return stateEnvelope;
     } else if(type.equalsIgnoreCase(INCLUDE) && stateEnvelope.getState().equals(FilterState.IN)) {
@@ -42,15 +37,33 @@ public abstract class AbstractFilter<T> implements Filter<T> {
     return stateEnvelope;
   }
 
-  private Object readResolve() {
-    if(type == null) System.out.println("do ya doo.... type is null");
-    return this;
+  /**
+   * Ensures the filter type (include or exclude) has been set correctly.
+   * @throws IllegalArgumentException When the type has not been set correctly.
+   */
+  protected void validateType() {
+    String errorMessage = "The argument [type] must have the value [include] or [exclude].";
+    if(type == null) throw new IllegalArgumentException(errorMessage);
+    if(!type.equalsIgnoreCase(EXCLUDE) && !type.equalsIgnoreCase(INCLUDE)) throw new IllegalArgumentException(errorMessage);
   }
 
-  /**
-   * @param type the type to set
-   */
-  public void setType(String type) {
+
+  protected void setType(String type) {
     this.type = type;
+  }
+
+  public static class Builder {
+
+    protected String type;
+
+    public Builder include() {
+      this.type = INCLUDE;
+      return this;
+    }
+
+    public Builder exclude() {
+      this.type = EXCLUDE;
+      return this;
+    }
   }
 }

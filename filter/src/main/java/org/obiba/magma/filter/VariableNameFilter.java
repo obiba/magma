@@ -21,14 +21,20 @@ public class VariableNameFilter extends AbstractFilter<VariableValueSource> {
   @XStreamOmitField
   private Pattern matchPattern;
 
-  public VariableNameFilter(String prefix, String match) {
+  VariableNameFilter(String prefix, String match) {
+    validateArguments(prefix, match);
     this.prefix = prefix;
     this.match = match;
     if(match != null) matchPattern = Pattern.compile(match);
   }
 
+  private void validateArguments(String prefix, String match) {
+    if(prefix == null && match == null) throw new IllegalArgumentException("The arguments [prefix] and [match] cannot both be null.");
+    if(prefix != null && match != null) throw new IllegalArgumentException("The arguments [prefix] and [match] cannot both have values.");
+  }
+
   @Override
-  boolean runFilter(VariableValueSource item) {
+  protected boolean runFilter(VariableValueSource item) {
     if(prefix != null) {
       if(item.getVariable().getName().startsWith(prefix)) return true;
     } else if(match != null) {
@@ -37,5 +43,51 @@ public class VariableNameFilter extends AbstractFilter<VariableValueSource> {
     }
 
     return false;
+  }
+
+  private Object readResolve() {
+    validateArguments(prefix, match);
+    validateType();
+    return this;
+  }
+
+  public static class Builder extends AbstractFilter.Builder {
+
+    private String prefix;
+
+    private String match;
+
+    public static Builder newFilter() {
+      return new Builder();
+    }
+
+    public Builder prefix(String prefix) {
+      this.prefix = prefix;
+      return this;
+    }
+
+    public Builder match(String match) {
+      this.match = match;
+      return this;
+    }
+
+    public VariableNameFilter build() {
+      VariableNameFilter filter = new VariableNameFilter(prefix, match);
+      filter.setType(type);
+      filter.validateType();
+      return filter;
+    }
+
+    @Override
+    public Builder exclude() {
+      super.exclude();
+      return this;
+    }
+
+    @Override
+    public Builder include() {
+      super.include();
+      return this;
+    }
   }
 }
