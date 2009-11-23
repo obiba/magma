@@ -10,7 +10,6 @@
 package org.obiba.magma;
 
 import java.lang.reflect.Constructor;
-import java.util.Locale;
 import java.util.Set;
 
 import javax.xml.namespace.QName;
@@ -25,7 +24,7 @@ public interface Variable extends AttributeAware {
    * A builder for {@code Variable} instances. This uses the builder pattern for constructing {@code Variable}
    * instances.
    */
-  public static class Builder {
+  public static class Builder extends AttributeAwareBuilder<Builder> {
 
     private VariableBean variable = new VariableBean();
 
@@ -38,6 +37,10 @@ public interface Variable extends AttributeAware {
 
     protected Builder(Builder builder) {
       this.variable = builder.variable;
+    }
+
+    protected AbstractAttributeAware getAttributeAware() {
+      return variable;
     }
 
     public static Builder newVariable(String collection, String name, ValueType type, String entityType) {
@@ -84,22 +87,11 @@ public interface Variable extends AttributeAware {
       return this;
     }
 
-    public Builder addAttribute(String name, String value) {
-      variable.attributes.put(name, Attribute.Builder.newAttribute(name).withValue(value).build());
-      return this;
-    }
-
-    public Builder addAttribute(String name, String value, Locale locale) {
-      variable.attributes.put(name, Attribute.Builder.newAttribute(name).withValue(locale, value).build());
-      return this;
-    }
-
-    public Builder addAttribute(Attribute attribute) {
-      variable.attributes.put(attribute.getName(), attribute);
-      return this;
-    }
-
     public Builder addCategory(String name, String code) {
+      return addCategory(name, code, null);
+    }
+
+    public Builder addCategory(String name, String code, Set<Category.BuilderVisitor> visitors) {
       variable.categories.add(Category.Builder.newCategory(name).withCode(code).build());
       return this;
     }
@@ -154,8 +146,7 @@ public interface Variable extends AttributeAware {
      * Extends this builder to perform additional building capabilities for different variable nature. The specified
      * type must extend {@code Variable.Builder} and expose a public constructor that takes a single {@code
      * Variable.Builder} parameter; the constructor should call its super class' constructor with the same signature.
-     * <p/>
-     * An example class
+     * <p/> An example class
      * 
      * <pre>
      * public class BuilderExtension extends Variable.Builder {
@@ -207,6 +198,7 @@ public interface Variable extends AttributeAware {
    * <pre>
    *  collectioName:variableName
    * </pre>
+   * 
    * @return the fully qualified name of the variable.
    */
   public QName getQName();
