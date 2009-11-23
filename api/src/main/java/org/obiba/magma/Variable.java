@@ -48,13 +48,18 @@ public interface Variable extends AttributeAware {
     }
 
     /**
-     * Tests whether this {@code Builder} instance is constructing a variable with the specified name.
+     * Tests whether this {@code Builder} instance is constructing a variable with any of the the specified names.
      * 
-     * @param string the name to test
-     * @return true if the specified name is equal to the varible's name
+     * @param name one or more names to test
+     * @return true if any of the specified names is equal to the variable's name
      */
-    public boolean isName(String string) {
-      return variable.name.equals(string);
+    public boolean isName(String... name) {
+      for(String aName : name) {
+        if(variable.name.equals(aName)) {
+          return true;
+        }
+      }
+      return false;
     }
 
     public Variable build() {
