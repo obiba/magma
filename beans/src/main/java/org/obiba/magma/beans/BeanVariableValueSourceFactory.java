@@ -31,7 +31,7 @@ import com.google.common.collect.HashBiMap;
 import com.google.common.collect.Iterables;
 
 /**
- *
+ * 
  */
 public class BeanVariableValueSourceFactory<T> {
 
@@ -50,7 +50,7 @@ public class BeanVariableValueSourceFactory<T> {
   /** Maps mapped property names to property type */
   private Map<String, Class<?>> mappedPropertyType = new HashMap<String, Class<?>>();
 
-  private Set<? extends BuilderVisitor> variableBuilderContributors = Collections.emptySet();
+  private Set<? extends BuilderVisitor> variableBuilderVisitors = Collections.emptySet();
 
   private String occurrenceGroup;
 
@@ -82,9 +82,9 @@ public class BeanVariableValueSourceFactory<T> {
     this.mappedPropertyType = mappedPropertyType;
   }
 
-  public void setVariableBuilderContributors(Set<? extends BuilderVisitor> variableBuilderContributors) {
-    Assert.notNull(variableBuilderContributors);
-    this.variableBuilderContributors = variableBuilderContributors;
+  public void setVariableBuilderVisitors(Set<? extends BuilderVisitor> variableBuilderVisitors) {
+    Assert.notNull(variableBuilderVisitors);
+    this.variableBuilderVisitors = variableBuilderVisitors;
   }
 
   public void setOccurrenceGroup(String occurrenceGroup) {
@@ -230,7 +230,7 @@ public class BeanVariableValueSourceFactory<T> {
       builder.repeatable().occurrenceGroup(occurrenceGroup);
     }
 
-    builder.accept(variableBuilderContributors);
+    builder.accept(variableBuilderVisitors);
 
     // Allow extended classes to contribute to the builder
     return buildVariable(builder).build();
