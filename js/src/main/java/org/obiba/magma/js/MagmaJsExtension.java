@@ -1,12 +1,17 @@
 package org.obiba.magma.js;
 
 import org.mozilla.javascript.ContextFactory;
-import org.obiba.magma.Initialisable;
+import org.obiba.magma.MagmaEngineExtension;
 
 /**
  * A {@code MagmaEngine} extension for creating manipulating variables using javascript.
  */
-public class MagmaJsExtension implements Initialisable {
+public class MagmaJsExtension implements MagmaEngineExtension {
+
+  @Override
+  public String getName() {
+    return "magma-js";
+  }
 
   @Override
   public void initialise() {

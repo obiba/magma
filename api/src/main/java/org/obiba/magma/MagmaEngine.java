@@ -34,7 +34,7 @@ public class MagmaEngine {
     return instance;
   }
 
-  public MagmaEngine extend(Initialisable extension) {
+  public MagmaEngine extend(MagmaEngineExtension extension) {
     extension.initialise();
     return this;
   }
