@@ -14,6 +14,11 @@ public interface Category extends AttributeAware {
       return category;
     }
 
+    @Override
+    protected Builder getBuilder() {
+      return this;
+    }
+
     public static Builder newCategory(String name) {
       return new Builder(name);
     }

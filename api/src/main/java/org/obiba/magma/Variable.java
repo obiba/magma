@@ -43,6 +43,11 @@ public interface Variable extends AttributeAware {
       return variable;
     }
 
+    @Override
+    protected Builder getBuilder() {
+      return this;
+    }
+
     public static Builder newVariable(String collection, String name, ValueType type, String entityType) {
       return new Builder(collection, name, type, entityType);
     }
@@ -151,7 +156,8 @@ public interface Variable extends AttributeAware {
      * Extends this builder to perform additional building capabilities for different variable nature. The specified
      * type must extend {@code Variable.Builder} and expose a public constructor that takes a single {@code
      * Variable.Builder} parameter; the constructor should call its super class' constructor with the same signature.
-     * <p/> An example class
+     * <p/>
+     * An example class
      * 
      * <pre>
      * public class BuilderExtension extends Variable.Builder {

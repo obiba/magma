@@ -62,7 +62,9 @@ public class VariableConverter extends AbstractAttributeAwareConverter {
     writer.addAttribute("entityType", variable.getEntityType());
     if(variable.isRepeatable()) {
       writer.addAttribute("repeatable", "true");
-      writer.addAttribute("occurrenceGroup", variable.getOccurrenceGroup());
+      if(variable.getOccurrenceGroup() != null) {
+        writer.addAttribute("occurrenceGroup", variable.getOccurrenceGroup());
+      }
     }
     marshallAttributes(variable, writer, context);
     marshallCategories(variable, writer, context);

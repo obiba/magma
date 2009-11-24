@@ -18,8 +18,10 @@ import com.thoughtworks.xstream.mapper.MapperWrapper;
 
 public class Io {
 
-  public void write(Collection collection, OutputStream os) {
-    XStream xstream = new XStream() {
+  private XStream xstream;
+
+  public Io() {
+    xstream = new XStream() {
       @Override
       protected MapperWrapper wrapMapper(MapperWrapper next) {
         return new MagmaMapper(next);
@@ -34,7 +36,13 @@ public class Io {
     xstream.omitField(ValueSetBean.class, "collection");
     xstream.processAnnotations(XStreamValueSet.class);
     xstream.processAnnotations(XStreamValueSetValue.class);
+  }
+
+  public void writeVariables(Collection collection, OutputStream os) {
     xstream.toXML(collection.getVariables(), os);
+  }
+
+  public void writeEntities(Collection collection, OutputStream os) {
 
     for(String entityType : collection.getEntityTypes()) {
       for(VariableEntity entity : collection.getEntities(entityType)) {
@@ -46,4 +54,5 @@ public class Io {
       }
     }
   }
+
 }
