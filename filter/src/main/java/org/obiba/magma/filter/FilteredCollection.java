@@ -1,6 +1,9 @@
 package org.obiba.magma.filter;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.obiba.magma.Collection;
@@ -14,14 +17,35 @@ import org.obiba.magma.support.AbstractCollectionWrapper;
 
 public class FilteredCollection extends AbstractCollectionWrapper {
 
-  private CollectionFilterChain<ValueSet> entityFilterChain;
+  private Map<String, CollectionFilterChain<ValueSet>> entityFilterChainMap;
 
-  private CollectionFilterChain<VariableValueSource> variableFilterChain;
+  private Map<String, CollectionFilterChain<VariableValueSource>> variableFilterChainMap;
 
   public FilteredCollection(Collection collection, CollectionFilterChain<VariableValueSource> variableFilterChain, CollectionFilterChain<ValueSet> entityFilterChain) {
     super(collection);
-    this.variableFilterChain = variableFilterChain;
-    this.entityFilterChain = entityFilterChain;
+    this.entityFilterChainMap = new HashMap<String, CollectionFilterChain<ValueSet>>();
+    this.entityFilterChainMap.put(entityFilterChain.getEntityType(), entityFilterChain);
+    this.variableFilterChainMap = new HashMap<String, CollectionFilterChain<VariableValueSource>>();
+    this.variableFilterChainMap.put(variableFilterChain.getEntityType(), variableFilterChain);
+  }
+
+  public FilteredCollection(Collection collection, Map<String, CollectionFilterChain<VariableValueSource>> variableFilterChainMap, Map<String, CollectionFilterChain<ValueSet>> entityFilterChainMap) {
+    super(collection);
+    this.entityFilterChainMap = entityFilterChainMap;
+    this.variableFilterChainMap = variableFilterChainMap;
+  }
+
+  public FilteredCollection(Collection collection, List<CollectionFilterChain<VariableValueSource>> variableFilterChainList, List<CollectionFilterChain<ValueSet>> entityFilterChainList) {
+    super(collection);
+    variableFilterChainMap = new HashMap<String, CollectionFilterChain<VariableValueSource>>();
+    for(CollectionFilterChain<VariableValueSource> variableFilterChain : variableFilterChainList) {
+      variableFilterChainMap.put(variableFilterChain.getEntityType(), variableFilterChain);
+    }
+
+    entityFilterChainMap = new HashMap<String, CollectionFilterChain<ValueSet>>();
+    for(CollectionFilterChain<ValueSet> entityFilterChain : entityFilterChainList) {
+      entityFilterChainMap.put(entityFilterChain.getEntityType(), entityFilterChain);
+    }
   }
 
   @Override
@@ -43,20 +67,7 @@ public class FilteredCollection extends AbstractCollectionWrapper {
 
   @Override
   public Set<String> getEntityTypes() {
-    Set<String> entityTypes = super.getEntityTypes();
-
-    Set<VariableEntity> filteredEntities = new HashSet<VariableEntity>();
-    for(String entityType : entityTypes) {
-      filteredEntities.addAll(getEntities(entityType));
-    }
-
-    Set<String> filteredTypes = new HashSet<String>();
-    for(VariableEntity variableEntity : filteredEntities) {
-      filteredTypes.add(variableEntity.getType());
-    }
-
-    return filteredTypes;
-
+    return entityFilterChainMap.keySet();
   }
 
   @Override
@@ -81,7 +92,7 @@ public class FilteredCollection extends AbstractCollectionWrapper {
     Set<VariableValueSource> unfilteredValueSource = new HashSet<VariableValueSource>();
     unfilteredValueSource.add(super.getVariableValueSource(entityType, variableName));
 
-    Set<VariableValueSource> filteredValueSource = variableFilterChain.filter(unfilteredValueSource);
+    Set<VariableValueSource> filteredValueSource = variableFilterChainMap.get(entityType).filter(unfilteredValueSource);
     if(filteredValueSource.size() == 0) {
       throw new NoSuchVariableException(getName(), variableName);
     }
@@ -94,7 +105,7 @@ public class FilteredCollection extends AbstractCollectionWrapper {
   public Set<VariableValueSource> getVariableValueSources(String entityType) {
     Set<VariableValueSource> unfilteredValueSources = new HashSet<VariableValueSource>();
     unfilteredValueSources.addAll(super.getVariableValueSources(entityType));
-    return variableFilterChain.filter(unfilteredValueSources);
+    return variableFilterChainMap.get(entityType).filter(unfilteredValueSources);
   }
 
   @Override
@@ -102,7 +113,7 @@ public class FilteredCollection extends AbstractCollectionWrapper {
     Set<ValueSet> unfilteredValueSet = new HashSet<ValueSet>();
     unfilteredValueSet.add(super.loadValueSet(entity));
 
-    Set<ValueSet> filteredValueSet = entityFilterChain.filter(unfilteredValueSet);
+    Set<ValueSet> filteredValueSet = entityFilterChainMap.get(entity.getType()).filter(unfilteredValueSet);
     if(filteredValueSet.size() == 0) {
       throw new NoSuchValueSetException(entity);
     }
