@@ -10,6 +10,7 @@ import org.obiba.magma.support.ValueSetBean;
 import org.obiba.magma.xstream.converter.AttributeConverter;
 import org.obiba.magma.xstream.converter.CategoryConverter;
 import org.obiba.magma.xstream.converter.ValueConverter;
+import org.obiba.magma.xstream.converter.ValueSequenceConverter;
 import org.obiba.magma.xstream.converter.VariableConverter;
 import org.obiba.magma.xstream.mapper.MagmaMapper;
 
@@ -31,7 +32,9 @@ public class Io {
     xstream.registerConverter(new CategoryConverter(xstream.getMapper()));
     xstream.registerConverter(new AttributeConverter());
     xstream.registerConverter(new ValueConverter());
+    xstream.registerConverter(new ValueSequenceConverter());
     xstream.useAttributeFor(ValueType.class);
+    xstream.setMode(XStream.NO_REFERENCES);
 
     xstream.omitField(ValueSetBean.class, "collection");
     xstream.processAnnotations(XStreamValueSet.class);
@@ -46,11 +49,13 @@ public class Io {
 
     for(String entityType : collection.getEntityTypes()) {
       for(VariableEntity entity : collection.getEntities(entityType)) {
+        long start = System.currentTimeMillis();
         XStreamValueSet valueSet = new XStreamValueSet(collection.loadValueSet(entity));
         for(VariableValueSource source : collection.getVariableValueSources(entityType)) {
           valueSet.addValue(source);
         }
         xstream.toXML(valueSet, os);
+        System.err.println("Serialized entity in " + (System.currentTimeMillis() - start) / 1000 + "s");
       }
     }
   }

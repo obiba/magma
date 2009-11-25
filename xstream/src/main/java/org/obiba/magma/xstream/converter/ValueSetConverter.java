@@ -29,7 +29,7 @@ public class ValueSetConverter extends AbstractCollectionConverter {
 
   @Override
   public Object unmarshal(HierarchicalStreamReader reader, UnmarshallingContext context) {
-    return null;
+    throw new UnsupportedOperationException();
   }
 
 }

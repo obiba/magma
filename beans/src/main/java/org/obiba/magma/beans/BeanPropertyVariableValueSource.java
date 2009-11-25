@@ -9,12 +9,14 @@
  ******************************************************************************/
 package org.obiba.magma.beans;
 
+import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueSet;
 import org.obiba.magma.ValueType;
 import org.obiba.magma.Variable;
 import org.obiba.magma.VariableValueSource;
 import org.springframework.beans.BeanWrapper;
+import org.springframework.beans.InvalidPropertyException;
 import org.springframework.beans.NullValueInNestedPathException;
 import org.springframework.beans.PropertyAccessorFactory;
 import org.springframework.util.Assert;
@@ -84,6 +86,8 @@ public class BeanPropertyVariableValueSource implements VariableValueSource {
       return bw.getPropertyValue(propertyPath);
     } catch(NullValueInNestedPathException e) {
       return null;
+    } catch(InvalidPropertyException e) {
+      throw new MagmaRuntimeException("Invalid definition of variable " + getVariable().getName(), e);
     }
   }
 }

@@ -2,6 +2,7 @@ package org.obiba.magma.xstream.mapper;
 
 import org.obiba.magma.Attribute;
 import org.obiba.magma.Category;
+import org.obiba.magma.ValueSequence;
 import org.obiba.magma.Variable;
 
 import com.thoughtworks.xstream.mapper.Mapper;
@@ -25,6 +26,9 @@ public class MagmaMapper extends MapperWrapper {
     if(Category.class.isAssignableFrom(type)) {
       return "category";
     }
+    if(ValueSequence.class.equals(type)) {
+      return "sequence";
+    }
     return super.serializedClass(type);
   }
 
@@ -39,6 +43,9 @@ public class MagmaMapper extends MapperWrapper {
     }
     if("category".equals(elementName)) {
       return Category.class;
+    }
+    if("sequence".equals(elementName)) {
+      return ValueSequence.class;
     }
     return super.realClass(elementName);
   }
