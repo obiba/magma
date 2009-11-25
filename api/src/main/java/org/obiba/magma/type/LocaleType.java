@@ -55,4 +55,9 @@ public class LocaleType extends TextType {
     }
     return Factory.newValue(this, new Locale(string));
   }
+
+  @Override
+  public String toString(Value value) {
+    return value.getValue().toString();
+  }
 }
