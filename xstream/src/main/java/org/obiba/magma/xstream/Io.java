@@ -52,7 +52,11 @@ public class Io {
         long start = System.currentTimeMillis();
         XStreamValueSet valueSet = new XStreamValueSet(collection.loadValueSet(entity));
         for(VariableValueSource source : collection.getVariableValueSources(entityType)) {
-          valueSet.addValue(source);
+          try {
+            valueSet.addValue(source);
+          } catch(RuntimeException e) {
+            System.err.println(e.getMessage());
+          }
         }
         xstream.toXML(valueSet, os);
         System.err.println("Serialized entity in " + (System.currentTimeMillis() - start) / 1000 + "s");

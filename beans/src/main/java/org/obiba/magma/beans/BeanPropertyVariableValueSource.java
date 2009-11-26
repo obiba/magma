@@ -87,7 +87,7 @@ public class BeanPropertyVariableValueSource implements VariableValueSource {
     } catch(NullValueInNestedPathException e) {
       return null;
     } catch(InvalidPropertyException e) {
-      throw new MagmaRuntimeException("Invalid definition of variable " + getVariable().getName(), e);
+      throw new MagmaRuntimeException("Invalid definition of variable " + getVariable().getName() + ". Cannot obtain value for property '" + e.getPropertyName() + "' on bean of class " + e.getBeanClass(), e);
     }
   }
 }
