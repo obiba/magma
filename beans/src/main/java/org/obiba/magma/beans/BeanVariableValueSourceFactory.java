@@ -47,6 +47,9 @@ public class BeanVariableValueSourceFactory<T> {
   /** Maps property names to variable name */
   private BiMap<String, String> propertyNameToVariableName = HashBiMap.create();
 
+  /** Maps property names to property type */
+  private Map<String, Class<?>> propertyNameToPropertyType = new HashMap<String, Class<?>>();
+
   /** Maps mapped property names to property type */
   private Map<String, Class<?>> mappedPropertyType = new HashMap<String, Class<?>>();
 
@@ -77,6 +80,11 @@ public class BeanVariableValueSourceFactory<T> {
     this.propertyNameToVariableName = HashBiMap.create(propertyNameToVariableName);
   }
 
+  public void setPropertyNameToPropertyType(Map<String, Class<?>> propertyNameToPropertyType) {
+    Assert.notNull(propertyNameToPropertyType);
+    this.propertyNameToPropertyType = propertyNameToPropertyType;
+  }
+
   public void setMappedPropertyType(Map<String, Class<?>> mappedPropertyType) {
     Assert.notNull(mappedPropertyType);
     this.mappedPropertyType = mappedPropertyType;
@@ -105,6 +113,12 @@ public class BeanVariableValueSourceFactory<T> {
    * @return
    */
   protected Class<?> getPropertyType(String propertyName) {
+    // Has a property type been explicitly declared? If so, use it.
+    Class<?> declaredPropertyType = propertyNameToPropertyType.get(propertyName);
+    if(declaredPropertyType != null) {
+      return declaredPropertyType;
+    }
+
     Class<?> currentType = getBeanClass();
 
     String propertyPath = propertyName;
