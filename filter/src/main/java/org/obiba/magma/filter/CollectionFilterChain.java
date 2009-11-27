@@ -18,6 +18,10 @@ public class CollectionFilterChain<T> implements FilterChain<T> {
     this.entityType = entityType;
   }
 
+  public void setEntityType(String entityType) {
+    this.entityType = entityType;
+  }
+
   @Override
   public Set<T> filter(Set<T> unfilteredSet) {
 
