@@ -83,4 +83,8 @@ public class MagmaEngine {
     instance = null;
   }
 
+  public Set<Datasource> getDatasources() {
+    return datasources;
+  }
+
 }
