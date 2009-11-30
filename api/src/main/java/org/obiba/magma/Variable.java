@@ -102,7 +102,13 @@ public interface Variable extends AttributeAware {
     }
 
     public Builder addCategory(String name, String code, Set<Category.BuilderVisitor> visitors) {
-      variable.categories.add(Category.Builder.newCategory(name).withCode(code).build());
+      Category.Builder categoryBuilder = Category.Builder.newCategory(name).withCode(code);
+      if(visitors != null) {
+        for(Category.BuilderVisitor categoryVisitor : visitors) {
+          categoryBuilder.accept(categoryVisitor);
+        }
+      }
+      variable.categories.add(categoryBuilder.build());
       return this;
     }
 
@@ -156,8 +162,7 @@ public interface Variable extends AttributeAware {
      * Extends this builder to perform additional building capabilities for different variable nature. The specified
      * type must extend {@code Variable.Builder} and expose a public constructor that takes a single {@code
      * Variable.Builder} parameter; the constructor should call its super class' constructor with the same signature.
-     * <p/>
-     * An example class
+     * <p/> An example class
      * 
      * <pre>
      * public class BuilderExtension extends Variable.Builder {
