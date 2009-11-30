@@ -42,7 +42,9 @@ public class Io {
   }
 
   public void writeVariables(Collection collection, OutputStream os) {
-    xstream.toXML(collection.getVariables(), os);
+    for(String entityType : collection.getEntityTypes()) {
+      xstream.toXML(collection.getVariables(entityType), os);
+    }
   }
 
   public void writeEntities(Collection collection, OutputStream os) {

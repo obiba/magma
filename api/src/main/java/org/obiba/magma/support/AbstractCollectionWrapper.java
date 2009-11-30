@@ -53,8 +53,8 @@ public abstract class AbstractCollectionWrapper implements CollectionWrapper {
   }
 
   @Override
-  public Set<Variable> getVariables() {
-    return collection.getVariables();
+  public Set<Variable> getVariables(String entityType) {
+    return collection.getVariables(entityType);
   }
 
   @Override

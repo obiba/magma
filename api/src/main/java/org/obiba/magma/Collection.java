@@ -18,6 +18,6 @@ public interface Collection {
 
   public VariableValueSource getVariableValueSource(String entityType, String variableName) throws NoSuchVariableException;
 
-  public Set<Variable> getVariables();
+  public Set<Variable> getVariables(String entityType);
 
 }

@@ -26,7 +26,9 @@ public class CollectionPanel extends Panel {
   public CollectionPanel(String id, IModel<Collection> collectionModel) {
     super(id, collectionModel);
 
-    add(new DataView<Variable>("variables", new VariableDataProvider()) {
+    // TODO: Make one view per entityType
+    String entityType = getModel().getObject().getEntityTypes().iterator().next();
+    add(new DataView<Variable>("variables", new VariableDataProvider(entityType)) {
 
       private static final long serialVersionUID = -8601452436304391332L;
 
@@ -112,8 +114,10 @@ public class CollectionPanel extends Panel {
 
     private static final long serialVersionUID = -6929361212788032632L;
 
-    public VariableDataProvider() {
+    private String entityType;
 
+    public VariableDataProvider(String entityType) {
+      this.entityType = entityType;
     }
 
     @Override
@@ -122,7 +126,7 @@ public class CollectionPanel extends Panel {
 
     @Override
     public Iterator<? extends Variable> iterator(int arg0, int arg1) {
-      return ImmutableList.copyOf(getModel().getObject().getVariables()).subList(arg0, arg1).iterator();
+      return ImmutableList.copyOf(getModel().getObject().getVariables(entityType)).subList(arg0, arg1).iterator();
     }
 
     @Override
@@ -142,7 +146,7 @@ public class CollectionPanel extends Panel {
 
     @Override
     public int size() {
-      return getModel().getObject().getVariables().size();
+      return getModel().getObject().getVariables(entityType).size();
     }
 
   }

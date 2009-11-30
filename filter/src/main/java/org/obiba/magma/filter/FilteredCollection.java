@@ -15,6 +15,10 @@ import org.obiba.magma.VariableEntity;
 import org.obiba.magma.VariableValueSource;
 import org.obiba.magma.support.AbstractCollectionWrapper;
 
+import com.google.common.base.Function;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Iterables;
+
 public class FilteredCollection extends AbstractCollectionWrapper {
 
   private Map<String, CollectionFilterChain<ValueSet>> entityFilterChainMap;
@@ -75,20 +79,13 @@ public class FilteredCollection extends AbstractCollectionWrapper {
   }
 
   @Override
-  public Set<Variable> getVariables() {
-    Set<String> entityTypes = getEntityTypes();
-
-    Set<VariableValueSource> filteredValueSources = new HashSet<VariableValueSource>();
-    for(String entityType : entityTypes) {
-      filteredValueSources.addAll(getVariableValueSources(entityType));
-    }
-
-    Set<Variable> filteredVariables = new HashSet<Variable>();
-    for(VariableValueSource variableValueSource : filteredValueSources) {
-      filteredVariables.add(variableValueSource.getVariable());
-    }
-
-    return filteredVariables;
+  public Set<Variable> getVariables(String entityType) {
+    return ImmutableSet.copyOf(Iterables.transform(getVariableValueSources(entityType), new Function<VariableValueSource, Variable>() {
+      @Override
+      public Variable apply(VariableValueSource from) {
+        return from.getVariable();
+      }
+    }));
   }
 
   @Override
@@ -101,7 +98,7 @@ public class FilteredCollection extends AbstractCollectionWrapper {
       throw new NoSuchVariableException(getName(), variableName);
     }
 
-    return (VariableValueSource) filteredValueSource.toArray()[0];
+    return filteredValueSource.iterator().next();
 
   }
 
@@ -122,7 +119,7 @@ public class FilteredCollection extends AbstractCollectionWrapper {
       throw new NoSuchValueSetException(entity);
     }
 
-    return (ValueSet) filteredValueSet.toArray()[0];
+    return filteredValueSet.iterator().next();
   }
 
 }

@@ -98,8 +98,8 @@ public class CollectionBean implements Collection, Initialisable {
   }
 
   @Override
-  public Set<Variable> getVariables() {
-    return ImmutableSet.copyOf(Iterables.transform(variableSources, new Function<VariableValueSource, Variable>() {
+  public Set<Variable> getVariables(String entityType) {
+    return ImmutableSet.copyOf(Iterables.transform(getVariableValueSources(entityType), new Function<VariableValueSource, Variable>() {
       @Override
       public Variable apply(VariableValueSource from) {
         return from.getVariable();
