@@ -42,7 +42,7 @@ public class ValueTypeFactory {
       return Iterables.find(types, new Predicate<ValueType>() {
         @Override
         public boolean apply(ValueType input) {
-          return input.getName().equals(name);
+          return input.getName().equalsIgnoreCase(name);
         }
       });
     } catch(NoSuchElementException e) {
