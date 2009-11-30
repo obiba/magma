@@ -54,7 +54,11 @@ public class FilteredCollection extends AbstractCollectionWrapper {
 
     Set<ValueSet> filteredSet = new HashSet<ValueSet>();
     for(VariableEntity variableEntity : entities) {
-      filteredSet.add(loadValueSet(variableEntity));
+      try {
+        filteredSet.add(loadValueSet(variableEntity));
+      } catch(NoSuchValueSetException e) {
+        // Do nothing. If the ValueSet doesn't exist, we wont add it.
+      }
     }
 
     Set<VariableEntity> filteredEntities = new HashSet<VariableEntity>();
