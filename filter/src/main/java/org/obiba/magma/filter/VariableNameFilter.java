@@ -3,6 +3,7 @@ package org.obiba.magma.filter;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.obiba.magma.Initialisable;
 import org.obiba.magma.VariableValueSource;
 
 import com.thoughtworks.xstream.annotations.XStreamAlias;
@@ -10,7 +11,7 @@ import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
 import com.thoughtworks.xstream.annotations.XStreamOmitField;
 
 @XStreamAlias("variableName")
-public class VariableNameFilter extends AbstractFilter<VariableValueSource> {
+public class VariableNameFilter extends AbstractFilter<VariableValueSource> implements Initialisable {
 
   @XStreamAsAttribute
   private String prefix;
@@ -21,11 +22,21 @@ public class VariableNameFilter extends AbstractFilter<VariableValueSource> {
   @XStreamOmitField
   private Pattern matchPattern;
 
+  @XStreamOmitField
+  private boolean initialised;
+
   VariableNameFilter(String prefix, String match) {
-    validateArguments(prefix, match);
     this.prefix = prefix;
     this.match = match;
+    initialise();
+  }
+
+  @Override
+  public void initialise() {
+    if(initialised) return;
+    validateArguments(prefix, match);
     if(match != null) matchPattern = Pattern.compile(match);
+    initialised = true;
   }
 
   private void validateArguments(String prefix, String match) {
@@ -35,6 +46,7 @@ public class VariableNameFilter extends AbstractFilter<VariableValueSource> {
 
   @Override
   protected boolean runFilter(VariableValueSource item) {
+    initialise();
     if(prefix != null) {
       if(item.getVariable().getName().startsWith(prefix)) return true;
     } else if(match != null) {
@@ -43,12 +55,6 @@ public class VariableNameFilter extends AbstractFilter<VariableValueSource> {
     }
 
     return false;
-  }
-
-  private Object readResolve() {
-    validateArguments(prefix, match);
-    validateType();
-    return this;
   }
 
   public static class Builder extends AbstractFilter.Builder {
@@ -74,7 +80,6 @@ public class VariableNameFilter extends AbstractFilter<VariableValueSource> {
     public VariableNameFilter build() {
       VariableNameFilter filter = new VariableNameFilter(prefix, match);
       filter.setType(type);
-      filter.validateType();
       return filter;
     }
 
@@ -90,4 +95,5 @@ public class VariableNameFilter extends AbstractFilter<VariableValueSource> {
       return this;
     }
   }
+
 }

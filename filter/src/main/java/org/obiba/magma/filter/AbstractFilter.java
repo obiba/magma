@@ -4,21 +4,24 @@ import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
 
 public abstract class AbstractFilter<T> implements Filter<T> {
 
-  protected static final String EXCLUDE = "exclude";
-
-  protected static final String INCLUDE = "include";
+  protected static enum Type {
+    /** Exclude item from the result set if filter successful. */
+    EXCLUDE,
+    /** Include item in the result set if filter successful. */
+    INCLUDE
+  }
 
   @XStreamAsAttribute
-  protected String type;
+  private Type type;
 
   protected abstract boolean runFilter(T item);
 
   @Override
   public StateEnvelope<T> doIt(StateEnvelope<T> stateEnvelope) {
-    if(type == null) type = EXCLUDE;
-    if(type.equalsIgnoreCase(EXCLUDE) && stateEnvelope.getState().equals(FilterState.OUT)) {
+    if(type == null) type = Type.EXCLUDE;
+    if(isExclude() && stateEnvelope.isState(FilterState.OUT)) {
       return stateEnvelope;
-    } else if(type.equalsIgnoreCase(INCLUDE) && stateEnvelope.getState().equals(FilterState.IN)) {
+    } else if(isInclude() && stateEnvelope.isState(FilterState.IN)) {
       return stateEnvelope;
     } else {
       return updateStateEnvelope(stateEnvelope);
@@ -28,41 +31,38 @@ public abstract class AbstractFilter<T> implements Filter<T> {
 
   private StateEnvelope<T> updateStateEnvelope(StateEnvelope<T> stateEnvelope) {
     if(runFilter(stateEnvelope.getItem())) {
-      if(type.equalsIgnoreCase(EXCLUDE)) {
+      if(isExclude()) {
         stateEnvelope.setState(FilterState.OUT);
-      } else if(type.equalsIgnoreCase(INCLUDE)) {
+      } else if(isInclude()) {
         stateEnvelope.setState(FilterState.IN);
       }
     }
     return stateEnvelope;
   }
 
-  /**
-   * Ensures the filter type (include or exclude) has been set correctly.
-   * @throws IllegalArgumentException When the type has not been set correctly.
-   */
-  protected void validateType() {
-    String errorMessage = "The argument [type] must have the value [include] or [exclude].";
-    if(type == null) throw new IllegalArgumentException(errorMessage);
-    if(!type.equalsIgnoreCase(EXCLUDE) && !type.equalsIgnoreCase(INCLUDE)) throw new IllegalArgumentException(errorMessage);
+  protected void setType(Type type) {
+    this.type = type;
   }
 
+  protected boolean isInclude() {
+    return type == Type.INCLUDE;
+  }
 
-  protected void setType(String type) {
-    this.type = type;
+  protected boolean isExclude() {
+    return type == Type.EXCLUDE;
   }
 
   public static class Builder {
 
-    protected String type;
+    protected Type type;
 
     public Builder include() {
-      this.type = INCLUDE;
+      this.type = Type.INCLUDE;
       return this;
     }
 
     public Builder exclude() {
-      this.type = EXCLUDE;
+      this.type = Type.EXCLUDE;
       return this;
     }
   }

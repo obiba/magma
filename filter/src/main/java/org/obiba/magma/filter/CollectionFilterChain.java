@@ -33,9 +33,9 @@ public class CollectionFilterChain<T> implements FilterChain<T> {
         envelope = filter.doIt(envelope);
       }
 
-      if(envelope.getState().equals(FilterState.IN)) {
+      if(envelope.isState(FilterState.IN)) {
         filteredSet.add(item);
-      } else if(envelope.getState().equals(FilterState.OUT)) {
+      } else if(envelope.isState(FilterState.OUT)) {
         filteredSet.remove(item);
       }
     }

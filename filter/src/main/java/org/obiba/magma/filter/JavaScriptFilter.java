@@ -1,22 +1,42 @@
 package org.obiba.magma.filter;
 
+import org.obiba.magma.Initialisable;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueSet;
 import org.obiba.magma.js.JavascriptValueSource;
 import org.obiba.magma.type.BooleanType;
 
 import com.thoughtworks.xstream.annotations.XStreamAlias;
+import com.thoughtworks.xstream.annotations.XStreamOmitField;
 
 @XStreamAlias("script")
-public class JavaScriptFilter extends AbstractFilter<ValueSet> {
+public class JavaScriptFilter extends AbstractFilter<ValueSet> implements Initialisable {
 
   private static final String SCRIPT_NAME = "JAVASCRIPT_FILTER_SCRIPT";
 
   private String javascript;
 
+  @XStreamOmitField
+  private JavascriptValueSource javascriptSource;
+
+  @XStreamOmitField
+  private boolean initialised;
+
   JavaScriptFilter(String javascript) {
-    validateArguments(javascript);
     this.javascript = javascript;
+    initialise();
+  }
+
+  @Override
+  public void initialise() {
+    if(initialised) return;
+    validateArguments(javascript);
+    javascriptSource = new JavascriptValueSource();
+    javascriptSource.setScript(javascript);
+    javascriptSource.setScriptName(SCRIPT_NAME);
+    javascriptSource.setValueType(BooleanType.get());
+    javascriptSource.initialise();
+    initialised = true;
   }
 
   private void validateArguments(String javascript) {
@@ -25,20 +45,10 @@ public class JavaScriptFilter extends AbstractFilter<ValueSet> {
 
   @Override
   protected boolean runFilter(ValueSet item) {
-    JavascriptValueSource javascriptSource = new JavascriptValueSource();
-    javascriptSource.setScript(javascript);
-    javascriptSource.setScriptName(SCRIPT_NAME);
-    javascriptSource.setValueType(BooleanType.get());
-    javascriptSource.initialise();
+    initialise();
     Value value = javascriptSource.getValue(item);
     Boolean booleanValue = (Boolean) value.getValue();
     return booleanValue.booleanValue();
-  }
-
-  private Object readResolve() {
-    validateArguments(javascript);
-    validateType();
-    return this;
   }
 
   public static class Builder extends AbstractFilter.Builder {
@@ -57,7 +67,6 @@ public class JavaScriptFilter extends AbstractFilter<ValueSet> {
     public JavaScriptFilter build() {
       JavaScriptFilter filter = new JavaScriptFilter(javascript);
       filter.setType(type);
-      filter.validateType();
       return filter;
     }
 
@@ -73,4 +82,5 @@ public class JavaScriptFilter extends AbstractFilter<ValueSet> {
       return this;
     }
   }
+
 }

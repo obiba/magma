@@ -1,22 +1,34 @@
 package org.obiba.magma.filter;
 
 import org.obiba.magma.Attribute;
+import org.obiba.magma.Initialisable;
 import org.obiba.magma.VariableValueSource;
 
 import com.thoughtworks.xstream.annotations.XStreamAlias;
+import com.thoughtworks.xstream.annotations.XStreamOmitField;
 
 @XStreamAlias("variableAttribute")
-public class VariableAttributeFilter extends AbstractFilter<VariableValueSource> {
+public class VariableAttributeFilter extends AbstractFilter<VariableValueSource> implements Initialisable {
 
   @XStreamAlias("attribute")
   private String attributeName;
 
   private String value;
 
+  @XStreamOmitField
+  private boolean initialised;
+
   protected VariableAttributeFilter(String attributeName, String value) {
-    validateArguments(attributeName, value);
     this.attributeName = attributeName;
     this.value = value;
+    initialise();
+  }
+
+  @Override
+  public void initialise() {
+    if(initialised) return;
+    validateArguments(attributeName, value);
+    initialised = true;
   }
 
   private void validateArguments(String attributeName, String value) {
@@ -25,18 +37,13 @@ public class VariableAttributeFilter extends AbstractFilter<VariableValueSource>
 
   @Override
   protected boolean runFilter(VariableValueSource item) {
+    initialise();
     for(Attribute attribute : item.getVariable().getAttributes()) {
       if(attribute.getName().equalsIgnoreCase(attributeName)) {
         if(attribute.getValue().getValue().equals(value)) return true;
       }
     }
     return false;
-  }
-
-  private Object readResolve() {
-    validateArguments(attributeName, value);
-    validateType();
-    return this;
   }
 
   public static class Builder extends AbstractFilter.Builder {
@@ -62,7 +69,6 @@ public class VariableAttributeFilter extends AbstractFilter<VariableValueSource>
     public VariableAttributeFilter build() {
       VariableAttributeFilter filter = new VariableAttributeFilter(attributeName, value);
       filter.setType(type);
-      filter.validateType();
       return filter;
     }
 
@@ -78,4 +84,5 @@ public class VariableAttributeFilter extends AbstractFilter<VariableValueSource>
       return this;
     }
   }
+
 }
