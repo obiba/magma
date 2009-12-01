@@ -17,30 +17,30 @@ import com.thoughtworks.xstream.mapper.Mapper;
  * Resulting XML:
  * 
  * <pre>
- * &lt;variable collection="onyx-basline" name="HQ.SMOKER" valueType="text" entityType="Participant"&gt;
+ * &lt;variable collection=&quot;onyx-basline&quot; name=&quot;HQ.SMOKER&quot; valueType=&quot;text&quot; entityType=&quot;Participant&quot;&gt;
  *   &lt;attributes&gt;
- *     &lt;attribute name="label" valueType="text" locale="en"&gt;
+ *     &lt;attribute name=&quot;label&quot; valueType=&quot;text&quot; locale=&quot;en&quot;&gt;
  *       &lt;value&gt;Do you smoke?&lt;/value&gt;
- *     &lt;/attribute>
- *     &lt;attribute name="label" valueType="text" locale="fr"&gt;
+ *     &lt;/attribute&gt;
+ *     &lt;attribute name=&quot;label&quot; valueType=&quot;text&quot; locale=&quot;fr&quot;&gt;
  *       &lt;value&gt;Fumez-vous?&lt;/value&gt;
- *     &lt;/attribute>
+ *     &lt;/attribute&gt;
  *     ...
  *   &lt;/attributes&gt;
  *   &lt;categories&gt;
- *     &lt;category name="YES" code="1"&gt;
+ *     &lt;category name=&quot;YES&quot; code=&quot;1&quot;&gt;
  *       &lt;attributes&gt;
- *         &lt;attribute name="label" valueType="text" locale="en"&gt;
+ *         &lt;attribute name=&quot;label&quot; valueType=&quot;text&quot; locale=&quot;en&quot;&gt;
  *           &lt;value&gt;Yes&lt;/value&gt;
- *         &lt;/attribute>
- *         &lt;attribute name="label" valueType="text" locale="fr"&gt;
+ *         &lt;/attribute&gt;
+ *         &lt;attribute name=&quot;label&quot; valueType=&quot;text&quot; locale=&quot;fr&quot;&gt;
  *           &lt;value&gt;Oui&lt;/value&gt;
- *         &lt;/attribute>
+ *         &lt;/attribute&gt;
  *       &lt;/attributes&gt;
  *     &lt;/category&gt;
  *     ...
  *   &lt;/categories&gt;
- * &lt;/variable>
+ * &lt;/variable&gt;
  * </pre>
  */
 public class VariableConverter extends AbstractAttributeAwareConverter {
@@ -60,6 +60,15 @@ public class VariableConverter extends AbstractAttributeAwareConverter {
     writer.addAttribute("collection", variable.getCollection());
     writer.addAttribute("valueType", variable.getValueType().getName());
     writer.addAttribute("entityType", variable.getEntityType());
+
+    if(variable.getUnit() != null) {
+      writer.addAttribute("unit", variable.getUnit());
+    }
+
+    if(variable.getMimeType() != null) {
+      writer.addAttribute("mimeType", variable.getMimeType());
+    }
+
     if(variable.isRepeatable()) {
       writer.addAttribute("repeatable", "true");
       if(variable.getOccurrenceGroup() != null) {
