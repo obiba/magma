@@ -4,6 +4,6 @@ import java.util.Set;
 
 public interface VariableValueSourceFactory {
 
-  public Set<VariableValueSource> createSources(String collection);
+  public Set<VariableValueSource> createSources(String valueTableName);
 
 }
