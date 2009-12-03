@@ -16,7 +16,7 @@ public abstract class AbstractDatasource implements Datasource {
 
   private String type;
 
-  private Set<ValueTable> collections = new HashSet<ValueTable>();
+  private Set<ValueTable> valueTables = new HashSet<ValueTable>();
 
   @Override
   public String getName() {
@@ -30,7 +30,7 @@ public abstract class AbstractDatasource implements Datasource {
 
   @Override
   public Set<ValueTable> getValueTables() {
-    return Collections.unmodifiableSet(collections);
+    return Collections.unmodifiableSet(valueTables);
   }
 
   @Override
@@ -42,7 +42,7 @@ public abstract class AbstractDatasource implements Datasource {
   public void initialise() {
 
     for(String collection : getValueTableNames()) {
-      collections.add(initialiseValueTable(collection));
+      valueTables.add(initialiseValueTable(collection));
     }
 
     for(Initialisable initialisable : Iterables.filter(getValueTables(), Initialisable.class)) {
