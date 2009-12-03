@@ -7,9 +7,9 @@ import org.easymock.EasyMock;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.obiba.magma.Collection;
 import org.obiba.magma.MagmaEngine;
 import org.obiba.magma.ValueSet;
+import org.obiba.magma.ValueTable;
 import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.VariableValueSource;
@@ -66,12 +66,12 @@ public class JavaScriptFilterTest {
     EasyMock.expect(mockSource.getVariable()).andReturn(variable).anyTimes();
     EasyMock.expect(mockSource.getValue((ValueSet) EasyMock.anyObject())).andReturn(BooleanType.get().valueOf("TRUE")).anyTimes();
 
-    Collection collectionMock = EasyMock.createMock(Collection.class);
-    ValueSet valueSet = new ValueSetBean(collectionMock, new VariableEntityBean("Participant", "1234"));
-    EasyMock.expect(collectionMock.getName()).andReturn("collectionName").anyTimes();
-    EasyMock.expect(collectionMock.getVariableValueSource("Participant", "Admin.Interview.exported")).andReturn(mockSource).anyTimes();
-    EasyMock.expect(collectionMock.loadValueSet((VariableEntity) EasyMock.anyObject())).andReturn(valueSet).anyTimes();
-    EasyMock.replay(mockSource, collectionMock);
+    ValueTable tableMock = EasyMock.createMock(ValueTable.class);
+    ValueSet valueSet = new ValueSetBean(tableMock, new VariableEntityBean("Participant", "1234"));
+    EasyMock.expect(tableMock.getName()).andReturn("collectionName").anyTimes();
+    EasyMock.expect(tableMock.getVariableValueSource("Admin.Interview.exported")).andReturn(mockSource).anyTimes();
+    EasyMock.expect(tableMock.getValueSet((VariableEntity) EasyMock.anyObject())).andReturn(valueSet).anyTimes();
+    EasyMock.replay(mockSource, tableMock);
 
     assertThat(filter.runFilter(valueSet), is(true));
   }
@@ -86,12 +86,12 @@ public class JavaScriptFilterTest {
     EasyMock.expect(mockSource.getVariable()).andReturn(variable).anyTimes();
     EasyMock.expect(mockSource.getValue((ValueSet) EasyMock.anyObject())).andReturn(BooleanType.get().valueOf("TRUE")).anyTimes();
 
-    Collection collectionMock = EasyMock.createMock(Collection.class);
-    ValueSet valueSet = new ValueSetBean(collectionMock, new VariableEntityBean("Participant", "1234"));
-    EasyMock.expect(collectionMock.getName()).andReturn("collectionName").anyTimes();
-    EasyMock.expect(collectionMock.getVariableValueSource("Participant", "Admin.Interview.exported")).andReturn(mockSource).anyTimes();
-    EasyMock.expect(collectionMock.loadValueSet((VariableEntity) EasyMock.anyObject())).andReturn(valueSet).anyTimes();
-    EasyMock.replay(mockSource, collectionMock);
+    ValueTable tableMock = EasyMock.createMock(ValueTable.class);
+    ValueSet valueSet = new ValueSetBean(tableMock, new VariableEntityBean("Participant", "1234"));
+    EasyMock.expect(tableMock.getName()).andReturn("collectionName").anyTimes();
+    EasyMock.expect(tableMock.getVariableValueSource("Admin.Interview.exported")).andReturn(mockSource).anyTimes();
+    EasyMock.expect(tableMock.getValueSet((VariableEntity) EasyMock.anyObject())).andReturn(valueSet).anyTimes();
+    EasyMock.replay(mockSource, tableMock);
 
     assertThat(filter.runFilter(valueSet), is(false));
   }
@@ -106,12 +106,12 @@ public class JavaScriptFilterTest {
     EasyMock.expect(mockSource.getVariable()).andReturn(variable).anyTimes();
     EasyMock.expect(mockSource.getValue((ValueSet) EasyMock.anyObject())).andReturn(TextType.get().valueOf("CLOSED")).anyTimes();
 
-    Collection collectionMock = EasyMock.createMock(Collection.class);
-    ValueSet valueSet = new ValueSetBean(collectionMock, new VariableEntityBean("Participant", "1234"));
-    EasyMock.expect(collectionMock.getName()).andReturn("collectionName").anyTimes();
-    EasyMock.expect(collectionMock.getVariableValueSource("Participant", "Participant.Interview.status")).andReturn(mockSource).anyTimes();
-    EasyMock.expect(collectionMock.loadValueSet((VariableEntity) EasyMock.anyObject())).andReturn(valueSet).anyTimes();
-    EasyMock.replay(mockSource, collectionMock);
+    ValueTable tableMock = EasyMock.createMock(ValueTable.class);
+    ValueSet valueSet = new ValueSetBean(tableMock, new VariableEntityBean("Participant", "1234"));
+    EasyMock.expect(tableMock.getName()).andReturn("collectionName").anyTimes();
+    EasyMock.expect(tableMock.getVariableValueSource("Participant.Interview.status")).andReturn(mockSource).anyTimes();
+    EasyMock.expect(tableMock.getValueSet((VariableEntity) EasyMock.anyObject())).andReturn(valueSet).anyTimes();
+    EasyMock.replay(mockSource, tableMock);
 
     assertThat(filter.runFilter(valueSet), is(true));
   }
@@ -126,12 +126,12 @@ public class JavaScriptFilterTest {
     EasyMock.expect(mockSource.getVariable()).andReturn(variable).anyTimes();
     EasyMock.expect(mockSource.getValue((ValueSet) EasyMock.anyObject())).andReturn(TextType.get().valueOf("IN_PROGRESS")).anyTimes();
 
-    Collection collectionMock = EasyMock.createMock(Collection.class);
-    ValueSet valueSet = new ValueSetBean(collectionMock, new VariableEntityBean("Participant", "1234"));
-    EasyMock.expect(collectionMock.getName()).andReturn("collectionName").anyTimes();
-    EasyMock.expect(collectionMock.getVariableValueSource("Participant", "Participant.Interview.status")).andReturn(mockSource).anyTimes();
-    EasyMock.expect(collectionMock.loadValueSet((VariableEntity) EasyMock.anyObject())).andReturn(valueSet).anyTimes();
-    EasyMock.replay(mockSource, collectionMock);
+    ValueTable tableMock = EasyMock.createMock(ValueTable.class);
+    ValueSet valueSet = new ValueSetBean(tableMock, new VariableEntityBean("Participant", "1234"));
+    EasyMock.expect(tableMock.getName()).andReturn("collectionName").anyTimes();
+    EasyMock.expect(tableMock.getVariableValueSource("Participant.Interview.status")).andReturn(mockSource).anyTimes();
+    EasyMock.expect(tableMock.getValueSet((VariableEntity) EasyMock.anyObject())).andReturn(valueSet).anyTimes();
+    EasyMock.replay(mockSource, tableMock);
 
     assertThat(filter.runFilter(valueSet), is(false));
   }
@@ -146,12 +146,12 @@ public class JavaScriptFilterTest {
     EasyMock.expect(mockSource.getVariable()).andReturn(variable).anyTimes();
     EasyMock.expect(mockSource.getValue((ValueSet) EasyMock.anyObject())).andReturn(TextType.get().valueOf("IN_PROGRESS")).anyTimes();
 
-    Collection collectionMock = EasyMock.createMock(Collection.class);
-    ValueSet valueSet = new ValueSetBean(collectionMock, new VariableEntityBean("Participant", "1234"));
-    EasyMock.expect(collectionMock.getName()).andReturn("collectionName").anyTimes();
-    EasyMock.expect(collectionMock.getVariableValueSource("Participant", "Participant.Interview.status")).andReturn(mockSource).anyTimes();
-    EasyMock.expect(collectionMock.loadValueSet((VariableEntity) EasyMock.anyObject())).andReturn(valueSet).anyTimes();
-    EasyMock.replay(mockSource, collectionMock);
+    ValueTable tableMock = EasyMock.createMock(ValueTable.class);
+    ValueSet valueSet = new ValueSetBean(tableMock, new VariableEntityBean("Participant", "1234"));
+    EasyMock.expect(tableMock.getName()).andReturn("collectionName").anyTimes();
+    EasyMock.expect(tableMock.getVariableValueSource("Participant.Interview.status")).andReturn(mockSource).anyTimes();
+    EasyMock.expect(tableMock.getValueSet((VariableEntity) EasyMock.anyObject())).andReturn(valueSet).anyTimes();
+    EasyMock.replay(mockSource, tableMock);
 
     assertThat(filter.runFilter(valueSet), is(true));
   }
@@ -166,12 +166,12 @@ public class JavaScriptFilterTest {
     EasyMock.expect(mockSource.getVariable()).andReturn(variable).anyTimes();
     EasyMock.expect(mockSource.getValue((ValueSet) EasyMock.anyObject())).andReturn(TextType.get().valueOf("IN_PROGRESS")).anyTimes();
 
-    Collection collectionMock = EasyMock.createMock(Collection.class);
-    ValueSet valueSet = new ValueSetBean(collectionMock, new VariableEntityBean("Participant", "1234"));
-    EasyMock.expect(collectionMock.getName()).andReturn("collectionName").anyTimes();
-    EasyMock.expect(collectionMock.getVariableValueSource("Participant", "Participant.Interview.status")).andReturn(mockSource).anyTimes();
-    EasyMock.expect(collectionMock.loadValueSet((VariableEntity) EasyMock.anyObject())).andReturn(valueSet).anyTimes();
-    EasyMock.replay(mockSource, collectionMock);
+    ValueTable tableMock = EasyMock.createMock(ValueTable.class);
+    ValueSet valueSet = new ValueSetBean(tableMock, new VariableEntityBean("Participant", "1234"));
+    EasyMock.expect(tableMock.getName()).andReturn("collectionName").anyTimes();
+    EasyMock.expect(tableMock.getVariableValueSource("Participant.Interview.status")).andReturn(mockSource).anyTimes();
+    EasyMock.expect(tableMock.getValueSet((VariableEntity) EasyMock.anyObject())).andReturn(valueSet).anyTimes();
+    EasyMock.replay(mockSource, tableMock);
 
     assertThat(filter.runFilter(valueSet), is(false));
   }

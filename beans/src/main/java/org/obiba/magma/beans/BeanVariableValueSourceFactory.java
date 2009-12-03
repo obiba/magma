@@ -20,6 +20,7 @@ import java.util.Set;
 import org.obiba.magma.ValueType;
 import org.obiba.magma.Variable;
 import org.obiba.magma.VariableValueSource;
+import org.obiba.magma.VariableValueSourceFactory;
 import org.obiba.magma.Variable.BuilderVisitor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.PropertyAccessorUtils;
@@ -33,7 +34,7 @@ import com.google.common.collect.Iterables;
 /**
  * 
  */
-public class BeanVariableValueSourceFactory<T> {
+public class BeanVariableValueSourceFactory<T> implements VariableValueSourceFactory {
 
   private Class<T> beanClass;
 
@@ -99,9 +100,9 @@ public class BeanVariableValueSourceFactory<T> {
     this.occurrenceGroup = occurrenceGroup;
   }
 
-  public Set<VariableValueSource> createSources(String collection, ValueSetBeanResolver resolver) {
+  public Set<VariableValueSource> createSources(String collection) {
     if(sources == null) {
-      doBuildVariables(collection, resolver);
+      doBuildVariables(collection);
     }
     return sources;
   }
@@ -219,14 +220,14 @@ public class BeanVariableValueSourceFactory<T> {
    * Builds the {@code Variable} that this provider supports and also the {@code VariableEntityDataSource} instances for
    * each variable.
    */
-  protected synchronized void doBuildVariables(String collection, ValueSetBeanResolver resolver) {
+  protected synchronized void doBuildVariables(String collection) {
     sources = new HashSet<VariableValueSource>();
     for(String propertyPath : properties) {
       Class<?> propertyType = getPropertyType(propertyPath);
       if(propertyType == null) {
         throw new IllegalArgumentException("Invalid property path'" + propertyPath + "' for type " + getBeanClass().getName());
       }
-      sources.add(new BeanPropertyVariableValueSource(doBuildVariable(collection, propertyType, lookupVariableName(propertyPath)), beanClass, resolver, propertyPath));
+      sources.add(new BeanPropertyVariableValueSource(doBuildVariable(collection, propertyType, lookupVariableName(propertyPath)), beanClass, propertyPath));
     }
   }
 

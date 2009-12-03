@@ -33,19 +33,15 @@ public class BeanPropertyVariableValueSource implements VariableValueSource {
 
   private Class<?> beanClass;
 
-  private ValueSetBeanResolver resolver;
-
   private String propertyPath;
 
-  public BeanPropertyVariableValueSource(Variable variable, Class<?> beanClass, ValueSetBeanResolver resolver, String propertyPath) {
+  public BeanPropertyVariableValueSource(Variable variable, Class<?> beanClass, String propertyPath) {
     Assert.notNull(variable, "variable cannot be null");
     Assert.notNull(beanClass, "beanClass cannot be null");
-    Assert.notNull(resolver, "resolver cannot be null");
     Assert.notNull(propertyPath, "propertyPath cannot be null");
 
     this.variable = variable;
     this.beanClass = beanClass;
-    this.resolver = resolver;
     this.propertyPath = propertyPath;
   }
 
@@ -59,7 +55,7 @@ public class BeanPropertyVariableValueSource implements VariableValueSource {
   }
 
   public Value getValue(ValueSet valueSet) {
-    Object bean = resolver.resolve(beanClass, valueSet, variable);
+    Object bean = ((BeanValueSet) valueSet).resolve(beanClass, valueSet, variable);
 
     if(bean == null) {
       return variable.isRepeatable() ? getValueType().nullSequence() : getValueType().nullValue();

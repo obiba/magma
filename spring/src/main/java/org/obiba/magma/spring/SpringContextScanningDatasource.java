@@ -11,53 +11,67 @@ package org.obiba.magma.spring;
 
 import java.util.Set;
 
-import org.obiba.magma.Collection;
-import org.obiba.magma.ValueSetProvider;
-import org.obiba.magma.VariableValueSourceFactory;
-import org.obiba.magma.support.AbstractDatasource;
-import org.obiba.magma.support.CollectionBuilder;
+import org.obiba.magma.Datasource;
+import org.obiba.magma.Initialisable;
+import org.obiba.magma.ValueTable;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Sets;
 
 /**
  *
  */
-public class SpringContextScanningDatasource extends AbstractDatasource implements ApplicationContextAware {
+public class SpringContextScanningDatasource implements Datasource, ApplicationContextAware {
 
   private ApplicationContext applicationContext;
 
-  private String collectionName;
+  private String name;
+
+  private Set<ValueTable> valueTables;
 
   public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
     this.applicationContext = applicationContext;
   }
 
-  public void setCollectionName(String collectionName) {
-    this.collectionName = collectionName;
-  }
-
-  public String getCollectionName() {
-    return collectionName;
+  public void setName(String name) {
+    this.name = name;
   }
 
   @Override
-  protected Set<String> getCollectionNames() {
-    return ImmutableSet.of(collectionName);
+  public String getName() {
+    return name;
   }
 
   @Override
-  @SuppressWarnings("unchecked")
-  protected Collection initialiseCollection(String collection) {
-    CollectionBuilder builder = new CollectionBuilder(getCollectionName());
-    for(ValueSetProvider provider : (Iterable<ValueSetProvider>) applicationContext.getBeansOfType(ValueSetProvider.class).values()) {
-      builder.add(provider);
-    }
-    for(VariableValueSourceFactory factory : (Iterable<VariableValueSourceFactory>) applicationContext.getBeansOfType(VariableValueSourceFactory.class).values()) {
-      builder.add(factory.createSources(getCollectionName()));
-    }
-    return builder.build(this);
+  public String getType() {
+    return "spring-context";
   }
+
+  @Override
+  public ValueTable getValueTable(String name) {
+    return null;
+  }
+
+  @Override
+  public Set<ValueTable> getValueTables() {
+    return ImmutableSet.copyOf(valueTables);
+  }
+
+  @Override
+  public void initialise() {
+    valueTables = Sets.newHashSet();
+    for(ValueTableFactoryBean factory : (Iterable<ValueTableFactoryBean>) applicationContext.getBeansOfType(ValueTableFactoryBean.class).values()) {
+      valueTables.add(factory.buildValueTable(this));
+    }
+
+    for(Initialisable init : Iterables.filter(valueTables, Initialisable.class)) {
+      init.initialise();
+    }
+    
+  }
+
 }

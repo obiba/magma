@@ -28,8 +28,8 @@ public interface Variable extends AttributeAware {
 
     private VariableBean variable = new VariableBean();
 
-    public Builder(String collection, String name, ValueType type, String entityType) {
-      variable.collection = collection;
+    public Builder(String table, String name, ValueType type, String entityType) {
+      variable.valueTableName = table;
       variable.name = name;
       variable.valueType = type;
       variable.entityType = entityType;
@@ -162,7 +162,8 @@ public interface Variable extends AttributeAware {
      * Extends this builder to perform additional building capabilities for different variable nature. The specified
      * type must extend {@code Variable.Builder} and expose a public constructor that takes a single {@code
      * Variable.Builder} parameter; the constructor should call its super class' constructor with the same signature.
-     * <p/> An example class
+     * <p/>
+     * An example class
      * 
      * <pre>
      * public class BuilderExtension extends Variable.Builder {
@@ -220,11 +221,11 @@ public interface Variable extends AttributeAware {
   public QName getQName();
 
   /**
-   * The name of the collection in which this variable exists.
+   * The name of the {@code ValueTable} in which this variable exists.
    * 
-   * @return the name of the collection containing this variable.
+   * @return the name of the {@code ValueTable} containing this variable.
    */
-  public String getCollection();
+  public String getValueTableName();
 
   /**
    * The name of the variable. A variable's name must be unique within its {@code Collection}.

@@ -1,12 +1,11 @@
 package org.obiba.magma.support;
 
-import org.obiba.magma.ValueSetProvider;
 
-public abstract class AbstractValueSetProvider implements ValueSetProvider {
+public abstract class AbstractVariableEntityProvider implements VariableEntityProvider {
 
   private String entityType;
 
-  protected AbstractValueSetProvider(String entityType) {
+  protected AbstractVariableEntityProvider(String entityType) {
     this.entityType = entityType;
   }
 

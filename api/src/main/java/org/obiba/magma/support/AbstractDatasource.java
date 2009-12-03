@@ -2,12 +2,11 @@ package org.obiba.magma.support;
 
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Properties;
 import java.util.Set;
 
-import org.obiba.magma.Collection;
 import org.obiba.magma.Datasource;
 import org.obiba.magma.Initialisable;
+import org.obiba.magma.ValueTable;
 
 import com.google.common.collect.Iterables;
 
@@ -17,9 +16,7 @@ public abstract class AbstractDatasource implements Datasource {
 
   private String type;
 
-  private Properties properties;
-
-  private Set<Collection> collections = new HashSet<Collection>();
+  private Set<ValueTable> collections = new HashSet<ValueTable>();
 
   @Override
   public String getName() {
@@ -32,28 +29,28 @@ public abstract class AbstractDatasource implements Datasource {
   }
 
   @Override
-  public Properties getProperties() {
-    return properties;
+  public Set<ValueTable> getValueTables() {
+    return Collections.unmodifiableSet(collections);
   }
 
   @Override
-  public Set<Collection> getCollections() {
-    return Collections.unmodifiableSet(collections);
+  public ValueTable getValueTable(String name) {
+    return null;
   }
 
   @Override
   public void initialise() {
 
-    for(String collection : getCollectionNames()) {
-      collections.add(initialiseCollection(collection));
+    for(String collection : getValueTableNames()) {
+      collections.add(initialiseValueTable(collection));
     }
 
-    for(Initialisable initialisable : Iterables.filter(getCollections(), Initialisable.class)) {
+    for(Initialisable initialisable : Iterables.filter(getValueTables(), Initialisable.class)) {
       initialisable.initialise();
     }
   }
 
-  protected abstract Set<String> getCollectionNames();
+  protected abstract Set<String> getValueTableNames();
 
-  protected abstract Collection initialiseCollection(String collection);
+  protected abstract ValueTable initialiseValueTable(String tableName);
 }

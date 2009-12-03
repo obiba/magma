@@ -2,7 +2,7 @@ package org.obiba.magma;
 
 public interface ValueSet {
 
-  public Collection getCollection();
+  public ValueTable getValueTable();
 
   public VariableEntity getVariableEntity();
 

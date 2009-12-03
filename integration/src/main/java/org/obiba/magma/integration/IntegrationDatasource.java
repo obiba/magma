@@ -2,10 +2,12 @@ package org.obiba.magma.integration;
 
 import java.util.Set;
 
-import org.obiba.magma.Collection;
 import org.obiba.magma.ValueSet;
+import org.obiba.magma.ValueTable;
 import org.obiba.magma.Variable;
-import org.obiba.magma.beans.AbstractBeanValueSetProvider;
+import org.obiba.magma.VariableValueSource;
+import org.obiba.magma.beans.AbstractBeanVariableEntityProvider;
+import org.obiba.magma.beans.BeanValueTable;
 import org.obiba.magma.beans.BeanVariableValueSourceFactory;
 import org.obiba.magma.beans.ValueSetBeanResolver;
 import org.obiba.magma.integration.model.Action;
@@ -15,7 +17,7 @@ import org.obiba.magma.integration.service.IntegrationService;
 import org.obiba.magma.js.JavascriptVariableBuilder;
 import org.obiba.magma.js.JavascriptVariableValueSource;
 import org.obiba.magma.support.AbstractDatasource;
-import org.obiba.magma.support.CollectionBuilder;
+import org.obiba.magma.support.VariableEntityProvider;
 import org.obiba.magma.type.BooleanType;
 import org.obiba.magma.type.IntegerType;
 import org.obiba.magma.type.TextType;
@@ -28,42 +30,47 @@ public class IntegrationDatasource extends AbstractDatasource {
 
   IntegrationDatasource(IntegrationService service) {
     this.service = service;
+
   }
 
   @Override
-  protected Set<String> getCollectionNames() {
+  protected Set<String> getValueTableNames() {
     return ImmutableSet.of("integration-app");
   }
 
   @Override
-  protected Collection initialiseCollection(String collection) {
+  protected ValueTable initialiseValueTable(String tableName) {
 
-    CollectionBuilder builder = new CollectionBuilder(collection);
-    AbstractBeanValueSetProvider<Interview> provider = new AbstractBeanValueSetProvider<Interview>("Participant", "participant.barcode") {
-
-      @Override
-      protected Iterable<Interview> loadBeans() {
-        return service.getInterviews();
-      }
-    };
-    builder.add(provider);
+    final ImmutableSet.Builder<VariableValueSource> sources = new ImmutableSet.Builder<VariableValueSource>();
 
     BeanVariableValueSourceFactory<Participant> variables = new BeanVariableValueSourceFactory<Participant>("Participant", Participant.class);
     variables.setProperties(ImmutableSet.of("barcode", "firstName", "lastName", "gender", "interview.startDate", "interview.endDate"));
-    builder.add(variables.createSources(collection, new ParticipantBeanResolver()));
+    sources.addAll(variables.createSources(tableName));
 
-    builder.add(new JavascriptVariableValueSource(Variable.Builder.newVariable(collection, "fullName", TextType.get(), "Participant").extend(JavascriptVariableBuilder.class).setScript("$('firstName') + ' ' + $('lastName')").build()));
-    builder.add(new JavascriptVariableValueSource(Variable.Builder.newVariable(collection, "interviewYear", IntegerType.get(), "Participant").extend(JavascriptVariableBuilder.class).setScript("$('interview.startDate').year()").build()));
-    builder.add(new JavascriptVariableValueSource(Variable.Builder.newVariable(collection, "isMale", BooleanType.get(), "Participant").extend(JavascriptVariableBuilder.class).setScript("$('gender').any('Male')").build()));
-    builder.add(new JavascriptVariableValueSource(Variable.Builder.newVariable(collection, "isFemale", BooleanType.get(), "Participant").extend(JavascriptVariableBuilder.class).setScript("$('gender').any('Female')").build()));
+    sources.add(new JavascriptVariableValueSource(Variable.Builder.newVariable(tableName, "fullName", TextType.get(), "Participant").extend(JavascriptVariableBuilder.class).setScript("$('firstName') + ' ' + $('lastName')").build()));
+    sources.add(new JavascriptVariableValueSource(Variable.Builder.newVariable(tableName, "interviewYear", IntegerType.get(), "Participant").extend(JavascriptVariableBuilder.class).setScript("$('interview.startDate').year()").build()));
+    sources.add(new JavascriptVariableValueSource(Variable.Builder.newVariable(tableName, "isMale", BooleanType.get(), "Participant").extend(JavascriptVariableBuilder.class).setScript("$('gender').any('Male')").build()));
+    sources.add(new JavascriptVariableValueSource(Variable.Builder.newVariable(tableName, "isFemale", BooleanType.get(), "Participant").extend(JavascriptVariableBuilder.class).setScript("$('gender').any('Female')").build()));
 
     BeanVariableValueSourceFactory<Action> actionFactory = new BeanVariableValueSourceFactory<Action>("Participant", Action.class);
     actionFactory.setProperties(ImmutableSet.of("stage"));
     actionFactory.setPrefix("Action");
     actionFactory.setOccurrenceGroup("Action");
-    builder.add(actionFactory.createSources(collection, new ActionBeanResolver()));
+    sources.addAll(actionFactory.createSources(tableName));
 
-    return builder.build(this);
+    VariableEntityProvider provider = new AbstractBeanVariableEntityProvider<Interview>("Participant", "participant.barcode") {
+
+      @Override
+      protected Iterable<Interview> loadBeans() {
+        return IntegrationDatasource.this.service.getInterviews();
+      }
+    };
+
+    BeanValueTable table = new BeanValueTable(this, tableName, provider);
+    table.addResolver(new ParticipantBeanResolver());
+    table.addResolver(new ActionBeanResolver());
+    table.addVariableValueSources(sources.build());
+    return table;
   }
 
   protected Participant getParticipant(ValueSet valueSet) {

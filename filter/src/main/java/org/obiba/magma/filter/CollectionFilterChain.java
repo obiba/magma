@@ -1,9 +1,7 @@
 package org.obiba.magma.filter;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import com.thoughtworks.xstream.annotations.XStreamImplicit;
 
@@ -22,25 +20,17 @@ public class CollectionFilterChain<T> implements FilterChain<T> {
     this.entityType = entityType;
   }
 
-  @Override
-  public Set<T> filter(Set<T> unfilteredSet) {
+  public T filter(T item) {
+    StateEnvelope<T> envelope = new StateEnvelope<T>(item);
 
-    Set<T> filteredSet = new HashSet<T>();
-    for(T item : unfilteredSet) {
-      StateEnvelope<T> envelope = new StateEnvelope<T>(item);
-
-      for(Filter<T> filter : getFilters()) {
-        envelope = filter.doIt(envelope);
-      }
-
-      if(envelope.isState(FilterState.IN)) {
-        filteredSet.add(item);
-      } else if(envelope.isState(FilterState.OUT)) {
-        filteredSet.remove(item);
-      }
+    for(Filter<T> filter : getFilters()) {
+      envelope = filter.doIt(envelope);
     }
 
-    return filteredSet;
+    if(envelope.isState(FilterState.IN)) {
+      return item;
+    }
+    return null;
   }
 
   private List<Filter<T>> getFilters() {

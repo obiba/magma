@@ -57,7 +57,7 @@ public class VariableConverter extends AbstractAttributeAwareConverter {
   public void marshal(Object source, HierarchicalStreamWriter writer, MarshallingContext context) {
     Variable variable = (Variable) source;
     writer.addAttribute("name", variable.getName());
-    writer.addAttribute("collection", variable.getCollection());
+    writer.addAttribute("valueTable", variable.getValueTableName());
     writer.addAttribute("valueType", variable.getValueType().getName());
     writer.addAttribute("entityType", variable.getEntityType());
 
@@ -80,7 +80,7 @@ public class VariableConverter extends AbstractAttributeAwareConverter {
   }
 
   public Object unmarshal(HierarchicalStreamReader reader, UnmarshallingContext context) {
-    Variable.Builder builder = Variable.Builder.newVariable(reader.getAttribute("collection"), reader.getAttribute("name"), ValueType.Factory.forName(reader.getAttribute("valueType")), reader.getAttribute("entityType"));
+    Variable.Builder builder = Variable.Builder.newVariable(reader.getAttribute("valueTable"), reader.getAttribute("name"), ValueType.Factory.forName(reader.getAttribute("valueType")), reader.getAttribute("entityType"));
 
     while(reader.hasMoreChildren()) {
       reader.moveDown();

@@ -8,7 +8,7 @@ import javax.xml.namespace.QName;
 
 class VariableBean extends AbstractAttributeAware implements Variable {
 
-  String collection;
+  String valueTableName;
 
   String name;
 
@@ -31,12 +31,12 @@ class VariableBean extends AbstractAttributeAware implements Variable {
 
   @Override
   public QName getQName() {
-    return new QName(getCollection(), getName());
+    return new QName(getValueTableName(), getName());
   }
 
   @Override
-  public String getCollection() {
-    return collection;
+  public String getValueTableName() {
+    return valueTableName;
   }
 
   @Override

@@ -2,33 +2,25 @@ package org.obiba.magma.beans;
 
 import java.util.Set;
 
-import org.obiba.magma.Collection;
-import org.obiba.magma.ValueSet;
 import org.obiba.magma.VariableEntity;
-import org.obiba.magma.support.AbstractValueSetProvider;
-import org.obiba.magma.support.ValueSetBean;
+import org.obiba.magma.support.AbstractVariableEntityProvider;
 import org.obiba.magma.support.VariableEntityBean;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.PropertyAccessorFactory;
 
 import com.google.common.collect.ImmutableSet;
 
-public abstract class AbstractBeanValueSetProvider<T> extends AbstractValueSetProvider {
+public abstract class AbstractBeanVariableEntityProvider<T> extends AbstractVariableEntityProvider {
 
   private String entityIdentifierPropertyPath;
 
-  public AbstractBeanValueSetProvider(String entityType, String entityIdentifierPropertyPath) {
+  public AbstractBeanVariableEntityProvider(String entityType, String entityIdentifierPropertyPath) {
     super(entityType);
     this.entityIdentifierPropertyPath = entityIdentifierPropertyPath;
   }
 
   public String getEntityIdentifierPropertyPath() {
     return entityIdentifierPropertyPath;
-  }
-
-  @Override
-  public ValueSet getValueSet(Collection collection, VariableEntity entity) {
-    return new ValueSetBean(collection, entity);
   }
 
   @Override

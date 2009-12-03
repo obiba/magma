@@ -70,6 +70,9 @@ public class ValueSequence extends Value {
 
   @Override
   public String toString() {
+    if(isNull()) {
+      return super.toString();
+    }
     // Return [e1,e2,e3...,en]
     // If we want to parse the string back as a ValueSequence, then we'll need to escape certain characters for TextType
     throw new UnsupportedOperationException();

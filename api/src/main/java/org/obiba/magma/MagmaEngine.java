@@ -6,6 +6,10 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import com.google.common.base.Predicate;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Iterables;
+
 public class MagmaEngine {
 
   /** Keeps a reference on all singletons */
@@ -43,29 +47,17 @@ public class MagmaEngine {
     return valueTypeFactory;
   }
 
-  public VariableValueSource lookupVariable(String entityType, String collection, String name) throws NoSuchCollectionException, NoSuchVariableException {
-    return lookupCollection(collection).getVariableValueSource(entityType, name);
+  public Set<Datasource> getDatasources() {
+    return ImmutableSet.copyOf(datasources);
   }
 
-  public VariableValueSource lookupVariable(String entityType, String name) throws NoSuchCollectionException, NoSuchVariableException {
-    int index = name.indexOf(':');
-    if(index > -1) {
-      String collection = name.substring(0, index);
-      String variableName = name.substring(index + 1);
-      return lookupVariable(entityType, collection, variableName);
-    }
-    throw new NoSuchVariableException(name);
-  }
-
-  public Collection lookupCollection(String name) throws NoSuchCollectionException {
-    for(Datasource ds : datasources) {
-      for(Collection c : ds.getCollections()) {
-        if(c.getName().equals(name)) {
-          return c;
-        }
+  public Datasource getDatasource(final String name) {
+    return Iterables.find(datasources, new Predicate<Datasource>() {
+      @Override
+      public boolean apply(Datasource input) {
+        return name.equals(input.getName());
       }
-    }
-    throw new NoSuchCollectionException(name);
+    });
   }
 
   public void addDatasource(Datasource datasource) {
@@ -81,10 +73,6 @@ public class MagmaEngine {
   public void shutdown() {
     singletons = null;
     instance = null;
-  }
-
-  public Set<Datasource> getDatasources() {
-    return datasources;
   }
 
 }

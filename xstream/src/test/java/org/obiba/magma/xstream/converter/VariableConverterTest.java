@@ -39,7 +39,7 @@ public class VariableConverterTest {
     String xml = xstream.toXML(v);
     Variable unmarshalled = (Variable) xstream.fromXML(xml);
 
-    Assert.assertEquals(v.getCollection(), unmarshalled.getCollection());
+    Assert.assertEquals(v.getValueTableName(), unmarshalled.getValueTableName());
     Assert.assertEquals(v.getName(), unmarshalled.getName());
     Assert.assertEquals(v.getValueType(), unmarshalled.getValueType());
     Assert.assertEquals(v.getEntityType(), unmarshalled.getEntityType());

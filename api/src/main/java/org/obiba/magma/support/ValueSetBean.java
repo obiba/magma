@@ -1,28 +1,28 @@
 package org.obiba.magma.support;
 
-import org.obiba.magma.Collection;
 import org.obiba.magma.ValueSet;
+import org.obiba.magma.ValueTable;
 import org.obiba.magma.VariableEntity;
 
 public class ValueSetBean implements ValueSet {
 
-  private Collection collection;
+  private ValueTable table;
 
   private VariableEntity entity;
 
-  public ValueSetBean(Collection collection, VariableEntity entity) {
-    this.collection = collection;
+  public ValueSetBean(ValueTable table, VariableEntity entity) {
+    this.table = table;
     this.entity = entity;
   }
 
   protected ValueSetBean(ValueSet valueSet) {
-    this.collection = valueSet.getCollection();
+    this.table = valueSet.getValueTable();
     this.entity = valueSet.getVariableEntity();
   }
 
   @Override
-  public Collection getCollection() {
-    return collection;
+  public ValueTable getValueTable() {
+    return table;
   }
 
   @Override
