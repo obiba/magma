@@ -21,7 +21,7 @@ public class BeanValueTable extends AbstractValueTable {
   private Set<ValueSetBeanResolver> resolvers = Sets.newHashSet();
 
   public BeanValueTable(Datasource datasource, String name, VariableEntityProvider provider) {
-    super(datasource, name, provider.getEntityType(), provider);
+    super(datasource, name, provider);
   }
 
   @Override

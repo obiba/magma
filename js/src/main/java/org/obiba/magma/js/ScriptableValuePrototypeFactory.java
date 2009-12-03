@@ -11,6 +11,7 @@ import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
 import org.obiba.magma.js.methods.BooleanMethods;
 import org.obiba.magma.js.methods.DateTimeMethods;
+import org.obiba.magma.js.methods.TextMethods;
 
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
@@ -58,6 +59,7 @@ public class ScriptableValuePrototypeFactory {
   public ScriptableValuePrototypeFactory() {
     methodProviders.add(BooleanMethods.class);
     methodProviders.add(DateTimeMethods.class);
+    methodProviders.add(TextMethods.class);
   }
 
   public void addMethodProvider(Class<?> methodProvider) {
