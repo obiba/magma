@@ -41,8 +41,8 @@ public abstract class AbstractDatasource implements Datasource {
   @Override
   public void initialise() {
 
-    for(String collection : getValueTableNames()) {
-      valueTables.add(initialiseValueTable(collection));
+    for(String valueTable : getValueTableNames()) {
+      valueTables.add(initialiseValueTable(valueTable));
     }
 
     for(Initialisable initialisable : Iterables.filter(getValueTables(), Initialisable.class)) {
