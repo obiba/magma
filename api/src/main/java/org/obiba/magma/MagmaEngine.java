@@ -1,14 +1,15 @@
 package org.obiba.magma;
 
 import java.lang.ref.WeakReference;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Set;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Sets;
 
 public class MagmaEngine {
 
@@ -19,7 +20,9 @@ public class MagmaEngine {
 
   private ValueTypeFactory valueTypeFactory;
 
-  private Set<Datasource> datasources = new HashSet<Datasource>();
+  private Set<MagmaEngineExtension> extensions = Sets.newHashSet();
+
+  private Set<Datasource> datasources = Sets.newHashSet();
 
   public MagmaEngine() {
     if(instance != null) {
@@ -39,8 +42,23 @@ public class MagmaEngine {
   }
 
   public MagmaEngine extend(MagmaEngineExtension extension) {
-    extension.initialise();
+    try {
+      extension.initialise();
+    } catch(MagmaRuntimeException e) {
+      throw e;
+    } catch(RuntimeException e) {
+      throw new MagmaRuntimeException(e);
+    }
+    extensions.add(extension);
     return this;
+  }
+
+  public <T extends MagmaEngineExtension> T getExtension(Class<T> extensionType) {
+    try {
+      return Iterables.getOnlyElement(Iterables.filter(extensions, extensionType));
+    } catch(NoSuchElementException e) {
+      throw new MagmaRuntimeException("No extension of type '" + extensionType + "' was registered.");
+    }
   }
 
   public ValueTypeFactory getValueTypeFactory() {

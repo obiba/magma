@@ -64,6 +64,9 @@ public class DateType extends AbstractValueType {
 
   @Override
   public Value valueOf(String string) {
+    if(string == null) {
+      return nullValue();
+    }
     try {
       // DateFormat is not thread safe
       synchronized(ISO_8601) {

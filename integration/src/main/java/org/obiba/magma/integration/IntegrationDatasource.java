@@ -29,6 +29,7 @@ public class IntegrationDatasource extends AbstractDatasource {
   private IntegrationService service;
 
   IntegrationDatasource(IntegrationService service) {
+    super("integration-ds", "beans");
     this.service = service;
 
   }

@@ -30,10 +30,14 @@ public abstract class AbstractValueTable implements ValueTable, Initialisable {
 
   private Set<VariableValueSource> sources = Sets.newHashSet();
 
-  public AbstractValueTable(Datasource datasource, String name, VariableEntityProvider provider) {
+  public AbstractValueTable(Datasource datasource, String name, VariableEntityProvider variableEntityProvider) {
     this.datasource = datasource;
     this.name = name;
-    this.variableEntityProvider = provider;
+    this.variableEntityProvider = variableEntityProvider;
+  }
+
+  public AbstractValueTable(Datasource datasource, String name) {
+    this(datasource, name, null);
   }
 
   @Override
@@ -110,6 +114,10 @@ public abstract class AbstractValueTable implements ValueTable, Initialisable {
     for(Initialisable init : Iterables.filter(getSources(), Initialisable.class)) {
       init.initialise();
     }
+  }
+
+  public void setVariableEntityProvider(VariableEntityProvider variableEntityProvider) {
+    this.variableEntityProvider = variableEntityProvider;
   }
 
   protected Set<VariableValueSource> getSources() {

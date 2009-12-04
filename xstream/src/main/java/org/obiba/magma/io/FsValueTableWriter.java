@@ -1,31 +1,26 @@
 package org.obiba.magma.io;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 
 import org.obiba.magma.Initialisable;
+import org.obiba.magma.MagmaEngine;
+import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueTableWriter;
-import org.obiba.magma.ValueType;
 import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
+import org.obiba.magma.xstream.MagmaXStreamExtension;
 import org.obiba.magma.xstream.XStreamValueSet;
-import org.obiba.magma.xstream.XStreamValueSetValue;
-import org.obiba.magma.xstream.converter.AttributeConverter;
-import org.obiba.magma.xstream.converter.CategoryConverter;
-import org.obiba.magma.xstream.converter.ValueConverter;
-import org.obiba.magma.xstream.converter.ValueSequenceConverter;
-import org.obiba.magma.xstream.converter.VariableConverter;
-import org.obiba.magma.xstream.mapper.MagmaMapper;
 
 import com.thoughtworks.xstream.XStream;
-import com.thoughtworks.xstream.mapper.MapperWrapper;
 
 import de.schlichtherle.io.File;
 import de.schlichtherle.io.FileOutputStream;
 
-public class FsValueTableWriter implements ValueTableWriter, Initialisable {
+class FsValueTableWriter implements ValueTableWriter, Initialisable {
 
   private File archive;
 
@@ -33,17 +28,20 @@ public class FsValueTableWriter implements ValueTableWriter, Initialisable {
 
   private XStream xstream;
 
-  public FsValueTableWriter(File archive, String valueTable) {
+  private OutputStreamWrapper outputStreamWrapper;
+
+  public FsValueTableWriter(File archive, String valueTable, OutputStreamWrapper outputStreamWrapper) {
     this.archive = archive;
     this.valueTable = valueTable;
+    this.outputStreamWrapper = outputStreamWrapper;
   }
 
   @Override
   public ValueSetWriter writeValueSet(VariableEntity entity) {
     String name = valueTable + '/' + entity.getIdentifier() + ".xml";
-    File f = new File(archive, name);
+    File file = new File(archive, name);
     try {
-      return new XStreamValueSetWriter(new FileOutputStream(f), new XStreamValueSet(valueTable, entity));
+      return new XStreamValueSetWriter(newStream(file), new XStreamValueSet(valueTable, entity));
     } catch(IOException e) {
       throw new RuntimeException(e);
     }
@@ -52,37 +50,29 @@ public class FsValueTableWriter implements ValueTableWriter, Initialisable {
   @Override
   public VariableWriter writeVariables(String entityType) {
     String name = valueTable + '/' + "variables.xml";
-    File f = new File(archive, name);
+    File file = new File(archive, name);
     try {
-      return new XStreamVariableWriter(new FileOutputStream(f));
+      return new XStreamVariableWriter(newStream(file));
     } catch(IOException e) {
       throw new RuntimeException(e);
     }
   }
 
   public void initialise() {
-    xstream = new XStream() {
-      @Override
-      protected MapperWrapper wrapMapper(MapperWrapper next) {
-        return new MagmaMapper(next);
-      }
-    };
-    xstream.registerConverter(new VariableConverter(xstream.getMapper()));
-    xstream.registerConverter(new CategoryConverter(xstream.getMapper()));
-    xstream.registerConverter(new AttributeConverter());
-    xstream.registerConverter(new ValueConverter());
-    xstream.registerConverter(new ValueSequenceConverter());
-    xstream.useAttributeFor(ValueType.class);
-    xstream.setMode(XStream.NO_REFERENCES);
-
-    xstream.processAnnotations(XStreamValueSet.class);
-    xstream.processAnnotations(XStreamValueSetValue.class);
-
+    xstream = MagmaEngine.get().getExtension(MagmaXStreamExtension.class).getXStreamFactory().createXStream();
   }
 
   @Override
   public void close() throws IOException {
-    File.umount(archive);
+    File.update(archive);
+  }
+
+  protected OutputStream newStream(File file) {
+    try {
+      return outputStreamWrapper.wrap(new FileOutputStream(file), file);
+    } catch(FileNotFoundException e) {
+      throw new MagmaRuntimeException(e);
+    }
   }
 
   private class XStreamVariableWriter implements VariableWriter {

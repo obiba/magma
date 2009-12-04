@@ -7,6 +7,8 @@ import org.obiba.magma.Value;
 import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
 
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
 import com.thoughtworks.xstream.annotations.XStreamImplicit;
@@ -36,4 +38,12 @@ public class XStreamValueSet {
     values.add(new XStreamValueSetValue(variable.getName(), value));
   }
 
+  public Value getValue(final Variable variable) {
+    return Iterables.find(values, new Predicate<XStreamValueSetValue>() {
+      @Override
+      public boolean apply(XStreamValueSetValue input) {
+        return input.getVariable().equals(variable.getName());
+      }
+    }).getValue();
+  }
 }

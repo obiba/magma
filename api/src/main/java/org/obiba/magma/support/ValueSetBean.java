@@ -30,4 +30,9 @@ public class ValueSetBean implements ValueSet {
     return entity;
   }
 
+  @Override
+  public String toString() {
+    return "valueSet[" + getValueTable() + ":" + getVariableEntity() + "]";
+  }
+
 }

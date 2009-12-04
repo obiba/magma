@@ -18,6 +18,11 @@ public abstract class AbstractDatasource implements Datasource {
 
   private Set<ValueTable> valueTables = new HashSet<ValueTable>();
 
+  protected AbstractDatasource(String name, String type) {
+    this.name = name;
+    this.type = type;
+  }
+
   @Override
   public String getName() {
     return name;

@@ -17,4 +17,12 @@ public class XStreamValueSetValue {
     this.variable = variable;
     this.value = value;
   }
+
+  public String getVariable() {
+    return variable;
+  }
+
+  public Value getValue() {
+    return value;
+  }
 }
