@@ -1,5 +1,6 @@
 package org.obiba.magma.xstream;
 
+import org.obiba.magma.DatasourceMetaData;
 import org.obiba.magma.ValueType;
 import org.obiba.magma.xstream.converter.AttributeConverter;
 import org.obiba.magma.xstream.converter.CategoryConverter;
@@ -21,6 +22,8 @@ public class DefaultXStreamFactory implements XStreamFactory {
         return new MagmaMapper(next);
       }
     };
+
+    xstream.alias("datasourceMetaData", DatasourceMetaData.class);
     xstream.registerConverter(new VariableConverter(xstream.getMapper()));
     xstream.registerConverter(new CategoryConverter(xstream.getMapper()));
     xstream.registerConverter(new AttributeConverter());

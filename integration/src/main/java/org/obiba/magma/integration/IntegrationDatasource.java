@@ -2,6 +2,7 @@ package org.obiba.magma.integration;
 
 import java.util.Set;
 
+import org.obiba.magma.DatasourceMetaData;
 import org.obiba.magma.ValueSet;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.Variable;
@@ -31,7 +32,11 @@ public class IntegrationDatasource extends AbstractDatasource {
   IntegrationDatasource(IntegrationService service) {
     super("integration-ds", "beans");
     this.service = service;
+  }
 
+  @Override
+  protected DatasourceMetaData readMetadata() {
+    return new DatasourceMetaData("1");
   }
 
   @Override

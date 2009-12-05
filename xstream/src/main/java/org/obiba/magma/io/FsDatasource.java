@@ -1,30 +1,50 @@
 package org.obiba.magma.io;
 
 import java.io.FileFilter;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.Reader;
+import java.io.Writer;
+import java.nio.charset.Charset;
 import java.util.Set;
 
+import org.obiba.magma.DatasourceMetaData;
+import org.obiba.magma.MagmaEngine;
+import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.ValueTableWriter;
 import org.obiba.magma.io.output.NullOutputStreamWrapper;
 import org.obiba.magma.support.AbstractDatasource;
+import org.obiba.magma.xstream.MagmaXStreamExtension;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
+import com.thoughtworks.xstream.XStream;
 
+import de.schlichtherle.io.ArchiveException;
 import de.schlichtherle.io.File;
+import de.schlichtherle.io.FileInputStream;
+import de.schlichtherle.io.FileOutputStream;
 
 /**
- * Implements a {@code Datasource} on top of a file in the local file system.
+ * Implements a {@code Datasource} on top of an archive file in the local file system.
  */
 public class FsDatasource extends AbstractDatasource {
 
-  private File file;
+  /**
+   * Consistently use UTF-8 character set for reading and writing.
+   */
+  private static final Charset CHARSET = Charset.availableCharsets().get("UTF-8");
+
+  private File datasourceArchive;
 
   private OutputStreamWrapper outputStreamWrapper;
 
   public FsDatasource(String name, String filename, OutputStreamWrapper outputStreamWrapper) {
     super(name, "fs");
-    this.file = new File(filename);
+    this.datasourceArchive = new File(filename);
     this.outputStreamWrapper = outputStreamWrapper;
   }
 
@@ -32,10 +52,57 @@ public class FsDatasource extends AbstractDatasource {
     this(name, filename, new NullOutputStreamWrapper());
   }
 
+  public ValueTableWriter createWriter(String name) {
+    FsValueTable valueTable = null;
+    if(hasValueTable(name)) {
+      valueTable = (FsValueTable) getValueTable(name);
+    } else {
+      addValueTable(valueTable = new FsValueTable(this, name));
+    }
+    return new FsValueTableWriter(valueTable, getXStreamInstance());
+  }
+
+  @Override
+  public void dispose() {
+    super.dispose();
+    try {
+      File.umount(datasourceArchive);
+    } catch(ArchiveException e) {
+      throw new MagmaRuntimeException(e);
+    }
+  }
+
+  @Override
+  protected DatasourceMetaData readMetadata() {
+    if(datasourceArchive.exists()) {
+      FileInputStream fis = null;
+      try {
+        return (DatasourceMetaData) new XStream().fromXML(fis = new FileInputStream(new File(datasourceArchive, "metadata.xml")));
+      } catch(FileNotFoundException e) {
+        throw new MagmaRuntimeException(e);
+      } finally {
+        Closeables.closeQuietly(fis);
+      }
+    }
+    return new DatasourceMetaData("1");
+  }
+
+  @Override
+  protected void writeMetadata() {
+    FileOutputStream fos = null;
+    try {
+      new XStream().toXML(getMetaData(), new OutputStreamWriter(fos = new FileOutputStream(new File(datasourceArchive, "metadata.xml")), CHARSET));
+    } catch(FileNotFoundException e) {
+      throw new MagmaRuntimeException(e);
+    } finally {
+      Closeables.closeQuietly(fos);
+    }
+  }
+
   @Override
   protected Set<String> getValueTableNames() {
-    if(file.exists()) {
-      java.io.File[] files = file.listFiles(new FileFilter() {
+    if(datasourceArchive.exists()) {
+      java.io.File[] files = datasourceArchive.listFiles(new FileFilter() {
         @Override
         public boolean accept(java.io.File pathname) {
           return pathname.isDirectory();
@@ -55,13 +122,72 @@ public class FsDatasource extends AbstractDatasource {
     return new FsValueTable(this, tableName);
   }
 
-  File getFile() {
-    return file;
+  File getEntry(String name) {
+    return new File(datasourceArchive, name);
   }
 
-  public ValueTableWriter createWriter(String valueTable) {
-    FsValueTableWriter writer = new FsValueTableWriter(file, valueTable, outputStreamWrapper);
-    writer.initialise();
-    return writer;
+  XStream getXStreamInstance() {
+    return MagmaEngine.get().getExtension(MagmaXStreamExtension.class).getXStreamFactory(getMetaData().getVersion()).createXStream();
   }
+
+  <T> T readEntry(File entry, InputCallback<T> callback) {
+    if(entry.exists()) {
+      Reader reader = null;
+      try {
+        return callback.readEntry(reader = createReader(entry));
+      } catch(FileNotFoundException e) {
+        // this cannot happen since we tested file.exists().
+        throw new MagmaRuntimeException(e);
+      } catch(IOException e) {
+        throw new MagmaRuntimeException(e);
+      } finally {
+        Closeables.closeQuietly(reader);
+      }
+    }
+    return null;
+  }
+
+  <T> T readEntry(String name, InputCallback<T> callback) {
+    return readEntry(new File(datasourceArchive, name), callback);
+  }
+
+  <T> T writeEntry(File file, OutputCallback<T> callback) {
+    Writer writer = null;
+    try {
+      return callback.writeEntry(writer = createWriter(file));
+    } catch(IOException e) {
+      throw new MagmaRuntimeException(e);
+    } finally {
+      Closeables.closeQuietly(writer);
+    }
+  }
+
+  <T> T writeEntry(String name, OutputCallback<T> callback) {
+    return writeEntry(new File(datasourceArchive, name), callback);
+  }
+
+  Reader createReader(File entry) {
+    try {
+      return new InputStreamReader(new FileInputStream(entry), CHARSET);
+    } catch(FileNotFoundException e) {
+      throw new MagmaRuntimeException(e);
+    }
+  }
+
+  Writer createWriter(File entry) {
+    try {
+      return new OutputStreamWriter(outputStreamWrapper.wrap(new FileOutputStream(entry), entry), CHARSET);
+    } catch(FileNotFoundException e) {
+      throw new MagmaRuntimeException(e);
+    }
+  }
+
+  interface InputCallback<T> {
+    T readEntry(Reader reader) throws IOException;
+  }
+
+  interface OutputCallback<T> {
+    T writeEntry(Writer writer) throws IOException;
+  }
+
 }

@@ -9,15 +9,21 @@
  ******************************************************************************/
 package org.obiba.magma.spring;
 
+import java.util.NoSuchElementException;
 import java.util.Set;
 
 import org.obiba.magma.Datasource;
+import org.obiba.magma.DatasourceMetaData;
+import org.obiba.magma.Disposable;
 import org.obiba.magma.Initialisable;
+import org.obiba.magma.NoSuchCollectionException;
 import org.obiba.magma.ValueTable;
+import org.obiba.magma.ValueTableWriter;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
+import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
@@ -31,6 +37,8 @@ public class SpringContextScanningDatasource implements Datasource, ApplicationC
 
   private String name;
 
+  private DatasourceMetaData metadata;
+
   private Set<ValueTable> valueTables;
 
   public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
@@ -39,6 +47,15 @@ public class SpringContextScanningDatasource implements Datasource, ApplicationC
 
   public void setName(String name) {
     this.name = name;
+  }
+
+  public void setMetadata(DatasourceMetaData metadata) {
+    this.metadata = metadata;
+  }
+
+  @Override
+  public DatasourceMetaData getMetaData() {
+    return metadata;
   }
 
   @Override
@@ -52,8 +69,22 @@ public class SpringContextScanningDatasource implements Datasource, ApplicationC
   }
 
   @Override
-  public ValueTable getValueTable(String name) {
-    return null;
+  public ValueTableWriter createWriter(String tableName) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public ValueTable getValueTable(final String name) {
+    try {
+      return Iterables.find(valueTables, new Predicate<ValueTable>() {
+        @Override
+        public boolean apply(ValueTable input) {
+          return input.getName().equals(name);
+        }
+      });
+    } catch(NoSuchElementException e) {
+      throw new NoSuchCollectionException(name);
+    }
   }
 
   @Override
@@ -71,7 +102,13 @@ public class SpringContextScanningDatasource implements Datasource, ApplicationC
     for(Initialisable init : Iterables.filter(valueTables, Initialisable.class)) {
       init.initialise();
     }
-    
+  }
+
+  @Override
+  public void dispose() {
+    for(Disposable disposable : Iterables.filter(getValueTables(), Disposable.class)) {
+      disposable.dispose();
+    }
   }
 
 }

@@ -4,7 +4,7 @@ import java.io.Closeable;
 
 public interface ValueTableWriter extends Closeable {
 
-  public VariableWriter writeVariables(String entityType);
+  public VariableWriter writeVariables();
 
   public ValueSetWriter writeValueSet(VariableEntity entity);
 

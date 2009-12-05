@@ -83,12 +83,24 @@ public class MagmaEngine {
     datasources.add(datasource);
   }
 
+  public void removeDatasource(Datasource datasource) {
+    datasources.remove(datasource);
+    datasource.dispose();
+  }
+
   public <T> WeakReference<T> registerInstance(T singleton) {
     singletons.add(singleton);
     return new WeakReference<T>(singleton);
   }
 
   public void shutdown() {
+    for(Datasource ds : datasources) {
+      try {
+        ds.dispose();
+      } catch(RuntimeException e) {
+        // Ignore
+      }
+    }
     singletons = null;
     instance = null;
   }

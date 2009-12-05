@@ -18,6 +18,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 import org.obiba.magma.MagmaRuntimeException;
+import org.obiba.magma.io.Closeables;
 import org.obiba.magma.io.OutputStreamWrapper;
 
 import de.schlichtherle.io.File;
@@ -41,7 +42,7 @@ public class DigestOutputStreamWrapper implements OutputStreamWrapper {
 
   @Override
   public OutputStream wrap(OutputStream os, File entry) {
-    File digestFile = new File(entry.getParent() + '/' + entry.getName() + entrySuffix);
+    File digestFile = new File(entry.getParent(), entry.getName() + entrySuffix);
     return new WrappedDigestOutputStream(os, digestFile);
   }
 
@@ -53,6 +54,9 @@ public class DigestOutputStreamWrapper implements OutputStreamWrapper {
     }
   }
 
+  /**
+   * A {@code DigestOutputStream} that writes the digest to a file when the stream is closed.
+   */
   private class WrappedDigestOutputStream extends DigestOutputStream {
 
     private File digestEntry;
@@ -64,12 +68,11 @@ public class DigestOutputStreamWrapper implements OutputStreamWrapper {
 
     public void close() throws IOException {
       super.close();
-
       ByteArrayInputStream bais = new ByteArrayInputStream(getMessageDigest().digest());
       try {
         digestEntry.catFrom(bais);
       } finally {
-        bais.close();
+        Closeables.closeQuietly(bais);
       }
     }
   }

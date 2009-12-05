@@ -8,6 +8,8 @@ public class VariableEntityBean implements VariableEntity {
 
   private String entityIdentifier;
 
+  private transient volatile int hashCode = 0;
+
   public VariableEntityBean(String entityType, String entityIdentifier) {
     this.entityType = entityType;
     this.entityIdentifier = entityIdentifier;
@@ -21,6 +23,29 @@ public class VariableEntityBean implements VariableEntity {
   @Override
   public String getType() {
     return entityType;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if(this == obj) {
+      return true;
+    }
+    if(obj instanceof VariableEntity) {
+      VariableEntity rhs = (VariableEntity) obj;
+      return entityType.equals(rhs.getType()) && entityIdentifier.equals(rhs.getIdentifier());
+    }
+    return super.equals(obj);
+  }
+
+  @Override
+  public int hashCode() {// Lazily initialized, cached hashCode
+    if(hashCode == 0) {
+      int result = 17;
+      result = 37 * result + entityType.hashCode();
+      result = 37 * result + entityIdentifier.hashCode();
+      hashCode = result;
+    }
+    return hashCode;
   }
 
   @Override

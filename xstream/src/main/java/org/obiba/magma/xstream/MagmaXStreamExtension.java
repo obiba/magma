@@ -1,10 +1,16 @@
 package org.obiba.magma.xstream;
 
+import java.util.Map;
+
 import org.obiba.magma.MagmaEngineExtension;
+
+import com.google.common.collect.ImmutableMap;
 
 public class MagmaXStreamExtension implements MagmaEngineExtension {
 
-  private XStreamFactory factory = new DefaultXStreamFactory();
+  private XStreamFactory currentFactory = new DefaultXStreamFactory();
+
+  private Map<String, ? extends XStreamFactory> compatibleFactories = ImmutableMap.of("1", currentFactory);
 
   @Override
   public String getName() {
@@ -16,7 +22,10 @@ public class MagmaXStreamExtension implements MagmaEngineExtension {
   }
 
   public XStreamFactory getXStreamFactory() {
-    return factory;
+    return currentFactory;
   }
 
+  public XStreamFactory getXStreamFactory(String version) {
+    return compatibleFactories.get(version);
+  }
 }
