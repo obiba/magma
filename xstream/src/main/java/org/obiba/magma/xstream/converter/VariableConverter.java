@@ -81,7 +81,9 @@ public class VariableConverter extends AbstractAttributeAwareConverter {
 
   public Object unmarshal(HierarchicalStreamReader reader, UnmarshallingContext context) {
     Variable.Builder builder = Variable.Builder.newVariable(reader.getAttribute("valueTable"), reader.getAttribute("name"), ValueType.Factory.forName(reader.getAttribute("valueType")), reader.getAttribute("entityType"));
-
+    if(reader.getAttribute("repeatable") != null) {
+      builder.repeatable().occurrenceGroup(reader.getAttribute("occurrenceGroup"));
+    }
     while(reader.hasMoreChildren()) {
       reader.moveDown();
       if(isAttributesNode(reader.getNodeName())) {
