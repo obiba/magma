@@ -64,6 +64,9 @@ public class BooleanType extends AbstractValueType {
 
   @Override
   public Value valueOf(String string) {
+    if(string == null) {
+      return nullValue();
+    }
     return Factory.newValue(this, Boolean.valueOf(string));
   }
 

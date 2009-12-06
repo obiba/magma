@@ -52,12 +52,18 @@ public class BinaryType extends AbstractValueType {
 
   @Override
   public String toString(Value value) {
+    if(value.isNull()) {
+      return null;
+    }
     // TODO: Base64 encode
     throw new UnsupportedOperationException("method not implemented");
   }
 
   @Override
   public Value valueOf(String string) {
+    if(string == null) {
+      return nullValue();
+    }
     // TODO: Base64 decode
     throw new UnsupportedOperationException("method not implemented");
   }

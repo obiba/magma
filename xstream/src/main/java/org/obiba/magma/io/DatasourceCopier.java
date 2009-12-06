@@ -14,6 +14,29 @@ import org.obiba.magma.ValueTableWriter.VariableWriter;
 
 public class DatasourceCopier {
 
+  public static class Builder {
+
+    DatasourceCopier copier = new DatasourceCopier();
+
+    public Builder() {
+    }
+
+    public static Builder newCopier() {
+      return new Builder();
+    }
+
+    public Builder dontCopyNullValues() {
+      copier.copyNullValues = false;
+      return this;
+    }
+
+    public DatasourceCopier build() {
+      return copier;
+    }
+  }
+
+  private boolean copyNullValues = true;
+
   public DatasourceCopier() {
 
   }
@@ -39,7 +62,9 @@ public class DatasourceCopier {
       ValueSetWriter vsw = vtw.writeValueSet(valueSet.getVariableEntity());
       for(Variable variable : table.getVariables()) {
         Value value = table.getValue(variable, valueSet);
-        vsw.writeValue(variable, value);
+        if(value.isNull() == false || copyNullValues) {
+          vsw.writeValue(variable, value);
+        }
       }
       vsw.close();
     }

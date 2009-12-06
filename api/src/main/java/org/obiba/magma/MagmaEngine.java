@@ -70,12 +70,16 @@ public class MagmaEngine {
   }
 
   public Datasource getDatasource(final String name) {
-    return Iterables.find(datasources, new Predicate<Datasource>() {
-      @Override
-      public boolean apply(Datasource input) {
-        return name.equals(input.getName());
-      }
-    });
+    try {
+      return Iterables.find(datasources, new Predicate<Datasource>() {
+        @Override
+        public boolean apply(Datasource input) {
+          return name.equals(input.getName());
+        }
+      });
+    } catch(NoSuchElementException e) {
+      throw new NoSuchDatasourceException(name);
+    }
   }
 
   public void addDatasource(Datasource datasource) {

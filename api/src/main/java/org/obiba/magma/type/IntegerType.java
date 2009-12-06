@@ -40,13 +40,16 @@ public class IntegerType extends AbstractNumberType {
 
   @Override
   public Value valueOf(String string) {
+    if(string == null) {
+      return nullValue();
+    }
     return Factory.newValue(this, Long.valueOf(string));
   }
 
   @Override
   public Value valueOf(Object object) {
     if(object == null) {
-      return Factory.newValue(this, null);
+      return nullValue();
     }
     Class<?> type = object.getClass();
     if(Number.class.isAssignableFrom(type)) {

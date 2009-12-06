@@ -75,13 +75,13 @@ public class FsDatasource extends AbstractDatasource {
   @Override
   protected DatasourceMetaData readMetadata() {
     if(datasourceArchive.exists()) {
-      FileInputStream fis = null;
+      Reader reader = null;
       try {
-        return (DatasourceMetaData) new XStream().fromXML(fis = new FileInputStream(new File(datasourceArchive, "metadata.xml")));
+        return (DatasourceMetaData) new XStream().fromXML(reader = new InputStreamReader(new FileInputStream(new File(datasourceArchive, "metadata.xml")), CHARSET));
       } catch(FileNotFoundException e) {
         throw new MagmaRuntimeException(e);
       } finally {
-        Closeables.closeQuietly(fis);
+        Closeables.closeQuietly(reader);
       }
     }
     return new DatasourceMetaData("1");
@@ -89,13 +89,13 @@ public class FsDatasource extends AbstractDatasource {
 
   @Override
   protected void writeMetadata() {
-    FileOutputStream fos = null;
+    Writer writer = null;
     try {
-      new XStream().toXML(getMetaData(), new OutputStreamWriter(fos = new FileOutputStream(new File(datasourceArchive, "metadata.xml")), CHARSET));
+      new XStream().toXML(getMetaData(), writer = new OutputStreamWriter(new FileOutputStream(new File(datasourceArchive, "metadata.xml")), CHARSET));
     } catch(FileNotFoundException e) {
       throw new MagmaRuntimeException(e);
     } finally {
-      Closeables.closeQuietly(fos);
+      Closeables.closeQuietly(writer);
     }
   }
 

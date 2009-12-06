@@ -55,6 +55,7 @@ public class DateType extends AbstractValueType {
 
   @Override
   public String toString(Value value) {
+    if(value.isNull()) return null;
     Date date = (Date) value.getValue();
     // DateFormat is not thread safe
     synchronized(ISO_8601) {
