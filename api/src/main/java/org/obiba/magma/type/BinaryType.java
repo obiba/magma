@@ -1,5 +1,6 @@
 package org.obiba.magma.type;
 
+import java.io.IOException;
 import java.lang.ref.WeakReference;
 
 import javax.xml.namespace.QName;
@@ -55,8 +56,7 @@ public class BinaryType extends AbstractValueType {
     if(value.isNull()) {
       return null;
     }
-    // TODO: Base64 encode
-    throw new UnsupportedOperationException("method not implemented");
+    return Base64.encodeBytes((byte[]) value.getValue());
   }
 
   @Override
@@ -64,8 +64,11 @@ public class BinaryType extends AbstractValueType {
     if(string == null) {
       return nullValue();
     }
-    // TODO: Base64 decode
-    throw new UnsupportedOperationException("method not implemented");
+    try {
+      return Factory.newValue(this, Base64.decode(string, Base64.DONT_GUNZIP));
+    } catch(IOException e) {
+      throw new IllegalArgumentException("Invalid Base64 encoding. Cannot construct binary Value instance.", e);
+    }
   }
 
   @Override
@@ -77,7 +80,7 @@ public class BinaryType extends AbstractValueType {
     if(byte[].class.equals(object.getClass())) {
       return Factory.newValue(this, (byte[]) object);
     }
-    throw new UnsupportedOperationException("method not implemented");
+    throw new IllegalArgumentException("Cannot construct " + getClass().getSimpleName() + " from type " + object.getClass() + ".");
   }
 
 }
