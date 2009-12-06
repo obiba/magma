@@ -1,4 +1,4 @@
-package org.obiba.magma.io;
+package org.obiba.magma.datasource.fs;
 
 import java.io.EOFException;
 import java.io.FileNotFoundException;
@@ -18,8 +18,8 @@ import org.obiba.magma.ValueType;
 import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.VariableValueSource;
-import org.obiba.magma.io.FsDatasource.InputCallback;
-import org.obiba.magma.io.FsDatasource.OutputCallback;
+import org.obiba.magma.datasource.fs.FsDatasource.InputCallback;
+import org.obiba.magma.datasource.fs.FsDatasource.OutputCallback;
 import org.obiba.magma.support.AbstractValueTable;
 import org.obiba.magma.support.ValueSetBean;
 import org.obiba.magma.xstream.XStreamValueSet;
@@ -59,9 +59,9 @@ class FsValueTable extends AbstractValueTable implements Initialisable, Disposab
       variableEntityProvider.initialise();
       super.setVariableEntityProvider(variableEntityProvider);
       readVariables();
-    } catch(RuntimeException e) {
+    } catch (RuntimeException e) {
       throw e;
-    } catch(Exception e) {
+    } catch (Exception e) {
       throw new MagmaRuntimeException(e);
     }
   }
@@ -107,13 +107,13 @@ class FsValueTable extends AbstractValueTable implements Initialisable, Disposab
       public Void readEntry(Reader reader) throws IOException {
         ObjectInputStream ois = xstream.createObjectInputStream(reader);
         try {
-          while(true) {
+          while (true) {
             Variable variable = (Variable) ois.readObject();
             addVariableValueSource(new FsVariableValueSource(variable));
           }
-        } catch(EOFException e) {
+        } catch (EOFException e) {
           // We reached the end of the ois.
-        } catch(ClassNotFoundException e) {
+        } catch (ClassNotFoundException e) {
           throw new MagmaRuntimeException(e);
         }
         return null;
@@ -124,7 +124,7 @@ class FsValueTable extends AbstractValueTable implements Initialisable, Disposab
 
   private XStreamValueSet readValueSet(VariableEntity entity) {
     String entryName = variableEntityProvider.getEntityFile(entity);
-    if(entryName == null) {
+    if (entryName == null) {
       throw new NoSuchValueSetException(entity);
     }
     return readEntry(entryName, new InputCallback<XStreamValueSet>() {
@@ -169,7 +169,7 @@ class FsValueTable extends AbstractValueTable implements Initialisable, Disposab
     }
 
     XStreamValueSet getValueSet() {
-      if(valueSet == null) {
+      if (valueSet == null) {
         valueSet = readValueSet(getVariableEntity());
       }
       return valueSet;

@@ -1,4 +1,4 @@
-package org.obiba.magma.io;
+package org.obiba.magma.datasource.fs;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -10,8 +10,8 @@ import java.util.Set;
 import org.obiba.magma.Disposable;
 import org.obiba.magma.Initialisable;
 import org.obiba.magma.VariableEntity;
-import org.obiba.magma.io.FsDatasource.InputCallback;
-import org.obiba.magma.io.FsDatasource.OutputCallback;
+import org.obiba.magma.datasource.fs.FsDatasource.InputCallback;
+import org.obiba.magma.datasource.fs.FsDatasource.OutputCallback;
 import org.obiba.magma.support.VariableEntityProvider;
 
 import com.google.common.collect.BiMap;
@@ -36,6 +36,7 @@ class FsVariableEntityProvider implements VariableEntityProvider, Initialisable,
   public void initialise() {
     valueTable.readEntry(ENTITIES_NAME, new InputCallback<Void>() {
       @Override
+      @SuppressWarnings("unchecked")
       public Void readEntry(Reader reader) throws IOException {
         XStream xstream = new XStream();
         Map<VariableEntity, String> entries = (Map<VariableEntity, String>) xstream.fromXML(reader);
@@ -73,7 +74,7 @@ class FsVariableEntityProvider implements VariableEntityProvider, Initialisable,
   }
 
   String addEntity(VariableEntity entity) {
-    if(entityToFile.containsKey(entity) == false) {
+    if (entityToFile.containsKey(entity) == false) {
       entityToFile.put(entity, Integer.toString(entityToFile.size() + 1) + ".xml");
     }
     return getEntityFile(entity);

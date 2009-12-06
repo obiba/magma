@@ -31,7 +31,7 @@
     </dependency>
     <dependency>
       <groupId>org.obiba.magma</groupId>
-      <artifactId>magma-xstream</artifactId>
+      <artifactId>magma-datasource-fs</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>

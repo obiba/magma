@@ -1,4 +1,4 @@
-package org.obiba.magma.io;
+package org.obiba.magma.datasource.fs;
 
 import java.io.FileFilter;
 import java.io.FileNotFoundException;
@@ -15,7 +15,7 @@ import org.obiba.magma.MagmaEngine;
 import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.ValueTableWriter;
-import org.obiba.magma.io.output.NullOutputStreamWrapper;
+import org.obiba.magma.datasource.fs.output.NullOutputStreamWrapper;
 import org.obiba.magma.support.AbstractDatasource;
 import org.obiba.magma.xstream.MagmaXStreamExtension;
 
@@ -29,7 +29,8 @@ import de.schlichtherle.io.FileInputStream;
 import de.schlichtherle.io.FileOutputStream;
 
 /**
- * Implements a {@code Datasource} on top of an archive file in the local file system.
+ * Implements a {@code Datasource} on top of an archive file in the local file
+ * system.
  */
 public class FsDatasource extends AbstractDatasource {
 
@@ -54,7 +55,7 @@ public class FsDatasource extends AbstractDatasource {
 
   public ValueTableWriter createWriter(String name) {
     FsValueTable valueTable = null;
-    if(hasValueTable(name)) {
+    if (hasValueTable(name)) {
       valueTable = (FsValueTable) getValueTable(name);
     } else {
       addValueTable(valueTable = new FsValueTable(this, name));
@@ -67,18 +68,19 @@ public class FsDatasource extends AbstractDatasource {
     super.dispose();
     try {
       File.umount(datasourceArchive);
-    } catch(ArchiveException e) {
+    } catch (ArchiveException e) {
       throw new MagmaRuntimeException(e);
     }
   }
 
   @Override
   protected DatasourceMetaData readMetadata() {
-    if(datasourceArchive.exists()) {
+    if (datasourceArchive.exists()) {
       Reader reader = null;
       try {
-        return (DatasourceMetaData) new XStream().fromXML(reader = new InputStreamReader(new FileInputStream(new File(datasourceArchive, "metadata.xml")), CHARSET));
-      } catch(FileNotFoundException e) {
+        return (DatasourceMetaData) new XStream().fromXML(reader = new InputStreamReader(new FileInputStream(new File(datasourceArchive, "metadata.xml")),
+            CHARSET));
+      } catch (FileNotFoundException e) {
         throw new MagmaRuntimeException(e);
       } finally {
         Closeables.closeQuietly(reader);
@@ -92,7 +94,7 @@ public class FsDatasource extends AbstractDatasource {
     Writer writer = null;
     try {
       new XStream().toXML(getMetaData(), writer = new OutputStreamWriter(new FileOutputStream(new File(datasourceArchive, "metadata.xml")), CHARSET));
-    } catch(FileNotFoundException e) {
+    } catch (FileNotFoundException e) {
       throw new MagmaRuntimeException(e);
     } finally {
       Closeables.closeQuietly(writer);
@@ -101,7 +103,7 @@ public class FsDatasource extends AbstractDatasource {
 
   @Override
   protected Set<String> getValueTableNames() {
-    if(datasourceArchive.exists()) {
+    if (datasourceArchive.exists()) {
       java.io.File[] files = datasourceArchive.listFiles(new FileFilter() {
         @Override
         public boolean accept(java.io.File pathname) {
@@ -109,7 +111,7 @@ public class FsDatasource extends AbstractDatasource {
         }
       });
       Set<String> tableNames = Sets.newHashSet();
-      for(java.io.File f : files) {
+      for (java.io.File f : files) {
         tableNames.add(f.getName());
       }
       return tableNames;
@@ -131,14 +133,14 @@ public class FsDatasource extends AbstractDatasource {
   }
 
   <T> T readEntry(File entry, InputCallback<T> callback) {
-    if(entry.exists()) {
+    if (entry.exists()) {
       Reader reader = null;
       try {
         return callback.readEntry(reader = createReader(entry));
-      } catch(FileNotFoundException e) {
+      } catch (FileNotFoundException e) {
         // this cannot happen since we tested file.exists().
         throw new MagmaRuntimeException(e);
-      } catch(IOException e) {
+      } catch (IOException e) {
         throw new MagmaRuntimeException(e);
       } finally {
         Closeables.closeQuietly(reader);
@@ -155,7 +157,7 @@ public class FsDatasource extends AbstractDatasource {
     Writer writer = null;
     try {
       return callback.writeEntry(writer = createWriter(file));
-    } catch(IOException e) {
+    } catch (IOException e) {
       throw new MagmaRuntimeException(e);
     } finally {
       Closeables.closeQuietly(writer);
@@ -169,7 +171,7 @@ public class FsDatasource extends AbstractDatasource {
   Reader createReader(File entry) {
     try {
       return new InputStreamReader(new FileInputStream(entry), CHARSET);
-    } catch(FileNotFoundException e) {
+    } catch (FileNotFoundException e) {
       throw new MagmaRuntimeException(e);
     }
   }
@@ -177,7 +179,7 @@ public class FsDatasource extends AbstractDatasource {
   Writer createWriter(File entry) {
     try {
       return new OutputStreamWriter(outputStreamWrapper.wrap(new FileOutputStream(entry), entry), CHARSET);
-    } catch(FileNotFoundException e) {
+    } catch (FileNotFoundException e) {
       throw new MagmaRuntimeException(e);
     }
   }

@@ -94,6 +94,7 @@
     <module>filter</module>
     <module>spring</module>
     <module>crypt</module>
+    <module>datasource-fs</module>
   </modules>
 
   <build>

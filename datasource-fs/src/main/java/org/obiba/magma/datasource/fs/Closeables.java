@@ -1,4 +1,4 @@
-package org.obiba.magma.io;
+package org.obiba.magma.datasource.fs;
 
 import java.io.Closeable;
 import java.io.IOException;

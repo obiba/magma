@@ -10,10 +10,10 @@ import org.obiba.magma.ValueSequence;
 import org.obiba.magma.ValueSet;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.Variable;
+import org.obiba.magma.datasource.fs.DatasourceCopier;
+import org.obiba.magma.datasource.fs.FsDatasource;
+import org.obiba.magma.datasource.fs.output.DigestOutputStreamWrapper;
 import org.obiba.magma.integration.service.XStreamIntegrationServiceFactory;
-import org.obiba.magma.io.DatasourceCopier;
-import org.obiba.magma.io.FsDatasource;
-import org.obiba.magma.io.output.DigestOutputStreamWrapper;
 import org.obiba.magma.js.MagmaJsExtension;
 import org.obiba.magma.xstream.MagmaXStreamExtension;
 
