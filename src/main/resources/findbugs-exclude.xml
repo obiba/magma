@@ -4,6 +4,12 @@
     <Bug pattern="SIC_INNER_SHOULD_BE_STATIC_ANON" />
   </Match>
 
+  <!-- We deliberately access static members from the singleton instance. -->
+  <Match>
+    <Class name="org.obiba.magma.MagmaEngine" />
+    <Bug pattern="ST_WRITE_TO_STATIC_FROM_INSTANCE_METHOD" />
+  </Match>
+  
   <!-- We don't want to syncrhonize access to the static get() method of ValueType instances. -->
   <Match>
     <Package name="org.obiba.magma.type" />
