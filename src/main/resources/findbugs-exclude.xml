@@ -9,7 +9,7 @@
     <Class name="org.obiba.magma.MagmaEngine" />
     <Bug pattern="ST_WRITE_TO_STATIC_FROM_INSTANCE_METHOD" />
   </Match>
-  
+
   <!-- We don't want to syncrhonize access to the static get() method of ValueType instances. -->
   <Match>
     <Package name="org.obiba.magma.type" />
@@ -20,5 +20,10 @@
   <Match>
     <Package name="org.obiba.magma.js.methods" />
     <Bug pattern="BC_UNCONFIRMED_CAST" />
+  </Match>
+
+  <!-- Don't report bugs for this test package. -->
+  <Match>
+    <Package name="~org\.obiba\.magma\.integration\..*" />
   </Match>
 </FindBugsFilter>
