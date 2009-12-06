@@ -9,7 +9,7 @@ import org.obiba.magma.Datasource;
 import org.obiba.magma.DatasourceMetaData;
 import org.obiba.magma.Disposable;
 import org.obiba.magma.Initialisable;
-import org.obiba.magma.NoSuchCollectionException;
+import org.obiba.magma.NoSuchValueTableException;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.ValueTableWriter;
 
@@ -61,7 +61,7 @@ public abstract class AbstractDatasource implements Datasource {
   }
 
   @Override
-  public ValueTable getValueTable(final String name) {
+  public ValueTable getValueTable(final String name) throws NoSuchValueTableException {
     try {
       return Iterables.find(getValueTables(), new Predicate<ValueTable>() {
         @Override
@@ -70,7 +70,7 @@ public abstract class AbstractDatasource implements Datasource {
         }
       });
     } catch(NoSuchElementException e) {
-      throw new NoSuchCollectionException(name);
+      throw new NoSuchValueTableException(name);
     }
   }
 

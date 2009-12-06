@@ -10,7 +10,7 @@ public interface Datasource extends Initialisable, Disposable {
 
   public DatasourceMetaData getMetaData();
 
-  public ValueTable getValueTable(String name);
+  public ValueTable getValueTable(String name) throws NoSuchValueTableException;
 
   public Set<ValueTable> getValueTables();
 
