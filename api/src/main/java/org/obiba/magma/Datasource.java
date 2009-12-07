@@ -2,13 +2,13 @@ package org.obiba.magma;
 
 import java.util.Set;
 
-public interface Datasource extends Initialisable, Disposable {
+public interface Datasource extends Initialisable, Disposable, AttributeAware {
 
   public String getName();
 
   public String getType();
 
-  public DatasourceMetaData getMetaData();
+  public boolean hasValueTable(String name);
 
   public ValueTable getValueTable(String name) throws NoSuchValueTableException;
 

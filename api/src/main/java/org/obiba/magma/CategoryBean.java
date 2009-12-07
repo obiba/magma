@@ -1,6 +1,11 @@
 package org.obiba.magma;
 
+import com.google.common.collect.LinkedListMultimap;
+import com.google.common.collect.ListMultimap;
+
 class CategoryBean extends AbstractAttributeAware implements Category {
+
+  ListMultimap<String, Attribute> attributes = LinkedListMultimap.create();
 
   String name;
 
@@ -28,4 +33,8 @@ class CategoryBean extends AbstractAttributeAware implements Category {
     return missing;
   }
 
+  @Override
+  protected ListMultimap<String, Attribute> getInstanceAttributes() {
+    return attributes;
+  }
 }

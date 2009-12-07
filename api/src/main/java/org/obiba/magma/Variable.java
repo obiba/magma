@@ -14,6 +14,8 @@ import java.util.Set;
 
 import javax.xml.namespace.QName;
 
+import com.google.common.collect.ListMultimap;
+
 /**
  * The meta-data of a {@code Value}. {@code Value} instances can be obtained for {@code ValueSet} instances. When this
  * value requires description, this is done through an instance of {@code Variable}.
@@ -39,8 +41,9 @@ public interface Variable extends AttributeAware {
       this.variable = builder.variable;
     }
 
-    protected AbstractAttributeAware getAttributeAware() {
-      return variable;
+    @Override
+    protected ListMultimap<String, Attribute> getAttributes() {
+      return variable.attributes;
     }
 
     @Override

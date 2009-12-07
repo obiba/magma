@@ -5,8 +5,9 @@ import java.util.HashSet;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
+import org.obiba.magma.AbstractAttributeAware;
+import org.obiba.magma.Attribute;
 import org.obiba.magma.Datasource;
-import org.obiba.magma.DatasourceMetaData;
 import org.obiba.magma.Disposable;
 import org.obiba.magma.Initialisable;
 import org.obiba.magma.NoSuchValueTableException;
@@ -15,16 +16,18 @@ import org.obiba.magma.ValueTableWriter;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.LinkedListMultimap;
+import com.google.common.collect.ListMultimap;
 
-public abstract class AbstractDatasource implements Datasource {
+public abstract class AbstractDatasource extends AbstractAttributeAware implements Datasource {
 
   private String name;
 
   private String type;
 
-  private DatasourceMetaData metadata;
-
   private Set<ValueTable> valueTables = new HashSet<ValueTable>();
+
+  private ListMultimap<String, Attribute> attributes = LinkedListMultimap.create();
 
   protected AbstractDatasource(String name, String type) {
     this.name = name;
@@ -42,15 +45,11 @@ public abstract class AbstractDatasource implements Datasource {
   }
 
   @Override
-  public DatasourceMetaData getMetaData() {
-    return metadata;
-  }
-
-  @Override
   public Set<ValueTable> getValueTables() {
     return Collections.unmodifiableSet(valueTables);
   }
 
+  @Override
   public boolean hasValueTable(String name) {
     for(ValueTable vt : getValueTables()) {
       if(vt.getName().equals(name)) {
@@ -76,12 +75,10 @@ public abstract class AbstractDatasource implements Datasource {
 
   @Override
   public void initialise() {
-    metadata = readMetadata();
-
+    onInitialise();
     for(String valueTable : getValueTableNames()) {
       addValueTable(initialiseValueTable(valueTable));
     }
-
   }
 
   @Override
@@ -89,7 +86,7 @@ public abstract class AbstractDatasource implements Datasource {
     for(Disposable disposable : Iterables.filter(getValueTables(), Disposable.class)) {
       disposable.dispose();
     }
-    writeMetadata();
+    onDispose();
   }
 
   protected void addValueTable(ValueTable vt) {
@@ -104,13 +101,21 @@ public abstract class AbstractDatasource implements Datasource {
     throw new UnsupportedOperationException();
   }
 
-  protected void writeMetadata() {
+  @Override
+  protected ListMultimap<String, Attribute> getInstanceAttributes() {
+    return attributes;
+  }
+
+  protected void onInitialise() {
 
   }
 
-  protected abstract DatasourceMetaData readMetadata();
+  protected void onDispose() {
+
+  }
 
   protected abstract Set<String> getValueTableNames();
 
   protected abstract ValueTable initialiseValueTable(String tableName);
+
 }

@@ -29,6 +29,14 @@ public interface AttributeAware {
 
   public String getAttributeStringValue(String name) throws NoSuchAttributeException;
 
+  /**
+   * Returns the list of attributes associated with the specified name.
+   * @param name the key of the attributes to return
+   * @return
+   * @throws NoSuchAttributeException when no attribute exists for the specified key
+   */
+  public List<Attribute> getAttributes(String name) throws NoSuchAttributeException;
+
   public List<Attribute> getAttributes();
 
 }

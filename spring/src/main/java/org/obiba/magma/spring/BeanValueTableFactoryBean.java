@@ -9,7 +9,7 @@ import org.obiba.magma.support.VariableEntityProvider;
 
 public class BeanValueTableFactoryBean implements ValueTableFactoryBean {
 
-  private String name;
+  private String valueTableName;
 
   private VariableEntityProvider variableEntityProvider;
 
@@ -17,8 +17,13 @@ public class BeanValueTableFactoryBean implements ValueTableFactoryBean {
 
   private VariableValueSourceFactory factory;
 
-  public void setName(String name) {
-    this.name = name;
+  public void setValueTableName(String name) {
+    this.valueTableName = name;
+  }
+  
+  @Override
+  public String getValueTableName() {
+    return valueTableName;
   }
 
   public void setVariableEntityProvider(VariableEntityProvider variableEntityProvider) {
@@ -41,7 +46,7 @@ public class BeanValueTableFactoryBean implements ValueTableFactoryBean {
     if(factory == null) {
       throw new IllegalStateException("variableValueSourceFactory property cannot be null");
     }
-    BeanValueTable bvt = new BeanValueTable(datasource, name, variableEntityProvider);
+    BeanValueTable bvt = new BeanValueTable(datasource, getValueTableName(), variableEntityProvider);
     bvt.addResolver(resolver);
     bvt.addVariableValueSources(factory);
     return bvt;

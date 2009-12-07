@@ -2,24 +2,26 @@ package org.obiba.magma;
 
 import java.util.Locale;
 
+import com.google.common.collect.ListMultimap;
+
 public abstract class AttributeAwareBuilder<T extends AttributeAwareBuilder<?>> {
 
   public T addAttribute(String name, String value) {
-    getAttributeAware().attributes.put(name, Attribute.Builder.newAttribute(name).withValue(value).build());
+    getAttributes().put(name, Attribute.Builder.newAttribute(name).withValue(value).build());
     return getBuilder();
   }
 
   public T addAttribute(String name, String value, Locale locale) {
-    getAttributeAware().attributes.put(name, Attribute.Builder.newAttribute(name).withValue(locale, value).build());
+    getAttributes().put(name, Attribute.Builder.newAttribute(name).withValue(locale, value).build());
     return getBuilder();
   }
 
   public T addAttribute(Attribute attribute) {
-    getAttributeAware().attributes.put(attribute.getName(), attribute);
+    getAttributes().put(attribute.getName(), attribute);
     return getBuilder();
   }
 
-  protected abstract AbstractAttributeAware getAttributeAware();
+  protected abstract ListMultimap<String, Attribute> getAttributes();
 
   protected abstract T getBuilder();
 }

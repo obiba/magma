@@ -1,5 +1,7 @@
 package org.obiba.magma;
 
+import com.google.common.collect.ListMultimap;
+
 public interface Category extends AttributeAware {
 
   public static class Builder extends AttributeAwareBuilder<Builder> {
@@ -10,8 +12,9 @@ public interface Category extends AttributeAware {
       category = new CategoryBean(name, null);
     }
 
-    protected AbstractAttributeAware getAttributeAware() {
-      return category;
+    @Override
+    protected ListMultimap<String, Attribute> getAttributes() {
+      return category.attributes;
     }
 
     @Override

@@ -6,7 +6,12 @@ import java.util.Set;
 
 import javax.xml.namespace.QName;
 
+import com.google.common.collect.LinkedListMultimap;
+import com.google.common.collect.ListMultimap;
+
 class VariableBean extends AbstractAttributeAware implements Variable {
+
+  ListMultimap<String, Attribute> attributes = LinkedListMultimap.create();
 
   String valueTableName;
 
@@ -92,5 +97,10 @@ class VariableBean extends AbstractAttributeAware implements Variable {
   @Override
   public boolean hasCategories() {
     return categories.size() > 0;
+  }
+
+  @Override
+  protected ListMultimap<String, Attribute> getInstanceAttributes() {
+    return attributes;
   }
 }
