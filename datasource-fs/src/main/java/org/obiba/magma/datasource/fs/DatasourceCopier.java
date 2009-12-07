@@ -53,21 +53,30 @@ public class DatasourceCopier {
 
   public void copy(ValueTable table, Datasource destination) throws IOException {
     ValueTableWriter vtw = destination.createWriter(table.getName());
-    VariableWriter vw = vtw.writeVariables();
-    for(Variable variable : table.getVariables()) {
-      vw.writeVariable(variable);
-    }
-    vw.close();
-    for(ValueSet valueSet : table.getValueSets()) {
-      ValueSetWriter vsw = vtw.writeValueSet(valueSet.getVariableEntity());
-      for(Variable variable : table.getVariables()) {
-        Value value = table.getValue(variable, valueSet);
-        if(value.isNull() == false || copyNullValues) {
-          vsw.writeValue(variable, value);
+    try {
+      VariableWriter vw = vtw.writeVariables();
+      try {
+        for(Variable variable : table.getVariables()) {
+          vw.writeVariable(variable);
+        }
+      } finally {
+        vw.close();
+      }
+      for(ValueSet valueSet : table.getValueSets()) {
+        ValueSetWriter vsw = vtw.writeValueSet(valueSet.getVariableEntity());
+        try {
+          for(Variable variable : table.getVariables()) {
+            Value value = table.getValue(variable, valueSet);
+            if(value.isNull() == false || copyNullValues) {
+              vsw.writeValue(variable, value);
+            }
+          }
+        } finally {
+          vsw.close();
         }
       }
-      vsw.close();
+    } finally {
+      vtw.close();
     }
-    vtw.close();
   }
 }
