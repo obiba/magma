@@ -11,8 +11,12 @@ import org.obiba.magma.ValueTableWriter;
 import org.obiba.magma.Variable;
 import org.obiba.magma.ValueTableWriter.ValueSetWriter;
 import org.obiba.magma.ValueTableWriter.VariableWriter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class DatasourceCopier {
+
+  private static final Logger log = LoggerFactory.getLogger(DatasourceCopier.class);
 
   public static class Builder {
 
@@ -46,12 +50,20 @@ public class DatasourceCopier {
   }
 
   public void copy(Datasource source, Datasource destination) throws IOException {
+    if(source == destination) {
+      // Don't copy on itself! The caller probably didn't want to really do this, did they?
+      log.warn("Invoked Datasource to Datasource copy with the same Datasource instance as source and destination. Nothing copied to or from Datasource '{}'.", source.getName());
+      return;
+    }
+
+    log.info("Copying Datasource '{}' to '{}'.", source.getName(), destination.getName());
     for(ValueTable table : source.getValueTables()) {
       copy(table, destination);
     }
   }
 
   public void copy(ValueTable table, Datasource destination) throws IOException {
+    // TODO: the target ValueTable name should probably be renamed to include the source Datasource's name
     ValueTableWriter vtw = destination.createWriter(table.getName());
     try {
       VariableWriter vw = vtw.writeVariables();
