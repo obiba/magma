@@ -11,8 +11,6 @@ class VariableBean extends AbstractAttributeAware implements Variable {
 
   ListMultimap<String, Attribute> attributes = LinkedListMultimap.create();
 
-  String valueTableName;
-
   String name;
 
   String entityType;
