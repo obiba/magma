@@ -17,7 +17,7 @@ import com.thoughtworks.xstream.mapper.Mapper;
  * Resulting XML:
  * 
  * <pre>
- * &lt;variable collection=&quot;onyx-basline&quot; name=&quot;HQ.SMOKER&quot; valueType=&quot;text&quot; entityType=&quot;Participant&quot;&gt;
+ * &lt;variable name=&quot;HQ.SMOKER&quot; valueType=&quot;text&quot; entityType=&quot;Participant&quot;&gt;
  *   &lt;attributes&gt;
  *     &lt;attribute name=&quot;label&quot; valueType=&quot;text&quot; locale=&quot;en&quot;&gt;
  *       &lt;value&gt;Do you smoke?&lt;/value&gt;
@@ -57,7 +57,6 @@ public class VariableConverter extends AbstractAttributeAwareConverter {
   public void marshal(Object source, HierarchicalStreamWriter writer, MarshallingContext context) {
     Variable variable = (Variable) source;
     writer.addAttribute("name", variable.getName());
-    writer.addAttribute("valueTable", variable.getValueTableName());
     writer.addAttribute("valueType", variable.getValueType().getName());
     writer.addAttribute("entityType", variable.getEntityType());
 
@@ -80,7 +79,7 @@ public class VariableConverter extends AbstractAttributeAwareConverter {
   }
 
   public Object unmarshal(HierarchicalStreamReader reader, UnmarshallingContext context) {
-    Variable.Builder builder = Variable.Builder.newVariable(reader.getAttribute("valueTable"), reader.getAttribute("name"), ValueType.Factory.forName(reader.getAttribute("valueType")), reader.getAttribute("entityType"));
+    Variable.Builder builder = Variable.Builder.newVariable(reader.getAttribute("name"), ValueType.Factory.forName(reader.getAttribute("valueType")), reader.getAttribute("entityType"));
     if(reader.getAttribute("repeatable") != null) {
       builder.repeatable().occurrenceGroup(reader.getAttribute("occurrenceGroup"));
     }

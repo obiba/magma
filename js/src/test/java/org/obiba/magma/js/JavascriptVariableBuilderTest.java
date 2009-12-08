@@ -10,7 +10,7 @@ public class JavascriptVariableBuilderTest extends AbstractJsTest {
 
   @Test
   public void testSimpleVariable() {
-    Variable.Builder builder = Variable.Builder.newVariable("myCollection", "myJsTest", BooleanType.get(), "Participant");
+    Variable.Builder builder = Variable.Builder.newVariable("myJsTest", BooleanType.get(), "Participant");
     try {
       Variable variable = builder.extend(JavascriptVariableBuilder.class).setScript("'Hello World!'").build();
       Attribute attribute = variable.getAttribute(JavascriptVariableBuilder.SCRIPT_ATTRIBUTE_NAME);

@@ -45,18 +45,18 @@ public class IntegrationDatasource extends AbstractDatasource {
 
     BeanVariableValueSourceFactory<Participant> variables = new BeanVariableValueSourceFactory<Participant>("Participant", Participant.class);
     variables.setProperties(ImmutableSet.of("barcode", "firstName", "lastName", "gender", "interview.startDate", "interview.endDate"));
-    sources.addAll(variables.createSources(tableName));
+    sources.addAll(variables.createSources());
 
-    sources.add(new JavascriptVariableValueSource(Variable.Builder.newVariable(tableName, "fullName", TextType.get(), "Participant").extend(JavascriptVariableBuilder.class).setScript("$('firstName') + ' ' + $('lastName')").build()));
-    sources.add(new JavascriptVariableValueSource(Variable.Builder.newVariable(tableName, "interviewYear", IntegerType.get(), "Participant").extend(JavascriptVariableBuilder.class).setScript("$('interview.startDate').year()").build()));
-    sources.add(new JavascriptVariableValueSource(Variable.Builder.newVariable(tableName, "isMale", BooleanType.get(), "Participant").extend(JavascriptVariableBuilder.class).setScript("$('gender').any('Male')").build()));
-    sources.add(new JavascriptVariableValueSource(Variable.Builder.newVariable(tableName, "isFemale", BooleanType.get(), "Participant").extend(JavascriptVariableBuilder.class).setScript("$('gender').any('Female')").build()));
+    sources.add(new JavascriptVariableValueSource(Variable.Builder.newVariable("fullName", TextType.get(), "Participant").extend(JavascriptVariableBuilder.class).setScript("$('firstName') + ' ' + $('lastName')").build()));
+    sources.add(new JavascriptVariableValueSource(Variable.Builder.newVariable("interviewYear", IntegerType.get(), "Participant").extend(JavascriptVariableBuilder.class).setScript("$('interview.startDate').year()").build()));
+    sources.add(new JavascriptVariableValueSource(Variable.Builder.newVariable("isMale", BooleanType.get(), "Participant").extend(JavascriptVariableBuilder.class).setScript("$('gender').any('Male')").build()));
+    sources.add(new JavascriptVariableValueSource(Variable.Builder.newVariable("isFemale", BooleanType.get(), "Participant").extend(JavascriptVariableBuilder.class).setScript("$('gender').any('Female')").build()));
 
     BeanVariableValueSourceFactory<Action> actionFactory = new BeanVariableValueSourceFactory<Action>("Participant", Action.class);
     actionFactory.setProperties(ImmutableSet.of("stage"));
     actionFactory.setPrefix("Action");
     actionFactory.setOccurrenceGroup("Action");
-    sources.addAll(actionFactory.createSources(tableName));
+    sources.addAll(actionFactory.createSources());
 
     VariableEntityProvider provider = new AbstractBeanVariableEntityProvider<Interview>("Participant", "participant.barcode") {
 

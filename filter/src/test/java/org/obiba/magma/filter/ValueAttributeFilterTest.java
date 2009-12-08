@@ -28,7 +28,7 @@ public class ValueAttributeFilterTest {
   @Before
   public void setUp() throws Exception {
     new MagmaEngine();
-    variable = Variable.Builder.newVariable("collectionName", "Admin.Participant.Name", ValueType.Factory.forName("text"), "Participant").addAttribute(TEST_ATTRIBUTE_NAME, TEST_ATTRIBUTE_VALUE).build();
+    variable = Variable.Builder.newVariable("Admin.Participant.Name", ValueType.Factory.forName("text"), "Participant").addAttribute(TEST_ATTRIBUTE_NAME, TEST_ATTRIBUTE_VALUE).build();
     variableValueSourceMock = EasyMock.createMock(VariableValueSource.class);
   }
 

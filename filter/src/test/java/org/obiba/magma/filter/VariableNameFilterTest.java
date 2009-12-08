@@ -24,7 +24,7 @@ public class VariableNameFilterTest {
   @Before
   public void setUp() throws Exception {
     new MagmaEngine();
-    variable = Variable.Builder.newVariable("collectionName", "Admin.Participant.Name", ValueType.Factory.forName("text"), "Participant").build();
+    variable = Variable.Builder.newVariable("Admin.Participant.Name", ValueType.Factory.forName("text"), "Participant").build();
     variableValueSourceMock = EasyMock.createMock(VariableValueSource.class);
   }
 

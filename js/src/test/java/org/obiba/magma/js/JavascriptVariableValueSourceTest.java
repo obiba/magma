@@ -18,14 +18,14 @@ public class JavascriptVariableValueSourceTest extends AbstractJsTest {
   @Test
   public void testVariableLookup() {
     // Build the javascript variable that returns AnotherVariable's value
-    Variable.Builder builder = Variable.Builder.newVariable("my-table", "JavascriptVariable", TextType.get(), "Participant");
+    Variable.Builder builder = Variable.Builder.newVariable("JavascriptVariable", TextType.get(), "Participant");
     Variable variable = builder.extend(JavascriptVariableBuilder.class).setScript("$('AnotherVariable')").build();
     JavascriptVariableValueSource source = new JavascriptVariableValueSource(variable);
 
     source.initialise();
 
     // Create the VariableValueSource for AnotherVariable
-    Variable anotherVariable = Variable.Builder.newVariable("my-table", "AnotherVariable", TextType.get(), "Participant").build();
+    Variable anotherVariable = Variable.Builder.newVariable("AnotherVariable", TextType.get(), "Participant").build();
 
     VariableValueSource mockSource = EasyMock.createMock(VariableValueSource.class);
     EasyMock.expect(mockSource.getVariable()).andReturn(anotherVariable).anyTimes();
@@ -34,6 +34,7 @@ public class JavascriptVariableValueSourceTest extends AbstractJsTest {
     ValueTable mockTable = EasyMock.createMock(ValueTable.class);
     ValueSet valueSet = new ValueSetBean(mockTable, new VariableEntityBean("Participant", "1234"));
     EasyMock.expect(mockTable.getName()).andReturn("my-table").anyTimes();
+    EasyMock.expect(mockTable.getDatasource()).andReturn(null).anyTimes();
     EasyMock.expect(mockTable.getVariableValueSource("AnotherVariable")).andReturn(mockSource).anyTimes();
     EasyMock.expect(mockTable.getValueSet((VariableEntity) EasyMock.anyObject())).andReturn(valueSet).anyTimes();
 

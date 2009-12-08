@@ -60,7 +60,7 @@ public class JavaScriptFilterTest {
   public void testScriptAnyReturnsTrue() throws Exception {
     JavaScriptFilter filter = JavaScriptFilter.Builder.newFilter().javascript("$('Admin.Interview.exported').any('TRUE')").include().build();
 
-    Variable variable = Variable.Builder.newVariable("collectionName", "Admin.Interview.exported", BooleanType.get(), "Participant").build();
+    Variable variable = Variable.Builder.newVariable("Admin.Interview.exported", BooleanType.get(), "Participant").build();
 
     VariableValueSource mockSource = EasyMock.createMock(VariableValueSource.class);
     EasyMock.expect(mockSource.getVariable()).andReturn(variable).anyTimes();
@@ -80,7 +80,7 @@ public class JavaScriptFilterTest {
   public void testScriptAnyReturnsFalse() throws Exception {
     JavaScriptFilter filter = JavaScriptFilter.Builder.newFilter().javascript("$('Admin.Interview.exported').any('FALSE')").include().build();
 
-    Variable variable = Variable.Builder.newVariable("collectionName", "Admin.Interview.exported", BooleanType.get(), "Participant").build();
+    Variable variable = Variable.Builder.newVariable("Admin.Interview.exported", BooleanType.get(), "Participant").build();
 
     VariableValueSource mockSource = EasyMock.createMock(VariableValueSource.class);
     EasyMock.expect(mockSource.getVariable()).andReturn(variable).anyTimes();
@@ -100,7 +100,7 @@ public class JavaScriptFilterTest {
   public void testScriptAnyMultipleReturnsTrue() throws Exception {
     JavaScriptFilter filter = JavaScriptFilter.Builder.newFilter().javascript("$('Participant.Interview.status').any('CANCELED','CLOSED')").include().build();
 
-    Variable variable = Variable.Builder.newVariable("collectionName", "Admin.Interview.exported", BooleanType.get(), "Participant").build();
+    Variable variable = Variable.Builder.newVariable("Admin.Interview.exported", BooleanType.get(), "Participant").build();
 
     VariableValueSource mockSource = EasyMock.createMock(VariableValueSource.class);
     EasyMock.expect(mockSource.getVariable()).andReturn(variable).anyTimes();
@@ -120,7 +120,7 @@ public class JavaScriptFilterTest {
   public void testScriptAnyMultipleReturnsFalse() throws Exception {
     JavaScriptFilter filter = JavaScriptFilter.Builder.newFilter().javascript("$('Participant.Interview.status').any('CANCELED','CLOSED')").include().build();
 
-    Variable variable = Variable.Builder.newVariable("collectionName", "Admin.Interview.exported", BooleanType.get(), "Participant").build();
+    Variable variable = Variable.Builder.newVariable("Admin.Interview.exported", BooleanType.get(), "Participant").build();
 
     VariableValueSource mockSource = EasyMock.createMock(VariableValueSource.class);
     EasyMock.expect(mockSource.getVariable()).andReturn(variable).anyTimes();
@@ -140,7 +140,7 @@ public class JavaScriptFilterTest {
   public void testScriptNotEqualReturnsTrue() throws Exception {
     JavaScriptFilter filter = JavaScriptFilter.Builder.newFilter().javascript("$('Participant.Interview.status').not('CANCELED')").include().build();
 
-    Variable variable = Variable.Builder.newVariable("collectionName", "Admin.Interview.exported", BooleanType.get(), "Participant").build();
+    Variable variable = Variable.Builder.newVariable("Admin.Interview.exported", BooleanType.get(), "Participant").build();
 
     VariableValueSource mockSource = EasyMock.createMock(VariableValueSource.class);
     EasyMock.expect(mockSource.getVariable()).andReturn(variable).anyTimes();
@@ -160,7 +160,7 @@ public class JavaScriptFilterTest {
   public void testScriptNotEqualReturnsFalse() throws Exception {
     JavaScriptFilter filter = JavaScriptFilter.Builder.newFilter().javascript("$('Participant.Interview.status').not('IN_PROGRESS')").include().build();
 
-    Variable variable = Variable.Builder.newVariable("collectionName", "Admin.Interview.exported", BooleanType.get(), "Participant").build();
+    Variable variable = Variable.Builder.newVariable("Admin.Interview.exported", BooleanType.get(), "Participant").build();
 
     VariableValueSource mockSource = EasyMock.createMock(VariableValueSource.class);
     EasyMock.expect(mockSource.getVariable()).andReturn(variable).anyTimes();

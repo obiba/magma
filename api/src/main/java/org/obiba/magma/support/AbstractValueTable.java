@@ -125,7 +125,7 @@ public abstract class AbstractValueTable implements ValueTable, Initialisable {
   }
 
   public void addVariableValueSources(VariableValueSourceFactory factory) {
-    sources.addAll(factory.createSources(getName()));
+    sources.addAll(factory.createSources());
   }
 
   public void addVariableValueSources(Set<VariableValueSource> sources) {

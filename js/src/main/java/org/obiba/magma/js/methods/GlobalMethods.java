@@ -53,16 +53,16 @@ public final class GlobalMethods {
     String name = (String) args[0];
     ValueSet valueSet = (ValueSet) context.peek(ValueSet.class);
 
-    MagmaEngineReferenceResolver resolver = new MagmaEngineReferenceResolver();
+    MagmaEngineReferenceResolver reference = MagmaEngineReferenceResolver.valueOf(name);
 
     // Find the named source
-    final VariableValueSource source = resolver.resolve(valueSet.getValueTable(), name);
+    final VariableValueSource source = reference.resolveSource(valueSet);
 
-    // If the source is in a different Collection, then we need to resolve the other ValueSet
-    if(source.getVariable().getValueTableName().equals(valueSet.getValueTable().getName()) == false) {
+    // Tests whether this valueSet is in the same table as the referenced ValueTable
+    if(reference.isJoin(valueSet)) {
       // Resolve the joined valueSet
       try {
-        valueSet = resolver.resolve(valueSet.getValueTable(), source.getVariable().getValueTableName(), valueSet.getVariableEntity());
+        valueSet = reference.join(valueSet);
       } catch(NoSuchValueSetException e) {
         // Entity does not have a ValueSet in joined collection
         // Return a null value

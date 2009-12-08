@@ -4,8 +4,6 @@ import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import javax.xml.namespace.QName;
-
 import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.ListMultimap;
 
@@ -33,16 +31,6 @@ class VariableBean extends AbstractAttributeAware implements Variable {
 
   /** Use a linked hash set to keep insertion order */
   Set<Category> categories = new LinkedHashSet<Category>();
-
-  @Override
-  public QName getQName() {
-    return new QName(getValueTableName(), getName());
-  }
-
-  @Override
-  public String getValueTableName() {
-    return valueTableName;
-  }
 
   @Override
   public String getName() {

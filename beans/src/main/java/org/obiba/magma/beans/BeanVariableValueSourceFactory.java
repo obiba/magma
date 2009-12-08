@@ -100,9 +100,9 @@ public class BeanVariableValueSourceFactory<T> implements VariableValueSourceFac
     this.occurrenceGroup = occurrenceGroup;
   }
 
-  public Set<VariableValueSource> createSources(String collection) {
+  public Set<VariableValueSource> createSources() {
     if(sources == null) {
-      doBuildVariables(collection);
+      doBuildVariables();
     }
     return sources;
   }
@@ -220,21 +220,21 @@ public class BeanVariableValueSourceFactory<T> implements VariableValueSourceFac
    * Builds the {@code Variable} that this provider supports and also the {@code VariableEntityDataSource} instances for
    * each variable.
    */
-  protected synchronized void doBuildVariables(String collection) {
+  protected synchronized void doBuildVariables() {
     sources = new HashSet<VariableValueSource>();
     for(String propertyPath : properties) {
       Class<?> propertyType = getPropertyType(propertyPath);
       if(propertyType == null) {
         throw new IllegalArgumentException("Invalid property path'" + propertyPath + "' for type " + getBeanClass().getName());
       }
-      sources.add(new BeanPropertyVariableValueSource(doBuildVariable(collection, propertyType, lookupVariableName(propertyPath)), beanClass, propertyPath));
+      sources.add(new BeanPropertyVariableValueSource(doBuildVariable(propertyType, lookupVariableName(propertyPath)), beanClass, propertyPath));
     }
   }
 
-  protected Variable doBuildVariable(String collection, Class<?> propertyType, String name) {
+  protected Variable doBuildVariable(Class<?> propertyType, String name) {
     ValueType type = ValueType.Factory.forClass(propertyType);
 
-    Variable.Builder builder = Variable.Builder.newVariable(collection, name, type, entityType);
+    Variable.Builder builder = Variable.Builder.newVariable(name, type, entityType);
     if(propertyType.isEnum()) {
       Enum<?>[] constants = (Enum<?>[]) propertyType.getEnumConstants();
       String[] names = Iterables.toArray(Iterables.transform(Arrays.asList(constants), Functions.toStringFunction()), String.class);

@@ -12,8 +12,6 @@ package org.obiba.magma;
 import java.lang.reflect.Constructor;
 import java.util.Set;
 
-import javax.xml.namespace.QName;
-
 import com.google.common.collect.ListMultimap;
 
 /**
@@ -30,8 +28,7 @@ public interface Variable extends AttributeAware {
 
     private VariableBean variable = new VariableBean();
 
-    public Builder(String table, String name, ValueType type, String entityType) {
-      variable.valueTableName = table;
+    public Builder(String name, ValueType type, String entityType) {
       variable.name = name;
       variable.valueType = type;
       variable.entityType = entityType;
@@ -51,8 +48,8 @@ public interface Variable extends AttributeAware {
       return this;
     }
 
-    public static Builder newVariable(String collection, String name, ValueType type, String entityType) {
-      return new Builder(collection, name, type, entityType);
+    public static Builder newVariable(String name, ValueType type, String entityType) {
+      return new Builder(name, type, entityType);
     }
 
     /**
@@ -211,24 +208,6 @@ public interface Variable extends AttributeAware {
     public void visit(Builder builder);
 
   }
-
-  /**
-   * The fully qualified name of this {@code Variable} instance.
-   * 
-   * <pre>
-   *  collectioName:variableName
-   * </pre>
-   * 
-   * @return the fully qualified name of the variable.
-   */
-  public QName getQName();
-
-  /**
-   * The name of the {@code ValueTable} in which this variable exists.
-   * 
-   * @return the name of the {@code ValueTable} containing this variable.
-   */
-  public String getValueTableName();
 
   /**
    * The name of the variable. A variable's name must be unique within its {@code Collection}.

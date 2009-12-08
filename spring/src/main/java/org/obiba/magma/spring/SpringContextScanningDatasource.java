@@ -23,22 +23,11 @@ import com.google.common.collect.Sets;
  */
 public class SpringContextScanningDatasource extends AbstractDatasource {
 
-  private String name;
-
   @Autowired
   private Set<ValueTableFactoryBean> valueTableFactories;
 
   public SpringContextScanningDatasource(String name) {
     super(name, "spring-context");
-  }
-
-  public void setName(String name) {
-    this.name = name;
-  }
-
-  @Override
-  public String getName() {
-    return name;
   }
 
   @Override

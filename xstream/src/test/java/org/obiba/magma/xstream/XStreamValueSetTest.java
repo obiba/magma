@@ -7,7 +7,6 @@ import org.obiba.magma.Value;
 import org.obiba.magma.Variable;
 import org.obiba.magma.support.VariableEntityBean;
 import org.obiba.magma.type.TextType;
-import org.obiba.magma.xstream.XStreamValueSet;
 
 import com.thoughtworks.xstream.XStream;
 
@@ -17,7 +16,7 @@ public class XStreamValueSetTest extends AbstractMagmaXStreamTest {
 
   @Before
   public void initialise() {
-    testVariable = Variable.Builder.newVariable("testTable", "TestVar", TextType.get(), "TestType").build();
+    testVariable = Variable.Builder.newVariable("TestVar", TextType.get(), "TestType").build();
   }
 
   @Test

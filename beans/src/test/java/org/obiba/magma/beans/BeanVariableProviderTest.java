@@ -168,7 +168,7 @@ public class BeanVariableProviderTest {
   }
 
   protected Set<VariableValueSource> assertVariablesFromProperties(BeanVariableValueSourceFactory<TestBean> bvp, Set<String> properties, Map<String, String> nameOverride) {
-    Set<VariableValueSource> variables = bvp.createSources("collection");
+    Set<VariableValueSource> variables = bvp.createSources();
     // There are no more and no less than what was specified
     Assert.assertEquals(properties.size(), variables.size());
     Collection<String> nameSet = nameOverride != null ? nameOverride.values() : properties;

@@ -39,7 +39,6 @@ public class VariableConverterTest {
     String xml = xstream.toXML(v);
     Variable unmarshalled = (Variable) xstream.fromXML(xml);
 
-    Assert.assertEquals(v.getValueTableName(), unmarshalled.getValueTableName());
     Assert.assertEquals(v.getName(), unmarshalled.getName());
     Assert.assertEquals(v.getValueType(), unmarshalled.getValueType());
     Assert.assertEquals(v.getEntityType(), unmarshalled.getEntityType());
@@ -82,7 +81,7 @@ public class VariableConverterTest {
   }
 
   protected Variable.Builder newVariable() {
-    return Variable.Builder.newVariable("my-collection", "Test.Variable", TextType.get(), "Participant");
+    return Variable.Builder.newVariable("Test.Variable", TextType.get(), "Participant");
   }
 
 }
