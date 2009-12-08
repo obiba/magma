@@ -1,6 +1,8 @@
 package org.obiba.magma.datasource.fs;
 
 import java.io.IOException;
+import java.util.LinkedList;
+import java.util.List;
 
 import org.obiba.magma.Datasource;
 import org.obiba.magma.MagmaEngine;
@@ -34,12 +36,24 @@ public class DatasourceCopier {
       return this;
     }
 
+    public Builder withListener(DatasourceCopyEventListener listener) {
+      copier.listeners.add(listener);
+      return this;
+    }
+
+    public Builder withLoggingListener() {
+      copier.listeners.add(new LoggingListener());
+      return this;
+    }
+
     public DatasourceCopier build() {
       return copier;
     }
   }
 
   private boolean copyNullValues = true;
+
+  private List<DatasourceCopyEventListener> listeners = new LinkedList<DatasourceCopyEventListener>();
 
   public DatasourceCopier() {
 
@@ -69,12 +83,15 @@ public class DatasourceCopier {
       VariableWriter vw = vtw.writeVariables();
       try {
         for(Variable variable : table.getVariables()) {
+          notifyListeners(variable, false);
           vw.writeVariable(variable);
+          notifyListeners(variable, true);
         }
       } finally {
         vw.close();
       }
       for(ValueSet valueSet : table.getValueSets()) {
+        notifyListeners(valueSet, false);
         ValueSetWriter vsw = vtw.writeValueSet(valueSet.getVariableEntity());
         try {
           for(Variable variable : table.getVariables()) {
@@ -86,9 +103,66 @@ public class DatasourceCopier {
         } finally {
           vsw.close();
         }
+        notifyListeners(valueSet, true);
       }
     } finally {
       vtw.close();
     }
+  }
+
+  private void notifyListeners(Variable variable, boolean copied) {
+    for(DatasourceCopyEventListener listener : listeners) {
+      if(copied) {
+        listener.onVariableCopied(variable);
+      } else {
+        listener.onVariableCopy(variable);
+      }
+    }
+  }
+
+  private void notifyListeners(ValueSet valueSet, boolean copied) {
+    for(DatasourceCopyEventListener listener : listeners) {
+      if(copied) {
+        listener.onValueSetCopied(valueSet);
+      } else {
+        listener.onValueSetCopy(valueSet);
+      }
+    }
+  }
+
+  public interface DatasourceCopyEventListener {
+
+    public void onVariableCopy(Variable variable);
+
+    public void onVariableCopied(Variable variable);
+
+    public void onValueSetCopy(ValueSet valueSet);
+
+    public void onValueSetCopied(ValueSet valueSet);
+
+  }
+
+  private static class LoggingListener implements DatasourceCopyEventListener {
+
+    @Override
+    public void onValueSetCopied(ValueSet valueSet) {
+      log.debug("Copied ValueSet for entity {}", valueSet.getVariableEntity());
+    }
+
+    @Override
+    public void onVariableCopied(Variable variable) {
+      log.debug("Copied variable {}", variable.getName());
+    }
+
+    @Override
+    public void onValueSetCopy(ValueSet valueSet) {
+      log.debug("Copying ValueSet for entity {}", valueSet.getVariableEntity());
+    }
+
+    @Override
+    public void onVariableCopy(Variable variable) {
+      log.debug("Copying variable {}", variable.getName());
+    }
+
   }
 }
