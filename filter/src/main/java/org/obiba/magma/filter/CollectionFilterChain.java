@@ -25,6 +25,9 @@ public class CollectionFilterChain<T> implements FilterChain<T> {
   public T filter(T item) {
     StateEnvelope<T> envelope = new StateEnvelope<T>(item);
 
+    // No filter, item is IN by default.
+    if(getFilters() == null) return item;
+
     for(Filter<T> filter : getFilters()) {
       envelope = filter.doIt(envelope);
     }

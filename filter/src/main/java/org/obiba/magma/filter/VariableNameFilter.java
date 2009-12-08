@@ -4,14 +4,14 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.obiba.magma.Initialisable;
-import org.obiba.magma.VariableValueSource;
+import org.obiba.magma.Variable;
 
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
 import com.thoughtworks.xstream.annotations.XStreamOmitField;
 
 @XStreamAlias("variableName")
-public class VariableNameFilter extends AbstractFilter<VariableValueSource> implements Initialisable {
+public class VariableNameFilter extends AbstractFilter<Variable> implements Initialisable {
 
   @XStreamAsAttribute
   private String prefix;
@@ -45,12 +45,12 @@ public class VariableNameFilter extends AbstractFilter<VariableValueSource> impl
   }
 
   @Override
-  protected boolean runFilter(VariableValueSource item) {
+  protected boolean runFilter(Variable item) {
     initialise();
     if(prefix != null) {
-      if(item.getVariable().getName().startsWith(prefix)) return true;
+      if(item.getName().startsWith(prefix)) return true;
     } else if(match != null) {
-      Matcher matcher = matchPattern.matcher(item.getVariable().getName());
+      Matcher matcher = matchPattern.matcher(item.getName());
       if(matcher.matches()) return true;
     }
 

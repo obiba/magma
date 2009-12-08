@@ -2,13 +2,13 @@ package org.obiba.magma.filter;
 
 import org.obiba.magma.Attribute;
 import org.obiba.magma.Initialisable;
-import org.obiba.magma.VariableValueSource;
+import org.obiba.magma.Variable;
 
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamOmitField;
 
 @XStreamAlias("variableAttribute")
-public class VariableAttributeFilter extends AbstractFilter<VariableValueSource> implements Initialisable {
+public class VariableAttributeFilter extends AbstractFilter<Variable> implements Initialisable {
 
   @XStreamAlias("attribute")
   private String attributeName;
@@ -36,9 +36,9 @@ public class VariableAttributeFilter extends AbstractFilter<VariableValueSource>
   }
 
   @Override
-  protected boolean runFilter(VariableValueSource item) {
+  protected boolean runFilter(Variable item) {
     initialise();
-    for(Attribute attribute : item.getVariable().getAttributes()) {
+    for(Attribute attribute : item.getAttributes()) {
       if(attribute.getName().equalsIgnoreCase(attributeName)) {
         if(attribute.getValue().getValue().equals(value)) return true;
       }

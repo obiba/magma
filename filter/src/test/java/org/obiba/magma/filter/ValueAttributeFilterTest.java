@@ -1,19 +1,14 @@
 package org.obiba.magma.filter;
 
-import static org.easymock.EasyMock.expect;
-import static org.easymock.EasyMock.replay;
-import static org.easymock.EasyMock.verify;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
-import org.easymock.EasyMock;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.obiba.magma.MagmaEngine;
 import org.obiba.magma.ValueType;
 import org.obiba.magma.Variable;
-import org.obiba.magma.VariableValueSource;
 
 public class ValueAttributeFilterTest {
 
@@ -23,13 +18,10 @@ public class ValueAttributeFilterTest {
 
   private Variable variable;
 
-  private VariableValueSource variableValueSourceMock;
-
   @Before
   public void setUp() throws Exception {
     new MagmaEngine();
     variable = Variable.Builder.newVariable("Admin.Participant.Name", ValueType.Factory.forName("text"), "Participant").addAttribute(TEST_ATTRIBUTE_NAME, TEST_ATTRIBUTE_VALUE).build();
-    variableValueSourceMock = EasyMock.createMock(VariableValueSource.class);
   }
 
   @After
@@ -60,50 +52,35 @@ public class ValueAttributeFilterTest {
   @Test
   public void testAttributeNotThereReturnsFalse() throws Exception {
     VariableAttributeFilter filter = VariableAttributeFilter.Builder.newFilter().attributeName("attributeDoesNotExist").attributeValue(TEST_ATTRIBUTE_VALUE).include().build();
-    expect(variableValueSourceMock.getVariable()).andReturn(variable);
-    replay(variableValueSourceMock);
-    assertThat(filter.runFilter(variableValueSourceMock), is(false));
-    verify(variableValueSourceMock);
+    assertThat(filter.runFilter(variable), is(false));
   }
 
   @Test
   public void testValueNotThereReturnsFalse() throws Exception {
     VariableAttributeFilter filter = VariableAttributeFilter.Builder.newFilter().attributeName(TEST_ATTRIBUTE_NAME).attributeValue("valueDoesNotExist").include().build();
-    expect(variableValueSourceMock.getVariable()).andReturn(variable);
-    replay(variableValueSourceMock);
-    assertThat(filter.runFilter(variableValueSourceMock), is(false));
-    verify(variableValueSourceMock);
+    assertThat(filter.runFilter(variable), is(false));
   }
 
   @Test
   public void testAttributeAndValueFoundReturnsTrue() throws Exception {
     VariableAttributeFilter filter = VariableAttributeFilter.Builder.newFilter().attributeName(TEST_ATTRIBUTE_NAME).attributeValue(TEST_ATTRIBUTE_VALUE).include().build();
-    expect(variableValueSourceMock.getVariable()).andReturn(variable);
-    replay(variableValueSourceMock);
-    assertThat(filter.runFilter(variableValueSourceMock), is(true));
-    verify(variableValueSourceMock);
+    assertThat(filter.runFilter(variable), is(true));
   }
 
   @Test
   public void testSuccessfulExcludeFilterLeavesItemInOutState() throws Exception {
     VariableAttributeFilter filter = VariableAttributeFilter.Builder.newFilter().attributeName(TEST_ATTRIBUTE_NAME).attributeValue(TEST_ATTRIBUTE_VALUE).exclude().build();
-    StateEnvelope<VariableValueSource> stateEnvelope = new StateEnvelope<VariableValueSource>(variableValueSourceMock);
+    StateEnvelope<Variable> stateEnvelope = new StateEnvelope<Variable>(variable);
     stateEnvelope.setState(FilterState.IN);
-    expect(variableValueSourceMock.getVariable()).andReturn(variable);
-    replay(variableValueSourceMock);
     assertThat(filter.doIt(stateEnvelope).getState(), is(FilterState.OUT));
-    verify(variableValueSourceMock);
   }
 
   @Test
   public void testSuccessfulIncludeFilterLeavesItemInInState() throws Exception {
     VariableAttributeFilter filter = VariableAttributeFilter.Builder.newFilter().attributeName(TEST_ATTRIBUTE_NAME).attributeValue(TEST_ATTRIBUTE_VALUE).include().build();
-    StateEnvelope<VariableValueSource> stateEnvelope = new StateEnvelope<VariableValueSource>(variableValueSourceMock);
+    StateEnvelope<Variable> stateEnvelope = new StateEnvelope<Variable>(variable);
     stateEnvelope.setState(FilterState.OUT);
-    expect(variableValueSourceMock.getVariable()).andReturn(variable);
-    replay(variableValueSourceMock);
     assertThat(filter.doIt(stateEnvelope).getState(), is(FilterState.IN));
-    verify(variableValueSourceMock);
   }
 
 }
