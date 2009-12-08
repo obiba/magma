@@ -8,10 +8,15 @@ import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.Scriptable;
 import org.obiba.magma.Value;
+import org.obiba.magma.js.MagmaJsEvaluationRuntimeException;
 import org.obiba.magma.js.ScriptableValue;
 import org.obiba.magma.type.BooleanType;
+import org.obiba.magma.type.DateType;
 import org.obiba.magma.type.IntegerType;
 
+/**
+ * Methods of the {@code ScriptableValue} javascript class that deal with {@code ScriptableValue} of {@code DateType}.
+ */
 public class DateTimeMethods {
 
   /**
@@ -122,6 +127,41 @@ public class DateTimeMethods {
   }
 
   /**
+   * Returns true if this Date value is after the specified date value(s)
+   * 
+   * <pre>
+   *   $('Date').after($('OtherDate'))
+   *   $('Date').after($('OtherDate'), $('SomeOtherDate'))
+   * </pre>
+   */
+  public static Scriptable after(Context cx, Scriptable thisObj, Object[] args, Function funObj) {
+    Calendar thisCalendar = asCalendar(thisObj);
+    if(thisCalendar == null) {
+      return new ScriptableValue(thisObj, BooleanType.get().nullValue());
+    }
+
+    if(args == null || args.length == 0) {
+      return new ScriptableValue(thisObj, BooleanType.get().falseValue());
+    }
+
+    for(Object arg : args) {
+      if(arg instanceof ScriptableValue) {
+        ScriptableValue operand = (ScriptableValue) arg;
+        Calendar c = asCalendar(operand);
+        if(c == null) {
+          return new ScriptableValue(thisObj, BooleanType.get().nullValue());
+        }
+        if(thisCalendar.before(c)) {
+          return new ScriptableValue(thisObj, BooleanType.get().falseValue());
+        }
+      } else {
+        throw new MagmaJsEvaluationRuntimeException("Operand to after() method must be a ScriptableValue.");
+      }
+    }
+    return new ScriptableValue(thisObj, BooleanType.get().trueValue());
+  }
+
+  /**
    * Converts a {@code ScriptableValue} instance to a {@code Calendar} instance. If {@code Value#isNull()} returns true,
    * this method returns null.
    * 
@@ -130,6 +170,9 @@ public class DateTimeMethods {
    */
   private static Calendar asCalendar(Scriptable obj) {
     ScriptableValue sv = (ScriptableValue) obj;
+    if(sv.getValueType() != DateType.get()) {
+      throw new MagmaJsEvaluationRuntimeException("Invalid ValueType: expected '" + DateType.get().getName() + "' got '" + sv.getValueType().getName() + "'");
+    }
     Value value = sv.getValue();
     if(value.isNull() == false) {
       Date date = (Date) value.getValue();

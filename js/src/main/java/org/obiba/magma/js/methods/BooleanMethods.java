@@ -2,6 +2,7 @@ package org.obiba.magma.js.methods;
 
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
+import org.mozilla.javascript.ScriptRuntime;
 import org.mozilla.javascript.Scriptable;
 import org.obiba.magma.Value;
 import org.obiba.magma.js.MagmaJsEvaluationRuntimeException;
@@ -11,7 +12,8 @@ import org.obiba.magma.type.BooleanType;
 import com.google.common.collect.Iterables;
 
 /**
- * Methods of the {@code ScriptableValue} javascript class that returns {@code ScriptableValue} of {@code BooleanType}
+ * Methods of the {@code ScriptableValue} javascript class that deal with {@code ScriptableValue} of {@code BooleanType}
+ * . Note that other methods that use {@code BooleanType} may be defined elsewhere.
  */
 public class BooleanMethods {
 
@@ -74,6 +76,39 @@ public class BooleanMethods {
       }
       throw new MagmaJsEvaluationRuntimeException("cannot invoke not() for Value of type " + value.getValueType().getName());
     }
+  }
+
+  /**
+   * <pre>
+   *   $('BooleanVar').and(someBooleanVar)
+   *   $('BooleanVar').and(firstBooleanVar, secondBooleanVar)
+   *   $('BooleanVar').and($('OtheBooleanVar'))
+   *   $('BooleanVar').and($('OtheBooleanVar').not())
+   *   $('BooleanVar').and(someBooleanVar, $('OtheBooleanVar'))
+   * </pre>
+   */
+  public static ScriptableValue and(Context ctx, Scriptable thisObj, Object[] args, Function funObj) {
+    ScriptableValue sv = (ScriptableValue) thisObj;
+    if(sv.getValue().isNull()) {
+      return new ScriptableValue(thisObj, sv.getValue());
+    }
+
+    boolean test = (Boolean) sv.getValue().getValue();
+    if(args == null || args.length == 0) {
+      return buildValue(thisObj, test);
+    }
+    for(Object arg : args) {
+      if(arg instanceof ScriptableValue) {
+        ScriptableValue operand = (ScriptableValue) arg;
+        test = test && (Boolean) operand.getValue().getValue();
+      } else {
+        test = test && ScriptRuntime.toBoolean(arg);
+      }
+      if(test == false) {
+        return buildValue(thisObj, false);
+      }
+    }
+    return buildValue(thisObj, true);
   }
 
   private static ScriptableValue buildValue(Scriptable scope, boolean value) {
