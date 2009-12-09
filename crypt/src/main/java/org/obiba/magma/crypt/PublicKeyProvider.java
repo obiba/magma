@@ -12,7 +12,7 @@ import org.obiba.magma.Datasource;
 public interface PublicKeyProvider {
 
   /**
-   * Returns the {@code PublicKey} for the specified {@code name}.
+   * Returns the {@code PublicKey} for the specified {@code datasource}.
    * 
    * @param name
    * @return

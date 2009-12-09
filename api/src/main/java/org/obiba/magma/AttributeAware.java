@@ -27,6 +27,24 @@ public interface AttributeAware {
 
   public Attribute getAttribute(String name, Locale locale) throws NoSuchAttributeException;
 
+  /**
+   * Equivalent to calling
+   * 
+   * <pre>
+   * getAttribute(name).getValue()
+   * 
+   * <pre>
+   */
+  public Value getAttributeValue(String name) throws NoSuchAttributeException;
+
+  /**
+   * Equivalent to calling
+   * 
+   * <pre>
+   * getAttribute(name).getValue().toString()
+   * 
+   * <pre>
+   */
   public String getAttributeStringValue(String name) throws NoSuchAttributeException;
 
   /**

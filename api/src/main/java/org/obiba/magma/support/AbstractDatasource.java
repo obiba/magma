@@ -11,6 +11,7 @@ import org.obiba.magma.Datasource;
 import org.obiba.magma.Disposable;
 import org.obiba.magma.Initialisable;
 import org.obiba.magma.NoSuchValueTableException;
+import org.obiba.magma.Value;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.ValueTableWriter;
 
@@ -99,6 +100,11 @@ public abstract class AbstractDatasource extends AbstractAttributeAware implemen
   @Override
   public ValueTableWriter createWriter(String tableName) {
     throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void setAttributeValue(String name, Value value) {
+    getInstanceAttributes().put(name, Attribute.Builder.newAttribute(name).withValue(value).build());
   }
 
   @Override

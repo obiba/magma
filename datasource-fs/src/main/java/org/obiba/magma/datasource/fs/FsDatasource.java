@@ -15,10 +15,20 @@ import java.util.Set;
 import org.obiba.magma.Attribute;
 import org.obiba.magma.MagmaEngine;
 import org.obiba.magma.MagmaRuntimeException;
+import org.obiba.magma.Value;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.ValueTableWriter;
+import org.obiba.magma.datasource.crypt.DatasourceCipherFactory;
+import org.obiba.magma.datasource.crypt.DatasourceEncryptionStrategy;
+import org.obiba.magma.datasource.fs.input.CipherInputStreamWrapper;
+import org.obiba.magma.datasource.fs.input.NullInputStreamWrapper;
+import org.obiba.magma.datasource.fs.output.ChainedOutputStreamWrapper;
+import org.obiba.magma.datasource.fs.output.CipherOutputStreamWrapper;
+import org.obiba.magma.datasource.fs.output.DigestOutputStreamWrapper;
 import org.obiba.magma.datasource.fs.output.NullOutputStreamWrapper;
 import org.obiba.magma.support.AbstractDatasource;
+import org.obiba.magma.type.BooleanType;
+import org.obiba.magma.type.TextType;
 import org.obiba.magma.xstream.MagmaXStreamExtension;
 
 import com.google.common.collect.ImmutableSet;
@@ -42,34 +52,54 @@ public class FsDatasource extends AbstractDatasource {
 
   private File datasourceArchive;
 
-  private OutputStreamWrapper outputStreamWrapper;
+  private DatasourceEncryptionStrategy datasourceEncryptionStrategy;
 
-  public FsDatasource(String name, String filename, OutputStreamWrapper outputStreamWrapper) {
-    super(name, "fs");
-    this.datasourceArchive = new File(filename);
-    this.outputStreamWrapper = outputStreamWrapper;
+  private InputStreamWrapper inputStreamWrapper = new NullInputStreamWrapper();
+
+  private OutputStreamWrapper outputStreamWrapper = new NullOutputStreamWrapper();
+
+  public FsDatasource(String name, java.io.File outputFile, DatasourceEncryptionStrategy datasourceEncryptionStrategy) {
+    this(name, outputFile);
+    this.datasourceEncryptionStrategy = datasourceEncryptionStrategy;
   }
 
-  public FsDatasource(String name, String filename) {
-    this(name, filename, new NullOutputStreamWrapper());
+  public FsDatasource(String name, java.io.File outputFile) {
+    super(name, "fs");
+    this.datasourceArchive = new File(outputFile);
+  }
+
+  public void setDatasourceCipherProviderFactory(DatasourceEncryptionStrategy datasourceEncryptionStrategy) {
+    this.datasourceEncryptionStrategy = datasourceEncryptionStrategy;
   }
 
   @Override
   protected void onInitialise() {
+
+    boolean newDatasource = true;
     if(datasourceArchive.exists()) {
-      Reader reader = null;
-      try {
-        List<Attribute> attributes = (List<Attribute>) getXStreamInstance().fromXML(reader = new InputStreamReader(new FileInputStream(new File(datasourceArchive, "metadata.xml")), CHARSET));
-        for(Attribute a : attributes) {
-          getInstanceAttributes().put(a.getName(), a);
-        }
-      } catch(FileNotFoundException e) {
-        throw new MagmaRuntimeException(e);
-      } finally {
-        Closeables.closeQuietly(reader);
-      }
+      readAttributes();
+      newDatasource = false;
     } else {
-      getInstanceAttributes().put("version", Attribute.Builder.newAttribute("version").withValue("1").build());
+      setAttributeValue("magma.datasource.fs.version", TextType.get().valueOf("1"));
+      if(hasEncryptionStrategy()) {
+        setAttributeValue("magma.datasource.fs.encrypted", BooleanType.get().trueValue());
+      } else {
+        setAttributeValue("magma.datasource.fs.encrypted", BooleanType.get().falseValue());
+      }
+    }
+
+    // Setup cipher wrappers in the case where
+    if(isEncrypted() && hasEncryptionStrategy()) {
+      // Make sure our strategy is able to read an existing datasource.
+      if(newDatasource || datasourceEncryptionStrategy.canDecryptExistingDatasource()) {
+        DatasourceCipherFactory cipherFactory = datasourceEncryptionStrategy.createDatasourceCipherFactory(this);
+        inputStreamWrapper = new CipherInputStreamWrapper(cipherFactory);
+        outputStreamWrapper = new ChainedOutputStreamWrapper(new CipherOutputStreamWrapper(cipherFactory), new DigestOutputStreamWrapper());
+      } else {
+        throw new MagmaRuntimeException("Existing Datasource '" + getName() + "' cannot be decrypted using the specified encryption strategy.");
+      }
+    } else if(isEncrypted()) {
+      throw new MagmaRuntimeException("Datasource '" + getName() + "' is encrypted. An instance of DatasourceEncryptionStrategy must be provided.");
     }
   }
 
@@ -86,7 +116,7 @@ public class FsDatasource extends AbstractDatasource {
   @Override
   public void onDispose() {
     try {
-      writeMetadata();
+      writeAttributes();
     } finally {
       try {
         File.umount(datasourceArchive);
@@ -96,7 +126,30 @@ public class FsDatasource extends AbstractDatasource {
     }
   }
 
-  protected void writeMetadata() {
+  protected boolean hasEncryptionStrategy() {
+    return this.datasourceEncryptionStrategy != null;
+  }
+
+  protected boolean isEncrypted() {
+    return hasAttribute("magma.datasource.fs.encrypted") && (Boolean) getAttributeValue("magma.datasource.fs.encrypted").getValue();
+  }
+
+  @SuppressWarnings("unchecked")
+  protected void readAttributes() {
+    Reader reader = null;
+    try {
+      List<Attribute> attributes = (List<Attribute>) getXStreamInstance().fromXML(reader = new InputStreamReader(new FileInputStream(new File(datasourceArchive, "metadata.xml")), CHARSET));
+      for(Attribute a : attributes) {
+        getInstanceAttributes().put(a.getName(), a);
+      }
+    } catch(FileNotFoundException e) {
+      throw new MagmaRuntimeException(e);
+    } finally {
+      Closeables.closeQuietly(reader);
+    }
+  }
+
+  protected void writeAttributes() {
     Writer writer = null;
     try {
       getXStreamInstance().toXML(new LinkedList<Attribute>(getInstanceAttributes().values()), writer = new OutputStreamWriter(new FileOutputStream(new File(datasourceArchive, "metadata.xml")), CHARSET));
@@ -177,7 +230,7 @@ public class FsDatasource extends AbstractDatasource {
 
   Reader createReader(File entry) {
     try {
-      return new InputStreamReader(new FileInputStream(entry), CHARSET);
+      return new InputStreamReader(inputStreamWrapper.wrap(new FileInputStream(entry), entry), CHARSET);
     } catch(FileNotFoundException e) {
       throw new MagmaRuntimeException(e);
     }
@@ -197,6 +250,10 @@ public class FsDatasource extends AbstractDatasource {
 
   interface OutputCallback<T> {
     T writeEntry(Writer writer) throws IOException;
+  }
+
+  public void setAttributeValue(String name, Value value) {
+    getInstanceAttributes().put(name, Attribute.Builder.newAttribute(name).withValue(value).build());
   }
 
 }

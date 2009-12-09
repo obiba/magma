@@ -1,6 +1,8 @@
 package org.obiba.magma.datasource.fs;
 
 import java.io.IOException;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -46,6 +48,11 @@ public class DatasourceCopier {
       return this;
     }
 
+    public Builder withThroughtputListener() {
+      copier.listeners.add(new ThroughputListener());
+      return this;
+    }
+
     public DatasourceCopier build() {
       return copier;
     }
@@ -77,6 +84,7 @@ public class DatasourceCopier {
   }
 
   public void copy(ValueTable table, Datasource destination) throws IOException {
+    log.info("Copying ValueTable '{}' to Datasource '{}'.", table.getName(), destination.getName());
     // TODO: the target ValueTable name should probably be renamed to include the source Datasource's name
     ValueTableWriter vtw = destination.createWriter(table.getName());
     try {
@@ -162,6 +170,43 @@ public class DatasourceCopier {
     @Override
     public void onVariableCopy(Variable variable) {
       log.debug("Copying variable {}", variable.getName());
+    }
+
+  }
+
+  private static class ThroughputListener implements DatasourceCopyEventListener {
+
+    private long count = 0;
+
+    private long allDuration = 0;
+
+    private long start;
+
+    private NumberFormat twoDecimalPlaces = DecimalFormat.getNumberInstance();
+
+    private ThroughputListener() {
+      twoDecimalPlaces.setMaximumFractionDigits(2);
+    }
+
+    @Override
+    public void onValueSetCopy(ValueSet valueSet) {
+      start = System.currentTimeMillis();
+    }
+
+    @Override
+    public void onValueSetCopied(ValueSet valueSet) {
+      long duration = System.currentTimeMillis() - start;
+      allDuration += duration;
+      count++;
+      log.debug("ValueSet copied in {}s. Average copy duration for {} valueSets: {}s.", new Object[] { twoDecimalPlaces.format(duration / 1000.0d), count, twoDecimalPlaces.format(allDuration / (double) count) });
+    }
+
+    @Override
+    public void onVariableCopy(Variable variable) {
+    }
+
+    @Override
+    public void onVariableCopied(Variable variable) {
     }
 
   }

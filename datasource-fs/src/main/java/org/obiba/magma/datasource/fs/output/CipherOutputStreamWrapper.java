@@ -2,24 +2,24 @@ package org.obiba.magma.datasource.fs.output;
 
 import java.io.OutputStream;
 
-import javax.crypto.Cipher;
 import javax.crypto.CipherOutputStream;
 
+import org.obiba.magma.datasource.crypt.DatasourceCipherFactory;
 import org.obiba.magma.datasource.fs.OutputStreamWrapper;
 
 import de.schlichtherle.io.File;
 
 public class CipherOutputStreamWrapper implements OutputStreamWrapper {
 
-  private Cipher cipher;
+  private DatasourceCipherFactory cipherProvider;
 
-  public CipherOutputStreamWrapper(Cipher cipher) {
-    this.cipher = cipher;
+  public CipherOutputStreamWrapper(DatasourceCipherFactory cipherProvider) {
+    this.cipherProvider = cipherProvider;
   }
 
   @Override
   public OutputStream wrap(OutputStream os, File file) {
-    return new CipherOutputStream(os, cipher);
+    return new CipherOutputStream(os, cipherProvider.createEncryptingCipher());
   }
 
 }

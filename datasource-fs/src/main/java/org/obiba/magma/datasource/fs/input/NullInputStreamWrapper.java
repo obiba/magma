@@ -7,23 +7,23 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
-package org.obiba.magma.crypt;
 
-import org.obiba.magma.MagmaRuntimeException;
+package org.obiba.magma.datasource.fs.input;
 
-public class MagmaCryptRuntimeException extends MagmaRuntimeException {
+import java.io.InputStream;
 
-  private static final long serialVersionUID = 1L;
+import org.obiba.magma.datasource.fs.InputStreamWrapper;
 
-  public MagmaCryptRuntimeException(Throwable cause) {
-    super(cause);
+import de.schlichtherle.io.File;
+
+/**
+ * 
+ */
+public class NullInputStreamWrapper implements InputStreamWrapper {
+
+  @Override
+  public InputStream wrap(InputStream os, File entry) {
+    return os;
   }
 
-  public MagmaCryptRuntimeException(String message) {
-    super(message);
-  }
-
-  public MagmaCryptRuntimeException(String message, Throwable cause) {
-    super(message, cause);
-  }
 }

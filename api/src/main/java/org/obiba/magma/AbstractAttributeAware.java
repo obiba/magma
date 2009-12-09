@@ -41,6 +41,11 @@ public abstract class AbstractAttributeAware implements AttributeAware {
   }
 
   @Override
+  public Value getAttributeValue(String name) throws NoSuchAttributeException {
+    return getAttribute(name).getValue();
+  }
+
+  @Override
   public String getAttributeStringValue(String name) throws NoSuchAttributeException {
     return getAttribute(name).getValue().toString();
   }
