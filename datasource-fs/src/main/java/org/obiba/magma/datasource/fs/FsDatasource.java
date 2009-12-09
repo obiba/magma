@@ -68,10 +68,6 @@ public class FsDatasource extends AbstractDatasource {
     this.datasourceArchive = new File(outputFile);
   }
 
-  public void setDatasourceCipherProviderFactory(DatasourceEncryptionStrategy datasourceEncryptionStrategy) {
-    this.datasourceEncryptionStrategy = datasourceEncryptionStrategy;
-  }
-
   @Override
   protected void onInitialise() {
 
@@ -103,12 +99,12 @@ public class FsDatasource extends AbstractDatasource {
     }
   }
 
-  public ValueTableWriter createWriter(String name) {
+  public ValueTableWriter createWriter(String name, String entityType) {
     FsValueTable valueTable = null;
     if(hasValueTable(name)) {
       valueTable = (FsValueTable) getValueTable(name);
     } else {
-      addValueTable(valueTable = new FsValueTable(this, name));
+      addValueTable(valueTable = new FsValueTable(this, name, entityType));
     }
     return new FsValueTableWriter(valueTable, getXStreamInstance());
   }

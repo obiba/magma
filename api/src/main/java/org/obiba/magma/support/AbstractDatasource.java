@@ -98,8 +98,8 @@ public abstract class AbstractDatasource extends AbstractAttributeAware implemen
   }
 
   @Override
-  public ValueTableWriter createWriter(String tableName) {
-    throw new UnsupportedOperationException();
+  public ValueTableWriter createWriter(String tableName, String entityType) {
+    throw new UnsupportedOperationException("createWriter() is not supported by datasource of type " + getType());
   }
 
   @Override

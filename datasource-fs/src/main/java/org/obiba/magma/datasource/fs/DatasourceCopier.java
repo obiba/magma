@@ -86,7 +86,7 @@ public class DatasourceCopier {
   public void copy(ValueTable table, Datasource destination) throws IOException {
     log.info("Copying ValueTable '{}' to Datasource '{}'.", table.getName(), destination.getName());
     // TODO: the target ValueTable name should probably be renamed to include the source Datasource's name
-    ValueTableWriter vtw = destination.createWriter(table.getName());
+    ValueTableWriter vtw = destination.createWriter(table.getName(), table.getEntityType());
     try {
       VariableWriter vw = vtw.writeVariables();
       try {

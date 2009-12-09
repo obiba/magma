@@ -14,7 +14,7 @@ public interface Datasource extends Initialisable, Disposable, AttributeAware {
 
   public Set<ValueTable> getValueTables();
 
-  public ValueTableWriter createWriter(String tableName);
+  public ValueTableWriter createWriter(String tableName, String entityType);
 
   public void setAttributeValue(String name, Value value);
 

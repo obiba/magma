@@ -32,14 +32,14 @@ public class IntegrationApp {
 
     MagmaEngine.get().addDatasource(integrationDatasource);
 
-    File output = new File("target", "output.zip");
-    if(output.exists()) {
-      output.delete();
+    File encrypted = new File("target", "output-encrypted.zip");
+    if(encrypted.exists()) {
+      encrypted.delete();
     }
 
     // Generate a new KeyPair.
     GeneratedKeyPairProvider keyPairProvider = new GeneratedKeyPairProvider();
-    FsDatasource fs = new FsDatasource("export", output, new GeneratedSecretKeyDatasourceEncryptionStrategy(keyPairProvider));
+    FsDatasource fs = new FsDatasource("export", encrypted, new GeneratedSecretKeyDatasourceEncryptionStrategy(keyPairProvider));
     MagmaEngine.get().addDatasource(fs);
 
     // Export the IntegrationDatasource to the FsDatasource
@@ -50,7 +50,7 @@ public class IntegrationApp {
     MagmaEngine.get().removeDatasource(fs);
 
     // Read it back
-    MagmaEngine.get().addDatasource(new FsDatasource("imported", new File("target", "output.zip"), new EncryptedSecretKeyDatasourceEncryptionStrategy(keyPairProvider)));
+    MagmaEngine.get().addDatasource(new FsDatasource("imported", encrypted, new EncryptedSecretKeyDatasourceEncryptionStrategy(keyPairProvider)));
 
     // Dump its values
     for(ValueTable table : MagmaEngine.get().getDatasource("imported").getValueTables()) {
@@ -69,6 +69,19 @@ public class IntegrationApp {
         }
       }
     }
+
+    File decrypted = new File("target", "output-decrypted.zip");
+    if(decrypted.exists()) {
+      decrypted.delete();
+    }
+    fs = new FsDatasource("export", decrypted);
+    MagmaEngine.get().addDatasource(fs);
+
+    // Export the IntegrationDatasource to the FsDatasource
+    copier.copy(integrationDatasource.getName(), fs.getName());
+
+    // Disconnect it from Magma
+    MagmaEngine.get().removeDatasource(fs);
 
     MagmaEngine.get().shutdown();
   }
