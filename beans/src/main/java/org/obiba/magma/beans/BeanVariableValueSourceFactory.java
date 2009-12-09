@@ -13,7 +13,7 @@ import java.beans.PropertyDescriptor;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -221,7 +221,7 @@ public class BeanVariableValueSourceFactory<T> implements VariableValueSourceFac
    * each variable.
    */
   protected synchronized void doBuildVariables() {
-    sources = new HashSet<VariableValueSource>();
+    sources = new LinkedHashSet<VariableValueSource>();
     for(String propertyPath : properties) {
       Class<?> propertyType = getPropertyType(propertyPath);
       if(propertyType == null) {
