@@ -28,7 +28,7 @@ public abstract class AbstractValueTable implements ValueTable, Initialisable {
 
   private VariableEntityProvider variableEntityProvider;
 
-  private Set<VariableValueSource> sources = Sets.newHashSet();
+  private Set<VariableValueSource> sources = Sets.newLinkedHashSet();
 
   public AbstractValueTable(Datasource datasource, String name, VariableEntityProvider variableEntityProvider) {
     this.datasource = datasource;
