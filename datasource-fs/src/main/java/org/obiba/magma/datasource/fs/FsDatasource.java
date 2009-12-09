@@ -122,6 +122,10 @@ public class FsDatasource extends AbstractDatasource {
     }
   }
 
+  public void setAttributeValue(String name, Value value) {
+    getInstanceAttributes().put(name, Attribute.Builder.newAttribute(name).withValue(value).build());
+  }
+
   protected boolean hasEncryptionStrategy() {
     return this.datasourceEncryptionStrategy != null;
   }
@@ -246,10 +250,6 @@ public class FsDatasource extends AbstractDatasource {
 
   interface OutputCallback<T> {
     T writeEntry(Writer writer) throws IOException;
-  }
-
-  public void setAttributeValue(String name, Value value) {
-    getInstanceAttributes().put(name, Attribute.Builder.newAttribute(name).withValue(value).build());
   }
 
 }
