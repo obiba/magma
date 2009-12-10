@@ -4,6 +4,9 @@ import java.util.Locale;
 
 import org.obiba.magma.type.TextType;
 
+/**
+ * 
+ */
 public interface Attribute {
 
   public static class Builder {

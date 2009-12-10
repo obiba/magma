@@ -61,7 +61,7 @@ public class MagmaEngine {
     }
   }
 
-  public ValueTypeFactory getValueTypeFactory() {
+  ValueTypeFactory getValueTypeFactory() {
     return valueTypeFactory;
   }
 

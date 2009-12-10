@@ -24,8 +24,8 @@ public interface KeyPairProvider {
    * Returns the key pair with the specified alias.
    * 
    * @param alias the <code>KeyPair</code>'s alias
-   * @param NoSuchKeyException if the requested <code>KeyPair</code> was not found
-   * @param KeyProviderSecurityException if access to the <code>KeyPair</code> was forbidden
+   * @throws NoSuchKeyException if the requested <code>KeyPair</code> was not found
+   * @throws KeyProviderSecurityException if access to the <code>KeyPair</code> was forbidden
    * @return the <code>KeyPair</code> (<code>null</code> if not found)
    */
   public KeyPair getKeyPair(String alias) throws NoSuchKeyException, KeyProviderSecurityException;
@@ -34,8 +34,8 @@ public interface KeyPairProvider {
    * Returns the <code>KeyPair</code> for the specified public key.
    * 
    * @param publicKey a public key
-   * @param NoSuchKeyException if the requested <code>KeyPair</code> was not found
-   * @param KeyProviderSecurityException if access to the <code>KeyPair</code> was forbidden
+   * @throws NoSuchKeyException if the requested <code>KeyPair</code> was not found
+   * @throws KeyProviderSecurityException if access to the <code>KeyPair</code> was forbidden
    * @return the corresponding <code>KeyPair</code> (<code>null</code> if not found)
    */
   public KeyPair getKeyPair(PublicKey publicKey) throws NoSuchKeyException, KeyProviderSecurityException;

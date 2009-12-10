@@ -16,7 +16,7 @@ import org.obiba.magma.type.TextType;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 
-public class ValueTypeFactory {
+class ValueTypeFactory {
 
   private Set<ValueType> types = new HashSet<ValueType>();
 
@@ -24,7 +24,7 @@ public class ValueTypeFactory {
     registerBuiltInTypes();
   }
 
-  public ValueType forClass(final Class<?> javaClass) {
+  ValueType forClass(final Class<?> javaClass) {
     try {
       return Iterables.find(types, new Predicate<ValueType>() {
         @Override
@@ -37,7 +37,7 @@ public class ValueTypeFactory {
     }
   }
 
-  public ValueType forName(final String name) {
+  ValueType forName(final String name) {
     try {
       return Iterables.find(types, new Predicate<ValueType>() {
         @Override
@@ -50,7 +50,7 @@ public class ValueTypeFactory {
     }
   }
 
-  public Set<ValueType> getValueTypes() {
+  Set<ValueType> getValueTypes() {
     return Collections.unmodifiableSet(types);
   }
 
