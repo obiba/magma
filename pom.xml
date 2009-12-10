@@ -120,6 +120,10 @@
             <excludeFilterFile>src/main/resources/findbugs-exclude.xml</excludeFilterFile>
           </configuration>
         </plugin>
+        <plugin>
+          <artifactId>maven-javadoc-plugin</artifactId>
+          <version>2.6</version>
+        </plugin>
       </plugins>
     </pluginManagement>
 
