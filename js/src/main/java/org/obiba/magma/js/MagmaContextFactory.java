@@ -2,7 +2,8 @@ package org.obiba.magma.js;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
-import java.util.Collection;
+import java.util.Collections;
+import java.util.Set;
 
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ContextAction;
@@ -14,6 +15,7 @@ import org.obiba.magma.Initialisable;
 import org.obiba.magma.js.methods.GlobalMethods;
 
 import com.google.common.base.Predicate;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 
 /**
@@ -28,15 +30,11 @@ public class MagmaContextFactory extends ContextFactory implements Initialisable
 
   private ScriptableValuePrototypeFactory factory = new ScriptableValuePrototypeFactory();
 
-  private Collection<Method> globalMethods;
+  private Set<GlobalMethodProvider> globalMethodProviders = Collections.emptySet();
 
   @Override
   protected Context makeContext() {
     return new MagmaContext(this);
-  }
-
-  public void setGlobalMethods(Collection<Method> globalMethods) {
-    this.globalMethods = globalMethods;
   }
 
   public ScriptableObject sharedScope() {
@@ -44,6 +42,11 @@ public class MagmaContextFactory extends ContextFactory implements Initialisable
       throw new MagmaJsRuntimeException("Shared scope not initialised. Make sure the MagmaJsExtension has been added to the MagmaEngine before evaluating scripts.");
     }
     return sharedScope;
+  }
+
+  public void setGlobalMethodProviders(Set<GlobalMethodProvider> globalMethodProviders) {
+    if(globalMethodProviders == null) throw new IllegalArgumentException("globalMethodProviders cannot be null");
+    this.globalMethodProviders = ImmutableSet.copyOf(globalMethodProviders);
   }
 
   public ScriptableValuePrototypeFactory getScriptableValuePrototypeFactory() {
@@ -68,11 +71,19 @@ public class MagmaContextFactory extends ContextFactory implements Initialisable
           }
         });
 
-        for(Method globalMethod : Iterables.concat(methods, globalMethods)) {
+        for(Method globalMethod : methods) {
           // Rename "valueOf" to "$"
           String name = globalMethod.getName().equals("valueOf") ? "$" : globalMethod.getName();
           FunctionObject fo = new FunctionObject(name, globalMethod, sharedScope);
           sharedScope.defineProperty(name, fo, ScriptableObject.DONTENUM);
+        }
+
+        for(GlobalMethodProvider provider : globalMethodProviders) {
+          for(Method globalMethod : provider.getJavaScriptExtensionMethods()) {
+            String name = globalMethod.getName();
+            FunctionObject fo = new FunctionObject(name, globalMethod, sharedScope);
+            sharedScope.defineProperty(name, fo, ScriptableObject.DONTENUM);
+          }
         }
 
         Scriptable valuePrototype = factory.buildPrototype();

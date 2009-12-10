@@ -4,7 +4,7 @@ import org.obiba.magma.Variable.Builder;
 
 /**
  * A {@code Variable.Builder} extension for building javascript variables. To obtain an instance of this builder, use
- * the {@code Builder#extend(Class)} method by passing this type:
+ * the {@link Builder#extend(Class)} method by passing this type:
  * 
  * <pre>
  * Variable.Builder builder = ...;
