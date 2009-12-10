@@ -72,8 +72,25 @@ public class BooleanType extends AbstractValueType {
 
   @Override
   public Value valueOf(Object object) {
-    String str = object != null ? object.toString() : null;
-    return Factory.newValue(this, Boolean.valueOf(str));
+    if(object == null) {
+      return nullValue();
+    }
+    if(object instanceof Boolean) {
+      return valueOf((Boolean) object);
+    }
+    if(boolean.class.isAssignableFrom(object.getClass())) {
+      return valueOf(boolean.class.cast(object));
+    }
+    return valueOf(object.toString());
+  }
+
+  public Value valueOf(Boolean object) {
+    // object may be null
+    return Factory.newValue(this, object);
+  }
+
+  public Value valueOf(boolean value) {
+    return value ? trueValue : falseValue;
   }
 
   public Value trueValue() {
