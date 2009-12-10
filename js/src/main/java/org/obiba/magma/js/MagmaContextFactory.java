@@ -2,6 +2,7 @@ package org.obiba.magma.js;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.Collection;
 
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ContextAction;
@@ -27,9 +28,15 @@ public class MagmaContextFactory extends ContextFactory implements Initialisable
 
   private ScriptableValuePrototypeFactory factory = new ScriptableValuePrototypeFactory();
 
+  private Collection<Method> globalMethods;
+
   @Override
   protected Context makeContext() {
     return new MagmaContext(this);
+  }
+
+  public void setGlobalMethods(Collection<Method> globalMethods) {
+    this.globalMethods = globalMethods;
   }
 
   public ScriptableObject sharedScope() {
@@ -61,7 +68,7 @@ public class MagmaContextFactory extends ContextFactory implements Initialisable
           }
         });
 
-        for(Method globalMethod : methods) {
+        for(Method globalMethod : Iterables.concat(methods, globalMethods)) {
           // Rename "valueOf" to "$"
           String name = globalMethod.getName().equals("valueOf") ? "$" : globalMethod.getName();
           FunctionObject fo = new FunctionObject(name, globalMethod, sharedScope);
