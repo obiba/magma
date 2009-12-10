@@ -12,11 +12,11 @@ import com.google.common.collect.Iterables;
 
 public class FilteredValueTable extends AbstractValueTableWrapper {
 
-  private CollectionFilterChain<ValueSet> entityFilterChain;
+  private FilterChain<ValueSet> entityFilterChain;
 
-  private CollectionFilterChain<Variable> variableFilterChain;
+  private FilterChain<Variable> variableFilterChain;
 
-  public FilteredValueTable(ValueTable valueTable, CollectionFilterChain<Variable> variableFilterChain, CollectionFilterChain<ValueSet> entityFilterChain) {
+  public FilteredValueTable(ValueTable valueTable, FilterChain<Variable> variableFilterChain, FilterChain<ValueSet> entityFilterChain) {
     super(valueTable);
     this.entityFilterChain = entityFilterChain;
     this.variableFilterChain = variableFilterChain;
