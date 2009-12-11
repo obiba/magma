@@ -203,4 +203,23 @@ public class DateTimeMethods {
     return new ScriptableValue(scope, IntegerType.get().valueOf(value));
   }
 
+  /**
+   * Adds days to a {@code ScriptableValue} of {@code DateType}.
+   * 
+   * <pre>
+   *   $('Date').add(2)  // Adds 2 days.
+   *   $('Date').add(-4) // Subtracts 4 days.
+   * </pre>
+   */
+  public static Scriptable add(Context cx, Scriptable thisObj, Object[] args, Function funObj) {
+    if(args.length != 1) {
+      throw new UnsupportedOperationException(".add() expects exactly one integer argument: days to add.");
+    }
+    Calendar c = asCalendar(thisObj);
+    if(c != null) {
+      c.add(Calendar.DAY_OF_MONTH, (Integer) args[0]);
+      return new ScriptableValue(thisObj, DateType.get().valueOf(c));
+    }
+    return thisObj;
+  }
 }
