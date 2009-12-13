@@ -72,4 +72,14 @@ public class ScriptableValue extends ScriptableObject {
     }
     return getValue().equals(testValue);
   }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see java.lang.Object#toString()
+   */
+  @Override
+  public String toString() {
+    return this.getValue().toString();
+  }
 }

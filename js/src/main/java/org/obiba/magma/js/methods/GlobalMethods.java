@@ -1,5 +1,6 @@
 package org.obiba.magma.js.methods;
 
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Set;
 
@@ -79,33 +80,25 @@ public final class GlobalMethods {
   }
 
   /**
-   * Allows 'info' level logging of messages and variables. Returns a {@code ScriptableValue}. Accessed as 'log' in
+   * Provides 'info' level logging of messages and variables. Returns a {@code ScriptableValue}. Accessed as 'log' in
    * javascript.
    * 
    * <pre>
    *   log('My message')
-   *   log($('org.obiba.onyx.lastExportDate'))
-   *   log('The last export date: {}', $('org.obiba.onyx.lastExportDate'))
+   *   log(onyx('org.obiba.onyx.lastExportDate'))
+   *   log('The last export date: {}', onyx('org.obiba.onyx.lastExportDate'))
+   *   log('The last export date: {} Days before purge: {}', onyx('org.obiba.onyx.lastExportDate'), onyx('org.obiba.onyx.participant.purge'))
    * </pre>
    * @return an instance of {@code ScriptableValue}
    */
   public static Scriptable log(Context ctx, Scriptable thisObj, Object[] args, Function funObj) {
+    if(args.length < 1) {
+      throw new UnsupportedOperationException("log() expects either one or more arguments. e.g. log('message'), log('var 1 {}', $('var1')), log('var 1 {} var 2 {}', $('var1'), $('var2')).");
+    }
     if(args.length == 1) {
-      if(args[0] instanceof ScriptableValue) {
-        ScriptableValue arg = (ScriptableValue) args[0];
-        log.info(arg.getValue().toString());
-      } else {
-        log.info(args[0].toString());
-      }
-    } else if(args.length == 2) {
-      if(args[1] instanceof ScriptableValue) {
-        ScriptableValue arg = (ScriptableValue) args[1];
-        log.info(args[0].toString(), arg.getValue().toString());
-      } else {
-        log.info(args[0].toString(), args[1]);
-      }
+      log.info(args[0].toString());
     } else {
-      throw new UnsupportedOperationException("log() expects either one argument (object) or two arguments ('My message {}', object).");
+      log.info(args[0].toString(), Arrays.copyOfRange(args, 1, args.length));
     }
     return thisObj;
   }
