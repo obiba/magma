@@ -1,8 +1,13 @@
 package org.obiba.magma.filter;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
 
 public abstract class AbstractFilter<T> implements Filter<T> {
+
+  private static final Logger log = LoggerFactory.getLogger(AbstractFilter.class);
 
   protected static enum Type {
     /** Exclude item from the result set if filter successful. */
@@ -14,7 +19,7 @@ public abstract class AbstractFilter<T> implements Filter<T> {
   @XStreamAsAttribute
   private Type type;
 
-  protected abstract boolean runFilter(T item);
+  protected abstract Boolean runFilter(T item);
 
   @Override
   public StateEnvelope<T> doIt(StateEnvelope<T> stateEnvelope) {
@@ -30,7 +35,14 @@ public abstract class AbstractFilter<T> implements Filter<T> {
   }
 
   private StateEnvelope<T> updateStateEnvelope(StateEnvelope<T> stateEnvelope) {
-    if(runFilter(stateEnvelope.getItem())) {
+    Boolean result = runFilter(stateEnvelope.getItem());
+
+    if(result == null) {
+      log.error("The filter [{}] returned a null value. This filter is being ignored.", this);
+      return stateEnvelope;
+    }
+
+    if(result) {
       if(isExclude()) {
         stateEnvelope.setState(FilterState.OUT);
       } else if(isInclude()) {

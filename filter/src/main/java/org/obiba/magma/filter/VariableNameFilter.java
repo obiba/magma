@@ -45,16 +45,16 @@ public class VariableNameFilter extends AbstractFilter<Variable> implements Init
   }
 
   @Override
-  protected boolean runFilter(Variable item) {
+  protected Boolean runFilter(Variable item) {
     initialise();
     if(prefix != null) {
-      if(item.getName().startsWith(prefix)) return true;
+      if(item.getName().startsWith(prefix)) return Boolean.TRUE;
     } else if(match != null) {
       Matcher matcher = matchPattern.matcher(item.getName());
-      if(matcher.matches()) return true;
+      if(matcher.matches()) return Boolean.TRUE;
     }
 
-    return false;
+    return Boolean.FALSE;
   }
 
   public static class Builder extends AbstractFilter.Builder {

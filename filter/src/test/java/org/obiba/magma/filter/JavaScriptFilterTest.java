@@ -1,6 +1,7 @@
 package org.obiba.magma.filter;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
 
 import org.easymock.EasyMock;
@@ -54,6 +55,12 @@ public class JavaScriptFilterTest {
   public void testSimpleScriptReturnsFalse() throws Exception {
     JavaScriptFilter filter = JavaScriptFilter.Builder.newFilter().javascript("2 > 3;").include().build();
     assertThat(filter.runFilter(valueSetMock), is(false));
+  }
+
+  @Test
+  public void testNullReturnValueSameAsFalse() throws Exception {
+    JavaScriptFilter filter = JavaScriptFilter.Builder.newFilter().javascript("null;").exclude().build();
+    assertThat(filter.runFilter(valueSetMock), nullValue());
   }
 
   @Test

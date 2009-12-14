@@ -13,8 +13,8 @@ public class ExcludeAllFilter<T> extends AbstractFilter<T> {
   }
 
   @Override
-  protected boolean runFilter(T item) {
-    return true;
+  protected Boolean runFilter(T item) {
+    return Boolean.TRUE;
   }
 
   public static class Builder {

@@ -36,14 +36,14 @@ public class VariableAttributeFilter extends AbstractFilter<Variable> implements
   }
 
   @Override
-  protected boolean runFilter(Variable item) {
+  protected Boolean runFilter(Variable item) {
     initialise();
     for(Attribute attribute : item.getAttributes()) {
       if(attribute.getName().equalsIgnoreCase(attributeName)) {
-        if(attribute.getValue().getValue().equals(value)) return true;
+        if(attribute.getValue().getValue().equals(value)) return Boolean.TRUE;
       }
     }
-    return false;
+    return Boolean.FALSE;
   }
 
   public static class Builder extends AbstractFilter.Builder {

@@ -44,11 +44,12 @@ public class JavaScriptFilter extends AbstractFilter<ValueSet> implements Initia
   }
 
   @Override
-  protected boolean runFilter(ValueSet item) {
+  protected Boolean runFilter(ValueSet item) {
     initialise();
     Value value = javascriptSource.getValue(item);
-    Boolean booleanValue = (Boolean) value.getValue();
-    return booleanValue.booleanValue();
+    // JavaScript can return null.
+    if(value.equals(BooleanType.get().nullValue())) return null;
+    return (Boolean) value.getValue();
   }
 
   public static class Builder extends AbstractFilter.Builder {
@@ -83,4 +84,13 @@ public class JavaScriptFilter extends AbstractFilter<ValueSet> implements Initia
     }
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see java.lang.Object#toString()
+   */
+  @Override
+  public String toString() {
+    return new StringBuilder().append(SCRIPT_NAME).append("[").append(javascript).append("]").toString();
+  }
 }
