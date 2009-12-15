@@ -11,6 +11,10 @@ public class VariableEntityBean implements VariableEntity {
   private transient volatile int hashCode = 0;
 
   public VariableEntityBean(String entityType, String entityIdentifier) {
+    if(entityIdentifier != null && entityIdentifier.trim().length() == 0) {
+      throw new IllegalArgumentException("Empty identifier for entity type " + entityType + " (identifier was [" + entityIdentifier + "])");
+    }
+
     this.entityType = entityType;
     this.entityIdentifier = entityIdentifier;
   }
