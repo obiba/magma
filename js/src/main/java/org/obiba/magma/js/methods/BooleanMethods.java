@@ -12,8 +12,8 @@ import org.obiba.magma.type.BooleanType;
 import com.google.common.collect.Iterables;
 
 /**
- * Methods of the {@code ScriptableValue} javascript class that deal with {@code ScriptableValue} of {@code BooleanType}
- * . Note that other methods that use {@code BooleanType} may be defined elsewhere.
+ * Methods of the {@code ScriptableValue} javascript class that deal with {@code ScriptableValue} of {@code BooleanType} .
+ * Note that other methods that use {@code BooleanType} may be defined elsewhere.
  */
 public class BooleanMethods {
 
@@ -35,6 +35,34 @@ public class BooleanMethods {
       }
     }
     return buildValue(thisObj, false);
+  }
+
+  /**
+   * <pre>
+   *   $('Categorical').all('CAT1', 'CAT2')
+   * </pre>
+   */
+  public static ScriptableValue all(Context ctx, Scriptable thisObj, Object[] args, Function funObj) {
+    ScriptableValue sv = (ScriptableValue) thisObj;
+    if(sv.getValue().isNull()) {
+      return new ScriptableValue(thisObj, BooleanType.get().nullValue());
+    }
+
+    for(Object test : args) {
+      Value testValue = null;
+      if(test instanceof String) {
+        testValue = sv.getValueType().valueOf(test);
+      } else if(test instanceof ScriptableValue) {
+        testValue = ((ScriptableValue) test).getValue();
+      } else {
+        throw new MagmaJsEvaluationRuntimeException("cannot invoke all() with argument of type " + test.getClass().getName());
+      }
+
+      if(!sv.contains(testValue)) {
+        return buildValue(thisObj, false);
+      }
+    }
+    return buildValue(thisObj, true);
   }
 
   /**
