@@ -217,7 +217,14 @@ public class DateTimeMethods {
     }
     Calendar c = asCalendar(thisObj);
     if(c != null) {
-      c.add(Calendar.DAY_OF_MONTH, (Integer) args[0]);
+      Integer argument = 0;
+      if(args[0] instanceof ScriptableValue) {
+        Value value = ((ScriptableValue) args[0]).getValue();
+        argument = Integer.valueOf(value.getValue().toString());
+      } else {
+        argument = (Integer) args[0];
+      }
+      c.add(Calendar.DAY_OF_MONTH, argument);
       return new ScriptableValue(thisObj, DateType.get().valueOf(c));
     }
     return thisObj;
