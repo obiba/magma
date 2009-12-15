@@ -88,4 +88,22 @@ public class BooleanMethodsTest extends AbstractScriptableValueTest {
     Assert.assertEquals(BooleanType.get().falseValue(), result.getValue());
   }
 
+  @Test
+  public void testEmpty() {
+    // Verify that empty() returns FALSE on a non-empty sequence.
+    List<Value> values = new ArrayList<Value>();
+    for(int i = 0; i < 3; i++) {
+      values.add(TextType.get().valueOf("CAT" + i));
+    }
+    ScriptableValue nonEmptySequence = newValue(ValueType.Factory.newSequence(TextType.get(), values));
+    ScriptableValue result = BooleanMethods.empty(Context.getCurrentContext(), nonEmptySequence, null, null);
+    Assert.assertNotNull(result);
+    Assert.assertEquals(BooleanType.get().falseValue(), result.getValue());
+
+    // Verify that empty() returns TRUE on an empty sequence.
+    ScriptableValue emptySequence = newValue(ValueType.Factory.newSequence(TextType.get(), new ArrayList<Value>()));
+    result = BooleanMethods.empty(Context.getCurrentContext(), emptySequence, null, null);
+    Assert.assertNotNull(result);
+    Assert.assertEquals(BooleanType.get().trueValue(), result.getValue());
+  }
 }
