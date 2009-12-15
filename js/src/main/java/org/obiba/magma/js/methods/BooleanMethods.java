@@ -124,6 +124,25 @@ public class BooleanMethods {
     return new ScriptableValue(thisObj, BooleanType.get().falseValue());
   }
 
+  /**
+   * Returns true {@code BooleanType} if the {@code ScriptableValue} .empty() is operating on is a sequence that
+   * contains zero values. Otherwise false is returned.
+   * 
+   * <pre>
+   *   $('Admin.Interview.exportLog.destination').empty()
+   * </pre>
+   */
+  public static ScriptableValue empty(Context ctx, Scriptable thisObj, Object[] args, Function funObj) {
+    ScriptableValue sv = (ScriptableValue) thisObj;
+    if(sv.getValue().isNull()) {
+      return new ScriptableValue(thisObj, BooleanType.get().nullValue());
+    }
+
+    if(sv.getValue().isSequence() && sv.getValue().asSequence().getSize() == 0) return new ScriptableValue(thisObj, BooleanType.get().trueValue());
+
+    return new ScriptableValue(thisObj, BooleanType.get().falseValue());
+  }
+
   private static ScriptableValue buildValue(Scriptable scope, boolean value) {
     return new ScriptableValue(scope, value ? BooleanType.get().trueValue() : BooleanType.get().falseValue());
   }
