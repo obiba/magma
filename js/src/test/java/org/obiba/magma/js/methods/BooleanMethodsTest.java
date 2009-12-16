@@ -98,7 +98,7 @@ public class BooleanMethodsTest extends AbstractScriptableValueTest {
   }
 
   @Test
-  public void testTrueAndFalseReturnsTrue() {
+  public void testTrueAndFalseReturnsFalse() {
     ScriptableValue value = newValue(BooleanType.get().trueValue());
     ScriptableValue arg = newValue(BooleanType.get().falseValue());
     ScriptableValue result = BooleanMethods.and(Context.getCurrentContext(), value, new ScriptableValue[] { arg }, null);
