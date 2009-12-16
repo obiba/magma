@@ -117,26 +117,28 @@ public class BooleanMethods {
    */
   public static ScriptableValue and(Context ctx, Scriptable thisObj, Object[] args, Function funObj) {
     ScriptableValue sv = (ScriptableValue) thisObj;
-    if(sv.getValue().isNull()) {
-      return new ScriptableValue(thisObj, sv.getValue());
+    Value value = sv.getValue();
+    if(!value.getValueType().equals(BooleanType.get())) {
+      throw new MagmaJsEvaluationRuntimeException("cannot invoke and() for Value of type " + value.getValueType().getName());
+    }
+    Boolean booleanValue = toBoolean(value);
+
+    if(args == null || args.length == 0) {
+      return buildValue(thisObj, booleanValue);
     }
 
-    boolean test = (Boolean) sv.getValue().getValue();
-    if(args == null || args.length == 0) {
-      return buildValue(thisObj, test);
-    }
     for(Object arg : args) {
       if(arg instanceof ScriptableValue) {
         ScriptableValue operand = (ScriptableValue) arg;
-        test = test && (Boolean) operand.getValue().getValue();
+        booleanValue = ternaryAnd(booleanValue, toBoolean(operand.getValue()));
       } else {
-        test = test && ScriptRuntime.toBoolean(arg);
+        booleanValue = ternaryAnd(booleanValue, ScriptRuntime.toBoolean(arg));
       }
-      if(test == false) {
+      if(Boolean.FALSE.equals(booleanValue)) {
         return buildValue(thisObj, false);
       }
     }
-    return buildValue(thisObj, true);
+    return buildValue(thisObj, booleanValue);
   }
 
   /**
@@ -171,7 +173,27 @@ public class BooleanMethods {
     return new ScriptableValue(thisObj, BooleanType.get().falseValue());
   }
 
-  private static ScriptableValue buildValue(Scriptable scope, boolean value) {
+  private static ScriptableValue buildValue(Scriptable scope, Boolean value) {
+    if(value == null) {
+      return new ScriptableValue(scope, BooleanType.get().nullValue());
+    }
     return new ScriptableValue(scope, value ? BooleanType.get().trueValue() : BooleanType.get().falseValue());
+  }
+
+  private static Boolean ternaryAnd(Boolean op1, Boolean op2) {
+    if(op1 != null && !op1) {
+      return false;
+    }
+    if(op2 != null && !op2) {
+      return false;
+    }
+    if(op1 == null || op2 == null) {
+      return null;
+    }
+    return true;
+  }
+
+  private static Boolean toBoolean(Value value) {
+    return !value.isNull() ? (Boolean) value.getValue() : null;
   }
 }

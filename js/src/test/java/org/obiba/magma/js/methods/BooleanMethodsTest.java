@@ -89,6 +89,61 @@ public class BooleanMethodsTest extends AbstractScriptableValueTest {
   }
 
   @Test
+  public void testTrueAndTrueReturnsTrue() {
+    ScriptableValue value = newValue(BooleanType.get().trueValue());
+    ScriptableValue arg = newValue(BooleanType.get().trueValue());
+    ScriptableValue result = BooleanMethods.and(Context.getCurrentContext(), value, new ScriptableValue[] { arg }, null);
+    Assert.assertNotNull(result);
+    Assert.assertEquals(BooleanType.get().trueValue(), result.getValue());
+  }
+
+  @Test
+  public void testTrueAndFalseReturnsTrue() {
+    ScriptableValue value = newValue(BooleanType.get().trueValue());
+    ScriptableValue arg = newValue(BooleanType.get().falseValue());
+    ScriptableValue result = BooleanMethods.and(Context.getCurrentContext(), value, new ScriptableValue[] { arg }, null);
+    Assert.assertNotNull(result);
+    Assert.assertEquals(BooleanType.get().falseValue(), result.getValue());
+  }
+
+  @Test
+  public void testTrueAndNullReturnsNull() {
+    ScriptableValue value = newValue(BooleanType.get().trueValue());
+    ScriptableValue arg = newValue(BooleanType.get().nullValue());
+    ScriptableValue result = BooleanMethods.and(Context.getCurrentContext(), value, new ScriptableValue[] { arg }, null);
+    Assert.assertNotNull(result);
+    Assert.assertEquals(BooleanType.get().nullValue(), result.getValue());
+  }
+
+  @Test
+  public void testFalseAndNullReturnsFalse() {
+    ScriptableValue value = newValue(BooleanType.get().falseValue());
+    ScriptableValue arg = newValue(BooleanType.get().nullValue());
+    ScriptableValue result = BooleanMethods.and(Context.getCurrentContext(), value, new ScriptableValue[] { arg }, null);
+    Assert.assertNotNull(result);
+    Assert.assertEquals(BooleanType.get().falseValue(), result.getValue());
+  }
+
+  @Test
+  public void testNullAndNullReturnsNull() {
+    ScriptableValue value = newValue(BooleanType.get().nullValue());
+    ScriptableValue arg = newValue(BooleanType.get().nullValue());
+    ScriptableValue result = BooleanMethods.and(Context.getCurrentContext(), value, new ScriptableValue[] { arg }, null);
+    Assert.assertNotNull(result);
+    Assert.assertEquals(BooleanType.get().nullValue(), result.getValue());
+  }
+
+  @Test
+  public void testTrueAndTrueAndFalseReturnsFalse() {
+    ScriptableValue value = newValue(BooleanType.get().trueValue());
+    ScriptableValue arg1 = newValue(BooleanType.get().trueValue());
+    ScriptableValue arg2 = newValue(BooleanType.get().falseValue());
+    ScriptableValue result = BooleanMethods.and(Context.getCurrentContext(), value, new ScriptableValue[] { arg1, arg2 }, null);
+    Assert.assertNotNull(result);
+    Assert.assertEquals(BooleanType.get().falseValue(), result.getValue());
+  }
+
+  @Test
   public void testEmpty() {
     // Verify that empty() returns FALSE on a non-empty sequence.
     List<Value> values = new ArrayList<Value>();
