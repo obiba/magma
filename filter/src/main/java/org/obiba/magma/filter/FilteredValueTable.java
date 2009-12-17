@@ -31,7 +31,7 @@ public class FilteredValueTable extends AbstractValueTableWrapper {
   public ValueSet getValueSet(VariableEntity entity) throws NoSuchValueSetException {
     ValueSet valueSet = super.getValueSet(entity);
     if(entityFilterChain.filter(valueSet) == null) {
-      throw new NoSuchValueSetException(entity);
+      throw new NoSuchValueSetException(this, entity);
     }
     return valueSet;
   }

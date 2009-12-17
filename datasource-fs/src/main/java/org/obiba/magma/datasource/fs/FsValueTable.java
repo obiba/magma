@@ -131,7 +131,7 @@ class FsValueTable extends AbstractValueTable implements Initialisable, Disposab
   private XStreamValueSet readValueSet(VariableEntity entity) {
     String entryName = variableEntityProvider.getEntityFile(entity);
     if(entryName == null) {
-      throw new NoSuchValueSetException(entity);
+      throw new NoSuchValueSetException(this, entity);
     }
     return readEntry(entryName, new InputCallback<XStreamValueSet>() {
       @Override
