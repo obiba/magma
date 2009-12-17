@@ -8,7 +8,7 @@ import org.obiba.core.domain.AbstractEntity;
 import org.obiba.magma.VariableEntity;
 
 @Entity
-@Table(name = "variable_entity", uniqueConstraints = { @UniqueConstraint(columnNames = { "identifier", "type" }) })
+@Table(name = "variable_entity", uniqueConstraints = { @UniqueConstraint(columnNames = { "type", "identifier" }) })
 public class VariableEntityState extends AbstractEntity implements VariableEntity {
 
   private static final long serialVersionUID = 1L;

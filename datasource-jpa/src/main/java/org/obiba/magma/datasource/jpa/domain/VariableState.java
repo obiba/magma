@@ -14,7 +14,7 @@ import org.obiba.magma.Variable;
 import org.obiba.magma.datasource.jpa.domain.adaptable.AbstractAdaptableEntity;
 
 @Entity
-@Table(name = "variable", uniqueConstraints = { @UniqueConstraint(columnNames = { "name", "value_table_id" }) })
+@Table(name = "variable", uniqueConstraints = { @UniqueConstraint(columnNames = { "value_table_id", "name" }) })
 @TypeDef(name = "value_type", typeClass = ValueTypeHibernateType.class)
 public class VariableState extends AbstractAdaptableEntity {
 
