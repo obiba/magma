@@ -31,15 +31,6 @@ public class ValueSetValue extends AbstractEntity {
 
   private boolean sequence;
 
-  private Integer pos;
-
-  /*
-   * @OneToMany(cascade = CascadeType.ALL, mappedBy = "parent") private List<ValueSetValue> sequence;
-   * 
-   * @ManyToOne()
-   * 
-   * @JoinColumn(name = "value_set_value_id") private ValueSetValue parent;
-   */
   public ValueSetValue() {
 
   }
@@ -53,22 +44,11 @@ public class ValueSetValue extends AbstractEntity {
   }
 
   public void setValue(Value value) {
-    /*
-     * if(value.isSequence()) { ValueSequence sequence = value.asSequence(); this.sequence = new
-     * ArrayList<ValueSetValue>(); this.sequenceSize = sequence.getSize(); int pos = 0; for(Value val :
-     * sequence.getValues()) { if(val.isNull() == false) { ValueSetValue child = new ValueSetValue(this);
-     * child.setValue(val); child.pos = pos; child.parent = this; this.sequence.add(child); } pos++; } } else {
-     */
-    this.textValue = value.toString();
-    // this.parent = null;
-    this.sequence = value.isSequence();
-    this.pos = null;
-    // this.sequence = null;
-    // this.sequenceSize = null;
-    // }
-    if(textValue == null) {
-      throw new IllegalStateException("value cannot be null: " + variable.getName());
+    if(value.isNull()) {
+      throw new IllegalArgumentException("cannot persist null values");
     }
+    this.textValue = value.toString();
+    this.sequence = value.isSequence();
   }
 
   public Value getValue() {
