@@ -20,9 +20,9 @@ public class JPADatasource extends AbstractDatasource {
 
   private static final String JPA_TYPE = "jpa";
 
-  SessionFactory sessionFactory;
+  private SessionFactory sessionFactory;
 
-  Serializable datasourceId;
+  private Serializable datasourceId;
 
   public JPADatasource(String name, SessionFactory sessionFactory) {
     super(name, JPA_TYPE);

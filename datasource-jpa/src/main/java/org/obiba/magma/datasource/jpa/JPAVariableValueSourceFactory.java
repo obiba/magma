@@ -1,5 +1,6 @@
 package org.obiba.magma.datasource.jpa;
 
+import java.io.Serializable;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -13,64 +14,62 @@ import org.obiba.magma.ValueType;
 import org.obiba.magma.Variable;
 import org.obiba.magma.VariableValueSource;
 import org.obiba.magma.VariableValueSourceFactory;
+import org.obiba.magma.datasource.jpa.JPAValueTable.JPAValueSet;
 import org.obiba.magma.datasource.jpa.converter.JPAMarshallingContext;
 import org.obiba.magma.datasource.jpa.converter.VariableConverter;
 import org.obiba.magma.datasource.jpa.domain.ValueSetValue;
-import org.obiba.magma.datasource.jpa.domain.ValueTableState;
 import org.obiba.magma.datasource.jpa.domain.VariableState;
 
 public class JPAVariableValueSourceFactory implements VariableValueSourceFactory {
 
-  private ValueTableState valueTableMemento;
+  private JPAValueTable valueTable;
 
-  private SessionFactory sessionFactory;
-
-  public JPAVariableValueSourceFactory(ValueTableState valueTableMemento) {
+  public JPAVariableValueSourceFactory(JPAValueTable valueTable) {
     super();
-    this.valueTableMemento = valueTableMemento;
-  }
-
-  public void setSessionFactory(SessionFactory sessionFactory) {
-    this.sessionFactory = sessionFactory;
+    this.valueTable = valueTable;
   }
 
   @Override
   public Set<VariableValueSource> createSources() {
+    JPAMarshallingContext ctx = JPAMarshallingContext.create(getSessionFactory(), valueTable.getValueTableState());
     Set<VariableValueSource> sources = new LinkedHashSet<VariableValueSource>();
-    AssociationCriteria criteria = AssociationCriteria.create(VariableState.class, sessionFactory.getCurrentSession()).add("valueTable.id", Operation.eq, valueTableMemento.getId()).addSortingClauses(SortingClause.create("pos"));
+    AssociationCriteria criteria = AssociationCriteria.create(VariableState.class, getSessionFactory().getCurrentSession()).add("valueTable", Operation.eq, valueTable.getValueTableState()).addSortingClauses(SortingClause.create("pos"));
     for(Object obj : criteria.list()) {
-      JPAVariableValueSource source = new JPAVariableValueSource((VariableState) obj);
+      VariableState state = (VariableState) obj;
+      Variable variable = VariableConverter.getInstance().unmarshal(state, ctx);
+      JPAVariableValueSource source = new JPAVariableValueSource(variable, state);
       sources.add(source);
     }
     return sources;
   }
 
+  private SessionFactory getSessionFactory() {
+    return valueTable.getDatasource().getSessionFactory();
+  }
+
   private class JPAVariableValueSource implements VariableValueSource {
 
-    private VariableState variableMemento;
+    private Serializable variableId;
 
     private Variable variable;
 
-    public JPAVariableValueSource(VariableState memento) {
+    public JPAVariableValueSource(Variable variable, VariableState state) {
       super();
-      this.variableMemento = memento;
+      this.variable = variable;
+      this.variableId = state.getId();
     }
 
     @Override
     public Variable getVariable() {
-      if(variable == null) {
-        variable = VariableConverter.getInstance().unmarshal(variableMemento, JPAMarshallingContext.create(sessionFactory, valueTableMemento));
-      }
-
       return variable;
     }
 
     @Override
     public Value getValue(ValueSet valueSet) {
-      AssociationCriteria criteria = AssociationCriteria.create(ValueSetValue.class, sessionFactory.getCurrentSession()).add("variable.id", Operation.eq, variableMemento.getId()).add("valueSet.valueTable.id", Operation.eq, valueTableMemento.getId());
-      criteria.add("valueSet.variableEntity.identifier", Operation.eq, valueSet.getVariableEntity().getIdentifier()).add("valueSet.variableEntity.type", Operation.eq, valueSet.getVariableEntity().getType());
+      JPAValueSet jpaValueSet = (JPAValueSet) valueSet;
+      AssociationCriteria criteria = AssociationCriteria.create(ValueSetValue.class, getSessionFactory().getCurrentSession()).add("variable.id", Operation.eq, variableId).add("valueSet", Operation.eq, jpaValueSet.getValueSetState());
       ValueSetValue valueSetValue = (ValueSetValue) criteria.getCriteria().uniqueResult();
-      return valueSetValue != null ? valueSetValue.getValue() : null;
+      return valueSetValue != null ? valueSetValue.getValue() : (getVariable().isRepeatable() ? getValueType().nullSequence() : getValueType().nullValue());
     }
 
     @Override

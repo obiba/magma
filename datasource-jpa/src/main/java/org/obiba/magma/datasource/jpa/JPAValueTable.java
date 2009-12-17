@@ -1,6 +1,7 @@
 package org.obiba.magma.datasource.jpa;
 
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -46,7 +47,7 @@ public class JPAValueTable extends AbstractValueTable {
   public ValueSet getValueSet(VariableEntity entity) throws NoSuchValueSetException {
     AssociationCriteria criteria = AssociationCriteria.create(ValueSetState.class, getDatasource().getSessionFactory().getCurrentSession())
     // 
-    .add("valueTable.id", Operation.eq, valueTableId)
+    .add("valueTable", Operation.eq, getValueTableState())
     // 
     .add("variableEntity.identifier", Operation.eq, entity.getIdentifier()).add("variableEntity.type", Operation.eq, entity.getType());
 
@@ -62,8 +63,15 @@ public class JPAValueTable extends AbstractValueTable {
   }
 
   class JPAValueSet extends ValueSetBean {
+
+    private ValueSetState valueSetState;
+
     public JPAValueSet(VariableEntity entity, ValueSetState state) {
       super(JPAValueTable.this, entity);
+    }
+
+    ValueSetState getValueSetState() {
+      return valueSetState;
     }
   }
 
@@ -88,7 +96,7 @@ public class JPAValueTable extends AbstractValueTable {
 
     @Override
     public Set<VariableEntity> getVariableEntities() {
-      return entities;
+      return Collections.unmodifiableSet(entities);
     }
 
   }
