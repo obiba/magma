@@ -4,13 +4,13 @@ public class NoSuchVariableException extends MagmaRuntimeException {
 
   private static final long serialVersionUID = 5887330656285998606L;
 
-  private String collection;
+  private String valueTableName;
 
   private String name;
 
-  public NoSuchVariableException(String collection, String name) {
-    super("No such variable '" + name + "' in collection '" + collection + "'");
-    this.collection = collection;
+  public NoSuchVariableException(String valueTableName, String name) {
+    super("No such variable '" + name + "' in table '" + valueTableName + "'");
+    this.valueTableName = valueTableName;
     this.name = name;
   }
 
@@ -19,8 +19,8 @@ public class NoSuchVariableException extends MagmaRuntimeException {
     this.name = name;
   }
 
-  public String getCollection() {
-    return collection;
+  public String getValueTableName() {
+    return valueTableName;
   }
 
   public String getName() {

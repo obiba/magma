@@ -73,9 +73,14 @@ public class ValueSequence extends Value {
     if(isNull()) {
       return super.toString();
     }
-    // Return [e1,e2,e3...,en]
-    // If we want to parse the string back as a ValueSequence, then we'll need to escape certain characters for TextType
-    throw new UnsupportedOperationException();
+    final StringBuilder sb = new StringBuilder();
+    for(Value value : getValue()) {
+      sb.append(value.toString()).append(',');
+    }
+    if(sb.length() > 0) {
+      sb.deleteCharAt(sb.length() - 1);
+    }
+    return sb.toString();
   }
 
 }

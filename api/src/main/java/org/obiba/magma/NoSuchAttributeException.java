@@ -9,12 +9,11 @@ public class NoSuchAttributeException extends MagmaRuntimeException {
   private String attributeName;
 
   public NoSuchAttributeException(String attribute, String attributeAware) {
-    super("No such attribute '" + attribute + "' for '" + attributeAware + "'");
-    this.attributeName = attribute;
+    this(attribute, null, attributeAware);
   }
 
   public NoSuchAttributeException(String attribute, Locale locale, String attributeAware) {
-    super("No such attribute '" + attribute + "'@" + locale.toString() + " for '" + attributeAware + "'");
+    super("No such attribute '" + attribute + (locale != null ? "'@" + locale.toString() : "'") + " for '" + attributeAware + "'");
     this.attributeName = attribute;
   }
 

@@ -155,4 +155,6 @@ public interface ValueType extends Serializable {
    */
   public ValueSequence sequenceOf(Iterable<Value> values);
 
+  public ValueSequence sequenceOf(String values);
+
 }
