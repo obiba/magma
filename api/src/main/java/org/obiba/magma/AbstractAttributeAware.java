@@ -26,6 +26,17 @@ public abstract class AbstractAttributeAware implements AttributeAware {
     }
   }
 
+  public boolean hasAttribute(final String name, final Locale locale) {
+    if(getInstanceAttributes().containsKey(name)) {
+      for(Attribute attribute : getInstanceAttributes().get(name)) {
+        if(attribute.isLocalised() && attribute.getLocale().equals(locale)) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
   @Override
   public Attribute getAttribute(final String name, final Locale locale) {
     try {

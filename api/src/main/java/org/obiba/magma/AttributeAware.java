@@ -25,6 +25,8 @@ public interface AttributeAware {
    */
   public Attribute getAttribute(String name) throws NoSuchAttributeException;
 
+  public boolean hasAttribute(String name, Locale locale);
+
   public Attribute getAttribute(String name, Locale locale) throws NoSuchAttributeException;
 
   /**
