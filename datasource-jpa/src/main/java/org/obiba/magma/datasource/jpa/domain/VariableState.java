@@ -1,9 +1,11 @@
 package org.obiba.magma.datasource.jpa.domain;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
@@ -12,18 +14,20 @@ import org.obiba.magma.Variable;
 import org.obiba.magma.datasource.jpa.domain.adaptable.AbstractAdaptableEntity;
 
 @Entity
-@Table(name = "variable")
-@TypeDef(name = "value_type", typeClass = ValueTypeType.class)
+@Table(name = "variable", uniqueConstraints = { @UniqueConstraint(columnNames = { "name", "value_table_id" }) })
+@TypeDef(name = "value_type", typeClass = ValueTypeHibernateType.class)
 public class VariableState extends AbstractAdaptableEntity {
 
   private static final long serialVersionUID = 1L;
 
+  @Column(nullable = false)
   private String name;
 
   @ManyToOne(optional = false)
   @JoinColumn(name = "value_table_id")
   private ValueTableState valueTable;
 
+  @Column(nullable = false)
   private String entityType;
 
   private String mimeType;
@@ -37,6 +41,7 @@ public class VariableState extends AbstractAdaptableEntity {
   @Type(type = "value_type")
   private ValueType valueType;
 
+  @Column(nullable = false)
   private boolean repeatable;
 
   private Integer pos;

@@ -6,7 +6,6 @@ import java.util.Set;
 
 import org.hibernate.SessionFactory;
 import org.hibernate.criterion.Restrictions;
-import org.obiba.core.service.SortingClause;
 import org.obiba.core.service.impl.hibernate.AssociationCriteria;
 import org.obiba.core.service.impl.hibernate.AssociationCriteria.Operation;
 import org.obiba.magma.ValueTable;
@@ -46,7 +45,7 @@ public class JPADatasource extends AbstractDatasource {
   protected void onInitialise() {
     DatasourceState state = (DatasourceState) sessionFactory.getCurrentSession().createCriteria(DatasourceState.class).add(Restrictions.eq("name", getName())).uniqueResult();
     if(state == null) {
-      state = new DatasourceState(getName(), getType());
+      state = new DatasourceState(getName());
       sessionFactory.getCurrentSession().save(state);
     } else {
       JPAMarshallingContext context = JPAMarshallingContext.create(sessionFactory);
@@ -59,7 +58,7 @@ public class JPADatasource extends AbstractDatasource {
 
   protected Set<String> getValueTableNames() {
     Set<String> names = new LinkedHashSet<String>();
-    AssociationCriteria criteria = AssociationCriteria.create(ValueTableState.class, sessionFactory.getCurrentSession()).add("datasource.id", Operation.eq, datasourceId).addSortingClauses(SortingClause.create("pos"));
+    AssociationCriteria criteria = AssociationCriteria.create(ValueTableState.class, sessionFactory.getCurrentSession()).add("datasource.id", Operation.eq, datasourceId);
     for(Object obj : criteria.list()) {
       ValueTableState state = (ValueTableState) obj;
       names.add(state.getName());

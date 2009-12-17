@@ -2,34 +2,36 @@ package org.obiba.magma.datasource.jpa.domain.attribute;
 
 import java.util.Locale;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
+import org.hibernate.annotations.Columns;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 import org.obiba.core.domain.AbstractEntity;
 import org.obiba.magma.Attribute;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueType;
-import org.obiba.magma.datasource.jpa.domain.ValueTypeType;
+import org.obiba.magma.datasource.jpa.domain.ValueHibernateType;
 
 @Entity
 @Table(name = "attribute")
-@TypeDef(name = "value_type", typeClass = ValueTypeType.class)
+@TypeDef(name = "value", typeClass = ValueHibernateType.class)
 public class JPAAttribute extends AbstractEntity implements Attribute {
 
   private static final long serialVersionUID = 1L;
 
+  @Column(nullable = false)
   private String name;
 
   private Locale locale;
 
-  private String textValue;
-
-  @Type(type = "value_type")
-  private ValueType valueType;
+  @Type(type = "value")
+  @Columns(columns = { @Column(name = "value_type", nullable = false), @Column(name = "is_sequence", nullable = false), @Column(name = "value", length = Integer.MAX_VALUE, nullable = false) })
+  private Value value;
 
   @ManyToOne(optional = false)
   @JoinColumn(name = "attribute_aware_id")
@@ -55,13 +57,7 @@ public class JPAAttribute extends AbstractEntity implements Attribute {
   }
 
   public void setValue(Value value) {
-    if(value != null) {
-      this.valueType = value.getValueType();
-      this.textValue = valueType.toString(value);
-    } else {
-      this.valueType = null;
-      this.textValue = null;
-    }
+    this.value = value;
   }
 
   @Override
@@ -76,12 +72,12 @@ public class JPAAttribute extends AbstractEntity implements Attribute {
 
   @Override
   public Value getValue() {
-    return valueType.valueOf(textValue);
+    return value;
   }
 
   @Override
   public ValueType getValueType() {
-    return valueType;
+    return value.getValueType();
   }
 
   @Override

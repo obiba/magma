@@ -15,7 +15,7 @@ import org.obiba.magma.ValueType;
  * String representation of {@link ValueType}.
  * 
  */
-public class ValueTypeType extends ImmutableType implements DiscriminatorType {
+public class ValueTypeHibernateType extends ImmutableType implements DiscriminatorType {
 
   private static final long serialVersionUID = 1L;
 

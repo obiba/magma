@@ -3,16 +3,19 @@ package org.obiba.magma.datasource.jpa.domain;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
-import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 
+import org.hibernate.annotations.Columns;
+import org.hibernate.annotations.Type;
+import org.hibernate.annotations.TypeDef;
 import org.obiba.core.domain.AbstractEntity;
 import org.obiba.magma.Value;
-import org.obiba.magma.ValueType;
 
 @Entity
-@Table(name = "value_set_value")
+@Table(name = "value_set_value", uniqueConstraints = { @UniqueConstraint(columnNames = { "value_set_id", "variable_id" }) })
+@TypeDef(name = "value", typeClass = ValueHibernateType.class)
 public class ValueSetValue extends AbstractEntity {
 
   private static final long serialVersionUID = 1L;
@@ -25,11 +28,9 @@ public class ValueSetValue extends AbstractEntity {
   @JoinColumn(name = "variable_id")
   private VariableState variable;
 
-  @Lob
-  @Column(length = Integer.MAX_VALUE, nullable = false)
-  private String textValue;
-
-  private boolean sequence;
+  @Type(type = "value")
+  @Columns(columns = { @Column(name = "value_type", nullable = false), @Column(name = "is_sequence", nullable = false), @Column(name = "value", length = Integer.MAX_VALUE, nullable = false) })
+  private Value value;
 
   public ValueSetValue() {
 
@@ -47,16 +48,11 @@ public class ValueSetValue extends AbstractEntity {
     if(value.isNull()) {
       throw new IllegalArgumentException("cannot persist null values");
     }
-    this.textValue = value.toString();
-    this.sequence = value.isSequence();
+    this.value = value;
   }
 
   public Value getValue() {
-    ValueType valueType = getVariable().getValueType();
-    if(sequence) {
-      return valueType.sequenceOf(textValue);
-    }
-    return valueType.valueOf(textValue);
+    return value;
   }
 
   public ValueSetState getValueSet() {
