@@ -43,7 +43,7 @@ public class DecimalType extends AbstractNumberType {
     if(string == null) {
       return nullValue();
     }
-    return Factory.newValue(this, Integer.valueOf(string));
+    return Factory.newValue(this, Double.valueOf(string));
   }
 
   @Override
