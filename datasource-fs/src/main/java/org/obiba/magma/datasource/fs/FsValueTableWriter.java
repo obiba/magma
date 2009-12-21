@@ -82,8 +82,11 @@ class FsValueTableWriter implements ValueTableWriter {
 
     @Override
     public void close() throws IOException {
-      xstream.toXML(valueSet, os);
-      os.close();
+      try {
+        xstream.toXML(valueSet, os);
+      } finally {
+        os.close();
+      }
     }
 
     @Override
