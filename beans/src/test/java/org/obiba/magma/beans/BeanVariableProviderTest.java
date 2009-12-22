@@ -112,6 +112,36 @@ public class BeanVariableProviderTest {
   }
 
   @Test
+  public void testMapAttributesWithDotsInKeyValues() {
+    final TestBean tb = new TestBean();
+    tb.setFirstName("TestBean");
+    NestedTestBean nb = new NestedTestBean();
+    nb.setDecimal(42.0);
+    nb.setData(new byte[] { 0x01, 0x02 });
+    tb.setAttributes(ImmutableMap.of("phone.number", nb));
+
+    Set<String> properties = Sets.newHashSet("attributes[phone.number].data");
+    Map<String, Class<?>> mappedPropertyType = new ImmutableMap.Builder<String, Class<?>>().put("attributes", NestedTestBean.class).build();
+    BeanVariableValueSourceFactory<TestBean> bvp = new BeanVariableValueSourceFactory<TestBean>("Test", TestBean.class);
+    bvp.setProperties(properties);
+    bvp.setMappedPropertyType(mappedPropertyType);
+
+    Set<VariableValueSource> variableValueSources = assertVariablesFromProperties(bvp, properties);
+
+    BeanValueSet bvs = EasyMock.createMock(BeanValueSet.class);
+    // "If you use an argument matcher for one argument, you must use an argument matcher for all the arguments."
+    EasyMock.expect(bvs.resolve((Class<?>) EasyMock.anyObject(), (ValueSet) EasyMock.anyObject(), (Variable) EasyMock.anyObject())).andReturn(tb).anyTimes();
+    EasyMock.replay(bvs);
+
+    for(VariableValueSource source : variableValueSources) {
+      Value value = source.getValue(bvs);
+      Assert.assertNotNull("Value cannot be null " + source.getVariable().getName(), value);
+      Assert.assertNotNull("ValueType cannot be null " + source.getVariable().getName(), value.getValueType());
+      Assert.assertNotNull("Value's value cannot be null " + source.getVariable().getName(), value.getValue());
+    }
+  }
+
+  @Test
   public void testValues() {
     final TestBean tb = new TestBean();
     tb.setFirstName("TestBean");
