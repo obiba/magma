@@ -15,7 +15,10 @@ public class DateType extends AbstractValueType {
 
   private static WeakReference<DateType> instance;
 
-  private SimpleDateFormat ISO_8601 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSzzz");
+  private final SimpleDateFormat ISO_8601 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+
+  /** These are used to support other formats that Magma may have used in the past. */
+  private final SimpleDateFormat[] otherFormats = new SimpleDateFormat[] { new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSzzz") };
 
   private DateType() {
 
@@ -68,13 +71,23 @@ public class DateType extends AbstractValueType {
     if(string == null) {
       return nullValue();
     }
+
     try {
       // DateFormat is not thread safe
       synchronized(ISO_8601) {
         return Factory.newValue(this, ISO_8601.parse(string));
       }
     } catch(ParseException e) {
-      throw new IllegalArgumentException(e);
+      for(SimpleDateFormat sdf : otherFormats) {
+        try {
+          synchronized(otherFormats) {
+            return Factory.newValue(this, sdf.parse(string));
+          }
+        } catch(ParseException e1) {
+          // ignore and try next supported format
+        }
+      }
+      throw new IllegalArgumentException("Cannot parse date from string value '" + string + "'");
     }
   }
 
