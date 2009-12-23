@@ -203,6 +203,26 @@
     </resources>
   </build>
 
+  <repositories>
+    <repository>
+      <id>obiba.org</id>
+      <name>Obiba Maven 2.x Repository</name>
+      <url>http://maven.obiba.org/maven2</url>
+    </repository>
+
+    <repository>
+      <id>snapshot.obiba.org</id>
+      <name>Obiba Snaphot Maven 2.x Repository</name>
+      <url>http://maven.obiba.org/maven2-snapshots</url>
+      <releases>
+        <enabled>false</enabled>
+      </releases>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+    </repository>
+  </repositories>
+
   <distributionManagement>
     <!-- URL used to deploy the release artifacts -->
     <repository>
