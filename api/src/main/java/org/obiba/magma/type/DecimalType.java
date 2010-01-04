@@ -25,7 +25,7 @@ public class DecimalType extends AbstractNumberType {
 
   @Override
   public Class<?> getJavaClass() {
-    return BigDecimal.class;
+    return Double.class;
   }
 
   @Override
