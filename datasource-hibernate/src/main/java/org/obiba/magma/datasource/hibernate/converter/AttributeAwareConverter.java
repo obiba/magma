@@ -23,18 +23,19 @@ public class AttributeAwareConverter implements HibernateConverter<AbstractAdapt
 
   @Override
   public AbstractAdaptableEntity marshal(AttributeAware attributeAware, HibernateMarshallingContext context) {
+
     AbstractAdaptableEntity adaptable = context.getAdaptable();
+    if(!attributeAware.hasAttributes()) {
+      // nothing to persist
+      return adaptable;
+    }
+
     // find it or create it
     AttributeAwareAdapter hibernateEntity = getAttributeAware(adaptable, context);
     if(hibernateEntity == null) {
-      if(!attributeAware.hasAttributes()) {
-        // nothing to persist
-        return adaptable;
-      } else {
-        hibernateEntity = new AttributeAwareAdapter();
-        hibernateEntity.setAdaptable(adaptable);
-        context.getSessionFactory().getCurrentSession().save(hibernateEntity);
-      }
+      hibernateEntity = new AttributeAwareAdapter();
+      hibernateEntity.setAdaptable(adaptable);
+      context.getSessionFactory().getCurrentSession().save(hibernateEntity);
     }
 
     addAttributes(attributeAware, hibernateEntity, context);
