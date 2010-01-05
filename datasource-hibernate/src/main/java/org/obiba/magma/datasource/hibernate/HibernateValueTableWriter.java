@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.security.InvalidParameterException;
 
 import org.hibernate.SessionFactory;
-import org.hibernate.criterion.Restrictions;
 import org.obiba.core.service.impl.hibernate.AssociationCriteria;
 import org.obiba.core.service.impl.hibernate.AssociationCriteria.Operation;
 import org.obiba.magma.NoSuchVariableException;
@@ -17,6 +16,7 @@ import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.datasource.hibernate.converter.HibernateMarshallingContext;
 import org.obiba.magma.datasource.hibernate.converter.VariableConverter;
+import org.obiba.magma.datasource.hibernate.converter.VariableEntityConverter;
 import org.obiba.magma.datasource.hibernate.domain.ValueSetState;
 import org.obiba.magma.datasource.hibernate.domain.ValueSetValue;
 import org.obiba.magma.datasource.hibernate.domain.VariableEntityState;
@@ -71,16 +71,12 @@ public class HibernateValueTableWriter implements ValueTableWriter {
 
     public HibernateValueSetWriter(VariableEntity entity) {
       // find entity or create it
-      VariableEntityState variableEntity = (VariableEntityState) sessionFactory.getCurrentSession().createCriteria(VariableEntityState.class).add(Restrictions.eq("identifier", entity.getIdentifier())).add(Restrictions.eq("type", entity.getType())).uniqueResult();
-      if(variableEntity == null) {
-        variableEntity = new VariableEntityState(entity.getIdentifier(), entity.getType());
-        sessionFactory.getCurrentSession().save(variableEntity);
-      }
+      VariableEntityState variableEntityState = VariableEntityConverter.getInstance().marshal(entity, HibernateMarshallingContext.create(sessionFactory, valueTable.getValueTableState()));
 
-      AssociationCriteria criteria = AssociationCriteria.create(ValueSetState.class, sessionFactory.getCurrentSession()).add("valueTable", Operation.eq, valueTable.getValueTableState()).add("variableEntity", Operation.eq, variableEntity);
+      AssociationCriteria criteria = AssociationCriteria.create(ValueSetState.class, sessionFactory.getCurrentSession()).add("valueTable", Operation.eq, valueTable.getValueTableState()).add("variableEntity", Operation.eq, variableEntityState);
       valueSetState = (ValueSetState) criteria.getCriteria().uniqueResult();
       if(valueSetState == null) {
-        valueSetState = new ValueSetState(valueTable.getValueTableState(), variableEntity);
+        valueSetState = new ValueSetState(valueTable.getValueTableState(), variableEntityState);
         sessionFactory.getCurrentSession().save(valueSetState);
       }
     }

@@ -20,9 +20,8 @@ public class VariableConverter implements HibernateConverter<VariableState, Vari
     VariableState varMemento = (VariableState) criteria.getCriteria().uniqueResult();
     if(varMemento == null) {
       varMemento = new VariableState(context.getValueTable(), variable);
+      context.getSessionFactory().getCurrentSession().save(varMemento);
     }
-    // TODO set...
-    context.getSessionFactory().getCurrentSession().save(varMemento);
 
     // set the context and go through categories
     context.setVariable(varMemento);
