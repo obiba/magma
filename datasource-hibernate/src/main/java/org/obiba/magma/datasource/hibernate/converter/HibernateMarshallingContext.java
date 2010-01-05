@@ -2,6 +2,7 @@ package org.obiba.magma.datasource.hibernate.converter;
 
 import org.hibernate.SessionFactory;
 import org.obiba.magma.AttributeAwareBuilder;
+import org.obiba.magma.datasource.hibernate.domain.ValueSetState;
 import org.obiba.magma.datasource.hibernate.domain.ValueTableState;
 import org.obiba.magma.datasource.hibernate.domain.VariableState;
 import org.obiba.magma.datasource.hibernate.domain.adaptable.AbstractAdaptableEntity;
@@ -9,6 +10,8 @@ import org.obiba.magma.datasource.hibernate.domain.adaptable.AbstractAdaptableEn
 public class HibernateMarshallingContext {
 
   private ValueTableState valueTable;
+
+  private ValueSetState valueSet;
 
   private VariableState variable;
 
@@ -35,6 +38,14 @@ public class HibernateMarshallingContext {
 
   public SessionFactory getSessionFactory() {
     return sessionFactory;
+  }
+
+  public ValueSetState getValueSet() {
+    return valueSet;
+  }
+
+  public void setValueSet(ValueSetState valueSet) {
+    this.valueSet = valueSet;
   }
 
   public VariableState getVariable() {
