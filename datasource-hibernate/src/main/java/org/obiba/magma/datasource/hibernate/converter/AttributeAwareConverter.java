@@ -1,5 +1,7 @@
 package org.obiba.magma.datasource.hibernate.converter;
 
+import java.util.List;
+
 import org.obiba.core.service.impl.hibernate.AssociationCriteria;
 import org.obiba.core.service.impl.hibernate.AssociationCriteria.Operation;
 import org.obiba.magma.Attribute;
@@ -44,15 +46,21 @@ public class AttributeAwareConverter implements HibernateConverter<AbstractAdapt
 
   @Override
   public AttributeAware unmarshal(AbstractAdaptableEntity adaptable, HibernateMarshallingContext context) {
-    AttributeAwareAdapter attAware = getAttributeAware(adaptable, context);
-    if(attAware != null) {
-      AssociationCriteria criteria = makeAttributeCriteria(attAware, context);
-      for(Object obj : criteria.list()) {
-        context.getAttributeAwareBuilder().addAttribute((HibernateAttribute) obj);
+
+    AttributeAwareAdapter attributeAware = getAttributeAware(context.getAdaptable(), context);
+    List<HibernateAttribute> attributes = attributeAware.getAttributes();
+    for(HibernateAttribute attribute : attributes) {
+      Attribute.Builder attBuilder = Attribute.Builder.newAttribute(attribute.getName());
+
+      if(attribute.isLocalised()) {
+        attBuilder.withValue(attribute.getLocale(), attribute.getValue().toString());
+      } else {
+        attBuilder.withValue(attribute.getValue());
       }
+
+      context.getAttributeAwareBuilder().addAttribute(attBuilder.build());
     }
 
-    // cannot access builder :(
     return null;
   }
 

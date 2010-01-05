@@ -16,9 +16,9 @@ public class CategoryConverter implements HibernateConverter<CategoryState, Cate
     AssociationCriteria criteria = AssociationCriteria.create(CategoryState.class, context.getSessionFactory().getCurrentSession()).add("variable.id", Operation.eq, context.getVariable().getId()).add("name", Operation.eq, category.getName());
     CategoryState catMemento = (CategoryState) criteria.getCriteria().uniqueResult();
     if(catMemento == null) {
-      catMemento = new CategoryState(context.getVariable(), category.getName());
+      catMemento = new CategoryState(context.getVariable(), category.getName(), category.getCode(), category.isMissing());
     }
-    // TODO set...
+
     context.getSessionFactory().getCurrentSession().save(catMemento);
 
     // attributes
@@ -33,7 +33,8 @@ public class CategoryConverter implements HibernateConverter<CategoryState, Cate
     Category.Builder builder = Category.Builder.newCategory(categoryMemento.getName());
     builder.withCode(categoryMemento.getCode()).missing(categoryMemento.isMissing());
 
-    // TODO attributes
+    context.setAttributeAwareBuilder(builder);
+    AttributeAwareConverter.getInstance().unmarshal(categoryMemento, context);
 
     return builder.build();
   }

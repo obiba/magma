@@ -29,10 +29,12 @@ public class CategoryState extends AbstractAdaptableEntity {
 
   }
 
-  public CategoryState(VariableState variable, String name) {
+  public CategoryState(VariableState variable, String name, String code, Boolean missing) {
     super();
     this.variable = variable;
     this.name = name;
+    this.code = code;
+    this.missing = missing;
   }
 
   public String getCode() {
