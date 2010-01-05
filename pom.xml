@@ -248,7 +248,7 @@
     <maven.compiler.source>1.6</maven.compiler.source>
     <project.build.sourceEncoding>ISO-8859-1</project.build.sourceEncoding>
 
-    <google-collections.version>1.0-rc4</google-collections.version>
+    <google-collections.version>1.0</google-collections.version>
     <junit.version>4.7</junit.version>
     <easymock.version>2.5.2</easymock.version>
     <slf4j.version>1.5.8</slf4j.version>
