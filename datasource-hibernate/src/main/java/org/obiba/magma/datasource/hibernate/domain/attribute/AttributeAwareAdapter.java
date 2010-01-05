@@ -1,5 +1,6 @@
 package org.obiba.magma.datasource.hibernate.domain.attribute;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.CascadeType;
@@ -16,7 +17,7 @@ public class AttributeAwareAdapter extends AbstractAdapterEntity {
   private static final long serialVersionUID = 1L;
 
   @OneToMany(cascade = { CascadeType.REMOVE }, mappedBy = "adapter")
-  private List<HibernateAttribute> attributes;
+  private List<HibernateAttribute> attributes = new ArrayList<HibernateAttribute>();
 
   public List<HibernateAttribute> getAttributes() {
     return attributes;
