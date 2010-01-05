@@ -16,8 +16,8 @@ import org.obiba.magma.datasource.crypt.EncryptedSecretKeyDatasourceEncryptionSt
 import org.obiba.magma.datasource.crypt.GeneratedSecretKeyDatasourceEncryptionStrategy;
 import org.obiba.magma.datasource.fs.DatasourceCopier;
 import org.obiba.magma.datasource.fs.FsDatasource;
-import org.obiba.magma.datasource.jpa.JPADatasource;
-import org.obiba.magma.datasource.jpa.JPADatasourceFactory;
+import org.obiba.magma.datasource.hibernate.HibernateDatasource;
+import org.obiba.magma.datasource.hibernate.HibernateDatasourceFactory;
 import org.obiba.magma.integration.service.XStreamIntegrationServiceFactory;
 import org.obiba.magma.js.MagmaJsExtension;
 import org.obiba.magma.xstream.MagmaXStreamExtension;
@@ -85,8 +85,8 @@ public class IntegrationApp {
     // Disconnect it from Magma
     MagmaEngine.get().removeDatasource(fs);
 
-    JPADatasourceFactory jpaFactory = new JPADatasourceFactory("org.hsqldb.jdbcDriver", "jdbc:hsqldb:file:target/integration-jpa.db;shutdown=true", "sa", "", "org.hibernate.dialect.HSQLDialect");
-    JPADatasource ds = jpaFactory.create("integration-jpa");
+    HibernateDatasourceFactory jpaFactory = new HibernateDatasourceFactory("org.hsqldb.jdbcDriver", "jdbc:hsqldb:file:target/integration-jpa.db;shutdown=true", "sa", "", "org.hibernate.dialect.HSQLDialect");
+    HibernateDatasource ds = jpaFactory.create("integration-jpa");
 
     MagmaEngine.get().addDatasource(ds);
 
