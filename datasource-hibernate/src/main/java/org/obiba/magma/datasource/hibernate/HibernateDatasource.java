@@ -8,11 +8,12 @@ import org.hibernate.SessionFactory;
 import org.hibernate.criterion.Restrictions;
 import org.obiba.core.service.impl.hibernate.AssociationCriteria;
 import org.obiba.core.service.impl.hibernate.AssociationCriteria.Operation;
+import org.obiba.magma.Attribute;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.ValueTableWriter;
-import org.obiba.magma.datasource.hibernate.converter.HibernateMarshallingContext;
 import org.obiba.magma.datasource.hibernate.domain.DatasourceState;
 import org.obiba.magma.datasource.hibernate.domain.ValueTableState;
+import org.obiba.magma.datasource.hibernate.domain.attribute.HibernateAttribute;
 import org.obiba.magma.support.AbstractDatasource;
 
 public class HibernateDatasource extends AbstractDatasource {
@@ -43,17 +44,39 @@ public class HibernateDatasource extends AbstractDatasource {
 
   @Override
   protected void onInitialise() {
-    DatasourceState state = (DatasourceState) sessionFactory.getCurrentSession().createCriteria(DatasourceState.class).add(Restrictions.eq("name", getName())).uniqueResult();
-    if(state == null) {
-      state = new DatasourceState(getName());
-      sessionFactory.getCurrentSession().save(state);
+
+    DatasourceState datasourceState = (DatasourceState) sessionFactory.getCurrentSession().createCriteria(DatasourceState.class).add(Restrictions.eq("name", getName())).uniqueResult();
+
+    // If datasource not persisted, create the persisted DatasourceState.
+    if(datasourceState == null) {
+      datasourceState = new DatasourceState(getName());
+      sessionFactory.getCurrentSession().save(datasourceState);
+
+      // If already persisted, load the persisted attributes for that datasource.
     } else {
-      HibernateMarshallingContext context = HibernateMarshallingContext.create(sessionFactory);
-      // TODO attribute aware builder for datasource
-      // context.setAttributeAwareBuilder(null);
-      // AttributeAwareConverter.getInstance().unmarshal(datasourceMemento, context);
+      for(HibernateAttribute attribute : datasourceState.getAttributes()) {
+        setAttributeValue(attribute.getName(), attribute.getValue());
+      }
+
     }
-    this.datasourceId = state.getId();
+    this.datasourceId = datasourceState.getId();
+  }
+
+  @Override
+  protected void onDispose() {
+
+    // Delete the old attributes values.
+    for(HibernateAttribute oldAttribute : getDatasourceState().getAttributes()) {
+      sessionFactory.getCurrentSession().delete(oldAttribute);
+    }
+
+    // Replace them with the latest attribute values.
+    for(Attribute attribute : getAttributes()) {
+      HibernateAttribute hibernateAttr = new HibernateAttribute(attribute.getName(), null, attribute.getValue());
+      hibernateAttr.setAdapter(getDatasourceState());
+      sessionFactory.getCurrentSession().save(hibernateAttr);
+    }
+
   }
 
   protected Set<String> getValueTableNames() {
