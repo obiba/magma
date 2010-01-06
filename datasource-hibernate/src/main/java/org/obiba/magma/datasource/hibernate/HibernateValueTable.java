@@ -30,6 +30,11 @@ public class HibernateValueTable extends AbstractValueTable {
     this.entityType = state.getEntityType();
   }
 
+  public HibernateValueTable(HibernateDatasource datasource, String tableName, String entityType) {
+    super(datasource, tableName);
+    this.entityType = entityType;
+  }
+
   @Override
   public void initialise() {
     super.initialise();

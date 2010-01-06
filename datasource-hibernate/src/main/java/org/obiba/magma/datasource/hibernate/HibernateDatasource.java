@@ -12,6 +12,8 @@ import org.obiba.core.service.impl.hibernate.AssociationCriteria.Operation;
 import org.obiba.magma.Attribute;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.ValueTableWriter;
+import org.obiba.magma.datasource.hibernate.converter.HibernateMarshallingContext;
+import org.obiba.magma.datasource.hibernate.converter.ValueTableConverter;
 import org.obiba.magma.datasource.hibernate.domain.DatasourceState;
 import org.obiba.magma.datasource.hibernate.domain.ValueTableState;
 import org.obiba.magma.datasource.hibernate.domain.adaptable.AbstractAdaptableEntity;
@@ -38,8 +40,11 @@ public class HibernateDatasource extends AbstractDatasource {
     if(hasValueTable(tableName)) {
       valueTable = (HibernateValueTable) getValueTable(tableName);
     } else {
-      ValueTableState valueTableState = new ValueTableState(tableName, entityType, getDatasourceState());
-      sessionFactory.getCurrentSession().save(valueTableState);
+      HibernateMarshallingContext context = HibernateMarshallingContext.create(sessionFactory);
+      context.setAdaptable(getDatasourceState());
+      valueTable = new HibernateValueTable(this, tableName, entityType);
+      ValueTableState valueTableState = ValueTableConverter.getInstance().marshal(valueTable, context);
+
       addValueTable(valueTable = new HibernateValueTable(this, valueTableState));
     }
     return new HibernateValueTableWriter(valueTable);
