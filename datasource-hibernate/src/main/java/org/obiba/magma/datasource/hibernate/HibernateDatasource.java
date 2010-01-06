@@ -2,6 +2,7 @@ package org.obiba.magma.datasource.hibernate;
 
 import java.io.Serializable;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.hibernate.SessionFactory;
@@ -13,6 +14,8 @@ import org.obiba.magma.ValueTable;
 import org.obiba.magma.ValueTableWriter;
 import org.obiba.magma.datasource.hibernate.domain.DatasourceState;
 import org.obiba.magma.datasource.hibernate.domain.ValueTableState;
+import org.obiba.magma.datasource.hibernate.domain.adaptable.AbstractAdaptableEntity;
+import org.obiba.magma.datasource.hibernate.domain.attribute.AttributeAwareAdapter;
 import org.obiba.magma.datasource.hibernate.domain.attribute.HibernateAttribute;
 import org.obiba.magma.support.AbstractDatasource;
 
@@ -54,7 +57,8 @@ public class HibernateDatasource extends AbstractDatasource {
 
       // If already persisted, load the persisted attributes for that datasource.
     } else {
-      for(HibernateAttribute attribute : datasourceState.getAttributes()) {
+
+      for(HibernateAttribute attribute : getAttributes(datasourceState)) {
         setAttributeValue(attribute.getName(), attribute.getValue());
       }
 
@@ -66,17 +70,32 @@ public class HibernateDatasource extends AbstractDatasource {
   protected void onDispose() {
 
     // Delete the old attributes values.
-    for(HibernateAttribute oldAttribute : getDatasourceState().getAttributes()) {
+    for(HibernateAttribute oldAttribute : getAttributes(getDatasourceState())) {
       sessionFactory.getCurrentSession().delete(oldAttribute);
     }
 
     // Replace them with the latest attribute values.
     for(Attribute attribute : getAttributes()) {
       HibernateAttribute hibernateAttr = new HibernateAttribute(attribute.getName(), null, attribute.getValue());
-      hibernateAttr.setAdapter(getDatasourceState());
+      hibernateAttr.setAdapter(getAdapter(getDatasourceState()));
       sessionFactory.getCurrentSession().save(hibernateAttr);
     }
 
+  }
+
+  private List<HibernateAttribute> getAttributes(AbstractAdaptableEntity adaptable) {
+    AttributeAwareAdapter attrAwareAdapter = getAdapter(adaptable);
+    if(attrAwareAdapter == null) {
+      attrAwareAdapter = new AttributeAwareAdapter();
+      attrAwareAdapter.setAdaptable(adaptable);
+      sessionFactory.getCurrentSession().save(attrAwareAdapter);
+    }
+    return attrAwareAdapter.getAttributes();
+  }
+
+  private AttributeAwareAdapter getAdapter(AbstractAdaptableEntity adaptable) {
+    AssociationCriteria criteria = AssociationCriteria.create(AttributeAwareAdapter.class, sessionFactory.getCurrentSession()).add("adaptableId", Operation.eq, adaptable.getId()).add("adaptableType", Operation.eq, adaptable.getAdaptableType());
+    return (AttributeAwareAdapter) criteria.getCriteria().uniqueResult();
   }
 
   protected Set<String> getValueTableNames() {

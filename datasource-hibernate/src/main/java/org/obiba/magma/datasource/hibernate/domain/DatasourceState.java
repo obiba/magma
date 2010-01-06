@@ -5,11 +5,11 @@ import javax.persistence.Entity;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
-import org.obiba.magma.datasource.hibernate.domain.attribute.AttributeAwareAdapter;
+import org.obiba.magma.datasource.hibernate.domain.adaptable.AbstractAdaptableEntity;
 
 @Entity
 @Table(name = "datasource", uniqueConstraints = { @UniqueConstraint(columnNames = "name") })
-public class DatasourceState extends AttributeAwareAdapter {
+public class DatasourceState extends AbstractAdaptableEntity {
 
   private static final long serialVersionUID = 1L;
 
