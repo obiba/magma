@@ -17,9 +17,8 @@ public class CategoryConverter implements HibernateConverter<CategoryState, Cate
     CategoryState categoryState = (CategoryState) criteria.getCriteria().uniqueResult();
     if(categoryState == null) {
       categoryState = new CategoryState(context.getVariable(), category.getName(), category.getCode(), category.isMissing());
+      context.getSessionFactory().getCurrentSession().save(categoryState);
     }
-
-    context.getSessionFactory().getCurrentSession().save(categoryState);
 
     // attributes
     context.setAttributeAwareEntity(categoryState);
