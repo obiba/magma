@@ -4,12 +4,14 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.security.NoSuchAlgorithmException;
+import java.util.Date;
 
 import org.obiba.magma.MagmaEngine;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueSequence;
 import org.obiba.magma.ValueSet;
 import org.obiba.magma.ValueTable;
+import org.obiba.magma.ValueType;
 import org.obiba.magma.Variable;
 import org.obiba.magma.crypt.support.GeneratedKeyPairProvider;
 import org.obiba.magma.datasource.crypt.EncryptedSecretKeyDatasourceEncryptionStrategy;
@@ -20,6 +22,8 @@ import org.obiba.magma.datasource.hibernate.HibernateDatasource;
 import org.obiba.magma.datasource.hibernate.HibernateDatasourceFactory;
 import org.obiba.magma.integration.service.XStreamIntegrationServiceFactory;
 import org.obiba.magma.js.MagmaJsExtension;
+import org.obiba.magma.type.DateType;
+import org.obiba.magma.type.TextType;
 import org.obiba.magma.xstream.MagmaXStreamExtension;
 
 /**
@@ -85,12 +89,26 @@ public class IntegrationApp {
     // Disconnect it from Magma
     MagmaEngine.get().removeDatasource(fs);
 
+    // Create an HibernateDatasource.
     HibernateDatasourceFactory jpaFactory = new HibernateDatasourceFactory("org.hsqldb.jdbcDriver", "jdbc:hsqldb:file:target/integration-jpa.db;shutdown=true", "sa", "", "org.hibernate.dialect.HSQLDialect");
     HibernateDatasource ds = jpaFactory.create("integration-jpa");
-
     MagmaEngine.get().addDatasource(ds);
 
+    // Add some attributes to the HibernateDatasource.
+    if(!ds.hasAttribute("Created by")) {
+      ds.setAttributeValue("Created by", ValueType.Factory.newValue(TextType.get(), "Magma Integration App"));
+    }
+
+    if(!ds.hasAttribute("Created on")) {
+      ds.setAttributeValue("Created on", ValueType.Factory.newValue(DateType.get(), new Date()));
+    }
+
+    // Copy the data from the IntegrationDatasource to the HibernateDatasource.
     copier.copy(integrationDatasource, ds);
+
+    // Disconnect both Datasource.
+    MagmaEngine.get().removeDatasource(ds);
+    MagmaEngine.get().removeDatasource(fs);
 
     MagmaEngine.get().shutdown();
   }

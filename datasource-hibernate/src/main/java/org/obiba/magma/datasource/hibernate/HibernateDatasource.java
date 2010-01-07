@@ -5,6 +5,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.hibernate.Query;
 import org.hibernate.SessionFactory;
 import org.hibernate.criterion.Restrictions;
 import org.obiba.core.service.impl.hibernate.AssociationCriteria;
@@ -74,10 +75,10 @@ public class HibernateDatasource extends AbstractDatasource {
   @Override
   protected void onDispose() {
 
-    // Delete the old attributes values.
-    for(HibernateAttribute oldAttribute : getAttributes(getDatasourceState())) {
-      sessionFactory.getCurrentSession().delete(oldAttribute);
-    }
+    // Delete old persisted attributes values.
+    Query deleteAttributes = sessionFactory.getCurrentSession().createQuery("delete from HibernateAttribute where adapter.id = :adapterId");
+    deleteAttributes.setString("adapterId", getDatasourceState().getId().toString());
+    int count = deleteAttributes.executeUpdate();
 
     // Replace them with the latest attribute values.
     for(Attribute attribute : getAttributes()) {
@@ -100,7 +101,14 @@ public class HibernateDatasource extends AbstractDatasource {
 
   private AttributeAwareAdapter getAdapter(AbstractAttributeAwareEntity attributeAwareEntity) {
     AssociationCriteria criteria = AssociationCriteria.create(AttributeAwareAdapter.class, sessionFactory.getCurrentSession()).add("attributeAwareId", Operation.eq, attributeAwareEntity.getId()).add("attributeAwareType", Operation.eq, attributeAwareEntity.getAttributeAwareType());
-    return (AttributeAwareAdapter) criteria.getCriteria().uniqueResult();
+    AttributeAwareAdapter adapter = (AttributeAwareAdapter) criteria.getCriteria().uniqueResult();
+    if(adapter == null) {
+      adapter = new AttributeAwareAdapter();
+      adapter.setAttributeAwareType(attributeAwareEntity.getAttributeAwareType());
+      adapter.setAttributeAwareId(attributeAwareEntity.getId());
+      sessionFactory.getCurrentSession().save(adapter);
+    }
+    return adapter;
   }
 
   protected Set<String> getValueTableNames() {
