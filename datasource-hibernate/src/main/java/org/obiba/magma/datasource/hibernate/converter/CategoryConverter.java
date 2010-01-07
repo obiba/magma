@@ -24,7 +24,7 @@ public class CategoryConverter implements HibernateConverter<CategoryState, Cate
     context.setAttributeAwareEntity(categoryState);
     AttributeAwareConverter.getInstance().marshal(category, context);
 
-    return null;
+    return categoryState;
   }
 
   @Override
