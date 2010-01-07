@@ -6,11 +6,11 @@ import org.obiba.core.service.impl.hibernate.AssociationCriteria;
 import org.obiba.core.service.impl.hibernate.AssociationCriteria.Operation;
 import org.obiba.magma.Attribute;
 import org.obiba.magma.AttributeAware;
-import org.obiba.magma.datasource.hibernate.domain.adaptable.AbstractAdaptableEntity;
+import org.obiba.magma.datasource.hibernate.domain.attribute.AbstractAttributeAwareEntity;
 import org.obiba.magma.datasource.hibernate.domain.attribute.AttributeAwareAdapter;
 import org.obiba.magma.datasource.hibernate.domain.attribute.HibernateAttribute;
 
-public class AttributeAwareConverter implements HibernateConverter<AbstractAdaptableEntity, AttributeAware> {
+public class AttributeAwareConverter implements HibernateConverter<AbstractAttributeAwareEntity, AttributeAware> {
 
   private static AttributeAwareConverter attributeAwareConverter;
 
@@ -22,9 +22,9 @@ public class AttributeAwareConverter implements HibernateConverter<AbstractAdapt
   }
 
   @Override
-  public AbstractAdaptableEntity marshal(AttributeAware attributeAware, HibernateMarshallingContext context) {
+  public AbstractAttributeAwareEntity marshal(AttributeAware attributeAware, HibernateMarshallingContext context) {
 
-    AbstractAdaptableEntity adaptable = context.getAdaptable();
+    AbstractAttributeAwareEntity adaptable = context.getAttributeAwareEntity();
     if(!attributeAware.hasAttributes()) {
       // nothing to persist
       return adaptable;
@@ -34,7 +34,7 @@ public class AttributeAwareConverter implements HibernateConverter<AbstractAdapt
     AttributeAwareAdapter hibernateEntity = getAttributeAware(adaptable, context);
     if(hibernateEntity == null) {
       hibernateEntity = new AttributeAwareAdapter();
-      hibernateEntity.setAdaptable(adaptable);
+      hibernateEntity.setAttributeAwareEntity(adaptable);
       context.getSessionFactory().getCurrentSession().save(hibernateEntity);
     }
 
@@ -44,9 +44,9 @@ public class AttributeAwareConverter implements HibernateConverter<AbstractAdapt
   }
 
   @Override
-  public AttributeAware unmarshal(AbstractAdaptableEntity adaptable, HibernateMarshallingContext context) {
+  public AttributeAware unmarshal(AbstractAttributeAwareEntity adaptable, HibernateMarshallingContext context) {
 
-    AttributeAwareAdapter hibernateEntity = getAttributeAware(context.getAdaptable(), context);
+    AttributeAwareAdapter hibernateEntity = getAttributeAware(context.getAttributeAwareEntity(), context);
     List<HibernateAttribute> attributes = hibernateEntity.getAttributes();
     for(HibernateAttribute attribute : attributes) {
       Attribute.Builder attBuilder = Attribute.Builder.newAttribute(attribute.getName());
@@ -78,8 +78,8 @@ public class AttributeAwareConverter implements HibernateConverter<AbstractAdapt
     }
   }
 
-  private AttributeAwareAdapter getAttributeAware(AbstractAdaptableEntity adaptable, HibernateMarshallingContext context) {
-    AssociationCriteria criteria = AssociationCriteria.create(AttributeAwareAdapter.class, context.getSessionFactory().getCurrentSession()).add("adaptableId", Operation.eq, adaptable.getId()).add("adaptableType", Operation.eq, adaptable.getAdaptableType());
+  private AttributeAwareAdapter getAttributeAware(AbstractAttributeAwareEntity attributeAwareEntity, HibernateMarshallingContext context) {
+    AssociationCriteria criteria = AssociationCriteria.create(AttributeAwareAdapter.class, context.getSessionFactory().getCurrentSession()).add("attributeAwareId", Operation.eq, attributeAwareEntity.getId()).add("attributeAwareType", Operation.eq, attributeAwareEntity.getAttributeAwareType());
     return (AttributeAwareAdapter) criteria.getCriteria().uniqueResult();
   }
 

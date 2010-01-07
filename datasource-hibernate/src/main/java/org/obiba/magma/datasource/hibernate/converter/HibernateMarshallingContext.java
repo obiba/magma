@@ -5,7 +5,7 @@ import org.obiba.magma.AttributeAwareBuilder;
 import org.obiba.magma.datasource.hibernate.domain.ValueSetState;
 import org.obiba.magma.datasource.hibernate.domain.ValueTableState;
 import org.obiba.magma.datasource.hibernate.domain.VariableState;
-import org.obiba.magma.datasource.hibernate.domain.adaptable.AbstractAdaptableEntity;
+import org.obiba.magma.datasource.hibernate.domain.attribute.AbstractAttributeAwareEntity;
 
 public class HibernateMarshallingContext {
 
@@ -17,7 +17,7 @@ public class HibernateMarshallingContext {
 
   private AttributeAwareBuilder<?> attributeAwareBuilder;
 
-  private AbstractAdaptableEntity adaptable;
+  private AbstractAttributeAwareEntity attributeAwareEntity;
 
   private SessionFactory sessionFactory;
 
@@ -54,15 +54,15 @@ public class HibernateMarshallingContext {
 
   public void setVariable(VariableState variable) {
     this.variable = variable;
-    this.adaptable = variable;
+    this.attributeAwareEntity = variable;
   }
 
-  public void setAdaptable(AbstractAdaptableEntity adaptable) {
-    this.adaptable = adaptable;
+  public void setAttributeAwareEntity(AbstractAttributeAwareEntity adaptable) {
+    this.attributeAwareEntity = adaptable;
   }
 
-  public AbstractAdaptableEntity getAdaptable() {
-    return adaptable;
+  public AbstractAttributeAwareEntity getAttributeAwareEntity() {
+    return attributeAwareEntity;
   }
 
   public AttributeAwareBuilder<?> getAttributeAwareBuilder() {

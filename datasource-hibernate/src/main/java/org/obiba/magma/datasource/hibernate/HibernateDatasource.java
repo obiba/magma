@@ -16,7 +16,7 @@ import org.obiba.magma.datasource.hibernate.converter.HibernateMarshallingContex
 import org.obiba.magma.datasource.hibernate.converter.ValueTableConverter;
 import org.obiba.magma.datasource.hibernate.domain.DatasourceState;
 import org.obiba.magma.datasource.hibernate.domain.ValueTableState;
-import org.obiba.magma.datasource.hibernate.domain.adaptable.AbstractAdaptableEntity;
+import org.obiba.magma.datasource.hibernate.domain.attribute.AbstractAttributeAwareEntity;
 import org.obiba.magma.datasource.hibernate.domain.attribute.AttributeAwareAdapter;
 import org.obiba.magma.datasource.hibernate.domain.attribute.HibernateAttribute;
 import org.obiba.magma.support.AbstractDatasource;
@@ -41,7 +41,7 @@ public class HibernateDatasource extends AbstractDatasource {
       valueTable = (HibernateValueTable) getValueTable(tableName);
     } else {
       HibernateMarshallingContext context = HibernateMarshallingContext.create(sessionFactory);
-      context.setAdaptable(getDatasourceState());
+      context.setAttributeAwareEntity(getDatasourceState());
       valueTable = new HibernateValueTable(this, tableName, entityType);
       ValueTableState valueTableState = ValueTableConverter.getInstance().marshal(valueTable, context);
 
@@ -88,18 +88,18 @@ public class HibernateDatasource extends AbstractDatasource {
 
   }
 
-  private List<HibernateAttribute> getAttributes(AbstractAdaptableEntity adaptable) {
-    AttributeAwareAdapter attrAwareAdapter = getAdapter(adaptable);
+  private List<HibernateAttribute> getAttributes(AbstractAttributeAwareEntity attributeAwareEntity) {
+    AttributeAwareAdapter attrAwareAdapter = getAdapter(attributeAwareEntity);
     if(attrAwareAdapter == null) {
       attrAwareAdapter = new AttributeAwareAdapter();
-      attrAwareAdapter.setAdaptable(adaptable);
+      attrAwareAdapter.setAttributeAwareEntity(attributeAwareEntity);
       sessionFactory.getCurrentSession().save(attrAwareAdapter);
     }
     return attrAwareAdapter.getAttributes();
   }
 
-  private AttributeAwareAdapter getAdapter(AbstractAdaptableEntity adaptable) {
-    AssociationCriteria criteria = AssociationCriteria.create(AttributeAwareAdapter.class, sessionFactory.getCurrentSession()).add("adaptableId", Operation.eq, adaptable.getId()).add("adaptableType", Operation.eq, adaptable.getAdaptableType());
+  private AttributeAwareAdapter getAdapter(AbstractAttributeAwareEntity attributeAwareEntity) {
+    AssociationCriteria criteria = AssociationCriteria.create(AttributeAwareAdapter.class, sessionFactory.getCurrentSession()).add("attributeAwareId", Operation.eq, attributeAwareEntity.getId()).add("attributeAwareType", Operation.eq, attributeAwareEntity.getAttributeAwareType());
     return (AttributeAwareAdapter) criteria.getCriteria().uniqueResult();
   }
 

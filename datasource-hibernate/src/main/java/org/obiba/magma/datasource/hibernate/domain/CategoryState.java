@@ -5,11 +5,11 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
-import org.obiba.magma.datasource.hibernate.domain.adaptable.AbstractAdaptableEntity;
+import org.obiba.magma.datasource.hibernate.domain.attribute.AbstractAttributeAwareEntity;
 
 @Entity
 @Table(name = "category")
-public class CategoryState extends AbstractAdaptableEntity {
+public class CategoryState extends AbstractAttributeAwareEntity {
 
   private static final long serialVersionUID = 1L;
 
@@ -70,7 +70,7 @@ public class CategoryState extends AbstractAdaptableEntity {
   }
 
   @Override
-  public String getAdaptableType() {
+  public String getAttributeAwareType() {
     return "category";
   }
 

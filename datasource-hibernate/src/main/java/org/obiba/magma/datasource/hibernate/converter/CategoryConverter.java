@@ -22,7 +22,7 @@ public class CategoryConverter implements HibernateConverter<CategoryState, Cate
     context.getSessionFactory().getCurrentSession().save(catMemento);
 
     // attributes
-    context.setAdaptable(catMemento);
+    context.setAttributeAwareEntity(catMemento);
     AttributeAwareConverter.getInstance().marshal(category, context);
 
     return null;

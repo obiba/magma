@@ -11,12 +11,12 @@ import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 import org.obiba.magma.ValueType;
 import org.obiba.magma.Variable;
-import org.obiba.magma.datasource.hibernate.domain.adaptable.AbstractAdaptableEntity;
+import org.obiba.magma.datasource.hibernate.domain.attribute.AbstractAttributeAwareEntity;
 
 @Entity
 @Table(name = "variable", uniqueConstraints = { @UniqueConstraint(columnNames = { "value_table_id", "name" }) })
 @TypeDef(name = "value_type", typeClass = ValueTypeHibernateType.class)
-public class VariableState extends AbstractAdaptableEntity {
+public class VariableState extends AbstractAttributeAwareEntity {
 
   private static final long serialVersionUID = 1L;
 
@@ -144,7 +144,7 @@ public class VariableState extends AbstractAdaptableEntity {
   }
 
   @Override
-  public String getAdaptableType() {
+  public String getAttributeAwareType() {
     return "variable";
   }
 
