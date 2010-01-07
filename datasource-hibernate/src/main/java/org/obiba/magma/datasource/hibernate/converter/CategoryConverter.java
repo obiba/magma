@@ -14,27 +14,27 @@ public class CategoryConverter implements HibernateConverter<CategoryState, Cate
   @Override
   public CategoryState marshal(Category category, HibernateMarshallingContext context) {
     AssociationCriteria criteria = AssociationCriteria.create(CategoryState.class, context.getSessionFactory().getCurrentSession()).add("variable.id", Operation.eq, context.getVariable().getId()).add("name", Operation.eq, category.getName());
-    CategoryState catMemento = (CategoryState) criteria.getCriteria().uniqueResult();
-    if(catMemento == null) {
-      catMemento = new CategoryState(context.getVariable(), category.getName(), category.getCode(), category.isMissing());
+    CategoryState categoryState = (CategoryState) criteria.getCriteria().uniqueResult();
+    if(categoryState == null) {
+      categoryState = new CategoryState(context.getVariable(), category.getName(), category.getCode(), category.isMissing());
     }
 
-    context.getSessionFactory().getCurrentSession().save(catMemento);
+    context.getSessionFactory().getCurrentSession().save(categoryState);
 
     // attributes
-    context.setAttributeAwareEntity(catMemento);
+    context.setAttributeAwareEntity(categoryState);
     AttributeAwareConverter.getInstance().marshal(category, context);
 
     return null;
   }
 
   @Override
-  public Category unmarshal(CategoryState categoryMemento, HibernateMarshallingContext context) {
-    Category.Builder builder = Category.Builder.newCategory(categoryMemento.getName());
-    builder.withCode(categoryMemento.getCode()).missing(categoryMemento.isMissing());
+  public Category unmarshal(CategoryState categoryState, HibernateMarshallingContext context) {
+    Category.Builder builder = Category.Builder.newCategory(categoryState.getName());
+    builder.withCode(categoryState.getCode()).missing(categoryState.isMissing());
 
     context.setAttributeAwareBuilder(builder);
-    AttributeAwareConverter.getInstance().unmarshal(categoryMemento, context);
+    AttributeAwareConverter.getInstance().unmarshal(categoryState, context);
 
     return builder.build();
   }

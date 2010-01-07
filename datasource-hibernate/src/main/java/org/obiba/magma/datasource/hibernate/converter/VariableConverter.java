@@ -17,14 +17,14 @@ public class VariableConverter implements HibernateConverter<VariableState, Vari
   @Override
   public VariableState marshal(Variable variable, HibernateMarshallingContext context) {
     AssociationCriteria criteria = AssociationCriteria.create(VariableState.class, context.getSessionFactory().getCurrentSession()).add("valueTable.id", Operation.eq, context.getValueTable().getId()).add("name", Operation.eq, variable.getName());
-    VariableState varMemento = (VariableState) criteria.getCriteria().uniqueResult();
-    if(varMemento == null) {
-      varMemento = new VariableState(context.getValueTable(), variable);
-      context.getSessionFactory().getCurrentSession().save(varMemento);
+    VariableState variableState = (VariableState) criteria.getCriteria().uniqueResult();
+    if(variableState == null) {
+      variableState = new VariableState(context.getValueTable(), variable);
+      context.getSessionFactory().getCurrentSession().save(variableState);
     }
 
     // set the context and go through categories
-    context.setVariable(varMemento);
+    context.setVariable(variableState);
     for(Category category : variable.getCategories()) {
       CategoryConverter.getInstance().marshal(category, context);
     }
@@ -32,25 +32,25 @@ public class VariableConverter implements HibernateConverter<VariableState, Vari
     // attributes
     AttributeAwareConverter.getInstance().marshal(variable, context);
 
-    return varMemento;
+    return variableState;
   }
 
   @Override
-  public Variable unmarshal(VariableState variableMemento, HibernateMarshallingContext context) {
-    Variable.Builder builder = Variable.Builder.newVariable(variableMemento.getName(), variableMemento.getValueType(), variableMemento.getEntityType());
-    builder.mimeType(variableMemento.getMimeType()).occurrenceGroup(variableMemento.getOccurrenceGroup()).referencedEntityType(variableMemento.getReferencedEntityType()).unit(variableMemento.getUnit());
-    if(variableMemento.isRepeatable()) {
+  public Variable unmarshal(VariableState variableState, HibernateMarshallingContext context) {
+    Variable.Builder builder = Variable.Builder.newVariable(variableState.getName(), variableState.getValueType(), variableState.getEntityType());
+    builder.mimeType(variableState.getMimeType()).occurrenceGroup(variableState.getOccurrenceGroup()).referencedEntityType(variableState.getReferencedEntityType()).unit(variableState.getUnit());
+    if(variableState.isRepeatable()) {
       builder.repeatable();
     }
 
-    AssociationCriteria criteria = AssociationCriteria.create(CategoryState.class, context.getSessionFactory().getCurrentSession()).add("variable.id", Operation.eq, variableMemento.getId()).addSortingClauses(SortingClause.create("pos"));
+    AssociationCriteria criteria = AssociationCriteria.create(CategoryState.class, context.getSessionFactory().getCurrentSession()).add("variable.id", Operation.eq, variableState.getId()).addSortingClauses(SortingClause.create("pos"));
     for(Object obj : criteria.list()) {
       builder.addCategory(CategoryConverter.getInstance().unmarshal((CategoryState) obj, context));
     }
 
     // attributes
     context.setAttributeAwareBuilder(builder);
-    AttributeAwareConverter.getInstance().unmarshal(variableMemento, context);
+    AttributeAwareConverter.getInstance().unmarshal(variableState, context);
 
     return builder.build();
   }
