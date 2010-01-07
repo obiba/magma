@@ -73,6 +73,7 @@ public class HibernateValueTable extends AbstractValueTable {
 
     public HibernateValueSet(VariableEntity entity, ValueSetState state) {
       super(HibernateValueTable.this, entity);
+      this.valueSetState = state;
     }
 
     ValueSetState getValueSetState() {
