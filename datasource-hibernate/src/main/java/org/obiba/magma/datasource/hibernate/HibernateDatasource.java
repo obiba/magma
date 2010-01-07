@@ -77,7 +77,7 @@ public class HibernateDatasource extends AbstractDatasource {
 
     // Delete old persisted attributes values.
     Query deleteAttributes = sessionFactory.getCurrentSession().createQuery("delete from HibernateAttribute where adapter.id = :adapterId");
-    deleteAttributes.setString("adapterId", getDatasourceState().getId().toString());
+    deleteAttributes.setString("adapterId", getAdapter(getDatasourceState()).getId().toString());
     int count = deleteAttributes.executeUpdate();
 
     // Replace them with the latest attribute values.
