@@ -103,6 +103,8 @@ public class IntegrationApp {
       ds.setAttributeValue("Created on", ValueType.Factory.newValue(DateType.get(), new Date()));
     }
 
+    ds.setAttributeValue("Last connected", ValueType.Factory.newValue(DateType.get(), new Date()));
+
     // Copy the data from the IntegrationDatasource to the HibernateDatasource.
     copier.copy(integrationDatasource, ds);
 

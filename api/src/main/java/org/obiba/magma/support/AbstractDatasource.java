@@ -2,6 +2,7 @@ package org.obiba.magma.support;
 
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
@@ -104,7 +105,14 @@ public abstract class AbstractDatasource extends AbstractAttributeAware implemen
 
   @Override
   public void setAttributeValue(String name, Value value) {
-    getInstanceAttributes().put(name, Attribute.Builder.newAttribute(name).withValue(value).build());
+    Attribute attribute = Attribute.Builder.newAttribute(name).withValue(value).build();
+
+    List<Attribute> attributesForName = getInstanceAttributes().get(name);
+    if(!attributesForName.isEmpty()) {
+      attributesForName.set(0, attribute);
+    } else {
+      attributesForName.add(attribute);
+    }
   }
 
   @Override
