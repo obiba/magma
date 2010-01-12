@@ -32,6 +32,8 @@ public abstract class AbstractDatasource extends AbstractAttributeAware implemen
   private ListMultimap<String, Attribute> attributes = LinkedListMultimap.create();
 
   protected AbstractDatasource(String name, String type) {
+    if(name == null) throw new NullPointerException("name cannot be null");
+    if(type == null) throw new NullPointerException("type cannot be null");
     this.name = name;
     this.type = type;
   }

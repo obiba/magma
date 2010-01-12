@@ -32,6 +32,9 @@ public class HibernateDatasource extends AbstractDatasource {
 
   public HibernateDatasource(String name, SessionFactory sessionFactory) {
     super(name, HIBERNATE_TYPE);
+    if(sessionFactory == null) {
+      throw new NullPointerException("sessionFactory cannot be null");
+    }
     this.sessionFactory = sessionFactory;
   }
 
@@ -53,7 +56,6 @@ public class HibernateDatasource extends AbstractDatasource {
 
   @Override
   protected void onInitialise() {
-
     DatasourceState datasourceState = (DatasourceState) sessionFactory.getCurrentSession().createCriteria(DatasourceState.class).add(Restrictions.eq("name", getName())).uniqueResult();
 
     // If datasource not persisted, create the persisted DatasourceState.
@@ -131,5 +133,4 @@ public class HibernateDatasource extends AbstractDatasource {
   DatasourceState getDatasourceState() {
     return (DatasourceState) sessionFactory.getCurrentSession().get(DatasourceState.class, datasourceId);
   }
-
 }

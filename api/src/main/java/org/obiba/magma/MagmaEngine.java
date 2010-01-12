@@ -25,8 +25,6 @@ public class MagmaEngine {
 
   private Set<MagmaEngineExtension> extensions = Sets.newHashSet();
 
-  private Set<DatasourceManager<?>> datasourceManagers = Sets.newHashSet();
-
   private Set<Datasource> datasources = Sets.newHashSet();
 
   public MagmaEngine() {
@@ -64,12 +62,6 @@ public class MagmaEngine {
     return valueTypeFactory;
   }
 
-  public MagmaEngine addDatasourceManager(DatasourceManager<?> manager) {
-    Initialisables.initialise(manager);
-    this.datasourceManagers.add(manager);
-    return this;
-  }
-
   public Set<Datasource> getDatasources() {
     return ImmutableSet.copyOf(datasources);
   }
@@ -87,17 +79,23 @@ public class MagmaEngine {
     }
   }
 
-  public void addDatasource(Datasource datasource) {
+  public <T extends Datasource> T addDatasource(final T datasource) {
     Initialisables.initialise(datasource);
     datasources.add(datasource);
+    return datasource;
   }
 
-  public void removeDatasource(Datasource datasource) {
+  public <T extends Datasource> T addDatasource(final DatasourceFactory<T> factory) {
+    Initialisables.initialise(factory);
+    return addDatasource(factory.create());
+  }
+
+  public void removeDatasource(final Datasource datasource) {
     datasources.remove(datasource);
     Disposables.dispose(datasource);
   }
 
-  public <T> WeakReference<T> registerInstance(T singleton) {
+  public <T> WeakReference<T> registerInstance(final T singleton) {
     singletons.add(singleton);
     return new WeakReference<T>(singleton);
   }

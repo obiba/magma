@@ -18,8 +18,8 @@ import org.obiba.magma.datasource.crypt.GeneratedSecretKeyDatasourceEncryptionSt
 import org.obiba.magma.datasource.fs.DatasourceCopier;
 import org.obiba.magma.datasource.fs.FsDatasource;
 import org.obiba.magma.datasource.hibernate.HibernateDatasource;
-import org.obiba.magma.datasource.hibernate.HibernateDatasourceManager;
 import org.obiba.magma.datasource.hibernate.SessionFactoryProvider;
+import org.obiba.magma.datasource.hibernate.support.HibernateDatasourceFactory;
 import org.obiba.magma.datasource.hibernate.support.LocalSessionFactoryProvider;
 import org.obiba.magma.integration.service.XStreamIntegrationServiceFactory;
 import org.obiba.magma.js.MagmaJsExtension;
@@ -91,15 +91,12 @@ public class IntegrationApp {
     MagmaEngine.get().removeDatasource(fs);
 
     SessionFactoryProvider provider = new LocalSessionFactoryProvider("org.hsqldb.jdbcDriver", "jdbc:hsqldb:file:target/integration-hibernate.db;shutdown=true", "sa", "", "org.hibernate.dialect.HSQLDialect");
-    HibernateDatasourceManager manager = new HibernateDatasourceManager(provider);
-    MagmaEngine.get().addDatasourceManager(manager);
-
-    String datasourceName = "integration-hibernate";
-    HibernateDatasource ds = manager.listAvailableDatasources().contains(datasourceName) ? manager.open(datasourceName) : manager.create(datasourceName);
+    HibernateDatasourceFactory hdsFactory = new HibernateDatasourceFactory("integration-hibernate", provider);
 
     try {
+      hdsFactory.initialise();
       provider.getSessionFactory().getCurrentSession().beginTransaction();
-      MagmaEngine.get().addDatasource(ds);
+      HibernateDatasource ds = MagmaEngine.get().addDatasource(hdsFactory.create());
 
       // Add some attributes to the HibernateDatasource.
       if(!ds.hasAttribute("Created by")) {
@@ -119,7 +116,10 @@ public class IntegrationApp {
 
       provider.getSessionFactory().getCurrentSession().getTransaction().commit();
     } catch(RuntimeException e) {
-      provider.getSessionFactory().getCurrentSession().getTransaction().rollback();
+      try {
+        provider.getSessionFactory().getCurrentSession().getTransaction().rollback();
+      } catch(Exception ignore) {
+      }
       e.printStackTrace();
       throw e;
     }

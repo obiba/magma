@@ -33,4 +33,10 @@ public final class Initialisables {
     }
   }
 
+  public static final void initialise(final Iterable<Initialisable> initialisables) {
+    for(Initialisable o : initialisables) {
+      initialise(o);
+    }
+  }
+
 }
