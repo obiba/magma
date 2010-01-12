@@ -24,14 +24,14 @@ import org.obiba.magma.support.AbstractDatasource;
 
 public class HibernateDatasource extends AbstractDatasource {
 
-  private static final String JPA_TYPE = "jpa";
+  private static final String HIBERNATE_TYPE = "hibernate";
 
   private SessionFactory sessionFactory;
 
   private Serializable datasourceId;
 
   public HibernateDatasource(String name, SessionFactory sessionFactory) {
-    super(name, JPA_TYPE);
+    super(name, HIBERNATE_TYPE);
     this.sessionFactory = sessionFactory;
   }
 
@@ -77,16 +77,15 @@ public class HibernateDatasource extends AbstractDatasource {
 
     // Delete old persisted attributes values.
     Query deleteAttributes = sessionFactory.getCurrentSession().createQuery("delete from HibernateAttribute where adapter.id = :adapterId");
-    deleteAttributes.setString("adapterId", getAdapter(getDatasourceState()).getId().toString());
+    deleteAttributes.setParameter("adapterId", getAdapter(getDatasourceState()).getId());
     int count = deleteAttributes.executeUpdate();
 
     // Replace them with the latest attribute values.
     for(Attribute attribute : getAttributes()) {
-      HibernateAttribute hibernateAttr = new HibernateAttribute(attribute.getName(), null, attribute.getValue());
+      HibernateAttribute hibernateAttr = new HibernateAttribute(attribute.getName(), attribute.getLocale(), attribute.getValue());
       hibernateAttr.setAdapter(getAdapter(getDatasourceState()));
       sessionFactory.getCurrentSession().save(hibernateAttr);
     }
-
   }
 
   private List<HibernateAttribute> getAttributes(AbstractAttributeAwareEntity attributeAwareEntity) {

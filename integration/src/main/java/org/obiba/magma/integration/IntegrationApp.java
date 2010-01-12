@@ -11,7 +11,6 @@ import org.obiba.magma.Value;
 import org.obiba.magma.ValueSequence;
 import org.obiba.magma.ValueSet;
 import org.obiba.magma.ValueTable;
-import org.obiba.magma.ValueType;
 import org.obiba.magma.Variable;
 import org.obiba.magma.crypt.support.GeneratedKeyPairProvider;
 import org.obiba.magma.datasource.crypt.EncryptedSecretKeyDatasourceEncryptionStrategy;
@@ -19,7 +18,9 @@ import org.obiba.magma.datasource.crypt.GeneratedSecretKeyDatasourceEncryptionSt
 import org.obiba.magma.datasource.fs.DatasourceCopier;
 import org.obiba.magma.datasource.fs.FsDatasource;
 import org.obiba.magma.datasource.hibernate.HibernateDatasource;
-import org.obiba.magma.datasource.hibernate.HibernateDatasourceFactory;
+import org.obiba.magma.datasource.hibernate.HibernateDatasourceManager;
+import org.obiba.magma.datasource.hibernate.SessionFactoryProvider;
+import org.obiba.magma.datasource.hibernate.support.LocalSessionFactoryProvider;
 import org.obiba.magma.integration.service.XStreamIntegrationServiceFactory;
 import org.obiba.magma.js.MagmaJsExtension;
 import org.obiba.magma.type.DateType;
@@ -89,28 +90,39 @@ public class IntegrationApp {
     // Disconnect it from Magma
     MagmaEngine.get().removeDatasource(fs);
 
-    // Create an HibernateDatasource.
-    HibernateDatasourceFactory jpaFactory = new HibernateDatasourceFactory("org.hsqldb.jdbcDriver", "jdbc:hsqldb:file:target/integration-jpa.db;shutdown=true", "sa", "", "org.hibernate.dialect.HSQLDialect");
-    HibernateDatasource ds = jpaFactory.create("integration-jpa");
-    MagmaEngine.get().addDatasource(ds);
+    SessionFactoryProvider provider = new LocalSessionFactoryProvider("org.hsqldb.jdbcDriver", "jdbc:hsqldb:file:target/integration-hibernate.db;shutdown=true", "sa", "", "org.hibernate.dialect.HSQLDialect");
+    HibernateDatasourceManager manager = new HibernateDatasourceManager(provider);
+    MagmaEngine.get().addDatasourceManager(manager);
 
-    // Add some attributes to the HibernateDatasource.
-    if(!ds.hasAttribute("Created by")) {
-      ds.setAttributeValue("Created by", ValueType.Factory.newValue(TextType.get(), "Magma Integration App"));
+    String datasourceName = "integration-hibernate";
+    HibernateDatasource ds = manager.listAvailableDatasources().contains(datasourceName) ? manager.open(datasourceName) : manager.create(datasourceName);
+
+    try {
+      provider.getSessionFactory().getCurrentSession().beginTransaction();
+      MagmaEngine.get().addDatasource(ds);
+
+      // Add some attributes to the HibernateDatasource.
+      if(!ds.hasAttribute("Created by")) {
+        ds.setAttributeValue("Created by", TextType.get().valueOf("Magma Integration App"));
+      }
+
+      if(!ds.hasAttribute("Created on")) {
+        ds.setAttributeValue("Created on", DateType.get().valueOf(new Date()));
+      }
+
+      ds.setAttributeValue("Last connected", DateType.get().valueOf(new Date()));
+
+      // Copy the data from the IntegrationDatasource to the HibernateDatasource.
+      copier.copy(integrationDatasource, ds);
+
+      MagmaEngine.get().removeDatasource(ds);
+
+      provider.getSessionFactory().getCurrentSession().getTransaction().commit();
+    } catch(RuntimeException e) {
+      provider.getSessionFactory().getCurrentSession().getTransaction().rollback();
+      e.printStackTrace();
+      throw e;
     }
-
-    if(!ds.hasAttribute("Created on")) {
-      ds.setAttributeValue("Created on", ValueType.Factory.newValue(DateType.get(), new Date()));
-    }
-
-    ds.setAttributeValue("Last connected", ValueType.Factory.newValue(DateType.get(), new Date()));
-
-    // Copy the data from the IntegrationDatasource to the HibernateDatasource.
-    copier.copy(integrationDatasource, ds);
-
-    // Disconnect both Datasource.
-    MagmaEngine.get().removeDatasource(ds);
-    MagmaEngine.get().removeDatasource(fs);
 
     MagmaEngine.get().shutdown();
   }

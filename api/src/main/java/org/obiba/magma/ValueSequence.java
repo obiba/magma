@@ -28,6 +28,11 @@ public class ValueSequence extends Value {
     return this;
   }
 
+  @Override
+  public Value copy() {
+    return getValueType().sequenceOf(getValue());
+  }
+
   @SuppressWarnings("unchecked")
   public Iterable<Value> getValue() {
     return (Iterable<Value>) super.getValue();

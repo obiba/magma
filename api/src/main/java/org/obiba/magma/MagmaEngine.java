@@ -6,6 +6,9 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
+import org.obiba.magma.support.Disposables;
+import org.obiba.magma.support.Initialisables;
+
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
@@ -21,6 +24,8 @@ public class MagmaEngine {
   private ValueTypeFactory valueTypeFactory;
 
   private Set<MagmaEngineExtension> extensions = Sets.newHashSet();
+
+  private Set<DatasourceManager<?>> datasourceManagers = Sets.newHashSet();
 
   private Set<Datasource> datasources = Sets.newHashSet();
 
@@ -42,13 +47,7 @@ public class MagmaEngine {
   }
 
   public MagmaEngine extend(MagmaEngineExtension extension) {
-    try {
-      extension.initialise();
-    } catch(MagmaRuntimeException e) {
-      throw e;
-    } catch(RuntimeException e) {
-      throw new MagmaRuntimeException(e);
-    }
+    Initialisables.initialise(extension);
     extensions.add(extension);
     return this;
   }
@@ -63,6 +62,12 @@ public class MagmaEngine {
 
   ValueTypeFactory getValueTypeFactory() {
     return valueTypeFactory;
+  }
+
+  public MagmaEngine addDatasourceManager(DatasourceManager<?> manager) {
+    Initialisables.initialise(manager);
+    this.datasourceManagers.add(manager);
+    return this;
   }
 
   public Set<Datasource> getDatasources() {
@@ -83,13 +88,13 @@ public class MagmaEngine {
   }
 
   public void addDatasource(Datasource datasource) {
-    datasource.initialise();
+    Initialisables.initialise(datasource);
     datasources.add(datasource);
   }
 
   public void removeDatasource(Datasource datasource) {
     datasources.remove(datasource);
-    datasource.dispose();
+    Disposables.dispose(datasource);
   }
 
   public <T> WeakReference<T> registerInstance(T singleton) {
@@ -99,11 +104,7 @@ public class MagmaEngine {
 
   public void shutdown() {
     for(Datasource ds : datasources) {
-      try {
-        ds.dispose();
-      } catch(RuntimeException e) {
-        // Ignore
-      }
+      Disposables.silentlyDispose(ds);
     }
     singletons = null;
     instance = null;

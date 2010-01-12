@@ -61,9 +61,17 @@ public class ValueHibernateType extends AbstractType {
   @Override
   public void nullSafeSet(PreparedStatement st, Object obj, int index, boolean[] settable, SessionImplementor session) throws HibernateException, SQLException {
     Value value = (Value) obj;
-    st.setString(index, value.getValueType().getName());
-    st.setBoolean(index + 1, value.isSequence());
-    st.setString(index + 2, value.toString());
+
+    int offset = 0;
+    if(settable[0]) {
+      st.setString(index + offset++, value.getValueType().getName());
+    }
+    if(settable[1]) {
+      st.setBoolean(index + offset++, value.isSequence());
+    }
+    if(settable[2]) {
+      st.setString(index + offset++, value.toString());
+    }
   }
 
   @Override
@@ -77,7 +85,7 @@ public class ValueHibernateType extends AbstractType {
 
   @Override
   public Object deepCopy(Object value, EntityMode entityMode, SessionFactoryImplementor factory) throws HibernateException {
-    return ((Value) value).getValueType().valueOf(((Value) value).getValue());
+    return ((Value) value).copy();
   }
 
   @Override

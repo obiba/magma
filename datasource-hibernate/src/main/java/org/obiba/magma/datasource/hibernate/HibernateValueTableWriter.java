@@ -67,18 +67,19 @@ public class HibernateValueTableWriter implements ValueTableWriter {
 
   private class HibernateValueSetWriter implements ValueSetWriter {
 
-    private ValueSetState valueSetState;
+    private final ValueSetState valueSetState;
 
     public HibernateValueSetWriter(VariableEntity entity) {
       // find entity or create it
       VariableEntityState variableEntityState = VariableEntityConverter.getInstance().marshal(entity, HibernateMarshallingContext.create(sessionFactory, valueTable.getValueTableState()));
 
       AssociationCriteria criteria = AssociationCriteria.create(ValueSetState.class, sessionFactory.getCurrentSession()).add("valueTable", Operation.eq, valueTable.getValueTableState()).add("variableEntity", Operation.eq, variableEntityState);
-      valueSetState = (ValueSetState) criteria.getCriteria().uniqueResult();
-      if(valueSetState == null) {
-        valueSetState = new ValueSetState(valueTable.getValueTableState(), variableEntityState);
-        sessionFactory.getCurrentSession().save(valueSetState);
+      ValueSetState state = (ValueSetState) criteria.getCriteria().uniqueResult();
+      if(state == null) {
+        state = new ValueSetState(valueTable.getValueTableState(), variableEntityState);
+        sessionFactory.getCurrentSession().save(state);
       }
+      valueSetState = state;
     }
 
     @Override

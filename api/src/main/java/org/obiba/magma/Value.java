@@ -21,6 +21,10 @@ public class Value implements Serializable {
     this.value = value;
   }
 
+  public Value copy() {
+    return valueType.valueOf(value);
+  }
+
   public ValueType getValueType() {
     return valueType;
   }
