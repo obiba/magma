@@ -22,17 +22,21 @@ import org.obiba.magma.datasource.hibernate.SessionFactoryProvider;
 import org.obiba.magma.datasource.hibernate.support.HibernateDatasourceFactory;
 import org.obiba.magma.datasource.hibernate.support.LocalSessionFactoryProvider;
 import org.obiba.magma.integration.service.XStreamIntegrationServiceFactory;
-import org.obiba.magma.js.MagmaJsExtension;
+import org.obiba.magma.support.MagmaEngineFactory;
 import org.obiba.magma.type.DateType;
 import org.obiba.magma.type.TextType;
-import org.obiba.magma.xstream.MagmaXStreamExtension;
+
+import com.thoughtworks.xstream.XStream;
+import com.thoughtworks.xstream.converters.reflection.PureJavaReflectionProvider;
 
 /**
  */
 public class IntegrationApp {
 
   public static void main(String[] args) throws IOException, NoSuchAlgorithmException {
-    new MagmaEngine().extend(new MagmaJsExtension()).extend(new MagmaXStreamExtension());
+    MagmaEngineFactory engineFactory = (MagmaEngineFactory) new XStream(new PureJavaReflectionProvider()).fromXML(IntegrationApp.class.getResourceAsStream("magma-config.xml"));
+    engineFactory.create();
+    // new MagmaEngine().extend(new MagmaJsExtension()).extend(new MagmaXStreamExtension());
 
     XStreamIntegrationServiceFactory factory = new XStreamIntegrationServiceFactory();
     IntegrationDatasource integrationDatasource = new IntegrationDatasource(factory.buildService(new InputStreamReader(IntegrationApp.class.getResourceAsStream("participants.xml"), "UTF-8")));
@@ -94,7 +98,13 @@ public class IntegrationApp {
     HibernateDatasourceFactory hdsFactory = new HibernateDatasourceFactory("integration-hibernate", provider);
 
     try {
+      // This is uncool. We have to initialise the DatasourceFactory before passing it to Magma, because we need to
+      // start a transaction before the datasource initialises itself. Starting the transaction requires the
+      // SessionFactory which is created by the DatasourceFactory. Ideally, we would have passed the factory to Magma
+      // directly.
       hdsFactory.initialise();
+      // Start a transaction before passing the Datasource to Magma. A tx is required for the Datasource to initialise
+      // correctly.
       provider.getSessionFactory().getCurrentSession().beginTransaction();
       HibernateDatasource ds = MagmaEngine.get().addDatasource(hdsFactory.create());
 

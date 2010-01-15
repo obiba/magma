@@ -12,6 +12,10 @@ public class HibernateDatasourceFactory implements DatasourceFactory<HibernateDa
 
   private SessionFactoryProvider sessionFactoryProvider;
 
+  public HibernateDatasourceFactory() {
+
+  }
+
   public HibernateDatasourceFactory(String name, SessionFactoryProvider sessionFactoryProvider) {
     this.name = name;
     this.sessionFactoryProvider = sessionFactoryProvider;

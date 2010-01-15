@@ -26,6 +26,10 @@ public class LocalSessionFactoryProvider implements SessionFactoryProvider, Init
 
   private SessionFactory sessionFactory;
 
+  public LocalSessionFactoryProvider() {
+
+  }
+
   public LocalSessionFactoryProvider(String driver, String baseUrl, String username, String password, String dialect) {
     super();
     this.driver = driver;

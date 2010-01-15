@@ -39,7 +39,7 @@ public class MagmaEngine {
 
   public static MagmaEngine get() {
     if(instance == null) {
-      throw new IllegalStateException("MetaEngine not instanciated. Make sure you instantiate the engine before accessing other static methods in the api.");
+      throw new IllegalStateException("MagmaEngine not instanciated. Make sure you instantiate the engine before accessing other static methods in the api.");
     }
     return instance;
   }
