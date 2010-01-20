@@ -1,5 +1,6 @@
 package org.obiba.magma.support;
 
+import java.util.Collections;
 import java.util.Set;
 
 import org.obiba.magma.Datasource;
@@ -58,6 +59,14 @@ public class MagmaEngineFactory {
     }
 
     return engine;
+  }
+
+  public String getEngineClass() {
+    return engineClass;
+  }
+
+  public Set<MagmaEngineExtension> extensions() {
+    return Collections.unmodifiableSet(extensions);
   }
 
   protected MagmaEngine newEngineInstance(String engineClass) {
