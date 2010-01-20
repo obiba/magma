@@ -19,4 +19,15 @@ public class SpringBeanSessionFactoryProvider implements SessionFactoryProvider 
     return (SessionFactory) beanFactory.getBean(beanName, SessionFactory.class);
   }
 
+  public BeanFactory getBeanFactory() {
+    return beanFactory;
+  }
+
+  public void setBeanFactory(BeanFactory beanFactory) {
+    this.beanFactory = beanFactory;
+  }
+
+  public String getBeanName() {
+    return beanName;
+  }
 }

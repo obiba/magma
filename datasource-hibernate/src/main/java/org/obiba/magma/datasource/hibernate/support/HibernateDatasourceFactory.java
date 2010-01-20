@@ -30,4 +30,11 @@ public class HibernateDatasourceFactory implements DatasourceFactory<HibernateDa
     Initialisables.initialise(sessionFactoryProvider);
   }
 
+  public String getDatasourceName() {
+    return name;
+  }
+
+  public SessionFactoryProvider getSessionFactoryProvider() {
+    return sessionFactoryProvider;
+  }
 }

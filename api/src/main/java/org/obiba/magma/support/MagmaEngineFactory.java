@@ -69,6 +69,10 @@ public class MagmaEngineFactory {
     return Collections.unmodifiableSet(extensions);
   }
 
+  public Set<DatasourceFactory<?>> factories() {
+    return Collections.unmodifiableSet(factories);
+  }
+
   protected MagmaEngine newEngineInstance(String engineClass) {
     try {
       return (MagmaEngine) Class.forName(engineClass).newInstance();
