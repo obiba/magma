@@ -6,6 +6,7 @@ package org.obiba.magma.datasource.hibernate;
 import java.io.IOException;
 import java.security.InvalidParameterException;
 
+import org.hibernate.FlushMode;
 import org.hibernate.SessionFactory;
 import org.obiba.core.service.impl.hibernate.AssociationCriteria;
 import org.obiba.core.service.impl.hibernate.AssociationCriteria.Operation;
@@ -50,6 +51,10 @@ public class HibernateValueTableWriter implements ValueTableWriter {
 
   private class HibernateVariableWriter implements VariableWriter {
 
+    private HibernateVariableWriter() {
+      sessionFactory.getCurrentSession().setFlushMode(FlushMode.MANUAL);
+    }
+
     @Override
     public void writeVariable(Variable variable) {
       if(!valueTable.isForEntityType(variable.getEntityType())) {
@@ -62,6 +67,7 @@ public class HibernateValueTableWriter implements ValueTableWriter {
 
     @Override
     public void close() throws IOException {
+      sessionFactory.getCurrentSession().flush();
     }
   }
 
@@ -70,6 +76,9 @@ public class HibernateValueTableWriter implements ValueTableWriter {
     private final ValueSetState valueSetState;
 
     public HibernateValueSetWriter(VariableEntity entity) {
+
+      sessionFactory.getCurrentSession().setFlushMode(FlushMode.MANUAL);
+
       // find entity or create it
       VariableEntityState variableEntityState = VariableEntityConverter.getInstance().marshal(entity, HibernateMarshallingContext.create(sessionFactory, valueTable.getValueTableState()));
 
@@ -99,7 +108,8 @@ public class HibernateValueTableWriter implements ValueTableWriter {
 
     @Override
     public void close() throws IOException {
-
+      sessionFactory.getCurrentSession().flush();
+      sessionFactory.getCurrentSession().clear();
     }
 
   }
