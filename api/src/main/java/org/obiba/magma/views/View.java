@@ -71,12 +71,7 @@ public class View extends AbstractValueTableWrapper {
     }
 
     // Transform the Iterable, replacing each ValueSet with one that points at the current View.
-    Iterable<ValueSet> viewValueSets = Iterables.transform(valueSets, new Function<ValueSet, ValueSet>() {
-      @Override
-      public ValueSet apply(ValueSet from) {
-        return new ValueSetBean(View.this, from.getVariableEntity());
-      }
-    });
+    Iterable<ValueSet> viewValueSets = Iterables.transform(valueSets, getValueSetTransformer());
 
     return viewValueSets;
   }
@@ -88,7 +83,7 @@ public class View extends AbstractValueTableWrapper {
         throw new NoSuchValueSetException(this, entity);
       }
     }
-    return new ValueSetBean(this, valueSet.getVariableEntity());
+    return getValueSetTransformer().apply(valueSet);
   }
 
   public Iterable<Variable> getVariables() {
@@ -150,6 +145,14 @@ public class View extends AbstractValueTableWrapper {
 
   public void setWhereClause(WhereClause whereClause) {
     this.whereClause = whereClause;
+  }
+
+  protected Function<ValueSet, ValueSet> getValueSetTransformer() {
+    return new Function<ValueSet, ValueSet>() {
+      public ValueSet apply(ValueSet from) {
+        return new ValueSetBean(View.this, from.getVariableEntity());
+      }
+    };
   }
 
   //
