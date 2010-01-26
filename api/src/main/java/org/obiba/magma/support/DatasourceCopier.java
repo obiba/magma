@@ -3,8 +3,10 @@ package org.obiba.magma.support;
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import org.obiba.magma.Datasource;
 import org.obiba.magma.MagmaEngine;
@@ -13,8 +15,11 @@ import org.obiba.magma.ValueSet;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.ValueTableWriter;
 import org.obiba.magma.Variable;
+import org.obiba.magma.VariableEntity;
 import org.obiba.magma.ValueTableWriter.ValueSetWriter;
 import org.obiba.magma.ValueTableWriter.VariableWriter;
+import org.obiba.magma.audit.VariableEntityAuditLogManager;
+import org.obiba.magma.type.TextType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,6 +55,11 @@ public class DatasourceCopier {
 
     public Builder withThroughtputListener() {
       copier.listeners.add(new ThroughputListener());
+      return this;
+    }
+
+    public Builder withVariableEntityCopyEventListener(VariableEntityAuditLogManager auditLogManager, Datasource source, Datasource destination) {
+      copier.listeners.add(new VariableEntityCopyEventListener(auditLogManager, source, destination));
       return this;
     }
 
@@ -207,6 +217,46 @@ public class DatasourceCopier {
 
     @Override
     public void onVariableCopied(Variable variable) {
+    }
+
+  }
+
+  private static class VariableEntityCopyEventListener implements DatasourceCopyEventListener {
+
+    private VariableEntityAuditLogManager auditLogManager;
+
+    private Datasource source;
+
+    private Datasource destination;
+
+    public VariableEntityCopyEventListener(VariableEntityAuditLogManager auditLogManager, Datasource source, Datasource destination) {
+      this.auditLogManager = auditLogManager;
+      this.source = source;
+      this.destination = destination;
+    }
+
+    @Override
+    public void onValueSetCopied(ValueSet valueSet) {
+      VariableEntity entity = valueSet.getVariableEntity();
+      auditLogManager.getAuditLog(entity).createAuditEvent(source, "COPY", createCopyDetails(entity));
+    }
+
+    @Override
+    public void onValueSetCopy(ValueSet valueSet) {
+    }
+
+    @Override
+    public void onVariableCopied(Variable variable) {
+    }
+
+    @Override
+    public void onVariableCopy(Variable variable) {
+    }
+
+    private Map<String, Value> createCopyDetails(VariableEntity entity) {
+      Map<String, Value> details = new HashMap<String, Value>();
+      details.put("destinationName", TextType.get().valueOf(destination.getName()));
+      return details;
     }
 
   }
