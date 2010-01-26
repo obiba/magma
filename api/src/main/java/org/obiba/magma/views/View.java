@@ -12,7 +12,9 @@ import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.VariableValueSource;
 import org.obiba.magma.support.AbstractValueTableWrapper;
+import org.obiba.magma.support.ValueSetBean;
 
+import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 
 public class View extends AbstractValueTableWrapper {
@@ -56,6 +58,7 @@ public class View extends AbstractValueTableWrapper {
   }
 
   public Iterable<ValueSet> getValueSets() {
+    // Get a ValueSet Iterable, taking into account the WhereClause.
     Iterable<ValueSet> valueSets = super.getValueSets();
     if(whereClause != null) {
       List<ValueSet> valueSetsToRetain = new ArrayList<ValueSet>();
@@ -66,19 +69,26 @@ public class View extends AbstractValueTableWrapper {
       }
       Iterables.retainAll(valueSets, valueSetsToRetain);
     }
-    return valueSets;
+
+    // Transform the Iterable, replacing each ValueSet with one that points at the current View.
+    Iterable<ValueSet> viewValueSets = Iterables.transform(valueSets, new Function<ValueSet, ValueSet>() {
+      @Override
+      public ValueSet apply(ValueSet from) {
+        return new ValueSetBean(View.this, from.getVariableEntity());
+      }
+    });
+
+    return viewValueSets;
   }
 
   public ValueSet getValueSet(VariableEntity entity) throws NoSuchValueSetException {
     ValueSet valueSet = super.getValueSet(entity);
     if(whereClause != null) {
-      if(whereClause.where(valueSet)) {
-        return valueSet;
-      } else {
+      if(!whereClause.where(valueSet)) {
         throw new NoSuchValueSetException(this, entity);
       }
     }
-    return valueSet;
+    return new ValueSetBean(this, valueSet.getVariableEntity());
   }
 
   public Iterable<Variable> getVariables() {
@@ -118,7 +128,8 @@ public class View extends AbstractValueTableWrapper {
   }
 
   public VariableValueSource getVariableValueSource(String name) throws NoSuchVariableException {
-    // Call getVariable(name) to check the SelectClause (if there is one).
+    // Call getVariable(name) to check the SelectClause (if there is one). If the specified variable
+    // is not selected by the SelectClause, this will result in a NoSuchVariableException.
     getVariable(name);
 
     // Variable "survived" the SelectClause. Go ahead and call the base class method.
