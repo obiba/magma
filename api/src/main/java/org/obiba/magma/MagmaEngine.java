@@ -67,6 +67,7 @@ public class MagmaEngine {
   }
 
   public Datasource getDatasource(final String name) {
+    if(name == null) throw new IllegalArgumentException("name cannot be null");
     try {
       return Iterables.find(datasources, new Predicate<Datasource>() {
         @Override

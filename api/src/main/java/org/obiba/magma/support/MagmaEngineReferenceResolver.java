@@ -1,5 +1,6 @@
 package org.obiba.magma.support;
 
+import org.obiba.magma.Datasource;
 import org.obiba.magma.MagmaEngine;
 import org.obiba.magma.NoSuchDatasourceException;
 import org.obiba.magma.NoSuchValueTableException;
@@ -19,37 +20,42 @@ public class MagmaEngineReferenceResolver {
   private MagmaEngineReferenceResolver() {
   }
 
+  /**
+   * Resolves a reference to a {@code ValueTable} using the specified {@code ValueSet} as a context.
+   */
   public ValueTable resolveTable(ValueSet context) throws NoSuchDatasourceException, NoSuchValueTableException {
-    if(datasourceName == null) {
+    if(tableName == null) {
+      if(context == null) {
+        throw new IllegalStateException("cannot resolve table without a context.");
+      }
       return context.getValueTable();
     }
-    return MagmaEngine.get().getDatasource(datasourceName).getValueTable(tableName);
+
+    Datasource ds = null;
+    if(datasourceName == null) {
+      if(context == null) {
+        throw new IllegalStateException("cannot resolve datasource without a context.");
+      }
+      ds = context.getValueTable().getDatasource();
+    } else {
+      ds = MagmaEngine.get().getDatasource(datasourceName);
+    }
+    return ds.getValueTable(tableName);
   }
 
   /**
-   * Resolves a reference to a {@code VariableValueSource} using the specified {@code ValueTable} as a context and
-   * {@code name}.
-   * <p/>
-   * The {@code name} attribute is expected to be of 3 forms:
-   * <ul>
-   * <li><code>SMOKER_STATUS</code> : will try to resolve the {@code VariableValueSource} named
-   * <code>SMOKER_STATUS</code> within the provided {@code ValueTable}</li>
-   * <li><code>otherTable:SMOKER_STATUS</code> : will try to resolve the {@code VariableValueSource} named
-   * <code>SMOKER_STATUS</code> within a table named <code>otherTable</code> within the {@code Datasource} of the
-   * provided {@code ValueTable}</li>
-   * <li><code>ds.otherTable:SMOKER_STATUS</code> : will try to resolve the {@code VariableValueSource} named
-   * <code>SMOKER_STATUS</code> within a table named <code>otherTable</code> within a {@code Datasource} named
-   * <code>ds</code></li>
-   * </ul>
-   * @param context the context to use for resolving the variable name
-   * @param name the name of the {@code VariableValueSource} to resolve
-   * @return the resolved {@code VariableValueSource} instance
-   * @throws NoSuchDatasourceException when the referenced datasource cannot be resolved
-   * @throws NoSuchValueTableException when the referenced value table cannot be resolved
-   * @throws NoSuchVariableException when the variable cannot be resolved
+   * Resolves a reference to a {@code VariableValueSource} using the specified {@code ValueSet} as a context.
    */
   public VariableValueSource resolveSource(ValueSet context) throws NoSuchDatasourceException, NoSuchValueTableException, NoSuchVariableException {
     return resolveTable(context).getVariableValueSource(variableName);
+  }
+
+  /**
+   * Resolves a reference to a {@code VariableValueSource} without a context. This can be used to resolve fully
+   * qualified variable names.
+   */
+  public VariableValueSource resolveSource() throws NoSuchDatasourceException, NoSuchValueTableException, NoSuchVariableException {
+    return MagmaEngine.get().getDatasource(datasourceName).getValueTable(tableName).getVariableValueSource(variableName);
   }
 
   /**
@@ -67,6 +73,24 @@ public class MagmaEngineReferenceResolver {
     return table.getValueSet(context.getVariableEntity());
   }
 
+  /**
+   * The {@code name} attribute is expected to be of 3 forms:
+   * <ul>
+   * <li><code>SMOKER_STATUS</code> : will try to resolve the {@code VariableValueSource} named
+   * <code>SMOKER_STATUS</code> within the provided {@code ValueTable}</li>
+   * <li><code>otherTable:SMOKER_STATUS</code> : will try to resolve the {@code VariableValueSource} named
+   * <code>SMOKER_STATUS</code> within a table named <code>otherTable</code> within the {@code Datasource} of the
+   * provided {@code ValueTable}</li>
+   * <li><code>ds.otherTable:SMOKER_STATUS</code> : will try to resolve the {@code VariableValueSource} named
+   * <code>SMOKER_STATUS</code> within a table named <code>otherTable</code> within a {@code Datasource} named
+   * <code>ds</code></li>
+   * </ul>
+   * @param name the name of the {@code VariableValueSource} to resolve
+   * @return an instance of {@code MagmaEngineReferenceResolver}
+   * @throws NoSuchDatasourceException when the referenced datasource cannot be resolved
+   * @throws NoSuchValueTableException when the referenced value table cannot be resolved
+   * @throws NoSuchVariableException when the variable cannot be resolved
+   */
   public static MagmaEngineReferenceResolver valueOf(String name) {
     MagmaEngineReferenceResolver reference = new MagmaEngineReferenceResolver();
     // Is this a fully qualified name?
@@ -74,7 +98,7 @@ public class MagmaEngineReferenceResolver {
       // No
       reference.variableName = name;
     } else {
-      // Yes, then lookup the source within the engine.
+      // Yes
       String parts[] = name.split(":");
 
       String tableReference = parts[0];
