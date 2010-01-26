@@ -11,58 +11,50 @@ import org.obiba.magma.VariableEntity;
 import org.obiba.magma.VariableValueSource;
 
 public abstract class AbstractValueTableWrapper implements ValueTableWrapper {
-  private ValueTable wrapped;
 
-  protected AbstractValueTableWrapper(ValueTable wrapped) {
-    this.wrapped = wrapped;
-  }
-
-  @Override
-  public ValueTable getWrappedValueTable() {
-    return wrapped;
-  }
+  public abstract ValueTable getWrappedValueTable();
 
   public Datasource getDatasource() {
-    return wrapped.getDatasource();
+    return getWrappedValueTable().getDatasource();
   }
 
   public String getEntityType() {
-    return wrapped.getEntityType();
+    return getWrappedValueTable().getEntityType();
   }
 
   public String getName() {
-    return wrapped.getName();
+    return getWrappedValueTable().getName();
   }
 
   public Value getValue(Variable variable, ValueSet valueSet) {
-    return wrapped.getValue(variable, valueSet);
+    return getWrappedValueTable().getValue(variable, valueSet);
   }
 
   public ValueSet getValueSet(VariableEntity entity) throws NoSuchValueSetException {
-    return wrapped.getValueSet(entity);
+    return getWrappedValueTable().getValueSet(entity);
   }
 
   public Iterable<ValueSet> getValueSets() {
-    return wrapped.getValueSets();
+    return getWrappedValueTable().getValueSets();
   }
 
   public Variable getVariable(String name) throws NoSuchVariableException {
-    return wrapped.getVariable(name);
+    return getWrappedValueTable().getVariable(name);
   }
 
   public Iterable<Variable> getVariables() {
-    return wrapped.getVariables();
+    return getWrappedValueTable().getVariables();
   }
 
   public VariableValueSource getVariableValueSource(String name) throws NoSuchVariableException {
-    return wrapped.getVariableValueSource(name);
+    return getWrappedValueTable().getVariableValueSource(name);
   }
 
   public boolean hasValueSet(VariableEntity entity) {
-    return wrapped.hasValueSet(entity);
+    return getWrappedValueTable().hasValueSet(entity);
   }
 
   public boolean isForEntityType(String entityType) {
-    return wrapped.isForEntityType(entityType);
+    return getWrappedValueTable().isForEntityType(entityType);
   }
 }

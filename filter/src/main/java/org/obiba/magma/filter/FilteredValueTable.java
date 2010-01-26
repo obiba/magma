@@ -16,10 +16,16 @@ public class FilteredValueTable extends AbstractValueTableWrapper {
 
   private FilterChain<Variable> variableFilterChain;
 
+  private ValueTable valueTable;
+
   public FilteredValueTable(ValueTable valueTable, FilterChain<Variable> variableFilterChain, FilterChain<ValueSet> entityFilterChain) {
-    super(valueTable);
+    this.valueTable = valueTable;
     this.entityFilterChain = entityFilterChain;
     this.variableFilterChain = variableFilterChain;
+  }
+
+  public ValueTable getWrappedValueTable() {
+    return valueTable;
   }
 
   @Override
