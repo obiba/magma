@@ -74,7 +74,7 @@ public class MagmaContext extends Context {
     try {
       return stack.pop();
     } catch(EmptyStackException e) {
-      throw new IllegalStateException("Cannot pop ValueSet");
+      throw new IllegalStateException("Cannot pop stack for type " + type.getName());
     }
   }
 
@@ -88,8 +88,12 @@ public class MagmaContext extends Context {
     try {
       return stack.peek();
     } catch(EmptyStackException e) {
-      throw new IllegalStateException("Cannot pop ValueSet");
+      return null;
     }
+  }
+
+  public <T> boolean has(Class<T> type) {
+    return getThreadLocal(type) != null && peek(type) != null;
   }
 
   protected MagmaContextFactory getMagmaContextFactory() {

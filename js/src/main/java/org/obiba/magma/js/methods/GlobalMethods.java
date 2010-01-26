@@ -13,6 +13,7 @@ import org.obiba.magma.ValueSet;
 import org.obiba.magma.VariableValueSource;
 import org.obiba.magma.js.MagmaContext;
 import org.obiba.magma.js.ScriptableValue;
+import org.obiba.magma.js.ScriptableVariable;
 import org.obiba.magma.support.MagmaEngineReferenceResolver;
 import org.obiba.magma.type.DateType;
 import org.slf4j.Logger;
@@ -20,14 +21,19 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableSet;
 
-public final class GlobalMethods {
+public final class GlobalMethods extends AbstractGlobalMethodProvider {
 
   private static final Logger log = LoggerFactory.getLogger(GlobalMethods.class);
 
   /**
    * Set of methods to be exposed as top-level methods (ones that can be invoked anywhere)
    */
-  public static final Set<String> GLOBAL_METHODS = ImmutableSet.of("valueOf", "now", "log");
+  private static final Set<String> GLOBAL_METHODS = ImmutableSet.of("$", "now", "log", "$var");
+
+  @Override
+  protected Set<String> getExposedMethods() {
+    return GLOBAL_METHODS;
+  }
 
   /**
    * Creates an instance of {@code ScriptableValue} containing the current date and time.
@@ -48,9 +54,9 @@ public final class GlobalMethods {
    * </pre>
    * @return an instance of {@code ScriptableValue}
    */
-  public static Scriptable valueOf(Context ctx, Scriptable thisObj, Object[] args, Function funObj) {
+  public static Scriptable $(Context ctx, Scriptable thisObj, Object[] args, Function funObj) {
     if(args.length != 1) {
-      throw new UnsupportedOperationException("$() expects exactly one argument: a variable name.");
+      throw new IllegalArgumentException("$() expects exactly one argument: a variable name.");
     }
 
     MagmaContext context = MagmaContext.asMagmaContext(ctx);
@@ -71,12 +77,31 @@ public final class GlobalMethods {
       } catch(NoSuchValueSetException e) {
         // Entity does not have a ValueSet in joined collection
         // Return a null value
-        return new ScriptableValue(thisObj, source.getVariable().getValueType().nullValue());
+        return new ScriptableValue(thisObj, source.getValueType().nullValue());
       }
     }
 
     Value value = source.getValue(valueSet);
     return new ScriptableValue(thisObj, value);
+  }
+
+  public static Scriptable $var(Context ctx, Scriptable thisObj, Object[] args, Function funObj) {
+    if(args.length != 1) {
+      throw new IllegalArgumentException("$var() expects exactly one argument: a variable name.");
+    }
+
+    MagmaContext context = MagmaContext.asMagmaContext(ctx);
+    String name = (String) args[0];
+
+    MagmaEngineReferenceResolver reference = MagmaEngineReferenceResolver.valueOf(name);
+
+    VariableValueSource source = null;
+    if(context.has(ValueSet.class)) {
+      source = reference.resolveSource(context.peek(ValueSet.class));
+    } else {
+      source = reference.resolveSource();
+    }
+    return new ScriptableVariable(thisObj, source.getVariable());
   }
 
   /**

@@ -1,7 +1,6 @@
 package org.obiba.magma.js;
 
 import java.lang.reflect.Method;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Set;
 
@@ -14,7 +13,6 @@ import org.mozilla.javascript.ScriptableObject;
 import org.obiba.magma.Initialisable;
 import org.obiba.magma.js.methods.GlobalMethods;
 
-import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 
@@ -28,7 +26,9 @@ public class MagmaContextFactory extends ContextFactory implements Initialisable
    */
   private ScriptableObject sharedScope;
 
-  private ScriptableValuePrototypeFactory factory = new ScriptableValuePrototypeFactory();
+  private ScriptableValuePrototypeFactory scriptableValuePrototypeFactory = new ScriptableValuePrototypeFactory();
+
+  private ScriptableVariablePrototypeFactory scriptableVariablePrototypeFactory = new ScriptableVariablePrototypeFactory();
 
   private Set<GlobalMethodProvider> globalMethodProviders = Collections.emptySet();
 
@@ -50,12 +50,12 @@ public class MagmaContextFactory extends ContextFactory implements Initialisable
   }
 
   public ScriptableValuePrototypeFactory getScriptableValuePrototypeFactory() {
-    return factory;
+    return scriptableValuePrototypeFactory;
   }
 
   public void setScriptableValuePrototypeFactory(ScriptableValuePrototypeFactory factory) {
     if(factory == null) throw new IllegalArgumentException("factory cannot be null");
-    this.factory = factory;
+    this.scriptableValuePrototypeFactory = factory;
   }
 
   public void initialise() {
@@ -64,34 +64,24 @@ public class MagmaContextFactory extends ContextFactory implements Initialisable
       public Object run(Context cx) {
         ScriptableObject sharedScope = cx.initStandardObjects(null, true);
 
-        Iterable<Method> methods = Iterables.filter(Arrays.asList(GlobalMethods.class.getMethods()), new Predicate<Method>() {
-          @Override
-          public boolean apply(Method input) {
-            return GlobalMethods.GLOBAL_METHODS.contains(input.getName());
-          }
-        });
-
-        for(Method globalMethod : methods) {
-          // Rename "valueOf" to "$"
-          String name = globalMethod.getName().equals("valueOf") ? "$" : globalMethod.getName();
-          FunctionObject fo = new FunctionObject(name, globalMethod, sharedScope);
-          sharedScope.defineProperty(name, fo, ScriptableObject.DONTENUM);
-        }
-
-        for(GlobalMethodProvider provider : globalMethodProviders) {
+        // Register Global methods
+        for(GlobalMethodProvider provider : Iterables.concat(ImmutableSet.of(new GlobalMethods()), globalMethodProviders)) {
           for(Method globalMethod : provider.getJavaScriptExtensionMethods()) {
-            String name = globalMethod.getName();
+            String name = provider.getJavaScriptMethodName(globalMethod);
             FunctionObject fo = new FunctionObject(name, globalMethod, sharedScope);
             sharedScope.defineProperty(name, fo, ScriptableObject.DONTENUM);
           }
         }
 
-        Scriptable valuePrototype = factory.buildPrototype();
+        Scriptable valuePrototype = scriptableValuePrototypeFactory.buildPrototype();
         ScriptableObject.putProperty(sharedScope, valuePrototype.getClassName(), valuePrototype);
+
+        Scriptable variablePrototype = scriptableVariablePrototypeFactory.buildPrototype();
+        ScriptableObject.putProperty(sharedScope, variablePrototype.getClassName(), variablePrototype);
+
         sharedScope.sealObject();
         return sharedScope;
       }
     });
   }
-
 }
