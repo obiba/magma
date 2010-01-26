@@ -159,24 +159,24 @@ public class View extends AbstractValueTableWrapper {
   // Builder
   //
 
-  public static class ViewBuilder {
+  public static class Builder {
 
     private View view;
 
-    public ViewBuilder(String name, ValueTable from) {
+    public Builder(String name, ValueTable from) {
       view = new View(name, from);
     }
 
-    public static ViewBuilder newView(String name, ValueTable from) {
-      return new ViewBuilder(name, from);
+    public static Builder newView(String name, ValueTable from) {
+      return new Builder(name, from);
     }
 
-    public ViewBuilder select(SelectClause selectClause) {
+    public Builder select(SelectClause selectClause) {
       view.setSelectClause(selectClause);
       return this;
     }
 
-    public ViewBuilder where(WhereClause whereClause) {
+    public Builder where(WhereClause whereClause) {
       view.setWhereClause(whereClause);
       return this;
     }
