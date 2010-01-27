@@ -1,5 +1,6 @@
 package org.obiba.magma.views;
 
+import static org.easymock.EasyMock.anyObject;
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.replay;
@@ -13,7 +14,6 @@ import static org.junit.Assert.fail;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.easymock.EasyMock;
 import org.junit.Test;
 import org.obiba.magma.NoSuchValueSetException;
 import org.obiba.magma.NoSuchVariableException;
@@ -190,6 +190,94 @@ public class ViewTest extends AbstractMagmaTest {
   }
 
   @Test
+  public void testGetValueSetsWithDefaultWhereClause() {
+    ValueTable valueTableMock = createMock(ValueTable.class);
+
+    List<ValueSet> valueSets = new ArrayList<ValueSet>();
+    VariableEntity variableEntityFoo = new VariableEntityBean("type", "foo");
+    VariableEntity variableEntityBar = new VariableEntityBean("type", "bar");
+    ValueSet valueSetFoo = new ValueSetBean(valueTableMock, variableEntityFoo);
+    ValueSet valueSetBar = new ValueSetBean(valueTableMock, variableEntityBar);
+    valueSets.add(valueSetFoo);
+    valueSets.add(valueSetBar);
+
+    expect(valueTableMock.getValueSets()).andReturn(valueSets);
+    replay(valueTableMock);
+
+    View view = View.Builder.newView("view", valueTableMock).build();
+    Iterable<ValueSet> result = view.getValueSets();
+
+    // Verify behaviour.
+    verify(valueTableMock);
+
+    // Verify state.
+    assertNotNull(result);
+    assertEquals(2, Iterables.size(result));
+    assertTrue(containsValueSet(result, valueSetFoo));
+    assertTrue(containsValueSet(result, valueSetBar));
+  }
+
+  @Test
+  public void testGetValueSetsWithIncludingWhereClause() {
+    ValueTable valueTableMock = createMock(ValueTable.class);
+    WhereClause whereClauseMock = createMock(WhereClause.class);
+
+    List<ValueSet> valueSets = new ArrayList<ValueSet>();
+    VariableEntity variableEntityFoo = new VariableEntityBean("type", "foo");
+    VariableEntity variableEntityBar = new VariableEntityBean("type", "bar");
+    ValueSet valueSetFoo = new ValueSetBean(valueTableMock, variableEntityFoo);
+    ValueSet valueSetBar = new ValueSetBean(valueTableMock, variableEntityBar);
+    valueSets.add(valueSetFoo);
+    valueSets.add(valueSetBar);
+
+    expect(valueTableMock.getValueSets()).andReturn(valueSets);
+    expect(whereClauseMock.where((ValueSet) anyObject())).andReturn(true).anyTimes();
+    replay(valueTableMock, whereClauseMock);
+
+    View view = View.Builder.newView("view", valueTableMock).where(whereClauseMock).build();
+    Iterable<ValueSet> result = view.getValueSets();
+
+    // Verify behaviour.
+    verify(valueTableMock, whereClauseMock);
+
+    // Verify state.
+    assertNotNull(result);
+    assertEquals(2, Iterables.size(result));
+    assertTrue(containsValueSet(result, valueSetFoo));
+    assertTrue(containsValueSet(result, valueSetBar));
+  }
+
+  @Test
+  public void testGetValueSetsWithExcludingWhereClause() {
+    ValueTable valueTableMock = createMock(ValueTable.class);
+    WhereClause whereClauseMock = createMock(WhereClause.class);
+
+    List<ValueSet> valueSets = new ArrayList<ValueSet>();
+    VariableEntity variableEntityInclude = new VariableEntityBean("type", "include");
+    VariableEntity variableEntityExclude = new VariableEntityBean("type", "exclude");
+    ValueSet valueSetInclude = new ValueSetBean(valueTableMock, variableEntityInclude);
+    ValueSet valueSetExclude = new ValueSetBean(valueTableMock, variableEntityExclude);
+    valueSets.add(valueSetInclude);
+    valueSets.add(valueSetExclude);
+
+    expect(valueTableMock.getValueSets()).andReturn(valueSets);
+    expect(whereClauseMock.where(valueSetInclude)).andReturn(true).anyTimes();
+    expect(whereClauseMock.where(valueSetExclude)).andReturn(false).anyTimes();
+    replay(valueTableMock, whereClauseMock);
+
+    View view = View.Builder.newView("view", valueTableMock).where(whereClauseMock).build();
+    Iterable<ValueSet> result = view.getValueSets();
+
+    // Verify behaviour.
+    verify(valueTableMock, whereClauseMock);
+
+    // Verify state.
+    assertNotNull(result);
+    assertEquals(1, Iterables.size(result));
+    assertTrue(containsValueSet(result, valueSetInclude));
+  }
+
+  @Test
   public void testGetVariableWithDefaultSelectClause() {
     ValueTable valueTableMock = createMock(ValueTable.class);
     Variable variable = new Variable.Builder("someVariable", TextType.get(), "type").build();
@@ -294,7 +382,7 @@ public class ViewTest extends AbstractMagmaTest {
     variables.add(variableBar);
 
     expect(valueTableMock.getVariables()).andReturn(variables);
-    expect(selectClauseMock.select((Variable) EasyMock.anyObject())).andReturn(true).anyTimes();
+    expect(selectClauseMock.select((Variable) anyObject())).andReturn(true).anyTimes();
     replay(valueTableMock, selectClauseMock);
 
     View view = View.Builder.newView("view", valueTableMock).select(selectClauseMock).build();
@@ -346,6 +434,14 @@ public class ViewTest extends AbstractMagmaTest {
     return Iterables.any(iterable, new Predicate<Variable>() {
       public boolean apply(Variable input) {
         return input.getName().equals(variable.getName());
+      }
+    });
+  }
+
+  private boolean containsValueSet(Iterable<ValueSet> iterable, final ValueSet valueSet) {
+    return Iterables.any(iterable, new Predicate<ValueSet>() {
+      public boolean apply(ValueSet input) {
+        return input.getVariableEntity().getIdentifier().equals(valueSet.getVariableEntity().getIdentifier());
       }
     });
   }
