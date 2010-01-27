@@ -16,7 +16,7 @@
   <dependencies>
     <dependency>
       <groupId>org.obiba.magma</groupId>
-      <artifactId>magma-hibernate</artifactId>
+      <artifactId>magma-hibernate-common</artifactId>
       <version>${project.version}</version>
     </dependency>
   </dependencies>  
