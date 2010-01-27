@@ -108,6 +108,7 @@ public class View extends AbstractValueTableWrapper {
     }
   }
 
+  @Override
   public Value getValue(Variable variable, ValueSet valueSet) {
     if(!whereClause.where(valueSet)) {
       throw new NoSuchValueSetException(this, valueSet.getVariableEntity());
@@ -116,6 +117,7 @@ public class View extends AbstractValueTableWrapper {
     return super.getValue(variable, valueSet);
   }
 
+  @Override
   public VariableValueSource getVariableValueSource(String name) throws NoSuchVariableException {
     // Call getVariable(name) to check the SelectClause (if there is one). If the specified variable
     // is not selected by the SelectClause, this will result in a NoSuchVariableException.

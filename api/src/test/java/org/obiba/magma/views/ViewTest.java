@@ -17,6 +17,7 @@ import java.util.List;
 import org.junit.Test;
 import org.obiba.magma.NoSuchValueSetException;
 import org.obiba.magma.NoSuchVariableException;
+import org.obiba.magma.Value;
 import org.obiba.magma.ValueSet;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.Variable;
@@ -424,6 +425,82 @@ public class ViewTest extends AbstractMagmaTest {
     assertNotNull(result);
     assertEquals(1, Iterables.size(result));
     assertTrue(containsVariable(result, variableInclude));
+  }
+
+  @Test
+  public void testGetValueWithDefaultWhereClause() {
+    ValueTable valueTableMock = createMock(ValueTable.class);
+    VariableEntity variableEntity = new VariableEntityBean("type", "id1");
+    Variable variable = new Variable.Builder("someVariable", TextType.get(), "type").build();
+    ValueSet valueSet = new ValueSetBean(valueTableMock, variableEntity);
+    Value value = TextType.get().valueOf("someValue");
+
+    expect(valueTableMock.getValue(variable, valueSet)).andReturn(value);
+    replay(valueTableMock);
+
+    View view = View.Builder.newView("view", valueTableMock).build();
+    Value result = null;
+    try {
+      result = view.getValue(variable, valueSet);
+    } catch(NoSuchValueSetException ex) {
+      fail("Value not selected");
+    }
+
+    // Verify behaviour.
+    verify(valueTableMock);
+
+    // Verify state.
+    assertNotNull(result);
+    assertEquals("someValue", value.getValue().toString());
+  }
+
+  @Test
+  public void testGetValueWithIncludingWhereClause() {
+    ValueTable valueTableMock = createMock(ValueTable.class);
+    WhereClause whereClauseMock = createMock(WhereClause.class);
+    VariableEntity variableEntity = new VariableEntityBean("type", "id1");
+    Variable variable = new Variable.Builder("someVariable", TextType.get(), "type").build();
+    ValueSet valueSet = new ValueSetBean(valueTableMock, variableEntity);
+    Value value = TextType.get().valueOf("someValue");
+
+    expect(valueTableMock.getValue(variable, valueSet)).andReturn(value);
+    expect(whereClauseMock.where(valueSet)).andReturn(true).anyTimes();
+    replay(valueTableMock, whereClauseMock);
+
+    View view = View.Builder.newView("view", valueTableMock).where(whereClauseMock).build();
+    Value result = null;
+    try {
+      result = view.getValue(variable, valueSet);
+    } catch(NoSuchValueSetException ex) {
+      fail("Value not selected");
+    }
+
+    // Verify behaviour.
+    verify(valueTableMock, whereClauseMock);
+
+    // Verify state.
+    assertNotNull(result);
+    assertEquals("someValue", value.getValue().toString());
+  }
+
+  @Test(expected = NoSuchValueSetException.class)
+  public void testGetValueWithExcludingWhereClause() {
+    ValueTable valueTableMock = createMock(ValueTable.class);
+    WhereClause whereClauseMock = createMock(WhereClause.class);
+    VariableEntity variableEntity = new VariableEntityBean("type", "id1");
+    Variable variable = new Variable.Builder("someVariable", TextType.get(), "type").build();
+    ValueSet valueSet = new ValueSetBean(valueTableMock, variableEntity);
+    Value value = TextType.get().valueOf("someValue");
+
+    expect(valueTableMock.getValue(variable, valueSet)).andReturn(value);
+    expect(whereClauseMock.where(valueSet)).andReturn(false).anyTimes();
+    replay(valueTableMock, whereClauseMock);
+
+    View view = View.Builder.newView("view", valueTableMock).where(whereClauseMock).build();
+    view.getValue(variable, valueSet);
+
+    // Verify behaviour.
+    verify(valueTableMock, whereClauseMock);
   }
 
   //
