@@ -105,7 +105,7 @@
     <module>spring</module>
     <module>crypt</module>
     <module>datasource-fs</module>
-    <module>datasource-hibernate</module>
+    <module>hibernate</module>
   </modules>
 
   <build>
