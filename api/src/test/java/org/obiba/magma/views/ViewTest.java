@@ -170,10 +170,6 @@ public class ViewTest extends AbstractMagmaTest {
     expect(selectClauseMock.select(variable)).andReturn(false);
     replay(valueTableMock, selectClauseMock);
 
-    View view = View.Builder.newView("view", valueTableMock).select(selectClauseMock).build();
-    Variable result = null;
-    result = view.getVariable(variable.getName());
-
     // Verify behaviour.
     verify(valueTableMock, selectClauseMock);
   }
