@@ -8,18 +8,11 @@ import java.util.GregorianCalendar;
 
 import junit.framework.Assert;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
-import org.obiba.magma.MagmaEngine;
 import org.obiba.magma.Value;
+import org.obiba.magma.test.AbstractMagmaTest;
 
-public class DateTypeTest {
-
-  @BeforeClass
-  public static void startYourEngine() {
-    new MagmaEngine();
-
-  }
+public class DateTypeTest extends AbstractMagmaTest {
 
   @Test
   public void testValueOfDateInstance() {

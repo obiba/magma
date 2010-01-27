@@ -10,9 +10,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
-import org.obiba.magma.MagmaEngine;
 import org.obiba.magma.NoSuchVariableException;
 import org.obiba.magma.ValueSet;
 import org.obiba.magma.ValueTable;
@@ -20,18 +18,10 @@ import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.support.ValueSetBean;
 import org.obiba.magma.support.VariableEntityBean;
+import org.obiba.magma.test.AbstractMagmaTest;
 import org.obiba.magma.type.TextType;
 
-public class ViewTest {
-  //
-  // Fixture Methods (setUp / tearDown)
-  //
-
-  @BeforeClass
-  public static void setUpClass() {
-    new MagmaEngine();
-  }
-
+public class ViewTest extends AbstractMagmaTest {
   //
   // Test Methods
   //
