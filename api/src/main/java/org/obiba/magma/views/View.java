@@ -1,8 +1,5 @@
 package org.obiba.magma.views;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.obiba.magma.NoSuchValueSetException;
 import org.obiba.magma.NoSuchVariableException;
 import org.obiba.magma.Value;
@@ -13,8 +10,10 @@ import org.obiba.magma.VariableEntity;
 import org.obiba.magma.VariableValueSource;
 import org.obiba.magma.support.AbstractValueTableWrapper;
 import org.obiba.magma.support.ValueSetBean;
+import org.obiba.magma.views.support.AllClause;
 
 import com.google.common.base.Function;
+import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 
 public class View extends AbstractValueTableWrapper {
@@ -34,9 +33,16 @@ public class View extends AbstractValueTableWrapper {
   // Constructors
   //
 
-  public View(String name, ValueTable from) {
+  public View(String name, ValueTable from, SelectClause selectClause, WhereClause whereClause) {
     this.name = name;
     this.from = from;
+
+    setSelectClause(selectClause);
+    setWhereClause(whereClause);
+  }
+
+  public View(String name, ValueTable from) {
+    this(name, from, new AllClause(), new AllClause());
   }
 
   //
@@ -50,7 +56,7 @@ public class View extends AbstractValueTableWrapper {
 
   public boolean hasValueSet(VariableEntity entity) {
     boolean hasValueSet = super.hasValueSet(entity);
-    if(hasValueSet && whereClause != null) {
+    if(hasValueSet) {
       ValueSet valueSet = super.getValueSet(entity);
       hasValueSet = whereClause.where(valueSet);
     }
@@ -60,65 +66,53 @@ public class View extends AbstractValueTableWrapper {
   public Iterable<ValueSet> getValueSets() {
     // Get a ValueSet Iterable, taking into account the WhereClause.
     Iterable<ValueSet> valueSets = super.getValueSets();
-    if(whereClause != null) {
-      List<ValueSet> valueSetsToRetain = new ArrayList<ValueSet>();
-      for(ValueSet valueSet : valueSets) {
-        if(whereClause.where(valueSet)) {
-          valueSetsToRetain.add(valueSet);
-        }
+    Iterable<ValueSet> filteredValueSets = Iterables.filter(valueSets, new Predicate<ValueSet>() {
+      public boolean apply(ValueSet input) {
+        return whereClause.where(input);
       }
-      Iterables.retainAll(valueSets, valueSetsToRetain);
-    }
+    });
 
     // Transform the Iterable, replacing each ValueSet with one that points at the current View.
-    Iterable<ValueSet> viewValueSets = Iterables.transform(valueSets, getValueSetTransformer());
+    Iterable<ValueSet> viewValueSets = Iterables.transform(filteredValueSets, getValueSetTransformer());
 
     return viewValueSets;
   }
 
   public ValueSet getValueSet(VariableEntity entity) throws NoSuchValueSetException {
     ValueSet valueSet = super.getValueSet(entity);
-    if(whereClause != null) {
-      if(!whereClause.where(valueSet)) {
-        throw new NoSuchValueSetException(this, entity);
-      }
+    if(!whereClause.where(valueSet)) {
+      throw new NoSuchValueSetException(this, entity);
     }
+
     return getValueSetTransformer().apply(valueSet);
   }
 
   public Iterable<Variable> getVariables() {
     Iterable<Variable> variables = super.getVariables();
-    if(selectClause != null) {
-      List<Variable> variablesToRetain = new ArrayList<Variable>();
-      for(Variable variable : variables) {
-        if(selectClause.select(variable)) {
-          variablesToRetain.add(variable);
-        }
+    Iterable<Variable> filteredVariables = Iterables.filter(variables, new Predicate<Variable>() {
+      public boolean apply(Variable input) {
+        return selectClause.select(input);
       }
-      Iterables.retainAll(variables, variablesToRetain);
-    }
-    return variables;
+    });
+
+    return filteredVariables;
   }
 
   @Override
   public Variable getVariable(String name) throws NoSuchVariableException {
     Variable variable = super.getVariable(name);
-    if(selectClause != null) {
-      if(selectClause.select(variable)) {
-        return variable;
-      } else {
-        throw new NoSuchVariableException(name);
-      }
+    if(selectClause.select(variable)) {
+      return variable;
+    } else {
+      throw new NoSuchVariableException(name);
     }
-    return variable;
   }
 
   public Value getValue(Variable variable, ValueSet valueSet) {
-    if(whereClause != null) {
-      if(!whereClause.where(valueSet)) {
-        throw new NoSuchValueSetException(this, valueSet.getVariableEntity());
-      }
+    if(!whereClause.where(valueSet)) {
+      throw new NoSuchValueSetException(this, valueSet.getVariableEntity());
     }
+
     return super.getValue(variable, valueSet);
   }
 
@@ -140,10 +134,16 @@ public class View extends AbstractValueTableWrapper {
   }
 
   public void setSelectClause(SelectClause selectClause) {
+    if(selectClause == null) {
+      throw new IllegalArgumentException("null selectClause");
+    }
     this.selectClause = selectClause;
   }
 
   public void setWhereClause(WhereClause whereClause) {
+    if(whereClause == null) {
+      throw new IllegalArgumentException("null whereClause");
+    }
     this.whereClause = whereClause;
   }
 

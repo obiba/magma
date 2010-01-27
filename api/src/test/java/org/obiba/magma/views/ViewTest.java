@@ -10,7 +10,12 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.easymock.EasyMock;
 import org.junit.Test;
+import org.obiba.magma.NoSuchValueSetException;
 import org.obiba.magma.NoSuchVariableException;
 import org.obiba.magma.ValueSet;
 import org.obiba.magma.ValueTable;
@@ -21,17 +26,22 @@ import org.obiba.magma.support.VariableEntityBean;
 import org.obiba.magma.test.AbstractMagmaTest;
 import org.obiba.magma.type.TextType;
 
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
+
 public class ViewTest extends AbstractMagmaTest {
   //
   // Test Methods
   //
 
   @Test
-  public void testHasValueSetWithNoWhereClause() {
+  public void testHasValueSetWithDefaultWhereClause() {
     ValueTable valueTableMock = createMock(ValueTable.class);
     VariableEntity variableEntity = new VariableEntityBean("type", "id1");
+    ValueSet valueSet = new ValueSetBean(valueTableMock, variableEntity);
 
     expect(valueTableMock.hasValueSet(variableEntity)).andReturn(true);
+    expect(valueTableMock.getValueSet(variableEntity)).andReturn(valueSet);
     replay(valueTableMock);
 
     View view = View.Builder.newView("view", valueTableMock).build();
@@ -111,7 +121,76 @@ public class ViewTest extends AbstractMagmaTest {
   }
 
   @Test
-  public void testGetVariableWithNoSelectClause() {
+  public void testGetValueSetWithDefaultWhereClause() {
+    ValueTable valueTableMock = createMock(ValueTable.class);
+    VariableEntity variableEntity = new VariableEntityBean("type", "id1");
+    ValueSet valueSet = new ValueSetBean(valueTableMock, variableEntity);
+
+    expect(valueTableMock.getName()).andReturn("wrappedTable").anyTimes();
+    expect(valueTableMock.getValueSet(variableEntity)).andReturn(valueSet);
+    replay(valueTableMock);
+
+    View view = View.Builder.newView("view", valueTableMock).build();
+    ValueSet result = null;
+    try {
+      result = view.getValueSet(variableEntity);
+    } catch(NoSuchValueSetException ex) {
+      fail("ValueSet not selected");
+    }
+
+    // Verify behaviour.
+    verify(valueTableMock);
+
+    // Verify state.
+    assertNotNull(result);
+  }
+
+  @Test
+  public void testGetValueSetWithIncludingWhereClause() {
+    ValueTable valueTableMock = createMock(ValueTable.class);
+    WhereClause whereClauseMock = createMock(WhereClause.class);
+    VariableEntity variableEntity = new VariableEntityBean("type", "id1");
+    ValueSet valueSet = new ValueSetBean(valueTableMock, variableEntity);
+
+    expect(valueTableMock.getValueSet(variableEntity)).andReturn(valueSet);
+    expect(whereClauseMock.where(valueSet)).andReturn(true);
+    replay(valueTableMock, whereClauseMock);
+
+    View view = View.Builder.newView("view", valueTableMock).where(whereClauseMock).build();
+    ValueSet result = null;
+    try {
+      result = view.getValueSet(variableEntity);
+    } catch(NoSuchValueSetException ex) {
+      fail("ValueSet not selected");
+    }
+
+    // Verify behaviour.
+    verify(valueTableMock);
+
+    // Verify state.
+    assertNotNull(result);
+  }
+
+  @Test(expected = NoSuchValueSetException.class)
+  public void testGetValueSetWithExcludingWhereClause() {
+    ValueTable valueTableMock = createMock(ValueTable.class);
+    WhereClause whereClauseMock = createMock(WhereClause.class);
+    VariableEntity variableEntity = new VariableEntityBean("type", "id1");
+    ValueSet valueSet = new ValueSetBean(valueTableMock, variableEntity);
+
+    expect(valueTableMock.getValueSet(variableEntity)).andReturn(valueSet);
+    expect(whereClauseMock.where(valueSet)).andReturn(false);
+    replay(valueTableMock, whereClauseMock);
+
+    View view = View.Builder.newView("view", valueTableMock).where(whereClauseMock).build();
+    view.getValueSet(variableEntity);
+
+    // Verify behaviour.
+    verify(valueTableMock);
+  }
+
+  @Test
+  public void testGetVariableWithDefaultSelectClause() {
     ValueTable valueTableMock = createMock(ValueTable.class);
     Variable variable = new Variable.Builder("someVariable", TextType.get(), "type").build();
 
@@ -171,10 +250,103 @@ public class ViewTest extends AbstractMagmaTest {
     replay(valueTableMock, selectClauseMock);
 
     View view = View.Builder.newView("view", valueTableMock).select(selectClauseMock).build();
-    Variable result = null;
-    result = view.getVariable(variable.getName());
+    view.getVariable(variable.getName());
 
     // Verify behaviour.
     verify(valueTableMock, selectClauseMock);
+  }
+
+  @Test
+  public void testGetVariablesWithDefaultSelectClause() {
+    ValueTable valueTableMock = createMock(ValueTable.class);
+
+    List<Variable> variables = new ArrayList<Variable>();
+    Variable variableFoo = new Variable.Builder("foo", TextType.get(), "type").build();
+    Variable variableBar = new Variable.Builder("bar", TextType.get(), "type").build();
+    variables.add(variableFoo);
+    variables.add(variableBar);
+
+    expect(valueTableMock.getVariables()).andReturn(variables);
+    replay(valueTableMock);
+
+    View view = View.Builder.newView("view", valueTableMock).build();
+    Iterable<Variable> result = view.getVariables();
+
+    // Verify behaviour.
+    verify(valueTableMock);
+
+    // Verify state.
+    assertNotNull(result);
+    assertEquals(2, Iterables.size(result));
+    assertTrue(containsVariable(result, variableFoo));
+    assertTrue(containsVariable(result, variableBar));
+  }
+
+  @Test
+  public void testGetVariablesWithIncludingSelectClause() {
+    ValueTable valueTableMock = createMock(ValueTable.class);
+    SelectClause selectClauseMock = createMock(SelectClause.class);
+
+    List<Variable> variables = new ArrayList<Variable>();
+    Variable variableFoo = new Variable.Builder("foo", TextType.get(), "type").build();
+    Variable variableBar = new Variable.Builder("bar", TextType.get(), "type").build();
+    variables.add(variableFoo);
+    variables.add(variableBar);
+
+    expect(valueTableMock.getVariables()).andReturn(variables);
+    expect(selectClauseMock.select((Variable) EasyMock.anyObject())).andReturn(true).anyTimes();
+    replay(valueTableMock, selectClauseMock);
+
+    View view = View.Builder.newView("view", valueTableMock).select(selectClauseMock).build();
+    Iterable<Variable> result = view.getVariables();
+
+    // Verify behaviour.
+    verify(valueTableMock, selectClauseMock);
+
+    // Verify state.
+    assertNotNull(result);
+    assertEquals(2, Iterables.size(result));
+    assertTrue(containsVariable(result, variableFoo));
+    assertTrue(containsVariable(result, variableBar));
+  }
+
+  @Test
+  public void testGetVariablesWithExcludingSelectClause() {
+    ValueTable valueTableMock = createMock(ValueTable.class);
+    SelectClause selectClauseMock = createMock(SelectClause.class);
+
+    List<Variable> variables = new ArrayList<Variable>();
+    Variable variableInclude = new Variable.Builder("include", TextType.get(), "type").build();
+    Variable variableExclude = new Variable.Builder("exclude", TextType.get(), "type").build();
+    variables.add(variableInclude);
+    variables.add(variableExclude);
+
+    expect(valueTableMock.getVariables()).andReturn(variables);
+    expect(selectClauseMock.select(variableInclude)).andReturn(true).anyTimes();
+    expect(selectClauseMock.select(variableExclude)).andReturn(false).anyTimes();
+    replay(valueTableMock, selectClauseMock);
+
+    View view = View.Builder.newView("view", valueTableMock).select(selectClauseMock).build();
+    Iterable<Variable> result = view.getVariables();
+
+    // Verify behaviour.
+    verify(valueTableMock, selectClauseMock);
+
+    // Verify state.
+    assertNotNull(result);
+    assertEquals(1, Iterables.size(result));
+    assertTrue(containsVariable(result, variableInclude));
+  }
+
+  //
+  // Helper Methods
+  //
+
+  private boolean containsVariable(Iterable<Variable> iterable, final Variable variable) {
+    return Iterables.any(iterable, new Predicate<Variable>() {
+      public boolean apply(Variable input) {
+        return input.getName().equals(variable.getName());
+      }
+    });
   }
 }
