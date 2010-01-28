@@ -1,10 +1,8 @@
 package org.obiba.magma.audit;
 
 import java.util.List;
-import java.util.Map;
 
 import org.obiba.magma.Datasource;
-import org.obiba.magma.Value;
 import org.obiba.magma.VariableEntity;
 
 /**
@@ -12,18 +10,6 @@ import org.obiba.magma.VariableEntity;
  * VariableEntity.
  */
 public interface VariableEntityAuditLog {
-
-  /**
-   * Allows creating new entries (events) within the log.
-   * 
-   * @param datasource The datasource where the event stems from.
-   * @param type The application-specific nature of the event. For example, an application may define "CREATE" and
-   * "DELETE" types. Although Magma may define some types, this API does not define any type.
-   * @param details A list of event-specific values that provide additional context.
-   * 
-   * @return The event created
-   */
-  public VariableEntityAuditEvent createAuditEvent(Datasource datasource, String type, Map<String, Value> details);
 
   /**
    * Gets the VariableEntity to which this audit belongs to.

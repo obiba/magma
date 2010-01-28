@@ -9,9 +9,6 @@
  ******************************************************************************/
 package org.obiba.magma;
 
-/**
- *
- */
 public interface VariableEntity {
 
   public String getType();
