@@ -5,11 +5,11 @@ import org.obiba.magma.NoSuchVariableException;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueSet;
 import org.obiba.magma.ValueTable;
+import org.obiba.magma.ValueType;
 import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.VariableValueSource;
 import org.obiba.magma.support.AbstractValueTableWrapper;
-import org.obiba.magma.support.ValueSetBean;
 import org.obiba.magma.views.support.AllClause;
 
 import com.google.common.base.Function;
@@ -114,7 +114,7 @@ public class View extends AbstractValueTableWrapper {
       throw new NoSuchValueSetException(this, valueSet.getVariableEntity());
     }
 
-    return super.getValue(variable, valueSet);
+    return super.getValue(variable, ((ValueSetWrapper) valueSet).getWrappedValueSet());
   }
 
   @Override
@@ -124,7 +124,7 @@ public class View extends AbstractValueTableWrapper {
     getVariable(name);
 
     // Variable "survived" the SelectClause. Go ahead and call the base class method.
-    return super.getVariableValueSource(name);
+    return getVariableValueSourceTransformer().apply(super.getVariableValueSource(name));
   }
 
   //
@@ -149,12 +149,55 @@ public class View extends AbstractValueTableWrapper {
     this.whereClause = whereClause;
   }
 
-  protected Function<ValueSet, ValueSet> getValueSetTransformer() {
-    return new Function<ValueSet, ValueSet>() {
-      public ValueSet apply(ValueSet from) {
-        return new ValueSetBean(View.this, from.getVariableEntity());
+  public Function<VariableEntity, VariableEntity> getVariableEntityTransformer() {
+    return new Function<VariableEntity, VariableEntity>() {
+      public VariableEntity apply(VariableEntity from) {
+        return from;
       }
     };
+  }
+
+  public Function<ValueSet, ValueSet> getValueSetTransformer() {
+    return new Function<ValueSet, ValueSet>() {
+      public ValueSet apply(ValueSet from) {
+        return new ValueSetWrapper(View.this, from);
+      }
+    };
+  }
+
+  public Function<VariableValueSource, VariableValueSource> getVariableValueSourceTransformer() {
+    return new Function<VariableValueSource, VariableValueSource>() {
+      public VariableValueSource apply(VariableValueSource from) {
+        return new VariableValueSourceWrapper(from);
+      }
+    };
+  }
+
+  //
+  // ValueSetWrapper
+  //
+
+  static class VariableValueSourceWrapper implements VariableValueSource {
+    private VariableValueSource wrapped;
+
+    VariableValueSourceWrapper(VariableValueSource wrapped) {
+      this.wrapped = wrapped;
+    }
+
+    @Override
+    public Variable getVariable() {
+      return wrapped.getVariable();
+    }
+
+    @Override
+    public Value getValue(ValueSet valueSet) {
+      return wrapped.getValue(((ValueSetWrapper) valueSet).getWrappedValueSet());
+    }
+
+    @Override
+    public ValueType getValueType() {
+      return wrapped.getValueType();
+    }
   }
 
   //

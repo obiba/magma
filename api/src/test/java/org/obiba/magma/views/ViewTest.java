@@ -435,13 +435,13 @@ public class ViewTest extends AbstractMagmaTest {
     ValueSet valueSet = new ValueSetBean(valueTableMock, variableEntity);
     Value value = TextType.get().valueOf("someValue");
 
-    expect(valueTableMock.getValue(variable, valueSet)).andReturn(value);
+    expect(valueTableMock.getValue((Variable) anyObject(), (ValueSet) anyObject())).andReturn(value);
     replay(valueTableMock);
 
     View view = View.Builder.newView("view", valueTableMock).build();
     Value result = null;
     try {
-      result = view.getValue(variable, valueSet);
+      result = view.getValue(variable, new ValueSetWrapper(view, valueSet));
     } catch(NoSuchValueSetException ex) {
       fail("Value not selected");
     }
@@ -463,14 +463,14 @@ public class ViewTest extends AbstractMagmaTest {
     ValueSet valueSet = new ValueSetBean(valueTableMock, variableEntity);
     Value value = TextType.get().valueOf("someValue");
 
-    expect(valueTableMock.getValue(variable, valueSet)).andReturn(value);
-    expect(whereClauseMock.where(valueSet)).andReturn(true).anyTimes();
+    expect(valueTableMock.getValue((Variable) anyObject(), (ValueSet) anyObject())).andReturn(value);
+    expect(whereClauseMock.where((ValueSet) anyObject())).andReturn(true).anyTimes();
     replay(valueTableMock, whereClauseMock);
 
     View view = View.Builder.newView("view", valueTableMock).where(whereClauseMock).build();
     Value result = null;
     try {
-      result = view.getValue(variable, valueSet);
+      result = view.getValue(variable, new ValueSetWrapper(view, valueSet));
     } catch(NoSuchValueSetException ex) {
       fail("Value not selected");
     }
