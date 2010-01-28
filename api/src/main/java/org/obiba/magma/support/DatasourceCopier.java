@@ -238,7 +238,7 @@ public class DatasourceCopier {
     @Override
     public void onValueSetCopied(ValueSet valueSet) {
       VariableEntity entity = valueSet.getVariableEntity();
-      auditLogManager.getAuditLog(entity).createAuditEvent(source, "COPY", createCopyDetails(entity));
+      auditLogManager.createAuditEvent(auditLogManager.getAuditLog(entity), source, "COPY", createCopyDetails(entity));
     }
 
     @Override
