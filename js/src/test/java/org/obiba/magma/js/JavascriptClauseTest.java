@@ -24,6 +24,7 @@ public class JavascriptClauseTest extends AbstractJsTest {
     replay(variableMock);
 
     JavascriptClause javascriptClause = new JavascriptClause("name().matches(/Participant.*/, /DO_YOU_SMOKE/)");
+    javascriptClause.initialise();
     boolean result = javascriptClause.select(variableMock);
 
     // Verify behaviour.
@@ -41,6 +42,7 @@ public class JavascriptClauseTest extends AbstractJsTest {
     replay(variableMock);
 
     JavascriptClause javascriptClause = new JavascriptClause("name().matches(/SomeUnmatchedPattern/)");
+    javascriptClause.initialise();
     boolean result = javascriptClause.select(variableMock);
 
     // Verify behaviour.
@@ -62,6 +64,7 @@ public class JavascriptClauseTest extends AbstractJsTest {
     replay(valueSetMock, valueTableMock, variableValueSourceMock);
 
     JavascriptClause javascriptClause = new JavascriptClause("$('DO_YOU_SMOKE').any('DNK', 'PNA').not()");
+    javascriptClause.initialise();
     boolean result = javascriptClause.where(valueSetMock);
 
     // Verify behaviour.
@@ -83,6 +86,7 @@ public class JavascriptClauseTest extends AbstractJsTest {
     replay(valueSetMock, valueTableMock, variableValueSourceMock);
 
     JavascriptClause javascriptClause = new JavascriptClause("$('DO_YOU_SMOKE').any(true, 'DNK', 'PNA').not()");
+    javascriptClause.initialise();
     boolean result = javascriptClause.where(valueSetMock);
 
     // Verify behaviour.

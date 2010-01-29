@@ -1,5 +1,6 @@
 package org.obiba.magma.views;
 
+import org.obiba.magma.Initialisable;
 import org.obiba.magma.NoSuchValueSetException;
 import org.obiba.magma.NoSuchVariableException;
 import org.obiba.magma.Value;
@@ -10,13 +11,14 @@ import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.VariableValueSource;
 import org.obiba.magma.support.AbstractValueTableWrapper;
+import org.obiba.magma.support.Initialisables;
 import org.obiba.magma.views.support.AllClause;
 
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 
-public class View extends AbstractValueTableWrapper {
+public class View extends AbstractValueTableWrapper implements Initialisable {
   //
   // Instance Variables
   //
@@ -43,6 +45,14 @@ public class View extends AbstractValueTableWrapper {
 
   public View(String name, ValueTable from) {
     this(name, from, new AllClause(), new AllClause());
+  }
+
+  //
+  // Initialisable Methods
+  //
+
+  public void initialise() {
+    Initialisables.initialise(selectClause, whereClause);
   }
 
   //
@@ -230,4 +240,5 @@ public class View extends AbstractValueTableWrapper {
       return view;
     }
   }
+
 }

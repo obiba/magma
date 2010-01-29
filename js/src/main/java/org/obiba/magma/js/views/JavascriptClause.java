@@ -34,7 +34,6 @@ public class JavascriptClause implements Initialisable, SelectClause, WhereClaus
 
   public JavascriptClause(String script) {
     this.script = script;
-    initialise();
   }
 
   //
