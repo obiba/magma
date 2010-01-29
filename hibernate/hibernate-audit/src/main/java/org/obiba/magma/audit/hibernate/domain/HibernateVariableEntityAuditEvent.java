@@ -1,4 +1,4 @@
-package org.obiba.magma.audit.domain;
+package org.obiba.magma.audit.hibernate.domain;
 
 import java.util.Date;
 import java.util.Map;

@@ -1,4 +1,4 @@
-package org.obiba.magma.audit;
+package org.obiba.magma.audit.hibernate;
 
 import java.util.Date;
 import java.util.Map;
@@ -9,8 +9,12 @@ import org.obiba.core.service.impl.hibernate.AssociationCriteria.Operation;
 import org.obiba.magma.Datasource;
 import org.obiba.magma.Value;
 import org.obiba.magma.VariableEntity;
-import org.obiba.magma.audit.domain.HibernateVariableEntityAuditEvent;
-import org.obiba.magma.audit.domain.HibernateVariableEntityAuditLog;
+import org.obiba.magma.audit.UserProvider;
+import org.obiba.magma.audit.VariableEntityAuditEvent;
+import org.obiba.magma.audit.VariableEntityAuditLog;
+import org.obiba.magma.audit.VariableEntityAuditLogManager;
+import org.obiba.magma.audit.hibernate.domain.HibernateVariableEntityAuditEvent;
+import org.obiba.magma.audit.hibernate.domain.HibernateVariableEntityAuditLog;
 import org.springframework.beans.factory.annotation.Autowired;
 
 public class HibernateVariableEntityAuditLogManager implements VariableEntityAuditLogManager {
