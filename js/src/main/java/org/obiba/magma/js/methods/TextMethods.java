@@ -6,6 +6,7 @@ import org.mozilla.javascript.RegExpProxy;
 import org.mozilla.javascript.ScriptRuntime;
 import org.mozilla.javascript.Scriptable;
 import org.obiba.magma.js.ScriptableValue;
+import org.obiba.magma.type.BooleanType;
 import org.obiba.magma.type.TextType;
 
 /**
@@ -45,5 +46,30 @@ public class TextMethods {
     String result = (String) ScriptRuntime.checkRegExpProxy(ctx).action(ctx, thisObj, ScriptRuntime.toObject(thisObj, stringValue), args, RegExpProxy.RA_REPLACE);
 
     return new ScriptableValue(thisObj, TextType.get().valueOf(result));
+  }
+
+  /**
+   * <pre>
+   *   $('TextVar').matches('regex1', 'regex2', ...)
+   * </pre>
+   */
+  public static ScriptableValue matches(Context ctx, Scriptable thisObj, Object[] args, Function funObj) {
+    ScriptableValue sv = (ScriptableValue) thisObj;
+    if(sv.getValue().isNull()) {
+      return new ScriptableValue(thisObj, TextType.get().nullValue());
+    }
+
+    String stringValue = sv.getValue().toString();
+
+    // Delegate to Javascript's String.replace method
+    boolean matches = false;
+    for(Object arg : args) {
+      Object result = ScriptRuntime.checkRegExpProxy(ctx).action(ctx, thisObj, ScriptRuntime.toObject(thisObj, stringValue), new Object[] { arg }, RegExpProxy.RA_MATCH);
+      if(result != null) {
+        matches = true;
+      }
+    }
+
+    return new ScriptableValue(thisObj, BooleanType.get().valueOf(matches));
   }
 }

@@ -23,7 +23,7 @@ public class JavascriptClauseTest extends AbstractJsTest {
     expect(variableMock.getName()).andReturn("Participant.DO_YOU_SMOKE").anyTimes();
     replay(variableMock);
 
-    JavascriptClause javascriptClause = new JavascriptClause("name() == 'Participant.DO_YOU_SMOKE'");
+    JavascriptClause javascriptClause = new JavascriptClause("name().matches(/Participant.*/, /DO_YOU_SMOKE/)");
     boolean result = javascriptClause.select(variableMock);
 
     // Verify behaviour.
@@ -40,7 +40,7 @@ public class JavascriptClauseTest extends AbstractJsTest {
     expect(variableMock.getName()).andReturn("Participant.DO_YOU_SMOKE").anyTimes();
     replay(variableMock);
 
-    JavascriptClause javascriptClause = new JavascriptClause("name() == 'SomeOtherName'");
+    JavascriptClause javascriptClause = new JavascriptClause("name().matches(/SomeUnmatchedPattern/)");
     boolean result = javascriptClause.select(variableMock);
 
     // Verify behaviour.
