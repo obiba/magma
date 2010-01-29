@@ -7,7 +7,6 @@ import org.mozilla.javascript.EvaluatorException;
 import org.mozilla.javascript.Script;
 import org.mozilla.javascript.Scriptable;
 import org.obiba.magma.Initialisable;
-import org.obiba.magma.Value;
 import org.obiba.magma.ValueSet;
 import org.obiba.magma.Variable;
 import org.obiba.magma.js.MagmaContext;
@@ -68,7 +67,7 @@ public class JavascriptClause implements Initialisable, SelectClause, WhereClaus
       throw new IllegalStateException("script hasn't been compiled. Call initialise() before calling where().");
     }
 
-    Value value = ((ScriptableValue) ContextFactory.getGlobal().call(new ContextAction() {
+    return ((Boolean) ContextFactory.getGlobal().call(new ContextAction() {
       public Object run(Context ctx) {
         MagmaContext context = MagmaContext.asMagmaContext(ctx);
         // Don't pollute the global scope
@@ -76,14 +75,18 @@ public class JavascriptClause implements Initialisable, SelectClause, WhereClaus
 
         Object value = compiledScript.exec(ctx, scope);
 
-        if(value instanceof Scriptable) {
+        if(value instanceof Boolean) {
           return value;
         }
-        return new ScriptableValue(scope, BooleanType.get().valueOf(value));
+        if(value instanceof ScriptableValue) {
+          ScriptableValue scriptable = (ScriptableValue) value;
+          if(scriptable.getValueType().equals(BooleanType.get())) {
+            return scriptable.getValue().getValue();
+          }
+        }
+        return false;
       }
-    })).getValue();
-
-    return (Boolean) value.getValue();
+    }));
   }
 
   //
@@ -96,7 +99,7 @@ public class JavascriptClause implements Initialisable, SelectClause, WhereClaus
       throw new IllegalStateException("script hasn't been compiled. Call initialise() before calling where().");
     }
 
-    Value value = ((ScriptableValue) ContextFactory.getGlobal().call(new ContextAction() {
+    return ((Boolean) ContextFactory.getGlobal().call(new ContextAction() {
       public Object run(Context ctx) {
         MagmaContext context = MagmaContext.asMagmaContext(ctx);
         // Don't pollute the global scope
@@ -106,14 +109,18 @@ public class JavascriptClause implements Initialisable, SelectClause, WhereClaus
         Object value = compiledScript.exec(ctx, scope);
         exitContext(context);
 
-        if(value instanceof Scriptable) {
+        if(value instanceof Boolean) {
           return value;
         }
-        return new ScriptableValue(scope, BooleanType.get().valueOf(value));
+        if(value instanceof ScriptableValue) {
+          ScriptableValue scriptable = (ScriptableValue) value;
+          if(scriptable.getValueType().equals(BooleanType.get())) {
+            return scriptable.getValue().getValue();
+          }
+        }
+        return false;
       }
-    })).getValue();
-
-    return (Boolean) value.getValue();
+    }));
   }
 
   //
