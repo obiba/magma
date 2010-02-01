@@ -6,7 +6,10 @@ import java.util.Map;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 
+import org.hibernate.annotations.CollectionOfElements;
 import org.hibernate.annotations.Columns;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
@@ -26,12 +29,12 @@ public class HibernateVariableEntityAuditEvent extends AbstractEntity implements
   private String datasource;
 
   @Column(nullable = false)
+  @Temporal(TemporalType.TIMESTAMP)
   private Date datetime;
 
+  @CollectionOfElements(targetElement = Value.class)
   @Type(type = "value")
   @Columns(columns = { @Column(name = "value_type", nullable = false), @Column(name = "is_sequence", nullable = false), @Column(name = "value", length = Integer.MAX_VALUE, nullable = false) })
-  private Value detailValue;
-
   private Map<String, Value> details;
 
   @Column(nullable = false)
@@ -52,7 +55,7 @@ public class HibernateVariableEntityAuditEvent extends AbstractEntity implements
 
   @Override
   public Value getDetailValue(String name) {
-    return detailValue;
+    return details.get(name);
   }
 
   @Override

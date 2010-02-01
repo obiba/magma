@@ -15,14 +15,11 @@ import org.obiba.magma.audit.VariableEntityAuditLog;
 import org.obiba.magma.audit.VariableEntityAuditLogManager;
 import org.obiba.magma.audit.hibernate.domain.HibernateVariableEntityAuditEvent;
 import org.obiba.magma.audit.hibernate.domain.HibernateVariableEntityAuditLog;
-import org.springframework.beans.factory.annotation.Autowired;
 
 public class HibernateVariableEntityAuditLogManager implements VariableEntityAuditLogManager {
 
-  @Autowired
   private SessionFactory sessionFactory;
 
-  @Autowired
   private UserProvider userProvider;
 
   @Override
@@ -31,6 +28,7 @@ public class HibernateVariableEntityAuditLogManager implements VariableEntityAud
     HibernateVariableEntityAuditLog log = (HibernateVariableEntityAuditLog) criteria.getCriteria().uniqueResult();
     if(log == null) {
       log = new HibernateVariableEntityAuditLog(entity);
+      sessionFactory.getCurrentSession().save(log);
     }
     return log;
   }
@@ -43,7 +41,18 @@ public class HibernateVariableEntityAuditLogManager implements VariableEntityAud
     auditEvent.setDetails(details);
     auditEvent.setDatetime(new Date());
     auditEvent.setUser(userProvider.getUsername());
-    log.getAuditEvents().add(auditEvent);
+    ((HibernateVariableEntityAuditLog) log).addEvent(auditEvent);
+
+    sessionFactory.getCurrentSession().save(auditEvent);
+
     return auditEvent;
+  }
+
+  public void setSessionFactory(SessionFactory sessionFactory) {
+    this.sessionFactory = sessionFactory;
+  }
+
+  public void setUserProvider(UserProvider userProvider) {
+    this.userProvider = userProvider;
   }
 }

@@ -6,9 +6,9 @@ import java.util.List;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 
 import org.obiba.core.domain.AbstractEntity;
@@ -16,15 +16,17 @@ import org.obiba.magma.Datasource;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.audit.VariableEntityAuditEvent;
 import org.obiba.magma.audit.VariableEntityAuditLog;
+import org.obiba.magma.support.VariableEntityBean;
 
 @Entity
-@Table(name = "variable_entity_audit_log", uniqueConstraints = { @UniqueConstraint(columnNames = { "variable_entity_type", "variable_entity_identifier" }) })
+@Table(name = "variable_entity_audit_log", uniqueConstraints = { @UniqueConstraint(columnNames = { "variableEntityType", "variableEntityIdentifier" }) })
 public class HibernateVariableEntityAuditLog extends AbstractEntity implements VariableEntityAuditLog {
 
   private static final long serialVersionUID = 1L;
 
   @OneToMany(cascade = { CascadeType.ALL })
-  private List<VariableEntityAuditEvent> auditEvents;
+  @JoinColumn(name = "variable_entity_audit_log_id", nullable = false)
+  private List<HibernateVariableEntityAuditEvent> auditEvents;
 
   @Column(nullable = false)
   private String variableEntityType;
@@ -32,15 +34,15 @@ public class HibernateVariableEntityAuditLog extends AbstractEntity implements V
   @Column(nullable = false)
   private String variableEntityIdentifier;
 
-  @Transient
-  private VariableEntity variableEntity;
+  public HibernateVariableEntityAuditLog() {
+    super();
+  }
 
   public HibernateVariableEntityAuditLog(VariableEntity variableEntity) {
     super();
-    this.variableEntity = variableEntity;
     this.variableEntityType = variableEntity.getType();
     this.variableEntityIdentifier = variableEntity.getIdentifier();
-    this.auditEvents = new ArrayList<VariableEntityAuditEvent>();
+    this.auditEvents = new ArrayList<HibernateVariableEntityAuditEvent>();
   }
 
   @Override
@@ -67,12 +69,16 @@ public class HibernateVariableEntityAuditLog extends AbstractEntity implements V
 
   @Override
   public List<VariableEntityAuditEvent> getAuditEvents() {
-    return auditEvents;
+    return new ArrayList<VariableEntityAuditEvent>(auditEvents);
+  }
+
+  public void addEvent(HibernateVariableEntityAuditEvent auditEvent) {
+    auditEvents.add(auditEvent);
   }
 
   @Override
   public VariableEntity getVariableEntity() {
-    return variableEntity;
+    return new VariableEntityBean(variableEntityType, variableEntityIdentifier);
   }
 
 }
