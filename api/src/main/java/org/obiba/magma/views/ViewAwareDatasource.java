@@ -66,6 +66,11 @@ public class ViewAwareDatasource implements Datasource {
   }
 
   public ValueTableWriter createWriter(String tableName, String entityType) {
+    for(View view : views) {
+      if(view.getName().equals(tableName)) {
+        throw new UnsupportedOperationException("Cannot write to a View");
+      }
+    }
     return wrappedDatasource.createWriter(tableName, entityType);
   }
 
