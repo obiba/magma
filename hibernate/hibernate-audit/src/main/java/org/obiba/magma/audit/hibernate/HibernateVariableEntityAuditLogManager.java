@@ -45,6 +45,10 @@ public class HibernateVariableEntityAuditLogManager implements VariableEntityAud
 
     sessionFactory.getCurrentSession().save(auditEvent);
 
+    // This is a TEMPORARY fix because the "audit details" were not always being sent to the
+    // database. This needs more investigation (see OPAL-105).
+    sessionFactory.getCurrentSession().flush();
+
     return auditEvent;
   }
 

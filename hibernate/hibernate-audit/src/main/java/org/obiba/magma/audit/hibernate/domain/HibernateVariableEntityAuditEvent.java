@@ -9,6 +9,8 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
+import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.CascadeType;
 import org.hibernate.annotations.CollectionOfElements;
 import org.hibernate.annotations.Columns;
 import org.hibernate.annotations.Type;
@@ -35,6 +37,7 @@ public class HibernateVariableEntityAuditEvent extends AbstractEntity implements
   @CollectionOfElements(targetElement = Value.class)
   @Type(type = "value")
   @Columns(columns = { @Column(name = "value_type", nullable = false), @Column(name = "is_sequence", nullable = false), @Column(name = "value", length = Integer.MAX_VALUE, nullable = false) })
+  @Cascade(CascadeType.ALL)
   private Map<String, Value> details;
 
   @Column(nullable = false)
