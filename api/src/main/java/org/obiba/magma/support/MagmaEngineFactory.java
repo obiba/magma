@@ -17,7 +17,7 @@ public class MagmaEngineFactory {
 
   private Set<MagmaEngineExtension> extensions = Sets.newLinkedHashSet();
 
-  private Set<DatasourceFactory<?>> factories = Sets.newLinkedHashSet();
+  private Set<DatasourceFactory> factories = Sets.newLinkedHashSet();
 
   private Set<Datasource> datasources = Sets.newLinkedHashSet();
 
@@ -34,7 +34,7 @@ public class MagmaEngineFactory {
     return this;
   }
 
-  public MagmaEngineFactory withFactory(DatasourceFactory<?> factory) {
+  public MagmaEngineFactory withFactory(DatasourceFactory factory) {
     this.factories.add(factory);
     return this;
   }
@@ -50,7 +50,7 @@ public class MagmaEngineFactory {
       engine.extend(extension);
     }
 
-    for(DatasourceFactory<?> factory : factories) {
+    for(DatasourceFactory factory : factories) {
       engine.addDatasource(factory);
     }
 
@@ -69,7 +69,7 @@ public class MagmaEngineFactory {
     return Collections.unmodifiableSet(extensions);
   }
 
-  public Set<DatasourceFactory<?>> factories() {
+  public Set<DatasourceFactory> factories() {
     return Collections.unmodifiableSet(factories);
   }
 

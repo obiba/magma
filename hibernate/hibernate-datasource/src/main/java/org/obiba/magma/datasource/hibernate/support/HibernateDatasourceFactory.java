@@ -6,7 +6,7 @@ import org.obiba.magma.datasource.hibernate.HibernateDatasource;
 import org.obiba.magma.datasource.hibernate.SessionFactoryProvider;
 import org.obiba.magma.support.Initialisables;
 
-public class HibernateDatasourceFactory implements DatasourceFactory<HibernateDatasource>, Initialisable {
+public class HibernateDatasourceFactory implements DatasourceFactory, Initialisable {
 
   private String name;
 

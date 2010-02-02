@@ -1,7 +1,7 @@
 package org.obiba.magma;
 
-public interface DatasourceFactory<T extends Datasource> {
+public interface DatasourceFactory {
 
-  public T create();
+  public Datasource create();
 
 }

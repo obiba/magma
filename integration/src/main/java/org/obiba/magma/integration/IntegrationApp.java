@@ -6,6 +6,7 @@ import java.io.InputStreamReader;
 import java.security.NoSuchAlgorithmException;
 import java.util.Date;
 
+import org.obiba.magma.Datasource;
 import org.obiba.magma.MagmaEngine;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueSequence;
@@ -16,7 +17,6 @@ import org.obiba.magma.crypt.support.GeneratedKeyPairProvider;
 import org.obiba.magma.datasource.crypt.EncryptedSecretKeyDatasourceEncryptionStrategy;
 import org.obiba.magma.datasource.crypt.GeneratedSecretKeyDatasourceEncryptionStrategy;
 import org.obiba.magma.datasource.fs.FsDatasource;
-import org.obiba.magma.datasource.hibernate.HibernateDatasource;
 import org.obiba.magma.datasource.hibernate.SessionFactoryProvider;
 import org.obiba.magma.datasource.hibernate.support.HibernateDatasourceFactory;
 import org.obiba.magma.datasource.hibernate.support.LocalSessionFactoryProvider;
@@ -106,7 +106,7 @@ public class IntegrationApp {
       // Start a transaction before passing the Datasource to Magma. A tx is required for the Datasource to initialise
       // correctly.
       provider.getSessionFactory().getCurrentSession().beginTransaction();
-      HibernateDatasource ds = MagmaEngine.get().addDatasource(hdsFactory.create());
+      Datasource ds = MagmaEngine.get().addDatasource(hdsFactory.create());
 
       // Add some attributes to the HibernateDatasource.
       if(!ds.hasAttribute("Created by")) {

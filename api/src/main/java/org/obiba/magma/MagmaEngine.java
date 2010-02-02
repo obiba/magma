@@ -80,13 +80,13 @@ public class MagmaEngine {
     }
   }
 
-  public <T extends Datasource> T addDatasource(final T datasource) {
+  public Datasource addDatasource(Datasource datasource) {
     Initialisables.initialise(datasource);
     datasources.add(datasource);
     return datasource;
   }
 
-  public <T extends Datasource> T addDatasource(final DatasourceFactory<T> factory) {
+  public Datasource addDatasource(final DatasourceFactory factory) {
     Initialisables.initialise(factory);
     return addDatasource(factory.create());
   }
