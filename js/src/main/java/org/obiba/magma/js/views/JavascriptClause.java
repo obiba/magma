@@ -31,6 +31,13 @@ public class JavascriptClause implements Initialisable, SelectClause, WhereClaus
   // Constructors
   //
 
+  /**
+   * No-arg constructor for XStream.
+   */
+  public JavascriptClause() {
+
+  }
+
   public JavascriptClause(String script) {
     this.script = script;
   }
@@ -137,6 +144,10 @@ public class JavascriptClause implements Initialisable, SelectClause, WhereClaus
 
   public String getScript() {
     return script;
+  }
+
+  public void setScript(String script) {
+    this.script = script;
   }
 
   /**

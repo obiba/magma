@@ -15,6 +15,13 @@ public class FilterChainSelectClause implements SelectClause {
   // Constructors
   //
 
+  /**
+   * No-arg constructor for XStream.
+   */
+  public FilterChainSelectClause() {
+
+  }
+
   public FilterChainSelectClause(FilterChain<Variable> filterChain) {
     this.filterChain = filterChain;
   }
@@ -25,7 +32,17 @@ public class FilterChainSelectClause implements SelectClause {
 
   @Override
   public boolean select(Variable variable) {
+    if(filterChain == null) {
+      throw new IllegalStateException("Null filterChain");
+    }
     return (filterChain.filter(variable) != null);
   }
 
+  //
+  // Methods
+  //
+
+  public void setFilterChain(FilterChain<Variable> filterChain) {
+    this.filterChain = filterChain;
+  }
 }

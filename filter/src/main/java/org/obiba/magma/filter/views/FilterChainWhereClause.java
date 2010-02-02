@@ -15,6 +15,13 @@ public class FilterChainWhereClause implements WhereClause {
   // Constructors
   //
 
+  /**
+   * No-arg constructor for XStream.
+   */
+  public FilterChainWhereClause() {
+
+  }
+
   public FilterChainWhereClause(FilterChain<ValueSet> filterChain) {
     this.filterChain = filterChain;
   }
@@ -25,7 +32,17 @@ public class FilterChainWhereClause implements WhereClause {
 
   @Override
   public boolean where(ValueSet valueSet) {
+    if(filterChain == null) {
+      throw new IllegalStateException("Null filterChain");
+    }
     return (filterChain.filter(valueSet) != null);
   }
 
+  //
+  // Methods
+  //
+
+  public void setFilterChain(FilterChain<ValueSet> filterChain) {
+    this.filterChain = filterChain;
+  }
 }

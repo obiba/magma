@@ -1,5 +1,6 @@
 package org.obiba.magma.views;
 
+import org.obiba.magma.Datasource;
 import org.obiba.magma.Initialisable;
 import org.obiba.magma.NoSuchValueSetException;
 import org.obiba.magma.NoSuchVariableException;
@@ -23,17 +24,26 @@ public class View extends AbstractValueTableWrapper implements Initialisable {
   // Instance Variables
   //
 
+  private ViewAwareDatasource viewDatasource;
+
   private String name;
 
   private ValueTable from;
 
-  private SelectClause selectClause;
+  private SelectClause select;
 
-  private WhereClause whereClause;
+  private WhereClause where;
 
   //
   // Constructors
   //
+
+  /**
+   * No-arg constructor for XStream.
+   */
+  public View() {
+
+  }
 
   public View(String name, ValueTable from, SelectClause selectClause, WhereClause whereClause) {
     this.name = name;
@@ -52,7 +62,7 @@ public class View extends AbstractValueTableWrapper implements Initialisable {
   //
 
   public void initialise() {
-    Initialisables.initialise(selectClause, whereClause);
+    Initialisables.initialise(select, where);
   }
 
   //
@@ -60,6 +70,10 @@ public class View extends AbstractValueTableWrapper implements Initialisable {
   //
 
   @Override
+  public Datasource getDatasource() {
+    return viewDatasource;
+  }
+
   public ValueTable getWrappedValueTable() {
     return from;
   }
@@ -68,7 +82,7 @@ public class View extends AbstractValueTableWrapper implements Initialisable {
     boolean hasValueSet = super.hasValueSet(entity);
     if(hasValueSet) {
       ValueSet valueSet = super.getValueSet(entity);
-      hasValueSet = whereClause.where(valueSet);
+      hasValueSet = where.where(valueSet);
     }
     return hasValueSet;
   }
@@ -78,7 +92,7 @@ public class View extends AbstractValueTableWrapper implements Initialisable {
     Iterable<ValueSet> valueSets = super.getValueSets();
     Iterable<ValueSet> filteredValueSets = Iterables.filter(valueSets, new Predicate<ValueSet>() {
       public boolean apply(ValueSet input) {
-        return whereClause.where(input);
+        return where.where(input);
       }
     });
 
@@ -90,7 +104,7 @@ public class View extends AbstractValueTableWrapper implements Initialisable {
 
   public ValueSet getValueSet(VariableEntity entity) throws NoSuchValueSetException {
     ValueSet valueSet = super.getValueSet(entity);
-    if(!whereClause.where(valueSet)) {
+    if(!where.where(valueSet)) {
       throw new NoSuchValueSetException(this, entity);
     }
 
@@ -101,7 +115,7 @@ public class View extends AbstractValueTableWrapper implements Initialisable {
     Iterable<Variable> variables = super.getVariables();
     Iterable<Variable> filteredVariables = Iterables.filter(variables, new Predicate<Variable>() {
       public boolean apply(Variable input) {
-        return selectClause.select(input);
+        return select.select(input);
       }
     });
 
@@ -111,7 +125,7 @@ public class View extends AbstractValueTableWrapper implements Initialisable {
   @Override
   public Variable getVariable(String name) throws NoSuchVariableException {
     Variable variable = super.getVariable(name);
-    if(selectClause.select(variable)) {
+    if(select.select(variable)) {
       return variable;
     } else {
       throw new NoSuchVariableException(name);
@@ -120,7 +134,7 @@ public class View extends AbstractValueTableWrapper implements Initialisable {
 
   @Override
   public Value getValue(Variable variable, ValueSet valueSet) {
-    if(!whereClause.where(valueSet)) {
+    if(!where.where(valueSet)) {
       throw new NoSuchValueSetException(this, valueSet.getVariableEntity());
     }
 
@@ -141,6 +155,10 @@ public class View extends AbstractValueTableWrapper implements Initialisable {
   // Methods
   //
 
+  public void setDatasource(ViewAwareDatasource datasource) {
+    this.viewDatasource = datasource;
+  }
+
   public String getName() {
     return name;
   }
@@ -149,14 +167,14 @@ public class View extends AbstractValueTableWrapper implements Initialisable {
     if(selectClause == null) {
       throw new IllegalArgumentException("null selectClause");
     }
-    this.selectClause = selectClause;
+    this.select = selectClause;
   }
 
   public void setWhereClause(WhereClause whereClause) {
     if(whereClause == null) {
       throw new IllegalArgumentException("null whereClause");
     }
-    this.whereClause = whereClause;
+    this.where = whereClause;
   }
 
   public Function<VariableEntity, VariableEntity> getVariableEntityTransformer() {

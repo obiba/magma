@@ -35,6 +35,13 @@ public class ValueTableReference extends AbstractValueTableWrapper {
   //
 
   /**
+   * No-arg constructor for XStream.
+   */
+  public ValueTableReference() {
+
+  }
+
+  /**
    * {@link ValueTableReference} constructor.
    * 
    * Note: The constructor creates an instance so long as the specified reference is well-formed (even if no such table
@@ -45,9 +52,7 @@ public class ValueTableReference extends AbstractValueTableWrapper {
   public ValueTableReference(String reference) {
     this.reference = reference;
 
-    String[] referenceElements = extractReferenceElements();
-    datasourceName = referenceElements[0];
-    valueTableName = referenceElements[1];
+    initReferenceElements();
   }
 
   //
@@ -56,6 +61,10 @@ public class ValueTableReference extends AbstractValueTableWrapper {
 
   @Override
   public ValueTable getWrappedValueTable() {
+    if(datasourceName == null || valueTableName == null) {
+      initReferenceElements();
+    }
+
     return MagmaEngine.get().getDatasource(datasourceName).getValueTable(valueTableName);
   }
 
@@ -63,16 +72,20 @@ public class ValueTableReference extends AbstractValueTableWrapper {
   // Methods
   //
 
-  private String[] extractReferenceElements() {
+  public void setReference(String reference) {
+    this.reference = reference;
+  }
+
+  private void initReferenceElements() {
     if(reference != null) {
       StringTokenizer tokenizer = new StringTokenizer(reference, " .");
       if(tokenizer.countTokens() == 2) {
-        String[] tokens = new String[2];
-        tokens[0] = tokenizer.nextToken();
-        tokens[1] = tokenizer.nextToken();
-        return tokens;
+        datasourceName = tokenizer.nextToken();
+        valueTableName = tokenizer.nextToken();
+      } else {
+        throw new IllegalArgumentException("Invalid ValueTable reference: " + reference);
       }
     }
-    throw new IllegalArgumentException("Invalid ValueTable reference: " + reference);
+    throw new IllegalArgumentException("Null ValueTable reference");
   }
 }
