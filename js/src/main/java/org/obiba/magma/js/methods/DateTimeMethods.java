@@ -11,7 +11,7 @@ import org.obiba.magma.Value;
 import org.obiba.magma.js.MagmaJsEvaluationRuntimeException;
 import org.obiba.magma.js.ScriptableValue;
 import org.obiba.magma.type.BooleanType;
-import org.obiba.magma.type.DateType;
+import org.obiba.magma.type.DateTimeType;
 import org.obiba.magma.type.IntegerType;
 
 /**
@@ -170,8 +170,8 @@ public class DateTimeMethods {
    */
   private static Calendar asCalendar(Scriptable obj) {
     ScriptableValue sv = (ScriptableValue) obj;
-    if(sv.getValueType() != DateType.get()) {
-      throw new MagmaJsEvaluationRuntimeException("Invalid ValueType: expected '" + DateType.get().getName() + "' got '" + sv.getValueType().getName() + "'");
+    if(sv.getValueType() != DateTimeType.get()) {
+      throw new MagmaJsEvaluationRuntimeException("Invalid ValueType: expected '" + DateTimeType.get().getName() + "' got '" + sv.getValueType().getName() + "'");
     }
     Value value = sv.getValue();
     if(value.isNull() == false) {
@@ -225,7 +225,7 @@ public class DateTimeMethods {
         argument = (Integer) args[0];
       }
       c.add(Calendar.DAY_OF_MONTH, argument);
-      return new ScriptableValue(thisObj, DateType.get().valueOf(c));
+      return new ScriptableValue(thisObj, DateTimeType.get().valueOf(c));
     }
     return thisObj;
   }

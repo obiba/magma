@@ -23,7 +23,7 @@ import org.obiba.magma.datasource.hibernate.support.LocalSessionFactoryProvider;
 import org.obiba.magma.integration.service.XStreamIntegrationServiceFactory;
 import org.obiba.magma.support.DatasourceCopier;
 import org.obiba.magma.support.MagmaEngineFactory;
-import org.obiba.magma.type.DateType;
+import org.obiba.magma.type.DateTimeType;
 import org.obiba.magma.type.TextType;
 
 import com.thoughtworks.xstream.XStream;
@@ -114,10 +114,10 @@ public class IntegrationApp {
       }
 
       if(!ds.hasAttribute("Created on")) {
-        ds.setAttributeValue("Created on", DateType.get().valueOf(new Date()));
+        ds.setAttributeValue("Created on", DateTimeType.get().valueOf(new Date()));
       }
 
-      ds.setAttributeValue("Last connected", DateType.get().valueOf(new Date()));
+      ds.setAttributeValue("Last connected", DateTimeType.get().valueOf(new Date()));
 
       // Copy the data from the IntegrationDatasource to the HibernateDatasource.
       copier.copy(integrationDatasource, ds);

@@ -9,24 +9,24 @@ import java.util.Date;
 import org.obiba.magma.MagmaEngine;
 import org.obiba.magma.Value;
 
-public class DateType extends AbstractValueType {
+public class DateTimeType extends AbstractValueType {
 
   private static final long serialVersionUID = -149385659514790222L;
 
-  private static WeakReference<DateType> instance;
+  private static WeakReference<DateTimeType> instance;
 
   private final SimpleDateFormat ISO_8601 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
 
   /** These are used to support other formats that Magma may have used in the past. */
   private final SimpleDateFormat[] otherFormats = new SimpleDateFormat[] { new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSzzz") };
 
-  private DateType() {
+  private DateTimeType() {
 
   }
 
-  public static DateType get() {
+  public static DateTimeType get() {
     if(instance == null || instance.get() == null) {
-      instance = MagmaEngine.get().registerInstance(new DateType());
+      instance = MagmaEngine.get().registerInstance(new DateTimeType());
     }
     return instance.get();
   }
@@ -48,7 +48,7 @@ public class DateType extends AbstractValueType {
 
   @Override
   public String getName() {
-    return "date";
+    return "datetime";
   }
 
   @Override

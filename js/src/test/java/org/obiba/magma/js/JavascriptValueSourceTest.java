@@ -7,7 +7,7 @@ import junit.framework.Assert;
 import org.junit.Test;
 import org.mozilla.javascript.EvaluatorException;
 import org.obiba.magma.Value;
-import org.obiba.magma.type.DateType;
+import org.obiba.magma.type.DateTimeType;
 import org.obiba.magma.type.DecimalType;
 import org.obiba.magma.type.IntegerType;
 
@@ -35,7 +35,7 @@ public class JavascriptValueSourceTest extends AbstractJsTest {
     Value value = source.getValue(null);
     Assert.assertNotNull(value);
     Assert.assertFalse(value.isNull());
-    Assert.assertEquals(DateType.get(), value.getValueType());
+    Assert.assertEquals(DateTimeType.get(), value.getValueType());
 
     Date dateValue = (Date) value.getValue();
     Date now = new Date();

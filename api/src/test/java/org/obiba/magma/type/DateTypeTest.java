@@ -16,7 +16,7 @@ public class DateTypeTest extends AbstractMagmaTest {
 
   @Test
   public void testValueOfDateInstance() {
-    DateType dt = DateType.get();
+    DateTimeType dt = DateTimeType.get();
 
     Assert.assertTrue(dt.acceptsJavaClass(Date.class));
 
@@ -27,7 +27,7 @@ public class DateTypeTest extends AbstractMagmaTest {
 
   @Test
   public void testValueOfSqlDateInstance() {
-    DateType dt = DateType.get();
+    DateTimeType dt = DateTimeType.get();
 
     Assert.assertTrue(dt.acceptsJavaClass(java.sql.Date.class));
 
@@ -41,7 +41,7 @@ public class DateTypeTest extends AbstractMagmaTest {
 
   @Test
   public void testValueOfSqlTimestampInstance() {
-    DateType dt = DateType.get();
+    DateTimeType dt = DateTimeType.get();
 
     Assert.assertTrue(dt.acceptsJavaClass(Timestamp.class));
 
@@ -55,7 +55,7 @@ public class DateTypeTest extends AbstractMagmaTest {
 
   @Test
   public void testValueOfCalendarInstance() {
-    DateType dt = DateType.get();
+    DateTimeType dt = DateTimeType.get();
 
     Assert.assertTrue(dt.acceptsJavaClass(Calendar.class));
     Assert.assertTrue(dt.acceptsJavaClass(GregorianCalendar.class));
@@ -77,7 +77,7 @@ public class DateTypeTest extends AbstractMagmaTest {
   }
 
   private void assertValueOfUsingDateFormat(String dateFormat) {
-    DateType dt = DateType.get();
+    DateTimeType dt = DateTimeType.get();
     Date dateValue = new Date();
     Value value = dt.valueOf(new SimpleDateFormat(dateFormat).format(dateValue));
     Assert.assertEquals(dateValue, value.getValue());

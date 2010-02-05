@@ -15,7 +15,7 @@ import org.obiba.magma.js.MagmaContext;
 import org.obiba.magma.js.ScriptableValue;
 import org.obiba.magma.js.ScriptableVariable;
 import org.obiba.magma.support.MagmaEngineReferenceResolver;
-import org.obiba.magma.type.DateType;
+import org.obiba.magma.type.DateTimeType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,7 +41,7 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
    * @return an instance of {@code ScriptableValue} containing the current date and time.
    */
   public static ScriptableValue now(Context cx, Scriptable thisObj, Object[] args, Function funObj) {
-    return new ScriptableValue(thisObj, DateType.get().valueOf(new Date()));
+    return new ScriptableValue(thisObj, DateTimeType.get().valueOf(new Date()));
   }
 
   /**
