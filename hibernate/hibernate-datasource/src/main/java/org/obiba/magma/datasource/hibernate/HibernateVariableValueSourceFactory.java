@@ -43,6 +43,14 @@ public class HibernateVariableValueSourceFactory implements VariableValueSourceF
     return sources;
   }
 
+  public VariableValueSource createSource(Variable variable) {
+    AssociationCriteria criteria = AssociationCriteria.create(VariableState.class, getSessionFactory().getCurrentSession()).add("valueTable", Operation.eq, valueTable.getValueTableState()).add("name", Operation.eq, variable.getName());
+    VariableState variableState = (VariableState) criteria.getCriteria().uniqueResult();
+
+    HibernateVariableValueSource source = new HibernateVariableValueSource(variable, variableState);
+    return source;
+  }
+
   private SessionFactory getSessionFactory() {
     return valueTable.getDatasource().getSessionFactory();
   }

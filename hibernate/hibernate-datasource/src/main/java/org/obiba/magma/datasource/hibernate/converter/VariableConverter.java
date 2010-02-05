@@ -50,6 +50,7 @@ public class VariableConverter implements HibernateConverter<VariableState, Vari
 
     // attributes
     context.setAttributeAwareBuilder(builder);
+    context.setAttributeAwareEntity(variableState);
     AttributeAwareConverter.getInstance().unmarshal(variableState, context);
 
     return builder.build();

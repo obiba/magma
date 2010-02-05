@@ -47,17 +47,19 @@ public class AttributeAwareConverter implements HibernateConverter<AbstractAttri
   public AttributeAware unmarshal(AbstractAttributeAwareEntity adaptable, HibernateMarshallingContext context) {
 
     AttributeAwareAdapter hibernateEntity = getAttributeAware(context.getAttributeAwareEntity(), context);
-    List<HibernateAttribute> attributes = hibernateEntity.getAttributes();
-    for(HibernateAttribute attribute : attributes) {
-      Attribute.Builder attBuilder = Attribute.Builder.newAttribute(attribute.getName());
+    if(hibernateEntity != null) { // has attributes
+      List<HibernateAttribute> attributes = hibernateEntity.getAttributes();
+      for(HibernateAttribute attribute : attributes) {
+        Attribute.Builder attBuilder = Attribute.Builder.newAttribute(attribute.getName());
 
-      if(attribute.isLocalised()) {
-        attBuilder.withValue(attribute.getLocale(), attribute.getValue().toString());
-      } else {
-        attBuilder.withValue(attribute.getValue());
+        if(attribute.isLocalised()) {
+          attBuilder.withValue(attribute.getLocale(), attribute.getValue().toString());
+        } else {
+          attBuilder.withValue(attribute.getValue());
+        }
+
+        context.getAttributeAwareBuilder().addAttribute(attBuilder.build());
       }
-
-      context.getAttributeAwareBuilder().addAttribute(attBuilder.build());
     }
 
     return null;

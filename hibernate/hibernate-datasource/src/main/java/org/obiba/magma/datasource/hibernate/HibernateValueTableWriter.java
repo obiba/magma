@@ -63,6 +63,9 @@ public class HibernateValueTableWriter implements ValueTableWriter {
 
       // add or update variable
       VariableConverter.getInstance().marshal(variable, HibernateMarshallingContext.create(sessionFactory, valueTable.getValueTableState()));
+
+      // add a variable value source to the table
+      valueTable.addVariableValueSource(variable);
     }
 
     @Override

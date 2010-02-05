@@ -24,7 +24,7 @@ public class AttributeAwareAdapter extends AbstractEntity {
   private Serializable attributeAwareId;
 
   @OneToMany(cascade = { CascadeType.REMOVE }, mappedBy = "adapter")
-  private List<HibernateAttribute> attributes = new ArrayList<HibernateAttribute>();
+  private List<HibernateAttribute> attributes;
 
   public String getAttributeAwareType() {
     return attributeAwareType;
@@ -48,11 +48,14 @@ public class AttributeAwareAdapter extends AbstractEntity {
   }
 
   public List<HibernateAttribute> getAttributes() {
-    return attributes;
+    return (attributes != null ? attributes : new ArrayList<HibernateAttribute>());
   }
 
   public void setAttributes(List<HibernateAttribute> attributes) {
-    this.attributes = attributes;
+    this.attributes = new ArrayList<HibernateAttribute>();
+    if(attributes != null) {
+      this.attributes.addAll(attributes);
+    }
   }
 
 }

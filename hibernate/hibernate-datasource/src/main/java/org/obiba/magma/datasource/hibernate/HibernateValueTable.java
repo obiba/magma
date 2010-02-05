@@ -8,8 +8,10 @@ import java.util.Set;
 import org.obiba.core.service.impl.hibernate.AssociationCriteria;
 import org.obiba.core.service.impl.hibernate.AssociationCriteria.Operation;
 import org.obiba.magma.Initialisable;
+import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.NoSuchValueSetException;
 import org.obiba.magma.ValueSet;
+import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.datasource.hibernate.domain.ValueSetState;
 import org.obiba.magma.datasource.hibernate.domain.ValueTableState;
@@ -22,25 +24,34 @@ public class HibernateValueTable extends AbstractValueTable {
 
   private Serializable valueTableId;
 
-  private String entityType;
+  private HibernateVariableEntityProvider variableEntityProvider;
+
+  private HibernateVariableValueSourceFactory variableValueSourceFactory;
 
   public HibernateValueTable(HibernateDatasource datasource, ValueTableState state) {
     super(datasource, state.getName());
     this.valueTableId = state.getId();
-    this.entityType = state.getEntityType();
+    super.setVariableEntityProvider(variableEntityProvider = new HibernateVariableEntityProvider(state.getEntityType()));
   }
 
   public HibernateValueTable(HibernateDatasource datasource, String tableName, String entityType) {
     super(datasource, tableName);
-    this.entityType = entityType;
+    super.setVariableEntityProvider(variableEntityProvider = new HibernateVariableEntityProvider(entityType));
   }
 
   @Override
   public void initialise() {
     super.initialise();
-    HibernateVariableEntityProvider provider = new HibernateVariableEntityProvider();
-    provider.initialise();
-    setVariableEntityProvider(provider);
+
+    try {
+      variableEntityProvider.initialise();
+      readVariables();
+    } catch(RuntimeException e) {
+      e.printStackTrace();
+      throw e;
+    } catch(Exception e) {
+      throw new MagmaRuntimeException(e);
+    }
   }
 
   @Override
@@ -63,8 +74,20 @@ public class HibernateValueTable extends AbstractValueTable {
     throw new NoSuchValueSetException(this, entity);
   }
 
+  public void addVariableValueSource(Variable variable) {
+    if(variableValueSourceFactory == null) {
+      variableValueSourceFactory = new HibernateVariableValueSourceFactory(this);
+    }
+    super.addVariableValueSource(variableValueSourceFactory.createSource(variable));
+  }
+
   ValueTableState getValueTableState() {
     return (ValueTableState) this.getDatasource().getSessionFactory().getCurrentSession().get(ValueTableState.class, valueTableId);
+  }
+
+  private void readVariables() {
+    HibernateVariableValueSourceFactory factory = new HibernateVariableValueSourceFactory(this);
+    addVariableValueSources(factory.createSources());
   }
 
   class HibernateValueSet extends ValueSetBean {
@@ -85,7 +108,7 @@ public class HibernateValueTable extends AbstractValueTable {
 
     private Set<VariableEntity> entities;
 
-    public HibernateVariableEntityProvider() {
+    public HibernateVariableEntityProvider(String entityType) {
       super(entityType);
     }
 
