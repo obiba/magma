@@ -48,7 +48,7 @@ public class DateType extends AbstractValueType {
 
   @Override
   public String getName() {
-    return "date";
+    return "datetime";
   }
 
   @Override
