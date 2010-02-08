@@ -33,6 +33,7 @@ public class CategoryConverter implements HibernateConverter<CategoryState, Cate
     builder.withCode(categoryState.getCode()).missing(categoryState.isMissing());
 
     context.setAttributeAwareBuilder(builder);
+    context.setAttributeAwareEntity(categoryState);
     AttributeAwareConverter.getInstance().unmarshal(categoryState, context);
 
     return builder.build();
