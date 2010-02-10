@@ -29,6 +29,13 @@ public interface Variable extends AttributeAware {
     private VariableBean variable = new VariableBean();
 
     public Builder(String name, ValueType type, String entityType) {
+      if(name == null) throw new IllegalArgumentException("name cannot be null");
+      if(type == null) throw new IllegalArgumentException("type cannot be null");
+      if(entityType == null) throw new IllegalArgumentException("entityType cannot be null");
+
+      if(name.contains(":")) throw new IllegalArgumentException("variable name cannot contain ':'");
+      if(name.length() == 0) throw new IllegalArgumentException("variable name cannot be empty");
+
       variable.name = name;
       variable.valueType = type;
       variable.entityType = entityType;
