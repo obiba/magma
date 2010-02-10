@@ -9,6 +9,8 @@ import org.obiba.magma.ValueSet;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.VariableValueSource;
 
+import com.google.common.annotations.VisibleForTesting;
+
 public class MagmaEngineReferenceResolver {
 
   private String datasourceName;
@@ -59,6 +61,17 @@ public class MagmaEngineReferenceResolver {
   }
 
   /**
+   * Resolves a reference to a {@link ValueTable} without a context. Used to resolve fully qualified variable names in
+   * the forms {@code 'datasourceName.TableName'} and {@code 'datasourceName.TableName:VARIABLE_NAME'}.
+   * @return
+   * @throws NoSuchDatasourceException when the {@link Datasource} can not be found.
+   * @throws NoSuchValueTableException when the {@link ValueTable} can not be found.
+   */
+  public ValueTable resolveTable() throws NoSuchDatasourceException, NoSuchValueTableException {
+    return MagmaEngine.get().getDatasource(datasourceName).getValueTable(tableName);
+  }
+
+  /**
    * Returns true if the specified {@code ValueSet} is within a different table than the referenced {@code ValueTable}
    * @param context
    * @return
@@ -74,7 +87,7 @@ public class MagmaEngineReferenceResolver {
   }
 
   /**
-   * The {@code name} attribute is expected to be of 3 forms:
+   * The {@code name} attribute is expected to be of 4 forms:
    * <ul>
    * <li><code>SMOKER_STATUS</code> : will try to resolve the {@code VariableValueSource} named
    * <code>SMOKER_STATUS</code> within the provided {@code ValueTable}</li>
@@ -84,6 +97,8 @@ public class MagmaEngineReferenceResolver {
    * <li><code>ds.otherTable:SMOKER_STATUS</code> : will try to resolve the {@code VariableValueSource} named
    * <code>SMOKER_STATUS</code> within a table named <code>otherTable</code> within a {@code Datasource} named
    * <code>ds</code></li>
+   * <li><code>ds.otherTable</code> : will try to resolve the {@code TableValue} named <code>otherTable</code> within a
+   * {@code Datasource} named <code>ds</code></li>
    * </ul>
    * @param name the name of the {@code VariableValueSource} to resolve
    * @return an instance of {@code MagmaEngineReferenceResolver}
@@ -96,7 +111,13 @@ public class MagmaEngineReferenceResolver {
     // Is this a fully qualified name?
     if(name.indexOf(':') < 0) {
       // No
-      reference.variableName = name;
+      if(name.indexOf('.') < 0) {
+        reference.variableName = name;
+      } else {
+        String parts[] = name.split("\\.");
+        reference.datasourceName = parts[0];
+        reference.tableName = parts[1];
+      }
     } else {
       // Yes
       String parts[] = name.split(":");
@@ -113,5 +134,20 @@ public class MagmaEngineReferenceResolver {
       }
     }
     return reference;
+  }
+
+  @VisibleForTesting
+  String getDatasourceName() {
+    return datasourceName;
+  }
+
+  @VisibleForTesting
+  String getTableName() {
+    return tableName;
+  }
+
+  @VisibleForTesting
+  String getVariableName() {
+    return variableName;
   }
 }
