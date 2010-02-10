@@ -12,7 +12,7 @@ import org.junit.Test;
 import org.obiba.magma.Value;
 import org.obiba.magma.test.AbstractMagmaTest;
 
-public class DateTypeTest extends AbstractMagmaTest {
+public class DateTimeTypeTest extends AbstractMagmaTest {
 
   @Test
   public void testValueOfDateInstance() {
