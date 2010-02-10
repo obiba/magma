@@ -97,8 +97,8 @@ public class MagmaEngineReferenceResolver {
    * <li><code>ds.otherTable:SMOKER_STATUS</code> : will try to resolve the {@code VariableValueSource} named
    * <code>SMOKER_STATUS</code> within a table named <code>otherTable</code> within a {@code Datasource} named
    * <code>ds</code></li>
-   * <li><code>ds.otherTable</code> : will try to resolve the {@code TableValue} named <code>otherTable</code> within a
-   * {@code Datasource} named <code>ds</code></li>
+   * <li><code>ds.otherTable:</code> : will try to resolve the {@code TableValue} named <code>otherTable</code> within a
+   * {@code Datasource} named <code>ds</code>. The colon is required.</li>
    * </ul>
    * @param name the name of the {@code VariableValueSource} to resolve
    * @return an instance of {@code MagmaEngineReferenceResolver}
@@ -111,19 +111,15 @@ public class MagmaEngineReferenceResolver {
     // Is this a fully qualified name?
     if(name.indexOf(':') < 0) {
       // No
-      if(name.indexOf('.') < 0) {
-        reference.variableName = name;
-      } else {
-        String parts[] = name.split("\\.");
-        reference.datasourceName = parts[0];
-        reference.tableName = parts[1];
-      }
+      reference.variableName = name;
     } else {
       // Yes
       String parts[] = name.split(":");
 
       String tableReference = parts[0];
-      reference.variableName = parts[1];
+      if(parts.length > 1) { // Handle 'datasourceName.ValueTableName:' case.
+        reference.variableName = parts[1];
+      }
 
       if(tableReference.indexOf('.') < 0) {
         reference.tableName = tableReference;

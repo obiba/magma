@@ -15,7 +15,7 @@ public class MagmaEngineReferenceResolverTest {
 
   @Test
   public void testValueOfQualifiedTableName() throws Exception {
-    MagmaEngineReferenceResolver resolver = MagmaEngineReferenceResolver.valueOf("ironman.Participant");
+    MagmaEngineReferenceResolver resolver = MagmaEngineReferenceResolver.valueOf("ironman.Participant:");
     assertThat(resolver.getDatasourceName(), is("ironman"));
     assertThat(resolver.getTableName(), is("Participant"));
     assertThat(resolver.getVariableName(), is(nullValue()));
