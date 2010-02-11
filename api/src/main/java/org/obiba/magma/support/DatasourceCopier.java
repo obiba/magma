@@ -58,8 +58,8 @@ public class DatasourceCopier {
       return this;
     }
 
-    public Builder withVariableEntityCopyEventListener(VariableEntityAuditLogManager auditLogManager, Datasource source, Datasource destination) {
-      copier.listeners.add(new VariableEntityCopyEventListener(auditLogManager, source, destination));
+    public Builder withVariableEntityCopyEventListener(VariableEntityAuditLogManager auditLogManager, Datasource destination) {
+      copier.listeners.add(new VariableEntityCopyEventListener(auditLogManager, destination));
       return this;
     }
 
@@ -89,7 +89,9 @@ public class DatasourceCopier {
 
     log.info("Copying Datasource '{}' to '{}'.", source.getName(), destination.getName());
     for(ValueTable table : source.getValueTables()) {
+      notifyListeners(table, false);
       copy(table, destination);
+      notifyListeners(table, true);
     }
   }
 
@@ -130,29 +132,55 @@ public class DatasourceCopier {
 
   private void notifyListeners(Variable variable, boolean copied) {
     for(DatasourceCopyEventListener listener : listeners) {
-      if(copied) {
-        listener.onVariableCopied(variable);
-      } else {
-        listener.onVariableCopy(variable);
+      if(listener instanceof DatasourceCopyVariableEventListener) {
+        DatasourceCopyVariableEventListener variableListener = (DatasourceCopyVariableEventListener) listener;
+        if(copied) {
+          variableListener.onVariableCopied(variable);
+        } else {
+          variableListener.onVariableCopy(variable);
+        }
       }
     }
   }
 
   private void notifyListeners(ValueSet valueSet, boolean copied) {
     for(DatasourceCopyEventListener listener : listeners) {
-      if(copied) {
-        listener.onValueSetCopied(valueSet);
-      } else {
-        listener.onValueSetCopy(valueSet);
+      if(listener instanceof DatasourceCopyValueSetEventListener) {
+        DatasourceCopyValueSetEventListener valueSetListener = (DatasourceCopyValueSetEventListener) listener;
+        if(copied) {
+          valueSetListener.onValueSetCopied(valueSet);
+        } else {
+          valueSetListener.onValueSetCopy(valueSet);
+        }
+      }
+    }
+  }
+
+  private void notifyListeners(ValueTable valueTable, boolean copied) {
+    for(DatasourceCopyEventListener listener : listeners) {
+      if(listener instanceof DatasourceCopyValueTableEventListener) {
+        DatasourceCopyValueTableEventListener valueTableListener = (DatasourceCopyValueTableEventListener) listener;
+        if(copied) {
+          valueTableListener.onValueTableCopied(valueTable);
+        } else {
+          valueTableListener.onValueTableCopy(valueTable);
+        }
       }
     }
   }
 
   public interface DatasourceCopyEventListener {
+  }
+
+  public interface DatasourceCopyVariableEventListener extends DatasourceCopyEventListener {
 
     public void onVariableCopy(Variable variable);
 
     public void onVariableCopied(Variable variable);
+
+  }
+
+  public interface DatasourceCopyValueSetEventListener extends DatasourceCopyEventListener {
 
     public void onValueSetCopy(ValueSet valueSet);
 
@@ -160,7 +188,15 @@ public class DatasourceCopier {
 
   }
 
-  private static class LoggingListener implements DatasourceCopyEventListener {
+  public interface DatasourceCopyValueTableEventListener extends DatasourceCopyEventListener {
+
+    public void onValueTableCopy(ValueTable valueTable);
+
+    public void onValueTableCopied(ValueTable valueTable);
+
+  }
+
+  private static class LoggingListener implements DatasourceCopyVariableEventListener, DatasourceCopyValueSetEventListener {
 
     @Override
     public void onValueSetCopied(ValueSet valueSet) {
@@ -184,7 +220,7 @@ public class DatasourceCopier {
 
   }
 
-  private static class ThroughputListener implements DatasourceCopyEventListener {
+  private static class ThroughputListener implements DatasourceCopyValueSetEventListener {
 
     private long count = 0;
 
@@ -211,17 +247,9 @@ public class DatasourceCopier {
       log.debug("ValueSet copied in {}s. Average copy duration for {} valueSets: {}s.", new Object[] { twoDecimalPlaces.format(duration / 1000.0d), count, twoDecimalPlaces.format(allDuration / (double) count / 1000.0d) });
     }
 
-    @Override
-    public void onVariableCopy(Variable variable) {
-    }
-
-    @Override
-    public void onVariableCopied(Variable variable) {
-    }
-
   }
 
-  private static class VariableEntityCopyEventListener implements DatasourceCopyEventListener {
+  private static class VariableEntityCopyEventListener implements DatasourceCopyValueSetEventListener, DatasourceCopyValueTableEventListener {
 
     private VariableEntityAuditLogManager auditLogManager;
 
@@ -229,9 +257,8 @@ public class DatasourceCopier {
 
     private Datasource destination;
 
-    public VariableEntityCopyEventListener(VariableEntityAuditLogManager auditLogManager, Datasource source, Datasource destination) {
+    public VariableEntityCopyEventListener(VariableEntityAuditLogManager auditLogManager, Datasource destination) {
       this.auditLogManager = auditLogManager;
-      this.source = source;
       this.destination = destination;
     }
 
@@ -246,11 +273,12 @@ public class DatasourceCopier {
     }
 
     @Override
-    public void onVariableCopied(Variable variable) {
+    public void onValueTableCopied(ValueTable valueTable) {
     }
 
     @Override
-    public void onVariableCopy(Variable variable) {
+    public void onValueTableCopy(ValueTable valueTable) {
+      source = valueTable.getDatasource();
     }
 
     private Map<String, Value> createCopyDetails(VariableEntity entity) {
