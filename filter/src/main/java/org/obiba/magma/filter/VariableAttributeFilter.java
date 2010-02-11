@@ -1,6 +1,5 @@
 package org.obiba.magma.filter;
 
-import org.obiba.magma.Attribute;
 import org.obiba.magma.Initialisable;
 import org.obiba.magma.Variable;
 
@@ -38,12 +37,7 @@ public class VariableAttributeFilter extends AbstractFilter<Variable> implements
   @Override
   protected Boolean runFilter(Variable item) {
     initialise();
-    for(Attribute attribute : item.getAttributes()) {
-      if(attribute.getName().equalsIgnoreCase(attributeName)) {
-        if(attribute.getValue().getValue().equals(value)) return Boolean.TRUE;
-      }
-    }
-    return Boolean.FALSE;
+    return item.hasAttribute(attributeName) && item.getAttribute(attributeName).getValue().toString().equals(value);
   }
 
   public static class Builder extends AbstractFilter.Builder {
