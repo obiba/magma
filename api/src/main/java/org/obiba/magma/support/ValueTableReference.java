@@ -1,8 +1,7 @@
 package org.obiba.magma.support;
 
-import java.util.StringTokenizer;
-
 import org.obiba.magma.Datasource;
+import org.obiba.magma.Initialisable;
 import org.obiba.magma.MagmaEngine;
 import org.obiba.magma.ValueTable;
 
@@ -10,7 +9,7 @@ import org.obiba.magma.ValueTable;
  * Extends {@link AbstractValueTableWrapper} and uses {@link MagmaEngine} to lookup the referenced {@link ValueTable}
  * instance.
  */
-public class ValueTableReference extends AbstractValueTableWrapper {
+public class ValueTableReference extends AbstractValueTableWrapper implements Initialisable {
   //
   // Instance Variables
   //
@@ -68,6 +67,11 @@ public class ValueTableReference extends AbstractValueTableWrapper {
     return MagmaEngine.get().getDatasource(datasourceName).getValueTable(valueTableName);
   }
 
+  @Override
+  public void initialise() {
+    System.out.println("initialise() reference == " + reference);
+  }
+
   //
   // Methods
   //
@@ -77,15 +81,16 @@ public class ValueTableReference extends AbstractValueTableWrapper {
   }
 
   private void initReferenceElements() {
-    if(reference != null) {
-      StringTokenizer tokenizer = new StringTokenizer(reference, " .");
-      if(tokenizer.countTokens() == 2) {
-        datasourceName = tokenizer.nextToken();
-        valueTableName = tokenizer.nextToken();
-      } else {
-        throw new IllegalArgumentException("Invalid ValueTable reference: " + reference);
-      }
+    if(reference == null) {
+      throw new IllegalArgumentException("Null ValueTable reference");
     }
-    throw new IllegalArgumentException("Null ValueTable reference");
+
+    String parts[] = reference.split("\\.");
+    if(parts.length == 2) {
+      datasourceName = parts[0];
+      valueTableName = parts[1];
+    } else {
+      throw new IllegalArgumentException("Invalid ValueTable reference: " + reference);
+    }
   }
 }
