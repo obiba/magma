@@ -38,6 +38,16 @@ public class DatasourceCopier {
       return new Builder();
     }
 
+    public Builder dontCopyValues() {
+      copier.copyValues = false;
+      return this;
+    }
+
+    public Builder dontCopyMetadata() {
+      copier.copyMetadata = false;
+      return this;
+    }
+
     public Builder dontCopyNullValues() {
       copier.copyNullValues = false;
       return this;
@@ -70,6 +80,10 @@ public class DatasourceCopier {
 
   private boolean copyNullValues = true;
 
+  private boolean copyMetadata = true;
+
+  private boolean copyValues = true;
+
   private List<DatasourceCopyEventListener> listeners = new LinkedList<DatasourceCopyEventListener>();
 
   public DatasourceCopier() {
@@ -96,34 +110,39 @@ public class DatasourceCopier {
   }
 
   public void copy(ValueTable table, Datasource destination) throws IOException {
-    log.info("Copying ValueTable '{}' to Datasource '{}'.", table.getName(), destination.getName());
+    log.info("Copying ValueTable '{}' to Datasource '{}' (copyMetadata={}, copyValues={}).", new Object[] { table.getName(), destination.getName(), copyMetadata, copyValues });
     // TODO: the target ValueTable name should probably be renamed to include the source Datasource's name
     ValueTableWriter vtw = destination.createWriter(table.getName(), table.getEntityType());
     try {
-      VariableWriter vw = vtw.writeVariables();
-      try {
-        for(Variable variable : table.getVariables()) {
-          notifyListeners(variable, false);
-          vw.writeVariable(variable);
-          notifyListeners(variable, true);
-        }
-      } finally {
-        vw.close();
-      }
-      for(ValueSet valueSet : table.getValueSets()) {
-        notifyListeners(valueSet, false);
-        ValueSetWriter vsw = vtw.writeValueSet(valueSet.getVariableEntity());
+      if(copyMetadata) {
+        VariableWriter vw = vtw.writeVariables();
         try {
           for(Variable variable : table.getVariables()) {
-            Value value = table.getValue(variable, valueSet);
-            if(value.isNull() == false || copyNullValues) {
-              vsw.writeValue(variable, value);
-            }
+            notifyListeners(variable, false);
+            vw.writeVariable(variable);
+            notifyListeners(variable, true);
           }
         } finally {
-          vsw.close();
+          vw.close();
         }
-        notifyListeners(valueSet, true);
+      }
+
+      if(copyValues) {
+        for(ValueSet valueSet : table.getValueSets()) {
+          notifyListeners(valueSet, false);
+          ValueSetWriter vsw = vtw.writeValueSet(valueSet.getVariableEntity());
+          try {
+            for(Variable variable : table.getVariables()) {
+              Value value = table.getValue(variable, valueSet);
+              if(value.isNull() == false || copyNullValues) {
+                vsw.writeValue(variable, value);
+              }
+            }
+          } finally {
+            vsw.close();
+          }
+          notifyListeners(valueSet, true);
+        }
       }
     } finally {
       vtw.close();
@@ -287,5 +306,25 @@ public class DatasourceCopier {
       return details;
     }
 
+  }
+
+  public boolean isCopyValues() {
+    return copyValues;
+  }
+
+  public void setCopyValues(boolean copyValues) {
+    this.copyValues = copyValues;
+  }
+
+  public boolean isCopyNullValues() {
+    return copyNullValues;
+  }
+
+  public boolean isCopyMetadata() {
+    return copyMetadata;
+  }
+
+  public void setCopyMetadata(boolean copyMetadata) {
+    this.copyMetadata = copyMetadata;
   }
 }
