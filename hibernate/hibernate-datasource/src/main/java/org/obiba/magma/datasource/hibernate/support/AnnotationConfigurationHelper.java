@@ -26,7 +26,7 @@ public class AnnotationConfigurationHelper {
   }
 
   @SuppressWarnings("unchecked")
-  public Set<Class<? extends AbstractEntity>> getAnnotatedTypes() {
+  public static Set<Class<? extends AbstractEntity>> getAnnotatedTypes() {
     return ImmutableSet.of(DatasourceState.class, VariableEntityState.class, ValueTableState.class, ValueSetState.class, ValueSetValue.class, VariableState.class, CategoryState.class, HibernateAttribute.class, AttributeAwareAdapter.class);
   }
 }

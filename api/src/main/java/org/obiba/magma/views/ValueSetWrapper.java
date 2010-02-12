@@ -7,7 +7,7 @@ import org.obiba.magma.ValueSet;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.VariableEntity;
 
-class ValueSetWrapper implements ValueSet {
+public class ValueSetWrapper implements ValueSet {
   private View view;
 
   private ValueSet wrapped;
