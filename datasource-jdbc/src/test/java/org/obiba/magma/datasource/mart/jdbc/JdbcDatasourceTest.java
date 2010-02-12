@@ -34,7 +34,7 @@ public class JdbcDatasourceTest {
     bds.setUrl("jdbc:hsqldb:file:target/jdbc_mart;shutdown=true");
     bds.setUsername("sa");
     bds.setPassword("");
-    JdbcDatasource ds = new JdbcDatasource("test", bds);
+    JdbcDatasource ds = new JdbcDatasource("test", bds, "Participant");
 
     MagmaEngine.get().addDatasource(ds);
 

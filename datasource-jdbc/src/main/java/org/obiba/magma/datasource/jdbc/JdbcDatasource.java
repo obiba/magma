@@ -21,8 +21,15 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import com.google.common.collect.ImmutableSet;
 
 public class JdbcDatasource extends AbstractDatasource {
+  //
+  // Constants
+  //
 
-  private static final String TYPE = "jdbc-mart";
+  private static final String TYPE = "jdbc";
+
+  //
+  // Instance Variables
+  //
 
   private Set<String> RESERVED_NAMES = ImmutableSet.of("variables");
 
@@ -32,10 +39,33 @@ public class JdbcDatasource extends AbstractDatasource {
 
   private JdbcTemplate jdbcTemplate;
 
-  public JdbcDatasource(String name, DataSource jdbcDatasource) {
+  private JdbcDatasourceSettings settings;
+
+  //
+  // Constructors
+  //
+
+  public JdbcDatasource(String name, DataSource datasource, JdbcDatasourceSettings settings) {
     super(name, TYPE);
-    this.jdbcTemplate = new JdbcTemplate(jdbcDatasource);
+
+    if(settings == null) {
+      throw new IllegalArgumentException("null settings");
+    }
+    if(datasource == null) {
+      throw new IllegalArgumentException("null datasource");
+    }
+
+    this.settings = settings;
+    this.jdbcTemplate = new JdbcTemplate(datasource);
   }
+
+  public JdbcDatasource(String name, DataSource datasource, String defaultEntityType) {
+    this(name, datasource, new JdbcDatasourceSettings(defaultEntityType, null, null));
+  }
+
+  //
+  // AbstractDatasource Methods
+  //
 
   @Override
   public ValueTableWriter createWriter(String tableName, String entityType) {
@@ -92,8 +122,15 @@ public class JdbcDatasource extends AbstractDatasource {
     return new JdbcValueTable(this, snapshot.getTable(tableName), "Participant");
   }
 
+  //
+  // Methods
+  //
+
   Database getDatabase() {
     return database;
   }
 
+  DatabaseSnapshot getDatabaseSnapshot() {
+    return snapshot;
+  }
 }
