@@ -133,4 +133,8 @@ public class JdbcDatasource extends AbstractDatasource {
   DatabaseSnapshot getDatabaseSnapshot() {
     return snapshot;
   }
+
+  JdbcTemplate getJdbcTemplate() {
+    return jdbcTemplate;
+  }
 }

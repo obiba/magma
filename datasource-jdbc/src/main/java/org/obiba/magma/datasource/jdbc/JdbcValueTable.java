@@ -1,13 +1,17 @@
 package org.obiba.magma.datasource.jdbc;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
 import liquibase.database.structure.Column;
 import liquibase.database.structure.Table;
 
+import org.obiba.magma.Initialisable;
 import org.obiba.magma.NoSuchValueSetException;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueSet;
@@ -19,6 +23,8 @@ import org.obiba.magma.datasource.jdbc.support.NameConverter;
 import org.obiba.magma.support.AbstractValueTable;
 import org.obiba.magma.support.AbstractVariableEntityProvider;
 import org.obiba.magma.support.ValueSetBean;
+import org.obiba.magma.support.VariableEntityBean;
+import org.springframework.jdbc.core.RowMapper;
 
 public class JdbcValueTable extends AbstractValueTable {
   //
@@ -53,13 +59,7 @@ public class JdbcValueTable extends AbstractValueTable {
     for(Column column : table.getColumns()) {
       addVariableValueSource(new ColumnVariableValueSource(column));
     }
-    super.setVariableEntityProvider(new AbstractVariableEntityProvider(settings.getEntityType()) {
-
-      @Override
-      public Set<VariableEntity> getVariableEntities() {
-        return Collections.emptySet();
-      }
-    });
+    super.setVariableEntityProvider(new JdbcVariableEntityProvider());
   }
 
   @Override
@@ -81,6 +81,10 @@ public class JdbcValueTable extends AbstractValueTable {
   // Methods
   //
 
+  public JdbcValueTableSettings getSettings() {
+    return settings;
+  }
+
   String getSqlName() {
     return getSqlName(getName());
   }
@@ -90,7 +94,7 @@ public class JdbcValueTable extends AbstractValueTable {
   }
 
   String getSqlName(String name) {
-    return name.replace('-', '_').replace(' ', '_').replace('.', '_');
+    return NameConverter.toSqlName(name);
   }
 
   private static List<String> getEntityIdentifierColumns(Table table) {
@@ -107,12 +111,43 @@ public class JdbcValueTable extends AbstractValueTable {
   // Inner Classes
   //
 
-  public class JPAVariableEntityProvider extends AbstractVariableEntityProvider {
+  public class JdbcVariableEntityProvider extends AbstractVariableEntityProvider implements Initialisable {
 
     private Set<VariableEntity> entities;
 
-    public JPAVariableEntityProvider() {
+    public JdbcVariableEntityProvider() {
       super(settings.getEntityType());
+    }
+
+    @SuppressWarnings("unchecked")
+    public void initialise() {
+      entities = new LinkedHashSet<VariableEntity>();
+
+      // Build the SQL query.
+      StringBuilder sql = new StringBuilder();
+
+      // ...select entity identifier columns
+      sql.append("SELECT ");
+      List<String> entityIdentifierColumns = getSettings().getEntityIdentifierColumns();
+      for(int i = 0; i < entityIdentifierColumns.size(); i++) {
+        sql.append(entityIdentifierColumns.get(i));
+        if(i < entityIdentifierColumns.size() - 1) {
+          sql.append(", ");
+        }
+      }
+
+      // ...from table
+      sql.append(" FROM ");
+      sql.append(getSqlName());
+
+      // Execute the query.
+      List<VariableEntity> results = getDatasource().getJdbcTemplate().query(sql.toString(), new RowMapper() {
+        public Object mapRow(ResultSet rs, int rowNum) throws SQLException {
+          return new VariableEntityBean(JdbcValueTable.this.getEntityType(), rs.getString(0));
+        }
+      });
+
+      entities.addAll(results);
     }
 
     @Override
