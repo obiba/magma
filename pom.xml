@@ -106,6 +106,7 @@
     <module>crypt</module>
     <module>datasource-fs</module>
     <module>hibernate</module>
+    <module>datasource-jdbc</module>
   </modules>
 
   <build>
