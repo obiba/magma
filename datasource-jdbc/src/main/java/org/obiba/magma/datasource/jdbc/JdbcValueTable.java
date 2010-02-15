@@ -22,7 +22,6 @@ import org.obiba.magma.VariableValueSource;
 import org.obiba.magma.datasource.jdbc.support.NameConverter;
 import org.obiba.magma.support.AbstractValueTable;
 import org.obiba.magma.support.AbstractVariableEntityProvider;
-import org.obiba.magma.support.ValueSetBean;
 import org.obiba.magma.support.VariableEntityBean;
 import org.springframework.jdbc.core.RowMapper;
 
@@ -57,7 +56,7 @@ public class JdbcValueTable extends AbstractValueTable {
   public void initialise() {
     super.initialise();
     for(Column column : table.getColumns()) {
-      addVariableValueSource(new ColumnVariableValueSource(column));
+      addVariableValueSource(new JdbcVariableValueSource(column));
     }
     super.setVariableEntityProvider(new JdbcVariableEntityProvider());
   }
@@ -74,7 +73,7 @@ public class JdbcValueTable extends AbstractValueTable {
 
   @Override
   public ValueSet getValueSet(VariableEntity entity) throws NoSuchValueSetException {
-    return new ValueSetBean(this, entity);
+    return new JdbcValueSet(this, entity);
   }
 
   //
@@ -171,16 +170,27 @@ public class JdbcValueTable extends AbstractValueTable {
 
   }
 
-  public class ColumnVariableValueSource implements VariableValueSource {
+  public class JdbcVariableValueSource implements VariableValueSource {
+    //
+    // Instance Variables
+    //
 
     private Column column;
 
     private Variable variable;
 
-    private ColumnVariableValueSource(Column column) {
+    //
+    // Constructors
+    //
+
+    private JdbcVariableValueSource(Column column) {
       this.column = column;
       this.variable = Variable.Builder.newVariable(column.getName(), SqlTypes.valueTypeFor(column.getDataType()), settings.getEntityType()).build();
     }
+
+    //
+    // VariableValueSource Methods
+    //
 
     @Override
     public Variable getVariable() {
@@ -189,7 +199,8 @@ public class JdbcValueTable extends AbstractValueTable {
 
     @Override
     public Value getValue(ValueSet valueSet) {
-      throw new UnsupportedOperationException();
+      JdbcValueSet jdbcValueSet = (JdbcValueSet) valueSet;
+      return jdbcValueSet.getValue(variable);
     }
 
     @Override
@@ -197,6 +208,13 @@ public class JdbcValueTable extends AbstractValueTable {
       return variable.getValueType();
     }
 
+    //
+    // Methods
+    //
+
+    public Column getColumn() {
+      return column;
+    }
   }
 
 }
