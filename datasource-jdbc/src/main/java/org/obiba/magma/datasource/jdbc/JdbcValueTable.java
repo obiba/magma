@@ -143,7 +143,7 @@ public class JdbcValueTable extends AbstractValueTable {
       // Execute the query.
       List<VariableEntity> results = getDatasource().getJdbcTemplate().query(sql.toString(), new RowMapper() {
         public Object mapRow(ResultSet rs, int rowNum) throws SQLException {
-          return new VariableEntityBean(JdbcValueTable.this.getEntityType(), rs.getString(0));
+          return new VariableEntityBean(JdbcValueTable.this.getEntityType(), buildEntityIdentifier(rs));
         }
       });
 
@@ -153,6 +153,20 @@ public class JdbcValueTable extends AbstractValueTable {
     @Override
     public Set<VariableEntity> getVariableEntities() {
       return Collections.unmodifiableSet(entities);
+    }
+
+    private String buildEntityIdentifier(ResultSet rs) throws SQLException {
+      StringBuilder entityIdentifier = new StringBuilder();
+
+      int i = 0;
+      while(rs.next()) {
+        if(i > 0) {
+          entityIdentifier.append('-');
+        }
+        entityIdentifier.append(rs.getObject(i++).toString());
+      }
+
+      return entityIdentifier.toString();
     }
 
   }
