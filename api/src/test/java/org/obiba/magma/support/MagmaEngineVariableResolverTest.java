@@ -4,18 +4,13 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
 
-import org.junit.Before;
 import org.junit.Test;
 
-public class MagmaEngineReferenceResolverTest {
-
-  @Before
-  public void setUp() throws Exception {
-  }
+public class MagmaEngineVariableResolverTest {
 
   @Test
   public void testValueOfQualifiedTableName() throws Exception {
-    MagmaEngineReferenceResolver resolver = MagmaEngineReferenceResolver.valueOf("ironman.Participant:");
+    MagmaEngineVariableResolver resolver = MagmaEngineVariableResolver.valueOf("ironman.Participant:");
     assertThat(resolver.getDatasourceName(), is("ironman"));
     assertThat(resolver.getTableName(), is("Participant"));
     assertThat(resolver.getVariableName(), is(nullValue()));
@@ -23,7 +18,7 @@ public class MagmaEngineReferenceResolverTest {
 
   @Test
   public void testValueOfVariableName() throws Exception {
-    MagmaEngineReferenceResolver resolver = MagmaEngineReferenceResolver.valueOf("SMOKER_STATUS");
+    MagmaEngineVariableResolver resolver = MagmaEngineVariableResolver.valueOf("SMOKER_STATUS");
     assertThat(resolver.getDatasourceName(), is(nullValue()));
     assertThat(resolver.getTableName(), is(nullValue()));
     assertThat(resolver.getVariableName(), is("SMOKER_STATUS"));
@@ -31,7 +26,7 @@ public class MagmaEngineReferenceResolverTest {
 
   @Test
   public void testValueOfTableAndVariableName() throws Exception {
-    MagmaEngineReferenceResolver resolver = MagmaEngineReferenceResolver.valueOf("Participant:SMOKER_STATUS");
+    MagmaEngineVariableResolver resolver = MagmaEngineVariableResolver.valueOf("Participant:SMOKER_STATUS");
     assertThat(resolver.getDatasourceName(), is(nullValue()));
     assertThat(resolver.getTableName(), is("Participant"));
     assertThat(resolver.getVariableName(), is("SMOKER_STATUS"));
@@ -39,7 +34,7 @@ public class MagmaEngineReferenceResolverTest {
 
   @Test
   public void testValueOfDatasourceAndTableAndVariableName() throws Exception {
-    MagmaEngineReferenceResolver resolver = MagmaEngineReferenceResolver.valueOf("ironman.Participant:SMOKER_STATUS");
+    MagmaEngineVariableResolver resolver = MagmaEngineVariableResolver.valueOf("ironman.Participant:SMOKER_STATUS");
     assertThat(resolver.getDatasourceName(), is("ironman"));
     assertThat(resolver.getTableName(), is("Participant"));
     assertThat(resolver.getVariableName(), is("SMOKER_STATUS"));
