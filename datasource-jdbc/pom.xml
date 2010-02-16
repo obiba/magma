@@ -45,6 +45,7 @@
       <artifactId>spring-test</artifactId>
     </dependency>
     
+	<!-- Using JUnit 4.4 due to incompatibility of later versions with Spring TestContext Framework (http://jira.springframework.org/browse/SPR-5145) -->
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
