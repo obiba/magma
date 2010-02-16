@@ -5,7 +5,6 @@ import org.obiba.magma.ValueType;
 import org.obiba.magma.type.BinaryType;
 import org.obiba.magma.type.BooleanType;
 import org.obiba.magma.type.DateTimeType;
-import org.obiba.magma.type.DateType;
 import org.obiba.magma.type.DecimalType;
 import org.obiba.magma.type.IntegerType;
 import org.obiba.magma.type.TextType;
@@ -60,9 +59,9 @@ class SqlTypes {
     if(valueType.getName().equals(DecimalType.get().getName())) {
       return "java.sql.Types.DECIMAL";
     }
-    if(valueType.getName().equals(DateType.get().getName())) {
-      return "java.sql.Types.DATE";
-    }
+    // if(valueType.getName().equals(DateType.get().getName())) {
+    // return "java.sql.Types.DATE";
+    // }
     if(valueType.getName().equals(DateTimeType.get().getName())) {
       return "java.sql.Types.TIMESTAMP";
     }
