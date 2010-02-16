@@ -89,9 +89,6 @@ public class JdbcDatasource extends AbstractDatasource {
        * ColumnConfig cc = new ColumnConfig(); cc.setName("name"); cc.setType("VARCHAR"); ctc.addColumn(cc);
        * ctc.executeStatements(database, (List<SqlVisitor>) Collections.EMPTY_LIST); }
        */
-      for(Table table : snapshot.getTables()) {
-        addValueTable(new JdbcValueTable(this, table, "Participant"));
-      }
     } catch(JDBCException e) {
       throw new MagmaRuntimeException(e);
     } catch(SQLException e) {

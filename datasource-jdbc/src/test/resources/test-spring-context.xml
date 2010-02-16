@@ -1,0 +1,24 @@
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd"
+  default-autowire="no">
+
+  <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+    <property name="driverClassName" value="org.hsqldb.jdbcDriver" />
+    <property name="url" value="jdbc:hsqldb:file:src/test/resources/org/obiba/magma/datasource/jdbc/datasource-jdbc.db;shutdown=true" />
+    <property name="username" value="sa" />
+    <property name="password" value="" />
+  </bean>
+
+  <bean id="jdbcDatasource" class="org.obiba.magma.datasource.jdbc.JdbcDatasource">
+    <constructor-arg>
+      <value>my-datasource</value>
+    </constructor-arg>
+    <constructor-arg>
+      <ref bean="dataSource" />
+    </constructor-arg>
+    <constructor-arg>
+      <value>Participant</value>
+    </constructor-arg>
+  </bean>
+
+</beans>

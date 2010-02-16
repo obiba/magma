@@ -55,10 +55,15 @@ public class JdbcValueTable extends AbstractValueTable {
   @Override
   public void initialise() {
     super.initialise();
+
     for(Column column : table.getColumns()) {
       addVariableValueSource(new JdbcVariableValueSource(column));
     }
-    super.setVariableEntityProvider(new JdbcVariableEntityProvider());
+
+    JdbcVariableEntityProvider variableEntityProvider = new JdbcVariableEntityProvider();
+    variableEntityProvider.initialise();
+    super.setVariableEntityProvider(variableEntityProvider);
+
   }
 
   @Override
@@ -157,12 +162,11 @@ public class JdbcValueTable extends AbstractValueTable {
     private String buildEntityIdentifier(ResultSet rs) throws SQLException {
       StringBuilder entityIdentifier = new StringBuilder();
 
-      int i = 0;
-      while(rs.next()) {
-        if(i > 0) {
+      for(int i = 1; i <= getSettings().getEntityIdentifierColumns().size(); i++) {
+        if(i > 1) {
           entityIdentifier.append('-');
         }
-        entityIdentifier.append(rs.getObject(i++).toString());
+        entityIdentifier.append(rs.getObject(i).toString());
       }
 
       return entityIdentifier.toString();
