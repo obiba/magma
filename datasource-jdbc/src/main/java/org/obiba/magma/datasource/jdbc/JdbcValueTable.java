@@ -8,10 +8,16 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import liquibase.change.ColumnConfig;
+import liquibase.change.ConstraintsConfig;
+import liquibase.change.CreateTableChange;
+import liquibase.database.Database;
+import liquibase.database.sql.visitor.SqlVisitor;
 import liquibase.database.structure.Column;
 import liquibase.database.structure.Table;
 
 import org.obiba.magma.Initialisable;
+import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.NoSuchValueSetException;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueSet;
@@ -41,6 +47,11 @@ public class JdbcValueTable extends AbstractValueTable {
   public JdbcValueTable(JdbcDatasource datasource, JdbcValueTableSettings settings) {
     super(datasource, settings.getMagmaTableName());
     this.settings = settings;
+
+    if(getDatasource().getDatabaseSnapshot().getTable(settings.getSqlTableName()) == null) {
+      createSqlTable(settings.getSqlTableName());
+      getDatasource().refreshDatabaseSnapshot();
+    }
     this.table = getDatasource().getDatabaseSnapshot().getTable(settings.getSqlTableName());
   }
 
@@ -109,6 +120,31 @@ public class JdbcValueTable extends AbstractValueTable {
       }
     }
     return entityIdentifierColumns;
+  }
+
+  private void createSqlTable(String sqlTableName) {
+    Database database = getDatasource().getDatabase();
+
+    CreateTableChange ctc = new CreateTableChange();
+    ctc.setTableName(sqlTableName);
+
+    // Create the table initially with just one column -- entity_id -- the primary key.
+    ColumnConfig column = new ColumnConfig();
+    column.setName("entity_id");
+    column.setType("VARCHAR");
+    ConstraintsConfig constraints = new ConstraintsConfig();
+    constraints.setPrimaryKey(true);
+    column.setConstraints(constraints);
+
+    ctc.addColumn(column);
+
+    try {
+      List<SqlVisitor> sqlVisitors = Collections.emptyList();
+      ctc.executeStatements(database, sqlVisitors);
+      database.commit();
+    } catch(Exception ex) {
+      throw new MagmaRuntimeException("could not create sql table: " + ex.getMessage());
+    }
   }
 
   //

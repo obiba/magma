@@ -1,6 +1,7 @@
 package org.obiba.magma.datasource.jdbc;
 
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -15,6 +16,7 @@ import liquibase.exception.JDBCException;
 import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.ValueTableWriter;
+import org.obiba.magma.datasource.jdbc.support.NameConverter;
 import org.obiba.magma.support.AbstractDatasource;
 import org.springframework.jdbc.core.JdbcTemplate;
 
@@ -67,14 +69,27 @@ public class JdbcDatasource extends AbstractDatasource {
   // AbstractDatasource Methods
   //
 
+  /**
+   * Returns a {@link ValueTableWriter} for writing to a new or existing {@link JdbcValueTable}.
+   * 
+   * Note: Newly created tables have a single entity identifier column, "entity_id".
+   */
   @Override
   public ValueTableWriter createWriter(String tableName, String entityType) {
-    throw new UnsupportedOperationException();/*
-                                               * JdbcMartValueTable table; if(hasValueTable(tableName) == false) { table
-                                               * = new JdbcMartValueTable(this, tableName, entityType);
-                                               * addValueTable(table); } else { table = (JdbcMartValueTable)
-                                               * getValueTable(tableName); } return new JdbcMartValueTableWriter(table);
-                                               */
+    if(entityType == null) {
+      entityType = settings.getDefaultEntityType();
+    }
+
+    JdbcValueTable table;
+    if(hasValueTable(tableName)) {
+      table = (JdbcValueTable) getValueTable(tableName);
+    } else {
+      // Create a new JdbcValueTable. This will create the SQL table if it does not exist.
+      table = new JdbcValueTable(this, new JdbcValueTableSettings(NameConverter.toSqlName(tableName), tableName, entityType, Arrays.asList("entity_id")));
+      addValueTable(table);
+    }
+
+    return new JdbcValueTableWriter(table);
   }
 
   @Override
@@ -129,6 +144,14 @@ public class JdbcDatasource extends AbstractDatasource {
 
   DatabaseSnapshot getDatabaseSnapshot() {
     return snapshot;
+  }
+
+  void refreshDatabaseSnapshot() {
+    try {
+      snapshot = database.createDatabaseSnapshot(null, null);
+    } catch(JDBCException e) {
+      throw new MagmaRuntimeException(e);
+    }
   }
 
   JdbcTemplate getJdbcTemplate() {

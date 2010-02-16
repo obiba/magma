@@ -1,9 +1,11 @@
 package org.obiba.magma.datasource.jdbc;
 
+import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.ValueType;
 import org.obiba.magma.type.BinaryType;
 import org.obiba.magma.type.BooleanType;
 import org.obiba.magma.type.DateTimeType;
+import org.obiba.magma.type.DateType;
 import org.obiba.magma.type.DecimalType;
 import org.obiba.magma.type.IntegerType;
 import org.obiba.magma.type.TextType;
@@ -46,5 +48,28 @@ class SqlTypes {
     default:
       return TextType.get();
     }
+  }
+
+  static final String sqlTypeFor(ValueType valueType) {
+    if(valueType.getName().equals(TextType.get().getName())) {
+      return "java.sql.Types.VARCHAR";
+    }
+    if(valueType.getName().equals(IntegerType.get().getName())) {
+      return "java.sql.Types.INTEGER";
+    }
+    if(valueType.getName().equals(DecimalType.get().getName())) {
+      return "java.sql.Types.DECIMAL";
+    }
+    if(valueType.getName().equals(DateType.get().getName())) {
+      return "java.sql.Types.DATE";
+    }
+    if(valueType.getName().equals(DateTimeType.get().getName())) {
+      return "java.sql.Types.TIMESTAMP";
+    }
+    if(valueType.getName().equals(BinaryType.get().getName())) {
+      return "java.sql.Types.BLOB";
+    }
+
+    throw new MagmaRuntimeException("no sql type for " + valueType);
   }
 }
