@@ -35,6 +35,9 @@ public class HibernateVariableEntityAuditLogManager implements VariableEntityAud
 
   @Override
   public VariableEntityAuditEvent createAuditEvent(VariableEntityAuditLog log, Datasource datasource, String type, Map<String, Value> details) {
+    if(log == null) throw new IllegalArgumentException("log cannot be null");
+    if(datasource == null) throw new IllegalArgumentException("datasource cannot be null");
+    if(type == null) throw new IllegalArgumentException("type cannot be null");
     HibernateVariableEntityAuditEvent auditEvent = new HibernateVariableEntityAuditEvent();
     auditEvent.setDatasource(datasource.getName());
     auditEvent.setType(type);
