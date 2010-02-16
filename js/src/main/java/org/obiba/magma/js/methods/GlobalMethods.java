@@ -14,7 +14,7 @@ import org.obiba.magma.VariableValueSource;
 import org.obiba.magma.js.MagmaContext;
 import org.obiba.magma.js.ScriptableValue;
 import org.obiba.magma.js.ScriptableVariable;
-import org.obiba.magma.support.MagmaEngineReferenceResolver;
+import org.obiba.magma.support.MagmaEngineVariableResolver;
 import org.obiba.magma.type.DateTimeType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,7 +64,7 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
     String name = (String) args[0];
     ValueSet valueSet = (ValueSet) context.peek(ValueSet.class);
 
-    MagmaEngineReferenceResolver reference = MagmaEngineReferenceResolver.valueOf(name);
+    MagmaEngineVariableResolver reference = MagmaEngineVariableResolver.valueOf(name);
 
     // Find the named source
     final VariableValueSource source = reference.resolveSource(valueSet);
@@ -93,7 +93,7 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
     MagmaContext context = MagmaContext.asMagmaContext(ctx);
     String name = (String) args[0];
 
-    MagmaEngineReferenceResolver reference = MagmaEngineReferenceResolver.valueOf(name);
+    MagmaEngineVariableResolver reference = MagmaEngineVariableResolver.valueOf(name);
 
     VariableValueSource source = null;
     if(context.has(ValueSet.class)) {
