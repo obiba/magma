@@ -29,9 +29,4 @@ public class DatasourceState extends AbstractAttributeAwareEntity {
     return name;
   }
 
-  @Override
-  public String getAttributeAwareType() {
-    return "datasource";
-  }
-
 }

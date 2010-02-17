@@ -1,14 +1,14 @@
 package org.obiba.magma.datasource.hibernate.converter;
 
-import org.obiba.core.service.SortingClause;
 import org.obiba.core.service.impl.hibernate.AssociationCriteria;
 import org.obiba.core.service.impl.hibernate.AssociationCriteria.Operation;
 import org.obiba.magma.Category;
 import org.obiba.magma.Variable;
+import org.obiba.magma.Variable.Builder;
 import org.obiba.magma.datasource.hibernate.domain.CategoryState;
 import org.obiba.magma.datasource.hibernate.domain.VariableState;
 
-public class VariableConverter implements HibernateConverter<VariableState, Variable> {
+public class VariableConverter extends AttributeAwareConverter implements HibernateConverter<VariableState, Variable> {
 
   public static VariableConverter getInstance() {
     return new VariableConverter();
@@ -16,7 +16,7 @@ public class VariableConverter implements HibernateConverter<VariableState, Vari
 
   public VariableState getStateForVariable(Variable variable, HibernateMarshallingContext context) {
     AssociationCriteria criteria = AssociationCriteria.create(VariableState.class, context.getSessionFactory().getCurrentSession()).add("valueTable", Operation.eq, context.getValueTable()).add("name", Operation.eq, variable.getName());
-    return (VariableState) criteria.getCriteria().uniqueResult();
+    return (VariableState) criteria.getCriteria().setCacheable(true).uniqueResult();
   }
 
   @Override
@@ -24,19 +24,25 @@ public class VariableConverter implements HibernateConverter<VariableState, Vari
     VariableState variableState = getStateForVariable(variable, context);
     if(variableState == null) {
       variableState = new VariableState(context.getValueTable(), variable);
-      context.getSessionFactory().getCurrentSession().save(variableState);
     }
 
-    // set the context and go through categories
-    context.setVariable(variableState);
-    for(Category category : variable.getCategories()) {
-      CategoryConverter.getInstance().marshal(category, context);
-    }
+    addAttributes(variable, variableState);
+    marshalCategories(variable, variableState);
 
-    // attributes
-    AttributeAwareConverter.getInstance().marshal(variable, context);
+    context.getSessionFactory().getCurrentSession().save(variableState);
 
     return variableState;
+  }
+
+  private void marshalCategories(Variable variable, VariableState variableState) {
+    for(Category c : variable.getCategories()) {
+      CategoryState categoryState = variableState.getCategory(c.getName());
+      if(categoryState == null) {
+        categoryState = new CategoryState(c.getName(), c.getCode(), c.isMissing());
+        variableState.addCategory(categoryState);
+      }
+      addAttributes(c, categoryState);
+    }
   }
 
   @Override
@@ -47,17 +53,17 @@ public class VariableConverter implements HibernateConverter<VariableState, Vari
       builder.repeatable();
     }
 
-    AssociationCriteria criteria = AssociationCriteria.create(CategoryState.class, context.getSessionFactory().getCurrentSession()).add("variable.id", Operation.eq, variableState.getId()).addSortingClauses(SortingClause.create("pos"));
-    for(Object obj : criteria.list()) {
-      builder.addCategory(CategoryConverter.getInstance().unmarshal((CategoryState) obj, context));
-    }
-
-    // attributes
-    context.setAttributeAwareBuilder(builder);
-    context.setAttributeAwareEntity(variableState);
-    AttributeAwareConverter.getInstance().unmarshal(variableState, context);
-
+    buildAttributeAware(builder, variableState);
+    unmarshalCategories(builder, variableState);
     return builder.build();
+  }
+
+  private void unmarshalCategories(Builder builder, VariableState variableState) {
+    for(CategoryState categoryState : variableState.getCategories()) {
+      Category.Builder categoryBuilder = Category.Builder.newCategory(categoryState.getName()).withCode(categoryState.getCode()).missing(categoryState.isMissing());
+      buildAttributeAware(categoryBuilder, categoryState);
+      builder.addCategory(categoryBuilder.build());
+    }
   }
 
 }

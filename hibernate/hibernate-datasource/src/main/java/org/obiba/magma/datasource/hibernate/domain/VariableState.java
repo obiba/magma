@@ -1,12 +1,18 @@
 package org.obiba.magma.datasource.hibernate.domain;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
+import org.hibernate.annotations.IndexColumn;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 import org.obiba.magma.ValueType;
@@ -26,6 +32,10 @@ public class VariableState extends AbstractAttributeAwareEntity {
   @ManyToOne(optional = false)
   @JoinColumn(name = "value_table_id")
   private ValueTableState valueTable;
+
+  @OneToMany(cascade = CascadeType.ALL)
+  @IndexColumn(name = "category_index")
+  private List<CategoryState> categories;
 
   @Column(nullable = false)
   private String entityType;
@@ -143,9 +153,22 @@ public class VariableState extends AbstractAttributeAwareEntity {
     return repeatable;
   }
 
-  @Override
-  public String getAttributeAwareType() {
-    return "variable";
+  public List<CategoryState> getCategories() {
+    return categories != null ? categories : (categories = new ArrayList<CategoryState>());
+  }
+
+  public void addCategory(CategoryState state) {
+    state.setCategoryIndex(getCategories().size());
+    getCategories().add(state);
+  }
+
+  public CategoryState getCategory(String name) {
+    for(CategoryState state : getCategories()) {
+      if(name.equals(state.getName())) {
+        return state;
+      }
+    }
+    return null;
   }
 
 }

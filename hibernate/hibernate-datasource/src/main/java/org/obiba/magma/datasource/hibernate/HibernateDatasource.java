@@ -9,22 +9,19 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentMap;
 
 import org.hibernate.HibernateException;
-import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.hibernate.criterion.Restrictions;
 import org.obiba.core.service.impl.hibernate.AssociationCriteria;
 import org.obiba.core.service.impl.hibernate.AssociationCriteria.Operation;
-import org.obiba.magma.Attribute;
 import org.obiba.magma.NoSuchValueTableException;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.ValueTableWriter;
+import org.obiba.magma.datasource.hibernate.converter.AttributeAwareConverter;
 import org.obiba.magma.datasource.hibernate.converter.HibernateMarshallingContext;
 import org.obiba.magma.datasource.hibernate.domain.DatasourceState;
 import org.obiba.magma.datasource.hibernate.domain.ValueTableState;
-import org.obiba.magma.datasource.hibernate.domain.attribute.AbstractAttributeAwareEntity;
-import org.obiba.magma.datasource.hibernate.domain.attribute.AttributeAwareAdapter;
 import org.obiba.magma.datasource.hibernate.domain.attribute.HibernateAttribute;
 import org.obiba.magma.support.AbstractDatasource;
 
@@ -115,7 +112,7 @@ public class HibernateDatasource extends AbstractDatasource {
       sessionFactory.getCurrentSession().save(datasourceState);
     } else {
       // If already persisted, load the persisted attributes for that datasource.
-      for(HibernateAttribute attribute : getAttributes(datasourceState)) {
+      for(HibernateAttribute attribute : datasourceState.getAttributes()) {
         setAttributeValue(attribute.getName(), attribute.getValue());
       }
 
@@ -125,18 +122,9 @@ public class HibernateDatasource extends AbstractDatasource {
 
   @Override
   protected void onDispose() {
-
-    // Delete old persisted attributes values.
-    Query deleteAttributes = sessionFactory.getCurrentSession().createQuery("delete from HibernateAttribute where adapter.id = :adapterId");
-    deleteAttributes.setParameter("adapterId", getAdapter(getDatasourceState()).getId());
-    deleteAttributes.executeUpdate();
-
-    // Replace them with the latest attribute values.
-    for(Attribute attribute : getAttributes()) {
-      HibernateAttribute hibernateAttr = new HibernateAttribute(attribute.getName(), attribute.getLocale(), attribute.getValue());
-      hibernateAttr.setAdapter(getAdapter(getDatasourceState()));
-      sessionFactory.getCurrentSession().save(hibernateAttr);
-    }
+    DatasourceState state = getDatasourceState();
+    new AttributeAwareConverter().addAttributes(this, state);
+    getSessionFactory().getCurrentSession().save(state);
   }
 
   protected Set<String> getValueTableNames() {
@@ -260,25 +248,4 @@ public class HibernateDatasource extends AbstractDatasource {
     }
   }
 
-  private List<HibernateAttribute> getAttributes(AbstractAttributeAwareEntity attributeAwareEntity) {
-    AttributeAwareAdapter attrAwareAdapter = getAdapter(attributeAwareEntity);
-    if(attrAwareAdapter == null) {
-      attrAwareAdapter = new AttributeAwareAdapter();
-      attrAwareAdapter.setAttributeAwareEntity(attributeAwareEntity);
-      sessionFactory.getCurrentSession().save(attrAwareAdapter);
-    }
-    return attrAwareAdapter.getAttributes();
-  }
-
-  private AttributeAwareAdapter getAdapter(AbstractAttributeAwareEntity attributeAwareEntity) {
-    AssociationCriteria criteria = AssociationCriteria.create(AttributeAwareAdapter.class, sessionFactory.getCurrentSession()).add("attributeAwareId", Operation.eq, attributeAwareEntity.getId()).add("attributeAwareType", Operation.eq, attributeAwareEntity.getAttributeAwareType());
-    AttributeAwareAdapter adapter = (AttributeAwareAdapter) criteria.getCriteria().uniqueResult();
-    if(adapter == null) {
-      adapter = new AttributeAwareAdapter();
-      adapter.setAttributeAwareType(attributeAwareEntity.getAttributeAwareType());
-      adapter.setAttributeAwareId(attributeAwareEntity.getId());
-      sessionFactory.getCurrentSession().save(adapter);
-    }
-    return adapter;
-  }
 }

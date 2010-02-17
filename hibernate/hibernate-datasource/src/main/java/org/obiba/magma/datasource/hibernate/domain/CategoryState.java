@@ -1,8 +1,6 @@
 package org.obiba.magma.datasource.hibernate.domain;
 
 import javax.persistence.Entity;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 import org.obiba.magma.datasource.hibernate.domain.attribute.AbstractAttributeAwareEntity;
@@ -19,19 +17,14 @@ public class CategoryState extends AbstractAttributeAwareEntity {
 
   private Boolean missing;
 
-  @ManyToOne(optional = false)
-  @JoinColumn(name = "variable_id")
-  private VariableState variable;
-
-  private Integer pos;
+  private int categoryIndex;
 
   public CategoryState() {
 
   }
 
-  public CategoryState(VariableState variable, String name, String code, Boolean missing) {
+  public CategoryState(String name, String code, Boolean missing) {
     super();
-    this.variable = variable;
     this.name = name;
     this.code = code;
     this.missing = missing;
@@ -57,21 +50,12 @@ public class CategoryState extends AbstractAttributeAwareEntity {
     return missing != null ? missing : false;
   }
 
-  public VariableState getVariable() {
-    return variable;
+  public int getCategoryIndex() {
+    return categoryIndex;
   }
 
-  public Integer getPosition() {
-    return pos;
-  }
-
-  public void setPosition(Integer pos) {
-    this.pos = pos;
-  }
-
-  @Override
-  public String getAttributeAwareType() {
-    return "category";
+  public void setCategoryIndex(int categoryIndex) {
+    this.categoryIndex = categoryIndex;
   }
 
 }

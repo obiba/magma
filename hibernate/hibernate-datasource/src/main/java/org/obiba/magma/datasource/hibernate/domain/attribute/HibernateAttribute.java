@@ -3,26 +3,25 @@ package org.obiba.magma.datasource.hibernate.domain.attribute;
 import java.util.Locale;
 
 import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
+import javax.persistence.Embeddable;
 
 import org.hibernate.annotations.Columns;
+import org.hibernate.annotations.Parent;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
-import org.obiba.core.domain.AbstractEntity;
 import org.obiba.magma.Attribute;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueType;
 import org.obiba.magma.datasource.hibernate.domain.ValueHibernateType;
 
-@Entity
-@Table(name = "attribute")
+@Embeddable
 @TypeDef(name = "value", typeClass = ValueHibernateType.class)
-public class HibernateAttribute extends AbstractEntity implements Attribute {
+public class HibernateAttribute implements Attribute {
 
   private static final long serialVersionUID = 1L;
+
+  @Parent
+  private AbstractAttributeAwareEntity attributeAware;
 
   @Column(nullable = false)
   private String name;
@@ -32,10 +31,6 @@ public class HibernateAttribute extends AbstractEntity implements Attribute {
   @Type(type = "value")
   @Columns(columns = { @Column(name = "value_type", nullable = false), @Column(name = "is_sequence", nullable = false), @Column(name = "value", length = Integer.MAX_VALUE, nullable = false) })
   private Value value;
-
-  @ManyToOne(optional = false)
-  @JoinColumn(name = "attribute_aware_id")
-  private AttributeAwareAdapter adapter;
 
   public HibernateAttribute() {
     super();
@@ -48,12 +43,12 @@ public class HibernateAttribute extends AbstractEntity implements Attribute {
     setValue(value);
   }
 
-  public AttributeAwareAdapter getAdapter() {
-    return adapter;
+  public AbstractAttributeAwareEntity getAttributeAware() {
+    return attributeAware;
   }
 
-  public void setAdapter(AttributeAwareAdapter adapter) {
-    this.adapter = adapter;
+  public void setAttributeAware(AbstractAttributeAwareEntity attributeAware) {
+    this.attributeAware = attributeAware;
   }
 
   public void setValue(Value value) {
