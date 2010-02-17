@@ -68,7 +68,7 @@ public class JdbcValueTable extends AbstractValueTable {
     super.initialise();
 
     for(Column column : table.getColumns()) {
-      addVariableValueSource(new JdbcVariableValueSource(column));
+      addVariableValueSource(new JdbcVariableValueSource(settings.getEntityType(), column));
     }
 
     JdbcVariableEntityProvider variableEntityProvider = new JdbcVariableEntityProvider();
@@ -210,12 +210,10 @@ public class JdbcValueTable extends AbstractValueTable {
 
   }
 
-  public class JdbcVariableValueSource implements VariableValueSource {
+  static class JdbcVariableValueSource implements VariableValueSource {
     //
     // Instance Variables
     //
-
-    private Column column;
 
     private Variable variable;
 
@@ -223,9 +221,12 @@ public class JdbcValueTable extends AbstractValueTable {
     // Constructors
     //
 
-    private JdbcVariableValueSource(Column column) {
-      this.column = column;
-      this.variable = Variable.Builder.newVariable(column.getName(), SqlTypes.valueTypeFor(column.getDataType()), settings.getEntityType()).build();
+    JdbcVariableValueSource(String entityType, Column column) {
+      this.variable = Variable.Builder.newVariable(column.getName(), SqlTypes.valueTypeFor(column.getDataType()), entityType).build();
+    }
+
+    JdbcVariableValueSource(String entityType, ColumnConfig columnConfig) {
+      this.variable = Variable.Builder.newVariable(columnConfig.getName(), SqlTypes.valueTypeFor(columnConfig.getType()), entityType).build();
     }
 
     //
@@ -246,14 +247,6 @@ public class JdbcValueTable extends AbstractValueTable {
     @Override
     public ValueType getValueType() {
       return variable.getValueType();
-    }
-
-    //
-    // Methods
-    //
-
-    public Column getColumn() {
-      return column;
     }
   }
 

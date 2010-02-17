@@ -49,24 +49,47 @@ class SqlTypes {
     }
   }
 
+  static final ValueType valueTypeFor(String sqlType) {
+    if(sqlType.equals("VARCHAR")) {
+      return TextType.get();
+    }
+    if(sqlType.equals("INTEGER")) {
+      return IntegerType.get();
+    }
+    if(sqlType.equals("DECIMAL")) {
+      return DecimalType.get();
+    }
+    // if(sqlType.equals("DATE")) {
+    // return DateType.get();
+    // }
+    if(sqlType.equals("TIMESTAMP")) {
+      return DateTimeType.get();
+    }
+    if(sqlType.equals("BLOB")) {
+      return BinaryType.get();
+    }
+
+    return TextType.get();
+  }
+
   static final String sqlTypeFor(ValueType valueType) {
     if(valueType.getName().equals(TextType.get().getName())) {
-      return "java.sql.Types.VARCHAR";
+      return "VARCHAR";
     }
     if(valueType.getName().equals(IntegerType.get().getName())) {
-      return "java.sql.Types.INTEGER";
+      return "INTEGER";
     }
     if(valueType.getName().equals(DecimalType.get().getName())) {
-      return "java.sql.Types.DECIMAL";
+      return "DECIMAL";
     }
     // if(valueType.getName().equals(DateType.get().getName())) {
-    // return "java.sql.Types.DATE";
+    // return "DATE";
     // }
     if(valueType.getName().equals(DateTimeType.get().getName())) {
-      return "java.sql.Types.TIMESTAMP";
+      return "TIMESTAMP";
     }
     if(valueType.getName().equals(BinaryType.get().getName())) {
-      return "java.sql.Types.BLOB";
+      return "BLOB";
     }
 
     throw new MagmaRuntimeException("no sql type for " + valueType);

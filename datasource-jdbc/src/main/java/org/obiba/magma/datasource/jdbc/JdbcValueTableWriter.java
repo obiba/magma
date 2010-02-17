@@ -101,6 +101,8 @@ public class JdbcValueTableWriter implements ValueTableWriter {
         addColumnChange.setTableName(valueTable.getSqlName());
         addColumnChange.addColumn(column);
         changes.add(addColumnChange);
+
+        valueTable.addVariableValueSource(new JdbcValueTable.JdbcVariableValueSource(valueTable.getEntityType(), column));
       }
     }
 

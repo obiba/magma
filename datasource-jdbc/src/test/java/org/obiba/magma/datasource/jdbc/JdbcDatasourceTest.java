@@ -17,6 +17,7 @@ import org.obiba.magma.ValueTable;
 import org.obiba.magma.ValueTableWriter;
 import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
+import org.obiba.magma.ValueTableWriter.ValueSetWriter;
 import org.obiba.magma.ValueTableWriter.VariableWriter;
 import org.obiba.magma.support.VariableEntityBean;
 import org.obiba.magma.test.AbstractMagmaTest;
@@ -114,6 +115,22 @@ public class JdbcDatasourceTest extends AbstractMagmaTest {
           variableWriter.close();
         } catch(IOException ex) {
           fail("Failed to close variableWriter");
+        }
+      }
+
+      // Write a value set.
+      VariableEntity myEntity1 = new VariableEntityBean("Participant", "1");
+      ValueSetWriter valueSetWriter = tableWriter.writeValueSet(myEntity1);
+      try {
+        Variable myVar1 = jdbcDatasource.getValueTable("my_table").getVariable("my_var1");
+        Variable myVar2 = jdbcDatasource.getValueTable("my_table").getVariable("my_var2");
+        valueSetWriter.writeValue(myVar1, IntegerType.get().valueOf(77));
+        valueSetWriter.writeValue(myVar2, IntegerType.get().valueOf(78));
+      } finally {
+        try {
+          valueSetWriter.close();
+        } catch(IOException ex) {
+          fail("Failed to close valueSetWriter");
         }
       }
     } finally {
