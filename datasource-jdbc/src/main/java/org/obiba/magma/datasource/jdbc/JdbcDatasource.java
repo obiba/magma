@@ -96,7 +96,6 @@ public class JdbcDatasource extends AbstractDatasource {
   protected void onInitialise() {
     try {
       database = DatabaseFactory.getInstance().findCorrectDatabaseImplementation(jdbcTemplate.getDataSource().getConnection());
-      snapshot = database.createDatabaseSnapshot(null, null);
       /*
        * if(snapshot.getTable("variables") == null) { CreateTableChange ctc = new CreateTableChange();
        * ctc.setTableName("variables");
@@ -122,7 +121,7 @@ public class JdbcDatasource extends AbstractDatasource {
 
   protected Set<String> getValueTableNames() {
     Set<String> names = new LinkedHashSet<String>();
-    for(Table table : snapshot.getTables()) {
+    for(Table table : getDatabaseSnapshot().getTables()) {
       if(RESERVED_NAMES.contains(table.getName().toLowerCase()) == false) {
         names.add(table.getName());
       }
@@ -131,7 +130,7 @@ public class JdbcDatasource extends AbstractDatasource {
   }
 
   protected ValueTable initialiseValueTable(String tableName) {
-    return new JdbcValueTable(this, snapshot.getTable(tableName), "Participant");
+    return new JdbcValueTable(this, getDatabaseSnapshot().getTable(tableName), "Participant");
   }
 
   //
@@ -143,15 +142,18 @@ public class JdbcDatasource extends AbstractDatasource {
   }
 
   DatabaseSnapshot getDatabaseSnapshot() {
+    if(snapshot == null) {
+      try {
+        snapshot = database.createDatabaseSnapshot(null, null);
+      } catch(JDBCException e) {
+        throw new MagmaRuntimeException(e);
+      }
+    }
     return snapshot;
   }
 
-  void refreshDatabaseSnapshot() {
-    try {
-      snapshot = database.createDatabaseSnapshot(null, null);
-    } catch(JDBCException e) {
-      throw new MagmaRuntimeException(e);
-    }
+  void databaseChanged() {
+    snapshot = null;
   }
 
   JdbcTemplate getJdbcTemplate() {

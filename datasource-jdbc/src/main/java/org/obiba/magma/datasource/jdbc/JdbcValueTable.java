@@ -50,7 +50,7 @@ public class JdbcValueTable extends AbstractValueTable {
 
     if(getDatasource().getDatabaseSnapshot().getTable(settings.getSqlTableName()) == null) {
       createSqlTable(settings.getSqlTableName());
-      getDatasource().refreshDatabaseSnapshot();
+      getDatasource().databaseChanged();
     }
     this.table = getDatasource().getDatabaseSnapshot().getTable(settings.getSqlTableName());
   }

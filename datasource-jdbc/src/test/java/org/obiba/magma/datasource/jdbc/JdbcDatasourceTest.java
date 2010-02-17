@@ -88,6 +88,8 @@ public class JdbcDatasourceTest extends AbstractMagmaTest {
     assertEquals(IntegerType.get().valueOf(65), bdTable.getValue(bdTable.getVariable("BD_2"), vs1234_2));
     assertEquals(IntegerType.get().valueOf(65), bdTable.getValue(bdTable.getVariable("BD"), vs1234_3));
     assertEquals(IntegerType.get().valueOf(65), bdTable.getValue(bdTable.getVariable("BD_2"), vs1234_3));
+
+    jdbcDatasource.dispose();
   }
 
   @Test
@@ -122,6 +124,7 @@ public class JdbcDatasourceTest extends AbstractMagmaTest {
       }
     }
 
+    jdbcDatasource.dispose();
   }
 
   //
