@@ -93,11 +93,11 @@ public class JdbcDatasourceTest extends AbstractMagmaTest {
     jdbcDatasource.initialise();
 
     // Create a new ValueTable.
-    ValueTableWriter tableWriter = jdbcDatasource.createWriter("my_table", null);
+    ValueTableWriter tableWriter = jdbcDatasource.createWriter("MY_TABLE", null);
     try {
       assertNotNull(tableWriter);
       assertEquals("my-datasource-nodb", jdbcDatasource.getName());
-      assertTrue(jdbcDatasource.hasValueTable("my_table"));
+      assertTrue(jdbcDatasource.hasValueTable("MY_TABLE"));
 
       // Write some variables.
       VariableWriter variableWriter = tableWriter.writeVariables();
@@ -116,8 +116,8 @@ public class JdbcDatasourceTest extends AbstractMagmaTest {
       VariableEntity myEntity1 = new VariableEntityBean("Participant", "1");
       ValueSetWriter valueSetWriter = tableWriter.writeValueSet(myEntity1);
       try {
-        Variable myVar1 = jdbcDatasource.getValueTable("my_table").getVariable("my_var1");
-        Variable myVar2 = jdbcDatasource.getValueTable("my_table").getVariable("my_var2");
+        Variable myVar1 = jdbcDatasource.getValueTable("MY_TABLE").getVariable("my_var1");
+        Variable myVar2 = jdbcDatasource.getValueTable("MY_TABLE").getVariable("my_var2");
         valueSetWriter.writeValue(myVar1, IntegerType.get().valueOf(77));
         valueSetWriter.writeValue(myVar2, IntegerType.get().valueOf(78));
       } finally {
