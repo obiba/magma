@@ -103,49 +103,65 @@ public class DatasourceCopier {
 
     log.info("Copying Datasource '{}' to '{}'.", source.getName(), destination.getName());
     for(ValueTable table : source.getValueTables()) {
-      notifyListeners(table, false);
       copy(table, destination);
-      notifyListeners(table, true);
     }
   }
 
   public void copy(ValueTable table, Datasource destination) throws IOException {
     log.info("Copying ValueTable '{}' to Datasource '{}' (copyMetadata={}, copyValues={}).", new Object[] { table.getName(), destination.getName(), copyMetadata, copyValues });
     // TODO: the target ValueTable name should probably be renamed to include the source Datasource's name
+    notifyListeners(table, false);
     ValueTableWriter vtw = destination.createWriter(table.getName(), table.getEntityType());
     try {
-      if(copyMetadata) {
-        VariableWriter vw = vtw.writeVariables();
-        try {
-          for(Variable variable : table.getVariables()) {
-            notifyListeners(variable, false);
-            vw.writeVariable(variable);
-            notifyListeners(variable, true);
-          }
-        } finally {
-          vw.close();
-        }
-      }
-
-      if(copyValues) {
-        for(ValueSet valueSet : table.getValueSets()) {
-          notifyListeners(valueSet, false);
-          ValueSetWriter vsw = vtw.writeValueSet(valueSet.getVariableEntity());
-          try {
-            for(Variable variable : table.getVariables()) {
-              Value value = table.getValue(variable, valueSet);
-              if(value.isNull() == false || copyNullValues) {
-                vsw.writeValue(variable, value);
-              }
-            }
-          } finally {
-            vsw.close();
-          }
-          notifyListeners(valueSet, true);
-        }
-      }
+      copy(table, vtw);
     } finally {
       vtw.close();
+      notifyListeners(table, true);
+    }
+  }
+
+  public void copy(ValueTable table, ValueTableWriter vtw) throws IOException {
+    if(copyMetadata) {
+      VariableWriter vw = vtw.writeVariables();
+      try {
+        copy(table, vw);
+      } finally {
+        vw.close();
+      }
+    }
+
+    if(copyValues) {
+      for(ValueSet valueSet : table.getValueSets()) {
+        ValueSetWriter vsw = vtw.writeValueSet(valueSet.getVariableEntity());
+        try {
+          copy(table, valueSet, vsw);
+        } finally {
+          vsw.close();
+        }
+      }
+    }
+  }
+
+  public void copy(ValueTable table, VariableWriter vw) {
+    if(copyMetadata) {
+      for(Variable variable : table.getVariables()) {
+        notifyListeners(variable, false);
+        vw.writeVariable(variable);
+        notifyListeners(variable, true);
+      }
+    }
+  }
+
+  public void copy(ValueTable table, ValueSet valueSet, ValueSetWriter vsw) {
+    if(copyValues) {
+      notifyListeners(valueSet, false);
+      for(Variable variable : table.getVariables()) {
+        Value value = table.getValue(variable, valueSet);
+        if(value.isNull() == false || copyNullValues) {
+          vsw.writeValue(variable, value);
+        }
+      }
+      notifyListeners(valueSet, true);
     }
   }
 
@@ -277,6 +293,8 @@ public class DatasourceCopier {
     private Datasource destination;
 
     public VariableEntityCopyEventListener(VariableEntityAuditLogManager auditLogManager, Datasource destination) {
+      if(auditLogManager == null) throw new IllegalArgumentException("auditLogManager cannot be null");
+      if(destination == null) throw new IllegalArgumentException("destination cannot be null");
       this.auditLogManager = auditLogManager;
       this.destination = destination;
     }

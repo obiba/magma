@@ -9,8 +9,6 @@ import java.util.Set;
 import org.obiba.magma.AbstractAttributeAware;
 import org.obiba.magma.Attribute;
 import org.obiba.magma.Datasource;
-import org.obiba.magma.Disposable;
-import org.obiba.magma.Initialisable;
 import org.obiba.magma.NoSuchValueTableException;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueTable;
@@ -81,22 +79,19 @@ public abstract class AbstractDatasource extends AbstractAttributeAware implemen
   public void initialise() {
     onInitialise();
     for(String valueTable : getValueTableNames()) {
-      addValueTable(initialiseValueTable(valueTable));
+      ValueTable vt = initialiseValueTable(valueTable);
+      Initialisables.initialise(vt);
+      addValueTable(vt);
     }
   }
 
   @Override
   public void dispose() {
-    for(Disposable disposable : Iterables.filter(getValueTables(), Disposable.class)) {
-      disposable.dispose();
-    }
+    Disposables.dispose(getValueTables());
     onDispose();
   }
 
   protected void addValueTable(ValueTable vt) {
-    if(vt instanceof Initialisable) {
-      ((Initialisable) vt).initialise();
-    }
     valueTables.add(vt);
   }
 

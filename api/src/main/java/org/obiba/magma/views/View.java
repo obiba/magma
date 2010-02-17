@@ -71,7 +71,7 @@ public class View extends AbstractValueTableWrapper implements Initialisable {
 
   @Override
   public Datasource getDatasource() {
-    return viewDatasource;
+    return viewDatasource != null ? viewDatasource : getWrappedValueTable().getDatasource();
   }
 
   public ValueTable getWrappedValueTable() {

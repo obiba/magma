@@ -12,6 +12,9 @@ public class VariableEntityConverter implements HibernateConverter<VariableEntit
 
   @Override
   public VariableEntityState marshal(VariableEntity variableEntity, HibernateMarshallingContext context) {
+    if(variableEntity == null) throw new IllegalArgumentException("variableEntity cannot be null");
+    if(context == null) throw new IllegalArgumentException("context cannot be null");
+
     VariableEntityState variableEntityState = (VariableEntityState) context.getSessionFactory().getCurrentSession().createCriteria(VariableEntityState.class).add(Restrictions.eq("identifier", variableEntity.getIdentifier())).add(Restrictions.eq("type", variableEntity.getType())).uniqueResult();
     if(variableEntityState == null) {
       variableEntityState = new VariableEntityState(variableEntity.getIdentifier(), variableEntity.getType());

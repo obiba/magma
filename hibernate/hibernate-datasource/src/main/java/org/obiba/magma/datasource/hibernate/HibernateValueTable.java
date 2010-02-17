@@ -1,8 +1,10 @@
 package org.obiba.magma.datasource.hibernate;
 
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.obiba.core.service.impl.hibernate.AssociationCriteria;
@@ -11,8 +13,9 @@ import org.obiba.magma.Initialisable;
 import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.NoSuchValueSetException;
 import org.obiba.magma.ValueSet;
-import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
+import org.obiba.magma.VariableValueSource;
+import org.obiba.magma.datasource.hibernate.converter.HibernateMarshallingContext;
 import org.obiba.magma.datasource.hibernate.domain.ValueSetState;
 import org.obiba.magma.datasource.hibernate.domain.ValueTableState;
 import org.obiba.magma.support.AbstractValueTable;
@@ -20,23 +23,20 @@ import org.obiba.magma.support.AbstractVariableEntityProvider;
 import org.obiba.magma.support.ValueSetBean;
 import org.obiba.magma.support.VariableEntityBean;
 
-public class HibernateValueTable extends AbstractValueTable {
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Iterables;
+
+class HibernateValueTable extends AbstractValueTable {
 
   private Serializable valueTableId;
 
   private HibernateVariableEntityProvider variableEntityProvider;
 
-  private HibernateVariableValueSourceFactory variableValueSourceFactory;
-
-  public HibernateValueTable(HibernateDatasource datasource, ValueTableState state) {
+  HibernateValueTable(HibernateDatasource datasource, ValueTableState state) {
     super(datasource, state.getName());
     this.valueTableId = state.getId();
     super.setVariableEntityProvider(variableEntityProvider = new HibernateVariableEntityProvider(state.getEntityType()));
-  }
-
-  public HibernateValueTable(HibernateDatasource datasource, String tableName, String entityType) {
-    super(datasource, tableName);
-    super.setVariableEntityProvider(variableEntityProvider = new HibernateVariableEntityProvider(entityType));
   }
 
   @Override
@@ -47,7 +47,6 @@ public class HibernateValueTable extends AbstractValueTable {
       variableEntityProvider.initialise();
       readVariables();
     } catch(RuntimeException e) {
-      e.printStackTrace();
       throw e;
     } catch(Exception e) {
       throw new MagmaRuntimeException(e);
@@ -74,15 +73,32 @@ public class HibernateValueTable extends AbstractValueTable {
     throw new NoSuchValueSetException(this, entity);
   }
 
-  public void addVariableValueSource(Variable variable) {
-    if(variableValueSourceFactory == null) {
-      variableValueSourceFactory = new HibernateVariableValueSourceFactory(this);
+  /**
+   * Overridden to include uncommitted sources when a transaction exists on this table and is visible in the current
+   * session.
+   */
+  protected List<VariableValueSource> getSources() {
+    if(getDatasource().hasTableTransaction(getName())) {
+      return new ImmutableList.Builder<VariableValueSource>().addAll(super.getSources()).addAll(getDatasource().getTableTransaction(getName()).getUncommittedSources()).build();
+    } else {
+      return Collections.unmodifiableList(super.getSources());
     }
-    super.addVariableValueSource(variableValueSourceFactory.createSource(variable));
   }
 
   ValueTableState getValueTableState() {
     return (ValueTableState) this.getDatasource().getSessionFactory().getCurrentSession().get(ValueTableState.class, valueTableId);
+  }
+
+  HibernateMarshallingContext createContext() {
+    return getDatasource().createContext(getValueTableState());
+  }
+
+  void commitEntities(final Collection<VariableEntity> newEntities) {
+    this.variableEntityProvider.entities.addAll(newEntities);
+  }
+
+  void commitSources(final Collection<VariableValueSource> newSources) {
+    super.addVariableValueSources(newSources);
   }
 
   private void readVariables() {
@@ -106,7 +122,7 @@ public class HibernateValueTable extends AbstractValueTable {
 
   public class HibernateVariableEntityProvider extends AbstractVariableEntityProvider implements Initialisable {
 
-    private Set<VariableEntity> entities;
+    private Set<VariableEntity> entities = new LinkedHashSet<VariableEntity>();
 
     public HibernateVariableEntityProvider(String entityType) {
       super(entityType);
@@ -114,7 +130,6 @@ public class HibernateValueTable extends AbstractValueTable {
 
     @Override
     public void initialise() {
-      entities = new LinkedHashSet<VariableEntity>();
       // get the variable entities that have a value set in the table
       AssociationCriteria criteria = AssociationCriteria.create(ValueSetState.class, getDatasource().getSessionFactory().getCurrentSession()).add("valueTable.id", Operation.eq, valueTableId);
       for(Object obj : criteria.list()) {
@@ -123,11 +138,18 @@ public class HibernateValueTable extends AbstractValueTable {
       }
     }
 
+    /**
+     * Returns the set of entities in this table. Will also include uncommitted entities when a transaction is active
+     * for this table in the current session.
+     */
     @Override
     public Set<VariableEntity> getVariableEntities() {
-      return Collections.unmodifiableSet(entities);
+      if(getDatasource().hasTableTransaction(getName())) {
+        return ImmutableSet.copyOf(Iterables.concat(entities, getDatasource().getTableTransaction(getName()).getUncommittedEntities()));
+      } else {
+        return Collections.unmodifiableSet(entities);
+      }
     }
-
   }
 
 }

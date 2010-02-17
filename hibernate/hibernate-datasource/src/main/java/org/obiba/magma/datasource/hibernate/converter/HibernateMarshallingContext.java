@@ -2,12 +2,15 @@ package org.obiba.magma.datasource.hibernate.converter;
 
 import org.hibernate.SessionFactory;
 import org.obiba.magma.AttributeAwareBuilder;
+import org.obiba.magma.datasource.hibernate.domain.DatasourceState;
 import org.obiba.magma.datasource.hibernate.domain.ValueSetState;
 import org.obiba.magma.datasource.hibernate.domain.ValueTableState;
 import org.obiba.magma.datasource.hibernate.domain.VariableState;
 import org.obiba.magma.datasource.hibernate.domain.attribute.AbstractAttributeAwareEntity;
 
 public class HibernateMarshallingContext {
+
+  private DatasourceState datasourceState;
 
   private ValueTableState valueTable;
 
@@ -21,15 +24,23 @@ public class HibernateMarshallingContext {
 
   private SessionFactory sessionFactory;
 
-  public static HibernateMarshallingContext create(SessionFactory sessionFactory) {
-    return create(sessionFactory, null);
+  public static HibernateMarshallingContext create(SessionFactory sessionFactory, DatasourceState datasourceState) {
+    return create(sessionFactory, datasourceState, null);
   }
 
-  public static HibernateMarshallingContext create(SessionFactory sessionFactory, ValueTableState valueTable) {
+  public static HibernateMarshallingContext create(SessionFactory sessionFactory, DatasourceState datasourceState, ValueTableState valueTable) {
+    if(sessionFactory == null) throw new IllegalArgumentException("sessionFactory cannot be null");
+    if(datasourceState == null) throw new IllegalArgumentException("datasourceState cannot be null");
+
     HibernateMarshallingContext context = new HibernateMarshallingContext();
     context.sessionFactory = sessionFactory;
+    context.datasourceState = datasourceState;
     context.valueTable = valueTable;
     return context;
+  }
+
+  public DatasourceState getDatasourceState() {
+    return datasourceState;
   }
 
   public ValueTableState getValueTable() {

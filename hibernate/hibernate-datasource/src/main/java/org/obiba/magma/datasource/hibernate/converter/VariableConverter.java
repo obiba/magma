@@ -14,10 +14,14 @@ public class VariableConverter implements HibernateConverter<VariableState, Vari
     return new VariableConverter();
   }
 
+  public VariableState getStateForVariable(Variable variable, HibernateMarshallingContext context) {
+    AssociationCriteria criteria = AssociationCriteria.create(VariableState.class, context.getSessionFactory().getCurrentSession()).add("valueTable", Operation.eq, context.getValueTable()).add("name", Operation.eq, variable.getName());
+    return (VariableState) criteria.getCriteria().uniqueResult();
+  }
+
   @Override
   public VariableState marshal(Variable variable, HibernateMarshallingContext context) {
-    AssociationCriteria criteria = AssociationCriteria.create(VariableState.class, context.getSessionFactory().getCurrentSession()).add("valueTable.id", Operation.eq, context.getValueTable().getId()).add("name", Operation.eq, variable.getName());
-    VariableState variableState = (VariableState) criteria.getCriteria().uniqueResult();
+    VariableState variableState = getStateForVariable(variable, context);
     if(variableState == null) {
       variableState = new VariableState(context.getValueTable(), variable);
       context.getSessionFactory().getCurrentSession().save(variableState);

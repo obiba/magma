@@ -20,34 +20,30 @@ import org.obiba.magma.datasource.hibernate.converter.VariableConverter;
 import org.obiba.magma.datasource.hibernate.domain.ValueSetValue;
 import org.obiba.magma.datasource.hibernate.domain.VariableState;
 
-public class HibernateVariableValueSourceFactory implements VariableValueSourceFactory {
+class HibernateVariableValueSourceFactory implements VariableValueSourceFactory {
 
-  private HibernateValueTable valueTable;
+  private final HibernateValueTable valueTable;
 
-  public HibernateVariableValueSourceFactory(HibernateValueTable valueTable) {
+  HibernateVariableValueSourceFactory(HibernateValueTable valueTable) {
     super();
+    if(valueTable == null) throw new IllegalArgumentException("valueTable cannot be null");
     this.valueTable = valueTable;
   }
 
   @Override
   public Set<VariableValueSource> createSources() {
-    HibernateMarshallingContext ctx = HibernateMarshallingContext.create(getSessionFactory(), valueTable.getValueTableState());
     Set<VariableValueSource> sources = new LinkedHashSet<VariableValueSource>();
     AssociationCriteria criteria = AssociationCriteria.create(VariableState.class, getSessionFactory().getCurrentSession()).add("valueTable", Operation.eq, valueTable.getValueTableState()).addSortingClauses(SortingClause.create("pos"));
     for(Object obj : criteria.list()) {
       VariableState state = (VariableState) obj;
-      Variable variable = VariableConverter.getInstance().unmarshal(state, ctx);
-      HibernateVariableValueSource source = new HibernateVariableValueSource(variable, state);
+      HibernateVariableValueSource source = new HibernateVariableValueSource(state);
       sources.add(source);
     }
     return sources;
   }
 
-  public VariableValueSource createSource(Variable variable) {
-    AssociationCriteria criteria = AssociationCriteria.create(VariableState.class, getSessionFactory().getCurrentSession()).add("valueTable", Operation.eq, valueTable.getValueTableState()).add("name", Operation.eq, variable.getName());
-    VariableState variableState = (VariableState) criteria.getCriteria().uniqueResult();
-
-    HibernateVariableValueSource source = new HibernateVariableValueSource(variable, variableState);
+  VariableValueSource createSource(VariableState variableState) {
+    HibernateVariableValueSource source = new HibernateVariableValueSource(variableState);
     return source;
   }
 
@@ -57,18 +53,23 @@ public class HibernateVariableValueSourceFactory implements VariableValueSourceF
 
   private class HibernateVariableValueSource implements VariableValueSource {
 
-    private Serializable variableId;
+    private final Serializable variableId;
 
     private Variable variable;
 
-    public HibernateVariableValueSource(Variable variable, VariableState state) {
-      super();
-      this.variable = variable;
+    public HibernateVariableValueSource(VariableState state) {
+      if(state == null) throw new IllegalArgumentException("state cannot be null");
+      if(state.getId() == null) throw new IllegalArgumentException("state must be persisted");
       this.variableId = state.getId();
     }
 
     @Override
-    public Variable getVariable() {
+    public synchronized Variable getVariable() {
+      if(variable == null) {
+        HibernateMarshallingContext ctx = valueTable.createContext();
+        VariableState state = (VariableState) getSessionFactory().getCurrentSession().load(VariableState.class, variableId);
+        variable = VariableConverter.getInstance().unmarshal(state, ctx);
+      }
       return variable;
     }
 

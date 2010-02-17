@@ -45,4 +45,9 @@ public final class Disposables {
     }
   }
 
+  public static final void dispose(final Iterable<?> disposables) {
+    for(Object o : disposables) {
+      dispose(o);
+    }
+  }
 }
