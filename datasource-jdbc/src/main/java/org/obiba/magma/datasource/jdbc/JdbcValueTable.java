@@ -67,9 +67,7 @@ public class JdbcValueTable extends AbstractValueTable {
   public void initialise() {
     super.initialise();
 
-    for(Column column : table.getColumns()) {
-      addVariableValueSource(new JdbcVariableValueSource(settings.getEntityType(), column));
-    }
+    initialiseVariableValueSources();
 
     JdbcVariableEntityProvider variableEntityProvider = new JdbcVariableEntityProvider();
     variableEntityProvider.initialise();
@@ -122,6 +120,45 @@ public class JdbcValueTable extends AbstractValueTable {
     return entityIdentifierColumns;
   }
 
+  @SuppressWarnings("unchecked")
+  private void initialiseVariableValueSources() {
+    if(getDatasource().getSettings().useMetadataTables()) {
+      if(getDatasource().getDatabaseSnapshot().getTable("variables") == null) {
+        throw new MagmaRuntimeException("metadata tables not found");
+      }
+
+      StringBuilder sql = new StringBuilder();
+      sql.append("SELECT *");
+      sql.append(" FROM variables ");
+      sql.append(" WHERE value_table = ?");
+
+      List<Variable> results = getDatasource().getJdbcTemplate().query(sql.toString(), new Object[] { getSqlName() }, new RowMapper() {
+        public Object mapRow(ResultSet rs, int rowNum) throws SQLException {
+          return buildVariableFromResultSet(rs);
+        }
+      });
+
+      for(Variable variable : results) {
+        System.out.println("Adding variable: " + variable.getName());
+        addVariableValueSource(new JdbcVariableValueSource(variable));
+      }
+    } else {
+      for(Column column : table.getColumns()) {
+        if(!getSettings().getEntityIdentifierColumns().contains(column.getName())) {
+          addVariableValueSource(new JdbcVariableValueSource(settings.getEntityType(), column));
+        }
+      }
+    }
+  }
+
+  private Variable buildVariableFromResultSet(ResultSet rs) throws SQLException {
+    String variableName = rs.getString("name");
+    ValueType valueType = ValueType.Factory.forName(rs.getString("value_type"));
+
+    Variable.Builder builder = Variable.Builder.newVariable(variableName, valueType, getEntityType());
+    return builder.build();
+  }
+
   private void createSqlTable(String sqlTableName) {
     Database database = getDatasource().getDatabase();
 
@@ -151,7 +188,7 @@ public class JdbcValueTable extends AbstractValueTable {
   // Inner Classes
   //
 
-  public class JdbcVariableEntityProvider extends AbstractVariableEntityProvider implements Initialisable {
+  class JdbcVariableEntityProvider extends AbstractVariableEntityProvider implements Initialisable {
 
     private Set<VariableEntity> entities;
 
@@ -227,6 +264,10 @@ public class JdbcValueTable extends AbstractValueTable {
 
     JdbcVariableValueSource(String entityType, ColumnConfig columnConfig) {
       this.variable = Variable.Builder.newVariable(columnConfig.getName(), SqlTypes.valueTypeFor(columnConfig.getType()), entityType).build();
+    }
+
+    JdbcVariableValueSource(Variable variable) {
+      this.variable = variable;
     }
 
     //

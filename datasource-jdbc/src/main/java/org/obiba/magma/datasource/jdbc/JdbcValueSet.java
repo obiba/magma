@@ -78,10 +78,12 @@ public class JdbcValueSet extends ValueSetBean {
       public Object extractData(ResultSet rs) throws SQLException {
         // Cache the data.
         rs.next();
-        for(int i = 1; i <= getValueTable().getVariables().size(); i++) {
-          String variableName = NameConverter.toMagmaVariableName(rs.getMetaData().getColumnName(i));
-          Value variableValue = SqlTypes.valueTypeFor(rs.getMetaData().getColumnType(i)).valueOf(rs.getObject(i));
-          resultSetCache.put(variableName, variableValue);
+        for(int i = 1; i <= rs.getMetaData().getColumnCount(); i++) {
+          if(!getValueTable().getSettings().getEntityIdentifierColumns().contains(rs.getMetaData().getColumnName(i))) {
+            String variableName = NameConverter.toMagmaVariableName(rs.getMetaData().getColumnName(i));
+            Value variableValue = SqlTypes.valueTypeFor(rs.getMetaData().getColumnType(i)).valueOf(rs.getObject(i));
+            resultSetCache.put(variableName, variableValue);
+          }
         }
 
         // Just return null. We have everything we need in the cache.

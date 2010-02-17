@@ -61,8 +61,8 @@ public class JdbcDatasource extends AbstractDatasource {
     this.jdbcTemplate = new JdbcTemplate(datasource);
   }
 
-  public JdbcDatasource(String name, DataSource datasource, String defaultEntityType) {
-    this(name, datasource, new JdbcDatasourceSettings(defaultEntityType, null, null));
+  public JdbcDatasource(String name, DataSource datasource, String defaultEntityType, boolean useMetadataTables) {
+    this(name, datasource, new JdbcDatasourceSettings(defaultEntityType, null, null, useMetadataTables));
   }
 
   //
@@ -136,6 +136,10 @@ public class JdbcDatasource extends AbstractDatasource {
   //
   // Methods
   //
+
+  public JdbcDatasourceSettings getSettings() {
+    return settings;
+  }
 
   Database getDatabase() {
     return database;

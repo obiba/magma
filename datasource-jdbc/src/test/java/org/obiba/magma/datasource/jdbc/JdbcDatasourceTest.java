@@ -53,49 +53,18 @@ public class JdbcDatasourceTest extends AbstractMagmaTest {
   @Dataset
   @Test
   public void testCreateDatasourceFromExistingDatabase() {
-    JdbcDatasource jdbcDatasource = new JdbcDatasource("my-datasource", dataSource, "Participant");
-    jdbcDatasource.initialise();
+    testCreateDatasourceFromExistingDatabase(false);
+  }
 
-    assertNotNull(jdbcDatasource);
-    assertEquals("my-datasource", jdbcDatasource.getName());
-
-    assertEquals(1, jdbcDatasource.getValueTables().size());
-    assertTrue(jdbcDatasource.hasValueTable("BONE_DENSITY"));
-    ValueTable bdTable = jdbcDatasource.getValueTable("BONE_DENSITY");
-    assertEquals("Participant", bdTable.getEntityType());
-
-    // Check variables.
-    int variableCount = 0;
-    for(Variable variable : bdTable.getVariables()) {
-      variableCount++;
-    }
-    assertEquals(4, variableCount);
-
-    // Check entities and value sets.
-    int valueSetCount = 0;
-    for(ValueSet valueSet : bdTable.getValueSets()) {
-      valueSetCount++;
-    }
-    assertEquals(2, valueSetCount);
-    VariableEntity entity1234_2 = new VariableEntityBean(bdTable.getEntityType(), "1234-2");
-    VariableEntity entity1234_3 = new VariableEntityBean(bdTable.getEntityType(), "1234-3");
-    assertTrue(bdTable.hasValueSet(entity1234_2));
-    assertTrue(bdTable.hasValueSet(entity1234_3));
-
-    // Check variable values.
-    ValueSet vs1234_2 = bdTable.getValueSet(entity1234_2);
-    ValueSet vs1234_3 = bdTable.getValueSet(entity1234_3);
-    assertEquals(IntegerType.get().valueOf(64), bdTable.getValue(bdTable.getVariable("BD"), vs1234_2));
-    assertEquals(IntegerType.get().valueOf(65), bdTable.getValue(bdTable.getVariable("BD_2"), vs1234_2));
-    assertEquals(IntegerType.get().valueOf(65), bdTable.getValue(bdTable.getVariable("BD"), vs1234_3));
-    assertEquals(IntegerType.get().valueOf(65), bdTable.getValue(bdTable.getVariable("BD_2"), vs1234_3));
-
-    jdbcDatasource.dispose();
+  @Dataset
+  @Test
+  public void testCreateDatasourceFromExistingDatabaseUsingMetadataTables() {
+    testCreateDatasourceFromExistingDatabase(true);
   }
 
   @Test
   public void testCreateDatasourceFromScratch() { // i.e., no existing database
-    JdbcDatasource jdbcDatasource = new JdbcDatasource("my-datasource-nodb", dataSource, "Participant");
+    JdbcDatasource jdbcDatasource = new JdbcDatasource("my-datasource-nodb", dataSource, "Participant", false);
     jdbcDatasource.initialise();
 
     // Create a new ValueTable.
@@ -140,6 +109,51 @@ public class JdbcDatasourceTest extends AbstractMagmaTest {
         fail("Failed to close tableWriter");
       }
     }
+
+    jdbcDatasource.dispose();
+  }
+
+  //
+  // Methods
+  //
+
+  private void testCreateDatasourceFromExistingDatabase(boolean useMetadataTables) {
+    JdbcDatasource jdbcDatasource = new JdbcDatasource("my-datasource", dataSource, "Participant", useMetadataTables);
+    jdbcDatasource.initialise();
+
+    assertNotNull(jdbcDatasource);
+    assertEquals("my-datasource", jdbcDatasource.getName());
+
+    assertEquals(1, jdbcDatasource.getValueTables().size());
+    assertTrue(jdbcDatasource.hasValueTable("BONE_DENSITY"));
+    ValueTable bdTable = jdbcDatasource.getValueTable("BONE_DENSITY");
+    assertEquals("Participant", bdTable.getEntityType());
+
+    // Check variables.
+    int variableCount = 0;
+    for(Variable variable : bdTable.getVariables()) {
+      variableCount++;
+    }
+    assertEquals(2, variableCount);
+
+    // Check entities and value sets.
+    int valueSetCount = 0;
+    for(ValueSet valueSet : bdTable.getValueSets()) {
+      valueSetCount++;
+    }
+    assertEquals(2, valueSetCount);
+    VariableEntity entity1234_2 = new VariableEntityBean(bdTable.getEntityType(), "1234-2");
+    VariableEntity entity1234_3 = new VariableEntityBean(bdTable.getEntityType(), "1234-3");
+    assertTrue(bdTable.hasValueSet(entity1234_2));
+    assertTrue(bdTable.hasValueSet(entity1234_3));
+
+    // Check variable values.
+    ValueSet vs1234_2 = bdTable.getValueSet(entity1234_2);
+    assertEquals(IntegerType.get().valueOf(64), bdTable.getValue(bdTable.getVariable("BD"), vs1234_2));
+    assertEquals(IntegerType.get().valueOf(65), bdTable.getValue(bdTable.getVariable("BD_2"), vs1234_2));
+    ValueSet vs1234_3 = bdTable.getValueSet(entity1234_3);
+    assertEquals(IntegerType.get().valueOf(65), bdTable.getValue(bdTable.getVariable("BD"), vs1234_3));
+    assertEquals(IntegerType.get().valueOf(65), bdTable.getValue(bdTable.getVariable("BD_2"), vs1234_3));
 
     jdbcDatasource.dispose();
   }

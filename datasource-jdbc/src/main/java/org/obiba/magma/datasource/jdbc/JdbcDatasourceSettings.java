@@ -15,11 +15,13 @@ public class JdbcDatasourceSettings {
 
   private Set<JdbcValueTableSettings> tableSettings;
 
+  private boolean useMetadataTables;
+
   //
   // Constructors
   //
 
-  public JdbcDatasourceSettings(String defaultEntityType, Set<String> mappedTables, Set<JdbcValueTableSettings> tableSettings) {
+  public JdbcDatasourceSettings(String defaultEntityType, Set<String> mappedTables, Set<JdbcValueTableSettings> tableSettings, boolean useMetadataTables) {
     if(defaultEntityType == null) {
       throw new IllegalArgumentException("null defaultEntityType");
     }
@@ -36,6 +38,8 @@ public class JdbcDatasourceSettings {
       tableSettingsBuilder.addAll(tableSettings);
     }
     this.tableSettings = tableSettingsBuilder.build();
+
+    this.useMetadataTables = useMetadataTables;
   }
 
   //
@@ -74,5 +78,9 @@ public class JdbcDatasourceSettings {
       }
     }
     return null;
+  }
+
+  public boolean useMetadataTables() {
+    return useMetadataTables;
   }
 }
