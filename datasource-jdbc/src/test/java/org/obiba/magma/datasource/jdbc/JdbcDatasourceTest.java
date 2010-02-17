@@ -53,13 +53,33 @@ public class JdbcDatasourceTest extends AbstractMagmaTest {
   @Dataset
   @Test
   public void testCreateDatasourceFromExistingDatabase() {
-    testCreateDatasourceFromExistingDatabase(false);
+    JdbcDatasource jdbcDatasource = new JdbcDatasource("my-datasource", dataSource, "Participant", false);
+    jdbcDatasource.initialise();
+
+    testCreateDatasourceFromExistingDatabase(jdbcDatasource);
+
+    jdbcDatasource.dispose();
   }
 
   @Dataset
   @Test
   public void testCreateDatasourceFromExistingDatabaseUsingMetadataTables() {
-    testCreateDatasourceFromExistingDatabase(true);
+    JdbcDatasource jdbcDatasource = new JdbcDatasource("my-datasource", dataSource, "Participant", true);
+    jdbcDatasource.initialise();
+
+    testCreateDatasourceFromExistingDatabase(jdbcDatasource);
+
+    ValueTable valueTable = jdbcDatasource.getValueTable("BONE_DENSITY");
+    Variable bdVar = valueTable.getVariable("BD");
+    Variable bdVar2 = valueTable.getVariable("BD_2");
+
+    // Verify variable attributes.
+    assertTrue(bdVar.hasAttribute("description"));
+    assertEquals("BD description", bdVar.getAttributeValue("description").toString());
+    assertTrue(bdVar2.hasAttribute("description"));
+    assertEquals("BD_2 description", bdVar2.getAttributeValue("description").toString());
+
+    jdbcDatasource.dispose();
   }
 
   @Test
@@ -117,10 +137,7 @@ public class JdbcDatasourceTest extends AbstractMagmaTest {
   // Methods
   //
 
-  private void testCreateDatasourceFromExistingDatabase(boolean useMetadataTables) {
-    JdbcDatasource jdbcDatasource = new JdbcDatasource("my-datasource", dataSource, "Participant", useMetadataTables);
-    jdbcDatasource.initialise();
-
+  private void testCreateDatasourceFromExistingDatabase(JdbcDatasource jdbcDatasource) {
     assertNotNull(jdbcDatasource);
     assertEquals("my-datasource", jdbcDatasource.getName());
 
