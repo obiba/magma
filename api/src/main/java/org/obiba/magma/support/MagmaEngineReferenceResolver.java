@@ -56,11 +56,11 @@ public abstract class MagmaEngineReferenceResolver {
     return table.getValueSet(context.getVariableEntity());
   }
 
-  String getDatasourceName() {
+  public String getDatasourceName() {
     return datasourceName;
   }
 
-  String getTableName() {
+  public String getTableName() {
     return tableName;
   }
 
