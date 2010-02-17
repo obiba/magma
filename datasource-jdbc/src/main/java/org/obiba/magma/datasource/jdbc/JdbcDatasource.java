@@ -33,7 +33,7 @@ public class JdbcDatasource extends AbstractDatasource {
   // Instance Variables
   //
 
-  private Set<String> RESERVED_NAMES = ImmutableSet.of("variables");
+  private Set<String> RESERVED_NAMES = ImmutableSet.of("variables", "variable_attributes");
 
   private Database database;
 
@@ -96,19 +96,11 @@ public class JdbcDatasource extends AbstractDatasource {
   protected void onInitialise() {
     try {
       database = DatabaseFactory.getInstance().findCorrectDatabaseImplementation(jdbcTemplate.getDataSource().getConnection());
-      /*
-       * if(snapshot.getTable("variables") == null) { CreateTableChange ctc = new CreateTableChange();
-       * ctc.setTableName("variables");
-       * 
-       * ColumnConfig cc = new ColumnConfig(); cc.setName("name"); cc.setType("VARCHAR"); ctc.addColumn(cc);
-       * ctc.executeStatements(database, (List<SqlVisitor>) Collections.EMPTY_LIST); }
-       */
     } catch(JDBCException e) {
       throw new MagmaRuntimeException(e);
     } catch(SQLException e) {
       throw new MagmaRuntimeException(e);
     }
-
   }
 
   @Override

@@ -139,7 +139,6 @@ public class JdbcValueTable extends AbstractValueTable {
       });
 
       for(Variable variable : results) {
-        System.out.println("Adding variable: " + variable.getName());
         addVariableValueSource(new JdbcVariableValueSource(variable));
       }
     } else {
@@ -154,8 +153,23 @@ public class JdbcValueTable extends AbstractValueTable {
   private Variable buildVariableFromResultSet(ResultSet rs) throws SQLException {
     String variableName = rs.getString("name");
     ValueType valueType = ValueType.Factory.forName(rs.getString("value_type"));
+    final Variable.Builder builder = Variable.Builder.newVariable(variableName, valueType, getEntityType());
 
-    Variable.Builder builder = Variable.Builder.newVariable(variableName, valueType, getEntityType());
+    // Add attributes, if any.
+    StringBuilder sql = new StringBuilder();
+    sql.append("SELECT *");
+    sql.append(" FROM variable_attributes ");
+    sql.append(" WHERE value_table = ? AND variable_name = ?");
+
+    getDatasource().getJdbcTemplate().query(sql.toString(), new Object[] { getSqlName(), variableName }, new RowMapper() {
+      public Object mapRow(ResultSet rs, int rowNum) throws SQLException {
+        String attributeName = rs.getString("attribute_name");
+        String attributeValue = rs.getString("attribute_value");
+        builder.addAttribute(attributeName, attributeValue);
+        return attributeName;
+      }
+    });
+
     return builder.build();
   }
 
