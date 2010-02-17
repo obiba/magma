@@ -12,6 +12,7 @@ import javax.sql.DataSource;
 import org.junit.Test;
 import org.obiba.core.test.spring.Dataset;
 import org.obiba.core.test.spring.DbUnitAwareTestExecutionListener;
+import org.obiba.magma.Category;
 import org.obiba.magma.ValueSet;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.ValueTableWriter;
@@ -78,6 +79,10 @@ public class JdbcDatasourceTest extends AbstractMagmaTest {
     assertEquals("BD description", bdVar.getAttributeValue("description").toString());
     assertTrue(bdVar2.hasAttribute("description"));
     assertEquals("BD_2 description", bdVar2.getAttributeValue("description").toString());
+
+    // Verify categories.
+    assertTrue(hasCategory(bdVar, "PNA", "88"));
+    assertTrue(hasCategory(bdVar, "DNK", "99"));
 
     jdbcDatasource.dispose();
   }
@@ -173,6 +178,17 @@ public class JdbcDatasourceTest extends AbstractMagmaTest {
     assertEquals(IntegerType.get().valueOf(65), bdTable.getValue(bdTable.getVariable("BD_2"), vs1234_3));
 
     jdbcDatasource.dispose();
+  }
+
+  private boolean hasCategory(Variable variable, String categoryName, String categoryCode) {
+    if(variable.hasCategories()) {
+      for(Category category : variable.getCategories()) {
+        if(category.getName().equals(categoryName) && category.getCode().equals(categoryCode)) {
+          return true;
+        }
+      }
+    }
+    return false;
   }
 
   //

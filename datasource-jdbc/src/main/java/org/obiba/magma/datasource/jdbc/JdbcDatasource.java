@@ -33,7 +33,7 @@ public class JdbcDatasource extends AbstractDatasource {
   // Instance Variables
   //
 
-  private Set<String> RESERVED_NAMES = ImmutableSet.of("variables", "variable_attributes");
+  private Set<String> RESERVED_NAMES = ImmutableSet.of("variables", "variable_attributes", "categories");
 
   private Database database;
 
@@ -114,7 +114,7 @@ public class JdbcDatasource extends AbstractDatasource {
   protected Set<String> getValueTableNames() {
     Set<String> names = new LinkedHashSet<String>();
     for(Table table : getDatabaseSnapshot().getTables()) {
-      if(RESERVED_NAMES.contains(table.getName().toLowerCase()) == false) {
+      if(!RESERVED_NAMES.contains(table.getName().toLowerCase())) {
         names.add(table.getName());
       }
     }

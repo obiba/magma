@@ -153,9 +153,24 @@ public class JdbcValueTable extends AbstractValueTable {
   private Variable buildVariableFromResultSet(ResultSet rs) throws SQLException {
     String variableName = rs.getString("name");
     ValueType valueType = ValueType.Factory.forName(rs.getString("value_type"));
-    final Variable.Builder builder = Variable.Builder.newVariable(variableName, valueType, getEntityType());
+    String mimeType = rs.getString("mime_type");
+    String units = rs.getString("units");
+    boolean isRepeatable = rs.getBoolean("is_repeatable");
+    String occurrenceGroup = rs.getString("occurrence_group");
 
-    // Add attributes, if any.
+    final Variable.Builder builder = Variable.Builder.newVariable(variableName, valueType, getEntityType()).mimeType(mimeType).unit(units);
+    if(isRepeatable) {
+      builder.repeatable();
+      builder.occurrenceGroup(occurrenceGroup);
+    }
+
+    addVariableAttributes(variableName, builder);
+    addVariableCategories(variableName, builder);
+
+    return builder.build();
+  }
+
+  private void addVariableAttributes(String variableName, final Variable.Builder builder) {
     StringBuilder sql = new StringBuilder();
     sql.append("SELECT *");
     sql.append(" FROM variable_attributes ");
@@ -169,8 +184,22 @@ public class JdbcValueTable extends AbstractValueTable {
         return attributeName;
       }
     });
+  }
 
-    return builder.build();
+  private void addVariableCategories(String variableName, final Variable.Builder builder) {
+    StringBuilder sql = new StringBuilder();
+    sql.append("SELECT *");
+    sql.append(" FROM categories ");
+    sql.append(" WHERE value_table = ? AND variable_name = ?");
+
+    getDatasource().getJdbcTemplate().query(sql.toString(), new Object[] { getSqlName(), variableName }, new RowMapper() {
+      public Object mapRow(ResultSet rs, int rowNum) throws SQLException {
+        String categoryName = rs.getString("name");
+        String categoryCode = rs.getString("code");
+        builder.addCategory(categoryName, categoryCode);
+        return categoryName;
+      }
+    });
   }
 
   private void createSqlTable(String sqlTableName) {
