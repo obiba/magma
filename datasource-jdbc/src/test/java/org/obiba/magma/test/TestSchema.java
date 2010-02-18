@@ -13,7 +13,7 @@ public @interface TestSchema {
 
   public String schemaLocation() default "";
 
-  public String beforeSchema();
+  public String beforeSchema() default "";
 
-  public String afterSchema();
+  public String afterSchema() default "";
 }

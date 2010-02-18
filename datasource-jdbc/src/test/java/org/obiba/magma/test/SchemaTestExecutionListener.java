@@ -47,11 +47,13 @@ public class SchemaTestExecutionListener implements TestExecutionListener {
   private void handleAnnotation(TestContext testContext, TestSchema testSchemaAnnotation, boolean before) throws Exception {
     DataSource dataSource = (DataSource) testContext.getApplicationContext().getBean(testSchemaAnnotation.dataSourceBean());
     String sqlScript = before ? testSchemaAnnotation.beforeSchema() : testSchemaAnnotation.afterSchema();
-    String schemaLocation = testSchemaAnnotation.schemaLocation();
-    if(schemaLocation.length() != 0) {
-      sqlScript = schemaLocation + "/" + sqlScript;
-    }
+    if(sqlScript.length() != 0) {
+      String schemaLocation = testSchemaAnnotation.schemaLocation();
+      if(schemaLocation.length() != 0) {
+        sqlScript = schemaLocation + "/" + sqlScript;
+      }
 
-    SimpleJdbcTestUtils.executeSqlScript(new SimpleJdbcTemplate(dataSource), new ClassPathResource(sqlScript), true);
+      SimpleJdbcTestUtils.executeSqlScript(new SimpleJdbcTemplate(dataSource), new ClassPathResource(sqlScript), true);
+    }
   }
 }
