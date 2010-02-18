@@ -1,5 +1,9 @@
 package org.obiba.magma.datasource.jdbc;
 
+import static org.obiba.magma.datasource.jdbc.JdbcValueTableWriter.ATTRIBUTE_METADATA_TABLE;
+import static org.obiba.magma.datasource.jdbc.JdbcValueTableWriter.CATEGORY_METADATA_TABLE;
+import static org.obiba.magma.datasource.jdbc.JdbcValueTableWriter.VARIABLE_METADATA_TABLE;
+
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
@@ -33,7 +37,7 @@ public class JdbcDatasource extends AbstractDatasource {
   // Instance Variables
   //
 
-  private Set<String> RESERVED_NAMES = ImmutableSet.of("variables", "variable_attributes", "categories");
+  private Set<String> RESERVED_NAMES = ImmutableSet.of(VARIABLE_METADATA_TABLE, ATTRIBUTE_METADATA_TABLE, CATEGORY_METADATA_TABLE);
 
   private Database database;
 
@@ -118,7 +122,7 @@ public class JdbcDatasource extends AbstractDatasource {
       if(!RESERVED_NAMES.contains(table.getName().toLowerCase())) {
         // If a set of mapped tables has been defined, only include the tables in that set.
         if(settings.getMappedTables().isEmpty() || settings.getMappedTables().contains(table.getName())) {
-          names.add(table.getName());
+          names.add(NameConverter.toMagmaName(table.getName()));
         }
       }
     }

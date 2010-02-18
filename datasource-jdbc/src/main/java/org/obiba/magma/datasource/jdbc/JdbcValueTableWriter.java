@@ -95,6 +95,7 @@ public class JdbcValueTableWriter implements ValueTableWriter {
   public void close() throws IOException {
     try {
       valueTable.getDatasource().getDatabase().commit();
+      valueTable.getDatasource().databaseChanged();
     } catch(JDBCException e) {
       throw new MagmaRuntimeException(e);
     }
