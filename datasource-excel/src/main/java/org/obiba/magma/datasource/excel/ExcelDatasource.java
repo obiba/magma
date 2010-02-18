@@ -36,6 +36,8 @@ public class ExcelDatasource extends AbstractDatasource {
 
   public static final List<String> variablesReservedAttributeNames = Lists.newArrayList("table", "name", "valueType", "entityType", "mimeType", "unit", "occurrenceGroup", "repeatable");
 
+  public static final List<String> categoriesReservedAttributeNames = Lists.newArrayList("table", "variable", "name", "code", "missing");
+
   public static final Set<String> sheetReservedNames = Sets.newHashSet(new String[] { "Variables", "Categories" });
 
   private FileInputStream excelInputStream;
@@ -43,6 +45,8 @@ public class ExcelDatasource extends AbstractDatasource {
   private Workbook excelWorkbook;
 
   private Sheet variablesSheet;
+
+  private Sheet categorySheet;
 
   private File excelFile;
 
@@ -67,7 +71,7 @@ public class ExcelDatasource extends AbstractDatasource {
     }
 
     variablesSheet = createSheetIfNotExist("Variables");
-    createSheetIfNotExist("Categories");
+    categorySheet = createSheetIfNotExist("Categories");
 
     createExcelStyles();
 
@@ -166,11 +170,11 @@ public class ExcelDatasource extends AbstractDatasource {
     return null;
   }
 
-  public static Set<String> getAttributeNames(Row rowHeader) {
+  public static Set<String> getAttributeNames(Row rowHeader, List<String> reservedNames) {
     Set<String> attributesNames = new HashSet<String>();
     int cellCount = rowHeader.getPhysicalNumberOfCells();
     for(int i = 0; i < cellCount; i++) {
-      if(!variablesReservedAttributeNames.contains(attributesNames)) {
+      if(!reservedNames.contains(attributesNames)) {
         attributesNames.add(getCellValueAsString(rowHeader.getCell(i)));
       }
     }
@@ -224,4 +228,7 @@ public class ExcelDatasource extends AbstractDatasource {
     return variablesSheet;
   }
 
+  public Sheet getCategoriesSheet() {
+    return categorySheet;
+  }
 }
