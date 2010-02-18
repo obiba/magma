@@ -19,21 +19,21 @@ import com.google.common.collect.Multimap;
 public abstract class AbstractAttributeAwareEntity extends AbstractEntity {
 
   @CollectionOfElements
-  private List<HibernateAttribute> attributes;
+  private List<AttributeState> attributes;
 
   @Transient
-  private Multimap<String, HibernateAttribute> attributeMap;
+  private Multimap<String, AttributeState> attributeMap;
 
-  public List<HibernateAttribute> getAttributes() {
-    return attributes != null ? attributes : (attributes = new ArrayList<HibernateAttribute>());
+  public List<AttributeState> getAttributes() {
+    return attributes != null ? attributes : (attributes = new ArrayList<AttributeState>());
   }
 
-  public void setAttributes(List<HibernateAttribute> attributes) {
+  public void setAttributes(List<AttributeState> attributes) {
     this.attributes = attributes;
   }
 
-  public HibernateAttribute getAttribute(String name, Locale locale) {
-    for(HibernateAttribute ha : attributeMap.get(name)) {
+  public AttributeState getAttribute(String name, Locale locale) {
+    for(AttributeState ha : attributeMap.get(name)) {
       if(locale != null && ha.isLocalised() && locale.equals(ha.getLocale())) {
         return ha;
       } else if(locale == null && ha.isLocalised() == false) {
@@ -43,7 +43,7 @@ public abstract class AbstractAttributeAwareEntity extends AbstractEntity {
     throw new NoSuchAttributeException(name, getClass().getName());
   }
 
-  public void addAttribute(HibernateAttribute ha) {
+  public void addAttribute(AttributeState ha) {
     getAttributeMap().put(ha.getName(), ha);
     getAttributes().add(ha);
   }
@@ -54,7 +54,7 @@ public abstract class AbstractAttributeAwareEntity extends AbstractEntity {
 
   public boolean hasAttribute(String name, Locale locale) {
     if(hasAttribute(name)) {
-      for(HibernateAttribute ha : getAttributeMap().get(name)) {
+      for(AttributeState ha : getAttributeMap().get(name)) {
         if(locale == null && ha.isLocalised() == false) {
           return true;
         }
@@ -66,10 +66,10 @@ public abstract class AbstractAttributeAwareEntity extends AbstractEntity {
     return false;
   }
 
-  private Multimap<String, HibernateAttribute> getAttributeMap() {
+  private Multimap<String, AttributeState> getAttributeMap() {
     if(attributeMap == null) {
       attributeMap = LinkedListMultimap.create();
-      for(HibernateAttribute ha : getAttributes()) {
+      for(AttributeState ha : getAttributes()) {
         attributeMap.put(ha.getName(), ha);
       }
     }

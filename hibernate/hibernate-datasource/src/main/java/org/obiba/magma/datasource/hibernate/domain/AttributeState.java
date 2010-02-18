@@ -16,7 +16,7 @@ import org.obiba.magma.hibernate.type.ValueHibernateType;
 
 @Embeddable
 @TypeDef(name = "value", typeClass = ValueHibernateType.class)
-public class HibernateAttribute implements Attribute {
+public class AttributeState implements Attribute {
 
   private static final long serialVersionUID = 1L;
 
@@ -32,11 +32,11 @@ public class HibernateAttribute implements Attribute {
   @Columns(columns = { @Column(name = "value_type", nullable = false), @Column(name = "is_sequence", nullable = false), @Column(name = "value", length = Integer.MAX_VALUE, nullable = false) })
   private Value value;
 
-  public HibernateAttribute() {
+  public AttributeState() {
     super();
   }
 
-  public HibernateAttribute(String name, Locale locale, Value value) {
+  public AttributeState(String name, Locale locale, Value value) {
     super();
     this.name = name;
     this.locale = locale;

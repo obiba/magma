@@ -21,7 +21,7 @@ import org.obiba.magma.ValueTableWriter;
 import org.obiba.magma.datasource.hibernate.converter.AttributeAwareConverter;
 import org.obiba.magma.datasource.hibernate.converter.HibernateMarshallingContext;
 import org.obiba.magma.datasource.hibernate.domain.DatasourceState;
-import org.obiba.magma.datasource.hibernate.domain.HibernateAttribute;
+import org.obiba.magma.datasource.hibernate.domain.AttributeState;
 import org.obiba.magma.datasource.hibernate.domain.ValueTableState;
 import org.obiba.magma.support.AbstractDatasource;
 
@@ -112,7 +112,7 @@ public class HibernateDatasource extends AbstractDatasource {
       sessionFactory.getCurrentSession().save(datasourceState);
     } else {
       // If already persisted, load the persisted attributes for that datasource.
-      for(HibernateAttribute attribute : datasourceState.getAttributes()) {
+      for(AttributeState attribute : datasourceState.getAttributes()) {
         setAttributeValue(attribute.getName(), attribute.getValue());
       }
 

@@ -3,7 +3,6 @@ package org.obiba.magma.datasource.hibernate.domain;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.persistence.AssociationOverride;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -22,7 +21,6 @@ import org.obiba.magma.hibernate.type.ValueTypeHibernateType;
 
 @Entity
 @Table(name = "variable", uniqueConstraints = { @UniqueConstraint(columnNames = { "value_table_id", "name" }) })
-@AssociationOverride(name = "attributes.parent", joinColumns = { @JoinColumn(name = "variable_id", referencedColumnName = "variable_id") })
 @TypeDef(name = "value_type", typeClass = ValueTypeHibernateType.class)
 public class VariableState extends AbstractAttributeAwareEntity {
 
@@ -36,7 +34,10 @@ public class VariableState extends AbstractAttributeAwareEntity {
   private ValueTableState valueTable;
 
   @OneToMany(cascade = CascadeType.ALL)
+  // Creates a column to store the category's index within the list
   @IndexColumn(name = "category_index")
+  // Used to prevent an association table from being created
+  @JoinColumn(nullable = false)
   private List<CategoryState> categories;
 
   @Column(nullable = false)
@@ -51,6 +52,7 @@ public class VariableState extends AbstractAttributeAwareEntity {
   private String unit;
 
   @Type(type = "value_type")
+  @Column(nullable = false)
   private ValueType valueType;
 
   @Column(nullable = false)
@@ -160,7 +162,6 @@ public class VariableState extends AbstractAttributeAwareEntity {
   }
 
   public void addCategory(CategoryState state) {
-    state.setCategoryIndex(getCategories().size());
     getCategories().add(state);
   }
 

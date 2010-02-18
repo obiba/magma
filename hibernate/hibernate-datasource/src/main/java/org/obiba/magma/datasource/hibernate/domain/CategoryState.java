@@ -3,7 +3,6 @@ package org.obiba.magma.datasource.hibernate.domain;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 
-
 @Entity
 @Table(name = "category")
 public class CategoryState extends AbstractAttributeAwareEntity {
@@ -15,8 +14,6 @@ public class CategoryState extends AbstractAttributeAwareEntity {
   private String code;
 
   private Boolean missing;
-
-  private int categoryIndex;
 
   public CategoryState() {
 
@@ -47,14 +44,6 @@ public class CategoryState extends AbstractAttributeAwareEntity {
 
   public boolean isMissing() {
     return missing != null ? missing : false;
-  }
-
-  public int getCategoryIndex() {
-    return categoryIndex;
-  }
-
-  public void setCategoryIndex(int categoryIndex) {
-    this.categoryIndex = categoryIndex;
   }
 
 }
