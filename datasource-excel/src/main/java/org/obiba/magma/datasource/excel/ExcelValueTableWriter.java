@@ -12,7 +12,6 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.obiba.magma.Attribute;
 import org.obiba.magma.AttributeAware;
 import org.obiba.magma.Category;
-import org.obiba.magma.Value;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.ValueTableWriter;
 import org.obiba.magma.Variable;
@@ -22,25 +21,27 @@ public class ExcelValueTableWriter implements ValueTableWriter {
 
   private ExcelValueTable valueTable;
 
+  private VariableWriter excelVariableWriter;
+
   public ExcelValueTableWriter(ExcelValueTable valueTable) {
     this.valueTable = valueTable;
   }
 
   @Override
+  public VariableWriter writeVariables() {
+    excelVariableWriter = new ExcelVariableWriter(valueTable);
+    return excelVariableWriter;
+  }
+
+  @Override
   public ValueSetWriter writeValueSet(VariableEntity entity) {
-    // TODO Auto-generated method stub
+    // TODO Implement a method to write ValueSets
     return null;
   }
 
   @Override
-  public VariableWriter writeVariables() {
-    return new ExcelVariableWriter(valueTable);
-  }
-
-  @Override
   public void close() throws IOException {
-    // TODO Auto-generated method stub
-
+    excelVariableWriter.close();
   }
 
   private class ExcelVariableWriter implements VariableWriter {
@@ -67,8 +68,8 @@ public class ExcelValueTableWriter implements ValueTableWriter {
         headerRowVariables = variablesSheet.createRow(0);
       }
 
-      Map<String, Integer> headerMapVariables = ExcelDatasource.mapHeader(headerRowVariables);
-      updateHeaderRow(headerMapVariables, headerRowVariables, ExcelDatasource.variablesReservedAttributeNames);
+      Map<String, Integer> headerMapVariables = ExcelDatasource.mapSheetHeader(headerRowVariables);
+      updateSheetHeaderRow(headerMapVariables, headerRowVariables, ExcelDatasource.variablesReservedAttributeNames);
 
       Row attributesRow = variablesSheet.createRow(variablesSheet.getPhysicalNumberOfRows());
       attributesRow.createCell(headerMapVariables.get("table")).setCellValue(valueTable.getName());
@@ -87,8 +88,8 @@ public class ExcelValueTableWriter implements ValueTableWriter {
         headerRowCategories = categoriesSheet.createRow(0);
       }
 
-      Map<String, Integer> headerMapCategories = ExcelDatasource.mapHeader(headerRowCategories);
-      updateHeaderRow(headerMapCategories, headerRowCategories, ExcelDatasource.categoriesReservedAttributeNames);
+      Map<String, Integer> headerMapCategories = ExcelDatasource.mapSheetHeader(headerRowCategories);
+      updateSheetHeaderRow(headerMapCategories, headerRowCategories, ExcelDatasource.categoriesReservedAttributeNames);
 
       Set<Category> categories = variable.getCategories();
       Row categoryRow;
@@ -125,14 +126,14 @@ public class ExcelValueTableWriter implements ValueTableWriter {
           attributeCellIndex = Integer.valueOf(getLastCellNum(headerRow));
           headerCell = headerRow.createCell(attributeCellIndex);
           headerCell.setCellValue(customAttributeName);
-          headerCell.setCellStyle(excelDatasource.getExcelStyle("headerCellStyle"));
+          headerCell.setCellStyle(excelDatasource.getExcelStyles("headerCellStyle"));
         }
         attributesRow.createCell(attributeCellIndex).setCellValue(customAttribute.getValue().getValue().toString());
         stringBuilder.setLength(0);
       }
     }
 
-    private void updateHeaderRow(Map<String, Integer> headerMap, Row headerRow, List<String> columnNames) {
+    private void updateSheetHeaderRow(Map<String, Integer> headerMap, Row headerRow, List<String> columnNames) {
 
       Cell headerCell;
       for(String reservedAttributeName : columnNames) {
@@ -140,7 +141,7 @@ public class ExcelValueTableWriter implements ValueTableWriter {
           headerMap.put(reservedAttributeName, Integer.valueOf(getLastCellNum(headerRow)));
           headerCell = headerRow.createCell(getLastCellNum(headerRow));
           headerCell.setCellValue(reservedAttributeName);
-          headerCell.setCellStyle(excelDatasource.getExcelStyle("headerCellStyle"));
+          headerCell.setCellStyle(excelDatasource.getExcelStyles("headerCellStyle"));
         }
       }
     }
@@ -153,21 +154,6 @@ public class ExcelValueTableWriter implements ValueTableWriter {
     public void close() throws IOException {
       // TODO Auto-generated method stub
 
-    }
-
-  }
-
-  private class ExcelValueSetWriter implements ValueSetWriter {
-
-    @Override
-    public void writeValue(Variable variable, Value value) {
-      // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void close() throws IOException {
-      // TODO Auto-generated method stub
     }
 
   }

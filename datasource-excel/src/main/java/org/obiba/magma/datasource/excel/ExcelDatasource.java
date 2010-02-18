@@ -89,7 +89,7 @@ public class ExcelDatasource extends AbstractDatasource {
 
   }
 
-  public CellStyle getExcelStyle(String styleName) {
+  public CellStyle getExcelStyles(String styleName) {
     return excelStyles.get(styleName);
   }
 
@@ -170,18 +170,18 @@ public class ExcelDatasource extends AbstractDatasource {
     return null;
   }
 
-  public static Set<String> getAttributeNames(Row rowHeader, List<String> reservedNames) {
+  public static Set<String> getCustomAttributeNames(Row rowHeader, List<String> reservedAttributeNames) {
     Set<String> attributesNames = new HashSet<String>();
     int cellCount = rowHeader.getPhysicalNumberOfCells();
     for(int i = 0; i < cellCount; i++) {
-      if(!reservedNames.contains(attributesNames)) {
+      if(!reservedAttributeNames.contains(attributesNames)) {
         attributesNames.add(getCellValueAsString(rowHeader.getCell(i)));
       }
     }
     return attributesNames;
   }
 
-  public static Map<String, Integer> mapHeader(Row rowHeader) {
+  public static Map<String, Integer> mapSheetHeader(Row rowHeader) {
     Map<String, Integer> headerMap = new HashMap<String, Integer>();
     int cellCount = rowHeader.getPhysicalNumberOfCells();
     Cell cell;

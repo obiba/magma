@@ -24,16 +24,12 @@ import org.obiba.magma.support.AbstractValueTable;
 
 class ExcelValueTable extends AbstractValueTable implements Initialisable, Disposable {
 
-  private Sheet excelSheet;
-
   public ExcelValueTable(String name, ExcelDatasource datasource, Sheet excelSheet) {
     super(datasource, name);
-    this.excelSheet = excelSheet;
   }
 
   public ExcelValueTable(String name, ExcelDatasource datasource, Sheet excelSheet, String entityType) {
     super(datasource, name);
-    this.excelSheet = excelSheet;
   }
 
   @Override
@@ -62,23 +58,13 @@ class ExcelValueTable extends AbstractValueTable implements Initialisable, Dispo
     }
   }
 
-  @Override
-  public ExcelDatasource getDatasource() {
-    return (ExcelDatasource) super.getDatasource();
-  }
-
   private void readVariables() throws FileNotFoundException, IOException {
 
-    Sheet variablesSheet = ((ExcelDatasource) getDatasource()).getVariablesSheet();
-    Sheet categoriesSheet = ((ExcelDatasource) getDatasource()).getCategoriesSheet();
+    Sheet variablesSheet = getDatasource().getVariablesSheet();
 
     Row headerVariables = variablesSheet.getRow(0);
-    Map<String, Integer> headerMapVariables = ExcelDatasource.mapHeader(headerVariables);
-    Set<String> attributeNamesVariables = ExcelDatasource.getAttributeNames(headerVariables, ExcelDatasource.variablesReservedAttributeNames);
-
-    Row headerCategories = categoriesSheet.getRow(0);
-    Map<String, Integer> headerMapCategories = ExcelDatasource.mapHeader(headerCategories);
-    Set<String> attributeNamesCategories = ExcelDatasource.getAttributeNames(headerCategories, ExcelDatasource.categoriesReservedAttributeNames);
+    Map<String, Integer> headerMapVariables = ExcelDatasource.mapSheetHeader(headerVariables);
+    Set<String> attributeNamesVariables = ExcelDatasource.getCustomAttributeNames(headerVariables, ExcelDatasource.variablesReservedAttributeNames);
 
     String name;
     String valueType;
@@ -110,34 +96,56 @@ class ExcelValueTable extends AbstractValueTable implements Initialisable, Dispo
 
       readCustomAttributes(variableRow, headerMapVariables, attributeNamesVariables, variableBuilder);
 
-      String categoryTable;
-      String categoryVariable;
-      String categoryName;
-      String categoryCode;
-      Row categoryRow;
-
-      int categoryRowCount = categoriesSheet.getPhysicalNumberOfRows();
-      for(int x = 1; x < categoryRowCount; x++) {
-        categoryRow = categoriesSheet.getRow(x);
-        categoryTable = getCellValueAsString(categoryRow.getCell(headerMapCategories.get("table")));
-        categoryVariable = getCellValueAsString(categoryRow.getCell(headerMapCategories.get("variable")));
-        if(categoryTable.equals(getName()) && categoryVariable.equals(name)) {
-          categoryName = getCellValueAsString(categoryRow.getCell(headerMapCategories.get("name")));
-          categoryCode = getCellValueAsString(categoryRow.getCell(headerMapCategories.get("code")));
-
-          // TODO Fix useless casting
-          AttributeAwareBuilder categoryBuilder = Category.Builder.newCategory(categoryName).withCode(categoryCode);
-          readCustomAttributes(categoryRow, headerMapCategories, attributeNamesCategories, categoryBuilder);
-          variableBuilder.addCategory(((Category.Builder) categoryBuilder).build());
-
-          // TODO Add "missing" category attributes
-
-        }
-      }
+      readCategories(name, variableBuilder);
 
       addVariableValueSource(new ExcelVariableValueSource(variableBuilder.build()));
     }
 
+  }
+
+  @Override
+  public ExcelDatasource getDatasource() {
+    return (ExcelDatasource) super.getDatasource();
+  }
+
+  /**
+   * @param categoriesSheet
+   * @param headerMapCategories
+   * @param attributeNamesCategories
+   * @param variableName
+   * @param variableBuilder
+   */
+  private void readCategories(String variableName, Variable.Builder variableBuilder) {
+
+    String categoryTable;
+    String categoryVariable;
+    String categoryName;
+    String categoryCode;
+    Row categoryRow;
+
+    Sheet categoriesSheet = getDatasource().getCategoriesSheet();
+    Row headerCategories = categoriesSheet.getRow(0);
+    Map<String, Integer> headerMapCategories = ExcelDatasource.mapSheetHeader(headerCategories);
+    Set<String> attributeNamesCategories = ExcelDatasource.getCustomAttributeNames(headerCategories, ExcelDatasource.categoriesReservedAttributeNames);
+
+    int categoryRowCount = categoriesSheet.getPhysicalNumberOfRows();
+    for(int x = 1; x < categoryRowCount; x++) {
+      categoryRow = categoriesSheet.getRow(x);
+      categoryTable = getCellValueAsString(categoryRow.getCell(headerMapCategories.get("table")));
+      categoryVariable = getCellValueAsString(categoryRow.getCell(headerMapCategories.get("variable")));
+      if(categoryTable.equals(getName()) && categoryVariable.equals(variableName)) {
+        categoryName = getCellValueAsString(categoryRow.getCell(headerMapCategories.get("name")));
+        categoryCode = getCellValueAsString(categoryRow.getCell(headerMapCategories.get("code")));
+
+        // TODO Fix unnecessary casting
+        AttributeAwareBuilder categoryBuilder = Category.Builder.newCategory(categoryName).withCode(categoryCode);
+        readCustomAttributes(categoryRow, headerMapCategories, attributeNamesCategories, categoryBuilder);
+        variableBuilder.addCategory(((Category.Builder) categoryBuilder).build());
+
+        // TODO Add "missing" category attributes
+
+      }
+    }
   }
 
   /**
@@ -160,7 +168,7 @@ class ExcelValueTable extends AbstractValueTable implements Initialisable, Dispo
     }
   }
 
-  public String getCellValueAsString(Cell cell) {
+  private String getCellValueAsString(Cell cell) {
     return ExcelDatasource.getCellValueAsString(cell);
   }
 
@@ -171,12 +179,8 @@ class ExcelValueTable extends AbstractValueTable implements Initialisable, Dispo
 
   @Override
   public ValueSet getValueSet(VariableEntity entity) throws NoSuchValueSetException {
-    // TODO Auto-generated method stub
+    // TODO Implement a method to read ValueSets
     return null;
-  }
-
-  public Sheet getExcelSheet() {
-    return excelSheet;
   }
 
 }
