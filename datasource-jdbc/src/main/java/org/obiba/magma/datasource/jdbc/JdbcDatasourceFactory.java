@@ -1,41 +1,50 @@
 package org.obiba.magma.datasource.jdbc;
 
+import java.util.Properties;
+
+import org.apache.commons.dbcp.BasicDataSource;
+
 public class JdbcDatasourceFactory {
+  //
+  // Constants
+  //
 
-  private String driver;
+  public static final String DRIVER_CLASS_NAME = "driverClassName";
 
-  private String baseUrl;
+  public static final String URL = "url";
 
-  private String username;
+  public static final String USERNAME = "username";
 
-  private String password;
+  public static final String PASSWORD = "password";
 
-  public JdbcDatasourceFactory(String driver, String baseUrl, String username, String password) {
-    super();
-    this.driver = driver;
-    this.baseUrl = baseUrl;
-    this.username = username;
-    this.password = password;
+  //
+  // Instance Variables
+  //
+
+  private Properties jdbcProperties;
+
+  private JdbcDatasourceSettings settings;
+
+  //
+  // Methods
+  //
+
+  public void setJdbcProperties(Properties jdbcProperties) {
+    this.jdbcProperties = jdbcProperties;
+  }
+
+  public void setDatasourceSettings(JdbcDatasourceSettings settings) {
+    this.settings = settings;
   }
 
   public JdbcDatasource create(String name) {
-    return null;
-  }
+    BasicDataSource dataSource = new BasicDataSource();
+    dataSource.setDriverClassName(jdbcProperties.getProperty(DRIVER_CLASS_NAME));
+    dataSource.setUrl(jdbcProperties.getProperty(URL));
+    dataSource.setUsername(jdbcProperties.getProperty(USERNAME));
+    dataSource.setPassword(jdbcProperties.getProperty(PASSWORD));
 
-  public void setDriver(String driver) {
-    this.driver = driver;
-  }
-
-  public void setBaseUrl(String baseUrl) {
-    this.baseUrl = baseUrl;
-  }
-
-  public void setUsername(String username) {
-    this.username = username;
-  }
-
-  public void setPassword(String password) {
-    this.password = password;
+    return new JdbcDatasource(name, dataSource, settings);
   }
 
 }

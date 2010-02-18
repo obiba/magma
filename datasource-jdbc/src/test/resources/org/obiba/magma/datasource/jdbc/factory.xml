@@ -1,0 +1,11 @@
+<org.obiba.magma.datasource.jdbc.JdbcDatasourceFactory>
+  <jdbcProperties>
+    <property name="driverClassName" value="org.hsqldb.jdbcDriver" />
+    <property name="url" value="jdbc:hsqldb:mem:datasource_jdbc" />
+    <property name="username" value="sa" />
+    <property name="password" value="" />
+  </jdbcProperties>
+  <settings>
+    <defaultEntityType>Participant</defaultEntityType>
+  </settings>
+</org.obiba.magma.datasource.jdbc.JdbcDatasourceFactory>
