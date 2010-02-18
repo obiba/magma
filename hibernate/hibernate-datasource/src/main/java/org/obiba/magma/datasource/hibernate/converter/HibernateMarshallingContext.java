@@ -2,11 +2,11 @@ package org.obiba.magma.datasource.hibernate.converter;
 
 import org.hibernate.SessionFactory;
 import org.obiba.magma.AttributeAwareBuilder;
+import org.obiba.magma.datasource.hibernate.domain.AbstractAttributeAwareEntity;
 import org.obiba.magma.datasource.hibernate.domain.DatasourceState;
 import org.obiba.magma.datasource.hibernate.domain.ValueSetState;
 import org.obiba.magma.datasource.hibernate.domain.ValueTableState;
 import org.obiba.magma.datasource.hibernate.domain.VariableState;
-import org.obiba.magma.datasource.hibernate.domain.attribute.AbstractAttributeAwareEntity;
 
 public class HibernateMarshallingContext {
 

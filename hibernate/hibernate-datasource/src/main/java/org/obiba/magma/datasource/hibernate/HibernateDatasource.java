@@ -21,8 +21,8 @@ import org.obiba.magma.ValueTableWriter;
 import org.obiba.magma.datasource.hibernate.converter.AttributeAwareConverter;
 import org.obiba.magma.datasource.hibernate.converter.HibernateMarshallingContext;
 import org.obiba.magma.datasource.hibernate.domain.DatasourceState;
+import org.obiba.magma.datasource.hibernate.domain.HibernateAttribute;
 import org.obiba.magma.datasource.hibernate.domain.ValueTableState;
-import org.obiba.magma.datasource.hibernate.domain.attribute.HibernateAttribute;
 import org.obiba.magma.support.AbstractDatasource;
 
 import com.google.common.collect.MapMaker;

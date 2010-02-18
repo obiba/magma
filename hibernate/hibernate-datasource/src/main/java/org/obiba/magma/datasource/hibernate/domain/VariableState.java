@@ -17,7 +17,6 @@ import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 import org.obiba.magma.ValueType;
 import org.obiba.magma.Variable;
-import org.obiba.magma.datasource.hibernate.domain.attribute.AbstractAttributeAwareEntity;
 
 @Entity
 @Table(name = "variable", uniqueConstraints = { @UniqueConstraint(columnNames = { "value_table_id", "name" }) })

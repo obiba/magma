@@ -1,4 +1,4 @@
-package org.obiba.magma.datasource.hibernate.domain.attribute;
+package org.obiba.magma.datasource.hibernate.domain;
 
 import java.util.Locale;
 

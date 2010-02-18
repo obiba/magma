@@ -5,7 +5,6 @@ import javax.persistence.Entity;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
-import org.obiba.magma.datasource.hibernate.domain.attribute.AbstractAttributeAwareEntity;
 
 @Entity
 @Table(name = "datasource", uniqueConstraints = { @UniqueConstraint(columnNames = "name") })

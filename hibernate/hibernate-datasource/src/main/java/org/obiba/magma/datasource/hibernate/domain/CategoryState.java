@@ -3,7 +3,6 @@ package org.obiba.magma.datasource.hibernate.domain;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 
-import org.obiba.magma.datasource.hibernate.domain.attribute.AbstractAttributeAwareEntity;
 
 @Entity
 @Table(name = "category")

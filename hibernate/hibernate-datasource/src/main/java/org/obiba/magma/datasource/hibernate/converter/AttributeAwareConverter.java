@@ -3,8 +3,8 @@ package org.obiba.magma.datasource.hibernate.converter;
 import org.obiba.magma.Attribute;
 import org.obiba.magma.AttributeAware;
 import org.obiba.magma.AttributeAwareBuilder;
-import org.obiba.magma.datasource.hibernate.domain.attribute.AbstractAttributeAwareEntity;
-import org.obiba.magma.datasource.hibernate.domain.attribute.HibernateAttribute;
+import org.obiba.magma.datasource.hibernate.domain.AbstractAttributeAwareEntity;
+import org.obiba.magma.datasource.hibernate.domain.HibernateAttribute;
 
 public class AttributeAwareConverter {
 
