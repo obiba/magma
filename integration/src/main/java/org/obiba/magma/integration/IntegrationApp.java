@@ -16,27 +16,24 @@ import org.obiba.magma.Variable;
 import org.obiba.magma.crypt.support.GeneratedKeyPairProvider;
 import org.obiba.magma.datasource.crypt.EncryptedSecretKeyDatasourceEncryptionStrategy;
 import org.obiba.magma.datasource.crypt.GeneratedSecretKeyDatasourceEncryptionStrategy;
+import org.obiba.magma.datasource.excel.ExcelDatasource;
 import org.obiba.magma.datasource.fs.FsDatasource;
 import org.obiba.magma.datasource.hibernate.SessionFactoryProvider;
 import org.obiba.magma.datasource.hibernate.support.HibernateDatasourceFactory;
 import org.obiba.magma.datasource.hibernate.support.LocalSessionFactoryProvider;
 import org.obiba.magma.integration.service.XStreamIntegrationServiceFactory;
+import org.obiba.magma.js.MagmaJsExtension;
 import org.obiba.magma.support.DatasourceCopier;
-import org.obiba.magma.support.MagmaEngineFactory;
 import org.obiba.magma.type.DateTimeType;
 import org.obiba.magma.type.TextType;
-
-import com.thoughtworks.xstream.XStream;
-import com.thoughtworks.xstream.converters.reflection.PureJavaReflectionProvider;
+import org.obiba.magma.xstream.MagmaXStreamExtension;
 
 /**
  */
 public class IntegrationApp {
 
   public static void main(String[] args) throws IOException, NoSuchAlgorithmException {
-    MagmaEngineFactory engineFactory = (MagmaEngineFactory) new XStream(new PureJavaReflectionProvider()).fromXML(IntegrationApp.class.getResourceAsStream("magma-config.xml"));
-    engineFactory.create();
-    // new MagmaEngine().extend(new MagmaJsExtension()).extend(new MagmaXStreamExtension());
+    new MagmaEngine().extend(new MagmaJsExtension()).extend(new MagmaXStreamExtension());
 
     XStreamIntegrationServiceFactory factory = new XStreamIntegrationServiceFactory();
     IntegrationDatasource integrationDatasource = new IntegrationDatasource(factory.buildService(new InputStreamReader(IntegrationApp.class.getResourceAsStream("participants.xml"), "UTF-8")));
@@ -133,6 +130,15 @@ public class IntegrationApp {
       e.printStackTrace();
       throw e;
     }
+
+    File excelFile = new File("target", "excel-datasource.xls");
+    if(excelFile.exists()) {
+      excelFile.delete();
+    }
+    ExcelDatasource ed = new ExcelDatasource("excel", excelFile);
+    MagmaEngine.get().addDatasource(ed);
+
+    DatasourceCopier.Builder.newCopier().dontCopyValues().build().copy(integrationDatasource, ed);
 
     MagmaEngine.get().shutdown();
   }

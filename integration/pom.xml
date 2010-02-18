@@ -40,7 +40,7 @@
     </dependency>    
     <dependency>
       <groupId>org.obiba.magma</groupId>
-      <artifactId>magma-datasource-hibernate</artifactId>
+      <artifactId>magma-hibernate-datasource</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
