@@ -14,6 +14,7 @@ import liquibase.change.CreateTableChange;
 import liquibase.database.Database;
 import liquibase.database.sql.visitor.SqlVisitor;
 import liquibase.database.structure.Column;
+import liquibase.database.structure.DatabaseSnapshot;
 import liquibase.database.structure.Table;
 
 import org.obiba.magma.Initialisable;
@@ -99,15 +100,7 @@ public class JdbcValueTable extends AbstractValueTable {
   }
 
   String getSqlName() {
-    return getSqlName(getName());
-  }
-
-  String getSqlName(Variable variable) {
-    return getSqlName(variable.getName());
-  }
-
-  String getSqlName(String name) {
-    return NameConverter.toSqlName(name);
+    return NameConverter.toSqlName(getName());
   }
 
   private static List<String> getEntityIdentifierColumns(Table table) {
@@ -123,7 +116,7 @@ public class JdbcValueTable extends AbstractValueTable {
   @SuppressWarnings("unchecked")
   private void initialiseVariableValueSources() {
     if(getDatasource().getSettings().useMetadataTables()) {
-      if(getDatasource().getDatabaseSnapshot().getTable("variables") == null) {
+      if(!metadataTablesExist()) {
         throw new MagmaRuntimeException("metadata tables not found");
       }
 
@@ -148,6 +141,11 @@ public class JdbcValueTable extends AbstractValueTable {
         }
       }
     }
+  }
+
+  private boolean metadataTablesExist() {
+    DatabaseSnapshot snapshot = getDatasource().getDatabaseSnapshot();
+    return (snapshot.getTable(JdbcValueTableWriter.VARIABLE_METADATA_TABLE) != null && snapshot.getTable(JdbcValueTableWriter.ATTRIBUTE_METADATA_TABLE) != null && snapshot.getTable(JdbcValueTableWriter.CATEGORY_METADATA_TABLE) != null);
   }
 
   private Variable buildVariableFromResultSet(ResultSet rs) throws SQLException {
@@ -210,8 +208,8 @@ public class JdbcValueTable extends AbstractValueTable {
 
     // Create the table initially with just one column -- entity_id -- the primary key.
     ColumnConfig column = new ColumnConfig();
-    column.setName("entity_id");
-    column.setType("VARCHAR");
+    column.setName(JdbcValueTableWriter.ENTITY_ID_COLUMN);
+    column.setType("VARCHAR(255)");
     ConstraintsConfig constraints = new ConstraintsConfig();
     constraints.setPrimaryKey(true);
     column.setConstraints(constraints);

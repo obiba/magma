@@ -114,8 +114,12 @@ public class JdbcDatasource extends AbstractDatasource {
   protected Set<String> getValueTableNames() {
     Set<String> names = new LinkedHashSet<String>();
     for(Table table : getDatabaseSnapshot().getTables()) {
+      // Ignore tables with "reserved" names (i.e., the metadata tables).
       if(!RESERVED_NAMES.contains(table.getName().toLowerCase())) {
-        names.add(table.getName());
+        // If a set of mapped tables has been defined, only include the tables in that set.
+        if(settings.getMappedTables().isEmpty() || settings.getMappedTables().contains(table.getName())) {
+          names.add(table.getName());
+        }
       }
     }
     return names;
@@ -131,6 +135,10 @@ public class JdbcDatasource extends AbstractDatasource {
 
   public JdbcDatasourceSettings getSettings() {
     return settings;
+  }
+
+  JdbcTemplate getJdbcTemplate() {
+    return jdbcTemplate;
   }
 
   Database getDatabase() {
@@ -150,9 +158,5 @@ public class JdbcDatasource extends AbstractDatasource {
 
   void databaseChanged() {
     snapshot = null;
-  }
-
-  JdbcTemplate getJdbcTemplate() {
-    return jdbcTemplate;
   }
 }
