@@ -88,11 +88,8 @@ class HibernateValueTableWriter implements ValueTableWriter {
 
       // add or update variable
       HibernateMarshallingContext context = valueTable.createContext();
-      boolean exists = variableConverter.getStateForVariable(variable, context) != null;
       VariableState state = variableConverter.marshal(variable, context);
-      if(exists == false) {
-        transaction.addSource(valueSourceFactory.createSource(state));
-      }
+      transaction.addSource(valueSourceFactory.createSource(state));
     }
 
     @Override

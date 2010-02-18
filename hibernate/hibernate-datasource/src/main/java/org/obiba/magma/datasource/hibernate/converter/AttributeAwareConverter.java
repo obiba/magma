@@ -10,23 +10,23 @@ public class AttributeAwareConverter {
 
   public void addAttributes(AttributeAware attributeAware, AbstractAttributeAwareEntity hibernateEntity) {
     for(Attribute attr : attributeAware.getAttributes()) {
-      AttributeState ha;
+      AttributeState as;
       if(hibernateEntity.hasAttribute(attr.getName(), attr.getLocale())) {
-        ha = hibernateEntity.getAttribute(attr.getName(), attr.getLocale());
+        as = hibernateEntity.getAttribute(attr.getName(), attr.getLocale());
       } else {
-        ha = new AttributeState(attr.getName(), attr.getLocale(), attr.getValue());
-        hibernateEntity.addAttribute(ha);
+        as = new AttributeState(attr.getName(), attr.getLocale(), attr.getValue());
+        hibernateEntity.addAttribute(as);
       }
-      ha.setValue(attr.getValue());
+      as.setValue(attr.getValue());
     }
   }
 
   public void buildAttributeAware(AttributeAwareBuilder<?> builder, AbstractAttributeAwareEntity hibernateEntity) {
-    for(AttributeState ha : hibernateEntity.getAttributes()) {
-      if(ha.getLocale() == null) {
-        builder.addAttribute(Attribute.Builder.newAttribute(ha.getName()).withValue(ha.getValue()).build());
+    for(AttributeState as : hibernateEntity.getAttributes()) {
+      if(as.isLocalised()) {
+        builder.addAttribute(Attribute.Builder.newAttribute(as.getName()).withValue(as.getLocale(), as.getValue().toString()).build());
       } else {
-        builder.addAttribute(Attribute.Builder.newAttribute(ha.getName()).withValue(ha.getLocale(), ha.getValue().toString()).build());
+        builder.addAttribute(Attribute.Builder.newAttribute(as.getName()).withValue(as.getValue()).build());
       }
     }
   }

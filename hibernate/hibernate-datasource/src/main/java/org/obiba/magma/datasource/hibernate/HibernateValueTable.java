@@ -4,7 +4,6 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Set;
 
 import org.obiba.core.service.impl.hibernate.AssociationCriteria;
@@ -23,7 +22,6 @@ import org.obiba.magma.support.AbstractVariableEntityProvider;
 import org.obiba.magma.support.ValueSetBean;
 import org.obiba.magma.support.VariableEntityBean;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 
@@ -77,11 +75,11 @@ class HibernateValueTable extends AbstractValueTable {
    * Overridden to include uncommitted sources when a transaction exists on this table and is visible in the current
    * session.
    */
-  protected List<VariableValueSource> getSources() {
+  protected Set<VariableValueSource> getSources() {
     if(getDatasource().hasTableTransaction(getName())) {
-      return new ImmutableList.Builder<VariableValueSource>().addAll(super.getSources()).addAll(getDatasource().getTableTransaction(getName()).getUncommittedSources()).build();
+      return new ImmutableSet.Builder<VariableValueSource>().addAll(super.getSources()).addAll(getDatasource().getTableTransaction(getName()).getUncommittedSources()).build();
     } else {
-      return Collections.unmodifiableList(super.getSources());
+      return Collections.unmodifiableSet(super.getSources());
     }
   }
 
@@ -97,8 +95,8 @@ class HibernateValueTable extends AbstractValueTable {
     this.variableEntityProvider.entities.addAll(newEntities);
   }
 
-  void commitSources(final Collection<VariableValueSource> newSources) {
-    super.addVariableValueSources(newSources);
+  void commitSources(final Collection<VariableValueSource> uncommitttedSources) {
+    super.addVariableValueSources(uncommitttedSources);
   }
 
   private void readVariables() {

@@ -35,9 +35,9 @@ public class VariableState extends AbstractAttributeAwareEntity {
 
   @OneToMany(cascade = CascadeType.ALL)
   // Creates a column to store the category's index within the list
-  @IndexColumn(name = "category_index")
+  @IndexColumn(name = "category_index", nullable = false)
   // Used to prevent an association table from being created
-  @JoinColumn(nullable = false)
+  @JoinColumn(name = "variable_id", nullable = false)
   private List<CategoryState> categories;
 
   @Column(nullable = false)
@@ -172,6 +172,17 @@ public class VariableState extends AbstractAttributeAwareEntity {
       }
     }
     return null;
+  }
+
+  public int getCategoryIndex(String name) {
+    int index = 0;
+    for(CategoryState state : getCategories()) {
+      if(name.equals(state.getName())) {
+        return index;
+      }
+      index++;
+    }
+    return -1;
   }
 
 }

@@ -4,7 +4,9 @@ import java.io.Serializable;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import org.hibernate.SessionFactory;
+import org.hibernate.FetchMode;
+import org.hibernate.Session;
+import org.hibernate.criterion.Restrictions;
 import org.obiba.core.service.SortingClause;
 import org.obiba.core.service.impl.hibernate.AssociationCriteria;
 import org.obiba.core.service.impl.hibernate.AssociationCriteria.Operation;
@@ -15,7 +17,6 @@ import org.obiba.magma.Variable;
 import org.obiba.magma.VariableValueSource;
 import org.obiba.magma.VariableValueSourceFactory;
 import org.obiba.magma.datasource.hibernate.HibernateValueTable.HibernateValueSet;
-import org.obiba.magma.datasource.hibernate.converter.HibernateMarshallingContext;
 import org.obiba.magma.datasource.hibernate.converter.VariableConverter;
 import org.obiba.magma.datasource.hibernate.domain.ValueSetValue;
 import org.obiba.magma.datasource.hibernate.domain.VariableState;
@@ -33,22 +34,20 @@ class HibernateVariableValueSourceFactory implements VariableValueSourceFactory 
   @Override
   public Set<VariableValueSource> createSources() {
     Set<VariableValueSource> sources = new LinkedHashSet<VariableValueSource>();
-    AssociationCriteria criteria = AssociationCriteria.create(VariableState.class, getSessionFactory().getCurrentSession()).add("valueTable", Operation.eq, valueTable.getValueTableState()).addSortingClauses(SortingClause.create("pos"));
+    AssociationCriteria criteria = AssociationCriteria.create(VariableState.class, getCurrentSession()).add("valueTable", Operation.eq, valueTable.getValueTableState()).addSortingClauses(SortingClause.create("pos"));
     for(Object obj : criteria.list()) {
       VariableState state = (VariableState) obj;
-      HibernateVariableValueSource source = new HibernateVariableValueSource(state);
-      sources.add(source);
+      sources.add(new HibernateVariableValueSource(state, false));
     }
     return sources;
   }
 
   VariableValueSource createSource(VariableState variableState) {
-    HibernateVariableValueSource source = new HibernateVariableValueSource(variableState);
-    return source;
+    return new HibernateVariableValueSource(variableState, true);
   }
 
-  private SessionFactory getSessionFactory() {
-    return valueTable.getDatasource().getSessionFactory();
+  private Session getCurrentSession() {
+    return valueTable.getDatasource().getSessionFactory().getCurrentSession();
   }
 
   private class HibernateVariableValueSource implements VariableValueSource {
@@ -57,26 +56,32 @@ class HibernateVariableValueSourceFactory implements VariableValueSourceFactory 
 
     private Variable variable;
 
-    public HibernateVariableValueSource(VariableState state) {
+    private String name;
+
+    public HibernateVariableValueSource(VariableState state, boolean unmarshall) {
       if(state == null) throw new IllegalArgumentException("state cannot be null");
       if(state.getId() == null) throw new IllegalArgumentException("state must be persisted");
       this.variableId = state.getId();
+      this.name = state.getName();
+
+      if(unmarshall) {
+        unmarshall(state);
+      }
     }
 
     @Override
     public synchronized Variable getVariable() {
       if(variable == null) {
-        HibernateMarshallingContext ctx = valueTable.createContext();
-        VariableState state = (VariableState) getSessionFactory().getCurrentSession().load(VariableState.class, variableId);
-        variable = VariableConverter.getInstance().unmarshal(state, ctx);
+        VariableState state = (VariableState) getCurrentSession().createCriteria(VariableState.class).add(Restrictions.idEq(this.variableId)).setFetchMode("categories", FetchMode.JOIN).uniqueResult();
+        unmarshall(state);
       }
       return variable;
     }
 
     @Override
     public Value getValue(ValueSet valueSet) {
-      HibernateValueSet jpaValueSet = (HibernateValueSet) valueSet;
-      AssociationCriteria criteria = AssociationCriteria.create(ValueSetValue.class, getSessionFactory().getCurrentSession()).add("variable.id", Operation.eq, variableId).add("valueSet", Operation.eq, jpaValueSet.getValueSetState());
+      HibernateValueSet hibernateValueSet = (HibernateValueSet) valueSet;
+      AssociationCriteria criteria = AssociationCriteria.create(ValueSetValue.class, getCurrentSession()).add("variable.id", Operation.eq, variableId).add("valueSet", Operation.eq, hibernateValueSet.getValueSetState());
       ValueSetValue valueSetValue = (ValueSetValue) criteria.getCriteria().uniqueResult();
       return valueSetValue != null ? valueSetValue.getValue() : (getVariable().isRepeatable() ? getValueType().nullSequence() : getValueType().nullValue());
     }
@@ -86,6 +91,33 @@ class HibernateVariableValueSourceFactory implements VariableValueSourceFactory 
       return getVariable().getValueType();
     }
 
+    /**
+     * Initialises the {@code variable} attribute from the provided state
+     * @param state
+     */
+    private void unmarshall(VariableState state) {
+      variable = VariableConverter.getInstance().unmarshal(state, null);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+      if(this == obj) {
+        return true;
+      }
+      if(obj == null) {
+        return false;
+      }
+      if(obj instanceof HibernateVariableValueSource == false) {
+        return super.equals(obj);
+      }
+      HibernateVariableValueSource rhs = (HibernateVariableValueSource) obj;
+      return this.name.equals(rhs.name);
+    }
+
+    @Override
+    public int hashCode() {
+      return this.name.hashCode();
+    }
   }
 
 }

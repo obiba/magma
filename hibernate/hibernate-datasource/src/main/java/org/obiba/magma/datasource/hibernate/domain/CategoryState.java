@@ -1,5 +1,6 @@
 package org.obiba.magma.datasource.hibernate.domain;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 
@@ -9,17 +10,19 @@ public class CategoryState extends AbstractAttributeAwareEntity {
 
   private static final long serialVersionUID = 1L;
 
+  @Column(nullable = false)
   private String name;
 
   private String code;
 
-  private Boolean missing;
+  @Column(nullable = false)
+  private boolean missing;
 
   public CategoryState() {
 
   }
 
-  public CategoryState(String name, String code, Boolean missing) {
+  public CategoryState(String name, String code, boolean missing) {
     super();
     this.name = name;
     this.code = code;
@@ -43,7 +46,7 @@ public class CategoryState extends AbstractAttributeAwareEntity {
   }
 
   public boolean isMissing() {
-    return missing != null ? missing : false;
+    return missing;
   }
 
 }
