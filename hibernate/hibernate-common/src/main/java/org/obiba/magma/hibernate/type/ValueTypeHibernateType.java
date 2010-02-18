@@ -52,7 +52,7 @@ public class ValueTypeHibernateType extends ImmutableType implements Discriminat
     return "value_type";
   }
 
-  public Class getReturnedClass() {
+  public Class<?> getReturnedClass() {
     return ValueType.class;
   }
 

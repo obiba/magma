@@ -13,6 +13,7 @@ import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
 import org.hibernate.annotations.CollectionOfElements;
 import org.hibernate.annotations.Columns;
+import org.hibernate.annotations.MapKey;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 import org.obiba.core.domain.AbstractEntity;
@@ -35,6 +36,7 @@ public class HibernateVariableEntityAuditEvent extends AbstractEntity implements
   private Date datetime;
 
   @CollectionOfElements(targetElement = Value.class)
+  @MapKey(columns = { @Column(name = "name") })
   @Type(type = "value")
   @Columns(columns = { @Column(name = "value_type", nullable = false), @Column(name = "is_sequence", nullable = false), @Column(name = "value", length = Integer.MAX_VALUE, nullable = false) })
   @Cascade(CascadeType.ALL)
