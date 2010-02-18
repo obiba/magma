@@ -145,6 +145,7 @@
     <module>datasource-fs</module>
     <module>hibernate</module>
     <module>datasource-jdbc</module>
+    <module>datasource-excel</module>
   </modules>
 
   <build>
