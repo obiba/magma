@@ -3,6 +3,7 @@ package org.obiba.magma.datasource.hibernate.domain;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.persistence.AssociationOverride;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -17,9 +18,11 @@ import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 import org.obiba.magma.ValueType;
 import org.obiba.magma.Variable;
+import org.obiba.magma.hibernate.type.ValueTypeHibernateType;
 
 @Entity
 @Table(name = "variable", uniqueConstraints = { @UniqueConstraint(columnNames = { "value_table_id", "name" }) })
+@AssociationOverride(name = "attributes.parent", joinColumns = { @JoinColumn(name = "variable_id", referencedColumnName = "variable_id") })
 @TypeDef(name = "value_type", typeClass = ValueTypeHibernateType.class)
 public class VariableState extends AbstractAttributeAwareEntity {
 

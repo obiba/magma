@@ -1,4 +1,4 @@
-package org.obiba.magma.datasource.hibernate.domain;
+package org.obiba.magma.hibernate.type;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;

@@ -116,7 +116,7 @@ public class HibernateDatasourceTest {
   }
 
   private LocalSessionFactoryProvider newProvider(String testName) {
-    LocalSessionFactoryProvider provider = new LocalSessionFactoryProvider("org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:" + testName + ";shutdown=true", "sa", "", "org.hibernate.dialect.HSQLDialect");
+    LocalSessionFactoryProvider provider = new LocalSessionFactoryProvider("org.hsqldb.jdbcDriver", "jdbc:hsqldb:file:target/" + testName + ";shutdown=true", "sa", "", "org.hibernate.dialect.HSQLDialect");
     provider.initialise();
     return provider;
   }

@@ -12,7 +12,7 @@ import org.hibernate.annotations.TypeDef;
 import org.obiba.magma.Attribute;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueType;
-import org.obiba.magma.datasource.hibernate.domain.ValueHibernateType;
+import org.obiba.magma.hibernate.type.ValueHibernateType;
 
 @Embeddable
 @TypeDef(name = "value", typeClass = ValueHibernateType.class)
@@ -21,7 +21,7 @@ public class HibernateAttribute implements Attribute {
   private static final long serialVersionUID = 1L;
 
   @Parent
-  private AbstractAttributeAwareEntity attributeAware;
+  private AbstractAttributeAwareEntity parent;
 
   @Column(nullable = false)
   private String name;
@@ -43,12 +43,12 @@ public class HibernateAttribute implements Attribute {
     setValue(value);
   }
 
-  public AbstractAttributeAwareEntity getAttributeAware() {
-    return attributeAware;
+  public AbstractAttributeAwareEntity getParent() {
+    return parent;
   }
 
-  public void setAttributeAware(AbstractAttributeAwareEntity attributeAware) {
-    this.attributeAware = attributeAware;
+  public void setParent(AbstractAttributeAwareEntity parent) {
+    this.parent = parent;
   }
 
   public void setValue(Value value) {

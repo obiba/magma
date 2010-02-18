@@ -12,6 +12,7 @@ import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 import org.obiba.core.domain.AbstractEntity;
 import org.obiba.magma.Value;
+import org.obiba.magma.hibernate.type.ValueHibernateType;
 
 @Entity
 @Table(name = "value_set_value", uniqueConstraints = { @UniqueConstraint(columnNames = { "value_set_id", "variable_id" }) })

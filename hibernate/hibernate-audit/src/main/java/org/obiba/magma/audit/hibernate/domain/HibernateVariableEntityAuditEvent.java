@@ -18,7 +18,7 @@ import org.hibernate.annotations.TypeDef;
 import org.obiba.core.domain.AbstractEntity;
 import org.obiba.magma.Value;
 import org.obiba.magma.audit.VariableEntityAuditEvent;
-import org.obiba.magma.datasource.hibernate.domain.ValueHibernateType;
+import org.obiba.magma.hibernate.type.ValueHibernateType;
 
 @Entity
 @Table(name = "variable_entity_audit_event")
