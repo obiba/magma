@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 import liquibase.change.AddColumnChange;
@@ -29,6 +30,8 @@ import org.obiba.magma.VariableEntity;
 import org.obiba.magma.datasource.jdbc.support.CreateTableChangeBuilder;
 import org.obiba.magma.datasource.jdbc.support.InsertDataChangeBuilder;
 import org.obiba.magma.datasource.jdbc.support.NameConverter;
+import org.obiba.magma.type.DateTimeType;
+import org.obiba.magma.type.DateType;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 public class JdbcValueTableWriter implements ValueTableWriter {
@@ -278,7 +281,16 @@ public class JdbcValueTableWriter implements ValueTableWriter {
 
     @Override
     public void writeValue(Variable variable, Value value) {
-      insertDataChangeBuilder.withColumn(NameConverter.toSqlName(variable.getName()), value.toString());
+      if(isDateValue(value)) {
+        Date dateValue = (Date) value.getValue();
+        insertDataChangeBuilder.withColumn(NameConverter.toSqlName(variable.getName()), dateValue);
+      } else {
+        insertDataChangeBuilder.withColumn(NameConverter.toSqlName(variable.getName()), value.getValue().toString());
+      }
+    }
+
+    private boolean isDateValue(Value value) {
+      return value.getValueType().getName().equals(DateType.get().getName()) || value.getValueType().getName().equals(DateTimeType.get().getName());
     }
 
     @Override

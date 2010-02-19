@@ -150,7 +150,7 @@ public class IntegrationApp {
     JdbcDatasource jd = jdbcDatasourceFactory.create("jdbc");
     jd.initialise();
     MagmaEngine.get().addDatasource(jd);
-    DatasourceCopier.Builder.newCopier().dontCopyValues().build().copy(integrationDatasource, jd);
+    DatasourceCopier.Builder.newCopier().dontCopyNullValues().build().copy(integrationDatasource, jd);
 
     MagmaEngine.get().shutdown();
   }
@@ -158,7 +158,7 @@ public class IntegrationApp {
   private static Properties getJdbcProperties() {
     Properties jdbcProperties = new Properties();
     jdbcProperties.setProperty(JdbcDatasourceFactory.DRIVER_CLASS_NAME, "org.hsqldb.jdbcDriver");
-    jdbcProperties.setProperty(JdbcDatasourceFactory.URL, "jdbc:hsqldb:mem:datasource_jdbc");
+    jdbcProperties.setProperty(JdbcDatasourceFactory.URL, "jdbc:hsqldb:file:datasource_jdbc.db");
     jdbcProperties.setProperty(JdbcDatasourceFactory.USERNAME, "sa");
     jdbcProperties.setProperty(JdbcDatasourceFactory.PASSWORD, "");
 
