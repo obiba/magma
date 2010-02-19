@@ -16,6 +16,9 @@ import org.obiba.magma.ValueTable;
 import org.obiba.magma.ValueTableWriter;
 import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
+import org.obiba.magma.datasource.excel.support.ExcelUtil;
+import org.obiba.magma.type.BooleanType;
+import org.obiba.magma.type.TextType;
 
 public class ExcelValueTableWriter implements ValueTableWriter {
 
@@ -111,14 +114,14 @@ public class ExcelValueTableWriter implements ValueTableWriter {
       updateSheetHeaderRow(headerMapVariables, headerRowVariables, ExcelDatasource.variablesReservedAttributeNames);
 
       Row attributesRow = variablesSheet.createRow(variablesSheet.getPhysicalNumberOfRows());
-      attributesRow.createCell(headerMapVariables.get("table")).setCellValue(valueTable.getName());
-      attributesRow.createCell(headerMapVariables.get("name")).setCellValue(variable.getName());
-      // attributesRow.createCell(headerMapVariables.get("mimeType")).setCellValue(variable.getMimeType());
-      // attributesRow.createCell(headerMapVariables.get("occurenceGroup")).setCellValue(variable.getOccurrenceGroup());
-      attributesRow.createCell(headerMapVariables.get("entityType")).setCellValue(variable.getEntityType());
-      // attributesRow.createCell(headerMapVariables.get("unit")).setCellValue(variable.getUnit());
-      // attributesRow.createCell(headerMapVariables.get("repeatable")).setCellValue(String.valueOf(variable.isRepeatable()));
-      attributesRow.createCell(headerMapVariables.get("valueType")).setCellValue(String.valueOf(variable.getValueType().getName()));
+      ExcelUtil.setCellValue(attributesRow.createCell(headerMapVariables.get("table")), TextType.get(), valueTable.getName());
+      ExcelUtil.setCellValue(attributesRow.createCell(headerMapVariables.get("name")), TextType.get(), variable.getName());
+      ExcelUtil.setCellValue(attributesRow.createCell(headerMapVariables.get("mimeType")), TextType.get(), variable.getMimeType());
+      ExcelUtil.setCellValue(attributesRow.createCell(headerMapVariables.get("occurrenceGroup")), TextType.get(), variable.getOccurrenceGroup());
+      ExcelUtil.setCellValue(attributesRow.createCell(headerMapVariables.get("entityType")), TextType.get(), variable.getEntityType());
+      ExcelUtil.setCellValue(attributesRow.createCell(headerMapVariables.get("unit")), TextType.get(), variable.getUnit());
+      ExcelUtil.setCellValue(attributesRow.createCell(headerMapVariables.get("repeatable")), BooleanType.get(), variable.isRepeatable());
+      ExcelUtil.setCellValue(attributesRow.createCell(headerMapVariables.get("valueType")), TextType.get(), variable.getValueType().getName());
 
       writeCustomAttributes(variable, attributesRow, headerRowVariables, headerMapVariables);
       return attributesRow;
@@ -150,7 +153,7 @@ public class ExcelValueTableWriter implements ValueTableWriter {
           headerCell.setCellValue(customAttributeName);
           headerCell.setCellStyle(excelDatasource.getExcelStyles("headerCellStyle"));
         }
-        attributesRow.createCell(attributeCellIndex).setCellValue(customAttribute.getValue().getValue().toString());
+        ExcelUtil.setCellValue(attributesRow.createCell(attributeCellIndex), customAttribute.getValue());
         stringBuilder.setLength(0);
       }
     }
