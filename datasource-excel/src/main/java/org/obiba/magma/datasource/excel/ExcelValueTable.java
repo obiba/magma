@@ -19,7 +19,6 @@ import org.obiba.magma.ValueSet;
 import org.obiba.magma.ValueType;
 import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
-import org.obiba.magma.Variable.Builder;
 import org.obiba.magma.support.AbstractValueTable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -92,7 +91,7 @@ class ExcelValueTable extends AbstractValueTable implements Initialisable, Dispo
       occurrenceGroup = getCellValueAsString(variableRow.getCell(headerMapVariables.get("occurrenceGroup")));
 
       Variable.Builder variableBuilder = Variable.Builder.newVariable(name, ValueType.Factory.forName(valueType), entityType).mimeType(mimeType).unit(unit).occurrenceGroup(occurrenceGroup);
-      repeatable = Boolean.valueOf(getCellValueAsString(variableRow.getCell(headerMapVariables.get("repeatable"))));
+      repeatable = getCellValueAsString(variableRow.getCell(headerMapVariables.get("repeatable"))) == "1";
 
       if(repeatable) {
         variableBuilder.repeatable();
@@ -125,6 +124,7 @@ class ExcelValueTable extends AbstractValueTable implements Initialisable, Dispo
     String categoryVariable;
     String categoryName;
     String categoryCode;
+    boolean missing;
     Row categoryRow;
 
     Sheet categoriesSheet = getDatasource().getCategoriesSheet();
@@ -140,14 +140,11 @@ class ExcelValueTable extends AbstractValueTable implements Initialisable, Dispo
       if(categoryTable.equals(getName()) && categoryVariable.equals(variableName)) {
         categoryName = getCellValueAsString(categoryRow.getCell(headerMapCategories.get("name")));
         categoryCode = getCellValueAsString(categoryRow.getCell(headerMapCategories.get("code")));
+        missing = getCellValueAsString(categoryRow.getCell(headerMapCategories.get("missing"))) == "1";
 
-        // TODO Fix unnecessary casting
-        AttributeAwareBuilder categoryBuilder = Category.Builder.newCategory(categoryName).withCode(categoryCode);
+        AttributeAwareBuilder<Category.Builder> categoryBuilder = Category.Builder.newCategory(categoryName).withCode(categoryCode).missing(missing);
         readCustomAttributes(categoryRow, headerMapCategories, attributeNamesCategories, categoryBuilder);
         variableBuilder.addCategory(((Category.Builder) categoryBuilder).build());
-
-        // TODO Add "missing" category attributes
-
       }
     }
   }
@@ -161,7 +158,7 @@ class ExcelValueTable extends AbstractValueTable implements Initialisable, Dispo
    * @param attributeNames
    * @param variableBuilder
    */
-  private void readCustomAttributes(Row attributesRow, Map<String, Integer> headerMap, Set<String> attributeNames, AttributeAwareBuilder<Builder> builder) {
+  private void readCustomAttributes(Row attributesRow, Map<String, Integer> headerMap, Set<String> attributeNames, AttributeAwareBuilder<?> builder) {
     String attributeValue;
     Locale attributeLocale;
     for(String attributeName : attributeNames) {
@@ -186,8 +183,7 @@ class ExcelValueTable extends AbstractValueTable implements Initialisable, Dispo
 
   @Override
   public ValueSet getValueSet(VariableEntity entity) throws NoSuchValueSetException {
-    // TODO Implement a method to read ValueSets
-    return null;
+    throw new UnsupportedOperationException("getValueSet not supported");
   }
 
 }
