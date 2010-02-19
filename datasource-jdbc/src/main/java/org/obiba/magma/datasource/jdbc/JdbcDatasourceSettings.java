@@ -21,23 +21,18 @@ public class JdbcDatasourceSettings {
   // Constructors
   //
 
+  public JdbcDatasourceSettings() {
+    super();
+  }
+
   public JdbcDatasourceSettings(String defaultEntityType, Set<String> mappedTables, Set<JdbcValueTableSettings> tableSettings, boolean useMetadataTables) {
     if(defaultEntityType == null) {
       throw new IllegalArgumentException("null defaultEntityType");
     }
     this.defaultEntityType = defaultEntityType;
 
-    ImmutableSet.Builder<String> mappedTablesBuilder = new ImmutableSet.Builder<String>();
-    if(mappedTables != null) {
-      mappedTablesBuilder.addAll(mappedTables);
-    }
-    this.mappedTables = mappedTablesBuilder.build();
-
-    ImmutableSet.Builder<JdbcValueTableSettings> tableSettingsBuilder = new ImmutableSet.Builder<JdbcValueTableSettings>();
-    if(tableSettings != null) {
-      tableSettingsBuilder.addAll(tableSettings);
-    }
-    this.tableSettings = tableSettingsBuilder.build();
+    setMappedTables(mappedTables);
+    setTableSettings(tableSettings);
 
     this.useMetadataTables = useMetadataTables;
   }
@@ -46,8 +41,20 @@ public class JdbcDatasourceSettings {
   // Methods
   //
 
+  public void setDefaultEntityType(String defaultEntityType) {
+    this.defaultEntityType = defaultEntityType;
+  }
+
   public String getDefaultEntityType() {
     return defaultEntityType;
+  }
+
+  public void setMappedTables(Set<String> mappedTables) {
+    ImmutableSet.Builder<String> mappedTablesBuilder = new ImmutableSet.Builder<String>();
+    if(mappedTables != null) {
+      mappedTablesBuilder.addAll(mappedTables);
+    }
+    this.mappedTables = mappedTablesBuilder.build();
   }
 
   public Set<String> getMappedTables() {
@@ -56,6 +63,14 @@ public class JdbcDatasourceSettings {
 
   public boolean hasMappedTable(String tableName) {
     return mappedTables.contains(tableName);
+  }
+
+  public void setTableSettings(Set<JdbcValueTableSettings> tableSettings) {
+    ImmutableSet.Builder<JdbcValueTableSettings> tableSettingsBuilder = new ImmutableSet.Builder<JdbcValueTableSettings>();
+    if(tableSettings != null) {
+      tableSettingsBuilder.addAll(tableSettings);
+    }
+    this.tableSettings = tableSettingsBuilder.build();
   }
 
   public Set<JdbcValueTableSettings> getTableSettings() {

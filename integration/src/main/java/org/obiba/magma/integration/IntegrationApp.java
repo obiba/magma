@@ -22,7 +22,6 @@ import org.obiba.magma.datasource.fs.FsDatasource;
 import org.obiba.magma.datasource.hibernate.SessionFactoryProvider;
 import org.obiba.magma.datasource.hibernate.support.HibernateDatasourceFactory;
 import org.obiba.magma.datasource.hibernate.support.LocalSessionFactoryProvider;
-import org.obiba.magma.datasource.jdbc.JdbcDatasource;
 import org.obiba.magma.datasource.jdbc.JdbcDatasourceFactory;
 import org.obiba.magma.datasource.jdbc.JdbcDatasourceSettings;
 import org.obiba.magma.integration.service.XStreamIntegrationServiceFactory;
@@ -145,9 +144,10 @@ public class IntegrationApp {
     DatasourceCopier.Builder.newCopier().dontCopyValues().build().copy(integrationDatasource, ed);
 
     JdbcDatasourceFactory jdbcDatasourceFactory = new JdbcDatasourceFactory();
+    jdbcDatasourceFactory.setName("jdbc");
     jdbcDatasourceFactory.setJdbcProperties(getJdbcProperties());
     jdbcDatasourceFactory.setDatasourceSettings(new JdbcDatasourceSettings("Participant", null, null, true));
-    JdbcDatasource jd = jdbcDatasourceFactory.create("jdbc");
+    Datasource jd = jdbcDatasourceFactory.create();
     MagmaEngine.get().addDatasource(jd);
     DatasourceCopier.Builder.newCopier().dontCopyNullValues().build().copy(integrationDatasource, jd);
 

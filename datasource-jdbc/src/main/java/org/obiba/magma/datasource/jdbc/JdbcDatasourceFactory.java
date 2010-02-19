@@ -3,8 +3,10 @@ package org.obiba.magma.datasource.jdbc;
 import java.util.Properties;
 
 import org.apache.commons.dbcp.BasicDataSource;
+import org.obiba.magma.AbstractDatasourceFactory;
+import org.obiba.magma.Datasource;
 
-public class JdbcDatasourceFactory {
+public class JdbcDatasourceFactory extends AbstractDatasourceFactory {
   //
   // Constants
   //
@@ -21,23 +23,18 @@ public class JdbcDatasourceFactory {
   // Instance Variables
   //
 
+  private String name;
+
   private Properties jdbcProperties;
 
   private JdbcDatasourceSettings settings;
 
   //
-  // Methods
+  // AbstractDatasourceFactory Methods
   //
 
-  public void setJdbcProperties(Properties jdbcProperties) {
-    this.jdbcProperties = jdbcProperties;
-  }
-
-  public void setDatasourceSettings(JdbcDatasourceSettings settings) {
-    this.settings = settings;
-  }
-
-  public JdbcDatasource create(String name) {
+  @Override
+  public Datasource create() {
     BasicDataSource dataSource = new BasicDataSource();
     dataSource.setDriverClassName(jdbcProperties.getProperty(DRIVER_CLASS_NAME));
     dataSource.setUrl(jdbcProperties.getProperty(URL));
@@ -45,6 +42,22 @@ public class JdbcDatasourceFactory {
     dataSource.setPassword(jdbcProperties.getProperty(PASSWORD));
 
     return new JdbcDatasource(name, dataSource, settings);
+  }
+
+  //
+  // Methods
+  //
+
+  public void setName(String name) {
+    this.name = name;
+  }
+
+  public void setJdbcProperties(Properties jdbcProperties) {
+    this.jdbcProperties = jdbcProperties;
+  }
+
+  public void setDatasourceSettings(JdbcDatasourceSettings settings) {
+    this.settings = settings;
   }
 
 }

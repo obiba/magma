@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 import org.junit.Test;
+import org.obiba.magma.Datasource;
 
 import com.thoughtworks.xstream.XStream;
 
@@ -12,7 +13,7 @@ public class JdbcDatasourceFactoryTest {
   @Test
   public void testDeserializeFactoryAndCreateDatasource() {
     JdbcDatasourceFactory factory = (JdbcDatasourceFactory) (new XStream()).fromXML(JdbcDatasourceFactoryTest.class.getResourceAsStream("factory.xml"));
-    JdbcDatasource jdbcDatasource = factory.create("my-datasource");
+    Datasource jdbcDatasource = factory.create();
     jdbcDatasource.initialise();
 
     assertNotNull(jdbcDatasource);

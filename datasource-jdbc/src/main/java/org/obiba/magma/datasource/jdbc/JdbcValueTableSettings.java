@@ -23,6 +23,10 @@ public class JdbcValueTableSettings {
   // Constructors
   //
 
+  public JdbcValueTableSettings() {
+    super();
+  }
+
   public JdbcValueTableSettings(String sqlTableName, String magmaTableName, String entityType, List<String> entityIdentifierColumns) {
     if(sqlTableName == null) {
       throw new IllegalArgumentException("null sqlTableName");
@@ -44,16 +48,35 @@ public class JdbcValueTableSettings {
   // Methods
   //
 
+  public void setSqlTableName(String sqlTableName) {
+    this.sqlTableName = sqlTableName;
+  }
+
   public String getSqlTableName() {
     return sqlTableName;
+  }
+
+  public void setMagmaTableName(String magmaTableName) {
+    this.magmaTableName = magmaTableName;
   }
 
   public String getMagmaTableName() {
     return magmaTableName;
   }
 
+  public void setEntityType(String entityType) {
+    this.entityType = entityType;
+  }
+
   public String getEntityType() {
     return entityType;
+  }
+
+  public void setEntityIdentifierColumns(List<String> entityIdentifierColumns) {
+    this.entityIdentifierColumns = new ArrayList<String>();
+    if(entityIdentifierColumns != null) {
+      this.entityIdentifierColumns.addAll(entityIdentifierColumns);
+    }
   }
 
   public List<String> getEntityIdentifierColumns() {
