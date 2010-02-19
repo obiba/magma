@@ -58,6 +58,8 @@ public class FsDatasource extends AbstractDatasource {
 
   private OutputStreamWrapper outputStreamWrapper = new NullOutputStreamWrapper();
 
+  private boolean instanceAttributesModified = false;
+
   public FsDatasource(String name, java.io.File outputFile, DatasourceEncryptionStrategy datasourceEncryptionStrategy) {
     this(name, outputFile);
     this.datasourceEncryptionStrategy = datasourceEncryptionStrategy;
@@ -112,7 +114,9 @@ public class FsDatasource extends AbstractDatasource {
   @Override
   public void onDispose() {
     try {
-      writeAttributes();
+      if(instanceAttributesModified) {
+        writeAttributes();
+      }
     } finally {
       try {
         File.umount(datasourceArchive);
@@ -124,6 +128,7 @@ public class FsDatasource extends AbstractDatasource {
 
   public void setAttributeValue(String name, Value value) {
     getInstanceAttributes().put(name, Attribute.Builder.newAttribute(name).withValue(value).build());
+    instanceAttributesModified = true;
   }
 
   protected boolean hasEncryptionStrategy() {
@@ -142,6 +147,7 @@ public class FsDatasource extends AbstractDatasource {
       for(Attribute a : attributes) {
         getInstanceAttributes().put(a.getName(), a);
       }
+      instanceAttributesModified = true;
     } catch(FileNotFoundException e) {
       throw new MagmaRuntimeException(e);
     } finally {
@@ -153,6 +159,7 @@ public class FsDatasource extends AbstractDatasource {
     Writer writer = null;
     try {
       getXStreamInstance().toXML(new LinkedList<Attribute>(getInstanceAttributes().values()), writer = new OutputStreamWriter(new FileOutputStream(new File(datasourceArchive, "metadata.xml")), CHARSET));
+      instanceAttributesModified = false;
     } catch(FileNotFoundException e) {
       throw new MagmaRuntimeException(e);
     } finally {
