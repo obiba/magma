@@ -89,11 +89,12 @@ public class ExcelValueTableWriter implements ValueTableWriter {
       Row categoryRow;
       for(Category category : categories) {
         categoryRow = categoriesSheet.createRow(categoriesSheet.getPhysicalNumberOfRows());
-        categoryRow.createCell(headerMapCategories.get("table")).setCellValue(valueTable.getName());
-        categoryRow.createCell(headerMapCategories.get("variable")).setCellValue(variable.getName());
-        categoryRow.createCell(headerMapCategories.get("name")).setCellValue(category.getName());
-        categoryRow.createCell(headerMapCategories.get("code")).setCellValue(category.getCode());
-        // categoryRow.createCell(headerMapCategories.get("missing")).setCellValue(category.isMissing());
+        ExcelUtil.setCellValue(categoryRow.createCell(headerMapCategories.get("table")), TextType.get(), valueTable.getName());
+        ExcelUtil.setCellValue(categoryRow.createCell(headerMapCategories.get("variable")), TextType.get(), variable.getName());
+        ExcelUtil.setCellValue(categoryRow.createCell(headerMapCategories.get("name")), TextType.get(), category.getName());
+        ExcelUtil.setCellValue(categoryRow.createCell(headerMapCategories.get("code")), TextType.get(), category.getCode());
+        ExcelUtil.setCellValue(categoryRow.createCell(headerMapCategories.get("missing")), BooleanType.get(), category.isMissing());
+
         writeCustomAttributes(category, attributesRow, headerRowCategories, headerMapCategories);
       }
     }
