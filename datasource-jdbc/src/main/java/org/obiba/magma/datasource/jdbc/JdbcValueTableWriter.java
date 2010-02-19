@@ -31,7 +31,6 @@ import org.obiba.magma.datasource.jdbc.support.CreateTableChangeBuilder;
 import org.obiba.magma.datasource.jdbc.support.InsertDataChangeBuilder;
 import org.obiba.magma.datasource.jdbc.support.NameConverter;
 import org.obiba.magma.type.DateTimeType;
-import org.obiba.magma.type.DateType;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 public class JdbcValueTableWriter implements ValueTableWriter {
@@ -290,7 +289,7 @@ public class JdbcValueTableWriter implements ValueTableWriter {
     }
 
     private boolean isDateValue(Value value) {
-      return value.getValueType().getName().equals(DateType.get().getName()) || value.getValueType().getName().equals(DateTimeType.get().getName());
+      return value.getValueType().getName().equals(DateTimeType.get().getName());
     }
 
     @Override
