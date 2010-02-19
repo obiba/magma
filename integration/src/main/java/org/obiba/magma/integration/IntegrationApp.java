@@ -157,7 +157,7 @@ public class IntegrationApp {
   private static Properties getJdbcProperties() {
     Properties jdbcProperties = new Properties();
     jdbcProperties.setProperty(JdbcDatasourceFactory.DRIVER_CLASS_NAME, "org.hsqldb.jdbcDriver");
-    jdbcProperties.setProperty(JdbcDatasourceFactory.URL, "jdbc:hsqldb:file:datasource_jdbc.db");
+    jdbcProperties.setProperty(JdbcDatasourceFactory.URL, "jdbc:hsqldb:file:target/datasource_jdbc.db;shutdown=true");
     jdbcProperties.setProperty(JdbcDatasourceFactory.USERNAME, "sa");
     jdbcProperties.setProperty(JdbcDatasourceFactory.PASSWORD, "");
 
