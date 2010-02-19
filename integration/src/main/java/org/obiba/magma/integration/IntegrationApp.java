@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.security.NoSuchAlgorithmException;
 import java.util.Date;
+import java.util.Properties;
 
 import org.obiba.magma.Datasource;
 import org.obiba.magma.MagmaEngine;
@@ -21,6 +22,9 @@ import org.obiba.magma.datasource.fs.FsDatasource;
 import org.obiba.magma.datasource.hibernate.SessionFactoryProvider;
 import org.obiba.magma.datasource.hibernate.support.HibernateDatasourceFactory;
 import org.obiba.magma.datasource.hibernate.support.LocalSessionFactoryProvider;
+import org.obiba.magma.datasource.jdbc.JdbcDatasource;
+import org.obiba.magma.datasource.jdbc.JdbcDatasourceFactory;
+import org.obiba.magma.datasource.jdbc.JdbcDatasourceSettings;
 import org.obiba.magma.integration.service.XStreamIntegrationServiceFactory;
 import org.obiba.magma.js.MagmaJsExtension;
 import org.obiba.magma.support.DatasourceCopier;
@@ -140,6 +144,24 @@ public class IntegrationApp {
 
     DatasourceCopier.Builder.newCopier().dontCopyValues().build().copy(integrationDatasource, ed);
 
+    JdbcDatasourceFactory jdbcDatasourceFactory = new JdbcDatasourceFactory();
+    jdbcDatasourceFactory.setJdbcProperties(getJdbcProperties());
+    jdbcDatasourceFactory.setDatasourceSettings(new JdbcDatasourceSettings("Participant", null, null, true));
+    JdbcDatasource jd = jdbcDatasourceFactory.create("jdbc");
+    jd.initialise();
+    MagmaEngine.get().addDatasource(jd);
+    DatasourceCopier.Builder.newCopier().dontCopyValues().build().copy(integrationDatasource, jd);
+
     MagmaEngine.get().shutdown();
+  }
+
+  private static Properties getJdbcProperties() {
+    Properties jdbcProperties = new Properties();
+    jdbcProperties.setProperty(JdbcDatasourceFactory.DRIVER_CLASS_NAME, "org.hsqldb.jdbcDriver");
+    jdbcProperties.setProperty(JdbcDatasourceFactory.URL, "jdbc:hsqldb:mem:datasource_jdbc");
+    jdbcProperties.setProperty(JdbcDatasourceFactory.USERNAME, "sa");
+    jdbcProperties.setProperty(JdbcDatasourceFactory.PASSWORD, "");
+
+    return jdbcProperties;
   }
 }
