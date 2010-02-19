@@ -21,8 +21,12 @@ import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.Variable.Builder;
 import org.obiba.magma.support.AbstractValueTable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 class ExcelValueTable extends AbstractValueTable implements Initialisable, Disposable {
+
+  private static final Logger log = LoggerFactory.getLogger(ExcelValueTable.class);
 
   public ExcelValueTable(String name, ExcelDatasource datasource, Sheet excelSheet) {
     super(datasource, name);
@@ -47,13 +51,13 @@ class ExcelValueTable extends AbstractValueTable implements Initialisable, Dispo
   }
 
   private void printVariables() {
-    System.console().printf("Table (name = %s)\n", getName());
+    log.debug("Table (name = {})", getName());
     Iterable<Variable> variables = getVariables();
     for(Variable variable : variables) {
-      System.console().printf("  Variable (name = %s)\n", variable.getName());
+      log.debug("  Variable (name = {})", variable.getName());
       Set<Category> categories = variable.getCategories();
       for(Category category : categories) {
-        System.console().printf("    Category (name = %s)\n", category.getName());
+        log.debug("    Category (name = {})\n", category.getName());
       }
     }
   }
@@ -109,9 +113,9 @@ class ExcelValueTable extends AbstractValueTable implements Initialisable, Dispo
   }
 
   /**
-   * @param categoriesSheet
-   * @param headerMapCategories
-   * @param attributeNamesCategories
+   * Read the Categories of a specific Variable in the "Categories" Excel sheet. Add these Categories to the specified
+   * Variable using the Variable.Builder.
+   * 
    * @param variableName
    * @param variableBuilder
    */
@@ -149,6 +153,9 @@ class ExcelValueTable extends AbstractValueTable implements Initialisable, Dispo
   }
 
   /**
+   * Read the custom Attributes define by a Row in an Excel sheet to an AttributeAware instance (ex: Variable,
+   * Category...) using an AttributeAwareBuilder.
+   * 
    * @param variableRow
    * @param headerMap
    * @param attributeNames

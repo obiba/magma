@@ -62,7 +62,46 @@ public class ExcelValueTableWriter implements ValueTableWriter {
     }
 
     public void writeVariable(Variable variable) {
+      Row attributesRow = writeVariableAttributes(variable);
+      writeCategories(variable, attributesRow);
 
+    }
+
+    /**
+     * Writes the Categories of a Variable to the "Categories" Excel sheet.
+     * 
+     * @param variable
+     * @param attributesRow
+     */
+    private void writeCategories(Variable variable, Row attributesRow) {
+      Row headerRowCategories = categoriesSheet.getRow(0);
+      if(headerRowCategories == null) {
+        headerRowCategories = categoriesSheet.createRow(0);
+      }
+
+      Map<String, Integer> headerMapCategories = ExcelDatasource.mapSheetHeader(headerRowCategories);
+      updateSheetHeaderRow(headerMapCategories, headerRowCategories, ExcelDatasource.categoriesReservedAttributeNames);
+
+      Set<Category> categories = variable.getCategories();
+      Row categoryRow;
+      for(Category category : categories) {
+        categoryRow = categoriesSheet.createRow(categoriesSheet.getPhysicalNumberOfRows());
+        categoryRow.createCell(headerMapCategories.get("table")).setCellValue(valueTable.getName());
+        categoryRow.createCell(headerMapCategories.get("variable")).setCellValue(variable.getName());
+        categoryRow.createCell(headerMapCategories.get("name")).setCellValue(category.getName());
+        categoryRow.createCell(headerMapCategories.get("code")).setCellValue(category.getCode());
+        // categoryRow.createCell(headerMapCategories.get("missing")).setCellValue(category.isMissing());
+        writeCustomAttributes(category, attributesRow, headerRowCategories, headerMapCategories);
+      }
+    }
+
+    /**
+     * Writes the Attributes of one Variable to a Row in the "Variables" Excel sheet.
+     * 
+     * @param variable
+     * @return The row where attributes were written to.
+     */
+    private Row writeVariableAttributes(Variable variable) {
       Row headerRowVariables = variablesSheet.getRow(0);
       if(headerRowVariables == null) {
         headerRowVariables = variablesSheet.createRow(0);
@@ -81,37 +120,20 @@ public class ExcelValueTableWriter implements ValueTableWriter {
       // attributesRow.createCell(headerMapVariables.get("repeatable")).setCellValue(String.valueOf(variable.isRepeatable()));
       attributesRow.createCell(headerMapVariables.get("valueType")).setCellValue(String.valueOf(variable.getValueType().getName()));
 
-      addCustomAttributes(variable, headerRowVariables, headerMapVariables, attributesRow);
-
-      Row headerRowCategories = categoriesSheet.getRow(0);
-      if(headerRowCategories == null) {
-        headerRowCategories = categoriesSheet.createRow(0);
-      }
-
-      Map<String, Integer> headerMapCategories = ExcelDatasource.mapSheetHeader(headerRowCategories);
-      updateSheetHeaderRow(headerMapCategories, headerRowCategories, ExcelDatasource.categoriesReservedAttributeNames);
-
-      Set<Category> categories = variable.getCategories();
-      Row categoryRow;
-      for(Category category : categories) {
-        categoryRow = categoriesSheet.createRow(categoriesSheet.getPhysicalNumberOfRows());
-        categoryRow.createCell(headerMapCategories.get("table")).setCellValue(valueTable.getName());
-        categoryRow.createCell(headerMapCategories.get("variable")).setCellValue(variable.getName());
-        categoryRow.createCell(headerMapCategories.get("name")).setCellValue(category.getName());
-        categoryRow.createCell(headerMapCategories.get("code")).setCellValue(category.getCode());
-        // categoryRow.createCell(headerMapCategories.get("missing")).setCellValue(category.isMissing());
-        addCustomAttributes(category, headerRowCategories, headerMapCategories, attributesRow);
-      }
-
+      writeCustomAttributes(variable, attributesRow, headerRowVariables, headerMapVariables);
+      return attributesRow;
     }
 
     /**
+     * Writes the custom Attributes of an AttributeAware instance (ex: Variable, Category...) to a Row in an Excel
+     * sheet.
+     * 
      * @param variable
      * @param headerRow
      * @param headerMap
      * @param attributesRow
      */
-    private void addCustomAttributes(AttributeAware attributeAware, Row headerRow, Map<String, Integer> headerMap, Row attributesRow) {
+    private void writeCustomAttributes(AttributeAware attributeAware, Row attributesRow, Row headerRow, Map<String, Integer> headerMap) {
       String customAttributeName;
       Locale customAttributeLocale;
       StringBuilder stringBuilder = new StringBuilder();
@@ -133,6 +155,14 @@ public class ExcelValueTableWriter implements ValueTableWriter {
       }
     }
 
+    /**
+     * Update the header Row (usually the first Row) in an Excel sheet to make sure that all provided column names are
+     * represented.
+     * 
+     * @param headerMap
+     * @param headerRow
+     * @param columnNames
+     */
     private void updateSheetHeaderRow(Map<String, Integer> headerMap, Row headerRow, List<String> columnNames) {
 
       Cell headerCell;
@@ -153,7 +183,6 @@ public class ExcelValueTableWriter implements ValueTableWriter {
     @Override
     public void close() throws IOException {
       // TODO Auto-generated method stub
-
     }
 
   }
