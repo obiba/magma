@@ -91,6 +91,9 @@ class SqlTypes {
     if(valueType.getName().equals(BinaryType.get().getName())) {
       return "BLOB";
     }
+    if(valueType.getName().equals(BooleanType.get().getName())) {
+      return "BOOLEAN";
+    }
 
     throw new MagmaRuntimeException("no sql type for " + valueType);
   }
