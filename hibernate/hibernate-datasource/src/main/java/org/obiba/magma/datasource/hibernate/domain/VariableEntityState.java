@@ -4,12 +4,11 @@ import javax.persistence.Entity;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
-import org.obiba.core.domain.AbstractEntity;
 import org.obiba.magma.VariableEntity;
 
 @Entity
 @Table(name = "variable_entity", uniqueConstraints = { @UniqueConstraint(columnNames = { "type", "identifier" }) })
-public class VariableEntityState extends AbstractEntity implements VariableEntity {
+public class VariableEntityState extends AbstractTimestampEntity implements VariableEntity {
 
   private static final long serialVersionUID = 1L;
 

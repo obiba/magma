@@ -1,12 +1,17 @@
 package org.obiba.magma.datasource.hibernate.domain;
 
+import java.util.Date;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+import javax.persistence.Version;
 
 @Entity
 @Table(name = "category")
-public class CategoryState extends AbstractAttributeAwareEntity {
+public class CategoryState extends AbstractAttributeAwareEntity implements Timestamp {
 
   private static final long serialVersionUID = 1L;
 
@@ -17,6 +22,14 @@ public class CategoryState extends AbstractAttributeAwareEntity {
 
   @Column(nullable = false)
   private boolean missing;
+
+  @Temporal(TemporalType.TIMESTAMP)
+  @Column(insertable = true, updatable = false, nullable = false)
+  private Date created = new Date();
+
+  @Version
+  @Column(nullable = false)
+  private Date updated;
 
   public CategoryState() {
 
@@ -47,6 +60,16 @@ public class CategoryState extends AbstractAttributeAwareEntity {
 
   public boolean isMissing() {
     return missing;
+  }
+
+  @Override
+  public Date getCreated() {
+    return new Date(created.getTime());
+  }
+
+  @Override
+  public Date getUpdated() {
+    return new Date(updated.getTime());
   }
 
 }

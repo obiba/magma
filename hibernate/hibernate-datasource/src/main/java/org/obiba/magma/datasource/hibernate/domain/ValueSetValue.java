@@ -10,14 +10,13 @@ import javax.persistence.UniqueConstraint;
 import org.hibernate.annotations.Columns;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
-import org.obiba.core.domain.AbstractEntity;
 import org.obiba.magma.Value;
 import org.obiba.magma.hibernate.type.ValueHibernateType;
 
 @Entity
 @Table(name = "value_set_value", uniqueConstraints = { @UniqueConstraint(columnNames = { "value_set_id", "variable_id" }) })
 @TypeDef(name = "value", typeClass = ValueHibernateType.class)
-public class ValueSetValue extends AbstractEntity {
+public class ValueSetValue extends AbstractTimestampEntity {
 
   private static final long serialVersionUID = 1L;
 

@@ -6,11 +6,9 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
-import org.obiba.core.domain.AbstractEntity;
-
 @Entity
 @Table(name = "value_set", uniqueConstraints = { @UniqueConstraint(columnNames = { "value_table_id", "variable_entity_id" }) })
-public class ValueSetState extends AbstractEntity {
+public class ValueSetState extends AbstractTimestampEntity {
 
   private static final long serialVersionUID = 1L;
 
