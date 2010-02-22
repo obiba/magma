@@ -31,6 +31,7 @@ import org.obiba.magma.datasource.jdbc.support.CreateTableChangeBuilder;
 import org.obiba.magma.datasource.jdbc.support.InsertDataChangeBuilder;
 import org.obiba.magma.datasource.jdbc.support.NameConverter;
 import org.obiba.magma.type.DateTimeType;
+import org.obiba.magma.type.TextType;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 public class JdbcValueTableWriter implements ValueTableWriter {
@@ -151,7 +152,7 @@ public class JdbcValueTableWriter implements ValueTableWriter {
       String columnName = NameConverter.toSqlName(variable.getName());
       ColumnConfig column = new ColumnConfig();
       column.setName(columnName);
-      column.setType(SqlTypes.sqlTypeFor(variable.getValueType()));
+      column.setType(SqlTypes.sqlTypeFor(variable.getValueType(), variable.getValueType().equals(TextType.get()) ? SqlTypes.TEXT_TYPE_HINT_MEDIUM : null));
 
       if(variableExists(variable)) {
         ModifyColumnChange modifyColumnChange = new ModifyColumnChange();

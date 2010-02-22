@@ -10,6 +10,8 @@ import org.obiba.magma.type.IntegerType;
 import org.obiba.magma.type.TextType;
 
 class SqlTypes {
+  static final String TEXT_TYPE_HINT_MEDIUM = "MEDIUM";
+
   static final ValueType valueTypeFor(int sqlType) {
     switch(sqlType) {
     // BinaryType
@@ -73,8 +75,17 @@ class SqlTypes {
   }
 
   static final String sqlTypeFor(ValueType valueType) {
+    return sqlTypeFor(valueType, null);
+  }
+
+  static final String sqlTypeFor(ValueType valueType, String hint) {
     if(valueType.getName().equals(TextType.get().getName())) {
-      return "VARCHAR";
+      // TODO: Formalize the notion of a "hint".
+      if(TEXT_TYPE_HINT_MEDIUM.equals(hint)) {
+        return "VARCHAR(1024)";
+      } else {
+        return "VARCHAR";
+      }
     }
     if(valueType.getName().equals(IntegerType.get().getName())) {
       return "INTEGER";
@@ -97,4 +108,5 @@ class SqlTypes {
 
     throw new MagmaRuntimeException("no sql type for " + valueType);
   }
+
 }
