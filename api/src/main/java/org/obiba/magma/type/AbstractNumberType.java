@@ -1,6 +1,5 @@
 package org.obiba.magma.type;
 
-import org.obiba.magma.Value;
 
 public abstract class AbstractNumberType extends AbstractValueType {
 
@@ -16,10 +15,5 @@ public abstract class AbstractNumberType extends AbstractValueType {
 
   public boolean isNumeric() {
     return true;
-  }
-
-  @Override
-  public String toString(Value value) {
-    return value.isNull() ? null : value.getValue().toString();
   }
 }

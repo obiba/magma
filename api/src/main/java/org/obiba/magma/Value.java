@@ -59,9 +59,6 @@ public class Value implements Serializable {
 
   @Override
   public String toString() {
-    if(isNull()) {
-      return value.toString();
-    }
     return getValueType().toString(this);
   }
 
@@ -78,7 +75,6 @@ public class Value implements Serializable {
     }
 
     Value other = (Value) obj;
-
     return value.equals(other.value) && valueType.equals(other.valueType);
   }
 

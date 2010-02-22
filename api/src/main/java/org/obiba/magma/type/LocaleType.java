@@ -6,7 +6,7 @@ import java.util.Locale;
 import org.obiba.magma.MagmaEngine;
 import org.obiba.magma.Value;
 
-public class LocaleType extends TextType {
+public class LocaleType extends AbstractValueType {
 
   private static final long serialVersionUID = 6256436421177197681L;
 
@@ -16,7 +16,7 @@ public class LocaleType extends TextType {
 
   }
 
-  public static TextType get() {
+  public static LocaleType get() {
     if(instance == null || instance.get() == null) {
       instance = MagmaEngine.get().registerInstance(new LocaleType());
     }
@@ -38,6 +38,16 @@ public class LocaleType extends TextType {
   }
 
   @Override
+  public boolean isDateTime() {
+    return false;
+  }
+
+  @Override
+  public boolean isNumeric() {
+    return false;
+  }
+
+  @Override
   public Value valueOf(Object object) {
     if(object == null) {
       return nullValue();
@@ -53,11 +63,21 @@ public class LocaleType extends TextType {
     if(string == null) {
       return nullValue();
     }
-    return Factory.newValue(this, new Locale(string));
-  }
-
-  @Override
-  public String toString(Value value) {
-    return value.getValue().toString();
+    String parts[] = string.split("_");
+    Locale locale;
+    switch(parts.length) {
+    case 1:
+      locale = new Locale(parts[0]);
+      break;
+    case 2:
+      locale = new Locale(parts[0], parts[1]);
+      break;
+    case 3:
+      locale = new Locale(parts[0], parts[1], parts[2]);
+      break;
+    default:
+      throw new IllegalArgumentException("Invalid locale string " + string);
+    }
+    return Factory.newValue(this, locale);
   }
 }

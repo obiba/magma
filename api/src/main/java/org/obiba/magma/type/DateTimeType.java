@@ -57,12 +57,10 @@ public class DateTimeType extends AbstractValueType {
   }
 
   @Override
-  public String toString(Value value) {
-    if(value.isNull()) return null;
-    Date date = (Date) value.getValue();
+  public String toString(Object object) {
     // DateFormat is not thread safe
     synchronized(ISO_8601) {
-      return date == null ? null : ISO_8601.format(date);
+      return ISO_8601.format((Date) object);
     }
   }
 

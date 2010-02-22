@@ -73,19 +73,4 @@ public class ValueSequence extends Value {
     return getValues().contains(value);
   }
 
-  @Override
-  public String toString() {
-    if(isNull()) {
-      return super.toString();
-    }
-    final StringBuilder sb = new StringBuilder();
-    for(Value value : getValue()) {
-      sb.append(value.toString()).append(',');
-    }
-    if(sb.length() > 0) {
-      sb.deleteCharAt(sb.length() - 1);
-    }
-    return sb.toString();
-  }
-
 }

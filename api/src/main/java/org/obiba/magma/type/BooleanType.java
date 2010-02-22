@@ -58,11 +58,6 @@ public class BooleanType extends AbstractValueType {
   }
 
   @Override
-  public String toString(Value value) {
-    return value.isNull() ? null : value.getValue().toString();
-  }
-
-  @Override
   public Value valueOf(String string) {
     if(string == null) {
       return nullValue();

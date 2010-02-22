@@ -10,19 +10,18 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 import org.obiba.magma.Value;
-import org.obiba.magma.test.AbstractMagmaTest;
+import org.obiba.magma.ValueType;
 
-public class DateTimeTypeTest extends AbstractMagmaTest {
+public class DateTimeTypeTest extends BaseValueTypeTest {
 
-  @Test
-  public void testValueOfDateInstance() {
-    DateTimeType dt = DateTimeType.get();
+  @Override
+  ValueType getValueType() {
+    return DateTimeType.get();
+  }
 
-    Assert.assertTrue(dt.acceptsJavaClass(Date.class));
-
-    Date dateValue;
-    Value value = dt.valueOf(dateValue = new Date());
-    Assert.assertEquals(dateValue, value.getValue());
+  @Override
+  Object getObjectForType() {
+    return new Date();
   }
 
   @Test
