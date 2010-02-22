@@ -214,7 +214,7 @@ public class JdbcValueTableWriter implements ValueTableWriter {
 
       // For ALL variables (existing and new), insert the new metadata.
       InsertDataChangeBuilder builder = new InsertDataChangeBuilder();
-      builder.tableName(VARIABLE_METADATA_TABLE).withColumn(VALUE_TABLE_COLUMN, valueTable.getSqlName()).withColumn("name", NameConverter.toSqlName(variable.getName())).withColumn(VALUE_TYPE_COLUMN, variable.getValueType().getName()).withColumn("mime_type", variable.getMimeType()).withColumn("units", variable.getUnit()).withColumn("is_repeatable", variable.isRepeatable()).withColumn("occurrence_group", variable.getOccurrenceGroup(), true);
+      builder.tableName(VARIABLE_METADATA_TABLE).withColumn(VALUE_TABLE_COLUMN, valueTable.getName()).withColumn("name", variable.getName()).withColumn(VALUE_TYPE_COLUMN, variable.getValueType().getName()).withColumn("mime_type", variable.getMimeType()).withColumn("units", variable.getUnit()).withColumn("is_repeatable", variable.isRepeatable()).withColumn("occurrence_group", variable.getOccurrenceGroup(), true);
       changes.add(builder.build());
 
       if(variable.hasAttributes()) {
