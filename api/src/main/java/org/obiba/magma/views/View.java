@@ -42,7 +42,8 @@ public class View extends AbstractValueTableWrapper implements Initialisable {
    * No-arg constructor for XStream.
    */
   public View() {
-
+    setSelectClause(new AllClause());
+    setWhereClause(new AllClause());
   }
 
   public View(String name, ValueTable from, SelectClause selectClause, WhereClause whereClause) {
