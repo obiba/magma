@@ -30,7 +30,7 @@ import org.obiba.magma.VariableEntity;
 import org.obiba.magma.datasource.jdbc.support.CreateTableChangeBuilder;
 import org.obiba.magma.datasource.jdbc.support.InsertDataChangeBuilder;
 import org.obiba.magma.datasource.jdbc.support.NameConverter;
-import org.obiba.magma.type.DateTimeType;
+import org.obiba.magma.type.BooleanType;
 import org.obiba.magma.type.TextType;
 import org.springframework.jdbc.core.JdbcTemplate;
 
@@ -182,10 +182,10 @@ public class JdbcValueTableWriter implements ValueTableWriter {
     "DELETE FROM " + VARIABLE_METADATA_TABLE + " WHERE value_table = ? AND name = ?";
 
     private static final String DELETE_VARIABLE_ATTRIBUTES_SQL = //
-    "DELETE FROM " + ATTRIBUTE_METADATA_TABLE + " WHERE value_table = ? AND variable_name = ? AND attribute_name = ?";
+    "DELETE FROM " + ATTRIBUTE_METADATA_TABLE + " WHERE value_table = ? AND variable_name = ?";
 
     private static final String DELETE_VARIABLE_CATEGORIES_SQL = //
-    "DELETE FROM " + CATEGORY_METADATA_TABLE + " WHERE value_table = ? AND variable_name = ? AND name = ?";
+    "DELETE FROM " + CATEGORY_METADATA_TABLE + " WHERE value_table = ? AND variable_name = ?";
 
     //
     // Constructors
@@ -281,7 +281,10 @@ public class JdbcValueTableWriter implements ValueTableWriter {
 
     @Override
     public void writeValue(Variable variable, Value value) {
-      if(isDateValue(value)) {
+      if(isBooleanValue(value)) {
+        Boolean booleanValue = (Boolean) value.getValue();
+        insertDataChangeBuilder.withColumn(NameConverter.toSqlName(variable.getName()), booleanValue);
+      } else if(isDateValue(value)) {
         Date dateValue = (Date) value.getValue();
         insertDataChangeBuilder.withColumn(NameConverter.toSqlName(variable.getName()), dateValue);
       } else {
@@ -289,8 +292,12 @@ public class JdbcValueTableWriter implements ValueTableWriter {
       }
     }
 
+    private boolean isBooleanValue(Value value) {
+      return value.getValueType().equals(BooleanType.get());
+    }
+
     private boolean isDateValue(Value value) {
-      return value.getValueType().getName().equals(DateTimeType.get().getName());
+      return value.getValueType().isDateTime();
     }
 
     @Override
