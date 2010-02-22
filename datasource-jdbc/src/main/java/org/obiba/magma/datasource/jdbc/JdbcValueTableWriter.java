@@ -30,7 +30,6 @@ import org.obiba.magma.VariableEntity;
 import org.obiba.magma.datasource.jdbc.support.CreateTableChangeBuilder;
 import org.obiba.magma.datasource.jdbc.support.InsertDataChangeBuilder;
 import org.obiba.magma.datasource.jdbc.support.NameConverter;
-import org.obiba.magma.type.BooleanType;
 import org.obiba.magma.type.TextType;
 import org.springframework.jdbc.core.JdbcTemplate;
 
@@ -293,11 +292,11 @@ public class JdbcValueTableWriter implements ValueTableWriter {
     }
 
     private boolean isBooleanValue(Value value) {
-      return value.getValueType().equals(BooleanType.get());
+      return value.getValueType().getJavaClass().equals(Boolean.class);
     }
 
     private boolean isDateValue(Value value) {
-      return value.getValueType().isDateTime();
+      return value.getValueType().getJavaClass().equals(Date.class);
     }
 
     @Override
