@@ -42,7 +42,7 @@ public class ExcelUtil {
 
   public static void setCellValue(Cell cell, ValueType valueType, boolean value) {
     if(valueType.getName().equals(BooleanType.get().getName())) {
-      cell.setCellValue(value);
+      cell.setCellValue(value ? "1" : "0");
     } else {
       cell.setCellValue(value);
     }
