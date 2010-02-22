@@ -26,7 +26,7 @@ public class ExcelVariableValueSource implements VariableValueSource {
 
   @Override
   public Value getValue(ValueSet valueSet) {
-    return null;
+    throw new UnsupportedOperationException();
   }
 
 }

@@ -11,7 +11,6 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.obiba.magma.AttributeAwareBuilder;
 import org.obiba.magma.Category;
-import org.obiba.magma.Disposable;
 import org.obiba.magma.Initialisable;
 import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.NoSuchValueSetException;
@@ -19,11 +18,12 @@ import org.obiba.magma.ValueSet;
 import org.obiba.magma.ValueType;
 import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
+import org.obiba.magma.datasource.excel.support.ExcelUtil;
 import org.obiba.magma.support.AbstractValueTable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-class ExcelValueTable extends AbstractValueTable implements Initialisable, Disposable {
+class ExcelValueTable extends AbstractValueTable implements Initialisable {
 
   private static final Logger log = LoggerFactory.getLogger(ExcelValueTable.class);
 
@@ -47,6 +47,16 @@ class ExcelValueTable extends AbstractValueTable implements Initialisable, Dispo
     } catch(Exception e) {
       throw new MagmaRuntimeException(e);
     }
+  }
+
+  @Override
+  public ExcelDatasource getDatasource() {
+    return (ExcelDatasource) super.getDatasource();
+  }
+
+  @Override
+  public ValueSet getValueSet(VariableEntity entity) throws NoSuchValueSetException {
+    throw new UnsupportedOperationException("getValueSet not supported");
   }
 
   private void printVariables() {
@@ -104,11 +114,6 @@ class ExcelValueTable extends AbstractValueTable implements Initialisable, Dispo
       addVariableValueSource(new ExcelVariableValueSource(variableBuilder.build()));
     }
 
-  }
-
-  @Override
-  public ExcelDatasource getDatasource() {
-    return (ExcelDatasource) super.getDatasource();
   }
 
   /**
@@ -173,17 +178,7 @@ class ExcelValueTable extends AbstractValueTable implements Initialisable, Dispo
   }
 
   private String getCellValueAsString(Cell cell) {
-    return ExcelDatasource.getCellValueAsString(cell);
-  }
-
-  @Override
-  public void dispose() {
-    // TODO Auto-generated method stub
-  }
-
-  @Override
-  public ValueSet getValueSet(VariableEntity entity) throws NoSuchValueSetException {
-    throw new UnsupportedOperationException("getValueSet not supported");
+    return ExcelUtil.getCellValueAsString(cell);
   }
 
 }

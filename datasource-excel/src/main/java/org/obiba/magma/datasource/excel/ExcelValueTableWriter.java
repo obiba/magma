@@ -38,8 +38,7 @@ public class ExcelValueTableWriter implements ValueTableWriter {
 
   @Override
   public ValueSetWriter writeValueSet(VariableEntity entity) {
-    // TODO Implement a method to write ValueSets
-    return null;
+    throw new UnsupportedOperationException();
   }
 
   @Override

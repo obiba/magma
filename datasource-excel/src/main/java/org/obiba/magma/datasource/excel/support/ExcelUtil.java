@@ -42,7 +42,7 @@ public class ExcelUtil {
 
   public static void setCellValue(Cell cell, ValueType valueType, boolean value) {
     if(valueType.getName().equals(BooleanType.get().getName())) {
-      cell.setCellValue(value ? "1" : "0");
+      cell.setCellValue(value);
     } else {
       cell.setCellValue(value);
     }
@@ -60,4 +60,30 @@ public class ExcelUtil {
     cell.setCellValue(value);
   }
 
+  public static String getCellValueAsString(Cell cell) {
+    String value = "";
+    if(cell != null) {
+      switch(cell.getCellType()) {
+      case Cell.CELL_TYPE_STRING:
+      case Cell.CELL_TYPE_BLANK:
+        value = cell.getStringCellValue();
+        break;
+      case Cell.CELL_TYPE_BOOLEAN:
+        value = String.valueOf(cell.getBooleanCellValue());
+        break;
+      case Cell.CELL_TYPE_ERROR:
+        value = String.valueOf(cell.getErrorCellValue());
+        break;
+      case Cell.CELL_TYPE_FORMULA:
+        value = String.valueOf(cell.getCellFormula());
+        break;
+      case Cell.CELL_TYPE_NUMERIC:
+        value = String.valueOf(cell.getNumericCellValue());
+        break;
+      default:
+        break;
+      }
+    }
+    return value;
+  }
 }

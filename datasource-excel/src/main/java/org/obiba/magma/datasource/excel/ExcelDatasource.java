@@ -20,6 +20,7 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.ValueTableWriter;
+import org.obiba.magma.datasource.excel.support.ExcelUtil;
 import org.obiba.magma.support.AbstractDatasource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,6 +58,16 @@ public class ExcelDatasource extends AbstractDatasource {
     this.excelFile = excelFile;
   }
 
+  public ValueTableWriter createWriter(String name, String entityType) {
+    ExcelValueTable valueTable = null;
+    if(hasValueTable(name)) {
+      valueTable = (ExcelValueTable) getValueTable(name);
+    } else {
+      addValueTable(valueTable = new ExcelValueTable(name, this, createSheetIfNotExist(name), entityType));
+    }
+    return new ExcelValueTableWriter(valueTable);
+  }
+
   @Override
   protected void onInitialise() {
 
@@ -75,30 +86,6 @@ public class ExcelDatasource extends AbstractDatasource {
 
     createExcelStyles();
 
-  }
-
-  private void createExcelStyles() {
-    excelStyles = new HashMap<String, CellStyle>();
-
-    CellStyle headerCellStyle = variablesSheet.getWorkbook().createCellStyle();
-    Font headerFont = excelWorkbook.createFont();
-    headerFont.setBoldweight((short) 700);
-    headerCellStyle.setFont(headerFont);
-
-    excelStyles.put("headerCellStyle", headerCellStyle);
-
-  }
-
-  public CellStyle getExcelStyles(String styleName) {
-    return excelStyles.get(styleName);
-  }
-
-  private Sheet createSheetIfNotExist(String tableName) {
-    Sheet sheet;
-    if((sheet = excelWorkbook.getSheet(tableName)) == null) {
-      sheet = excelWorkbook.createSheet(tableName);
-    }
-    return sheet;
   }
 
   @Override
@@ -148,21 +135,27 @@ public class ExcelDatasource extends AbstractDatasource {
     return new ExcelValueTable(tableName, this, createSheetIfNotExist(tableName));
   }
 
-  public ValueTableWriter createWriter(String name, String entityType) {
-    ExcelValueTable valueTable = null;
-    if(hasValueTable(name)) {
-      valueTable = (ExcelValueTable) getValueTable(name);
-    } else {
-      addValueTable(valueTable = new ExcelValueTable(name, this, createSheetIfNotExist(name), entityType));
-    }
-    return new ExcelValueTableWriter(valueTable);
+  Workbook getWorkbook() {
+    return excelWorkbook;
   }
 
-  public static String getAttributeShortName(String attributeName) {
+  Sheet getVariablesSheet() {
+    return variablesSheet;
+  }
+
+  Sheet getCategoriesSheet() {
+    return categorySheet;
+  }
+
+  CellStyle getExcelStyles(String styleName) {
+    return excelStyles.get(styleName);
+  }
+
+  static String getAttributeShortName(String attributeName) {
     return attributeName.split(":")[0];
   }
 
-  public static Locale getAttributeLocale(String attributeName) {
+  static Locale getAttributeLocale(String attributeName) {
     String[] parsedAttributeName = attributeName.split(":");
     if(parsedAttributeName.length > 1) {
       return new Locale(parsedAttributeName[1]);
@@ -170,18 +163,18 @@ public class ExcelDatasource extends AbstractDatasource {
     return null;
   }
 
-  public static Set<String> getCustomAttributeNames(Row rowHeader, List<String> reservedAttributeNames) {
+  static Set<String> getCustomAttributeNames(Row rowHeader, List<String> reservedAttributeNames) {
     Set<String> attributesNames = new HashSet<String>();
     int cellCount = rowHeader.getPhysicalNumberOfCells();
     for(int i = 0; i < cellCount; i++) {
       if(!reservedAttributeNames.contains(attributesNames)) {
-        attributesNames.add(getCellValueAsString(rowHeader.getCell(i)));
+        attributesNames.add(ExcelUtil.getCellValueAsString(rowHeader.getCell(i)));
       }
     }
     return attributesNames;
   }
 
-  public static Map<String, Integer> mapSheetHeader(Row rowHeader) {
+  static Map<String, Integer> mapSheetHeader(Row rowHeader) {
     Map<String, Integer> headerMap = new HashMap<String, Integer>();
     int cellCount = rowHeader.getPhysicalNumberOfCells();
     Cell cell;
@@ -193,42 +186,22 @@ public class ExcelDatasource extends AbstractDatasource {
     return headerMap;
   }
 
-  public static String getCellValueAsString(Cell cell) {
-    String value = "";
-    if(cell != null) {
-      switch(cell.getCellType()) {
-      case Cell.CELL_TYPE_STRING:
-      case Cell.CELL_TYPE_BLANK:
-        value = cell.getStringCellValue();
-        break;
-      case Cell.CELL_TYPE_BOOLEAN:
-        value = String.valueOf(cell.getBooleanCellValue());
-        break;
-      case Cell.CELL_TYPE_ERROR:
-        value = String.valueOf(cell.getErrorCellValue());
-        break;
-      case Cell.CELL_TYPE_FORMULA:
-        value = String.valueOf(cell.getCellFormula());
-        break;
-      case Cell.CELL_TYPE_NUMERIC:
-        value = String.valueOf(cell.getNumericCellValue());
-        break;
-      default:
-        break;
-      }
+  private Sheet createSheetIfNotExist(String tableName) {
+    Sheet sheet;
+    if((sheet = excelWorkbook.getSheet(tableName)) == null) {
+      sheet = excelWorkbook.createSheet(tableName);
     }
-    return value;
+    return sheet;
   }
 
-  public Workbook getWorkbook() {
-    return excelWorkbook;
-  }
+  private void createExcelStyles() {
+    excelStyles = new HashMap<String, CellStyle>();
 
-  public Sheet getVariablesSheet() {
-    return variablesSheet;
-  }
+    CellStyle headerCellStyle = variablesSheet.getWorkbook().createCellStyle();
+    Font headerFont = excelWorkbook.createFont();
+    headerFont.setBoldweight((short) 700);
+    headerCellStyle.setFont(headerFont);
 
-  public Sheet getCategoriesSheet() {
-    return categorySheet;
+    excelStyles.put("headerCellStyle", headerCellStyle);
   }
 }
