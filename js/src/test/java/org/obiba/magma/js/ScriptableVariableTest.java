@@ -26,6 +26,7 @@ public class ScriptableVariableTest extends AbstractJsTest {
   @Test
   public void testGetAttributeValue() {
     Variable mockVariable = EasyMock.createMock(Variable.class);
+    EasyMock.expect(mockVariable.hasAttribute("an-attribute")).andReturn(true);
     EasyMock.expect(mockVariable.getAttributeValue("an-attribute")).andReturn(BooleanType.get().trueValue());
     EasyMock.replay(mockVariable);
     Object obj = evaluate("attribute('an-attribute')", mockVariable);
