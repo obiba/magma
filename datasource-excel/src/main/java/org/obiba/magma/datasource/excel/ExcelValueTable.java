@@ -9,11 +9,13 @@ import java.util.Set;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
+import org.obiba.magma.Attribute;
 import org.obiba.magma.AttributeAwareBuilder;
 import org.obiba.magma.Category;
 import org.obiba.magma.Initialisable;
 import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.NoSuchValueSetException;
+import org.obiba.magma.Value;
 import org.obiba.magma.ValueSet;
 import org.obiba.magma.ValueType;
 import org.obiba.magma.Variable;
@@ -107,7 +109,7 @@ class ExcelValueTable extends AbstractValueTable implements Initialisable {
         variableBuilder.repeatable();
       }
 
-      readCustomAttributes(variableRow, headerMapVariables, attributeNamesVariables, variableBuilder);
+      readCustomAttributes("variable", name, variableRow, headerMapVariables, attributeNamesVariables, variableBuilder);
 
       readCategories(name, variableBuilder);
 
@@ -148,7 +150,7 @@ class ExcelValueTable extends AbstractValueTable implements Initialisable {
         missing = getCellValueAsString(categoryRow.getCell(headerMapCategories.get("missing"))) == "1";
 
         AttributeAwareBuilder<Category.Builder> categoryBuilder = Category.Builder.newCategory(categoryName).withCode(categoryCode).missing(missing);
-        readCustomAttributes(categoryRow, headerMapCategories, attributeNamesCategories, categoryBuilder);
+        readCustomAttributes("category", categoryName, categoryRow, headerMapCategories, attributeNamesCategories, categoryBuilder);
         variableBuilder.addCategory(((Category.Builder) categoryBuilder).build());
       }
     }
@@ -163,22 +165,50 @@ class ExcelValueTable extends AbstractValueTable implements Initialisable {
    * @param attributeNames
    * @param variableBuilder
    */
-  private void readCustomAttributes(Row attributesRow, Map<String, Integer> headerMap, Set<String> attributeNames, AttributeAwareBuilder<?> builder) {
-    String attributeValue;
+  private void readCustomAttributes(String attributeAwareType, String attributeAwareName, Row attributesRow, Map<String, Integer> headerMap, Set<String> attributeNames, AttributeAwareBuilder<?> builder) {
     Locale attributeLocale;
     for(String attributeName : attributeNames) {
-      attributeValue = getCellValueAsString(attributesRow.getCell(headerMap.get(attributeName)));
+      String cellValueAsString = getCellValueAsString(attributesRow.getCell(headerMap.get(attributeName)));
+      if(cellValueAsString.length() == 0) {
+        continue;
+      }
+
       attributeLocale = ExcelDatasource.getAttributeLocale(attributeName);
       if(attributeLocale != null) {
+        String attributeValue = cellValueAsString;
         builder.addAttribute(ExcelDatasource.getAttributeShortName(attributeName), attributeValue, attributeLocale);
       } else {
-        builder.addAttribute(ExcelDatasource.getAttributeShortName(attributeName), attributeValue);
+        ValueType attributeType = readCustomAttributeType(attributeAwareType, attributeAwareName, attributeName);
+        Value attributeValue = attributeType.valueOf(cellValueAsString);
+        Attribute.Builder attributeBuilder = Attribute.Builder.newAttribute(ExcelDatasource.getAttributeShortName(attributeName));
+        attributeBuilder.withValue(attributeValue);
+        builder.addAttribute(attributeBuilder.build());
       }
     }
+  }
+
+  private ValueType readCustomAttributeType(String attributeAwareType, String attributeAwareName, String attributeName) {
+    Sheet attributesSheet = getDatasource().getAttributesSheet();
+    Row headerRow = attributesSheet.getRow(0);
+    Map<String, Integer> headerMap = ExcelDatasource.mapSheetHeader(headerRow);
+
+    for(int i = 1; i < attributesSheet.getPhysicalNumberOfRows(); i++) {
+      Row row = attributesSheet.getRow(i);
+      String cellTable = getCellValueAsString(row.getCell(headerMap.get("table")));
+      String cellAttributeAwareType = getCellValueAsString(row.getCell(headerMap.get("attributeAwareType")));
+      String cellAttributeAware = getCellValueAsString(row.getCell(headerMap.get("attributeAware")));
+      String cellAttribute = getCellValueAsString(row.getCell(headerMap.get("attribute")));
+      String cellValueType = getCellValueAsString(row.getCell(headerMap.get("valueType")));
+
+      if(cellTable.equals(getName()) && cellAttributeAwareType.equals(attributeAwareType) && cellAttributeAware.equals(attributeAwareName) && cellAttribute.equals(attributeName)) {
+        return ValueType.Factory.forName(cellValueType);
+      }
+    }
+
+    return null;
   }
 
   private String getCellValueAsString(Cell cell) {
     return ExcelUtil.getCellValueAsString(cell);
   }
-
 }

@@ -39,7 +39,9 @@ public class ExcelDatasource extends AbstractDatasource {
 
   public static final List<String> categoriesReservedAttributeNames = Lists.newArrayList("table", "variable", "name", "code", "missing");
 
-  public static final Set<String> sheetReservedNames = Sets.newHashSet(new String[] { "Variables", "Categories" });
+  public static final List<String> attributesReservedAttributeNames = Lists.newArrayList("table", "attributeAwareType", "attributeAware", "attribute", "valueType");
+
+  public static final Set<String> sheetReservedNames = Sets.newHashSet(new String[] { "Variables", "Categories", "Attributes" });
 
   private FileInputStream excelInputStream;
 
@@ -47,7 +49,9 @@ public class ExcelDatasource extends AbstractDatasource {
 
   private Sheet variablesSheet;
 
-  private Sheet categorySheet;
+  private Sheet categoriesSheet;
+
+  private Sheet attributesSheet;
 
   private File excelFile;
 
@@ -82,7 +86,8 @@ public class ExcelDatasource extends AbstractDatasource {
     }
 
     variablesSheet = createSheetIfNotExist("Variables");
-    categorySheet = createSheetIfNotExist("Categories");
+    categoriesSheet = createSheetIfNotExist("Categories");
+    attributesSheet = createSheetIfNotExist("Attributes");
 
     createExcelStyles();
 
@@ -144,7 +149,11 @@ public class ExcelDatasource extends AbstractDatasource {
   }
 
   Sheet getCategoriesSheet() {
-    return categorySheet;
+    return categoriesSheet;
+  }
+
+  Sheet getAttributesSheet() {
+    return attributesSheet;
   }
 
   CellStyle getExcelStyles(String styleName) {
@@ -167,8 +176,9 @@ public class ExcelDatasource extends AbstractDatasource {
     Set<String> attributesNames = new HashSet<String>();
     int cellCount = rowHeader.getPhysicalNumberOfCells();
     for(int i = 0; i < cellCount; i++) {
-      if(!reservedAttributeNames.contains(attributesNames)) {
-        attributesNames.add(ExcelUtil.getCellValueAsString(rowHeader.getCell(i)));
+      String attributeName = ExcelUtil.getCellValueAsString(rowHeader.getCell(i));
+      if(!reservedAttributeNames.contains(attributeName)) {
+        attributesNames.add(attributeName);
       }
     }
     return attributesNames;

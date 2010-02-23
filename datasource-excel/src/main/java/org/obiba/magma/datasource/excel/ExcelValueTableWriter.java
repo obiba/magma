@@ -14,6 +14,7 @@ import org.obiba.magma.AttributeAware;
 import org.obiba.magma.Category;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.ValueTableWriter;
+import org.obiba.magma.ValueType;
 import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.datasource.excel.support.ExcelUtil;
@@ -56,17 +57,19 @@ public class ExcelValueTableWriter implements ValueTableWriter {
 
     private Sheet categoriesSheet;
 
+    private Sheet attributesSheet;
+
     public ExcelVariableWriter(ValueTable valueTable) {
       this.valueTable = valueTable;
       excelDatasource = (ExcelDatasource) valueTable.getDatasource();
       this.variablesSheet = ((ExcelDatasource) valueTable.getDatasource()).getVariablesSheet();
       this.categoriesSheet = ((ExcelDatasource) valueTable.getDatasource()).getCategoriesSheet();
+      this.attributesSheet = ((ExcelDatasource) valueTable.getDatasource()).getAttributesSheet();
     }
 
     public void writeVariable(Variable variable) {
       Row attributesRow = writeVariableAttributes(variable);
       writeCategories(variable, attributesRow);
-
     }
 
     /**
@@ -94,7 +97,7 @@ public class ExcelValueTableWriter implements ValueTableWriter {
         ExcelUtil.setCellValue(categoryRow.createCell(headerMapCategories.get("code")), TextType.get(), category.getCode());
         ExcelUtil.setCellValue(categoryRow.createCell(headerMapCategories.get("missing")), BooleanType.get(), category.isMissing());
 
-        writeCustomAttributes(category, attributesRow, headerRowCategories, headerMapCategories);
+        writeCustomAttributes(category, "category", category.getName(), attributesRow, headerRowCategories, headerMapCategories);
       }
     }
 
@@ -123,7 +126,7 @@ public class ExcelValueTableWriter implements ValueTableWriter {
       ExcelUtil.setCellValue(attributesRow.createCell(headerMapVariables.get("repeatable")), BooleanType.get(), variable.isRepeatable());
       ExcelUtil.setCellValue(attributesRow.createCell(headerMapVariables.get("valueType")), TextType.get(), variable.getValueType().getName());
 
-      writeCustomAttributes(variable, attributesRow, headerRowVariables, headerMapVariables);
+      writeCustomAttributes(variable, "variable", variable.getName(), attributesRow, headerRowVariables, headerMapVariables);
       return attributesRow;
     }
 
@@ -136,7 +139,7 @@ public class ExcelValueTableWriter implements ValueTableWriter {
      * @param headerMap
      * @param attributesRow
      */
-    private void writeCustomAttributes(AttributeAware attributeAware, Row attributesRow, Row headerRow, Map<String, Integer> headerMap) {
+    private void writeCustomAttributes(AttributeAware attributeAware, String attributeAwareType, String attributeAwareName, Row attributesRow, Row headerRow, Map<String, Integer> headerMap) {
       String customAttributeName;
       Locale customAttributeLocale;
       StringBuilder stringBuilder = new StringBuilder();
@@ -155,7 +158,27 @@ public class ExcelValueTableWriter implements ValueTableWriter {
         }
         ExcelUtil.setCellValue(attributesRow.createCell(attributeCellIndex), customAttribute.getValue());
         stringBuilder.setLength(0);
+
+        // OPAL-145: Write the attribute type on the "Attributes" sheet.
+        writeCustomAttributeType(attributeAwareType, attributeAwareName, customAttributeName, customAttribute.getValueType());
       }
+    }
+
+    private void writeCustomAttributeType(String attributeAwareType, String attributeAwareName, String attributeName, ValueType attributeType) {
+      Row headerRow = attributesSheet.getRow(0);
+      if(headerRow == null) {
+        headerRow = attributesSheet.createRow(0);
+      }
+
+      Map<String, Integer> headerMapVariables = ExcelDatasource.mapSheetHeader(headerRow);
+      updateSheetHeaderRow(headerMapVariables, headerRow, ExcelDatasource.attributesReservedAttributeNames);
+
+      Row attributesRow = attributesSheet.createRow(attributesSheet.getPhysicalNumberOfRows());
+      ExcelUtil.setCellValue(attributesRow.createCell(headerMapVariables.get("table")), TextType.get(), valueTable.getName());
+      ExcelUtil.setCellValue(attributesRow.createCell(headerMapVariables.get("attributeAwareType")), TextType.get(), attributeAwareType);
+      ExcelUtil.setCellValue(attributesRow.createCell(headerMapVariables.get("attributeAware")), TextType.get(), attributeAwareName);
+      ExcelUtil.setCellValue(attributesRow.createCell(headerMapVariables.get("attribute")), TextType.get(), attributeName);
+      ExcelUtil.setCellValue(attributesRow.createCell(headerMapVariables.get("valueType")), TextType.get(), attributeType.getName());
     }
 
     /**
