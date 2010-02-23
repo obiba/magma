@@ -8,7 +8,6 @@ import javax.persistence.MappedSuperclass;
 import javax.persistence.Transient;
 
 import org.hibernate.annotations.CollectionOfElements;
-import org.obiba.core.domain.AbstractEntity;
 import org.obiba.magma.NoSuchAttributeException;
 
 import com.google.common.collect.LinkedListMultimap;
@@ -16,7 +15,7 @@ import com.google.common.collect.Multimap;
 
 @SuppressWarnings("serial")
 @MappedSuperclass
-public abstract class AbstractAttributeAwareEntity extends AbstractEntity {
+public abstract class AbstractAttributeAwareEntity extends AbstractTimestampedEntity {
 
   @CollectionOfElements
   private List<AttributeState> attributes;

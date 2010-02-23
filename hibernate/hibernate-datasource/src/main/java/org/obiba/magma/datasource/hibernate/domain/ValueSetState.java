@@ -8,7 +8,7 @@ import javax.persistence.UniqueConstraint;
 
 @Entity
 @Table(name = "value_set", uniqueConstraints = { @UniqueConstraint(columnNames = { "value_table_id", "variable_entity_id" }) })
-public class ValueSetState extends AbstractTimestampEntity {
+public class ValueSetState extends AbstractTimestampedEntity {
 
   private static final long serialVersionUID = 1L;
 

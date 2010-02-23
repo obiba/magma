@@ -5,7 +5,7 @@ import java.util.Date;
 /**
  * Implemented by some persisted entities to provide access to the update timestamp and the creation timestamp.
  */
-public interface Timestamp {
+public interface Timestamped {
 
   /**
    * Returns the timestamp for the creation this entity.

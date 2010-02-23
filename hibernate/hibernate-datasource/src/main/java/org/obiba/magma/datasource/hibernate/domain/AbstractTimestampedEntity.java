@@ -18,7 +18,7 @@ import org.obiba.core.domain.AbstractEntity;
  */
 @SuppressWarnings("serial")
 @MappedSuperclass
-public abstract class AbstractTimestampEntity extends AbstractEntity implements Timestamp {
+public abstract class AbstractTimestampedEntity extends AbstractEntity implements Timestamped {
 
   @Temporal(TemporalType.TIMESTAMP)
   @Column(insertable = true, updatable = false, nullable = false)

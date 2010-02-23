@@ -9,7 +9,7 @@ import javax.persistence.UniqueConstraint;
 
 @Entity
 @Table(name = "value_table", uniqueConstraints = { @UniqueConstraint(columnNames = { "datasource_id", "name" }) })
-public class ValueTableState extends AbstractTimestampEntity {
+public class ValueTableState extends AbstractTimestampedEntity {
 
   private static final long serialVersionUID = 1L;
 

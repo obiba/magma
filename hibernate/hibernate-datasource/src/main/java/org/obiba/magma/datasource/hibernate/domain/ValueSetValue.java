@@ -16,7 +16,7 @@ import org.obiba.magma.hibernate.type.ValueHibernateType;
 @Entity
 @Table(name = "value_set_value", uniqueConstraints = { @UniqueConstraint(columnNames = { "value_set_id", "variable_id" }) })
 @TypeDef(name = "value", typeClass = ValueHibernateType.class)
-public class ValueSetValue extends AbstractTimestampEntity {
+public class ValueSetValue extends AbstractTimestampedEntity {
 
   private static final long serialVersionUID = 1L;
 

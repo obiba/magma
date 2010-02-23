@@ -1,7 +1,6 @@
 package org.obiba.magma.datasource.hibernate.domain;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import javax.persistence.CascadeType;
@@ -11,10 +10,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
 import javax.persistence.UniqueConstraint;
-import javax.persistence.Version;
 
 import org.hibernate.annotations.IndexColumn;
 import org.hibernate.annotations.Type;
@@ -26,7 +22,7 @@ import org.obiba.magma.hibernate.type.ValueTypeHibernateType;
 @Entity
 @Table(name = "variable", uniqueConstraints = { @UniqueConstraint(columnNames = { "value_table_id", "name" }) })
 @TypeDef(name = "value_type", typeClass = ValueTypeHibernateType.class)
-public class VariableState extends AbstractAttributeAwareEntity implements Timestamp {
+public class VariableState extends AbstractAttributeAwareEntity implements Timestamped {
 
   private static final long serialVersionUID = 1L;
 
@@ -63,14 +59,6 @@ public class VariableState extends AbstractAttributeAwareEntity implements Times
   private boolean repeatable;
 
   private Integer pos;
-
-  @Temporal(TemporalType.TIMESTAMP)
-  @Column(insertable = true, updatable = false, nullable = false)
-  private Date created = new Date();
-
-  @Version
-  @Column(nullable = false)
-  private Date updated;
 
   public VariableState() {
     super();
@@ -196,15 +184,4 @@ public class VariableState extends AbstractAttributeAwareEntity implements Times
     }
     return -1;
   }
-
-  @Override
-  public Date getCreated() {
-    return new Date(created.getTime());
-  }
-
-  @Override
-  public Date getUpdated() {
-    return new Date(updated.getTime());
-  }
-
 }
