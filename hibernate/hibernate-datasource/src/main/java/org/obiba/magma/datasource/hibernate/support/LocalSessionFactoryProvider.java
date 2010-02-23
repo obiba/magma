@@ -53,6 +53,7 @@ public class LocalSessionFactoryProvider implements SessionFactoryProvider, Init
     cfg.setProperty(Environment.HBM2DDL_AUTO, "update");
     cfg.setProperty(Environment.TRANSACTION_STRATEGY, "org.hibernate.transaction.JDBCTransactionFactory");
     cfg.setProperty(Environment.CURRENT_SESSION_CONTEXT_CLASS, "thread");
+    cfg.setProperty(Environment.CACHE_PROVIDER, "org.hibernate.cache.EhCacheProvider");
     cfg.setNamingStrategy(ImprovedNamingStrategy.INSTANCE);
 
     if(properties != null) {

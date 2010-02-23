@@ -24,13 +24,13 @@ public class HibernateDatasourceTest {
   LocalSessionFactoryProvider provider;
 
   @Before
-  public void createMetaEngine() {
+  public void startYourEngine() {
     new MagmaEngine();
     provider = newProvider("theTest");
   }
 
   @After
-  public void shutdownMetaEngine() {
+  public void stopYourEngine() {
     MagmaEngine.get().shutdown();
     provider.getSessionFactory().close();
   }
