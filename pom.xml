@@ -138,7 +138,6 @@
     <module>js</module>
     <module>xstream</module>
     <module>integration</module>
-    <module>wicket</module>
     <module>filter</module>
     <module>spring</module>
     <module>crypt</module>
