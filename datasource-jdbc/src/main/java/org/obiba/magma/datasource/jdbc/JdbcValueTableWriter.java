@@ -15,7 +15,6 @@ import liquibase.change.Change;
 import liquibase.change.ColumnConfig;
 import liquibase.change.InsertDataChange;
 import liquibase.change.ModifyColumnChange;
-import liquibase.database.sql.SqlStatement;
 import liquibase.database.sql.visitor.SqlVisitor;
 import liquibase.exception.JDBCException;
 import liquibase.exception.UnsupportedChangeException;
@@ -287,25 +286,22 @@ public class JdbcValueTableWriter implements ValueTableWriter {
         Date dateValue = (Date) value.getValue();
         insertDataChangeBuilder.withColumn(NameConverter.toSqlName(variable.getName()), dateValue);
       } else {
-        insertDataChangeBuilder.withColumn(NameConverter.toSqlName(variable.getName()), value.getValue().toString());
+        insertDataChangeBuilder.withColumn(NameConverter.toSqlName(variable.getName()), value.toString());
       }
     }
 
     private boolean isBooleanValue(Value value) {
-      return value.getValueType().getJavaClass().equals(Boolean.class);
+      return value.getValueType().getJavaClass().equals(Boolean.class) && !value.isSequence();
     }
 
     private boolean isDateValue(Value value) {
-      return value.getValueType().getJavaClass().equals(Date.class);
+      return value.getValueType().getJavaClass().equals(Date.class) && !value.isSequence();
     }
 
     @Override
     public void close() throws IOException {
       try {
         InsertDataChange insertDataChange = insertDataChangeBuilder.build();
-        for(SqlStatement ss : insertDataChange.generateStatements(valueTable.getDatasource().getDatabase())) {
-          System.out.println(ss.getSqlStatement(valueTable.getDatasource().getDatabase()));
-        }
         List<SqlVisitor> sqlVisitors = Collections.emptyList();
         insertDataChange.executeStatements(valueTable.getDatasource().getDatabase(), sqlVisitors);
       } catch(JDBCException e) {
