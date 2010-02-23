@@ -22,7 +22,8 @@ public class JdbcDatasourceSettings {
   //
 
   public JdbcDatasourceSettings() {
-    super();
+    setMappedTables(null);
+    setTableSettings(null);
   }
 
   public JdbcDatasourceSettings(String defaultEntityType, Set<String> mappedTables, Set<JdbcValueTableSettings> tableSettings, boolean useMetadataTables) {
