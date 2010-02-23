@@ -12,8 +12,8 @@ import org.obiba.magma.type.BooleanType;
 import com.google.common.collect.Iterables;
 
 /**
- * Methods of the {@code ScriptableValue} javascript class that deal with {@code ScriptableValue} of {@code BooleanType} .
- * Note that other methods that use {@code BooleanType} may be defined elsewhere.
+ * Methods of the {@code ScriptableValue} javascript class that deal with {@code ScriptableValue} of {@code BooleanType}
+ * . Note that other methods that use {@code BooleanType} may be defined elsewhere.
  */
 public class BooleanMethods {
 
@@ -21,11 +21,13 @@ public class BooleanMethods {
    * <pre>
    *   $('Categorical').any('CAT1', 'CAT2')
    * </pre>
+   * @return true when the value is equal to any of the parameter, false otherwise. Note that this method will always
+   * return false if the value is null.
    */
   public static ScriptableValue any(Context ctx, Scriptable thisObj, Object[] args, Function funObj) {
     ScriptableValue sv = (ScriptableValue) thisObj;
     if(sv.getValue().isNull()) {
-      return new ScriptableValue(thisObj, BooleanType.get().nullValue());
+      return buildValue(thisObj, false);
     }
 
     for(Object test : args) {
@@ -41,11 +43,13 @@ public class BooleanMethods {
    * <pre>
    *   $('Categorical').all('CAT1', 'CAT2')
    * </pre>
+   * @return true when the value contains all specified parameters, false otherwise. Note that this method will always
+   * return false if the value is null.
    */
   public static ScriptableValue all(Context ctx, Scriptable thisObj, Object[] args, Function funObj) {
     ScriptableValue sv = (ScriptableValue) thisObj;
     if(sv.getValue().isNull()) {
-      return new ScriptableValue(thisObj, BooleanType.get().nullValue());
+      return buildValue(thisObj, false);
     }
 
     for(Object test : args) {
