@@ -5,6 +5,7 @@ package org.obiba.magma.datasource.hibernate;
 
 import java.io.IOException;
 import java.security.InvalidParameterException;
+import java.util.Map;
 
 import org.hibernate.FlushMode;
 import org.hibernate.SessionFactory;
@@ -16,12 +17,15 @@ import org.obiba.magma.ValueTableWriter;
 import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.datasource.hibernate.converter.HibernateMarshallingContext;
-import org.obiba.magma.datasource.hibernate.converter.ValueConverter;
 import org.obiba.magma.datasource.hibernate.converter.VariableConverter;
 import org.obiba.magma.datasource.hibernate.converter.VariableEntityConverter;
 import org.obiba.magma.datasource.hibernate.domain.ValueSetState;
+import org.obiba.magma.datasource.hibernate.domain.ValueSetValue;
 import org.obiba.magma.datasource.hibernate.domain.VariableEntityState;
 import org.obiba.magma.datasource.hibernate.domain.VariableState;
+
+import com.google.common.base.Function;
+import com.google.common.collect.Maps;
 
 class HibernateValueTableWriter implements ValueTableWriter {
 
@@ -105,6 +109,8 @@ class HibernateValueTableWriter implements ValueTableWriter {
 
     private final ValueSetState valueSetState;
 
+    private Map<String, ValueSetValue> values;
+
     public HibernateValueSetWriter(VariableEntity entity) {
       if(entity == null) throw new IllegalArgumentException("entity cannot be null");
       // find entity or create it
@@ -114,10 +120,16 @@ class HibernateValueTableWriter implements ValueTableWriter {
       ValueSetState state = (ValueSetState) criteria.getCriteria().uniqueResult();
       if(state == null) {
         state = new ValueSetState(valueTable.getValueTableState(), variableEntityState);
-        sessionFactory.getCurrentSession().save(state);
         transaction.addEntity(entity);
       }
       valueSetState = state;
+
+      values = Maps.newHashMap(Maps.uniqueIndex(state.getValues(), new Function<ValueSetValue, String>() {
+        @Override
+        public String apply(ValueSetValue from) {
+          return from.getVariable().getName();
+        }
+      }));
     }
 
     @Override
@@ -125,24 +137,35 @@ class HibernateValueTableWriter implements ValueTableWriter {
       if(variable == null) throw new IllegalArgumentException("variable cannot be null");
       if(value == null) throw new IllegalArgumentException("value cannot be null");
 
-      HibernateMarshallingContext context = valueTable.createContext();
-      VariableState variableState = variableConverter.getStateForVariable(variable, valueTable.createContext());
-
-      if(variableState == null) {
-        throw new NoSuchVariableException(valueTable.getName(), variable.getName());
+      ValueSetValue vsv = values.get(variable.getName());
+      if(vsv != null) {
+        if(value.isNull()) {
+          valueSetState.getValues().remove(vsv);
+          values.remove(variable.getName());
+        } else {
+          vsv.setValue(value);
+        }
       } else {
-        context.setValueSet(valueSetState);
-        context.setVariable(variableState);
-        ValueConverter.getInstance().marshal(value, context);
+        if(value.isNull() == false) {
+          VariableState variableState = variableConverter.getStateForVariable(variable, valueTable.createContext());
+          if(variableState == null) {
+            throw new NoSuchVariableException(valueTable.getName(), variable.getName());
+          }
+          vsv = new ValueSetValue(variableState, valueSetState);
+          vsv.setValue(value);
+          valueSetState.getValues().add(vsv);
+          values.put(variable.getName(), vsv);
+        }
       }
     }
 
     @Override
     public void close() throws IOException {
+      sessionFactory.getCurrentSession().save(valueSetState);
       // TODO: We mustn't flush the session if an exception has occurred within Hibernate.
       sessionFactory.getCurrentSession().flush();
       // Empty the Session so we don't fill it up
-      sessionFactory.getCurrentSession().clear();
+      sessionFactory.getCurrentSession().evict(valueSetState);
     }
 
   }

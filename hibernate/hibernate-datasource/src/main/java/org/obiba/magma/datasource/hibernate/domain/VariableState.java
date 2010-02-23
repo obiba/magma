@@ -12,6 +12,8 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.IndexColumn;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
@@ -22,6 +24,7 @@ import org.obiba.magma.hibernate.type.ValueTypeHibernateType;
 @Entity
 @Table(name = "variable", uniqueConstraints = { @UniqueConstraint(columnNames = { "value_table_id", "name" }) })
 @TypeDef(name = "value_type", typeClass = ValueTypeHibernateType.class)
+@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 public class VariableState extends AbstractAttributeAwareEntity implements Timestamped {
 
   private static final long serialVersionUID = 1L;
