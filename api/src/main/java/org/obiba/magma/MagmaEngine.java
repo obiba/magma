@@ -114,6 +114,9 @@ public class MagmaEngine {
     for(Datasource ds : datasources) {
       Disposables.silentlyDispose(ds);
     }
+    for(Disposable d : Iterables.filter(this.extensions, Disposable.class)) {
+      Disposables.silentlyDispose(d);
+    }
     singletons = null;
     instance = null;
   }
