@@ -71,7 +71,7 @@ public abstract class AbstractDatasource extends AbstractAttributeAware implemen
         }
       });
     } catch(NoSuchElementException e) {
-      throw new NoSuchValueTableException(name);
+      throw new NoSuchValueTableException(getName(), name);
     }
   }
 

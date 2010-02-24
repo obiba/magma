@@ -1,7 +1,5 @@
 package org.obiba.magma.support;
 
-import org.obiba.magma.Datasource;
-import org.obiba.magma.Initialisable;
 import org.obiba.magma.MagmaEngine;
 import org.obiba.magma.ValueTable;
 
@@ -9,7 +7,7 @@ import org.obiba.magma.ValueTable;
  * Extends {@link AbstractValueTableWrapper} and uses {@link MagmaEngine} to lookup the referenced {@link ValueTable}
  * instance.
  */
-public class ValueTableReference extends AbstractValueTableWrapper implements Initialisable {
+public class ValueTableReference extends AbstractValueTableWrapper {
   //
   // Instance Variables
   //
@@ -20,14 +18,9 @@ public class ValueTableReference extends AbstractValueTableWrapper implements In
   private String reference;
 
   /**
-   * Cached {@link Datasource} name (extracted from reference).
+   * Cached {@link MagmaEngineTableResolver}
    */
-  private String datasourceName;
-
-  /**
-   * Cached {@link ValueTable} name (extracted from reference).
-   */
-  private String valueTableName;
+  private MagmaEngineTableResolver tableResolver;
 
   //
   // Constructors
@@ -50,8 +43,6 @@ public class ValueTableReference extends AbstractValueTableWrapper implements In
    */
   public ValueTableReference(String reference) {
     this.reference = reference;
-
-    initReferenceElements();
   }
 
   //
@@ -60,16 +51,10 @@ public class ValueTableReference extends AbstractValueTableWrapper implements In
 
   @Override
   public ValueTable getWrappedValueTable() {
-    if(datasourceName == null || valueTableName == null) {
-      initReferenceElements();
+    if(tableResolver == null) {
+      tableResolver = MagmaEngineTableResolver.valueOf(reference);
     }
-
-    return MagmaEngine.get().getDatasource(datasourceName).getValueTable(valueTableName);
-  }
-
-  @Override
-  public void initialise() {
-    System.out.println("initialise() reference == " + reference);
+    return tableResolver.resolveTable();
   }
 
   //
@@ -80,17 +65,4 @@ public class ValueTableReference extends AbstractValueTableWrapper implements In
     this.reference = reference;
   }
 
-  private void initReferenceElements() {
-    if(reference == null) {
-      throw new IllegalArgumentException("Null ValueTable reference");
-    }
-
-    String parts[] = reference.split("\\.");
-    if(parts.length == 2) {
-      datasourceName = parts[0];
-      valueTableName = parts[1];
-    } else {
-      throw new IllegalArgumentException("Invalid ValueTable reference: " + reference);
-    }
-  }
 }

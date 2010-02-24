@@ -8,4 +8,7 @@ public class NoSuchValueTableException extends MagmaRuntimeException {
     super("No value table exists with the specified name '" + tableName + "'");
   }
 
+  public NoSuchValueTableException(String datasourceName, String tableName) {
+    super("No value table exists with the specified name '" + datasourceName + '.' + tableName + "'");
+  }
 }
