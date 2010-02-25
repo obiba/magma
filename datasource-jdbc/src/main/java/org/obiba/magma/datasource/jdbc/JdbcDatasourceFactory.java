@@ -2,9 +2,13 @@ package org.obiba.magma.datasource.jdbc;
 
 import java.util.Properties;
 
+import javax.transaction.TransactionManager;
+
 import org.apache.commons.dbcp.BasicDataSource;
+import org.apache.commons.dbcp.managed.BasicManagedDataSource;
 import org.obiba.magma.AbstractDatasourceFactory;
 import org.obiba.magma.Datasource;
+import org.springframework.beans.factory.annotation.Autowired;
 
 public class JdbcDatasourceFactory extends AbstractDatasourceFactory {
   //
@@ -29,6 +33,9 @@ public class JdbcDatasourceFactory extends AbstractDatasourceFactory {
 
   private JdbcDatasourceSettings settings;
 
+  @Autowired(required = false)
+  private TransactionManager transactionManager;
+
   //
   // AbstractDatasourceFactory Methods
   //
@@ -36,6 +43,13 @@ public class JdbcDatasourceFactory extends AbstractDatasourceFactory {
   @Override
   public Datasource create() {
     BasicDataSource dataSource = new BasicDataSource();
+
+    if(transactionManager != null) {
+      BasicManagedDataSource jtaDatasource = new BasicManagedDataSource();
+      jtaDatasource.setTransactionManager(transactionManager);
+      dataSource = jtaDatasource;
+    }
+
     dataSource.setDriverClassName(jdbcProperties.getProperty(DRIVER_CLASS_NAME));
     dataSource.setUrl(jdbcProperties.getProperty(URL));
     dataSource.setUsername(jdbcProperties.getProperty(USERNAME));
@@ -58,6 +72,10 @@ public class JdbcDatasourceFactory extends AbstractDatasourceFactory {
 
   public void setDatasourceSettings(JdbcDatasourceSettings settings) {
     this.settings = settings;
+  }
+
+  public void setTransactionManager(TransactionManager transactionManager) {
+    this.transactionManager = transactionManager;
   }
 
 }

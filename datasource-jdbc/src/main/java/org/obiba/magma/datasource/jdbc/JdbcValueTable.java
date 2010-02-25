@@ -11,8 +11,6 @@ import java.util.Set;
 import liquibase.change.ColumnConfig;
 import liquibase.change.ConstraintsConfig;
 import liquibase.change.CreateTableChange;
-import liquibase.database.Database;
-import liquibase.database.sql.visitor.SqlVisitor;
 import liquibase.database.structure.Column;
 import liquibase.database.structure.DatabaseSnapshot;
 import liquibase.database.structure.Table;
@@ -26,13 +24,15 @@ import org.obiba.magma.ValueType;
 import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.VariableValueSource;
+import org.obiba.magma.datasource.jdbc.JdbcDatasource.ChangeDatabaseCallback;
 import org.obiba.magma.datasource.jdbc.support.NameConverter;
 import org.obiba.magma.support.AbstractValueTable;
 import org.obiba.magma.support.AbstractVariableEntityProvider;
+import org.obiba.magma.support.Initialisables;
 import org.obiba.magma.support.VariableEntityBean;
 import org.springframework.jdbc.core.RowMapper;
 
-public class JdbcValueTable extends AbstractValueTable {
+class JdbcValueTable extends AbstractValueTable {
   //
   // Instance Variables
   //
@@ -45,7 +45,7 @@ public class JdbcValueTable extends AbstractValueTable {
   // Constructors
   //
 
-  public JdbcValueTable(JdbcDatasource datasource, JdbcValueTableSettings settings) {
+  JdbcValueTable(JdbcDatasource datasource, JdbcValueTableSettings settings) {
     super(datasource, settings.getMagmaTableName());
     this.settings = settings;
 
@@ -54,9 +54,10 @@ public class JdbcValueTable extends AbstractValueTable {
       getDatasource().databaseChanged();
     }
     this.table = getDatasource().getDatabaseSnapshot().getTable(settings.getSqlTableName());
+    super.setVariableEntityProvider(new JdbcVariableEntityProvider());
   }
 
-  public JdbcValueTable(JdbcDatasource datasource, Table table, String entityType) {
+  JdbcValueTable(JdbcDatasource datasource, Table table, String entityType) {
     this(datasource, new JdbcValueTableSettings(table.getName(), NameConverter.toMagmaName(table.getName()), entityType, getEntityIdentifierColumns(table)));
   }
 
@@ -67,13 +68,8 @@ public class JdbcValueTable extends AbstractValueTable {
   @Override
   public void initialise() {
     super.initialise();
-
     initialiseVariableValueSources();
-
-    JdbcVariableEntityProvider variableEntityProvider = new JdbcVariableEntityProvider();
-    variableEntityProvider.initialise();
-    super.setVariableEntityProvider(variableEntityProvider);
-
+    Initialisables.initialise(getVariableEntityProvider());
   }
 
   @Override
@@ -103,6 +99,11 @@ public class JdbcValueTable extends AbstractValueTable {
     return NameConverter.toSqlName(getName());
   }
 
+  void tableChanged() {
+    table = getDatasource().getDatabaseSnapshot().getTable((settings.getSqlTableName()));
+    initialise();
+  }
+
   private static List<String> getEntityIdentifierColumns(Table table) {
     List<String> entityIdentifierColumns = new ArrayList<String>();
     for(Column column : table.getColumns()) {
@@ -115,6 +116,8 @@ public class JdbcValueTable extends AbstractValueTable {
 
   @SuppressWarnings("unchecked")
   private void initialiseVariableValueSources() {
+    getSources().clear();
+
     if(getDatasource().getSettings().useMetadataTables()) {
       if(!metadataTablesExist()) {
         throw new MagmaRuntimeException("metadata tables not found");
@@ -201,9 +204,7 @@ public class JdbcValueTable extends AbstractValueTable {
   }
 
   private void createSqlTable(String sqlTableName) {
-    Database database = getDatasource().getDatabase();
-
-    CreateTableChange ctc = new CreateTableChange();
+    final CreateTableChange ctc = new CreateTableChange();
     ctc.setTableName(sqlTableName);
 
     // Create the table initially with just one column -- entity_id -- the primary key.
@@ -216,13 +217,7 @@ public class JdbcValueTable extends AbstractValueTable {
 
     ctc.addColumn(column);
 
-    try {
-      List<SqlVisitor> sqlVisitors = Collections.emptyList();
-      ctc.executeStatements(database, sqlVisitors);
-      database.commit();
-    } catch(Exception ex) {
-      throw new MagmaRuntimeException("could not create sql table: " + ex.getMessage());
-    }
+    getDatasource().doWithDatabase(new ChangeDatabaseCallback(ctc));
   }
 
   //
@@ -231,7 +226,7 @@ public class JdbcValueTable extends AbstractValueTable {
 
   class JdbcVariableEntityProvider extends AbstractVariableEntityProvider implements Initialisable {
 
-    private Set<VariableEntity> entities;
+    private Set<VariableEntity> entities = new LinkedHashSet<VariableEntity>();
 
     public JdbcVariableEntityProvider() {
       super(settings.getEntityType());

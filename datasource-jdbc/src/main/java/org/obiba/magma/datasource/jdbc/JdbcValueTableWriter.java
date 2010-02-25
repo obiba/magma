@@ -6,26 +6,21 @@ package org.obiba.magma.datasource.jdbc;
 import java.io.IOException;
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
 import liquibase.change.AddColumnChange;
 import liquibase.change.Change;
 import liquibase.change.ColumnConfig;
-import liquibase.change.InsertDataChange;
 import liquibase.change.ModifyColumnChange;
-import liquibase.database.sql.visitor.SqlVisitor;
-import liquibase.exception.JDBCException;
-import liquibase.exception.UnsupportedChangeException;
 
 import org.obiba.magma.Attribute;
 import org.obiba.magma.Category;
-import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueTableWriter;
 import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
+import org.obiba.magma.datasource.jdbc.JdbcDatasource.ChangeDatabaseCallback;
 import org.obiba.magma.datasource.jdbc.support.CreateTableChangeBuilder;
 import org.obiba.magma.datasource.jdbc.support.InsertDataChangeBuilder;
 import org.obiba.magma.datasource.jdbc.support.NameConverter;
@@ -94,12 +89,8 @@ public class JdbcValueTableWriter implements ValueTableWriter {
 
   @Override
   public void close() throws IOException {
-    try {
-      valueTable.getDatasource().getDatabase().commit();
-      valueTable.getDatasource().databaseChanged();
-    } catch(JDBCException e) {
-      throw new MagmaRuntimeException(e);
-    }
+    valueTable.getDatasource().databaseChanged();
+    valueTable.tableChanged();
   }
 
   //
@@ -130,16 +121,7 @@ public class JdbcValueTableWriter implements ValueTableWriter {
 
     @Override
     public void close() throws IOException {
-      try {
-        List<SqlVisitor> sqlVisitors = Collections.emptyList();
-        for(Change change : changes) {
-          change.executeStatements(valueTable.getDatasource().getDatabase(), sqlVisitors);
-        }
-      } catch(JDBCException ex) {
-        throw new MagmaRuntimeException(ex);
-      } catch(UnsupportedChangeException ex) {
-        throw new MagmaRuntimeException(ex);
-      }
+      valueTable.getDatasource().doWithDatabase(new ChangeDatabaseCallback(changes));
     }
 
     //
@@ -300,15 +282,7 @@ public class JdbcValueTableWriter implements ValueTableWriter {
 
     @Override
     public void close() throws IOException {
-      try {
-        InsertDataChange insertDataChange = insertDataChangeBuilder.build();
-        List<SqlVisitor> sqlVisitors = Collections.emptyList();
-        insertDataChange.executeStatements(valueTable.getDatasource().getDatabase(), sqlVisitors);
-      } catch(JDBCException e) {
-        throw new MagmaRuntimeException(e);
-      } catch(UnsupportedChangeException e) {
-        throw new MagmaRuntimeException(e);
-      }
+      valueTable.getDatasource().doWithDatabase(new ChangeDatabaseCallback(insertDataChangeBuilder.build()));
     }
 
   }

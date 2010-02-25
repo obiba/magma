@@ -4,26 +4,34 @@ import static org.obiba.magma.datasource.jdbc.JdbcValueTableWriter.ATTRIBUTE_MET
 import static org.obiba.magma.datasource.jdbc.JdbcValueTableWriter.CATEGORY_METADATA_TABLE;
 import static org.obiba.magma.datasource.jdbc.JdbcValueTableWriter.VARIABLE_METADATA_TABLE;
 
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
 
 import javax.sql.DataSource;
 
+import liquibase.change.Change;
 import liquibase.database.Database;
 import liquibase.database.DatabaseFactory;
+import liquibase.database.sql.visitor.SqlVisitor;
 import liquibase.database.structure.DatabaseSnapshot;
 import liquibase.database.structure.Table;
 import liquibase.exception.JDBCException;
+import liquibase.exception.UnsupportedChangeException;
 
-import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.ValueTableWriter;
 import org.obiba.magma.datasource.jdbc.support.NameConverter;
 import org.obiba.magma.support.AbstractDatasource;
+import org.springframework.dao.DataAccessException;
+import org.springframework.jdbc.core.ConnectionCallback;
 import org.springframework.jdbc.core.JdbcTemplate;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 
 public class JdbcDatasource extends AbstractDatasource {
@@ -38,8 +46,6 @@ public class JdbcDatasource extends AbstractDatasource {
   //
 
   private Set<String> RESERVED_NAMES = ImmutableSet.of(VARIABLE_METADATA_TABLE, ATTRIBUTE_METADATA_TABLE, CATEGORY_METADATA_TABLE);
-
-  private Database database;
 
   private DatabaseSnapshot snapshot;
 
@@ -98,21 +104,15 @@ public class JdbcDatasource extends AbstractDatasource {
 
   @Override
   protected void onInitialise() {
-    try {
-      database = DatabaseFactory.getInstance().findCorrectDatabaseImplementation(jdbcTemplate.getDataSource().getConnection());
-    } catch(JDBCException e) {
-      throw new MagmaRuntimeException(e);
-    } catch(SQLException e) {
-      throw new MagmaRuntimeException(e);
-    }
+    // database = getNewDatabase();
   }
 
   @Override
   protected void onDispose() {
-    try {
-      this.database.close();
-    } catch(JDBCException e) {
-    }
+    // try {
+    // this.database.close();
+    // } catch(JDBCException e) {
+    // }
   }
 
   protected Set<String> getValueTableNames() {
@@ -145,22 +145,82 @@ public class JdbcDatasource extends AbstractDatasource {
     return jdbcTemplate;
   }
 
-  Database getDatabase() {
-    return database;
-  }
-
   DatabaseSnapshot getDatabaseSnapshot() {
     if(snapshot == null) {
-      try {
-        snapshot = database.createDatabaseSnapshot(null, null);
-      } catch(JDBCException e) {
-        throw new MagmaRuntimeException(e);
-      }
+      snapshot = doWithDatabase(new DatabaseCallback<DatabaseSnapshot>() {
+
+        @Override
+        public DatabaseSnapshot doInDatabase(Database database) throws JDBCException {
+          return database.createDatabaseSnapshot(null, null);
+
+        }
+      });
     }
     return snapshot;
   }
 
   void databaseChanged() {
     snapshot = null;
+  }
+
+  @SuppressWarnings("unchecked")
+  <T> T doWithDatabase(final DatabaseCallback<T> databaseCallback) {
+    return (T) jdbcTemplate.execute(new ConnectionCallback() {
+      @Override
+      public Object doInConnection(Connection con) throws SQLException, DataAccessException {
+        try {
+          return databaseCallback.doInDatabase(DatabaseFactory.getInstance().findCorrectDatabaseImplementation(con));
+        } catch(JDBCException e) {
+          throw new SQLException(e);
+        } finally {
+        }
+      }
+    });
+  }
+
+  /**
+   * Callback used for accessing the {@code Database} instance in a safe and consistent way.
+   * @param <T> the type of object returned by the callback if any
+   */
+  interface DatabaseCallback<T> {
+    public T doInDatabase(Database database) throws JDBCException;
+  }
+
+  /**
+   * An implementation of {@code DatabaseCallback} for issuing {@code Change} instances to the {@code Database}
+   */
+  static class ChangeDatabaseCallback implements DatabaseCallback<Object> {
+
+    private final List<SqlVisitor> sqlVisitors;
+
+    private final Iterable<Change> changes;
+
+    ChangeDatabaseCallback(Change... changes) {
+      this(Arrays.asList(changes));
+    }
+
+    ChangeDatabaseCallback(Iterable<Change> changes) {
+      this(changes, new LinkedList<SqlVisitor>());
+    }
+
+    ChangeDatabaseCallback(Iterable<Change> changes, Iterable<SqlVisitor> visitors) {
+      if(changes == null) throw new IllegalArgumentException("changes cannot be null");
+      if(visitors == null) throw new IllegalArgumentException("visitors cannot be null");
+      this.changes = changes;
+      this.sqlVisitors = ImmutableList.copyOf(visitors);
+    }
+
+    @Override
+    public Object doInDatabase(Database database) throws JDBCException {
+      try {
+        for(Change change : changes) {
+          change.executeStatements(database, sqlVisitors);
+        }
+      } catch(UnsupportedChangeException e) {
+        throw new JDBCException(e);
+      }
+      return null;
+    }
+
   }
 }
