@@ -33,6 +33,13 @@ public interface VariableEntityAuditEvent {
   public String getDatasource();
 
   /**
+   * Gets the ValueTable where the event stems from.
+   * 
+   * @return ValueTable of event
+   */
+  public String getValueTable();
+
+  /**
    * Gets the date and time the event occurred.
    * 
    * @return Time of event

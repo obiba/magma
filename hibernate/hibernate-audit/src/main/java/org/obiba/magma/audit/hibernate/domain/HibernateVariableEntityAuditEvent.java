@@ -32,6 +32,9 @@ public class HibernateVariableEntityAuditEvent extends AbstractEntity implements
   private String datasource;
 
   @Column(nullable = false)
+  private String valueTable;
+
+  @Column(nullable = false)
   @Temporal(TemporalType.TIMESTAMP)
   private Date datetime;
 
@@ -51,6 +54,11 @@ public class HibernateVariableEntityAuditEvent extends AbstractEntity implements
   @Override
   public String getDatasource() {
     return datasource;
+  }
+
+  @Override
+  public String getValueTable() {
+    return valueTable;
   }
 
   @Override
@@ -80,6 +88,10 @@ public class HibernateVariableEntityAuditEvent extends AbstractEntity implements
 
   public void setDatasource(String datasource) {
     this.datasource = datasource;
+  }
+
+  public void setValueTable(String valueTable) {
+    this.valueTable = valueTable;
   }
 
   public void setDatetime(Date datetime) {

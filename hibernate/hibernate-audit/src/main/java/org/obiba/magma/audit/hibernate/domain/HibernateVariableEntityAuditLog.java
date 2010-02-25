@@ -8,6 +8,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
+import javax.persistence.OrderBy;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
@@ -26,6 +27,7 @@ public class HibernateVariableEntityAuditLog extends AbstractEntity implements V
 
   @OneToMany(cascade = { CascadeType.ALL })
   @JoinColumn(name = "variable_entity_audit_log_id", nullable = false)
+  @OrderBy("datetime DESC")
   private List<HibernateVariableEntityAuditEvent> auditEvents;
 
   @Column(nullable = false)

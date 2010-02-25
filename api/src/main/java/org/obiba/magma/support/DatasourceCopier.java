@@ -110,13 +110,14 @@ public class DatasourceCopier {
   public void copy(ValueTable table, Datasource destination) throws IOException {
     log.info("Copying ValueTable '{}' to Datasource '{}' (copyMetadata={}, copyValues={}).", new Object[] { table.getName(), destination.getName(), copyMetadata, copyValues });
     // TODO: the target ValueTable name should probably be renamed to include the source Datasource's name
-    notifyListeners(table, false);
-    ValueTableWriter vtw = destination.createWriter(table.getName(), table.getEntityType());
+    String destinationTableName = table.getName();
+    notifyListeners(table, destinationTableName, false);
+    ValueTableWriter vtw = destination.createWriter(destinationTableName, table.getEntityType());
     try {
       copy(table, vtw);
     } finally {
       vtw.close();
-      notifyListeners(table, true);
+      notifyListeners(table, destinationTableName, true);
     }
   }
 
@@ -191,14 +192,14 @@ public class DatasourceCopier {
     }
   }
 
-  private void notifyListeners(ValueTable valueTable, boolean copied) {
+  private void notifyListeners(ValueTable valueTable, String destinationTable, boolean copied) {
     for(DatasourceCopyEventListener listener : listeners) {
       if(listener instanceof DatasourceCopyValueTableEventListener) {
         DatasourceCopyValueTableEventListener valueTableListener = (DatasourceCopyValueTableEventListener) listener;
         if(copied) {
-          valueTableListener.onValueTableCopied(valueTable);
+          valueTableListener.onValueTableCopied(valueTable, destinationTable);
         } else {
-          valueTableListener.onValueTableCopy(valueTable);
+          valueTableListener.onValueTableCopy(valueTable, destinationTable);
         }
       }
     }
@@ -225,9 +226,9 @@ public class DatasourceCopier {
 
   public interface DatasourceCopyValueTableEventListener extends DatasourceCopyEventListener {
 
-    public void onValueTableCopy(ValueTable valueTable);
+    public void onValueTableCopy(ValueTable valueTable, String destinationTable);
 
-    public void onValueTableCopied(ValueTable valueTable);
+    public void onValueTableCopied(ValueTable valueTable, String destinationTable);
 
   }
 
@@ -288,15 +289,17 @@ public class DatasourceCopier {
 
     private VariableEntityAuditLogManager auditLogManager;
 
-    private Datasource source;
+    private ValueTable source;
 
-    private Datasource destination;
+    private Datasource destinationSource;
+
+    private String destinationTable;
 
     public VariableEntityCopyEventListener(VariableEntityAuditLogManager auditLogManager, Datasource destination) {
       if(auditLogManager == null) throw new IllegalArgumentException("auditLogManager cannot be null");
       if(destination == null) throw new IllegalArgumentException("destination cannot be null");
       this.auditLogManager = auditLogManager;
-      this.destination = destination;
+      this.destinationSource = destination;
     }
 
     @Override
@@ -310,17 +313,18 @@ public class DatasourceCopier {
     }
 
     @Override
-    public void onValueTableCopied(ValueTable valueTable) {
+    public void onValueTableCopied(ValueTable valueTable, String destinationTable) {
     }
 
     @Override
-    public void onValueTableCopy(ValueTable valueTable) {
-      source = valueTable.getDatasource();
+    public void onValueTableCopy(ValueTable valueTable, String destinationTable) {
+      source = valueTable;
+      this.destinationTable = destinationTable;
     }
 
     private Map<String, Value> createCopyDetails(VariableEntity entity) {
       Map<String, Value> details = new HashMap<String, Value>();
-      details.put("destinationName", TextType.get().valueOf(destination.getName()));
+      details.put("destinationName", TextType.get().valueOf(destinationSource.getName() + "." + destinationTable));
       return details;
     }
 

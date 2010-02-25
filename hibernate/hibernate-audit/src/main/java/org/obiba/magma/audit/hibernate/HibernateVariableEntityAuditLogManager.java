@@ -6,8 +6,8 @@ import java.util.Map;
 import org.hibernate.SessionFactory;
 import org.obiba.core.service.impl.hibernate.AssociationCriteria;
 import org.obiba.core.service.impl.hibernate.AssociationCriteria.Operation;
-import org.obiba.magma.Datasource;
 import org.obiba.magma.Value;
+import org.obiba.magma.ValueTable;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.audit.UserProvider;
 import org.obiba.magma.audit.VariableEntityAuditEvent;
@@ -34,12 +34,13 @@ public class HibernateVariableEntityAuditLogManager implements VariableEntityAud
   }
 
   @Override
-  public VariableEntityAuditEvent createAuditEvent(VariableEntityAuditLog log, Datasource datasource, String type, Map<String, Value> details) {
+  public VariableEntityAuditEvent createAuditEvent(VariableEntityAuditLog log, ValueTable source, String type, Map<String, Value> details) {
     if(log == null) throw new IllegalArgumentException("log cannot be null");
-    if(datasource == null) throw new IllegalArgumentException("datasource cannot be null");
+    if(source == null) throw new IllegalArgumentException("source cannot be null");
     if(type == null) throw new IllegalArgumentException("type cannot be null");
     HibernateVariableEntityAuditEvent auditEvent = new HibernateVariableEntityAuditEvent();
-    auditEvent.setDatasource(datasource.getName());
+    auditEvent.setDatasource(source.getDatasource().getName());
+    auditEvent.setValueTable(source.getName());
     auditEvent.setType(type);
     auditEvent.setDetails(details);
     auditEvent.setDatetime(new Date());
