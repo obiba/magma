@@ -47,11 +47,11 @@ public class JdbcDatasource extends AbstractDatasource {
 
   private Set<String> RESERVED_NAMES = ImmutableSet.of(VARIABLE_METADATA_TABLE, ATTRIBUTE_METADATA_TABLE, CATEGORY_METADATA_TABLE);
 
+  private final JdbcTemplate jdbcTemplate;
+
+  private final JdbcDatasourceSettings settings;
+
   private DatabaseSnapshot snapshot;
-
-  private JdbcTemplate jdbcTemplate;
-
-  private JdbcDatasourceSettings settings;
 
   //
   // Constructors
@@ -104,15 +104,10 @@ public class JdbcDatasource extends AbstractDatasource {
 
   @Override
   protected void onInitialise() {
-    // database = getNewDatabase();
   }
 
   @Override
   protected void onDispose() {
-    // try {
-    // this.database.close();
-    // } catch(JDBCException e) {
-    // }
   }
 
   protected Set<String> getValueTableNames() {
@@ -130,7 +125,7 @@ public class JdbcDatasource extends AbstractDatasource {
   }
 
   protected ValueTable initialiseValueTable(String tableName) {
-    return new JdbcValueTable(this, getDatabaseSnapshot().getTable(tableName), "Participant");
+    return new JdbcValueTable(this, getDatabaseSnapshot().getTable(tableName), settings.getDefaultEntityType());
   }
 
   //
@@ -172,7 +167,6 @@ public class JdbcDatasource extends AbstractDatasource {
           return databaseCallback.doInDatabase(DatabaseFactory.getInstance().findCorrectDatabaseImplementation(con));
         } catch(JDBCException e) {
           throw new SQLException(e);
-        } finally {
         }
       }
     });
