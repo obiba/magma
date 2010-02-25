@@ -48,7 +48,7 @@ public abstract class AbstractValueTable implements ValueTable, Initialisable {
 
   @Override
   public String getEntityType() {
-    return variableEntityProvider.getEntityType();
+    return getVariableEntityProvider().getEntityType();
   }
 
   @Override
@@ -63,12 +63,12 @@ public abstract class AbstractValueTable implements ValueTable, Initialisable {
 
   @Override
   public boolean hasValueSet(VariableEntity entity) {
-    return variableEntityProvider.getVariableEntities().contains(entity);
+    return getVariableEntityProvider().getVariableEntities().contains(entity);
   }
 
   @Override
   public Iterable<ValueSet> getValueSets() {
-    return Iterables.transform(variableEntityProvider.getVariableEntities(), new Function<VariableEntity, ValueSet>() {
+    return Iterables.transform(getVariableEntityProvider().getVariableEntities(), new Function<VariableEntity, ValueSet>() {
       @Override
       public ValueSet apply(VariableEntity from) {
         return getValueSet(from);
@@ -115,8 +115,14 @@ public abstract class AbstractValueTable implements ValueTable, Initialisable {
     Initialisables.initialise(getSources());
   }
 
-  public void setVariableEntityProvider(VariableEntityProvider variableEntityProvider) {
+  protected void setVariableEntityProvider(VariableEntityProvider variableEntityProvider) {
+    if(variableEntityProvider == null) throw new IllegalArgumentException("variableEntityProvider cannot be null");
     this.variableEntityProvider = variableEntityProvider;
+  }
+
+  protected VariableEntityProvider getVariableEntityProvider() {
+    if(variableEntityProvider == null) throw new IllegalArgumentException("variableEntityProvider cannot be null");
+    return this.variableEntityProvider;
   }
 
   protected Set<VariableValueSource> getSources() {
