@@ -27,7 +27,7 @@
       <version>1.1.0</version>
       <scope>test</scope>
     </dependency>
-      
+
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-jdbc</artifactId>
@@ -44,19 +44,22 @@
       <groupId>org.springframework</groupId>
       <artifactId>spring-test</artifactId>
     </dependency>
-    
-	<!-- Using JUnit 4.4 due to incompatibility of later versions with Spring TestContext Framework (http://jira.springframework.org/browse/SPR-5145) -->
+
+    <!--
+      Using JUnit 4.4 due to incompatibility of later versions with Spring TestContext Framework
+      (http://jira.springframework.org/browse/SPR-5145)
+    -->
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <version>4.4</version>
     </dependency>
-      
+
     <dependency>
       <groupId>org.dbunit</groupId>
       <artifactId>dbunit</artifactId>
     </dependency>
-      
+
     <dependency>
       <groupId>org.liquibase</groupId>
       <artifactId>liquibase-core</artifactId>
@@ -83,11 +86,12 @@
       <version>1.3</version>
     </dependency>
 
-     <dependency>
-        <groupId>javax.transaction</groupId>
-        <artifactId>jta</artifactId>
-        <version>1.0.1B</version>
-      </dependency>
+    <dependency>
+      <groupId>javax.transaction</groupId>
+      <artifactId>jta</artifactId>
+      <version>1.0.1B</version>
+      <optional>true</optional>
+    </dependency>
 
   </dependencies>
 </project>
