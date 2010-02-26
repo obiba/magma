@@ -56,7 +56,7 @@ public class InsertDataChangeBuilder {
 
   public InsertDataChangeBuilder withColumn(String columnName, Date columnValue, boolean nullable) {
     ColumnConfig column = getColumn(columnName);
-    column.setValueDate(new java.sql.Date(columnValue.getTime()));
+    column.setValueDate(new java.sql.Timestamp(columnValue.getTime()));
     ConstraintsConfig constraints = new ConstraintsConfig();
     constraints.setNullable(nullable);
     column.setConstraints(constraints);
