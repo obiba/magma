@@ -6,7 +6,6 @@ package org.obiba.magma.datasource.jdbc.support;
 import java.util.Date;
 
 import liquibase.change.ColumnConfig;
-import liquibase.change.ConstraintsConfig;
 import liquibase.change.InsertDataChange;
 
 public class InsertDataChangeBuilder {
@@ -22,28 +21,9 @@ public class InsertDataChangeBuilder {
     return this;
   }
 
-  public InsertDataChangeBuilder withColumn(String columnName, String columnValue, boolean nullable) {
+  public InsertDataChangeBuilder withColumn(String columnName, String columnValue) {
     ColumnConfig column = getColumn(columnName);
     column.setValue(columnValue);
-    ConstraintsConfig constraints = new ConstraintsConfig();
-    constraints.setNullable(nullable);
-    column.setConstraints(constraints);
-
-    insertDataChange.addColumn(column);
-
-    return this;
-  }
-
-  public InsertDataChangeBuilder withColumn(String columnName, String columnValue) {
-    return withColumn(columnName, columnValue, false);
-  }
-
-  public InsertDataChangeBuilder withColumn(String columnName, Boolean columnValue, boolean nullable) {
-    ColumnConfig column = getColumn(columnName);
-    column.setValueBoolean(columnValue);
-    ConstraintsConfig constraints = new ConstraintsConfig();
-    constraints.setNullable(nullable);
-    column.setConstraints(constraints);
 
     insertDataChange.addColumn(column);
 
@@ -51,15 +31,8 @@ public class InsertDataChangeBuilder {
   }
 
   public InsertDataChangeBuilder withColumn(String columnName, Boolean columnValue) {
-    return withColumn(columnName, columnValue, false);
-  }
-
-  public InsertDataChangeBuilder withColumn(String columnName, Date columnValue, boolean nullable) {
     ColumnConfig column = getColumn(columnName);
-    column.setValueDate(new java.sql.Timestamp(columnValue.getTime()));
-    ConstraintsConfig constraints = new ConstraintsConfig();
-    constraints.setNullable(nullable);
-    column.setConstraints(constraints);
+    column.setValueBoolean(columnValue);
 
     insertDataChange.addColumn(column);
 
@@ -67,7 +40,12 @@ public class InsertDataChangeBuilder {
   }
 
   public InsertDataChangeBuilder withColumn(String columnName, Date columnValue) {
-    return withColumn(columnName, columnValue, false);
+    ColumnConfig column = getColumn(columnName);
+    column.setValueDate(new java.sql.Timestamp(columnValue.getTime()));
+
+    insertDataChange.addColumn(column);
+
+    return this;
   }
 
   public InsertDataChange build() {

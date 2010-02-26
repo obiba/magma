@@ -24,6 +24,7 @@ import org.obiba.magma.datasource.jdbc.JdbcDatasource.ChangeDatabaseCallback;
 import org.obiba.magma.datasource.jdbc.support.CreateTableChangeBuilder;
 import org.obiba.magma.datasource.jdbc.support.InsertDataChangeBuilder;
 import org.obiba.magma.datasource.jdbc.support.NameConverter;
+import org.obiba.magma.datasource.jdbc.support.UpdateDataChangeBuilder;
 import org.obiba.magma.type.TextType;
 import org.springframework.jdbc.core.JdbcTemplate;
 
@@ -200,7 +201,7 @@ public class JdbcValueTableWriter implements ValueTableWriter {
 
       // For ALL variables (existing and new), insert the new metadata.
       InsertDataChangeBuilder builder = new InsertDataChangeBuilder();
-      builder.tableName(VARIABLE_METADATA_TABLE).withColumn(VALUE_TABLE_COLUMN, valueTable.getName()).withColumn("name", variable.getName()).withColumn(VALUE_TYPE_COLUMN, variable.getValueType().getName()).withColumn("mime_type", variable.getMimeType()).withColumn("units", variable.getUnit()).withColumn("is_repeatable", variable.isRepeatable()).withColumn("occurrence_group", variable.getOccurrenceGroup(), true);
+      builder.tableName(VARIABLE_METADATA_TABLE).withColumn(VALUE_TABLE_COLUMN, valueTable.getName()).withColumn("name", variable.getName()).withColumn(VALUE_TYPE_COLUMN, variable.getValueType().getName()).withColumn("mime_type", variable.getMimeType()).withColumn("units", variable.getUnit()).withColumn("is_repeatable", variable.isRepeatable()).withColumn("occurrence_group", variable.getOccurrenceGroup());
       changes.add(builder.build());
 
       if(variable.hasAttributes()) {
@@ -259,21 +260,43 @@ public class JdbcValueTableWriter implements ValueTableWriter {
 
     InsertDataChangeBuilder insertDataChangeBuilder;
 
+    UpdateDataChangeBuilder updateDataChangeBuilder;
+
+    boolean valueSetExists = false;
+
     public JdbcValueSetWriter(VariableEntity entity) {
-      insertDataChangeBuilder = new InsertDataChangeBuilder();
-      insertDataChangeBuilder.tableName(valueTable.getSqlName()).withColumn(ENTITY_ID_COLUMN, entity.getIdentifier());
+      if(!valueTable.hasValueSet(entity)) {
+        insertDataChangeBuilder = new InsertDataChangeBuilder();
+        insertDataChangeBuilder.tableName(valueTable.getSqlName()).withColumn(ENTITY_ID_COLUMN, entity.getIdentifier());
+      } else {
+        valueSetExists = true;
+        updateDataChangeBuilder = new UpdateDataChangeBuilder();
+        updateDataChangeBuilder.tableName(valueTable.getSqlName()).where(ENTITY_ID_COLUMN + "=\"" + entity.getIdentifier() + "\"");
+      }
     }
 
     @Override
     public void writeValue(Variable variable, Value value) {
-      if(isBooleanValue(value)) {
-        Boolean booleanValue = (Boolean) value.getValue();
-        insertDataChangeBuilder.withColumn(NameConverter.toSqlName(variable.getName()), booleanValue);
-      } else if(isDateValue(value)) {
-        Date dateValue = (Date) value.getValue();
-        insertDataChangeBuilder.withColumn(NameConverter.toSqlName(variable.getName()), dateValue);
+      if(!valueSetExists) {
+        if(isBooleanValue(value)) {
+          Boolean booleanValue = (Boolean) value.getValue();
+          insertDataChangeBuilder.withColumn(NameConverter.toSqlName(variable.getName()), booleanValue);
+        } else if(isDateValue(value)) {
+          Date dateValue = (Date) value.getValue();
+          insertDataChangeBuilder.withColumn(NameConverter.toSqlName(variable.getName()), dateValue);
+        } else {
+          insertDataChangeBuilder.withColumn(NameConverter.toSqlName(variable.getName()), value.toString());
+        }
       } else {
-        insertDataChangeBuilder.withColumn(NameConverter.toSqlName(variable.getName()), value.toString());
+        if(isBooleanValue(value)) {
+          Boolean booleanValue = (Boolean) value.getValue();
+          updateDataChangeBuilder.withColumn(NameConverter.toSqlName(variable.getName()), booleanValue);
+        } else if(isDateValue(value)) {
+          Date dateValue = (Date) value.getValue();
+          updateDataChangeBuilder.withColumn(NameConverter.toSqlName(variable.getName()), dateValue);
+        } else {
+          updateDataChangeBuilder.withColumn(NameConverter.toSqlName(variable.getName()), value.toString());
+        }
       }
     }
 
@@ -287,7 +310,7 @@ public class JdbcValueTableWriter implements ValueTableWriter {
 
     @Override
     public void close() throws IOException {
-      valueTable.getDatasource().doWithDatabase(new ChangeDatabaseCallback(insertDataChangeBuilder.build()));
+      valueTable.getDatasource().doWithDatabase(new ChangeDatabaseCallback(!valueSetExists ? insertDataChangeBuilder.build() : updateDataChangeBuilder.build()));
     }
 
   }
