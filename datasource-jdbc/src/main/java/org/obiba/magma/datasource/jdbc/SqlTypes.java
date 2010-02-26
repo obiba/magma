@@ -12,6 +12,8 @@ import org.obiba.magma.type.TextType;
 class SqlTypes {
   static final String TEXT_TYPE_HINT_MEDIUM = "MEDIUM";
 
+  static final String TEXT_TYPE_HINT_LARGE = "LARGE";
+
   static final ValueType valueTypeFor(int sqlType) {
     switch(sqlType) {
     // BinaryType
@@ -83,6 +85,8 @@ class SqlTypes {
       // TODO: Formalize the notion of a "hint".
       if(TEXT_TYPE_HINT_MEDIUM.equals(hint)) {
         return "VARCHAR(1024)";
+      } else if(TEXT_TYPE_HINT_LARGE.equals(hint)) {
+        return "LONGVARCHAR";
       } else {
         return "VARCHAR";
       }
