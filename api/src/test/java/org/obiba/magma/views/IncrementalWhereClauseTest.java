@@ -121,9 +121,7 @@ public class IncrementalWhereClauseTest extends AbstractMagmaTest {
   private List<VariableEntityAuditEvent> getCaseOneCopyEventsFromSource() {
     List<VariableEntityAuditEvent> events = new ArrayList<VariableEntityAuditEvent>();
 
-    Calendar calendar = Calendar.getInstance();
-    calendar.set(2010, 0, 01, 0, 0, 0);
-    calendar.set(Calendar.MILLISECOND, 0);
+    Calendar calendar = getInitializedCalendar();
 
     events.add(createMockCopyEvent("COPY", calendar.getTime(), "source.table", "destination.differentTable"));
     events.add(createMockCopyEvent("COPY", getDayBefore(calendar), "source.table", "otherDestination.otherTable"));
@@ -134,9 +132,7 @@ public class IncrementalWhereClauseTest extends AbstractMagmaTest {
   private List<VariableEntityAuditEvent> getCaseOneAllCopyEvents() {
     List<VariableEntityAuditEvent> events = new ArrayList<VariableEntityAuditEvent>();
 
-    Calendar calendar = Calendar.getInstance();
-    calendar.set(2010, 0, 01, 0, 0, 0);
-    calendar.set(Calendar.MILLISECOND, 0);
+    Calendar calendar = getInitializedCalendar();
 
     events.add(createMockCopyEvent("COPY", calendar.getTime(), "source.table", "destination.differentTable"));
     events.add(createMockCopyEvent("COPY", getDayBefore(calendar), "source.table", "otherDestination.otherTable"));
@@ -148,8 +144,7 @@ public class IncrementalWhereClauseTest extends AbstractMagmaTest {
   private List<VariableEntityAuditEvent> getCaseTwoCopyEventsFromSource() {
     List<VariableEntityAuditEvent> events = new ArrayList<VariableEntityAuditEvent>();
 
-    Calendar calendar = Calendar.getInstance();
-    calendar.set(2010, 01, 01);
+    Calendar calendar = getInitializedCalendar();
 
     events.add(createMockCopyEvent("COPY", calendar.getTime(), "source.table", "destination.table"));
 
@@ -159,8 +154,7 @@ public class IncrementalWhereClauseTest extends AbstractMagmaTest {
   private List<VariableEntityAuditEvent> getCaseTwoAllCopyEvents() {
     List<VariableEntityAuditEvent> events = new ArrayList<VariableEntityAuditEvent>();
 
-    Calendar calendar = Calendar.getInstance();
-    calendar.set(2010, 01, 02);
+    Calendar calendar = getInitializedCalendar();
 
     events.add(createMockCopyEvent("COPY", calendar.getTime(), "source.table", "destination.table"));
     events.add(createMockCopyEvent("COPY", getDayBefore(calendar), "foo.bar", "destination.table"));
@@ -171,8 +165,7 @@ public class IncrementalWhereClauseTest extends AbstractMagmaTest {
   private List<VariableEntityAuditEvent> getCaseThreeCopyEventsFromSource() {
     List<VariableEntityAuditEvent> events = new ArrayList<VariableEntityAuditEvent>();
 
-    Calendar calendar = Calendar.getInstance();
-    calendar.set(2010, 01, 01);
+    Calendar calendar = getInitializedCalendar();
 
     events.add(createMockCopyEvent("COPY", calendar.getTime(), "source.table", "destination.table"));
 
@@ -182,8 +175,7 @@ public class IncrementalWhereClauseTest extends AbstractMagmaTest {
   private List<VariableEntityAuditEvent> getCaseThreeAllCopyEvents() {
     List<VariableEntityAuditEvent> events = new ArrayList<VariableEntityAuditEvent>();
 
-    Calendar calendar = Calendar.getInstance();
-    calendar.set(2010, 01, 02);
+    Calendar calendar = getInitializedCalendar();
 
     events.add(createMockCopyEvent("COPY", calendar.getTime(), "source.table", "destination.table"));
     events.add(createMockCopyEvent("COPY", getDayAfter(calendar), "foo.bar", "source.table"));
@@ -194,8 +186,7 @@ public class IncrementalWhereClauseTest extends AbstractMagmaTest {
   private List<VariableEntityAuditEvent> getCaseFourCopyEventsFromSource() {
     List<VariableEntityAuditEvent> events = new ArrayList<VariableEntityAuditEvent>();
 
-    Calendar calendar = Calendar.getInstance();
-    calendar.set(2010, 01, 01);
+    Calendar calendar = getInitializedCalendar();
 
     events.add(createMockCopyEvent("COPY", calendar.getTime(), "source.table", "destination.table"));
 
@@ -205,8 +196,7 @@ public class IncrementalWhereClauseTest extends AbstractMagmaTest {
   private List<VariableEntityAuditEvent> getCaseFourAllCopyEvents() {
     List<VariableEntityAuditEvent> events = new ArrayList<VariableEntityAuditEvent>();
 
-    Calendar calendar = Calendar.getInstance();
-    calendar.set(2010, 01, 02);
+    Calendar calendar = getInitializedCalendar();
 
     events.add(createMockCopyEvent("COPY", calendar.getTime(), "source.table", "destination.table"));
     events.add(createMockCopyEvent("COPY", getDayBefore(calendar), "foo.bar", "source.table"));
@@ -226,6 +216,13 @@ public class IncrementalWhereClauseTest extends AbstractMagmaTest {
     replay(eventMock);
 
     return eventMock;
+  }
+
+  private Calendar getInitializedCalendar() {
+    Calendar calendar = Calendar.getInstance();
+    calendar.set(2010, 01, 01);
+    calendar.set(Calendar.MILLISECOND, 0);
+    return calendar;
   }
 
   private Date getDayBefore(Calendar calender) {
