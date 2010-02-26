@@ -14,6 +14,7 @@ import javax.persistence.UniqueConstraint;
 
 import org.obiba.core.domain.AbstractEntity;
 import org.obiba.magma.Datasource;
+import org.obiba.magma.ValueTable;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.audit.VariableEntityAuditEvent;
 import org.obiba.magma.audit.VariableEntityAuditLog;
@@ -52,6 +53,17 @@ public class HibernateVariableEntityAuditLog extends AbstractEntity implements V
     List<VariableEntityAuditEvent> filteredEvents = new ArrayList<VariableEntityAuditEvent>();
     for(VariableEntityAuditEvent auditEvent : auditEvents) {
       if(auditEvent.getDatasource().equals(datasource.getName())) {
+        filteredEvents.add(auditEvent);
+      }
+    }
+    return filteredEvents;
+  }
+
+  @Override
+  public List<VariableEntityAuditEvent> getAuditEvents(ValueTable valueTable) {
+    List<VariableEntityAuditEvent> filteredEvents = new ArrayList<VariableEntityAuditEvent>();
+    for(VariableEntityAuditEvent auditEvent : auditEvents) {
+      if(auditEvent.getDatasource().equals(valueTable.getDatasource().getName()) && auditEvent.getValueTable().equals(valueTable.getName())) {
         filteredEvents.add(auditEvent);
       }
     }
