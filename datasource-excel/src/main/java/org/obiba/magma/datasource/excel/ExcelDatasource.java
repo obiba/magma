@@ -67,7 +67,7 @@ public class ExcelDatasource extends AbstractDatasource {
     if(hasValueTable(name)) {
       valueTable = (ExcelValueTable) getValueTable(name);
     } else {
-      addValueTable(valueTable = new ExcelValueTable(name, this, createSheetIfNotExist(name), entityType));
+      addValueTable(valueTable = new ExcelValueTable(name, this));
     }
     return new ExcelValueTableWriter(valueTable);
   }
@@ -137,7 +137,7 @@ public class ExcelDatasource extends AbstractDatasource {
 
   @Override
   protected ValueTable initialiseValueTable(String tableName) {
-    return new ExcelValueTable(tableName, this, createSheetIfNotExist(tableName));
+    return new ExcelValueTable(tableName, this);
   }
 
   Workbook getWorkbook() {

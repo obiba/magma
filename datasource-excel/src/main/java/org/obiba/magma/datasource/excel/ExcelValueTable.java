@@ -29,11 +29,7 @@ class ExcelValueTable extends AbstractValueTable implements Initialisable {
 
   private static final Logger log = LoggerFactory.getLogger(ExcelValueTable.class);
 
-  public ExcelValueTable(String name, ExcelDatasource datasource, Sheet excelSheet) {
-    super(datasource, name);
-  }
-
-  public ExcelValueTable(String name, ExcelDatasource datasource, Sheet excelSheet, String entityType) {
+  public ExcelValueTable(String name, ExcelDatasource datasource) {
     super(datasource, name);
   }
 
@@ -42,7 +38,7 @@ class ExcelValueTable extends AbstractValueTable implements Initialisable {
     super.initialise();
     try {
       readVariables();
-      printVariables();
+      // printVariables();
 
     } catch(RuntimeException e) {
       throw e;
