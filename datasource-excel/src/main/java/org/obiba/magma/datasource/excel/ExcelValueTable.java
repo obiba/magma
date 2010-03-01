@@ -175,10 +175,12 @@ class ExcelValueTable extends AbstractValueTable implements Initialisable {
         builder.addAttribute(ExcelDatasource.getAttributeShortName(attributeName), attributeValue, attributeLocale);
       } else {
         ValueType attributeType = readCustomAttributeType(attributeAwareType, attributeAwareName, attributeName);
-        Value attributeValue = attributeType.valueOf(cellValueAsString);
-        Attribute.Builder attributeBuilder = Attribute.Builder.newAttribute(ExcelDatasource.getAttributeShortName(attributeName));
-        attributeBuilder.withValue(attributeValue);
-        builder.addAttribute(attributeBuilder.build());
+        if(attributeType != null) {
+          Value attributeValue = attributeType.valueOf(cellValueAsString);
+          Attribute.Builder attributeBuilder = Attribute.Builder.newAttribute(ExcelDatasource.getAttributeShortName(attributeName));
+          attributeBuilder.withValue(attributeValue);
+          builder.addAttribute(attributeBuilder.build());
+        }
       }
     }
   }
