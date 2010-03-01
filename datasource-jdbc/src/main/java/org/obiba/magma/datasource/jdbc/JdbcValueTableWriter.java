@@ -25,13 +25,18 @@ import org.obiba.magma.datasource.jdbc.support.CreateTableChangeBuilder;
 import org.obiba.magma.datasource.jdbc.support.InsertDataChangeBuilder;
 import org.obiba.magma.datasource.jdbc.support.NameConverter;
 import org.obiba.magma.datasource.jdbc.support.UpdateDataChangeBuilder;
+import org.obiba.magma.type.BinaryType;
 import org.obiba.magma.type.TextType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 public class JdbcValueTableWriter implements ValueTableWriter {
   //
   // Constants
   //
+
+  private static final Logger log = LoggerFactory.getLogger(JdbcValueTableWriter.class);
 
   static final String VARIABLE_METADATA_TABLE = "variables";
 
@@ -111,6 +116,12 @@ public class JdbcValueTableWriter implements ValueTableWriter {
 
     @Override
     public void writeVariable(Variable variable) {
+      // OPAL-153: Ignore BinaryType variables.
+      if(variable.getValueType().equals(BinaryType.get())) {
+        log.info("Not writing variable {} (BinaryType variables not supported)", variable.getName());
+        return;
+      }
+
       if(!valueTable.isForEntityType(variable.getEntityType())) {
         throw new InvalidParameterException("Wrong entity type for variable '" + variable.getName() + "': " + valueTable.getEntityType() + " expected, " + variable.getEntityType() + " received.");
       }
@@ -277,6 +288,12 @@ public class JdbcValueTableWriter implements ValueTableWriter {
 
     @Override
     public void writeValue(Variable variable, Value value) {
+      // OPAL-153: Ignore BinaryType variables.
+      if(variable.getValueType().equals(BinaryType.get())) {
+        log.info("Not writing value of variable {} (BinaryType variables not supported)", variable.getName());
+        return;
+      }
+
       if(!valueSetExists) {
         if(isBooleanValue(value)) {
           Boolean booleanValue = (Boolean) value.getValue();

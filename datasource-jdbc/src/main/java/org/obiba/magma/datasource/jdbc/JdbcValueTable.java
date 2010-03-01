@@ -30,9 +30,17 @@ import org.obiba.magma.support.AbstractValueTable;
 import org.obiba.magma.support.AbstractVariableEntityProvider;
 import org.obiba.magma.support.Initialisables;
 import org.obiba.magma.support.VariableEntityBean;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.RowMapper;
 
 class JdbcValueTable extends AbstractValueTable {
+  //
+  // Constants
+  //
+
+  private static final Logger log = LoggerFactory.getLogger(JdbcValueTable.class);
+
   //
   // Instance Variables
   //
@@ -139,11 +147,21 @@ class JdbcValueTable extends AbstractValueTable {
       }
     } else {
       for(Column column : table.getColumns()) {
+        // OPAL-153: Ignore columns with binary types.
+        if(isBinaryDataType(column)) {
+          log.info("Ignoring binary value columns (not supported)");
+          continue;
+        }
+
         if(!getSettings().getEntityIdentifierColumns().contains(column.getName())) {
           addVariableValueSource(new JdbcVariableValueSource(settings.getEntityType(), column));
         }
       }
     }
+  }
+
+  private boolean isBinaryDataType(Column column) {
+    return column.getDataType() == java.sql.Types.BLOB || column.getDataType() == java.sql.Types.VARBINARY || column.getDataType() == java.sql.Types.LONGVARBINARY;
   }
 
   private boolean metadataTablesExist() {

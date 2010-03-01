@@ -7,6 +7,7 @@ import org.obiba.magma.type.BooleanType;
 import org.obiba.magma.type.DateTimeType;
 import org.obiba.magma.type.DecimalType;
 import org.obiba.magma.type.IntegerType;
+import org.obiba.magma.type.LocaleType;
 import org.obiba.magma.type.TextType;
 
 class SqlTypes {
@@ -81,7 +82,7 @@ class SqlTypes {
   }
 
   static final String sqlTypeFor(ValueType valueType, String hint) {
-    if(valueType.getName().equals(TextType.get().getName())) {
+    if(valueType.equals(TextType.get())) {
       // TODO: Formalize the notion of a "hint".
       if(TEXT_TYPE_HINT_MEDIUM.equals(hint)) {
         return "VARCHAR(1024)";
@@ -91,23 +92,26 @@ class SqlTypes {
         return "VARCHAR";
       }
     }
-    if(valueType.getName().equals(IntegerType.get().getName())) {
+    if(valueType.equals(IntegerType.get())) {
       return "INTEGER";
     }
-    if(valueType.getName().equals(DecimalType.get().getName())) {
+    if(valueType.equals(DecimalType.get())) {
       return "DECIMAL";
     }
-    // if(valueType.getName().equals(DateType.get().getName())) {
+    // if(valueType.equals(DateType.get())) {
     // return "DATE";
     // }
-    if(valueType.getName().equals(DateTimeType.get().getName())) {
+    if(valueType.equals(DateTimeType.get())) {
       return "TIMESTAMP";
     }
-    if(valueType.getName().equals(BinaryType.get().getName())) {
+    if(valueType.equals(BinaryType.get())) {
       return "BLOB";
     }
-    if(valueType.getName().equals(BooleanType.get().getName())) {
+    if(valueType.equals(BooleanType.get())) {
       return "BOOLEAN";
+    }
+    if(valueType.equals(LocaleType.get())) {
+      return "VARCHAR(255)";
     }
 
     throw new MagmaRuntimeException("no sql type for " + valueType);
