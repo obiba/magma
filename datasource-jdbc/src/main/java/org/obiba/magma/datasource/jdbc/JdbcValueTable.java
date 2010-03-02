@@ -49,6 +49,14 @@ class JdbcValueTable extends AbstractValueTable {
 
   private Table table;
 
+  private String escapedSqlTableName;
+
+  private String escapedVariablesSqlTableName;
+
+  private String escapedVariableAttributesSqlTableName;
+
+  private String escapedCategoriesSqlTableName;
+
   //
   // Constructors
   //
@@ -131,9 +139,15 @@ class JdbcValueTable extends AbstractValueTable {
         throw new MagmaRuntimeException("metadata tables not found");
       }
 
+      // MAGMA-100
+      if(escapedVariablesSqlTableName == null) {
+        escapedVariablesSqlTableName = getDatasource().escapeSqlTableName(JdbcValueTableWriter.VARIABLE_METADATA_TABLE);
+      }
+
       StringBuilder sql = new StringBuilder();
       sql.append("SELECT *");
-      sql.append(" FROM variables ");
+      sql.append(" FROM ");
+      sql.append(escapedVariablesSqlTableName);
       sql.append(" WHERE value_table = ?");
 
       List<Variable> results = getDatasource().getJdbcTemplate().query(sql.toString(), new Object[] { getSqlName() }, new RowMapper() {
@@ -190,9 +204,15 @@ class JdbcValueTable extends AbstractValueTable {
   }
 
   private void addVariableAttributes(String variableName, final Variable.Builder builder) {
+    // MAGMA-100
+    if(escapedVariableAttributesSqlTableName == null) {
+      escapedVariableAttributesSqlTableName = getDatasource().escapeSqlTableName(JdbcValueTableWriter.ATTRIBUTE_METADATA_TABLE);
+    }
+
     StringBuilder sql = new StringBuilder();
     sql.append("SELECT *");
-    sql.append(" FROM variable_attributes ");
+    sql.append(" FROM ");
+    sql.append(escapedVariableAttributesSqlTableName);
     sql.append(" WHERE value_table = ? AND variable_name = ?");
 
     getDatasource().getJdbcTemplate().query(sql.toString(), new Object[] { getSqlName(), variableName }, new RowMapper() {
@@ -206,9 +226,15 @@ class JdbcValueTable extends AbstractValueTable {
   }
 
   private void addVariableCategories(String variableName, final Variable.Builder builder) {
+    // MAGMA-100
+    if(escapedCategoriesSqlTableName == null) {
+      escapedCategoriesSqlTableName = getDatasource().escapeSqlTableName(JdbcValueTableWriter.CATEGORY_METADATA_TABLE);
+    }
+
     StringBuilder sql = new StringBuilder();
     sql.append("SELECT *");
-    sql.append(" FROM categories ");
+    sql.append(" FROM ");
+    sql.append(escapedCategoriesSqlTableName);
     sql.append(" WHERE value_table = ? AND variable_name = ?");
 
     getDatasource().getJdbcTemplate().query(sql.toString(), new Object[] { getSqlName(), variableName }, new RowMapper() {
@@ -254,6 +280,11 @@ class JdbcValueTable extends AbstractValueTable {
     public void initialise() {
       entities = new LinkedHashSet<VariableEntity>();
 
+      // MAGMA-100
+      if(escapedSqlTableName == null) {
+        escapedSqlTableName = getDatasource().escapeSqlTableName(getSqlName());
+      }
+
       // Build the SQL query.
       StringBuilder sql = new StringBuilder();
 
@@ -269,7 +300,7 @@ class JdbcValueTable extends AbstractValueTable {
 
       // ...from table
       sql.append(" FROM ");
-      sql.append(getSqlName());
+      sql.append(escapedSqlTableName);
 
       // Execute the query.
       List<VariableEntity> results = getDatasource().getJdbcTemplate().query(sql.toString(), new RowMapper() {

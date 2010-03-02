@@ -20,6 +20,8 @@ public class JdbcValueSet extends ValueSetBean {
 
   private Map<String, Value> resultSetCache;
 
+  private String escapedSqlTableName;
+
   //
   // Constructors
   //
@@ -50,6 +52,12 @@ public class JdbcValueSet extends ValueSetBean {
   }
 
   private void loadValues() {
+    // MAGMA-100
+    if(escapedSqlTableName == null) {
+      String sqlTableName = ((JdbcValueTable) getValueTable()).getSettings().getSqlTableName();
+      escapedSqlTableName = ((JdbcValueTable) getValueTable()).getDatasource().escapeSqlTableName(sqlTableName);
+    }
+
     // Build the SQL query.
     StringBuilder sql = new StringBuilder();
 
@@ -58,7 +66,7 @@ public class JdbcValueSet extends ValueSetBean {
 
     // ...from the mapped table
     sql.append("FROM ");
-    sql.append(((JdbcValueTable) getValueTable()).getSettings().getSqlTableName());
+    sql.append(escapedSqlTableName);
 
     // ...for the specified entity
     sql.append(" WHERE ");

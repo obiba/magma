@@ -158,6 +158,10 @@ public class JdbcDatasource extends AbstractDatasource {
     snapshot = null;
   }
 
+  String escapeSqlTableName(String sqlTableName) {
+    return getDatabaseSnapshot().getDatabase().escapeTableName(null, sqlTableName);
+  }
+
   @SuppressWarnings("unchecked")
   <T> T doWithDatabase(final DatabaseCallback<T> databaseCallback) {
     return (T) jdbcTemplate.execute(new ConnectionCallback() {
