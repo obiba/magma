@@ -67,7 +67,7 @@ public class ExcelDatasource extends AbstractDatasource {
     if(hasValueTable(name)) {
       valueTable = (ExcelValueTable) getValueTable(name);
     } else {
-      addValueTable(valueTable = new ExcelValueTable(name, this));
+      valueTable = new ExcelValueTable(name, this);
     }
     return new ExcelValueTableWriter(valueTable);
   }
