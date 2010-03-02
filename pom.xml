@@ -6,7 +6,7 @@
   <groupId>org.obiba.magma</groupId>
   <artifactId>magma</artifactId>
   <packaging>pom</packaging>
-  <version>1.0-SNAPSHOT</version>
+  <version>1.1-SNAPSHOT</version>
   <name>magma</name>
   <url>http://www.obiba.org</url>
 
@@ -281,8 +281,8 @@
   </distributionManagement>
 
   <scm>
-    <connection>scm:svn:http://svn.obiba.org/magma/branches/magma-1.0.x</connection>
-    <developerConnection>scm:svn:https://svn.obiba.org/magma/branches/magma-1.0.x</developerConnection>
+    <connection>scm:svn:http://svn.obiba.org/magma/trunk</connection>
+    <developerConnection>scm:svn:https://svn.obiba.org/magma/trunk</developerConnection>
   </scm>
 
   <properties>
