@@ -13,6 +13,7 @@ import liquibase.change.AddColumnChange;
 import liquibase.change.Change;
 import liquibase.change.ColumnConfig;
 import liquibase.change.ModifyColumnChange;
+import liquibase.change.UpdateDataChange;
 
 import org.obiba.magma.Attribute;
 import org.obiba.magma.Category;
@@ -52,11 +53,15 @@ public class JdbcValueTableWriter implements ValueTableWriter {
 
   static final String ATTRIBUTE_NAME_COLUMN = "attribute_name";
 
+  static final String ATTRIBUTE_LOCALE_COLUMN = "attribute_locale";
+
   static final String ATTRIBUTE_VALUE_COLUMN = "attribute_value";
 
   static final String CATEGORY_NAME_COLUMN = "name";
 
   static final String CATEGORY_CODE_COLUMN = "code";
+
+  static final String CATEGORY_MISSING_COLUMN = "missing";
 
   static final String ENTITY_ID_COLUMN = "entity_id";
 
@@ -118,7 +123,7 @@ public class JdbcValueTableWriter implements ValueTableWriter {
     public void writeVariable(Variable variable) {
       // OPAL-153: Ignore BinaryType variables.
       if(variable.getValueType().equals(BinaryType.get())) {
-        log.info("Not writing variable {} (BinaryType variables not supported)", variable.getName());
+        log.warn("Not writing variable {} (BinaryType variables not supported)", variable.getName());
         return;
       }
 
@@ -202,17 +207,19 @@ public class JdbcValueTableWriter implements ValueTableWriter {
     protected void doWriteVariable(Variable variable) {
       boolean variableExists = variableExists(variable);
 
+      String variableSqlName = NameConverter.toSqlName(variable.getName());
+
       // For an EXISTING variable, delete the existing metadata.
       if(variableExists) {
         JdbcTemplate jdbcTemplate = valueTable.getDatasource().getJdbcTemplate();
-        jdbcTemplate.update(DELETE_VARIABLE_SQL, new Object[] { valueTable.getSqlName(), variable.getName() });
-        jdbcTemplate.update(DELETE_VARIABLE_ATTRIBUTES_SQL, new Object[] { valueTable.getSqlName(), variable.getName() });
-        jdbcTemplate.update(DELETE_VARIABLE_CATEGORIES_SQL, new Object[] { valueTable.getSqlName(), variable.getName() });
+        jdbcTemplate.update(DELETE_VARIABLE_SQL, new Object[] { valueTable.getSqlName(), variableSqlName });
+        jdbcTemplate.update(DELETE_VARIABLE_ATTRIBUTES_SQL, new Object[] { valueTable.getSqlName(), variableSqlName });
+        jdbcTemplate.update(DELETE_VARIABLE_CATEGORIES_SQL, new Object[] { valueTable.getSqlName(), variableSqlName });
       }
 
       // For ALL variables (existing and new), insert the new metadata.
       InsertDataChangeBuilder builder = new InsertDataChangeBuilder();
-      builder.tableName(VARIABLE_METADATA_TABLE).withColumn(VALUE_TABLE_COLUMN, valueTable.getName()).withColumn("name", variable.getName()).withColumn(VALUE_TYPE_COLUMN, variable.getValueType().getName()).withColumn("mime_type", variable.getMimeType()).withColumn("units", variable.getUnit()).withColumn("is_repeatable", variable.isRepeatable()).withColumn("occurrence_group", variable.getOccurrenceGroup());
+      builder.tableName(VARIABLE_METADATA_TABLE).withColumn(VALUE_TABLE_COLUMN, valueTable.getName()).withColumn("name", variableSqlName).withColumn(VALUE_TYPE_COLUMN, variable.getValueType().getName()).withColumn("mime_type", variable.getMimeType()).withColumn("units", variable.getUnit()).withColumn("is_repeatable", variable.isRepeatable()).withColumn("occurrence_group", variable.getOccurrenceGroup());
       changes.add(builder.build());
 
       if(variable.hasAttributes()) {
@@ -235,17 +242,17 @@ public class JdbcValueTableWriter implements ValueTableWriter {
     private void createMetadataTablesIfNotPresent() {
       if(valueTable.getDatasource().getDatabaseSnapshot().getTable(VARIABLE_METADATA_TABLE) == null) {
         CreateTableChangeBuilder builder = new CreateTableChangeBuilder();
-        builder.tableName(VARIABLE_METADATA_TABLE).withPrimaryKeyColumn(VALUE_TABLE_COLUMN, "VARCHAR(255)").withPrimaryKeyColumn("name", "VARCHAR(255)").withColumn(VALUE_TYPE_COLUMN, "VARCHAR(255)").withNullableColumn("mime_type", "VARCHAR(255)").withNullableColumn("units", "VARCHAR(255)").withColumn("is_repeatable", "BOOLEAN").withNullableColumn("occurrence_group", "VARCHAR(255)");
+        builder.tableName(VARIABLE_METADATA_TABLE).withColumn(VALUE_TABLE_COLUMN, "VARCHAR(255)").primaryKey().withColumn("name", "VARCHAR(255)").primaryKey().withColumn(VALUE_TYPE_COLUMN, "VARCHAR(255)").notNull().withColumn("mime_type", "VARCHAR(255)").withColumn("units", "VARCHAR(255)").withColumn("is_repeatable", "BOOLEAN").withColumn("occurrence_group", "VARCHAR(255)");
         changes.add(builder.build());
       }
       if(valueTable.getDatasource().getDatabaseSnapshot().getTable(ATTRIBUTE_METADATA_TABLE) == null) {
         CreateTableChangeBuilder builder = new CreateTableChangeBuilder();
-        builder.tableName(ATTRIBUTE_METADATA_TABLE).withPrimaryKeyColumn(VALUE_TABLE_COLUMN, "VARCHAR(255)").withPrimaryKeyColumn(VARIABLE_NAME_COLUMN, "VARCHAR(255)").withPrimaryKeyColumn(ATTRIBUTE_NAME_COLUMN, "VARCHAR(255)").withColumn(ATTRIBUTE_VALUE_COLUMN, "VARCHAR(255)");
+        builder.tableName(ATTRIBUTE_METADATA_TABLE).withColumn(VALUE_TABLE_COLUMN, "VARCHAR(255)").primaryKey().withColumn(VARIABLE_NAME_COLUMN, "VARCHAR(255)").primaryKey().withColumn(ATTRIBUTE_NAME_COLUMN, "VARCHAR(255)").primaryKey().withColumn(ATTRIBUTE_LOCALE_COLUMN, "VARCHAR(20)").primaryKey().withColumn(ATTRIBUTE_VALUE_COLUMN, "VARCHAR(255)");
         changes.add(builder.build());
       }
       if(valueTable.getDatasource().getDatabaseSnapshot().getTable(CATEGORY_METADATA_TABLE) == null) {
         CreateTableChangeBuilder builder = new CreateTableChangeBuilder();
-        builder.tableName(CATEGORY_METADATA_TABLE).withPrimaryKeyColumn(VALUE_TABLE_COLUMN, "VARCHAR(255)").withPrimaryKeyColumn(VARIABLE_NAME_COLUMN, "VARCHAR(255)").withPrimaryKeyColumn(CATEGORY_NAME_COLUMN, "VARCHAR(255)").withNullableColumn(CATEGORY_CODE_COLUMN, "VARCHAR(255)");
+        builder.tableName(CATEGORY_METADATA_TABLE).withColumn(VALUE_TABLE_COLUMN, "VARCHAR(255)").primaryKey().withColumn(VARIABLE_NAME_COLUMN, "VARCHAR(255)").primaryKey().withColumn(CATEGORY_NAME_COLUMN, "VARCHAR(255)").primaryKey().withColumn(CATEGORY_CODE_COLUMN, "VARCHAR(255)").withColumn(CATEGORY_MISSING_COLUMN, "BOOLEAN").notNull();
         changes.add(builder.build());
       }
     }
@@ -253,7 +260,7 @@ public class JdbcValueTableWriter implements ValueTableWriter {
     private void writeAttributes(Variable variable) {
       for(Attribute attribute : variable.getAttributes()) {
         InsertDataChangeBuilder builder = new InsertDataChangeBuilder();
-        builder.tableName(ATTRIBUTE_METADATA_TABLE).withColumn(VALUE_TABLE_COLUMN, valueTable.getSqlName()).withColumn(VARIABLE_NAME_COLUMN, NameConverter.toSqlName(variable.getName())).withColumn(ATTRIBUTE_NAME_COLUMN, attribute.getName()).withColumn(ATTRIBUTE_VALUE_COLUMN, attribute.getValue().toString());
+        builder.tableName(ATTRIBUTE_METADATA_TABLE).withColumn(VALUE_TABLE_COLUMN, valueTable.getSqlName()).withColumn(VARIABLE_NAME_COLUMN, NameConverter.toSqlName(variable.getName())).withColumn(ATTRIBUTE_NAME_COLUMN, attribute.getName()).withColumn(ATTRIBUTE_LOCALE_COLUMN, attribute.isLocalised() ? attribute.getLocale().toString() : "").withColumn(ATTRIBUTE_VALUE_COLUMN, attribute.getValue().toString());
         changes.add(builder.build());
       }
     }
@@ -261,7 +268,7 @@ public class JdbcValueTableWriter implements ValueTableWriter {
     private void writeCategories(Variable variable) {
       for(Category category : variable.getCategories()) {
         InsertDataChangeBuilder builder = new InsertDataChangeBuilder();
-        builder.tableName(CATEGORY_METADATA_TABLE).withColumn(VALUE_TABLE_COLUMN, valueTable.getSqlName()).withColumn(VARIABLE_NAME_COLUMN, NameConverter.toSqlName(variable.getName())).withColumn(CATEGORY_NAME_COLUMN, category.getName()).withColumn(CATEGORY_CODE_COLUMN, category.getCode());
+        builder.tableName(CATEGORY_METADATA_TABLE).withColumn(VALUE_TABLE_COLUMN, valueTable.getSqlName()).withColumn(VARIABLE_NAME_COLUMN, NameConverter.toSqlName(variable.getName())).withColumn(CATEGORY_NAME_COLUMN, category.getName()).withColumn(CATEGORY_CODE_COLUMN, category.getCode()).withColumn(CATEGORY_MISSING_COLUMN, category.isMissing());
         changes.add(builder.build());
       }
     }
@@ -295,14 +302,16 @@ public class JdbcValueTableWriter implements ValueTableWriter {
       }
 
       if(!valueSetExists) {
-        if(isBooleanValue(value)) {
-          Boolean booleanValue = (Boolean) value.getValue();
-          insertDataChangeBuilder.withColumn(NameConverter.toSqlName(variable.getName()), booleanValue);
-        } else if(isDateValue(value)) {
-          Date dateValue = (Date) value.getValue();
-          insertDataChangeBuilder.withColumn(NameConverter.toSqlName(variable.getName()), dateValue);
-        } else {
-          insertDataChangeBuilder.withColumn(NameConverter.toSqlName(variable.getName()), value.toString());
+        if(value.isNull() == false) {
+          if(isBooleanValue(value)) {
+            Boolean booleanValue = (Boolean) value.getValue();
+            insertDataChangeBuilder.withColumn(NameConverter.toSqlName(variable.getName()), booleanValue);
+          } else if(isDateValue(value)) {
+            Date dateValue = (Date) value.getValue();
+            insertDataChangeBuilder.withColumn(NameConverter.toSqlName(variable.getName()), dateValue);
+          } else {
+            insertDataChangeBuilder.withColumn(NameConverter.toSqlName(variable.getName()), value.toString());
+          }
         }
       } else {
         if(isBooleanValue(value)) {
@@ -327,7 +336,20 @@ public class JdbcValueTableWriter implements ValueTableWriter {
 
     @Override
     public void close() throws IOException {
-      valueTable.getDatasource().doWithDatabase(new ChangeDatabaseCallback(!valueSetExists ? insertDataChangeBuilder.build() : updateDataChangeBuilder.build()));
+      Change change;
+      if(valueSetExists) {
+        // Verify that the update change contains columns.
+        UpdateDataChange udc = updateDataChangeBuilder.build();
+        if(udc.getColumns().size() == 0) {
+          // Don't issue this change.
+          return;
+        }
+        change = udc;
+      } else {
+        change = insertDataChangeBuilder.build();
+      }
+
+      valueTable.getDatasource().doWithDatabase(new ChangeDatabaseCallback(change));
     }
 
   }

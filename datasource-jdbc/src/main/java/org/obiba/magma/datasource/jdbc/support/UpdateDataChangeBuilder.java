@@ -46,7 +46,9 @@ public class UpdateDataChangeBuilder {
 
   public UpdateDataChangeBuilder withColumn(String columnName, Date columnValue) {
     ColumnConfig column = getColumn(columnName);
-    column.setValueDate(new java.sql.Timestamp(columnValue.getTime()));
+    if(columnValue != null) {
+      column.setValueDate(new java.sql.Timestamp(columnValue.getTime()));
+    }
 
     updateDataChange.addColumn(column);
 

@@ -11,6 +11,8 @@ public class CreateTableChangeBuilder {
 
   private CreateTableChange createTableChange = new CreateTableChange();
 
+  private ColumnConfig lastColumn;
+
   public static CreateTableChangeBuilder newBuilder() {
     return new CreateTableChangeBuilder();
   }
@@ -20,41 +22,39 @@ public class CreateTableChangeBuilder {
     return this;
   }
 
-  public CreateTableChangeBuilder withPrimaryKeyColumn(String columnName, String columnType) {
-    ColumnConfig column = getColumn(columnName, columnType);
-    ConstraintsConfig constraints = new ConstraintsConfig();
-    constraints.setPrimaryKey(true);
-    column.setConstraints(constraints);
-
-    createTableChange.addColumn(column);
-
-    return this;
-  }
-
   public CreateTableChangeBuilder withColumn(String columnName, String columnType) {
-    ColumnConfig column = getColumn(columnName, columnType);
-    ConstraintsConfig constraints = new ConstraintsConfig();
-    constraints.setNullable(false);
-    column.setConstraints(constraints);
-
-    createTableChange.addColumn(column);
-
+    lastColumn = getColumn(columnName, columnType);
+    createTableChange.addColumn(lastColumn);
+    nullable();
     return this;
   }
 
-  public CreateTableChangeBuilder withNullableColumn(String columnName, String columnType) {
-    ColumnConfig column = getColumn(columnName, columnType);
-    ConstraintsConfig constraints = new ConstraintsConfig();
-    constraints.setNullable(true);
-    column.setConstraints(constraints);
+  public CreateTableChangeBuilder notNull() {
+    getConstraints().setNullable(false);
+    return this;
+  }
 
-    createTableChange.addColumn(column);
+  public CreateTableChangeBuilder nullable() {
+    getConstraints().setNullable(true);
+    return this;
+  }
 
+  public CreateTableChangeBuilder primaryKey() {
+    getConstraints().setPrimaryKey(true);
+    notNull();
     return this;
   }
 
   public CreateTableChange build() {
     return createTableChange;
+  }
+
+  private ConstraintsConfig getConstraints() {
+    ConstraintsConfig constraints = lastColumn.getConstraints();
+    if(constraints == null) {
+      lastColumn.setConstraints(constraints = new ConstraintsConfig());
+    }
+    return constraints;
   }
 
   private ColumnConfig getColumn(String columnName, String columnType) {

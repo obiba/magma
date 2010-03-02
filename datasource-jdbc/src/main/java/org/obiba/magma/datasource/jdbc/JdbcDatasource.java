@@ -17,6 +17,7 @@ import javax.sql.DataSource;
 import liquibase.change.Change;
 import liquibase.database.Database;
 import liquibase.database.DatabaseFactory;
+import liquibase.database.sql.SqlStatement;
 import liquibase.database.sql.visitor.SqlVisitor;
 import liquibase.database.structure.DatabaseSnapshot;
 import liquibase.database.structure.Table;
@@ -27,6 +28,8 @@ import org.obiba.magma.ValueTable;
 import org.obiba.magma.ValueTableWriter;
 import org.obiba.magma.datasource.jdbc.support.NameConverter;
 import org.obiba.magma.support.AbstractDatasource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ConnectionCallback;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -35,6 +38,9 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 
 public class JdbcDatasource extends AbstractDatasource {
+
+  private static final Logger log = LoggerFactory.getLogger(JdbcDatasource.class);
+
   //
   // Constants
   //
@@ -212,6 +218,11 @@ public class JdbcDatasource extends AbstractDatasource {
     public Object doInDatabase(Database database) throws JDBCException {
       try {
         for(Change change : changes) {
+          if(log.isDebugEnabled()) {
+            for(SqlStatement st : change.generateStatements(database)) {
+              log.debug("Issuing statement: {}", st.getSqlStatement(database));
+            }
+          }
           change.executeStatements(database, sqlVisitors);
         }
       } catch(UnsupportedChangeException e) {
@@ -219,6 +230,5 @@ public class JdbcDatasource extends AbstractDatasource {
       }
       return null;
     }
-
   }
 }

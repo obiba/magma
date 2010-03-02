@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 
 import liquibase.change.ColumnConfig;
@@ -219,7 +220,12 @@ class JdbcValueTable extends AbstractValueTable {
       public Object mapRow(ResultSet rs, int rowNum) throws SQLException {
         String attributeName = rs.getString("attribute_name");
         String attributeValue = rs.getString("attribute_value");
-        builder.addAttribute(attributeName, attributeValue);
+        String attributeLocale = rs.getString("attribute_locale");
+        if(attributeLocale.length() > 0) {
+          builder.addAttribute(attributeName, attributeValue, new Locale(attributeLocale));
+        } else {
+          builder.addAttribute(attributeName, attributeValue);
+        }
         return attributeName;
       }
     });
