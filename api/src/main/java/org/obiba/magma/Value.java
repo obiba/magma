@@ -30,7 +30,7 @@ public class Value implements Serializable {
   }
 
   public Object getValue() {
-    return value;
+    return isNull() ? null : value;
   }
 
   public boolean isNull() {
