@@ -101,7 +101,11 @@ public class JdbcDatasource extends AbstractDatasource {
       table = (JdbcValueTable) getValueTable(tableName);
     } else {
       // Create a new JdbcValueTable. This will create the SQL table if it does not exist.
-      table = new JdbcValueTable(this, new JdbcValueTableSettings(NameConverter.toSqlName(tableName), tableName, entityType, Arrays.asList("entity_id")));
+      JdbcValueTableSettings tableSettings = settings.getTableSettingsForMagmaTable(tableName);
+      if(tableSettings == null) {
+        tableSettings = new JdbcValueTableSettings(NameConverter.toSqlName(tableName), tableName, entityType, Arrays.asList("entity_id"));
+      }
+      table = new JdbcValueTable(this, tableSettings);
       addValueTable(table);
     }
 
@@ -131,7 +135,12 @@ public class JdbcDatasource extends AbstractDatasource {
   }
 
   protected ValueTable initialiseValueTable(String tableName) {
-    return new JdbcValueTable(this, getDatabaseSnapshot().getTable(tableName), settings.getDefaultEntityType());
+    JdbcValueTableSettings tableSettings = settings.getTableSettingsForMagmaTable(tableName);
+    if(tableSettings != null) {
+      return new JdbcValueTable(this, tableSettings);
+    } else {
+      return new JdbcValueTable(this, getDatabaseSnapshot().getTable(tableName), settings.getDefaultEntityType());
+    }
   }
 
   //
