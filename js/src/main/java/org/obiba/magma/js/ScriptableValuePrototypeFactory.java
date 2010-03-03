@@ -5,6 +5,7 @@ import org.obiba.magma.js.methods.BooleanMethods;
 import org.obiba.magma.js.methods.DateTimeMethods;
 import org.obiba.magma.js.methods.ScriptableValueMethods;
 import org.obiba.magma.js.methods.TextMethods;
+import org.obiba.magma.js.methods.ValueSequenceMethods;
 
 /**
  * A factory class for constructing the {@code ScriptableValue} javascript prototype. This prototype defines all the
@@ -45,6 +46,7 @@ public class ScriptableValuePrototypeFactory extends AbstractPrototypeFactory {
     addMethodProvider(DateTimeMethods.class);
     addMethodProvider(TextMethods.class);
     addMethodProvider(ScriptableValueMethods.class);
+    addMethodProvider(ValueSequenceMethods.class);
   }
 
   @Override
