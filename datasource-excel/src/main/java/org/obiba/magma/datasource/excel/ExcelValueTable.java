@@ -22,6 +22,7 @@ import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.datasource.excel.support.ExcelUtil;
 import org.obiba.magma.support.AbstractValueTable;
+import org.obiba.magma.type.TextType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -174,7 +175,9 @@ class ExcelValueTable extends AbstractValueTable implements Initialisable {
         String attributeValue = cellValueAsString;
         builder.addAttribute(ExcelDatasource.getAttributeShortName(attributeName), attributeValue, attributeLocale);
       } else {
-        ValueType attributeType = readCustomAttributeType(attributeAwareType, attributeAwareName, attributeName);
+        // OPAL-173: removed attributes sheet
+        // ValueType attributeType = readCustomAttributeType(attributeAwareType, attributeAwareName, attributeName);
+        ValueType attributeType = TextType.get();
         if(attributeType != null) {
           Value attributeValue = attributeType.valueOf(cellValueAsString);
           Attribute.Builder attributeBuilder = Attribute.Builder.newAttribute(ExcelDatasource.getAttributeShortName(attributeName));
