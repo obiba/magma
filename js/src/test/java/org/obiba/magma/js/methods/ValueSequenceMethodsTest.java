@@ -137,4 +137,38 @@ public class ValueSequenceMethodsTest extends AbstractScriptableValueTest {
     assertThat(result.getValue(), is(IntegerType.get().valueOf(valueSequence.getSize())));
   }
 
+  // value(int index)
+
+  @Test
+  public void testValueFirstItemExists() throws Exception {
+    ValueSequence valueSequence = TextType.get().sequenceOf("\"A\", \"B\"");
+    ScriptableValue scriptableValue = newValue(valueSequence);
+    ScriptableValue result = ValueSequenceMethods.value(Context.getCurrentContext(), scriptableValue, new Object[] { 0 }, null);
+    assertThat(result.getValue(), is(valueSequence.get(0)));
+  }
+
+  @Test
+  public void testValueSecondItemExists() throws Exception {
+    ValueSequence valueSequence = TextType.get().sequenceOf("\"A\", \"B\"");
+    ScriptableValue scriptableValue = newValue(valueSequence);
+    ScriptableValue result = ValueSequenceMethods.value(Context.getCurrentContext(), scriptableValue, new Object[] { 1 }, null);
+    assertThat(result.getValue(), is(valueSequence.get(1)));
+  }
+
+  @Test
+  public void testValueIndexOutOfBounds() throws Exception {
+    ValueSequence valueSequence = TextType.get().sequenceOf("\"A\", \"B\"");
+    ScriptableValue scriptableValue = newValue(valueSequence);
+    ScriptableValue result = ValueSequenceMethods.value(Context.getCurrentContext(), scriptableValue, new Object[] { 2 }, null);
+    assertThat(result.getValue(), is(TextType.get().nullValue()));
+  }
+
+  @Test
+  public void testValueIndexNonIntegerType() throws Exception {
+    ValueSequence valueSequence = TextType.get().sequenceOf("\"A\", \"B\"");
+    ScriptableValue scriptableValue = newValue(valueSequence);
+    ScriptableValue result = ValueSequenceMethods.value(Context.getCurrentContext(), scriptableValue, new Object[] { "One" }, null);
+    assertThat(result.getValue(), is(TextType.get().nullValue()));
+  }
+
 }

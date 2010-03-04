@@ -33,8 +33,7 @@ public class ValueSequenceMethods {
       if(valueSequence.getSize() > 0) {
         return new ScriptableValue(thisObj, valueSequence.get(0));
       } else {
-        // Index out of bounds.
-        return new ScriptableValue(thisObj, TextType.get().nullValue());
+        return new ScriptableValue(thisObj, TextType.get().nullValue()); // Index out of bounds.
       }
     } else {
       throw new MagmaJsEvaluationRuntimeException("Operand to first() method must be a ScriptableValue containing a ValueSequence.");
@@ -60,8 +59,7 @@ public class ValueSequenceMethods {
       if(valueSequence.getSize() > 0) {
         return new ScriptableValue(thisObj, valueSequence.get(valueSequence.getSize() - 1));
       } else {
-        // Index out of bounds.
-        return new ScriptableValue(thisObj, TextType.get().nullValue());
+        return new ScriptableValue(thisObj, TextType.get().nullValue()); // Index out of bounds.
       }
     } else {
       throw new MagmaJsEvaluationRuntimeException("Operand to first() method must be a ScriptableValue containing a ValueSequence.");
@@ -84,6 +82,38 @@ public class ValueSequenceMethods {
     if(sv.getValue().isSequence()) {
       ValueSequence valueSequence = sv.getValue().asSequence();
       return new ScriptableValue(thisObj, IntegerType.get().valueOf(valueSequence.getSize()));
+    } else {
+      throw new MagmaJsEvaluationRuntimeException("Operand to first() method must be a ScriptableValue containing a ValueSequence.");
+    }
+  }
+
+  /**
+   * Returns the {@link Value} of the {@link ValueSequence} specified by the provided index. Returns null if the operand
+   * is null. Returns null if index is not an {@link Integer}. Returns null if the index is out of bounds.
+   * 
+   * <pre>
+   *   $('SequenceVar').value(0)
+   * </pre>
+   * @throws MagmaJsEvaluationRuntimeException if operand does not contain a ValueSequence.
+   */
+  public static ScriptableValue value(Context ctx, Scriptable thisObj, Object[] args, Function funObj) throws MagmaJsEvaluationRuntimeException {
+    ScriptableValue sv = (ScriptableValue) thisObj;
+    if(sv.getValue().isNull()) {
+      return new ScriptableValue(thisObj, sv.getValue());
+    }
+    Integer index = null;
+    if(args != null && args.length > 0 && args[0] instanceof Integer) {
+      index = (Integer) args[0];
+    } else {
+      return new ScriptableValue(thisObj, TextType.get().nullValue());
+    }
+    if(sv.getValue().isSequence()) {
+      ValueSequence valueSequence = sv.getValue().asSequence();
+      if(valueSequence.getSize() > index) {
+        return new ScriptableValue(thisObj, valueSequence.get(index));
+      } else {
+        return new ScriptableValue(thisObj, TextType.get().nullValue()); // Index out of bounds.
+      }
     } else {
       throw new MagmaJsEvaluationRuntimeException("Operand to first() method must be a ScriptableValue containing a ValueSequence.");
     }
