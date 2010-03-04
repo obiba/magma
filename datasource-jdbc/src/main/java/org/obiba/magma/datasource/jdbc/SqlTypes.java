@@ -96,7 +96,7 @@ class SqlTypes {
       return "INTEGER";
     }
     if(valueType.equals(DecimalType.get())) {
-      return "DECIMAL";
+      return "DOUBLE";
     }
     // if(valueType.equals(DateType.get())) {
     // return "DATE";
