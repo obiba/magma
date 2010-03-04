@@ -87,7 +87,8 @@ public class ExcelDatasource extends AbstractDatasource {
 
     variablesSheet = createSheetIfNotExist("Variables");
     categoriesSheet = createSheetIfNotExist("Categories");
-    attributesSheet = createSheetIfNotExist("Attributes");
+    // OPAL-173: Commented out to remove the attributes sheet
+    // attributesSheet = createSheetIfNotExist("Attributes");
 
     createExcelStyles();
 
@@ -153,6 +154,7 @@ public class ExcelDatasource extends AbstractDatasource {
   }
 
   Sheet getAttributesSheet() {
+    log.error("OPAL-173: attributesSheet has been removed. The method will return null which may cause a NPE.");
     return attributesSheet;
   }
 

@@ -64,7 +64,8 @@ public class ExcelValueTableWriter implements ValueTableWriter {
       excelDatasource = (ExcelDatasource) valueTable.getDatasource();
       this.variablesSheet = ((ExcelDatasource) valueTable.getDatasource()).getVariablesSheet();
       this.categoriesSheet = ((ExcelDatasource) valueTable.getDatasource()).getCategoriesSheet();
-      this.attributesSheet = ((ExcelDatasource) valueTable.getDatasource()).getAttributesSheet();
+      // OPAL-173: Removed the attributesSheet
+      // this.attributesSheet = ((ExcelDatasource) valueTable.getDatasource()).getAttributesSheet();
     }
 
     public void writeVariable(Variable variable) {
@@ -160,7 +161,10 @@ public class ExcelValueTableWriter implements ValueTableWriter {
         stringBuilder.setLength(0);
 
         // OPAL-145: Write the attribute type on the "Attributes" sheet.
-        writeCustomAttributeType(attributeAwareType, attributeAwareName, customAttributeName, customAttribute.getValueType());
+        // OPAL-173: commented out to support writing large amounts of variables. Writing the attribute sheet results in
+        // writing more than 65536 rows most of time.
+        // writeCustomAttributeType(attributeAwareType, attributeAwareName, customAttributeName,
+        // customAttribute.getValueType());
       }
     }
 
