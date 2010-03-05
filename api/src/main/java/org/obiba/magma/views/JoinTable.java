@@ -4,8 +4,10 @@
 package org.obiba.magma.views;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.obiba.magma.Datasource;
@@ -29,6 +31,11 @@ public class JoinTable implements ValueTable {
    * Cached set of all variables of all tables in the join (i.e., the union).
    */
   private Set<Variable> unionOfVariables;
+
+  /**
+   * Cached map of variable names to tables.
+   */
+  private Map<String, ValueTable> variableNameToTableMap;
 
   //
   // Constructors
@@ -196,10 +203,20 @@ public class JoinTable implements ValueTable {
   }
 
   private ValueTable getFirstTableWithVariable(String variableName) {
-    for(ValueTable vt : tables) {
-      for(Variable variable : vt.getVariables()) {
-        if(variable.getName().equals(variableName)) {
-          return vt;
+    if(variableNameToTableMap == null) {
+      variableNameToTableMap = new HashMap<String, ValueTable>();
+    }
+
+    ValueTable cachedTable = variableNameToTableMap.get(variableName);
+    if(cachedTable != null) {
+      return cachedTable;
+    } else {
+      for(ValueTable vt : tables) {
+        for(Variable variable : vt.getVariables()) {
+          if(variable.getName().equals(variableName)) {
+            variableNameToTableMap.put(variableName, vt);
+            return vt;
+          }
         }
       }
     }
