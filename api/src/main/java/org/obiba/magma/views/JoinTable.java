@@ -55,6 +55,12 @@ public class JoinTable implements ValueTable {
     if(tables.size() < 2) {
       throw new IllegalArgumentException("tables must have two or more members");
     }
+    String entityType = tables.get(0).getEntityType();
+    for(int i = 1; i < tables.size(); i++) {
+      if(!tables.get(i).getEntityType().equals(entityType)) {
+        throw new IllegalArgumentException("tables must all have the same entity type");
+      }
+    }
 
     this.tables = new ArrayList<ValueTable>();
     if(tables != null) {
@@ -163,7 +169,7 @@ public class JoinTable implements ValueTable {
   private String buildJoinTableName() {
     StringBuilder sb = new StringBuilder();
     for(int i = 0; i < tables.size(); i++) {
-      sb.append(tables.get(i));
+      sb.append(tables.get(i).getName());
       if(i < tables.size() - 1) {
         sb.append('-');
       }
