@@ -147,7 +147,6 @@ public class FsDatasource extends AbstractDatasource {
       for(Attribute a : attributes) {
         getInstanceAttributes().put(a.getName(), a);
       }
-      instanceAttributesModified = true;
     } catch(FileNotFoundException e) {
       throw new MagmaRuntimeException(e);
     } finally {

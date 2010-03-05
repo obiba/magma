@@ -36,6 +36,8 @@ class FsVariableEntityProvider implements VariableEntityProvider, Initialisable,
 
   private BiMap<VariableEntity, String> entityToFile = HashBiMap.create();
 
+  private boolean entityToFileMapModified = false;
+
   /** Pads filenames with zeroes */
   private NumberFormat entryFilenameFormat = new DecimalFormat("0000000");
 
@@ -72,20 +74,22 @@ class FsVariableEntityProvider implements VariableEntityProvider, Initialisable,
 
   @Override
   public void dispose() {
-    valueTable.writeEntry(ENTITIES_NAME, new OutputCallback<Void>() {
-      @Override
-      public Void writeEntry(Writer writer) throws IOException {
-        ObjectOutputStream oos = xstream.createObjectOutputStream(writer, "entities");
-        oos.writeObject(entityType);
-        Map<String, String> entries = Maps.newHashMap();
-        for(Map.Entry<VariableEntity, String> entry : entityToFile.entrySet()) {
-          entries.put(entry.getKey().getIdentifier(), entry.getValue());
+    if(entityToFileMapModified) {
+      valueTable.writeEntry(ENTITIES_NAME, new OutputCallback<Void>() {
+        @Override
+        public Void writeEntry(Writer writer) throws IOException {
+          ObjectOutputStream oos = xstream.createObjectOutputStream(writer, "entities");
+          oos.writeObject(entityType);
+          Map<String, String> entries = Maps.newHashMap();
+          for(Map.Entry<VariableEntity, String> entry : entityToFile.entrySet()) {
+            entries.put(entry.getKey().getIdentifier(), entry.getValue());
+          }
+          oos.writeObject(entries);
+          oos.close();
+          return null;
         }
-        oos.writeObject(entries);
-        oos.close();
-        return null;
-      }
-    });
+      });
+    }
   }
 
   @Override
@@ -106,6 +110,7 @@ class FsVariableEntityProvider implements VariableEntityProvider, Initialisable,
   String addEntity(VariableEntity entity) {
     if(entityToFile.containsKey(entity) == false) {
       entityToFile.put(entity, entryFilenameFormat.format(entityToFile.size() + 1) + ".xml");
+      entityToFileMapModified = true;
     }
     return getEntityFile(entity);
   }
