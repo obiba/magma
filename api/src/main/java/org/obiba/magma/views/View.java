@@ -1,5 +1,7 @@
 package org.obiba.magma.views;
 
+import java.util.Arrays;
+
 import org.obiba.magma.Datasource;
 import org.obiba.magma.Initialisable;
 import org.obiba.magma.NoSuchValueSetException;
@@ -46,16 +48,25 @@ public class View extends AbstractValueTableWrapper implements Initialisable {
     setWhereClause(new AllClause());
   }
 
-  public View(String name, ValueTable from, SelectClause selectClause, WhereClause whereClause) {
+  public View(String name, SelectClause selectClause, WhereClause whereClause, ValueTable... from) {
     this.name = name;
-    this.from = from;
+
+    if(from == null || from.length == 0) {
+      throw new IllegalArgumentException("null or empty table list");
+    }
+
+    if(from.length > 1) {
+      this.from = new JoinTable(Arrays.asList(from));
+    } else {
+      this.from = from[0];
+    }
 
     setSelectClause(selectClause);
     setWhereClause(whereClause);
   }
 
-  public View(String name, ValueTable from) {
-    this(name, from, new AllClause(), new AllClause());
+  public View(String name, ValueTable... from) {
+    this(name, new AllClause(), new AllClause(), from);
   }
 
   //
@@ -201,10 +212,6 @@ public class View extends AbstractValueTableWrapper implements Initialisable {
       }
     };
   }
-
-  //
-  // ValueSetWrapper
-  //
 
   static class VariableValueSourceWrapper implements VariableValueSource {
     private VariableValueSource wrapped;
