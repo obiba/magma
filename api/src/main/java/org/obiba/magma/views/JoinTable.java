@@ -16,6 +16,7 @@ import org.obiba.magma.NoSuchVariableException;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueSet;
 import org.obiba.magma.ValueTable;
+import org.obiba.magma.ValueType;
 import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.VariableValueSource;
@@ -92,7 +93,7 @@ public class JoinTable implements ValueTable {
   public Value getValue(Variable variable, ValueSet valueSet) {
     ValueTable vt = getFirstTableWithVariable(variable.getName());
     if(vt != null) {
-      return vt.getValue(variable, valueSet);
+      return vt.getValue(variable, ((ValueSetWrapper) valueSet).wrapped);
     } else {
       throw new NoSuchVariableException(variable.getName());
     }
@@ -114,7 +115,7 @@ public class JoinTable implements ValueTable {
 
     for(ValueSet valueSet : tables.get(0).getValueSets()) {
       if(isInAllTables(valueSet)) {
-        valueSets.add(valueSet);
+        valueSets.add(new ValueSetWrapper(this, valueSet));
       }
     }
 
@@ -136,7 +137,7 @@ public class JoinTable implements ValueTable {
   public VariableValueSource getVariableValueSource(String variableName) throws NoSuchVariableException {
     ValueTable vt = getFirstTableWithVariable(variableName);
     if(vt != null) {
-      return vt.getVariableValueSource(variableName);
+      return new VariableValueSourceWrapper(vt.getVariableValueSource(variableName));
     } else {
       throw new NoSuchVariableException(variableName);
     }
@@ -228,5 +229,56 @@ public class JoinTable implements ValueTable {
     }
 
     return null;
+  }
+
+  //
+  // Inner Classes
+  //
+
+  private static class ValueSetWrapper implements ValueSet {
+
+    private ValueTable valueTable;
+
+    private ValueSet wrapped;
+
+    private ValueSetWrapper(ValueTable valueTable, ValueSet wrapped) {
+      this.valueTable = valueTable;
+      this.wrapped = wrapped;
+    }
+
+    @Override
+    public ValueTable getValueTable() {
+      return valueTable;
+    }
+
+    @Override
+    public VariableEntity getVariableEntity() {
+      return wrapped.getVariableEntity();
+    }
+  }
+
+  private static class VariableValueSourceWrapper implements VariableValueSource {
+
+    private VariableValueSource wrapped;
+
+    private VariableValueSourceWrapper(VariableValueSource wrapped) {
+      this.wrapped = wrapped;
+    }
+
+    @Override
+    public Variable getVariable() {
+      return wrapped.getVariable();
+    }
+
+    @Override
+    public Value getValue(ValueSet valueSet) {
+      return wrapped.getValue(((ValueSetWrapper) valueSet).wrapped);
+    }
+
+    @Override
+    public ValueType getValueType() {
+      return wrapped.getValueType();
+    }
+
   }
 }
