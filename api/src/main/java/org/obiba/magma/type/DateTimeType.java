@@ -105,4 +105,9 @@ public class DateTimeType extends AbstractValueType {
     }
     throw new IllegalArgumentException("Cannot construct " + getClass().getSimpleName() + " from type " + object.getClass() + ".");
   }
+
+  @Override
+  public int compare(Value o1, Value o2) {
+    return ((Date) o1.getValue()).compareTo((Date) o2.getValue());
+  }
 }

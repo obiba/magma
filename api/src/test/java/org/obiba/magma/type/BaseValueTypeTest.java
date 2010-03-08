@@ -117,4 +117,22 @@ public abstract class BaseValueTypeTest extends AbstractMagmaTest {
     Assert.assertNotNull(valueOf);
     Assert.assertEquals(sequence, valueOf);
   }
+
+  @Test(expected = NullPointerException.class)
+  public void testCompareWithNullArguments() throws Exception {
+    getValueType().compare(null, null);
+  }
+
+  @Test(expected = NullPointerException.class)
+  public void testCompareWithLeftNullArgument() throws Exception {
+    Value value = getValueType().valueOf(getObjectForType());
+    getValueType().compare(null, value);
+  }
+
+  @Test(expected = NullPointerException.class)
+  public void testCompareWithRightNullArgument() throws Exception {
+    Value value = getValueType().valueOf(getObjectForType());
+    getValueType().compare(value, null);
+  }
+
 }

@@ -2,7 +2,7 @@ package org.obiba.magma;
 
 import java.io.Serializable;
 
-public class Value implements Serializable {
+public class Value implements Serializable, Comparable<Value> {
 
   private static final long serialVersionUID = 779426587031645153L;
 
@@ -85,5 +85,10 @@ public class Value implements Serializable {
     result = prime * result + value.hashCode();
     result = prime * result + valueType.hashCode();
     return result;
+  }
+
+  @Override
+  public int compareTo(Value o) {
+    return valueType.compare(this, o);
   }
 }

@@ -112,4 +112,9 @@ public class BooleanType extends AbstractValueType {
     // This really isn't possible
     throw new IllegalArgumentException("value of BooleanType is neither true nor false: " + value);
   }
+
+  @Override
+  public int compare(Value o1, Value o2) {
+    return ((Boolean) o1.getValue()).compareTo((Boolean) o2.getValue());
+  }
 }

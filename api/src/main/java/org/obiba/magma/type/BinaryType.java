@@ -80,4 +80,13 @@ public class BinaryType extends AbstractValueType {
     throw new IllegalArgumentException("Cannot construct " + getClass().getSimpleName() + " from type " + object.getClass() + ".");
   }
 
+  @Override
+  public int compare(Value o1, Value o2) {
+    if(o1 == null) throw new NullPointerException();
+    if(o2 == null) throw new NullPointerException();
+    if(!o1.getValueType().equals(this)) throw new ClassCastException();
+    if(!o2.getValueType().equals(this)) throw new ClassCastException();
+    // All byte[] are considered equal when sorting.
+    return 0;
+  }
 }

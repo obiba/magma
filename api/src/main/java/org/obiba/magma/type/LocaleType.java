@@ -80,4 +80,14 @@ public class LocaleType extends AbstractValueType {
     }
     return Factory.newValue(this, locale);
   }
+
+  @Override
+  public int compare(Value o1, Value o2) {
+    if(o1 == null) throw new NullPointerException();
+    if(o2 == null) throw new NullPointerException();
+    if(!o1.getValueType().equals(this)) throw new ClassCastException();
+    if(!o2.getValueType().equals(this)) throw new ClassCastException();
+    // All Locales are considered equal when sorting.
+    return 0;
+  }
 }

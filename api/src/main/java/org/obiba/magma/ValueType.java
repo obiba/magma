@@ -1,13 +1,14 @@
 package org.obiba.magma;
 
 import java.io.Serializable;
+import java.util.Comparator;
 
 /**
  * Provides a common interface for all types of values available in the {@code MagmaEngine}. Through this interface,
  * callers may obtain information on the type's nature, obtain {@code Value} instances from Java objects and convert
  * values to a stable string representation (and back).
  */
-public interface ValueType extends Serializable {
+public interface ValueType extends Serializable, Comparator<Value> {
 
   /**
    * Provides access to all {@code ValueType} instances by name or Java type. Also allows creating {@code Value}

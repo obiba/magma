@@ -159,4 +159,9 @@ public class TextType extends AbstractValueType {
     // Replace all occurrences of QUOTE by QUOTEQUOTE
     return new StringBuilder().append(QUOTE).append(value.replaceAll(QUOTE_STR, ESCAPED_QUOTE_STR)).append(QUOTE).toString();
   }
+
+  @Override
+  public int compare(Value o1, Value o2) {
+    return ((String) o1.getValue()).compareTo((String) o2.getValue());
+  }
 }
