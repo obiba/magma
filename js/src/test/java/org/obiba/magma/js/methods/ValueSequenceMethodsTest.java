@@ -5,6 +5,7 @@ import static org.junit.Assert.assertThat;
 
 import java.util.ArrayList;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mozilla.javascript.Context;
 import org.obiba.magma.Value;
@@ -169,6 +170,42 @@ public class ValueSequenceMethodsTest extends AbstractScriptableValueTest {
     ScriptableValue scriptableValue = newValue(valueSequence);
     ScriptableValue result = ValueSequenceMethods.value(Context.getCurrentContext(), scriptableValue, new Object[] { "One" }, null);
     assertThat(result.getValue(), is(TextType.get().nullValue()));
+  }
+
+  // sort()
+
+  @Test
+  public void testSortTextNaturalOrder() throws Exception {
+    ValueSequence valueSequence = TextType.get().sequenceOf("\"D\", \"C\", \"A\", \"B\"");
+    ScriptableValue scriptableValue = newValue(valueSequence);
+    ValueSequenceMethods.sort(Context.getCurrentContext(), scriptableValue, null, null);
+    assertThat(valueSequence.getValues().get(0), is(TextType.get().valueOf("A")));
+    assertThat(valueSequence.getValues().get(1), is(TextType.get().valueOf("B")));
+    assertThat(valueSequence.getValues().get(2), is(TextType.get().valueOf("C")));
+    assertThat(valueSequence.getValues().get(3), is(TextType.get().valueOf("D")));
+  }
+
+  @Test
+  public void testSortIntegerNaturalOrder() throws Exception {
+    ValueSequence valueSequence = IntegerType.get().sequenceOf("4,3,1,2");
+    ScriptableValue scriptableValue = newValue(valueSequence);
+    ValueSequenceMethods.sort(Context.getCurrentContext(), scriptableValue, null, null);
+    assertThat(valueSequence.getValues().get(0), is(IntegerType.get().valueOf(1)));
+    assertThat(valueSequence.getValues().get(1), is(IntegerType.get().valueOf(2)));
+    assertThat(valueSequence.getValues().get(2), is(IntegerType.get().valueOf(3)));
+    assertThat(valueSequence.getValues().get(3), is(IntegerType.get().valueOf(4)));
+  }
+
+  @Ignore
+  @Test
+  public void testSortIntegerDecendingUsingSortFunction() throws Exception {
+    ValueSequence valueSequence = IntegerType.get().sequenceOf("4,3,1,2");
+    ScriptableValue scriptableValue = newValue(valueSequence);
+    ValueSequenceMethods.sort(Context.getCurrentContext(), scriptableValue, null, null);
+    assertThat(valueSequence.getValues().get(0), is(IntegerType.get().valueOf(4)));
+    assertThat(valueSequence.getValues().get(1), is(IntegerType.get().valueOf(3)));
+    assertThat(valueSequence.getValues().get(2), is(IntegerType.get().valueOf(2)));
+    assertThat(valueSequence.getValues().get(3), is(IntegerType.get().valueOf(1)));
   }
 
 }

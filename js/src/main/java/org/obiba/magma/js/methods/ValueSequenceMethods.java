@@ -3,10 +3,14 @@ package org.obiba.magma.js.methods;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.Scriptable;
+import org.obiba.magma.Value;
 import org.obiba.magma.ValueSequence;
+import org.obiba.magma.ValueType;
 import org.obiba.magma.js.MagmaJsEvaluationRuntimeException;
 import org.obiba.magma.js.ScriptableValue;
+import org.obiba.magma.type.BinaryType;
 import org.obiba.magma.type.IntegerType;
+import org.obiba.magma.type.LocaleType;
 import org.obiba.magma.type.TextType;
 
 /**
@@ -114,6 +118,30 @@ public class ValueSequenceMethods {
       } else {
         return new ScriptableValue(thisObj, TextType.get().nullValue()); // Index out of bounds.
       }
+    } else {
+      throw new MagmaJsEvaluationRuntimeException("Operand to first() method must be a ScriptableValue containing a ValueSequence.");
+    }
+  }
+
+  /**
+   * Returns the {@link ValueSequence} sorted in natural order. Note that some {@link ValueType}s such as
+   * {@link BinaryType} and {@link LocaleType} do not have a natural sort order and {@code ValueSequence}s of those
+   * types will not be modified by this method.
+   * 
+   * <pre>
+   *   $('SequenceVar').sort()
+   * </pre>
+   * @throws MagmaJsEvaluationRuntimeException if operand does not contain a ValueSequence.
+   */
+  public static ScriptableValue sort(Context ctx, Scriptable thisObj, Object[] args, Function funObj) throws MagmaJsEvaluationRuntimeException {
+    ScriptableValue sv = (ScriptableValue) thisObj;
+    if(sv.getValue().isNull()) {
+      return new ScriptableValue(thisObj, sv.getValue());
+    }
+    if(sv.getValue().isSequence()) {
+      ValueSequence valueSequence = sv.getValue().asSequence();
+      valueSequence.sort();
+      return new ScriptableValue(thisObj, valueSequence);
     } else {
       throw new MagmaJsEvaluationRuntimeException("Operand to first() method must be a ScriptableValue containing a ValueSequence.");
     }
