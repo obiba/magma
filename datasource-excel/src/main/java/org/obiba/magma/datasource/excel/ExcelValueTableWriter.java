@@ -98,7 +98,7 @@ public class ExcelValueTableWriter implements ValueTableWriter {
         ExcelUtil.setCellValue(categoryRow.createCell(headerMapCategories.get("code")), TextType.get(), category.getCode());
         ExcelUtil.setCellValue(categoryRow.createCell(headerMapCategories.get("missing")), BooleanType.get(), category.isMissing());
 
-        writeCustomAttributes(category, "category", category.getName(), attributesRow, headerRowCategories, headerMapCategories);
+        writeCustomAttributes(category, "category", category.getName(), categoryRow, headerRowCategories, headerMapCategories);
       }
     }
 
