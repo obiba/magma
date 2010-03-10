@@ -247,7 +247,7 @@ public class JdbcValueTableWriter implements ValueTableWriter {
       }
       if(valueTable.getDatasource().getDatabaseSnapshot().getTable(ATTRIBUTE_METADATA_TABLE) == null) {
         CreateTableChangeBuilder builder = new CreateTableChangeBuilder();
-        builder.tableName(ATTRIBUTE_METADATA_TABLE).withColumn(VALUE_TABLE_COLUMN, "VARCHAR(255)").primaryKey().withColumn(VARIABLE_NAME_COLUMN, "VARCHAR(255)").primaryKey().withColumn(ATTRIBUTE_NAME_COLUMN, "VARCHAR(255)").primaryKey().withColumn(ATTRIBUTE_LOCALE_COLUMN, "VARCHAR(20)").primaryKey().withColumn(ATTRIBUTE_VALUE_COLUMN, "VARCHAR(255)");
+        builder.tableName(ATTRIBUTE_METADATA_TABLE).withColumn(VALUE_TABLE_COLUMN, "VARCHAR(255)").primaryKey().withColumn(VARIABLE_NAME_COLUMN, "VARCHAR(255)").primaryKey().withColumn(ATTRIBUTE_NAME_COLUMN, "VARCHAR(255)").primaryKey().withColumn(ATTRIBUTE_LOCALE_COLUMN, "VARCHAR(20)").primaryKey().withColumn(ATTRIBUTE_VALUE_COLUMN, SqlTypes.sqlTypeFor(TextType.get(), SqlTypes.TEXT_TYPE_HINT_MEDIUM));
         changes.add(builder.build());
       }
       if(valueTable.getDatasource().getDatabaseSnapshot().getTable(CATEGORY_METADATA_TABLE) == null) {
