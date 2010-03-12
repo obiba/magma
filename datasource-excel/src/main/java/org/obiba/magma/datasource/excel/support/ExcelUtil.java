@@ -1,7 +1,5 @@
 package org.obiba.magma.datasource.excel.support;
 
-import java.util.Locale;
-
 import org.apache.poi.ss.usermodel.Cell;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueType;
@@ -16,27 +14,30 @@ import org.obiba.magma.type.TextType;
 public class ExcelUtil {
 
   public static void setCellValue(Cell cell, Value value) {
-    ValueType valueType = value.getValueType();
-
     if(value.isNull()) {
       return;
     }
 
+    ValueType valueType = value.getValueType();
+
+    if(value.isSequence()) {
+      setCellValue(cell, valueType, value.toString());
+    }
+
     if(valueType.getName().equals(BinaryType.get().getName())) {
-      setCellValue(cell, valueType, BinaryType.get().toString(value));
+      setCellValue(cell, valueType, value.toString());
     } else if(valueType.getName().equals(BooleanType.get().getName())) {
       setCellValue(cell, valueType, (Boolean) value.getValue());
     } else if(valueType.getName().equals(DateTimeType.get().getName())) {
-      String formattedDateTime = DateTimeType.get().toString(value);
-      setCellValue(cell, valueType, formattedDateTime);
+      setCellValue(cell, valueType, value.toString());
     } else if(valueType.getName().equals(DecimalType.get().getName())) {
       setCellValue(cell, valueType, (Double) value.getValue());
     } else if(valueType.getName().equals(IntegerType.get().getName())) {
       setCellValue(cell, valueType, (Long) value.getValue());
     } else if(valueType.getName().equals(LocaleType.get().getName())) {
-      setCellValue(cell, valueType, ((Locale) value.getValue()).toString());
+      setCellValue(cell, valueType, value.toString());
     } else if(valueType.getName().equals(TextType.get().getName())) {
-      setCellValue(cell, valueType, (String) value.getValue());
+      setCellValue(cell, valueType, value.toString());
     }
   }
 
@@ -57,6 +58,9 @@ public class ExcelUtil {
   }
 
   public static void setCellValue(Cell cell, ValueType valueType, String value) {
+    if(value != null && value.length() > 32767) {
+      value = "WARN: Value to large for Excel.";
+    }
     cell.setCellValue(value);
   }
 

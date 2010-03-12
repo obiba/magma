@@ -12,7 +12,7 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.obiba.magma.Attribute;
 import org.obiba.magma.AttributeAware;
 import org.obiba.magma.Category;
-import org.obiba.magma.ValueTable;
+import org.obiba.magma.Value;
 import org.obiba.magma.ValueTableWriter;
 import org.obiba.magma.ValueType;
 import org.obiba.magma.Variable;
@@ -25,33 +25,29 @@ public class ExcelValueTableWriter implements ValueTableWriter {
 
   private ExcelValueTable valueTable;
 
-  private VariableWriter excelVariableWriter;
-
   public ExcelValueTableWriter(ExcelValueTable valueTable) {
     this.valueTable = valueTable;
+    // First column is for storing the Variable Entity identifiers
+    Cell cell = valueTable.getValueTableSheet().getRow(0).createCell(0);
+    ExcelUtil.setCellValue(cell, TextType.get(), "Entity ID");
+    cell.setCellStyle(valueTable.getDatasource().getExcelStyles("headerCellStyle"));
   }
 
   @Override
   public VariableWriter writeVariables() {
-    excelVariableWriter = new ExcelVariableWriter(valueTable);
-    return excelVariableWriter;
+    return new ExcelVariableWriter(valueTable);
   }
 
   @Override
   public ValueSetWriter writeValueSet(VariableEntity entity) {
-    throw new UnsupportedOperationException();
+    return new ExcelValueSetWriter(entity);
   }
 
   @Override
   public void close() throws IOException {
-    excelVariableWriter.close();
   }
 
   private class ExcelVariableWriter implements VariableWriter {
-
-    private ExcelDatasource excelDatasource;
-
-    private ValueTable valueTable;
 
     private Sheet variablesSheet;
 
@@ -59,16 +55,17 @@ public class ExcelValueTableWriter implements ValueTableWriter {
 
     private Sheet attributesSheet;
 
-    public ExcelVariableWriter(ValueTable valueTable) {
-      this.valueTable = valueTable;
-      excelDatasource = (ExcelDatasource) valueTable.getDatasource();
-      this.variablesSheet = ((ExcelDatasource) valueTable.getDatasource()).getVariablesSheet();
-      this.categoriesSheet = ((ExcelDatasource) valueTable.getDatasource()).getCategoriesSheet();
+    public ExcelVariableWriter(ExcelValueTable valueTable) {
+      this.variablesSheet = valueTable.getDatasource().getVariablesSheet();
+      this.categoriesSheet = valueTable.getDatasource().getCategoriesSheet();
       // OPAL-173: Removed the attributesSheet
       // this.attributesSheet = ((ExcelDatasource) valueTable.getDatasource()).getAttributesSheet();
+
     }
 
     public void writeVariable(Variable variable) {
+      // Will create the column if it doesn't exist.
+      valueTable.getVariableColumn(variable);
       Row attributesRow = writeVariableAttributes(variable);
       writeCategories(variable, attributesRow);
     }
@@ -155,7 +152,7 @@ public class ExcelValueTableWriter implements ValueTableWriter {
           attributeCellIndex = Integer.valueOf(getLastCellNum(headerRow));
           headerCell = headerRow.createCell(attributeCellIndex);
           headerCell.setCellValue(customAttributeName);
-          headerCell.setCellStyle(excelDatasource.getExcelStyles("headerCellStyle"));
+          headerCell.setCellStyle(valueTable.getDatasource().getExcelStyles("headerCellStyle"));
         }
         ExcelUtil.setCellValue(attributesRow.createCell(attributeCellIndex), customAttribute.getValue());
         stringBuilder.setLength(0);
@@ -201,7 +198,7 @@ public class ExcelValueTableWriter implements ValueTableWriter {
           headerMap.put(reservedAttributeName, Integer.valueOf(getLastCellNum(headerRow)));
           headerCell = headerRow.createCell(getLastCellNum(headerRow));
           headerCell.setCellValue(reservedAttributeName);
-          headerCell.setCellStyle(excelDatasource.getExcelStyles("headerCellStyle"));
+          headerCell.setCellStyle(valueTable.getDatasource().getExcelStyles("headerCellStyle"));
         }
       }
     }
@@ -212,7 +209,28 @@ public class ExcelValueTableWriter implements ValueTableWriter {
 
     @Override
     public void close() throws IOException {
-      // TODO Auto-generated method stub
+    }
+
+  }
+
+  private class ExcelValueSetWriter implements ValueSetWriter {
+
+    private Row entityRow;
+
+    private ExcelValueSetWriter(VariableEntity entity) {
+      Sheet tableSheet = valueTable.getValueTableSheet();
+      entityRow = tableSheet.createRow(tableSheet.getPhysicalNumberOfRows());
+      ExcelUtil.setCellValue(entityRow.createCell(0), TextType.get(), entity.getIdentifier());
+    }
+
+    @Override
+    public void writeValue(Variable variable, Value value) {
+      int variableColumn = valueTable.getVariableColumn(variable);
+      ExcelUtil.setCellValue(entityRow.createCell(variableColumn), value);
+    }
+
+    @Override
+    public void close() throws IOException {
     }
 
   }

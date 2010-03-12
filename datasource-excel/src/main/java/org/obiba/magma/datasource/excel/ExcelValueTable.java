@@ -30,8 +30,16 @@ class ExcelValueTable extends AbstractValueTable implements Initialisable {
 
   private static final Logger log = LoggerFactory.getLogger(ExcelValueTable.class);
 
-  public ExcelValueTable(String name, ExcelDatasource datasource) {
-    super(datasource, name);
+  private final Sheet valueTableSheet;
+
+  public ExcelValueTable(ExcelDatasource excelDatasource, String name, Sheet sheet, String entityType) {
+    super(excelDatasource, name);
+    this.valueTableSheet = sheet;
+
+    if(valueTableSheet.getPhysicalNumberOfRows() <= 0) {
+      valueTableSheet.createRow(0);
+    }
+
   }
 
   @Override
@@ -56,6 +64,34 @@ class ExcelValueTable extends AbstractValueTable implements Initialisable {
   @Override
   public ValueSet getValueSet(VariableEntity entity) throws NoSuchValueSetException {
     throw new UnsupportedOperationException("getValueSet not supported");
+  }
+
+  int findVariableColumn(Variable variable) {
+    Row variableNameRow = valueTableSheet.getRow(0);
+    for(int i = 0; i < variableNameRow.getPhysicalNumberOfCells(); i++) {
+      Cell cell = variableNameRow.getCell(i);
+      if(ExcelUtil.getCellValueAsString(cell).equals(variable.getName())) {
+        return i;
+      }
+    }
+    return -1;
+  }
+
+  int getVariableColumn(Variable variable) {
+    int column = findVariableColumn(variable);
+    if(column == -1) {
+      // Add it
+      Row variableNameRow = valueTableSheet.getRow(0);
+      Cell variableColumn = variableNameRow.createCell(variableNameRow.getPhysicalNumberOfCells(), Cell.CELL_TYPE_STRING);
+      ExcelUtil.setCellValue(variableColumn, TextType.get(), variable.getName());
+      variableColumn.setCellStyle(getDatasource().getExcelStyles("headerCellStyle"));
+      column = variableColumn.getColumnIndex();
+    }
+    return column;
+  }
+
+  Sheet getValueTableSheet() {
+    return valueTableSheet;
   }
 
   private void printVariables() {
