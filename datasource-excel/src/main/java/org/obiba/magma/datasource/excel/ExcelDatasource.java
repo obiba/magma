@@ -18,6 +18,7 @@ import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.ValueTableWriter;
 import org.obiba.magma.datasource.excel.support.ExcelUtil;
@@ -43,8 +44,6 @@ public class ExcelDatasource extends AbstractDatasource {
 
   public static final Set<String> sheetReservedNames = Sets.newHashSet(new String[] { "Variables", "Categories", "Attributes" });
 
-  private FileInputStream excelInputStream;
-
   private Workbook excelWorkbook;
 
   private Sheet variablesSheet;
@@ -67,19 +66,19 @@ public class ExcelDatasource extends AbstractDatasource {
     if(hasValueTable(name)) {
       valueTable = (ExcelValueTable) getValueTable(name);
     } else {
-      valueTable = new ExcelValueTable(name, this);
+      addValueTable(valueTable = new ExcelValueTable(this, name, createSheetIfNotExist(name), entityType));
     }
     return new ExcelValueTableWriter(valueTable);
   }
 
   @Override
   protected void onInitialise() {
-
     if(excelFile.exists()) {
       try {
-        excelWorkbook = new HSSFWorkbook(excelInputStream = new FileInputStream(excelFile));
-      } catch(Exception e) {
-        throw new RuntimeException("Could not access the file : " + excelFile, e);
+        // HSSFWorkbook constructor will close the stream by itself
+        excelWorkbook = new HSSFWorkbook(new FileInputStream(excelFile));
+      } catch(IOException e) {
+        throw new MagmaRuntimeException("Exception reading excel spreadsheet " + excelFile.getName(), e);
       }
     } else {
       excelWorkbook = new HSSFWorkbook();
@@ -91,20 +90,10 @@ public class ExcelDatasource extends AbstractDatasource {
     // attributesSheet = createSheetIfNotExist("Attributes");
 
     createExcelStyles();
-
   }
 
   @Override
   protected void onDispose() {
-
-    if(excelInputStream != null) {
-      try {
-        excelInputStream.close();
-      } catch(Exception couldNotCloseStream) {
-        log.warn("Could not close the excelInputStream", couldNotCloseStream);
-      }
-    }
-
     // Write the workbook (datasource) to file.
     FileOutputStream excelOutputStream = null;
     try {
@@ -119,7 +108,6 @@ public class ExcelDatasource extends AbstractDatasource {
         log.warn("Could not close the excelOutputStream", couldNotCloseStream);
       }
     }
-
   }
 
   @Override
@@ -138,7 +126,7 @@ public class ExcelDatasource extends AbstractDatasource {
 
   @Override
   protected ValueTable initialiseValueTable(String tableName) {
-    return new ExcelValueTable(tableName, this);
+    return new ExcelValueTable(this, tableName, createSheetIfNotExist(tableName), "");
   }
 
   Workbook getWorkbook() {
