@@ -107,17 +107,24 @@ public class DatasourceCopier {
     }
   }
 
-  public void copy(ValueTable table, Datasource destination) throws IOException {
-    log.info("Copying ValueTable '{}' to Datasource '{}' (copyMetadata={}, copyValues={}).", new Object[] { table.getName(), destination.getName(), copyMetadata, copyValues });
-    // TODO: the target ValueTable name should probably be renamed to include the source Datasource's name
+  public ValueTableWriter createValueTableWriter(ValueTable table, Datasource destination) {
     String destinationTableName = table.getName();
     notifyListeners(table, destinationTableName, false);
-    ValueTableWriter vtw = destination.createWriter(destinationTableName, table.getEntityType());
+    return destination.createWriter(destinationTableName, table.getEntityType());
+  }
+
+  public void closeValueTableWriter(ValueTableWriter vtw, ValueTable table) throws IOException {
+    vtw.close();
+    notifyListeners(table, table.getName(), true);
+  }
+
+  public void copy(ValueTable table, Datasource destination) throws IOException {
+    log.info("Copying ValueTable '{}' to Datasource '{}' (copyMetadata={}, copyValues={}).", new Object[] { table.getName(), destination.getName(), copyMetadata, copyValues });
+    ValueTableWriter vtw = createValueTableWriter(table, destination);
     try {
       copy(table, vtw);
     } finally {
-      vtw.close();
-      notifyListeners(table, destinationTableName, true);
+      closeValueTableWriter(vtw, table);
     }
   }
 
