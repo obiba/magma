@@ -59,6 +59,20 @@ public interface Variable extends AttributeAware {
       return new Builder(name, type, entityType);
     }
 
+    public static Builder sameAs(Variable variable) {
+      Builder b = newVariable(variable.getName(), variable.getValueType(), variable.getEntityType()).unit(variable.getUnit()).mimeType(variable.getMimeType()).referencedEntityType(variable.getReferencedEntityType());
+      if(variable.isRepeatable()) {
+        b.repeatable().occurrenceGroup(variable.getOccurrenceGroup());
+      }
+      for(Attribute a : variable.getAttributes()) {
+        b.addAttribute(a);
+      }
+      for(Category c : variable.getCategories()) {
+        b.addCategory(c);
+      }
+      return b;
+    }
+
     /**
      * Tests whether this {@code Builder} instance is constructing a variable with any of the the specified names.
      * 
@@ -72,6 +86,11 @@ public interface Variable extends AttributeAware {
         }
       }
       return false;
+    }
+
+    public Builder name(String name) {
+      variable.name = name;
+      return this;
     }
 
     public Variable build() {

@@ -54,6 +54,7 @@ public class DatasourceCopier {
     }
 
     public Builder withListener(DatasourceCopyEventListener listener) {
+      if(listener == null) throw new IllegalArgumentException("listener cannot be null");
       copier.listeners.add(listener);
       return this;
     }
@@ -69,7 +70,19 @@ public class DatasourceCopier {
     }
 
     public Builder withVariableEntityCopyEventListener(VariableEntityAuditLogManager auditLogManager, Datasource destination) {
+      if(auditLogManager == null) throw new IllegalArgumentException("auditLogManager cannot be null");
+      if(destination == null) throw new IllegalArgumentException("auditLogManager cannot be null");
       copier.listeners.add(new VariableEntityCopyEventListener(auditLogManager, destination));
+      return this;
+    }
+
+    public Builder withVariableTransformer(VariableTransformer transformer) {
+      copier.variableTransformer = transformer;
+      return this;
+    }
+
+    public Builder withMultiplexingStrategy(MultiplexingStrategy strategy) {
+      copier.multiplexer = strategy;
       return this;
     }
 
@@ -85,6 +98,10 @@ public class DatasourceCopier {
   private boolean copyValues = true;
 
   private List<DatasourceCopyEventListener> listeners = new LinkedList<DatasourceCopyEventListener>();
+
+  private VariableTransformer variableTransformer = new NoOpTransformer();
+
+  private MultiplexingStrategy multiplexer = null;
 
   public DatasourceCopier() {
 
@@ -107,20 +124,16 @@ public class DatasourceCopier {
     }
   }
 
-  public ValueTableWriter createValueTableWriter(ValueTable table, Datasource destination) {
-    String destinationTableName = table.getName();
-    notifyListeners(table, destinationTableName, false);
-    return destination.createWriter(destinationTableName, table.getEntityType());
-  }
-
-  public void closeValueTableWriter(ValueTableWriter vtw, ValueTable table) throws IOException {
-    vtw.close();
-    notifyListeners(table, table.getName(), true);
-  }
-
   public void copy(ValueTable table, Datasource destination) throws IOException {
     log.info("Copying ValueTable '{}' to Datasource '{}' (copyMetadata={}, copyValues={}).", new Object[] { table.getName(), destination.getName(), copyMetadata, copyValues });
-    ValueTableWriter vtw = createValueTableWriter(table, destination);
+
+    ValueTableWriter vtw;
+    if(multiplexer != null) {
+      vtw = new MultiplexingValueTableWriter(table, this, destination, multiplexer);
+    } else {
+      vtw = createValueTableWriter(table, table.getName(), destination);
+    }
+
     try {
       copy(table, vtw);
     } finally {
@@ -154,7 +167,7 @@ public class DatasourceCopier {
     if(copyMetadata) {
       for(Variable variable : table.getVariables()) {
         notifyListeners(variable, false);
-        vw.writeVariable(variable);
+        vw.writeVariable(variableTransformer.transform(variable));
         notifyListeners(variable, true);
       }
     }
@@ -162,15 +175,23 @@ public class DatasourceCopier {
 
   public void copy(ValueTable table, ValueSet valueSet, ValueSetWriter vsw) {
     if(copyValues) {
-      notifyListeners(valueSet, false);
+      notifyListeners(table, valueSet, "", false);
       for(Variable variable : table.getVariables()) {
         Value value = table.getValue(variable, valueSet);
         if(value.isNull() == false || copyNullValues) {
-          vsw.writeValue(variable, value);
+          vsw.writeValue(variableTransformer.transform(variable), value);
         }
       }
-      notifyListeners(valueSet, true);
+      notifyListeners(table, valueSet, "", true);
     }
+  }
+
+  public ValueTableWriter createValueTableWriter(ValueTable source, String destinationTableName, Datasource destination) {
+    return destination.createWriter(destinationTableName, source.getEntityType());
+  }
+
+  public void closeValueTableWriter(ValueTableWriter vtw, ValueTable table) throws IOException {
+    vtw.close();
   }
 
   private void notifyListeners(Variable variable, boolean copied) {
@@ -186,20 +207,20 @@ public class DatasourceCopier {
     }
   }
 
-  private void notifyListeners(ValueSet valueSet, boolean copied) {
+  private void notifyListeners(ValueTable source, ValueSet valueSet, String destination, boolean copied) {
     for(DatasourceCopyEventListener listener : listeners) {
       if(listener instanceof DatasourceCopyValueSetEventListener) {
         DatasourceCopyValueSetEventListener valueSetListener = (DatasourceCopyValueSetEventListener) listener;
         if(copied) {
-          valueSetListener.onValueSetCopied(valueSet);
+          valueSetListener.onValueSetCopied(source, valueSet, destination);
         } else {
-          valueSetListener.onValueSetCopy(valueSet);
+          valueSetListener.onValueSetCopy(source, valueSet, destination);
         }
       }
     }
   }
 
-  private void notifyListeners(ValueTable valueTable, String destinationTable, boolean copied) {
+  public void notifyListeners(ValueTable valueTable, String destinationTable, boolean copied) {
     for(DatasourceCopyEventListener listener : listeners) {
       if(listener instanceof DatasourceCopyValueTableEventListener) {
         DatasourceCopyValueTableEventListener valueTableListener = (DatasourceCopyValueTableEventListener) listener;
@@ -225,9 +246,9 @@ public class DatasourceCopier {
 
   public interface DatasourceCopyValueSetEventListener extends DatasourceCopyEventListener {
 
-    public void onValueSetCopy(ValueSet valueSet);
+    public void onValueSetCopy(ValueTable source, ValueSet valueSet, String destination);
 
-    public void onValueSetCopied(ValueSet valueSet);
+    public void onValueSetCopied(ValueTable source, ValueSet valueSet, String destination);
 
   }
 
@@ -239,10 +260,29 @@ public class DatasourceCopier {
 
   }
 
+  public interface VariableTransformer {
+    public Variable transform(Variable variable);
+  }
+
+  private static class NoOpTransformer implements VariableTransformer {
+    @Override
+    public Variable transform(Variable variable) {
+      return variable;
+    }
+  }
+
+  public interface MultiplexingStrategy {
+
+    String multiplexVariable(Variable variable);
+
+    String multiplexValueSet(VariableEntity entity, Variable variable);
+
+  }
+
   private static class LoggingListener implements DatasourceCopyVariableEventListener, DatasourceCopyValueSetEventListener {
 
     @Override
-    public void onValueSetCopied(ValueSet valueSet) {
+    public void onValueSetCopied(ValueTable source, ValueSet valueSet, String destination) {
       log.debug("Copied ValueSet for entity {}", valueSet.getVariableEntity());
     }
 
@@ -252,7 +292,7 @@ public class DatasourceCopier {
     }
 
     @Override
-    public void onValueSetCopy(ValueSet valueSet) {
+    public void onValueSetCopy(ValueTable source, ValueSet valueSet, String destination) {
       log.debug("Copying ValueSet for entity {}", valueSet.getVariableEntity());
     }
 
@@ -278,12 +318,12 @@ public class DatasourceCopier {
     }
 
     @Override
-    public void onValueSetCopy(ValueSet valueSet) {
+    public void onValueSetCopy(ValueTable source, ValueSet valueSet, String destination) {
       start = System.currentTimeMillis();
     }
 
     @Override
-    public void onValueSetCopied(ValueSet valueSet) {
+    public void onValueSetCopied(ValueTable source, ValueSet valueSet, String destination) {
       long duration = System.currentTimeMillis() - start;
       allDuration += duration;
       count++;
@@ -292,46 +332,32 @@ public class DatasourceCopier {
 
   }
 
-  private static class VariableEntityCopyEventListener implements DatasourceCopyValueSetEventListener, DatasourceCopyValueTableEventListener {
+  private static class VariableEntityCopyEventListener implements DatasourceCopyValueSetEventListener {
 
     private VariableEntityAuditLogManager auditLogManager;
 
-    private ValueTable source;
-
-    private Datasource destinationSource;
-
-    private String destinationTable;
+    private Datasource destination;
 
     public VariableEntityCopyEventListener(VariableEntityAuditLogManager auditLogManager, Datasource destination) {
       if(auditLogManager == null) throw new IllegalArgumentException("auditLogManager cannot be null");
       if(destination == null) throw new IllegalArgumentException("destination cannot be null");
       this.auditLogManager = auditLogManager;
-      this.destinationSource = destination;
+      this.destination = destination;
     }
 
     @Override
-    public void onValueSetCopied(ValueSet valueSet) {
+    public void onValueSetCopied(ValueTable source, ValueSet valueSet, String tableName) {
       VariableEntity entity = valueSet.getVariableEntity();
-      auditLogManager.createAuditEvent(auditLogManager.getAuditLog(entity), source, "COPY", createCopyDetails(entity));
+      auditLogManager.createAuditEvent(auditLogManager.getAuditLog(entity), source, "COPY", createCopyDetails(entity, tableName));
     }
 
     @Override
-    public void onValueSetCopy(ValueSet valueSet) {
+    public void onValueSetCopy(ValueTable source, ValueSet valueSet, String destination) {
     }
 
-    @Override
-    public void onValueTableCopied(ValueTable valueTable, String destinationTable) {
-    }
-
-    @Override
-    public void onValueTableCopy(ValueTable valueTable, String destinationTable) {
-      source = valueTable;
-      this.destinationTable = destinationTable;
-    }
-
-    private Map<String, Value> createCopyDetails(VariableEntity entity) {
+    private Map<String, Value> createCopyDetails(VariableEntity entity, String tableName) {
       Map<String, Value> details = new HashMap<String, Value>();
-      details.put("destinationName", TextType.get().valueOf(destinationSource.getName() + "." + destinationTable));
+      details.put("destinationName", TextType.get().valueOf(destination.getName() + "." + tableName));
       return details;
     }
 
