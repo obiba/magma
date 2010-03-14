@@ -80,9 +80,12 @@ class HibernateVariableValueSourceFactory implements VariableValueSourceFactory 
     @Override
     public Value getValue(ValueSet valueSet) {
       HibernateValueSet hibernateValueSet = (HibernateValueSet) valueSet;
-      AssociationCriteria criteria = AssociationCriteria.create(ValueSetValue.class, getCurrentSession()).add("variable.id", Operation.eq, variableId).add("valueSet", Operation.eq, hibernateValueSet.getValueSetState());
-      ValueSetValue valueSetValue = (ValueSetValue) criteria.getCriteria().uniqueResult();
-      return valueSetValue != null ? valueSetValue.getValue() : (getVariable().isRepeatable() ? getValueType().nullSequence() : getValueType().nullValue());
+      for(ValueSetValue v : hibernateValueSet.getValueSetState().getValues()) {
+        if(v.getVariable().getId().equals(variableId)) {
+          return v.getValue();
+        }
+      }
+      return (getVariable().isRepeatable() ? getValueType().nullSequence() : getValueType().nullValue());
     }
 
     @Override
