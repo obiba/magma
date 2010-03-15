@@ -61,7 +61,6 @@ public class JavascriptVariableTransformer implements VariableTransformer {
         return null;
       }
     }));
-    System.out.println("newName=" + newName);
 
     return Variable.Builder.sameAs(variable).name(newName != null ? newName : variable.getName()).build();
   }
