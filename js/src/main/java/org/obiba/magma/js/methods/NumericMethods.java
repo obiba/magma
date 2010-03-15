@@ -42,7 +42,7 @@ public class NumericMethods {
    * @return A {@code ScriptableValue} containing a numeric {@link ValueType}.
    * @throws MagmaJsEvaluationRuntimeException if scriptable is null or not numeric
    */
-  private static ScriptableValue getScriptableAsNumericScriptableValue(Scriptable scriptable) throws MagmaJsEvaluationRuntimeException {
+  static ScriptableValue getScriptableAsNumericScriptableValue(Scriptable scriptable) throws MagmaJsEvaluationRuntimeException {
     if(scriptable != null && !((ScriptableValue) scriptable).getValue().isNull() && ((ScriptableValue) scriptable).getValueType().isNumeric()) {
       return (ScriptableValue) scriptable;
     } else {
@@ -55,7 +55,7 @@ public class NumericMethods {
    * @return A {@code ScriptableValue} containing a numeric {@link ValueType}.
    * @throws MagmaJsEvaluationRuntimeException if the first argument is null or not numeric
    */
-  private static ScriptableValue getFirstArgumentAsNumericScriptableValue(Object[] args) throws MagmaJsEvaluationRuntimeException {
+  static ScriptableValue getFirstArgumentAsNumericScriptableValue(Object[] args) throws MagmaJsEvaluationRuntimeException {
     if(args != null && args.length > 0 && args[0] instanceof ScriptableValue && !((ScriptableValue) args[0]).getValue().isNull() && ((ScriptableValue) args[0]).getValueType().isNumeric()) {
       return (ScriptableValue) args[0];
     } else {

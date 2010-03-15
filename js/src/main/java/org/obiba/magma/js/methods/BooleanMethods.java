@@ -8,6 +8,8 @@ import org.obiba.magma.Value;
 import org.obiba.magma.js.MagmaJsEvaluationRuntimeException;
 import org.obiba.magma.js.ScriptableValue;
 import org.obiba.magma.type.BooleanType;
+import org.obiba.magma.type.DecimalType;
+import org.obiba.magma.type.IntegerType;
 
 import com.google.common.collect.Iterables;
 
@@ -234,5 +236,109 @@ public class BooleanMethods {
     if(op1 == null && op2 != null && !op2) return null;
     if(op2 == null && op1 != null && !op1) return null;
     return op1 || op2;
+  }
+
+  /**
+   * Returns a new {@link ScriptableValue} of the {@link BooleanType} indicating if the first parameter is greater than
+   * the second parameter.
+   * 
+   * <pre>
+   *   $('NumberVarOne').gt($('NumberVarTwo'))
+   * </pre>
+   * @throws MagmaJsEvaluationRuntimeException if operands are not ScriptableValue Objects of IntegerType or
+   * DecimalType.
+   */
+  public static ScriptableValue gt(Context ctx, Scriptable thisObj, Object[] args, Function funObj) throws MagmaJsEvaluationRuntimeException {
+    ScriptableValue firstOperand = NumericMethods.getScriptableAsNumericScriptableValue(thisObj);
+    ScriptableValue secondOperand = NumericMethods.getFirstArgumentAsNumericScriptableValue(args);
+    Number firstNumber = (Number) firstOperand.getValue().getValue();
+    Number secondNumber = (Number) secondOperand.getValue().getValue();
+    if(firstOperand.getValueType().equals(IntegerType.get()) && secondOperand.getValueType().equals(IntegerType.get())) {
+      return new ScriptableValue(thisObj, BooleanType.get().valueOf((Long) firstNumber > (Long) secondNumber));
+    } else if(firstOperand.getValueType().equals(IntegerType.get()) && secondOperand.getValueType().equals(DecimalType.get())) {
+      return new ScriptableValue(thisObj, BooleanType.get().valueOf((Long) firstNumber > (Double) secondNumber));
+    } else if(firstOperand.getValueType().equals(DecimalType.get()) && secondOperand.getValueType().equals(IntegerType.get())) {
+      return new ScriptableValue(thisObj, BooleanType.get().valueOf((Double) firstNumber > (Long) secondNumber));
+    } else {
+      return new ScriptableValue(thisObj, BooleanType.get().valueOf((Double) firstNumber > (Double) secondNumber));
+    }
+  }
+
+  /**
+   * Returns a new {@link ScriptableValue} of the {@link BooleanType} indicating if the first parameter is greater than
+   * or equal the second parameter.
+   * 
+   * <pre>
+   *   $('NumberVarOne').ge($('NumberVarTwo'))
+   * </pre>
+   * @throws MagmaJsEvaluationRuntimeException if operands are not ScriptableValue Objects of IntegerType or
+   * DecimalType.
+   */
+  public static ScriptableValue ge(Context ctx, Scriptable thisObj, Object[] args, Function funObj) throws MagmaJsEvaluationRuntimeException {
+    ScriptableValue firstOperand = NumericMethods.getScriptableAsNumericScriptableValue(thisObj);
+    ScriptableValue secondOperand = NumericMethods.getFirstArgumentAsNumericScriptableValue(args);
+    Number firstNumber = (Number) firstOperand.getValue().getValue();
+    Number secondNumber = (Number) secondOperand.getValue().getValue();
+    if(firstOperand.getValueType().equals(IntegerType.get()) && secondOperand.getValueType().equals(IntegerType.get())) {
+      return new ScriptableValue(thisObj, BooleanType.get().valueOf((Long) firstNumber >= (Long) secondNumber));
+    } else if(firstOperand.getValueType().equals(IntegerType.get()) && secondOperand.getValueType().equals(DecimalType.get())) {
+      return new ScriptableValue(thisObj, BooleanType.get().valueOf((Long) firstNumber >= (Double) secondNumber));
+    } else if(firstOperand.getValueType().equals(DecimalType.get()) && secondOperand.getValueType().equals(IntegerType.get())) {
+      return new ScriptableValue(thisObj, BooleanType.get().valueOf((Double) firstNumber >= (Long) secondNumber));
+    } else {
+      return new ScriptableValue(thisObj, BooleanType.get().valueOf((Double) firstNumber >= (Double) secondNumber));
+    }
+  }
+
+  /**
+   * Returns a new {@link ScriptableValue} of the {@link BooleanType} indicating if the first parameter is less than the
+   * second parameter.
+   * 
+   * <pre>
+   *   $('NumberVarOne').lt($('NumberVarTwo'))
+   * </pre>
+   * @throws MagmaJsEvaluationRuntimeException if operands are not ScriptableValue Objects of IntegerType or
+   * DecimalType.
+   */
+  public static ScriptableValue lt(Context ctx, Scriptable thisObj, Object[] args, Function funObj) throws MagmaJsEvaluationRuntimeException {
+    ScriptableValue firstOperand = NumericMethods.getScriptableAsNumericScriptableValue(thisObj);
+    ScriptableValue secondOperand = NumericMethods.getFirstArgumentAsNumericScriptableValue(args);
+    Number firstNumber = (Number) firstOperand.getValue().getValue();
+    Number secondNumber = (Number) secondOperand.getValue().getValue();
+    if(firstOperand.getValueType().equals(IntegerType.get()) && secondOperand.getValueType().equals(IntegerType.get())) {
+      return new ScriptableValue(thisObj, BooleanType.get().valueOf((Long) firstNumber < (Long) secondNumber));
+    } else if(firstOperand.getValueType().equals(IntegerType.get()) && secondOperand.getValueType().equals(DecimalType.get())) {
+      return new ScriptableValue(thisObj, BooleanType.get().valueOf((Long) firstNumber < (Double) secondNumber));
+    } else if(firstOperand.getValueType().equals(DecimalType.get()) && secondOperand.getValueType().equals(IntegerType.get())) {
+      return new ScriptableValue(thisObj, BooleanType.get().valueOf((Double) firstNumber < (Long) secondNumber));
+    } else {
+      return new ScriptableValue(thisObj, BooleanType.get().valueOf((Double) firstNumber < (Double) secondNumber));
+    }
+  }
+
+  /**
+   * Returns a new {@link ScriptableValue} of the {@link BooleanType} indicating if the first parameter is less than or
+   * equal the second parameter.
+   * 
+   * <pre>
+   *   $('NumberVarOne').le($('NumberVarTwo'))
+   * </pre>
+   * @throws MagmaJsEvaluationRuntimeException if operands are not ScriptableValue Objects of IntegerType or
+   * DecimalType.
+   */
+  public static ScriptableValue le(Context ctx, Scriptable thisObj, Object[] args, Function funObj) throws MagmaJsEvaluationRuntimeException {
+    ScriptableValue firstOperand = NumericMethods.getScriptableAsNumericScriptableValue(thisObj);
+    ScriptableValue secondOperand = NumericMethods.getFirstArgumentAsNumericScriptableValue(args);
+    Number firstNumber = (Number) firstOperand.getValue().getValue();
+    Number secondNumber = (Number) secondOperand.getValue().getValue();
+    if(firstOperand.getValueType().equals(IntegerType.get()) && secondOperand.getValueType().equals(IntegerType.get())) {
+      return new ScriptableValue(thisObj, BooleanType.get().valueOf((Long) firstNumber <= (Long) secondNumber));
+    } else if(firstOperand.getValueType().equals(IntegerType.get()) && secondOperand.getValueType().equals(DecimalType.get())) {
+      return new ScriptableValue(thisObj, BooleanType.get().valueOf((Long) firstNumber <= (Double) secondNumber));
+    } else if(firstOperand.getValueType().equals(DecimalType.get()) && secondOperand.getValueType().equals(IntegerType.get())) {
+      return new ScriptableValue(thisObj, BooleanType.get().valueOf((Double) firstNumber <= (Long) secondNumber));
+    } else {
+      return new ScriptableValue(thisObj, BooleanType.get().valueOf((Double) firstNumber <= (Double) secondNumber));
+    }
   }
 }
