@@ -2,6 +2,7 @@ package org.obiba.magma.js.methods;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.lessThan;
 import static org.junit.Assert.assertThat;
 
 import org.junit.Test;
@@ -15,6 +16,8 @@ import org.obiba.magma.type.IntegerType;
 import org.obiba.magma.type.TextType;
 
 public class CompareMethodsTest extends AbstractScriptableValueTest {
+
+  // compare
 
   @Test
   public void testIntegerCompareInteger() throws Exception {
@@ -78,4 +81,21 @@ public class CompareMethodsTest extends AbstractScriptableValueTest {
     CompareMethods.compare(Context.getCurrentContext(), air, new Object[] { nullOperand }, null);
   }
 
+  // compareNoCase
+
+  @Test
+  public void testCompareNoCaseBigAardvarkCompareSmallAardvark() throws Exception {
+    ScriptableValue bigAardvark = newValue(TextType.get().valueOf("AARDVARK"));
+    ScriptableValue smallAardvark = newValue(TextType.get().valueOf("aardvark"));
+    ScriptableValue result = CompareMethods.compareNoCase(Context.getCurrentContext(), bigAardvark, new Object[] { smallAardvark }, null);
+    assertThat(result.getValue(), is(IntegerType.get().valueOf(0)));
+  }
+
+  @Test
+  public void testCompareNoCaseBigAardvarkCompareCarrot() throws Exception {
+    ScriptableValue bigAardvark = newValue(TextType.get().valueOf("AARDVARK"));
+    ScriptableValue carrot = newValue(TextType.get().valueOf("carrot"));
+    ScriptableValue result = CompareMethods.compareNoCase(Context.getCurrentContext(), bigAardvark, new Object[] { carrot }, null);
+    assertThat((Long) result.getValue().getValue(), lessThan(0L));
+  }
 }
