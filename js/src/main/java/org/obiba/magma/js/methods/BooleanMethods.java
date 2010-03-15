@@ -200,4 +200,39 @@ public class BooleanMethods {
   private static Boolean toBoolean(Value value) {
     return !value.isNull() ? (Boolean) value.getValue() : null;
   }
+
+  /**
+   * <pre>
+   *   $('BooleanVar').and(someBooleanVar)
+   *   $('BooleanVar').and($('OtheBooleanVar'))
+   *   $('BooleanVar').and($('OtheBooleanVar').not())
+   * </pre>
+   */
+  public static ScriptableValue or(Context ctx, Scriptable thisObj, Object[] args, Function funObj) {
+    ScriptableValue sv = (ScriptableValue) thisObj;
+    Value value = sv.getValue();
+    if(!value.getValueType().equals(BooleanType.get())) {
+      throw new MagmaJsEvaluationRuntimeException("cannot invoke and() for Value of type " + value.getValueType().getName());
+    }
+    Boolean booleanValue = toBoolean(value);
+
+    if(args == null || args.length == 0) {
+      return buildValue(thisObj, booleanValue);
+    }
+    if(args[0] instanceof ScriptableValue) {
+      ScriptableValue operand = (ScriptableValue) args[0];
+      booleanValue = ternaryOr(booleanValue, toBoolean(operand.getValue()));
+    } else {
+      booleanValue = ternaryOr(booleanValue, ScriptRuntime.toBoolean(args[0]));
+    }
+    return buildValue(thisObj, booleanValue);
+  }
+
+  private static Boolean ternaryOr(Boolean op1, Boolean op2) {
+    if(op1 == null && op2 == null) return null;
+    if(op1 == null && op2 != null && op2) return true;
+    if(op1 == null && op2 != null && !op2) return null;
+    if(op2 == null && op1 != null && !op1) return null;
+    return op1 || op2;
+  }
 }

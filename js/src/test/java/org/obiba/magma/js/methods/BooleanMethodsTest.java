@@ -1,5 +1,8 @@
 package org.obiba.magma.js.methods;
 
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -163,4 +166,79 @@ public class BooleanMethodsTest extends AbstractScriptableValueTest {
     Assert.assertNotNull(result);
     Assert.assertEquals(BooleanType.get().trueValue(), result.getValue());
   }
+
+  // Ternary valued OR
+
+  @Test
+  public void testTrueOrTrueEqualsTrue() throws Exception {
+    ScriptableValue trueOne = newValue(BooleanType.get().trueValue());
+    ScriptableValue trueTwo = newValue(BooleanType.get().trueValue());
+    ScriptableValue result = BooleanMethods.or(Context.getCurrentContext(), trueOne, new ScriptableValue[] { trueTwo }, null);
+    assertThat(result.getValue(), is(BooleanType.get().trueValue()));
+  }
+
+  @Test
+  public void testTrueOrFalseEqualsTrue() throws Exception {
+    ScriptableValue trueOne = newValue(BooleanType.get().trueValue());
+    ScriptableValue falseTwo = newValue(BooleanType.get().falseValue());
+    ScriptableValue result = BooleanMethods.or(Context.getCurrentContext(), trueOne, new ScriptableValue[] { falseTwo }, null);
+    assertThat(result.getValue(), is(BooleanType.get().trueValue()));
+  }
+
+  @Test
+  public void testFalseOrTrueEqualsTrue() throws Exception {
+    ScriptableValue falseOne = newValue(BooleanType.get().falseValue());
+    ScriptableValue trueTwo = newValue(BooleanType.get().trueValue());
+    ScriptableValue result = BooleanMethods.or(Context.getCurrentContext(), falseOne, new ScriptableValue[] { trueTwo }, null);
+    assertThat(result.getValue(), is(BooleanType.get().trueValue()));
+  }
+
+  @Test
+  public void testFalseOrFalseEqualsFalse() throws Exception {
+    ScriptableValue falseOne = newValue(BooleanType.get().falseValue());
+    ScriptableValue falseTwo = newValue(BooleanType.get().falseValue());
+    ScriptableValue result = BooleanMethods.or(Context.getCurrentContext(), falseOne, new ScriptableValue[] { falseTwo }, null);
+    assertThat(result.getValue(), is(BooleanType.get().falseValue()));
+  }
+
+  @Test
+  public void testTrueOrUnknownEqualsTrue() throws Exception {
+    ScriptableValue trueOne = newValue(BooleanType.get().trueValue());
+    ScriptableValue nullTwo = newValue(BooleanType.get().nullValue());
+    ScriptableValue result = BooleanMethods.or(Context.getCurrentContext(), trueOne, new ScriptableValue[] { nullTwo }, null);
+    assertThat(result.getValue(), is(BooleanType.get().trueValue()));
+  }
+
+  @Test
+  public void testUnknownOrTrueEqualsTrue() throws Exception {
+    ScriptableValue nullOne = newValue(BooleanType.get().nullValue());
+    ScriptableValue trueTwo = newValue(BooleanType.get().trueValue());
+    ScriptableValue result = BooleanMethods.or(Context.getCurrentContext(), nullOne, new ScriptableValue[] { trueTwo }, null);
+    assertThat(result.getValue(), is(BooleanType.get().trueValue()));
+  }
+
+  @Test
+  public void testUnknownOrUnknownEqualsUnknown() throws Exception {
+    ScriptableValue nullOne = newValue(BooleanType.get().nullValue());
+    ScriptableValue nullTwo = newValue(BooleanType.get().nullValue());
+    ScriptableValue result = BooleanMethods.or(Context.getCurrentContext(), nullOne, new ScriptableValue[] { nullTwo }, null);
+    assertThat(result.getValue(), is(BooleanType.get().nullValue()));
+  }
+
+  @Test
+  public void testFalseOrUnknownEqualsUnknown() throws Exception {
+    ScriptableValue falseOne = newValue(BooleanType.get().falseValue());
+    ScriptableValue nullTwo = newValue(BooleanType.get().nullValue());
+    ScriptableValue result = BooleanMethods.or(Context.getCurrentContext(), falseOne, new ScriptableValue[] { nullTwo }, null);
+    assertThat(result.getValue(), is(BooleanType.get().nullValue()));
+  }
+
+  @Test
+  public void testUnknownOrFalseEqualsUnknown() throws Exception {
+    ScriptableValue nullOne = newValue(BooleanType.get().nullValue());
+    ScriptableValue falseTwo = newValue(BooleanType.get().falseValue());
+    ScriptableValue result = BooleanMethods.or(Context.getCurrentContext(), nullOne, new ScriptableValue[] { falseTwo }, null);
+    assertThat(result.getValue(), is(BooleanType.get().nullValue()));
+  }
+
 }
