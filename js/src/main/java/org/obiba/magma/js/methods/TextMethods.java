@@ -72,4 +72,25 @@ public class TextMethods {
 
     return new ScriptableValue(thisObj, BooleanType.get().valueOf(matches));
   }
+
+  /**
+   * Returns a new {@link ScriptableValue} of {@link TextType} combining the String value of the first and second
+   * parameters.
+   * 
+   * <pre>
+   *   $('TextVar').concat($('TextVar'))
+   *   $('Var').concat($('Var'))
+   * </pre>
+   */
+  public static ScriptableValue concat(Context ctx, Scriptable thisObj, Object[] args, Function funObj) {
+    ScriptableValue sv = (ScriptableValue) thisObj;
+    String firstString = sv.getValue().getValue() == null ? "null" : (String) sv.getValue().getValue().toString();
+    if(args != null && args.length > 0 && args[0] instanceof ScriptableValue) {
+      ScriptableValue secondOperand = (ScriptableValue) args[0];
+      String secondString = secondOperand.getValue().getValue() == null ? "null" : (String) secondOperand.getValue().getValue().toString();
+      return new ScriptableValue(thisObj, TextType.get().valueOf(firstString + secondString));
+    } else {
+      return new ScriptableValue(thisObj, TextType.get().valueOf(firstString));
+    }
+  }
 }
