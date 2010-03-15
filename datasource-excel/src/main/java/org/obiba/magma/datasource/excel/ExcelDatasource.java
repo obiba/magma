@@ -22,6 +22,7 @@ import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.ValueTableWriter;
 import org.obiba.magma.datasource.excel.support.ExcelUtil;
+import org.obiba.magma.datasource.excel.support.NameConverter;
 import org.obiba.magma.support.AbstractDatasource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -189,7 +190,7 @@ public class ExcelDatasource extends AbstractDatasource {
   private Sheet createSheetIfNotExist(String tableName) {
     Sheet sheet;
     if((sheet = excelWorkbook.getSheet(tableName)) == null) {
-      sheet = excelWorkbook.createSheet(tableName);
+      sheet = excelWorkbook.createSheet(NameConverter.toExcelName(tableName));
     }
     return sheet;
   }
