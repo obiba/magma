@@ -1,11 +1,18 @@
 package org.obiba.magma.datasource.crypt;
 
 import org.obiba.magma.Datasource;
+import org.obiba.magma.crypt.KeyProvider;
 
 /**
  * A strategy for encrypting a {@code Datasource}.
  */
 public interface DatasourceEncryptionStrategy {
+  /**
+   * Sets the {@link KeyProvider} to be used by this strategy.
+   * 
+   * @param keyProvider key provider
+   */
+  public void setKeyProvider(KeyProvider keyProvider);
 
   /**
    * Returns true if this strategy is able to decrypt an existing datasource. This may return false when the strategy

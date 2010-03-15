@@ -50,7 +50,9 @@ public class IntegrationApp {
 
     // Generate a new KeyPair.
     GeneratedKeyPairProvider keyPairProvider = new GeneratedKeyPairProvider();
-    FsDatasource fs = new FsDatasource("export", encrypted, new GeneratedSecretKeyDatasourceEncryptionStrategy(keyPairProvider));
+    GeneratedSecretKeyDatasourceEncryptionStrategy generatedEncryptionStrategy = new GeneratedSecretKeyDatasourceEncryptionStrategy();
+    generatedEncryptionStrategy.setKeyProvider(keyPairProvider);
+    FsDatasource fs = new FsDatasource("export", encrypted, generatedEncryptionStrategy);
     MagmaEngine.get().addDatasource(fs);
 
     // Export the IntegrationDatasource to the FsDatasource
@@ -61,7 +63,9 @@ public class IntegrationApp {
     MagmaEngine.get().removeDatasource(fs);
 
     // Read it back
-    MagmaEngine.get().addDatasource(new FsDatasource("imported", encrypted, new EncryptedSecretKeyDatasourceEncryptionStrategy(keyPairProvider)));
+    EncryptedSecretKeyDatasourceEncryptionStrategy encryptedEncryptionStrategy = new EncryptedSecretKeyDatasourceEncryptionStrategy();
+    encryptedEncryptionStrategy.setKeyProvider(keyPairProvider);
+    MagmaEngine.get().addDatasource(new FsDatasource("imported", encrypted, encryptedEncryptionStrategy));
 
     // Dump its values
     for(ValueTable table : MagmaEngine.get().getDatasource("imported").getValueTables()) {

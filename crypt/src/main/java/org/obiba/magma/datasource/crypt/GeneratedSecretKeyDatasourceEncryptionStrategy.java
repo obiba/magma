@@ -14,15 +14,15 @@ import javax.crypto.SecretKey;
 
 import org.obiba.magma.Datasource;
 import org.obiba.magma.MagmaRuntimeException;
+import org.obiba.magma.crypt.KeyProvider;
 import org.obiba.magma.crypt.MagmaCryptRuntimeException;
-import org.obiba.magma.crypt.PublicKeyProvider;
 import org.obiba.magma.type.BinaryType;
 import org.obiba.magma.type.TextType;
 
 /**
  * Creates a {@link DatasourceCipherFactory} that creates {@code Cipher} instances using a newly generated {@code
- * SecretKey}. The secret key is encrypted using the {@code PublicKey} returned by the {@link PublicKeyProvider}
- * instance. A {@code Cipher} instance is initialised to obtain a {@code AlgorithmParameters} instance.
+ * SecretKey}. The secret key is encrypted using the {@code PublicKey} returned by the {@link KeyProvider} instance. A
+ * {@code Cipher} instance is initialised to obtain a {@code AlgorithmParameters} instance.
  * <p>
  * The following attributes are added to the datasource to allow decryption using the corresponding {@code PrivateKey}:
  * <ul>
@@ -49,11 +49,44 @@ public class GeneratedSecretKeyDatasourceEncryptionStrategy implements Datasourc
   // Files" which can be downloaded from Sun
   private int keySize = 128;
 
-  private PublicKeyProvider publicKeyProvider;
+  private KeyProvider keyProvider;
 
-  public GeneratedSecretKeyDatasourceEncryptionStrategy(PublicKeyProvider publicKeyProvider) {
-    this.publicKeyProvider = publicKeyProvider;
+  //
+  // DatasourceEncryptionStrategy Methods
+  //
+
+  public void setKeyProvider(KeyProvider keyProvider) {
+    this.keyProvider = keyProvider;
   }
+
+  public boolean canDecryptExistingDatasource() {
+    return false;
+  }
+
+  public DatasourceCipherFactory createDatasourceCipherFactory(Datasource ds) {
+    // If there's already a secret key in the datasource, then stop. We cannot read the contents.
+    if(ds.hasAttribute(CipherAttributeConstants.SECRET_KEY)) {
+      throw new MagmaCryptRuntimeException("Datasource '" + ds.getName() + "' is encrypted and cannot be read without the proper decryption key.");
+    }
+
+    try {
+
+      String transformation = getTransformation();
+
+      SecretKey sk = getSecretKey(ds);
+      AlgorithmParameters parameters = initialiseParameters(ds, transformation, sk);
+
+      return new DefaultDatasourceCipherFactory(transformation, sk, parameters);
+    } catch(GeneralSecurityException e) {
+      throw new MagmaRuntimeException(e);
+    } catch(IOException e) {
+      throw new MagmaRuntimeException(e);
+    }
+  }
+
+  //
+  // Methods
+  //
 
   public void setMode(String mode) {
     this.mode = mode;
@@ -83,33 +116,6 @@ public class GeneratedSecretKeyDatasourceEncryptionStrategy implements Datasourc
     this.keySize = keySize;
   }
 
-  @Override
-  public boolean canDecryptExistingDatasource() {
-    return false;
-  }
-
-  @Override
-  public DatasourceCipherFactory createDatasourceCipherFactory(Datasource ds) {
-    // If there's already a secret key in the datasource, then stop. We cannot read the contents.
-    if(ds.hasAttribute(CipherAttributeConstants.SECRET_KEY)) {
-      throw new MagmaCryptRuntimeException("Datasource '" + ds.getName() + "' is encrypted and cannot be read without the proper decryption key.");
-    }
-
-    try {
-
-      String transformation = getTransformation();
-
-      SecretKey sk = getSecretKey(ds);
-      AlgorithmParameters parameters = initialiseParameters(ds, transformation, sk);
-
-      return new DefaultDatasourceCipherFactory(transformation, sk, parameters);
-    } catch(GeneralSecurityException e) {
-      throw new MagmaRuntimeException(e);
-    } catch(IOException e) {
-      throw new MagmaRuntimeException(e);
-    }
-  }
-
   private SecretKey getSecretKey(Datasource datasource) throws NoSuchAlgorithmException {
     KeyGenerator keyGen = KeyGenerator.getInstance(algorithm);
     keyGen.init(keySize);
@@ -136,7 +142,7 @@ public class GeneratedSecretKeyDatasourceEncryptionStrategy implements Datasourc
   private byte[] wrapKey(Datasource datasource, SecretKey sk) {
 
     try {
-      PublicKey publicKey = publicKeyProvider.getPublicKey(datasource);
+      PublicKey publicKey = keyProvider.getPublicKey(datasource);
       if(publicKey.getEncoded() != null) {
         datasource.setAttributeValue(CipherAttributeConstants.PUBLIC_KEY, BinaryType.get().valueOf(publicKey.getEncoded()));
         datasource.setAttributeValue(CipherAttributeConstants.PUBLIC_KEY_FORMAT, TextType.get().valueOf(publicKey.getFormat()));

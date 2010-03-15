@@ -7,6 +7,7 @@ import java.security.PublicKey;
 
 import org.obiba.magma.Datasource;
 import org.obiba.magma.crypt.KeyPairProvider;
+import org.obiba.magma.crypt.KeyProvider;
 import org.obiba.magma.crypt.KeyProviderSecurityException;
 import org.obiba.magma.crypt.NoSuchKeyException;
 import org.obiba.magma.crypt.PublicKeyProvider;
@@ -15,7 +16,7 @@ import org.obiba.magma.crypt.PublicKeyProvider;
  * Implements both {@link PublicKeyProvider} and {@link KeyPairProvider} on top of a generated {@code KeyPair}. This
  * class is useful for testing purposes.
  */
-public class GeneratedKeyPairProvider implements PublicKeyProvider, KeyPairProvider {
+public class GeneratedKeyPairProvider implements KeyProvider {
 
   /** Holds the generated {@code KeyPair} */
   private KeyPair keyPair;

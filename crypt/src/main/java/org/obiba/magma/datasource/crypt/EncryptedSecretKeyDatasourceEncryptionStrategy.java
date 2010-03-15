@@ -19,14 +19,14 @@ import javax.crypto.SecretKey;
 import org.obiba.magma.Datasource;
 import org.obiba.magma.NoSuchAttributeException;
 import org.obiba.magma.Value;
-import org.obiba.magma.crypt.KeyPairProvider;
+import org.obiba.magma.crypt.KeyProvider;
 import org.obiba.magma.crypt.MagmaCryptRuntimeException;
 import org.obiba.magma.crypt.NoSuchKeyException;
 
 /**
  * Creates a {@link DatasourceCipherFactory} that creates {@code Cipher} instances using a {@code SecretKey} obtained
  * from the {@code Datasource} instance's attributes. The {@code SecretKey} is expected to be encrypted using a {@code
- * PublicKey} for which the instance of {@code KeyPairProvider} can provide the corresponding {@code KeyPair}.
+ * PublicKey} for which the instance of {@code KeyProvider} can provide the corresponding {@code KeyPair}.
  * <p>
  * The required attributes are:
  * <ul>
@@ -46,18 +46,20 @@ public class EncryptedSecretKeyDatasourceEncryptionStrategy implements Datasourc
 
   private static final String X509_KEYSPEC_FORMAT = "X.509";
 
-  private KeyPairProvider keyPairProvider;
+  private KeyProvider keyProvider;
 
-  public EncryptedSecretKeyDatasourceEncryptionStrategy(KeyPairProvider keyPairProvider) {
-    this.keyPairProvider = keyPairProvider;
+  //
+  // DatasourceEncryptionStrategy Methods
+  //
+
+  public void setKeyProvider(KeyProvider keyProvider) {
+    this.keyProvider = keyProvider;
   }
 
-  @Override
   public boolean canDecryptExistingDatasource() {
     return true;
   }
 
-  @Override
   public DatasourceCipherFactory createDatasourceCipherFactory(Datasource ds) {
     try {
       SecretKey secretKey = getSecretKey(ds);
@@ -71,6 +73,10 @@ public class EncryptedSecretKeyDatasourceEncryptionStrategy implements Datasourc
       throw new MagmaCryptRuntimeException("Unexpected error while reading encryption metadata for Datasource '" + ds.getName() + "'", e);
     }
   }
+
+  //
+  // Methods
+  //
 
   private AlgorithmParameters getAlgorithmParameters(Datasource datasource, String algorithm) throws IOException, NoSuchAlgorithmException {
     AlgorithmParameters algorithmParameters = null;
@@ -97,7 +103,7 @@ public class EncryptedSecretKeyDatasourceEncryptionStrategy implements Datasourc
   }
 
   private PrivateKey getPrivateKey(Datasource datasource) throws NoSuchKeyException, NoSuchAlgorithmException, InvalidKeySpecException {
-    KeyPair keyPair = keyPairProvider.getKeyPair(getPublicKey(datasource));
+    KeyPair keyPair = keyProvider.getKeyPair(getPublicKey(datasource));
     return keyPair.getPrivate();
   }
 
@@ -113,8 +119,13 @@ public class EncryptedSecretKeyDatasourceEncryptionStrategy implements Datasourc
     String format = datasource.getAttributeStringValue(CipherAttributeConstants.PUBLIC_KEY_FORMAT);
     byte[] encodedKey = (byte[]) datasource.getAttribute(CipherAttributeConstants.PUBLIC_KEY).getValue().getValue();
 
-    PublicKey publicKey = null;
+    EncodedKeySpec keySpec = getEncodedKeySpec(format, encodedKey);
+    KeyFactory keyFactory = KeyFactory.getInstance(algorithm);
 
+    return keyFactory.generatePublic(keySpec);
+  }
+
+  private EncodedKeySpec getEncodedKeySpec(String format, byte[] encodedKey) {
     EncodedKeySpec keySpec = null;
 
     if(format.equals(X509_KEYSPEC_FORMAT)) {
@@ -125,10 +136,6 @@ public class EncryptedSecretKeyDatasourceEncryptionStrategy implements Datasourc
       // TODO: Support other formats.
       throw new RuntimeException("Unsupported KeySpec format (" + format + ")");
     }
-
-    KeyFactory keyFactory = KeyFactory.getInstance(algorithm);
-    publicKey = keyFactory.generatePublic(keySpec);
-
-    return publicKey;
+    return keySpec;
   }
 }
