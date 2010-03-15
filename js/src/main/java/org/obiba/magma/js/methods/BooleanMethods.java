@@ -10,6 +10,7 @@ import org.obiba.magma.js.ScriptableValue;
 import org.obiba.magma.type.BooleanType;
 import org.obiba.magma.type.DecimalType;
 import org.obiba.magma.type.IntegerType;
+import org.obiba.magma.type.TextType;
 
 import com.google.common.collect.Iterables;
 
@@ -340,5 +341,63 @@ public class BooleanMethods {
     } else {
       return new ScriptableValue(thisObj, BooleanType.get().valueOf((Double) firstNumber <= (Double) secondNumber));
     }
+  }
+
+  /**
+   * Returns a new {@link ScriptableValue} of the {@link BooleanType} indicating if the first parameter is equal to the
+   * second parameter. If either parameters are null, then false is returned. Both parameters must either both be
+   * numeric, both be BooleanType or both be TextType.
+   * 
+   * <pre>
+   *   $('NumberVarOne').equals($('NumberVarTwo'))
+   *   $('BooleanVarOne').equals($('BooleanVarTwo'))
+   *   $('TextVarOne').equals($('TextVarTwo'))
+   * </pre>
+   * @throws MagmaJsEvaluationRuntimeException if operands are not ScriptableValue Objects of a numeric type,
+   * BooleanType or TextType.
+   */
+  public static ScriptableValue equals(Context ctx, Scriptable thisObj, Object[] args, Function funObj) throws MagmaJsEvaluationRuntimeException {
+    ScriptableValue firstOperand = (ScriptableValue) thisObj;
+    if(firstOperand.getValue().isNull()) return new ScriptableValue(thisObj, BooleanType.get().falseValue());
+    if(args != null && args.length > 0 && args[0] instanceof ScriptableValue) {
+      ScriptableValue secondOperand = (ScriptableValue) args[0];
+      if(firstOperand.getValueType().isNumeric() && secondOperand.getValueType().isNumeric()) {
+        return numericEquals(thisObj, firstOperand, secondOperand);
+      } else if(firstOperand.getValueType().equals(BooleanType.get()) && secondOperand.getValueType().equals(BooleanType.get())) {
+        return booleanEquals(thisObj, firstOperand, secondOperand);
+      } else if(firstOperand.getValueType().equals(TextType.get()) && secondOperand.getValueType().equals(TextType.get())) {
+        return textEquals(thisObj, firstOperand, secondOperand);
+      } else {
+        throw new MagmaJsEvaluationRuntimeException("Cannot invoke equals() with argument of type '" + firstOperand.getValueType().getName() + "' and '" + secondOperand.getValueType().getName() + "'.");
+      }
+    } else {
+      return new ScriptableValue(thisObj, BooleanType.get().falseValue());
+    }
+  }
+
+  private static ScriptableValue numericEquals(Scriptable thisObj, ScriptableValue firstOperand, ScriptableValue secondOperand) {
+    Number firstNumber = (Number) firstOperand.getValue().getValue();
+    Number secondNumber = (Number) secondOperand.getValue().getValue();
+    if(firstOperand.getValueType().equals(IntegerType.get()) && secondOperand.getValueType().equals(IntegerType.get())) {
+      return new ScriptableValue(thisObj, BooleanType.get().valueOf(((Long) firstNumber).equals(((Long) secondNumber))));
+    } else if(firstOperand.getValueType().equals(IntegerType.get()) && secondOperand.getValueType().equals(DecimalType.get())) {
+      return new ScriptableValue(thisObj, BooleanType.get().valueOf(((Long) firstNumber).doubleValue() == (Double) secondNumber));
+    } else if(firstOperand.getValueType().equals(DecimalType.get()) && secondOperand.getValueType().equals(IntegerType.get())) {
+      return new ScriptableValue(thisObj, BooleanType.get().valueOf((Double) firstNumber == ((Long) secondNumber).doubleValue()));
+    } else {
+      return new ScriptableValue(thisObj, BooleanType.get().valueOf(((Double) firstNumber).equals(((Double) secondNumber))));
+    }
+  }
+
+  private static ScriptableValue booleanEquals(Scriptable thisObj, ScriptableValue firstOperand, ScriptableValue secondOperand) {
+    Boolean firstBoolean = (Boolean) firstOperand.getValue().getValue();
+    Boolean secondBoolean = (Boolean) secondOperand.getValue().getValue();
+    return new ScriptableValue(thisObj, BooleanType.get().valueOf(firstBoolean.equals(secondBoolean)));
+  }
+
+  private static ScriptableValue textEquals(Scriptable thisObj, ScriptableValue firstOperand, ScriptableValue secondOperand) {
+    String firstString = (String) firstOperand.getValue().getValue();
+    String secondString = (String) secondOperand.getValue().getValue();
+    return new ScriptableValue(thisObj, BooleanType.get().valueOf(firstString.equals(secondString)));
   }
 }

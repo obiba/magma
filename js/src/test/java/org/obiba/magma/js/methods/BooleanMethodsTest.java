@@ -314,4 +314,55 @@ public class BooleanMethodsTest extends AbstractScriptableValueTest {
     ScriptableValue result = BooleanMethods.ge(Context.getCurrentContext(), decimalTwo, new ScriptableValue[] { integerTwo }, null);
     assertThat(result.getValue(), is(BooleanType.get().trueValue()));
   }
+
+  // equals (==)
+
+  @Test
+  public void testIntegerTwoEqualsIntegerTwoEqualsTrue() throws Exception {
+    ScriptableValue integerTwo = newValue(IntegerType.get().valueOf(2));
+    ScriptableValue integer2 = newValue(IntegerType.get().valueOf(2));
+    ScriptableValue result = BooleanMethods.equals(Context.getCurrentContext(), integerTwo, new ScriptableValue[] { integer2 }, null);
+    assertThat(result.getValue(), is(BooleanType.get().trueValue()));
+  }
+
+  @Test
+  public void testDecimalTwoEqualsIntegerTwoEqualsTrue() throws Exception {
+    ScriptableValue decimalTwo = newValue(DecimalType.get().valueOf(2.0));
+    ScriptableValue integerTwo = newValue(IntegerType.get().valueOf(2));
+    ScriptableValue result = BooleanMethods.equals(Context.getCurrentContext(), decimalTwo, new ScriptableValue[] { integerTwo }, null);
+    assertThat(result.getValue(), is(BooleanType.get().trueValue()));
+  }
+
+  @Test
+  public void testTrueEqualsTrue() throws Exception {
+    ScriptableValue booleanTrueOne = newValue(BooleanType.get().trueValue());
+    ScriptableValue booleanTrueTwo = newValue(BooleanType.get().trueValue());
+    ScriptableValue result = BooleanMethods.equals(Context.getCurrentContext(), booleanTrueOne, new ScriptableValue[] { booleanTrueTwo }, null);
+    assertThat(result.getValue(), is(BooleanType.get().trueValue()));
+  }
+
+  @Test
+  public void testTrueEqualsFalse() throws Exception {
+    ScriptableValue booleanTrueOne = newValue(BooleanType.get().trueValue());
+    ScriptableValue booleanFalseTwo = newValue(BooleanType.get().falseValue());
+    ScriptableValue result = BooleanMethods.equals(Context.getCurrentContext(), booleanTrueOne, new ScriptableValue[] { booleanFalseTwo }, null);
+    assertThat(result.getValue(), is(BooleanType.get().falseValue()));
+  }
+
+  @Test
+  public void testTextFooEqualsTextBarEqualsFalse() throws Exception {
+    ScriptableValue foo = newValue(TextType.get().valueOf("foo"));
+    ScriptableValue bar = newValue(TextType.get().valueOf("bar"));
+    ScriptableValue result = BooleanMethods.equals(Context.getCurrentContext(), foo, new ScriptableValue[] { bar }, null);
+    assertThat(result.getValue(), is(BooleanType.get().falseValue()));
+  }
+
+  @Test
+  public void testTextFooEqualsTextFooEqualsTrue() throws Exception {
+    ScriptableValue fooOne = newValue(TextType.get().valueOf("foo"));
+    ScriptableValue fooTwo = newValue(TextType.get().valueOf("foo"));
+    ScriptableValue result = BooleanMethods.equals(Context.getCurrentContext(), fooOne, new ScriptableValue[] { fooTwo }, null);
+    assertThat(result.getValue(), is(BooleanType.get().trueValue()));
+  }
+
 }
