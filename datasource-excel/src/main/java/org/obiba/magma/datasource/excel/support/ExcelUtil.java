@@ -22,6 +22,7 @@ public class ExcelUtil {
 
     if(value.isSequence()) {
       setCellValue(cell, valueType, value.toString());
+      return;
     }
 
     if(valueType.getName().equals(BinaryType.get().getName())) {
