@@ -64,8 +64,8 @@ public class ExcelDatasource extends AbstractDatasource {
 
   public ValueTableWriter createWriter(String name, String entityType) {
     ExcelValueTable valueTable = null;
-    if(hasValueTable(name)) {
-      valueTable = (ExcelValueTable) getValueTable(name);
+    if(hasValueTable(NameConverter.toExcelName(name))) {
+      valueTable = (ExcelValueTable) getValueTable(NameConverter.toExcelName(name));
     } else {
       addValueTable(valueTable = new ExcelValueTable(this, name, createSheetIfNotExist(name), entityType));
     }
@@ -189,8 +189,10 @@ public class ExcelDatasource extends AbstractDatasource {
 
   private Sheet createSheetIfNotExist(String tableName) {
     Sheet sheet;
-    if((sheet = excelWorkbook.getSheet(tableName)) == null) {
-      sheet = excelWorkbook.createSheet(NameConverter.toExcelName(tableName));
+    String sheetName = NameConverter.toExcelName(tableName);
+    sheet = excelWorkbook.getSheet(sheetName);
+    if(sheet == null) {
+      sheet = excelWorkbook.createSheet(sheetName);
     }
     return sheet;
   }
