@@ -12,12 +12,15 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.ValueTableWriter;
@@ -76,13 +79,23 @@ public class ExcelDatasource extends AbstractDatasource {
   protected void onInitialise() {
     if(excelFile.exists()) {
       try {
-        // HSSFWorkbook constructor will close the stream by itself
-        excelWorkbook = new HSSFWorkbook(new FileInputStream(excelFile));
+        // WorkbookFactory will close the stream by itself
+        // This will create the proper type of Workbook (HSSF vs. XSSF)
+        excelWorkbook = WorkbookFactory.create(new FileInputStream(excelFile));
       } catch(IOException e) {
         throw new MagmaRuntimeException("Exception reading excel spreadsheet " + excelFile.getName(), e);
+      } catch(InvalidFormatException e) {
+        throw new MagmaRuntimeException("Invalid excel spreadsheet format " + excelFile.getName(), e);
       }
     } else {
-      excelWorkbook = new HSSFWorkbook();
+      if(excelFile.getName().endsWith("xls")) {
+        // Excel 97 format. Supports up to 256 columns only.
+        log.warn("Creating an ExcelDatasource using Excel 97 format which only supports 256 columns. This may not be sufficient for large amounts of variables. Specify a filename with an extension other than 'xls' to use Excel 2007 format.");
+        excelWorkbook = new HSSFWorkbook();
+      } else {
+        // Create a XSSFWorkbook to support more than 256 columns and 64K rows.
+        excelWorkbook = new XSSFWorkbook();
+      }
     }
 
     variablesSheet = createSheetIfNotExist("Variables");
@@ -100,13 +113,13 @@ public class ExcelDatasource extends AbstractDatasource {
     try {
       excelOutputStream = new FileOutputStream(excelFile);
       excelWorkbook.write(excelOutputStream);
-    } catch(Exception couldNotWriteToStream) {
-      throw new RuntimeException("Could not write to excelOutputStream", couldNotWriteToStream);
+    } catch(Exception e) {
+      throw new RuntimeException("Could not write to excelOutputStream", e);
     } finally {
       try {
         excelOutputStream.close();
-      } catch(IOException couldNotCloseStream) {
-        log.warn("Could not close the excelOutputStream", couldNotCloseStream);
+      } catch(IOException e) {
+        log.warn("Could not close the excelOutputStream", e);
       }
     }
   }

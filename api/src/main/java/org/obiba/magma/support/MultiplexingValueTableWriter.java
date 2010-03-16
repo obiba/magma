@@ -52,6 +52,9 @@ public class MultiplexingValueTableWriter implements ValueTableWriter {
   }
 
   private ValueTableWriter lookupWriter(Variable variable, String tableName) {
+    if(tableName == null) {
+      tableName = source.getName();
+    }
     ValueTableWriter writer = writers.get(tableName);
     if(writer == null) {
       copier.notifyListeners(source, tableName, false);

@@ -262,6 +262,12 @@ public class View extends AbstractValueTableWrapper implements Initialisable {
       return this;
     }
 
+    public Builder cacheWhere() {
+      if(view.where == null) throw new IllegalStateException("where clause not specified");
+      view.setWhereClause(new CachingWhereClause(view.where));
+      return this;
+    }
+
     public View build() {
       return view;
     }
