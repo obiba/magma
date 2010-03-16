@@ -21,6 +21,7 @@ import org.obiba.magma.ValueType;
 import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.datasource.excel.support.ExcelUtil;
+import org.obiba.magma.datasource.excel.support.NameConverter;
 import org.obiba.magma.support.AbstractValueTable;
 import org.obiba.magma.type.TextType;
 import org.slf4j.Logger;
@@ -33,7 +34,7 @@ class ExcelValueTable extends AbstractValueTable implements Initialisable {
   private final Sheet valueTableSheet;
 
   public ExcelValueTable(ExcelDatasource excelDatasource, String name, Sheet sheet, String entityType) {
-    super(excelDatasource, name);
+    super(excelDatasource, NameConverter.toExcelName(name));
     this.valueTableSheet = sheet;
 
     if(valueTableSheet.getPhysicalNumberOfRows() <= 0) {
