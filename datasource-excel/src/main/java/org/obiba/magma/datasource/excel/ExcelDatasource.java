@@ -114,10 +114,10 @@ public class ExcelDatasource extends AbstractDatasource {
       excelOutputStream = new FileOutputStream(excelFile);
       excelWorkbook.write(excelOutputStream);
     } catch(Exception e) {
-      throw new RuntimeException("Could not write to excelOutputStream", e);
+      throw new MagmaRuntimeException("Could not write to excelOutputStream", e);
     } finally {
       try {
-        excelOutputStream.close();
+        if(excelOutputStream != null) excelOutputStream.close();
       } catch(IOException e) {
         log.warn("Could not close the excelOutputStream", e);
       }
