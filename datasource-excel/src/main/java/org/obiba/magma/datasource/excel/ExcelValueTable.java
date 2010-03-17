@@ -27,11 +27,19 @@ import org.obiba.magma.type.TextType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.Maps;
+
 class ExcelValueTable extends AbstractValueTable implements Initialisable {
 
   private static final Logger log = LoggerFactory.getLogger(ExcelValueTable.class);
 
   private final Sheet valueTableSheet;
+
+  /** Maps a variable's name to its Row in the variablesSheet */
+  private final Map<String, Row> variableRows = Maps.newHashMap();
+
+  /** Maps a category's name concatenated with the variable's name to its Row in the variablesSheet */
+  private final Map<String, Row> categoryRows = Maps.newHashMap();
 
   public ExcelValueTable(ExcelDatasource excelDatasource, String name, Sheet sheet, String entityType) {
     super(excelDatasource, NameConverter.toExcelName(name));
@@ -91,6 +99,39 @@ class ExcelValueTable extends AbstractValueTable implements Initialisable {
     return column;
   }
 
+  /**
+   * Returns the {@code Row} from the variable sheet for the specified variable. If no such row currently exists, a new
+   * one is added and returned.
+   * @param variable
+   * @return
+   */
+  Row getVariableRow(Variable variable) {
+    Row row = variableRows.get(variable.getName());
+    if(row == null) {
+      Sheet variables = getDatasource().getVariablesSheet();
+      row = variables.createRow(variables.getPhysicalNumberOfRows());
+      variableRows.put(variable.getName(), row);
+    }
+    return row;
+  }
+
+  /**
+   * Returns the {@code Row} from the variable sheet for the specified variable. If no such row currently exists, a new
+   * one is added and returned.
+   * @param variable
+   * @return
+   */
+  Row getCategoryRow(Variable variable, Category category) {
+    String key = variable.getName() + category.getName();
+    Row row = categoryRows.get(key);
+    if(row == null) {
+      Sheet categories = getDatasource().getCategoriesSheet();
+      row = categories.createRow(categories.getPhysicalNumberOfRows());
+      categoryRows.put(key, row);
+    }
+    return row;
+  }
+
   Sheet getValueTableSheet() {
     return valueTableSheet;
   }
@@ -115,12 +156,6 @@ class ExcelValueTable extends AbstractValueTable implements Initialisable {
     Map<String, Integer> headerMapVariables = ExcelDatasource.mapSheetHeader(headerVariables);
     Set<String> attributeNamesVariables = ExcelDatasource.getCustomAttributeNames(headerVariables, ExcelDatasource.variablesReservedAttributeNames);
 
-    String name;
-    String valueType;
-    String entityType;
-    String mimeType;
-    String unit;
-    String occurrenceGroup;
     Boolean repeatable;
     Row variableRow;
 
@@ -128,26 +163,30 @@ class ExcelValueTable extends AbstractValueTable implements Initialisable {
 
     for(int i = 1; i < variableRowCount; i++) {
       variableRow = variablesSheet.getRow(i);
+      String table = getCellValueAsString(variableRow.getCell(headerMapVariables.get("table")));
+      if(table.equals(getName())) {
+        String name = getCellValueAsString(variableRow.getCell(headerMapVariables.get("name")));
+        String valueType = getCellValueAsString(variableRow.getCell(headerMapVariables.get("valueType")));
+        String entityType = getCellValueAsString(variableRow.getCell(headerMapVariables.get("entityType")));
+        String mimeType = getCellValueAsString(variableRow.getCell(headerMapVariables.get("mimeType")));
+        String unit = getCellValueAsString(variableRow.getCell(headerMapVariables.get("unit")));
+        String occurrenceGroup = getCellValueAsString(variableRow.getCell(headerMapVariables.get("occurrenceGroup")));
 
-      name = getCellValueAsString(variableRow.getCell(headerMapVariables.get("name")));
-      valueType = getCellValueAsString(variableRow.getCell(headerMapVariables.get("valueType")));
-      entityType = getCellValueAsString(variableRow.getCell(headerMapVariables.get("entityType")));
-      mimeType = getCellValueAsString(variableRow.getCell(headerMapVariables.get("mimeType")));
-      unit = getCellValueAsString(variableRow.getCell(headerMapVariables.get("unit")));
-      occurrenceGroup = getCellValueAsString(variableRow.getCell(headerMapVariables.get("occurrenceGroup")));
+        Variable.Builder variableBuilder = Variable.Builder.newVariable(name, ValueType.Factory.forName(valueType), entityType).mimeType(mimeType).unit(unit).occurrenceGroup(occurrenceGroup);
+        repeatable = getCellValueAsString(variableRow.getCell(headerMapVariables.get("repeatable"))) == "1";
 
-      Variable.Builder variableBuilder = Variable.Builder.newVariable(name, ValueType.Factory.forName(valueType), entityType).mimeType(mimeType).unit(unit).occurrenceGroup(occurrenceGroup);
-      repeatable = getCellValueAsString(variableRow.getCell(headerMapVariables.get("repeatable"))) == "1";
+        if(repeatable) {
+          variableBuilder.repeatable();
+        }
 
-      if(repeatable) {
-        variableBuilder.repeatable();
+        readCustomAttributes("variable", name, variableRow, headerMapVariables, attributeNamesVariables, variableBuilder);
+
+        readCategories(name, variableBuilder);
+
+        variableRows.put(name, variableRow);
+
+        addVariableValueSource(new ExcelVariableValueSource(variableBuilder.build()));
       }
-
-      readCustomAttributes("variable", name, variableRow, headerMapVariables, attributeNamesVariables, variableBuilder);
-
-      readCategories(name, variableBuilder);
-
-      addVariableValueSource(new ExcelVariableValueSource(variableBuilder.build()));
     }
 
   }
