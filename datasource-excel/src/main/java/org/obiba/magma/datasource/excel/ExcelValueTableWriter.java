@@ -35,7 +35,7 @@ public class ExcelValueTableWriter implements ValueTableWriter {
 
   @Override
   public VariableWriter writeVariables() {
-    return new ExcelVariableWriter(valueTable);
+    return new ExcelVariableWriter();
   }
 
   @Override
@@ -55,7 +55,7 @@ public class ExcelValueTableWriter implements ValueTableWriter {
 
     private Sheet attributesSheet;
 
-    public ExcelVariableWriter(ExcelValueTable valueTable) {
+    public ExcelVariableWriter() {
       this.variablesSheet = valueTable.getDatasource().getVariablesSheet();
       this.categoriesSheet = valueTable.getDatasource().getCategoriesSheet();
       // OPAL-173: Removed the attributesSheet
@@ -88,12 +88,12 @@ public class ExcelValueTableWriter implements ValueTableWriter {
       Set<Category> categories = variable.getCategories();
       Row categoryRow;
       for(Category category : categories) {
-        categoryRow = categoriesSheet.createRow(categoriesSheet.getPhysicalNumberOfRows());
-        ExcelUtil.setCellValue(categoryRow.createCell(headerMapCategories.get("table")), TextType.get(), valueTable.getName());
-        ExcelUtil.setCellValue(categoryRow.createCell(headerMapCategories.get("variable")), TextType.get(), variable.getName());
-        ExcelUtil.setCellValue(categoryRow.createCell(headerMapCategories.get("name")), TextType.get(), category.getName());
-        ExcelUtil.setCellValue(categoryRow.createCell(headerMapCategories.get("code")), TextType.get(), category.getCode());
-        ExcelUtil.setCellValue(categoryRow.createCell(headerMapCategories.get("missing")), BooleanType.get(), category.isMissing());
+        categoryRow = valueTable.getCategoryRow(variable, category);
+        ExcelUtil.setCellValue(categoryRow.getCell(headerMapCategories.get("table"), Row.CREATE_NULL_AS_BLANK), TextType.get(), valueTable.getName());
+        ExcelUtil.setCellValue(categoryRow.getCell(headerMapCategories.get("variable"), Row.CREATE_NULL_AS_BLANK), TextType.get(), variable.getName());
+        ExcelUtil.setCellValue(categoryRow.getCell(headerMapCategories.get("name"), Row.CREATE_NULL_AS_BLANK), TextType.get(), category.getName());
+        ExcelUtil.setCellValue(categoryRow.getCell(headerMapCategories.get("code"), Row.CREATE_NULL_AS_BLANK), TextType.get(), category.getCode());
+        ExcelUtil.setCellValue(categoryRow.getCell(headerMapCategories.get("missing"), Row.CREATE_NULL_AS_BLANK), BooleanType.get(), category.isMissing());
 
         writeCustomAttributes(category, "category", category.getName(), categoryRow, headerRowCategories, headerMapCategories);
       }
@@ -114,18 +114,20 @@ public class ExcelValueTableWriter implements ValueTableWriter {
       Map<String, Integer> headerMapVariables = ExcelDatasource.mapSheetHeader(headerRowVariables);
       updateSheetHeaderRow(headerMapVariables, headerRowVariables, ExcelDatasource.variablesReservedAttributeNames);
 
-      Row attributesRow = variablesSheet.createRow(variablesSheet.getPhysicalNumberOfRows());
-      ExcelUtil.setCellValue(attributesRow.createCell(headerMapVariables.get("table")), TextType.get(), valueTable.getName());
-      ExcelUtil.setCellValue(attributesRow.createCell(headerMapVariables.get("name")), TextType.get(), variable.getName());
-      ExcelUtil.setCellValue(attributesRow.createCell(headerMapVariables.get("mimeType")), TextType.get(), variable.getMimeType());
-      ExcelUtil.setCellValue(attributesRow.createCell(headerMapVariables.get("occurrenceGroup")), TextType.get(), variable.getOccurrenceGroup());
-      ExcelUtil.setCellValue(attributesRow.createCell(headerMapVariables.get("entityType")), TextType.get(), variable.getEntityType());
-      ExcelUtil.setCellValue(attributesRow.createCell(headerMapVariables.get("unit")), TextType.get(), variable.getUnit());
-      ExcelUtil.setCellValue(attributesRow.createCell(headerMapVariables.get("repeatable")), BooleanType.get(), variable.isRepeatable());
-      ExcelUtil.setCellValue(attributesRow.createCell(headerMapVariables.get("valueType")), TextType.get(), variable.getValueType().getName());
+      // Get the row for this variable in the variables sheet. If it doesn't exist yet, an empty one is created.
+      Row variableRow = valueTable.getVariableRow(variable);
 
-      writeCustomAttributes(variable, "variable", variable.getName(), attributesRow, headerRowVariables, headerMapVariables);
-      return attributesRow;
+      ExcelUtil.setCellValue(variableRow.getCell(headerMapVariables.get("table"), Row.CREATE_NULL_AS_BLANK), TextType.get(), valueTable.getName());
+      ExcelUtil.setCellValue(variableRow.getCell(headerMapVariables.get("name"), Row.CREATE_NULL_AS_BLANK), TextType.get(), variable.getName());
+      ExcelUtil.setCellValue(variableRow.getCell(headerMapVariables.get("mimeType"), Row.CREATE_NULL_AS_BLANK), TextType.get(), variable.getMimeType());
+      ExcelUtil.setCellValue(variableRow.getCell(headerMapVariables.get("occurrenceGroup"), Row.CREATE_NULL_AS_BLANK), TextType.get(), variable.getOccurrenceGroup());
+      ExcelUtil.setCellValue(variableRow.getCell(headerMapVariables.get("entityType"), Row.CREATE_NULL_AS_BLANK), TextType.get(), variable.getEntityType());
+      ExcelUtil.setCellValue(variableRow.getCell(headerMapVariables.get("unit"), Row.CREATE_NULL_AS_BLANK), TextType.get(), variable.getUnit());
+      ExcelUtil.setCellValue(variableRow.getCell(headerMapVariables.get("repeatable"), Row.CREATE_NULL_AS_BLANK), BooleanType.get(), variable.isRepeatable());
+      ExcelUtil.setCellValue(variableRow.getCell(headerMapVariables.get("valueType"), Row.CREATE_NULL_AS_BLANK), TextType.get(), variable.getValueType().getName());
+
+      writeCustomAttributes(variable, "variable", variable.getName(), variableRow, headerRowVariables, headerMapVariables);
+      return variableRow;
     }
 
     /**
@@ -154,7 +156,7 @@ public class ExcelValueTableWriter implements ValueTableWriter {
           headerCell.setCellValue(customAttributeName);
           headerCell.setCellStyle(valueTable.getDatasource().getExcelStyles("headerCellStyle"));
         }
-        ExcelUtil.setCellValue(attributesRow.createCell(attributeCellIndex), customAttribute.getValue());
+        ExcelUtil.setCellValue(attributesRow.getCell(attributeCellIndex, Row.CREATE_NULL_AS_BLANK), customAttribute.getValue());
         stringBuilder.setLength(0);
 
         // OPAL-145: Write the attribute type on the "Attributes" sheet.

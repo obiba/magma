@@ -74,7 +74,7 @@ class FsVariableEntityProvider implements VariableEntityProvider, Initialisable,
 
   @Override
   public void dispose() {
-    if(entityToFileMapModified) {
+    if(entityToFileMapModified || valueTable.getEntry(ENTITIES_NAME).exists() == false) {
       valueTable.writeEntry(ENTITIES_NAME, new OutputCallback<Void>() {
         @Override
         public Void writeEntry(Writer writer) throws IOException {
