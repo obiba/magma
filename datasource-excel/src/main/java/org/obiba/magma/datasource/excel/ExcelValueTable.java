@@ -153,6 +153,12 @@ class ExcelValueTable extends AbstractValueTable implements Initialisable {
     Sheet variablesSheet = getDatasource().getVariablesSheet();
 
     Row headerVariables = variablesSheet.getRow(0);
+    // OPAL-237. This prevents subsequent NPE.
+    // TODO: In fact, when the variables sheet is not present, we should use the columns in the Excel sheet to extract
+    // variables. This would allow us to read any excel spreadsheet, not just the ones we've created.
+    if(headerVariables == null) {
+      return;
+    }
     Map<String, Integer> headerMapVariables = ExcelDatasource.mapSheetHeader(headerVariables);
     Set<String> attributeNamesVariables = ExcelDatasource.getCustomAttributeNames(headerVariables, ExcelDatasource.variablesReservedAttributeNames);
 
