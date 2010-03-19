@@ -22,6 +22,7 @@ import org.obiba.magma.ValueSet;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
+import org.obiba.magma.VariableValueSource;
 import org.obiba.magma.support.ValueSetBean;
 import org.obiba.magma.support.VariableEntityBean;
 import org.obiba.magma.test.AbstractMagmaTest;
@@ -501,6 +502,49 @@ public class ViewTest extends AbstractMagmaTest {
 
     // Verify behaviour.
     verify(valueTableMock, whereClauseMock);
+  }
+
+  @Test
+  public void testGetVariablesWithListClause() {
+    ValueTable valueTableMock = createMock(ValueTable.class);
+    ListClause listClauseMock = createMock(ListClause.class);
+
+    VariableValueSource variableValueSourceMock = createMock(VariableValueSource.class);
+    List<VariableValueSource> variableValueSourceList = new ArrayList<VariableValueSource>();
+    variableValueSourceList.add(variableValueSourceMock);
+
+    expect(listClauseMock.getVariableValueSources()).andReturn(variableValueSourceList);
+    replay(valueTableMock, listClauseMock);
+
+    View view = View.Builder.newView("view", valueTableMock).list(listClauseMock).build();
+    Iterable<Variable> result = view.getVariables();
+
+    // Verify behaviour.
+    verify(valueTableMock, listClauseMock);
+
+    // Verify state.
+    assertNotNull(result);
+    assertEquals(1, Iterables.size(result));
+  }
+
+  @Test
+  public void testGetVariableValueSourceWithListClause() {
+    ValueTable valueTableMock = createMock(ValueTable.class);
+    ListClause listClauseMock = createMock(ListClause.class);
+
+    VariableValueSource variableValueSourceMock = createMock(VariableValueSource.class);
+
+    expect(valueTableMock.getVariableValueSource("variable-name")).andReturn(variableValueSourceMock).times(2);
+    replay(valueTableMock, listClauseMock);
+
+    View view = View.Builder.newView("view", valueTableMock).list(listClauseMock).build();
+    VariableValueSource result = view.getVariableValueSource("variable-name");
+
+    // Verify behaviour.
+    verify(valueTableMock);
+
+    // Verify state.
+    assertNotNull(result);
   }
 
   //

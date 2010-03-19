@@ -1,6 +1,8 @@
 package org.obiba.magma.views;
 
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.obiba.magma.Datasource;
 import org.obiba.magma.Initialisable;
@@ -16,6 +18,7 @@ import org.obiba.magma.VariableValueSource;
 import org.obiba.magma.support.AbstractValueTableWrapper;
 import org.obiba.magma.support.Initialisables;
 import org.obiba.magma.views.support.AllClause;
+import org.obiba.magma.views.support.NoneClause;
 
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
@@ -36,6 +39,9 @@ public class View extends AbstractValueTableWrapper implements Initialisable {
 
   private WhereClause where;
 
+  /** A list of derived variables. Mutually exclusive with "select". */
+  private ListClause variables;
+
   //
   // Constructors
   //
@@ -46,6 +52,7 @@ public class View extends AbstractValueTableWrapper implements Initialisable {
   public View() {
     setSelectClause(new AllClause());
     setWhereClause(new AllClause());
+    setListClause(new NoneClause());
   }
 
   public View(String name, SelectClause selectClause, WhereClause whereClause, ValueTable... from) {
@@ -63,6 +70,7 @@ public class View extends AbstractValueTableWrapper implements Initialisable {
 
     setSelectClause(selectClause);
     setWhereClause(whereClause);
+    setListClause(new NoneClause());
   }
 
   public View(String name, ValueTable... from) {
@@ -74,7 +82,23 @@ public class View extends AbstractValueTableWrapper implements Initialisable {
   //
 
   public void initialise() {
-    Initialisables.initialise(select, where);
+    Initialisables.initialise(select, where, variables);
+    if(isViewOfDerivedVariables()) {
+      setSelectClause(new NoneClause());
+    } else if(select != null && !(select instanceof NoneClause)) {
+      setListClause(new NoneClause());
+    } else {
+      setListClause(new NoneClause());
+      setSelectClause(new AllClause());
+    }
+  }
+
+  /**
+   * Returns true is this is a {@link View} of derived variables, false if this is a {@code View} of selected (existing)
+   * variables.
+   */
+  private boolean isViewOfDerivedVariables() {
+    return !(variables instanceof NoneClause);
   }
 
   //
@@ -110,7 +134,6 @@ public class View extends AbstractValueTableWrapper implements Initialisable {
 
     // Transform the Iterable, replacing each ValueSet with one that points at the current View.
     Iterable<ValueSet> viewValueSets = Iterables.transform(filteredValueSets, getValueSetTransformer());
-
     return viewValueSets;
   }
 
@@ -124,18 +147,35 @@ public class View extends AbstractValueTableWrapper implements Initialisable {
   }
 
   public Iterable<Variable> getVariables() {
+    if(isViewOfDerivedVariables()) return getListVariables();
+    return getWhereVariables();
+  }
+
+  private Iterable<Variable> getWhereVariables() {
     Iterable<Variable> variables = super.getVariables();
     Iterable<Variable> filteredVariables = Iterables.filter(variables, new Predicate<Variable>() {
       public boolean apply(Variable input) {
         return select.select(input);
       }
     });
-
     return filteredVariables;
+  }
+
+  private Iterable<Variable> getListVariables() {
+    Set<Variable> variables = new HashSet<Variable>();
+    for(VariableValueSource variableValueSource : this.variables.getVariableValueSources()) {
+      variables.add(variableValueSource.getVariable());
+    }
+    return variables;
   }
 
   @Override
   public Variable getVariable(String name) throws NoSuchVariableException {
+    if(isViewOfDerivedVariables()) return getListVariable(name);
+    return getWhereVariable(name);
+  }
+
+  private Variable getWhereVariable(String name) throws NoSuchVariableException {
     Variable variable = super.getVariable(name);
     if(select.select(variable)) {
       return variable;
@@ -144,8 +184,19 @@ public class View extends AbstractValueTableWrapper implements Initialisable {
     }
   }
 
+  private Variable getListVariable(String name) throws NoSuchVariableException {
+    return variables.getVariableValueSource(name).getVariable();
+  }
+
   @Override
   public Value getValue(Variable variable, ValueSet valueSet) {
+    if(isViewOfDerivedVariables()) {
+      if(where.where(valueSet) && isVariableInSuper(variable, valueSet)) {
+        return super.getValue(variable, ((ValueSetWrapper) valueSet).getWrappedValueSet());
+      } else {
+        return getListValue(variable, ((ValueSetWrapper) valueSet).getWrappedValueSet());
+      }
+    }
     if(!where.where(valueSet)) {
       throw new NoSuchValueSetException(this, valueSet.getVariableEntity());
     }
@@ -153,14 +204,45 @@ public class View extends AbstractValueTableWrapper implements Initialisable {
     return super.getValue(variable, ((ValueSetWrapper) valueSet).getWrappedValueSet());
   }
 
+  private boolean isVariableInSuper(Variable variable, ValueSet valueSet) {
+    try {
+      super.getValue(variable, ((ValueSetWrapper) valueSet).getWrappedValueSet());
+      return true;
+    } catch(NoSuchVariableException e) {
+      return false;
+    }
+  }
+
+  private Value getListValue(Variable variable, ValueSet valueSet) {
+    VariableValueSource variableValueSource = variables.getVariableValueSource(variable.getName());
+    return variableValueSource.getValue(valueSet);
+  }
+
   @Override
   public VariableValueSource getVariableValueSource(String name) throws NoSuchVariableException {
+    if(isViewOfDerivedVariables()) {
+      if(isVariableValueSourceInSuper(name)) {
+        return getVariableValueSourceTransformer().apply(super.getVariableValueSource(name));
+      } else {
+        return variables.getVariableValueSource(name);
+      }
+    }
+
     // Call getVariable(name) to check the SelectClause (if there is one). If the specified variable
     // is not selected by the SelectClause, this will result in a NoSuchVariableException.
     getVariable(name);
 
     // Variable "survived" the SelectClause. Go ahead and call the base class method.
     return getVariableValueSourceTransformer().apply(super.getVariableValueSource(name));
+  }
+
+  private boolean isVariableValueSourceInSuper(String name) {
+    try {
+      super.getVariableValueSource(name);
+      return true;
+    } catch(NoSuchVariableException e) {
+      return false;
+    }
   }
 
   //
@@ -187,6 +269,13 @@ public class View extends AbstractValueTableWrapper implements Initialisable {
       throw new IllegalArgumentException("null whereClause");
     }
     this.where = whereClause;
+  }
+
+  public void setListClause(ListClause listClause) {
+    if(listClause == null) {
+      throw new IllegalArgumentException("null listClause");
+    }
+    this.variables = listClause;
   }
 
   public Function<VariableEntity, VariableEntity> getVariableEntityTransformer() {
@@ -270,6 +359,11 @@ public class View extends AbstractValueTableWrapper implements Initialisable {
 
     public View build() {
       return view;
+    }
+
+    public Builder list(ListClause listClause) {
+      view.setListClause(listClause);
+      return this;
     }
   }
 
