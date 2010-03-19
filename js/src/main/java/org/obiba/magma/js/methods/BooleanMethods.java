@@ -206,9 +206,9 @@ public class BooleanMethods {
 
   /**
    * <pre>
-   *   $('BooleanVar').and(someBooleanVar)
-   *   $('BooleanVar').and($('OtheBooleanVar'))
-   *   $('BooleanVar').and($('OtheBooleanVar').not())
+   *   $('BooleanVar').or(someBooleanVar)
+   *   $('BooleanVar').or($('OtheBooleanVar'))
+   *   $('BooleanVar').or($('OtheBooleanVar').not())
    * </pre>
    */
   public static ScriptableValue or(Context ctx, Scriptable thisObj, Object[] args, Function funObj) {
