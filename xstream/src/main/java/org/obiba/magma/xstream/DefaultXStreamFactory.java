@@ -9,18 +9,34 @@ import org.obiba.magma.xstream.converter.VariableConverter;
 import org.obiba.magma.xstream.mapper.MagmaMapper;
 
 import com.thoughtworks.xstream.XStream;
+import com.thoughtworks.xstream.converters.reflection.ReflectionProvider;
 import com.thoughtworks.xstream.mapper.MapperWrapper;
 
 public class DefaultXStreamFactory implements XStreamFactory {
 
   @Override
   public XStream createXStream() {
-    XStream xstream = new XStream() {
-      @Override
-      protected MapperWrapper wrapMapper(MapperWrapper next) {
-        return new MagmaMapper(next);
-      }
-    };
+    return createXStream(null);
+  }
+
+  @Override
+  public XStream createXStream(ReflectionProvider reflectionProvider) {
+    XStream xstream = null;
+    if(reflectionProvider == null) {
+      xstream = new XStream() {
+        @Override
+        protected MapperWrapper wrapMapper(MapperWrapper next) {
+          return new MagmaMapper(next);
+        }
+      };
+    } else {
+      xstream = new XStream(reflectionProvider) {
+        @Override
+        protected MapperWrapper wrapMapper(MapperWrapper next) {
+          return new MagmaMapper(next);
+        }
+      };
+    }
 
     xstream.registerConverter(new VariableConverter(xstream.getMapper()));
     xstream.registerConverter(new CategoryConverter(xstream.getMapper()));
