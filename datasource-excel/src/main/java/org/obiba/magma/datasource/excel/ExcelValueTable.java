@@ -231,6 +231,9 @@ class ExcelValueTable extends AbstractValueTable implements Initialisable {
         AttributeAwareBuilder<Category.Builder> categoryBuilder = Category.Builder.newCategory(categoryName).withCode(categoryCode).missing(missing);
         readCustomAttributes("category", categoryName, categoryRow, headerMapCategories, attributeNamesCategories, categoryBuilder);
         variableBuilder.addCategory(((Category.Builder) categoryBuilder).build());
+
+        String key = variableName + categoryName;
+        categoryRows.put(key, categoryRow);
       }
     }
   }
