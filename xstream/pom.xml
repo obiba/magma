@@ -6,7 +6,7 @@
   <parent>
     <artifactId>magma</artifactId>
     <groupId>org.obiba.magma</groupId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0.1</version>
   </parent>
 
   <artifactId>magma-xstream</artifactId>
