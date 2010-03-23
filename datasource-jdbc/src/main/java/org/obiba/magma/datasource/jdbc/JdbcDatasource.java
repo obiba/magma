@@ -216,7 +216,7 @@ public class JdbcDatasource extends AbstractDatasource {
       this(changes, new LinkedList<SqlVisitor>());
     }
 
-    ChangeDatabaseCallback(Iterable<Change> changes, Iterable<SqlVisitor> visitors) {
+    ChangeDatabaseCallback(Iterable<Change> changes, Iterable<? extends SqlVisitor> visitors) {
       if(changes == null) throw new IllegalArgumentException("changes cannot be null");
       if(visitors == null) throw new IllegalArgumentException("visitors cannot be null");
       this.changes = changes;

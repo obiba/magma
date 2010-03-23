@@ -162,12 +162,6 @@ class JdbcValueTable extends AbstractValueTable {
       }
     } else {
       for(Column column : table.getColumns()) {
-        // OPAL-153: Ignore columns with binary types.
-        if(isBinaryDataType(column)) {
-          log.info("Ignoring binary value columns (not supported)");
-          continue;
-        }
-
         if(!getSettings().getEntityIdentifierColumns().contains(column.getName())) {
           addVariableValueSource(new JdbcVariableValueSource(settings.getEntityType(), column));
         }

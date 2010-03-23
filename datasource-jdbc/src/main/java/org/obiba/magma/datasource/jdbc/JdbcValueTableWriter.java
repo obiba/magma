@@ -3,17 +3,20 @@
  */
 package org.obiba.magma.datasource.jdbc;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.security.InvalidParameterException;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import liquibase.change.AddColumnChange;
 import liquibase.change.Change;
 import liquibase.change.ColumnConfig;
 import liquibase.change.ModifyColumnChange;
-import liquibase.change.UpdateDataChange;
 
 import org.obiba.magma.Attribute;
 import org.obiba.magma.Category;
@@ -22,15 +25,20 @@ import org.obiba.magma.ValueTableWriter;
 import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.datasource.jdbc.JdbcDatasource.ChangeDatabaseCallback;
+import org.obiba.magma.datasource.jdbc.support.BlobTypeVisitor;
 import org.obiba.magma.datasource.jdbc.support.CreateTableChangeBuilder;
 import org.obiba.magma.datasource.jdbc.support.InsertDataChangeBuilder;
 import org.obiba.magma.datasource.jdbc.support.NameConverter;
-import org.obiba.magma.datasource.jdbc.support.UpdateDataChangeBuilder;
-import org.obiba.magma.type.BinaryType;
 import org.obiba.magma.type.TextType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.support.AbstractLobCreatingPreparedStatementCallback;
+import org.springframework.jdbc.support.lob.DefaultLobHandler;
+import org.springframework.jdbc.support.lob.LobCreator;
+import org.springframework.util.Assert;
+
+import com.google.common.collect.ImmutableList;
 
 public class JdbcValueTableWriter implements ValueTableWriter {
   //
@@ -121,12 +129,6 @@ public class JdbcValueTableWriter implements ValueTableWriter {
 
     @Override
     public void writeVariable(Variable variable) {
-      // OPAL-153: Ignore BinaryType variables.
-      if(variable.getValueType().equals(BinaryType.get())) {
-        log.warn("Not writing variable {} (BinaryType variables not supported)", variable.getName());
-        return;
-      }
-
       if(!valueTable.isForEntityType(variable.getEntityType())) {
         throw new InvalidParameterException("Wrong entity type for variable '" + variable.getName() + "': " + valueTable.getEntityType() + " expected, " + variable.getEntityType() + " received.");
       }
@@ -138,7 +140,8 @@ public class JdbcValueTableWriter implements ValueTableWriter {
 
     @Override
     public void close() throws IOException {
-      valueTable.getDatasource().doWithDatabase(new ChangeDatabaseCallback(changes));
+      Iterable<BlobTypeVisitor> visitors = ImmutableList.of(new BlobTypeVisitor());
+      valueTable.getDatasource().doWithDatabase(new ChangeDatabaseCallback(changes, visitors));
     }
 
     //
@@ -276,81 +279,137 @@ public class JdbcValueTableWriter implements ValueTableWriter {
 
   private class JdbcValueSetWriter implements ValueSetWriter {
 
-    InsertDataChangeBuilder insertDataChangeBuilder;
+    private VariableEntity entity;
 
-    UpdateDataChangeBuilder updateDataChangeBuilder;
-
-    boolean valueSetExists = false;
+    private Map<String, Object> columnValueMap;
 
     public JdbcValueSetWriter(VariableEntity entity) {
-      if(!valueTable.hasValueSet(entity)) {
-        insertDataChangeBuilder = new InsertDataChangeBuilder();
-        insertDataChangeBuilder.tableName(valueTable.getSqlName()).withColumn(ENTITY_ID_COLUMN, entity.getIdentifier());
-      } else {
-        valueSetExists = true;
-        updateDataChangeBuilder = new UpdateDataChangeBuilder();
-        updateDataChangeBuilder.tableName(valueTable.getSqlName()).where(ENTITY_ID_COLUMN + "=\"" + entity.getIdentifier() + "\"");
-      }
+      this.entity = entity;
+      columnValueMap = new LinkedHashMap<String, Object>();
     }
 
     @Override
     public void writeValue(Variable variable, Value value) {
-      // OPAL-153: Ignore BinaryType variables.
-      if(variable.getValueType().equals(BinaryType.get())) {
-        log.info("Not writing value of variable {} (BinaryType variables not supported)", variable.getName());
-        return;
-      }
-
-      if(!valueSetExists) {
-        if(value.isNull() == false) {
-          if(isBooleanValue(value)) {
-            Boolean booleanValue = (Boolean) value.getValue();
-            insertDataChangeBuilder.withColumn(NameConverter.toSqlName(variable.getName()), booleanValue);
-          } else if(isDateValue(value)) {
-            Date dateValue = (Date) value.getValue();
-            insertDataChangeBuilder.withColumn(NameConverter.toSqlName(variable.getName()), dateValue);
-          } else {
-            insertDataChangeBuilder.withColumn(NameConverter.toSqlName(variable.getName()), value.toString());
-          }
-        }
-      } else {
-        if(isBooleanValue(value)) {
-          Boolean booleanValue = (Boolean) value.getValue();
-          updateDataChangeBuilder.withColumn(NameConverter.toSqlName(variable.getName()), booleanValue);
-        } else if(isDateValue(value)) {
-          Date dateValue = (Date) value.getValue();
-          updateDataChangeBuilder.withColumn(NameConverter.toSqlName(variable.getName()), dateValue);
+      Object columnValue = null;
+      if(!value.isNull()) {
+        if(!value.isSequence()) {
+          columnValue = value.getValue();
         } else {
-          updateDataChangeBuilder.withColumn(NameConverter.toSqlName(variable.getName()), value.toString());
+          columnValue = value.toString();
         }
       }
-    }
-
-    private boolean isBooleanValue(Value value) {
-      return value.getValueType().getJavaClass().equals(Boolean.class) && !value.isSequence();
-    }
-
-    private boolean isDateValue(Value value) {
-      return value.getValueType().getJavaClass().equals(Date.class) && !value.isSequence();
+      columnValueMap.put(NameConverter.toSqlName(variable.getName()), columnValue);
     }
 
     @Override
     public void close() throws IOException {
-      Change change;
-      if(valueSetExists) {
-        // Verify that the update change contains columns.
-        UpdateDataChange udc = updateDataChangeBuilder.build();
-        if(udc.getColumns().size() == 0) {
-          // Don't issue this change.
-          return;
-        }
-        change = udc;
-      } else {
-        change = insertDataChangeBuilder.build();
-      }
+      if(columnValueMap.size() != 0) {
+        JdbcTemplate jdbcTemplate = JdbcValueTableWriter.this.valueTable.getDatasource().getJdbcTemplate();
 
-      valueTable.getDatasource().doWithDatabase(new ChangeDatabaseCallback(change));
+        jdbcTemplate.execute(valueTable.hasValueSet(entity) ? getUpdateSql() : getInsertSql(), new AbstractLobCreatingPreparedStatementCallback(new DefaultLobHandler()) {
+          protected void setValues(PreparedStatement ps, LobCreator lobCreator) throws SQLException {
+            int index = 1;
+            for(Map.Entry<String, Object> entry : columnValueMap.entrySet()) {
+              if(entry.getValue() instanceof byte[]) {
+                lobCreator.setBlobAsBinaryStream(ps, index++, new ByteArrayInputStream((byte[]) entry.getValue()), ((byte[]) entry.getValue()).length);
+              } else {
+                ps.setObject(index++, entry.getValue());
+              }
+            }
+          }
+        });
+      }
     }
 
+    private String getInsertSql() {
+      StringBuffer sql = new StringBuffer();
+
+      sql.append("INSERT INTO ");
+      sql.append(valueTable.getSqlName());
+
+      Map<String, String> entityIdentifierColumnValueMap = getEntityIdentifierColumnValueMap();
+
+      sql.append(" (");
+      for(Map.Entry<String, String> entry : entityIdentifierColumnValueMap.entrySet()) {
+        sql.append(entry.getKey());
+        sql.append(", ");
+      }
+      for(Map.Entry<String, Object> entry : columnValueMap.entrySet()) {
+        sql.append(entry.getKey());
+        sql.append(", ");
+      }
+      deleteFromEnd(sql, ", ");
+      sql.append(") ");
+
+      sql.append("VALUES (");
+      for(Map.Entry<String, String> entry : entityIdentifierColumnValueMap.entrySet()) {
+        sql.append("'");
+        sql.append(entry.getValue());
+        sql.append("'");
+        sql.append(", ");
+      }
+      for(int i = 0; i < columnValueMap.size(); i++) {
+        sql.append("?");
+        sql.append(", ");
+      }
+      deleteFromEnd(sql, ", ");
+      sql.append(")");
+
+      return sql.toString();
+    }
+
+    private String getUpdateSql() {
+      StringBuffer sql = new StringBuffer();
+
+      sql.append("UPDATE ");
+      sql.append(valueTable.getSqlName());
+
+      sql.append(" SET ");
+      for(Map.Entry<String, Object> entry : columnValueMap.entrySet()) {
+        sql.append(entry.getKey());
+        sql.append(" = ?, ");
+      }
+      deleteFromEnd(sql, ", ");
+
+      sql.append(" ");
+      sql.append(getWhereClause());
+
+      return sql.toString();
+    }
+
+    private String getWhereClause() {
+      StringBuffer whereClause = new StringBuffer();
+
+      whereClause.append("WHERE ");
+      for(Map.Entry<String, String> entry : getEntityIdentifierColumnValueMap().entrySet()) {
+        whereClause.append(entry.getKey());
+        whereClause.append(" = ");
+        whereClause.append("'");
+        whereClause.append(entry.getValue());
+        whereClause.append("'");
+        whereClause.append(" AND ");
+      }
+      deleteFromEnd(whereClause, " AND ");
+
+      return whereClause.toString();
+    }
+
+    private Map<String, String> getEntityIdentifierColumnValueMap() {
+      Map<String, String> entityIdentifierColumnValueMap = new LinkedHashMap<String, String>();
+
+      List<String> entityIdentifierColumns = valueTable.getSettings().getEntityIdentifierColumns();
+      String[] entityIdentifierValues = entity.getIdentifier().split("-");
+      Assert.isTrue(entityIdentifierColumns.size() == entityIdentifierValues.length, "number of entity identifier columns does not match number of entity identifiers");
+
+      for(int i = 0; i < entityIdentifierColumns.size(); i++) {
+        entityIdentifierColumnValueMap.put(entityIdentifierColumns.get(i), entityIdentifierValues[i]);
+      }
+
+      return entityIdentifierColumnValueMap;
+    }
+
+    private void deleteFromEnd(StringBuffer sb, String stringToDelete) {
+      sb.delete(sb.length() - stringToDelete.length(), sb.length());
+    }
   }
 }
