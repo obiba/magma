@@ -73,6 +73,14 @@ public interface Variable extends AttributeAware {
       return b;
     }
 
+    public void clearAttributes() {
+      getAttributes().clear();
+    }
+
+    public void clearCategories() {
+      variable.categories.clear();
+    }
+
     /**
      * Tests whether this {@code Builder} instance is constructing a variable with any of the the specified names.
      * 
