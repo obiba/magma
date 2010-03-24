@@ -5,6 +5,7 @@ import java.util.Set;
 
 import org.obiba.magma.Initialisable;
 import org.obiba.magma.NoSuchVariableException;
+import org.obiba.magma.ValueTable;
 import org.obiba.magma.Variable;
 import org.obiba.magma.VariableValueSource;
 import org.obiba.magma.js.JavascriptVariableValueSourceFactory;
@@ -22,6 +23,10 @@ public class VariablesClause implements ListClause, Initialisable {
 
   private Set<VariableValueSource> variableValueSources;
 
+  private ValueTable valueTable;
+
+  private boolean initialised = false;
+
   public void setVariables(Set<Variable> variables) {
     this.variables = new HashSet<Variable>();
     if(variables != null) {
@@ -31,6 +36,7 @@ public class VariablesClause implements ListClause, Initialisable {
 
   @Override
   public VariableValueSource getVariableValueSource(String name) throws NoSuchVariableException {
+    if(!initialised) throw new IllegalStateException("The initialise() method must be called before getVariableValueSource().");
     for(VariableValueSource variableValueSource : variableValueSources) {
       if(variableValueSource.getVariable().getName().equals(name)) {
         return variableValueSource;
@@ -41,15 +47,23 @@ public class VariablesClause implements ListClause, Initialisable {
 
   @Override
   public Iterable<VariableValueSource> getVariableValueSources() {
+    if(!initialised) throw new IllegalStateException("The initialise() method must be called before getVariableValueSources().");
     return variableValueSources;
   }
 
   @Override
   public void initialise() {
+    if(valueTable == null) throw new IllegalStateException("The setValueTable() method must be called before initialise().");
     JavascriptVariableValueSourceFactory factory = new JavascriptVariableValueSourceFactory();
     factory.setVariables(variables);
     variableValueSources = factory.createSources();
     Initialisables.initialise(variableValueSources);
+    initialised = true;
+  }
+
+  @Override
+  public void setValueTable(ValueTable valueTable) {
+    this.valueTable = valueTable;
   }
 
 }

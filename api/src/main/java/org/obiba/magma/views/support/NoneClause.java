@@ -4,6 +4,7 @@ import java.util.Collections;
 
 import org.obiba.magma.NoSuchVariableException;
 import org.obiba.magma.ValueSet;
+import org.obiba.magma.ValueTable;
 import org.obiba.magma.Variable;
 import org.obiba.magma.VariableValueSource;
 import org.obiba.magma.views.ListClause;
@@ -33,5 +34,10 @@ public class NoneClause implements SelectClause, WhereClause, ListClause {
   @Override
   public Iterable<VariableValueSource> getVariableValueSources() {
     return Collections.emptySet();
+  }
+
+  @Override
+  public void setValueTable(ValueTable valueTable) {
+    // No action take for this method.
   }
 }

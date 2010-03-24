@@ -1,6 +1,7 @@
 package org.obiba.magma.views;
 
 import org.obiba.magma.NoSuchVariableException;
+import org.obiba.magma.ValueTable;
 import org.obiba.magma.VariableValueSource;
 
 /**
@@ -25,5 +26,12 @@ public interface ListClause {
    * the provided name.
    */
   public VariableValueSource getVariableValueSource(String name) throws NoSuchVariableException;
+
+  /**
+   * Provide the {@link ValueTable} to the ListClause. The {@code ListClause} will need the {@code ValueTable} in order
+   * to retrieve {@link Variable}s referenced with the "sameAs" attribute.
+   * @param valueTable The table to be set in the {@code ListClause}
+   */
+  public void setValueTable(ValueTable valueTable);
 
 }
