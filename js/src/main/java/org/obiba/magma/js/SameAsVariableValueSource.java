@@ -14,6 +14,7 @@ public class SameAsVariableValueSource extends JavascriptVariableValueSource {
 
   public SameAsVariableValueSource(Variable variable, ValueTable valueTable) {
     super(variable);
+    if(valueTable == null) throw new IllegalArgumentException("valueTable cannot be null");
     this.valueTable = valueTable;
   }
 
@@ -35,6 +36,7 @@ public class SameAsVariableValueSource extends JavascriptVariableValueSource {
     Variable original = valueTable.getVariable(getSameAs());
     Variable derived = super.getVariable();
     Variable.Builder builder = Variable.Builder.sameAs(original);
+    overrideVariables(builder, derived);
     if(overrideAttributes()) {
       builder.clearAttributes();
       for(Attribute attribute : derived.getAttributes()) {
@@ -50,6 +52,15 @@ public class SameAsVariableValueSource extends JavascriptVariableValueSource {
       }
     }
     return builder.build();
+  }
+
+  private Variable.Builder overrideVariables(Variable.Builder builder, Variable override) {
+    builder.name(override.getName());
+    builder.mimeType(override.getMimeType());
+    builder.referencedEntityType(override.getEntityType());
+    builder.unit(override.getUnit());
+    builder.occurrenceGroup(override.getOccurrenceGroup());
+    return builder;
   }
 
   private boolean overrideAttributes() {

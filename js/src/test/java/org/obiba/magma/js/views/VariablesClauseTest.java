@@ -1,0 +1,211 @@
+package org.obiba.magma.js.views;
+
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.replay;
+import static org.easymock.EasyMock.verify;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.junit.Assert.assertThat;
+
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Locale;
+import java.util.Set;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.obiba.magma.Value;
+import org.obiba.magma.ValueSet;
+import org.obiba.magma.ValueTable;
+import org.obiba.magma.ValueType;
+import org.obiba.magma.Variable;
+import org.obiba.magma.VariableValueSource;
+import org.obiba.magma.js.AbstractJsTest;
+import org.obiba.magma.support.Initialisables;
+import org.obiba.magma.type.DateTimeType;
+import org.obiba.magma.type.IntegerType;
+import org.obiba.magma.type.TextType;
+
+public class VariablesClauseTest extends AbstractJsTest {
+
+  private Variable yearVariable;
+
+  private Variable sex;
+
+  private Set<Variable> variables;
+
+  private final Date nineteenFiftyFive = constructDate(1955);
+
+  private Value adminParticipantBirthDateValue;
+
+  private Value healthQuestionnaireIdentificationSexValue;
+
+  @Before
+  public void setUp() throws Exception {
+    yearVariable = buildYear();
+    sex = buildSexWithSameAsAndScript();
+
+    variables = new HashSet<Variable>();
+    variables.add(yearVariable);
+    variables.add(sex);
+
+    adminParticipantBirthDateValue = DateTimeType.get().valueOf(nineteenFiftyFive);
+    healthQuestionnaireIdentificationSexValue = IntegerType.get().valueOf(5);
+  }
+
+  private Variable buildYear() {
+    Variable.Builder builder = Variable.Builder.newVariable("GENERIC_128", IntegerType.get(), "Participant");
+    builder.addAttribute("label", "Birth Year", Locale.CANADA);
+    builder.addAttribute("URI", "http://www.datashaper.org/owl/2009/10/generic.owl#GENERIC_128");
+    builder.addAttribute("script", "$('Admin.Participant.birthDate').year()");
+    return builder.build();
+  }
+
+  private Variable buildSexWithSameAsAndScript() {
+    Variable.Builder builder = Variable.Builder.newVariable("GENERIC_129", IntegerType.get(), "Participant");
+    builder.addAttribute("sameAs", "HealthQuestionnaireIdentification.SEX");
+    builder.addAttribute("script", "$('HealthQuestionnaireIdentification.SEX')");
+    return builder.build();
+  }
+
+  private Variable buildSexWithSameAs() {
+    Variable.Builder builder = Variable.Builder.newVariable("GENERIC_300", IntegerType.get(), "Participant");
+    builder.addAttribute("sameAs", "HealthQuestionnaireIdentification.SEX");
+    return builder.build();
+  }
+
+  private Variable buildHealthQuestionnaireIdentificationSex() {
+    Variable.Builder builder = Variable.Builder.newVariable("HealthQuestionnaireIdentification.SEX", IntegerType.get(), "Participant");
+    builder.addAttribute("label", "Sex", Locale.CANADA);
+    builder.addAttribute("URI", "http://www.obiba.org/sex");
+    builder.addAttribute("stage", "HealthQuestionnaire");
+    return builder.build();
+  }
+
+  @Test
+  public void testScriptValue() throws Exception {
+    ValueTable valueTableMock = createMock(ValueTable.class);
+    ValueSet valueSetMock = createMock(ValueSet.class);
+    VariableValueSource variableValueSourceMock = createMock(VariableValueSource.class);
+    expect(valueSetMock.getValueTable()).andReturn(valueTableMock).times(3);
+    expect(valueTableMock.getVariable("HealthQuestionnaireIdentification.SEX")).andReturn(buildHealthQuestionnaireIdentificationSex()).anyTimes();
+
+    expect(valueTableMock.getVariableValueSource("Admin.Participant.birthDate")).andReturn(variableValueSourceMock).once();
+    expect(variableValueSourceMock.getValue(valueSetMock)).andReturn(adminParticipantBirthDateValue).once();
+    replay(valueSetMock, valueTableMock, variableValueSourceMock);
+    VariablesClause clause = new VariablesClause();
+    clause.setVariables(variables);
+    clause.setValueTable(valueTableMock);
+    Initialisables.initialise(clause);
+    VariableValueSource variableValueSource = clause.getVariableValueSource("GENERIC_128");
+
+    assertThat(variableValueSource, is(notNullValue()));
+
+    Value result = variableValueSource.getValue(valueSetMock);
+    verify(valueSetMock, valueTableMock, variableValueSourceMock);
+
+    assertThat(result.getValueType(), is((ValueType) IntegerType.get()));
+    assertThat(result, is(IntegerType.get().valueOf(1955)));
+  }
+
+  @Test
+  public void testScriptVariable() throws Exception {
+    ValueTable valueTableMock = createMock(ValueTable.class);
+    expect(valueTableMock.getVariable("HealthQuestionnaireIdentification.SEX")).andReturn(buildHealthQuestionnaireIdentificationSex()).anyTimes();
+    replay(valueTableMock);
+    VariablesClause clause = new VariablesClause();
+    clause.setValueTable(valueTableMock);
+    clause.setVariables(variables);
+    Initialisables.initialise(clause);
+    VariableValueSource variableValueSource = clause.getVariableValueSource("GENERIC_128");
+    Variable variable = variableValueSource.getVariable();
+    verify(valueTableMock);
+    assertThat(variable.getAttribute("label").getLocale(), is(Locale.CANADA));
+    assertThat(variable.getAttribute("label").getValue(), is(TextType.get().valueOf("Birth Year")));
+    assertThat(variable.getAttribute("URI").getValue(), is(TextType.get().valueOf("http://www.datashaper.org/owl/2009/10/generic.owl#GENERIC_128")));
+    assertThat(variable.getAttribute("script").getValue(), is(TextType.get().valueOf("$('Admin.Participant.birthDate').year()")));
+    assertThat(variable.getName(), is("GENERIC_128"));
+    assertThat(variable.getEntityType(), is("Participant"));
+
+  }
+
+  @Test
+  public void testSameAsWithExplicitScriptValue() throws Exception {
+    ValueTable valueTableMock = createMock(ValueTable.class);
+    ValueSet valueSetMock = createMock(ValueSet.class);
+    VariableValueSource variableValueSourceMock = createMock(VariableValueSource.class);
+    expect(valueSetMock.getValueTable()).andReturn(valueTableMock).times(3);
+    expect(valueTableMock.getVariable("HealthQuestionnaireIdentification.SEX")).andReturn(buildHealthQuestionnaireIdentificationSex()).times(2);
+    expect(valueTableMock.getVariableValueSource("HealthQuestionnaireIdentification.SEX")).andReturn(variableValueSourceMock).once();
+    expect(variableValueSourceMock.getValue(valueSetMock)).andReturn(healthQuestionnaireIdentificationSexValue).once();
+    replay(valueSetMock, valueTableMock, variableValueSourceMock);
+
+    VariablesClause clause = new VariablesClause();
+    clause.setValueTable(valueTableMock);
+    clause.setVariables(variables);
+    Initialisables.initialise(clause);
+    VariableValueSource variableValueSource = clause.getVariableValueSource("GENERIC_129");
+
+    assertThat(variableValueSource, is(notNullValue()));
+
+    Value result = variableValueSource.getValue(valueSetMock);
+    verify(valueSetMock, valueTableMock, variableValueSourceMock);
+
+    assertThat(result.getValueType(), is((ValueType) IntegerType.get()));
+    assertThat(result, is(IntegerType.get().valueOf(5)));
+  }
+
+  @Test
+  public void testThatDerivedVariableWithSameAsAndScriptAttributesOverridesExistingVariableAttributes() throws Exception {
+    ValueTable valueTableMock = createMock(ValueTable.class);
+    expect(valueTableMock.getVariable("HealthQuestionnaireIdentification.SEX")).andReturn(buildHealthQuestionnaireIdentificationSex()).times(3);
+    replay(valueTableMock);
+    VariablesClause clause = new VariablesClause();
+    clause.setValueTable(valueTableMock);
+    clause.setVariables(variables);
+    Initialisables.initialise(clause);
+    VariableValueSource variableValueSource = clause.getVariableValueSource("GENERIC_129");
+    Variable variable = variableValueSource.getVariable();
+
+    verify(valueTableMock);
+    assertThat(variable.getAttribute("sameAs").getValue(), is(TextType.get().valueOf("HealthQuestionnaireIdentification.SEX")));
+    assertThat(variable.getAttribute("script").getValue(), is(TextType.get().valueOf("$('HealthQuestionnaireIdentification.SEX')")));
+    assertThat(variable.getName(), is("GENERIC_129"));
+    assertThat(variable.getEntityType(), is("Participant"));
+  }
+
+  @Test
+  public void testThatDerivedVariableWithSameAsAttributeOnlyDoesNotOverrideExistingVariableAttributes() throws Exception {
+    Set<Variable> variableSet = new HashSet<Variable>();
+    variableSet.add(buildSexWithSameAs());
+
+    ValueTable valueTableMock = createMock(ValueTable.class);
+    expect(valueTableMock.getVariable("HealthQuestionnaireIdentification.SEX")).andReturn(buildHealthQuestionnaireIdentificationSex()).times(3);
+    replay(valueTableMock);
+    VariablesClause clause = new VariablesClause();
+    clause.setValueTable(valueTableMock);
+    clause.setVariables(variableSet);
+    Initialisables.initialise(clause);
+    VariableValueSource variableValueSource = clause.getVariableValueSource("GENERIC_300");
+    Variable variable = variableValueSource.getVariable();
+    verify(valueTableMock);
+    assertThat(variable.getAttribute("sameAs").getValue(), is(TextType.get().valueOf("HealthQuestionnaireIdentification.SEX")));
+    assertThat(variable.getAttribute("stage").getValue(), is(TextType.get().valueOf("HealthQuestionnaire")));
+    assertThat(variable.getName(), is("GENERIC_300"));
+    assertThat(variable.getEntityType(), is("Participant"));
+
+  }
+
+  private static Date constructDate(int year) {
+    Calendar calendar = Calendar.getInstance();
+    calendar.set(Calendar.HOUR, 7);
+    calendar.set(Calendar.MINUTE, 0);
+    calendar.set(Calendar.SECOND, 0);
+    calendar.set(Calendar.MILLISECOND, 0);
+    calendar.set(Calendar.AM_PM, Calendar.AM);
+    calendar.set(Calendar.YEAR, year);
+    return calendar.getTime();
+  }
+}

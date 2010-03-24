@@ -56,6 +56,7 @@ public class VariablesClause implements ListClause, Initialisable {
     if(valueTable == null) throw new IllegalStateException("The setValueTable() method must be called before initialise().");
     JavascriptVariableValueSourceFactory factory = new JavascriptVariableValueSourceFactory();
     factory.setVariables(variables);
+    factory.setValueTable(valueTable);
     variableValueSources = factory.createSources();
     Initialisables.initialise(variableValueSources);
     initialised = true;

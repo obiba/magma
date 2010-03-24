@@ -12,6 +12,7 @@ package org.obiba.magma.js;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.obiba.magma.ValueTable;
 import org.obiba.magma.Variable;
 import org.obiba.magma.VariableValueSource;
 import org.obiba.magma.VariableValueSourceFactory;
@@ -21,10 +22,13 @@ import com.google.common.collect.ImmutableSet;
 /**
  * Creates a {@code Set} of custom derived variables.
  * @see JavascriptVariableValueSource
+ * @see SameAsVariableValueSource
  */
 public class JavascriptVariableValueSourceFactory implements VariableValueSourceFactory {
 
   private Set<Variable> variables;
+
+  private ValueTable valueTable;
 
   public Set<VariableValueSource> createSources() {
     if(variables != null && variables.size() > 0) {
@@ -37,7 +41,11 @@ public class JavascriptVariableValueSourceFactory implements VariableValueSource
   private Set<VariableValueSource> createSourcesFromVariables() {
     ImmutableSet.Builder<VariableValueSource> sources = new ImmutableSet.Builder<VariableValueSource>();
     for(Variable variable : variables) {
-      sources.add(new JavascriptVariableValueSource(variable));
+      if(variable.hasAttribute(SameAsVariableValueSource.SAME_AS_ATTRIBUTE_NAME)) {
+        sources.add(new SameAsVariableValueSource(variable, valueTable));
+      } else {
+        sources.add(new JavascriptVariableValueSource(variable));
+      }
     }
     return sources.build();
   }
@@ -49,4 +57,7 @@ public class JavascriptVariableValueSourceFactory implements VariableValueSource
     }
   }
 
+  public void setValueTable(ValueTable valueTable) {
+    this.valueTable = valueTable;
+  }
 }
