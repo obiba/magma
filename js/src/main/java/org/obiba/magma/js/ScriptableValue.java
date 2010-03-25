@@ -8,6 +8,8 @@ import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueType;
+import org.obiba.magma.type.BooleanType;
+import org.obiba.magma.type.TextType;
 
 /**
  * A {@code Scriptable} implementation for {@code Value} objects.
@@ -54,6 +56,15 @@ public class ScriptableValue extends ScriptableObject {
     if(value.getValueType().isDateTime()) {
       Date date = (Date) defaultValue;
       return Context.toObject(ScriptRuntime.wrapNumber(date.getTime()), this);
+    }
+    if(value.getValueType().isNumeric()) {
+      return Context.toNumber(defaultValue);
+    }
+    if(value.getValueType().equals(BooleanType.get())) {
+      return Context.toBoolean(defaultValue);
+    }
+    if(value.getValueType().equals(TextType.get())) {
+      return Context.toString(defaultValue);
     }
     return defaultValue;
   }
