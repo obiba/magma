@@ -137,7 +137,7 @@ public class VariablesClauseTest extends AbstractJsTest {
     ValueSet valueSetMock = createMock(ValueSet.class);
     VariableValueSource variableValueSourceMock = createMock(VariableValueSource.class);
     expect(valueSetMock.getValueTable()).andReturn(valueTableMock).times(3);
-    expect(valueTableMock.getVariable("HealthQuestionnaireIdentification.SEX")).andReturn(buildHealthQuestionnaireIdentificationSex()).times(2);
+    expect(valueTableMock.getVariable("HealthQuestionnaireIdentification.SEX")).andReturn(buildHealthQuestionnaireIdentificationSex()).once();
     expect(valueTableMock.getVariableValueSource("HealthQuestionnaireIdentification.SEX")).andReturn(variableValueSourceMock).once();
     expect(variableValueSourceMock.getValue(valueSetMock)).andReturn(healthQuestionnaireIdentificationSexValue).once();
     replay(valueSetMock, valueTableMock, variableValueSourceMock);
@@ -160,7 +160,7 @@ public class VariablesClauseTest extends AbstractJsTest {
   @Test
   public void testThatDerivedVariableWithSameAsAndScriptAttributesOverridesExistingVariableAttributes() throws Exception {
     ValueTable valueTableMock = createMock(ValueTable.class);
-    expect(valueTableMock.getVariable("HealthQuestionnaireIdentification.SEX")).andReturn(buildHealthQuestionnaireIdentificationSex()).times(3);
+    expect(valueTableMock.getVariable("HealthQuestionnaireIdentification.SEX")).andReturn(buildHealthQuestionnaireIdentificationSex()).times(2);
     replay(valueTableMock);
     VariablesClause clause = new VariablesClause();
     clause.setValueTable(valueTableMock);
@@ -182,7 +182,7 @@ public class VariablesClauseTest extends AbstractJsTest {
     variableSet.add(buildSexWithSameAs());
 
     ValueTable valueTableMock = createMock(ValueTable.class);
-    expect(valueTableMock.getVariable("HealthQuestionnaireIdentification.SEX")).andReturn(buildHealthQuestionnaireIdentificationSex()).times(3);
+    expect(valueTableMock.getVariable("HealthQuestionnaireIdentification.SEX")).andReturn(buildHealthQuestionnaireIdentificationSex()).times(2);
     replay(valueTableMock);
     VariablesClause clause = new VariablesClause();
     clause.setValueTable(valueTableMock);
