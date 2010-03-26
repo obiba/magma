@@ -1,5 +1,7 @@
 package org.obiba.magma.js.methods;
 
+import java.util.Comparator;
+
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.Scriptable;
@@ -124,23 +126,38 @@ public class ValueSequenceMethods {
   }
 
   /**
-   * Returns the {@link ValueSequence} sorted in natural order. Note that some {@link ValueType}s such as
-   * {@link BinaryType} and {@link LocaleType} do not have a natural sort order and {@code ValueSequence}s of those
-   * types will not be modified by this method.
+   * Returns the {@link ValueSequence} sorted in natural order (default behavior), or using a custom sorting algorithm
+   * (javascript function) if specified. Note that some {@link ValueType}s such as {@link BinaryType} and
+   * {@link LocaleType} do not have a natural sort order and {@code ValueSequence}s of those types will not be modified
+   * when using the default behavior.
    * 
    * <pre>
    *   $('SequenceVar').sort()
    * </pre>
    * @throws MagmaJsEvaluationRuntimeException if operand does not contain a ValueSequence.
    */
-  public static ScriptableValue sort(Context ctx, Scriptable thisObj, Object[] args, Function funObj) throws MagmaJsEvaluationRuntimeException {
-    ScriptableValue sv = (ScriptableValue) thisObj;
+  public static ScriptableValue sort(final Context ctx, Scriptable thisObj, Object[] args, final Function funObj) throws MagmaJsEvaluationRuntimeException {
+
+    final ScriptableValue sv = (ScriptableValue) thisObj;
     if(sv.getValue().isNull()) {
       return new ScriptableValue(thisObj, sv.getValue());
     }
     if(sv.getValue().isSequence()) {
       ValueSequence valueSequence = sv.getValue().asSequence();
-      valueSequence.sort();
+
+      // Sort using a custom Comparator (javascript function)
+      if(funObj != null) {
+        valueSequence.sort(new Comparator<Value>() {
+          @Override
+          public int compare(Value o1, Value o2) {
+            return (Integer) funObj.call(ctx, sv.getParentScope(), sv, new ScriptableValue[] { new ScriptableValue(sv.getParentScope(), o1), new ScriptableValue(sv.getParentScope(), o2) });
+          }
+        });
+
+        // Sort based on natural order
+      } else {
+        valueSequence.sort();
+      }
       return new ScriptableValue(thisObj, valueSequence);
     } else {
       throw new MagmaJsEvaluationRuntimeException("Operand to first() method must be a ScriptableValue containing a ValueSequence.");

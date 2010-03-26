@@ -1,6 +1,7 @@
 package org.obiba.magma;
 
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import org.obiba.magma.type.BinaryType;
@@ -53,6 +54,17 @@ public class ValueSequence extends Value {
     if(getValue() instanceof List<?>) {
       List<Value> list = (List<Value>) getValue();
       Collections.sort(list);
+    }
+  }
+
+  /**
+   * Sorts the {@link Value}s in this {@link ValueSequence} based on the specific {@link Comparator} implementation.
+   * @param comparator Custom Comparator which will be used to sort the ValueSequence.
+   */
+  public void sort(Comparator<Value> comparator) {
+    if(getValue() instanceof List<?>) {
+      List<Value> list = (List<Value>) getValue();
+      Collections.sort(list, comparator);
     }
   }
 

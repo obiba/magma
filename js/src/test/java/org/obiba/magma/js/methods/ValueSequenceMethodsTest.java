@@ -5,9 +5,10 @@ import static org.junit.Assert.assertThat;
 
 import java.util.ArrayList;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mozilla.javascript.Context;
+import org.mozilla.javascript.FunctionObject;
+import org.mozilla.javascript.Scriptable;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueSequence;
 import org.obiba.magma.js.AbstractScriptableValueTest;
@@ -196,16 +197,63 @@ public class ValueSequenceMethodsTest extends AbstractScriptableValueTest {
     assertThat(valueSequence.getValues().get(3), is(IntegerType.get().valueOf(4)));
   }
 
-  @Ignore
   @Test
   public void testSortIntegerDecendingUsingSortFunction() throws Exception {
     ValueSequence valueSequence = IntegerType.get().sequenceOf("4,3,1,2");
-    ScriptableValue scriptableValue = newValue(valueSequence);
-    ValueSequenceMethods.sort(Context.getCurrentContext(), scriptableValue, null, null);
+
+    MyScriptableValueCustomSortDesc scriptableValue = newValueDesc(valueSequence);
+    FunctionObject funObj = new FunctionObject("sort", scriptableValue.getClass().getMethod("sort", new Class[] { ScriptableValue.class, ScriptableValue.class }), scriptableValue);
+    ValueSequenceMethods.sort(Context.getCurrentContext(), scriptableValue, new String[] {}, funObj);
     assertThat(valueSequence.getValues().get(0), is(IntegerType.get().valueOf(4)));
     assertThat(valueSequence.getValues().get(1), is(IntegerType.get().valueOf(3)));
     assertThat(valueSequence.getValues().get(2), is(IntegerType.get().valueOf(2)));
     assertThat(valueSequence.getValues().get(3), is(IntegerType.get().valueOf(1)));
   }
 
+  @Test
+  public void testSortIntegerAscendingUsingSortFunction() throws Exception {
+    ValueSequence valueSequence = IntegerType.get().sequenceOf("4,3,1,2");
+
+    MyScriptableValueCustomSortAsc scriptableValue = newValueAsc(valueSequence);
+    FunctionObject funObj = new FunctionObject("sort", scriptableValue.getClass().getMethod("sort", new Class[] { ScriptableValue.class, ScriptableValue.class }), scriptableValue);
+    ValueSequenceMethods.sort(Context.getCurrentContext(), scriptableValue, new String[] {}, funObj);
+    assertThat(valueSequence.getValues().get(0), is(IntegerType.get().valueOf(1)));
+    assertThat(valueSequence.getValues().get(1), is(IntegerType.get().valueOf(2)));
+    assertThat(valueSequence.getValues().get(2), is(IntegerType.get().valueOf(3)));
+    assertThat(valueSequence.getValues().get(3), is(IntegerType.get().valueOf(4)));
+  }
+
+  @SuppressWarnings("serial")
+  private class MyScriptableValueCustomSortAsc extends ScriptableValue {
+
+    public MyScriptableValueCustomSortAsc(Scriptable scope, Value value) {
+      super(scope, value);
+    }
+
+    @SuppressWarnings("unused")
+    public int sort(ScriptableValue value1, ScriptableValue value2) {
+      return (int) ((Long) value1.getValue().getValue() - (Long) value2.getValue().getValue());
+    }
+  }
+
+  @SuppressWarnings("serial")
+  private class MyScriptableValueCustomSortDesc extends ScriptableValue {
+
+    public MyScriptableValueCustomSortDesc(Scriptable scope, Value value) {
+      super(scope, value);
+    }
+
+    @SuppressWarnings("unused")
+    public int sort(ScriptableValue value1, ScriptableValue value2) {
+      return (int) ((Long) value2.getValue().getValue() - (Long) value1.getValue().getValue());
+    }
+  }
+
+  public MyScriptableValueCustomSortAsc newValueAsc(Value value) {
+    return new MyScriptableValueCustomSortAsc(getSharedScope(), value);
+  }
+
+  public MyScriptableValueCustomSortDesc newValueDesc(Value value) {
+    return new MyScriptableValueCustomSortDesc(getSharedScope(), value);
+  }
 }
