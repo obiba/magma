@@ -26,6 +26,21 @@ public interface Category extends AttributeAware {
       return new Builder(name);
     }
 
+    public static Builder sameAs(Category c) {
+      Builder builder = newCategory(c.getName());
+      builder.category.code = c.getCode();
+      if(c.isMissing()) builder.category.missing = true;
+      for(Attribute a : c.getAttributes()) {
+        builder.category.attributes.put(a.getName(), a);
+      }
+      return builder;
+    }
+
+    public Builder clearAttributes() {
+      getAttributes().clear();
+      return this;
+    }
+
     public Builder withCode(String code) {
       category.code = code;
       return this;

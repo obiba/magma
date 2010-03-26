@@ -10,8 +10,11 @@
 package org.obiba.magma;
 
 import java.lang.reflect.Constructor;
+import java.util.NoSuchElementException;
 import java.util.Set;
 
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.ListMultimap;
 
 /**
@@ -71,6 +74,61 @@ public interface Variable extends AttributeAware {
         b.addCategory(c);
       }
       return b;
+    }
+
+    /**
+     * Values from the provided override {@code Variable} will overwrite values in the {@code Variable} currently being
+     * built.
+     * @param override The {@code Variable} contains values that will override values in the {@code Variable} currently
+     * being built.
+     */
+    public Builder overrideWith(Variable override) {
+      variable.name = override.getName();
+      if(override.getValueType() != null) variable.valueType = override.getValueType();
+      if(override.getEntityType() != null) variable.entityType = override.getEntityType();
+      if(override.getMimeType() != null) variable.mimeType = override.getMimeType();
+      if(override.getOccurrenceGroup() != null) variable.occurrenceGroup = override.getOccurrenceGroup();
+      if(override.getUnit() != null) variable.unit = override.getUnit();
+      variable.attributes = overrideAttributes(getAttributes(), override.getAttributes());
+      for(Category category : override.getCategories()) {
+        overrideCategories(variable.categories, category);
+      }
+      return this;
+    }
+
+    private void overrideCategories(Set<Category> categories, Category overrideCategory) {
+      if(!categoryWithNameExists(categories, overrideCategory.getName())) {
+        categories.add(overrideCategory);
+      } else {
+        Category existingCategory = getCategoryWithName(categories, overrideCategory.getName());
+        Category.Builder builder = Category.Builder.sameAs(existingCategory);
+        if(overrideCategory.getCode() != null) builder.withCode(overrideCategory.getCode());
+        builder.missing(overrideCategory.isMissing());
+        builder.clearAttributes();
+        for(Attribute a : overrideAttributes(existingCategory.getAttributes(), overrideCategory.getAttributes()).values()) {
+          builder.addAttribute(a);
+        }
+        categories.remove(existingCategory);
+        categories.add(builder.build());
+      }
+    }
+
+    private static boolean categoryWithNameExists(Set<Category> categories, final String name) {
+      try {
+        getCategoryWithName(categories, name);
+        return true;
+      } catch(NoSuchElementException e) {
+        return false;
+      }
+    }
+
+    private static Category getCategoryWithName(Set<Category> categories, final String name) throws NoSuchElementException {
+      return Iterables.find(categories, new Predicate<Category>() {
+        @Override
+        public boolean apply(Category input) {
+          return input.getName().equals(name);
+        }
+      });
     }
 
     public void clearAttributes() {

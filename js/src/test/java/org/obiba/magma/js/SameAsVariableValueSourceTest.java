@@ -57,10 +57,13 @@ public class SameAsVariableValueSourceTest extends AbstractJsTest {
     replay(valueTableMock);
     Variable variable = source.getVariable();
 
-    assertThat("number of attributes", variable.getAttributes().size(), is(2)); // Attributes overridden
+    assertThat("number of attributes", variable.getAttributes().size(), is(5));
     assertThat("number of categories", variable.getCategories().size(), is(2)); // Categories not overridden
     assertThat(variable.getAttribute("sameAs").getValue(), is(TextType.get().valueOf("HealthQuestionnaireIdentification.SEX")));
     assertThat(variable.getAttribute("script").getValue(), is(TextType.get().valueOf("$('ExistingVariable.SEX')")));
+    assertThat(variable.getAttribute("label").getValue(), is(TextType.get().valueOf("Sex")));
+    assertThat(variable.getAttribute("write").getValue(), is(TextType.get().valueOf("pen")));
+    assertThat(variable.getAttribute("read").getValue(), is(TextType.get().valueOf("paper")));
     verify(valueTableMock);
   }
 
