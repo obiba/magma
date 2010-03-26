@@ -13,7 +13,6 @@ import org.obiba.magma.js.ScriptableValue;
 import org.obiba.magma.type.BinaryType;
 import org.obiba.magma.type.IntegerType;
 import org.obiba.magma.type.LocaleType;
-import org.obiba.magma.type.TextType;
 
 /**
  * JavaScript methods that operate on {@link ValueSequence} objects wrapped in {@link ScriptableValue} objects.
@@ -39,7 +38,7 @@ public class ValueSequenceMethods {
       if(valueSequence.getSize() > 0) {
         return new ScriptableValue(thisObj, valueSequence.get(0));
       } else {
-        return new ScriptableValue(thisObj, TextType.get().nullValue()); // Index out of bounds.
+        return new ScriptableValue(thisObj, valueSequence.getValueType().nullValue()); // Index out of bounds.
       }
     } else {
       throw new MagmaJsEvaluationRuntimeException("Operand to first() method must be a ScriptableValue containing a ValueSequence.");
@@ -65,10 +64,10 @@ public class ValueSequenceMethods {
       if(valueSequence.getSize() > 0) {
         return new ScriptableValue(thisObj, valueSequence.get(valueSequence.getSize() - 1));
       } else {
-        return new ScriptableValue(thisObj, TextType.get().nullValue()); // Index out of bounds.
+        return new ScriptableValue(thisObj, valueSequence.getValueType().nullValue()); // Index out of bounds.
       }
     } else {
-      throw new MagmaJsEvaluationRuntimeException("Operand to first() method must be a ScriptableValue containing a ValueSequence.");
+      throw new MagmaJsEvaluationRuntimeException("Operand to last() method must be a ScriptableValue containing a ValueSequence.");
     }
   }
 
@@ -83,13 +82,13 @@ public class ValueSequenceMethods {
   public static ScriptableValue size(Context ctx, Scriptable thisObj, Object[] args, Function funObj) {
     ScriptableValue sv = (ScriptableValue) thisObj;
     if(sv.getValue().isNull()) {
-      return new ScriptableValue(thisObj, sv.getValue());
+      return new ScriptableValue(thisObj, IntegerType.get().nullValue());
     }
     if(sv.getValue().isSequence()) {
       ValueSequence valueSequence = sv.getValue().asSequence();
       return new ScriptableValue(thisObj, IntegerType.get().valueOf(valueSequence.getSize()));
     } else {
-      throw new MagmaJsEvaluationRuntimeException("Operand to first() method must be a ScriptableValue containing a ValueSequence.");
+      throw new MagmaJsEvaluationRuntimeException("Operand to size() method must be a ScriptableValue containing a ValueSequence.");
     }
   }
 
@@ -111,17 +110,17 @@ public class ValueSequenceMethods {
     if(args != null && args.length > 0 && args[0] instanceof Integer) {
       index = (Integer) args[0];
     } else {
-      return new ScriptableValue(thisObj, TextType.get().nullValue());
+      return new ScriptableValue(thisObj, sv.getValueType().nullValue());
     }
     if(sv.getValue().isSequence()) {
       ValueSequence valueSequence = sv.getValue().asSequence();
       if(valueSequence.getSize() > index) {
         return new ScriptableValue(thisObj, valueSequence.get(index));
       } else {
-        return new ScriptableValue(thisObj, TextType.get().nullValue()); // Index out of bounds.
+        return new ScriptableValue(thisObj, valueSequence.getValueType().nullValue()); // Index out of bounds.
       }
     } else {
-      throw new MagmaJsEvaluationRuntimeException("Operand to first() method must be a ScriptableValue containing a ValueSequence.");
+      throw new MagmaJsEvaluationRuntimeException("Operand to value() method must be a ScriptableValue containing a ValueSequence.");
     }
   }
 
@@ -160,7 +159,7 @@ public class ValueSequenceMethods {
       }
       return new ScriptableValue(thisObj, valueSequence);
     } else {
-      throw new MagmaJsEvaluationRuntimeException("Operand to first() method must be a ScriptableValue containing a ValueSequence.");
+      throw new MagmaJsEvaluationRuntimeException("Operand to sort() method must be a ScriptableValue containing a ValueSequence.");
     }
   }
 }

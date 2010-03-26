@@ -128,7 +128,7 @@ public class ValueSequenceMethodsTest extends AbstractScriptableValueTest {
   public void testSizeOnNullOperand() throws Exception {
     ScriptableValue scriptableValue = newValue(TextType.get().nullValue());
     ScriptableValue result = ValueSequenceMethods.size(Context.getCurrentContext(), scriptableValue, null, null);
-    assertThat(result.getValue(), is(scriptableValue.getValue()));
+    assertThat(result.getValue(), is(IntegerType.get().nullValue()));
   }
 
   @Test
