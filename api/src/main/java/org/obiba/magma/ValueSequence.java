@@ -44,28 +44,33 @@ public class ValueSequence extends Value {
   }
 
   /**
-   * Sorts the {@link Value}s in this {@link ValueSequence} in a natural order provided that the {@code ValueSequence}
-   * was constructed with an {@link Iterable} value that is also of the type {@link List}. If the {@code Iterable} value
-   * is not of type {@code List} then this method will have no effect. Note that some {@link ValueType}s such as
-   * {@link BinaryType} and {@link LocaleType} do not have a natural sort order and {@code ValueSequence}s of those
-   * types will not be modified by this method.
+   * Returns a copy of this {@link ValueSequence} with the {@link Value}s sorted in the natural order provided that the
+   * {@code ValueSequence} was constructed with an {@link Iterable} value that is also of the type {@link List}. If the
+   * {@code Iterable} value is not of type {@code List} then this method will have no effect. Note that some
+   * {@link ValueType}s such as {@link BinaryType} and {@link LocaleType} do not have a natural sort order and {@code
+   * ValueSequence}s of those types will not be modified by this method.
    */
-  public void sort() {
-    if(getValue() instanceof List<?>) {
-      List<Value> list = (List<Value>) getValue();
+  public Value sort() {
+    ValueSequence valueSequenceCopy = (ValueSequence) copy();
+    if(valueSequenceCopy.getValue() instanceof List<?>) {
+      List<Value> list = (List<Value>) valueSequenceCopy.getValue();
       Collections.sort(list);
     }
+    return valueSequenceCopy;
   }
 
   /**
-   * Sorts the {@link Value}s in this {@link ValueSequence} based on the specific {@link Comparator} implementation.
+   * Returns a copy of this {@link ValueSequence} with the {@link Value}s sorted based on the specific
+   * {@link Comparator} implementation.
    * @param comparator Custom Comparator which will be used to sort the ValueSequence.
    */
-  public void sort(Comparator<Value> comparator) {
-    if(getValue() instanceof List<?>) {
-      List<Value> list = (List<Value>) getValue();
+  public Value sort(Comparator<Value> comparator) {
+    ValueSequence valueSequenceCopy = (ValueSequence) copy();
+    if(valueSequenceCopy.getValue() instanceof List<?>) {
+      List<Value> list = (List<Value>) valueSequenceCopy.getValue();
       Collections.sort(list, comparator);
     }
+    return valueSequenceCopy;
   }
 
   /**

@@ -145,8 +145,9 @@ public class ValueSequenceMethods {
       ValueSequence valueSequence = sv.getValue().asSequence();
 
       // Sort using a custom Comparator (javascript function)
+      ValueSequence sortedValueSequence = null;
       if(funObj != null) {
-        valueSequence.sort(new Comparator<Value>() {
+        sortedValueSequence = (ValueSequence) valueSequence.sort(new Comparator<Value>() {
           @Override
           public int compare(Value o1, Value o2) {
             return (Integer) funObj.call(ctx, sv.getParentScope(), sv, new ScriptableValue[] { new ScriptableValue(sv.getParentScope(), o1), new ScriptableValue(sv.getParentScope(), o2) });
@@ -155,9 +156,9 @@ public class ValueSequenceMethods {
 
         // Sort based on natural order
       } else {
-        valueSequence.sort();
+        sortedValueSequence = (ValueSequence) valueSequence.sort();
       }
-      return new ScriptableValue(thisObj, valueSequence);
+      return new ScriptableValue(thisObj, sortedValueSequence);
     } else {
       throw new MagmaJsEvaluationRuntimeException("Operand to sort() method must be a ScriptableValue containing a ValueSequence.");
     }
