@@ -15,6 +15,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.easymock.EasyMock;
+import org.easymock.IArgumentMatcher;
 import org.junit.Test;
 import org.obiba.magma.NoSuchValueSetException;
 import org.obiba.magma.NoSuchVariableException;
@@ -23,6 +25,7 @@ import org.obiba.magma.ValueSet;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
+import org.obiba.magma.VariableValueSource;
 import org.obiba.magma.test.AbstractMagmaTest;
 import org.obiba.magma.type.TextType;
 
@@ -307,9 +310,7 @@ public class JoinTableTest extends AbstractMagmaTest {
     expect(mockValueSet.getVariableEntity()).andReturn(mockEntity).anyTimes();
     replay(mockValueSet);
 
-    if(!mockValueSetMap.containsKey(entityIdentifier)) {
-      mockValueSetMap.put(entityIdentifier, mockValueSet);
-    }
+    mockValueSetMap.put(entityIdentifier, mockValueSet);
 
     if(variablesAndValues.length != 0) {
       for(int variableIndex = 0; variableIndex < variablesAndValues.length - 1; variableIndex += 2) {
@@ -345,18 +346,91 @@ public class JoinTableTest extends AbstractMagmaTest {
     tableTwoValueSets.add(createMockValueSet(tableTwo, "tableTwo", PARTICIPANT_ENTITY_TYPE, "1111111", "var2", "12", "var3", "13", "var4", "14"));
     tableTwoValueSets.add(createMockValueSet(tableTwo, "tableTwo", PARTICIPANT_ENTITY_TYPE, "3333333", "var2", "32", "var3", "33", "var4", "34"));
 
+    VariableValueSource var1VariableValueSource = createMockVariableValueSource("var1");
+    expect(var1VariableValueSource.getValue(eqValueSet(mockValueSetMap.get("1111111")))).andReturn(TextType.get().valueOf("11")).anyTimes();
+    expect(var1VariableValueSource.getValue(eqValueSet(mockValueSetMap.get("2222222")))).andReturn(TextType.get().valueOf("21")).anyTimes();
+
+    VariableValueSource var2VariableValueSource = createMockVariableValueSource("var2");
+    expect(var2VariableValueSource.getValue(eqValueSet(mockValueSetMap.get("1111111")))).andReturn(TextType.get().valueOf("12")).anyTimes();
+    expect(var2VariableValueSource.getValue(eqValueSet(mockValueSetMap.get("2222222")))).andReturn(TextType.get().valueOf("22")).anyTimes();
+    expect(var2VariableValueSource.getValue(eqValueSet(mockValueSetMap.get("3333333")))).andReturn(TextType.get().valueOf("32")).anyTimes();
+
+    VariableValueSource var3VariableValueSource = createMockVariableValueSource("var3");
+    expect(var3VariableValueSource.getValue(eqValueSet(mockValueSetMap.get("1111111")))).andReturn(TextType.get().valueOf("13")).anyTimes();
+    expect(var3VariableValueSource.getValue(eqValueSet(mockValueSetMap.get("2222222")))).andReturn(TextType.get().valueOf("23")).anyTimes();
+    expect(var3VariableValueSource.getValue(eqValueSet(mockValueSetMap.get("3333333")))).andReturn(TextType.get().valueOf("33")).anyTimes();
+
+    VariableValueSource var4VariableValueSource = createMockVariableValueSource("var4");
+    expect(var4VariableValueSource.getValue(eqValueSet(mockValueSetMap.get("1111111")))).andReturn(TextType.get().valueOf("14")).anyTimes();
+    expect(var4VariableValueSource.getValue(eqValueSet(mockValueSetMap.get("3333333")))).andReturn(TextType.get().valueOf("34")).anyTimes();
+
     expect(tableOne.getValueSets()).andReturn(tableOneValueSets).anyTimes();
     expect(tableOne.hasValueSet(tableOneValueSets.get(0).getVariableEntity())).andReturn(true).anyTimes();
     expect(tableOne.hasValueSet(tableOneValueSets.get(1).getVariableEntity())).andReturn(true).anyTimes();
     expect(tableOne.hasValueSet(tableTwoValueSets.get(1).getVariableEntity())).andReturn(false).anyTimes();
+    expect(tableOne.getValueSet(tableOneValueSets.get(0).getVariableEntity())).andReturn(tableOneValueSets.get(0)).anyTimes();
+    expect(tableOne.getValueSet(tableOneValueSets.get(1).getVariableEntity())).andReturn(tableOneValueSets.get(1)).anyTimes();
+    expect(tableOne.getVariableValueSource("var1")).andReturn(var1VariableValueSource).anyTimes();
+    expect(tableOne.getVariableValueSource("var2")).andReturn(var2VariableValueSource).anyTimes();
+    expect(tableOne.getVariableValueSource("var3")).andReturn(var3VariableValueSource).anyTimes();
 
     expect(tableTwo.getValueSets()).andReturn(tableTwoValueSets).anyTimes();
     expect(tableTwo.hasValueSet(tableTwoValueSets.get(0).getVariableEntity())).andReturn(true).anyTimes();
     expect(tableTwo.hasValueSet(tableTwoValueSets.get(1).getVariableEntity())).andReturn(true).anyTimes();
     expect(tableTwo.hasValueSet(tableOneValueSets.get(1).getVariableEntity())).andReturn(false).anyTimes();
+    expect(tableTwo.getValueSet(tableTwoValueSets.get(0).getVariableEntity())).andReturn(tableTwoValueSets.get(0)).anyTimes();
+    expect(tableTwo.getValueSet(tableTwoValueSets.get(1).getVariableEntity())).andReturn(tableTwoValueSets.get(1)).anyTimes();
+    expect(tableTwo.getVariableValueSource("var2")).andReturn(var2VariableValueSource).anyTimes();
+    expect(tableTwo.getVariableValueSource("var3")).andReturn(var3VariableValueSource).anyTimes();
+    expect(tableTwo.getVariableValueSource("var4")).andReturn(var4VariableValueSource).anyTimes();
 
-    replay(tableOne, tableTwo);
+    replay(tableOne, tableTwo, var1VariableValueSource, var2VariableValueSource, var3VariableValueSource, var4VariableValueSource);
 
     return new JoinTable(tables);
+  }
+
+  private VariableValueSource createMockVariableValueSource(String variableName) {
+    VariableValueSource mockVariableValueSource = createMock(VariableValueSource.class);
+
+    expect(mockVariableValueSource.getVariable()).andReturn(mockVariableMap.get(variableName)).anyTimes();
+
+    return mockVariableValueSource;
+  }
+
+  //
+  // Inner Classes
+  //
+
+  static class ValueSetMatcher implements IArgumentMatcher {
+
+    private ValueSet expected;
+
+    public ValueSetMatcher(ValueSet expected) {
+      this.expected = expected;
+    }
+
+    @Override
+    public boolean matches(Object actual) {
+      if(actual instanceof ValueSet) {
+        return ((ValueSet) actual).getVariableEntity().getIdentifier().equals(expected.getVariableEntity().getIdentifier());
+      } else {
+        return false;
+      }
+    }
+
+    @Override
+    public void appendTo(StringBuffer buffer) {
+      buffer.append("eqValueSet(");
+      buffer.append(expected.getClass().getName());
+      buffer.append(" with entity identifier \"");
+      buffer.append(expected.getVariableEntity().getIdentifier());
+      buffer.append("\")");
+    }
+
+  }
+
+  static ValueSet eqValueSet(ValueSet in) {
+    EasyMock.reportMatcher(new ValueSetMatcher(in));
+    return null;
   }
 }

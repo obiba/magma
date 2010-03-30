@@ -63,10 +63,7 @@ public class JoinTable implements ValueTable {
       }
     }
 
-    this.tables = new ArrayList<ValueTable>();
-    if(tables != null) {
-      this.tables.addAll(tables);
-    }
+    this.tables = new ArrayList<ValueTable>(tables);
   }
 
   //
@@ -91,12 +88,7 @@ public class JoinTable implements ValueTable {
 
   @Override
   public Value getValue(Variable variable, ValueSet valueSet) {
-    ValueTable vt = getFirstTableWithVariable(variable.getName());
-    if(vt != null) {
-      return vt.getValue(variable, ((ValueSetWrapper) valueSet).wrapped);
-    } else {
-      throw new NoSuchVariableException(variable.getName());
-    }
+    return getVariableValueSource(variable.getName()).getValue(valueSet);
   }
 
   @Override
@@ -115,7 +107,11 @@ public class JoinTable implements ValueTable {
 
     for(ValueSet valueSet : tables.get(0).getValueSets()) {
       if(isInAllTables(valueSet)) {
-        valueSets.add(new ValueSetWrapper(this, valueSet));
+        List<ValueSet> wrappedValueSets = new ArrayList<ValueSet>();
+        for(ValueTable vt : tables) {
+          wrappedValueSets.add(vt.getValueSet(valueSet.getVariableEntity()));
+        }
+        valueSets.add(new ValueSetWrapper(this, wrappedValueSets));
       }
     }
 
@@ -239,11 +235,11 @@ public class JoinTable implements ValueTable {
 
     private ValueTable valueTable;
 
-    private ValueSet wrapped;
+    private List<ValueSet> wrappedValueSets;
 
-    private ValueSetWrapper(ValueTable valueTable, ValueSet wrapped) {
+    private ValueSetWrapper(ValueTable valueTable, List<ValueSet> wrappedValueSets) {
       this.valueTable = valueTable;
-      this.wrapped = wrapped;
+      this.wrappedValueSets = new ArrayList<ValueSet>(wrappedValueSets);
     }
 
     @Override
@@ -253,7 +249,7 @@ public class JoinTable implements ValueTable {
 
     @Override
     public VariableEntity getVariableEntity() {
-      return wrapped.getVariableEntity();
+      return wrappedValueSets.get(0).getVariableEntity();
     }
   }
 
@@ -272,7 +268,17 @@ public class JoinTable implements ValueTable {
 
     @Override
     public Value getValue(ValueSet valueSet) {
-      return wrapped.getValue(((ValueSetWrapper) valueSet).wrapped);
+      ValueSet wrappedValueSetWithVariable = null;
+      for(ValueSet wrappedValueSet : ((ValueSetWrapper) valueSet).wrappedValueSets) {
+        for(Variable variable : wrappedValueSet.getValueTable().getVariables()) {
+          if(variable.getName().equals(getVariable().getName())) {
+            wrappedValueSetWithVariable = wrappedValueSet;
+            break;
+          }
+        }
+        if(wrappedValueSetWithVariable != null) break;
+      }
+      return wrapped.getValue(wrappedValueSetWithVariable);
     }
 
     @Override
