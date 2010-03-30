@@ -11,6 +11,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import liquibase.change.AddColumnChange;
@@ -294,6 +295,11 @@ public class JdbcValueTableWriter implements ValueTableWriter {
       if(!value.isNull()) {
         if(!value.isSequence()) {
           columnValue = value.getValue();
+
+          // Persist Locale objects as strings.
+          if(columnValue instanceof Locale) {
+            columnValue = columnValue.toString();
+          }
         } else {
           columnValue = value.toString();
         }
