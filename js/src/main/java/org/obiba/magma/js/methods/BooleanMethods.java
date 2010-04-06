@@ -356,7 +356,7 @@ public class BooleanMethods {
    * @throws MagmaJsEvaluationRuntimeException if operands are not ScriptableValue Objects of a numeric type,
    * BooleanType or TextType.
    */
-  public static ScriptableValue equals(Context ctx, Scriptable thisObj, Object[] args, Function funObj) throws MagmaJsEvaluationRuntimeException {
+  public static ScriptableValue eq(Context ctx, Scriptable thisObj, Object[] args, Function funObj) throws MagmaJsEvaluationRuntimeException {
     ScriptableValue firstOperand = (ScriptableValue) thisObj;
     if(firstOperand.getValue().isNull()) return new ScriptableValue(thisObj, BooleanType.get().falseValue());
     if(args != null && args.length > 0 && args[0] instanceof ScriptableValue) {
