@@ -78,4 +78,13 @@ public class TextMethodsTest extends AbstractScriptableValueTest {
     ScriptableValue result = TextMethods.concat(Context.getCurrentContext(), nullOperand, new ScriptableValue[] { world }, null);
     assertThat(result.getValue(), is(TextType.get().valueOf("nullWorld!")));
   }
+
+  @Test
+  public void testConcatMultipleArguments() throws Exception {
+    ScriptableValue hello = newValue(TextType.get().valueOf("Hello "));
+    ScriptableValue world = newValue(TextType.get().valueOf("World!"));
+    ScriptableValue greet = newValue(TextType.get().valueOf("How are you, "));
+    ScriptableValue result = TextMethods.concat(Context.getCurrentContext(), hello, new Object[] { world, " ", greet, "Mr. Potato Head", "?" }, null);
+    assertThat(result.getValue(), is(TextType.get().valueOf("Hello World! How are you, Mr. Potato Head?")));
+  }
 }

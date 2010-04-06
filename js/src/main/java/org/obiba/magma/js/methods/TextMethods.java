@@ -74,23 +74,29 @@ public class TextMethods {
   }
 
   /**
-   * Returns a new {@link ScriptableValue} of {@link TextType} combining the String value of the first and second
-   * parameters.
+   * Returns a new {@link ScriptableValue} of {@link TextType} combining the String value of this value with the String
+   * values of the parameters parameters.
    * 
    * <pre>
    *   $('TextVar').concat($('TextVar'))
    *   $('Var').concat($('Var'))
+   *   $('Var').concat('SomeValue')
    * </pre>
    */
   public static ScriptableValue concat(Context ctx, Scriptable thisObj, Object[] args, Function funObj) {
     ScriptableValue sv = (ScriptableValue) thisObj;
-    String firstString = sv.getValue().getValue() == null ? "null" : (String) sv.getValue().getValue().toString();
-    if(args != null && args.length > 0 && args[0] instanceof ScriptableValue) {
-      ScriptableValue secondOperand = (ScriptableValue) args[0];
-      String secondString = secondOperand.getValue().getValue() == null ? "null" : (String) secondOperand.getValue().getValue().toString();
-      return new ScriptableValue(thisObj, TextType.get().valueOf(firstString + secondString));
-    } else {
-      return new ScriptableValue(thisObj, TextType.get().valueOf(firstString));
+
+    StringBuilder sb = new StringBuilder();
+
+    sb.append(sv.toString());
+    if(args != null) {
+      for(Object arg : args) {
+        if(arg instanceof ScriptableValue) {
+          arg = arg.toString();
+        }
+        sb.append(arg);
+      }
     }
+    return new ScriptableValue(thisObj, TextType.get().valueOf(sb.toString()));
   }
 }
