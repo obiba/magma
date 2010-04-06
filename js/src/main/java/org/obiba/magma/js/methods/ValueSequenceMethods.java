@@ -132,6 +132,9 @@ public class ValueSequenceMethods {
    * 
    * <pre>
    *   $('SequenceVar').sort()
+   *   $('SequenceVar').sort(function(first, second) {
+   *      return first.value() - second.value()
+   *    })
    * </pre>
    * @throws MagmaJsEvaluationRuntimeException if operand does not contain a ValueSequence.
    */
@@ -144,18 +147,18 @@ public class ValueSequenceMethods {
     if(sv.getValue().isSequence()) {
       ValueSequence valueSequence = sv.getValue().asSequence();
 
-      // Sort using a custom Comparator (javascript function)
       ValueSequence sortedValueSequence = null;
-      if(funObj != null) {
+      if(args != null && args.length > 0 && args[0] instanceof Function) {
+        // Sort using a custom Comparator (javascript function)
+        final Function func = (Function) args[0];
         sortedValueSequence = (ValueSequence) valueSequence.sort(new Comparator<Value>() {
           @Override
           public int compare(Value o1, Value o2) {
-            return (Integer) funObj.call(ctx, sv.getParentScope(), sv, new ScriptableValue[] { new ScriptableValue(sv.getParentScope(), o1), new ScriptableValue(sv.getParentScope(), o2) });
+            return ((Number) func.call(ctx, sv.getParentScope(), sv, new ScriptableValue[] { new ScriptableValue(sv, o1), new ScriptableValue(sv, o2) })).intValue();
           }
         });
-
-        // Sort based on natural order
       } else {
+        // Sort based on natural order
         sortedValueSequence = (ValueSequence) valueSequence.sort();
       }
       return new ScriptableValue(thisObj, sortedValueSequence);
