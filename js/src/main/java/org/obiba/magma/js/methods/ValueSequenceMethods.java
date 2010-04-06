@@ -97,11 +97,11 @@ public class ValueSequenceMethods {
    * is null. Returns null if index is not an {@link Integer}. Returns null if the index is out of bounds.
    * 
    * <pre>
-   *   $('SequenceVar').value(0)
+   *   $('SequenceVar').valueAt(0)
    * </pre>
    * @throws MagmaJsEvaluationRuntimeException if operand does not contain a ValueSequence.
    */
-  public static ScriptableValue value(Context ctx, Scriptable thisObj, Object[] args, Function funObj) throws MagmaJsEvaluationRuntimeException {
+  public static ScriptableValue valueAt(Context ctx, Scriptable thisObj, Object[] args, Function funObj) throws MagmaJsEvaluationRuntimeException {
     ScriptableValue sv = (ScriptableValue) thisObj;
     if(sv.getValue().isNull()) {
       return new ScriptableValue(thisObj, sv.getValue());

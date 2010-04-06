@@ -145,7 +145,7 @@ public class ValueSequenceMethodsTest extends AbstractScriptableValueTest {
   public void testValueFirstItemExists() throws Exception {
     ValueSequence valueSequence = TextType.get().sequenceOf("\"A\", \"B\"");
     ScriptableValue scriptableValue = newValue(valueSequence);
-    ScriptableValue result = ValueSequenceMethods.value(Context.getCurrentContext(), scriptableValue, new Object[] { 0 }, null);
+    ScriptableValue result = ValueSequenceMethods.valueAt(Context.getCurrentContext(), scriptableValue, new Object[] { 0 }, null);
     assertThat(result.getValue(), is(valueSequence.get(0)));
   }
 
@@ -153,7 +153,7 @@ public class ValueSequenceMethodsTest extends AbstractScriptableValueTest {
   public void testValueSecondItemExists() throws Exception {
     ValueSequence valueSequence = TextType.get().sequenceOf("\"A\", \"B\"");
     ScriptableValue scriptableValue = newValue(valueSequence);
-    ScriptableValue result = ValueSequenceMethods.value(Context.getCurrentContext(), scriptableValue, new Object[] { 1 }, null);
+    ScriptableValue result = ValueSequenceMethods.valueAt(Context.getCurrentContext(), scriptableValue, new Object[] { 1 }, null);
     assertThat(result.getValue(), is(valueSequence.get(1)));
   }
 
@@ -161,7 +161,7 @@ public class ValueSequenceMethodsTest extends AbstractScriptableValueTest {
   public void testValueIndexOutOfBounds() throws Exception {
     ValueSequence valueSequence = TextType.get().sequenceOf("\"A\", \"B\"");
     ScriptableValue scriptableValue = newValue(valueSequence);
-    ScriptableValue result = ValueSequenceMethods.value(Context.getCurrentContext(), scriptableValue, new Object[] { 2 }, null);
+    ScriptableValue result = ValueSequenceMethods.valueAt(Context.getCurrentContext(), scriptableValue, new Object[] { 2 }, null);
     assertThat(result.getValue(), is(TextType.get().nullValue()));
   }
 
@@ -169,7 +169,7 @@ public class ValueSequenceMethodsTest extends AbstractScriptableValueTest {
   public void testValueIndexNonIntegerType() throws Exception {
     ValueSequence valueSequence = TextType.get().sequenceOf("\"A\", \"B\"");
     ScriptableValue scriptableValue = newValue(valueSequence);
-    ScriptableValue result = ValueSequenceMethods.value(Context.getCurrentContext(), scriptableValue, new Object[] { "One" }, null);
+    ScriptableValue result = ValueSequenceMethods.valueAt(Context.getCurrentContext(), scriptableValue, new Object[] { "One" }, null);
     assertThat(result.getValue(), is(TextType.get().nullValue()));
   }
 
