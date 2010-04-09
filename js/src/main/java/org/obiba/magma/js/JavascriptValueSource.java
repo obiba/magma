@@ -6,6 +6,7 @@ import org.mozilla.javascript.ContextFactory;
 import org.mozilla.javascript.EvaluatorException;
 import org.mozilla.javascript.Script;
 import org.mozilla.javascript.Scriptable;
+import org.mozilla.javascript.Undefined;
 import org.obiba.magma.Initialisable;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueSet;
@@ -68,10 +69,23 @@ public class JavascriptValueSource implements ValueSource, Initialisable {
         Object value = compiledScript.exec(ctx, scope);
 
         exitContext(context);
-        if(value instanceof Scriptable) {
-          return value;
+        ScriptableValue scriptableValue = null;
+        if(value instanceof ScriptableValue) {
+          scriptableValue = (ScriptableValue) value;
+          if(scriptableValue.getValue().isSequence() != isSequence()) {
+            throw new MagmaJsRuntimeException("The returned value is " + (isSequence() ? "" : "not ") + "expected to be a value sequence.");
+          }
+        } else if(value instanceof Undefined) {
+          scriptableValue = new ScriptableValue(scope, isSequence() ? getValueType().nullSequence() : getValueType().nullValue());
+        } else {
+          if(isSequence()) {
+            // TODO fixme: what is it supposed to be ?
+            scriptableValue = new ScriptableValue(scope, getValueType().sequenceOf((Iterable<Value>) value));
+          } else {
+            scriptableValue = new ScriptableValue(scope, getValueType().valueOf(value));
+          }
         }
-        return new ScriptableValue(scope, getValueType().valueOf(value));
+        return scriptableValue;
       }
     })).getValue();
   }
@@ -97,6 +111,10 @@ public class JavascriptValueSource implements ValueSource, Initialisable {
     } catch(EvaluatorException e) {
       throw e;
     }
+  }
+
+  protected boolean isSequence() {
+    return false;
   }
 
   /**
