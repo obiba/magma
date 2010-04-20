@@ -24,7 +24,10 @@ import com.google.common.collect.Sets;
 public class SpringContextScanningDatasource extends AbstractDatasource {
 
   @Autowired
-  private Set<ValueTableFactoryBean> valueTableFactories;
+  private Set<ValueTableFactoryBeanProvider> valueTableFactoryBeanProviders;
+
+  @Autowired
+  private Set<ValueTableFactoryBean> valueTableFactoryBeans;
 
   public SpringContextScanningDatasource(String name) {
     super(name, "spring-context");
@@ -33,20 +36,36 @@ public class SpringContextScanningDatasource extends AbstractDatasource {
   @Override
   protected Set<String> getValueTableNames() {
     Set<String> names = Sets.newHashSet();
-    for(ValueTableFactoryBean factory : valueTableFactories) {
+    
+    for(ValueTableFactoryBean factory : getAllValueTableFactoryBeans()) {
       names.add(factory.getValueTableName());
     }
+    
     return names;
   }
 
   @Override
   protected ValueTable initialiseValueTable(String tableName) {
-    for(ValueTableFactoryBean factory : valueTableFactories) {
+    for(ValueTableFactoryBean factory : getAllValueTableFactoryBeans()) {
       if(factory.getValueTableName().equals(tableName)) {
         return factory.buildValueTable(this);
       }
     }
+    
     throw new NoSuchValueTableException(tableName);
   }
 
+  private Set<ValueTableFactoryBean> getAllValueTableFactoryBeans() {
+    Set<ValueTableFactoryBean> allValueTableFactoryBeans = Sets.newHashSet();
+
+    // Include injected factory beans.  
+    allValueTableFactoryBeans.addAll(valueTableFactoryBeans);
+    
+    // Include factory beans from injected providers.
+    for(ValueTableFactoryBeanProvider provider : valueTableFactoryBeanProviders) {
+      allValueTableFactoryBeans.addAll(provider.getValueTableFactoryBeans()); 
+    }
+    
+    return allValueTableFactoryBeans;
+  }
 }
