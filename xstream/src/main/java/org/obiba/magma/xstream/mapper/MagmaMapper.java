@@ -17,6 +17,7 @@ public class MagmaMapper extends MapperWrapper {
   @Override
   @SuppressWarnings("unchecked")
   public String serializedClass(Class type) {
+    if(type == null) return super.serializedClass(type);
     if(Variable.class.isAssignableFrom(type)) {
       return "variable";
     }
@@ -35,6 +36,7 @@ public class MagmaMapper extends MapperWrapper {
   @Override
   @SuppressWarnings("unchecked")
   public Class realClass(String elementName) {
+    if(elementName == null) return super.realClass(elementName);
     if("variable".equals(elementName)) {
       return Variable.class;
     }
