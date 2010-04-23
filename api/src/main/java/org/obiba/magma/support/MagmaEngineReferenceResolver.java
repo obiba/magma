@@ -64,7 +64,7 @@ public abstract class MagmaEngineReferenceResolver {
     return tableName;
   }
 
-  String getVariableName() {
+  public String getVariableName() {
     return variableName;
   }
 
