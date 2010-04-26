@@ -107,8 +107,8 @@ public class ValueSequenceMethods {
       return new ScriptableValue(thisObj, sv.getValue());
     }
     Integer index = null;
-    if(args != null && args.length > 0 && args[0] instanceof Integer) {
-      index = (Integer) args[0];
+    if(args != null && args.length > 0 && args[0] instanceof Number) {
+      index = ((Number) args[0]).intValue();
     } else {
       return new ScriptableValue(thisObj, sv.getValueType().nullValue());
     }
