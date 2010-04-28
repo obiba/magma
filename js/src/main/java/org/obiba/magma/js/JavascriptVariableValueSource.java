@@ -19,6 +19,11 @@ public class JavascriptVariableValueSource extends JavascriptValueSource impleme
   }
 
   @Override
+  protected boolean isSequence() {
+    return variable.isRepeatable();
+  }
+
+  @Override
   public ValueType getValueType() {
     return variable.getValueType();
   }
