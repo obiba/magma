@@ -11,6 +11,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.poi.POIXMLDocumentPart;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Cell;
@@ -21,6 +22,7 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.apache.xmlbeans.XmlOptions;
 import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.ValueTableWriter;
@@ -111,6 +113,15 @@ public class ExcelDatasource extends AbstractDatasource {
     // Write the workbook (datasource) to file.
     FileOutputStream excelOutputStream = null;
     try {
+      // Fix for OPAL-238 using POI 3.6
+      // The following lines can be removed when using a POI version that has this internal fix.
+      // See https://issues.apache.org/bugzilla/show_bug.cgi?id=48936
+      // ---
+      XmlOptions options = POIXMLDocumentPart.DEFAULT_XML_OPTIONS;
+      options.setSaveCDataLengthThreshold(1000000);
+      options.setSaveCDataEntityCountThreshold(-1);
+      // ---
+
       excelOutputStream = new FileOutputStream(excelFile);
       excelWorkbook.write(excelOutputStream);
     } catch(Exception e) {
