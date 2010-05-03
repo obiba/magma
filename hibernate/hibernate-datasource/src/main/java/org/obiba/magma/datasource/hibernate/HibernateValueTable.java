@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import org.hibernate.FetchMode;
 import org.obiba.core.service.impl.hibernate.AssociationCriteria;
 import org.obiba.core.service.impl.hibernate.AssociationCriteria.Operation;
 import org.obiba.magma.Initialisable;
@@ -64,8 +65,11 @@ class HibernateValueTable extends AbstractValueTable {
     // 
     .add("variableEntity.identifier", Operation.eq, entity.getIdentifier()).add("variableEntity.type", Operation.eq, entity.getType());
 
-    ValueSetState state = (ValueSetState) criteria.getCriteria().uniqueResult();
+    ValueSetState state = (ValueSetState) criteria.getCriteria().setFetchMode("values", FetchMode.JOIN).uniqueResult();
     if(state != null) {
+      // this is important when copying from a HibernateDatasource. Otherwise, they accumulate in the session and make
+      // flushing longer and longer.
+      getDatasource().getSessionFactory().getCurrentSession().evict(state);
       return new HibernateValueSet(entity, state);
     }
     throw new NoSuchValueSetException(this, entity);
