@@ -74,6 +74,9 @@ public class XStreamValueSet {
    * @return this
    */
   private Object readResolve() {
+    if(values == null) {
+      values = new LinkedList<XStreamValueSetValue>();
+    }
     valueMap = new MapMaker().makeComputingMap(new FindValueComputation());
     return this;
   }

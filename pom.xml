@@ -296,8 +296,8 @@
   </distributionManagement>
 
   <scm>
-    <connection>scm:svn:http://svn.obiba.org/magma/trunk</connection>
-    <developerConnection>scm:svn:https://svn.obiba.org/magma/trunk</developerConnection>
+    <connection>scm:svn:http://svn.obiba.org/magma/branches/magma-1.2.x</connection>
+    <developerConnection>scm:svn:https://svn.obiba.org/magma/branches/magma-1.2.x</developerConnection>
   </scm>
 
   <properties>
