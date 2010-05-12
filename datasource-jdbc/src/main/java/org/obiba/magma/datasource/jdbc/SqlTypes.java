@@ -85,7 +85,7 @@ class SqlTypes {
     if(valueType.equals(TextType.get())) {
       // TODO: Formalize the notion of a "hint".
       if(TEXT_TYPE_HINT_MEDIUM.equals(hint)) {
-        return "VARCHAR(1024)";
+        return "LONGVARCHAR"; // ONYX-285
       } else if(TEXT_TYPE_HINT_LARGE.equals(hint)) {
         return "LONGVARCHAR";
       } else {
