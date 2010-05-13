@@ -46,6 +46,11 @@ public class MagmaEngineFactory {
 
   public MagmaEngine create() {
     MagmaEngine engine = newEngineInstance(engineClass);
+
+    return engine;
+  }
+
+  public void initialize(MagmaEngine engine) {
     for(MagmaEngineExtension extension : extensions) {
       engine.extend(extension);
     }
@@ -57,8 +62,6 @@ public class MagmaEngineFactory {
     for(Datasource datasource : datasources) {
       engine.addDatasource(datasource);
     }
-
-    return engine;
   }
 
   public String getEngineClass() {
