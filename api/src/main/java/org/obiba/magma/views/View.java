@@ -195,7 +195,7 @@ public class View extends AbstractValueTableWrapper implements Initialisable {
       if(where.where(valueSet) && isVariableInSuper(variable, valueSet)) {
         return super.getValue(variable, ((ValueSetWrapper) valueSet).getWrappedValueSet());
       } else {
-        return getListValue(variable, ((ValueSetWrapper) valueSet).getWrappedValueSet());
+        return getListValue(variable, valueSet);
       }
     }
     if(!where.where(valueSet)) {
