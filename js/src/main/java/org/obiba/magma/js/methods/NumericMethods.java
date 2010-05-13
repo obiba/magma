@@ -40,23 +40,29 @@ public class NumericMethods {
   /**
    * Convert a non null {@link Scriptable} into a {@link ScriptableValue}.
    * @return A {@code ScriptableValue} containing a numeric {@link ValueType}.
-   * @throws MagmaJsEvaluationRuntimeException if scriptable is null or not numeric
+   * @throws MagmaJsEvaluationRuntimeException if scriptable is not numeric
    */
   static ScriptableValue getScriptableAsNumericScriptableValue(Scriptable scriptable) throws MagmaJsEvaluationRuntimeException {
-    if(scriptable != null && !((ScriptableValue) scriptable).getValue().isNull() && ((ScriptableValue) scriptable).getValueType().isNumeric()) {
+    if(scriptable != null && ((ScriptableValue) scriptable).getValueType().isNumeric()) {
+      if(((ScriptableValue) scriptable).getValue().isNull()) {
+        return new ScriptableValue(scriptable, IntegerType.get().valueOf(0));
+      }
       return (ScriptableValue) scriptable;
     } else {
-      throw new MagmaJsEvaluationRuntimeException("First operand to plus() method must be a non null ScriptableValue containing a IntegerType or DecimalType.");
+      throw new MagmaJsEvaluationRuntimeException("First operand to plus() method must be a ScriptableValue containing a IntegerType or DecimalType.");
     }
   }
 
   /**
    * Return the first argument of an array as a {@link ScriptableValue}.
    * @return A {@code ScriptableValue} containing a numeric {@link ValueType}.
-   * @throws MagmaJsEvaluationRuntimeException if the first argument is null or not numeric
+   * @throws MagmaJsEvaluationRuntimeException if the first argument is not numeric
    */
   static ScriptableValue getFirstArgumentAsNumericScriptableValue(Object[] args) throws MagmaJsEvaluationRuntimeException {
-    if(args != null && args.length > 0 && args[0] instanceof ScriptableValue && !((ScriptableValue) args[0]).getValue().isNull() && ((ScriptableValue) args[0]).getValueType().isNumeric()) {
+    if(args != null && args.length > 0 && args[0] instanceof ScriptableValue && ((ScriptableValue) args[0]).getValueType().isNumeric()) {
+      if(((ScriptableValue) args[0]).getValue().isNull()) {
+        return new ScriptableValue((ScriptableValue) args[0], IntegerType.get().valueOf(0));
+      }
       return (ScriptableValue) args[0];
     } else {
       throw new MagmaJsEvaluationRuntimeException("Second operand to plus() method must be a non null ScriptableValue containing a IntegerType or DecimalType.");
