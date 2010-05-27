@@ -25,6 +25,8 @@ import org.obiba.magma.type.TextType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Function;
+
 public class DatasourceCopier {
 
   private static final Logger log = LoggerFactory.getLogger(DatasourceCopier.class);
@@ -71,11 +73,15 @@ public class DatasourceCopier {
       return this;
     }
 
-    public Builder withVariableEntityCopyEventListener(VariableEntityAuditLogManager auditLogManager, Datasource destination) {
+    public Builder withVariableEntityCopyEventListener(VariableEntityAuditLogManager auditLogManager, Datasource destination, Function<VariableEntity, VariableEntity> entityMapper) {
       if(auditLogManager == null) throw new IllegalArgumentException("auditLogManager cannot be null");
       if(destination == null) throw new IllegalArgumentException("auditLogManager cannot be null");
-      copier.listeners.add(new VariableEntityCopyEventListener(auditLogManager, destination));
+      copier.listeners.add(new VariableEntityCopyEventListener(auditLogManager, destination, entityMapper));
       return this;
+    }
+
+    public Builder withVariableEntityCopyEventListener(VariableEntityAuditLogManager auditLogManager, Datasource destination) {
+      return withVariableEntityCopyEventListener(auditLogManager, destination, null);
     }
 
     public Builder withVariableTransformer(VariableTransformer transformer) {
@@ -350,16 +356,19 @@ public class DatasourceCopier {
 
     private Datasource destination;
 
-    public VariableEntityCopyEventListener(VariableEntityAuditLogManager auditLogManager, Datasource destination) {
+    private Function<VariableEntity, VariableEntity> entityMapper;
+
+    public VariableEntityCopyEventListener(VariableEntityAuditLogManager auditLogManager, Datasource destination, Function<VariableEntity, VariableEntity> entityMapper) {
       if(auditLogManager == null) throw new IllegalArgumentException("auditLogManager cannot be null");
       if(destination == null) throw new IllegalArgumentException("destination cannot be null");
       this.auditLogManager = auditLogManager;
       this.destination = destination;
+      this.entityMapper = entityMapper;
     }
 
     @Override
     public void onValueSetCopied(ValueTable source, ValueSet valueSet, String... tables) {
-      VariableEntity entity = valueSet.getVariableEntity();
+      VariableEntity entity = entityMapper != null ? entityMapper.apply(valueSet.getVariableEntity()) : valueSet.getVariableEntity();
       for(String tableName : tables) {
         auditLogManager.createAuditEvent(auditLogManager.getAuditLog(entity), source, "COPY", createCopyDetails(entity, tableName));
       }
