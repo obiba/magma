@@ -41,6 +41,8 @@ class HibernateValueTableWriter implements ValueTableWriter {
 
   private final FlushMode initialFlushMode;
 
+  private boolean errorOccurred = false;
+
   HibernateValueTableWriter(HibernateValueTableTransaction transaction) {
     super();
     if(transaction == null) throw new IllegalArgumentException("transaction cannot be null");
@@ -92,15 +94,19 @@ class HibernateValueTableWriter implements ValueTableWriter {
       }
 
       // add or update variable
+      errorOccurred = true;
       HibernateMarshallingContext context = valueTable.createContext();
       VariableState state = variableConverter.marshal(variable, context);
       transaction.addSource(valueSourceFactory.createSource(state));
+      errorOccurred = false;
     }
 
     @Override
     public void close() throws IOException {
-      // TODO: We mustn't flush the session if an exception has occurred within Hibernate.
-      sessionFactory.getCurrentSession().flush();
+      if(errorOccurred == false) {
+        // TODO: We mustn't flush the session if an exception has occurred within Hibernate.
+        sessionFactory.getCurrentSession().flush();
+      }
       sessionFactory.getCurrentSession().clear();
     }
   }
@@ -161,11 +167,13 @@ class HibernateValueTableWriter implements ValueTableWriter {
 
     @Override
     public void close() throws IOException {
-      sessionFactory.getCurrentSession().save(valueSetState);
-      // TODO: We mustn't flush the session if an exception has occurred within Hibernate.
-      sessionFactory.getCurrentSession().flush();
-      // Empty the Session so we don't fill it up
-      sessionFactory.getCurrentSession().evict(valueSetState);
+      if(errorOccurred == false) {
+        sessionFactory.getCurrentSession().save(valueSetState);
+        // TODO: We mustn't flush the session if an exception has occurred within Hibernate.
+        sessionFactory.getCurrentSession().flush();
+        // Empty the Session so we don't fill it up
+        sessionFactory.getCurrentSession().evict(valueSetState);
+      }
     }
 
   }
