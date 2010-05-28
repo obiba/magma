@@ -56,7 +56,7 @@ public class IntegrationApp {
     MagmaEngine.get().addDatasource(fs);
 
     // Export the IntegrationDatasource to the FsDatasource
-    DatasourceCopier copier = new DatasourceCopier();
+    DatasourceCopier copier = DatasourceCopier.Builder.newCopier().build();
     copier.copy(integrationDatasource.getName(), fs.getName());
 
     // Disconnect it from Magma
