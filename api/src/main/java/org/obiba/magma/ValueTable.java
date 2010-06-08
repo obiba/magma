@@ -1,5 +1,6 @@
 package org.obiba.magma;
 
+import java.util.Set;
 
 public interface ValueTable {
 
@@ -10,6 +11,8 @@ public interface ValueTable {
   public String getEntityType();
 
   public boolean isForEntityType(String entityType);
+
+  public Set<VariableEntity> getVariableEntities();
 
   public boolean hasValueSet(VariableEntity entity);
 

@@ -102,6 +102,15 @@ public class JoinTable implements ValueTable {
   }
 
   @Override
+  public Set<VariableEntity> getVariableEntities() {
+    Set<VariableEntity> entities = new LinkedHashSet<VariableEntity>();
+    for(ValueTable table : tables) {
+      entities.addAll(table.getVariableEntities());
+    }
+    return entities;
+  }
+
+  @Override
   public Iterable<ValueSet> getValueSets() {
     Set<ValueSet> valueSets = new LinkedHashSet<ValueSet>();
 
