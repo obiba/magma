@@ -8,7 +8,7 @@ import java.security.InvalidParameterException;
 import java.util.Map;
 
 import org.hibernate.FlushMode;
-import org.hibernate.SessionFactory;
+import org.hibernate.Session;
 import org.obiba.core.service.impl.hibernate.AssociationCriteria;
 import org.obiba.core.service.impl.hibernate.AssociationCriteria.Operation;
 import org.obiba.magma.NoSuchVariableException;
@@ -35,11 +35,9 @@ class HibernateValueTableWriter implements ValueTableWriter {
 
   private final VariableConverter variableConverter = new VariableConverter();
 
-  private final SessionFactory sessionFactory;
+  private final Session session;
 
   private final HibernateVariableValueSourceFactory valueSourceFactory;
-
-  private final FlushMode initialFlushMode;
 
   private boolean errorOccurred = false;
 
@@ -49,22 +47,11 @@ class HibernateValueTableWriter implements ValueTableWriter {
     this.transaction = transaction;
     this.valueTable = transaction.getValueTable();
 
-    this.sessionFactory = valueTable.getDatasource().getSessionFactory();
+    this.session = valueTable.getDatasource().getSessionFactory().getCurrentSession();
     this.valueSourceFactory = new HibernateVariableValueSourceFactory(valueTable);
-    this.initialFlushMode = this.sessionFactory.getCurrentSession().getFlushMode();
-
-    this.sessionFactory.getCurrentSession().setFlushMode(FlushMode.MANUAL);
-
-    // Synchronize with the transaction. This allows us to add new variables and entities only if the transaction
-    // succeeds.
-    new HibernateDatasourceSynchronization(valueTable.getDatasource()) {
-
-      @Override
-      public void beforeCompletion() {
-        sessionFactory.getCurrentSession().setFlushMode(initialFlushMode);
-      }
-
-    };
+    if(this.session.getFlushMode() != FlushMode.MANUAL) {
+      this.session.setFlushMode(FlushMode.MANUAL);
+    }
   }
 
   @Override
@@ -79,6 +66,9 @@ class HibernateValueTableWriter implements ValueTableWriter {
 
   @Override
   public void close() throws IOException {
+    if(errorOccurred == false) {
+      session.flush();
+    }
   }
 
   private class HibernateVariableWriter implements VariableWriter {
@@ -105,9 +95,9 @@ class HibernateValueTableWriter implements ValueTableWriter {
     public void close() throws IOException {
       if(errorOccurred == false) {
         // TODO: We mustn't flush the session if an exception has occurred within Hibernate.
-        sessionFactory.getCurrentSession().flush();
+        session.flush();
       }
-      sessionFactory.getCurrentSession().clear();
+      session.clear();
     }
   }
 
@@ -115,18 +105,25 @@ class HibernateValueTableWriter implements ValueTableWriter {
 
     private final ValueSetState valueSetState;
 
+    private final VariableEntity entity;
+
+    private final boolean isNewValueSet;
+
     private Map<String, ValueSetValue> values;
 
     public HibernateValueSetWriter(VariableEntity entity) {
       if(entity == null) throw new IllegalArgumentException("entity cannot be null");
+      this.entity = entity;
       // find entity or create it
       VariableEntityState variableEntityState = VariableEntityConverter.getInstance().marshal(entity, valueTable.createContext());
 
-      AssociationCriteria criteria = AssociationCriteria.create(ValueSetState.class, sessionFactory.getCurrentSession()).add("valueTable", Operation.eq, valueTable.getValueTableState()).add("variableEntity", Operation.eq, variableEntityState);
+      AssociationCriteria criteria = AssociationCriteria.create(ValueSetState.class, session).add("valueTable", Operation.eq, valueTable.getValueTableState()).add("variableEntity", Operation.eq, variableEntityState);
       ValueSetState state = (ValueSetState) criteria.getCriteria().uniqueResult();
       if(state == null) {
         state = new ValueSetState(valueTable.getValueTableState(), variableEntityState);
-        transaction.addEntity(entity);
+        isNewValueSet = true;
+      } else {
+        isNewValueSet = false;
       }
       valueSetState = state;
 
@@ -168,11 +165,15 @@ class HibernateValueTableWriter implements ValueTableWriter {
     @Override
     public void close() throws IOException {
       if(errorOccurred == false) {
-        sessionFactory.getCurrentSession().save(valueSetState);
+        session.save(valueSetState);
+        if(isNewValueSet) {
+          // Make the entity visible within this transaction
+          transaction.addEntity(entity);
+        }
         // TODO: We mustn't flush the session if an exception has occurred within Hibernate.
-        sessionFactory.getCurrentSession().flush();
+        session.flush();
         // Empty the Session so we don't fill it up
-        sessionFactory.getCurrentSession().evict(valueSetState);
+        session.evict(valueSetState);
       }
     }
 

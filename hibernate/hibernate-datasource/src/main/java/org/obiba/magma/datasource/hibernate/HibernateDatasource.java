@@ -20,8 +20,8 @@ import org.obiba.magma.ValueTable;
 import org.obiba.magma.ValueTableWriter;
 import org.obiba.magma.datasource.hibernate.converter.AttributeAwareConverter;
 import org.obiba.magma.datasource.hibernate.converter.HibernateMarshallingContext;
-import org.obiba.magma.datasource.hibernate.domain.DatasourceState;
 import org.obiba.magma.datasource.hibernate.domain.AttributeState;
+import org.obiba.magma.datasource.hibernate.domain.DatasourceState;
 import org.obiba.magma.datasource.hibernate.domain.ValueTableState;
 import org.obiba.magma.support.AbstractDatasource;
 
@@ -31,7 +31,7 @@ public class HibernateDatasource extends AbstractDatasource {
 
   private static final String HIBERNATE_TYPE = "hibernate";
 
-  private SessionFactory sessionFactory;
+  private final SessionFactory sessionFactory;
 
   private Serializable datasourceId;
 
@@ -77,7 +77,7 @@ public class HibernateDatasource extends AbstractDatasource {
       }
     }
 
-    return new HibernateValueTableWriter(valueTableTransaction);
+    return valueTableTransaction.getTransactionWriter();
   }
 
   /**
