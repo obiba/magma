@@ -36,6 +36,7 @@ import com.google.common.collect.Sets;
 import com.thoughtworks.xstream.XStream;
 
 import de.schlichtherle.io.ArchiveException;
+import de.schlichtherle.io.ArchiveWarningException;
 import de.schlichtherle.io.File;
 import de.schlichtherle.io.FileInputStream;
 import de.schlichtherle.io.FileOutputStream;
@@ -50,7 +51,7 @@ public class FsDatasource extends AbstractDatasource {
    */
   private static final Charset CHARSET = Charset.availableCharsets().get("UTF-8");
 
-  private File datasourceArchive;
+  private final File datasourceArchive;
 
   private DatasourceEncryptionStrategy datasourceEncryptionStrategy;
 
@@ -120,6 +121,8 @@ public class FsDatasource extends AbstractDatasource {
     } finally {
       try {
         File.umount(datasourceArchive);
+      } catch(ArchiveWarningException e) {
+        // ArchiveWarningException are non-fatal. We choose to ignore them.
       } catch(ArchiveException e) {
         throw new MagmaRuntimeException(e);
       }
