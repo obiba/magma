@@ -35,6 +35,9 @@ class ExcelValueTable extends AbstractValueTable implements Initialisable {
 
   private final Sheet valueTableSheet;
 
+  /** Maps a variable's name to its Column index valueTableSheet */
+  private final Map<String, Integer> variableColumns = Maps.newHashMap();
+
   /** Maps a variable's name to its Row in the variablesSheet */
   private final Map<String, Row> variableRows = Maps.newHashMap();
 
@@ -76,10 +79,16 @@ class ExcelValueTable extends AbstractValueTable implements Initialisable {
   }
 
   int findVariableColumn(Variable variable) {
+    // Lookup in column cache
+    Integer columnIndex = this.variableColumns.get(variable.getName());
+    if(columnIndex != null) {
+      return columnIndex;
+    }
     Row variableNameRow = valueTableSheet.getRow(0);
     for(int i = 0; i < variableNameRow.getPhysicalNumberOfCells(); i++) {
       Cell cell = variableNameRow.getCell(i);
       if(ExcelUtil.getCellValueAsString(cell).equals(variable.getName())) {
+        this.variableColumns.put(variable.getName(), i);
         return i;
       }
     }
@@ -95,6 +104,7 @@ class ExcelValueTable extends AbstractValueTable implements Initialisable {
       ExcelUtil.setCellValue(variableColumn, TextType.get(), variable.getName());
       variableColumn.setCellStyle(getDatasource().getExcelStyles("headerCellStyle"));
       column = variableColumn.getColumnIndex();
+      this.variableColumns.put(variable.getName(), column);
     }
     return column;
   }
