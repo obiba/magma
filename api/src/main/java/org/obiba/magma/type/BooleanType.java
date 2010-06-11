@@ -53,16 +53,11 @@ public class BooleanType extends AbstractValueType {
   }
 
   @Override
-  public Value nullValue() {
-    return Factory.newValue(this, null);
-  }
-
-  @Override
   public Value valueOf(String string) {
     if(string == null) {
       return nullValue();
     }
-    return Factory.newValue(this, Boolean.valueOf(string));
+    return valueOf(Boolean.valueOf(string).booleanValue());
   }
 
   @Override
@@ -71,7 +66,7 @@ public class BooleanType extends AbstractValueType {
       return nullValue();
     }
     if(object instanceof Boolean) {
-      return valueOf((Boolean) object);
+      return valueOf(((Boolean) object).booleanValue());
     }
     if(boolean.class.isAssignableFrom(object.getClass())) {
       return valueOf(boolean.class.cast(object));
@@ -80,8 +75,10 @@ public class BooleanType extends AbstractValueType {
   }
 
   public Value valueOf(Boolean object) {
-    // object may be null
-    return Factory.newValue(this, object);
+    if(object == null) {
+      return nullValue();
+    }
+    return valueOf(object.booleanValue());
   }
 
   public Value valueOf(boolean value) {

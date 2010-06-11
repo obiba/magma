@@ -15,14 +15,23 @@ public abstract class AbstractValueType implements ValueType {
 
   protected static final char QUOTE = '"';
 
+  protected final Value nullValue;
+
+  protected final ValueSequence nullSequence;
+
+  protected AbstractValueType() {
+    nullValue = Factory.newValue(this, null);
+    nullSequence = Factory.newSequence(this, null);
+  }
+
   @Override
   public Value nullValue() {
-    return Factory.newValue(this, null);
+    return nullValue;
   }
 
   @Override
   public ValueSequence nullSequence() {
-    return Factory.newSequence(this, null);
+    return nullSequence;
 
   }
 

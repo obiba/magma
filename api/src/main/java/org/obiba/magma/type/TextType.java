@@ -53,12 +53,18 @@ public class TextType extends AbstractValueType {
 
   @Override
   public Value valueOf(String string) {
+    if(string == null) {
+      return nullValue();
+    }
     return Factory.newValue(this, string);
   }
 
   @Override
   public Value valueOf(Object object) {
-    return Factory.newValue(this, object != null ? object.toString() : null);
+    if(object == null) {
+      return nullValue();
+    }
+    return Factory.newValue(this, object.toString());
   }
 
   /**

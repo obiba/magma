@@ -59,8 +59,6 @@ class ExcelValueTable extends AbstractValueTable implements Initialisable {
     super.initialise();
     try {
       readVariables();
-      // printVariables();
-
     } catch(RuntimeException e) {
       throw e;
     } catch(Exception e) {
@@ -144,18 +142,6 @@ class ExcelValueTable extends AbstractValueTable implements Initialisable {
 
   Sheet getValueTableSheet() {
     return valueTableSheet;
-  }
-
-  private void printVariables() {
-    log.debug("Table (name = {})", getName());
-    Iterable<Variable> variables = getVariables();
-    for(Variable variable : variables) {
-      log.debug("  Variable (name = {})", variable.getName());
-      Set<Category> categories = variable.getCategories();
-      for(Category category : categories) {
-        log.debug("    Category (name = {})\n", category.getName());
-      }
-    }
   }
 
   private void readVariables() throws FileNotFoundException, IOException {

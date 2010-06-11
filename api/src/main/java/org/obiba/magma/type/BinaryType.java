@@ -3,8 +3,6 @@ package org.obiba.magma.type;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 
-import javax.xml.namespace.QName;
-
 import org.obiba.magma.MagmaEngine;
 import org.obiba.magma.Value;
 
@@ -37,10 +35,6 @@ public class BinaryType extends AbstractValueType {
   @Override
   public boolean acceptsJavaClass(Class<?> clazz) {
     return byte[].class.isAssignableFrom(clazz);
-  }
-
-  public QName getXsdType() {
-    return new QName("xsd", "base64Binary");
   }
 
   public boolean isDateTime() {

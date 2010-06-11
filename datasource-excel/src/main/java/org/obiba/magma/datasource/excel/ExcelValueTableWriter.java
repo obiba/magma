@@ -217,7 +217,7 @@ public class ExcelValueTableWriter implements ValueTableWriter {
 
   private class ExcelValueSetWriter implements ValueSetWriter {
 
-    private Row entityRow;
+    private final Row entityRow;
 
     private ExcelValueSetWriter(VariableEntity entity) {
       Sheet tableSheet = valueTable.getValueTableSheet();
