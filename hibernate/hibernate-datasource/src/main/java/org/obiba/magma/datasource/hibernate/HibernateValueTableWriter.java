@@ -24,7 +24,6 @@ import org.obiba.magma.datasource.hibernate.domain.ValueSetValue;
 import org.obiba.magma.datasource.hibernate.domain.VariableEntityState;
 import org.obiba.magma.datasource.hibernate.domain.VariableState;
 
-import com.google.common.base.Function;
 import com.google.common.collect.Maps;
 
 class HibernateValueTableWriter implements ValueTableWriter {
@@ -66,9 +65,6 @@ class HibernateValueTableWriter implements ValueTableWriter {
 
   @Override
   public void close() throws IOException {
-    if(errorOccurred == false) {
-      session.flush();
-    }
   }
 
   private class HibernateVariableWriter implements VariableWriter {
@@ -94,14 +90,15 @@ class HibernateValueTableWriter implements ValueTableWriter {
     @Override
     public void close() throws IOException {
       if(errorOccurred == false) {
-        // TODO: We mustn't flush the session if an exception has occurred within Hibernate.
         session.flush();
+        session.clear();
       }
-      session.clear();
     }
   }
 
   private class HibernateValueSetWriter implements ValueSetWriter {
+
+    private final VariableEntityConverter entityConverter = new VariableEntityConverter();
 
     private final ValueSetState valueSetState;
 
@@ -109,30 +106,25 @@ class HibernateValueTableWriter implements ValueTableWriter {
 
     private final boolean isNewValueSet;
 
-    private Map<String, ValueSetValue> values;
+    private final Map<String, ValueSetValue> values;
 
     public HibernateValueSetWriter(VariableEntity entity) {
       if(entity == null) throw new IllegalArgumentException("entity cannot be null");
       this.entity = entity;
       // find entity or create it
-      VariableEntityState variableEntityState = VariableEntityConverter.getInstance().marshal(entity, valueTable.createContext());
+      VariableEntityState variableEntityState = entityConverter.marshal(entity, valueTable.createContext());
 
       AssociationCriteria criteria = AssociationCriteria.create(ValueSetState.class, session).add("valueTable", Operation.eq, valueTable.getValueTableState()).add("variableEntity", Operation.eq, variableEntityState);
       ValueSetState state = (ValueSetState) criteria.getCriteria().uniqueResult();
       if(state == null) {
         state = new ValueSetState(valueTable.getValueTableState(), variableEntityState);
+        values = Maps.newHashMap();
         isNewValueSet = true;
       } else {
+        values = Maps.newHashMap(state.getValueMap());
         isNewValueSet = false;
       }
       valueSetState = state;
-
-      values = Maps.newHashMap(Maps.uniqueIndex(state.getValues(), new Function<ValueSetValue, String>() {
-        @Override
-        public String apply(ValueSetValue from) {
-          return from.getVariable().getName();
-        }
-      }));
     }
 
     @Override
@@ -140,25 +132,33 @@ class HibernateValueTableWriter implements ValueTableWriter {
       if(variable == null) throw new IllegalArgumentException("variable cannot be null");
       if(value == null) throw new IllegalArgumentException("value cannot be null");
 
-      ValueSetValue vsv = values.get(variable.getName());
-      if(vsv != null) {
-        if(value.isNull()) {
-          valueSetState.getValues().remove(vsv);
-          values.remove(variable.getName());
-        } else {
-          vsv.setValue(value);
-        }
-      } else {
-        if(value.isNull() == false) {
-          VariableState variableState = variableConverter.getStateForVariable(variable, valueTable.createContext());
-          if(variableState == null) {
-            throw new NoSuchVariableException(valueTable.getName(), variable.getName());
+      try {
+        ValueSetValue vsv = values.get(variable.getName());
+        if(vsv != null) {
+          if(value.isNull()) {
+            valueSetState.getValues().remove(vsv);
+            values.remove(variable.getName());
+          } else {
+            vsv.setValue(value);
           }
-          vsv = new ValueSetValue(variableState, valueSetState);
-          vsv.setValue(value);
-          valueSetState.getValues().add(vsv);
-          values.put(variable.getName(), vsv);
+        } else {
+          if(value.isNull() == false) {
+            VariableState variableState = variableConverter.getStateForVariable(variable, valueTable.createContext());
+            if(variableState == null) {
+              throw new NoSuchVariableException(valueTable.getName(), variable.getName());
+            }
+            vsv = new ValueSetValue(variableState, valueSetState);
+            vsv.setValue(value);
+            valueSetState.getValues().add(vsv);
+            values.put(variable.getName(), vsv);
+          }
         }
+      } catch(RuntimeException e) {
+        errorOccurred = true;
+        throw e;
+      } catch(Error e) {
+        errorOccurred = true;
+        throw e;
       }
     }
 
@@ -170,7 +170,6 @@ class HibernateValueTableWriter implements ValueTableWriter {
           // Make the entity visible within this transaction
           transaction.addEntity(entity);
         }
-        // TODO: We mustn't flush the session if an exception has occurred within Hibernate.
         session.flush();
         // Empty the Session so we don't fill it up
         session.evict(valueSetState);
