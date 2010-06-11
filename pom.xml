@@ -152,6 +152,7 @@
     <module>hibernate</module>
     <module>datasource-jdbc</module>
     <module>datasource-excel</module>
+    <module>datasource-null</module>
   </modules>
 
   <build>
