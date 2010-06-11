@@ -2,15 +2,22 @@ package org.obiba.magma.audit;
 
 import java.util.Map;
 
+import org.obiba.magma.Datasource;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.VariableEntity;
+import org.obiba.magma.audit.support.CopyAuditor;
+import org.obiba.magma.support.DatasourceCopier;
+
+import com.google.common.base.Function;
 
 /**
  * Interface for interacting with audit logs. It provides the ability to obtain an instance of VariableEntityAuditLog
  * for a specific VariableEntity.
  */
 public interface VariableEntityAuditLogManager {
+
+  public CopyAuditor createAuditor(DatasourceCopier.Builder builder, Datasource destination, Function<VariableEntity, VariableEntity> entityMapper);
 
   /**
    * Obtain an instance of VariableEntityAuditLog for a specific VariableEntity.

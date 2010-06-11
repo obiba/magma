@@ -3,10 +3,8 @@ package org.obiba.magma.support;
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.obiba.magma.Datasource;
@@ -19,13 +17,10 @@ import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.ValueTableWriter.ValueSetWriter;
 import org.obiba.magma.ValueTableWriter.VariableWriter;
-import org.obiba.magma.audit.VariableEntityAuditLogManager;
 import org.obiba.magma.support.MultiplexingValueTableWriter.MultiplexedValueSetWriter;
-import org.obiba.magma.type.TextType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
 
 public class DatasourceCopier {
@@ -34,7 +29,7 @@ public class DatasourceCopier {
 
   public static class Builder {
 
-    DatasourceCopier copier = new DatasourceCopier();
+    private DatasourceCopier copier = new DatasourceCopier();
 
     public Builder() {
     }
@@ -78,17 +73,6 @@ public class DatasourceCopier {
     public Builder withThroughtputListener() {
       copier.listeners.add(new ThroughputListener());
       return this;
-    }
-
-    public Builder withVariableEntityCopyEventListener(VariableEntityAuditLogManager auditLogManager, Datasource destination, Function<VariableEntity, VariableEntity> entityMapper) {
-      if(auditLogManager == null) throw new IllegalArgumentException("auditLogManager cannot be null");
-      if(destination == null) throw new IllegalArgumentException("auditLogManager cannot be null");
-      copier.listeners.add(new VariableEntityCopyEventListener(auditLogManager, destination, entityMapper));
-      return this;
-    }
-
-    public Builder withVariableEntityCopyEventListener(VariableEntityAuditLogManager auditLogManager, Datasource destination) {
-      return withVariableEntityCopyEventListener(auditLogManager, destination, null);
     }
 
     public Builder withVariableTransformer(VariableTransformer transformer) {
@@ -384,42 +368,6 @@ public class DatasourceCopier {
       allDuration += duration;
       count++;
       log.debug("ValueSet copied in {}s. Average copy duration for {} valueSets: {}s.", new Object[] { twoDecimalPlaces.format(duration / 1000.0d), count, twoDecimalPlaces.format(allDuration / (double) count / 1000.0d) });
-    }
-
-  }
-
-  private static class VariableEntityCopyEventListener implements DatasourceCopyValueSetEventListener {
-
-    private VariableEntityAuditLogManager auditLogManager;
-
-    private Datasource destination;
-
-    private Function<VariableEntity, VariableEntity> entityMapper;
-
-    public VariableEntityCopyEventListener(VariableEntityAuditLogManager auditLogManager, Datasource destination, Function<VariableEntity, VariableEntity> entityMapper) {
-      if(auditLogManager == null) throw new IllegalArgumentException("auditLogManager cannot be null");
-      if(destination == null) throw new IllegalArgumentException("destination cannot be null");
-      this.auditLogManager = auditLogManager;
-      this.destination = destination;
-      this.entityMapper = entityMapper;
-    }
-
-    @Override
-    public void onValueSetCopied(ValueTable source, ValueSet valueSet, String... tables) {
-      VariableEntity entity = entityMapper != null ? entityMapper.apply(valueSet.getVariableEntity()) : valueSet.getVariableEntity();
-      for(String tableName : tables) {
-        auditLogManager.createAuditEvent(auditLogManager.getAuditLog(entity), source, "COPY", createCopyDetails(entity, tableName));
-      }
-    }
-
-    @Override
-    public void onValueSetCopy(ValueTable source, ValueSet valueSet) {
-    }
-
-    private Map<String, Value> createCopyDetails(VariableEntity entity, String tableName) {
-      Map<String, Value> details = new HashMap<String, Value>();
-      details.put("destinationName", TextType.get().valueOf(destination.getName() + "." + tableName));
-      return details;
     }
 
   }
