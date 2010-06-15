@@ -14,7 +14,6 @@ import org.obiba.magma.AttributeAware;
 import org.obiba.magma.Category;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueTableWriter;
-import org.obiba.magma.ValueType;
 import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.datasource.excel.support.ExcelUtil;
@@ -27,10 +26,6 @@ public class ExcelValueTableWriter implements ValueTableWriter {
 
   public ExcelValueTableWriter(ExcelValueTable valueTable) {
     this.valueTable = valueTable;
-    // First column is for storing the Variable Entity identifiers
-    Cell cell = valueTable.getValueTableSheet().getRow(0).createCell(0);
-    ExcelUtil.setCellValue(cell, TextType.get(), "Entity ID");
-    cell.setCellStyle(valueTable.getDatasource().getExcelStyles("headerCellStyle"));
   }
 
   @Override
@@ -53,19 +48,12 @@ public class ExcelValueTableWriter implements ValueTableWriter {
 
     private Sheet categoriesSheet;
 
-    private Sheet attributesSheet;
-
     public ExcelVariableWriter() {
       this.variablesSheet = valueTable.getDatasource().getVariablesSheet();
       this.categoriesSheet = valueTable.getDatasource().getCategoriesSheet();
-      // OPAL-173: Removed the attributesSheet
-      // this.attributesSheet = ((ExcelDatasource) valueTable.getDatasource()).getAttributesSheet();
-
     }
 
     public void writeVariable(Variable variable) {
-      // Will create the column if it doesn't exist.
-      valueTable.getVariableColumn(variable);
       Row attributesRow = writeVariableAttributes(variable);
       writeCategories(variable, attributesRow);
     }
@@ -82,7 +70,7 @@ public class ExcelValueTableWriter implements ValueTableWriter {
         headerRowCategories = categoriesSheet.createRow(0);
       }
 
-      Map<String, Integer> headerMapCategories = ExcelDatasource.mapSheetHeader(headerRowCategories);
+      Map<String, Integer> headerMapCategories = valueTable.getDatasource().getCategoriesHeaderMap();
       updateSheetHeaderRow(headerMapCategories, headerRowCategories, ExcelDatasource.categoriesReservedAttributeNames);
 
       Set<Category> categories = variable.getCategories();
@@ -111,11 +99,11 @@ public class ExcelValueTableWriter implements ValueTableWriter {
         headerRowVariables = variablesSheet.createRow(0);
       }
 
-      Map<String, Integer> headerMapVariables = ExcelDatasource.mapSheetHeader(headerRowVariables);
+      Map<String, Integer> headerMapVariables = valueTable.getDatasource().getVariablesHeaderMap();
       updateSheetHeaderRow(headerMapVariables, headerRowVariables, ExcelDatasource.variablesReservedAttributeNames);
 
       // Get the row for this variable in the variables sheet. If it doesn't exist yet, an empty one is created.
-      Row variableRow = valueTable.getVariableRow(variable);
+      Row variableRow = getVariableRow(variable);
 
       ExcelUtil.setCellValue(variableRow.getCell(headerMapVariables.get("table"), Row.CREATE_NULL_AS_BLANK), TextType.get(), valueTable.getName());
       ExcelUtil.setCellValue(variableRow.getCell(headerMapVariables.get("name"), Row.CREATE_NULL_AS_BLANK), TextType.get(), variable.getName());
@@ -128,6 +116,22 @@ public class ExcelValueTableWriter implements ValueTableWriter {
 
       writeCustomAttributes(variable, "variable", variable.getName(), variableRow, headerRowVariables, headerMapVariables);
       return variableRow;
+    }
+
+    /**
+     * Returns the {@code Row} from the variable sheet for the specified variable. If no such row currently exists, a
+     * new one is added and returned.
+     * @param variable
+     * @return
+     */
+    private Row getVariableRow(Variable variable) {
+      Row row = valueTable.getVariableRows().get(variable.getName());
+      if(row == null) {
+        Sheet variables = valueTable.getDatasource().getVariablesSheet();
+        row = variables.createRow(variables.getPhysicalNumberOfRows());
+        valueTable.getVariableRows().put(variable.getName(), row);
+      }
+      return row;
     }
 
     /**
@@ -158,30 +162,7 @@ public class ExcelValueTableWriter implements ValueTableWriter {
         }
         ExcelUtil.setCellValue(attributesRow.getCell(attributeCellIndex, Row.CREATE_NULL_AS_BLANK), customAttribute.getValue());
         stringBuilder.setLength(0);
-
-        // OPAL-145: Write the attribute type on the "Attributes" sheet.
-        // OPAL-173: commented out to support writing large amounts of variables. Writing the attribute sheet results in
-        // writing more than 65536 rows most of time.
-        // writeCustomAttributeType(attributeAwareType, attributeAwareName, customAttributeName,
-        // customAttribute.getValueType());
       }
-    }
-
-    private void writeCustomAttributeType(String attributeAwareType, String attributeAwareName, String attributeName, ValueType attributeType) {
-      Row headerRow = attributesSheet.getRow(0);
-      if(headerRow == null) {
-        headerRow = attributesSheet.createRow(0);
-      }
-
-      Map<String, Integer> headerMapVariables = ExcelDatasource.mapSheetHeader(headerRow);
-      updateSheetHeaderRow(headerMapVariables, headerRow, ExcelDatasource.attributesReservedAttributeNames);
-
-      Row attributesRow = attributesSheet.createRow(attributesSheet.getPhysicalNumberOfRows());
-      ExcelUtil.setCellValue(attributesRow.createCell(headerMapVariables.get("table")), TextType.get(), valueTable.getName());
-      ExcelUtil.setCellValue(attributesRow.createCell(headerMapVariables.get("attributeAwareType")), TextType.get(), attributeAwareType);
-      ExcelUtil.setCellValue(attributesRow.createCell(headerMapVariables.get("attributeAware")), TextType.get(), attributeAwareName);
-      ExcelUtil.setCellValue(attributesRow.createCell(headerMapVariables.get("attribute")), TextType.get(), attributeName);
-      ExcelUtil.setCellValue(attributesRow.createCell(headerMapVariables.get("valueType")), TextType.get(), attributeType.getName());
     }
 
     /**
@@ -227,6 +208,7 @@ public class ExcelValueTableWriter implements ValueTableWriter {
 
     @Override
     public void writeValue(Variable variable, Value value) {
+      // Will create the column if it doesn't exist.
       int variableColumn = valueTable.getVariableColumn(variable);
       ExcelUtil.setCellValue(entityRow.createCell(variableColumn), value);
     }
