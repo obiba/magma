@@ -21,7 +21,6 @@ import org.obiba.magma.ValueType;
 import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.datasource.excel.support.ExcelUtil;
-import org.obiba.magma.datasource.excel.support.NameConverter;
 import org.obiba.magma.support.AbstractValueTable;
 import org.obiba.magma.type.TextType;
 import org.slf4j.Logger;
@@ -33,7 +32,9 @@ class ExcelValueTable extends AbstractValueTable implements Initialisable {
 
   private static final Logger log = LoggerFactory.getLogger(ExcelValueTable.class);
 
-  private final Sheet valueTableSheet;
+  private Sheet valueTableSheet;
+
+  private String entityType;
 
   /** Maps a variable's name to its Column index valueTableSheet */
   private final Map<String, Integer> variableColumns = Maps.newHashMap();
@@ -44,14 +45,13 @@ class ExcelValueTable extends AbstractValueTable implements Initialisable {
   /** Maps a category's name concatenated with the variable's name to its Row in the variablesSheet */
   private final Map<String, Row> categoryRows = Maps.newHashMap();
 
-  public ExcelValueTable(ExcelDatasource excelDatasource, String name, Sheet sheet, String entityType) {
-    super(excelDatasource, NameConverter.toExcelName(name));
-    this.valueTableSheet = sheet;
-
-    if(valueTableSheet.getPhysicalNumberOfRows() <= 0) {
-      valueTableSheet.createRow(0);
+  public ExcelValueTable(ExcelDatasource excelDatasource, String name, String entityType) {
+    super(excelDatasource, name);
+    if(entityType == null || entityType.trim().length() == 0) {
+      this.entityType = "Participant";
+    } else {
+      this.entityType = entityType.trim();
     }
-
   }
 
   @Override
@@ -59,8 +59,6 @@ class ExcelValueTable extends AbstractValueTable implements Initialisable {
     super.initialise();
     try {
       readVariables();
-      // printVariables();
-
     } catch(RuntimeException e) {
       throw e;
     } catch(Exception e) {
@@ -77,6 +75,10 @@ class ExcelValueTable extends AbstractValueTable implements Initialisable {
   public ValueSet getValueSet(VariableEntity entity) throws NoSuchValueSetException {
     throw new UnsupportedOperationException("getValueSet not supported");
   }
+
+  public String getEntityType() {
+    return entityType;
+  };
 
   int findVariableColumn(Variable variable) {
     // Lookup in column cache
@@ -99,7 +101,7 @@ class ExcelValueTable extends AbstractValueTable implements Initialisable {
     int column = findVariableColumn(variable);
     if(column == -1) {
       // Add it
-      Row variableNameRow = valueTableSheet.getRow(0);
+      Row variableNameRow = getValueTableSheet().getRow(0);
       Cell variableColumn = variableNameRow.createCell(variableNameRow.getPhysicalNumberOfCells(), Cell.CELL_TYPE_STRING);
       ExcelUtil.setCellValue(variableColumn, TextType.get(), variable.getName());
       variableColumn.setCellStyle(getDatasource().getExcelStyles("headerCellStyle"));
@@ -107,22 +109,6 @@ class ExcelValueTable extends AbstractValueTable implements Initialisable {
       this.variableColumns.put(variable.getName(), column);
     }
     return column;
-  }
-
-  /**
-   * Returns the {@code Row} from the variable sheet for the specified variable. If no such row currently exists, a new
-   * one is added and returned.
-   * @param variable
-   * @return
-   */
-  Row getVariableRow(Variable variable) {
-    Row row = variableRows.get(variable.getName());
-    if(row == null) {
-      Sheet variables = getDatasource().getVariablesSheet();
-      row = variables.createRow(variables.getPhysicalNumberOfRows());
-      variableRows.put(variable.getName(), row);
-    }
-    return row;
   }
 
   /**
@@ -142,35 +128,67 @@ class ExcelValueTable extends AbstractValueTable implements Initialisable {
     return row;
   }
 
+  /**
+   * Get the value sheet. Create it if necessary.
+   * @return
+   */
   Sheet getValueTableSheet() {
+    if(valueTableSheet == null) {
+      valueTableSheet = getDatasource().createSheetIfNotExist(getName());
+
+      if(valueTableSheet.getPhysicalNumberOfRows() <= 0) {
+        valueTableSheet.createRow(0);
+      }
+
+      // First column is for storing the Variable Entity identifiers
+      Cell cell = valueTableSheet.getRow(0).createCell(0);
+      ExcelUtil.setCellValue(cell, TextType.get(), "Entity ID");
+      cell.setCellStyle(getDatasource().getExcelStyles("headerCellStyle"));
+    }
     return valueTableSheet;
   }
 
-  private void printVariables() {
-    log.debug("Table (name = {})", getName());
-    Iterable<Variable> variables = getVariables();
-    for(Variable variable : variables) {
-      log.debug("  Variable (name = {})", variable.getName());
-      Set<Category> categories = variable.getCategories();
-      for(Category category : categories) {
-        log.debug("    Category (name = {})\n", category.getName());
+  /**
+   * Read the variables either from the Variables sheet or from sheet headers.
+   * @throws FileNotFoundException
+   * @throws IOException
+   */
+  private void readVariables() throws FileNotFoundException, IOException {
+    if(isFromVariablesSheet()) {
+      // read variables from Variables sheet
+      readVariablesFromVariablesSheet();
+    } else {
+      // read variables from the sheet headers
+      readVariablesFromTableSheet();
+    }
+  }
+
+  /**
+   * Variables are defined by column names and value type is text. First column is assumed to be participant identifier.
+   */
+  private void readVariablesFromTableSheet() {
+    Sheet sheet = getDatasource().getSheet(getName());
+    if(sheet != null) {
+      Row variableNameRow = getValueTableSheet().getRow(0);
+      for(int i = 1; i < variableNameRow.getPhysicalNumberOfCells(); i++) {
+        // variable is just a name and with text values
+        Cell cell = variableNameRow.getCell(i);
+        String name = ExcelUtil.getCellValueAsString(cell);
+        Variable.Builder variableBuilder = Variable.Builder.newVariable(name, TextType.get(), entityType);
+        addVariableValueSource(new ExcelVariableValueSource(variableBuilder.build()));
       }
     }
   }
 
-  private void readVariables() throws FileNotFoundException, IOException {
+  /**
+   * Variables are read from the variables sheet.
+   */
+  private void readVariablesFromVariablesSheet() {
+    Map<String, Integer> headerMapVariables = getDatasource().getVariablesHeaderMap();
 
     Sheet variablesSheet = getDatasource().getVariablesSheet();
 
-    Row headerVariables = variablesSheet.getRow(0);
-    // OPAL-237. This prevents subsequent NPE.
-    // TODO: In fact, when the variables sheet is not present, we should use the columns in the Excel sheet to extract
-    // variables. This would allow us to read any excel spreadsheet, not just the ones we've created.
-    if(headerVariables == null) {
-      return;
-    }
-    Map<String, Integer> headerMapVariables = ExcelDatasource.mapSheetHeader(headerVariables);
-    Set<String> attributeNamesVariables = ExcelDatasource.getCustomAttributeNames(headerVariables, ExcelDatasource.variablesReservedAttributeNames);
+    Set<String> attributeNamesVariables = getDatasource().getVariablesCustomAttributeNames();
 
     Boolean repeatable;
     Row variableRow;
@@ -204,7 +222,6 @@ class ExcelValueTable extends AbstractValueTable implements Initialisable {
         addVariableValueSource(new ExcelVariableValueSource(variableBuilder.build()));
       }
     }
-
   }
 
   /**
@@ -223,11 +240,11 @@ class ExcelValueTable extends AbstractValueTable implements Initialisable {
     boolean missing;
     Row categoryRow;
 
-    Sheet categoriesSheet = getDatasource().getCategoriesSheet();
-    Row headerCategories = categoriesSheet.getRow(0);
-    Map<String, Integer> headerMapCategories = ExcelDatasource.mapSheetHeader(headerCategories);
-    Set<String> attributeNamesCategories = ExcelDatasource.getCustomAttributeNames(headerCategories, ExcelDatasource.categoriesReservedAttributeNames);
+    Map<String, Integer> headerMapCategories = getDatasource().getCategoriesHeaderMap();
+    if(headerMapCategories == null) return;
+    Set<String> attributeNamesCategories = getDatasource().getCategoriesCustomAttributeNames();
 
+    Sheet categoriesSheet = getDatasource().getCategoriesSheet();
     int categoryRowCount = categoriesSheet.getPhysicalNumberOfRows();
     for(int x = 1; x < categoryRowCount; x++) {
       categoryRow = categoriesSheet.getRow(x);
@@ -283,28 +300,16 @@ class ExcelValueTable extends AbstractValueTable implements Initialisable {
     }
   }
 
-  private ValueType readCustomAttributeType(String attributeAwareType, String attributeAwareName, String attributeName) {
-    Sheet attributesSheet = getDatasource().getAttributesSheet();
-    Row headerRow = attributesSheet.getRow(0);
-    Map<String, Integer> headerMap = ExcelDatasource.mapSheetHeader(headerRow);
-
-    for(int i = 1; i < attributesSheet.getPhysicalNumberOfRows(); i++) {
-      Row row = attributesSheet.getRow(i);
-      String cellTable = getCellValueAsString(row.getCell(headerMap.get("table")));
-      String cellAttributeAwareType = getCellValueAsString(row.getCell(headerMap.get("attributeAwareType")));
-      String cellAttributeAware = getCellValueAsString(row.getCell(headerMap.get("attributeAware")));
-      String cellAttribute = getCellValueAsString(row.getCell(headerMap.get("attribute")));
-      String cellValueType = getCellValueAsString(row.getCell(headerMap.get("valueType")));
-
-      if(cellTable.equals(getName()) && cellAttributeAwareType.equals(attributeAwareType) && cellAttributeAware.equals(attributeAwareName) && cellAttribute.equals(attributeName)) {
-        return ValueType.Factory.forName(cellValueType);
-      }
-    }
-
-    return null;
+  Map<String, Row> getVariableRows() {
+    return variableRows;
   }
 
   private String getCellValueAsString(Cell cell) {
     return ExcelUtil.getCellValueAsString(cell);
+  }
+
+  private boolean isFromVariablesSheet() {
+    Sheet varSheet = getDatasource().getVariablesSheet();
+    return varSheet != null && varSheet.getPhysicalNumberOfRows() > 0;
   }
 }

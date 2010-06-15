@@ -19,6 +19,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.obiba.magma.Datasource;
 import org.obiba.magma.MagmaEngine;
+import org.obiba.magma.ValueTable;
 import org.obiba.magma.ValueTableWriter;
 import org.obiba.magma.Variable;
 import org.obiba.magma.ValueTableWriter.VariableWriter;
@@ -105,6 +106,57 @@ public class ExcelDatasourceTest {
   public void testCreateDatasourceOnEmptyExcelFile() {
     ExcelDatasource datasource = new ExcelDatasource("empty", new File("src/test/resources/org/obiba/magma/datasource/excel/empty.xls"));
     datasource.initialise();
+  }
+
+  @Test
+  public void testReadLongTableNames() {
+    ExcelDatasource datasource = new ExcelDatasource("long", new File("src/test/resources/org/obiba/magma/datasource/excel/long-table-names.xlsx"));
+    datasource.initialise();
+
+    assertLongTableNames(datasource);
+  }
+
+  @Test
+  public void testWriteLongTableNames() {
+    ExcelDatasource datasource = new ExcelDatasource("long", new File("src/test/resources/org/obiba/magma/datasource/excel/long-table-names.xlsx"));
+    datasource.initialise();
+
+    File testFile = new File("target/long-table-names.xlsx");
+    if(testFile.exists()) testFile.delete();
+    ExcelDatasource datasource2 = new ExcelDatasource("long2", testFile);
+    datasource2.initialise();
+
+    for(ValueTable vt : datasource.getValueTables()) {
+      ValueTableWriter vtWriter = datasource2.createWriter(vt.getName(), vt.getEntityType());
+      VariableWriter vWriter = vtWriter.writeVariables();
+      for(Variable v : vt.getVariables()) {
+        vWriter.writeVariable(v);
+      }
+    }
+
+    datasource2.dispose();
+
+    datasource2 = new ExcelDatasource("long2", testFile);
+    datasource2.initialise();
+    assertLongTableNames(datasource2);
+  }
+
+  private void assertLongTableNames(ExcelDatasource datasource) {
+    ValueTable vt = datasource.getValueTable("ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEF");
+    Assert.assertNotNull(vt);
+    Assert.assertEquals("Participant", vt.getEntityType());
+    Assert.assertNotNull(vt.getVariable("FATHER_COUNTRY_BIRTH_LONG"));
+    Assert.assertNotNull(vt.getVariable("FATHER_COUNTRY_BIRTH_SHORT"));
+    Assert.assertNotNull(vt.getVariable("MOTHER_COUNTRY_BIRTH_LONG"));
+    Assert.assertNotNull(vt.getVariable("MOTHER_COUNTRY_BIRTH_SHORT"));
+
+    vt = datasource.getValueTable("ABCDEFGHIJKLMNOPQRSTUVWXYZABCDE");
+    Assert.assertNotNull(vt);
+    Assert.assertEquals("Participant", vt.getEntityType());
+    Assert.assertNotNull(vt.getVariable("GENERIC_132"));
+    Assert.assertNotNull(vt.getVariable("GENERIC_134"));
+
+    Assert.assertEquals(2, datasource.getValueTableNames().size());
   }
 
   private List<String> readStrings(String filename) throws IOException {
