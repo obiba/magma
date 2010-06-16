@@ -9,14 +9,11 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.easymock.EasyMock;
-import org.easymock.IArgumentMatcher;
 import org.junit.Test;
 import org.obiba.magma.NoSuchValueSetException;
 import org.obiba.magma.NoSuchVariableException;
@@ -25,9 +22,12 @@ import org.obiba.magma.ValueSet;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
-import org.obiba.magma.VariableValueSource;
+import org.obiba.magma.support.VariableEntityBean;
 import org.obiba.magma.test.AbstractMagmaTest;
 import org.obiba.magma.type.TextType;
+
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Iterables;
 
 public class JoinTableTest extends AbstractMagmaTest {
   //
@@ -39,12 +39,6 @@ public class JoinTableTest extends AbstractMagmaTest {
   //
   // Instance Variables
   //
-
-  private Map<String, VariableEntity> mockEntityMap = new HashMap<String, VariableEntity>();
-
-  private Map<String, Variable> mockVariableMap = new HashMap<String, Variable>();
-
-  private Map<String, ValueSet> mockValueSetMap = new HashMap<String, ValueSet>();
 
   //
   // Test Methods
@@ -64,16 +58,15 @@ public class JoinTableTest extends AbstractMagmaTest {
   @Test(expected = IllegalArgumentException.class)
   public void testTableListMustContainAtLeastTwoTables() {
     List<ValueTable> tables = new ArrayList<ValueTable>();
-    tables.add(createMockTable("table", PARTICIPANT_ENTITY_TYPE));
-
+    tables.add(MockValueTableBuilder.newMock(PARTICIPANT_ENTITY_TYPE).build());
     new JoinTable(tables);
   }
 
   @Test
   public void testTableListWithTwoTablesAllowed() {
     List<ValueTable> tables = new ArrayList<ValueTable>();
-    tables.add(createMockTable("tableOne", PARTICIPANT_ENTITY_TYPE));
-    tables.add(createMockTable("tableTwo", PARTICIPANT_ENTITY_TYPE));
+    tables.add(MockValueTableBuilder.newMock(PARTICIPANT_ENTITY_TYPE).build());
+    tables.add(MockValueTableBuilder.newMock(PARTICIPANT_ENTITY_TYPE).build());
 
     new JoinTable(tables);
   }
@@ -81,9 +74,9 @@ public class JoinTableTest extends AbstractMagmaTest {
   @Test
   public void testTableListWithMoreThanTwoTablesAllowed() {
     List<ValueTable> tables = new ArrayList<ValueTable>();
-    tables.add(createMockTable("tableOne", PARTICIPANT_ENTITY_TYPE));
-    tables.add(createMockTable("tableTwo", PARTICIPANT_ENTITY_TYPE));
-    tables.add(createMockTable("tableThree", PARTICIPANT_ENTITY_TYPE));
+    tables.add(MockValueTableBuilder.newMock(PARTICIPANT_ENTITY_TYPE).build());
+    tables.add(MockValueTableBuilder.newMock(PARTICIPANT_ENTITY_TYPE).build());
+    tables.add(MockValueTableBuilder.newMock(PARTICIPANT_ENTITY_TYPE).build());
 
     new JoinTable(tables);
   }
@@ -91,61 +84,59 @@ public class JoinTableTest extends AbstractMagmaTest {
   @Test(expected = IllegalArgumentException.class)
   public void testAllTablesMustHaveTheSameEntityType() {
     List<ValueTable> tables = new ArrayList<ValueTable>();
-    tables.add(createMockTable("tableOne", PARTICIPANT_ENTITY_TYPE));
-    tables.add(createMockTable("tableTwo", "someOtherType"));
+    tables.add(MockValueTableBuilder.newMock(PARTICIPANT_ENTITY_TYPE).build());
+
+    ValueTable mock = EasyMock.createMock(ValueTable.class);
+    expect(mock.isForEntityType(PARTICIPANT_ENTITY_TYPE)).andReturn(false).once();
+    tables.add(mock);
 
     new JoinTable(tables);
   }
 
   @Test
   public void testJoinTableHasNoDatasource() {
-    List<ValueTable> tables = new ArrayList<ValueTable>();
-    tables.add(createMockTable("tableOne", PARTICIPANT_ENTITY_TYPE));
-    tables.add(createMockTable("tableTwo", PARTICIPANT_ENTITY_TYPE));
+    JoinTable joinTable = JoinTableBuilder.newBuilder() //
+    .withMockTable(MockValueTableBuilder.newMock(PARTICIPANT_ENTITY_TYPE))//
+    .withMockTable(MockValueTableBuilder.newMock(PARTICIPANT_ENTITY_TYPE)).build();
 
-    JoinTable joinTable = new JoinTable(tables);
     assertEquals(null, joinTable.getDatasource());
   }
 
   @Test
   public void testGetEntityType() {
-    List<ValueTable> tables = new ArrayList<ValueTable>();
-    tables.add(createMockTable("tableOne", PARTICIPANT_ENTITY_TYPE));
-    tables.add(createMockTable("tableTwo", PARTICIPANT_ENTITY_TYPE));
+    JoinTable joinTable = JoinTableBuilder.newBuilder() //
+    .withMockTable(MockValueTableBuilder.newMock(PARTICIPANT_ENTITY_TYPE))//
+    .withMockTable(MockValueTableBuilder.newMock(PARTICIPANT_ENTITY_TYPE)).build();
 
-    JoinTable joinTable = new JoinTable(tables);
     assertEquals(PARTICIPANT_ENTITY_TYPE, joinTable.getEntityType());
   }
 
   @Test
   public void testIsForEntityType() {
-    List<ValueTable> tables = new ArrayList<ValueTable>();
-    tables.add(createMockTable("tableOne", PARTICIPANT_ENTITY_TYPE));
-    tables.add(createMockTable("tableTwo", PARTICIPANT_ENTITY_TYPE));
+    JoinTable joinTable = JoinTableBuilder.newBuilder() //
+    .withMockTable(MockValueTableBuilder.newMock(PARTICIPANT_ENTITY_TYPE))//
+    .withMockTable(MockValueTableBuilder.newMock(PARTICIPANT_ENTITY_TYPE)).build();
 
-    JoinTable joinTable = new JoinTable(tables);
     assertTrue(joinTable.isForEntityType(PARTICIPANT_ENTITY_TYPE));
     assertFalse(joinTable.isForEntityType("someOtherType"));
   }
 
   @Test
   public void testJoinTableNameIsConcatenationOfIndividualTableNames() {
-    List<ValueTable> tables = new ArrayList<ValueTable>();
-    tables.add(createMockTable("tableOne", PARTICIPANT_ENTITY_TYPE));
-    tables.add(createMockTable("tableTwo", PARTICIPANT_ENTITY_TYPE));
+    JoinTable joinTable = JoinTableBuilder.newBuilder() //
+    .withMockTable(MockValueTableBuilder.newMock(PARTICIPANT_ENTITY_TYPE).withName("first"))//
+    .withMockTable(MockValueTableBuilder.newMock(PARTICIPANT_ENTITY_TYPE).withName("second")).build();
 
-    JoinTable joinTable = new JoinTable(tables);
-    assertEquals("tableOne-tableTwo", joinTable.getName());
+    assertEquals("first-second", joinTable.getName());
   }
 
   @Test
   public void testJoinTableVariablesAreUnionOfIndividualTableVariables() {
-    List<ValueTable> tables = new ArrayList<ValueTable>();
-    tables.add(createMockTable("tableOne", PARTICIPANT_ENTITY_TYPE, "var1", "var2", "var3"));
-    tables.add(createMockTable("tableTwo", PARTICIPANT_ENTITY_TYPE, "var2", "var3", "var4"));
-    tables.add(createMockTable("tableThree", PARTICIPANT_ENTITY_TYPE, "var5", "var6"));
+    JoinTable joinTable = JoinTableBuilder.newBuilder() //
+    .withMockTable(MockValueTableBuilder.newMock(PARTICIPANT_ENTITY_TYPE).withVariables("var1", "var2", "var3"))//
+    .withMockTable(MockValueTableBuilder.newMock(PARTICIPANT_ENTITY_TYPE).withVariables("var2", "var3", "var4"))//
+    .withMockTable(MockValueTableBuilder.newMock(PARTICIPANT_ENTITY_TYPE).withVariables("var5", "var6")).build();
 
-    JoinTable joinTable = new JoinTable(tables);
     Iterable<Variable> variables = joinTable.getVariables();
     assertNotNull(variables);
 
@@ -162,12 +153,10 @@ public class JoinTableTest extends AbstractMagmaTest {
 
   @Test
   public void testGetVariable() {
-    List<ValueTable> tables = new ArrayList<ValueTable>();
-    tables.add(createMockTable("tableOne", PARTICIPANT_ENTITY_TYPE, "var1", "var2", "var3"));
-    tables.add(createMockTable("tableTwo", PARTICIPANT_ENTITY_TYPE, "var2", "var3", "var4"));
-    tables.add(createMockTable("tableThree", PARTICIPANT_ENTITY_TYPE, "var5", "var6"));
-
-    JoinTable joinTable = new JoinTable(tables);
+    JoinTable joinTable = JoinTableBuilder.newBuilder() //
+    .withMockTable(MockValueTableBuilder.newMock(PARTICIPANT_ENTITY_TYPE).withVariables("var1", "var2", "var3"))//
+    .withMockTable(MockValueTableBuilder.newMock(PARTICIPANT_ENTITY_TYPE).withVariables("var2", "var3", "var4"))//
+    .withMockTable(MockValueTableBuilder.newMock(PARTICIPANT_ENTITY_TYPE).withVariables("var5", "var6")).build();
 
     assertEquals("var1", joinTable.getVariable("var1").getName());
     assertEquals("var2", joinTable.getVariable("var2").getName());
@@ -179,258 +168,157 @@ public class JoinTableTest extends AbstractMagmaTest {
 
   @Test(expected = NoSuchVariableException.class)
   public void testGetBogusVariableThrowsException() {
-    List<ValueTable> tables = new ArrayList<ValueTable>();
-    tables.add(createMockTable("tableOne", PARTICIPANT_ENTITY_TYPE, "var1", "var2", "var3"));
-    tables.add(createMockTable("tableTwo", PARTICIPANT_ENTITY_TYPE, "var2", "var3", "var4"));
+    JoinTable joinTable = JoinTableBuilder.newBuilder() //
+    .withMockTable(MockValueTableBuilder.newMock(PARTICIPANT_ENTITY_TYPE).withVariables("var1", "var2", "var3"))//
+    .withMockTable(MockValueTableBuilder.newMock(PARTICIPANT_ENTITY_TYPE).withVariables("var2", "var3", "var4")).build();
 
-    JoinTable joinTable = new JoinTable(tables);
     joinTable.getVariable("bogus").getName();
   }
 
   @Test
-  public void testJoinTableValueSetsAreValueSetsCommonToAllIndividualTables() {
-    JoinTable joinTable = createTestJoinTable();
-    Iterable<ValueSet> valueSets = joinTable.getValueSets();
+  public void testJoinTableValueSetExistsForValueSetInAnyValueTable() {
+    JoinTable joinTable = JoinTableBuilder.newBuilder() //
+    .withMockTable(MockValueTableBuilder.newMock(PARTICIPANT_ENTITY_TYPE).withEntities("1")) //
+    .withMockTable(MockValueTableBuilder.newMock(PARTICIPANT_ENTITY_TYPE).withEntities("1", "2")).build();
 
-    List<ValueSet> valueSetList = new ArrayList<ValueSet>();
-    for(ValueSet valueSet : valueSets) {
-      valueSetList.add(valueSet);
-    }
-    assertEquals(1, valueSetList.size());
+    Iterable<ValueSet> valueSets = joinTable.getValueSets();
+    assertEquals(2, Iterables.size(valueSets));
   }
 
   @Test
   public void testGetValueSet() {
-    JoinTable joinTable = createTestJoinTable();
+    JoinTable joinTable = JoinTableBuilder.newBuilder() //
+    .withMockTable(MockValueTableBuilder.newMock(PARTICIPANT_ENTITY_TYPE).withEntities("1")) //
+    .withMockTable(MockValueTableBuilder.newMock(PARTICIPANT_ENTITY_TYPE).withEntities("2")).build();
 
-    joinTable.getValueSet(mockEntityMap.get("1111111"));
+    assertNotNull(joinTable.getValueSet(new VariableEntityBean(PARTICIPANT_ENTITY_TYPE, "1")));
+    assertNotNull(joinTable.getValueSet(new VariableEntityBean(PARTICIPANT_ENTITY_TYPE, "2")));
   }
 
   @Test(expected = NoSuchValueSetException.class)
-  public void testGetBogusValueSet() {
-    JoinTable joinTable = createTestJoinTable();
+  public void testGetNonExistentValueSetThrowsNoSuchValueSetException() {
+    JoinTable joinTable = JoinTableBuilder.newBuilder() //
+    .withMockTable(MockValueTableBuilder.newMock(PARTICIPANT_ENTITY_TYPE).withEntities("1").withName("a")) //
+    .withMockTable(MockValueTableBuilder.newMock(PARTICIPANT_ENTITY_TYPE).withEntities("2").withName("b")).build();
 
-    joinTable.getValueSet(createMockVariableEntity(PARTICIPANT_ENTITY_TYPE, "bogus"));
+    joinTable.getValueSet(new VariableEntityBean("test", "test"));
   }
 
   @Test
   public void testHasValueSet() {
-    JoinTable joinTable = createTestJoinTable();
 
-    // Entity "1111111" is in the JoinTable.
-    assertEquals(true, joinTable.hasValueSet(mockEntityMap.get("1111111")));
+    JoinTable joinTable = JoinTableBuilder.newBuilder() //
+    .withMockTable(MockValueTableBuilder.newMock(PARTICIPANT_ENTITY_TYPE).withEntities("1")) //
+    .withMockTable(MockValueTableBuilder.newMock(PARTICIPANT_ENTITY_TYPE).withEntities("2")).build();
 
-    // Entity "2222222" is not in the JoinTable, but is in one of the tables that were joined.
-    assertEquals(false, joinTable.hasValueSet(mockEntityMap.get("2222222")));
+    assertEquals(true, joinTable.hasValueSet(new VariableEntityBean(PARTICIPANT_ENTITY_TYPE, "1")));
+    assertEquals(true, joinTable.hasValueSet(new VariableEntityBean(PARTICIPANT_ENTITY_TYPE, "2")));
 
-    // Entity "bogus" does not exist in any table.
-    assertEquals(false, joinTable.hasValueSet(createMockVariableEntity(PARTICIPANT_ENTITY_TYPE, "bogus")));
+    assertEquals(false, joinTable.hasValueSet(new VariableEntityBean(PARTICIPANT_ENTITY_TYPE, "3")));
+    assertEquals(false, joinTable.hasValueSet(new VariableEntityBean("test", "test")));
   }
 
   @Test
   public void testGetValue() {
-    JoinTable joinTable = createTestJoinTable();
+    JoinTable joinTable = JoinTableBuilder.newBuilder() //
+    .withMockTable(MockValueTableBuilder.newMock(PARTICIPANT_ENTITY_TYPE).withEntities("1").withGetValue("1", "var1", "1-1")) //
+    .withMockTable(MockValueTableBuilder.newMock(PARTICIPANT_ENTITY_TYPE).withEntities("2")).build();
 
-    ValueSet valueSet = joinTable.getValueSet(mockEntityMap.get("1111111"));
+    ValueSet valueSet = EasyMock.createMock(ValueSet.class);
+    Variable variable = EasyMock.createMock(Variable.class);
+    expect(variable.getName()).andReturn("var1").anyTimes();
+    EasyMock.replay(valueSet, variable);
 
-    Value varOneValue = joinTable.getValue(joinTable.getVariable("var1"), valueSet);
-    Value varTwoValue = joinTable.getValue(joinTable.getVariable("var2"), valueSet);
-    Value varThreeValue = joinTable.getValue(joinTable.getVariable("var3"), valueSet);
-    Value varFourValue = joinTable.getValue(joinTable.getVariable("var4"), valueSet);
-
-    assertEquals("11", varOneValue.toString());
-    assertEquals("12", varTwoValue.toString());
-    assertEquals("13", varThreeValue.toString());
-    assertEquals("14", varFourValue.toString());
+    Value value = joinTable.getValue(variable, valueSet);
+    assertNotNull(value);
+    assertEquals("1-1", value.toString());
   }
 
   //
   // Helper Methods
   //
 
-  private VariableEntity createMockVariableEntity(String entityType, String entityIdentifier) {
-    VariableEntity mockEntity = createMock(VariableEntity.class);
-    mockEntityMap.put(entityIdentifier, mockEntity);
+  private static class JoinTableBuilder {
 
-    expect(mockEntity.getType()).andReturn(entityType).anyTimes();
-    expect(mockEntity.getIdentifier()).andReturn(entityIdentifier).anyTimes();
-    replay(mockEntity);
+    List<ValueTable> mocks = new ArrayList<ValueTable>();
 
-    return mockEntity;
+    public static JoinTableBuilder newBuilder() {
+      return new JoinTableBuilder();
+    }
+
+    public JoinTableBuilder withMockTable(MockValueTableBuilder builder) {
+      mocks.add(builder.build());
+      return this;
+    }
+
+    public JoinTable build() {
+      return new JoinTable(mocks);
+    }
   }
 
-  private Variable createMockVariable(String variableName) {
+  private static class MockValueTableBuilder {
+
+    ValueTable mock = EasyMock.createMock(ValueTable.class);
+
+    String entityType;
+
+    static MockValueTableBuilder newMock(String entityType) {
+      MockValueTableBuilder builder = new MockValueTableBuilder();
+      builder.entityType = entityType;
+      expect(builder.mock.getEntityType()).andReturn(entityType).anyTimes();
+      expect(builder.mock.isForEntityType(entityType)).andReturn(true).anyTimes();
+      return builder;
+    }
+
+    public MockValueTableBuilder withName(String name) {
+      expect(mock.getName()).andReturn(name).anyTimes();
+      return this;
+    }
+
+    public MockValueTableBuilder withGetValue(String entity, String variable, String value) {
+      expect(mock.hasVariable(variable)).andReturn(true);
+      expect(mock.getValue((Variable) EasyMock.anyObject(), (ValueSet) EasyMock.anyObject())).andReturn(TextType.get().valueOf(value)).anyTimes();
+      return this;
+    }
+
+    public MockValueTableBuilder withVariables(String... names) {
+      Set<Variable> tableVariables = new HashSet<Variable>();
+      for(String variableName : names) {
+        Variable mockVariable = createMockVariable(variableName);
+        expect(mock.getVariable(variableName)).andReturn(mockVariable).anyTimes();
+        tableVariables.add(mockVariable);
+      }
+
+      expect(mock.getVariables()).andReturn(tableVariables).anyTimes();
+
+      return this;
+    }
+
+    MockValueTableBuilder withEntities(String... identifiers) {
+      expect(mock.getVariableEntities()).andReturn(createEntitySet(entityType, identifiers)).anyTimes();
+      return this;
+    }
+
+    ValueTable build() {
+      EasyMock.replay(mock);
+      return this.mock;
+    }
+  }
+
+  private static Set<VariableEntity> createEntitySet(String entityType, String... identifiers) {
+    ImmutableSet.Builder<VariableEntity> set = ImmutableSet.builder();
+    for(String identifier : identifiers) {
+      set.add(new VariableEntityBean(entityType, identifier));
+    }
+    return set.build();
+  }
+
+  private static Variable createMockVariable(String variableName) {
     Variable mockVariable = createMock(Variable.class);
-    mockVariableMap.put(variableName, mockVariable);
 
     expect(mockVariable.getName()).andReturn(variableName).anyTimes();
     replay(mockVariable);
 
     return mockVariable;
-  }
-
-  private ValueTable createMockTableNoReplay(String name, String entityType, String... variableNames) {
-    ValueTable mockTable = createMock(ValueTable.class);
-    expect(mockTable.getName()).andReturn(name).anyTimes();
-    expect(mockTable.getEntityType()).andReturn(entityType).anyTimes();
-
-    if(variableNames.length != 0) {
-      Set<Variable> tableVariables = new HashSet<Variable>();
-      for(String variableName : variableNames) {
-        Variable mockVariable = mockVariableMap.get(variableName);
-        if(mockVariable == null) {
-          mockVariable = createMockVariable(variableName);
-        }
-        expect(mockTable.getVariable(variableName)).andReturn(mockVariable).anyTimes();
-        tableVariables.add(mockVariable);
-      }
-
-      expect(mockTable.getVariables()).andReturn(tableVariables).anyTimes();
-    }
-
-    return mockTable;
-  }
-
-  private ValueTable createMockTable(String name, String entityType, String... variableNames) {
-    ValueTable mockTable = createMockTableNoReplay(name, entityType, variableNames);
-
-    replay(mockTable);
-
-    return mockTable;
-  }
-
-  private ValueSet createMockValueSet(ValueTable mockTable, String mockTableName, String entityType, String entityIdentifier, String... variablesAndValues) {
-    VariableEntity mockEntity = mockEntityMap.get(entityIdentifier);
-    if(mockEntity == null) {
-      mockEntity = createMockVariableEntity(entityType, entityIdentifier);
-    }
-
-    ValueSet mockValueSet = createMock(ValueSet.class);
-    expect(mockValueSet.getValueTable()).andReturn(mockTable).anyTimes();
-    expect(mockValueSet.getVariableEntity()).andReturn(mockEntity).anyTimes();
-    replay(mockValueSet);
-
-    mockValueSetMap.put(entityIdentifier, mockValueSet);
-
-    if(variablesAndValues.length != 0) {
-      for(int variableIndex = 0; variableIndex < variablesAndValues.length - 1; variableIndex += 2) {
-        String variableName = variablesAndValues[variableIndex];
-        String variableValue = variablesAndValues[variableIndex + 1];
-
-        Variable mockVariable = mockVariableMap.get(variableName);
-        if(mockVariable == null) {
-          mockVariable = createMockVariable(variableName);
-        }
-
-        ValueSet mockValueSetFirstOccurrence = mockValueSetMap.get(entityIdentifier);
-        expect(mockTable.getValue(mockVariable, mockValueSetFirstOccurrence)).andReturn(TextType.get().valueOf(variableValue)).anyTimes();
-      }
-    }
-
-    return mockValueSet;
-  }
-
-  private JoinTable createTestJoinTable() {
-    List<ValueTable> tables = new ArrayList<ValueTable>();
-    tables.add(createMockTableNoReplay("tableOne", PARTICIPANT_ENTITY_TYPE, "var1", "var2", "var3"));
-    tables.add(createMockTableNoReplay("tableTwo", PARTICIPANT_ENTITY_TYPE, "var2", "var3", "var4"));
-
-    ValueTable tableOne = tables.get(0);
-    ValueTable tableTwo = tables.get(1);
-
-    List<ValueSet> tableOneValueSets = new ArrayList<ValueSet>();
-    List<ValueSet> tableTwoValueSets = new ArrayList<ValueSet>();
-
-    tableOneValueSets.add(createMockValueSet(tableOne, "tableOne", PARTICIPANT_ENTITY_TYPE, "1111111", "var1", "11", "var2", "12", "var3", "13"));
-    tableOneValueSets.add(createMockValueSet(tableOne, "tableOne", PARTICIPANT_ENTITY_TYPE, "2222222", "var1", "21", "var2", "22", "var3", "23"));
-    tableTwoValueSets.add(createMockValueSet(tableTwo, "tableTwo", PARTICIPANT_ENTITY_TYPE, "1111111", "var2", "12", "var3", "13", "var4", "14"));
-    tableTwoValueSets.add(createMockValueSet(tableTwo, "tableTwo", PARTICIPANT_ENTITY_TYPE, "3333333", "var2", "32", "var3", "33", "var4", "34"));
-
-    VariableValueSource var1VariableValueSource = createMockVariableValueSource("var1");
-    expect(var1VariableValueSource.getValue(eqValueSet(mockValueSetMap.get("1111111")))).andReturn(TextType.get().valueOf("11")).anyTimes();
-    expect(var1VariableValueSource.getValue(eqValueSet(mockValueSetMap.get("2222222")))).andReturn(TextType.get().valueOf("21")).anyTimes();
-
-    VariableValueSource var2VariableValueSource = createMockVariableValueSource("var2");
-    expect(var2VariableValueSource.getValue(eqValueSet(mockValueSetMap.get("1111111")))).andReturn(TextType.get().valueOf("12")).anyTimes();
-    expect(var2VariableValueSource.getValue(eqValueSet(mockValueSetMap.get("2222222")))).andReturn(TextType.get().valueOf("22")).anyTimes();
-    expect(var2VariableValueSource.getValue(eqValueSet(mockValueSetMap.get("3333333")))).andReturn(TextType.get().valueOf("32")).anyTimes();
-
-    VariableValueSource var3VariableValueSource = createMockVariableValueSource("var3");
-    expect(var3VariableValueSource.getValue(eqValueSet(mockValueSetMap.get("1111111")))).andReturn(TextType.get().valueOf("13")).anyTimes();
-    expect(var3VariableValueSource.getValue(eqValueSet(mockValueSetMap.get("2222222")))).andReturn(TextType.get().valueOf("23")).anyTimes();
-    expect(var3VariableValueSource.getValue(eqValueSet(mockValueSetMap.get("3333333")))).andReturn(TextType.get().valueOf("33")).anyTimes();
-
-    VariableValueSource var4VariableValueSource = createMockVariableValueSource("var4");
-    expect(var4VariableValueSource.getValue(eqValueSet(mockValueSetMap.get("1111111")))).andReturn(TextType.get().valueOf("14")).anyTimes();
-    expect(var4VariableValueSource.getValue(eqValueSet(mockValueSetMap.get("3333333")))).andReturn(TextType.get().valueOf("34")).anyTimes();
-
-    expect(tableOne.getValueSets()).andReturn(tableOneValueSets).anyTimes();
-    expect(tableOne.hasValueSet(tableOneValueSets.get(0).getVariableEntity())).andReturn(true).anyTimes();
-    expect(tableOne.hasValueSet(tableOneValueSets.get(1).getVariableEntity())).andReturn(true).anyTimes();
-    expect(tableOne.hasValueSet(tableTwoValueSets.get(1).getVariableEntity())).andReturn(false).anyTimes();
-    expect(tableOne.getValueSet(tableOneValueSets.get(0).getVariableEntity())).andReturn(tableOneValueSets.get(0)).anyTimes();
-    expect(tableOne.getValueSet(tableOneValueSets.get(1).getVariableEntity())).andReturn(tableOneValueSets.get(1)).anyTimes();
-    expect(tableOne.getVariableValueSource("var1")).andReturn(var1VariableValueSource).anyTimes();
-    expect(tableOne.getVariableValueSource("var2")).andReturn(var2VariableValueSource).anyTimes();
-    expect(tableOne.getVariableValueSource("var3")).andReturn(var3VariableValueSource).anyTimes();
-
-    expect(tableTwo.getValueSets()).andReturn(tableTwoValueSets).anyTimes();
-    expect(tableTwo.hasValueSet(tableTwoValueSets.get(0).getVariableEntity())).andReturn(true).anyTimes();
-    expect(tableTwo.hasValueSet(tableTwoValueSets.get(1).getVariableEntity())).andReturn(true).anyTimes();
-    expect(tableTwo.hasValueSet(tableOneValueSets.get(1).getVariableEntity())).andReturn(false).anyTimes();
-    expect(tableTwo.getValueSet(tableTwoValueSets.get(0).getVariableEntity())).andReturn(tableTwoValueSets.get(0)).anyTimes();
-    expect(tableTwo.getValueSet(tableTwoValueSets.get(1).getVariableEntity())).andReturn(tableTwoValueSets.get(1)).anyTimes();
-    expect(tableTwo.getVariableValueSource("var2")).andReturn(var2VariableValueSource).anyTimes();
-    expect(tableTwo.getVariableValueSource("var3")).andReturn(var3VariableValueSource).anyTimes();
-    expect(tableTwo.getVariableValueSource("var4")).andReturn(var4VariableValueSource).anyTimes();
-
-    replay(tableOne, tableTwo, var1VariableValueSource, var2VariableValueSource, var3VariableValueSource, var4VariableValueSource);
-
-    return new JoinTable(tables);
-  }
-
-  private VariableValueSource createMockVariableValueSource(String variableName) {
-    VariableValueSource mockVariableValueSource = createMock(VariableValueSource.class);
-
-    expect(mockVariableValueSource.getVariable()).andReturn(mockVariableMap.get(variableName)).anyTimes();
-
-    return mockVariableValueSource;
-  }
-
-  //
-  // Inner Classes
-  //
-
-  static class ValueSetMatcher implements IArgumentMatcher {
-
-    private ValueSet expected;
-
-    public ValueSetMatcher(ValueSet expected) {
-      this.expected = expected;
-    }
-
-    @Override
-    public boolean matches(Object actual) {
-      if(actual instanceof ValueSet) {
-        return ((ValueSet) actual).getVariableEntity().getIdentifier().equals(expected.getVariableEntity().getIdentifier());
-      } else {
-        return false;
-      }
-    }
-
-    @Override
-    public void appendTo(StringBuffer buffer) {
-      buffer.append("eqValueSet(");
-      buffer.append(expected.getClass().getName());
-      buffer.append(" with entity identifier \"");
-      buffer.append(expected.getVariableEntity().getIdentifier());
-      buffer.append("\")");
-    }
-
-  }
-
-  static ValueSet eqValueSet(ValueSet in) {
-    EasyMock.reportMatcher(new ValueSetMatcher(in));
-    return null;
   }
 }

@@ -45,6 +45,11 @@ public abstract class AbstractValueTableWrapper implements ValueTableWrapper {
     return getWrappedValueTable().getValueSets();
   }
 
+  @Override
+  public boolean hasVariable(String name) {
+    return getWrappedValueTable().hasVariable(name);
+  }
+
   public Variable getVariable(String name) throws NoSuchVariableException {
     return getWrappedValueTable().getVariable(name);
   }

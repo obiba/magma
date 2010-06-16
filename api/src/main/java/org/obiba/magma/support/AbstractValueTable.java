@@ -83,6 +83,16 @@ public abstract class AbstractValueTable implements ValueTable, Initialisable {
   }
 
   @Override
+  public boolean hasVariable(String name) {
+    for(VariableValueSource source : getSources()) {
+      if(source.getVariable().getName().equals(name)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  @Override
   public Variable getVariable(String name) {
     return getVariableValueSource(name).getVariable();
   }

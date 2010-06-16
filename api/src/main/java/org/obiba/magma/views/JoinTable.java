@@ -3,7 +3,6 @@
  */
 package org.obiba.magma.views;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -20,6 +19,11 @@ import org.obiba.magma.ValueType;
 import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.VariableValueSource;
+
+import com.google.common.base.Function;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Maps;
 
 public class JoinTable implements ValueTable {
   //
@@ -58,12 +62,12 @@ public class JoinTable implements ValueTable {
     }
     String entityType = tables.get(0).getEntityType();
     for(int i = 1; i < tables.size(); i++) {
-      if(!tables.get(i).getEntityType().equals(entityType)) {
+      if(!tables.get(i).isForEntityType(entityType)) {
         throw new IllegalArgumentException("tables must all have the same entity type");
       }
     }
 
-    this.tables = new ArrayList<ValueTable>(tables);
+    this.tables = ImmutableList.copyOf(tables);
   }
 
   //
@@ -88,15 +92,15 @@ public class JoinTable implements ValueTable {
 
   @Override
   public Value getValue(Variable variable, ValueSet valueSet) {
-    return getVariableValueSource(variable.getName()).getValue(valueSet);
+    ValueTable valueTable = getFirstTableWithVariable(variable.getName());
+    if(valueTable == null) throw new NoSuchVariableException(variable.getName());
+    return valueTable.getValue(variable, valueSet);
   }
 
   @Override
   public ValueSet getValueSet(VariableEntity entity) throws NoSuchValueSetException {
-    for(ValueSet valueSet : getValueSets()) {
-      if(valueSet.getVariableEntity().getIdentifier().equals(entity.getIdentifier())) {
-        return valueSet;
-      }
+    if(hasValueSet(entity)) {
+      return new JoinedValueSet(entity);
     }
     throw new NoSuchValueSetException(this, entity);
   }
@@ -112,19 +116,19 @@ public class JoinTable implements ValueTable {
 
   @Override
   public Iterable<ValueSet> getValueSets() {
-    Set<ValueSet> valueSets = new LinkedHashSet<ValueSet>();
+    return Iterables.transform(getVariableEntities(), new Function<VariableEntity, ValueSet>() {
 
-    for(ValueSet valueSet : tables.get(0).getValueSets()) {
-      if(isInAllTables(valueSet)) {
-        List<ValueSet> wrappedValueSets = new ArrayList<ValueSet>();
-        for(ValueTable vt : tables) {
-          wrappedValueSets.add(vt.getValueSet(valueSet.getVariableEntity()));
-        }
-        valueSets.add(new ValueSetWrapper(this, wrappedValueSets));
+      @Override
+      public ValueSet apply(VariableEntity from) {
+        return new JoinedValueSet(from);
       }
-    }
 
-    return valueSets;
+    });
+  }
+
+  @Override
+  public boolean hasVariable(String name) {
+    return getFirstTableWithVariable(name) != null;
   }
 
   @Override
@@ -142,7 +146,7 @@ public class JoinTable implements ValueTable {
   public VariableValueSource getVariableValueSource(String variableName) throws NoSuchVariableException {
     ValueTable vt = getFirstTableWithVariable(variableName);
     if(vt != null) {
-      return new VariableValueSourceWrapper(vt.getVariableValueSource(variableName));
+      return new JoinedVariableValueSource(vt, vt.getVariableValueSource(variableName));
     } else {
       throw new NoSuchVariableException(variableName);
     }
@@ -155,12 +159,7 @@ public class JoinTable implements ValueTable {
 
   @Override
   public boolean hasValueSet(VariableEntity entity) {
-    for(ValueSet valueSet : getValueSets()) {
-      if(valueSet.getVariableEntity().getIdentifier().equals(entity.getIdentifier())) {
-        return true;
-      }
-    }
-    return false;
+    return getVariableEntities().contains(entity);
   }
 
   @Override
@@ -183,7 +182,7 @@ public class JoinTable implements ValueTable {
     return sb.toString();
   }
 
-  private Set<Variable> unionOfVariables() {
+  private synchronized Set<Variable> unionOfVariables() {
     if(unionOfVariables == null) {
       unionOfVariables = new LinkedHashSet<Variable>();
 
@@ -191,8 +190,8 @@ public class JoinTable implements ValueTable {
 
       for(ValueTable vt : tables) {
         for(Variable variable : vt.getVariables()) {
-          if(!unionOfVariableNames.contains(variable.getName())) {
-            unionOfVariableNames.add(variable.getName());
+          // Add returns true if the set did not already contain the value
+          if(unionOfVariableNames.add(variable.getName())) {
             unionOfVariables.add(variable);
           }
         }
@@ -202,19 +201,7 @@ public class JoinTable implements ValueTable {
     return unionOfVariables;
   }
 
-  private boolean isInAllTables(ValueSet valueSet) {
-    boolean presentInAllTables = true;
-    for(int i = 1; i < tables.size(); i++) {
-      ValueTable vt = tables.get(i);
-      if(!vt.hasValueSet(valueSet.getVariableEntity())) {
-        presentInAllTables = false;
-        break;
-      }
-    }
-    return presentInAllTables;
-  }
-
-  private ValueTable getFirstTableWithVariable(String variableName) {
+  private synchronized ValueTable getFirstTableWithVariable(String variableName) {
     if(variableNameToTableMap == null) {
       variableNameToTableMap = new HashMap<String, ValueTable>();
     }
@@ -224,12 +211,10 @@ public class JoinTable implements ValueTable {
       return cachedTable;
     } else {
       for(ValueTable vt : tables) {
-        for(Variable variable : vt.getVariables()) {
-          if(variable.getName().equals(variableName)) {
-            variableNameToTableMap.put(variableName, vt);
-            return vt;
-          }
+        if(vt.hasVariable(variableName)) {
+          variableNameToTableMap.put(variableName, vt);
         }
+        return vt;
       }
     }
 
@@ -240,33 +225,47 @@ public class JoinTable implements ValueTable {
   // Inner Classes
   //
 
-  private static class ValueSetWrapper implements ValueSet {
+  private class JoinedValueSet implements ValueSet {
 
-    private ValueTable valueTable;
+    private final VariableEntity entity;
 
-    private List<ValueSet> wrappedValueSets;
+    private final Map<String, ValueSet> valueSets = Maps.newHashMap();
 
-    private ValueSetWrapper(ValueTable valueTable, List<ValueSet> wrappedValueSets) {
-      this.valueTable = valueTable;
-      this.wrappedValueSets = new ArrayList<ValueSet>(wrappedValueSets);
+    private JoinedValueSet(VariableEntity entity) {
+      this.entity = entity;
     }
 
     @Override
     public ValueTable getValueTable() {
-      return valueTable;
+      return JoinTable.this;
     }
 
     @Override
     public VariableEntity getVariableEntity() {
-      return wrappedValueSets.get(0).getVariableEntity();
+      return entity;
+    }
+
+    synchronized ValueSet getInnerTableValueSet(ValueTable valueTable) {
+      ValueSet valueSet = null;
+      if(valueTable.hasValueSet(entity)) {
+        valueSet = valueSets.get(valueTable.getName());
+        if(valueSet == null) {
+          valueSet = valueTable.getValueSet(entity);
+          valueSets.put(valueTable.getName(), valueSet);
+        }
+      }
+      return valueSet;
     }
   }
 
-  private static class VariableValueSourceWrapper implements VariableValueSource {
+  private static class JoinedVariableValueSource implements VariableValueSource {
 
-    private VariableValueSource wrapped;
+    private final ValueTable owner;
 
-    private VariableValueSourceWrapper(VariableValueSource wrapped) {
+    private final VariableValueSource wrapped;
+
+    private JoinedVariableValueSource(ValueTable owner, VariableValueSource wrapped) {
+      this.owner = owner;
       this.wrapped = wrapped;
     }
 
@@ -277,17 +276,12 @@ public class JoinTable implements ValueTable {
 
     @Override
     public Value getValue(ValueSet valueSet) {
-      ValueSet wrappedValueSetWithVariable = null;
-      for(ValueSet wrappedValueSet : ((ValueSetWrapper) valueSet).wrappedValueSets) {
-        for(Variable variable : wrappedValueSet.getValueTable().getVariables()) {
-          if(variable.getName().equals(getVariable().getName())) {
-            wrappedValueSetWithVariable = wrappedValueSet;
-            break;
-          }
-        }
-        if(wrappedValueSetWithVariable != null) break;
+      JoinedValueSet joined = (JoinedValueSet) valueSet;
+      ValueSet joinedSet = joined.getInnerTableValueSet(owner);
+      if(joinedSet != null) {
+        return wrapped.getValue(joinedSet);
       }
-      return wrapped.getValue(wrappedValueSetWithVariable);
+      return getVariable().isRepeatable() ? getValueType().nullSequence() : getValueType().nullValue();
     }
 
     @Override

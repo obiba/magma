@@ -20,6 +20,8 @@ public interface ValueTable {
 
   public ValueSet getValueSet(VariableEntity entity) throws NoSuchValueSetException;
 
+  public boolean hasVariable(String name);
+
   public Iterable<Variable> getVariables();
 
   public Variable getVariable(String name) throws NoSuchVariableException;
