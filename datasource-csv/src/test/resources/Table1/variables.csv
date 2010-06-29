@@ -1,0 +1,3 @@
+name,valueType,entityType,mimeType,unit,repeatable,occurrenceGroup,categories:en,label:en
+var1,text,Participant,,,,,Y=yes;N=no;PNA=prefer not to answer;DNK=don't know,"Hello I'm variable one"
+var2,integer,Participant,,,,,,"Hello I'm variable two"

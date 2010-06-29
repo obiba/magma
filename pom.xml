@@ -153,6 +153,7 @@
     <module>datasource-jdbc</module>
     <module>datasource-excel</module>
     <module>datasource-null</module>
+    <module>datasource-csv</module>
   </modules>
 
   <build>
