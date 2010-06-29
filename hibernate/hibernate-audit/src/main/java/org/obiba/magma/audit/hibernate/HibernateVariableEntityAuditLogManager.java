@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
+import org.hibernate.FetchMode;
 import org.hibernate.FlushMode;
 import org.hibernate.SessionFactory;
 import org.obiba.core.service.impl.hibernate.AssociationCriteria;
@@ -24,11 +25,15 @@ import org.obiba.magma.audit.hibernate.domain.HibernateVariableEntityAuditLog;
 import org.obiba.magma.audit.support.CopyAuditor;
 import org.obiba.magma.support.DatasourceCopier.Builder;
 import org.obiba.magma.type.TextType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 
 public class HibernateVariableEntityAuditLogManager implements VariableEntityAuditLogManager {
+
+  private static final Logger log = LoggerFactory.getLogger(HibernateVariableEntityAuditLogManager.class);
 
   private SessionFactory sessionFactory;
 
@@ -44,7 +49,7 @@ public class HibernateVariableEntityAuditLogManager implements VariableEntityAud
   @Override
   public VariableEntityAuditLog getAuditLog(VariableEntity entity) {
     AssociationCriteria criteria = AssociationCriteria.create(HibernateVariableEntityAuditLog.class, sessionFactory.getCurrentSession()).add("variableEntityType", Operation.eq, entity.getType()).add("variableEntityIdentifier", Operation.eq, entity.getIdentifier());
-    HibernateVariableEntityAuditLog log = (HibernateVariableEntityAuditLog) criteria.getCriteria().uniqueResult();
+    HibernateVariableEntityAuditLog log = (HibernateVariableEntityAuditLog) criteria.getCriteria().setFetchMode("auditEvents", FetchMode.JOIN).uniqueResult();
     if(log == null) {
       log = new HibernateVariableEntityAuditLog(entity);
     }
@@ -100,7 +105,9 @@ public class HibernateVariableEntityAuditLogManager implements VariableEntityAud
           for(String tableName : tables) {
             createAuditEvent(log, source, "COPY", createCopyDetails(entity, tableName));
           }
-          sessionFactory.getCurrentSession().saveOrUpdate(log);
+          if(((HibernateVariableEntityAuditLog) log).getId() == null) {
+            sessionFactory.getCurrentSession().save(log);
+          }
           return null;
         }
 
@@ -123,6 +130,7 @@ public class HibernateVariableEntityAuditLogManager implements VariableEntityAud
 
     @Override
     public void completeAuditing() {
+      log.info("Auditing copy operation.");
       FlushMode mode = sessionFactory.getCurrentSession().getFlushMode();
       if(mode != FlushMode.MANUAL) {
         sessionFactory.getCurrentSession().setFlushMode(FlushMode.MANUAL);
@@ -141,6 +149,7 @@ public class HibernateVariableEntityAuditLogManager implements VariableEntityAud
       if(mode != FlushMode.MANUAL) {
         sessionFactory.getCurrentSession().setFlushMode(mode);
       }
+      log.info("Finished auditing copy operation.");
     }
 
   }
