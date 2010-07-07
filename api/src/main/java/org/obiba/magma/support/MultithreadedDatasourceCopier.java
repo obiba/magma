@@ -24,7 +24,6 @@ import org.obiba.magma.ValueTableWriter.ValueSetWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
 public class MultithreadedDatasourceCopier {
@@ -114,15 +113,16 @@ public class MultithreadedDatasourceCopier {
 
     prepareVariables();
 
+    // A queue containing all entity values available for writing to the destination.
     BlockingQueue<VariableEntityValues> writeQueue = new LinkedBlockingDeque<VariableEntityValues>(bufferSize);
 
-    // Partition the list of ValueSets to read: produces one list of ValueSet per requested reader thread
-    List<VariableEntity> entities = ImmutableList.copyOf(source.getVariableEntities());
-    if(entities.size() > 0) {
-      List<List<VariableEntity>> partitions = Lists.partition(entities, entities.size() / concurrentReaders);
-      for(List<VariableEntity> partition : partitions) {
-        ConcurrentValueSetReader reader = new ConcurrentValueSetReader(partition, writeQueue);
-        readers.add(executor.submit(reader));
+    if(copier.build().isCopyValues()) {
+      // A queue containing all entities to read the values for. Once this is empty, and all readers are done, then
+      // reading is over.
+      BlockingQueue<VariableEntity> readQueue = new LinkedBlockingDeque<VariableEntity>(source.getVariableEntities());
+
+      for(int i = 0; i < concurrentReaders; i++) {
+        readers.add(executor.submit(new ConcurrentValueSetReader(readQueue, writeQueue)));
       }
     }
     try {
@@ -205,20 +205,20 @@ public class MultithreadedDatasourceCopier {
 
   private class ConcurrentValueSetReader implements Runnable {
 
-    private final List<VariableEntity> entities;
+    private final BlockingQueue<VariableEntity> readQueue;
 
     private final BlockingQueue<VariableEntityValues> writeQueue;
 
-    private ConcurrentValueSetReader(List<VariableEntity> entities, BlockingQueue<VariableEntityValues> writeQueue) {
-      this.entities = entities;
+    private ConcurrentValueSetReader(BlockingQueue<VariableEntity> readQueue, BlockingQueue<VariableEntityValues> writeQueue) {
+      this.readQueue = readQueue;
       this.writeQueue = writeQueue;
-      log.info("Will read {} valueSets", entities.size());
     }
 
     @Override
     public void run() {
       try {
-        for(VariableEntity entity : entities) {
+        VariableEntity entity = readQueue.poll();
+        while(entity != null) {
           ValueSet valueSet = source.getValueSet(entity);
           Value[] values = new Value[sources.length];
           for(int i = 0; i < sources.length; i++) {
@@ -226,6 +226,7 @@ public class MultithreadedDatasourceCopier {
           }
           log.info("Enqueued entity {}", entity.getIdentifier());
           writeQueue.put(new VariableEntityValues(valueSet, values));
+          entity = readQueue.poll();
         }
       } catch(InterruptedException e) {
 
@@ -239,7 +240,6 @@ public class MultithreadedDatasourceCopier {
 
     private ConcurrentValueSetWriter(BlockingQueue<VariableEntityValues> writeQueue) {
       this.writeQueue = writeQueue;
-      log.info("Writer created. Queue size is {}", writeQueue.size());
     }
 
     /**
