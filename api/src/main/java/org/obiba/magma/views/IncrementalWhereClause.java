@@ -3,6 +3,7 @@ package org.obiba.magma.views;
 import java.util.List;
 
 import org.obiba.magma.Datasource;
+import org.obiba.magma.Value;
 import org.obiba.magma.ValueSet;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.audit.VariableEntityAuditEvent;
@@ -95,8 +96,11 @@ public class IncrementalWhereClause implements WhereClause {
   private VariableEntityAuditEvent getLastCopyFromSourceToDestination(ValueSet valueSet, VariableEntityAuditLog auditLog) {
     List<VariableEntityAuditEvent> eventsMostRecentFirst = auditLog.getAuditEvents(valueSet.getValueTable());
     for(VariableEntityAuditEvent event : eventsMostRecentFirst) {
-      if(event.getType().equals(COPY_AUDIT_EVENT) && event.getDetailValue(COPY_DESTINATION).getValue().equals(destinationTable)) {
-        return event;
+      if(event.getType().equals(COPY_AUDIT_EVENT)) {
+        Value destination = event.getDetailValue(COPY_DESTINATION);
+        if(destination != null && destination.getValue().equals(destinationTable)) {
+          return event;
+        }
       }
     }
 
