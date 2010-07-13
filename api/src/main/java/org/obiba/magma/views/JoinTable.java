@@ -213,8 +213,8 @@ public class JoinTable implements ValueTable {
       for(ValueTable vt : tables) {
         if(vt.hasVariable(variableName)) {
           variableNameToTableMap.put(variableName, vt);
+          return vt;
         }
-        return vt;
       }
     }
 
