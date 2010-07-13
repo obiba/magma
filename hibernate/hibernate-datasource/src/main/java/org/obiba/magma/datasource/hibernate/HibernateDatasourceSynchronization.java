@@ -19,29 +19,31 @@ class HibernateDatasourceSynchronization implements Synchronization {
 
   private static final Logger log = LoggerFactory.getLogger(HibernateDatasourceSynchronization.class);
 
-  private final Transaction tx;
-
   private final Session session;
+
+  private final long txId;
 
   HibernateDatasourceSynchronization(HibernateDatasource hibernateDatasource) {
     if(hibernateDatasource == null) throw new IllegalArgumentException("hibernateDatasource cannot be null");
     session = hibernateDatasource.getSessionFactory().getCurrentSession();
-    tx = session.getTransaction();
+    Transaction tx = session.getTransaction();
     if(tx == null) {
       throw new IllegalStateException("No transaction, cannot create synchronization.");
     }
-    log.debug("Registering synchronization: session {} tx {}", session.hashCode(), tx.hashCode());
+    txId = tx.hashCode();
+    log.debug("Registering synchronization: session {} tx {}", session.hashCode(), txId);
     tx.registerSynchronization(this);
+
   }
 
   @Override
   public void beforeCompletion() {
-    log.debug("before completion: session {} tx {}", session.hashCode(), tx.hashCode());
+    log.debug("before completion: session {} tx {}", session.hashCode(), txId);
   }
 
   @Override
   public void afterCompletion(int status) {
-    log.debug("after completion ({}): session {} tx {}", new Object[] { status, session.hashCode(), tx.hashCode() });
+    log.debug("after completion ({}): session {} tx {}", new Object[] { status, session.hashCode(), txId });
     switch(status) {
     case Status.STATUS_COMMITTED:
       commit();
@@ -52,7 +54,7 @@ class HibernateDatasourceSynchronization implements Synchronization {
       break;
 
     default:
-      log.error("Unknown TX status {} session {} tx {}", new Object[] { status, session.hashCode(), tx.hashCode() });
+      log.error("Unknown TX status {} session {} tx {}", new Object[] { status, session.hashCode(), txId });
       break;
     }
   }
