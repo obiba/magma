@@ -6,7 +6,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.ValueTable;
+import org.obiba.magma.ValueTableWriter;
 import org.obiba.magma.support.AbstractDatasource;
 
 public class CsvDatasource extends AbstractDatasource {
@@ -62,4 +64,16 @@ public class CsvDatasource extends AbstractDatasource {
     valueTables.put(refTable.getName(), new CsvValueTable(this, refTable, dataFile));
     return this;
   }
+
+  @Override
+  public ValueTableWriter createWriter(String tableName, String entityType) {
+    CsvValueTable valueTable = null;
+    if(hasValueTable(tableName)) {
+      valueTable = (CsvValueTable) getValueTable(tableName);
+    } else {
+      throw new MagmaRuntimeException("Cannot create writer. A table with the name " + tableName + " does not exist.");
+    }
+    return new CsvValueTableWriter(valueTable);
+  }
+
 }

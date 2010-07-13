@@ -34,4 +34,8 @@ public class CsvValueSet extends ValueSetBean {
     return value;
   }
 
+  Map<String, Integer> getHeaderMap() {
+    return headerMap;
+  }
+
 }
