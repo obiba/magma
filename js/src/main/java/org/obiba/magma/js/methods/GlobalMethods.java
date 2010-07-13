@@ -10,6 +10,7 @@ import org.mozilla.javascript.Scriptable;
 import org.obiba.magma.NoSuchValueSetException;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueSet;
+import org.obiba.magma.ValueTable;
 import org.obiba.magma.VariableValueSource;
 import org.obiba.magma.js.MagmaContext;
 import org.obiba.magma.js.ScriptableValue;
@@ -62,12 +63,13 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
     MagmaContext context = MagmaContext.asMagmaContext(ctx);
 
     String name = (String) args[0];
+	ValueTable valueTable = context.has(ValueTable.class) ? (ValueTable) context.peek(ValueTable.class) : null;
     ValueSet valueSet = (ValueSet) context.peek(ValueSet.class);
 
     MagmaEngineVariableResolver reference = MagmaEngineVariableResolver.valueOf(name);
 
     // Find the named source
-    final VariableValueSource source = reference.resolveSource(valueSet);
+    final VariableValueSource source = (valueTable != null) ? reference.resolveSource(valueTable) : reference.resolveSource(valueSet);
 
     // Tests whether this valueSet is in the same table as the referenced ValueTable
     if(reference.isJoin(valueSet)) {

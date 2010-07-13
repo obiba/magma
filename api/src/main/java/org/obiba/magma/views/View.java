@@ -225,7 +225,7 @@ public class View extends AbstractValueTableWrapper implements Initialisable {
       if(isVariableValueSourceInSuper(name)) {
         return getVariableValueSourceTransformer().apply(super.getVariableValueSource(name));
       } else {
-        return variables.getVariableValueSource(name);
+        return getVariableValueSourceTransformer().apply(variables.getVariableValueSource(name));
       }
     }
 
