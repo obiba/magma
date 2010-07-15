@@ -18,10 +18,14 @@ import org.obiba.magma.Disposable;
 import org.obiba.magma.Initialisable;
 import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.NoSuchValueSetException;
+import org.obiba.magma.NoSuchVariableException;
+import org.obiba.magma.Value;
 import org.obiba.magma.ValueSet;
 import org.obiba.magma.ValueTable;
+import org.obiba.magma.ValueType;
 import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
+import org.obiba.magma.VariableValueSource;
 import org.obiba.magma.datasource.csv.converter.VariableConverter;
 import org.obiba.magma.support.AbstractValueTable;
 import org.obiba.magma.support.VariableEntityBean;
@@ -56,15 +60,16 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
 
   private String entityType;
 
-  private Map<VariableEntity, ValueSet> entityValueSet = new HashMap<VariableEntity, ValueSet>();
+  private VariableConverter variableConverter;
 
   private LinkedHashMap<VariableEntity, CsvIndexEntry> entityIndex = new LinkedHashMap<VariableEntity, CsvIndexEntry>();
+
+  private LinkedHashMap<String, CsvIndexEntry> variableNameIndex = new LinkedHashMap<String, CsvIndexEntry>();
 
   private boolean isLastDataCharacterNewline;
 
   private boolean isLastVariablesCharacterNewline;
 
-  @SuppressWarnings("unused")
   private Map<String, Integer> dataHeaderMap;
 
   public CsvValueTable(CsvDatasource datasource, String name, File variableFile, File dataFile) {
@@ -91,20 +96,19 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
 
   @Override
   public ValueSet getValueSet(VariableEntity entity) throws NoSuchValueSetException {
-    // CsvIndexEntry indexEntry = entityIndex.get(entity);
-    // if(indexEntry != null) {
-    // try {
-    // FileReader fr = new FileReader(dataFile);
-    // CSVReader csvReader = new CSVReader(fr);
-    // fr.skip(indexEntry.getStart());
-    // return new CsvValueSet(this, entity, dataHeaderMap, csvReader.readNext());
-    // } catch(IOException e) {
-    // throw new MagmaRuntimeException(e);
-    // }
-    // } else {
-    // throw new NoSuchValueSetException(this, entity);
-    // }
-    return entityValueSet.get(entity);
+    CsvIndexEntry indexEntry = entityIndex.get(entity);
+    if(indexEntry != null) {
+      try {
+        FileReader fr = new FileReader(dataFile);
+        CSVReader csvReader = new CSVReader(fr);
+        fr.skip(indexEntry.getStart());
+        return new CsvValueSet(this, entity, dataHeaderMap, csvReader.readNext());
+      } catch(IOException e) {
+        throw new MagmaRuntimeException(e);
+      }
+    } else {
+      throw new NoSuchValueSetException(this, entity);
+    }
   }
 
   @Override
@@ -136,18 +140,32 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
         addVariableValueSource(new CsvVariableValueSource(var));
       }
     } else if(variableFile != null) {
+      Map<Integer, CsvIndexEntry> lineIndex = buildLineIndex(variableFile);
       variableReader = new CSVReader(new FileReader(variableFile));
 
       String[] line = variableReader.readNext();
-      // first line is headers
-      VariableConverter varConverter = new VariableConverter(line);
 
-      line = variableReader.readNext();
-      while(line != null) {
-        Variable var = varConverter.unmarshal(line);
-        if(entityType == null) entityType = var.getEntityType();
-        addVariableValueSource(new CsvVariableValueSource(var));
+      if(line != null) {
+        // first line is headers
+        variableConverter = new VariableConverter(line);
+
         line = variableReader.readNext();
+        int count = 0;
+        while(line != null) {
+          count++;
+          if(line.length == 1) {
+            line = variableReader.readNext();
+            continue;
+          }
+          Variable var = variableConverter.unmarshal(line);
+          if(entityType == null) entityType = var.getEntityType();
+
+          variableNameIndex.put(var.getName(), lineIndex.get(count));
+          addVariableValueSource(new CsvIndexVariableValueSource(var.getName()));
+          line = variableReader.readNext();
+        }
+      } else {
+        if(variableConverter == null) throw new MagmaRuntimeException("Must supply a header in a variables.csv file or an explicit header.");
       }
     } else {
       entityType = DEFAULT_ENTITY_TYPE;
@@ -169,7 +187,7 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
 
   CSVWriter getVariableWriter() {
     try {
-      return new CSVWriter(new FileWriter(variableFile));
+      return new CSVWriter(new FileWriter(variableFile, true));
     } catch(IOException e) {
       throw new MagmaRuntimeException("Can not get writer for variable metadata. " + e);
     }
@@ -210,8 +228,6 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
         VariableEntity entity = new VariableEntityBean(entityType, line[0]);
         entityIndex.put(entity, lineIndex.get(count));
 
-        ValueSet valueSet = new CsvValueSet(this, entity, headerMap, line);
-        entityValueSet.put(entity, valueSet);
         line = dataReader.readNext();
       }
 
@@ -242,7 +258,6 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
     }
     if(previousCharacter != '\n') {
       lineNumberMap.put(lineCounter, new CsvIndexEntry(start, counter));
-      isLastDataCharacterNewline = false;
     }
     return lineNumberMap;
   }
@@ -257,6 +272,20 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
       raf.seek(indexEntry.getStart());
       raf.write(fill);
       entityIndex.remove(entity);
+      raf.close();
+    }
+  }
+
+  public void clearVariable(Variable variable) throws IOException {
+    CsvIndexEntry indexEntry = variableNameIndex.get(variable.getName());
+    if(indexEntry != null) {
+      RandomAccessFile raf = new RandomAccessFile(variableFile, "rws");
+      int length = (int) (indexEntry.getEnd() - indexEntry.getStart());
+      byte[] fill = new byte[length];
+      Arrays.fill(fill, "X".getBytes("ISO-8859-1")[0]);
+      raf.seek(indexEntry.getStart());
+      raf.write(fill);
+      variableNameIndex.remove(variable.getName());
       raf.close();
     }
   }
@@ -277,13 +306,59 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
 
     @Override
     public Set<VariableEntity> getVariableEntities() {
-      return entityValueSet.keySet();
-      // return entityIndex.keySet();
+      return entityIndex.keySet();
     }
 
     @Override
     public boolean isForEntityType(String entityType) {
       return getEntityType().equals(entityType);
+    }
+
+  }
+
+  private class CsvIndexVariableValueSource implements VariableValueSource {
+
+    private final String variableName;
+
+    public CsvIndexVariableValueSource(String variableName) {
+      this.variableName = variableName;
+    }
+
+    @Override
+    public Variable getVariable() throws NoSuchVariableException {
+      CsvIndexEntry indexEntry = variableNameIndex.get(variableName);
+      if(indexEntry != null) {
+
+        try {
+          FileReader fr = new FileReader(variableFile);
+          CSVReader csvReader = new CSVReader(fr);
+          fr.skip(indexEntry.getStart());
+          return variableConverter.unmarshal(csvReader.readNext());
+        } catch(IOException e) {
+          throw new MagmaRuntimeException(e);
+        }
+      } else {
+        throw new NoSuchVariableException(getName(), variableName);
+      }
+    }
+
+    @SuppressWarnings("unused")
+    private String writeArray(String[] line) {
+      StringBuilder sb = new StringBuilder();
+      for(String string : line) {
+        sb.append(string).append(" ");
+      }
+      return sb.toString();
+    }
+
+    @Override
+    public Value getValue(ValueSet valueSet) {
+      return ((CsvValueSet) valueSet).getValue(getVariable());
+    }
+
+    @Override
+    public ValueType getValueType() {
+      return getVariable().getValueType();
     }
 
   }
@@ -298,7 +373,7 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
   }
 
   private long getLastByte(File file) throws IOException {
-    RandomAccessFile raf = new RandomAccessFile(file, "rws");
+    RandomAccessFile raf = new RandomAccessFile(file, "r");
     long result = raf.length();
     raf.close();
     return result;
@@ -310,6 +385,20 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
 
   public long getVariablesLastByte() throws IOException {
     return getLastByte(variableFile);
+  }
+
+  private char getLastCharacter(File file) throws IOException {
+    RandomAccessFile raf = new RandomAccessFile(file, "r");
+    raf.seek(raf.length() - 1);
+    return (char) raf.read();
+  }
+
+  public char getDataLastCharacter() throws IOException {
+    return getLastCharacter(dataFile);
+  }
+
+  public char getVariableLastCharacter() throws IOException {
+    return getLastCharacter(variableFile);
   }
 
   private void addNewline(File file) throws IOException {
@@ -330,6 +419,38 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
   }
 
   public void updateDataIndex(VariableEntity entity, long lastByte, String[] line) {
-    entityIndex.put(entity, new CsvIndexEntry(lastByte + 1, lastByte + line.length));
+    entityIndex.put(entity, new CsvIndexEntry(lastByte, lastByte + lineLength(line)));
   }
+
+  public void updateVariableIndex(Variable variable, long lastByte, String[] line) {
+    variableNameIndex.put(variable.getName(), new CsvIndexEntry(lastByte, lastByte + lineLength(line)));
+  }
+
+  private int lineLength(String[] line) {
+    int length = 0;
+    for(String word : line) {
+      if(word != null) {
+        length += word.length() + 2; // word + quote marks
+      }
+    }
+    length += line.length - 1; // commas
+    return length;
+  }
+
+  public Map<String, Integer> getDataHeaderMap() {
+    return dataHeaderMap;
+  }
+
+  public void setDataHeaderMap(Map<String, Integer> dataHeaderMap) {
+    this.dataHeaderMap = dataHeaderMap;
+  }
+
+  public void setVariablesHeader(String[] header) {
+    this.variableConverter = new VariableConverter(header);
+  }
+
+  public VariableConverter getVariableConverter() {
+    return this.variableConverter;
+  }
+
 }

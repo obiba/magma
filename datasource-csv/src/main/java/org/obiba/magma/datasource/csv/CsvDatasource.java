@@ -76,4 +76,12 @@ public class CsvDatasource extends AbstractDatasource {
     return new CsvValueTableWriter(valueTable);
   }
 
+  public void setVariablesHeader(String tableName, String[] header) {
+    if(valueTables.containsKey(tableName)) {
+      valueTables.get(tableName).setVariablesHeader(header);
+    } else {
+      throw new MagmaRuntimeException("Cannot set variables header. A table with the name " + tableName + " does not exist.");
+    }
+  }
+
 }

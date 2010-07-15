@@ -2,7 +2,6 @@ package org.obiba.magma.datasource.csv;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -12,6 +11,7 @@ import org.obiba.magma.ValueSet;
 import org.obiba.magma.ValueTableWriter;
 import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
+import org.obiba.magma.datasource.csv.converter.VariableConverter;
 
 import au.com.bytecode.opencsv.CSVWriter;
 
@@ -39,39 +39,31 @@ public class CsvValueTableWriter implements ValueTableWriter {
 
   private class CsvVariableWriter implements VariableWriter {
 
+    private Variable variable;
+
     @Override
     public void writeVariable(Variable variable) {
-      CSVWriter writer = valueTable.getVariableWriter();
-      Map<String, String> varMap = new HashMap<String, String>();
-      varMap.put("table", valueTable.getName());
-      varMap.put("name", variable.getName());
-      varMap.put("valueType", variable.getValueType().toString());
-      varMap.put("entityType", variable.getEntityType());
-      varMap.put("mimeType", variable.getMimeType());
-      varMap.put("unit", variable.getUnit());
-      varMap.put("occurrenceGroup", variable.getOccurrenceGroup());
-      varMap.put("repeatable", Boolean.toString(variable.isRepeatable()));
-
-      String[] line = new String[varMap.size()];
-      int i = 0;
-      for(Map.Entry<String, String> entry : varMap.entrySet()) {
-        line[i++] = entry.getValue();
-      }
-      writer.writeNext(line);
-      try {
-        writer.close();
-      } catch(IOException e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
-      }
+      this.variable = variable;
     }
 
     @Override
     public void close() throws IOException {
-      // TODO Auto-generated method stub
+      CSVWriter writer = valueTable.getVariableWriter();
+      VariableConverter variableConverter = valueTable.getVariableConverter();
+      if(valueTable.getVariables().size() == 0) {
+        // Write Header
+        writer.writeNext(variableConverter.getHeader());
+      } else if(valueTable.hasVariable(variable.getName())) {
+        // doing an update.
+        valueTable.clearVariable(variable);
+      }
 
+      String[] line = variableConverter.marshal(variable);
+      long lastByte = valueTable.getVariablesLastByte();
+      writer.writeNext(line);
+      writer.close();
+      valueTable.updateVariableIndex(variable, lastByte, line);
     }
-
   }
 
   private class CsvValueSetWriter implements ValueSetWriter {
@@ -126,21 +118,18 @@ public class CsvValueTableWriter implements ValueTableWriter {
 
       // Writer Value set. Throw exception if doesn't match header
       long lastByte = valueTable.getDataLastByte();
-      if(lastByte > 0 && !valueTable.isLastDataCharacterNewline()) {
-        valueTable.addDataNewline();
-        lastByte = lastByte + 1;
-      }
       String[] line = csvLine.getLine();
       writer.writeNext(line);
+      writer.close();
       // Update index
       valueTable.updateDataIndex(entity, lastByte, line);
-      writer.close();
     }
 
     private Map<String, Integer> getExistingHeaderMap() {
-      VariableEntity entity = valueTable.getVariableEntities().iterator().next();
-      CsvValueSet csvValueSet = (CsvValueSet) valueTable.getValueSet(entity);
-      return csvValueSet.getHeaderMap();
+      if(valueTable.getDataHeaderMap() == null) {
+        throw new MagmaRuntimeException("The header map for the data file does not exist.");
+      }
+      return valueTable.getDataHeaderMap();
     }
 
     private List<String> getExtraHeadersFromNewValueSet(Map<String, Integer> existingHeaderMap, Map<String, Integer> valueSetHeaderMap) {
