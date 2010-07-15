@@ -100,6 +100,7 @@ class HibernateValueTable extends AbstractValueTable {
   }
 
   void commitEntities(final Collection<VariableEntity> newEntities) {
+    this.variableEntityProvider.entities.addAll(newEntities);
   }
 
   void commitSources(final Collection<VariableValueSource> uncommitttedSources) {
