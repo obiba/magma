@@ -1,4 +1,4 @@
-package org.obiba.magma.datasource.nul;
+package org.obiba.magma.datasource.nil;
 
 import java.io.IOException;
 import java.util.Collections;
