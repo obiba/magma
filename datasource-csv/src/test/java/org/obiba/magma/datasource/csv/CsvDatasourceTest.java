@@ -28,6 +28,7 @@ import org.obiba.magma.VariableEntity;
 import org.obiba.magma.ValueTableWriter.ValueSetWriter;
 import org.obiba.magma.ValueTableWriter.VariableWriter;
 import org.obiba.magma.support.VariableEntityBean;
+import org.obiba.magma.type.IntegerType;
 import org.obiba.magma.type.TextType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -376,6 +377,7 @@ public class CsvDatasourceTest {
     vsw.writeValue(biscuitVariable, cheese);
     vsw.close();
     writer.close();
+    setupDatasource.dispose();
 
     CsvDatasource writeDatasource = new CsvDatasource("csv-datasource").addValueTable("TableDataOnly", //
     null, //
@@ -415,7 +417,7 @@ public class CsvDatasourceTest {
   }
 
   @Test
-  public void testWritingDataOnlyModifyingMultipleValueSets() throws Exception {
+  public void testWritingDataOnlyModifyingMultipleValueSetsAndReadingBackFromReinitializedDatasource() throws Exception {
     String tableName = "TableDataOnly";
     String entityName = "Participant";
     CsvDatasource datasource = new TempTableBuilder(tableName).addData(new File("src/test/resources/TableDataOnly/data.csv")).buildCsvDatasource("csv-datasource");
@@ -429,13 +431,32 @@ public class CsvDatasourceTest {
     writer.close();
     datasource.dispose();
     datasource.initialise();
-    // Must also work without re-initializing datasource.
     assertThat(readValue(datasource.getValueTable(tableName), new VariableEntityBean(entityName, "2"), cityVariable), is(cityValueVancouver));
+    datasource.dispose();
+  }
+
+  @Test
+  public void testWritingDataOnlyModifyingMultipleValueSetsAndReadingBackFromDatasource() throws Exception {
+    String tableName = "TableDataOnly";
+    String entityName = "Participant";
+    CsvDatasource datasource = new TempTableBuilder(tableName).addData(new File("src/test/resources/TableDataOnly/data.csv")).buildCsvDatasource("csv-datasource");
+
+    Variable cityVariable = Variable.Builder.newVariable("City", TextType.get(), "Participant").build();
+    Value cityValueVancouver = TextType.get().valueOf("Vancouver");
+
+    ValueTableWriter writer = datasource.createWriter(tableName, entityName);
+    writeData(new VariableEntityBean(entityName, "4"), writer, cityVariable, cityValueVancouver);
+    writeData(new VariableEntityBean(entityName, "2"), writer, cityVariable, TextType.get().valueOf("Moncton"));
+    writeData(new VariableEntityBean(entityName, "2"), writer, cityVariable, TextType.get().valueOf("Regina"));
+    writeData(new VariableEntityBean(entityName, "2"), writer, cityVariable, cityValueVancouver);
+    writer.close();
+
+    assertThat(readValue(datasource.getValueTable(tableName), new VariableEntityBean(entityName, "2"), cityVariable), is(cityValueVancouver));
+    datasource.dispose();
   }
 
   private Value readValue(ValueTable valueTable, VariableEntity variableEntity, Variable variable) {
     for(ValueSet valueSet : valueTable.getValueSets()) {
-      // String identifier = valueSet.getVariableEntity().getIdentifier();
       Value value = valueTable.getValue(variable, valueSet);
       if(valueSet.getVariableEntity().equals(variableEntity)) {
         return value;
@@ -554,4 +575,109 @@ public class CsvDatasourceTest {
     valueSetWriter.close();
   }
 
+  private void writeVariable(ValueTableWriter valueTableWriter, Variable variable) throws IOException {
+    VariableWriter variableWriter = valueTableWriter.writeVariables();
+    variableWriter.writeVariable(variable);
+    variableWriter.close();
+  }
+
+  // Variable Tests
+
+  @Test
+  public void testReadingVariables_ConfirmVarMetadata() throws Exception {
+    String tableName = "TableVariablesOnly";
+    String entityName = "Participant";
+    CsvDatasource datasource = new TempTableBuilder(tableName).addVariables(new File("src/test/resources/Table1/variables.csv")).buildCsvDatasource("csv-datasource");
+
+    ValueTable table = datasource.getValueTable(tableName);
+    Variable variable = table.getVariable("var2");
+
+    assertThat(variable.getValueType().getName(), is(IntegerType.get().getName()));
+    assertThat(variable.getEntityType(), is(entityName));
+    assertThat(variable.getAttribute("label", Locale.ENGLISH).getValue().toString(), is("Hello I'm variable two"));
+    assertThat(variable.getMimeType(), nullValue());
+    datasource.dispose();
+  }
+
+  @Test(expected = MagmaRuntimeException.class)
+  public void testWritingVariables_HeaderInFileWithoutRequiredNameCausesError() throws Exception {
+    String tableName = "TableVariablesOnly";
+    new TempTableBuilder(tableName).addVariables(new File("src/test/resources/Table1/variables_with_no_name.csv")).buildCsvDatasource("csv-datasource");
+  }
+
+  @Test(expected = MagmaRuntimeException.class)
+  public void testWritingVariables_HeaderInFileWithoutRequiredTypeCausesError() throws Exception {
+    String tableName = "TableVariablesOnly";
+    new TempTableBuilder(tableName).addVariables(new File("src/test/resources/Table1/variables_with_no_type.csv")).buildCsvDatasource("csv-datasource");
+  }
+
+  @Test(expected = MagmaRuntimeException.class)
+  public void testWritingVariables_HeaderInFileWithoutRequiredEntityTypeCausesError() throws Exception {
+    String tableName = "TableVariablesOnly";
+    new TempTableBuilder(tableName).addVariables(new File("src/test/resources/Table1/variables_with_no_entityType.csv")).buildCsvDatasource("csv-datasource");
+  }
+
+  @Test
+  public void testWritingVariables_MinimalHeaderIsValid() throws Exception {
+    String tableName = "TableVariablesOnly";
+    new TempTableBuilder(tableName).addVariables(new File("src/test/resources/Table1/variables_minimal_header.csv")).buildCsvDatasource("csv-datasource");
+  }
+
+  @Test
+  public void testWritingVariables_WriteNewVariableToEmptyFile() throws Exception {
+    String tableName = "TableVariablesOnly";
+    String entityName = "Participant";
+    CsvDatasource datasource = new TempTableBuilder(tableName).addVariables().variablesHeader("name#valueType#entityType#label".split("#")).buildCsvDatasource("csv-datasource");
+
+    Variable variable = Variable.Builder.newVariable("coffee", TextType.get(), entityName).addAttribute("label", "Please indicated your favourite coffee vendor.").build();
+
+    ValueTableWriter writer = datasource.createWriter(tableName, entityName);
+    writeVariable(writer, variable);
+    writer.close();
+  }
+
+  @Test
+  public void testWritingVariables_AddingVariablesToAnExistingFile() throws Exception {
+    String tableName = "TableVariablesOnly";
+    String entityName = "Participant";
+    CsvDatasource datasource = new TempTableBuilder(tableName).addVariables(new File("src/test/resources/Table1/variables.csv")).buildCsvDatasource("csv-datasource");
+
+    Variable variable = Variable.Builder.newVariable("coffee", TextType.get(), entityName).addAttribute("label", "Please indicated your favourite coffee vendor.").build();
+
+    ValueTableWriter writer = datasource.createWriter(tableName, entityName);
+    writeVariable(writer, variable);
+    writer.close();
+    datasource.dispose();
+    datasource.initialise();
+    assertThat(datasource.getValueTable(tableName).getVariable("coffee").getValueType().getName(), is("text"));
+    datasource.dispose();
+  }
+
+  @Test
+  public void testWritingVariables_UpdatingVariable() throws Exception {
+    String tableName = "TableVariablesOnly";
+    String entityName = "Participant";
+    CsvDatasource datasource = new TempTableBuilder(tableName).addVariables(new File("src/test/resources/Table1/variables.csv")).buildCsvDatasource("csv-datasource");
+
+    Variable variable = Variable.Builder.newVariable("var2", TextType.get(), entityName).addAttribute("label", "Please indicated your favourite coffee vendor.").build();
+    Variable variable2 = Variable.Builder.newVariable("var2", TextType.get(), entityName).build();
+
+    ValueTableWriter writer = datasource.createWriter(tableName, entityName);
+    writeVariable(writer, variable);
+    writeVariable(writer, variable2);
+    writeVariable(writer, variable);
+    writer.close();
+    datasource.dispose();
+    datasource.initialise();
+    assertThat(datasource.getValueTable(tableName).getVariable("var2").getValueType().getName(), is("text"));
+    datasource.dispose();
+  }
+
+  @Test
+  public void testReadingVariables_GetVariables() throws Exception {
+    String tableName = "TableVariablesOnly";
+    CsvDatasource datasource = new TempTableBuilder(tableName).addVariables(new File("src/test/resources/Table1/variables.csv")).buildCsvDatasource("csv-datasource");
+
+    assertThat(((CsvValueTable) datasource.getValueTable(tableName)).getVariables().size(), is(2));
+  }
 }
