@@ -39,30 +39,33 @@ public class CsvValueTableWriter implements ValueTableWriter {
 
   private class CsvVariableWriter implements VariableWriter {
 
-    private Variable variable;
-
     @Override
     public void writeVariable(Variable variable) {
-      this.variable = variable;
+      try {
+        CSVWriter writer = valueTable.getVariableWriter();
+        VariableConverter variableConverter = valueTable.getVariableConverter();
+        if(valueTable.isVariablesFileEmpty()) {
+          // Write Header
+          writer.writeNext(variableConverter.getHeader());
+          valueTable.setVariablesFileEmpty(false);
+        } else if(valueTable.hasVariable(variable.getName())) {
+          // doing an update.
+          valueTable.clearVariable(variable);
+        }
+
+        String[] line = variableConverter.marshal(variable);
+        long lastByte = valueTable.getVariablesLastByte();
+        writer.writeNext(line);
+        writer.close();
+        valueTable.updateVariableIndex(variable, lastByte, line);
+      } catch(IOException e) {
+        throw new MagmaRuntimeException(e);
+      }
     }
 
     @Override
     public void close() throws IOException {
-      CSVWriter writer = valueTable.getVariableWriter();
-      VariableConverter variableConverter = valueTable.getVariableConverter();
-      if(valueTable.getVariables().size() == 0) {
-        // Write Header
-        writer.writeNext(variableConverter.getHeader());
-      } else if(valueTable.hasVariable(variable.getName())) {
-        // doing an update.
-        valueTable.clearVariable(variable);
-      }
-
-      String[] line = variableConverter.marshal(variable);
-      long lastByte = valueTable.getVariablesLastByte();
-      writer.writeNext(line);
-      writer.close();
-      valueTable.updateVariableIndex(variable, lastByte, line);
+      // Not used.
     }
   }
 

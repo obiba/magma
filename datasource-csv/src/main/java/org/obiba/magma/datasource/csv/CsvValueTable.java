@@ -70,6 +70,8 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
 
   private boolean isLastVariablesCharacterNewline;
 
+  private boolean isVariablesFileEmpty;
+
   private Map<String, Integer> dataHeaderMap;
 
   public CsvValueTable(CsvDatasource datasource, String name, File variableFile, File dataFile) {
@@ -166,6 +168,7 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
         }
       } else {
         if(variableConverter == null) throw new MagmaRuntimeException("Must supply a header in a variables.csv file or an explicit header.");
+        isVariablesFileEmpty = true;
       }
     } else {
       entityType = DEFAULT_ENTITY_TYPE;
@@ -182,6 +185,7 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
           }
         }
       }
+      isVariablesFileEmpty = true;
     }
   }
 
@@ -451,6 +455,14 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
 
   public VariableConverter getVariableConverter() {
     return this.variableConverter;
+  }
+
+  public boolean isVariablesFileEmpty() {
+    return isVariablesFileEmpty;
+  }
+
+  public void setVariablesFileEmpty(boolean isVariablesFileEmpty) {
+    this.isVariablesFileEmpty = isVariablesFileEmpty;
   }
 
 }
