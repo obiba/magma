@@ -17,9 +17,15 @@ public class TempTableBuilder {
 
   private File dataFile;
 
+  private File srcVariablesFile;
+
+  private File variablesFile;
+
   private boolean hasVariables;
 
   private String tempDirectorySuffix = DEFAULT_TEMP_DIRECTORY_SUFFIX;
+
+  private String[] variablesHeader;
 
   public TempTableBuilder(String tableName) {
     this.tableName = tableName;
@@ -33,6 +39,12 @@ public class TempTableBuilder {
   public TempTableBuilder addData(File dataFile) {
     hasData = true;
     this.srcDataFile = dataFile;
+    return this;
+  }
+
+  public TempTableBuilder addVariables(File variablesFile) {
+    hasVariables = true;
+    this.srcVariablesFile = variablesFile;
     return this;
   }
 
@@ -59,8 +71,12 @@ public class TempTableBuilder {
       }
     }
     if(hasVariables) {
-      File variablesFile = new File(testTableDirectory.getAbsoluteFile(), CsvDatasource.VARIABLES_FILE);
-      variablesFile.createNewFile();
+      variablesFile = new File(testTableDirectory.getAbsoluteFile(), CsvDatasource.VARIABLES_FILE);
+      if(this.srcVariablesFile != null) {
+        FileUtils.copyFile(this.srcVariablesFile, variablesFile);
+      } else {
+        variablesFile.createNewFile();
+      }
     }
     return tempDirectory;
   }
@@ -68,8 +84,9 @@ public class TempTableBuilder {
   public CsvDatasource buildCsvDatasource(String datasourceName) throws IOException {
     build();
     CsvDatasource datasource = new CsvDatasource(datasourceName).addValueTable(tableName, //
-    null, //
+    variablesFile, //
     dataFile);
+    if(variablesHeader != null) datasource.setVariablesHeader(tableName, variablesHeader);
     datasource.initialise();
     return datasource;
   }
@@ -79,5 +96,10 @@ public class TempTableBuilder {
     tempDirectory.delete();
     tempDirectory.mkdir();
     return tempDirectory;
+  }
+
+  public TempTableBuilder variablesHeader(String[] variablesHeader) {
+    this.variablesHeader = variablesHeader;
+    return this;
   }
 }
