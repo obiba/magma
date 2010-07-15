@@ -6,6 +6,11 @@ import org.obiba.magma.ValueType;
 import org.obiba.magma.Variable;
 import org.obiba.magma.VariableValueSource;
 
+/**
+ * Used in two cases: 1. When no variables.csv is provided and the variables are inferred from the header of the
+ * data.csv file. 2. When the variables provided are a reference from another table.
+ * 
+ */
 public class CsvVariableValueSource implements VariableValueSource {
 
   private Variable variable;
