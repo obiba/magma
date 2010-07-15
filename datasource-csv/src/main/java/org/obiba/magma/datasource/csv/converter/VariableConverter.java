@@ -7,7 +7,9 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.obiba.magma.Attribute;
 import org.obiba.magma.Category;
+import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.ValueType;
 import org.obiba.magma.Variable;
 import org.slf4j.Logger;
@@ -47,14 +49,26 @@ public class VariableConverter {
 
   private Map<String, Integer> headerMap = new HashMap<String, Integer>();
 
+  private String[] header;
+
   public VariableConverter(String[] headers) {
     super();
+    header = new String[headers.length];
     for(int i = 0; i < headers.length; i++) {
-      headerMap.put(headers[i].trim(), i);
+      String headerColumnName = headers[i].trim();
+      headerMap.put(headerColumnName, i);
+      header[i] = headerColumnName;
     }
     for(Entry<String, Integer> entry : headerMap.entrySet()) {
       log.debug("headerMap[{}]={}", entry.getKey(), entry.getValue());
     }
+    validateHeader();
+  }
+
+  private void validateHeader() {
+    if(!headerMap.containsKey(NAME)) throw new MagmaRuntimeException("The variables.csv header must contain 'name'.");
+    if(!headerMap.containsKey(VALUE_TYPE)) throw new MagmaRuntimeException("The variables.csv header must contain 'valueType'.");
+    if(!headerMap.containsKey(ENTITY_TYPE)) throw new MagmaRuntimeException("The variables.csv header must contain 'entityType'.");
   }
 
   public Variable unmarshal(String[] csvVar) {
@@ -112,6 +126,25 @@ public class VariableConverter {
     }
   }
 
+  private String marshalCategories(Variable variable, Locale locale) {
+    StringBuilder sb = new StringBuilder();
+    for(Category category : variable.getCategories()) {
+      sb.append(category.getName());
+      Attribute label = null;
+      if(locale != null) {
+        label = category.getAttribute("label", locale);
+      } else {
+        label = category.getAttribute("label");
+      }
+      if(label != null) {
+        sb.append("=").append(label.getValue().toString());
+      }
+      sb.append(";"); // TODO configure separator.
+    }
+    if(sb.length() > 0) sb.setLength(sb.length() - 1); // Remove last separator.
+    return sb.toString();
+  }
+
   private String getAttributeName(String header) {
     return header.split(":")[0];
   }
@@ -134,4 +167,44 @@ public class VariableConverter {
     return value;
   }
 
+  public String[] marshal(Variable variable) {
+    Map<Integer, String> resultMap = new HashMap<Integer, String>();
+
+    resultMap.put(headerMap.get(NAME), variable.getName());
+    resultMap.put(headerMap.get(VALUE_TYPE), variable.getValueType().getName());
+    resultMap.put(headerMap.get(ENTITY_TYPE), variable.getEntityType());
+    if(headerMap.containsKey(MIME_TYPE)) resultMap.put(headerMap.get(MIME_TYPE), variable.getMimeType());
+    if(headerMap.containsKey(REPEATABLE)) resultMap.put(headerMap.get(REPEATABLE), Boolean.toString(variable.isRepeatable()));
+    if(headerMap.containsKey(OCCURRENCE_GROUP)) resultMap.put(headerMap.get(OCCURRENCE_GROUP), variable.getOccurrenceGroup());
+    if(headerMap.containsKey(UNIT)) resultMap.put(headerMap.get(UNIT), variable.getUnit());
+
+    for(String header : headerMap.keySet()) {
+      if(!reservedVariableHeaders.contains(header) && headerMap.containsKey(header)) {
+        String attName = getAttributeName(header);
+        Locale locale = getAttributeLocale(header);
+        if(attName.equals(CATEGORIES)) {
+          resultMap.put(headerMap.get(header), marshalCategories(variable, locale));
+        } else {
+          if(locale != null && variable.hasAttribute(attName, locale)) {
+            resultMap.put(headerMap.get(header), variable.getAttribute(attName, locale).getValue().toString());
+          } else if(variable.hasAttribute(attName)) {
+            resultMap.put(headerMap.get(header), variable.getAttributeStringValue(attName));
+          }
+        }
+      }
+    }
+
+    String[] result = new String[headerMap.size()];
+    for(int i = 0; i < headerMap.size(); i++) {
+      if(resultMap.containsKey(i)) {
+        result[i] = resultMap.get(i);
+      }
+    }
+
+    return result;
+  }
+
+  public String[] getHeader() {
+    return header;
+  }
 }
