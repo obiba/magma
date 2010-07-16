@@ -18,7 +18,6 @@ import org.obiba.magma.Disposable;
 import org.obiba.magma.Initialisable;
 import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.NoSuchValueSetException;
-import org.obiba.magma.NoSuchVariableException;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueSet;
 import org.obiba.magma.ValueTable;
@@ -71,6 +70,8 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
   private boolean isLastVariablesCharacterNewline;
 
   private boolean isVariablesFileEmpty;
+
+  private boolean isDataFileEmpty;
 
   private Map<String, Integer> dataHeaderMap;
 
@@ -218,6 +219,8 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
         for(int i = 1; i < line.length; i++) {
           headerMap.put(line[i].trim(), i);
         }
+      } else {
+        isDataFileEmpty = true;
       }
       dataHeaderMap = headerMap;
 
@@ -236,6 +239,8 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
       }
 
       variableEntityProvider = new CSVVariableEntityProvider(entityType);
+    } else {
+      isDataFileEmpty = true;
     }
   }
 
@@ -329,7 +334,7 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
     }
 
     @Override
-    public Variable getVariable() throws NoSuchVariableException {
+    public Variable getVariable() {
       CsvIndexEntry indexEntry = variableNameIndex.get(variableName);
       if(indexEntry != null) {
 
@@ -341,9 +346,8 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
         } catch(IOException e) {
           throw new MagmaRuntimeException(e);
         }
-      } else {
-        throw new NoSuchVariableException(getName(), variableName);
       }
+      throw new MagmaRuntimeException("An index entry does not exist for the variable '" + variableName + "'.");
     }
 
     @SuppressWarnings("unused")
@@ -428,6 +432,9 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
 
   public void updateVariableIndex(Variable variable, long lastByte, String[] line) {
     variableNameIndex.put(variable.getName(), new CsvIndexEntry(lastByte, lastByte + lineLength(line)));
+    if(!hasVariable(variable.getName())) {
+      addVariableValueSource(new CsvIndexVariableValueSource(variable.getName()));
+    }
   }
 
   private int lineLength(String[] line) {
@@ -443,6 +450,15 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
 
   public Map<String, Integer> getDataHeaderMap() {
     return dataHeaderMap;
+  }
+
+  public String[] getDataHeaderAsArray() {
+    String[] header = new String[dataHeaderMap.size() + 1];
+    header[0] = CsvLine.ENTITY_ID_NAME;
+    for(Map.Entry<String, Integer> entry : dataHeaderMap.entrySet()) {
+      header[entry.getValue()] = entry.getKey();
+    }
+    return header;
   }
 
   public void setDataHeaderMap(Map<String, Integer> dataHeaderMap) {
@@ -463,6 +479,14 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
 
   public void setVariablesFileEmpty(boolean isVariablesFileEmpty) {
     this.isVariablesFileEmpty = isVariablesFileEmpty;
+  }
+
+  public boolean isDataFileEmpty() {
+    return isDataFileEmpty;
+  }
+
+  public void setDataFileEmpty(boolean isDataFileEmpty) {
+    this.isDataFileEmpty = isDataFileEmpty;
   }
 
 }
