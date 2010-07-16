@@ -37,7 +37,12 @@
       <groupId>org.obiba.magma</groupId>
       <artifactId>magma-datasource-excel</artifactId>
       <version>${project.version}</version>
-    </dependency>    
+    </dependency>
+    <dependency>
+      <groupId>org.obiba.magma</groupId>
+      <artifactId>magma-datasource-csv</artifactId>
+      <version>${project.version}</version>
+    </dependency>      
     <dependency>
       <groupId>org.obiba.magma</groupId>
       <artifactId>magma-hibernate-datasource</artifactId>
