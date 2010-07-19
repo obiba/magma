@@ -37,6 +37,8 @@ public class VariableConverter {
 
   public static final String CATEGORIES = "categories";
 
+  public static final String LABEL = "label";
+
   public static final List<String> reservedVariableHeaders = Lists.newArrayList(NAME, //
   VALUE_TYPE, //
   ENTITY_TYPE, //
@@ -122,7 +124,7 @@ public class VariableConverter {
         catBuilder = Category.Builder.newCategory(catName);
         categoryBuilderMap.put(catName, catBuilder);
       }
-      if(cat.length > 1) catBuilder.addAttribute("label", cat[1].trim(), locale);
+      if(cat.length > 1) catBuilder.addAttribute(LABEL, cat[1].trim(), locale);
     }
   }
 
@@ -131,10 +133,12 @@ public class VariableConverter {
     for(Category category : variable.getCategories()) {
       sb.append(category.getName());
       Attribute label = null;
-      if(locale != null) {
-        label = category.getAttribute("label", locale);
-      } else {
-        label = category.getAttribute("label");
+      if(category.hasAttribute(LABEL)) {
+        if(locale != null) {
+          label = category.getAttribute(LABEL, locale);
+        } else {
+          label = category.getAttribute(LABEL);
+        }
       }
       if(label != null) {
         sb.append("=").append(label.getValue().toString());
