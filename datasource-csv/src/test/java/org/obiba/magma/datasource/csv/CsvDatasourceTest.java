@@ -637,6 +637,19 @@ public class CsvDatasourceTest {
   }
 
   @Test
+  public void testWritingVariables_WriteNewVariableToEmptyFileWithoutProvidingVariablesHeader() throws Exception {
+    String tableName = "TableVariablesOnly";
+    String entityName = "Participant";
+    CsvDatasource datasource = new TempTableBuilder(tableName).addVariables().buildCsvDatasource("csv-datasource");
+
+    Variable variable = Variable.Builder.newVariable("coffee", TextType.get(), entityName).addAttribute("label", "Please indicated your favourite coffee vendor.").build();
+
+    ValueTableWriter writer = datasource.createWriter(tableName, entityName);
+    writeVariable(writer, variable);
+    writer.close();
+  }
+
+  @Test
   public void testWritingVariables_AddingVariablesToAnExistingFile() throws Exception {
     String tableName = "TableVariablesOnly";
     String entityName = "Participant";

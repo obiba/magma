@@ -19,6 +19,8 @@ public class CsvDatasource extends AbstractDatasource {
 
   private Map<String, CsvValueTable> valueTables = new HashMap<String, CsvValueTable>();
 
+  private String[] defaultVariablesHeader = "name#valueType#entityType#mimeType#unit#occurrenceGroup#repeatable#script".split("#");
+
   public CsvDatasource(String name) {
     super(name, "csv");
   }
@@ -82,6 +84,24 @@ public class CsvDatasource extends AbstractDatasource {
     } else {
       throw new MagmaRuntimeException("Cannot set variables header. A table with the name " + tableName + " does not exist.");
     }
+  }
+
+  /**
+   * Returns the variables.csv header that will be used if one was not explicitly provided for that table. This only
+   * applies to new variables.csv files that are being written for the first time. Otherwise the existing header will be
+   * used.
+   */
+  public String[] getDefaultVariablesHeader() {
+    return defaultVariablesHeader;
+  }
+
+  /**
+   * Set a variables.csv header that will be used by all tables that do not have a header explicitly set. This only
+   * applies to new variables.csv files that are being written for the first time. Otherwise the existing header will be
+   * used.
+   */
+  public void setDefaultVariablesHeader(String[] defaultVariablesHeader) {
+    this.defaultVariablesHeader = defaultVariablesHeader;
   }
 
 }

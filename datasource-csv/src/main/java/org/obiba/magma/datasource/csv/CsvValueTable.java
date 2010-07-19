@@ -169,7 +169,11 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
           line = variableReader.readNext();
         }
       } else {
-        if(variableConverter == null) throw new MagmaRuntimeException("Must supply a header in a variables.csv file or an explicit header.");
+        if(variableConverter == null) {
+          String[] defaultVariablesHeader = ((CsvDatasource) getDatasource()).getDefaultVariablesHeader();
+          log.debug("A variables.csv file or header was not explicitly provided for the table {}. Use the default header {}.", getName(), defaultVariablesHeader);
+          variableConverter = new VariableConverter(defaultVariablesHeader);
+        }
         isVariablesFileEmpty = true;
       }
     } else {
