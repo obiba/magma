@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
+import org.obiba.magma.concurrent.TableLockManager;
 import org.obiba.magma.support.Disposables;
 import org.obiba.magma.support.Initialisables;
 
@@ -26,6 +27,8 @@ public class MagmaEngine {
   private Set<MagmaEngineExtension> extensions = Sets.newHashSet();
 
   private Set<Datasource> datasources = Sets.newHashSet();
+
+  private TableLockManager tableLockManager = new TableLockManager();
 
   public MagmaEngine() {
     if(instance != null) {
@@ -103,6 +106,14 @@ public class MagmaEngine {
   public void removeDatasource(final Datasource datasource) {
     datasources.remove(datasource);
     Disposables.dispose(datasource);
+  }
+
+  public void lockTables(Set<String> tableNames) {
+    tableLockManager.lockTables(tableNames);
+  }
+
+  public void unlockTables(Set<String> tableNames) {
+    tableLockManager.unlockTables(tableNames);
   }
 
   public <T> WeakReference<T> registerInstance(final T singleton) {
