@@ -294,6 +294,6 @@ public class JoinTable implements ValueTable {
 
   @Override
   public Timestamps getTimestamps(ValueSet valueSet) {
-    return null;
+    return new JoinTimestamps(valueSet, tables);
   }
 }
