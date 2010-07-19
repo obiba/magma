@@ -12,6 +12,7 @@ import org.obiba.core.service.impl.hibernate.AssociationCriteria.Operation;
 import org.obiba.magma.Initialisable;
 import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.NoSuchValueSetException;
+import org.obiba.magma.Timestamps;
 import org.obiba.magma.ValueSet;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.VariableValueSource;
@@ -160,6 +161,11 @@ class HibernateValueTable extends AbstractValueTable {
         return Collections.unmodifiableSet(entities);
       }
     }
+  }
+
+  @Override
+  public Timestamps getTimestamps(ValueSet valueSet) {
+    return new HibernateTimestamps(valueSet);
   }
 
 }

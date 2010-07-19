@@ -19,6 +19,7 @@ import liquibase.database.structure.Table;
 import org.obiba.magma.Initialisable;
 import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.NoSuchValueSetException;
+import org.obiba.magma.Timestamps;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueSet;
 import org.obiba.magma.ValueType;
@@ -374,6 +375,12 @@ class JdbcValueTable extends AbstractValueTable {
     public ValueType getValueType() {
       return variable.getValueType();
     }
+  }
+
+  @Override
+  public Timestamps getTimestamps(ValueSet valueSet) {
+    // TODO Auto-generated method stub
+    return null;
   }
 
 }

@@ -12,6 +12,7 @@ import java.util.Set;
 import org.obiba.magma.Datasource;
 import org.obiba.magma.NoSuchValueSetException;
 import org.obiba.magma.NoSuchVariableException;
+import org.obiba.magma.Timestamps;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueSet;
 import org.obiba.magma.ValueTable;
@@ -289,5 +290,10 @@ public class JoinTable implements ValueTable {
       return wrapped.getValueType();
     }
 
+  }
+
+  @Override
+  public Timestamps getTimestamps(ValueSet valueSet) {
+    return null;
   }
 }

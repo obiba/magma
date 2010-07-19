@@ -15,6 +15,7 @@ import org.obiba.magma.Category;
 import org.obiba.magma.Initialisable;
 import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.NoSuchValueSetException;
+import org.obiba.magma.Timestamps;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueSet;
 import org.obiba.magma.ValueType;
@@ -342,5 +343,11 @@ class ExcelValueTable extends AbstractValueTable implements Initialisable {
       return getEntityType().equals(entityType);
     }
 
+  }
+
+  @Override
+  public Timestamps getTimestamps(ValueSet valueSet) {
+    // TODO Auto-generated method stub
+    return null;
   }
 }

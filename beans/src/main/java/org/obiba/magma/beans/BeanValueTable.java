@@ -5,6 +5,8 @@ import java.util.Set;
 
 import org.obiba.magma.Datasource;
 import org.obiba.magma.NoSuchValueSetException;
+import org.obiba.magma.Timestamps;
+import org.obiba.magma.Value;
 import org.obiba.magma.ValueSet;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.Variable;
@@ -64,6 +66,22 @@ public class BeanValueTable extends AbstractValueTable {
     } catch(NoSuchElementException e) {
       throw new NoSuchBeanException(valueSet, type, "No resolver for bean of type " + type + " in table " + getName());
     }
+  }
+
+  @Override
+  public Timestamps getTimestamps(ValueSet valueSet) {
+    return new Timestamps() {
+
+      @Override
+      public Value getLastUpdate() {
+        return null;
+      }
+
+      @Override
+      public Value getCreated() {
+        return null;
+      }
+    };
   }
 
 }

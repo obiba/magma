@@ -11,6 +11,7 @@ import org.obiba.magma.Disposable;
 import org.obiba.magma.Initialisable;
 import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.NoSuchValueSetException;
+import org.obiba.magma.Timestamps;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueSet;
 import org.obiba.magma.ValueTable;
@@ -181,6 +182,11 @@ class FsValueTable extends AbstractValueTable implements Initialisable, Disposab
       return valueSet;
     }
 
+  }
+
+  @Override
+  public Timestamps getTimestamps(ValueSet valueSet) {
+    return new FsTimestamps(valueTableEntry);
   }
 
 }

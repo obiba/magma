@@ -30,4 +30,6 @@ public interface ValueTable {
 
   public VariableValueSource getVariableValueSource(String name) throws NoSuchVariableException;
 
+  public Timestamps getTimestamps(ValueSet valueSet);
+
 }

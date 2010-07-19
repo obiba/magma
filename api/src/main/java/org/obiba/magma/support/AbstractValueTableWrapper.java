@@ -5,6 +5,7 @@ import java.util.Set;
 import org.obiba.magma.Datasource;
 import org.obiba.magma.NoSuchValueSetException;
 import org.obiba.magma.NoSuchVariableException;
+import org.obiba.magma.Timestamps;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueSet;
 import org.obiba.magma.ValueTable;
@@ -69,4 +70,10 @@ public abstract class AbstractValueTableWrapper implements ValueTableWrapper {
   public boolean isForEntityType(String entityType) {
     return getWrappedValueTable().isForEntityType(entityType);
   }
+
+  @Override
+  public Timestamps getTimestamps(ValueSet valueSet) {
+    return getWrappedValueTable().getTimestamps(valueSet);
+  }
+
 }

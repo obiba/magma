@@ -18,6 +18,7 @@ import org.obiba.magma.Disposable;
 import org.obiba.magma.Initialisable;
 import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.NoSuchValueSetException;
+import org.obiba.magma.Timestamps;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueSet;
 import org.obiba.magma.ValueTable;
@@ -487,6 +488,11 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
 
   public void setDataFileEmpty(boolean isDataFileEmpty) {
     this.isDataFileEmpty = isDataFileEmpty;
+  }
+
+  @Override
+  public Timestamps getTimestamps(ValueSet valueSet) {
+    return new CsvTimestamps(variableFile, dataFile);
   }
 
 }
