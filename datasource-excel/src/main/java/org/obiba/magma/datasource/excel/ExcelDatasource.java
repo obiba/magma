@@ -25,6 +25,7 @@ import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.apache.xmlbeans.XmlOptions;
 import org.obiba.magma.MagmaRuntimeException;
+import org.obiba.magma.Timestamps;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.ValueTableWriter;
 import org.obiba.magma.datasource.excel.support.ExcelUtil;
@@ -316,5 +317,9 @@ public class ExcelDatasource extends AbstractDatasource {
     headerCellStyle.setFont(headerFont);
 
     excelStyles.put("headerCellStyle", headerCellStyle);
+  }
+
+  Timestamps getTimestamps() {
+    return new ExcelTimestamps(excelFile);
   }
 }

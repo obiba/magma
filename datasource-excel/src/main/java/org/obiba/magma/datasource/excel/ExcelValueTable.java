@@ -347,7 +347,6 @@ class ExcelValueTable extends AbstractValueTable implements Initialisable {
 
   @Override
   public Timestamps getTimestamps(ValueSet valueSet) {
-    // TODO Auto-generated method stub
-    return null;
+    return getDatasource().getTimestamps();
   }
 }
