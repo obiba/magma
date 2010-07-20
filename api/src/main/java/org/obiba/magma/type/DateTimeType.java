@@ -85,7 +85,7 @@ public class DateTimeType extends AbstractValueType {
           // ignore and try next supported format
         }
       }
-      throw new IllegalArgumentException("Cannot parse date from string value '" + string + "'");
+      throw new IllegalArgumentException("Cannot parse datetime from string value '" + string + "'. Expected format is " + ISO_8601.toPattern());
     }
   }
 
