@@ -219,13 +219,15 @@ public class MultithreadedDatasourceCopier {
       try {
         VariableEntity entity = readQueue.poll();
         while(entity != null) {
-          ValueSet valueSet = source.getValueSet(entity);
-          Value[] values = new Value[sources.length];
-          for(int i = 0; i < sources.length; i++) {
-            values[i] = sources[i].getValue(valueSet);
+          if(source.hasValueSet(entity)) {
+            ValueSet valueSet = source.getValueSet(entity);
+            Value[] values = new Value[sources.length];
+            for(int i = 0; i < sources.length; i++) {
+              values[i] = sources[i].getValue(valueSet);
+            }
+            log.info("Enqueued entity {}", entity.getIdentifier());
+            writeQueue.put(new VariableEntityValues(valueSet, values));
           }
-          log.info("Enqueued entity {}", entity.getIdentifier());
-          writeQueue.put(new VariableEntityValues(valueSet, values));
           entity = readQueue.poll();
         }
       } catch(InterruptedException e) {
