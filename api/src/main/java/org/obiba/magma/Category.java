@@ -46,6 +46,11 @@ public interface Category extends AttributeAware {
       return this;
     }
 
+    public Builder name(String name) {
+      category.name = name;
+      return this;
+    }
+
     public Builder missing(boolean missing) {
       category.missing = missing;
       return this;
