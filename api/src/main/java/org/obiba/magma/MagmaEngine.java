@@ -113,7 +113,7 @@ public class MagmaEngine {
   }
 
   public void unlock(Set<String> lockNames) {
-    lockManager.unlock(lockNames);
+    lockManager.unlock(lockNames, true);
   }
 
   public <T> WeakReference<T> registerInstance(final T singleton) {

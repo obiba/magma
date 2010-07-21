@@ -22,20 +22,27 @@ public class LockManager {
         if(lock.tryLock()) {
           lockedNames.add(lockName);
         } else {
-          unlock(lockedNames);
-          wait(1000l);
+          if (lockedNames.size() != 0) {
+            unlock(lockedNames, false);
+            lockedNames.clear();
+          }
+          wait();
           break;
         }
       }
     }
   }
 
-  public synchronized void unlock(Set<String> lockNames) {
+  public synchronized void unlock(Set<String> lockNames, boolean notify) {
     for(String lockName : lockNames) {
       ReentrantLock lock = locks.get(lockName);
       if(lock != null) {
         lock.unlock();
       }
+    }
+
+    if(notify) {
+      notify();
     }
   }
 
