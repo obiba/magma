@@ -455,6 +455,28 @@ public class CsvDatasourceTest {
     datasource.dispose();
   }
 
+  @Test
+  public void testWritingDataOnlyModifyingMultipleWideByteValueSetsAndReadingBackFromDatasource() throws Exception {
+    String tableName = "TableDataOnly";
+    String entityName = "Participant";
+    CsvDatasource datasource = new TempTableBuilder(tableName).addData(new File("src/test/resources/TableDataOnly/data.csv")).buildCsvDatasource("csv-datasource");
+
+    Variable cityVariable = Variable.Builder.newVariable("City", TextType.get(), "Participant").build();
+    Value wideByteCityName = TextType.get().valueOf("Suggéré");
+
+    ValueTableWriter writer = datasource.createWriter(tableName, entityName);
+    // Write wide byte line
+    writeData(new VariableEntityBean(entityName, "2"), writer, cityVariable, wideByteCityName);
+    // Write line after wide byte line. This one is in danger of being partially overwritten during an update.
+    writeData(new VariableEntityBean(entityName, "3"), writer, cityVariable, TextType.get().valueOf("Moncton"));
+    // Update the wide byte line (2) to ensure that line (3) is not affected.
+    writeData(new VariableEntityBean(entityName, "2"), writer, cityVariable, TextType.get().valueOf("Regina"));
+    writer.close();
+
+    assertThat(readValue(datasource.getValueTable(tableName), new VariableEntityBean(entityName, "3"), cityVariable), is(TextType.get().valueOf("Moncton")));
+    datasource.dispose();
+  }
+
   private Value readValue(ValueTable valueTable, VariableEntity variableEntity, Variable variable) {
     for(ValueSet valueSet : valueTable.getValueSets()) {
       Value value = valueTable.getValue(variable, valueSet);
@@ -692,5 +714,26 @@ public class CsvDatasourceTest {
     CsvDatasource datasource = new TempTableBuilder(tableName).addVariables(new File("src/test/resources/Table1/variables.csv")).buildCsvDatasource("csv-datasource");
 
     assertThat(((CsvValueTable) datasource.getValueTable(tableName)).getVariables().size(), is(2));
+  }
+
+  @Test
+  public void testWritingVariables_UpdatingWideByteVariable() throws Exception {
+    String tableName = "TableVariablesOnly";
+    String entityName = "Participant";
+    CsvDatasource datasource = new TempTableBuilder(tableName).addVariables(new File("src/test/resources/Table1/variables.csv")).buildCsvDatasource("csv-datasource");
+
+    Variable variable = Variable.Builder.newVariable("var2", TextType.get(), entityName).addAttribute("label", "suggéré").build();
+    Variable variable2 = Variable.Builder.newVariable("var2", TextType.get(), entityName).build();
+
+    ValueTableWriter writer = datasource.createWriter(tableName, entityName);
+    writeVariable(writer, variable);
+    writeVariable(writer, variable2);
+    writeVariable(writer, variable);
+    writeVariable(writer, variable);
+    writer.close();
+    datasource.dispose();
+    datasource.initialise();
+    assertThat(datasource.getValueTable(tableName).getVariable("var2").getValueType().getName(), is("text"));
+    datasource.dispose();
   }
 }

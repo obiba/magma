@@ -82,6 +82,8 @@ public class VariableConverter {
     String repeatable = getValueAt(csvVar, REPEATABLE);
     String occurrenceGroup = getValueAt(csvVar, OCCURRENCE_GROUP);
 
+    log.debug("name={} valueType={} entityType={} mimeType={}", new Object[] { name, valueType, entityType, mimeType });
+
     Variable.Builder builder = Variable.Builder.newVariable(name, ValueType.Factory.forName(valueType), entityType).mimeType(mimeType).unit(unit).occurrenceGroup(occurrenceGroup);
 
     if(Boolean.parseBoolean(repeatable)) {

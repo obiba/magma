@@ -3,10 +3,10 @@ package org.obiba.magma.datasource.csv;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.RandomAccessFile;
+import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -43,7 +43,9 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
 
   public static final String DEFAULT_ENTITY_TYPE = "Participant";
 
-  @SuppressWarnings("unused")
+  /** Character used to blank out rows when they are updated. */
+  public static final String BLANKING_CHARACTER = "\n";
+
   private static final Logger log = LoggerFactory.getLogger(CsvValueTable.class);
 
   private ValueTable refTable;
@@ -103,9 +105,10 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
     CsvIndexEntry indexEntry = entityIndex.get(entity);
     if(indexEntry != null) {
       try {
-        FileReader fr = new FileReader(dataFile);
-        CSVReader csvReader = new CSVReader(fr);
-        fr.skip(indexEntry.getStart());
+        FileInputStream fis;
+        InputStreamReader fr = new InputStreamReader(fis = new FileInputStream(dataFile), CsvDatasource.UTF8);
+        CSVReader csvReader = getCsvDatasource().getCsvReader(fr);
+        fis.skip(indexEntry.getStart());
         return new CsvValueSet(this, entity, dataHeaderMap, csvReader.readNext());
       } catch(IOException e) {
         throw new MagmaRuntimeException(e);
@@ -121,8 +124,7 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
       initialiseVariables();
       initialiseData();
     } catch(IOException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
+      throw new MagmaRuntimeException(e);
     }
   }
 
@@ -132,8 +134,7 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
       if(dataReader != null) dataReader.close();
       if(variableReader != null) variableReader.close();
     } catch(IOException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
+      throw new MagmaRuntimeException(e);
     }
   }
 
@@ -145,7 +146,7 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
       }
     } else if(variableFile != null) {
       Map<Integer, CsvIndexEntry> lineIndex = buildLineIndex(variableFile);
-      variableReader = new CSVReader(new FileReader(variableFile));
+      variableReader = getCsvDatasource().getCsvReader(variableFile);
 
       String[] line = variableReader.readNext();
 
@@ -180,7 +181,7 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
       entityType = DEFAULT_ENTITY_TYPE;
       if(dataFile != null) {
         // Obtain the variable names from the first line of the data file. Header line is = entity_id + variable names
-        CSVReader dataHeaderReader = new CSVReader(new FileReader(dataFile));
+        CSVReader dataHeaderReader = getCsvDatasource().getCsvReader(dataFile);
 
         String[] line = dataHeaderReader.readNext();
         if(line != null) {
@@ -196,26 +197,18 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
   }
 
   CSVWriter getVariableWriter() {
-    try {
-      return new CSVWriter(new FileWriter(variableFile, true));
-    } catch(IOException e) {
-      throw new MagmaRuntimeException("Can not get writer for variable metadata. " + e);
-    }
+    return getCsvDatasource().getCsvWriter(variableFile);
   }
 
   CSVWriter getValueWriter() {
-    try {
-      return new CSVWriter(new FileWriter(dataFile, true));
-    } catch(IOException e) {
-      throw new MagmaRuntimeException("Can not get writer for data. " + e);
-    }
+    return getCsvDatasource().getCsvWriter(dataFile);
   }
 
   private void initialiseData() throws IOException {
     if(dataFile != null) {
       Map<Integer, CsvIndexEntry> lineIndex = buildLineIndex(dataFile);
 
-      dataReader = new CSVReader(new FileReader(dataFile));
+      dataReader = getCsvDatasource().getCsvReader(dataFile);
 
       String[] line = dataReader.readNext();
       // first line is headers = entity_id + variable names
@@ -282,7 +275,7 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
       RandomAccessFile raf = new RandomAccessFile(dataFile, "rws");
       int length = (int) (indexEntry.getEnd() - indexEntry.getStart());
       byte[] fill = new byte[length];
-      Arrays.fill(fill, "X".getBytes("ISO-8859-1")[0]);
+      Arrays.fill(fill, BLANKING_CHARACTER.getBytes("ISO-8859-1")[0]);
       raf.seek(indexEntry.getStart());
       raf.write(fill);
       entityIndex.remove(entity);
@@ -296,7 +289,7 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
       RandomAccessFile raf = new RandomAccessFile(variableFile, "rws");
       int length = (int) (indexEntry.getEnd() - indexEntry.getStart());
       byte[] fill = new byte[length];
-      Arrays.fill(fill, "X".getBytes("ISO-8859-1")[0]);
+      Arrays.fill(fill, BLANKING_CHARACTER.getBytes("ISO-8859-1")[0]);
       raf.seek(indexEntry.getStart());
       raf.write(fill);
       variableNameIndex.remove(variable.getName());
@@ -344,10 +337,13 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
       if(indexEntry != null) {
 
         try {
-          FileReader fr = new FileReader(variableFile);
-          CSVReader csvReader = new CSVReader(fr);
-          fr.skip(indexEntry.getStart());
-          return variableConverter.unmarshal(csvReader.readNext());
+          FileInputStream fis;
+          InputStreamReader fr = new InputStreamReader(fis = new FileInputStream(variableFile), CsvDatasource.UTF8);
+          CSVReader csvReader = getCsvDatasource().getCsvReader(fr);
+          fis.skip(indexEntry.getStart());
+          String[] line = csvReader.readNext();
+          log.debug("variable line read> {} ", writeArray(line));
+          return variableConverter.unmarshal(line);
         } catch(IOException e) {
           throw new MagmaRuntimeException(e);
         }
@@ -355,7 +351,6 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
       throw new MagmaRuntimeException("An index entry does not exist for the variable '" + variableName + "'.");
     }
 
-    @SuppressWarnings("unused")
     private String writeArray(String[] line) {
       StringBuilder sb = new StringBuilder();
       for(String string : line) {
@@ -443,14 +438,18 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
   }
 
   private int lineLength(String[] line) {
-    int length = 0;
-    for(String word : line) {
-      if(word != null) {
-        length += word.length() + 2; // word + quote marks
+    try {
+      int length = 0;
+      for(String word : line) {
+        if(word != null) {
+          length += word.getBytes(CsvDatasource.UTF8).length + 2; // word + quote marks
+        }
       }
+      length += line.length - 1; // commas
+      return length;
+    } catch(UnsupportedEncodingException e) {
+      throw new MagmaRuntimeException("Unable determine line length. ", e);
     }
-    length += line.length - 1; // commas
-    return length;
   }
 
   public Map<String, Integer> getDataHeaderMap() {
@@ -497,6 +496,13 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
   @Override
   public Timestamps getTimestamps(ValueSet valueSet) {
     return new CsvTimestamps(variableFile, dataFile);
+  }
+
+  /**
+   * Convenience method equivalent to {@code (CsvDatasource) getDatasource()}.
+   */
+  private CsvDatasource getCsvDatasource() {
+    return (CsvDatasource) getDatasource();
   }
 
 }

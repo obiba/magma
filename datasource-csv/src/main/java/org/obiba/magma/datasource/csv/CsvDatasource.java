@@ -2,6 +2,13 @@ package org.obiba.magma.datasource.csv;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.Reader;
+import java.io.Writer;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -9,7 +16,12 @@ import java.util.Set;
 import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.ValueTableWriter;
+import org.obiba.magma.datasource.csv.support.Quote;
+import org.obiba.magma.datasource.csv.support.Separator;
 import org.obiba.magma.support.AbstractDatasource;
+
+import au.com.bytecode.opencsv.CSVReader;
+import au.com.bytecode.opencsv.CSVWriter;
 
 public class CsvDatasource extends AbstractDatasource {
 
@@ -17,9 +29,15 @@ public class CsvDatasource extends AbstractDatasource {
 
   public static final String DATA_FILE = "data.csv";
 
+  public static final String UTF8 = "UTF-8";
+
   private Map<String, CsvValueTable> valueTables = new HashMap<String, CsvValueTable>();
 
   private String[] defaultVariablesHeader = "name#valueType#entityType#mimeType#unit#occurrenceGroup#repeatable#script".split("#");
+
+  private Separator separator = Separator.COMMA;
+
+  private Quote quote = Quote.DOUBLE;
 
   public CsvDatasource(String name) {
     super(name, "csv");
@@ -104,4 +122,35 @@ public class CsvDatasource extends AbstractDatasource {
     this.defaultVariablesHeader = defaultVariablesHeader;
   }
 
+  CSVWriter getCsvWriter(File file) {
+    return getCsvWriter(getWriter(file));
+  }
+
+  CSVWriter getCsvWriter(Writer writer) {
+    return new CSVWriter(writer, separator.getCharacter(), quote.getCharacter());
+  }
+
+  Writer getWriter(File file) {
+    try {
+      return new OutputStreamWriter(new FileOutputStream(file, true), UTF8);
+    } catch(IOException e) {
+      throw new MagmaRuntimeException("Can not get csv writer. " + e);
+    }
+  }
+
+  CSVReader getCsvReader(File file) {
+    return getCsvReader(getReader(file));
+  }
+
+  CSVReader getCsvReader(Reader reader) {
+    return new CSVReader(reader, separator.getCharacter(), quote.getCharacter());
+  }
+
+  Reader getReader(File file) {
+    try {
+      return new InputStreamReader(new FileInputStream(file), UTF8);
+    } catch(IOException e) {
+      throw new MagmaRuntimeException("Can not get csv reader. " + e);
+    }
+  }
 }
