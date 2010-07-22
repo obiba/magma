@@ -1,6 +1,7 @@
 package org.obiba.magma.js.methods;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
 
 import org.junit.Assert;
@@ -87,4 +88,45 @@ public class TextMethodsTest extends AbstractScriptableValueTest {
     ScriptableValue result = TextMethods.concat(Context.getCurrentContext(), hello, new Object[] { world, " ", greet, "Mr. Potato Head", "?" }, null);
     assertThat(result.getValue(), is(TextType.get().valueOf("Hello World! How are you, Mr. Potato Head?")));
   }
+
+  @Test
+  public void testMapWithSimpleMappingAndNormalInput() {
+    ScriptableValue value = evaluate("map({'YES':1, 'NO':2})", TextType.get().valueOf("YES"));
+    assertThat(value, notNullValue());
+    assertThat(value.getValue(), is(TextType.get().valueOf(1)));
+
+    value = evaluate("map({'YES':1, 'NO':2})", TextType.get().valueOf("NO"));
+    assertThat(value, notNullValue());
+    assertThat(value.getValue(), is(TextType.get().valueOf(2)));
+  }
+
+  @Test
+  public void testMapWithSimpleMappingAndNullInput() {
+    ScriptableValue value = evaluate("map({'YES':1, 'NO':2})", TextType.get().nullValue());
+    assertThat(value, notNullValue());
+    assertThat(value.getValue(), is(TextType.get().nullValue()));
+  }
+
+  @Test
+  public void testMapWithSimpleMappingAndMapNotDefinedValue() {
+    ScriptableValue value = evaluate("map({'YES':1, 'NO':2})", TextType.get().valueOf("NOT IN MAP"));
+    assertThat(value, notNullValue());
+    assertThat(value.getValue(), is(TextType.get().nullValue()));
+  }
+
+  @Test
+  public void testMapWithSimpleMappingAndSequenceInput() {
+    ScriptableValue value = evaluate("map({'YES':1, 'NO':2})", TextType.get().sequenceOf("YES,NO"));
+    assertThat(value, notNullValue());
+    assertThat(value.getValue().isSequence(), is(true));
+    assertThat(value.getValue().asSequence(), is(TextType.get().sequenceOf("1,2")));
+  }
+
+  @Test
+  public void testMapWithFunctionMapping() {
+    ScriptableValue value = evaluate("map({'YES':function(value){return value.concat('-YES');}, 'NO':2})", TextType.get().valueOf("YES"));
+    assertThat(value, notNullValue());
+    assertThat(value.getValue(), is(TextType.get().valueOf("YES-YES")));
+  }
+
 }
