@@ -153,4 +153,21 @@ public class CsvDatasource extends AbstractDatasource {
       throw new MagmaRuntimeException("Can not get csv reader. " + e);
     }
   }
+
+  public Separator getSeparator() {
+    return separator;
+  }
+
+  public void setSeparator(Separator separator) {
+    this.separator = separator;
+  }
+
+  public Quote getQuote() {
+    return quote;
+  }
+
+  public void setQuote(Quote quote) {
+    this.quote = quote;
+  }
+
 }
