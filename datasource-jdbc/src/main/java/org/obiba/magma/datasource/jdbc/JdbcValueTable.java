@@ -261,8 +261,29 @@ class JdbcValueTable extends AbstractValueTable {
     column.setConstraints(constraints);
 
     ctc.addColumn(column);
+    createTimestampColumns(ctc);
 
     getDatasource().doWithDatabase(new ChangeDatabaseCallback(ctc));
+  }
+
+  private void createTimestampColumns(CreateTableChange ctc) {
+    if(getDatasource().getSettings().isCreatedTimestampColumnNameProvided()) {
+      ctc.addColumn(createTimestampColumn(getDatasource().getSettings().getCreatedTimestampColumnName()));
+    }
+    if(getDatasource().getSettings().isUpdatedTimestampColumnNameProvided()) {
+      ctc.addColumn(createTimestampColumn(getDatasource().getSettings().getUpdatedTimestampColumnName()));
+    }
+  }
+
+  private ColumnConfig createTimestampColumn(String columnName) {
+    ColumnConfig column = new ColumnConfig();
+    column.setName(columnName);
+    column.setType("DATETIME");
+
+    ConstraintsConfig constraints = new ConstraintsConfig();
+    constraints.setNullable(false);
+    column.setConstraints(constraints);
+    return column;
   }
 
   //
@@ -379,8 +400,7 @@ class JdbcValueTable extends AbstractValueTable {
 
   @Override
   public Timestamps getTimestamps(ValueSet valueSet) {
-    // TODO Auto-generated method stub
-    return null;
+    return new JdbcTimestamps(valueSet);
   }
 
 }

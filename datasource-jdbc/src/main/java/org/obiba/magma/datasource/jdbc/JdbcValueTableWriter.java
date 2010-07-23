@@ -8,7 +8,9 @@ import java.io.IOException;
 import java.security.InvalidParameterException;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
@@ -46,6 +48,7 @@ public class JdbcValueTableWriter implements ValueTableWriter {
   // Constants
   //
 
+  @SuppressWarnings("unused")
   private static final Logger log = LoggerFactory.getLogger(JdbcValueTableWriter.class);
 
   static final String VARIABLE_METADATA_TABLE = "variables";
@@ -280,6 +283,8 @@ public class JdbcValueTableWriter implements ValueTableWriter {
 
   private class JdbcValueSetWriter implements ValueSetWriter {
 
+    private final SimpleDateFormat timestampDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
     private VariableEntity entity;
 
     private Map<String, Object> columnValueMap;
@@ -328,6 +333,14 @@ public class JdbcValueTableWriter implements ValueTableWriter {
     }
 
     private String getInsertSql() {
+      String timestamp = formattedDate(new Date());
+      if(valueTable.getDatasource().getSettings().isCreatedTimestampColumnNameProvided()) {
+        writeValue(Variable.Builder.newVariable(valueTable.getDatasource().getSettings().getCreatedTimestampColumnName(), TextType.get(), valueTable.getEntityType()).build(), TextType.get().valueOf(timestamp));
+      }
+      if(valueTable.getDatasource().getSettings().isUpdatedTimestampColumnNameProvided()) {
+        writeValue(Variable.Builder.newVariable(valueTable.getDatasource().getSettings().getUpdatedTimestampColumnName(), TextType.get(), valueTable.getEntityType()).build(), TextType.get().valueOf(timestamp));
+      }
+
       StringBuffer sql = new StringBuffer();
 
       sql.append("INSERT INTO ");
@@ -365,6 +378,9 @@ public class JdbcValueTableWriter implements ValueTableWriter {
     }
 
     private String getUpdateSql() {
+      if(valueTable.getDatasource().getSettings().isUpdatedTimestampColumnNameProvided()) {
+        writeValue(Variable.Builder.newVariable(valueTable.getDatasource().getSettings().getUpdatedTimestampColumnName(), TextType.get(), valueTable.getEntityType()).build(), TextType.get().valueOf(formattedDate(new Date())));
+      }
       StringBuffer sql = new StringBuffer();
 
       sql.append("UPDATE ");
@@ -416,6 +432,10 @@ public class JdbcValueTableWriter implements ValueTableWriter {
 
     private void deleteFromEnd(StringBuffer sb, String stringToDelete) {
       sb.delete(sb.length() - stringToDelete.length(), sb.length());
+    }
+
+    private String formattedDate(Date date) {
+      return timestampDateFormat.format(date);
     }
   }
 }

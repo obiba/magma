@@ -17,6 +17,12 @@ public class JdbcDatasourceSettings {
 
   private boolean useMetadataTables;
 
+  /** If provided, a column with this name will be populated with creation timestamps. */
+  private String createdTimestampColumnName;
+
+  /** If provided, a column with this name will be populated with last update timestamps. */
+  private String updatedTimestampColumnName;
+
   //
   // Constructors
   //
@@ -99,4 +105,31 @@ public class JdbcDatasourceSettings {
   public boolean useMetadataTables() {
     return useMetadataTables;
   }
+
+  public String getCreatedTimestampColumnName() {
+    return createdTimestampColumnName;
+  }
+
+  public void setCreatedTimestampColumnName(String createdTimestampColumnName) {
+    this.createdTimestampColumnName = createdTimestampColumnName;
+  }
+
+  public String getUpdatedTimestampColumnName() {
+    return updatedTimestampColumnName;
+  }
+
+  public void setUpdatedTimestampColumnName(String updatedTimestampColumnName) {
+    this.updatedTimestampColumnName = updatedTimestampColumnName;
+  }
+
+  public boolean isCreatedTimestampColumnNameProvided() {
+    if(createdTimestampColumnName != null && !createdTimestampColumnName.equals("")) return true;
+    return false;
+  }
+
+  public boolean isUpdatedTimestampColumnNameProvided() {
+    if(updatedTimestampColumnName != null && !updatedTimestampColumnName.equals("")) return true;
+    return false;
+  }
+
 }
