@@ -69,7 +69,7 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
     MagmaEngineVariableResolver reference = MagmaEngineVariableResolver.valueOf(name);
 
     // Find the named source
-    final VariableValueSource source = (valueTable != null) ? reference.resolveSource(valueTable) : reference.resolveSource(valueSet);
+    final VariableValueSource source = (reference.getDatasourceName() == null && valueTable != null) ? reference.resolveSource(valueTable) : reference.resolveSource(valueSet);
 
     // Tests whether this valueSet is in the same table as the referenced ValueTable
     if(reference.isJoin(valueSet)) {
