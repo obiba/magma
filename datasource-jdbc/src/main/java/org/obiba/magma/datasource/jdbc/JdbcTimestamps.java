@@ -3,6 +3,7 @@ package org.obiba.magma.datasource.jdbc;
 import org.obiba.magma.Timestamps;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueSet;
+import org.obiba.magma.type.DateTimeType;
 
 public class JdbcTimestamps implements Timestamps {
 
@@ -14,20 +15,19 @@ public class JdbcTimestamps implements Timestamps {
 
   @Override
   public Value getCreated() {
-    if(valueSet.getValueTable().getDatasource().getSettings().isCreatedTimestampColumnNameProvided()) {
+    if(valueSet.getValueTable().hasCreatedTimestampColumn()) {
       return valueSet.getCreated();
     } else {
-      return null;
+      return DateTimeType.get().nullValue();
     }
   }
 
   @Override
   public Value getLastUpdate() {
-    if(valueSet.getValueTable().getDatasource().getSettings().isUpdatedTimestampColumnNameProvided()) {
+    if(valueSet.getValueTable().hasUpdatedTimestampColumn()) {
       return valueSet.getUpdated();
     } else {
-      return null;
+      return DateTimeType.get().nullValue();
     }
   }
-
 }

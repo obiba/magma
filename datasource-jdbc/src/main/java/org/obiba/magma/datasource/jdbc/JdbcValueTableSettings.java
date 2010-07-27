@@ -19,6 +19,12 @@ public class JdbcValueTableSettings {
 
   private List<String> entityIdentifierColumns;
 
+  /** If provided, a column with this name will be populated with creation timestamps. */
+  private String createdTimestampColumnName;
+
+  /** If provided, a column with this name will be populated with last update timestamps. */
+  private String updatedTimestampColumnName;
+
   //
   // Constructors
   //
@@ -61,7 +67,7 @@ public class JdbcValueTableSettings {
   }
 
   public String getMagmaTableName() {
-    return magmaTableName;
+    return (magmaTableName != null) ? magmaTableName : NameConverter.toMagmaName(sqlTableName);
   }
 
   public void setEntityType(String entityType) {
@@ -81,5 +87,31 @@ public class JdbcValueTableSettings {
 
   public List<String> getEntityIdentifierColumns() {
     return Collections.unmodifiableList(entityIdentifierColumns);
+  }
+
+  public String getCreatedTimestampColumnName() {
+    return createdTimestampColumnName;
+  }
+
+  public void setCreatedTimestampColumnName(String createdTimestampColumnName) {
+    this.createdTimestampColumnName = createdTimestampColumnName;
+  }
+
+  public String getUpdatedTimestampColumnName() {
+    return updatedTimestampColumnName;
+  }
+
+  public void setUpdatedTimestampColumnName(String updatedTimestampColumnName) {
+    this.updatedTimestampColumnName = updatedTimestampColumnName;
+  }
+
+  public boolean isCreatedTimestampColumnNameProvided() {
+    if(createdTimestampColumnName != null && !createdTimestampColumnName.equals("")) return true;
+    return false;
+  }
+
+  public boolean isUpdatedTimestampColumnNameProvided() {
+    if(updatedTimestampColumnName != null && !updatedTimestampColumnName.equals("")) return true;
+    return false;
   }
 }

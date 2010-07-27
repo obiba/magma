@@ -18,7 +18,7 @@ public class ExcelTimestamps implements Timestamps {
   @Override
   public Value getCreated() {
     // Not currently possible to read a file creation timestamp. Coming in JDK 7 NIO.
-    return null;
+    return DateTimeType.get().nullValue();
   }
 
   @Override
@@ -26,7 +26,7 @@ public class ExcelTimestamps implements Timestamps {
     if(excelFile.exists()) {
       return DateTimeType.get().valueOf(new Date(excelFile.lastModified()));
     } else {
-      return null;
+      return DateTimeType.get().nullValue();
     }
   }
 

@@ -334,11 +334,11 @@ public class JdbcValueTableWriter implements ValueTableWriter {
 
     private String getInsertSql() {
       String timestamp = formattedDate(new Date());
-      if(valueTable.getDatasource().getSettings().isCreatedTimestampColumnNameProvided()) {
-        writeValue(Variable.Builder.newVariable(valueTable.getDatasource().getSettings().getCreatedTimestampColumnName(), TextType.get(), valueTable.getEntityType()).build(), TextType.get().valueOf(timestamp));
+      if(valueTable.hasCreatedTimestampColumn()) {
+        writeValue(Variable.Builder.newVariable(valueTable.getCreatedTimestampColumnName(), TextType.get(), valueTable.getEntityType()).build(), TextType.get().valueOf(timestamp));
       }
-      if(valueTable.getDatasource().getSettings().isUpdatedTimestampColumnNameProvided()) {
-        writeValue(Variable.Builder.newVariable(valueTable.getDatasource().getSettings().getUpdatedTimestampColumnName(), TextType.get(), valueTable.getEntityType()).build(), TextType.get().valueOf(timestamp));
+      if(valueTable.hasUpdatedTimestampColumn()) {
+        writeValue(Variable.Builder.newVariable(valueTable.getUpdatedTimestampColumnName(), TextType.get(), valueTable.getEntityType()).build(), TextType.get().valueOf(timestamp));
       }
 
       StringBuffer sql = new StringBuffer();
@@ -378,8 +378,8 @@ public class JdbcValueTableWriter implements ValueTableWriter {
     }
 
     private String getUpdateSql() {
-      if(valueTable.getDatasource().getSettings().isUpdatedTimestampColumnNameProvided()) {
-        writeValue(Variable.Builder.newVariable(valueTable.getDatasource().getSettings().getUpdatedTimestampColumnName(), TextType.get(), valueTable.getEntityType()).build(), TextType.get().valueOf(formattedDate(new Date())));
+      if(valueTable.hasUpdatedTimestampColumn()) {
+        writeValue(Variable.Builder.newVariable(valueTable.getUpdatedTimestampColumnName(), TextType.get(), valueTable.getEntityType()).build(), TextType.get().valueOf(formattedDate(new Date())));
       }
       StringBuffer sql = new StringBuffer();
 

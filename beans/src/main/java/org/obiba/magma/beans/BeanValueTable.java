@@ -13,6 +13,7 @@ import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.support.AbstractValueTable;
 import org.obiba.magma.support.VariableEntityProvider;
+import org.obiba.magma.type.DateTimeType;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
@@ -74,12 +75,12 @@ public class BeanValueTable extends AbstractValueTable {
 
       @Override
       public Value getLastUpdate() {
-        return null;
+        return DateTimeType.get().nullValue();
       }
 
       @Override
       public Value getCreated() {
-        return null;
+        return DateTimeType.get().nullValue();
       }
     };
   }

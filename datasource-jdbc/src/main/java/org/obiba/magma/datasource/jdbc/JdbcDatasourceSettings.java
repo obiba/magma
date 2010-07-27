@@ -1,5 +1,6 @@
 package org.obiba.magma.datasource.jdbc;
 
+import java.util.Collections;
 import java.util.Set;
 
 import com.google.common.collect.ImmutableSet;
@@ -17,11 +18,11 @@ public class JdbcDatasourceSettings {
 
   private boolean useMetadataTables;
 
-  /** If provided, a column with this name will be populated with creation timestamps. */
-  private String createdTimestampColumnName;
+  /** The default a column name for creation timestamps */
+  private String defaultCreatedTimestampColumnName;
 
-  /** If provided, a column with this name will be populated with last update timestamps. */
-  private String updatedTimestampColumnName;
+  /** The default a column name for update timestamps */
+  private String defaultUpdatedTimestampColumnName;
 
   //
   // Constructors
@@ -81,7 +82,7 @@ public class JdbcDatasourceSettings {
   }
 
   public Set<JdbcValueTableSettings> getTableSettings() {
-    return tableSettings;
+    return tableSettings != null ? tableSettings : Collections.<JdbcValueTableSettings> emptySet();
   }
 
   public JdbcValueTableSettings getTableSettingsForSqlTable(String sqlTableName) {
@@ -106,29 +107,21 @@ public class JdbcDatasourceSettings {
     return useMetadataTables;
   }
 
-  public String getCreatedTimestampColumnName() {
-    return createdTimestampColumnName;
+  public String getDefaultCreatedTimestampColumnName() {
+    return defaultCreatedTimestampColumnName;
   }
 
-  public void setCreatedTimestampColumnName(String createdTimestampColumnName) {
-    this.createdTimestampColumnName = createdTimestampColumnName;
-  }
-
-  public String getUpdatedTimestampColumnName() {
-    return updatedTimestampColumnName;
-  }
-
-  public void setUpdatedTimestampColumnName(String updatedTimestampColumnName) {
-    this.updatedTimestampColumnName = updatedTimestampColumnName;
+  public String getDefaultUpdatedTimestampColumnName() {
+    return defaultUpdatedTimestampColumnName;
   }
 
   public boolean isCreatedTimestampColumnNameProvided() {
-    if(createdTimestampColumnName != null && !createdTimestampColumnName.equals("")) return true;
+    if(defaultCreatedTimestampColumnName != null && !defaultCreatedTimestampColumnName.equals("")) return true;
     return false;
   }
 
   public boolean isUpdatedTimestampColumnNameProvided() {
-    if(updatedTimestampColumnName != null && !updatedTimestampColumnName.equals("")) return true;
+    if(defaultUpdatedTimestampColumnName != null && !defaultUpdatedTimestampColumnName.equals("")) return true;
     return false;
   }
 

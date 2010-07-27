@@ -21,7 +21,7 @@ public class CsvTimestamps implements Timestamps {
   @Override
   public Value getCreated() {
     // Not currently possible to read a file creation timestamp. Coming in JDK 7 NIO.
-    return null;
+    return DateTimeType.get().nullValue();
   }
 
   @Override
@@ -33,7 +33,7 @@ public class CsvTimestamps implements Timestamps {
     if(variablesFileLastUpdated != null && dataFileLastUpdated != null) {
       return variablesFileLastUpdated.after(dataFileLastUpdated) ? DateTimeType.get().valueOf(variablesFileLastUpdated) : DateTimeType.get().valueOf(dataFileLastUpdated);
     } else if(variablesFileLastUpdated == null && dataFileLastUpdated == null) {
-      return null;
+      return DateTimeType.get().nullValue();
     } else if(variablesFileLastUpdated != null) {
       return DateTimeType.get().valueOf(variablesFileLastUpdated);
     } else {

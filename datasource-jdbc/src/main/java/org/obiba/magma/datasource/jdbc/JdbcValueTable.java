@@ -72,7 +72,7 @@ class JdbcValueTable extends AbstractValueTable {
       getDatasource().databaseChanged();
     }
     this.table = getDatasource().getDatabaseSnapshot().getTable(settings.getSqlTableName());
-    super.setVariableEntityProvider(new JdbcVariableEntityProvider());
+    super.setVariableEntityProvider(new JdbcVariableEntityProvider(getEntityType()));
   }
 
   JdbcValueTable(JdbcDatasource datasource, Table table, String entityType) {
@@ -92,7 +92,7 @@ class JdbcValueTable extends AbstractValueTable {
 
   @Override
   public String getEntityType() {
-    return settings.getEntityType();
+    return settings.getEntityType() != null ? settings.getEntityType() : getDatasource().getSettings().getDefaultEntityType();
   }
 
   @Override
@@ -103,6 +103,11 @@ class JdbcValueTable extends AbstractValueTable {
   @Override
   public ValueSet getValueSet(VariableEntity entity) throws NoSuchValueSetException {
     return new JdbcValueSet(this, entity);
+  }
+
+  @Override
+  public Timestamps getTimestamps(ValueSet valueSet) {
+    return new JdbcTimestamps(valueSet);
   }
 
   //
@@ -120,6 +125,22 @@ class JdbcValueTable extends AbstractValueTable {
   void tableChanged() {
     table = getDatasource().getDatabaseSnapshot().getTable((settings.getSqlTableName()));
     initialise();
+  }
+
+  boolean hasCreatedTimestampColumn() {
+    return getSettings().isCreatedTimestampColumnNameProvided() || getDatasource().getSettings().isCreatedTimestampColumnNameProvided();
+  }
+
+  String getCreatedTimestampColumnName() {
+    return getSettings().isCreatedTimestampColumnNameProvided() ? getSettings().getCreatedTimestampColumnName() : getDatasource().getSettings().getDefaultCreatedTimestampColumnName();
+  }
+
+  boolean hasUpdatedTimestampColumn() {
+    return getSettings().isUpdatedTimestampColumnNameProvided() || getDatasource().getSettings().isUpdatedTimestampColumnNameProvided();
+  }
+
+  String getUpdatedTimestampColumnName() {
+    return getSettings().isUpdatedTimestampColumnNameProvided() ? getSettings().getUpdatedTimestampColumnName() : getDatasource().getSettings().getDefaultUpdatedTimestampColumnName();
   }
 
   private static List<String> getEntityIdentifierColumns(Table table) {
@@ -164,7 +185,7 @@ class JdbcValueTable extends AbstractValueTable {
     } else {
       for(Column column : table.getColumns()) {
         if(!getSettings().getEntityIdentifierColumns().contains(column.getName())) {
-          addVariableValueSource(new JdbcVariableValueSource(settings.getEntityType(), column));
+          addVariableValueSource(new JdbcVariableValueSource(getEntityType(), column));
         }
       }
     }
@@ -267,11 +288,11 @@ class JdbcValueTable extends AbstractValueTable {
   }
 
   private void createTimestampColumns(CreateTableChange ctc) {
-    if(getDatasource().getSettings().isCreatedTimestampColumnNameProvided()) {
-      ctc.addColumn(createTimestampColumn(getDatasource().getSettings().getCreatedTimestampColumnName()));
+    if(hasCreatedTimestampColumn()) {
+      ctc.addColumn(createTimestampColumn(getCreatedTimestampColumnName()));
     }
-    if(getDatasource().getSettings().isUpdatedTimestampColumnNameProvided()) {
-      ctc.addColumn(createTimestampColumn(getDatasource().getSettings().getUpdatedTimestampColumnName()));
+    if(hasUpdatedTimestampColumn()) {
+      ctc.addColumn(createTimestampColumn(getUpdatedTimestampColumnName()));
     }
   }
 
@@ -294,8 +315,8 @@ class JdbcValueTable extends AbstractValueTable {
 
     private Set<VariableEntity> entities = new LinkedHashSet<VariableEntity>();
 
-    public JdbcVariableEntityProvider() {
-      super(settings.getEntityType());
+    public JdbcVariableEntityProvider(final String entityType) {
+      super(entityType);
     }
 
     @SuppressWarnings("unchecked")
@@ -396,11 +417,6 @@ class JdbcValueTable extends AbstractValueTable {
     public ValueType getValueType() {
       return variable.getValueType();
     }
-  }
-
-  @Override
-  public Timestamps getTimestamps(ValueSet valueSet) {
-    return new JdbcTimestamps(valueSet);
   }
 
 }

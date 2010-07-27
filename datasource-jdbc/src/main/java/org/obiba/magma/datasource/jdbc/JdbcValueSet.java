@@ -107,11 +107,11 @@ public class JdbcValueSet extends ValueSetBean {
 
   public Value getCreated() {
     loadResultSetCache();
-    return resultSetCache.get(getValueTable().getDatasource().getSettings().getCreatedTimestampColumnName());
+    return resultSetCache.get(getValueTable().getCreatedTimestampColumnName());
   }
 
   public Value getUpdated() {
     loadResultSetCache();
-    return resultSetCache.get(getValueTable().getDatasource().getSettings().getUpdatedTimestampColumnName());
+    return resultSetCache.get(getValueTable().getUpdatedTimestampColumnName());
   }
 }
