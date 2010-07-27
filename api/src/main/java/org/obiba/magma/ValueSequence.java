@@ -50,7 +50,7 @@ public class ValueSequence extends Value {
    * {@link ValueType}s such as {@link BinaryType} and {@link LocaleType} do not have a natural sort order and {@code
    * ValueSequence}s of those types will not be modified by this method.
    */
-  public Value sort() {
+  public ValueSequence sort() {
     ValueSequence valueSequenceCopy = (ValueSequence) copy();
     if(valueSequenceCopy.getValue() instanceof List<?>) {
       List<Value> list = (List<Value>) valueSequenceCopy.getValue();
@@ -64,7 +64,7 @@ public class ValueSequence extends Value {
    * {@link Comparator} implementation.
    * @param comparator Custom Comparator which will be used to sort the ValueSequence.
    */
-  public Value sort(Comparator<Value> comparator) {
+  public ValueSequence sort(Comparator<Value> comparator) {
     ValueSequence valueSequenceCopy = (ValueSequence) copy();
     if(valueSequenceCopy.getValue() instanceof List<?>) {
       List<Value> list = (List<Value>) valueSequenceCopy.getValue();
