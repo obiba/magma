@@ -3,6 +3,7 @@ package org.obiba.magma.views;
 import org.obiba.magma.NoSuchDatasourceException;
 import org.obiba.magma.NoSuchValueTableException;
 import org.obiba.magma.Timestamps;
+import org.obiba.magma.Value;
 import org.obiba.magma.ValueSet;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.support.MagmaEngineTableResolver;
@@ -79,16 +80,13 @@ public class IncrementalWhereClause implements WhereClause {
     if(destinationValueSet != null) {
       Timestamps sourceTimestamps = sourceTable.getTimestamps(valueSet);
       Timestamps destinationTimestamps = destinationTable.getTimestamps(destinationValueSet);
-      log.debug("Entity {} was last updated in source table at {}", valueSet.getVariableEntity(), sourceTimestamps.getLastUpdate());
-      log.debug("Entity {} was last updated in destination table at {}", valueSet.getVariableEntity(), destinationTimestamps.getLastUpdate());
-
       include = laterThan(sourceTimestamps, destinationTimestamps);
     } else {
       log.debug("No value set found in destination table for entity {}", valueSet.getVariableEntity());
       include = true;
     }
 
-    log.info("Include entity {} = {}", valueSet.getVariableEntity(), include);
+    log.debug("Include entity {} = {}", valueSet.getVariableEntity(), include);
 
     return include;
   }
@@ -96,14 +94,6 @@ public class IncrementalWhereClause implements WhereClause {
   //
   // Methods
   //
-
-  public void setSourceTableName(String sourceTableName) {
-    this.sourceTableName = sourceTableName;
-  }
-
-  public void setDestinationTableName(String destinationTableName) {
-    this.destinationTableName = destinationTableName;
-  }
 
   /**
    * Looks up the source table by its name and returns it. The table is cached for performance.
@@ -155,12 +145,15 @@ public class IncrementalWhereClause implements WhereClause {
    * Indicates whether the first timestamps are "later than" the second.
    * 
    * Note that if either <code>Timestamps</code> object is <code>null</code>, or if either one contains a
-   * <code>null</code> "updated" timestamp, this method returns <code>true</code>.
+   * <code>null value</code> "updated" timestamp, this method returns <code>true</code>.
    * 
    * @return <code>true</code> if <code>ts1</code> is later than <code>ts2</code> (based on the "updated" timestamp)
    */
   @VisibleForTesting
   boolean laterThan(Timestamps ts1, Timestamps ts2) {
-    return (ts1 == null || ts2 == null || ts1.getLastUpdate() == null || ts2.getLastUpdate() == null || ts1.getLastUpdate().compareTo(ts2.getLastUpdate()) > 0);
+    Value u1 = ts1 != null ? ts1.getLastUpdate() : null;
+    Value u2 = ts2 != null ? ts2.getLastUpdate() : null;
+    log.debug("source.updated {} destination.updated {}", u1, u2);
+    return (u1.isNull() || u2.isNull() || u1.compareTo(u2) > 0);
   }
 }
