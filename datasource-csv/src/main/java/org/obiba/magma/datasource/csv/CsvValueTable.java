@@ -43,8 +43,9 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
 
   public static final String DEFAULT_ENTITY_TYPE = "Participant";
 
-  /** Character used to blank out rows when they are updated. */
-  public static final String BLANKING_CHARACTER = "\n";
+  public static final byte BLANKING_CHARACTER = ' ';
+
+  public static final byte NEWLINE_CHARACTER = '\n';
 
   private static final Logger log = LoggerFactory.getLogger(CsvValueTable.class);
 
@@ -254,7 +255,7 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
     int end = 0;
     while((b = bis.read()) != -1) {
       counter++;
-      if(b == '\n') {
+      if(b == NEWLINE_CHARACTER) {
         end = counter - 1;
         lineNumberMap.put(lineCounter, new CsvIndexEntry(start, end));
         start = end + 1;
@@ -263,7 +264,7 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
       }
       previousCharacter = b;
     }
-    if(previousCharacter != '\n') {
+    if(previousCharacter != NEWLINE_CHARACTER) {
       lineNumberMap.put(lineCounter, new CsvIndexEntry(start, counter));
     }
     return lineNumberMap;
@@ -275,7 +276,7 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
       RandomAccessFile raf = new RandomAccessFile(dataFile, "rws");
       int length = (int) (indexEntry.getEnd() - indexEntry.getStart());
       byte[] fill = new byte[length];
-      Arrays.fill(fill, BLANKING_CHARACTER.getBytes("ISO-8859-1")[0]);
+      Arrays.fill(fill, BLANKING_CHARACTER);
       raf.seek(indexEntry.getStart());
       raf.write(fill);
       entityIndex.remove(entity);
@@ -289,7 +290,7 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
       RandomAccessFile raf = new RandomAccessFile(variableFile, "rws");
       int length = (int) (indexEntry.getEnd() - indexEntry.getStart());
       byte[] fill = new byte[length];
-      Arrays.fill(fill, BLANKING_CHARACTER.getBytes("ISO-8859-1")[0]);
+      Arrays.fill(fill, BLANKING_CHARACTER);
       raf.seek(indexEntry.getStart());
       raf.write(fill);
       variableNameIndex.remove(variable.getName());
@@ -412,7 +413,7 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
   private void addNewline(File file) throws IOException {
     RandomAccessFile raf = new RandomAccessFile(file, "rws");
     raf.seek(raf.length());
-    raf.writeChar('\n');
+    raf.writeChar(NEWLINE_CHARACTER);
     raf.close();
   }
 
