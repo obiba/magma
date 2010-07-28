@@ -53,9 +53,9 @@ class HibernateVariableValueSourceFactory implements VariableValueSourceFactory 
 
     private final Serializable variableId;
 
-    private Variable variable;
+    private final String name;
 
-    private String name;
+    private Variable variable;
 
     public HibernateVariableValueSource(VariableState state, boolean unmarshall) {
       if(state == null) throw new IllegalArgumentException("state cannot be null");
@@ -80,11 +80,8 @@ class HibernateVariableValueSourceFactory implements VariableValueSourceFactory 
     @Override
     public Value getValue(ValueSet valueSet) {
       HibernateValueSet hibernateValueSet = (HibernateValueSet) valueSet;
-      for(ValueSetValue v : hibernateValueSet.getValueSetState().getValues()) {
-        if(v.getVariable().getId().equals(variableId)) {
-          return v.getValue();
-        }
-      }
+      ValueSetValue vsv = hibernateValueSet.getValueSetState().getValueMap().get(name);
+      if(vsv != null) return vsv.getValue();
       return (getVariable().isRepeatable() ? getValueType().nullSequence() : getValueType().nullValue());
     }
 

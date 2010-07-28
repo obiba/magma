@@ -1,6 +1,7 @@
 package org.obiba.magma.support;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
@@ -67,6 +68,11 @@ public abstract class AbstractValueTable implements ValueTable, Initialisable {
   }
 
   @Override
+  public Set<VariableEntity> getVariableEntities() {
+    return Collections.unmodifiableSet(variableEntityProvider.getVariableEntities());
+  }
+
+  @Override
   public Iterable<ValueSet> getValueSets() {
     return Iterables.transform(getVariableEntityProvider().getVariableEntities(), new Function<VariableEntity, ValueSet>() {
       @Override
@@ -74,6 +80,16 @@ public abstract class AbstractValueTable implements ValueTable, Initialisable {
         return getValueSet(from);
       }
     });
+  }
+
+  @Override
+  public boolean hasVariable(String name) {
+    for(VariableValueSource source : getSources()) {
+      if(source.getVariable().getName().equals(name)) {
+        return true;
+      }
+    }
+    return false;
   }
 
   @Override

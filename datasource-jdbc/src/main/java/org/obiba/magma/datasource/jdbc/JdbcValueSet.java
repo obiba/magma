@@ -45,10 +45,14 @@ public class JdbcValueSet extends ValueSetBean {
   //
 
   public Value getValue(Variable variable) {
+    loadResultSetCache();
+    return resultSetCache.get(variable.getName());
+  }
+
+  private void loadResultSetCache() {
     if(resultSetCache.isEmpty()) {
       loadValues();
     }
-    return resultSetCache.get(variable.getName());
   }
 
   private void loadValues() {
@@ -99,5 +103,15 @@ public class JdbcValueSet extends ValueSetBean {
       }
     });
 
+  }
+
+  public Value getCreated() {
+    loadResultSetCache();
+    return resultSetCache.get(getValueTable().getCreatedTimestampColumnName());
+  }
+
+  public Value getUpdated() {
+    loadResultSetCache();
+    return resultSetCache.get(getValueTable().getUpdatedTimestampColumnName());
   }
 }

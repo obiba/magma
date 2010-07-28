@@ -8,8 +8,7 @@ import org.obiba.magma.Value;
 import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
 
-import com.google.common.base.Function;
-import com.google.common.collect.MapMaker;
+import com.google.common.collect.Maps;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
 import com.thoughtworks.xstream.annotations.XStreamImplicit;
@@ -31,7 +30,7 @@ public class XStreamValueSet {
   private List<XStreamValueSetValue> values = new LinkedList<XStreamValueSetValue>();
 
   @XStreamOmitField
-  private Map<String, XStreamValueSetValue> valueMap = new MapMaker().makeComputingMap(new FindValueComputation());
+  private Map<String, XStreamValueSetValue> valueMap = Maps.newHashMap();
 
   public XStreamValueSet(String valueTable, VariableEntity entity) {
     this.valueTable = valueTable;
@@ -40,30 +39,23 @@ public class XStreamValueSet {
   }
 
   public void setValue(Variable variable, Value value) {
-    XStreamValueSetValue valueSetValue = lookupValue(variable.getName());
+    XStreamValueSetValue valueSetValue = valueMap.get(variable.getName());
 
     if(valueSetValue != null) {
       valueSetValue.setValue(value);
     } else {
-      values.add(new XStreamValueSetValue(variable.getName(), value));
+      XStreamValueSetValue xvalue = new XStreamValueSetValue(variable.getName(), value);
+      values.add(xvalue);
+      valueMap.put(variable.getName(), xvalue);
     }
   }
 
   public Value getValue(Variable variable) {
-    XStreamValueSetValue valueSetValue = lookupValue(variable.getName());
+    XStreamValueSetValue valueSetValue = valueMap.get(variable.getName());
     if(valueSetValue != null) {
       return valueSetValue.getValue();
     } else {
       return variable.getValueType().nullValue();
-    }
-  }
-
-  private XStreamValueSetValue lookupValue(String name) {
-    try {
-      return valueMap.get(name);
-    } catch(NullPointerException e) {
-      // When the computation returns null, get throws a NullPointerException
-      return null;
     }
   }
 
@@ -77,26 +69,11 @@ public class XStreamValueSet {
     if(values == null) {
       values = new LinkedList<XStreamValueSetValue>();
     }
-    valueMap = new MapMaker().makeComputingMap(new FindValueComputation());
-    return this;
-  }
-
-  /**
-   * Finds an {@code XStreamValueSetValue} in {@code XStreamValueSet#values} using the variable name.
-   * <p>
-   * This is used to lazily convert the {@code List} into a {@code Map}. The first time a key is requested, the process
-   * is O(n), subsequent requests for the same key will be O(1) (or close to).
-   */
-  private class FindValueComputation implements Function<String, XStreamValueSetValue> {
-    @Override
-    public XStreamValueSetValue apply(String from) {
-      for(XStreamValueSetValue valueSetValue : values) {
-        if(valueSetValue.getVariable().equals(from)) {
-          return valueSetValue;
-        }
-      }
-      return null;
+    valueMap = Maps.newHashMap();
+    for(XStreamValueSetValue xvalue : values) {
+      valueMap.put(xvalue.getVariable(), xvalue);
     }
+    return this;
   }
 
 }

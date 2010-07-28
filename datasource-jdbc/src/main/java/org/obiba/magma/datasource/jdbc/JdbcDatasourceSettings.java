@@ -1,5 +1,6 @@
 package org.obiba.magma.datasource.jdbc;
 
+import java.util.Collections;
 import java.util.Set;
 
 import com.google.common.collect.ImmutableSet;
@@ -16,6 +17,12 @@ public class JdbcDatasourceSettings {
   private Set<JdbcValueTableSettings> tableSettings;
 
   private boolean useMetadataTables;
+
+  /** The default a column name for creation timestamps */
+  private String defaultCreatedTimestampColumnName;
+
+  /** The default a column name for update timestamps */
+  private String defaultUpdatedTimestampColumnName;
 
   //
   // Constructors
@@ -75,7 +82,7 @@ public class JdbcDatasourceSettings {
   }
 
   public Set<JdbcValueTableSettings> getTableSettings() {
-    return tableSettings;
+    return tableSettings != null ? tableSettings : Collections.<JdbcValueTableSettings> emptySet();
   }
 
   public JdbcValueTableSettings getTableSettingsForSqlTable(String sqlTableName) {
@@ -99,4 +106,23 @@ public class JdbcDatasourceSettings {
   public boolean useMetadataTables() {
     return useMetadataTables;
   }
+
+  public String getDefaultCreatedTimestampColumnName() {
+    return defaultCreatedTimestampColumnName;
+  }
+
+  public String getDefaultUpdatedTimestampColumnName() {
+    return defaultUpdatedTimestampColumnName;
+  }
+
+  public boolean isCreatedTimestampColumnNameProvided() {
+    if(defaultCreatedTimestampColumnName != null && !defaultCreatedTimestampColumnName.equals("")) return true;
+    return false;
+  }
+
+  public boolean isUpdatedTimestampColumnNameProvided() {
+    if(defaultUpdatedTimestampColumnName != null && !defaultUpdatedTimestampColumnName.equals("")) return true;
+    return false;
+  }
+
 }

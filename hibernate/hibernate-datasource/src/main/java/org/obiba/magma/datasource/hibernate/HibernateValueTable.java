@@ -12,6 +12,7 @@ import org.obiba.core.service.impl.hibernate.AssociationCriteria.Operation;
 import org.obiba.magma.Initialisable;
 import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.NoSuchValueSetException;
+import org.obiba.magma.Timestamps;
 import org.obiba.magma.ValueSet;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.VariableValueSource;
@@ -22,15 +23,19 @@ import org.obiba.magma.support.AbstractValueTable;
 import org.obiba.magma.support.AbstractVariableEntityProvider;
 import org.obiba.magma.support.ValueSetBean;
 import org.obiba.magma.support.VariableEntityBean;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 
 class HibernateValueTable extends AbstractValueTable {
 
-  private Serializable valueTableId;
+  private static final Logger log = LoggerFactory.getLogger(HibernateValueTable.class);
 
-  private HibernateVariableEntityProvider variableEntityProvider;
+  private final Serializable valueTableId;
+
+  private final HibernateVariableEntityProvider variableEntityProvider;
 
   HibernateValueTable(HibernateDatasource datasource, ValueTableState state) {
     super(datasource, state.getName());
@@ -104,8 +109,10 @@ class HibernateValueTable extends AbstractValueTable {
   }
 
   private void readVariables() {
+    log.debug("Populating variable cache for table {}", getName());
     HibernateVariableValueSourceFactory factory = new HibernateVariableValueSourceFactory(this);
     addVariableValueSources(factory.createSources());
+    log.debug("Populating variable cache - done. {} variables loaded", super.getSources().size());
   }
 
   class HibernateValueSet extends ValueSetBean {
@@ -132,12 +139,14 @@ class HibernateValueTable extends AbstractValueTable {
 
     @Override
     public void initialise() {
+      log.debug("Populating entity cache for table {}", getName());
       // get the variable entities that have a value set in the table
       AssociationCriteria criteria = AssociationCriteria.create(ValueSetState.class, getDatasource().getSessionFactory().getCurrentSession()).add("valueTable.id", Operation.eq, valueTableId);
       for(Object obj : criteria.list()) {
         VariableEntity entity = ((ValueSetState) obj).getVariableEntity();
         entities.add(new VariableEntityBean(entity.getType(), entity.getIdentifier()));
       }
+      log.debug("Populating entity cache - done. {} entities loaded.", entities.size());
     }
 
     /**
@@ -152,6 +161,11 @@ class HibernateValueTable extends AbstractValueTable {
         return Collections.unmodifiableSet(entities);
       }
     }
+  }
+
+  @Override
+  public Timestamps getTimestamps(ValueSet valueSet) {
+    return new HibernateTimestamps(valueSet);
   }
 
 }

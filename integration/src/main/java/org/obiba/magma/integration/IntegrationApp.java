@@ -17,6 +17,7 @@ import org.obiba.magma.Variable;
 import org.obiba.magma.crypt.support.GeneratedKeyPairProvider;
 import org.obiba.magma.datasource.crypt.EncryptedSecretKeyDatasourceEncryptionStrategy;
 import org.obiba.magma.datasource.crypt.GeneratedSecretKeyDatasourceEncryptionStrategy;
+import org.obiba.magma.datasource.csv.CsvDatasource;
 import org.obiba.magma.datasource.excel.ExcelDatasource;
 import org.obiba.magma.datasource.fs.FsDatasource;
 import org.obiba.magma.datasource.hibernate.SessionFactoryProvider;
@@ -56,7 +57,7 @@ public class IntegrationApp {
     MagmaEngine.get().addDatasource(fs);
 
     // Export the IntegrationDatasource to the FsDatasource
-    DatasourceCopier copier = new DatasourceCopier();
+    DatasourceCopier copier = DatasourceCopier.Builder.newCopier().build();
     copier.copy(integrationDatasource.getName(), fs.getName());
 
     // Disconnect it from Magma
@@ -138,6 +139,22 @@ public class IntegrationApp {
       throw e;
     }
 
+    // CSV Datasource
+
+    File csvDataFile = new File("target", "data.csv");
+    deleteFile(csvDataFile);
+    csvDataFile.createNewFile();
+    File csvVariablesFile = new File("target", "variables.csv");
+    deleteFile(csvVariablesFile);
+    csvVariablesFile.createNewFile();
+    CsvDatasource csvDatasource = new CsvDatasource("csv");
+    csvDatasource.addValueTable("integration-app", csvVariablesFile, csvDataFile);
+    csvDatasource.setVariablesHeader("integration-app", "name#valueType#entityType#mimeType#unit#occurrenceGroup#repeatable#script".split("#"));
+    MagmaEngine.get().addDatasource(csvDatasource);
+    DatasourceCopier.Builder.newCopier().dontCopyNullValues().build().copy(integrationDatasource, csvDatasource);
+
+    // Excel Datasource
+
     File excelFile = new File("target", "excel-datasource.xls");
     if(excelFile.exists()) {
       excelFile.delete();
@@ -166,5 +183,9 @@ public class IntegrationApp {
     jdbcProperties.setProperty(JdbcDatasourceFactory.PASSWORD, "");
 
     return jdbcProperties;
+  }
+
+  private static void deleteFile(File file) {
+    if(file.exists()) file.delete();
   }
 }

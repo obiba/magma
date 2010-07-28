@@ -29,11 +29,4 @@ public class VariableEntityConverter implements HibernateConverter<VariableEntit
     return new VariableEntityBean(variableEntityState.getType(), variableEntityState.getIdentifier());
   }
 
-  //
-  // Methods
-  //
-
-  public static VariableEntityConverter getInstance() {
-    return new VariableEntityConverter();
-  }
 }

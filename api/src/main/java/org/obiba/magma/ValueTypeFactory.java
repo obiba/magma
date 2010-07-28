@@ -8,6 +8,7 @@ import java.util.Set;
 import org.obiba.magma.type.BinaryType;
 import org.obiba.magma.type.BooleanType;
 import org.obiba.magma.type.DateTimeType;
+import org.obiba.magma.type.DateType;
 import org.obiba.magma.type.DecimalType;
 import org.obiba.magma.type.IntegerType;
 import org.obiba.magma.type.LocaleType;
@@ -62,6 +63,7 @@ class ValueTypeFactory {
     types.add(BooleanType.get());
     types.add(BinaryType.get());
     types.add(DateTimeType.get());
+    types.add(DateType.get());
   }
 
 }

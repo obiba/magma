@@ -3,12 +3,12 @@ package org.obiba.magma.support;
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
+import org.obiba.magma.Attribute;
+import org.obiba.magma.Category;
 import org.obiba.magma.Datasource;
 import org.obiba.magma.MagmaEngine;
 import org.obiba.magma.Value;
@@ -19,13 +19,11 @@ import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.ValueTableWriter.ValueSetWriter;
 import org.obiba.magma.ValueTableWriter.VariableWriter;
-import org.obiba.magma.audit.VariableEntityAuditLogManager;
 import org.obiba.magma.support.MultiplexingValueTableWriter.MultiplexedValueSetWriter;
-import org.obiba.magma.type.TextType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Function;
+import com.google.common.collect.ImmutableList;
 
 public class DatasourceCopier {
 
@@ -33,13 +31,19 @@ public class DatasourceCopier {
 
   public static class Builder {
 
-    DatasourceCopier copier = new DatasourceCopier();
+    private DatasourceCopier copier = new DatasourceCopier();
 
     public Builder() {
     }
 
     public static Builder newCopier() {
       return new Builder();
+    }
+
+    public static Builder newCopier(DatasourceCopier copier) {
+      Builder b = new Builder();
+      b.copier = copier;
+      return b;
     }
 
     public Builder dontCopyValues() {
@@ -73,17 +77,6 @@ public class DatasourceCopier {
       return this;
     }
 
-    public Builder withVariableEntityCopyEventListener(VariableEntityAuditLogManager auditLogManager, Datasource destination, Function<VariableEntity, VariableEntity> entityMapper) {
-      if(auditLogManager == null) throw new IllegalArgumentException("auditLogManager cannot be null");
-      if(destination == null) throw new IllegalArgumentException("auditLogManager cannot be null");
-      copier.listeners.add(new VariableEntityCopyEventListener(auditLogManager, destination, entityMapper));
-      return this;
-    }
-
-    public Builder withVariableEntityCopyEventListener(VariableEntityAuditLogManager auditLogManager, Datasource destination) {
-      return withVariableEntityCopyEventListener(auditLogManager, destination, null);
-    }
-
     public Builder withVariableTransformer(VariableTransformer transformer) {
       copier.variableTransformer = transformer;
       return this;
@@ -95,7 +88,7 @@ public class DatasourceCopier {
     }
 
     public DatasourceCopier build() {
-      return copier;
+      return new DatasourceCopier(copier);
     }
   }
 
@@ -111,8 +104,17 @@ public class DatasourceCopier {
 
   private MultiplexingStrategy multiplexer = null;
 
-  public DatasourceCopier() {
+  private DatasourceCopier() {
 
+  }
+
+  private DatasourceCopier(DatasourceCopier other) {
+    this.copyNullValues = other.copyNullValues;
+    this.copyMetadata = other.copyMetadata;
+    this.copyValues = other.copyValues;
+    this.listeners = ImmutableList.copyOf(other.listeners);
+    this.variableTransformer = other.variableTransformer;
+    this.multiplexer = other.multiplexer;
   }
 
   public void copy(String source, String destination) throws IOException {
@@ -139,13 +141,7 @@ public class DatasourceCopier {
   public void copy(ValueTable table, String tableName, Datasource destination) throws IOException {
     log.info("Copying ValueTable '{}' to '{}.{}' (copyMetadata={}, copyValues={}).", new Object[] { table.getName(), destination.getName(), tableName, copyMetadata, copyValues });
 
-    ValueTableWriter vtw;
-    if(multiplexer != null) {
-      vtw = new MultiplexingValueTableWriter(table, this, destination, multiplexer);
-    } else {
-      vtw = createValueTableWriter(table, tableName, destination);
-    }
-
+    ValueTableWriter vtw = innerValueTableWriter(table, tableName, destination);
     try {
       copy(table, tableName, vtw);
     } finally {
@@ -204,8 +200,36 @@ public class DatasourceCopier {
     }
   }
 
+  public void copy(ValueTable source, String tableName, ValueSet valueSet, Variable[] variables, Value[] values, ValueSetWriter vsw) {
+    if(copyValues) {
+      notifyListeners(source, valueSet, false);
+      for(int i = 0; i < variables.length; i++) {
+        Value value = values[i];
+        if(value.isNull() == false || copyNullValues) {
+          Variable variable = variables[i];
+          vsw.writeValue(variableTransformer.transform(variable), value);
+        }
+      }
+
+      if(vsw instanceof MultiplexedValueSetWriter) {
+        Set<String> tables = ((MultiplexedValueSetWriter) vsw).getTables();
+        notifyListeners(source, valueSet, true, tables.toArray(new String[] {}));
+      } else {
+        notifyListeners(source, valueSet, true, tableName);
+      }
+    }
+  }
+
   public ValueTableWriter createValueTableWriter(ValueTable source, String destinationTableName, Datasource destination) {
     return destination.createWriter(destinationTableName, source.getEntityType());
+  }
+
+  private ValueTableWriter innerValueTableWriter(ValueTable source, String destinationTableName, Datasource destination) {
+    if(multiplexer != null) {
+      return new MultiplexingValueTableWriter(source, this, destination, multiplexer);
+    } else {
+      return createValueTableWriter(source, destinationTableName, destination);
+    }
   }
 
   public void closeValueTableWriter(ValueTableWriter vtw, ValueTable table) throws IOException {
@@ -346,42 +370,6 @@ public class DatasourceCopier {
       allDuration += duration;
       count++;
       log.debug("ValueSet copied in {}s. Average copy duration for {} valueSets: {}s.", new Object[] { twoDecimalPlaces.format(duration / 1000.0d), count, twoDecimalPlaces.format(allDuration / (double) count / 1000.0d) });
-    }
-
-  }
-
-  private static class VariableEntityCopyEventListener implements DatasourceCopyValueSetEventListener {
-
-    private VariableEntityAuditLogManager auditLogManager;
-
-    private Datasource destination;
-
-    private Function<VariableEntity, VariableEntity> entityMapper;
-
-    public VariableEntityCopyEventListener(VariableEntityAuditLogManager auditLogManager, Datasource destination, Function<VariableEntity, VariableEntity> entityMapper) {
-      if(auditLogManager == null) throw new IllegalArgumentException("auditLogManager cannot be null");
-      if(destination == null) throw new IllegalArgumentException("destination cannot be null");
-      this.auditLogManager = auditLogManager;
-      this.destination = destination;
-      this.entityMapper = entityMapper;
-    }
-
-    @Override
-    public void onValueSetCopied(ValueTable source, ValueSet valueSet, String... tables) {
-      VariableEntity entity = entityMapper != null ? entityMapper.apply(valueSet.getVariableEntity()) : valueSet.getVariableEntity();
-      for(String tableName : tables) {
-        auditLogManager.createAuditEvent(auditLogManager.getAuditLog(entity), source, "COPY", createCopyDetails(entity, tableName));
-      }
-    }
-
-    @Override
-    public void onValueSetCopy(ValueTable source, ValueSet valueSet) {
-    }
-
-    private Map<String, Value> createCopyDetails(VariableEntity entity, String tableName) {
-      Map<String, Value> details = new HashMap<String, Value>();
-      details.put("destinationName", TextType.get().valueOf(destination.getName() + "." + tableName));
-      return details;
     }
 
   }

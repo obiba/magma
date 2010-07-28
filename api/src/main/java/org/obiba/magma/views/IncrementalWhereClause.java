@@ -1,40 +1,45 @@
 package org.obiba.magma.views;
 
-import java.util.List;
-
-import org.obiba.magma.Datasource;
+import org.obiba.magma.NoSuchDatasourceException;
+import org.obiba.magma.NoSuchValueTableException;
+import org.obiba.magma.Timestamps;
+import org.obiba.magma.Value;
 import org.obiba.magma.ValueSet;
 import org.obiba.magma.ValueTable;
-import org.obiba.magma.audit.VariableEntityAuditEvent;
-import org.obiba.magma.audit.VariableEntityAuditLog;
-import org.obiba.magma.audit.VariableEntityAuditLogManager;
+import org.obiba.magma.support.MagmaEngineTableResolver;
+import org.obiba.magma.support.NullValueTable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.common.annotations.VisibleForTesting;
 
 /**
  * A "where" clause that can be used to create an incremental {@link View}.
- * 
- * Given a destination {@link Datasource}, {@link ValueSet}s from a source {@link Datasource} are excluded if they have
- * been previously copied to the destination and they have not since been updated in the source. Whether this condition
- * holds or not is determined on the basis of the audit log.
- * 
- * @author cag-dspathis
- * 
  */
 public class IncrementalWhereClause implements WhereClause {
-  // 
+  //
   // Constants
   //
 
-  private static final String COPY_AUDIT_EVENT = "COPY";
-
-  private static final String COPY_DESTINATION = "destinationName";
+  private static final Logger log = LoggerFactory.getLogger(IncrementalWhereClause.class);
 
   //
   // Instance Variables
   //
 
-  private VariableEntityAuditLogManager auditLogManager;
+  private String sourceTableName;
 
-  private String destinationTable;
+  private String destinationTableName;
+
+  /**
+   * Cached source table.
+   */
+  private ValueTable sourceTable;
+
+  /**
+   * Cached destination table.
+   */
+  private ValueTable destinationTable;
 
   //
   // Constructors
@@ -48,70 +53,107 @@ public class IncrementalWhereClause implements WhereClause {
   }
 
   /**
-   * Creates an <code>IncrementalWhereClause</code>, based on the specified destination table.
+   * Creates an <code>IncrementalWhereClause</code>, based on the specified source and destination tables.
    * 
-   * @param destinationTable fully-qualified name of the destination {@link ValueTable}
+   * @param sourceTableName fully-qualified name of the source {@link ValueTable}
+   * @param destinationTableName fully-qualified name of the destination {@link ValueTable}
    */
-  public IncrementalWhereClause(String destinationTable) {
-    if(destinationTable == null) throw new IllegalArgumentException("null destinationTable");
+  public IncrementalWhereClause(String sourceTableName, String destinationTableName) {
+    if(sourceTableName == null) throw new IllegalArgumentException("null sourceTableName");
+    if(destinationTableName == null) throw new IllegalArgumentException("null destinationTableName");
 
-    this.destinationTable = destinationTable;
+    this.sourceTableName = sourceTableName;
+    this.destinationTableName = destinationTableName;
   }
 
   //
   // WhereClause Methods
   //
 
-  @Override
   public boolean where(ValueSet valueSet) {
-    VariableEntityAuditLog auditLog = auditLogManager.getAuditLog(valueSet.getVariableEntity());
+    boolean include = false;
 
-    VariableEntityAuditEvent lastCopyFromSourceToDestination = getLastCopyFromSourceToDestination(valueSet, auditLog);
-    if(lastCopyFromSourceToDestination == null) {
-      return true;
+    sourceTable = getSourceTable();
+    destinationTable = getDestinationTable();
+    ValueSet destinationValueSet = getDestinationValueSet(valueSet);
+
+    if(destinationValueSet != null) {
+      Timestamps sourceTimestamps = sourceTable.getTimestamps(valueSet);
+      Timestamps destinationTimestamps = destinationTable.getTimestamps(destinationValueSet);
+      include = laterThan(sourceTimestamps, destinationTimestamps);
+    } else {
+      log.debug("No value set found in destination table for entity {}", valueSet.getVariableEntity());
+      include = true;
     }
 
-    VariableEntityAuditEvent lastUpdateInSource = getLastUpdateInSource(valueSet, auditLog);
-    if(lastUpdateInSource == null) {
-      // Don't know if this ValueSet is an update or not (nothing in the audit log). Include it just in case.
-      return true;
-    }
+    log.debug("Include entity {} = {}", valueSet.getVariableEntity(), include);
 
-    return lastUpdateInSource.getDatetime().after(lastCopyFromSourceToDestination.getDatetime());
+    return include;
   }
 
   //
   // Methods
   //
 
-  public void setAuditLogManager(VariableEntityAuditLogManager auditLogManager) {
-    this.auditLogManager = auditLogManager;
+  /**
+   * Looks up the source table by its name and returns it. The table is cached for performance.
+   * 
+   * @return the source table
+   * @throws NoSuchValueTableException if the source table does not exist
+   */
+  @VisibleForTesting
+  ValueTable getSourceTable() throws NoSuchValueTableException {
+    if(sourceTable == null) {
+      sourceTable = MagmaEngineTableResolver.valueOf(sourceTableName).resolveTable();
+    }
+    return sourceTable;
   }
 
-  public void setDestinationTable(String destinationTable) {
-    this.destinationTable = destinationTable;
-  }
-
-  private VariableEntityAuditEvent getLastCopyFromSourceToDestination(ValueSet valueSet, VariableEntityAuditLog auditLog) {
-    List<VariableEntityAuditEvent> eventsMostRecentFirst = auditLog.getAuditEvents(valueSet.getValueTable());
-    for(VariableEntityAuditEvent event : eventsMostRecentFirst) {
-      if(event.getType().equals(COPY_AUDIT_EVENT) && event.getDetailValue(COPY_DESTINATION).getValue().equals(destinationTable)) {
-        return event;
+  /**
+   * Looks up the destination table by its name and returns it. The table is cached for performance.
+   * 
+   * Note that when data is copied from one datasource to another, the destination table may not exist; the destination
+   * datasource may not exist either (e.g., file-based datasource). In these cases, this method returns a
+   * {@link NullValueTable}.
+   * 
+   * @return the destination table (or a null value table if it does not exist)
+   */
+  @VisibleForTesting
+  ValueTable getDestinationTable() {
+    if(destinationTable == null) {
+      try {
+        destinationTable = MagmaEngineTableResolver.valueOf(destinationTableName).resolveTable();
+      } catch(NoSuchDatasourceException ex) {
+        destinationTable = NullValueTable.getInstance();
+      } catch(NoSuchValueTableException ex) {
+        destinationTable = NullValueTable.getInstance();
       }
     }
-
-    return null;
+    return destinationTable;
   }
 
-  private VariableEntityAuditEvent getLastUpdateInSource(ValueSet valueSet, VariableEntityAuditLog auditLog) {
-    List<VariableEntityAuditEvent> eventsMostRecentFirst = auditLog.getAuditEvents(COPY_AUDIT_EVENT);
-    for(VariableEntityAuditEvent event : eventsMostRecentFirst) {
-      if(event.getDetailValue(COPY_DESTINATION).getValue().equals(valueSet.getValueTable().getDatasource().getName() + "." + valueSet.getValueTable().getName())) {
-        return event;
-      }
+  @VisibleForTesting
+  ValueSet getDestinationValueSet(ValueSet valueSet) {
+    ValueSet destinationValueSet = null;
+    if(destinationTable.hasValueSet(valueSet.getVariableEntity())) {
+      destinationValueSet = destinationTable.getValueSet(valueSet.getVariableEntity());
     }
-
-    return null;
+    return destinationValueSet;
   }
 
+  /**
+   * Indicates whether the first timestamps are "later than" the second.
+   * 
+   * Note that if either <code>Timestamps</code> object is <code>null</code>, or if either one contains a
+   * <code>null value</code> "updated" timestamp, this method returns <code>true</code>.
+   * 
+   * @return <code>true</code> if <code>ts1</code> is later than <code>ts2</code> (based on the "updated" timestamp)
+   */
+  @VisibleForTesting
+  boolean laterThan(Timestamps ts1, Timestamps ts2) {
+    Value u1 = ts1 != null ? ts1.getLastUpdate() : null;
+    Value u2 = ts2 != null ? ts2.getLastUpdate() : null;
+    log.debug("source.updated {} destination.updated {}", u1, u2);
+    return (u1.isNull() || u2.isNull() || u1.compareTo(u2) > 0);
+  }
 }

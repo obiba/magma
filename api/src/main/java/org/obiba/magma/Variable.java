@@ -62,7 +62,7 @@ public interface Variable extends AttributeAware {
       return new Builder(name, type, entityType);
     }
 
-    public static Builder sameAs(Variable variable) {
+    public static Builder sameAs(Variable variable, boolean sameCategories) {
       Builder b = newVariable(variable.getName(), variable.getValueType(), variable.getEntityType()).unit(variable.getUnit()).mimeType(variable.getMimeType()).referencedEntityType(variable.getReferencedEntityType());
       if(variable.isRepeatable()) {
         b.repeatable().occurrenceGroup(variable.getOccurrenceGroup());
@@ -70,10 +70,16 @@ public interface Variable extends AttributeAware {
       for(Attribute a : variable.getAttributes()) {
         b.addAttribute(a);
       }
-      for(Category c : variable.getCategories()) {
-        b.addCategory(c);
+      if(sameCategories) {
+        for(Category c : variable.getCategories()) {
+          b.addCategory(c);
+        }
       }
       return b;
+    }
+
+    public static Builder sameAs(Variable variable) {
+      return sameAs(variable, true);
     }
 
     /**

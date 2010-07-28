@@ -5,6 +5,7 @@ import org.obiba.magma.NoSuchDatasourceException;
 import org.obiba.magma.NoSuchValueTableException;
 import org.obiba.magma.NoSuchVariableException;
 import org.obiba.magma.ValueSet;
+import org.obiba.magma.ValueTable;
 import org.obiba.magma.VariableValueSource;
 
 public class MagmaEngineVariableResolver extends MagmaEngineReferenceResolver {
@@ -19,6 +20,13 @@ public class MagmaEngineVariableResolver extends MagmaEngineReferenceResolver {
     return resolveTable(context).getVariableValueSource(getVariableName());
   }
 
+  /**
+   * Resolves a reference to a {@code VariableValueSource} using the specified {@code ValueTable as a context.
+   */
+  public VariableValueSource resolveSource(ValueTable context) throws NoSuchVariableException {
+    return context.getVariableValueSource(getVariableName());
+  }
+  
   /**
    * Resolves a reference to a {@code VariableValueSource} without a context. This can be used to resolve fully
    * qualified variable names.

@@ -25,10 +25,17 @@ class HibernateValueTableTransaction extends HibernateDatasourceSynchronization 
 
   private final List<VariableEntity> uncommittedEntities = Lists.newLinkedList();
 
-  HibernateValueTableTransaction(final HibernateValueTable valueTable, boolean newTable) {
+  private final HibernateValueTableWriter transactionWriter;
+
+  HibernateValueTableTransaction(final HibernateValueTable valueTable, final boolean newTable) {
     super(valueTable.getDatasource());
     this.valueTable = valueTable;
     this.createTableTransaction = newTable;
+    this.transactionWriter = new HibernateValueTableWriter(this);
+  }
+
+  public HibernateValueTableWriter getTransactionWriter() {
+    return transactionWriter;
   }
 
   public HibernateValueTable getValueTable() {

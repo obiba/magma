@@ -15,6 +15,7 @@ import org.obiba.magma.Category;
 import org.obiba.magma.Initialisable;
 import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.NoSuchValueSetException;
+import org.obiba.magma.Timestamps;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueSet;
 import org.obiba.magma.ValueType;
@@ -22,10 +23,13 @@ import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.datasource.excel.support.ExcelUtil;
 import org.obiba.magma.support.AbstractValueTable;
+import org.obiba.magma.support.VariableEntityBean;
+import org.obiba.magma.support.VariableEntityProvider;
 import org.obiba.magma.type.TextType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 
 class ExcelValueTable extends AbstractValueTable implements Initialisable {
@@ -33,8 +37,6 @@ class ExcelValueTable extends AbstractValueTable implements Initialisable {
   private static final Logger log = LoggerFactory.getLogger(ExcelValueTable.class);
 
   private Sheet valueTableSheet;
-
-  private String entityType;
 
   /** Maps a variable's name to its Column index valueTableSheet */
   private final Map<String, Integer> variableColumns = Maps.newHashMap();
@@ -47,11 +49,7 @@ class ExcelValueTable extends AbstractValueTable implements Initialisable {
 
   public ExcelValueTable(ExcelDatasource excelDatasource, String name, String entityType) {
     super(excelDatasource, name);
-    if(entityType == null || entityType.trim().length() == 0) {
-      this.entityType = "Participant";
-    } else {
-      this.entityType = entityType.trim();
-    }
+    setVariableEntityProvider(new ExcelVariableEntityProvider(entityType));
   }
 
   @Override
@@ -75,10 +73,6 @@ class ExcelValueTable extends AbstractValueTable implements Initialisable {
   public ValueSet getValueSet(VariableEntity entity) throws NoSuchValueSetException {
     throw new UnsupportedOperationException("getValueSet not supported");
   }
-
-  public String getEntityType() {
-    return entityType;
-  };
 
   int findVariableColumn(Variable variable) {
     // Lookup in column cache
@@ -174,7 +168,7 @@ class ExcelValueTable extends AbstractValueTable implements Initialisable {
         // variable is just a name and with text values
         Cell cell = variableNameRow.getCell(i);
         String name = ExcelUtil.getCellValueAsString(cell);
-        Variable.Builder variableBuilder = Variable.Builder.newVariable(name, TextType.get(), entityType);
+        Variable.Builder variableBuilder = Variable.Builder.newVariable(name, TextType.get(), getEntityType());
         addVariableValueSource(new ExcelVariableValueSource(variableBuilder.build()));
       }
     }
@@ -311,5 +305,48 @@ class ExcelValueTable extends AbstractValueTable implements Initialisable {
   private boolean isFromVariablesSheet() {
     Sheet varSheet = getDatasource().getVariablesSheet();
     return varSheet != null && varSheet.getPhysicalNumberOfRows() > 0;
+  }
+
+  private class ExcelVariableEntityProvider implements VariableEntityProvider {
+
+    private String entityType;
+
+    public ExcelVariableEntityProvider(String entityType) {
+      if(entityType == null || entityType.trim().length() == 0) {
+        this.entityType = "Participant";
+      } else {
+        this.entityType = entityType.trim();
+      }
+    }
+
+    @Override
+    public String getEntityType() {
+      return entityType;
+    }
+
+    @Override
+    public Set<VariableEntity> getVariableEntities() {
+      ImmutableSet.Builder<VariableEntity> entitiesBuilder = ImmutableSet.builder();
+
+      if(valueTableSheet != null) {
+        for(int i = 1; i < valueTableSheet.getPhysicalNumberOfRows(); i++) {
+          Cell cell = valueTableSheet.getRow(i).getCell(0);
+          entitiesBuilder.add(new VariableEntityBean(entityType, cell.getStringCellValue()));
+        }
+      }
+
+      return entitiesBuilder.build();
+    }
+
+    @Override
+    public boolean isForEntityType(String entityType) {
+      return getEntityType().equals(entityType);
+    }
+
+  }
+
+  @Override
+  public Timestamps getTimestamps(ValueSet valueSet) {
+    return getDatasource().getTimestamps();
   }
 }

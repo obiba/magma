@@ -8,6 +8,7 @@ import org.obiba.magma.Datasource;
 import org.obiba.magma.Initialisable;
 import org.obiba.magma.NoSuchValueSetException;
 import org.obiba.magma.NoSuchVariableException;
+import org.obiba.magma.Timestamps;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueSet;
 import org.obiba.magma.ValueTable;
@@ -195,7 +196,7 @@ public class View extends AbstractValueTableWrapper implements Initialisable {
       if(where.where(valueSet) && isVariableInSuper(variable, valueSet)) {
         return super.getValue(variable, ((ValueSetWrapper) valueSet).getWrappedValueSet());
       } else {
-        return getListValue(variable, ((ValueSetWrapper) valueSet).getWrappedValueSet());
+        return getListValue(variable, valueSet);
       }
     }
     if(!where.where(valueSet)) {
@@ -225,7 +226,7 @@ public class View extends AbstractValueTableWrapper implements Initialisable {
       if(isVariableValueSourceInSuper(name)) {
         return getVariableValueSourceTransformer().apply(super.getVariableValueSource(name));
       } else {
-        return variables.getVariableValueSource(name);
+        return getVariableValueSourceTransformer().apply(variables.getVariableValueSource(name));
       }
     }
 
@@ -244,6 +245,23 @@ public class View extends AbstractValueTableWrapper implements Initialisable {
     } catch(NoSuchVariableException e) {
       return false;
     }
+  }
+
+  @Override
+  public Set<VariableEntity> getVariableEntities() {
+    Set<VariableEntity> viewEntities = new HashSet<VariableEntity>();
+    for(VariableEntity entity : super.getVariableEntities()) {
+      // Tests the where clause if any
+      if(hasValueSet(entity)) {
+        viewEntities.add(getVariableEntityTransformer().apply(entity));
+      }
+    }
+    return viewEntities;
+  }
+
+  @Override
+  public Timestamps getTimestamps(ValueSet valueSet) {
+    return super.getTimestamps(((ValueSetWrapper) valueSet).getWrappedValueSet());
   }
 
   //

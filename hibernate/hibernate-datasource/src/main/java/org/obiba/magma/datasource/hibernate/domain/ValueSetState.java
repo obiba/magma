@@ -1,5 +1,7 @@
 package org.obiba.magma.datasource.hibernate.domain;
 
+import java.util.Collections;
+import java.util.Map;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
@@ -12,6 +14,7 @@ import javax.persistence.UniqueConstraint;
 
 import org.hibernate.annotations.Cascade;
 
+import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
 @Entity
@@ -31,6 +34,8 @@ public class ValueSetState extends AbstractTimestampedEntity {
   @OneToMany(cascade = CascadeType.ALL, mappedBy = "valueSet")
   @Cascade(org.hibernate.annotations.CascadeType.DELETE_ORPHAN)
   private Set<ValueSetValue> values;
+
+  private transient Map<String, ValueSetValue> valueMap;
 
   public ValueSetState() {
     super();
@@ -52,6 +57,21 @@ public class ValueSetState extends AbstractTimestampedEntity {
 
   public Set<ValueSetValue> getValues() {
     return values != null ? values : (values = Sets.newLinkedHashSet());
+  }
+
+  public Map<String, ValueSetValue> getValueMap() {
+    return valueMap != null ? valueMap : valuesAsMap();
+  }
+
+  private synchronized Map<String, ValueSetValue> valuesAsMap() {
+    if(valueMap == null) {
+      Map<String, ValueSetValue> valueMap = Maps.newHashMap();
+      for(ValueSetValue vsv : getValues()) {
+        valueMap.put(vsv.getVariable().getName(), vsv);
+      }
+      this.valueMap = Collections.unmodifiableMap(valueMap);
+    }
+    return valueMap;
   }
 
 }

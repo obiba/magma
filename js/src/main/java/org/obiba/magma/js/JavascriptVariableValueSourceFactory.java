@@ -44,7 +44,7 @@ public class JavascriptVariableValueSourceFactory implements VariableValueSource
       if(variable.hasAttribute(SameAsVariableValueSource.SAME_AS_ATTRIBUTE_NAME)) {
         sources.add(new SameAsVariableValueSource(variable, valueTable));
       } else {
-        sources.add(new JavascriptVariableValueSource(variable));
+        sources.add(new JavascriptVariableValueSource(variable, valueTable));
       }
     }
     return sources.build();

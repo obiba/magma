@@ -8,7 +8,7 @@ import java.security.InvalidParameterException;
 import java.util.Map;
 
 import org.hibernate.FlushMode;
-import org.hibernate.SessionFactory;
+import org.hibernate.Session;
 import org.obiba.core.service.impl.hibernate.AssociationCriteria;
 import org.obiba.core.service.impl.hibernate.AssociationCriteria.Operation;
 import org.obiba.magma.NoSuchVariableException;
@@ -24,7 +24,6 @@ import org.obiba.magma.datasource.hibernate.domain.ValueSetValue;
 import org.obiba.magma.datasource.hibernate.domain.VariableEntityState;
 import org.obiba.magma.datasource.hibernate.domain.VariableState;
 
-import com.google.common.base.Function;
 import com.google.common.collect.Maps;
 
 class HibernateValueTableWriter implements ValueTableWriter {
@@ -35,11 +34,11 @@ class HibernateValueTableWriter implements ValueTableWriter {
 
   private final VariableConverter variableConverter = new VariableConverter();
 
-  private final SessionFactory sessionFactory;
+  private final Session session;
 
   private final HibernateVariableValueSourceFactory valueSourceFactory;
 
-  private final FlushMode initialFlushMode;
+  private boolean errorOccurred = false;
 
   HibernateValueTableWriter(HibernateValueTableTransaction transaction) {
     super();
@@ -47,22 +46,11 @@ class HibernateValueTableWriter implements ValueTableWriter {
     this.transaction = transaction;
     this.valueTable = transaction.getValueTable();
 
-    this.sessionFactory = valueTable.getDatasource().getSessionFactory();
+    this.session = valueTable.getDatasource().getSessionFactory().getCurrentSession();
     this.valueSourceFactory = new HibernateVariableValueSourceFactory(valueTable);
-    this.initialFlushMode = this.sessionFactory.getCurrentSession().getFlushMode();
-
-    this.sessionFactory.getCurrentSession().setFlushMode(FlushMode.MANUAL);
-
-    // Synchronize with the transaction. This allows us to add new variables and entities only if the transaction
-    // succeeds.
-    new HibernateDatasourceSynchronization(valueTable.getDatasource()) {
-
-      @Override
-      public void beforeCompletion() {
-        sessionFactory.getCurrentSession().setFlushMode(initialFlushMode);
-      }
-
-    };
+    if(this.session.getFlushMode() != FlushMode.MANUAL) {
+      this.session.setFlushMode(FlushMode.MANUAL);
+    }
   }
 
   @Override
@@ -92,44 +80,51 @@ class HibernateValueTableWriter implements ValueTableWriter {
       }
 
       // add or update variable
+      errorOccurred = true;
       HibernateMarshallingContext context = valueTable.createContext();
       VariableState state = variableConverter.marshal(variable, context);
       transaction.addSource(valueSourceFactory.createSource(state));
+      errorOccurred = false;
     }
 
     @Override
     public void close() throws IOException {
-      // TODO: We mustn't flush the session if an exception has occurred within Hibernate.
-      sessionFactory.getCurrentSession().flush();
-      sessionFactory.getCurrentSession().clear();
+      if(errorOccurred == false) {
+        session.flush();
+        session.clear();
+      }
     }
   }
 
   private class HibernateValueSetWriter implements ValueSetWriter {
 
+    private final VariableEntityConverter entityConverter = new VariableEntityConverter();
+
     private final ValueSetState valueSetState;
 
-    private Map<String, ValueSetValue> values;
+    private final VariableEntity entity;
+
+    private final boolean isNewValueSet;
+
+    private final Map<String, ValueSetValue> values;
 
     public HibernateValueSetWriter(VariableEntity entity) {
       if(entity == null) throw new IllegalArgumentException("entity cannot be null");
+      this.entity = entity;
       // find entity or create it
-      VariableEntityState variableEntityState = VariableEntityConverter.getInstance().marshal(entity, valueTable.createContext());
+      VariableEntityState variableEntityState = entityConverter.marshal(entity, valueTable.createContext());
 
-      AssociationCriteria criteria = AssociationCriteria.create(ValueSetState.class, sessionFactory.getCurrentSession()).add("valueTable", Operation.eq, valueTable.getValueTableState()).add("variableEntity", Operation.eq, variableEntityState);
+      AssociationCriteria criteria = AssociationCriteria.create(ValueSetState.class, session).add("valueTable", Operation.eq, valueTable.getValueTableState()).add("variableEntity", Operation.eq, variableEntityState);
       ValueSetState state = (ValueSetState) criteria.getCriteria().uniqueResult();
       if(state == null) {
         state = new ValueSetState(valueTable.getValueTableState(), variableEntityState);
-        transaction.addEntity(entity);
+        values = Maps.newHashMap();
+        isNewValueSet = true;
+      } else {
+        values = Maps.newHashMap(state.getValueMap());
+        isNewValueSet = false;
       }
       valueSetState = state;
-
-      values = Maps.newHashMap(Maps.uniqueIndex(state.getValues(), new Function<ValueSetValue, String>() {
-        @Override
-        public String apply(ValueSetValue from) {
-          return from.getVariable().getName();
-        }
-      }));
     }
 
     @Override
@@ -137,35 +132,48 @@ class HibernateValueTableWriter implements ValueTableWriter {
       if(variable == null) throw new IllegalArgumentException("variable cannot be null");
       if(value == null) throw new IllegalArgumentException("value cannot be null");
 
-      ValueSetValue vsv = values.get(variable.getName());
-      if(vsv != null) {
-        if(value.isNull()) {
-          valueSetState.getValues().remove(vsv);
-          values.remove(variable.getName());
-        } else {
-          vsv.setValue(value);
-        }
-      } else {
-        if(value.isNull() == false) {
-          VariableState variableState = variableConverter.getStateForVariable(variable, valueTable.createContext());
-          if(variableState == null) {
-            throw new NoSuchVariableException(valueTable.getName(), variable.getName());
+      try {
+        ValueSetValue vsv = values.get(variable.getName());
+        if(vsv != null) {
+          if(value.isNull()) {
+            valueSetState.getValues().remove(vsv);
+            values.remove(variable.getName());
+          } else {
+            vsv.setValue(value);
           }
-          vsv = new ValueSetValue(variableState, valueSetState);
-          vsv.setValue(value);
-          valueSetState.getValues().add(vsv);
-          values.put(variable.getName(), vsv);
+        } else {
+          if(value.isNull() == false) {
+            VariableState variableState = variableConverter.getStateForVariable(variable, valueTable.createContext());
+            if(variableState == null) {
+              throw new NoSuchVariableException(valueTable.getName(), variable.getName());
+            }
+            vsv = new ValueSetValue(variableState, valueSetState);
+            vsv.setValue(value);
+            valueSetState.getValues().add(vsv);
+            values.put(variable.getName(), vsv);
+          }
         }
+      } catch(RuntimeException e) {
+        errorOccurred = true;
+        throw e;
+      } catch(Error e) {
+        errorOccurred = true;
+        throw e;
       }
     }
 
     @Override
     public void close() throws IOException {
-      sessionFactory.getCurrentSession().save(valueSetState);
-      // TODO: We mustn't flush the session if an exception has occurred within Hibernate.
-      sessionFactory.getCurrentSession().flush();
-      // Empty the Session so we don't fill it up
-      sessionFactory.getCurrentSession().evict(valueSetState);
+      if(errorOccurred == false) {
+        session.save(valueSetState);
+        if(isNewValueSet) {
+          // Make the entity visible within this transaction
+          transaction.addEntity(entity);
+        }
+        session.flush();
+        // Empty the Session so we don't fill it up
+        session.evict(valueSetState);
+      }
     }
 
   }

@@ -1,5 +1,6 @@
 package org.obiba.magma;
 
+import java.util.Set;
 
 public interface ValueTable {
 
@@ -11,11 +12,15 @@ public interface ValueTable {
 
   public boolean isForEntityType(String entityType);
 
+  public Set<VariableEntity> getVariableEntities();
+
   public boolean hasValueSet(VariableEntity entity);
 
   public Iterable<ValueSet> getValueSets();
 
   public ValueSet getValueSet(VariableEntity entity) throws NoSuchValueSetException;
+
+  public boolean hasVariable(String name);
 
   public Iterable<Variable> getVariables();
 
@@ -24,5 +29,7 @@ public interface ValueTable {
   public Value getValue(Variable variable, ValueSet valueSet);
 
   public VariableValueSource getVariableValueSource(String name) throws NoSuchVariableException;
+
+  public Timestamps getTimestamps(ValueSet valueSet);
 
 }
