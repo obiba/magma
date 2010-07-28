@@ -20,6 +20,7 @@ import org.obiba.magma.ValueType;
 import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.VariableValueSource;
+import org.obiba.magma.support.ValueSetBean;
 
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
@@ -101,7 +102,7 @@ public class JoinTable implements ValueTable {
   @Override
   public ValueSet getValueSet(VariableEntity entity) throws NoSuchValueSetException {
     if(hasValueSet(entity)) {
-      return new JoinedValueSet(entity);
+      return new JoinedValueSet(this, entity);
     }
     throw new NoSuchValueSetException(this, entity);
   }
@@ -121,7 +122,7 @@ public class JoinTable implements ValueTable {
 
       @Override
       public ValueSet apply(VariableEntity from) {
-        return new JoinedValueSet(from);
+        return new JoinedValueSet(JoinTable.this, from);
       }
 
     });
@@ -226,32 +227,20 @@ public class JoinTable implements ValueTable {
   // Inner Classes
   //
 
-  private class JoinedValueSet implements ValueSet {
-
-    private final VariableEntity entity;
+  static class JoinedValueSet extends ValueSetBean {
 
     private final Map<String, ValueSet> valueSets = Maps.newHashMap();
 
-    private JoinedValueSet(VariableEntity entity) {
-      this.entity = entity;
-    }
-
-    @Override
-    public ValueTable getValueTable() {
-      return JoinTable.this;
-    }
-
-    @Override
-    public VariableEntity getVariableEntity() {
-      return entity;
+    JoinedValueSet(ValueTable table, VariableEntity entity) {
+      super(table, entity);
     }
 
     synchronized ValueSet getInnerTableValueSet(ValueTable valueTable) {
       ValueSet valueSet = null;
-      if(valueTable.hasValueSet(entity)) {
+      if(valueTable.hasValueSet(getVariableEntity())) {
         valueSet = valueSets.get(valueTable.getName());
         if(valueSet == null) {
-          valueSet = valueTable.getValueSet(entity);
+          valueSet = valueTable.getValueSet(getVariableEntity());
           valueSets.put(valueTable.getName(), valueSet);
         }
       }

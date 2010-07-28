@@ -5,22 +5,22 @@ import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.verify;
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
 
 import java.util.Arrays;
 import java.util.Date;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.obiba.magma.MagmaEngine;
 import org.obiba.magma.Timestamps;
 import org.obiba.magma.Value;
+import org.obiba.magma.ValueSet;
 import org.obiba.magma.ValueTable;
+import org.obiba.magma.test.AbstractMagmaTest;
 import org.obiba.magma.type.DateTimeType;
+import org.obiba.magma.views.JoinTable.JoinedValueSet;
 
-public class JoinTimestampsTest {
+public class JoinTimestampsTest extends AbstractMagmaTest {
 
   private Value earlyValue;
 
@@ -28,77 +28,85 @@ public class JoinTimestampsTest {
 
   @Before
   public void before() {
-    new MagmaEngine();
     earlyValue = DateTimeType.get().valueOf(new Date(1000L));
     lateValue = DateTimeType.get().valueOf(new Date(4000000000L));
   }
 
-  @After
-  public void after() {
-    MagmaEngine.get().shutdown();
-  }
-
   @Test
   public void testGetCreated_DateIsEarliestDate() throws Exception {
-    ValueTable valueTableMockOne = createMock(ValueTable.class);
-    ValueTable valueTableMockTwo = createMock(ValueTable.class);
-    Timestamps timestampsOne = createMock(Timestamps.class);
-    Timestamps timestampsTwo = createMock(Timestamps.class);
-    expect(valueTableMockOne.getTimestamps(null)).andReturn(timestampsOne).times(2);
-    expect(timestampsOne.getCreated()).andReturn(lateValue).once();
-    expect(valueTableMockTwo.getTimestamps(null)).andReturn(timestampsTwo).times(2);
-    expect(timestampsTwo.getCreated()).andReturn(earlyValue).once();
-    replay(valueTableMockOne, valueTableMockTwo, timestampsOne, timestampsTwo);
-    Timestamps joinTimestamps = new JoinTimestamps(null, Arrays.asList(new ValueTable[] { valueTableMockOne, valueTableMockTwo }));
-    assertThat(joinTimestamps.getCreated(), is(earlyValue));
-    verify(valueTableMockOne, valueTableMockTwo, timestampsOne, timestampsTwo);
+    assertCreatedTimestamps(lateValue, earlyValue, earlyValue);
   }
 
   @Test
   public void testGetCreated_ThatSingleNullDateIsIgnored() throws Exception {
-    ValueTable valueTableMockOne = createMock(ValueTable.class);
-    ValueTable valueTableMockTwo = createMock(ValueTable.class);
-    Timestamps timestampsOne = createMock(Timestamps.class);
-    Timestamps timestampsTwo = createMock(Timestamps.class);
-    expect(valueTableMockOne.getTimestamps(null)).andReturn(timestampsOne).times(2);
-    expect(timestampsOne.getCreated()).andReturn(lateValue).once();
-    expect(valueTableMockTwo.getTimestamps(null)).andReturn(timestampsTwo).times(2);
-    expect(timestampsTwo.getCreated()).andReturn(null).once();
-    replay(valueTableMockOne, valueTableMockTwo, timestampsOne, timestampsTwo);
-    Timestamps joinTimestamps = new JoinTimestamps(null, Arrays.asList(new ValueTable[] { valueTableMockOne, valueTableMockTwo }));
-    assertThat(joinTimestamps.getCreated(), is(lateValue));
-    verify(valueTableMockOne, valueTableMockTwo, timestampsOne, timestampsTwo);
+    assertCreatedTimestamps(lateValue, DateTimeType.get().nullValue(), lateValue);
+    assertCreatedTimestamps(DateTimeType.get().nullValue(), lateValue, lateValue);
   }
 
   @Test
   public void testGetCreated_AllNullCreationDatesReturnNull() throws Exception {
-    ValueTable valueTableMockOne = createMock(ValueTable.class);
-    ValueTable valueTableMockTwo = createMock(ValueTable.class);
-    Timestamps timestampsOne = createMock(Timestamps.class);
-    Timestamps timestampsTwo = createMock(Timestamps.class);
-    expect(valueTableMockOne.getTimestamps(null)).andReturn(timestampsOne).times(2);
-    expect(timestampsOne.getCreated()).andReturn(null).once();
-    expect(valueTableMockTwo.getTimestamps(null)).andReturn(timestampsTwo).times(2);
-    expect(timestampsTwo.getCreated()).andReturn(null).once();
-    replay(valueTableMockOne, valueTableMockTwo, timestampsOne, timestampsTwo);
-    Timestamps joinTimestamps = new JoinTimestamps(null, Arrays.asList(new ValueTable[] { valueTableMockOne, valueTableMockTwo }));
-    assertThat(joinTimestamps.getCreated(), nullValue());
-    verify(valueTableMockOne, valueTableMockTwo, timestampsOne, timestampsTwo);
+    assertCreatedTimestamps(DateTimeType.get().nullValue(), DateTimeType.get().nullValue(), DateTimeType.get().nullValue());
   }
 
   @Test
   public void testGetLastUpdate_DateIsLatestDate() throws Exception {
+    assertUpdatedTimestamps(lateValue, earlyValue, lateValue);
+  }
+
+  @Test
+  public void testGetLastUpdate_ThatSingleNullDateIsIgnored() throws Exception {
+    assertUpdatedTimestamps(lateValue, DateTimeType.get().nullValue(), lateValue);
+    assertUpdatedTimestamps(DateTimeType.get().nullValue(), lateValue, lateValue);
+  }
+
+  @Test
+  public void testGetLastUpdate_AllNullCreationDatesReturnNull() throws Exception {
+    assertUpdatedTimestamps(DateTimeType.get().nullValue(), DateTimeType.get().nullValue(), DateTimeType.get().nullValue());
+  }
+
+  private void assertCreatedTimestamps(Value firstTimestamp, Value secondTimestamp, Value expectedTimestamp) {
+    assertTimestamps(true, firstTimestamp, secondTimestamp, expectedTimestamp);
+  }
+
+  private void assertUpdatedTimestamps(Value firstTimestamp, Value secondTimestamp, Value expectedTimestamp) {
+    assertTimestamps(false, firstTimestamp, secondTimestamp, expectedTimestamp);
+  }
+
+  private void assertTimestamps(boolean useCreatedTimestamps, Value firstTimestamp, Value secondTimestamp, Value expectedTimestamp) {
+
+    ValueSet mockValueSet = createMock(ValueSet.class);
+
     ValueTable valueTableMockOne = createMock(ValueTable.class);
     ValueTable valueTableMockTwo = createMock(ValueTable.class);
     Timestamps timestampsOne = createMock(Timestamps.class);
     Timestamps timestampsTwo = createMock(Timestamps.class);
-    expect(valueTableMockOne.getTimestamps(null)).andReturn(timestampsOne).times(2);
-    expect(timestampsOne.getLastUpdate()).andReturn(lateValue).once();
-    expect(valueTableMockTwo.getTimestamps(null)).andReturn(timestampsTwo).times(2);
-    expect(timestampsTwo.getLastUpdate()).andReturn(earlyValue).once();
+
+    expect(valueTableMockOne.getName()).andReturn("one").anyTimes();
+    expect(valueTableMockOne.hasValueSet(null)).andReturn(true).once();
+    expect(valueTableMockOne.getValueSet(null)).andReturn(mockValueSet).once();
+    expect(valueTableMockOne.getTimestamps(mockValueSet)).andReturn(timestampsOne).once();
+    if(useCreatedTimestamps) {
+      expect(timestampsOne.getCreated()).andReturn(firstTimestamp).once();
+    } else {
+      expect(timestampsOne.getLastUpdate()).andReturn(firstTimestamp).once();
+    }
+
+    expect(valueTableMockTwo.getName()).andReturn("two").anyTimes();
+    expect(valueTableMockTwo.hasValueSet(null)).andReturn(true).once();
+    expect(valueTableMockTwo.getValueSet(null)).andReturn(mockValueSet).once();
+    expect(valueTableMockTwo.getTimestamps(mockValueSet)).andReturn(timestampsTwo).once();
+    if(useCreatedTimestamps) {
+      expect(timestampsTwo.getCreated()).andReturn(secondTimestamp).once();
+    } else {
+      expect(timestampsTwo.getLastUpdate()).andReturn(secondTimestamp).once();
+    }
     replay(valueTableMockOne, valueTableMockTwo, timestampsOne, timestampsTwo);
-    Timestamps joinTimestamps = new JoinTimestamps(null, Arrays.asList(new ValueTable[] { valueTableMockOne, valueTableMockTwo }));
-    assertThat(joinTimestamps.getLastUpdate(), is(lateValue));
+    Timestamps joinTimestamps = new JoinTimestamps(new JoinedValueSet(null, null), Arrays.asList(new ValueTable[] { valueTableMockOne, valueTableMockTwo }));
+    if(useCreatedTimestamps) {
+      assertThat(joinTimestamps.getCreated(), is(expectedTimestamp));
+    } else {
+      assertThat(joinTimestamps.getLastUpdate(), is(expectedTimestamp));
+    }
     verify(valueTableMockOne, valueTableMockTwo, timestampsOne, timestampsTwo);
   }
 }

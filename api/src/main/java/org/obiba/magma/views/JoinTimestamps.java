@@ -7,84 +7,99 @@ import org.obiba.magma.Timestamps;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueSet;
 import org.obiba.magma.ValueTable;
+import org.obiba.magma.support.NullTimestamps;
+import org.obiba.magma.type.DateTimeType;
+import org.obiba.magma.views.JoinTable.JoinedValueSet;
 
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 
-public class JoinTimestamps implements Timestamps {
+class JoinTimestamps implements Timestamps {
 
   private final Iterable<Timestamps> timestamps;
 
-  public JoinTimestamps(final ValueSet valueSet, List<ValueTable> tables) {
-    this.timestamps = Iterables.transform(getValueTablesWithNonNullTimestamps(valueSet, tables), new Function<ValueTable, Timestamps>() {
+  JoinTimestamps(final ValueSet valueSet, final List<ValueTable> tables) {
+    this.timestamps = Iterables.transform(tables, new Function<ValueTable, Timestamps>() {
 
       @Override
       public Timestamps apply(ValueTable table) {
-        return table.getTimestamps(valueSet);
+        ValueSet tableValueSet = ((JoinedValueSet) valueSet).getInnerTableValueSet(table);
+        if(tableValueSet != null) {
+          return table.getTimestamps(tableValueSet);
+        } else {
+          return NullTimestamps.INSTANCE;
+        }
       }
 
-    });
-  }
-
-  private Iterable<ValueTable> getValueTablesWithNonNullTimestamps(final ValueSet valueSet, Iterable<ValueTable> valueTables) {
-    return Iterables.filter(valueTables, new Predicate<ValueTable>() {
-
-      @Override
-      public boolean apply(ValueTable valueTable) {
-        return valueTable.getTimestamps(valueSet) == null ? false : true;
-      }
     });
   }
 
   @Override
   public Value getCreated() {
-    Iterable<Value> created = Iterables.transform(timestamps, new Function<Timestamps, Value>() {
+    return getTimestamp(ExtractCreatedFunction.INSTANCE, true);
+  }
 
-      @Override
-      public Value apply(Timestamps timestamp) {
-        return timestamp.getCreated();
-      }
+  @Override
+  public Value getLastUpdate() {
+    return getTimestamp(ExtractLastUpdateFunction.INSTANCE, false);
+  }
 
-    });
+  /**
+   * Extracts all the timestamp values, sorts them and returns either the earliest value or the latest value depending
+   * on the {@code earliest} argument.
+   * 
+   * @param extractTimestampFunction the function used to extract the timestamp to work with (either created or
+   * lastUpdate)
+   * @param earliest whether to return the earliest value or the latest value
+   * @return the earliest/latest timestamp from the set of timestamps. This method never returns null.
+   */
+  private Value getTimestamp(Function<Timestamps, Value> extractTimestampFunction, boolean earliest) {
+    Iterable<Value> created = Iterables.transform(timestamps, extractTimestampFunction);
     Value[] values = Iterables.toArray(getNonNullValues(created), Value.class);
     if(values.length > 0) {
       Arrays.sort(values);
-      return values[0];
+      return values[earliest ? 0 : values.length - 1];
     } else {
-      return null;
+      return DateTimeType.get().nullValue();
     }
   }
 
+  /**
+   * Filters Value instances that are null or that isNull() returns true out of {@code values}.
+   * @param values
+   * @return
+   */
   private Iterable<Value> getNonNullValues(Iterable<Value> values) {
     return Iterables.filter(values, new Predicate<Value>() {
 
       @Override
       public boolean apply(Value value) {
-        return value == null ? false : true;
+        return value != null ? (value.isNull() == false) : false;
       }
 
     });
 
   }
 
-  @Override
-  public Value getLastUpdate() {
-    Iterable<Value> created = Iterables.transform(timestamps, new Function<Timestamps, Value>() {
+  private static final class ExtractLastUpdateFunction implements Function<Timestamps, Value> {
 
-      @Override
-      public Value apply(Timestamps timestamp) {
-        return timestamp.getLastUpdate();
-      }
+    private static final ExtractLastUpdateFunction INSTANCE = new ExtractLastUpdateFunction();
 
-    });
-    Value[] values = Iterables.toArray(getNonNullValues(created), Value.class);
-    if(values.length > 0) {
-      Arrays.sort(values);
-      return values[values.length - 1];
-    } else {
-      return null;
+    @Override
+    public Value apply(Timestamps from) {
+      return from.getLastUpdate();
+    }
+
+  }
+
+  private static final class ExtractCreatedFunction implements Function<Timestamps, Value> {
+
+    private static final ExtractCreatedFunction INSTANCE = new ExtractCreatedFunction();
+
+    @Override
+    public Value apply(Timestamps from) {
+      return from.getCreated();
     }
   }
-
 }

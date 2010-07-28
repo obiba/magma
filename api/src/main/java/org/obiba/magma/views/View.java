@@ -8,6 +8,7 @@ import org.obiba.magma.Datasource;
 import org.obiba.magma.Initialisable;
 import org.obiba.magma.NoSuchValueSetException;
 import org.obiba.magma.NoSuchVariableException;
+import org.obiba.magma.Timestamps;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueSet;
 import org.obiba.magma.ValueTable;
@@ -249,12 +250,17 @@ public class View extends AbstractValueTableWrapper implements Initialisable {
   @Override
   public Set<VariableEntity> getVariableEntities() {
     Set<VariableEntity> viewEntities = new HashSet<VariableEntity>();
-    for (VariableEntity entity : super.getVariableEntities()) {
+    for(VariableEntity entity : super.getVariableEntities()) {
       viewEntities.add(getVariableEntityTransformer().apply(entity));
     }
     return viewEntities;
   }
-	
+
+  @Override
+  public Timestamps getTimestamps(ValueSet valueSet) {
+    return super.getTimestamps(((ValueSetWrapper) valueSet).getWrappedValueSet());
+  }
+
   //
   // Methods
   //
