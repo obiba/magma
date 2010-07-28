@@ -52,16 +52,13 @@ public class JavascriptClause implements Initialisable, SelectClause, WhereClaus
     if(script == null) {
       throw new NullPointerException("script cannot be null");
     }
-    try {
-      compiledScript = (Script) ContextFactory.getGlobal().call(new ContextAction() {
-        @Override
-        public Object run(Context cx) {
-          return cx.compileString(getScript(), getScriptName(), 1, null);
-        }
-      });
-    } catch(EvaluatorException e) {
-      throw e;
-    }
+
+    compiledScript = (Script) ContextFactory.getGlobal().call(new ContextAction() {
+      @Override
+      public Object run(Context cx) {
+        return cx.compileString(getScript(), getScriptName(), 1, null);
+      }
+    });
   }
 
   //
@@ -73,6 +70,7 @@ public class JavascriptClause implements Initialisable, SelectClause, WhereClaus
     if(compiledScript == null) {
       throw new IllegalStateException("script hasn't been compiled. Call initialise() before calling where().");
     }
+    if(variable == null) throw new IllegalArgumentException("variable cannot be null");
 
     return ((Boolean) ContextFactory.getGlobal().call(new ContextAction() {
       public Object run(Context ctx) {
@@ -105,6 +103,7 @@ public class JavascriptClause implements Initialisable, SelectClause, WhereClaus
     if(compiledScript == null) {
       throw new IllegalStateException("script hasn't been compiled. Call initialise() before calling where().");
     }
+    if(valueSet == null) throw new IllegalArgumentException("valueSet cannot be null");
 
     return ((Boolean) ContextFactory.getGlobal().call(new ContextAction() {
       public Object run(Context ctx) {
