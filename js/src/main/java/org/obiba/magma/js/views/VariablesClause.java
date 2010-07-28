@@ -64,6 +64,7 @@ public class VariablesClause implements ListClause, Initialisable {
 
   @Override
   public void setValueTable(ValueTable valueTable) {
+    if(valueTable == null) throw new IllegalArgumentException("valueTable cannot be null");
     this.valueTable = valueTable;
   }
 

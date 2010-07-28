@@ -3,11 +3,6 @@ package org.obiba.magma.js;
 import org.easymock.EasyMock;
 import org.junit.Assert;
 import org.junit.Test;
-import org.mozilla.javascript.Context;
-import org.mozilla.javascript.ContextAction;
-import org.mozilla.javascript.ContextFactory;
-import org.mozilla.javascript.Script;
-import org.mozilla.javascript.Scriptable;
 import org.obiba.magma.Variable;
 import org.obiba.magma.type.BooleanType;
 
@@ -34,18 +29,4 @@ public class ScriptableVariableTest extends AbstractJsTest {
     Assert.assertEquals(BooleanType.get().trueValue(), ((ScriptableValue) obj).getValue());
   }
 
-  protected Object evaluate(final String script, final Variable variable) {
-    return ContextFactory.getGlobal().call(new ContextAction() {
-      public Object run(Context ctx) {
-        MagmaContext context = MagmaContext.asMagmaContext(ctx);
-        // Don't pollute the global scope
-        Scriptable scope = new ScriptableVariable(context.newLocalScope(), variable);
-
-        final Script compiledScript = context.compileString(script, "", 1, null);
-        Object value = compiledScript.exec(ctx, scope);
-
-        return value;
-      }
-    });
-  }
 }

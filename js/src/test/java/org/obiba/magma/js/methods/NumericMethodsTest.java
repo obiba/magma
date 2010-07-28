@@ -5,12 +5,12 @@ import static org.junit.Assert.assertThat;
 
 import org.junit.Test;
 import org.mozilla.javascript.Context;
-import org.obiba.magma.js.AbstractScriptableValueTest;
+import org.obiba.magma.js.AbstractJsTest;
 import org.obiba.magma.js.ScriptableValue;
 import org.obiba.magma.type.DecimalType;
 import org.obiba.magma.type.IntegerType;
 
-public class NumericMethodsTest extends AbstractScriptableValueTest {
+public class NumericMethodsTest extends AbstractJsTest {
 
   @Test
   public void test_integer_plus_integer() throws Exception {

@@ -5,12 +5,12 @@ import java.util.Date;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mozilla.javascript.Context;
-import org.obiba.magma.js.AbstractScriptableValueTest;
+import org.obiba.magma.js.AbstractJsTest;
 import org.obiba.magma.js.ScriptableValue;
 import org.obiba.magma.type.BooleanType;
 import org.obiba.magma.type.DateTimeType;
 
-public class DateTimeMethodTest extends AbstractScriptableValueTest {
+public class DateTimeMethodTest extends AbstractJsTest {
 
   @Test
   public void testAfterNullArgumentReturnsNull() throws Exception {

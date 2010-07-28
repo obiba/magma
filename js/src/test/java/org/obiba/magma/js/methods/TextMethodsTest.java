@@ -7,14 +7,14 @@ import static org.junit.Assert.assertThat;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mozilla.javascript.Context;
-import org.obiba.magma.js.AbstractScriptableValueTest;
+import org.obiba.magma.js.AbstractJsTest;
 import org.obiba.magma.js.ScriptableValue;
 import org.obiba.magma.type.BooleanType;
 import org.obiba.magma.type.DecimalType;
 import org.obiba.magma.type.IntegerType;
 import org.obiba.magma.type.TextType;
 
-public class TextMethodsTest extends AbstractScriptableValueTest {
+public class TextMethodsTest extends AbstractJsTest {
 
   @Test
   public void testTrim() {

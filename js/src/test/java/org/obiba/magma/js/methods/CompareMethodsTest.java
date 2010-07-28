@@ -7,7 +7,7 @@ import static org.junit.Assert.assertThat;
 
 import org.junit.Test;
 import org.mozilla.javascript.Context;
-import org.obiba.magma.js.AbstractScriptableValueTest;
+import org.obiba.magma.js.AbstractJsTest;
 import org.obiba.magma.js.MagmaJsEvaluationRuntimeException;
 import org.obiba.magma.js.ScriptableValue;
 import org.obiba.magma.type.BooleanType;
@@ -15,7 +15,7 @@ import org.obiba.magma.type.DecimalType;
 import org.obiba.magma.type.IntegerType;
 import org.obiba.magma.type.TextType;
 
-public class CompareMethodsTest extends AbstractScriptableValueTest {
+public class CompareMethodsTest extends AbstractJsTest {
 
   // compare
 

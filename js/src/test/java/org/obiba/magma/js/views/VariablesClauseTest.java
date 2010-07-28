@@ -16,6 +16,7 @@ import java.util.Set;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.obiba.magma.NoSuchVariableException;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueSet;
 import org.obiba.magma.ValueTable;
@@ -27,6 +28,8 @@ import org.obiba.magma.support.Initialisables;
 import org.obiba.magma.type.DateTimeType;
 import org.obiba.magma.type.IntegerType;
 import org.obiba.magma.type.TextType;
+
+import com.google.common.collect.Iterables;
 
 public class VariablesClauseTest extends AbstractJsTest {
 
@@ -82,6 +85,54 @@ public class VariablesClauseTest extends AbstractJsTest {
     builder.addAttribute("URI", "http://www.obiba.org/sex");
     builder.addAttribute("stage", "HealthQuestionnaire");
     return builder.build();
+  }
+
+  @Test
+  public void test_setVariables_AcceptsNull() {
+    VariablesClause clause = new VariablesClause();
+    clause.setVariables(null);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void test_setValueTable_ThrowsIllegalArgumentWhenNull() {
+    VariablesClause clause = new VariablesClause();
+    clause.setValueTable(null);
+  }
+
+  @Test(expected = IllegalStateException.class)
+  public void test_initialize_ThrowsIfValueTableIsNull() {
+    VariablesClause clause = new VariablesClause();
+    clause.initialise();
+  }
+
+  @Test
+  public void test_getVariablesValueSources_ReturnsEmptyIterable() {
+    VariablesClause clause = new VariablesClause();
+    clause.setValueTable(createMock(ValueTable.class));
+    clause.initialise();
+    Iterable<VariableValueSource> sources = clause.getVariableValueSources();
+    assertThat(sources, notNullValue());
+    assertThat(Iterables.size(sources), is(0));
+  }
+
+  @Test(expected = IllegalStateException.class)
+  public void test_getVariablesValueSources_ThrowsIfNotInitialized() {
+    VariablesClause clause = new VariablesClause();
+    clause.getVariableValueSources();
+  }
+
+  @Test(expected = NoSuchVariableException.class)
+  public void test_getVariablesValueSource_ThrowsNoSuchVariableException() {
+    VariablesClause clause = new VariablesClause();
+    clause.setValueTable(createMock(ValueTable.class));
+    clause.initialise();
+    clause.getVariableValueSource("test");
+  }
+
+  @Test(expected = IllegalStateException.class)
+  public void test_getVariablesValueSource_ThrowsIfNotInitialized() {
+    VariablesClause clause = new VariablesClause();
+    clause.getVariableValueSource("test");
   }
 
   @Test

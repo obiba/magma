@@ -11,14 +11,14 @@ import org.junit.Test;
 import org.mozilla.javascript.Context;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueType;
-import org.obiba.magma.js.AbstractScriptableValueTest;
+import org.obiba.magma.js.AbstractJsTest;
 import org.obiba.magma.js.ScriptableValue;
 import org.obiba.magma.type.BooleanType;
 import org.obiba.magma.type.DecimalType;
 import org.obiba.magma.type.IntegerType;
 import org.obiba.magma.type.TextType;
 
-public class BooleanMethodsTest extends AbstractScriptableValueTest {
+public class BooleanMethodsTest extends AbstractJsTest {
 
   @Test
   public void testAny() {
