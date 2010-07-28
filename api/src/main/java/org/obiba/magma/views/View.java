@@ -251,7 +251,10 @@ public class View extends AbstractValueTableWrapper implements Initialisable {
   public Set<VariableEntity> getVariableEntities() {
     Set<VariableEntity> viewEntities = new HashSet<VariableEntity>();
     for(VariableEntity entity : super.getVariableEntities()) {
-      viewEntities.add(getVariableEntityTransformer().apply(entity));
+      // Tests the where clause if any
+      if(hasValueSet(entity)) {
+        viewEntities.add(getVariableEntityTransformer().apply(entity));
+      }
     }
     return viewEntities;
   }
