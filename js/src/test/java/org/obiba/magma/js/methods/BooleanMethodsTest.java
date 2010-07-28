@@ -1,6 +1,7 @@
 package org.obiba.magma.js.methods;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
 
 import java.util.ArrayList;
@@ -12,6 +13,7 @@ import org.mozilla.javascript.Context;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueType;
 import org.obiba.magma.js.AbstractJsTest;
+import org.obiba.magma.js.MagmaJsEvaluationRuntimeException;
 import org.obiba.magma.js.ScriptableValue;
 import org.obiba.magma.type.BooleanType;
 import org.obiba.magma.type.DecimalType;
@@ -22,30 +24,21 @@ public class BooleanMethodsTest extends AbstractJsTest {
 
   @Test
   public void testAny() {
-    ScriptableValue value = newValue(TextType.get().valueOf("CAT2"));
-    ScriptableValue result = BooleanMethods.any(Context.getCurrentContext(), value, new String[] { "CAT1", "CAT2" }, null);
-    Assert.assertNotNull(result);
-    Assert.assertEquals(BooleanType.get().trueValue(), result.getValue());
+    assertMethod("any('CAT1', 'CAT2')", TextType.get().valueOf("CAT2"), BooleanType.get().trueValue());
+  }
+
+  @Test
+  public void testAnyWithNullValue() {
+    assertMethod("any('CAT1', 'CAT2')", TextType.get().nullValue(), BooleanType.get().falseValue());
   }
 
   @Test
   public void testAll() {
-    // Create a ValueSequence containing "odd" values.
-    List<Value> values = new ArrayList<Value>();
-    for(int i = 1; i <= 5; i += 2) {
-      values.add(TextType.get().valueOf("CAT" + i));
-    }
-    ScriptableValue value = newValue(ValueType.Factory.newSequence(TextType.get(), values));
-
-    // Verify that the ValueSequence does NOT contain all the specified "even" values.
-    ScriptableValue result = BooleanMethods.all(Context.getCurrentContext(), value, new String[] { "CAT2", "CAT4", "CAT6" }, null);
-    Assert.assertNotNull(result);
-    Assert.assertEquals(BooleanType.get().falseValue(), result.getValue());
-
-    // Verify that the ValueSequence contains all the specified "odd" values.
-    result = BooleanMethods.all(Context.getCurrentContext(), value, new String[] { "CAT1", "CAT3", "CAT5" }, null);
-    Assert.assertNotNull(result);
-    Assert.assertEquals(BooleanType.get().trueValue(), result.getValue());
+    Value testValue = TextType.get().sequenceOf("\"CAT1\",\"CAT2\",\"CAT3\"");
+    assertMethod("all('CAT1', 'CAT2', 'CAT3')", testValue, BooleanType.get().trueValue());
+    assertMethod("all('CAT1', 'CAT2')", testValue, BooleanType.get().trueValue());
+    assertMethod("all('CAT2', 'CAT3')", testValue, BooleanType.get().trueValue());
+    assertMethod("all('CAT3', 'CAT4')", testValue, BooleanType.get().falseValue());
   }
 
   @Test
@@ -71,28 +64,21 @@ public class BooleanMethodsTest extends AbstractJsTest {
 
   @Test
   public void testAllCalledOnNullValueReturnsFalse() {
-    ScriptableValue nullValue = newValue(TextType.get().nullValue());
-    ScriptableValue result = BooleanMethods.all(Context.getCurrentContext(), nullValue, new String[] { "CAT1", "CAT3", "CAT5" }, null);
-    Assert.assertNotNull(result);
-    Assert.assertFalse(result.getValue().isNull());
-    Assert.assertEquals(BooleanType.get().falseValue(), result.getValue());
+    assertMethod("all('CAT1')", TextType.get().nullValue(), BooleanType.get().falseValue());
   }
 
-  @Test
-  public void testAnyWithNullValue() {
-    ScriptableValue value = newValue(TextType.get().valueOf(null));
-    ScriptableValue result = BooleanMethods.any(Context.getCurrentContext(), value, new String[] { "CAT1", "CAT2" }, null);
-    Assert.assertNotNull(result);
-    Assert.assertFalse(result.getValue().isNull());
-    Assert.assertEquals(BooleanType.get().falseValue(), result.getValue());
+  @Test(expected = MagmaJsEvaluationRuntimeException.class)
+  public void test_all_CalledWithNonString() {
+    assertMethod("all(1.0)", TextType.get().valueOf("some value"), BooleanType.get().falseValue());
   }
 
   @Test
   public void testNot() {
-    ScriptableValue value = newValue(BooleanType.get().trueValue());
-    ScriptableValue result = BooleanMethods.not(Context.getCurrentContext(), value, null, null);
-    Assert.assertNotNull(result);
-    Assert.assertEquals(BooleanType.get().falseValue(), result.getValue());
+    assertMethod("not()", BooleanType.get().trueValue(), BooleanType.get().falseValue());
+    assertMethod("not('CAT2')", TextType.get().valueOf("CAT1"), BooleanType.get().trueValue());
+    assertMethod("not('CAT3')", TextType.get().sequenceOf("\"CAT1\", \"CAT2\""), BooleanType.get().trueValue());
+    assertMethod("not('CAT2')", TextType.get().sequenceOf("\"CAT1\", \"CAT2\""), BooleanType.get().falseValue());
+    assertMethod("not('CAT2', 'CAT3')", TextType.get().sequenceOf("\"CAT1\", \"CAT2\""), BooleanType.get().falseValue());
   }
 
   @Test
@@ -363,6 +349,13 @@ public class BooleanMethodsTest extends AbstractJsTest {
     ScriptableValue fooTwo = newValue(TextType.get().valueOf("foo"));
     ScriptableValue result = BooleanMethods.eq(Context.getCurrentContext(), fooOne, new ScriptableValue[] { fooTwo }, null);
     assertThat(result.getValue(), is(BooleanType.get().trueValue()));
+  }
+
+  private void assertMethod(String script, Value value, Value expected) {
+    ScriptableValue result = evaluate(script, value);
+    assertThat(result, notNullValue());
+    assertThat(result.getValue(), notNullValue());
+    assertThat(result.getValue(), is(expected));
   }
 
 }

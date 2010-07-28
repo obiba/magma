@@ -7,6 +7,7 @@ import org.mozilla.javascript.ContextAction;
 import org.mozilla.javascript.ContextFactory;
 import org.mozilla.javascript.Script;
 import org.mozilla.javascript.Scriptable;
+import org.mozilla.javascript.WrappedException;
 import org.obiba.magma.MagmaEngine;
 import org.obiba.magma.Value;
 import org.obiba.magma.Variable;
@@ -57,18 +58,26 @@ public abstract class AbstractJsTest {
   }
 
   protected ScriptableValue evaluate(final String script, final Value value) {
-    return (ScriptableValue) ContextFactory.getGlobal().call(new ContextAction() {
-      public Object run(Context ctx) {
-        MagmaContext context = MagmaContext.asMagmaContext(ctx);
-        // Don't pollute the global scope
-        Scriptable scope = newValue(value);
+    try {
+      return (ScriptableValue) ContextFactory.getGlobal().call(new ContextAction() {
+        public Object run(Context ctx) {
+          MagmaContext context = MagmaContext.asMagmaContext(ctx);
+          // Don't pollute the global scope
+          Scriptable scope = newValue(value);
 
-        final Script compiledScript = context.compileString(script, "", 1, null);
-        Object value = compiledScript.exec(ctx, scope);
+          final Script compiledScript = context.compileString(script, "", 1, null);
+          Object value = compiledScript.exec(ctx, scope);
 
-        return value;
+          return value;
+        }
+      });
+    } catch(WrappedException e) {
+      Throwable cause = e.getWrappedException();
+      if(cause instanceof RuntimeException) {
+        throw (RuntimeException) cause;
       }
-    });
+      throw new RuntimeException(cause);
+    }
   }
 
 }
