@@ -186,36 +186,47 @@ public class JoinTableTest extends AbstractMagmaTest {
   }
 
   @Test
-  public void testGetValueSet() {
+  public void test_hasValueSet() {
     JoinTable joinTable = JoinTableBuilder.newBuilder() //
-    .withMockTable(MockValueTableBuilder.newMock(PARTICIPANT_ENTITY_TYPE).withEntities("1")) //
-    .withMockTable(MockValueTableBuilder.newMock(PARTICIPANT_ENTITY_TYPE).withEntities("2")).build();
+    .withMockTable(MockValueTableBuilder.newMock(PARTICIPANT_ENTITY_TYPE).expectHasValueSet("1", true)) //
+    .withMockTable(MockValueTableBuilder.newMock(PARTICIPANT_ENTITY_TYPE)).build();
 
-    assertNotNull(joinTable.getValueSet(new VariableEntityBean(PARTICIPANT_ENTITY_TYPE, "1")));
-    assertNotNull(joinTable.getValueSet(new VariableEntityBean(PARTICIPANT_ENTITY_TYPE, "2")));
+    assertEquals(true, joinTable.hasValueSet(new VariableEntityBean(PARTICIPANT_ENTITY_TYPE, "1")));
+
+    joinTable = JoinTableBuilder.newBuilder() //
+    .withMockTable(MockValueTableBuilder.newMock(PARTICIPANT_ENTITY_TYPE).expectHasValueSet("1", false)) //
+    .withMockTable(MockValueTableBuilder.newMock(PARTICIPANT_ENTITY_TYPE).expectHasValueSet("1", true)).build();
+
+    assertEquals(true, joinTable.hasValueSet(new VariableEntityBean(PARTICIPANT_ENTITY_TYPE, "1")));
+
+    joinTable = JoinTableBuilder.newBuilder() //
+    .withMockTable(MockValueTableBuilder.newMock(PARTICIPANT_ENTITY_TYPE).expectHasValueSet("3", false)) //
+    .withMockTable(MockValueTableBuilder.newMock(PARTICIPANT_ENTITY_TYPE).expectHasValueSet("3", false)).build();
+
+    assertEquals(false, joinTable.hasValueSet(new VariableEntityBean(PARTICIPANT_ENTITY_TYPE, "3")));
   }
 
   @Test(expected = NoSuchValueSetException.class)
-  public void testGetNonExistentValueSetThrowsNoSuchValueSetException() {
+  public void test_getValueSet_ThrowsNoSuchValueSetExceptionWhenValueSetDoesNotExist() {
     JoinTable joinTable = JoinTableBuilder.newBuilder() //
-    .withMockTable(MockValueTableBuilder.newMock(PARTICIPANT_ENTITY_TYPE).withEntities("1").withName("a")) //
-    .withMockTable(MockValueTableBuilder.newMock(PARTICIPANT_ENTITY_TYPE).withEntities("2").withName("b")).build();
+    .withMockTable(MockValueTableBuilder.newMock(PARTICIPANT_ENTITY_TYPE).expectHasValueSet("test", false).withName("a")) //
+    .withMockTable(MockValueTableBuilder.newMock(PARTICIPANT_ENTITY_TYPE).expectHasValueSet("test", false).withName("a")).build();
 
-    joinTable.getValueSet(new VariableEntityBean("test", "test"));
+    joinTable.getValueSet(new VariableEntityBean(PARTICIPANT_ENTITY_TYPE, "test"));
   }
 
   @Test
-  public void testHasValueSet() {
-
+  public void test_getValueSet() {
     JoinTable joinTable = JoinTableBuilder.newBuilder() //
-    .withMockTable(MockValueTableBuilder.newMock(PARTICIPANT_ENTITY_TYPE).withEntities("1")) //
-    .withMockTable(MockValueTableBuilder.newMock(PARTICIPANT_ENTITY_TYPE).withEntities("2")).build();
+    .withMockTable(MockValueTableBuilder.newMock(PARTICIPANT_ENTITY_TYPE).expectHasValueSet("1", true)) //
+    .withMockTable(MockValueTableBuilder.newMock(PARTICIPANT_ENTITY_TYPE)).build();
 
-    assertEquals(true, joinTable.hasValueSet(new VariableEntityBean(PARTICIPANT_ENTITY_TYPE, "1")));
-    assertEquals(true, joinTable.hasValueSet(new VariableEntityBean(PARTICIPANT_ENTITY_TYPE, "2")));
+    assertNotNull(joinTable.getValueSet(new VariableEntityBean(PARTICIPANT_ENTITY_TYPE, "1")));
 
-    assertEquals(false, joinTable.hasValueSet(new VariableEntityBean(PARTICIPANT_ENTITY_TYPE, "3")));
-    assertEquals(false, joinTable.hasValueSet(new VariableEntityBean("test", "test")));
+    joinTable = JoinTableBuilder.newBuilder() //
+    .withMockTable(MockValueTableBuilder.newMock(PARTICIPANT_ENTITY_TYPE).expectHasValueSet("2", false)) //
+    .withMockTable(MockValueTableBuilder.newMock(PARTICIPANT_ENTITY_TYPE).expectHasValueSet("2", true)).build();
+    assertNotNull(joinTable.getValueSet(new VariableEntityBean(PARTICIPANT_ENTITY_TYPE, "2")));
   }
 
   @Test
@@ -281,6 +292,11 @@ public class JoinTableTest extends AbstractMagmaTest {
       return this;
     }
 
+    public MockValueTableBuilder expectHasValueSet(String identifier, boolean expect) {
+      expect(mock.hasValueSet(new VariableEntityBean(entityType, identifier))).andReturn(expect);
+      return this;
+    }
+
     public MockValueTableBuilder withVariables(String... names) {
       Set<Variable> tableVariables = new HashSet<Variable>();
       for(String variableName : names) {
@@ -294,7 +310,7 @@ public class JoinTableTest extends AbstractMagmaTest {
       return this;
     }
 
-    MockValueTableBuilder withEntities(String... identifiers) {
+    public MockValueTableBuilder withEntities(String... identifiers) {
       expect(mock.getVariableEntities()).andReturn(createEntitySet(entityType, identifiers)).anyTimes();
       return this;
     }

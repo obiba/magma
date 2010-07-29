@@ -44,6 +44,10 @@ public class JoinTable implements ValueTable {
    */
   private Map<String, ValueTable> variableNameToTableMap;
 
+  // An arbitrary number to initialise the LinkedHashSet with a capacity close to the actual value (see
+  // getVariableEntities())
+  private int lastEntityCount = 5000;
+
   //
   // Constructors
   //
@@ -109,10 +113,13 @@ public class JoinTable implements ValueTable {
 
   @Override
   public Set<VariableEntity> getVariableEntities() {
-    Set<VariableEntity> entities = new LinkedHashSet<VariableEntity>();
+    // Set the initial capacity to the number of entities we saw in the previous call to this method
+    Set<VariableEntity> entities = new LinkedHashSet<VariableEntity>(lastEntityCount);
     for(ValueTable table : tables) {
       entities.addAll(table.getVariableEntities());
     }
+    // Remember this value so that next time around, the set is initialised with a capacity closer to the actual value.
+    lastEntityCount = entities.size();
     return entities;
   }
 
@@ -161,7 +168,12 @@ public class JoinTable implements ValueTable {
 
   @Override
   public boolean hasValueSet(VariableEntity entity) {
-    return getVariableEntities().contains(entity);
+    for(ValueTable table : tables) {
+      if(table.hasValueSet(entity)) {
+        return true;
+      }
+    }
+    return false;
   }
 
   @Override

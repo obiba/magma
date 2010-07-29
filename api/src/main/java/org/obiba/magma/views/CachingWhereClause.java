@@ -10,10 +10,11 @@ class CachingWhereClause implements WhereClause {
 
   /**
    * Cache the result in this map. Note that this cache will only work if == returns true for the keys. This should be
-   * the case as we pass-around the same ValueSet instance all the time.
+   * the case as we pass-around the same ValueSet instance all the time. It is important to use weak keys since we don't
+   * want the cache to prevent collecting garbage.
    */
   // TODO: this should be handled in a general-level caching package.
-  private final ConcurrentMap<ValueSet, Boolean> cache = new MapMaker().makeMap();
+  private final ConcurrentMap<ValueSet, Boolean> cache = new MapMaker().weakKeys().makeMap();
 
   private final WhereClause expensiveClause;
 
