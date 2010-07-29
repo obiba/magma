@@ -13,6 +13,7 @@ import org.obiba.magma.NoSuchValueTableException;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.ValueTableWriter;
+import org.obiba.magma.views.support.AllClause;
 
 public class ViewAwareDatasource implements Datasource {
   //
@@ -22,6 +23,8 @@ public class ViewAwareDatasource implements Datasource {
   private String name;
 
   private Datasource wrappedDatasource;
+
+  private Set<View> wrappedTables;
 
   private Set<View> views;
 
@@ -39,11 +42,10 @@ public class ViewAwareDatasource implements Datasource {
 
     this.name = name;
     this.wrappedDatasource = datasource;
+    this.wrappedTables = new HashSet<View>();
 
     this.views = new HashSet<View>(views);
-    for(View view : views) {
-      view.setDatasource(this);
-    }
+    this.views.addAll(views);
   }
 
   //
@@ -56,6 +58,7 @@ public class ViewAwareDatasource implements Datasource {
 
     // Initialise the views.
     for(View view : views) {
+      view.setDatasource(this);
       view.initialise();
     }
   }
@@ -88,12 +91,17 @@ public class ViewAwareDatasource implements Datasource {
         return view;
       }
     }
-    return wrappedDatasource.getValueTable(name);
+    for(View view : wrappedTables) {
+      if(view.getName().equals(name)) {
+        return view;
+      }
+    }
+    throw new NoSuchValueTableException(name);
   }
 
   public Set<ValueTable> getValueTables() {
     Set<ValueTable> valueTables = new HashSet<ValueTable>();
-    valueTables.addAll(wrappedDatasource.getValueTables());
+    valueTables.addAll(getWrappedTables());
     valueTables.addAll(views);
 
     return valueTables;
@@ -165,4 +173,13 @@ public class ViewAwareDatasource implements Datasource {
     return Collections.unmodifiableSet(views);
   }
 
+  private Set<View> getWrappedTables() {
+    wrappedTables.clear();
+    for(ValueTable vt : wrappedDatasource.getValueTables()) {
+      View wrappedTable = new View(vt.getName(), new AllClause(), new AllClause(), vt);
+      wrappedTable.setDatasource(this);
+      wrappedTables.add(wrappedTable);
+    }
+    return wrappedTables;
+  }
 }
