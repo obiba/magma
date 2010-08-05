@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -62,6 +63,8 @@ public class ExcelDatasource extends AbstractDatasource {
 
   private OutputStream excelOutput;
 
+  private InputStream excelInput;
+
   private Map<String, CellStyle> excelStyles;
 
   private Map<String, ExcelValueTable> valueTablesMapOnInit = new HashMap<String, ExcelValueTable>();
@@ -87,6 +90,24 @@ public class ExcelDatasource extends AbstractDatasource {
     this.excelOutput = output;
   }
 
+  /**
+   * Excel workbook will be read from input stream.
+   * @param name
+   * @param input
+   */
+  public ExcelDatasource(String name, InputStream input) {
+    super(name, "excel");
+    this.excelInput = input;
+  }
+
+  /**
+   * Set the output stream to which the Excel workbook will be persisted at datasource disposal.
+   * @param excelOutput
+   */
+  public void setExcelOutput(OutputStream excelOutput) {
+    this.excelOutput = excelOutput;
+  }
+
   public ValueTableWriter createWriter(String name, String entityType) {
     ExcelValueTable valueTable = null;
     if(hasValueTable(name)) {
@@ -100,26 +121,9 @@ public class ExcelDatasource extends AbstractDatasource {
   @Override
   protected void onInitialise() {
     if(excelFile != null) {
-      if(excelFile.exists()) {
-        try {
-          // WorkbookFactory will close the stream by itself
-          // This will create the proper type of Workbook (HSSF vs. XSSF)
-          excelWorkbook = WorkbookFactory.create(new FileInputStream(excelFile));
-        } catch(IOException e) {
-          throw new MagmaRuntimeException("Exception reading excel spreadsheet " + excelFile.getName(), e);
-        } catch(InvalidFormatException e) {
-          throw new MagmaRuntimeException("Invalid excel spreadsheet format " + excelFile.getName(), e);
-        }
-      } else {
-        if(excelFile.getName().endsWith("xls")) {
-          // Excel 97 format. Supports up to 256 columns only.
-          log.warn("Creating an ExcelDatasource using Excel 97 format which only supports 256 columns. This may not be sufficient for large amounts of variables. Specify a filename with an extension other than 'xls' to use Excel 2007 format.");
-          excelWorkbook = new HSSFWorkbook();
-        } else {
-          // Create a XSSFWorkbook to support more than 256 columns and 64K rows.
-          excelWorkbook = new XSSFWorkbook();
-        }
-      }
+      createWorbookFromFile();
+    } else if(excelInput != null) {
+      createWorkbookFromInputStream();
     } else {
       // Create a XSSFWorkbook that will be written in output stream
       excelWorkbook = new XSSFWorkbook();
@@ -129,6 +133,39 @@ public class ExcelDatasource extends AbstractDatasource {
     categoriesSheet = createSheetIfNotExist("Categories");
 
     createExcelStyles();
+  }
+
+  private void createWorbookFromFile() {
+    if(excelFile.exists()) {
+      try {
+        // WorkbookFactory will close the stream by itself
+        // This will create the proper type of Workbook (HSSF vs. XSSF)
+        excelWorkbook = WorkbookFactory.create(new FileInputStream(excelFile));
+      } catch(IOException e) {
+        throw new MagmaRuntimeException("Exception reading excel spreadsheet " + excelFile.getName(), e);
+      } catch(InvalidFormatException e) {
+        throw new MagmaRuntimeException("Invalid excel spreadsheet format " + excelFile.getName(), e);
+      }
+    } else {
+      if(excelFile.getName().endsWith("xls")) {
+        // Excel 97 format. Supports up to 256 columns only.
+        log.warn("Creating an ExcelDatasource using Excel 97 format which only supports 256 columns. This may not be sufficient for large amounts of variables. Specify a filename with an extension other than 'xls' to use Excel 2007 format.");
+        excelWorkbook = new HSSFWorkbook();
+      } else {
+        // Create a XSSFWorkbook to support more than 256 columns and 64K rows.
+        excelWorkbook = new XSSFWorkbook();
+      }
+    }
+  }
+
+  private void createWorkbookFromInputStream() {
+    try {
+      excelWorkbook = WorkbookFactory.create(excelInput);
+    } catch(InvalidFormatException e) {
+      throw new MagmaRuntimeException("Invalid excel spreadsheet format from input stream.");
+    } catch(IOException e) {
+      throw new MagmaRuntimeException("Exception reading excel spreadsheet from input stream.");
+    }
   }
 
   /**
@@ -150,7 +187,7 @@ public class ExcelDatasource extends AbstractDatasource {
 
   @Override
   protected void onDispose() {
-    // Write the workbook (datasource) to file.
+    // Write the workbook (datasource) to file/outputstream if any of them is defined
     OutputStream out = null;
     try {
       if(excelFile != null) {
@@ -158,7 +195,9 @@ public class ExcelDatasource extends AbstractDatasource {
       } else {
         out = excelOutput;
       }
-      writeWorkbook(out);
+      if(out != null) {
+        writeWorkbook(out);
+      }
     } catch(Exception e) {
       throw new MagmaRuntimeException("Could not write to excel output stream", e);
     } finally {
