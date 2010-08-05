@@ -247,7 +247,9 @@ class ExcelValueTable extends AbstractValueTable implements Initialisable {
       if(categoryTable.equals(getName()) && categoryVariable.equals(variableName)) {
         categoryName = getCellValueAsString(categoryRow.getCell(headerMapCategories.get("name")));
         categoryCode = getCellValueAsString(categoryRow.getCell(headerMapCategories.get("code")));
-        missing = getCellValueAsString(categoryRow.getCell(headerMapCategories.get("missing"))) == "1";
+
+        String missingStr = getCellValueAsString(categoryRow.getCell(headerMapCategories.get("missing"))).trim();
+        missing = (missingStr.equals("1") || missingStr.equalsIgnoreCase("true") || missingStr.equalsIgnoreCase("no"));
 
         AttributeAwareBuilder<Category.Builder> categoryBuilder = Category.Builder.newCategory(categoryName).withCode(categoryCode).missing(missing);
         readCustomAttributes("category", categoryName, categoryRow, headerMapCategories, attributeNamesCategories, categoryBuilder);
