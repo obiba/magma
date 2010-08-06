@@ -124,6 +124,7 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
     try {
       initialiseVariables();
       initialiseData();
+      variableEntityProvider = new CSVVariableEntityProvider(entityType);
     } catch(IOException e) {
       throw new MagmaRuntimeException(e);
     }
@@ -236,8 +237,6 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
 
         line = dataReader.readNext();
       }
-
-      variableEntityProvider = new CSVVariableEntityProvider(entityType);
     } else {
       isDataFileEmpty = true;
     }
