@@ -7,11 +7,13 @@ import java.util.GregorianCalendar;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.Scriptable;
+import org.obiba.magma.MagmaDate;
 import org.obiba.magma.Value;
 import org.obiba.magma.js.MagmaJsEvaluationRuntimeException;
 import org.obiba.magma.js.ScriptableValue;
 import org.obiba.magma.type.BooleanType;
 import org.obiba.magma.type.DateTimeType;
+import org.obiba.magma.type.DateType;
 import org.obiba.magma.type.IntegerType;
 
 /**
@@ -77,7 +79,7 @@ public class DateTimeMethods {
     Calendar c = asCalendar(thisObj);
     if(c != null) {
       int dow = c.get(Calendar.DAY_OF_WEEK);
-      return new ScriptableValue(thisObj, BooleanType.get().valueOf(dow < Calendar.MONDAY && dow > Calendar.FRIDAY));
+      return new ScriptableValue(thisObj, BooleanType.get().valueOf(dow < Calendar.MONDAY || dow > Calendar.FRIDAY));
     }
     return thisObj;
   }
@@ -170,15 +172,22 @@ public class DateTimeMethods {
    */
   private static Calendar asCalendar(Scriptable obj) {
     ScriptableValue sv = (ScriptableValue) obj;
-    if(sv.getValueType() != DateTimeType.get()) {
-      throw new MagmaJsEvaluationRuntimeException("Invalid ValueType: expected '" + DateTimeType.get().getName() + "' got '" + sv.getValueType().getName() + "'");
-    }
-    Value value = sv.getValue();
-    if(value.isNull() == false) {
-      Date date = (Date) value.getValue();
-      Calendar c = GregorianCalendar.getInstance();
-      c.setTimeInMillis(date.getTime());
-      return c;
+
+    if(sv.getValueType() == DateTimeType.get()) {
+      Value value = sv.getValue();
+      if(value.isNull() == false) {
+        Date date = (Date) value.getValue();
+        Calendar c = GregorianCalendar.getInstance();
+        c.setTimeInMillis(date.getTime());
+        return c;
+      }
+    } else if(sv.getValueType() == DateType.get()) {
+      Value value = sv.getValue();
+      if(value.isNull() == false) {
+        return ((MagmaDate) value.getValue()).asCalendar();
+      }
+    } else {
+      throw new MagmaJsEvaluationRuntimeException("Invalid ValueType: expected '" + DateTimeType.get().getName() + "' or '" + DateType.get().getName() + "' got '" + sv.getValueType().getName() + "'");
     }
     return null;
   }
@@ -217,12 +226,12 @@ public class DateTimeMethods {
     }
     Calendar c = asCalendar(thisObj);
     if(c != null) {
-      Integer argument = 0;
+      int argument = 0;
       if(args[0] instanceof ScriptableValue) {
         Value value = ((ScriptableValue) args[0]).getValue();
-        argument = Integer.valueOf(value.getValue().toString());
+        argument = Integer.parseInt(value.getValue().toString());
       } else {
-        argument = (Integer) args[0];
+        argument = ((Number) args[0]).intValue();
       }
       c.add(Calendar.DAY_OF_MONTH, argument);
       return new ScriptableValue(thisObj, DateTimeType.get().valueOf(c));

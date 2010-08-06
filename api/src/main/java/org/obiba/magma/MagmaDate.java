@@ -50,6 +50,15 @@ public class MagmaDate implements Serializable, Comparable<MagmaDate> {
     return dayOfMonth;
   }
 
+  public Calendar asCalendar() {
+    Calendar c = Calendar.getInstance();
+    c.clear();
+    c.set(Calendar.YEAR, year);
+    c.set(Calendar.MONTH, month);
+    c.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+    return c;
+  }
+
   @Override
   public int compareTo(MagmaDate o) {
     return 100 * (this.year - o.year)//

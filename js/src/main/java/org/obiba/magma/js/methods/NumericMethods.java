@@ -1,15 +1,102 @@
 package org.obiba.magma.js.methods;
 
+import java.math.BigDecimal;
+
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.Scriptable;
+import org.obiba.magma.Value;
 import org.obiba.magma.ValueType;
 import org.obiba.magma.js.MagmaJsEvaluationRuntimeException;
 import org.obiba.magma.js.ScriptableValue;
+import org.obiba.magma.type.BooleanType;
 import org.obiba.magma.type.DecimalType;
 import org.obiba.magma.type.IntegerType;
 
 public class NumericMethods {
+
+  private enum Ops {
+    DIVIDE() {
+
+      @Override
+      public boolean alwaysDecimal() {
+        return true;
+      }
+
+      @Override
+      public BigDecimal operate(BigDecimal lhs, BigDecimal rhs) {
+        return lhs.divide(rhs);
+      }
+    },
+    MINUS() {
+
+      @Override
+      public BigDecimal operate(BigDecimal lhs, BigDecimal rhs) {
+        return lhs.subtract(rhs);
+      }
+    },
+    MULTIPLY() {
+
+      @Override
+      public BigDecimal operate(BigDecimal lhs, BigDecimal rhs) {
+        return lhs.multiply(rhs);
+      }
+    },
+    PLUS() {
+
+      @Override
+      public BigDecimal operate(BigDecimal lhs, BigDecimal rhs) {
+        return lhs.add(rhs);
+      }
+    };
+
+    /**
+     * Returns true when the operation always produces a decimal (default is false).
+     * @return
+     */
+    public boolean alwaysDecimal() {
+      return false;
+    }
+
+    /**
+     * Performs this operation on the provided values and returns the result
+     * 
+     * @param lhs
+     * @param rhs
+     * @return
+     * @throws ArithmeticException when the operation cannot be performed on the operands (division by zero)
+     */
+    public abstract BigDecimal operate(BigDecimal lhs, BigDecimal rhs) throws ArithmeticException;
+  }
+
+  private enum Comps {
+    GT() {
+      @Override
+      public boolean apply(int value) {
+        return value > 0;
+      }
+    },
+    GE() {
+      @Override
+      public boolean apply(int value) {
+        return value >= 0;
+      }
+    },
+    LT() {
+      @Override
+      public boolean apply(int value) {
+        return value < 0;
+      }
+    },
+    LE() {
+      @Override
+      public boolean apply(int value) {
+        return value <= 0;
+      }
+    };
+
+    public abstract boolean apply(int value);
+  }
 
   /**
    * Returns a new {@link ScriptableValue} containing the sum of the caller and the supplied parameter. If both operands
@@ -22,51 +109,7 @@ public class NumericMethods {
    * DecimalType.
    */
   public static ScriptableValue plus(Context ctx, Scriptable thisObj, Object[] args, Function funObj) throws MagmaJsEvaluationRuntimeException {
-    ScriptableValue firstOperand = getScriptableAsNumericScriptableValue(thisObj);
-    ScriptableValue secondOperand = getFirstArgumentAsNumericScriptableValue(args);
-    Number firstNumber = (Number) firstOperand.getValue().getValue();
-    Number secondNumber = (Number) secondOperand.getValue().getValue();
-    if(firstOperand.getValueType().equals(IntegerType.get()) && secondOperand.getValueType().equals(IntegerType.get())) {
-      return new ScriptableValue(thisObj, IntegerType.get().valueOf((Long) firstNumber + (Long) secondNumber));
-    } else if(firstOperand.getValueType().equals(IntegerType.get()) && secondOperand.getValueType().equals(DecimalType.get())) {
-      return new ScriptableValue(thisObj, DecimalType.get().valueOf((Long) firstNumber + (Double) secondNumber));
-    } else if(firstOperand.getValueType().equals(DecimalType.get()) && secondOperand.getValueType().equals(IntegerType.get())) {
-      return new ScriptableValue(thisObj, DecimalType.get().valueOf((Double) firstNumber + (Long) secondNumber));
-    } else {
-      return new ScriptableValue(thisObj, DecimalType.get().valueOf((Double) firstNumber + (Double) secondNumber));
-    }
-  }
-
-  /**
-   * Convert a non null {@link Scriptable} into a {@link ScriptableValue}.
-   * @return A {@code ScriptableValue} containing a numeric {@link ValueType}.
-   * @throws MagmaJsEvaluationRuntimeException if scriptable is not numeric
-   */
-  static ScriptableValue getScriptableAsNumericScriptableValue(Scriptable scriptable) throws MagmaJsEvaluationRuntimeException {
-    if(scriptable != null && ((ScriptableValue) scriptable).getValueType().isNumeric()) {
-      if(((ScriptableValue) scriptable).getValue().isNull()) {
-        return new ScriptableValue(scriptable, IntegerType.get().valueOf(0));
-      }
-      return (ScriptableValue) scriptable;
-    } else {
-      throw new MagmaJsEvaluationRuntimeException("First operand to plus() method must be a ScriptableValue containing a IntegerType or DecimalType.");
-    }
-  }
-
-  /**
-   * Return the first argument of an array as a {@link ScriptableValue}.
-   * @return A {@code ScriptableValue} containing a numeric {@link ValueType}.
-   * @throws MagmaJsEvaluationRuntimeException if the first argument is not numeric
-   */
-  static ScriptableValue getFirstArgumentAsNumericScriptableValue(Object[] args) throws MagmaJsEvaluationRuntimeException {
-    if(args != null && args.length > 0 && args[0] instanceof ScriptableValue && ((ScriptableValue) args[0]).getValueType().isNumeric()) {
-      if(((ScriptableValue) args[0]).getValue().isNull()) {
-        return new ScriptableValue((ScriptableValue) args[0], IntegerType.get().valueOf(0));
-      }
-      return (ScriptableValue) args[0];
-    } else {
-      throw new MagmaJsEvaluationRuntimeException("Second operand to plus() method must be a non null ScriptableValue containing a IntegerType or DecimalType.");
-    }
+    return new ScriptableValue(thisObj, operate((ScriptableValue) thisObj, args, Ops.PLUS));
   }
 
   /**
@@ -81,19 +124,7 @@ public class NumericMethods {
    * DecimalType.
    */
   public static ScriptableValue minus(Context ctx, Scriptable thisObj, Object[] args, Function funObj) throws MagmaJsEvaluationRuntimeException {
-    ScriptableValue firstOperand = getScriptableAsNumericScriptableValue(thisObj);
-    ScriptableValue secondOperand = getFirstArgumentAsNumericScriptableValue(args);
-    Number firstNumber = (Number) firstOperand.getValue().getValue();
-    Number secondNumber = (Number) secondOperand.getValue().getValue();
-    if(firstOperand.getValueType().equals(IntegerType.get()) && secondOperand.getValueType().equals(IntegerType.get())) {
-      return new ScriptableValue(thisObj, IntegerType.get().valueOf((Long) firstNumber - (Long) secondNumber));
-    } else if(firstOperand.getValueType().equals(IntegerType.get()) && secondOperand.getValueType().equals(DecimalType.get())) {
-      return new ScriptableValue(thisObj, DecimalType.get().valueOf((Long) firstNumber - (Double) secondNumber));
-    } else if(firstOperand.getValueType().equals(DecimalType.get()) && secondOperand.getValueType().equals(IntegerType.get())) {
-      return new ScriptableValue(thisObj, DecimalType.get().valueOf((Double) firstNumber - (Long) secondNumber));
-    } else {
-      return new ScriptableValue(thisObj, DecimalType.get().valueOf((Double) firstNumber - (Double) secondNumber));
-    }
+    return new ScriptableValue(thisObj, operate((ScriptableValue) thisObj, args, Ops.MINUS));
   }
 
   /**
@@ -108,19 +139,7 @@ public class NumericMethods {
    * DecimalType.
    */
   public static ScriptableValue multiply(Context ctx, Scriptable thisObj, Object[] args, Function funObj) throws MagmaJsEvaluationRuntimeException {
-    ScriptableValue firstOperand = getScriptableAsNumericScriptableValue(thisObj);
-    ScriptableValue secondOperand = getFirstArgumentAsNumericScriptableValue(args);
-    Number firstNumber = (Number) firstOperand.getValue().getValue();
-    Number secondNumber = (Number) secondOperand.getValue().getValue();
-    if(firstOperand.getValueType().equals(IntegerType.get()) && secondOperand.getValueType().equals(IntegerType.get())) {
-      return new ScriptableValue(thisObj, IntegerType.get().valueOf((Long) firstNumber * (Long) secondNumber));
-    } else if(firstOperand.getValueType().equals(IntegerType.get()) && secondOperand.getValueType().equals(DecimalType.get())) {
-      return new ScriptableValue(thisObj, DecimalType.get().valueOf((Long) firstNumber * (Double) secondNumber));
-    } else if(firstOperand.getValueType().equals(DecimalType.get()) && secondOperand.getValueType().equals(IntegerType.get())) {
-      return new ScriptableValue(thisObj, DecimalType.get().valueOf((Double) firstNumber * (Long) secondNumber));
-    } else {
-      return new ScriptableValue(thisObj, DecimalType.get().valueOf((Double) firstNumber * (Double) secondNumber));
-    }
+    return new ScriptableValue(thisObj, operate((ScriptableValue) thisObj, args, Ops.MULTIPLY));
   }
 
   /**
@@ -134,19 +153,130 @@ public class NumericMethods {
    * DecimalType.
    */
   public static ScriptableValue div(Context ctx, Scriptable thisObj, Object[] args, Function funObj) throws MagmaJsEvaluationRuntimeException {
-    ScriptableValue firstOperand = getScriptableAsNumericScriptableValue(thisObj);
-    ScriptableValue secondOperand = getFirstArgumentAsNumericScriptableValue(args);
-    Number firstNumber = (Number) firstOperand.getValue().getValue();
-    Number secondNumber = (Number) secondOperand.getValue().getValue();
-    if(firstOperand.getValueType().equals(IntegerType.get()) && secondOperand.getValueType().equals(IntegerType.get())) {
-      return new ScriptableValue(thisObj, DecimalType.get().valueOf((Long) firstNumber / ((Long) secondNumber).doubleValue()));
-    } else if(firstOperand.getValueType().equals(IntegerType.get()) && secondOperand.getValueType().equals(DecimalType.get())) {
-      return new ScriptableValue(thisObj, DecimalType.get().valueOf((Long) firstNumber / (Double) secondNumber));
-    } else if(firstOperand.getValueType().equals(DecimalType.get()) && secondOperand.getValueType().equals(IntegerType.get())) {
-      return new ScriptableValue(thisObj, DecimalType.get().valueOf((Double) firstNumber / (Long) secondNumber));
-    } else {
-      return new ScriptableValue(thisObj, DecimalType.get().valueOf((Double) firstNumber / (Double) secondNumber));
+    return new ScriptableValue(thisObj, operate((ScriptableValue) thisObj, args, Ops.DIVIDE));
+  }
+
+  /**
+   * Returns a new {@link ScriptableValue} of the {@link BooleanType} indicating if the first parameter is greater than
+   * the second parameter.
+   * 
+   * <pre>
+   *   $('NumberVarOne').gt($('NumberVarTwo'))
+   * </pre>
+   * @throws MagmaJsEvaluationRuntimeException if operands are not ScriptableValue Objects of IntegerType or
+   * DecimalType.
+   */
+  public static ScriptableValue gt(Context ctx, Scriptable thisObj, Object[] args, Function funObj) throws MagmaJsEvaluationRuntimeException {
+    return new ScriptableValue(thisObj, compare((ScriptableValue) thisObj, args, Comps.GT));
+  }
+
+  /**
+   * Returns a new {@link ScriptableValue} of the {@link BooleanType} indicating if the first parameter is greater than
+   * or equal the second parameter.
+   * 
+   * <pre>
+   *   $('NumberVarOne').ge($('NumberVarTwo'))
+   * </pre>
+   * @throws MagmaJsEvaluationRuntimeException if operands are not ScriptableValue Objects of IntegerType or
+   * DecimalType.
+   */
+  public static ScriptableValue ge(Context ctx, Scriptable thisObj, Object[] args, Function funObj) throws MagmaJsEvaluationRuntimeException {
+    return new ScriptableValue(thisObj, compare((ScriptableValue) thisObj, args, Comps.GE));
+  }
+
+  /**
+   * Returns a new {@link ScriptableValue} of the {@link BooleanType} indicating if the first parameter is less than the
+   * second parameter.
+   * 
+   * <pre>
+   *   $('NumberVarOne').lt($('NumberVarTwo'))
+   * </pre>
+   * @throws MagmaJsEvaluationRuntimeException if operands are not ScriptableValue Objects of IntegerType or
+   * DecimalType.
+   */
+  public static ScriptableValue lt(Context ctx, Scriptable thisObj, Object[] args, Function funObj) throws MagmaJsEvaluationRuntimeException {
+    return new ScriptableValue(thisObj, compare((ScriptableValue) thisObj, args, Comps.LT));
+  }
+
+  /**
+   * Returns a new {@link ScriptableValue} of the {@link BooleanType} indicating if the first parameter is less than or
+   * equal the second parameter.
+   * 
+   * <pre>
+   *   $('NumberVarOne').le($('NumberVarTwo'))
+   * </pre>
+   * @throws MagmaJsEvaluationRuntimeException if operands are not ScriptableValue Objects of IntegerType or
+   * DecimalType.
+   */
+  public static ScriptableValue le(Context ctx, Scriptable thisObj, Object[] args, Function funObj) throws MagmaJsEvaluationRuntimeException {
+    return new ScriptableValue(thisObj, compare((ScriptableValue) thisObj, args, Comps.LE));
+  }
+
+  static Value compare(ScriptableValue thisObj, Object args[], Comps comparator) {
+    BigDecimal value = asBigDecimal(thisObj);
+    for(Object argument : args) {
+      BigDecimal rhs = asBigDecimal(argument);
+      if(comparator.apply(value.compareTo(rhs)) == false) {
+        return BooleanType.get().falseValue();
+      }
+    }
+    return BooleanType.get().trueValue();
+  }
+
+  static Value operate(ScriptableValue thisObj, Object args[], Ops operation) {
+    try {
+      boolean allIntegerTypes = operation.alwaysDecimal() == false && thisObj.getValueType() == IntegerType.get();
+
+      BigDecimal value = asBigDecimal(thisObj);
+      for(Object argument : args) {
+        allIntegerTypes &= isIntegerType(argument);
+        BigDecimal rhs = asBigDecimal(argument);
+        value = operation.operate(value, rhs);
+      }
+      if(allIntegerTypes) {
+        return IntegerType.get().valueOf(value.longValue());
+      }
+      return DecimalType.get().valueOf(value.doubleValue());
+    } catch(ArithmeticException e) {
+      return DecimalType.get().nullValue();
     }
   }
 
+  static boolean isIntegerType(Object object) {
+    if(object == null) {
+      // A null object can be represented as Zero
+      return true;
+    }
+    if(object instanceof ScriptableValue) {
+      return ((ScriptableValue) object).getValueType() == IntegerType.get();
+    }
+    return ValueType.Factory.forClass(object.getClass()) == IntegerType.get();
+  }
+
+  static BigDecimal asBigDecimal(Object object) {
+    if(object == null) return BigDecimal.ZERO;
+
+    if(object instanceof ScriptableValue) {
+      return asBigDecimal((ScriptableValue) object);
+    }
+    if(object instanceof Number) {
+      return new BigDecimal(object.toString());
+    }
+    if(object instanceof String) {
+      return new BigDecimal((String) object);
+    }
+    throw new IllegalArgumentException("cannot interpret argument as number: '" + object + "'");
+  }
+
+  static BigDecimal asBigDecimal(ScriptableValue scriptableValue) {
+    if(scriptableValue == null) throw new IllegalArgumentException("value cannot be null");
+    if(scriptableValue.getValue().isNull()) {
+      return BigDecimal.ZERO;
+    }
+    if(scriptableValue.getValueType().isNumeric()) {
+      return new BigDecimal(((Number) scriptableValue.getValue().getValue()).doubleValue());
+    }
+    Value value = DecimalType.get().convert(scriptableValue.getValue());
+    return new BigDecimal((Double) value.getValue());
+  }
 }
