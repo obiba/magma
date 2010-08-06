@@ -13,6 +13,7 @@ import org.obiba.magma.NoSuchValueTableException;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.ValueTableWriter;
+import org.obiba.magma.support.Disposables;
 import org.obiba.magma.views.support.AllClause;
 
 public class ViewAwareDatasource implements Datasource {
@@ -65,7 +66,8 @@ public class ViewAwareDatasource implements Datasource {
 
   public void dispose() {
     // Dispose of the wrapped datasource.
-    wrappedDatasource.dispose();
+    Disposables.dispose(wrappedDatasource);
+    Disposables.dispose(views);
   }
 
   public ValueTableWriter createWriter(String tableName, String entityType) {

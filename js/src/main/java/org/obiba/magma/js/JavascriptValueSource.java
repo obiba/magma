@@ -58,7 +58,7 @@ public class JavascriptValueSource implements ValueSource, Initialisable {
     if(compiledScript == null) {
       throw new IllegalStateException("script hasn't been compile. Call initialise() before calling getValue().");
     }
-    return ((ScriptableValue) ContextFactory.getGlobal().call(new ContextAction() {
+    Value evaluated = ((Value) ContextFactory.getGlobal().call(new ContextAction() {
       public Object run(Context ctx) {
         MagmaContext context = MagmaContext.asMagmaContext(ctx);
         // Don't pollute the global scope
@@ -85,9 +85,15 @@ public class JavascriptValueSource implements ValueSource, Initialisable {
             scriptableValue = new ScriptableValue(scope, getValueType().valueOf(value));
           }
         }
-        return scriptableValue;
+        return scriptableValue.getValue();
       }
-    })).getValue();
+    }));
+
+    if(evaluated.getValueType() != this.type) {
+      // Convert types
+      evaluated = this.type.convert(evaluated);
+    }
+    return evaluated;
   }
 
   @Override

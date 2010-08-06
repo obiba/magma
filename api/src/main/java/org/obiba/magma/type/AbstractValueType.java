@@ -63,6 +63,17 @@ public abstract class AbstractValueType implements ValueType {
   }
 
   @Override
+  public Value convert(Value value) {
+    if(value.getValueType() == this) {
+      return value;
+    }
+    if(value.isNull()) {
+      return nullValue();
+    }
+    return Factory.conveterFor(value.getValueType(), this).convert(value, this);
+  }
+
+  @Override
   public String toString(Value value) {
     return value.isNull() ? null : (value.isSequence() ? toString(value.asSequence()) : toString(value.getValue()));
   }
@@ -100,5 +111,4 @@ public abstract class AbstractValueType implements ValueType {
   protected String escapeAndQuoteIfRequired(String value) {
     return value;
   }
-
 }

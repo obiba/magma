@@ -62,6 +62,10 @@ public interface ValueType extends Serializable, Comparator<Value> {
       return new ValueSequence(type, values);
     }
 
+    public static ValueConverter conveterFor(ValueType from, ValueType to) {
+      return MagmaEngine.get().getValueTypeFactory().converterFor(from, to);
+    }
+
   }
 
   /**
@@ -111,6 +115,8 @@ public interface ValueType extends Serializable, Comparator<Value> {
    * @return a {@code ValueSequence} instance for null
    */
   public ValueSequence nullSequence();
+
+  public Value convert(Value value);
 
   /**
    * Returns a string representation of the {@code value}. The string returned can be passed to the

@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.obiba.magma.Datasource;
+import org.obiba.magma.Disposable;
 import org.obiba.magma.Initialisable;
 import org.obiba.magma.NoSuchValueSetException;
 import org.obiba.magma.NoSuchVariableException;
@@ -17,6 +18,7 @@ import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.VariableValueSource;
 import org.obiba.magma.support.AbstractValueTableWrapper;
+import org.obiba.magma.support.Disposables;
 import org.obiba.magma.support.Initialisables;
 import org.obiba.magma.views.support.AllClause;
 import org.obiba.magma.views.support.NoneClause;
@@ -25,7 +27,7 @@ import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 
-public class View extends AbstractValueTableWrapper implements Initialisable {
+public class View extends AbstractValueTableWrapper implements Initialisable, Disposable {
   //
   // Instance Variables
   //
@@ -93,6 +95,15 @@ public class View extends AbstractValueTableWrapper implements Initialisable {
       setListClause(new NoneClause());
       setSelectClause(new AllClause());
     }
+  }
+
+  @Override
+  public void dispose() {
+    Disposables.silentlyDispose(from, select, where, variables);
+  }
+
+  public ListClause getListClause() {
+    return variables;
   }
 
   /**
