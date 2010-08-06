@@ -4,6 +4,7 @@ import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.RandomAccessFile;
 import java.io.UnsupportedEncodingException;
@@ -105,14 +106,16 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
   public ValueSet getValueSet(VariableEntity entity) throws NoSuchValueSetException {
     CsvIndexEntry indexEntry = entityIndex.get(entity);
     if(indexEntry != null) {
+      FileInputStream fis = null;
       try {
-        FileInputStream fis;
         InputStreamReader fr = new InputStreamReader(fis = new FileInputStream(dataFile), CsvDatasource.UTF8);
         CSVReader csvReader = getCsvDatasource().getCsvReader(fr);
-        fis.skip(indexEntry.getStart());
+        skipSafely(fis, indexEntry.getStart());
         return new CsvValueSet(this, entity, dataHeaderMap, csvReader.readNext());
       } catch(IOException e) {
         throw new MagmaRuntimeException(e);
+      } finally {
+        Closeables.closeQuietly(fis);
       }
     } else {
       throw new NoSuchValueSetException(this, entity);
@@ -186,6 +189,7 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
         CSVReader dataHeaderReader = getCsvDatasource().getCsvReader(dataFile);
 
         String[] line = dataHeaderReader.readNext();
+        dataHeaderReader.close();
         if(line != null) {
           for(int i = 1; i < line.length; i++) {
             String variableName = line[i].trim();
@@ -246,54 +250,59 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
   Map<Integer, CsvIndexEntry> buildLineIndex(File file) throws IOException {
     Map<Integer, CsvIndexEntry> lineNumberMap = new HashMap<Integer, CsvIndexEntry>();
     BufferedInputStream bis = new BufferedInputStream(new FileInputStream(file));
-    int counter = 0;
-    int lineCounter = 0;
-    int b;
-    int previousCharacter = -1;
-    int start = 0;
-    int end = 0;
-    while((b = bis.read()) != -1) {
-      counter++;
-      if(b == NEWLINE_CHARACTER) {
-        end = counter - 1;
-        lineNumberMap.put(lineCounter, new CsvIndexEntry(start, end));
-        start = end + 1;
-        // break;
-        lineCounter++;
+    try {
+      int counter = 0;
+      int lineCounter = 0;
+      int b;
+      int previousCharacter = -1;
+      int start = 0;
+      int end = 0;
+      while((b = bis.read()) != -1) {
+        counter++;
+        if(b == NEWLINE_CHARACTER) {
+          end = counter - 1;
+          lineNumberMap.put(lineCounter, new CsvIndexEntry(start, end));
+          start = end + 1;
+          // break;
+          lineCounter++;
+        }
+        previousCharacter = b;
       }
-      previousCharacter = b;
-    }
-    if(previousCharacter != NEWLINE_CHARACTER) {
-      lineNumberMap.put(lineCounter, new CsvIndexEntry(start, counter));
+      if(previousCharacter != NEWLINE_CHARACTER) {
+        lineNumberMap.put(lineCounter, new CsvIndexEntry(start, counter));
+      }
+    } finally {
+      Closeables.closeQuietly(bis);
     }
     return lineNumberMap;
   }
 
-  public void clearEntity(VariableEntity entity) throws IOException {
-    CsvIndexEntry indexEntry = entityIndex.get(entity);
-    if(indexEntry != null) {
-      RandomAccessFile raf = new RandomAccessFile(dataFile, "rws");
+  public void clear(File file, CsvIndexEntry indexEntry) throws IOException {
+    RandomAccessFile raf = new RandomAccessFile(file, "rws");
+    try {
       int length = (int) (indexEntry.getEnd() - indexEntry.getStart());
       byte[] fill = new byte[length];
       Arrays.fill(fill, BLANKING_CHARACTER);
       raf.seek(indexEntry.getStart());
       raf.write(fill);
+    } finally {
+      Closeables.closeQuietly(raf);
+    }
+  }
+
+  public void clearEntity(VariableEntity entity) throws IOException {
+    CsvIndexEntry indexEntry = entityIndex.get(entity);
+    if(indexEntry != null) {
+      clear(dataFile, indexEntry);
       entityIndex.remove(entity);
-      raf.close();
     }
   }
 
   public void clearVariable(Variable variable) throws IOException {
     CsvIndexEntry indexEntry = variableNameIndex.get(variable.getName());
     if(indexEntry != null) {
-      RandomAccessFile raf = new RandomAccessFile(variableFile, "rws");
-      int length = (int) (indexEntry.getEnd() - indexEntry.getStart());
-      byte[] fill = new byte[length];
-      Arrays.fill(fill, BLANKING_CHARACTER);
-      raf.seek(indexEntry.getStart());
-      raf.write(fill);
+      clear(variableFile, indexEntry);
       variableNameIndex.remove(variable.getName());
-      raf.close();
     }
   }
 
@@ -335,28 +344,21 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
     public Variable getVariable() {
       CsvIndexEntry indexEntry = variableNameIndex.get(variableName);
       if(indexEntry != null) {
-
+        FileInputStream fis = null;
         try {
-          FileInputStream fis;
           InputStreamReader fr = new InputStreamReader(fis = new FileInputStream(variableFile), CsvDatasource.UTF8);
           CSVReader csvReader = getCsvDatasource().getCsvReader(fr);
-          fis.skip(indexEntry.getStart());
+          skipSafely(fis, indexEntry.getStart());
           String[] line = csvReader.readNext();
-          log.debug("variable line read> {} ", writeArray(line));
+          log.debug("variable line read> {} ", Arrays.toString(line));
           return variableConverter.unmarshal(line);
         } catch(IOException e) {
           throw new MagmaRuntimeException(e);
+        } finally {
+          Closeables.closeQuietly(fis);
         }
       }
       throw new MagmaRuntimeException("An index entry does not exist for the variable '" + variableName + "'.");
-    }
-
-    private String writeArray(String[] line) {
-      StringBuilder sb = new StringBuilder();
-      for(String string : line) {
-        sb.append(string).append(" ");
-      }
-      return sb.toString();
     }
 
     @Override
@@ -382,9 +384,11 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
 
   private long getLastByte(File file) throws IOException {
     RandomAccessFile raf = new RandomAccessFile(file, "r");
-    long result = raf.length();
-    raf.close();
-    return result;
+    try {
+      return raf.length();
+    } finally {
+      Closeables.closeQuietly(raf);
+    }
   }
 
   public long getDataLastByte() throws IOException {
@@ -397,8 +401,12 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
 
   private char getLastCharacter(File file) throws IOException {
     RandomAccessFile raf = new RandomAccessFile(file, "r");
-    raf.seek(raf.length() - 1);
-    return (char) raf.read();
+    try {
+      raf.seek(raf.length() - 1);
+      return (char) raf.read();
+    } finally {
+      Closeables.closeQuietly(raf);
+    }
   }
 
   public char getDataLastCharacter() throws IOException {
@@ -411,9 +419,12 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
 
   private void addNewline(File file) throws IOException {
     RandomAccessFile raf = new RandomAccessFile(file, "rws");
-    raf.seek(raf.length());
-    raf.writeChar(NEWLINE_CHARACTER);
-    raf.close();
+    try {
+      raf.seek(raf.length());
+      raf.writeChar(NEWLINE_CHARACTER);
+    } finally {
+      Closeables.closeQuietly(raf);
+    }
   }
 
   public void addDataNewline() throws IOException {
@@ -503,6 +514,15 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
    */
   private CsvDatasource getCsvDatasource() {
     return (CsvDatasource) getDatasource();
+  }
+
+  /**
+   * Skips {@code skip} bytes in {@code is} and tests that that amount of byte were effectively skipped. This method
+   * throws an IOException if the number of bytes actually skiped is not identical to the number of requested bytes to
+   * skip.
+   */
+  private void skipSafely(InputStream is, long skip) throws IOException {
+    if(is.skip(skip) != skip) throw new IOException("error seeking in file");
   }
 
 }

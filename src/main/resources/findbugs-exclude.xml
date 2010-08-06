@@ -10,7 +10,7 @@
     <Bug pattern="ST_WRITE_TO_STATIC_FROM_INSTANCE_METHOD" />
   </Match>
 
-  <!-- We don't want to syncrhonize access to the static get() method of ValueType instances. -->
+  <!-- We don't want to synchronize access to the static get() method of ValueType instances. -->
   <Match>
     <Package name="org.obiba.magma.type" />
     <Bug pattern="LI_LAZY_INIT_STATIC" />

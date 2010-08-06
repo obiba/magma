@@ -59,7 +59,7 @@ public class ValueSetState extends AbstractTimestampedEntity {
     return values != null ? values : (values = Sets.newLinkedHashSet());
   }
 
-  public Map<String, ValueSetValue> getValueMap() {
+  public synchronized Map<String, ValueSetValue> getValueMap() {
     return valueMap != null ? valueMap : valuesAsMap();
   }
 
