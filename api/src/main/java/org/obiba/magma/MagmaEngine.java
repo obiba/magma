@@ -52,9 +52,21 @@ public class MagmaEngine {
   }
 
   public MagmaEngine extend(MagmaEngineExtension extension) {
-    Initialisables.initialise(extension);
-    extensions.add(extension);
+    if(extension == null) throw new IllegalArgumentException("extension cannot be null");
+    if(hasExtension(extension.getClass()) == false) {
+      Initialisables.initialise(extension);
+      extensions.add(extension);
+    }
     return this;
+  }
+
+  public boolean hasExtension(Class<? extends MagmaEngineExtension> extensionType) {
+    try {
+      Iterables.getOnlyElement(Iterables.filter(extensions, extensionType));
+      return true;
+    } catch(NoSuchElementException e) {
+      return false;
+    }
   }
 
   public <T extends MagmaEngineExtension> T getExtension(Class<T> extensionType) {

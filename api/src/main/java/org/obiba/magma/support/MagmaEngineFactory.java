@@ -7,13 +7,10 @@ import org.obiba.magma.Datasource;
 import org.obiba.magma.DatasourceFactory;
 import org.obiba.magma.MagmaEngine;
 import org.obiba.magma.MagmaEngineExtension;
-import org.obiba.magma.MagmaRuntimeException;
 
 import com.google.common.collect.Sets;
 
 public class MagmaEngineFactory {
-
-  private String engineClass = MagmaEngine.class.getName();
 
   private Set<MagmaEngineExtension> extensions = Sets.newLinkedHashSet();
 
@@ -22,11 +19,6 @@ public class MagmaEngineFactory {
   private Set<Datasource> datasources = Sets.newLinkedHashSet();
 
   public MagmaEngineFactory() {
-  }
-
-  public MagmaEngineFactory withEngineClass(String engineClass) {
-    this.engineClass = engineClass;
-    return this;
   }
 
   public MagmaEngineFactory withExtension(MagmaEngineExtension extension) {
@@ -44,12 +36,6 @@ public class MagmaEngineFactory {
     return this;
   }
 
-  public MagmaEngine create() {
-    MagmaEngine engine = newEngineInstance(engineClass);
-
-    return engine;
-  }
-
   public void initialize(MagmaEngine engine) {
     for(MagmaEngineExtension extension : extensions) {
       engine.extend(extension);
@@ -64,10 +50,6 @@ public class MagmaEngineFactory {
     }
   }
 
-  public String getEngineClass() {
-    return engineClass;
-  }
-
   public Set<MagmaEngineExtension> extensions() {
     return Collections.unmodifiableSet(extensions);
   }
@@ -76,15 +58,4 @@ public class MagmaEngineFactory {
     return Collections.unmodifiableSet(factories);
   }
 
-  protected MagmaEngine newEngineInstance(String engineClass) {
-    try {
-      return (MagmaEngine) Class.forName(engineClass).newInstance();
-    } catch(InstantiationException e) {
-      throw new MagmaRuntimeException(e);
-    } catch(IllegalAccessException e) {
-      throw new MagmaRuntimeException(e);
-    } catch(ClassNotFoundException e) {
-      throw new MagmaRuntimeException(e);
-    }
-  }
 }
