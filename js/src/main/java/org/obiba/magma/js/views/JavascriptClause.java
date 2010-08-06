@@ -25,7 +25,7 @@ public class JavascriptClause implements Initialisable, SelectClause, WhereClaus
 
   private String script;
 
-  private Script compiledScript;
+  private transient Script compiledScript;
 
   //
   // Constructors

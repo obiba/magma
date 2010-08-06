@@ -32,8 +32,6 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
   // Instance Variables
   //
 
-  private ViewAwareDatasource viewDatasource;
-
   private String name;
 
   private ValueTable from;
@@ -44,6 +42,8 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
 
   /** A list of derived variables. Mutually exclusive with "select". */
   private ListClause variables;
+
+  private transient ViewAwareDatasource viewDatasource;
 
   //
   // Constructors

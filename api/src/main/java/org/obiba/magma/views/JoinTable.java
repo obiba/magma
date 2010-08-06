@@ -46,7 +46,7 @@ public class JoinTable implements ValueTable {
 
   // An arbitrary number to initialise the LinkedHashSet with a capacity close to the actual value (see
   // getVariableEntities())
-  private int lastEntityCount = 5000;
+  private transient int lastEntityCount = 5000;
 
   //
   // Constructors

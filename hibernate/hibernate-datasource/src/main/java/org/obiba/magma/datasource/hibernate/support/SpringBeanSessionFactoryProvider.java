@@ -7,10 +7,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 public class SpringBeanSessionFactoryProvider implements SessionFactoryProvider {
 
-  @Autowired
-  private BeanFactory beanFactory;
-
   private String beanName;
+
+  @Autowired
+  private transient BeanFactory beanFactory;
 
   // Public ctor for XStream de-ser.
   public SpringBeanSessionFactoryProvider() {

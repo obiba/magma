@@ -8,7 +8,7 @@ import org.obiba.magma.MagmaEngineExtension;
  */
 public class MagmaJsExtension implements MagmaEngineExtension {
 
-  private MagmaContextFactory magmaContextFactory = new MagmaContextFactory();
+  private transient MagmaContextFactory magmaContextFactory = new MagmaContextFactory();
 
   public void setMagmaContextFactory(MagmaContextFactory magmaContextFactory) {
     this.magmaContextFactory = magmaContextFactory;
