@@ -6,14 +6,11 @@ import org.obiba.magma.Variable;
 
 public class SameAsVariableValueSource extends JavascriptVariableValueSource {
 
-  public static final String SAME_AS_ATTRIBUTE_NAME = "sameAs";
-
-  private final ValueTable valueTable;
+  static final String SAME_AS_ATTRIBUTE_NAME = "sameAs";
 
   public SameAsVariableValueSource(Variable variable, ValueTable valueTable) {
-    super(variable);
+    super(variable, valueTable);
     if(valueTable == null) throw new IllegalArgumentException("valueTable cannot be null");
-    this.valueTable = valueTable;
   }
 
   @Override
@@ -31,7 +28,7 @@ public class SameAsVariableValueSource extends JavascriptVariableValueSource {
 
   @Override
   public Variable getVariable() {
-    Variable original = valueTable.getVariable(getSameAs());
+    Variable original = getValueTable().getVariable(getSameAs());
     Variable derived = super.getVariable();
     return Variable.Builder.sameAs(original).overrideWith(derived).build();
   }

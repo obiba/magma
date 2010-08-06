@@ -31,10 +31,8 @@ public class JavaScriptFilter extends AbstractFilter<ValueSet> implements Initia
   public void initialise() {
     if(initialised) return;
     validateArguments(javascript);
-    javascriptSource = new JavascriptValueSource();
-    javascriptSource.setScript(javascript);
+    javascriptSource = new JavascriptValueSource(BooleanType.get(), javascript);
     javascriptSource.setScriptName(SCRIPT_NAME);
-    javascriptSource.setValueType(BooleanType.get());
     javascriptSource.initialise();
     initialised = true;
   }

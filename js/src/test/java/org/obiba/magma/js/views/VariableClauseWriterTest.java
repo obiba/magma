@@ -88,7 +88,7 @@ public class VariableClauseWriterTest {
     VariablesClause variablesClause = new VariablesClause();
     variablesClause.setVariables(variables);
     String xml = xstream.toXML(variablesClause);
-    System.out.println(xml);
+    // TODO: assert xml result
   }
 
   @Test
@@ -96,6 +96,6 @@ public class VariableClauseWriterTest {
     VariablesClause variablesClause = new VariablesClause();
     variablesClause.setVariables(variables);
     String xml = xstream.toXML(variablesClause);
-    System.out.println(xml);
+    // TODO: assert xml result
   }
 }

@@ -68,15 +68,6 @@ public class ScriptableValueMethodsTest extends AbstractJsTest {
     Assert.assertSame(TextType.class, convertedValue.getValueType().getClass());
   }
 
-  @Test
-  public void convertDateToBoolean() {
-    Date currentDateTime = new Date();
-    ScriptableValue dateValue = newValue(DateTimeType.get().valueOf(currentDateTime));
-    ScriptableValue convertedValue = ScriptableValueMethods.type(Context.getCurrentContext(), dateValue, new Object[] { "boolean" }, null);
-    Assert.assertSame(BooleanType.class, convertedValue.getValueType().getClass());
-    Assert.assertEquals(false, convertedValue.getValue().getValue());
-  }
-
   @Test(expected = IllegalArgumentException.class)
   public void convertDateToInteger() {
     Date currentDateTime = new Date();

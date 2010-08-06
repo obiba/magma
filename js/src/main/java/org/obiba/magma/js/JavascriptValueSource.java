@@ -1,5 +1,9 @@
 package org.obiba.magma.js;
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ContextAction;
 import org.mozilla.javascript.ContextFactory;
@@ -13,10 +17,12 @@ import org.obiba.magma.ValueSet;
 import org.obiba.magma.ValueSource;
 import org.obiba.magma.ValueType;
 
+import com.google.common.collect.ImmutableList;
+
 /**
- * A {@code ValueSource} implementation that uses a Javascript script to evaluate the {@code Value} to return.
+ * A {@code ValueSource} implementation that uses a JavaScript script to evaluate the {@code Value} to return.
  * <p>
- * Within the javascript engine, {@code Value} instances are represented by {@code ScriptableValue} host objects.
+ * Within the JavaScript engine, {@code Value} instances are represented by {@code ScriptableValue} host objects.
  * <p>
  * This class implements {@code Initialisable}. During the {@code #initialise()} method, the provided script is
  * compiled. Any compile error is thrown as a {@code EvaluatorException} which contains the details of the error.
@@ -31,7 +37,18 @@ public class JavascriptValueSource implements ValueSource, Initialisable {
 
   private String scriptName = "customScript";
 
-  private Script compiledScript;
+  private transient Script compiledScript;
+
+  public JavascriptValueSource() {
+
+  }
+
+  public JavascriptValueSource(ValueType type, String script) {
+    if(type == null) throw new IllegalArgumentException("type cannot be null");
+    if(script == null) throw new IllegalArgumentException("script cannot be null");
+    this.type = type;
+    this.script = script;
+  }
 
   public String getScriptName() {
     return scriptName;
@@ -41,20 +58,15 @@ public class JavascriptValueSource implements ValueSource, Initialisable {
     this.scriptName = name;
   }
 
-  public void setScript(String script) {
-    this.script = script;
-  }
-
   public String getScript() {
     return script;
   }
 
-  public void setValueType(ValueType type) {
-    this.type = type;
-  }
-
   @Override
   public Value getValue(final ValueSet valueSet) {
+    if(getValueType() == null) {
+      throw new IllegalStateException("valueType must be set before calling getValue().");
+    }
     if(compiledScript == null) {
       throw new IllegalStateException("script hasn't been compile. Call initialise() before calling getValue().");
     }
@@ -69,29 +81,41 @@ public class JavascriptValueSource implements ValueSource, Initialisable {
         Object value = compiledScript.exec(ctx, scope);
 
         exitContext(context);
-        ScriptableValue scriptableValue = null;
-        if(value instanceof ScriptableValue) {
-          scriptableValue = (ScriptableValue) value;
+        Value result = null;
+        if(value == null) {
+          result = isSequence() ? getValueType().nullSequence() : getValueType().nullValue();
+        } else if(value instanceof ScriptableValue) {
+          ScriptableValue scriptableValue = (ScriptableValue) value;
           if(scriptableValue.getValue().isSequence() != isSequence()) {
             throw new MagmaJsRuntimeException("The returned value is " + (isSequence() ? "" : "not ") + "expected to be a value sequence.");
           }
+          result = scriptableValue.getValue();
         } else if(value instanceof Undefined) {
-          scriptableValue = new ScriptableValue(scope, isSequence() ? getValueType().nullSequence() : getValueType().nullValue());
+          result = isSequence() ? getValueType().nullSequence() : getValueType().nullValue();
         } else {
           if(isSequence()) {
-            // TODO fixme: what is it supposed to be ?
-            scriptableValue = new ScriptableValue(scope, getValueType().sequenceOf((Iterable<Value>) value));
+            if(value.getClass().isArray()) {
+              int length = Array.getLength(value);
+              List<Value> values = new ArrayList<Value>(length);
+              for(int i = 0; i < length; i++) {
+                values.add(getValueType().valueOf(Array.get(value, i)));
+              }
+              result = getValueType().sequenceOf(values);
+            } else {
+              // Build a singleton sequence
+              result = getValueType().sequenceOf(ImmutableList.of(getValueType().valueOf(value)));
+            }
           } else {
-            scriptableValue = new ScriptableValue(scope, getValueType().valueOf(value));
+            result = getValueType().valueOf(value);
           }
         }
-        return scriptableValue.getValue();
+        return result;
       }
     }));
 
-    if(evaluated.getValueType() != this.type) {
+    if(evaluated.getValueType() != getValueType()) {
       // Convert types
-      evaluated = this.type.convert(evaluated);
+      evaluated = getValueType().convert(evaluated);
     }
     return evaluated;
   }

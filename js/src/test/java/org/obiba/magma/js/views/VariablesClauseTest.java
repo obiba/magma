@@ -187,7 +187,7 @@ public class VariablesClauseTest extends AbstractJsTest {
     ValueTable valueTableMock = createMock(ValueTable.class);
     ValueSet valueSetMock = createMock(ValueSet.class);
     VariableValueSource variableValueSourceMock = createMock(VariableValueSource.class);
-    expect(valueSetMock.getValueTable()).andReturn(valueTableMock).times(3);
+    expect(valueSetMock.getValueTable()).andReturn(valueTableMock).times(2);
     expect(valueTableMock.getVariable("HealthQuestionnaireIdentification.SEX")).andReturn(buildHealthQuestionnaireIdentificationSex()).once();
     expect(valueTableMock.getVariableValueSource("HealthQuestionnaireIdentification.SEX")).andReturn(variableValueSourceMock).once();
     expect(variableValueSourceMock.getValue(valueSetMock)).andReturn(healthQuestionnaireIdentificationSexValue).once();
