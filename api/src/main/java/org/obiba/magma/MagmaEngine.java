@@ -87,6 +87,16 @@ public class MagmaEngine {
     }
   }
 
+  public boolean hasDatasource(final String name) {
+    Datasource found = Iterables.find(datasources, new Predicate<Datasource>() {
+      @Override
+      public boolean apply(Datasource input) {
+        return name.equals(input.getName());
+      }
+    });
+    return found != null;
+  }
+
   public Datasource addDatasource(Datasource datasource) {
     Initialisables.initialise(datasource);
     // Repeatedly added datasources are silently ignored. They cannot be added to the set more than once.
@@ -181,7 +191,7 @@ public class MagmaEngine {
    * @param uid
    * @return null if not found
    */
-  private DatasourceFactory getTransientDatasource(String uid) {
+  private DatasourceFactory getTransientDatasource(final String uid) {
     if(uid == null) throw new IllegalArgumentException("uid cannot be null.");
     DatasourceFactory foundFactory = null;
     for(DatasourceFactory factory : transientDatasources) {
