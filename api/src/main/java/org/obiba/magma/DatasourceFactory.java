@@ -2,6 +2,21 @@ package org.obiba.magma;
 
 public interface DatasourceFactory {
 
+  /**
+   * Name of the datasource instance that will be created.
+   */
+  public void setName(String name);
+
+  /**
+   * Get the name of the datasource that will be created.
+   * @return
+   */
+  public String getName();
+
+  /**
+   * Create the datasource.
+   * @return
+   */
   public Datasource create();
 
   /**

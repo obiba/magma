@@ -27,8 +27,6 @@ public class JdbcDatasourceFactory extends AbstractDatasourceFactory {
   // Instance Variables
   //
 
-  private String name;
-
   private Properties jdbcProperties;
 
   private JdbcDatasourceSettings settings;
@@ -41,7 +39,7 @@ public class JdbcDatasourceFactory extends AbstractDatasourceFactory {
   //
 
   @Override
-  public Datasource create() {
+  public Datasource internalCreate() {
     BasicDataSource dataSource = new BasicDataSource();
 
     if(transactionManager != null) {
@@ -55,16 +53,12 @@ public class JdbcDatasourceFactory extends AbstractDatasourceFactory {
     dataSource.setUsername(jdbcProperties.getProperty(USERNAME));
     dataSource.setPassword(jdbcProperties.getProperty(PASSWORD));
 
-    return new JdbcDatasource(name, dataSource, settings);
+    return new JdbcDatasource(getName(), dataSource, settings);
   }
 
   //
   // Methods
   //
-
-  public void setName(String name) {
-    this.name = name;
-  }
 
   public void setJdbcProperties(Properties jdbcProperties) {
     this.jdbcProperties = jdbcProperties;
