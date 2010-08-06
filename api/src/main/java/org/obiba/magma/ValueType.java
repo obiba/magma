@@ -116,6 +116,16 @@ public interface ValueType extends Serializable, Comparator<Value> {
    */
   public ValueSequence nullSequence();
 
+  /**
+   * Given a {@code Value} instance, this method will make a best efforts process to convert the underlying value from
+   * its original {@code ValueType} to this {@code ValueType}.
+   * <p>
+   * Simple cases (no conversion required or null values) are handled directly. Any other case is delegated to an
+   * instance of {@code ValueConverter}.
+   * 
+   * @param value the value to convert
+   * @return a {@code Value} instance of this {@code ValueType}
+   */
   public Value convert(Value value);
 
   /**
