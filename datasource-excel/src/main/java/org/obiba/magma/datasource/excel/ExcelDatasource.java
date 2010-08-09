@@ -30,11 +30,11 @@ import org.obiba.magma.ValueTable;
 import org.obiba.magma.ValueTableWriter;
 import org.obiba.magma.datasource.excel.support.ExcelUtil;
 import org.obiba.magma.datasource.excel.support.NameConverter;
+import org.obiba.magma.datasource.excel.support.VariableConverter;
 import org.obiba.magma.support.AbstractDatasource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
 /**
@@ -43,12 +43,6 @@ import com.google.common.collect.Sets;
 public class ExcelDatasource extends AbstractDatasource {
 
   private static final Logger log = LoggerFactory.getLogger(ExcelDatasource.class);
-
-  public static final List<String> variablesReservedAttributeNames = Lists.newArrayList("table", "name", "valueType", "entityType", "mimeType", "unit", "occurrenceGroup", "repeatable");
-
-  public static final List<String> categoriesReservedAttributeNames = Lists.newArrayList("table", "variable", "name", "code", "missing");
-
-  public static final List<String> attributesReservedAttributeNames = Lists.newArrayList("table", "attributeAwareType", "attributeAware", "attribute", "valueType");
 
   public static final Set<String> sheetReservedNames = Sets.newHashSet(new String[] { "Variables", "Categories", "Help" });
 
@@ -219,9 +213,14 @@ public class ExcelDatasource extends AbstractDatasource {
       if(headerMapVariables != null) {
         for(int i = 1; i < variablesSheet.getPhysicalNumberOfRows(); i++) {
           Row variableRow = variablesSheet.getRow(i);
-          String tableName = ExcelUtil.getCellValueAsString(variableRow.getCell(headerMapVariables.get("table")));
+          String tableHeader = ExcelUtil.findNormalizedHeader(headerMapVariables.keySet(), VariableConverter.TABLE);
+          String tableName = ExcelUtil.getCellValueAsString(variableRow.getCell(headerMapVariables.get(tableHeader)));
           if(!valueTablesMapOnInit.containsKey(tableName)) {
-            String entityType = ExcelUtil.getCellValueAsString(variableRow.getCell(headerMapVariables.get("entityType")));
+            String entityTypeHeader = ExcelUtil.findNormalizedHeader(headerMapVariables.keySet(), VariableConverter.ENTITY_TYPE);
+            String entityType = "Participant";
+            if(entityTypeHeader != null) {
+              entityType = ExcelUtil.getCellValueAsString(variableRow.getCell(headerMapVariables.get(entityTypeHeader)));
+            }
             valueTablesMapOnInit.put(tableName, new ExcelValueTable(this, tableName, entityType));
             sheetNames.add(getSheetName(tableName));
           }
@@ -254,19 +253,19 @@ public class ExcelDatasource extends AbstractDatasource {
   }
 
   public Set<String> getVariablesCustomAttributeNames() {
-    return getCustomAttributeNames(variablesSheet.getRow(0), variablesReservedAttributeNames);
+    return getCustomAttributeNames(variablesSheet.getRow(0), VariableConverter.reservedVariableHeaders);
   }
 
   public Set<String> getCategoriesCustomAttributeNames() {
-    return getCustomAttributeNames(categoriesSheet.getRow(0), categoriesReservedAttributeNames);
+    return getCustomAttributeNames(categoriesSheet.getRow(0), VariableConverter.reservedCategoryHeaders);
   }
 
   private Set<String> getCustomAttributeNames(Row rowHeader, List<String> reservedAttributeNames) {
     Set<String> attributesNames = new HashSet<String>();
     int cellCount = rowHeader.getPhysicalNumberOfCells();
     for(int i = 0; i < cellCount; i++) {
-      String attributeName = ExcelUtil.getCellValueAsString(rowHeader.getCell(i));
-      if(!reservedAttributeNames.contains(attributeName)) {
+      String attributeName = ExcelUtil.getCellValueAsString(rowHeader.getCell(i)).trim();
+      if(ExcelUtil.findNormalizedHeader(reservedAttributeNames, attributeName) == null) {
         attributesNames.add(attributeName);
       }
     }
@@ -290,7 +289,7 @@ public class ExcelDatasource extends AbstractDatasource {
 
       for(int i = 0; i < cellCount; i++) {
         cell = rowHeader.getCell(i);
-        headerMap.put(cell.getStringCellValue(), i);
+        headerMap.put(cell.getStringCellValue().trim(), i);
       }
     }
     return headerMap;

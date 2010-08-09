@@ -56,13 +56,13 @@ public class ExcelValueTableWriter implements ValueTableWriter {
       if(headerRowVariables == null) {
         headerRowVariables = variablesSheet.createRow(0);
       }
-      updateSheetHeaderRow(converter.getHeaderMapVariables(), headerRowVariables, ExcelDatasource.variablesReservedAttributeNames);
+      updateSheetHeaderRow(converter.getHeaderMapVariables(), headerRowVariables, VariableConverter.reservedVariableHeaders);
 
       Row headerRowCategories = categoriesSheet.getRow(0);
       if(headerRowCategories == null) {
         headerRowCategories = categoriesSheet.createRow(0);
       }
-      updateSheetHeaderRow(converter.getHeaderMapCategories(), headerRowCategories, ExcelDatasource.categoriesReservedAttributeNames);
+      updateSheetHeaderRow(converter.getHeaderMapCategories(), headerRowCategories, VariableConverter.reservedCategoryHeaders);
 
       converter.marshall(variable, headerRowVariables, headerRowCategories);
     }
@@ -76,10 +76,9 @@ public class ExcelValueTableWriter implements ValueTableWriter {
      * @param columnNames
      */
     private void updateSheetHeaderRow(Map<String, Integer> headerMap, Row headerRow, List<String> columnNames) {
-
       Cell headerCell;
       for(String reservedAttributeName : columnNames) {
-        if(headerMap.get(reservedAttributeName) == null) {
+        if(ExcelUtil.findNormalizedHeader(headerMap.keySet(), reservedAttributeName) == null) {
           headerMap.put(reservedAttributeName, Integer.valueOf(getLastCellNum(headerRow)));
           headerCell = headerRow.createCell(getLastCellNum(headerRow));
           headerCell.setCellValue(reservedAttributeName);

@@ -94,4 +94,31 @@ public class ExcelUtil {
     }
     return value;
   }
+
+  /**
+   * Find in user headers the given magma excel header.
+   * @param headers as defined by the user
+   * @param header
+   * @return null if not found
+   */
+  public static String findNormalizedHeader(final Iterable<String> headers, final String header) {
+    for(String userHeader : headers) {
+      if(normalizeHeader(userHeader).equalsIgnoreCase(normalizeHeader(header))) {
+        return userHeader;
+      }
+    }
+    return null;
+  }
+
+  /**
+   * Allow "Value Type" or "value_type" or "Value-Type" for "valueType".
+   * @param userHeader
+   * @return
+   */
+  private static String normalizeHeader(String userHeader) {
+    String h = userHeader.replace(" ", "");
+    h = h.replace("_", "");
+    h = h.replace("-", "");
+    return h;
+  }
 }
