@@ -9,7 +9,6 @@ import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
@@ -246,35 +245,19 @@ public class ExcelDatasource extends AbstractDatasource {
     return valueTablesMapOnInit.get(tableName);
   }
 
-  Sheet getVariablesSheet() {
+  public Sheet getVariablesSheet() {
     return variablesSheet;
   }
 
-  Sheet getCategoriesSheet() {
+  public Sheet getCategoriesSheet() {
     return categoriesSheet;
   }
 
-  CellStyle getExcelStyles(String styleName) {
-    return excelStyles.get(styleName);
-  }
-
-  static String getAttributeShortName(String attributeName) {
-    return attributeName.split(":")[0];
-  }
-
-  static Locale getAttributeLocale(String attributeName) {
-    String[] parsedAttributeName = attributeName.split(":");
-    if(parsedAttributeName.length > 1) {
-      return new Locale(parsedAttributeName[1]);
-    }
-    return null;
-  }
-
-  Set<String> getVariablesCustomAttributeNames() {
+  public Set<String> getVariablesCustomAttributeNames() {
     return getCustomAttributeNames(variablesSheet.getRow(0), variablesReservedAttributeNames);
   }
 
-  Set<String> getCategoriesCustomAttributeNames() {
+  public Set<String> getCategoriesCustomAttributeNames() {
     return getCustomAttributeNames(categoriesSheet.getRow(0), categoriesReservedAttributeNames);
   }
 
@@ -290,11 +273,11 @@ public class ExcelDatasource extends AbstractDatasource {
     return attributesNames;
   }
 
-  Map<String, Integer> getVariablesHeaderMap() {
+  public Map<String, Integer> getVariablesHeaderMap() {
     return getMapSheetHeader(variablesSheet.getRow(0));
   }
 
-  Map<String, Integer> getCategoriesHeaderMap() {
+  public Map<String, Integer> getCategoriesHeaderMap() {
     return getMapSheetHeader(categoriesSheet.getRow(0));
   }
 
@@ -360,5 +343,9 @@ public class ExcelDatasource extends AbstractDatasource {
 
   Timestamps getTimestamps() {
     return new ExcelTimestamps(excelFile);
+  }
+
+  public CellStyle getHeaderCellStyle() {
+    return excelStyles.get("headerCellStyle");
   }
 }
