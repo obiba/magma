@@ -1,5 +1,6 @@
 package org.obiba.magma.datasource.excel.support;
 
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
@@ -18,9 +19,46 @@ import org.obiba.magma.datasource.excel.ExcelValueTable;
 import org.obiba.magma.type.BooleanType;
 import org.obiba.magma.type.TextType;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 public class VariableConverter {
+
+  public static final String TABLE = "table";
+
+  public static final String NAME = "name";
+
+  public static final String VALUE_TYPE = "valueType";
+
+  public static final String ENTITY_TYPE = "entityType";
+
+  public static final String MIME_TYPE = "mimeType";
+
+  public static final String UNIT = "unit";
+
+  public static final String REPEATABLE = "repeatable";
+
+  public static final String OCCURRENCE_GROUP = "occurrenceGroup";
+
+  public static final String VARIABLE = "variable";
+
+  public static final String CODE = "code";
+
+  public static final String MISSING = "missing";
+
+  public static final List<String> reservedVariableHeaders = Lists.newArrayList(NAME, //
+  VALUE_TYPE, //
+  ENTITY_TYPE, //
+  MIME_TYPE, //
+  UNIT, //
+  REPEATABLE, //
+  OCCURRENCE_GROUP);
+
+  public static final List<String> reservedCategoryHeaders = Lists.newArrayList(NAME, //
+  TABLE, //
+  VARIABLE, //
+  CODE, //
+  MISSING);
 
   private Map<String, Integer> headerMapVariables;
 
@@ -58,21 +96,39 @@ public class VariableConverter {
   //
 
   public Variable unmarshall(Row variableRow) {
-    String name = getVariableCellValue(variableRow, "name");
-    String valueType = getVariableCellValue(variableRow, "valueType");
-    String entityType = getVariableCellValue(variableRow, "entityType");
-    String mimeType = getVariableCellValue(variableRow, "mimeType");
-    String unit = getVariableCellValue(variableRow, "unit");
-    String occurrenceGroup = getVariableCellValue(variableRow, "occurrenceGroup");
+    String name = getVariableCellValue(variableRow, NAME).trim();
+    String valueType = getVariableCellValue(variableRow, VALUE_TYPE).trim();
+    String entityType = getVariableCellValue(variableRow, ENTITY_TYPE).trim();
+    String mimeType = getVariableCellValue(variableRow, MIME_TYPE).trim();
+    String unit = getVariableCellValue(variableRow, UNIT).trim();
+    String occurrenceGroup = getVariableCellValue(variableRow, OCCURRENCE_GROUP).trim();
+    boolean repeatable = parseBoolean(getVariableCellValue(variableRow, REPEATABLE).trim());
 
-    Variable.Builder builder = Variable.Builder.newVariable(name, ValueType.Factory.forName(valueType), entityType).mimeType(mimeType).unit(unit).occurrenceGroup(occurrenceGroup);
-    Boolean repeatable = getVariableCellValue(variableRow, "repeatable") == "1";
+    // default values
+    if(valueType.length() == 0 || valueType.equalsIgnoreCase("string")) {
+      valueType = TextType.get().getName();
+    }
+    if(entityType.length() == 0) {
+      entityType = "Participant";
+    }
 
+    Variable.Builder builder = Variable.Builder.newVariable(name, ValueType.Factory.forName(valueType), entityType);
+
+    // more default values
+    if(mimeType.length() > 0) {
+      builder.mimeType(mimeType);
+    }
+    if(unit.length() > 0) {
+      builder.unit(unit);
+    }
+    if(occurrenceGroup.length() > 0) {
+      builder.occurrenceGroup(occurrenceGroup);
+    }
     if(repeatable) {
       builder.repeatable();
     }
 
-    unmarshallCustomAttributes("variable", name, variableRow, getHeaderMapVariables(), getAttributeNamesVariables(), builder);
+    unmarshallCustomAttributes(name, variableRow, getHeaderMapVariables(), getAttributeNamesVariables(), builder);
 
     unmarshallCategories(name, builder);
 
@@ -101,8 +157,8 @@ public class VariableConverter {
     int categoryRowCount = categoriesSheet.getPhysicalNumberOfRows();
     for(int x = 1; x < categoryRowCount; x++) {
       categoryRow = categoriesSheet.getRow(x);
-      categoryTable = getCategoryCellValue(categoryRow, "table");
-      categoryVariable = getCategoryCellValue(categoryRow, "variable");
+      categoryTable = getCategoryCellValue(categoryRow, TABLE);
+      categoryVariable = getCategoryCellValue(categoryRow, VARIABLE);
 
       if(categoryTable.equals(valueTable.getName()) && categoryVariable.equals(variableName)) {
         Category category = unmarshallCategory(categoryRow);
@@ -114,13 +170,20 @@ public class VariableConverter {
   }
 
   private Category unmarshallCategory(Row categoryRow) {
-    String categoryName = getCategoryCellValue(categoryRow, "name");
-    String categoryCode = getCategoryCellValue(categoryRow, "code");
-    boolean missing = parseBoolean(getCategoryCellValue(categoryRow, "missing"));
+    String name = getCategoryCellValue(categoryRow, NAME).trim();
+    String code = getCategoryCellValue(categoryRow, CODE).trim();
+    boolean missing = parseBoolean(getCategoryCellValue(categoryRow, MISSING).trim());
 
-    AttributeAwareBuilder<Category.Builder> categoryBuilder = Category.Builder.newCategory(categoryName).withCode(categoryCode).missing(missing);
-    unmarshallCustomAttributes("category", categoryName, categoryRow, getHeaderMapCategories(), getAttributeNamesCategories(), categoryBuilder);
-    return ((Category.Builder) categoryBuilder).build();
+    Category.Builder builder = Category.Builder.newCategory(name).missing(missing);
+
+    // default values
+    if(code.length() > 0) {
+      builder.withCode(code);
+    }
+
+    unmarshallCustomAttributes(name, categoryRow, getHeaderMapCategories(), getAttributeNamesCategories(), builder);
+
+    return ((Category.Builder) builder).build();
   }
 
   private boolean parseBoolean(String str) {
@@ -136,7 +199,7 @@ public class VariableConverter {
    * @param attributeNames
    * @param variableBuilder
    */
-  private void unmarshallCustomAttributes(String attributeAwareType, String attributeAwareName, Row attributesRow, Map<String, Integer> headerMap, Set<String> attributeNames, AttributeAwareBuilder<?> builder) {
+  private void unmarshallCustomAttributes(String attributeAwareName, Row attributesRow, Map<String, Integer> headerMap, Set<String> attributeNames, AttributeAwareBuilder<?> builder) {
     Locale attributeLocale;
     for(String attributeName : attributeNames) {
       String cellValueAsString = getCellValueAsString(attributesRow.getCell(headerMap.get(attributeName)));
@@ -149,8 +212,6 @@ public class VariableConverter {
         String attributeValue = cellValueAsString;
         builder.addAttribute(getAttributeShortName(attributeName), attributeValue, attributeLocale);
       } else {
-        // OPAL-173: removed attributes sheet
-        // ValueType attributeType = readCustomAttributeType(attributeAwareType, attributeAwareName, attributeName);
         ValueType attributeType = TextType.get();
         if(attributeType != null) {
           Value attributeValue = attributeType.valueOf(cellValueAsString);
@@ -169,16 +230,16 @@ public class VariableConverter {
   public Row marshall(Variable variable, Row headerRowVariables, Row headerRowCategories) {
     Row variableRow = getVariableRow(variable);
 
-    ExcelUtil.setCellValue(getVariableCell(variableRow, "table"), TextType.get(), valueTable.getName());
-    ExcelUtil.setCellValue(getVariableCell(variableRow, "name"), TextType.get(), variable.getName());
-    ExcelUtil.setCellValue(getVariableCell(variableRow, "mimeType"), TextType.get(), variable.getMimeType());
-    ExcelUtil.setCellValue(getVariableCell(variableRow, "occurrenceGroup"), TextType.get(), variable.getOccurrenceGroup());
-    ExcelUtil.setCellValue(getVariableCell(variableRow, "entityType"), TextType.get(), variable.getEntityType());
-    ExcelUtil.setCellValue(getVariableCell(variableRow, "unit"), TextType.get(), variable.getUnit());
-    ExcelUtil.setCellValue(getVariableCell(variableRow, "repeatable"), BooleanType.get(), variable.isRepeatable());
-    ExcelUtil.setCellValue(getVariableCell(variableRow, "valueType"), TextType.get(), variable.getValueType().getName());
+    ExcelUtil.setCellValue(getVariableCell(variableRow, TABLE), TextType.get(), valueTable.getName());
+    ExcelUtil.setCellValue(getVariableCell(variableRow, NAME), TextType.get(), variable.getName());
+    ExcelUtil.setCellValue(getVariableCell(variableRow, MIME_TYPE), TextType.get(), variable.getMimeType());
+    ExcelUtil.setCellValue(getVariableCell(variableRow, OCCURRENCE_GROUP), TextType.get(), variable.getOccurrenceGroup());
+    ExcelUtil.setCellValue(getVariableCell(variableRow, ENTITY_TYPE), TextType.get(), variable.getEntityType());
+    ExcelUtil.setCellValue(getVariableCell(variableRow, UNIT), TextType.get(), variable.getUnit());
+    ExcelUtil.setCellValue(getVariableCell(variableRow, REPEATABLE), BooleanType.get(), variable.isRepeatable());
+    ExcelUtil.setCellValue(getVariableCell(variableRow, VALUE_TYPE), TextType.get(), variable.getValueType().getName());
 
-    marshallCustomAttributes(variable, "variable", variable.getName(), variableRow, headerRowVariables, headerMapVariables);
+    marshallCustomAttributes(variable, variable.getName(), variableRow, headerRowVariables, headerMapVariables);
 
     for(Category category : variable.getCategories()) {
       marshallCategory(variable, category, headerRowCategories);
@@ -190,13 +251,13 @@ public class VariableConverter {
   private void marshallCategory(Variable variable, Category category, Row headerRowCategories) {
     Row categoryRow = getCategoryRow(variable, category);
 
-    ExcelUtil.setCellValue(getCategoryCell(categoryRow, "table"), TextType.get(), valueTable.getName());
-    ExcelUtil.setCellValue(getCategoryCell(categoryRow, "variable"), TextType.get(), variable.getName());
-    ExcelUtil.setCellValue(getCategoryCell(categoryRow, "name"), TextType.get(), category.getName());
-    ExcelUtil.setCellValue(getCategoryCell(categoryRow, "code"), TextType.get(), category.getCode());
-    ExcelUtil.setCellValue(getCategoryCell(categoryRow, "missing"), BooleanType.get(), category.isMissing());
+    ExcelUtil.setCellValue(getCategoryCell(categoryRow, TABLE), TextType.get(), valueTable.getName());
+    ExcelUtil.setCellValue(getCategoryCell(categoryRow, VARIABLE), TextType.get(), variable.getName());
+    ExcelUtil.setCellValue(getCategoryCell(categoryRow, NAME), TextType.get(), category.getName());
+    ExcelUtil.setCellValue(getCategoryCell(categoryRow, CODE), TextType.get(), category.getCode());
+    ExcelUtil.setCellValue(getCategoryCell(categoryRow, MISSING), BooleanType.get(), category.isMissing());
 
-    marshallCustomAttributes(category, "category", category.getName(), categoryRow, headerRowCategories, headerMapCategories);
+    marshallCustomAttributes(category, category.getName(), categoryRow, headerRowCategories, headerMapCategories);
   }
 
   /**
@@ -207,7 +268,7 @@ public class VariableConverter {
    * @param headerMap
    * @param attributesRow
    */
-  private void marshallCustomAttributes(AttributeAware attributeAware, String attributeAwareType, String attributeAwareName, Row attributesRow, Row headerRow, Map<String, Integer> headerMap) {
+  private void marshallCustomAttributes(AttributeAware attributeAware, String attributeAwareName, Row attributesRow, Row headerRow, Map<String, Integer> headerMap) {
     String customAttributeName;
     Locale customAttributeLocale;
     StringBuilder stringBuilder = new StringBuilder();
