@@ -19,6 +19,7 @@ import org.obiba.magma.datasource.excel.ExcelValueTable;
 import org.obiba.magma.type.BooleanType;
 import org.obiba.magma.type.TextType;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
@@ -87,7 +88,7 @@ public class VariableConverter {
    * @return
    */
   public boolean isVariableRow(Row variableRow) {
-    String table = getVariableCellValue(variableRow, "table");
+    String table = getVariableCellValue(variableRow, TABLE);
     return valueTable.getName().equals(table);
   }
 
@@ -351,8 +352,46 @@ public class VariableConverter {
     return row.getCell(getHeaderMapVariables().get(header), Row.CREATE_NULL_AS_BLANK);
   }
 
-  private String getVariableCellValue(Row row, String header) {
-    return getCellValueAsString(row.getCell(getHeaderMapVariables().get(header))).trim();
+  private String getVariableCellValue(Row row, final String header) {
+    Integer idx = getHeaderMapVariables().get(header);
+    if(idx == null && reservedVariableHeaders.contains(header)) {
+      String found = findNormalizedHeader(headerMapVariables.keySet(), header);
+      if(found != null) {
+        idx = headerMapVariables.get(found);
+      }
+    }
+    if(idx == null) {
+      // TODO
+    }
+    return getCellValueAsString(row.getCell(idx)).trim();
+  }
+
+  /**
+   * Find in user headers the given magma excel header.
+   * @param headers as defined by the user
+   * @param header
+   * @return null if not found
+   */
+  @VisibleForTesting
+  String findNormalizedHeader(final Iterable<String> headers, final String header) {
+    for(String userHeader : headers) {
+      if(normalizeHeader(userHeader).equalsIgnoreCase(header)) {
+        return userHeader;
+      }
+    }
+    return null;
+  }
+
+  /**
+   * Allow "Value Type" or "value_type" or "Value-Type" for "valueType".
+   * @param userHeader
+   * @return
+   */
+  private String normalizeHeader(String userHeader) {
+    String h = userHeader.replace(" ", "");
+    h = h.replace("_", "");
+    h = h.replace("-", "");
+    return h;
   }
 
   public Map<String, Integer> getHeaderMapVariables() {
@@ -370,7 +409,17 @@ public class VariableConverter {
   }
 
   private String getCategoryCellValue(Row row, String header) {
-    return getCellValueAsString(row.getCell(getHeaderMapCategories().get(header))).trim();
+    Integer idx = getHeaderMapCategories().get(header);
+    if(idx == null && reservedCategoryHeaders.contains(header)) {
+      String found = findNormalizedHeader(headerMapVariables.keySet(), header);
+      if(found != null) {
+        idx = headerMapVariables.get(found);
+      }
+    }
+    if(idx == null) {
+      // TODO
+    }
+    return getCellValueAsString(row.getCell(idx)).trim();
   }
 
   private Cell getCategoryCell(Row row, String header) {
