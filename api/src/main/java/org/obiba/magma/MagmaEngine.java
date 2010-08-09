@@ -100,13 +100,12 @@ public class MagmaEngine {
   }
 
   public boolean hasDatasource(final String name) {
-    Datasource found = Iterables.find(datasources, new Predicate<Datasource>() {
-      @Override
-      public boolean apply(Datasource input) {
-        return name.equals(input.getName());
+    for(Datasource d : datasources) {
+      if(d.getName().equals(name)) {
+        return true;
       }
-    });
-    return found != null;
+    }
+    return false;
   }
 
   public Datasource addDatasource(Datasource datasource) {
