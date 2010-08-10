@@ -41,6 +41,8 @@ public class CsvDatasource extends AbstractDatasource {
 
   private String characterSet = DEFAULT_CHARACTER_SET;
 
+  private int firstRow = 1;
+
   public CsvDatasource(String name) {
     super(name, "csv");
   }
@@ -145,7 +147,7 @@ public class CsvDatasource extends AbstractDatasource {
   }
 
   CSVReader getCsvReader(Reader reader) {
-    return new CSVReader(reader, separator.getCharacter(), quote.getCharacter());
+    return new CSVReader(reader, separator.getCharacter(), quote.getCharacter(), firstRow - 1);
   }
 
   Reader getReader(File file) {
@@ -178,6 +180,14 @@ public class CsvDatasource extends AbstractDatasource {
 
   public String getCharacterSet() {
     return characterSet;
+  }
+
+  public void setFirstRow(int firstRow) {
+    this.firstRow = firstRow;
+  }
+
+  public int getFirstRow() {
+    return firstRow;
   }
 
 }
