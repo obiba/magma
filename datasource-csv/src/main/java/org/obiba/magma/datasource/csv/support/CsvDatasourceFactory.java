@@ -14,12 +14,36 @@ public class CsvDatasourceFactory extends AbstractDatasourceFactory {
 
   private List<TableBundle> tables;
 
+  private String characterSet;
+
+  private String separator;
+
+  private String quote;
+
+  private int firstRow = 1;
+
   public void setBundle(File bundle) {
     this.bundle = bundle;
   }
 
   public void setTables(List<TableBundle> tables) {
     this.tables = tables;
+  }
+
+  public void setCharacterSet(String characterSet) {
+    this.characterSet = characterSet;
+  }
+
+  public void setSeparator(String separator) {
+    this.separator = separator;
+  }
+
+  public void setQuote(String quote) {
+    this.quote = quote;
+  }
+
+  public void setFirstRow(int firstRow) {
+    this.firstRow = firstRow;
   }
 
   public CsvDatasourceFactory addTable(File tableDirectory) {
@@ -58,6 +82,15 @@ public class CsvDatasourceFactory extends AbstractDatasourceFactory {
       datasource = new CsvDatasource(getName(), bundle);
     } else {
       datasource = new CsvDatasource(getName());
+    }
+    if(characterSet != null) {
+      datasource.setCharacterSet(characterSet);
+    }
+    if(quote != null) {
+      datasource.setQuote(Quote.fromString(quote));
+    }
+    if(separator != null) {
+      datasource.setSeparator(Separator.fromString(separator));
     }
 
     for(TableBundle tableBundle : getTables()) {

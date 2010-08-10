@@ -12,4 +12,13 @@ public enum Separator {
   public char getCharacter() {
     return separator;
   }
+
+  public static Separator fromString(String value) {
+    if(value != null && value.length() == 1) {
+      if(value.equals(";")) return SEMICOLON;
+      else if(value.equals(":")) return COLON;
+      else if(value.equals("\t")) return TAB;
+    }
+    return COMMA;
+  }
 }

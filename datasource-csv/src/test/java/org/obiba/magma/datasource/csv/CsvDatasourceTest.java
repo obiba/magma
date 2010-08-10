@@ -27,6 +27,8 @@ import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.ValueTableWriter.ValueSetWriter;
 import org.obiba.magma.ValueTableWriter.VariableWriter;
+import org.obiba.magma.datasource.csv.support.Quote;
+import org.obiba.magma.datasource.csv.support.Separator;
 import org.obiba.magma.support.VariableEntityBean;
 import org.obiba.magma.type.IntegerType;
 import org.obiba.magma.type.TextType;
@@ -47,6 +49,19 @@ public class CsvDatasourceTest {
   @After
   public void after() {
     MagmaEngine.get().shutdown();
+  }
+
+  @Test
+  public void testSeparators() {
+    Assert.assertEquals(Quote.SINGLE, Quote.fromString("'"));
+    Assert.assertEquals(Quote.DOUBLE, Quote.fromString("\""));
+    Assert.assertEquals(Quote.DOUBLE, Quote.fromString("|"));
+
+    Assert.assertEquals(Separator.COMMA, Separator.fromString(","));
+    Assert.assertEquals(Separator.SEMICOLON, Separator.fromString(";"));
+    Assert.assertEquals(Separator.COLON, Separator.fromString(":"));
+    Assert.assertEquals(Separator.TAB, Separator.fromString("\t"));
+    Assert.assertEquals(Separator.COMMA, Separator.fromString("|"));
   }
 
   @Test

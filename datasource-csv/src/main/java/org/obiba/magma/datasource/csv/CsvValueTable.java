@@ -108,7 +108,7 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
     if(indexEntry != null) {
       FileInputStream fis = null;
       try {
-        InputStreamReader fr = new InputStreamReader(fis = new FileInputStream(dataFile), CsvDatasource.UTF8);
+        InputStreamReader fr = new InputStreamReader(fis = new FileInputStream(dataFile), getCharacterSet());
         CSVReader csvReader = getCsvDatasource().getCsvReader(fr);
         skipSafely(fis, indexEntry.getStart());
         return new CsvValueSet(this, entity, dataHeaderMap, csvReader.readNext());
@@ -346,7 +346,7 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
       if(indexEntry != null) {
         FileInputStream fis = null;
         try {
-          InputStreamReader fr = new InputStreamReader(fis = new FileInputStream(variableFile), CsvDatasource.UTF8);
+          InputStreamReader fr = new InputStreamReader(fis = new FileInputStream(variableFile), getCharacterSet());
           CSVReader csvReader = getCsvDatasource().getCsvReader(fr);
           skipSafely(fis, indexEntry.getStart());
           String[] line = csvReader.readNext();
@@ -453,7 +453,7 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
       int length = 0;
       for(String word : line) {
         if(word != null) {
-          length += word.getBytes(CsvDatasource.UTF8).length + 2; // word + quote marks
+          length += word.getBytes(getCharacterSet()).length + 2; // word + quote marks
         }
       }
       length += line.length - 1; // commas
@@ -514,6 +514,10 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
    */
   private CsvDatasource getCsvDatasource() {
     return (CsvDatasource) getDatasource();
+  }
+
+  private String getCharacterSet() {
+    return getCsvDatasource().getCharacterSet();
   }
 
   /**

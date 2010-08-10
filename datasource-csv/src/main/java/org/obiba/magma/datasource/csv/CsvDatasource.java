@@ -29,7 +29,7 @@ public class CsvDatasource extends AbstractDatasource {
 
   public static final String DATA_FILE = "data.csv";
 
-  public static final String UTF8 = "UTF-8";
+  public static final String DEFAULT_CHARACTER_SET = "UTF-8";
 
   private Map<String, CsvValueTable> valueTables = new HashMap<String, CsvValueTable>();
 
@@ -38,6 +38,8 @@ public class CsvDatasource extends AbstractDatasource {
   private Separator separator = Separator.COMMA;
 
   private Quote quote = Quote.DOUBLE;
+
+  private String characterSet = DEFAULT_CHARACTER_SET;
 
   public CsvDatasource(String name) {
     super(name, "csv");
@@ -132,7 +134,7 @@ public class CsvDatasource extends AbstractDatasource {
 
   Writer getWriter(File file) {
     try {
-      return new OutputStreamWriter(new FileOutputStream(file, true), UTF8);
+      return new OutputStreamWriter(new FileOutputStream(file, true), getCharacterSet());
     } catch(IOException e) {
       throw new MagmaRuntimeException("Can not get csv writer. " + e);
     }
@@ -148,7 +150,7 @@ public class CsvDatasource extends AbstractDatasource {
 
   Reader getReader(File file) {
     try {
-      return new InputStreamReader(new FileInputStream(file), UTF8);
+      return new InputStreamReader(new FileInputStream(file), getCharacterSet());
     } catch(IOException e) {
       throw new MagmaRuntimeException("Can not get csv reader. " + e);
     }
@@ -168,6 +170,14 @@ public class CsvDatasource extends AbstractDatasource {
 
   public void setQuote(Quote quote) {
     this.quote = quote;
+  }
+
+  public void setCharacterSet(String characterSet) {
+    this.characterSet = characterSet;
+  }
+
+  public String getCharacterSet() {
+    return characterSet;
   }
 
 }
