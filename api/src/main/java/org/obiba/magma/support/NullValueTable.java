@@ -15,7 +15,7 @@ import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.VariableValueSource;
 
-public class NullValueTable extends AbstractAdaptable implements ValueTable {
+public class NullValueTable implements ValueTable {
   //
   // Constants
   //
