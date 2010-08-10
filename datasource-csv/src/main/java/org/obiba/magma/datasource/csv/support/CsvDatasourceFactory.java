@@ -92,6 +92,7 @@ public class CsvDatasourceFactory extends AbstractDatasourceFactory {
     if(separator != null) {
       datasource.setSeparator(Separator.fromString(separator));
     }
+    datasource.setFirstRow(firstRow);
 
     for(TableBundle tableBundle : getTables()) {
       datasource.addValueTable(tableBundle.getName(), tableBundle.getVariables(), tableBundle.getData());
