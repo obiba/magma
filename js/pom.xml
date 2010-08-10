@@ -20,11 +20,6 @@
     </dependency>
 
     <dependency>
-      <groupId>com.google.collections</groupId>
-      <artifactId>google-collections</artifactId>
-    </dependency>
-
-    <dependency>
       <groupId>rhino</groupId>
       <artifactId>js</artifactId>
       <version>1.7R2</version>
