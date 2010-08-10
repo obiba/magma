@@ -125,9 +125,9 @@ public class IncrementalWhereClause implements WhereClause {
       try {
         destinationTable = MagmaEngineTableResolver.valueOf(destinationTableName).resolveTable();
       } catch(NoSuchDatasourceException ex) {
-        destinationTable = NullValueTable.getInstance();
+        destinationTable = NullValueTable.get();
       } catch(NoSuchValueTableException ex) {
-        destinationTable = NullValueTable.getInstance();
+        destinationTable = NullValueTable.get();
       }
     }
     return destinationTable;
