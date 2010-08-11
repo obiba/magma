@@ -24,6 +24,7 @@ public class ScriptableVariable extends ScriptableObject {
 
   public ScriptableVariable(Scriptable scope, Variable variable) {
     super(scope, ScriptableObject.getClassPrototype(scope, VARIABLE_CLASS_NAME));
+    if(variable == null) throw new IllegalArgumentException("variable cannot be null");
     this.variable = variable;
   }
 

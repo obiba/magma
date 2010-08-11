@@ -9,8 +9,6 @@ import org.obiba.magma.support.Initialisables;
 
 public class HibernateDatasourceFactory extends AbstractDatasourceFactory implements Initialisable {
 
-  private String name;
-
   private SessionFactoryProvider sessionFactoryProvider;
 
   public HibernateDatasourceFactory() {
@@ -18,22 +16,21 @@ public class HibernateDatasourceFactory extends AbstractDatasourceFactory implem
   }
 
   public HibernateDatasourceFactory(String name, SessionFactoryProvider sessionFactoryProvider) {
-    this.name = name;
+    setName(name);
     this.sessionFactoryProvider = sessionFactoryProvider;
   }
 
-  public Datasource create() {
-    HibernateDatasource datasource = new HibernateDatasource(name, sessionFactoryProvider.getSessionFactory());
-    return (transformer != null) ? transformer.transform(datasource) : datasource;
+  public Datasource internalCreate() {
+    return new HibernateDatasource(getName(), sessionFactoryProvider.getSessionFactory());
+  }
+
+  public void setSessionFactoryProvider(SessionFactoryProvider sessionFactoryProvider) {
+    this.sessionFactoryProvider = sessionFactoryProvider;
   }
 
   @Override
   public void initialise() {
     Initialisables.initialise(sessionFactoryProvider);
-  }
-
-  public String getDatasourceName() {
-    return name;
   }
 
   public SessionFactoryProvider getSessionFactoryProvider() {

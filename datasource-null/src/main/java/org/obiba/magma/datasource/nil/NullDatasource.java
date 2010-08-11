@@ -35,7 +35,7 @@ public class NullDatasource extends AbstractDatasource {
     return new NullValueTableWriter();
   }
 
-  private class NullValueTableWriter implements ValueTableWriter {
+  private static class NullValueTableWriter implements ValueTableWriter {
 
     @Override
     public ValueSetWriter writeValueSet(VariableEntity entity) {

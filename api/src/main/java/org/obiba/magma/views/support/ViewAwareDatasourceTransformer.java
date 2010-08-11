@@ -5,6 +5,7 @@ import java.util.Set;
 
 import org.obiba.magma.Datasource;
 import org.obiba.magma.DatasourceTransformer;
+import org.obiba.magma.ValueTable;
 import org.obiba.magma.views.View;
 import org.obiba.magma.views.ViewAwareDatasource;
 
@@ -13,9 +14,12 @@ public class ViewAwareDatasourceTransformer implements DatasourceTransformer {
   // Instance Variables
   //
 
+  // TODO: this is no longer used. It must not be removed because some configuration files may still refer to this
+  // property.
+  @Deprecated
   private String name;
 
-  private Set<View> views;
+  private Set<ValueTable> views;
 
   //
   // DatasourceTransformer Methods
@@ -24,7 +28,7 @@ public class ViewAwareDatasourceTransformer implements DatasourceTransformer {
   @Override
   public Datasource transform(Datasource datasource) {
     if(views != null) {
-      return new ViewAwareDatasource((name != null ? name : datasource.getName()), datasource, views);
+      return new ViewAwareDatasource(datasource, views);
     }
     return datasource;
   }
@@ -38,7 +42,7 @@ public class ViewAwareDatasourceTransformer implements DatasourceTransformer {
   }
 
   public void setViews(Set<View> views) {
-    this.views = new HashSet<View>();
+    this.views = new HashSet<ValueTable>();
     if(views != null) {
       this.views.addAll(views);
     }

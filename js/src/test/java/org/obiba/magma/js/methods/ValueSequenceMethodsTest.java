@@ -11,13 +11,13 @@ import org.mozilla.javascript.FunctionObject;
 import org.mozilla.javascript.Scriptable;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueSequence;
-import org.obiba.magma.js.AbstractScriptableValueTest;
+import org.obiba.magma.js.AbstractJsTest;
 import org.obiba.magma.js.MagmaJsEvaluationRuntimeException;
 import org.obiba.magma.js.ScriptableValue;
 import org.obiba.magma.type.IntegerType;
 import org.obiba.magma.type.TextType;
 
-public class ValueSequenceMethodsTest extends AbstractScriptableValueTest {
+public class ValueSequenceMethodsTest extends AbstractJsTest {
 
   // first()
 

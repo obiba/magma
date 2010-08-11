@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
+import org.obiba.magma.type.AnyToTextValueConverter;
 import org.obiba.magma.type.BinaryType;
 import org.obiba.magma.type.BooleanType;
 import org.obiba.magma.type.DateTimeType;
@@ -12,6 +13,7 @@ import org.obiba.magma.type.DateType;
 import org.obiba.magma.type.DecimalType;
 import org.obiba.magma.type.IntegerType;
 import org.obiba.magma.type.LocaleType;
+import org.obiba.magma.type.TextToIntegerValueConverter;
 import org.obiba.magma.type.TextType;
 
 import com.google.common.base.Predicate;
@@ -20,6 +22,8 @@ import com.google.common.collect.Iterables;
 class ValueTypeFactory {
 
   private Set<ValueType> types = new HashSet<ValueType>();
+
+  private Set<ValueConverter> converters = new HashSet<ValueConverter>();
 
   ValueTypeFactory() {
     registerBuiltInTypes();
@@ -55,6 +59,20 @@ class ValueTypeFactory {
     return Collections.unmodifiableSet(types);
   }
 
+  ValueConverter converterFor(final ValueType from, final ValueType to) {
+    try {
+      return Iterables.find(converters, new Predicate<ValueConverter>() {
+
+        @Override
+        public boolean apply(ValueConverter input) {
+          return input.converts(from, to);
+        }
+      });
+    } catch(NoSuchElementException e) {
+      throw new IllegalArgumentException("No ValueConverter for " + from.getName() + "->" + to.getName());
+    }
+  }
+
   private void registerBuiltInTypes() {
     types.add(TextType.get());
     types.add(LocaleType.get());
@@ -64,6 +82,9 @@ class ValueTypeFactory {
     types.add(BinaryType.get());
     types.add(DateTimeType.get());
     types.add(DateType.get());
+
+    converters.add(new TextToIntegerValueConverter());
+    converters.add(new AnyToTextValueConverter());
   }
 
 }

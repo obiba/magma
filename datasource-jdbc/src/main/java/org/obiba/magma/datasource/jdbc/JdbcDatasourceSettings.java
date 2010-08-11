@@ -31,6 +31,8 @@ public class JdbcDatasourceSettings {
   public JdbcDatasourceSettings() {
     setMappedTables(null);
     setTableSettings(null);
+    defaultCreatedTimestampColumnName = null;
+    defaultUpdatedTimestampColumnName = null;
   }
 
   public JdbcDatasourceSettings(String defaultEntityType, Set<String> mappedTables, Set<JdbcValueTableSettings> tableSettings, boolean useMetadataTables) {
@@ -103,12 +105,24 @@ public class JdbcDatasourceSettings {
     return null;
   }
 
+  public void setUseMetadataTables(boolean useMetadataTables) {
+    this.useMetadataTables = useMetadataTables;
+  }
+
   public boolean useMetadataTables() {
     return useMetadataTables;
   }
 
+  public void setDefaultCreatedTimestampColumnName(String defaultCreatedTimestampColumnName) {
+    this.defaultCreatedTimestampColumnName = defaultCreatedTimestampColumnName;
+  }
+
   public String getDefaultCreatedTimestampColumnName() {
     return defaultCreatedTimestampColumnName;
+  }
+
+  public void setDefaultUpdatedTimestampColumnName(String defaultUpdatedTimestampColumnName) {
+    this.defaultUpdatedTimestampColumnName = defaultUpdatedTimestampColumnName;
   }
 
   public String getDefaultUpdatedTimestampColumnName() {

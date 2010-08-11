@@ -21,11 +21,11 @@ public class VariablesClause implements ListClause, Initialisable {
 
   private Set<Variable> variables;
 
-  private Set<VariableValueSource> variableValueSources;
+  private transient ValueTable valueTable;
 
-  private ValueTable valueTable;
+  private transient Set<VariableValueSource> variableValueSources;
 
-  private boolean initialised = false;
+  private transient boolean initialised = false;
 
   public void setVariables(Set<Variable> variables) {
     this.variables = new HashSet<Variable>();
@@ -64,6 +64,7 @@ public class VariablesClause implements ListClause, Initialisable {
 
   @Override
   public void setValueTable(ValueTable valueTable) {
+    if(valueTable == null) throw new IllegalArgumentException("valueTable cannot be null");
     this.valueTable = valueTable;
   }
 

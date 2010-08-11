@@ -4,11 +4,11 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
@@ -30,11 +30,11 @@ import org.obiba.magma.ValueTable;
 import org.obiba.magma.ValueTableWriter;
 import org.obiba.magma.datasource.excel.support.ExcelUtil;
 import org.obiba.magma.datasource.excel.support.NameConverter;
+import org.obiba.magma.datasource.excel.support.VariableConverter;
 import org.obiba.magma.support.AbstractDatasource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
 /**
@@ -43,12 +43,6 @@ import com.google.common.collect.Sets;
 public class ExcelDatasource extends AbstractDatasource {
 
   private static final Logger log = LoggerFactory.getLogger(ExcelDatasource.class);
-
-  public static final List<String> variablesReservedAttributeNames = Lists.newArrayList("table", "name", "valueType", "entityType", "mimeType", "unit", "occurrenceGroup", "repeatable");
-
-  public static final List<String> categoriesReservedAttributeNames = Lists.newArrayList("table", "variable", "name", "code", "missing");
-
-  public static final List<String> attributesReservedAttributeNames = Lists.newArrayList("table", "attributeAwareType", "attributeAware", "attribute", "valueType");
 
   public static final Set<String> sheetReservedNames = Sets.newHashSet(new String[] { "Variables", "Categories", "Help" });
 
@@ -61,6 +55,8 @@ public class ExcelDatasource extends AbstractDatasource {
   private File excelFile;
 
   private OutputStream excelOutput;
+
+  private InputStream excelInput;
 
   private Map<String, CellStyle> excelStyles;
 
@@ -87,6 +83,24 @@ public class ExcelDatasource extends AbstractDatasource {
     this.excelOutput = output;
   }
 
+  /**
+   * Excel workbook will be read from input stream.
+   * @param name
+   * @param input
+   */
+  public ExcelDatasource(String name, InputStream input) {
+    super(name, "excel");
+    this.excelInput = input;
+  }
+
+  /**
+   * Set the output stream to which the Excel workbook will be persisted at datasource disposal.
+   * @param excelOutput
+   */
+  public void setExcelOutput(OutputStream excelOutput) {
+    this.excelOutput = excelOutput;
+  }
+
   public ValueTableWriter createWriter(String name, String entityType) {
     ExcelValueTable valueTable = null;
     if(hasValueTable(name)) {
@@ -100,26 +114,9 @@ public class ExcelDatasource extends AbstractDatasource {
   @Override
   protected void onInitialise() {
     if(excelFile != null) {
-      if(excelFile.exists()) {
-        try {
-          // WorkbookFactory will close the stream by itself
-          // This will create the proper type of Workbook (HSSF vs. XSSF)
-          excelWorkbook = WorkbookFactory.create(new FileInputStream(excelFile));
-        } catch(IOException e) {
-          throw new MagmaRuntimeException("Exception reading excel spreadsheet " + excelFile.getName(), e);
-        } catch(InvalidFormatException e) {
-          throw new MagmaRuntimeException("Invalid excel spreadsheet format " + excelFile.getName(), e);
-        }
-      } else {
-        if(excelFile.getName().endsWith("xls")) {
-          // Excel 97 format. Supports up to 256 columns only.
-          log.warn("Creating an ExcelDatasource using Excel 97 format which only supports 256 columns. This may not be sufficient for large amounts of variables. Specify a filename with an extension other than 'xls' to use Excel 2007 format.");
-          excelWorkbook = new HSSFWorkbook();
-        } else {
-          // Create a XSSFWorkbook to support more than 256 columns and 64K rows.
-          excelWorkbook = new XSSFWorkbook();
-        }
-      }
+      createWorbookFromFile();
+    } else if(excelInput != null) {
+      createWorkbookFromInputStream();
     } else {
       // Create a XSSFWorkbook that will be written in output stream
       excelWorkbook = new XSSFWorkbook();
@@ -129,6 +126,39 @@ public class ExcelDatasource extends AbstractDatasource {
     categoriesSheet = createSheetIfNotExist("Categories");
 
     createExcelStyles();
+  }
+
+  private void createWorbookFromFile() {
+    if(excelFile.exists()) {
+      try {
+        // WorkbookFactory will close the stream by itself
+        // This will create the proper type of Workbook (HSSF vs. XSSF)
+        excelWorkbook = WorkbookFactory.create(new FileInputStream(excelFile));
+      } catch(IOException e) {
+        throw new MagmaRuntimeException("Exception reading excel spreadsheet " + excelFile.getName(), e);
+      } catch(InvalidFormatException e) {
+        throw new MagmaRuntimeException("Invalid excel spreadsheet format " + excelFile.getName(), e);
+      }
+    } else {
+      if(excelFile.getName().endsWith("xls")) {
+        // Excel 97 format. Supports up to 256 columns only.
+        log.warn("Creating an ExcelDatasource using Excel 97 format which only supports 256 columns. This may not be sufficient for large amounts of variables. Specify a filename with an extension other than 'xls' to use Excel 2007 format.");
+        excelWorkbook = new HSSFWorkbook();
+      } else {
+        // Create a XSSFWorkbook to support more than 256 columns and 64K rows.
+        excelWorkbook = new XSSFWorkbook();
+      }
+    }
+  }
+
+  private void createWorkbookFromInputStream() {
+    try {
+      excelWorkbook = WorkbookFactory.create(excelInput);
+    } catch(InvalidFormatException e) {
+      throw new MagmaRuntimeException("Invalid excel spreadsheet format from input stream.");
+    } catch(IOException e) {
+      throw new MagmaRuntimeException("Exception reading excel spreadsheet from input stream.");
+    }
   }
 
   /**
@@ -150,7 +180,7 @@ public class ExcelDatasource extends AbstractDatasource {
 
   @Override
   protected void onDispose() {
-    // Write the workbook (datasource) to file.
+    // Write the workbook (datasource) to file/outputstream if any of them is defined
     OutputStream out = null;
     try {
       if(excelFile != null) {
@@ -158,7 +188,9 @@ public class ExcelDatasource extends AbstractDatasource {
       } else {
         out = excelOutput;
       }
-      writeWorkbook(out);
+      if(out != null) {
+        writeWorkbook(out);
+      }
     } catch(Exception e) {
       throw new MagmaRuntimeException("Could not write to excel output stream", e);
     } finally {
@@ -181,9 +213,14 @@ public class ExcelDatasource extends AbstractDatasource {
       if(headerMapVariables != null) {
         for(int i = 1; i < variablesSheet.getPhysicalNumberOfRows(); i++) {
           Row variableRow = variablesSheet.getRow(i);
-          String tableName = ExcelUtil.getCellValueAsString(variableRow.getCell(headerMapVariables.get("table")));
+          String tableHeader = ExcelUtil.findNormalizedHeader(headerMapVariables.keySet(), VariableConverter.TABLE);
+          String tableName = ExcelUtil.getCellValueAsString(variableRow.getCell(headerMapVariables.get(tableHeader)));
           if(!valueTablesMapOnInit.containsKey(tableName)) {
-            String entityType = ExcelUtil.getCellValueAsString(variableRow.getCell(headerMapVariables.get("entityType")));
+            String entityTypeHeader = ExcelUtil.findNormalizedHeader(headerMapVariables.keySet(), VariableConverter.ENTITY_TYPE);
+            String entityType = "Participant";
+            if(entityTypeHeader != null) {
+              entityType = ExcelUtil.getCellValueAsString(variableRow.getCell(headerMapVariables.get(entityTypeHeader)));
+            }
             valueTablesMapOnInit.put(tableName, new ExcelValueTable(this, tableName, entityType));
             sheetNames.add(getSheetName(tableName));
           }
@@ -207,55 +244,39 @@ public class ExcelDatasource extends AbstractDatasource {
     return valueTablesMapOnInit.get(tableName);
   }
 
-  Sheet getVariablesSheet() {
+  public Sheet getVariablesSheet() {
     return variablesSheet;
   }
 
-  Sheet getCategoriesSheet() {
+  public Sheet getCategoriesSheet() {
     return categoriesSheet;
   }
 
-  CellStyle getExcelStyles(String styleName) {
-    return excelStyles.get(styleName);
+  public Set<String> getVariablesCustomAttributeNames() {
+    return getCustomAttributeNames(variablesSheet.getRow(0), VariableConverter.reservedVariableHeaders);
   }
 
-  static String getAttributeShortName(String attributeName) {
-    return attributeName.split(":")[0];
-  }
-
-  static Locale getAttributeLocale(String attributeName) {
-    String[] parsedAttributeName = attributeName.split(":");
-    if(parsedAttributeName.length > 1) {
-      return new Locale(parsedAttributeName[1]);
-    }
-    return null;
-  }
-
-  Set<String> getVariablesCustomAttributeNames() {
-    return getCustomAttributeNames(variablesSheet.getRow(0), variablesReservedAttributeNames);
-  }
-
-  Set<String> getCategoriesCustomAttributeNames() {
-    return getCustomAttributeNames(categoriesSheet.getRow(0), categoriesReservedAttributeNames);
+  public Set<String> getCategoriesCustomAttributeNames() {
+    return getCustomAttributeNames(categoriesSheet.getRow(0), VariableConverter.reservedCategoryHeaders);
   }
 
   private Set<String> getCustomAttributeNames(Row rowHeader, List<String> reservedAttributeNames) {
     Set<String> attributesNames = new HashSet<String>();
     int cellCount = rowHeader.getPhysicalNumberOfCells();
     for(int i = 0; i < cellCount; i++) {
-      String attributeName = ExcelUtil.getCellValueAsString(rowHeader.getCell(i));
-      if(!reservedAttributeNames.contains(attributeName)) {
+      String attributeName = ExcelUtil.getCellValueAsString(rowHeader.getCell(i)).trim();
+      if(ExcelUtil.findNormalizedHeader(reservedAttributeNames, attributeName) == null) {
         attributesNames.add(attributeName);
       }
     }
     return attributesNames;
   }
 
-  Map<String, Integer> getVariablesHeaderMap() {
+  public Map<String, Integer> getVariablesHeaderMap() {
     return getMapSheetHeader(variablesSheet.getRow(0));
   }
 
-  Map<String, Integer> getCategoriesHeaderMap() {
+  public Map<String, Integer> getCategoriesHeaderMap() {
     return getMapSheetHeader(categoriesSheet.getRow(0));
   }
 
@@ -268,7 +289,7 @@ public class ExcelDatasource extends AbstractDatasource {
 
       for(int i = 0; i < cellCount; i++) {
         cell = rowHeader.getCell(i);
-        headerMap.put(cell.getStringCellValue(), i);
+        headerMap.put(cell.getStringCellValue().trim(), i);
       }
     }
     return headerMap;
@@ -321,5 +342,9 @@ public class ExcelDatasource extends AbstractDatasource {
 
   Timestamps getTimestamps() {
     return new ExcelTimestamps(excelFile);
+  }
+
+  public CellStyle getHeaderCellStyle() {
+    return excelStyles.get("headerCellStyle");
   }
 }

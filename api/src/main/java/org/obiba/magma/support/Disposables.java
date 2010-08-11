@@ -17,9 +17,19 @@ public final class Disposables {
     }
   }
 
+  public static final void silentlyDispose(final Object... disposable) {
+    try {
+      dispose(disposable);
+    } catch(RuntimeException e) {
+      log.warn("Ignoring exception during diposable.dispose().", e);
+    }
+  }
+
   public static final void dispose(final Disposable disposable) {
     try {
-      disposable.dispose();
+      if(disposable != null) {
+        disposable.dispose();
+      }
     } catch(MagmaRuntimeException e) {
       throw e;
     } catch(RuntimeException e) {
@@ -28,7 +38,7 @@ public final class Disposables {
   }
 
   public static final void dispose(final Object disposable) {
-    if(disposable instanceof Disposable) {
+    if(disposable != null && disposable instanceof Disposable) {
       dispose((Disposable) disposable);
     }
   }

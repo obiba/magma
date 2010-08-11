@@ -13,23 +13,23 @@ import org.obiba.magma.NoSuchValueTableException;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.ValueTableWriter;
+import org.obiba.magma.support.Disposables;
+import org.obiba.magma.support.Initialisables;
 
 public class ViewAwareDatasource implements Datasource {
   //
   // Instance Variables
   //
 
-  private String name;
-
   private Datasource wrappedDatasource;
 
-  private Set<View> views;
+  private Set<ValueTable> views;
 
   //
   // Constructors
   //
 
-  public ViewAwareDatasource(String name, Datasource datasource, Set<View> views) {
+  public ViewAwareDatasource(Datasource datasource, Set<ValueTable> views) {
     if(views == null) {
       throw new IllegalArgumentException("Null views");
     }
@@ -37,13 +37,10 @@ public class ViewAwareDatasource implements Datasource {
       throw new IllegalArgumentException("Empty views");
     }
 
-    this.name = name;
     this.wrappedDatasource = datasource;
 
-    this.views = new HashSet<View>(views);
-    for(View view : views) {
-      view.setDatasource(this);
-    }
+    this.views = new HashSet<ValueTable>(views);
+    this.views.addAll(views);
   }
 
   //
@@ -52,21 +49,25 @@ public class ViewAwareDatasource implements Datasource {
 
   public void initialise() {
     // Initialize the wrapped datasource.
-    wrappedDatasource.initialise();
+    Initialisables.initialise(wrappedDatasource);
 
     // Initialise the views.
-    for(View view : views) {
-      view.initialise();
+    for(ValueTable view : views) {
+      if(view instanceof View) {
+        ((View) view).setDatasource(this);
+      }
+      Initialisables.initialise(view);
     }
   }
 
   public void dispose() {
     // Dispose of the wrapped datasource.
-    wrappedDatasource.dispose();
+    Disposables.dispose(wrappedDatasource);
+    Disposables.dispose(views);
   }
 
   public ValueTableWriter createWriter(String tableName, String entityType) {
-    for(View view : views) {
+    for(ValueTable view : views) {
       if(view.getName().equals(tableName)) {
         throw new UnsupportedOperationException("Cannot write to a View");
       }
@@ -75,7 +76,7 @@ public class ViewAwareDatasource implements Datasource {
   }
 
   public String getName() {
-    return name;
+    return wrappedDatasource.getName();
   }
 
   public String getType() {
@@ -83,17 +84,17 @@ public class ViewAwareDatasource implements Datasource {
   }
 
   public ValueTable getValueTable(String name) throws NoSuchValueTableException {
-    for(View view : views) {
+    for(ValueTable view : views) {
       if(view.getName().equals(name)) {
         return view;
       }
     }
-    return wrappedDatasource.getValueTable(name);
+    return this.wrappedDatasource.getValueTable(name);
   }
 
   public Set<ValueTable> getValueTables() {
     Set<ValueTable> valueTables = new HashSet<ValueTable>();
-    valueTables.addAll(wrappedDatasource.getValueTables());
+    valueTables.addAll(getWrappedTables());
     valueTables.addAll(views);
 
     return valueTables;
@@ -101,7 +102,7 @@ public class ViewAwareDatasource implements Datasource {
 
   @Override
   public boolean hasValueTable(String name) {
-    for(View view : views) {
+    for(ValueTable view : views) {
       if(view.getName().equals(name)) {
         return true;
       }
@@ -161,8 +162,16 @@ public class ViewAwareDatasource implements Datasource {
   // Methods
   //
 
-  public Set<View> getViews() {
+  public Set<ValueTable> getViews() {
     return Collections.unmodifiableSet(views);
   }
 
+  public void addView(ValueTable table) {
+    Initialisables.initialise(table);
+    views.add(table);
+  }
+
+  private Set<ValueTable> getWrappedTables() {
+    return wrappedDatasource.getValueTables();
+  }
 }

@@ -22,6 +22,7 @@ public class ScriptableVariableMethods {
 
   public static ScriptableValue name(Context ctx, Scriptable thisObj, Object[] args, Function funObj) {
     ScriptableVariable sv = (ScriptableVariable) thisObj;
+    if(sv == null) throw new IllegalArgumentException("thisObj cannot be null");
     return new ScriptableValue(thisObj, TextType.get().valueOf(sv.getVariable().getName()));
   }
 

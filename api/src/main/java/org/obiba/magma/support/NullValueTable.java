@@ -1,8 +1,10 @@
 package org.obiba.magma.support;
 
+import java.lang.ref.WeakReference;
 import java.util.Set;
 
 import org.obiba.magma.Datasource;
+import org.obiba.magma.MagmaEngine;
 import org.obiba.magma.NoSuchValueSetException;
 import org.obiba.magma.NoSuchVariableException;
 import org.obiba.magma.Timestamps;
@@ -18,7 +20,7 @@ public class NullValueTable implements ValueTable {
   // Constants
   //
 
-  private static final NullValueTable INSTANCE = new NullValueTable();
+  private static WeakReference<NullValueTable> instance = MagmaEngine.get().registerInstance(new NullValueTable());
 
   //
   // Constructors
@@ -91,7 +93,10 @@ public class NullValueTable implements ValueTable {
   // Methods
   //
 
-  public static NullValueTable getInstance() {
-    return INSTANCE;
+  public static NullValueTable get() {
+    if(instance == null || instance.get() == null) {
+      instance = MagmaEngine.get().registerInstance(new NullValueTable());
+    }
+    return instance.get();
   }
 }

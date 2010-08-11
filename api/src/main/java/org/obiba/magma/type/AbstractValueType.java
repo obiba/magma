@@ -4,8 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.obiba.magma.Value;
+import org.obiba.magma.ValueConverter;
 import org.obiba.magma.ValueSequence;
 import org.obiba.magma.ValueType;
+
+import com.google.common.base.Function;
+import com.google.common.collect.Iterables;
 
 public abstract class AbstractValueType implements ValueType {
 
@@ -63,6 +67,29 @@ public abstract class AbstractValueType implements ValueType {
   }
 
   @Override
+  public Value convert(Value value) {
+    if(value.getValueType() == this) {
+      return value;
+    }
+    if(value.isNull()) {
+      return value.isSequence() ? nullSequence() : nullValue();
+    }
+    final ValueConverter converter = Factory.conveterFor(value.getValueType(), this);
+    if(value.isSequence()) {
+      return sequenceOf(Iterables.transform(value.asSequence().getValue(), new Function<Value, Value>() {
+
+        @Override
+        public Value apply(Value from) {
+          return converter.convert(from, AbstractValueType.this);
+        }
+
+      }));
+    } else {
+      return converter.convert(value, this);
+    }
+  }
+
+  @Override
   public String toString(Value value) {
     return value.isNull() ? null : (value.isSequence() ? toString(value.asSequence()) : toString(value.getValue()));
   }
@@ -100,5 +127,4 @@ public abstract class AbstractValueType implements ValueType {
   protected String escapeAndQuoteIfRequired(String value) {
     return value;
   }
-
 }

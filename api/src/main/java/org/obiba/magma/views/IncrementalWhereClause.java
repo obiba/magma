@@ -8,6 +8,7 @@ import org.obiba.magma.ValueSet;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.support.MagmaEngineTableResolver;
 import org.obiba.magma.support.NullValueTable;
+import org.obiba.magma.type.DateTimeType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -124,9 +125,9 @@ public class IncrementalWhereClause implements WhereClause {
       try {
         destinationTable = MagmaEngineTableResolver.valueOf(destinationTableName).resolveTable();
       } catch(NoSuchDatasourceException ex) {
-        destinationTable = NullValueTable.getInstance();
+        destinationTable = NullValueTable.get();
       } catch(NoSuchValueTableException ex) {
-        destinationTable = NullValueTable.getInstance();
+        destinationTable = NullValueTable.get();
       }
     }
     return destinationTable;
@@ -151,8 +152,8 @@ public class IncrementalWhereClause implements WhereClause {
    */
   @VisibleForTesting
   boolean laterThan(Timestamps ts1, Timestamps ts2) {
-    Value u1 = ts1 != null ? ts1.getLastUpdate() : null;
-    Value u2 = ts2 != null ? ts2.getLastUpdate() : null;
+    Value u1 = ts1 != null ? ts1.getLastUpdate() : DateTimeType.get().nullValue();
+    Value u2 = ts2 != null ? ts2.getLastUpdate() : DateTimeType.get().nullValue();
     log.debug("source.updated {} destination.updated {}", u1, u2);
     return (u1.isNull() || u2.isNull() || u1.compareTo(u2) > 0);
   }

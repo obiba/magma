@@ -5,14 +5,34 @@ public abstract class AbstractDatasourceFactory implements DatasourceFactory {
   // Instance Variables
   //
 
-  protected DatasourceTransformer transformer;
+  private DatasourceTransformer transformer;
+
+  private String name;
+
+  protected abstract Datasource internalCreate();
 
   //
   // DatasourceFactory Methods
   //
 
-  public abstract Datasource create();
+  @Override
+  public void setName(String name) {
+    if(name == null) throw new IllegalArgumentException("Datasource name cannot be null.");
+    this.name = name;
+  }
 
+  @Override
+  public String getName() {
+    return this.name;
+  }
+
+  @Override
+  public Datasource create() {
+    Datasource datasource = internalCreate();
+    return (transformer != null) ? transformer.transform(datasource) : datasource;
+  }
+
+  @Override
   public void setDatasourceTransformer(DatasourceTransformer transformer) {
     this.transformer = transformer;
   }

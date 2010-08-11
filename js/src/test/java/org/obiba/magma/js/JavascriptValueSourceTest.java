@@ -15,10 +15,7 @@ public class JavascriptValueSourceTest extends AbstractJsTest {
 
   @Test
   public void testSimpleScript() {
-    JavascriptValueSource source = new JavascriptValueSource();
-    source.setValueType(DecimalType.get());
-    source.setScript("1;");
-
+    JavascriptValueSource source = new JavascriptValueSource(DecimalType.get(), "1");
     source.initialise();
 
     Value value = source.getValue(null);
@@ -27,9 +24,7 @@ public class JavascriptValueSourceTest extends AbstractJsTest {
 
   @Test
   public void testEngineMethod() {
-    JavascriptValueSource source = new JavascriptValueSource();
-    source.setValueType(IntegerType.get());
-    source.setScript("now()");
+    JavascriptValueSource source = new JavascriptValueSource(DateTimeType.get(), "now()");
     source.initialise();
 
     Value value = source.getValue(null);
@@ -45,10 +40,9 @@ public class JavascriptValueSourceTest extends AbstractJsTest {
 
   @Test
   public void testCompileError() {
-    JavascriptValueSource source = new JavascriptValueSource();
-    source.setValueType(IntegerType.get());
     // Error is on second line of script
-    source.setScript("var i = 1+1;\nERROR!");
+    String script = "var i = 1+1;\nERROR!";
+    JavascriptValueSource source = new JavascriptValueSource(IntegerType.get(), script);
     source.setScriptName("Bogus");
     try {
       source.initialise();

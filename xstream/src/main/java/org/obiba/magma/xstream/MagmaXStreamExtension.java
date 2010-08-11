@@ -8,9 +8,9 @@ import com.google.common.collect.ImmutableMap;
 
 public class MagmaXStreamExtension implements MagmaEngineExtension {
 
-  private XStreamFactory currentFactory = new DefaultXStreamFactory();
+  private transient XStreamFactory currentFactory = new DefaultXStreamFactory();
 
-  private Map<String, ? extends XStreamFactory> compatibleFactories = ImmutableMap.of("1", currentFactory);
+  private transient Map<String, ? extends XStreamFactory> compatibleFactories = ImmutableMap.of("1", currentFactory);
 
   @Override
   public String getName() {

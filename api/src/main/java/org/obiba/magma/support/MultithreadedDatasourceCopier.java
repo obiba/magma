@@ -191,7 +191,7 @@ public class MultithreadedDatasourceCopier {
     }
   }
 
-  private class VariableEntityValues {
+  private static class VariableEntityValues {
 
     private final ValueSet valueSet;
 

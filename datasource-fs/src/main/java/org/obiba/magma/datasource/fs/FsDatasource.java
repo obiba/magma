@@ -71,6 +71,10 @@ public class FsDatasource extends AbstractDatasource {
     this.datasourceArchive = new File(outputFile);
   }
 
+  public void setEncryptionStrategy(DatasourceEncryptionStrategy datasourceEncryptionStrategy) {
+    this.datasourceEncryptionStrategy = datasourceEncryptionStrategy;
+  }
+
   @Override
   protected void onInitialise() {
 

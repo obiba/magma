@@ -28,7 +28,7 @@ class JoinTimestamps implements Timestamps {
         if(tableValueSet != null) {
           return table.getTimestamps(tableValueSet);
         } else {
-          return NullTimestamps.INSTANCE;
+          return NullTimestamps.get();
         }
       }
 

@@ -12,4 +12,11 @@ public enum Quote {
   public char getCharacter() {
     return quote;
   }
+
+  public static Quote fromString(String value) {
+    if(value != null && value.length() == 1) {
+      if(value.equals("'")) return SINGLE;
+    }
+    return DOUBLE;
+  }
 }

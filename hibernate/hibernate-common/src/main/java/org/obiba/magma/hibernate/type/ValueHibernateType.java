@@ -19,6 +19,12 @@ import org.obiba.magma.Value;
 import org.obiba.magma.ValueType;
 
 /**
+ * A Hibernate Type for persisting {@code Value} instances. The strategy uses 3 columns:
+ * <ul>
+ * <li>value_type: stores the name of the ValueType</li>
+ * <li>is_sequence: stores true when the {@code Value} is a {@code ValueSequence},false otherwise.</li>
+ * <li>value: stores the value returned by {@code value.toString()}</li>
+ * </ul>
  */
 public class ValueHibernateType extends AbstractType {
 
@@ -52,7 +58,13 @@ public class ValueHibernateType extends AbstractType {
 
   @Override
   public Object nullSafeGet(ResultSet rs, String[] names, SessionImplementor session, Object owner) throws HibernateException, SQLException {
-    ValueType valueType = ValueType.Factory.forName(rs.getString(names[0]));
+    String valueTypeName = rs.getString(names[0]);
+    // Even when the column is NOT NULL, a SELECT statement can return NULL (using a left join for example).
+    // When this column is null, we cannot construct a valid {@code Value} instance, so this method returns null
+    if(valueTypeName == null) {
+      return null;
+    }
+    ValueType valueType = ValueType.Factory.forName(valueTypeName);
     boolean isSequence = rs.getBoolean(names[1]);
     String stringValue = rs.getString(names[2]);
     return isSequence ? valueType.sequenceOf(stringValue) : valueType.valueOf(stringValue);

@@ -7,15 +7,27 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 public class SpringBeanSessionFactoryProvider implements SessionFactoryProvider {
 
-  @Autowired
-  private BeanFactory beanFactory;
-
   private String beanName;
+
+  @Autowired
+  private transient BeanFactory beanFactory;
+
+  // Public ctor for XStream de-ser.
+  public SpringBeanSessionFactoryProvider() {
+
+  }
+
+  public SpringBeanSessionFactoryProvider(BeanFactory beanFactory, String beanName) {
+    if(beanFactory == null) throw new IllegalArgumentException("beanFactory cannot be null");
+    if(beanName == null) throw new IllegalArgumentException("beanName cannot be null");
+    this.beanFactory = beanFactory;
+    this.beanName = beanName;
+  }
 
   @Override
   public SessionFactory getSessionFactory() {
-    if(beanFactory == null) throw new NullPointerException("beanFactory cannot be null");
-    if(beanName == null) throw new NullPointerException("beanName cannot be null");
+    if(beanFactory == null) throw new IllegalArgumentException("beanFactory cannot be null");
+    if(beanName == null) throw new IllegalArgumentException("beanName cannot be null");
     return (SessionFactory) beanFactory.getBean(beanName, SessionFactory.class);
   }
 
@@ -25,6 +37,10 @@ public class SpringBeanSessionFactoryProvider implements SessionFactoryProvider 
 
   public void setBeanFactory(BeanFactory beanFactory) {
     this.beanFactory = beanFactory;
+  }
+
+  public void setBeanName(String beanName) {
+    this.beanName = beanName;
   }
 
   public String getBeanName() {

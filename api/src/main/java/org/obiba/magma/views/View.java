@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.obiba.magma.Datasource;
+import org.obiba.magma.Disposable;
 import org.obiba.magma.Initialisable;
 import org.obiba.magma.NoSuchValueSetException;
 import org.obiba.magma.NoSuchVariableException;
@@ -17,6 +18,7 @@ import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.VariableValueSource;
 import org.obiba.magma.support.AbstractValueTableWrapper;
+import org.obiba.magma.support.Disposables;
 import org.obiba.magma.support.Initialisables;
 import org.obiba.magma.views.support.AllClause;
 import org.obiba.magma.views.support.NoneClause;
@@ -25,12 +27,10 @@ import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 
-public class View extends AbstractValueTableWrapper implements Initialisable {
+public class View extends AbstractValueTableWrapper implements Initialisable, Disposable {
   //
   // Instance Variables
   //
-
-  private ViewAwareDatasource viewDatasource;
 
   private String name;
 
@@ -42,6 +42,8 @@ public class View extends AbstractValueTableWrapper implements Initialisable {
 
   /** A list of derived variables. Mutually exclusive with "select". */
   private ListClause variables;
+
+  private transient ViewAwareDatasource viewDatasource;
 
   //
   // Constructors
@@ -93,6 +95,15 @@ public class View extends AbstractValueTableWrapper implements Initialisable {
       setListClause(new NoneClause());
       setSelectClause(new AllClause());
     }
+  }
+
+  @Override
+  public void dispose() {
+    Disposables.silentlyDispose(from, select, where, variables);
+  }
+
+  public ListClause getListClause() {
+    return variables;
   }
 
   /**
@@ -252,8 +263,9 @@ public class View extends AbstractValueTableWrapper implements Initialisable {
     Set<VariableEntity> viewEntities = new HashSet<VariableEntity>();
     for(VariableEntity entity : super.getVariableEntities()) {
       // Tests the where clause if any
-      if(hasValueSet(entity)) {
-        viewEntities.add(getVariableEntityTransformer().apply(entity));
+      VariableEntity viewEntity = getVariableEntityTransformer().apply(entity);
+      if(hasValueSet(viewEntity)) {
+        viewEntities.add(viewEntity);
       }
     }
     return viewEntities;

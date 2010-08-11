@@ -17,12 +17,14 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.obiba.magma.Category;
 import org.obiba.magma.Datasource;
 import org.obiba.magma.MagmaEngine;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.ValueTableWriter;
 import org.obiba.magma.Variable;
 import org.obiba.magma.ValueTableWriter.VariableWriter;
+import org.obiba.magma.type.IntegerType;
 import org.obiba.magma.type.TextType;
 
 import com.google.common.collect.Iterables;
@@ -37,6 +39,53 @@ public class ExcelDatasourceTest {
   @After
   public void after() {
     MagmaEngine.get().shutdown();
+  }
+
+  /**
+   * Test: missing columns, default values and user named columns. See:
+   * http://wiki.obiba.org/confluence/display/CAG/Excel+Datasource+Improvements
+   */
+  @Test
+  public void testReadUserDefined() {
+    ExcelDatasource datasource = new ExcelDatasource("user-defined", new File("src/test/resources/org/obiba/magma/datasource/excel/user-defined.xls"));
+    datasource.initialise();
+
+    ValueTable table = datasource.getValueTable("Table1");
+    Assert.assertNotNull(table);
+    Assert.assertEquals("Participant", table.getEntityType());
+
+    Variable var = table.getVariable("Var1");
+    Assert.assertEquals(IntegerType.get(), var.getValueType());
+    Assert.assertEquals("Participant", var.getEntityType());
+    Assert.assertNull(var.getUnit());
+    Assert.assertNull(var.getMimeType());
+    Assert.assertFalse(var.isRepeatable());
+    Assert.assertNull(var.getOccurrenceGroup());
+
+    Assert.assertEquals(1, var.getAttributes().size());
+    Assert.assertEquals("bar", var.getAttributeStringValue("foo"));
+
+    Assert.assertEquals(2, var.getCategories().size());
+    for(Category cat : var.getCategories()) {
+      Assert.assertNull(cat.getCode());
+      Assert.assertFalse(cat.isMissing());
+
+      if(cat.getName().equals("C1")) {
+        Assert.assertEquals(1, cat.getAttributes().size());
+        Assert.assertEquals("tata", cat.getAttributeStringValue("toto"));
+      } else {
+        Assert.assertEquals(0, cat.getAttributes().size());
+      }
+    }
+
+    var = table.getVariable("Var2");
+    Assert.assertEquals(IntegerType.get(), var.getValueType());
+    Assert.assertEquals(0, var.getAttributes().size());
+    Assert.assertEquals(0, var.getCategories().size());
+    var = table.getVariable("Var3");
+    Assert.assertEquals(TextType.get(), var.getValueType());
+    var = table.getVariable("Var4");
+    Assert.assertEquals(TextType.get(), var.getValueType());
   }
 
   @Test

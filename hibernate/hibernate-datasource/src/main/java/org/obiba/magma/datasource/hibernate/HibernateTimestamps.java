@@ -8,20 +8,24 @@ import org.obiba.magma.type.DateTimeType;
 
 public class HibernateTimestamps implements Timestamps {
 
-  private final HibernateValueSet hibernateValueSet;
+  private final Value created;
+
+  private final Value updated;
 
   public HibernateTimestamps(ValueSet valueSet) {
-    this.hibernateValueSet = (HibernateValueSet) valueSet;
+    HibernateValueSet hibernateValueSet = (HibernateValueSet) valueSet;
+    this.created = DateTimeType.get().valueOf(hibernateValueSet.getValueSetState().getCreated());
+    this.updated = DateTimeType.get().valueOf(hibernateValueSet.getValueSetState().getUpdated());
   }
 
   @Override
   public Value getCreated() {
-    return DateTimeType.get().valueOf(hibernateValueSet.getValueSetState().getCreated());
+    return created;
   }
 
   @Override
   public Value getLastUpdate() {
-    return DateTimeType.get().valueOf(hibernateValueSet.getValueSetState().getUpdated());
+    return updated;
   }
 
 }

@@ -58,7 +58,7 @@ public class ScriptableValueMethods {
       if(args.length > 1) {
         log.warn("{} extra parameters were passed to the javascript method.  These will be ignored.", args.length - 1);
       }
-      return new ScriptableValue(thisObj, ValueType.Factory.forName(args[0].toString()).valueOf(sv.getValue().getValue()));
+      return new ScriptableValue(thisObj, ValueType.Factory.forName(args[0].toString()).convert(sv.getValue()));
     }
   }
 
