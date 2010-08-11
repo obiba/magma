@@ -39,6 +39,10 @@ public class SpringBeanSessionFactoryProvider implements SessionFactoryProvider 
     this.beanFactory = beanFactory;
   }
 
+  public void setBeanName(String beanName) {
+    this.beanName = beanName;
+  }
+
   public String getBeanName() {
     return beanName;
   }

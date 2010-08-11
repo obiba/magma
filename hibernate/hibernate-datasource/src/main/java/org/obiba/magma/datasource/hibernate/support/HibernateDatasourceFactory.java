@@ -24,6 +24,10 @@ public class HibernateDatasourceFactory extends AbstractDatasourceFactory implem
     return new HibernateDatasource(getName(), sessionFactoryProvider.getSessionFactory());
   }
 
+  public void setSessionFactoryProvider(SessionFactoryProvider sessionFactoryProvider) {
+    this.sessionFactoryProvider = sessionFactoryProvider;
+  }
+
   @Override
   public void initialise() {
     Initialisables.initialise(sessionFactoryProvider);
