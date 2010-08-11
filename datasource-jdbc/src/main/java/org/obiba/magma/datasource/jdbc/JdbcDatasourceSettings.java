@@ -105,12 +105,24 @@ public class JdbcDatasourceSettings {
     return null;
   }
 
+  public void setUseMetadataTables(boolean useMetadataTables) {
+    this.useMetadataTables = useMetadataTables;
+  }
+
   public boolean useMetadataTables() {
     return useMetadataTables;
   }
 
+  public void setDefaultCreatedTimestampColumnName(String defaultCreatedTimestampColumnName) {
+    this.defaultCreatedTimestampColumnName = defaultCreatedTimestampColumnName;
+  }
+
   public String getDefaultCreatedTimestampColumnName() {
     return defaultCreatedTimestampColumnName;
+  }
+
+  public void setDefaultUpdatedTimestampColumnName(String defaultUpdatedTimestampColumnName) {
+    this.defaultUpdatedTimestampColumnName = defaultUpdatedTimestampColumnName;
   }
 
   public String getDefaultUpdatedTimestampColumnName() {
