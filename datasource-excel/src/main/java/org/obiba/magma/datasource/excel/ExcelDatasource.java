@@ -50,6 +50,8 @@ public class ExcelDatasource extends AbstractDatasource {
 
   public static final String HELP_SHEET = "Help";
 
+  public static final String DEFAULT_TABLE_NAME = "Table";
+
   public static final Set<String> sheetReservedNames = Sets.newHashSet(new String[] { VARIABLES_SHEET, CATEGORIES_SHEET, HELP_SHEET });
 
   private Workbook excelWorkbook;
@@ -220,7 +222,10 @@ public class ExcelDatasource extends AbstractDatasource {
         for(int i = 1; i < variablesSheet.getPhysicalNumberOfRows(); i++) {
           Row variableRow = variablesSheet.getRow(i);
           String tableHeader = ExcelUtil.findNormalizedHeader(headerMapVariables.keySet(), VariableConverter.TABLE);
-          String tableName = ExcelUtil.getCellValueAsString(variableRow.getCell(headerMapVariables.get(tableHeader)));
+          String tableName = DEFAULT_TABLE_NAME;
+          if(tableHeader != null) {
+            tableName = ExcelUtil.getCellValueAsString(variableRow.getCell(headerMapVariables.get(tableHeader)));
+          }
           if(!valueTablesMapOnInit.containsKey(tableName)) {
             String entityTypeHeader = ExcelUtil.findNormalizedHeader(headerMapVariables.keySet(), VariableConverter.ENTITY_TYPE);
             String entityType = "Participant";

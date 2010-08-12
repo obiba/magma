@@ -90,7 +90,11 @@ public class VariableConverter {
    * @return
    */
   public boolean isVariableRow(Row variableRow) {
-    String table = getVariableCellValue(variableRow, TABLE);
+    Integer idx = getReservedVariableHeaderIndex(TABLE);
+    String table = ExcelDatasource.DEFAULT_TABLE_NAME;
+    if(idx != null) {
+      table = getVariableCellValue(variableRow, TABLE);
+    }
     return valueTable.getName().equals(table);
   }
 
@@ -399,17 +403,24 @@ public class VariableConverter {
   }
 
   private String getVariableCellValue(Row row, final String header) {
-    Integer idx = getHeaderMapVariables().get(header);
-    if(idx == null && reservedVariableHeaders.contains(header)) {
-      String found = ExcelUtil.findNormalizedHeader(headerMapVariables.keySet(), header);
-      if(found != null) {
-        idx = headerMapVariables.get(found);
-      }
+    Integer idx = null;
+    if(reservedVariableHeaders.contains(header)) {
+      idx = getReservedVariableHeaderIndex(header);
+    } else {
+      idx = getHeaderMapVariables().get(header);
     }
     if(idx == null) {
       return "";
     }
     return getCellValueAsString(row.getCell(idx)).trim();
+  }
+
+  private Integer getReservedVariableHeaderIndex(final String header) {
+    String found = ExcelUtil.findNormalizedHeader(getHeaderMapVariables().keySet(), header);
+    if(found != null) {
+      return getHeaderMapVariables().get(found);
+    }
+    return null;
   }
 
   public Map<String, Integer> getHeaderMapVariables() {
@@ -427,17 +438,24 @@ public class VariableConverter {
   }
 
   private String getCategoryCellValue(Row row, String header) {
-    Integer idx = getHeaderMapCategories().get(header);
-    if(idx == null && reservedCategoryHeaders.contains(header)) {
-      String found = ExcelUtil.findNormalizedHeader(headerMapCategories.keySet(), header);
-      if(found != null) {
-        idx = headerMapCategories.get(found);
-      }
+    Integer idx = null;
+    if(reservedCategoryHeaders.contains(header)) {
+      idx = getReservedCategoryHeaderIndex(header);
+    } else {
+      idx = getHeaderMapCategories().get(header);
     }
     if(idx == null) {
       return "";
     }
     return getCellValueAsString(row.getCell(idx)).trim();
+  }
+
+  private Integer getReservedCategoryHeaderIndex(final String header) {
+    String found = ExcelUtil.findNormalizedHeader(getHeaderMapCategories().keySet(), header);
+    if(found != null) {
+      return getHeaderMapCategories().get(found);
+    }
+    return null;
   }
 
   private Cell getCategoryCell(Row row, String header) {
@@ -459,7 +477,12 @@ public class VariableConverter {
   }
 
   public String getCategoryTableName(Row categoryRow) {
-    return getCategoryCellValue(categoryRow, TABLE).trim();
+    Integer idx = getReservedVariableHeaderIndex(TABLE);
+    if(idx != null) {
+      return getCategoryCellValue(categoryRow, TABLE).trim();
+    } else {
+      return ExcelDatasource.DEFAULT_TABLE_NAME;
+    }
   }
 
   public String getCategoryVariableName(Row categoryRow) {

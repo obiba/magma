@@ -55,6 +55,7 @@ public class ExcelDatasourceTest {
     ValueTable table = datasource.getValueTable("Table1");
     Assert.assertNotNull(table);
     Assert.assertEquals("Participant", table.getEntityType());
+    Assert.assertEquals(4, countVariables(table));
 
     Variable var = table.getVariable("Var1");
     Assert.assertEquals(IntegerType.get(), var.getValueType());
@@ -123,9 +124,34 @@ public class ExcelDatasourceTest {
     }
   }
 
-  private void assertDatasourceParsingException(String expectedKey, String expectedParameters, DatasourceParsingException dpe) {
-    Assert.assertEquals(expectedKey, dpe.getKey());
-    Assert.assertEquals(expectedParameters, dpe.getParameters().toString());
+  @Test
+  public void testReadUserDefinedNoTableColumn() {
+    ExcelDatasource datasource = new ExcelDatasource("user-defined-no-table-column", new File("src/test/resources/org/obiba/magma/datasource/excel/user-defined-no-table-column.xls"));
+    datasource.initialise();
+
+    Assert.assertEquals(1, datasource.getValueTables().size());
+    ValueTable table = datasource.getValueTable(ExcelDatasource.DEFAULT_TABLE_NAME);
+    Assert.assertEquals(3, countVariables(table));
+    Variable variable = table.getVariable("Var1");
+    Assert.assertEquals(3, variable.getCategories().size());
+  }
+
+  @Test
+  public void testReadUserDefinedBogusNoTableColumn() {
+    ExcelDatasource datasource = new ExcelDatasource("user-defined-bogus-no-table-column", new File("src/test/resources/org/obiba/magma/datasource/excel/user-defined-bogus-no-table-column.xls"));
+    try {
+      datasource.initialise();
+    } catch(MagmaRuntimeException e) {
+      if(e.getCause() instanceof DatasourceParsingException) {
+        DatasourceParsingException dpe = (DatasourceParsingException) e.getCause();
+        // dpe.printTree();
+        // // System.out.println("******");
+        // dpe.printList();
+        Assert.assertTrue(dpe.hasChildren());
+        List<DatasourceParsingException> errors = dpe.getChildrenAsList();
+        Assert.assertEquals(8, errors.size());
+      }
+    }
   }
 
   @Test
@@ -271,5 +297,18 @@ public class ExcelDatasourceTest {
     vw.writeVariable(testVariable);
     vw.close();
     writer.close();
+  }
+
+  private void assertDatasourceParsingException(String expectedKey, String expectedParameters, DatasourceParsingException dpe) {
+    Assert.assertEquals(expectedKey, dpe.getKey());
+    Assert.assertEquals(expectedParameters, dpe.getParameters().toString());
+  }
+
+  private int countVariables(ValueTable table) {
+    int count = 0;
+    for(Variable v : table.getVariables()) {
+      count++;
+    }
+    return count;
   }
 }
