@@ -99,9 +99,9 @@ public class ExcelDatasourceTest {
     } catch(MagmaRuntimeException e) {
       if(e.getCause() instanceof DatasourceParsingException) {
         DatasourceParsingException dpe = (DatasourceParsingException) e.getCause();
-        dpe.printTree();
-        // System.out.println("******");
-        dpe.printList();
+        // dpe.printTree();
+        // // System.out.println("******");
+        // dpe.printList();
         Assert.assertTrue(dpe.hasChildren());
         List<DatasourceParsingException> errors = dpe.getChildrenAsList();
         Assert.assertEquals(11, errors.size());
