@@ -202,10 +202,8 @@ public class VariableConverter {
       }
     }
 
-    if(errors.size() == 1) {
-      throw errors.get(0);
-    } else if(errors.size() > 1) {
-      ExcelDatasourceParsingException parent = new ExcelDatasourceParsingException("Errors in definition of categories for variable: " + valueTable.getName() + " / " + variableName, //
+    if(errors.size() > 0) {
+      ExcelDatasourceParsingException parent = new ExcelDatasourceParsingException("Errors while parsing categories of variable: " + valueTable.getName() + " / " + variableName, //
       "VariableCategoriesDefinitionErrors", ExcelDatasource.CATEGORIES_SHEET, firstRow.getRowNum() + 1, valueTable.getName(), variableName);
       parent.setChildren(errors);
       throw parent;
@@ -461,10 +459,10 @@ public class VariableConverter {
   }
 
   public String getCategoryTableName(Row categoryRow) {
-    return getCategoryCellValue(categoryRow, TABLE);
+    return getCategoryCellValue(categoryRow, TABLE).trim();
   }
 
   public String getCategoryVariableName(Row categoryRow) {
-    return getCategoryCellValue(categoryRow, VARIABLE);
+    return getCategoryCellValue(categoryRow, VARIABLE).trim();
   }
 }

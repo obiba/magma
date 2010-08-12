@@ -1,5 +1,6 @@
 package org.obiba.magma.support;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -9,6 +10,7 @@ import java.util.Set;
 import org.obiba.magma.AbstractAttributeAware;
 import org.obiba.magma.Attribute;
 import org.obiba.magma.Datasource;
+import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.NoSuchValueTableException;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueTable;
@@ -77,11 +79,27 @@ public abstract class AbstractDatasource extends AbstractAttributeAware implemen
 
   @Override
   public void initialise() {
+    List<DatasourceParsingException> parsingErrors = new ArrayList<DatasourceParsingException>();
     onInitialise();
     for(String valueTable : getValueTableNames()) {
       ValueTable vt = initialiseValueTable(valueTable);
-      Initialisables.initialise(vt);
-      addValueTable(vt);
+      try {
+        Initialisables.initialise(vt);
+        addValueTable(vt);
+      } catch(MagmaRuntimeException e) {
+        if(e.getCause() instanceof DatasourceParsingException) {
+          DatasourceParsingException dpe = (DatasourceParsingException) e.getCause();
+          parsingErrors.add(dpe);
+        } else {
+          throw e;
+        }
+      }
+    }
+    if(parsingErrors.size() > 0) {
+      DatasourceParsingException parent = new DatasourceParsingException("Errors while parsing tables of datasource: " + getName(), //
+      "DatasourceDefinitionErrors", getName());
+      parent.setChildren(parsingErrors);
+      throw new MagmaRuntimeException(parent);
     }
   }
 

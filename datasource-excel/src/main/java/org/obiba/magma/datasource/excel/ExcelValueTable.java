@@ -198,17 +198,19 @@ public class ExcelValueTable extends AbstractValueTable implements Initialisable
     for(int x = 1; x < categoryRowCount; x++) {
       Row categoryRow = categoriesSheet.getRow(x);
       String variableName = converter.getCategoryVariableName(categoryRow);
-      if(variableName.length() == 0) {
-        errors.add(new ExcelDatasourceParsingException("Unidentified variable for a category", //
-        "CategoryVariableNameRequired", ExcelDatasource.CATEGORIES_SHEET, categoryRow.getRowNum() + 1, getName()));
-      } else if(converter.getCategoryTableName(categoryRow).equals(getName()) && !variableNames.contains(variableName)) {
-        errors.add(new ExcelDatasourceParsingException("Unidentified variable name: " + variableName, //
-        "UnidentifiedVariableName", ExcelDatasource.CATEGORIES_SHEET, categoryRow.getRowNum() + 1, getName(), variableName));
+      if(converter.getCategoryTableName(categoryRow).equals(getName())) {
+        if(variableName.length() == 0) {
+          errors.add(new ExcelDatasourceParsingException("Unidentified variable for a category", //
+          "CategoryVariableNameRequired", ExcelDatasource.CATEGORIES_SHEET, categoryRow.getRowNum() + 1, getName()));
+        } else if(!variableNames.contains(variableName)) {
+          errors.add(new ExcelDatasourceParsingException("Unidentified variable name: " + variableName, //
+          "UnidentifiedVariableName", ExcelDatasource.CATEGORIES_SHEET, categoryRow.getRowNum() + 1, getName(), variableName));
+        }
       }
     }
 
     if(errors.size() > 0) {
-      ExcelDatasourceParsingException parent = new ExcelDatasourceParsingException("Errors in definition of table: " + getName(), //
+      ExcelDatasourceParsingException parent = new ExcelDatasourceParsingException("Errors while parsing variables of table: " + getName(), //
       "TableDefinitionErrors", ExcelDatasource.VARIABLES_SHEET, firstRow.getRowNum() + 1, getName());
       parent.setChildren(errors);
       throw parent;
