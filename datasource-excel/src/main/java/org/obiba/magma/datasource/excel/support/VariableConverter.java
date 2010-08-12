@@ -281,7 +281,9 @@ public class VariableConverter {
   public Row marshall(Variable variable, Row headerRowVariables, Row headerRowCategories) {
     Row variableRow = getVariableRow(variable);
 
-    ExcelUtil.setCellValue(getVariableCell(variableRow, TABLE), TextType.get(), valueTable.getName());
+    if(getReservedVariableHeaderIndex(TABLE) != null) {
+      ExcelUtil.setCellValue(getVariableCell(variableRow, TABLE), TextType.get(), valueTable.getName());
+    }
     ExcelUtil.setCellValue(getVariableCell(variableRow, NAME), TextType.get(), variable.getName());
     ExcelUtil.setCellValue(getVariableCell(variableRow, MIME_TYPE), TextType.get(), variable.getMimeType());
     ExcelUtil.setCellValue(getVariableCell(variableRow, OCCURRENCE_GROUP), TextType.get(), variable.getOccurrenceGroup());
@@ -302,7 +304,9 @@ public class VariableConverter {
   private void marshallCategory(Variable variable, Category category, Row headerRowCategories) {
     Row categoryRow = getCategoryRow(variable, category);
 
-    ExcelUtil.setCellValue(getCategoryCell(categoryRow, TABLE), TextType.get(), valueTable.getName());
+    if(getReservedCategoryHeaderIndex(TABLE) != null) {
+      ExcelUtil.setCellValue(getCategoryCell(categoryRow, TABLE), TextType.get(), valueTable.getName());
+    }
     ExcelUtil.setCellValue(getCategoryCell(categoryRow, VARIABLE), TextType.get(), variable.getName());
     ExcelUtil.setCellValue(getCategoryCell(categoryRow, NAME), TextType.get(), category.getName());
     ExcelUtil.setCellValue(getCategoryCell(categoryRow, CODE), TextType.get(), category.getCode());
