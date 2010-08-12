@@ -198,7 +198,6 @@ public class ExcelValueTable extends AbstractValueTable implements Initialisable
     for(int x = 1; x < categoryRowCount; x++) {
       Row categoryRow = categoriesSheet.getRow(x);
       String variableName = converter.getCategoryVariableName(categoryRow);
-      System.out.println("tableName=" + converter.getCategoryTableName(categoryRow) + " variableName=" + variableName);
       if(variableName.length() == 0) {
         errors.add(new ExcelDatasourceParsingException("Unidentified variable for a category", //
         "CategoryVariableNameRequired", ExcelDatasource.CATEGORIES_SHEET, categoryRow.getRowNum() + 1, getName()));
