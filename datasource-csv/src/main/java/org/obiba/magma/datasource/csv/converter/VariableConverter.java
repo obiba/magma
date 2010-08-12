@@ -1,5 +1,6 @@
 package org.obiba.magma.datasource.csv.converter;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -211,6 +212,6 @@ public class VariableConverter {
   }
 
   public String[] getHeader() {
-    return header;
+    return Arrays.copyOf(header, header.length);
   }
 }
