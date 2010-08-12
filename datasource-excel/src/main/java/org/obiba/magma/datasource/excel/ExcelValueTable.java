@@ -2,6 +2,8 @@ package org.obiba.magma.datasource.excel;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -15,6 +17,7 @@ import org.obiba.magma.Timestamps;
 import org.obiba.magma.ValueSet;
 import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
+import org.obiba.magma.datasource.excel.support.ExcelDatasourceParsingException;
 import org.obiba.magma.datasource.excel.support.ExcelUtil;
 import org.obiba.magma.datasource.excel.support.VariableConverter;
 import org.obiba.magma.support.AbstractValueTable;
@@ -160,12 +163,56 @@ public class ExcelValueTable extends AbstractValueTable implements Initialisable
     Sheet variablesSheet = getDatasource().getVariablesSheet();
 
     int variableRowCount = variablesSheet.getPhysicalNumberOfRows();
+    List<String> variableNames = new ArrayList<String>();
+    List<ExcelDatasourceParsingException> errors = new ArrayList<ExcelDatasourceParsingException>();
+    Row variableRow;
+    Row firstRow = null;
     for(int i = 1; i < variableRowCount; i++) {
-      Row variableRow = variablesSheet.getRow(i);
+      variableRow = variablesSheet.getRow(i);
       if(converter.isVariableRow(variableRow)) {
-        Variable variable = converter.unmarshall(variableRow);
-        addVariableValueSource(new ExcelVariableValueSource(variable));
+        if(firstRow == null) firstRow = variableRow;
+        String name = converter.getVariableName(variableRow);
+
+        if(variableNames.contains(name)) {
+          // do not parse duplicates
+          errors.add(new ExcelDatasourceParsingException("Duplicate variable name", //
+          "DuplicateVariableName", ExcelDatasource.VARIABLES_SHEET, variableRow.getRowNum() + 1, getName(), name));
+        } else {
+          variableNames.add(name);
+          try {
+            Variable variable = converter.unmarshall(variableRow);
+            addVariableValueSource(new ExcelVariableValueSource(variable));
+          } catch(ExcelDatasourceParsingException pe) {
+            errors.add(pe);
+          } catch(Exception e) {
+            errors.add(new ExcelDatasourceParsingException("Unexpected error in variable: " + e.getMessage(), e, //
+            "UnexpectedErrorInVariable", ExcelDatasource.VARIABLES_SHEET, variableRow.getRowNum() + 1, getName()));
+          }
+        }
       }
+    }
+
+    // check that all categories for this table has a variable definition
+    Sheet categoriesSheet = getDatasource().getCategoriesSheet();
+    int categoryRowCount = categoriesSheet.getPhysicalNumberOfRows();
+    for(int x = 1; x < categoryRowCount; x++) {
+      Row categoryRow = categoriesSheet.getRow(x);
+      String variableName = converter.getCategoryVariableName(categoryRow);
+      System.out.println("tableName=" + converter.getCategoryTableName(categoryRow) + " variableName=" + variableName);
+      if(variableName.length() == 0) {
+        errors.add(new ExcelDatasourceParsingException("Unidentified variable for a category", //
+        "CategoryVariableNameRequired", ExcelDatasource.CATEGORIES_SHEET, categoryRow.getRowNum() + 1, getName()));
+      } else if(converter.getCategoryTableName(categoryRow).equals(getName()) && !variableNames.contains(variableName)) {
+        errors.add(new ExcelDatasourceParsingException("Unidentified variable name: " + variableName, //
+        "UnidentifiedVariableName", ExcelDatasource.CATEGORIES_SHEET, categoryRow.getRowNum() + 1, getName(), variableName));
+      }
+    }
+
+    if(errors.size() > 0) {
+      ExcelDatasourceParsingException parent = new ExcelDatasourceParsingException("Errors in definition of table: " + getName(), //
+      "TableDefinitionErrors", ExcelDatasource.VARIABLES_SHEET, firstRow.getRowNum() + 1, getName());
+      parent.setChildren(errors);
+      throw parent;
     }
   }
 

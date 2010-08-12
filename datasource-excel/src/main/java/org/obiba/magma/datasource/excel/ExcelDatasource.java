@@ -44,7 +44,13 @@ public class ExcelDatasource extends AbstractDatasource {
 
   private static final Logger log = LoggerFactory.getLogger(ExcelDatasource.class);
 
-  public static final Set<String> sheetReservedNames = Sets.newHashSet(new String[] { "Variables", "Categories", "Help" });
+  public static final String VARIABLES_SHEET = "Variables";
+
+  public static final String CATEGORIES_SHEET = "Categories";
+
+  public static final String HELP_SHEET = "Help";
+
+  public static final Set<String> sheetReservedNames = Sets.newHashSet(new String[] { VARIABLES_SHEET, CATEGORIES_SHEET, HELP_SHEET });
 
   private Workbook excelWorkbook;
 

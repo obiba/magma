@@ -20,10 +20,12 @@ import org.junit.Test;
 import org.obiba.magma.Category;
 import org.obiba.magma.Datasource;
 import org.obiba.magma.MagmaEngine;
+import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.ValueTableWriter;
 import org.obiba.magma.Variable;
 import org.obiba.magma.ValueTableWriter.VariableWriter;
+import org.obiba.magma.support.DatasourceParsingException;
 import org.obiba.magma.type.IntegerType;
 import org.obiba.magma.type.TextType;
 
@@ -86,6 +88,42 @@ public class ExcelDatasourceTest {
     Assert.assertEquals(TextType.get(), var.getValueType());
     var = table.getVariable("Var4");
     Assert.assertEquals(TextType.get(), var.getValueType());
+  }
+
+  @Test
+  public void testReadUserDefinedBogus1() {
+
+    ExcelDatasource datasource = new ExcelDatasource("user-defined", new File("src/test/resources/org/obiba/magma/datasource/excel/user-defined-bogus1.xls"));
+    try {
+      datasource.initialise();
+    } catch(MagmaRuntimeException e) {
+      if(e.getCause() instanceof DatasourceParsingException) {
+        DatasourceParsingException dpe = (DatasourceParsingException) e.getCause();
+        // dpe.printTree();
+        // System.out.println("******");
+        dpe.printList();
+        Assert.assertTrue(dpe.hasChildren());
+        List<DatasourceParsingException> errors = dpe.getChildrenAsList();
+        Assert.assertEquals(10, errors.size());
+        assertDatasourceParsingException("DuplicateCategoryName", "[Categories, 4, Table1, Var1, C2]", errors.get(0));
+        assertDatasourceParsingException("CategoryNameRequired", "[Categories, 5, Table1, Var1]", errors.get(1));
+        assertDatasourceParsingException("DuplicateCategoryName", "[Categories, 7, Table1, Var2, C1]", errors.get(2));
+        assertDatasourceParsingException("VariableNameRequired", "[Variables, 6, Table1]", errors.get(3));
+        assertDatasourceParsingException("DuplicateVariableName", "[Variables, 7, Table1, Var1]", errors.get(4));
+        assertDatasourceParsingException("VariableNameCannotContainColon", "[Variables, 8, Table1, Foo:Bar]", errors.get(5));
+        assertDatasourceParsingException("UnknownValueType", "[Variables, 9, Table1, Var5, Numerical]", errors.get(6));
+        assertDatasourceParsingException("UnidentifiedVariableName", "[Categories, 8, Table1, VarUnknown]", errors.get(7));
+        assertDatasourceParsingException("CategoryVariableNameRequired", "[Categories, 9, Table1]", errors.get(8));
+        assertDatasourceParsingException("CategoryVariableNameRequired", "[Categories, 10, Table1]", errors.get(9));
+      } else {
+        throw e;
+      }
+    }
+  }
+
+  private void assertDatasourceParsingException(String expectedKey, String expectedParameters, DatasourceParsingException dpe) {
+    Assert.assertEquals(expectedKey, dpe.getKey());
+    Assert.assertEquals(expectedParameters, dpe.getParameters().toString());
   }
 
   @Test
