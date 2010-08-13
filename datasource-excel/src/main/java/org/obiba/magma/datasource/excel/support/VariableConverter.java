@@ -446,7 +446,11 @@ public class VariableConverter {
    * @return null if no such header
    */
   private Integer getVariableHeaderIndex(final String header) {
-    return getHeaderIndex(getHeaderMapVariables(), header);
+    if(reservedVariableHeaders.contains(header)) {
+      return getHeaderIndex(getHeaderMapVariables(), header);
+    } else {
+      return getHeaderMapVariables().get(header);
+    }
   }
 
   /**
@@ -499,7 +503,11 @@ public class VariableConverter {
    * @return null if no such header
    */
   private Integer getCategoryHeaderIndex(final String header) {
-    return getHeaderIndex(getHeaderMapCategories(), header);
+    if(reservedCategoryHeaders.contains(header)) {
+      return getHeaderIndex(getHeaderMapCategories(), header);
+    } else {
+      return getHeaderMapCategories().get(header);
+    }
   }
 
   /**
