@@ -21,6 +21,7 @@ import org.obiba.magma.datasource.excel.support.ExcelDatasourceParsingException;
 import org.obiba.magma.datasource.excel.support.ExcelUtil;
 import org.obiba.magma.datasource.excel.support.VariableConverter;
 import org.obiba.magma.support.AbstractValueTable;
+import org.obiba.magma.support.DatasourceParsingException;
 import org.obiba.magma.support.VariableEntityBean;
 import org.obiba.magma.support.VariableEntityProvider;
 import org.obiba.magma.type.TextType;
@@ -130,43 +131,84 @@ public class ExcelValueTable extends AbstractValueTable implements Initialisable
    * @throws IOException
    */
   private void readVariables() throws FileNotFoundException, IOException {
-    if(isFromVariablesSheet()) {
-      // read variables from Variables sheet
-      readVariablesFromVariablesSheet();
-    } else {
-      // read variables from the sheet headers
-      readVariablesFromTableSheet();
+    List<String> variableNames = new ArrayList<String>();
+    List<ExcelDatasourceParsingException> errors = new ArrayList<ExcelDatasourceParsingException>();
+
+    if(hasVariablesSheet()) {
+      try {
+        // read variables from Variables sheet
+        readVariablesFromVariablesSheet(variableNames);
+      } catch(ExcelDatasourceParsingException pe) {
+        errors.add(pe);
+      }
+    }
+    try {
+      // read other variables from the sheet headers
+      readVariablesFromTableSheet(variableNames);
+    } catch(ExcelDatasourceParsingException pe) {
+      errors.add(pe);
+    }
+
+    if(errors.size() > 0) {
+      DatasourceParsingException parent = new DatasourceParsingException("Errors while parsing variables of table: " + getName(), //
+      "TableDefinitionErrors", getName());
+      parent.setChildren(errors);
+      throw parent;
     }
   }
 
   /**
    * Variables are defined by column names and value type is text. First column is assumed to be participant identifier.
    */
-  private void readVariablesFromTableSheet() {
+  private void readVariablesFromTableSheet(List<String> variableNames) {
     Sheet sheet = getDatasource().getSheet(getName());
+    List<String> columnNames = new ArrayList<String>();
+    List<ExcelDatasourceParsingException> errors = new ArrayList<ExcelDatasourceParsingException>();
+
     if(sheet != null) {
       Row variableNameRow = getValueTableSheet().getRow(0);
       for(int i = 1; i < variableNameRow.getPhysicalNumberOfCells(); i++) {
         // variable is just a name and with text values
         Cell cell = variableNameRow.getCell(i);
-        String name = ExcelUtil.getCellValueAsString(cell);
-        Variable.Builder variableBuilder = Variable.Builder.newVariable(name, TextType.get(), getEntityType());
-        addVariableValueSource(new ExcelVariableValueSource(variableBuilder.build()));
+        String name = ExcelUtil.getCellValueAsString(cell).trim();
+        // required values
+        if(name.length() == 0) {
+          errors.add(new ExcelDatasourceParsingException("Variable name is required in table: " + getName(), //
+          "VariableNameRequired", sheet.getSheetName(), 1, getName()));
+        } else if(name.contains(":")) {
+          errors.add(new ExcelDatasourceParsingException("Variable name cannot contain ':' in variable: " + getName() + " / " + name, //
+          "VariableNameCannotContainColon", sheet.getSheetName(), 1, getName(), name));
+        } else if(columnNames.contains(name)) {
+          errors.add(new ExcelDatasourceParsingException("Duplicate columns '" + name + "' for table: " + getName(), //
+          "DuplicateColumns", sheet.getSheetName(), 1, getName(), name));
+        } else {
+          columnNames.add(name);
+          if(!variableNames.contains(name)) {
+            Variable.Builder variableBuilder = Variable.Builder.newVariable(name, TextType.get(), getEntityType());
+            addVariableValueSource(new ExcelVariableValueSource(variableBuilder.build()));
+          }
+        }
       }
+    }
+
+    if(errors.size() > 0) {
+      ExcelDatasourceParsingException parent = new ExcelDatasourceParsingException("Errors while parsing variables of table: " + getName(), //
+      "TableDefinitionErrors", sheet.getSheetName(), 1, getName());
+      parent.setChildren(errors);
+      throw parent;
     }
   }
 
   /**
    * Variables are read from the variables sheet.
    */
-  private void readVariablesFromVariablesSheet() {
+  private void readVariablesFromVariablesSheet(List<String> variableNames) {
     Sheet variablesSheet = getDatasource().getVariablesSheet();
-
     int variableRowCount = variablesSheet.getPhysicalNumberOfRows();
-    List<String> variableNames = new ArrayList<String>();
     List<ExcelDatasourceParsingException> errors = new ArrayList<ExcelDatasourceParsingException>();
     Row variableRow;
     Row firstRow = null;
+
     for(int i = 1; i < variableRowCount; i++) {
       variableRow = variablesSheet.getRow(i);
       if(converter.isVariableRow(variableRow)) {
@@ -217,7 +259,7 @@ public class ExcelValueTable extends AbstractValueTable implements Initialisable
     }
   }
 
-  private boolean isFromVariablesSheet() {
+  private boolean hasVariablesSheet() {
     Sheet varSheet = getDatasource().getVariablesSheet();
     return varSheet != null && varSheet.getPhysicalNumberOfRows() > 0;
   }
