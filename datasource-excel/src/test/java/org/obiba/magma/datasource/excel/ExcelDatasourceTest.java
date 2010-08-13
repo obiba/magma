@@ -125,15 +125,21 @@ public class ExcelDatasourceTest {
   }
 
   @Test
-  public void testReadUserDefinedNoTableColumn() {
+  public void testReadUserDefinedNoTableColumn() throws IOException {
     ExcelDatasource datasource = new ExcelDatasource("user-defined-no-table-column", new File("src/test/resources/org/obiba/magma/datasource/excel/user-defined-no-table-column.xls"));
     datasource.initialise();
 
     Assert.assertEquals(1, datasource.getValueTables().size());
     ValueTable table = datasource.getValueTable(ExcelDatasource.DEFAULT_TABLE_NAME);
+    Assert.assertNotNull(table);
     Assert.assertEquals(3, countVariables(table));
     Variable variable = table.getVariable("Var1");
     Assert.assertEquals(3, variable.getCategories().size());
+
+    // test that writting variable & category when some columns are missing does not fail
+    Variable testVariable = Variable.Builder.newVariable("test-variable", TextType.get(), "Participant").addCategories("test-category").build();
+    writeVariableToDatasource(datasource, "test-table", testVariable);
+
   }
 
   @Test
@@ -158,7 +164,7 @@ public class ExcelDatasourceTest {
   public void testWriteVariableIsReadBack() throws IOException {
     File tmpExcelFile = createTempFile(".xlsx");
 
-    Variable testVariable = Variable.Builder.newVariable("test-variable", TextType.get(), "entityType").build();
+    Variable testVariable = Variable.Builder.newVariable("test-variable", TextType.get(), "Participant").build();
 
     ExcelDatasource datasource = new ExcelDatasource("test", tmpExcelFile);
     datasource.initialise();
@@ -176,7 +182,7 @@ public class ExcelDatasourceTest {
   public void testWriteVariableMultipleTimes() throws IOException {
     File tmpExcelFile = createTempFile(".xlsx");
 
-    Variable testVariable = Variable.Builder.newVariable("test-variable", TextType.get(), "entityType").build();
+    Variable testVariable = Variable.Builder.newVariable("test-variable", TextType.get(), "Participant").build();
 
     ExcelDatasource datasource = new ExcelDatasource("test", tmpExcelFile);
     datasource.initialise();
@@ -292,7 +298,7 @@ public class ExcelDatasourceTest {
   }
 
   private void writeVariableToDatasource(Datasource datasource, String tableName, Variable testVariable) throws IOException {
-    ValueTableWriter writer = datasource.createWriter("test-table", "entityType");
+    ValueTableWriter writer = datasource.createWriter(tableName, "Participant");
     VariableWriter vw = writer.writeVariables();
     vw.writeVariable(testVariable);
     vw.close();

@@ -59,6 +59,7 @@ public class ExcelUtil {
   }
 
   public static void setCellValue(Cell cell, ValueType valueType, String value) {
+    if(cell == null) throw new IllegalArgumentException("Cell cannot be null before setting a value");
     if(value != null && value.length() > 32767) {
       value = "WARN: Value to large for Excel.";
     }
@@ -111,7 +112,7 @@ public class ExcelUtil {
   }
 
   /**
-   * Allow "Value Type" or "value_type" or "Value-Type" for "valueType".
+   * Allow for instance "Value Type" or "value_type" or "Value-Type" or "valuetype" for "valueType".
    * @param userHeader
    * @return
    */
