@@ -6,11 +6,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.obiba.magma.MagmaRuntimeException;
+
 /**
  * Exception to be used when parsing a datasource based on a file.
  * 
  */
-public class DatasourceParsingException extends RuntimeException {
+public class DatasourceParsingException extends MagmaRuntimeException {
 
   private static final long serialVersionUID = 1L;
 

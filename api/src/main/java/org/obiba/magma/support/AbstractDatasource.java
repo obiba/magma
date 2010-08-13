@@ -10,7 +10,6 @@ import java.util.Set;
 import org.obiba.magma.AbstractAttributeAware;
 import org.obiba.magma.Attribute;
 import org.obiba.magma.Datasource;
-import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.NoSuchValueTableException;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueTable;
@@ -86,20 +85,15 @@ public abstract class AbstractDatasource extends AbstractAttributeAware implemen
       try {
         Initialisables.initialise(vt);
         addValueTable(vt);
-      } catch(MagmaRuntimeException e) {
-        if(e.getCause() instanceof DatasourceParsingException) {
-          DatasourceParsingException dpe = (DatasourceParsingException) e.getCause();
-          parsingErrors.add(dpe);
-        } else {
-          throw e;
-        }
+      } catch(DatasourceParsingException pe) {
+        parsingErrors.add((DatasourceParsingException) pe);
       }
     }
     if(parsingErrors.size() > 0) {
       DatasourceParsingException parent = new DatasourceParsingException("Errors while parsing tables of datasource: " + getName(), //
       "DatasourceDefinitionErrors", getName());
       parent.setChildren(parsingErrors);
-      throw new MagmaRuntimeException(parent);
+      throw parent;
     }
   }
 
