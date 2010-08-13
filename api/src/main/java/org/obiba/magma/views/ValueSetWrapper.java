@@ -6,25 +6,27 @@ package org.obiba.magma.views;
 import org.obiba.magma.ValueSet;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.VariableEntity;
+import org.obiba.magma.transform.TransformingValueTable;
 
 public class ValueSetWrapper implements ValueSet {
-  private View view;
 
-  private ValueSet wrapped;
+  private final TransformingValueTable mappingTable;
 
-  ValueSetWrapper(View view, ValueSet wrapped) {
-    this.view = view;
+  private final ValueSet wrapped;
+
+  ValueSetWrapper(TransformingValueTable mappingTable, ValueSet wrapped) {
+    this.mappingTable = mappingTable;
     this.wrapped = wrapped;
   }
 
   @Override
   public ValueTable getValueTable() {
-    return view;
+    return mappingTable;
   }
 
   @Override
   public VariableEntity getVariableEntity() {
-    return view.getVariableEntityTransformer().apply(wrapped.getVariableEntity());
+    return mappingTable.getVariableEntityMappingFunction().apply(wrapped.getVariableEntity());
   }
 
   public ValueSet getWrappedValueSet() {

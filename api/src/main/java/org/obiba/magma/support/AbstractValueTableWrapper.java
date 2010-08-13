@@ -17,18 +17,22 @@ public abstract class AbstractValueTableWrapper implements ValueTableWrapper {
 
   public abstract ValueTable getWrappedValueTable();
 
+  @Override
   public Datasource getDatasource() {
     return getWrappedValueTable().getDatasource();
   }
 
+  @Override
   public String getEntityType() {
     return getWrappedValueTable().getEntityType();
   }
 
+  @Override
   public String getName() {
     return getWrappedValueTable().getName();
   }
 
+  @Override
   public Value getValue(Variable variable, ValueSet valueSet) {
     return getWrappedValueTable().getValue(variable, valueSet);
   }
@@ -38,10 +42,12 @@ public abstract class AbstractValueTableWrapper implements ValueTableWrapper {
     return getWrappedValueTable().getVariableEntities();
   }
 
+  @Override
   public ValueSet getValueSet(VariableEntity entity) throws NoSuchValueSetException {
     return getWrappedValueTable().getValueSet(entity);
   }
 
+  @Override
   public Iterable<ValueSet> getValueSets() {
     return getWrappedValueTable().getValueSets();
   }
@@ -51,22 +57,27 @@ public abstract class AbstractValueTableWrapper implements ValueTableWrapper {
     return getWrappedValueTable().hasVariable(name);
   }
 
+  @Override
   public Variable getVariable(String name) throws NoSuchVariableException {
     return getWrappedValueTable().getVariable(name);
   }
 
+  @Override
   public Iterable<Variable> getVariables() {
     return getWrappedValueTable().getVariables();
   }
 
+  @Override
   public VariableValueSource getVariableValueSource(String name) throws NoSuchVariableException {
     return getWrappedValueTable().getVariableValueSource(name);
   }
 
+  @Override
   public boolean hasValueSet(VariableEntity entity) {
     return getWrappedValueTable().hasValueSet(entity);
   }
 
+  @Override
   public boolean isForEntityType(String entityType) {
     return getWrappedValueTable().isForEntityType(entityType);
   }
