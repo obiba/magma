@@ -27,6 +27,7 @@ import org.obiba.magma.views.support.AllClause;
 import org.obiba.magma.views.support.NoneClause;
 
 import com.google.common.base.Predicate;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 
 public class View extends AbstractValueTableWrapper implements Initialisable, Disposable, TransformingValueTable {
@@ -130,9 +131,12 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
   }
 
   public boolean hasValueSet(VariableEntity entity) {
-    boolean hasValueSet = super.hasValueSet(getVariableEntityMappingFunction().unapply(entity));
+    VariableEntity unmapped = getVariableEntityMappingFunction().unapply(entity);
+    if(unmapped == null) return false;
+
+    boolean hasValueSet = super.hasValueSet(unmapped);
     if(hasValueSet) {
-      ValueSet valueSet = super.getValueSet(getVariableEntityMappingFunction().unapply(entity));
+      ValueSet valueSet = super.getValueSet(unmapped);
       hasValueSet = where.where(valueSet);
     }
     return hasValueSet;
@@ -152,7 +156,10 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
   }
 
   public ValueSet getValueSet(VariableEntity entity) throws NoSuchValueSetException {
-    ValueSet valueSet = super.getValueSet(getVariableEntityMappingFunction().unapply(entity));
+    VariableEntity unmapped = getVariableEntityMappingFunction().unapply(entity);
+    if(unmapped == null) throw new NoSuchValueSetException(this, entity);
+
+    ValueSet valueSet = super.getValueSet(unmapped);
     if(!where.where(valueSet)) {
       throw new NoSuchValueSetException(this, entity);
     }
@@ -264,15 +271,22 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
 
   @Override
   public Set<VariableEntity> getVariableEntities() {
-    Set<VariableEntity> viewEntities = new HashSet<VariableEntity>();
-    for(VariableEntity entity : super.getVariableEntities()) {
-      // Tests the where clause if any
-      VariableEntity viewEntity = getVariableEntityMappingFunction().apply(entity);
-      if(hasValueSet(viewEntity)) {
-        viewEntities.add(viewEntity);
+
+    // First, we transform super.getVariableEntities() using getVariableEntityMappingFunction() (which may modified
+    // entity identifiers)
+    // Second, we filter the resulting entities to remove the ones for which hasValueSet() is false (usually due to a
+    // where clause)
+    // Third, we construct an ImmutableSet from the result
+
+    return ImmutableSet.copyOf(Iterables.filter(Iterables.transform(super.getVariableEntities(), getVariableEntityMappingFunction()), new Predicate<VariableEntity>() {
+
+      @Override
+      public boolean apply(VariableEntity input) {
+        // Only VariableEntities for which hasValueSet() is true (this will usually test the where clause)
+        return hasValueSet(input);
       }
-    }
-    return viewEntities;
+
+    }));
   }
 
   @Override
