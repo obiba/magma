@@ -1,5 +1,6 @@
 package org.obiba.magma.datasource.csv;
 
+import java.util.Arrays;
 import java.util.Map;
 
 import org.obiba.magma.Value;
@@ -17,7 +18,7 @@ public class CsvValueSet extends ValueSetBean {
   public CsvValueSet(ValueTable table, VariableEntity entity, Map<String, Integer> headerMap, String[] line) {
     super(table, entity);
     this.headerMap = headerMap;
-    this.line = line;
+    this.line = Arrays.copyOf(line, line.length);
   }
 
   public Value getValue(Variable variable) {

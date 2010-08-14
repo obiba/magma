@@ -24,15 +24,17 @@ import com.google.common.collect.Sets;
 
 public abstract class AbstractValueTable implements ValueTable, Initialisable {
 
-  private Datasource datasource;
+  private final Datasource datasource;
 
-  private String name;
+  private final String name;
+
+  private final Set<VariableValueSource> sources = Sets.newLinkedHashSet();
 
   private VariableEntityProvider variableEntityProvider;
 
-  private Set<VariableValueSource> sources = Sets.newLinkedHashSet();
-
   public AbstractValueTable(Datasource datasource, String name, VariableEntityProvider variableEntityProvider) {
+    if(datasource == null) throw new IllegalArgumentException("datasource cannot be null");
+    if(name == null) throw new IllegalArgumentException("name cannot be null");
     this.datasource = datasource;
     this.name = name;
     this.variableEntityProvider = variableEntityProvider;
@@ -131,6 +133,19 @@ public abstract class AbstractValueTable implements ValueTable, Initialisable {
     Initialisables.initialise(getSources());
   }
 
+  protected void addVariableValueSources(VariableValueSourceFactory factory) {
+    sources.addAll(factory.createSources());
+  }
+
+  protected void addVariableValueSources(Collection<VariableValueSource> sources) {
+    this.sources.removeAll(sources);
+    this.sources.addAll(sources);
+  }
+
+  protected void addVariableValueSource(VariableValueSource source) {
+    sources.add(source);
+  }
+
   protected void setVariableEntityProvider(VariableEntityProvider variableEntityProvider) {
     if(variableEntityProvider == null) throw new IllegalArgumentException("variableEntityProvider cannot be null");
     this.variableEntityProvider = variableEntityProvider;
@@ -145,16 +160,4 @@ public abstract class AbstractValueTable implements ValueTable, Initialisable {
     return sources;
   }
 
-  public void addVariableValueSources(VariableValueSourceFactory factory) {
-    sources.addAll(factory.createSources());
-  }
-
-  public void addVariableValueSources(Collection<VariableValueSource> sources) {
-    this.sources.removeAll(sources);
-    this.sources.addAll(sources);
-  }
-
-  public void addVariableValueSource(VariableValueSource source) {
-    sources.add(source);
-  }
 }

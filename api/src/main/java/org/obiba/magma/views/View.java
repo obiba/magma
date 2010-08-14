@@ -20,14 +20,17 @@ import org.obiba.magma.VariableValueSource;
 import org.obiba.magma.support.AbstractValueTableWrapper;
 import org.obiba.magma.support.Disposables;
 import org.obiba.magma.support.Initialisables;
+import org.obiba.magma.transform.BijectiveFunction;
+import org.obiba.magma.transform.BijectiveFunctions;
+import org.obiba.magma.transform.TransformingValueTable;
 import org.obiba.magma.views.support.AllClause;
 import org.obiba.magma.views.support.NoneClause;
 
-import com.google.common.base.Function;
 import com.google.common.base.Predicate;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 
-public class View extends AbstractValueTableWrapper implements Initialisable, Disposable {
+public class View extends AbstractValueTableWrapper implements Initialisable, Disposable, TransformingValueTable {
   //
   // Instance Variables
   //
@@ -128,9 +131,12 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
   }
 
   public boolean hasValueSet(VariableEntity entity) {
-    boolean hasValueSet = super.hasValueSet(entity);
+    VariableEntity unmapped = getVariableEntityMappingFunction().unapply(entity);
+    if(unmapped == null) return false;
+
+    boolean hasValueSet = super.hasValueSet(unmapped);
     if(hasValueSet) {
-      ValueSet valueSet = super.getValueSet(entity);
+      ValueSet valueSet = super.getValueSet(unmapped);
       hasValueSet = where.where(valueSet);
     }
     return hasValueSet;
@@ -146,17 +152,19 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
     });
 
     // Transform the Iterable, replacing each ValueSet with one that points at the current View.
-    Iterable<ValueSet> viewValueSets = Iterables.transform(filteredValueSets, getValueSetTransformer());
-    return viewValueSets;
+    return Iterables.transform(filteredValueSets, getValueSetMappingFunction());
   }
 
   public ValueSet getValueSet(VariableEntity entity) throws NoSuchValueSetException {
-    ValueSet valueSet = super.getValueSet(entity);
+    VariableEntity unmapped = getVariableEntityMappingFunction().unapply(entity);
+    if(unmapped == null) throw new NoSuchValueSetException(this, entity);
+
+    ValueSet valueSet = super.getValueSet(unmapped);
     if(!where.where(valueSet)) {
       throw new NoSuchValueSetException(this, entity);
     }
 
-    return getValueSetTransformer().apply(valueSet);
+    return getValueSetMappingFunction().apply(valueSet);
   }
 
   public Iterable<Variable> getVariables() {
@@ -205,39 +213,42 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
   public Value getValue(Variable variable, ValueSet valueSet) {
     if(isViewOfDerivedVariables()) {
       if(where.where(valueSet) && isVariableInSuper(variable, valueSet)) {
-        return super.getValue(variable, ((ValueSetWrapper) valueSet).getWrappedValueSet());
+        return super.getValue(variable, getValueSetMappingFunction().unapply(valueSet));
       } else {
-        return getListValue(variable, valueSet);
+        return getListClauseValue(variable, valueSet);
       }
     }
     if(!where.where(valueSet)) {
       throw new NoSuchValueSetException(this, valueSet.getVariableEntity());
     }
 
-    return super.getValue(variable, ((ValueSetWrapper) valueSet).getWrappedValueSet());
+    return super.getValue(variable, getValueSetMappingFunction().unapply(valueSet));
   }
 
   private boolean isVariableInSuper(Variable variable, ValueSet valueSet) {
     try {
-      super.getValue(variable, ((ValueSetWrapper) valueSet).getWrappedValueSet());
+      super.getValue(variable, getValueSetMappingFunction().unapply(valueSet));
       return true;
     } catch(NoSuchVariableException e) {
       return false;
     }
   }
 
-  private Value getListValue(Variable variable, ValueSet valueSet) {
-    VariableValueSource variableValueSource = variables.getVariableValueSource(variable.getName());
-    return variableValueSource.getValue(valueSet);
+  private Value getListClauseValue(Variable variable, ValueSet valueSet) {
+    return getListClauseVariableValueSource(variable.getName()).getValue(valueSet);
+  }
+
+  private VariableValueSource getListClauseVariableValueSource(String name) {
+    return getVariableValueSourceMappingFunction().apply(variables.getVariableValueSource(name));
   }
 
   @Override
   public VariableValueSource getVariableValueSource(String name) throws NoSuchVariableException {
     if(isViewOfDerivedVariables()) {
       if(isVariableValueSourceInSuper(name)) {
-        return getVariableValueSourceTransformer().apply(super.getVariableValueSource(name));
+        return getVariableValueSourceMappingFunction().apply(super.getVariableValueSource(name));
       } else {
-        return getVariableValueSourceTransformer().apply(variables.getVariableValueSource(name));
+        return getListClauseVariableValueSource(name);
       }
     }
 
@@ -246,7 +257,7 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
     getVariable(name);
 
     // Variable "survived" the SelectClause. Go ahead and call the base class method.
-    return getVariableValueSourceTransformer().apply(super.getVariableValueSource(name));
+    return getVariableValueSourceMappingFunction().apply(super.getVariableValueSource(name));
   }
 
   private boolean isVariableValueSourceInSuper(String name) {
@@ -260,25 +271,28 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
 
   @Override
   public Set<VariableEntity> getVariableEntities() {
-    Set<VariableEntity> viewEntities = new HashSet<VariableEntity>();
-    for(VariableEntity entity : super.getVariableEntities()) {
-      // Tests the where clause if any
-      VariableEntity viewEntity = getVariableEntityTransformer().apply(entity);
-      if(hasValueSet(viewEntity)) {
-        viewEntities.add(viewEntity);
+
+    // First, we transform super.getVariableEntities() using getVariableEntityMappingFunction() (which may modified
+    // entity identifiers)
+    // Second, we filter the resulting entities to remove the ones for which hasValueSet() is false (usually due to a
+    // where clause)
+    // Third, we construct an ImmutableSet from the result
+
+    return ImmutableSet.copyOf(Iterables.filter(Iterables.transform(super.getVariableEntities(), getVariableEntityMappingFunction()), new Predicate<VariableEntity>() {
+
+      @Override
+      public boolean apply(VariableEntity input) {
+        // Only VariableEntities for which hasValueSet() is true (this will usually test the where clause)
+        return hasValueSet(input);
       }
-    }
-    return viewEntities;
+
+    }));
   }
 
   @Override
   public Timestamps getTimestamps(ValueSet valueSet) {
     return super.getTimestamps(((ValueSetWrapper) valueSet).getWrappedValueSet());
   }
-
-  //
-  // Methods
-  //
 
   public void setDatasource(ViewAwareDatasource datasource) {
     this.viewDatasource = datasource;
@@ -309,32 +323,43 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
     this.variables = listClause;
   }
 
-  public Function<VariableEntity, VariableEntity> getVariableEntityTransformer() {
-    return new Function<VariableEntity, VariableEntity>() {
-      public VariableEntity apply(VariableEntity from) {
-        return from;
-      }
-    };
+  @Override
+  public BijectiveFunction<VariableEntity, VariableEntity> getVariableEntityMappingFunction() {
+    return BijectiveFunctions.identity();
   }
 
-  public Function<ValueSet, ValueSet> getValueSetTransformer() {
-    return new Function<ValueSet, ValueSet>() {
+  @Override
+  public BijectiveFunction<ValueSet, ValueSet> getValueSetMappingFunction() {
+    return new BijectiveFunction<ValueSet, ValueSet>() {
+
+      @Override
+      public ValueSet unapply(ValueSet from) {
+        return ((ValueSetWrapper) from).getWrappedValueSet();
+      }
+
+      @Override
       public ValueSet apply(ValueSet from) {
         return new ValueSetWrapper(View.this, from);
       }
     };
   }
 
-  public Function<VariableValueSource, VariableValueSource> getVariableValueSourceTransformer() {
-    return new Function<VariableValueSource, VariableValueSource>() {
+  public BijectiveFunction<VariableValueSource, VariableValueSource> getVariableValueSourceMappingFunction() {
+    return new BijectiveFunction<VariableValueSource, VariableValueSource>() {
       public VariableValueSource apply(VariableValueSource from) {
         return new VariableValueSourceWrapper(from);
+      }
+
+      @Override
+      public VariableValueSource unapply(VariableValueSource from) {
+        return ((VariableValueSourceWrapper) from).wrapped;
       }
     };
   }
 
-  static class VariableValueSourceWrapper implements VariableValueSource {
-    private VariableValueSource wrapped;
+  class VariableValueSourceWrapper implements VariableValueSource {
+
+    private final VariableValueSource wrapped;
 
     VariableValueSourceWrapper(VariableValueSource wrapped) {
       this.wrapped = wrapped;
@@ -347,7 +372,7 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
 
     @Override
     public Value getValue(ValueSet valueSet) {
-      return wrapped.getValue(((ValueSetWrapper) valueSet).getWrappedValueSet());
+      return wrapped.getValue(getValueSetMappingFunction().unapply(valueSet));
     }
 
     @Override

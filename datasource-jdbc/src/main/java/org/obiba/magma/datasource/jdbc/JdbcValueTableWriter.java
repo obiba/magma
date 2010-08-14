@@ -139,7 +139,7 @@ public class JdbcValueTableWriter implements ValueTableWriter {
 
       doWriteVariable(variable);
 
-      valueTable.addVariableValueSource(new JdbcValueTable.JdbcVariableValueSource(variable));
+      valueTable.writeVariableValueSource(new JdbcValueTable.JdbcVariableValueSource(variable));
     }
 
     @Override

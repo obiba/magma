@@ -76,6 +76,10 @@ public class JoinTable implements ValueTable {
     this.tables = ImmutableList.copyOf(tables);
   }
 
+  public List<ValueTable> getTables() {
+    return ImmutableList.copyOf(tables);
+  }
+
   //
   // ValueTable Methods
   //

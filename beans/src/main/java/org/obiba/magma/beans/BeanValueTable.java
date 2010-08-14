@@ -1,19 +1,21 @@
 package org.obiba.magma.beans;
 
+import java.util.Collection;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
 import org.obiba.magma.Datasource;
 import org.obiba.magma.NoSuchValueSetException;
 import org.obiba.magma.Timestamps;
-import org.obiba.magma.Value;
 import org.obiba.magma.ValueSet;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
+import org.obiba.magma.VariableValueSource;
+import org.obiba.magma.VariableValueSourceFactory;
 import org.obiba.magma.support.AbstractValueTable;
+import org.obiba.magma.support.NullTimestamps;
 import org.obiba.magma.support.VariableEntityProvider;
-import org.obiba.magma.type.DateTimeType;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
@@ -56,6 +58,24 @@ public class BeanValueTable extends AbstractValueTable {
     resolvers.add(resolver);
   }
 
+  // TODO: these were overriden to increase visibility. We should find an alternative to doing this.
+  @Override
+  public void addVariableValueSource(VariableValueSource source) {
+    // TODO Auto-generated method stub
+    super.addVariableValueSource(source);
+  }
+
+  @Override
+  public void addVariableValueSources(Collection<VariableValueSource> sources) {
+    super.addVariableValueSources(sources);
+  }
+
+  @Override
+  public void addVariableValueSources(VariableValueSourceFactory factory) {
+    // TODO Auto-generated method stub
+    super.addVariableValueSources(factory);
+  }
+
   private Object resolve(final Class<?> type, ValueSet valueSet, Variable variable) throws NoSuchBeanException {
     try {
       return Iterables.find(getResolvers(), new Predicate<ValueSetBeanResolver>() {
@@ -71,18 +91,7 @@ public class BeanValueTable extends AbstractValueTable {
 
   @Override
   public Timestamps getTimestamps(ValueSet valueSet) {
-    return new Timestamps() {
-
-      @Override
-      public Value getLastUpdate() {
-        return DateTimeType.get().nullValue();
-      }
-
-      @Override
-      public Value getCreated() {
-        return DateTimeType.get().nullValue();
-      }
-    };
+    return NullTimestamps.get();
   }
 
 }

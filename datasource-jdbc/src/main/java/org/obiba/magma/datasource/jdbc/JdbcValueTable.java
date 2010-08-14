@@ -143,6 +143,10 @@ class JdbcValueTable extends AbstractValueTable {
     return getSettings().isUpdatedTimestampColumnNameProvided() ? getSettings().getUpdatedTimestampColumnName() : getDatasource().getSettings().getDefaultUpdatedTimestampColumnName();
   }
 
+  void writeVariableValueSource(VariableValueSource source) {
+    super.addVariableValueSource(source);
+  }
+
   private static List<String> getEntityIdentifierColumns(Table table) {
     List<String> entityIdentifierColumns = new ArrayList<String>();
     for(Column column : table.getColumns()) {
@@ -380,7 +384,7 @@ class JdbcValueTable extends AbstractValueTable {
     // Instance Variables
     //
 
-    private Variable variable;
+    private final Variable variable;
 
     //
     // Constructors

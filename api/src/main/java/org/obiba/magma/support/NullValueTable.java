@@ -15,6 +15,9 @@ import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.VariableValueSource;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
+
 public class NullValueTable implements ValueTable {
   //
   // Constants
@@ -42,7 +45,7 @@ public class NullValueTable implements ValueTable {
   }
 
   public String getEntityType() {
-    return null;
+    return "";
   }
 
   public boolean isForEntityType(String entityType) {
@@ -50,7 +53,7 @@ public class NullValueTable implements ValueTable {
   }
 
   public Set<VariableEntity> getVariableEntities() {
-    return null;
+    return ImmutableSet.of();
   }
 
   public boolean hasValueSet(VariableEntity entity) {
@@ -58,11 +61,11 @@ public class NullValueTable implements ValueTable {
   }
 
   public Iterable<ValueSet> getValueSets() {
-    return null;
+    return ImmutableList.of();
   }
 
   public ValueSet getValueSet(VariableEntity entity) throws NoSuchValueSetException {
-    return null;
+    throw new NoSuchValueSetException(this, entity);
   }
 
   public boolean hasVariable(String name) {
@@ -74,7 +77,7 @@ public class NullValueTable implements ValueTable {
   }
 
   public Variable getVariable(String name) throws NoSuchVariableException {
-    return null;
+    throw new NoSuchVariableException("null", name);
   }
 
   public Value getValue(Variable variable, ValueSet valueSet) {
@@ -82,11 +85,11 @@ public class NullValueTable implements ValueTable {
   }
 
   public VariableValueSource getVariableValueSource(String name) throws NoSuchVariableException {
-    return null;
+    throw new NoSuchVariableException("null", name);
   }
 
   public Timestamps getTimestamps(ValueSet valueSet) {
-    return null;
+    return NullTimestamps.get();
   }
 
   //

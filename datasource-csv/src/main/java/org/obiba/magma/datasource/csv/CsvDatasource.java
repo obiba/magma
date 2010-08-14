@@ -9,6 +9,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.Writer;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -114,7 +115,7 @@ public class CsvDatasource extends AbstractDatasource {
    * used.
    */
   public String[] getDefaultVariablesHeader() {
-    return defaultVariablesHeader;
+    return Arrays.copyOf(defaultVariablesHeader, defaultVariablesHeader.length);
   }
 
   /**
@@ -123,7 +124,7 @@ public class CsvDatasource extends AbstractDatasource {
    * used.
    */
   public void setDefaultVariablesHeader(String[] defaultVariablesHeader) {
-    this.defaultVariablesHeader = defaultVariablesHeader;
+    this.defaultVariablesHeader = Arrays.copyOf(defaultVariablesHeader, defaultVariablesHeader.length);
   }
 
   CSVWriter getCsvWriter(File file) {

@@ -1,5 +1,8 @@
 package org.obiba.magma.datasource.excel.support;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.poi.ss.usermodel.Cell;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueType;
@@ -59,6 +62,7 @@ public class ExcelUtil {
   }
 
   public static void setCellValue(Cell cell, ValueType valueType, String value) {
+    if(cell == null) throw new IllegalArgumentException("Cell cannot be null before setting a value");
     if(value != null && value.length() > 32767) {
       value = "WARN: Value to large for Excel.";
     }
@@ -103,7 +107,7 @@ public class ExcelUtil {
    */
   public static String findNormalizedHeader(final Iterable<String> headers, final String header) {
     for(String userHeader : headers) {
-      if(normalizeHeader(userHeader).equalsIgnoreCase(normalizeHeader(header))) {
+      if(normalizeHeader(userHeader).equals(normalizeHeader(header))) {
         return userHeader;
       }
     }
@@ -111,14 +115,27 @@ public class ExcelUtil {
   }
 
   /**
-   * Allow "Value Type" or "value_type" or "Value-Type" for "valueType".
+   * Allow for instance "Value Type" or "value_type" or "Value-Type" or "valuetype" for "valueType".
    * @param userHeader
    * @return
    */
   private static String normalizeHeader(String userHeader) {
-    String h = userHeader.replace(" ", "");
-    h = h.replace("_", "");
-    h = h.replace("-", "");
-    return h;
+    if(cachedNormalizedHeaders.containsKey(userHeader)) {
+      return cachedNormalizedHeaders.get(userHeader);
+    } else {
+      StringBuffer buf = new StringBuffer();
+      for(int i = 0; i < userHeader.length(); i++) {
+        char c = userHeader.charAt(i);
+        if(c != ' ' && c != '_' && c != '-') {
+          buf.append(c);
+        }
+      }
+      String h = buf.toString().toLowerCase();
+      cachedNormalizedHeaders.put(userHeader, h);
+      // System.out.println("cache=" + cachedNormalizedHeaders);
+      return h;
+    }
   }
+
+  private static Map<String, String> cachedNormalizedHeaders = new HashMap<String, String>();
 }

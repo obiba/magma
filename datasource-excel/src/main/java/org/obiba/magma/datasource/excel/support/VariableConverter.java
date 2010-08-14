@@ -1,5 +1,6 @@
 package org.obiba.magma.datasource.excel.support;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -15,6 +16,7 @@ import org.obiba.magma.Category;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueType;
 import org.obiba.magma.Variable;
+import org.obiba.magma.datasource.excel.ExcelDatasource;
 import org.obiba.magma.datasource.excel.ExcelValueTable;
 import org.obiba.magma.type.BooleanType;
 import org.obiba.magma.type.TextType;
@@ -88,8 +90,16 @@ public class VariableConverter {
    * @return
    */
   public boolean isVariableRow(Row variableRow) {
-    String table = getVariableCellValue(variableRow, TABLE);
+    Integer idx = getVariableHeaderIndex(TABLE);
+    String table = ExcelDatasource.DEFAULT_TABLE_NAME;
+    if(idx != null) {
+      table = getVariableCellValue(variableRow, TABLE);
+    }
     return valueTable.getName().equals(table);
+  }
+
+  public String getVariableName(Row variableRow) {
+    return getVariableCellValue(variableRow, NAME).trim();
   }
 
   //
@@ -98,22 +108,40 @@ public class VariableConverter {
 
   public Variable unmarshall(Row variableRow) {
     String name = getVariableCellValue(variableRow, NAME).trim();
-    String valueType = getVariableCellValue(variableRow, VALUE_TYPE).trim();
+    String valueTypeStr = getVariableCellValue(variableRow, VALUE_TYPE).trim();
     String entityType = getVariableCellValue(variableRow, ENTITY_TYPE).trim();
     String mimeType = getVariableCellValue(variableRow, MIME_TYPE).trim();
     String unit = getVariableCellValue(variableRow, UNIT).trim();
     String occurrenceGroup = getVariableCellValue(variableRow, OCCURRENCE_GROUP).trim();
     boolean repeatable = parseBoolean(getVariableCellValue(variableRow, REPEATABLE).trim());
 
+    // required values
+    if(name.length() == 0) {
+      throw new ExcelDatasourceParsingException("Variable name is required in table: " + valueTable.getName(), //
+      "VariableNameRequired", ExcelDatasource.VARIABLES_SHEET, variableRow.getRowNum() + 1, valueTable.getName());
+    }
+    if(name.contains(":")) {
+      throw new ExcelDatasourceParsingException("Variable name cannot contain ':' in variable: " + valueTable.getName() + " / " + name, //
+      "VariableNameCannotContainColon", ExcelDatasource.VARIABLES_SHEET, variableRow.getRowNum() + 1, valueTable.getName(), name);
+    }
+
     // default values
-    if(valueType.length() == 0 || valueType.equalsIgnoreCase("string")) {
-      valueType = TextType.get().getName();
+    ValueType valueType;
+    if(valueTypeStr.length() == 0 || valueTypeStr.equalsIgnoreCase("string")) {
+      valueType = TextType.get();
+    } else {
+      try {
+        valueType = ValueType.Factory.forName(valueTypeStr);
+      } catch(Exception e) {
+        throw new ExcelDatasourceParsingException("Unknown value type '" + valueTypeStr + "' for variable: " + valueTable.getName() + " / " + name, //
+        "UnknownValueType", ExcelDatasource.VARIABLES_SHEET, variableRow.getRowNum() + 1, valueTable.getName(), name, valueTypeStr);
+      }
     }
     if(entityType.length() == 0) {
       entityType = "Participant";
     }
 
-    Variable.Builder builder = Variable.Builder.newVariable(name, ValueType.Factory.forName(valueType), entityType);
+    Variable.Builder builder = Variable.Builder.newVariable(name, valueType, entityType);
 
     // more default values
     if(mimeType.length() > 0) {
@@ -146,34 +174,56 @@ public class VariableConverter {
    * @param variableBuilder
    */
   private void unmarshallCategories(String variableName, Variable.Builder variableBuilder) {
-
-    String categoryTable;
-    String categoryVariable;
-
-    Row categoryRow;
-
     if(getHeaderMapCategories() == null) return;
 
     Sheet categoriesSheet = valueTable.getDatasource().getCategoriesSheet();
     int categoryRowCount = categoriesSheet.getPhysicalNumberOfRows();
+    List<String> categoryNames = new ArrayList<String>();
+    List<ExcelDatasourceParsingException> errors = new ArrayList<ExcelDatasourceParsingException>();
+    Row firstRow = null;
     for(int x = 1; x < categoryRowCount; x++) {
-      categoryRow = categoriesSheet.getRow(x);
-      categoryTable = getCategoryCellValue(categoryRow, TABLE);
-      categoryVariable = getCategoryCellValue(categoryRow, VARIABLE);
+      Row categoryRow = categoriesSheet.getRow(x);
 
-      if(categoryTable.equals(valueTable.getName()) && categoryVariable.equals(variableName)) {
-        Category category = unmarshallCategory(categoryRow);
-        variableBuilder.addCategory(category);
-        String key = variableName + category.getName();
-        categoryRows.put(key, categoryRow);
+      if(getCategoryTableName(categoryRow).equals(valueTable.getName()) && getCategoryVariableName(categoryRow).equals(variableName)) {
+        if(firstRow == null) firstRow = categoryRow;
+        try {
+          Category category = unmarshallCategory(variableName, categoryRow);
+          if(categoryNames.contains(category.getName())) {
+            errors.add(new ExcelDatasourceParsingException("Duplicate category name in variable: " + valueTable.getName() + " / " + variableName, //
+            "DuplicateCategoryName", ExcelDatasource.CATEGORIES_SHEET, categoryRow.getRowNum() + 1, valueTable.getName(), variableName, category.getName()));
+          } else {
+            categoryNames.add(category.getName());
+            variableBuilder.addCategory(category);
+            String key = variableName + category.getName();
+            categoryRows.put(key, categoryRow);
+          }
+        } catch(ExcelDatasourceParsingException pe) {
+          errors.add(pe);
+        } catch(Exception e) {
+          errors.add(new ExcelDatasourceParsingException("Unexpected error in category: " + e.getMessage(), e, //
+          "UnexpectedErrorInCategory", ExcelDatasource.CATEGORIES_SHEET, categoryRow.getRowNum() + 1, valueTable.getName(), variableName));
+        }
       }
+    }
+
+    if(errors.size() > 0) {
+      ExcelDatasourceParsingException parent = new ExcelDatasourceParsingException("Errors while parsing categories of variable: " + valueTable.getName() + " / " + variableName, //
+      "VariableCategoriesDefinitionErrors", ExcelDatasource.CATEGORIES_SHEET, firstRow.getRowNum() + 1, valueTable.getName(), variableName);
+      parent.setChildren(errors);
+      throw parent;
     }
   }
 
-  private Category unmarshallCategory(Row categoryRow) {
+  private Category unmarshallCategory(String variableName, Row categoryRow) {
     String name = getCategoryCellValue(categoryRow, NAME).trim();
     String code = getCategoryCellValue(categoryRow, CODE).trim();
     boolean missing = parseBoolean(getCategoryCellValue(categoryRow, MISSING).trim());
+
+    // required values
+    if(name.length() == 0) {
+      throw new ExcelDatasourceParsingException("Category name is required for variable: " + valueTable.getName() + " / " + variableName, //
+      "CategoryNameRequired", ExcelDatasource.CATEGORIES_SHEET, categoryRow.getRowNum() + 1, valueTable.getName(), variableName);
+    }
 
     Category.Builder builder = Category.Builder.newCategory(name).missing(missing);
 
@@ -188,7 +238,7 @@ public class VariableConverter {
   }
 
   private boolean parseBoolean(String str) {
-    return (str.equals("1") || str.equalsIgnoreCase("true") || str.equalsIgnoreCase("no"));
+    return (str.equals("1") || str.equalsIgnoreCase("true") || str.equalsIgnoreCase("yes") || str.equalsIgnoreCase("y") || str.equalsIgnoreCase("x"));
   }
 
   /**
@@ -328,14 +378,29 @@ public class VariableConverter {
     return row;
   }
 
+  /**
+   * Get the index of the last cell in the row.
+   * @param row
+   * @return 0 if there is no cell
+   */
   private int getLastCellNum(Row row) {
     return row.getLastCellNum() == -1 ? 0 : row.getLastCellNum();
   }
 
+  /**
+   * Get the value in the cell as a string.
+   * @param cell
+   * @return empty string if cell is null
+   */
   private String getCellValueAsString(Cell cell) {
     return ExcelUtil.getCellValueAsString(cell);
   }
 
+  /**
+   * Get the locale part in an attribute header such as 'name:locale'.
+   * @param attributeName
+   * @return null if no locale for this header
+   */
   private static Locale getAttributeLocale(String attributeName) {
     String[] parsedAttributeName = attributeName.split(":");
     if(parsedAttributeName.length > 1) {
@@ -344,28 +409,54 @@ public class VariableConverter {
     return null;
   }
 
+  /**
+   * Get the name part in an attribute header such as 'name:locale'.
+   * @param attributeName
+   * @return
+   */
   private static String getAttributeShortName(String attributeName) {
     return attributeName.split(":")[0];
   }
 
+  /**
+   * Get the variable cell for given row at given header column. Create one if missing.
+   * @param row
+   * @param header
+   * @return null if no such header
+   */
   private Cell getVariableCell(Row row, String header) {
-    return row.getCell(getHeaderMapVariables().get(header), Row.CREATE_NULL_AS_BLANK);
+    Integer idx = getVariableHeaderIndex(header);
+    return idx != null ? row.getCell(idx, Row.CREATE_NULL_AS_BLANK) : null;
   }
 
+  /**
+   * Get the variable cell value for given row at given header.
+   * @param row
+   * @param header
+   * @return empty string if no such cell
+   */
   private String getVariableCellValue(Row row, final String header) {
-    Integer idx = getHeaderMapVariables().get(header);
-    if(idx == null && reservedVariableHeaders.contains(header)) {
-      String found = ExcelUtil.findNormalizedHeader(headerMapVariables.keySet(), header);
-      if(found != null) {
-        idx = headerMapVariables.get(found);
-      }
-    }
-    if(idx == null) {
-      return "";
-    }
-    return getCellValueAsString(row.getCell(idx)).trim();
+    Integer idx = getVariableHeaderIndex(header);
+    return idx != null ? getCellValueAsString(row.getCell(idx)).trim() : "";
   }
 
+  /**
+   * Get the 0-based index of the variable column at the given header.
+   * @param header
+   * @return null if no such header
+   */
+  private Integer getVariableHeaderIndex(final String header) {
+    if(reservedVariableHeaders.contains(header)) {
+      return getHeaderIndex(getHeaderMapVariables(), header);
+    } else {
+      return getHeaderMapVariables().get(header);
+    }
+  }
+
+  /**
+   * Get the map between a variable header and the 0-based index of the column.
+   * @return
+   */
   public Map<String, Integer> getHeaderMapVariables() {
     if(headerMapVariables == null) {
       headerMapVariables = valueTable.getDatasource().getVariablesHeaderMap();
@@ -373,6 +464,10 @@ public class VariableConverter {
     return headerMapVariables;
   }
 
+  /**
+   * Get the set of attribute headers for the variables.
+   * @return
+   */
   private Set<String> getAttributeNamesVariables() {
     if(attributeNamesVariables == null) {
       attributeNamesVariables = valueTable.getDatasource().getVariablesCustomAttributeNames();
@@ -380,24 +475,61 @@ public class VariableConverter {
     return attributeNamesVariables;
   }
 
-  private String getCategoryCellValue(Row row, String header) {
-    Integer idx = getHeaderMapCategories().get(header);
-    if(idx == null && reservedCategoryHeaders.contains(header)) {
-      String found = ExcelUtil.findNormalizedHeader(headerMapCategories.keySet(), header);
-      if(found != null) {
-        idx = headerMapCategories.get(found);
-      }
-    }
-    if(idx == null) {
-      return "";
-    }
-    return getCellValueAsString(row.getCell(idx)).trim();
-  }
-
+  /**
+   * Get the category cell for given row at given header column. Create one if missing.
+   * @param row
+   * @param header
+   * @return null if no such header
+   */
   private Cell getCategoryCell(Row row, String header) {
-    return row.getCell(getHeaderMapCategories().get(header), Row.CREATE_NULL_AS_BLANK);
+    Integer idx = getCategoryHeaderIndex(header);
+    return idx != null ? row.getCell(idx, Row.CREATE_NULL_AS_BLANK) : null;
   }
 
+  /**
+   * Get the category cell value for given row at given header.
+   * @param row
+   * @param header
+   * @return empty string if no such cell
+   */
+  private String getCategoryCellValue(Row row, String header) {
+    Integer idx = getCategoryHeaderIndex(header);
+    return idx != null ? getCellValueAsString(row.getCell(idx)).trim() : "";
+  }
+
+  /**
+   * Get the 0-based index of the category column at the given header.
+   * @param header
+   * @return null if no such header
+   */
+  private Integer getCategoryHeaderIndex(final String header) {
+    if(reservedCategoryHeaders.contains(header)) {
+      return getHeaderIndex(getHeaderMapCategories(), header);
+    } else {
+      return getHeaderMapCategories().get(header);
+    }
+  }
+
+  /**
+   * Get the 0-based index of the column at the given header relatively to the header map.
+   * @param headerMap
+   * @param header
+   * @return null if no such header
+   * @see ExcelUtil#findNormalizedHeader(Iterable, String)
+   */
+  private Integer getHeaderIndex(final Map<String, Integer> headerMap, final String header) {
+    Integer idx = null;
+    String found = ExcelUtil.findNormalizedHeader(headerMap.keySet(), header);
+    if(found != null) {
+      idx = headerMap.get(found);
+    }
+    return idx;
+  }
+
+  /**
+   * Get the map between a category header and the 0-based index of the column.
+   * @return
+   */
   public Map<String, Integer> getHeaderMapCategories() {
     if(headerMapCategories == null) {
       headerMapCategories = valueTable.getDatasource().getCategoriesHeaderMap();
@@ -405,10 +537,37 @@ public class VariableConverter {
     return headerMapCategories;
   }
 
+  /**
+   * Get the set of attribute headers for the categories.
+   * @return
+   */
   private Set<String> getAttributeNamesCategories() {
     if(attributeNamesCategories == null) {
       attributeNamesCategories = valueTable.getDatasource().getCategoriesCustomAttributeNames();
     }
     return attributeNamesCategories;
+  }
+
+  /**
+   * Get the table name for a category row.
+   * @param categoryRow
+   * @return if no table column is defined, returns the default table name
+   */
+  public String getCategoryTableName(Row categoryRow) {
+    Integer idx = getVariableHeaderIndex(TABLE);
+    if(idx != null) {
+      return getCategoryCellValue(categoryRow, TABLE).trim();
+    } else {
+      return ExcelDatasource.DEFAULT_TABLE_NAME;
+    }
+  }
+
+  /**
+   * Get the variable name for a category row.
+   * @param categoryRow
+   * @return
+   */
+  public String getCategoryVariableName(Row categoryRow) {
+    return getCategoryCellValue(categoryRow, VARIABLE).trim();
   }
 }

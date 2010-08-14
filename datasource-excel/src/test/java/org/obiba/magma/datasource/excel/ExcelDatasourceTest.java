@@ -20,10 +20,12 @@ import org.junit.Test;
 import org.obiba.magma.Category;
 import org.obiba.magma.Datasource;
 import org.obiba.magma.MagmaEngine;
+import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.ValueTableWriter;
 import org.obiba.magma.Variable;
 import org.obiba.magma.ValueTableWriter.VariableWriter;
+import org.obiba.magma.support.DatasourceParsingException;
 import org.obiba.magma.type.IntegerType;
 import org.obiba.magma.type.TextType;
 
@@ -53,6 +55,7 @@ public class ExcelDatasourceTest {
     ValueTable table = datasource.getValueTable("Table1");
     Assert.assertNotNull(table);
     Assert.assertEquals("Participant", table.getEntityType());
+    Assert.assertEquals(4, countVariables(table));
 
     Variable var = table.getVariable("Var1");
     Assert.assertEquals(IntegerType.get(), var.getValueType());
@@ -89,10 +92,122 @@ public class ExcelDatasourceTest {
   }
 
   @Test
+  public void testReadUserDefinedBogus() {
+
+    ExcelDatasource datasource = new ExcelDatasource("user-defined-bogus", new File("src/test/resources/org/obiba/magma/datasource/excel/user-defined-bogus.xls"));
+    try {
+      datasource.initialise();
+    } catch(DatasourceParsingException dpe) {
+      // dpe.printTree();
+      // System.out.println("******");
+      // dpe.printList();
+      Assert.assertTrue(dpe.hasChildren());
+      List<DatasourceParsingException> errors = dpe.getChildrenAsList();
+      Assert.assertEquals(15, errors.size());
+      assertDatasourceParsingException("VariableNameRequired", "[Variables, 10, Table2]", errors.get(0));
+      assertDatasourceParsingException("DuplicateCategoryName", "[Categories, 4, Table1, Var1, C2]", errors.get(1));
+      assertDatasourceParsingException("CategoryNameRequired", "[Categories, 5, Table1, Var1]", errors.get(2));
+      assertDatasourceParsingException("DuplicateCategoryName", "[Categories, 7, Table1, Var2, C1]", errors.get(3));
+      assertDatasourceParsingException("VariableNameRequired", "[Variables, 6, Table1]", errors.get(4));
+      assertDatasourceParsingException("DuplicateVariableName", "[Variables, 7, Table1, Var1]", errors.get(5));
+      assertDatasourceParsingException("VariableNameCannotContainColon", "[Variables, 8, Table1, Foo:Bar]", errors.get(6));
+      assertDatasourceParsingException("UnknownValueType", "[Variables, 9, Table1, Var5, Numerical]", errors.get(7));
+      assertDatasourceParsingException("UnidentifiedVariableName", "[Categories, 8, Table1, VarUnknown]", errors.get(8));
+      assertDatasourceParsingException("CategoryVariableNameRequired", "[Categories, 9, Table1]", errors.get(9));
+      assertDatasourceParsingException("CategoryVariableNameRequired", "[Categories, 10, Table1]", errors.get(10));
+      assertDatasourceParsingException("DuplicateColumns", "[Table1, 1, Table1, Var2]", errors.get(11));
+      assertDatasourceParsingException("DuplicateColumns", "[Table1, 1, Table1, Var6]", errors.get(12));
+      assertDatasourceParsingException("VariableNameCannotContainColon", "[Table1, 1, Table1, Toto:Tata]", errors.get(13));
+      assertDatasourceParsingException("VariableNameRequired", "[Table1, 1, Table1]", errors.get(14));
+    }
+  }
+
+  @Test
+  public void testReadWriteUserDefinedNoTableColumn() throws IOException {
+    ExcelDatasource datasource = new ExcelDatasource("user-defined-no-table-column", new File("src/test/resources/org/obiba/magma/datasource/excel/user-defined-no-table-column.xls"));
+    datasource.initialise();
+
+    Assert.assertEquals(1, datasource.getValueTables().size());
+    ValueTable table = datasource.getValueTable(ExcelDatasource.DEFAULT_TABLE_NAME);
+    Assert.assertNotNull(table);
+    Assert.assertEquals(3, countVariables(table));
+    Variable variable = table.getVariable("Var1");
+    Assert.assertEquals(3, variable.getCategories().size());
+
+    // test that writing variable & category when some columns are missing does not fail
+    Variable testVariable = Variable.Builder.newVariable("test-variable", TextType.get(), "Participant").addCategories("test-category").build();
+    writeVariableToDatasource(datasource, ExcelDatasource.DEFAULT_TABLE_NAME, testVariable);
+
+  }
+
+  @Test
+  public void testReadWriteUserDefinedNoMeta() throws IOException {
+    ExcelDatasource datasource = new ExcelDatasource("user-defined-no-meta", new File("src/test/resources/org/obiba/magma/datasource/excel/user-defined-no-meta.xls"));
+    datasource.initialise();
+
+    Assert.assertEquals(1, datasource.getValueTables().size());
+    ValueTable table = datasource.getValueTable("Table1");
+    Assert.assertNotNull(table);
+    Assert.assertEquals(2, countVariables(table));
+    Variable variable = table.getVariable("Var1");
+    Assert.assertEquals(TextType.get(), variable.getValueType());
+    Assert.assertEquals(0, variable.getCategories().size());
+    variable = table.getVariable("Var2");
+    Assert.assertEquals(TextType.get(), variable.getValueType());
+    Assert.assertEquals(0, variable.getCategories().size());
+
+    // test that writing variable & category when some columns are missing does not fail
+    Variable testVariable = Variable.Builder.newVariable("test-variable", TextType.get(), "Participant").addCategories("test-category").build();
+    writeVariableToDatasource(datasource, "Table1", testVariable);
+
+    // datasource.dispose();
+
+  }
+
+  @Test
+  public void testReadUserDefinedMixedMeta() throws IOException {
+    ExcelDatasource datasource = new ExcelDatasource("user-defined-mixed-meta", new File("src/test/resources/org/obiba/magma/datasource/excel/user-defined-mixed-meta.xls"));
+    datasource.initialise();
+
+    Assert.assertEquals(1, datasource.getValueTables().size());
+    ValueTable table = datasource.getValueTable("Table1");
+    Assert.assertNotNull(table);
+    Assert.assertEquals(3, countVariables(table));
+    Variable variable = table.getVariable("Var1");
+    Assert.assertEquals(IntegerType.get(), variable.getValueType());
+    Assert.assertEquals(2, variable.getCategories().size());
+    variable = table.getVariable("Var2");
+    Assert.assertEquals(IntegerType.get(), variable.getValueType());
+    Assert.assertEquals(0, variable.getCategories().size());
+    variable = table.getVariable("Var3");
+    Assert.assertEquals(TextType.get(), variable.getValueType());
+    Assert.assertEquals(0, variable.getCategories().size());
+
+  }
+
+  @Test
+  public void testReadUserDefinedBogusNoTableColumn() {
+    ExcelDatasource datasource = new ExcelDatasource("user-defined-bogus-no-table-column", new File("src/test/resources/org/obiba/magma/datasource/excel/user-defined-bogus-no-table-column.xls"));
+    try {
+      datasource.initialise();
+    } catch(MagmaRuntimeException e) {
+      if(e.getCause() instanceof DatasourceParsingException) {
+        DatasourceParsingException dpe = (DatasourceParsingException) e.getCause();
+        // dpe.printTree();
+        // // System.out.println("******");
+        // dpe.printList();
+        Assert.assertTrue(dpe.hasChildren());
+        List<DatasourceParsingException> errors = dpe.getChildrenAsList();
+        Assert.assertEquals(8, errors.size());
+      }
+    }
+  }
+
+  @Test
   public void testWriteVariableIsReadBack() throws IOException {
     File tmpExcelFile = createTempFile(".xlsx");
 
-    Variable testVariable = Variable.Builder.newVariable("test-variable", TextType.get(), "entityType").build();
+    Variable testVariable = Variable.Builder.newVariable("test-variable", TextType.get(), "Participant").build();
 
     ExcelDatasource datasource = new ExcelDatasource("test", tmpExcelFile);
     datasource.initialise();
@@ -110,7 +225,7 @@ public class ExcelDatasourceTest {
   public void testWriteVariableMultipleTimes() throws IOException {
     File tmpExcelFile = createTempFile(".xlsx");
 
-    Variable testVariable = Variable.Builder.newVariable("test-variable", TextType.get(), "entityType").build();
+    Variable testVariable = Variable.Builder.newVariable("test-variable", TextType.get(), "Participant").build();
 
     ExcelDatasource datasource = new ExcelDatasource("test", tmpExcelFile);
     datasource.initialise();
@@ -226,10 +341,23 @@ public class ExcelDatasourceTest {
   }
 
   private void writeVariableToDatasource(Datasource datasource, String tableName, Variable testVariable) throws IOException {
-    ValueTableWriter writer = datasource.createWriter("test-table", "entityType");
+    ValueTableWriter writer = datasource.createWriter(tableName, "Participant");
     VariableWriter vw = writer.writeVariables();
     vw.writeVariable(testVariable);
     vw.close();
     writer.close();
+  }
+
+  private void assertDatasourceParsingException(String expectedKey, String expectedParameters, DatasourceParsingException dpe) {
+    Assert.assertEquals(expectedKey, dpe.getKey());
+    Assert.assertEquals(expectedParameters, dpe.getParameters().toString());
+  }
+
+  private int countVariables(ValueTable table) {
+    int count = 0;
+    for(Variable v : table.getVariables()) {
+      count++;
+    }
+    return count;
   }
 }
