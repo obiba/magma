@@ -6,18 +6,19 @@ import org.obiba.magma.VariableEntity;
 
 public class ValueSetBean implements ValueSet {
 
-  private ValueTable table;
+  private final ValueTable table;
 
-  private VariableEntity entity;
+  private final VariableEntity entity;
 
   public ValueSetBean(ValueTable table, VariableEntity entity) {
+    if(table == null) throw new IllegalArgumentException("table cannot be null");
+    if(entity == null) throw new IllegalArgumentException("entity cannot be null");
     this.table = table;
     this.entity = entity;
   }
 
   protected ValueSetBean(ValueSet valueSet) {
-    this.table = valueSet.getValueTable();
-    this.entity = valueSet.getVariableEntity();
+    this(valueSet.getValueTable(), valueSet.getVariableEntity());
   }
 
   @Override

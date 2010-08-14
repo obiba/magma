@@ -4,16 +4,16 @@ import org.obiba.magma.VariableEntity;
 
 public class VariableEntityBean implements VariableEntity {
 
-  private String entityType;
+  private final String entityType;
 
-  private String entityIdentifier;
+  private final String entityIdentifier;
 
   private transient volatile int hashCode = 0;
 
   public VariableEntityBean(String entityType, String entityIdentifier) {
-    if(entityIdentifier != null && entityIdentifier.trim().length() == 0) {
-      throw new IllegalArgumentException("Empty identifier for entity type " + entityType + " (identifier was [" + entityIdentifier + "])");
-    }
+    if(entityType == null) throw new IllegalArgumentException("entityType cannot be null");
+    if(entityIdentifier == null) throw new IllegalArgumentException("entityIdentifier cannot be null");
+    if(entityIdentifier.trim().length() == 0) throw new IllegalArgumentException("entityIdentifier cannot be empty");
 
     this.entityType = entityType;
     this.entityIdentifier = entityIdentifier;
