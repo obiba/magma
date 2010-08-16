@@ -288,7 +288,7 @@ public class ExcelValueTable extends AbstractValueTable implements Initialisable
       if(valueTableSheet != null) {
         for(int i = 1; i < valueTableSheet.getPhysicalNumberOfRows(); i++) {
           Cell cell = valueTableSheet.getRow(i).getCell(0);
-          entitiesBuilder.add(new VariableEntityBean(entityType, cell.getStringCellValue()));
+          entitiesBuilder.add(new VariableEntityBean(entityType, ExcelUtil.getCellValueAsString(cell)));
         }
       }
 
