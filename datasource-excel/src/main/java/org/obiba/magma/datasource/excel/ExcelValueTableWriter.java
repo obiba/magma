@@ -1,8 +1,6 @@
 package org.obiba.magma.datasource.excel;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.Map;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
@@ -56,35 +54,41 @@ public class ExcelValueTableWriter implements ValueTableWriter {
       if(headerRowVariables == null) {
         headerRowVariables = variablesSheet.createRow(0);
       }
-      updateSheetHeaderRow(converter.getHeaderMapVariables(), headerRowVariables, VariableConverter.reservedVariableHeaders);
+      updateVariableSheetHeaderRow(headerRowVariables);
 
       Row headerRowCategories = categoriesSheet.getRow(0);
       if(headerRowCategories == null) {
         headerRowCategories = categoriesSheet.createRow(0);
       }
-      updateSheetHeaderRow(converter.getHeaderMapCategories(), headerRowCategories, VariableConverter.reservedCategoryHeaders);
+      updateCategorySheetHeaderRow(headerRowCategories);
 
       converter.marshall(variable, headerRowVariables, headerRowCategories);
     }
 
-    /**
-     * Update the header Row (usually the first Row) in an Excel sheet to make sure that all provided column names are
-     * represented.
-     * 
-     * @param headerMap
-     * @param headerRow
-     * @param columnNames
-     */
-    private void updateSheetHeaderRow(Map<String, Integer> headerMap, Row headerRow, List<String> columnNames) {
-      Cell headerCell;
-      for(String reservedAttributeName : columnNames) {
-        if(ExcelUtil.findNormalizedHeader(headerMap.keySet(), reservedAttributeName) == null) {
-          headerMap.put(reservedAttributeName, Integer.valueOf(getLastCellNum(headerRow)));
-          headerCell = headerRow.createCell(getLastCellNum(headerRow));
-          headerCell.setCellValue(reservedAttributeName);
-          headerCell.setCellStyle(valueTable.getDatasource().getHeaderCellStyle());
+    private void updateVariableSheetHeaderRow(Row headerRow) {
+      VariableConverter converter = valueTable.getVariableConverter();
+      for(String reservedAttributeName : VariableConverter.reservedVariableHeaders) {
+        if(converter.getVariableHeaderIndex(reservedAttributeName) == null) {
+          converter.putVariableHeaderIndex(reservedAttributeName, Integer.valueOf(getLastCellNum(headerRow)));
+          createHeaderCell(headerRow, reservedAttributeName);
         }
       }
+    }
+
+    private void updateCategorySheetHeaderRow(Row headerRow) {
+      VariableConverter converter = valueTable.getVariableConverter();
+      for(String reservedAttributeName : VariableConverter.reservedCategoryHeaders) {
+        if(converter.getCategoryHeaderIndex(reservedAttributeName) == null) {
+          converter.putCategoryHeaderIndex(reservedAttributeName, Integer.valueOf(getLastCellNum(headerRow)));
+          createHeaderCell(headerRow, reservedAttributeName);
+        }
+      }
+    }
+
+    private void createHeaderCell(Row headerRow, final String header) {
+      Cell headerCell = headerRow.createCell(getLastCellNum(headerRow));
+      headerCell.setCellValue(header);
+      headerCell.setCellStyle(valueTable.getDatasource().getHeaderCellStyle());
     }
 
     private int getLastCellNum(Row row) {

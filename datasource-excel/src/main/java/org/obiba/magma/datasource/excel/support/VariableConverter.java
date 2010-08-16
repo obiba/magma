@@ -445,7 +445,7 @@ public class VariableConverter {
    * @param header
    * @return null if no such header
    */
-  private Integer getVariableHeaderIndex(final String header) {
+  public Integer getVariableHeaderIndex(final String header) {
     if(reservedVariableHeaders.contains(header)) {
       return getHeaderIndex(getHeaderMapVariables(), header);
     } else {
@@ -454,10 +454,19 @@ public class VariableConverter {
   }
 
   /**
+   * Set the 0-based index of a variable column at the given header.
+   * @param header
+   * @param idx
+   */
+  public void putVariableHeaderIndex(final String header, final Integer idx) {
+    getHeaderMapVariables().put(header, idx);
+  }
+
+  /**
    * Get the map between a variable header and the 0-based index of the column.
    * @return
    */
-  public Map<String, Integer> getHeaderMapVariables() {
+  private Map<String, Integer> getHeaderMapVariables() {
     if(headerMapVariables == null) {
       headerMapVariables = valueTable.getDatasource().getVariablesHeaderMap();
     }
@@ -502,12 +511,21 @@ public class VariableConverter {
    * @param header
    * @return null if no such header
    */
-  private Integer getCategoryHeaderIndex(final String header) {
+  public Integer getCategoryHeaderIndex(final String header) {
     if(reservedCategoryHeaders.contains(header)) {
       return getHeaderIndex(getHeaderMapCategories(), header);
     } else {
       return getHeaderMapCategories().get(header);
     }
+  }
+
+  /**
+   * Set the 0-based index of a category column at the given header.
+   * @param header
+   * @param idx
+   */
+  public void putCategoryHeaderIndex(final String header, final Integer idx) {
+    getHeaderMapCategories().put(header, idx);
   }
 
   /**
@@ -530,7 +548,7 @@ public class VariableConverter {
    * Get the map between a category header and the 0-based index of the column.
    * @return
    */
-  public Map<String, Integer> getHeaderMapCategories() {
+  private Map<String, Integer> getHeaderMapCategories() {
     if(headerMapCategories == null) {
       headerMapCategories = valueTable.getDatasource().getCategoriesHeaderMap();
     }
