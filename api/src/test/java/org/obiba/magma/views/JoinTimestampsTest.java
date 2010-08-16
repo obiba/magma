@@ -16,6 +16,7 @@ import org.obiba.magma.Timestamps;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueSet;
 import org.obiba.magma.ValueTable;
+import org.obiba.magma.VariableEntity;
 import org.obiba.magma.test.AbstractMagmaTest;
 import org.obiba.magma.type.DateTimeType;
 import org.obiba.magma.views.JoinTable.JoinedValueSet;
@@ -75,6 +76,7 @@ public class JoinTimestampsTest extends AbstractMagmaTest {
   private void assertTimestamps(boolean useCreatedTimestamps, Value firstTimestamp, Value secondTimestamp, Value expectedTimestamp) {
 
     ValueSet mockValueSet = createMock(ValueSet.class);
+    VariableEntity mockVariableEntity = createMock(VariableEntity.class);
 
     ValueTable valueTableMockOne = createMock(ValueTable.class);
     ValueTable valueTableMockTwo = createMock(ValueTable.class);
@@ -82,8 +84,8 @@ public class JoinTimestampsTest extends AbstractMagmaTest {
     Timestamps timestampsTwo = createMock(Timestamps.class);
 
     expect(valueTableMockOne.getName()).andReturn("one").anyTimes();
-    expect(valueTableMockOne.hasValueSet(null)).andReturn(true).once();
-    expect(valueTableMockOne.getValueSet(null)).andReturn(mockValueSet).once();
+    expect(valueTableMockOne.hasValueSet(mockVariableEntity)).andReturn(true).once();
+    expect(valueTableMockOne.getValueSet(mockVariableEntity)).andReturn(mockValueSet).once();
     expect(valueTableMockOne.getTimestamps(mockValueSet)).andReturn(timestampsOne).once();
     if(useCreatedTimestamps) {
       expect(timestampsOne.getCreated()).andReturn(firstTimestamp).once();
@@ -92,8 +94,8 @@ public class JoinTimestampsTest extends AbstractMagmaTest {
     }
 
     expect(valueTableMockTwo.getName()).andReturn("two").anyTimes();
-    expect(valueTableMockTwo.hasValueSet(null)).andReturn(true).once();
-    expect(valueTableMockTwo.getValueSet(null)).andReturn(mockValueSet).once();
+    expect(valueTableMockTwo.hasValueSet(mockVariableEntity)).andReturn(true).once();
+    expect(valueTableMockTwo.getValueSet(mockVariableEntity)).andReturn(mockValueSet).once();
     expect(valueTableMockTwo.getTimestamps(mockValueSet)).andReturn(timestampsTwo).once();
     if(useCreatedTimestamps) {
       expect(timestampsTwo.getCreated()).andReturn(secondTimestamp).once();
@@ -101,7 +103,7 @@ public class JoinTimestampsTest extends AbstractMagmaTest {
       expect(timestampsTwo.getLastUpdate()).andReturn(secondTimestamp).once();
     }
     replay(valueTableMockOne, valueTableMockTwo, timestampsOne, timestampsTwo);
-    Timestamps joinTimestamps = new JoinTimestamps(new JoinedValueSet(null, null), Arrays.asList(new ValueTable[] { valueTableMockOne, valueTableMockTwo }));
+    Timestamps joinTimestamps = new JoinTimestamps(new JoinedValueSet(createMock(ValueTable.class), mockVariableEntity), Arrays.asList(new ValueTable[] { valueTableMockOne, valueTableMockTwo }));
     if(useCreatedTimestamps) {
       assertThat(joinTimestamps.getCreated(), is(expectedTimestamp));
     } else {
