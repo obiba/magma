@@ -15,8 +15,10 @@ import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.NoSuchValueSetException;
 import org.obiba.magma.Timestamps;
 import org.obiba.magma.ValueSet;
+import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.VariableValueSource;
+import org.obiba.magma.datasource.hibernate.HibernateVariableValueSourceFactory.HibernateVariableValueSource;
 import org.obiba.magma.datasource.hibernate.converter.HibernateMarshallingContext;
 import org.obiba.magma.datasource.hibernate.domain.ValueSetState;
 import org.obiba.magma.datasource.hibernate.domain.ValueTableState;
@@ -102,6 +104,10 @@ class HibernateValueTable extends AbstractValueTable {
     super.addVariableValueSources(uncommitttedSources);
   }
 
+  Serializable getVariableId(Variable variable) {
+    return ((HibernateVariableValueSource) getVariableValueSource(variable.getName())).getVariableId();
+  }
+
   private void readVariables() {
     log.debug("Populating variable cache for table {}", getName());
     HibernateVariableValueSourceFactory factory = new HibernateVariableValueSourceFactory(this);
@@ -174,5 +180,4 @@ class HibernateValueTable extends AbstractValueTable {
   public Timestamps getTimestamps(ValueSet valueSet) {
     return new HibernateTimestamps(valueSet);
   }
-
 }

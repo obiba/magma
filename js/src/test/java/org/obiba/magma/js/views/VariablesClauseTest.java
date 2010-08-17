@@ -22,6 +22,7 @@ import org.obiba.magma.ValueSet;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.ValueType;
 import org.obiba.magma.Variable;
+import org.obiba.magma.VariableEntity;
 import org.obiba.magma.VariableValueSource;
 import org.obiba.magma.js.AbstractJsTest;
 import org.obiba.magma.support.Initialisables;
@@ -140,7 +141,8 @@ public class VariablesClauseTest extends AbstractJsTest {
     ValueTable valueTableMock = createMock(ValueTable.class);
     ValueSet valueSetMock = createMock(ValueSet.class);
     VariableValueSource variableValueSourceMock = createMock(VariableValueSource.class);
-    expect(valueSetMock.getValueTable()).andReturn(valueTableMock).times(2);
+    expect(valueSetMock.getValueTable()).andReturn(valueTableMock).anyTimes();
+    expect(valueSetMock.getVariableEntity()).andReturn(createMock(VariableEntity.class));
     expect(valueTableMock.getVariable("HealthQuestionnaireIdentification.SEX")).andReturn(buildHealthQuestionnaireIdentificationSex()).anyTimes();
 
     expect(valueTableMock.getVariableValueSource("Admin.Participant.birthDate")).andReturn(variableValueSourceMock).once();
@@ -187,7 +189,8 @@ public class VariablesClauseTest extends AbstractJsTest {
     ValueTable valueTableMock = createMock(ValueTable.class);
     ValueSet valueSetMock = createMock(ValueSet.class);
     VariableValueSource variableValueSourceMock = createMock(VariableValueSource.class);
-    expect(valueSetMock.getValueTable()).andReturn(valueTableMock).times(2);
+    expect(valueSetMock.getValueTable()).andReturn(valueTableMock).anyTimes();
+    expect(valueSetMock.getVariableEntity()).andReturn(createMock(VariableEntity.class)).anyTimes();
     expect(valueTableMock.getVariable("HealthQuestionnaireIdentification.SEX")).andReturn(buildHealthQuestionnaireIdentificationSex()).once();
     expect(valueTableMock.getVariableValueSource("HealthQuestionnaireIdentification.SEX")).andReturn(variableValueSourceMock).once();
     expect(variableValueSourceMock.getValue(valueSetMock)).andReturn(healthQuestionnaireIdentificationSexValue).once();

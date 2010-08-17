@@ -17,6 +17,7 @@ import org.obiba.magma.ValueType;
 import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.VariableValueSource;
+import org.obiba.magma.VectorSource;
 import org.obiba.magma.support.AbstractValueTableWrapper;
 import org.obiba.magma.support.Disposables;
 import org.obiba.magma.support.Initialisables;
@@ -378,6 +379,11 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
     @Override
     public ValueType getValueType() {
       return wrapped.getValueType();
+    }
+
+    @Override
+    public VectorSource asVectorSource() {
+      return wrapped.asVectorSource();
     }
   }
 

@@ -1,7 +1,6 @@
 package org.obiba.magma.js;
 
 import org.mozilla.javascript.Scriptable;
-import org.obiba.magma.ValueSet;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.Variable;
 import org.obiba.magma.VariableValueSource;
@@ -47,8 +46,8 @@ public class JavascriptVariableValueSource extends JavascriptValueSource impleme
   }
 
   @Override
-  protected void enterContext(MagmaContext ctx, Scriptable scope, ValueSet valueSet) {
-    super.enterContext(ctx, scope, valueSet);
+  protected void enterContext(MagmaContext ctx, Scriptable scope) {
+    super.enterContext(ctx, scope);
 
     if(valueTable != null) {
       ctx.push(ValueTable.class, valueTable);

@@ -12,6 +12,7 @@ import org.obiba.magma.ValueType;
 import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.VariableValueSource;
+import org.obiba.magma.VectorSource;
 
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableSet;
@@ -69,6 +70,11 @@ public class StaticValueTable extends AbstractValueTable {
         @Override
         public ValueType getValueType() {
           return type;
+        }
+
+        @Override
+        public VectorSource asVectorSource() {
+          return null;
         }
       });
     }

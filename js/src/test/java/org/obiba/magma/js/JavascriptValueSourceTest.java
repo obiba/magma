@@ -1,24 +1,42 @@
 package org.obiba.magma.js;
 
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.replay;
+
 import java.util.Date;
 
 import junit.framework.Assert;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.mozilla.javascript.EvaluatorException;
 import org.obiba.magma.Value;
+import org.obiba.magma.ValueSet;
+import org.obiba.magma.ValueTable;
+import org.obiba.magma.VariableEntity;
 import org.obiba.magma.type.DateTimeType;
 import org.obiba.magma.type.DecimalType;
 import org.obiba.magma.type.IntegerType;
 
 public class JavascriptValueSourceTest extends AbstractJsTest {
 
+  ValueSet mockValueSet;
+
+  @Before
+  public void setup() {
+    mockValueSet = createMock(ValueSet.class);
+    expect(mockValueSet.getValueTable()).andReturn(createMock(ValueTable.class)).anyTimes();
+    expect(mockValueSet.getVariableEntity()).andReturn(createMock(VariableEntity.class)).anyTimes();
+    replay(mockValueSet);
+  }
+
   @Test
   public void testSimpleScript() {
     JavascriptValueSource source = new JavascriptValueSource(DecimalType.get(), "1");
     source.initialise();
 
-    Value value = source.getValue(null);
+    Value value = source.getValue(mockValueSet);
     Assert.assertEquals(new Double(1), value.getValue());
   }
 
@@ -27,7 +45,7 @@ public class JavascriptValueSourceTest extends AbstractJsTest {
     JavascriptValueSource source = new JavascriptValueSource(DateTimeType.get(), "now()");
     source.initialise();
 
-    Value value = source.getValue(null);
+    Value value = source.getValue(mockValueSet);
     Assert.assertNotNull(value);
     Assert.assertFalse(value.isNull());
     Assert.assertEquals(DateTimeType.get(), value.getValueType());
