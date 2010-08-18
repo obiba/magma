@@ -151,7 +151,6 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
 
       enterContext(context, scope);
       Object result = eval(context, scope);
-      exitContext(context);
       return result;
     }
 
@@ -160,10 +159,6 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
     }
 
     abstract Object eval(MagmaContext context, Scriptable scope);
-
-    void exitContext(MagmaContext context) {
-      JavascriptValueSource.this.exitContext(context);
-    }
 
     Value asValue(Object value) {
       Value result = null;
@@ -225,14 +220,6 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
       return asValue(compiledScript.exec(context, scope));
     }
 
-    @Override
-    void exitContext(MagmaContext context) {
-      super.exitContext(context);
-      context.pop(ValueSet.class);
-      context.pop(ValueTable.class);
-      context.pop(VariableEntity.class);
-    }
-
   }
 
   private final class ValueVectorEvaluationContextAction extends AbstractEvaluationContextAction {
@@ -252,8 +239,8 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
 
     @Override
     void enterContext(MagmaContext context, Scriptable scope) {
-      context.push(SortedSet.class, getEntities(context));
       super.enterContext(context, scope);
+      context.push(SortedSet.class, getEntities(context));
     }
 
     @Override
@@ -262,19 +249,17 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
         @Override
         public Value apply(VariableEntity from) {
           try {
+            // We have to set the current thread's context because this code will be executed outside of the
+            // ContextAction.
+            ContextFactory.getGlobal().enterContext(context);
             context.push(VariableEntity.class, from);
             return asValue(compiledScript.exec(context, scope));
           } finally {
             context.pop(VariableEntity.class);
+            Context.exit();
           }
         }
       });
-    }
-
-    @Override
-    void exitContext(MagmaContext context) {
-      super.exitContext(context);
-      context.pop(SortedSet.class);
     }
 
   }
