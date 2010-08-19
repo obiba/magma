@@ -2,7 +2,9 @@ package org.obiba.magma.js;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -25,6 +27,7 @@ import org.obiba.magma.VectorSource;
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Maps;
 
 /**
  * A {@code ValueSource} implementation that uses a JavaScript script to evaluate the {@code Value} to return.
@@ -241,6 +244,7 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
     void enterContext(MagmaContext context, Scriptable scope) {
       super.enterContext(context, scope);
       context.push(SortedSet.class, getEntities(context));
+      context.push(VectorCache.class, new VectorCache());
     }
 
     @Override
@@ -255,6 +259,7 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
             context.push(VariableEntity.class, from);
             return asValue(compiledScript.exec(context, scope));
           } finally {
+            context.peek(VectorCache.class).next();
             context.pop(VariableEntity.class);
             Context.exit();
           }
@@ -262,5 +267,65 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
       });
     }
 
+  }
+
+  public static class VectorCache {
+
+    Map<VectorSource, VectorHolder> vectors = Maps.newHashMap();
+
+    // Holds the current "row" of the evaluation.
+    private int index = 0;
+
+    void next() {
+      index++;
+    }
+
+    // Returns the value of the current "row" for the specified vector
+    public Value get(MagmaContext context, VectorSource source) {
+      VectorHolder holder = vectors.get(source);
+      if(holder == null) {
+        holder = new VectorHolder(source.getValues(context.peek(SortedSet.class)).iterator());
+        vectors.put(source, holder);
+      }
+      return holder.get(index);
+    }
+  }
+
+  private static class VectorHolder {
+
+    private final Iterator<Value> values;
+
+    // The index of the value returned by values.next();
+    private int nextIndex = 0;
+
+    // Value of nextIndex - 1 (null after ctor)
+    private Value currentValue;
+
+    VectorHolder(Iterator<Value> values) {
+      this.values = values;
+    }
+
+    /**
+     * Returns the value of the "row" for this vector. This method will advance the iterator until we reach the
+     * requested row. This is required because during evaluation, not all vectors involved in a script are incremented
+     * during evaluation (due to 'if' statements in the script).
+     * 
+     * For example, in the following script:
+     * 
+     * <pre>
+     * $('VAR1') ? $('VAR2') : $('VAR3')
+     * 
+     * <pre>
+     * vectors for VAR2 and VAR3 are not incremented at the same "rate" as VAR1.
+     */
+    Value get(int index) {
+      if(index < 0) throw new IllegalArgumentException("index must be >= 0");
+      // Increment the iterator until we reach the requested row
+      while(nextIndex <= index) {
+        currentValue = values.next();
+        nextIndex++;
+      }
+      return currentValue;
+    }
   }
 }

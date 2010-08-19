@@ -2,10 +2,7 @@ package org.obiba.magma.js.methods;
 
 import java.util.Arrays;
 import java.util.Date;
-import java.util.Iterator;
-import java.util.Map;
 import java.util.Set;
-import java.util.SortedSet;
 
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
@@ -19,13 +16,13 @@ import org.obiba.magma.VectorSource;
 import org.obiba.magma.js.MagmaContext;
 import org.obiba.magma.js.ScriptableValue;
 import org.obiba.magma.js.ScriptableVariable;
+import org.obiba.magma.js.JavascriptValueSource.VectorCache;
 import org.obiba.magma.support.MagmaEngineVariableResolver;
 import org.obiba.magma.type.DateTimeType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Maps;
 
 public final class GlobalMethods extends AbstractGlobalMethodProvider {
 
@@ -76,10 +73,10 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
     final VariableValueSource source = reference.resolveSource(valueTable);
 
     // Test whether this is a vector-oriented evaluation or a ValueSet-oriented evaluation
-    if(context.has(ValueSet.class)) {
-      return valueForValueSet(context, thisObj, reference, source);
-    } else {
+    if(context.has(VectorCache.class)) {
       return valuesForVector(context, thisObj, reference, source);
+    } else {
+      return valueForValueSet(context, thisObj, reference, source);
     }
   }
 
@@ -132,8 +129,8 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
       throw new IllegalArgumentException("source cannot provide vectors (" + source.getClass().getName() + ")");
     }
     // Load the vector
-    VectorCache cache = VectorCache.get(context);
-    return new ScriptableValue(thisObj, cache.get(context, vectorSource).next());
+    VectorCache cache = context.peek(VectorCache.class);
+    return new ScriptableValue(thisObj, cache.get(context, vectorSource));
   }
 
   private static ScriptableValue valueForValueSet(MagmaContext context, Scriptable thisObj, MagmaEngineVariableResolver reference, VariableValueSource source) {
@@ -154,24 +151,4 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
     return new ScriptableValue(thisObj, value);
   }
 
-  private static class VectorCache {
-
-    Map<VectorSource, Iterator<Value>> vectors = Maps.newHashMap();
-
-    static VectorCache get(MagmaContext context) {
-      if(context.has(VectorCache.class) == false) {
-        context.push(VectorCache.class, new VectorCache());
-      }
-      return context.peek(VectorCache.class);
-    }
-
-    Iterator<Value> get(MagmaContext context, VectorSource source) {
-      Iterator<Value> values = vectors.get(source);
-      if(values == null) {
-        values = source.getValues(context.peek(SortedSet.class)).iterator();
-        vectors.put(source, values);
-      }
-      return values;
-    }
-  }
 }
