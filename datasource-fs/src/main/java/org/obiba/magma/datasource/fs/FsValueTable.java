@@ -143,7 +143,7 @@ class FsValueTable extends AbstractValueTable implements Initialisable, Disposab
     });
   }
 
-  private class FsVariableValueSource implements VariableValueSource {
+  private static class FsVariableValueSource implements VariableValueSource {
 
     private Variable variable;
 
