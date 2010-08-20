@@ -145,6 +145,7 @@ public class MagmaEngine {
     }
 
     factory.setName(uid);
+    Initialisables.initialise(factory);
     transientDatasources.add(factory);
 
     return factory.getName();
