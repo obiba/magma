@@ -195,6 +195,8 @@ public class TextMethods {
       // HACK: for rhino bug 448499: https://bugzilla.mozilla.org/show_bug.cgi?id=448499
       if(((Double) newValue).doubleValue() == 1.0d) {
         newValue = (int) 1;
+      } else if(((Double) newValue).doubleValue() == 0.0d) {
+        newValue = (int) 0;
       }
     }
 
