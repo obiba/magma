@@ -232,13 +232,22 @@ public class BooleanMethods {
   }
 
   private static Boolean ternaryOr(Boolean op1, Boolean op2) {
-    if(op1 == null && op2 == null) return null;
-    if(op1 == null && op2 != null && op2) return true;
-    if(op1 == null && op2 != null && !op2) return null;
-    if(op2 == null && op1 != null && !op1) return null;
+
+    if(isNull(op1) || isNull(op2)) {
+      if(isTrue(op1) || isTrue(op2)) return true;
+      return null;
+    }
     return op1 || op2;
   }
 
+  private static boolean isTrue(Boolean op) {
+    return op != null && op == true;
+  }
+
+  private static boolean isNull(Boolean op) {
+    return op == null;
+  }
+ 
   /**
    * Returns a new {@link ScriptableValue} of the {@link BooleanType} indicating if the first parameter is equal to the
    * second parameter. If either parameters are null, then false is returned. Both parameters must either both be
