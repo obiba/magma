@@ -147,6 +147,7 @@
       <groupId>net.sourceforge.findbugs</groupId>
       <artifactId>annotations</artifactId>
       <scope>compile</scope>
+      <optional>true</optional>
     </dependency>    
   </dependencies>
 
