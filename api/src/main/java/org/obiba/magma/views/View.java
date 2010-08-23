@@ -358,12 +358,16 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
     };
   }
 
-  class VariableValueSourceWrapper implements VariableValueSource {
+  protected class VariableValueSourceWrapper implements VariableValueSource {
 
     private final VariableValueSource wrapped;
 
-    VariableValueSourceWrapper(VariableValueSource wrapped) {
+    public VariableValueSourceWrapper(VariableValueSource wrapped) {
       this.wrapped = wrapped;
+    }
+
+    public VariableValueSource getWrapped() {
+      return wrapped;
     }
 
     @Override
