@@ -162,6 +162,8 @@ public class ExcelDatasource extends AbstractDatasource {
   private void createWorkbookFromInputStream() {
     try {
       excelWorkbook = WorkbookFactory.create(excelInput);
+    } catch(IllegalArgumentException e) {
+      throw new MagmaRuntimeException("Invalid excel spreadsheet format from input stream (neither an OLE2 stream nor an OOXML stream).");
     } catch(InvalidFormatException e) {
       throw new MagmaRuntimeException("Invalid excel spreadsheet format from input stream.");
     } catch(IOException e) {
