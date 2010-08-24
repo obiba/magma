@@ -160,6 +160,7 @@
     <module>filter</module>
     <module>spring</module>
     <module>crypt</module>
+    <module>math</module>
     <module>datasource-fs</module>
     <module>hibernate</module>
     <module>datasource-jdbc</module>
