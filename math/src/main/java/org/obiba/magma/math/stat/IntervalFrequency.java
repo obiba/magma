@@ -177,6 +177,29 @@ public class IntervalFrequency {
     }
 
     @Override
+    public boolean equals(Object obj) {
+      if(obj == null) {
+        return false;
+      }
+      if(this == obj) {
+        return true;
+      }
+      if(obj instanceof Interval) {
+        Interval that = (Interval) obj;
+        return this.lower.compareTo(that.lower) == 0 && this.upper.compareTo(that.upper) == 0;
+      }
+      return super.equals(obj);
+    }
+
+    @Override
+    public int hashCode() {
+      int hashCode = 17;
+      hashCode = 37 * hashCode + lower.hashCode();
+      hashCode = 37 * hashCode + upper.hashCode();
+      return hashCode;
+    }
+
+    @Override
     public String toString() {
       return new StringBuilder().append("[").append(lower).append(',').append(upper).append("[:").append(freq).append(" (").append(density()).append(',').append(getDensityPct()).append(")").toString();
     }

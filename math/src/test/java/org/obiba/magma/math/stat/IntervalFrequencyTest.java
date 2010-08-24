@@ -8,7 +8,6 @@ import java.math.RoundingMode;
 import java.util.Random;
 
 import org.junit.Test;
-import org.obiba.magma.math.stat.IntervalFrequency;
 import org.obiba.magma.math.stat.IntervalFrequency.Interval;
 
 public class IntervalFrequencyTest {
@@ -128,7 +127,6 @@ public class IntervalFrequencyTest {
     for(int i = 0; i < observations; i++) {
       freqs.add(prng.nextDouble() * diff + min);
     }
-    System.out.println(freqs);
     return freqs;
   }
 
