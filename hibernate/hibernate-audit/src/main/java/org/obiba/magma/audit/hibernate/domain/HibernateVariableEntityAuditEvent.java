@@ -63,7 +63,7 @@ public class HibernateVariableEntityAuditEvent extends AbstractEntity implements
 
   @Override
   public Date getDatetime() {
-    return datetime;
+    return new Date(datetime.getTime());
   }
 
   @Override
@@ -95,7 +95,7 @@ public class HibernateVariableEntityAuditEvent extends AbstractEntity implements
   }
 
   public void setDatetime(Date datetime) {
-    this.datetime = datetime;
+    this.datetime = new Date(datetime.getTime());
   }
 
   public void setDetails(Map<String, Value> details) {
