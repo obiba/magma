@@ -170,10 +170,10 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
 
   public Iterable<Variable> getVariables() {
     if(isViewOfDerivedVariables()) return getListVariables();
-    return getWhereVariables();
+    return getSelectVariables();
   }
 
-  private Iterable<Variable> getWhereVariables() {
+  private Iterable<Variable> getSelectVariables() {
     Iterable<Variable> variables = super.getVariables();
     Iterable<Variable> filteredVariables = Iterables.filter(variables, new Predicate<Variable>() {
       public boolean apply(Variable input) {
@@ -194,10 +194,10 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
   @Override
   public Variable getVariable(String name) throws NoSuchVariableException {
     if(isViewOfDerivedVariables()) return getListVariable(name);
-    return getWhereVariable(name);
+    return getSelectVariable(name);
   }
 
-  private Variable getWhereVariable(String name) throws NoSuchVariableException {
+  private Variable getSelectVariable(String name) throws NoSuchVariableException {
     Variable variable = super.getVariable(name);
     if(select.select(variable)) {
       return variable;
