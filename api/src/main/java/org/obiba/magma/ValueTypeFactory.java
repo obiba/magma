@@ -10,10 +10,12 @@ import org.obiba.magma.type.BinaryType;
 import org.obiba.magma.type.BooleanType;
 import org.obiba.magma.type.DateTimeType;
 import org.obiba.magma.type.DateType;
+import org.obiba.magma.type.DatetimeValueConverter;
 import org.obiba.magma.type.DecimalType;
 import org.obiba.magma.type.IntegerType;
 import org.obiba.magma.type.LocaleType;
-import org.obiba.magma.type.TextToIntegerValueConverter;
+import org.obiba.magma.type.NumericValueConverter;
+import org.obiba.magma.type.TextToNumericTypeValueConverter;
 import org.obiba.magma.type.TextType;
 
 import com.google.common.base.Predicate;
@@ -83,7 +85,9 @@ class ValueTypeFactory {
     types.add(DateTimeType.get());
     types.add(DateType.get());
 
-    converters.add(new TextToIntegerValueConverter());
+    converters.add(new TextToNumericTypeValueConverter());
+    converters.add(new DatetimeValueConverter());
+    converters.add(new NumericValueConverter());
     converters.add(new AnyToTextValueConverter());
   }
 

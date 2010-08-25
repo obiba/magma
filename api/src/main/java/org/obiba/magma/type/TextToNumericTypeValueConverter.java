@@ -6,7 +6,7 @@ import org.obiba.magma.Value;
 import org.obiba.magma.ValueConverter;
 import org.obiba.magma.ValueType;
 
-public class TextToIntegerValueConverter implements ValueConverter {
+public class TextToNumericTypeValueConverter implements ValueConverter {
 
   @Override
   public boolean converts(ValueType from, ValueType to) {
