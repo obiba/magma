@@ -1,6 +1,7 @@
 package org.obiba.magma.support;
 
 import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.obiba.magma.Datasource;
@@ -14,9 +15,13 @@ public class MagmaEngineFactory {
 
   private Set<MagmaEngineExtension> extensions = Sets.newLinkedHashSet();
 
-  private Set<DatasourceFactory> factories = Sets.newLinkedHashSet();
+  /**
+   * Expose concrete type to force xstream to deserialize using this type. This will keep the order in which factories
+   * appear in the xml file
+   */
+  private LinkedHashSet<DatasourceFactory> factories = Sets.newLinkedHashSet();
 
-  private Set<Datasource> datasources = Sets.newLinkedHashSet();
+  private LinkedHashSet<Datasource> datasources = Sets.newLinkedHashSet();
 
   public MagmaEngineFactory() {
   }
