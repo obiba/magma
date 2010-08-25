@@ -161,8 +161,19 @@ public interface Variable extends AttributeAware {
     }
 
     public Builder name(String name) {
+      if(name == null) throw new IllegalArgumentException("name cannot be null");
       variable.name = name;
       return this;
+    }
+
+    public Builder type(ValueType type) {
+      if(type == null) throw new IllegalArgumentException("type cannot be null");
+      variable.valueType = type;
+      return this;
+    }
+
+    public boolean isType(ValueType type) {
+      return variable.valueType == type;
     }
 
     public Variable build() {
