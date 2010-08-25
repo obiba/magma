@@ -106,6 +106,28 @@ public class IntervalFrequencyTest {
     new IntervalFrequency(1, 2, -1);
   }
 
+  @Test
+  public void test_ctor_integerRounding() {
+    IntervalFrequency freqs = new IntervalFrequency(40, 60, 8, true);
+    for(Interval freq : freqs.intervals()) {
+      double bound = freq.getLower();
+      try {
+        BigDecimal.valueOf(bound).toBigIntegerExact();
+        bound = freq.getUpper();
+        BigDecimal.valueOf(bound).toBigIntegerExact();
+      } catch(ArithmeticException e) {
+        assertThat("bound is not an exact integer value:" + bound, true, is(false));
+      }
+    }
+  }
+
+  @Test
+  public void test_ctor_integerRoundingWillNotMakeIntervalSizeSmallerThanOne() {
+    IntervalFrequency freqs = new IntervalFrequency(40, 41, 10, true);
+    Interval i = freqs.intervals().first();
+    assertThat(i.getUpper() - i.getLower(), is(1d));
+  }
+
   /**
    * Creates a new IntervalFrequency instance with random lower and upper bounds, with random intervals between [1,15]
    * @param observations the number of random observations to add
@@ -121,8 +143,11 @@ public class IntervalFrequencyTest {
   }
 
   private IntervalFrequency newRandomDistribution(double min, double max, int intervals, int observations) {
+    return addRandomObservations(new IntervalFrequency(min, max, intervals), min, max, observations);
+  }
+
+  private IntervalFrequency addRandomObservations(IntervalFrequency freqs, double min, double max, int observations) {
     Random prng = new Random();
-    IntervalFrequency freqs = new IntervalFrequency(min, max, intervals);
     double diff = max - min;
     for(int i = 0; i < observations; i++) {
       freqs.add(prng.nextDouble() * diff + min);

@@ -31,21 +31,34 @@ public class IntervalFrequency {
 
   /**
    * Builds a {@code IntervalFrequency} for values between {@code [lower,upper]} split into {@code intervals} intervals.
+   * The flag {@code roundToIntegers} controls whether the bounds of intervals should be rounded to the closest integer
+   * value (usually true when input data are integers).
+   * 
    * @param min the lower bound of all values to count
    * @param max the upper bound of all values to count
    * @param intervals the number of intervals to use, note that the current algorithm may end up using {@code intervals
    * + 1} intervals.
+   * @param roundToIntegers when true, interval bounds and size will be rounded (if necessary) to an integer value
    */
-  public IntervalFrequency(double min, double max, int intervals) {
+  public IntervalFrequency(double min, double max, int intervals, boolean roundToIntegers) {
     if(min >= max) throw new IllegalArgumentException("lower bound must be less than upper bound: " + min + ">" + max);
     if(intervals < 1) throw new IllegalArgumentException("intervals must be positive");
 
-    this.min = BigDecimal.valueOf(min).round(new MathContext(6, RoundingMode.FLOOR));
-    this.max = BigDecimal.valueOf(max).round(new MathContext(6, RoundingMode.CEILING));
-    // (max - min) / intervals
-    intervalSize = this.max.subtract(this.min).divide(BigDecimal.valueOf(intervals), RoundingMode.HALF_UP);
+    this.min = maybeRoundToInteger(BigDecimal.valueOf(min), roundToIntegers, RoundingMode.FLOOR).round(new MathContext(6, RoundingMode.FLOOR));
+    this.max = maybeRoundToInteger(BigDecimal.valueOf(max), roundToIntegers, RoundingMode.CEILING).round(new MathContext(6, RoundingMode.CEILING));
 
-    if(intervalSize.doubleValue() == 0) throw new ArithmeticException("computed interval size was 0");
+    // (max - min) / intervals
+    BigDecimal intervalSize = this.max.subtract(this.min).divide(BigDecimal.valueOf(intervals), CTX);
+    intervalSize = maybeRoundToInteger(intervalSize, roundToIntegers, RoundingMode.HALF_UP);
+
+    // When rounding to integer, we may have rounded the interval size to 0: change it to 1, the smallest interval size
+    if(roundToIntegers && intervalSize.compareTo(BigDecimal.ZERO) == 0) {
+      intervalSize = BigDecimal.ONE;
+    }
+
+    if(intervalSize.compareTo(BigDecimal.ZERO) == 0) throw new ArithmeticException("computed interval size was 0");
+
+    this.intervalSize = intervalSize;
 
     BigDecimal lower = this.min;
     while(lower.compareTo(this.max) <= 0) {
@@ -53,7 +66,17 @@ public class IntervalFrequency {
       freqTable.add(new Interval(lower, upper));
       lower = upper;
     }
+  }
 
+  /**
+   * Builds a {@code IntervalFrequency} for values between {@code [lower,upper]} split into {@code intervals} intervals.
+   * @param min the lower bound of all values to count
+   * @param max the upper bound of all values to count
+   * @param intervals the number of intervals to use, note that the current algorithm may end up using {@code intervals
+   * + 1} intervals.
+   */
+  public IntervalFrequency(double min, double max, int intervals) {
+    this(min, max, intervals, false);
   }
 
   /**
@@ -67,7 +90,7 @@ public class IntervalFrequency {
         return;
       }
     }
-    throw new IllegalArgumentException("value is outside [" + min + "," + max + "[ bound: " + d);
+    throw new IllegalArgumentException("value is outside [" + min + "," + max + "] bound: " + d);
   }
 
   /**
@@ -87,6 +110,10 @@ public class IntervalFrequency {
       sb.append(interval).append('\n');
     }
     return sb.toString();
+  }
+
+  private BigDecimal maybeRoundToInteger(BigDecimal value, boolean roundToInteger, RoundingMode mode) {
+    return roundToInteger ? value.setScale(0, mode) : value;
   }
 
   /**
@@ -141,7 +168,7 @@ public class IntervalFrequency {
     public double getDensityPct() {
       // freq / width / total
       if(n > 0) {
-        return density().divide(BigDecimal.valueOf(n), RoundingMode.HALF_EVEN).doubleValue();
+        return density().divide(BigDecimal.valueOf(n), CTX).doubleValue();
       }
       return 0d;
     }
@@ -157,18 +184,6 @@ public class IntervalFrequency {
         return true;
       }
       return false;
-    }
-
-    /**
-     * increments the frequency and returns true if {@code d} is within {@code [lower,upper[}. Otherwise returns false
-     * and frequency remains unchanged.
-     * @param d
-     * @return
-     */
-    public boolean increment(double d) {
-      boolean contains = contains(d);
-      if(contains) freq++;
-      return contains;
     }
 
     @Override
@@ -202,6 +217,18 @@ public class IntervalFrequency {
     @Override
     public String toString() {
       return new StringBuilder().append("[").append(lower).append(',').append(upper).append("[:").append(freq).append(" (").append(density()).append(',').append(getDensityPct()).append(")").toString();
+    }
+
+    /**
+     * increments the frequency and returns true if {@code d} is within {@code [lower,upper[}. Otherwise returns false
+     * and frequency remains unchanged.
+     * @param d
+     * @return
+     */
+    boolean increment(double d) {
+      boolean contains = contains(d);
+      if(contains) freq++;
+      return contains;
     }
 
     /**
