@@ -29,6 +29,7 @@ import org.obiba.magma.VariableEntity;
 import org.obiba.magma.VariableValueSource;
 import org.obiba.magma.VectorSource;
 import org.obiba.magma.datasource.csv.converter.VariableConverter;
+import org.obiba.magma.lang.Closeables;
 import org.obiba.magma.support.AbstractValueTable;
 import org.obiba.magma.support.VariableEntityBean;
 import org.obiba.magma.support.VariableEntityProvider;

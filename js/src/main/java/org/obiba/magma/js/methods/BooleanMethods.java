@@ -7,6 +7,7 @@ import org.mozilla.javascript.Scriptable;
 import org.obiba.magma.Value;
 import org.obiba.magma.js.MagmaJsEvaluationRuntimeException;
 import org.obiba.magma.js.ScriptableValue;
+import org.obiba.magma.lang.Booleans;
 import org.obiba.magma.type.BooleanType;
 import org.obiba.magma.type.DecimalType;
 import org.obiba.magma.type.IntegerType;
@@ -137,9 +138,9 @@ public class BooleanMethods {
     for(Object arg : args) {
       if(arg instanceof ScriptableValue) {
         ScriptableValue operand = (ScriptableValue) arg;
-        booleanValue = ternaryAnd(booleanValue, toBoolean(operand.getValue()));
+        booleanValue = Booleans.ternaryAnd(booleanValue, toBoolean(operand.getValue()));
       } else {
-        booleanValue = ternaryAnd(booleanValue, ScriptRuntime.toBoolean(arg));
+        booleanValue = Booleans.ternaryAnd(booleanValue, ScriptRuntime.toBoolean(arg));
       }
       if(Boolean.FALSE.equals(booleanValue)) {
         return buildValue(thisObj, false);
@@ -180,32 +181,6 @@ public class BooleanMethods {
     return new ScriptableValue(thisObj, BooleanType.get().falseValue());
   }
 
-  private static ScriptableValue buildValue(Scriptable scope, Boolean value) {
-    if(value == null) {
-      return new ScriptableValue(scope, BooleanType.get().nullValue());
-    }
-    return new ScriptableValue(scope, value ? BooleanType.get().trueValue() : BooleanType.get().falseValue());
-  }
-
-  @edu.umd.cs.findbugs.annotations.SuppressWarnings(value = "NP_BOOLEAN_RETURN_NULL", justification = "Clients expect ternaryAnd to return null as a valid value.")
-  private static Boolean ternaryAnd(Boolean op1, Boolean op2) {
-    if(op1 != null && !op1) {
-      return false;
-    }
-    if(op2 != null && !op2) {
-      return false;
-    }
-    if(op1 == null || op2 == null) {
-      return null;
-    }
-    return true;
-  }
-
-  @edu.umd.cs.findbugs.annotations.SuppressWarnings(value = "NP_BOOLEAN_RETURN_NULL", justification = "Clients expect ternary methods to return null as a valid value.")
-  private static Boolean toBoolean(Value value) {
-    return !value.isNull() ? (Boolean) value.getValue() : null;
-  }
-
   /**
    * <pre>
    *   $('BooleanVar').or(someBooleanVar)
@@ -226,29 +201,11 @@ public class BooleanMethods {
     }
     if(args[0] instanceof ScriptableValue) {
       ScriptableValue operand = (ScriptableValue) args[0];
-      booleanValue = ternaryOr(booleanValue, toBoolean(operand.getValue()));
+      booleanValue = Booleans.ternaryOr(booleanValue, toBoolean(operand.getValue()));
     } else {
-      booleanValue = ternaryOr(booleanValue, ScriptRuntime.toBoolean(args[0]));
+      booleanValue = Booleans.ternaryOr(booleanValue, ScriptRuntime.toBoolean(args[0]));
     }
     return buildValue(thisObj, booleanValue);
-  }
-
-  @edu.umd.cs.findbugs.annotations.SuppressWarnings(value = "NP_BOOLEAN_RETURN_NULL", justification = "Clients expect ternaryOr to return null as a valid value.")
-  private static Boolean ternaryOr(Boolean op1, Boolean op2) {
-
-    if(isNull(op1) || isNull(op2)) {
-      if(isTrue(op1) || isTrue(op2)) return true;
-      return null;
-    }
-    return op1 || op2;
-  }
-
-  private static boolean isTrue(Boolean op) {
-    return op != null && op == true;
-  }
-
-  private static boolean isNull(Boolean op) {
-    return op == null;
   }
 
   /**
@@ -307,5 +264,17 @@ public class BooleanMethods {
     String firstString = (String) firstOperand.getValue().getValue();
     String secondString = (String) secondOperand.getValue().getValue();
     return new ScriptableValue(thisObj, BooleanType.get().valueOf(firstString.equals(secondString)));
+  }
+
+  private static ScriptableValue buildValue(Scriptable scope, Boolean value) {
+    if(value == null) {
+      return new ScriptableValue(scope, BooleanType.get().nullValue());
+    }
+    return new ScriptableValue(scope, value ? BooleanType.get().trueValue() : BooleanType.get().falseValue());
+  }
+
+  @edu.umd.cs.findbugs.annotations.SuppressWarnings(value = "NP_BOOLEAN_RETURN_NULL", justification = "Clients expect ternary methods to return null as a valid value.")
+  private static Boolean toBoolean(Value value) {
+    return !value.isNull() ? (Boolean) value.getValue() : null;
   }
 }
