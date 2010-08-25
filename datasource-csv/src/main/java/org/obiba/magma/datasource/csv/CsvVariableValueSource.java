@@ -5,6 +5,7 @@ import org.obiba.magma.ValueSet;
 import org.obiba.magma.ValueType;
 import org.obiba.magma.Variable;
 import org.obiba.magma.VariableValueSource;
+import org.obiba.magma.VectorSource;
 
 /**
  * Used in two cases: 1. When no variables.csv is provided and the variables are inferred from the header of the
@@ -32,6 +33,11 @@ public class CsvVariableValueSource implements VariableValueSource {
   @Override
   public Value getValue(ValueSet valueSet) {
     return ((CsvValueSet) valueSet).getValue(variable);
+  }
+
+  @Override
+  public VectorSource asVectorSource() {
+    return null;
   }
 
 }

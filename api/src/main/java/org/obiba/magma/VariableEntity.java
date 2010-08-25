@@ -9,7 +9,7 @@
  ******************************************************************************/
 package org.obiba.magma;
 
-public interface VariableEntity {
+public interface VariableEntity extends Comparable<VariableEntity> {
 
   public String getType();
 

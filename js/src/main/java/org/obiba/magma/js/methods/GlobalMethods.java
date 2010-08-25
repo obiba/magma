@@ -12,9 +12,11 @@ import org.obiba.magma.Value;
 import org.obiba.magma.ValueSet;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.VariableValueSource;
+import org.obiba.magma.VectorSource;
 import org.obiba.magma.js.MagmaContext;
 import org.obiba.magma.js.ScriptableValue;
 import org.obiba.magma.js.ScriptableVariable;
+import org.obiba.magma.js.JavascriptValueSource.VectorCache;
 import org.obiba.magma.support.MagmaEngineVariableResolver;
 import org.obiba.magma.type.DateTimeType;
 import org.slf4j.Logger;
@@ -63,28 +65,19 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
     MagmaContext context = MagmaContext.asMagmaContext(ctx);
 
     String name = (String) args[0];
-	ValueTable valueTable = context.has(ValueTable.class) ? (ValueTable) context.peek(ValueTable.class) : null;
-    ValueSet valueSet = (ValueSet) context.peek(ValueSet.class);
+    ValueTable valueTable = context.peek(ValueTable.class);
 
     MagmaEngineVariableResolver reference = MagmaEngineVariableResolver.valueOf(name);
 
     // Find the named source
-    final VariableValueSource source = (reference.getDatasourceName() == null && valueTable != null) ? reference.resolveSource(valueTable) : reference.resolveSource(valueSet);
+    final VariableValueSource source = reference.resolveSource(valueTable);
 
-    // Tests whether this valueSet is in the same table as the referenced ValueTable
-    if(reference.isJoin(valueSet)) {
-      // Resolve the joined valueSet
-      try {
-        valueSet = reference.join(valueSet);
-      } catch(NoSuchValueSetException e) {
-        // Entity does not have a ValueSet in joined collection
-        // Return a null value
-        return new ScriptableValue(thisObj, source.getValueType().nullValue());
-      }
+    // Test whether this is a vector-oriented evaluation or a ValueSet-oriented evaluation
+    if(context.has(VectorCache.class)) {
+      return valuesForVector(context, thisObj, reference, source);
+    } else {
+      return valueForValueSet(context, thisObj, reference, source);
     }
-
-    Value value = source.getValue(valueSet);
-    return new ScriptableValue(thisObj, value);
   }
 
   public static Scriptable $var(Context ctx, Scriptable thisObj, Object[] args, Function funObj) {
@@ -129,4 +122,33 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
     }
     return thisObj;
   }
+
+  private static ScriptableValue valuesForVector(MagmaContext context, Scriptable thisObj, MagmaEngineVariableResolver reference, VariableValueSource source) {
+    VectorSource vectorSource = source.asVectorSource();
+    if(vectorSource == null) {
+      throw new IllegalArgumentException("source cannot provide vectors (" + source.getClass().getName() + ")");
+    }
+    // Load the vector
+    VectorCache cache = context.peek(VectorCache.class);
+    return new ScriptableValue(thisObj, cache.get(context, vectorSource));
+  }
+
+  private static ScriptableValue valueForValueSet(MagmaContext context, Scriptable thisObj, MagmaEngineVariableResolver reference, VariableValueSource source) {
+    ValueSet valueSet = (ValueSet) context.peek(ValueSet.class);
+    // Tests whether this valueSet is in the same table as the referenced ValueTable
+    if(reference.isJoin(valueSet)) {
+      // Resolve the joined valueSet
+      try {
+        valueSet = reference.join(valueSet);
+      } catch(NoSuchValueSetException e) {
+        // Entity does not have a ValueSet in joined collection
+        // Return a null value
+        return new ScriptableValue(thisObj, source.getValueType().nullValue());
+      }
+    }
+
+    Value value = source.getValue(valueSet);
+    return new ScriptableValue(thisObj, value);
+  }
+
 }

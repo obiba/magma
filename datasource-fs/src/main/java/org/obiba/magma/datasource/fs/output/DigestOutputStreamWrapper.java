@@ -18,8 +18,8 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 import org.obiba.magma.MagmaRuntimeException;
-import org.obiba.magma.datasource.fs.Closeables;
 import org.obiba.magma.datasource.fs.OutputStreamWrapper;
+import org.obiba.magma.lang.Closeables;
 
 import de.schlichtherle.io.File;
 

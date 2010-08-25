@@ -20,6 +20,7 @@ import org.obiba.magma.ValueType;
 import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.VariableValueSource;
+import org.obiba.magma.VectorSource;
 import org.obiba.magma.support.ValueSetBean;
 
 import com.google.common.base.Function;
@@ -295,6 +296,28 @@ public class JoinTable implements ValueTable {
       return wrapped.getValueType();
     }
 
+    @Override
+    public VectorSource asVectorSource() {
+      return wrapped.asVectorSource();
+    }
+
+    @Override
+    public boolean equals(Object that) {
+      if(this == that) return true;
+      if(that instanceof JoinedVariableValueSource) {
+        JoinedVariableValueSource jvvs = (JoinedVariableValueSource) that;
+        return this.owner.equals(jvvs.owner) && this.wrapped.equals(jvvs.wrapped);
+      }
+      return super.equals(that);
+    }
+
+    @Override
+    public int hashCode() {
+      int result = 17;
+      result = 37 * result + owner.hashCode();
+      result = 37 * result + wrapped.hashCode();
+      return result;
+    }
   }
 
   @Override

@@ -26,6 +26,7 @@ import org.obiba.magma.ValueType;
 import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.VariableValueSource;
+import org.obiba.magma.VectorSource;
 import org.obiba.magma.datasource.jdbc.JdbcDatasource.ChangeDatabaseCallback;
 import org.obiba.magma.datasource.jdbc.support.NameConverter;
 import org.obiba.magma.support.AbstractValueTable;
@@ -420,6 +421,11 @@ class JdbcValueTable extends AbstractValueTable {
     @Override
     public ValueType getValueType() {
       return variable.getValueType();
+    }
+
+    @Override
+    public VectorSource asVectorSource() {
+      return null;
     }
   }
 

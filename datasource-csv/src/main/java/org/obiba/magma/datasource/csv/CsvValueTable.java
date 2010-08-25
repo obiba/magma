@@ -27,7 +27,9 @@ import org.obiba.magma.ValueType;
 import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.VariableValueSource;
+import org.obiba.magma.VectorSource;
 import org.obiba.magma.datasource.csv.converter.VariableConverter;
+import org.obiba.magma.lang.Closeables;
 import org.obiba.magma.support.AbstractValueTable;
 import org.obiba.magma.support.VariableEntityBean;
 import org.obiba.magma.support.VariableEntityProvider;
@@ -369,6 +371,11 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
     @Override
     public ValueType getValueType() {
       return getVariable().getValueType();
+    }
+
+    @Override
+    public VectorSource asVectorSource() {
+      return null;
     }
 
   }

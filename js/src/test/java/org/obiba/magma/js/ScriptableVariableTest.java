@@ -1,10 +1,14 @@
 package org.obiba.magma.js;
 
+import static org.hamcrest.CoreMatchers.is;
+
 import org.easymock.EasyMock;
 import org.junit.Assert;
 import org.junit.Test;
 import org.obiba.magma.Variable;
 import org.obiba.magma.type.BooleanType;
+import org.obiba.magma.type.DecimalType;
+import org.obiba.magma.type.TextType;
 
 public class ScriptableVariableTest extends AbstractJsTest {
 
@@ -29,4 +33,13 @@ public class ScriptableVariableTest extends AbstractJsTest {
     Assert.assertEquals(BooleanType.get().trueValue(), ((ScriptableValue) obj).getValue());
   }
 
+  @Test
+  public void test_type_returnsValueTypeAsTextType() {
+    Variable mockVariable = EasyMock.createMock(Variable.class);
+    EasyMock.expect(mockVariable.getValueType()).andReturn(DecimalType.get());
+    EasyMock.replay(mockVariable);
+    Object obj = evaluate("type()", mockVariable);
+    Assert.assertTrue(obj instanceof ScriptableValue);
+    Assert.assertThat(((ScriptableValue) obj).getValue(), is(TextType.get().valueOf(DecimalType.get().getName())));
+  }
 }

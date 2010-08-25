@@ -50,7 +50,7 @@ public class TextMethods {
     String stringValue = sv.getValue().toString();
 
     // Delegate to Javascript's String.replace method
-    String result = (String) ScriptRuntime.checkRegExpProxy(ctx).action(ctx, thisObj, ScriptRuntime.toObject(thisObj, stringValue), args, RegExpProxy.RA_REPLACE);
+    String result = (String) ScriptRuntime.checkRegExpProxy(ctx).action(ctx, thisObj, ScriptRuntime.toObject(ctx, thisObj, stringValue), args, RegExpProxy.RA_REPLACE);
 
     return new ScriptableValue(thisObj, TextType.get().valueOf(result));
   }
@@ -71,7 +71,7 @@ public class TextMethods {
     // Delegate to Javascript's String.replace method
     boolean matches = false;
     for(Object arg : args) {
-      Object result = ScriptRuntime.checkRegExpProxy(ctx).action(ctx, thisObj, ScriptRuntime.toObject(thisObj, stringValue), new Object[] { arg }, RegExpProxy.RA_MATCH);
+      Object result = ScriptRuntime.checkRegExpProxy(ctx).action(ctx, thisObj, ScriptRuntime.toObject(ctx, thisObj, stringValue), new Object[] { arg }, RegExpProxy.RA_MATCH);
       if(result != null) {
         matches = true;
       }
@@ -195,6 +195,8 @@ public class TextMethods {
       // HACK: for rhino bug 448499: https://bugzilla.mozilla.org/show_bug.cgi?id=448499
       if(((Double) newValue).doubleValue() == 1.0d) {
         newValue = (int) 1;
+      } else if(((Double) newValue).doubleValue() == 0.0d) {
+        newValue = (int) 0;
       }
     }
 

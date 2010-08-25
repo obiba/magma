@@ -8,6 +8,7 @@ import org.mozilla.javascript.Script;
 import org.mozilla.javascript.Scriptable;
 import org.obiba.magma.Initialisable;
 import org.obiba.magma.ValueSet;
+import org.obiba.magma.ValueTable;
 import org.obiba.magma.Variable;
 import org.obiba.magma.js.MagmaContext;
 import org.obiba.magma.js.ScriptableValue;
@@ -163,9 +164,11 @@ public class JavascriptClause implements Initialisable, SelectClause, WhereClaus
    */
   protected void enterContext(MagmaContext ctx, Scriptable scope, ValueSet valueSet) {
     ctx.push(ValueSet.class, valueSet);
+    ctx.push(ValueTable.class, valueSet.getValueTable());
   }
 
   protected void exitContext(MagmaContext ctx) {
     ctx.pop(ValueSet.class);
+    ctx.pop(ValueTable.class);
   }
 }

@@ -15,6 +15,7 @@ import org.obiba.magma.ValueSet;
 import org.obiba.magma.ValueType;
 import org.obiba.magma.Variable;
 import org.obiba.magma.VariableValueSource;
+import org.obiba.magma.VectorSource;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.InvalidPropertyException;
 import org.springframework.beans.NullValueInNestedPathException;
@@ -75,6 +76,11 @@ public class BeanPropertyVariableValueSource implements VariableValueSource {
       Object object = getPropertyValue(propertyPath, PropertyAccessorFactory.forBeanPropertyAccess(bean));
       return getValueType().valueOf(object);
     }
+  }
+
+  @Override
+  public VectorSource asVectorSource() {
+    return null;
   }
 
   protected Object getPropertyValue(String propertyPath, BeanWrapper bw) {

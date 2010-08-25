@@ -19,14 +19,14 @@ public abstract class MagmaEngineReferenceResolver {
   private String variableName;
 
   /**
-   * Resolves a reference to a {@code ValueTable} using the specified {@code ValueSet} as a context.
+   * Resolves a reference to a {@code ValueTable} using the specified {@code ValueTable} as a context.
    */
-  public ValueTable resolveTable(ValueSet context) throws NoSuchDatasourceException, NoSuchValueTableException {
+  public ValueTable resolveTable(ValueTable context) throws NoSuchDatasourceException, NoSuchValueTableException {
     if(tableName == null) {
       if(context == null) {
         throw new IllegalStateException("cannot resolve table without a context.");
       }
-      return context.getValueTable();
+      return context;
     }
 
     Datasource ds = null;
@@ -34,11 +34,18 @@ public abstract class MagmaEngineReferenceResolver {
       if(context == null) {
         throw new IllegalStateException("cannot resolve datasource without a context.");
       }
-      ds = context.getValueTable().getDatasource();
+      ds = context.getDatasource();
     } else {
       ds = MagmaEngine.get().getDatasource(datasourceName);
     }
     return ds.getValueTable(tableName);
+  }
+
+  /**
+   * Resolves a reference to a {@code ValueTable} using the specified {@code ValueSet} as a context.
+   */
+  public ValueTable resolveTable(ValueSet context) throws NoSuchDatasourceException, NoSuchValueTableException {
+    return resolveTable(context != null ? context.getValueTable() : null);
   }
 
   /**

@@ -26,4 +26,6 @@ public interface ValueSource {
    */
   public Value getValue(ValueSet valueSet);
 
+  public VectorSource asVectorSource();
+
 }

@@ -16,6 +16,7 @@ public class MagmaMapper extends MapperWrapper {
 
   @Override
   @SuppressWarnings("unchecked")
+  @edu.umd.cs.findbugs.annotations.SuppressWarnings(value = "NP_LOAD_OF_KNOWN_NULL_VALUE", justification = "In case of null argument, fall back to default behaviour")
   public String serializedClass(Class type) {
     if(type == null) return super.serializedClass(type);
     if(Variable.class.isAssignableFrom(type)) {
@@ -35,6 +36,7 @@ public class MagmaMapper extends MapperWrapper {
 
   @Override
   @SuppressWarnings("unchecked")
+  @edu.umd.cs.findbugs.annotations.SuppressWarnings(value = "NP_LOAD_OF_KNOWN_NULL_VALUE", justification = "In case of null argument, fall back to default behaviour")
   public Class realClass(String elementName) {
     if(elementName == null) return super.realClass(elementName);
     if("variable".equals(elementName)) {

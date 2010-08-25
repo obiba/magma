@@ -12,6 +12,7 @@ import org.obiba.magma.ValueType;
 import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.VariableValueSource;
+import org.obiba.magma.VectorSource;
 
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableSet;
@@ -20,24 +21,29 @@ import com.google.common.collect.Maps;
 
 public class StaticValueTable extends AbstractValueTable {
 
+  private final String entityType;
+
   private final Set<VariableEntity> entities;
 
   private final Map<String, Map<String, Object>> table = Maps.newHashMap();
 
-  public StaticValueTable(Datasource datasource, String name, Set<String> entities) {
+  public StaticValueTable(Datasource datasource, String name, Set<String> entities, String entityType) {
     super(datasource, name);
+
+    this.entityType = (entityType != null) ? entityType : "";
+
     this.entities = ImmutableSet.copyOf(Iterables.transform(entities, new Function<String, VariableEntity>() {
 
       @Override
       public VariableEntity apply(String from) {
-        return new VariableEntityBean("", from);
+        return new VariableEntityBean(StaticValueTable.this.entityType, from);
       }
     }));
     super.setVariableEntityProvider(new VariableEntityProvider() {
 
       @Override
       public boolean isForEntityType(String entityType) {
-        return true;
+        return getEntityType().equals(entityType);
       }
 
       @Override
@@ -47,9 +53,13 @@ public class StaticValueTable extends AbstractValueTable {
 
       @Override
       public String getEntityType() {
-        return "";
+        return StaticValueTable.this.entityType;
       }
     });
+  }
+
+  public StaticValueTable(Datasource datasource, String name, Set<String> entities) {
+    this(datasource, name, entities, "");
   }
 
   public void addVariables(final ValueType type, String... variables) {
@@ -58,7 +68,7 @@ public class StaticValueTable extends AbstractValueTable {
 
         @Override
         public Variable getVariable() {
-          return Variable.Builder.newVariable(variable, type, "").build();
+          return Variable.Builder.newVariable(variable, type, StaticValueTable.this.entityType).build();
         }
 
         @Override
@@ -69,6 +79,11 @@ public class StaticValueTable extends AbstractValueTable {
         @Override
         public ValueType getValueType() {
           return type;
+        }
+
+        @Override
+        public VectorSource asVectorSource() {
+          return null;
         }
       });
     }

@@ -17,6 +17,7 @@ import org.obiba.magma.ValueType;
 import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.VariableValueSource;
+import org.obiba.magma.VectorSource;
 import org.obiba.magma.support.AbstractValueTableWrapper;
 import org.obiba.magma.support.Disposables;
 import org.obiba.magma.support.Initialisables;
@@ -169,10 +170,10 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
 
   public Iterable<Variable> getVariables() {
     if(isViewOfDerivedVariables()) return getListVariables();
-    return getWhereVariables();
+    return getSelectVariables();
   }
 
-  private Iterable<Variable> getWhereVariables() {
+  private Iterable<Variable> getSelectVariables() {
     Iterable<Variable> variables = super.getVariables();
     Iterable<Variable> filteredVariables = Iterables.filter(variables, new Predicate<Variable>() {
       public boolean apply(Variable input) {
@@ -193,10 +194,10 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
   @Override
   public Variable getVariable(String name) throws NoSuchVariableException {
     if(isViewOfDerivedVariables()) return getListVariable(name);
-    return getWhereVariable(name);
+    return getSelectVariable(name);
   }
 
-  private Variable getWhereVariable(String name) throws NoSuchVariableException {
+  private Variable getSelectVariable(String name) throws NoSuchVariableException {
     Variable variable = super.getVariable(name);
     if(select.select(variable)) {
       return variable;
@@ -245,11 +246,7 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
   @Override
   public VariableValueSource getVariableValueSource(String name) throws NoSuchVariableException {
     if(isViewOfDerivedVariables()) {
-      if(isVariableValueSourceInSuper(name)) {
-        return getVariableValueSourceMappingFunction().apply(super.getVariableValueSource(name));
-      } else {
-        return getListClauseVariableValueSource(name);
-      }
+      return getListClauseVariableValueSource(name);
     }
 
     // Call getVariable(name) to check the SelectClause (if there is one). If the specified variable
@@ -258,15 +255,6 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
 
     // Variable "survived" the SelectClause. Go ahead and call the base class method.
     return getVariableValueSourceMappingFunction().apply(super.getVariableValueSource(name));
-  }
-
-  private boolean isVariableValueSourceInSuper(String name) {
-    try {
-      super.getVariableValueSource(name);
-      return true;
-    } catch(NoSuchVariableException e) {
-      return false;
-    }
   }
 
   @Override
@@ -357,12 +345,16 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
     };
   }
 
-  class VariableValueSourceWrapper implements VariableValueSource {
+  protected class VariableValueSourceWrapper implements VariableValueSource {
 
     private final VariableValueSource wrapped;
 
-    VariableValueSourceWrapper(VariableValueSource wrapped) {
+    public VariableValueSourceWrapper(VariableValueSource wrapped) {
       this.wrapped = wrapped;
+    }
+
+    public VariableValueSource getWrapped() {
+      return wrapped;
     }
 
     @Override
@@ -378,6 +370,11 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
     @Override
     public ValueType getValueType() {
       return wrapped.getValueType();
+    }
+
+    @Override
+    public VectorSource asVectorSource() {
+      return wrapped.asVectorSource();
     }
   }
 

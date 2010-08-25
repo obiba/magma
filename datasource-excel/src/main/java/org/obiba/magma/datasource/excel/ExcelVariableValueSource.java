@@ -5,6 +5,7 @@ import org.obiba.magma.ValueSet;
 import org.obiba.magma.ValueType;
 import org.obiba.magma.Variable;
 import org.obiba.magma.VariableValueSource;
+import org.obiba.magma.VectorSource;
 
 public class ExcelVariableValueSource implements VariableValueSource {
 
@@ -22,6 +23,11 @@ public class ExcelVariableValueSource implements VariableValueSource {
   @Override
   public ValueType getValueType() {
     return variable.getValueType();
+  }
+
+  @Override
+  public VectorSource asVectorSource() {
+    return null;
   }
 
   @Override

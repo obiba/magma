@@ -28,6 +28,9 @@ public class JavaScriptFilterTest {
   public void setUp() throws Exception {
     new MagmaEngine().extend(new MagmaJsExtension());
     valueSetMock = EasyMock.createMock(ValueSet.class);
+    EasyMock.expect(valueSetMock.getValueTable()).andReturn(EasyMock.createMock(ValueTable.class));
+    EasyMock.expect(valueSetMock.getVariableEntity()).andReturn(EasyMock.createMock(VariableEntity.class));
+    EasyMock.replay(valueSetMock);
   }
 
   @After

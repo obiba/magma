@@ -89,4 +89,17 @@ class VariableBean extends AbstractAttributeAware implements Variable {
   protected ListMultimap<String, Attribute> getInstanceAttributes() {
     return attributes;
   }
+
+  @Override
+  public boolean equals(Object o) {
+    if(o instanceof Variable) {
+      return ((Variable) o).getName().equals(name);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    return name.hashCode();
+  }
 }

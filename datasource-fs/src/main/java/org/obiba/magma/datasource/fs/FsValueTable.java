@@ -19,6 +19,7 @@ import org.obiba.magma.ValueType;
 import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.VariableValueSource;
+import org.obiba.magma.VectorSource;
 import org.obiba.magma.datasource.fs.FsDatasource.InputCallback;
 import org.obiba.magma.datasource.fs.FsDatasource.OutputCallback;
 import org.obiba.magma.support.AbstractValueTable;
@@ -142,7 +143,7 @@ class FsValueTable extends AbstractValueTable implements Initialisable, Disposab
     });
   }
 
-  private class FsVariableValueSource implements VariableValueSource {
+  private static class FsVariableValueSource implements VariableValueSource {
 
     private Variable variable;
 
@@ -163,6 +164,11 @@ class FsValueTable extends AbstractValueTable implements Initialisable, Disposab
     @Override
     public Value getValue(ValueSet valueSet) {
       return ((LazyValueSet) valueSet).getValueSet().getValue(variable);
+    }
+
+    @Override
+    public VectorSource asVectorSource() {
+      return null;
     }
 
   }

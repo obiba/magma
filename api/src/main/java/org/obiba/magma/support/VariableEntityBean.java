@@ -30,6 +30,15 @@ public class VariableEntityBean implements VariableEntity {
   }
 
   @Override
+  public int compareTo(VariableEntity that) {
+    if(that == null) {
+      throw new IllegalArgumentException();
+    }
+    int compare = this.entityType.compareTo(that.getType());
+    return compare != 0 ? compare : this.entityIdentifier.compareTo(that.getIdentifier());
+  }
+
+  @Override
   public boolean equals(Object obj) {
     if(this == obj) {
       return true;

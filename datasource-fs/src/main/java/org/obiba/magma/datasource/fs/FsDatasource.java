@@ -26,6 +26,7 @@ import org.obiba.magma.datasource.fs.output.ChainedOutputStreamWrapper;
 import org.obiba.magma.datasource.fs.output.CipherOutputStreamWrapper;
 import org.obiba.magma.datasource.fs.output.DigestOutputStreamWrapper;
 import org.obiba.magma.datasource.fs.output.NullOutputStreamWrapper;
+import org.obiba.magma.lang.Closeables;
 import org.obiba.magma.support.AbstractDatasource;
 import org.obiba.magma.type.BooleanType;
 import org.obiba.magma.type.TextType;
