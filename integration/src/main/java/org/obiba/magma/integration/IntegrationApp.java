@@ -88,7 +88,9 @@ public class IntegrationApp {
 
     File decrypted = new File("target", "output-decrypted.zip");
     if(decrypted.exists()) {
-      decrypted.delete();
+      if(!decrypted.delete()) {
+        System.err.println("Failed to delete file: " + decrypted.getPath());
+      }
     }
     fs = new FsDatasource("export", decrypted);
     MagmaEngine.get().addDatasource(fs);
