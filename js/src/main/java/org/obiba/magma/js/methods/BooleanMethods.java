@@ -187,6 +187,7 @@ public class BooleanMethods {
     return new ScriptableValue(scope, value ? BooleanType.get().trueValue() : BooleanType.get().falseValue());
   }
 
+  @edu.umd.cs.findbugs.annotations.SuppressWarnings(value = "NP_BOOLEAN_RETURN_NULL", justification = "Clients expect ternaryAnd to return null as a valid value.")
   private static Boolean ternaryAnd(Boolean op1, Boolean op2) {
     if(op1 != null && !op1) {
       return false;
@@ -200,6 +201,7 @@ public class BooleanMethods {
     return true;
   }
 
+  @edu.umd.cs.findbugs.annotations.SuppressWarnings(value = "NP_BOOLEAN_RETURN_NULL", justification = "Clients expect ternary methods to return null as a valid value.")
   private static Boolean toBoolean(Value value) {
     return !value.isNull() ? (Boolean) value.getValue() : null;
   }
@@ -231,6 +233,7 @@ public class BooleanMethods {
     return buildValue(thisObj, booleanValue);
   }
 
+  @edu.umd.cs.findbugs.annotations.SuppressWarnings(value = "NP_BOOLEAN_RETURN_NULL", justification = "Clients expect ternaryOr to return null as a valid value.")
   private static Boolean ternaryOr(Boolean op1, Boolean op2) {
 
     if(isNull(op1) || isNull(op2)) {
@@ -247,7 +250,7 @@ public class BooleanMethods {
   private static boolean isNull(Boolean op) {
     return op == null;
   }
- 
+
   /**
    * Returns a new {@link ScriptableValue} of the {@link BooleanType} indicating if the first parameter is equal to the
    * second parameter. If either parameters are null, then false is returned. Both parameters must either both be
