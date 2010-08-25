@@ -246,11 +246,7 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
   @Override
   public VariableValueSource getVariableValueSource(String name) throws NoSuchVariableException {
     if(isViewOfDerivedVariables()) {
-      if(isVariableValueSourceInSuper(name)) {
-        return getVariableValueSourceMappingFunction().apply(super.getVariableValueSource(name));
-      } else {
-        return getListClauseVariableValueSource(name);
-      }
+      return getListClauseVariableValueSource(name);
     }
 
     // Call getVariable(name) to check the SelectClause (if there is one). If the specified variable
@@ -259,15 +255,6 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
 
     // Variable "survived" the SelectClause. Go ahead and call the base class method.
     return getVariableValueSourceMappingFunction().apply(super.getVariableValueSource(name));
-  }
-
-  private boolean isVariableValueSourceInSuper(String name) {
-    try {
-      super.getVariableValueSource(name);
-      return true;
-    } catch(NoSuchVariableException e) {
-      return false;
-    }
   }
 
   @Override

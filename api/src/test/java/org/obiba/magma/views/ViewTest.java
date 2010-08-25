@@ -534,7 +534,7 @@ public class ViewTest extends AbstractMagmaTest {
 
     VariableValueSource variableValueSourceMock = createMock(VariableValueSource.class);
 
-    expect(valueTableMock.getVariableValueSource("variable-name")).andReturn(variableValueSourceMock).times(2);
+    expect(listClauseMock.getVariableValueSource("variable-name")).andReturn(variableValueSourceMock).times(2);
     replay(valueTableMock, listClauseMock);
 
     View view = View.Builder.newView("view", valueTableMock).list(listClauseMock).build();
