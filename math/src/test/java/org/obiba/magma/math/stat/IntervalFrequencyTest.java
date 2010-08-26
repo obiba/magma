@@ -1,6 +1,7 @@
 package org.obiba.magma.math.stat;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
 
 import java.math.BigDecimal;
@@ -126,6 +127,33 @@ public class IntervalFrequencyTest {
     IntervalFrequency freqs = new IntervalFrequency(40, 41, 10, true);
     Interval i = freqs.intervals().first();
     assertThat(i.getUpper() - i.getLower(), is(1d));
+  }
+
+  @Test
+  public void test_toString_returnsAString() {
+    IntervalFrequency freqs = newRandomDistribution(1000);
+    String toString = freqs.toString();
+    assertThat(toString, notNullValue());
+  }
+
+  @Test
+  public void test_interval_contains_allCases() {
+    IntervalFrequency freqs = newRandomDistribution(1000);
+    Interval interval = freqs.intervals().first();
+
+    double min = interval.getLower();
+    double lowerThanMin = Math.nextAfter(min, Double.NEGATIVE_INFINITY);
+    double higherThanMin = Math.nextAfter(min, Double.POSITIVE_INFINITY);
+
+    double max = interval.getUpper();
+    double lowerThanMax = Math.nextAfter(max, Double.NEGATIVE_INFINITY);
+    double higherThanMax = Math.nextAfter(max, Double.POSITIVE_INFINITY);
+
+    assertThat(interval.contains(higherThanMin), is(true));
+    assertThat(interval.contains(lowerThanMin), is(false));
+
+    assertThat(interval.contains(lowerThanMax), is(true));
+    assertThat(interval.contains(higherThanMax), is(false));
   }
 
   /**

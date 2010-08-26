@@ -56,7 +56,9 @@ public class IntervalFrequency {
       intervalSize = BigDecimal.ONE;
     }
 
-    if(intervalSize.compareTo(BigDecimal.ZERO) == 0) throw new ArithmeticException("computed interval size was 0");
+    // Can't seem to find a case that will actually throw the exception. We'll leave the condition anyway since the rest
+    // of the code expects non-zero intervalSize value.
+    if(intervalSize.compareTo(BigDecimal.valueOf(Double.MIN_VALUE)) == 0) throw new ArithmeticException("computed interval size was 0");
 
     this.intervalSize = intervalSize;
 
