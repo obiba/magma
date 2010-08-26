@@ -41,6 +41,7 @@ public class JavaScriptFilter extends AbstractFilter<ValueSet> implements Initia
     if(javascript == null) throw new IllegalArgumentException("The argument [javascript] cannot be null.");
   }
 
+  @edu.umd.cs.findbugs.annotations.SuppressWarnings(value = "NP_BOOLEAN_RETURN_NULL", justification = "Clients expect null as a valid value. It's possible for JavaScript to return null.")
   @Override
   protected Boolean runFilter(ValueSet item) {
     initialise();
