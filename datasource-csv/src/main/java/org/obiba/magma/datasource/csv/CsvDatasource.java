@@ -14,9 +14,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.ValueTableWriter;
+import org.obiba.magma.datasource.csv.support.CsvDatasourceParsingException;
 import org.obiba.magma.datasource.csv.support.Quote;
 import org.obiba.magma.datasource.csv.support.Separator;
 import org.obiba.magma.support.AbstractDatasource;
@@ -96,7 +96,7 @@ public class CsvDatasource extends AbstractDatasource {
     if(hasValueTable(tableName)) {
       valueTable = (CsvValueTable) getValueTable(tableName);
     } else {
-      throw new MagmaRuntimeException("Cannot create writer. A table with the name " + tableName + " does not exist.");
+      throw new CsvDatasourceParsingException("Cannot create writer. A table with the name " + tableName + " does not exist.", "CsvCannotCreateWriter", 0, tableName);
     }
     return new CsvValueTableWriter(valueTable);
   }
@@ -105,7 +105,7 @@ public class CsvDatasource extends AbstractDatasource {
     if(valueTables.containsKey(tableName)) {
       valueTables.get(tableName).setVariablesHeader(header);
     } else {
-      throw new MagmaRuntimeException("Cannot set variables header. A table with the name " + tableName + " does not exist.");
+      throw new CsvDatasourceParsingException("Cannot set variables header. A table with the name " + tableName + " does not exist.", "CsvCannotSetVariableHeader", 0, tableName);
     }
   }
 
@@ -139,7 +139,7 @@ public class CsvDatasource extends AbstractDatasource {
     try {
       return new OutputStreamWriter(new FileOutputStream(file, true), getCharacterSet());
     } catch(IOException e) {
-      throw new MagmaRuntimeException("Can not get csv writer. " + e);
+      throw new CsvDatasourceParsingException("Can not get csv writer.", e, "CsvCannotObtainWriter", 0, new Object[] {});
     }
   }
 
@@ -155,7 +155,7 @@ public class CsvDatasource extends AbstractDatasource {
     try {
       return new InputStreamReader(new FileInputStream(file), getCharacterSet());
     } catch(IOException e) {
-      throw new MagmaRuntimeException("Can not get csv reader. " + e);
+      throw new CsvDatasourceParsingException("Can not get csv reader.", e, "CsvCannotObtainReader", 0, new Object[] {});
     }
   }
 

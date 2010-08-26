@@ -29,6 +29,7 @@ import org.obiba.magma.VariableEntity;
 import org.obiba.magma.VariableValueSource;
 import org.obiba.magma.VectorSource;
 import org.obiba.magma.datasource.csv.converter.VariableConverter;
+import org.obiba.magma.datasource.csv.support.CsvDatasourceParsingException;
 import org.obiba.magma.lang.Closeables;
 import org.obiba.magma.support.AbstractValueTable;
 import org.obiba.magma.support.VariableEntityBean;
@@ -131,7 +132,7 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
       initialiseData();
       variableEntityProvider = new CSVVariableEntityProvider(entityType);
     } catch(IOException e) {
-      throw new MagmaRuntimeException(e);
+      throw new CsvDatasourceParsingException("Error occurred initialising csv datasource.", e, "CsvInitialisationError", 0, new Object[] {});
     }
   }
 
