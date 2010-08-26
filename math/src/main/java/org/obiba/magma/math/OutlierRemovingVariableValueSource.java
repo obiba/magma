@@ -4,7 +4,6 @@ import java.util.SortedSet;
 
 import org.apache.commons.math.stat.descriptive.StatisticalSummary;
 import org.apache.commons.math.stat.descriptive.StatisticalSummaryValues;
-import org.obiba.magma.Category;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueSet;
 import org.obiba.magma.ValueTable;
@@ -13,8 +12,6 @@ import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.VariableValueSource;
 import org.obiba.magma.VectorSource;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
@@ -36,8 +33,6 @@ import com.google.common.collect.Sets;
  * @see OutlierRemovingView
  */
 public class OutlierRemovingVariableValueSource implements VariableValueSource, VectorSource {
-
-  private static final Logger log = LoggerFactory.getLogger(OutlierRemovingVariableValueSource.class);
 
   private final ValueTable valueTable;
 
@@ -99,7 +94,7 @@ public class OutlierRemovingVariableValueSource implements VariableValueSource, 
   }
 
   /**
-   * Determines if {@code value} is an outlier.
+   * Determines if {@code value} is an outlier and returns true when it is, false otherwise
    * @param value
    * @return
    */
@@ -119,7 +114,7 @@ public class OutlierRemovingVariableValueSource implements VariableValueSource, 
    * @return true if the value is considered an outlier, false otherwise
    */
   protected boolean isOutlier(double value, StatisticalSummary stats) {
-    // If the value lies outside of [mean-3*stdDev,mean+3*stdDev], it is considered an outlier (!)
+    // If the value lies outside of [mean-3*stdDev,mean+3*stdDev], it is considered an outlier
     double mean = stats.getMean();
     double sd = stats.getStandardDeviation() * 3;
 
@@ -131,29 +126,7 @@ public class OutlierRemovingVariableValueSource implements VariableValueSource, 
    * @return
    */
   protected Value valueForOutlier(Value value) {
-    log.info("Removing outlier value {}: {}", getVariable().getName(), value);
     return getValueType().nullValue();
-  }
-
-  /**
-   * Returns true when {@code value} is considered {@code missing} for {@code variable}. More formally, this method
-   * returns true when {@code value#isNull()} returns true or when {@code value#toString()} is equals to the name of any
-   * missing category ({@code Category#isMissing()} is {@code true}).
-   * 
-   * @param variable
-   * @param value
-   * @return
-   */
-  protected boolean isMissing(Variable variable, Value value) {
-    if(value.isNull()) {
-      return true;
-    }
-    for(Category c : variable.getCategories()) {
-      if(c.isMissing() && value.toString().equals(c.getName())) {
-        return true;
-      }
-    }
-    return false;
   }
 
   private synchronized StatisticalSummary calculateStats() {
