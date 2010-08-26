@@ -142,7 +142,7 @@ public class IntegrationApp {
     createFile(csvDataFile);
     File csvVariablesFile = new File("target", "variables.csv");
     deleteFile(csvVariablesFile);
-    csvVariablesFile.createNewFile();
+    createFile(csvVariablesFile);
     CsvDatasource csvDatasource = new CsvDatasource("csv");
     csvDatasource.addValueTable("integration-app", csvVariablesFile, csvDataFile);
     csvDatasource.setVariablesHeader("integration-app", "name#valueType#entityType#mimeType#unit#occurrenceGroup#repeatable#script".split("#"));
