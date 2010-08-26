@@ -156,6 +156,19 @@ public class IntervalFrequencyTest {
     assertThat(interval.contains(higherThanMax), is(false));
   }
 
+  @Test
+  public void test_interval_equalsAndHashCode() {
+    IntervalFrequency first = newRandomDistribution(2, 10, 4, 1000);
+    IntervalFrequency second = newRandomDistribution(2, 10, 4, 10000);
+
+    for(Interval interval : first.intervals()) {
+      // Tests equals
+      assertThat(second.intervals().contains(interval), is(true));
+      // Tests hashCode
+      assertThat(second.intervals().tailSet(interval).first().hashCode(), is(interval.hashCode()));
+    }
+  }
+
   /**
    * Creates a new IntervalFrequency instance with random lower and upper bounds, with random intervals between [1,15]
    * @param observations the number of random observations to add
