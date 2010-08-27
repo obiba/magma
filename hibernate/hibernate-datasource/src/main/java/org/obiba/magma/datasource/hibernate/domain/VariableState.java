@@ -85,6 +85,15 @@ public class VariableState extends AbstractAttributeAwareEntity implements Times
     super();
     this.valueTable = valueTable;
     this.name = variable.getName();
+    copyVariableFields(variable);
+  }
+
+  /**
+   * Copies all fields of the specified {@link Variable} (but not its name).
+   * 
+   * @param variable variable
+   */
+  public void copyVariableFields(Variable variable) {
     this.entityType = variable.getEntityType();
     this.valueType = variable.getValueType();
     this.mimeType = variable.getMimeType();
