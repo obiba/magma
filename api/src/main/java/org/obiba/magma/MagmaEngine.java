@@ -109,7 +109,6 @@ public class MagmaEngine {
   }
 
   public Datasource addDatasource(Datasource datasource) {
-    Initialisables.initialise(datasource);
     // Repeatedly added datasources are silently ignored. They cannot be added to the set more than once.
     if(!datasources.contains(datasource)) {
       for(Datasource ds : datasources) {
@@ -118,8 +117,9 @@ public class MagmaEngine {
           throw new DuplicateDatasourceNameException(ds, datasource);
         }
       }
+      Initialisables.initialise(datasource);
+      datasources.add(datasource);
     }
-    datasources.add(datasource);
     return datasource;
   }
 
