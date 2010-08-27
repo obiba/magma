@@ -25,16 +25,6 @@
       <version>1.7R2</version>
     </dependency>
 
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-    </dependency>
-      
-    <dependency>
-      <groupId>org.hamcrest</groupId>
-      <artifactId>hamcrest-all</artifactId>
-    </dependency>
-
    <dependency>
       <groupId>org.obiba.magma</groupId>
       <artifactId>magma-xstream</artifactId>
