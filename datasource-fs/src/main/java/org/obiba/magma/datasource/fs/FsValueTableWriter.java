@@ -59,6 +59,7 @@ class FsValueTableWriter implements ValueTableWriter {
       oos.close();
     }
 
+    @edu.umd.cs.findbugs.annotations.SuppressWarnings(value = "DMI_NONSERIALIZABLE_OBJECT_WRITTEN", justification = "XStream implementation of ObjectOutputStream does not expect or require objects to implement the Serializable marker interface. http://xstream.codehaus.org/faq.html#Serialization")
     @Override
     public void writeVariable(Variable variable) {
       try {
