@@ -22,13 +22,11 @@ public class CsvValueSet extends ValueSetBean {
   }
 
   public Value getValue(Variable variable) {
-    Value value = null;
+    Value value = variable.getValueType().nullValue();
     Integer pos = headerMap.get(variable.getName());
     if(pos != null && pos < line.length) {
       String strValue = line[pos];
-      if(strValue.length() == 0) {
-        value = variable.getValueType().nullValue();
-      } else {
+      if(strValue.length() > 0) {
         value = variable.getValueType().valueOf(strValue);
       }
     }
