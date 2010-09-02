@@ -280,4 +280,62 @@ public class NumericMethodsTest extends AbstractJsTest {
     assertThat(result.getValue(), is(BooleanType.get().trueValue()));
   }
 
+  // ln
+
+  @Test
+  public void test_ln_evaluatesNaturalLogarithm() throws Exception {
+    ScriptableValue result = evaluate("ln()", DecimalType.get().valueOf(1));
+    assertThat(result.getValue(), is(DecimalType.get().valueOf(0)));
+
+    result = evaluate("ln()", DecimalType.get().valueOf(Math.E));
+    assertThat(result.getValue(), is(DecimalType.get().valueOf(1)));
+
+    result = evaluate("ln()", DecimalType.get().valueOf(42));
+    assertThat(result.getValue(), is(DecimalType.get().valueOf(Math.log(42))));
+  }
+
+  @Test
+  public void test_ln_acceptsIntegerType() throws Exception {
+    ScriptableValue result = evaluate("ln()", IntegerType.get().valueOf(1));
+    assertThat(result.getValue(), is(DecimalType.get().valueOf(0)));
+  }
+
+  // log, log(base)
+
+  @Test
+  public void test_log_evaluatesBase10Logarithm() throws Exception {
+    ScriptableValue result = evaluate("log()", DecimalType.get().valueOf(10));
+    assertThat(result.getValue(), is(DecimalType.get().valueOf(1)));
+
+    result = evaluate("log()", DecimalType.get().valueOf(100));
+    assertThat(result.getValue(), is(DecimalType.get().valueOf(2)));
+
+    result = evaluate("log()", DecimalType.get().valueOf(1));
+    assertThat(result.getValue(), is(DecimalType.get().valueOf(0)));
+
+    result = evaluate("log()", DecimalType.get().valueOf(42));
+    assertThat(result.getValue(), is(DecimalType.get().valueOf(Math.log10(42))));
+  }
+
+  @Test
+  public void test_log_differentBaseThan10() throws Exception {
+    ScriptableValue result = evaluate("log(2)", DecimalType.get().valueOf(2));
+    assertThat(result.getValue(), is(DecimalType.get().valueOf(1)));
+
+    result = evaluate("log(2)", DecimalType.get().valueOf(4));
+    assertThat(result.getValue(), is(DecimalType.get().valueOf(2)));
+
+    result = evaluate("log(2)", DecimalType.get().valueOf(1));
+    assertThat(result.getValue(), is(DecimalType.get().valueOf(0)));
+
+    result = evaluate("log(2)", DecimalType.get().valueOf(1024));
+    assertThat(result.getValue(), is(DecimalType.get().valueOf(10)));
+  }
+
+  @Test
+  public void test_log_acceptsIntegerType() throws Exception {
+    ScriptableValue result = evaluate("log()", IntegerType.get().valueOf(1));
+    assertThat(result.getValue(), is(DecimalType.get().valueOf(0)));
+  }
+
 }
