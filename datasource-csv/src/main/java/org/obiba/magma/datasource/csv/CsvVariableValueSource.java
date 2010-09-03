@@ -14,7 +14,7 @@ import org.obiba.magma.VectorSource;
  */
 public class CsvVariableValueSource implements VariableValueSource {
 
-  private Variable variable;
+  private final Variable variable;
 
   public CsvVariableValueSource(Variable variable) {
     this.variable = variable;
@@ -40,4 +40,20 @@ public class CsvVariableValueSource implements VariableValueSource {
     return null;
   }
 
+  @Override
+  public boolean equals(Object obj) {
+    if(this == obj) {
+      return true;
+    }
+    if(obj instanceof CsvVariableValueSource) {
+      CsvVariableValueSource that = (CsvVariableValueSource) obj;
+      return this.variable.getName().equals(that.variable.getName());
+    }
+    return super.equals(obj);
+  }
+
+  @Override
+  public int hashCode() {
+    return this.variable.getName().hashCode();
+  }
 }
