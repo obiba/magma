@@ -8,7 +8,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -70,7 +72,7 @@ public class ExcelDatasource extends AbstractDatasource {
 
   private Map<String, CellStyle> excelStyles;
 
-  private Map<String, ExcelValueTable> valueTablesMapOnInit = new HashMap<String, ExcelValueTable>();
+  private Map<String, ExcelValueTable> valueTablesMapOnInit = new LinkedHashMap<String, ExcelValueTable>();
 
   /**
    * Excel workbook will be read from the provided file if it exists, and will be written in the file at datasource
@@ -216,7 +218,7 @@ public class ExcelDatasource extends AbstractDatasource {
 
   @Override
   protected Set<String> getValueTableNames() {
-    Set<String> sheetNames = new HashSet<String>();
+    Set<String> sheetNames = new LinkedHashSet<String>();
 
     List<ExcelDatasourceParsingException> errors = new ArrayList<ExcelDatasourceParsingException>();
 
