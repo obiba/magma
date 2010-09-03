@@ -67,6 +67,10 @@ public class VariableConverter {
 
   private Map<String, Integer> headerMapCategories;
 
+  private Map<String, Integer> cachedHeaderMapVariables = Maps.newHashMap();
+
+  private Map<String, Integer> cachedHeaderMapCategories = Maps.newHashMap();
+
   private Set<String> attributeNamesCategories;
 
   private Set<String> attributeNamesVariables;
@@ -447,7 +451,7 @@ public class VariableConverter {
    */
   public Integer getVariableHeaderIndex(final String header) {
     if(reservedVariableHeaders.contains(header)) {
-      return getHeaderIndex(getHeaderMapVariables(), header);
+      return getHeaderIndex(getHeaderMapVariables(), cachedHeaderMapVariables, header);
     } else {
       return getHeaderMapVariables().get(header);
     }
@@ -513,7 +517,7 @@ public class VariableConverter {
    */
   public Integer getCategoryHeaderIndex(final String header) {
     if(reservedCategoryHeaders.contains(header)) {
-      return getHeaderIndex(getHeaderMapCategories(), header);
+      return getHeaderIndex(getHeaderMapCategories(), cachedHeaderMapCategories, header);
     } else {
       return getHeaderMapCategories().get(header);
     }
@@ -531,15 +535,21 @@ public class VariableConverter {
   /**
    * Get the 0-based index of the column at the given header relatively to the header map.
    * @param headerMap
+   * @param cachedHeaderMap
    * @param header
    * @return null if no such header
    * @see ExcelUtil#findNormalizedHeader(Iterable, String)
    */
-  private Integer getHeaderIndex(final Map<String, Integer> headerMap, final String header) {
-    Integer idx = null;
-    String found = ExcelUtil.findNormalizedHeader(headerMap.keySet(), header);
-    if(found != null) {
-      idx = headerMap.get(found);
+  private Integer getHeaderIndex(final Map<String, Integer> headerMap, Map<String, Integer> cachedHeaderMap, final String header) {
+    Integer idx = cachedHeaderMap.get(header);
+    if(idx == null) {
+      String found = ExcelUtil.findNormalizedHeader(headerMap.keySet(), header);
+      if(found != null) {
+        idx = headerMap.get(found);
+        if(idx != null) {
+          cachedHeaderMap.put(header, idx);
+        }
+      }
     }
     return idx;
   }
