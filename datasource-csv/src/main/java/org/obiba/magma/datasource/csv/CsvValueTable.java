@@ -19,6 +19,7 @@ import org.obiba.magma.Disposable;
 import org.obiba.magma.Initialisable;
 import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.NoSuchValueSetException;
+import org.obiba.magma.NoSuchVariableException;
 import org.obiba.magma.Timestamps;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueSet;
@@ -339,14 +340,19 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
 
     private final String variableName;
 
+    private transient Variable variable;
+
     public CsvIndexVariableValueSource(String variableName) {
       this.variableName = variableName;
     }
 
     @Override
-    public Variable getVariable() {
-      CsvIndexEntry indexEntry = variableNameIndex.get(variableName);
-      if(indexEntry != null) {
+    public synchronized Variable getVariable() {
+      if(variable == null) {
+        CsvIndexEntry indexEntry = variableNameIndex.get(variableName);
+        if(indexEntry == null) {
+          throw new NoSuchVariableException(variableName);
+        }
         FileInputStream fis = null;
         try {
           InputStreamReader fr = new InputStreamReader(fis = new FileInputStream(variableFile), getCharacterSet());
@@ -354,14 +360,14 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
           skipSafely(fis, indexEntry.getStart());
           String[] line = csvReader.readNext();
           log.debug("variable line read> {} ", Arrays.toString(line));
-          return variableConverter.unmarshal(line);
+          variable = variableConverter.unmarshal(line);
         } catch(IOException e) {
           throw new MagmaRuntimeException(e);
         } finally {
           Closeables.closeQuietly(fis);
         }
       }
-      throw new MagmaRuntimeException("An index entry does not exist for the variable '" + variableName + "'.");
+      return variable;
     }
 
     @Override
