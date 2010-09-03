@@ -70,7 +70,7 @@ public class ExcelDatasource extends AbstractDatasource {
 
   private Map<String, CellStyle> excelStyles;
 
-  private Map<String, ExcelValueTable> valueTablesMapOnInit = new LinkedHashMap<String, ExcelValueTable>();
+  private Map<String, ExcelValueTable> valueTablesMapOnInit = new LinkedHashMap<String, ExcelValueTable>(100);
 
   /**
    * Excel workbook will be read from the provided file if it exists, and will be written in the file at datasource
@@ -216,7 +216,7 @@ public class ExcelDatasource extends AbstractDatasource {
 
   @Override
   protected Set<String> getValueTableNames() {
-    Set<String> sheetNames = new LinkedHashSet<String>();
+    Set<String> sheetNames = new LinkedHashSet<String>(100);
 
     // find the table names from the Variables sheet
     Row headerVariables = variablesSheet.getRow(0);

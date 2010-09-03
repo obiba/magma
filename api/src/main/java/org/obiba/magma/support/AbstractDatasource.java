@@ -26,7 +26,7 @@ public abstract class AbstractDatasource extends AbstractAttributeAware implemen
 
   private String type;
 
-  private Set<ValueTable> valueTables = new LinkedHashSet<ValueTable>();
+  private Set<ValueTable> valueTables = new LinkedHashSet<ValueTable>(100);
 
   private ListMultimap<String, Attribute> attributes = LinkedListMultimap.create();
 
