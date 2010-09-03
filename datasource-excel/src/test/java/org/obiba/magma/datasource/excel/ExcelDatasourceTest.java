@@ -104,21 +104,21 @@ public class ExcelDatasourceTest {
       Assert.assertTrue(dpe.hasChildren());
       List<DatasourceParsingException> errors = dpe.getChildrenAsList();
       Assert.assertEquals(15, errors.size());
-      assertDatasourceParsingException("VariableNameRequired", "[Variables, 10, Table2]", errors.get(0));
-      assertDatasourceParsingException("DuplicateCategoryName", "[Categories, 4, Table1, Var1, C2]", errors.get(1));
-      assertDatasourceParsingException("CategoryNameRequired", "[Categories, 5, Table1, Var1]", errors.get(2));
-      assertDatasourceParsingException("DuplicateCategoryName", "[Categories, 7, Table1, Var2, C1]", errors.get(3));
-      assertDatasourceParsingException("VariableNameRequired", "[Variables, 6, Table1]", errors.get(4));
-      assertDatasourceParsingException("DuplicateVariableName", "[Variables, 7, Table1, Var1]", errors.get(5));
-      assertDatasourceParsingException("VariableNameCannotContainColon", "[Variables, 8, Table1, Foo:Bar]", errors.get(6));
-      assertDatasourceParsingException("UnknownValueType", "[Variables, 9, Table1, Var5, Numerical]", errors.get(7));
-      assertDatasourceParsingException("UnidentifiedVariableName", "[Categories, 8, Table1, VarUnknown]", errors.get(8));
-      assertDatasourceParsingException("CategoryVariableNameRequired", "[Categories, 9, Table1]", errors.get(9));
-      assertDatasourceParsingException("CategoryVariableNameRequired", "[Categories, 10, Table1]", errors.get(10));
-      assertDatasourceParsingException("DuplicateColumns", "[Table1, 1, Table1, Var2]", errors.get(11));
-      assertDatasourceParsingException("DuplicateColumns", "[Table1, 1, Table1, Var6]", errors.get(12));
-      assertDatasourceParsingException("VariableNameCannotContainColon", "[Table1, 1, Table1, Toto:Tata]", errors.get(13));
-      assertDatasourceParsingException("VariableNameRequired", "[Table1, 1, Table1]", errors.get(14));
+	  assertDatasourceParsingException("DuplicateCategoryName", "[Categories, 4, Table1, Var1, C2]", errors.get(0));
+	  assertDatasourceParsingException("CategoryNameRequired", "[Categories, 5, Table1, Var1]", errors.get(1));
+	  assertDatasourceParsingException("DuplicateCategoryName", "[Categories, 7, Table1, Var2, C1]", errors.get(2));
+	  assertDatasourceParsingException("VariableNameRequired", "[Variables, 6, Table1]", errors.get(3));
+	  assertDatasourceParsingException("DuplicateVariableName", "[Variables, 7, Table1, Var1]", errors.get(4));
+	  assertDatasourceParsingException("VariableNameCannotContainColon", "[Variables, 8, Table1, Foo:Bar]", errors.get(5));
+	  assertDatasourceParsingException("UnknownValueType", "[Variables, 9, Table1, Var5, Numerical]", errors.get(6));
+	  assertDatasourceParsingException("UnidentifiedVariableName", "[Categories, 8, Table1, VarUnknown]", errors.get(7));
+	  assertDatasourceParsingException("CategoryVariableNameRequired", "[Categories, 9, Table1]", errors.get(8));
+	  assertDatasourceParsingException("CategoryVariableNameRequired", "[Categories, 10, Table1]", errors.get(9));
+      assertDatasourceParsingException("DuplicateColumns", "[Table1, 1, Table1, Var2]", errors.get(10));
+      assertDatasourceParsingException("DuplicateColumns", "[Table1, 1, Table1, Var6]", errors.get(11));	
+	  assertDatasourceParsingException("VariableNameCannotContainColon", "[Table1, 1, Table1, Toto:Tata]", errors.get(12));
+      assertDatasourceParsingException("VariableNameRequired", "[Table1, 1, Table1]", errors.get(13));	  
+      assertDatasourceParsingException("VariableNameRequired", "[Variables, 10, Table2]", errors.get(14));	  	  
     }
   }
 
