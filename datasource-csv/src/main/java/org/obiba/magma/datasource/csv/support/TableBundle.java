@@ -5,6 +5,7 @@ package org.obiba.magma.datasource.csv.support;
 
 import java.io.File;
 
+import org.obiba.magma.ValueTable;
 import org.obiba.magma.datasource.csv.CsvDatasource;
 
 public class TableBundle {
@@ -13,6 +14,8 @@ public class TableBundle {
   private File variables;
 
   private File data;
+
+  private ValueTable refTable;
 
   public TableBundle() {
     super();
@@ -30,6 +33,13 @@ public class TableBundle {
     setDirectory(directory);
   }
 
+  public TableBundle(ValueTable refTable, File data) {
+    super();
+    this.name = refTable.getName();
+    this.refTable = refTable;
+    this.data = data;
+  }
+
   public String getName() {
     return name;
   }
@@ -40,6 +50,10 @@ public class TableBundle {
 
   public File getData() {
     return data;
+  }
+
+  public ValueTable getRefTable() {
+    return refTable;
   }
 
   public void setName(String name) {
@@ -58,5 +72,9 @@ public class TableBundle {
     this.name = directory.getName();
     this.variables = new File(directory, CsvDatasource.VARIABLES_FILE);
     this.data = new File(directory, CsvDatasource.DATA_FILE);
+  }
+
+  public boolean hasRefTable() {
+    return refTable != null;
   }
 }

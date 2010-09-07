@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.obiba.magma.AbstractDatasourceFactory;
 import org.obiba.magma.Datasource;
+import org.obiba.magma.ValueTable;
 import org.obiba.magma.datasource.csv.CsvDatasource;
 
 public class CsvDatasourceFactory extends AbstractDatasourceFactory {
@@ -62,6 +63,14 @@ public class CsvDatasourceFactory extends AbstractDatasourceFactory {
     return this;
   }
 
+  public CsvDatasourceFactory addTable(ValueTable refTable, File data) {
+    if(refTable.getName() != null && !hasTable(refTable.getName())) {
+      TableBundle bundle = new TableBundle(refTable, data);
+      getTables().add(bundle);
+    }
+    return this;
+  }
+
   public boolean hasTable(String name) {
     for(TableBundle bundle : getTables()) {
       if(bundle.getName().equals(name)) {
@@ -95,7 +104,11 @@ public class CsvDatasourceFactory extends AbstractDatasourceFactory {
     datasource.setFirstRow(firstRow);
 
     for(TableBundle tableBundle : getTables()) {
-      datasource.addValueTable(tableBundle.getName(), tableBundle.getVariables(), tableBundle.getData());
+      if(tableBundle.hasRefTable()) {
+        datasource.addValueTable(tableBundle.getRefTable(), tableBundle.getData());
+      } else {
+        datasource.addValueTable(tableBundle.getName(), tableBundle.getVariables(), tableBundle.getData());
+      }
     }
 
     return datasource;
