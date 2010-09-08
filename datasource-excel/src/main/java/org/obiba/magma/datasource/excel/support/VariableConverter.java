@@ -176,38 +176,39 @@ public class VariableConverter {
    * 
    * @param variableName
    * @param variableBuilder
+   * @param variableCategoriesCache
    */
   private void unmarshallCategories(String variableName, Variable.Builder variableBuilder) {
     if(getHeaderMapCategories() == null) return;
 
     Sheet categoriesSheet = valueTable.getDatasource().getCategoriesSheet();
-    int categoryRowCount = categoriesSheet.getPhysicalNumberOfRows();
+    List<Integer> variableCategoryRows = valueTable.getVariableCategoryRows(variableName);
     List<String> categoryNames = new ArrayList<String>();
     List<ExcelDatasourceParsingException> errors = new ArrayList<ExcelDatasourceParsingException>();
     Row firstRow = null;
-    for(int x = 1; x < categoryRowCount; x++) {
-      Row categoryRow = categoriesSheet.getRow(x);
 
-      if(getCategoryTableName(categoryRow).equals(valueTable.getName()) && getCategoryVariableName(categoryRow).equals(variableName)) {
-        if(firstRow == null) firstRow = categoryRow;
-        try {
-          Category category = unmarshallCategory(variableName, categoryRow);
-          if(categoryNames.contains(category.getName())) {
-            errors.add(new ExcelDatasourceParsingException("Duplicate category name in variable: " + valueTable.getName() + " / " + variableName, //
-            "DuplicateCategoryName", ExcelDatasource.CATEGORIES_SHEET, categoryRow.getRowNum() + 1, valueTable.getName(), variableName, category.getName()));
-          } else {
-            categoryNames.add(category.getName());
-            variableBuilder.addCategory(category);
-            String key = variableName + category.getName();
-            categoryRows.put(key, categoryRow);
-          }
-        } catch(ExcelDatasourceParsingException pe) {
-          errors.add(pe);
-        } catch(Exception e) {
-          errors.add(new ExcelDatasourceParsingException("Unexpected error in category: " + e.getMessage(), e, //
-          "UnexpectedErrorInCategory", ExcelDatasource.CATEGORIES_SHEET, categoryRow.getRowNum() + 1, valueTable.getName(), variableName));
+    for(int rowIndex : variableCategoryRows) {
+      Row categoryRow = categoriesSheet.getRow(rowIndex);
+
+      if(firstRow == null) firstRow = categoryRow;
+      try {
+        Category category = unmarshallCategory(variableName, categoryRow);
+        if(categoryNames.contains(category.getName())) {
+          errors.add(new ExcelDatasourceParsingException("Duplicate category name in variable: " + valueTable.getName() + " / " + variableName, //
+          "DuplicateCategoryName", ExcelDatasource.CATEGORIES_SHEET, categoryRow.getRowNum() + 1, valueTable.getName(), variableName, category.getName()));
+        } else {
+          categoryNames.add(category.getName());
+          variableBuilder.addCategory(category);
+          String key = variableName + category.getName();
+          categoryRows.put(key, categoryRow);
         }
+      } catch(ExcelDatasourceParsingException pe) {
+        errors.add(pe);
+      } catch(Exception e) {
+        errors.add(new ExcelDatasourceParsingException("Unexpected error in category: " + e.getMessage(), e, //
+        "UnexpectedErrorInCategory", ExcelDatasource.CATEGORIES_SHEET, categoryRow.getRowNum() + 1, valueTable.getName(), variableName));
       }
+
     }
 
     if(errors.size() > 0) {
