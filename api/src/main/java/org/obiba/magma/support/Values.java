@@ -41,4 +41,14 @@ public final class Values {
   public static Iterable<Value> asValues(final ValueType type, final Object... values) {
     return Iterables.transform(Arrays.asList(values), toValueFunction(type));
   }
+
+  /**
+   * Returns a {@code ValueSequence} with the specified values as the sequence
+   * @param type
+   * @param values
+   * @return
+   */
+  public static Value asSequence(final ValueType type, final Object... values) {
+    return type.sequenceOf(asValues(type, values));
+  }
 }
