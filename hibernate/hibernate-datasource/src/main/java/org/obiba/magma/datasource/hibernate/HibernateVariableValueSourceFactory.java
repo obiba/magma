@@ -108,6 +108,9 @@ class HibernateVariableValueSourceFactory implements VariableValueSourceFactory 
 
     @Override
     public Iterable<Value> getValues(SortedSet<VariableEntity> entities) {
+      if(entities.size() == 0) {
+        return ImmutableList.of();
+      }
       final Query valuesQuery;
       valuesQuery = getCurrentSession().getNamedQuery("valuesWithEntities");
       valuesQuery.setParameter("entityType", valueTable.getEntityType())//
