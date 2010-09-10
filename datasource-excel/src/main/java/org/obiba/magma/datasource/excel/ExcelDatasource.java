@@ -6,6 +6,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.HashSet;
@@ -30,6 +31,7 @@ import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.Timestamps;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.ValueTableWriter;
+import org.obiba.magma.datasource.excel.support.ExcelDatasourceParsingException;
 import org.obiba.magma.datasource.excel.support.ExcelUtil;
 import org.obiba.magma.datasource.excel.support.NameConverter;
 import org.obiba.magma.datasource.excel.support.VariableConverter;
@@ -218,6 +220,8 @@ public class ExcelDatasource extends AbstractDatasource {
   protected Set<String> getValueTableNames() {
     Set<String> sheetNames = new LinkedHashSet<String>(100);
 
+    List<ExcelDatasourceParsingException> errors = new ArrayList<ExcelDatasourceParsingException>();
+
     // find the table names from the Variables sheet
     Row headerVariables = variablesSheet.getRow(0);
     if(headerVariables != null) {
@@ -229,6 +233,10 @@ public class ExcelDatasource extends AbstractDatasource {
           String tableName = DEFAULT_TABLE_NAME;
           if(tableHeader != null) {
             tableName = ExcelUtil.getCellValueAsString(variableRow.getCell(headerMapVariables.get(tableHeader)));
+            if(tableName.trim().isEmpty()) {
+              errors.add(new ExcelDatasourceParsingException("Table name is required", //
+              "TableNameRequired", variablesSheet.getSheetName(), i + 1));
+            }
           }
           if(!valueTablesMapOnInit.containsKey(tableName)) {
             String entityTypeHeader = ExcelUtil.findNormalizedHeader(headerMapVariables.keySet(), VariableConverter.ENTITY_TYPE);
@@ -243,6 +251,13 @@ public class ExcelDatasource extends AbstractDatasource {
       }
     }
 
+    if(errors.size() > 0) {
+      ExcelDatasourceParsingException parent = new ExcelDatasourceParsingException("Errors while parsing variables", //
+      "TableDefinitionErrors", variablesSheet.getSheetName(), 1, getName());
+      parent.setChildren(errors);
+      throw parent;
+    }
+
     // find other tables from their sheet name
     int sheetCount = excelWorkbook.getNumberOfSheets();
     for(int i = 0; i < sheetCount; i++) {
@@ -251,6 +266,7 @@ public class ExcelDatasource extends AbstractDatasource {
         valueTablesMapOnInit.put(sheetName, new ExcelValueTable(this, sheetName, "Participant"));
       }
     }
+
     return valueTablesMapOnInit.keySet();
   }
 

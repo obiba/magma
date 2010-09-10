@@ -20,15 +20,13 @@ import org.obiba.magma.Initialisable;
 import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.NoSuchValueSetException;
 import org.obiba.magma.Timestamps;
-import org.obiba.magma.Value;
 import org.obiba.magma.ValueSet;
 import org.obiba.magma.ValueTable;
-import org.obiba.magma.ValueType;
 import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.VariableValueSource;
-import org.obiba.magma.VectorSource;
 import org.obiba.magma.datasource.csv.converter.VariableConverter;
+import org.obiba.magma.datasource.csv.support.CsvDatasourceParsingException;
 import org.obiba.magma.lang.Closeables;
 import org.obiba.magma.support.AbstractValueTable;
 import org.obiba.magma.support.VariableEntityBean;
@@ -131,7 +129,7 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
       initialiseData();
       variableEntityProvider = new CSVVariableEntityProvider(entityType);
     } catch(IOException e) {
-      throw new MagmaRuntimeException(e);
+      throw new CsvDatasourceParsingException("Error occurred initialising csv datasource.", e, "CsvInitialisationError", 0, new Object[] {});
     }
   }
 
@@ -173,7 +171,7 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
           if(entityType == null) entityType = var.getEntityType();
 
           variableNameIndex.put(var.getName(), lineIndex.get(count));
-          addVariableValueSource(new CsvIndexVariableValueSource(var.getName()));
+          addVariableValueSource(new CsvVariableValueSource(var));
           line = variableReader.readNext();
         }
       } else {
@@ -305,6 +303,9 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
     if(indexEntry != null) {
       clear(variableFile, indexEntry);
       variableNameIndex.remove(variable.getName());
+      // Remove the associated VariableValueSource.
+      VariableValueSource vvs = getVariableValueSource(variable.getName());
+      getSources().remove(vvs);
     }
   }
 
@@ -330,52 +331,6 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
     @Override
     public boolean isForEntityType(String entityType) {
       return getEntityType().equals(entityType);
-    }
-
-  }
-
-  private class CsvIndexVariableValueSource implements VariableValueSource {
-
-    private final String variableName;
-
-    public CsvIndexVariableValueSource(String variableName) {
-      this.variableName = variableName;
-    }
-
-    @Override
-    public Variable getVariable() {
-      CsvIndexEntry indexEntry = variableNameIndex.get(variableName);
-      if(indexEntry != null) {
-        FileInputStream fis = null;
-        try {
-          InputStreamReader fr = new InputStreamReader(fis = new FileInputStream(variableFile), getCharacterSet());
-          CSVReader csvReader = getCsvDatasource().getCsvReader(fr);
-          skipSafely(fis, indexEntry.getStart());
-          String[] line = csvReader.readNext();
-          log.debug("variable line read> {} ", Arrays.toString(line));
-          return variableConverter.unmarshal(line);
-        } catch(IOException e) {
-          throw new MagmaRuntimeException(e);
-        } finally {
-          Closeables.closeQuietly(fis);
-        }
-      }
-      throw new MagmaRuntimeException("An index entry does not exist for the variable '" + variableName + "'.");
-    }
-
-    @Override
-    public Value getValue(ValueSet valueSet) {
-      return ((CsvValueSet) valueSet).getValue(getVariable());
-    }
-
-    @Override
-    public ValueType getValueType() {
-      return getVariable().getValueType();
-    }
-
-    @Override
-    public VectorSource asVectorSource() {
-      return null;
     }
 
   }
@@ -450,9 +405,7 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
 
   public void updateVariableIndex(Variable variable, long lastByte, String[] line) {
     variableNameIndex.put(variable.getName(), new CsvIndexEntry(lastByte, lastByte + lineLength(line)));
-    if(!hasVariable(variable.getName())) {
-      addVariableValueSource(new CsvIndexVariableValueSource(variable.getName()));
-    }
+    addVariableValueSource(new CsvVariableValueSource(variable));
   }
 
   private int lineLength(String[] line) {

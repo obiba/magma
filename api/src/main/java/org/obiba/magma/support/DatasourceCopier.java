@@ -7,18 +7,16 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
-import org.obiba.magma.Attribute;
-import org.obiba.magma.Category;
 import org.obiba.magma.Datasource;
 import org.obiba.magma.MagmaEngine;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueSet;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.ValueTableWriter;
-import org.obiba.magma.Variable;
-import org.obiba.magma.VariableEntity;
 import org.obiba.magma.ValueTableWriter.ValueSetWriter;
 import org.obiba.magma.ValueTableWriter.VariableWriter;
+import org.obiba.magma.Variable;
+import org.obiba.magma.VariableEntity;
 import org.obiba.magma.support.MultiplexingValueTableWriter.MultiplexedValueSetWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -224,7 +222,7 @@ public class DatasourceCopier {
     return destination.createWriter(destinationTableName, source.getEntityType());
   }
 
-  private ValueTableWriter innerValueTableWriter(ValueTable source, String destinationTableName, Datasource destination) {
+  ValueTableWriter innerValueTableWriter(ValueTable source, String destinationTableName, Datasource destination) {
     if(multiplexer != null) {
       return new MultiplexingValueTableWriter(source, this, destination, multiplexer);
     } else {

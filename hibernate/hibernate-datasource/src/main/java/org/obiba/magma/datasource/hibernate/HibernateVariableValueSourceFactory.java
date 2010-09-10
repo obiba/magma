@@ -121,7 +121,7 @@ class HibernateVariableValueSourceFactory implements VariableValueSourceFactory 
 
       valuesQuery//
       .setParameter("valueTableId", valueTable.getValueTableState().getId())//
-      .setParameter("variableId", valueTable.getVariableId(variable));
+      .setParameter("variableId", valueTable.getVariableId(getVariable()));
 
       return new Iterable<Value>() {
 

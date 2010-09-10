@@ -57,7 +57,7 @@ public class MagmaEngineTest {
     setUp();
     Datasource datasourceOne = createMock(Datasource.class);
     datasourceOne.initialise();
-    expectLastCall().times(2);
+    expectLastCall().times(1);
     datasourceOne.dispose();
     replay(datasourceOne);
     magmaEngine.addDatasource(datasourceOne);
@@ -74,7 +74,6 @@ public class MagmaEngineTest {
     Datasource datasourceTwo = createMock(Datasource.class);
     datasourceOne.initialise();
     expect(datasourceOne.getName()).andReturn("fireball").times(2);
-    datasourceTwo.initialise();
     expect(datasourceTwo.getName()).andReturn("fireball");
     datasourceOne.dispose();
     replay(datasourceOne, datasourceTwo);

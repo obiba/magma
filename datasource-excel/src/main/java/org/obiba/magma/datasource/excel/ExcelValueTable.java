@@ -25,20 +25,20 @@ import org.obiba.magma.support.DatasourceParsingException;
 import org.obiba.magma.support.VariableEntityBean;
 import org.obiba.magma.support.VariableEntityProvider;
 import org.obiba.magma.type.TextType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 public class ExcelValueTable extends AbstractValueTable implements Initialisable {
-
-  private static final Logger log = LoggerFactory.getLogger(ExcelValueTable.class);
 
   private Sheet valueTableSheet;
 
   /** Maps a variable's name to its Column index valueTableSheet */
   private final Map<String, Integer> variableColumns = Maps.newHashMap();
+
+  /** Maps a variable's name to its list of categories (row indices) */
+  private final Map<String, List<Integer>> variableCategoryRows = Maps.newHashMap();
 
   private VariableConverter converter;
 
@@ -52,6 +52,7 @@ public class ExcelValueTable extends AbstractValueTable implements Initialisable
   public void initialise() {
     super.initialise();
     try {
+      initVariableCategoryRows();
       readVariables();
     } catch(RuntimeException e) {
       throw e;
@@ -256,6 +257,31 @@ public class ExcelValueTable extends AbstractValueTable implements Initialisable
       "TableDefinitionErrors", ExcelDatasource.VARIABLES_SHEET, firstRow.getRowNum() + 1, getName());
       parent.setChildren(errors);
       throw parent;
+    }
+  }
+
+  public List<Integer> getVariableCategoryRows(String variableName) {
+    List<Integer> rows = variableCategoryRows.get(getName() + "." + variableName);
+    return (rows != null) ? rows : new ArrayList<Integer>();
+  }
+
+  private void initVariableCategoryRows() {
+    Sheet categoriesSheet = getDatasource().getCategoriesSheet();
+    int categoryRowCount = categoriesSheet.getPhysicalNumberOfRows();
+
+    for(int rowIndex = 1; rowIndex < categoryRowCount; rowIndex++) {
+      Row categoryRow = categoriesSheet.getRow(rowIndex);
+      if(converter.getCategoryTableName(categoryRow).equals(getName())) {
+        String variableName = converter.getCategoryVariableName(categoryRow);
+        if(variableName.length() != 0) {
+          List<Integer> categoryRows = variableCategoryRows.get(getName() + "." + variableName);
+          if(categoryRows == null) {
+            categoryRows = Lists.newArrayList();
+            variableCategoryRows.put(getName() + "." + variableName, categoryRows);
+          }
+          categoryRows.add(rowIndex);
+        }
+      }
     }
   }
 

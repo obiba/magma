@@ -212,6 +212,49 @@ public class NumericMethods {
     return new ScriptableValue(thisObj, compare((ScriptableValue) thisObj, args, Comps.LE));
   }
 
+  /**
+   * Returns a new {@link ScriptableValue} that is the natural logarithm of this value. Returns null if
+   * 
+   * <pre>
+   *   $('NumberVarOne').ln()
+   * </pre>
+   */
+  public static ScriptableValue ln(Context ctx, Scriptable thisObj, Object[] args, Function funObj) throws MagmaJsEvaluationRuntimeException {
+    Value thisValue = ((ScriptableValue) thisObj).getValue();
+    Value value = DecimalType.get().nullValue();
+    if(thisValue.isNull() == false) {
+      value = DecimalType.get().valueOf(Math.log(asDouble(thisValue.getValue())));
+    }
+    return new ScriptableValue(thisObj, value);
+  }
+
+  /**
+   * Returns a new {@link ScriptableValue} that is the natural logarithm of this value. Returns null if
+   * 
+   * <pre>
+   *   $('NumberVarOne').log() // log base 10
+   *   $('NumberVarOne').log(2) // log base 2
+   * </pre>
+   */
+  public static ScriptableValue log(Context ctx, Scriptable thisObj, Object[] args, Function funObj) throws MagmaJsEvaluationRuntimeException {
+    Value thisValue = ((ScriptableValue) thisObj).getValue();
+    Value value = DecimalType.get().nullValue();
+    if(thisValue.isNull() == false) {
+      // check for a base
+      Double base = null;
+      if(args != null && args.length == 1) {
+        base = asDouble(args[0]);
+      }
+      double v = Math.log10(asDouble(thisValue.getValue()));
+      if(base != null) {
+        // logb(x) == log10(x) / log(b)
+        v /= Math.log10(base);
+      }
+      value = DecimalType.get().valueOf(v);
+    }
+    return new ScriptableValue(thisObj, value);
+  }
+
   static Value compare(ScriptableValue thisObj, Object args[], Comps comparator) {
     BigDecimal value = asBigDecimal(thisObj);
     for(Object argument : args) {
@@ -251,6 +294,22 @@ public class NumericMethods {
       return ((ScriptableValue) object).getValueType() == IntegerType.get();
     }
     return ValueType.Factory.forClass(object.getClass()) == IntegerType.get();
+  }
+
+  static Double asDouble(Object obj) {
+    if(obj == null) return null;
+    if(obj instanceof Number) {
+      return ((Number) obj).doubleValue();
+    }
+    if(obj instanceof ScriptableValue) {
+      ScriptableValue sv = (ScriptableValue) obj;
+      if(sv.getValue().isNull()) return null;
+      return ((Number) sv.getValue().getValue()).doubleValue();
+    }
+    if(obj instanceof String) {
+      return Double.valueOf((String) obj);
+    }
+    throw new IllegalArgumentException("cannot interpret argument as number: '" + obj + "'");
   }
 
   static BigDecimal asBigDecimal(Object object) {

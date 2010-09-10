@@ -67,6 +67,10 @@ public class VariableConverter {
 
   private Map<String, Integer> headerMapCategories;
 
+  private Map<String, Integer> cachedHeaderMapVariables = Maps.newHashMap();
+
+  private Map<String, Integer> cachedHeaderMapCategories = Maps.newHashMap();
+
   private Set<String> attributeNamesCategories;
 
   private Set<String> attributeNamesVariables;
@@ -172,38 +176,39 @@ public class VariableConverter {
    * 
    * @param variableName
    * @param variableBuilder
+   * @param variableCategoriesCache
    */
   private void unmarshallCategories(String variableName, Variable.Builder variableBuilder) {
     if(getHeaderMapCategories() == null) return;
 
     Sheet categoriesSheet = valueTable.getDatasource().getCategoriesSheet();
-    int categoryRowCount = categoriesSheet.getPhysicalNumberOfRows();
+    List<Integer> variableCategoryRows = valueTable.getVariableCategoryRows(variableName);
     List<String> categoryNames = new ArrayList<String>();
     List<ExcelDatasourceParsingException> errors = new ArrayList<ExcelDatasourceParsingException>();
     Row firstRow = null;
-    for(int x = 1; x < categoryRowCount; x++) {
-      Row categoryRow = categoriesSheet.getRow(x);
 
-      if(getCategoryTableName(categoryRow).equals(valueTable.getName()) && getCategoryVariableName(categoryRow).equals(variableName)) {
-        if(firstRow == null) firstRow = categoryRow;
-        try {
-          Category category = unmarshallCategory(variableName, categoryRow);
-          if(categoryNames.contains(category.getName())) {
-            errors.add(new ExcelDatasourceParsingException("Duplicate category name in variable: " + valueTable.getName() + " / " + variableName, //
-            "DuplicateCategoryName", ExcelDatasource.CATEGORIES_SHEET, categoryRow.getRowNum() + 1, valueTable.getName(), variableName, category.getName()));
-          } else {
-            categoryNames.add(category.getName());
-            variableBuilder.addCategory(category);
-            String key = variableName + category.getName();
-            categoryRows.put(key, categoryRow);
-          }
-        } catch(ExcelDatasourceParsingException pe) {
-          errors.add(pe);
-        } catch(Exception e) {
-          errors.add(new ExcelDatasourceParsingException("Unexpected error in category: " + e.getMessage(), e, //
-          "UnexpectedErrorInCategory", ExcelDatasource.CATEGORIES_SHEET, categoryRow.getRowNum() + 1, valueTable.getName(), variableName));
+    for(int rowIndex : variableCategoryRows) {
+      Row categoryRow = categoriesSheet.getRow(rowIndex);
+
+      if(firstRow == null) firstRow = categoryRow;
+      try {
+        Category category = unmarshallCategory(variableName, categoryRow);
+        if(categoryNames.contains(category.getName())) {
+          errors.add(new ExcelDatasourceParsingException("Duplicate category name in variable: " + valueTable.getName() + " / " + variableName, //
+          "DuplicateCategoryName", ExcelDatasource.CATEGORIES_SHEET, categoryRow.getRowNum() + 1, valueTable.getName(), variableName, category.getName()));
+        } else {
+          categoryNames.add(category.getName());
+          variableBuilder.addCategory(category);
+          String key = variableName + category.getName();
+          categoryRows.put(key, categoryRow);
         }
+      } catch(ExcelDatasourceParsingException pe) {
+        errors.add(pe);
+      } catch(Exception e) {
+        errors.add(new ExcelDatasourceParsingException("Unexpected error in category: " + e.getMessage(), e, //
+        "UnexpectedErrorInCategory", ExcelDatasource.CATEGORIES_SHEET, categoryRow.getRowNum() + 1, valueTable.getName(), variableName));
       }
+
     }
 
     if(errors.size() > 0) {
@@ -447,7 +452,7 @@ public class VariableConverter {
    */
   public Integer getVariableHeaderIndex(final String header) {
     if(reservedVariableHeaders.contains(header)) {
-      return getHeaderIndex(getHeaderMapVariables(), header);
+      return getHeaderIndex(getHeaderMapVariables(), cachedHeaderMapVariables, header);
     } else {
       return getHeaderMapVariables().get(header);
     }
@@ -513,7 +518,7 @@ public class VariableConverter {
    */
   public Integer getCategoryHeaderIndex(final String header) {
     if(reservedCategoryHeaders.contains(header)) {
-      return getHeaderIndex(getHeaderMapCategories(), header);
+      return getHeaderIndex(getHeaderMapCategories(), cachedHeaderMapCategories, header);
     } else {
       return getHeaderMapCategories().get(header);
     }
@@ -531,15 +536,21 @@ public class VariableConverter {
   /**
    * Get the 0-based index of the column at the given header relatively to the header map.
    * @param headerMap
+   * @param cachedHeaderMap
    * @param header
    * @return null if no such header
    * @see ExcelUtil#findNormalizedHeader(Iterable, String)
    */
-  private Integer getHeaderIndex(final Map<String, Integer> headerMap, final String header) {
-    Integer idx = null;
-    String found = ExcelUtil.findNormalizedHeader(headerMap.keySet(), header);
-    if(found != null) {
-      idx = headerMap.get(found);
+  private Integer getHeaderIndex(final Map<String, Integer> headerMap, Map<String, Integer> cachedHeaderMap, final String header) {
+    Integer idx = cachedHeaderMap.get(header);
+    if(idx == null) {
+      String found = ExcelUtil.findNormalizedHeader(headerMap.keySet(), header);
+      if(found != null) {
+        idx = headerMap.get(found);
+        if(idx != null) {
+          cachedHeaderMap.put(header, idx);
+        }
+      }
     }
     return idx;
   }

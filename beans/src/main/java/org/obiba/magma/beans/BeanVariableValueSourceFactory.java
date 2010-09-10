@@ -101,9 +101,7 @@ public class BeanVariableValueSourceFactory<T> implements VariableValueSourceFac
   }
 
   public Set<VariableValueSource> createSources() {
-    if(sources == null) {
-      doBuildVariables();
-    }
+    doBuildVariables();
     return sources;
   }
 
@@ -221,13 +219,15 @@ public class BeanVariableValueSourceFactory<T> implements VariableValueSourceFac
    * each variable.
    */
   protected synchronized void doBuildVariables() {
-    sources = new LinkedHashSet<VariableValueSource>();
-    for(String propertyPath : properties) {
-      Class<?> propertyType = getPropertyType(propertyPath);
-      if(propertyType == null) {
-        throw new IllegalArgumentException("Invalid property path'" + propertyPath + "' for type " + getBeanClass().getName());
+    if(sources == null) {
+      sources = new LinkedHashSet<VariableValueSource>();
+      for(String propertyPath : properties) {
+        Class<?> propertyType = getPropertyType(propertyPath);
+        if(propertyType == null) {
+          throw new IllegalArgumentException("Invalid property path'" + propertyPath + "' for type " + getBeanClass().getName());
+        }
+        sources.add(new BeanPropertyVariableValueSource(doBuildVariable(propertyType, lookupVariableName(propertyPath)), beanClass, propertyPath));
       }
-      sources.add(new BeanPropertyVariableValueSource(doBuildVariable(propertyType, lookupVariableName(propertyPath)), beanClass, propertyPath));
     }
   }
 

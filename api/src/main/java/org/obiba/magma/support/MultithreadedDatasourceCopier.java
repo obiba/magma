@@ -17,10 +17,10 @@ import org.obiba.magma.Value;
 import org.obiba.magma.ValueSet;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.ValueTableWriter;
+import org.obiba.magma.ValueTableWriter.ValueSetWriter;
 import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.VariableValueSource;
-import org.obiba.magma.ValueTableWriter.ValueSetWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -265,7 +265,7 @@ public class MultithreadedDatasourceCopier {
     @Override
     public void run() {
       VariableEntityValues values = next();
-      ValueTableWriter tableWriter = copier.build().createValueTableWriter(source, destinationName, destination);
+      ValueTableWriter tableWriter = copier.build().innerValueTableWriter(source, destinationName, destination);
       try {
         while(values != null) {
           ValueSetWriter writer = tableWriter.writeValueSet(values.valueSet.getVariableEntity());

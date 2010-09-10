@@ -45,9 +45,7 @@ public class IntegrationApp {
     MagmaEngine.get().addDatasource(integrationDatasource);
 
     File encrypted = new File("target", "output-encrypted.zip");
-    if(encrypted.exists()) {
-      encrypted.delete();
-    }
+    deleteFile(encrypted);
 
     // Generate a new KeyPair.
     GeneratedKeyPairProvider keyPairProvider = new GeneratedKeyPairProvider();
@@ -87,11 +85,7 @@ public class IntegrationApp {
     }
 
     File decrypted = new File("target", "output-decrypted.zip");
-    if(decrypted.exists()) {
-      if(!decrypted.delete()) {
-        System.err.println("Failed to delete file: " + decrypted.getPath());
-      }
-    }
+    deleteFile(decrypted);
     fs = new FsDatasource("export", decrypted);
     MagmaEngine.get().addDatasource(fs);
 
@@ -145,10 +139,10 @@ public class IntegrationApp {
 
     File csvDataFile = new File("target", "data.csv");
     deleteFile(csvDataFile);
-    csvDataFile.createNewFile();
+    createFile(csvDataFile);
     File csvVariablesFile = new File("target", "variables.csv");
     deleteFile(csvVariablesFile);
-    csvVariablesFile.createNewFile();
+    createFile(csvVariablesFile);
     CsvDatasource csvDatasource = new CsvDatasource("csv");
     csvDatasource.addValueTable("integration-app", csvVariablesFile, csvDataFile);
     csvDatasource.setVariablesHeader("integration-app", "name#valueType#entityType#mimeType#unit#occurrenceGroup#repeatable#script".split("#"));
@@ -158,9 +152,7 @@ public class IntegrationApp {
     // Excel Datasource
 
     File excelFile = new File("target", "excel-datasource.xls");
-    if(excelFile.exists()) {
-      excelFile.delete();
-    }
+    deleteFile(excelFile);
     ExcelDatasource ed = new ExcelDatasource("excel", excelFile);
     MagmaEngine.get().addDatasource(ed);
 
@@ -188,6 +180,20 @@ public class IntegrationApp {
   }
 
   private static void deleteFile(File file) {
-    if(file.exists()) file.delete();
+    if(file.exists()) {
+      if(!file.delete()) {
+        System.err.println("Failed to delete file: " + file.getPath());
+      }
+    }
+  }
+
+  private static void createFile(File file) throws IOException {
+    boolean fileDidNotExist = file.createNewFile();
+    if(fileDidNotExist) {
+      System.out.println("Created file: " + file.getPath());
+    } else {
+      System.out.println("File already exists: " + file.getPath());
+    }
+
   }
 }

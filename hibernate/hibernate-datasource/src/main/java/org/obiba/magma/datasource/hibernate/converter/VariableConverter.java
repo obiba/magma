@@ -23,7 +23,9 @@ public class VariableConverter extends AttributeAwareConverter implements Hibern
   @Override
   public VariableState marshal(Variable variable, HibernateMarshallingContext context) {
     VariableState variableState = getStateForVariable(variable, context);
-    if(variableState == null) {
+    if(variableState != null) {
+      variableState.copyVariableFields(variable);
+    } else {
       variableState = new VariableState(context.getValueTable(), variable);
     }
 

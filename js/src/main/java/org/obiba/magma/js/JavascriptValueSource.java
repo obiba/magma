@@ -195,7 +195,11 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
 
       if(result.getValueType() != getValueType()) {
         // Convert types
-        result = getValueType().convert(result);
+        try {
+          result = getValueType().convert(result);
+        } catch(RuntimeException e) {
+          throw new MagmaJsRuntimeException("Cannot convert value '" + result.toString() + "' to type '" + getValueType().getName() + "'");
+        }
       }
       return result;
     }

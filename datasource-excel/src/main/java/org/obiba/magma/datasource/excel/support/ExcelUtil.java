@@ -106,8 +106,9 @@ public class ExcelUtil {
    * @return null if not found
    */
   public static String findNormalizedHeader(final Iterable<String> headers, final String header) {
+    String normalized = normalizeHeader(header);
     for(String userHeader : headers) {
-      if(normalizeHeader(userHeader).equals(normalizeHeader(header))) {
+      if(normalizeHeader(userHeader).equals(normalized)) {
         return userHeader;
       }
     }
@@ -120,8 +121,9 @@ public class ExcelUtil {
    * @return
    */
   private static String normalizeHeader(String userHeader) {
-    if(cachedNormalizedHeaders.containsKey(userHeader)) {
-      return cachedNormalizedHeaders.get(userHeader);
+    String cached = cachedNormalizedHeaders.get(userHeader);
+    if(cached != null) {
+      return cached;
     } else {
       StringBuffer buf = new StringBuffer();
       for(int i = 0; i < userHeader.length(); i++) {
@@ -132,7 +134,6 @@ public class ExcelUtil {
       }
       String h = buf.toString().toLowerCase();
       cachedNormalizedHeaders.put(userHeader, h);
-      // System.out.println("cache=" + cachedNormalizedHeaders);
       return h;
     }
   }
