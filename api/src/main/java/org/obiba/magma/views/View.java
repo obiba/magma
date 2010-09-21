@@ -106,6 +106,14 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
     Disposables.silentlyDispose(from, select, where, variables);
   }
 
+  public SelectClause getSelectClause() {
+    return select;
+  }
+
+  public WhereClause getWhereClause() {
+    return where;
+  }
+
   public ListClause getListClause() {
     return variables;
   }
