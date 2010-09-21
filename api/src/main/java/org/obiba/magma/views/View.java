@@ -386,11 +386,11 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
 
     private View view;
 
-    public Builder(String name, ValueTable from) {
+    public Builder(String name, ValueTable... from) {
       view = new View(name, from);
     }
 
-    public static Builder newView(String name, ValueTable from) {
+    public static Builder newView(String name, ValueTable... from) {
       return new Builder(name, from);
     }
 
