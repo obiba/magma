@@ -168,7 +168,44 @@ public class ViewAwareDatasource implements Datasource {
 
   public void addView(ValueTable table) {
     Initialisables.initialise(table);
+    if(hasView(table.getName())) removeView(table.getName());
     views.add(table);
+    if(table instanceof View) {
+      ((View) table).setDatasource(this);
+    }
+    Initialisables.initialise(table);
+  }
+
+  public void removeView(String name) {
+    View view = getViewByName(name);
+    if(view != null) {
+      views.remove(view);
+      Disposables.dispose(view);
+    }
+  }
+
+  public boolean hasView(String name) {
+    if(getViewByName(name) != null) {
+      return true;
+    }
+    return false;
+  }
+
+  public View getView(String name) {
+    View view = getViewByName(name);
+    if(view != null) {
+      return view;
+    }
+    throw new NoSuchValueTableException(wrappedDatasource.getName(), name);
+  }
+
+  private View getViewByName(String name) {
+    for(ValueTable view : views) {
+      if(view.getName().equals(name) && view instanceof View) {
+        return (View) view;
+      }
+    }
+    return null;
   }
 
   private Set<ValueTable> getWrappedTables() {
