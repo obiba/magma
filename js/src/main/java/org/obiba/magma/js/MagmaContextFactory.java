@@ -30,6 +30,8 @@ public class MagmaContextFactory extends ContextFactory implements Initialisable
 
   private ScriptableVariablePrototypeFactory scriptableVariablePrototypeFactory = new ScriptableVariablePrototypeFactory();
 
+  private ScriptableVariableEntityPrototypeFactory scriptableVariableEntityPrototypeFactory = new ScriptableVariableEntityPrototypeFactory();
+
   private Set<GlobalMethodProvider> globalMethodProviders = Collections.emptySet();
 
   @Override
@@ -78,6 +80,9 @@ public class MagmaContextFactory extends ContextFactory implements Initialisable
 
         Scriptable variablePrototype = scriptableVariablePrototypeFactory.buildPrototype();
         ScriptableObject.putProperty(sharedScope, variablePrototype.getClassName(), variablePrototype);
+
+        Scriptable variableEntityPrototype = scriptableVariableEntityPrototypeFactory.buildPrototype();
+        ScriptableObject.putProperty(sharedScope, variableEntityPrototype.getClassName(), variableEntityPrototype);
 
         sharedScope.sealObject();
         return sharedScope;
