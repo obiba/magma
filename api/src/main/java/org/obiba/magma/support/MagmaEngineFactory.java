@@ -53,7 +53,12 @@ public class MagmaEngineFactory {
   }
 
   public void removeFactory(String name) {
-    factories.remove(name);
+    for(DatasourceFactory factory : factories) {
+      if(factory.getName().equals(name)) {
+        factories.remove(factory);
+        break;
+      }
+    }
   }
 
   public MagmaEngineFactory withDatasource(Datasource datasource) {
