@@ -1,6 +1,5 @@
 package org.obiba.magma.views;
 
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
@@ -186,6 +185,9 @@ public class ViewAwareDatasource implements Datasource {
     });
   }
 
+  /**
+   * Add or replace View.
+   */
   public void addView(ValueTable table) {
     Initialisables.initialise(table);
     if(hasView(table.getName())) removeView(table.getName());
