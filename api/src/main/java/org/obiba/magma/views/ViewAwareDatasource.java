@@ -15,8 +15,6 @@ import org.obiba.magma.ValueTableWriter;
 import org.obiba.magma.support.Disposables;
 import org.obiba.magma.support.Initialisables;
 
-import com.google.common.base.Function;
-import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 
@@ -167,22 +165,7 @@ public class ViewAwareDatasource implements Datasource {
   //
 
   public Set<View> getViews() {
-    Iterable<View> iterableViews = Iterables.transform(getViewsOnly(views), new Function<ValueTable, View>() {
-      @Override
-      public View apply(ValueTable from) {
-        return (View) from;
-      }
-    });
-    return ImmutableSet.<View> copyOf(iterableViews);
-  }
-
-  private Iterable<ValueTable> getViewsOnly(Set<ValueTable> views) {
-    return Iterables.filter(views, new Predicate<ValueTable>() {
-      @Override
-      public boolean apply(ValueTable valueTable) {
-        return valueTable instanceof View;
-      }
-    });
+    return ImmutableSet.copyOf(Iterables.filter(views, View.class));
   }
 
   /**
