@@ -37,4 +37,9 @@ public abstract class AbstractDatasourceFactory implements DatasourceFactory {
     this.transformer = transformer;
   }
 
+  @Override
+  public DatasourceTransformer getDatasourceTransformer() {
+    return this.transformer;
+  }
+
 }
