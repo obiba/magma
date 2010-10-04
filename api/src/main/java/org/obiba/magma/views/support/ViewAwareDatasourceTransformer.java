@@ -9,6 +9,9 @@ import org.obiba.magma.ValueTable;
 import org.obiba.magma.views.View;
 import org.obiba.magma.views.ViewAwareDatasource;
 
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Iterables;
+
 public class ViewAwareDatasourceTransformer implements DatasourceTransformer {
   //
   // Instance Variables
@@ -47,5 +50,9 @@ public class ViewAwareDatasourceTransformer implements DatasourceTransformer {
     if(views != null) {
       this.views.addAll(views);
     }
+  }
+
+  public Set<View> getViews() {
+    return ImmutableSet.copyOf(Iterables.filter(views, View.class));
   }
 }
