@@ -218,15 +218,19 @@ public class BeanVariableValueSourceFactory<T> implements VariableValueSourceFac
    * Builds the {@code Variable} that this provider supports and also the {@code VariableEntityDataSource} instances for
    * each variable.
    */
-  protected synchronized void doBuildVariables() {
-    if(sources == null) {
-      sources = new LinkedHashSet<VariableValueSource>();
-      for(String propertyPath : properties) {
-        Class<?> propertyType = getPropertyType(propertyPath);
-        if(propertyType == null) {
-          throw new IllegalArgumentException("Invalid property path'" + propertyPath + "' for type " + getBeanClass().getName());
+  protected void doBuildVariables() {
+    Set<String> propertiesCopy = new LinkedHashSet<String>(properties);
+
+    synchronized(this) {
+      if(sources == null) {
+        sources = new LinkedHashSet<VariableValueSource>();
+        for(String propertyPath : propertiesCopy) {
+          Class<?> propertyType = getPropertyType(propertyPath);
+          if(propertyType == null) {
+            throw new IllegalArgumentException("Invalid property path'" + propertyPath + "' for type " + getBeanClass().getName());
+          }
+          sources.add(new BeanPropertyVariableValueSource(doBuildVariable(propertyType, lookupVariableName(propertyPath)), beanClass, propertyPath));
         }
-        sources.add(new BeanPropertyVariableValueSource(doBuildVariable(propertyType, lookupVariableName(propertyPath)), beanClass, propertyPath));
       }
     }
   }
