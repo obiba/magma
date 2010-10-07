@@ -35,9 +35,6 @@ public class ViewAwareDatasource implements Datasource {
     if(views == null) {
       throw new IllegalArgumentException("Null views");
     }
-    if(views.isEmpty()) {
-      throw new IllegalArgumentException("Empty views");
-    }
 
     this.wrappedDatasource = datasource;
 
