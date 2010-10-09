@@ -1,9 +1,8 @@
 package org.obiba.magma.datasource.jdbc;
 
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
-
-import com.google.common.collect.ImmutableSet;
 
 public class JdbcDatasourceSettings {
   //
@@ -60,11 +59,10 @@ public class JdbcDatasourceSettings {
   }
 
   public void setMappedTables(Set<String> mappedTables) {
-    ImmutableSet.Builder<String> mappedTablesBuilder = new ImmutableSet.Builder<String>();
+    this.mappedTables = new HashSet<String>();
     if(mappedTables != null) {
-      mappedTablesBuilder.addAll(mappedTables);
+      this.mappedTables.addAll(mappedTables);
     }
-    this.mappedTables = mappedTablesBuilder.build();
   }
 
   public Set<String> getMappedTables() {
@@ -76,11 +74,10 @@ public class JdbcDatasourceSettings {
   }
 
   public void setTableSettings(Set<JdbcValueTableSettings> tableSettings) {
-    ImmutableSet.Builder<JdbcValueTableSettings> tableSettingsBuilder = new ImmutableSet.Builder<JdbcValueTableSettings>();
+    this.tableSettings = new HashSet<JdbcValueTableSettings>();
     if(tableSettings != null) {
-      tableSettingsBuilder.addAll(tableSettings);
+      this.tableSettings.addAll(tableSettings);
     }
-    this.tableSettings = tableSettingsBuilder.build();
   }
 
   public Set<JdbcValueTableSettings> getTableSettings() {
