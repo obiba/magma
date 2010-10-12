@@ -5,6 +5,7 @@ public abstract class AbstractDatasourceFactory implements DatasourceFactory {
   // Instance Variables
   //
 
+  @Deprecated
   private DatasourceTransformer transformer;
 
   private String name;
@@ -28,8 +29,7 @@ public abstract class AbstractDatasourceFactory implements DatasourceFactory {
 
   @Override
   public Datasource create() {
-    Datasource datasource = internalCreate();
-    return (transformer != null) ? transformer.transform(datasource) : datasource;
+    return internalCreate();
   }
 
   @Override
