@@ -420,7 +420,13 @@ public class JdbcValueTableWriter implements ValueTableWriter {
       Map<String, String> entityIdentifierColumnValueMap = new LinkedHashMap<String, String>();
 
       List<String> entityIdentifierColumns = valueTable.getSettings().getEntityIdentifierColumns();
-      String[] entityIdentifierValues = entity.getIdentifier().split("-");
+
+	  String[] entityIdentifierValues = null;
+	  if(entityIdentifierColumns.size() > 1) {
+        entityIdentifierValues = entity.getIdentifier().split("-");
+	  } else {
+		entityIdentifierValues = new String[] {entity.getIdentifier()};
+	  }
       Assert.isTrue(entityIdentifierColumns.size() == entityIdentifierValues.length, "number of entity identifier columns does not match number of entity identifiers");
 
       for(int i = 0; i < entityIdentifierColumns.size(); i++) {
