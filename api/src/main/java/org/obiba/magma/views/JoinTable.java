@@ -38,12 +38,12 @@ public class JoinTable implements ValueTable {
   /**
    * Cached set of all variables of all tables in the join (i.e., the union).
    */
-  private Set<Variable> unionOfVariables;
+  private transient Set<Variable> unionOfVariables;
 
   /**
    * Cached map of variable names to tables.
    */
-  private Map<String, ValueTable> variableNameToTableMap;
+  private transient Map<String, ValueTable> variableNameToTableMap;
 
   // An arbitrary number to initialise the LinkedHashSet with a capacity close to the actual value (see
   // getVariableEntities())
