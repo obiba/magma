@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.obiba.magma.Datasource;
+import org.obiba.magma.Initialisable;
 import org.obiba.magma.NoSuchValueSetException;
 import org.obiba.magma.NoSuchVariableException;
 import org.obiba.magma.Timestamps;
@@ -28,7 +29,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
 
-public class JoinTable implements ValueTable {
+public class JoinTable implements ValueTable, Initialisable {
   //
   // Instance Variables
   //
@@ -188,6 +189,18 @@ public class JoinTable implements ValueTable {
   @Override
   public boolean isForEntityType(String entityType) {
     return getEntityType().equals(entityType);
+  }
+
+  //
+  // Initialisable Methods
+  //
+
+  public void initialise() {
+    for(ValueTable vt : tables) {
+      if(vt instanceof Initialisable) {
+        ((Initialisable) vt).initialise();
+      }
+    }
   }
 
   //
