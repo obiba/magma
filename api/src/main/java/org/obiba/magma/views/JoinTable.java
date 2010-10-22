@@ -105,7 +105,11 @@ public class JoinTable implements ValueTable {
   public Value getValue(Variable variable, ValueSet valueSet) {
     ValueTable valueTable = getFirstTableWithVariable(variable.getName());
     if(valueTable == null) throw new NoSuchVariableException(variable.getName());
-    return valueTable.getValue(variable, valueSet);
+    ValueSet vs = valueSet;
+    if(valueSet instanceof JoinedValueSet) {
+      vs = ((JoinedValueSet) valueSet).getInnerTableValueSet(valueTable);
+    }
+    return valueTable.getValue(variable, vs);
   }
 
   @Override
