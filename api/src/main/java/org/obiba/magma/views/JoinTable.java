@@ -61,21 +61,27 @@ public class JoinTable implements ValueTable, Initialisable {
     super();
   }
 
-  public JoinTable(List<ValueTable> tables) {
+  public JoinTable(List<ValueTable> tables, boolean validateEntityTypes) {
     if(tables == null) {
       throw new IllegalArgumentException("null tables");
     }
     if(tables.size() < 2) {
       throw new IllegalArgumentException("tables must have two or more members");
     }
-    String entityType = tables.get(0).getEntityType();
-    for(int i = 1; i < tables.size(); i++) {
-      if(!tables.get(i).isForEntityType(entityType)) {
-        throw new IllegalArgumentException("tables must all have the same entity type");
+    if(validateEntityTypes) {
+      String entityType = tables.get(0).getEntityType();
+      for(int i = 1; i < tables.size(); i++) {
+        if(!tables.get(i).isForEntityType(entityType)) {
+          throw new IllegalArgumentException("tables must all have the same entity type");
+        }
       }
     }
 
     this.tables = ImmutableList.copyOf(tables);
+  }
+
+  public JoinTable(List<ValueTable> tables) {
+    this(tables, true);
   }
 
   public List<ValueTable> getTables() {
