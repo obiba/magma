@@ -10,6 +10,8 @@ import org.obiba.magma.views.ListClause;
 import org.obiba.magma.views.SelectClause;
 import org.obiba.magma.views.View;
 import org.obiba.magma.views.WhereClause;
+import org.obiba.magma.views.support.AllClause;
+import org.obiba.magma.views.support.NoneClause;
 
 import com.thoughtworks.xstream.converters.Converter;
 import com.thoughtworks.xstream.converters.MarshallingContext;
@@ -56,43 +58,52 @@ public class ViewConverter implements Converter {
   }
 
   public Object unmarshal(HierarchicalStreamReader reader, UnmarshallingContext context) {
-    reader.moveDown();
-    String name = reader.getValue();
-    reader.moveUp();
-
+    String name = null;
     ValueTable from = null;
-    reader.moveDown();
-    String fromClass = reader.getAttribute("class");
-    if(fromClass.equals(JoinTable.class.getName())) {
+    SelectClause select = new AllClause();
+    WhereClause where = new AllClause();
+    ListClause variables = new NoneClause();
+
+    while(reader.hasMoreChildren()) {
       reader.moveDown();
-      List<ValueTable> tables = new ArrayList<ValueTable>();
-      while(reader.hasMoreChildren()) {
-        reader.moveDown();
-        tables.add(unmarshallValueTableReference(reader));
-        reader.moveUp();
+
+      String nodeName = reader.getNodeName();
+      if(nodeName.equals("name")) {
+        name = reader.getValue();
+      } else if(nodeName.equals("select")) {
+        select = (SelectClause) context.convertAnother(context.currentObject(), getClass(reader.getAttribute("class")));
+      } else if(nodeName.equals("where")) {
+        where = (WhereClause) context.convertAnother(context.currentObject(), getClass(reader.getAttribute("class")));
+      } else if(nodeName.equals("variables")) {
+        variables = (ListClause) context.convertAnother(context.currentObject(), getClass(reader.getAttribute("class")));
+      } else if(nodeName.equals("from")) {
+        String fromClass = reader.getAttribute("class");
+        if(fromClass.equals(JoinTable.class.getName())) {
+          reader.moveDown();
+          List<ValueTable> tables = new ArrayList<ValueTable>();
+          while(reader.hasMoreChildren()) {
+            reader.moveDown();
+            tables.add(unmarshallValueTableReference(reader));
+            reader.moveUp();
+          }
+          reader.moveUp();
+          from = new JoinTable(tables, false);
+        } else {
+          reader.moveDown();
+          from = unmarshallValueTableReference(reader);
+          reader.moveUp();
+        }
+      } else {
+        throw new RuntimeException("Unexpected view child node: " + nodeName);
       }
-      reader.moveUp();
-      from = new JoinTable(tables, false);
-    } else {
-      reader.moveDown();
-      from = unmarshallValueTableReference(reader);
+
       reader.moveUp();
     }
-    reader.moveUp();
 
     View.Builder viewBuilder = new View.Builder(name, from);
-
-    reader.moveDown();
-    viewBuilder.select((SelectClause) context.convertAnother(context.currentObject(), getClass(reader.getAttribute("class"))));
-    reader.moveUp();
-
-    reader.moveDown();
-    viewBuilder.where((WhereClause) context.convertAnother(context.currentObject(), getClass(reader.getAttribute("class"))));
-    reader.moveUp();
-
-    reader.moveDown();
-    viewBuilder.list((ListClause) context.convertAnother(context.currentObject(), getClass(reader.getAttribute("class"))));
-    reader.moveUp();
+    viewBuilder.select(select);
+    viewBuilder.where(where);
+    viewBuilder.list(variables);
 
     return viewBuilder.build();
   }
