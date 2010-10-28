@@ -1,5 +1,6 @@
 package org.obiba.magma;
 
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -7,7 +8,9 @@ import java.util.Set;
 import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.ListMultimap;
 
-class VariableBean extends AbstractAttributeAware implements Variable {
+class VariableBean extends AbstractAttributeAware implements Variable, Serializable {
+
+  private static final long serialVersionUID = 1L;
 
   ListMultimap<String, Attribute> attributes = LinkedListMultimap.create();
 
