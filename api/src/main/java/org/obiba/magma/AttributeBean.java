@@ -1,8 +1,11 @@
 package org.obiba.magma;
 
+import java.io.Serializable;
 import java.util.Locale;
 
-class AttributeBean implements Attribute {
+class AttributeBean implements Attribute, Serializable {
+
+	private static final long serialVersionUID = -7732601103831162009L;
 
   String name;
 
