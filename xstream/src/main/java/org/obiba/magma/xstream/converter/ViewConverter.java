@@ -133,9 +133,7 @@ public class ViewConverter implements Converter {
   }
 
   private ValueTableReference unmarshallValueTableReference(HierarchicalStreamReader reader) {
-    ValueTableReference valueTableReference = new ValueTableReference();
-    valueTableReference.setReference(reader.getValue());
-    return valueTableReference;
+    return new ValueTableReference(reader.getValue());
   }
 
   private Class<?> getClass(String className) throws RuntimeException {

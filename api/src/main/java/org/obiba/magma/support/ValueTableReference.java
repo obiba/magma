@@ -8,9 +8,6 @@ import org.obiba.magma.ValueTable;
  * instance.
  */
 public class ValueTableReference extends AbstractValueTableWrapper {
-  //
-  // Instance Variables
-  //
 
   /**
    * Fully-qualified {@link ValueTable} reference.
@@ -20,11 +17,7 @@ public class ValueTableReference extends AbstractValueTableWrapper {
   /**
    * Cached {@link MagmaEngineTableResolver}
    */
-  private MagmaEngineTableResolver tableResolver;
-
-  //
-  // Constructors
-  //
+  private transient MagmaEngineTableResolver tableResolver;
 
   /**
    * No-arg constructor for XStream.
@@ -45,10 +38,6 @@ public class ValueTableReference extends AbstractValueTableWrapper {
     this.reference = reference;
   }
 
-  //
-  // AbstractValueTableWrapper Methods
-  //
-
   @Override
   public ValueTable getWrappedValueTable() {
     if(tableResolver == null) {
@@ -57,12 +46,8 @@ public class ValueTableReference extends AbstractValueTableWrapper {
     return tableResolver.resolveTable();
   }
 
-  //
-  // Methods
-  //
-
-  public void setReference(String reference) {
-    this.reference = reference;
+  public String getReference() {
+    return reference;
   }
 
 }

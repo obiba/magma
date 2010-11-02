@@ -28,9 +28,8 @@ public class ValueTableConverter implements Converter {
 
   @Override
   public Object unmarshal(HierarchicalStreamReader reader, UnmarshallingContext context) {
-    ValueTableReference valueTableReference = new ValueTableReference();
     reader.moveDown();
-    valueTableReference.setReference(reader.getValue());
+    ValueTableReference valueTableReference = new ValueTableReference(reader.getValue());
     reader.moveUp();
     return valueTableReference;
   }
