@@ -7,8 +7,10 @@ import org.mozilla.javascript.EvaluatorException;
 import org.mozilla.javascript.Script;
 import org.mozilla.javascript.Scriptable;
 import org.obiba.magma.Initialisable;
+import org.obiba.magma.Value;
 import org.obiba.magma.ValueSet;
 import org.obiba.magma.ValueTable;
+import org.obiba.magma.ValueType;
 import org.obiba.magma.Variable;
 import org.obiba.magma.js.MagmaContext;
 import org.obiba.magma.js.ScriptableValue;
@@ -69,7 +71,7 @@ public class JavascriptClause implements Initialisable, SelectClause, WhereClaus
   @Override
   public boolean select(final Variable variable) {
     if(compiledScript == null) {
-      throw new IllegalStateException("script hasn't been compiled. Call initialise() before calling where().");
+      throw new IllegalStateException("script hasn't been compiled. Call initialise() before calling select().");
     }
     if(variable == null) throw new IllegalArgumentException("variable cannot be null");
 
@@ -126,6 +128,37 @@ public class JavascriptClause implements Initialisable, SelectClause, WhereClaus
           }
         }
         return false;
+      }
+    }));
+  }
+
+  //
+  // Query Methods
+  //
+
+  public Value query(final Variable variable) {
+    if(compiledScript == null) {
+      throw new IllegalStateException("script hasn't been compiled. Call initialise() before calling query().");
+    }
+    if(variable == null) throw new IllegalArgumentException("variable cannot be null");
+
+    return ((Value) ContextFactory.getGlobal().call(new ContextAction() {
+      public Object run(Context ctx) {
+        MagmaContext context = MagmaContext.asMagmaContext(ctx);
+        // Don't pollute the global scope
+        Scriptable scope = new ScriptableVariable(context.newLocalScope(), variable);
+
+        Object value = compiledScript.exec(ctx, scope);
+
+        if(value instanceof ScriptableValue) {
+          ScriptableValue scriptable = (ScriptableValue) value;
+          return scriptable.getValue();
+        } else if(value != null) {
+          return ValueType.Factory.newValue(value);
+        } else {
+          // TODO: Determine what to return in case of null. Currently returning false (BooleanType).
+          return BooleanType.get().falseValue();
+        }
       }
     }));
   }

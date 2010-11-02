@@ -137,7 +137,7 @@ public class VariableConverter {
       sb.append(category.getName());
       Attribute label = null;
       if(category.hasAttribute(LABEL)) {
-        if(locale != null) {
+        if(locale != null && category.hasAttribute(LABEL, locale)) {
           label = category.getAttribute(LABEL, locale);
         } else {
           label = category.getAttribute(LABEL);

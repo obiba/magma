@@ -26,7 +26,16 @@ public interface DatasourceFactory {
    * by the strategy (a {@link DatasourceTransformer}). The resulting datasource is returned.
    * 
    * @param transformer datasource transformer
+   * @deprecated Transformers are no longer read from the opal-config.xml file as part of a datasource configuration.
+   * Method is kept to allow an old configuration to be read and upgraded automatically with an upgrade script.
    */
   public void setDatasourceTransformer(DatasourceTransformer transformer);
+
+  /**
+   * 
+   * @return datasource transformer
+   * @deprecated Used only by the upgrade script to retrieve transformers during an upgrade.
+   */
+  public DatasourceTransformer getDatasourceTransformer();
 
 }

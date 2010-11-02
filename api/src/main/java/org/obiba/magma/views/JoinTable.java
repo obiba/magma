@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.obiba.magma.Datasource;
+import org.obiba.magma.Initialisable;
 import org.obiba.magma.NoSuchValueSetException;
 import org.obiba.magma.NoSuchVariableException;
 import org.obiba.magma.Timestamps;
@@ -28,7 +29,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
 
-public class JoinTable implements ValueTable {
+public class JoinTable implements ValueTable, Initialisable {
   //
   // Instance Variables
   //
@@ -38,12 +39,12 @@ public class JoinTable implements ValueTable {
   /**
    * Cached set of all variables of all tables in the join (i.e., the union).
    */
-  private Set<Variable> unionOfVariables;
+  private transient Set<Variable> unionOfVariables;
 
   /**
    * Cached map of variable names to tables.
    */
-  private Map<String, ValueTable> variableNameToTableMap;
+  private transient Map<String, ValueTable> variableNameToTableMap;
 
   // An arbitrary number to initialise the LinkedHashSet with a capacity close to the actual value (see
   // getVariableEntities())
@@ -60,21 +61,27 @@ public class JoinTable implements ValueTable {
     super();
   }
 
-  public JoinTable(List<ValueTable> tables) {
+  public JoinTable(List<ValueTable> tables, boolean validateEntityTypes) {
     if(tables == null) {
       throw new IllegalArgumentException("null tables");
     }
     if(tables.size() < 2) {
       throw new IllegalArgumentException("tables must have two or more members");
     }
-    String entityType = tables.get(0).getEntityType();
-    for(int i = 1; i < tables.size(); i++) {
-      if(!tables.get(i).isForEntityType(entityType)) {
-        throw new IllegalArgumentException("tables must all have the same entity type");
+    if(validateEntityTypes) {
+      String entityType = tables.get(0).getEntityType();
+      for(int i = 1; i < tables.size(); i++) {
+        if(!tables.get(i).isForEntityType(entityType)) {
+          throw new IllegalArgumentException("tables must all have the same entity type");
+        }
       }
     }
 
     this.tables = ImmutableList.copyOf(tables);
+  }
+
+  public JoinTable(List<ValueTable> tables) {
+    this(tables, true);
   }
 
   public List<ValueTable> getTables() {
@@ -105,7 +112,11 @@ public class JoinTable implements ValueTable {
   public Value getValue(Variable variable, ValueSet valueSet) {
     ValueTable valueTable = getFirstTableWithVariable(variable.getName());
     if(valueTable == null) throw new NoSuchVariableException(variable.getName());
-    return valueTable.getValue(variable, valueSet);
+    ValueSet vs = valueSet;
+    if(valueSet instanceof JoinedValueSet) {
+      vs = ((JoinedValueSet) valueSet).getInnerTableValueSet(valueTable);
+    }
+    return valueTable.getValue(variable, vs);
   }
 
   @Override
@@ -184,6 +195,18 @@ public class JoinTable implements ValueTable {
   @Override
   public boolean isForEntityType(String entityType) {
     return getEntityType().equals(entityType);
+  }
+
+  //
+  // Initialisable Methods
+  //
+
+  public void initialise() {
+    for(ValueTable vt : tables) {
+      if(vt instanceof Initialisable) {
+        ((Initialisable) vt).initialise();
+      }
+    }
   }
 
   //

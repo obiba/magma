@@ -34,6 +34,8 @@ public class MagmaEngine {
 
   private LockManager lockManager = new LockManager();
 
+  private Set<DatasourceTransformer> transformers = Sets.newHashSet();
+
   public MagmaEngine() {
     if(instance != null) {
       throw new IllegalStateException("MetaEngine already instanciated. Only one instance of MetaEngine should be instantiated.");
@@ -108,6 +110,13 @@ public class MagmaEngine {
     return false;
   }
 
+  public MagmaEngine addDatasourceTransformer(DatasourceTransformer transformer) {
+    if(transformer == null) throw new MagmaRuntimeException("transformer cannot be null.");
+    Initialisables.initialise(transformer);
+    transformers.add(transformer);
+    return this;
+  }
+
   public Datasource addDatasource(Datasource datasource) {
     // Repeatedly added datasources are silently ignored. They cannot be added to the set more than once.
     if(!datasources.contains(datasource)) {
@@ -117,6 +126,11 @@ public class MagmaEngine {
           throw new DuplicateDatasourceNameException(ds, datasource);
         }
       }
+
+      for(DatasourceTransformer transformer : transformers) {
+        datasource = transformer.transform(datasource);
+      }
+
       Initialisables.initialise(datasource);
       datasources.add(datasource);
     }
@@ -234,6 +248,9 @@ public class MagmaEngine {
     }
     for(Disposable d : Iterables.filter(this.extensions, Disposable.class)) {
       Disposables.silentlyDispose(d);
+    }
+    for(DatasourceTransformer transformer : transformers) {
+      Disposables.silentlyDispose(transformer);
     }
     singletons = null;
     instance = null;

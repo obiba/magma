@@ -1,5 +1,6 @@
 package org.obiba.magma.support;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -19,7 +20,7 @@ public class MagmaEngineFactory {
    * Expose concrete type to force xstream to deserialize using this type. This will keep the order in which factories
    * appear in the xml file
    */
-  private LinkedHashSet<DatasourceFactory> factories = Sets.newLinkedHashSet();
+  private ArrayList<DatasourceFactory> factories = new ArrayList<DatasourceFactory>();
 
   private LinkedHashSet<Datasource> datasources = Sets.newLinkedHashSet();
 
@@ -32,8 +33,32 @@ public class MagmaEngineFactory {
   }
 
   public MagmaEngineFactory withFactory(DatasourceFactory factory) {
-    this.factories.add(factory);
+
+    // Replace the factory if already exist.
+    boolean factoryExist = false;
+    for(DatasourceFactory factoryInList : factories) {
+      if(factoryInList.getName().equals(factory.getName())) {
+        factories.add(factories.indexOf(factoryInList), factory);
+        factories.remove(factoryInList);
+        factoryExist = true;
+        break;
+      }
+    }
+
+    if(!factoryExist) {
+      factories.add(factory);
+    }
+
     return this;
+  }
+
+  public void removeFactory(String name) {
+    for(DatasourceFactory factory : factories) {
+      if(factory.getName().equals(name)) {
+        factories.remove(factory);
+        break;
+      }
+    }
   }
 
   public MagmaEngineFactory withDatasource(Datasource datasource) {
@@ -60,7 +85,7 @@ public class MagmaEngineFactory {
   }
 
   public Set<DatasourceFactory> factories() {
-    return Collections.unmodifiableSet(factories);
+    return Collections.unmodifiableSet(Sets.newLinkedHashSet(factories));
   }
 
 }

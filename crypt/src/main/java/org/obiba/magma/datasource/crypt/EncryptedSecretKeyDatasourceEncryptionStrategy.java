@@ -25,8 +25,8 @@ import org.obiba.magma.crypt.NoSuchKeyException;
 
 /**
  * Creates a {@link DatasourceCipherFactory} that creates {@code Cipher} instances using a {@code SecretKey} obtained
- * from the {@code Datasource} instance's attributes. The {@code SecretKey} is expected to be encrypted using a {@code
- * PublicKey} for which the instance of {@code KeyProvider} can provide the corresponding {@code KeyPair}.
+ * from the {@code Datasource} instance's attributes. The {@code SecretKey} is expected to be encrypted using a
+ * {@code PublicKey} for which the instance of {@code KeyProvider} can provide the corresponding {@code KeyPair}.
  * <p>
  * The required attributes are:
  * <ul>
@@ -46,7 +46,7 @@ public class EncryptedSecretKeyDatasourceEncryptionStrategy implements Datasourc
 
   private static final String X509_KEYSPEC_FORMAT = "X.509";
 
-  private KeyProvider keyProvider;
+  private transient KeyProvider keyProvider;
 
   //
   // DatasourceEncryptionStrategy Methods

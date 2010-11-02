@@ -20,9 +20,9 @@ import org.obiba.magma.type.BinaryType;
 import org.obiba.magma.type.TextType;
 
 /**
- * Creates a {@link DatasourceCipherFactory} that creates {@code Cipher} instances using a newly generated {@code
- * SecretKey}. The secret key is encrypted using the {@code PublicKey} returned by the {@link KeyProvider} instance. A
- * {@code Cipher} instance is initialised to obtain a {@code AlgorithmParameters} instance.
+ * Creates a {@link DatasourceCipherFactory} that creates {@code Cipher} instances using a newly generated
+ * {@code SecretKey}. The secret key is encrypted using the {@code PublicKey} returned by the {@link KeyProvider}
+ * instance. A {@code Cipher} instance is initialised to obtain a {@code AlgorithmParameters} instance.
  * <p>
  * The following attributes are added to the datasource to allow decryption using the corresponding {@code PrivateKey}:
  * <ul>
@@ -49,7 +49,7 @@ public class GeneratedSecretKeyDatasourceEncryptionStrategy implements Datasourc
   // Files" which can be downloaded from Sun
   private int keySize = 128;
 
-  private KeyProvider keyProvider;
+  private transient KeyProvider keyProvider;
 
   //
   // DatasourceEncryptionStrategy Methods

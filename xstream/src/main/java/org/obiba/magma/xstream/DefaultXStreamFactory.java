@@ -6,6 +6,7 @@ import org.obiba.magma.xstream.converter.CategoryConverter;
 import org.obiba.magma.xstream.converter.ValueConverter;
 import org.obiba.magma.xstream.converter.ValueSequenceConverter;
 import org.obiba.magma.xstream.converter.VariableConverter;
+import org.obiba.magma.xstream.converter.ViewConverter;
 import org.obiba.magma.xstream.mapper.MagmaMapper;
 
 import com.thoughtworks.xstream.XStream;
@@ -43,6 +44,7 @@ public class DefaultXStreamFactory implements XStreamFactory {
     xstream.registerConverter(new AttributeConverter());
     xstream.registerConverter(new ValueConverter());
     xstream.registerConverter(new ValueSequenceConverter());
+    xstream.registerConverter(new ViewConverter());
     xstream.useAttributeFor(ValueType.class);
     xstream.setMode(XStream.NO_REFERENCES);
 

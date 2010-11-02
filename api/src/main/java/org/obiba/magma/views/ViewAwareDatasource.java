@@ -1,6 +1,5 @@
 package org.obiba.magma.views;
 
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
@@ -15,6 +14,9 @@ import org.obiba.magma.ValueTable;
 import org.obiba.magma.ValueTableWriter;
 import org.obiba.magma.support.Disposables;
 import org.obiba.magma.support.Initialisables;
+
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Iterables;
 
 public class ViewAwareDatasource implements Datasource {
   //
@@ -32,9 +34,6 @@ public class ViewAwareDatasource implements Datasource {
   public ViewAwareDatasource(Datasource datasource, Set<ValueTable> views) {
     if(views == null) {
       throw new IllegalArgumentException("Null views");
-    }
-    if(views.isEmpty()) {
-      throw new IllegalArgumentException("Empty views");
     }
 
     this.wrappedDatasource = datasource;
@@ -162,13 +161,53 @@ public class ViewAwareDatasource implements Datasource {
   // Methods
   //
 
-  public Set<ValueTable> getViews() {
-    return Collections.unmodifiableSet(views);
+  public Set<View> getViews() {
+    return ImmutableSet.copyOf(Iterables.filter(views, View.class));
   }
 
+  /**
+   * Add or replace View.
+   */
   public void addView(ValueTable table) {
     Initialisables.initialise(table);
+    if(hasView(table.getName())) removeView(table.getName());
     views.add(table);
+    if(table instanceof View) {
+      ((View) table).setDatasource(this);
+    }
+    Initialisables.initialise(table);
+  }
+
+  public void removeView(String name) {
+    View view = getViewByName(name);
+    if(view != null) {
+      views.remove(view);
+      Disposables.dispose(view);
+    }
+  }
+
+  public boolean hasView(String name) {
+    if(getViewByName(name) != null) {
+      return true;
+    }
+    return false;
+  }
+
+  public View getView(String name) {
+    View view = getViewByName(name);
+    if(view != null) {
+      return view;
+    }
+    throw new NoSuchValueTableException(wrappedDatasource.getName(), name);
+  }
+
+  private View getViewByName(String name) {
+    for(ValueTable view : views) {
+      if(view.getName().equals(name) && view instanceof View) {
+        return (View) view;
+      }
+    }
+    return null;
   }
 
   private Set<ValueTable> getWrappedTables() {

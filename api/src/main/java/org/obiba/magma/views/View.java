@@ -90,7 +90,7 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
 
   public void initialise() {
     variables.setValueTable(from);
-    Initialisables.initialise(select, where, variables);
+    Initialisables.initialise(from, select, where, variables);
     if(isViewOfDerivedVariables()) {
       setSelectClause(new NoneClause());
     } else if(select != null && !(select instanceof NoneClause)) {
@@ -104,6 +104,14 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
   @Override
   public void dispose() {
     Disposables.silentlyDispose(from, select, where, variables);
+  }
+
+  public SelectClause getSelectClause() {
+    return select;
+  }
+
+  public WhereClause getWhereClause() {
+    return where;
   }
 
   public ListClause getListClause() {
@@ -386,11 +394,11 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
 
     private View view;
 
-    public Builder(String name, ValueTable from) {
+    public Builder(String name, ValueTable... from) {
       view = new View(name, from);
     }
 
-    public static Builder newView(String name, ValueTable from) {
+    public static Builder newView(String name, ValueTable... from) {
       return new Builder(name, from);
     }
 
