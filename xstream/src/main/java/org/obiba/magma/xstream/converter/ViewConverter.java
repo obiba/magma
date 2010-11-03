@@ -21,11 +21,16 @@ import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
 
 public class ViewConverter implements Converter {
   //
+  // Instance Variables
+  //
+
+  private JoinTableConverter joinTableConverter = new JoinTableConverter();
+
+  //
   // Converter Methods
   //
 
-  @SuppressWarnings("unchecked")
-  public boolean canConvert(Class type) {
+  public boolean canConvert(@SuppressWarnings("rawtypes") Class type) {
     return View.class.isAssignableFrom(type);
   }
 
@@ -37,8 +42,8 @@ public class ViewConverter implements Converter {
     writer.endNode();
 
     writer.startNode("from");
-    writer.addAttribute("class", view.getWrappedValueTable().getClass().getName());
-    marshallFromTable(view.getWrappedValueTable(), writer);
+    writer.addAttribute("class", getFromTableClass(view.getWrappedValueTable()));
+    marshalFromTable(view.getWrappedValueTable(), writer, context);
     writer.endNode();
 
     writer.startNode("select");
@@ -77,22 +82,7 @@ public class ViewConverter implements Converter {
       } else if(nodeName.equals("variables")) {
         variables = (ListClause) context.convertAnother(context.currentObject(), getClass(reader.getAttribute("class")));
       } else if(nodeName.equals("from")) {
-        String fromClass = reader.getAttribute("class");
-        if(fromClass.equals(JoinTable.class.getName())) {
-          reader.moveDown();
-          List<ValueTable> tables = new ArrayList<ValueTable>();
-          while(reader.hasMoreChildren()) {
-            reader.moveDown();
-            tables.add(unmarshallValueTableReference(reader));
-            reader.moveUp();
-          }
-          reader.moveUp();
-          from = new JoinTable(tables, false);
-        } else {
-          reader.moveDown();
-          from = unmarshallValueTableReference(reader);
-          reader.moveUp();
-        }
+        from = unmarshalFromTable(reader, context);
       } else {
         throw new RuntimeException("Unexpected view child node: " + nodeName);
       }
@@ -112,28 +102,29 @@ public class ViewConverter implements Converter {
   // Methods
   //
 
-  private void marshallFromTable(ValueTable fromTable, HierarchicalStreamWriter writer) {
+  private void marshalFromTable(ValueTable fromTable, HierarchicalStreamWriter writer, MarshallingContext context) {
     if(fromTable instanceof JoinTable) {
-      JoinTable joinTable = (JoinTable) fromTable;
-
-      writer.startNode("list");
-      for(ValueTable vt : joinTable.getTables()) {
-        marshallValueTableReference(writer, vt);
-      }
-      writer.endNode();
+      context.convertAnother(fromTable, joinTableConverter);
+    } else if(fromTable instanceof ValueTableReference) {
+      context.convertAnother(fromTable);
     } else {
-      marshallValueTableReference(writer, fromTable);
+      throw new RuntimeException("Unexpected from table type: " + fromTable.getClass().getSimpleName());
     }
   }
 
-  private void marshallValueTableReference(HierarchicalStreamWriter writer, ValueTable vt) {
-    writer.startNode("reference");
-    writer.setValue(vt.getDatasource().getName() + "." + vt.getName());
-    writer.endNode();
+  private ValueTable unmarshalFromTable(HierarchicalStreamReader reader, UnmarshallingContext context) {
+    String fromTableClass = reader.getAttribute("class");
+    if(JoinTable.class.getName().equals(fromTableClass)) {
+      return (ValueTable) context.convertAnother(context.currentObject(), getClass(fromTableClass), joinTableConverter);
+    } else if(ValueTableReference.class.getName().equals(fromTableClass)) {
+      return (ValueTable) context.convertAnother(context.currentObject(), ValueTableReference.class);
+    } else {
+      throw new RuntimeException("Unexpected from table class: " + fromTableClass);
+    }
   }
 
-  private ValueTableReference unmarshallValueTableReference(HierarchicalStreamReader reader) {
-    return new ValueTableReference(reader.getValue());
+  private String getFromTableClass(ValueTable valueTable) {
+    return (valueTable instanceof JoinTable) ? JoinTable.class.getName() : ValueTableReference.class.getName();
   }
 
   private Class<?> getClass(String className) throws RuntimeException {
@@ -146,5 +137,55 @@ public class ViewConverter implements Converter {
     }
 
     return theClass;
+  }
+
+  //
+  // Inner Classes
+  //
+
+  class JoinTableConverter implements Converter {
+    //
+    // Converter Methods
+    //
+
+    @Override
+    public boolean canConvert(@SuppressWarnings("rawtypes") Class type) {
+      return JoinTable.class.isAssignableFrom(type);
+    }
+
+    @Override
+    public void marshal(Object source, HierarchicalStreamWriter writer, MarshallingContext context) {
+      JoinTable joinTable = (JoinTable) source;
+
+      writer.startNode("list");
+      for(ValueTable vt : joinTable.getTables()) {
+        if(vt instanceof ValueTableReference) {
+          context.convertAnother(vt);
+        } else {
+          throw new RuntimeException("Unexpected table type in JoinTable tables list: " + vt.getClass().getSimpleName());
+        }
+      }
+      writer.endNode();
+    }
+
+    @Override
+    public Object unmarshal(HierarchicalStreamReader reader, UnmarshallingContext context) {
+      reader.moveDown();
+      List<ValueTable> tables = new ArrayList<ValueTable>();
+      while(reader.hasMoreChildren()) {
+        reader.moveDown();
+        ValueTableReference tableReference = new ValueTableReference(reader.getValue());
+        // TODO: Instead of creating a ValueTableReference here, rely on XStream to convert it, as follows:
+        // ValueTableReference tableReference = (ValueTableReference) context.convertAnother(context.currentObject(),
+        // ValueTableReference.class);
+        // This is not currently working as is (the reference string in the resulting ValueTableReference is null).
+        tables.add(tableReference);
+        reader.moveUp();
+      }
+
+      reader.moveUp();
+
+      return new JoinTable(tables, false);
+    }
   }
 }
