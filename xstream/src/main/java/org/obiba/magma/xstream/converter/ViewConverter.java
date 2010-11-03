@@ -160,7 +160,10 @@ public class ViewConverter implements Converter {
       writer.startNode("list");
       for(ValueTable vt : joinTable.getTables()) {
         if(vt instanceof ValueTableReference) {
+          writer.startNode("table");
+          writer.addAttribute("class", ValueTableReference.class.getName());
           context.convertAnother(vt);
+          writer.endNode();
         } else {
           throw new RuntimeException("Unexpected table type in JoinTable tables list: " + vt.getClass().getSimpleName());
         }
@@ -174,11 +177,7 @@ public class ViewConverter implements Converter {
       List<ValueTable> tables = new ArrayList<ValueTable>();
       while(reader.hasMoreChildren()) {
         reader.moveDown();
-        ValueTableReference tableReference = new ValueTableReference(reader.getValue());
-        // TODO: Instead of creating a ValueTableReference here, rely on XStream to convert it, as follows:
-        // ValueTableReference tableReference = (ValueTableReference) context.convertAnother(context.currentObject(),
-        // ValueTableReference.class);
-        // This is not currently working as is (the reference string in the resulting ValueTableReference is null).
+        ValueTableReference tableReference = (ValueTableReference) context.convertAnother(context.currentObject(), ValueTableReference.class);
         tables.add(tableReference);
         reader.moveUp();
       }
