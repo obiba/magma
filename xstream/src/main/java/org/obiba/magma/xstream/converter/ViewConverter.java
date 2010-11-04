@@ -143,7 +143,7 @@ public class ViewConverter implements Converter {
   // Inner Classes
   //
 
-  class JoinTableConverter implements Converter {
+  static class JoinTableConverter implements Converter {
     //
     // Converter Methods
     //
