@@ -2,7 +2,10 @@ package org.obiba.magma.views;
 
 import java.util.Set;
 
-public interface ViewManager {
+import org.obiba.magma.Datasource;
+import org.obiba.magma.Decorator;
+
+public interface ViewManager extends Decorator<Datasource> {
 
   public void addView(String datasourceName, View view);
 

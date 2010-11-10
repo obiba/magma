@@ -172,6 +172,7 @@
     <module>datasource-excel</module>
     <module>datasource-null</module>
     <module>datasource-csv</module>
+    <module>security</module>
   </modules>
 
   <build>
