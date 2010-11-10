@@ -7,6 +7,7 @@ import org.obiba.magma.DatasourceFactory;
 import org.obiba.magma.DatasourceRegistry;
 import org.obiba.magma.Decorator;
 import org.obiba.magma.NoSuchDatasourceException;
+import org.obiba.magma.security.Permissions.Domains;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
@@ -20,7 +21,7 @@ public class SecuredDatasourceRegistry implements DatasourceRegistry {
   public SecuredDatasourceRegistry(Authorizer authorizer, DatasourceRegistry datasourceRegistry) {
     this.authorizer = authorizer;
     this.delegate = datasourceRegistry;
-    this.addDecorator(new SecuredDatasourceDecorator());
+    this.addDecorator(new SecuredDatasourceDecorator(authorizer));
   }
 
   public Datasource addDatasource(Datasource datasource) {
@@ -41,7 +42,7 @@ public class SecuredDatasourceRegistry implements DatasourceRegistry {
 
   public Datasource getDatasource(String name) throws NoSuchDatasourceException {
     Datasource ds = delegate.getDatasource(name);
-    if(ds != null && isPermitted(Permissions.readDatasource(name)) == false) throw new NoSuchDatasourceException(name);
+    if(ds != null && isPermitted(Permissions.Builder.create().domain(Domains.DATASOURCE).read().instance(name).build()) == false) throw new NoSuchDatasourceException(name);
     return ds;
   }
 
@@ -54,7 +55,7 @@ public class SecuredDatasourceRegistry implements DatasourceRegistry {
   }
 
   public boolean hasDatasource(String name) {
-    return delegate.hasDatasource(name) && isPermitted(Permissions.readDatasource(name));
+    return delegate.hasDatasource(name) && isPermitted(Permissions.Builder.create().domain(Domains.DATASOURCE).read().instance(name).build());
   }
 
   public boolean hasTransientDatasource(String uid) {

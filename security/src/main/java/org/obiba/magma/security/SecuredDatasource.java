@@ -12,11 +12,18 @@ import org.obiba.magma.Value;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.ValueTableWriter;
 
+import com.google.common.base.Predicate;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Iterables;
+
 public class SecuredDatasource implements Datasource {
+
+  private final Authorizer authz;
 
   private final Datasource datasource;
 
-  public SecuredDatasource(Datasource datasource) {
+  public SecuredDatasource(Authorizer authorizer, Datasource datasource) {
+    this.authz = authorizer;
     this.datasource = datasource;
   }
 
@@ -37,17 +44,25 @@ public class SecuredDatasource implements Datasource {
 
   @Override
   public ValueTable getValueTable(String name) throws NoSuchValueTableException {
-    return getWrappedDatasource().getValueTable(name);
+    ValueTable table = getWrappedDatasource().getValueTable(name);
+    if(table != null && canReadTable(name) == false) throw new NoSuchValueTableException(datasource.getName(), name);
+    return new SecuredValueTable(authz, table);
   }
 
   @Override
   public Set<ValueTable> getValueTables() {
-    return getWrappedDatasource().getValueTables();
+    return ImmutableSet.copyOf(Iterables.filter(getWrappedDatasource().getValueTables(), new Predicate<ValueTable>() {
+
+      @Override
+      public boolean apply(ValueTable input) {
+        return canReadTable(input.getName());
+      }
+    }));
   }
 
   @Override
   public boolean hasValueTable(String name) {
-    return getWrappedDatasource().hasValueTable(name);
+    return getWrappedDatasource().hasValueTable(name) && canReadTable(name);
   }
 
   @Override
@@ -112,5 +127,9 @@ public class SecuredDatasource implements Datasource {
 
   protected Datasource getWrappedDatasource() {
     return this.datasource;
+  }
+
+  protected boolean canReadTable(String name) {
+    return authz.isPermitted("magma:read:" + getName() + ":" + name);
   }
 }
