@@ -55,13 +55,6 @@ public class JoinTableTest extends AbstractMagmaTest {
     new JoinTable(tables);
   }
 
-  @Test(expected = IllegalArgumentException.class)
-  public void testTableListMustContainAtLeastTwoTables() {
-    List<ValueTable> tables = new ArrayList<ValueTable>();
-    tables.add(MockValueTableBuilder.newMock(PARTICIPANT_ENTITY_TYPE).build());
-    new JoinTable(tables);
-  }
-
   @Test
   public void testTableListWithTwoTablesAllowed() {
     List<ValueTable> tables = new ArrayList<ValueTable>();
