@@ -11,10 +11,10 @@ import org.obiba.magma.NoSuchValueTableException;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.ValueTableWriter;
+import org.obiba.magma.security.permissions.Permissions;
+import org.obiba.magma.security.permissions.Permissions.DatasourceBuilder;
 
-import com.google.common.base.Predicate;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Iterables;
+import com.google.common.collect.Sets;
 
 public class SecuredDatasource implements Datasource {
 
@@ -23,6 +23,8 @@ public class SecuredDatasource implements Datasource {
   private final Datasource datasource;
 
   public SecuredDatasource(Authorizer authorizer, Datasource datasource) {
+    if(authorizer == null) throw new IllegalArgumentException("authorizer cannot be null");
+    if(datasource == null) throw new IllegalArgumentException("datasource cannot be null");
     this.authz = authorizer;
     this.datasource = datasource;
   }
@@ -46,18 +48,12 @@ public class SecuredDatasource implements Datasource {
   public ValueTable getValueTable(String name) throws NoSuchValueTableException {
     ValueTable table = getWrappedDatasource().getValueTable(name);
     if(table != null && canReadTable(name) == false) throw new NoSuchValueTableException(datasource.getName(), name);
-    return new SecuredValueTable(authz, table);
+    return new SecuredValueTable(authz, this, table);
   }
 
   @Override
   public Set<ValueTable> getValueTables() {
-    return ImmutableSet.copyOf(Iterables.filter(getWrappedDatasource().getValueTables(), new Predicate<ValueTable>() {
-
-      @Override
-      public boolean apply(ValueTable input) {
-        return canReadTable(input.getName());
-      }
-    }));
+    return Sets.filter(getWrappedDatasource().getValueTables(), builder().tables().read().asPredicate(authz));
   }
 
   @Override
@@ -130,6 +126,10 @@ public class SecuredDatasource implements Datasource {
   }
 
   protected boolean canReadTable(String name) {
-    return authz.isPermitted("magma:read:" + getName() + ":" + name);
+    return authz.isPermitted(builder().table(name).read().build());
+  }
+
+  private DatasourceBuilder builder() {
+    return Permissions.DatasourceBuilder.forDatasource(this.datasource);
   }
 }

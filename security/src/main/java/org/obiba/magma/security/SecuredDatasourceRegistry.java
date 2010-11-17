@@ -7,10 +7,9 @@ import org.obiba.magma.DatasourceFactory;
 import org.obiba.magma.DatasourceRegistry;
 import org.obiba.magma.Decorator;
 import org.obiba.magma.NoSuchDatasourceException;
-import org.obiba.magma.security.Permissions.Domains;
+import org.obiba.magma.security.permissions.Permissions;
 
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Iterables;
+import com.google.common.collect.Sets;
 
 public class SecuredDatasourceRegistry implements DatasourceRegistry {
 
@@ -19,6 +18,8 @@ public class SecuredDatasourceRegistry implements DatasourceRegistry {
   private final DatasourceRegistry delegate;
 
   public SecuredDatasourceRegistry(Authorizer authorizer, DatasourceRegistry datasourceRegistry) {
+    if(authorizer == null) throw new IllegalArgumentException("authorizer cannot be null");
+    if(datasourceRegistry == null) throw new IllegalArgumentException("datasourceRegistry cannot be null");
     this.authorizer = authorizer;
     this.delegate = datasourceRegistry;
     this.addDecorator(new SecuredDatasourceDecorator(authorizer));
@@ -42,12 +43,12 @@ public class SecuredDatasourceRegistry implements DatasourceRegistry {
 
   public Datasource getDatasource(String name) throws NoSuchDatasourceException {
     Datasource ds = delegate.getDatasource(name);
-    if(ds != null && isPermitted(Permissions.Builder.create().domain(Domains.DATASOURCE).read().instance(name).build()) == false) throw new NoSuchDatasourceException(name);
+    if(ds != null && isPermitted(Permissions.DatasourceBuilder.forDatasource(name).read().build()) == false) throw new NoSuchDatasourceException(name);
     return ds;
   }
 
   public Set<Datasource> getDatasources() {
-    return ImmutableSet.copyOf(Iterables.filter(delegate.getDatasources(), Predicates.readableDatasource()));
+    return Sets.filter(delegate.getDatasources(), Permissions.DatasourceBuilder.forDatasource().read().asPredicate(authorizer));
   }
 
   public Datasource getTransientDatasourceInstance(String uid) {
@@ -55,7 +56,7 @@ public class SecuredDatasourceRegistry implements DatasourceRegistry {
   }
 
   public boolean hasDatasource(String name) {
-    return delegate.hasDatasource(name) && isPermitted(Permissions.Builder.create().domain(Domains.DATASOURCE).read().instance(name).build());
+    return delegate.hasDatasource(name) && isPermitted(Permissions.DatasourceBuilder.forDatasource(name).read().build());
   }
 
   public boolean hasTransientDatasource(String uid) {
