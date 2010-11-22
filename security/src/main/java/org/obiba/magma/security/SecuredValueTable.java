@@ -5,7 +5,7 @@ import org.obiba.magma.NoSuchVariableException;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.Variable;
 import org.obiba.magma.security.permissions.Permissions;
-import org.obiba.magma.security.permissions.Permissions.ValueTableBuilder;
+import org.obiba.magma.security.permissions.Permissions.ValueTablePermissionBuilder;
 import org.obiba.magma.support.AbstractValueTableWrapper;
 
 import com.google.common.base.Predicate;
@@ -73,7 +73,7 @@ public class SecuredValueTable extends AbstractValueTableWrapper {
     return isReadable(variable.getName());
   }
 
-  private ValueTableBuilder builder() {
-    return Permissions.ValueTableBuilder.forValueTable(this.table);
+  private ValueTablePermissionBuilder builder() {
+    return Permissions.ValueTablePermissionBuilder.forValueTable(this.table);
   }
 }

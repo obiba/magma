@@ -12,7 +12,7 @@ import org.obiba.magma.Value;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.ValueTableWriter;
 import org.obiba.magma.security.permissions.Permissions;
-import org.obiba.magma.security.permissions.Permissions.DatasourceBuilder;
+import org.obiba.magma.security.permissions.Permissions.DatasourcePermissionBuilder;
 
 import com.google.common.collect.Sets;
 
@@ -129,7 +129,7 @@ public class SecuredDatasource implements Datasource {
     return authz.isPermitted(builder().table(name).read().build());
   }
 
-  private DatasourceBuilder builder() {
-    return Permissions.DatasourceBuilder.forDatasource(this.datasource);
+  private DatasourcePermissionBuilder builder() {
+    return Permissions.DatasourcePermissionBuilder.forDatasource(this.datasource);
   }
 }

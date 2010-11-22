@@ -43,12 +43,12 @@ public class SecuredDatasourceRegistry implements DatasourceRegistry {
 
   public Datasource getDatasource(String name) throws NoSuchDatasourceException {
     Datasource ds = delegate.getDatasource(name);
-    if(ds != null && isPermitted(Permissions.DatasourceBuilder.forDatasource(name).read().build()) == false) throw new NoSuchDatasourceException(name);
+    if(ds != null && isPermitted(Permissions.DatasourcePermissionBuilder.forDatasource(name).read().build()) == false) throw new NoSuchDatasourceException(name);
     return ds;
   }
 
   public Set<Datasource> getDatasources() {
-    return Sets.filter(delegate.getDatasources(), Permissions.DatasourceBuilder.forDatasource().read().asPredicate(authorizer));
+    return Sets.filter(delegate.getDatasources(), Permissions.DatasourcePermissionBuilder.forDatasource().read().asPredicate(authorizer));
   }
 
   public Datasource getTransientDatasourceInstance(String uid) {
@@ -56,7 +56,7 @@ public class SecuredDatasourceRegistry implements DatasourceRegistry {
   }
 
   public boolean hasDatasource(String name) {
-    return delegate.hasDatasource(name) && isPermitted(Permissions.DatasourceBuilder.forDatasource(name).read().build());
+    return delegate.hasDatasource(name) && isPermitted(Permissions.DatasourcePermissionBuilder.forDatasource(name).read().build());
   }
 
   public boolean hasTransientDatasource(String uid) {
