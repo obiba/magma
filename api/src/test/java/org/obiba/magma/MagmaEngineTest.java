@@ -9,6 +9,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import junit.framework.Assert;
 
+import org.easymock.EasyMock;
 import org.junit.Test;
 
 public class MagmaEngineTest {
@@ -17,16 +18,6 @@ public class MagmaEngineTest {
 
   public void setUp() throws Exception {
     new MagmaEngine();
-    magmaEngine = MagmaEngine.get();
-  }
-
-  public void setUpForTansient() throws Exception {
-    new MagmaEngine() {
-      @Override
-      String randomTransientDatasourceName() {
-        return "pwel";
-      }
-    };
     magmaEngine = MagmaEngine.get();
   }
 
@@ -89,46 +80,46 @@ public class MagmaEngineTest {
 
   @Test
   public void testHasTransientDatasourceIsTrue() throws Exception {
-    setUpForTansient();
+    setUp();
     DatasourceFactory factory = createMock(DatasourceFactory.class);
-    expect(factory.getName()).andReturn("pwel").atLeastOnce();
-    factory.setName("pwel");
+    expect(factory.getName()).andReturn("uid").atLeastOnce();
+    factory.setName((String) EasyMock.anyObject());
 
     replay(factory);
-    magmaEngine.addTransientDatasource(factory);
-    assertThat(magmaEngine.hasTransientDatasource("pwel"), is(true));
+    String uid = magmaEngine.addTransientDatasource(factory);
+    assertThat(magmaEngine.hasTransientDatasource(uid), is(true));
     assertThat(magmaEngine.hasTransientDatasource("foo"), is(false));
-    magmaEngine.removeTransientDatasource("pwel");
-    assertThat(magmaEngine.hasTransientDatasource("pwel"), is(false));
+    magmaEngine.removeTransientDatasource(uid);
+    assertThat(magmaEngine.hasTransientDatasource(uid), is(false));
     magmaEngine.shutdown();
     verify(factory);
   }
 
   @Test
   public void testGetTransientDatasourceInstanceIsInitialised() throws Exception {
-    setUpForTansient();
+    setUp();
     DatasourceFactory factory = createMock(DatasourceFactory.class);
     Datasource datasource = createMock(Datasource.class);
-    expect(factory.getName()).andReturn("pwel").atLeastOnce();
+    expect(factory.getName()).andReturn("uid").atLeastOnce();
     expect(factory.create()).andReturn(datasource).once();
-    expect(datasource.getName()).andReturn("pwel").once();
-    factory.setName("pwel");
+    expect(datasource.getName()).andReturn("uid").once();
+    factory.setName((String) EasyMock.anyObject());
     datasource.initialise();
 
     replay(factory, datasource);
-    magmaEngine.addTransientDatasource(factory);
-    Datasource created = magmaEngine.getTransientDatasourceInstance("pwel");
+    String uid = magmaEngine.addTransientDatasource(factory);
+    Datasource created = magmaEngine.getTransientDatasourceInstance(uid);
     Assert.assertNotNull(created);
-    assertThat(created.getName(), is("pwel"));
+    assertThat(created.getName(), is(uid));
     magmaEngine.shutdown();
     verify(factory, datasource);
   }
 
   @Test(expected = NoSuchDatasourceException.class)
   public void testGetNonExistingTransientDatasourceInstance() throws Exception {
-    setUpForTansient();
+    setUp();
     try {
-      magmaEngine.getTransientDatasourceInstance("pwel");
+      magmaEngine.getTransientDatasourceInstance("foo");
       magmaEngine.shutdown();
       Assert.fail();
     } catch(Exception e) {
@@ -152,14 +143,14 @@ public class MagmaEngineTest {
 
   @Test
   public void testRemoveNonExistingTransientDatasourceIsSilent() throws Exception {
-    setUpForTansient();
-    magmaEngine.removeTransientDatasource("pwel");
+    setUp();
+    magmaEngine.removeTransientDatasource("foo");
     magmaEngine.shutdown();
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testGetTransientDatasourceWithNullName() throws Exception {
-    setUpForTansient();
+    setUp();
     try {
       magmaEngine.getTransientDatasourceInstance(null);
       magmaEngine.shutdown();

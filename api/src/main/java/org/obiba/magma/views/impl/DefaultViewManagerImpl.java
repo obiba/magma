@@ -3,7 +3,6 @@ package org.obiba.magma.views.impl;
 import java.util.Set;
 
 import org.obiba.magma.Datasource;
-import org.obiba.magma.DatasourceTransformer;
 import org.obiba.magma.Disposable;
 import org.obiba.magma.Initialisable;
 import org.obiba.magma.MagmaRuntimeException;
@@ -17,7 +16,7 @@ import org.obiba.magma.views.ViewPersistenceStrategy;
 
 import com.google.common.collect.Sets;
 
-public class DefaultViewManagerImpl implements ViewManager, DatasourceTransformer, Initialisable, Disposable {
+public class DefaultViewManagerImpl implements ViewManager, Initialisable, Disposable {
 
   private Set<ViewAwareDatasource> viewAwareDatasources = Sets.<ViewAwareDatasource> newHashSet();
 
@@ -28,7 +27,7 @@ public class DefaultViewManagerImpl implements ViewManager, DatasourceTransforme
   }
 
   @Override
-  public Datasource transform(Datasource datasource) {
+  public Datasource decorate(Datasource datasource) {
     Set<View> views = viewPersistenceStrategy.readViews(datasource.getName());
     Set<ValueTable> valueTables = Sets.<ValueTable> newHashSet(views);
     ViewAwareDatasource viewAwareDatasource = new ViewAwareDatasource(datasource, valueTables);
