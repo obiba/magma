@@ -173,6 +173,7 @@
     <module>datasource-null</module>
     <module>datasource-csv</module>
     <module>security</module>
+    <module>datasource-generated</module>
   </modules>
 
   <build>

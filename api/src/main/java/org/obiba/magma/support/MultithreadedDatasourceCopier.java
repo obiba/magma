@@ -17,10 +17,10 @@ import org.obiba.magma.Value;
 import org.obiba.magma.ValueSet;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.ValueTableWriter;
-import org.obiba.magma.ValueTableWriter.ValueSetWriter;
 import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.VariableValueSource;
+import org.obiba.magma.ValueTableWriter.ValueSetWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -90,7 +90,7 @@ public class MultithreadedDatasourceCopier {
 
   private int concurrentReaders = 3;
 
-  private DatasourceCopier.Builder copier;
+  private DatasourceCopier.Builder copier = DatasourceCopier.Builder.newCopier();
 
   private ValueTable source;
 
@@ -109,7 +109,7 @@ public class MultithreadedDatasourceCopier {
   }
 
   public void copy() throws IOException {
-    ThreadPoolExecutor executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(concurrentReaders, threadFactory);
+    ThreadPoolExecutor executor = threadFactory != null ? (ThreadPoolExecutor) Executors.newFixedThreadPool(concurrentReaders, threadFactory) : (ThreadPoolExecutor) Executors.newFixedThreadPool(concurrentReaders);
 
     prepareVariables();
 
