@@ -245,6 +245,13 @@ public interface Variable extends AttributeAware {
       return this;
     }
 
+    public Builder addCategories(Iterable<Category> categories) {
+      for(Category category : categories) {
+        variable.categories.add(category);
+      }
+      return this;
+    }
+
     /**
      * Accepts a {@code BuilderVisitor} to allow it to visit this {@code Builder} instance.
      * @param visitor the visitor to accept; cannot be null.
