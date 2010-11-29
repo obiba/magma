@@ -26,6 +26,13 @@ public abstract class AttributeAwareBuilder<T extends AttributeAwareBuilder<?>> 
     return getBuilder();
   }
 
+  public T addAttributes(Iterable<Attribute> attributes) {
+    for(Attribute attribute : attributes) {
+      addAttribute(attribute);
+    }
+    return getBuilder();
+  }
+
   protected abstract ListMultimap<String, Attribute> getAttributes();
 
   protected abstract T getBuilder();
