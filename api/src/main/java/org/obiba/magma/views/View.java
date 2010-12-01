@@ -221,26 +221,13 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
   @Override
   public Value getValue(Variable variable, ValueSet valueSet) {
     if(isViewOfDerivedVariables()) {
-      if(where.where(valueSet) && isVariableInSuper(variable, valueSet)) {
-        return super.getValue(variable, getValueSetMappingFunction().unapply(valueSet));
-      } else {
-        return getListClauseValue(variable, valueSet);
-      }
+      return getListClauseValue(variable, valueSet);
     }
     if(!where.where(valueSet)) {
       throw new NoSuchValueSetException(this, valueSet.getVariableEntity());
     }
 
     return super.getValue(variable, getValueSetMappingFunction().unapply(valueSet));
-  }
-
-  private boolean isVariableInSuper(Variable variable, ValueSet valueSet) {
-    try {
-      super.getValue(variable, getValueSetMappingFunction().unapply(valueSet));
-      return true;
-    } catch(NoSuchVariableException e) {
-      return false;
-    }
   }
 
   private Value getListClauseValue(Variable variable, ValueSet valueSet) {
