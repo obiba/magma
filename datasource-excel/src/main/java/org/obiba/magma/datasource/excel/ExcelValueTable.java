@@ -204,6 +204,8 @@ public class ExcelValueTable extends AbstractValueTable implements Initialisable
    * Variables are read from the variables sheet.
    */
   private void readVariablesFromVariablesSheet(List<String> variableNames) {
+    if(!hasVariablesSheet()) return;
+
     Sheet variablesSheet = getDatasource().getVariablesSheet();
     int variableRowCount = variablesSheet.getPhysicalNumberOfRows();
     List<ExcelDatasourceParsingException> errors = new ArrayList<ExcelDatasourceParsingException>();
@@ -286,8 +288,11 @@ public class ExcelValueTable extends AbstractValueTable implements Initialisable
   }
 
   private boolean hasVariablesSheet() {
-    Sheet varSheet = getDatasource().getVariablesSheet();
-    return varSheet != null && varSheet.getPhysicalNumberOfRows() > 0;
+    if(!getDatasource().hasVariablesSheet()) {
+      return false;
+    } else {
+      return getDatasource().getVariablesSheet().getPhysicalNumberOfRows() > 0;
+    }
   }
 
   private class ExcelVariableEntityProvider implements VariableEntityProvider {
