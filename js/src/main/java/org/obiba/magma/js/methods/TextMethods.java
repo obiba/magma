@@ -157,7 +157,7 @@ public class TextMethods {
       }
       return new ScriptableValue(thisObj, returnType.sequenceOf(newValues));
     } else {
-      return new ScriptableValue(thisObj, returnType.valueOf(lookupValue(ctx, thisObj, currentValue, returnType, valueMap)));
+      return new ScriptableValue(thisObj, lookupValue(ctx, thisObj, currentValue, returnType, valueMap));
     }
   }
 
