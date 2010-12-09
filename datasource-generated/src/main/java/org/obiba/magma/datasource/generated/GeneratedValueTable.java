@@ -82,7 +82,7 @@ public class GeneratedValueTable implements ValueTable {
 
   @Override
   public Value getValue(Variable variable, ValueSet valueSet) {
-    throw new UnsupportedOperationException();
+    return getVariableValueSource(variable.getName()).getValue(valueSet);
   }
 
   @Override
