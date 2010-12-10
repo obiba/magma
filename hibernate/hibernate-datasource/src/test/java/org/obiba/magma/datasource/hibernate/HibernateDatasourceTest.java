@@ -182,8 +182,7 @@ public class HibernateDatasourceTest {
     cleanlyRemoveDatasource(ds);
   }
 
-  // TODO: determine why this test is failing. The last assertion doesn't pass, yet things work
-  // @Test
+  @Test
   public void testVectorSource() throws Exception {
     HibernateDatasource ds = new HibernateDatasource("vectorSourceTest", provider.getSessionFactory());
 
