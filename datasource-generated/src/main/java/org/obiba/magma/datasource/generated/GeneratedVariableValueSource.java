@@ -47,7 +47,7 @@ abstract class GeneratedVariableValueSource implements VariableValueSource {
       GeneratedValueSet gvs = (GeneratedValueSet) valueSet;
       try {
         Value existingValue = gvs.getExistingValue(getVariable().getName());
-        return existingValue != null ? existingValue : gvs.putIfAbsent(getVariable().getName(), nextValue(getVariable(), gvs));
+        return existingValue != null ? existingValue : gvs.put(getVariable().getName(), nextValue(getVariable(), gvs));
       } catch(RuntimeException e) {
         log.info("Error generating data for variable {}: {}", getVariable().getName(), e);
         return getValueType().nullValue();

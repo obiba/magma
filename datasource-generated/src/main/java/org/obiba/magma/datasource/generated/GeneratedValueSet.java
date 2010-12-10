@@ -37,8 +37,8 @@ class GeneratedValueSet extends ValueSetBean {
     return generatedValues.containsKey(name);
   }
 
-  Value putIfAbsent(String name, Value value) {
-    generatedValues.putIfAbsent(name, value);
+  Value put(String name, Value value) {
+    generatedValues.put(name, value);
     return value;
   }
 
