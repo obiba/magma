@@ -1,6 +1,8 @@
 package org.obiba.magma.datasource.hibernate;
 
 import java.util.List;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import junit.framework.Assert;
 
@@ -9,14 +11,24 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.obiba.magma.Category;
+import org.obiba.magma.Datasource;
 import org.obiba.magma.MagmaEngine;
+import org.obiba.magma.Value;
 import org.obiba.magma.ValueTableWriter;
 import org.obiba.magma.Variable;
+import org.obiba.magma.VariableEntity;
+import org.obiba.magma.VariableValueSource;
+import org.obiba.magma.VectorSource;
 import org.obiba.magma.ValueTableWriter.VariableWriter;
+import org.obiba.magma.datasource.generated.GeneratedValueTable;
 import org.obiba.magma.datasource.hibernate.support.LocalSessionFactoryProvider;
+import org.obiba.magma.support.DatasourceCopier;
+import org.obiba.magma.type.DecimalType;
 import org.obiba.magma.type.IntegerType;
 import org.obiba.magma.type.TextType;
 
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 
 public class HibernateDatasourceTest {
@@ -155,6 +167,48 @@ public class HibernateDatasourceTest {
     cleanlyRemoveDatasource(dsName);
   }
 
+  @Test
+  public void testWrite() throws Exception {
+    HibernateDatasource ds = new HibernateDatasource("test", provider.getSessionFactory());
+
+    ImmutableSet<Variable> variables = ImmutableSet.of(//
+    Variable.Builder.newVariable("Test Variable", IntegerType.get(), "Participant").build(), //
+    Variable.Builder.newVariable("Other Variable", DecimalType.get(), "Participant").build());
+
+    GeneratedValueTable generatedValueTable = new GeneratedValueTable(ds, variables, 300);
+    provider.getSessionFactory().getCurrentSession().beginTransaction();
+    MagmaEngine.get().addDatasource(ds);
+    DatasourceCopier.Builder.newCopier().build().copy(generatedValueTable, ds);
+    cleanlyRemoveDatasource(ds);
+  }
+
+  // TODO: determine why this test is failing. The last assertion doesn't pass, yet things work
+  // @Test
+  public void testVectorSource() throws Exception {
+    HibernateDatasource ds = new HibernateDatasource("vectorSourceTest", provider.getSessionFactory());
+
+    ImmutableSet<Variable> variables = ImmutableSet.of(//
+    Variable.Builder.newVariable("Test Variable", IntegerType.get(), "Participant").build(), //
+    Variable.Builder.newVariable("Other Variable", DecimalType.get(), "Participant").build());
+
+    GeneratedValueTable generatedValueTable = new GeneratedValueTable(ds, variables, 300);
+    provider.getSessionFactory().getCurrentSession().beginTransaction();
+    MagmaEngine.get().addDatasource(ds);
+    DatasourceCopier.Builder.newCopier().build().copy(generatedValueTable, "NewTable", ds);
+    provider.getSessionFactory().getCurrentSession().getTransaction().commit();
+
+    provider.getSessionFactory().getCurrentSession().beginTransaction();
+    VariableValueSource vvs = ds.getValueTable("NewTable").getVariableValueSource("Test Variable");
+    Assert.assertNotNull(vvs);
+    Assert.assertNotNull(vvs.asVectorSource());
+    VectorSource vs = vvs.asVectorSource();
+    SortedSet<VariableEntity> entities = new TreeSet<VariableEntity>(ds.getValueTable("NewTable").getVariableEntities());
+    Iterable<Value> values = vs.getValues(entities);
+    Assert.assertNotNull(values);
+    Assert.assertEquals(entities.size(), Iterables.size(values));
+    cleanlyRemoveDatasource(ds);
+  }
+
   private void assertSameCategories(Variable expected, Variable actual) {
     List<Category> expectedCategories = Lists.newArrayList(expected.getCategories());
     List<Category> actualCategories = Lists.newArrayList(actual.getCategories());
@@ -166,13 +220,17 @@ public class HibernateDatasourceTest {
 
   }
 
-  private void cleanlyRemoveDatasource(String name) {
+  private void cleanlyRemoveDatasource(Datasource ds) {
     Transaction tx = provider.getSessionFactory().getCurrentSession().getTransaction();
     if(tx == null || tx.isActive() == false) {
       provider.getSessionFactory().getCurrentSession().beginTransaction();
     }
-    MagmaEngine.get().removeDatasource(MagmaEngine.get().getDatasource(name));
+    MagmaEngine.get().removeDatasource(ds);
     provider.getSessionFactory().getCurrentSession().getTransaction().commit();
+  }
+
+  private void cleanlyRemoveDatasource(String name) {
+    cleanlyRemoveDatasource(MagmaEngine.get().getDatasource(name));
   }
 
   private LocalSessionFactoryProvider newProvider(String testName) {

@@ -12,8 +12,6 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
-import org.hibernate.annotations.Cascade;
-
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
@@ -31,8 +29,7 @@ public class ValueSetState extends AbstractTimestampedEntity {
   @JoinColumn(name = "variable_entity_id")
   private VariableEntityState variableEntity;
 
-  @OneToMany(cascade = CascadeType.ALL, mappedBy = "valueSet")
-  @Cascade(org.hibernate.annotations.CascadeType.DELETE_ORPHAN)
+  @OneToMany(cascade = CascadeType.ALL, mappedBy = "id.valueSet", orphanRemoval = true)
   private Set<ValueSetValue> values;
 
   private transient Map<String, ValueSetValue> valueMap;

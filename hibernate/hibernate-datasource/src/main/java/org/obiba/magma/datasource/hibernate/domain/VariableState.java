@@ -30,13 +30,13 @@ import org.obiba.magma.hibernate.type.ValueTypeHibernateType;
 @NamedQueries( {// 
 @NamedQuery(name = "valuesWithEntities", query = "select vsv.value from ValueSetState as vs " + //
 "join vs.variableEntity as ve " + // 
-"left outer join vs.values as vsv with vsv.variable.id = :variableId " + //
+"left outer join vs.values as vsv with vsv.id.variable.id = :variableId " + //
 "where vs.valueTable.id = :valueTableId " + //
 "and ve.identifier in(:identifiers) " + //
 "and ve.type = :entityType " + //
 "order by ve.identifier"), //
 @NamedQuery(name = "allValues", query = "select vsv.value from ValueSetState as vs " + //
-"left outer join vs.values as vsv with vsv.variable.id = :variableId " + //
+"left outer join vs.values as vsv with vsv.id.variable.id = :variableId " + //
 "where vs.valueTable.id = :valueTableId " + //
 "order by vs.variableEntity.id") })
 public class VariableState extends AbstractAttributeAwareEntity implements Timestamped {

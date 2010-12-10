@@ -1,5 +1,6 @@
 package org.obiba.magma.hibernate.type;
 
+import java.io.StringReader;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -13,7 +14,6 @@ import org.hibernate.MappingException;
 import org.hibernate.engine.Mapping;
 import org.hibernate.engine.SessionFactoryImplementor;
 import org.hibernate.engine.SessionImplementor;
-import org.hibernate.lob.ClobImpl;
 import org.hibernate.type.AbstractType;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueType;
@@ -91,8 +91,8 @@ public class ValueHibernateType extends AbstractType {
     Value value = (Value) obj;
     st.setString(index, value.getValueType().getName());
     st.setBoolean(index + 1, value.isSequence());
-    // TODO: Is this the correct approach?
-    st.setClob(index + 2, new ClobImpl(value.toString()));
+    String stringValue = value.toString();
+    st.setClob(index + 2, new StringReader(stringValue), stringValue.length());
   }
 
   @Override

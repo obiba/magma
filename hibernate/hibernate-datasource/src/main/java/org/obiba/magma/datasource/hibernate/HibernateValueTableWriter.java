@@ -118,6 +118,8 @@ class HibernateValueTableWriter implements ValueTableWriter {
       ValueSetState state = (ValueSetState) criteria.getCriteria().uniqueResult();
       if(state == null) {
         state = new ValueSetState(valueTable.getValueTableState(), variableEntityState);
+        // Persists the ValueSet
+        session.save(state);
         values = Maps.newHashMap();
         isNewValueSet = true;
       } else {
@@ -165,11 +167,11 @@ class HibernateValueTableWriter implements ValueTableWriter {
     @Override
     public void close() throws IOException {
       if(errorOccurred == false) {
-        session.save(valueSetState);
         if(isNewValueSet) {
           // Make the entity visible within this transaction
           transaction.addEntity(entity);
         }
+        // Persists valueSetState
         session.flush();
         // Empty the Session so we don't fill it up
         session.evict(valueSetState);
