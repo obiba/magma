@@ -29,7 +29,7 @@ import org.obiba.magma.hibernate.type.ValueTypeHibernateType;
 @NamedQuery(name = "allValues", query = "select vs.variableEntity.identifier, vsv.value from ValueSetState as vs " + //
 "left outer join vs.values as vsv with vsv.id.variable.id = :variableId " + //
 "where vs.valueTable.id = :valueTableId " + //
-"order by vs.variableEntity.id")
+"order by vs.variableEntity.identifier")
 public class VariableState extends AbstractAttributeAwareEntity implements Timestamped {
 
   private static final long serialVersionUID = 1L;

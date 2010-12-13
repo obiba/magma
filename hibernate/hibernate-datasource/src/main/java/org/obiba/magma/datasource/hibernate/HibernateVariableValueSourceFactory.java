@@ -109,10 +109,9 @@ class HibernateVariableValueSourceFactory implements VariableValueSourceFactory 
       if(entities.size() == 0) {
         return ImmutableList.of();
       }
-      final Query valuesQuery;
 
-      // This will returns one row per value set (so it includes nulls)
-      valuesQuery = getCurrentSession().getNamedQuery("allValues")//
+      // This will returns one row per value set in the value table (so it includes nulls)
+      final Query valuesQuery = getCurrentSession().getNamedQuery("allValues")//
       .setParameter("valueTableId", valueTable.getValueTableState().getId())//
       .setParameter("variableId", valueTable.getVariableId(getVariable()));
 
@@ -127,14 +126,14 @@ class HibernateVariableValueSourceFactory implements VariableValueSourceFactory 
 
             private final Iterator<VariableEntity> resultEntities;
 
-            private boolean hasNext;
+            private boolean hasNextResults;
 
             private boolean closed = false;
 
             {
               resultEntities = entities.iterator();
               results = valuesQuery.scroll(ScrollMode.FORWARD_ONLY);
-              hasNext = results.next();
+              hasNextResults = results.next();
             }
 
             @Override
@@ -150,17 +149,16 @@ class HibernateVariableValueSourceFactory implements VariableValueSourceFactory 
 
               String nextEntity = resultEntities.next().getIdentifier();
 
-              while(hasNext && results.getString(0).equals(nextEntity) == false) {
-                hasNext = results.next();
+              // Scroll until we find the required entity or reach the end of the results
+              while(hasNextResults && results.getString(0).equals(nextEntity) == false) {
+                hasNextResults = results.next();
               }
 
               Value value = null;
-              if(hasNext) {
+              if(hasNextResults) {
                 value = (Value) results.get(1);
-              } else if(!closed) {
-                closed = true;
-                results.close();
               }
+              closeCursorIfNecessary();
 
               return value != null ? value : (getVariable().isRepeatable() ? getValueType().nullSequence() : getValueType().nullValue());
             }
@@ -168,6 +166,16 @@ class HibernateVariableValueSourceFactory implements VariableValueSourceFactory 
             @Override
             public void remove() {
               throw new UnsupportedOperationException();
+            }
+
+            private void closeCursorIfNecessary() {
+              if(closed == false) {
+                // Close the cursor if we don't have any more results or no more entities to return
+                if(hasNextResults == false || hasNext() == false) {
+                  closed = true;
+                  results.close();
+                }
+              }
             }
 
           };
