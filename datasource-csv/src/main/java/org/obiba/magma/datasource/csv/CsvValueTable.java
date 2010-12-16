@@ -238,13 +238,10 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
       line = dataReader.readNext();
       while(line != null) {
         count++;
-        if(line.length == 1) {
-          line = dataReader.readNext();
-          continue;
+        if(line.length > 1) {
+          VariableEntity entity = new VariableEntityBean(entityType, line[0]);
+          entityIndex.put(entity, lineIndex.get(count));
         }
-        VariableEntity entity = new VariableEntityBean(entityType, line[0]);
-        entityIndex.put(entity, lineIndex.get(count));
-
         line = dataReader.readNext();
       }
     } else {
