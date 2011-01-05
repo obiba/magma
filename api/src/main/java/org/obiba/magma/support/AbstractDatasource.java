@@ -103,10 +103,6 @@ public abstract class AbstractDatasource extends AbstractAttributeAware implemen
     onDispose();
   }
 
-  protected void addValueTable(ValueTable vt) {
-    valueTables.add(vt);
-  }
-
   @Override
   public ValueTableWriter createWriter(String tableName, String entityType) {
     throw new UnsupportedOperationException("createWriter() is not supported by datasource of type " + getType());
@@ -127,6 +123,16 @@ public abstract class AbstractDatasource extends AbstractAttributeAware implemen
   @Override
   protected ListMultimap<String, Attribute> getInstanceAttributes() {
     return attributes;
+  }
+
+  protected void addValueTable(ValueTable vt) {
+    valueTables.add(vt);
+  }
+
+  protected void removeValueTable(String name) {
+    ValueTable toRemove = getValueTable(name);
+    valueTables.remove(toRemove);
+    Disposables.dispose(toRemove);
   }
 
   protected void onInitialise() {
