@@ -21,63 +21,74 @@ import com.google.common.collect.Sets;
 
 public class SpringContextScanningDatasource extends AbstractDatasource {
 
-	@Autowired
-	private Set<ValueTableFactoryBeanProvider> valueTableFactoryBeanProviders;
+  @Autowired
+  private Set<ValueTableFactoryBeanProvider> valueTableFactoryBeanProviders;
 
-	@Autowired
-	private Set<ValueTableFactoryBean> valueTableFactoryBeans;
+  @Autowired
+  private Set<ValueTableFactoryBean> valueTableFactoryBeans;
 
-	public SpringContextScanningDatasource(String name) {
-		super(name, "spring-context");
-	}
+  public SpringContextScanningDatasource(String name) {
+    super(name, "spring-context");
+  }
 
-	/*
-	 * Added to fix ONYX-1436. This method allows reloading a ValueTable. It's
-	 * implemented here because this instance holds a ValueTableFactory whcih
-	 * should be able to re-create the instance when required.
-	 */
-	public void reloadValueTable(String name) throws NoSuchValueTableException {
-		removeValueTable(name);
-		ValueTable table = initialiseValueTable(name);
-		Initialisables.initialise(table);
-		addValueTable(table);
-	}
+  /*
+   * Added to fix ONYX-1436. This method allows reloading a ValueTable. It's implemented here because this instance
+   * holds a ValueTableFactory which should be able to re-create the instance when required.
+   */
+  public void reloadValueTable(String name) throws NoSuchValueTableException {
+    if(hasValueTable(name)) {
+      removeValueTable(name);
+    }
+    ValueTable table = initialiseValueTable(name);
+    Initialisables.initialise(table);
+    addValueTable(table);
+  }
 
-	@Override
-	protected Set<String> getValueTableNames() {
-		Set<String> names = Sets.newHashSet();
+  /*
+   * Added to fix ONYX-1436. This method allows adding a new ValueTable that was not present in the spring-context when
+   * starting.
+   */
+  public void addValueTable(ValueTableFactoryBean tableFactory) {
+    // Make a copy: we don't know if the injected set is mutable.
+    Set<ValueTableFactoryBean> newTables = Sets.newLinkedHashSet(this.valueTableFactoryBeans);
+    newTables.add(tableFactory);
+    this.valueTableFactoryBeans = newTables;
+    reloadValueTable(tableFactory.getValueTableName());
+  }
 
-		for (ValueTableFactoryBean factory : getAllValueTableFactoryBeans()) {
-			names.add(factory.getValueTableName());
-		}
+  @Override
+  protected Set<String> getValueTableNames() {
+    Set<String> names = Sets.newHashSet();
 
-		return names;
-	}
+    for(ValueTableFactoryBean factory : getAllValueTableFactoryBeans()) {
+      names.add(factory.getValueTableName());
+    }
 
-	@Override
-	protected ValueTable initialiseValueTable(String tableName) {
-		for (ValueTableFactoryBean factory : getAllValueTableFactoryBeans()) {
-			if (factory.getValueTableName().equals(tableName)) {
-				return factory.buildValueTable(this);
-			}
-		}
+    return names;
+  }
 
-		throw new NoSuchValueTableException(tableName);
-	}
+  @Override
+  protected ValueTable initialiseValueTable(String tableName) {
+    for(ValueTableFactoryBean factory : getAllValueTableFactoryBeans()) {
+      if(factory.getValueTableName().equals(tableName)) {
+        return factory.buildValueTable(this);
+      }
+    }
 
-	private Set<ValueTableFactoryBean> getAllValueTableFactoryBeans() {
-		Set<ValueTableFactoryBean> allValueTableFactoryBeans = Sets
-				.newHashSet();
+    throw new NoSuchValueTableException(tableName);
+  }
 
-		// Include injected factory beans.
-		allValueTableFactoryBeans.addAll(valueTableFactoryBeans);
+  private Set<ValueTableFactoryBean> getAllValueTableFactoryBeans() {
+    Set<ValueTableFactoryBean> allValueTableFactoryBeans = Sets.newHashSet();
 
-		// Include factory beans from injected providers.
-		for (ValueTableFactoryBeanProvider provider : valueTableFactoryBeanProviders) {
-			allValueTableFactoryBeans.addAll(provider
-					.getValueTableFactoryBeans());
-		}
+    // Include injected factory beans.
+    allValueTableFactoryBeans.addAll(valueTableFactoryBeans);
 
-		return allValueTableFactoryBeans;
-	}
+    // Include factory beans from injected providers.
+    for(ValueTableFactoryBeanProvider provider : valueTableFactoryBeanProviders) {
+      allValueTableFactoryBeans.addAll(provider.getValueTableFactoryBeans());
+    }
+
+    return allValueTableFactoryBeans;
+  }
 }
