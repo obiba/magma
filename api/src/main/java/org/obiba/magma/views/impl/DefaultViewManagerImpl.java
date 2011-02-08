@@ -8,7 +8,6 @@ import org.obiba.magma.Initialisable;
 import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.NoSuchDatasourceException;
 import org.obiba.magma.NoSuchValueTableException;
-import org.obiba.magma.ValueTable;
 import org.obiba.magma.views.View;
 import org.obiba.magma.views.ViewAwareDatasource;
 import org.obiba.magma.views.ViewManager;
@@ -18,7 +17,7 @@ import com.google.common.collect.Sets;
 
 public class DefaultViewManagerImpl implements ViewManager, Initialisable, Disposable {
 
-  private Set<ViewAwareDatasource> viewAwareDatasources = Sets.<ViewAwareDatasource> newHashSet();
+  private final Set<ViewAwareDatasource> viewAwareDatasources = Sets.<ViewAwareDatasource> newHashSet();
 
   private final ViewPersistenceStrategy viewPersistenceStrategy;
 
@@ -29,8 +28,7 @@ public class DefaultViewManagerImpl implements ViewManager, Initialisable, Dispo
   @Override
   public Datasource decorate(Datasource datasource) {
     Set<View> views = viewPersistenceStrategy.readViews(datasource.getName());
-    Set<ValueTable> valueTables = Sets.<ValueTable> newHashSet(views);
-    ViewAwareDatasource viewAwareDatasource = new ViewAwareDatasource(datasource, valueTables);
+    ViewAwareDatasource viewAwareDatasource = new ViewAwareDatasource(datasource, views);
 
     // register the viewAware and make sure there is only one with the datasource name...
     if(getViewAwareFromName(datasource.getName()) == null) {

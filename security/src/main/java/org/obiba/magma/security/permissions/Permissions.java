@@ -72,10 +72,6 @@ public class Permissions {
       return asT();
     }
 
-    protected Builder<T> newCopy() {
-      return new Builder(this);
-    }
-
     public String build() {
       return appendNonNull(domain, path.toString(), action);
     }
@@ -94,7 +90,7 @@ public class Permissions {
 
     private String appendNonNull(String permission, String... segments) {
       for(String segment : segments) {
-        return appendNonNull(permission, segment);
+        permission = appendNonNull(permission, segment);
       }
       return permission;
     }
@@ -104,9 +100,17 @@ public class Permissions {
 
     private static final String DOMAIN = "magma";
 
+    private DatasourcePermissionBuilder(DatasourcePermissionBuilder other) {
+      super(other);
+    }
+
+    private DatasourcePermissionBuilder() {
+      super();
+    }
+
     public static DatasourcePermissionBuilder forDatasource(String name) {
       DatasourcePermissionBuilder db = new DatasourcePermissionBuilder();
-      db.domain(DOMAIN).instance(name);
+      db.domain(DOMAIN).instance("datasource").instance(name);
       return db;
     }
 
@@ -120,16 +124,21 @@ public class Permissions {
       return db;
     }
 
+    protected DatasourcePermissionBuilder newCopy() {
+      return new DatasourcePermissionBuilder(this);
+    }
+
     public ValueTablePermissionBuilder tables() {
-      return new ValueTablePermissionBuilder(this);
+      // TODO: should we add "/tables" to the path?
+      return new ValueTablePermissionBuilder(this)/* .instance("tables") */;
     }
 
     public ValueTablePermissionBuilder table(ValueTable table) {
-      return new ValueTablePermissionBuilder(this).instance(table.getName());
+      return new ValueTablePermissionBuilder(this).instance("table").instance(table.getName());
     }
 
     public ValueTablePermissionBuilder table(String name) {
-      return new ValueTablePermissionBuilder(this).instance(name);
+      return new ValueTablePermissionBuilder(this).instance("table").instance(name);
     }
 
     public Predicate<Datasource> asPredicate(final Authorizer authorizer) {
@@ -137,7 +146,7 @@ public class Permissions {
 
         @Override
         public boolean apply(Datasource input) {
-          return authorizer.isPermitted(DatasourcePermissionBuilder.this.newCopy().instance(input.getName()).build());
+          return authorizer.isPermitted(DatasourcePermissionBuilder.this.newCopy().instance("datasource").instance(input.getName()).build());
         }
       };
     }
@@ -145,8 +154,16 @@ public class Permissions {
 
   public static class ValueTablePermissionBuilder extends Builder<ValueTablePermissionBuilder> {
 
-    public ValueTablePermissionBuilder(DatasourcePermissionBuilder builder) {
+    ValueTablePermissionBuilder(DatasourcePermissionBuilder builder) {
       super(builder);
+    }
+
+    private ValueTablePermissionBuilder(ValueTablePermissionBuilder builder) {
+      super(builder);
+    }
+
+    protected ValueTablePermissionBuilder newCopy() {
+      return new ValueTablePermissionBuilder(this);
     }
 
     public static ValueTablePermissionBuilder forValueTable(ValueTable table) {
@@ -154,11 +171,11 @@ public class Permissions {
     }
 
     public VariablePermissionBuilder variable(Variable variable) {
-      return new VariablePermissionBuilder(this).instance(variable.getName());
+      return new VariablePermissionBuilder(this).instance("variable").instance(variable.getName());
     }
 
     public VariablePermissionBuilder variable(String variable) {
-      return new VariablePermissionBuilder(this).instance(variable);
+      return new VariablePermissionBuilder(this).instance("variable").instance(variable);
     }
 
     public Predicate<ValueTable> asPredicate(final Authorizer authorizer) {
@@ -166,7 +183,7 @@ public class Permissions {
 
         @Override
         public boolean apply(ValueTable input) {
-          return authorizer.isPermitted(ValueTablePermissionBuilder.this.newCopy().instance(input.getName()).build());
+          return authorizer.isPermitted(ValueTablePermissionBuilder.this.newCopy().instance("table").instance(input.getName()).build());
         }
       };
     }
@@ -179,12 +196,20 @@ public class Permissions {
       super(builder);
     }
 
+    private VariablePermissionBuilder(VariablePermissionBuilder builder) {
+      super(builder);
+    }
+
+    protected VariablePermissionBuilder newCopy() {
+      return new VariablePermissionBuilder(this);
+    }
+
     public Predicate<Variable> asPredicate(final Authorizer authorizer) {
       return new Predicate<Variable>() {
 
         @Override
         public boolean apply(Variable input) {
-          return authorizer.isPermitted(VariablePermissionBuilder.this.newCopy().instance(input.getName()).build());
+          return authorizer.isPermitted(VariablePermissionBuilder.this.newCopy().instance("variable").instance(input.getName()).build());
         }
       };
     }

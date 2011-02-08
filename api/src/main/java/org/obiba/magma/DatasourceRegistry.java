@@ -2,7 +2,11 @@ package org.obiba.magma;
 
 import java.util.Set;
 
+import org.obiba.magma.support.ValueTableReference;
+
 public interface DatasourceRegistry {
+
+  public ValueTableReference createReference(String reference);
 
   public Set<Datasource> getDatasources();
 

@@ -14,7 +14,9 @@ import org.obiba.magma.ValueTableWriter;
 import org.obiba.magma.security.permissions.Permissions;
 import org.obiba.magma.security.permissions.Permissions.DatasourcePermissionBuilder;
 
-import com.google.common.collect.Sets;
+import com.google.common.base.Function;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Iterables;
 
 public class SecuredDatasource implements Datasource {
 
@@ -53,7 +55,13 @@ public class SecuredDatasource implements Datasource {
 
   @Override
   public Set<ValueTable> getValueTables() {
-    return Sets.filter(getWrappedDatasource().getValueTables(), builder().tables().read().asPredicate(authz));
+    return ImmutableSet.copyOf(Iterables.transform(Iterables.filter(getWrappedDatasource().getValueTables(), builder().tables().read().asPredicate(authz)), new Function<ValueTable, ValueTable>() {
+
+      @Override
+      public ValueTable apply(ValueTable from) {
+        return new SecuredValueTable(authz, SecuredDatasource.this, from);
+      }
+    }));
   }
 
   @Override

@@ -66,7 +66,7 @@ public class SecuredValueTable extends AbstractValueTableWrapper {
   }
 
   private boolean isReadable(String name) {
-    return authz.isPermitted(builder().variable(name).build());
+    return authz.isPermitted(builder().variable(name).read().build());
   }
 
   private boolean isReadable(Variable variable) {
@@ -76,4 +76,5 @@ public class SecuredValueTable extends AbstractValueTableWrapper {
   private ValueTablePermissionBuilder builder() {
     return Permissions.ValueTablePermissionBuilder.forValueTable(this.table);
   }
+
 }

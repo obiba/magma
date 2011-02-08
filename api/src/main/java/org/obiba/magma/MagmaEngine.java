@@ -9,6 +9,7 @@ import java.util.Set;
 import org.obiba.magma.concurrent.LockManager;
 import org.obiba.magma.support.Disposables;
 import org.obiba.magma.support.Initialisables;
+import org.obiba.magma.support.ValueTableReference;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
@@ -77,6 +78,11 @@ public class MagmaEngine implements DatasourceRegistry {
 
   public void decorate(Decorator<DatasourceRegistry> registryDecorator) {
     this.datasourceRegistry = registryDecorator.decorate(this.datasourceRegistry);
+  }
+
+  @Override
+  public ValueTableReference createReference(String reference) {
+    return getDatasourceRegistry().createReference(reference);
   }
 
   @Override

@@ -6,6 +6,7 @@ import java.util.UUID;
 
 import org.obiba.magma.support.Disposables;
 import org.obiba.magma.support.Initialisables;
+import org.obiba.magma.support.ValueTableReference;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Predicate;
@@ -28,6 +29,11 @@ public class DefaultDatasourceRegistry implements DatasourceRegistry, Disposable
     for(Decorator<Datasource> decorator : decorators) {
       Disposables.silentlyDispose(decorator);
     }
+  }
+
+  @Override
+  public ValueTableReference createReference(String reference) {
+    return new ValueTableReference(reference);
   }
 
   public Set<Datasource> getDatasources() {

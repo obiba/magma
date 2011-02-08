@@ -8,7 +8,11 @@ import org.obiba.magma.DatasourceRegistry;
 import org.obiba.magma.Decorator;
 import org.obiba.magma.NoSuchDatasourceException;
 import org.obiba.magma.security.permissions.Permissions;
+import org.obiba.magma.support.Decorators;
+import org.obiba.magma.support.ValueTableReference;
 
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 
 public class SecuredDatasourceRegistry implements DatasourceRegistry {
@@ -17,12 +21,19 @@ public class SecuredDatasourceRegistry implements DatasourceRegistry {
 
   private final DatasourceRegistry delegate;
 
+  private final Decorator<Datasource> securedDatasourceDecorator;
+
   public SecuredDatasourceRegistry(Authorizer authorizer, DatasourceRegistry datasourceRegistry) {
     if(authorizer == null) throw new IllegalArgumentException("authorizer cannot be null");
     if(datasourceRegistry == null) throw new IllegalArgumentException("datasourceRegistry cannot be null");
     this.authorizer = authorizer;
     this.delegate = datasourceRegistry;
-    this.addDecorator(new SecuredDatasourceDecorator(authorizer));
+    this.securedDatasourceDecorator = new SecuredDatasourceDecorator(authorizer);
+  }
+
+  @Override
+  public ValueTableReference createReference(String reference) {
+    return new SudoValueTableReference(authorizer, reference);
   }
 
   public Datasource addDatasource(Datasource datasource) {
@@ -44,11 +55,11 @@ public class SecuredDatasourceRegistry implements DatasourceRegistry {
   public Datasource getDatasource(String name) throws NoSuchDatasourceException {
     Datasource ds = delegate.getDatasource(name);
     if(ds != null && isPermitted(Permissions.DatasourcePermissionBuilder.forDatasource(name).read().build()) == false) throw new NoSuchDatasourceException(name);
-    return ds;
+    return securedDatasourceDecorator.decorate(ds);
   }
 
   public Set<Datasource> getDatasources() {
-    return Sets.filter(delegate.getDatasources(), Permissions.DatasourcePermissionBuilder.forDatasource().read().asPredicate(authorizer));
+    return ImmutableSet.copyOf(Iterables.transform(Sets.filter(delegate.getDatasources(), Permissions.DatasourcePermissionBuilder.forDatasource().read().asPredicate(authorizer)), Decorators.decoratingFunction(this.securedDatasourceDecorator)));
   }
 
   public Datasource getTransientDatasourceInstance(String uid) {

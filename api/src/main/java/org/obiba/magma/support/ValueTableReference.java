@@ -35,19 +35,25 @@ public class ValueTableReference extends AbstractValueTableWrapper {
    * @throws IllegalArgumentException if the reference is not well-formed
    */
   public ValueTableReference(String reference) {
+    if(reference == null) throw new IllegalArgumentException(reference);
     this.reference = reference;
+    getResolver();
   }
 
   @Override
   public ValueTable getWrappedValueTable() {
-    if(tableResolver == null) {
-      tableResolver = MagmaEngineTableResolver.valueOf(reference);
-    }
-    return tableResolver.resolveTable();
+    return getResolver().resolveTable();
   }
 
   public String getReference() {
     return reference;
+  }
+
+  protected MagmaEngineTableResolver getResolver() {
+    if(tableResolver == null) {
+      tableResolver = MagmaEngineTableResolver.valueOf(reference);
+    }
+    return tableResolver;
   }
 
 }
