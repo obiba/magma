@@ -35,7 +35,7 @@ public class ValueTableReference extends AbstractValueTableWrapper {
    * @throws IllegalArgumentException if the reference is not well-formed
    */
   public ValueTableReference(String reference) {
-    if(reference == null) throw new IllegalArgumentException(reference);
+    if(reference == null) throw new IllegalArgumentException("reference cannot be null");
     this.reference = reference;
     getResolver();
   }

@@ -1,6 +1,7 @@
 package org.obiba.magma.security.shiro;
 
 import org.apache.shiro.authc.AuthenticationToken;
+import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.subject.Subject;
 
 /**
@@ -12,19 +13,23 @@ public class SudoAuthToken implements AuthenticationToken {
 
   private static final long serialVersionUID = 4956112777374283844L;
 
-  private final Subject sudoer;
+  private final PrincipalCollection sudoer;
 
   public SudoAuthToken(Subject sudoer) {
-    this.sudoer = sudoer;
+    this.sudoer = sudoer.getPrincipals();
   }
 
   @Override
   public Object getPrincipal() {
-    return sudoer.getPrincipal();
+    return sudoer.getPrimaryPrincipal();
   }
 
   @Override
   public Object getCredentials() {
     return null;
+  }
+
+  public PrincipalCollection getSudoer() {
+    return sudoer;
   }
 }
