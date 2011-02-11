@@ -347,4 +347,9 @@ public class JoinTable implements ValueTable, Initialisable {
   public Timestamps getTimestamps(ValueSet valueSet) {
     return new JoinTimestamps(valueSet, tables);
   }
+
+  @Override
+  public boolean isView() {
+    return false;
+  }
 }

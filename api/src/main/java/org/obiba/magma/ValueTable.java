@@ -32,4 +32,6 @@ public interface ValueTable {
 
   public Timestamps getTimestamps(ValueSet valueSet);
 
+  public boolean isView();
+
 }

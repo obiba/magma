@@ -157,4 +157,9 @@ public class GeneratedValueTable implements ValueTable {
     return new VariableEntityBean("", Long.toString(Math.abs(seed)));
   }
 
+  @Override
+  public boolean isView() {
+    return false;
+  }
+
 }

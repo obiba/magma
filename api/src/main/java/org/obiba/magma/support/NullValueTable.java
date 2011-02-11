@@ -102,4 +102,9 @@ public class NullValueTable implements ValueTable {
     }
     return instance.get();
   }
+
+  @Override
+  public boolean isView() {
+    return false;
+  }
 }

@@ -139,6 +139,11 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
     return from;
   }
 
+  @Override
+  public boolean isView() {
+    return true;
+  }
+
   public boolean hasValueSet(VariableEntity entity) {
     VariableEntity unmapped = getVariableEntityMappingFunction().unapply(entity);
     if(unmapped == null) return false;
