@@ -13,9 +13,9 @@ public class Permissions {
 
   public static final class Actions {
 
-    public static final String READ = "read";
+    public static final String READ = "GET";
 
-    public static final String WRITE = "write";
+    public static final String WRITE = "POST";
   }
 
   public static class Builder<T extends Builder<?>> {
