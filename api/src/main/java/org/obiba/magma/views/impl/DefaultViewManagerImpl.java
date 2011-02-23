@@ -44,7 +44,13 @@ public class DefaultViewManagerImpl implements ViewManager, Initialisable, Dispo
     if(view == null) throw new MagmaRuntimeException("view cannot be null.");
 
     viewAwareDatasource.addView(view);
-    viewPersistenceStrategy.writeViews(viewAwareDatasource.getName(), viewAwareDatasource.getViews());
+    try {
+      viewPersistenceStrategy.writeViews(viewAwareDatasource.getName(), viewAwareDatasource.getViews());
+    } catch(RuntimeException e) {
+      // rollback
+      viewAwareDatasource.removeView(view.getName());
+      throw e;
+    }
   }
 
   public void removeView(String datasourceName, String viewName) {
@@ -53,8 +59,15 @@ public class DefaultViewManagerImpl implements ViewManager, Initialisable, Dispo
     if(viewAwareDatasource == null) throw new NoSuchDatasourceException(datasourceName);
     if(viewName == null || viewName.equals("")) throw new MagmaRuntimeException("viewName cannot be null or empty.");
 
+    View view = viewAwareDatasource.getView(viewName);
     viewAwareDatasource.removeView(viewName);
-    viewPersistenceStrategy.writeViews(viewAwareDatasource.getName(), viewAwareDatasource.getViews());
+    try {
+      viewPersistenceStrategy.writeViews(viewAwareDatasource.getName(), viewAwareDatasource.getViews());
+    } catch(RuntimeException e) {
+      // rollback
+      viewAwareDatasource.addView(view);
+      throw e;
+    }
   }
 
   public boolean hasView(String datasourceName, String viewName) {
