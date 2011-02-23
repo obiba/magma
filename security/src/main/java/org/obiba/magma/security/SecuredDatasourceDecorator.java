@@ -18,4 +18,12 @@ public class SecuredDatasourceDecorator implements Decorator<Datasource> {
     return new SecuredDatasource(authorizer, datasource);
   }
 
+  public Datasource undecorate(Datasource datasource) {
+    if(datasource instanceof SecuredDatasource) {
+      SecuredDatasource secured = (SecuredDatasource) datasource;
+      return secured.getWrappedDatasource();
+    }
+    return datasource;
+  }
+
 }

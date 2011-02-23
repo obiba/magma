@@ -21,7 +21,7 @@ public class SecuredDatasourceRegistry implements DatasourceRegistry {
 
   private final DatasourceRegistry delegate;
 
-  private final Decorator<Datasource> securedDatasourceDecorator;
+  private final SecuredDatasourceDecorator securedDatasourceDecorator;
 
   public SecuredDatasourceRegistry(Authorizer authorizer, DatasourceRegistry datasourceRegistry) {
     if(authorizer == null) throw new IllegalArgumentException("authorizer cannot be null");
@@ -75,7 +75,7 @@ public class SecuredDatasourceRegistry implements DatasourceRegistry {
   }
 
   public void removeDatasource(Datasource datasource) {
-    delegate.removeDatasource(datasource);
+    delegate.removeDatasource(securedDatasourceDecorator.undecorate(datasource));
   }
 
   public void removeTransientDatasource(String uid) {
