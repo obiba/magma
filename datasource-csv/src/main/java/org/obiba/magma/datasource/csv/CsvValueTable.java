@@ -238,7 +238,7 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
       line = dataReader.readNext();
       while(line != null) {
         count++;
-        if(line.length > 0) {
+        if(line.length > 0 && line[0] != null && line[0].trim().length() > 0) {
           VariableEntity entity = new VariableEntityBean(entityType, line[0]);
           entityIndex.put(entity, lineIndex.get(count));
         }
