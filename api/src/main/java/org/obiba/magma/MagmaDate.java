@@ -59,6 +59,10 @@ public class MagmaDate implements Serializable, Comparable<MagmaDate> {
     return c;
   }
 
+  public Date asDate() {
+    return asCalendar().getTime();
+  }
+
   @Override
   public int compareTo(MagmaDate o) {
     return 100 * (this.year - o.year)//

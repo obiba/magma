@@ -16,7 +16,7 @@ import org.obiba.magma.support.Disposables;
 import org.obiba.magma.support.Initialisables;
 
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Iterables;
+import com.google.common.collect.Sets;
 
 public class ViewAwareDatasource implements Datasource {
   //
@@ -25,20 +25,20 @@ public class ViewAwareDatasource implements Datasource {
 
   private Datasource wrappedDatasource;
 
-  private Set<ValueTable> views;
+  private Set<View> views;
 
   //
   // Constructors
   //
 
-  public ViewAwareDatasource(Datasource datasource, Set<ValueTable> views) {
+  public ViewAwareDatasource(Datasource datasource, Set<View> views) {
     if(views == null) {
       throw new IllegalArgumentException("Null views");
     }
 
     this.wrappedDatasource = datasource;
 
-    this.views = new HashSet<ValueTable>(views);
+    this.views = new HashSet<View>(views);
     this.views.addAll(views);
   }
 
@@ -51,10 +51,8 @@ public class ViewAwareDatasource implements Datasource {
     Initialisables.initialise(wrappedDatasource);
 
     // Initialise the views.
-    for(ValueTable view : views) {
-      if(view instanceof View) {
-        ((View) view).setDatasource(this);
-      }
+    for(View view : views) {
+      view.setDatasource(this);
       Initialisables.initialise(view);
     }
   }
@@ -66,10 +64,8 @@ public class ViewAwareDatasource implements Datasource {
   }
 
   public ValueTableWriter createWriter(String tableName, String entityType) {
-    for(ValueTable view : views) {
-      if(view.getName().equals(tableName)) {
-        throw new UnsupportedOperationException("Cannot write to a View");
-      }
+    if(hasView(tableName)) {
+      throw new UnsupportedOperationException("Cannot write to a View");
     }
     return wrappedDatasource.createWriter(tableName, entityType);
   }
@@ -83,30 +79,16 @@ public class ViewAwareDatasource implements Datasource {
   }
 
   public ValueTable getValueTable(String name) throws NoSuchValueTableException {
-    for(ValueTable view : views) {
-      if(view.getName().equals(name)) {
-        return view;
-      }
-    }
-    return this.wrappedDatasource.getValueTable(name);
+    return hasView(name) ? this.getView(name) : this.wrappedDatasource.getValueTable(name);
   }
 
   public Set<ValueTable> getValueTables() {
-    Set<ValueTable> valueTables = new HashSet<ValueTable>();
-    valueTables.addAll(getWrappedTables());
-    valueTables.addAll(views);
-
-    return valueTables;
+    return Sets.union(getWrappedTables(), views);
   }
 
   @Override
   public boolean hasValueTable(String name) {
-    for(ValueTable view : views) {
-      if(view.getName().equals(name)) {
-        return true;
-      }
-    }
-    return wrappedDatasource.hasValueTable(name);
+    return hasView(name) || wrappedDatasource.hasValueTable(name);
   }
 
   public void setAttributeValue(String name, Value value) {
@@ -162,20 +144,20 @@ public class ViewAwareDatasource implements Datasource {
   //
 
   public Set<View> getViews() {
-    return ImmutableSet.copyOf(Iterables.filter(views, View.class));
+    return ImmutableSet.copyOf(views);
   }
 
   /**
    * Add or replace View.
    */
-  public void addView(ValueTable table) {
-    Initialisables.initialise(table);
-    if(hasView(table.getName())) removeView(table.getName());
-    views.add(table);
-    if(table instanceof View) {
-      ((View) table).setDatasource(this);
+  public void addView(View view) {
+    if(wrappedDatasource.hasValueTable(view.getName())) {
+      throw new IllegalArgumentException("can't add view to datasource: a table with this name '" + view.getName() + "' already exists");
     }
-    Initialisables.initialise(table);
+    if(hasView(view.getName())) removeView(view.getName());
+    Initialisables.initialise(view);
+    views.add(view);
+    view.setDatasource(this);
   }
 
   public void removeView(String name) {
@@ -187,10 +169,7 @@ public class ViewAwareDatasource implements Datasource {
   }
 
   public boolean hasView(String name) {
-    if(getViewByName(name) != null) {
-      return true;
-    }
-    return false;
+    return getViewByName(name) != null;
   }
 
   public View getView(String name) {
@@ -202,9 +181,9 @@ public class ViewAwareDatasource implements Datasource {
   }
 
   private View getViewByName(String name) {
-    for(ValueTable view : views) {
-      if(view.getName().equals(name) && view instanceof View) {
-        return (View) view;
+    for(View view : views) {
+      if(view.getName().equals(name)) {
+        return view;
       }
     }
     return null;

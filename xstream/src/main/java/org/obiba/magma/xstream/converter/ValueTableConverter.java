@@ -1,5 +1,6 @@
 package org.obiba.magma.xstream.converter;
 
+import org.obiba.magma.MagmaEngine;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.support.ValueTableReference;
 import org.obiba.magma.views.JoinTable;
@@ -11,6 +12,9 @@ import com.thoughtworks.xstream.converters.UnmarshallingContext;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
 
+/**
+ * Used to de/serialize a {@code ValueTable} as a {@code ValueTableReference}.
+ */
 public class ValueTableConverter implements Converter {
 
   @Override
@@ -29,7 +33,7 @@ public class ValueTableConverter implements Converter {
   @Override
   public Object unmarshal(HierarchicalStreamReader reader, UnmarshallingContext context) {
     reader.moveDown();
-    ValueTableReference valueTableReference = new ValueTableReference(reader.getValue());
+    ValueTableReference valueTableReference = MagmaEngine.get().getDatasourceRegistry().createReference(reader.getValue());
     reader.moveUp();
     return valueTableReference;
   }

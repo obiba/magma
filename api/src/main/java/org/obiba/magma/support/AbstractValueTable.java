@@ -160,4 +160,9 @@ public abstract class AbstractValueTable implements ValueTable, Initialisable {
     return sources;
   }
 
+  @Override
+  public boolean isView() {
+    return false;
+  }
+
 }

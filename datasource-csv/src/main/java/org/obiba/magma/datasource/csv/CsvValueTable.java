@@ -8,10 +8,12 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.RandomAccessFile;
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -19,6 +21,7 @@ import org.obiba.magma.Disposable;
 import org.obiba.magma.Initialisable;
 import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.NoSuchValueSetException;
+import org.obiba.magma.NoSuchVariableException;
 import org.obiba.magma.Timestamps;
 import org.obiba.magma.ValueSet;
 import org.obiba.magma.ValueTable;
@@ -79,6 +82,8 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
   private boolean isDataFileEmpty;
 
   private Map<String, Integer> dataHeaderMap;
+
+  private List<String> missingVariableNames = new ArrayList<String>();
 
   public CsvValueTable(CsvDatasource datasource, String name, File variableFile, File dataFile) {
     super(datasource, name);
@@ -149,6 +154,7 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
       for(Variable var : refTable.getVariables()) {
         addVariableValueSource(new CsvVariableValueSource(var));
       }
+      missingVariableNames = getMissingVariableNames();
     } else if(variableFile != null) {
       Map<Integer, CsvIndexEntry> lineIndex = buildLineIndex(variableFile);
       variableReader = getCsvDatasource().getCsvReader(variableFile);
@@ -232,13 +238,10 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
       line = dataReader.readNext();
       while(line != null) {
         count++;
-        if(line.length == 1) {
-          line = dataReader.readNext();
-          continue;
+        if(line.length > 0 && line[0] != null && line[0].trim().length() > 0) {
+          VariableEntity entity = new VariableEntityBean(entityType, line[0]);
+          entityIndex.put(entity, lineIndex.get(count));
         }
-        VariableEntity entity = new VariableEntityBean(entityType, line[0]);
-        entityIndex.put(entity, lineIndex.get(count));
-
         line = dataReader.readNext();
       }
     } else {
@@ -487,6 +490,50 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
    */
   private void skipSafely(InputStream is, long skip) throws IOException {
     if(is.skip(skip) != skip) throw new IOException("error seeking in file");
+  }
+
+  /**
+   * Returns missing {@link Variable}s. All variables will be of the default value "text". Missing variables are created
+   * for variables names specified in a csv data file that are not provided with associated {@link Variable}s when the
+   * CsvValueTable is created. This happens when {@link Variable}s are provided from a reference table, and that
+   * reference table does not have a {@link Variable} for every variable named in the csv data file.
+   * @return A collection of missing Variables.
+   */
+  public Iterable<Variable> getMissingVariables() {
+    List<Variable> variables = new ArrayList<Variable>(missingVariableNames.size());
+    for(String variableName : missingVariableNames) {
+      Variable.Builder variableBuilder = Variable.Builder.newVariable(variableName, TextType.get(), entityType);
+      variables.add(variableBuilder.build());
+    }
+    return variables;
+  }
+
+  /**
+   * Returns a list of variable names specified in the cvs data file for this table that do not have an associated
+   * {@link Variable}. This can occur when {@code Variable}s are obtained from a reference to another table. That table
+   * may not have a {@code Variable} for every variable specified in the csv data file.
+   * @return A list of variable names that are missing {@link Variable}s.
+   * @throws IOException thrown when there is a problem reading the csv data file.
+   */
+  private List<String> getMissingVariableNames() throws IOException {
+    List<String> missingVariables = new ArrayList<String>();
+    if(dataFile != null) {
+      // Obtain the variable names from the first line of the data file. Header line is = entity_id + variable names
+      CSVReader dataHeaderReader = getCsvDatasource().getCsvReader(dataFile);
+      String[] line = dataHeaderReader.readNext();
+      dataHeaderReader.close();
+      if(line != null) {
+        for(int i = 1; i < line.length; i++) {
+          String variableName = line[i].trim();
+          try {
+            getVariableValueSource(variableName);
+          } catch(NoSuchVariableException e) {
+            missingVariables.add(variableName);
+          }
+        }
+      }
+    }
+    return missingVariables;
   }
 
 }

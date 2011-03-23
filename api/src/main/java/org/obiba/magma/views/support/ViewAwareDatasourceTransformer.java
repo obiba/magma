@@ -5,7 +5,6 @@ import java.util.Set;
 
 import org.obiba.magma.Datasource;
 import org.obiba.magma.DatasourceTransformer;
-import org.obiba.magma.ValueTable;
 import org.obiba.magma.views.View;
 import org.obiba.magma.views.ViewAwareDatasource;
 
@@ -23,7 +22,7 @@ public class ViewAwareDatasourceTransformer implements DatasourceTransformer {
   @Deprecated
   private String name;
 
-  private Set<ValueTable> views;
+  private Set<View> views;
 
   //
   // DatasourceTransformer Methods
@@ -46,7 +45,7 @@ public class ViewAwareDatasourceTransformer implements DatasourceTransformer {
   }
 
   public void setViews(Set<View> views) {
-    this.views = new HashSet<ValueTable>();
+    this.views = new HashSet<View>();
     if(views != null) {
       this.views.addAll(views);
     }

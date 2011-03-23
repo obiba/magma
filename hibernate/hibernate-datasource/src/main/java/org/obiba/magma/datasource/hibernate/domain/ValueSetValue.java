@@ -1,11 +1,18 @@
 package org.obiba.magma.datasource.hibernate.domain;
 
+import java.io.Serializable;
+import java.util.Date;
+
 import javax.persistence.Column;
+import javax.persistence.Embeddable;
+import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+import javax.persistence.Version;
 
 import org.hibernate.annotations.Columns;
 import org.hibernate.annotations.Type;
@@ -14,23 +21,26 @@ import org.obiba.magma.Value;
 import org.obiba.magma.hibernate.type.ValueHibernateType;
 
 @Entity
-@Table(name = "value_set_value", uniqueConstraints = { @UniqueConstraint(columnNames = { "value_set_id", "variable_id" }) })
+@Table(name = "value_set_value")
 @TypeDef(name = "value", typeClass = ValueHibernateType.class)
-public class ValueSetValue extends AbstractTimestampedEntity {
+public class ValueSetValue implements Timestamped {
 
   private static final long serialVersionUID = 1L;
 
-  @ManyToOne(optional = false)
-  @JoinColumn(name = "value_set_id")
-  private ValueSetState valueSet;
-
-  @ManyToOne(optional = false)
-  @JoinColumn(name = "variable_id")
-  private VariableState variable;
+  @EmbeddedId
+  private ValueSetValueId id;
 
   @Type(type = "value")
   @Columns(columns = { @Column(name = "value_type", nullable = false), @Column(name = "is_sequence", nullable = false), @Column(name = "value", length = Integer.MAX_VALUE, nullable = false) })
   private Value value;
+
+  @Temporal(TemporalType.TIMESTAMP)
+  @Column(insertable = true, updatable = false, nullable = false)
+  private Date created = new Date();
+
+  @Version
+  @Column(nullable = false)
+  private Date updated;
 
   public ValueSetValue() {
 
@@ -40,8 +50,7 @@ public class ValueSetValue extends AbstractTimestampedEntity {
     super();
     if(variable == null) throw new IllegalArgumentException("variable cannot be null");
     if(valueSet == null) throw new IllegalArgumentException("valueSet cannot be null");
-    this.variable = variable;
-    this.valueSet = valueSet;
+    this.id = new ValueSetValueId(variable, valueSet);
   }
 
   public void setValue(Value value) {
@@ -55,12 +64,69 @@ public class ValueSetValue extends AbstractTimestampedEntity {
     return value;
   }
 
+  @Override
+  public Date getCreated() {
+    return new Date(created.getTime());
+  }
+
+  @Override
+  public Date getUpdated() {
+    return new Date(updated.getTime());
+  }
+
   public ValueSetState getValueSet() {
-    return valueSet;
+    return id.valueSet;
   }
 
   public VariableState getVariable() {
-    return variable;
+    return id.variable;
+  }
+
+  @Embeddable
+  public final static class ValueSetValueId implements Serializable {
+
+    private static final long serialVersionUID = 4020718518680731845L;
+
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "value_set_id", referencedColumnName = "id")
+    private ValueSetState valueSet;
+
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "variable_id", referencedColumnName = "id")
+    private VariableState variable;
+
+    public ValueSetValueId() {
+    }
+
+    public ValueSetValueId(VariableState variable, ValueSetState valueSet) {
+      this.valueSet = valueSet;
+      this.variable = variable;
+    }
+
+    @Override
+    public int hashCode() {
+      final int prime = 31;
+      int result = 1;
+      result = prime * result + ((valueSet == null) ? 0 : valueSet.hashCode());
+      result = prime * result + ((variable == null) ? 0 : variable.hashCode());
+      return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+      if(this == obj) return true;
+      if(obj == null) return false;
+      if(getClass() != obj.getClass()) return false;
+      ValueSetValueId other = (ValueSetValueId) obj;
+      if(valueSet == null) {
+        if(other.valueSet != null) return false;
+      } else if(!valueSet.equals(other.valueSet)) return false;
+      if(variable == null) {
+        if(other.variable != null) return false;
+      } else if(!variable.equals(other.variable)) return false;
+      return true;
+    }
+
   }
 
 }

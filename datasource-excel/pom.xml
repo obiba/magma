@@ -24,9 +24,19 @@
       <artifactId>poi-ooxml</artifactId>
       <version>3.7</version>
       <exclusions>
+        <!-- STAX is available in Java 6 -->
         <exclusion>
           <groupId>org.apache.geronimo.specs</groupId>
           <artifactId>geronimo-stax-api_1.0_spec</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>stax</groupId>
+          <artifactId>stax-api</artifactId>
+        </exclusion>
+        <!-- Available in Java 6 -->
+        <exclusion>
+          <groupId>xml-apis</groupId>
+          <artifactId>xml-apis</artifactId>
         </exclusion>
       </exclusions>
     </dependency>

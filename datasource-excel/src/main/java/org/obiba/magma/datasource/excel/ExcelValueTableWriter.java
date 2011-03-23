@@ -37,28 +37,30 @@ public class ExcelValueTableWriter implements ValueTableWriter {
 
   private class ExcelVariableWriter implements VariableWriter {
 
-    private Sheet variablesSheet;
-
-    private Sheet categoriesSheet;
-
     public ExcelVariableWriter() {
-      this.variablesSheet = valueTable.getDatasource().getVariablesSheet();
-      this.categoriesSheet = valueTable.getDatasource().getCategoriesSheet();
+    }
+
+    private Sheet getVariablesSheet() {
+      return valueTable.getDatasource().getVariablesSheet();
+    }
+
+    private Sheet getCategoriesSheet() {
+      return valueTable.getDatasource().getCategoriesSheet();
     }
 
     public void writeVariable(Variable variable) {
       VariableConverter converter = valueTable.getVariableConverter();
 
       // prepare the header rows
-      Row headerRowVariables = variablesSheet.getRow(0);
+      Row headerRowVariables = getVariablesSheet().getRow(0);
       if(headerRowVariables == null) {
-        headerRowVariables = variablesSheet.createRow(0);
+        headerRowVariables = getVariablesSheet().createRow(0);
       }
       updateVariableSheetHeaderRow(headerRowVariables);
 
-      Row headerRowCategories = categoriesSheet.getRow(0);
+      Row headerRowCategories = getCategoriesSheet().getRow(0);
       if(headerRowCategories == null) {
-        headerRowCategories = categoriesSheet.createRow(0);
+        headerRowCategories = getCategoriesSheet().createRow(0);
       }
       updateCategorySheetHeaderRow(headerRowCategories);
 

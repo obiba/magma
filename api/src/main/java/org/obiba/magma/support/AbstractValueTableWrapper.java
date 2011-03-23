@@ -87,4 +87,9 @@ public abstract class AbstractValueTableWrapper implements ValueTableWrapper {
     return getWrappedValueTable().getTimestamps(valueSet);
   }
 
+  @Override
+  public boolean isView() {
+    return getWrappedValueTable().isView();
+  }
+
 }

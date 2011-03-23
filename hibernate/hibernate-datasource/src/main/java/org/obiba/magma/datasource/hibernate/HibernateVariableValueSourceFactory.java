@@ -28,9 +28,7 @@ import org.obiba.magma.datasource.hibernate.converter.VariableConverter;
 import org.obiba.magma.datasource.hibernate.domain.ValueSetValue;
 import org.obiba.magma.datasource.hibernate.domain.VariableState;
 
-import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Iterables;
 
 class HibernateVariableValueSourceFactory implements VariableValueSourceFactory {
 
@@ -107,22 +105,13 @@ class HibernateVariableValueSourceFactory implements VariableValueSourceFactory 
     }
 
     @Override
-    public Iterable<Value> getValues(SortedSet<VariableEntity> entities) {
+    public Iterable<Value> getValues(final SortedSet<VariableEntity> entities) {
       if(entities.size() == 0) {
         return ImmutableList.of();
       }
-      final Query valuesQuery;
-      valuesQuery = getCurrentSession().getNamedQuery("valuesWithEntities");
-      valuesQuery.setParameter("entityType", valueTable.getEntityType())//
-      .setParameterList("identifiers", ImmutableList.copyOf(Iterables.transform(entities, new Function<VariableEntity, String>() {
 
-        @Override
-        public String apply(VariableEntity from) {
-          return from.getIdentifier();
-        }
-      })));
-
-      valuesQuery//
+      // This will returns one row per value set in the value table (so it includes nulls)
+      final Query valuesQuery = getCurrentSession().getNamedQuery("allValues")//
       .setParameter("valueTableId", valueTable.getValueTableState().getId())//
       .setParameter("variableId", valueTable.getVariableId(getVariable()));
 
@@ -135,34 +124,58 @@ class HibernateVariableValueSourceFactory implements VariableValueSourceFactory 
 
             private final ScrollableResults results;
 
-            private boolean hasNext;
+            private final Iterator<VariableEntity> resultEntities;
+
+            private boolean hasNextResults;
+
+            private boolean closed = false;
 
             {
+              resultEntities = entities.iterator();
               results = valuesQuery.scroll(ScrollMode.FORWARD_ONLY);
-              hasNext = results.next();
+              hasNextResults = results.next();
             }
 
             @Override
             public boolean hasNext() {
-              return hasNext;
+              return resultEntities.hasNext();
             }
 
             @Override
             public Value next() {
-              if(hasNext == false) {
+              if(hasNext() == false) {
                 throw new NoSuchElementException();
               }
-              Value value = (Value) results.get(0);
-              hasNext = results.next();
-              if(hasNext == false) {
-                results.close();
+
+              String nextEntity = resultEntities.next().getIdentifier();
+
+              // Scroll until we find the required entity or reach the end of the results
+              while(hasNextResults && results.getString(0).equals(nextEntity) == false) {
+                hasNextResults = results.next();
               }
+
+              Value value = null;
+              if(hasNextResults) {
+                value = (Value) results.get(1);
+              }
+              closeCursorIfNecessary();
+
               return value != null ? value : (getVariable().isRepeatable() ? getValueType().nullSequence() : getValueType().nullValue());
             }
 
             @Override
             public void remove() {
               throw new UnsupportedOperationException();
+            }
+
+            private void closeCursorIfNecessary() {
+              if(closed == false) {
+                // Close the cursor if we don't have any more results or no more entities to return
+                if(hasNextResults == false || hasNext() == false) {
+                  closed = true;
+                  results.close();
+                }
+              }
             }
 
           };

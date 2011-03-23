@@ -5,19 +5,16 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Set;
-import java.util.UUID;
 
 import org.obiba.magma.concurrent.LockManager;
 import org.obiba.magma.support.Disposables;
 import org.obiba.magma.support.Initialisables;
+import org.obiba.magma.support.ValueTableReference;
 
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Predicate;
-import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 
-public class MagmaEngine {
+public class MagmaEngine implements DatasourceRegistry {
 
   /** Keeps a reference on all singletons */
   private static List<Object> singletons;
@@ -26,15 +23,11 @@ public class MagmaEngine {
 
   private ValueTypeFactory valueTypeFactory;
 
+  private DatasourceRegistry datasourceRegistry = new DefaultDatasourceRegistry();
+
   private Set<MagmaEngineExtension> extensions = Sets.newHashSet();
 
-  private Set<Datasource> datasources = Sets.newHashSet();
-
-  private Set<DatasourceFactory> transientDatasources = Sets.newHashSet();
-
   private LockManager lockManager = new LockManager();
-
-  private Set<DatasourceTransformer> transformers = Sets.newHashSet();
 
   public MagmaEngine() {
     if(instance != null) {
@@ -79,154 +72,67 @@ public class MagmaEngine {
     }
   }
 
-  ValueTypeFactory getValueTypeFactory() {
-    return valueTypeFactory;
+  public DatasourceRegistry getDatasourceRegistry() {
+    return datasourceRegistry;
+  }
+
+  public void decorate(Decorator<DatasourceRegistry> registryDecorator) {
+    this.datasourceRegistry = registryDecorator.decorate(this.datasourceRegistry);
+  }
+
+  @Override
+  public ValueTableReference createReference(String reference) {
+    return getDatasourceRegistry().createReference(reference);
+  }
+
+  @Override
+  public Datasource getDatasource(String name) {
+    return getDatasourceRegistry().getDatasource(name);
+  }
+
+  @Override
+  public Datasource addDatasource(Datasource datasource) {
+    return getDatasourceRegistry().addDatasource(datasource);
+  }
+
+  public Datasource addDatasource(DatasourceFactory factory) {
+    return getDatasourceRegistry().addDatasource(factory);
+  }
+
+  public void addDecorator(Decorator<Datasource> decorator) {
+    getDatasourceRegistry().addDecorator(decorator);
+  }
+
+  public String addTransientDatasource(DatasourceFactory factory) {
+    return getDatasourceRegistry().addTransientDatasource(factory);
   }
 
   public Set<Datasource> getDatasources() {
-    return ImmutableSet.copyOf(datasources);
+    return getDatasourceRegistry().getDatasources();
   }
 
-  public Datasource getDatasource(final String name) throws NoSuchDatasourceException {
-    if(name == null) throw new IllegalArgumentException("name cannot be null");
-    try {
-      return Iterables.find(datasources, new Predicate<Datasource>() {
-        @Override
-        public boolean apply(Datasource input) {
-          return name.equals(input.getName());
-        }
-      });
-    } catch(NoSuchElementException e) {
-      throw new NoSuchDatasourceException(name);
-    }
+  public Datasource getTransientDatasourceInstance(String uid) {
+    return getDatasourceRegistry().getTransientDatasourceInstance(uid);
   }
 
-  public boolean hasDatasource(final String name) {
-    for(Datasource d : datasources) {
-      if(d.getName().equals(name)) {
-        return true;
-      }
-    }
-    return false;
+  public boolean hasDatasource(String name) {
+    return getDatasourceRegistry().hasDatasource(name);
   }
 
-  public MagmaEngine addDatasourceTransformer(DatasourceTransformer transformer) {
-    if(transformer == null) throw new MagmaRuntimeException("transformer cannot be null.");
-    Initialisables.initialise(transformer);
-    transformers.add(transformer);
-    return this;
+  public boolean hasTransientDatasource(String uid) {
+    return getDatasourceRegistry().hasTransientDatasource(uid);
   }
 
-  public Datasource addDatasource(Datasource datasource) {
-    // Repeatedly added datasources are silently ignored. They cannot be added to the set more than once.
-    if(!datasources.contains(datasource)) {
-      for(Datasource ds : datasources) {
-        if(ds.getName().equals(datasource.getName())) {
-          // Unique datasources with identical names cause exceptions.
-          throw new DuplicateDatasourceNameException(ds, datasource);
-        }
-      }
-
-      for(DatasourceTransformer transformer : transformers) {
-        datasource = transformer.transform(datasource);
-      }
-
-      Initialisables.initialise(datasource);
-      datasources.add(datasource);
-    }
-    return datasource;
+  public void removeDatasource(Datasource datasource) {
+    getDatasourceRegistry().removeDatasource(datasource);
   }
 
-  public Datasource addDatasource(final DatasourceFactory factory) {
-    Initialisables.initialise(factory);
-    return addDatasource(factory.create());
+  public void removeTransientDatasource(String uid) {
+    getDatasourceRegistry().removeTransientDatasource(uid);
   }
 
-  public void removeDatasource(final Datasource datasource) {
-    datasources.remove(datasource);
-    Disposables.dispose(datasource);
-  }
-
-  /**
-   * Register a new transient datasource.
-   * @param factory
-   * @return a unique identifier that can be used to obtain the registered factory
-   */
-  public String addTransientDatasource(final DatasourceFactory factory) {
-    String uid = randomTransientDatasourceName();
-    while(hasTransientDatasource(uid)) {
-      uid = randomTransientDatasourceName();
-    }
-
-    factory.setName(uid);
-    Initialisables.initialise(factory);
-    transientDatasources.add(factory);
-
-    return factory.getName();
-  }
-
-  /**
-   * Check if a transient datasource is registered with given identifier.
-   * @param uid
-   * @return true when uid is associated with a DatasourceFactory instance
-   */
-  public boolean hasTransientDatasource(final String uid) {
-    return getTransientDatasource(uid) != null;
-  }
-
-  /**
-   * Remove the transient datasource identified by uid (ignore if none is found).
-   * @param uid
-   */
-  public void removeTransientDatasource(final String uid) {
-    DatasourceFactory factory = getTransientDatasource(uid);
-    if(factory != null) {
-      transientDatasources.remove(factory);
-    }
-  }
-
-  /**
-   * Returns a new (initialized) instance of Datasource obtained by calling DatasourceFactory.create() associated with
-   * uid.
-   * @param uid
-   * @return datasource item
-   */
-  public Datasource getTransientDatasourceInstance(final String uid) {
-    DatasourceFactory factory = getTransientDatasource(uid);
-    Datasource datasource = null;
-    if(factory != null) {
-      datasource = factory.create();
-      Initialisables.initialise(datasource);
-    } else {
-      throw new NoSuchDatasourceException(uid);
-    }
-    return datasource;
-  }
-
-  /**
-   * Generate a random name.
-   * @return
-   */
-  @VisibleForTesting
-  String randomTransientDatasourceName() {
-    return UUID.randomUUID().toString();
-  }
-
-  /**
-   * Look for a datasource factory with given identifier.
-   * @param uid
-   * @return null if not found
-   */
-  private DatasourceFactory getTransientDatasource(final String uid) {
-    if(uid == null) throw new IllegalArgumentException("uid cannot be null.");
-    DatasourceFactory foundFactory = null;
-    for(DatasourceFactory factory : transientDatasources) {
-      if(factory.getName().equals(uid)) {
-        foundFactory = factory;
-        break;
-      }
-    }
-    return foundFactory;
+  ValueTypeFactory getValueTypeFactory() {
+    return valueTypeFactory;
   }
 
   public void lock(Set<String> lockNames) throws InterruptedException {
@@ -243,15 +149,10 @@ public class MagmaEngine {
   }
 
   public void shutdown() {
-    for(Datasource ds : datasources) {
-      Disposables.silentlyDispose(ds);
-    }
     for(Disposable d : Iterables.filter(this.extensions, Disposable.class)) {
       Disposables.silentlyDispose(d);
     }
-    for(DatasourceTransformer transformer : transformers) {
-      Disposables.silentlyDispose(transformer);
-    }
+    Disposables.silentlyDispose(datasourceRegistry);
     singletons = null;
     instance = null;
   }

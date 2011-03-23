@@ -8,7 +8,6 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
@@ -27,18 +26,10 @@ import org.obiba.magma.hibernate.type.ValueTypeHibernateType;
 @Table(name = "variable", uniqueConstraints = { @UniqueConstraint(columnNames = { "value_table_id", "name" }) })
 @TypeDef(name = "value_type", typeClass = ValueTypeHibernateType.class)
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
-@NamedQueries( {// 
-@NamedQuery(name = "valuesWithEntities", query = "select vsv.value from ValueSetState as vs " + //
-"join vs.variableEntity as ve " + // 
-"left outer join vs.values as vsv with vsv.variable.id = :variableId " + //
+@NamedQuery(name = "allValues", query = "select vs.variableEntity.identifier, vsv.value from ValueSetState as vs " + //
+"left outer join vs.values as vsv with vsv.id.variable.id = :variableId " + //
 "where vs.valueTable.id = :valueTableId " + //
-"and ve.identifier in(:identifiers) " + //
-"and ve.type = :entityType " + //
-"order by ve.identifier"), //
-@NamedQuery(name = "allValues", query = "select vsv.value from ValueSetState as vs " + //
-"left outer join vs.values as vsv with vsv.variable.id = :variableId " + //
-"where vs.valueTable.id = :valueTableId " + //
-"order by vs.variableEntity.id") })
+"order by vs.variableEntity.identifier")
 public class VariableState extends AbstractAttributeAwareEntity implements Timestamped {
 
   private static final long serialVersionUID = 1L;

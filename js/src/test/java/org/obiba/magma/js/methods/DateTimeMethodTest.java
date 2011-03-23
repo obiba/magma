@@ -4,12 +4,14 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
 
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
 import org.junit.Assert;
 import org.junit.Test;
 import org.mozilla.javascript.Context;
+import org.obiba.magma.Value;
 import org.obiba.magma.ValueType;
 import org.obiba.magma.js.AbstractJsTest;
 import org.obiba.magma.js.ScriptableValue;
@@ -17,6 +19,7 @@ import org.obiba.magma.type.BooleanType;
 import org.obiba.magma.type.DateTimeType;
 import org.obiba.magma.type.DateType;
 import org.obiba.magma.type.IntegerType;
+import org.obiba.magma.type.TextType;
 
 public class DateTimeMethodTest extends AbstractJsTest {
 
@@ -91,6 +94,41 @@ public class DateTimeMethodTest extends AbstractJsTest {
   }
 
   @Test
+  public void test_hourOfDay_acceptsDateTime() {
+    testCalendarFieldMethod("hourOfDay()", Calendar.HOUR_OF_DAY, DateTimeType.get());
+  }
+
+  @Test
+  public void test_hour_acceptsDateTime() {
+    testCalendarFieldMethod("hour()", Calendar.HOUR, DateTimeType.get());
+  }
+
+  @Test
+  public void test_minute_acceptsDateTime() {
+    testCalendarFieldMethod("minute()", Calendar.MINUTE, DateTimeType.get());
+  }
+
+  @Test
+  public void test_second_acceptsDateTime() {
+    testCalendarFieldMethod("second()", Calendar.SECOND, DateTimeType.get());
+  }
+
+  @Test
+  public void test_millisecond_acceptsDateTime() {
+    testCalendarFieldMethod("millisecond()", Calendar.MILLISECOND, DateTimeType.get());
+  }
+
+  @Test
+  public void test_format_acceptsDateTime() {
+    testFormatMethod("dd/MM/yyyy HH:mm", DateTimeType.get());
+  }
+
+  @Test
+  public void test_format_acceptsDate() {
+    testFormatMethod("dd/MM/yyyy", DateType.get());
+  }
+
+  @Test
   public void testAfterNullArgumentReturnsNull() throws Exception {
     ScriptableValue now = newValue(DateTimeType.get().valueOf(new Date()));
     ScriptableValue nullDate = newValue(DateTimeType.get().nullValue());
@@ -126,5 +164,16 @@ public class DateTimeMethodTest extends AbstractJsTest {
     assertThat(result.getValue(), notNullValue());
     assertThat(result.getValueType(), is((ValueType) IntegerType.get()));
     assertThat((Long) result.getValue().getValue(), is((long) expectedValue));
+  }
+
+  private void testFormatMethod(String pattern, ValueType testType) {
+    Date now = new Date();
+    SimpleDateFormat format = new SimpleDateFormat(pattern);
+    String expected = format.format(now);
+
+    Value result = evaluate("format('" + pattern + "')", testType.valueOf(now)).getValue();
+    Assert.assertNotNull(result);
+    Assert.assertEquals(TextType.get(), result.getValueType());
+    Assert.assertEquals(expected, result.toString());
   }
 }

@@ -3,13 +3,11 @@ package org.obiba.magma.views.impl;
 import java.util.Set;
 
 import org.obiba.magma.Datasource;
-import org.obiba.magma.DatasourceTransformer;
 import org.obiba.magma.Disposable;
 import org.obiba.magma.Initialisable;
 import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.NoSuchDatasourceException;
 import org.obiba.magma.NoSuchValueTableException;
-import org.obiba.magma.ValueTable;
 import org.obiba.magma.views.View;
 import org.obiba.magma.views.ViewAwareDatasource;
 import org.obiba.magma.views.ViewManager;
@@ -17,9 +15,9 @@ import org.obiba.magma.views.ViewPersistenceStrategy;
 
 import com.google.common.collect.Sets;
 
-public class DefaultViewManagerImpl implements ViewManager, DatasourceTransformer, Initialisable, Disposable {
+public class DefaultViewManagerImpl implements ViewManager, Initialisable, Disposable {
 
-  private Set<ViewAwareDatasource> viewAwareDatasources = Sets.<ViewAwareDatasource> newHashSet();
+  private final Set<ViewAwareDatasource> viewAwareDatasources = Sets.<ViewAwareDatasource> newHashSet();
 
   private final ViewPersistenceStrategy viewPersistenceStrategy;
 
@@ -28,10 +26,9 @@ public class DefaultViewManagerImpl implements ViewManager, DatasourceTransforme
   }
 
   @Override
-  public Datasource transform(Datasource datasource) {
+  public Datasource decorate(Datasource datasource) {
     Set<View> views = viewPersistenceStrategy.readViews(datasource.getName());
-    Set<ValueTable> valueTables = Sets.<ValueTable> newHashSet(views);
-    ViewAwareDatasource viewAwareDatasource = new ViewAwareDatasource(datasource, valueTables);
+    ViewAwareDatasource viewAwareDatasource = new ViewAwareDatasource(datasource, views);
 
     // register the viewAware and make sure there is only one with the datasource name...
     if(getViewAwareFromName(datasource.getName()) == null) {
@@ -47,7 +44,13 @@ public class DefaultViewManagerImpl implements ViewManager, DatasourceTransforme
     if(view == null) throw new MagmaRuntimeException("view cannot be null.");
 
     viewAwareDatasource.addView(view);
-    viewPersistenceStrategy.writeViews(viewAwareDatasource.getName(), viewAwareDatasource.getViews());
+    try {
+      viewPersistenceStrategy.writeViews(viewAwareDatasource.getName(), viewAwareDatasource.getViews());
+    } catch(RuntimeException e) {
+      // rollback
+      viewAwareDatasource.removeView(view.getName());
+      throw e;
+    }
   }
 
   public void removeView(String datasourceName, String viewName) {
@@ -56,8 +59,15 @@ public class DefaultViewManagerImpl implements ViewManager, DatasourceTransforme
     if(viewAwareDatasource == null) throw new NoSuchDatasourceException(datasourceName);
     if(viewName == null || viewName.equals("")) throw new MagmaRuntimeException("viewName cannot be null or empty.");
 
+    View view = viewAwareDatasource.getView(viewName);
     viewAwareDatasource.removeView(viewName);
-    viewPersistenceStrategy.writeViews(viewAwareDatasource.getName(), viewAwareDatasource.getViews());
+    try {
+      viewPersistenceStrategy.writeViews(viewAwareDatasource.getName(), viewAwareDatasource.getViews());
+    } catch(RuntimeException e) {
+      // rollback
+      viewAwareDatasource.addView(view);
+      throw e;
+    }
   }
 
   public boolean hasView(String datasourceName, String viewName) {

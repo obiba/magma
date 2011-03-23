@@ -26,6 +26,8 @@ import au.com.bytecode.opencsv.CSVWriter;
 
 public class CsvDatasource extends AbstractDatasource {
 
+  public static final String TYPE = "csv";
+
   public static final String VARIABLES_FILE = "variables.csv";
 
   public static final String DATA_FILE = "data.csv";
@@ -45,11 +47,11 @@ public class CsvDatasource extends AbstractDatasource {
   private int firstRow = 1;
 
   public CsvDatasource(String name) {
-    super(name, "csv");
+    super(name, TYPE);
   }
 
   public CsvDatasource(String name, File bundle) {
-    super(name, "csv");
+    super(name, TYPE);
     if(bundle.isDirectory()) {
       File[] directories = bundle.listFiles(new FileFilter() {
 

@@ -132,9 +132,6 @@ public class ExcelDatasource extends AbstractDatasource {
       excelWorkbook = new XSSFWorkbook();
     }
 
-    variablesSheet = createSheetIfNotExist("Variables");
-    categoriesSheet = createSheetIfNotExist("Categories");
-
     createExcelStyles();
   }
 
@@ -210,42 +207,21 @@ public class ExcelDatasource extends AbstractDatasource {
   protected Set<String> getValueTableNames() {
     Set<String> sheetNames = new LinkedHashSet<String>(100);
 
-    List<ExcelDatasourceParsingException> errors = new ArrayList<ExcelDatasourceParsingException>();
-
     // find the table names from the Variables sheet
-    Row headerVariables = variablesSheet.getRow(0);
-    if(headerVariables != null) {
-      Map<String, Integer> headerMapVariables = getVariablesHeaderMap();
-      if(headerMapVariables != null) {
-        for(int i = 1; i < variablesSheet.getPhysicalNumberOfRows(); i++) {
-          Row variableRow = variablesSheet.getRow(i);
-          String tableHeader = ExcelUtil.findNormalizedHeader(headerMapVariables.keySet(), VariableConverter.TABLE);
-          String tableName = DEFAULT_TABLE_NAME;
-          if(tableHeader != null) {
-            tableName = ExcelUtil.getCellValueAsString(variableRow.getCell(headerMapVariables.get(tableHeader)));
-            if(tableName.trim().isEmpty()) {
-              errors.add(new ExcelDatasourceParsingException("Table name is required", //
-              "TableNameRequired", variablesSheet.getSheetName(), i + 1));
-            }
-          }
-          if(!valueTablesMapOnInit.containsKey(tableName)) {
-            String entityTypeHeader = ExcelUtil.findNormalizedHeader(headerMapVariables.keySet(), VariableConverter.ENTITY_TYPE);
-            String entityType = "Participant";
-            if(entityTypeHeader != null) {
-              entityType = ExcelUtil.getCellValueAsString(variableRow.getCell(headerMapVariables.get(entityTypeHeader)));
-            }
-            valueTablesMapOnInit.put(tableName, new ExcelValueTable(this, tableName, entityType));
-            sheetNames.add(getSheetName(tableName));
+    if(hasVariablesSheet()) {
+      Row headerVariables = getVariablesSheet().getRow(0);
+      if(headerVariables != null) {
+        Map<String, Integer> headerMapVariables = getVariablesHeaderMap();
+        if(headerMapVariables != null) {
+          List<ExcelDatasourceParsingException> errors = readValueTablesFromVariableSheet(headerMapVariables, sheetNames);
+          if(errors.size() > 0) {
+            ExcelDatasourceParsingException parent = new ExcelDatasourceParsingException("Errors while parsing variables", //
+            "TableDefinitionErrors", getVariablesSheet().getSheetName(), 1, getName());
+            parent.setChildren(errors);
+            throw parent;
           }
         }
       }
-    }
-
-    if(errors.size() > 0) {
-      ExcelDatasourceParsingException parent = new ExcelDatasourceParsingException("Errors while parsing variables", //
-      "TableDefinitionErrors", variablesSheet.getSheetName(), 1, getName());
-      parent.setChildren(errors);
-      throw parent;
     }
 
     // find other tables from their sheet name
@@ -260,25 +236,63 @@ public class ExcelDatasource extends AbstractDatasource {
     return valueTablesMapOnInit.keySet();
   }
 
+  private List<ExcelDatasourceParsingException> readValueTablesFromVariableSheet(Map<String, Integer> headerMapVariables, Set<String> sheetNames) {
+    List<ExcelDatasourceParsingException> errors = new ArrayList<ExcelDatasourceParsingException>();
+
+    for(int i = 1; i < getVariablesSheet().getPhysicalNumberOfRows(); i++) {
+      Row variableRow = getVariablesSheet().getRow(i);
+      String tableHeader = ExcelUtil.findNormalizedHeader(headerMapVariables.keySet(), VariableConverter.TABLE);
+      String tableName = DEFAULT_TABLE_NAME;
+      if(tableHeader != null) {
+        tableName = ExcelUtil.getCellValueAsString(variableRow.getCell(headerMapVariables.get(tableHeader)));
+        if(tableName.trim().isEmpty()) {
+          errors.add(new ExcelDatasourceParsingException("Table name is required", //
+          "TableNameRequired", getVariablesSheet().getSheetName(), i + 1));
+        }
+      }
+      if(!valueTablesMapOnInit.containsKey(tableName)) {
+        String entityTypeHeader = ExcelUtil.findNormalizedHeader(headerMapVariables.keySet(), VariableConverter.ENTITY_TYPE);
+        String entityType = "Participant";
+        if(entityTypeHeader != null) {
+          entityType = ExcelUtil.getCellValueAsString(variableRow.getCell(headerMapVariables.get(entityTypeHeader)));
+        }
+        valueTablesMapOnInit.put(tableName, new ExcelValueTable(this, tableName, entityType));
+        sheetNames.add(getSheetName(tableName));
+      }
+    }
+
+    return errors;
+  }
+
   @Override
   protected ValueTable initialiseValueTable(String tableName) {
     return valueTablesMapOnInit.get(tableName);
   }
 
+  public boolean hasVariablesSheet() {
+    return excelWorkbook.getSheet("Variables") != null;
+  }
+
   public Sheet getVariablesSheet() {
+    if(variablesSheet == null) {
+      variablesSheet = createSheetIfNotExist("Variables");
+    }
     return variablesSheet;
   }
 
   public Sheet getCategoriesSheet() {
+    if(categoriesSheet == null) {
+      categoriesSheet = createSheetIfNotExist("Categories");
+    }
     return categoriesSheet;
   }
 
   public Set<String> getVariablesCustomAttributeNames() {
-    return getCustomAttributeNames(variablesSheet.getRow(0), VariableConverter.reservedVariableHeaders);
+    return getCustomAttributeNames(getVariablesSheet().getRow(0), VariableConverter.reservedVariableHeaders);
   }
 
   public Set<String> getCategoriesCustomAttributeNames() {
-    return getCustomAttributeNames(categoriesSheet.getRow(0), VariableConverter.reservedCategoryHeaders);
+    return getCustomAttributeNames(getCategoriesSheet().getRow(0), VariableConverter.reservedCategoryHeaders);
   }
 
   private Set<String> getCustomAttributeNames(Row rowHeader, List<String> reservedAttributeNames) {
@@ -294,11 +308,11 @@ public class ExcelDatasource extends AbstractDatasource {
   }
 
   public Map<String, Integer> getVariablesHeaderMap() {
-    return getMapSheetHeader(variablesSheet.getRow(0));
+    return getMapSheetHeader(getVariablesSheet().getRow(0));
   }
 
   public Map<String, Integer> getCategoriesHeaderMap() {
-    return getMapSheetHeader(categoriesSheet.getRow(0));
+    return getMapSheetHeader(getCategoriesSheet().getRow(0));
   }
 
   private Map<String, Integer> getMapSheetHeader(Row rowHeader) {
@@ -353,7 +367,7 @@ public class ExcelDatasource extends AbstractDatasource {
   private void createExcelStyles() {
     excelStyles = new HashMap<String, CellStyle>();
 
-    CellStyle headerCellStyle = variablesSheet.getWorkbook().createCellStyle();
+    CellStyle headerCellStyle = excelWorkbook.createCellStyle();
     Font headerFont = excelWorkbook.createFont();
     headerFont.setBoldweight((short) 700);
     headerCellStyle.setFont(headerFont);

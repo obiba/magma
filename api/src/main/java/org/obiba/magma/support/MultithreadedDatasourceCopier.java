@@ -17,10 +17,10 @@ import org.obiba.magma.Value;
 import org.obiba.magma.ValueSet;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.ValueTableWriter;
-import org.obiba.magma.ValueTableWriter.ValueSetWriter;
 import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.VariableValueSource;
+import org.obiba.magma.ValueTableWriter.ValueSetWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -90,7 +90,7 @@ public class MultithreadedDatasourceCopier {
 
   private int concurrentReaders = 3;
 
-  private DatasourceCopier.Builder copier;
+  private DatasourceCopier.Builder copier = DatasourceCopier.Builder.newCopier();
 
   private ValueTable source;
 
@@ -104,12 +104,18 @@ public class MultithreadedDatasourceCopier {
 
   private List<Future<?>> readers = Lists.newArrayList();
 
+  private long entitiesToCopy = 0;
+
+  private long entitiesCopied = 0;
+
+  private int nextPercentIncrement = 0;
+
   private MultithreadedDatasourceCopier() {
 
   }
 
   public void copy() throws IOException {
-    ThreadPoolExecutor executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(concurrentReaders, threadFactory);
+    ThreadPoolExecutor executor = threadFactory != null ? (ThreadPoolExecutor) Executors.newFixedThreadPool(concurrentReaders, threadFactory) : (ThreadPoolExecutor) Executors.newFixedThreadPool(concurrentReaders);
 
     prepareVariables();
 
@@ -120,6 +126,7 @@ public class MultithreadedDatasourceCopier {
       // A queue containing all entities to read the values for. Once this is empty, and all readers are done, then
       // reading is over.
       BlockingQueue<VariableEntity> readQueue = new LinkedBlockingDeque<VariableEntity>(source.getVariableEntities());
+      entitiesToCopy = readQueue.size();
 
       for(int i = 0; i < concurrentReaders; i++) {
         readers.add(executor.submit(new ConcurrentValueSetReader(readQueue, writeQueue)));
@@ -191,6 +198,20 @@ public class MultithreadedDatasourceCopier {
     }
   }
 
+  private void printProgress() {
+    try {
+      if(log.isInfoEnabled() && entitiesToCopy > 0) {
+        double percentComplete = entitiesCopied / (double) entitiesToCopy * 100;
+        if(percentComplete >= nextPercentIncrement) {
+          log.info("Copy {}% complete.", nextPercentIncrement);
+          nextPercentIncrement++;
+        }
+      }
+    } catch(RuntimeException e) {
+      // Ignore
+    }
+  }
+
   private static class VariableEntityValues {
 
     private final ValueSet valueSet;
@@ -225,7 +246,7 @@ public class MultithreadedDatasourceCopier {
             for(int i = 0; i < sources.length; i++) {
               values[i] = sources[i].getValue(valueSet);
             }
-            log.info("Enqueued entity {}", entity.getIdentifier());
+            log.debug("Enqueued entity {}", entity.getIdentifier());
             writeQueue.put(new VariableEntityValues(valueSet, values));
           }
           entity = readQueue.poll();
@@ -271,7 +292,7 @@ public class MultithreadedDatasourceCopier {
           ValueSetWriter writer = tableWriter.writeValueSet(values.valueSet.getVariableEntity());
           try {
             // Copy the ValueSet to the destination
-            log.info("Dequeued entity {}", values.valueSet.getVariableEntity().getIdentifier());
+            log.debug("Dequeued entity {}", values.valueSet.getVariableEntity().getIdentifier());
             copier.build().copy(source, destinationName, values.valueSet, variables, values.values, writer);
           } finally {
             try {
@@ -280,6 +301,8 @@ public class MultithreadedDatasourceCopier {
               throw new RuntimeException(e);
             }
           }
+          entitiesCopied++;
+          printProgress();
           values = next();
         }
       } finally {

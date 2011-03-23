@@ -172,6 +172,8 @@
     <module>datasource-excel</module>
     <module>datasource-null</module>
     <module>datasource-csv</module>
+    <module>security</module>
+    <module>datasource-generated</module>
   </modules>
 
   <build>
@@ -208,6 +210,7 @@
     <plugins>
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>
+        <version>2.3.2</version>
         <configuration>
           <source>1.6</source>
           <target>1.6</target>
@@ -219,6 +222,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>
+        <version>2.3.1</version>
         <configuration>
           <archive>
             <manifest>
@@ -233,6 +237,7 @@
 
       <plugin>
         <artifactId>maven-source-plugin</artifactId>
+        <version>2.1.2</version>
         <executions>
           <execution>
             <id>attach-sources</id>
@@ -247,6 +252,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-release-plugin</artifactId>
+        <version>2.1</version>
         <configuration>
           <branchBase>https://svn.obiba.org/magma/branches</branchBase>
           <tagBase>https://svn.obiba.org/magma/tags/releases</tagBase>

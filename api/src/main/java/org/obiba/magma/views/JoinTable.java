@@ -65,8 +65,8 @@ public class JoinTable implements ValueTable, Initialisable {
     if(tables == null) {
       throw new IllegalArgumentException("null tables");
     }
-    if(tables.size() < 2) {
-      throw new IllegalArgumentException("tables must have two or more members");
+    if(tables.isEmpty()) {
+      throw new IllegalArgumentException("empty tables");
     }
     if(validateEntityTypes) {
       String entityType = tables.get(0).getEntityType();
@@ -346,5 +346,10 @@ public class JoinTable implements ValueTable, Initialisable {
   @Override
   public Timestamps getTimestamps(ValueSet valueSet) {
     return new JoinTimestamps(valueSet, tables);
+  }
+
+  @Override
+  public boolean isView() {
+    return false;
   }
 }

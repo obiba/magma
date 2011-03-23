@@ -14,13 +14,11 @@ import java.util.Set;
 import org.obiba.magma.NoSuchValueTableException;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.support.AbstractDatasource;
+import org.obiba.magma.support.Initialisables;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.google.common.collect.Sets;
 
-/**
- *
- */
 public class SpringContextScanningDatasource extends AbstractDatasource {
 
   @Autowired
@@ -33,14 +31,39 @@ public class SpringContextScanningDatasource extends AbstractDatasource {
     super(name, "spring-context");
   }
 
+  /*
+   * Added to fix ONYX-1436. This method allows reloading a ValueTable. It's implemented here because this instance
+   * holds a ValueTableFactory which should be able to re-create the instance when required.
+   */
+  public void reloadValueTable(String name) throws NoSuchValueTableException {
+    if(hasValueTable(name)) {
+      removeValueTable(name);
+    }
+    ValueTable table = initialiseValueTable(name);
+    Initialisables.initialise(table);
+    addValueTable(table);
+  }
+
+  /*
+   * Added to fix ONYX-1436. This method allows adding a new ValueTable that was not present in the spring-context when
+   * starting.
+   */
+  public void addValueTable(ValueTableFactoryBean tableFactory) {
+    // Make a copy: we don't know if the injected set is mutable.
+    Set<ValueTableFactoryBean> newTables = Sets.newLinkedHashSet(this.valueTableFactoryBeans);
+    newTables.add(tableFactory);
+    this.valueTableFactoryBeans = newTables;
+    reloadValueTable(tableFactory.getValueTableName());
+  }
+
   @Override
   protected Set<String> getValueTableNames() {
     Set<String> names = Sets.newHashSet();
-    
+
     for(ValueTableFactoryBean factory : getAllValueTableFactoryBeans()) {
       names.add(factory.getValueTableName());
     }
-    
+
     return names;
   }
 
@@ -51,21 +74,21 @@ public class SpringContextScanningDatasource extends AbstractDatasource {
         return factory.buildValueTable(this);
       }
     }
-    
+
     throw new NoSuchValueTableException(tableName);
   }
 
   private Set<ValueTableFactoryBean> getAllValueTableFactoryBeans() {
     Set<ValueTableFactoryBean> allValueTableFactoryBeans = Sets.newHashSet();
 
-    // Include injected factory beans.  
+    // Include injected factory beans.
     allValueTableFactoryBeans.addAll(valueTableFactoryBeans);
-    
+
     // Include factory beans from injected providers.
     for(ValueTableFactoryBeanProvider provider : valueTableFactoryBeanProviders) {
-      allValueTableFactoryBeans.addAll(provider.getValueTableFactoryBeans()); 
+      allValueTableFactoryBeans.addAll(provider.getValueTableFactoryBeans());
     }
-    
+
     return allValueTableFactoryBeans;
   }
 }

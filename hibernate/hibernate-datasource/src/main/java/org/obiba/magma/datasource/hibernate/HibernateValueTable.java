@@ -67,6 +67,9 @@ class HibernateValueTable extends AbstractValueTable {
 
   @Override
   public ValueSet getValueSet(VariableEntity entity) throws NoSuchValueSetException {
+    if(hasValueSet(entity) == false) {
+      throw new NoSuchValueSetException(this, entity);
+    }
     AssociationCriteria criteria = AssociationCriteria.create(ValueSetState.class, getDatasource().getSessionFactory().getCurrentSession())
     // 
     .add("valueTable", Operation.eq, getValueTableState())
