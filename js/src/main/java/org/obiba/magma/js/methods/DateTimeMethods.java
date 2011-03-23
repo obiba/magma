@@ -1,5 +1,6 @@
 package org.obiba.magma.js.methods;
 
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -15,6 +16,7 @@ import org.obiba.magma.type.BooleanType;
 import org.obiba.magma.type.DateTimeType;
 import org.obiba.magma.type.DateType;
 import org.obiba.magma.type.IntegerType;
+import org.obiba.magma.type.TextType;
 
 /**
  * Methods of the {@code ScriptableValue} javascript class that deal with {@code ScriptableValue} of {@code DateType}.
@@ -129,6 +131,94 @@ public class DateTimeMethods {
   }
 
   /**
+   * Returns the hour of the day for the 24-hour clock. For example, at 10:04:15.250 PM the hour of the day is 22.
+   * 
+   * <pre>
+   *   $('Date').hourOfDay()
+   * </pre>
+   */
+  public static Scriptable hourOfDay(Context cx, Scriptable thisObj, Object[] args, Function funObj) {
+    return asScriptable(thisObj, thisObj, Calendar.HOUR_OF_DAY);
+  }
+
+  /**
+   * Returns the hour of the day for the 12-hour clock (0 - 11). Noon and midnight are represented by 0, not by 12. For
+   * example, at 10:04:15.250 PM the HOUR is 10.
+   * 
+   * <pre>
+   *   $('Date').hour()
+   * </pre>
+   */
+  public static Scriptable hour(Context cx, Scriptable thisObj, Object[] args, Function funObj) {
+    return asScriptable(thisObj, thisObj, Calendar.HOUR);
+  }
+
+  /**
+   * Returns the minute within the hour.
+   * 
+   * <pre>
+   *   $('Date').minute()
+   * </pre>
+   */
+  public static Scriptable minute(Context cx, Scriptable thisObj, Object[] args, Function funObj) {
+    return asScriptable(thisObj, thisObj, Calendar.MINUTE);
+  }
+
+  /**
+   * Returns the second within the minute.
+   * 
+   * <pre>
+   *   $('Date').second()
+   * </pre>
+   */
+  public static Scriptable second(Context cx, Scriptable thisObj, Object[] args, Function funObj) {
+    return asScriptable(thisObj, thisObj, Calendar.SECOND);
+  }
+
+  /**
+   * Returns the millisecond within the second.
+   * 
+   * <pre>
+   *   $('Date').millisecond()
+   * </pre>
+   */
+  public static Scriptable millisecond(Context cx, Scriptable thisObj, Object[] args, Function funObj) {
+    return asScriptable(thisObj, thisObj, Calendar.MILLISECOND);
+  }
+
+  /**
+   * Returns the text representation of the date formatted as specified by the provided pattern.
+   * 
+   * <pre>
+   *   $('Date').format('dd/MM/yyyy')
+   * </pre>
+   * 
+   * @see java.text.SimpleDateFormat
+   */
+  public static Scriptable format(Context cx, Scriptable thisObj, Object[] args, Function funObj) {
+    Date thisDate = asDate(thisObj);
+    if(thisDate == null || args == null || args.length == 0) {
+      return new ScriptableValue(thisObj, TextType.get().nullValue());
+    }
+
+    SimpleDateFormat format = null;
+    Object arg = args[0];
+    if(arg instanceof ScriptableValue) {
+      ScriptableValue operand = (ScriptableValue) arg;
+      if(operand.getValue().isNull()) {
+        return new ScriptableValue(thisObj, TextType.get().nullValue());
+      }
+      format = new SimpleDateFormat(((ScriptableValue) arg).toString());
+    } else if(arg instanceof String) {
+      format = new SimpleDateFormat((String) arg);
+    } else {
+      throw new MagmaJsEvaluationRuntimeException("Argument to format() method must be a String or a ScriptableValue.");
+    }
+
+    return new ScriptableValue(thisObj, TextType.get().valueOf(format.format(thisDate)));
+  }
+
+  /**
    * Returns true if this Date value is after the specified date value(s)
    * 
    * <pre>
@@ -161,6 +251,25 @@ public class DateTimeMethods {
       }
     }
     return new ScriptableValue(thisObj, BooleanType.get().trueValue());
+  }
+
+  private static Date asDate(Scriptable obj) {
+    ScriptableValue sv = (ScriptableValue) obj;
+
+    if(sv.getValueType() == DateTimeType.get()) {
+      Value value = sv.getValue();
+      if(value.isNull() == false) {
+        return (Date) value.getValue();
+      }
+    } else if(sv.getValueType() == DateType.get()) {
+      Value value = sv.getValue();
+      if(value.isNull() == false) {
+        return ((MagmaDate) value.getValue()).asDate();
+      }
+    } else {
+      throw new MagmaJsEvaluationRuntimeException("Invalid ValueType: expected '" + DateTimeType.get().getName() + "' or '" + DateType.get().getName() + "' got '" + sv.getValueType().getName() + "'");
+    }
+    return null;
   }
 
   /**
