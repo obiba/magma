@@ -74,6 +74,9 @@ public class BooleanMethods {
   }
 
   /**
+   * Without arguments, must be applied to boolean values only. With arguments, should be considered as a 'not equals'
+   * comparison test.
+   * 
    * <pre>
    *   $('BooleanVar').not()
    *   $('Categorical').any('CAT1').not()
@@ -87,30 +90,18 @@ public class BooleanMethods {
       // Is of form .not(value)
       for(Object test : args) {
         Value testValue = sv.getValueType().valueOf(test);
-        if(sv.contains(testValue)) {
+        if(sv.getValue().isNull()) {
+          if(testValue.isNull()) {
+            return buildValue(thisObj, false);
+          }
+        } else if(sv.contains(testValue)) {
           return buildValue(thisObj, false);
         }
       }
       return buildValue(thisObj, true);
     } else {
       // Is of form .not()
-      Value value = sv.getValue();
-      if(value.getValueType() == BooleanType.get()) {
-        if(value.isSequence()) {
-          // Transform the sequence of Boolean values to a sequence of !values
-          Value notSeq = BooleanType.get().sequenceOf(Iterables.transform(value.asSequence().getValue(), new com.google.common.base.Function<Value, Value>() {
-            @Override
-            public Value apply(Value from) {
-              // Transform the input into its invert boolean value
-              return BooleanType.get().not(from);
-            }
-
-          }));
-          return new ScriptableValue(thisObj, notSeq);
-        }
-        return new ScriptableValue(thisObj, BooleanType.get().not(value));
-      }
-      throw new MagmaJsEvaluationRuntimeException("cannot invoke not() for Value of type " + value.getValueType().getName());
+      return not(ctx, thisObj, funObj);
     }
   }
 
@@ -271,6 +262,31 @@ public class BooleanMethods {
       return new ScriptableValue(scope, BooleanType.get().nullValue());
     }
     return new ScriptableValue(scope, value ? BooleanType.get().trueValue() : BooleanType.get().falseValue());
+  }
+
+  private static ScriptableValue not(Context ctx, Scriptable thisObj, Function funObj) {
+    ScriptableValue sv = (ScriptableValue) thisObj;
+    Value value = sv.getValue();
+    if(value.getValueType() == BooleanType.get()) {
+      if(value.isNull()) {
+        return new ScriptableValue(thisObj, BooleanType.get().nullValue());
+      }
+
+      if(value.isSequence()) {
+        // Transform the sequence of Boolean values to a sequence of !values
+        Value notSeq = BooleanType.get().sequenceOf(Iterables.transform(value.asSequence().getValue(), new com.google.common.base.Function<Value, Value>() {
+          @Override
+          public Value apply(Value from) {
+            // Transform the input into its invert boolean value
+            return BooleanType.get().not(from);
+          }
+
+        }));
+        return new ScriptableValue(thisObj, notSeq);
+      }
+      return new ScriptableValue(thisObj, BooleanType.get().not(value));
+    }
+    throw new MagmaJsEvaluationRuntimeException("cannot invoke not() for Value of type " + value.getValueType().getName());
   }
 
   @edu.umd.cs.findbugs.annotations.SuppressWarnings(value = "NP_BOOLEAN_RETURN_NULL", justification = "Clients expect ternary methods to return null as a valid value.")
