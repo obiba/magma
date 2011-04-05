@@ -82,6 +82,17 @@ public class BooleanMethodsTest extends AbstractJsTest {
   }
 
   @Test
+  public void testNotWithNullValues() {
+    assertMethod("not()", BooleanType.get().nullValue(), BooleanType.get().nullValue());
+    assertMethod("not()", BooleanType.get().nullSequence(), BooleanType.get().nullValue());
+
+    assertMethod("not(null)", TextType.get().nullValue(), BooleanType.get().falseValue());
+    assertMethod("not(null, null)", TextType.get().nullSequence(), BooleanType.get().falseValue());
+    assertMethod("not('CAT2')", TextType.get().nullValue(), BooleanType.get().trueValue());
+    assertMethod("not('CAT2', 'CAT3')", TextType.get().nullSequence(), BooleanType.get().trueValue());
+  }
+
+  @Test
   public void testTrueAndTrueReturnsTrue() {
     ScriptableValue value = newValue(BooleanType.get().trueValue());
     ScriptableValue arg = newValue(BooleanType.get().trueValue());
