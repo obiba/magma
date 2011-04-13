@@ -5,6 +5,7 @@ import org.obiba.magma.ValueType;
 import org.obiba.magma.type.BinaryType;
 import org.obiba.magma.type.BooleanType;
 import org.obiba.magma.type.DateTimeType;
+import org.obiba.magma.type.DateType;
 import org.obiba.magma.type.DecimalType;
 import org.obiba.magma.type.IntegerType;
 import org.obiba.magma.type.LocaleType;
@@ -36,6 +37,10 @@ class SqlTypes {
     case java.sql.Types.REAL:
       return DecimalType.get();
 
+      // DateType
+    case java.sql.Types.DATE:
+      return DateType.get();
+
       // DateTimeType
     case java.sql.Types.TIMESTAMP:
       return DateTimeType.get();
@@ -64,9 +69,9 @@ class SqlTypes {
     if(sqlType.equals("DECIMAL")) {
       return DecimalType.get();
     }
-    // if(sqlType.equals("DATE")) {
-    // return DateType.get();
-    // }
+    if(sqlType.equals("DATE")) {
+      return DateType.get();
+    }
     if(sqlType.equals("TIMESTAMP")) {
       return DateTimeType.get();
     }
@@ -98,9 +103,9 @@ class SqlTypes {
     if(valueType.equals(DecimalType.get())) {
       return "DOUBLE";
     }
-    // if(valueType.equals(DateType.get())) {
-    // return "DATE";
-    // }
+    if(valueType.equals(DateType.get())) {
+      return "DATE";
+    }
     if(valueType.equals(DateTimeType.get())) {
       return "TIMESTAMP";
     }
