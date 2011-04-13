@@ -57,7 +57,7 @@ public class LocalSessionFactoryProvider implements SessionFactoryProvider, Init
     cfg.setNamingStrategy(ImprovedNamingStrategy.INSTANCE);
 
     if(properties != null) {
-      cfg.setProperties(properties);
+      cfg.addProperties(properties);
     }
 
     cfg.setProperty(Environment.DRIVER, driver);
