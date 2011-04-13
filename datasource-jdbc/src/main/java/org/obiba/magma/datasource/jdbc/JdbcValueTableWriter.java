@@ -43,10 +43,7 @@ import org.springframework.util.Assert;
 
 import com.google.common.collect.ImmutableList;
 
-public class JdbcValueTableWriter implements ValueTableWriter {
-  //
-  // Constants
-  //
+class JdbcValueTableWriter implements ValueTableWriter {
 
   @SuppressWarnings("unused")
   private static final Logger log = LoggerFactory.getLogger(JdbcValueTableWriter.class);
@@ -77,24 +74,12 @@ public class JdbcValueTableWriter implements ValueTableWriter {
 
   static final String ENTITY_ID_COLUMN = "entity_id";
 
-  //
-  // Instance Variables
-  //
-
   private final JdbcValueTable valueTable;
-
-  //
-  // Constructors
-  //
 
   JdbcValueTableWriter(JdbcValueTable valueTable) {
     super();
     this.valueTable = valueTable;
   }
-
-  //
-  // ValueTableWriter Methods
-  //
 
   @Override
   public ValueSetWriter writeValueSet(VariableEntity entity) {
@@ -116,20 +101,9 @@ public class JdbcValueTableWriter implements ValueTableWriter {
     valueTable.tableChanged();
   }
 
-  //
-  // Inner Classes
-  //
-
   private class JdbcVariableWriter implements VariableWriter {
-    //
-    // Instance Variables
-    //
 
     protected List<Change> changes = new ArrayList<Change>();
-
-    //
-    // VariableWriter Methods
-    //
 
     @Override
     public void writeVariable(Variable variable) {
@@ -139,7 +113,7 @@ public class JdbcValueTableWriter implements ValueTableWriter {
 
       doWriteVariable(variable);
 
-      valueTable.writeVariableValueSource(new JdbcValueTable.JdbcVariableValueSource(variable));
+      valueTable.writeVariableValueSource(variable);
     }
 
     @Override
@@ -147,10 +121,6 @@ public class JdbcValueTableWriter implements ValueTableWriter {
       Iterable<BlobTypeVisitor> visitors = ImmutableList.of(new BlobTypeVisitor());
       valueTable.getDatasource().doWithDatabase(new ChangeDatabaseCallback(changes, visitors));
     }
-
-    //
-    // Methods
-    //
 
     protected void doWriteVariable(Variable variable) {
       String columnName = NameConverter.toSqlName(variable.getName());
@@ -421,12 +391,12 @@ public class JdbcValueTableWriter implements ValueTableWriter {
 
       List<String> entityIdentifierColumns = valueTable.getSettings().getEntityIdentifierColumns();
 
-	  String[] entityIdentifierValues = null;
-	  if(entityIdentifierColumns.size() > 1) {
+      String[] entityIdentifierValues = null;
+      if(entityIdentifierColumns.size() > 1) {
         entityIdentifierValues = entity.getIdentifier().split("-");
-	  } else {
-		entityIdentifierValues = new String[] {entity.getIdentifier()};
-	  }
+      } else {
+        entityIdentifierValues = new String[] { entity.getIdentifier() };
+      }
       Assert.isTrue(entityIdentifierColumns.size() == entityIdentifierValues.length, "number of entity identifier columns does not match number of entity identifiers");
 
       for(int i = 0; i < entityIdentifierColumns.size(); i++) {
