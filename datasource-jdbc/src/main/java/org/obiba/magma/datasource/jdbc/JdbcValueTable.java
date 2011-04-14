@@ -1,8 +1,10 @@
 package org.obiba.magma.datasource.jdbc;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -444,6 +446,8 @@ class JdbcValueTable extends AbstractValueTable {
           try {
             return new Iterator<Value>() {
 
+              private final Connection c;
+
               private final PreparedStatement ps;
 
               private final ResultSet rs;
@@ -455,10 +459,12 @@ class JdbcValueTable extends AbstractValueTable {
               private boolean closed = false;
 
               {
-                this.ps = getDatasource().getJdbcTemplate().getDataSource().getConnection().prepareStatement(sql.toString());
+                this.c = getDatasource().getJdbcTemplate().getDataSource().getConnection();
+                this.ps = this.c.prepareStatement(sql.toString());
                 this.rs = ps.executeQuery();
                 hasNextResults = rs.next();
                 resultEntities = entities.iterator();
+                closeCursorIfNecessary();
               }
 
               @Override
@@ -500,7 +506,7 @@ class JdbcValueTable extends AbstractValueTable {
                   // Close the cursor if we don't have any more results or no more entities to return
                   if(hasNextResults == false || hasNext() == false) {
                     closed = true;
-                    rs.close();
+                    closeQuietly(rs, ps, c);
                   }
                 }
               }
@@ -511,6 +517,26 @@ class JdbcValueTable extends AbstractValueTable {
         }
 
       };
+    }
+  }
+
+  private void closeQuietly(Object... objs) {
+    if(objs != null) {
+      for(Object o : objs) {
+        try {
+          if(o instanceof ResultSet) {
+            ((ResultSet) o).close();
+          }
+          if(o instanceof Statement) {
+            ((Statement) o).close();
+          }
+          if(o instanceof Connection) {
+            ((Connection) o).close();
+          }
+        } catch(SQLException e) {
+          // ignored
+        }
+      }
     }
   }
 
