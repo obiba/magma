@@ -13,7 +13,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
 import liquibase.change.AddColumnChange;
@@ -32,6 +31,7 @@ import org.obiba.magma.datasource.jdbc.support.BlobTypeVisitor;
 import org.obiba.magma.datasource.jdbc.support.CreateTableChangeBuilder;
 import org.obiba.magma.datasource.jdbc.support.InsertDataChangeBuilder;
 import org.obiba.magma.datasource.jdbc.support.NameConverter;
+import org.obiba.magma.type.LocaleType;
 import org.obiba.magma.type.TextType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -272,8 +272,8 @@ class JdbcValueTableWriter implements ValueTableWriter {
           columnValue = value.getValue();
 
           // Persist Locale objects as strings.
-          if(columnValue instanceof Locale) {
-            columnValue = columnValue.toString();
+          if(value.getValueType() == LocaleType.get()) {
+            columnValue = value.toString();
           }
         } else {
           columnValue = value.toString();

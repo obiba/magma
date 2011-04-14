@@ -32,7 +32,7 @@ public class JdbcDatasourceFactory extends AbstractDatasourceFactory {
   private JdbcDatasourceSettings settings;
 
   @Autowired(required = false)
-  private TransactionManager transactionManager;
+  private transient TransactionManager transactionManager;
 
   //
   // AbstractDatasourceFactory Methods
