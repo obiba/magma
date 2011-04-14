@@ -63,7 +63,7 @@ class SqlTypes {
     if(sqlType.equals("VARCHAR")) {
       return TextType.get();
     }
-    if(sqlType.equals("INTEGER")) {
+    if(sqlType.equals("BIGINT")) {
       return IntegerType.get();
     }
     if(sqlType.equals("DECIMAL")) {
@@ -98,7 +98,7 @@ class SqlTypes {
       }
     }
     if(valueType.equals(IntegerType.get())) {
-      return "INTEGER";
+      return "BIGINT";
     }
     if(valueType.equals(DecimalType.get())) {
       return "DOUBLE";
