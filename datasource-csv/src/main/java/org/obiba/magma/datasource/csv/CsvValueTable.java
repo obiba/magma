@@ -468,7 +468,7 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
   }
 
   @Override
-  public Timestamps getTimestamps(ValueSet valueSet) {
+  public Timestamps getTimestamps() {
     return new CsvTimestamps(variableFile, dataFile);
   }
 

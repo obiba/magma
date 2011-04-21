@@ -39,6 +39,11 @@ public class BeanValueTable extends AbstractValueTable {
       }
 
       @Override
+      public Timestamps getTimestamps() {
+        return BeanValueTable.this.getTimestamps();
+      }
+
+      @Override
       public ValueTable getValueTable() {
         return BeanValueTable.this;
       }
@@ -90,7 +95,7 @@ public class BeanValueTable extends AbstractValueTable {
   }
 
   @Override
-  public Timestamps getTimestamps(ValueSet valueSet) {
+  public Timestamps getTimestamps() {
     return NullTimestamps.get();
   }
 

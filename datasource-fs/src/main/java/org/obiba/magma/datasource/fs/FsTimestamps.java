@@ -19,7 +19,7 @@ public class FsTimestamps implements Timestamps {
   @Override
   public Value getCreated() {
     // Not currently possible to read a file creation timestamp. Coming in JDK 7 NIO.
-    return null;
+    return DateTimeType.get().nullValue();
   }
 
   @Override
@@ -27,7 +27,7 @@ public class FsTimestamps implements Timestamps {
     if(valueTableDirectory.exists()) {
       return DateTimeType.get().valueOf(new Date(valueTableDirectory.lastModified()));
     } else {
-      return null;
+      return DateTimeType.get().nullValue();
     }
   }
 }

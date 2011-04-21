@@ -22,6 +22,7 @@ import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.VariableValueSource;
 import org.obiba.magma.VectorSource;
+import org.obiba.magma.support.UnionTimestamps;
 import org.obiba.magma.support.ValueSetBean;
 
 import com.google.common.base.Function;
@@ -275,6 +276,11 @@ public class JoinTable implements ValueTable, Initialisable {
       super(table, entity);
     }
 
+    @Override
+    public Timestamps getTimestamps() {
+      return new UnionTimestamps(valueSets.values());
+    }
+
     synchronized ValueSet getInnerTableValueSet(ValueTable valueTable) {
       ValueSet valueSet = null;
       if(valueTable.hasValueSet(getVariableEntity())) {
@@ -344,8 +350,8 @@ public class JoinTable implements ValueTable, Initialisable {
   }
 
   @Override
-  public Timestamps getTimestamps(ValueSet valueSet) {
-    return new JoinTimestamps(valueSet, tables);
+  public Timestamps getTimestamps() {
+    return new UnionTimestamps(tables);
   }
 
   @Override

@@ -9,7 +9,6 @@ import org.obiba.magma.Disposable;
 import org.obiba.magma.Initialisable;
 import org.obiba.magma.NoSuchValueSetException;
 import org.obiba.magma.NoSuchVariableException;
-import org.obiba.magma.Timestamps;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueSet;
 import org.obiba.magma.ValueTable;
@@ -275,11 +274,6 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
       }
 
     }));
-  }
-
-  @Override
-  public Timestamps getTimestamps(ValueSet valueSet) {
-    return super.getTimestamps(((ValueSetWrapper) valueSet).getWrappedValueSet());
   }
 
   public void setDatasource(ViewAwareDatasource datasource) {

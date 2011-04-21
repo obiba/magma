@@ -1,6 +1,6 @@
 package org.obiba.magma;
 
-public interface ValueSet {
+public interface ValueSet extends Timestamped {
 
   public ValueTable getValueTable();
 

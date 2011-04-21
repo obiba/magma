@@ -3,6 +3,7 @@
  */
 package org.obiba.magma.views;
 
+import org.obiba.magma.Timestamps;
 import org.obiba.magma.ValueSet;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.VariableEntity;
@@ -31,5 +32,10 @@ public class ValueSetWrapper implements ValueSet {
 
   public ValueSet getWrappedValueSet() {
     return wrapped;
+  }
+
+  @Override
+  public Timestamps getTimestamps() {
+    return wrapped.getTimestamps();
   }
 }

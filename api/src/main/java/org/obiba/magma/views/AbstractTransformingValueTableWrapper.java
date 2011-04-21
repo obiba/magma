@@ -3,7 +3,6 @@ package org.obiba.magma.views;
 import java.util.Set;
 
 import org.obiba.magma.NoSuchValueSetException;
-import org.obiba.magma.Timestamps;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueSet;
 import org.obiba.magma.ValueType;
@@ -38,11 +37,6 @@ public abstract class AbstractTransformingValueTableWrapper extends AbstractValu
       }
 
     }));
-  }
-
-  @Override
-  public Timestamps getTimestamps(ValueSet valueSet) {
-    return super.getTimestamps(((ValueSetWrapper) valueSet).getWrappedValueSet());
   }
 
   public boolean hasValueSet(VariableEntity entity) {

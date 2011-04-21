@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.obiba.magma.Timestamps;
 import org.obiba.magma.Value;
 import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
@@ -29,6 +30,11 @@ public class JdbcValueSet extends ValueSetBean {
   @Override
   public JdbcValueTable getValueTable() {
     return (JdbcValueTable) super.getValueTable();
+  }
+
+  @Override
+  public Timestamps getTimestamps() {
+    return new JdbcTimestamps(this);
   }
 
   public Value getValue(Variable variable) {

@@ -6,6 +6,7 @@ import static org.junit.Assert.assertThat;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.obiba.magma.Timestamps;
 import org.obiba.magma.ValueSet;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.VariableEntity;
@@ -45,6 +46,11 @@ public class ValueSetBeanTest {
         return entity;
       }
 
+      @Override
+      public Timestamps getTimestamps() {
+        return null;
+      }
+
     });
   }
 
@@ -62,6 +68,10 @@ public class ValueSetBeanTest {
         return null;
       }
 
+      @Override
+      public Timestamps getTimestamps() {
+        return null;
+      }
     });
   }
 

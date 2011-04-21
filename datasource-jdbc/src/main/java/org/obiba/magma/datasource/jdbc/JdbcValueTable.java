@@ -40,6 +40,7 @@ import org.obiba.magma.datasource.jdbc.support.NameConverter;
 import org.obiba.magma.support.AbstractValueTable;
 import org.obiba.magma.support.AbstractVariableEntityProvider;
 import org.obiba.magma.support.Initialisables;
+import org.obiba.magma.support.NullTimestamps;
 import org.obiba.magma.support.VariableEntityBean;
 import org.springframework.jdbc.core.RowMapper;
 
@@ -100,8 +101,9 @@ class JdbcValueTable extends AbstractValueTable {
   }
 
   @Override
-  public Timestamps getTimestamps(ValueSet valueSet) {
-    return new JdbcTimestamps(valueSet);
+  public Timestamps getTimestamps() {
+    // TODO implement on timestamp columns when available.
+    return NullTimestamps.get();
   }
 
   //

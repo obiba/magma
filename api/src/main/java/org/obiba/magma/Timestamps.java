@@ -5,4 +5,5 @@ public interface Timestamps {
   public Value getLastUpdate();
 
   public Value getCreated();
+
 }
