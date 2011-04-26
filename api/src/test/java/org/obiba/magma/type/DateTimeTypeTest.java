@@ -67,6 +67,11 @@ public class DateTimeTypeTest extends BaseValueTypeTest {
 
   @Test
   public void testValueOfISODateFormatString() {
+    assertValueOfUsingDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZZ");
+  }
+
+  @Test
+  public void testValueOfIncorrectISODateFormatString() {
     assertValueOfUsingDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
   }
 
