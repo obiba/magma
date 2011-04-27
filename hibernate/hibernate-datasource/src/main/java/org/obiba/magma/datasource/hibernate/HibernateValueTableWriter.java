@@ -8,6 +8,7 @@ import java.security.InvalidParameterException;
 import java.util.Map;
 
 import org.hibernate.FlushMode;
+import org.hibernate.LockMode;
 import org.hibernate.Session;
 import org.obiba.core.service.impl.hibernate.AssociationCriteria;
 import org.obiba.core.service.impl.hibernate.AssociationCriteria.Operation;
@@ -115,7 +116,9 @@ class HibernateValueTableWriter implements ValueTableWriter {
       VariableEntityState variableEntityState = entityConverter.marshal(entity, valueTable.createContext());
 
       AssociationCriteria criteria = AssociationCriteria.create(ValueSetState.class, session).add("valueTable", Operation.eq, valueTable.getValueTableState()).add("variableEntity", Operation.eq, variableEntityState);
-      ValueSetState state = (ValueSetState) criteria.getCriteria().uniqueResult();
+
+      // Will update version timestamp if it exists
+      ValueSetState state = (ValueSetState) criteria.getCriteria().setLockMode(LockMode.PESSIMISTIC_FORCE_INCREMENT).uniqueResult();
       if(state == null) {
         state = new ValueSetState(valueTable.getValueTableState(), variableEntityState);
         // Persists the ValueSet

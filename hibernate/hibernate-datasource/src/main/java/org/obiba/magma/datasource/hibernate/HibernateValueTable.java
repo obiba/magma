@@ -8,6 +8,8 @@ import java.util.Set;
 
 import org.hibernate.Criteria;
 import org.hibernate.FetchMode;
+import org.hibernate.LockMode;
+import org.hibernate.LockOptions;
 import org.obiba.core.service.impl.hibernate.AssociationCriteria;
 import org.obiba.core.service.impl.hibernate.AssociationCriteria.Operation;
 import org.obiba.magma.Initialisable;
@@ -112,6 +114,10 @@ class HibernateValueTable extends AbstractValueTable {
 
   ValueTableState getValueTableState() {
     return (ValueTableState) this.getDatasource().getSessionFactory().getCurrentSession().get(ValueTableState.class, valueTableId);
+  }
+
+  ValueTableState getValueTableState(LockMode lock) {
+    return (ValueTableState) this.getDatasource().getSessionFactory().getCurrentSession().get(ValueTableState.class, valueTableId, new LockOptions(lock));
   }
 
   HibernateMarshallingContext createContext() {
