@@ -40,10 +40,8 @@ public class ViewTest extends AbstractMagmaTest {
   public void testHasValueSetWithDefaultWhereClause() {
     ValueTable valueTableMock = createMock(ValueTable.class);
     VariableEntity variableEntity = new VariableEntityBean("type", "id1");
-    ValueSet valueSet = new ValueSetBean(valueTableMock, variableEntity);
 
     expect(valueTableMock.hasValueSet(variableEntity)).andReturn(true);
-    expect(valueTableMock.getValueSet(variableEntity)).andReturn(valueSet);
     replay(valueTableMock);
 
     View view = View.Builder.newView("view", valueTableMock).build();

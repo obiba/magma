@@ -148,7 +148,12 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
     if(unmapped == null) return false;
 
     boolean hasValueSet = super.hasValueSet(unmapped);
+
     if(hasValueSet) {
+      // Shortcut some WhereClause to prevent loading the ValueSet which may be expensive
+      if(where instanceof AllClause) return true;
+      if(where instanceof NoneClause) return false;
+
       ValueSet valueSet = super.getValueSet(unmapped);
       hasValueSet = where.where(valueSet);
     }
