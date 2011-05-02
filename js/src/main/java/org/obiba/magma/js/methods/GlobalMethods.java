@@ -13,10 +13,10 @@ import org.obiba.magma.ValueSet;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.VariableValueSource;
 import org.obiba.magma.VectorSource;
+import org.obiba.magma.js.JavascriptValueSource.VectorCache;
 import org.obiba.magma.js.MagmaContext;
 import org.obiba.magma.js.ScriptableValue;
 import org.obiba.magma.js.ScriptableVariable;
-import org.obiba.magma.js.JavascriptValueSource.VectorCache;
 import org.obiba.magma.support.MagmaEngineVariableResolver;
 import org.obiba.magma.type.DateTimeType;
 import org.slf4j.Logger;
@@ -91,8 +91,8 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
     MagmaEngineVariableResolver reference = MagmaEngineVariableResolver.valueOf(name);
 
     VariableValueSource source = null;
-    if(context.has(ValueSet.class)) {
-      source = reference.resolveSource(context.peek(ValueSet.class));
+    if(context.has(ValueTable.class)) {
+      source = reference.resolveSource(context.peek(ValueTable.class));
     } else {
       source = reference.resolveSource();
     }
