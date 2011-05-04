@@ -17,6 +17,8 @@ import org.obiba.magma.support.AbstractDatasource;
 import org.obiba.magma.support.Initialisables;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 
 public class SpringContextScanningDatasource extends AbstractDatasource {
@@ -56,6 +58,23 @@ public class SpringContextScanningDatasource extends AbstractDatasource {
     reloadValueTable(tableFactory.getValueTableName());
   }
 
+  public void dropValueTable(final String name) {
+    if(hasValueTable(name)) {
+      removeValueTable(name);
+    }
+
+    Set<ValueTableFactoryBean> factories = Sets.newLinkedHashSet(Iterables.filter(this.valueTableFactoryBeans, new Predicate<ValueTableFactoryBean>() {
+
+      @Override
+      public boolean apply(ValueTableFactoryBean input) {
+        return input.getValueTableName().equals(name) == false;
+      }
+
+    }));
+    this.valueTableFactoryBeans = factories;
+    // We cannot remove the table from the ValueTableFactoryBeanProvider instances.
+  }
+
   @Override
   protected Set<String> getValueTableNames() {
     Set<String> names = Sets.newHashSet();
@@ -78,7 +97,7 @@ public class SpringContextScanningDatasource extends AbstractDatasource {
     throw new NoSuchValueTableException(tableName);
   }
 
-  private Set<ValueTableFactoryBean> getAllValueTableFactoryBeans() {
+  private Iterable<ValueTableFactoryBean> getAllValueTableFactoryBeans() {
     Set<ValueTableFactoryBean> allValueTableFactoryBeans = Sets.newHashSet();
 
     // Include injected factory beans.
