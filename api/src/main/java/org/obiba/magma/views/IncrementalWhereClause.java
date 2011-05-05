@@ -79,8 +79,8 @@ public class IncrementalWhereClause implements WhereClause {
     ValueSet destinationValueSet = getDestinationValueSet(valueSet);
 
     if(destinationValueSet != null) {
-      Timestamps sourceTimestamps = sourceTable.getTimestamps(valueSet);
-      Timestamps destinationTimestamps = destinationTable.getTimestamps(destinationValueSet);
+      Timestamps sourceTimestamps = valueSet.getTimestamps();
+      Timestamps destinationTimestamps = destinationValueSet.getTimestamps();
       include = laterThan(sourceTimestamps, destinationTimestamps);
     } else {
       log.debug("No value set found in destination table for entity {}", valueSet.getVariableEntity());

@@ -2,7 +2,7 @@ package org.obiba.magma;
 
 import java.util.Set;
 
-public interface ValueTable {
+public interface ValueTable extends Timestamped {
 
   public String getName();
 
@@ -29,8 +29,6 @@ public interface ValueTable {
   public Value getValue(Variable variable, ValueSet valueSet);
 
   public VariableValueSource getVariableValueSource(String name) throws NoSuchVariableException;
-
-  public Timestamps getTimestamps(ValueSet valueSet);
 
   public boolean isView();
 

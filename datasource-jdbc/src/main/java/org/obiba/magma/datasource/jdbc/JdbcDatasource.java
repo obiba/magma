@@ -104,6 +104,7 @@ public class JdbcDatasource extends AbstractDatasource {
       JdbcValueTableSettings tableSettings = settings.getTableSettingsForMagmaTable(tableName);
       if(tableSettings == null) {
         tableSettings = new JdbcValueTableSettings(NameConverter.toSqlName(tableName), tableName, entityType, Arrays.asList("entity_id"));
+        settings.getTableSettings().add(tableSettings);
       }
       table = new JdbcValueTable(this, tableSettings);
       addValueTable(table);
@@ -127,7 +128,12 @@ public class JdbcDatasource extends AbstractDatasource {
       if(!RESERVED_NAMES.contains(table.getName().toLowerCase())) {
         // If a set of mapped tables has been defined, only include the tables in that set.
         if(settings.getMappedTables().isEmpty() || settings.getMappedTables().contains(table.getName())) {
-          names.add(NameConverter.toMagmaName(table.getName()));
+          JdbcValueTableSettings tableSettings = settings.getTableSettingsForSqlTable(table.getName());
+          if(tableSettings != null) {
+            names.add(tableSettings.getMagmaTableName());
+          } else {
+            names.add(NameConverter.toMagmaName(table.getName()));
+          }
         }
       }
     }
@@ -177,11 +183,10 @@ public class JdbcDatasource extends AbstractDatasource {
     return getDatabaseSnapshot().getDatabase().escapeTableName(null, sqlTableName);
   }
 
-  @SuppressWarnings("unchecked")
   <T> T doWithDatabase(final DatabaseCallback<T> databaseCallback) {
-    return (T) jdbcTemplate.execute(new ConnectionCallback() {
+    return (T) jdbcTemplate.execute(new ConnectionCallback<T>() {
       @Override
-      public Object doInConnection(Connection con) throws SQLException, DataAccessException {
+      public T doInConnection(Connection con) throws SQLException, DataAccessException {
         try {
           return databaseCallback.doInDatabase(DatabaseFactory.getInstance().findCorrectDatabaseImplementation(con));
         } catch(JDBCException e) {

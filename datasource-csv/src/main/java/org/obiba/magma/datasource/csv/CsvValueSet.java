@@ -11,9 +11,9 @@ import org.obiba.magma.support.ValueSetBean;
 
 public class CsvValueSet extends ValueSetBean {
 
-  private Map<String, Integer> headerMap;
+  private final Map<String, Integer> headerMap;
 
-  private String[] line;
+  private final String[] line;
 
   public CsvValueSet(ValueTable table, VariableEntity entity, Map<String, Integer> headerMap, String[] line) {
     super(table, entity);

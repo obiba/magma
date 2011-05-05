@@ -76,7 +76,7 @@ public class GeneratedValueTable implements ValueTable {
   }
 
   @Override
-  public Timestamps getTimestamps(ValueSet valueSet) {
+  public Timestamps getTimestamps() {
     return NullTimestamps.get();
   }
 

@@ -1,13 +1,19 @@
 package org.obiba.magma.datasource.jdbc;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.NoSuchElementException;
 import java.util.Set;
+import java.util.SortedSet;
 
 import liquibase.change.ColumnConfig;
 import liquibase.change.ConstraintsConfig;
@@ -16,6 +22,8 @@ import liquibase.database.structure.Column;
 import liquibase.database.structure.DatabaseSnapshot;
 import liquibase.database.structure.Table;
 
+import org.obiba.magma.Attribute;
+import org.obiba.magma.Category;
 import org.obiba.magma.Initialisable;
 import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.NoSuchValueSetException;
@@ -32,23 +40,13 @@ import org.obiba.magma.datasource.jdbc.support.NameConverter;
 import org.obiba.magma.support.AbstractValueTable;
 import org.obiba.magma.support.AbstractVariableEntityProvider;
 import org.obiba.magma.support.Initialisables;
+import org.obiba.magma.support.NullTimestamps;
 import org.obiba.magma.support.VariableEntityBean;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.RowMapper;
 
 class JdbcValueTable extends AbstractValueTable {
-  //
-  // Constants
-  //
 
-  private static final Logger log = LoggerFactory.getLogger(JdbcValueTable.class);
-
-  //
-  // Instance Variables
-  //
-
-  private JdbcValueTableSettings settings;
+  private final JdbcValueTableSettings settings;
 
   private Table table;
 
@@ -59,10 +57,6 @@ class JdbcValueTable extends AbstractValueTable {
   private String escapedVariableAttributesSqlTableName;
 
   private String escapedCategoriesSqlTableName;
-
-  //
-  // Constructors
-  //
 
   JdbcValueTable(JdbcDatasource datasource, JdbcValueTableSettings settings) {
     super(datasource, settings.getMagmaTableName());
@@ -107,8 +101,9 @@ class JdbcValueTable extends AbstractValueTable {
   }
 
   @Override
-  public Timestamps getTimestamps(ValueSet valueSet) {
-    return new JdbcTimestamps(valueSet);
+  public Timestamps getTimestamps() {
+    // TODO implement on timestamp columns when available.
+    return NullTimestamps.get();
   }
 
   //
@@ -144,8 +139,8 @@ class JdbcValueTable extends AbstractValueTable {
     return getSettings().isUpdatedTimestampColumnNameProvided() ? getSettings().getUpdatedTimestampColumnName() : getDatasource().getSettings().getDefaultUpdatedTimestampColumnName();
   }
 
-  void writeVariableValueSource(VariableValueSource source) {
-    super.addVariableValueSource(source);
+  void writeVariableValueSource(Variable source) {
+    super.addVariableValueSource(new JdbcVariableValueSource(source));
   }
 
   private static List<String> getEntityIdentifierColumns(Table table) {
@@ -158,7 +153,6 @@ class JdbcValueTable extends AbstractValueTable {
     return entityIdentifierColumns;
   }
 
-  @SuppressWarnings("unchecked")
   private void initialiseVariableValueSources() {
     getSources().clear();
 
@@ -178,8 +172,8 @@ class JdbcValueTable extends AbstractValueTable {
       sql.append(escapedVariablesSqlTableName);
       sql.append(" WHERE value_table = ?");
 
-      List<Variable> results = getDatasource().getJdbcTemplate().query(sql.toString(), new Object[] { getSqlName() }, new RowMapper() {
-        public Object mapRow(ResultSet rs, int rowNum) throws SQLException {
+      List<Variable> results = getDatasource().getJdbcTemplate().query(sql.toString(), new Object[] { getSqlName() }, new RowMapper<Variable>() {
+        public Variable mapRow(ResultSet rs, int rowNum) throws SQLException {
           return buildVariableFromResultSet(rs);
         }
       });
@@ -237,19 +231,21 @@ class JdbcValueTable extends AbstractValueTable {
     sql.append(escapedVariableAttributesSqlTableName);
     sql.append(" WHERE value_table = ? AND variable_name = ?");
 
-    getDatasource().getJdbcTemplate().query(sql.toString(), new Object[] { getSqlName(), variableName }, new RowMapper() {
-      public Object mapRow(ResultSet rs, int rowNum) throws SQLException {
+    builder.addAttributes(getDatasource().getJdbcTemplate().query(sql.toString(), new Object[] { getSqlName(), variableName }, new RowMapper<Attribute>() {
+      public Attribute mapRow(ResultSet rs, int rowNum) throws SQLException {
         String attributeName = rs.getString("attribute_name");
         String attributeValue = rs.getString("attribute_value");
         String attributeLocale = rs.getString("attribute_locale");
+
+        Attribute.Builder attr = Attribute.Builder.newAttribute(attributeName);
         if(attributeLocale.length() > 0) {
-          builder.addAttribute(attributeName, attributeValue, new Locale(attributeLocale));
+          attr.withValue(new Locale(attributeLocale), attributeValue);
         } else {
-          builder.addAttribute(attributeName, attributeValue);
+          attr.withValue(attributeValue);
         }
-        return attributeName;
+        return attr.build();
       }
-    });
+    }));
   }
 
   private void addVariableCategories(String variableName, final Variable.Builder builder) {
@@ -264,14 +260,13 @@ class JdbcValueTable extends AbstractValueTable {
     sql.append(escapedCategoriesSqlTableName);
     sql.append(" WHERE value_table = ? AND variable_name = ?");
 
-    getDatasource().getJdbcTemplate().query(sql.toString(), new Object[] { getSqlName(), variableName }, new RowMapper() {
-      public Object mapRow(ResultSet rs, int rowNum) throws SQLException {
+    builder.addCategories(getDatasource().getJdbcTemplate().query(sql.toString(), new Object[] { getSqlName(), variableName }, new RowMapper<Category>() {
+      public Category mapRow(ResultSet rs, int rowNum) throws SQLException {
         String categoryName = rs.getString("name");
         String categoryCode = rs.getString("code");
-        builder.addCategory(categoryName, categoryCode);
-        return categoryName;
+        return Category.Builder.newCategory(categoryName).withCode(categoryCode).build();
       }
-    });
+    }));
   }
 
   private void createSqlTable(String sqlTableName) {
@@ -312,6 +307,29 @@ class JdbcValueTable extends AbstractValueTable {
     return column;
   }
 
+  private String getEntityIdentifierColumnsSql() {
+    StringBuilder sql = new StringBuilder();
+    List<String> entityIdentifierColumns = getSettings().getEntityIdentifierColumns();
+    for(int i = 0; i < entityIdentifierColumns.size(); i++) {
+      if(i > 0) sql.append(",");
+      sql.append(entityIdentifierColumns.get(i));
+    }
+    return sql.toString();
+  }
+
+  private String buildEntityIdentifier(ResultSet rs) throws SQLException {
+    StringBuilder entityIdentifier = new StringBuilder();
+
+    for(int i = 1; i <= getSettings().getEntityIdentifierColumns().size(); i++) {
+      if(i > 1) {
+        entityIdentifier.append('-');
+      }
+      entityIdentifier.append(rs.getObject(i).toString());
+    }
+
+    return entityIdentifier.toString();
+  }
+
   //
   // Inner Classes
   //
@@ -324,7 +342,6 @@ class JdbcValueTable extends AbstractValueTable {
       super(entityType);
     }
 
-    @SuppressWarnings("unchecked")
     public void initialise() {
       entities = new LinkedHashSet<VariableEntity>();
 
@@ -338,21 +355,14 @@ class JdbcValueTable extends AbstractValueTable {
 
       // ...select entity identifier columns
       sql.append("SELECT ");
-      List<String> entityIdentifierColumns = getSettings().getEntityIdentifierColumns();
-      for(int i = 0; i < entityIdentifierColumns.size(); i++) {
-        sql.append(entityIdentifierColumns.get(i));
-        if(i < entityIdentifierColumns.size() - 1) {
-          sql.append(", ");
-        }
-      }
-
+      sql.append(getEntityIdentifierColumnsSql());
       // ...from table
       sql.append(" FROM ");
       sql.append(escapedSqlTableName);
 
       // Execute the query.
-      List<VariableEntity> results = getDatasource().getJdbcTemplate().query(sql.toString(), new RowMapper() {
-        public Object mapRow(ResultSet rs, int rowNum) throws SQLException {
+      List<VariableEntity> results = getDatasource().getJdbcTemplate().query(sql.toString(), new RowMapper<VariableEntity>() {
+        public VariableEntity mapRow(ResultSet rs, int rowNum) throws SQLException {
           return new VariableEntityBean(JdbcValueTable.this.getEntityType(), buildEntityIdentifier(rs));
         }
       });
@@ -365,27 +375,16 @@ class JdbcValueTable extends AbstractValueTable {
       return Collections.unmodifiableSet(entities);
     }
 
-    private String buildEntityIdentifier(ResultSet rs) throws SQLException {
-      StringBuilder entityIdentifier = new StringBuilder();
-
-      for(int i = 1; i <= getSettings().getEntityIdentifierColumns().size(); i++) {
-        if(i > 1) {
-          entityIdentifier.append('-');
-        }
-        entityIdentifier.append(rs.getObject(i).toString());
-      }
-
-      return entityIdentifier.toString();
-    }
-
   }
 
-  static class JdbcVariableValueSource implements VariableValueSource {
+  class JdbcVariableValueSource implements VariableValueSource, VectorSource {
     //
     // Instance Variables
     //
 
     private final Variable variable;
+
+    private final String columnName;
 
     //
     // Constructors
@@ -393,14 +392,17 @@ class JdbcValueTable extends AbstractValueTable {
 
     JdbcVariableValueSource(String entityType, Column column) {
       this.variable = Variable.Builder.newVariable(column.getName(), SqlTypes.valueTypeFor(column.getDataType()), entityType).build();
+      this.columnName = column.getName();
     }
 
     JdbcVariableValueSource(String entityType, ColumnConfig columnConfig) {
       this.variable = Variable.Builder.newVariable(columnConfig.getName(), SqlTypes.valueTypeFor(columnConfig.getType()), entityType).build();
+      this.columnName = columnConfig.getName();
     }
 
     JdbcVariableValueSource(Variable variable) {
       this.variable = variable;
+      this.columnName = NameConverter.toSqlName(variable.getName());
     }
 
     //
@@ -425,7 +427,118 @@ class JdbcValueTable extends AbstractValueTable {
 
     @Override
     public VectorSource asVectorSource() {
-      return null;
+      return this;
+    }
+
+    @Override
+    public Iterable<Value> getValues(final SortedSet<VariableEntity> entities) {
+
+      final String sql = new StringBuilder()//
+      .append("SELECT ")//
+      .append(getEntityIdentifierColumnsSql()).append(",").append(columnName)//
+      .append(" FROM ")//
+      .append(escapedSqlTableName)//
+      .append(" ORDER BY ")//
+      .append(getEntityIdentifierColumnsSql()).toString();
+
+      return new Iterable<Value>() {
+
+        @Override
+        public Iterator<Value> iterator() {
+          try {
+            return new Iterator<Value>() {
+
+              private final Connection c;
+
+              private final PreparedStatement ps;
+
+              private final ResultSet rs;
+
+              private final Iterator<VariableEntity> resultEntities;
+
+              private boolean hasNextResults;
+
+              private boolean closed = false;
+
+              {
+                this.c = getDatasource().getJdbcTemplate().getDataSource().getConnection();
+                this.ps = this.c.prepareStatement(sql.toString());
+                this.rs = ps.executeQuery();
+                hasNextResults = rs.next();
+                resultEntities = entities.iterator();
+                closeCursorIfNecessary();
+              }
+
+              @Override
+              public boolean hasNext() {
+                return resultEntities.hasNext();
+              }
+
+              @Override
+              public Value next() {
+                if(hasNext() == false) {
+                  throw new NoSuchElementException();
+                }
+
+                String nextEntity = resultEntities.next().getIdentifier();
+                try {
+                  // Scroll until we find the required entity or reach the end of the results
+                  while(hasNextResults && buildEntityIdentifier(rs).equals(nextEntity) == false) {
+                    hasNextResults = rs.next();
+                  }
+
+                  Value value = null;
+                  if(hasNextResults) {
+                    value = variable.getValueType().valueOf(rs.getObject(columnName));
+                  }
+                  closeCursorIfNecessary();
+                  return value != null ? value : (getVariable().isRepeatable() ? getValueType().nullSequence() : getValueType().nullValue());
+                } catch(SQLException e) {
+                  throw new RuntimeException(e);
+                }
+              }
+
+              @Override
+              public void remove() {
+                throw new UnsupportedOperationException();
+              }
+
+              private void closeCursorIfNecessary() throws SQLException {
+                if(closed == false) {
+                  // Close the cursor if we don't have any more results or no more entities to return
+                  if(hasNextResults == false || hasNext() == false) {
+                    closed = true;
+                    closeQuietly(rs, ps, c);
+                  }
+                }
+              }
+            };
+          } catch(SQLException e) {
+            throw new RuntimeException(e);
+          }
+        }
+
+      };
+    }
+  }
+
+  private void closeQuietly(Object... objs) {
+    if(objs != null) {
+      for(Object o : objs) {
+        try {
+          if(o instanceof ResultSet) {
+            ((ResultSet) o).close();
+          }
+          if(o instanceof Statement) {
+            ((Statement) o).close();
+          }
+          if(o instanceof Connection) {
+            ((Connection) o).close();
+          }
+        } catch(SQLException e) {
+          // ignored
+        }
+      }
     }
   }
 

@@ -1,38 +1,22 @@
-package org.obiba.magma.views;
+package org.obiba.magma.support;
 
 import java.util.Arrays;
-import java.util.List;
 
+import org.obiba.magma.Timestamped;
 import org.obiba.magma.Timestamps;
 import org.obiba.magma.Value;
-import org.obiba.magma.ValueSet;
-import org.obiba.magma.ValueTable;
-import org.obiba.magma.support.NullTimestamps;
 import org.obiba.magma.type.DateTimeType;
-import org.obiba.magma.views.JoinTable.JoinedValueSet;
 
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 
-class JoinTimestamps implements Timestamps {
+public class UnionTimestamps implements Timestamps {
 
   private final Iterable<Timestamps> timestamps;
 
-  JoinTimestamps(final ValueSet valueSet, final List<ValueTable> tables) {
-    this.timestamps = Iterables.transform(tables, new Function<ValueTable, Timestamps>() {
-
-      @Override
-      public Timestamps apply(ValueTable table) {
-        ValueSet tableValueSet = ((JoinedValueSet) valueSet).getInnerTableValueSet(table);
-        if(tableValueSet != null) {
-          return table.getTimestamps(tableValueSet);
-        } else {
-          return NullTimestamps.get();
-        }
-      }
-
-    });
+  public UnionTimestamps(Iterable<? extends Timestamped> timestampeds) {
+    this.timestamps = Iterables.transform(timestampeds, Timestamped.ToTimestamps);
   }
 
   @Override

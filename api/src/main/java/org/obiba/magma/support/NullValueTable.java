@@ -88,7 +88,8 @@ public class NullValueTable implements ValueTable {
     throw new NoSuchVariableException("null", name);
   }
 
-  public Timestamps getTimestamps(ValueSet valueSet) {
+  @Override
+  public Timestamps getTimestamps() {
     return NullTimestamps.get();
   }
 

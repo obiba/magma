@@ -191,7 +191,7 @@ class FsValueTable extends AbstractValueTable implements Initialisable, Disposab
   }
 
   @Override
-  public Timestamps getTimestamps(ValueSet valueSet) {
+  public Timestamps getTimestamps() {
     return new FsTimestamps(valueTableEntry);
   }
 

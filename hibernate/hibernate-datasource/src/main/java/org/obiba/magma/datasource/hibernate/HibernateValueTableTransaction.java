@@ -3,6 +3,7 @@ package org.obiba.magma.datasource.hibernate;
 import java.util.Collections;
 import java.util.List;
 
+import org.hibernate.LockMode;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.VariableValueSource;
 
@@ -32,6 +33,10 @@ class HibernateValueTableTransaction extends HibernateDatasourceSynchronization 
     this.valueTable = valueTable;
     this.createTableTransaction = newTable;
     this.transactionWriter = new HibernateValueTableWriter(this);
+
+    if(newTable == false) {
+      valueTable.getValueTableState(LockMode.PESSIMISTIC_FORCE_INCREMENT);
+    }
   }
 
   public HibernateValueTableWriter getTransactionWriter() {
@@ -43,8 +48,9 @@ class HibernateValueTableTransaction extends HibernateDatasourceSynchronization 
   }
 
   /**
-   * Adds all {@code VariableValueSource} and {@code VariableEntity} to the {@code HibernateValueTable}. If the {@code
-   * HibernateValueTable} was created during this transaction, it will also be added to the {@code HibernateDatasource}.
+   * Adds all {@code VariableValueSource} and {@code VariableEntity} to the {@code HibernateValueTable}. If the
+   * {@code HibernateValueTable} was created during this transaction, it will also be added to the
+   * {@code HibernateDatasource}.
    */
   @Override
   protected void commit() {

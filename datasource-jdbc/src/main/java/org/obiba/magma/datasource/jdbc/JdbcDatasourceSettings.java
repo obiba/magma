@@ -80,6 +80,13 @@ public class JdbcDatasourceSettings {
     }
   }
 
+  public void addTableSettings(JdbcValueTableSettings tableSettings) {
+    if(this.tableSettings == null) {
+      this.tableSettings = new HashSet<JdbcValueTableSettings>();
+    }
+    this.tableSettings.add(tableSettings);
+  }
+
   public Set<JdbcValueTableSettings> getTableSettings() {
     return tableSettings != null ? tableSettings : Collections.<JdbcValueTableSettings> emptySet();
   }

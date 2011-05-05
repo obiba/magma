@@ -63,7 +63,7 @@ public class SummaryStatisticsView extends AbstractValueTable implements Initial
   }
 
   @Override
-  public Timestamps getTimestamps(ValueSet valueSet) {
+  public Timestamps getTimestamps() {
     return NullTimestamps.get();
   }
 

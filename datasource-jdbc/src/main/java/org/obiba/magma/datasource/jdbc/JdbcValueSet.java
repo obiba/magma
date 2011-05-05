@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.obiba.magma.Timestamps;
 import org.obiba.magma.Value;
 import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
@@ -14,54 +15,40 @@ import org.obiba.magma.support.ValueSetBean;
 import org.springframework.jdbc.core.ResultSetExtractor;
 
 public class JdbcValueSet extends ValueSetBean {
-  //
-  // Instance Variables
-  //
 
-  private Map<String, Value> resultSetCache;
+  private final Map<String, Value> resultSetCache;
 
-  private String escapedSqlTableName;
-
-  //
-  // Constructors
-  //
+  private final String escapedSqlTableName;
 
   public JdbcValueSet(JdbcValueTable valueTable, VariableEntity variableEntity) {
     super(valueTable, variableEntity);
     resultSetCache = new HashMap<String, Value>();
+    String sqlTableName = valueTable.getSettings().getSqlTableName();
+    escapedSqlTableName = valueTable.getDatasource().escapeSqlTableName(sqlTableName);
   }
-
-  //
-  // ValueSetBean Methods
-  //
 
   @Override
   public JdbcValueTable getValueTable() {
     return (JdbcValueTable) super.getValueTable();
   }
 
-  //
-  // Methods
-  //
+  @Override
+  public Timestamps getTimestamps() {
+    return new JdbcTimestamps(this);
+  }
 
   public Value getValue(Variable variable) {
     loadResultSetCache();
     return resultSetCache.get(variable.getName());
   }
 
-  private void loadResultSetCache() {
+  private synchronized void loadResultSetCache() {
     if(resultSetCache.isEmpty()) {
       loadValues();
     }
   }
 
   private void loadValues() {
-    // MAGMA-100
-    if(escapedSqlTableName == null) {
-      String sqlTableName = ((JdbcValueTable) getValueTable()).getSettings().getSqlTableName();
-      escapedSqlTableName = ((JdbcValueTable) getValueTable()).getDatasource().escapeSqlTableName(sqlTableName);
-    }
-
     // Build the SQL query.
     StringBuilder sql = new StringBuilder();
 
@@ -86,8 +73,8 @@ public class JdbcValueSet extends ValueSetBean {
 
     // Execute the query.
     String[] entityIdentifierColumnValues = getVariableEntity().getIdentifier().split("-");
-    getValueTable().getDatasource().getJdbcTemplate().query(sql.toString(), entityIdentifierColumnValues, new ResultSetExtractor() {
-      public Object extractData(ResultSet rs) throws SQLException {
+    getValueTable().getDatasource().getJdbcTemplate().query(sql.toString(), entityIdentifierColumnValues, new ResultSetExtractor<Void>() {
+      public Void extractData(ResultSet rs) throws SQLException {
         // Cache the data.
         rs.next();
         for(int i = 1; i <= rs.getMetaData().getColumnCount(); i++) {

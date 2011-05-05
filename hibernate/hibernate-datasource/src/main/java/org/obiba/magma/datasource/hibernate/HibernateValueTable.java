@@ -8,12 +8,15 @@ import java.util.Set;
 
 import org.hibernate.Criteria;
 import org.hibernate.FetchMode;
+import org.hibernate.LockMode;
+import org.hibernate.LockOptions;
 import org.obiba.core.service.impl.hibernate.AssociationCriteria;
 import org.obiba.core.service.impl.hibernate.AssociationCriteria.Operation;
 import org.obiba.magma.Initialisable;
 import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.NoSuchValueSetException;
 import org.obiba.magma.Timestamps;
+import org.obiba.magma.Value;
 import org.obiba.magma.ValueSet;
 import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
@@ -26,6 +29,7 @@ import org.obiba.magma.support.AbstractValueTable;
 import org.obiba.magma.support.AbstractVariableEntityProvider;
 import org.obiba.magma.support.ValueSetBean;
 import org.obiba.magma.support.VariableEntityBean;
+import org.obiba.magma.type.DateTimeType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -71,12 +75,29 @@ class HibernateValueTable extends AbstractValueTable {
       throw new NoSuchValueSetException(this, entity);
     }
     AssociationCriteria criteria = AssociationCriteria.create(ValueSetState.class, getDatasource().getSessionFactory().getCurrentSession())
-    // 
+    //
     .add("valueTable", Operation.eq, getValueTableState())
-    // 
+    //
     .add("variableEntity.identifier", Operation.eq, entity.getIdentifier()).add("variableEntity.type", Operation.eq, entity.getType());
 
     return new HibernateValueSet(entity, criteria.getCriteria().setFetchMode("values", FetchMode.JOIN));
+  }
+
+  @Override
+  public Timestamps getTimestamps() {
+    return new Timestamps() {
+
+      @Override
+      public Value getLastUpdate() {
+        return DateTimeType.get().valueOf(getValueTableState().getUpdated());
+      }
+
+      @Override
+      public Value getCreated() {
+        return DateTimeType.get().valueOf(getValueTableState().getCreated());
+      }
+
+    };
   }
 
   /**
@@ -93,6 +114,10 @@ class HibernateValueTable extends AbstractValueTable {
 
   ValueTableState getValueTableState() {
     return (ValueTableState) this.getDatasource().getSessionFactory().getCurrentSession().get(ValueTableState.class, valueTableId);
+  }
+
+  ValueTableState getValueTableState(LockMode lock) {
+    return (ValueTableState) this.getDatasource().getSessionFactory().getCurrentSession().get(ValueTableState.class, valueTableId, new LockOptions(lock));
   }
 
   HibernateMarshallingContext createContext() {
@@ -177,10 +202,5 @@ class HibernateValueTable extends AbstractValueTable {
         return Collections.unmodifiableSet(entities);
       }
     }
-  }
-
-  @Override
-  public Timestamps getTimestamps(ValueSet valueSet) {
-    return new HibernateTimestamps(valueSet);
   }
 }

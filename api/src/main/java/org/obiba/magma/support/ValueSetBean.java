@@ -1,5 +1,6 @@
 package org.obiba.magma.support;
 
+import org.obiba.magma.Timestamps;
 import org.obiba.magma.ValueSet;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.VariableEntity;
@@ -19,6 +20,11 @@ public class ValueSetBean implements ValueSet {
 
   protected ValueSetBean(ValueSet valueSet) {
     this(valueSet.getValueTable(), valueSet.getVariableEntity());
+  }
+
+  @Override
+  public Timestamps getTimestamps() {
+    return getValueTable().getTimestamps();
   }
 
   @Override

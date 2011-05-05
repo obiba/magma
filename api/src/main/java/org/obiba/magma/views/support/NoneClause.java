@@ -14,7 +14,7 @@ import org.obiba.magma.views.WhereClause;
 /**
  * An empty Clause that contains no values.
  */
-public class NoneClause implements SelectClause, WhereClause, ListClause {
+public final class NoneClause implements SelectClause, WhereClause, ListClause {
 
   @Override
   public boolean select(Variable variable) {

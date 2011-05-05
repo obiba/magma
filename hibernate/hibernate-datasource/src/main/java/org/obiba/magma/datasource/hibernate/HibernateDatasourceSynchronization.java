@@ -67,4 +67,8 @@ class HibernateDatasourceSynchronization implements Synchronization {
 
   }
 
+  protected Session getSession() {
+    return session;
+  }
+
 }

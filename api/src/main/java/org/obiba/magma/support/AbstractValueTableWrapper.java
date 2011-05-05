@@ -83,8 +83,8 @@ public abstract class AbstractValueTableWrapper implements ValueTableWrapper {
   }
 
   @Override
-  public Timestamps getTimestamps(ValueSet valueSet) {
-    return getWrappedValueTable().getTimestamps(valueSet);
+  public Timestamps getTimestamps() {
+    return getWrappedValueTable().getTimestamps();
   }
 
   @Override

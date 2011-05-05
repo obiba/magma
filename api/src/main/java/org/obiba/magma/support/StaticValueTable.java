@@ -99,7 +99,7 @@ public class StaticValueTable extends AbstractValueTable {
   }
 
   @Override
-  public Timestamps getTimestamps(ValueSet valueSet) {
+  public Timestamps getTimestamps() {
     return NullTimestamps.get();
   }
 

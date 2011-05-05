@@ -1,12 +1,14 @@
 package org.obiba.magma.datasource.hibernate;
 
 import java.util.List;
+import java.util.Properties;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
 import junit.framework.Assert;
 
 import org.hibernate.Transaction;
+import org.hibernate.cfg.Environment;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -15,11 +17,11 @@ import org.obiba.magma.Datasource;
 import org.obiba.magma.MagmaEngine;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueTableWriter;
+import org.obiba.magma.ValueTableWriter.VariableWriter;
 import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.VariableValueSource;
 import org.obiba.magma.VectorSource;
-import org.obiba.magma.ValueTableWriter.VariableWriter;
 import org.obiba.magma.datasource.generated.GeneratedValueTable;
 import org.obiba.magma.datasource.hibernate.support.LocalSessionFactoryProvider;
 import org.obiba.magma.support.DatasourceCopier;
@@ -234,6 +236,9 @@ public class HibernateDatasourceTest {
 
   private LocalSessionFactoryProvider newProvider(String testName) {
     LocalSessionFactoryProvider provider = new LocalSessionFactoryProvider("org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:" + testName + ";shutdown=true", "sa", "", "org.hibernate.dialect.HSQLDialect");
+    Properties p = new Properties();
+    p.setProperty(Environment.CACHE_PROVIDER, "org.hibernate.cache.HashtableCacheProvider");
+    provider.setProperties(p);
     provider.initialise();
     return provider;
   }

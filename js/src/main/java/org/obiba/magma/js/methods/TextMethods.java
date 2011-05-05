@@ -149,15 +149,39 @@ public class TextMethods {
 
     // This could be determined by looking at the mapped values (if all ints, then 'integer', else 'text', etc.)
     ValueType returnType = TextType.get();
+
+    Value defaultValue = defaultValue(returnType, args);
+
     Value currentValue = sv.getValue();
     if(currentValue.isSequence()) {
       List<Value> newValues = new ArrayList<Value>();
       for(Value value : currentValue.asSequence().getValue()) {
-        newValues.add(lookupValue(ctx, thisObj, value, returnType, valueMap));
+        newValues.add(lookupValue(ctx, thisObj, value, returnType, valueMap, defaultValue));
       }
       return new ScriptableValue(thisObj, returnType.sequenceOf(newValues));
     } else {
-      return new ScriptableValue(thisObj, lookupValue(ctx, thisObj, currentValue, returnType, valueMap));
+      return new ScriptableValue(thisObj, lookupValue(ctx, thisObj, currentValue, returnType, valueMap, defaultValue));
+    }
+  }
+
+  /**
+   * Returns the default value to use when the lookup value is not found in the map. This method is used by the map()
+   * method.
+   * @param valueType
+   * @param args
+   * @return
+   */
+  private static Value defaultValue(ValueType valueType, Object[] args) {
+    if(args.length < 2) {
+      // No default value was specified. Return null.
+      return valueType.nullValue();
+    }
+
+    Object value = args[1];
+    if(value instanceof ScriptableValue) {
+      return ((ScriptableValue) value).getValue();
+    } else {
+      return valueType.valueOf(value);
     }
   }
 
@@ -171,7 +195,7 @@ public class TextMethods {
    * @param valueMap
    * @return
    */
-  private static Value lookupValue(Context ctx, Scriptable thisObj, Value value, ValueType returnType, NativeObject valueMap) {
+  private static Value lookupValue(Context ctx, Scriptable thisObj, Value value, ValueType returnType, NativeObject valueMap, Value defaultValue) {
     Object newValue = null;
     if(value.getValueType().isNumeric()) {
       newValue = valueMap.get(((Number) value.getValue()).intValue(), null);
@@ -179,8 +203,12 @@ public class TextMethods {
       newValue = valueMap.get((String) value.toString(), null);
     }
 
-    if(newValue == null || newValue == NativeObject.NOT_FOUND) {
+    if(newValue == null) {
       return returnType.nullValue();
+    }
+
+    if(newValue == NativeObject.NOT_FOUND) {
+      return defaultValue;
     }
 
     if(newValue instanceof Function) {

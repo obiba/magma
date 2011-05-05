@@ -9,7 +9,6 @@ import org.obiba.magma.Disposable;
 import org.obiba.magma.Initialisable;
 import org.obiba.magma.NoSuchValueSetException;
 import org.obiba.magma.NoSuchVariableException;
-import org.obiba.magma.Timestamps;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueSet;
 import org.obiba.magma.ValueTable;
@@ -149,7 +148,12 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
     if(unmapped == null) return false;
 
     boolean hasValueSet = super.hasValueSet(unmapped);
+
     if(hasValueSet) {
+      // Shortcut some WhereClause to prevent loading the ValueSet which may be expensive
+      if(where instanceof AllClause) return true;
+      if(where instanceof NoneClause) return false;
+
       ValueSet valueSet = super.getValueSet(unmapped);
       hasValueSet = where.where(valueSet);
     }
@@ -275,11 +279,6 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
       }
 
     }));
-  }
-
-  @Override
-  public Timestamps getTimestamps(ValueSet valueSet) {
-    return super.getTimestamps(((ValueSetWrapper) valueSet).getWrappedValueSet());
   }
 
   public void setDatasource(ViewAwareDatasource datasource) {

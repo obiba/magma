@@ -6,6 +6,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.IOException;
+import java.util.TreeSet;
 
 import javax.sql.DataSource;
 
@@ -13,13 +14,15 @@ import org.junit.Test;
 import org.obiba.core.test.spring.Dataset;
 import org.obiba.core.test.spring.DbUnitAwareTestExecutionListener;
 import org.obiba.magma.Category;
+import org.obiba.magma.Value;
 import org.obiba.magma.ValueSet;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.ValueTableWriter;
-import org.obiba.magma.Variable;
-import org.obiba.magma.VariableEntity;
 import org.obiba.magma.ValueTableWriter.ValueSetWriter;
 import org.obiba.magma.ValueTableWriter.VariableWriter;
+import org.obiba.magma.Variable;
+import org.obiba.magma.VariableEntity;
+import org.obiba.magma.VectorSource;
 import org.obiba.magma.support.VariableEntityBean;
 import org.obiba.magma.test.AbstractMagmaTest;
 import org.obiba.magma.test.SchemaTestExecutionListener;
@@ -31,6 +34,8 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
 import org.springframework.test.context.support.DirtiesContextTestExecutionListener;
 import org.springframework.test.context.transaction.TransactionalTestExecutionListener;
+
+import com.google.common.collect.Iterables;
 
 @org.junit.runner.RunWith(value = SpringJUnit4ClassRunner.class)
 @org.springframework.test.context.ContextConfiguration(locations = { "/test-spring-context.xml" })
@@ -82,6 +87,33 @@ public class JdbcDatasourceTest extends AbstractMagmaTest {
     // Verify categories.
     assertTrue(hasCategory(bdVar, "PNA", "88"));
     assertTrue(hasCategory(bdVar, "DNK", "99"));
+
+    jdbcDatasource.dispose();
+  }
+
+  @TestSchema(schemaLocation = "org/obiba/magma/datasource/jdbc", beforeSchema = "schema-nometa.sql", afterSchema = "schema-notables.sql")
+  @Dataset(filenames = "JdbcDatasourceTest-nometa.xml")
+  @Test
+  public void test_vectorSource() {
+    JdbcDatasource jdbcDatasource = new JdbcDatasource("my-datasource", dataSource, "Participant", false);
+    jdbcDatasource.initialise();
+
+    testCreateDatasourceFromExistingDatabase(jdbcDatasource);
+
+    ValueTable valueTable = jdbcDatasource.getValueTable("BONE_DENSITY");
+    VectorSource bdVar = valueTable.getVariableValueSource("BD").asVectorSource();
+    VectorSource bdVar2 = valueTable.getVariableValueSource("BD_2").asVectorSource();
+
+    // Verify variable attributes.
+    assertNotNull(bdVar);
+    assertNotNull(bdVar2);
+
+    Iterable<Value> values = bdVar.getValues(new TreeSet<VariableEntity>(valueTable.getVariableEntities()));
+
+    assertTrue(Iterables.size(values) == 2);
+
+    values = bdVar2.getValues(new TreeSet<VariableEntity>(valueTable.getVariableEntities()));
+    assertTrue(Iterables.size(values) == 2);
 
     jdbcDatasource.dispose();
   }

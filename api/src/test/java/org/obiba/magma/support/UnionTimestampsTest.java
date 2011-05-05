@@ -1,4 +1,4 @@
-package org.obiba.magma.views;
+package org.obiba.magma.support;
 
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expect;
@@ -7,21 +7,20 @@ import static org.easymock.EasyMock.verify;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
-import java.util.Arrays;
 import java.util.Date;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.obiba.magma.Timestamped;
 import org.obiba.magma.Timestamps;
 import org.obiba.magma.Value;
-import org.obiba.magma.ValueSet;
-import org.obiba.magma.ValueTable;
-import org.obiba.magma.VariableEntity;
+import org.obiba.magma.support.UnionTimestamps;
 import org.obiba.magma.test.AbstractMagmaTest;
 import org.obiba.magma.type.DateTimeType;
-import org.obiba.magma.views.JoinTable.JoinedValueSet;
 
-public class JoinTimestampsTest extends AbstractMagmaTest {
+import com.google.common.collect.ImmutableList;
+
+public class UnionTimestampsTest extends AbstractMagmaTest {
 
   private Value earlyValue;
 
@@ -75,40 +74,35 @@ public class JoinTimestampsTest extends AbstractMagmaTest {
 
   private void assertTimestamps(boolean useCreatedTimestamps, Value firstTimestamp, Value secondTimestamp, Value expectedTimestamp) {
 
-    ValueSet mockValueSet = createMock(ValueSet.class);
-    VariableEntity mockVariableEntity = createMock(VariableEntity.class);
+    Timestamped firstTimestamped = createMock(Timestamped.class);
+    Timestamped secondTimestamped = createMock(Timestamped.class);
 
-    ValueTable valueTableMockOne = createMock(ValueTable.class);
-    ValueTable valueTableMockTwo = createMock(ValueTable.class);
     Timestamps timestampsOne = createMock(Timestamps.class);
     Timestamps timestampsTwo = createMock(Timestamps.class);
 
-    expect(valueTableMockOne.getName()).andReturn("one").anyTimes();
-    expect(valueTableMockOne.hasValueSet(mockVariableEntity)).andReturn(true).once();
-    expect(valueTableMockOne.getValueSet(mockVariableEntity)).andReturn(mockValueSet).once();
-    expect(valueTableMockOne.getTimestamps(mockValueSet)).andReturn(timestampsOne).once();
+    expect(firstTimestamped.getTimestamps()).andReturn(timestampsOne).once();
     if(useCreatedTimestamps) {
       expect(timestampsOne.getCreated()).andReturn(firstTimestamp).once();
     } else {
       expect(timestampsOne.getLastUpdate()).andReturn(firstTimestamp).once();
     }
 
-    expect(valueTableMockTwo.getName()).andReturn("two").anyTimes();
-    expect(valueTableMockTwo.hasValueSet(mockVariableEntity)).andReturn(true).once();
-    expect(valueTableMockTwo.getValueSet(mockVariableEntity)).andReturn(mockValueSet).once();
-    expect(valueTableMockTwo.getTimestamps(mockValueSet)).andReturn(timestampsTwo).once();
+    expect(secondTimestamped.getTimestamps()).andReturn(timestampsTwo).once();
+
     if(useCreatedTimestamps) {
       expect(timestampsTwo.getCreated()).andReturn(secondTimestamp).once();
     } else {
       expect(timestampsTwo.getLastUpdate()).andReturn(secondTimestamp).once();
     }
-    replay(valueTableMockOne, valueTableMockTwo, timestampsOne, timestampsTwo);
-    Timestamps joinTimestamps = new JoinTimestamps(new JoinedValueSet(createMock(ValueTable.class), mockVariableEntity), Arrays.asList(new ValueTable[] { valueTableMockOne, valueTableMockTwo }));
+    replay(firstTimestamped, secondTimestamped, timestampsOne, timestampsTwo);
+
+    Timestamps joinTimestamps = new UnionTimestamps(ImmutableList.of(firstTimestamped, secondTimestamped));
+
     if(useCreatedTimestamps) {
       assertThat(joinTimestamps.getCreated(), is(expectedTimestamp));
     } else {
       assertThat(joinTimestamps.getLastUpdate(), is(expectedTimestamp));
     }
-    verify(valueTableMockOne, valueTableMockTwo, timestampsOne, timestampsTwo);
+    verify(firstTimestamped, secondTimestamped, timestampsOne, timestampsTwo);
   }
 }
