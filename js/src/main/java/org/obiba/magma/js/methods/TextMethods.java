@@ -197,6 +197,11 @@ public class TextMethods {
    */
   private static Value lookupValue(Context ctx, Scriptable thisObj, Value value, ValueType returnType, NativeObject valueMap, Value defaultValue) {
     Object newValue = null;
+
+    if(value.isNull()) {
+      return defaultValue;
+    }
+
     if(value.getValueType().isNumeric()) {
       newValue = valueMap.get(((Number) value.getValue()).intValue(), null);
     } else {
