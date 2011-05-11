@@ -57,9 +57,9 @@
       </dependency>
 
       <dependency>
-        <groupId>com.google.collections</groupId>
-        <artifactId>google-collections</artifactId>
-        <version>${google-collections.version}</version>
+        <groupId>com.google.guava</groupId>
+        <artifactId>guava</artifactId>
+        <version>${guava.version}</version>
       </dependency>
 
       <dependency>
@@ -119,8 +119,8 @@
 
   <dependencies>
     <dependency>
-      <groupId>com.google.collections</groupId>
-      <artifactId>google-collections</artifactId>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
     </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>
@@ -334,7 +334,7 @@
     <project.build.sourceEncoding>ISO-8859-1</project.build.sourceEncoding>
 
     <spring.version>2.5.6</spring.version>
-    <google-collections.version>1.0</google-collections.version>
+    <guava.version>r09</guava.version>
     <junit.version>4.7</junit.version>
     <dbunit.version>2.2.2</dbunit.version>
     <easymock.version>2.5.2</easymock.version>
