@@ -101,4 +101,12 @@ public class DateType extends AbstractValueType {
   public int compare(Value o1, Value o2) {
     return ((MagmaDate) o1.getValue()).compareTo((MagmaDate) o2.getValue());
   }
+
+  /**
+   * Returns a {@code Value} that holds today's date.
+   * @return a new {@code Value} initialized with today's date.
+   */
+  public Value now() {
+    return valueOf(new MagmaDate(new Date()));
+  }
 }
