@@ -9,6 +9,7 @@ import org.obiba.magma.support.Initialisables;
 import org.obiba.magma.support.ValueTableReference;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
@@ -64,12 +65,18 @@ public class DefaultDatasourceRegistry implements DatasourceRegistry, Disposable
   }
 
   @Override
-  public void addDecorator(Decorator<Datasource> decorator) {
+  public void addDecorator(final Decorator<Datasource> decorator) {
     if(decorator == null) throw new MagmaRuntimeException("decorator cannot be null.");
     Initialisables.initialise(decorator);
     decorators.add(decorator);
 
-    // TODO: decorate existing datasources
+    this.datasources = Sets.newHashSet(Iterables.transform(this.datasources, new Function<Datasource, Datasource>() {
+
+      @Override
+      public Datasource apply(Datasource input) {
+        return decorator.decorate(input);
+      }
+    }));
   }
 
   public Datasource addDatasource(Datasource datasource) {
