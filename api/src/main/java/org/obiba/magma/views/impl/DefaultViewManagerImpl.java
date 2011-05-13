@@ -13,6 +13,9 @@ import org.obiba.magma.views.ViewAwareDatasource;
 import org.obiba.magma.views.ViewManager;
 import org.obiba.magma.views.ViewPersistenceStrategy;
 
+import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 
 public class DefaultViewManagerImpl implements ViewManager, Initialisable, Disposable {
@@ -39,9 +42,10 @@ public class DefaultViewManagerImpl implements ViewManager, Initialisable, Dispo
 
   public void addView(String datasourceName, View view) {
     if(datasourceName == null || datasourceName.equals("")) throw new MagmaRuntimeException("datasourceName cannot be null or empty.");
+    if(view == null) throw new MagmaRuntimeException("view cannot be null.");
+
     ViewAwareDatasource viewAwareDatasource = getViewAwareFromName(datasourceName);
     if(viewAwareDatasource == null) throw new NoSuchDatasourceException(datasourceName);
-    if(view == null) throw new MagmaRuntimeException("view cannot be null.");
 
     viewAwareDatasource.addView(view);
     try {
@@ -69,6 +73,11 @@ public class DefaultViewManagerImpl implements ViewManager, Initialisable, Dispo
       throw e;
     }
   }
+
+  public void removeAllViews(String datasourceName) {
+    Preconditions.checkArgument(Strings.isNullOrEmpty(datasourceName) == false, "datasourceName cannot be null or empty.");
+    viewPersistenceStrategy.writeViews(datasourceName, ImmutableSet.<View> of());
+  };
 
   public boolean hasView(String datasourceName, String viewName) {
     if(datasourceName == null || datasourceName.equals("")) throw new MagmaRuntimeException("datasourceName cannot be null or empty.");

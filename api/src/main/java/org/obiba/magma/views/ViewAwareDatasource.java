@@ -1,6 +1,5 @@
 package org.obiba.magma.views;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
@@ -19,35 +18,20 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 
 public class ViewAwareDatasource implements Datasource {
-  //
-  // Instance Variables
-  //
 
-  private Datasource wrappedDatasource;
+  private final Datasource wrappedDatasource;
 
-  private Set<View> views;
-
-  //
-  // Constructors
-  //
+  private final Set<View> views;
 
   public ViewAwareDatasource(Datasource datasource, Set<View> views) {
-    if(views == null) {
-      throw new IllegalArgumentException("Null views");
-    }
+    if(datasource == null) throw new IllegalArgumentException("datasource cannot be null");
+    if(views == null) throw new IllegalArgumentException("views cannot be null");
 
     this.wrappedDatasource = datasource;
-
-    this.views = new HashSet<View>(views);
-    this.views.addAll(views);
+    this.views = Sets.newHashSet(views);
   }
 
-  //
-  // Datasource Methods
-  //
-
   public void initialise() {
-    // Initialize the wrapped datasource.
     Initialisables.initialise(wrappedDatasource);
 
     // Initialise the views.
@@ -58,9 +42,7 @@ public class ViewAwareDatasource implements Datasource {
   }
 
   public void dispose() {
-    // Dispose of the wrapped datasource.
-    Disposables.dispose(wrappedDatasource);
-    Disposables.dispose(views);
+    Disposables.dispose(wrappedDatasource, views);
   }
 
   public ValueTableWriter createWriter(String tableName, String entityType) {
@@ -139,10 +121,6 @@ public class ViewAwareDatasource implements Datasource {
     return wrappedDatasource.hasAttributes();
   }
 
-  //
-  // Methods
-  //
-
   public Set<View> getViews() {
     return ImmutableSet.copyOf(views);
   }
@@ -154,7 +132,12 @@ public class ViewAwareDatasource implements Datasource {
     if(wrappedDatasource.hasValueTable(view.getName())) {
       throw new IllegalArgumentException("can't add view to datasource: a table with this name '" + view.getName() + "' already exists");
     }
-    if(hasView(view.getName())) removeView(view.getName());
+
+    if(hasView(view.getName())) {
+      view.setCreated(getView(view.getName()).getTimestamps().getCreated());
+      removeView(view.getName());
+    }
+
     Initialisables.initialise(view);
     views.add(view);
     view.setDatasource(this);
