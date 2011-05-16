@@ -14,6 +14,7 @@ import org.junit.Test;
 import org.obiba.core.test.spring.Dataset;
 import org.obiba.core.test.spring.DbUnitAwareTestExecutionListener;
 import org.obiba.magma.Category;
+import org.obiba.magma.Timestamps;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueSet;
 import org.obiba.magma.ValueTable;
@@ -137,6 +138,30 @@ public class JdbcDatasourceTest extends AbstractMagmaTest {
     jdbcDatasource.initialise();
 
     testCreateDatasourceFromScratch(jdbcDatasource);
+
+    jdbcDatasource.dispose();
+  }
+
+  @TestSchema(schemaLocation = "org/obiba/magma/datasource/jdbc", beforeSchema = "schema-notables.sql", afterSchema = "schema-notables.sql")
+  @Test
+  public void test_Timestamped() {
+    JdbcDatasourceSettings settings = new JdbcDatasourceSettings("Participant", null, null, false);
+    settings.setDefaultCreatedTimestampColumnName("created");
+    settings.setDefaultUpdatedTimestampColumnName("updated");
+
+    JdbcDatasource jdbcDatasource = new JdbcDatasource("my-datasource-nodb", dataSource, settings);
+    jdbcDatasource.initialise();
+
+    testCreateDatasourceFromScratch(jdbcDatasource);
+
+    ValueTable t = jdbcDatasource.getValueTables().iterator().next();
+    Timestamps ts = t.getTimestamps();
+
+    assertNotNull(ts);
+    assertNotNull(ts.getCreated());
+    assertEquals(false, ts.getCreated().isNull());
+    assertNotNull(ts.getLastUpdate());
+    assertEquals(false, ts.getLastUpdate().isNull());
 
     jdbcDatasource.dispose();
   }
