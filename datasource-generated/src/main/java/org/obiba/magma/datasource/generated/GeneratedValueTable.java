@@ -17,8 +17,8 @@ import org.obiba.magma.ValueTable;
 import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.VariableValueSource;
-import org.obiba.magma.support.NullTimestamps;
 import org.obiba.magma.support.VariableEntityBean;
+import org.obiba.magma.type.DateTimeType;
 
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
@@ -39,6 +39,8 @@ public class GeneratedValueTable implements ValueTable {
 
   private final Map<String, VariableValueSource> generators;
 
+  private final Value timestamp;
+
   public GeneratedValueTable(Datasource ds, Set<Variable> dictionary, int entities) {
     this(ds, dictionary, entities, System.currentTimeMillis());
   }
@@ -49,6 +51,7 @@ public class GeneratedValueTable implements ValueTable {
     this.entities = Sets.newTreeSet();
     this.randomGenerator = new JDKRandomGenerator();
     this.randomGenerator.setSeed(seed);
+    this.timestamp = DateTimeType.get().now();
     while(this.entities.size() < entities) {
       this.entities.add(generateEntity());
     }
@@ -77,7 +80,19 @@ public class GeneratedValueTable implements ValueTable {
 
   @Override
   public Timestamps getTimestamps() {
-    return NullTimestamps.get();
+    return new Timestamps() {
+
+      @Override
+      public Value getLastUpdate() {
+        return timestamp;
+      }
+
+      @Override
+      public Value getCreated() {
+        return timestamp;
+      }
+
+    };
   }
 
   @Override
