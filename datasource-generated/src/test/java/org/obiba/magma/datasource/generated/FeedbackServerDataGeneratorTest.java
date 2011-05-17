@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.obiba.magma.Category;
 import org.obiba.magma.Datasource;
@@ -27,14 +26,15 @@ import com.google.common.collect.Iterables;
 public class FeedbackServerDataGeneratorTest {
 
   @Test
-  @Ignore
+  // @Ignore
   public void generateTestData() throws IOException {
 
     new MagmaEngine().extend(new MagmaJsExtension()).extend(new MagmaXStreamExtension());
 
     File targetFile = new File("/tmp/generated.zip");
+    targetFile.delete();
 
-    ExcelDatasource eds = new ExcelDatasource("patate", new File("src/test/resources/fs.xlsx"));
+    ExcelDatasource eds = new ExcelDatasource("patate", new File("/home/plaflamme/Dropbox/P3G-OBiBa-Share/2011.healthy obese/clsa-opal.xls"));
     Datasource target = new FsDatasource("target", targetFile);
 
     Initialisables.initialise(eds, target);

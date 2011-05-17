@@ -10,6 +10,8 @@ public class DefaultVariableValueGeneratorFactory implements VariableValueGenera
       return new CategoricalVariableValueGenerator(variable);
     } else if(variable.getValueType().isNumeric()) {
       return new NumericVariableValueGenerator(variable);
+    } else if(variable.getValueType().isDateTime()) {
+      return new DateVariableValueGenerator(variable);
     }
     return new NullVariableValueGenerator(variable);
   }
