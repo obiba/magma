@@ -31,10 +31,10 @@ public class FeedbackServerDataGeneratorTest {
 
     new MagmaEngine().extend(new MagmaJsExtension()).extend(new MagmaXStreamExtension());
 
-    File targetFile = new File("/tmp/generated.zip");
+    File targetFile = new File("target/test/generated.zip");
     targetFile.delete();
 
-    ExcelDatasource eds = new ExcelDatasource("patate", new File("/home/plaflamme/Dropbox/P3G-OBiBa-Share/2011.healthy obese/clsa-opal.xls"));
+    ExcelDatasource eds = new ExcelDatasource("patate", new File("src/test/resources/clsa-opal.xls"));
     Datasource target = new FsDatasource("target", targetFile);
 
     Initialisables.initialise(eds, target);
