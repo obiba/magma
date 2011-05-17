@@ -102,6 +102,8 @@ public class DateTimeType extends AbstractValueType {
     } else if(Calendar.class.isAssignableFrom(type)) {
       Calendar c = (Calendar) object;
       return Factory.newValue(this, c.getTime());
+    } else if(type.equals(String.class)) {
+      return valueOf((String) object);
     }
     throw new IllegalArgumentException("Cannot construct " + getClass().getSimpleName() + " from type " + object.getClass() + ".");
   }

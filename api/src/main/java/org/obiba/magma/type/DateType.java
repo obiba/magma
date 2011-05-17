@@ -57,7 +57,9 @@ public class DateType extends AbstractValueType {
   @Override
   public String toString(Object object) {
     if(object != null) {
-      return ((MagmaDate) object).toString();
+      synchronized(ISO_8601) {
+        return ISO_8601.format(((MagmaDate) object).asDate());
+      }
     }
     return null;
   }
@@ -93,6 +95,8 @@ public class DateType extends AbstractValueType {
       return Factory.newValue(this, new MagmaDate(new Date(((Date) object).getTime())));
     } else if(Calendar.class.isAssignableFrom(type)) {
       return Factory.newValue(this, new MagmaDate((Calendar) object));
+    } else if(type.equals(String.class)) {
+      return valueOf((String) object);
     }
     throw new IllegalArgumentException("Cannot construct " + getClass().getSimpleName() + " from type " + object.getClass() + ".");
   }
