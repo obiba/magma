@@ -6,6 +6,8 @@ import org.obiba.magma.Variable;
 import org.obiba.magma.js.JavascriptValueSource;
 import org.obiba.magma.support.Initialisables;
 import org.obiba.magma.support.NullValueSource;
+import org.obiba.magma.type.DecimalType;
+import org.obiba.magma.type.IntegerType;
 
 class NumericVariableValueGenerator extends AbstractMissingValueVariableValueGenerator {
 
@@ -32,17 +34,23 @@ class NumericVariableValueGenerator extends AbstractMissingValueVariableValueGen
   }
 
   protected Value getInteger(GeneratedValueSet gvs, Value minimumValue, Value maximumValue) {
-    long minimum = minimumValue.isNull() ? Long.MIN_VALUE : (Long) minimumValue.getValue();
-    long maximum = maximumValue.isNull() ? Long.MAX_VALUE : (Long) maximumValue.getValue();
+    Number minimum = minimumValue.isNull() ? Long.MIN_VALUE : (Number) minimumValue.getValue();
+    Number maximum = maximumValue.isNull() ? Long.MAX_VALUE : (Number) maximumValue.getValue();
+
     Value meanValue = mean.getValue(gvs);
     Value stddevValue = stddev.getValue(gvs);
     if(meanValue.isNull() || stddevValue.isNull()) {
-      return getValueType().valueOf(minimum == maximum ? minimum : gvs.dataGenerator.nextLong(minimum, maximum));
+      if(getValueType() == IntegerType.get()) {
+        return getValueType().valueOf(minimum == maximum ? minimum : gvs.dataGenerator.nextLong(minimum.longValue(), maximum.longValue()));
+      } else if(getValueType() == DecimalType.get()) {
+        return getValueType().valueOf(minimum == maximum ? minimum : gvs.dataGenerator.nextUniform(minimum.doubleValue(), maximum.doubleValue()));
+      }
+      throw new IllegalStateException();
     } else {
       double v = gvs.dataGenerator.nextGaussian(((Number) meanValue.getValue()).doubleValue(), ((Number) stddevValue.getValue()).doubleValue());
       // Make sure value is between absolute min and max
-      v = Math.min(v, maximum);
-      v = Math.max(v, minimum);
+      v = Math.min(v, maximum.doubleValue());
+      v = Math.max(v, minimum.doubleValue());
       return getValueType().valueOf(v);
     }
   }
