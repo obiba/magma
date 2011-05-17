@@ -31,7 +31,7 @@ public class FeedbackServerDataGeneratorTest {
 
     new MagmaEngine().extend(new MagmaJsExtension()).extend(new MagmaXStreamExtension());
 
-    File targetFile = new File("target/test/generated.zip");
+    File targetFile = new File("target/generated.zip");
     targetFile.delete();
 
     ExcelDatasource eds = new ExcelDatasource("patate", new File("src/test/resources/clsa-opal.xls"));
