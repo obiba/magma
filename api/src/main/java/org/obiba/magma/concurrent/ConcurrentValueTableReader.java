@@ -131,18 +131,19 @@ public class ConcurrentValueTableReader {
 
     try {
       callback.onBegin(entitiesToCopy, variables);
-
       List<Future<?>> readers = Lists.newArrayList();
-      for(int i = 0; i < concurrentReaders; i++) {
-        readers.add(executor.submit(new ConcurrentValueSetReader(sources, readQueue, writeQueue)));
-      }
-
-      VariableEntityValues values = writeQueue.poll();
-      while(values != null || isReadCompleted(readers) == false) {
-        if(values != null) {
-          callback.onValues(values.getEntity(), variables, values.getValues());
+      if(entitiesToCopy.size() > 0) {
+        for(int i = 0; i < concurrentReaders; i++) {
+          readers.add(executor.submit(new ConcurrentValueSetReader(sources, readQueue, writeQueue)));
         }
-        values = writeQueue.poll();
+
+        VariableEntityValues values = writeQueue.poll();
+        while(values != null || isReadCompleted(readers) == false) {
+          if(values != null) {
+            callback.onValues(values.getEntity(), variables, values.getValues());
+          }
+          values = writeQueue.poll();
+        }
       }
       callback.onComplete();
       waitForReaders(readers);
