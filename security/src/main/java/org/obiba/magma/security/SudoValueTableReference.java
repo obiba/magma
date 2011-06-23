@@ -28,17 +28,20 @@ public class SudoValueTableReference extends ValueTableReference {
 
   @Override
   public ValueTable getWrappedValueTable() {
-    if(authz.isPermitted(permission)) {
-      return super.getWrappedValueTable();
-    }
-    // this subject is not allowed to dereference the table. Try to get super user privileges.
-
     // First look in the user's session. Maybe we already dereferenced this ValueTable
     ValueTable valueTable = lookInSession();
-    if(valueTable == null) {
-      valueTable = sudo();
-      storeInSession(valueTable);
+
+    if(valueTable != null) {
+      return valueTable;
     }
+
+    if(authz.isPermitted(permission)) {
+      valueTable = super.getWrappedValueTable();
+    } else {
+      // this subject is not allowed to dereference the table. Try to get super user privileges.
+      valueTable = sudo();
+    }
+    storeInSession(valueTable);
     return valueTable;
   }
 
