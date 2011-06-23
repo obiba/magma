@@ -1,7 +1,9 @@
 package org.obiba.magma.security;
 
+import java.lang.ref.WeakReference;
 import java.util.concurrent.Callable;
 
+import org.apache.shiro.SecurityUtils;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.security.permissions.Permissions;
 import org.obiba.magma.support.ValueTableReference;
@@ -30,6 +32,34 @@ public class SudoValueTableReference extends ValueTableReference {
       return super.getWrappedValueTable();
     }
     // this subject is not allowed to dereference the table. Try to get super user privileges.
+
+    // First look in the user's session. Maybe we already dereferenced this ValueTable
+    ValueTable valueTable = lookInSession();
+    if(valueTable == null) {
+      valueTable = sudo();
+      storeInSession(valueTable);
+    }
+    return valueTable;
+  }
+
+  protected void storeInSession(ValueTable valueTable) {
+    SecurityUtils.getSubject().getSession().setAttribute(getReference(), new WeakReference<ValueTable>(valueTable));
+  }
+
+  protected ValueTable lookInSession() {
+    WeakReference<ValueTable> ref = (WeakReference<ValueTable>) SecurityUtils.getSubject().getSession().getAttribute(getReference());
+    if(ref != null) {
+      return ref.get();
+    }
+    return null;
+  }
+
+  /**
+   * Escalates user privileges to obtain the referenced valueTable. If successful, the result is an unsecured
+   * ValueTable.
+   * @return
+   */
+  protected ValueTable sudo() {
     return authz.silentSudo(new Callable<ValueTable>() {
 
       @Override
