@@ -12,6 +12,7 @@ import org.mozilla.javascript.Scriptable;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueType;
 import org.obiba.magma.js.MagmaJsEvaluationRuntimeException;
+import org.obiba.magma.js.Rhino;
 import org.obiba.magma.js.ScriptableValue;
 import org.obiba.magma.type.BooleanType;
 import org.obiba.magma.type.IntegerType;
@@ -231,16 +232,9 @@ public class TextMethods {
       } else {
         newValue = evaluatedValue;
       }
-    } else if(newValue instanceof Double) {
-      // HACK: for rhino bug 448499: https://bugzilla.mozilla.org/show_bug.cgi?id=448499
-      if(((Double) newValue).doubleValue() == 1.0d) {
-        newValue = (int) 1;
-      } else if(((Double) newValue).doubleValue() == 0.0d) {
-        newValue = (int) 0;
-      }
     }
 
-    return returnType.valueOf(newValue);
+    return returnType.valueOf(Rhino.fixRhinoNumber(newValue));
   }
 
   /**

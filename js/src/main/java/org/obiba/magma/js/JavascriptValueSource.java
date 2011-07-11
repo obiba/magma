@@ -181,15 +181,16 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
             int length = Array.getLength(value);
             List<Value> values = new ArrayList<Value>(length);
             for(int i = 0; i < length; i++) {
-              values.add(getValueType().valueOf(Array.get(value, i)));
+              Object v = Rhino.fixRhinoNumber(Array.get(value, i));
+              values.add(getValueType().valueOf(v));
             }
             result = getValueType().sequenceOf(values);
           } else {
             // Build a singleton sequence
-            result = getValueType().sequenceOf(ImmutableList.of(getValueType().valueOf(value)));
+            result = getValueType().sequenceOf(ImmutableList.of(getValueType().valueOf(Rhino.fixRhinoNumber(value))));
           }
         } else {
-          result = getValueType().valueOf(value);
+          result = getValueType().valueOf(Rhino.fixRhinoNumber(value));
         }
       }
 
