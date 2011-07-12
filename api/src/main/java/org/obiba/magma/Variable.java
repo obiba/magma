@@ -406,4 +406,12 @@ public interface Variable extends AttributeAware {
    */
   public Set<Category> getCategories();
 
+  /**
+   * Returns true when {@code value} is equal to a {@code Category} marked as {@code missing} or when
+   * {@code Value#isNull} returns true
+   * 
+   * @param value the value to test
+   * @return true when the value is considered {@code missing}, false otherwise.
+   */
+  public boolean isMissingValue(Value value);
 }
