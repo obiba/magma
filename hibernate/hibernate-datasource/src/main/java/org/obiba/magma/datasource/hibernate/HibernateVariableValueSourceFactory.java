@@ -13,6 +13,7 @@ import org.hibernate.ScrollMode;
 import org.hibernate.ScrollableResults;
 import org.hibernate.Session;
 import org.hibernate.criterion.Restrictions;
+import org.obiba.core.service.SortingClause;
 import org.obiba.core.service.impl.hibernate.AssociationCriteria;
 import org.obiba.core.service.impl.hibernate.AssociationCriteria.Operation;
 import org.obiba.magma.Value;
@@ -43,7 +44,7 @@ class HibernateVariableValueSourceFactory implements VariableValueSourceFactory 
   @Override
   public Set<VariableValueSource> createSources() {
     Set<VariableValueSource> sources = new LinkedHashSet<VariableValueSource>();
-    AssociationCriteria criteria = AssociationCriteria.create(VariableState.class, getCurrentSession()).add("valueTable", Operation.eq, valueTable.getValueTableState());
+    AssociationCriteria criteria = AssociationCriteria.create(VariableState.class, getCurrentSession()).add("valueTable", Operation.eq, valueTable.getValueTableState()).addSortingClauses(new SortingClause("id"));
     for(Object obj : criteria.getCriteria().setFetchMode("categories", FetchMode.JOIN).list()) {
       VariableState state = (VariableState) obj;
       sources.add(new HibernateVariableValueSource(state, true));
