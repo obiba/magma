@@ -46,6 +46,8 @@ public class VariableState extends AbstractAttributeAwareEntity implements Times
   @IndexColumn(name = "category_index", nullable = false)
   // Used to prevent an association table from being created
   @JoinColumn(name = "variable_id", nullable = false)
+  // Not supported: https://hibernate.onjira.com/browse/HHH-6382
+  // @OnDelete(action = OnDeleteAction.CASCADE)
   private List<CategoryState> categories;
 
   @Column(nullable = false)

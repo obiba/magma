@@ -23,11 +23,16 @@ import org.obiba.magma.datasource.hibernate.converter.HibernateMarshallingContex
 import org.obiba.magma.datasource.hibernate.domain.AttributeState;
 import org.obiba.magma.datasource.hibernate.domain.DatasourceState;
 import org.obiba.magma.datasource.hibernate.domain.ValueTableState;
+import org.obiba.magma.datasource.hibernate.domain.VariableState;
 import org.obiba.magma.support.AbstractDatasource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.MapMaker;
 
 public class HibernateDatasource extends AbstractDatasource {
+
+  private static final Logger log = LoggerFactory.getLogger(HibernateDatasource.class);
 
   private static final String HIBERNATE_TYPE = "hibernate";
 
@@ -100,6 +105,42 @@ public class HibernateDatasource extends AbstractDatasource {
       return getTableTransaction(name).getValueTable();
     }
     return super.getValueTable(name);
+  }
+
+  @Override
+  public boolean canDropTable(String name) {
+    return hasValueTable(name);
+  }
+
+  @Override
+  public void dropTable(String name) {
+    log.info("dropping table {}", getName() + "." + name);
+
+    HibernateValueTable valueTable = (HibernateValueTable) getValueTable(name);
+    ValueTableState state = valueTable.getValueTableState();
+
+    super.removeValueTable(name);
+
+    int deleted = getSessionFactory().getCurrentSession().createQuery("delete from ValueSetValue vsv where vsv.id.valueSet.id in (select vs.id from ValueSetState vs where vs.valueTable.id = :valueTableId)").setParameter("valueTableId", state.getId()).executeUpdate();
+    log.info("deleted {} values", deleted);
+
+    deleted = getSessionFactory().getCurrentSession().createQuery("delete from ValueSetState vs where vs.valueTable.id = :valueTableId").setParameter("valueTableId", state.getId()).executeUpdate();
+    log.info("deleted {} valuesets", deleted);
+
+    deleted = 0;
+    for(VariableState v : AssociationCriteria.create(VariableState.class, getSessionFactory().getCurrentSession()).add("valueTable", Operation.eq, state).<VariableState> list()) {
+      getSessionFactory().getCurrentSession().delete(v);
+      deleted++;
+    }
+
+    // Unsupported because of @OnDelete does not work on unidirectional OneToMany associations.
+    // deleted =
+    // getSessionFactory().getCurrentSession().createQuery("delete from VariableState v where v.valueTable.id = :valueTableId").setParameter("valueTableId",
+    // state.getId()).executeUpdate();
+    log.info("deleted {} variables", deleted);
+
+    getSessionFactory().getCurrentSession().delete(state);
+    log.info("table {} was dropped", name);
   }
 
   @Override
@@ -186,8 +227,8 @@ public class HibernateDatasource extends AbstractDatasource {
   /**
    * Returns the currently visible {@code HibernateValueTableTransaction} for the specified table name.
    * <p>
-   * Note that this method will throw an exception if no transaction exists for the table name. Use {@code
-   * #hasTableTransaction} to test the existence of a transaction before calling this method.
+   * Note that this method will throw an exception if no transaction exists for the table name. Use
+   * {@code #hasTableTransaction} to test the existence of a transaction before calling this method.
    * 
    * @param name the name of the value table
    * @return the instance of {@code HibernateValueTableTransaction} if one exists.
@@ -219,9 +260,9 @@ public class HibernateDatasource extends AbstractDatasource {
   }
 
   /**
-   * Returns the list of {@code HibernateValueTableTransaction} associated with the current {@code
-   * org.hibernate.Transaction}. Within one Hibernate transaction, several value tables may be affected, as such, this
-   * method returns a list of {@code HibernateValueTableTransaction} instances. This method never returns null.
+   * Returns the list of {@code HibernateValueTableTransaction} associated with the current
+   * {@code org.hibernate.Transaction}. Within one Hibernate transaction, several value tables may be affected, as such,
+   * this method returns a list of {@code HibernateValueTableTransaction} instances. This method never returns null.
    * <p>
    * If no Hibernate transaction exists this method returns an empty list.
    * @return

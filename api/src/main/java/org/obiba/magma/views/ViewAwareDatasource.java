@@ -121,6 +121,21 @@ public class ViewAwareDatasource implements Datasource {
     return wrappedDatasource.hasAttributes();
   }
 
+  @Override
+  public boolean canDropTable(String name) {
+    if(hasView(name)) return true;
+    return wrappedDatasource.canDropTable(name);
+  }
+
+  @Override
+  public void dropTable(String name) {
+    if(hasView(name)) {
+      removeView(name);
+    } else {
+      wrappedDatasource.dropTable(name);
+    }
+  }
+
   public Set<View> getViews() {
     return ImmutableSet.copyOf(views);
   }
