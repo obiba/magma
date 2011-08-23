@@ -23,10 +23,10 @@ import org.obiba.magma.Value;
 import org.obiba.magma.ValueSet;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.ValueTableWriter;
-import org.obiba.magma.Variable;
-import org.obiba.magma.VariableEntity;
 import org.obiba.magma.ValueTableWriter.ValueSetWriter;
 import org.obiba.magma.ValueTableWriter.VariableWriter;
+import org.obiba.magma.Variable;
+import org.obiba.magma.VariableEntity;
 import org.obiba.magma.datasource.csv.support.Quote;
 import org.obiba.magma.datasource.csv.support.Separator;
 import org.obiba.magma.support.VariableEntityBean;
@@ -55,13 +55,13 @@ public class CsvDatasourceTest {
   public void testSeparators() {
     Assert.assertEquals(Quote.SINGLE, Quote.fromString("'"));
     Assert.assertEquals(Quote.DOUBLE, Quote.fromString("\""));
-    Assert.assertEquals(Quote.DOUBLE, Quote.fromString("|"));
+    Assert.assertEquals('|', Quote.fromString("|").getCharacter());
 
     Assert.assertEquals(Separator.COMMA, Separator.fromString(","));
     Assert.assertEquals(Separator.SEMICOLON, Separator.fromString(";"));
     Assert.assertEquals(Separator.COLON, Separator.fromString(":"));
     Assert.assertEquals(Separator.TAB, Separator.fromString("\t"));
-    Assert.assertEquals(Separator.COMMA, Separator.fromString("|"));
+    Assert.assertEquals('|', Separator.fromString("|").getCharacter());
   }
 
   @Test
