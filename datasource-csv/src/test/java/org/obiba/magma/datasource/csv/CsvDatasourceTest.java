@@ -8,6 +8,7 @@ import static org.junit.Assert.assertThat;
 import java.io.File;
 import java.io.IOException;
 import java.util.Locale;
+import java.util.Map;
 
 import junit.framework.Assert;
 
@@ -29,12 +30,14 @@ import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.datasource.csv.support.Quote;
 import org.obiba.magma.datasource.csv.support.Separator;
+import org.obiba.magma.support.DatasourceParsingException;
 import org.obiba.magma.support.VariableEntityBean;
 import org.obiba.magma.type.IntegerType;
 import org.obiba.magma.type.TextType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 
 public class CsvDatasourceTest {
@@ -62,6 +65,38 @@ public class CsvDatasourceTest {
     Assert.assertEquals(Separator.COLON, Separator.fromString(":"));
     Assert.assertEquals(Separator.TAB, Separator.fromString("\t"));
     Assert.assertEquals('|', Separator.fromString("|").getCharacter());
+  }
+
+  @Test
+  public void test_supportsAnySeparator() {
+    File samples = new File("src/test/resources/separators");
+    File variables = new File(samples, "variables.csv");
+
+    CsvDatasource ds = new CsvDatasource("variables").addValueTable("variables", variables, null);
+    ds.initialise();
+    ValueTable reference = ds.getValueTable("variables");
+
+    Map<String, String> separators = ImmutableMap.<String, String> builder().put("sample-comma.csv", ",").put("sample-semicolon.csv", ";").put("sample-colon.csv", ":").put("sample-tab.csv", "tab").put("sample-pipe.csv", "|").put("sample-space.csv", " ").build();
+    for(File sample : samples.listFiles()) {
+      if(sample.equals(variables)) continue;
+      CsvDatasource datasource = new CsvDatasource("csv-datasource");
+      datasource.setSeparator(Separator.fromString(separators.get(sample.getName())));
+      datasource.addValueTable(reference, sample);
+      try {
+        datasource.initialise();
+      } catch(DatasourceParsingException e) {
+        e.printList();
+        throw e;
+      }
+      ValueTable valueTable = datasource.getValueTable(reference.getName());
+      Assert.assertEquals(16, valueTable.getVariableEntities().size());
+      for(Variable v : valueTable.getVariables()) {
+        for(ValueSet vs : valueTable.getValueSets()) {
+          valueTable.getVariableValueSource(v.getName()).getValue(vs);
+        }
+      }
+      datasource.dispose();
+    }
   }
 
   @Test
