@@ -78,7 +78,7 @@ public class CsvDatasourceTest {
 
     Map<String, String> separators = ImmutableMap.<String, String> builder().put("sample-comma.csv", ",").put("sample-semicolon.csv", ";").put("sample-colon.csv", ":").put("sample-tab.csv", "tab").put("sample-pipe.csv", "|").put("sample-space.csv", " ").build();
     for(File sample : samples.listFiles()) {
-      if(sample.equals(variables)) continue;
+      if(separators.containsKey(sample.getName()) == false) continue;
       CsvDatasource datasource = new CsvDatasource("csv-datasource");
       datasource.setSeparator(Separator.fromString(separators.get(sample.getName())));
       datasource.addValueTable(reference, sample);
