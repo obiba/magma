@@ -38,7 +38,7 @@ public class VariableState extends AbstractAttributeAwareEntity implements Times
   private String name;
 
   @ManyToOne(optional = false)
-  @JoinColumn(name = "value_table_id")
+  @JoinColumn(name = "value_table_id", insertable = false, updatable = false)
   private ValueTableState valueTable;
 
   @OneToMany(cascade = CascadeType.ALL)
@@ -67,8 +67,6 @@ public class VariableState extends AbstractAttributeAwareEntity implements Times
 
   @Column(nullable = false)
   private boolean repeatable;
-
-  private Integer pos;
 
   public VariableState() {
     super();
@@ -158,14 +156,6 @@ public class VariableState extends AbstractAttributeAwareEntity implements Times
 
   public void setValueType(ValueType valueType) {
     this.valueType = valueType;
-  }
-
-  public Integer getPosition() {
-    return pos;
-  }
-
-  public void setPosition(Integer pos) {
-    this.pos = pos;
   }
 
   public void setRepeatable(boolean repeatable) {
