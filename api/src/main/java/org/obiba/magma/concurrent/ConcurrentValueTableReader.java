@@ -137,18 +137,25 @@ public class ConcurrentValueTableReader {
           readers.add(executor.submit(new ConcurrentValueSetReader(sources, readQueue, writeQueue)));
         }
 
-        VariableEntityValues values = writeQueue.poll();
-        while(values != null || isReadCompleted(readers) == false) {
-          if(values != null) {
-            callback.onValues(values.getEntity(), variables, values.getValues());
-          }
-          values = writeQueue.poll();
+        while(isReadCompleted(readers) == false) {
+          flushQueue(variables, writeQueue);
         }
+        // Flush remaining values if any
+        // This is necessary due to a race condition between isReadComplete() and readers appending to the write queue
+        flushQueue(variables, writeQueue);
       }
       callback.onComplete();
       waitForReaders(readers);
     } finally {
       executor.shutdownNow();
+    }
+  }
+
+  private void flushQueue(Variable[] variables, BlockingQueue<VariableEntityValues> writeQueue) {
+    VariableEntityValues values = writeQueue.poll();
+    while(values != null) {
+      callback.onValues(values.getEntity(), variables, values.getValues());
+      values = writeQueue.poll();
     }
   }
 
