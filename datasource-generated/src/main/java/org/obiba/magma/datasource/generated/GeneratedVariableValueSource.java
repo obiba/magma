@@ -24,8 +24,14 @@ abstract class GeneratedVariableValueSource implements VariableValueSource {
   protected GeneratedVariableValueSource(Variable variable) {
     this.variable = variable;
     if(variable.hasAttribute("condition")) {
-      condition = new JavascriptValueSource(BooleanType.get(), variable.getAttributeStringValue("condition"));
-      Initialisables.initialise(condition);
+      JavascriptValueSource src = new JavascriptValueSource(BooleanType.get(), variable.getAttributeStringValue("condition"));
+      try {
+        Initialisables.initialise(src);
+      } catch(RuntimeException e) {
+        log.info("Cannot compile condition for variable {}", variable.getName());
+        src = null;
+      }
+      condition = src;
     } else {
       condition = null;
     }
@@ -63,7 +69,11 @@ abstract class GeneratedVariableValueSource implements VariableValueSource {
 
   protected boolean shouldGenerate(ValueSet valueSet) {
     if(condition != null) {
-      return (Boolean) condition.getValue(valueSet).getValue();
+      try {
+        return (Boolean) condition.getValue(valueSet).getValue();
+      } catch(RuntimeException e) {
+        log.info("Error evaluating condition for variable {}", getVariable().getName());
+      }
     }
     return true;
   }
