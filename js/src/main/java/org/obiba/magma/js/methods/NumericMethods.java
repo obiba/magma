@@ -98,6 +98,45 @@ public class NumericMethods {
     public abstract boolean apply(int value);
   }
 
+  private enum Unary {
+    ABS() {
+
+      @Override
+      public BigDecimal operate(BigDecimal value) {
+        return value.abs();
+      }
+    },
+    LN() {
+
+      @Override
+      public boolean alwaysDecimal() {
+        return true;
+      }
+
+      @Override
+      public BigDecimal operate(BigDecimal value) {
+        return BigDecimal.valueOf(Math.log(value.doubleValue()));
+      }
+    };
+
+    /**
+     * Returns true when the operation always produces a decimal (default is false).
+     * @return
+     */
+    public boolean alwaysDecimal() {
+      return false;
+    }
+
+    /**
+     * Performs this operation on the provided value and returns the result
+     * 
+     * @param value
+     * @return
+     * @throws ArithmeticException when the operation cannot be performed on the operands (division by zero)
+     */
+    public abstract BigDecimal operate(BigDecimal value) throws ArithmeticException;
+  }
+
   /**
    * Returns a new {@link ScriptableValue} containing the sum of the caller and the supplied parameter. If both operands
    * are of IntegerType then the returned type will also be IntegerType, otherwise the returned type is DecimalType.
@@ -213,23 +252,29 @@ public class NumericMethods {
   }
 
   /**
-   * Returns a new {@link ScriptableValue} that is the natural logarithm of this value. Returns null if
+   * Returns the absolute value of the input value.
+   * 
+   * <pre>
+   *   $('NumberVarOne').abs()
+   * </pre>
+   */
+  public static ScriptableValue abs(Context ctx, Scriptable thisObj, Object[] args, Function funObj) throws MagmaJsEvaluationRuntimeException {
+    return new ScriptableValue(thisObj, operate((ScriptableValue) thisObj, args, Unary.ABS));
+  }
+
+  /**
+   * Returns a new {@link ScriptableValue} that is the natural logarithm of this value.
    * 
    * <pre>
    *   $('NumberVarOne').ln()
    * </pre>
    */
   public static ScriptableValue ln(Context ctx, Scriptable thisObj, Object[] args, Function funObj) throws MagmaJsEvaluationRuntimeException {
-    Value thisValue = ((ScriptableValue) thisObj).getValue();
-    Value value = DecimalType.get().nullValue();
-    if(thisValue.isNull() == false) {
-      value = DecimalType.get().valueOf(Math.log(asDouble(thisValue.getValue())));
-    }
-    return new ScriptableValue(thisObj, value);
+    return new ScriptableValue(thisObj, operate((ScriptableValue) thisObj, args, Unary.LN));
   }
 
   /**
-   * Returns a new {@link ScriptableValue} that is the natural logarithm of this value. Returns null if
+   * Returns a new {@link ScriptableValue} that is the natural logarithm of this value.
    * 
    * <pre>
    *   $('NumberVarOne').log() // log base 10
@@ -264,6 +309,24 @@ public class NumericMethods {
       }
     }
     return BooleanType.get().trueValue();
+  }
+
+  static Value operate(ScriptableValue thisObj, Object args[], Unary operation) {
+    if(thisObj.getValue().isNull()) {
+      return thisObj.getValueType().nullValue();
+    }
+    try {
+      boolean allIntegerTypes = operation.alwaysDecimal() == false && thisObj.getValueType() == IntegerType.get();
+
+      BigDecimal value = operation.operate(asBigDecimal(thisObj));
+
+      if(allIntegerTypes) {
+        return IntegerType.get().valueOf(value.longValue());
+      }
+      return DecimalType.get().valueOf(value.doubleValue());
+    } catch(ArithmeticException e) {
+      return DecimalType.get().nullValue();
+    }
   }
 
   static Value operate(ScriptableValue thisObj, Object args[], Ops operation) {

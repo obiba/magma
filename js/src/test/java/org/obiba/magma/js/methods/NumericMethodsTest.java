@@ -280,6 +280,26 @@ public class NumericMethodsTest extends AbstractJsTest {
     assertThat(result.getValue(), is(BooleanType.get().trueValue()));
   }
 
+  // abs
+
+  @Test
+  public void test_abs_evaluatesAbsoluteValue() throws Exception {
+    ScriptableValue result = evaluate("abs()", DecimalType.get().valueOf(1));
+    assertThat(result.getValue(), is(DecimalType.get().valueOf(1)));
+
+    result = evaluate("abs()", DecimalType.get().valueOf(-1));
+    assertThat(result.getValue(), is(DecimalType.get().valueOf(1)));
+
+    result = evaluate("abs()", DecimalType.get().valueOf(0));
+    assertThat(result.getValue(), is(DecimalType.get().valueOf(0)));
+  }
+
+  @Test
+  public void test_abs_acceptsIntegerType() throws Exception {
+    ScriptableValue result = evaluate("abs()", IntegerType.get().valueOf(-1));
+    assertThat(result.getValue(), is(DecimalType.get().valueOf(1)));
+  }
+
   // ln
 
   @Test
