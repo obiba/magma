@@ -297,7 +297,7 @@ public class NumericMethodsTest extends AbstractJsTest {
   @Test
   public void test_abs_acceptsIntegerType() throws Exception {
     ScriptableValue result = evaluate("abs()", IntegerType.get().valueOf(-1));
-    assertThat(result.getValue(), is(DecimalType.get().valueOf(1)));
+    assertThat(result.getValue(), is(IntegerType.get().valueOf(1)));
   }
 
   // ln
