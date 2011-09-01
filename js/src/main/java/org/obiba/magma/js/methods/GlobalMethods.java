@@ -11,6 +11,7 @@ import org.obiba.magma.NoSuchValueSetException;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueSet;
 import org.obiba.magma.ValueTable;
+import org.obiba.magma.ValueType;
 import org.obiba.magma.VariableValueSource;
 import org.obiba.magma.VectorSource;
 import org.obiba.magma.js.JavascriptValueSource.VectorCache;
@@ -31,7 +32,7 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
   /**
    * Set of methods to be exposed as top-level methods (ones that can be invoked anywhere)
    */
-  private static final Set<String> GLOBAL_METHODS = ImmutableSet.of("$", "now", "log", "$var");
+  private static final Set<String> GLOBAL_METHODS = ImmutableSet.of("$", "now", "log", "$var", "newValue");
 
   @Override
   protected Set<String> getExposedMethods() {
@@ -45,6 +46,17 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
    */
   public static ScriptableValue now(Context cx, Scriptable thisObj, Object[] args, Function funObj) {
     return new ScriptableValue(thisObj, DateTimeType.get().valueOf(new Date()));
+  }
+
+  public static ScriptableValue newValue(Context cx, Scriptable thisObj, Object[] args, Function funObj) {
+    Object value = args[0];
+    Value v;
+    if(args.length > 1) {
+      v = ValueType.Factory.forName((String) args[1]).valueOf(value);
+    } else {
+      v = ValueType.Factory.newValue(value);
+    }
+    return new ScriptableValue(thisObj, v);
   }
 
   /**
@@ -130,7 +142,7 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
     }
     // Load the vector
     VectorCache cache = context.peek(VectorCache.class);
-    return new ScriptableValue(thisObj, cache.get(context, vectorSource));
+    return new ScriptableValue(thisObj, cache.get(context, vectorSource), source.getVariable().getUnit());
   }
 
   private static ScriptableValue valueForValueSet(MagmaContext context, Scriptable thisObj, MagmaEngineVariableResolver reference, VariableValueSource source) {
@@ -143,12 +155,12 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
       } catch(NoSuchValueSetException e) {
         // Entity does not have a ValueSet in joined collection
         // Return a null value
-        return new ScriptableValue(thisObj, source.getValueType().nullValue());
+        return new ScriptableValue(thisObj, source.getValueType().nullValue(), source.getVariable().getUnit());
       }
     }
 
     Value value = source.getValue(valueSet);
-    return new ScriptableValue(thisObj, value);
+    return new ScriptableValue(thisObj, value, source.getVariable().getUnit());
   }
 
 }

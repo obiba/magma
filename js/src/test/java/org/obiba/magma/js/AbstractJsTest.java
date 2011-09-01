@@ -38,8 +38,12 @@ public abstract class AbstractJsTest {
     return new MagmaEngine();
   }
 
+  public ScriptableValue newValue(Value value, final String unit) {
+    return new ScriptableValue(getSharedScope(), value, unit);
+  }
+
   public ScriptableValue newValue(Value value) {
-    return new ScriptableValue(getSharedScope(), value);
+    return newValue(value, null);
   }
 
   protected Object evaluate(final String script, final Variable variable) {
@@ -58,12 +62,16 @@ public abstract class AbstractJsTest {
   }
 
   protected ScriptableValue evaluate(final String script, final Value value) {
+    return evaluate(script, value, null);
+  }
+
+  protected ScriptableValue evaluate(final String script, final Value value, final String unit) {
     try {
       return (ScriptableValue) ContextFactory.getGlobal().call(new ContextAction() {
         public Object run(Context ctx) {
           MagmaContext context = MagmaContext.asMagmaContext(ctx);
           // Don't pollute the global scope
-          Scriptable scope = newValue(value);
+          Scriptable scope = newValue(value, unit);
 
           final Script compiledScript = context.compileString(script, "", 1, null);
           Object value = compiledScript.exec(ctx, scope);
@@ -79,5 +87,4 @@ public abstract class AbstractJsTest {
       throw new RuntimeException(cause);
     }
   }
-
 }
