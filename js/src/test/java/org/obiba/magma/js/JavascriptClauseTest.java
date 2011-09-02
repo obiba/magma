@@ -84,7 +84,6 @@ public class JavascriptClauseTest extends AbstractJsTest {
     ValueSet valueSetMock = createMock(ValueSet.class);
     VariableValueSource variableValueSourceMock = createMock(VariableValueSource.class);
     Variable variableMock = createMock(Variable.class);
-    ;
 
     expect(valueSetMock.getValueTable()).andReturn(valueTableMock).anyTimes();
     expect(valueTableMock.getVariableValueSource("DO_YOU_SMOKE")).andReturn(variableValueSourceMock).anyTimes();
