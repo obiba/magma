@@ -42,6 +42,7 @@ import org.obiba.magma.support.AbstractVariableEntityProvider;
 import org.obiba.magma.support.Initialisables;
 import org.obiba.magma.support.NullTimestamps;
 import org.obiba.magma.support.VariableEntityBean;
+import org.obiba.magma.type.DateTimeType;
 import org.springframework.jdbc.core.RowMapper;
 
 class JdbcValueTable extends AbstractValueTable {
@@ -102,8 +103,25 @@ class JdbcValueTable extends AbstractValueTable {
 
   @Override
   public Timestamps getTimestamps() {
-    // TODO implement on timestamp columns when available.
-    return NullTimestamps.get();
+    if(hasCreatedTimestampColumn() && hasUpdatedTimestampColumn()) {
+      return new Timestamps() {
+
+        @Override
+        public Value getLastUpdate() {
+          StringBuilder sql = new StringBuilder().append("SELECT MAX(").append(getUpdatedTimestampColumnName()).append(") FROM ").append(escapedSqlTableName);
+          return DateTimeType.get().valueOf(getDatasource().getJdbcTemplate().queryForObject(sql.toString(), java.util.Date.class));
+        }
+
+        @Override
+        public Value getCreated() {
+          StringBuilder sql = new StringBuilder().append("SELECT MIN(").append(getCreatedTimestampColumnName()).append(") FROM ").append(escapedSqlTableName);
+          return DateTimeType.get().valueOf(getDatasource().getJdbcTemplate().queryForObject(sql.toString(), java.util.Date.class));
+        }
+
+      };
+    } else {
+      return NullTimestamps.get();
+    }
   }
 
   //
@@ -188,10 +206,6 @@ class JdbcValueTable extends AbstractValueTable {
         }
       }
     }
-  }
-
-  private boolean isBinaryDataType(Column column) {
-    return column.getDataType() == java.sql.Types.BLOB || column.getDataType() == java.sql.Types.VARBINARY || column.getDataType() == java.sql.Types.LONGVARBINARY;
   }
 
   private boolean metadataTablesExist() {

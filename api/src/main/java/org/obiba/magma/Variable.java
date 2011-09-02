@@ -384,7 +384,7 @@ public interface Variable extends AttributeAware {
   public String getMimeType();
 
   /**
-   * Used when this variable value is a pointer to another {@code IVariableEntity}. The value is considered to point to
+   * Used when this variable value is a pointer to another {@code VariableEntity}. The value is considered to point to
    * the referenced entity's {@code identifier}.
    * 
    * @return the {@code entityType} that this value points to, this method returns null when the variable doesn't point
@@ -406,4 +406,12 @@ public interface Variable extends AttributeAware {
    */
   public Set<Category> getCategories();
 
+  /**
+   * Returns true when {@code value} is equal to a {@code Category} marked as {@code missing} or when
+   * {@code Value#isNull} returns true
+   * 
+   * @param value the value to test
+   * @return true when the value is considered {@code missing}, false otherwise.
+   */
+  public boolean isMissingValue(Value value);
 }

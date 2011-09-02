@@ -25,12 +25,37 @@
       <version>1.7R2</version>
     </dependency>
 
-   <dependency>
+    <dependency>
+      <groupId>org.jscience</groupId>
+      <artifactId>jscience-physics</artifactId>
+      <version>5.0-r53p01</version>
+      <exclusions>
+        <exclusion>
+          <groupId>org.osgi</groupId>
+          <artifactId>core</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.osgi</groupId>
+          <artifactId>org.osgi.compendium</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+
+    <dependency>
       <groupId>org.obiba.magma</groupId>
       <artifactId>magma-xstream</artifactId>
       <version>${project.version}</version>
-      <scope>test</scope>      
+      <scope>test</scope>
     </dependency>
-    
   </dependencies>
+
+  <repositories>
+    <repository>
+      <id>java.net</id>
+      <url>https://maven.java.net/content/groups/public/</url>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+    </repository>
+  </repositories>
 </project>

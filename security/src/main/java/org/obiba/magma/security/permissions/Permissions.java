@@ -16,6 +16,8 @@ public class Permissions {
     public static final String READ = "GET";
 
     public static final String WRITE = "POST";
+
+    public static final String DELETE = "DELETE";
   }
 
   public static class Builder<T extends Builder<?>> {
@@ -57,6 +59,11 @@ public class Permissions {
 
     public T read() {
       this.action = Actions.READ;
+      return asT();
+    }
+
+    public T delete() {
+      this.action = Actions.DELETE;
       return asT();
     }
 

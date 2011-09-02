@@ -18,6 +18,8 @@ import com.google.common.collect.Multimap;
 public abstract class AbstractAttributeAwareEntity extends AbstractTimestampedEntity {
 
   @CollectionOfElements
+  // Not supported: https://hibernate.onjira.com/browse/HHH-6382
+  // @OnDelete(action = OnDeleteAction.CASCADE)
   private List<AttributeState> attributes;
 
   @Transient

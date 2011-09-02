@@ -13,7 +13,6 @@ import org.hibernate.LockOptions;
 import org.obiba.core.service.impl.hibernate.AssociationCriteria;
 import org.obiba.core.service.impl.hibernate.AssociationCriteria.Operation;
 import org.obiba.magma.Initialisable;
-import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.NoSuchValueSetException;
 import org.obiba.magma.Timestamps;
 import org.obiba.magma.Value;
@@ -25,6 +24,7 @@ import org.obiba.magma.datasource.hibernate.HibernateVariableValueSourceFactory.
 import org.obiba.magma.datasource.hibernate.converter.HibernateMarshallingContext;
 import org.obiba.magma.datasource.hibernate.domain.ValueSetState;
 import org.obiba.magma.datasource.hibernate.domain.ValueTableState;
+import org.obiba.magma.datasource.hibernate.domain.VariableState;
 import org.obiba.magma.support.AbstractValueTable;
 import org.obiba.magma.support.AbstractVariableEntityProvider;
 import org.obiba.magma.support.ValueSetBean;
@@ -33,6 +33,8 @@ import org.obiba.magma.type.DateTimeType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Function;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 
@@ -59,8 +61,6 @@ class HibernateValueTable extends AbstractValueTable {
       readVariables();
     } catch(RuntimeException e) {
       throw e;
-    } catch(Exception e) {
-      throw new MagmaRuntimeException(e);
     }
   }
 

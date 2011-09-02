@@ -1,7 +1,9 @@
 package org.obiba.magma.js.methods;
 
 import java.math.BigDecimal;
+import java.math.MathContext;
 
+import org.jscience.physics.unit.system.SI;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.Scriptable;
@@ -12,6 +14,7 @@ import org.obiba.magma.js.ScriptableValue;
 import org.obiba.magma.type.BooleanType;
 import org.obiba.magma.type.DecimalType;
 import org.obiba.magma.type.IntegerType;
+import org.unitsofmeasurement.unit.Unit;
 
 public class NumericMethods {
 
@@ -19,12 +22,12 @@ public class NumericMethods {
     DIVIDE() {
 
       @Override
-      public boolean alwaysDecimal() {
-        return true;
+      public BigDecimal operate(BigDecimal lhs, BigDecimal rhs) {
+        return lhs.divide(rhs, MathContext.DECIMAL128);
       }
 
       @Override
-      public BigDecimal operate(BigDecimal lhs, BigDecimal rhs) {
+      public Unit<?> operate(Unit<?> lhs, Unit<?> rhs) {
         return lhs.divide(rhs);
       }
     },
@@ -41,6 +44,11 @@ public class NumericMethods {
       public BigDecimal operate(BigDecimal lhs, BigDecimal rhs) {
         return lhs.multiply(rhs);
       }
+
+      @Override
+      public Unit<?> operate(Unit<?> lhs, Unit<?> rhs) {
+        return lhs.multiply(rhs);
+      }
     },
     PLUS() {
 
@@ -51,14 +59,6 @@ public class NumericMethods {
     };
 
     /**
-     * Returns true when the operation always produces a decimal (default is false).
-     * @return
-     */
-    public boolean alwaysDecimal() {
-      return false;
-    }
-
-    /**
      * Performs this operation on the provided values and returns the result
      * 
      * @param lhs
@@ -67,6 +67,10 @@ public class NumericMethods {
      * @throws ArithmeticException when the operation cannot be performed on the operands (division by zero)
      */
     public abstract BigDecimal operate(BigDecimal lhs, BigDecimal rhs) throws ArithmeticException;
+
+    public Unit<?> operate(Unit<?> lhs, Unit<?> rhs) {
+      return lhs;
+    }
   }
 
   private enum Comps {
@@ -98,6 +102,100 @@ public class NumericMethods {
     public abstract boolean apply(int value);
   }
 
+  private enum Unary {
+    ABS() {
+
+      @Override
+      public BigDecimal operate(BigDecimal value, Object[] args) {
+        return value.abs();
+      }
+    },
+    POW() {
+
+      @Override
+      public BigDecimal operate(BigDecimal value, Object[] args) {
+        BigDecimal power = asBigDecimal(args[0]);
+        try {
+          int intPower = power.intValueExact();
+          return value.pow(intPower);
+        } catch(ArithmeticException e) {
+          return BigDecimal.valueOf(Math.pow(value.doubleValue(), power.doubleValue()));
+        }
+      }
+
+      @Override
+      public Unit<?> operate(Unit<?> unit, Object[] args) {
+        BigDecimal power = asBigDecimal(args[0]);
+        try {
+          int intPower = power.intValueExact();
+          return unit.pow(intPower);
+        } catch(ArithmeticException e) {
+          return SI.ONE;
+        }
+      }
+    },
+    ROOT() {
+
+      @Override
+      public BigDecimal operate(BigDecimal value, Object[] args) {
+        if(args[0] instanceof Integer) {
+          int intRoot = ((Integer) args[0]).intValue();
+          switch(intRoot) {
+          case 2:
+            return BigDecimal.valueOf(Math.sqrt(value.doubleValue()));
+          case 3:
+            return BigDecimal.valueOf(Math.cbrt(value.doubleValue()));
+          }
+        }
+        BigDecimal root = asBigDecimal(args[0]);
+        return BigDecimal.valueOf(Math.pow(value.doubleValue(), 1 / root.doubleValue()));
+      }
+
+      @Override
+      public Unit<?> operate(Unit<?> unit, Object[] args) {
+        BigDecimal root = asBigDecimal(args[0]);
+        try {
+          int intRoot = root.intValueExact();
+          return unit.root(intRoot);
+        } catch(ArithmeticException e) {
+          return SI.ONE;
+        }
+      }
+    },
+    LOG() {
+
+      @Override
+      public BigDecimal operate(BigDecimal value, Object[] args) {
+        double log = Math.log10(value.doubleValue());
+        if(args.length > 0) {
+          double base = asBigDecimal(args[0]).doubleValue();
+          log = log / Math.log10(base);
+        }
+        return BigDecimal.valueOf(log);
+      }
+    },
+    LN() {
+
+      @Override
+      public BigDecimal operate(BigDecimal value, Object[] args) {
+        return BigDecimal.valueOf(Math.log(value.doubleValue()));
+      }
+    };
+
+    /**
+     * Performs this operation on the provided value and returns the result
+     * 
+     * @param value
+     * @return
+     * @throws ArithmeticException when the operation cannot be performed on the operands (division by zero)
+     */
+    public abstract BigDecimal operate(BigDecimal value, Object[] args) throws ArithmeticException;
+
+    public Unit<?> operate(Unit<?> unit, Object[] args) {
+      return unit;
+    }
+  }
+
   /**
    * Returns a new {@link ScriptableValue} containing the sum of the caller and the supplied parameter. If both operands
    * are of IntegerType then the returned type will also be IntegerType, otherwise the returned type is DecimalType.
@@ -109,7 +207,7 @@ public class NumericMethods {
    * DecimalType.
    */
   public static ScriptableValue plus(Context ctx, Scriptable thisObj, Object[] args, Function funObj) throws MagmaJsEvaluationRuntimeException {
-    return new ScriptableValue(thisObj, operate((ScriptableValue) thisObj, args, Ops.PLUS));
+    return operate((ScriptableValue) thisObj, args, Ops.PLUS);
   }
 
   /**
@@ -124,7 +222,7 @@ public class NumericMethods {
    * DecimalType.
    */
   public static ScriptableValue minus(Context ctx, Scriptable thisObj, Object[] args, Function funObj) throws MagmaJsEvaluationRuntimeException {
-    return new ScriptableValue(thisObj, operate((ScriptableValue) thisObj, args, Ops.MINUS));
+    return operate((ScriptableValue) thisObj, args, Ops.MINUS);
   }
 
   /**
@@ -139,7 +237,7 @@ public class NumericMethods {
    * DecimalType.
    */
   public static ScriptableValue multiply(Context ctx, Scriptable thisObj, Object[] args, Function funObj) throws MagmaJsEvaluationRuntimeException {
-    return new ScriptableValue(thisObj, operate((ScriptableValue) thisObj, args, Ops.MULTIPLY));
+    return operate((ScriptableValue) thisObj, args, Ops.MULTIPLY);
   }
 
   /**
@@ -153,7 +251,7 @@ public class NumericMethods {
    * DecimalType.
    */
   public static ScriptableValue div(Context ctx, Scriptable thisObj, Object[] args, Function funObj) throws MagmaJsEvaluationRuntimeException {
-    return new ScriptableValue(thisObj, operate((ScriptableValue) thisObj, args, Ops.DIVIDE));
+    return operate((ScriptableValue) thisObj, args, Ops.DIVIDE);
   }
 
   /**
@@ -213,23 +311,29 @@ public class NumericMethods {
   }
 
   /**
-   * Returns a new {@link ScriptableValue} that is the natural logarithm of this value. Returns null if
+   * Returns the absolute value of the input value.
+   * 
+   * <pre>
+   *   $('NumberVarOne').abs()
+   * </pre>
+   */
+  public static ScriptableValue abs(Context ctx, Scriptable thisObj, Object[] args, Function funObj) throws MagmaJsEvaluationRuntimeException {
+    return operate((ScriptableValue) thisObj, args, Unary.ABS);
+  }
+
+  /**
+   * Returns a new {@link ScriptableValue} that is the natural logarithm of this value.
    * 
    * <pre>
    *   $('NumberVarOne').ln()
    * </pre>
    */
   public static ScriptableValue ln(Context ctx, Scriptable thisObj, Object[] args, Function funObj) throws MagmaJsEvaluationRuntimeException {
-    Value thisValue = ((ScriptableValue) thisObj).getValue();
-    Value value = DecimalType.get().nullValue();
-    if(thisValue.isNull() == false) {
-      value = DecimalType.get().valueOf(Math.log(asDouble(thisValue.getValue())));
-    }
-    return new ScriptableValue(thisObj, value);
+    return operate((ScriptableValue) thisObj, args, Unary.LN);
   }
 
   /**
-   * Returns a new {@link ScriptableValue} that is the natural logarithm of this value. Returns null if
+   * Returns a new {@link ScriptableValue} that is the natural logarithm of this value.
    * 
    * <pre>
    *   $('NumberVarOne').log() // log base 10
@@ -237,22 +341,40 @@ public class NumericMethods {
    * </pre>
    */
   public static ScriptableValue log(Context ctx, Scriptable thisObj, Object[] args, Function funObj) throws MagmaJsEvaluationRuntimeException {
-    Value thisValue = ((ScriptableValue) thisObj).getValue();
-    Value value = DecimalType.get().nullValue();
-    if(thisValue.isNull() == false) {
-      // check for a base
-      Double base = null;
-      if(args != null && args.length == 1) {
-        base = asDouble(args[0]);
-      }
-      double v = Math.log10(asDouble(thisValue.getValue()));
-      if(base != null) {
-        // logb(x) == log10(x) / log(b)
-        v /= Math.log10(base);
-      }
-      value = DecimalType.get().valueOf(v);
-    }
-    return new ScriptableValue(thisObj, value);
+    return operate((ScriptableValue) thisObj, args, Unary.LOG);
+  }
+
+  /**
+   * Returns a new {@link ScriptableValue} that is the value raised to the specified power.
+   * 
+   * <pre>
+   *   $('NumberVarOne').pow(2)
+   *   $('NumberVarOne').pow(-2)
+   * </pre>
+   */
+  public static ScriptableValue pow(Context ctx, Scriptable thisObj, Object[] args, Function funObj) throws MagmaJsEvaluationRuntimeException {
+    return operate((ScriptableValue) thisObj, args, Unary.POW);
+  }
+
+  /**
+   * Returns a new {@link ScriptableValue} that is the value's {@code root} root.
+   * 
+   * <pre>
+   *   $('NumberVarOne').sqroot() // square root
+   *   $('NumberVarOne').cbroot() // cubic root
+   *   $('NumberVarOne').root(42) // arbitrary root
+   * </pre>
+   */
+  public static ScriptableValue root(Context ctx, Scriptable thisObj, Object[] args, Function funObj) throws MagmaJsEvaluationRuntimeException {
+    return operate((ScriptableValue) thisObj, args, Unary.ROOT);
+  }
+
+  public static ScriptableValue sqroot(Context ctx, Scriptable thisObj, Object[] args, Function funObj) throws MagmaJsEvaluationRuntimeException {
+    return operate((ScriptableValue) thisObj, new Object[] { 2 }, Unary.ROOT);
+  }
+
+  public static ScriptableValue cbroot(Context ctx, Scriptable thisObj, Object[] args, Function funObj) throws MagmaJsEvaluationRuntimeException {
+    return operate((ScriptableValue) thisObj, new Object[] { 3 }, Unary.ROOT);
   }
 
   static Value compare(ScriptableValue thisObj, Object args[], Comps comparator) {
@@ -266,22 +388,42 @@ public class NumericMethods {
     return BooleanType.get().trueValue();
   }
 
-  static Value operate(ScriptableValue thisObj, Object args[], Ops operation) {
+  static ScriptableValue operate(ScriptableValue thisObj, Object args[], Unary operation) {
+    if(thisObj.getValue().isNull()) {
+      return new ScriptableValue(thisObj, thisObj.getValueType().nullValue());
+    }
     try {
-      boolean allIntegerTypes = operation.alwaysDecimal() == false && thisObj.getValueType() == IntegerType.get();
+      BigDecimal value = operation.operate(asBigDecimal(thisObj), args);
+      Unit<?> unit = operation.operate(UnitMethods.extractUnit(thisObj), args);
+      try {
+        long longValue = value.longValueExact();
+        return new ScriptableValue(thisObj, IntegerType.get().valueOf(longValue), unit.toString());
+      } catch(ArithmeticException e) {
+        return new ScriptableValue(thisObj, DecimalType.get().valueOf(value.doubleValue()), unit.toString());
+      }
+    } catch(ArithmeticException e) {
+      return new ScriptableValue(thisObj, DecimalType.get().nullValue());
+    }
+  }
 
+  static ScriptableValue operate(ScriptableValue thisObj, Object args[], Ops operation) {
+    try {
       BigDecimal value = asBigDecimal(thisObj);
+      Unit<?> unit = UnitMethods.extractUnit(thisObj);
       for(Object argument : args) {
-        allIntegerTypes &= isIntegerType(argument);
         BigDecimal rhs = asBigDecimal(argument);
         value = operation.operate(value, rhs);
+        unit = operation.operate(unit, UnitMethods.extractUnit(argument));
       }
-      if(allIntegerTypes) {
-        return IntegerType.get().valueOf(value.longValue());
+
+      try {
+        long longValue = value.longValueExact();
+        return new ScriptableValue(thisObj, IntegerType.get().valueOf(longValue), unit.toString());
+      } catch(ArithmeticException e) {
+        return new ScriptableValue(thisObj, DecimalType.get().valueOf(value.doubleValue()), unit.toString());
       }
-      return DecimalType.get().valueOf(value.doubleValue());
     } catch(ArithmeticException e) {
-      return DecimalType.get().nullValue();
+      return new ScriptableValue(thisObj, DecimalType.get().nullValue());
     }
   }
 
@@ -338,4 +480,5 @@ public class NumericMethods {
     Value value = DecimalType.get().convert(scriptableValue.getValue());
     return new BigDecimal((Double) value.getValue());
   }
+
 }

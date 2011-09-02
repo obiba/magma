@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import junit.framework.Assert;
+
 import org.junit.Test;
 import org.obiba.magma.test.AbstractMagmaTest;
 import org.obiba.magma.type.IntegerType;
@@ -37,6 +39,22 @@ public class VariableTest extends AbstractMagmaTest {
   @Test(expected = IllegalArgumentException.class)
   public void testEmptyVariableName() {
     Variable.Builder.newVariable("", IntegerType.get(), "entityType");
+  }
+
+  @Test
+  public void test_isMissingValue_TextType() {
+    Variable v = Variable.Builder.newVariable("name", TextType.get(), "entityType").addCategory("YES", null, false).addCategory("DNK", null, true).build();
+    Assert.assertFalse(v.isMissingValue(TextType.get().valueOf("YES")));
+    Assert.assertTrue(v.isMissingValue(TextType.get().valueOf("DNK")));
+    Assert.assertTrue(v.isMissingValue(TextType.get().nullValue()));
+  }
+
+  @Test
+  public void test_isMissingValue_IntegerType() {
+    Variable v = Variable.Builder.newVariable("name", IntegerType.get(), "entityType").addCategory("1", null, false).addCategory("8888", null, true).build();
+    Assert.assertFalse(v.isMissingValue(IntegerType.get().valueOf(1)));
+    Assert.assertTrue(v.isMissingValue(IntegerType.get().valueOf(8888)));
+    Assert.assertTrue(v.isMissingValue(IntegerType.get().nullValue()));
   }
 
   @Test

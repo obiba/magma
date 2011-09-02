@@ -74,10 +74,28 @@ public class ConcurrentValueTableReader {
 
   public interface ConcurrentReaderCallback {
 
-    public void onBegin();
+    /**
+     * Called before reading starts. The method is provided with the list of entities and variables that will be read
+     * concurrently.
+     * 
+     * @param entities entities that will be read
+     * @param variables variables that will be read
+     */
+    public void onBegin(List<VariableEntity> entities, Variable[] variables);
 
+    /**
+     * Called when a set of {@code Value} has been read and is ready to be written. This method is not called
+     * concurrently. Implementations are not required to be threadsafe.
+     * 
+     * @param entity the {@code VariableEntity} that has been read
+     * @param variables the {@code Variable} instances for which the values were read
+     * @param values the {@code Value} instances, one per variable
+     */
     public void onValues(VariableEntity entity, Variable[] variables, Value[] values);
 
+    /**
+     * Called when all entities have been read.
+     */
     public void onComplete();
 
   }
@@ -104,30 +122,40 @@ public class ConcurrentValueTableReader {
     Variable[] variables = prepareVariables();
     VariableValueSource[] sources = prepareSources(variables);
 
+    List<VariableEntity> entitiesToCopy = ImmutableList.copyOf(entities == null ? valueTable.getVariableEntities() : entities);
+
     // A queue containing all entities to read the values for. Once this is empty, and all readers are done, then
     // reading is over.
-    BlockingQueue<VariableEntity> readQueue = new LinkedBlockingDeque<VariableEntity>(ImmutableList.copyOf(entities == null ? valueTable.getVariableEntities() : entities));
+    BlockingQueue<VariableEntity> readQueue = new LinkedBlockingDeque<VariableEntity>(entitiesToCopy);
     BlockingQueue<VariableEntityValues> writeQueue = new LinkedBlockingDeque<VariableEntityValues>();
 
-    List<Future<?>> readers = Lists.newArrayList();
-
-    for(int i = 0; i < concurrentReaders; i++) {
-      readers.add(executor.submit(new ConcurrentValueSetReader(sources, readQueue, writeQueue)));
-    }
-
     try {
-      callback.onBegin();
-      VariableEntityValues values = writeQueue.poll();
-      while(values != null || isReadCompleted(readers) == false) {
-        if(values != null) {
-          callback.onValues(values.getEntity(), variables, values.getValues());
+      callback.onBegin(entitiesToCopy, variables);
+      List<Future<?>> readers = Lists.newArrayList();
+      if(entitiesToCopy.size() > 0) {
+        for(int i = 0; i < concurrentReaders; i++) {
+          readers.add(executor.submit(new ConcurrentValueSetReader(sources, readQueue, writeQueue)));
         }
-        values = writeQueue.poll();
+
+        while(isReadCompleted(readers) == false) {
+          flushQueue(variables, writeQueue);
+        }
+        // Flush remaining values if any
+        // This is necessary due to a race condition between isReadComplete() and readers appending to the write queue
+        flushQueue(variables, writeQueue);
       }
       callback.onComplete();
       waitForReaders(readers);
     } finally {
       executor.shutdownNow();
+    }
+  }
+
+  private void flushQueue(Variable[] variables, BlockingQueue<VariableEntityValues> writeQueue) {
+    VariableEntityValues values = writeQueue.poll();
+    while(values != null) {
+      callback.onValues(values.getEntity(), variables, values.getValues());
+      values = writeQueue.poll();
     }
   }
 
@@ -174,7 +202,7 @@ public class ConcurrentValueTableReader {
     return Iterables.toArray(variables == null ? valueTable.getVariables() : variables, Variable.class);
   }
 
-  public static class VariableEntityValues {
+  private static class VariableEntityValues {
 
     private final VariableEntity entity;
 
@@ -189,6 +217,7 @@ public class ConcurrentValueTableReader {
       return entity;
     }
 
+    @edu.umd.cs.findbugs.annotations.SuppressWarnings(value = "EI_EXPOSE_REP")
     public Value[] getValues() {
       return values;
     }

@@ -132,7 +132,7 @@ public class NumericMethodsTest extends AbstractJsTest {
     ScriptableValue decimalOne = newValue(DecimalType.get().valueOf(1.5));
     ScriptableValue integerTwo = newValue(IntegerType.get().valueOf(2));
     ScriptableValue result = NumericMethods.multiply(Context.getCurrentContext(), decimalOne, new Object[] { integerTwo }, null);
-    assertThat(result.getValue(), is(DecimalType.get().valueOf(3.0)));
+    assertThat(result.getValue(), is(IntegerType.get().valueOf(3.0)));
   }
 
   @Test
@@ -140,7 +140,18 @@ public class NumericMethodsTest extends AbstractJsTest {
     ScriptableValue integerOne = newValue(IntegerType.get().valueOf(2));
     ScriptableValue decimalTwo = newValue(DecimalType.get().valueOf(1.5));
     ScriptableValue result = NumericMethods.multiply(Context.getCurrentContext(), integerOne, new Object[] { decimalTwo }, null);
-    assertThat(result.getValue(), is(DecimalType.get().valueOf(3.0)));
+    assertThat(result.getValue(), is(IntegerType.get().valueOf(3)));
+  }
+
+  @Test
+  public void test_multiply_handlesUnits() throws Exception {
+    ScriptableValue result = evaluate("multiply(newValue(5).unit('s'))", IntegerType.get().valueOf(5), "m");
+    assertThat(result.getValue(), is(IntegerType.get().valueOf(25)));
+    assertThat(result.getUnit(), is("m.s"));
+
+    result = evaluate("multiply(newValue(5).unit('s'), newValue(5).unit('s'))", IntegerType.get().valueOf(1), "m");
+    assertThat(result.getValue(), is(IntegerType.get().valueOf(25)));
+    assertThat(result.getUnit(), is("m.s2"));
   }
 
   // div
@@ -166,7 +177,7 @@ public class NumericMethodsTest extends AbstractJsTest {
     ScriptableValue nullOne = newValue(IntegerType.get().nullValue());
     ScriptableValue integerTwo = newValue(IntegerType.get().valueOf(1));
     ScriptableValue result = NumericMethods.div(Context.getCurrentContext(), nullOne, new Object[] { integerTwo }, null);
-    assertThat(result.getValue(), is(DecimalType.get().valueOf(0)));
+    assertThat(result.getValue(), is(IntegerType.get().valueOf(0)));
   }
 
   @Test
@@ -191,6 +202,17 @@ public class NumericMethodsTest extends AbstractJsTest {
     ScriptableValue integerTwo = newValue(IntegerType.get().valueOf(0));
     ScriptableValue result = NumericMethods.div(Context.getCurrentContext(), integerOne, new Object[] { integerTwo }, null);
     assertThat(result.getValue(), is(DecimalType.get().nullValue()));
+  }
+
+  @Test
+  public void test_div_handlesUnits() throws Exception {
+    ScriptableValue result = evaluate("div(newValue(5).unit('s'))", IntegerType.get().valueOf(5), "m");
+    assertThat(result.getValue(), is(IntegerType.get().valueOf(1)));
+    assertThat(result.getUnit(), is("m/s"));
+
+    result = evaluate("div(newValue(5).unit('s'), newValue(5).unit('s'))", IntegerType.get().valueOf(25), "m");
+    assertThat(result.getValue(), is(IntegerType.get().valueOf(1)));
+    assertThat(result.getUnit(), is("m/s2"));
   }
 
   // gt (>)
@@ -280,15 +302,42 @@ public class NumericMethodsTest extends AbstractJsTest {
     assertThat(result.getValue(), is(BooleanType.get().trueValue()));
   }
 
+  // abs
+
+  @Test
+  public void test_abs_evaluatesAbsoluteValue() throws Exception {
+    ScriptableValue result = evaluate("abs()", DecimalType.get().valueOf(1));
+    assertThat(result.getValue(), is(IntegerType.get().valueOf(1)));
+
+    result = evaluate("abs()", DecimalType.get().valueOf(-1));
+    assertThat(result.getValue(), is(IntegerType.get().valueOf(1)));
+
+    result = evaluate("abs()", DecimalType.get().valueOf(0));
+    assertThat(result.getValue(), is(IntegerType.get().valueOf(0)));
+  }
+
+  @Test
+  public void test_abs_acceptsIntegerType() throws Exception {
+    ScriptableValue result = evaluate("abs()", IntegerType.get().valueOf(-1));
+    assertThat(result.getValue(), is(IntegerType.get().valueOf(1)));
+  }
+
+  @Test
+  public void test_abs_handlesUnits() throws Exception {
+    ScriptableValue result = evaluate("abs()", IntegerType.get().valueOf(-1), "m");
+    assertThat(result.getValue(), is(IntegerType.get().valueOf(1)));
+    assertThat(result.getUnit(), is("m"));
+  }
+
   // ln
 
   @Test
   public void test_ln_evaluatesNaturalLogarithm() throws Exception {
     ScriptableValue result = evaluate("ln()", DecimalType.get().valueOf(1));
-    assertThat(result.getValue(), is(DecimalType.get().valueOf(0)));
+    assertThat(result.getValue(), is(IntegerType.get().valueOf(0)));
 
     result = evaluate("ln()", DecimalType.get().valueOf(Math.E));
-    assertThat(result.getValue(), is(DecimalType.get().valueOf(1)));
+    assertThat(result.getValue(), is(IntegerType.get().valueOf(1)));
 
     result = evaluate("ln()", DecimalType.get().valueOf(42));
     assertThat(result.getValue(), is(DecimalType.get().valueOf(Math.log(42))));
@@ -297,7 +346,7 @@ public class NumericMethodsTest extends AbstractJsTest {
   @Test
   public void test_ln_acceptsIntegerType() throws Exception {
     ScriptableValue result = evaluate("ln()", IntegerType.get().valueOf(1));
-    assertThat(result.getValue(), is(DecimalType.get().valueOf(0)));
+    assertThat(result.getValue(), is(IntegerType.get().valueOf(0)));
   }
 
   // log, log(base)
@@ -305,13 +354,13 @@ public class NumericMethodsTest extends AbstractJsTest {
   @Test
   public void test_log_evaluatesBase10Logarithm() throws Exception {
     ScriptableValue result = evaluate("log()", DecimalType.get().valueOf(10));
-    assertThat(result.getValue(), is(DecimalType.get().valueOf(1)));
+    assertThat(result.getValue(), is(IntegerType.get().valueOf(1)));
 
     result = evaluate("log()", DecimalType.get().valueOf(100));
-    assertThat(result.getValue(), is(DecimalType.get().valueOf(2)));
+    assertThat(result.getValue(), is(IntegerType.get().valueOf(2)));
 
     result = evaluate("log()", DecimalType.get().valueOf(1));
-    assertThat(result.getValue(), is(DecimalType.get().valueOf(0)));
+    assertThat(result.getValue(), is(IntegerType.get().valueOf(0)));
 
     result = evaluate("log()", DecimalType.get().valueOf(42));
     assertThat(result.getValue(), is(DecimalType.get().valueOf(Math.log10(42))));
@@ -320,22 +369,80 @@ public class NumericMethodsTest extends AbstractJsTest {
   @Test
   public void test_log_differentBaseThan10() throws Exception {
     ScriptableValue result = evaluate("log(2)", DecimalType.get().valueOf(2));
-    assertThat(result.getValue(), is(DecimalType.get().valueOf(1)));
+    assertThat(result.getValue(), is(IntegerType.get().valueOf(1)));
 
     result = evaluate("log(2)", DecimalType.get().valueOf(4));
-    assertThat(result.getValue(), is(DecimalType.get().valueOf(2)));
+    assertThat(result.getValue(), is(IntegerType.get().valueOf(2)));
 
     result = evaluate("log(2)", DecimalType.get().valueOf(1));
-    assertThat(result.getValue(), is(DecimalType.get().valueOf(0)));
+    assertThat(result.getValue(), is(IntegerType.get().valueOf(0)));
 
     result = evaluate("log(2)", DecimalType.get().valueOf(1024));
-    assertThat(result.getValue(), is(DecimalType.get().valueOf(10)));
+    assertThat(result.getValue(), is(IntegerType.get().valueOf(10)));
   }
 
   @Test
   public void test_log_acceptsIntegerType() throws Exception {
     ScriptableValue result = evaluate("log()", IntegerType.get().valueOf(1));
-    assertThat(result.getValue(), is(DecimalType.get().valueOf(0)));
+    assertThat(result.getValue(), is(IntegerType.get().valueOf(0)));
+  }
+
+  // pow
+
+  @Test
+  public void test_pow_evaluatesPower() throws Exception {
+    ScriptableValue result = evaluate("pow(1)", IntegerType.get().valueOf(1));
+    assertThat(result.getValue(), is(IntegerType.get().valueOf(1)));
+
+    result = evaluate("pow(2)", DecimalType.get().valueOf(Math.E));
+    assertThat(result.getValue(), is(DecimalType.get().valueOf(Math.E * Math.E)));
+
+    result = evaluate("pow(0)", IntegerType.get().valueOf(0));
+    assertThat(result.getValue(), is(IntegerType.get().valueOf(1)));
+
+    result = evaluate("pow(-1)", IntegerType.get().valueOf(10));
+    assertThat(result.getValue(), is(DecimalType.get().valueOf(0.1)));
+  }
+
+  @Test
+  public void test_pow_acceptsFractionalPowers() throws Exception {
+    ScriptableValue result = evaluate("pow(1.1)", IntegerType.get().valueOf(5));
+    assertThat(result.getValue(), is(DecimalType.get().valueOf(Math.pow(5, 1.1))));
+  }
+
+  @Test
+  public void test_pow_handlesUnits() throws Exception {
+    ScriptableValue result = evaluate("pow(2)", IntegerType.get().valueOf(5), "s");
+    assertThat(result.getValue(), is(IntegerType.get().valueOf(25)));
+    assertThat(result.getUnit(), is("s2"));
+
+    result = evaluate("pow(-1)", IntegerType.get().valueOf(5), "m");
+    assertThat(result.getValue(), is(DecimalType.get().valueOf(1 / 5d)));
+    assertThat(result.getUnit(), is("1/m"));
+  }
+
+  // roots
+
+  @Test
+  public void test_root_evaluatesRoot() throws Exception {
+    ScriptableValue result = evaluate("sqroot()", IntegerType.get().valueOf(4));
+    assertThat(result.getValue(), is(IntegerType.get().valueOf(2)));
+
+    result = evaluate("root(2)", IntegerType.get().valueOf(4));
+    assertThat(result.getValue(), is(IntegerType.get().valueOf(2)));
+
+    result = evaluate("cbroot()", IntegerType.get().valueOf(27));
+    assertThat(result.getValue(), is(IntegerType.get().valueOf(3)));
+
+    result = evaluate("root(3)", IntegerType.get().valueOf(27));
+    assertThat(result.getValue(), is(IntegerType.get().valueOf(3)));
+  }
+
+  @Test
+  public void test_root_handlesUnits() throws Exception {
+    ScriptableValue result = evaluate("sqroot()", IntegerType.get().valueOf(4), "m2/s2");
+    assertThat(result.getValue(), is(IntegerType.get().valueOf(2)));
+    assertThat(result.getUnit(), is("m/s"));
   }
 
 }

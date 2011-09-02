@@ -11,6 +11,8 @@ public interface ViewManager extends Decorator<Datasource> {
 
   public void removeView(String datasourceName, String viewName);
 
+  public void removeAllViews(String datasourceName);
+
   public boolean hasView(String datasourceName, String viewName);
 
   public View getView(String datasourceName, String viewName);

@@ -105,4 +105,18 @@ class VariableBean extends AbstractAttributeAware implements Variable, Serializa
   public int hashCode() {
     return name.hashCode();
   }
+
+  @Override
+  public boolean isMissingValue(Value value) {
+    if(value.isNull() || hasCategories() == false) {
+      return value.isNull();
+    }
+    for(Category c : getCategories()) {
+      Value categoryValue = getValueType().valueOf(c.getName());
+      if(categoryValue.equals(value)) {
+        return c.isMissing();
+      }
+    }
+    return false;
+  }
 }

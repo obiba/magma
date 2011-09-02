@@ -6,6 +6,7 @@ import java.util.Set;
 
 import org.obiba.magma.Attribute;
 import org.obiba.magma.Datasource;
+import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.NoSuchAttributeException;
 import org.obiba.magma.NoSuchValueTableException;
 import org.obiba.magma.Value;
@@ -49,7 +50,7 @@ public class SecuredDatasource implements Datasource {
   @Override
   public ValueTable getValueTable(String name) throws NoSuchValueTableException {
     ValueTable table = getWrappedDatasource().getValueTable(name);
-    if(table != null && canReadTable(name) == false) throw new NoSuchValueTableException(datasource.getName(), name);
+    if(table != null && authzReadTable(name) == false) throw new NoSuchValueTableException(datasource.getName(), name);
     return new SecuredValueTable(authz, this, table);
   }
 
@@ -66,7 +67,7 @@ public class SecuredDatasource implements Datasource {
 
   @Override
   public boolean hasValueTable(String name) {
-    return getWrappedDatasource().hasValueTable(name) && canReadTable(name);
+    return getWrappedDatasource().hasValueTable(name) && authzReadTable(name);
   }
 
   @Override
@@ -129,12 +130,31 @@ public class SecuredDatasource implements Datasource {
     return getWrappedDatasource().hasAttributes();
   }
 
+  @Override
+  public boolean canDropTable(String name) {
+    return getWrappedDatasource().canDropTable(name) && authzDropTable(name);
+  }
+
+  public void dropTable(String name) {
+    if(hasValueTable(name) == true) {
+      if(authzDropTable(name) == false) {
+        throw new MagmaRuntimeException("not authorized to drop table " + getName() + "." + name);
+      } else {
+        getWrappedDatasource().dropTable(name);
+      }
+    }
+  }
+
   protected Datasource getWrappedDatasource() {
     return this.datasource;
   }
 
-  protected boolean canReadTable(String name) {
+  protected boolean authzReadTable(String name) {
     return authz.isPermitted(builder().table(name).read().build());
+  }
+
+  protected boolean authzDropTable(String name) {
+    return authz.isPermitted(builder().table(name).delete().build());
   }
 
   private DatasourcePermissionBuilder builder() {

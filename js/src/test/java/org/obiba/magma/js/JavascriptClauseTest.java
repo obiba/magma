@@ -57,18 +57,22 @@ public class JavascriptClauseTest extends AbstractJsTest {
     ValueTable valueTableMock = createMock(ValueTable.class);
     ValueSet valueSetMock = createMock(ValueSet.class);
     VariableValueSource variableValueSourceMock = createMock(VariableValueSource.class);
+    Variable variableMock = createMock(Variable.class);
 
     expect(valueSetMock.getValueTable()).andReturn(valueTableMock).anyTimes();
     expect(valueTableMock.getVariableValueSource("DO_YOU_SMOKE")).andReturn(variableValueSourceMock).anyTimes();
     expect(variableValueSourceMock.getValue(valueSetMock)).andReturn(TextType.get().valueOf("Yes"));
-    replay(valueSetMock, valueTableMock, variableValueSourceMock);
+    expect(variableValueSourceMock.getVariable()).andReturn(variableMock).once();
+    expect(variableMock.getUnit()).andReturn(null).once();
+
+    replay(valueSetMock, valueTableMock, variableValueSourceMock, variableMock);
 
     JavascriptClause javascriptClause = new JavascriptClause("$('DO_YOU_SMOKE').any('DNK', 'PNA').not()");
     javascriptClause.initialise();
     boolean result = javascriptClause.where(valueSetMock);
 
     // Verify behaviour.
-    verify(valueSetMock, valueTableMock, variableValueSourceMock);
+    verify(valueSetMock, valueTableMock, variableValueSourceMock, variableMock);
 
     // Verify state.
     assertEquals(true, result);
@@ -79,21 +83,23 @@ public class JavascriptClauseTest extends AbstractJsTest {
     ValueTable valueTableMock = createMock(ValueTable.class);
     ValueSet valueSetMock = createMock(ValueSet.class);
     VariableValueSource variableValueSourceMock = createMock(VariableValueSource.class);
+    Variable variableMock = createMock(Variable.class);
 
     expect(valueSetMock.getValueTable()).andReturn(valueTableMock).anyTimes();
     expect(valueTableMock.getVariableValueSource("DO_YOU_SMOKE")).andReturn(variableValueSourceMock).anyTimes();
     expect(variableValueSourceMock.getValue(valueSetMock)).andReturn(TextType.get().valueOf("DNK"));
-    replay(valueSetMock, valueTableMock, variableValueSourceMock);
+    expect(variableValueSourceMock.getVariable()).andReturn(variableMock).once();
+    expect(variableMock.getUnit()).andReturn(null).once();
+    replay(valueSetMock, valueTableMock, variableValueSourceMock, variableMock);
 
     JavascriptClause javascriptClause = new JavascriptClause("$('DO_YOU_SMOKE').any(true, 'DNK', 'PNA').not()");
     javascriptClause.initialise();
     boolean result = javascriptClause.where(valueSetMock);
 
     // Verify behaviour.
-    verify(valueSetMock, valueTableMock, variableValueSourceMock);
+    verify(valueSetMock, valueTableMock, variableValueSourceMock, variableMock);
 
     // Verify state.
     assertEquals(false, result);
   }
-
 }

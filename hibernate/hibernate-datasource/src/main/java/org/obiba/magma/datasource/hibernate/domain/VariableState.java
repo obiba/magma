@@ -38,7 +38,7 @@ public class VariableState extends AbstractAttributeAwareEntity implements Times
   private String name;
 
   @ManyToOne(optional = false)
-  @JoinColumn(name = "value_table_id")
+  @JoinColumn(name = "value_table_id", insertable = false, updatable = false)
   private ValueTableState valueTable;
 
   @OneToMany(cascade = CascadeType.ALL)
@@ -46,6 +46,8 @@ public class VariableState extends AbstractAttributeAwareEntity implements Times
   @IndexColumn(name = "category_index", nullable = false)
   // Used to prevent an association table from being created
   @JoinColumn(name = "variable_id", nullable = false)
+  // Not supported: https://hibernate.onjira.com/browse/HHH-6382
+  // @OnDelete(action = OnDeleteAction.CASCADE)
   private List<CategoryState> categories;
 
   @Column(nullable = false)
@@ -65,8 +67,6 @@ public class VariableState extends AbstractAttributeAwareEntity implements Times
 
   @Column(nullable = false)
   private boolean repeatable;
-
-  private Integer pos;
 
   public VariableState() {
     super();
@@ -156,14 +156,6 @@ public class VariableState extends AbstractAttributeAwareEntity implements Times
 
   public void setValueType(ValueType valueType) {
     this.valueType = valueType;
-  }
-
-  public Integer getPosition() {
-    return pos;
-  }
-
-  public void setPosition(Integer pos) {
-    this.pos = pos;
   }
 
   public void setRepeatable(boolean repeatable) {

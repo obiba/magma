@@ -141,13 +141,18 @@ public class VariablesClauseTest extends AbstractJsTest {
     ValueTable valueTableMock = createMock(ValueTable.class);
     ValueSet valueSetMock = createMock(ValueSet.class);
     VariableValueSource variableValueSourceMock = createMock(VariableValueSource.class);
+    Variable mockVariable = createMock(Variable.class);
+
     expect(valueSetMock.getValueTable()).andReturn(valueTableMock).anyTimes();
     expect(valueSetMock.getVariableEntity()).andReturn(createMock(VariableEntity.class));
     expect(valueTableMock.getVariable("HealthQuestionnaireIdentification.SEX")).andReturn(buildHealthQuestionnaireIdentificationSex()).anyTimes();
 
     expect(valueTableMock.getVariableValueSource("Admin.Participant.birthDate")).andReturn(variableValueSourceMock).once();
     expect(variableValueSourceMock.getValue(valueSetMock)).andReturn(adminParticipantBirthDateValue).once();
-    replay(valueSetMock, valueTableMock, variableValueSourceMock);
+    expect(variableValueSourceMock.getVariable()).andReturn(mockVariable).once();
+    expect(mockVariable.getUnit()).andReturn(null).once();
+
+    replay(valueSetMock, valueTableMock, variableValueSourceMock, mockVariable);
     VariablesClause clause = new VariablesClause();
     clause.setVariables(variables);
     clause.setValueTable(valueTableMock);
@@ -157,7 +162,7 @@ public class VariablesClauseTest extends AbstractJsTest {
     assertThat(variableValueSource, is(notNullValue()));
 
     Value result = variableValueSource.getValue(valueSetMock);
-    verify(valueSetMock, valueTableMock, variableValueSourceMock);
+    verify(valueSetMock, valueTableMock, variableValueSourceMock, mockVariable);
 
     assertThat(result.getValueType(), is((ValueType) IntegerType.get()));
     assertThat(result, is(IntegerType.get().valueOf(1955)));
@@ -189,12 +194,17 @@ public class VariablesClauseTest extends AbstractJsTest {
     ValueTable valueTableMock = createMock(ValueTable.class);
     ValueSet valueSetMock = createMock(ValueSet.class);
     VariableValueSource variableValueSourceMock = createMock(VariableValueSource.class);
+    Variable mockVariable = createMock(Variable.class);
+
     expect(valueSetMock.getValueTable()).andReturn(valueTableMock).anyTimes();
     expect(valueSetMock.getVariableEntity()).andReturn(createMock(VariableEntity.class)).anyTimes();
     expect(valueTableMock.getVariable("HealthQuestionnaireIdentification.SEX")).andReturn(buildHealthQuestionnaireIdentificationSex()).once();
     expect(valueTableMock.getVariableValueSource("HealthQuestionnaireIdentification.SEX")).andReturn(variableValueSourceMock).once();
     expect(variableValueSourceMock.getValue(valueSetMock)).andReturn(healthQuestionnaireIdentificationSexValue).once();
-    replay(valueSetMock, valueTableMock, variableValueSourceMock);
+    expect(variableValueSourceMock.getVariable()).andReturn(mockVariable).once();
+    expect(mockVariable.getUnit()).andReturn(null).once();
+
+    replay(valueSetMock, valueTableMock, variableValueSourceMock, mockVariable);
 
     VariablesClause clause = new VariablesClause();
     clause.setValueTable(valueTableMock);
@@ -205,7 +215,7 @@ public class VariablesClauseTest extends AbstractJsTest {
     assertThat(variableValueSource, is(notNullValue()));
 
     Value result = variableValueSource.getValue(valueSetMock);
-    verify(valueSetMock, valueTableMock, variableValueSourceMock);
+    verify(valueSetMock, valueTableMock, variableValueSourceMock, mockVariable);
 
     assertThat(result.getValueType(), is((ValueType) IntegerType.get()));
     assertThat(result, is(IntegerType.get().valueOf(5)));

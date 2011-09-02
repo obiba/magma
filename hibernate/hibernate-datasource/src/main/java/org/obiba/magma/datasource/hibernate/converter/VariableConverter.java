@@ -1,7 +1,5 @@
 package org.obiba.magma.datasource.hibernate.converter;
 
-import org.obiba.core.service.impl.hibernate.AssociationCriteria;
-import org.obiba.core.service.impl.hibernate.AssociationCriteria.Operation;
 import org.obiba.magma.Category;
 import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.Variable;
@@ -16,8 +14,10 @@ public class VariableConverter extends AttributeAwareConverter implements Hibern
   }
 
   public VariableState getStateForVariable(Variable variable, HibernateMarshallingContext context) {
-    AssociationCriteria criteria = AssociationCriteria.create(VariableState.class, context.getSessionFactory().getCurrentSession()).add("valueTable", Operation.eq, context.getValueTable()).add("name", Operation.eq, variable.getName());
-    return (VariableState) criteria.getCriteria().setCacheable(true).uniqueResult();
+    for(VariableState state : context.getValueTable().getVariables()) {
+      if(state.getName().equals(variable.getName())) return state;
+    }
+    return null;
   }
 
   @Override
@@ -27,6 +27,7 @@ public class VariableConverter extends AttributeAwareConverter implements Hibern
       variableState.copyVariableFields(variable);
     } else {
       variableState = new VariableState(context.getValueTable(), variable);
+      context.getValueTable().getVariables().add(variableState);
     }
 
     if(variableState.getValueType() != variable.getValueType()) {
@@ -35,8 +36,6 @@ public class VariableConverter extends AttributeAwareConverter implements Hibern
 
     addAttributes(variable, variableState);
     marshalCategories(variable, variableState);
-
-    context.getSessionFactory().getCurrentSession().save(variableState);
 
     return variableState;
   }

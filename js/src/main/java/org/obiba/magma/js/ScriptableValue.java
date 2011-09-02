@@ -26,6 +26,8 @@ public class ScriptableValue extends ScriptableObject {
 
   private Value value;
 
+  private String unit;
+
   /**
    * No-arg ctor for building the prototype
    */
@@ -33,12 +35,25 @@ public class ScriptableValue extends ScriptableObject {
 
   }
 
-  public ScriptableValue(Scriptable scope, Value value) {
+  public ScriptableValue(Scriptable scope, Value value, String unit) {
     super(scope, ScriptableObject.getClassPrototype(scope, VALUE_CLASS_NAME));
     if(value == null) {
-      throw new NullPointerException("values cannot be null");
+      throw new NullPointerException("value cannot be null");
     }
     this.value = value;
+    this.unit = unit;
+  }
+
+  public ScriptableValue(Scriptable scope, Value value) {
+    this(scope, value, null);
+  }
+
+  public boolean hasUnit() {
+    return unit != null;
+  }
+
+  public String getUnit() {
+    return unit;
   }
 
   @Override

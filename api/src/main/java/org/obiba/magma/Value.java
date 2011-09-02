@@ -8,9 +8,9 @@ public class Value implements Serializable, Comparable<Value> {
 
   private static final Serializable NULL = "org.obiba.magma.Value.NULL".intern();
 
-  private ValueType valueType;
+  private final ValueType valueType;
 
-  private Object value;
+  private final Object value;
 
   Value(ValueType valueType, Object value) {
     if(valueType == null) throw new IllegalArgumentException("valueType cannot be null");
@@ -40,8 +40,8 @@ public class Value implements Serializable, Comparable<Value> {
   /**
    * Returns true when this {@code Value} instance holds a sequence of other {@code Value} instances. In this situation,
    * the {@code ValueType} of this {@code Value} is the same as the {@code ValueType} of the items in the sequence. That
-   * is if the sequence holds {@code Value} instances of type {@code TextType}, then this {@code Value} also has {@code
-   * TextType} as its {@code ValueType}.
+   * is if the sequence holds {@code Value} instances of type {@code TextType}, then this {@code Value} also has
+   * {@code TextType} as its {@code ValueType}.
    * 
    * @return true when this {@code Value} holds a sequence of other {@code Value} instances
    */

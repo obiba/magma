@@ -4,7 +4,6 @@
 package org.obiba.magma.datasource.hibernate;
 
 import java.io.IOException;
-import java.security.InvalidParameterException;
 import java.util.Map;
 
 import org.hibernate.FlushMode;
@@ -70,6 +69,8 @@ class HibernateValueTableWriter implements ValueTableWriter {
 
   private class HibernateVariableWriter implements VariableWriter {
 
+    private HibernateMarshallingContext context = valueTable.createContext();
+
     private HibernateVariableWriter() {
     }
 
@@ -77,12 +78,11 @@ class HibernateValueTableWriter implements ValueTableWriter {
     public void writeVariable(Variable variable) {
       if(variable == null) throw new IllegalArgumentException("variable cannot be null");
       if(!valueTable.isForEntityType(variable.getEntityType())) {
-        throw new InvalidParameterException("Wrong entity type for variable '" + variable.getName() + "': " + valueTable.getEntityType() + " expected, " + variable.getEntityType() + " received.");
+        throw new IllegalArgumentException("Wrong entity type for variable '" + variable.getName() + "': " + valueTable.getEntityType() + " expected, " + variable.getEntityType() + " received.");
       }
 
       // add or update variable
       errorOccurred = true;
-      HibernateMarshallingContext context = valueTable.createContext();
       VariableState state = variableConverter.marshal(variable, context);
       transaction.addSource(valueSourceFactory.createSource(state));
       errorOccurred = false;

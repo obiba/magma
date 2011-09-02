@@ -13,6 +13,7 @@ import org.hibernate.ScrollMode;
 import org.hibernate.ScrollableResults;
 import org.hibernate.Session;
 import org.hibernate.criterion.Restrictions;
+import org.obiba.core.service.SortingClause;
 import org.obiba.core.service.impl.hibernate.AssociationCriteria;
 import org.obiba.core.service.impl.hibernate.AssociationCriteria.Operation;
 import org.obiba.magma.Value;
@@ -43,16 +44,20 @@ class HibernateVariableValueSourceFactory implements VariableValueSourceFactory 
   @Override
   public Set<VariableValueSource> createSources() {
     Set<VariableValueSource> sources = new LinkedHashSet<VariableValueSource>();
-    AssociationCriteria criteria = AssociationCriteria.create(VariableState.class, getCurrentSession()).add("valueTable", Operation.eq, valueTable.getValueTableState());
+    AssociationCriteria criteria = AssociationCriteria.create(VariableState.class, getCurrentSession()).add("valueTable", Operation.eq, valueTable.getValueTableState()).addSortingClauses(SortingClause.create("id"));
     for(Object obj : criteria.getCriteria().setFetchMode("categories", FetchMode.JOIN).list()) {
       VariableState state = (VariableState) obj;
-      sources.add(new HibernateVariableValueSource(state, true));
+      sources.add(createSource(state));
     }
     return sources;
   }
 
   VariableValueSource createSource(VariableState variableState) {
-    return new HibernateVariableValueSource(variableState, true);
+    return createSource(variableState, true);
+  }
+
+  VariableValueSource createSource(VariableState variableState, boolean b) {
+    return new HibernateVariableValueSource(variableState, b);
   }
 
   private Session getCurrentSession() {
@@ -61,17 +66,17 @@ class HibernateVariableValueSourceFactory implements VariableValueSourceFactory 
 
   class HibernateVariableValueSource implements VariableValueSource, VectorSource {
 
-    private final Serializable variableId;
-
     private final String name;
+
+    private Serializable variableId;
 
     private Variable variable;
 
     public HibernateVariableValueSource(VariableState state, boolean unmarshall) {
       if(state == null) throw new IllegalArgumentException("state cannot be null");
-      if(state.getId() == null) throw new IllegalArgumentException("state must be persisted");
-      this.variableId = state.getId();
+
       this.name = state.getName();
+      this.variableId = state.getId();
 
       if(unmarshall) {
         unmarshall(state);
@@ -85,7 +90,7 @@ class HibernateVariableValueSourceFactory implements VariableValueSourceFactory 
     @Override
     public synchronized Variable getVariable() {
       if(variable == null) {
-        VariableState state = (VariableState) getCurrentSession().createCriteria(VariableState.class).add(Restrictions.idEq(this.variableId)).setFetchMode("categories", FetchMode.JOIN).uniqueResult();
+        VariableState state = (VariableState) getCurrentSession().createCriteria(VariableState.class).add(Restrictions.idEq(ensureVariableId())).setFetchMode("categories", FetchMode.JOIN).uniqueResult();
         unmarshall(state);
       }
       return variable;
@@ -113,7 +118,7 @@ class HibernateVariableValueSourceFactory implements VariableValueSourceFactory 
       // This will returns one row per value set in the value table (so it includes nulls)
       final Query valuesQuery = getCurrentSession().getNamedQuery("allValues")//
       .setParameter("valueTableId", valueTable.getValueTableState().getId())//
-      .setParameter("variableId", valueTable.getVariableId(getVariable()));
+      .setParameter("variableId", ensureVariableId());
 
       return new Iterable<Value>() {
 
@@ -196,6 +201,17 @@ class HibernateVariableValueSourceFactory implements VariableValueSourceFactory 
      */
     private void unmarshall(VariableState state) {
       variable = VariableConverter.getInstance().unmarshal(state, null);
+    }
+
+    private Serializable ensureVariableId() {
+      if(variableId == null) {
+        VariableState state = (VariableState) getCurrentSession().createCriteria(VariableState.class)//
+        .add(Restrictions.eq("name", name))//
+        .add(Restrictions.eq("valueTable", valueTable.getValueTableState())).uniqueResult();
+        if(state == null) throw new IllegalStateException("variable '" + name + "' not persisted yet.");
+        this.variableId = state.getId();
+      }
+      return variableId;
     }
 
     @Override

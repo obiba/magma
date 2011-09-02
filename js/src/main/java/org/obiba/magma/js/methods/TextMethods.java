@@ -12,8 +12,10 @@ import org.mozilla.javascript.Scriptable;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueType;
 import org.obiba.magma.js.MagmaJsEvaluationRuntimeException;
+import org.obiba.magma.js.Rhino;
 import org.obiba.magma.js.ScriptableValue;
 import org.obiba.magma.type.BooleanType;
+import org.obiba.magma.type.IntegerType;
 import org.obiba.magma.type.TextType;
 
 /**
@@ -202,10 +204,16 @@ public class TextMethods {
       return defaultValue;
     }
 
-    if(value.getValueType().isNumeric()) {
-      newValue = valueMap.get(((Number) value.getValue()).intValue(), null);
-    } else {
-      newValue = valueMap.get((String) value.toString(), null);
+    // MAGMA-163: lookup using string and index-based keys
+    // Lookup using a string-based key
+    String asName = value.toString();
+    newValue = valueMap.get(asName, null);
+    if(newValue == NativeObject.NOT_FOUND) {
+      // Not found, try converting the input to an Integer and use an indexed-lookup if it works
+      Integer index = asJsIndex(value);
+      if(index != null) {
+        newValue = valueMap.get(index, null);
+      }
     }
 
     if(newValue == null) {
@@ -224,15 +232,32 @@ public class TextMethods {
       } else {
         newValue = evaluatedValue;
       }
-    } else if(newValue instanceof Double) {
-      // HACK: for rhino bug 448499: https://bugzilla.mozilla.org/show_bug.cgi?id=448499
-      if(((Double) newValue).doubleValue() == 1.0d) {
-        newValue = (int) 1;
-      } else if(((Double) newValue).doubleValue() == 0.0d) {
-        newValue = (int) 0;
-      }
     }
 
-    return returnType.valueOf(newValue);
+    return returnType.valueOf(Rhino.fixRhinoNumber(newValue));
   }
+
+  /**
+   * Try to convert the input value as a index usable as a integer-based lookup
+   * @param value
+   * @return
+   */
+  private static Integer asJsIndex(Value value) {
+    Number asNumber = null;
+    if(value.getValueType() == IntegerType.get()) {
+      asNumber = (Number) value.getValue();
+    } else {
+      try {
+        // Try a conversion. Throws a runtime exception when it fails
+        asNumber = (Number) IntegerType.get().convert(value).getValue();
+      } catch(RuntimeException e) {
+        // ignored
+      }
+    }
+    if(asNumber != null) {
+      return asNumber.intValue();
+    }
+    return null;
+  }
+
 }

@@ -101,6 +101,34 @@ public class TextMethodsTest extends AbstractJsTest {
   }
 
   @Test
+  public void testMapWithMappingThatHasIntegerKeyAndStringLookup() {
+    ScriptableValue value = evaluate("map({'YES':1, '996':2})", TextType.get().valueOf("996"));
+    assertThat(value, notNullValue());
+    assertThat(value.getValue(), is(TextType.get().valueOf(2)));
+  }
+
+  @Test
+  public void testMapWithMappingThatHasIntegerKeyAndIntegerLookup() {
+    ScriptableValue value = evaluate("map({'YES':1, '996':2})", IntegerType.get().valueOf("996"));
+    assertThat(value, notNullValue());
+    assertThat(value.getValue(), is(TextType.get().valueOf(2)));
+  }
+
+  @Test
+  public void testMapWithMappingThatHasIntegerKeysOnly() {
+    ScriptableValue value = evaluate("map({999:1, 996:2})", IntegerType.get().valueOf("996"));
+    assertThat(value, notNullValue());
+    assertThat(value.getValue(), is(TextType.get().valueOf(2)));
+  }
+
+  @Test
+  public void testMapWithMappingThatHasIntegerKeyAndNotFoundValue() {
+    ScriptableValue value = evaluate("map({999:1, 996:2})", IntegerType.get().valueOf("998"));
+    assertThat(value, notNullValue());
+    assertThat(value.getValue(), is(TextType.get().nullValue()));
+  }
+
+  @Test
   public void testMapWithSimpleMappingAndNullInput() {
     ScriptableValue value = evaluate("map({'YES':1, 'NO':2})", TextType.get().nullValue());
     assertThat(value, notNullValue());

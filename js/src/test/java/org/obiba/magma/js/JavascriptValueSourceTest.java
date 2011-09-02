@@ -18,6 +18,7 @@ import org.obiba.magma.VariableEntity;
 import org.obiba.magma.type.DateTimeType;
 import org.obiba.magma.type.DecimalType;
 import org.obiba.magma.type.IntegerType;
+import org.obiba.magma.type.TextType;
 
 public class JavascriptValueSourceTest extends AbstractJsTest {
 
@@ -73,4 +74,14 @@ public class JavascriptValueSourceTest extends AbstractJsTest {
       Assert.assertTrue("Unexpected exception type " + e.getClass(), false);
     }
   }
+
+  @Test
+  public void test_Opal1110() {
+    JavascriptValueSource source = new JavascriptValueSource(TextType.get(), "1");
+    source.initialise();
+
+    Value value = source.getValue(mockValueSet);
+    Assert.assertEquals("1", value.getValue());
+  }
+
 }

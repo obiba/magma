@@ -9,6 +9,7 @@ import org.obiba.magma.Disposable;
 import org.obiba.magma.Initialisable;
 import org.obiba.magma.NoSuchValueSetException;
 import org.obiba.magma.NoSuchVariableException;
+import org.obiba.magma.Timestamps;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueSet;
 import org.obiba.magma.ValueTable;
@@ -23,6 +24,7 @@ import org.obiba.magma.support.Initialisables;
 import org.obiba.magma.transform.BijectiveFunction;
 import org.obiba.magma.transform.BijectiveFunctions;
 import org.obiba.magma.transform.TransformingValueTable;
+import org.obiba.magma.type.DateTimeType;
 import org.obiba.magma.views.support.AllClause;
 import org.obiba.magma.views.support.NoneClause;
 
@@ -45,6 +47,10 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
 
   /** A list of derived variables. Mutually exclusive with "select". */
   private ListClause variables;
+
+  private Value created;
+
+  private Value updated;
 
   private transient ViewAwareDatasource viewDatasource;
 
@@ -77,6 +83,9 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
     setSelectClause(selectClause);
     setWhereClause(whereClause);
     setListClause(new NoneClause());
+
+    created = DateTimeType.get().now();
+    updated = DateTimeType.get().now();
   }
 
   public View(String name, ValueTable... from) {
@@ -125,10 +134,6 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
     return !(variables instanceof NoneClause);
   }
 
-  //
-  // AbstractValueTableWrapper Methods
-  //
-
   @Override
   public Datasource getDatasource() {
     return viewDatasource != null ? viewDatasource : getWrappedValueTable().getDatasource();
@@ -136,6 +141,28 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
 
   public ValueTable getWrappedValueTable() {
     return from;
+  }
+
+  @Override
+  public Timestamps getTimestamps() {
+    return new Timestamps() {
+
+      @Override
+      public Value getLastUpdate() {
+        return (updated == null || updated.isNull()) ? from.getTimestamps().getLastUpdate() : updated;
+      }
+
+      @Override
+      public Value getCreated() {
+        return (created == null || created.isNull()) ? from.getTimestamps().getCreated() : created;
+      }
+    };
+  }
+
+  public void setCreated(Value created) {
+    if(created == null) created = DateTimeType.get().nullValue();
+    if(created.getValueType() != DateTimeType.get()) throw new IllegalArgumentException();
+    this.created = created;
   }
 
   @Override

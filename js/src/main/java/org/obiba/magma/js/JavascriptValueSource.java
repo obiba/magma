@@ -181,15 +181,16 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
             int length = Array.getLength(value);
             List<Value> values = new ArrayList<Value>(length);
             for(int i = 0; i < length; i++) {
-              values.add(getValueType().valueOf(Array.get(value, i)));
+              Object v = Rhino.fixRhinoNumber(Array.get(value, i));
+              values.add(getValueType().valueOf(v));
             }
             result = getValueType().sequenceOf(values);
           } else {
             // Build a singleton sequence
-            result = getValueType().sequenceOf(ImmutableList.of(getValueType().valueOf(value)));
+            result = getValueType().sequenceOf(ImmutableList.of(getValueType().valueOf(Rhino.fixRhinoNumber(value))));
           }
         } else {
-          result = getValueType().valueOf(value);
+          result = getValueType().valueOf(Rhino.fixRhinoNumber(value));
         }
       }
 
@@ -233,6 +234,8 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
 
     private final SortedSet<VariableEntity> entities;
 
+    private final VectorCache vectorCache = new VectorCache();
+
     ValueVectorEvaluationContextAction(SortedSet<VariableEntity> entities) {
       this.entities = entities;
     }
@@ -248,7 +251,7 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
     void enterContext(MagmaContext context, Scriptable scope) {
       super.enterContext(context, scope);
       context.push(SortedSet.class, getEntities(context));
-      context.push(VectorCache.class, new VectorCache());
+      context.push(VectorCache.class, vectorCache);
     }
 
     @Override
@@ -260,10 +263,13 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
             // We have to set the current thread's context because this code will be executed outside of the
             // ContextAction.
             ContextFactory.getGlobal().enterContext(context);
+            context.push(VectorCache.class, vectorCache);
+            context.push(SortedSet.class, entities);
             context.push(VariableEntity.class, from);
             return asValue(compiledScript.exec(context, scope));
           } finally {
-            context.peek(VectorCache.class).next();
+            context.pop(VectorCache.class).next();
+            context.pop(SortedSet.class);
             context.pop(VariableEntity.class);
             Context.exit();
           }
@@ -285,6 +291,7 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
     }
 
     // Returns the value of the current "row" for the specified vector
+    @SuppressWarnings("unchecked")
     public Value get(MagmaContext context, VectorSource source) {
       VectorHolder holder = vectors.get(source);
       if(holder == null) {
