@@ -20,10 +20,22 @@ public class UnitMethodsTest extends AbstractJsTest {
   }
 
   @Test
+  public void test_unit_acceptsScriptableValue() {
+    ScriptableValue value = evaluate("unit(newValue('cm'))", IntegerType.get().valueOf(150));
+    assertThat(value.getUnit(), is("cm"));
+  }
+
+  @Test
   public void test_unit_returnsUnitWhenNoArgument() {
     ScriptableValue value = evaluate("unit()", IntegerType.get().valueOf(150), "cm");
     assertThat(value.getUnit(), nullValue());
     assertThat(value.getValue(), is(TextType.get().valueOf("cm")));
+  }
+
+  @Test
+  public void test_unit_returnsNullValueWhenNoUnitIsDefined() {
+    ScriptableValue value = evaluate("unit()", IntegerType.get().valueOf(150));
+    assertThat(value.getValue().isNull(), is(true));
   }
 
   @Test

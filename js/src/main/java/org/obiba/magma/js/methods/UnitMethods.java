@@ -38,7 +38,8 @@ public class UnitMethods {
   public static ScriptableValue unit(Context ctx, Scriptable thisObj, Object[] args, Function funObj) throws MagmaJsEvaluationRuntimeException {
     ScriptableValue value = (ScriptableValue) thisObj;
     if(args.length == 1) {
-      return new ScriptableValue(value, value.getValue(), (String) args[0]);
+      String newUnit = asString(args[0]);
+      return new ScriptableValue(value, value.getValue(), newUnit);
     }
     return new ScriptableValue(value, TextType.get().valueOf(value.getUnit()));
   }
@@ -108,5 +109,15 @@ public class UnitMethods {
       return extractUnit(scriptableValue.getUnit());
     }
     return SI.ONE;
+  }
+
+  private static String asString(Object arg) {
+    if(arg == null) return null;
+    if(arg instanceof String) return (String) arg;
+    if(arg instanceof ScriptableValue) {
+      ScriptableValue value = (ScriptableValue) arg;
+      return value.getValue().toString();
+    }
+    return arg.toString();
   }
 }
