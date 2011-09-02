@@ -67,7 +67,7 @@ public class UnitMethods {
 
     if(source == SI.ONE) {
       if(Strings.isNullOrEmpty(value.getUnit())) {
-        throw new MagmaJsEvaluationRuntimeException(String.format("current unit is not specified. use unit() method to specify it.", value.getUnit()));
+        throw new MagmaJsEvaluationRuntimeException(String.format("current unit is not specified. use unit() method to specify it."));
       }
       throw new MagmaJsEvaluationRuntimeException(String.format("current unit is unknown: '%s'.", value.getUnit()));
     }
