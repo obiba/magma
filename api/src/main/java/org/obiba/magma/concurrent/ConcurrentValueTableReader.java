@@ -202,7 +202,7 @@ public class ConcurrentValueTableReader {
     return Iterables.toArray(variables == null ? valueTable.getVariables() : variables, Variable.class);
   }
 
-  public static class VariableEntityValues {
+  private static class VariableEntityValues {
 
     private final VariableEntity entity;
 
@@ -217,6 +217,7 @@ public class ConcurrentValueTableReader {
       return entity;
     }
 
+    @edu.umd.cs.findbugs.annotations.SuppressWarnings(value = "EI_EXPOSE_REP")
     public Value[] getValues() {
       return values;
     }
