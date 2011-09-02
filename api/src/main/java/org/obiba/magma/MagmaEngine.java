@@ -64,6 +64,20 @@ public class MagmaEngine implements DatasourceRegistry {
     }
   }
 
+  /**
+   * Returns true if the {@code MagmaEngine} has a instance of {@code MagmaEngineExtension} whose name equals the name
+   * provided.
+   * 
+   * @param name
+   * @return
+   */
+  public boolean hasExtension(final String name) {
+    for(MagmaEngineExtension e : extensions) {
+      if(e.getName().equals(name)) return true;
+    }
+    return false;
+  }
+
   public <T extends MagmaEngineExtension> T getExtension(Class<T> extensionType) {
     try {
       return Iterables.getOnlyElement(Iterables.filter(extensions, extensionType));
