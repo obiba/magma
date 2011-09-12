@@ -23,9 +23,10 @@ import org.obiba.magma.MagmaEngine;
 import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.ValueTableWriter;
-import org.obiba.magma.Variable;
 import org.obiba.magma.ValueTableWriter.VariableWriter;
+import org.obiba.magma.Variable;
 import org.obiba.magma.support.DatasourceParsingException;
+import org.obiba.magma.support.Disposables;
 import org.obiba.magma.type.IntegerType;
 import org.obiba.magma.type.TextType;
 
@@ -218,6 +219,9 @@ public class ExcelDatasourceTest {
     datasource.initialise();
     Assert.assertNotNull(datasource.getValueTable("test-table"));
     Assert.assertNotNull(datasource.getValueTable("test-table").getVariable("test-variable"));
+
+    Disposables.silentlyDispose(datasource);
+    tmpExcelFile.delete();
   }
 
   // Test for OPAL-232
@@ -240,6 +244,9 @@ public class ExcelDatasourceTest {
     datasource = new ExcelDatasource("test", tmpExcelFile);
     datasource.initialise();
     Assert.assertEquals(1, Iterables.size(datasource.getValueTable("test-table").getVariables()));
+
+    Disposables.silentlyDispose(datasource);
+    tmpExcelFile.delete();
   }
 
   @Test
@@ -255,6 +262,8 @@ public class ExcelDatasourceTest {
 
     w.write(new FileOutputStream(tmp));
     w = new XSSFWorkbook(new FileInputStream(tmp));
+
+    tmp.delete();
   }
 
   @Test
@@ -345,10 +354,6 @@ public class ExcelDatasourceTest {
   }
 
   private int countVariables(ValueTable table) {
-    int count = 0;
-    for(Variable v : table.getVariables()) {
-      count++;
-    }
-    return count;
+    return Iterables.size(table.getVariables());
   }
 }
