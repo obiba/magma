@@ -1,6 +1,5 @@
 package org.obiba.magma;
 
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
@@ -8,6 +7,7 @@ import org.obiba.magma.type.BinaryType;
 import org.obiba.magma.type.LocaleType;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Ordering;
 
 /**
  * A {@code Value} instance that holds a sequence of other {@code Value} instances (its elements). The {@code ValueType}
@@ -47,16 +47,11 @@ public class ValueSequence extends Value {
    * Returns a copy of this {@link ValueSequence} with the {@link Value}s sorted in the natural order provided that the
    * {@code ValueSequence} was constructed with an {@link Iterable} value that is also of the type {@link List}. If the
    * {@code Iterable} value is not of type {@code List} then this method will have no effect. Note that some
-   * {@link ValueType}s such as {@link BinaryType} and {@link LocaleType} do not have a natural sort order and {@code
-   * ValueSequence}s of those types will not be modified by this method.
+   * {@link ValueType}s such as {@link BinaryType} and {@link LocaleType} do not have a natural sort order and
+   * {@code ValueSequence}s of those types will not be modified by this method.
    */
   public ValueSequence sort() {
-    ValueSequence valueSequenceCopy = (ValueSequence) copy();
-    if(valueSequenceCopy.getValue() instanceof List<?>) {
-      List<Value> list = (List<Value>) valueSequenceCopy.getValue();
-      Collections.sort(list);
-    }
-    return valueSequenceCopy;
+    return getValueType().sequenceOf(Ordering.natural().immutableSortedCopy(getValue()));
   }
 
   /**
@@ -65,12 +60,7 @@ public class ValueSequence extends Value {
    * @param comparator Custom Comparator which will be used to sort the ValueSequence.
    */
   public ValueSequence sort(Comparator<Value> comparator) {
-    ValueSequence valueSequenceCopy = (ValueSequence) copy();
-    if(valueSequenceCopy.getValue() instanceof List<?>) {
-      List<Value> list = (List<Value>) valueSequenceCopy.getValue();
-      Collections.sort(list, comparator);
-    }
-    return valueSequenceCopy;
+    return getValueType().sequenceOf(Ordering.from(comparator).immutableSortedCopy(getValue()));
   }
 
   /**

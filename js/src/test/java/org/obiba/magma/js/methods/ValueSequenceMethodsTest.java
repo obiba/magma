@@ -179,7 +179,7 @@ public class ValueSequenceMethodsTest extends AbstractJsTest {
   public void testSortTextNaturalOrder() throws Exception {
     ValueSequence valueSequence = TextType.get().sequenceOf("\"D\", \"C\", \"A\", \"B\"");
     ScriptableValue scriptableValue = newValue(valueSequence);
-    ValueSequenceMethods.sort(Context.getCurrentContext(), scriptableValue, null, null);
+    valueSequence = ValueSequenceMethods.sort(Context.getCurrentContext(), scriptableValue, null, null).getValue().asSequence();
     assertThat(valueSequence.getValues().get(0), is(TextType.get().valueOf("A")));
     assertThat(valueSequence.getValues().get(1), is(TextType.get().valueOf("B")));
     assertThat(valueSequence.getValues().get(2), is(TextType.get().valueOf("C")));
@@ -190,7 +190,7 @@ public class ValueSequenceMethodsTest extends AbstractJsTest {
   public void testSortIntegerNaturalOrder() throws Exception {
     ValueSequence valueSequence = IntegerType.get().sequenceOf("4,3,1,2");
     ScriptableValue scriptableValue = newValue(valueSequence);
-    ValueSequenceMethods.sort(Context.getCurrentContext(), scriptableValue, null, null);
+    valueSequence = ValueSequenceMethods.sort(Context.getCurrentContext(), scriptableValue, null, null).getValue().asSequence();
     assertThat(valueSequence.getValues().get(0), is(IntegerType.get().valueOf(1)));
     assertThat(valueSequence.getValues().get(1), is(IntegerType.get().valueOf(2)));
     assertThat(valueSequence.getValues().get(2), is(IntegerType.get().valueOf(3)));
@@ -203,7 +203,7 @@ public class ValueSequenceMethodsTest extends AbstractJsTest {
 
     MyScriptableValueCustomSortDesc scriptableValue = newValueDesc(valueSequence);
     FunctionObject funObj = new FunctionObject("sort", scriptableValue.getClass().getMethod("sort", new Class[] { ScriptableValue.class, ScriptableValue.class }), scriptableValue);
-    ValueSequenceMethods.sort(Context.getCurrentContext(), scriptableValue, new Object[] { funObj }, null);
+    valueSequence = ValueSequenceMethods.sort(Context.getCurrentContext(), scriptableValue, new Object[] { funObj }, null).getValue().asSequence();
     assertThat(valueSequence.getValues().get(0), is(IntegerType.get().valueOf(4)));
     assertThat(valueSequence.getValues().get(1), is(IntegerType.get().valueOf(3)));
     assertThat(valueSequence.getValues().get(2), is(IntegerType.get().valueOf(2)));
@@ -216,7 +216,7 @@ public class ValueSequenceMethodsTest extends AbstractJsTest {
 
     MyScriptableValueCustomSortAsc scriptableValue = newValueAsc(valueSequence);
     FunctionObject funObj = new FunctionObject("sort", scriptableValue.getClass().getMethod("sort", new Class[] { ScriptableValue.class, ScriptableValue.class }), scriptableValue);
-    ValueSequenceMethods.sort(Context.getCurrentContext(), scriptableValue, new Object[] { funObj }, null);
+    valueSequence = ValueSequenceMethods.sort(Context.getCurrentContext(), scriptableValue, new Object[] { funObj }, null).getValue().asSequence();
     assertThat(valueSequence.getValues().get(0), is(IntegerType.get().valueOf(1)));
     assertThat(valueSequence.getValues().get(1), is(IntegerType.get().valueOf(2)));
     assertThat(valueSequence.getValues().get(2), is(IntegerType.get().valueOf(3)));
