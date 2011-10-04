@@ -23,7 +23,7 @@ public class JavascriptVariableValueSource extends JavascriptValueSource impleme
 
   @Override
   public String getScript() {
-    return variable.getAttribute(JavascriptVariableBuilder.SCRIPT_ATTRIBUTE_NAME).getValue().toString();
+    return variable.hasAttribute(JavascriptVariableBuilder.SCRIPT_ATTRIBUTE_NAME) ? variable.getAttributeStringValue(JavascriptVariableBuilder.SCRIPT_ATTRIBUTE_NAME) : "";
   }
 
   @Override

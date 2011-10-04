@@ -107,7 +107,7 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
 
   @Override
   public void initialise() throws EvaluatorException {
-    String script = getScript();
+    final String script = getScript();
     if(script == null) {
       throw new NullPointerException("script cannot be null");
     }
@@ -115,7 +115,7 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
       compiledScript = (Script) ContextFactory.getGlobal().call(new ContextAction() {
         @Override
         public Object run(Context cx) {
-          return cx.compileString(getScript(), getScriptName(), 1, null);
+          return cx.compileString(script, getScriptName(), 1, null);
         }
       });
     } catch(EvaluatorException e) {
