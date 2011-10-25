@@ -4,6 +4,10 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
 
+import java.util.ResourceBundle;
+
+import org.jscience.physics.unit.PhysicsUnit;
+import org.junit.Assert;
 import org.junit.Test;
 import org.obiba.magma.js.AbstractJsTest;
 import org.obiba.magma.js.ScriptableValue;
@@ -43,5 +47,19 @@ public class UnitMethodsTest extends AbstractJsTest {
     ScriptableValue value = evaluate("toUnit('cm')", IntegerType.get().valueOf(1), "in");
     assertThat(value.getUnit(), is("cm"));
     assertThat(value.getValue(), is(DecimalType.get().valueOf(2.54)));
+  }
+
+  @Test
+  public void test_conflicting_units() {
+    ResourceBundle units = ResourceBundle.getBundle(UnitMethods.class.getName() + "_CS");
+    for(String key : units.keySet()) {
+      String unit = units.getString(key);
+      try {
+        PhysicsUnit conflict = PhysicsUnit.valueOf(unit);
+        Assert.assertFalse("Unit " + unit + " is conflicting with a system unit.", conflict.isSystemUnit());
+      } catch(IllegalArgumentException e) {
+        // normal
+      }
+    }
   }
 }

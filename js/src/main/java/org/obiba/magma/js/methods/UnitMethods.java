@@ -24,6 +24,10 @@ public class UnitMethods {
    * UCUM does not have a default for overloaded units (international inches vs. us inches vs. british inches). This
    * UCUMFormat instance maps some common symbols to the international standard or the US standard when no international
    * standard exists. Mass units use the 'avoirdupoids' definitions.
+   * 
+   * Only three units overlap with SI notation: ft, pt (pint) and yd. This results in masking the "femto-ton",
+   * "pico-ton" and the "yotta-day", so it should not have any impact as these are not common units and can be expressed
+   * differently.
    */
   private static final UCUMFormat DEFAULTS = UCUMFormat.getCaseSensitiveInstance(new SymbolMap(ResourceBundle.getBundle(UnitMethods.class.getName() + "_CS")));
 
@@ -93,11 +97,12 @@ public class UnitMethods {
   public static Unit<?> extractUnit(String value) {
     if(value == null) return SI.ONE;
     try {
-      return PhysicsUnit.valueOf(value);
+      // Try the common non-UCUM notation strings
+      // This is tried first to use commonly used units like ft and yd instead of uncommon femto-ton (ft), etc.
+      return DEFAULTS.parse(value, new ParsePosition(0));
     } catch(IllegalArgumentException e) {
       try {
-        // Try the common non-UCUM notation strings
-        return DEFAULTS.parse(value, new ParsePosition(0));
+        return PhysicsUnit.valueOf(value);
       } catch(IllegalArgumentException e2) {
       }
     }
