@@ -41,9 +41,9 @@ class NumericVariableValueGenerator extends AbstractMissingValueVariableValueGen
     Value stddevValue = stddev.getValue(gvs);
     if(meanValue.isNull() || stddevValue.isNull()) {
       if(getValueType() == IntegerType.get()) {
-        return getValueType().valueOf(minimum == maximum ? minimum : gvs.dataGenerator.nextLong(minimum.longValue(), maximum.longValue()));
+        return getValueType().valueOf(minimum.equals(maximum) ? minimum : gvs.dataGenerator.nextLong(minimum.longValue(), maximum.longValue()));
       } else if(getValueType() == DecimalType.get()) {
-        return getValueType().valueOf(minimum == maximum ? minimum : gvs.dataGenerator.nextUniform(minimum.doubleValue(), maximum.doubleValue()));
+        return getValueType().valueOf(minimum.equals(maximum) ? minimum : gvs.dataGenerator.nextUniform(minimum.doubleValue(), maximum.doubleValue()));
       }
       throw new IllegalStateException();
     } else {
