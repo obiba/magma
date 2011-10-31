@@ -98,4 +98,17 @@ public class ValueSequence extends Value {
     return getValues().contains(value);
   }
 
+  public Double average() {
+    double sum = 0.0;
+    List<Value> values = getValues();
+    if(values == null || values.isEmpty()) return null;
+    for(Value value : values) {
+      if(!value.getValueType().isNumeric()) {
+        return null;
+      }
+      Number number = (Number) value.getValue();
+      sum += number.doubleValue();
+    }
+    return sum / getSize();
+  }
 }

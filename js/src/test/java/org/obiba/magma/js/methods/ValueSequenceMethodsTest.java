@@ -14,6 +14,7 @@ import org.obiba.magma.ValueSequence;
 import org.obiba.magma.js.AbstractJsTest;
 import org.obiba.magma.js.MagmaJsEvaluationRuntimeException;
 import org.obiba.magma.js.ScriptableValue;
+import org.obiba.magma.type.DecimalType;
 import org.obiba.magma.type.IntegerType;
 import org.obiba.magma.type.TextType;
 
@@ -221,6 +222,30 @@ public class ValueSequenceMethodsTest extends AbstractJsTest {
     assertThat(valueSequence.getValues().get(1), is(IntegerType.get().valueOf(2)));
     assertThat(valueSequence.getValues().get(2), is(IntegerType.get().valueOf(3)));
     assertThat(valueSequence.getValues().get(3), is(IntegerType.get().valueOf(4)));
+  }
+
+  @Test
+  public void testAvg() {
+    ValueSequence valueSequence = IntegerType.get().sequenceOf("1,2,3,4");
+    ScriptableValue scriptableValue = newValue(valueSequence);
+    ScriptableValue result = ValueSequenceMethods.avg(Context.getCurrentContext(), scriptableValue, null, null);
+    assertThat(result.getValue(), is(DecimalType.get().valueOf(2.5)));
+  }
+
+  @Test
+  public void testAvgEmpty() {
+    ValueSequence valueSequence = IntegerType.get().sequenceOf("");
+    ScriptableValue scriptableValue = newValue(valueSequence);
+    ScriptableValue result = ValueSequenceMethods.avg(Context.getCurrentContext(), scriptableValue, null, null);
+    assertThat(result.getValue(), is(DecimalType.get().nullValue()));
+  }
+
+  @Test
+  public void testAvgNull() {
+    ValueSequence valueSequence = IntegerType.get().sequenceOf((String) null);
+    ScriptableValue scriptableValue = newValue(valueSequence);
+    ScriptableValue result = ValueSequenceMethods.avg(Context.getCurrentContext(), scriptableValue, null, null);
+    assertThat(result.getValue(), is(DecimalType.get().nullValue()));
   }
 
   @SuppressWarnings("serial")
