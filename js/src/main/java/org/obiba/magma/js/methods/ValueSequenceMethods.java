@@ -187,7 +187,7 @@ public class ValueSequenceMethods {
       if(valueSequence.getSize() == 0) {
         return new ScriptableValue(thisObj, DecimalType.get().nullValue());
       }
-      Double avg = valueSequence.average();
+      Double avg = NumericMethods.average(valueSequence);
       if(avg != null) {
         return new ScriptableValue(thisObj, DecimalType.get().valueOf(avg), sv.getUnit());
       }

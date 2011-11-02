@@ -2,12 +2,14 @@ package org.obiba.magma.js.methods;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
+import java.util.List;
 
 import org.jscience.physics.unit.system.SI;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.Scriptable;
 import org.obiba.magma.Value;
+import org.obiba.magma.ValueSequence;
 import org.obiba.magma.ValueType;
 import org.obiba.magma.js.MagmaJsEvaluationRuntimeException;
 import org.obiba.magma.js.ScriptableValue;
@@ -379,8 +381,10 @@ public class NumericMethods {
 
   static Value compare(ScriptableValue thisObj, Object args[], Comps comparator) {
     BigDecimal value = asBigDecimal(thisObj);
+    if(value == null) return BooleanType.get().nullValue();
     for(Object argument : args) {
       BigDecimal rhs = asBigDecimal(argument);
+      if(rhs == null) return BooleanType.get().nullValue();
       if(comparator.apply(value.compareTo(rhs)) == false) {
         return BooleanType.get().falseValue();
       }
@@ -389,11 +393,10 @@ public class NumericMethods {
   }
 
   static ScriptableValue operate(ScriptableValue thisObj, Object args[], Unary operation) {
-    if(thisObj.getValue().isNull()) {
-      return new ScriptableValue(thisObj, thisObj.getValueType().nullValue());
-    }
     try {
-      BigDecimal value = operation.operate(asBigDecimal(thisObj), args);
+      BigDecimal value = asBigDecimal(thisObj);
+      if(value == null) return new ScriptableValue(thisObj, thisObj.getValueType().nullValue());
+      value = operation.operate(value, args);
       Unit<?> unit = operation.operate(UnitMethods.extractUnit(thisObj), args);
       try {
         long longValue = value.longValueExact();
@@ -409,9 +412,11 @@ public class NumericMethods {
   static ScriptableValue operate(ScriptableValue thisObj, Object args[], Ops operation) {
     try {
       BigDecimal value = asBigDecimal(thisObj);
+      if(value == null) return new ScriptableValue(thisObj, thisObj.getValueType().nullValue());
       Unit<?> unit = UnitMethods.extractUnit(thisObj);
       for(Object argument : args) {
         BigDecimal rhs = asBigDecimal(argument);
+        if(rhs == null) return new ScriptableValue(thisObj, thisObj.getValueType().nullValue());
         value = operation.operate(value, rhs);
         unit = operation.operate(unit, UnitMethods.extractUnit(argument));
       }
@@ -425,17 +430,6 @@ public class NumericMethods {
     } catch(ArithmeticException e) {
       return new ScriptableValue(thisObj, DecimalType.get().nullValue());
     }
-  }
-
-  static boolean isIntegerType(Object object) {
-    if(object == null) {
-      // A null object can be represented as Zero
-      return true;
-    }
-    if(object instanceof ScriptableValue) {
-      return ((ScriptableValue) object).getValueType() == IntegerType.get();
-    }
-    return ValueType.Factory.forClass(object.getClass()) == IntegerType.get();
   }
 
   static Double asDouble(Object obj) {
@@ -455,7 +449,7 @@ public class NumericMethods {
   }
 
   static BigDecimal asBigDecimal(Object object) {
-    if(object == null) return BigDecimal.ZERO;
+    if(object == null) return null;
 
     if(object instanceof ScriptableValue) {
       return asBigDecimal((ScriptableValue) object);
@@ -472,13 +466,29 @@ public class NumericMethods {
   static BigDecimal asBigDecimal(ScriptableValue scriptableValue) {
     if(scriptableValue == null) throw new IllegalArgumentException("value cannot be null");
     if(scriptableValue.getValue().isNull()) {
-      return BigDecimal.ZERO;
+      // throw a runtime exception if null provided is created by other type of DecimalType
+      ValueType.Factory.conveterFor(scriptableValue.getValueType(), DecimalType.get());
+      return null;
     }
     if(scriptableValue.getValueType().isNumeric()) {
       return new BigDecimal(((Number) scriptableValue.getValue().getValue()).doubleValue());
     }
     Value value = DecimalType.get().convert(scriptableValue.getValue());
     return new BigDecimal((Double) value.getValue());
+  }
+
+  static Double average(ValueSequence valueSequence) {
+    double sum = 0.0;
+    List<Value> values = valueSequence.getValues();
+    if(values == null || values.isEmpty()) return null;
+    for(Value value : values) {
+      if(!value.getValueType().isNumeric()) {
+        return null;
+      }
+      Number number = (Number) value.getValue();
+      sum += number.doubleValue();
+    }
+    return sum / valueSequence.getSize();
   }
 
 }

@@ -32,7 +32,7 @@ public class NumericMethodsTest extends AbstractJsTest {
     ScriptableValue integerOne = newValue(IntegerType.get().valueOf(1));
     ScriptableValue nullTwo = newValue(IntegerType.get().nullValue());
     ScriptableValue result = NumericMethods.plus(Context.getCurrentContext(), integerOne, new Object[] { nullTwo }, null);
-    assertThat(result.getValue(), is(IntegerType.get().valueOf(1)));
+    assertThat(result.getValue(), is(IntegerType.get().nullValue()));
   }
 
   @Test
@@ -40,7 +40,23 @@ public class NumericMethodsTest extends AbstractJsTest {
     ScriptableValue nullOne = newValue(IntegerType.get().nullValue());
     ScriptableValue integerTwo = newValue(IntegerType.get().valueOf(1));
     ScriptableValue result = NumericMethods.plus(Context.getCurrentContext(), nullOne, new Object[] { integerTwo }, null);
-    assertThat(result.getValue(), is(IntegerType.get().valueOf(1)));
+    assertThat(result.getValue(), is(IntegerType.get().nullValue()));
+  }
+
+  @Test
+  public void test_decimal_plus_null() throws Exception {
+    ScriptableValue decimalOne = newValue(DecimalType.get().valueOf(1.5));
+    ScriptableValue nullTwo = newValue(DecimalType.get().nullValue());
+    ScriptableValue result = NumericMethods.plus(Context.getCurrentContext(), decimalOne, new Object[] { nullTwo }, null);
+    assertThat(result.getValue(), is(DecimalType.get().nullValue()));
+  }
+
+  @Test
+  public void test_null_plus_decimal() throws Exception {
+    ScriptableValue nullOne = newValue(DecimalType.get().nullValue());
+    ScriptableValue decimalTwo = newValue(DecimalType.get().valueOf(1.5));
+    ScriptableValue result = NumericMethods.plus(Context.getCurrentContext(), nullOne, new Object[] { decimalTwo }, null);
+    assertThat(result.getValue(), is(DecimalType.get().nullValue()));
   }
 
   @Test
@@ -74,7 +90,7 @@ public class NumericMethodsTest extends AbstractJsTest {
     ScriptableValue integerOne = newValue(IntegerType.get().valueOf(1));
     ScriptableValue nullTwo = newValue(IntegerType.get().nullValue());
     ScriptableValue result = NumericMethods.minus(Context.getCurrentContext(), integerOne, new Object[] { nullTwo }, null);
-    assertThat(result.getValue(), is(IntegerType.get().valueOf(1)));
+    assertThat(result.getValue(), is(IntegerType.get().nullValue()));
   }
 
   @Test
@@ -82,7 +98,7 @@ public class NumericMethodsTest extends AbstractJsTest {
     ScriptableValue nullOne = newValue(IntegerType.get().nullValue());
     ScriptableValue integerTwo = newValue(IntegerType.get().valueOf(1));
     ScriptableValue result = NumericMethods.minus(Context.getCurrentContext(), nullOne, new Object[] { integerTwo }, null);
-    assertThat(result.getValue(), is(IntegerType.get().valueOf(-1)));
+    assertThat(result.getValue(), is(IntegerType.get().nullValue()));
   }
 
   @Test
@@ -116,7 +132,7 @@ public class NumericMethodsTest extends AbstractJsTest {
     ScriptableValue integerOne = newValue(IntegerType.get().valueOf(1));
     ScriptableValue nullTwo = newValue(IntegerType.get().nullValue());
     ScriptableValue result = NumericMethods.multiply(Context.getCurrentContext(), integerOne, new Object[] { nullTwo }, null);
-    assertThat(result.getValue(), is(IntegerType.get().valueOf(0)));
+    assertThat(result.getValue(), is(IntegerType.get().nullValue()));
   }
 
   @Test
@@ -124,7 +140,7 @@ public class NumericMethodsTest extends AbstractJsTest {
     ScriptableValue nullOne = newValue(IntegerType.get().nullValue());
     ScriptableValue integerTwo = newValue(IntegerType.get().valueOf(1));
     ScriptableValue result = NumericMethods.multiply(Context.getCurrentContext(), nullOne, new Object[] { integerTwo }, null);
-    assertThat(result.getValue(), is(IntegerType.get().valueOf(0)));
+    assertThat(result.getValue(), is(IntegerType.get().nullValue()));
   }
 
   @Test
@@ -165,11 +181,23 @@ public class NumericMethodsTest extends AbstractJsTest {
   }
 
   @Test
+  public void test_null_div_null_integer() throws Exception {
+    ScriptableValue result = evaluate("div(null)", IntegerType.get().nullValue());
+    assertThat(result.getValue(), is(IntegerType.get().nullValue()));
+  }
+
+  @Test
+  public void test_null_div_null_decimal() throws Exception {
+    ScriptableValue result = evaluate("div(null)", DecimalType.get().nullValue());
+    assertThat(result.getValue(), is(DecimalType.get().nullValue()));
+  }
+
+  @Test
   public void test_integer_div_null() throws Exception {
     ScriptableValue integerOne = newValue(IntegerType.get().valueOf(1));
     ScriptableValue nullTwo = newValue(IntegerType.get().nullValue());
     ScriptableValue result = NumericMethods.div(Context.getCurrentContext(), integerOne, new Object[] { nullTwo }, null);
-    assertThat(result.getValue(), is(DecimalType.get().nullValue()));
+    assertThat(result.getValue(), is(IntegerType.get().nullValue()));
   }
 
   @Test
@@ -177,7 +205,23 @@ public class NumericMethodsTest extends AbstractJsTest {
     ScriptableValue nullOne = newValue(IntegerType.get().nullValue());
     ScriptableValue integerTwo = newValue(IntegerType.get().valueOf(1));
     ScriptableValue result = NumericMethods.div(Context.getCurrentContext(), nullOne, new Object[] { integerTwo }, null);
-    assertThat(result.getValue(), is(IntegerType.get().valueOf(0)));
+    assertThat(result.getValue(), is(IntegerType.get().nullValue()));
+  }
+
+  @Test
+  public void test_decimal_div_null() throws Exception {
+    ScriptableValue decimalOne = newValue(DecimalType.get().valueOf(1.5));
+    ScriptableValue nullTwo = newValue(IntegerType.get().nullValue());
+    ScriptableValue result = NumericMethods.div(Context.getCurrentContext(), decimalOne, new Object[] { nullTwo }, null);
+    assertThat(result.getValue(), is(DecimalType.get().nullValue()));
+  }
+
+  @Test
+  public void test_null_div_decimal() throws Exception {
+    ScriptableValue nullOne = newValue(IntegerType.get().nullValue());
+    ScriptableValue decimalTwo = newValue(DecimalType.get().valueOf(1.5));
+    ScriptableValue result = NumericMethods.div(Context.getCurrentContext(), nullOne, new Object[] { decimalTwo }, null);
+    assertThat(result.getValue(), is(IntegerType.get().nullValue()));
   }
 
   @Test
@@ -218,6 +262,22 @@ public class NumericMethodsTest extends AbstractJsTest {
   // gt (>)
 
   @Test
+  public void test_gt_null_one_gt_integer_two_is_null() throws Exception {
+    ScriptableValue nullOne = newValue(IntegerType.get().nullValue());
+    ScriptableValue integerTwo = newValue(IntegerType.get().valueOf(2));
+    ScriptableValue result = NumericMethods.gt(Context.getCurrentContext(), nullOne, new ScriptableValue[] { integerTwo }, null);
+    assertThat(result.getValue(), is(BooleanType.get().nullValue()));
+  }
+
+  @Test
+  public void test_gt_integer_one_gt_null_two_is_null() throws Exception {
+    ScriptableValue integerOne = newValue(IntegerType.get().valueOf(2));
+    ScriptableValue nullTwo = newValue(IntegerType.get().nullValue());
+    ScriptableValue result = NumericMethods.gt(Context.getCurrentContext(), integerOne, new ScriptableValue[] { nullTwo }, null);
+    assertThat(result.getValue(), is(BooleanType.get().nullValue()));
+  }
+
+  @Test
   public void test_gt_IntegerTwoGtIntegerThreeEqualsFalse() throws Exception {
     ScriptableValue integerTwo = newValue(IntegerType.get().valueOf(2));
     ScriptableValue integerThree = newValue(IntegerType.get().valueOf(3));
@@ -251,6 +311,22 @@ public class NumericMethodsTest extends AbstractJsTest {
   // ge (>=)
 
   @Test
+  public void test_ge_null_one_ge_integer_two_is_null() throws Exception {
+    ScriptableValue nullOne = newValue(IntegerType.get().nullValue());
+    ScriptableValue integerTwo = newValue(IntegerType.get().valueOf(2));
+    ScriptableValue result = NumericMethods.ge(Context.getCurrentContext(), nullOne, new ScriptableValue[] { integerTwo }, null);
+    assertThat(result.getValue(), is(BooleanType.get().nullValue()));
+  }
+
+  @Test
+  public void test_ge_integer_one_ge_null_two_is_null() throws Exception {
+    ScriptableValue integerOne = newValue(IntegerType.get().valueOf(2));
+    ScriptableValue nullTwo = newValue(IntegerType.get().nullValue());
+    ScriptableValue result = NumericMethods.ge(Context.getCurrentContext(), integerOne, new ScriptableValue[] { nullTwo }, null);
+    assertThat(result.getValue(), is(BooleanType.get().nullValue()));
+  }
+
+  @Test
   public void test_ge_IntegerTwoGeIntegerTwoEqualsTrue() throws Exception {
     ScriptableValue integerTwo = newValue(IntegerType.get().valueOf(2));
     ScriptableValue integer2 = newValue(IntegerType.get().valueOf(2));
@@ -267,6 +343,22 @@ public class NumericMethodsTest extends AbstractJsTest {
   }
 
   // lt (<)
+
+  @Test
+  public void test_lt_null_one_lt_integer_two_is_null() throws Exception {
+    ScriptableValue nullOne = newValue(IntegerType.get().nullValue());
+    ScriptableValue integerTwo = newValue(IntegerType.get().valueOf(2));
+    ScriptableValue result = NumericMethods.lt(Context.getCurrentContext(), nullOne, new ScriptableValue[] { integerTwo }, null);
+    assertThat(result.getValue(), is(BooleanType.get().nullValue()));
+  }
+
+  @Test
+  public void test_lt_integer_one_lt_null_two_is_null() throws Exception {
+    ScriptableValue integerOne = newValue(IntegerType.get().valueOf(2));
+    ScriptableValue nullTwo = newValue(IntegerType.get().nullValue());
+    ScriptableValue result = NumericMethods.lt(Context.getCurrentContext(), integerOne, new ScriptableValue[] { nullTwo }, null);
+    assertThat(result.getValue(), is(BooleanType.get().nullValue()));
+  }
 
   @Test
   public void test_lt_IntegerTwoLtIntegerThreeEqualsTrue() throws Exception {
@@ -287,6 +379,22 @@ public class NumericMethodsTest extends AbstractJsTest {
   // le (<=)
 
   @Test
+  public void test_le_null_one_le_integer_two_is_null() throws Exception {
+    ScriptableValue nullOne = newValue(IntegerType.get().nullValue());
+    ScriptableValue integerTwo = newValue(IntegerType.get().valueOf(2));
+    ScriptableValue result = NumericMethods.le(Context.getCurrentContext(), nullOne, new ScriptableValue[] { integerTwo }, null);
+    assertThat(result.getValue(), is(BooleanType.get().nullValue()));
+  }
+
+  @Test
+  public void test_le_integer_one_le_null_two_is_null() throws Exception {
+    ScriptableValue integerOne = newValue(IntegerType.get().valueOf(2));
+    ScriptableValue nullTwo = newValue(IntegerType.get().nullValue());
+    ScriptableValue result = NumericMethods.le(Context.getCurrentContext(), integerOne, new ScriptableValue[] { nullTwo }, null);
+    assertThat(result.getValue(), is(BooleanType.get().nullValue()));
+  }
+
+  @Test
   public void test_le_IntegerTwoLeIntegerTwoEqualsTrue() throws Exception {
     ScriptableValue integerTwo = newValue(IntegerType.get().valueOf(2));
     ScriptableValue integer2 = newValue(IntegerType.get().valueOf(2));
@@ -303,6 +411,12 @@ public class NumericMethodsTest extends AbstractJsTest {
   }
 
   // abs
+
+  @Test
+  public void test_abs_evaluatesAbsoluteNullValue() throws Exception {
+    ScriptableValue result = evaluate("abs()", IntegerType.get().nullValue());
+    assertThat(result.getValue(), is(IntegerType.get().nullValue()));
+  }
 
   @Test
   public void test_abs_evaluatesAbsoluteValue() throws Exception {
@@ -332,6 +446,12 @@ public class NumericMethodsTest extends AbstractJsTest {
   // ln
 
   @Test
+  public void test_ln_evaluatesNaturalLogarithmNullValue() throws Exception {
+    ScriptableValue result = evaluate("ln()", DecimalType.get().nullValue());
+    assertThat(result.getValue(), is(DecimalType.get().nullValue()));
+  }
+
+  @Test
   public void test_ln_evaluatesNaturalLogarithm() throws Exception {
     ScriptableValue result = evaluate("ln()", DecimalType.get().valueOf(1));
     assertThat(result.getValue(), is(IntegerType.get().valueOf(0)));
@@ -350,6 +470,12 @@ public class NumericMethodsTest extends AbstractJsTest {
   }
 
   // log, log(base)
+
+  @Test
+  public void test_log_evaluates_base_10_logarithm_null_value() throws Exception {
+    ScriptableValue result = evaluate("log()", DecimalType.get().nullValue());
+    assertThat(result.getValue(), is(DecimalType.get().nullValue()));
+  }
 
   @Test
   public void test_log_evaluatesBase10Logarithm() throws Exception {
@@ -390,6 +516,12 @@ public class NumericMethodsTest extends AbstractJsTest {
   // pow
 
   @Test
+  public void test_pow_evaluates_power_null_value() throws Exception {
+    ScriptableValue result = evaluate("log()", DecimalType.get().nullValue());
+    assertThat(result.getValue(), is(DecimalType.get().nullValue()));
+  }
+
+  @Test
   public void test_pow_evaluatesPower() throws Exception {
     ScriptableValue result = evaluate("pow(1)", IntegerType.get().valueOf(1));
     assertThat(result.getValue(), is(IntegerType.get().valueOf(1)));
@@ -422,6 +554,12 @@ public class NumericMethodsTest extends AbstractJsTest {
   }
 
   // roots
+
+  @Test
+  public void test_root_evaluates_root_null_value() throws Exception {
+    ScriptableValue result = evaluate("log()", DecimalType.get().nullValue());
+    assertThat(result.getValue(), is(DecimalType.get().nullValue()));
+  }
 
   @Test
   public void test_root_evaluatesRoot() throws Exception {
