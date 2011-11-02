@@ -466,7 +466,8 @@ public class NumericMethods {
   static BigDecimal asBigDecimal(ScriptableValue scriptableValue) {
     if(scriptableValue == null) throw new IllegalArgumentException("value cannot be null");
     if(scriptableValue.getValue().isNull()) {
-      // throw a runtime exception if null provided is created by other type of DecimalType
+      // Throw a runtime exception if the null value provided in scriptableValue argument is not convertible to decimal.
+      // This is to manipulate the null value only created by a "Number" Type.
       ValueType.Factory.conveterFor(scriptableValue.getValueType(), DecimalType.get());
       return null;
     }
