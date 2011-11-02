@@ -4,9 +4,9 @@ package org.obiba.magma;
  * Contract for converting {@code Value} instances from one {@code ValueType} to another.
  * <p>
  * The {@code converts} methods will be invoked to determine if this {@code ValueConverter} can handle the conversion
- * from one type to another. If so, its {@code convert()} method is invoked. Implementations should not convert {@code
- * ValueSequence} instances. These are handled externally, and each value in a sequence will be converted using the
- * {@code convert()} method.
+ * from one type to another. If so, its {@code convert()} method is invoked. Implementations should not convert
+ * {@code ValueSequence} instances. These are handled externally, and each value in a sequence will be converted using
+ * the {@code convert()} method.
  */
 public interface ValueConverter {
 
