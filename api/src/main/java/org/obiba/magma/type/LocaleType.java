@@ -52,10 +52,14 @@ public class LocaleType extends AbstractValueType {
     if(object == null) {
       return nullValue();
     }
-    if(Locale.class.isAssignableFrom(object.getClass())) {
+    Class<?> type = object.getClass();
+    if(Locale.class.isAssignableFrom(type)) {
       return Factory.newValue(this, (Locale) object);
     }
-    throw new IllegalArgumentException("Cannot construct " + getClass().getSimpleName() + " from type " + object.getClass() + ".");
+    if(String.class.isAssignableFrom(type)) {
+      return valueOf((String) object);
+    }
+    throw new IllegalArgumentException("Cannot construct " + getClass().getSimpleName() + " from type " + type + ".");
   }
 
   @Override

@@ -68,10 +68,14 @@ public class BinaryType extends AbstractValueType {
     if(object == null) {
       return nullValue();
     }
-    if(byte[].class.equals(object.getClass())) {
+    Class<?> type = object.getClass();
+    if(byte[].class.equals(type)) {
       return Factory.newValue(this, (byte[]) object);
     }
-    throw new IllegalArgumentException("Cannot construct " + getClass().getSimpleName() + " from type " + object.getClass() + ".");
+    if(String.class.isAssignableFrom(type)) {
+      return valueOf((String) object);
+    }
+    throw new IllegalArgumentException("Cannot construct " + getClass().getSimpleName() + " from type " + type + ".");
   }
 
   @Override
