@@ -121,7 +121,7 @@ public class ValueSequenceMethods {
         return new ScriptableValue(thisObj, valueSequence.getValueType().nullValue()); // Index out of bounds.
       }
     } else {
-      throw new MagmaJsEvaluationRuntimeException("Operand to value() method must be a ScriptableValue containing a ValueSequence.");
+      throw new MagmaJsEvaluationRuntimeException("Operand to valueAt() method must be a ScriptableValue containing a ValueSequence.");
     }
   }
 
