@@ -67,7 +67,7 @@ public class DateTimeMethods {
       int dow = c.get(Calendar.DAY_OF_WEEK);
       return new ScriptableValue(thisObj, BooleanType.get().valueOf(dow > Calendar.SUNDAY && dow < Calendar.SATURDAY));
     }
-    return thisObj;
+    return new ScriptableValue(thisObj, BooleanType.get().nullValue());
   }
 
   /**
@@ -83,7 +83,7 @@ public class DateTimeMethods {
       int dow = c.get(Calendar.DAY_OF_WEEK);
       return new ScriptableValue(thisObj, BooleanType.get().valueOf(dow < Calendar.MONDAY || dow > Calendar.FRIDAY));
     }
-    return thisObj;
+    return new ScriptableValue(thisObj, BooleanType.get().nullValue());
   }
 
   /**

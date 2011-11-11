@@ -74,6 +74,52 @@ public class DateTimeMethodTest extends AbstractJsTest {
   }
 
   @Test
+  public void test_weekend() {
+    testWeekendOrWeekdayMethod("weekend()", Calendar.SATURDAY, true);
+    testWeekendOrWeekdayMethod("weekend()", Calendar.SUNDAY, true);
+
+    testWeekendOrWeekdayMethod("weekend()", Calendar.MONDAY, false);
+    testWeekendOrWeekdayMethod("weekend()", Calendar.TUESDAY, false);
+    testWeekendOrWeekdayMethod("weekend()", Calendar.WEDNESDAY, false);
+    testWeekendOrWeekdayMethod("weekend()", Calendar.THURSDAY, false);
+    testWeekendOrWeekdayMethod("weekend()", Calendar.FRIDAY, false);
+  }
+
+  @Test
+  public void test_weekend_acceptsNull() {
+    ScriptableValue value = evaluate("weekend()", DateType.get().nullValue());
+    Assert.assertNotNull(value);
+    Assert.assertThat(value.getValue(), is(BooleanType.get().nullValue()));
+
+    value = evaluate("weekend()", DateTimeType.get().nullValue());
+    Assert.assertNotNull(value);
+    Assert.assertThat(value.getValue(), is(BooleanType.get().nullValue()));
+  }
+
+  @Test
+  public void test_weekday() {
+    testWeekendOrWeekdayMethod("weekday()", Calendar.SATURDAY, false);
+    testWeekendOrWeekdayMethod("weekday()", Calendar.SUNDAY, false);
+
+    testWeekendOrWeekdayMethod("weekday()", Calendar.MONDAY, true);
+    testWeekendOrWeekdayMethod("weekday()", Calendar.TUESDAY, true);
+    testWeekendOrWeekdayMethod("weekday()", Calendar.WEDNESDAY, true);
+    testWeekendOrWeekdayMethod("weekday()", Calendar.THURSDAY, true);
+    testWeekendOrWeekdayMethod("weekday()", Calendar.FRIDAY, true);
+  }
+
+  @Test
+  public void test_weekday_acceptsNull() {
+    ScriptableValue value = evaluate("weekday()", DateType.get().nullValue());
+    Assert.assertNotNull(value);
+    Assert.assertThat(value.getValue(), is(BooleanType.get().nullValue()));
+
+    value = evaluate("weekday()", DateTimeType.get().nullValue());
+    Assert.assertNotNull(value);
+    Assert.assertThat(value.getValue(), is(BooleanType.get().nullValue()));
+  }
+
+  @Test
   public void test_weekOfYear_acceptsDateTime() {
     testCalendarFieldMethod("weekOfYear()", Calendar.WEEK_OF_YEAR, DateTimeType.get());
   }
@@ -146,6 +192,35 @@ public class DateTimeMethodTest extends AbstractJsTest {
     Assert.assertEquals(BooleanType.get().nullValue(), result.getValue());
   }
 
+  @Test
+  public void test_after() throws Exception {
+    ScriptableValue value = evaluate("after(newValue('2011-11-01', 'date'))", DateType.get().valueOf(new Date()));
+    Assert.assertNotNull(value);
+    Assert.assertEquals(BooleanType.get().trueValue(), value.getValue());
+
+    value = evaluate("after(newValue('2011-11-01', 'date'), newValue('2011-11-01T10:00:00-0000', 'datetime'))", DateType.get().valueOf(new Date()));
+    Assert.assertNotNull(value);
+    Assert.assertEquals(BooleanType.get().trueValue(), value.getValue());
+  }
+
+  private Value makeDayOfWeek(ValueType valueType, int dayOfWeek) {
+    Calendar calendar = Calendar.getInstance();
+    while(calendar.get(Calendar.DAY_OF_WEEK) != dayOfWeek) {
+      calendar.add(Calendar.DAY_OF_WEEK, 1);
+    }
+    return valueType.valueOf(calendar);
+  }
+
+  private void testWeekendOrWeekdayMethod(String script, int dayOfWeek, boolean expected) {
+    ScriptableValue value = evaluate(script, makeDayOfWeek(DateType.get(), dayOfWeek));
+    Assert.assertNotNull(value);
+    Assert.assertThat(value.getValue(), is(BooleanType.get().valueOf(expected)));
+
+    value = evaluate(script, makeDayOfWeek(DateTimeType.get(), dayOfWeek));
+    Assert.assertNotNull(value);
+    Assert.assertThat(value.getValue(), is(BooleanType.get().valueOf(expected)));
+  }
+
   /**
    * Executes {@code script} with {@code testValue} as its scope and asserts that the returned value is
    * 
@@ -172,6 +247,11 @@ public class DateTimeMethodTest extends AbstractJsTest {
     String expected = format.format(now);
 
     Value result = evaluate("format('" + pattern + "')", testType.valueOf(now)).getValue();
+    Assert.assertNotNull(result);
+    Assert.assertEquals(TextType.get(), result.getValueType());
+    Assert.assertEquals(expected, result.toString());
+
+    result = evaluate("format(newValue('" + pattern + "'))", testType.valueOf(now)).getValue();
     Assert.assertNotNull(result);
     Assert.assertEquals(TextType.get(), result.getValueType());
     Assert.assertEquals(expected, result.toString());
