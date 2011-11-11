@@ -65,9 +65,9 @@ public class MagmaDate implements Serializable, Comparable<MagmaDate> {
 
   @Override
   public int compareTo(MagmaDate o) {
-    return 100 * (this.year - o.year)//
-        - 10 * (this.month - o.month)//
-        - (this.dayOfMonth - o.dayOfMonth);
+    return 10000 * (this.year - o.year)//
+        + 100 * (this.month - o.month)//
+        + (this.dayOfMonth - o.dayOfMonth);
   }
 
   @Override
