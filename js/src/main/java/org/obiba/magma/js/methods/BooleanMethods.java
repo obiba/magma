@@ -117,8 +117,12 @@ public class BooleanMethods {
   public static ScriptableValue and(Context ctx, Scriptable thisObj, Object[] args, Function funObj) {
     ScriptableValue sv = (ScriptableValue) thisObj;
     Value value = sv.getValue();
-    if(!value.getValueType().equals(BooleanType.get())) {
-      throw new MagmaJsEvaluationRuntimeException("cannot invoke and() for Value of type " + value.getValueType().getName());
+    if(value.getValueType() != BooleanType.get()) {
+      try {
+        value = BooleanType.get().convert(value);
+      } catch(IllegalArgumentException e) {
+        throw new MagmaJsEvaluationRuntimeException("cannot invoke and() for Value of type " + value.getValueType().getName());
+      }
     }
     Boolean booleanValue = toBoolean(value);
 
@@ -147,10 +151,17 @@ public class BooleanMethods {
    */
   public static ScriptableValue isNull(Context ctx, Scriptable thisObj, Object[] args, Function funObj) {
     ScriptableValue sv = (ScriptableValue) thisObj;
-    if(sv.getValue().isNull()) {
-      return new ScriptableValue(thisObj, BooleanType.get().trueValue());
-    }
-    return new ScriptableValue(thisObj, BooleanType.get().falseValue());
+    return new ScriptableValue(thisObj, BooleanType.get().valueOf(sv.getValue().isNull()));
+  }
+
+  /**
+   * <pre>
+   *   $('BooleanVar').isNotNull()
+   * </pre>
+   */
+  public static ScriptableValue isNotNull(Context ctx, Scriptable thisObj, Object[] args, Function funObj) {
+    ScriptableValue sv = (ScriptableValue) thisObj;
+    return new ScriptableValue(thisObj, BooleanType.get().valueOf(!sv.getValue().isNull()));
   }
 
   /**
@@ -182,8 +193,12 @@ public class BooleanMethods {
   public static ScriptableValue or(Context ctx, Scriptable thisObj, Object[] args, Function funObj) {
     ScriptableValue sv = (ScriptableValue) thisObj;
     Value value = sv.getValue();
-    if(!value.getValueType().equals(BooleanType.get())) {
-      throw new MagmaJsEvaluationRuntimeException("cannot invoke and() for Value of type " + value.getValueType().getName());
+    if(value.getValueType() != BooleanType.get()) {
+      try {
+        value = BooleanType.get().convert(value);
+      } catch(IllegalArgumentException e) {
+        throw new MagmaJsEvaluationRuntimeException("cannot invoke or() for Value of type " + value.getValueType().getName());
+      }
     }
     Boolean booleanValue = toBoolean(value);
 

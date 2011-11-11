@@ -147,6 +147,18 @@ public class BooleanMethodsTest extends AbstractJsTest {
     Assert.assertEquals(BooleanType.get().falseValue(), result.getValue());
   }
 
+  @Test(expected = MagmaJsEvaluationRuntimeException.class)
+  public void test_andOnNotABooleanThrows() {
+    evaluate("and(true)", TextType.get().valueOf("This is not a boolean"));
+  }
+
+  @Test
+  public void test_andAcceptsNativeJavascriptBoolean() {
+    ScriptableValue value = evaluate("and(true)", BooleanType.get().trueValue());
+    Assert.assertNotNull(value);
+    Assert.assertEquals(BooleanType.get().trueValue(), value.getValue());
+  }
+
   @Test
   public void testEmpty() {
     // Verify that empty() returns FALSE on a non-empty sequence.
@@ -240,6 +252,18 @@ public class BooleanMethodsTest extends AbstractJsTest {
     assertThat(result.getValue(), is(BooleanType.get().nullValue()));
   }
 
+  @Test(expected = MagmaJsEvaluationRuntimeException.class)
+  public void test_orOnNotABooleanThrows() {
+    evaluate("or(true)", TextType.get().valueOf("This is not a boolean"));
+  }
+
+  @Test
+  public void test_orAcceptsNativeJavascriptBoolean() {
+    ScriptableValue value = evaluate("or(true)", BooleanType.get().trueValue());
+    Assert.assertNotNull(value);
+    Assert.assertEquals(BooleanType.get().trueValue(), value.getValue());
+  }
+
   // equals (==)
 
   @Test
@@ -288,6 +312,25 @@ public class BooleanMethodsTest extends AbstractJsTest {
     ScriptableValue fooTwo = newValue(TextType.get().valueOf("foo"));
     ScriptableValue result = BooleanMethods.eq(Context.getCurrentContext(), fooOne, new ScriptableValue[] { fooTwo }, null);
     assertThat(result.getValue(), is(BooleanType.get().trueValue()));
+  }
+
+  // isNull, isNotNull
+  @Test
+  public void test_isNull() {
+    assertMethod("isNull()", TextType.get().nullValue(), BooleanType.get().trueValue());
+    assertMethod("isNull()", TextType.get().valueOf("Not Null"), BooleanType.get().falseValue());
+
+    assertMethod("isNull()", TextType.get().nullSequence(), BooleanType.get().trueValue());
+    assertMethod("isNull()", TextType.get().sequenceOf("Not Null"), BooleanType.get().falseValue());
+  }
+
+  @Test
+  public void test_isNotNull() {
+    assertMethod("isNotNull()", TextType.get().nullValue(), BooleanType.get().falseValue());
+    assertMethod("isNotNull()", TextType.get().valueOf("Not Null"), BooleanType.get().trueValue());
+
+    assertMethod("isNotNull()", TextType.get().nullSequence(), BooleanType.get().falseValue());
+    assertMethod("isNotNull()", TextType.get().sequenceOf("Not Null"), BooleanType.get().trueValue());
   }
 
   private void assertMethod(String script, Value value, Value expected) {
