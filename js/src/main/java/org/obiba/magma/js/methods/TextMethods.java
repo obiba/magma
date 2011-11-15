@@ -125,6 +125,12 @@ public class TextMethods {
    * // Works for sequences also (FRENCH,ENGLISH --&gt; 0,1)
    * $('LANGUAGES_SPOKEN').map({'FRENCH':0, 'ENGLISH':1});
    * 
+   * // Specification of default value
+   * $('LANGUAGES_SPOKEN').map({'FRENCH':0, 'ENGLISH':1}, 99);
+   * 
+   * // Specification of default value and null value mapping
+   * $('LANGUAGES_SPOKEN').map({'FRENCH':0, 'ENGLISH':1}, 99, 88);
+   * 
    * // Can execute function to calculate lookup value
    * $('BMI_DIAG').map(
    *   {'OVERW': function(value) {
@@ -153,16 +159,17 @@ public class TextMethods {
     ValueType returnType = TextType.get();
 
     Value defaultValue = defaultValue(returnType, args);
+    Value nullValue = nullValue(returnType, args);
 
     Value currentValue = sv.getValue();
     if(currentValue.isSequence()) {
       List<Value> newValues = new ArrayList<Value>();
       for(Value value : currentValue.asSequence().getValue()) {
-        newValues.add(lookupValue(ctx, thisObj, value, returnType, valueMap, defaultValue));
+        newValues.add(lookupValue(ctx, thisObj, value, returnType, valueMap, defaultValue, nullValue));
       }
       return new ScriptableValue(thisObj, returnType.sequenceOf(newValues));
     } else {
-      return new ScriptableValue(thisObj, lookupValue(ctx, thisObj, currentValue, returnType, valueMap, defaultValue));
+      return new ScriptableValue(thisObj, lookupValue(ctx, thisObj, currentValue, returnType, valueMap, defaultValue, nullValue));
     }
   }
 
@@ -188,6 +195,26 @@ public class TextMethods {
   }
 
   /**
+   * Returns the value to use when the lookup value is null. This method is used by the map() method.
+   * @param valueType
+   * @param args
+   * @return
+   */
+  private static Value nullValue(ValueType valueType, Object[] args) {
+    if(args.length < 3) {
+      // No value for null was specified. Return what is defined as default value.
+      return defaultValue(valueType, args);
+    }
+
+    Object value = args[2];
+    if(value instanceof ScriptableValue) {
+      return ((ScriptableValue) value).getValue();
+    } else {
+      return valueType.valueOf(value);
+    }
+  }
+
+  /**
    * Lookup {@code value} in {@code valueMap} and return the mapped value of type {@code returnType}
    * 
    * @param ctx
@@ -197,13 +224,12 @@ public class TextMethods {
    * @param valueMap
    * @return
    */
-  private static Value lookupValue(Context ctx, Scriptable thisObj, Value value, ValueType returnType, NativeObject valueMap, Value defaultValue) {
-    Object newValue = null;
-
+  private static Value lookupValue(Context ctx, Scriptable thisObj, Value value, ValueType returnType, NativeObject valueMap, Value defaultValue, Value nullValue) {
     if(value.isNull()) {
-      return defaultValue;
+      return nullValue;
     }
 
+    Object newValue = null;
     // MAGMA-163: lookup using string and index-based keys
     // Lookup using a string-based key
     String asName = value.toString();

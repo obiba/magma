@@ -164,6 +164,20 @@ public class TextMethodsTest extends AbstractJsTest {
   }
 
   @Test
+  public void testMapWithSimpleMappingAndNullValueWithNullValueMap() {
+    ScriptableValue value = evaluate("map({'YES':1, 'NO':2}, 9999, 8888)", TextType.get().nullValue());
+    assertThat(value, notNullValue());
+    assertThat(value.getValue(), is(TextType.get().valueOf(8888)));
+  }
+
+  @Test
+  public void testMapWithSimpleMappingAndNullValueWithDefaultValueMap() {
+    ScriptableValue value = evaluate("map({'YES':1, 'NO':2}, 9999)", TextType.get().nullValue());
+    assertThat(value, notNullValue());
+    assertThat(value.getValue(), is(TextType.get().valueOf(9999)));
+  }
+
+  @Test
   public void testMapWithSimpleMappingAndSequenceInput() {
     ScriptableValue value = evaluate("map({'YES':1, 'NO':2})", TextType.get().sequenceOf("YES,NO"));
     assertThat(value, notNullValue());
