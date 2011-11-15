@@ -2,11 +2,13 @@ package org.obiba.magma.js.methods;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.jscience.physics.unit.system.SI;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
+import org.mozilla.javascript.NativeArray;
 import org.mozilla.javascript.Scriptable;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueSequence;
@@ -16,6 +18,7 @@ import org.obiba.magma.js.ScriptableValue;
 import org.obiba.magma.type.BooleanType;
 import org.obiba.magma.type.DecimalType;
 import org.obiba.magma.type.IntegerType;
+import org.obiba.magma.type.TextType;
 import org.unitsofmeasurement.unit.Unit;
 
 public class NumericMethods {
@@ -377,6 +380,136 @@ public class NumericMethods {
 
   public static ScriptableValue cbroot(Context ctx, Scriptable thisObj, Object[] args, Function funObj) throws MagmaJsEvaluationRuntimeException {
     return operate((ScriptableValue) thisObj, new Object[] { 3 }, Unary.ROOT);
+  }
+
+  /**
+   * Groups variables in continuous space into discrete space given a list of adjacent range limits. When the current
+   * value is not an integer a null value is returned.
+   * 
+   * <pre>
+   * // usage example, possible returned values are: '-18', '18-35', '35-40', ..., '70+'
+   * $('CURRENT_AGE').group([18,35,40,45,50,55,60,65,70]);
+   * 
+   * // support of optional outliers
+   * $('CURRENT_AGE').group([18,35,40,45,50,55,60,65,70],[888,999]);
+   *  
+   * // in combination with map
+   * $('CURRENT_AGE').group([30,40,50,60],[888,999]).map({
+   *    '-30' :  1,
+   *    '30-40': 2,
+   *    '40-50': 3,
+   *    '50-60': 4,
+   *    '60+':   5,
+   *    '888':   88,
+   *    '999':   99
+   *  });
+   * </pre>
+   * @param ctx
+   * @param thisObj
+   * @param args
+   * @return funObj
+   **/
+  public static ScriptableValue group(Context ctx, Scriptable thisObj, Object[] args, Function funObj) {
+
+    if(args == null || args.length < 1 || args[0] instanceof NativeArray == false) {
+      throw new MagmaJsEvaluationRuntimeException("illegal arguments to group()");
+    }
+
+    ScriptableValue sv = (ScriptableValue) thisObj;
+    ValueType returnType = TextType.get();
+
+    ValueSequence boundaries = boundaryValues(returnType, args);
+    ValueSequence outliers = outlierValues(returnType, args);
+
+    List<Value> newValues = new ArrayList<Value>();
+    Value currentValue = sv.getValue();
+    if(currentValue.isSequence()) {
+      for(Value value : currentValue.asSequence().getValue()) {
+        newValues.add(lookupGroup(ctx, thisObj, value, boundaries, outliers));
+      }
+      return new ScriptableValue(thisObj, returnType.sequenceOf(newValues));
+    } else {
+      return new ScriptableValue(thisObj, lookupGroup(ctx, thisObj, currentValue, boundaries, outliers));
+    }
+  }
+
+  /**
+   * Returns the outlier list value to be used when present. Otherwise use the corresponding range. This method is used
+   * by the group() method.
+   * @param valueType
+   * @param args
+   * @return
+   */
+  private static ValueSequence boundaryValues(ValueType valueType, Object[] args) {
+    return NativeArrayToValueSequence(valueType, args[0]);
+  }
+
+  /**
+   * Returns the outlier list value to be used when present. Otherwise use the corresponding range. This method is used
+   * by the group() method.
+   * @param valueType
+   * @param args
+   * @return
+   */
+  private static ValueSequence outlierValues(ValueType valueType, Object[] args) {
+    return (args.length > 1) ? NativeArrayToValueSequence(valueType, args[1]) : null;
+  }
+
+  /**
+   * Returns a ValueSequence from a NativeArray. This method is used by bouindaryValues() and outlierValues(). by the
+   * group() method.
+   * @param valueType
+   * @param args
+   * @return
+   */
+  private static ValueSequence NativeArrayToValueSequence(ValueType valueType, Object array) {
+    NativeArray a = (NativeArray) array;
+    List<Value> newValues = new ArrayList<Value>();
+    Value newValue;
+    for(int index = 0; index < (int) a.getLength(); index++) {
+      newValue = IntegerType.get().valueOf(a.get(index, a));
+      newValues.add(index, newValue);
+    }
+    return ValueType.Factory.newSequence(valueType, newValues);
+  }
+
+  /**
+   * Lookup {@code value} within {@code Boundaries} and return the corresponding group of type integer
+   * 
+   * @param ctx
+   * @param thisObj
+   * @param value
+   * @param boundaries
+   * @param outlier
+   * @return
+   */
+  private static Value lookupGroup(Context ctx, Scriptable thisObj, Value value, ValueSequence boundarySequence, ValueSequence outliers) {
+    if(outliers != null && outliers.contains(value)) {
+      return value;
+    } else if(value.isNull()) {
+      return null;
+    } else if(!value.getValueType().isNumeric()) {
+      throw new MagmaJsEvaluationRuntimeException("Make sure all values in sequence are numeric");
+    }
+
+    Value lowerbound = IntegerType.get().valueOf(0);
+    Value upperbound = IntegerType.get().valueOf(0);
+    for(Value boundary : boundarySequence.asSequence().getValue()) {
+      if(upperbound.equals(lowerbound)) {
+        upperbound = boundary;
+        if(value.compareTo(boundary) < 0) {
+          return TextType.get().valueOf("-" + upperbound);
+        }
+      } else {
+        lowerbound = upperbound;
+        upperbound = boundary;
+      }
+      if(value.compareTo(upperbound) < 0) {
+        return TextType.get().valueOf(lowerbound + "-" + upperbound);
+      }
+    }
+
+    return TextType.get().valueOf(upperbound + "+");
   }
 
   static Value compare(ScriptableValue thisObj, Object args[], Comps comparator) {

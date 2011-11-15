@@ -1,6 +1,7 @@
 package org.obiba.magma.js.methods;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
 
 import org.junit.Test;
@@ -10,6 +11,7 @@ import org.obiba.magma.js.ScriptableValue;
 import org.obiba.magma.type.BooleanType;
 import org.obiba.magma.type.DecimalType;
 import org.obiba.magma.type.IntegerType;
+import org.obiba.magma.type.TextType;
 
 public class NumericMethodsTest extends AbstractJsTest {
 
@@ -583,4 +585,27 @@ public class NumericMethodsTest extends AbstractJsTest {
     assertThat(result.getUnit(), is("m/s"));
   }
 
+  // group
+
+  @Test
+  public void testGroupWithBoundariesAndNoOutliers() {
+    ScriptableValue value = evaluate("group([5,10,15,20])", IntegerType.get().valueOf("1"));
+    assertThat(value, notNullValue());
+    assertThat(value.getValue(), is(TextType.get().valueOf("-5")));
+
+    value = evaluate("group([5,10,15,20])", IntegerType.get().valueOf("10"));
+    assertThat(value, notNullValue());
+    assertThat(value.getValue(), is(TextType.get().valueOf("10-15")));
+
+    value = evaluate("group([5,10,15,20])", IntegerType.get().valueOf("21"));
+    assertThat(value, notNullValue());
+    assertThat(value.getValue(), is(TextType.get().valueOf("20+")));
+  }
+
+  @Test
+  public void testGroupWithBoundariesAndOutliers() {
+    ScriptableValue value = evaluate("group([5,10,15,20],[11,20])", IntegerType.get().valueOf("11"));
+    assertThat(value, notNullValue());
+    assertThat(value.getValue(), is(IntegerType.get().valueOf("11")));
+  }
 }
