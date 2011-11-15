@@ -44,6 +44,50 @@ public class DateTimeMethods {
   }
 
   /**
+   * Returns the quarter of a Date as an integer starting from 0 (January-March)
+   * 
+   * <pre>
+   *   $('Date').quarter()
+   * </pre>
+   */
+  public static Scriptable quarter(Context cx, Scriptable thisObj, Object[] args, Function funObj) {
+    Calendar c = asCalendar(thisObj);
+    if(c != null) {
+      int month = c.get(Calendar.MONTH);
+      int quarter = 3;
+      if(month < 3) {
+        quarter = 0;
+      } else if(month < 6) {
+        quarter = 1;
+      } else if(month < 9) {
+        quarter = 2;
+      }
+      return asScriptable(thisObj, quarter);
+    }
+    return new ScriptableValue(thisObj, IntegerType.get().nullValue());
+  }
+
+  /**
+   * Returns the semester of a Date as an integer starting from 0 (January-June)
+   * 
+   * <pre>
+   *   $('Date').semester()
+   * </pre>
+   */
+  public static Scriptable semester(Context cx, Scriptable thisObj, Object[] args, Function funObj) {
+    Calendar c = asCalendar(thisObj);
+    if(c != null) {
+      int month = c.get(Calendar.MONTH);
+      int semester = 1;
+      if(month < 6) {
+        semester = 0;
+      }
+      return asScriptable(thisObj, semester);
+    }
+    return new ScriptableValue(thisObj, IntegerType.get().nullValue());
+  }
+
+  /**
    * Returns the day of week from a Date as an integer starting from 1 (Sunday).
    * 
    * <pre>

@@ -44,6 +44,56 @@ public class DateTimeMethodTest extends AbstractJsTest {
   }
 
   @Test
+  public void test_quarter() {
+    Calendar calendar = Calendar.getInstance();
+
+    for(int i = 0; i < 12; i++) {
+      int q = i / 3;
+      calendar.set(Calendar.MONTH, i);
+      ScriptableValue result = evaluate("quarter()", DateType.get().valueOf(calendar));
+      assertIntegerResult(result, q);
+      result = evaluate("quarter()", DateTimeType.get().valueOf(calendar));
+      assertIntegerResult(result, q);
+    }
+  }
+
+  @Test
+  public void test_quarter_acceptsNull() {
+    ScriptableValue value = evaluate("quarter()", DateType.get().nullValue());
+    Assert.assertNotNull(value);
+    Assert.assertThat(value.getValue(), is(IntegerType.get().nullValue()));
+
+    value = evaluate("quarter()", DateTimeType.get().nullValue());
+    Assert.assertNotNull(value);
+    Assert.assertThat(value.getValue(), is(IntegerType.get().nullValue()));
+  }
+
+  @Test
+  public void test_semester() {
+    Calendar calendar = Calendar.getInstance();
+
+    for(int i = 0; i < 12; i++) {
+      int s = i / 6;
+      calendar.set(Calendar.MONTH, i);
+      ScriptableValue result = evaluate("semester()", DateType.get().valueOf(calendar));
+      assertIntegerResult(result, s);
+      result = evaluate("semester()", DateTimeType.get().valueOf(calendar));
+      assertIntegerResult(result, s);
+    }
+  }
+
+  @Test
+  public void test_semester_acceptsNull() {
+    ScriptableValue value = evaluate("semester()", DateType.get().nullValue());
+    Assert.assertNotNull(value);
+    Assert.assertThat(value.getValue(), is(IntegerType.get().nullValue()));
+
+    value = evaluate("semester()", DateTimeType.get().nullValue());
+    Assert.assertNotNull(value);
+    Assert.assertThat(value.getValue(), is(IntegerType.get().nullValue()));
+  }
+
+  @Test
   public void test_dayOfMonth_acceptsDateTime() {
     testCalendarFieldMethod("dayOfMonth()", Calendar.DAY_OF_MONTH, DateTimeType.get());
   }
