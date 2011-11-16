@@ -8,6 +8,7 @@ import org.junit.Test;
 import org.mozilla.javascript.Context;
 import org.obiba.magma.js.AbstractJsTest;
 import org.obiba.magma.js.ScriptableValue;
+import org.obiba.magma.type.AbstractNumberType;
 import org.obiba.magma.type.BooleanType;
 import org.obiba.magma.type.DecimalType;
 import org.obiba.magma.type.IntegerType;
@@ -588,24 +589,42 @@ public class NumericMethodsTest extends AbstractJsTest {
   // group
 
   @Test
-  public void testGroupWithBoundariesAndNoOutliers() {
-    ScriptableValue value = evaluate("group([5,10,15,20])", IntegerType.get().valueOf("1"));
-    assertThat(value, notNullValue());
-    assertThat(value.getValue(), is(TextType.get().valueOf("-5")));
-
-    value = evaluate("group([5,10,15,20])", IntegerType.get().valueOf("10"));
-    assertThat(value, notNullValue());
-    assertThat(value.getValue(), is(TextType.get().valueOf("10-15")));
-
-    value = evaluate("group([5,10,15,20])", IntegerType.get().valueOf("21"));
-    assertThat(value, notNullValue());
-    assertThat(value.getValue(), is(TextType.get().valueOf("20+")));
+  public void test_group_IntegerWithBoundariesAndNoOutliers() {
+    test_group_WithBoundariesAndNoOutliers(IntegerType.get());
   }
 
   @Test
-  public void testGroupWithBoundariesAndOutliers() {
-    ScriptableValue value = evaluate("group([5,10,15,20],[11,20])", IntegerType.get().valueOf("11"));
+  public void test_group_DecimalWithBoundariesAndNoOutliers() {
+    test_group_WithBoundariesAndNoOutliers(DecimalType.get());
+  }
+
+  private void test_group_WithBoundariesAndNoOutliers(AbstractNumberType numberType) {
+    ScriptableValue value = evaluate("group([5,10,15,20])", numberType.valueOf("1"));
     assertThat(value, notNullValue());
-    assertThat(value.getValue(), is(IntegerType.get().valueOf("11")));
+    assertThat(value.getValue(), is(TextType.get().valueOf("-" + numberType.valueOf("5"))));
+
+    value = evaluate("group([5,10,15,20])", numberType.valueOf("10"));
+    assertThat(value, notNullValue());
+    assertThat(value.getValue(), is(TextType.get().valueOf(numberType.valueOf("10") + "-" + numberType.valueOf("15"))));
+
+    value = evaluate("group([5,10,15,20])", numberType.valueOf("21"));
+    assertThat(value, notNullValue());
+    assertThat(value.getValue(), is(TextType.get().valueOf(numberType.valueOf("20") + "+")));
+  }
+
+  @Test
+  public void test_group_IntegerWithBoundariesAndOutliers() {
+    test_group_WithBoundariesAndOutliers(IntegerType.get());
+  }
+
+  @Test
+  public void test_group_DecimalWithBoundariesAndOutliers() {
+    test_group_WithBoundariesAndOutliers(DecimalType.get());
+  }
+
+  private void test_group_WithBoundariesAndOutliers(AbstractNumberType numberType) {
+    ScriptableValue value = evaluate("group([5,10,15,20],[11,20])", numberType.valueOf("11"));
+    assertThat(value, notNullValue());
+    assertThat(value.getValue(), is(TextType.get().valueOf(numberType.valueOf("11"))));
   }
 }

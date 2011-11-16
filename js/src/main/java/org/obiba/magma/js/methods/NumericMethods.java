@@ -3,6 +3,7 @@ package org.obiba.magma.js.methods;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.jscience.physics.unit.system.SI;
@@ -415,15 +416,19 @@ public class NumericMethods {
       throw new MagmaJsEvaluationRuntimeException("illegal arguments to group()");
     }
 
+    if(args.length == 2 && args[1] instanceof NativeArray == false) {
+      throw new MagmaJsEvaluationRuntimeException("illegal arguments to group()");
+    }
+
     ScriptableValue sv = (ScriptableValue) thisObj;
     ValueType returnType = TextType.get();
-
-    ValueSequence boundaries = boundaryValues(returnType, args);
-    ValueSequence outliers = outlierValues(returnType, args);
-
-    List<Value> newValues = new ArrayList<Value>();
     Value currentValue = sv.getValue();
+
+    List<Value> boundaries = boundaryValues(sv.getValueType(), args);
+    List<Value> outliers = outlierValues(sv.getValueType(), args);
+
     if(currentValue.isSequence()) {
+      List<Value> newValues = new ArrayList<Value>();
       for(Value value : currentValue.asSequence().getValue()) {
         newValues.add(lookupGroup(ctx, thisObj, value, boundaries, outliers));
       }
@@ -434,14 +439,14 @@ public class NumericMethods {
   }
 
   /**
-   * Returns the outlier list value to be used when present. Otherwise use the corresponding range. This method is used
+   * Returns the boundary list value to be used when present. Otherwise use the corresponding range. This method is used
    * by the group() method.
    * @param valueType
    * @param args
    * @return
    */
-  private static ValueSequence boundaryValues(ValueType valueType, Object[] args) {
-    return NativeArrayToValueSequence(valueType, args[0]);
+  private static List<Value> boundaryValues(ValueType valueType, Object[] args) {
+    return nativeArrayToValueList(valueType, args[0]);
   }
 
   /**
@@ -451,50 +456,51 @@ public class NumericMethods {
    * @param args
    * @return
    */
-  private static ValueSequence outlierValues(ValueType valueType, Object[] args) {
-    return (args.length > 1) ? NativeArrayToValueSequence(valueType, args[1]) : null;
+  private static List<Value> outlierValues(ValueType valueType, Object[] args) {
+    return (args.length > 1) ? nativeArrayToValueList(valueType, args[1]) : null;
   }
 
   /**
-   * Returns a ValueSequence from a NativeArray. This method is used by bouindaryValues() and outlierValues(). by the
+   * Returns a List of Value from a NativeArray. This method is used by bouindaryValues() and outlierValues(). by the
    * group() method.
    * @param valueType
    * @param args
    * @return
    */
-  private static ValueSequence NativeArrayToValueSequence(ValueType valueType, Object array) {
+  private static List<Value> nativeArrayToValueList(ValueType valueType, Object array) {
     NativeArray a = (NativeArray) array;
     List<Value> newValues = new ArrayList<Value>();
     Value newValue;
     for(int index = 0; index < (int) a.getLength(); index++) {
-      newValue = IntegerType.get().valueOf(a.get(index, a));
+      newValue = valueType.valueOf(a.get(index, a));
       newValues.add(index, newValue);
     }
-    return ValueType.Factory.newSequence(valueType, newValues);
+    Collections.sort(newValues);
+    return newValues;
   }
 
   /**
-   * Lookup {@code value} within {@code Boundaries} and return the corresponding group of type integer
+   * Lookup {@code value} within {@code boundaries} and return the corresponding group of type integer
    * 
    * @param ctx
    * @param thisObj
    * @param value
    * @param boundaries
-   * @param outlier
+   * @param outliers
    * @return
    */
-  private static Value lookupGroup(Context ctx, Scriptable thisObj, Value value, ValueSequence boundarySequence, ValueSequence outliers) {
+  private static Value lookupGroup(Context ctx, Scriptable thisObj, Value value, List<Value> boundaries, List<Value> outliers) {
     if(outliers != null && outliers.contains(value)) {
-      return value;
+      return TextType.get().convert(value);
     } else if(value.isNull()) {
-      return null;
+      return TextType.get().nullValue();
     } else if(!value.getValueType().isNumeric()) {
-      throw new MagmaJsEvaluationRuntimeException("Make sure all values in sequence are numeric");
+      throw new MagmaJsEvaluationRuntimeException("group() only apply to numeric values");
     }
 
-    Value lowerbound = IntegerType.get().valueOf(0);
-    Value upperbound = IntegerType.get().valueOf(0);
-    for(Value boundary : boundarySequence.asSequence().getValue()) {
+    Value lowerbound = value.getValueType().valueOf(0);
+    Value upperbound = value.getValueType().valueOf(0);
+    for(Value boundary : boundaries) {
       if(upperbound.equals(lowerbound)) {
         upperbound = boundary;
         if(value.compareTo(boundary) < 0) {
