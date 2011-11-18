@@ -601,15 +601,15 @@ public class NumericMethodsTest extends AbstractJsTest {
   private void test_group_WithBoundariesAndNoOutliers(AbstractNumberType numberType) {
     ScriptableValue value = evaluate("group([5,10,15,20])", numberType.valueOf("1"));
     assertThat(value, notNullValue());
-    assertThat(value.getValue(), is(TextType.get().valueOf("-" + numberType.valueOf("5"))));
+    assertThat(value.getValue(), is(TextType.get().valueOf("-5")));
 
     value = evaluate("group([5,10,15,20])", numberType.valueOf("10"));
     assertThat(value, notNullValue());
-    assertThat(value.getValue(), is(TextType.get().valueOf(numberType.valueOf("10") + "-" + numberType.valueOf("15"))));
+    assertThat(value.getValue(), is(TextType.get().valueOf("10-15")));
 
     value = evaluate("group([5,10,15,20])", numberType.valueOf("21"));
     assertThat(value, notNullValue());
-    assertThat(value.getValue(), is(TextType.get().valueOf(numberType.valueOf("20") + "+")));
+    assertThat(value.getValue(), is(TextType.get().valueOf("20+")));
   }
 
   @Test

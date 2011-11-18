@@ -504,18 +504,28 @@ public class NumericMethods {
       if(upperbound.equals(lowerbound)) {
         upperbound = boundary;
         if(value.compareTo(boundary) < 0) {
-          return TextType.get().valueOf("-" + upperbound);
+          return TextType.get().valueOf("-" + formatNumberValue(upperbound));
         }
       } else {
         lowerbound = upperbound;
         upperbound = boundary;
       }
       if(value.compareTo(upperbound) < 0) {
-        return TextType.get().valueOf(lowerbound + "-" + upperbound);
+        return TextType.get().valueOf(formatNumberValue(lowerbound) + "-" + formatNumberValue(upperbound));
       }
     }
 
-    return TextType.get().valueOf(upperbound + "+");
+    return TextType.get().valueOf(formatNumberValue(upperbound) + "+");
+  }
+
+  /**
+   * Remove the trailing '.0' that appear for doubles in java, but not in javascript.
+   * @param value
+   * @return
+   */
+  private static String formatNumberValue(Value value) {
+    String str = value.toString();
+    return str.endsWith(".0") ? str.substring(0, str.length() - 2) : str;
   }
 
   static Value compare(ScriptableValue thisObj, Object args[], Comps comparator) {
