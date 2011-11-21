@@ -498,24 +498,24 @@ public class NumericMethods {
       throw new MagmaJsEvaluationRuntimeException("group() only apply to numeric values");
     }
 
-    Value lowerbound = value.getValueType().valueOf(0);
-    Value upperbound = value.getValueType().valueOf(0);
-    for(Value boundary : boundaries) {
-      if(upperbound.equals(lowerbound)) {
-        upperbound = boundary;
-        if(value.compareTo(boundary) < 0) {
-          return TextType.get().valueOf("-" + formatNumberValue(upperbound));
+    Value lowerBound = null;
+    // boundaries are ordered
+    for(Value upperBound : boundaries) {
+      if(value.compareTo(upperBound) < 0) {
+        if(lowerBound == null) {
+          return TextType.get().valueOf("-" + formatNumberValue(upperBound));
+        } else {
+          return TextType.get().valueOf(formatNumberValue(lowerBound) + "-" + formatNumberValue(upperBound));
         }
-      } else {
-        lowerbound = upperbound;
-        upperbound = boundary;
       }
-      if(value.compareTo(upperbound) < 0) {
-        return TextType.get().valueOf(formatNumberValue(lowerbound) + "-" + formatNumberValue(upperbound));
-      }
+      lowerBound = upperBound;
+    }
+    if(lowerBound != null && value.compareTo(lowerBound) >= 0) {
+      return TextType.get().valueOf(formatNumberValue(lowerBound) + "+");
     }
 
-    return TextType.get().valueOf(formatNumberValue(upperbound) + "+");
+    // no boundaries
+    return TextType.get().valueOf(formatNumberValue(value));
   }
 
   /**
