@@ -11,6 +11,8 @@ package org.obiba.magma.beans;
 
 import java.util.Collection;
 import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
@@ -27,6 +29,7 @@ import org.obiba.magma.ValueSet;
 import org.obiba.magma.Variable;
 import org.obiba.magma.VariableValueSource;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
@@ -48,11 +51,24 @@ public class BeanVariableProviderTest {
 
   @Test
   public void testSimpleProperties() {
-    Set<String> properties = Sets.newHashSet("firstName", "lastName", "integer", "enumProperty", "language", "state");
+    Set<String> properties = Sets.newHashSet("firstName", "lastName", "integer", "decimal", "enumProperty", "language", "state");
     BeanVariableValueSourceFactory<TestBean> bvp = new BeanVariableValueSourceFactory<TestBean>("Test", TestBean.class);
     bvp.setProperties(properties);
 
     assertVariablesFromProperties(bvp, properties);
+  }
+
+  @Test
+  public void test_correctValueTypesAreInferred() {
+    Set<String> properties = Sets.newLinkedHashSet(ImmutableList.of("firstName", "lastName", "integer", "decimal", "enumProperty", "language", "state", "date"));
+    List<String> types = ImmutableList.of("text", "text", "integer", "decimal", "text", "locale", "boolean", "datetime");
+    BeanVariableValueSourceFactory<TestBean> bvp = new BeanVariableValueSourceFactory<TestBean>("Test", TestBean.class);
+    bvp.setProperties(properties);
+    Iterator<String> i = types.iterator();
+    for(VariableValueSource source : bvp.createSources()) {
+      String type = i.next();
+      Assert.assertEquals("wrong type for property " + source.getVariable().getName(), type, source.getValueType().getName());
+    }
   }
 
   @Test
@@ -223,6 +239,8 @@ public class BeanVariableProviderTest {
 
     private Integer integer;
 
+    private Double decimal;
+
     private NestedTestBean nestedBean;
 
     private NestedTestBean anotherNestedBean;
@@ -293,6 +311,14 @@ public class BeanVariableProviderTest {
 
     public final void setInteger(Integer integer) {
       this.integer = integer;
+    }
+
+    public Double getDecimal() {
+      return decimal;
+    }
+
+    public void setDecimal(Double decimal) {
+      this.decimal = decimal;
     }
 
     public NestedTestBean getAnotherNestedBean() {

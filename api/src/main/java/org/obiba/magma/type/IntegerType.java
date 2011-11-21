@@ -55,6 +55,9 @@ public class IntegerType extends AbstractNumberType {
     if(Number.class.isAssignableFrom(type)) {
       return Factory.newValue(this, Long.valueOf(((Number) object).longValue()));
     }
+    if(String.class.isAssignableFrom(type)) {
+      return valueOf((String) object);
+    }
     throw new IllegalArgumentException("Cannot construct " + getClass().getSimpleName() + " from type " + object.getClass() + ".");
   }
 

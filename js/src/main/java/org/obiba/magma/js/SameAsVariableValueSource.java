@@ -1,6 +1,5 @@
 package org.obiba.magma.js;
 
-import org.obiba.magma.NoSuchAttributeException;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.Variable;
 
@@ -15,11 +14,7 @@ public class SameAsVariableValueSource extends JavascriptVariableValueSource {
 
   @Override
   public String getScript() {
-    try {
-      return super.getScript();
-    } catch(NoSuchAttributeException e) {
-      return new StringBuilder().append("$('").append(getSameAs()).append("')").toString();
-    }
+    return super.getVariable().hasAttribute(JavascriptVariableBuilder.SCRIPT_ATTRIBUTE_NAME) ? super.getScript() : new StringBuilder().append("$('").append(getSameAs()).append("')").toString();
   }
 
   public String getSameAs() {

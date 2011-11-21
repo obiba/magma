@@ -55,6 +55,9 @@ public class DecimalType extends AbstractNumberType {
     if(Number.class.isAssignableFrom(type)) {
       return Factory.newValue(this, Double.valueOf(((Number) object).doubleValue()));
     }
+    if(String.class.isAssignableFrom(type)) {
+      return valueOf((String) object);
+    }
     throw new IllegalArgumentException("Cannot construct " + getClass().getSimpleName() + " from type " + object.getClass() + ".");
   }
 

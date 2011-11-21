@@ -15,10 +15,10 @@ public class DateTimeType extends AbstractValueType {
 
   private static WeakReference<DateTimeType> instance;
 
-  private final SimpleDateFormat ISO_8601 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZZ");
+  private final SimpleDateFormat ISO_8601 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
 
   /** These are used to support other formats that Magma may have used in the past. */
-  private final SimpleDateFormat[] otherFormats = new SimpleDateFormat[] { new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ"), new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSzzz") };
+  private final SimpleDateFormat[] otherFormats = new SimpleDateFormat[] { new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ"), new SimpleDateFormat("yyyy-MM-dd'T'HH:mmZ"), new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSzzz") };
 
   private DateTimeType() {
 

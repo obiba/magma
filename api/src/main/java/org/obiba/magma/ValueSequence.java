@@ -97,5 +97,4 @@ public class ValueSequence extends Value {
   public boolean contains(Value value) {
     return getValues().contains(value);
   }
-
 }

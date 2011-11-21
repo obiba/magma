@@ -2,6 +2,7 @@ package org.obiba.magma;
 
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
@@ -12,6 +13,7 @@ import org.obiba.magma.type.DateTimeType;
 import org.obiba.magma.type.DateType;
 import org.obiba.magma.type.DatetimeValueConverter;
 import org.obiba.magma.type.DecimalType;
+import org.obiba.magma.type.IdentityValueConverter;
 import org.obiba.magma.type.IntegerType;
 import org.obiba.magma.type.LocaleType;
 import org.obiba.magma.type.NumericValueConverter;
@@ -25,7 +27,7 @@ class ValueTypeFactory {
 
   private Set<ValueType> types = new HashSet<ValueType>();
 
-  private Set<ValueConverter> converters = new HashSet<ValueConverter>();
+  private Set<ValueConverter> converters = new LinkedHashSet<ValueConverter>();
 
   ValueTypeFactory() {
     registerBuiltInTypes();
@@ -85,6 +87,7 @@ class ValueTypeFactory {
     types.add(DateTimeType.get());
     types.add(DateType.get());
 
+    converters.add(new IdentityValueConverter());
     converters.add(new TextToNumericTypeValueConverter());
     converters.add(new DatetimeValueConverter());
     converters.add(new NumericValueConverter());

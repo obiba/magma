@@ -11,6 +11,7 @@ import org.obiba.magma.ValueType;
 import org.obiba.magma.js.MagmaJsEvaluationRuntimeException;
 import org.obiba.magma.js.ScriptableValue;
 import org.obiba.magma.type.BinaryType;
+import org.obiba.magma.type.DecimalType;
 import org.obiba.magma.type.IntegerType;
 import org.obiba.magma.type.LocaleType;
 
@@ -120,7 +121,7 @@ public class ValueSequenceMethods {
         return new ScriptableValue(thisObj, valueSequence.getValueType().nullValue()); // Index out of bounds.
       }
     } else {
-      throw new MagmaJsEvaluationRuntimeException("Operand to value() method must be a ScriptableValue containing a ValueSequence.");
+      throw new MagmaJsEvaluationRuntimeException("Operand to valueAt() method must be a ScriptableValue containing a ValueSequence.");
     }
   }
 
@@ -165,5 +166,33 @@ public class ValueSequenceMethods {
     } else {
       throw new MagmaJsEvaluationRuntimeException("Operand to sort() method must be a ScriptableValue containing a ValueSequence.");
     }
+  }
+
+  /**
+   * Returns the average of the {@link Value}s contained in the {@link ValueSequence}. Returns null if the operand is
+   * null or the ValueSequence contains no Values.
+   * 
+   * <pre>
+   *   $('SequenceVar').avg()
+   * </pre>
+   * @throws MagmaJsEvaluationRuntimeException if operand does not contain a ValueSequence of numeric values.
+   */
+  public static ScriptableValue avg(final Context ctx, Scriptable thisObj, Object[] args, final Function funObj) throws MagmaJsEvaluationRuntimeException {
+    ScriptableValue sv = (ScriptableValue) thisObj;
+    if(sv.getValue().isNull()) {
+      return new ScriptableValue(thisObj, DecimalType.get().nullValue());
+    }
+    if(sv.getValue().isSequence()) {
+      ValueSequence valueSequence = sv.getValue().asSequence();
+      if(valueSequence.getSize() == 0) {
+        return new ScriptableValue(thisObj, DecimalType.get().nullValue());
+      }
+      Double avg = NumericMethods.average(valueSequence);
+      if(avg != null) {
+        return new ScriptableValue(thisObj, DecimalType.get().valueOf(avg), sv.getUnit());
+      }
+      throw new MagmaJsEvaluationRuntimeException("Operand to avg() method must be a ScriptableValue containing a ValueSequence of numeric values.");
+    }
+    throw new MagmaJsEvaluationRuntimeException("Operand to avg() method must be a ScriptableValue containing a ValueSequence.");
   }
 }

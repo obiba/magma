@@ -66,24 +66,39 @@ public class DateTimeTypeTest extends BaseValueTypeTest {
   }
 
   @Test
-  public void testValueOfISODateFormatString() {
-    assertValueOfUsingDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZZ");
-  }
-
-  @Test
-  public void testValueOfIncorrectISODateFormatString() {
+  public void test_valueOfISODateFormatString() {
     assertValueOfUsingDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
   }
 
   @Test
-  public void testValueOfDateFormatString() {
+  public void test_valueOfISODateFormatNoMillisecondsString() {
+    // seconds precision
+    assertValueOfUsingDateFormat("yyyy-MM-dd'T'HH:mm:ssZ", 1000);
+  }
+
+  @Test
+  public void test_valueOfISODateFormatNoSecondsString() {
+    // minutes precision
+    assertValueOfUsingDateFormat("yyyy-MM-dd'T'HH:mmZ", 1000 * 60);
+  }
+
+  @Test
+  public void test_valueOfIncorrectISODateFormatString() {
     assertValueOfUsingDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSzzz");
   }
 
   private void assertValueOfUsingDateFormat(String dateFormat) {
-    DateTimeType dt = DateTimeType.get();
+    assertValueOfUsingDateFormat(dateFormat, 0);
+  }
+
+  private void assertValueOfUsingDateFormat(String dateFormat, int precision) {
     Date dateValue = new Date();
-    Value value = dt.valueOf(new SimpleDateFormat(dateFormat).format(dateValue));
-    Assert.assertEquals(dateValue, value.getValue());
+    Value value = getValueType().valueOf(new SimpleDateFormat(dateFormat).format(dateValue));
+    if(precision == 0) {
+      Assert.assertEquals(dateValue, value.getValue());
+    } else {
+      // asserts that times are equivalent within "precision" from each other
+      Assert.assertTrue(Math.abs(dateValue.getTime() - ((Date) value.getValue()).getTime()) < precision);
+    }
   }
 }
