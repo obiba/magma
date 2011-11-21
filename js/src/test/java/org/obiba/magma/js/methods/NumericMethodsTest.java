@@ -598,16 +598,41 @@ public class NumericMethodsTest extends AbstractJsTest {
     test_group_WithBoundariesAndNoOutliers(DecimalType.get());
   }
 
-  private void test_group_WithBoundariesAndNoOutliers(AbstractNumberType numberType) {
-    ScriptableValue value = evaluate("group([5,10,15,20])", numberType.valueOf("1"));
+  @Test
+  public void test_group_NoBoundariesAndNoOutliers() {
+    String group = "group([])";
+    ScriptableValue value = evaluate(group, IntegerType.get().valueOf("1"));
     assertThat(value, notNullValue());
-    assertThat(value.getValue(), is(TextType.get().valueOf("-5")));
+    assertThat(value.getValue(), is(TextType.get().valueOf("1")));
+  }
 
-    value = evaluate("group([5,10,15,20])", numberType.valueOf("10"));
+  @Test
+  public void test_group_NullValue() {
+    String group = "group([0,10,20])";
+    ScriptableValue value = evaluate(group, IntegerType.get().nullValue());
+    assertThat(value, notNullValue());
+    assertThat(value.getValue(), is(TextType.get().nullValue()));
+  }
+
+  private void test_group_WithBoundariesAndNoOutliers(AbstractNumberType numberType) {
+    String group = "group([0,5,10,15,20])";
+    ScriptableValue value = evaluate(group, numberType.valueOf("-1"));
+    assertThat(value, notNullValue());
+    assertThat(value.getValue(), is(TextType.get().valueOf("-0")));
+
+    value = evaluate(group, numberType.valueOf("1"));
+    assertThat(value, notNullValue());
+    assertThat(value.getValue(), is(TextType.get().valueOf("0-5")));
+
+    value = evaluate(group, numberType.valueOf("10"));
     assertThat(value, notNullValue());
     assertThat(value.getValue(), is(TextType.get().valueOf("10-15")));
 
-    value = evaluate("group([5,10,15,20])", numberType.valueOf("21"));
+    value = evaluate(group, numberType.valueOf("20"));
+    assertThat(value, notNullValue());
+    assertThat(value.getValue(), is(TextType.get().valueOf("20+")));
+
+    value = evaluate(group, numberType.valueOf("21"));
     assertThat(value, notNullValue());
     assertThat(value.getValue(), is(TextType.get().valueOf("20+")));
   }
