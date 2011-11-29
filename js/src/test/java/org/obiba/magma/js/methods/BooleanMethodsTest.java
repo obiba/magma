@@ -340,4 +340,45 @@ public class BooleanMethodsTest extends AbstractJsTest {
     assertThat(result.getValue(), is(expected));
   }
 
+  // whenNull
+  @Test
+  public void test_whenNull() {
+    ScriptableValue result = evaluate("whenNull(false)", BooleanType.get().valueOf((Object) null));
+    assertThat(result.getValue(), is(BooleanType.get().valueOf(false)));
+
+    result = evaluate("whenNull(true)", BooleanType.get().valueOf((Object) null));
+    assertThat(result.getValue(), is(BooleanType.get().valueOf(true)));
+
+    result = evaluate("whenNull(null)", BooleanType.get().valueOf((Object) null));
+    assertThat(result.getValue(), is(BooleanType.get().nullValue()));
+
+    result = evaluate("whenNull()", BooleanType.get().valueOf((Object) null));
+    assertThat(result.getValue(), is(BooleanType.get().nullValue()));
+
+    result = evaluate("whenNull(false)", BooleanType.get().valueOf(true));
+    assertThat(result.getValue(), is(BooleanType.get().valueOf(true)));
+
+    result = evaluate("whenNull(true)", BooleanType.get().valueOf(true));
+    assertThat(result.getValue(), is(BooleanType.get().valueOf(true)));
+
+    result = evaluate("whenNull(null)", BooleanType.get().valueOf(true));
+    assertThat(result.getValue(), is(BooleanType.get().valueOf(true)));
+
+    result = evaluate("whenNull()", BooleanType.get().valueOf(true));
+    assertThat(result.getValue(), is(BooleanType.get().valueOf(true)));
+
+    result = evaluate("whenNull(false)", BooleanType.get().valueOf(false));
+    assertThat(result.getValue(), is(BooleanType.get().valueOf(false)));
+
+    result = evaluate("whenNull(true)", BooleanType.get().valueOf(false));
+    assertThat(result.getValue(), is(BooleanType.get().valueOf(false)));
+
+    result = evaluate("whenNull(null)", BooleanType.get().valueOf(false));
+    assertThat(result.getValue(), is(BooleanType.get().valueOf(false)));
+
+    result = evaluate("whenNull()", BooleanType.get().valueOf(false));
+    assertThat(result.getValue(), is(BooleanType.get().valueOf(false)));
+
+  }
+
 }

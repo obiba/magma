@@ -246,6 +246,19 @@ public class BooleanMethods {
     }
   }
 
+  public static ScriptableValue whenNull(Context ctx, Scriptable thisObj, Object[] args, Function funObj) throws MagmaJsEvaluationRuntimeException {
+    ScriptableValue sv = (ScriptableValue) thisObj;
+    if(sv.getValue().isNull()) {
+      if(args == null || args.length == 0) {
+        return sv;
+      } else {
+        return new ScriptableValue(thisObj, BooleanType.get().valueOf(args[0]));
+      }
+    } else {
+      return sv;
+    }
+  }
+
   private static ScriptableValue numericEquals(Scriptable thisObj, ScriptableValue firstOperand, ScriptableValue secondOperand) {
     Number firstNumber = (Number) firstOperand.getValue().getValue();
     Number secondNumber = (Number) secondOperand.getValue().getValue();
