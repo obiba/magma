@@ -421,18 +421,20 @@ public class NumericMethods {
     }
 
     ScriptableValue sv = (ScriptableValue) thisObj;
-    ValueType returnType = TextType.get();
     Value currentValue = sv.getValue();
 
     List<Value> boundaries = boundaryValues(sv.getValueType(), args);
     List<Value> outliers = outlierValues(sv.getValueType(), args);
 
     if(currentValue.isSequence()) {
+      if(currentValue.isNull()) {
+        return new ScriptableValue(thisObj, TextType.get().nullSequence());
+      }
       List<Value> newValues = new ArrayList<Value>();
       for(Value value : currentValue.asSequence().getValue()) {
         newValues.add(lookupGroup(ctx, thisObj, value, boundaries, outliers));
       }
-      return new ScriptableValue(thisObj, returnType.sequenceOf(newValues));
+      return new ScriptableValue(thisObj, TextType.get().sequenceOf(newValues));
     } else {
       return new ScriptableValue(thisObj, lookupGroup(ctx, thisObj, currentValue, boundaries, outliers));
     }
