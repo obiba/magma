@@ -342,13 +342,27 @@ public class DateTimeMethodTest extends AbstractJsTest {
     String expected = format.format(now);
 
     Value result = evaluate("format('" + pattern + "')", testType.valueOf(now)).getValue();
-    Assert.assertNotNull(result);
-    Assert.assertEquals(TextType.get(), result.getValueType());
-    Assert.assertEquals(expected, result.toString());
+    assertFormatResult(result, expected, false);
 
     result = evaluate("format(newValue('" + pattern + "'))", testType.valueOf(now)).getValue();
+    assertFormatResult(result, expected, false);
+
+    // sequence
+    result = evaluate("format('" + pattern + "')", testType.sequenceOf(ImmutableList.of(testType.valueOf(now)))).getValue();
+    assertFormatResult(result, expected, true);
+  }
+
+  private void assertFormatResult(Value result, String expected, boolean sequence) {
     Assert.assertNotNull(result);
+    assertThat(result.isSequence(), is(sequence));
     Assert.assertEquals(TextType.get(), result.getValueType());
-    Assert.assertEquals(expected, result.toString());
+
+    if(!sequence) {
+      Assert.assertEquals(expected, result.toString());
+    } else {
+      ValueSequence seq = result.asSequence();
+      assertThat(seq.getSize(), is(1));
+      assertThat(seq.get(0).getValue().toString(), is(expected));
+    }
   }
 }

@@ -307,17 +307,39 @@ public class DateTimeMethods {
    * @see java.text.SimpleDateFormat
    */
   public static Scriptable format(Context cx, Scriptable thisObj, Object[] args, Function funObj) {
-    Date thisDate = asDate(thisObj);
-    if(thisDate == null || args == null || args.length == 0) {
-      return new ScriptableValue(thisObj, TextType.get().nullValue());
+    Value currentValue = ((ScriptableValue) thisObj).getValue();
+    if(currentValue.isSequence()) {
+      if(currentValue.isNull()) {
+        return new ScriptableValue(thisObj, TextType.get().nullSequence());
+      }
+      List<Value> newValues = new ArrayList<Value>();
+      for(Value value : currentValue.asSequence().getValue()) {
+        newValues.add(format(value, args));
+      }
+      return new ScriptableValue(thisObj, TextType.get().sequenceOf(newValues));
+    } else {
+      return new ScriptableValue(thisObj, format(currentValue, args));
+    }
+  }
+
+  private static Value format(Value value, Object[] args) {
+    if(args == null || args.length == 0) {
+      return TextType.get().nullValue();
     }
 
+    Date thisDate = asDate(value);
+    if(thisDate == null) {
+      return TextType.get().nullValue();
+    }
     SimpleDateFormat format = null;
     Object arg = args[0];
     if(arg instanceof ScriptableValue) {
       ScriptableValue operand = (ScriptableValue) arg;
+      if(operand.getValue().isSequence()) {
+        throw new MagmaJsEvaluationRuntimeException("Argument to format() method must not be a sequence of values.");
+      }
       if(operand.getValue().isNull()) {
-        return new ScriptableValue(thisObj, TextType.get().nullValue());
+        return TextType.get().nullValue();
       }
       format = new SimpleDateFormat(((ScriptableValue) arg).toString());
     } else if(arg instanceof String) {
@@ -326,7 +348,7 @@ public class DateTimeMethods {
       throw new MagmaJsEvaluationRuntimeException("Argument to format() method must be a String or a ScriptableValue.");
     }
 
-    return new ScriptableValue(thisObj, TextType.get().valueOf(format.format(thisDate)));
+    return TextType.get().valueOf(format.format(thisDate));
   }
 
   /**
@@ -383,21 +405,18 @@ public class DateTimeMethods {
     return BooleanType.get().trueValue();
   }
 
-  private static Date asDate(Scriptable obj) {
-    ScriptableValue sv = (ScriptableValue) obj;
+  private static Date asDate(Value value) {
 
-    if(sv.getValueType() == DateTimeType.get()) {
-      Value value = sv.getValue();
+    if(value.getValueType() == DateTimeType.get()) {
       if(value.isNull() == false) {
         return (Date) value.getValue();
       }
-    } else if(sv.getValueType() == DateType.get()) {
-      Value value = sv.getValue();
+    } else if(value.getValueType() == DateType.get()) {
       if(value.isNull() == false) {
         return ((MagmaDate) value.getValue()).asDate();
       }
     } else {
-      throw new MagmaJsEvaluationRuntimeException("Invalid ValueType: expected '" + DateTimeType.get().getName() + "' or '" + DateType.get().getName() + "' got '" + sv.getValueType().getName() + "'");
+      throw new MagmaJsEvaluationRuntimeException("Invalid ValueType: expected '" + DateTimeType.get().getName() + "' or '" + DateType.get().getName() + "' got '" + value.getValueType().getName() + "'");
     }
     return null;
   }
