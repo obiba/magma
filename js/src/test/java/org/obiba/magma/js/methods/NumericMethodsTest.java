@@ -3,7 +3,6 @@ package org.obiba.magma.js.methods;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
-import junit.framework.Assert;
 
 import org.junit.Test;
 import org.mozilla.javascript.Context;
@@ -620,8 +619,8 @@ public class NumericMethodsTest extends AbstractJsTest {
   public void test_group_NullSequence() {
     String group = "group([0,10,20])";
     ScriptableValue value = evaluate(group, IntegerType.get().sequenceOf((Iterable<Value>) null));
-    Assert.assertTrue(value.getValue().isSequence());
-    Assert.assertTrue(value.getValue().isNull());
+    assertThat(value.getValue().isNull(), is(true));
+    assertThat(value.getValue().isSequence(), is(true));
     assertThat(value.getValue().asSequence(), is(TextType.get().nullSequence()));
   }
 
