@@ -176,6 +176,11 @@ public class BooleanMethodsTest extends AbstractJsTest {
     result = BooleanMethods.empty(Context.getCurrentContext(), emptySequence, null, null);
     Assert.assertNotNull(result);
     Assert.assertEquals(BooleanType.get().trueValue(), result.getValue());
+
+    emptySequence = newValue(TextType.get().nullSequence());
+    result = BooleanMethods.empty(Context.getCurrentContext(), emptySequence, null, null);
+    Assert.assertNotNull(result);
+    Assert.assertEquals(BooleanType.get().nullValue(), result.getValue());
   }
 
   // Ternary valued OR
