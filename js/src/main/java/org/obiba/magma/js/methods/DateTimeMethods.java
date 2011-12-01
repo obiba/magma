@@ -1,15 +1,18 @@
 package org.obiba.magma.js.methods;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.List;
 
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.Scriptable;
 import org.obiba.magma.MagmaDate;
 import org.obiba.magma.Value;
+import org.obiba.magma.ValueSequence;
 import org.obiba.magma.js.MagmaJsEvaluationRuntimeException;
 import org.obiba.magma.js.ScriptableValue;
 import org.obiba.magma.type.BooleanType;
@@ -51,7 +54,23 @@ public class DateTimeMethods {
    * </pre>
    */
   public static Scriptable quarter(Context cx, Scriptable thisObj, Object[] args, Function funObj) {
-    Calendar c = asCalendar(thisObj);
+    Value currentValue = ((ScriptableValue) thisObj).getValue();
+    if(currentValue.isSequence()) {
+      if(currentValue.isNull()) {
+        return new ScriptableValue(thisObj, IntegerType.get().nullSequence());
+      }
+      List<Value> newValues = new ArrayList<Value>();
+      for(Value value : currentValue.asSequence().getValue()) {
+        newValues.add(quarter(value));
+      }
+      return new ScriptableValue(thisObj, IntegerType.get().sequenceOf(newValues));
+    } else {
+      return new ScriptableValue(thisObj, quarter(currentValue));
+    }
+  }
+
+  private static Value quarter(Value value) {
+    Calendar c = asCalendar(value);
     if(c != null) {
       int month = c.get(Calendar.MONTH);
       int quarter = 3;
@@ -62,9 +81,9 @@ public class DateTimeMethods {
       } else if(month < 9) {
         quarter = 2;
       }
-      return asScriptable(thisObj, quarter);
+      return IntegerType.get().valueOf(quarter);
     }
-    return new ScriptableValue(thisObj, IntegerType.get().nullValue());
+    return IntegerType.get().nullValue();
   }
 
   /**
@@ -75,16 +94,32 @@ public class DateTimeMethods {
    * </pre>
    */
   public static Scriptable semester(Context cx, Scriptable thisObj, Object[] args, Function funObj) {
-    Calendar c = asCalendar(thisObj);
+    Value currentValue = ((ScriptableValue) thisObj).getValue();
+    if(currentValue.isSequence()) {
+      if(currentValue.isNull()) {
+        return new ScriptableValue(thisObj, IntegerType.get().nullSequence());
+      }
+      List<Value> newValues = new ArrayList<Value>();
+      for(Value value : currentValue.asSequence().getValue()) {
+        newValues.add(semester(value));
+      }
+      return new ScriptableValue(thisObj, IntegerType.get().sequenceOf(newValues));
+    } else {
+      return new ScriptableValue(thisObj, semester(currentValue));
+    }
+  }
+
+  private static Value semester(Value value) {
+    Calendar c = asCalendar(value);
     if(c != null) {
       int month = c.get(Calendar.MONTH);
       int semester = 1;
       if(month < 6) {
         semester = 0;
       }
-      return asScriptable(thisObj, semester);
+      return IntegerType.get().valueOf(semester);
     }
-    return new ScriptableValue(thisObj, IntegerType.get().nullValue());
+    return IntegerType.get().nullValue();
   }
 
   /**
@@ -106,12 +141,28 @@ public class DateTimeMethods {
    * </pre>
    */
   public static Scriptable weekday(Context cx, Scriptable thisObj, Object[] args, Function funObj) {
-    Calendar c = asCalendar(thisObj);
+    Value currentValue = ((ScriptableValue) thisObj).getValue();
+    if(currentValue.isSequence()) {
+      if(currentValue.isNull()) {
+        return new ScriptableValue(thisObj, BooleanType.get().nullSequence());
+      }
+      List<Value> newValues = new ArrayList<Value>();
+      for(Value value : currentValue.asSequence().getValue()) {
+        newValues.add(weekday(value));
+      }
+      return new ScriptableValue(thisObj, BooleanType.get().sequenceOf(newValues));
+    } else {
+      return new ScriptableValue(thisObj, weekday(currentValue));
+    }
+  }
+
+  private static Value weekday(Value value) {
+    Calendar c = asCalendar(value);
     if(c != null) {
       int dow = c.get(Calendar.DAY_OF_WEEK);
-      return new ScriptableValue(thisObj, BooleanType.get().valueOf(dow > Calendar.SUNDAY && dow < Calendar.SATURDAY));
+      return BooleanType.get().valueOf(dow > Calendar.SUNDAY && dow < Calendar.SATURDAY);
     }
-    return new ScriptableValue(thisObj, BooleanType.get().nullValue());
+    return BooleanType.get().nullValue();
   }
 
   /**
@@ -122,12 +173,28 @@ public class DateTimeMethods {
    * </pre>
    */
   public static Scriptable weekend(Context cx, Scriptable thisObj, Object[] args, Function funObj) {
-    Calendar c = asCalendar(thisObj);
+    Value currentValue = ((ScriptableValue) thisObj).getValue();
+    if(currentValue.isSequence()) {
+      if(currentValue.isNull()) {
+        return new ScriptableValue(thisObj, BooleanType.get().nullSequence());
+      }
+      List<Value> newValues = new ArrayList<Value>();
+      for(Value value : currentValue.asSequence().getValue()) {
+        newValues.add(weekend(value));
+      }
+      return new ScriptableValue(thisObj, BooleanType.get().sequenceOf(newValues));
+    } else {
+      return new ScriptableValue(thisObj, weekend(currentValue));
+    }
+  }
+
+  private static Value weekend(Value value) {
+    Calendar c = asCalendar(value);
     if(c != null) {
       int dow = c.get(Calendar.DAY_OF_WEEK);
-      return new ScriptableValue(thisObj, BooleanType.get().valueOf(dow < Calendar.MONDAY || dow > Calendar.FRIDAY));
+      return BooleanType.get().valueOf(dow < Calendar.MONDAY || dow > Calendar.FRIDAY);
     }
-    return new ScriptableValue(thisObj, BooleanType.get().nullValue());
+    return BooleanType.get().nullValue();
   }
 
   /**
@@ -271,30 +338,49 @@ public class DateTimeMethods {
    * </pre>
    */
   public static Scriptable after(Context cx, Scriptable thisObj, Object[] args, Function funObj) {
-    Calendar thisCalendar = asCalendar(thisObj);
-    if(thisCalendar == null) {
-      return new ScriptableValue(thisObj, BooleanType.get().nullValue());
-    }
-
     if(args == null || args.length == 0) {
       return new ScriptableValue(thisObj, BooleanType.get().falseValue());
+    }
+
+    Value currentValue = ((ScriptableValue) thisObj).getValue();
+    if(currentValue.isSequence()) {
+      if(currentValue.isNull()) {
+        return new ScriptableValue(thisObj, BooleanType.get().nullSequence());
+      }
+      List<Value> newValues = new ArrayList<Value>();
+      for(Value value : currentValue.asSequence().getValue()) {
+        newValues.add(after(value, args));
+      }
+      return new ScriptableValue(thisObj, BooleanType.get().sequenceOf(newValues));
+    } else {
+      return new ScriptableValue(thisObj, after(currentValue, args));
+    }
+  }
+
+  private static Value after(Value value, Object[] args) {
+    Calendar thisCalendar = asCalendar(value);
+    if(thisCalendar == null) {
+      return BooleanType.get().nullValue();
     }
 
     for(Object arg : args) {
       if(arg instanceof ScriptableValue) {
         ScriptableValue operand = (ScriptableValue) arg;
-        Calendar c = asCalendar(operand);
+        if(operand.getValue().isSequence()) {
+          throw new MagmaJsEvaluationRuntimeException("Operand to after() method must not be a sequence of values.");
+        }
+        Calendar c = asCalendar(operand.getValue());
         if(c == null) {
-          return new ScriptableValue(thisObj, BooleanType.get().nullValue());
+          return BooleanType.get().nullValue();
         }
         if(thisCalendar.before(c)) {
-          return new ScriptableValue(thisObj, BooleanType.get().falseValue());
+          return BooleanType.get().falseValue();
         }
       } else {
         throw new MagmaJsEvaluationRuntimeException("Operand to after() method must be a ScriptableValue.");
       }
     }
-    return new ScriptableValue(thisObj, BooleanType.get().trueValue());
+    return BooleanType.get().trueValue();
   }
 
   private static Date asDate(Scriptable obj) {
@@ -317,30 +403,26 @@ public class DateTimeMethods {
   }
 
   /**
-   * Converts a {@code ScriptableValue} instance to a {@code Calendar} instance. If {@code Value#isNull()} returns true,
-   * this method returns null.
+   * Converts a {@code Value} instance to a {@code Calendar} instance. If {@code Value#isNull()} returns true, this
+   * method returns null.
    * 
-   * @param obj
+   * @param value
    * @return
    */
-  private static Calendar asCalendar(Scriptable obj) {
-    ScriptableValue sv = (ScriptableValue) obj;
-
-    if(sv.getValueType() == DateTimeType.get()) {
-      Value value = sv.getValue();
+  private static Calendar asCalendar(Value value) {
+    if(value.getValueType() == DateTimeType.get()) {
       if(value.isNull() == false) {
         Date date = (Date) value.getValue();
         Calendar c = GregorianCalendar.getInstance();
         c.setTimeInMillis(date.getTime());
         return c;
       }
-    } else if(sv.getValueType() == DateType.get()) {
-      Value value = sv.getValue();
+    } else if(value.getValueType() == DateType.get()) {
       if(value.isNull() == false) {
         return ((MagmaDate) value.getValue()).asCalendar();
       }
     } else {
-      throw new MagmaJsEvaluationRuntimeException("Invalid ValueType: expected '" + DateTimeType.get().getName() + "' or '" + DateType.get().getName() + "' got '" + sv.getValueType().getName() + "'");
+      throw new MagmaJsEvaluationRuntimeException("Invalid ValueType: expected '" + DateTimeType.get().getName() + "' or '" + DateType.get().getName() + "' got '" + value.getValueType().getName() + "'");
     }
     return null;
   }
@@ -349,16 +431,38 @@ public class DateTimeMethods {
    * Given a {@code ScriptableValue}, this method extracts a {@code field} from the Calendar.
    * 
    * @param scope
-   * @param obj
+   * @param sv
    * @param field
    * @return
    */
-  private static Scriptable asScriptable(Scriptable scope, Scriptable value, int field) {
-    Calendar c = asCalendar(value);
-    if(c != null) {
-      return asScriptable(scope, c.get(field));
+  private static Scriptable asScriptable(Scriptable scope, Scriptable sv, int field) {
+    Value currentValue = ((ScriptableValue) sv).getValue();
+
+    if(currentValue.isSequence()) {
+      return asScriptable(scope, currentValue.asSequence(), field);
+    } else {
+      Calendar c = asCalendar(currentValue);
+      if(c != null) {
+        return asScriptable(scope, c.get(field));
+      }
+      return new ScriptableValue(scope, IntegerType.get().nullValue());
     }
-    return new ScriptableValue(scope, IntegerType.get().nullValue());
+  }
+
+  private static Scriptable asScriptable(Scriptable scope, ValueSequence currentValue, int field) {
+    if(currentValue.isNull()) {
+      return new ScriptableValue(scope, IntegerType.get().nullSequence());
+    }
+    List<Value> newValues = new ArrayList<Value>();
+    for(Value value : currentValue.asSequence().getValue()) {
+      Calendar c = asCalendar(value);
+      if(c != null) {
+        newValues.add(IntegerType.get().valueOf(c.get(field)));
+      } else {
+        newValues.add(IntegerType.get().nullValue());
+      }
+    }
+    return new ScriptableValue(scope, IntegerType.get().sequenceOf(newValues));
   }
 
   private static Scriptable asScriptable(Scriptable scope, int value) {
@@ -377,7 +481,24 @@ public class DateTimeMethods {
     if(args.length != 1) {
       throw new UnsupportedOperationException(".add() expects exactly one integer argument: days to add.");
     }
-    Calendar c = asCalendar(thisObj);
+
+    Value currentValue = ((ScriptableValue) thisObj).getValue();
+    if(currentValue.isSequence()) {
+      if(currentValue.isNull()) {
+        return new ScriptableValue(thisObj, DateTimeType.get().nullSequence());
+      }
+      List<Value> newValues = new ArrayList<Value>();
+      for(Value value : currentValue.asSequence().getValue()) {
+        newValues.add(add(value, args));
+      }
+      return new ScriptableValue(thisObj, DateTimeType.get().sequenceOf(newValues));
+    } else {
+      return new ScriptableValue(thisObj, add(currentValue, args));
+    }
+  }
+
+  private static Value add(Value cvalue, Object[] args) {
+    Calendar c = asCalendar(cvalue);
     if(c != null) {
       int argument = 0;
       if(args[0] instanceof ScriptableValue) {
@@ -387,8 +508,8 @@ public class DateTimeMethods {
         argument = ((Number) args[0]).intValue();
       }
       c.add(Calendar.DAY_OF_MONTH, argument);
-      return new ScriptableValue(thisObj, DateTimeType.get().valueOf(c));
+      return DateTimeType.get().valueOf(c);
     }
-    return thisObj;
+    return cvalue;
   }
 }
