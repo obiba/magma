@@ -1,6 +1,6 @@
 package org.obiba.magma.js.views;
 
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.obiba.magma.Initialisable;
@@ -28,7 +28,7 @@ public class VariablesClause implements ListClause, Initialisable {
   private transient boolean initialised = false;
 
   public void setVariables(Set<Variable> variables) {
-    this.variables = new HashSet<Variable>();
+    this.variables = new LinkedHashSet<Variable>();
     if(variables != null) {
       this.variables.addAll(variables);
     }
