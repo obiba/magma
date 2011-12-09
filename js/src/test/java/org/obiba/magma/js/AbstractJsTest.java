@@ -1,5 +1,9 @@
 package org.obiba.magma.js;
 
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.junit.Assert.assertThat;
+
 import org.junit.After;
 import org.junit.Before;
 import org.mozilla.javascript.Context;
@@ -86,5 +90,12 @@ public abstract class AbstractJsTest {
       }
       throw new RuntimeException(cause);
     }
+  }
+
+  protected void assertMethod(String script, Value value, Object expected) {
+    ScriptableValue result = evaluate(script, value);
+    assertThat(result, notNullValue());
+    assertThat(result.getValue(), notNullValue());
+    assertThat(result.getValue(), is(expected));
   }
 }

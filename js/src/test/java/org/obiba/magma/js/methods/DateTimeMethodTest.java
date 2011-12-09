@@ -260,6 +260,13 @@ public class DateTimeMethodTest extends AbstractJsTest {
   }
 
   @Test
+  public void test_format_acceptsNULLDateNULL() {
+    ScriptableValue value = newValue(DateType.get().nullValue());
+    ScriptableValue result = evaluate("format()", value.getValue());
+    Assert.assertEquals(TextType.get().nullValue(), result.getValue());
+  }
+
+  @Test
   public void testAfterNullArgumentReturnsNull() throws Exception {
     ScriptableValue now = newValue(DateTimeType.get().valueOf(new Date()));
     ScriptableValue nullDate = newValue(DateTimeType.get().nullValue());

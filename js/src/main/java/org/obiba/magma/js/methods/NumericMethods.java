@@ -103,6 +103,12 @@ public class NumericMethods {
       public boolean apply(int value) {
         return value <= 0;
       }
+    },
+    EQ() {
+      @Override
+      public boolean apply(int value) {
+        return value == 0;
+      }
     };
 
     public abstract boolean apply(int value);
@@ -528,6 +534,10 @@ public class NumericMethods {
   private static String formatNumberValue(Value value) {
     String str = value.toString();
     return str.endsWith(".0") ? str.substring(0, str.length() - 2) : str;
+  }
+
+  static Value equals(ScriptableValue thisObj, Object args[]) {
+    return compare(thisObj, args, Comps.EQ);
   }
 
   static Value compare(ScriptableValue thisObj, Object args[], Comps comparator) {

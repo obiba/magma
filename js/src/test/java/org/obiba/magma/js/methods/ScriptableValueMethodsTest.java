@@ -18,6 +18,14 @@ import org.obiba.magma.type.TextType;
 
 public class ScriptableValueMethodsTest extends AbstractJsTest {
 
+  // @Test
+  // public void testValueForNull() {
+  // ScriptableValue textValue = newValue(TextType.get().valueOf("Text value"));
+  // ScriptableValue valueType = ScriptableValueMethods.type(Context.getCurrentContext(), textValue, new Object[] {},
+  // null);
+  // Assert.assertEquals("text", valueType.getValue().getValue());
+  // }
+
   @Test
   public void testTypeForTextValue() {
     ScriptableValue textValue = newValue(TextType.get().valueOf("Text value"));
@@ -88,11 +96,11 @@ public class ScriptableValueMethodsTest extends AbstractJsTest {
     ScriptableValueMethods.type(Context.getCurrentContext(), binaryContent, new Object[] { "datetime" }, null);
   }
 
+  @Test
   public void convertIntegerToText() {
     ScriptableValue integerValue = newValue(IntegerType.get().valueOf(12));
     ScriptableValue convertedValue = ScriptableValueMethods.type(Context.getCurrentContext(), integerValue, new Object[] { "text" }, null);
     Assert.assertSame(IntegerType.class, integerValue.getValueType().getClass());
     Assert.assertEquals("12", convertedValue.getValue().getValue());
   }
-
 }

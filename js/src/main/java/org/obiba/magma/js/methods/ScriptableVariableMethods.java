@@ -16,6 +16,7 @@ import org.obiba.magma.type.TextType;
 public class ScriptableVariableMethods {
 
   public static ScriptableObject defineMethods(ScriptableObject prototype) {
+    if(prototype == null) throw new IllegalArgumentException("thisObj cannot be null");
     prototype.defineFunctionProperties(new String[] { "name", "attribute", "repeatable" }, ScriptableVariableMethods.class, ScriptableObject.DONTENUM);
     return prototype;
   }
@@ -41,6 +42,7 @@ public class ScriptableVariableMethods {
 
   public static ScriptableValue repeatable(Context ctx, Scriptable thisObj, Object[] args, Function funObj) {
     ScriptableVariable sv = (ScriptableVariable) thisObj;
+    if(sv == null) throw new IllegalArgumentException("thisObj cannot be null");
     return new ScriptableValue(thisObj, BooleanType.get().valueOf(sv.getVariable().isRepeatable()));
   }
 
