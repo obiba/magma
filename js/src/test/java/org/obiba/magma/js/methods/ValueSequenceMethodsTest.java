@@ -4,6 +4,9 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
 import java.util.ArrayList;
+import java.util.Collections;
+
+import junit.framework.Assert;
 
 import org.junit.Test;
 import org.mozilla.javascript.Context;
@@ -14,9 +17,12 @@ import org.obiba.magma.ValueSequence;
 import org.obiba.magma.js.AbstractJsTest;
 import org.obiba.magma.js.MagmaJsEvaluationRuntimeException;
 import org.obiba.magma.js.ScriptableValue;
+import org.obiba.magma.support.Values;
 import org.obiba.magma.type.DecimalType;
 import org.obiba.magma.type.IntegerType;
 import org.obiba.magma.type.TextType;
+
+import com.google.common.collect.Iterables;
 
 public class ValueSequenceMethodsTest extends AbstractJsTest {
 
@@ -225,27 +231,151 @@ public class ValueSequenceMethodsTest extends AbstractJsTest {
   }
 
   @Test
-  public void testAvg() {
-    ValueSequence valueSequence = IntegerType.get().sequenceOf("1,2,3,4");
-    ScriptableValue scriptableValue = newValue(valueSequence);
-    ScriptableValue result = ValueSequenceMethods.avg(Context.getCurrentContext(), scriptableValue, null, null);
-    assertThat(result.getValue(), is(DecimalType.get().valueOf(2.5)));
+  public void test_sort_nullSequenceReturnsNullSequence() {
+    assertMethod("sort()", IntegerType.get().nullSequence(), IntegerType.get().nullSequence());
   }
 
   @Test
-  public void testAvgEmpty() {
-    ValueSequence valueSequence = IntegerType.get().sequenceOf("");
-    ScriptableValue scriptableValue = newValue(valueSequence);
-    ScriptableValue result = ValueSequenceMethods.avg(Context.getCurrentContext(), scriptableValue, null, null);
-    assertThat(result.getValue(), is(DecimalType.get().nullValue()));
+  public void test_sort_nonSequenceReturnsSingleValue() {
+    assertMethod("sort()", IntegerType.get().valueOf(4), IntegerType.get().valueOf(4));
+  }
+
+  // avg
+
+  @Test
+  public void test_avg_integerType() {
+    assertAvgIs(Values.asSequence(IntegerType.get(), 1, 2, 3, 4), 2.5);
   }
 
   @Test
-  public void testAvgNull() {
-    ValueSequence valueSequence = IntegerType.get().sequenceOf((String) null);
-    ScriptableValue scriptableValue = newValue(valueSequence);
-    ScriptableValue result = ValueSequenceMethods.avg(Context.getCurrentContext(), scriptableValue, null, null);
-    assertThat(result.getValue(), is(DecimalType.get().nullValue()));
+  public void test_avg_decimalType() {
+    assertAvgIs(Values.asSequence(DecimalType.get(), 1, 2, 3, 4), 2.5);
+    assertAvgIs(Values.asSequence(DecimalType.get(), 0.5, 2.5, 3.8, 5.2), 3.0);
+  }
+
+  @Test
+  public void test_avg_sequenceContainsNullReturnsNullValue() {
+    assertAvgIs(Values.asSequence(DecimalType.get(), 1, null, 3, 4), null);
+  }
+
+  @Test
+  public void test_avg_nullSequenceReturnsNullValue() {
+    assertAvgIs(DecimalType.get().nullSequence(), null);
+  }
+
+  @Test
+  public void test_avg_onNonSequenceReturnsValue() {
+    assertAvgIs(IntegerType.get().valueOf(4), 4);
+    assertAvgIs(DecimalType.get().valueOf(4), 4.0);
+  }
+
+  @Test(expected = MagmaJsEvaluationRuntimeException.class)
+  public void test_avg_onNonNumericTypeThrowsAnException() {
+    assertAvgIs(TextType.get().valueOf("This is not a number, so you can't call sum()"), null);
+  }
+
+  @Test
+  public void test_avg_emptySequence() {
+    assertAvgIs(DecimalType.get().sequenceOf(Collections.<Value> emptyList()), null);
+  }
+
+  private void assertAvgIs(Value valueToSum, Number expectedSum) {
+    if(expectedSum instanceof Integer) {
+      expectedSum = new Long(expectedSum.longValue());
+    }
+    ScriptableValue result = super.evaluate("avg()", valueToSum);
+    Assert.assertNotNull(result);
+    Assert.assertEquals(expectedSum, result.getValue().getValue());
+  }
+
+  // sum
+
+  @Test
+  public void test_sum_integerType() {
+    assertSumIs(Values.asSequence(IntegerType.get(), 1, 2, 3, 4), 10);
+  }
+
+  @Test
+  public void test_sum_decimalType() {
+    assertSumIs(Values.asSequence(DecimalType.get(), 1, 2, 3, 4), 10.0);
+    assertSumIs(Values.asSequence(DecimalType.get(), 0.5, 2.5, 3.8, 4.2), 11.0);
+  }
+
+  @Test
+  public void test_sum_sequenceContainsNullReturnsNullValue() {
+    assertSumIs(Values.asSequence(DecimalType.get(), 1, null, 3, 4), null);
+  }
+
+  @Test
+  public void test_sum_nullSequenceReturnsNullValue() {
+    assertSumIs(DecimalType.get().nullSequence(), null);
+  }
+
+  @Test
+  public void test_sum_onNonSequenceReturnsValue() {
+    assertSumIs(IntegerType.get().valueOf(4), 4);
+    assertSumIs(DecimalType.get().valueOf(4), 4.0);
+  }
+
+  @Test(expected = MagmaJsEvaluationRuntimeException.class)
+  public void test_sum_onNonNumericTypeThrowsAnException() {
+    assertSumIs(TextType.get().valueOf("This is not a number, so you can't call sum()"), null);
+  }
+
+  @Test
+  public void test_sum_emptySequence() {
+    assertSumIs(DecimalType.get().sequenceOf(Collections.<Value> emptyList()), 0.0);
+  }
+
+  private void assertSumIs(Value valueToSum, Number expectedSum) {
+    if(expectedSum instanceof Integer) {
+      expectedSum = new Long(expectedSum.longValue());
+    }
+    ScriptableValue result = super.evaluate("sum()", valueToSum);
+    Assert.assertNotNull(result);
+    Assert.assertEquals(expectedSum, result.getValue().getValue());
+  }
+
+  // push
+
+  @Test
+  public void test_push() {
+    assertPushIs(Values.asSequence(IntegerType.get(), 1, 2, 3), "4", Values.asSequence(IntegerType.get(), 1, 2, 3, 4));
+  }
+
+  @Test
+  public void test_push_multipleValues() {
+    assertPushIs(Values.asSequence(IntegerType.get(), 1, 2, 3), "4,5", Values.asSequence(IntegerType.get(), 1, 2, 3, 4, 5));
+  }
+
+  @Test
+  public void test_push_convertsTypes() {
+    assertPushIs(Values.asSequence(TextType.get(), 1, 2, 3), "4,5", Values.asSequence(TextType.get(), 1, 2, 3, 4, 5));
+  }
+
+  @Test
+  public void test_push_nullSequenceProducesNull() {
+    assertPushIs(TextType.get().nullSequence(), "'this will not be pushed'", TextType.get().nullSequence());
+  }
+
+  @Test
+  public void test_push_acceptsNullArgument() {
+    assertPushIs(Values.asSequence(IntegerType.get(), 1, 2, 3), "null", Values.asSequence(IntegerType.get(), 1, 2, 3, null));
+  }
+
+  @Test
+  public void test_push_acceptsNonSequenceOperand() {
+    assertPushIs(TextType.get().valueOf("this is not a sequence"), "'neither is this'", Values.asSequence(TextType.get(), "this is not a sequence", "neither is this"));
+  }
+
+  private void assertPushIs(Value valueToPushInto, String push, Value expected) {
+    ScriptableValue result = super.evaluate("push(" + push + ")", valueToPushInto);
+    Assert.assertNotNull(result);
+    if(expected.isNull()) {
+      Assert.assertTrue(result.getValue().isNull());
+    } else {
+      Assert.assertTrue(Iterables.elementsEqual(result.getValue().asSequence().getValue(), expected.asSequence().getValue()));
+    }
   }
 
   @SuppressWarnings("serial")

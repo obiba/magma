@@ -639,18 +639,25 @@ public class NumericMethods {
     return new BigDecimal((Double) value.getValue());
   }
 
-  static Double average(ValueSequence valueSequence) {
-    double sum = 0.0;
-    List<Value> values = valueSequence.getValues();
-    if(values == null || values.isEmpty()) return null;
-    for(Value value : values) {
-      if(!value.getValueType().isNumeric()) {
+  static Double sum(ValueSequence valueSequence) {
+    double sum = 0;
+    for(Value v : valueSequence.getValue()) {
+      if(v.isNull()) {
         return null;
       }
-      Number number = (Number) value.getValue();
-      sum += number.doubleValue();
+      sum += ((Number) v.getValue()).doubleValue();
     }
-    return sum / valueSequence.getSize();
+    return sum;
+  }
+
+  static Double average(ValueSequence valueSequence) {
+    int size = valueSequence.getSize();
+    if(size == 0) return null;
+    Double sum = sum(valueSequence);
+    if(sum != null) {
+      return sum / size;
+    }
+    return null;
   }
 
 }
