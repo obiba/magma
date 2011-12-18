@@ -16,6 +16,16 @@ public class BooleanTypeTest extends BaseValueTypeTest {
     return new Boolean(true);
   }
 
+  @Override
+  boolean isDateTime() {
+    return false;
+  }
+
+  @Override
+  boolean isNumeric() {
+    return false;
+  }
+
   @Test
   public void test_valueOf_Boolean() {
     Value value = getValueType().valueOf(new Boolean(true));
@@ -32,16 +42,6 @@ public class BooleanTypeTest extends BaseValueTypeTest {
     Assert.assertEquals(getValueType().falseValue(), value);
     value = getValueType().valueOf((Object) "true");
     Assert.assertEquals(getValueType().trueValue(), value);
-  }
-
-  @Test
-  public void test_isNumeric() {
-    Assert.assertEquals(false, getValueType().isNumeric());
-  }
-
-  @Test
-  public void test_isDateTime() {
-    Assert.assertEquals(false, getValueType().isDateTime());
   }
 
   @Test

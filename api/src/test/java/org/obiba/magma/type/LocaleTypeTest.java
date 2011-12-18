@@ -15,4 +15,14 @@ public class LocaleTypeTest extends BaseValueTypeTest {
   Object getObjectForType() {
     return Locale.CANADA_FRENCH;
   }
+
+  @Override
+  boolean isDateTime() {
+    return false;
+  }
+
+  @Override
+  boolean isNumeric() {
+    return false;
+  }
 }

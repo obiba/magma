@@ -25,6 +25,16 @@ public class DateTypeTest extends BaseValueTypeTest {
     return new MagmaDate(new Date());
   }
 
+  @Override
+  boolean isDateTime() {
+    return true;
+  }
+
+  @Override
+  boolean isNumeric() {
+    return false;
+  }
+
   @Test
   public void testValueOfSqlDateInstance() {
     DateType dt = DateType.get();

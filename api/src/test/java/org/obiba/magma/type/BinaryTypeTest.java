@@ -15,6 +15,16 @@ public class BinaryTypeTest extends BaseValueTypeTest {
     return new byte[] { 1, 2, 3, 4 };
   }
 
+  @Override
+  boolean isDateTime() {
+    return false;
+  }
+
+  @Override
+  boolean isNumeric() {
+    return false;
+  }
+
   @Ignore("equals() on arrays does not compare array contents. We need to override the value.equals() method for BinaryType.")
   public void testValueOfToStringIsEqual() {
   }

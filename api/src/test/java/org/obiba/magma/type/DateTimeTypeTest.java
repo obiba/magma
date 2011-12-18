@@ -25,6 +25,16 @@ public class DateTimeTypeTest extends BaseValueTypeTest {
     return new Date();
   }
 
+  @Override
+  boolean isDateTime() {
+    return true;
+  }
+
+  @Override
+  boolean isNumeric() {
+    return false;
+  }
+
   @Test
   public void testValueOfSqlDateInstance() {
     DateTimeType dt = DateTimeType.get();

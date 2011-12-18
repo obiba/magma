@@ -19,6 +19,16 @@ public class TextTypeTest extends BaseValueTypeTest {
     return "This is a, \"test\"";
   }
 
+  @Override
+  boolean isDateTime() {
+    return false;
+  }
+
+  @Override
+  boolean isNumeric() {
+    return false;
+  }
+
   @Test(expected = IllegalArgumentException.class)
   public void testUnterminatedQuotedString() {
     TextType.get().sequenceOf("\"An unterminated, value.");

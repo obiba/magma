@@ -13,4 +13,14 @@ public class DecimalTypeTest extends BaseValueTypeTest {
   Object getObjectForType() {
     return new Double(78372.543543d);
   }
+
+  @Override
+  boolean isDateTime() {
+    return false;
+  }
+
+  @Override
+  boolean isNumeric() {
+    return true;
+  }
 }
