@@ -162,11 +162,18 @@ public class IntervalFrequencyTest {
     IntervalFrequency second = newRandomDistribution(2, 10, 4, 10000);
 
     for(Interval interval : first.intervals()) {
+      Interval other = second.intervals().tailSet(interval).first();
       // Tests equals
-      assertThat(second.intervals().contains(interval), is(true));
+      assertThat(other, is(interval));
       // Tests hashCode
-      assertThat(second.intervals().tailSet(interval).first().hashCode(), is(interval.hashCode()));
+      assertThat(other.hashCode(), is(interval.hashCode()));
     }
+
+    // Other equals tests
+    Interval equals = first.intervals().first();
+    assertThat(equals.equals(null), is(false));
+    assertThat(equals.equals(equals), is(true));
+    assertThat(equals.equals(new Object()), is(false));
   }
 
   /**
