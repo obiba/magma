@@ -11,9 +11,9 @@ public class BooleanType extends AbstractValueType {
 
   private static WeakReference<BooleanType> instance;
 
-  private Value trueValue;
+  private final Value trueValue;
 
-  private Value falseValue;
+  private final Value falseValue;
 
   private BooleanType() {
     trueValue = Factory.newValue(this, Boolean.TRUE);
