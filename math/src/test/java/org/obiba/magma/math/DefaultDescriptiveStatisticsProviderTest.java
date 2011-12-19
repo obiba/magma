@@ -39,6 +39,19 @@ public class DefaultDescriptiveStatisticsProviderTest {
     MagmaEngine.get().shutdown();
   }
 
+  @Test(expected = IllegalArgumentException.class)
+  public void test_compute_nullSource() {
+    DefaultDescriptiveStatisticsProvider defaultProvider = new DefaultDescriptiveStatisticsProvider();
+    DescriptiveStatistics ds = defaultProvider.compute(null, emptySet);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void test_compute_nullSet() {
+    DefaultDescriptiveStatisticsProvider defaultProvider = new DefaultDescriptiveStatisticsProvider();
+    VariableValueSource mockSource = createMock(VariableValueSource.class);
+    DescriptiveStatistics ds = defaultProvider.compute(mockSource, null);
+  }
+
   @Test
   public void test_compute_handlesNullVectorSource() {
     VariableValueSource mockSource = createMock(VariableValueSource.class);

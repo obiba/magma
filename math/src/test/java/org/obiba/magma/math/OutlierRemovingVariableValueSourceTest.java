@@ -136,6 +136,18 @@ public class OutlierRemovingVariableValueSourceTest {
     verify(mockSource);
   }
 
+  @Test
+  public void test_getValue_nullsNotAffected() {
+    expect(mockSource.getValue(mockValueSet)).andReturn(IntegerType.get().nullValue()).anyTimes();
+    setupForStatsCompute(Values.asValues(IntegerType.get(), 1, 2, 3, 4));
+
+    OutlierRemovingVariableValueSource testedSource = new OutlierRemovingVariableValueSource(mockTable, mockSource, new DefaultDescriptiveStatisticsProvider());
+    assertThat(testedSource.getValue(mockValueSet), is(IntegerType.get().nullValue()));
+
+    verify(mockSource);
+
+  }
+
   private void setupForStatsCompute(Iterable<Value> values) {
     expect(mockSource.asVectorSource()).andReturn(mockVector).anyTimes();
     expect(mockSource.getValueType()).andReturn(IntegerType.get()).anyTimes();
