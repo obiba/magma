@@ -3,6 +3,8 @@ package org.obiba.magma.type;
 import org.junit.Ignore;
 import org.obiba.magma.ValueType;
 
+import com.google.common.collect.ImmutableList;
+
 public class BinaryTypeTest extends BaseValueTypeTest {
 
   @Override
@@ -23,6 +25,11 @@ public class BinaryTypeTest extends BaseValueTypeTest {
   @Override
   boolean isNumeric() {
     return false;
+  }
+
+  @Override
+  Iterable<Class<?>> validClasses() {
+    return ImmutableList.<Class<?>> of(byte[].class);
   }
 
   @Ignore("equals() on arrays does not compare array contents. We need to override the value.equals() method for BinaryType.")

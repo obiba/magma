@@ -7,6 +7,8 @@ import org.junit.Test;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueType;
 
+import com.google.common.collect.ImmutableList;
+
 public class IntegerTypeTest extends BaseValueTypeTest {
 
   @Override
@@ -27,6 +29,11 @@ public class IntegerTypeTest extends BaseValueTypeTest {
   @Override
   boolean isNumeric() {
     return true;
+  }
+
+  @Override
+  Iterable<Class<?>> validClasses() {
+    return ImmutableList.<Class<?>> of(int.class, Integer.class, long.class, Long.class);
   }
 
   @Test(expected = ClassCastException.class)

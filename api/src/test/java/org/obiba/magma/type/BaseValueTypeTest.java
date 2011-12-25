@@ -22,6 +22,8 @@ public abstract class BaseValueTypeTest extends AbstractMagmaTest {
 
   abstract boolean isDateTime();
 
+  abstract Iterable<Class<?>> validClasses();
+
   ValueSequence getSequence(int size) {
     List<Value> values = new ArrayList<Value>(size);
     for(int i = 0; i < size; i++) {
@@ -147,5 +149,17 @@ public abstract class BaseValueTypeTest extends AbstractMagmaTest {
   @Test
   public void test_isDateTyime() {
     Assert.assertEquals(isDateTime(), getValueType().isDateTime());
+  }
+
+  @Test
+  public void test_acceptsJavaClass() {
+    for(Class<?> validClass : validClasses()) {
+      Assert.assertTrue(getValueType().acceptsJavaClass(validClass));
+    }
+  }
+
+  @Test
+  public void test_acceptsJavaClass_doesntAcceptInvalidClass() {
+    Assert.assertFalse(getValueType().acceptsJavaClass(NullPointerException.class));
   }
 }

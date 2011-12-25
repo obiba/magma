@@ -7,6 +7,8 @@ import org.obiba.magma.Value;
 import org.obiba.magma.ValueSequence;
 import org.obiba.magma.ValueType;
 
+import com.google.common.collect.ImmutableList;
+
 public class TextTypeTest extends BaseValueTypeTest {
 
   @Override
@@ -27,6 +29,11 @@ public class TextTypeTest extends BaseValueTypeTest {
   @Override
   boolean isNumeric() {
     return false;
+  }
+
+  @Override
+  Iterable<Class<?>> validClasses() {
+    return ImmutableList.<Class<?>> of(String.class);
   }
 
   @Test(expected = IllegalArgumentException.class)

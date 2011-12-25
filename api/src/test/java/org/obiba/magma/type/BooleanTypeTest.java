@@ -4,6 +4,8 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.obiba.magma.Value;
 
+import com.google.common.collect.ImmutableList;
+
 public class BooleanTypeTest extends BaseValueTypeTest {
 
   @Override
@@ -24,6 +26,11 @@ public class BooleanTypeTest extends BaseValueTypeTest {
   @Override
   boolean isNumeric() {
     return false;
+  }
+
+  @Override
+  Iterable<Class<?>> validClasses() {
+    return ImmutableList.<Class<?>> of(boolean.class, Boolean.class);
   }
 
   @Test

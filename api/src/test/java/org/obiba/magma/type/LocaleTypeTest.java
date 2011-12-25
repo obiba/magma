@@ -4,6 +4,8 @@ import java.util.Locale;
 
 import org.obiba.magma.ValueType;
 
+import com.google.common.collect.ImmutableList;
+
 public class LocaleTypeTest extends BaseValueTypeTest {
 
   @Override
@@ -25,4 +27,10 @@ public class LocaleTypeTest extends BaseValueTypeTest {
   boolean isNumeric() {
     return false;
   }
+
+  @Override
+  Iterable<Class<?>> validClasses() {
+    return ImmutableList.<Class<?>> of(Locale.class);
+  }
+
 }

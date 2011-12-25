@@ -2,6 +2,8 @@ package org.obiba.magma.type;
 
 import org.obiba.magma.ValueType;
 
+import com.google.common.collect.ImmutableList;
+
 public class DecimalTypeTest extends BaseValueTypeTest {
 
   @Override
@@ -23,4 +25,10 @@ public class DecimalTypeTest extends BaseValueTypeTest {
   boolean isNumeric() {
     return true;
   }
+
+  @Override
+  Iterable<Class<?>> validClasses() {
+    return ImmutableList.<Class<?>> of(double.class, Double.class, float.class, Float.class);
+  }
+
 }

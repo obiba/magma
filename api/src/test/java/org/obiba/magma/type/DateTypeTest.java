@@ -12,6 +12,8 @@ import org.junit.Test;
 import org.obiba.magma.MagmaDate;
 import org.obiba.magma.Value;
 
+import com.google.common.collect.ImmutableList;
+
 public class DateTypeTest extends BaseValueTypeTest {
 
   @Override
@@ -32,6 +34,11 @@ public class DateTypeTest extends BaseValueTypeTest {
   @Override
   boolean isNumeric() {
     return false;
+  }
+
+  @Override
+  Iterable<Class<?>> validClasses() {
+    return ImmutableList.<Class<?>> of(MagmaDate.class);
   }
 
   @Test
