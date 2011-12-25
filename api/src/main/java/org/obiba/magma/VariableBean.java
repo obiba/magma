@@ -3,10 +3,13 @@ package org.obiba.magma;
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Set;
 
+import com.google.common.base.Function;
 import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.ListMultimap;
+import com.google.common.collect.Maps;
 
 class VariableBean extends AbstractAttributeAware implements Variable, Serializable {
 
@@ -32,6 +35,8 @@ class VariableBean extends AbstractAttributeAware implements Variable, Serializa
 
   /** Use a linked hash set to keep insertion order */
   Set<Category> categories = new LinkedHashSet<Category>();
+
+  transient Map<Value, Category> categoriesAsValue;
 
   @Override
   public String getName() {
@@ -111,12 +116,21 @@ class VariableBean extends AbstractAttributeAware implements Variable, Serializa
     if(value.isNull() || hasCategories() == false) {
       return value.isNull();
     }
-    for(Category c : getCategories()) {
-      Value categoryValue = getValueType().valueOf(c.getName());
-      if(categoryValue.equals(value)) {
-        return c.isMissing();
-      }
+    Category c = categoryAsValue().get(value);
+    return c != null && c.isMissing();
+  }
+
+  private Map<Value, Category> categoryAsValue() {
+    if(categoriesAsValue == null) {
+      categoriesAsValue = Maps.uniqueIndex(categories, new Function<Category, Value>() {
+
+        @Override
+        public Value apply(Category input) {
+          return getValueType().valueOf(input.getName());
+        }
+      });
+
     }
-    return false;
+    return categoriesAsValue;
   }
 }
