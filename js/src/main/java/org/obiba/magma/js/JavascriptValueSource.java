@@ -153,12 +153,21 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
       Scriptable scope = context.newLocalScope();
 
       enterContext(context, scope);
-      Object result = eval(context, scope);
+      Object result = null;
+      try {
+        result = eval(context, scope);
+      } finally {
+        exitContext(context);
+      }
       return result;
     }
 
     void enterContext(MagmaContext context, Scriptable scope) {
       JavascriptValueSource.this.enterContext(context, scope);
+    }
+
+    void exitContext(MagmaContext context) {
+      JavascriptValueSource.this.exitContext(context);
     }
 
     abstract Object eval(MagmaContext context, Scriptable scope);
@@ -224,6 +233,14 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
     }
 
     @Override
+    void exitContext(MagmaContext context) {
+      context.pop(VariableEntity.class);
+      context.pop(ValueTable.class);
+      context.pop(ValueSet.class);
+      super.exitContext(context);
+    }
+
+    @Override
     Object eval(MagmaContext context, Scriptable scope) {
       return asValue(compiledScript.exec(context, scope));
     }
@@ -252,6 +269,13 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
       super.enterContext(context, scope);
       context.push(SortedSet.class, getEntities(context));
       context.push(VectorCache.class, vectorCache);
+    }
+
+    @Override
+    void exitContext(MagmaContext context) {
+      super.exitContext(context);
+      context.pop(SortedSet.class);
+      context.pop(VectorCache.class);
     }
 
     @Override
