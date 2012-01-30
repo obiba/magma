@@ -3,6 +3,7 @@ package org.obiba.magma.js.methods;
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.replay;
+import static org.easymock.EasyMock.verify;
 import junit.framework.Assert;
 
 import org.junit.Before;
@@ -52,6 +53,47 @@ public class ScriptableVariableMethodsTest extends AbstractJsTest {
   @Test
   public void repeatableWithMockValue() {
     Variable mockVariable = createMock(Variable.class);
+    expect(mockVariable.isRepeatable()).andReturn(true).once();
+    replay(mockVariable);
     evaluate("repeatable()", mockVariable);
+    verify(mockVariable);
+
+  }
+
+  @Test
+  public void occurrenceGroupWithMockValue() {
+    Variable mockVariable = createMock(Variable.class);
+    expect(mockVariable.getOccurrenceGroup()).andReturn("patate").once();
+    replay(mockVariable);
+    evaluate("occurrenceGroup()", mockVariable);
+    verify(mockVariable);
+
+  }
+
+  @Test
+  public void entityTypeWithMockValue() {
+    Variable mockVariable = createMock(Variable.class);
+    expect(mockVariable.getEntityType()).andReturn("Participant").once();
+    replay(mockVariable);
+    evaluate("entityType()", mockVariable);
+    verify(mockVariable);
+  }
+
+  @Test
+  public void mimeTypeWithMockValue() {
+    Variable mockVariable = createMock(Variable.class);
+    expect(mockVariable.getMimeType()).andReturn("application/octet-stream").once();
+    replay(mockVariable);
+    evaluate("mimeType()", mockVariable);
+    verify(mockVariable);
+  }
+
+  @Test
+  public void unitWithMockValue() {
+    Variable mockVariable = createMock(Variable.class);
+    expect(mockVariable.getUnit()).andReturn("kg").once();
+    replay(mockVariable);
+    evaluate("unit()", mockVariable);
+    verify(mockVariable);
   }
 }

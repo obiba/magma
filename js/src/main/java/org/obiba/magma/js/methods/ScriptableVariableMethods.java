@@ -46,4 +46,28 @@ public class ScriptableVariableMethods {
     return new ScriptableValue(thisObj, BooleanType.get().valueOf(sv.getVariable().isRepeatable()));
   }
 
+  public static ScriptableValue occurrenceGroup(Context ctx, Scriptable thisObj, Object[] args, Function funObj) {
+    ScriptableVariable sv = (ScriptableVariable) thisObj;
+    if(sv == null) throw new IllegalArgumentException("thisObj cannot be null");
+    return new ScriptableValue(thisObj, TextType.get().valueOf(sv.getVariable().getOccurrenceGroup()));
+  }
+
+  public static ScriptableValue entityType(Context ctx, Scriptable thisObj, Object[] args, Function funObj) {
+    ScriptableVariable sv = (ScriptableVariable) thisObj;
+    if(sv == null) throw new IllegalArgumentException("thisObj cannot be null");
+    return new ScriptableValue(thisObj, TextType.get().valueOf(sv.getVariable().getEntityType()));
+  }
+
+  public static ScriptableValue mimeType(Context ctx, Scriptable thisObj, Object[] args, Function funObj) {
+    ScriptableVariable sv = (ScriptableVariable) thisObj;
+    if(sv == null) throw new IllegalArgumentException("thisObj cannot be null");
+    return new ScriptableValue(thisObj, TextType.get().valueOf(sv.getVariable().getMimeType()));
+  }
+
+  public static ScriptableValue unit(Context ctx, Scriptable thisObj, Object[] args, Function funObj) {
+    ScriptableVariable sv = (ScriptableVariable) thisObj;
+    if(sv == null) throw new IllegalArgumentException("thisObj cannot be null");
+    return new ScriptableValue(thisObj, TextType.get().valueOf(sv.getVariable().getUnit()));
+  }
+
 }
