@@ -287,11 +287,13 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
             // We have to set the current thread's context because this code will be executed outside of the
             // ContextAction.
             ContextFactory.getGlobal().enterContext(context);
+            JavascriptValueSource.this.enterContext(context, scope);
             context.push(VectorCache.class, vectorCache);
             context.push(SortedSet.class, entities);
             context.push(VariableEntity.class, from);
             return asValue(compiledScript.exec(context, scope));
           } finally {
+            JavascriptValueSource.this.exitContext(context);
             context.pop(VectorCache.class).next();
             context.pop(SortedSet.class);
             context.pop(VariableEntity.class);
