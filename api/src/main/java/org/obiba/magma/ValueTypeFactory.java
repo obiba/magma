@@ -17,6 +17,7 @@ import org.obiba.magma.type.IdentityValueConverter;
 import org.obiba.magma.type.IntegerType;
 import org.obiba.magma.type.LocaleType;
 import org.obiba.magma.type.NumericValueConverter;
+import org.obiba.magma.type.TextToAnyTypeValueConverter;
 import org.obiba.magma.type.TextToNumericTypeValueConverter;
 import org.obiba.magma.type.TextType;
 
@@ -92,6 +93,7 @@ class ValueTypeFactory {
     converters.add(new DatetimeValueConverter());
     converters.add(new NumericValueConverter());
     converters.add(new AnyToTextValueConverter());
+    converters.add(new TextToAnyTypeValueConverter());
   }
 
 }
