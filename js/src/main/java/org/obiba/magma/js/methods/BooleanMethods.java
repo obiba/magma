@@ -238,8 +238,7 @@ public class BooleanMethods {
           ScriptableValue secondOperand = (ScriptableValue) args[0];
           return new ScriptableValue(thisObj, BooleanType.get().valueOf(secondOperand.getValue().isNull()));
         } else {
-          Value secondOperand = BooleanType.get().valueOf(args[0]);
-          return new ScriptableValue(thisObj, BooleanType.get().valueOf(secondOperand.isNull()));
+          return new ScriptableValue(thisObj, BooleanType.get().valueOf(args[0] == null));
         }
       }
       return new ScriptableValue(thisObj, BooleanType.get().falseValue());

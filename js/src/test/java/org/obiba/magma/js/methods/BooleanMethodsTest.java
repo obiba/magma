@@ -383,6 +383,18 @@ public class BooleanMethodsTest extends AbstractJsTest {
   }
 
   @Test
+  public void test_eq_TextNullValueEqNotScriptableValueEqualsFalse() throws Exception {
+    ScriptableValue result = evaluate("eq('patate')", TextType.get().nullValue());
+    assertThat(result.getValue(), is(BooleanType.get().falseValue()));
+  }
+
+  @Test
+  public void test_eq_TextNullValueEqNullValueEqualsTrue() throws Exception {
+    ScriptableValue result = evaluate("eq(null)", TextType.get().nullValue());
+    assertThat(result.getValue(), is(BooleanType.get().trueValue()));
+  }
+
+  @Test
   public void test_eq_DateValueEqNotScriptableValueEqualsTrue() throws Exception {
     ScriptableValue result = evaluate("eq('2011-01-29')", DateType.get().valueOf("2011-01-29"));
     assertThat(result.getValue(), is(BooleanType.get().trueValue()));
