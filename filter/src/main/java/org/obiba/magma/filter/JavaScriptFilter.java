@@ -28,7 +28,7 @@ public class JavaScriptFilter extends AbstractFilter<ValueSet> implements Initia
   }
 
   @Override
-  public void initialise() {
+  public synchronized void  initialise() {
     if(initialised) return;
     validateArguments(javascript);
     javascriptSource = new JavascriptValueSource(BooleanType.get(), javascript);
@@ -83,11 +83,6 @@ public class JavaScriptFilter extends AbstractFilter<ValueSet> implements Initia
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see java.lang.Object#toString()
-   */
   @Override
   public String toString() {
     return new StringBuilder().append(SCRIPT_NAME).append("[").append(javascript).append("]").toString();
