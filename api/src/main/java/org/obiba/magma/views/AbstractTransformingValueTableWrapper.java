@@ -3,6 +3,7 @@ package org.obiba.magma.views;
 import java.util.Set;
 
 import org.obiba.magma.NoSuchValueSetException;
+import org.obiba.magma.NoSuchVariableException;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueSet;
 import org.obiba.magma.ValueType;
@@ -21,10 +22,6 @@ import com.google.common.collect.Iterables;
 
 public abstract class AbstractTransformingValueTableWrapper extends AbstractValueTableWrapper implements TransformingValueTable {
 
-  //
-  // AbstractValueTableWrapper Methods
-  //
-
   @Override
   public Set<VariableEntity> getVariableEntities() {
 
@@ -39,6 +36,7 @@ public abstract class AbstractTransformingValueTableWrapper extends AbstractValu
     }));
   }
 
+  @Override
   public boolean hasValueSet(VariableEntity entity) {
     if(entity == null) return false;
     VariableEntity unmapped = getVariableEntityMappingFunction().unapply(entity);
@@ -47,6 +45,7 @@ public abstract class AbstractTransformingValueTableWrapper extends AbstractValu
     return super.hasValueSet(unmapped);
   }
 
+  @Override
   public Iterable<ValueSet> getValueSets() {
     // Transform the Iterable, replacing each ValueSet with one that points at the current View.
     return Iterables.filter(Iterables.transform(super.getValueSets(), getValueSetMappingFunction()), new Predicate<ValueSet>() {
@@ -58,15 +57,17 @@ public abstract class AbstractTransformingValueTableWrapper extends AbstractValu
     });
   }
 
+  @Override
   public ValueSet getValueSet(VariableEntity entity) throws NoSuchValueSetException {
     VariableEntity unmapped = getVariableEntityMappingFunction().unapply(entity);
     if(unmapped == null) throw new NoSuchValueSetException(this, entity);
     return getValueSetMappingFunction().apply(super.getValueSet(unmapped));
   }
 
-  //
-  // TransformingValueTable Methods
-  //
+  @Override
+  public VariableValueSource getVariableValueSource(String name) throws NoSuchVariableException {
+    return getVariableValueSourceMappingFunction().apply(super.getVariableValueSource(name));
+  }
 
   @Override
   public BijectiveFunction<VariableEntity, VariableEntity> getVariableEntityMappingFunction() {
@@ -89,6 +90,7 @@ public abstract class AbstractTransformingValueTableWrapper extends AbstractValu
     };
   }
 
+  @Override
   public BijectiveFunction<VariableValueSource, VariableValueSource> getVariableValueSourceMappingFunction() {
     return new BijectiveFunction<VariableValueSource, VariableValueSource>() {
       public VariableValueSource apply(VariableValueSource from) {
@@ -97,7 +99,7 @@ public abstract class AbstractTransformingValueTableWrapper extends AbstractValu
 
       @Override
       public VariableValueSource unapply(VariableValueSource from) {
-        return ((VariableValueSourceWrapper) from).wrapped;
+        return ((VariableValueSourceWrapper) from).getWrapped();
       }
     };
   }
