@@ -64,6 +64,8 @@ public class CsvDatasource extends AbstractDatasource {
       for(File dir : directories) {
         addValueTable(dir);
       }
+    } else {
+      addValueTable(bundle.getName().substring(0, bundle.getName().lastIndexOf('.')), null, bundle);
     }
   }
 
@@ -83,7 +85,12 @@ public class CsvDatasource extends AbstractDatasource {
   }
 
   public CsvDatasource addValueTable(String tableName, File variablesFile, File dataFile) {
-    valueTables.put(tableName, new CsvValueTable(this, tableName, variablesFile, dataFile));
+    valueTables.put(tableName, new CsvValueTable(this, tableName, variablesFile, dataFile, CsvValueTable.DEFAULT_ENTITY_TYPE));
+    return this;
+  }
+
+  public CsvDatasource addValueTable(String tableName, File dataFile, String entityType) {
+    valueTables.put(tableName, new CsvValueTable(this, tableName, dataFile, entityType));
     return this;
   }
 

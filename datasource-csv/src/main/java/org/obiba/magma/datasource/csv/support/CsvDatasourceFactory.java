@@ -55,6 +55,14 @@ public class CsvDatasourceFactory extends AbstractDatasourceFactory {
     return this;
   }
 
+  public CsvDatasourceFactory addTable(String name, File data, String entityType) {
+    if(name != null && !hasTable(name)) {
+      TableBundle bundle = new TableBundle(name, data, entityType);
+      getTables().add(bundle);
+    }
+    return this;
+  }
+
   public CsvDatasourceFactory addTable(String name, File variables, File data) {
     if(name != null && !hasTable(name)) {
       TableBundle bundle = new TableBundle(name, variables, data);
@@ -106,8 +114,10 @@ public class CsvDatasourceFactory extends AbstractDatasourceFactory {
     for(TableBundle tableBundle : getTables()) {
       if(tableBundle.hasRefTable()) {
         datasource.addValueTable(tableBundle.getRefTable(), tableBundle.getData());
-      } else {
+      } else if(tableBundle.hasVariables()) {
         datasource.addValueTable(tableBundle.getName(), tableBundle.getVariables(), tableBundle.getData());
+      } else {
+        datasource.addValueTable(tableBundle.getName(), tableBundle.getData(), tableBundle.getEntityType());
       }
     }
 
