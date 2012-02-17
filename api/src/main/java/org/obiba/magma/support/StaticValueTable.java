@@ -62,6 +62,31 @@ public class StaticValueTable extends AbstractValueTable {
     this(datasource, name, entities, "");
   }
 
+  public void addVariable(final Variable variable) {
+    super.addVariableValueSource(new VariableValueSource() {
+
+      @Override
+      public ValueType getValueType() {
+        return variable.getValueType();
+      }
+
+      @Override
+      public Value getValue(ValueSet valueSet) {
+        return getValueType().valueOf(table.get(valueSet.getVariableEntity().getIdentifier()).get(variable.getName()));
+      }
+
+      @Override
+      public VectorSource asVectorSource() {
+        return null;
+      }
+
+      @Override
+      public Variable getVariable() {
+        return variable;
+      }
+    });
+  }
+
   public void addVariables(final ValueType type, String... variables) {
     for(final String variable : variables) {
       super.addVariableValueSource(new VariableValueSource() {
