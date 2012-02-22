@@ -158,7 +158,9 @@ public class VariableConverter {
 
   private Locale getAttributeLocale(String header) {
     String[] h = header.split(":");
-    if(h.length > 1) return new Locale(h[1]);
+    if(h.length > 1 && h[1].trim().isEmpty() == false) {
+      return new Locale(h[1].trim());
+    }
     return null;
   }
 
