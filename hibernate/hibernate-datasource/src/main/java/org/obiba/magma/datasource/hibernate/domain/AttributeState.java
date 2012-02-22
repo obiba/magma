@@ -77,7 +77,7 @@ public class AttributeState implements Attribute {
 
   @Override
   public boolean isLocalised() {
-    return locale != null;
+    return locale != null && locale.toString().isEmpty() == false;
   }
 
 }

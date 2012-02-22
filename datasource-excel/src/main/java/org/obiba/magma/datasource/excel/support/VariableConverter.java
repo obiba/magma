@@ -408,8 +408,8 @@ public class VariableConverter {
    */
   private static Locale getAttributeLocale(String attributeName) {
     String[] parsedAttributeName = attributeName.split(":");
-    if(parsedAttributeName.length > 1) {
-      return new Locale(parsedAttributeName[1]);
+    if(parsedAttributeName.length > 1 && parsedAttributeName[1].trim().isEmpty() == false) {
+      return new Locale(parsedAttributeName[1].trim());
     }
     return null;
   }
