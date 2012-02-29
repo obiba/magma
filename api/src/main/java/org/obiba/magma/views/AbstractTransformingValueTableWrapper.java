@@ -17,10 +17,40 @@ import org.obiba.magma.transform.BijectiveFunctions;
 import org.obiba.magma.transform.TransformingValueTable;
 
 import com.google.common.base.Predicate;
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 
 public abstract class AbstractTransformingValueTableWrapper extends AbstractValueTableWrapper implements TransformingValueTable {
+
+  private BiMap<String, String> variableNameMapping = HashBiMap.<String, String> create();
+
+  protected void addVariableNameMapping(String variableName, String wrappedVariableName) {
+    variableNameMapping.put(variableName, wrappedVariableName);
+  }
+
+  public BijectiveFunction<String, String> getVariableNameMappingFunction() {
+    return new BijectiveFunction<String, String>() {
+
+      @Override
+      public String apply(String input) {
+        if(variableNameMapping.inverse().containsKey(input)) {
+          return variableNameMapping.inverse().get(input);
+        }
+        return input;
+      }
+
+      @Override
+      public String unapply(String from) {
+        if(variableNameMapping.containsKey(from)) {
+          return variableNameMapping.get(from);
+        }
+        return from;
+      }
+
+    };
+  }
 
   @Override
   public Set<VariableEntity> getVariableEntities() {
@@ -58,6 +88,12 @@ public abstract class AbstractTransformingValueTableWrapper extends AbstractValu
   }
 
   @Override
+  public Value getValue(Variable variable, ValueSet valueSet) {
+    Variable wrappedVariable = getWrappedValueTable().getVariable(getVariableNameMappingFunction().unapply(variable.getName()));
+    return super.getValue(wrappedVariable, getValueSetMappingFunction().unapply(valueSet));
+  }
+
+  @Override
   public ValueSet getValueSet(VariableEntity entity) throws NoSuchValueSetException {
     VariableEntity unmapped = getVariableEntityMappingFunction().unapply(entity);
     if(unmapped == null) throw new NoSuchValueSetException(this, entity);
@@ -66,7 +102,7 @@ public abstract class AbstractTransformingValueTableWrapper extends AbstractValu
 
   @Override
   public VariableValueSource getVariableValueSource(String name) throws NoSuchVariableException {
-    return getVariableValueSourceMappingFunction().apply(super.getVariableValueSource(name));
+    return getVariableValueSourceMappingFunction().apply(super.getVariableValueSource(getVariableNameMappingFunction().unapply(name)));
   }
 
   @Override
@@ -118,7 +154,7 @@ public abstract class AbstractTransformingValueTableWrapper extends AbstractValu
 
     @Override
     public Variable getVariable() {
-      return wrapped.getVariable();
+      return AbstractTransformingValueTableWrapper.this.getVariable(getVariableNameMappingFunction().apply(wrapped.getVariable().getName()));
     }
 
     @Override
