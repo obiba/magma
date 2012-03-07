@@ -5,7 +5,7 @@ import java.util.Locale;
 
 class AttributeBean implements Attribute, Serializable {
 
-	private static final long serialVersionUID = -7732601103831162009L;
+  private static final long serialVersionUID = -7732601103831162009L;
 
   String name;
 
@@ -29,7 +29,7 @@ class AttributeBean implements Attribute, Serializable {
 
   @Override
   public boolean isLocalised() {
-    return locale != null;
+    return locale != null && locale.toString().isEmpty() == false;
   }
 
   @Override

@@ -11,18 +11,34 @@ import junit.framework.Assert;
 import org.junit.Test;
 import org.obiba.magma.MagmaDate;
 import org.obiba.magma.Value;
-import org.obiba.magma.ValueType;
+
+import com.google.common.collect.ImmutableList;
 
 public class DateTypeTest extends BaseValueTypeTest {
 
   @Override
-  ValueType getValueType() {
+  DateType getValueType() {
     return DateType.get();
   }
 
   @Override
   Object getObjectForType() {
     return new MagmaDate(new Date());
+  }
+
+  @Override
+  boolean isDateTime() {
+    return true;
+  }
+
+  @Override
+  boolean isNumeric() {
+    return false;
+  }
+
+  @Override
+  Iterable<Class<?>> validClasses() {
+    return ImmutableList.<Class<?>> of(MagmaDate.class);
   }
 
   @Test
@@ -72,6 +88,23 @@ public class DateTypeTest extends BaseValueTypeTest {
   @Test
   public void testValueOfISODateFormatString() {
     assertValueOfUsingDateFormat("yyyy-MM-dd");
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void test_valueOf_invalidFormat() {
+    getValueType().valueOf("2011/11/10");
+  }
+
+  @Test
+  public void test_toString_nullValueReturnsNull() {
+    String s = getValueType().toString((Object) null);
+    Assert.assertNull(s);
+  }
+
+  @Test
+  public void test_now_returnsNewDate() {
+    Value now = getValueType().now();
+    Assert.assertEquals(new MagmaDate(new Date()), now.getValue());
   }
 
   private void assertValueOfUsingDateFormat(String dateFormat) {

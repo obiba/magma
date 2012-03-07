@@ -17,10 +17,10 @@ import org.obiba.magma.Value;
 import org.obiba.magma.ValueSet;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.ValueTableWriter;
+import org.obiba.magma.ValueTableWriter.ValueSetWriter;
 import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.VariableValueSource;
-import org.obiba.magma.ValueTableWriter.ValueSetWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -201,10 +201,10 @@ public class MultithreadedDatasourceCopier {
   private void printProgress() {
     try {
       if(log.isInfoEnabled() && entitiesToCopy > 0) {
-        double percentComplete = entitiesCopied / (double) entitiesToCopy * 100;
+        int percentComplete = (int) (entitiesCopied / (double) entitiesToCopy * 100);
         if(percentComplete >= nextPercentIncrement) {
-          log.info("Copy {}% complete.", nextPercentIncrement);
-          nextPercentIncrement++;
+          log.info("Copy {}% complete.", percentComplete);
+          nextPercentIncrement = percentComplete + 1;
         }
       }
     } catch(RuntimeException e) {

@@ -153,12 +153,21 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
       Scriptable scope = context.newLocalScope();
 
       enterContext(context, scope);
-      Object result = eval(context, scope);
+      Object result = null;
+      try {
+        result = eval(context, scope);
+      } finally {
+        exitContext(context);
+      }
       return result;
     }
 
     void enterContext(MagmaContext context, Scriptable scope) {
       JavascriptValueSource.this.enterContext(context, scope);
+    }
+
+    void exitContext(MagmaContext context) {
+      JavascriptValueSource.this.exitContext(context);
     }
 
     abstract Object eval(MagmaContext context, Scriptable scope);
@@ -224,6 +233,14 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
     }
 
     @Override
+    void exitContext(MagmaContext context) {
+      context.pop(VariableEntity.class);
+      context.pop(ValueTable.class);
+      context.pop(ValueSet.class);
+      super.exitContext(context);
+    }
+
+    @Override
     Object eval(MagmaContext context, Scriptable scope) {
       return asValue(compiledScript.exec(context, scope));
     }
@@ -255,6 +272,13 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
     }
 
     @Override
+    void exitContext(MagmaContext context) {
+      super.exitContext(context);
+      context.pop(SortedSet.class);
+      context.pop(VectorCache.class);
+    }
+
+    @Override
     Object eval(final MagmaContext context, final Scriptable scope) {
       return Iterables.transform(getEntities(context), new Function<VariableEntity, Value>() {
         @Override
@@ -263,11 +287,13 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
             // We have to set the current thread's context because this code will be executed outside of the
             // ContextAction.
             ContextFactory.getGlobal().enterContext(context);
+            JavascriptValueSource.this.enterContext(context, scope);
             context.push(VectorCache.class, vectorCache);
             context.push(SortedSet.class, entities);
             context.push(VariableEntity.class, from);
             return asValue(compiledScript.exec(context, scope));
           } finally {
+            JavascriptValueSource.this.exitContext(context);
             context.pop(VectorCache.class).next();
             context.pop(SortedSet.class);
             context.pop(VariableEntity.class);

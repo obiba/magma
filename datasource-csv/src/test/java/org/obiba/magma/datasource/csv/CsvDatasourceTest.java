@@ -72,7 +72,7 @@ public class CsvDatasourceTest {
     File samples = new File("src/test/resources/separators");
     File variables = new File(samples, "variables.csv");
 
-    CsvDatasource ds = new CsvDatasource("variables").addValueTable("variables", variables, null);
+    CsvDatasource ds = new CsvDatasource("variables").addValueTable("variables", variables, (File) null);
     ds.initialise();
     ValueTable reference = ds.getValueTable("variables");
 
@@ -606,7 +606,7 @@ public class CsvDatasourceTest {
     CsvDatasource datasource = new CsvDatasource("test-datasource").addValueTable("test-table", //
     // null, //
     new File(testTableDirectory.getAbsoluteFile(), "variables.csv"), //
-    null);
+    (File) null);
     // new File(testTableDirectory.getAbsoluteFile(), "data.csv"));
 
     datasource.initialise();
@@ -617,7 +617,7 @@ public class CsvDatasourceTest {
     new File(testTableDirectory.getAbsoluteFile(), "variables.csv"), //
     // null, //
     // new File(testTableDirectory.getAbsoluteFile(), "data.csv"));
-    null);
+    (File) null);
     readDs.initialise();
 
     ValueTable vt = readDs.getValueTable("test-table");

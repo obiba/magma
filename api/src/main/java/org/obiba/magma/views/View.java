@@ -1,7 +1,7 @@
 package org.obiba.magma.views;
 
 import java.util.Arrays;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.obiba.magma.Datasource;
@@ -228,7 +228,7 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
   }
 
   private Iterable<Variable> getListVariables() {
-    Set<Variable> variables = new HashSet<Variable>();
+    Set<Variable> variables = new LinkedHashSet<Variable>();
     for(VariableValueSource variableValueSource : this.variables.getVariableValueSources()) {
       variables.add(variableValueSource.getVariable());
     }

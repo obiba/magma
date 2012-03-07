@@ -28,14 +28,7 @@ public class IncrementalWhereClause implements WhereClause {
   // Instance Variables
   //
 
-  private String sourceTableName;
-
   private String destinationTableName;
-
-  /**
-   * Cached source table.
-   */
-  private ValueTable sourceTable;
 
   /**
    * Cached destination table.
@@ -58,13 +51,21 @@ public class IncrementalWhereClause implements WhereClause {
    * 
    * @param sourceTableName fully-qualified name of the source {@link ValueTable}
    * @param destinationTableName fully-qualified name of the destination {@link ValueTable}
+   * @deprecated sourceTableName is no longer required, use alternate ctor
    */
+  @Deprecated
   public IncrementalWhereClause(String sourceTableName, String destinationTableName) {
-    if(sourceTableName == null) throw new IllegalArgumentException("null sourceTableName");
-    if(destinationTableName == null) throw new IllegalArgumentException("null destinationTableName");
+    this(destinationTableName);
+  }
 
-    this.sourceTableName = sourceTableName;
+  public IncrementalWhereClause(String destinationTableName) {
+    if(destinationTableName == null) throw new IllegalArgumentException("null destinationTableName");
     this.destinationTableName = destinationTableName;
+  }
+
+  public IncrementalWhereClause(ValueTable destinationTable) {
+    if(destinationTable == null) throw new IllegalArgumentException("null destinationTable");
+    this.destinationTable = destinationTable;
   }
 
   //
@@ -74,7 +75,6 @@ public class IncrementalWhereClause implements WhereClause {
   public boolean where(ValueSet valueSet) {
     boolean include = false;
 
-    sourceTable = getSourceTable();
     destinationTable = getDestinationTable();
     ValueSet destinationValueSet = getDestinationValueSet(valueSet);
 
@@ -95,20 +95,6 @@ public class IncrementalWhereClause implements WhereClause {
   //
   // Methods
   //
-
-  /**
-   * Looks up the source table by its name and returns it. The table is cached for performance.
-   * 
-   * @return the source table
-   * @throws NoSuchValueTableException if the source table does not exist
-   */
-  @VisibleForTesting
-  ValueTable getSourceTable() throws NoSuchValueTableException {
-    if(sourceTable == null) {
-      sourceTable = MagmaEngineTableResolver.valueOf(sourceTableName).resolveTable();
-    }
-    return sourceTable;
-  }
 
   /**
    * Looks up the destination table by its name and returns it. The table is cached for performance.

@@ -15,6 +15,9 @@ import org.obiba.magma.type.DecimalType;
 import org.obiba.magma.type.IntegerType;
 import org.obiba.magma.type.LocaleType;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
+
 /**
  * JavaScript methods that operate on {@link ValueSequence} objects wrapped in {@link ScriptableValue} objects.
  */
@@ -164,17 +167,19 @@ public class ValueSequenceMethods {
       }
       return new ScriptableValue(thisObj, sortedValueSequence);
     } else {
-      throw new MagmaJsEvaluationRuntimeException("Operand to sort() method must be a ScriptableValue containing a ValueSequence.");
+      // Sorting a single value produces that value.
+      return sv;
     }
   }
 
   /**
    * Returns the average of the {@link Value}s contained in the {@link ValueSequence}. Returns null if the operand is
-   * null or the ValueSequence contains no Values.
+   * null or the ValueSequence is empty or contains at least one null value or a non-numeric value.
    * 
    * <pre>
    *   $('SequenceVar').avg()
    * </pre>
+   * 
    * @throws MagmaJsEvaluationRuntimeException if operand does not contain a ValueSequence of numeric values.
    */
   public static ScriptableValue avg(final Context ctx, Scriptable thisObj, Object[] args, final Function funObj) throws MagmaJsEvaluationRuntimeException {
@@ -182,17 +187,83 @@ public class ValueSequenceMethods {
     if(sv.getValue().isNull()) {
       return new ScriptableValue(thisObj, DecimalType.get().nullValue());
     }
+    if(sv.getValueType().isNumeric() == false) {
+      throw new MagmaJsEvaluationRuntimeException("Operand to avg() method must be numeric, but was invoked for '" + sv.getValueType().getName() + "'");
+    }
     if(sv.getValue().isSequence()) {
       ValueSequence valueSequence = sv.getValue().asSequence();
-      if(valueSequence.getSize() == 0) {
-        return new ScriptableValue(thisObj, DecimalType.get().nullValue());
-      }
-      Double avg = NumericMethods.average(valueSequence);
-      if(avg != null) {
-        return new ScriptableValue(thisObj, DecimalType.get().valueOf(avg), sv.getUnit());
-      }
-      throw new MagmaJsEvaluationRuntimeException("Operand to avg() method must be a ScriptableValue containing a ValueSequence of numeric values.");
+      return new ScriptableValue(thisObj, DecimalType.get().valueOf(NumericMethods.average(valueSequence)), sv.getUnit());
+    } else {
+      // Average of a single value is the value itself.
+      return sv;
     }
-    throw new MagmaJsEvaluationRuntimeException("Operand to avg() method must be a ScriptableValue containing a ValueSequence.");
+  }
+
+  /**
+   * Returns the sum of the {@link Value}s contained in the {@link ValueSequence}. Returns null if the operand is null
+   * or the ValueSequence is empty or contains at least one null value. This method throws an exception if the operand
+   * is non-numeric.
+   * 
+   * <pre>
+   *   $('SequenceVar').sum()
+   * </pre>
+   * 
+   * @throws MagmaJsEvaluationRuntimeException if operand does not contain a ValueSequence of numeric values.
+   */
+  public static ScriptableValue sum(final Context ctx, Scriptable thisObj, Object[] args, final Function funObj) throws MagmaJsEvaluationRuntimeException {
+    ScriptableValue sv = (ScriptableValue) thisObj;
+    if(sv.getValueType().isNumeric() == false) {
+      throw new MagmaJsEvaluationRuntimeException("Operand to sum() method must be numeric, but was invoked for '" + sv.getValueType().getName() + "'");
+    }
+    if(sv.getValue().isNull()) {
+      return new ScriptableValue(thisObj, sv.getValueType().nullValue());
+    }
+    if(sv.getValue().isSequence()) {
+      ValueSequence valueSequence = sv.getValue().asSequence();
+      return new ScriptableValue(thisObj, sv.getValueType().valueOf(NumericMethods.sum(valueSequence)), sv.getUnit());
+    } else {
+      return sv;
+    }
+  }
+
+  public static ScriptableValue push(final Context ctx, Scriptable thisObj, Object[] args, final Function funObj) throws MagmaJsEvaluationRuntimeException {
+    ScriptableValue sv = (ScriptableValue) thisObj;
+    ValueType targetType = sv.getValueType();
+    Iterable<Value> sequence;
+    if(sv.getValue().isNull()) {
+      return new ScriptableValue(thisObj, targetType.nullSequence());
+    }
+
+    if(sv.getValue().isSequence()) {
+      sequence = sv.getValue().asSequence().getValue();
+    } else {
+      sequence = ImmutableList.of(sv.getValue());
+    }
+
+    for(Object argument : args) {
+      Value value;
+      if(argument instanceof ScriptableValue) {
+        value = ((ScriptableValue) argument).getValue();
+      } else {
+        value = targetType.valueOf(argument);
+      }
+
+      if(value.getValueType() != targetType) {
+        value = targetType.convert(value);
+      }
+
+      if(value.isNull()) {
+        sequence = Iterables.concat(sequence, ImmutableList.of(targetType.nullValue()));
+      } else {
+        if(value.isSequence()) {
+          sequence = Iterables.concat(sequence, value.asSequence().getValue());
+        } else {
+          sequence = Iterables.concat(sequence, ImmutableList.of(value));
+        }
+      }
+
+    }
+
+    return new ScriptableValue(thisObj, targetType.sequenceOf(sequence));
   }
 }

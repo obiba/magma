@@ -6,9 +6,11 @@ import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ScriptRuntime;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
+import org.obiba.magma.MagmaDate;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueType;
 import org.obiba.magma.type.BooleanType;
+import org.obiba.magma.type.DateType;
 import org.obiba.magma.type.TextType;
 
 /**
@@ -69,8 +71,13 @@ public class ScriptableValue extends ScriptableObject {
     }
     Object defaultValue = value.getValue();
     if(value.getValueType().isDateTime()) {
-      Date date = (Date) defaultValue;
-      return Context.toObject(ScriptRuntime.wrapNumber(date.getTime()), this);
+      double jsDate;
+      if(value.getValueType() == DateType.get()) {
+        jsDate = ((MagmaDate) defaultValue).asDate().getTime();
+      } else {
+        jsDate = ((Date) defaultValue).getTime();
+      }
+      return Context.toObject(ScriptRuntime.wrapNumber(jsDate), this);
     }
     if(value.getValueType().isNumeric()) {
       return Context.toNumber(defaultValue);

@@ -103,6 +103,12 @@ public class NumericMethods {
       public boolean apply(int value) {
         return value <= 0;
       }
+    },
+    EQ() {
+      @Override
+      public boolean apply(int value) {
+        return value == 0;
+      }
     };
 
     public abstract boolean apply(int value);
@@ -421,18 +427,20 @@ public class NumericMethods {
     }
 
     ScriptableValue sv = (ScriptableValue) thisObj;
-    ValueType returnType = TextType.get();
     Value currentValue = sv.getValue();
 
     List<Value> boundaries = boundaryValues(sv.getValueType(), args);
     List<Value> outliers = outlierValues(sv.getValueType(), args);
 
     if(currentValue.isSequence()) {
+      if(currentValue.isNull()) {
+        return new ScriptableValue(thisObj, TextType.get().nullSequence());
+      }
       List<Value> newValues = new ArrayList<Value>();
       for(Value value : currentValue.asSequence().getValue()) {
         newValues.add(lookupGroup(ctx, thisObj, value, boundaries, outliers));
       }
-      return new ScriptableValue(thisObj, returnType.sequenceOf(newValues));
+      return new ScriptableValue(thisObj, TextType.get().sequenceOf(newValues));
     } else {
       return new ScriptableValue(thisObj, lookupGroup(ctx, thisObj, currentValue, boundaries, outliers));
     }
@@ -526,6 +534,10 @@ public class NumericMethods {
   private static String formatNumberValue(Value value) {
     String str = value.toString();
     return str.endsWith(".0") ? str.substring(0, str.length() - 2) : str;
+  }
+
+  static Value equals(ScriptableValue thisObj, Object args[]) {
+    return compare(thisObj, args, Comps.EQ);
   }
 
   static Value compare(ScriptableValue thisObj, Object args[], Comps comparator) {
@@ -627,18 +639,25 @@ public class NumericMethods {
     return new BigDecimal((Double) value.getValue());
   }
 
-  static Double average(ValueSequence valueSequence) {
-    double sum = 0.0;
-    List<Value> values = valueSequence.getValues();
-    if(values == null || values.isEmpty()) return null;
-    for(Value value : values) {
-      if(!value.getValueType().isNumeric()) {
+  static Double sum(ValueSequence valueSequence) {
+    double sum = 0;
+    for(Value v : valueSequence.getValue()) {
+      if(v.isNull()) {
         return null;
       }
-      Number number = (Number) value.getValue();
-      sum += number.doubleValue();
+      sum += ((Number) v.getValue()).doubleValue();
     }
-    return sum / valueSequence.getSize();
+    return sum;
+  }
+
+  static Double average(ValueSequence valueSequence) {
+    int size = valueSequence.getSize();
+    if(size == 0) return null;
+    Double sum = sum(valueSequence);
+    if(sum != null) {
+      return sum / size;
+    }
+    return null;
   }
 
 }

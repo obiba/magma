@@ -163,6 +163,9 @@ public class TextMethods {
 
     Value currentValue = sv.getValue();
     if(currentValue.isSequence()) {
+      if(currentValue.isNull()) {
+        return new ScriptableValue(thisObj, returnType.nullSequence());
+      }
       List<Value> newValues = new ArrayList<Value>();
       for(Value value : currentValue.asSequence().getValue()) {
         newValues.add(lookupValue(ctx, thisObj, value, returnType, valueMap, defaultValue, nullValue));

@@ -26,7 +26,11 @@ public class ValueTableConverter implements Converter {
   public void marshal(Object source, HierarchicalStreamWriter writer, MarshallingContext context) {
     ValueTable valueTable = (ValueTable) source;
     writer.startNode("reference");
-    writer.setValue(valueTable.getDatasource().getName() + "." + valueTable.getName());
+    if(valueTable instanceof ValueTableReference) {
+      writer.setValue(((ValueTableReference) valueTable).getReference());
+    } else {
+      writer.setValue(valueTable.getDatasource().getName() + "." + valueTable.getName());
+    }
     writer.endNode();
   }
 

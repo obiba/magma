@@ -23,6 +23,7 @@ import org.springframework.beans.PropertyAccessorFactory;
 import org.springframework.util.Assert;
 
 import com.google.common.base.Function;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 
 /**
@@ -63,15 +64,14 @@ public class BeanPropertyVariableValueSource implements VariableValueSource {
     }
 
     if(variable.isRepeatable()) {
-      Iterable<?> iterable = (Iterable<?>) bean;
-      Iterable<Value> values = Iterables.transform(iterable, new Function<Object, Value>() {
+      Iterable<Value> values = Iterables.transform((Iterable<?>) bean, new Function<Object, Value>() {
         @Override
         public Value apply(Object bean) {
           Object object = getPropertyValue(propertyPath, PropertyAccessorFactory.forBeanPropertyAccess(bean));
           return getValueType().valueOf(object);
         }
       });
-      return getValueType().sequenceOf(values);
+      return getValueType().sequenceOf(ImmutableList.copyOf(values));
     } else {
       Object object = getPropertyValue(propertyPath, PropertyAccessorFactory.forBeanPropertyAccess(bean));
       return getValueType().valueOf(object);

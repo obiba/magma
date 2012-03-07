@@ -53,4 +53,9 @@ public class CloseablesTest {
       verify(mock);
     }
   }
+
+  @Test
+  public void test_closeQuietly_acceptsNull() {
+    Closeables.closeQuietly(null);
+  }
 }

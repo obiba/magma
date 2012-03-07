@@ -85,10 +85,15 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
 
   private List<String> missingVariableNames = new ArrayList<String>();
 
-  public CsvValueTable(CsvDatasource datasource, String name, File variableFile, File dataFile) {
+  public CsvValueTable(CsvDatasource datasource, String name, File dataFile, String entityType) {
+    this(datasource, name, null, dataFile, entityType);
+  }
+
+  public CsvValueTable(CsvDatasource datasource, String name, File variableFile, File dataFile, String entityType) {
     super(datasource, name);
     this.variableFile = variableFile;
     this.dataFile = dataFile;
+    this.entityType = entityType == null ? DEFAULT_ENTITY_TYPE : entityType;
   }
 
   public CsvValueTable(CsvDatasource datasource, ValueTable refTable, File dataFile) {
@@ -150,62 +155,73 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
 
   private void initialiseVariables() throws IOException {
     if(refTable != null) {
-      entityType = refTable.getEntityType();
-      for(Variable var : refTable.getVariables()) {
-        addVariableValueSource(new CsvVariableValueSource(var));
-      }
-      missingVariableNames = getMissingVariableNames();
-    } else if(variableFile != null) {
-      Map<Integer, CsvIndexEntry> lineIndex = buildLineIndex(variableFile);
-      variableReader = getCsvDatasource().getCsvReader(variableFile);
+      initialiseVariablesFromRefTable();
+    } else if(variableFile != null && variableFile.exists()) {
+      initialiseVariablesFromVariablesFile();
+    } else {
+      initialiseVariablesFromDataFile();
+    }
+  }
 
-      String[] line = variableReader.readNext();
+  private void initialiseVariablesFromRefTable() throws IOException {
+    entityType = refTable.getEntityType();
+    for(Variable var : refTable.getVariables()) {
+      addVariableValueSource(new CsvVariableValueSource(var));
+    }
+    missingVariableNames = getMissingVariableNames();
+  }
 
-      if(line != null) {
-        // first line is headers
-        variableConverter = new VariableConverter(line);
+  private void initialiseVariablesFromVariablesFile() throws IOException {
+    Map<Integer, CsvIndexEntry> lineIndex = buildLineIndex(variableFile);
+    variableReader = getCsvDatasource().getCsvReader(variableFile);
 
-        line = variableReader.readNext();
-        int count = 0;
-        while(line != null) {
-          count++;
-          if(line.length == 1) {
-            line = variableReader.readNext();
-            continue;
-          }
-          Variable var = variableConverter.unmarshal(line);
-          if(entityType == null) entityType = var.getEntityType();
+    String[] line = variableReader.readNext();
 
-          variableNameIndex.put(var.getName(), lineIndex.get(count));
-          addVariableValueSource(new CsvVariableValueSource(var));
+    if(line != null) {
+      // first line is headers
+      variableConverter = new VariableConverter(line);
+
+      line = variableReader.readNext();
+      int count = 0;
+      while(line != null) {
+        count++;
+        if(line.length == 1) {
           line = variableReader.readNext();
+          continue;
         }
-      } else {
-        if(variableConverter == null) {
-          String[] defaultVariablesHeader = ((CsvDatasource) getDatasource()).getDefaultVariablesHeader();
-          log.debug("A variables.csv file or header was not explicitly provided for the table {}. Use the default header {}.", getName(), defaultVariablesHeader);
-          variableConverter = new VariableConverter(defaultVariablesHeader);
-        }
-        isVariablesFileEmpty = true;
+        Variable var = variableConverter.unmarshal(line);
+        entityType = var.getEntityType();
+
+        variableNameIndex.put(var.getName(), lineIndex.get(count));
+        addVariableValueSource(new CsvVariableValueSource(var));
+        line = variableReader.readNext();
       }
     } else {
-      entityType = DEFAULT_ENTITY_TYPE;
-      if(dataFile != null) {
-        // Obtain the variable names from the first line of the data file. Header line is = entity_id + variable names
-        CSVReader dataHeaderReader = getCsvDatasource().getCsvReader(dataFile);
-
-        String[] line = dataHeaderReader.readNext();
-        dataHeaderReader.close();
-        if(line != null) {
-          for(int i = 1; i < line.length; i++) {
-            String variableName = line[i].trim();
-            Variable.Builder variableBuilder = Variable.Builder.newVariable(variableName, TextType.get(), entityType);
-            addVariableValueSource(new CsvVariableValueSource(variableBuilder.build()));
-          }
-        }
+      if(variableConverter == null) {
+        String[] defaultVariablesHeader = ((CsvDatasource) getDatasource()).getDefaultVariablesHeader();
+        log.debug("A variables.csv file or header was not explicitly provided for the table {}. Use the default header {}.", getName(), defaultVariablesHeader);
+        variableConverter = new VariableConverter(defaultVariablesHeader);
       }
       isVariablesFileEmpty = true;
     }
+  }
+
+  private void initialiseVariablesFromDataFile() throws IOException {
+    if(dataFile != null) {
+      // Obtain the variable names from the first line of the data file. Header line is = entity_id + variable names
+      CSVReader dataHeaderReader = getCsvDatasource().getCsvReader(dataFile);
+
+      String[] line = dataHeaderReader.readNext();
+      dataHeaderReader.close();
+      if(line != null) {
+        for(int i = 1; i < line.length; i++) {
+          String variableName = line[i].trim();
+          Variable.Builder variableBuilder = Variable.Builder.newVariable(variableName, TextType.get(), entityType);
+          addVariableValueSource(new CsvVariableValueSource(variableBuilder.build()));
+        }
+      }
+    }
+    isVariablesFileEmpty = true;
   }
 
   CSVWriter getVariableWriter() {

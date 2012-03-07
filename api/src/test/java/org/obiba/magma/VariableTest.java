@@ -45,6 +45,8 @@ public class VariableTest extends AbstractMagmaTest {
   public void test_isMissingValue_TextType() {
     Variable v = Variable.Builder.newVariable("name", TextType.get(), "entityType").addCategory("YES", null, false).addCategory("DNK", null, true).build();
     Assert.assertFalse(v.isMissingValue(TextType.get().valueOf("YES")));
+    // Accepts unknown categories
+    Assert.assertFalse(v.isMissingValue(TextType.get().valueOf("No such category")));
     Assert.assertTrue(v.isMissingValue(TextType.get().valueOf("DNK")));
     Assert.assertTrue(v.isMissingValue(TextType.get().nullValue()));
   }
@@ -53,7 +55,17 @@ public class VariableTest extends AbstractMagmaTest {
   public void test_isMissingValue_IntegerType() {
     Variable v = Variable.Builder.newVariable("name", IntegerType.get(), "entityType").addCategory("1", null, false).addCategory("8888", null, true).build();
     Assert.assertFalse(v.isMissingValue(IntegerType.get().valueOf(1)));
+    // Accepts unknown categories
+    Assert.assertFalse(v.isMissingValue(IntegerType.get().valueOf(2)));
     Assert.assertTrue(v.isMissingValue(IntegerType.get().valueOf(8888)));
+    Assert.assertTrue(v.isMissingValue(IntegerType.get().nullValue()));
+  }
+
+  @Test
+  public void test_isMissingValue_withoutCategories() {
+    Variable v = Variable.Builder.newVariable("name", IntegerType.get(), "entityType").build();
+    // Accepts unknown categories
+    Assert.assertFalse(v.isMissingValue(IntegerType.get().valueOf(1)));
     Assert.assertTrue(v.isMissingValue(IntegerType.get().nullValue()));
   }
 

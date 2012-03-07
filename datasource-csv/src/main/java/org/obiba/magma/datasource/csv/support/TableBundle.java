@@ -17,8 +17,17 @@ public class TableBundle {
 
   private ValueTable refTable;
 
+  private String entityType;
+
   public TableBundle() {
     super();
+  }
+
+  public TableBundle(String name, File data, String entityType) {
+    super();
+    this.name = name;
+    this.entityType = entityType;
+    this.data = data;
   }
 
   public TableBundle(String name, File variables, File data) {
@@ -46,6 +55,10 @@ public class TableBundle {
 
   public File getVariables() {
     return variables;
+  }
+
+  public boolean hasVariables() {
+    return variables != null && variables.exists();
   }
 
   public File getData() {
@@ -76,5 +89,13 @@ public class TableBundle {
 
   public boolean hasRefTable() {
     return refTable != null;
+  }
+
+  public boolean hasEntityType() {
+    return entityType != null;
+  }
+
+  public String getEntityType() {
+    return entityType;
   }
 }

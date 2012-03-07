@@ -6,6 +6,7 @@ import static org.junit.Assert.assertThat;
 
 import org.junit.Test;
 import org.mozilla.javascript.Context;
+import org.obiba.magma.Value;
 import org.obiba.magma.js.AbstractJsTest;
 import org.obiba.magma.js.ScriptableValue;
 import org.obiba.magma.type.AbstractNumberType;
@@ -612,6 +613,15 @@ public class NumericMethodsTest extends AbstractJsTest {
     ScriptableValue value = evaluate(group, IntegerType.get().nullValue());
     assertThat(value, notNullValue());
     assertThat(value.getValue(), is(TextType.get().nullValue()));
+  }
+
+  @Test
+  public void test_group_NullSequence() {
+    String group = "group([0,10,20])";
+    ScriptableValue value = evaluate(group, IntegerType.get().sequenceOf((Iterable<Value>) null));
+    assertThat(value.getValue().isNull(), is(true));
+    assertThat(value.getValue().isSequence(), is(true));
+    assertThat(value.getValue().asSequence(), is(TextType.get().nullSequence()));
   }
 
   private void test_group_WithBoundariesAndNoOutliers(AbstractNumberType numberType) {

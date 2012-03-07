@@ -12,6 +12,8 @@ public class Value implements Serializable, Comparable<Value> {
 
   private final Object value;
 
+  private transient int hashCode;
+
   Value(ValueType valueType, Object value) {
     if(valueType == null) throw new IllegalArgumentException("valueType cannot be null");
     if(value == null) {
@@ -75,16 +77,23 @@ public class Value implements Serializable, Comparable<Value> {
     }
 
     Value other = (Value) obj;
+    // Shortcut
+    if(this.value == other.value) {
+      return true;
+    }
     return value.equals(other.value) && valueType.equals(other.valueType);
   }
 
   @Override
   public int hashCode() {
-    final int prime = 31;
-    int result = 1;
-    result = prime * result + value.hashCode();
-    result = prime * result + valueType.hashCode();
-    return result;
+    if(hashCode == 0) {
+      final int prime = 31;
+      int result = 1;
+      result = prime * result + value.hashCode();
+      result = prime * result + valueType.hashCode();
+      hashCode = result;
+    }
+    return hashCode;
   }
 
   @Override

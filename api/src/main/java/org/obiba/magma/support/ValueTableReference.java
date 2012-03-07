@@ -1,6 +1,8 @@
 package org.obiba.magma.support;
 
 import org.obiba.magma.MagmaEngine;
+import org.obiba.magma.NoSuchDatasourceException;
+import org.obiba.magma.NoSuchValueTableException;
 import org.obiba.magma.ValueTable;
 
 /**
@@ -42,7 +44,15 @@ public class ValueTableReference extends AbstractValueTableWrapper {
 
   @Override
   public ValueTable getWrappedValueTable() {
-    return getResolver().resolveTable();
+    try {
+      return getResolver().resolveTable();
+    } catch(NoSuchValueTableException e) {
+      // OPAL-1231
+      return NullValueTable.get();
+    } catch(NoSuchDatasourceException e) {
+      // OPAL-1231
+      return NullValueTable.get();
+    }
   }
 
   public String getReference() {

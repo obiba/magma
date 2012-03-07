@@ -5,12 +5,15 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.TimeZone;
 
 import junit.framework.Assert;
 
 import org.junit.Test;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueType;
+
+import com.google.common.collect.ImmutableList;
 
 public class DateTimeTypeTest extends BaseValueTypeTest {
 
@@ -22,6 +25,21 @@ public class DateTimeTypeTest extends BaseValueTypeTest {
   @Override
   Object getObjectForType() {
     return new Date();
+  }
+
+  @Override
+  boolean isDateTime() {
+    return true;
+  }
+
+  @Override
+  boolean isNumeric() {
+    return false;
+  }
+
+  @Override
+  Iterable<Class<?>> validClasses() {
+    return ImmutableList.<Class<?>> of(Date.class, Timestamp.class, Calendar.class);
   }
 
   @Test
@@ -85,6 +103,15 @@ public class DateTimeTypeTest extends BaseValueTypeTest {
   @Test
   public void test_valueOfIncorrectISODateFormatString() {
     assertValueOfUsingDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSzzz");
+  }
+
+  @Test
+  public void test_valueOfThatIncludesZuluTimezone() {
+    Calendar expected = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+    expected.clear();
+    expected.set(2011, 0, 25, 14, 30, 47);
+    Value value = DateTimeType.get().valueOf("2011-01-25T14:30:47Z");
+    Assert.assertEquals(new Date(expected.getTimeInMillis()), value.getValue());
   }
 
   private void assertValueOfUsingDateFormat(String dateFormat) {

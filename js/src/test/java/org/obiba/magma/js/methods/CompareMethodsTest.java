@@ -36,6 +36,22 @@ public class CompareMethodsTest extends AbstractJsTest {
   }
 
   @Test
+  public void testDecimalCompareInteger() throws Exception {
+    ScriptableValue integerSeven = newValue(IntegerType.get().valueOf(7));
+    ScriptableValue decimalFourteen = newValue(DecimalType.get().valueOf(14.0));
+    ScriptableValue result = CompareMethods.compare(Context.getCurrentContext(), decimalFourteen, new Object[] { integerSeven }, null);
+    assertThat(result.getValue(), is(IntegerType.get().valueOf(1)));
+  }
+
+  @Test
+  public void testDecimalCompareDecimal() throws Exception {
+    ScriptableValue decimalSeven = newValue(DecimalType.get().valueOf(7.02));
+    ScriptableValue decimalFourteen = newValue(DecimalType.get().valueOf(14.02));
+    ScriptableValue result = CompareMethods.compare(Context.getCurrentContext(), decimalFourteen, new Object[] { decimalSeven }, null);
+    assertThat(result.getValue(), is(IntegerType.get().valueOf(1)));
+  }
+
+  @Test
   public void testTrueCompareTrue() throws Exception {
     ScriptableValue trueOne = newValue(BooleanType.get().trueValue());
     ScriptableValue trueTwo = newValue(BooleanType.get().trueValue());

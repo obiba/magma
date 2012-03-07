@@ -9,6 +9,8 @@ import org.obiba.magma.js.MagmaJsEvaluationRuntimeException;
 import org.obiba.magma.js.ScriptableValue;
 import org.obiba.magma.lang.Booleans;
 import org.obiba.magma.type.BooleanType;
+import org.obiba.magma.type.DateTimeType;
+import org.obiba.magma.type.DateType;
 import org.obiba.magma.type.DecimalType;
 import org.obiba.magma.type.IntegerType;
 import org.obiba.magma.type.TextType;
@@ -194,11 +196,12 @@ public class BooleanMethods {
     ScriptableValue sv = (ScriptableValue) thisObj;
     Value value = sv.getValue();
     if(value.getValueType() != BooleanType.get()) {
-      try {
-        value = BooleanType.get().convert(value);
-      } catch(IllegalArgumentException e) {
-        throw new MagmaJsEvaluationRuntimeException("cannot invoke or() for Value of type " + value.getValueType().getName());
-      }
+      // try {
+      value = BooleanType.get().convert(value);
+      // } catch(IllegalArgumentException e) {
+      // throw new MagmaJsEvaluationRuntimeException("cannot invoke or() for Value of type " +
+      // value.getValueType().getName());
+      // }
     }
     Boolean booleanValue = toBoolean(value);
 
@@ -229,20 +232,67 @@ public class BooleanMethods {
    */
   public static ScriptableValue eq(Context ctx, Scriptable thisObj, Object[] args, Function funObj) throws MagmaJsEvaluationRuntimeException {
     ScriptableValue firstOperand = (ScriptableValue) thisObj;
-    if(firstOperand.getValue().isNull()) return new ScriptableValue(thisObj, BooleanType.get().falseValue());
-    if(args != null && args.length > 0 && args[0] instanceof ScriptableValue) {
-      ScriptableValue secondOperand = (ScriptableValue) args[0];
-      if(firstOperand.getValueType().isNumeric() && secondOperand.getValueType().isNumeric()) {
-        return numericEquals(thisObj, firstOperand, secondOperand);
-      } else if(firstOperand.getValueType().equals(BooleanType.get()) && secondOperand.getValueType().equals(BooleanType.get())) {
-        return booleanEquals(thisObj, firstOperand, secondOperand);
-      } else if(firstOperand.getValueType().equals(TextType.get()) && secondOperand.getValueType().equals(TextType.get())) {
-        return textEquals(thisObj, firstOperand, secondOperand);
-      } else {
-        throw new MagmaJsEvaluationRuntimeException("Cannot invoke equals() with argument of type '" + firstOperand.getValueType().getName() + "' and '" + secondOperand.getValueType().getName() + "'.");
+    if(firstOperand.getValue().isNull()) {
+      if(args != null && args.length > 0) {
+        if(args[0] instanceof ScriptableValue) {
+          ScriptableValue secondOperand = (ScriptableValue) args[0];
+          return new ScriptableValue(thisObj, BooleanType.get().valueOf(secondOperand.getValue().isNull()));
+        } else {
+          return new ScriptableValue(thisObj, BooleanType.get().valueOf(args[0] == null));
+        }
       }
+      return new ScriptableValue(thisObj, BooleanType.get().falseValue());
+    }
+
+    if(args == null || args.length == 0 || (args.length > 0 && args[0] == null)) {
+      return new ScriptableValue(thisObj, BooleanType.get().falseValue());
+    }
+
+    if(args[0] instanceof ScriptableValue) {
+      ScriptableValue secondOperand = (ScriptableValue) args[0];
+      return eqScriptableValue(thisObj, firstOperand, secondOperand);
+    } else if(firstOperand.getValueType().isNumeric()) {
+      return new ScriptableValue(thisObj, NumericMethods.equals(firstOperand, args));
+    } else if(firstOperand.getValueType().equals(TextType.get())) {
+      if(args[0] == null) return new ScriptableValue(thisObj, BooleanType.get().nullValue());
+      return textEquals(thisObj, firstOperand, new ScriptableValue(thisObj, TextType.get().valueOf(args[0].toString())));
+    } else if(firstOperand.getValueType().isDateTime()) {
+      if(args[0] == null) return new ScriptableValue(thisObj, BooleanType.get().nullValue());
+      if(firstOperand.getValueType().equals(DateType.get())) {
+        return dateEquals(thisObj, firstOperand, new ScriptableValue(thisObj, DateType.get().valueOf(args[0])));
+      }
+      return dateEquals(thisObj, firstOperand, new ScriptableValue(thisObj, DateTimeType.get().valueOf(args[0])));
     } else {
       return new ScriptableValue(thisObj, BooleanType.get().falseValue());
+    }
+  }
+
+  private static ScriptableValue eqScriptableValue(Scriptable thisObj, ScriptableValue firstOperand, ScriptableValue secondOperand) {
+    if(firstOperand.getValueType().isNumeric() && secondOperand.getValueType().isNumeric()) {
+      return numericEquals(thisObj, firstOperand, secondOperand);
+    } else if(firstOperand.getValueType().equals(BooleanType.get()) && secondOperand.getValueType().equals(BooleanType.get())) {
+      return booleanEquals(thisObj, firstOperand, secondOperand);
+    } else if(firstOperand.getValueType().equals(TextType.get()) && secondOperand.getValueType().equals(TextType.get())) {
+      return textEquals(thisObj, firstOperand, secondOperand);
+    } else if(firstOperand.getValueType().equals(DateType.get()) && secondOperand.getValueType().equals(DateType.get())) {
+      return dateEquals(thisObj, firstOperand, secondOperand);
+    } else if(firstOperand.getValueType().equals(DateTimeType.get()) && secondOperand.getValueType().equals(DateTimeType.get())) {
+      return dateTimeEquals(thisObj, firstOperand, secondOperand);
+    } else {
+      throw new MagmaJsEvaluationRuntimeException("Cannot invoke equals() with argument of type '" + firstOperand.getValueType().getName() + "' and '" + secondOperand.getValueType().getName() + "'.");
+    }
+  }
+
+  public static ScriptableValue whenNull(Context ctx, Scriptable thisObj, Object[] args, Function funObj) throws MagmaJsEvaluationRuntimeException {
+    ScriptableValue sv = (ScriptableValue) thisObj;
+    if(sv.getValue().isNull()) {
+      if(args == null || args.length == 0) {
+        return sv;
+      } else {
+        return new ScriptableValue(thisObj, BooleanType.get().valueOf(args[0]));
+      }
+    } else {
+      return sv;
     }
   }
 
@@ -270,6 +320,16 @@ public class BooleanMethods {
     String firstString = (String) firstOperand.getValue().getValue();
     String secondString = (String) secondOperand.getValue().getValue();
     return new ScriptableValue(thisObj, BooleanType.get().valueOf(firstString.equals(secondString)));
+  }
+
+  private static ScriptableValue dateTimeEquals(Scriptable thisObj, ScriptableValue firstOperand, ScriptableValue secondOperand) {
+    boolean result = firstOperand.getValue().equals(secondOperand.getValue());
+    return new ScriptableValue(thisObj, BooleanType.get().valueOf(result));
+  }
+
+  private static ScriptableValue dateEquals(Scriptable thisObj, ScriptableValue firstOperand, ScriptableValue secondOperand) {
+    boolean result = firstOperand.getValue().equals(secondOperand.getValue());
+    return new ScriptableValue(thisObj, BooleanType.get().valueOf(result));
   }
 
   private static ScriptableValue buildValue(Scriptable scope, Boolean value) {

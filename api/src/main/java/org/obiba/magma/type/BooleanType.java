@@ -11,9 +11,9 @@ public class BooleanType extends AbstractValueType {
 
   private static WeakReference<BooleanType> instance;
 
-  private Value trueValue;
+  private final Value trueValue;
 
-  private Value falseValue;
+  private final Value falseValue;
 
   private BooleanType() {
     trueValue = Factory.newValue(this, Boolean.TRUE);
@@ -56,8 +56,10 @@ public class BooleanType extends AbstractValueType {
   public Value valueOf(String string) {
     if(string == null) {
       return nullValue();
+    } else if(string.equalsIgnoreCase("true") || string.equalsIgnoreCase("false")) {
+      return valueOf(Boolean.valueOf(string).booleanValue());
     }
-    return valueOf(Boolean.valueOf(string).booleanValue());
+    throw new IllegalArgumentException("Cannot construct " + getClass().getSimpleName() + " from type String with value '" + string + "'");
   }
 
   @Override

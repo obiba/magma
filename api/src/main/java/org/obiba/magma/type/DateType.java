@@ -51,19 +51,14 @@ public class DateType extends AbstractValueType {
 
   @Override
   public boolean acceptsJavaClass(Class<?> clazz) {
-    // MAGMA-166: Although the API states that this method should return true for Date instances, it conflicts with DateTimeType.
-    // There is a loss of precision if we map Date instances to this ValueType, so it is safer to not accept these types.
-    return MagmaDate.class.isAssignableFrom(clazz);// || Date.class.isAssignableFrom(clazz) || java.sql.Date.class.isAssignableFrom(clazz) || java.sql.Timestamp.class.isAssignableFrom(clazz) || Calendar.class.isAssignableFrom(clazz);
-  }
-
-  @Override
-  public String toString(Object object) {
-    if(object != null) {
-      synchronized(ISO_8601) {
-        return ISO_8601.format(((MagmaDate) object).asDate());
-      }
-    }
-    return null;
+    // MAGMA-166: Although the API states that this method should return true for Date instances, it conflicts with
+    // DateTimeType.
+    // There is a loss of precision if we map Date instances to this ValueType, so it is safer to not accept these
+    // types.
+    return MagmaDate.class.isAssignableFrom(clazz);// || Date.class.isAssignableFrom(clazz) ||
+                                                   // java.sql.Date.class.isAssignableFrom(clazz) ||
+                                                   // java.sql.Timestamp.class.isAssignableFrom(clazz) ||
+                                                   // Calendar.class.isAssignableFrom(clazz);
   }
 
   @Override
@@ -115,4 +110,15 @@ public class DateType extends AbstractValueType {
   public Value now() {
     return valueOf(new MagmaDate(new Date()));
   }
+
+  @Override
+  protected String toString(Object object) {
+    if(object != null) {
+      synchronized(ISO_8601) {
+        return ISO_8601.format(((MagmaDate) object).asDate());
+      }
+    }
+    return null;
+  }
+
 }

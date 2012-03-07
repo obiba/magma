@@ -69,17 +69,21 @@ public class DateTimeType extends AbstractValueType {
     if(string == null) {
       return nullValue();
     }
-
+    String dateToParse = string;
+    if(string.endsWith("Z")) {
+      // Java before 7 does not support the 'Zulu' timezone (Z). Replace it with a SimpleDateFormat-friendly timezone
+      dateToParse = string.replaceFirst("Z$", "UTC");
+    }
     try {
       // DateFormat is not thread safe
       synchronized(ISO_8601) {
-        return Factory.newValue(this, ISO_8601.parse(string));
+        return Factory.newValue(this, ISO_8601.parse(dateToParse));
       }
     } catch(ParseException e) {
       for(SimpleDateFormat sdf : otherFormats) {
         try {
           synchronized(otherFormats) {
-            return Factory.newValue(this, sdf.parse(string));
+            return Factory.newValue(this, sdf.parse(dateToParse));
           }
         } catch(ParseException e1) {
           // ignore and try next supported format
