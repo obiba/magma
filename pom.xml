@@ -169,6 +169,7 @@
     <module>datasource-fs</module>
     <module>hibernate</module>
     <module>datasource-jdbc</module>
+    <module>datasource-limesurvey</module>
     <module>datasource-excel</module>
     <module>datasource-null</module>
     <module>datasource-csv</module>
