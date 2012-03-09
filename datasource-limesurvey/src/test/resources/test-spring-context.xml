@@ -4,7 +4,7 @@
 
   <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
     <property name="driverClassName" value="org.hsqldb.jdbcDriver" />
-    <property name="url" value="jdbc:hsqldb:mem:JdbcDatasourceTest" />
+    <property name="url" value="jdbc:hsqldb:mem:LimesurveyDatasourceTest" />
     <property name="username" value="sa" />
     <property name="password" value="" />
   </bean>
