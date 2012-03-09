@@ -3,7 +3,6 @@ package org.obiba.magma.datasource.limesurvey;
 import javax.sql.DataSource;
 
 import org.junit.Test;
-import org.obiba.core.test.spring.Dataset;
 import org.obiba.core.test.spring.DbUnitAwareTestExecutionListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -25,7 +24,6 @@ public class LimesurveyDatasourceTest extends AbstractMagmaTest {
   private DataSource dataSource;
 
   @TestSchema(schemaLocation = "org/obiba/magma/datasource/limesurvey", beforeSchema = "schema-nometa.sql", afterSchema = "schema-notables.sql")
-  @Dataset(filenames = "LimesurveyDatasourceTest.xml")
   @Test
   public void testCreateDatasourceFromExistingDatabase() {
   }
