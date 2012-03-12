@@ -2,6 +2,7 @@ package org.obiba.magma.datasource.limesurvey;
 
 import javax.sql.DataSource;
 
+import org.junit.Assert;
 import org.junit.Test;
 import org.obiba.core.test.spring.DbUnitAwareTestExecutionListener;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,11 +22,13 @@ import test.TestSchema;
 public class LimesurveyDatasourceTest extends AbstractMagmaTest {
 
   @Autowired
-  private DataSource dataSource;
+  private DataSource datasource;
 
   @TestSchema(schemaLocation = "org/obiba/magma/datasource/limesurvey", beforeSchema = "schema-nometa.sql", afterSchema = "schema-notables.sql")
   @Test
   public void testCreateDatasourceFromExistingDatabase() {
+    LimesurveyDatasource limesurveyDatasource = new LimesurveyDatasource("lime", datasource);
+    Assert.assertEquals(limesurveyDatasource.getValueTableNames().size(), 9);
   }
 
 }
