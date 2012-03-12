@@ -134,7 +134,7 @@ CREATE TABLE question_attributes (
 DROP TABLE IF EXISTS answers;
 CREATE TABLE answers (
   qid INTEGER default 0 NOT NULL,
-  code varchar(5) default '' NOT NULL,
+  code varchar(50) default '' NOT NULL,
   answer varchar(10000) NOT NULL,
   assessment_value INTEGER default 0 NOT NULL,
   sortorder INTEGER NOT NULL,
@@ -166,6 +166,97 @@ INSERT INTO surveys_languagesettings (surveyls_survey_id, surveyls_language, sur
 (78958, 'en', 'Cognitive Rescoring', 'This script is used to rescore the cognitive section of the 60-minute survey.', '', '', '/reload.html', '', 'Invitation to participate in a survey', 'Dear {FIRSTNAME},<br /><br />you have been invited to participate in a survey.<br /><br />The survey is titled:<br />"{SURVEYNAME}"<br /><br />"{SURVEYDESCRIPTION}"<br /><br />To participate, please click on the link below.<br /><br />Sincerely,<br /><br />{ADMINNAME} ({ADMINEMAIL})<br /><br />----------------------------------------------<br />Click here to do the survey:<br />{SURVEYURL}<br /><br />If you do not want to participate in this survey and don''t want to receive any more invitations please click the following link:<br />{OPTOUTURL}', 'Reminder to participate in a survey', 'Dear {FIRSTNAME},<br /><br />Recently we invited you to participate in a survey.<br /><br />We note that you have not yet completed the survey, and wish to remind you that the survey is still available should you wish to take part.<br /><br />The survey is titled:<br />"{SURVEYNAME}"<br /><br />"{SURVEYDESCRIPTION}"<br /><br />To participate, please click on the link below.<br /><br />Sincerely,<br /><br />{ADMINNAME} ({ADMINEMAIL})<br /><br />----------------------------------------------<br />Click here to do the survey:<br />{SURVEYURL}<br /><br />If you do not want to participate in this survey and don''t want to receive any more invitations please click the following link:<br />{OPTOUTURL}', 'Survey registration confirmation', 'Dear {FIRSTNAME},<br /><br />You, or someone using your email address, have registered to participate in an online survey titled {SURVEYNAME}.<br /><br />To complete this survey, click on the following URL:<br /><br />{SURVEYURL}<br /><br />If you have any questions about this survey, or if you did not register to participate and believe this email is in error, please contact {ADMINNAME} at {ADMINEMAIL}.', 'Confirmation of your participation in our survey', 'Dear {FIRSTNAME},<br /><br />this email is to confirm that you have completed the survey titled {SURVEYNAME} and your response has been saved. Thank you for participating.<br /><br />If you have any further questions about this email, please contact {ADMINNAME} on {ADMINEMAIL}.<br /><br />Sincerely,<br /><br />{ADMINNAME}', 1, 'Response submission for survey {SURVEYNAME}', 'Hello,<br /><br />A new response was submitted for your survey ''{SURVEYNAME}''.<br /><br />Click the following link to reload the survey:<br />{RELOADURL}<br /><br />Click the following link to see the individual response:<br />{VIEWRESPONSEURL}<br /><br />Click the following link to edit the individual response:<br />{EDITRESPONSEURL}<br /><br />View statistics by clicking here:<br />{STATISTICSURL}', 'Response submission for survey {SURVEYNAME} with results', '<style type="text/css">\n                                                .printouttable {\n                                                  margin:1em auto;\n                                                }\n                                                .printouttable th {\n                                                  text-align: center;\n                                                }\n                                                .printouttable td {\n                                                  border-color: #ddf #ddf #ddf #ddf;\n                                                  border-style: solid;\n                                                  border-width: 1px;\n                                                  padding:0.1em 1em 0.1em 0.5em;\n                                                }\n\n                                                .printouttable td:first-child {\n                                                  font-weight: 700;\n                                                  text-align: right;\n                                                  padding-right: 5px;\n                                                  padding-left: 5px;\n\n                                                }\n                                                .printouttable .printanswersquestion td{\n                                                  background-color:#F7F8FF;\n                                                }\n\n                                                .printouttable .printanswersquestionhead td{\n                                                  text-align: left;\n                                                  background-color:#ddf;\n                                                }\n\n                                                .printouttable .printanswersgroup td{\n                                                  text-align: center;        \n                                                  font-weight:bold;\n                                                  padding-top:1em;\n                                                }\n                                                </style>Hello,<br /><br />A new response was submitted for your survey ''{SURVEYNAME}''.<br /><br />Click the following link to reload the survey:<br />{RELOADURL}<br /><br />Click the following link to see the individual response:<br />{VIEWRESPONSEURL}<br /><br />Click the following link to edit the individual response:<br />{EDITRESPONSEURL}<br /><br />View statistics by clicking here:<br />{STATISTICSURL}<br /><br /><br />The following answers were given by the participant:<br />{ANSWERTABLE}', 0),
 (36656, 'en', 'Closing Script (MOH/RDD Participants Baseline)', '', '', '', '/reload.html', '', 'Invitation to participate in a survey', 'Dear {FIRSTNAME},<br /><br />you have been invited to participate in a survey.<br /><br />The survey is titled:<br />"{SURVEYNAME}"<br /><br />"{SURVEYDESCRIPTION}"<br /><br />To participate, please click on the link below.<br /><br />Sincerely,<br /><br />{ADMINNAME} ({ADMINEMAIL})<br /><br />----------------------------------------------<br />Click here to do the survey:<br />{SURVEYURL}<br /><br />If you do not want to participate in this survey and don''t want to receive any more invitations please click the following link:<br />{OPTOUTURL}', 'Reminder to participate in a survey', 'Dear {FIRSTNAME},<br /><br />Recently we invited you to participate in a survey.<br /><br />We note that you have not yet completed the survey, and wish to remind you that the survey is still available should you wish to take part.<br /><br />The survey is titled:<br />"{SURVEYNAME}"<br /><br />"{SURVEYDESCRIPTION}"<br /><br />To participate, please click on the link below.<br /><br />Sincerely,<br /><br />{ADMINNAME} ({ADMINEMAIL})<br /><br />----------------------------------------------<br />Click here to do the survey:<br />{SURVEYURL}<br /><br />If you do not want to participate in this survey and don''t want to receive any more invitations please click the following link:<br />{OPTOUTURL}', 'Survey registration confirmation', 'Dear {FIRSTNAME},<br /><br />You, or someone using your email address, have registered to participate in an online survey titled {SURVEYNAME}.<br /><br />To complete this survey, click on the following URL:<br /><br />{SURVEYURL}<br /><br />If you have any questions about this survey, or if you did not register to participate and believe this email is in error, please contact {ADMINNAME} at {ADMINEMAIL}.', 'Confirmation of your participation in our survey', 'Dear {FIRSTNAME},<br /><br />this email is to confirm that you have completed the survey titled {SURVEYNAME} and your response has been saved. Thank you for participating.<br /><br />If you have any further questions about this email, please contact {ADMINNAME} on {ADMINEMAIL}.<br /><br />Sincerely,<br /><br />{ADMINNAME}', 1, 'Response submission for survey {SURVEYNAME}', 'Hello,<br /><br />A new response was submitted for your survey ''{SURVEYNAME}''.<br /><br />Click the following link to reload the survey:<br />{RELOADURL}<br /><br />Click the following link to see the individual response:<br />{VIEWRESPONSEURL}<br /><br />Click the following link to edit the individual response:<br />{EDITRESPONSEURL}<br /><br />View statistics by clicking here:<br />{STATISTICSURL}', 'Response submission for survey {SURVEYNAME} with results', '<style type="text/css">\n                                                .printouttable {\n                                                  margin:1em auto;\n                                                }\n                                                .printouttable th {\n                                                  text-align: center;\n                                                }\n                                                .printouttable td {\n                                                  border-color: #ddf #ddf #ddf #ddf;\n                                                  border-style: solid;\n                                                  border-width: 1px;\n                                                  padding:0.1em 1em 0.1em 0.5em;\n                                                }\n\n                                                .printouttable td:first-child {\n                                                  font-weight: 700;\n                                                  text-align: right;\n                                                  padding-right: 5px;\n                                                  padding-left: 5px;\n\n                                                }\n                                                .printouttable .printanswersquestion td{\n                                                  background-color:#F7F8FF;\n                                                }\n\n                                                .printouttable .printanswersquestionhead td{\n                                                  text-align: left;\n                                                  background-color:#ddf;\n                                                }\n\n                                                .printouttable .printanswersgroup td{\n                                                  text-align: center;        \n                                                  font-weight:bold;\n                                                  padding-top:1em;\n                                                }\n                                                </style>Hello,<br /><br />A new response was submitted for your survey ''{SURVEYNAME}''.<br /><br />Click the following link to reload the survey:<br />{RELOADURL}<br /><br />Click the following link to see the individual response:<br />{VIEWRESPONSEURL}<br /><br />Click the following link to edit the individual response:<br />{EDITRESPONSEURL}<br /><br />View statistics by clicking here:<br />{STATISTICSURL}<br /><br /><br />The following answers were given by the participant:<br />{ANSWERTABLE}', 0);
 
+INSERT INTO groups VALUES(1, 27345, 'Age (AGE)', 0, '', 'en', '', NULL);
+INSERT INTO groups VALUES(1, 27345, 'Age (AGE)', 0, '', 'fr', '', NULL);
+INSERT INTO groups VALUES(2, 27345, 'Sex (SEX)', 1, '', 'en', '', NULL);
+INSERT INTO groups VALUES(2, 27345, 'Sex (SEX)', 1, '', 'fr', '', NULL);
+INSERT INTO groups VALUES(3, 27345, 'Socio-Demographic Characteristics (SDC)', 2, 'Now some general background questions which will help us compare the health of people in Canada.', 'en', '', NULL);
+INSERT INTO groups VALUES(3, 27345, 'Socio-Demographic Characteristics (SDC)', 2, 'Maintenant je vais vous poser quelques questions générales qui nous aideront à comparer la santé des personnes qui vivent au Canada.', 'fr', '', NULL);
+INSERT INTO groups VALUES(4, 27345, 'Home Ownership (OWN)', 3, 'The next questions are about your current home.', 'en', '', NULL);
+INSERT INTO groups VALUES(4, 27345, 'Home Ownership (OWN)', 3, '<div>Les questions suivantes portent sur votre domicile actuel.</div>', 'fr', '', NULL);
+INSERT INTO groups VALUES(5, 27345, 'Education (ED)', 4, '<br />\r\n', 'en', '', NULL);
+INSERT INTO groups VALUES(5, 27345, 'Education (ED)', 4, '', 'fr', '', NULL);
+INSERT INTO groups VALUES(6, 27345, 'Veteran Identifiers (VET)', 5, '', 'en', '', NULL);
+INSERT INTO groups VALUES(6, 27345, 'Veteran Identifiers (VET)', 5, '', 'fr', '', NULL);
+INSERT INTO groups VALUES(7, 27345, 'Height and Weight (HWT)', 6, '', 'en', '', NULL);
+INSERT INTO groups VALUES(7, 27345, 'Height and Weight (HWT)', 6, '', 'fr', '', NULL);
+INSERT INTO groups VALUES(8, 27345, 'Smoking (SMK)', 7, '<div>\r\n	The first questions are about cigarette smoking. The term cigarette refers to cigarettes that are bought ready-made as well as those you roll yourself. Do not include cigars, cigarillos or pipes.</div>\r\n', 'en', '', NULL);
+INSERT INTO groups VALUES(8, 27345, 'Smoking (SMK)', 7, 'Les premières questions concernent la consommation de cigarettes. Le termecigarettedésigne les cigarettes achetées toutes faites et celles que vous roulez vous-mêmes. Nincluez pas les cigares, les cigarillos ou la pipe lorsque vous répondez à ces premières questions sur les cigarettes.<br />\r\n<br />\r\nPour cette section, lisez les instructions attentivement et suivez les consignes. Les non-fumeurs, les fumeurs réguliers et les fumeurs occasionnels peuvent suivre différentes trajectoires.', 'fr', '', NULL);
+INSERT INTO groups VALUES(9, 27345, 'Alcohol Use (ALC)', 8, '<div>Now,  some questions about alcohol consumption. Alcohol includes red or white  wine, beer, spirit or liquor, and other kinds of alcohol including sake,  cider, sparkling wine, rose, etc.</div>\n<br />', 'en', '', NULL);
+INSERT INTO groups VALUES(9, 27345, 'Alcohol Use (ALC)', 8, '<div>Maintenant,  je vais vous poser quelques questions sur la consommation dalcool. Les  boissons alcoolisées incluent le vin rouge ou blanc, la bière, les  spiritueux ou les liqueurs alcoolisées et les autres types dalcool tels  le saké, le cidre, le vin mousseux, le rosé, etc.</div>', 'fr', '', NULL);
+INSERT INTO groups VALUES(10, 27345, 'General Health (GEN)', 9, 'Next I am going to ask you some general questions about your health. By health, we mean not only the absence of disease or injury but also physical, mental, and social well-being.', 'en', '', NULL);
+INSERT INTO groups VALUES(10, 27345, 'General Health (GEN)', 9, '<div>Maintenant,  je vais vous poser quelques questions générales sur votre santé. Par  santé, nous ne voulons pas seulement parler dabsence de maladie ou de  blessure, mais aussi de votre bien-être physique, mental et social.</div>', 'fr', '', NULL);
+INSERT INTO groups VALUES(11, 27345, 'Women''s Health (WHO)', 10, '<div>The next questions are about symptoms associated with menopause.</div>', 'en', '', NULL);
+INSERT INTO groups VALUES(11, 27345, 'Women''s Health (WHO)', 10, '<div>Les questions qui suivent porteront sur les symptômes associés à la ménopause.</div>', 'fr', '', NULL);
+INSERT INTO groups VALUES(12, 27345, 'Vision (VIS)', 11, '<div>Now some questions about your vision...</div>\n<br />', 'en', '', NULL);
+INSERT INTO groups VALUES(12, 27345, 'Vision (VIS)', 11, '<div>Maintenant, je vais vous poser quelques questions à propos de votre vision...</div>', 'fr', '', NULL);
+INSERT INTO groups VALUES(13, 27345, 'Hearing (HRG)', 12, 'Now some questions about your hearing....<br />', 'en', '', NULL);
+INSERT INTO groups VALUES(13, 27345, 'Hearing (HRG)', 12, '', 'fr', '', NULL);
+INSERT INTO groups VALUES(14, 27345, 'Chronic Conditions Tracking (CCT)', 13, '<div>Now Id like to ask about any chronic health conditions which you may have. We  are interested in "long-term conditions" which are expected to last, or  have already lasted 6 months or more and that have been diagnosed by a  health professional.</div>\n<br />', 'en', '', NULL);
+INSERT INTO groups VALUES(14, 27345, 'Chronic Conditions Tracking (CCT)', 13, '<div>Maintenant,  jaimerais vous poser quelques questions sur des problèmes de santé  chroniques que vous pourriez avoir. Nous sommes intéressés aux problèmes à long termequi pourraient durer, ou qui ont déjà duré 6  mois ou plus et qui ont été diagnostiqués par un professionnel de la  santé.</div>', 'fr', '', NULL);
+INSERT INTO groups VALUES(15, 27345, 'Functional Status (FUL)', 14, '', 'en', '', NULL);
+INSERT INTO groups VALUES(15, 27345, 'Functional Status (FUL)', 14, '', 'fr', '', NULL);
+INSERT INTO groups VALUES(16, 27345, 'Basic Activities of Daily Living (ADL)', 15, '<div>Now  Id like to ask you about some basic activities of daily living.  Remember, these are activities that can be done without help, with some  help, or which you are unable to do.</div>', 'en', '', NULL);
+INSERT INTO groups VALUES(16, 27345, 'Basic Activities of Daily Living (ADL)', 15, '<div>Maintenant,  jaimerais vous poser des questions sur certaines activités de base de  la vie quotidienne. Rappelez-vous, ce sont des activités qui peuvent  être faites sans aide, avec un peu daide ou que vous êtes incapable de  faire.</div>', 'fr', '', NULL);
+INSERT INTO groups VALUES(44, 27345, 'Cognition (COG)', 17, '<div>\r\n	Now, I am going to ask you to complete some tasks related to memory and concentration. Some of these tasks might seem difficult and some might seem easy, but thats the way it is supposed to be. We dont expect you to get them all right; we are asking everyone to do these tasks.</div>\r\n<div>\r\n	 </div>\r\n<div>\r\n	 </div>\r\n<br />\r\n', 'en', '', NULL);
+INSERT INTO groups VALUES(44, 27345, 'Cognition (COG)', 17, '<p>\r\n	Maintenant, je vais vous demander de compléter certaines tâches qui sont liées à la mémoire et à la concentration. Certaines de ces tâches vous sembleront difficiles et dautres faciles, mais cest ainsi que cela doit être. Nous ne nous attendons pas à ce que vous ayez tout bon; nous demandons à tout le monde de faire ces tâches.</p>\r\n', 'fr', '', NULL);
+INSERT INTO groups VALUES(18, 27345, 'Depression (DEP)', 18, '<div>\r\n	For the next few questions, please think about how you have felt <u>in the past week</u>, that is from <b> <script type="text/javascript" charset="utf-8">\r\n   var today = new Date();\r\n   var lastWeek = new Date(today.getTime()-1000*60*60*24*7);\r\n   var months=new Array(12);\r\n   months[0]="January";\r\n   months[1]="February";\r\n   months[2]="March";\r\n   months[3]="April";\r\n   months[4]="May";\r\n   months[5]="June";\r\n   months[6]="July";\r\n   months[7]="August";\r\n   months[8]="September";\r\n   months[9]="October";\r\n   months[10]="November";\r\n   months[11]="December";\r\n   var month = lastWeek.getMonth();\r\n   var year =  lastWeek.getFullYear();\r\n   var day =   lastWeek.getDate();\r\n   document.write(months[month]+" "+day+" , "+year);\r\n   document.write("<br />");\r\n\r\n\r\n</script></b> to yesterday. I will first read you a question and then I will read you the answers from which you may choose. Please choose the answer that most applies to how you have felt over the past week.</div>\r\n<br />\r\n', 'en', '', NULL);
+INSERT INTO groups VALUES(18, 27345, 'Depression (DEP)', 18, '<div>\r\n	Pour les prochaines questions, veuillez penser à comment vous vous êtes senti(e) au cours de la dernière semaine, c''est-à-dire du <b> <script type="text/javascript" charset="utf-8">\r\n   var today = new Date();\r\n   var lastWeek = new Date(today.getTime()-1000*60*60*24*7);\r\n   var months=new Array(12);\r\n   months[0]="January";\r\n   months[1]="February";\r\n   months[2]="March";\r\n   months[3]="April";\r\n   months[4]="May";\r\n   months[5]="June";\r\n   months[6]="July";\r\n   months[7]="August";\r\n   months[8]="September";\r\n   months[9]="October";\r\n   months[10]="November";\r\n   months[11]="December";\r\n   var month = lastWeek.getMonth();\r\n   var year =  lastWeek.getFullYear();\r\n   var day =   lastWeek.getDate();\r\n   document.write(months[month]+" "+day+" , "+year);\r\n   document.write("<br />");\r\n\r\n\r\n</script></b>à hier. Je vais commencer par vous lire la question et je vais lire les choix de réponse. Veuillez choisir la réponse qui convient le mieux à comment vous vous êtes senti(e) au cours de la dernière semaine.</div>\r\n', 'fr', '', NULL);
+INSERT INTO groups VALUES(19, 27345, 'Satisfaction with Life (SLS)', 19, '<div>Now a series of statements that people might use to describe their satisfaction with their lives. Please tell me if you disagree or agree with each statement.</div>', 'en', '', NULL);
+INSERT INTO groups VALUES(19, 27345, 'Satisfaction with Life (SLS)', 19, '<div>Voici  une série dénoncés que les gens peuvent utiliser pour décrire leur  satisfaction à l''égard de leur vie. Veuillez me dire si vous êtes en  désaccord ou en accord avec chaque énoncé.</div>', 'fr', '', NULL);
+INSERT INTO groups VALUES(20, 27345, 'Posttraumatic Stress Disorder (PSD)', 20, '<div>In your life, have you ever had any experience that was so frightening, horrible, or upsetting that, <u>in the past month</u>, you...<b>READ LIST</b></div>', 'en', '', NULL);
+INSERT INTO groups VALUES(20, 27345, 'Posttraumatic Stress Disorder (PSD)', 20, 'Avez-vous déjà vécu un évènement si effrayant, horrible ou dérangeant, qu<u>au cours du dernier mois</u> vous... <b>LIRE LA LISTE</b>\n<div style="text-align: justify; line-height: 110%;"><span style="color: black;"><b><br />\n</b></span></div>', 'fr', '', NULL);
+INSERT INTO groups VALUES(21, 27345, 'Social Networks (SN)', 21, '<div>Now Im going to ask you some questions about who lives in your household with you and what their relationship is to you. As well, Im going to ask you about your children, whether they live with you now or not.</div>', 'en', '', NULL);
+INSERT INTO groups VALUES(21, 27345, 'Social Networks (SN)', 21, '<div>Maintenant, je vais vous  poser quelques questions sur les personnes qui vivent dans logement et  sur leur lien avec vous. De plus, je vous poserai des questions sur vos  enfants, quils habitent avec vous ou non.</div>', 'fr', '', NULL);
+INSERT INTO groups VALUES(22, 27345, 'Social Support - Availability (SSA)', 22, '<div>Next are some questions about the support that is available to you.</div>\n<div> </div>\n<div> </div>\n<div>People  sometimes look to others for companionship, assistance or other types  of support. How often is each of the following kinds of support  available to you if you need it? <b>READ LIST OF STATEMENTS, CODE ONLY ONE RESPONSE PER STATEMENT</b></div>', 'en', '', NULL);
+INSERT INTO groups VALUES(22, 27345, 'Social Support - Availability (SSA)', 22, 'Voici maintenant quelques questions concernant le soutien auquel vous avez accès.<br />\n<br />\nNous nous tournons parfois vers les autres pour avoir de la compagnie,  de laide ou une autre forme de soutien. Dans quelle mesure avez-vous  accès aux types de soutien suivants quand vous en avez besoin?<b> LIRE LA LISTE DÉNONCÉS, ENREGISTRER UNE SEULE RÉPONSE PAR ÉNONCÉ</b>', 'fr', '', NULL);
+INSERT INTO groups VALUES(23, 27345, 'Social Participation (SPA) ', 23, '<div>Now some questions about your social activities. </div>', 'en', '', NULL);
+INSERT INTO groups VALUES(23, 27345, 'Social Participation (SPA) ', 23, '<div>Les questions qui suivent portent sur vos activités sociales.</div>', 'fr', '', NULL);
+INSERT INTO groups VALUES(24, 27345, 'Care Receiving 1/Formal Care (CR1)', 24, '<div>Now  some questions on home care services you may have received because of a  health condition or limitation that affects your daily activities.  These services include health care, homemaker, or other support services  received at home. Please include only services provided by  professionals or paid workers. Exclude assistance from family, friends  or neighbors.</div>', 'en', '', NULL);
+INSERT INTO groups VALUES(24, 27345, 'Care Receiving 1/Formal Care (CR1)', 24, '<div>Maintenant,  quelques questions sur les soins à domicile reçus en raison dun  problème de santé ou de limitations affectant vos activités  quotidiennes. Par services à domicile, on entend des soins de santé, des  services dentretien ménager ou dautres services de soutien reçus à  domicile. Veuillez inclure seulement les services donnés par des  professionnels ou des travailleurs rémunérés. Exclure laide reçue de la  famille, damis ou de voisins</div>', 'fr', '', NULL);
+INSERT INTO groups VALUES(25, 27345, 'Care Receiving 2/Informal Care (CR2)', 25, '<div>The  following questions are about different types of assistance that you  may have received because of a health condition or limitation that  affects your daily activities. Please include only assistance from  family, friends, or neighbors. Exclude assistance from paid workers or  volunteer organizations.</div>', 'en', '', NULL);
+INSERT INTO groups VALUES(25, 27345, 'Care Receiving 2/Informal Care (CR2)', 25, '<div>Les  questions qui suivent portent sur les différents types daide reçue en  raison dun problème de santé ou de limitations affectant vos activités  quotidiennes. Veuillez inclure seulement laide reçue de la famille,  damis ou de voisins. Exclure laide reçue par des travailleurs  rémunérés ou par des organismes bénévoles.</div>', 'fr', '', NULL);
+INSERT INTO groups VALUES(26, 27345, 'Care Giving (CAG)', 26, '<div>The  following questions are about the types of assistance you may have  provided to other people because of a health condition or limitation. Please  only include assistance you provided to family members, friends and  other people living both inside and outside your household. Exclude any  assistance you provided as part of a <u>volunteer organization</u> or paid job.</div>', 'en', '', NULL);
+INSERT INTO groups VALUES(26, 27345, 'Care Giving (CAG)', 26, '<div>Les  questions suivantes portent sur les formes daide que vous avez pu  apporter à des personnes en raison d''un problème de santé ou de  limitations. Veuillez inclure seulement laide apportée à des membres de  votre famille, des amis et dautres personnes vivant à l''intérieur ou à  l''extérieur de votre ménage. Exclure laide apportée comme <u>bénévole pour une organisation</u> ou dans le cadre dun emploi rémunéré.</div>', 'fr', '', NULL);
+INSERT INTO groups VALUES(27, 27345, 'Injuries (INJ)', 27, '<div>Now  some questions about injuries which occurred in the past 12 months, and  were serious enough to limit your normal activities.</div>', 'en', '', NULL);
+INSERT INTO groups VALUES(27, 27345, 'Injuries (INJ)', 27, '<div>Maintenant,  jaimerais vous poser quelques questions sur les blessures que vous  auriez pu subir au cours des 12 derniers mois et qui étaient  suffisamment graves pour limiter vos activités normales.</div>', 'fr', '', NULL);
+INSERT INTO groups VALUES(28, 27345, 'Falls and Consumer Products (FAL)', 28, '<div>\r\n	You mentioned that you had at least one injury as a result of a fall. We would now like to ask you some questions about falls that you experienced in the last 12 months where you hurt yourself enough to limit some of your normal activities.</div>\r\n', 'en', '', NULL);
+INSERT INTO groups VALUES(28, 27345, 'Falls and Consumer Products (FAL)', 28, '<div>\r\n	<b>[COMPLÉTER CE MODULE SEULEMENT SI INJ_2b=1</b><br />\r\n	<br />\r\n	<b>Vous avez indiqué avoir subi une blessure en raison dune chute. Nous aimerions vous poser quelques questions sur des chutes que vous avez pu faire au cours des 12 derniers mois. Nous nous intéressons aux chutes où vous vous êtes suffisamment fait mal pour limiter certaines de vos activités normales.</b></div>\r\n', 'fr', '', NULL);
+INSERT INTO groups VALUES(29, 27345, 'Retirement Status (RET)', 29, '<div>The following questions ask about your retirement experience.</div>', 'en', '', NULL);
+INSERT INTO groups VALUES(29, 27345, 'Retirement Status (RET)', 29, '<div>Les prochaines questions portent sur votre expérience de la retraite.</div>', 'fr', '', NULL);
+INSERT INTO groups VALUES(30, 27345, 'Pre-Retirement Labur Force Participation (LFP)', 30, '<div>\r\n	The following questions apply to the last job you had before retirement or partial retirement.</div>\r\n', 'en', '', NULL);
+INSERT INTO groups VALUES(30, 27345, 'Pre-Retirement Labur Force Participation (LFP)', 30, '<div>\r\n	Les questions qui suivent portent sur le dernier emploi que vous avez occupé avant d''être complètement ou partiellement retraité(e).</div>\r\n', 'fr', '', NULL);
+INSERT INTO groups VALUES(31, 27345, 'Labour Force (LBF)', 31, '<div>\r\n	The next few questions concern your current and past employment activities.</div>\r\n<div>\r\n	 </div>\r\n', 'en', '', NULL);
+INSERT INTO groups VALUES(31, 27345, 'Labour Force (LBF)', 31, 'Les questions suivantes portent sur les activités de travail présentes et passées.<br />\r\n', 'fr', '', NULL);
+INSERT INTO groups VALUES(32, 27345, 'Retirement Planning (RPL)', 32, '<span lang="EN-CA" style="">The next few questions ask about preparations for retirement. Some of these questions may not apply to you but we need to ask the same questions of everyone.</span>', 'en', '', NULL);
+INSERT INTO groups VALUES(32, 27345, 'Retirement Planning (RPL)', 32, 'Les prochaines questions portent sur la préparation à la retraite. Certaines de ces questions ne sappliquent peut-être pas à vous, mais nous devons poser les mêmes questions à tout le monde.<br />\r\n<p>\r\n	 </p>\r\n', 'fr', '', NULL);
+INSERT INTO groups VALUES(33, 27345, 'Income (INC)', 33, '<span lang="EN-CA" style="">This next section is about your standard of living.<span style="">  </span>A persons standard of living has been shown to have a relationship to their health. <span style=""> </span>For this reason it is important that we have some understanding of the level of income that you and your family live on.<span style="">  </span>As with all of the other information that you have shared, these answers are kept strictly confidential. </span>\n<p> </p>', 'en', '', NULL);
+INSERT INTO groups VALUES(33, 27345, 'Income (INC)', 33, 'La section suivante traite de votre niveau de vie. On a démontré que le niveau de vie d''une personne avait un lien avec leur santé. Ainsi, il est important que nous ayons certaines informations sur votre revenu et celui de votre famille. Comme toutes les autres informations que vous nous avez donné, vos réponses seront strictement confidentielles.', 'fr', '', NULL);
+INSERT INTO groups VALUES(34, 27345, 'Administration Information (ADM)', 34, 'That completes our main interview. You have previously agreed to provide your health card number so that we can obtain information from provincial administrative databases and link it with the information you have shared with us during this interview. The information that we would get from the province includes your past and continuing use of health services such as visits to hospitals, clinics, and doctors offices.', 'en', '', NULL);
+INSERT INTO groups VALUES(34, 27345, 'Administration Information (ADM)', 34, 'Lentrevue est maintenant terminée. Vous aviez accepté au préalable de nous fournir votre numéro de carte santé (carte dassurance-maladie au Québec) afin que nous puissions établir un lien entre les renseignements provenant des bases de données administratives provinciales et les informations que vous nous avez fournies pendant lentrevue. Les renseignements que nous pourrions obtenir des autorités provinciales concernent notamment votre utilisation présente et passée des services de santé, comme les visites médicales effectuées à lhôpital, dans les cliniques et dans les cabinets de médecins.', 'fr', '', NULL);
+INSERT INTO groups VALUES(35, 27345, 'Instrumental Activities of Daily Living (IAL)', 16, '<div>\r\n	Now Id like to ask you about some activities of daily living, activities that can be done without help, with some help or which you are unable to do. You may feel that some of these questions do not apply to you, but it is important that we ask the same questions of everyone.</div>\r\n<br />\r\n', 'en', '', NULL);
+INSERT INTO groups VALUES(35, 27345, 'Instrumental Activities of Daily Living (IAL)', 16, 'Maintenant, jaimerais vous poser des questions sur certaines activités de la vie quotidienne, activités qui peuvent être faites sans aide, avec un peu daide ou que vous êtes incapable de faire. Il se peut que vous pensiez que certaines questions ne sappliquent pas à vous, mais il est important que nous posions les mêmes questions à tout le monde.', 'fr', '', NULL);
+INSERT INTO groups VALUES(36, 65716, 'Introduction (INT)', 0, '', 'en', '', NULL);
+INSERT INTO groups VALUES(36, 65716, 'Introduction (INT)', 0, '', 'fr', '', NULL);
+INSERT INTO groups VALUES(37, 35641, 'Closing (CLS)', 0, '<p>\r\n	<strong>That completes our main interview. There are just a few more pieces of information that I would like to collect before we end the call. </strong></p>\r\n', 'en', '', NULL);
+INSERT INTO groups VALUES(37, 35641, 'Closing (CLS)', 0, '<p>\r\n	<strong>Voilà qui termine lentrevue principale. Mais, avant de vous quitter, jaurais encore quelques questions pour vous.</strong></p>\r\n', 'fr', '', NULL);
+INSERT INTO groups VALUES(38, 75634, 'Withdrawal', 0, '<div>\r\n	<h2>\r\n		Participant indicates their desire to withdraw during interview</h2>\r\n</div>\r\n<p>\r\n	 </p>\r\n', 'en', '', NULL);
+INSERT INTO groups VALUES(38, 75634, 'Withdrawal', 0, '<div>\r\n	<h2>\r\n		Participant indicates their desire to withdraw during interview</h2>\r\n</div>\r\n<p>\r\n	 </p>\r\n', 'fr', '', NULL);
+INSERT INTO groups VALUES(50, 36656, 'Closing (CLS)', 0, '', 'en', '', NULL);
+INSERT INTO groups VALUES(55, 78958, 'Cognition (COG)', 0, '<div>\n	Now, I am going to ask you to complete some tasks related to memory and concentration. Some of these tasks might seem difficult and some might seem easy, but thats the way it is supposed to be. We dont expect you to get them all right; we are asking everyone to do these tasks.</div>\n<div>\n	 </div>\n<div>\n	 </div>\n<br />\n', 'en', '', NULL);
+INSERT INTO groups VALUES(51, 72154, 'Introduction (INT)', 0, '', 'en', '', NULL);
+INSERT INTO groups VALUES(52, 72154, 'Inclusion/Exclusion (INCL)', 1, '', 'en', '', NULL);
+INSERT INTO groups VALUES(53, 72154, 'Consent (INT)', 2, '', 'en', '', NULL);
+INSERT INTO groups VALUES(50, 36656, 'Closing (CLS)', 0, '', 'fr', '', NULL);
+INSERT INTO groups VALUES(51, 72154, 'Introduction (INT)', 0, '', 'fr', '', NULL);
+INSERT INTO groups VALUES(52, 72154, 'Inclusion/Exclusion (INCL)', 1, '', 'fr', '', NULL);
+INSERT INTO groups VALUES(53, 72154, 'Consent (INT)', 2, '', 'fr', '', NULL);
+INSERT INTO groups VALUES(54, 67969, 'HRF', 0, '', 'en', '', NULL);
+INSERT INTO groups VALUES(55, 78958, 'Cognition (COG)', 0, '<p>\n	Maintenant, je vais vous demander de compléter certaines tâches qui sont liées à la mémoire et à la concentration. Certaines de ces tâches vous sembleront difficiles et dautres faciles, mais cest ainsi que cela doit être. Nous ne nous attendons pas à ce que vous ayez tout bon; nous demandons à tout le monde de faire ces tâches.</p>\n', 'fr', '', NULL);
+INSERT INTO groups VALUES(54, 67969, 'HRF', 0, '', 'fr', '', NULL);
+INSERT INTO groups VALUES(40, 65716, 'End of introductoin', 1, '', 'fr', '', NULL);
+INSERT INTO groups VALUES(40, 65716, 'End of introduction', 1, '', 'en', '', NULL);
+INSERT INTO groups VALUES(60, 91551, 'q1', 0, '', 'en', '', '');
 
 INSERT INTO questions (qid, parent_qid, sid, gid, type, title, question, preg, help, other, mandatory, question_order, language, scale_id, same_default, relevance) VALUES
 (1, 0, 27345, 1, 'D', 'AGE_DOB_TRM', '<p>\r\n	For some of the questions Ill be asking, I need to know your exact date of birth.<br />\r\n	 </p>\r\n<p>\r\n	<strong>Please enter the date in the following order: YEAR, MONTH, DAY</strong></p>\r\n', '', '<b>DK/RF NOT ALLOWED</b><br />\r\n', 'N', 'Y', 0, 'en', 0, 0, NULL),
@@ -2614,3 +2705,10460 @@ INSERT INTO questions (qid, parent_qid, sid, gid, type, title, question, preg, h
 (2041, 2038, 91551, 60, 'T', 'SQ003', 'New answer option', NULL, NULL, 'N', NULL, 3, 'en', 0, 0, NULL),
 (2042, 2038, 91551, 60, 'T', 'SQ004', 'New answer option', NULL, NULL, 'N', NULL, 4, 'en', 0, 0, NULL),
 (2043, 2038, 91551, 60, 'T', 'SQ005', 'New answer option', NULL, NULL, 'N', NULL, 5, 'en', 0, 0, NULL);
+
+INSERT INTO question_attributes (qaid, qid, attribute, value, language) VALUES
+(1, 85, 'maximum_chars', '13', NULL),
+(2, 121, 'maximum_chars', '2', NULL),
+(3, 194, 'maximum_chars', '2', NULL),
+(4, 239, 'maximum_chars', '4', NULL),
+(5, 239, 'maximum_chars', '4', NULL),
+(6, 263, 'maximum_chars', '2', NULL),
+(7, 264, 'maximum_chars', '2', NULL),
+(8, 313, 'maximum_chars', '2', NULL),
+(9, 427, 'maximum_chars', '2', NULL),
+(10, 459, 'maximum_chars', '2', NULL),
+(11, 464, 'maximum_chars', '2', NULL),
+(12, 465, 'maximum_chars', '3', NULL),
+(13, 474, 'maximum_chars', '2', NULL),
+(14, 474, 'maximum_chars', '2', NULL),
+(15, 475, 'maximum_chars', '2', NULL),
+(16, 476, 'maximum_chars', '3', NULL),
+(17, 485, 'maximum_chars', '2', NULL),
+(18, 491, 'maximum_chars', '2', NULL),
+(19, 493, 'maximum_chars', '3', NULL),
+(69, 41, 'hidden', '0', NULL),
+(22, 2, 'hidden', '1', NULL),
+(23, 2, 'page_break', '0', NULL),
+(24, 2, 'public_statistics', '0', NULL),
+(25, 2, 'scale_export', '0', NULL),
+(26, 2, 'random_group', '', NULL),
+(28, 1, 'hidden', '0', NULL),
+(68, 41, 'hide_tip', '0', NULL),
+(30, 1, 'page_break', '0', NULL),
+(31, 1, 'random_group', '', NULL),
+(67, 8, 'random_group', '', NULL),
+(66, 8, 'text_input_width', '', NULL),
+(65, 8, 'suffix', '', NULL),
+(64, 8, 'public_statistics', '0', NULL),
+(63, 8, 'prefix', '', NULL),
+(62, 8, 'page_break', '0', NULL),
+(61, 8, 'num_value_int_only', '0', NULL),
+(60, 8, 'min_num_value_n', '', NULL),
+(59, 8, 'maximum_chars', '', NULL),
+(58, 8, 'max_num_value_n', '', NULL),
+(57, 8, 'hidden', '0', NULL),
+(56, 8, 'hide_tip', '0', NULL),
+(55, 1, 'reverse', '0', NULL),
+(54, 1, 'dropdown_dates_year_max', '2011', NULL),
+(53, 1, 'dropdown_dates_year_min', '1900', NULL),
+(52, 1, 'dropdown_dates', '0', NULL),
+(70, 41, 'max_num_value_n', '', NULL),
+(71, 41, 'maximum_chars', '', NULL),
+(72, 41, 'min_num_value_n', '', NULL),
+(73, 41, 'num_value_int_only', '0', NULL),
+(74, 41, 'page_break', '0', NULL),
+(75, 41, 'prefix', '', NULL),
+(76, 41, 'public_statistics', '0', NULL),
+(77, 41, 'suffix', '', NULL),
+(78, 41, 'text_input_width', '', NULL),
+(79, 41, 'random_group', '', NULL),
+(80, 42, 'hide_tip', '0', NULL),
+(81, 42, 'hidden', '0', NULL),
+(82, 42, 'max_num_value_n', '', NULL),
+(83, 42, 'maximum_chars', '', NULL),
+(84, 42, 'min_num_value_n', '', NULL),
+(85, 42, 'num_value_int_only', '0', NULL),
+(86, 42, 'page_break', '0', NULL),
+(87, 42, 'prefix', '', NULL),
+(88, 42, 'public_statistics', '0', NULL),
+(89, 42, 'suffix', '', NULL),
+(90, 42, 'text_input_width', '', NULL),
+(91, 42, 'random_group', '', NULL),
+(92, 51, 'hide_tip', '0', NULL),
+(93, 51, 'hidden', '0', NULL),
+(94, 51, 'max_num_value_n', '', NULL),
+(95, 51, 'maximum_chars', '', NULL),
+(96, 51, 'min_num_value_n', '', NULL),
+(97, 51, 'num_value_int_only', '0', NULL),
+(98, 51, 'page_break', '0', NULL),
+(99, 51, 'prefix', '', NULL),
+(100, 51, 'public_statistics', '0', NULL),
+(101, 51, 'suffix', '', NULL),
+(102, 51, 'text_input_width', '', NULL),
+(103, 51, 'random_group', '', NULL),
+(104, 56, 'hide_tip', '0', NULL),
+(105, 56, 'hidden', '0', NULL),
+(106, 56, 'max_num_value_n', '', NULL),
+(107, 56, 'maximum_chars', '', NULL),
+(108, 56, 'min_num_value_n', '', NULL),
+(109, 56, 'num_value_int_only', '0', NULL),
+(110, 56, 'page_break', '0', NULL),
+(111, 56, 'prefix', '', NULL),
+(112, 56, 'public_statistics', '0', NULL),
+(113, 56, 'suffix', '', NULL),
+(114, 56, 'text_input_width', '', NULL),
+(115, 56, 'random_group', '', NULL),
+(116, 58, 'hide_tip', '0', NULL),
+(117, 58, 'hidden', '0', NULL),
+(118, 58, 'max_num_value_n', '', NULL),
+(119, 58, 'maximum_chars', '', NULL),
+(120, 58, 'min_num_value_n', '', NULL),
+(121, 58, 'num_value_int_only', '0', NULL),
+(122, 58, 'page_break', '0', NULL),
+(123, 58, 'prefix', '', NULL),
+(124, 58, 'public_statistics', '0', NULL),
+(125, 58, 'suffix', '', NULL),
+(126, 58, 'text_input_width', '', NULL),
+(127, 58, 'random_group', '', NULL),
+(128, 61, 'hide_tip', '0', NULL),
+(129, 61, 'hidden', '0', NULL),
+(130, 61, 'max_num_value_n', '', NULL),
+(131, 61, 'maximum_chars', '', NULL),
+(132, 61, 'min_num_value_n', '', NULL),
+(133, 61, 'num_value_int_only', '0', NULL),
+(134, 61, 'page_break', '0', NULL),
+(135, 61, 'prefix', '', NULL),
+(136, 61, 'public_statistics', '0', NULL),
+(137, 61, 'suffix', '', NULL),
+(138, 61, 'text_input_width', '', NULL),
+(139, 61, 'random_group', '', NULL),
+(140, 67, 'hide_tip', '0', NULL),
+(141, 67, 'hidden', '0', NULL),
+(142, 67, 'max_num_value_n', '', NULL),
+(143, 67, 'maximum_chars', '', NULL),
+(144, 67, 'min_num_value_n', '', NULL),
+(145, 67, 'num_value_int_only', '0', NULL),
+(146, 67, 'page_break', '0', NULL),
+(147, 67, 'prefix', '', NULL),
+(148, 67, 'public_statistics', '0', NULL),
+(149, 67, 'suffix', '', NULL),
+(150, 67, 'text_input_width', '', NULL),
+(151, 67, 'random_group', '', NULL),
+(152, 70, 'hide_tip', '0', NULL),
+(153, 70, 'hidden', '0', NULL),
+(154, 70, 'max_num_value_n', '', NULL),
+(155, 70, 'maximum_chars', '', NULL),
+(156, 70, 'min_num_value_n', '', NULL),
+(157, 70, 'num_value_int_only', '0', NULL),
+(158, 70, 'page_break', '0', NULL),
+(159, 70, 'prefix', '', NULL),
+(160, 70, 'public_statistics', '0', NULL),
+(161, 70, 'suffix', '', NULL),
+(162, 70, 'text_input_width', '', NULL),
+(163, 70, 'random_group', '', NULL),
+(164, 77, 'hide_tip', '0', NULL),
+(165, 77, 'hidden', '0', NULL),
+(166, 77, 'max_num_value_n', '', NULL),
+(167, 77, 'maximum_chars', '', NULL),
+(168, 77, 'min_num_value_n', '', NULL),
+(169, 77, 'num_value_int_only', '0', NULL),
+(170, 77, 'page_break', '0', NULL),
+(171, 77, 'prefix', '', NULL),
+(172, 77, 'public_statistics', '0', NULL),
+(173, 77, 'suffix', '', NULL),
+(174, 77, 'text_input_width', '', NULL),
+(175, 77, 'random_group', '', NULL),
+(176, 78, 'hide_tip', '0', NULL),
+(177, 78, 'hidden', '0', NULL),
+(178, 78, 'max_num_value_n', '', NULL),
+(179, 78, 'maximum_chars', '', NULL),
+(180, 78, 'min_num_value_n', '', NULL),
+(181, 78, 'num_value_int_only', '0', NULL),
+(182, 78, 'page_break', '0', NULL),
+(183, 78, 'prefix', '', NULL),
+(184, 78, 'public_statistics', '0', NULL),
+(185, 78, 'suffix', '', NULL),
+(186, 78, 'text_input_width', '', NULL),
+(187, 78, 'random_group', '', NULL),
+(188, 81, 'hide_tip', '0', NULL),
+(189, 81, 'hidden', '0', NULL),
+(190, 81, 'max_num_value_n', '', NULL),
+(191, 81, 'maximum_chars', '', NULL),
+(192, 81, 'min_num_value_n', '', NULL),
+(193, 81, 'num_value_int_only', '0', NULL),
+(194, 81, 'page_break', '0', NULL),
+(195, 81, 'prefix', '', NULL),
+(196, 81, 'public_statistics', '0', NULL),
+(197, 81, 'suffix', '', NULL),
+(198, 81, 'text_input_width', '', NULL),
+(199, 81, 'random_group', '', NULL),
+(200, 88, 'equals_num_value', '', NULL),
+(201, 88, 'hide_tip', '0', NULL),
+(202, 88, 'hidden', '0', NULL),
+(203, 88, 'max_num_value', '', NULL),
+(204, 88, 'max_num_value_sgqa', '', NULL),
+(205, 88, 'maximum_chars', '', NULL),
+(206, 88, 'min_num_value', '', NULL),
+(207, 88, 'min_num_value_sgqa', '', NULL),
+(208, 88, 'num_value_equals_sgqa', '', NULL),
+(209, 88, 'page_break', '0', NULL),
+(210, 88, 'prefix', '', NULL),
+(211, 88, 'public_statistics', '0', NULL),
+(212, 88, 'random_order', '0', NULL),
+(213, 88, 'slider_layout', '0', NULL),
+(214, 88, 'slider_min', '', NULL),
+(215, 88, 'slider_max', '', NULL),
+(216, 88, 'slider_accuracy', '', NULL),
+(217, 88, 'slider_default', '', NULL),
+(218, 88, 'slider_middlestart', '0', NULL),
+(219, 88, 'slider_showminmax', '0', NULL),
+(220, 88, 'slider_separator', '', NULL),
+(221, 88, 'suffix', '', NULL),
+(222, 88, 'text_input_width', '', NULL),
+(223, 88, 'random_group', '', NULL),
+(224, 90, 'equals_num_value', '', NULL),
+(225, 90, 'hide_tip', '0', NULL),
+(226, 90, 'hidden', '0', NULL),
+(227, 90, 'max_num_value', '', NULL),
+(228, 90, 'max_num_value_sgqa', '', NULL),
+(229, 90, 'maximum_chars', '', NULL),
+(230, 90, 'min_num_value', '', NULL),
+(231, 90, 'min_num_value_sgqa', '', NULL),
+(232, 90, 'num_value_equals_sgqa', '', NULL),
+(233, 90, 'page_break', '0', NULL),
+(234, 90, 'prefix', '', NULL),
+(235, 90, 'public_statistics', '0', NULL),
+(236, 90, 'random_order', '0', NULL),
+(237, 90, 'slider_layout', '0', NULL),
+(238, 90, 'slider_min', '', NULL),
+(239, 90, 'slider_max', '', NULL),
+(240, 90, 'slider_accuracy', '', NULL),
+(241, 90, 'slider_default', '', NULL),
+(242, 90, 'slider_middlestart', '0', NULL),
+(243, 90, 'slider_showminmax', '0', NULL),
+(244, 90, 'slider_separator', '', NULL),
+(245, 90, 'suffix', '', NULL),
+(246, 90, 'text_input_width', '', NULL),
+(247, 90, 'random_group', '', NULL),
+(248, 103, 'hide_tip', '0', NULL),
+(249, 103, 'hidden', '0', NULL),
+(250, 103, 'max_num_value_n', '', NULL),
+(251, 103, 'maximum_chars', '', NULL),
+(252, 103, 'min_num_value_n', '', NULL),
+(253, 103, 'num_value_int_only', '0', NULL),
+(254, 103, 'page_break', '0', NULL),
+(255, 103, 'prefix', '', NULL),
+(256, 103, 'public_statistics', '0', NULL),
+(257, 103, 'suffix', '', NULL),
+(258, 103, 'text_input_width', '', NULL),
+(259, 103, 'random_group', '', NULL),
+(260, 106, 'hide_tip', '0', NULL),
+(261, 106, 'hidden', '0', NULL),
+(262, 106, 'max_num_value_n', '', NULL),
+(263, 106, 'maximum_chars', '', NULL),
+(264, 106, 'min_num_value_n', '', NULL),
+(265, 106, 'num_value_int_only', '0', NULL),
+(266, 106, 'page_break', '0', NULL),
+(267, 106, 'prefix', '', NULL),
+(268, 106, 'public_statistics', '0', NULL),
+(269, 106, 'suffix', '', NULL),
+(270, 106, 'text_input_width', '', NULL),
+(271, 106, 'random_group', '', NULL),
+(6463, 1614, 'page_break', '0', NULL),
+(6462, 1614, 'other_replace_text', '', NULL),
+(6461, 1614, 'other_numbers_only', '0', NULL),
+(6459, 1614, 'hide_tip', '0', NULL),
+(6460, 1614, 'other_comment_mandatory', '0', NULL),
+(6458, 1614, 'hidden', '0', NULL),
+(6457, 1614, 'display_columns', '1', NULL),
+(6456, 1614, 'array_filter_exclude', '', NULL),
+(6455, 1614, 'array_filter', '', NULL),
+(6454, 1614, 'alphasort', '0', NULL),
+(6453, 1613, 'text_input_width', '', NULL),
+(6452, 1613, 'suffix', '', NULL),
+(6451, 1613, 'random_group', '', NULL),
+(6450, 1613, 'public_statistics', '0', NULL),
+(296, 377, 'hide_tip', '0', NULL),
+(297, 377, 'hidden', '0', NULL),
+(298, 377, 'max_num_value_n', '', NULL),
+(299, 377, 'maximum_chars', '', NULL),
+(300, 377, 'min_num_value_n', '', NULL),
+(301, 377, 'num_value_int_only', '0', NULL),
+(302, 377, 'page_break', '0', NULL),
+(303, 377, 'prefix', '', NULL),
+(304, 377, 'public_statistics', '0', NULL),
+(305, 377, 'suffix', '', NULL),
+(306, 377, 'text_input_width', '', NULL),
+(307, 377, 'random_group', '', NULL),
+(308, 378, 'hide_tip', '0', NULL),
+(309, 378, 'hidden', '0', NULL),
+(310, 378, 'max_num_value_n', '', NULL),
+(311, 378, 'maximum_chars', '', NULL),
+(312, 378, 'min_num_value_n', '', NULL),
+(313, 378, 'num_value_int_only', '0', NULL),
+(314, 378, 'page_break', '0', NULL),
+(315, 378, 'prefix', '', NULL),
+(316, 378, 'public_statistics', '0', NULL),
+(317, 378, 'suffix', '', NULL),
+(318, 378, 'text_input_width', '', NULL),
+(319, 378, 'random_group', '', NULL),
+(320, 379, 'hide_tip', '0', NULL),
+(321, 379, 'hidden', '0', NULL),
+(322, 379, 'max_num_value_n', '', NULL),
+(323, 379, 'maximum_chars', '', NULL),
+(324, 379, 'min_num_value_n', '', NULL),
+(325, 379, 'num_value_int_only', '0', NULL),
+(326, 379, 'page_break', '0', NULL),
+(327, 379, 'prefix', '', NULL),
+(328, 379, 'public_statistics', '0', NULL),
+(329, 379, 'suffix', '', NULL),
+(330, 379, 'text_input_width', '', NULL),
+(331, 379, 'random_group', '', NULL),
+(332, 380, 'hide_tip', '0', NULL),
+(333, 380, 'hidden', '0', NULL),
+(334, 380, 'max_num_value_n', '', NULL),
+(335, 380, 'maximum_chars', '', NULL),
+(336, 380, 'min_num_value_n', '', NULL),
+(337, 380, 'num_value_int_only', '0', NULL),
+(338, 380, 'page_break', '0', NULL),
+(339, 380, 'prefix', '', NULL),
+(340, 380, 'public_statistics', '0', NULL),
+(341, 380, 'suffix', '', NULL),
+(342, 380, 'text_input_width', '', NULL),
+(343, 380, 'random_group', '', NULL),
+(344, 381, 'hide_tip', '0', NULL),
+(345, 381, 'hidden', '0', NULL),
+(346, 381, 'max_num_value_n', '', NULL),
+(347, 381, 'maximum_chars', '', NULL),
+(348, 381, 'min_num_value_n', '', NULL),
+(349, 381, 'num_value_int_only', '0', NULL),
+(350, 381, 'page_break', '0', NULL),
+(351, 381, 'prefix', '', NULL),
+(352, 381, 'public_statistics', '0', NULL),
+(353, 381, 'suffix', '', NULL),
+(354, 381, 'text_input_width', '', NULL),
+(355, 381, 'random_group', '', NULL),
+(356, 382, 'hide_tip', '0', NULL),
+(357, 382, 'hidden', '0', NULL),
+(358, 382, 'max_num_value_n', '', NULL),
+(359, 382, 'maximum_chars', '', NULL),
+(360, 382, 'min_num_value_n', '', NULL),
+(361, 382, 'num_value_int_only', '0', NULL),
+(362, 382, 'page_break', '0', NULL),
+(363, 382, 'prefix', '', NULL),
+(364, 382, 'public_statistics', '0', NULL),
+(365, 382, 'suffix', '', NULL),
+(366, 382, 'text_input_width', '', NULL),
+(367, 382, 'random_group', '', NULL),
+(368, 383, 'hide_tip', '0', NULL),
+(369, 383, 'hidden', '0', NULL),
+(370, 383, 'max_num_value_n', '', NULL),
+(371, 383, 'maximum_chars', '', NULL),
+(372, 383, 'min_num_value_n', '', NULL),
+(373, 383, 'num_value_int_only', '0', NULL),
+(374, 383, 'page_break', '0', NULL),
+(375, 383, 'prefix', '', NULL),
+(376, 383, 'public_statistics', '0', NULL),
+(377, 383, 'suffix', '', NULL),
+(378, 383, 'text_input_width', '', NULL),
+(379, 383, 'random_group', '', NULL),
+(380, 385, 'hide_tip', '0', NULL),
+(381, 385, 'hidden', '0', NULL),
+(382, 385, 'max_num_value_n', '', NULL),
+(383, 385, 'maximum_chars', '', NULL),
+(384, 385, 'min_num_value_n', '', NULL),
+(385, 385, 'num_value_int_only', '0', NULL),
+(386, 385, 'page_break', '0', NULL),
+(387, 385, 'prefix', '', NULL),
+(388, 385, 'public_statistics', '0', NULL),
+(389, 385, 'suffix', '', NULL),
+(390, 385, 'text_input_width', '', NULL),
+(391, 385, 'random_group', '', NULL),
+(392, 386, 'hide_tip', '0', NULL),
+(393, 386, 'hidden', '0', NULL),
+(394, 386, 'max_num_value_n', '', NULL),
+(395, 386, 'maximum_chars', '', NULL),
+(396, 386, 'min_num_value_n', '', NULL),
+(397, 386, 'num_value_int_only', '0', NULL),
+(398, 386, 'page_break', '0', NULL),
+(399, 386, 'prefix', '', NULL),
+(400, 386, 'public_statistics', '0', NULL),
+(401, 386, 'suffix', '', NULL),
+(402, 386, 'text_input_width', '', NULL),
+(403, 386, 'random_group', '', NULL),
+(404, 387, 'hide_tip', '0', NULL),
+(405, 387, 'hidden', '0', NULL),
+(406, 387, 'max_num_value_n', '', NULL),
+(407, 387, 'maximum_chars', '', NULL),
+(408, 387, 'min_num_value_n', '', NULL),
+(409, 387, 'num_value_int_only', '0', NULL),
+(410, 387, 'page_break', '0', NULL),
+(411, 387, 'prefix', '', NULL),
+(412, 387, 'public_statistics', '0', NULL),
+(413, 387, 'suffix', '', NULL),
+(414, 387, 'text_input_width', '', NULL),
+(415, 387, 'random_group', '', NULL),
+(416, 391, 'hide_tip', '0', NULL),
+(417, 391, 'hidden', '0', NULL),
+(418, 391, 'max_num_value_n', '', NULL),
+(419, 391, 'maximum_chars', '', NULL),
+(420, 391, 'min_num_value_n', '', NULL),
+(421, 391, 'num_value_int_only', '0', NULL),
+(422, 391, 'page_break', '0', NULL),
+(423, 391, 'prefix', '', NULL),
+(424, 391, 'public_statistics', '0', NULL),
+(425, 391, 'suffix', '', NULL),
+(426, 391, 'text_input_width', '', NULL),
+(427, 391, 'random_group', '', NULL),
+(428, 393, 'hidden', '0', NULL),
+(429, 393, 'page_break', '0', NULL),
+(430, 393, 'time_limit', '', NULL),
+(431, 393, 'time_limit_action', '1', NULL),
+(432, 393, 'time_limit_disable_next', '0', NULL),
+(433, 393, 'time_limit_disable_prev', '0', NULL),
+(434, 393, 'time_limit_countdown_message', '', NULL),
+(435, 393, 'time_limit_timer_style', '', NULL),
+(436, 393, 'time_limit_message_delay', '', NULL),
+(437, 393, 'time_limit_message', '', NULL),
+(438, 393, 'time_limit_message_style', '', NULL),
+(439, 393, 'time_limit_warning', '', NULL),
+(440, 393, 'time_limit_warning_display_time', '', NULL),
+(441, 393, 'time_limit_warning_message', '', NULL),
+(442, 393, 'time_limit_warning_style', '', NULL),
+(443, 393, 'time_limit_warning_2', '', NULL),
+(444, 393, 'time_limit_warning_2_display_time', '', NULL),
+(445, 393, 'time_limit_warning_2_message', '', NULL),
+(446, 393, 'time_limit_warning_2_style', '', NULL),
+(447, 393, 'random_group', '', NULL),
+(448, 394, 'hide_tip', '0', NULL),
+(449, 394, 'hidden', '0', NULL),
+(450, 394, 'max_num_value_n', '', NULL),
+(451, 394, 'maximum_chars', '', NULL),
+(452, 394, 'min_num_value_n', '', NULL),
+(453, 394, 'num_value_int_only', '0', NULL),
+(454, 394, 'page_break', '0', NULL),
+(455, 394, 'prefix', '', NULL),
+(456, 394, 'public_statistics', '0', NULL),
+(457, 394, 'suffix', '', NULL),
+(458, 394, 'text_input_width', '', NULL),
+(459, 394, 'random_group', '', NULL),
+(460, 395, 'hide_tip', '0', NULL),
+(461, 395, 'hidden', '0', NULL),
+(462, 395, 'max_num_value_n', '', NULL),
+(463, 395, 'maximum_chars', '', NULL),
+(464, 395, 'min_num_value_n', '', NULL),
+(465, 395, 'num_value_int_only', '0', NULL),
+(466, 395, 'page_break', '0', NULL),
+(467, 395, 'prefix', '', NULL),
+(468, 395, 'public_statistics', '0', NULL),
+(469, 395, 'suffix', '', NULL),
+(470, 395, 'text_input_width', '', NULL),
+(471, 395, 'random_group', '', NULL),
+(472, 396, 'hide_tip', '0', NULL),
+(473, 396, 'hidden', '0', NULL),
+(474, 396, 'max_num_value_n', '', NULL),
+(475, 396, 'maximum_chars', '', NULL),
+(476, 396, 'min_num_value_n', '', NULL),
+(477, 396, 'num_value_int_only', '0', NULL),
+(478, 396, 'page_break', '0', NULL),
+(479, 396, 'prefix', '', NULL),
+(480, 396, 'public_statistics', '0', NULL),
+(481, 396, 'suffix', '', NULL),
+(482, 396, 'text_input_width', '', NULL),
+(483, 396, 'random_group', '', NULL),
+(484, 505, 'hide_tip', '0', NULL),
+(485, 505, 'hidden', '0', NULL),
+(486, 505, 'max_num_value_n', '', NULL),
+(487, 505, 'maximum_chars', '', NULL),
+(488, 505, 'min_num_value_n', '', NULL),
+(489, 505, 'num_value_int_only', '0', NULL),
+(490, 505, 'page_break', '0', NULL),
+(491, 505, 'prefix', '', NULL),
+(492, 505, 'public_statistics', '0', NULL),
+(493, 505, 'suffix', '', NULL),
+(494, 505, 'text_input_width', '', NULL),
+(495, 505, 'random_group', '', NULL),
+(496, 506, 'hide_tip', '0', NULL),
+(497, 506, 'hidden', '0', NULL),
+(498, 506, 'max_num_value_n', '', NULL),
+(499, 506, 'maximum_chars', '', NULL),
+(500, 506, 'min_num_value_n', '', NULL),
+(501, 506, 'num_value_int_only', '0', NULL),
+(502, 506, 'page_break', '0', NULL),
+(503, 506, 'prefix', '', NULL),
+(504, 506, 'public_statistics', '0', NULL),
+(505, 506, 'suffix', '', NULL),
+(506, 506, 'text_input_width', '', NULL),
+(507, 506, 'random_group', '', NULL),
+(508, 472, 'array_filter', '', NULL),
+(509, 472, 'array_filter_exclude', '', NULL),
+(510, 472, 'assessment_value', '1', NULL),
+(511, 472, 'display_columns', '1', NULL),
+(512, 472, 'exclude_all_others', '', NULL),
+(513, 472, 'exclude_all_others_auto', '0', NULL),
+(514, 472, 'hide_tip', '0', NULL),
+(515, 472, 'hidden', '0', NULL),
+(516, 472, 'max_answers', '', NULL),
+(517, 472, 'min_answers', '', NULL),
+(518, 472, 'other_numbers_only', '0', NULL),
+(519, 472, 'other_replace_text', '', NULL),
+(520, 472, 'page_break', '0', NULL),
+(521, 472, 'public_statistics', '0', NULL),
+(522, 472, 'random_order', '0', NULL),
+(523, 472, 'scale_export', '0', NULL),
+(524, 472, 'random_group', '', NULL),
+(525, 474, 'hide_tip', '0', NULL),
+(526, 474, 'hidden', '0', NULL),
+(527, 474, 'max_num_value_n', '', NULL),
+(528, 474, 'min_num_value_n', '', NULL),
+(529, 474, 'num_value_int_only', '0', NULL),
+(530, 474, 'page_break', '0', NULL),
+(531, 474, 'prefix', '', NULL),
+(532, 474, 'public_statistics', '0', NULL),
+(533, 474, 'suffix', '', NULL),
+(534, 474, 'text_input_width', '', NULL),
+(535, 474, 'random_group', '', NULL),
+(536, 475, 'hide_tip', '0', NULL),
+(537, 475, 'hidden', '0', NULL),
+(538, 475, 'max_num_value_n', '', NULL),
+(539, 475, 'min_num_value_n', '', NULL),
+(540, 475, 'num_value_int_only', '0', NULL),
+(541, 475, 'page_break', '0', NULL),
+(542, 475, 'prefix', '', NULL),
+(543, 475, 'public_statistics', '0', NULL),
+(544, 475, 'suffix', '', NULL),
+(545, 475, 'text_input_width', '', NULL),
+(546, 475, 'random_group', '', NULL),
+(547, 476, 'hide_tip', '0', NULL),
+(548, 476, 'hidden', '0', NULL),
+(549, 476, 'max_num_value_n', '', NULL),
+(550, 476, 'min_num_value_n', '', NULL),
+(551, 476, 'num_value_int_only', '0', NULL),
+(552, 476, 'page_break', '0', NULL),
+(553, 476, 'prefix', '', NULL),
+(554, 476, 'public_statistics', '0', NULL),
+(555, 476, 'suffix', '', NULL),
+(556, 476, 'text_input_width', '', NULL),
+(557, 476, 'random_group', '', NULL),
+(558, 491, 'hide_tip', '0', NULL),
+(559, 491, 'hidden', '0', NULL),
+(560, 491, 'max_num_value_n', '', NULL),
+(561, 491, 'min_num_value_n', '', NULL),
+(562, 491, 'num_value_int_only', '0', NULL),
+(563, 491, 'page_break', '0', NULL),
+(564, 491, 'prefix', '', NULL),
+(565, 491, 'public_statistics', '0', NULL),
+(566, 491, 'suffix', '', NULL),
+(567, 491, 'text_input_width', '', NULL),
+(568, 491, 'random_group', '', NULL),
+(569, 493, 'hide_tip', '0', NULL),
+(570, 493, 'hidden', '0', NULL),
+(571, 493, 'max_num_value_n', '', NULL),
+(572, 493, 'min_num_value_n', '', NULL),
+(573, 493, 'num_value_int_only', '0', NULL),
+(574, 493, 'page_break', '0', NULL),
+(575, 493, 'prefix', '', NULL),
+(576, 493, 'public_statistics', '0', NULL),
+(577, 493, 'suffix', '', NULL),
+(578, 493, 'text_input_width', '', NULL),
+(579, 493, 'random_group', '', NULL),
+(580, 459, 'hide_tip', '0', NULL),
+(581, 459, 'hidden', '0', NULL),
+(582, 459, 'max_num_value_n', '', NULL),
+(583, 459, 'min_num_value_n', '', NULL),
+(584, 459, 'num_value_int_only', '0', NULL),
+(585, 459, 'page_break', '0', NULL),
+(586, 459, 'prefix', '', NULL),
+(587, 459, 'public_statistics', '0', NULL),
+(588, 459, 'suffix', '', NULL),
+(589, 459, 'text_input_width', '', NULL),
+(590, 459, 'random_group', '', NULL),
+(591, 464, 'hide_tip', '0', NULL),
+(592, 464, 'hidden', '0', NULL),
+(593, 464, 'max_num_value_n', '', NULL),
+(594, 464, 'min_num_value_n', '', NULL),
+(595, 464, 'num_value_int_only', '0', NULL),
+(596, 464, 'page_break', '0', NULL),
+(597, 464, 'prefix', '', NULL),
+(598, 464, 'public_statistics', '0', NULL),
+(599, 464, 'suffix', '', NULL),
+(600, 464, 'text_input_width', '', NULL),
+(601, 464, 'random_group', '', NULL),
+(602, 465, 'hide_tip', '0', NULL),
+(603, 465, 'hidden', '0', NULL),
+(604, 465, 'max_num_value_n', '', NULL),
+(605, 465, 'min_num_value_n', '', NULL),
+(606, 465, 'num_value_int_only', '0', NULL),
+(607, 465, 'page_break', '0', NULL),
+(608, 465, 'prefix', '', NULL),
+(609, 465, 'public_statistics', '0', NULL),
+(610, 465, 'suffix', '', NULL),
+(611, 465, 'text_input_width', '', NULL),
+(612, 465, 'random_group', '', NULL),
+(613, 427, 'hide_tip', '0', NULL),
+(614, 427, 'hidden', '0', NULL),
+(615, 427, 'max_num_value_n', '', NULL),
+(616, 427, 'min_num_value_n', '', NULL),
+(617, 427, 'num_value_int_only', '0', NULL),
+(618, 427, 'page_break', '0', NULL),
+(619, 427, 'prefix', '', NULL),
+(620, 427, 'public_statistics', '0', NULL),
+(621, 427, 'suffix', '', NULL),
+(622, 427, 'text_input_width', '', NULL),
+(623, 427, 'random_group', '', NULL),
+(624, 313, 'hide_tip', '0', NULL),
+(625, 313, 'hidden', '0', NULL),
+(626, 313, 'max_num_value_n', '', NULL),
+(627, 313, 'min_num_value_n', '', NULL),
+(628, 313, 'num_value_int_only', '0', NULL),
+(629, 313, 'page_break', '0', NULL),
+(630, 313, 'prefix', '', NULL),
+(631, 313, 'public_statistics', '0', NULL),
+(632, 313, 'suffix', '', NULL),
+(633, 313, 'text_input_width', '', NULL),
+(634, 313, 'random_group', '', NULL),
+(635, 263, 'display_rows', '', NULL),
+(636, 263, 'location_city', '0', NULL),
+(637, 263, 'location_state', '0', NULL),
+(638, 263, 'location_postal', '0', NULL),
+(639, 263, 'location_country', '0', NULL),
+(640, 263, 'location_mapservice', '0', NULL),
+(641, 263, 'location_mapwidth', '500', NULL),
+(642, 263, 'location_mapheight', '300', NULL),
+(643, 263, 'location_nodefaultfromip', '0', NULL),
+(644, 263, 'location_defaultcoordinates', '', NULL),
+(645, 263, 'location_mapzoom', '11', NULL),
+(646, 263, 'hide_tip', '0', NULL),
+(647, 263, 'hidden', '0', NULL),
+(648, 263, 'numbers_only', '0', NULL),
+(649, 263, 'page_break', '0', NULL),
+(650, 263, 'prefix', '', NULL),
+(651, 263, 'suffix', '', NULL),
+(652, 263, 'text_input_width', '', NULL),
+(653, 263, 'time_limit', '', NULL),
+(654, 263, 'time_limit_action', '1', NULL),
+(655, 263, 'time_limit_disable_next', '0', NULL),
+(656, 263, 'time_limit_disable_prev', '0', NULL),
+(657, 263, 'time_limit_countdown_message', '', NULL),
+(658, 263, 'time_limit_timer_style', '', NULL),
+(659, 263, 'time_limit_message_delay', '', NULL),
+(660, 263, 'time_limit_message', '', NULL),
+(661, 263, 'time_limit_message_style', '', NULL),
+(662, 263, 'time_limit_warning', '', NULL),
+(663, 263, 'time_limit_warning_display_time', '', NULL),
+(664, 263, 'time_limit_warning_message', '', NULL),
+(665, 263, 'time_limit_warning_style', '', NULL),
+(666, 263, 'time_limit_warning_2', '', NULL),
+(667, 263, 'time_limit_warning_2_display_time', '', NULL),
+(668, 263, 'time_limit_warning_2_message', '', NULL),
+(669, 263, 'time_limit_warning_2_style', '', NULL),
+(670, 263, 'random_group', '', NULL),
+(671, 264, 'display_rows', '', NULL),
+(672, 264, 'location_city', '0', NULL),
+(673, 264, 'location_state', '0', NULL),
+(674, 264, 'location_postal', '0', NULL),
+(675, 264, 'location_country', '0', NULL),
+(676, 264, 'location_mapservice', '0', NULL),
+(677, 264, 'location_mapwidth', '500', NULL),
+(678, 264, 'location_mapheight', '300', NULL),
+(679, 264, 'location_nodefaultfromip', '0', NULL),
+(680, 264, 'location_defaultcoordinates', '', NULL),
+(681, 264, 'location_mapzoom', '11', NULL),
+(682, 264, 'hide_tip', '0', NULL),
+(683, 264, 'hidden', '0', NULL),
+(684, 264, 'numbers_only', '0', NULL),
+(685, 264, 'page_break', '0', NULL),
+(686, 264, 'prefix', '', NULL),
+(687, 264, 'suffix', '', NULL),
+(688, 264, 'text_input_width', '', NULL),
+(689, 264, 'time_limit', '', NULL),
+(690, 264, 'time_limit_action', '1', NULL),
+(691, 264, 'time_limit_disable_next', '0', NULL),
+(692, 264, 'time_limit_disable_prev', '0', NULL),
+(693, 264, 'time_limit_countdown_message', '', NULL),
+(694, 264, 'time_limit_timer_style', '', NULL),
+(695, 264, 'time_limit_message_delay', '', NULL),
+(696, 264, 'time_limit_message', '', NULL),
+(697, 264, 'time_limit_message_style', '', NULL),
+(698, 264, 'time_limit_warning', '', NULL),
+(699, 264, 'time_limit_warning_display_time', '', NULL),
+(700, 264, 'time_limit_warning_message', '', NULL),
+(701, 264, 'time_limit_warning_style', '', NULL),
+(702, 264, 'time_limit_warning_2', '', NULL),
+(703, 264, 'time_limit_warning_2_display_time', '', NULL),
+(704, 264, 'time_limit_warning_2_message', '', NULL),
+(705, 264, 'time_limit_warning_2_style', '', NULL),
+(706, 264, 'random_group', '', NULL),
+(707, 239, 'display_rows', '', NULL),
+(708, 239, 'location_city', '0', NULL),
+(709, 239, 'location_state', '0', NULL),
+(710, 239, 'location_postal', '0', NULL),
+(711, 239, 'location_country', '0', NULL),
+(712, 239, 'location_mapservice', '0', NULL),
+(713, 239, 'location_mapwidth', '500', NULL),
+(714, 239, 'location_mapheight', '300', NULL),
+(715, 239, 'location_nodefaultfromip', '0', NULL),
+(716, 239, 'location_defaultcoordinates', '', NULL),
+(717, 239, 'location_mapzoom', '11', NULL),
+(718, 239, 'hide_tip', '0', NULL),
+(719, 239, 'hidden', '0', NULL),
+(720, 239, 'numbers_only', '0', NULL),
+(721, 239, 'page_break', '0', NULL),
+(722, 239, 'prefix', '', NULL),
+(723, 239, 'suffix', '', NULL),
+(724, 239, 'text_input_width', '', NULL),
+(725, 239, 'time_limit', '', NULL),
+(726, 239, 'time_limit_action', '1', NULL),
+(727, 239, 'time_limit_disable_next', '0', NULL),
+(728, 239, 'time_limit_disable_prev', '0', NULL),
+(729, 239, 'time_limit_countdown_message', '', NULL),
+(730, 239, 'time_limit_timer_style', '', NULL),
+(731, 239, 'time_limit_message_delay', '', NULL),
+(732, 239, 'time_limit_message', '', NULL),
+(733, 239, 'time_limit_message_style', '', NULL),
+(734, 239, 'time_limit_warning', '', NULL),
+(735, 239, 'time_limit_warning_display_time', '', NULL),
+(736, 239, 'time_limit_warning_message', '', NULL),
+(737, 239, 'time_limit_warning_style', '', NULL),
+(738, 239, 'time_limit_warning_2', '', NULL),
+(739, 239, 'time_limit_warning_2_display_time', '', NULL),
+(740, 239, 'time_limit_warning_2_message', '', NULL),
+(741, 239, 'time_limit_warning_2_style', '', NULL),
+(742, 239, 'random_group', '', NULL),
+(743, 194, 'display_rows', '', NULL),
+(3786, 213, 'time_limit_warning_2', '', NULL),
+(3785, 213, 'time_limit_warning_style', '', NULL),
+(3784, 213, 'time_limit_warning_message', '', NULL),
+(3783, 213, 'time_limit_warning_display_time', '', NULL),
+(3782, 213, 'time_limit_warning', '', NULL),
+(3781, 213, 'time_limit_message_style', '', NULL),
+(3780, 213, 'time_limit_message', '', NULL),
+(755, 194, 'hidden', '0', NULL),
+(756, 194, 'numbers_only', '0', NULL),
+(757, 194, 'page_break', '0', NULL),
+(758, 194, 'prefix', '', NULL),
+(759, 194, 'suffix', '', NULL),
+(760, 194, 'text_input_width', '', NULL),
+(3779, 213, 'time_limit_message_delay', '', NULL),
+(3778, 213, 'time_limit_timer_style', '', NULL),
+(3777, 213, 'time_limit_countdown_message', '', NULL),
+(3776, 213, 'time_limit_disable_prev', '0', NULL),
+(3775, 213, 'time_limit_disable_next', '0', NULL),
+(3774, 213, 'time_limit_action', '1', NULL),
+(3773, 213, 'time_limit', '', NULL),
+(3772, 213, 'text_input_width', '', NULL),
+(3771, 213, 'page_break', '0', NULL),
+(3770, 213, 'maximum_chars', '', NULL),
+(3769, 213, 'hidden', '0', NULL),
+(3768, 213, 'display_rows', '', NULL),
+(3767, 194, 'random_order', '0', NULL),
+(778, 194, 'random_group', '', NULL),
+(779, 121, 'display_rows', '', NULL),
+(780, 121, 'location_city', '0', NULL),
+(781, 121, 'location_state', '0', NULL),
+(782, 121, 'location_postal', '0', NULL),
+(783, 121, 'location_country', '0', NULL),
+(784, 121, 'location_mapservice', '0', NULL),
+(785, 121, 'location_mapwidth', '500', NULL),
+(786, 121, 'location_mapheight', '300', NULL),
+(787, 121, 'location_nodefaultfromip', '0', NULL),
+(788, 121, 'location_defaultcoordinates', '', NULL),
+(789, 121, 'location_mapzoom', '11', NULL),
+(790, 121, 'hide_tip', '0', NULL),
+(791, 121, 'hidden', '0', NULL),
+(792, 121, 'numbers_only', '0', NULL),
+(793, 121, 'page_break', '0', NULL),
+(794, 121, 'prefix', '', NULL),
+(795, 121, 'suffix', '', NULL),
+(796, 121, 'text_input_width', '', NULL),
+(797, 121, 'time_limit', '', NULL),
+(798, 121, 'time_limit_action', '1', NULL),
+(799, 121, 'time_limit_disable_next', '0', NULL),
+(800, 121, 'time_limit_disable_prev', '0', NULL),
+(801, 121, 'time_limit_countdown_message', '', NULL),
+(802, 121, 'time_limit_timer_style', '', NULL),
+(803, 121, 'time_limit_message_delay', '', NULL),
+(804, 121, 'time_limit_message', '', NULL),
+(805, 121, 'time_limit_message_style', '', NULL),
+(806, 121, 'time_limit_warning', '', NULL),
+(807, 121, 'time_limit_warning_display_time', '', NULL),
+(808, 121, 'time_limit_warning_message', '', NULL),
+(809, 121, 'time_limit_warning_style', '', NULL),
+(810, 121, 'time_limit_warning_2', '', NULL),
+(811, 121, 'time_limit_warning_2_display_time', '', NULL),
+(812, 121, 'time_limit_warning_2_message', '', NULL),
+(813, 121, 'time_limit_warning_2_style', '', NULL),
+(814, 121, 'random_group', '', NULL),
+(815, 1011, 'alphasort', '0', NULL),
+(816, 1011, 'array_filter', '', NULL),
+(817, 1011, 'array_filter_exclude', '', NULL),
+(818, 1011, 'display_columns', '1', NULL),
+(819, 1011, 'hide_tip', '0', NULL),
+(820, 1011, 'hidden', '0', NULL),
+(821, 1011, 'other_comment_mandatory', '0', NULL),
+(822, 1011, 'other_numbers_only', '0', NULL),
+(823, 1011, 'other_replace_text', '', NULL),
+(824, 1011, 'page_break', '0', NULL),
+(825, 1011, 'public_statistics', '0', NULL),
+(826, 1011, 'random_order', '0', NULL),
+(827, 1011, 'scale_export', '0', NULL),
+(828, 1011, 'random_group', '', NULL),
+(829, 1012, 'display_rows', '', NULL),
+(830, 1012, 'location_city', '0', NULL),
+(831, 1012, 'location_state', '0', NULL),
+(832, 1012, 'location_postal', '0', NULL),
+(833, 1012, 'location_country', '0', NULL),
+(834, 1012, 'location_mapservice', '0', NULL),
+(835, 1012, 'location_mapwidth', '500', NULL),
+(836, 1012, 'location_mapheight', '300', NULL),
+(837, 1012, 'location_nodefaultfromip', '0', NULL),
+(838, 1012, 'location_defaultcoordinates', '', NULL),
+(839, 1012, 'location_mapzoom', '11', NULL),
+(840, 1012, 'hide_tip', '0', NULL),
+(841, 1012, 'hidden', '0', NULL),
+(842, 1012, 'maximum_chars', '', NULL),
+(843, 1012, 'numbers_only', '0', NULL),
+(844, 1012, 'page_break', '0', NULL),
+(845, 1012, 'prefix', '', NULL),
+(846, 1012, 'suffix', '', NULL),
+(847, 1012, 'text_input_width', '', NULL),
+(848, 1012, 'time_limit', '', NULL),
+(849, 1012, 'time_limit_action', '1', NULL),
+(850, 1012, 'time_limit_disable_next', '0', NULL),
+(851, 1012, 'time_limit_disable_prev', '0', NULL),
+(852, 1012, 'time_limit_countdown_message', '', NULL),
+(853, 1012, 'time_limit_timer_style', '', NULL),
+(854, 1012, 'time_limit_message_delay', '', NULL),
+(855, 1012, 'time_limit_message', '', NULL),
+(856, 1012, 'time_limit_message_style', '', NULL),
+(857, 1012, 'time_limit_warning', '', NULL),
+(858, 1012, 'time_limit_warning_display_time', '', NULL),
+(859, 1012, 'time_limit_warning_message', '', NULL),
+(860, 1012, 'time_limit_warning_style', '', NULL),
+(861, 1012, 'time_limit_warning_2', '', NULL),
+(862, 1012, 'time_limit_warning_2_display_time', '', NULL),
+(863, 1012, 'time_limit_warning_2_message', '', NULL),
+(864, 1012, 'time_limit_warning_2_style', '', NULL),
+(865, 1012, 'random_group', '', NULL),
+(866, 1013, 'alphasort', '0', NULL),
+(867, 1013, 'array_filter', '', NULL),
+(868, 1013, 'array_filter_exclude', '', NULL),
+(869, 1013, 'display_columns', '1', NULL),
+(870, 1013, 'hide_tip', '0', NULL),
+(871, 1013, 'hidden', '0', NULL),
+(872, 1013, 'other_comment_mandatory', '0', NULL),
+(873, 1013, 'other_numbers_only', '0', NULL),
+(874, 1013, 'other_replace_text', '', NULL),
+(875, 1013, 'page_break', '0', NULL),
+(876, 1013, 'public_statistics', '0', NULL),
+(877, 1013, 'random_order', '0', NULL),
+(878, 1013, 'scale_export', '0', NULL),
+(879, 1013, 'random_group', '', NULL),
+(880, 1014, 'display_rows', '', NULL),
+(881, 1014, 'location_city', '0', NULL),
+(882, 1014, 'location_state', '0', NULL),
+(883, 1014, 'location_postal', '0', NULL),
+(884, 1014, 'location_country', '0', NULL),
+(885, 1014, 'location_mapservice', '0', NULL),
+(886, 1014, 'location_mapwidth', '500', NULL),
+(887, 1014, 'location_mapheight', '300', NULL),
+(888, 1014, 'location_nodefaultfromip', '0', NULL),
+(889, 1014, 'location_defaultcoordinates', '', NULL),
+(890, 1014, 'location_mapzoom', '11', NULL),
+(891, 1014, 'hide_tip', '0', NULL),
+(892, 1014, 'hidden', '0', NULL),
+(893, 1014, 'maximum_chars', '', NULL),
+(894, 1014, 'numbers_only', '0', NULL),
+(895, 1014, 'page_break', '0', NULL),
+(896, 1014, 'prefix', '', NULL),
+(897, 1014, 'suffix', '', NULL),
+(898, 1014, 'text_input_width', '', NULL),
+(899, 1014, 'time_limit', '', NULL),
+(900, 1014, 'time_limit_action', '1', NULL),
+(901, 1014, 'time_limit_disable_next', '0', NULL),
+(902, 1014, 'time_limit_disable_prev', '0', NULL),
+(903, 1014, 'time_limit_countdown_message', '', NULL),
+(904, 1014, 'time_limit_timer_style', '', NULL),
+(905, 1014, 'time_limit_message_delay', '', NULL),
+(906, 1014, 'time_limit_message', '', NULL),
+(907, 1014, 'time_limit_message_style', '', NULL),
+(908, 1014, 'time_limit_warning', '', NULL),
+(909, 1014, 'time_limit_warning_display_time', '', NULL),
+(910, 1014, 'time_limit_warning_message', '', NULL),
+(911, 1014, 'time_limit_warning_style', '', NULL),
+(912, 1014, 'time_limit_warning_2', '', NULL),
+(913, 1014, 'time_limit_warning_2_display_time', '', NULL),
+(914, 1014, 'time_limit_warning_2_message', '', NULL),
+(915, 1014, 'time_limit_warning_2_style', '', NULL),
+(916, 1014, 'random_group', '', NULL),
+(917, 1015, 'alphasort', '0', NULL),
+(918, 1015, 'array_filter', '', NULL),
+(919, 1015, 'array_filter_exclude', '', NULL),
+(920, 1015, 'display_columns', '1', NULL),
+(921, 1015, 'hide_tip', '0', NULL),
+(922, 1015, 'hidden', '0', NULL),
+(923, 1015, 'other_comment_mandatory', '0', NULL),
+(924, 1015, 'other_numbers_only', '0', NULL),
+(925, 1015, 'other_replace_text', '', NULL),
+(926, 1015, 'page_break', '0', NULL),
+(927, 1015, 'public_statistics', '0', NULL),
+(928, 1015, 'random_order', '0', NULL),
+(929, 1015, 'scale_export', '0', NULL),
+(930, 1015, 'random_group', '', NULL),
+(931, 1016, 'alphasort', '0', NULL),
+(932, 1016, 'array_filter', '', NULL),
+(933, 1016, 'array_filter_exclude', '', NULL),
+(934, 1016, 'display_columns', '1', NULL),
+(935, 1016, 'hide_tip', '0', NULL),
+(936, 1016, 'hidden', '0', NULL),
+(937, 1016, 'other_comment_mandatory', '0', NULL),
+(938, 1016, 'other_numbers_only', '0', NULL),
+(939, 1016, 'other_replace_text', '', NULL),
+(940, 1016, 'page_break', '0', NULL),
+(941, 1016, 'public_statistics', '0', NULL),
+(942, 1016, 'random_order', '0', NULL),
+(943, 1016, 'scale_export', '0', NULL),
+(944, 1016, 'random_group', '', NULL),
+(945, 1017, 'alphasort', '0', NULL),
+(946, 1017, 'array_filter', '', NULL),
+(947, 1017, 'array_filter_exclude', '', NULL),
+(948, 1017, 'display_columns', '1', NULL),
+(949, 1017, 'hide_tip', '0', NULL),
+(950, 1017, 'hidden', '0', NULL),
+(951, 1017, 'other_comment_mandatory', '0', NULL),
+(952, 1017, 'other_numbers_only', '0', NULL),
+(953, 1017, 'other_replace_text', '', NULL),
+(954, 1017, 'page_break', '0', NULL),
+(955, 1017, 'public_statistics', '0', NULL),
+(956, 1017, 'random_order', '0', NULL),
+(957, 1017, 'scale_export', '0', NULL),
+(958, 1017, 'random_group', '', NULL),
+(959, 1018, 'display_rows', '', NULL),
+(960, 1018, 'location_city', '0', NULL),
+(961, 1018, 'location_state', '0', NULL),
+(962, 1018, 'location_postal', '0', NULL),
+(963, 1018, 'location_country', '0', NULL),
+(964, 1018, 'location_mapservice', '0', NULL),
+(965, 1018, 'location_mapwidth', '500', NULL),
+(966, 1018, 'location_mapheight', '300', NULL),
+(967, 1018, 'location_nodefaultfromip', '0', NULL),
+(968, 1018, 'location_defaultcoordinates', '', NULL),
+(969, 1018, 'location_mapzoom', '11', NULL),
+(970, 1018, 'hide_tip', '0', NULL),
+(971, 1018, 'hidden', '0', NULL),
+(972, 1018, 'maximum_chars', '', NULL),
+(973, 1018, 'numbers_only', '0', NULL),
+(974, 1018, 'page_break', '0', NULL),
+(975, 1018, 'prefix', '', NULL),
+(976, 1018, 'suffix', '', NULL),
+(977, 1018, 'text_input_width', '', NULL),
+(978, 1018, 'time_limit', '', NULL),
+(979, 1018, 'time_limit_action', '1', NULL),
+(980, 1018, 'time_limit_disable_next', '0', NULL),
+(981, 1018, 'time_limit_disable_prev', '0', NULL),
+(982, 1018, 'time_limit_countdown_message', '', NULL),
+(983, 1018, 'time_limit_timer_style', '', NULL),
+(984, 1018, 'time_limit_message_delay', '', NULL),
+(985, 1018, 'time_limit_message', '', NULL),
+(986, 1018, 'time_limit_message_style', '', NULL),
+(987, 1018, 'time_limit_warning', '', NULL),
+(988, 1018, 'time_limit_warning_display_time', '', NULL),
+(989, 1018, 'time_limit_warning_message', '', NULL),
+(990, 1018, 'time_limit_warning_style', '', NULL),
+(991, 1018, 'time_limit_warning_2', '', NULL),
+(992, 1018, 'time_limit_warning_2_display_time', '', NULL),
+(993, 1018, 'time_limit_warning_2_message', '', NULL),
+(994, 1018, 'time_limit_warning_2_style', '', NULL),
+(995, 1018, 'random_group', '', NULL),
+(996, 996, 'alphasort', '0', NULL),
+(997, 996, 'array_filter', '', NULL),
+(998, 996, 'array_filter_exclude', '', NULL),
+(999, 996, 'display_columns', '1', NULL),
+(1000, 996, 'hide_tip', '0', NULL),
+(1001, 996, 'hidden', '0', NULL),
+(1002, 996, 'other_comment_mandatory', '0', NULL),
+(1003, 996, 'other_numbers_only', '0', NULL),
+(1004, 996, 'other_replace_text', '', NULL),
+(1005, 996, 'page_break', '0', NULL),
+(1006, 996, 'public_statistics', '0', NULL),
+(1007, 996, 'random_order', '0', NULL),
+(1008, 996, 'scale_export', '0', NULL),
+(1009, 996, 'random_group', '', NULL),
+(1010, 1019, 'display_rows', '', NULL),
+(1011, 1019, 'location_city', '0', NULL),
+(1012, 1019, 'location_state', '0', NULL),
+(1013, 1019, 'location_postal', '0', NULL),
+(1014, 1019, 'location_country', '0', NULL),
+(1015, 1019, 'location_mapservice', '0', NULL),
+(1016, 1019, 'location_mapwidth', '500', NULL),
+(1017, 1019, 'location_mapheight', '300', NULL),
+(1018, 1019, 'location_nodefaultfromip', '0', NULL),
+(1019, 1019, 'location_defaultcoordinates', '', NULL),
+(1020, 1019, 'location_mapzoom', '11', NULL),
+(1021, 1019, 'hide_tip', '0', NULL),
+(1022, 1019, 'hidden', '0', NULL),
+(1023, 1019, 'maximum_chars', '', NULL),
+(1024, 1019, 'numbers_only', '0', NULL),
+(1025, 1019, 'page_break', '0', NULL),
+(1026, 1019, 'prefix', '', NULL),
+(1027, 1019, 'suffix', '', NULL),
+(1028, 1019, 'text_input_width', '', NULL),
+(1029, 1019, 'time_limit', '', NULL),
+(1030, 1019, 'time_limit_action', '1', NULL),
+(1031, 1019, 'time_limit_disable_next', '0', NULL),
+(1032, 1019, 'time_limit_disable_prev', '0', NULL),
+(1033, 1019, 'time_limit_countdown_message', '', NULL),
+(1034, 1019, 'time_limit_timer_style', '', NULL),
+(1035, 1019, 'time_limit_message_delay', '', NULL),
+(1036, 1019, 'time_limit_message', '', NULL),
+(1037, 1019, 'time_limit_message_style', '', NULL),
+(1038, 1019, 'time_limit_warning', '', NULL),
+(1039, 1019, 'time_limit_warning_display_time', '', NULL),
+(1040, 1019, 'time_limit_warning_message', '', NULL),
+(1041, 1019, 'time_limit_warning_style', '', NULL),
+(1042, 1019, 'time_limit_warning_2', '', NULL),
+(1043, 1019, 'time_limit_warning_2_display_time', '', NULL),
+(1044, 1019, 'time_limit_warning_2_message', '', NULL),
+(1045, 1019, 'time_limit_warning_2_style', '', NULL),
+(1046, 1019, 'random_group', '', NULL),
+(1047, 1020, 'hide_tip', '0', NULL),
+(1048, 1020, 'hidden', '0', NULL),
+(1049, 1020, 'max_num_value_n', '', NULL),
+(1050, 1020, 'maximum_chars', '', NULL),
+(1051, 1020, 'min_num_value_n', '', NULL),
+(1052, 1020, 'num_value_int_only', '0', NULL),
+(1053, 1020, 'page_break', '0', NULL),
+(1054, 1020, 'prefix', '', NULL),
+(1055, 1020, 'public_statistics', '0', NULL),
+(1056, 1020, 'suffix', '', NULL),
+(1057, 1020, 'text_input_width', '', NULL),
+(1058, 1020, 'random_group', '', NULL),
+(1059, 997, 'hidden', '0', NULL),
+(1060, 997, 'page_break', '0', NULL),
+(1061, 997, 'time_limit', '', NULL),
+(1062, 997, 'time_limit_action', '1', NULL),
+(1063, 997, 'time_limit_disable_next', '0', NULL),
+(1064, 997, 'time_limit_disable_prev', '0', NULL),
+(1065, 997, 'time_limit_countdown_message', '', NULL),
+(1066, 997, 'time_limit_timer_style', '', NULL),
+(1067, 997, 'time_limit_message_delay', '', NULL),
+(1068, 997, 'time_limit_message', '', NULL),
+(1069, 997, 'time_limit_message_style', '', NULL),
+(1070, 997, 'time_limit_warning', '', NULL),
+(1071, 997, 'time_limit_warning_display_time', '', NULL),
+(1072, 997, 'time_limit_warning_message', '', NULL),
+(1073, 997, 'time_limit_warning_style', '', NULL),
+(1074, 997, 'time_limit_warning_2', '', NULL),
+(1075, 997, 'time_limit_warning_2_display_time', '', NULL),
+(1076, 997, 'time_limit_warning_2_message', '', NULL),
+(1077, 997, 'time_limit_warning_2_style', '', NULL),
+(1078, 997, 'random_group', '', NULL),
+(1079, 1021, 'display_rows', '', NULL),
+(4351, 486, 'other_numbers_only', '0', NULL),
+(4350, 486, 'other_comment_mandatory', '0', NULL),
+(4349, 486, 'hidden', '0', NULL),
+(4348, 486, 'hide_tip', '0', NULL),
+(4347, 486, 'display_columns', '1', NULL),
+(4346, 486, 'array_filter_exclude', '', NULL),
+(4345, 486, 'array_filter', '', NULL),
+(4344, 486, 'alphasort', '0', NULL),
+(1091, 1021, 'hidden', '0', NULL),
+(1092, 1021, 'maximum_chars', '', NULL),
+(1093, 1021, 'numbers_only', '0', NULL),
+(1094, 1021, 'page_break', '0', NULL),
+(1095, 1021, 'prefix', '', NULL),
+(1096, 1021, 'suffix', '', NULL),
+(1097, 1021, 'text_input_width', '', NULL),
+(4343, 488, 'random_group', '', NULL),
+(4342, 488, 'scale_export', '0', NULL),
+(4341, 488, 'random_order', '0', NULL),
+(4340, 488, 'public_statistics', '0', NULL),
+(4339, 488, 'page_break', '0', NULL),
+(4338, 488, 'other_replace_text', '', NULL),
+(4337, 488, 'other_numbers_only', '0', NULL),
+(4336, 488, 'other_comment_mandatory', '0', NULL),
+(4335, 488, 'hidden', '0', NULL),
+(4334, 488, 'hide_tip', '0', NULL),
+(4333, 488, 'display_columns', '1', NULL),
+(4332, 488, 'array_filter_exclude', '', NULL),
+(4331, 488, 'array_filter', '', NULL),
+(4330, 488, 'alphasort', '0', NULL),
+(7030, 28, 'alphasort', '0', NULL),
+(4329, 1021, 'random_order', '0', NULL),
+(1115, 1021, 'random_group', '', NULL),
+(1116, 1022, 'hide_tip', '0', NULL),
+(1117, 1022, 'hidden', '0', NULL),
+(2907, 1022, 'other_comment_mandatory', '0', NULL),
+(2906, 1022, 'display_columns', '1', NULL),
+(2905, 1022, 'array_filter_exclude', '', NULL),
+(1122, 1022, 'page_break', '0', NULL),
+(1124, 1022, 'public_statistics', '0', NULL),
+(2904, 1022, 'array_filter', '', NULL),
+(2903, 1022, 'alphasort', '0', NULL),
+(1127, 1022, 'random_group', '', NULL),
+(1128, 998, 'hidden', '0', NULL),
+(1129, 998, 'page_break', '0', NULL),
+(1130, 998, 'time_limit', '', NULL),
+(1131, 998, 'time_limit_action', '1', NULL),
+(1132, 998, 'time_limit_disable_next', '0', NULL),
+(1133, 998, 'time_limit_disable_prev', '0', NULL),
+(1134, 998, 'time_limit_countdown_message', '', NULL),
+(1135, 998, 'time_limit_timer_style', '', NULL),
+(1136, 998, 'time_limit_message_delay', '', NULL),
+(1137, 998, 'time_limit_message', '', NULL),
+(1138, 998, 'time_limit_message_style', '', NULL),
+(1139, 998, 'time_limit_warning', '', NULL),
+(1140, 998, 'time_limit_warning_display_time', '', NULL),
+(1141, 998, 'time_limit_warning_message', '', NULL),
+(1142, 998, 'time_limit_warning_style', '', NULL),
+(1143, 998, 'time_limit_warning_2', '', NULL),
+(1144, 998, 'time_limit_warning_2_display_time', '', NULL),
+(1145, 998, 'time_limit_warning_2_message', '', NULL),
+(1146, 998, 'time_limit_warning_2_style', '', NULL),
+(1147, 998, 'random_group', '', NULL),
+(1148, 1023, 'alphasort', '0', NULL),
+(1149, 1023, 'array_filter', '', NULL),
+(1150, 1023, 'array_filter_exclude', '', NULL),
+(1151, 1023, 'display_columns', '1', NULL),
+(1152, 1023, 'hide_tip', '0', NULL),
+(1153, 1023, 'hidden', '0', NULL),
+(1154, 1023, 'other_comment_mandatory', '0', NULL),
+(1155, 1023, 'other_numbers_only', '0', NULL),
+(1156, 1023, 'other_replace_text', '', NULL),
+(1157, 1023, 'page_break', '0', NULL),
+(1158, 1023, 'public_statistics', '0', NULL),
+(1159, 1023, 'random_order', '0', NULL),
+(1160, 1023, 'scale_export', '0', NULL),
+(1161, 1023, 'random_group', '', NULL),
+(1162, 999, 'alphasort', '0', NULL),
+(1163, 999, 'array_filter', '', NULL),
+(1164, 999, 'array_filter_exclude', '', NULL),
+(1165, 999, 'display_columns', '1', NULL),
+(1166, 999, 'hide_tip', '0', NULL),
+(1167, 999, 'hidden', '0', NULL),
+(1168, 999, 'other_comment_mandatory', '0', NULL),
+(1169, 999, 'other_numbers_only', '0', NULL),
+(1170, 999, 'other_replace_text', '', NULL),
+(1171, 999, 'page_break', '0', NULL),
+(1172, 999, 'public_statistics', '0', NULL),
+(1173, 999, 'random_order', '0', NULL),
+(1174, 999, 'scale_export', '0', NULL),
+(1175, 999, 'random_group', '', NULL),
+(1176, 1024, 'alphasort', '0', NULL),
+(1177, 1024, 'array_filter', '', NULL),
+(1178, 1024, 'array_filter_exclude', '', NULL),
+(1179, 1024, 'display_columns', '1', NULL),
+(1180, 1024, 'hide_tip', '0', NULL),
+(1181, 1024, 'hidden', '0', NULL),
+(1182, 1024, 'other_comment_mandatory', '0', NULL),
+(1183, 1024, 'other_numbers_only', '0', NULL),
+(1184, 1024, 'other_replace_text', '', NULL),
+(1185, 1024, 'page_break', '0', NULL),
+(1186, 1024, 'public_statistics', '0', NULL),
+(1187, 1024, 'random_order', '0', NULL),
+(1188, 1024, 'scale_export', '0', NULL),
+(1189, 1024, 'random_group', '', NULL),
+(1190, 1000, 'alphasort', '0', NULL),
+(1191, 1000, 'array_filter', '', NULL),
+(1192, 1000, 'array_filter_exclude', '', NULL),
+(1193, 1000, 'display_columns', '1', NULL),
+(1194, 1000, 'hide_tip', '0', NULL),
+(1195, 1000, 'hidden', '0', NULL),
+(1196, 1000, 'other_comment_mandatory', '0', NULL),
+(1197, 1000, 'other_numbers_only', '0', NULL),
+(1198, 1000, 'other_replace_text', '', NULL),
+(1199, 1000, 'page_break', '0', NULL),
+(1200, 1000, 'public_statistics', '0', NULL),
+(1201, 1000, 'random_order', '0', NULL),
+(1202, 1000, 'scale_export', '0', NULL),
+(1203, 1000, 'random_group', '', NULL),
+(1204, 1001, 'alphasort', '0', NULL),
+(1205, 1001, 'array_filter', '', NULL),
+(1206, 1001, 'array_filter_exclude', '', NULL),
+(1207, 1001, 'display_columns', '1', NULL),
+(1208, 1001, 'hide_tip', '0', NULL),
+(1209, 1001, 'hidden', '0', NULL),
+(1210, 1001, 'other_comment_mandatory', '0', NULL),
+(1211, 1001, 'other_numbers_only', '0', NULL),
+(1212, 1001, 'other_replace_text', '', NULL),
+(1213, 1001, 'page_break', '0', NULL),
+(1214, 1001, 'public_statistics', '0', NULL),
+(1215, 1001, 'random_order', '0', NULL),
+(1216, 1001, 'scale_export', '0', NULL),
+(1217, 1001, 'random_group', '', NULL),
+(1218, 1025, 'alphasort', '0', NULL),
+(1219, 1025, 'array_filter', '', NULL),
+(1220, 1025, 'array_filter_exclude', '', NULL),
+(1221, 1025, 'display_columns', '1', NULL),
+(1222, 1025, 'hide_tip', '0', NULL),
+(1223, 1025, 'hidden', '0', NULL),
+(1224, 1025, 'other_comment_mandatory', '0', NULL),
+(1225, 1025, 'other_numbers_only', '0', NULL),
+(1226, 1025, 'other_replace_text', '', NULL),
+(1227, 1025, 'page_break', '0', NULL),
+(1228, 1025, 'public_statistics', '0', NULL),
+(1229, 1025, 'random_order', '0', NULL),
+(1230, 1025, 'scale_export', '0', NULL),
+(1231, 1025, 'random_group', '', NULL),
+(1232, 1002, 'hidden', '0', NULL),
+(1233, 1002, 'page_break', '0', NULL),
+(3624, 249, 'hidden', '0', NULL),
+(3623, 249, 'display_rows', '', NULL),
+(3622, 1002, 'scale_export', '0', NULL),
+(3621, 1002, 'random_order', '0', NULL),
+(3620, 1002, 'public_statistics', '0', NULL),
+(3619, 1002, 'other_replace_text', '', NULL),
+(3618, 1002, 'other_numbers_only', '0', NULL),
+(3617, 1002, 'min_answers', '', NULL),
+(3616, 1002, 'max_answers', '', NULL),
+(3615, 1002, 'hide_tip', '0', NULL),
+(3614, 1002, 'exclude_all_others_auto', '0', NULL),
+(3613, 1002, 'exclude_all_others', '', NULL),
+(3612, 1002, 'display_columns', '1', NULL),
+(3611, 1002, 'assessment_value', '1', NULL),
+(3610, 1002, 'array_filter_exclude', '', NULL),
+(3609, 1002, 'array_filter', '', NULL),
+(1251, 1002, 'random_group', '', NULL),
+(1252, 1003, 'alphasort', '0', NULL),
+(1253, 1003, 'array_filter', '', NULL),
+(1254, 1003, 'array_filter_exclude', '', NULL),
+(1255, 1003, 'display_columns', '1', NULL),
+(1256, 1003, 'hide_tip', '0', NULL),
+(1257, 1003, 'hidden', '0', NULL),
+(1258, 1003, 'other_comment_mandatory', '0', NULL),
+(1259, 1003, 'other_numbers_only', '0', NULL),
+(1260, 1003, 'other_replace_text', '', NULL),
+(1261, 1003, 'page_break', '0', NULL),
+(1262, 1003, 'public_statistics', '0', NULL),
+(1263, 1003, 'random_order', '0', NULL),
+(1264, 1003, 'scale_export', '0', NULL),
+(1265, 1003, 'random_group', '', NULL),
+(1266, 1026, 'hidden', '0', NULL),
+(1267, 1026, 'page_break', '0', NULL),
+(1268, 1026, 'time_limit', '', NULL),
+(1269, 1026, 'time_limit_action', '1', NULL),
+(1270, 1026, 'time_limit_disable_next', '0', NULL),
+(1271, 1026, 'time_limit_disable_prev', '0', NULL),
+(1272, 1026, 'time_limit_countdown_message', '', NULL),
+(1273, 1026, 'time_limit_timer_style', '', NULL),
+(1274, 1026, 'time_limit_message_delay', '', NULL),
+(1275, 1026, 'time_limit_message', '', NULL),
+(1276, 1026, 'time_limit_message_style', '', NULL),
+(1277, 1026, 'time_limit_warning', '', NULL),
+(1278, 1026, 'time_limit_warning_display_time', '', NULL),
+(1279, 1026, 'time_limit_warning_message', '', NULL),
+(1280, 1026, 'time_limit_warning_style', '', NULL),
+(1281, 1026, 'time_limit_warning_2', '', NULL),
+(1282, 1026, 'time_limit_warning_2_display_time', '', NULL),
+(1283, 1026, 'time_limit_warning_2_message', '', NULL),
+(1284, 1026, 'time_limit_warning_2_style', '', NULL),
+(1285, 1026, 'random_group', '', NULL),
+(1927, 34, 'prefix', '', NULL),
+(1926, 34, 'page_break', '0', NULL),
+(1925, 34, 'numbers_only', '0', NULL),
+(1924, 34, 'maximum_chars', '', NULL),
+(1923, 34, 'hidden', '0', NULL),
+(1922, 34, 'hide_tip', '0', NULL),
+(1921, 34, 'location_mapzoom', '11', NULL),
+(1920, 34, 'location_defaultcoordinates', '', NULL),
+(1919, 34, 'location_nodefaultfromip', '0', NULL),
+(1918, 34, 'location_mapheight', '300', NULL),
+(1917, 34, 'location_mapwidth', '500', NULL),
+(1916, 34, 'location_mapservice', '0', NULL),
+(1915, 34, 'location_country', '0', NULL),
+(1914, 34, 'location_postal', '0', NULL),
+(1913, 34, 'location_state', '0', NULL),
+(1912, 34, 'location_city', '0', NULL),
+(1911, 34, 'display_rows', '', NULL),
+(1306, 1004, 'answer_width', '', NULL),
+(1307, 1004, 'array_filter', '', NULL),
+(1308, 1004, 'array_filter_exclude', '', NULL),
+(1309, 1004, 'hidden', '0', NULL),
+(1310, 1004, 'numbers_only', '0', NULL),
+(1311, 1004, 'show_totals', 'X', NULL),
+(1312, 1004, 'show_grand_total', '0', NULL),
+(1313, 1004, 'page_break', '0', NULL),
+(1314, 1004, 'random_order', '0', NULL),
+(1315, 1004, 'text_input_width', '', NULL),
+(1316, 1004, 'random_group', '', NULL),
+(1563, 1057, 'display_rows', '', NULL),
+(1318, 1028, 'hidden', '0', NULL),
+(1562, 1056, 'random_group', '', NULL),
+(1320, 1028, 'page_break', '0', NULL);
+INSERT INTO question_attributes (qaid, qid, attribute, value, language) VALUES
+(1561, 1056, 'time_limit_warning_2_style', '', NULL),
+(1560, 1056, 'time_limit_warning_2_message', '', NULL),
+(1559, 1056, 'time_limit_warning_2_display_time', '', NULL),
+(1558, 1056, 'time_limit_warning_2', '', NULL),
+(1488, 1028, 'scale_export', '0', NULL),
+(1487, 1028, 'random_order', '0', NULL),
+(1486, 1028, 'public_statistics', '0', NULL),
+(1485, 1028, 'other_replace_text', '', NULL),
+(1484, 1028, 'other_numbers_only', '0', NULL),
+(1483, 1028, 'other_comment_mandatory', '0', NULL),
+(1482, 1028, 'hide_tip', '0', NULL),
+(1481, 1028, 'display_columns', '1', NULL),
+(1480, 1028, 'array_filter_exclude', '', NULL),
+(1479, 1028, 'array_filter', '', NULL),
+(1478, 1028, 'alphasort', '0', NULL),
+(1339, 1028, 'random_group', '', NULL),
+(1341, 1029, 'hidden', '0', NULL),
+(1557, 1056, 'time_limit_warning_style', '', NULL),
+(1343, 1029, 'page_break', '0', NULL),
+(1556, 1056, 'time_limit_warning_message', '', NULL),
+(1555, 1056, 'time_limit_warning_display_time', '', NULL),
+(1554, 1056, 'time_limit_warning', '', NULL),
+(1553, 1056, 'time_limit_message_style', '', NULL),
+(1499, 1029, 'scale_export', '0', NULL),
+(1498, 1029, 'random_order', '0', NULL),
+(1497, 1029, 'public_statistics', '0', NULL),
+(1496, 1029, 'other_replace_text', '', NULL),
+(1495, 1029, 'other_numbers_only', '0', NULL),
+(1494, 1029, 'other_comment_mandatory', '0', NULL),
+(1493, 1029, 'hide_tip', '0', NULL),
+(1492, 1029, 'display_columns', '1', NULL),
+(1491, 1029, 'array_filter_exclude', '', NULL),
+(1490, 1029, 'array_filter', '', NULL),
+(1489, 1029, 'alphasort', '0', NULL),
+(1362, 1029, 'random_group', '', NULL),
+(1364, 1030, 'hidden', '0', NULL),
+(1552, 1056, 'time_limit_message', '', NULL),
+(1366, 1030, 'page_break', '0', NULL),
+(1551, 1056, 'time_limit_message_delay', '', NULL),
+(1550, 1056, 'time_limit_timer_style', '', NULL),
+(1549, 1056, 'time_limit_countdown_message', '', NULL),
+(1548, 1056, 'time_limit_disable_prev', '0', NULL),
+(1510, 1030, 'scale_export', '0', NULL),
+(1509, 1030, 'random_order', '0', NULL),
+(1508, 1030, 'public_statistics', '0', NULL),
+(1507, 1030, 'other_replace_text', '', NULL),
+(1506, 1030, 'other_numbers_only', '0', NULL),
+(1505, 1030, 'other_comment_mandatory', '0', NULL),
+(1504, 1030, 'hide_tip', '0', NULL),
+(1503, 1030, 'display_columns', '1', NULL),
+(1502, 1030, 'array_filter_exclude', '', NULL),
+(1501, 1030, 'array_filter', '', NULL),
+(1500, 1030, 'alphasort', '0', NULL),
+(1385, 1030, 'random_group', '', NULL),
+(1386, 1031, 'display_rows', '', NULL),
+(1387, 1031, 'hidden', '0', NULL),
+(1388, 1031, 'maximum_chars', '', NULL),
+(1389, 1031, 'page_break', '0', NULL),
+(1390, 1031, 'text_input_width', '', NULL),
+(1547, 1056, 'time_limit_disable_next', '0', NULL),
+(1546, 1056, 'time_limit_action', '1', NULL),
+(1545, 1056, 'time_limit', '', NULL),
+(1544, 1056, 'page_break', '0', NULL),
+(1543, 1056, 'hidden', '0', NULL),
+(1542, 1055, 'random_group', '', NULL),
+(1541, 1055, 'scale_export', '0', NULL),
+(1540, 1055, 'random_order', '0', NULL),
+(1539, 1055, 'public_statistics', '0', NULL),
+(1538, 1055, 'page_break', '0', NULL),
+(1537, 1055, 'other_replace_text', '', NULL),
+(1514, 1031, 'suffix', '', NULL),
+(1513, 1031, 'random_order', '0', NULL),
+(1512, 1031, 'prefix', '', NULL),
+(1511, 1031, 'numbers_only', '0', NULL),
+(1408, 1031, 'random_group', '', NULL),
+(1536, 1055, 'other_numbers_only', '0', NULL),
+(1410, 1032, 'hidden', '0', NULL),
+(1412, 1032, 'page_break', '0', NULL),
+(1535, 1055, 'other_comment_mandatory', '0', NULL),
+(1534, 1055, 'hidden', '0', NULL),
+(1533, 1055, 'hide_tip', '0', NULL),
+(1528, 1032, 'scale_export', '0', NULL),
+(1527, 1032, 'random_order', '0', NULL),
+(1526, 1032, 'public_statistics', '0', NULL),
+(1525, 1032, 'other_replace_text', '', NULL),
+(1524, 1032, 'other_numbers_only', '0', NULL),
+(1523, 1032, 'min_answers', '', NULL),
+(1522, 1032, 'max_answers', '', NULL),
+(1521, 1032, 'hide_tip', '0', NULL),
+(1520, 1032, 'exclude_all_others_auto', '0', NULL),
+(1519, 1032, 'exclude_all_others', '', NULL),
+(1518, 1032, 'display_columns', '1', NULL),
+(1517, 1032, 'assessment_value', '1', NULL),
+(1516, 1032, 'array_filter_exclude', '', NULL),
+(1515, 1032, 'array_filter', '', NULL),
+(1431, 1032, 'random_group', '', NULL),
+(1433, 1033, 'hidden', '0', NULL),
+(1532, 1055, 'display_columns', '1', NULL),
+(1435, 1033, 'page_break', '0', NULL),
+(1437, 1033, 'time_limit', '', NULL),
+(1438, 1033, 'time_limit_action', '1', NULL),
+(1439, 1033, 'time_limit_disable_next', '0', NULL),
+(1440, 1033, 'time_limit_disable_prev', '0', NULL),
+(1441, 1033, 'time_limit_countdown_message', '', NULL),
+(1442, 1033, 'time_limit_timer_style', '', NULL),
+(1443, 1033, 'time_limit_message_delay', '', NULL),
+(1444, 1033, 'time_limit_message', '', NULL),
+(1445, 1033, 'time_limit_message_style', '', NULL),
+(1446, 1033, 'time_limit_warning', '', NULL),
+(1447, 1033, 'time_limit_warning_display_time', '', NULL),
+(1448, 1033, 'time_limit_warning_message', '', NULL),
+(1449, 1033, 'time_limit_warning_style', '', NULL),
+(1450, 1033, 'time_limit_warning_2', '', NULL),
+(1451, 1033, 'time_limit_warning_2_display_time', '', NULL),
+(1452, 1033, 'time_limit_warning_2_message', '', NULL),
+(1453, 1033, 'time_limit_warning_2_style', '', NULL),
+(1454, 1033, 'random_group', '', NULL),
+(1531, 1055, 'array_filter_exclude', '', NULL),
+(1456, 1034, 'hidden', '0', NULL),
+(1530, 1055, 'array_filter', '', NULL),
+(1458, 1034, 'page_break', '0', NULL),
+(1529, 1055, 'alphasort', '0', NULL),
+(1460, 1034, 'time_limit', '', NULL),
+(1461, 1034, 'time_limit_action', '1', NULL),
+(1462, 1034, 'time_limit_disable_next', '0', NULL),
+(1463, 1034, 'time_limit_disable_prev', '0', NULL),
+(1464, 1034, 'time_limit_countdown_message', '', NULL),
+(1465, 1034, 'time_limit_timer_style', '', NULL),
+(1466, 1034, 'time_limit_message_delay', '', NULL),
+(1467, 1034, 'time_limit_message', '', NULL),
+(1468, 1034, 'time_limit_message_style', '', NULL),
+(1469, 1034, 'time_limit_warning', '', NULL),
+(1470, 1034, 'time_limit_warning_display_time', '', NULL),
+(1471, 1034, 'time_limit_warning_message', '', NULL),
+(1472, 1034, 'time_limit_warning_style', '', NULL),
+(1473, 1034, 'time_limit_warning_2', '', NULL),
+(1474, 1034, 'time_limit_warning_2_display_time', '', NULL),
+(1475, 1034, 'time_limit_warning_2_message', '', NULL),
+(1476, 1034, 'time_limit_warning_2_style', '', NULL),
+(1477, 1034, 'random_group', '', NULL),
+(1564, 1057, 'hidden', '0', NULL),
+(1565, 1057, 'maximum_chars', '', NULL),
+(1566, 1057, 'page_break', '0', NULL),
+(1567, 1057, 'text_input_width', '', NULL),
+(1568, 1057, 'time_limit', '', NULL),
+(1569, 1057, 'time_limit_action', '1', NULL),
+(1570, 1057, 'time_limit_disable_next', '0', NULL),
+(1571, 1057, 'time_limit_disable_prev', '0', NULL),
+(1572, 1057, 'time_limit_countdown_message', '', NULL),
+(1573, 1057, 'time_limit_timer_style', '', NULL),
+(1574, 1057, 'time_limit_message_delay', '', NULL),
+(1575, 1057, 'time_limit_message', '', NULL),
+(1576, 1057, 'time_limit_message_style', '', NULL),
+(1577, 1057, 'time_limit_warning', '', NULL),
+(1578, 1057, 'time_limit_warning_display_time', '', NULL),
+(1579, 1057, 'time_limit_warning_message', '', NULL),
+(1580, 1057, 'time_limit_warning_style', '', NULL),
+(1581, 1057, 'time_limit_warning_2', '', NULL),
+(1582, 1057, 'time_limit_warning_2_display_time', '', NULL),
+(1583, 1057, 'time_limit_warning_2_message', '', NULL),
+(1584, 1057, 'time_limit_warning_2_style', '', NULL),
+(1585, 1057, 'random_group', '', NULL),
+(1586, 1058, 'hidden', '0', NULL),
+(1587, 1058, 'page_break', '0', NULL),
+(1588, 1058, 'time_limit', '', NULL),
+(1589, 1058, 'time_limit_action', '1', NULL),
+(1590, 1058, 'time_limit_disable_next', '0', NULL),
+(1591, 1058, 'time_limit_disable_prev', '0', NULL),
+(1592, 1058, 'time_limit_countdown_message', '', NULL),
+(1593, 1058, 'time_limit_timer_style', '', NULL),
+(1594, 1058, 'time_limit_message_delay', '', NULL),
+(1595, 1058, 'time_limit_message', '', NULL),
+(1596, 1058, 'time_limit_message_style', '', NULL),
+(1597, 1058, 'time_limit_warning', '', NULL),
+(1598, 1058, 'time_limit_warning_display_time', '', NULL),
+(1599, 1058, 'time_limit_warning_message', '', NULL),
+(1600, 1058, 'time_limit_warning_style', '', NULL),
+(1601, 1058, 'time_limit_warning_2', '', NULL),
+(1602, 1058, 'time_limit_warning_2_display_time', '', NULL),
+(1603, 1058, 'time_limit_warning_2_message', '', NULL),
+(1604, 1058, 'time_limit_warning_2_style', '', NULL),
+(1605, 1058, 'random_group', '', NULL),
+(1606, 1059, 'alphasort', '0', NULL),
+(1607, 1059, 'array_filter', '', NULL),
+(1608, 1059, 'array_filter_exclude', '', NULL),
+(1609, 1059, 'display_columns', '1', NULL),
+(1610, 1059, 'hide_tip', '0', NULL),
+(1611, 1059, 'hidden', '0', NULL),
+(1612, 1059, 'other_comment_mandatory', '0', NULL),
+(1613, 1059, 'other_numbers_only', '0', NULL),
+(1614, 1059, 'other_replace_text', '', NULL),
+(1615, 1059, 'page_break', '0', NULL),
+(1616, 1059, 'public_statistics', '0', NULL),
+(1617, 1059, 'random_order', '0', NULL),
+(1618, 1059, 'scale_export', '0', NULL),
+(1619, 1059, 'random_group', '', NULL),
+(1620, 1060, 'display_rows', '', NULL),
+(1621, 1060, 'hidden', '0', NULL),
+(1622, 1060, 'maximum_chars', '', NULL),
+(1623, 1060, 'page_break', '0', NULL),
+(1624, 1060, 'text_input_width', '', NULL),
+(1625, 1060, 'time_limit', '', NULL),
+(1626, 1060, 'time_limit_action', '1', NULL),
+(1627, 1060, 'time_limit_disable_next', '0', NULL),
+(1628, 1060, 'time_limit_disable_prev', '0', NULL),
+(1629, 1060, 'time_limit_countdown_message', '', NULL),
+(1630, 1060, 'time_limit_timer_style', '', NULL),
+(1631, 1060, 'time_limit_message_delay', '', NULL),
+(1632, 1060, 'time_limit_message', '', NULL),
+(1633, 1060, 'time_limit_message_style', '', NULL),
+(1634, 1060, 'time_limit_warning', '', NULL),
+(1635, 1060, 'time_limit_warning_display_time', '', NULL),
+(1636, 1060, 'time_limit_warning_message', '', NULL),
+(1637, 1060, 'time_limit_warning_style', '', NULL),
+(1638, 1060, 'time_limit_warning_2', '', NULL),
+(1639, 1060, 'time_limit_warning_2_display_time', '', NULL),
+(1640, 1060, 'time_limit_warning_2_message', '', NULL),
+(1641, 1060, 'time_limit_warning_2_style', '', NULL),
+(1642, 1060, 'random_group', '', NULL),
+(1643, 1061, 'hidden', '0', NULL),
+(1644, 1061, 'page_break', '0', NULL),
+(1645, 1061, 'time_limit', '', NULL),
+(1646, 1061, 'time_limit_action', '1', NULL),
+(1647, 1061, 'time_limit_disable_next', '0', NULL),
+(1648, 1061, 'time_limit_disable_prev', '0', NULL),
+(1649, 1061, 'time_limit_countdown_message', '', NULL),
+(1650, 1061, 'time_limit_timer_style', '', NULL),
+(1651, 1061, 'time_limit_message_delay', '', NULL),
+(1652, 1061, 'time_limit_message', '', NULL),
+(1653, 1061, 'time_limit_message_style', '', NULL),
+(1654, 1061, 'time_limit_warning', '', NULL),
+(1655, 1061, 'time_limit_warning_display_time', '', NULL),
+(1656, 1061, 'time_limit_warning_message', '', NULL),
+(1657, 1061, 'time_limit_warning_style', '', NULL),
+(1658, 1061, 'time_limit_warning_2', '', NULL),
+(1659, 1061, 'time_limit_warning_2_display_time', '', NULL),
+(1660, 1061, 'time_limit_warning_2_message', '', NULL),
+(1661, 1061, 'time_limit_warning_2_style', '', NULL),
+(1662, 1061, 'random_group', '', NULL),
+(1663, 6, 'alphasort', '0', NULL),
+(1664, 6, 'array_filter', '', NULL),
+(1665, 6, 'array_filter_exclude', '', NULL),
+(1666, 6, 'display_columns', '1', NULL),
+(1667, 6, 'hide_tip', '0', NULL),
+(1668, 6, 'hidden', '0', NULL),
+(1669, 6, 'other_comment_mandatory', '0', NULL),
+(1670, 6, 'other_numbers_only', '0', NULL),
+(1671, 6, 'other_replace_text', '', NULL),
+(1672, 6, 'page_break', '0', NULL),
+(1673, 6, 'public_statistics', '0', NULL),
+(1674, 6, 'random_order', '0', NULL),
+(1675, 6, 'scale_export', '0', NULL),
+(1676, 6, 'random_group', '', NULL),
+(1677, 340, 'display_rows', '', NULL),
+(1678, 340, 'location_city', '0', NULL),
+(1679, 340, 'location_state', '0', NULL),
+(1680, 340, 'location_postal', '0', NULL),
+(1681, 340, 'location_country', '0', NULL),
+(1682, 340, 'location_mapservice', '0', NULL),
+(1683, 340, 'location_mapwidth', '500', NULL),
+(1684, 340, 'location_mapheight', '300', NULL),
+(1685, 340, 'location_nodefaultfromip', '0', NULL),
+(1686, 340, 'location_defaultcoordinates', '', NULL),
+(1687, 340, 'location_mapzoom', '11', NULL),
+(1688, 340, 'hide_tip', '0', NULL),
+(1689, 340, 'hidden', '0', NULL),
+(1690, 340, 'maximum_chars', '', NULL),
+(1691, 340, 'numbers_only', '0', NULL),
+(1692, 340, 'page_break', '0', NULL),
+(1693, 340, 'prefix', '', NULL),
+(1694, 340, 'suffix', '', NULL),
+(1695, 340, 'text_input_width', '', NULL),
+(1696, 340, 'time_limit', '', NULL),
+(1697, 340, 'time_limit_action', '1', NULL),
+(1698, 340, 'time_limit_disable_next', '0', NULL),
+(1699, 340, 'time_limit_disable_prev', '0', NULL),
+(1700, 340, 'time_limit_countdown_message', '', NULL),
+(1701, 340, 'time_limit_timer_style', '', NULL),
+(1702, 340, 'time_limit_message_delay', '', NULL),
+(1703, 340, 'time_limit_message', '', NULL),
+(1704, 340, 'time_limit_message_style', '', NULL),
+(1705, 340, 'time_limit_warning', '', NULL),
+(1706, 340, 'time_limit_warning_display_time', '', NULL),
+(1707, 340, 'time_limit_warning_message', '', NULL),
+(1708, 340, 'time_limit_warning_style', '', NULL),
+(1709, 340, 'time_limit_warning_2', '', NULL),
+(1710, 340, 'time_limit_warning_2_display_time', '', NULL),
+(1711, 340, 'time_limit_warning_2_message', '', NULL),
+(1712, 340, 'time_limit_warning_2_style', '', NULL),
+(1713, 340, 'random_group', '', NULL),
+(7146, 122, 'array_filter', '', NULL),
+(7145, 122, 'alphasort', '0', NULL),
+(7144, 101, 'random_group', '', NULL),
+(7143, 101, 'scale_export', '0', NULL),
+(7142, 101, 'random_order', '0', NULL),
+(7141, 101, 'public_statistics', '0', NULL),
+(7140, 101, 'page_break', '0', NULL),
+(7139, 101, 'other_replace_text', '', NULL),
+(7138, 101, 'other_numbers_only', '0', NULL),
+(7137, 101, 'other_comment_mandatory', '0', NULL),
+(7136, 101, 'hidden', '0', NULL),
+(7135, 101, 'hide_tip', '0', NULL),
+(7134, 101, 'display_columns', '1', NULL),
+(7133, 101, 'array_filter_exclude', '', NULL),
+(7132, 101, 'array_filter', '', NULL),
+(7131, 101, 'alphasort', '0', NULL),
+(7130, 84, 'random_group', '', NULL),
+(7129, 84, 'scale_export', '0', NULL),
+(7128, 84, 'random_order', '0', NULL),
+(7127, 84, 'public_statistics', '0', NULL),
+(7126, 84, 'page_break', '0', NULL),
+(7125, 84, 'other_replace_text', '', NULL),
+(7124, 84, 'other_numbers_only', '0', NULL),
+(7123, 84, 'other_comment_mandatory', '0', NULL),
+(7122, 84, 'hidden', '0', NULL),
+(7121, 84, 'hide_tip', '0', NULL),
+(7120, 84, 'display_columns', '1', NULL),
+(7118, 84, 'array_filter', '', NULL),
+(7119, 84, 'array_filter_exclude', '', NULL),
+(7116, 325, 'random_group', '', NULL),
+(7117, 84, 'alphasort', '0', NULL),
+(7115, 325, 'scale_export', '0', NULL),
+(7114, 325, 'random_order', '0', NULL),
+(7113, 325, 'public_statistics', '0', NULL),
+(7112, 325, 'page_break', '0', NULL),
+(7111, 325, 'other_replace_text', '', NULL),
+(7110, 325, 'other_numbers_only', '0', NULL),
+(7108, 325, 'hidden', '0', NULL),
+(7109, 325, 'other_comment_mandatory', '0', NULL),
+(7107, 325, 'hide_tip', '0', NULL),
+(7106, 325, 'display_columns', '1', NULL),
+(7105, 325, 'array_filter_exclude', '', NULL),
+(7104, 325, 'array_filter', '', NULL),
+(7103, 325, 'alphasort', '0', NULL),
+(7102, 128, 'random_group', '', NULL),
+(7101, 128, 'scale_export', '0', NULL),
+(7100, 128, 'random_order', '0', NULL),
+(7099, 128, 'public_statistics', '0', NULL),
+(7098, 128, 'page_break', '0', NULL),
+(7097, 128, 'other_replace_text', '', NULL),
+(7096, 128, 'other_numbers_only', '0', NULL),
+(7095, 128, 'min_answers', '', NULL),
+(7094, 128, 'max_answers', '', NULL),
+(7093, 128, 'hidden', '0', NULL),
+(7092, 128, 'hide_tip', '0', NULL),
+(7091, 128, 'exclude_all_others_auto', '0', NULL),
+(7090, 128, 'exclude_all_others', '', NULL),
+(7089, 128, 'display_columns', '1', NULL),
+(7088, 128, 'assessment_value', '1', NULL),
+(7087, 128, 'array_filter_exclude', '', NULL),
+(7086, 128, 'array_filter', '', NULL),
+(7085, 259, 'random_group', '', NULL),
+(7084, 259, 'scale_export', '0', NULL),
+(7083, 259, 'random_order', '0', NULL),
+(7082, 259, 'public_statistics', '0', NULL),
+(7081, 259, 'page_break', '0', NULL),
+(7080, 259, 'other_replace_text', '', NULL),
+(7079, 259, 'other_numbers_only', '0', NULL),
+(7078, 259, 'other_comment_mandatory', '0', NULL),
+(7077, 259, 'hidden', '0', NULL),
+(7076, 259, 'hide_tip', '0', NULL),
+(7075, 259, 'display_columns', '1', NULL),
+(7074, 259, 'array_filter_exclude', '', NULL),
+(7073, 259, 'array_filter', '', NULL),
+(7072, 259, 'alphasort', '0', NULL),
+(7071, 329, 'random_group', '', NULL),
+(7070, 329, 'scale_export', '0', NULL),
+(7069, 329, 'random_order', '0', NULL),
+(7068, 329, 'public_statistics', '0', NULL),
+(7067, 329, 'page_break', '0', NULL),
+(7066, 329, 'other_replace_text', '', NULL),
+(7065, 329, 'other_numbers_only', '0', NULL),
+(7064, 329, 'other_comment_mandatory', '0', NULL),
+(7063, 329, 'hidden', '0', NULL),
+(7062, 329, 'hide_tip', '0', NULL),
+(7061, 329, 'display_columns', '1', NULL),
+(7060, 329, 'array_filter_exclude', '', NULL),
+(7059, 329, 'array_filter', '', NULL),
+(7058, 329, 'alphasort', '0', NULL),
+(7057, 328, 'random_group', '', NULL),
+(7056, 328, 'scale_export', '0', NULL),
+(7055, 328, 'random_order', '0', NULL),
+(7054, 328, 'public_statistics', '0', NULL),
+(7053, 328, 'page_break', '0', NULL),
+(7052, 328, 'other_replace_text', '', NULL),
+(7051, 328, 'other_numbers_only', '0', NULL),
+(7050, 328, 'other_comment_mandatory', '0', NULL),
+(7049, 328, 'hidden', '0', NULL),
+(7048, 328, 'hide_tip', '0', NULL),
+(7047, 328, 'display_columns', '1', NULL),
+(7046, 328, 'array_filter_exclude', '', NULL),
+(7045, 328, 'array_filter', '', NULL),
+(7044, 328, 'alphasort', '0', NULL),
+(7043, 28, 'random_group', '', NULL),
+(7042, 28, 'scale_export', '0', NULL),
+(7041, 28, 'random_order', '0', NULL),
+(7040, 28, 'public_statistics', '0', NULL),
+(7039, 28, 'page_break', '0', NULL),
+(7038, 28, 'other_replace_text', '', NULL),
+(7037, 28, 'other_numbers_only', '0', NULL),
+(7036, 28, 'other_comment_mandatory', '0', NULL),
+(7035, 28, 'hidden', '0', NULL),
+(7034, 28, 'hide_tip', '0', NULL),
+(7033, 28, 'display_columns', '1', NULL),
+(7032, 28, 'array_filter_exclude', '', NULL),
+(7031, 28, 'array_filter', '', NULL),
+(1905, 1071, 'time_limit_warning_2_display_time', '', NULL),
+(1904, 1071, 'time_limit_warning_2', '', NULL),
+(1903, 1071, 'time_limit_warning', '', NULL),
+(1902, 1071, 'time_limit_timer_style', '', NULL),
+(1901, 1071, 'time_limit_message_style', '', NULL),
+(1900, 1071, 'time_limit_message_delay', '', NULL),
+(1899, 1071, 'time_limit_message', '', NULL),
+(1898, 1071, 'time_limit_disable_prev', '0', NULL),
+(1897, 1071, 'time_limit_disable_next', '0', NULL),
+(1896, 1071, 'time_limit_countdown_message', '', NULL),
+(1895, 1071, 'time_limit_action', '1', NULL),
+(1894, 1071, 'time_limit', '', NULL),
+(1893, 1071, 'random_group', '', NULL),
+(1892, 1071, 'page_break', '0', NULL),
+(1891, 1071, 'hidden', '0', NULL),
+(1906, 1071, 'time_limit_warning_2_message', '', NULL),
+(1907, 1071, 'time_limit_warning_2_style', '', NULL),
+(1908, 1071, 'time_limit_warning_display_time', '', NULL),
+(1909, 1071, 'time_limit_warning_message', '', NULL),
+(1910, 1071, 'time_limit_warning_style', '', NULL),
+(1928, 34, 'suffix', '', NULL),
+(1929, 34, 'text_input_width', '', NULL),
+(1930, 34, 'time_limit', '', NULL),
+(1931, 34, 'time_limit_action', '1', NULL),
+(1932, 34, 'time_limit_disable_next', '0', NULL),
+(1933, 34, 'time_limit_disable_prev', '0', NULL),
+(1934, 34, 'time_limit_countdown_message', '', NULL),
+(1935, 34, 'time_limit_timer_style', '', NULL),
+(1936, 34, 'time_limit_message_delay', '', NULL),
+(1937, 34, 'time_limit_message', '', NULL),
+(1938, 34, 'time_limit_message_style', '', NULL),
+(1939, 34, 'time_limit_warning', '', NULL),
+(1940, 34, 'time_limit_warning_display_time', '', NULL),
+(1941, 34, 'time_limit_warning_message', '', NULL),
+(1942, 34, 'time_limit_warning_style', '', NULL),
+(1943, 34, 'time_limit_warning_2', '', NULL),
+(1944, 34, 'time_limit_warning_2_display_time', '', NULL),
+(1945, 34, 'time_limit_warning_2_message', '', NULL),
+(1946, 34, 'time_limit_warning_2_style', '', NULL),
+(1947, 34, 'random_group', '', NULL),
+(1948, 1072, 'display_rows', '', NULL),
+(1949, 1072, 'location_city', '0', NULL),
+(1950, 1072, 'location_state', '0', NULL),
+(1951, 1072, 'location_postal', '0', NULL),
+(1952, 1072, 'location_country', '0', NULL),
+(1953, 1072, 'location_mapservice', '0', NULL),
+(1954, 1072, 'location_mapwidth', '500', NULL),
+(1955, 1072, 'location_mapheight', '300', NULL),
+(1956, 1072, 'location_nodefaultfromip', '0', NULL),
+(1957, 1072, 'location_defaultcoordinates', '', NULL),
+(1958, 1072, 'location_mapzoom', '11', NULL),
+(1959, 1072, 'hide_tip', '0', NULL),
+(1960, 1072, 'hidden', '0', NULL),
+(1961, 1072, 'maximum_chars', '', NULL),
+(1962, 1072, 'numbers_only', '0', NULL),
+(1963, 1072, 'page_break', '0', NULL),
+(1964, 1072, 'prefix', '', NULL),
+(1965, 1072, 'suffix', '', NULL),
+(1966, 1072, 'text_input_width', '', NULL),
+(1967, 1072, 'time_limit', '', NULL),
+(1968, 1072, 'time_limit_action', '1', NULL),
+(1969, 1072, 'time_limit_disable_next', '0', NULL),
+(1970, 1072, 'time_limit_disable_prev', '0', NULL),
+(1971, 1072, 'time_limit_countdown_message', '', NULL),
+(1972, 1072, 'time_limit_timer_style', '', NULL),
+(1973, 1072, 'time_limit_message_delay', '', NULL),
+(1974, 1072, 'time_limit_message', '', NULL),
+(1975, 1072, 'time_limit_message_style', '', NULL),
+(1976, 1072, 'time_limit_warning', '', NULL),
+(1977, 1072, 'time_limit_warning_display_time', '', NULL),
+(1978, 1072, 'time_limit_warning_message', '', NULL),
+(1979, 1072, 'time_limit_warning_style', '', NULL),
+(1980, 1072, 'time_limit_warning_2', '', NULL),
+(1981, 1072, 'time_limit_warning_2_display_time', '', NULL),
+(1982, 1072, 'time_limit_warning_2_message', '', NULL),
+(1983, 1072, 'time_limit_warning_2_style', '', NULL),
+(1984, 1072, 'random_group', '', NULL),
+(1985, 36, 'display_rows', '', NULL),
+(1986, 36, 'location_city', '0', NULL),
+(1987, 36, 'location_state', '0', NULL),
+(1988, 36, 'location_postal', '0', NULL),
+(1989, 36, 'location_country', '0', NULL),
+(1990, 36, 'location_mapservice', '0', NULL),
+(1991, 36, 'location_mapwidth', '500', NULL),
+(1992, 36, 'location_mapheight', '300', NULL),
+(1993, 36, 'location_nodefaultfromip', '0', NULL),
+(1994, 36, 'location_defaultcoordinates', '', NULL),
+(1995, 36, 'location_mapzoom', '11', NULL),
+(1996, 36, 'hide_tip', '0', NULL),
+(1997, 36, 'hidden', '0', NULL),
+(1998, 36, 'maximum_chars', '', NULL),
+(1999, 36, 'numbers_only', '0', NULL),
+(2000, 36, 'page_break', '0', NULL),
+(2001, 36, 'prefix', '', NULL),
+(2002, 36, 'suffix', '', NULL),
+(2003, 36, 'text_input_width', '', NULL),
+(2004, 36, 'time_limit', '', NULL),
+(2005, 36, 'time_limit_action', '1', NULL),
+(2006, 36, 'time_limit_disable_next', '0', NULL),
+(2007, 36, 'time_limit_disable_prev', '0', NULL),
+(2008, 36, 'time_limit_countdown_message', '', NULL),
+(2009, 36, 'time_limit_timer_style', '', NULL),
+(2010, 36, 'time_limit_message_delay', '', NULL),
+(2011, 36, 'time_limit_message', '', NULL),
+(2012, 36, 'time_limit_message_style', '', NULL),
+(2013, 36, 'time_limit_warning', '', NULL),
+(2014, 36, 'time_limit_warning_display_time', '', NULL),
+(2015, 36, 'time_limit_warning_message', '', NULL),
+(2016, 36, 'time_limit_warning_style', '', NULL),
+(2017, 36, 'time_limit_warning_2', '', NULL),
+(2018, 36, 'time_limit_warning_2_display_time', '', NULL),
+(2019, 36, 'time_limit_warning_2_message', '', NULL),
+(2020, 36, 'time_limit_warning_2_style', '', NULL),
+(2021, 36, 'random_group', '', NULL),
+(2022, 1073, 'hide_tip', '0', NULL),
+(2023, 1073, 'hidden', '0', NULL),
+(2024, 1073, 'max_num_value_n', '', NULL),
+(2025, 1073, 'maximum_chars', '', NULL),
+(2026, 1073, 'min_num_value_n', '', NULL),
+(2027, 1073, 'num_value_int_only', '0', NULL),
+(2028, 1073, 'page_break', '0', NULL),
+(2029, 1073, 'prefix', '', NULL),
+(2030, 1073, 'public_statistics', '0', NULL),
+(2031, 1073, 'suffix', '', NULL),
+(2032, 1073, 'text_input_width', '', NULL),
+(2033, 1073, 'random_group', '', NULL),
+(2034, 44, 'alphasort', '0', NULL),
+(2035, 44, 'array_filter', '', NULL),
+(2036, 44, 'array_filter_exclude', '', NULL),
+(2037, 44, 'display_columns', '1', NULL),
+(2038, 44, 'hide_tip', '0', NULL),
+(2039, 44, 'hidden', '0', NULL),
+(2040, 44, 'other_comment_mandatory', '0', NULL),
+(2041, 44, 'other_numbers_only', '0', NULL),
+(2042, 44, 'other_replace_text', '', NULL),
+(2043, 44, 'page_break', '0', NULL),
+(2044, 44, 'public_statistics', '0', NULL),
+(2045, 44, 'random_order', '0', NULL),
+(2046, 44, 'scale_export', '0', NULL),
+(2047, 44, 'random_group', '', NULL),
+(2048, 139, 'alphasort', '0', NULL),
+(2049, 139, 'array_filter', '', NULL),
+(2050, 139, 'array_filter_exclude', '', NULL),
+(2051, 139, 'display_columns', '1', NULL),
+(2052, 139, 'hide_tip', '0', NULL),
+(2053, 139, 'hidden', '0', NULL),
+(2054, 139, 'other_comment_mandatory', '0', NULL),
+(2055, 139, 'other_numbers_only', '0', NULL),
+(2056, 139, 'other_replace_text', '', NULL),
+(2057, 139, 'page_break', '0', NULL),
+(2058, 139, 'public_statistics', '0', NULL),
+(2059, 139, 'random_order', '0', NULL),
+(2060, 139, 'scale_export', '0', NULL),
+(2061, 139, 'random_group', '', NULL),
+(2062, 508, 'alphasort', '0', NULL),
+(2063, 508, 'array_filter', '', NULL),
+(2064, 508, 'array_filter_exclude', '', NULL),
+(2065, 508, 'display_columns', '1', NULL),
+(2066, 508, 'hide_tip', '0', NULL),
+(2067, 508, 'hidden', '0', NULL),
+(2068, 508, 'other_comment_mandatory', '0', NULL),
+(2069, 508, 'other_numbers_only', '0', NULL),
+(2070, 508, 'other_replace_text', '', NULL),
+(2071, 508, 'page_break', '0', NULL),
+(2072, 508, 'public_statistics', '0', NULL),
+(2073, 508, 'random_order', '0', NULL),
+(2074, 508, 'scale_export', '0', NULL),
+(2075, 508, 'random_group', '', NULL),
+(2076, 152, 'alphasort', '0', NULL),
+(2077, 152, 'array_filter', '', NULL),
+(2078, 152, 'array_filter_exclude', '', NULL),
+(2079, 152, 'display_columns', '1', NULL),
+(2080, 152, 'hide_tip', '0', NULL),
+(2081, 152, 'hidden', '0', NULL),
+(2082, 152, 'other_comment_mandatory', '0', NULL),
+(2083, 152, 'other_numbers_only', '0', NULL),
+(2084, 152, 'other_replace_text', '', NULL),
+(2085, 152, 'page_break', '0', NULL),
+(2086, 152, 'public_statistics', '0', NULL),
+(2087, 152, 'random_order', '0', NULL),
+(2088, 152, 'scale_export', '0', NULL),
+(2089, 152, 'random_group', '', NULL),
+(6438, 1612, 'time_limit_warning_2_style', '', NULL),
+(6425, 1612, 'time_limit', '', NULL),
+(6426, 1612, 'time_limit_action', '1', NULL),
+(6427, 1612, 'time_limit_countdown_message', '', NULL),
+(6428, 1612, 'time_limit_disable_next', '0', NULL),
+(6429, 1612, 'time_limit_disable_prev', '0', NULL),
+(6430, 1612, 'time_limit_message', '', NULL),
+(6431, 1612, 'time_limit_message_delay', '', NULL),
+(6432, 1612, 'time_limit_message_style', '', NULL),
+(6433, 1612, 'time_limit_timer_style', '', NULL),
+(6434, 1612, 'time_limit_warning', '', NULL),
+(6435, 1612, 'time_limit_warning_2', '', NULL),
+(6436, 1612, 'time_limit_warning_2_display_time', '', NULL),
+(6437, 1612, 'time_limit_warning_2_message', '', NULL),
+(2110, 181, 'display_rows', '', NULL),
+(2111, 181, 'location_city', '0', NULL),
+(2112, 181, 'location_state', '0', NULL),
+(2113, 181, 'location_postal', '0', NULL),
+(2114, 181, 'location_country', '0', NULL),
+(2115, 181, 'location_mapservice', '0', NULL),
+(2116, 181, 'location_mapwidth', '500', NULL),
+(2117, 181, 'location_mapheight', '300', NULL),
+(2118, 181, 'location_nodefaultfromip', '0', NULL),
+(2119, 181, 'location_defaultcoordinates', '', NULL),
+(2120, 181, 'location_mapzoom', '11', NULL),
+(2121, 181, 'hide_tip', '0', NULL),
+(2122, 181, 'hidden', '0', NULL),
+(2123, 181, 'maximum_chars', '', NULL),
+(2124, 181, 'numbers_only', '0', NULL),
+(2125, 181, 'page_break', '0', NULL),
+(2126, 181, 'prefix', '', NULL),
+(2127, 181, 'suffix', '', NULL),
+(2128, 181, 'text_input_width', '', NULL),
+(2129, 181, 'time_limit', '', NULL),
+(2130, 181, 'time_limit_action', '1', NULL),
+(2131, 181, 'time_limit_disable_next', '0', NULL),
+(2132, 181, 'time_limit_disable_prev', '0', NULL),
+(2133, 181, 'time_limit_countdown_message', '', NULL),
+(2134, 181, 'time_limit_timer_style', '', NULL),
+(2135, 181, 'time_limit_message_delay', '', NULL),
+(2136, 181, 'time_limit_message', '', NULL),
+(2137, 181, 'time_limit_message_style', '', NULL),
+(2138, 181, 'time_limit_warning', '', NULL),
+(2139, 181, 'time_limit_warning_display_time', '', NULL),
+(2140, 181, 'time_limit_warning_message', '', NULL),
+(2141, 181, 'time_limit_warning_style', '', NULL),
+(2142, 181, 'time_limit_warning_2', '', NULL),
+(2143, 181, 'time_limit_warning_2_display_time', '', NULL),
+(2144, 181, 'time_limit_warning_2_message', '', NULL),
+(2145, 181, 'time_limit_warning_2_style', '', NULL),
+(2146, 181, 'random_group', '', NULL),
+(2147, 315, 'alphasort', '0', NULL),
+(2148, 315, 'array_filter', '', NULL),
+(2149, 315, 'array_filter_exclude', '', NULL),
+(2150, 315, 'display_columns', '1', NULL),
+(2151, 315, 'hide_tip', '0', NULL),
+(2152, 315, 'hidden', '0', NULL),
+(2153, 315, 'other_comment_mandatory', '0', NULL),
+(2154, 315, 'other_numbers_only', '0', NULL),
+(2155, 315, 'other_replace_text', '', NULL),
+(2156, 315, 'page_break', '0', NULL),
+(2157, 315, 'public_statistics', '0', NULL),
+(2158, 315, 'random_order', '0', NULL),
+(2159, 315, 'scale_export', '0', NULL),
+(2160, 315, 'random_group', '', NULL),
+(2161, 468, 'alphasort', '0', NULL),
+(2162, 468, 'array_filter', '', NULL),
+(2163, 468, 'array_filter_exclude', '', NULL),
+(2164, 468, 'display_columns', '1', NULL),
+(2165, 468, 'hide_tip', '0', NULL),
+(2166, 468, 'hidden', '0', NULL),
+(2167, 468, 'other_comment_mandatory', '0', NULL),
+(2168, 468, 'other_numbers_only', '0', NULL),
+(2169, 468, 'other_replace_text', '', NULL),
+(2170, 468, 'page_break', '0', NULL),
+(2171, 468, 'public_statistics', '0', NULL),
+(2172, 468, 'random_order', '0', NULL),
+(2173, 468, 'scale_export', '0', NULL),
+(2174, 468, 'random_group', '', NULL),
+(2212, 481, 'display_columns', '1', NULL),
+(2211, 481, 'array_filter_exclude', '', NULL),
+(2210, 481, 'array_filter', '', NULL),
+(2209, 481, 'alphasort', '0', NULL),
+(2208, 478, 'random_group', '', NULL),
+(2207, 478, 'scale_export', '0', NULL),
+(2206, 478, 'random_order', '0', NULL),
+(2205, 478, 'public_statistics', '0', NULL),
+(2204, 478, 'page_break', '0', NULL),
+(2203, 478, 'other_replace_text', '', NULL),
+(2202, 478, 'other_numbers_only', '0', NULL),
+(2201, 478, 'other_comment_mandatory', '0', NULL),
+(2200, 478, 'hidden', '0', NULL),
+(2199, 478, 'hide_tip', '0', NULL),
+(2198, 478, 'display_columns', '1', NULL),
+(2197, 478, 'array_filter_exclude', '', NULL),
+(2196, 478, 'array_filter', '', NULL),
+(2195, 478, 'alphasort', '0', NULL),
+(2213, 481, 'hide_tip', '0', NULL),
+(2214, 481, 'hidden', '0', NULL),
+(2215, 481, 'other_comment_mandatory', '0', NULL),
+(2216, 481, 'other_numbers_only', '0', NULL),
+(2217, 481, 'other_replace_text', '', NULL),
+(2218, 481, 'page_break', '0', NULL),
+(2219, 481, 'public_statistics', '0', NULL),
+(2220, 481, 'random_order', '0', NULL),
+(2221, 481, 'scale_export', '0', NULL),
+(2222, 481, 'random_group', '', NULL),
+(2223, 461, 'alphasort', '0', NULL),
+(2224, 461, 'array_filter', '', NULL),
+(2225, 461, 'array_filter_exclude', '', NULL),
+(2226, 461, 'display_columns', '1', NULL),
+(2227, 461, 'hide_tip', '0', NULL),
+(2228, 461, 'hidden', '0', NULL),
+(2229, 461, 'other_comment_mandatory', '0', NULL),
+(2230, 461, 'other_numbers_only', '0', NULL),
+(2231, 461, 'other_replace_text', '', NULL),
+(2232, 461, 'page_break', '0', NULL),
+(2233, 461, 'public_statistics', '0', NULL),
+(2234, 461, 'random_order', '0', NULL),
+(2235, 461, 'scale_export', '0', NULL),
+(2236, 461, 'random_group', '', NULL),
+(2237, 316, 'alphasort', '0', NULL),
+(2238, 316, 'array_filter', '', NULL),
+(2239, 316, 'array_filter_exclude', '', NULL),
+(2240, 316, 'display_columns', '1', NULL),
+(2241, 316, 'hide_tip', '0', NULL),
+(2242, 316, 'hidden', '0', NULL),
+(2243, 316, 'other_comment_mandatory', '0', NULL),
+(2244, 316, 'other_numbers_only', '0', NULL),
+(2245, 316, 'other_replace_text', '', NULL),
+(2246, 316, 'page_break', '0', NULL),
+(2247, 316, 'public_statistics', '0', NULL),
+(2248, 316, 'random_order', '0', NULL),
+(2249, 316, 'scale_export', '0', NULL),
+(2250, 316, 'random_group', '', NULL),
+(2251, 319, 'alphasort', '0', NULL),
+(2252, 319, 'array_filter', '', NULL),
+(2253, 319, 'array_filter_exclude', '', NULL),
+(2254, 319, 'display_columns', '1', NULL),
+(2255, 319, 'hide_tip', '0', NULL),
+(2256, 319, 'hidden', '0', NULL),
+(2257, 319, 'other_comment_mandatory', '0', NULL),
+(2258, 319, 'other_numbers_only', '0', NULL),
+(2259, 319, 'other_replace_text', '', NULL),
+(2260, 319, 'page_break', '0', NULL),
+(2261, 319, 'public_statistics', '0', NULL),
+(2262, 319, 'random_order', '0', NULL),
+(2263, 319, 'scale_export', '0', NULL),
+(2264, 319, 'random_group', '', NULL),
+(2265, 333, 'alphasort', '0', NULL),
+(2266, 333, 'array_filter', '', NULL),
+(2267, 333, 'array_filter_exclude', '', NULL),
+(2268, 333, 'display_columns', '1', NULL),
+(2269, 333, 'hide_tip', '0', NULL),
+(2270, 333, 'hidden', '0', NULL),
+(2271, 333, 'other_comment_mandatory', '0', NULL),
+(2272, 333, 'other_numbers_only', '0', NULL),
+(2273, 333, 'other_replace_text', '', NULL),
+(2274, 333, 'page_break', '0', NULL),
+(2275, 333, 'public_statistics', '0', NULL),
+(2276, 333, 'random_order', '0', NULL),
+(2277, 333, 'scale_export', '0', NULL),
+(2278, 333, 'random_group', '', NULL),
+(2279, 302, 'array_filter', '', NULL),
+(2280, 302, 'array_filter_exclude', '', NULL),
+(2281, 302, 'assessment_value', '1', NULL),
+(2282, 302, 'display_columns', '1', NULL),
+(2283, 302, 'exclude_all_others', '', NULL),
+(2284, 302, 'exclude_all_others_auto', '0', NULL),
+(2285, 302, 'hide_tip', '0', NULL),
+(2286, 302, 'hidden', '0', NULL),
+(2287, 302, 'max_answers', '', NULL),
+(2288, 302, 'min_answers', '', NULL),
+(2289, 302, 'other_numbers_only', '0', NULL),
+(2290, 302, 'other_replace_text', '', NULL),
+(2291, 302, 'page_break', '0', NULL),
+(2292, 302, 'public_statistics', '0', NULL),
+(2293, 302, 'random_order', '0', NULL),
+(2294, 302, 'scale_export', '0', NULL),
+(2295, 302, 'random_group', '', NULL),
+(2296, 169, 'alphasort', '0', NULL),
+(2297, 169, 'array_filter', '', NULL),
+(2298, 169, 'array_filter_exclude', '', NULL),
+(2299, 169, 'display_columns', '1', NULL),
+(2300, 169, 'hide_tip', '0', NULL),
+(2301, 169, 'hidden', '0', NULL),
+(2302, 169, 'other_comment_mandatory', '0', NULL),
+(2303, 169, 'other_numbers_only', '0', NULL),
+(2304, 169, 'other_replace_text', '', NULL),
+(2305, 169, 'page_break', '0', NULL),
+(2306, 169, 'public_statistics', '0', NULL),
+(2307, 169, 'random_order', '0', NULL),
+(2308, 169, 'scale_export', '0', NULL),
+(2309, 169, 'random_group', '', NULL),
+(2310, 201, 'alphasort', '0', NULL),
+(2311, 201, 'array_filter', '', NULL),
+(2312, 201, 'array_filter_exclude', '', NULL),
+(2313, 201, 'display_columns', '1', NULL),
+(2314, 201, 'hide_tip', '0', NULL),
+(2315, 201, 'hidden', '0', NULL),
+(2316, 201, 'other_comment_mandatory', '0', NULL),
+(2317, 201, 'other_numbers_only', '0', NULL),
+(2318, 201, 'other_replace_text', '', NULL),
+(2319, 201, 'page_break', '0', NULL),
+(2320, 201, 'public_statistics', '0', NULL),
+(2321, 201, 'random_order', '0', NULL),
+(2322, 201, 'scale_export', '0', NULL),
+(2323, 201, 'random_group', '', NULL),
+(2324, 26, 'alphasort', '0', NULL),
+(2325, 26, 'array_filter', '', NULL),
+(2326, 26, 'array_filter_exclude', '', NULL),
+(2327, 26, 'display_columns', '1', NULL),
+(2328, 26, 'hide_tip', '0', NULL),
+(2329, 26, 'hidden', '0', NULL),
+(2330, 26, 'other_comment_mandatory', '0', NULL),
+(2331, 26, 'other_numbers_only', '0', NULL),
+(2332, 26, 'other_replace_text', '', NULL),
+(2333, 26, 'page_break', '0', NULL),
+(2334, 26, 'public_statistics', '0', NULL),
+(2335, 26, 'random_order', '0', NULL),
+(2336, 26, 'scale_export', '0', NULL),
+(2337, 26, 'random_group', '', NULL),
+(2338, 479, 'display_rows', '', NULL),
+(2339, 479, 'location_city', '0', NULL),
+(2340, 479, 'location_state', '0', NULL),
+(2341, 479, 'location_postal', '0', NULL),
+(2342, 479, 'location_country', '0', NULL),
+(2343, 479, 'location_mapservice', '0', NULL),
+(2344, 479, 'location_mapwidth', '500', NULL),
+(2345, 479, 'location_mapheight', '300', NULL),
+(2346, 479, 'location_nodefaultfromip', '0', NULL),
+(2347, 479, 'location_defaultcoordinates', '', NULL),
+(2348, 479, 'location_mapzoom', '11', NULL),
+(2349, 479, 'hide_tip', '0', NULL),
+(2350, 479, 'hidden', '0', NULL),
+(2351, 479, 'maximum_chars', '', NULL),
+(2352, 479, 'numbers_only', '0', NULL),
+(2353, 479, 'page_break', '0', NULL),
+(2354, 479, 'prefix', '', NULL),
+(2355, 479, 'suffix', '', NULL),
+(2356, 479, 'text_input_width', '', NULL),
+(2357, 479, 'time_limit', '', NULL),
+(2358, 479, 'time_limit_action', '1', NULL),
+(2359, 479, 'time_limit_disable_next', '0', NULL),
+(2360, 479, 'time_limit_disable_prev', '0', NULL),
+(2361, 479, 'time_limit_countdown_message', '', NULL),
+(2362, 479, 'time_limit_timer_style', '', NULL),
+(2363, 479, 'time_limit_message_delay', '', NULL),
+(2364, 479, 'time_limit_message', '', NULL),
+(2365, 479, 'time_limit_message_style', '', NULL),
+(2366, 479, 'time_limit_warning', '', NULL),
+(2367, 479, 'time_limit_warning_display_time', '', NULL),
+(2368, 479, 'time_limit_warning_message', '', NULL),
+(2369, 479, 'time_limit_warning_style', '', NULL),
+(2370, 479, 'time_limit_warning_2', '', NULL),
+(2371, 479, 'time_limit_warning_2_display_time', '', NULL),
+(2372, 479, 'time_limit_warning_2_message', '', NULL),
+(2373, 479, 'time_limit_warning_2_style', '', NULL),
+(2374, 479, 'random_group', '', NULL),
+(2375, 138, 'alphasort', '0', NULL),
+(2376, 138, 'array_filter', '', NULL),
+(2377, 138, 'array_filter_exclude', '', NULL),
+(2378, 138, 'display_columns', '1', NULL),
+(2379, 138, 'hide_tip', '0', NULL),
+(2380, 138, 'hidden', '0', NULL),
+(2381, 138, 'other_comment_mandatory', '0', NULL),
+(2382, 138, 'other_numbers_only', '0', NULL),
+(2383, 138, 'other_replace_text', '', NULL),
+(2384, 138, 'page_break', '0', NULL),
+(2385, 138, 'public_statistics', '0', NULL),
+(2386, 138, 'random_order', '0', NULL),
+(2387, 138, 'scale_export', '0', NULL),
+(2388, 138, 'random_group', '', NULL),
+(2389, 339, 'display_rows', '', NULL),
+(2390, 339, 'location_city', '0', NULL),
+(2391, 339, 'location_state', '0', NULL),
+(2392, 339, 'location_postal', '0', NULL),
+(2393, 339, 'location_country', '0', NULL),
+(2394, 339, 'location_mapservice', '0', NULL),
+(2395, 339, 'location_mapwidth', '500', NULL),
+(2396, 339, 'location_mapheight', '300', NULL),
+(2397, 339, 'location_nodefaultfromip', '0', NULL),
+(2398, 339, 'location_defaultcoordinates', '', NULL),
+(2399, 339, 'location_mapzoom', '11', NULL),
+(2400, 339, 'hide_tip', '0', NULL),
+(2401, 339, 'hidden', '0', NULL),
+(2402, 339, 'maximum_chars', '', NULL),
+(2403, 339, 'numbers_only', '0', NULL),
+(2404, 339, 'page_break', '0', NULL),
+(2405, 339, 'prefix', '', NULL),
+(2406, 339, 'suffix', '', NULL),
+(2407, 339, 'text_input_width', '', NULL),
+(2408, 339, 'time_limit', '', NULL),
+(2409, 339, 'time_limit_action', '1', NULL),
+(2410, 339, 'time_limit_disable_next', '0', NULL),
+(2411, 339, 'time_limit_disable_prev', '0', NULL),
+(2412, 339, 'time_limit_countdown_message', '', NULL),
+(2413, 339, 'time_limit_timer_style', '', NULL),
+(2414, 339, 'time_limit_message_delay', '', NULL),
+(2415, 339, 'time_limit_message', '', NULL),
+(2416, 339, 'time_limit_message_style', '', NULL),
+(2417, 339, 'time_limit_warning', '', NULL),
+(2418, 339, 'time_limit_warning_display_time', '', NULL),
+(2419, 339, 'time_limit_warning_message', '', NULL),
+(2420, 339, 'time_limit_warning_style', '', NULL),
+(2421, 339, 'time_limit_warning_2', '', NULL),
+(2422, 339, 'time_limit_warning_2_display_time', '', NULL),
+(2423, 339, 'time_limit_warning_2_message', '', NULL),
+(2424, 339, 'time_limit_warning_2_style', '', NULL),
+(2425, 339, 'random_group', '', NULL),
+(2426, 400, 'alphasort', '0', NULL),
+(2427, 400, 'array_filter', '', NULL),
+(2428, 400, 'array_filter_exclude', '', NULL),
+(2429, 400, 'display_columns', '1', NULL),
+(2430, 400, 'hide_tip', '0', NULL),
+(2431, 400, 'hidden', '0', NULL),
+(2432, 400, 'other_comment_mandatory', '0', NULL),
+(2433, 400, 'other_numbers_only', '0', NULL),
+(2434, 400, 'other_replace_text', '', NULL),
+(2435, 400, 'page_break', '0', NULL),
+(2436, 400, 'public_statistics', '0', NULL),
+(2437, 400, 'random_order', '0', NULL),
+(2438, 400, 'scale_export', '0', NULL),
+(2439, 400, 'random_group', '', NULL),
+(2440, 256, 'display_rows', '', NULL),
+(2441, 256, 'location_city', '0', NULL),
+(2442, 256, 'location_state', '0', NULL),
+(2443, 256, 'location_postal', '0', NULL),
+(2444, 256, 'location_country', '0', NULL),
+(2445, 256, 'location_mapservice', '0', NULL),
+(2446, 256, 'location_mapwidth', '500', NULL),
+(2447, 256, 'location_mapheight', '300', NULL),
+(2448, 256, 'location_nodefaultfromip', '0', NULL),
+(2449, 256, 'location_defaultcoordinates', '', NULL),
+(2450, 256, 'location_mapzoom', '11', NULL),
+(2451, 256, 'hide_tip', '0', NULL),
+(2452, 256, 'hidden', '0', NULL),
+(2453, 256, 'maximum_chars', '', NULL),
+(2454, 256, 'numbers_only', '0', NULL),
+(2455, 256, 'page_break', '0', NULL),
+(2456, 256, 'prefix', '', NULL),
+(2457, 256, 'suffix', '', NULL),
+(2458, 256, 'text_input_width', '', NULL),
+(2459, 256, 'time_limit', '', NULL),
+(2460, 256, 'time_limit_action', '1', NULL),
+(2461, 256, 'time_limit_disable_next', '0', NULL),
+(2462, 256, 'time_limit_disable_prev', '0', NULL),
+(2463, 256, 'time_limit_countdown_message', '', NULL),
+(2464, 256, 'time_limit_timer_style', '', NULL),
+(2465, 256, 'time_limit_message_delay', '', NULL),
+(2466, 256, 'time_limit_message', '', NULL),
+(2467, 256, 'time_limit_message_style', '', NULL),
+(2468, 256, 'time_limit_warning', '', NULL),
+(2469, 256, 'time_limit_warning_display_time', '', NULL),
+(2470, 256, 'time_limit_warning_message', '', NULL),
+(2471, 256, 'time_limit_warning_style', '', NULL),
+(2472, 256, 'time_limit_warning_2', '', NULL),
+(2473, 256, 'time_limit_warning_2_display_time', '', NULL),
+(2474, 256, 'time_limit_warning_2_message', '', NULL),
+(2475, 256, 'time_limit_warning_2_style', '', NULL),
+(2476, 256, 'random_group', '', NULL),
+(2477, 107, 'equals_num_value', '', NULL),
+(2478, 107, 'hide_tip', '0', NULL),
+(2479, 107, 'hidden', '0', NULL),
+(2480, 107, 'max_num_value', '', NULL),
+(2481, 107, 'max_num_value_sgqa', '', NULL),
+(2482, 107, 'maximum_chars', '', NULL),
+(2483, 107, 'min_num_value', '', NULL),
+(2484, 107, 'min_num_value_sgqa', '', NULL),
+(2485, 107, 'num_value_equals_sgqa', '', NULL),
+(2486, 107, 'page_break', '0', NULL),
+(2487, 107, 'prefix', '', NULL),
+(2488, 107, 'public_statistics', '0', NULL),
+(2489, 107, 'random_order', '0', NULL),
+(2490, 107, 'slider_layout', '0', NULL),
+(2491, 107, 'slider_min', '', NULL),
+(2492, 107, 'slider_max', '', NULL),
+(2493, 107, 'slider_accuracy', '', NULL),
+(2494, 107, 'slider_default', '', NULL),
+(2495, 107, 'slider_middlestart', '0', NULL),
+(2496, 107, 'slider_showminmax', '0', NULL),
+(2497, 107, 'slider_separator', '', NULL),
+(2498, 107, 'suffix', '', NULL),
+(2499, 107, 'text_input_width', '', NULL),
+(2500, 107, 'random_group', '', NULL),
+(2501, 403, 'answer_width', '', NULL),
+(2502, 403, 'array_filter', '', NULL),
+(2503, 403, 'array_filter_exclude', '', NULL),
+(2504, 403, 'hidden', '0', NULL),
+(2505, 403, 'numbers_only', '0', NULL),
+(2506, 403, 'show_totals', 'X', NULL),
+(2507, 403, 'show_grand_total', '0', NULL),
+(2508, 403, 'page_break', '0', NULL),
+(2509, 403, 'random_order', '0', NULL),
+(2510, 403, 'text_input_width', '', NULL),
+(2511, 403, 'random_group', '', NULL),
+(2512, 466, 'array_filter', '', NULL),
+(2513, 466, 'array_filter_exclude', '', NULL),
+(2514, 466, 'assessment_value', '1', NULL),
+(2515, 466, 'display_columns', '1', NULL),
+(2516, 466, 'exclude_all_others', '', NULL),
+(2517, 466, 'exclude_all_others_auto', '0', NULL),
+(2518, 466, 'hide_tip', '0', NULL),
+(2519, 466, 'hidden', '0', NULL),
+(2520, 466, 'max_answers', '', NULL),
+(2521, 466, 'min_answers', '', NULL),
+(2522, 466, 'other_numbers_only', '0', NULL),
+(2523, 466, 'other_replace_text', '', NULL),
+(2524, 466, 'page_break', '0', NULL),
+(2525, 466, 'public_statistics', '0', NULL),
+(2526, 466, 'random_order', '0', NULL),
+(2527, 466, 'scale_export', '0', NULL),
+(2528, 466, 'random_group', '', NULL),
+(2529, 16, 'alphasort', '0', NULL),
+(2530, 16, 'array_filter', '', NULL),
+(2531, 16, 'array_filter_exclude', '', NULL),
+(2532, 16, 'display_columns', '1', NULL),
+(2533, 16, 'hide_tip', '0', NULL),
+(2534, 16, 'hidden', '0', NULL),
+(2535, 16, 'other_comment_mandatory', '0', NULL),
+(2536, 16, 'other_numbers_only', '0', NULL),
+(2537, 16, 'other_replace_text', '', NULL),
+(2538, 16, 'page_break', '0', NULL),
+(2539, 16, 'public_statistics', '0', NULL),
+(2540, 16, 'random_order', '0', NULL),
+(2541, 16, 'scale_export', '0', NULL),
+(2542, 16, 'random_group', '', NULL),
+(2543, 13, 'array_filter', '', NULL),
+(2544, 13, 'array_filter_exclude', '', NULL),
+(2545, 13, 'assessment_value', '1', NULL),
+(2546, 13, 'display_columns', '1', NULL),
+(2547, 13, 'exclude_all_others', '', NULL),
+(2548, 13, 'exclude_all_others_auto', '0', NULL),
+(2549, 13, 'hide_tip', '0', NULL),
+(2550, 13, 'hidden', '0', NULL),
+(2551, 13, 'max_answers', '', NULL),
+(2552, 13, 'min_answers', '', NULL),
+(2553, 13, 'other_numbers_only', '0', NULL),
+(2554, 13, 'other_replace_text', '', NULL),
+(2555, 13, 'page_break', '0', NULL),
+(2556, 13, 'public_statistics', '0', NULL),
+(2557, 13, 'random_order', '0', NULL),
+(2558, 13, 'scale_export', '0', NULL),
+(2559, 13, 'random_group', '', NULL),
+(6424, 1612, 'random_group', '', NULL),
+(6423, 1612, 'page_break', '0', NULL),
+(6422, 1612, 'hidden', '0', NULL),
+(6421, 1611, 'time_limit_warning_style', '', NULL),
+(6420, 1611, 'time_limit_warning_message', '', NULL),
+(6419, 1611, 'time_limit_warning_display_time', '', NULL),
+(6418, 1611, 'time_limit_warning_2_style', '', NULL),
+(6417, 1611, 'time_limit_warning_2_message', '', NULL),
+(6390, 1611, 'location_defaultcoordinates', '', NULL),
+(6391, 1611, 'location_mapheight', '300', NULL),
+(6392, 1611, 'location_mapservice', '0', NULL),
+(6393, 1611, 'location_mapwidth', '500', NULL),
+(6394, 1611, 'location_mapzoom', '11', NULL),
+(6395, 1611, 'location_nodefaultfromip', '0', NULL),
+(6396, 1611, 'location_postal', '0', NULL),
+(6397, 1611, 'location_state', '0', NULL),
+(6398, 1611, 'maximum_chars', '', NULL),
+(6399, 1611, 'numbers_only', '0', NULL),
+(6400, 1611, 'page_break', '0', NULL),
+(6401, 1611, 'prefix', '', NULL),
+(6402, 1611, 'random_group', '', NULL),
+(6403, 1611, 'suffix', '', NULL),
+(6404, 1611, 'text_input_width', '', NULL),
+(6405, 1611, 'time_limit', '', NULL),
+(6406, 1611, 'time_limit_action', '1', NULL),
+(6407, 1611, 'time_limit_countdown_message', '', NULL),
+(6408, 1611, 'time_limit_disable_next', '0', NULL),
+(6409, 1611, 'time_limit_disable_prev', '0', NULL),
+(6410, 1611, 'time_limit_message', '', NULL),
+(6411, 1611, 'time_limit_message_delay', '', NULL),
+(6412, 1611, 'time_limit_message_style', '', NULL),
+(6413, 1611, 'time_limit_timer_style', '', NULL),
+(6414, 1611, 'time_limit_warning', '', NULL),
+(6415, 1611, 'time_limit_warning_2', '', NULL),
+(6416, 1611, 'time_limit_warning_2_display_time', '', NULL),
+(6572, 1621, 'hidden', '0', NULL),
+(6571, 1621, 'display_columns', '1', NULL),
+(6570, 1621, 'array_filter_exclude', '', NULL),
+(6569, 1621, 'array_filter', '', NULL),
+(6568, 1621, 'alphasort', '0', NULL),
+(6567, 1620, 'text_input_width', '', NULL),
+(6566, 1620, 'suffix', '', NULL),
+(6565, 1620, 'random_group', '', NULL),
+(6564, 1620, 'public_statistics', '0', NULL),
+(6563, 1620, 'prefix', '', NULL),
+(6562, 1620, 'page_break', '0', NULL),
+(6561, 1620, 'num_value_int_only', '1', NULL),
+(6560, 1620, 'min_num_value_n', '1', NULL),
+(6559, 1620, 'maximum_chars', '', NULL),
+(6558, 1620, 'max_num_value_n', '30', NULL),
+(6557, 1620, 'hide_tip', '0', NULL),
+(6556, 1620, 'hidden', '0', NULL),
+(6555, 1619, 'time_limit_warning_style', '', NULL),
+(6554, 1619, 'time_limit_warning_message', '', NULL),
+(6553, 1619, 'time_limit_warning_display_time', '', NULL),
+(6552, 1619, 'time_limit_warning_2_style', '', NULL),
+(6551, 1619, 'time_limit_warning_2_message', '', NULL),
+(6550, 1619, 'time_limit_warning_2_display_time', '', NULL),
+(6549, 1619, 'time_limit_warning_2', '', NULL),
+(6548, 1619, 'time_limit_warning', '', NULL),
+(6547, 1619, 'time_limit_timer_style', '', NULL),
+(6546, 1619, 'time_limit_message_style', '', NULL),
+(6545, 1619, 'time_limit_message_delay', '', NULL),
+(6544, 1619, 'time_limit_message', '', NULL),
+(6543, 1619, 'time_limit_disable_prev', '0', NULL),
+(6542, 1619, 'time_limit_disable_next', '0', NULL),
+(6541, 1619, 'time_limit_countdown_message', '', NULL),
+(6540, 1619, 'time_limit_action', '1', NULL),
+(6539, 1619, 'time_limit', '', NULL),
+(6538, 1619, 'random_group', '', NULL),
+(6537, 1619, 'page_break', '0', NULL),
+(6536, 1619, 'hidden', '0', NULL),
+(6535, 1618, 'time_limit_warning_style', '', NULL),
+(6534, 1618, 'time_limit_warning_message', '', NULL),
+(6533, 1618, 'time_limit_warning_display_time', '', NULL),
+(6532, 1618, 'time_limit_warning_2_style', '', NULL),
+(6531, 1618, 'time_limit_warning_2_message', '', NULL),
+(6530, 1618, 'time_limit_warning_2_display_time', '', NULL),
+(6529, 1618, 'time_limit_warning_2', '', NULL),
+(6528, 1618, 'time_limit_warning', '', NULL),
+(6527, 1618, 'time_limit_timer_style', '', NULL),
+(6526, 1618, 'time_limit_message_style', '', NULL),
+(6525, 1618, 'time_limit_message_delay', '', NULL),
+(6524, 1618, 'time_limit_message', '', NULL),
+(6523, 1618, 'time_limit_disable_prev', '0', NULL),
+(6522, 1618, 'time_limit_disable_next', '0', NULL),
+(6521, 1618, 'time_limit_countdown_message', '', NULL),
+(6520, 1618, 'time_limit_action', '1', NULL),
+(6519, 1618, 'time_limit', '', NULL),
+(6518, 1618, 'text_input_width', '', NULL),
+(6517, 1618, 'suffix', '', NULL),
+(6516, 1618, 'random_group', '', NULL),
+(6515, 1618, 'prefix', '', NULL),
+(6514, 1618, 'page_break', '0', NULL),
+(6513, 1618, 'numbers_only', '0', NULL),
+(6512, 1618, 'maximum_chars', '', NULL),
+(6511, 1618, 'location_state', '0', NULL),
+(6510, 1618, 'location_postal', '0', NULL),
+(6509, 1618, 'location_nodefaultfromip', '0', NULL),
+(6508, 1618, 'location_mapzoom', '11', NULL),
+(6507, 1618, 'location_mapwidth', '500', NULL),
+(6506, 1618, 'location_mapservice', '0', NULL),
+(6505, 1618, 'location_mapheight', '300', NULL),
+(6504, 1618, 'location_defaultcoordinates', '', NULL),
+(6503, 1618, 'location_country', '0', NULL),
+(6502, 1618, 'location_city', '0', NULL),
+(6501, 1618, 'hide_tip', '0', NULL),
+(6500, 1618, 'hidden', '0', NULL),
+(6499, 1618, 'display_rows', '', NULL),
+(6498, 1617, 'scale_export', '0', NULL),
+(6497, 1617, 'random_order', '0', NULL),
+(6496, 1617, 'random_group', '', NULL),
+(6495, 1617, 'public_statistics', '0', NULL),
+(6494, 1617, 'page_break', '0', NULL),
+(6493, 1617, 'other_replace_text', '', NULL),
+(6492, 1617, 'other_numbers_only', '0', NULL),
+(6491, 1617, 'min_answers', '', NULL),
+(6490, 1617, 'max_answers', '', NULL),
+(6489, 1617, 'hide_tip', '0', NULL),
+(6488, 1617, 'hidden', '0', NULL),
+(6487, 1617, 'exclude_all_others_auto', '0', NULL),
+(6486, 1617, 'exclude_all_others', '', NULL),
+(6485, 1617, 'display_columns', '1', NULL),
+(6484, 1617, 'assessment_value', '1', NULL),
+(6483, 1617, 'array_filter_exclude', '', NULL),
+(6482, 1617, 'array_filter', '', NULL),
+(6481, 1616, 'scale_export', '0', NULL),
+(6480, 1616, 'random_order', '0', NULL),
+(6479, 1616, 'random_group', '', NULL),
+(6478, 1616, 'public_statistics', '0', NULL),
+(6477, 1616, 'page_break', '0', NULL),
+(6476, 1616, 'other_replace_text', '', NULL),
+(6475, 1616, 'other_numbers_only', '0', NULL),
+(6474, 1616, 'other_comment_mandatory', '0', NULL),
+(6473, 1616, 'hide_tip', '0', NULL),
+(6472, 1616, 'hidden', '0', NULL),
+(6471, 1616, 'display_columns', '1', NULL),
+(6470, 1616, 'array_filter_exclude', '', NULL),
+(6469, 1616, 'array_filter', '', NULL),
+(2825, 1142, 'alphasort', '0', NULL),
+(2826, 1142, 'array_filter', '', NULL),
+(2827, 1142, 'array_filter_exclude', '', NULL),
+(2828, 1142, 'display_columns', '1', NULL),
+(2829, 1142, 'hide_tip', '0', NULL),
+(2830, 1142, 'hidden', '0', NULL),
+(2831, 1142, 'other_comment_mandatory', '0', NULL),
+(2832, 1142, 'other_numbers_only', '0', NULL),
+(2833, 1142, 'other_replace_text', '', NULL),
+(2834, 1142, 'page_break', '0', NULL),
+(2835, 1142, 'public_statistics', '0', NULL),
+(2836, 1142, 'random_order', '0', NULL),
+(2837, 1142, 'scale_export', '0', NULL),
+(2838, 1142, 'random_group', '', NULL);
+INSERT INTO question_attributes (qaid, qid, attribute, value, language) VALUES
+(6378, 1610, 'other_numbers_only', '0', NULL),
+(6377, 1610, 'min_answers', '', NULL),
+(6376, 1610, 'max_answers', '', NULL),
+(6374, 1610, 'hidden', '0', NULL),
+(6375, 1610, 'hide_tip', '0', NULL),
+(6373, 1610, 'exclude_all_others_auto', '0', NULL),
+(6335, 1605, 'time_limit_warning_2', '', NULL),
+(6336, 1605, 'time_limit_warning_2_display_time', '', NULL),
+(6337, 1605, 'time_limit_warning_2_message', '', NULL),
+(6338, 1605, 'time_limit_warning_2_style', '', NULL),
+(6339, 1605, 'time_limit_warning_display_time', '', NULL),
+(6340, 1605, 'time_limit_warning_message', '', NULL),
+(6341, 1605, 'time_limit_warning_style', '', NULL),
+(6342, 1606, 'hidden', '0', NULL),
+(6343, 1606, 'hide_tip', '0', NULL),
+(6344, 1606, 'max_num_value_n', '', NULL),
+(6345, 1606, 'maximum_chars', '', NULL),
+(6346, 1606, 'min_num_value_n', '', NULL),
+(6347, 1606, 'num_value_int_only', '0', NULL),
+(6348, 1606, 'page_break', '0', NULL),
+(6349, 1606, 'prefix', '', NULL),
+(6350, 1606, 'public_statistics', '0', NULL),
+(6351, 1606, 'random_group', '', NULL),
+(6352, 1606, 'suffix', '', NULL),
+(6353, 1606, 'text_input_width', '', NULL),
+(6354, 1609, 'alphasort', '0', NULL),
+(6355, 1609, 'array_filter', '', NULL),
+(6356, 1609, 'array_filter_exclude', '', NULL),
+(6357, 1609, 'display_columns', '1', NULL),
+(6358, 1609, 'hidden', '0', NULL),
+(6359, 1609, 'hide_tip', '0', NULL),
+(6360, 1609, 'other_comment_mandatory', '0', NULL),
+(6361, 1609, 'other_numbers_only', '0', NULL),
+(6362, 1609, 'other_replace_text', '', NULL),
+(6363, 1609, 'page_break', '0', NULL),
+(6364, 1609, 'public_statistics', '0', NULL),
+(6365, 1609, 'random_group', '', NULL),
+(6366, 1609, 'random_order', '0', NULL),
+(6367, 1609, 'scale_export', '0', NULL),
+(6368, 1610, 'array_filter', '', NULL),
+(6369, 1610, 'array_filter_exclude', '', NULL),
+(6370, 1610, 'assessment_value', '1', NULL),
+(6371, 1610, 'display_columns', '1', NULL),
+(6372, 1610, 'exclude_all_others', '', NULL),
+(2908, 1022, 'other_numbers_only', '0', NULL),
+(2909, 1022, 'other_replace_text', '', NULL),
+(2910, 1022, 'random_order', '0', NULL),
+(2911, 1022, 'scale_export', '0', NULL),
+(3724, 182, 'page_break', '0', NULL),
+(3723, 182, 'maximum_chars', '', NULL),
+(3722, 182, 'hidden', '0', NULL),
+(3538, 89, 'hidden', '0', NULL),
+(3721, 182, 'display_rows', '', NULL),
+(3820, 89, 'other_comment_mandatory', '0', NULL),
+(3817, 89, 'public_statistics', '0', NULL),
+(2924, 52, 'alphasort', '0', NULL),
+(2925, 52, 'array_filter', '', NULL),
+(2926, 52, 'array_filter_exclude', '', NULL),
+(2927, 52, 'display_columns', '1', NULL),
+(2928, 52, 'hide_tip', '0', NULL),
+(2929, 52, 'hidden', '0', NULL),
+(2930, 52, 'other_comment_mandatory', '0', NULL),
+(2931, 52, 'other_numbers_only', '0', NULL),
+(2932, 52, 'other_replace_text', '', NULL),
+(2933, 52, 'page_break', '0', NULL),
+(2934, 52, 'public_statistics', '0', NULL),
+(2935, 52, 'random_order', '0', NULL),
+(2936, 52, 'scale_export', '0', NULL),
+(2937, 52, 'random_group', '', NULL),
+(6387, 1611, 'hide_tip', '0', NULL),
+(6386, 1611, 'hidden', '0', NULL),
+(6385, 1611, 'display_rows', '', NULL),
+(6384, 1610, 'scale_export', '0', NULL),
+(6383, 1610, 'random_order', '0', NULL),
+(6382, 1610, 'random_group', '', NULL),
+(6381, 1610, 'public_statistics', '0', NULL),
+(6334, 1605, 'time_limit_warning', '', NULL),
+(6333, 1605, 'time_limit_timer_style', '', NULL),
+(6332, 1605, 'time_limit_message_style', '', NULL),
+(6325, 1605, 'time_limit', '', NULL),
+(6326, 1605, 'time_limit_action', '1', NULL),
+(6327, 1605, 'time_limit_countdown_message', '', NULL),
+(6328, 1605, 'time_limit_disable_next', '0', NULL),
+(6329, 1605, 'time_limit_disable_prev', '0', NULL),
+(6330, 1605, 'time_limit_message', '', NULL),
+(6331, 1605, 'time_limit_message_delay', '', NULL),
+(6380, 1610, 'page_break', '0', NULL),
+(6379, 1610, 'other_replace_text', '', NULL),
+(6324, 1605, 'text_input_width', '', NULL),
+(6323, 1605, 'suffix', '', NULL),
+(6322, 1605, 'random_group', '', NULL),
+(6321, 1605, 'prefix', '', NULL),
+(6320, 1605, 'page_break', '0', NULL),
+(6319, 1605, 'numbers_only', '0', NULL),
+(6318, 1605, 'maximum_chars', '', NULL),
+(6315, 1605, 'location_nodefaultfromip', '0', NULL),
+(6317, 1605, 'location_state', '0', NULL),
+(6316, 1605, 'location_postal', '0', NULL),
+(6314, 1605, 'location_mapzoom', '11', NULL),
+(6313, 1605, 'location_mapwidth', '500', NULL),
+(6312, 1605, 'location_mapservice', '0', NULL),
+(6311, 1605, 'location_mapheight', '300', NULL),
+(6310, 1605, 'location_defaultcoordinates', '', NULL),
+(6309, 1605, 'location_country', '0', NULL),
+(6308, 1605, 'location_city', '0', NULL),
+(6307, 1605, 'hide_tip', '0', NULL),
+(6306, 1605, 'hidden', '0', NULL),
+(6305, 1605, 'display_rows', '', NULL),
+(6304, 1604, 'scale_export', '0', NULL),
+(6303, 1604, 'random_order', '0', NULL),
+(6191, 1598, 'assessment_value', '1', NULL),
+(6192, 1598, 'display_columns', '1', NULL),
+(6193, 1598, 'exclude_all_others', '', NULL),
+(6194, 1598, 'exclude_all_others_auto', '0', NULL),
+(6195, 1598, 'hidden', '0', NULL),
+(6196, 1598, 'hide_tip', '0', NULL),
+(6197, 1598, 'max_answers', '', NULL),
+(6198, 1598, 'min_answers', '', NULL),
+(6199, 1598, 'other_numbers_only', '0', NULL),
+(6200, 1598, 'other_replace_text', '', NULL),
+(6201, 1598, 'page_break', '0', NULL),
+(6202, 1598, 'public_statistics', '0', NULL),
+(6203, 1598, 'random_group', '', NULL),
+(6204, 1598, 'random_order', '0', NULL),
+(6205, 1598, 'scale_export', '0', NULL),
+(6206, 1599, 'display_rows', '', NULL),
+(6207, 1599, 'hidden', '0', NULL),
+(6208, 1599, 'hide_tip', '0', NULL),
+(6209, 1599, 'location_city', '0', NULL),
+(6210, 1599, 'location_country', '0', NULL),
+(6211, 1599, 'location_defaultcoordinates', '', NULL),
+(6212, 1599, 'location_mapheight', '300', NULL),
+(6213, 1599, 'location_mapservice', '0', NULL),
+(6214, 1599, 'location_mapwidth', '500', NULL),
+(6215, 1599, 'location_mapzoom', '11', NULL),
+(6216, 1599, 'location_nodefaultfromip', '0', NULL),
+(6217, 1599, 'location_postal', '0', NULL),
+(6218, 1599, 'location_state', '0', NULL),
+(6219, 1599, 'maximum_chars', '', NULL),
+(6220, 1599, 'numbers_only', '0', NULL),
+(6221, 1599, 'page_break', '0', NULL),
+(6222, 1599, 'prefix', '', NULL),
+(6223, 1599, 'random_group', '', NULL),
+(6224, 1599, 'suffix', '', NULL),
+(6225, 1599, 'text_input_width', '', NULL),
+(6226, 1599, 'time_limit', '', NULL),
+(6227, 1599, 'time_limit_action', '1', NULL),
+(6228, 1599, 'time_limit_countdown_message', '', NULL),
+(6229, 1599, 'time_limit_disable_next', '0', NULL),
+(6230, 1599, 'time_limit_disable_prev', '0', NULL),
+(6231, 1599, 'time_limit_message', '', NULL),
+(6232, 1599, 'time_limit_message_delay', '', NULL),
+(6233, 1599, 'time_limit_message_style', '', NULL),
+(6234, 1599, 'time_limit_timer_style', '', NULL),
+(6235, 1599, 'time_limit_warning', '', NULL),
+(6236, 1599, 'time_limit_warning_2', '', NULL),
+(6237, 1599, 'time_limit_warning_2_display_time', '', NULL),
+(6238, 1599, 'time_limit_warning_2_message', '', NULL),
+(6239, 1599, 'time_limit_warning_2_style', '', NULL),
+(6240, 1599, 'time_limit_warning_display_time', '', NULL),
+(6241, 1599, 'time_limit_warning_message', '', NULL),
+(6242, 1599, 'time_limit_warning_style', '', NULL),
+(6243, 1600, 'array_filter', '', NULL),
+(6244, 1600, 'array_filter_exclude', '', NULL),
+(6245, 1600, 'assessment_value', '1', NULL),
+(6246, 1600, 'display_columns', '1', NULL),
+(6247, 1600, 'exclude_all_others', '', NULL),
+(6248, 1600, 'exclude_all_others_auto', '0', NULL),
+(6249, 1600, 'hidden', '0', NULL),
+(6250, 1600, 'hide_tip', '0', NULL),
+(6251, 1600, 'max_answers', '', NULL),
+(6252, 1600, 'min_answers', '', NULL),
+(6253, 1600, 'other_numbers_only', '0', NULL),
+(6254, 1600, 'other_replace_text', '', NULL),
+(6255, 1600, 'page_break', '0', NULL),
+(6256, 1600, 'public_statistics', '0', NULL),
+(6257, 1600, 'random_group', '', NULL),
+(6258, 1600, 'random_order', '0', NULL),
+(6259, 1600, 'scale_export', '0', NULL),
+(6260, 1601, 'alphasort', '0', NULL),
+(6261, 1601, 'array_filter', '', NULL),
+(6262, 1601, 'array_filter_exclude', '', NULL),
+(6263, 1601, 'display_columns', '1', NULL),
+(6264, 1601, 'hidden', '0', NULL),
+(6265, 1601, 'hide_tip', '0', NULL),
+(6266, 1601, 'other_comment_mandatory', '0', NULL),
+(6267, 1601, 'other_numbers_only', '0', NULL),
+(6268, 1601, 'other_replace_text', '', NULL),
+(6269, 1601, 'page_break', '0', NULL),
+(6270, 1601, 'public_statistics', '0', NULL),
+(6271, 1601, 'random_group', '', NULL),
+(6272, 1601, 'random_order', '0', NULL),
+(6273, 1601, 'scale_export', '0', NULL),
+(6274, 1603, 'alphasort', '0', NULL),
+(6275, 1603, 'array_filter', '', NULL),
+(6276, 1603, 'array_filter_exclude', '', NULL),
+(6277, 1603, 'display_columns', '1', NULL),
+(6278, 1603, 'hidden', '0', NULL),
+(6279, 1603, 'hide_tip', '0', NULL),
+(6280, 1603, 'other_comment_mandatory', '0', NULL),
+(6281, 1603, 'other_numbers_only', '0', NULL),
+(6282, 1603, 'other_replace_text', '', NULL),
+(6283, 1603, 'page_break', '0', NULL),
+(6284, 1603, 'public_statistics', '0', NULL),
+(6285, 1603, 'random_group', '', NULL),
+(6286, 1603, 'random_order', '0', NULL),
+(6287, 1603, 'scale_export', '0', NULL),
+(6288, 1604, 'array_filter', '', NULL),
+(6289, 1604, 'array_filter_exclude', '', NULL),
+(6290, 1604, 'assessment_value', '1', NULL),
+(6291, 1604, 'display_columns', '1', NULL),
+(6292, 1604, 'exclude_all_others', '', NULL),
+(6293, 1604, 'exclude_all_others_auto', '0', NULL),
+(6294, 1604, 'hidden', '0', NULL),
+(6295, 1604, 'hide_tip', '0', NULL),
+(6296, 1604, 'max_answers', '', NULL),
+(6297, 1604, 'min_answers', '', NULL),
+(6298, 1604, 'other_numbers_only', '0', NULL),
+(6299, 1604, 'other_replace_text', '', NULL),
+(6300, 1604, 'page_break', '0', NULL),
+(6301, 1604, 'public_statistics', '0', NULL),
+(6302, 1604, 'random_group', '', NULL),
+(3362, 401, 'hide_tip', '0', NULL),
+(3363, 401, 'hidden', '0', NULL),
+(3364, 401, 'max_num_value_n', '9', NULL),
+(3365, 401, 'maximum_chars', '', NULL),
+(3366, 401, 'min_num_value_n', '0', NULL),
+(3367, 401, 'num_value_int_only', '1', NULL),
+(3368, 401, 'page_break', '0', NULL),
+(3369, 401, 'prefix', '', NULL),
+(3370, 401, 'public_statistics', '0', NULL),
+(3371, 401, 'suffix', '', NULL),
+(3372, 401, 'text_input_width', '', NULL),
+(3373, 401, 'random_group', '', NULL),
+(3374, 3, 'hide_tip', '0', NULL),
+(3375, 3, 'hidden', '0', NULL),
+(3376, 3, 'max_num_value_n', '', NULL),
+(3377, 3, 'maximum_chars', '', NULL),
+(3378, 3, 'min_num_value_n', '', NULL),
+(3379, 3, 'num_value_int_only', '0', NULL),
+(3380, 3, 'page_break', '0', NULL),
+(3381, 3, 'prefix', '', NULL),
+(3382, 3, 'public_statistics', '0', NULL),
+(3383, 3, 'suffix', '', NULL),
+(3384, 3, 'text_input_width', '', NULL),
+(3385, 3, 'random_group', '', NULL),
+(3386, 483, 'display_rows', '', NULL),
+(3387, 483, 'location_city', '0', NULL),
+(3388, 483, 'location_state', '0', NULL),
+(3389, 483, 'location_postal', '0', NULL),
+(3390, 483, 'location_country', '0', NULL),
+(3391, 483, 'location_mapservice', '0', NULL),
+(3392, 483, 'location_mapwidth', '500', NULL),
+(3393, 483, 'location_mapheight', '300', NULL),
+(3394, 483, 'location_nodefaultfromip', '0', NULL),
+(3395, 483, 'location_defaultcoordinates', '', NULL),
+(3396, 483, 'location_mapzoom', '11', NULL),
+(3397, 483, 'hide_tip', '0', NULL),
+(3398, 483, 'hidden', '0', NULL),
+(3399, 483, 'maximum_chars', '', NULL),
+(3400, 483, 'numbers_only', '0', NULL),
+(3401, 483, 'page_break', '0', NULL),
+(3402, 483, 'prefix', '', NULL),
+(3403, 483, 'suffix', '', NULL),
+(3404, 483, 'text_input_width', '', NULL),
+(3405, 483, 'time_limit', '', NULL),
+(3406, 483, 'time_limit_action', '1', NULL),
+(3407, 483, 'time_limit_disable_next', '0', NULL),
+(3408, 483, 'time_limit_disable_prev', '0', NULL),
+(3409, 483, 'time_limit_countdown_message', '', NULL),
+(3410, 483, 'time_limit_timer_style', '', NULL),
+(3411, 483, 'time_limit_message_delay', '', NULL),
+(3412, 483, 'time_limit_message', '', NULL),
+(3413, 483, 'time_limit_message_style', '', NULL),
+(3414, 483, 'time_limit_warning', '', NULL),
+(3415, 483, 'time_limit_warning_display_time', '', NULL),
+(3416, 483, 'time_limit_warning_message', '', NULL),
+(3417, 483, 'time_limit_warning_style', '', NULL),
+(3418, 483, 'time_limit_warning_2', '', NULL),
+(3419, 483, 'time_limit_warning_2_display_time', '', NULL),
+(3420, 483, 'time_limit_warning_2_message', '', NULL),
+(3421, 483, 'time_limit_warning_2_style', '', NULL),
+(3422, 483, 'random_group', '', NULL),
+(3423, 485, 'hide_tip', '0', NULL),
+(3424, 485, 'hidden', '0', NULL),
+(3425, 485, 'max_num_value_n', '', NULL),
+(3426, 485, 'min_num_value_n', '', NULL),
+(3427, 485, 'num_value_int_only', '0', NULL),
+(3428, 485, 'page_break', '0', NULL),
+(3429, 485, 'prefix', '', NULL),
+(3430, 485, 'public_statistics', '0', NULL),
+(3431, 485, 'suffix', '', NULL),
+(3432, 485, 'text_input_width', '', NULL),
+(3433, 485, 'random_group', '', NULL),
+(3434, 1281, 'display_rows', '', NULL),
+(3481, 457, 'other_numbers_only', '0', NULL),
+(3480, 457, 'min_answers', '', NULL),
+(3479, 457, 'max_answers', '', NULL),
+(3478, 457, 'hidden', '0', NULL),
+(3477, 457, 'hide_tip', '0', NULL),
+(3476, 457, 'exclude_all_others_auto', '0', NULL),
+(3475, 457, 'exclude_all_others', '', NULL),
+(3474, 457, 'display_columns', '1', NULL),
+(3473, 457, 'assessment_value', '1', NULL),
+(3446, 1281, 'hidden', '0', NULL),
+(3447, 1281, 'maximum_chars', '', NULL),
+(3472, 457, 'array_filter_exclude', '', NULL),
+(3449, 1281, 'page_break', '0', NULL),
+(3471, 457, 'array_filter', '', NULL),
+(3452, 1281, 'text_input_width', '', NULL),
+(3453, 1281, 'time_limit', '', NULL),
+(3454, 1281, 'time_limit_action', '1', NULL),
+(3455, 1281, 'time_limit_disable_next', '0', NULL),
+(3456, 1281, 'time_limit_disable_prev', '0', NULL),
+(3457, 1281, 'time_limit_countdown_message', '', NULL),
+(3458, 1281, 'time_limit_timer_style', '', NULL),
+(3459, 1281, 'time_limit_message_delay', '', NULL),
+(3460, 1281, 'time_limit_message', '', NULL),
+(3461, 1281, 'time_limit_message_style', '', NULL),
+(3462, 1281, 'time_limit_warning', '', NULL),
+(3463, 1281, 'time_limit_warning_display_time', '', NULL),
+(3464, 1281, 'time_limit_warning_message', '', NULL),
+(3465, 1281, 'time_limit_warning_style', '', NULL),
+(3466, 1281, 'time_limit_warning_2', '', NULL),
+(3467, 1281, 'time_limit_warning_2_display_time', '', NULL),
+(3468, 1281, 'time_limit_warning_2_message', '', NULL),
+(3469, 1281, 'time_limit_warning_2_style', '', NULL),
+(3470, 1281, 'random_group', '', NULL),
+(3482, 457, 'other_replace_text', '', NULL),
+(3483, 457, 'page_break', '0', NULL),
+(3484, 457, 'public_statistics', '0', NULL),
+(3485, 457, 'random_order', '0', NULL),
+(3486, 457, 'scale_export', '0', NULL),
+(3487, 457, 'random_group', '', NULL),
+(3488, 1282, 'display_rows', '', NULL),
+(3489, 1282, 'hidden', '0', NULL),
+(3490, 1282, 'maximum_chars', '', NULL),
+(3491, 1282, 'page_break', '0', NULL),
+(3492, 1282, 'text_input_width', '', NULL),
+(3493, 1282, 'time_limit', '', NULL),
+(3494, 1282, 'time_limit_action', '1', NULL),
+(3495, 1282, 'time_limit_disable_next', '0', NULL),
+(3496, 1282, 'time_limit_disable_prev', '0', NULL),
+(3497, 1282, 'time_limit_countdown_message', '', NULL),
+(3498, 1282, 'time_limit_timer_style', '', NULL),
+(3499, 1282, 'time_limit_message_delay', '', NULL),
+(3500, 1282, 'time_limit_message', '', NULL),
+(3501, 1282, 'time_limit_message_style', '', NULL),
+(3502, 1282, 'time_limit_warning', '', NULL),
+(3503, 1282, 'time_limit_warning_display_time', '', NULL),
+(3504, 1282, 'time_limit_warning_message', '', NULL),
+(3505, 1282, 'time_limit_warning_style', '', NULL),
+(3506, 1282, 'time_limit_warning_2', '', NULL),
+(3507, 1282, 'time_limit_warning_2_display_time', '', NULL),
+(3508, 1282, 'time_limit_warning_2_message', '', NULL),
+(3509, 1282, 'time_limit_warning_2_style', '', NULL),
+(3510, 1282, 'random_group', '', NULL),
+(3511, 1283, 'display_rows', '', NULL),
+(3512, 1283, 'hidden', '0', NULL),
+(3513, 1283, 'maximum_chars', '', NULL),
+(3514, 1283, 'page_break', '0', NULL),
+(3515, 1283, 'text_input_width', '', NULL),
+(3516, 1283, 'time_limit', '', NULL),
+(3517, 1283, 'time_limit_action', '1', NULL),
+(3518, 1283, 'time_limit_disable_next', '0', NULL),
+(3519, 1283, 'time_limit_disable_prev', '0', NULL),
+(3520, 1283, 'time_limit_countdown_message', '', NULL),
+(3521, 1283, 'time_limit_timer_style', '', NULL),
+(3522, 1283, 'time_limit_message_delay', '', NULL),
+(3523, 1283, 'time_limit_message', '', NULL),
+(3524, 1283, 'time_limit_message_style', '', NULL),
+(3525, 1283, 'time_limit_warning', '', NULL),
+(3526, 1283, 'time_limit_warning_display_time', '', NULL),
+(3527, 1283, 'time_limit_warning_message', '', NULL),
+(3528, 1283, 'time_limit_warning_style', '', NULL),
+(3529, 1283, 'time_limit_warning_2', '', NULL),
+(3530, 1283, 'time_limit_warning_2_display_time', '', NULL),
+(3531, 1283, 'time_limit_warning_2_message', '', NULL),
+(3532, 1283, 'time_limit_warning_2_style', '', NULL),
+(3533, 1283, 'random_group', '', NULL),
+(3725, 182, 'text_input_width', '', NULL),
+(3819, 89, 'category_separator', '', NULL),
+(3544, 89, 'page_break', '0', NULL),
+(3818, 89, 'alphasort', '0', NULL),
+(3546, 89, 'random_order', '0', NULL),
+(3814, 89, 'hide_tip', '0', NULL),
+(3548, 89, 'random_group', '', NULL),
+(3549, 228, 'alphasort', '0', NULL),
+(3550, 228, 'array_filter', '', NULL),
+(3551, 228, 'array_filter_exclude', '', NULL),
+(3552, 228, 'display_columns', '1', NULL),
+(3553, 228, 'hide_tip', '0', NULL),
+(3554, 228, 'hidden', '0', NULL),
+(3555, 228, 'other_comment_mandatory', '0', NULL),
+(3556, 228, 'other_numbers_only', '0', NULL),
+(3557, 228, 'other_replace_text', '', NULL),
+(3558, 228, 'page_break', '0', NULL),
+(3559, 228, 'public_statistics', '0', NULL),
+(3560, 228, 'random_order', '0', NULL),
+(3561, 228, 'scale_export', '0', NULL),
+(3562, 228, 'random_group', '', NULL),
+(3564, 1284, 'hidden', '0', NULL),
+(4472, 1301, 'text_input_width', '', NULL),
+(3566, 1284, 'page_break', '0', NULL),
+(4471, 1301, 'suffix', '', NULL),
+(3568, 1284, 'time_limit', '', NULL),
+(3569, 1284, 'time_limit_action', '1', NULL),
+(3570, 1284, 'time_limit_disable_next', '0', NULL),
+(3571, 1284, 'time_limit_disable_prev', '0', NULL),
+(3572, 1284, 'time_limit_countdown_message', '', NULL),
+(3573, 1284, 'time_limit_timer_style', '', NULL),
+(3574, 1284, 'time_limit_message_delay', '', NULL),
+(3575, 1284, 'time_limit_message', '', NULL),
+(3576, 1284, 'time_limit_message_style', '', NULL),
+(3577, 1284, 'time_limit_warning', '', NULL),
+(3578, 1284, 'time_limit_warning_display_time', '', NULL),
+(3579, 1284, 'time_limit_warning_message', '', NULL),
+(3580, 1284, 'time_limit_warning_style', '', NULL),
+(3581, 1284, 'time_limit_warning_2', '', NULL),
+(3582, 1284, 'time_limit_warning_2_display_time', '', NULL),
+(3583, 1284, 'time_limit_warning_2_message', '', NULL),
+(3584, 1284, 'time_limit_warning_2_style', '', NULL),
+(3585, 1284, 'random_group', '', NULL),
+(4470, 1301, 'prefix', '', NULL),
+(4469, 1301, 'page_break', '0', NULL),
+(4468, 1301, 'numbers_only', '0', NULL),
+(4467, 1301, 'maximum_chars', '', NULL),
+(4466, 1301, 'hidden', '0', NULL),
+(4465, 1301, 'hide_tip', '0', NULL),
+(4464, 1301, 'location_mapzoom', '11', NULL),
+(4463, 1301, 'location_defaultcoordinates', '', NULL),
+(4462, 1301, 'location_nodefaultfromip', '0', NULL),
+(4461, 1301, 'location_mapheight', '300', NULL),
+(4460, 1301, 'location_mapwidth', '500', NULL),
+(4459, 1301, 'location_mapservice', '0', NULL),
+(4458, 1301, 'location_country', '0', NULL),
+(4457, 1301, 'location_postal', '0', NULL),
+(4456, 1301, 'location_state', '0', NULL),
+(4455, 1301, 'location_city', '0', NULL),
+(4454, 1301, 'display_rows', '', NULL),
+(3625, 249, 'maximum_chars', '', NULL),
+(3626, 249, 'page_break', '0', NULL),
+(3627, 249, 'text_input_width', '', NULL),
+(3628, 249, 'time_limit', '', NULL),
+(3629, 249, 'time_limit_action', '1', NULL),
+(3630, 249, 'time_limit_disable_next', '0', NULL),
+(3631, 249, 'time_limit_disable_prev', '0', NULL),
+(3632, 249, 'time_limit_countdown_message', '', NULL),
+(3633, 249, 'time_limit_timer_style', '', NULL),
+(3634, 249, 'time_limit_message_delay', '', NULL),
+(3635, 249, 'time_limit_message', '', NULL),
+(3636, 249, 'time_limit_message_style', '', NULL),
+(3637, 249, 'time_limit_warning', '', NULL),
+(3638, 249, 'time_limit_warning_display_time', '', NULL),
+(3639, 249, 'time_limit_warning_message', '', NULL),
+(3640, 249, 'time_limit_warning_style', '', NULL),
+(3641, 249, 'time_limit_warning_2', '', NULL),
+(3642, 249, 'time_limit_warning_2_display_time', '', NULL),
+(3643, 249, 'time_limit_warning_2_message', '', NULL),
+(3644, 249, 'time_limit_warning_2_style', '', NULL),
+(3645, 249, 'random_group', '', NULL),
+(3646, 250, 'display_rows', '', NULL),
+(3647, 250, 'hidden', '0', NULL),
+(3648, 250, 'maximum_chars', '', NULL),
+(3649, 250, 'page_break', '0', NULL),
+(3650, 250, 'text_input_width', '', NULL),
+(3651, 250, 'time_limit', '', NULL),
+(3652, 250, 'time_limit_action', '1', NULL),
+(3653, 250, 'time_limit_disable_next', '0', NULL),
+(3654, 250, 'time_limit_disable_prev', '0', NULL),
+(3655, 250, 'time_limit_countdown_message', '', NULL),
+(3656, 250, 'time_limit_timer_style', '', NULL),
+(3657, 250, 'time_limit_message_delay', '', NULL),
+(3658, 250, 'time_limit_message', '', NULL),
+(3659, 250, 'time_limit_message_style', '', NULL),
+(3660, 250, 'time_limit_warning', '', NULL),
+(3661, 250, 'time_limit_warning_display_time', '', NULL),
+(3662, 250, 'time_limit_warning_message', '', NULL),
+(3663, 250, 'time_limit_warning_style', '', NULL),
+(3664, 250, 'time_limit_warning_2', '', NULL),
+(3665, 250, 'time_limit_warning_2_display_time', '', NULL),
+(3666, 250, 'time_limit_warning_2_message', '', NULL),
+(3667, 250, 'time_limit_warning_2_style', '', NULL),
+(3668, 250, 'random_group', '', NULL),
+(3669, 257, 'display_rows', '', NULL),
+(3670, 257, 'hidden', '0', NULL),
+(3671, 257, 'maximum_chars', '', NULL),
+(3672, 257, 'page_break', '0', NULL),
+(3673, 257, 'text_input_width', '', NULL),
+(3674, 257, 'time_limit', '', NULL),
+(3675, 257, 'time_limit_action', '1', NULL),
+(3676, 257, 'time_limit_disable_next', '0', NULL),
+(3677, 257, 'time_limit_disable_prev', '0', NULL),
+(3678, 257, 'time_limit_countdown_message', '', NULL),
+(3679, 257, 'time_limit_timer_style', '', NULL),
+(3680, 257, 'time_limit_message_delay', '', NULL),
+(3681, 257, 'time_limit_message', '', NULL),
+(3682, 257, 'time_limit_message_style', '', NULL),
+(3683, 257, 'time_limit_warning', '', NULL),
+(3684, 257, 'time_limit_warning_display_time', '', NULL),
+(3685, 257, 'time_limit_warning_message', '', NULL),
+(3686, 257, 'time_limit_warning_style', '', NULL),
+(3687, 257, 'time_limit_warning_2', '', NULL),
+(3688, 257, 'time_limit_warning_2_display_time', '', NULL),
+(3689, 257, 'time_limit_warning_2_message', '', NULL),
+(3690, 257, 'time_limit_warning_2_style', '', NULL),
+(3691, 257, 'random_group', '', NULL),
+(3692, 258, 'display_rows', '', NULL),
+(3693, 258, 'hidden', '0', NULL),
+(3694, 258, 'maximum_chars', '', NULL),
+(3695, 258, 'page_break', '0', NULL),
+(3696, 258, 'text_input_width', '', NULL),
+(3697, 258, 'time_limit', '', NULL),
+(3698, 258, 'time_limit_action', '1', NULL),
+(3699, 258, 'time_limit_disable_next', '0', NULL),
+(3700, 258, 'time_limit_disable_prev', '0', NULL),
+(3701, 258, 'time_limit_countdown_message', '', NULL),
+(3702, 258, 'time_limit_timer_style', '', NULL),
+(3703, 258, 'time_limit_message_delay', '', NULL),
+(3704, 258, 'time_limit_message', '', NULL),
+(3705, 258, 'time_limit_message_style', '', NULL),
+(3706, 258, 'time_limit_warning', '', NULL),
+(3707, 258, 'time_limit_warning_display_time', '', NULL),
+(3708, 258, 'time_limit_warning_message', '', NULL),
+(3709, 258, 'time_limit_warning_style', '', NULL),
+(3710, 258, 'time_limit_warning_2', '', NULL),
+(3711, 258, 'time_limit_warning_2_display_time', '', NULL),
+(3712, 258, 'time_limit_warning_2_message', '', NULL),
+(3713, 258, 'time_limit_warning_2_style', '', NULL),
+(3714, 258, 'random_group', '', NULL),
+(3726, 182, 'time_limit', '', NULL),
+(3727, 182, 'time_limit_action', '1', NULL),
+(3728, 182, 'time_limit_disable_next', '0', NULL),
+(3729, 182, 'time_limit_disable_prev', '0', NULL),
+(3730, 182, 'time_limit_countdown_message', '', NULL),
+(3731, 182, 'time_limit_timer_style', '', NULL),
+(3732, 182, 'time_limit_message_delay', '', NULL),
+(3733, 182, 'time_limit_message', '', NULL),
+(3734, 182, 'time_limit_message_style', '', NULL),
+(3735, 182, 'time_limit_warning', '', NULL),
+(3736, 182, 'time_limit_warning_display_time', '', NULL),
+(3737, 182, 'time_limit_warning_message', '', NULL),
+(3738, 182, 'time_limit_warning_style', '', NULL),
+(3739, 182, 'time_limit_warning_2', '', NULL),
+(3740, 182, 'time_limit_warning_2_display_time', '', NULL),
+(3741, 182, 'time_limit_warning_2_message', '', NULL),
+(3742, 182, 'time_limit_warning_2_style', '', NULL),
+(3743, 182, 'random_group', '', NULL),
+(3744, 183, 'display_rows', '', NULL),
+(3745, 183, 'hidden', '0', NULL),
+(3746, 183, 'maximum_chars', '', NULL),
+(3747, 183, 'page_break', '0', NULL),
+(3748, 183, 'text_input_width', '', NULL),
+(3749, 183, 'time_limit', '', NULL),
+(3750, 183, 'time_limit_action', '1', NULL),
+(3751, 183, 'time_limit_disable_next', '0', NULL),
+(3752, 183, 'time_limit_disable_prev', '0', NULL),
+(3753, 183, 'time_limit_countdown_message', '', NULL),
+(3754, 183, 'time_limit_timer_style', '', NULL),
+(3755, 183, 'time_limit_message_delay', '', NULL),
+(3756, 183, 'time_limit_message', '', NULL),
+(3757, 183, 'time_limit_message_style', '', NULL),
+(3758, 183, 'time_limit_warning', '', NULL),
+(3759, 183, 'time_limit_warning_display_time', '', NULL),
+(3760, 183, 'time_limit_warning_message', '', NULL),
+(3761, 183, 'time_limit_warning_style', '', NULL),
+(3762, 183, 'time_limit_warning_2', '', NULL),
+(3763, 183, 'time_limit_warning_2_display_time', '', NULL),
+(3764, 183, 'time_limit_warning_2_message', '', NULL),
+(3765, 183, 'time_limit_warning_2_style', '', NULL),
+(3766, 183, 'random_group', '', NULL),
+(3787, 213, 'time_limit_warning_2_display_time', '', NULL),
+(3788, 213, 'time_limit_warning_2_message', '', NULL),
+(3789, 213, 'time_limit_warning_2_style', '', NULL),
+(3790, 213, 'random_group', '', NULL),
+(3791, 216, 'display_rows', '', NULL),
+(3792, 216, 'hidden', '0', NULL),
+(3793, 216, 'maximum_chars', '', NULL),
+(3794, 216, 'page_break', '0', NULL),
+(3795, 216, 'text_input_width', '', NULL),
+(3796, 216, 'time_limit', '', NULL),
+(3797, 216, 'time_limit_action', '1', NULL),
+(3798, 216, 'time_limit_disable_next', '0', NULL),
+(3799, 216, 'time_limit_disable_prev', '0', NULL),
+(3800, 216, 'time_limit_countdown_message', '', NULL),
+(3801, 216, 'time_limit_timer_style', '', NULL),
+(3802, 216, 'time_limit_message_delay', '', NULL),
+(3803, 216, 'time_limit_message', '', NULL),
+(3804, 216, 'time_limit_message_style', '', NULL),
+(3805, 216, 'time_limit_warning', '', NULL),
+(3806, 216, 'time_limit_warning_display_time', '', NULL),
+(3807, 216, 'time_limit_warning_message', '', NULL),
+(3808, 216, 'time_limit_warning_style', '', NULL),
+(3809, 216, 'time_limit_warning_2', '', NULL),
+(3810, 216, 'time_limit_warning_2_display_time', '', NULL),
+(3811, 216, 'time_limit_warning_2_message', '', NULL),
+(3812, 216, 'time_limit_warning_2_style', '', NULL),
+(3813, 216, 'random_group', '', NULL),
+(3821, 89, 'other_replace_text', '', NULL),
+(3822, 89, 'scale_export', '0', NULL),
+(3823, 1290, 'hidden', '0', NULL),
+(3824, 1290, 'page_break', '0', NULL),
+(3825, 1290, 'random_order', '0', NULL),
+(3826, 1290, 'random_group', '', NULL),
+(3827, 1290, 'hide_tip', '0', NULL),
+(3828, 1290, 'public_statistics', '0', NULL),
+(3829, 1290, 'alphasort', '0', NULL),
+(3830, 1290, 'category_separator', '', NULL),
+(3831, 1290, 'other_comment_mandatory', '0', NULL),
+(3832, 1290, 'other_replace_text', '', NULL),
+(3833, 1290, 'scale_export', '0', NULL),
+(3834, 1291, 'hidden', '0', NULL),
+(3835, 1291, 'page_break', '0', NULL),
+(3836, 1291, 'random_order', '0', NULL),
+(3837, 1291, 'random_group', '', NULL),
+(3838, 1291, 'hide_tip', '0', NULL),
+(3839, 1291, 'public_statistics', '0', NULL),
+(3840, 1291, 'alphasort', '0', NULL),
+(3841, 1291, 'category_separator', '', NULL),
+(3842, 1291, 'other_comment_mandatory', '0', NULL),
+(3843, 1291, 'other_replace_text', '', NULL),
+(3844, 1291, 'scale_export', '0', NULL),
+(3845, 1292, 'hidden', '0', NULL),
+(3846, 1292, 'page_break', '0', NULL),
+(3847, 1292, 'random_order', '0', NULL),
+(3848, 1292, 'random_group', '', NULL),
+(3849, 1292, 'hide_tip', '0', NULL),
+(3850, 1292, 'public_statistics', '0', NULL),
+(3851, 1292, 'alphasort', '0', NULL),
+(3852, 1292, 'category_separator', '', NULL),
+(3853, 1292, 'other_comment_mandatory', '0', NULL),
+(3854, 1292, 'other_replace_text', '', NULL),
+(3855, 1292, 'scale_export', '0', NULL),
+(3856, 1293, 'hidden', '0', NULL),
+(3857, 1293, 'page_break', '0', NULL),
+(3858, 1293, 'random_order', '0', NULL),
+(3859, 1293, 'random_group', '', NULL),
+(3860, 1293, 'hide_tip', '0', NULL),
+(3861, 1293, 'public_statistics', '0', NULL),
+(3862, 1293, 'alphasort', '0', NULL),
+(3863, 1293, 'category_separator', '', NULL),
+(3864, 1293, 'other_comment_mandatory', '0', NULL),
+(3865, 1293, 'other_replace_text', '', NULL),
+(3866, 1293, 'scale_export', '0', NULL),
+(3867, 1294, 'hidden', '0', NULL),
+(3868, 1294, 'page_break', '0', NULL),
+(3869, 1294, 'random_order', '0', NULL),
+(3870, 1294, 'random_group', '', NULL),
+(3871, 1294, 'hide_tip', '0', NULL),
+(3872, 1294, 'public_statistics', '0', NULL),
+(3873, 1294, 'alphasort', '0', NULL),
+(3874, 1294, 'category_separator', '', NULL),
+(3875, 1294, 'other_comment_mandatory', '0', NULL),
+(3876, 1294, 'other_replace_text', '', NULL),
+(3877, 1294, 'scale_export', '0', NULL),
+(3878, 85, 'display_rows', '', NULL),
+(3879, 85, 'location_city', '0', NULL),
+(3880, 85, 'location_state', '0', NULL),
+(3881, 85, 'location_postal', '0', NULL),
+(3882, 85, 'location_country', '0', NULL),
+(3883, 85, 'location_mapservice', '0', NULL),
+(3884, 85, 'location_mapwidth', '500', NULL),
+(3885, 85, 'location_mapheight', '300', NULL),
+(3886, 85, 'location_nodefaultfromip', '0', NULL),
+(3887, 85, 'location_defaultcoordinates', '', NULL),
+(3888, 85, 'location_mapzoom', '11', NULL),
+(3889, 85, 'hide_tip', '0', NULL),
+(3890, 85, 'hidden', '0', NULL),
+(3891, 85, 'numbers_only', '0', NULL),
+(3892, 85, 'page_break', '0', NULL),
+(3893, 85, 'prefix', '', NULL),
+(3894, 85, 'suffix', '', NULL),
+(3895, 85, 'text_input_width', '', NULL),
+(3896, 85, 'time_limit', '', NULL),
+(3897, 85, 'time_limit_action', '1', NULL),
+(3898, 85, 'time_limit_disable_next', '0', NULL),
+(3899, 85, 'time_limit_disable_prev', '0', NULL),
+(3900, 85, 'time_limit_countdown_message', '', NULL),
+(3901, 85, 'time_limit_timer_style', '', NULL),
+(3902, 85, 'time_limit_message_delay', '', NULL),
+(3903, 85, 'time_limit_message', '', NULL),
+(3904, 85, 'time_limit_message_style', '', NULL),
+(3905, 85, 'time_limit_warning', '', NULL),
+(3906, 85, 'time_limit_warning_display_time', '', NULL),
+(3907, 85, 'time_limit_warning_message', '', NULL),
+(3908, 85, 'time_limit_warning_style', '', NULL),
+(3909, 85, 'time_limit_warning_2', '', NULL),
+(3910, 85, 'time_limit_warning_2_display_time', '', NULL),
+(3911, 85, 'time_limit_warning_2_message', '', NULL),
+(3912, 85, 'time_limit_warning_2_style', '', NULL),
+(3913, 85, 'random_group', '', NULL),
+(6587, 1623, 'hide_tip', '0', NULL),
+(6586, 1623, 'hidden', '0', NULL),
+(6585, 1623, 'display_columns', '1', NULL),
+(6584, 1623, 'array_filter_exclude', '', NULL),
+(6583, 1623, 'array_filter', '', NULL),
+(6582, 1623, 'alphasort', '0', NULL),
+(6580, 1621, 'random_order', '0', NULL),
+(6581, 1621, 'scale_export', '0', NULL),
+(6579, 1621, 'random_group', '', NULL),
+(6577, 1621, 'page_break', '0', NULL),
+(6578, 1621, 'public_statistics', '0', NULL),
+(6576, 1621, 'other_replace_text', '', NULL),
+(6575, 1621, 'other_numbers_only', '0', NULL),
+(6573, 1621, 'hide_tip', '0', NULL),
+(6574, 1621, 'other_comment_mandatory', '0', NULL),
+(6468, 1616, 'alphasort', '0', NULL),
+(6466, 1614, 'random_order', '0', NULL),
+(6467, 1614, 'scale_export', '0', NULL),
+(6464, 1614, 'public_statistics', '0', NULL),
+(6465, 1614, 'random_group', '', NULL),
+(6449, 1613, 'prefix', '', NULL),
+(6448, 1613, 'page_break', '0', NULL),
+(6447, 1613, 'num_value_int_only', '1', NULL),
+(6446, 1613, 'min_num_value_n', '1', NULL),
+(6445, 1613, 'maximum_chars', '', NULL),
+(6444, 1613, 'max_num_value_n', '30', NULL),
+(6443, 1613, 'hide_tip', '0', NULL),
+(6442, 1613, 'hidden', '0', NULL),
+(6441, 1612, 'time_limit_warning_style', '', NULL),
+(6440, 1612, 'time_limit_warning_message', '', NULL),
+(6439, 1612, 'time_limit_warning_display_time', '', NULL),
+(3965, 176, 'alphasort', '0', NULL),
+(3966, 176, 'array_filter', '', NULL),
+(3967, 176, 'array_filter_exclude', '', NULL),
+(3968, 176, 'display_columns', '1', NULL),
+(3969, 176, 'hide_tip', '0', NULL),
+(3970, 176, 'hidden', '0', NULL),
+(3971, 176, 'other_comment_mandatory', '0', NULL),
+(3972, 176, 'other_numbers_only', '0', NULL),
+(3973, 176, 'other_replace_text', '', NULL),
+(3974, 176, 'page_break', '0', NULL),
+(3975, 176, 'public_statistics', '0', NULL),
+(3976, 176, 'random_order', '0', NULL),
+(3977, 176, 'scale_export', '0', NULL),
+(3978, 176, 'random_group', '', NULL),
+(6389, 1611, 'location_country', '0', NULL),
+(6388, 1611, 'location_city', '0', NULL),
+(6190, 1598, 'array_filter_exclude', '', NULL),
+(6188, 1597, 'scale_export', '0', NULL),
+(6189, 1598, 'array_filter', '', NULL),
+(6187, 1597, 'random_order', '0', NULL),
+(6022, 1587, 'random_group', '', NULL),
+(6023, 1587, 'random_order', '0', NULL),
+(6024, 1587, 'scale_export', '0', NULL),
+(6025, 1588, 'array_filter', '', NULL),
+(6026, 1588, 'array_filter_exclude', '', NULL),
+(6027, 1588, 'assessment_value', '1', NULL),
+(6028, 1588, 'display_columns', '1', NULL),
+(6029, 1588, 'exclude_all_others', '', NULL),
+(6030, 1588, 'exclude_all_others_auto', '0', NULL),
+(6031, 1588, 'hidden', '0', NULL),
+(6032, 1588, 'hide_tip', '0', NULL),
+(6033, 1588, 'max_answers', '', NULL),
+(6034, 1588, 'min_answers', '', NULL),
+(6035, 1588, 'other_numbers_only', '0', NULL),
+(6036, 1588, 'other_replace_text', '', NULL),
+(6037, 1588, 'page_break', '0', NULL),
+(6038, 1588, 'public_statistics', '0', NULL),
+(6039, 1588, 'random_group', '', NULL),
+(6040, 1588, 'random_order', '0', NULL),
+(6041, 1588, 'scale_export', '0', NULL),
+(6042, 1589, 'display_rows', '', NULL),
+(6043, 1589, 'hidden', '0', NULL),
+(6044, 1589, 'hide_tip', '0', NULL),
+(6045, 1589, 'location_city', '0', NULL),
+(6046, 1589, 'location_country', '0', NULL),
+(6047, 1589, 'location_defaultcoordinates', '', NULL),
+(6048, 1589, 'location_mapheight', '300', NULL),
+(6049, 1589, 'location_mapservice', '0', NULL),
+(6050, 1589, 'location_mapwidth', '500', NULL),
+(6051, 1589, 'location_mapzoom', '11', NULL),
+(6052, 1589, 'location_nodefaultfromip', '0', NULL),
+(6053, 1589, 'location_postal', '0', NULL),
+(6054, 1589, 'location_state', '0', NULL),
+(6055, 1589, 'maximum_chars', '', NULL),
+(6056, 1589, 'numbers_only', '0', NULL),
+(6057, 1589, 'page_break', '0', NULL),
+(6058, 1589, 'prefix', '', NULL),
+(6059, 1589, 'random_group', '', NULL),
+(6060, 1589, 'suffix', '', NULL),
+(6061, 1589, 'text_input_width', '', NULL),
+(6062, 1589, 'time_limit', '', NULL),
+(6063, 1589, 'time_limit_action', '1', NULL),
+(6064, 1589, 'time_limit_countdown_message', '', NULL),
+(6065, 1589, 'time_limit_disable_next', '0', NULL),
+(6066, 1589, 'time_limit_disable_prev', '0', NULL),
+(6067, 1589, 'time_limit_message', '', NULL),
+(6068, 1589, 'time_limit_message_delay', '', NULL),
+(6069, 1589, 'time_limit_message_style', '', NULL),
+(6070, 1589, 'time_limit_timer_style', '', NULL),
+(6071, 1589, 'time_limit_warning', '', NULL),
+(6072, 1589, 'time_limit_warning_2', '', NULL),
+(6073, 1589, 'time_limit_warning_2_display_time', '', NULL),
+(6074, 1589, 'time_limit_warning_2_message', '', NULL),
+(6075, 1589, 'time_limit_warning_2_style', '', NULL),
+(6076, 1589, 'time_limit_warning_display_time', '', NULL),
+(6077, 1589, 'time_limit_warning_message', '', NULL),
+(6078, 1589, 'time_limit_warning_style', '', NULL),
+(6079, 1590, 'alphasort', '0', NULL),
+(6080, 1590, 'array_filter', '', NULL),
+(6081, 1590, 'array_filter_exclude', '', NULL),
+(6082, 1590, 'display_columns', '1', NULL),
+(6083, 1590, 'hidden', '0', NULL),
+(6084, 1590, 'hide_tip', '0', NULL),
+(6085, 1590, 'other_comment_mandatory', '0', NULL),
+(6086, 1590, 'other_numbers_only', '0', NULL),
+(6087, 1590, 'other_replace_text', '', NULL),
+(6088, 1590, 'page_break', '0', NULL),
+(6089, 1590, 'public_statistics', '0', NULL),
+(6090, 1590, 'random_group', '', NULL),
+(6091, 1590, 'random_order', '0', NULL),
+(6092, 1590, 'scale_export', '0', NULL),
+(6093, 1591, 'alphasort', '0', NULL),
+(6094, 1591, 'array_filter', '', NULL),
+(6095, 1591, 'array_filter_exclude', '', NULL),
+(6096, 1591, 'display_columns', '1', NULL),
+(6097, 1591, 'hidden', '0', NULL),
+(6098, 1591, 'hide_tip', '0', NULL),
+(6099, 1591, 'other_comment_mandatory', '0', NULL),
+(6100, 1591, 'other_numbers_only', '0', NULL),
+(6101, 1591, 'other_replace_text', '', NULL),
+(6102, 1591, 'page_break', '0', NULL),
+(6103, 1591, 'public_statistics', '0', NULL),
+(6104, 1591, 'random_group', '', NULL),
+(6105, 1591, 'random_order', '0', NULL),
+(6106, 1591, 'scale_export', '0', NULL),
+(6107, 1592, 'alphasort', '0', NULL),
+(6108, 1592, 'array_filter', '', NULL),
+(6109, 1592, 'array_filter_exclude', '', NULL),
+(6110, 1592, 'display_columns', '1', NULL),
+(6111, 1592, 'hidden', '0', NULL),
+(6112, 1592, 'hide_tip', '0', NULL),
+(6113, 1592, 'other_comment_mandatory', '0', NULL),
+(6114, 1592, 'other_numbers_only', '0', NULL),
+(6115, 1592, 'other_replace_text', '', NULL),
+(6116, 1592, 'page_break', '0', NULL),
+(6117, 1592, 'public_statistics', '0', NULL),
+(6118, 1592, 'random_group', '', NULL),
+(6119, 1592, 'random_order', '0', NULL),
+(6120, 1592, 'scale_export', '0', NULL),
+(6121, 1593, 'array_filter', '', NULL),
+(6122, 1593, 'array_filter_exclude', '', NULL),
+(6123, 1593, 'assessment_value', '1', NULL),
+(6124, 1593, 'display_columns', '1', NULL),
+(6125, 1593, 'exclude_all_others', '', NULL),
+(6126, 1593, 'exclude_all_others_auto', '0', NULL),
+(6127, 1593, 'hidden', '0', NULL),
+(6128, 1593, 'hide_tip', '0', NULL),
+(6129, 1593, 'max_answers', '', NULL),
+(6130, 1593, 'min_answers', '', NULL),
+(6131, 1593, 'other_numbers_only', '0', NULL),
+(6132, 1593, 'other_replace_text', '', NULL),
+(6133, 1593, 'page_break', '0', NULL),
+(6134, 1593, 'public_statistics', '0', NULL),
+(6135, 1593, 'random_group', '', NULL),
+(6136, 1593, 'random_order', '0', NULL),
+(6137, 1593, 'scale_export', '0', NULL),
+(6138, 1594, 'display_rows', '', NULL),
+(6139, 1594, 'hidden', '0', NULL),
+(6140, 1594, 'hide_tip', '0', NULL),
+(6141, 1594, 'location_city', '0', NULL),
+(6142, 1594, 'location_country', '0', NULL),
+(6143, 1594, 'location_defaultcoordinates', '', NULL),
+(6144, 1594, 'location_mapheight', '300', NULL),
+(6145, 1594, 'location_mapservice', '0', NULL),
+(6146, 1594, 'location_mapwidth', '500', NULL),
+(6147, 1594, 'location_mapzoom', '11', NULL),
+(6148, 1594, 'location_nodefaultfromip', '0', NULL),
+(6149, 1594, 'location_postal', '0', NULL),
+(6150, 1594, 'location_state', '0', NULL),
+(6151, 1594, 'maximum_chars', '', NULL),
+(6152, 1594, 'numbers_only', '0', NULL),
+(6153, 1594, 'page_break', '0', NULL),
+(6154, 1594, 'prefix', '', NULL),
+(6155, 1594, 'random_group', '', NULL),
+(6156, 1594, 'suffix', '', NULL),
+(6157, 1594, 'text_input_width', '', NULL),
+(6158, 1594, 'time_limit', '', NULL),
+(6159, 1594, 'time_limit_action', '1', NULL),
+(6160, 1594, 'time_limit_countdown_message', '', NULL),
+(6161, 1594, 'time_limit_disable_next', '0', NULL),
+(6162, 1594, 'time_limit_disable_prev', '0', NULL),
+(6163, 1594, 'time_limit_message', '', NULL),
+(6164, 1594, 'time_limit_message_delay', '', NULL),
+(6165, 1594, 'time_limit_message_style', '', NULL),
+(6166, 1594, 'time_limit_timer_style', '', NULL),
+(6167, 1594, 'time_limit_warning', '', NULL),
+(6168, 1594, 'time_limit_warning_2', '', NULL),
+(6169, 1594, 'time_limit_warning_2_display_time', '', NULL),
+(6170, 1594, 'time_limit_warning_2_message', '', NULL),
+(6171, 1594, 'time_limit_warning_2_style', '', NULL),
+(6172, 1594, 'time_limit_warning_display_time', '', NULL),
+(6173, 1594, 'time_limit_warning_message', '', NULL),
+(6174, 1594, 'time_limit_warning_style', '', NULL),
+(6175, 1597, 'alphasort', '0', NULL),
+(6176, 1597, 'array_filter', '', NULL),
+(6177, 1597, 'array_filter_exclude', '', NULL),
+(6178, 1597, 'display_columns', '1', NULL),
+(6179, 1597, 'hidden', '0', NULL),
+(6180, 1597, 'hide_tip', '0', NULL),
+(6181, 1597, 'other_comment_mandatory', '0', NULL),
+(6182, 1597, 'other_numbers_only', '0', NULL),
+(6183, 1597, 'other_replace_text', '', NULL),
+(6184, 1597, 'page_break', '0', NULL),
+(6185, 1597, 'public_statistics', '0', NULL),
+(6186, 1597, 'random_group', '', NULL),
+(4315, 199, 'alphasort', '0', NULL),
+(4316, 199, 'array_filter', '', NULL),
+(4317, 199, 'array_filter_exclude', '', NULL),
+(4318, 199, 'display_columns', '1', NULL),
+(4319, 199, 'hide_tip', '0', NULL),
+(4320, 199, 'hidden', '0', NULL),
+(4321, 199, 'other_comment_mandatory', '0', NULL),
+(4322, 199, 'other_numbers_only', '0', NULL),
+(4323, 199, 'other_replace_text', '', NULL),
+(4324, 199, 'page_break', '0', NULL),
+(4325, 199, 'public_statistics', '0', NULL),
+(4326, 199, 'random_order', '0', NULL),
+(4327, 199, 'scale_export', '0', NULL),
+(4328, 199, 'random_group', '', NULL),
+(4352, 486, 'other_replace_text', '', NULL),
+(4353, 486, 'page_break', '0', NULL),
+(4354, 486, 'public_statistics', '0', NULL),
+(4355, 486, 'random_order', '0', NULL),
+(4356, 486, 'scale_export', '0', NULL),
+(4357, 486, 'random_group', '', NULL),
+(4358, 501, 'alphasort', '0', NULL),
+(4359, 501, 'array_filter', '', NULL),
+(4360, 501, 'array_filter_exclude', '', NULL),
+(4361, 501, 'display_columns', '1', NULL),
+(4362, 501, 'hide_tip', '0', NULL),
+(4363, 501, 'hidden', '0', NULL),
+(4364, 501, 'other_comment_mandatory', '0', NULL),
+(4365, 501, 'other_numbers_only', '0', NULL),
+(4366, 501, 'other_replace_text', '', NULL),
+(4367, 501, 'page_break', '0', NULL),
+(4368, 501, 'public_statistics', '0', NULL),
+(4369, 501, 'random_order', '0', NULL),
+(4370, 501, 'scale_export', '0', NULL),
+(4371, 501, 'random_group', '', NULL),
+(4372, 9, 'array_filter', '', NULL),
+(4373, 9, 'array_filter_exclude', '', NULL),
+(4374, 9, 'assessment_value', '1', NULL),
+(4375, 9, 'display_columns', '1', NULL),
+(4376, 9, 'exclude_all_others', '', NULL),
+(4377, 9, 'exclude_all_others_auto', '0', NULL),
+(4378, 9, 'hide_tip', '0', NULL),
+(4379, 9, 'hidden', '0', NULL),
+(4380, 9, 'max_answers', '', NULL),
+(4381, 9, 'min_answers', '', NULL),
+(4382, 9, 'other_numbers_only', '0', NULL),
+(4383, 9, 'other_replace_text', '', NULL),
+(4384, 9, 'page_break', '0', NULL),
+(4385, 9, 'public_statistics', '0', NULL),
+(4386, 9, 'random_order', '0', NULL),
+(4387, 9, 'scale_export', '0', NULL),
+(4388, 9, 'random_group', '', NULL),
+(4389, 22, 'alphasort', '0', NULL),
+(4390, 22, 'array_filter', '', NULL),
+(4391, 22, 'array_filter_exclude', '', NULL),
+(4392, 22, 'display_columns', '1', NULL),
+(4393, 22, 'hide_tip', '0', NULL),
+(4394, 22, 'hidden', '0', NULL),
+(4395, 22, 'other_comment_mandatory', '0', NULL),
+(4396, 22, 'other_numbers_only', '0', NULL),
+(4397, 22, 'other_replace_text', '', NULL),
+(4398, 22, 'page_break', '0', NULL),
+(4399, 22, 'public_statistics', '0', NULL),
+(4400, 22, 'random_order', '0', NULL),
+(4401, 22, 'scale_export', '0', NULL),
+(4402, 22, 'random_group', '', NULL),
+(4403, 327, 'display_rows', '', NULL),
+(4404, 327, 'location_city', '0', NULL),
+(4405, 327, 'location_state', '0', NULL),
+(4406, 327, 'location_postal', '0', NULL),
+(4407, 327, 'location_country', '0', NULL),
+(4408, 327, 'location_mapservice', '0', NULL),
+(4409, 327, 'location_mapwidth', '500', NULL),
+(4410, 327, 'location_mapheight', '300', NULL),
+(4411, 327, 'location_nodefaultfromip', '0', NULL),
+(4412, 327, 'location_defaultcoordinates', '', NULL),
+(4413, 327, 'location_mapzoom', '11', NULL),
+(4414, 327, 'hide_tip', '0', NULL),
+(4415, 327, 'hidden', '0', NULL),
+(4416, 327, 'maximum_chars', '', NULL),
+(4417, 327, 'numbers_only', '0', NULL),
+(4418, 327, 'page_break', '0', NULL),
+(4419, 327, 'prefix', '', NULL),
+(4420, 327, 'suffix', '', NULL),
+(4421, 327, 'text_input_width', '', NULL),
+(4422, 327, 'time_limit', '', NULL),
+(4423, 327, 'time_limit_action', '1', NULL),
+(4424, 327, 'time_limit_disable_next', '0', NULL),
+(4425, 327, 'time_limit_disable_prev', '0', NULL),
+(4426, 327, 'time_limit_countdown_message', '', NULL),
+(4427, 327, 'time_limit_timer_style', '', NULL),
+(4428, 327, 'time_limit_message_delay', '', NULL),
+(4429, 327, 'time_limit_message', '', NULL),
+(4430, 327, 'time_limit_message_style', '', NULL),
+(4431, 327, 'time_limit_warning', '', NULL),
+(4432, 327, 'time_limit_warning_display_time', '', NULL),
+(4433, 327, 'time_limit_warning_message', '', NULL),
+(4434, 327, 'time_limit_warning_style', '', NULL),
+(4435, 327, 'time_limit_warning_2', '', NULL),
+(4436, 327, 'time_limit_warning_2_display_time', '', NULL),
+(4437, 327, 'time_limit_warning_2_message', '', NULL),
+(4438, 327, 'time_limit_warning_2_style', '', NULL),
+(4439, 327, 'random_group', '', NULL),
+(4440, 30, 'alphasort', '0', NULL),
+(4441, 30, 'array_filter', '', NULL),
+(4442, 30, 'array_filter_exclude', '', NULL),
+(4443, 30, 'display_columns', '1', NULL),
+(4444, 30, 'hide_tip', '0', NULL),
+(4445, 30, 'hidden', '0', NULL),
+(4446, 30, 'other_comment_mandatory', '0', NULL),
+(4447, 30, 'other_numbers_only', '0', NULL),
+(4448, 30, 'other_replace_text', '', NULL),
+(4449, 30, 'page_break', '0', NULL),
+(4450, 30, 'public_statistics', '0', NULL),
+(4451, 30, 'random_order', '0', NULL),
+(4452, 30, 'scale_export', '0', NULL),
+(4453, 30, 'random_group', '', NULL),
+(4473, 1301, 'time_limit', '', NULL),
+(4474, 1301, 'time_limit_action', '1', NULL),
+(4475, 1301, 'time_limit_disable_next', '0', NULL),
+(4476, 1301, 'time_limit_disable_prev', '0', NULL),
+(4477, 1301, 'time_limit_countdown_message', '', NULL),
+(4478, 1301, 'time_limit_timer_style', '', NULL),
+(4479, 1301, 'time_limit_message_delay', '', NULL),
+(4480, 1301, 'time_limit_message', '', NULL),
+(4481, 1301, 'time_limit_message_style', '', NULL),
+(4482, 1301, 'time_limit_warning', '', NULL),
+(4483, 1301, 'time_limit_warning_display_time', '', NULL),
+(4484, 1301, 'time_limit_warning_message', '', NULL),
+(4485, 1301, 'time_limit_warning_style', '', NULL),
+(4486, 1301, 'time_limit_warning_2', '', NULL),
+(4487, 1301, 'time_limit_warning_2_display_time', '', NULL),
+(4488, 1301, 'time_limit_warning_2_message', '', NULL),
+(4489, 1301, 'time_limit_warning_2_style', '', NULL),
+(4490, 1301, 'random_group', '', NULL),
+(6692, 1628, 'other_numbers_only', '0', NULL),
+(6691, 1628, 'min_answers', '', NULL),
+(6690, 1628, 'max_answers', '', NULL),
+(6689, 1628, 'hide_tip', '0', NULL),
+(6688, 1628, 'hidden', '0', NULL),
+(6687, 1628, 'exclude_all_others_auto', '0', NULL),
+(6686, 1628, 'exclude_all_others', '', NULL),
+(6685, 1628, 'display_columns', '1', NULL),
+(6684, 1628, 'assessment_value', '1', NULL),
+(6683, 1628, 'array_filter_exclude', '', NULL),
+(6588, 1623, 'other_comment_mandatory', '0', NULL),
+(6589, 1623, 'other_numbers_only', '0', NULL),
+(6590, 1623, 'other_replace_text', '', NULL),
+(6591, 1623, 'page_break', '0', NULL),
+(6592, 1623, 'public_statistics', '0', NULL),
+(6593, 1623, 'random_group', '', NULL),
+(6594, 1623, 'random_order', '0', NULL),
+(6595, 1623, 'scale_export', '0', NULL),
+(6596, 1624, 'array_filter', '', NULL),
+(6597, 1624, 'array_filter_exclude', '', NULL),
+(6598, 1624, 'assessment_value', '1', NULL),
+(6599, 1624, 'display_columns', '1', NULL),
+(6600, 1624, 'exclude_all_others', '', NULL),
+(6601, 1624, 'exclude_all_others_auto', '0', NULL),
+(6602, 1624, 'hidden', '0', NULL),
+(6603, 1624, 'hide_tip', '0', NULL),
+(6604, 1624, 'max_answers', '', NULL),
+(6605, 1624, 'min_answers', '', NULL),
+(6606, 1624, 'other_numbers_only', '0', NULL),
+(6607, 1624, 'other_replace_text', '', NULL),
+(6608, 1624, 'page_break', '0', NULL),
+(6609, 1624, 'public_statistics', '0', NULL),
+(6610, 1624, 'random_group', '', NULL),
+(6611, 1624, 'random_order', '0', NULL),
+(6612, 1624, 'scale_export', '0', NULL),
+(6613, 1625, 'display_rows', '', NULL),
+(6614, 1625, 'hidden', '0', NULL),
+(6615, 1625, 'hide_tip', '0', NULL),
+(6616, 1625, 'location_city', '0', NULL),
+(6617, 1625, 'location_country', '0', NULL),
+(6618, 1625, 'location_defaultcoordinates', '', NULL),
+(6619, 1625, 'location_mapheight', '300', NULL),
+(6620, 1625, 'location_mapservice', '0', NULL),
+(6621, 1625, 'location_mapwidth', '500', NULL),
+(6622, 1625, 'location_mapzoom', '11', NULL),
+(6623, 1625, 'location_nodefaultfromip', '0', NULL),
+(6624, 1625, 'location_postal', '0', NULL),
+(6625, 1625, 'location_state', '0', NULL),
+(6626, 1625, 'maximum_chars', '', NULL),
+(6627, 1625, 'numbers_only', '0', NULL),
+(6628, 1625, 'page_break', '0', NULL),
+(6629, 1625, 'prefix', '', NULL),
+(6630, 1625, 'random_group', '', NULL),
+(6631, 1625, 'suffix', '', NULL),
+(6632, 1625, 'text_input_width', '', NULL),
+(6633, 1625, 'time_limit', '', NULL),
+(6634, 1625, 'time_limit_action', '1', NULL),
+(6635, 1625, 'time_limit_countdown_message', '', NULL),
+(6636, 1625, 'time_limit_disable_next', '0', NULL),
+(6637, 1625, 'time_limit_disable_prev', '0', NULL),
+(6638, 1625, 'time_limit_message', '', NULL),
+(6639, 1625, 'time_limit_message_delay', '', NULL),
+(6640, 1625, 'time_limit_message_style', '', NULL),
+(6641, 1625, 'time_limit_timer_style', '', NULL),
+(6642, 1625, 'time_limit_warning', '', NULL),
+(6643, 1625, 'time_limit_warning_2', '', NULL),
+(6644, 1625, 'time_limit_warning_2_display_time', '', NULL),
+(6645, 1625, 'time_limit_warning_2_message', '', NULL),
+(6646, 1625, 'time_limit_warning_2_style', '', NULL),
+(6647, 1625, 'time_limit_warning_display_time', '', NULL),
+(6648, 1625, 'time_limit_warning_message', '', NULL),
+(6649, 1625, 'time_limit_warning_style', '', NULL),
+(6650, 1626, 'hidden', '0', NULL),
+(6651, 1626, 'page_break', '0', NULL),
+(6652, 1626, 'random_group', '', NULL),
+(6653, 1626, 'time_limit', '', NULL),
+(6654, 1626, 'time_limit_action', '1', NULL),
+(6655, 1626, 'time_limit_countdown_message', '', NULL),
+(6656, 1626, 'time_limit_disable_next', '0', NULL),
+(6657, 1626, 'time_limit_disable_prev', '0', NULL),
+(6658, 1626, 'time_limit_message', '', NULL),
+(6659, 1626, 'time_limit_message_delay', '', NULL),
+(6660, 1626, 'time_limit_message_style', '', NULL),
+(6661, 1626, 'time_limit_timer_style', '', NULL),
+(6662, 1626, 'time_limit_warning', '', NULL),
+(6663, 1626, 'time_limit_warning_2', '', NULL),
+(6664, 1626, 'time_limit_warning_2_display_time', '', NULL),
+(6665, 1626, 'time_limit_warning_2_message', '', NULL),
+(6666, 1626, 'time_limit_warning_2_style', '', NULL),
+(6667, 1626, 'time_limit_warning_display_time', '', NULL),
+(6668, 1626, 'time_limit_warning_message', '', NULL),
+(6669, 1626, 'time_limit_warning_style', '', NULL),
+(6670, 1627, 'hidden', '0', NULL),
+(6671, 1627, 'hide_tip', '0', NULL),
+(6672, 1627, 'max_num_value_n', '30', NULL),
+(6673, 1627, 'maximum_chars', '', NULL),
+(6674, 1627, 'min_num_value_n', '1', NULL),
+(6675, 1627, 'num_value_int_only', '1', NULL),
+(6676, 1627, 'page_break', '0', NULL),
+(6677, 1627, 'prefix', '', NULL),
+(6678, 1627, 'public_statistics', '0', NULL),
+(6679, 1627, 'random_group', '', NULL),
+(6680, 1627, 'suffix', '', NULL),
+(6681, 1627, 'text_input_width', '', NULL),
+(6682, 1628, 'array_filter', '', NULL),
+(6021, 1587, 'public_statistics', '0', NULL),
+(6020, 1587, 'page_break', '0', NULL),
+(6019, 1587, 'other_replace_text', '', NULL),
+(6018, 1587, 'other_numbers_only', '0', NULL),
+(6017, 1587, 'other_comment_mandatory', '0', NULL),
+(6016, 1587, 'hide_tip', '0', NULL),
+(6015, 1587, 'hidden', '0', NULL),
+(6014, 1587, 'display_columns', '1', NULL),
+(6013, 1587, 'array_filter_exclude', '', NULL),
+(6012, 1587, 'array_filter', '', NULL),
+(6011, 1587, 'alphasort', '0', NULL),
+(6010, 1585, 'scale_export', '0', NULL),
+(6009, 1585, 'random_order', '0', NULL),
+(6008, 1585, 'random_group', '', NULL),
+(6007, 1585, 'public_statistics', '0', NULL),
+(6006, 1585, 'page_break', '0', NULL),
+(6005, 1585, 'other_replace_text', '', NULL),
+(6004, 1585, 'other_numbers_only', '0', NULL),
+(6003, 1585, 'other_comment_mandatory', '0', NULL),
+(6002, 1585, 'hide_tip', '0', NULL),
+(6001, 1585, 'hidden', '0', NULL),
+(6000, 1585, 'display_columns', '1', NULL),
+(5999, 1585, 'array_filter_exclude', '', NULL),
+(5998, 1585, 'array_filter', '', NULL),
+(5997, 1585, 'alphasort', '0', NULL),
+(5996, 1584, 'scale_export', '0', NULL),
+(5995, 1584, 'random_order', '0', NULL),
+(5994, 1584, 'random_group', '', NULL);
+INSERT INTO question_attributes (qaid, qid, attribute, value, language) VALUES
+(5993, 1584, 'public_statistics', '0', NULL),
+(5992, 1584, 'page_break', '0', NULL),
+(5991, 1584, 'other_replace_text', '', NULL),
+(5990, 1584, 'other_numbers_only', '0', NULL),
+(5989, 1584, 'other_comment_mandatory', '0', NULL),
+(5988, 1584, 'hide_tip', '0', NULL),
+(5987, 1584, 'hidden', '0', NULL),
+(5986, 1584, 'display_columns', '1', NULL),
+(5985, 1584, 'array_filter_exclude', '', NULL),
+(5984, 1584, 'array_filter', '', NULL),
+(5983, 1584, 'alphasort', '0', NULL),
+(5923, 4, 'hidden', '0', NULL),
+(5924, 4, 'page_break', '0', NULL),
+(5925, 4, 'time_limit', '', NULL),
+(5926, 4, 'time_limit_action', '1', NULL),
+(5927, 4, 'time_limit_disable_next', '0', NULL),
+(5928, 4, 'time_limit_disable_prev', '0', NULL),
+(5929, 4, 'time_limit_countdown_message', '', NULL),
+(5930, 4, 'time_limit_timer_style', '', NULL),
+(5931, 4, 'time_limit_message_delay', '', NULL),
+(5932, 4, 'time_limit_message', '', NULL),
+(5933, 4, 'time_limit_message_style', '', NULL),
+(5934, 4, 'time_limit_warning', '', NULL),
+(5935, 4, 'time_limit_warning_display_time', '', NULL),
+(5936, 4, 'time_limit_warning_message', '', NULL),
+(5937, 4, 'time_limit_warning_style', '', NULL),
+(5938, 4, 'time_limit_warning_2', '', NULL),
+(5939, 4, 'time_limit_warning_2_display_time', '', NULL),
+(5940, 4, 'time_limit_warning_2_message', '', NULL),
+(5941, 4, 'time_limit_warning_2_style', '', NULL),
+(5942, 4, 'random_group', '', NULL),
+(5976, 1583, 'time_limit_warning_message', '', NULL),
+(5975, 1583, 'time_limit_warning_display_time', '', NULL),
+(5974, 1583, 'time_limit_warning', '', NULL),
+(5973, 1583, 'time_limit_message_style', '', NULL),
+(5972, 1583, 'time_limit_message', '', NULL),
+(5971, 1583, 'time_limit_message_delay', '', NULL),
+(5970, 1583, 'time_limit_timer_style', '', NULL),
+(5969, 1583, 'time_limit_countdown_message', '', NULL),
+(5968, 1583, 'time_limit_disable_prev', '0', NULL),
+(5967, 1583, 'time_limit_disable_next', '0', NULL),
+(5966, 1583, 'time_limit_action', '1', NULL),
+(5965, 1583, 'time_limit', '', NULL),
+(5964, 1583, 'page_break', '0', NULL),
+(5963, 1583, 'hidden', '1', NULL),
+(5977, 1583, 'time_limit_warning_style', '', NULL),
+(5978, 1583, 'time_limit_warning_2', '', NULL),
+(5979, 1583, 'time_limit_warning_2_display_time', '', NULL),
+(5980, 1583, 'time_limit_warning_2_message', '', NULL),
+(5981, 1583, 'time_limit_warning_2_style', '', NULL),
+(5982, 1583, 'random_group', '', NULL),
+(6693, 1628, 'other_replace_text', '', NULL),
+(6694, 1628, 'page_break', '0', NULL),
+(6695, 1628, 'public_statistics', '0', NULL),
+(6696, 1628, 'random_group', '', NULL),
+(6697, 1628, 'random_order', '0', NULL),
+(6698, 1628, 'scale_export', '0', NULL),
+(6699, 541, 'display_columns', '1', NULL),
+(6700, 541, 'hidden', '0', NULL),
+(6701, 541, 'page_break', '0', NULL),
+(6702, 541, 'public_statistics', '0', NULL),
+(6703, 541, 'scale_export', '0', NULL),
+(6704, 541, 'random_group', '', NULL),
+(6705, 11, 'array_filter', '', NULL),
+(6706, 11, 'array_filter_exclude', '', NULL),
+(6707, 11, 'assessment_value', '1', NULL),
+(6708, 11, 'display_columns', '1', NULL),
+(6709, 11, 'exclude_all_others', '', NULL),
+(6710, 11, 'exclude_all_others_auto', '0', NULL),
+(6711, 11, 'hide_tip', '0', NULL),
+(6712, 11, 'hidden', '0', NULL),
+(6713, 11, 'max_answers', '', NULL),
+(6714, 11, 'min_answers', '', NULL),
+(6715, 11, 'other_numbers_only', '0', NULL),
+(6716, 11, 'other_replace_text', '', NULL),
+(6717, 11, 'page_break', '0', NULL),
+(6718, 11, 'public_statistics', '0', NULL),
+(6719, 11, 'random_order', '0', NULL),
+(6720, 11, 'scale_export', '0', NULL),
+(6721, 11, 'random_group', '', NULL),
+(6722, 19, 'array_filter', '', NULL),
+(6723, 19, 'array_filter_exclude', '', NULL),
+(6724, 19, 'assessment_value', '1', NULL),
+(6725, 19, 'display_columns', '1', NULL),
+(6726, 19, 'exclude_all_others', '', NULL),
+(6727, 19, 'exclude_all_others_auto', '0', NULL),
+(6728, 19, 'hide_tip', '0', NULL),
+(6729, 19, 'hidden', '0', NULL),
+(6730, 19, 'max_answers', '', NULL),
+(6731, 19, 'min_answers', '', NULL),
+(6732, 19, 'other_numbers_only', '0', NULL),
+(6733, 19, 'other_replace_text', '', NULL),
+(6734, 19, 'page_break', '0', NULL),
+(6735, 19, 'public_statistics', '0', NULL),
+(6736, 19, 'random_order', '0', NULL),
+(6737, 19, 'scale_export', '0', NULL),
+(6738, 19, 'random_group', '', NULL),
+(6739, 265, 'array_filter', '', NULL),
+(6740, 265, 'array_filter_exclude', '', NULL),
+(6741, 265, 'assessment_value', '1', NULL),
+(6742, 265, 'display_columns', '1', NULL),
+(6743, 265, 'exclude_all_others', '', NULL),
+(6744, 265, 'exclude_all_others_auto', '0', NULL),
+(6745, 265, 'hide_tip', '0', NULL),
+(6746, 265, 'hidden', '0', NULL),
+(6747, 265, 'max_answers', '', NULL),
+(6748, 265, 'min_answers', '', NULL),
+(6749, 265, 'other_numbers_only', '0', NULL),
+(6750, 265, 'other_replace_text', '', NULL),
+(6751, 265, 'page_break', '0', NULL),
+(6752, 265, 'public_statistics', '0', NULL),
+(6753, 265, 'random_order', '0', NULL),
+(6754, 265, 'scale_export', '0', NULL),
+(6755, 265, 'random_group', '', NULL),
+(6756, 270, 'array_filter', '', NULL),
+(6757, 270, 'array_filter_exclude', '', NULL),
+(6758, 270, 'assessment_value', '1', NULL),
+(6759, 270, 'display_columns', '1', NULL),
+(6760, 270, 'exclude_all_others', '', NULL),
+(6761, 270, 'exclude_all_others_auto', '0', NULL),
+(6762, 270, 'hide_tip', '0', NULL),
+(6763, 270, 'hidden', '0', NULL),
+(6764, 270, 'max_answers', '', NULL),
+(6765, 270, 'min_answers', '', NULL),
+(6766, 270, 'other_numbers_only', '0', NULL),
+(6767, 270, 'other_replace_text', '', NULL),
+(6768, 270, 'page_break', '0', NULL),
+(6769, 270, 'public_statistics', '0', NULL),
+(6770, 270, 'random_order', '0', NULL),
+(6771, 270, 'scale_export', '0', NULL),
+(6772, 270, 'random_group', '', NULL),
+(6773, 87, 'array_filter', '', NULL),
+(6774, 87, 'array_filter_exclude', '', NULL),
+(6775, 87, 'assessment_value', '1', NULL),
+(6776, 87, 'display_columns', '1', NULL),
+(6777, 87, 'exclude_all_others', '', NULL),
+(6778, 87, 'exclude_all_others_auto', '0', NULL),
+(6779, 87, 'hide_tip', '0', NULL),
+(6780, 87, 'hidden', '0', NULL),
+(6781, 87, 'max_answers', '', NULL),
+(6782, 87, 'min_answers', '', NULL),
+(6783, 87, 'other_numbers_only', '0', NULL),
+(6784, 87, 'other_replace_text', '', NULL),
+(6785, 87, 'page_break', '0', NULL),
+(6786, 87, 'public_statistics', '0', NULL),
+(6787, 87, 'random_order', '0', NULL),
+(6788, 87, 'scale_export', '0', NULL),
+(6789, 87, 'random_group', '', NULL),
+(6790, 73, 'array_filter', '', NULL),
+(6791, 73, 'array_filter_exclude', '', NULL),
+(6792, 73, 'assessment_value', '1', NULL),
+(6793, 73, 'display_columns', '1', NULL),
+(6794, 73, 'exclude_all_others', '', NULL),
+(6795, 73, 'exclude_all_others_auto', '0', NULL),
+(6796, 73, 'hide_tip', '0', NULL),
+(6797, 73, 'hidden', '0', NULL),
+(6798, 73, 'max_answers', '', NULL),
+(6799, 73, 'min_answers', '', NULL),
+(6800, 73, 'other_numbers_only', '0', NULL),
+(6801, 73, 'other_replace_text', '', NULL),
+(6802, 73, 'page_break', '0', NULL),
+(6803, 73, 'public_statistics', '0', NULL),
+(6804, 73, 'random_order', '0', NULL),
+(6805, 73, 'scale_export', '0', NULL),
+(6806, 73, 'random_group', '', NULL),
+(6807, 76, 'array_filter', '', NULL),
+(6808, 76, 'array_filter_exclude', '', NULL),
+(6809, 76, 'assessment_value', '1', NULL),
+(6810, 76, 'display_columns', '1', NULL),
+(6811, 76, 'exclude_all_others', '', NULL),
+(6812, 76, 'exclude_all_others_auto', '0', NULL),
+(6813, 76, 'hide_tip', '0', NULL),
+(6814, 76, 'hidden', '0', NULL),
+(6815, 76, 'max_answers', '', NULL),
+(6816, 76, 'min_answers', '', NULL),
+(6817, 76, 'other_numbers_only', '0', NULL),
+(6818, 76, 'other_replace_text', '', NULL),
+(6819, 76, 'page_break', '0', NULL),
+(6820, 76, 'public_statistics', '0', NULL),
+(6821, 76, 'random_order', '0', NULL),
+(6822, 76, 'scale_export', '0', NULL),
+(6823, 76, 'random_group', '', NULL),
+(6824, 110, 'array_filter', '', NULL),
+(6825, 110, 'array_filter_exclude', '', NULL),
+(6826, 110, 'assessment_value', '1', NULL),
+(6827, 110, 'display_columns', '1', NULL),
+(6828, 110, 'exclude_all_others', '', NULL),
+(6829, 110, 'exclude_all_others_auto', '0', NULL),
+(6830, 110, 'hide_tip', '0', NULL),
+(6831, 110, 'hidden', '0', NULL),
+(6832, 110, 'max_answers', '', NULL),
+(6833, 110, 'min_answers', '', NULL),
+(6834, 110, 'other_numbers_only', '0', NULL),
+(6835, 110, 'other_replace_text', '', NULL),
+(6836, 110, 'page_break', '0', NULL),
+(6837, 110, 'public_statistics', '0', NULL),
+(6838, 110, 'random_order', '0', NULL),
+(6839, 110, 'scale_export', '0', NULL),
+(6840, 110, 'random_group', '', NULL),
+(6841, 115, 'array_filter', '', NULL),
+(6842, 115, 'array_filter_exclude', '', NULL),
+(6843, 115, 'assessment_value', '1', NULL),
+(6844, 115, 'display_columns', '1', NULL),
+(6845, 115, 'exclude_all_others', '', NULL),
+(6846, 115, 'exclude_all_others_auto', '0', NULL),
+(6847, 115, 'hide_tip', '0', NULL),
+(6848, 115, 'hidden', '0', NULL),
+(6849, 115, 'max_answers', '', NULL),
+(6850, 115, 'min_answers', '', NULL),
+(6851, 115, 'other_numbers_only', '0', NULL),
+(6852, 115, 'other_replace_text', '', NULL),
+(6853, 115, 'page_break', '0', NULL),
+(6854, 115, 'public_statistics', '0', NULL),
+(6855, 115, 'random_order', '0', NULL),
+(6856, 115, 'scale_export', '0', NULL),
+(6857, 115, 'random_group', '', NULL),
+(6858, 153, 'array_filter', '', NULL),
+(6859, 153, 'array_filter_exclude', '', NULL),
+(6860, 153, 'assessment_value', '1', NULL),
+(6861, 153, 'display_columns', '1', NULL),
+(6862, 153, 'exclude_all_others', '', NULL),
+(6863, 153, 'exclude_all_others_auto', '0', NULL),
+(6864, 153, 'hide_tip', '0', NULL),
+(6865, 153, 'hidden', '0', NULL),
+(6866, 153, 'max_answers', '', NULL),
+(6867, 153, 'min_answers', '', NULL),
+(6868, 153, 'other_numbers_only', '0', NULL),
+(6869, 153, 'other_replace_text', '', NULL),
+(6870, 153, 'page_break', '0', NULL),
+(6871, 153, 'public_statistics', '0', NULL),
+(6872, 153, 'random_order', '0', NULL),
+(6873, 153, 'scale_export', '0', NULL),
+(6874, 153, 'random_group', '', NULL),
+(6875, 528, 'alphasort', '0', NULL),
+(6876, 528, 'array_filter', '', NULL),
+(6877, 528, 'array_filter_exclude', '', NULL),
+(6878, 528, 'display_columns', '1', NULL),
+(6879, 528, 'hide_tip', '0', NULL),
+(6880, 528, 'hidden', '0', NULL),
+(6881, 528, 'other_comment_mandatory', '0', NULL),
+(6882, 528, 'other_numbers_only', '0', NULL),
+(6883, 528, 'other_replace_text', '', NULL),
+(6884, 528, 'page_break', '0', NULL),
+(6885, 528, 'public_statistics', '0', NULL),
+(6886, 528, 'random_order', '0', NULL),
+(6887, 528, 'scale_export', '0', NULL),
+(6888, 528, 'random_group', '', NULL),
+(6889, 494, 'array_filter', '', NULL),
+(6890, 494, 'array_filter_exclude', '', NULL),
+(6891, 494, 'assessment_value', '1', NULL),
+(6892, 494, 'display_columns', '1', NULL),
+(6893, 494, 'exclude_all_others', '', NULL),
+(6894, 494, 'exclude_all_others_auto', '0', NULL),
+(6895, 494, 'hide_tip', '0', NULL),
+(6896, 494, 'hidden', '0', NULL),
+(6897, 494, 'max_answers', '', NULL),
+(6898, 494, 'min_answers', '', NULL),
+(6899, 494, 'other_numbers_only', '0', NULL),
+(6900, 494, 'other_replace_text', '', NULL),
+(6901, 494, 'page_break', '0', NULL),
+(6902, 494, 'public_statistics', '0', NULL),
+(6903, 494, 'random_order', '0', NULL),
+(6904, 494, 'scale_export', '0', NULL),
+(6905, 494, 'random_group', '', NULL),
+(6906, 495, 'array_filter', '', NULL),
+(6907, 495, 'array_filter_exclude', '', NULL),
+(6908, 495, 'assessment_value', '1', NULL),
+(6909, 495, 'display_columns', '1', NULL),
+(6910, 495, 'exclude_all_others', '', NULL),
+(6911, 495, 'exclude_all_others_auto', '0', NULL),
+(6912, 495, 'hide_tip', '0', NULL),
+(6913, 495, 'hidden', '0', NULL),
+(6914, 495, 'max_answers', '', NULL),
+(6915, 495, 'min_answers', '', NULL),
+(6916, 495, 'other_numbers_only', '0', NULL),
+(6917, 495, 'other_replace_text', '', NULL),
+(6918, 495, 'page_break', '0', NULL),
+(6919, 495, 'public_statistics', '0', NULL),
+(6920, 495, 'random_order', '0', NULL),
+(6921, 495, 'scale_export', '0', NULL),
+(6922, 495, 'random_group', '', NULL),
+(6923, 503, 'alphasort', '0', NULL),
+(6924, 503, 'array_filter', '', NULL),
+(6925, 503, 'array_filter_exclude', '', NULL),
+(6926, 503, 'display_columns', '1', NULL),
+(6927, 503, 'hide_tip', '0', NULL),
+(6928, 503, 'hidden', '0', NULL),
+(6929, 503, 'other_comment_mandatory', '0', NULL),
+(6930, 503, 'other_numbers_only', '0', NULL),
+(6931, 503, 'other_replace_text', '', NULL),
+(6932, 503, 'page_break', '0', NULL),
+(6933, 503, 'public_statistics', '0', NULL),
+(6934, 503, 'random_order', '0', NULL),
+(6935, 503, 'scale_export', '0', NULL),
+(6936, 503, 'random_group', '', NULL),
+(6937, 37, 'array_filter', '', NULL),
+(6938, 37, 'array_filter_exclude', '', NULL),
+(6939, 37, 'assessment_value', '1', NULL),
+(6940, 37, 'display_columns', '1', NULL),
+(6941, 37, 'exclude_all_others', '', NULL),
+(6942, 37, 'exclude_all_others_auto', '0', NULL),
+(6943, 37, 'hide_tip', '0', NULL),
+(6944, 37, 'hidden', '0', NULL),
+(6945, 37, 'max_answers', '', NULL),
+(6946, 37, 'min_answers', '', NULL),
+(6947, 37, 'other_numbers_only', '0', NULL),
+(6948, 37, 'other_replace_text', '', NULL),
+(6949, 37, 'page_break', '0', NULL),
+(6950, 37, 'public_statistics', '0', NULL),
+(6951, 37, 'random_order', '0', NULL),
+(6952, 37, 'scale_export', '0', NULL),
+(6953, 37, 'random_group', '', NULL),
+(6954, 524, 'alphasort', '0', NULL),
+(6955, 524, 'array_filter', '', NULL),
+(6956, 524, 'array_filter_exclude', '', NULL),
+(6957, 524, 'display_columns', '1', NULL),
+(6958, 524, 'hide_tip', '0', NULL),
+(6959, 524, 'hidden', '0', NULL),
+(6960, 524, 'other_comment_mandatory', '0', NULL),
+(6961, 524, 'other_numbers_only', '0', NULL),
+(6962, 524, 'other_replace_text', '', NULL),
+(6963, 524, 'page_break', '0', NULL),
+(6964, 524, 'public_statistics', '0', NULL),
+(6965, 524, 'random_order', '0', NULL),
+(6966, 524, 'scale_export', '0', NULL),
+(6967, 524, 'random_group', '', NULL),
+(6968, 499, 'array_filter', '', NULL),
+(6969, 499, 'array_filter_exclude', '', NULL),
+(6970, 499, 'assessment_value', '1', NULL),
+(6971, 499, 'display_columns', '1', NULL),
+(6972, 499, 'exclude_all_others', '', NULL),
+(6973, 499, 'exclude_all_others_auto', '0', NULL),
+(6974, 499, 'hide_tip', '0', NULL),
+(6975, 499, 'hidden', '0', NULL),
+(6976, 499, 'max_answers', '', NULL),
+(6977, 499, 'min_answers', '', NULL),
+(6978, 499, 'other_numbers_only', '0', NULL),
+(6979, 499, 'other_replace_text', '', NULL),
+(6980, 499, 'page_break', '0', NULL),
+(6981, 499, 'public_statistics', '0', NULL),
+(6982, 499, 'random_order', '0', NULL),
+(6983, 499, 'scale_export', '0', NULL),
+(6984, 499, 'random_group', '', NULL),
+(6985, 463, 'alphasort', '0', NULL),
+(6986, 463, 'array_filter', '', NULL),
+(6987, 463, 'array_filter_exclude', '', NULL),
+(6988, 463, 'display_columns', '1', NULL),
+(6989, 463, 'hide_tip', '0', NULL),
+(6990, 463, 'hidden', '0', NULL),
+(6991, 463, 'other_comment_mandatory', '0', NULL),
+(6992, 463, 'other_numbers_only', '0', NULL),
+(6993, 463, 'other_replace_text', '', NULL),
+(6994, 463, 'page_break', '0', NULL),
+(6995, 463, 'public_statistics', '0', NULL),
+(6996, 463, 'random_order', '0', NULL),
+(6997, 463, 'scale_export', '0', NULL),
+(6998, 463, 'random_group', '', NULL),
+(6999, 498, 'alphasort', '0', NULL),
+(7000, 498, 'array_filter', '', NULL),
+(7001, 498, 'array_filter_exclude', '', NULL),
+(7002, 498, 'display_columns', '1', NULL),
+(7003, 498, 'hide_tip', '0', NULL),
+(7004, 498, 'hidden', '0', NULL),
+(7005, 498, 'other_comment_mandatory', '0', NULL),
+(7006, 498, 'other_numbers_only', '0', NULL),
+(7007, 498, 'other_replace_text', '', NULL),
+(7008, 498, 'page_break', '0', NULL),
+(7009, 498, 'public_statistics', '0', NULL),
+(7010, 498, 'random_order', '0', NULL),
+(7011, 498, 'scale_export', '0', NULL),
+(7012, 498, 'random_group', '', NULL),
+(7013, 92, 'array_filter', '', NULL),
+(7014, 92, 'array_filter_exclude', '', NULL),
+(7015, 92, 'assessment_value', '1', NULL),
+(7016, 92, 'display_columns', '1', NULL),
+(7017, 92, 'exclude_all_others', '', NULL),
+(7018, 92, 'exclude_all_others_auto', '0', NULL),
+(7019, 92, 'hide_tip', '0', NULL),
+(7020, 92, 'hidden', '0', NULL),
+(7021, 92, 'max_answers', '', NULL),
+(7022, 92, 'min_answers', '', NULL),
+(7023, 92, 'other_numbers_only', '0', NULL),
+(7024, 92, 'other_replace_text', '', NULL),
+(7025, 92, 'page_break', '0', NULL),
+(7026, 92, 'public_statistics', '0', NULL),
+(7027, 92, 'random_order', '0', NULL),
+(7028, 92, 'scale_export', '0', NULL),
+(7029, 92, 'random_group', '', NULL),
+(7147, 122, 'array_filter_exclude', '', NULL),
+(7148, 122, 'display_columns', '1', NULL),
+(7149, 122, 'hide_tip', '0', NULL),
+(7150, 122, 'hidden', '0', NULL),
+(7151, 122, 'other_comment_mandatory', '0', NULL),
+(7152, 122, 'other_numbers_only', '0', NULL),
+(7153, 122, 'other_replace_text', '', NULL),
+(7154, 122, 'page_break', '0', NULL),
+(7155, 122, 'public_statistics', '0', NULL),
+(7156, 122, 'random_order', '0', NULL),
+(7157, 122, 'scale_export', '0', NULL),
+(7158, 122, 'random_group', '', NULL),
+(7159, 509, 'alphasort', '0', NULL),
+(7160, 509, 'array_filter', '', NULL),
+(7161, 509, 'array_filter_exclude', '', NULL),
+(7162, 509, 'display_columns', '1', NULL),
+(7163, 509, 'hide_tip', '0', NULL),
+(7164, 509, 'hidden', '0', NULL),
+(7165, 509, 'other_comment_mandatory', '0', NULL),
+(7166, 509, 'other_numbers_only', '0', NULL),
+(7167, 509, 'other_replace_text', '', NULL),
+(7168, 509, 'page_break', '0', NULL),
+(7169, 509, 'public_statistics', '0', NULL),
+(7170, 509, 'random_order', '0', NULL),
+(7171, 509, 'scale_export', '0', NULL),
+(7172, 509, 'random_group', '', NULL),
+(7173, 108, 'alphasort', '0', NULL),
+(7174, 108, 'array_filter', '', NULL),
+(7175, 108, 'array_filter_exclude', '', NULL),
+(7176, 108, 'display_columns', '1', NULL),
+(7177, 108, 'hide_tip', '0', NULL),
+(7178, 108, 'hidden', '0', NULL),
+(7179, 108, 'other_comment_mandatory', '0', NULL),
+(7180, 108, 'other_numbers_only', '0', NULL),
+(7181, 108, 'other_replace_text', '', NULL),
+(7182, 108, 'page_break', '0', NULL),
+(7183, 108, 'public_statistics', '0', NULL),
+(7184, 108, 'random_order', '0', NULL),
+(7185, 108, 'scale_export', '0', NULL),
+(7186, 108, 'random_group', '', NULL),
+(7187, 95, 'alphasort', '0', NULL),
+(7188, 95, 'array_filter', '', NULL),
+(7189, 95, 'array_filter_exclude', '', NULL),
+(7190, 95, 'display_columns', '1', NULL),
+(7191, 95, 'hide_tip', '0', NULL),
+(7192, 95, 'hidden', '0', NULL),
+(7193, 95, 'other_comment_mandatory', '0', NULL),
+(7194, 95, 'other_numbers_only', '0', NULL),
+(7195, 95, 'other_replace_text', '', NULL),
+(7196, 95, 'page_break', '0', NULL),
+(7197, 95, 'public_statistics', '0', NULL),
+(7198, 95, 'random_order', '0', NULL),
+(7199, 95, 'scale_export', '0', NULL),
+(7200, 95, 'random_group', '', NULL),
+(7201, 127, 'alphasort', '0', NULL),
+(7202, 127, 'array_filter', '', NULL),
+(7203, 127, 'array_filter_exclude', '', NULL),
+(7204, 127, 'display_columns', '1', NULL),
+(7205, 127, 'hide_tip', '0', NULL),
+(7206, 127, 'hidden', '0', NULL),
+(7207, 127, 'other_comment_mandatory', '0', NULL),
+(7208, 127, 'other_numbers_only', '0', NULL),
+(7209, 127, 'other_replace_text', '', NULL),
+(7210, 127, 'page_break', '0', NULL),
+(7211, 127, 'public_statistics', '0', NULL),
+(7212, 127, 'random_order', '0', NULL),
+(7213, 127, 'scale_export', '0', NULL),
+(7214, 127, 'random_group', '', NULL),
+(7215, 1724, 'display_rows', '', NULL),
+(7216, 1724, 'location_city', '0', NULL),
+(7217, 1724, 'location_state', '0', NULL),
+(7218, 1724, 'location_postal', '0', NULL),
+(7219, 1724, 'location_country', '0', NULL),
+(7220, 1724, 'location_mapservice', '0', NULL),
+(7221, 1724, 'location_mapwidth', '500', NULL),
+(7222, 1724, 'location_mapheight', '300', NULL),
+(7223, 1724, 'location_nodefaultfromip', '0', NULL),
+(7224, 1724, 'location_defaultcoordinates', '', NULL),
+(7225, 1724, 'location_mapzoom', '11', NULL),
+(7226, 1724, 'hide_tip', '0', NULL),
+(7227, 1724, 'hidden', '0', NULL),
+(7228, 1724, 'maximum_chars', '', NULL),
+(7229, 1724, 'numbers_only', '0', NULL),
+(7230, 1724, 'page_break', '0', NULL),
+(7231, 1724, 'prefix', '', NULL),
+(7232, 1724, 'suffix', '', NULL),
+(7233, 1724, 'text_input_width', '', NULL),
+(7234, 1724, 'time_limit', '', NULL),
+(7235, 1724, 'time_limit_action', '1', NULL),
+(7236, 1724, 'time_limit_disable_next', '0', NULL),
+(7237, 1724, 'time_limit_disable_prev', '0', NULL),
+(7238, 1724, 'time_limit_countdown_message', '', NULL),
+(7239, 1724, 'time_limit_timer_style', '', NULL),
+(7240, 1724, 'time_limit_message_delay', '', NULL),
+(7241, 1724, 'time_limit_message', '', NULL),
+(7242, 1724, 'time_limit_message_style', '', NULL),
+(7243, 1724, 'time_limit_warning', '', NULL),
+(7244, 1724, 'time_limit_warning_display_time', '', NULL),
+(7245, 1724, 'time_limit_warning_message', '', NULL),
+(7246, 1724, 'time_limit_warning_style', '', NULL),
+(7247, 1724, 'time_limit_warning_2', '', NULL),
+(7248, 1724, 'time_limit_warning_2_display_time', '', NULL),
+(7249, 1724, 'time_limit_warning_2_message', '', NULL),
+(7250, 1724, 'time_limit_warning_2_style', '', NULL),
+(7251, 1724, 'random_group', '', NULL),
+(7252, 62, 'alphasort', '0', NULL),
+(7253, 62, 'array_filter', '', NULL),
+(7254, 62, 'array_filter_exclude', '', NULL),
+(7255, 62, 'display_columns', '1', NULL),
+(7256, 62, 'hide_tip', '0', NULL),
+(7257, 62, 'hidden', '0', NULL),
+(7258, 62, 'other_comment_mandatory', '0', NULL),
+(7259, 62, 'other_numbers_only', '0', NULL),
+(7260, 62, 'other_replace_text', '', NULL),
+(7261, 62, 'page_break', '0', NULL),
+(7262, 62, 'public_statistics', '0', NULL),
+(7263, 62, 'random_order', '0', NULL),
+(7264, 62, 'scale_export', '0', NULL),
+(7265, 62, 'random_group', '', NULL),
+(7266, 86, 'alphasort', '0', NULL),
+(7267, 86, 'array_filter', '', NULL),
+(7268, 86, 'array_filter_exclude', '', NULL),
+(7269, 86, 'display_columns', '1', NULL),
+(7270, 86, 'hide_tip', '0', NULL),
+(7271, 86, 'hidden', '1', NULL),
+(7272, 86, 'other_comment_mandatory', '0', NULL),
+(7273, 86, 'other_numbers_only', '0', NULL),
+(7274, 86, 'other_replace_text', '', NULL),
+(7275, 86, 'page_break', '0', NULL),
+(7276, 86, 'public_statistics', '0', NULL),
+(7277, 86, 'random_order', '0', NULL),
+(7278, 86, 'scale_export', '0', NULL),
+(7279, 86, 'random_group', '', NULL),
+(7280, 519, 'alphasort', '0', NULL),
+(7281, 519, 'array_filter', '', NULL),
+(7282, 519, 'array_filter_exclude', '', NULL),
+(7283, 519, 'display_columns', '1', NULL),
+(7284, 519, 'hide_tip', '0', NULL),
+(7285, 519, 'hidden', '0', NULL),
+(7286, 519, 'other_comment_mandatory', '0', NULL),
+(7287, 519, 'other_numbers_only', '0', NULL),
+(7288, 519, 'other_replace_text', '', NULL),
+(7289, 519, 'page_break', '0', NULL),
+(7290, 519, 'public_statistics', '0', NULL),
+(7291, 519, 'random_order', '0', NULL),
+(7292, 519, 'scale_export', '0', NULL),
+(7293, 519, 'random_group', '', NULL),
+(7294, 520, 'alphasort', '0', NULL),
+(7295, 520, 'array_filter', '', NULL),
+(7296, 520, 'array_filter_exclude', '', NULL),
+(7297, 520, 'display_columns', '1', NULL),
+(7298, 520, 'hide_tip', '0', NULL),
+(7299, 520, 'hidden', '0', NULL),
+(7300, 520, 'other_comment_mandatory', '0', NULL),
+(7301, 520, 'other_numbers_only', '0', NULL),
+(7302, 520, 'other_replace_text', '', NULL),
+(7303, 520, 'page_break', '0', NULL),
+(7304, 520, 'public_statistics', '0', NULL),
+(7305, 520, 'random_order', '0', NULL),
+(7306, 520, 'scale_export', '0', NULL),
+(7307, 520, 'random_group', '', NULL),
+(7308, 521, 'alphasort', '0', NULL),
+(7309, 521, 'array_filter', '', NULL),
+(7310, 521, 'array_filter_exclude', '', NULL),
+(7311, 521, 'display_columns', '1', NULL),
+(7312, 521, 'hide_tip', '0', NULL),
+(7313, 521, 'hidden', '0', NULL),
+(7314, 521, 'other_comment_mandatory', '0', NULL),
+(7315, 521, 'other_numbers_only', '0', NULL),
+(7316, 521, 'other_replace_text', '', NULL),
+(7317, 521, 'page_break', '0', NULL),
+(7318, 521, 'public_statistics', '0', NULL),
+(7319, 521, 'random_order', '0', NULL),
+(7320, 521, 'scale_export', '0', NULL),
+(7321, 521, 'random_group', '', NULL),
+(7322, 522, 'alphasort', '0', NULL),
+(7323, 522, 'array_filter', '', NULL),
+(7324, 522, 'array_filter_exclude', '', NULL),
+(7325, 522, 'display_columns', '1', NULL),
+(7326, 522, 'hide_tip', '0', NULL),
+(7327, 522, 'hidden', '0', NULL),
+(7328, 522, 'other_comment_mandatory', '0', NULL),
+(7329, 522, 'other_numbers_only', '0', NULL),
+(7330, 522, 'other_replace_text', '', NULL),
+(7331, 522, 'page_break', '0', NULL),
+(7332, 522, 'public_statistics', '0', NULL),
+(7333, 522, 'random_order', '0', NULL),
+(7334, 522, 'scale_export', '0', NULL),
+(7335, 522, 'random_group', '', NULL),
+(7336, 523, 'alphasort', '0', NULL),
+(7337, 523, 'array_filter', '', NULL),
+(7338, 523, 'array_filter_exclude', '', NULL),
+(7339, 523, 'display_columns', '1', NULL),
+(7340, 523, 'hide_tip', '0', NULL),
+(7341, 523, 'hidden', '0', NULL),
+(7342, 523, 'other_comment_mandatory', '0', NULL),
+(7343, 523, 'other_numbers_only', '0', NULL),
+(7344, 523, 'other_replace_text', '', NULL),
+(7345, 523, 'page_break', '0', NULL),
+(7346, 523, 'public_statistics', '0', NULL),
+(7347, 523, 'random_order', '0', NULL),
+(7348, 523, 'scale_export', '0', NULL),
+(7349, 523, 'random_group', '', NULL),
+(7350, 525, 'alphasort', '0', NULL),
+(7351, 525, 'array_filter', '', NULL),
+(7352, 525, 'array_filter_exclude', '', NULL),
+(7353, 525, 'display_columns', '1', NULL),
+(7354, 525, 'hide_tip', '0', NULL),
+(7355, 525, 'hidden', '0', NULL),
+(7356, 525, 'other_comment_mandatory', '0', NULL),
+(7357, 525, 'other_numbers_only', '0', NULL),
+(7358, 525, 'other_replace_text', '', NULL),
+(7359, 525, 'page_break', '0', NULL),
+(7360, 525, 'public_statistics', '0', NULL),
+(7361, 525, 'random_order', '0', NULL),
+(7362, 525, 'scale_export', '0', NULL),
+(7363, 525, 'random_group', '', NULL),
+(7364, 526, 'alphasort', '0', NULL),
+(7365, 526, 'array_filter', '', NULL),
+(7366, 526, 'array_filter_exclude', '', NULL),
+(7367, 526, 'display_columns', '1', NULL),
+(7368, 526, 'hide_tip', '0', NULL),
+(7369, 526, 'hidden', '0', NULL),
+(7370, 526, 'other_comment_mandatory', '0', NULL),
+(7371, 526, 'other_numbers_only', '0', NULL),
+(7372, 526, 'other_replace_text', '', NULL),
+(7373, 526, 'page_break', '0', NULL),
+(7374, 526, 'public_statistics', '0', NULL),
+(7375, 526, 'random_order', '0', NULL),
+(7376, 526, 'scale_export', '0', NULL),
+(7377, 526, 'random_group', '', NULL),
+(7378, 527, 'alphasort', '0', NULL),
+(7379, 527, 'array_filter', '', NULL),
+(7380, 527, 'array_filter_exclude', '', NULL),
+(7381, 527, 'display_columns', '1', NULL),
+(7382, 527, 'hide_tip', '0', NULL),
+(7383, 527, 'hidden', '0', NULL),
+(7384, 527, 'other_comment_mandatory', '0', NULL),
+(7385, 527, 'other_numbers_only', '0', NULL),
+(7386, 527, 'other_replace_text', '', NULL),
+(7387, 527, 'page_break', '0', NULL),
+(7388, 527, 'public_statistics', '0', NULL),
+(7389, 527, 'random_order', '0', NULL),
+(7390, 527, 'scale_export', '0', NULL),
+(7391, 527, 'random_group', '', NULL),
+(7392, 529, 'alphasort', '0', NULL),
+(7393, 529, 'array_filter', '', NULL),
+(7394, 529, 'array_filter_exclude', '', NULL),
+(7395, 529, 'display_columns', '1', NULL),
+(7396, 529, 'hide_tip', '0', NULL),
+(7397, 529, 'hidden', '0', NULL),
+(7398, 529, 'other_comment_mandatory', '0', NULL),
+(7399, 529, 'other_numbers_only', '0', NULL),
+(7400, 529, 'other_replace_text', '', NULL),
+(7401, 529, 'page_break', '0', NULL),
+(7402, 529, 'public_statistics', '0', NULL),
+(7403, 529, 'random_order', '0', NULL),
+(7404, 529, 'scale_export', '0', NULL),
+(7405, 529, 'random_group', '', NULL),
+(7406, 530, 'alphasort', '0', NULL),
+(7407, 530, 'array_filter', '', NULL),
+(7408, 530, 'array_filter_exclude', '', NULL),
+(7409, 530, 'display_columns', '1', NULL),
+(7410, 530, 'hide_tip', '0', NULL),
+(7411, 530, 'hidden', '0', NULL),
+(7412, 530, 'other_comment_mandatory', '0', NULL),
+(7413, 530, 'other_numbers_only', '0', NULL),
+(7414, 530, 'other_replace_text', '', NULL),
+(7415, 530, 'page_break', '0', NULL),
+(7416, 530, 'public_statistics', '0', NULL),
+(7417, 530, 'random_order', '0', NULL),
+(7418, 530, 'scale_export', '0', NULL),
+(7419, 530, 'random_group', '', NULL),
+(7420, 531, 'alphasort', '0', NULL),
+(7421, 531, 'array_filter', '', NULL),
+(7422, 531, 'array_filter_exclude', '', NULL),
+(7423, 531, 'display_columns', '1', NULL),
+(7424, 531, 'hide_tip', '0', NULL),
+(7425, 531, 'hidden', '0', NULL),
+(7426, 531, 'other_comment_mandatory', '0', NULL),
+(7427, 531, 'other_numbers_only', '0', NULL),
+(7428, 531, 'other_replace_text', '', NULL),
+(7429, 531, 'page_break', '0', NULL),
+(7430, 531, 'public_statistics', '0', NULL),
+(7431, 531, 'random_order', '0', NULL),
+(7432, 531, 'scale_export', '0', NULL),
+(7433, 531, 'random_group', '', NULL),
+(7434, 532, 'alphasort', '0', NULL),
+(7435, 532, 'array_filter', '', NULL),
+(7436, 532, 'array_filter_exclude', '', NULL),
+(7437, 532, 'display_columns', '1', NULL),
+(7438, 532, 'hide_tip', '0', NULL),
+(7439, 532, 'hidden', '0', NULL),
+(7440, 532, 'other_comment_mandatory', '0', NULL),
+(7441, 532, 'other_numbers_only', '0', NULL),
+(7442, 532, 'other_replace_text', '', NULL),
+(7443, 532, 'page_break', '0', NULL),
+(7444, 532, 'public_statistics', '0', NULL),
+(7445, 532, 'random_order', '0', NULL),
+(7446, 532, 'scale_export', '0', NULL),
+(7447, 532, 'random_group', '', NULL),
+(7448, 533, 'alphasort', '0', NULL),
+(7449, 533, 'array_filter', '', NULL),
+(7450, 533, 'array_filter_exclude', '', NULL),
+(7451, 533, 'display_columns', '1', NULL),
+(7452, 533, 'hide_tip', '0', NULL),
+(7453, 533, 'hidden', '0', NULL),
+(7454, 533, 'other_comment_mandatory', '0', NULL),
+(7455, 533, 'other_numbers_only', '0', NULL),
+(7456, 533, 'other_replace_text', '', NULL),
+(7457, 533, 'page_break', '0', NULL),
+(7458, 533, 'public_statistics', '0', NULL),
+(7459, 533, 'random_order', '0', NULL),
+(7460, 533, 'scale_export', '0', NULL),
+(7461, 533, 'random_group', '', NULL),
+(7462, 534, 'alphasort', '0', NULL),
+(7463, 534, 'array_filter', '', NULL),
+(7464, 534, 'array_filter_exclude', '', NULL),
+(7465, 534, 'display_columns', '1', NULL),
+(7466, 534, 'hide_tip', '0', NULL),
+(7467, 534, 'hidden', '0', NULL),
+(7468, 534, 'other_comment_mandatory', '0', NULL),
+(7469, 534, 'other_numbers_only', '0', NULL),
+(7470, 534, 'other_replace_text', '', NULL),
+(7471, 534, 'page_break', '0', NULL),
+(7472, 534, 'public_statistics', '0', NULL),
+(7473, 534, 'random_order', '0', NULL),
+(7474, 534, 'scale_export', '0', NULL),
+(7475, 534, 'random_group', '', NULL),
+(7476, 535, 'alphasort', '0', NULL),
+(7477, 535, 'array_filter', '', NULL),
+(7478, 535, 'array_filter_exclude', '', NULL),
+(7479, 535, 'display_columns', '1', NULL),
+(7480, 535, 'hide_tip', '0', NULL),
+(7481, 535, 'hidden', '0', NULL),
+(7482, 535, 'other_comment_mandatory', '0', NULL),
+(7483, 535, 'other_numbers_only', '0', NULL),
+(7484, 535, 'other_replace_text', '', NULL),
+(7485, 535, 'page_break', '0', NULL),
+(7486, 535, 'public_statistics', '0', NULL),
+(7487, 535, 'random_order', '0', NULL),
+(7488, 535, 'scale_export', '0', NULL),
+(7489, 535, 'random_group', '', NULL),
+(7490, 536, 'alphasort', '0', NULL),
+(7491, 536, 'array_filter', '', NULL),
+(7492, 536, 'array_filter_exclude', '', NULL),
+(7493, 536, 'display_columns', '1', NULL),
+(7494, 536, 'hide_tip', '0', NULL),
+(7495, 536, 'hidden', '0', NULL),
+(7496, 536, 'other_comment_mandatory', '0', NULL),
+(7497, 536, 'other_numbers_only', '0', NULL),
+(7498, 536, 'other_replace_text', '', NULL),
+(7499, 536, 'page_break', '0', NULL),
+(7500, 536, 'public_statistics', '0', NULL),
+(7501, 536, 'random_order', '0', NULL),
+(7502, 536, 'scale_export', '0', NULL),
+(7503, 536, 'random_group', '', NULL),
+(7504, 537, 'alphasort', '0', NULL),
+(7505, 537, 'array_filter', '', NULL),
+(7506, 537, 'array_filter_exclude', '', NULL),
+(7507, 537, 'display_columns', '1', NULL),
+(7508, 537, 'hide_tip', '0', NULL),
+(7509, 537, 'hidden', '0', NULL),
+(7510, 537, 'other_comment_mandatory', '0', NULL),
+(7511, 537, 'other_numbers_only', '0', NULL),
+(7512, 537, 'other_replace_text', '', NULL),
+(7513, 537, 'page_break', '0', NULL),
+(7514, 537, 'public_statistics', '0', NULL),
+(7515, 537, 'random_order', '0', NULL),
+(7516, 537, 'scale_export', '0', NULL),
+(7517, 537, 'random_group', '', NULL),
+(7518, 538, 'alphasort', '0', NULL),
+(7519, 538, 'array_filter', '', NULL),
+(7520, 538, 'array_filter_exclude', '', NULL),
+(7521, 538, 'display_columns', '1', NULL),
+(7522, 538, 'hide_tip', '0', NULL),
+(7523, 538, 'hidden', '0', NULL),
+(7524, 538, 'other_comment_mandatory', '0', NULL),
+(7525, 538, 'other_numbers_only', '0', NULL),
+(7526, 538, 'other_replace_text', '', NULL),
+(7527, 538, 'page_break', '0', NULL),
+(7528, 538, 'public_statistics', '0', NULL),
+(7529, 538, 'random_order', '0', NULL),
+(7530, 538, 'scale_export', '0', NULL),
+(7531, 538, 'random_group', '', NULL),
+(7532, 539, 'alphasort', '0', NULL),
+(7533, 539, 'array_filter', '', NULL),
+(7534, 539, 'array_filter_exclude', '', NULL),
+(7535, 539, 'display_columns', '1', NULL),
+(7536, 539, 'hide_tip', '0', NULL),
+(7537, 539, 'hidden', '0', NULL),
+(7538, 539, 'other_comment_mandatory', '0', NULL),
+(7539, 539, 'other_numbers_only', '0', NULL),
+(7540, 539, 'other_replace_text', '', NULL),
+(7541, 539, 'page_break', '0', NULL),
+(7542, 539, 'public_statistics', '0', NULL),
+(7543, 539, 'random_order', '0', NULL),
+(7544, 539, 'scale_export', '0', NULL),
+(7545, 539, 'random_group', '', NULL),
+(7546, 1586, 'alphasort', '0', NULL),
+(7547, 1586, 'array_filter', '', NULL),
+(7548, 1586, 'array_filter_exclude', '', NULL),
+(7549, 1586, 'display_columns', '1', NULL),
+(7550, 1586, 'hide_tip', '0', NULL),
+(7551, 1586, 'hidden', '0', NULL),
+(7552, 1586, 'other_comment_mandatory', '0', NULL),
+(7553, 1586, 'other_numbers_only', '0', NULL),
+(7554, 1586, 'other_replace_text', '', NULL),
+(7555, 1586, 'page_break', '0', NULL),
+(7556, 1586, 'public_statistics', '0', NULL),
+(7557, 1586, 'random_order', '0', NULL),
+(7558, 1586, 'scale_export', '0', NULL),
+(7559, 1586, 'random_group', '', NULL),
+(7560, 1595, 'alphasort', '0', NULL),
+(7561, 1595, 'array_filter', '', NULL),
+(7562, 1595, 'array_filter_exclude', '', NULL),
+(7563, 1595, 'display_columns', '1', NULL),
+(7564, 1595, 'hide_tip', '0', NULL),
+(7565, 1595, 'hidden', '0', NULL),
+(7566, 1595, 'other_comment_mandatory', '0', NULL),
+(7567, 1595, 'other_numbers_only', '0', NULL),
+(7568, 1595, 'other_replace_text', '', NULL),
+(7569, 1595, 'page_break', '0', NULL),
+(7570, 1595, 'public_statistics', '0', NULL),
+(7571, 1595, 'random_order', '0', NULL),
+(7572, 1595, 'scale_export', '0', NULL),
+(7573, 1595, 'random_group', '', NULL),
+(7574, 1596, 'alphasort', '0', NULL),
+(7575, 1596, 'array_filter', '', NULL),
+(7576, 1596, 'array_filter_exclude', '', NULL),
+(7577, 1596, 'display_columns', '1', NULL),
+(7578, 1596, 'hide_tip', '0', NULL),
+(7579, 1596, 'hidden', '0', NULL),
+(7580, 1596, 'other_comment_mandatory', '0', NULL),
+(7581, 1596, 'other_numbers_only', '0', NULL),
+(7582, 1596, 'other_replace_text', '', NULL),
+(7583, 1596, 'page_break', '0', NULL),
+(7584, 1596, 'public_statistics', '0', NULL),
+(7585, 1596, 'random_order', '0', NULL),
+(7586, 1596, 'scale_export', '0', NULL),
+(7587, 1596, 'random_group', '', NULL),
+(7588, 1602, 'alphasort', '0', NULL),
+(7589, 1602, 'array_filter', '', NULL),
+(7590, 1602, 'array_filter_exclude', '', NULL),
+(7591, 1602, 'display_columns', '1', NULL),
+(7592, 1602, 'hide_tip', '0', NULL),
+(7593, 1602, 'hidden', '0', NULL),
+(7594, 1602, 'other_comment_mandatory', '0', NULL),
+(7595, 1602, 'other_numbers_only', '0', NULL),
+(7596, 1602, 'other_replace_text', '', NULL),
+(7597, 1602, 'page_break', '0', NULL),
+(7598, 1602, 'public_statistics', '0', NULL),
+(7599, 1602, 'random_order', '0', NULL),
+(7600, 1602, 'scale_export', '0', NULL),
+(7601, 1602, 'random_group', '', NULL),
+(7602, 1607, 'alphasort', '0', NULL),
+(7603, 1607, 'array_filter', '', NULL),
+(7604, 1607, 'array_filter_exclude', '', NULL),
+(7605, 1607, 'display_columns', '1', NULL),
+(7606, 1607, 'hide_tip', '0', NULL),
+(7607, 1607, 'hidden', '0', NULL),
+(7608, 1607, 'other_comment_mandatory', '0', NULL),
+(7609, 1607, 'other_numbers_only', '0', NULL),
+(7610, 1607, 'other_replace_text', '', NULL),
+(7611, 1607, 'page_break', '0', NULL),
+(7612, 1607, 'public_statistics', '0', NULL),
+(7613, 1607, 'random_order', '0', NULL),
+(7614, 1607, 'scale_export', '0', NULL),
+(7615, 1607, 'random_group', '', NULL),
+(7616, 1608, 'alphasort', '0', NULL),
+(7617, 1608, 'array_filter', '', NULL),
+(7618, 1608, 'array_filter_exclude', '', NULL),
+(7619, 1608, 'display_columns', '1', NULL),
+(7620, 1608, 'hide_tip', '0', NULL),
+(7621, 1608, 'hidden', '0', NULL),
+(7622, 1608, 'other_comment_mandatory', '0', NULL),
+(7623, 1608, 'other_numbers_only', '0', NULL),
+(7624, 1608, 'other_replace_text', '', NULL),
+(7625, 1608, 'page_break', '0', NULL),
+(7626, 1608, 'public_statistics', '0', NULL),
+(7627, 1608, 'random_order', '0', NULL),
+(7628, 1608, 'scale_export', '0', NULL),
+(7629, 1608, 'random_group', '', NULL),
+(7630, 1615, 'alphasort', '0', NULL),
+(7631, 1615, 'array_filter', '', NULL),
+(7632, 1615, 'array_filter_exclude', '', NULL),
+(7633, 1615, 'display_columns', '1', NULL),
+(7634, 1615, 'hide_tip', '0', NULL),
+(7635, 1615, 'hidden', '0', NULL),
+(7636, 1615, 'other_comment_mandatory', '0', NULL),
+(7637, 1615, 'other_numbers_only', '0', NULL),
+(7638, 1615, 'other_replace_text', '', NULL),
+(7639, 1615, 'page_break', '0', NULL),
+(7640, 1615, 'public_statistics', '0', NULL),
+(7641, 1615, 'random_order', '0', NULL),
+(7642, 1615, 'scale_export', '0', NULL),
+(7643, 1615, 'random_group', '', NULL),
+(7644, 1622, 'alphasort', '0', NULL),
+(7645, 1622, 'array_filter', '', NULL),
+(7646, 1622, 'array_filter_exclude', '', NULL),
+(7647, 1622, 'display_columns', '1', NULL),
+(7648, 1622, 'hide_tip', '0', NULL),
+(7649, 1622, 'hidden', '0', NULL),
+(7650, 1622, 'other_comment_mandatory', '0', NULL),
+(7651, 1622, 'other_numbers_only', '0', NULL),
+(7652, 1622, 'other_replace_text', '', NULL),
+(7653, 1622, 'page_break', '0', NULL),
+(7654, 1622, 'public_statistics', '0', NULL),
+(7655, 1622, 'random_order', '0', NULL),
+(7656, 1622, 'scale_export', '0', NULL),
+(7657, 1622, 'random_group', '', NULL),
+(7658, 497, 'display_rows', '', NULL),
+(7659, 497, 'location_mapservice', '0', NULL),
+(7660, 497, 'location_mapwidth', '500', NULL),
+(7661, 497, 'location_mapheight', '300', NULL),
+(7662, 497, 'location_nodefaultfromip', '0', NULL),
+(7663, 497, 'location_defaultcoordinates', '', NULL),
+(7664, 497, 'location_mapzoom', '11', NULL),
+(7665, 497, 'hide_tip', '0', NULL),
+(7666, 497, 'hidden', '0', NULL),
+(7667, 497, 'maximum_chars', '', NULL),
+(7668, 497, 'numbers_only', '0', NULL),
+(7669, 497, 'page_break', '0', NULL),
+(7670, 497, 'prefix', '', NULL),
+(7671, 497, 'suffix', '', NULL),
+(7672, 497, 'text_input_width', '', NULL),
+(7673, 497, 'time_limit', '', NULL),
+(7674, 497, 'time_limit_action', '1', NULL),
+(7675, 497, 'time_limit_disable_next', '0', NULL),
+(7676, 497, 'time_limit_disable_prev', '0', NULL),
+(7677, 497, 'time_limit_countdown_message', '', NULL),
+(7678, 497, 'time_limit_timer_style', '', NULL),
+(7679, 497, 'time_limit_message_delay', '', NULL),
+(7680, 497, 'time_limit_message', '', NULL),
+(7681, 497, 'time_limit_message_style', '', NULL),
+(7682, 497, 'time_limit_warning', '', NULL),
+(7683, 497, 'time_limit_warning_display_time', '', NULL),
+(7684, 497, 'time_limit_warning_message', '', NULL),
+(7685, 497, 'time_limit_warning_style', '', NULL),
+(7686, 497, 'time_limit_warning_2', '', NULL),
+(7687, 497, 'time_limit_warning_2_display_time', '', NULL),
+(7688, 497, 'time_limit_warning_2_message', '', NULL),
+(7689, 497, 'time_limit_warning_2_style', '', NULL),
+(7690, 497, 'random_group', '', NULL),
+(7691, 473, 'display_rows', '', NULL),
+(7692, 473, 'location_mapservice', '0', NULL),
+(7693, 473, 'location_mapwidth', '500', NULL),
+(7694, 473, 'location_mapheight', '300', NULL),
+(7695, 473, 'location_nodefaultfromip', '0', NULL),
+(7696, 473, 'location_defaultcoordinates', '', NULL),
+(7697, 473, 'location_mapzoom', '11', NULL),
+(7698, 473, 'hide_tip', '0', NULL),
+(7699, 473, 'hidden', '0', NULL),
+(7700, 473, 'maximum_chars', '', NULL),
+(7701, 473, 'numbers_only', '0', NULL),
+(7702, 473, 'page_break', '0', NULL),
+(7703, 473, 'prefix', '', NULL),
+(7704, 473, 'suffix', '', NULL),
+(7705, 473, 'text_input_width', '', NULL),
+(7706, 473, 'time_limit', '', NULL),
+(7707, 473, 'time_limit_action', '1', NULL),
+(7708, 473, 'time_limit_disable_next', '0', NULL),
+(7709, 473, 'time_limit_disable_prev', '0', NULL),
+(7710, 473, 'time_limit_countdown_message', '', NULL),
+(7711, 473, 'time_limit_timer_style', '', NULL),
+(7712, 473, 'time_limit_message_delay', '', NULL),
+(7713, 473, 'time_limit_message', '', NULL),
+(7714, 473, 'time_limit_message_style', '', NULL),
+(7715, 473, 'time_limit_warning', '', NULL),
+(7716, 473, 'time_limit_warning_display_time', '', NULL),
+(7717, 473, 'time_limit_warning_message', '', NULL),
+(7718, 473, 'time_limit_warning_style', '', NULL),
+(7719, 473, 'time_limit_warning_2', '', NULL),
+(7720, 473, 'time_limit_warning_2_display_time', '', NULL),
+(7721, 473, 'time_limit_warning_2_message', '', NULL),
+(7722, 473, 'time_limit_warning_2_style', '', NULL),
+(7723, 473, 'random_group', '', NULL),
+(7724, 431, 'array_filter', '', NULL),
+(7725, 431, 'array_filter_exclude', '', NULL),
+(7726, 431, 'assessment_value', '1', NULL),
+(7727, 431, 'display_columns', '1', NULL),
+(7728, 431, 'exclude_all_others', '', NULL),
+(7729, 431, 'exclude_all_others_auto', '0', NULL),
+(7730, 431, 'hide_tip', '0', NULL),
+(7731, 431, 'hidden', '0', NULL),
+(7732, 431, 'max_answers', '', NULL),
+(7733, 431, 'min_answers', '', NULL),
+(7734, 431, 'other_numbers_only', '0', NULL),
+(7735, 431, 'other_replace_text', '', NULL),
+(7736, 431, 'page_break', '0', NULL),
+(7737, 431, 'public_statistics', '0', NULL),
+(7738, 431, 'random_order', '0', NULL),
+(7739, 431, 'scale_export', '0', NULL),
+(7740, 431, 'random_group', '', NULL),
+(7741, 444, 'alphasort', '0', NULL),
+(7742, 444, 'array_filter', '', NULL),
+(7743, 444, 'array_filter_exclude', '', NULL),
+(7744, 444, 'display_columns', '1', NULL),
+(7745, 444, 'hide_tip', '0', NULL),
+(7746, 444, 'hidden', '0', NULL),
+(7747, 444, 'other_comment_mandatory', '0', NULL),
+(7748, 444, 'other_numbers_only', '0', NULL),
+(7749, 444, 'other_replace_text', '', NULL),
+(7750, 444, 'page_break', '0', NULL),
+(7751, 444, 'public_statistics', '0', NULL),
+(7752, 444, 'random_order', '0', NULL),
+(7753, 444, 'scale_export', '0', NULL),
+(7754, 444, 'random_group', '', NULL),
+(7755, 450, 'alphasort', '0', NULL),
+(7756, 450, 'array_filter', '', NULL),
+(7757, 450, 'array_filter_exclude', '', NULL),
+(7758, 450, 'display_columns', '1', NULL),
+(7759, 450, 'hide_tip', '0', NULL),
+(7760, 450, 'hidden', '0', NULL),
+(7761, 450, 'other_comment_mandatory', '0', NULL),
+(7762, 450, 'other_numbers_only', '0', NULL),
+(7763, 450, 'other_replace_text', '', NULL),
+(7764, 450, 'page_break', '0', NULL),
+(7765, 450, 'public_statistics', '0', NULL),
+(7766, 450, 'random_order', '0', NULL),
+(7767, 450, 'scale_export', '0', NULL),
+(7768, 450, 'random_group', '', NULL),
+(7769, 455, 'array_filter', '', NULL),
+(7770, 455, 'array_filter_exclude', '', NULL),
+(7771, 455, 'assessment_value', '1', NULL),
+(7772, 455, 'display_columns', '1', NULL),
+(7773, 455, 'exclude_all_others', '', NULL),
+(7774, 455, 'exclude_all_others_auto', '0', NULL),
+(7775, 455, 'hide_tip', '0', NULL),
+(7776, 455, 'hidden', '0', NULL),
+(7777, 455, 'max_answers', '', NULL),
+(7778, 455, 'min_answers', '', NULL),
+(7779, 455, 'other_numbers_only', '0', NULL),
+(7780, 455, 'other_replace_text', '', NULL),
+(7781, 455, 'page_break', '0', NULL),
+(7782, 455, 'public_statistics', '0', NULL),
+(7783, 455, 'random_order', '0', NULL),
+(7784, 455, 'scale_export', '0', NULL),
+(7785, 455, 'random_group', '', NULL),
+(7786, 544, 'display_rows', '', NULL),
+(7787, 544, 'location_mapservice', '0', NULL),
+(7788, 544, 'location_mapwidth', '500', NULL),
+(7789, 544, 'location_mapheight', '300', NULL),
+(7790, 544, 'location_nodefaultfromip', '0', NULL),
+(7791, 544, 'location_defaultcoordinates', '', NULL),
+(7792, 544, 'location_mapzoom', '11', NULL),
+(7793, 544, 'hide_tip', '0', NULL),
+(7794, 544, 'hidden', '0', NULL),
+(7795, 544, 'maximum_chars', '', NULL),
+(7796, 544, 'numbers_only', '0', NULL),
+(7797, 544, 'page_break', '0', NULL),
+(7798, 544, 'prefix', '', NULL),
+(7799, 544, 'suffix', '', NULL),
+(7800, 544, 'text_input_width', '', NULL),
+(7801, 544, 'time_limit', '', NULL),
+(7802, 544, 'time_limit_action', '1', NULL),
+(7803, 544, 'time_limit_disable_next', '0', NULL),
+(7804, 544, 'time_limit_disable_prev', '0', NULL),
+(7805, 544, 'time_limit_countdown_message', '', NULL),
+(7806, 544, 'time_limit_timer_style', '', NULL),
+(7807, 544, 'time_limit_message_delay', '', NULL),
+(7808, 544, 'time_limit_message', '', NULL),
+(7809, 544, 'time_limit_message_style', '', NULL),
+(7810, 544, 'time_limit_warning', '', NULL),
+(7811, 544, 'time_limit_warning_display_time', '', NULL),
+(7812, 544, 'time_limit_warning_message', '', NULL),
+(7813, 544, 'time_limit_warning_style', '', NULL),
+(7814, 544, 'time_limit_warning_2', '', NULL),
+(7815, 544, 'time_limit_warning_2_display_time', '', NULL),
+(7816, 544, 'time_limit_warning_2_message', '', NULL),
+(7817, 544, 'time_limit_warning_2_style', '', NULL),
+(7818, 544, 'random_group', '', NULL),
+(7819, 273, 'alphasort', '0', NULL),
+(7820, 273, 'array_filter', '', NULL),
+(7821, 273, 'array_filter_exclude', '', NULL),
+(7822, 273, 'display_columns', '1', NULL),
+(7823, 273, 'hide_tip', '0', NULL),
+(7824, 273, 'hidden', '0', NULL),
+(7825, 273, 'other_comment_mandatory', '0', NULL),
+(7826, 273, 'other_numbers_only', '0', NULL),
+(7827, 273, 'other_replace_text', '', NULL),
+(7828, 273, 'page_break', '0', NULL),
+(7829, 273, 'public_statistics', '0', NULL),
+(7830, 273, 'random_order', '0', NULL),
+(7831, 273, 'scale_export', '0', NULL),
+(7832, 273, 'random_group', '', NULL),
+(7833, 543, 'display_rows', '', NULL),
+(7834, 543, 'location_mapservice', '0', NULL),
+(7835, 543, 'location_mapwidth', '500', NULL),
+(7836, 543, 'location_mapheight', '300', NULL),
+(7837, 543, 'location_nodefaultfromip', '0', NULL),
+(7838, 543, 'location_defaultcoordinates', '', NULL),
+(7839, 543, 'location_mapzoom', '11', NULL),
+(7840, 543, 'hide_tip', '0', NULL),
+(7841, 543, 'hidden', '0', NULL),
+(7842, 543, 'maximum_chars', '', NULL),
+(7843, 543, 'numbers_only', '0', NULL),
+(7844, 543, 'page_break', '0', NULL),
+(7845, 543, 'prefix', '', NULL),
+(7846, 543, 'suffix', '', NULL),
+(7847, 543, 'text_input_width', '', NULL),
+(7848, 543, 'time_limit', '', NULL),
+(7849, 543, 'time_limit_action', '1', NULL),
+(7850, 543, 'time_limit_disable_next', '0', NULL),
+(7851, 543, 'time_limit_disable_prev', '0', NULL),
+(7852, 543, 'time_limit_countdown_message', '', NULL),
+(7853, 543, 'time_limit_timer_style', '', NULL),
+(7854, 543, 'time_limit_message_delay', '', NULL),
+(7855, 543, 'time_limit_message', '', NULL),
+(7856, 543, 'time_limit_message_style', '', NULL),
+(7857, 543, 'time_limit_warning', '', NULL),
+(7858, 543, 'time_limit_warning_display_time', '', NULL),
+(7859, 543, 'time_limit_warning_message', '', NULL),
+(7860, 543, 'time_limit_warning_style', '', NULL),
+(7861, 543, 'time_limit_warning_2', '', NULL),
+(7862, 543, 'time_limit_warning_2_display_time', '', NULL),
+(7863, 543, 'time_limit_warning_2_message', '', NULL),
+(7864, 543, 'time_limit_warning_2_style', '', NULL),
+(7865, 543, 'random_group', '', NULL),
+(7866, 196, 'array_filter', '', NULL),
+(7867, 196, 'array_filter_exclude', '', NULL),
+(7868, 196, 'assessment_value', '1', NULL),
+(7869, 196, 'display_columns', '1', NULL),
+(7870, 196, 'exclude_all_others', '', NULL),
+(7871, 196, 'exclude_all_others_auto', '0', NULL),
+(7872, 196, 'hide_tip', '0', NULL),
+(7873, 196, 'hidden', '0', NULL),
+(7874, 196, 'max_answers', '', NULL),
+(7875, 196, 'min_answers', '', NULL),
+(7876, 196, 'other_numbers_only', '0', NULL),
+(7877, 196, 'other_replace_text', '', NULL),
+(7878, 196, 'page_break', '0', NULL),
+(7879, 196, 'public_statistics', '0', NULL),
+(7880, 196, 'random_order', '0', NULL),
+(7881, 196, 'scale_export', '0', NULL),
+(7882, 196, 'random_group', '', NULL),
+(7883, 516, 'display_rows', '', NULL),
+(7884, 516, 'location_mapservice', '0', NULL),
+(7885, 516, 'location_mapwidth', '500', NULL),
+(7886, 516, 'location_mapheight', '300', NULL),
+(7887, 516, 'location_nodefaultfromip', '0', NULL),
+(7888, 516, 'location_defaultcoordinates', '', NULL),
+(7889, 516, 'location_mapzoom', '11', NULL),
+(7890, 516, 'hide_tip', '0', NULL),
+(7891, 516, 'hidden', '0', NULL),
+(7892, 516, 'maximum_chars', '', NULL),
+(7893, 516, 'numbers_only', '0', NULL),
+(7894, 516, 'page_break', '0', NULL),
+(7895, 516, 'prefix', '', NULL),
+(7896, 516, 'suffix', '', NULL),
+(7897, 516, 'text_input_width', '', NULL),
+(7898, 516, 'time_limit', '', NULL),
+(7899, 516, 'time_limit_action', '1', NULL),
+(7900, 516, 'time_limit_disable_next', '0', NULL),
+(7901, 516, 'time_limit_disable_prev', '0', NULL),
+(7902, 516, 'time_limit_countdown_message', '', NULL),
+(7903, 516, 'time_limit_timer_style', '', NULL),
+(7904, 516, 'time_limit_message_delay', '', NULL),
+(7905, 516, 'time_limit_message', '', NULL),
+(7906, 516, 'time_limit_message_style', '', NULL),
+(7907, 516, 'time_limit_warning', '', NULL),
+(7908, 516, 'time_limit_warning_display_time', '', NULL),
+(7909, 516, 'time_limit_warning_message', '', NULL),
+(7910, 516, 'time_limit_warning_style', '', NULL),
+(7911, 516, 'time_limit_warning_2', '', NULL),
+(7912, 516, 'time_limit_warning_2_display_time', '', NULL),
+(7913, 516, 'time_limit_warning_2_message', '', NULL),
+(7914, 516, 'time_limit_warning_2_style', '', NULL),
+(7915, 516, 'random_group', '', NULL),
+(7916, 252, 'alphasort', '0', NULL),
+(7917, 252, 'array_filter', '', NULL),
+(7918, 252, 'array_filter_exclude', '', NULL),
+(7919, 252, 'display_columns', '1', NULL),
+(7920, 252, 'hide_tip', '0', NULL),
+(7921, 252, 'hidden', '0', NULL),
+(7922, 252, 'other_comment_mandatory', '0', NULL),
+(7923, 252, 'other_numbers_only', '0', NULL),
+(7924, 252, 'other_replace_text', '', NULL),
+(7925, 252, 'page_break', '0', NULL),
+(7926, 252, 'public_statistics', '0', NULL),
+(7927, 252, 'random_order', '0', NULL),
+(7928, 252, 'scale_export', '0', NULL),
+(7929, 252, 'random_group', '', NULL),
+(7930, 514, 'display_rows', '', NULL),
+(7931, 514, 'location_mapservice', '0', NULL),
+(7932, 514, 'location_mapwidth', '500', NULL),
+(7933, 514, 'location_mapheight', '300', NULL),
+(7934, 514, 'location_nodefaultfromip', '0', NULL),
+(7935, 514, 'location_defaultcoordinates', '', NULL),
+(7936, 514, 'location_mapzoom', '11', NULL),
+(7937, 514, 'hide_tip', '0', NULL),
+(7938, 514, 'hidden', '0', NULL),
+(7939, 514, 'maximum_chars', '', NULL),
+(7940, 514, 'numbers_only', '0', NULL),
+(7941, 514, 'page_break', '0', NULL),
+(7942, 514, 'prefix', '', NULL),
+(7943, 514, 'suffix', '', NULL),
+(7944, 514, 'text_input_width', '', NULL),
+(7945, 514, 'time_limit', '', NULL),
+(7946, 514, 'time_limit_action', '1', NULL),
+(7947, 514, 'time_limit_disable_next', '0', NULL),
+(7948, 514, 'time_limit_disable_prev', '0', NULL),
+(7949, 514, 'time_limit_countdown_message', '', NULL),
+(7950, 514, 'time_limit_timer_style', '', NULL),
+(7951, 514, 'time_limit_message_delay', '', NULL),
+(7952, 514, 'time_limit_message', '', NULL),
+(7953, 514, 'time_limit_message_style', '', NULL),
+(7954, 514, 'time_limit_warning', '', NULL),
+(7955, 514, 'time_limit_warning_display_time', '', NULL),
+(7956, 514, 'time_limit_warning_message', '', NULL),
+(7957, 514, 'time_limit_warning_style', '', NULL),
+(7958, 514, 'time_limit_warning_2', '', NULL),
+(7959, 514, 'time_limit_warning_2_display_time', '', NULL),
+(7960, 514, 'time_limit_warning_2_message', '', NULL),
+(7961, 514, 'time_limit_warning_2_style', '', NULL),
+(7962, 514, 'random_group', '', NULL),
+(7963, 513, 'display_rows', '', NULL),
+(7964, 513, 'location_mapservice', '0', NULL),
+(7965, 513, 'location_mapwidth', '500', NULL),
+(7966, 513, 'location_mapheight', '300', NULL),
+(7967, 513, 'location_nodefaultfromip', '0', NULL),
+(7968, 513, 'location_defaultcoordinates', '', NULL),
+(7969, 513, 'location_mapzoom', '11', NULL),
+(7970, 513, 'hide_tip', '0', NULL),
+(7971, 513, 'hidden', '0', NULL),
+(7972, 513, 'maximum_chars', '', NULL),
+(7973, 513, 'numbers_only', '0', NULL),
+(7974, 513, 'page_break', '0', NULL),
+(7975, 513, 'prefix', '', NULL),
+(7976, 513, 'suffix', '', NULL),
+(7977, 513, 'text_input_width', '', NULL),
+(7978, 513, 'time_limit', '', NULL),
+(7979, 513, 'time_limit_action', '1', NULL),
+(7980, 513, 'time_limit_disable_next', '0', NULL),
+(7981, 513, 'time_limit_disable_prev', '0', NULL),
+(7982, 513, 'time_limit_countdown_message', '', NULL),
+(7983, 513, 'time_limit_timer_style', '', NULL),
+(7984, 513, 'time_limit_message_delay', '', NULL),
+(7985, 513, 'time_limit_message', '', NULL);
+INSERT INTO question_attributes (qaid, qid, attribute, value, language) VALUES
+(7986, 513, 'time_limit_message_style', '', NULL),
+(7987, 513, 'time_limit_warning', '', NULL),
+(7988, 513, 'time_limit_warning_display_time', '', NULL),
+(7989, 513, 'time_limit_warning_message', '', NULL),
+(7990, 513, 'time_limit_warning_style', '', NULL),
+(7991, 513, 'time_limit_warning_2', '', NULL),
+(7992, 513, 'time_limit_warning_2_display_time', '', NULL),
+(7993, 513, 'time_limit_warning_2_message', '', NULL),
+(7994, 513, 'time_limit_warning_2_style', '', NULL),
+(7995, 513, 'random_group', '', NULL),
+(7996, 43, 'alphasort', '0', NULL),
+(7997, 43, 'array_filter', '', NULL),
+(7998, 43, 'array_filter_exclude', '', NULL),
+(7999, 43, 'display_columns', '1', NULL),
+(8000, 43, 'hide_tip', '0', NULL),
+(8001, 43, 'hidden', '0', NULL),
+(8002, 43, 'other_comment_mandatory', '0', NULL),
+(8003, 43, 'other_numbers_only', '0', NULL),
+(8004, 43, 'other_replace_text', '', NULL),
+(8005, 43, 'page_break', '0', NULL),
+(8006, 43, 'public_statistics', '0', NULL),
+(8007, 43, 'random_order', '0', NULL),
+(8008, 43, 'scale_export', '0', NULL),
+(8009, 43, 'random_group', '', NULL),
+(8010, 172, 'alphasort', '0', NULL),
+(8011, 172, 'array_filter', '', NULL),
+(8012, 172, 'array_filter_exclude', '', NULL),
+(8013, 172, 'display_columns', '1', NULL),
+(8014, 172, 'hide_tip', '0', NULL),
+(8015, 172, 'hidden', '0', NULL),
+(8016, 172, 'other_comment_mandatory', '0', NULL),
+(8017, 172, 'other_numbers_only', '0', NULL),
+(8018, 172, 'other_replace_text', '', NULL),
+(8019, 172, 'page_break', '0', NULL),
+(8020, 172, 'public_statistics', '0', NULL),
+(8021, 172, 'random_order', '0', NULL),
+(8022, 172, 'scale_export', '0', NULL),
+(8023, 172, 'random_group', '', NULL),
+(8024, 212, 'alphasort', '0', NULL),
+(8025, 212, 'array_filter', '', NULL),
+(8026, 212, 'array_filter_exclude', '', NULL),
+(8027, 212, 'display_columns', '1', NULL),
+(8028, 212, 'hide_tip', '0', NULL),
+(8029, 212, 'hidden', '0', NULL),
+(8030, 212, 'other_comment_mandatory', '0', NULL),
+(8031, 212, 'other_numbers_only', '0', NULL),
+(8032, 212, 'other_replace_text', '', NULL),
+(8033, 212, 'page_break', '0', NULL),
+(8034, 212, 'public_statistics', '0', NULL),
+(8035, 212, 'random_order', '0', NULL),
+(8036, 212, 'scale_export', '0', NULL),
+(8037, 212, 'random_group', '', NULL),
+(8038, 147, 'alphasort', '0', NULL),
+(8039, 147, 'array_filter', '', NULL),
+(8040, 147, 'array_filter_exclude', '', NULL),
+(8041, 147, 'display_columns', '1', NULL),
+(8042, 147, 'hide_tip', '0', NULL),
+(8043, 147, 'hidden', '0', NULL),
+(8044, 147, 'other_comment_mandatory', '0', NULL),
+(8045, 147, 'other_numbers_only', '0', NULL),
+(8046, 147, 'other_replace_text', '', NULL),
+(8047, 147, 'page_break', '0', NULL),
+(8048, 147, 'public_statistics', '0', NULL),
+(8049, 147, 'random_order', '0', NULL),
+(8050, 147, 'scale_export', '0', NULL),
+(8051, 147, 'random_group', '', NULL),
+(8052, 149, 'alphasort', '0', NULL),
+(8053, 149, 'array_filter', '', NULL),
+(8054, 149, 'array_filter_exclude', '', NULL),
+(8055, 149, 'display_columns', '1', NULL),
+(8056, 149, 'hide_tip', '0', NULL),
+(8057, 149, 'hidden', '0', NULL),
+(8058, 149, 'other_comment_mandatory', '0', NULL),
+(8059, 149, 'other_numbers_only', '0', NULL),
+(8060, 149, 'other_replace_text', '', NULL),
+(8061, 149, 'page_break', '0', NULL),
+(8062, 149, 'public_statistics', '0', NULL),
+(8063, 149, 'random_order', '0', NULL),
+(8064, 149, 'scale_export', '0', NULL),
+(8065, 149, 'random_group', '', NULL),
+(8066, 542, 'display_rows', '', NULL),
+(8067, 542, 'location_mapservice', '0', NULL),
+(8068, 542, 'location_mapwidth', '500', NULL),
+(8069, 542, 'location_mapheight', '300', NULL),
+(8070, 542, 'location_nodefaultfromip', '0', NULL),
+(8071, 542, 'location_defaultcoordinates', '', NULL),
+(8072, 542, 'location_mapzoom', '11', NULL),
+(8073, 542, 'hide_tip', '0', NULL),
+(8074, 542, 'hidden', '0', NULL),
+(8075, 542, 'maximum_chars', '', NULL),
+(8076, 542, 'numbers_only', '0', NULL),
+(8077, 542, 'page_break', '0', NULL),
+(8078, 542, 'prefix', '', NULL),
+(8079, 542, 'suffix', '', NULL),
+(8080, 542, 'text_input_width', '', NULL),
+(8081, 542, 'time_limit', '', NULL),
+(8082, 542, 'time_limit_action', '1', NULL),
+(8083, 542, 'time_limit_disable_next', '0', NULL),
+(8084, 542, 'time_limit_disable_prev', '0', NULL),
+(8085, 542, 'time_limit_countdown_message', '', NULL),
+(8086, 542, 'time_limit_timer_style', '', NULL),
+(8087, 542, 'time_limit_message_delay', '', NULL),
+(8088, 542, 'time_limit_message', '', NULL),
+(8089, 542, 'time_limit_message_style', '', NULL),
+(8090, 542, 'time_limit_warning', '', NULL),
+(8091, 542, 'time_limit_warning_display_time', '', NULL),
+(8092, 542, 'time_limit_warning_message', '', NULL),
+(8093, 542, 'time_limit_warning_style', '', NULL),
+(8094, 542, 'time_limit_warning_2', '', NULL),
+(8095, 542, 'time_limit_warning_2_display_time', '', NULL),
+(8096, 542, 'time_limit_warning_2_message', '', NULL),
+(8097, 542, 'time_limit_warning_2_style', '', NULL),
+(8098, 542, 'random_group', '', NULL),
+(8099, 164, 'display_rows', '', NULL),
+(8100, 164, 'location_mapservice', '0', NULL),
+(8101, 164, 'location_mapwidth', '500', NULL),
+(8102, 164, 'location_mapheight', '300', NULL),
+(8103, 164, 'location_nodefaultfromip', '0', NULL),
+(8104, 164, 'location_defaultcoordinates', '', NULL),
+(8105, 164, 'location_mapzoom', '11', NULL),
+(8106, 164, 'hide_tip', '0', NULL),
+(8107, 164, 'hidden', '0', NULL),
+(8108, 164, 'maximum_chars', '', NULL),
+(8109, 164, 'numbers_only', '0', NULL),
+(8110, 164, 'page_break', '0', NULL),
+(8111, 164, 'prefix', '', NULL),
+(8112, 164, 'suffix', '', NULL),
+(8113, 164, 'text_input_width', '', NULL),
+(8114, 164, 'time_limit', '', NULL),
+(8115, 164, 'time_limit_action', '1', NULL),
+(8116, 164, 'time_limit_disable_next', '0', NULL),
+(8117, 164, 'time_limit_disable_prev', '0', NULL),
+(8118, 164, 'time_limit_countdown_message', '', NULL),
+(8119, 164, 'time_limit_timer_style', '', NULL),
+(8120, 164, 'time_limit_message_delay', '', NULL),
+(8121, 164, 'time_limit_message', '', NULL),
+(8122, 164, 'time_limit_message_style', '', NULL),
+(8123, 164, 'time_limit_warning', '', NULL),
+(8124, 164, 'time_limit_warning_display_time', '', NULL),
+(8125, 164, 'time_limit_warning_message', '', NULL),
+(8126, 164, 'time_limit_warning_style', '', NULL),
+(8127, 164, 'time_limit_warning_2', '', NULL),
+(8128, 164, 'time_limit_warning_2_display_time', '', NULL),
+(8129, 164, 'time_limit_warning_2_message', '', NULL),
+(8130, 164, 'time_limit_warning_2_style', '', NULL),
+(8131, 164, 'random_group', '', NULL),
+(8132, 545, 'display_rows', '', NULL),
+(8133, 545, 'location_mapservice', '0', NULL),
+(8134, 545, 'location_mapwidth', '500', NULL),
+(8135, 545, 'location_mapheight', '300', NULL),
+(8136, 545, 'location_nodefaultfromip', '0', NULL),
+(8137, 545, 'location_defaultcoordinates', '', NULL),
+(8138, 545, 'location_mapzoom', '11', NULL),
+(8139, 545, 'hide_tip', '0', NULL),
+(8140, 545, 'hidden', '0', NULL),
+(8141, 545, 'maximum_chars', '', NULL),
+(8142, 545, 'numbers_only', '0', NULL),
+(8143, 545, 'page_break', '0', NULL),
+(8144, 545, 'prefix', '', NULL),
+(8145, 545, 'suffix', '', NULL),
+(8146, 545, 'text_input_width', '', NULL),
+(8147, 545, 'time_limit', '', NULL),
+(8148, 545, 'time_limit_action', '1', NULL),
+(8149, 545, 'time_limit_disable_next', '0', NULL),
+(8150, 545, 'time_limit_disable_prev', '0', NULL),
+(8151, 545, 'time_limit_countdown_message', '', NULL),
+(8152, 545, 'time_limit_timer_style', '', NULL),
+(8153, 545, 'time_limit_message_delay', '', NULL),
+(8154, 545, 'time_limit_message', '', NULL),
+(8155, 545, 'time_limit_message_style', '', NULL),
+(8156, 545, 'time_limit_warning', '', NULL),
+(8157, 545, 'time_limit_warning_display_time', '', NULL),
+(8158, 545, 'time_limit_warning_message', '', NULL),
+(8159, 545, 'time_limit_warning_style', '', NULL),
+(8160, 545, 'time_limit_warning_2', '', NULL),
+(8161, 545, 'time_limit_warning_2_display_time', '', NULL),
+(8162, 545, 'time_limit_warning_2_message', '', NULL),
+(8163, 545, 'time_limit_warning_2_style', '', NULL),
+(8164, 545, 'random_group', '', NULL),
+(10406, 1888, 'other_replace_text', '', NULL),
+(10405, 1888, 'other_numbers_only', '0', NULL),
+(10404, 1888, 'min_answers', '', NULL),
+(10403, 1888, 'max_answers', '', NULL),
+(10402, 1888, 'hide_tip', '0', NULL),
+(10401, 1888, 'hidden', '0', NULL),
+(10400, 1888, 'exclude_all_others_auto', '0', NULL),
+(10399, 1888, 'exclude_all_others', '', NULL),
+(10398, 1888, 'display_columns', '1', NULL),
+(10397, 1888, 'assessment_value', '1', NULL),
+(10396, 1888, 'array_filter_exclude', '', NULL),
+(10395, 1888, 'array_filter', '', NULL),
+(9209, 1786, 'time_limit_warning_2', '', NULL),
+(9208, 1786, 'time_limit_warning_style', '', NULL),
+(9207, 1786, 'time_limit_warning_message', '', NULL),
+(9206, 1786, 'time_limit_warning_display_time', '', NULL),
+(9205, 1786, 'time_limit_warning', '', NULL),
+(9204, 1786, 'time_limit_message_style', '', NULL),
+(9203, 1786, 'time_limit_message', '', NULL),
+(9202, 1786, 'time_limit_message_delay', '', NULL),
+(9201, 1786, 'time_limit_timer_style', '', NULL),
+(9200, 1786, 'time_limit_countdown_message', '', NULL),
+(9199, 1786, 'time_limit_disable_prev', '0', NULL),
+(9198, 1786, 'time_limit_disable_next', '0', NULL),
+(9197, 1786, 'time_limit_action', '1', NULL),
+(9196, 1786, 'time_limit', '', NULL),
+(9924, 1786, 'location_country', '0', NULL),
+(9923, 1786, 'location_postal', '0', NULL),
+(9921, 1786, 'location_city', '0', NULL),
+(9922, 1786, 'location_state', '0', NULL),
+(9908, 1792, 'time_limit_timer_style', '', NULL),
+(9192, 1786, 'page_break', '0', NULL),
+(9920, 1786, 'display_rows', '', NULL),
+(9189, 1786, 'hidden', '0', NULL),
+(9919, 1792, 'time_limit_warning_2_style', '', NULL),
+(9918, 1792, 'time_limit_warning_2_message', '', NULL),
+(9917, 1792, 'time_limit_warning_2_display_time', '', NULL),
+(9915, 1792, 'time_limit_warning_style', '', NULL),
+(9916, 1792, 'time_limit_warning_2', '', NULL),
+(9914, 1792, 'time_limit_warning_message', '', NULL),
+(9913, 1792, 'time_limit_warning_display_time', '', NULL),
+(9912, 1792, 'time_limit_warning', '', NULL),
+(9911, 1792, 'time_limit_message_style', '', NULL),
+(9909, 1792, 'time_limit_message_delay', '', NULL),
+(9910, 1792, 'time_limit_message', '', NULL),
+(9907, 1792, 'time_limit_countdown_message', '', NULL),
+(9176, 1785, 'random_group', '', NULL),
+(9175, 1785, 'scale_export', '0', NULL),
+(9174, 1785, 'random_order', '0', NULL),
+(9173, 1785, 'public_statistics', '0', NULL),
+(9172, 1785, 'page_break', '0', NULL),
+(9171, 1785, 'other_replace_text', '', NULL),
+(9170, 1785, 'other_numbers_only', '0', NULL),
+(9169, 1785, 'other_comment_mandatory', '0', NULL),
+(9168, 1785, 'hidden', '0', NULL),
+(9167, 1785, 'hide_tip', '0', NULL),
+(9166, 1785, 'display_columns', '1', NULL),
+(9165, 1785, 'array_filter_exclude', '', NULL),
+(9164, 1785, 'array_filter', '', NULL),
+(9163, 1785, 'alphasort', '0', NULL),
+(9961, 1868, 'other_numbers_only', '0', NULL),
+(9960, 1868, 'other_comment_mandatory', '0', NULL),
+(9958, 1868, 'hide_tip', '0', NULL),
+(9959, 1868, 'hidden', '0', NULL),
+(9956, 1868, 'array_filter_exclude', '', NULL),
+(9957, 1868, 'display_columns', '1', NULL),
+(9954, 1868, 'alphasort', '0', NULL),
+(9955, 1868, 'array_filter', '', NULL),
+(9953, 1788, 'text_input_width', '', NULL),
+(9952, 1788, 'suffix', '', NULL),
+(9950, 1788, 'numbers_only', '0', NULL),
+(9951, 1788, 'prefix', '', NULL),
+(9949, 1788, 'maximum_chars', '', NULL),
+(9948, 1788, 'hide_tip', '0', NULL),
+(9947, 1788, 'location_mapzoom', '11', NULL),
+(9946, 1788, 'location_defaultcoordinates', '', NULL),
+(9945, 1788, 'location_nodefaultfromip', '0', NULL),
+(9944, 1788, 'location_mapheight', '300', NULL),
+(9943, 1788, 'location_mapwidth', '500', NULL),
+(9942, 1788, 'location_mapservice', '0', NULL),
+(9941, 1788, 'location_country', '0', NULL),
+(9940, 1788, 'location_postal', '0', NULL),
+(9939, 1788, 'location_state', '0', NULL),
+(9938, 1788, 'location_city', '0', NULL),
+(9937, 1788, 'display_rows', '', NULL),
+(9936, 1786, 'text_input_width', '', NULL),
+(9934, 1786, 'prefix', '', NULL),
+(9935, 1786, 'suffix', '', NULL),
+(9932, 1786, 'maximum_chars', '', NULL),
+(9933, 1786, 'numbers_only', '0', NULL),
+(9931, 1786, 'hide_tip', '0', NULL),
+(9930, 1786, 'location_mapzoom', '11', NULL),
+(9929, 1786, 'location_defaultcoordinates', '', NULL),
+(9928, 1786, 'location_nodefaultfromip', '0', NULL),
+(9927, 1786, 'location_mapheight', '300', NULL),
+(9926, 1786, 'location_mapwidth', '500', NULL),
+(9925, 1786, 'location_mapservice', '0', NULL),
+(9212, 1786, 'time_limit_warning_2_style', '', NULL),
+(9211, 1786, 'time_limit_warning_2_message', '', NULL),
+(9210, 1786, 'time_limit_warning_2_display_time', '', NULL),
+(9213, 1786, 'random_group', '', NULL),
+(9214, 1787, 'alphasort', '0', NULL),
+(9215, 1787, 'array_filter', '', NULL),
+(9216, 1787, 'array_filter_exclude', '', NULL),
+(9217, 1787, 'display_columns', '1', NULL),
+(9218, 1787, 'hide_tip', '0', NULL),
+(9219, 1787, 'hidden', '0', NULL),
+(9220, 1787, 'other_comment_mandatory', '0', NULL),
+(9221, 1787, 'other_numbers_only', '0', NULL),
+(9222, 1787, 'other_replace_text', '', NULL),
+(9223, 1787, 'page_break', '0', NULL),
+(9224, 1787, 'public_statistics', '0', NULL),
+(9225, 1787, 'random_order', '0', NULL),
+(9226, 1787, 'scale_export', '0', NULL),
+(9227, 1787, 'random_group', '', NULL),
+(9902, 1793, 'time_limit_warning_2_style', '', NULL),
+(9901, 1793, 'time_limit_warning_2_message', '', NULL),
+(9900, 1793, 'time_limit_warning_2_display_time', '', NULL),
+(9899, 1793, 'time_limit_warning_2', '', NULL),
+(9898, 1793, 'time_limit_warning_style', '', NULL),
+(9897, 1793, 'time_limit_warning_message', '', NULL),
+(9896, 1793, 'time_limit_warning_display_time', '', NULL),
+(9240, 1788, 'hidden', '0', NULL),
+(9895, 1793, 'time_limit_warning', '', NULL),
+(9243, 1788, 'page_break', '0', NULL),
+(9894, 1793, 'time_limit_message_style', '', NULL),
+(9247, 1788, 'time_limit', '', NULL),
+(9248, 1788, 'time_limit_action', '1', NULL),
+(9249, 1788, 'time_limit_disable_next', '0', NULL),
+(9250, 1788, 'time_limit_disable_prev', '0', NULL),
+(9251, 1788, 'time_limit_countdown_message', '', NULL),
+(9252, 1788, 'time_limit_timer_style', '', NULL),
+(9253, 1788, 'time_limit_message_delay', '', NULL),
+(9254, 1788, 'time_limit_message', '', NULL),
+(9255, 1788, 'time_limit_message_style', '', NULL),
+(9256, 1788, 'time_limit_warning', '', NULL),
+(9257, 1788, 'time_limit_warning_display_time', '', NULL),
+(9258, 1788, 'time_limit_warning_message', '', NULL),
+(9259, 1788, 'time_limit_warning_style', '', NULL),
+(9260, 1788, 'time_limit_warning_2', '', NULL),
+(9261, 1788, 'time_limit_warning_2_display_time', '', NULL),
+(9262, 1788, 'time_limit_warning_2_message', '', NULL),
+(9263, 1788, 'time_limit_warning_2_style', '', NULL),
+(9264, 1788, 'random_group', '', NULL),
+(9265, 1789, 'alphasort', '0', NULL),
+(9266, 1789, 'array_filter', '', NULL),
+(9267, 1789, 'array_filter_exclude', '', NULL),
+(9268, 1789, 'display_columns', '1', NULL),
+(9269, 1789, 'hide_tip', '0', NULL),
+(9270, 1789, 'hidden', '0', NULL),
+(9271, 1789, 'other_comment_mandatory', '0', NULL),
+(9272, 1789, 'other_numbers_only', '0', NULL),
+(9273, 1789, 'other_replace_text', '', NULL),
+(9274, 1789, 'page_break', '0', NULL),
+(9275, 1789, 'public_statistics', '0', NULL),
+(9276, 1789, 'random_order', '0', NULL),
+(9277, 1789, 'scale_export', '0', NULL),
+(9278, 1789, 'random_group', '', NULL),
+(9279, 1790, 'display_rows', '', NULL),
+(9280, 1790, 'hidden', '0', NULL),
+(9281, 1790, 'maximum_chars', '', NULL),
+(9282, 1790, 'numbers_only', '0', NULL),
+(9283, 1790, 'page_break', '0', NULL),
+(9284, 1790, 'prefix', '', NULL),
+(9285, 1790, 'random_order', '0', NULL),
+(9286, 1790, 'suffix', '', NULL),
+(9287, 1790, 'text_input_width', '', NULL),
+(9288, 1790, 'random_group', '', NULL),
+(9289, 1791, 'alphasort', '0', NULL),
+(9290, 1791, 'array_filter', '', NULL),
+(9291, 1791, 'array_filter_exclude', '', NULL),
+(9292, 1791, 'display_columns', '1', NULL),
+(9293, 1791, 'hide_tip', '0', NULL),
+(9294, 1791, 'hidden', '0', NULL),
+(9295, 1791, 'other_comment_mandatory', '0', NULL),
+(9296, 1791, 'other_numbers_only', '0', NULL),
+(9297, 1791, 'other_replace_text', '', NULL),
+(9298, 1791, 'page_break', '0', NULL),
+(9299, 1791, 'public_statistics', '0', NULL),
+(9300, 1791, 'random_order', '0', NULL),
+(9301, 1791, 'scale_export', '0', NULL),
+(9302, 1791, 'random_group', '', NULL),
+(9906, 1792, 'time_limit_disable_prev', '0', NULL),
+(9304, 1792, 'hidden', '0', NULL),
+(9307, 1792, 'page_break', '0', NULL),
+(9905, 1792, 'time_limit_disable_next', '0', NULL),
+(9904, 1792, 'time_limit_action', '1', NULL),
+(9903, 1792, 'time_limit', '', NULL),
+(9312, 1792, 'random_group', '', NULL),
+(9893, 1793, 'time_limit_message', '', NULL),
+(9892, 1793, 'time_limit_message_delay', '', NULL),
+(9891, 1793, 'time_limit_timer_style', '', NULL),
+(9890, 1793, 'time_limit_countdown_message', '', NULL),
+(9320, 1793, 'hidden', '0', NULL),
+(9889, 1793, 'time_limit_disable_prev', '0', NULL),
+(9888, 1793, 'time_limit_disable_next', '0', NULL),
+(9325, 1793, 'page_break', '0', NULL),
+(9887, 1793, 'time_limit_action', '1', NULL),
+(9886, 1793, 'time_limit', '', NULL),
+(9329, 1793, 'random_group', '', NULL),
+(9330, 1794, 'hidden', '0', NULL),
+(9331, 1794, 'page_break', '0', NULL),
+(9332, 1794, 'time_limit', '', NULL),
+(9333, 1794, 'time_limit_action', '1', NULL),
+(9334, 1794, 'time_limit_disable_next', '0', NULL),
+(9335, 1794, 'time_limit_disable_prev', '0', NULL),
+(9336, 1794, 'time_limit_countdown_message', '', NULL),
+(9337, 1794, 'time_limit_timer_style', '', NULL),
+(9338, 1794, 'time_limit_message_delay', '', NULL),
+(9339, 1794, 'time_limit_message', '', NULL),
+(9340, 1794, 'time_limit_message_style', '', NULL),
+(9341, 1794, 'time_limit_warning', '', NULL),
+(9342, 1794, 'time_limit_warning_display_time', '', NULL),
+(9343, 1794, 'time_limit_warning_message', '', NULL),
+(9344, 1794, 'time_limit_warning_style', '', NULL),
+(9345, 1794, 'time_limit_warning_2', '', NULL),
+(9346, 1794, 'time_limit_warning_2_display_time', '', NULL),
+(9347, 1794, 'time_limit_warning_2_message', '', NULL),
+(9348, 1794, 'time_limit_warning_2_style', '', NULL),
+(9349, 1794, 'random_group', '', NULL),
+(9350, 1798, 'display_rows', '', NULL),
+(9351, 1798, 'hidden', '0', NULL),
+(9352, 1798, 'maximum_chars', '', NULL),
+(9353, 1798, 'numbers_only', '0', NULL),
+(9354, 1798, 'page_break', '0', NULL),
+(9355, 1798, 'prefix', '', NULL),
+(9356, 1798, 'random_order', '0', NULL),
+(9357, 1798, 'suffix', '', NULL),
+(9358, 1798, 'text_input_width', '', NULL),
+(9359, 1798, 'random_group', '', NULL),
+(9360, 1822, 'alphasort', '0', NULL),
+(9361, 1822, 'array_filter', '', NULL),
+(9362, 1822, 'array_filter_exclude', '', NULL),
+(9363, 1822, 'display_columns', '1', NULL),
+(9364, 1822, 'hide_tip', '0', NULL),
+(9365, 1822, 'hidden', '0', NULL),
+(9366, 1822, 'other_comment_mandatory', '0', NULL),
+(9367, 1822, 'other_numbers_only', '0', NULL),
+(9368, 1822, 'other_replace_text', '', NULL),
+(9369, 1822, 'page_break', '0', NULL),
+(9370, 1822, 'public_statistics', '0', NULL),
+(9371, 1822, 'random_order', '0', NULL),
+(9372, 1822, 'scale_export', '0', NULL),
+(9373, 1822, 'random_group', '', NULL),
+(9374, 1823, 'hidden', '0', NULL),
+(9375, 1823, 'page_break', '0', NULL),
+(9376, 1823, 'time_limit', '', NULL),
+(9377, 1823, 'time_limit_action', '1', NULL),
+(9378, 1823, 'time_limit_disable_next', '0', NULL),
+(9379, 1823, 'time_limit_disable_prev', '0', NULL),
+(9380, 1823, 'time_limit_countdown_message', '', NULL),
+(9381, 1823, 'time_limit_timer_style', '', NULL),
+(9382, 1823, 'time_limit_message_delay', '', NULL),
+(9383, 1823, 'time_limit_message', '', NULL),
+(9384, 1823, 'time_limit_message_style', '', NULL),
+(9385, 1823, 'time_limit_warning', '', NULL),
+(9386, 1823, 'time_limit_warning_display_time', '', NULL),
+(9387, 1823, 'time_limit_warning_message', '', NULL),
+(9388, 1823, 'time_limit_warning_style', '', NULL),
+(9389, 1823, 'time_limit_warning_2', '', NULL),
+(9390, 1823, 'time_limit_warning_2_display_time', '', NULL),
+(9391, 1823, 'time_limit_warning_2_message', '', NULL),
+(9392, 1823, 'time_limit_warning_2_style', '', NULL),
+(9393, 1823, 'random_group', '', NULL),
+(9394, 1824, 'hidden', '0', NULL),
+(9395, 1824, 'page_break', '0', NULL),
+(9396, 1824, 'time_limit', '', NULL),
+(9397, 1824, 'time_limit_action', '1', NULL),
+(9398, 1824, 'time_limit_disable_next', '0', NULL),
+(9399, 1824, 'time_limit_disable_prev', '0', NULL),
+(9400, 1824, 'time_limit_countdown_message', '', NULL),
+(9401, 1824, 'time_limit_timer_style', '', NULL),
+(9402, 1824, 'time_limit_message_delay', '', NULL),
+(9403, 1824, 'time_limit_message', '', NULL),
+(9404, 1824, 'time_limit_message_style', '', NULL),
+(9405, 1824, 'time_limit_warning', '', NULL),
+(9406, 1824, 'time_limit_warning_display_time', '', NULL),
+(9407, 1824, 'time_limit_warning_message', '', NULL),
+(9408, 1824, 'time_limit_warning_style', '', NULL),
+(9409, 1824, 'time_limit_warning_2', '', NULL),
+(9410, 1824, 'time_limit_warning_2_display_time', '', NULL),
+(9411, 1824, 'time_limit_warning_2_message', '', NULL),
+(9412, 1824, 'time_limit_warning_2_style', '', NULL),
+(9413, 1824, 'random_group', '', NULL),
+(9414, 1825, 'alphasort', '0', NULL),
+(9415, 1825, 'array_filter', '', NULL),
+(9416, 1825, 'array_filter_exclude', '', NULL),
+(9417, 1825, 'display_columns', '1', NULL),
+(9418, 1825, 'hide_tip', '0', NULL),
+(9419, 1825, 'hidden', '0', NULL),
+(9420, 1825, 'other_comment_mandatory', '0', NULL),
+(9421, 1825, 'other_numbers_only', '0', NULL),
+(9422, 1825, 'other_replace_text', '', NULL),
+(9423, 1825, 'page_break', '0', NULL),
+(9424, 1825, 'public_statistics', '0', NULL),
+(9425, 1825, 'random_order', '0', NULL),
+(9426, 1825, 'scale_export', '0', NULL),
+(9427, 1825, 'random_group', '', NULL),
+(9428, 1826, 'alphasort', '0', NULL),
+(9429, 1826, 'array_filter', '', NULL),
+(9430, 1826, 'array_filter_exclude', '', NULL),
+(9431, 1826, 'display_columns', '1', NULL),
+(9432, 1826, 'hide_tip', '0', NULL),
+(9433, 1826, 'hidden', '0', NULL),
+(9434, 1826, 'other_comment_mandatory', '0', NULL),
+(9435, 1826, 'other_numbers_only', '0', NULL),
+(9436, 1826, 'other_replace_text', '', NULL),
+(9437, 1826, 'page_break', '0', NULL),
+(9438, 1826, 'public_statistics', '0', NULL),
+(9439, 1826, 'random_order', '0', NULL),
+(9440, 1826, 'scale_export', '0', NULL),
+(9441, 1826, 'random_group', '', NULL),
+(9442, 1827, 'alphasort', '0', NULL),
+(9443, 1827, 'array_filter', '', NULL),
+(9444, 1827, 'array_filter_exclude', '', NULL),
+(9445, 1827, 'display_columns', '1', NULL),
+(9446, 1827, 'hide_tip', '0', NULL),
+(9447, 1827, 'hidden', '0', NULL),
+(9448, 1827, 'other_comment_mandatory', '0', NULL),
+(9449, 1827, 'other_numbers_only', '0', NULL),
+(9450, 1827, 'other_replace_text', '', NULL),
+(9451, 1827, 'page_break', '0', NULL),
+(9452, 1827, 'public_statistics', '0', NULL),
+(9453, 1827, 'random_order', '0', NULL),
+(9454, 1827, 'scale_export', '0', NULL),
+(9455, 1827, 'random_group', '', NULL),
+(9456, 1828, 'alphasort', '0', NULL),
+(9457, 1828, 'array_filter', '', NULL),
+(9458, 1828, 'array_filter_exclude', '', NULL),
+(9459, 1828, 'display_columns', '1', NULL),
+(9460, 1828, 'hide_tip', '0', NULL),
+(9461, 1828, 'hidden', '0', NULL),
+(9462, 1828, 'other_comment_mandatory', '0', NULL),
+(9463, 1828, 'other_numbers_only', '0', NULL),
+(9464, 1828, 'other_replace_text', '', NULL),
+(9465, 1828, 'page_break', '0', NULL),
+(9466, 1828, 'public_statistics', '0', NULL),
+(9467, 1828, 'random_order', '0', NULL),
+(9468, 1828, 'scale_export', '0', NULL),
+(9469, 1828, 'random_group', '', NULL),
+(9470, 1829, 'alphasort', '0', NULL),
+(9471, 1829, 'array_filter', '', NULL),
+(9472, 1829, 'array_filter_exclude', '', NULL),
+(9473, 1829, 'display_columns', '1', NULL),
+(9474, 1829, 'hide_tip', '0', NULL),
+(9475, 1829, 'hidden', '0', NULL),
+(9476, 1829, 'other_comment_mandatory', '0', NULL),
+(9477, 1829, 'other_numbers_only', '0', NULL),
+(9478, 1829, 'other_replace_text', '', NULL),
+(9479, 1829, 'page_break', '0', NULL),
+(9480, 1829, 'public_statistics', '0', NULL),
+(9481, 1829, 'random_order', '0', NULL),
+(9482, 1829, 'scale_export', '0', NULL),
+(9483, 1829, 'random_group', '', NULL),
+(9484, 1830, 'alphasort', '0', NULL),
+(9485, 1830, 'array_filter', '', NULL),
+(9486, 1830, 'array_filter_exclude', '', NULL),
+(9487, 1830, 'display_columns', '1', NULL),
+(9488, 1830, 'hide_tip', '0', NULL),
+(9489, 1830, 'hidden', '0', NULL),
+(9490, 1830, 'other_comment_mandatory', '0', NULL),
+(9491, 1830, 'other_numbers_only', '0', NULL),
+(9492, 1830, 'other_replace_text', '', NULL),
+(9493, 1830, 'page_break', '0', NULL),
+(9494, 1830, 'public_statistics', '0', NULL),
+(9495, 1830, 'random_order', '0', NULL),
+(9496, 1830, 'scale_export', '0', NULL),
+(9497, 1830, 'random_group', '', NULL),
+(9499, 1831, 'hidden', '0', NULL),
+(10024, 1831, 'time_limit_warning_message', '', NULL),
+(9502, 1831, 'page_break', '0', NULL),
+(10025, 1831, 'time_limit_warning_style', '', NULL),
+(10023, 1831, 'time_limit_warning_display_time', '', NULL),
+(10022, 1831, 'time_limit_warning', '', NULL),
+(9507, 1831, 'random_group', '', NULL),
+(9508, 1837, 'hidden', '0', NULL),
+(9509, 1837, 'page_break', '0', NULL),
+(9510, 1837, 'time_limit', '', NULL),
+(9511, 1837, 'time_limit_action', '1', NULL),
+(9512, 1837, 'time_limit_disable_next', '0', NULL),
+(9513, 1837, 'time_limit_disable_prev', '0', NULL),
+(9514, 1837, 'time_limit_countdown_message', '', NULL),
+(9515, 1837, 'time_limit_timer_style', '', NULL),
+(9516, 1837, 'time_limit_message_delay', '', NULL),
+(9517, 1837, 'time_limit_message', '', NULL),
+(9518, 1837, 'time_limit_message_style', '', NULL),
+(9519, 1837, 'time_limit_warning', '', NULL),
+(9520, 1837, 'time_limit_warning_display_time', '', NULL),
+(9521, 1837, 'time_limit_warning_message', '', NULL),
+(9522, 1837, 'time_limit_warning_style', '', NULL),
+(9523, 1837, 'time_limit_warning_2', '', NULL),
+(9524, 1837, 'time_limit_warning_2_display_time', '', NULL),
+(9525, 1837, 'time_limit_warning_2_message', '', NULL),
+(9526, 1837, 'time_limit_warning_2_style', '', NULL),
+(9527, 1837, 'random_group', '', NULL),
+(9528, 1838, 'alphasort', '0', NULL),
+(9529, 1838, 'array_filter', '', NULL),
+(9530, 1838, 'array_filter_exclude', '', NULL),
+(9531, 1838, 'display_columns', '1', NULL),
+(9532, 1838, 'hide_tip', '0', NULL),
+(9533, 1838, 'hidden', '0', NULL),
+(9534, 1838, 'other_comment_mandatory', '0', NULL),
+(9535, 1838, 'other_numbers_only', '0', NULL),
+(9536, 1838, 'other_replace_text', '', NULL),
+(9537, 1838, 'page_break', '0', NULL),
+(9538, 1838, 'public_statistics', '0', NULL),
+(9539, 1838, 'random_order', '0', NULL),
+(9540, 1838, 'scale_export', '0', NULL),
+(9541, 1838, 'random_group', '', NULL),
+(9988, 1839, 'time_limit_disable_prev', '0', NULL),
+(9543, 1839, 'hidden', '0', NULL),
+(9546, 1839, 'page_break', '0', NULL),
+(9987, 1839, 'time_limit_disable_next', '0', NULL),
+(9986, 1839, 'time_limit_action', '1', NULL),
+(9985, 1839, 'time_limit', '', NULL),
+(9551, 1839, 'random_group', '', NULL),
+(9552, 1845, 'alphasort', '0', NULL),
+(9553, 1845, 'array_filter', '', NULL),
+(9554, 1845, 'array_filter_exclude', '', NULL),
+(9555, 1845, 'display_columns', '1', NULL),
+(9556, 1845, 'hide_tip', '0', NULL),
+(9557, 1845, 'hidden', '0', NULL),
+(9558, 1845, 'other_comment_mandatory', '0', NULL),
+(9559, 1845, 'other_numbers_only', '0', NULL),
+(9560, 1845, 'other_replace_text', '', NULL),
+(9561, 1845, 'page_break', '0', NULL),
+(9562, 1845, 'public_statistics', '0', NULL),
+(9563, 1845, 'random_order', '0', NULL),
+(9564, 1845, 'scale_export', '0', NULL),
+(9565, 1845, 'random_group', '', NULL),
+(9566, 1846, 'alphasort', '0', NULL),
+(9567, 1846, 'array_filter', '', NULL),
+(9568, 1846, 'array_filter_exclude', '', NULL),
+(9569, 1846, 'display_columns', '1', NULL),
+(9570, 1846, 'hide_tip', '0', NULL),
+(9571, 1846, 'hidden', '0', NULL),
+(9572, 1846, 'other_comment_mandatory', '0', NULL),
+(9573, 1846, 'other_numbers_only', '0', NULL),
+(9574, 1846, 'other_replace_text', '', NULL),
+(9575, 1846, 'page_break', '0', NULL),
+(9576, 1846, 'public_statistics', '0', NULL),
+(9577, 1846, 'random_order', '0', NULL),
+(9578, 1846, 'scale_export', '0', NULL),
+(9579, 1846, 'random_group', '', NULL),
+(9580, 1847, 'alphasort', '0', NULL),
+(9581, 1847, 'array_filter', '', NULL),
+(9582, 1847, 'array_filter_exclude', '', NULL),
+(9583, 1847, 'display_columns', '1', NULL),
+(9584, 1847, 'hide_tip', '0', NULL),
+(9585, 1847, 'hidden', '0', NULL),
+(9586, 1847, 'other_comment_mandatory', '0', NULL),
+(9587, 1847, 'other_numbers_only', '0', NULL),
+(9588, 1847, 'other_replace_text', '', NULL),
+(9589, 1847, 'page_break', '0', NULL),
+(9590, 1847, 'public_statistics', '0', NULL),
+(9591, 1847, 'random_order', '0', NULL),
+(9592, 1847, 'scale_export', '0', NULL),
+(9593, 1847, 'random_group', '', NULL),
+(9594, 1848, 'alphasort', '0', NULL),
+(9595, 1848, 'array_filter', '', NULL),
+(9596, 1848, 'array_filter_exclude', '', NULL),
+(9597, 1848, 'display_columns', '1', NULL),
+(9598, 1848, 'hide_tip', '0', NULL),
+(9599, 1848, 'hidden', '0', NULL),
+(9600, 1848, 'other_comment_mandatory', '0', NULL),
+(9601, 1848, 'other_numbers_only', '0', NULL),
+(9602, 1848, 'other_replace_text', '', NULL),
+(9603, 1848, 'page_break', '0', NULL),
+(9604, 1848, 'public_statistics', '0', NULL),
+(9605, 1848, 'random_order', '0', NULL),
+(9606, 1848, 'scale_export', '0', NULL),
+(9607, 1848, 'random_group', '', NULL),
+(9608, 1849, 'alphasort', '0', NULL),
+(9609, 1849, 'array_filter', '', NULL),
+(9610, 1849, 'array_filter_exclude', '', NULL),
+(9611, 1849, 'display_columns', '1', NULL),
+(9612, 1849, 'hide_tip', '0', NULL),
+(9613, 1849, 'hidden', '0', NULL),
+(9614, 1849, 'other_comment_mandatory', '0', NULL),
+(9615, 1849, 'other_numbers_only', '0', NULL),
+(9616, 1849, 'other_replace_text', '', NULL),
+(9617, 1849, 'page_break', '0', NULL),
+(9618, 1849, 'public_statistics', '0', NULL),
+(9619, 1849, 'random_order', '0', NULL),
+(9620, 1849, 'scale_export', '0', NULL),
+(9621, 1849, 'random_group', '', NULL),
+(9622, 1850, 'alphasort', '0', NULL),
+(9623, 1850, 'array_filter', '', NULL),
+(9624, 1850, 'array_filter_exclude', '', NULL),
+(9625, 1850, 'display_columns', '1', NULL),
+(9626, 1850, 'hide_tip', '0', NULL),
+(9627, 1850, 'hidden', '0', NULL),
+(9628, 1850, 'other_comment_mandatory', '0', NULL),
+(9629, 1850, 'other_numbers_only', '0', NULL),
+(9630, 1850, 'other_replace_text', '', NULL),
+(9631, 1850, 'page_break', '0', NULL),
+(9632, 1850, 'public_statistics', '0', NULL),
+(9633, 1850, 'random_order', '0', NULL),
+(9634, 1850, 'scale_export', '0', NULL),
+(9635, 1850, 'random_group', '', NULL),
+(9636, 1851, 'hidden', '0', NULL),
+(9637, 1851, 'page_break', '0', NULL),
+(9638, 1851, 'time_limit', '', NULL),
+(9639, 1851, 'time_limit_action', '1', NULL),
+(9640, 1851, 'time_limit_disable_next', '0', NULL),
+(9641, 1851, 'time_limit_disable_prev', '0', NULL),
+(9642, 1851, 'time_limit_countdown_message', '', NULL),
+(9643, 1851, 'time_limit_timer_style', '', NULL),
+(9644, 1851, 'time_limit_message_delay', '', NULL),
+(9645, 1851, 'time_limit_message', '', NULL),
+(9646, 1851, 'time_limit_message_style', '', NULL),
+(9647, 1851, 'time_limit_warning', '', NULL),
+(9648, 1851, 'time_limit_warning_display_time', '', NULL),
+(9649, 1851, 'time_limit_warning_message', '', NULL),
+(9650, 1851, 'time_limit_warning_style', '', NULL),
+(9651, 1851, 'time_limit_warning_2', '', NULL),
+(9652, 1851, 'time_limit_warning_2_display_time', '', NULL),
+(9653, 1851, 'time_limit_warning_2_message', '', NULL),
+(9654, 1851, 'time_limit_warning_2_style', '', NULL),
+(9655, 1851, 'random_group', '', NULL),
+(9656, 1852, 'alphasort', '0', NULL),
+(9657, 1852, 'array_filter', '', NULL),
+(9658, 1852, 'array_filter_exclude', '', NULL),
+(9659, 1852, 'display_columns', '1', NULL),
+(9660, 1852, 'hide_tip', '0', NULL),
+(9661, 1852, 'hidden', '0', NULL),
+(9662, 1852, 'other_comment_mandatory', '0', NULL),
+(9663, 1852, 'other_numbers_only', '0', NULL),
+(9664, 1852, 'other_replace_text', '', NULL),
+(9665, 1852, 'page_break', '0', NULL),
+(9666, 1852, 'public_statistics', '0', NULL),
+(9667, 1852, 'random_order', '0', NULL),
+(9668, 1852, 'scale_export', '0', NULL),
+(9669, 1852, 'random_group', '', NULL),
+(9670, 1853, 'alphasort', '0', NULL),
+(9671, 1853, 'array_filter', '', NULL),
+(9672, 1853, 'array_filter_exclude', '', NULL),
+(9673, 1853, 'display_columns', '1', NULL),
+(9674, 1853, 'hide_tip', '0', NULL),
+(9675, 1853, 'hidden', '0', NULL),
+(9676, 1853, 'other_comment_mandatory', '0', NULL),
+(9677, 1853, 'other_numbers_only', '0', NULL),
+(9678, 1853, 'other_replace_text', '', NULL),
+(9679, 1853, 'page_break', '0', NULL),
+(9680, 1853, 'public_statistics', '0', NULL),
+(9681, 1853, 'random_order', '0', NULL),
+(9682, 1853, 'scale_export', '0', NULL),
+(9683, 1853, 'random_group', '', NULL),
+(9684, 1854, 'alphasort', '0', NULL),
+(9685, 1854, 'array_filter', '', NULL),
+(9686, 1854, 'array_filter_exclude', '', NULL),
+(9687, 1854, 'display_columns', '1', NULL),
+(9688, 1854, 'hide_tip', '0', NULL),
+(9689, 1854, 'hidden', '0', NULL),
+(9690, 1854, 'other_comment_mandatory', '0', NULL),
+(9691, 1854, 'other_numbers_only', '0', NULL),
+(9692, 1854, 'other_replace_text', '', NULL),
+(9693, 1854, 'page_break', '0', NULL),
+(9694, 1854, 'public_statistics', '0', NULL),
+(9695, 1854, 'random_order', '0', NULL),
+(9696, 1854, 'scale_export', '0', NULL),
+(9697, 1854, 'random_group', '', NULL),
+(9698, 1855, 'alphasort', '0', NULL),
+(9699, 1855, 'array_filter', '', NULL),
+(9700, 1855, 'array_filter_exclude', '', NULL),
+(9701, 1855, 'display_columns', '1', NULL),
+(9702, 1855, 'hide_tip', '0', NULL),
+(9703, 1855, 'hidden', '0', NULL),
+(9704, 1855, 'other_comment_mandatory', '0', NULL),
+(9705, 1855, 'other_numbers_only', '0', NULL),
+(9706, 1855, 'other_replace_text', '', NULL),
+(9707, 1855, 'page_break', '0', NULL),
+(9708, 1855, 'public_statistics', '0', NULL),
+(9709, 1855, 'random_order', '0', NULL),
+(9710, 1855, 'scale_export', '0', NULL),
+(9711, 1855, 'random_group', '', NULL),
+(9712, 1856, 'alphasort', '0', NULL),
+(9713, 1856, 'array_filter', '', NULL),
+(9714, 1856, 'array_filter_exclude', '', NULL),
+(9715, 1856, 'display_columns', '1', NULL),
+(9716, 1856, 'hide_tip', '0', NULL),
+(9717, 1856, 'hidden', '0', NULL),
+(9718, 1856, 'other_comment_mandatory', '0', NULL),
+(9719, 1856, 'other_numbers_only', '0', NULL),
+(9720, 1856, 'other_replace_text', '', NULL),
+(9721, 1856, 'page_break', '0', NULL),
+(9722, 1856, 'public_statistics', '0', NULL),
+(9723, 1856, 'random_order', '0', NULL),
+(9724, 1856, 'scale_export', '0', NULL),
+(9725, 1856, 'random_group', '', NULL),
+(9726, 1857, 'alphasort', '0', NULL),
+(9727, 1857, 'array_filter', '', NULL),
+(9728, 1857, 'array_filter_exclude', '', NULL),
+(9729, 1857, 'display_columns', '1', NULL),
+(9730, 1857, 'hide_tip', '0', NULL),
+(9731, 1857, 'hidden', '0', NULL),
+(9732, 1857, 'other_comment_mandatory', '0', NULL),
+(9733, 1857, 'other_numbers_only', '0', NULL),
+(9734, 1857, 'other_replace_text', '', NULL),
+(9735, 1857, 'page_break', '0', NULL),
+(9736, 1857, 'public_statistics', '0', NULL),
+(9737, 1857, 'random_order', '0', NULL),
+(9738, 1857, 'scale_export', '0', NULL),
+(9739, 1857, 'random_group', '', NULL),
+(9740, 1858, 'hidden', '0', NULL),
+(9741, 1858, 'page_break', '0', NULL),
+(9742, 1858, 'time_limit', '', NULL),
+(9743, 1858, 'time_limit_action', '1', NULL),
+(9744, 1858, 'time_limit_disable_next', '0', NULL),
+(9745, 1858, 'time_limit_disable_prev', '0', NULL),
+(9746, 1858, 'time_limit_countdown_message', '', NULL),
+(9747, 1858, 'time_limit_timer_style', '', NULL),
+(9748, 1858, 'time_limit_message_delay', '', NULL),
+(9749, 1858, 'time_limit_message', '', NULL),
+(9750, 1858, 'time_limit_message_style', '', NULL),
+(9751, 1858, 'time_limit_warning', '', NULL),
+(9752, 1858, 'time_limit_warning_display_time', '', NULL),
+(9753, 1858, 'time_limit_warning_message', '', NULL),
+(9754, 1858, 'time_limit_warning_style', '', NULL),
+(9755, 1858, 'time_limit_warning_2', '', NULL),
+(9756, 1858, 'time_limit_warning_2_display_time', '', NULL),
+(9757, 1858, 'time_limit_warning_2_message', '', NULL),
+(9758, 1858, 'time_limit_warning_2_style', '', NULL),
+(9759, 1858, 'random_group', '', NULL),
+(9760, 1859, 'alphasort', '0', NULL),
+(9761, 1859, 'array_filter', '', NULL),
+(9762, 1859, 'array_filter_exclude', '', NULL),
+(9763, 1859, 'display_columns', '1', NULL),
+(9764, 1859, 'hide_tip', '0', NULL),
+(9765, 1859, 'hidden', '0', NULL),
+(9766, 1859, 'other_comment_mandatory', '0', NULL),
+(9767, 1859, 'other_numbers_only', '0', NULL),
+(9768, 1859, 'other_replace_text', '', NULL),
+(9769, 1859, 'page_break', '0', NULL),
+(9770, 1859, 'public_statistics', '0', NULL),
+(9771, 1859, 'random_order', '0', NULL),
+(9772, 1859, 'scale_export', '0', NULL),
+(9773, 1859, 'random_group', '', NULL),
+(9774, 1860, 'alphasort', '0', NULL),
+(9775, 1860, 'array_filter', '', NULL),
+(9776, 1860, 'array_filter_exclude', '', NULL),
+(9777, 1860, 'display_columns', '1', NULL),
+(9778, 1860, 'hide_tip', '0', NULL),
+(9779, 1860, 'hidden', '0', NULL),
+(9780, 1860, 'other_comment_mandatory', '0', NULL),
+(9781, 1860, 'other_numbers_only', '0', NULL),
+(9782, 1860, 'other_replace_text', '', NULL),
+(9783, 1860, 'page_break', '0', NULL),
+(9784, 1860, 'public_statistics', '0', NULL),
+(9785, 1860, 'random_order', '0', NULL),
+(9786, 1860, 'scale_export', '0', NULL),
+(9787, 1860, 'random_group', '', NULL),
+(9788, 1861, 'alphasort', '0', NULL),
+(9789, 1861, 'array_filter', '', NULL),
+(9790, 1861, 'array_filter_exclude', '', NULL),
+(9791, 1861, 'display_columns', '1', NULL),
+(9792, 1861, 'hide_tip', '0', NULL),
+(9793, 1861, 'hidden', '0', NULL),
+(9794, 1861, 'other_comment_mandatory', '0', NULL),
+(9795, 1861, 'other_numbers_only', '0', NULL),
+(9796, 1861, 'other_replace_text', '', NULL),
+(9797, 1861, 'page_break', '0', NULL),
+(9798, 1861, 'public_statistics', '0', NULL),
+(9799, 1861, 'random_order', '0', NULL),
+(9800, 1861, 'scale_export', '0', NULL),
+(9801, 1861, 'random_group', '', NULL),
+(9802, 1862, 'alphasort', '0', NULL),
+(9803, 1862, 'array_filter', '', NULL),
+(9804, 1862, 'array_filter_exclude', '', NULL),
+(9805, 1862, 'display_columns', '1', NULL),
+(9806, 1862, 'hide_tip', '0', NULL),
+(9807, 1862, 'hidden', '0', NULL),
+(9808, 1862, 'other_comment_mandatory', '0', NULL),
+(9809, 1862, 'other_numbers_only', '0', NULL),
+(9810, 1862, 'other_replace_text', '', NULL),
+(9811, 1862, 'page_break', '0', NULL),
+(9812, 1862, 'public_statistics', '0', NULL),
+(9813, 1862, 'random_order', '0', NULL),
+(9814, 1862, 'scale_export', '0', NULL),
+(9815, 1862, 'random_group', '', NULL),
+(10054, 1870, 'time_limit_disable_next', '0', NULL),
+(10053, 1870, 'time_limit_action', '1', NULL),
+(10052, 1870, 'time_limit', '', NULL),
+(10051, 1870, 'page_break', '0', NULL),
+(10050, 1870, 'hidden', '0', NULL),
+(10049, 1869, 'random_group', '', NULL),
+(10048, 1869, 'time_limit_warning_2_style', '', NULL),
+(10047, 1869, 'time_limit_warning_2_message', '', NULL),
+(10046, 1869, 'time_limit_warning_2_display_time', '', NULL),
+(10045, 1869, 'time_limit_warning_2', '', NULL),
+(10044, 1869, 'time_limit_warning_style', '', NULL),
+(10043, 1869, 'time_limit_warning_message', '', NULL),
+(10042, 1869, 'time_limit_warning_display_time', '', NULL),
+(10041, 1869, 'time_limit_warning', '', NULL),
+(10040, 1869, 'time_limit_message_style', '', NULL),
+(10039, 1869, 'time_limit_message', '', NULL),
+(10038, 1869, 'time_limit_message_delay', '', NULL),
+(10037, 1869, 'time_limit_timer_style', '', NULL),
+(10036, 1869, 'time_limit_countdown_message', '', NULL),
+(10035, 1869, 'time_limit_disable_prev', '0', NULL),
+(10034, 1869, 'time_limit_disable_next', '0', NULL),
+(10033, 1869, 'time_limit_action', '1', NULL),
+(10032, 1869, 'time_limit', '', NULL),
+(10031, 1869, 'page_break', '0', NULL),
+(10030, 1869, 'hidden', '0', NULL),
+(9858, 1866, 'alphasort', '0', NULL),
+(9859, 1866, 'array_filter', '', NULL),
+(9860, 1866, 'array_filter_exclude', '', NULL),
+(9861, 1866, 'display_columns', '1', NULL),
+(9862, 1866, 'hide_tip', '0', NULL),
+(9863, 1866, 'hidden', '0', NULL),
+(9864, 1866, 'other_comment_mandatory', '0', NULL),
+(9865, 1866, 'other_numbers_only', '0', NULL),
+(9866, 1866, 'other_replace_text', '', NULL),
+(9867, 1866, 'page_break', '0', NULL),
+(9868, 1866, 'public_statistics', '0', NULL),
+(9869, 1866, 'random_order', '0', NULL),
+(9870, 1866, 'scale_export', '0', NULL),
+(9871, 1866, 'random_group', '', NULL),
+(9872, 1867, 'alphasort', '0', NULL),
+(9873, 1867, 'array_filter', '', NULL),
+(9874, 1867, 'array_filter_exclude', '', NULL),
+(9875, 1867, 'display_columns', '1', NULL),
+(9876, 1867, 'hide_tip', '0', NULL),
+(9877, 1867, 'hidden', '0', NULL),
+(9878, 1867, 'other_comment_mandatory', '0', NULL),
+(9879, 1867, 'other_numbers_only', '0', NULL),
+(9880, 1867, 'other_replace_text', '', NULL),
+(9881, 1867, 'page_break', '0', NULL),
+(9882, 1867, 'public_statistics', '0', NULL),
+(9883, 1867, 'random_order', '0', NULL),
+(9884, 1867, 'scale_export', '0', NULL),
+(9885, 1867, 'random_group', '', NULL),
+(9962, 1868, 'other_replace_text', '', NULL),
+(9963, 1868, 'page_break', '0', NULL),
+(9964, 1868, 'public_statistics', '0', NULL),
+(9965, 1868, 'random_order', '0', NULL),
+(9966, 1868, 'scale_export', '0', NULL),
+(9967, 1868, 'random_group', '', NULL),
+(10021, 1831, 'time_limit_message_style', '', NULL),
+(10020, 1831, 'time_limit_message', '', NULL),
+(10019, 1831, 'time_limit_message_delay', '', NULL),
+(10018, 1831, 'time_limit_timer_style', '', NULL),
+(10017, 1831, 'time_limit_countdown_message', '', NULL),
+(10016, 1831, 'time_limit_disable_prev', '0', NULL),
+(10015, 1831, 'time_limit_disable_next', '0', NULL),
+(10014, 1831, 'time_limit_action', '1', NULL),
+(10013, 1831, 'time_limit', '', NULL),
+(9989, 1839, 'time_limit_countdown_message', '', NULL),
+(9990, 1839, 'time_limit_timer_style', '', NULL),
+(9991, 1839, 'time_limit_message_delay', '', NULL),
+(9992, 1839, 'time_limit_message', '', NULL),
+(9993, 1839, 'time_limit_message_style', '', NULL),
+(9994, 1839, 'time_limit_warning', '', NULL),
+(9995, 1839, 'time_limit_warning_display_time', '', NULL),
+(9996, 1839, 'time_limit_warning_message', '', NULL),
+(9997, 1839, 'time_limit_warning_style', '', NULL),
+(9998, 1839, 'time_limit_warning_2', '', NULL),
+(9999, 1839, 'time_limit_warning_2_display_time', '', NULL),
+(10000, 1839, 'time_limit_warning_2_message', '', NULL),
+(10001, 1839, 'time_limit_warning_2_style', '', NULL),
+(10026, 1831, 'time_limit_warning_2', '', NULL),
+(10027, 1831, 'time_limit_warning_2_display_time', '', NULL),
+(10028, 1831, 'time_limit_warning_2_message', '', NULL),
+(10029, 1831, 'time_limit_warning_2_style', '', NULL),
+(10055, 1870, 'time_limit_disable_prev', '0', NULL),
+(10056, 1870, 'time_limit_countdown_message', '', NULL),
+(10057, 1870, 'time_limit_timer_style', '', NULL),
+(10058, 1870, 'time_limit_message_delay', '', NULL),
+(10059, 1870, 'time_limit_message', '', NULL),
+(10060, 1870, 'time_limit_message_style', '', NULL),
+(10061, 1870, 'time_limit_warning', '', NULL),
+(10062, 1870, 'time_limit_warning_display_time', '', NULL),
+(10063, 1870, 'time_limit_warning_message', '', NULL),
+(10064, 1870, 'time_limit_warning_style', '', NULL),
+(10065, 1870, 'time_limit_warning_2', '', NULL),
+(10066, 1870, 'time_limit_warning_2_display_time', '', NULL),
+(10067, 1870, 'time_limit_warning_2_message', '', NULL),
+(10068, 1870, 'time_limit_warning_2_style', '', NULL),
+(10069, 1870, 'random_group', '', NULL),
+(10070, 1871, 'display_rows', '', NULL),
+(10071, 1871, 'hidden', '0', NULL),
+(10072, 1871, 'maximum_chars', '', NULL),
+(10073, 1871, 'page_break', '0', NULL),
+(10074, 1871, 'text_input_width', '', NULL),
+(10075, 1871, 'time_limit', '', NULL),
+(10076, 1871, 'time_limit_action', '1', NULL),
+(10077, 1871, 'time_limit_disable_next', '0', NULL),
+(10078, 1871, 'time_limit_disable_prev', '0', NULL),
+(10079, 1871, 'time_limit_countdown_message', '', NULL),
+(10080, 1871, 'time_limit_timer_style', '', NULL),
+(10081, 1871, 'time_limit_message_delay', '', NULL),
+(10082, 1871, 'time_limit_message', '', NULL),
+(10083, 1871, 'time_limit_message_style', '', NULL),
+(10084, 1871, 'time_limit_warning', '', NULL),
+(10085, 1871, 'time_limit_warning_display_time', '', NULL),
+(10086, 1871, 'time_limit_warning_message', '', NULL),
+(10087, 1871, 'time_limit_warning_style', '', NULL),
+(10088, 1871, 'time_limit_warning_2', '', NULL),
+(10089, 1871, 'time_limit_warning_2_display_time', '', NULL),
+(10090, 1871, 'time_limit_warning_2_message', '', NULL),
+(10091, 1871, 'time_limit_warning_2_style', '', NULL),
+(10092, 1871, 'random_group', '', NULL),
+(10407, 1888, 'page_break', '0', NULL),
+(10408, 1888, 'public_statistics', '0', NULL),
+(10409, 1888, 'random_group', '', NULL),
+(10410, 1888, 'random_order', '0', NULL),
+(10411, 1888, 'scale_export', '0', NULL),
+(10508, 1894, 'hidden', '0', NULL),
+(10509, 1894, 'hide_tip', '0', NULL),
+(10510, 1894, 'max_num_value_n', '', NULL),
+(10511, 1894, 'maximum_chars', '', NULL),
+(10512, 1894, 'min_num_value_n', '', NULL),
+(10513, 1894, 'num_value_int_only', '0', NULL),
+(10514, 1894, 'page_break', '0', NULL),
+(10515, 1894, 'prefix', '', NULL),
+(10516, 1894, 'public_statistics', '0', NULL),
+(10517, 1894, 'random_group', '', NULL),
+(10518, 1894, 'suffix', '', NULL),
+(10519, 1894, 'text_input_width', '', NULL),
+(10616, 1900, 'hidden', '0', NULL),
+(10617, 1900, 'page_break', '0', NULL),
+(10618, 1900, 'random_group', '', NULL),
+(10619, 1900, 'time_limit', '', NULL),
+(10620, 1900, 'time_limit_action', '1', NULL),
+(10621, 1900, 'time_limit_countdown_message', '', NULL),
+(10622, 1900, 'time_limit_disable_next', '0', NULL),
+(10623, 1900, 'time_limit_disable_prev', '0', NULL),
+(10624, 1900, 'time_limit_message', '', NULL),
+(10625, 1900, 'time_limit_message_delay', '', NULL),
+(10626, 1900, 'time_limit_message_style', '', NULL),
+(10627, 1900, 'time_limit_timer_style', '', NULL),
+(10628, 1900, 'time_limit_warning', '', NULL),
+(10629, 1900, 'time_limit_warning_2', '', NULL),
+(10630, 1900, 'time_limit_warning_2_display_time', '', NULL),
+(10631, 1900, 'time_limit_warning_2_message', '', NULL),
+(10632, 1900, 'time_limit_warning_2_style', '', NULL),
+(10633, 1900, 'time_limit_warning_display_time', '', NULL),
+(10634, 1900, 'time_limit_warning_message', '', NULL),
+(10635, 1900, 'time_limit_warning_style', '', NULL),
+(10636, 1901, 'hidden', '0', NULL),
+(10637, 1901, 'hide_tip', '0', NULL),
+(10638, 1901, 'max_num_value_n', '30', NULL),
+(10639, 1901, 'maximum_chars', '', NULL),
+(10640, 1901, 'min_num_value_n', '1', NULL),
+(10641, 1901, 'num_value_int_only', '1', NULL),
+(10642, 1901, 'page_break', '0', NULL),
+(10643, 1901, 'prefix', '', NULL),
+(10644, 1901, 'public_statistics', '0', NULL),
+(10645, 1901, 'random_group', '', NULL),
+(10646, 1901, 'suffix', '', NULL),
+(10647, 1901, 'text_input_width', '', NULL),
+(10744, 1907, 'hidden', '0', NULL),
+(10745, 1907, 'page_break', '0', NULL),
+(10746, 1907, 'random_group', '', NULL),
+(10747, 1907, 'time_limit', '', NULL),
+(10748, 1907, 'time_limit_action', '1', NULL),
+(10749, 1907, 'time_limit_countdown_message', '', NULL),
+(10750, 1907, 'time_limit_disable_next', '0', NULL),
+(10751, 1907, 'time_limit_disable_prev', '0', NULL),
+(10752, 1907, 'time_limit_message', '', NULL),
+(10753, 1907, 'time_limit_message_delay', '', NULL),
+(10754, 1907, 'time_limit_message_style', '', NULL),
+(10755, 1907, 'time_limit_timer_style', '', NULL),
+(10756, 1907, 'time_limit_warning', '', NULL),
+(10757, 1907, 'time_limit_warning_2', '', NULL),
+(10758, 1907, 'time_limit_warning_2_display_time', '', NULL),
+(10759, 1907, 'time_limit_warning_2_message', '', NULL),
+(10760, 1907, 'time_limit_warning_2_style', '', NULL),
+(10761, 1907, 'time_limit_warning_display_time', '', NULL),
+(10762, 1907, 'time_limit_warning_message', '', NULL),
+(10763, 1907, 'time_limit_warning_style', '', NULL),
+(10892, 1915, 'hidden', '0', NULL),
+(10893, 1915, 'hide_tip', '0', NULL),
+(10894, 1915, 'max_num_value_n', '30', NULL),
+(10895, 1915, 'maximum_chars', '', NULL),
+(10896, 1915, 'min_num_value_n', '1', NULL),
+(10897, 1915, 'num_value_int_only', '1', NULL),
+(10898, 1915, 'page_break', '0', NULL),
+(10899, 1915, 'prefix', '', NULL),
+(10900, 1915, 'public_statistics', '0', NULL),
+(10901, 1915, 'random_group', '', NULL),
+(10902, 1915, 'suffix', '', NULL),
+(10903, 1915, 'text_input_width', '', NULL),
+(10904, 1916, 'array_filter', '', NULL),
+(10905, 1916, 'array_filter_exclude', '', NULL),
+(10906, 1916, 'assessment_value', '1', NULL),
+(10907, 1916, 'display_columns', '1', NULL),
+(10908, 1916, 'exclude_all_others', '', NULL),
+(10909, 1916, 'exclude_all_others_auto', '0', NULL),
+(10910, 1916, 'hidden', '0', NULL),
+(10911, 1916, 'hide_tip', '0', NULL),
+(10912, 1916, 'max_answers', '', NULL),
+(10913, 1916, 'min_answers', '', NULL),
+(10914, 1916, 'other_numbers_only', '0', NULL),
+(10915, 1916, 'other_replace_text', '', NULL),
+(10916, 1916, 'page_break', '0', NULL),
+(10917, 1916, 'public_statistics', '0', NULL),
+(10918, 1916, 'random_group', '', NULL),
+(10919, 1916, 'random_order', '0', NULL),
+(10920, 1916, 'scale_export', '0', NULL),
+(11377, 2036, 'display_rows', '', NULL),
+(11378, 2036, 'em_validation_q', '', NULL),
+(11379, 2036, 'em_validation_q_tip', '', NULL),
+(11380, 2036, 'em_validation_sq', '', NULL),
+(11381, 2036, 'em_validation_sq_tip', '', NULL),
+(11382, 2036, 'hidden', '0', NULL),
+(11383, 2036, 'maximum_chars', '', NULL),
+(11384, 2036, 'page_break', '0', NULL),
+(11385, 2036, 'text_input_width', '', NULL),
+(11386, 2036, 'time_limit', '', NULL),
+(11387, 2036, 'time_limit_action', '1', NULL),
+(11388, 2036, 'time_limit_disable_next', '0', NULL),
+(11389, 2036, 'time_limit_disable_prev', '0', NULL),
+(11390, 2036, 'time_limit_countdown_message', '', NULL),
+(11391, 2036, 'time_limit_timer_style', '', NULL),
+(11392, 2036, 'time_limit_message_delay', '', NULL),
+(11393, 2036, 'time_limit_message', '', NULL),
+(11394, 2036, 'time_limit_message_style', '', NULL),
+(11395, 2036, 'time_limit_warning', '', NULL),
+(11396, 2036, 'time_limit_warning_display_time', '', NULL),
+(11397, 2036, 'time_limit_warning_message', '', NULL),
+(11398, 2036, 'time_limit_warning_style', '', NULL),
+(11399, 2036, 'time_limit_warning_2', '', NULL),
+(11400, 2036, 'time_limit_warning_2_display_time', '', NULL),
+(11401, 2036, 'time_limit_warning_2_message', '', NULL),
+(11402, 2036, 'time_limit_warning_2_style', '', NULL),
+(11403, 2036, 'random_group', '', NULL),
+(11404, 2037, 'display_rows', '', NULL),
+(11405, 2037, 'em_validation_q', '', NULL),
+(11406, 2037, 'em_validation_q_tip', '', NULL),
+(11407, 2037, 'em_validation_sq', '', NULL),
+(11408, 2037, 'em_validation_sq_tip', '', NULL),
+(11409, 2037, 'hidden', '0', NULL),
+(11410, 2037, 'maximum_chars', '', NULL),
+(11411, 2037, 'page_break', '0', NULL),
+(11412, 2037, 'text_input_width', '', NULL),
+(11413, 2037, 'time_limit', '', NULL),
+(11414, 2037, 'time_limit_action', '1', NULL),
+(11415, 2037, 'time_limit_disable_next', '0', NULL),
+(11416, 2037, 'time_limit_disable_prev', '0', NULL),
+(11417, 2037, 'time_limit_countdown_message', '', NULL),
+(11418, 2037, 'time_limit_timer_style', '', NULL),
+(11419, 2037, 'time_limit_message_delay', '', NULL),
+(11420, 2037, 'time_limit_message', '', NULL),
+(11421, 2037, 'time_limit_message_style', '', NULL),
+(11422, 2037, 'time_limit_warning', '', NULL),
+(11423, 2037, 'time_limit_warning_display_time', '', NULL),
+(11424, 2037, 'time_limit_warning_message', '', NULL),
+(11425, 2037, 'time_limit_warning_style', '', NULL),
+(11426, 2037, 'time_limit_warning_2', '', NULL),
+(11427, 2037, 'time_limit_warning_2_display_time', '', NULL),
+(11428, 2037, 'time_limit_warning_2_message', '', NULL),
+(11429, 2037, 'time_limit_warning_2_style', '', NULL),
+(11430, 2037, 'random_group', '', NULL),
+(11431, 2038, 'array_filter', '', NULL),
+(11432, 2038, 'array_filter_exclude', '', NULL),
+(11433, 2038, 'assessment_value', '1', NULL),
+(11434, 2038, 'display_columns', '1', NULL),
+(11435, 2038, 'exclude_all_others', '', NULL),
+(11436, 2038, 'exclude_all_others_auto', '0', NULL),
+(11437, 2038, 'hide_tip', '0', NULL),
+(11438, 2038, 'hidden', '0', NULL),
+(11439, 2038, 'max_answers', '', NULL),
+(11440, 2038, 'min_answers', '', NULL),
+(11441, 2038, 'other_numbers_only', '0', NULL),
+(11442, 2038, 'other_replace_text', '', NULL),
+(11443, 2038, 'page_break', '0', NULL),
+(11444, 2038, 'public_statistics', '0', NULL),
+(11445, 2038, 'random_order', '0', NULL),
+(11446, 2038, 'scale_export', '0', NULL),
+(11447, 2038, 'random_group', '', NULL);
+
+INSERT INTO answers VALUES(6, 'US', 'United States', 0, 17, 'en', 0);
+INSERT INTO answers VALUES(6, 'UK', 'Royaume-Uni', 0, 16, 'fr', 0);
+INSERT INTO answers VALUES(6, 'UK', 'United Kingdom', 0, 16, 'en', 0);
+INSERT INTO answers VALUES(6, 'PORTUGAL', 'Portugal', 0, 15, 'fr', 0);
+INSERT INTO answers VALUES(6, 'PORTUGAL', 'Portugal', 0, 15, 'en', 0);
+INSERT INTO answers VALUES(6, 'POLAND', 'Pologne', 0, 14, 'fr', 0);
+INSERT INTO answers VALUES(6, 'POLAND', 'Poland', 0, 14, 'en', 0);
+INSERT INTO answers VALUES(6, 'PHILIPPINES', 'Philippines', 0, 13, 'fr', 0);
+INSERT INTO answers VALUES(6, 'PHILIPPINES', 'Philippines', 0, 13, 'en', 0);
+INSERT INTO answers VALUES(6, 'NETHERLANDS_HOLLAND', 'Pays-Bas/ Hollande', 0, 12, 'fr', 0);
+INSERT INTO answers VALUES(6, 'NETHERLANDS_HOLLAND', 'Netherlands/ Holland', 0, 12, 'en', 0);
+INSERT INTO answers VALUES(6, 'JAMAICA', 'Jamaïque', 0, 11, 'fr', 0);
+INSERT INTO answers VALUES(6, 'JAMAICA', 'Jamaica', 0, 11, 'en', 0);
+INSERT INTO answers VALUES(6, 'ITALY', 'Italie', 0, 10, 'fr', 0);
+INSERT INTO answers VALUES(6, 'ITALY', 'Italy', 0, 10, 'en', 0);
+INSERT INTO answers VALUES(6, 'INDIA', 'Inde', 0, 9, 'fr', 0);
+INSERT INTO answers VALUES(6, 'INDIA', 'India', 0, 9, 'en', 0);
+INSERT INTO answers VALUES(6, 'HUNGARY', 'Hongrie', 0, 8, 'fr', 0);
+INSERT INTO answers VALUES(6, 'HONG_KONG', 'Hong Kong', 0, 7, 'en', 0);
+INSERT INTO answers VALUES(6, 'GUYANA', 'Guyane', 0, 6, 'fr', 0);
+INSERT INTO answers VALUES(6, 'GUYANA', 'Guyana', 0, 6, 'en', 0);
+INSERT INTO answers VALUES(6, 'GREECE', 'Grèce', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(6, 'GREECE', 'Greece', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(6, 'CANADA', 'Canada', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(6, 'CANADA', 'Canada', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(6, 'CHINA', 'China', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(6, 'CHINA', 'Chine', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(6, 'FRANCE', 'France', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(6, 'FRANCE', 'France', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(6, 'GERMANY', 'Germany', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(6, 'GERMANY', 'Allemagne', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(16, 'ITALIAN', 'Italien', 0, 8, 'fr', 0);
+INSERT INTO answers VALUES(16, 'KOREAN', 'Korean', 0, 9, 'en', 0);
+INSERT INTO answers VALUES(16, 'KOREAN', 'Coréen', 0, 9, 'fr', 0);
+INSERT INTO answers VALUES(16, 'MANDARIN', 'Mandarin', 0, 10, 'en', 0);
+INSERT INTO answers VALUES(16, 'MANDARIN', 'Mandarin', 0, 10, 'fr', 0);
+INSERT INTO answers VALUES(16, 'PERSIAN', 'Persian (Farsi)', 0, 11, 'en', 0);
+INSERT INTO answers VALUES(16, 'PERSIAN', 'Persan (Farsi)', 0, 11, 'fr', 0);
+INSERT INTO answers VALUES(16, 'POLISH', 'Polish', 0, 12, 'en', 0);
+INSERT INTO answers VALUES(16, 'POLISH', 'Polonais', 0, 12, 'fr', 0);
+INSERT INTO answers VALUES(16, 'PORTUGUESE', 'Portuguese', 0, 13, 'en', 0);
+INSERT INTO answers VALUES(16, 'PORTUGUESE', 'Portugais', 0, 13, 'fr', 0);
+INSERT INTO answers VALUES(16, 'PUNJABI', 'Punjabi', 0, 14, 'en', 0);
+INSERT INTO answers VALUES(16, 'PUNJABI', 'Pendjabi', 0, 14, 'fr', 0);
+INSERT INTO answers VALUES(16, 'SPANISH', 'Spanish', 0, 15, 'en', 0);
+INSERT INTO answers VALUES(16, 'SPANISH', 'Espagnol', 0, 15, 'fr', 0);
+INSERT INTO answers VALUES(16, 'TAGALOG', 'Tagalog (Filipino)', 0, 16, 'en', 0);
+INSERT INTO answers VALUES(16, 'TAGALOG', 'Tagalog (Philipino)', 0, 16, 'fr', 0);
+INSERT INTO answers VALUES(16, 'UKRAINIAN', 'Ukrainian', 0, 17, 'en', 0);
+INSERT INTO answers VALUES(16, 'UKRAINIAN', 'Ukrainien', 0, 17, 'fr', 0);
+INSERT INTO answers VALUES(16, 'VIETNAMESE', 'Vietnamese', 0, 18, 'en', 0);
+INSERT INTO answers VALUES(16, 'VIETNAMESE', 'Vietnamien', 0, 18, 'fr', 0);
+INSERT INTO answers VALUES(22, 'PROTESTANT', 'Protestante', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(22, 'PRESBYTERIAN', 'Presbyterian', 0, 6, 'en', 0);
+INSERT INTO answers VALUES(22, 'PRESBYTERIAN', 'Presbytérienne', 0, 6, 'fr', 0);
+INSERT INTO answers VALUES(22, 'LUTHERAN', 'Lutheran', 0, 7, 'en', 0);
+INSERT INTO answers VALUES(22, 'LUTHERAN', 'Luthérienne', 0, 7, 'fr', 0);
+INSERT INTO answers VALUES(22, 'BAPTIST', 'Baptist', 0, 8, 'en', 0);
+INSERT INTO answers VALUES(22, 'BAPTIST', 'Baptiste', 0, 8, 'fr', 0);
+INSERT INTO answers VALUES(22, 'PENTECOSTAL', 'Pentecostal', 0, 9, 'en', 0);
+INSERT INTO answers VALUES(22, 'PENTECOSTAL', 'Pentecôtiste', 0, 9, 'fr', 0);
+INSERT INTO answers VALUES(22, 'EASTERN_ORTHODOX', 'Eastern Orthodox', 0, 10, 'en', 0);
+INSERT INTO answers VALUES(22, 'EASTERN_ORTHODOX', 'Orthodoxe orientale', 0, 10, 'fr', 0);
+INSERT INTO answers VALUES(22, 'JEWISH', 'Jewish', 0, 11, 'en', 0);
+INSERT INTO answers VALUES(22, 'JEWISH', 'Juive', 0, 11, 'fr', 0);
+INSERT INTO answers VALUES(22, 'ISLAM', 'Islam (Muslim)', 0, 12, 'en', 0);
+INSERT INTO answers VALUES(22, 'ISLAM', 'Islamique (musulmane)', 0, 12, 'fr', 0);
+INSERT INTO answers VALUES(22, 'HINDU', 'Hindu', 0, 13, 'en', 0);
+INSERT INTO answers VALUES(22, 'HINDU', 'Hindoue', 0, 13, 'fr', 0);
+INSERT INTO answers VALUES(22, 'BUDDHIST', 'Buddhist', 0, 14, 'en', 0);
+INSERT INTO answers VALUES(22, 'BUDDHIST', 'Bouddhiste', 0, 14, 'fr', 0);
+INSERT INTO answers VALUES(22, 'SIKH', 'Sikh', 0, 15, 'en', 0);
+INSERT INTO answers VALUES(22, 'PROTESTANT', 'Protestant', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(22, 'ANGLICAN', 'Anglicane (Église dAngleterre, Église épiscopale)', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(22, 'ROMAN_CATHOLIC', 'Roman Catholic', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(22, 'ROMAN_CATHOLIC', 'Catholique romaine', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(22, 'UKRAINIAN_CATHOLIC', 'Ukrainian Catholic', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(22, 'UKRAINIAN_CATHOLIC', 'Catholique ukrainienne', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(22, 'UNITED_CHURCH', 'United Church', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(22, 'UNITED_CHURCH', 'Église Unie', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(22, 'ANGLICAN', 'Anglican (Church of England, Episcopalian)', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(24, 'REFUSED', '[NE PAS LIRE] Refus', 0, 6, 'fr', 0);
+INSERT INTO answers VALUES(24, 'WIDOWED', 'Widowed', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(24, 'SINGLE', 'Single, never married or never lived with a partner', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(24, 'COMMON_LAW', 'Married/Living with a partner in a common-law relationship', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(24, 'COMMON_LAW', 'Marié / Vit avec un conjoint(e) de fait', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(24, 'SINGLE', 'Célibataire, jamais marié ou na jamais vécu avec un(e) conjoint(e) de fait  ', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(25, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(25, 'REFUSED', '[DO NOT READ] Refused', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(25, 'REFUSED', '[NE PAS LIRE] Refus', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(25, 'HETEROSEXUAL', 'Héterosexuel(le)? (relations sexuelles avec des personnes du sexe opposé) ', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(25, 'HOMOSEXUAL', 'Homosexual, that is lesbian or gay? (sexual relations with people of your own sex)', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(25, 'HOMOSEXUAL', 'Homosexuel(le), c''est-à-dire lesbienne ou gai? (relations sexuelles avec des personnes du même sexe) ', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(25, 'BISEXUAL', 'Bisexual? (sexual relations with people of both sexes)', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(25, 'BISEXUAL', 'Bisexuel(le)? (relations sexuelles avec des personnes des deux sexes) ', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(26, 'REFUSED', '[DO NOT READ] Refused', 0, 8, 'en', 0);
+INSERT INTO answers VALUES(26, 'DK_NA', '[DO NOT READ] Dont know/No answer', 0, 7, 'en', 0);
+INSERT INTO answers VALUES(26, 'APARTMENT', 'Appartement ou condominium', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(26, 'SENIORS_HOUSING', 'Seniors housing (retirement home, assisted living)', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(26, 'SENIORS_HOUSING', 'Logement de personnes âgées (maison de retraite, logement avec assistance) ', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(26, 'INSTITUTION', 'Institution (old age facility)', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(26, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 7, 'fr', 0);
+INSERT INTO answers VALUES(26, 'HOUSE', 'House (single detached, semi-detached, duplex or townhouse)', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(26, 'HOUSE', 'Maison (individuelle détachée, jumelée, duplex ou en rangée) ', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(26, 'APARTMENT', 'Apartment or condominium', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(27, 'DK_NA', '[DO NOT READ] Dont know/No answer', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(27, 'RENT', 'Locataire', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(27, 'OWN', 'Own', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(27, 'OWN', 'Propriétaire', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(27, 'RENT', 'Rent', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(28, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(28, 'DK_NA', '[DO NOT READ] Dont know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(28, 'PAID_OFF', 'Paid off completely', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(28, 'WITH_MORTGAGE', 'With mortgage', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(28, 'WITH_MORTGAGE', 'Hypothéqué', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(29, 'GRADE_11_13', '11e - 13e années (Québec : Secondaire V; Terre-Neuve et Labrador : 2e à 4e année du secondaire) ', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(29, 'DK_NA', '[DO NOT READ] Dont know/No answer', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(29, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(29, 'GRADE_11_13', 'Grade 11 - 13 (Québec: Secondary V; Newfoundland and Labrador: 2nd to 4th year of Secondary)', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(29, 'GRADE_9_10', '9e - 10e année (Québec : Secondaire III ou IV; Terre-Neuve et Labrador : 1re année du secondaire) ', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(29, 'GRADE_8', '8e année ou moins (Québec : Secondaire II ou moins)', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(29, 'GRADE_9_10', 'Grade 9 - 10 (Québec: Secondary III or IV; Newfoundland and Labrador; 1st year of Secondary)', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(30, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(30, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(30, 'NO', 'No', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(30, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(30, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(31, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(31, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(31, 'NO', 'No', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(31, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(31, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(32, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 8, 'fr', 0);
+INSERT INTO answers VALUES(32, 'REFUSED', '[DO NOT READ] Refused', 0, 9, 'en', 0);
+INSERT INTO answers VALUES(32, 'NO_POST_SECONDARY', 'No post-secondary degree, certificate, or diploma', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(32, 'NO_POST_SECONDARY', 'Aucun diplôme ou certificat détudes postsecondaires', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(32, 'TRADE_CERTIFICATE', 'Trade certificate or diploma from a vocational school or apprenticeship training', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(32, 'TRADE_CERTIFICATE', 'Diplôme ou certificat de métier dune école de métiers ou à la suite dune période dapprentissage ', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(32, 'NON_UNIVERSITY_CERTIFICATE', 'Non-university certificate or diploma from a community college, CEGEP, school of nursing, etc.', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(32, 'NON_UNIVERSITY_CERTIFICATE', 'Diplôme ou certificat non universitaire dun collège communautaire, CÉGEP, école de sciences infirmières, etc ', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(32, 'UNIVERSITY_CERTIFICATE', 'University certificate below bachelors level', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(32, 'UNIVERSITY_CERTIFICATE', 'Certificat universitaire inférieur au baccalauréat', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(32, 'BACHELORS_DEGREE', 'Bachelors degree', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(32, 'BACHELORS_DEGREE', 'Baccalauréat', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(35, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(35, 'NO', 'No', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(35, 'NO', 'Non', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(35, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(35, 'OUTSIDE_CANADA', 'Oui, dans les forces militaires autres que canadiennes (veuillez préciser le pays :____) ', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(35, 'YES_CANADA', 'Yes, the Canadian Military Forces', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(35, 'YES_CANADA', 'Oui, dans les forces militaires canadiennes', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(35, 'OUTSIDE_CANADA', 'Yes, the Military Forces outside of Canada (please specify country)', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(40, 'REFUSED', '[DO NOT READ] Refused', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(40, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(40, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(40, 'NO', 'No', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(40, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(43, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(43, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(43, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(43, 'NO', 'No', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(43, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(44, '72_83', '6''0" to 6''11" (181.6 to 212.0 cm)', 0, 7, 'en', 0);
+INSERT INTO answers VALUES(44, '60_71', '50" à 511" (151,1 à 181,5 cm)', 0, 6, 'fr', 0);
+INSERT INTO answers VALUES(44, '60_71', '5''0" to 5''11" (151.1 to 181.5 cm)', 0, 6, 'en', 0);
+INSERT INTO answers VALUES(44, '48_59', '4''0" to 4''11" / 48" to 59" (120.7 to 151.0 cm)', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(44, 'LESS_12', 'Moins de 1 / 12" (moins de 29,2 cm)', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(44, '12_23', '1''0" to 1''11" / 12" to 23" (29.2 to 59.6 cm)', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(44, '48_59', '40" à 411" / 48" à 59" (120,7 à 151,0 cm)', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(44, '36_47', '30" à 311" / 36" à 47" (90,2 à 120,6 cm)', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(44, '36_47', '3''0" to 3''11" / 36" to 47" (90.2 to 120.6 cm)', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(44, '24_35', '20" à 211" / 24" à 35" (59,7 à 90,1 cm)', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(44, '24_35', '2''0" to 2''11" / 24" to 35" (59.7 to 90.1 cm)', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(44, '12_23', '10" à 111" / 12" à 23" (29,2 à 59,6 cm)', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(44, 'LESS_12', 'Less than 1'' / 12" (less than 29.2 cm)', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(45, '23', '1''11" / 23" (57.2 to 59.6 cm)', 0, 12, 'en', 0);
+INSERT INTO answers VALUES(45, '22', '110" / 22" (54,6 à 57,1 cm)', 0, 11, 'fr', 0);
+INSERT INTO answers VALUES(45, '22', '1''10" / 22" (54.6 to 57.1 cm)', 0, 11, 'en', 0);
+INSERT INTO answers VALUES(45, '21', '1''9" / 21" (52.1 to 54.5 cm)', 0, 10, 'en', 0);
+INSERT INTO answers VALUES(45, '20', '1''8" / 20" (49.5 to 52.0 cm)', 0, 9, 'en', 0);
+INSERT INTO answers VALUES(45, '19', '1''7" / 19" (47.0 to 49.4 cm)', 0, 8, 'en', 0);
+INSERT INTO answers VALUES(45, '18', '1''6" / 18" (44.5 to 46.9 cm)', 0, 7, 'en', 0);
+INSERT INTO answers VALUES(45, '17', '15" / 17" (41,9 à 44,4 cm)', 0, 6, 'fr', 0);
+INSERT INTO answers VALUES(45, '16', '14" / 16" (39,4 à 41,8 cm)', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(45, '15', '13" / 15" (36,8 à 39,3 cm)', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(45, '14', '12" / 14" (34,3 à 36,7 cm)', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(45, '12', '10" / 12" (29,2 à 31,7 cm)', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(45, '13', '1''1" / 13" (31.8 to 34.2 cm)', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(45, '13', '11" / 13" (31,8 à 34,2 cm)', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(45, '21', '19" / 21" (52,1 à 54,5 cm)', 0, 10, 'fr', 0);
+INSERT INTO answers VALUES(45, '20', '18" / 20" (49,5 à 52,0 cm)', 0, 9, 'fr', 0);
+INSERT INTO answers VALUES(45, '19', '17" / 19" (47,0 à 49,4 cm)', 0, 8, 'fr', 0);
+INSERT INTO answers VALUES(45, '18', '16" / 18" (44,5 à 46,9 cm)', 0, 7, 'fr', 0);
+INSERT INTO answers VALUES(45, '17', '1''5" / 17" (41.9 to 44.4 cm)', 0, 6, 'en', 0);
+INSERT INTO answers VALUES(45, '16', '1''4" / 16" (39.4 to 41.8 cm)', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(45, '15', '1''3" / 15" (36.8 to 39.3 cm)', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(45, '14', '1''2" / 14" (34.3 to 36.7 cm)', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(45, '12', '1''0" / 12" (29.2 to 31.7 cm)', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(46, '35', '2''11" / 35" (87.6 to 90.1 cm)', 0, 12, 'en', 0);
+INSERT INTO answers VALUES(46, '34', '210" / 34" (85,1 à 87,5 cm)', 0, 11, 'fr', 0);
+INSERT INTO answers VALUES(46, '34', '2''10" / 34" (85.1 to 87.5 cm)', 0, 11, 'en', 0);
+INSERT INTO answers VALUES(46, '33', '2''9" / 33" (82.6 to 85.0 cm)', 0, 10, 'en', 0);
+INSERT INTO answers VALUES(46, '32', '2''8" / 32" (80.0 to 82.5 cm)', 0, 9, 'en', 0);
+INSERT INTO answers VALUES(46, '31', '2''7" / 31" (77.5 to 79.9 cm)', 0, 8, 'en', 0);
+INSERT INTO answers VALUES(46, '30', '2''6" / 30" (74.9 to 77.4 cm)', 0, 7, 'en', 0);
+INSERT INTO answers VALUES(46, '29', '25" / 29" (72,4 à 74,8 cm)', 0, 6, 'fr', 0);
+INSERT INTO answers VALUES(46, '28', '24" / 28" (69,9 à 72,3 cm)', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(46, '27', '23" / 27" (67,3 à 69,8 cm)', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(46, '26', '22" / 26" (64,8 à 67,2 cm)', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(46, '24', '20" / 24" (59,7 à 62,1 cm)', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(46, '25', '2''1" / 25" (62.2 to 64.7 cm)', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(46, '25', '21" / 25" (62,2 à 64,7 cm)', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(46, '33', '29" / 33" (82,6 à 85,0 cm)', 0, 10, 'fr', 0);
+INSERT INTO answers VALUES(46, '32', '28" / 32" (80,0 à 82,5 cm)', 0, 9, 'fr', 0);
+INSERT INTO answers VALUES(46, '31', '27" / 31" (77,5 à 79,9 cm)', 0, 8, 'fr', 0);
+INSERT INTO answers VALUES(46, '30', '26" / 30" (74,9 à 77,4 cm)', 0, 7, 'fr', 0);
+INSERT INTO answers VALUES(46, '29', '2''5" / 29" (72.4 to 74.8 cm)', 0, 6, 'en', 0);
+INSERT INTO answers VALUES(46, '28', '2''4" / 28" (69.9 to 72.3 cm)', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(46, '27', '2''3" / 27" (67.3 to 69.8 cm)', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(46, '26', '2''2" / 26" (64.8 to 67.2 cm)', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(46, '24', '2''0" / 24" (59.7 to 62.1 cm)', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(47, '47', '311" / 47" (118,1 à 120,6 cm)', 0, 12, 'fr', 0);
+INSERT INTO answers VALUES(47, '47', '3''11" / 47" (118.1 to 120.6 cm)', 0, 12, 'en', 0);
+INSERT INTO answers VALUES(47, '46', '310" / 46" (115,6 à 118,0 cm)', 0, 11, 'fr', 0);
+INSERT INTO answers VALUES(47, '45', '39" / 45" (113,0 à 115,5 cm)', 0, 10, 'fr', 0);
+INSERT INTO answers VALUES(47, '44', '38" / 44" (110,5 à 112,9 cm)', 0, 9, 'fr', 0);
+INSERT INTO answers VALUES(47, '43', '37" / 43" (108,0 à 110,4 cm)', 0, 8, 'fr', 0);
+INSERT INTO answers VALUES(47, '42', '36" / 42" (105,4 à 107,9 cm)', 0, 7, 'fr', 0);
+INSERT INTO answers VALUES(47, '41', '35" / 41" (102,9 à 105,3 cm)', 0, 6, 'fr', 0);
+INSERT INTO answers VALUES(47, '40', '34" / 40" (100,3 à 102,8 cm)', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(47, '39', '33" / 39" (97,8 à 100,2 cm)', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(47, '38', '32" / 38" (95,3 à 97,7 cm)', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(47, '36', '30" / 36" (90,2 à 92,6 cm)', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(47, '37', '3''1" / 37" (92.7 to 95.2 cm)', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(47, '37', '31" / 37" (92,7 à 95,2 cm)', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(47, '46', '3''10" / 46" (115.6 to 118.0 cm)', 0, 11, 'en', 0);
+INSERT INTO answers VALUES(47, '45', '3''9" / 45" (113.0 to 115.5 cm)', 0, 10, 'en', 0);
+INSERT INTO answers VALUES(47, '44', '3''8" / 44" (110.5 to 112.9 cm)', 0, 9, 'en', 0);
+INSERT INTO answers VALUES(47, '43', '3''7" / 43" (108.0 to 110.4 cm)', 0, 8, 'en', 0);
+INSERT INTO answers VALUES(47, '42', '3''6" / 42" (105.4 to 107.9 cm)', 0, 7, 'en', 0);
+INSERT INTO answers VALUES(47, '41', '3''5" / 41" (102.9 to 105.3 cm)', 0, 6, 'en', 0);
+INSERT INTO answers VALUES(47, '40', '3''4" / 40" (100.3 to 102.8 cm)', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(47, '39', '3''3" / 39" (97.8 to 100.2 cm)', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(47, '38', '3''2" / 38" (95.3 to 97.7 cm.)', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(47, '36', '3''0" / 36" (90.2 to 92.6 cm)', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(48, '59', '411" / 59" (148,6 à 151,0 cm)', 0, 12, 'fr', 0);
+INSERT INTO answers VALUES(48, '59', '4''11" / 59" (148.6 to 151.0 cm)', 0, 12, 'en', 0);
+INSERT INTO answers VALUES(48, '58', '4''10" / 58" (146.1 to 148.5 cm)', 0, 11, 'en', 0);
+INSERT INTO answers VALUES(48, '57', '4''9" / 57" (143.5 to 146.0 cm)', 0, 10, 'en', 0);
+INSERT INTO answers VALUES(48, '56', '4''8" / 56" (141.0 to 143.4 cm)', 0, 9, 'en', 0);
+INSERT INTO answers VALUES(48, '55', '4''7" / 55" (138.4 to 140.9 cm)', 0, 8, 'en', 0);
+INSERT INTO answers VALUES(48, '54', '4''6" / 54" (135.9 to 138.3 cm)', 0, 7, 'en', 0);
+INSERT INTO answers VALUES(48, '53', '4''5" / 53" (133.4 to 135.8 cm)', 0, 6, 'en', 0);
+INSERT INTO answers VALUES(48, '52', '4''4" / 52" (130.8 to 133.3 cm)', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(48, '51', '4''3" / 51" (128.3 to 130.7 cm) ', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(48, '50', '4''2" / 50" (125.7 to 128.2 cm)', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(48, '48', '40" / 48" (120,7 à 123,1 cm)', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(48, '49', '4''1" / 49" (123.2 to 125.6 cm) ', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(48, '58', '410" / 58" (146,1 à 148,5 cm)', 0, 11, 'fr', 0);
+INSERT INTO answers VALUES(48, '57', '49" / 57" (143,5 à 146,0 cm)', 0, 10, 'fr', 0);
+INSERT INTO answers VALUES(48, '56', '48" / 56" (141,0 à 143,4 cm)', 0, 9, 'fr', 0);
+INSERT INTO answers VALUES(48, '55', '47" / 55" (138,4 à 140,9 cm)', 0, 8, 'fr', 0);
+INSERT INTO answers VALUES(48, '54', '46" / 54" (135,9 à 138,3 cm)', 0, 7, 'fr', 0);
+INSERT INTO answers VALUES(48, '53', '45" / 53" (133,4 à 135,8 cm)', 0, 6, 'fr', 0);
+INSERT INTO answers VALUES(48, '52', '44" / 52" (130,8 à 133,3 cm)', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(48, '51', '43" / 51" (128,3 à 130,7 cm)', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(48, '50', '42" / 50" (125,7 à 128,2 cm)', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(48, '49', '41" / 49" (123,2 à 125,6 cm)', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(48, '48', '4''0" / 48" (120.7 to 123.1 cm)', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(49, '71', '5''11" (179.1 to 181.5 cm)', 0, 12, 'en', 0);
+INSERT INTO answers VALUES(49, '70', '510" (176,5 à 179,0 cm)', 0, 11, 'fr', 0);
+INSERT INTO answers VALUES(49, '70', '5''10" (176.5 to 179.0 cm)', 0, 11, 'en', 0);
+INSERT INTO answers VALUES(49, '69', '5''9" (174.0 to 176.4 cm)', 0, 10, 'en', 0);
+INSERT INTO answers VALUES(49, '68', '5''8" (171.5 to 173.9 cm)', 0, 9, 'en', 0);
+INSERT INTO answers VALUES(49, '67', '5''7" (168.9 to 171.4 cm)', 0, 8, 'en', 0);
+INSERT INTO answers VALUES(49, '66', '5''6" (166.4 to 168.8 cm)', 0, 7, 'en', 0);
+INSERT INTO answers VALUES(49, '65', '55" (163,8 à 166,3 cm)', 0, 6, 'fr', 0);
+INSERT INTO answers VALUES(49, '64', '54" (161,3 à 163,7 cm)', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(49, '63', '53" (158,8 à 161,2 cm)', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(49, '62', '52" (156,2 à 158,7 cm)', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(49, '60', '50" (151,1 à 153,6 cm)', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(49, '61', '5''1" (153.7 to 156.1 cm)', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(49, '61', '51" (153,7 à 156,1 cm)', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(49, '69', '59" (174,0 à 176,4 cm)', 0, 10, 'fr', 0);
+INSERT INTO answers VALUES(49, '68', '58" (171,5 à 173,9 cm)', 0, 9, 'fr', 0);
+INSERT INTO answers VALUES(49, '67', '57" (168,9 à 171,4 cm)', 0, 8, 'fr', 0);
+INSERT INTO answers VALUES(49, '66', '56" (166,4 à 168,8 cm)', 0, 7, 'fr', 0);
+INSERT INTO answers VALUES(49, '65', '5''5" (163.8 to 166.3 cm)', 0, 6, 'en', 0);
+INSERT INTO answers VALUES(49, '64', '5''4" (161.3 to 163.7 cm)', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(49, '63', '5''3" (158.8 to 161.2 cm)', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(49, '62', '5''2" (156.2 to 158.7 cm)', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(49, '60', '5''0" (151.1 to 153.6 cm)', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(50, '83', '6''11" (209.6 to 212.0 cm)', 0, 12, 'en', 0);
+INSERT INTO answers VALUES(50, '82', '610" (207,0 à 209,5 cm)', 0, 11, 'fr', 0);
+INSERT INTO answers VALUES(50, '82', '6''10" (207.0 to 209.5 cm)', 0, 11, 'en', 0);
+INSERT INTO answers VALUES(50, '81', '6''9" (204.5 to 206.9 cm)', 0, 10, 'en', 0);
+INSERT INTO answers VALUES(50, '80', '6''8" (201.9 to 204.4 cm)', 0, 9, 'en', 0);
+INSERT INTO answers VALUES(50, '79', '6''7" (199.4 to 201.8 cm)', 0, 8, 'en', 0);
+INSERT INTO answers VALUES(50, '78', '6''6" (196.9 to 199.3 cm)', 0, 7, 'en', 0);
+INSERT INTO answers VALUES(50, '77', '65" (194,3 à 196,8 cm)', 0, 6, 'fr', 0);
+INSERT INTO answers VALUES(50, '76', '64" (191,8 à 194,2 cm)', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(50, '75', '63" (189,2 à 191,7 cm)', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(50, '74', '62" (186,7 à 189,1 cm)', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(50, '72', '60" (181,6 à 184,1 cm)', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(50, '73', '6''1" (184.2 to 186.6 cm)', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(50, '73', '61" (184,2 à 186,6 cm)', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(50, '81', '69" (204,5 à 206,9 cm)', 0, 10, 'fr', 0);
+INSERT INTO answers VALUES(50, '80', '68" (201,9 à 204,4 cm)', 0, 9, 'fr', 0);
+INSERT INTO answers VALUES(50, '79', '67" (199,4 à 201,8 cm)', 0, 8, 'fr', 0);
+INSERT INTO answers VALUES(50, '78', '66" (196,9 à 199,3 cm)', 0, 7, 'fr', 0);
+INSERT INTO answers VALUES(50, '77', '6''5" (194.3 to 196.8 cm)', 0, 6, 'en', 0);
+INSERT INTO answers VALUES(50, '76', '6''4" (191.8 to 194.2 cm)', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(50, '75', '6''3" (189.2 to 191.7 cm)', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(50, '74', '6''2" (186.7 to 189.1 cm)', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(50, '72', '6''0" (181.6 to 184.1 cm)', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(52, 'KILOGRAMS', 'Kilograms', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(52, 'POUNDS', 'Livres', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(52, 'POUNDS', 'Pounds', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(53, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(53, 'UNDERWEIGHT', 'Trop maigre', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(53, 'OVERWEIGHT', 'Embonpoint', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(53, 'ABOUT_RIGHT', 'À peu près normal(e)', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(53, 'ABOUT_RIGHT', 'Just about right', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(53, 'UNDERWEIGHT', 'Underweight', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(53, 'OVERWEIGHT', 'Overweight', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(54, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(54, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(54, 'NO', 'No', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(54, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(54, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(55, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(55, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(55, 'NO', 'No', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(55, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(55, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(57, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(57, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(57, 'DAILY_PAST_30_DAYS', 'Chaque jour (au moins une cigarette par jour au cours des 30 derniers jours) ', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(57, 'OCCASIONALLY', 'Occasionally (at least one cigarette in the past 30 days, but not every day)', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(57, 'OCCASIONALLY', 'Occasionnellement (au moins une cigarette au cours des 30 derniers jours, mais pas tous les jours) ', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(57, 'NOT_AT_ALL', 'Not at all (you did not smoke at all in the past 30 days)', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(57, 'NOT_AT_ALL', 'Jamais (vous navez pas du tout fumé au cours des 30 derniers jours) ', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(59, '26_OR_MORE_CIGARETTES', '26+ cigarettes', 0, 6, 'en', 0);
+INSERT INTO answers VALUES(59, '1_5_CIGARETTES', '1-5 cigarettes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(59, '1_5_CIGARETTES', '1 à 5 cigarettes', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(59, '6_10_CIGARETTES', '6-10 cigarettes', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(59, '6_10_CIGARETTES', '6 à 10 cigarettes', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(59, '11_15_CIGARETTES', '11-15 cigarettes', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(59, '11_15_CIGARETTES', '11 à 15 cigarettes', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(62, '26_OR_MORE_CIGARETTES', '26+ cigarettes', 0, 6, 'en', 0);
+INSERT INTO answers VALUES(62, '1_5_CIGARETTES', '1-5 cigarettes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(62, '1_5_CIGARETTES', '1 à 5 cigarettes', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(62, '6_10_CIGARETTES', '6-10 cigarettes', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(62, '6_10_CIGARETTES', '6 à 10 cigarettes', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(62, '11_15_CIGARETTES', '11-15 cigarettes', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(62, '11_15_CIGARETTES', '11 à 15 cigarettes', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(64, '11_20_DAYS', '11 à 20 jours', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(64, '6_10_DAYS', '6 à 10 jours', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(64, '1_5_DAYS', '1-5 days', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(64, '1_5_DAYS', '1 à 5 jours', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(64, '6_10_DAYS', '6-10 days', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(65, '11_15_CIGARETTES', '11-15 cigarettes', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(65, '11_15_CIGARETTES', '11 à 15 cigarettes', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(65, '1_5_CIGARETTES', '1-5 cigarettes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(65, '1_5_CIGARETTES', '1 à 5 cigarettes', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(65, '6_10_CIGARETTES', '6-10 cigarettes', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(66, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(66, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(66, 'NO', 'No', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(66, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(66, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(68, '26_OR_MORE_CIGARETTES', '26+ cigarettes', 0, 6, 'en', 0);
+INSERT INTO answers VALUES(68, '1_5_CIGARETTES', '1-5 cigarettes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(68, '1_5_CIGARETTES', '1 à 5 cigarettes', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(68, '6_10_CIGARETTES', '6-10 cigarettes', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(68, '6_10_CIGARETTES', '6 à 10 cigarettes', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(68, '11_15_CIGARETTES', '11-15 cigarettes', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(68, '11_15_CIGARETTES', '11 à 15 cigarettes', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(71, '3_5_YEARS_AGO', '3-5 years ago', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(71, '3_5_YEARS_AGO', 'Il y a entre 3 et 5 ans', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(71, 'MORE_5_YEARS_AGO', 'More than 5 years ago', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(71, 'MORE_5_YEARS_AGO', 'Il y a plus de 5 ans', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(71, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(71, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(71, 'REFUSED', '[DO NOT READ] Refused', 0, 6, 'en', 0);
+INSERT INTO answers VALUES(72, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(72, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(72, 'NO', 'No', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(72, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(72, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(75, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(79, 'AT_LEAST_ONCE_WEEK', 'Au moins une fois par semaine', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(79, 'AT_LEAST_ONCE_MONTH', 'At least once a month', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(79, 'AT_LEAST_ONCE_MONTH', 'Au moins une fois par mois', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(79, 'LESS_THAN_ONCE_MONTH', 'Less than once a month', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(79, 'LESS_THAN_ONCE_MONTH', 'Moins dune fois par mois', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(79, 'NEVER', 'Never', 0, 6, 'en', 0);
+INSERT INTO answers VALUES(79, 'NEVER', 'Jamais', 0, 6, 'fr', 0);
+INSERT INTO answers VALUES(79, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 7, 'en', 0);
+INSERT INTO answers VALUES(79, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 7, 'fr', 0);
+INSERT INTO answers VALUES(80, 'AT_LEAST_ONCE_WEEK', 'Au moins une fois par semaine', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(80, 'AT_LEAST_ONCE_MONTH', 'At least once a month', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(80, 'AT_LEAST_ONCE_MONTH', 'Au moins une fois par mois', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(80, 'LESS_THAN_ONCE_MONTH', 'Less than once a month', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(80, 'LESS_THAN_ONCE_MONTH', 'Moins dune fois par mois', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(80, 'NEVER', 'Never', 0, 6, 'en', 0);
+INSERT INTO answers VALUES(80, 'NEVER', 'Jamais', 0, 6, 'fr', 0);
+INSERT INTO answers VALUES(80, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 7, 'en', 0);
+INSERT INTO answers VALUES(80, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 7, 'fr', 0);
+INSERT INTO answers VALUES(82, 'AT_LEAST_ONCE_WEEK', 'Au moins une fois par semaine', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(82, 'AT_LEAST_ONCE_MONTH', 'At least once a month', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(82, 'AT_LEAST_ONCE_MONTH', 'Au moins une fois par mois', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(82, 'LESS_THAN_ONCE_MONTH', 'Less than once a month', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(82, 'LESS_THAN_ONCE_MONTH', 'Moins dune fois par mois', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(82, 'NEVER', 'Never', 0, 6, 'en', 0);
+INSERT INTO answers VALUES(82, 'NEVER', 'Jamais', 0, 6, 'fr', 0);
+INSERT INTO answers VALUES(82, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 7, 'en', 0);
+INSERT INTO answers VALUES(82, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 7, 'fr', 0);
+INSERT INTO answers VALUES(83, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(83, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(83, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(83, 'NO', 'No', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(83, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(84, 'ABOUT_ONCE_MONTH', 'About once a month', 0, 6, 'en', 0);
+INSERT INTO answers VALUES(84, 'ONCE_WEEK', 'Once a week', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(84, '2_3_TIMES_WEEK', '2 à 3 fois par semaine', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(84, '4_5_TIMES_WEEK', '4 à 5 fois par semaine', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(84, 'ALMOST_EVERY_DAY', 'Presque tous les jours (incluant 6 fois par semaine)', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(84, '2_3_TIMES_MONTH', '2 à 3 fois par mois', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(84, '2_3_TIMES_MONTH', '2-3 times a month', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(84, 'ONCE_WEEK', 'Une fois par semaine', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(84, '2_3_TIMES_WEEK', '2-3 times a week', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(84, '4_5_TIMES_WEEK', '4-5 times a week', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(84, 'ALMOST_EVERY_DAY', 'Almost every day (incl. 6 times a week)', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(86, 'NUNAVUT', 'Nunavut', 0, 13, 'en', 0);
+INSERT INTO answers VALUES(86, 'NUNAVUT', 'Nunavut', 0, 13, 'fr', 0);
+INSERT INTO answers VALUES(86, 'NO_HEALTH_NUMBER', 'Do not have a Canadian health number', 0, 14, 'en', 0);
+INSERT INTO answers VALUES(86, 'QUEBEC', 'Quebec', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(86, 'NEW_BRUNSWICK', 'Nouveau-Brunswick', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(86, 'NORTHWEST_TERRITORIES', 'Territoires du Nord-Ouest', 0, 12, 'fr', 0);
+INSERT INTO answers VALUES(86, 'QUEBEC', 'Québec', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(86, 'ONTARIO', 'Ontario', 0, 6, 'en', 0);
+INSERT INTO answers VALUES(86, 'ONTARIO', 'Ontario', 0, 6, 'fr', 0);
+INSERT INTO answers VALUES(86, 'MANITOBA', 'Manitoba', 0, 7, 'en', 0);
+INSERT INTO answers VALUES(86, 'MANITOBA', 'Manitoba', 0, 7, 'fr', 0);
+INSERT INTO answers VALUES(86, 'SASKATCHEWAN', 'Saskatchawan', 0, 8, 'en', 0);
+INSERT INTO answers VALUES(86, 'SASKATCHEWAN', 'Saskatchewan', 0, 8, 'fr', 0);
+INSERT INTO answers VALUES(86, 'ALBERTA', 'Alberta', 0, 9, 'en', 0);
+INSERT INTO answers VALUES(86, 'ALBERTA', 'Alberta', 0, 9, 'fr', 0);
+INSERT INTO answers VALUES(86, 'BRITISH_COLUMBIA', 'British Columbia', 0, 10, 'en', 0);
+INSERT INTO answers VALUES(86, 'BRITISH_COLUMBIA', 'Colombie-Britannique', 0, 10, 'fr', 0);
+INSERT INTO answers VALUES(86, 'YUKON', 'Yukon', 0, 11, 'en', 0);
+INSERT INTO answers VALUES(86, 'YUKON', 'Yukon', 0, 11, 'fr', 0);
+INSERT INTO answers VALUES(86, 'NORTHWEST_TERRITORIES', 'Northwest Territories', 0, 12, 'en', 0);
+INSERT INTO answers VALUES(91, '150000_MORE', '$150,000 or more', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(91, '150000_MORE', '150 000 $ ou plus', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(91, 'LESS_20000', 'Moins de 20 000 $', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(91, '20000_50000', '$20,000 or more, but less than $50,000', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(91, '20000_50000', '20 000 $ ou plus, mais moins de 50 000 $', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(91, '50000_100000', '$50,000 or more, but less than $100,000', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(91, '50000_100000', '50 000 $ ou plus, mais moins de 100 000 $', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(93, 'ABOUT_ONCE_MONTH', 'About once a month', 0, 6, 'en', 0);
+INSERT INTO answers VALUES(93, 'ONCE_WEEK', 'Once a week', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(93, '2_3_TIMES_WEEK', '2 à 3 fois par semaine', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(93, '4_5_TIMES_WEEK', '4 à 5 fois par semaine', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(93, 'ALMOST_EVERY_DAY', 'Presque tous les jours (incluant 6 fois par semaine)', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(93, '2_3_TIMES_MONTH', '2 à 3 fois par mois', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(93, '2_3_TIMES_MONTH', '2-3 times a month', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(93, 'ONCE_WEEK', 'Une fois par semaine', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(93, '2_3_TIMES_WEEK', '2-3 times a week', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(93, '4_5_TIMES_WEEK', '4-5 times a week', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(93, 'ALMOST_EVERY_DAY', 'Almost every day (incl. 6 times a week)', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(95, '100000_150000', '100 000 $ ou plus, mais moins de 150 000 $', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(95, '100000_150000', '$100,000 or more, but less than $150,000', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(95, '50000_100000', '50 000 $ ou plus, mais moins de 100 000 $', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(96, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 9, 'en', 0);
+INSERT INTO answers VALUES(96, 'DK_NA', '[NE PAS LIRE] Ne sais pas/ pas de réponse', 0, 9, 'fr', 0);
+INSERT INTO answers VALUES(96, 'ALMOST_EVERY_DAY', 'Presque tous les jours (incluant 6 fois par semaine)', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(96, '4_5_TIMES_WEEK', '4-5 times a week', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(96, '4_5_TIMES_WEEK', '4 à 5 fois par semaine', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(96, '2_3_TIMES_WEEK', '2-3 times a week', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(96, '2_3_TIMES_WEEK', '2 à 3 fois par semaine', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(96, 'ONCE_WEEK', 'Once a week', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(96, 'ONCE_WEEK', 'Une fois par semaine', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(96, '2_3_TIMES_MONTH', '2-3 times a month', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(96, '2_3_TIMES_MONTH', '2 à 3 fois par mois', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(96, 'ABOUT_ONCE_MONTH', 'About once a month', 0, 6, 'en', 0);
+INSERT INTO answers VALUES(96, 'ABOUT_ONCE_MONTH', 'À peu près une fois par mois', 0, 6, 'fr', 0);
+INSERT INTO answers VALUES(97, 'DK_NA', '[DO NOT READ] Dont know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(97, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(97, 'SAME', 'About the same', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(97, 'SAME', 'À peu près similaire', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(97, 'LESS_HEAVIEST_PERIOD', 'Less than the heaviest period of drinking', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(97, 'LESS_HEAVIEST_PERIOD', 'Moindre que lors de la période où je buvais le plus', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(98, 'POOR', 'Mauvaise', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(98, 'POOR', 'Poor', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(98, 'FAIR', 'Passable', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(98, 'FAIR', 'Fair', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(98, 'GOOD', 'Bonne', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(98, 'VERY_GOOD', 'Très bonne', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(98, 'EXCELLENT', 'Excellente', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(98, 'GOOD', 'Good', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(98, 'VERY_GOOD', 'Very good', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(98, 'EXCELLENT', 'Excellent', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(99, 'POOR', 'Mauvaise', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(99, 'POOR', 'Poor', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(99, 'FAIR', 'Passable', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(99, 'FAIR', 'Fair', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(99, 'GOOD', 'Bonne', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(99, 'VERY_GOOD', 'Très bonne', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(99, 'EXCELLENT', 'Excellente', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(99, 'GOOD', 'Good', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(99, 'VERY_GOOD', 'Very good', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(99, 'EXCELLENT', 'Excellent', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(101, 'POOR', 'Mauvaise', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(101, 'POOR', 'Poor', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(101, 'FAIR', 'Passable', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(101, 'FAIR', 'Fair', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(101, 'GOOD', 'Bonne', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(101, 'VERY_GOOD', 'Très bonne', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(101, 'EXCELLENT', 'Excellente', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(101, 'GOOD', 'Good', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(101, 'VERY_GOOD', 'Very good', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(101, 'EXCELLENT', 'Excellent', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(102, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(102, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(102, 'HYSTERECTOMY', '[NE PAS LIRE] A subi une hystérectomie', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(102, 'HYSTERECTOMY', '[DO NOT READ] Had a hysterectomy', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(102, 'NO', 'No', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(102, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(104, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(104, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(104, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(104, 'NO', 'No', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(104, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(105, 'ESTROGEN_GEL', 'Oestrogènes en gel ou en crème appliqué sur la peau (par exemple, Estraderm, Estrogel) ', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(105, 'ESTROGEN_GEL', 'Estrogen gel or cream applied to the skin (e.g. Estradem, Estrogel)', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(105, 'PROGESTERONE', 'Progesterone (e.g. Prometrium, Provera)', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(105, 'ESTROGEN', 'Oestrogène (p. ex., Premarin, Estrace)', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(105, 'ESTROGEN_PROGESTERONE', 'Oestrogène et progestérone', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(105, 'PROGESTERONE', 'Progestérone (p. ex., Prometrium, Provera)', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(105, 'ESTROGEN', 'Estrogen (e.g. Premarin, Estrace)', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(105, 'ESTROGEN_PROGESTERONE', 'Both Estrogen and Progesterone', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(108, 'POOR', 'Mauvaise', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(108, 'POOR', 'Poor', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(108, 'FAIR', 'Passable', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(108, 'FAIR', 'Fair', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(108, 'GOOD', 'Bonne', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(108, 'YERYGOOD', 'Très bonne', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(108, 'EXCELLENT', 'Excellente', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(108, 'GOOD', 'Good', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(108, 'YERYGOOD', 'Very good', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(108, 'EXCELLENT', 'Excellent', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(109, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(109, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(109, 'NO', 'No', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(109, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(109, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(112, 'POOR', 'Mauvaise', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(112, 'POOR', 'Poor', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(112, 'FAIR', 'Passable', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(112, 'FAIR', 'Fair', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(112, 'GOOD', 'Bonne', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(112, 'VERYGOOD', 'Très bonne', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(112, 'EXCELLENT', 'Excellente', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(112, 'GOOD', 'Good', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(112, 'VERYGOOD', 'Very good', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(112, 'EXCELLENT', 'Excellent', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(113, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(113, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(113, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(113, 'NO', 'No', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(113, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(114, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(114, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(114, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(114, 'NO', 'No', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(114, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(117, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(117, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(117, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(117, 'NO', 'No', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(117, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(118, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(118, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(118, 'NO', 'No', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(118, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(118, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(119, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(119, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(119, 'NO', 'No', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(119, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(119, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(120, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(120, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(120, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(120, 'NO', 'No', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(120, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(122, 'CANT_AFFORD_TO_RETIRE', 'Vous navez pas les moyens de prendre votre retraite', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(122, 'CANT_AFFORD_TO_RETIRE', 'You can''t afford to retire', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(122, 'HAVE_NOT_PLANNED_FOR_RETIREMENT', 'Vous ny avez pas songé ou vous navez pas planifié votre retraite', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(122, 'PLAN_TO_CONTINUE_WORKING', 'Vous comptez travailler aussi longtemps que vous en serez capable', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(122, 'PLAN_TO_CONTINUE_WORKING', 'You plan to continue working for as long as you are able to', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(122, 'HAVE_NOT_PLANNED_FOR_RETIREMENT', 'You have not thought about or planned for retirement', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(123, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(123, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(123, 'NO', 'No', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(123, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(123, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(124, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(124, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(124, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(124, 'NO', 'No', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(124, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(126, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(126, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(126, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(126, 'NO', 'No', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(126, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(127, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(127, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(127, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(127, 'NO', 'No', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(127, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(129, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(129, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(129, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(129, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(129, 'NO', 'No', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(129, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(130, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(130, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(130, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(130, 'NO', 'No', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(130, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(131, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(131, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(131, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(131, 'NO', 'No', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(131, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(132, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(132, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(132, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(132, 'NO', 'No', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(132, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(133, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(133, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(133, 'NO', 'No', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(133, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(133, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(134, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(134, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(134, 'NO', 'No', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(134, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(134, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(135, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(135, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(135, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(135, 'NO', 'No', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(135, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(136, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(136, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(136, 'NO', 'No', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(136, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(136, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(137, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(137, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(137, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(137, 'NO', 'No', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(137, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(138, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(138, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(138, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(138, 'NO', 'No', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(138, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(139, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(139, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(139, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(139, 'NO', 'No', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(139, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(140, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(140, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(140, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(140, 'NO', 'No', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(140, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(141, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(141, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(141, 'NO', 'No', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(141, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(141, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(142, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(142, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(142, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(142, 'NO', 'No', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(142, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(143, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(143, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(143, 'NO', 'No', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(143, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(143, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(144, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(144, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(144, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(144, 'NO', 'No', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(144, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(145, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(145, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(145, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(145, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(145, 'NO', 'No', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(145, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(146, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(146, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(146, 'NO', 'No', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(146, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(146, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(147, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(147, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(147, 'NO', 'No', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(147, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(147, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(148, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(148, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(148, 'NO', 'No', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(148, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(148, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(149, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(149, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(149, 'NO', 'No', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(149, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(149, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(150, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(150, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(150, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(150, 'NO', 'No', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(150, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(151, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(151, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(151, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(151, 'NO', 'No', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(151, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(152, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(152, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(152, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(152, 'NO', 'No', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(152, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(154, 'YES', 'Yes ', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(154, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(154, 'NO', 'No ', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(154, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(154, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(155, 'INADEQUATE', 'Insuffisants', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(155, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(155, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(155, 'BARELY_ADEQUATE', 'Barely adequate', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(155, 'BARELY_ADEQUATE', 'À peine suffisants, ou', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(155, 'INADEQUATE', 'Inadequate', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(158, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(158, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(158, 'NO', 'No', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(158, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(158, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(160, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(160, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(160, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(160, 'NO', 'No', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(160, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(161, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(161, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(161, 'YES', 'Oui (veuillez préciser : __________)', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(161, 'NO', 'No', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(161, 'YES', 'Yes (please specify)', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(162, 'REFUSED', '[DO NOT READ] Refused', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(162, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(162, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(162, 'NO', 'No', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(162, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(163, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(163, 'YES', 'Yes ', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(163, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(163, 'NO', 'No ', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(163, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(163, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(165, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(165, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(165, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(165, 'NO', 'No ', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(165, 'YES', 'Yes ', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(166, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(166, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(166, 'NO', 'No', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(166, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(166, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(167, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(167, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(167, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(167, 'NO', 'No', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(167, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(168, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(168, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(168, 'NO', 'No', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(168, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(168, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(169, 'EMPLOYED_SOME_TIME', 'Employé à temps partiel (cest-à-dire moins de 20 heures/semaine)', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(169, 'EMPLOYED_SOME_TIME', 'Employed some of the time (that is, less than 20 hours/week)', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(169, 'EMPLOYED_ALL_TIME', 'Employé à temps plein (cest-à-dire 30+ heures/semaine)', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(169, 'EMPLOYED_MOST_TIME', 'Employed most of the time (that is, less than 30 but more than 20 hours/week)', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(169, 'EMPLOYED_MOST_TIME', 'Employé à mi-temps (cest-à-dire moins de 30 heures, mais plus de 20 heures/semaine)', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(169, 'EMPLOYED_ALL_TIME', 'Employed all of the time (that is, 30+ hours/week)', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(170, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(170, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(170, 'NO', 'No', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(170, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(170, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(171, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(171, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(171, 'NO', 'No', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(171, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(171, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(172, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(172, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(172, 'YES', 'Oui (veuillez préciser : __________)', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(172, 'NO', 'No', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(172, 'YES', 'Yes (please specify)', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(175, 'ROTATING', 'Quart de travail rotatif, changeant périodiquement de jour à soir à nuit', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(175, 'NIGHT', 'Quart de travail de nuit', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(175, 'EVENING', 'Quart de travail de soir', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(175, 'DAYTIME', 'Horaire de jour ou quart de travail de jour', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(175, 'SEASONAL', 'Saisonnier, sur appel ou occasionnel, pas dhoraire préétabli, mais appelé quand le besoin augmente', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(175, 'SEASONAL', 'Seasonal, on call or casual, no prearranged schedule, but called as need arises', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(175, 'ROTATING', 'Rotating shift, changing periodically from days to evenings or nights', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(175, 'NIGHT', 'Night shift', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(175, 'EVENING', 'Evening Shift', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(175, 'DAYTIME', 'Daytime schedule or shift', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(176, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(176, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(176, 'NO', 'No', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(176, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(176, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(177, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(177, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(177, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(177, 'NO', 'No', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(177, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(178, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(178, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(178, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(178, 'NO', 'No', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(178, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(179, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(179, 'YES', 'Yes (please specify)', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(179, 'YES', 'Oui (veuillez préciser : __________)', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(179, 'NO', 'No', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(179, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(184, '01', 'Yes', 0, 0, 'en', 0);
+INSERT INTO answers VALUES(184, '02', 'No', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(184, '03', 'Unable to do', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(184, '04', 'Don''t do on doctor''s orders', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(184, '98', '[DO NOT READ] Don''t know/No answer', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(184, '99', '[DO NOT READ] Refused', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(184, '01', 'Oui', 0, 0, 'fr', 0);
+INSERT INTO answers VALUES(184, '02', 'Non', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(184, '03', 'Incapable de le faire', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(184, '04', 'Ne le fais pas selon les directives d''un médecin', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(184, '98', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(184, '99', '[NE PAS LIRE] Refus', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(185, 'LITTLE_DIFFICULT', 'A little difficult', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(185, 'LITTLE_DIFFICULT', 'Un peu difficile', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(185, 'SOMEWHAT_DIFFICULT', 'Somewhat difficult', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(185, 'SOMEWHAT_DIFFICULT', 'Plutôt difficile', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(185, 'VERY_DIFFICULT', 'Very difficult', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(185, 'VERY_DIFFICULT', 'Très difficile', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(185, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(186, 'UNABLE', 'Incapable de le faire', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(186, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(186, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(186, 'DOCTORS_ORDERS', 'Ne le fais pas selon les directives d''un médecin', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(186, 'DOCTORS_ORDERS', 'Don''t do on doctor''s orders', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(186, 'UNABLE', 'Unable to do', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(186, 'NO', 'No', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(186, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(187, 'DK_NA', '[DO NOT READ] Dont know/ No answer', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(187, '5_MORE_YEARS', '5 ans ou plus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(187, '5_MORE_YEARS', '5 years or more', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(187, '3_5_YEARS', 'From 3 years to less than 5 years', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(187, 'LESS_YEAR', 'Moins dun an', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(187, '1_3_YEARS', 'From 1 year to less than 3 years', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(187, '3_5_YEARS', 'Entre 3 ans et moins de 5 ans', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(187, '1_3_YEARS', 'Entre 1 an et moins de 3 ans', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(187, 'LESS_YEAR', 'Less than 1 year', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(188, 'VERY_DIFFICULT', 'Très difficile', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(188, 'SOMEWHAT_DIFFICULT', 'Plutôt difficile', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(188, 'LITTLE_DIFFICULT', 'Un peu difficile', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(188, 'VERY_DIFFICULT', 'Very difficult', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(188, 'SOMEWHAT_DIFFICULT', 'Somewhat difficult', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(188, 'LITTLE_DIFFICULT', 'A little difficult', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(189, 'REFUSED', '[NE PAS LIRE] Refus', 0, 6, 'fr', 0);
+INSERT INTO answers VALUES(189, 'DOCTORS_ORDERS', 'Ne le fais pas selon les directives d''un médecin', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(189, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(189, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(189, 'NO', 'No', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(189, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(189, 'UNABLE', 'Unable to do', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(189, 'UNABLE', 'Incapable de le faire', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(189, 'DOCTORS_ORDERS', 'Don''t do on doctor''s orders', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(190, 'VERY_DIFFICULT', 'Très difficile', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(190, 'SOMEWHAT_DIFFICULT', 'Plutôt difficile', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(190, 'LITTLE_DIFFICULT', 'Un peu difficile', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(190, 'VERY_DIFFICULT', 'Very difficult', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(190, 'SOMEWHAT_DIFFICULT', 'Somewhat difficult', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(190, 'LITTLE_DIFFICULT', 'A little difficult', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(191, 'UNABLE', 'Incapable de le faire', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(191, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(191, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(191, 'DOCTORS_ORDERS', 'Ne le fais pas selon les directives d''un médecin', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(191, 'DOCTORS_ORDERS', 'Don''t do on doctor''s orders', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(191, 'UNABLE', 'Unable to do', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(191, 'NO', 'No', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(191, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(192, 'UNPAID_WORK', 'Fait du travail bénévole ou non rémunéré', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(192, 'UNEMPLOYED', 'Unemployed', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(192, 'STUDENT', 'Student', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(192, 'LOOKING_AFTER_FAMILY', 'Soccupe de la famille', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(192, 'UNABLE_WORK', 'Incapable de travailler pour cause de maladie ou dincapacité', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(192, 'UNPAID_WORK', 'Doing unpaid or voluntary work', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(192, 'UNEMPLOYED', 'Sans emploi', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(192, 'STUDENT', 'Étudiant', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(192, 'LOOKING_AFTER_FAMILY', 'Looking after family', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(192, 'UNABLE_WORK', 'Unable to work because of sickness or disability', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(89, 'A2', 'Revenu dun travail autonome', 1, 2, 'fr', 0);
+INSERT INTO answers VALUES(197, 'VERY_DIFFICULT', 'Très difficile', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(197, 'SOMEWHAT_DIFFICULT', 'Plutôt difficile', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(197, 'LITTLE_DIFFICULT', 'Un peu difficile', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(197, 'VERY_DIFFICULT', 'Very difficult', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(197, 'SOMEWHAT_DIFFICULT', 'Somewhat difficult', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(197, 'LITTLE_DIFFICULT', 'A little difficult', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(198, 'UNABLE', 'Incapable de le faire', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(198, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(198, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(198, 'DOCTORS_ORDERS', 'Ne le fais pas selon les directives d''un médecin', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(198, 'DOCTORS_ORDERS', 'Don''t do on doctor''s orders', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(198, 'UNABLE', 'Unable to do', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(198, 'NO', 'No', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(198, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(199, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(199, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(199, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(199, 'NO', 'No ', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(199, 'YES', 'Yes ', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(200, 'LITTLE_DIFFICULT', 'A little difficult', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(200, 'LITTLE_DIFFICULT', 'Un peu difficile', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(200, 'SOMEWHAT_DIFFICULT', 'Somewhat difficult', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(200, 'SOMEWHAT_DIFFICULT', 'Plutôt difficile', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(200, 'VERY_DIFFICULT', 'Very difficult', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(200, 'VERY_DIFFICULT', 'Très difficile', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(200, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(201, 'SOME_TIME', 'Travail à temps partiel (cest-à-dire moins de 20 heures/semaine)', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(201, 'SOME_TIME', 'Working some of the time (that is, less than 20 hours/week)', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(201, 'ALL_TIME', 'Travail à temps plein (cest-à-dire 30+ heures/semaine)', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(201, 'MOST_TIME', 'Working most of the time (that is, 30 but more than 20 hours/week)', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(201, 'MOST_TIME', 'Travail à mi-temps (cest-à-dire moins de 30 heures, mais plus de 20 heures/semaine)', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(201, 'ALL_TIME', 'Working all of the time (that is, 30+ hours/week)', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(202, 'UNABLE', 'Incapable de le faire', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(202, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(202, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(202, 'DOCTORS_ORDERS', 'Ne le fais pas selon les directives d''un médecin', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(202, 'DOCTORS_ORDERS', 'Don''t do on doctor''s orders', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(202, 'UNABLE', 'Unable to do', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(202, 'NO', 'No', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(202, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(203, 'VERY_DIFFICULT', 'Très difficile', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(203, 'SOMEWHAT_DIFFICULT', 'Plutôt difficile', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(203, 'LITTLE_DIFFICULT', 'Un peu difficile', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(203, 'VERY_DIFFICULT', 'Very difficult', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(203, 'SOMEWHAT_DIFFICULT', 'Somewhat difficult', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(203, 'LITTLE_DIFFICULT', 'A little difficult', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(204, 'UNABLE', 'Incapable de le faire', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(204, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(204, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(204, 'DOCTORS_ORDERS', 'Ne le fais pas selon les directives d''un médecin', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(204, 'DOCTORS_ORDERS', 'Don''t do on doctor''s orders', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(204, 'UNABLE', 'Unable to do', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(204, 'NO', 'No', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(204, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(205, 'LITTLE_DIFFICULT', 'A little difficult', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(205, 'LITTLE_DIFFICULT', 'Un peu difficile', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(205, 'SOMEWHAT_DIFFICULT', 'Somewhat difficult', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(205, 'SOMEWHAT_DIFFICULT', 'Plutôt difficile', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(205, 'VERY_DIFFICULT', 'Very difficult', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(205, 'VERY_DIFFICULT', 'Très difficile', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(205, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(206, 'UNABLE', 'Incapable de le faire', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(206, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(206, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(206, 'DOCTORS_ORDERS', 'Ne le fais pas selon les directives d''un médecin', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(206, 'DOCTORS_ORDERS', 'Don''t do on doctor''s orders', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(206, 'UNABLE', 'Unable to do', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(206, 'NO', 'No', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(206, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(207, 'VERY_DIFFICULT', 'Très difficile', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(207, 'SOMEWHAT_DIFFICULT', 'Plutôt difficile', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(207, 'LITTLE_DIFFICULT', 'Un peu difficile', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(207, 'VERY_DIFFICULT', 'Very difficult', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(207, 'SOMEWHAT_DIFFICULT', 'Somewhat difficult', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(207, 'LITTLE_DIFFICULT', 'A little difficult', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(208, 'ROTATING', 'Quart de travail rotatif, changeant périodiquement de jour à soir à nuit', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(208, 'NIGHT', 'Quart de travail de nuit', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(208, 'EVENING', 'Quart de travail de soir', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(208, 'DAYTIME', 'Horaire de jour ou quart de travail de jour', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(208, 'SEASONAL', 'Saisonnier, sur appel ou occasionnel, pas dhoraire préétabli, mais appelé quand le besoin augmente', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(208, 'SEASONAL', 'Seasonal, on call or casual, no prearranged schedule, but called as need arises', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(208, 'ROTATING', 'Rotating shift, changing periodically from days to evenings or nights', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(208, 'NIGHT', 'Night shift', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(208, 'EVENING', 'Evening Shift', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(208, 'DAYTIME', 'Daytime schedule or shift', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(209, 'UNABLE', 'Incapable de le faire', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(209, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(209, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(209, 'DOCTORS_ORDERS', 'Ne le fais pas selon les directives d''un médecin', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(209, 'DOCTORS_ORDERS', 'Don''t do on doctor''s orders', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(209, 'UNABLE', 'Unable to do', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(209, 'NO', 'No', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(209, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(210, 'VERY_DIFFICULT', 'Très difficile', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(210, 'SOMEWHAT_DIFFICULT', 'Plutôt difficile', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(210, 'LITTLE_DIFFICULT', 'Un peu difficile', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(210, 'VERY_DIFFICULT', 'Very difficult', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(210, 'SOMEWHAT_DIFFICULT', 'Somewhat difficult', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(210, 'LITTLE_DIFFICULT', 'A little difficult', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(212, 'UNABLE', 'Incapable de le faire', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(212, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(212, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(212, 'DOCTORS_ORDERS', 'Ne le fais pas selon les directives d''un médecin', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(212, 'DOCTORS_ORDERS', 'Don''t do on doctor''s orders', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(212, 'UNABLE', 'Unable to do', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(212, 'NO', 'No', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(212, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(214, 'VERY_DIFFICULT', 'Très difficile', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(214, 'SOMEWHAT_DIFFICULT', 'Plutôt difficile', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(214, 'LITTLE_DIFFICULT', 'Un peu difficile', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(214, 'VERY_DIFFICULT', 'Very difficult', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(214, 'SOMEWHAT_DIFFICULT', 'Somewhat difficult', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(214, 'LITTLE_DIFFICULT', 'A little difficult', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(215, 'UNABLE', 'Incapable de le faire', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(215, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(215, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(215, 'DOCTORS_ORDERS', 'Ne le fais pas selon les directives d''un médecin', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(215, 'DOCTORS_ORDERS', 'Don''t do on doctor''s orders', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(215, 'UNABLE', 'Unable to do', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(215, 'NO', 'No', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(215, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(217, 'VERY_DIFFICULT', 'Très difficile', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(217, 'SOMEWHAT_DIFFICULT', 'Plutôt difficile', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(217, 'LITTLE_DIFFICULT', 'Un peu difficile', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(217, 'VERY_DIFFICULT', 'Very difficult', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(217, 'SOMEWHAT_DIFFICULT', 'Somewhat difficult', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(217, 'LITTLE_DIFFICULT', 'A little difficult', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(218, '3_5_YEARS', 'From 3 years to less than 5 years', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(218, '3_5_YEARS', 'Entre 3 ans et moins de 5 ans', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(218, '5_MORE_YEARS', '5 years or more', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(218, '1_3_YEARS', 'From 1 year to less than 3 years', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(218, '5_MORE_YEARS', '5 ans ou plus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(218, 'DK_NA', '[DO NOT READ] Dont know/ No answer', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(218, '1_3_YEARS', 'Entre 1 an et moins de 3 ans', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(219, 'UNABLE', 'Incapable de le faire', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(219, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(219, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(219, 'DOCTORS_ORDERS', 'Ne le fais pas selon les directives d''un médecin', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(219, 'DOCTORS_ORDERS', 'Don''t do on doctor''s orders', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(219, 'UNABLE', 'Unable to do', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(219, 'NO', 'No', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(219, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(220, 'VERY_DIFFICULT', 'Très difficile', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(220, 'SOMEWHAT_DIFFICULT', 'Plutôt difficile', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(220, 'LITTLE_DIFFICULT', 'Un peu difficile', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(220, 'VERY_DIFFICULT', 'Very difficult', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(220, 'SOMEWHAT_DIFFICULT', 'Somewhat difficult ', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(220, 'LITTLE_DIFFICULT', 'A little difficult', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(221, 'UNABLE', 'Incapable de le faire', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(221, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(221, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(221, 'DOCTORS_ORDERS', 'Ne le fais pas selon les directives d''un médecin', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(221, 'DOCTORS_ORDERS', 'Don''t do on doctor''s orders', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(221, 'UNABLE', 'Unable to do', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(221, 'NO', 'No', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(221, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(222, 'VERY_DIFFICULT', 'Très difficile', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(222, 'SOMEWHAT_DIFFICULT', 'Plutôt difficile', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(222, 'LITTLE_DIFFICULT', 'Un peu difficile', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(222, 'VERY_DIFFICULT', 'Very difficult', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(222, 'SOMEWHAT_DIFFICULT', 'Somewhat difficult ', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(222, 'LITTLE_DIFFICULT', 'A little difficult', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(223, 'UNABLE', 'Incapable de le faire', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(223, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(223, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(223, 'DOCTORS_ORDERS', 'Ne le fais pas selon les directives d''un médecin', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(223, 'DOCTORS_ORDERS', 'Don''t do on doctor''s orders', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(223, 'UNABLE', 'Unable to do', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(223, 'NO', 'No', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(223, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(224, 'VERY_DIFFICULT', 'Très difficile', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(224, 'SOMEWHAT_DIFFICULT', 'Plutôt difficile', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(224, 'LITTLE_DIFFICULT', 'Un peu difficile', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(224, 'VERY_DIFFICULT', 'Very difficult', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(224, 'SOMEWHAT_DIFFICULT', 'Somewhat difficult ', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(224, 'LITTLE_DIFFICULT', 'A little difficult', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(225, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(225, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(225, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(225, 'NO', 'No', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(225, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(226, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(226, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(226, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(226, 'NO', 'No', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(226, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(227, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(227, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(227, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(227, 'NO', 'No', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(227, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(228, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(228, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(228, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(228, 'NO', 'No', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(228, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(229, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(229, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(229, 'NO', 'No', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(229, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(229, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(230, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(230, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(230, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(230, 'NO', 'No', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(230, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(231, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(231, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(231, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(231, 'NO', 'No', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(231, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(232, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(232, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(232, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(232, 'NO', 'No', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(232, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(233, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(233, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(233, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(233, 'NO', 'No', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(233, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(234, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(234, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(234, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(234, 'NO', 'No', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(234, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(235, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(235, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(235, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(235, 'NO', 'No', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(235, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(236, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(236, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(236, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(236, 'NO', 'No', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(236, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(237, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(237, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(237, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(237, 'NO', 'No', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(237, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(238, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(238, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(238, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(238, 'NO', 'No', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(238, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(240, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(240, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(240, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(240, 'NO', 'No', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(240, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(241, 'DK_NA', '[DO NOT READ] Dont know/ No answer', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(241, '5_MORE_YEARS', '5 ans ou plus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(241, '5_MORE_YEARS', '5 years or more', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(241, '3_5_YEARS', 'From 3 years to less than 5 years', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(241, 'LESS_YEAR', 'Moins dun an', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(241, '1_3_YEARS', 'From 1 year to less than 3 years', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(241, '3_5_YEARS', 'Entre 3 ans et moins de 5 ans', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(241, '1_3_YEARS', 'Entre 1 an et moins de 3 ans', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(241, 'LESS_YEAR', 'Less than 1 year', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(242, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(242, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(242, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(242, 'NO', 'No', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(242, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(243, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(243, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(243, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(243, 'NO', 'No', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(243, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(244, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(244, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(244, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(244, 'NO', 'No', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(244, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(245, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(245, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(245, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(245, 'NO', 'No', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(245, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(246, '1_2_TIME_WEEK', 'Une ou deux fois par semaine', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(246, '3_MORE_TIMES_WEEK', 'Three times a week or more', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(246, '3_MORE_TIMES_WEEK', 'Trois fois par semaine ou plus', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(246, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(246, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(246, 'REFUSED', '[DO NOT READ] Refused', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(247, 'EMPLOYED_SOME_TIME', 'Employé à temps partiel (cest-à-dire moins de 20 heures/semaine)', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(247, 'EMPLOYED_SOME_TIME', 'Employed some of the time (that is, less than 20 hours/week)', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(247, 'EMPLOYED_ALL_TIME', 'Employé à temps plein (cest-à-dire 30+ heures/semaine)', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(247, 'EMPLOYED_MOST_TIME', 'Employed most of the time (that is, less than 30 but more than 20 hours/week)', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(247, 'EMPLOYED_MOST_TIME', 'Employé à mi-temps (cest-à-dire moins de 30 heures, mais plus de 20 heures/semaine)', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(247, 'EMPLOYED_ALL_TIME', 'Employed all of the time (that is, 30+ hours/week)', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(89, 'A10', 'Guarenteed Income Supplement', 1, 10, 'en', 0);
+INSERT INTO answers VALUES(89, 'A7', 'Job related retirement pensions, superannuation and annuities', 1, 7, 'en', 0);
+INSERT INTO answers VALUES(248, 'ROTATING', 'Rotating shift, changing periodically from days to evenings or nights', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(248, 'ROTATING', 'Quart de travail rotatif, changeant périodiquement de jour à soir à nuit', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(248, 'DAYTIME', 'Daytime schedule or shift', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(248, 'DAYTIME', 'Horaire de jour ou quart de travail de jour', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(248, 'EVENING', 'Evening Shift', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(248, 'EVENING', 'Quart de travail de soir', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(251, 'YES', 'Yes ', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(251, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(251, 'NO', 'No ', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(251, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(251, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(252, 'UNPAID_FAMILY', 'Travailleur(e) familial(e) non rémunéré(e)', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(252, 'SELF_EMPLOYED', 'Travailleur(e) autonome', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(252, 'PAID_EMPLOYEE', 'Employé(e) rémunéré(e)', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(252, 'UNPAID_FAMILY', 'Unpaid family worker', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(252, 'SELF_EMPLOYED', 'Self-employed', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(252, 'PAID_EMPLOYEE', 'A paid employee', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(253, 'EMPLOYED_SOME_TIME', 'Employé à temps partiel (cest-à-dire moins de 20 heures/semaine)', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(253, 'EMPLOYED_SOME_TIME', 'Employed some of the time (that is, less than 20 hours/week)', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(253, 'EMPLOYED_ALL_TIME', 'Employé à temps plein (cest-à-dire 30+ heures/semaine)', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(253, 'EMPLOYED_MOST_TIME', 'Employed most of the time (that is, less than 30 but more than 20 hours/week)', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(253, 'EMPLOYED_MOST_TIME', 'Employé à mi-temps (cest-à-dire moins de 30 heures, mais plus de 20 heures/semaine)', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(253, 'EMPLOYED_ALL_TIME', 'Employed all of the time (that is, 30+ hours/week)', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(89, 'A5', 'Indemnités daccident du travail', 1, 5, 'fr', 0);
+INSERT INTO answers VALUES(89, 'A5', 'Worker''s compensation', 1, 5, 'en', 0);
+INSERT INTO answers VALUES(89, 'A4', 'Prestations dassurance-emploi', 1, 4, 'fr', 0);
+INSERT INTO answers VALUES(89, 'A4', 'Employment insurance', 1, 4, 'en', 0);
+INSERT INTO answers VALUES(89, 'A3', 'Dividendes et intérêts (par exemple obligations, épargnes)', 1, 3, 'fr', 0);
+INSERT INTO answers VALUES(89, 'A3', 'Dividends and interest (e.g., on bonds, savings)', 1, 3, 'en', 0);
+INSERT INTO answers VALUES(248, 'NIGHT', 'Quart de travail de nuit', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(89, 'A1', 'Salaires et traitements', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(89, 'A2', 'Income from self-employment', 1, 2, 'en', 0);
+INSERT INTO answers VALUES(254, 'DAYTIME', 'Horaire de jour ou quart de travail de jour', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(254, 'DAYTIME', 'Daytime schedule or shift', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(259, 'DK_NA', '[DO NOT READ] Dont know/ No answer', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(259, '5_MORE_YEARS', '5 ans ou plus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(259, '5_MORE_YEARS', '5 years or more', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(259, '3_5_YEARS', 'From 3 years to less than 5 years', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(259, 'LESS_YEAR', 'Moins dun an', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(259, '1_3_YEARS', 'From 1 year to less than 3 years', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(259, '3_5_YEARS', 'Entre 3 ans et moins de 5 ans', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(259, '1_3_YEARS', 'Entre 1 an et moins de 3 ans', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(259, 'LESS_YEAR', 'Less than 1 year', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(260, 'NOT_RETIRED', 'Non-retraité', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(260, 'PARTLY_RETIRED', 'Partiellement retraité', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(260, 'COMPLETELY_RETIRED', 'Complètement retraité', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(260, 'NOT_RETIRED', 'Not retired', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(260, 'PARTLY_RETIRED', 'Partly retired', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(260, 'COMPLETELY_RETIRED', 'Completely retired', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(261, 'YES', 'Yes ', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(261, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(261, 'NO', 'No ', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(261, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(261, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(262, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(262, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(262, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(262, 'NO', 'No ', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(262, 'YES', 'Yes ', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(266, 'BOTH', 'À la fois, la santé physique et la santé émotionnelle ou mentale', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(266, 'BOTH', 'Both physical and emotional/mental health', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(266, 'PHYSICAL_HEALTH', 'Santé physique', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(266, 'MENTAL_HEALTH', 'Emotional/mental health (including stress)', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(266, 'MENTAL_HEALTH', 'Santé émotionnelle ou mentale (y compris le stress)', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(266, 'PHYSICAL_HEALTH', 'Physical health', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(1615, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(1585, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(268, 'YES', 'Yes ', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(268, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(268, 'NO', 'No ', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(268, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(268, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(1621, 'NO', 'No', 1, 2, 'en', 0);
+INSERT INTO answers VALUES(1615, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(1616, 'NO', 'No', 1, 2, 'en', 0);
+INSERT INTO answers VALUES(1616, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(273, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(273, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(273, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(273, 'NO', 'No ', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(273, 'YES', 'Yes ', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(274, 'INADEQUATE', 'Insuffisants', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(274, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(274, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(274, 'BARELY_ADEQUATE', 'Barely adequate', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(274, 'BARELY_ADEQUATE', 'À peine suffisants, ou', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(274, 'INADEQUATE', 'Inadequate', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(1607, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(1596, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(1597, 'NO', 'Non', 1, 2, 'fr', 0);
+INSERT INTO answers VALUES(1597, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(1601, 'NO', 'No', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(1601, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(1602, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(1622, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(1623, 'NO', 'Non', 1, 2, 'fr', 0);
+INSERT INTO answers VALUES(1623, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(1585, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(1586, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(1586, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(1587, 'NO', 'Non', 1, 2, 'fr', 0);
+INSERT INTO answers VALUES(1587, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(1590, 'NO', 'No, did not hear the recording', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(1590, 'YES', 'Oui, a bien entendu lenregistrement', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(1591, 'NO', 'No, did not hear clearly', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(1591, 'YES', 'Oui, a bien entendu lenregistrement', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(1592, 'NO', 'Non', 1, 2, 'fr', 0);
+INSERT INTO answers VALUES(1592, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(1595, 'NO', 'No', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(1595, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(1596, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(1596, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(1597, 'NO', 'No', 1, 2, 'en', 0);
+INSERT INTO answers VALUES(1597, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(1601, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(1601, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(1602, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(1602, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(1603, 'NO', 'No', 1, 2, 'en', 0);
+INSERT INTO answers VALUES(303, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(303, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(303, 'REFUSED', '[DO NOT READ] Refused', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(303, 'SAME_EMPLOYER', 'For the same employer', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(303, 'SAME_EMPLOYER', 'Le même employeur', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(303, 'DIFFERENT_EMPLOYER', 'For a different employer', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(303, 'DIFFERENT_EMPLOYER', 'Un employeur différent', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(305, 'LESS_THAN_1_DAY_WEEK', 'Rarely or never (less than 1 day)', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(305, '1_2_DAYS_WEEK', 'Parfois (1 à 2 jours)', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(305, '1_2_DAYS_WEEK', 'Some of the time (1-2 days)', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(305, '3_4_DAYS_WEEK', 'Occasionnellement (3 à 4 jours)', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(305, '5_7_DAYS_WEEK', 'Tout le temps (5 à 7 jours)', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(305, '3_4_DAYS_WEEK', 'Occasionally (3-4 days)', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(305, '5_7_DAYS_WEEK', 'All of the time (5-7days)', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(306, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(306, 'PART_TIME', 'Part time work', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(306, 'PART_TIME', 'Travail à temps partiel', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(306, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(306, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(307, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(307, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(307, 'PERMANENT_WORK', 'Travail permanent', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(307, 'CONTRACT_WORK', 'Contract work', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(307, 'CONTRACT_WORK', 'Travail contractuel', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(308, 'LESS_THAN_1_DAY_WEEK', 'Rarely or never (less than 1 day)', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(308, '1_2_DAYS_WEEK', 'Parfois (1 à 2 jours)', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(308, '1_2_DAYS_WEEK', 'Some of the time (1-2 days)', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(308, '3_4_DAYS_WEEK', 'Occasionnellement (3 à 4 jours)', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(308, '5_7_DAYS_WEEK', 'Tout le temps (5 à 7 jours)', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(308, '3_4_DAYS_WEEK', 'Occasionally (3-4 days)', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(308, '5_7_DAYS_WEEK', 'All of the time (5-7days)', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(309, 'LESS_THAN_1_DAY_WEEK', 'Rarely or never (less than 1 day)', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(309, '1_2_DAYS_WEEK', 'Parfois (1 à 2 jours)', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(309, '1_2_DAYS_WEEK', 'Some of the time (1-2 days)', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(309, '3_4_DAYS_WEEK', 'Occasionnellement (3 à 4 jours)', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(309, '5_7_DAYS_WEEK', 'Tout le temps (5 à 7 jours)', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(309, '3_4_DAYS_WEEK', 'Occasionally (3-4 days)', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(309, '5_7_DAYS_WEEK', 'All of the time (5-7days)', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(310, '1_2_DAYS_WEEK', 'Some of the time (1-2 days)', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(310, '1_2_DAYS_WEEK', 'Parfois (1 à 2 jours)', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(310, 'LESS_THAN_1_DAY_WEEK', 'Rarely or never (less than 1 day)', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(310, 'LESS_THAN_1_DAY_WEEK', 'Rarement ou jamais (moins d''un jour)', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(310, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(310, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(310, 'REFUSED', '[DO NOT READ] Refused', 0, 6, 'en', 0);
+INSERT INTO answers VALUES(310, 'REFUSED', '[NE PAS LIRE] Refus', 0, 6, 'fr', 0);
+INSERT INTO answers VALUES(311, 'LESS_THAN_1_DAY_WEEK', 'Rarely or never (less than 1 day)', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(311, '1_2_DAYS_WEEK', 'Parfois (1 à 2 jours)', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(311, '1_2_DAYS_WEEK', 'Some of the time (1-2 days)', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(311, '3_4_DAYS_WEEK', 'Occasionnellement (3 à 4 jours)', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(311, '5_7_DAYS_WEEK', 'Tout le temps (5 à 7 jours)', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(311, '3_4_DAYS_WEEK', 'Occasionally (3-4 days)', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(311, '5_7_DAYS_WEEK', 'All of the time (5-7days)', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(315, '1_2_DAYS_WEEK', 'Some of the time (1-2 days)', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(315, '1_2_DAYS_WEEK', 'Parfois (1 à 2 jours)', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(315, 'LESS_THAN_1_DAY_WEEK', 'Rarely or never (less than 1 day)', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(315, 'LESS_THAN_1_DAY_WEEK', 'Rarement ou jamais (moins d''un jour)', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(315, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(315, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(315, 'REFUSED', '[DO NOT READ] Refused', 0, 6, 'en', 0);
+INSERT INTO answers VALUES(315, 'REFUSED', '[NE PAS LIRE] Refus', 0, 6, 'fr', 0);
+INSERT INTO answers VALUES(316, 'FRACTURE_BACK', 'Fracture of back/vertebra', 0, 9, 'en', 0);
+INSERT INTO answers VALUES(316, 'FRACTURE_ARM', 'Fracture of arm or wrist', 0, 8, 'en', 0);
+INSERT INTO answers VALUES(316, 'FRACTURE_LEG', 'Fracture de la jambe', 0, 7, 'fr', 0);
+INSERT INTO answers VALUES(316, 'FRACTURE_LEG', 'Fracture of leg', 0, 7, 'en', 0);
+INSERT INTO answers VALUES(316, 'FRACTURE_HIP', 'Fracture de la hanche', 0, 6, 'fr', 0);
+INSERT INTO answers VALUES(316, 'DISCOMFORT', 'Malaise ou inconfort', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(316, 'CUTS', 'Coupures', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(316, 'BRUISES', 'Bleus', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(316, 'SPRAIN', 'Entorse/foulure', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(316, 'NO_SERIOUS_INJURY', 'Pas de blessure grave', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(316, 'FRACTURE_ARM', 'Fracture du bras ou du poignet', 0, 8, 'fr', 0);
+INSERT INTO answers VALUES(316, 'FRACTURE_HIP', 'Fracture of hip', 0, 6, 'en', 0);
+INSERT INTO answers VALUES(316, 'DISCOMFORT', 'Discomfort', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(316, 'CUTS', 'Cuts', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(316, 'BRUISES', 'Bruises', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(316, 'SPRAIN', 'Sprain/strain', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(316, 'NO_SERIOUS_INJURY', 'No serious injury', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(318, 'LESS_THAN_1_DAY_WEEK', 'Rarely or never (less than 1 day)', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(318, '1_2_DAYS_WEEK', 'Parfois (1 à 2 jours)', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(318, '1_2_DAYS_WEEK', 'Some of the time (1-2 days)', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(318, '3_4_DAYS_WEEK', 'Occasionnellement (3 à 4 jours)', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(318, '5_7_DAYS_WEEK', 'Tout le temps (5 à 7 jours)', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(318, '3_4_DAYS_WEEK', 'Occasionally (3-4 days)', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(318, '5_7_DAYS_WEEK', 'All of the time (5-7days)', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(319, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(319, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(319, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(319, 'NO', 'No ', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(319, 'YES', 'Yes ', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(320, 'LESS_THAN_1_DAY_WEEK', 'Rarely or never (less than 1 day)', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(320, '1_2_DAYS_WEEK', 'Parfois (1 à 2 jours)', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(320, '1_2_DAYS_WEEK', 'Some of the time (1-2 days)', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(320, '3_4_DAYS_WEEK', 'Occasionnellement (3 à 4 jours)', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(320, '5_7_DAYS_WEEK', 'Tout le temps (5 à 7 jours)', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(320, '3_4_DAYS_WEEK', 'Occasionally (3-4 days)', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(320, '5_7_DAYS_WEEK', 'All of the time (5-7days)', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(321, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(321, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(321, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(321, 'NO', 'No ', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(321, 'YES', 'Yes ', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(322, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(322, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(322, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(322, 'NO', 'No ', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(322, 'YES', 'Yes ', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(323, 'LESS_THAN_1_DAY_WEEK', 'Rarely or never (less than 1 day)', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(323, '1_2_DAYS_WEEK', 'Parfois (1 à 2 jours)', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(323, '1_2_DAYS_WEEK', 'Some of the time (1-2 days)', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(323, '3_4_DAYS_WEEK', 'Occasionnellement (3 à 4 jours)', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(323, '5_7_DAYS_WEEK', 'Tout le temps (5 à 7 jours)', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(323, '3_4_DAYS_WEEK', 'Occasionally (3-4 days)', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(323, '5_7_DAYS_WEEK', 'All of the time (5-7days)', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(324, 'OUTDOORS', 'À lextérieur', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(324, 'OUTDOORS', 'Outdoors', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(324, 'INSIDE_HOME', 'Dans votre maison', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(324, 'OUTSIDE_HOME', 'Outside of your home, but inside a building', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(324, 'OUTSIDE_HOME', 'À lextérieur de votre maison, mais à lintérieur dun immeuble', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(324, 'INSIDE_HOME', 'Inside of your home', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(325, 'FELL_SNOW_ICE', '[LIRE SEULEMENT SI LA CHUTE SEST PRODUITE À LEXTÉRIEUR] Vous avez glissé sur la neige ou la glace', 0, 8, 'fr', 0);
+INSERT INTO answers VALUES(325, 'FELL_BATHTUB', '[LIRE SEULEMENT SI LA CHUTE SEST PRODUITE À LINTÉRIEUR DU DOMICILE OU DUNE BÂTISSE] Vous avez glissé dans la baignoire', 0, 6, 'fr', 0);
+INSERT INTO answers VALUES(325, 'FELL_SHOWER', '[ONLY READ IF FALL WAS INSIDE HOME OR INSIDE BUILDING] Fell while getting in or out of the shower', 0, 7, 'en', 0);
+INSERT INTO answers VALUES(325, 'FELL_SHOWER', '[LIRE SEULEMENT SI LA CHUTE SEST PRODUITE À LINTÉRIEUR DU DOMICILE OU DUNE BÂTISSE] Vous avez glissé en entrant ou en sortant de la douche', 0, 7, 'fr', 0);
+INSERT INTO answers VALUES(325, 'FELL_SNOW_ICE', '[ONLY READ IF FALL WAS OUTSIDE] Fell on snow or ice', 0, 8, 'en', 0);
+INSERT INTO answers VALUES(325, 'FELL_BATHTUB', '[ONLY READ IF FALL WAS INSIDE HOME OR INSIDE BUILDING] Fell while getting in or out of the bathtub', 0, 6, 'en', 0);
+INSERT INTO answers VALUES(328, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(328, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(328, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(328, 'NO', 'No ', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(328, 'YES', 'Yes ', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(329, 'YES', 'Yes ', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(329, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(329, 'NO', 'No ', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(329, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(329, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(330, 'OTHER', 'Other (please specify)', 0, 9, 'en', 0);
+INSERT INTO answers VALUES(330, 'OTHER', 'Autre (veuillez préciser : __________)', 0, 9, 'fr', 0);
+INSERT INTO answers VALUES(330, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 10, 'en', 0);
+INSERT INTO answers VALUES(330, 'NOT_READ_INSTRUCTIONS', 'Did not read the instructions', 0, 7, 'en', 0);
+INSERT INTO answers VALUES(330, 'NOT_READ_INSTRUCTIONS', 'Na pas lu les consignes', 0, 7, 'fr', 0);
+INSERT INTO answers VALUES(330, 'HUMAN_ERROR', 'Human error', 0, 8, 'en', 0);
+INSERT INTO answers VALUES(330, 'DEVICE_NOT_USED_AS_DESIGNED', 'Assistive device not being used as designed', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(330, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 10, 'fr', 0);
+INSERT INTO answers VALUES(330, 'LACK_MAINTENANCE', 'Manque dentretien', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(330, 'DEVICE_WORN_OUT', 'Assistive device was worn out', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(330, 'DEVICE_WORN_OUT', 'Lappareil fonctionnel était usé', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(330, 'INADEQUATE_INSTRUCTIONS', 'Inadequate instructions', 0, 6, 'en', 0);
+INSERT INTO answers VALUES(330, 'INADEQUATE_INSTRUCTIONS', 'Consignes inadéquates', 0, 6, 'fr', 0);
+INSERT INTO answers VALUES(330, 'DEVICE_NOT_USED_AS_DESIGNED', 'Lappareil fonctionnel nétait pas utilisé tel que conçu', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(331, 'LESS_THAN_1_DAY_WEEK', 'Rarely or never (less than 1 day)', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(331, '1_2_DAYS_WEEK', 'Parfois (1 à 2 jours)', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(331, '1_2_DAYS_WEEK', 'Some of the time (1-2 days)', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(331, '3_4_DAYS_WEEK', 'Occasionnellement (3 à 4 jours)', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(331, '5_7_DAYS_WEEK', 'Tout le temps (5 à 7 jours)', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(331, '3_4_DAYS_WEEK', 'Occasionally (3-4 days)', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(331, '5_7_DAYS_WEEK', 'All of the time (5-7days)', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(333, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(333, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(333, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(333, 'NO', 'No ', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(333, 'YES', 'Yes ', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(334, 'AGREE', 'En accord', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(334, 'AGREE', 'Agree', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(334, 'DISAGREE', 'En désaccord', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(334, 'NEITHER_AGREE_DISAGREE', 'Ni en désaccord ni en accord', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(334, 'NEITHER_AGREE_DISAGREE', 'Neither agree or disagree', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(334, 'DISAGREE', 'Disagree', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(335, 'OTHER', 'Autre (veuillez préciser :________________)', 0, 9, 'fr', 0);
+INSERT INTO answers VALUES(335, 'DID_NOT_READ_INSTRUCTIONS', 'Did not read the instructions', 0, 7, 'en', 0);
+INSERT INTO answers VALUES(335, 'DID_NOT_READ_INSTRUCTIONS', 'Na pas lu les consignes', 0, 7, 'fr', 0);
+INSERT INTO answers VALUES(335, 'HUMAN_ERROR', 'Human error', 0, 8, 'en', 0);
+INSERT INTO answers VALUES(335, 'HUMAN_ERROR', 'Erreur humaine', 0, 8, 'fr', 0);
+INSERT INTO answers VALUES(335, 'OTHER', 'Other (please specify)', 0, 9, 'en', 0);
+INSERT INTO answers VALUES(335, 'LADDER_NOT_USED_AS_DESIGNED', 'Ladder not being used as designed', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(335, 'LADDER_NOT_USED_AS_DESIGNED', 'Léchelle nétait pas utilisée tel que conçu', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(335, 'DEFECTIVE_MANUFACTURING', 'Defective manufacturing', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(335, 'DEFECTIVE_MANUFACTURING', 'Défaut de fabrication', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(335, 'LACK_OF_MAINTENANCE', 'Lack of servicing or maintenance', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(335, 'LACK_OF_MAINTENANCE', 'Manque dentretien', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(335, 'LADDER_WORN_OUT', 'Ladder was worn out', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(336, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(336, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(336, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(336, 'NO', 'No ', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(336, 'YES', 'Yes ', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(337, 'STRONGLY_DISAGREE', 'Fortement en désaccord', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(337, 'DISAGREE', 'En désaccord', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(337, 'SLIGHTLY_DISAGREE', 'Légèrement en désaccord', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(337, 'STRONGLY_DISAGREE', 'Strongly disagree', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(337, 'DISAGREE', 'Disagree', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(337, 'SLIGHTLY_DISAGREE', 'Slightly disagree', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(338, 'REFUSED', '[DO NOT READ] Refused', 0, 11, 'en', 0);
+INSERT INTO answers VALUES(338, 'OTHER', 'Other (please specify)', 0, 9, 'en', 0);
+INSERT INTO answers VALUES(338, 'INADEQUATE_INSTRUCTIONS', 'Inadequate instructions', 0, 6, 'en', 0);
+INSERT INTO answers VALUES(338, 'DEFECTIVE_MANUFACTURING', 'Defective manufacturing', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(338, 'DEFECTIVE_MANUFACTURING', 'Défaut de fabrication', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(338, 'LACK_OF_MAINTENANCE', 'Lack of servicing or maintenance', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(338, 'LACK_OF_MAINTENANCE', 'Manque dentretien', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(338, 'STOOL_WORN_OUT', 'Step stool was worn out', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(338, 'STOOL_WORN_OUT', 'Lescabeau était usé', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(338, 'STOOL_NOT_USED_AS_DESIGNED', 'Lescabeau nétait pas utilisé tel que conçu', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(338, 'POOR_DESIGN', 'Poor design', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(338, 'POOR_DESIGN', 'Mauvais conception', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(338, 'STOOL_NOT_USED_AS_DESIGNED', 'Step stool not being used as designed', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(341, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(341, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(341, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(341, 'NO', 'No ', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(341, 'YES', 'Yes ', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(342, 'INADEQUATE_INSTRUCTIONS', 'Consignes inadéquates', 0, 6, 'fr', 0);
+INSERT INTO answers VALUES(342, 'BED_WORN_OUT', 'Bed was worn out', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(342, 'LACK_OF_MAINTENANCE', 'Manque dentretien', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(342, 'LACK_OF_MAINTENANCE', 'Lack of servicing or maintenance', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(342, 'DEFECTIVE_MANUFACTURING', 'Défaut de fabrication', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(342, 'POOR_DESIGN', 'Mauvais conception', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(342, 'INADEQUATE_INSTRUCTIONS', 'Inadequate instructions', 0, 6, 'en', 0);
+INSERT INTO answers VALUES(342, 'BED_WORN_OUT', 'Le lit était usé', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(342, 'DEFECTIVE_MANUFACTURING', 'Defective manufacturing', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(342, 'BED_NOT_USED_AS_DESIGNED', 'Le lit nétait pas utilisé tel que conçu', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(342, 'BED_NOT_USED_AS_DESIGNED', 'Bed not being used as designed', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(342, 'POOR_DESIGN', 'Poor design', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(343, 'STRONGLY_AGREE', 'Fortement en accord', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(343, 'AGREE', 'En accord', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(343, 'SLIGHTLY_AGREE', 'Légèrement en accord', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(343, 'STRONGLY_AGREE', 'Strongly agree', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(343, 'AGREE', 'Agree', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(343, 'SLIGHTLY_AGREE', 'Slightly agree', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(344, 'AGREE', 'Agree', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(344, 'AGREE', 'En accord', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(344, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(344, 'NEITHER_AGREE_DISAGREE', 'Neither agree or disagree', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(344, 'NEITHER_AGREE_DISAGREE', 'Ni en désaccord ni en accord', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(346, 'STRONGLY_DISAGREE', 'Fortement en désaccord', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(346, 'DISAGREE', 'En désaccord', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(346, 'SLIGHTLY_DISAGREE', 'Légèrement en désaccord', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(346, 'STRONGLY_DISAGREE', 'Strongly disagree', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(346, 'DISAGREE', 'Disagree', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(346, 'SLIGHTLY_DISAGREE', 'Slightly disagree', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(347, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(347, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(347, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(347, 'NO', 'No ', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(347, 'YES', 'Yes ', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(348, 'INADEQUATE_INSTRUCTIONS', 'Consignes inadéquates', 0, 6, 'fr', 0);
+INSERT INTO answers VALUES(348, 'CHAIR_WORN_OUT', 'Chair was worn out', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(348, 'LACK_OF_MAINTENANCE', 'Manque dentretien', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(348, 'LACK_OF_MAINTENANCE', 'Lack of servicing or maintenance', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(348, 'DEFECTIVE_MANUFACTURING', 'Défaut de fabrication', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(348, 'POOR_DESIGN', 'Mauvais conception', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(348, 'INADEQUATE_INSTRUCTIONS', 'Inadequate instructions', 0, 6, 'en', 0);
+INSERT INTO answers VALUES(348, 'CHAIR_WORN_OUT', 'La chaise était usée', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(348, 'DEFECTIVE_MANUFACTURING', 'Defective manufacturing', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(348, 'CHAIR_NOT_USED_AS_DESIGNED', 'La chaise nétait pas utilisée tel que conçu', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(348, 'CHAIR_NOT_USED_AS_DESIGNED', 'Chair not being used as designed', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(348, 'POOR_DESIGN', 'Poor design', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(350, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(350, 'YES_SPECIFY', 'Yes (please specify)', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(350, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(350, 'YES_SPECIFY', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(352, 'DK_NA', '[NE PAS LIRE] Ne sait pas/pas de réponse', 0, 10, 'fr', 0);
+INSERT INTO answers VALUES(352, 'REFUSED', '[DO NOT READ] Refused', 0, 11, 'en', 0);
+INSERT INTO answers VALUES(352, 'REFUSED', '[NE PAS LIRE] Refus', 0, 11, 'fr', 0);
+INSERT INTO answers VALUES(352, 'DID_NOT_READ_INSTRUCTIONS', 'Did not read the instructions', 0, 7, 'en', 0);
+INSERT INTO answers VALUES(352, 'DID_NOT_READ_INSTRUCTIONS', 'Na pas lu les consignes', 0, 7, 'fr', 0);
+INSERT INTO answers VALUES(352, 'HUMAN_ERROR', 'Human error', 0, 8, 'en', 0);
+INSERT INTO answers VALUES(352, 'FURNITURE_NOT_USED_AS_DESIGNED', 'Furniture not being used as designed', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(352, 'FURNITURE_NOT_USED_AS_DESIGNED', 'Le meuble nétait pas utilisé tel que conçu', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(352, 'DEFECTIVE_MANUFACTURING', 'Defective manufacturing', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(352, 'DEFECTIVE_MANUFACTURING', 'Défaut de fabrication', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(352, 'LACK_OF_MAINTENANCE', 'Lack of servicing or maintenance', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(352, 'LACK_OF_MAINTENANCE', 'Manque dentretien', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(352, 'FURNITURE_WORN_OUT', 'Furniture was worn out', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(353, 'STRONGLY_AGREE', 'Fortement en accord', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(353, 'AGREE', 'En accord', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(353, 'SLIGHTLY_AGREE', 'Légèrement en accord', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(353, 'STRONGLY_AGREE', 'Strongly agree', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(353, 'AGREE', 'Agree', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(353, 'SLIGHTLY_AGREE', 'Slightly agree', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(354, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(354, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(354, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(354, 'NO', 'No ', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(354, 'YES', 'Yes ', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(355, 'INADEQUATE_INSTRUCTIONS', 'Consignes inadéquates', 0, 6, 'fr', 0);
+INSERT INTO answers VALUES(355, 'RUG_WORN_OUT', 'Le tapis ou la moquette était usé', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(355, 'RUG_WORN_OUT', 'Rug/carpet was worn out', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(355, 'LACK_OF_MAINTENANCE', 'Manque dentretien', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(355, 'LACK_OF_MAINTENANCE', 'Lack of servicing or maintenance', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(355, 'DEFECTIVE_MANUFACTURING', 'Défaut de fabrication', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(355, 'DEFECTIVE_MANUFACTURING', 'Defective manufacturing', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(355, 'POOR_DESIGN', 'Mauvais conception', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(355, 'INADEQUATE_INSTRUCTIONS', 'Inadequate instructions', 0, 6, 'en', 0);
+INSERT INTO answers VALUES(355, 'RUG_NOT_USED_AS_DESIGNED', 'Le tapis ou la moquette nétait pas utilisé tel que conçu', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(355, 'RUG_NOT_USED_AS_DESIGNED', 'Rug/carpet not being used as designed', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(355, 'POOR_DESIGN', 'Poor design', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(357, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(357, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(357, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(357, 'NO', 'No ', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(357, 'YES', 'Yes ', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(358, 'INADEQUATE_INSTRUCTIONS', 'Inadequate instructions', 0, 6, 'en', 0);
+INSERT INTO answers VALUES(358, 'FLOORING_WORN_OUT', 'Le planché était usé', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(358, 'FLOORING_WORN_OUT', 'Flooring was worn out', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(358, 'LACK_OF_MAINTENANCE', 'Manque dentretien', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(358, 'LACK_OF_MAINTENANCE', 'Lack of servicing or maintenance', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(358, 'DEFECTIVE_MANUFACTURING', 'Défaut de fabrication', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(358, 'POOR_DESIGN', 'Mauvais conception', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(358, 'DEFECTIVE_MANUFACTURING', 'Defective manufacturing', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(358, 'FLOORING_NOT_USED_AS_DESIGNED', 'Le plancher nétait pas utilisé tel que conçu', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(358, 'FLOORING_NOT_USED_AS_DESIGNED', 'Flooring not being used as designed', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(358, 'POOR_DESIGN', 'Poor design', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(359, 'AGREE', 'En accord', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(359, 'AGREE', 'Agree', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(359, 'DISAGREE', 'En désaccord', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(359, 'NEITHER_AGREE_DISAGREE', 'Ni en désaccord ni en accord', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(359, 'NEITHER_AGREE_DISAGREE', 'Neither agree or disagree', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(359, 'DISAGREE', 'Disagree', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(361, 'STRONGLY_DISAGREE', 'Fortement en désaccord', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(361, 'DISAGREE', 'En désaccord', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(361, 'SLIGHTLY_DISAGREE', 'Légèrement en désaccord', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(361, 'STRONGLY_DISAGREE', 'Strongly disagree', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(361, 'DISAGREE', 'Disagree', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(361, 'SLIGHTLY_DISAGREE', 'Slightly disagree', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(362, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(362, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(362, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(362, 'NO', 'No ', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(362, 'YES', 'Yes ', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(363, 'INADEQUATE_INSTRUCTIONS', 'Consignes inadéquates', 0, 6, 'fr', 0);
+INSERT INTO answers VALUES(363, 'CORDS_WORN_OUT', 'Les cordons électriques étaient usés', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(363, 'CORDS_WORN_OUT', 'Electrical cord was worn out', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(363, 'LACK_OF_MAINTENANCE', 'Manque dentretien', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(363, 'LACK_OF_MAINTENANCE', 'Lack of servicing or maintenance', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(363, 'DEFECTIVE_MANUFACTURING', 'Défaut de fabrication', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(363, 'DEFECTIVE_MANUFACTURING', 'Defective manufacturing', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(363, 'POOR_DESIGN', 'Mauvais conception', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(363, 'INADEQUATE_INSTRUCTIONS', 'Inadequate instructions', 0, 6, 'en', 0);
+INSERT INTO answers VALUES(363, 'CORDS_NOT_USED_AS_DESIGNED', 'Les cordons électriques nétaient pas utilisés tel que conçu', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(363, 'CORDS_NOT_USED_AS_DESIGNED', 'Electrical cords not being used as designed', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(363, 'POOR_DESIGN', 'Poor design', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(365, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(365, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(365, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(365, 'NO', 'No ', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(365, 'YES', 'Yes ', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(366, 'STRONGLY_AGREE', 'Fortement en accord', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(366, 'AGREE', 'En accord', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(366, 'SLIGHTLY_AGREE', 'Légèrement en accord', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(366, 'STRONGLY_AGREE', 'Strongly agree', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(366, 'AGREE', 'Agree', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(366, 'SLIGHTLY_AGREE', 'Slightly agree', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(367, 'AGREE', 'En accord', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(367, 'AGREE', 'Agree', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(367, 'DISAGREE', 'En désaccord', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(367, 'NEITHER_AGREE_DISAGREE', 'Ni en désaccord ni en accord', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(367, 'NEITHER_AGREE_DISAGREE', 'Neither agree or disagree', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(367, 'DISAGREE', 'Disagree', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(368, 'STRONGLY_DISAGREE', 'Fortement en désaccord', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(368, 'DISAGREE', 'En désaccord', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(368, 'SLIGHTLY_DISAGREE', 'Légèrement en désaccord', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(368, 'STRONGLY_DISAGREE', 'Strongly disagree', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(368, 'DISAGREE', 'Disagree', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(368, 'SLIGHTLY_DISAGREE', 'Slightly disagree', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(369, 'STRONGLY_AGREE', 'Fortement en désaccord', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(369, 'AGREE', 'En désaccord', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(369, 'SLIGHTLY_AGREE', 'Légèrement en désaccord', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(369, 'STRONGLY_AGREE', 'Strongly agree', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(369, 'AGREE', 'Agree', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(369, 'SLIGHTLY_AGREE', 'Slightly agree', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(370, 'AGREE', 'En accord', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(370, 'AGREE', 'Agree', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(370, 'DISAGREE', 'En désaccord', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(370, 'NEITHER_AGREE_DISAGREE', 'Ni en désaccord ni en accord', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(370, 'NEITHER_AGREE_DISAGREE', 'Neither agree or disagree', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(370, 'DISAGREE', 'Disagree', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(371, 'STRONGLY_DISAGREE', 'Fortement en désaccord', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(371, 'DISAGREE', 'En désaccord', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(371, 'SLIGHTLY_DISAGREE', 'Légèrement en désaccord', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(371, 'STRONGLY_DISAGREE', 'Strongly disagree', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(371, 'DISAGREE', 'Disagree', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(371, 'SLIGHTLY_DISAGREE', 'Slightly disagree', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(372, 'STRONGLY_AGREE', 'Strongly agree', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(372, 'STRONGLY_AGREE', 'Fortement en accord', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(372, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(372, 'AGREE', 'En accord', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(372, 'SLIGHTLY_AGREE', 'Slightly agree', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(372, 'SLIGHTLY_AGREE', 'Légèrement en accord', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(372, 'AGREE', 'Agree', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(373, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(373, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(373, 'NO', 'No', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(373, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(373, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(374, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(374, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(374, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(374, 'NO', 'No', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(374, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(375, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(375, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(375, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(375, 'NO', 'No', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(375, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(376, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(376, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(376, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(376, 'NO', 'No', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(376, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(384, 'WITHIN_LAST_DAY_TWO', 'Within the last day or two', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(384, 'WITHIN_LAST_DAY_TWO', 'Hier ou avant-hier', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(384, 'WITHIN_LAST_WEEK_TWO', 'Within the last week or two', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(384, 'WITHIN_LAST_WEEK_TWO', 'Cette semaine ou la semaine dernière', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(384, 'WITHIN_PAST_MONTH', 'Within the past month', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(384, 'WITHIN_PAST_MONTH', 'Ce mois-ci', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(384, 'WITHIN_PAST_6_MONTHS', 'Within the past 6 months', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(384, 'WITHIN_PAST_6_MONTHS', 'Au cours des derniers six mois', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(384, 'WITHIN_PAST_YEAR', 'Within the past year', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(384, 'WITHIN_PAST_YEAR', 'Au cours de la dernière année', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(384, 'MORE_THAN_1_YEAR', 'More than 1 year ago', 0, 6, 'en', 0);
+INSERT INTO answers VALUES(384, 'MORE_THAN_1_YEAR', 'Il y a plus d''un an', 0, 6, 'fr', 0);
+INSERT INTO answers VALUES(388, 'WITHIN_PAST_6_MONTHS', 'Au cours des derniers six mois', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(389, 'WITHIN_PAST_YEAR', 'Au cours de la dernière année', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(389, 'WITHIN_PAST_6_MONTHS', 'Au cours des derniers six mois', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(389, 'WITHIN_PAST_6_MONTHS', 'Within the past 6 months', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(389, 'WITHIN_LAST_WEEK_TWO', 'Within the last week or two', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(389, 'WITHIN_PAST_YEAR', 'Within the past year', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(389, 'WITHIN_PAST_MONTH', 'Ce mois-ci', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(389, 'WITHIN_PAST_MONTH', 'Within the past month', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(389, 'WITHIN_LAST_WEEK_TWO', 'Cette semaine ou la semaine dernière', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(389, 'WITHIN_LAST_DAY_TWO', 'Hier ou avant-hier', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(389, 'WITHIN_LAST_DAY_TWO', 'Within the last day or two', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(390, 'WITHIN_PAST_YEAR', 'Au cours de la dernière année', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(390, 'WITHIN_PAST_6_MONTHS', 'Au cours des derniers six mois', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(390, 'WITHIN_PAST_6_MONTHS', 'Within the past 6 months', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(390, 'WITHIN_LAST_WEEK_TWO', 'Within the last week or two', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(390, 'WITHIN_PAST_YEAR', 'Within the past year', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(390, 'WITHIN_PAST_MONTH', 'Ce mois-ci', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(390, 'WITHIN_PAST_MONTH', 'Within the past month', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(390, 'WITHIN_LAST_WEEK_TWO', 'Cette semaine ou la semaine dernière', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(390, 'WITHIN_LAST_DAY_TWO', 'Hier ou avant-hier', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(390, 'WITHIN_LAST_DAY_TWO', 'Within the last day or two', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(392, 'WITHIN_PAST_6_MONTHS', 'Au cours des derniers six mois', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(392, 'WITHIN_PAST_6_MONTHS', 'Within the past 6 months', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(392, 'WITHIN_PAST_MONTH', 'Ce mois-ci', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(392, 'WITHIN_PAST_MONTH', 'Within the past month', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(392, 'WITHIN_LAST_WEEK_TWO', 'Cette semaine ou la semaine dernière', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(392, 'WITHIN_LAST_WEEK_TWO', 'Within the last week or two', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(392, 'WITHIN_LAST_DAY_TWO', 'Hier ou avant-hier', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(392, 'WITHIN_LAST_DAY_TWO', 'Within the last day or two', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(397, 'FOOTWEAR_WORN_OUT', 'Footwear was worn out', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(397, 'FOOTWEAR_WORN_OUT', 'Les chaussures étaient usé', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(397, 'INADEQUATE_INSTRUCTIONS', 'Inadequate instructions', 0, 6, 'en', 0);
+INSERT INTO answers VALUES(397, 'DEFECTIVE_MANUFACTURING', 'Défaut de fabrication', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(397, 'LACK_OF_MAINTENANCE', 'Lack of servicing or maintenance', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(397, 'LACK_OF_MAINTENANCE', 'Manque dentretien', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(397, 'FOOTWEAR_NOT_USED_AS_DESIGNED', 'Footwear not being used as designed', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(399, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(399, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(399, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(399, 'NO', 'No ', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(399, 'YES', 'Yes ', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(400, 'INADEQUATE_INSTRUCTIONS', 'Consignes inadéquates', 0, 6, 'fr', 0);
+INSERT INTO answers VALUES(400, 'DID_NOT_READ_INSTRUCTIONS', 'Did not read the instructions', 0, 7, 'en', 0);
+INSERT INTO answers VALUES(400, 'CLOTHING_WORN_OUT', 'Other clothing was worn out', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(400, 'CLOTHING_WORN_OUT', 'Les vêtements étaient usés', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(400, 'INADEQUATE_INSTRUCTIONS', 'Inadequate instructions', 0, 6, 'en', 0);
+INSERT INTO answers VALUES(400, 'CLOTHING_NOT_USED_AS_DESIGNED', 'Other clothing not being used as designed', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(400, 'CLOTHING_NOT_USED_AS_DESIGNED', 'Les vêtements nétaient pas utilisés tel que conçu', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(400, 'DEFECTIVE_MANUFACTURING', 'Defective manufacturing', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(400, 'DEFECTIVE_MANUFACTURING', 'Défaut de fabrication', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(408, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(408, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(408, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(408, 'NO', 'No ', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(408, 'YES', 'Yes ', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(409, 'DEFECTIVE_MANUFACTURING', 'Defective manufacturing', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(409, 'DEFECTIVE_MANUFACTURING', 'Défaut de fabrication', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(409, 'LACK_OF_MAINTENANCE', 'Lack of servicing or maintenance', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(409, 'LACK_OF_MAINTENANCE', 'Manque dentretien', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(409, 'TOYS_WORN_OUT', 'Toy was worn out', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(409, 'POOR_DESIGN', 'Poor design', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(409, 'POOR_DESIGN', 'Mauvais conception', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(409, 'TOYS_NOT_USED_AS_DESIGNED', 'Toys not being used as designed', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(409, 'TOYS_NOT_USED_AS_DESIGNED', 'Le jouet nétait pas utilisé tel que conçu', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(411, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(411, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(411, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(411, 'NO', 'No ', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(411, 'YES', 'Yes ', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(412, 'DK_NA', '[NE PAS LIRE] Ne sait pas/pas de réponse', 0, 10, 'fr', 0);
+INSERT INTO answers VALUES(412, 'INADEQUATE_INSTRUCTIONS', 'Consignes inadéquates', 0, 6, 'fr', 0);
+INSERT INTO answers VALUES(412, 'INADEQUATE_INSTRUCTIONS', 'Inadequate instructions', 0, 6, 'en', 0);
+INSERT INTO answers VALUES(412, 'YARD_TOOLS_WORN_OUT', 'Yard tool was worn out', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(412, 'DEFECTIVE_MANUFACTURING', 'Defective manufacturing', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(412, 'DEFECTIVE_MANUFACTURING', 'Défaut de fabrication', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(412, 'LACK_OF_MAINTENANCE', 'Lack of servicing or maintenance', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(412, 'LACK_OF_MAINTENANCE', 'Manque dentretien', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(413, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(413, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(413, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(413, 'NO', 'No ', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(413, 'YES', 'Yes ', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(414, 'DID_NOT_READ_INSTRUCTIONS', 'Did not read the instructions', 0, 7, 'en', 0);
+INSERT INTO answers VALUES(414, 'DID_NOT_READ_INSTRUCTIONS', 'Na pas lu les consignes', 0, 7, 'fr', 0);
+INSERT INTO answers VALUES(414, 'BICYCLE_WORN_OUT', 'La bicyclette était usée', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(414, 'INADEQUATE_INSTRUCTIONS', 'Inadequate instructions', 0, 6, 'en', 0);
+INSERT INTO answers VALUES(414, 'INADEQUATE_INSTRUCTIONS', 'Consignes inadéquates', 0, 6, 'fr', 0);
+INSERT INTO answers VALUES(414, 'BICYCLE_NOT_USED_AS_DESIGNED', 'Bicycle not being used as designed', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(414, 'BICYCLE_NOT_USED_AS_DESIGNED', 'La bicyclette nétait pas utilisée tel que conçu', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(414, 'DEFECTIVE_MANUFACTURING', 'Defective manufacturing', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(414, 'DEFECTIVE_MANUFACTURING', 'Défaut de fabrication', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(417, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(417, 'YES', 'Yes (Please Specify)', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(417, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(418, 'DK_NA', '[NE PAS LIRE] Ne sait pas/pas de réponse', 0, 10, 'fr', 0);
+INSERT INTO answers VALUES(418, 'SPORT_WORN_OUT', 'Léquipement de sport  était usé', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(418, 'LACK_OF_MAINTENANCE', 'Manque dentretien', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(418, 'SPORT_NOT_USED_AS_DESIGNED', 'Other sports equipment not being used as designed', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(418, 'SPORT_NOT_USED_AS_DESIGNED', 'Léquipement de sport nétait pas utilisé tel que conçu', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(418, 'DEFECTIVE_MANUFACTURING', 'Defective manufacturing', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(418, 'DEFECTIVE_MANUFACTURING', 'Défaut de fabrication', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(418, 'LACK_OF_MAINTENANCE', 'Lack of servicing or maintenance', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(419, 'MOST_TIME', 'La plupart du temps', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(419, 'ALL_TIME', 'All of the time', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(419, 'ALL_TIME', 'Tout le temps', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(419, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 6, 'fr', 0);
+INSERT INTO answers VALUES(419, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 6, 'en', 0);
+INSERT INTO answers VALUES(419, 'LITTLE_TIME', 'Rarement', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(419, 'NONE_TIME', 'None of the time', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(419, 'NONE_TIME', 'Jamais', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(419, 'LITTLE_TIME', 'A little of the time', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(421, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(421, 'YES_SPECIFY', 'Yes (please specify)', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(421, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(421, 'YES_SPECIFY', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(422, 'DEFECTIVE_MANUFACTURING', 'Defective manufacturing', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(422, 'DEFECTIVE_MANUFACTURING', 'Défaut de fabrication', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(422, 'LACK_OF_MAINTENANCE', 'Lack of servicing or maintenance', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(422, 'LACK_OF_MAINTENANCE', 'Manque dentretien', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(422, 'OTHER_NOT_USED_AS_DESIGNED', 'Anything else not being used as designed', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(422, 'OTHER_WORN_OUT', 'Anything else was worn out', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(422, 'OTHER_WORN_OUT', 'Lobjet était usé', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(422, 'INADEQUATE_INSTRUCTIONS', 'Inadequate instructions', 0, 6, 'en', 0);
+INSERT INTO answers VALUES(422, 'OTHER_NOT_USED_AS_DESIGNED', 'Lobjet nétait pas utilisé tel que conçu', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(424, 'ALL_TIME', 'All of the time', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(424, 'ALL_TIME', 'Tout le temps', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(424, 'LITTLE_TIME', 'Rarement', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(424, 'SOME_TIME', 'Some of the time', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(424, 'MOST_TIME', 'La plupart du temps', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(424, 'NONE_TIME', 'None of the time', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(424, 'NONE_TIME', 'Jamais', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(424, 'LITTLE_TIME', 'A little of the time', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(425, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(425, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(425, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(425, 'NO', 'No ', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(425, 'YES', 'Yes ', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(426, 'ALL_TIME', 'All of the time', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(426, 'ALL_TIME', 'Tout le temps', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(426, 'LITTLE_TIME', 'Rarement', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(426, 'SOME_TIME', 'Some of the time', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(426, 'MOST_TIME', 'La plupart du temps', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(426, 'NONE_TIME', 'None of the time', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(426, 'NONE_TIME', 'Jamais', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(426, 'LITTLE_TIME', 'A little of the time', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(428, 'ALL_TIME', 'All of the time', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(428, 'ALL_TIME', 'Tout le temps', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(428, 'LITTLE_TIME', 'Rarement', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(428, 'SOME_TIME', 'Some of the time', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(428, 'MOST_TIME', 'La plupart du temps', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(428, 'NONE_TIME', 'None of the time', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(428, 'NONE_TIME', 'Jamais', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(428, 'LITTLE_TIME', 'A little of the time', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(429, 'ALL_TIME', 'All of the time', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(429, 'ALL_TIME', 'Tout le temps', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(429, 'LITTLE_TIME', 'Rarement', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(429, 'SOME_TIME', 'Some of the time', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(429, 'MOST_TIME', 'La plupart du temps', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(429, 'NONE_TIME', 'None of the time', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(429, 'NONE_TIME', 'Jamais', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(429, 'LITTLE_TIME', 'A little of the time', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(430, 'MOST_TIME', 'La plupart du temps', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(430, 'ALL_TIME', 'All of the time', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(430, 'NONE_TIME', 'Jamais', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(430, 'LITTLE_TIME', 'A little of the time', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(430, 'LITTLE_TIME', 'Rarement', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(430, 'SOME_TIME', 'Some of the time', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(430, 'SOME_TIME', 'Parfois', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(430, 'MOST_TIME', 'Most of the time', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(432, 'MOST_TIME', 'La plupart du temps', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(432, 'ALL_TIME', 'All of the time', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(432, 'NONE_TIME', 'Jamais', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(432, 'LITTLE_TIME', 'A little of the time', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(432, 'LITTLE_TIME', 'Rarement', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(432, 'SOME_TIME', 'Some of the time', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(432, 'SOME_TIME', 'Parfois', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(432, 'MOST_TIME', 'Most of the time', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(433, 'OTHER', 'Other (please specify)', 0, 16, 'en', 0);
+INSERT INTO answers VALUES(433, 'OTHER', 'Autre (veuillez préciser : ________)', 0, 16, 'fr', 0);
+INSERT INTO answers VALUES(433, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 17, 'en', 0);
+INSERT INTO answers VALUES(433, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 17, 'fr', 0);
+INSERT INTO answers VALUES(433, 'REFUSED', '[DO NOT READ] Refused', 0, 18, 'en', 0);
+INSERT INTO answers VALUES(433, 'FALL_HEIGHT', 'Chute dune hauteur', 0, 10, 'fr', 0);
+INSERT INTO answers VALUES(433, 'ACCIDENT_DRIVER', 'Road traffic accident as a driver or passenger', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(433, 'ACCIDENT_DRIVER', 'Accident de la route (conducteur ou passager)', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(433, 'ACCIDENT_PEDESTRIAN', 'Road traffic accident as a pedestrian', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(433, 'ACCIDENT_PEDESTRIAN', 'Accident de la route (piéton)', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(433, 'STRUCK_BY_OBJECT', 'Struck by an object', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(433, 'STRUCK_BY_OBJECT', 'Frappé par un objet', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(433, 'EXPLOSION', 'Explosion', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(433, 'EXPLOSION', 'Explosion', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(433, 'NATURAL_FACTORS', 'Natural/ environmental factors', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(433, 'NATURAL_FACTORS', 'Facteur naturel ou environnemental', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(433, 'SUFFOCATION', 'Suffocation', 0, 6, 'en', 0);
+INSERT INTO answers VALUES(433, 'SUFFOCATION', 'Suffocation', 0, 6, 'fr', 0);
+INSERT INTO answers VALUES(433, 'POISONING', 'Poisoning', 0, 7, 'en', 0);
+INSERT INTO answers VALUES(433, 'POISONING', 'Empoissonnement', 0, 7, 'fr', 0);
+INSERT INTO answers VALUES(433, 'ANIMAL_BITE', 'Snake/ animal bite', 0, 8, 'en', 0);
+INSERT INTO answers VALUES(433, 'ANIMAL_BITE', 'Morsure de serpent ou danimal', 0, 8, 'fr', 0);
+INSERT INTO answers VALUES(433, 'FALL_SAME_LEVEL', 'Fall from same level', 0, 9, 'en', 0);
+INSERT INTO answers VALUES(433, 'FALL_SAME_LEVEL', 'Chute du même étage', 0, 9, 'fr', 0);
+INSERT INTO answers VALUES(434, 'MOST_TIME', 'La plupart du temps', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(434, 'ALL_TIME', 'All of the time', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(434, 'NONE_TIME', 'Jamais', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(434, 'LITTLE_TIME', 'A little of the time', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(434, 'LITTLE_TIME', 'Rarement', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(434, 'SOME_TIME', 'Some of the time', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(434, 'SOME_TIME', 'Parfois', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(434, 'MOST_TIME', 'Most of the time', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(435, 'MOST_TIME', 'La plupart du temps', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(435, 'ALL_TIME', 'All of the time', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(435, 'NONE_TIME', 'Jamais', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(435, 'LITTLE_TIME', 'A little of the time', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(435, 'LITTLE_TIME', 'Rarement', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(435, 'SOME_TIME', 'Some of the time', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(435, 'SOME_TIME', 'Parfois', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(435, 'MOST_TIME', 'Most of the time', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(436, 'ALL_TIME', 'All of the time', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(436, 'ALL_TIME', 'Tout le temps', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(436, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 6, 'en', 0);
+INSERT INTO answers VALUES(436, 'NONE_TIME', 'Jamais', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(436, 'LITTLE_TIME', 'A little of the time', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(436, 'LITTLE_TIME', 'Rarement', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(436, 'SOME_TIME', 'Some of the time', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(436, 'SOME_TIME', 'Parfois', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(436, 'MOST_TIME', 'Most of the time', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(437, 'ALL_TIME', 'All of the time', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(437, 'ALL_TIME', 'Tout le temps', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(437, 'LITTLE_TIME', 'Rarement', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(437, 'SOME_TIME', 'Some of the time', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(437, 'MOST_TIME', 'La plupart du temps', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(437, 'NONE_TIME', 'None of the time', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(437, 'NONE_TIME', 'Jamais', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(437, 'LITTLE_TIME', 'A little of the time', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(438, 'ALL_TIME', 'All of the time', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(438, 'ALL_TIME', 'Tout le temps', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(438, 'LITTLE_TIME', 'Rarement', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(438, 'SOME_TIME', 'Some of the time', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(438, 'MOST_TIME', 'La plupart du temps', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(438, 'NONE_TIME', 'None of the time', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(438, 'NONE_TIME', 'Jamais', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(438, 'LITTLE_TIME', 'A little of the time', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(440, 'ALL_TIME', 'All of the time', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(440, 'ALL_TIME', 'Tout le temps', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(440, 'LITTLE_TIME', 'Rarement', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(440, 'SOME_TIME', 'Some of the time', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(440, 'MOST_TIME', 'La plupart du temps', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(440, 'NONE_TIME', 'None of the time', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(440, 'NONE_TIME', 'Jamais', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(440, 'LITTLE_TIME', 'A little of the time', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(441, 'REFUSED', '[NE PAS LIRE] Refus', 0, 12, 'fr', 0);
+INSERT INTO answers VALUES(441, 'REFUSED', '[DO NOT READ] Refused', 0, 12, 'en', 0);
+INSERT INTO answers VALUES(441, 'COMMERCIAL_AREA', 'Commercial area (e.g. store, resturant, office building, transport terminal)', 0, 7, 'en', 0);
+INSERT INTO answers VALUES(441, 'STREET', 'Rue, autoroute, trottoir', 0, 6, 'fr', 0);
+INSERT INTO answers VALUES(441, 'COMMERCIAL_AREA', 'Zone commerciale (p. ex., magasin, restaurant, Immeuble de bureaux, gare de transport)', 0, 7, 'fr', 0);
+INSERT INTO answers VALUES(441, 'CONSTRUCTION_AREA', 'Industrial or construction area', 0, 8, 'en', 0);
+INSERT INTO answers VALUES(441, 'STREET', 'Street, highway, sidewalk', 0, 6, 'en', 0);
+INSERT INTO answers VALUES(441, 'HOME', 'In a home or its surrounding area', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(441, 'HOME', 'Dans une maison ou aux alentours', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(441, 'INSTITUTION', 'Residential Institution', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(441, 'INSTITUTION', 'Institution résidentielle', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(441, 'SCHOOL', 'School, College, University (excluding sports areas)', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(441, 'SCHOOL', 'École, collège, université (sauf les lieux de sport)', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(441, 'OTHER_INSTITUTION', 'Other institution (e.g. church, hospital, theatre, civic building)', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(441, 'OTHER_INSTITUTION', 'Autre établissement (p. ex., église, hôpital, théâtre, édifice public)', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(441, 'ATHLETIC_AREA', 'Sports or athletic area (include school sports area)', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(441, 'ATHLETIC_AREA', 'Lieux de sport ou dathlétisme (y compris les lieux de sports des écoles)', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(443, 'ALL_TIME', 'All of the time', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(443, 'ALL_TIME', 'Tout le temps', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(443, 'LITTLE_TIME', 'Rarement', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(443, 'SOME_TIME', 'Some of the time', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(443, 'MOST_TIME', 'La plupart du temps', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(443, 'NONE_TIME', 'None of the time', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(443, 'NONE_TIME', 'Jamais', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(443, 'LITTLE_TIME', 'A little of the time', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(444, 'SLEEPING', 'Sleeping. eating, personal care', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(444, 'HOUSEHOLD_CHORES', 'Tâches ménagères, ou autre cours ou travail non rémunéré', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(444, 'WORKING', 'Working at a job or business (include travel to or from work)', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(444, 'LEISURE', 'Loisirs ou passe-temps (y compris le bénévolat)', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(444, 'SPORTS', 'Sports ou exercice physique (y compris les activités scolaires)', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(444, 'HOUSEHOLD_CHORES', 'Household chores, other unpaid work or education', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(444, 'WORKING', 'Travail rémunéré (y compris les déplacements pour se rendre au travail ou rentrer chez soi)', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(444, 'LEISURE', 'Leisure or hobby (include volunteering)', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(444, 'SPORTS', 'Sports or physical exercise (include school activities)', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(446, 'ALL_TIME', 'All of the time', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(446, 'ALL_TIME', 'Tout le temps', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(446, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 6, 'en', 0);
+INSERT INTO answers VALUES(446, 'NONE_TIME', 'Jamais', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(446, 'LITTLE_TIME', 'A little of the time', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(446, 'LITTLE_TIME', 'Rarement', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(446, 'SOME_TIME', 'Some of the time', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(446, 'SOME_TIME', 'Parfois', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(446, 'MOST_TIME', 'Most of the time', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(447, 'ALL_TIME', 'All of the time', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(447, 'ALL_TIME', 'Tout le temps', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(447, 'LITTLE_TIME', 'Rarement', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(447, 'SOME_TIME', 'Some of the time', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(447, 'MOST_TIME', 'La plupart du temps', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(447, 'NONE_TIME', 'None of the time', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(447, 'NONE_TIME', 'Jamais', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(447, 'LITTLE_TIME', 'A little of the time', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(448, 'ALL_TIME', 'All of the time', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(448, 'ALL_TIME', 'Tout le temps', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(448, 'LITTLE_TIME', 'Rarement', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(448, 'SOME_TIME', 'Some of the time', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(448, 'MOST_TIME', 'La plupart du temps', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(448, 'NONE_TIME', 'None of the time', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(448, 'NONE_TIME', 'Jamais', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(448, 'LITTLE_TIME', 'A little of the time', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(449, 'MOST_TIME', 'La plupart du temps', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(449, 'ALL_TIME', 'All of the time', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(449, 'NONE_TIME', 'Jamais', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(449, 'LITTLE_TIME', 'A little of the time', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(449, 'LITTLE_TIME', 'Rarement', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(449, 'SOME_TIME', 'Some of the time', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(449, 'SOME_TIME', 'Parfois', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(449, 'MOST_TIME', 'Most of the time', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(450, 'REFUSED', '[DO NOT READ] Refused', 0, 16, 'en', 0);
+INSERT INTO answers VALUES(450, 'REFUSED', '[NE PAS LIRE] Refus', 0, 16, 'fr', 0);
+INSERT INTO answers VALUES(450, 'SCRAPE', 'Scrape, blister', 0, 9, 'en', 0);
+INSERT INTO answers VALUES(450, 'SCRAPE', 'Meurtrissure, cloque', 0, 9, 'fr', 0);
+INSERT INTO answers VALUES(450, 'CONCUSSION', 'Concussion or other brain injury', 0, 10, 'en', 0);
+INSERT INTO answers VALUES(450, 'CONCUSSION', 'Commotion ou autre traumatisme cérébral', 0, 10, 'fr', 0);
+INSERT INTO answers VALUES(450, 'BURNS', 'Brûlure, brûlure chimique', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(450, 'DISLOCATION', 'Dislocation', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(450, 'DISLOCATION', 'Dislocation', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(450, 'SPRAIN', 'Sprain or strain', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(450, 'SPRAIN', 'Entorse ou foulure', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(450, 'CUT', 'Cut', 0, 6, 'en', 0);
+INSERT INTO answers VALUES(450, 'CUT', 'Coupure', 0, 6, 'fr', 0);
+INSERT INTO answers VALUES(450, 'PUNCTURE', 'Puncture, animal bite (open wound)', 0, 7, 'en', 0);
+INSERT INTO answers VALUES(450, 'PUNCTURE', 'Perforation, morsure danimal (plaie ouverte)', 0, 7, 'fr', 0);
+INSERT INTO answers VALUES(450, 'BRUISE', 'Bruise', 0, 8, 'en', 0);
+INSERT INTO answers VALUES(450, 'BRUISE', 'Éraflure', 0, 8, 'fr', 0);
+INSERT INTO answers VALUES(450, 'MULTIPLE_INJURIES', 'Multiple injuries', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(450, 'MULTIPLE_INJURIES', 'Blessures multiples', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(450, 'BROKEN_BONES', 'Broken or fractured bones', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(450, 'BROKEN_BONES', 'Fracture ou cassure', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(450, 'BURNS', 'Burns, scald, chemical burn', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(451, 'ALL_TIME', 'All of the time', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(451, 'ALL_TIME', 'Tout le temps', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(451, 'LITTLE_TIME', 'Rarement', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(451, 'SOME_TIME', 'Some of the time', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(451, 'MOST_TIME', 'La plupart du temps', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(451, 'NONE_TIME', 'None of the time', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(451, 'NONE_TIME', 'Jamais', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(451, 'LITTLE_TIME', 'A little of the time', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(452, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(452, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(452, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(452, 'NO', 'No', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(452, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(454, 'YES', 'Yes ', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(454, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(454, 'NO', 'No ', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(454, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(454, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(461, 'DECEASED', 'Now deceased', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(461, 'HEALTH_CARE_INSTITUTION', 'Habite dans un établissement de soins de santé', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(461, 'HOUSEHOLD', 'Habite dans votre ménage', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(461, 'ANOTHER_HOUSEHOLD', 'Living in another household', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(461, 'ANOTHER_HOUSEHOLD', 'Habite à lextérieur de votre ménage', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(461, 'HEALTH_CARE_INSTITUTION', 'Living in a health care institution', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(461, 'HOUSEHOLD', 'Living in your household', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(462, 'FEMALE', 'De sexe féminin', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(462, 'MALE', 'De sexe masculin', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(462, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(462, 'FEMALE', 'Female', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(462, 'MALE', 'Male', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(463, 'BROTHER_SISTER_IN_LAW', 'Brother-in-law/sister-in-law', 0, 9, 'en', 0);
+INSERT INTO answers VALUES(463, 'SON_DAUGHTER_IN_LAW', 'Votre beau-fils ou votre belle-fille', 0, 8, 'fr', 0);
+INSERT INTO answers VALUES(463, 'SON_DAUGHTER_IN_LAW', 'Son-in-law/daughter-in-law', 0, 8, 'en', 0);
+INSERT INTO answers VALUES(463, 'FATHER_MOTHER_IN_LAW', 'Votre beau-père ou votre belle-mère', 0, 7, 'fr', 0);
+INSERT INTO answers VALUES(463, 'FATHER_MOTHER_IN_LAW', 'Father-in-law/mother-in-law', 0, 7, 'en', 0);
+INSERT INTO answers VALUES(463, 'GRANDCHILD', 'Grandchild', 0, 6, 'en', 0);
+INSERT INTO answers VALUES(463, 'SIBLING', 'Sibling', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(463, 'CHILD', 'Child', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(463, 'PARENT', 'Parent', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(463, 'HUSBAND_WIFE', 'Votre époux ou épouse', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(463, 'COMMON_LAW', 'Common-law partner', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(463, 'GRANDCHILD', 'Votre petit-enfant', 0, 6, 'fr', 0);
+INSERT INTO answers VALUES(463, 'SIBLING', 'Votre frère ou votre soeur', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(463, 'CHILD', 'Votre enfant', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(463, 'PARENT', 'Votre père ou votre mère', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(463, 'COMMON_LAW', 'Votre partenaire en union libre', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(463, 'HUSBAND_WIFE', 'Husband/wife', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(469, 'REFUSED', '[NE PAS LIRE] Refus', 0, 7, 'fr', 0);
+INSERT INTO answers VALUES(468, 'REFUSED', '[NE PAS LIRE] Refus', 0, 7, 'fr', 0);
+INSERT INTO answers VALUES(468, 'ONCE_DAY', 'Au moins une fois par jour', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(468, 'ONCE_DAY', 'At least once a day', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(1586, 'NO', 'No', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(1614, 'NO', 'No', 1, 2, 'en', 0);
+INSERT INTO answers VALUES(1614, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(1615, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(1142, 'REFUSED', 'Refuses to provide alt. contact', 1, 3, 'en', 0);
+INSERT INTO answers VALUES(468, 'REFUSED', '[DO NOT READ] Refused', 0, 7, 'en', 0);
+INSERT INTO answers VALUES(1602, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(1603, 'NO', 'Non', 1, 2, 'fr', 0);
+INSERT INTO answers VALUES(1603, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(1607, 'NO', 'No', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(1584, 'DK_NA', '[DO NOT READ] Dont know/No answer', 1, 3, 'en', 0);
+INSERT INTO answers VALUES(1584, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(1584, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 1, 3, 'fr', 0);
+INSERT INTO answers VALUES(468, 'ONCE_WEEK', 'At least once a week', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(468, 'ONCE_WEEK', 'Au moins une fois par semaine', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(468, 'ONCE_MONTH', 'At least once a month', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(468, 'ONCE_MONTH', 'Au moins une fois par mois', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(468, 'ONCE_YEAR', 'At least once a year', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(468, 'ONCE_YEAR', 'Au moins une fois par an', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(468, 'NEVER', 'Never', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(468, 'NEVER', 'Jamais', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(468, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 6, 'en', 0);
+INSERT INTO answers VALUES(468, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 6, 'fr', 0);
+INSERT INTO answers VALUES(469, 'ONCE_DAY', 'Au moins une fois par jour', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(469, 'ONCE_WEEK', 'At least once a week', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(469, 'ONCE_WEEK', 'Au moins une fois par semaine', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(469, 'ONCE_MONTH', 'At least once a month', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(469, 'ONCE_MONTH', 'Au moins une fois par mois', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(469, 'ONCE_YEAR', 'At least once a year', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(469, 'ONCE_YEAR', 'Au moins une fois par an', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(469, 'NEVER', 'Never', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(469, 'NEVER', 'Jamais', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(469, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 6, 'en', 0);
+INSERT INTO answers VALUES(470, 'ONCE_YEAR', 'Au moins une fois par an', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(470, 'ONCE_YEAR', 'At least once a year', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(470, 'ONCE_MONTH', 'At least once a month', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(470, 'ONCE_DAY', 'Au moins une fois par jour', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(470, 'ONCE_WEEK', 'At least once a week', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(470, 'ONCE_MONTH', 'Au moins une fois par mois', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(470, 'ONCE_WEEK', 'Au moins une fois par semaine', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(470, 'ONCE_DAY', 'At least once a day', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(471, 'ONCE_YEAR', 'Au moins une fois par an', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(471, 'ONCE_YEAR', 'At least once a year', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(471, 'ONCE_MONTH', 'At least once a month', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(471, 'ONCE_DAY', 'Au moins une fois par jour', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(471, 'ONCE_WEEK', 'At least once a week', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(471, 'ONCE_MONTH', 'Au moins une fois par mois', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(471, 'ONCE_WEEK', 'Au moins une fois par semaine', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(471, 'ONCE_DAY', 'At least once a day', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(478, 'TRANSPORTATION', 'Du transport comme pour les visites chez le médecin ou pour le magasinage', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(478, 'TRANSPORTATION', 'Transportation, including trips to the doctor or for shopping', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(478, 'HELP_WITH_ACTIVITIES', 'Help with activities such as homework, home maintenance, or outdoor work', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(478, 'PERSONAL_CARE', 'Des soins personnels comme de laide pour manger, shabiller, prendre un bain ou utiliser les toilettes', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(478, 'MEDICAL_CARE', 'Medical care such as help taking medicine or help with nursing care (e.g. dressing changes or foot care)', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(478, 'HELP_WITH_ACTIVITIES', 'De laide pour diverses activités comme les travaux ménagers, lentretien de la maison et des travaux extérieurs', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(478, 'MANAGING_CARE', 'De la gestion des soins comme prendre des rendez-vous', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(478, 'MANAGING_CARE', 'managing care such as making appiontments', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(478, 'MEDICAL_CARE', 'Des soins médicaux comme de l''aide pour prendre des médicaments ou de laide pour les soins infirmiers (p. ex., changer des pansements ou soins des pieds)', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(478, 'PERSONAL_CARE', 'Personal care such as assisstance with eating, dressing, bathing, or toileting', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(481, 'LIVING_OUTSIE_HOUSEHOLD', 'Living outside of your household', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(481, 'LIVING_IN_HOUSEHOLD', 'Habite dans votre maison, ou', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(481, 'LIVING_IN_HOUSEHOLD', 'Living in your household, or', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(482, 'MALE', 'Sexe masculin', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(482, 'FEMALE', 'Female', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(484, 'ONCE_YEAR', 'Au moins une fois par an', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(484, 'ONCE_YEAR', 'At least once a year', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(484, 'ONCE_MONTH', 'At least once a month', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(484, 'ONCE_DAY', 'Au moins une fois par jour', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(484, 'ONCE_WEEK', 'At least once a week', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(484, 'ONCE_MONTH', 'Au moins une fois par mois', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(484, 'ONCE_WEEK', 'Au moins une fois par semaine', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(484, 'ONCE_DAY', 'At least once a day', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(486, 'SON_DAUGHTER_IN_LAW', 'Son-in-law/daughter-in-law', 0, 9, 'en', 0);
+INSERT INTO answers VALUES(486, 'FATHER_MOTHER_IN_LAW', 'Beau-père/ belle-mère', 0, 8, 'fr', 0);
+INSERT INTO answers VALUES(486, 'BROTHER_SISTER', 'Frère/ soeur', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(486, 'BROTHER_SISTER', 'Brother/sister', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(486, 'FATHER_MOTHER', 'Father/mother', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(486, 'HUSBAND_WIFE', 'Époux/ épouse', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(486, 'COMMON_LAW', 'Common-law partner', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(486, 'FATHER_MOTHER_IN_LAW', 'Father-in-law/mother-in-law', 0, 8, 'en', 0);
+INSERT INTO answers VALUES(486, 'GRAND_CHILD', 'Petit-fils/ petite-fille', 0, 7, 'fr', 0);
+INSERT INTO answers VALUES(486, 'GRAND_CHILD', 'Grandson/grandaughter', 0, 7, 'en', 0);
+INSERT INTO answers VALUES(486, 'GRAND_PARENTS', 'Grand-père/ grand-mère', 0, 6, 'fr', 0);
+INSERT INTO answers VALUES(486, 'GRAND_PARENTS', 'Grandfather/grandmother', 0, 6, 'en', 0);
+INSERT INTO answers VALUES(486, 'SON_DAUGHTER', 'Fils/ fille', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(486, 'SON_DAUGHTER', 'Son/daughter', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(486, 'FATHER_MOTHER', 'Père/ mère', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(486, 'COMMON_LAW', 'Partenaire en union libre', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(486, 'HUSBAND_WIFE', 'Husband/wife', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(487, 'ONCE_YEAR', 'Au moins une fois par an', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(487, 'ONCE_YEAR', 'At least once a year', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(487, 'ONCE_MONTH', 'At least once a month', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(487, 'ONCE_DAY', 'Au moins une fois par jour', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(487, 'ONCE_WEEK', 'At least once a week', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(487, 'ONCE_MONTH', 'Au moins une fois par mois', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(487, 'ONCE_WEEK', 'Au moins une fois par semaine', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(487, 'ONCE_DAY', 'At least once a day', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(488, '37_60_MONTHS', 'More than 36 months (3 years) and up to 60 months (5 years)', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(488, 'LESS_6_MONTHS', 'Moins de 6 mois', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(488, '6_12_MONTHS', '6 months up to 12 months (1 year)', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(488, '37_60_MONTHS', 'Entre 36 mois (3 ans) et 60 mois (5 ans)', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(488, '6_12_MONTHS', 'Entre 6 et 12 mois (1 an)', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(489, 'ONCE_DAY', 'Au moins une fois par jour', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(489, 'ONCE_WEEK', 'At least once a week', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(489, 'ONCE_WEEK', 'Au moins une fois par semaine', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(489, 'ONCE_MONTH', 'At least once a month', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(489, 'ONCE_MONTH', 'Au moins une fois par mois', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(489, 'ONCE_YEAR', 'At least once a year', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(489, 'ONCE_YEAR', 'Au moins une fois par an', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(489, 'NEVER', 'Never', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(489, 'NEVER', 'Jamais', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(489, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 6, 'en', 0);
+INSERT INTO answers VALUES(490, 'ONCE_DAY', 'Au moins une fois par jour', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(490, 'ONCE_WEEK', 'At least once a week', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(490, 'ONCE_WEEK', 'Au moins une fois par semaine', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(490, 'ONCE_MONTH', 'At least once a month', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(490, 'ONCE_MONTH', 'Au moins une fois par mois', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(490, 'ONCE_YEAR', 'At least once a year', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(490, 'ONCE_YEAR', 'Au moins une fois par an', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(490, 'NEVER', 'Never', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(490, 'NEVER', 'Jamais', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(490, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 6, 'en', 0);
+INSERT INTO answers VALUES(492, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(492, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(492, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(492, 'NO', 'No', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(492, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(498, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(498, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(498, 'YES', 'Yes ', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(501, 'REFUSED', '[DO NOT READ] Refused', 0, 9, 'en', 0);
+INSERT INTO answers VALUES(501, 'MEAL_PREPARATION', 'De la préparation ou livraison des repas', 0, 6, 'fr', 0);
+INSERT INTO answers VALUES(501, 'MANAGING_CARE', 'Managing care such as making appointments', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(501, 'MANAGING_CARE', 'De la gestion des soins comme prendre des rendez-vous', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(501, 'HELP_WITH_ACTIVITIES', 'Help with activities such as housework, home maintenance, or outdoor work', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(501, 'HELP_WITH_ACTIVITIES', 'De laide pour diverses activités comme les travaux ménagers, lentretien de la maison et des travaux extérieurs', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(501, 'TRANSPORTATION', 'Transportation, including trips to the doctor or for shopping', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(501, 'TRANSPORTATION', 'Du transport comme pour les visites chez le médecin ou pour le magasinage', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(501, 'MEAL_PREPARATION', 'Meal preparation or delivery', 0, 6, 'en', 0);
+INSERT INTO answers VALUES(501, 'MEDICAL_CARE', 'Medical care such as help taking medicine or help with nursing care (for example, dressing changes or foot care)', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(501, 'PERSONAL_CARE', 'Personal care such as assistance with eating, dressing, bathing, or toileting', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(501, 'PERSONAL_CARE', 'Des soins personnels comme de laide pour manger, shabiller, prendre un bain ou utiliser les toilettes', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(503, 'DIDNT_PAY_COST', 'No, we didnt pay any of the cost that was involved', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(503, 'NO_COST_INVOLVED', 'Non, il ny avait pas de coût associé à cette aide (ex : donné par un bénévole ou inclus dans un régime dassurance-soins médicaux)', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(503, 'PAID_ALL_COST', 'Oui, nous avons payé la totalité des coûts', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(503, 'PAID_PART_COST', 'Yes, we paid part of the cost', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(503, 'PAID_PART_COST', 'Oui, nous avons payé une partie des coûts', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(503, 'NO_COST_INVOLVED', 'No, there was no cost involved (e.g., provided by a volunteer or included in provincial health care plan)', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(503, 'PAID_ALL_COST', 'Yes, we paid all of the cost', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(508, 'EVERY_DAY', 'Tous les jours', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(508, 'SEVERAL_TIMES_WEEK', 'Several times a week', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(508, 'SEVERAL_TIMES_WEEK', 'Plusieurs fois par semaine', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(508, 'SEVERAL_TIMES_MONTH', 'Several times a month', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(508, 'SEVERAL_TIMES_MONTH', 'Plusieurs fois par mois', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(508, 'SEVERAL_TIMES_YEAR', 'Several times a year', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(508, 'SEVERAL_TIMES_YEAR', 'Plusieurs fois par année', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(508, 'ONCE_YEAR_OR_LESS', 'Once a year or less', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(508, 'ONCE_YEAR_OR_LESS', 'Une fois par année ou moins', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(509, 'SEVERAL_TIMES_YEAR', 'Plusieurs fois par année', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(509, 'SEVERAL_TIMES_YEAR', 'Several times a year', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(509, 'SEVERAL_TIMES_MONTH', 'Plusieurs fois par mois', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(509, 'SEVERAL_TIMES_MONTH', 'Several times a month', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(509, 'SEVERAL_TIMES_WEEK', 'Plusieurs fois par semaine', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(509, 'EVERY_DAY', 'Tous les jours', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(509, 'SEVERAL_TIMES_WEEK', 'Several times a week', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(509, 'EVERY_DAY', 'Every day', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(519, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(519, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(519, 'DK_NA', '[DO NOT READ] Dont know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(519, 'NO', 'No', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(519, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(520, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(520, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(520, 'NO', 'No', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(520, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(520, 'DK_NA', '[DO NOT READ] Dont know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(521, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(521, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(521, 'DK_NA', '[DO NOT READ] Dont know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(521, 'NO', 'No', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(521, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(522, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(522, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(522, 'DK_NA', '[DO NOT READ] Dont know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(522, 'NO', 'No', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(522, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(523, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(523, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(523, 'DK_NA', '[DO NOT READ] Dont know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(523, 'NO', 'No', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(523, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(524, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(524, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(524, 'DK_NA', '[DO NOT READ] Dont know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(524, 'NO', 'No', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(524, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(525, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(525, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(525, 'DK_NA', '[DO NOT READ] Dont know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(525, 'NO', 'No', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(525, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(526, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(526, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(526, 'DK_NA', '[DO NOT READ] Dont know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(526, 'NO', 'No', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(526, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(527, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(527, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(527, 'DK_NA', '[DO NOT READ] Dont know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(527, 'NO', 'No', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(527, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(528, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(528, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(528, 'DK_NA', '[DO NOT READ] Dont know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(528, 'NO', 'No', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(528, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(529, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(529, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(529, 'DK_NA', '[DO NOT READ] Dont know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(529, 'NO', 'No', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(529, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(530, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(530, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(530, 'DK_NA', '[DO NOT READ] Dont know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(530, 'NO', 'No', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(530, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(531, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(531, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(531, 'DK_NA', '[DO NOT READ] Dont know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(531, 'NO', 'No', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(531, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(532, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(532, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(532, 'DK_NA', '[DO NOT READ] Dont know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(532, 'NO', 'No', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(532, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(533, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(533, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(533, 'DK_NA', '[DO NOT READ] Dont know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(533, 'NO', 'No', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(533, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(534, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(534, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(534, 'DK_NA', '[DO NOT READ] Dont know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(534, 'NO', 'No', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(534, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(535, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(535, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(535, 'DK_NA', '[DO NOT READ] Dont know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(535, 'NO', 'No', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(535, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(536, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(536, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(536, 'DK_NA', '[DO NOT READ] Dont know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(536, 'NO', 'No', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(536, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(537, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(537, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(537, 'DK_NA', '[DO NOT READ] Dont know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(537, 'NO', 'No', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(537, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(538, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(538, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(538, 'DK_NA', '[DO NOT READ] Dont know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(538, 'NO', 'No', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(538, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(539, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(539, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(539, 'DK_NA', '[DO NOT READ] Dont know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(539, 'NO', 'No', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(539, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(75, 'NO', 'No', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(75, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(95, 'LESS_20000', 'Moins de 20 000 $', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(95, '20000_50000', '$20,000 or more, but less than $50,000', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(95, '20000_50000', '20 000 $ ou plus, mais moins de 50 000 $', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(388, 'WITHIN_LAST_DAY_TWO', 'Within the last day or two', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(388, 'WITHIN_LAST_DAY_TWO', 'Hier ou avant-hier', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(388, 'WITHIN_LAST_WEEK_TWO', 'Within the last week or two', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(388, 'WITHIN_LAST_WEEK_TWO', 'Cette semaine ou la semaine dernière', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(388, 'WITHIN_PAST_MONTH', 'Within the past month', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(388, 'WITHIN_PAST_MONTH', 'Ce mois-ci', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(388, 'WITHIN_PAST_6_MONTHS', 'Within the past 6 months', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(397, 'DID_NOT_READ_INSTRUCTIONS', 'Did not read the instructions', 0, 7, 'en', 0);
+INSERT INTO answers VALUES(397, 'DID_NOT_READ_INSTRUCTIONS', 'Na pas lu les consignes', 0, 7, 'fr', 0);
+INSERT INTO answers VALUES(6, 'HUNGARY', 'Hungary', 0, 8, 'en', 0);
+INSERT INTO answers VALUES(6, 'HONG_KONG', 'Hong Kong', 0, 7, 'fr', 0);
+INSERT INTO answers VALUES(55, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(55, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(6, 'US', 'États-Unis', 0, 17, 'fr', 0);
+INSERT INTO answers VALUES(6, 'VIETNAM', 'Vietnam', 0, 18, 'en', 0);
+INSERT INTO answers VALUES(6, 'VIETNAM', 'Viêt-Nam', 0, 18, 'fr', 0);
+INSERT INTO answers VALUES(6, 'SRI_LANKA', 'Sri Lanka', 0, 19, 'en', 0);
+INSERT INTO answers VALUES(6, 'SRI_LANKA', 'Sri-Lanka', 0, 19, 'fr', 0);
+INSERT INTO answers VALUES(6, 'OTHER', 'Other (please specify)', 0, 20, 'en', 0);
+INSERT INTO answers VALUES(6, 'OTHER', 'Autre (veuillez préciser : __________)', 0, 20, 'fr', 0);
+INSERT INTO answers VALUES(6, 'DK_NA', '[DO NOT READ] Don''t know/ No answer', 0, 21, 'en', 0);
+INSERT INTO answers VALUES(6, 'DK_NA', '[NE PAS LIRE] Ne sais pas/ pas de réponse', 0, 21, 'fr', 0);
+INSERT INTO answers VALUES(22, 'OTHER', 'Autre (veuillez préciser : __________)', 0, 18, 'fr', 0);
+INSERT INTO answers VALUES(22, 'OTHER', 'Other (please specify)', 0, 18, 'en', 0);
+INSERT INTO answers VALUES(22, 'NO_RELIGION', '[NE PAS LIRE] Aucune religion (agnostique, athée)', 0, 17, 'fr', 0);
+INSERT INTO answers VALUES(22, 'JEHOVAHS_WITNESS', 'Témoins de Jéhovah', 0, 16, 'fr', 0);
+INSERT INTO answers VALUES(22, 'NO_RELIGION', '[DO NOT READ] No religion (Agnostic, Atheist)', 0, 17, 'en', 0);
+INSERT INTO answers VALUES(22, 'JEHOVAHS_WITNESS', 'Jehovahs Witness', 0, 16, 'en', 0);
+INSERT INTO answers VALUES(22, 'SIKH', 'Sikh', 0, 15, 'fr', 0);
+INSERT INTO answers VALUES(24, 'REFUSED', '[DO NOT READ] Refused', 0, 6, 'en', 0);
+INSERT INTO answers VALUES(24, 'SEPARATED', 'Séparé', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(24, 'SEPARATED', 'Separated', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(24, 'WIDOWED', 'Veuf', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(24, 'DIVORCED', 'Divorced', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(24, 'DIVORCED', 'Divorcé', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(25, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(25, 'HETEROSEXUAL', 'Heterosexual? (sexual relations with people of the opposite sex)', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(26, 'OTHER', 'Autre (veuillez préciser _________)', 0, 6, 'fr', 0);
+INSERT INTO answers VALUES(26, 'HOTEL', 'Hotel, rooming or lodging house', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(26, 'HOTEL', 'Hôtel, maison de chambres', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(26, 'OTHER', 'Other (please specify)', 0, 6, 'en', 0);
+INSERT INTO answers VALUES(26, 'INSTITUTION', 'Institution (habitation pour personnes âgées)', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(27, 'OTHER', 'Other (Please specify)', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(27, 'OTHER', 'Autre (veuillez préciser)', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(28, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(28, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(28, 'PAID_OFF', 'Prêt entièrement remboursé', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(29, 'REFUSED', '[DO NOT READ] Refused', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(29, 'GRADE_8', 'Grade 8 or lower (Québec: Secondary II or lower)', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(30, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(30, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(30, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(31, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(31, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(31, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(32, 'DK_NA', '[DO NOT READ] Don''t know/ No answer', 0, 8, 'en', 0);
+INSERT INTO answers VALUES(32, 'OTHER', 'Autre (veuillez préciser : __________)', 0, 7, 'fr', 0);
+INSERT INTO answers VALUES(32, 'OTHER', 'Other (please specify)', 0, 7, 'en', 0);
+INSERT INTO answers VALUES(32, 'DEGREE_ABOVE_BACHELOR', 'Diplôme ou certificat universitaire supérieur au baccalauréat', 0, 6, 'fr', 0);
+INSERT INTO answers VALUES(32, 'DEGREE_ABOVE_BACHELOR', 'University degree or certificate above bachelors degree', 0, 6, 'en', 0);
+INSERT INTO answers VALUES(35, 'REFUSED', '[DO NOT READ] Refused', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(40, 'REFUSED', '[NE PAS LIRE] Refus', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(54, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(54, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(54, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(6, 'REFUSE', '[DO NOT READ] Refused', 0, 22, 'en', 0);
+INSERT INTO answers VALUES(55, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(57, 'REFUSED', '[DO NOT READ] Refused', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(57, 'DAILY_PAST_30_DAYS', 'Daily (at least one cigarette every day for the past 30 days)', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(59, '21_25_CIGARETTES', '21 à 25 cigarettes', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(59, '21_25_CIGARETTES', '21-25 cigarettes', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(59, '16_20_CIGARETTES', '16 à 20 cigarettes', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(59, '16_20_CIGARETTES', '16-20 cigarettes', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(62, '21_25_CIGARETTES', '21 à 25 cigarettes', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(62, '21_25_CIGARETTES', '21-25 cigarettes', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(62, '16_20_CIGARETTES', '16-20 cigarettes', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(62, '16_20_CIGARETTES', '16 à 20 cigarettes', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(64, '21_29_DAYS', '21-29 days', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(64, '21_29_DAYS', '21 à 29 jours', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(65, '16_20_CIGARETTES', '16-20 cigarettes', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(65, '16_20_CIGARETTES', '16 à 20 cigarettes', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(65, '21_25_CIGARETTES', '21-25 cigarettes', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(66, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(66, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(66, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(68, '21_25_CIGARETTES', '21 à 25 cigarettes', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(68, '21_25_CIGARETTES', '21-25 cigarettes', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(68, '16_20_CIGARETTES', '16 à 20 cigarettes', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(68, '16_20_CIGARETTES', '16-20 cigarettes', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(71, 'LESS_1_YEAR_AGO', 'Il y a moins dun an', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(71, '1_2_YEARS_AGO', '1-2 years ago', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(71, '1_2_YEARS_AGO', 'Il y a entre 1 et 2 ans', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(71, 'LESS_1_YEAR_AGO', 'Less than 1 year ago', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(72, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(72, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(72, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(75, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(75, 'DK_NA', '[DO NOT READ] Dont know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(75, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(79, 'AT_LEAST_ONCE_WEEK', 'At least once a week', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(79, 'ALMOST_EVERYDAY', 'Pratiquement tous les jours', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(79, 'ALMOST_EVERYDAY', 'Almost every day', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(79, 'REFUSED', '[DO NOT READ] Refused', 0, 8, 'en', 0);
+INSERT INTO answers VALUES(79, 'DAILY', 'Tous les jours', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(79, 'DAILY', 'Everyday', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(80, 'AT_LEAST_ONCE_WEEK', 'At least once a week', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(80, 'ALMOST_EVERYDAY', 'Pratiquement tous les jours', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(80, 'ALMOST_EVERYDAY', 'Almost every day', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(80, 'REFUSED', '[DO NOT READ] Refused', 0, 8, 'en', 0);
+INSERT INTO answers VALUES(80, 'DAILY', 'Tous les jours', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(80, 'DAILY', 'Everyday', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(82, 'AT_LEAST_ONCE_WEEK', 'At least once a week', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(82, 'ALMOST_EVERYDAY', 'Pratiquement tous les jours', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(82, 'ALMOST_EVERYDAY', 'Almost every day', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(82, 'REFUSED', '[DO NOT READ] Refused', 0, 8, 'en', 0);
+INSERT INTO answers VALUES(82, 'DAILY', 'Tous les jours', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(82, 'DAILY', 'Everyday', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(6, 'REFUSE', '[NE PAS LIRE] Refus', 0, 22, 'fr', 0);
+INSERT INTO answers VALUES(22, 'DK_NA', '[DO NOT READ] Dont know/No answer', 0, 19, 'en', 0);
+INSERT INTO answers VALUES(22, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 19, 'fr', 0);
+INSERT INTO answers VALUES(22, 'REFUSED', '[DO NOT READ] Refused', 0, 20, 'en', 0);
+INSERT INTO answers VALUES(22, 'REFUSED', '[NE PAS LIRE] Refus', 0, 20, 'fr', 0);
+INSERT INTO answers VALUES(26, 'REFUSED', '[NE PAS LIRE] Refus', 0, 8, 'fr', 0);
+INSERT INTO answers VALUES(29, 'REFUSED', '[NE PAS LIRE] Refus', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(32, 'REFUSED', '[NE PAS LIRE] Refus', 0, 9, 'fr', 0);
+INSERT INTO answers VALUES(35, 'REFUSED', '[NE PAS LIRE] Refus', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(59, '26_OR_MORE_CIGARETTES', 'Si 26 cigarettes et plus, combien? _____', 0, 6, 'fr', 0);
+INSERT INTO answers VALUES(62, '26_OR_MORE_CIGARETTES', 'Si 26 cigarettes et plus, combien? _____', 0, 6, 'fr', 0);
+INSERT INTO answers VALUES(64, '11_20_DAYS', '11-20 days', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(65, '6_10_CIGARETTES', '6 à 10 cigarettes', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(68, '26_OR_MORE_CIGARETTES', 'Si 26 cigarettes et plus, combien? _____', 0, 6, 'fr', 0);
+INSERT INTO answers VALUES(71, 'REFUSED', '[NE PAS LIRE] Refus ', 0, 6, 'fr', 0);
+INSERT INTO answers VALUES(79, 'REFUSED', '[NE PAS LIRE] Refus', 0, 8, 'fr', 0);
+INSERT INTO answers VALUES(80, 'REFUSED', '[NE PAS LIRE] Refus', 0, 8, 'fr', 0);
+INSERT INTO answers VALUES(82, 'REFUSED', '[NE PAS LIRE] Refus', 0, 8, 'fr', 0);
+INSERT INTO answers VALUES(84, 'ABOUT_ONCE_MONTH', 'À peu près une fois par mois', 0, 6, 'fr', 0);
+INSERT INTO answers VALUES(84, 'LESS_ONCE_MONTH', 'Less than once a month', 0, 7, 'en', 0);
+INSERT INTO answers VALUES(84, 'LESS_ONCE_MONTH', 'Moins dune fois par mois', 0, 7, 'fr', 0);
+INSERT INTO answers VALUES(84, 'NEVER', 'Never', 0, 8, 'en', 0);
+INSERT INTO answers VALUES(84, 'NEVER', 'Jamais', 0, 8, 'fr', 0);
+INSERT INTO answers VALUES(84, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 9, 'en', 0);
+INSERT INTO answers VALUES(84, 'DK_NA', '[NE PAS LIRE] Ne sais pas/ pas de réponse', 0, 9, 'fr', 0);
+INSERT INTO answers VALUES(84, 'REFUSED', '[DO NOT READ] Refused', 0, 10, 'en', 0);
+INSERT INTO answers VALUES(84, 'REFUSED', '[NE PAS LIRE] Refus', 0, 10, 'fr', 0);
+INSERT INTO answers VALUES(93, 'ABOUT_ONCE_MONTH', 'À peu près une fois par mois', 0, 6, 'fr', 0);
+INSERT INTO answers VALUES(93, 'LESS_ONCE_MONTH', 'Less than once a month', 0, 7, 'en', 0);
+INSERT INTO answers VALUES(93, 'LESS_ONCE_MONTH', 'Moins dune fois par mois', 0, 7, 'fr', 0);
+INSERT INTO answers VALUES(93, 'NEVER', 'Never', 0, 8, 'en', 0);
+INSERT INTO answers VALUES(93, 'NEVER', 'Jamais', 0, 8, 'fr', 0);
+INSERT INTO answers VALUES(93, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 9, 'en', 0);
+INSERT INTO answers VALUES(93, 'DK_NA', '[NE PAS LIRE] Ne sais pas/ pas de réponse', 0, 9, 'fr', 0);
+INSERT INTO answers VALUES(93, 'REFUSED', '[DO NOT READ] Refused', 0, 10, 'en', 0);
+INSERT INTO answers VALUES(93, 'REFUSED', '[NE PAS LIRE] Refus', 0, 10, 'fr', 0);
+INSERT INTO answers VALUES(96, 'NEVER', 'Jamais', 0, 8, 'fr', 0);
+INSERT INTO answers VALUES(96, 'NEVER', 'Never', 0, 8, 'en', 0);
+INSERT INTO answers VALUES(96, 'LESS_THAN_ONCE_MONTH', 'Moins dune fois par mois', 0, 7, 'fr', 0);
+INSERT INTO answers VALUES(96, 'LESS_THAN_ONCE_MONTH', 'Less than once a month', 0, 7, 'en', 0);
+INSERT INTO answers VALUES(96, 'ALMOST_EVERY_DAY', 'Almost every day (incl. 6 times a week)', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(97, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(98, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 6, 'en', 0);
+INSERT INTO answers VALUES(98, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 6, 'fr', 0);
+INSERT INTO answers VALUES(98, 'REFUSED', '[DO NOT READ] Refused', 0, 7, 'en', 0);
+INSERT INTO answers VALUES(98, 'REFUSED', '[NE PAS LIRE] Refus', 0, 7, 'fr', 0);
+INSERT INTO answers VALUES(99, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 6, 'en', 0);
+INSERT INTO answers VALUES(99, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 6, 'fr', 0);
+INSERT INTO answers VALUES(99, 'REFUSED', '[DO NOT READ] Refused', 0, 7, 'en', 0);
+INSERT INTO answers VALUES(99, 'REFUSED', '[NE PAS LIRE] Refus', 0, 7, 'fr', 0);
+INSERT INTO answers VALUES(101, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 6, 'en', 0);
+INSERT INTO answers VALUES(101, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 6, 'fr', 0);
+INSERT INTO answers VALUES(101, 'REFUSED', '[DO NOT READ] Refused', 0, 7, 'en', 0);
+INSERT INTO answers VALUES(101, 'REFUSED', '[NE PAS LIRE] Refus', 0, 7, 'fr', 0);
+INSERT INTO answers VALUES(508, 'EVERY_DAY', 'Every day', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(508, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 6, 'fr', 0);
+INSERT INTO answers VALUES(508, 'REFUSED', '[DO NOT READ] Refused', 0, 7, 'en', 0);
+INSERT INTO answers VALUES(508, 'DK_NA', '[DO NOT READ] Dont know/No answer', 0, 6, 'en', 0);
+INSERT INTO answers VALUES(509, 'ONCE_YEAR_OR_LESS', 'Once a year or less', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(509, 'ONCE_YEAR_OR_LESS', 'Une fois par année ou moins', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(509, 'DK_NA', '[DO NOT READ] Dont know/No answer', 0, 6, 'en', 0);
+INSERT INTO answers VALUES(509, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 6, 'fr', 0);
+INSERT INTO answers VALUES(509, 'REFUSED', '[DO NOT READ] Refused', 0, 7, 'en', 0);
+INSERT INTO answers VALUES(509, 'REFUSED', '[NE PAS LIRE] Refus', 0, 7, 'fr', 0);
+INSERT INTO answers VALUES(102, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(102, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(102, 'REFUSED', '[DO NOT READ] Refused', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(102, 'REFUSED', '[NE PAS LIRE] Refus', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(104, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(104, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(104, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(105, 'DEVICE_PROGESTERONE', 'Intra-uterine device with progesterone', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(105, 'DEVICE_PROGESTERONE', 'Dispositif intra-utérin avec progestérone', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(105, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 6, 'en', 0);
+INSERT INTO answers VALUES(105, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 6, 'fr', 0);
+INSERT INTO answers VALUES(105, 'REFUSED', '[DO NOT READ] Refused', 0, 7, 'en', 0);
+INSERT INTO answers VALUES(105, 'REFUSED', '[NE PAS LIRE] Refus', 0, 7, 'fr', 0);
+INSERT INTO answers VALUES(108, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 6, 'en', 0);
+INSERT INTO answers VALUES(108, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 6, 'fr', 0);
+INSERT INTO answers VALUES(108, 'REFUSED', '[DO NOT READ] Refused', 0, 7, 'en', 0);
+INSERT INTO answers VALUES(108, 'REFUSED', '[NE PAS LIRE] Refus', 0, 7, 'fr', 0);
+INSERT INTO answers VALUES(109, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(109, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(109, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(112, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 6, 'en', 0);
+INSERT INTO answers VALUES(112, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 6, 'fr', 0);
+INSERT INTO answers VALUES(112, 'REFUSED', '[DO NOT READ] Refused', 0, 7, 'en', 0);
+INSERT INTO answers VALUES(112, 'REFUSED', '[NE PAS LIRE] Refus', 0, 7, 'fr', 0);
+INSERT INTO answers VALUES(113, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(113, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(113, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(114, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(114, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(114, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(225, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(225, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(225, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(226, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(226, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(226, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(227, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(227, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(227, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(228, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(228, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(228, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(229, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(229, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(229, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(230, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(230, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(230, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(231, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(231, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(231, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(232, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(232, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(232, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(233, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(233, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(233, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(234, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(234, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(234, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(235, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(235, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(235, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(236, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(236, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(236, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(237, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(237, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(237, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(238, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(238, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(238, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(240, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(240, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(240, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(242, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(242, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(242, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(243, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(243, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(243, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(244, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(244, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(244, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(245, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(245, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(245, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(246, '1_2_TIME_WEEK', 'Once or twice a week', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(246, '0_1_TIME_WEEK', 'Jamais ou moins dune fois par semaine', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(246, '0_1_TIME_WEEK', 'Never or less than once a week', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(246, 'REFUSED', '[NE PAS LIRE] Refus', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(519, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(519, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(519, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(520, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(520, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(520, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(521, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(521, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(521, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(522, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(522, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(522, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(523, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(523, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(523, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(524, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(524, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(524, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(525, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(525, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(525, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(526, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(526, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(526, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(527, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(527, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(527, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(528, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(528, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(528, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(529, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(529, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(529, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(530, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(530, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(530, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(531, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(531, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(531, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(532, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(532, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(532, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(533, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(533, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(533, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(534, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(534, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(534, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(535, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(535, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(535, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(536, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(536, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(536, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(537, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(537, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(537, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(538, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(538, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(538, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(539, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(539, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(539, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(424, 'REFUSED', '[NE PAS LIRE] Refus', 0, 7, 'fr', 0);
+INSERT INTO answers VALUES(419, 'REFUSED', '[NE PAS LIRE] Refus', 0, 7, 'fr', 0);
+INSERT INTO answers VALUES(1622, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(1621, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(1615, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(1584, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(1585, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(1142, 'REFUSED', 'Refuse de donner une personne contact', 1, 3, 'fr', 0);
+INSERT INTO answers VALUES(1142, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(1142, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(1586, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(1587, 'NO', 'No', 1, 2, 'en', 0);
+INSERT INTO answers VALUES(1587, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(1590, 'YES', 'Yes, clearly heard recording ', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(1591, 'YES', 'Yes ,clearly heard', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(1592, 'NO', 'No', 1, 2, 'en', 0);
+INSERT INTO answers VALUES(1592, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(1595, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(1595, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(1596, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(1585, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(334, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(334, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(334, 'REFUSED', '[DO NOT READ] Refused', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(334, 'REFUSED', '[NE PAS LIRE] Refus', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(337, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(337, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(337, 'REFUSED', '[DO NOT READ] Refused', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(337, 'REFUSED', '[NE PAS LIRE] Refus', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(343, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(343, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(343, 'REFUSED', '[DO NOT READ] Refused', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(343, 'REFUSED', '[NE PAS LIRE] Refus', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(344, 'REFUSED', '[NE PAS LIRE] Refus', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(344, 'REFUSED', '[DO NOT READ] Refused', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(344, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(344, 'DISAGREE', 'En désaccord', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(344, 'DISAGREE', 'Disagree', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(346, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(346, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(346, 'REFUSED', '[DO NOT READ] Refused', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(346, 'REFUSED', '[NE PAS LIRE] Refus', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(353, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(353, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(353, 'REFUSED', '[DO NOT READ] Refused', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(353, 'REFUSED', '[NE PAS LIRE] Refus', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(359, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(359, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(359, 'REFUSED', '[DO NOT READ] Refused', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(359, 'REFUSED', '[NE PAS LIRE] Refus', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(361, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(361, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(361, 'REFUSED', '[DO NOT READ] Refused', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(361, 'REFUSED', '[NE PAS LIRE] Refus', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(366, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(366, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(366, 'REFUSED', '[DO NOT READ] Refused', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(366, 'REFUSED', '[NE PAS LIRE] Refus', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(367, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(367, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(367, 'REFUSED', '[DO NOT READ] Refused', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(367, 'REFUSED', '[NE PAS LIRE] Refus', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(368, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(368, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(368, 'REFUSED', '[DO NOT READ] Refused', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(368, 'REFUSED', '[NE PAS LIRE] Refus', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(369, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(369, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(369, 'REFUSED', '[DO NOT READ] Refused', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(369, 'REFUSED', '[NE PAS LIRE] Refus', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(370, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(370, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(370, 'REFUSED', '[DO NOT READ] Refused', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(370, 'REFUSED', '[NE PAS LIRE] Refus', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(371, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(371, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(371, 'REFUSED', '[DO NOT READ] Refused', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(371, 'REFUSED', '[NE PAS LIRE] Refus', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(372, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(372, 'REFUSED', '[DO NOT READ] Refused', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(372, 'REFUSED', '[NE PAS LIRE] Refus', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(373, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(373, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(373, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(374, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(374, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(374, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(375, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(375, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(375, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(376, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(376, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(376, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(503, 'DIDNT_PAY_COST', 'Non, nous navons pas payé les coûts associés à cette aide', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(503, 'DK_NA', '[DO NOT READ] Dont know/No answer', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(503, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(503, 'REFUSED', '[DO NOT READ] Refused', 0, 6, 'en', 0);
+INSERT INTO answers VALUES(503, 'REFUSED', '[NE PAS LIRE] Refus', 0, 6, 'fr', 0);
+INSERT INTO answers VALUES(996, 'RING_OUT', 'No answer - ring out', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(996, 'ANSWERING_MACHING_UNKNOWN_PARTICIPANT_HOUSEHOLD', 'Appel sans réponse - ne sait pas si le participant habite à cette adresse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(999, 'NOT_AVAILABLE', 'Participant not available', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(999, 'AVAILABLE', 'Participant disponible', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(1000, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(1000, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(1001, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(1001, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(1003, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(996, 'ANSWERING_MACHING_UNKNOWN_PARTICIPANT_HOUSEHOLD', 'No answer-unknown if participant lives in household', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(999, 'NOT_AVAILABLE', 'Participant non disponible', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(481, 'LIVING_OUTSIE_HOUSEHOLD', 'Habite à lextérieur de votre maison', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(481, 'REFUSED', '[DO NOT READ] Refused', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(481, 'REFUSED', '[NE PAS LIRE] Refus', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(482, 'FEMALE', 'Sexe féminin', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(482, 'MALE', 'Male', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(486, 'SON_DAUGHTER_IN_LAW', 'Beau-fils/ belle-fille', 0, 9, 'fr', 0);
+INSERT INTO answers VALUES(486, 'BROTHER_SISTER_IN_LAW', 'Brother-in-law/sister-in-law', 0, 10, 'en', 0);
+INSERT INTO answers VALUES(486, 'BROTHER_SISTER_IN_LAW', 'Beau-frère/belle-soeur', 0, 10, 'fr', 0);
+INSERT INTO answers VALUES(486, 'OTHER_RELATIVE', 'Other relative', 0, 11, 'en', 0);
+INSERT INTO answers VALUES(486, 'OTHER_RELATIVE', 'Autre parent', 0, 11, 'fr', 0);
+INSERT INTO answers VALUES(486, 'FRIEND', 'Friend', 0, 12, 'en', 0);
+INSERT INTO answers VALUES(486, 'FRIEND', 'Ami', 0, 12, 'fr', 0);
+INSERT INTO answers VALUES(486, 'NEIGHBOUR', 'Neighbour', 0, 13, 'en', 0);
+INSERT INTO answers VALUES(486, 'NEIGHBOUR', 'Voisin', 0, 13, 'fr', 0);
+INSERT INTO answers VALUES(486, 'OTHER', 'Other ', 0, 14, 'en', 0);
+INSERT INTO answers VALUES(486, 'OTHER', 'Autre', 0, 14, 'fr', 0);
+INSERT INTO answers VALUES(486, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 15, 'en', 0);
+INSERT INTO answers VALUES(486, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 15, 'fr', 0);
+INSERT INTO answers VALUES(486, 'REFUSED', '[DO NOT READ] Refused', 0, 16, 'en', 0);
+INSERT INTO answers VALUES(486, 'REFUSED', '[NE PAS LIRE] Refus', 0, 16, 'fr', 0);
+INSERT INTO answers VALUES(417, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(498, 'NO', 'No ', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(498, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(1003, 'REFUSES_CONFIRMED_ADDRESS_OR_TO_PARTICIPATE', 'Participant refuses to confirm address/ Does not wish to participate', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(1011, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(1011, 'NO', 'No', 1, 2, 'en', 0);
+INSERT INTO answers VALUES(1011, 'NO', 'Non', 1, 2, 'fr', 0);
+INSERT INTO answers VALUES(1011, 'REFUSES_CONFIRMED_ADDRESS_OR_TO_PARTICIPATE', 'Participant refuses to confirm address/ Does not want to participate', 1, 3, 'en', 0);
+INSERT INTO answers VALUES(1013, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(1013, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(1013, 'NO', 'No', 1, 2, 'en', 0);
+INSERT INTO answers VALUES(1013, 'NO', 'Non', 1, 2, 'fr', 0);
+INSERT INTO answers VALUES(1013, 'REFUSES_CONFIRMED_ADDRESS_OR_TO_PARTICIPATE', 'Participant refuses to confirm address/ Does not want to participate', 1, 3, 'en', 0);
+INSERT INTO answers VALUES(1015, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(1016, 'GIVE_2_CONTACTS', 'Can give 2 contacts', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(1016, 'GIVE_2_CONTACTS', 'Peut donner 2 personnes contacts', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(1017, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(1017, 'NO', 'No', 1, 2, 'en', 0);
+INSERT INTO answers VALUES(461, 'DECEASED', 'Est décédée', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(461, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(461, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(461, 'REFUSED', '[DO NOT READ] Refused', 0, 6, 'en', 0);
+INSERT INTO answers VALUES(461, 'REFUSED', '[NE PAS LIRE] Refus', 0, 6, 'fr', 0);
+INSERT INTO answers VALUES(462, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(462, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(462, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(463, 'BROTHER_SISTER_IN_LAW', 'Votre beau-frère ou belle-soeur', 0, 9, 'fr', 0);
+INSERT INTO answers VALUES(463, 'OTHER_RELATIVE', 'Other relative', 0, 10, 'en', 0);
+INSERT INTO answers VALUES(463, 'OTHER_RELATIVE', 'Un autre parent', 0, 10, 'fr', 0);
+INSERT INTO answers VALUES(463, 'FRIEND_NEIGHBOUR_OTHER', 'Friend, neighbor, or other', 0, 11, 'en', 0);
+INSERT INTO answers VALUES(463, 'FRIEND_NEIGHBOUR_OTHER', 'Un(e) ami(e), un(e) voisin(e) ou autre', 0, 11, 'fr', 0);
+INSERT INTO answers VALUES(463, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 12, 'en', 0);
+INSERT INTO answers VALUES(463, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 12, 'fr', 0);
+INSERT INTO answers VALUES(463, 'REFUSED', '[DO NOT READ] Refused', 0, 13, 'en', 0);
+INSERT INTO answers VALUES(463, 'REFUSED', '[NE PAS LIRE] Refus', 0, 13, 'fr', 0);
+INSERT INTO answers VALUES(425, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(425, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(425, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(433, 'MACHINERY', 'Accident impliquant de léquipement/machines', 0, 15, 'fr', 0);
+INSERT INTO answers VALUES(433, 'REFUSED', '[NE PAS LIRE] Refus', 0, 18, 'fr', 0);
+INSERT INTO answers VALUES(433, 'MACHINERY', 'Accident by machinery', 0, 15, 'en', 0);
+INSERT INTO answers VALUES(433, 'CRUSH_INJURIES', 'Crush injuries', 0, 14, 'en', 0);
+INSERT INTO answers VALUES(433, 'CRUSH_INJURIES', 'Écrasement', 0, 14, 'fr', 0);
+INSERT INTO answers VALUES(433, 'HOT_CORROSIVE_LIQUIDS', 'Liquides ou substances chaudes / corrosives', 0, 13, 'fr', 0);
+INSERT INTO answers VALUES(433, 'HOT_CORROSIVE_LIQUIDS', 'Hot/corrosive liquids or substances', 0, 13, 'en', 0);
+INSERT INTO answers VALUES(433, 'DROWNING', 'Noyade / submersion', 0, 12, 'fr', 0);
+INSERT INTO answers VALUES(433, 'FIRE', 'Fire/ flames', 0, 11, 'en', 0);
+INSERT INTO answers VALUES(433, 'FIRE', 'Feu / flammes', 0, 11, 'fr', 0);
+INSERT INTO answers VALUES(433, 'DROWNING', 'Drowning/ submersion', 0, 12, 'en', 0);
+INSERT INTO answers VALUES(433, 'FALL_HEIGHT', 'Fall from a height', 0, 10, 'en', 0);
+INSERT INTO answers VALUES(441, 'CONSTRUCTION_AREA', 'Zone industrielle ou de construction', 0, 8, 'fr', 0);
+INSERT INTO answers VALUES(441, 'FARM', 'Farm (exclude farmhouse and its surrounding area)', 0, 9, 'en', 0);
+INSERT INTO answers VALUES(441, 'FARM', 'Entreprise agricole (sauf la maison de l''agriculteur et autour de la maison)', 0, 9, 'fr', 0);
+INSERT INTO answers VALUES(441, 'OTHER', 'Other (please specify:________)', 0, 10, 'en', 0);
+INSERT INTO answers VALUES(441, 'OTHER', 'Autre (veuillez préciser : __________)', 0, 10, 'fr', 0);
+INSERT INTO answers VALUES(441, 'DK_NA', '[DO NOT READ] Don''t know/ No answer', 0, 11, 'en', 0);
+INSERT INTO answers VALUES(441, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 11, 'fr', 0);
+INSERT INTO answers VALUES(444, 'SLEEPING', 'Sommeil, repas, soins personnels', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(444, 'OTHER', 'Other (please specify)', 0, 6, 'en', 0);
+INSERT INTO answers VALUES(444, 'OTHER', 'Autre (veuillez préciser : __________)', 0, 6, 'fr', 0);
+INSERT INTO answers VALUES(444, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 7, 'en', 0);
+INSERT INTO answers VALUES(444, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 7, 'fr', 0);
+INSERT INTO answers VALUES(444, 'REFUSED', '[DO NOT READ] Refused', 0, 8, 'en', 0);
+INSERT INTO answers VALUES(444, 'REFUSED', '[NE PAS LIRE] Refus', 0, 8, 'fr', 0);
+INSERT INTO answers VALUES(450, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 15, 'fr', 0);
+INSERT INTO answers VALUES(450, 'INJURY_INTERNAL_ORGANS', 'Injury to internal organs', 0, 12, 'en', 0);
+INSERT INTO answers VALUES(450, 'INJURY_INTERNAL_ORGANS', 'Lésion des organes internes', 0, 12, 'fr', 0);
+INSERT INTO answers VALUES(450, 'DISCOMFORT', 'Discomfort', 0, 13, 'en', 0);
+INSERT INTO answers VALUES(450, 'DISCOMFORT', 'Malaise ou inconfort', 0, 13, 'fr', 0);
+INSERT INTO answers VALUES(450, 'OTHER', 'Other (please specify)', 0, 14, 'en', 0);
+INSERT INTO answers VALUES(450, 'OTHER', 'Malaise ou inconfort', 0, 14, 'fr', 0);
+INSERT INTO answers VALUES(450, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 15, 'en', 0);
+INSERT INTO answers VALUES(450, 'POISONING', 'Empoisonnement', 0, 11, 'fr', 0);
+INSERT INTO answers VALUES(450, 'POISONING', 'Poisoning', 0, 11, 'en', 0);
+INSERT INTO answers VALUES(316, 'FRACTURE_BACK', 'Fracture du dos / des vertèbres', 0, 9, 'fr', 0);
+INSERT INTO answers VALUES(316, 'HEAD_INJURY', 'Head injury', 0, 10, 'en', 0);
+INSERT INTO answers VALUES(316, 'HEAD_INJURY', 'Blessure à la tête', 0, 10, 'fr', 0);
+INSERT INTO answers VALUES(316, 'OTHER', 'Other (please specify)', 0, 11, 'en', 0);
+INSERT INTO answers VALUES(316, 'OTHER', 'Autre (veuillez préciser : __________)', 0, 11, 'fr', 0);
+INSERT INTO answers VALUES(316, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 12, 'en', 0);
+INSERT INTO answers VALUES(316, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 12, 'fr', 0);
+INSERT INTO answers VALUES(316, 'REFUSED', '[DO NOT READ] Refused', 0, 13, 'en', 0);
+INSERT INTO answers VALUES(316, 'REFUSED', '[NE PAS LIRE] Refus', 0, 13, 'fr', 0);
+INSERT INTO answers VALUES(319, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(319, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(319, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(321, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(321, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(321, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(322, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(322, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(322, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(324, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(324, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(324, 'REFUSED', '[DO NOT READ] Refused', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(324, 'REFUSED', '[NE PAS LIRE] Refus', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(27, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(325, 'FELL_FURNITURE', '[LIRE SEULEMENT SI LA CHUTE SEST PRODUITE À LINTÉRIEUR DU DOMICILE OU DUNE BÂTISSE] Vous êtes tombé(e) dun meuble (par exemple, lit, chaise)', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(325, 'FELL_HEIGHT', 'Vous êtes tombé(e) dune hauteur de plus dun mètre ou trois pieds (par exemple,  échelle, arbre, toit) ', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(325, 'FELL_HEIGHT', 'Fell from height of greater than 1 meter or 3 feet (for example, ladder, tree, roof)', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(328, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(328, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(328, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(329, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(329, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(329, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(330, 'HUMAN_ERROR', 'Erreur humaine', 0, 8, 'fr', 0);
+INSERT INTO answers VALUES(330, 'LACK_MAINTENANCE', 'Lack of servicing or maintenance', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(330, 'DEFECTIVE_MANUFACTURING', 'Défaut de fabrication', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(330, 'DEFECTIVE_MANUFACTURING', 'Defective manufacturing', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(330, 'POOR_DESIGN', 'Mauvais conception', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(330, 'POOR_DESIGN', 'Poor design', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(333, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(333, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(333, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(335, 'REFUSED', '[DO NOT READ] Refused', 0, 11, 'en', 0);
+INSERT INTO answers VALUES(335, 'DK_NA', '[NE PAS LIRE] Ne sait pas/pas de réponse', 0, 10, 'fr', 0);
+INSERT INTO answers VALUES(335, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 10, 'en', 0);
+INSERT INTO answers VALUES(335, 'LADDER_WORN_OUT', 'Léchelle était usée', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(335, 'INADEQUATE_INSTRUCTIONS', 'Inadequate instructions', 0, 6, 'en', 0);
+INSERT INTO answers VALUES(335, 'INADEQUATE_INSTRUCTIONS', 'Consignes inadéquates', 0, 6, 'fr', 0);
+INSERT INTO answers VALUES(335, 'POOR_DESIGN', 'Mauvais conception', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(335, 'POOR_DESIGN', 'Poor design', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(336, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(336, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(336, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(996, 'ANSWERING_MACHING_PARTICIPANT_HOUSEHOLD', 'Appel sans réponse - nom du participant clairement indiqué sur le répondeur', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(999, 'NOT_AT_THIS_NUMBER', 'Participant does not live at this number', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(1000, 'NO', 'No', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(1000, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(1001, 'NO', 'No', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(1001, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(1011, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(1015, 'NO', 'No', 1, 2, 'en', 0);
+INSERT INTO answers VALUES(1015, 'NO', 'Non', 1, 2, 'fr', 0);
+INSERT INTO answers VALUES(1015, 'REFUSED_PROVIDED_ALT_CONTACT', 'Refuses to provide alt. contact', 1, 3, 'en', 0);
+INSERT INTO answers VALUES(1015, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(1016, 'REFUSED_PROVIDED_ALT_CONTACT', 'Refuses to provide alt. contact', 1, 3, 'en', 0);
+INSERT INTO answers VALUES(1017, 'NO', 'Non', 1, 2, 'fr', 0);
+INSERT INTO answers VALUES(1017, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(338, 'DK_NA', '[NE PAS LIRE] Ne sait pas/pas de réponse', 0, 10, 'fr', 0);
+INSERT INTO answers VALUES(338, 'OTHER', 'Autre (veuillez préciser :________________)', 0, 9, 'fr', 0);
+INSERT INTO answers VALUES(338, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 10, 'en', 0);
+INSERT INTO answers VALUES(338, 'DID_NOT_READ_INSTRUCTIONS', 'Did not read the instructions', 0, 7, 'en', 0);
+INSERT INTO answers VALUES(338, 'DID_NOT_READ_INSTRUCTIONS', 'Na pas lu les consignes', 0, 7, 'fr', 0);
+INSERT INTO answers VALUES(338, 'HUMAN_ERROR', 'Human error', 0, 8, 'en', 0);
+INSERT INTO answers VALUES(338, 'HUMAN_ERROR', 'Erreur humaine', 0, 8, 'fr', 0);
+INSERT INTO answers VALUES(996, 'ANSWERING_MACHING_PARTICIPANT_HOUSEHOLD', 'No answer-answering machine clearly identifies participant', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(999, 'AVAILABLE', 'Participant available', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(338, 'INADEQUATE_INSTRUCTIONS', 'Consignes inadéquates', 0, 6, 'fr', 0);
+INSERT INTO answers VALUES(341, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(341, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(341, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(1023, 'NOT_REQUIRES_NEW_CONSENT_FORM', 'Participant na PAS besoin dun nouveau formulaire de consentement', 1, 2, 'fr', 0);
+INSERT INTO answers VALUES(1023, 'REQUIRES_NEW_CONSENT_FORM', 'Participant a besoin dun nouveau formulaire de consentement ', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(1023, 'REQUIRES_NEW_CONSENT_FORM', 'Participant requires a new consent form', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(342, 'DID_NOT_READ_INSTRUCTIONS', 'Did not read the instructions', 0, 7, 'en', 0);
+INSERT INTO answers VALUES(342, 'DID_NOT_READ_INSTRUCTIONS', 'Na pas lu les consignes', 0, 7, 'fr', 0);
+INSERT INTO answers VALUES(342, 'HUMAN_ERROR', 'Human error', 0, 8, 'en', 0);
+INSERT INTO answers VALUES(342, 'HUMAN_ERROR', 'Erreur humaine', 0, 8, 'fr', 0);
+INSERT INTO answers VALUES(342, 'OTHER', 'Other (please specify)', 0, 9, 'en', 0);
+INSERT INTO answers VALUES(342, 'OTHER', 'Autre (veuillez préciser :________________)', 0, 9, 'fr', 0);
+INSERT INTO answers VALUES(342, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 10, 'en', 0);
+INSERT INTO answers VALUES(342, 'DK_NA', '[NE PAS LIRE] Ne sait pas/pas de réponse', 0, 10, 'fr', 0);
+INSERT INTO answers VALUES(342, 'REFUSED', '[DO NOT READ] Refused', 0, 11, 'en', 0);
+INSERT INTO answers VALUES(342, 'REFUSED', '[NE PAS LIRE] Refus', 0, 11, 'fr', 0);
+INSERT INTO answers VALUES(347, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(347, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(347, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(348, 'DID_NOT_READ_INSTRUCTIONS', 'Did not read the instructions', 0, 7, 'en', 0);
+INSERT INTO answers VALUES(348, 'DID_NOT_READ_INSTRUCTIONS', 'Na pas lu les consignes', 0, 7, 'fr', 0);
+INSERT INTO answers VALUES(348, 'HUMAN_ERROR', 'Human error', 0, 8, 'en', 0);
+INSERT INTO answers VALUES(348, 'HUMAN_ERROR', 'Erreur humaine', 0, 8, 'fr', 0);
+INSERT INTO answers VALUES(348, 'OTHER', 'Other (please specify)', 0, 9, 'en', 0);
+INSERT INTO answers VALUES(348, 'OTHER', 'Autre (veuillez préciser :________________)', 0, 9, 'fr', 0);
+INSERT INTO answers VALUES(348, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 10, 'en', 0);
+INSERT INTO answers VALUES(348, 'DK_NA', '[NE PAS LIRE] Ne sait pas/pas de réponse', 0, 10, 'fr', 0);
+INSERT INTO answers VALUES(348, 'REFUSED', '[DO NOT READ] Refused', 0, 11, 'en', 0);
+INSERT INTO answers VALUES(348, 'REFUSED', '[NE PAS LIRE] Refus', 0, 11, 'fr', 0);
+INSERT INTO answers VALUES(350, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(350, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(350, 'NO', 'No ', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(1024, 'NO', 'No', 1, 2, 'en', 0);
+INSERT INTO answers VALUES(1024, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(1024, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(352, 'HUMAN_ERROR', 'Erreur humaine', 0, 8, 'fr', 0);
+INSERT INTO answers VALUES(352, 'OTHER', 'Other (please specify)', 0, 9, 'en', 0);
+INSERT INTO answers VALUES(352, 'OTHER', 'Autre (veuillez préciser :________________)', 0, 9, 'fr', 0);
+INSERT INTO answers VALUES(352, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 10, 'en', 0);
+INSERT INTO answers VALUES(352, 'INADEQUATE_INSTRUCTIONS', 'Consignes inadéquates', 0, 6, 'fr', 0);
+INSERT INTO answers VALUES(352, 'FURNITURE_WORN_OUT', 'Le meuble était usé', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(352, 'INADEQUATE_INSTRUCTIONS', 'Inadequate instructions', 0, 6, 'en', 0);
+INSERT INTO answers VALUES(352, 'POOR_DESIGN', 'Mauvais conception', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(352, 'POOR_DESIGN', 'Poor design', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(354, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(354, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(354, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(1025, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(1025, 'NO', 'No', 1, 2, 'en', 0);
+INSERT INTO answers VALUES(1025, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(1025, 'NO', 'Non', 1, 2, 'fr', 0);
+INSERT INTO answers VALUES(1003, 'REFUSES_CONFIRMED_ADDRESS_OR_TO_PARTICIPATE', 'Participant refuse de confirmer ladresse /ne souhaite pas participer à létude', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(355, 'DID_NOT_READ_INSTRUCTIONS', 'Did not read the instructions', 0, 7, 'en', 0);
+INSERT INTO answers VALUES(355, 'DID_NOT_READ_INSTRUCTIONS', 'Na pas lu les consignes', 0, 7, 'fr', 0);
+INSERT INTO answers VALUES(355, 'HUMAN_ERROR', 'Human error', 0, 8, 'en', 0);
+INSERT INTO answers VALUES(355, 'HUMAN_ERROR', 'Erreur humaine', 0, 8, 'fr', 0);
+INSERT INTO answers VALUES(355, 'OTHER', 'Other (please specify)', 0, 9, 'en', 0);
+INSERT INTO answers VALUES(355, 'OTHER', 'Autre (veuillez préciser :________________)', 0, 9, 'fr', 0);
+INSERT INTO answers VALUES(355, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 10, 'en', 0);
+INSERT INTO answers VALUES(355, 'DK_NA', '[NE PAS LIRE] Ne sait pas/pas de réponse', 0, 10, 'fr', 0);
+INSERT INTO answers VALUES(355, 'REFUSED', '[DO NOT READ] Refused', 0, 11, 'en', 0);
+INSERT INTO answers VALUES(355, 'REFUSED', '[NE PAS LIRE] Refus', 0, 11, 'fr', 0);
+INSERT INTO answers VALUES(357, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(357, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(357, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(358, 'INADEQUATE_INSTRUCTIONS', 'Consignes inadéquates', 0, 6, 'fr', 0);
+INSERT INTO answers VALUES(358, 'DID_NOT_READ_INSTRUCTIONS', 'Did not read the instructions', 0, 7, 'en', 0);
+INSERT INTO answers VALUES(358, 'DID_NOT_READ_INSTRUCTIONS', 'Na pas lu les consignes', 0, 7, 'fr', 0);
+INSERT INTO answers VALUES(358, 'HUMAN_ERROR', 'Human error', 0, 8, 'en', 0);
+INSERT INTO answers VALUES(358, 'HUMAN_ERROR', 'Erreur humaine', 0, 8, 'fr', 0);
+INSERT INTO answers VALUES(358, 'OTHER', 'Other (please specify)', 0, 9, 'en', 0);
+INSERT INTO answers VALUES(358, 'OTHER', 'Autre (veuillez préciser :________________)', 0, 9, 'fr', 0);
+INSERT INTO answers VALUES(358, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 10, 'en', 0);
+INSERT INTO answers VALUES(358, 'DK_NA', '[NE PAS LIRE] Ne sait pas/pas de réponse', 0, 10, 'fr', 0);
+INSERT INTO answers VALUES(358, 'REFUSED', '[DO NOT READ] Refused', 0, 11, 'en', 0);
+INSERT INTO answers VALUES(358, 'REFUSED', '[NE PAS LIRE] Refus', 0, 11, 'fr', 0);
+INSERT INTO answers VALUES(362, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(362, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(362, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(363, 'DID_NOT_READ_INSTRUCTIONS', 'Did not read the instructions', 0, 7, 'en', 0);
+INSERT INTO answers VALUES(363, 'DID_NOT_READ_INSTRUCTIONS', 'Na pas lu les consignes', 0, 7, 'fr', 0);
+INSERT INTO answers VALUES(363, 'HUMAN_ERROR', 'Human error', 0, 8, 'en', 0);
+INSERT INTO answers VALUES(363, 'HUMAN_ERROR', 'Erreur humaine', 0, 8, 'fr', 0);
+INSERT INTO answers VALUES(363, 'OTHER', 'Other (please specify)', 0, 9, 'en', 0);
+INSERT INTO answers VALUES(363, 'OTHER', 'Autre (veuillez préciser :________________)', 0, 9, 'fr', 0);
+INSERT INTO answers VALUES(363, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 10, 'en', 0);
+INSERT INTO answers VALUES(363, 'DK_NA', '[NE PAS LIRE] Ne sait pas/pas de réponse', 0, 10, 'fr', 0);
+INSERT INTO answers VALUES(363, 'REFUSED', '[DO NOT READ] Refused', 0, 11, 'en', 0);
+INSERT INTO answers VALUES(363, 'REFUSED', '[NE PAS LIRE] Refus', 0, 11, 'fr', 0);
+INSERT INTO answers VALUES(365, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(365, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(365, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(1016, 'GIVE_1_CONTACT', 'Can only give 1 contact', 1, 2, 'en', 0);
+INSERT INTO answers VALUES(1016, 'GIVE_1_CONTACT', 'Peut donner 1 personne contact', 1, 2, 'fr', 0);
+INSERT INTO answers VALUES(397, 'HUMAN_ERROR', 'Erreur humaine', 0, 8, 'fr', 0);
+INSERT INTO answers VALUES(397, 'HUMAN_ERROR', 'Human error', 0, 8, 'en', 0);
+INSERT INTO answers VALUES(397, 'INADEQUATE_INSTRUCTIONS', 'Consignes inadéquates', 0, 6, 'fr', 0);
+INSERT INTO answers VALUES(397, 'DEFECTIVE_MANUFACTURING', 'Defective manufacturing', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(397, 'FOOTWEAR_NOT_USED_AS_DESIGNED', 'Les chaussures nétaient pas utilisées tel que conçu', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(397, 'POOR_DESIGN', 'Mauvais conception', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(397, 'POOR_DESIGN', 'Poor design', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(399, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(399, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(399, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(1023, 'NOT_REQUIRES_NEW_CONSENT_FORM', 'Participant does NOT require new consent form', 1, 2, 'en', 0);
+INSERT INTO answers VALUES(400, 'HUMAN_ERROR', 'Erreur humaine', 0, 8, 'fr', 0);
+INSERT INTO answers VALUES(400, 'HUMAN_ERROR', 'Human error', 0, 8, 'en', 0);
+INSERT INTO answers VALUES(400, 'DID_NOT_READ_INSTRUCTIONS', 'Na pas lu les consignes', 0, 7, 'fr', 0);
+INSERT INTO answers VALUES(400, 'LACK_OF_MAINTENANCE', 'Lack of servicing or maintenance', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(400, 'LACK_OF_MAINTENANCE', 'Manque dentretien', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(400, 'POOR_DESIGN', 'Mauvais conception', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(400, 'POOR_DESIGN', 'Poor design', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(408, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(408, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(408, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(409, 'HUMAN_ERROR', 'Erreur humaine', 0, 8, 'fr', 0);
+INSERT INTO answers VALUES(409, 'HUMAN_ERROR', 'Human error', 0, 8, 'en', 0);
+INSERT INTO answers VALUES(409, 'DID_NOT_READ_INSTRUCTIONS', 'Na pas lu les consignes', 0, 7, 'fr', 0);
+INSERT INTO answers VALUES(409, 'DID_NOT_READ_INSTRUCTIONS', 'Did not read the instructions', 0, 7, 'en', 0);
+INSERT INTO answers VALUES(409, 'INADEQUATE_INSTRUCTIONS', 'Inadequate instructions', 0, 6, 'en', 0);
+INSERT INTO answers VALUES(409, 'INADEQUATE_INSTRUCTIONS', 'Consignes inadéquates', 0, 6, 'fr', 0);
+INSERT INTO answers VALUES(409, 'TOYS_WORN_OUT', 'Le jouet était usé', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(411, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(411, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(411, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(412, 'HUMAN_ERROR', 'Human error', 0, 8, 'en', 0);
+INSERT INTO answers VALUES(412, 'HUMAN_ERROR', 'Erreur humaine', 0, 8, 'fr', 0);
+INSERT INTO answers VALUES(412, 'OTHER', 'Other (please specify)', 0, 9, 'en', 0);
+INSERT INTO answers VALUES(412, 'OTHER', 'Autre (veuillez préciser :________________)', 0, 9, 'fr', 0);
+INSERT INTO answers VALUES(412, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 10, 'en', 0);
+INSERT INTO answers VALUES(412, 'YARD_TOOLS_NOT_USED_AS_DESIGNED', 'Les outils de jardinages nétaient pas utilisés tel que conçu', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(412, 'POOR_DESIGN', 'Poor design', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(412, 'POOR_DESIGN', 'Mauvais conception', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(412, 'YARD_TOOLS_NOT_USED_AS_DESIGNED', 'Yard tools not being used as designed', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(413, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(413, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(413, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(414, 'OTHER', 'Autre (veuillez préciser :________________)', 0, 9, 'fr', 0);
+INSERT INTO answers VALUES(414, 'OTHER', 'Other (please specify)', 0, 9, 'en', 0);
+INSERT INTO answers VALUES(414, 'HUMAN_ERROR', 'Erreur humaine', 0, 8, 'fr', 0);
+INSERT INTO answers VALUES(414, 'HUMAN_ERROR', 'Human error', 0, 8, 'en', 0);
+INSERT INTO answers VALUES(414, 'BICYCLE_WORN_OUT', 'Bicycle was worn out', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(414, 'LACK_OF_MAINTENANCE', 'Lack of servicing or maintenance', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(414, 'LACK_OF_MAINTENANCE', 'Manque dentretien', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(414, 'POOR_DESIGN', 'Mauvais conception', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(414, 'POOR_DESIGN', 'Poor design', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(417, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(417, 'NO', 'No ', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(418, 'HUMAN_ERROR', 'Erreur humaine', 0, 8, 'fr', 0);
+INSERT INTO answers VALUES(418, 'OTHER', 'Other (please specify)', 0, 9, 'en', 0);
+INSERT INTO answers VALUES(418, 'OTHER', 'Autre (veuillez préciser :________________)', 0, 9, 'fr', 0);
+INSERT INTO answers VALUES(418, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 10, 'en', 0);
+INSERT INTO answers VALUES(418, 'HUMAN_ERROR', 'Human error', 0, 8, 'en', 0);
+INSERT INTO answers VALUES(418, 'DID_NOT_READ_INSTRUCTIONS', 'Na pas lu les consignes', 0, 7, 'fr', 0);
+INSERT INTO answers VALUES(418, 'POOR_DESIGN', 'Poor design', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(418, 'POOR_DESIGN', 'Mauvais conception', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(421, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(421, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(421, 'NO', 'No ', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(422, 'OTHER', 'Autre (veuillez préciser :________________)', 0, 9, 'fr', 0);
+INSERT INTO answers VALUES(422, 'OTHER', 'Other (please specify)', 0, 9, 'en', 0);
+INSERT INTO answers VALUES(422, 'HUMAN_ERROR', 'Erreur humaine', 0, 8, 'fr', 0);
+INSERT INTO answers VALUES(422, 'HUMAN_ERROR', 'Human error', 0, 8, 'en', 0);
+INSERT INTO answers VALUES(422, 'DID_NOT_READ_INSTRUCTIONS', 'Na pas lu les consignes', 0, 7, 'fr', 0);
+INSERT INTO answers VALUES(422, 'INADEQUATE_INSTRUCTIONS', 'Consignes inadéquates', 0, 6, 'fr', 0);
+INSERT INTO answers VALUES(422, 'DID_NOT_READ_INSTRUCTIONS', 'Did not read the instructions', 0, 7, 'en', 0);
+INSERT INTO answers VALUES(422, 'POOR_DESIGN', 'Mauvais conception', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(422, 'POOR_DESIGN', 'Poor design', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(260, 'DK_NA', '[DO NOT READ] Dont know/ No answer', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(260, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(260, 'REFUSED', '[DO NOT READ] Refused', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(260, 'REFUSED', '[NE PAS LIRE] Refus', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(261, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(261, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(261, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(262, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(262, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(262, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(241, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(241, 'REFUSED', '[DO NOT READ] Refused', 0, 6, 'en', 0);
+INSERT INTO answers VALUES(241, 'REFUSED', '[NE PAS LIRE] Refus', 0, 6, 'fr', 0);
+INSERT INTO answers VALUES(247, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(247, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(247, 'REFUSED', '[DO NOT READ] Refused', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(247, 'REFUSED', '[NE PAS LIRE] Refus', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(1028, 'NO', 'No', 1, 2, 'en', 0);
+INSERT INTO answers VALUES(1028, 'NO', 'Non', 1, 2, 'fr', 0);
+INSERT INTO answers VALUES(1028, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(1028, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(89, 'A6', 'Benefits from Canada or Quebec Pension Plan', 1, 6, 'en', 0);
+INSERT INTO answers VALUES(89, 'A6', 'Prestations du Régime de pensions du Canada ou du Régime des rentes du Québec', 1, 6, 'fr', 0);
+INSERT INTO answers VALUES(248, 'SEASONAL', 'Seasonal, on-call or casual, no pre-arranged schedules, but called as need arises', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(248, 'SEASONAL', 'Saisonnier, sur appel ou occasionnel, pas dhoraire préétabli, mais appelé quand le besoin augmente', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(248, 'NIGHT', 'Night shift', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(251, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(251, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(251, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(252, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(252, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(252, 'REFUSED', '[DO NOT READ] Refused', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(252, 'REFUSED', '[NE PAS LIRE] Refus', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(253, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(253, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(253, 'REFUSED', '[DO NOT READ] Refused', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(253, 'REFUSED', '[NE PAS LIRE] Refus', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(254, 'SEASONAL', 'Saisonnier, sur appel ou occasionnel, pas dhoraire préétabli, mais appelé quand le besoin augmente', 1, 5, 'fr', 0);
+INSERT INTO answers VALUES(254, 'OTHER', 'Other (please specify)', 0, 6, 'en', 0);
+INSERT INTO answers VALUES(254, 'EVENING', 'Evening Shift', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(254, 'EVENING', 'Quart de travail de soir', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(254, 'NIGHT', 'Night shift', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(254, 'NIGHT', 'Quart de travail de nuit', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(254, 'ROTATING', 'Rotating shift, changing periodically from days to evenings or nights', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(254, 'ROTATING', 'Quart de travail rotatif, changeant périodiquement de jour à soir à nuit', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(254, 'SEASONAL', 'Seasonal, on-call or casual, no pre-arranged schedules, but called as need arises', 1, 5, 'en', 0);
+INSERT INTO answers VALUES(259, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(259, 'REFUSED', '[DO NOT READ] Refused', 0, 6, 'en', 0);
+INSERT INTO answers VALUES(259, 'REFUSED', '[NE PAS LIRE] Refus', 0, 6, 'fr', 0);
+INSERT INTO answers VALUES(162, 'REFUSED', '[NE PAS LIRE] Refus', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(163, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(163, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(165, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(165, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(165, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(169, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(169, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(169, 'REFUSED', '[DO NOT READ] Refused', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(169, 'REFUSED', '[NE PAS LIRE] Refus', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(175, 'OTHER', 'Other (please specify)', 0, 6, 'en', 0);
+INSERT INTO answers VALUES(175, 'OTHER', 'Autre (veuillez préciser)', 0, 6, 'fr', 0);
+INSERT INTO answers VALUES(175, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 7, 'en', 0);
+INSERT INTO answers VALUES(175, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 7, 'fr', 0);
+INSERT INTO answers VALUES(175, 'REFUSED', '[DO NOT READ] Refused', 0, 8, 'en', 0);
+INSERT INTO answers VALUES(175, 'REFUSED', '[NE PAS LIRE] Refus', 0, 8, 'fr', 0);
+INSERT INTO answers VALUES(187, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(187, 'REFUSED', '[DO NOT READ] Refused', 0, 6, 'en', 0);
+INSERT INTO answers VALUES(187, 'REFUSED', '[NE PAS LIRE] Refus', 0, 6, 'fr', 0);
+INSERT INTO answers VALUES(192, 'OTHER', 'Other (please specify)', 0, 6, 'en', 0);
+INSERT INTO answers VALUES(192, 'OTHER', 'Autre (veuillez préciser)', 0, 6, 'fr', 0);
+INSERT INTO answers VALUES(192, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 7, 'en', 0);
+INSERT INTO answers VALUES(192, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 7, 'fr', 0);
+INSERT INTO answers VALUES(192, 'REFUSED', '[DO NOT READ] Refused', 0, 8, 'en', 0);
+INSERT INTO answers VALUES(192, 'REFUSED', '[NE PAS LIRE] Refus', 0, 8, 'fr', 0);
+INSERT INTO answers VALUES(199, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(199, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(199, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(201, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(201, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(201, 'REFUSED', '[DO NOT READ] Refused', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(201, 'REFUSED', '[NE PAS LIRE] Refus', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(208, 'OTHER', 'Other (please specify)', 0, 6, 'en', 0);
+INSERT INTO answers VALUES(208, 'OTHER', 'Autre (veuillez préciser)', 0, 6, 'fr', 0);
+INSERT INTO answers VALUES(208, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 7, 'en', 0);
+INSERT INTO answers VALUES(208, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 7, 'fr', 0);
+INSERT INTO answers VALUES(208, 'REFUSED', '[DO NOT READ] Refused', 0, 8, 'en', 0);
+INSERT INTO answers VALUES(208, 'REFUSED', '[NE PAS LIRE] Refus', 0, 8, 'fr', 0);
+INSERT INTO answers VALUES(218, 'LESS_YEAR', 'Moins dun an', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(218, 'LESS_YEAR', 'Less than 1 year', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(1029, 'NOTREQUIRESNEWPROXYPACKAGE', 'Participant does NOT requires new proxy package ', 1, 2, 'en', 0);
+INSERT INTO answers VALUES(1029, 'REQUIRESNEWPROXYPACKAGE', 'Participant a besoin dune nouvelle trousse pour désigner un mandataire', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(1029, 'REQUIRESNEWPROXYPACKAGE', 'Participant requires a new proxy package', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(1030, 'NO', 'Non', 1, 2, 'fr', 0);
+INSERT INTO answers VALUES(1030, 'NO', 'No', 1, 2, 'en', 0);
+INSERT INTO answers VALUES(1030, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(1030, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(1029, 'NOTREQUIRESNEWPROXYPACKAGE', 'Participant na PAS besoin dune nouvelle trousse pour désigner un mandataire', 1, 2, 'fr', 0);
+INSERT INTO answers VALUES(91, '100000_150000', '100 000 $ ou plus, mais moins de 150 000 $', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(91, '100000_150000', '$100,000 or more, but less than $150,000', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(91, 'LESS_20000', 'Less than $20,000', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(95, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 6, 'fr', 0);
+INSERT INTO answers VALUES(95, 'DK_NA', '[DO NOT READ] Dont know/No answer', 0, 6, 'en', 0);
+INSERT INTO answers VALUES(95, '150000_MORE', '$150,000 or more', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(95, '150000_MORE', '150 000 $ ou plus', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(1055, '1', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(1059, '1', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(86, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 15, 'fr', 0);
+INSERT INTO answers VALUES(86, 'REFUSED', '[DO NOT READ] Refused', 0, 16, 'en', 0);
+INSERT INTO answers VALUES(86, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 15, 'en', 0);
+INSERT INTO answers VALUES(86, 'NO_HEALTH_NUMBER', 'Je ne possède pas de numéro de carte santé    (carte dassurance-maladie au Québec)', 0, 14, 'fr', 0);
+INSERT INTO answers VALUES(86, 'NEW_FOUNDLAND_LABRADOR', 'Newfoundland and Labrador', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(86, 'NEW_FOUNDLAND_LABRADOR', 'Terre-Neuve-et-Labrador', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(86, 'PRINCE_EDWARD_ISLAND', 'Prince Edward Island', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(86, 'PRINCE_EDWARD_ISLAND', 'Île-du-Prince-Édouard', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(86, 'NOVA_SCOTIA', 'Nova Scotia', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(86, 'NOVA_SCOTIA', 'Nouvelle-Écosse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(86, 'NEW_BRUNSWICK', 'New Brunswick', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(1055, '2', 'No', 1, 2, 'en', 0);
+INSERT INTO answers VALUES(1055, '1', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(1059, '2', 'No', 1, 2, 'en', 0);
+INSERT INTO answers VALUES(1059, '1', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(1055, '2', 'Non', 1, 2, 'fr', 0);
+INSERT INTO answers VALUES(1059, '2', 'Non', 1, 2, 'fr', 0);
+INSERT INTO answers VALUES(325, 'OTHER', 'Other (please specify)', 0, 9, 'en', 0);
+INSERT INTO answers VALUES(325, 'FELL_EXERCISING', 'Vous êtes tombé(e) en faisant de lexercice (autre que la marche à pied)', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(325, 'FELL_FURNITURE', '[ONLY READ IF FALL WAS INSIDE HOME OR INSIDE BUILDING] Fell from furniture (for example, bed, chair)', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(16, 'FRENCH', 'Français', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(16, 'FRENCH', 'French', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(16, 'ENGLISH', 'Anglais', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(16, 'ENGLISH', 'English', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(16, 'HINDI', 'Hindi', 0, 20, 'fr', 0);
+INSERT INTO answers VALUES(16, 'HINDI', 'Hindi', 0, 20, 'en', 0);
+INSERT INTO answers VALUES(16, 'DUTCH', 'Néerlandais', 0, 19, 'fr', 0);
+INSERT INTO answers VALUES(16, 'DUTCH', 'Dutch', 0, 19, 'en', 0);
+INSERT INTO answers VALUES(16, 'ITALIAN', 'Italian', 0, 8, 'en', 0);
+INSERT INTO answers VALUES(16, 'ARAB', 'Arabic', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(16, 'ARAB', 'Arabe', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(16, 'CANTONESE', 'Cantonese', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(16, 'CANTONESE', 'Cantonais', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(16, 'GERMAN', 'German', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(16, 'GERMAN', 'Allemand', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(16, 'GREEK', 'Greek', 0, 6, 'en', 0);
+INSERT INTO answers VALUES(16, 'GREEK', 'Grec', 0, 6, 'fr', 0);
+INSERT INTO answers VALUES(16, 'HUNGARIAN', 'Hungarian', 0, 7, 'en', 0);
+INSERT INTO answers VALUES(16, 'HUNGARIAN', 'Hongrois', 0, 7, 'fr', 0);
+INSERT INTO answers VALUES(57, 'REFUSED', '[NE PAS LIRE] Refus', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(83, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(83, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(83, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(96, 'REFUSED', '[DO NOT READ] Refused', 0, 10, 'en', 0);
+INSERT INTO answers VALUES(96, 'REFUSED', '[NE PAS LIRE] Refus', 0, 10, 'fr', 0);
+INSERT INTO answers VALUES(97, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(508, 'REFUSED', '[NE PAS LIRE] Refus', 0, 7, 'fr', 0);
+INSERT INTO answers VALUES(117, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(117, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(117, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(118, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(118, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(118, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(119, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(119, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(119, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(120, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(120, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(120, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(123, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(123, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(123, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(124, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(124, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(124, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(126, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(126, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(126, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(127, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(127, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(127, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(129, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(129, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(130, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(130, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(130, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(131, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(131, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(131, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(132, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(132, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(132, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(133, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(133, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(133, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(134, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(134, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(134, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(135, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(135, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(135, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(136, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(136, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(136, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(137, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(137, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(137, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(138, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(138, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(138, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(139, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(139, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(139, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(140, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(140, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(140, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(141, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(141, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(141, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(142, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(142, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(142, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(143, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(143, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(143, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(144, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(144, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(144, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(145, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(145, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(146, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(146, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(146, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(147, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(147, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(147, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(148, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(148, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(148, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(149, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(149, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(149, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(150, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(150, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(150, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(151, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(151, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(151, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(152, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(152, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(152, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(158, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(158, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(158, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(160, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(160, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(160, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(161, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(161, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(161, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(166, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(166, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(166, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(167, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(167, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(167, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(168, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(168, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(168, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(170, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(170, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(170, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(171, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(171, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(171, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(172, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(172, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(172, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(176, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(176, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(176, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(177, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(177, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(177, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(178, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(178, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(178, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(179, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(179, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(179, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(308, 'LESS_THAN_1_DAY_WEEK', 'Rarement ou jamais (moins d''un jour)', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(308, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(308, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(308, 'REFUSED', '[DO NOT READ] Refused', 0, 6, 'en', 0);
+INSERT INTO answers VALUES(308, 'REFUSED', '[NE PAS LIRE] Refus', 0, 6, 'fr', 0);
+INSERT INTO answers VALUES(305, 'LESS_THAN_1_DAY_WEEK', 'Rarement ou jamais (moins d''un jour)', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(305, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(305, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(305, 'REFUSED', '[DO NOT READ] Refused', 0, 6, 'en', 0);
+INSERT INTO answers VALUES(305, 'REFUSED', '[NE PAS LIRE] Refus', 0, 6, 'fr', 0);
+INSERT INTO answers VALUES(309, 'LESS_THAN_1_DAY_WEEK', 'Rarement ou jamais (moins d''un jour)', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(309, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(309, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(309, 'REFUSED', '[DO NOT READ] Refused', 0, 6, 'en', 0);
+INSERT INTO answers VALUES(309, 'REFUSED', '[NE PAS LIRE] Refus', 0, 6, 'fr', 0);
+INSERT INTO answers VALUES(310, '5_7_DAYS_WEEK', 'Tout le temps (5 à 7 jours)', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(310, '3_4_DAYS_WEEK', 'Occasionally (3-4 days)', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(310, '3_4_DAYS_WEEK', 'Occasionnellement (3 à 4 jours)', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(310, '5_7_DAYS_WEEK', 'All of the time (5-7days)', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(311, 'LESS_THAN_1_DAY_WEEK', 'Rarement ou jamais (moins d''un jour)', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(311, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(311, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(311, 'REFUSED', '[DO NOT READ] Refused', 0, 6, 'en', 0);
+INSERT INTO answers VALUES(311, 'REFUSED', '[NE PAS LIRE] Refus', 0, 6, 'fr', 0);
+INSERT INTO answers VALUES(315, '5_7_DAYS_WEEK', 'Tout le temps (5 à 7 jours)', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(315, '3_4_DAYS_WEEK', 'Occasionally (3-4 days)', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(315, '3_4_DAYS_WEEK', 'Occasionnellement (3 à 4 jours)', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(315, '5_7_DAYS_WEEK', 'All of the time (5-7days)', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(318, 'LESS_THAN_1_DAY_WEEK', 'Rarement ou jamais (moins d''un jour)', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(318, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(318, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(318, 'REFUSED', '[DO NOT READ] Refused', 0, 6, 'en', 0);
+INSERT INTO answers VALUES(318, 'REFUSED', '[NE PAS LIRE] Refus', 0, 6, 'fr', 0);
+INSERT INTO answers VALUES(320, 'LESS_THAN_1_DAY_WEEK', 'Rarement ou jamais (moins d''un jour)', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(320, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(320, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(320, 'REFUSED', '[DO NOT READ] Refused', 0, 6, 'en', 0);
+INSERT INTO answers VALUES(320, 'REFUSED', '[NE PAS LIRE] Refus', 0, 6, 'fr', 0);
+INSERT INTO answers VALUES(323, 'LESS_THAN_1_DAY_WEEK', 'Rarement ou jamais (moins d''un jour)', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(323, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(323, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(323, 'REFUSED', '[DO NOT READ] Refused', 0, 6, 'en', 0);
+INSERT INTO answers VALUES(323, 'REFUSED', '[NE PAS LIRE] Refus', 0, 6, 'fr', 0);
+INSERT INTO answers VALUES(331, 'LESS_THAN_1_DAY_WEEK', 'Rarement ou jamais (moins d''un jour)', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(331, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(331, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(331, 'REFUSED', '[DO NOT READ] Refused', 0, 6, 'en', 0);
+INSERT INTO answers VALUES(331, 'REFUSED', '[NE PAS LIRE] Refus', 0, 6, 'fr', 0);
+INSERT INTO answers VALUES(384, 'REFUSED', '[DO NOT READ] Refused', 0, 9, 'en', 0);
+INSERT INTO answers VALUES(384, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 8, 'fr', 0);
+INSERT INTO answers VALUES(384, 'NA_CHILD_IN_HOUSEHOLD', 'Sans objet, tous les enfants vivent dans le domicile', 0, 7, 'fr', 0);
+INSERT INTO answers VALUES(384, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 8, 'en', 0);
+INSERT INTO answers VALUES(384, 'NA_CHILD_IN_HOUSEHOLD', 'Not applicable, all children live in household', 0, 7, 'en', 0);
+INSERT INTO answers VALUES(384, 'REFUSED', '[NE PAS LIRE] Refus', 0, 9, 'fr', 0);
+INSERT INTO answers VALUES(388, 'NA_SIBLINGS_IN_HOUSEHOLD', 'Sans objet, tous les frères et soeurs vivent dans le domicile', 0, 7, 'fr', 0);
+INSERT INTO answers VALUES(388, 'NA_SIBLINGS_IN_HOUSEHOLD', 'Not applicable, all siblings live in household', 0, 7, 'en', 0);
+INSERT INTO answers VALUES(388, 'WITHIN_PAST_YEAR', 'Au cours de la dernière année', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(388, 'MORE_THAN_1_YEAR', 'More than 1 year ago', 0, 6, 'en', 0);
+INSERT INTO answers VALUES(388, 'MORE_THAN_1_YEAR', 'Il y a plus d''un an', 0, 6, 'fr', 0);
+INSERT INTO answers VALUES(388, 'WITHIN_PAST_YEAR', 'Within the past year', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(389, 'MORE_THAN_1_YEAR', 'More than 1 year ago', 0, 6, 'en', 0);
+INSERT INTO answers VALUES(389, 'MORE_THAN_1_YEAR', 'Il y a plus d''un an', 0, 6, 'fr', 0);
+INSERT INTO answers VALUES(389, 'NA_RELATIVES_IN_HOUSEHOLD', 'Not applicable, all relatives live in household', 0, 7, 'en', 0);
+INSERT INTO answers VALUES(389, 'NA_RELATIVES_IN_HOUSEHOLD', 'Sans objet, tous les membres de la famille vivent dans le domicile', 0, 7, 'fr', 0);
+INSERT INTO answers VALUES(389, 'DK_NA', '[DO NOT READ] Dont know/No answer', 0, 8, 'en', 0);
+INSERT INTO answers VALUES(389, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 8, 'fr', 0);
+INSERT INTO answers VALUES(389, 'REFUSED', '[DO NOT READ] Refused', 0, 9, 'en', 0);
+INSERT INTO answers VALUES(389, 'REFUSED', '[NE PAS LIRE] Refus', 0, 9, 'fr', 0);
+INSERT INTO answers VALUES(390, 'MORE_THAN_1_YEAR', 'More than 1 year ago', 0, 6, 'en', 0);
+INSERT INTO answers VALUES(390, 'MORE_THAN_1_YEAR', 'Il y a plus d''un an', 0, 6, 'fr', 0);
+INSERT INTO answers VALUES(390, 'NA_FRIENDS_IN_HOUSEHOLD', 'Not applicable, no friends live outside of household', 0, 7, 'en', 0);
+INSERT INTO answers VALUES(390, 'NA_FRIENDS_IN_HOUSEHOLD', 'Sans objet, aucun ami ne vit à lextérieur du domicile', 0, 7, 'fr', 0);
+INSERT INTO answers VALUES(390, 'DK_NA', '[DO NOT READ] Dont know/No answer', 0, 8, 'en', 0);
+INSERT INTO answers VALUES(390, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 8, 'fr', 0);
+INSERT INTO answers VALUES(390, 'REFUSED', '[DO NOT READ] Refused', 0, 9, 'en', 0);
+INSERT INTO answers VALUES(390, 'REFUSED', '[NE PAS LIRE] Refus', 0, 9, 'fr', 0);
+INSERT INTO answers VALUES(392, 'WITHIN_PAST_YEAR', 'Within the past year', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(392, 'WITHIN_PAST_YEAR', 'Au cours de la dernière année', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(392, 'MORE_THAN_1_YEAR', 'More than 1 year ago', 0, 6, 'en', 0);
+INSERT INTO answers VALUES(392, 'MORE_THAN_1_YEAR', 'Il y a plus d''un an', 0, 6, 'fr', 0);
+INSERT INTO answers VALUES(392, 'DK_NA', '[DO NOT READ] Dont know/No answer', 0, 7, 'en', 0);
+INSERT INTO answers VALUES(392, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 7, 'fr', 0);
+INSERT INTO answers VALUES(392, 'REFUSED', '[DO NOT READ] Refused', 0, 8, 'en', 0);
+INSERT INTO answers VALUES(392, 'REFUSED', '[NE PAS LIRE] Refus', 0, 8, 'fr', 0);
+INSERT INTO answers VALUES(419, 'REFUSED', '[DO NOT READ] Refused', 0, 7, 'en', 0);
+INSERT INTO answers VALUES(419, 'MOST_TIME', 'Most of the time', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(419, 'SOME_TIME', 'Some of the time', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(419, 'SOME_TIME', 'Parfois', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(424, 'REFUSED', '[DO NOT READ] Refused', 0, 7, 'en', 0);
+INSERT INTO answers VALUES(424, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 6, 'fr', 0);
+INSERT INTO answers VALUES(424, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 6, 'en', 0);
+INSERT INTO answers VALUES(424, 'MOST_TIME', 'Most of the time', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(424, 'SOME_TIME', 'Parfois', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(426, 'REFUSED', '[DO NOT READ] Refused', 0, 7, 'en', 0);
+INSERT INTO answers VALUES(426, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 6, 'fr', 0);
+INSERT INTO answers VALUES(426, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 6, 'en', 0);
+INSERT INTO answers VALUES(426, 'MOST_TIME', 'Most of the time', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(426, 'SOME_TIME', 'Parfois', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(428, 'REFUSED', '[DO NOT READ] Refused', 0, 7, 'en', 0);
+INSERT INTO answers VALUES(428, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 6, 'fr', 0);
+INSERT INTO answers VALUES(428, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 6, 'en', 0);
+INSERT INTO answers VALUES(428, 'MOST_TIME', 'Most of the time', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(428, 'SOME_TIME', 'Parfois', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(429, 'REFUSED', '[DO NOT READ] Refused', 0, 7, 'en', 0);
+INSERT INTO answers VALUES(429, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 6, 'fr', 0);
+INSERT INTO answers VALUES(429, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 6, 'en', 0);
+INSERT INTO answers VALUES(429, 'MOST_TIME', 'Most of the time', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(429, 'SOME_TIME', 'Parfois', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(430, 'ALL_TIME', 'Tout le temps', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(430, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 6, 'en', 0);
+INSERT INTO answers VALUES(430, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 6, 'fr', 0);
+INSERT INTO answers VALUES(430, 'REFUSED', '[DO NOT READ] Refused', 0, 7, 'en', 0);
+INSERT INTO answers VALUES(430, 'NONE_TIME', 'None of the time', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(432, 'ALL_TIME', 'Tout le temps', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(432, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 6, 'en', 0);
+INSERT INTO answers VALUES(432, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 6, 'fr', 0);
+INSERT INTO answers VALUES(432, 'REFUSED', '[DO NOT READ] Refused', 0, 7, 'en', 0);
+INSERT INTO answers VALUES(432, 'NONE_TIME', 'None of the time', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(434, 'ALL_TIME', 'Tout le temps', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(434, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 6, 'en', 0);
+INSERT INTO answers VALUES(434, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 6, 'fr', 0);
+INSERT INTO answers VALUES(434, 'REFUSED', '[DO NOT READ] Refused', 0, 7, 'en', 0);
+INSERT INTO answers VALUES(434, 'NONE_TIME', 'None of the time', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(435, 'ALL_TIME', 'Tout le temps', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(435, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 6, 'en', 0);
+INSERT INTO answers VALUES(435, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 6, 'fr', 0);
+INSERT INTO answers VALUES(435, 'REFUSED', '[DO NOT READ] Refused', 0, 7, 'en', 0);
+INSERT INTO answers VALUES(435, 'NONE_TIME', 'None of the time', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(436, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 6, 'fr', 0);
+INSERT INTO answers VALUES(436, 'REFUSED', '[DO NOT READ] Refused', 0, 7, 'en', 0);
+INSERT INTO answers VALUES(436, 'REFUSED', '[NE PAS LIRE] Refus', 0, 7, 'fr', 0);
+INSERT INTO answers VALUES(436, 'NONE_TIME', 'None of the time', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(437, 'REFUSED', '[DO NOT READ] Refused', 0, 7, 'en', 0);
+INSERT INTO answers VALUES(437, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 6, 'fr', 0);
+INSERT INTO answers VALUES(437, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 6, 'en', 0);
+INSERT INTO answers VALUES(437, 'MOST_TIME', 'Most of the time', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(437, 'SOME_TIME', 'Parfois', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(438, 'REFUSED', '[DO NOT READ] Refused', 0, 7, 'en', 0);
+INSERT INTO answers VALUES(438, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 6, 'fr', 0);
+INSERT INTO answers VALUES(438, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 6, 'en', 0);
+INSERT INTO answers VALUES(438, 'MOST_TIME', 'Most of the time', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(438, 'SOME_TIME', 'Parfois', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(440, 'REFUSED', '[DO NOT READ] Refused', 0, 7, 'en', 0);
+INSERT INTO answers VALUES(440, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 6, 'fr', 0);
+INSERT INTO answers VALUES(440, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 6, 'en', 0);
+INSERT INTO answers VALUES(440, 'MOST_TIME', 'Most of the time', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(440, 'SOME_TIME', 'Parfois', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(443, 'REFUSED', '[DO NOT READ] Refused', 0, 7, 'en', 0);
+INSERT INTO answers VALUES(443, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 6, 'fr', 0);
+INSERT INTO answers VALUES(443, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 6, 'en', 0);
+INSERT INTO answers VALUES(443, 'MOST_TIME', 'Most of the time', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(443, 'SOME_TIME', 'Parfois', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(446, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 6, 'fr', 0);
+INSERT INTO answers VALUES(446, 'REFUSED', '[DO NOT READ] Refused', 0, 7, 'en', 0);
+INSERT INTO answers VALUES(446, 'REFUSED', '[NE PAS LIRE] Refus', 0, 7, 'fr', 0);
+INSERT INTO answers VALUES(446, 'NONE_TIME', 'None of the time', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(447, 'REFUSED', '[DO NOT READ] Refused', 0, 7, 'en', 0);
+INSERT INTO answers VALUES(447, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 6, 'fr', 0);
+INSERT INTO answers VALUES(447, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 6, 'en', 0);
+INSERT INTO answers VALUES(447, 'MOST_TIME', 'Most of the time', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(447, 'SOME_TIME', 'Parfois', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(448, 'REFUSED', '[DO NOT READ] Refused', 0, 7, 'en', 0);
+INSERT INTO answers VALUES(448, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 6, 'fr', 0);
+INSERT INTO answers VALUES(448, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 6, 'en', 0);
+INSERT INTO answers VALUES(448, 'MOST_TIME', 'Most of the time', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(448, 'SOME_TIME', 'Parfois', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(449, 'ALL_TIME', 'Tout le temps', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(449, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 6, 'en', 0);
+INSERT INTO answers VALUES(449, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 6, 'fr', 0);
+INSERT INTO answers VALUES(449, 'REFUSED', '[DO NOT READ] Refused', 0, 7, 'en', 0);
+INSERT INTO answers VALUES(449, 'NONE_TIME', 'None of the time', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(451, 'REFUSED', '[DO NOT READ] Refused', 0, 7, 'en', 0);
+INSERT INTO answers VALUES(451, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 6, 'fr', 0);
+INSERT INTO answers VALUES(451, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 6, 'en', 0);
+INSERT INTO answers VALUES(451, 'MOST_TIME', 'Most of the time', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(451, 'SOME_TIME', 'Parfois', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(452, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(452, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(452, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(1622, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(1623, 'NO', 'No', 1, 2, 'en', 0);
+INSERT INTO answers VALUES(1623, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(1615, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(1616, 'NO', 'Non', 1, 2, 'fr', 0);
+INSERT INTO answers VALUES(1616, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(1621, 'NO', 'Non', 1, 2, 'fr', 0);
+INSERT INTO answers VALUES(1621, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(1622, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(469, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 6, 'fr', 0);
+INSERT INTO answers VALUES(469, 'REFUSED', '[DO NOT READ] Refused', 0, 7, 'en', 0);
+INSERT INTO answers VALUES(469, 'ONCE_DAY', 'At least once a day', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(470, 'NEVER', 'Never', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(470, 'NEVER', 'Jamais', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(470, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 6, 'en', 0);
+INSERT INTO answers VALUES(470, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 6, 'fr', 0);
+INSERT INTO answers VALUES(470, 'REFUSED', '[DO NOT READ] Refused', 0, 7, 'en', 0);
+INSERT INTO answers VALUES(470, 'REFUSED', '[NE PAS LIRE] Refus', 0, 7, 'fr', 0);
+INSERT INTO answers VALUES(471, 'NEVER', 'Never', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(471, 'NEVER', 'Jamais', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(471, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 6, 'en', 0);
+INSERT INTO answers VALUES(471, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 6, 'fr', 0);
+INSERT INTO answers VALUES(471, 'REFUSED', '[DO NOT READ] Refused', 0, 7, 'en', 0);
+INSERT INTO answers VALUES(471, 'REFUSED', '[NE PAS LIRE] Refus', 0, 7, 'fr', 0);
+INSERT INTO answers VALUES(484, 'NEVER', 'Never', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(484, 'NEVER', 'Jamais', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(484, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 6, 'en', 0);
+INSERT INTO answers VALUES(484, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 6, 'fr', 0);
+INSERT INTO answers VALUES(484, 'REFUSE', '[DO NOT READ] Refused', 0, 7, 'en', 0);
+INSERT INTO answers VALUES(484, 'REFUSE', '[NE PAS LIRE] Refus', 0, 7, 'fr', 0);
+INSERT INTO answers VALUES(487, 'NEVER', 'Never', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(487, 'NEVER', 'Jamais', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(487, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 6, 'en', 0);
+INSERT INTO answers VALUES(487, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 6, 'fr', 0);
+INSERT INTO answers VALUES(487, 'REFUSED', '[DO NOT READ] Refused', 0, 7, 'en', 0);
+INSERT INTO answers VALUES(487, 'REFUSED', '[NE PAS LIRE] Refus', 0, 7, 'fr', 0);
+INSERT INTO answers VALUES(489, 'REFUSED', '[NE PAS LIRE] Refus', 0, 7, 'fr', 0);
+INSERT INTO answers VALUES(489, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 6, 'fr', 0);
+INSERT INTO answers VALUES(489, 'REFUSED', '[DO NOT READ] Refused', 0, 7, 'en', 0);
+INSERT INTO answers VALUES(489, 'ONCE_DAY', 'At least once a day', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(490, 'REFUSED', '[NE PAS LIRE] Refus', 0, 7, 'fr', 0);
+INSERT INTO answers VALUES(490, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 6, 'fr', 0);
+INSERT INTO answers VALUES(490, 'REFUSED', '[DO NOT READ] Refused', 0, 7, 'en', 0);
+INSERT INTO answers VALUES(490, 'ONCE_DAY', 'At least once a day', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(492, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(492, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(492, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(501, 'MEDICAL_CARE', 'Des soins médicaux comme de l''aide pour prendre des médicaments ou de laide pour les soins infirmiers (p. ex., changer des pansements ou soins des pieds)', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(501, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 8, 'fr', 0);
+INSERT INTO answers VALUES(501, 'OTHER', 'Other (please specify)', 0, 7, 'en', 0);
+INSERT INTO answers VALUES(501, 'OTHER', 'Autre (veuillez préciser : __________)', 0, 7, 'fr', 0);
+INSERT INTO answers VALUES(501, 'DK_NA', '[DO NOT READ] Dont know/ No answer', 0, 8, 'en', 0);
+INSERT INTO answers VALUES(501, 'REFUSED', '[NE PAS LIRE] Refus', 0, 9, 'fr', 0);
+INSERT INTO answers VALUES(478, 'MEAL_PREPARATION', 'Meal preparation or delivery', 0, 6, 'en', 0);
+INSERT INTO answers VALUES(478, 'MEAL_PREPARATION', 'De la préparation ou livraison des repas', 0, 6, 'fr', 0);
+INSERT INTO answers VALUES(478, 'OTHER', 'Other (please specify)', 0, 7, 'en', 0);
+INSERT INTO answers VALUES(478, 'OTHER', 'Autre (veuillez préciser : __________)', 0, 7, 'fr', 0);
+INSERT INTO answers VALUES(478, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 8, 'en', 0);
+INSERT INTO answers VALUES(478, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 8, 'fr', 0);
+INSERT INTO answers VALUES(478, 'REFUSED', '[DO NOT READ] Refused', 0, 9, 'en', 0);
+INSERT INTO answers VALUES(478, 'REFUSED', '[NE PAS LIRE] Refus', 0, 9, 'fr', 0);
+INSERT INTO answers VALUES(488, '13_36_MONTHS', 'More than 12 months (1 year) and up to 36 months (3 years)', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(488, '13_36_MONTHS', 'Entre 12 mois (1 an) et 36 mois ( 3 ans)', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(488, 'LESS_6_MONTHS', 'Less than 6 months', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(454, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(454, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(454, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(417, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(330, 'REFUSED', '[DO NOT READ] Refused', 0, 11, 'en', 0);
+INSERT INTO answers VALUES(330, 'REFUSED', '[NE PAS LIRE] Refus', 0, 11, 'fr', 0);
+INSERT INTO answers VALUES(335, 'REFUSED', '[NE PAS LIRE] Refus', 0, 11, 'fr', 0);
+INSERT INTO answers VALUES(338, 'REFUSED', '[NE PAS LIRE] Refus', 0, 11, 'fr', 0);
+INSERT INTO answers VALUES(350, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(421, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(266, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(266, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(266, 'REFUSED', '[DO NOT READ] Refused', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(266, 'REFUSED', '[NE PAS LIRE] Refus', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(268, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(268, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(268, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(273, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(273, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(273, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(274, 'REFUSED', '[DO NOT READ] Refused', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(274, 'ADEQUATE', 'Suffisants', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(274, 'ADEQUATE', 'Adequate', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(274, 'REFUSED', '[NE PAS LIRE] Refus', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(303, 'OWN_BUSINESS', 'Travailleur autonome ou votre propre entreprise', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(303, 'REFUSED', '[NE PAS LIRE] Refus', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(303, 'OWN_BUSINESS', 'For yourself or your own business', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(306, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(306, 'FULL_TIME', 'Travail à temps plein', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(306, 'FULL_TIME', 'Full time work', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(307, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(307, 'PERMANENT_WORK', 'Permanent work', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(307, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(122, 'OTHER', 'Other (please specify)', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(122, 'OTHER', 'Autre (veuillez préciser)', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(122, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(122, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(122, 'REFUSED', '[DO NOT READ] Refused', 0, 6, 'en', 0);
+INSERT INTO answers VALUES(122, 'REFUSED', '[NE PAS LIRE] Refus', 0, 6, 'fr', 0);
+INSERT INTO answers VALUES(154, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(154, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(154, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(155, 'REFUSED', '[DO NOT READ] Refused', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(155, 'ADEQUATE', 'Suffisants', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(155, 'ADEQUATE', 'Adequate', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(155, 'REFUSED', '[NE PAS LIRE] Refus', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(86, 'REFUSED', '[NE PAS LIRE] Refus', 0, 16, 'fr', 0);
+INSERT INTO answers VALUES(1614, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(1608, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(1609, 'NO', 'No', 1, 2, 'en', 0);
+INSERT INTO answers VALUES(1609, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(1614, 'NO', 'Non', 1, 2, 'fr', 0);
+INSERT INTO answers VALUES(1608, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(1608, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(1022, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(1022, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(1022, 'NO', 'No', 1, 2, 'en', 0);
+INSERT INTO answers VALUES(43, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(43, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(43, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(44, '72_83', '60" à 6 11" (181,6 à 212,0 cm)', 0, 7, 'fr', 0);
+INSERT INTO answers VALUES(44, '84_MORE', '7''0" and over (212.1 cm and over)', 0, 8, 'en', 0);
+INSERT INTO answers VALUES(44, '84_MORE', '70" et plus (212,1 cm et plus)', 0, 8, 'fr', 0);
+INSERT INTO answers VALUES(44, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 9, 'en', 0);
+INSERT INTO answers VALUES(44, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 9, 'fr', 0);
+INSERT INTO answers VALUES(44, 'REFUSED', '[DO NOT READ] Refused', 0, 10, 'en', 0);
+INSERT INTO answers VALUES(44, 'REFUSED', '[NE PAS LIRE] Refus', 0, 10, 'fr', 0);
+INSERT INTO answers VALUES(45, '23', '111" / 23" (57,2 à 59,6 cm)', 0, 12, 'fr', 0);
+INSERT INTO answers VALUES(45, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 13, 'en', 0);
+INSERT INTO answers VALUES(45, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 13, 'fr', 0);
+INSERT INTO answers VALUES(45, 'REFUSED', '[DO NOT READ] Refused', 0, 14, 'en', 0);
+INSERT INTO answers VALUES(45, 'REFUSED', '[NE PAS LIRE] Refus', 0, 14, 'fr', 0);
+INSERT INTO answers VALUES(46, '35', '211" / 35" (87,6 à 90,1 cm)', 0, 12, 'fr', 0);
+INSERT INTO answers VALUES(46, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 13, 'en', 0);
+INSERT INTO answers VALUES(46, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 13, 'fr', 0);
+INSERT INTO answers VALUES(46, 'REFUSED', '[DO NOT READ] Refused', 0, 14, 'en', 0);
+INSERT INTO answers VALUES(46, 'REFUSED', '[NE PAS LIRE] Refus', 0, 14, 'fr', 0);
+INSERT INTO answers VALUES(47, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 13, 'en', 0);
+INSERT INTO answers VALUES(47, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 13, 'fr', 0);
+INSERT INTO answers VALUES(47, 'REFUSED', '[DO NOT READ] Refused', 0, 14, 'en', 0);
+INSERT INTO answers VALUES(47, 'REFUSED', '[NE PAS LIRE] Refus', 0, 14, 'fr', 0);
+INSERT INTO answers VALUES(48, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 13, 'en', 0);
+INSERT INTO answers VALUES(48, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 13, 'fr', 0);
+INSERT INTO answers VALUES(48, 'REFUSED', '[DO NOT READ] Refused', 0, 14, 'en', 0);
+INSERT INTO answers VALUES(48, 'REFUSED', '[NE PAS LIRE] Refus', 0, 14, 'fr', 0);
+INSERT INTO answers VALUES(49, '71', '511" (179,1 à 181,5 cm)', 0, 12, 'fr', 0);
+INSERT INTO answers VALUES(49, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 13, 'en', 0);
+INSERT INTO answers VALUES(49, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 13, 'fr', 0);
+INSERT INTO answers VALUES(49, 'REFUSED', '[DO NOT READ] Refused', 0, 14, 'en', 0);
+INSERT INTO answers VALUES(49, 'REFUSED', '[NE PAS LIRE] Refus', 0, 14, 'fr', 0);
+INSERT INTO answers VALUES(50, '83', '611" (209,6 à 212,0 cm)', 0, 12, 'fr', 0);
+INSERT INTO answers VALUES(50, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 13, 'en', 0);
+INSERT INTO answers VALUES(50, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 13, 'fr', 0);
+INSERT INTO answers VALUES(50, 'REFUSED', '[DO NOT READ] Refused', 0, 14, 'en', 0);
+INSERT INTO answers VALUES(50, 'REFUSED', '[NE PAS LIRE] Refus', 0, 14, 'fr', 0);
+INSERT INTO answers VALUES(52, 'KILOGRAMS', 'Kilogrammes', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(53, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(53, 'REFUSED', '[DO NOT READ] Refused', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(53, 'REFUSED', '[NE PAS LIRE] Refus', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(426, 'REFUSED', '[NE PAS LIRE] Refus', 0, 7, 'fr', 0);
+INSERT INTO answers VALUES(428, 'REFUSED', '[NE PAS LIRE] Refus', 0, 7, 'fr', 0);
+INSERT INTO answers VALUES(429, 'REFUSED', '[NE PAS LIRE] Refus', 0, 7, 'fr', 0);
+INSERT INTO answers VALUES(430, 'REFUSED', '[NE PAS LIRE] Refus', 0, 7, 'fr', 0);
+INSERT INTO answers VALUES(432, 'REFUSED', '[NE PAS LIRE] Refus', 0, 7, 'fr', 0);
+INSERT INTO answers VALUES(434, 'REFUSED', '[NE PAS LIRE] Refus', 0, 7, 'fr', 0);
+INSERT INTO answers VALUES(435, 'REFUSED', '[NE PAS LIRE] Refus', 0, 7, 'fr', 0);
+INSERT INTO answers VALUES(436, 'MOST_TIME', 'La plupart du temps', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(437, 'REFUSED', '[NE PAS LIRE] Refus', 0, 7, 'fr', 0);
+INSERT INTO answers VALUES(438, 'REFUSED', '[NE PAS LIRE] Refus', 0, 7, 'fr', 0);
+INSERT INTO answers VALUES(440, 'REFUSED', '[NE PAS LIRE] Refus', 0, 7, 'fr', 0);
+INSERT INTO answers VALUES(443, 'REFUSED', '[NE PAS LIRE] Refus', 0, 7, 'fr', 0);
+INSERT INTO answers VALUES(446, 'MOST_TIME', 'La plupart du temps', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(447, 'REFUSED', '[NE PAS LIRE] Refus', 0, 7, 'fr', 0);
+INSERT INTO answers VALUES(448, 'REFUSED', '[NE PAS LIRE] Refus', 0, 7, 'fr', 0);
+INSERT INTO answers VALUES(449, 'REFUSED', '[NE PAS LIRE] Refus', 0, 7, 'fr', 0);
+INSERT INTO answers VALUES(451, 'REFUSED', '[NE PAS LIRE] Refus', 0, 7, 'fr', 0);
+INSERT INTO answers VALUES(89, 'A10', 'Supplément de revenu garanti', 1, 10, 'fr', 0);
+INSERT INTO answers VALUES(89, 'A11', 'Provincial or municipal social assistance or welfare', 1, 11, 'en', 0);
+INSERT INTO answers VALUES(89, 'A11', 'Allocations municipales ou provinciales daide sociale ou de Bien-être social', 1, 11, 'fr', 0);
+INSERT INTO answers VALUES(89, 'A1', 'Wages and salaries', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(185, 'REFUSED', '[DO NOT READ] Refused', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(185, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(89, 'A9', 'Sécurité de la vieillesse', 1, 9, 'fr', 0);
+INSERT INTO answers VALUES(89, 'A9', 'Old Age Security', 1, 9, 'en', 0);
+INSERT INTO answers VALUES(89, 'A8', 'REER/FERR (régime enregistré dépargne-retraite/fonds enregistrés de revenu de retraite)', 1, 8, 'fr', 0);
+INSERT INTO answers VALUES(89, 'A8', 'RRSP/RRIF (Registered Retirement Savings Plan/Registered Retirement Income Fund)', 1, 8, 'en', 0);
+INSERT INTO answers VALUES(89, 'A7', 'Pensions de retraite dun employeur et rentes', 1, 7, 'fr', 0);
+INSERT INTO answers VALUES(1290, 'A11', 'Allocations municipales ou provinciales daide sociale ou de Bien-être social', 0, 11, 'fr', 0);
+INSERT INTO answers VALUES(1290, 'A11', 'Provincial or municipal social assistance or welfare', 0, 11, 'en', 0);
+INSERT INTO answers VALUES(1290, 'A10', 'Supplément de revenu garanti', 0, 10, 'fr', 0);
+INSERT INTO answers VALUES(1290, 'A10', 'Guarenteed Income Supplement', 0, 10, 'en', 0);
+INSERT INTO answers VALUES(1290, 'A9', 'Sécurité de la vieillesse', 0, 9, 'fr', 0);
+INSERT INTO answers VALUES(1290, 'A9', 'Old Age Security', 0, 9, 'en', 0);
+INSERT INTO answers VALUES(1290, 'A8', 'REER/FERR (régime enregistré dépargne-retraite/fonds enregistrés de revenu de retraite)', 0, 8, 'fr', 0);
+INSERT INTO answers VALUES(1290, 'A8', 'RRSP/RRIF (Registered Retirement Savings Plan/Registered Retirement Income Fund)', 0, 8, 'en', 0);
+INSERT INTO answers VALUES(1290, 'A7', 'Pensions de retraite dun employeur et rentes', 0, 7, 'fr', 0);
+INSERT INTO answers VALUES(1290, 'A7', 'Job related retirement pensions, superannuation and annuities', 0, 7, 'en', 0);
+INSERT INTO answers VALUES(1290, 'A6', 'Prestations du Régime de pensions du Canada ou du Régime des rentes du Québec', 0, 6, 'fr', 0);
+INSERT INTO answers VALUES(1290, 'A6', 'Benefits from Canada or Quebec Pension Plan', 0, 6, 'en', 0);
+INSERT INTO answers VALUES(1290, 'A5', 'Indemnités daccident du travail', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(1290, 'A5', 'Worker''s compensation', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(1290, 'A4', 'Prestations dassurance-emploi', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(1290, 'A4', 'Employment insurance', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(1290, 'A3', 'Dividendes et intérêts (par exemple obligations, épargnes)', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(1290, 'A3', 'Dividends and interest (e.g., on bonds, savings)', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(1290, 'A2', 'Revenu dun travail autonome', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(1290, 'A1', 'Salaires et traitements', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(1290, 'A2', 'Income from self-employment', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(1290, 'A1', 'Wages and salaries', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(1291, 'A12', 'Child Tax Benefit', 0, 12, 'en', 0);
+INSERT INTO answers VALUES(1291, 'A11', 'Allocations municipales ou provinciales daide sociale ou de Bien-être social', 0, 11, 'fr', 0);
+INSERT INTO answers VALUES(1291, 'A11', 'Provincial or municipal social assistance or welfare', 0, 11, 'en', 0);
+INSERT INTO answers VALUES(1291, 'A10', 'Supplément de revenu garanti', 0, 10, 'fr', 0);
+INSERT INTO answers VALUES(1291, 'A9', 'Sécurité de la vieillesse', 0, 9, 'fr', 0);
+INSERT INTO answers VALUES(1291, 'A10', 'Guarenteed Income Supplement', 0, 10, 'en', 0);
+INSERT INTO answers VALUES(1291, 'A9', 'Old Age Security', 0, 9, 'en', 0);
+INSERT INTO answers VALUES(1291, 'A8', 'REER/FERR (régime enregistré dépargne-retraite/fonds enregistrés de revenu de retraite)', 0, 8, 'fr', 0);
+INSERT INTO answers VALUES(1291, 'A8', 'RRSP/RRIF (Registered Retirement Savings Plan/Registered Retirement Income Fund)', 0, 8, 'en', 0);
+INSERT INTO answers VALUES(1291, 'A7', 'Pensions de retraite dun employeur et rentes', 0, 7, 'fr', 0);
+INSERT INTO answers VALUES(1291, 'A7', 'Job related retirement pensions, superannuation and annuities', 0, 7, 'en', 0);
+INSERT INTO answers VALUES(1291, 'A6', 'Benefits from Canada or Quebec Pension Plan', 0, 6, 'en', 0);
+INSERT INTO answers VALUES(1291, 'A6', 'Prestations du Régime de pensions du Canada ou du Régime des rentes du Québec', 0, 6, 'fr', 0);
+INSERT INTO answers VALUES(1291, 'A5', 'Indemnités daccident du travail', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(1291, 'A5', 'Worker''s compensation', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(1291, 'A4', 'Prestations dassurance-emploi', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(1291, 'A3', 'Dividendes et intérêts (par exemple obligations, épargnes)', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(1291, 'A4', 'Employment insurance', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(1291, 'A3', 'Dividends and interest (e.g., on bonds, savings)', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(185, 'REFUSED', '[NE PAS LIRE] Refus', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(1292, 'A11', 'Allocations municipales ou provinciales daide sociale ou de Bien-être social', 0, 11, 'fr', 0);
+INSERT INTO answers VALUES(1292, 'A11', 'Provincial or municipal social assistance or welfare', 0, 11, 'en', 0);
+INSERT INTO answers VALUES(1292, 'A10', 'Supplément de revenu garanti', 0, 10, 'fr', 0);
+INSERT INTO answers VALUES(1292, 'A10', 'Guarenteed Income Supplement', 0, 10, 'en', 0);
+INSERT INTO answers VALUES(1292, 'A9', 'Sécurité de la vieillesse', 0, 9, 'fr', 0);
+INSERT INTO answers VALUES(1292, 'A9', 'Old Age Security', 0, 9, 'en', 0);
+INSERT INTO answers VALUES(1292, 'A8', 'REER/FERR (régime enregistré dépargne-retraite/fonds enregistrés de revenu de retraite)', 0, 8, 'fr', 0);
+INSERT INTO answers VALUES(1292, 'A8', 'RRSP/RRIF (Registered Retirement Savings Plan/Registered Retirement Income Fund)', 0, 8, 'en', 0);
+INSERT INTO answers VALUES(1292, 'A7', 'Pensions de retraite dun employeur et rentes', 0, 7, 'fr', 0);
+INSERT INTO answers VALUES(1292, 'A7', 'Job related retirement pensions, superannuation and annuities', 0, 7, 'en', 0);
+INSERT INTO answers VALUES(1292, 'A6', 'Prestations du Régime de pensions du Canada ou du Régime des rentes du Québec', 0, 6, 'fr', 0);
+INSERT INTO answers VALUES(1292, 'A6', 'Benefits from Canada or Quebec Pension Plan', 0, 6, 'en', 0);
+INSERT INTO answers VALUES(1292, 'A5', 'Indemnités daccident du travail', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(1292, 'A5', 'Worker''s compensation', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(1292, 'A4', 'Prestations dassurance-emploi', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(1292, 'A4', 'Employment insurance', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(1292, 'A3', 'Dividendes et intérêts (par exemple obligations, épargnes)', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(1292, 'A3', 'Dividends and interest (e.g., on bonds, savings)', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(1292, 'A2', 'Revenu dun travail autonome', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(1292, 'A1', 'Salaires et traitements', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(1292, 'A2', 'Income from self-employment', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(1292, 'A1', 'Wages and salaries', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(1293, 'A11', 'Allocations municipales ou provinciales daide sociale ou de Bien-être social', 0, 11, 'fr', 0);
+INSERT INTO answers VALUES(1293, 'A11', 'Provincial or municipal social assistance or welfare', 0, 11, 'en', 0);
+INSERT INTO answers VALUES(1293, 'A10', 'Supplément de revenu garanti', 0, 10, 'fr', 0);
+INSERT INTO answers VALUES(1293, 'A10', 'Guarenteed Income Supplement', 0, 10, 'en', 0);
+INSERT INTO answers VALUES(1293, 'A9', 'Sécurité de la vieillesse', 0, 9, 'fr', 0);
+INSERT INTO answers VALUES(1293, 'A9', 'Old Age Security', 0, 9, 'en', 0);
+INSERT INTO answers VALUES(1293, 'A8', 'REER/FERR (régime enregistré dépargne-retraite/fonds enregistrés de revenu de retraite)', 0, 8, 'fr', 0);
+INSERT INTO answers VALUES(1293, 'A8', 'RRSP/RRIF (Registered Retirement Savings Plan/Registered Retirement Income Fund)', 0, 8, 'en', 0);
+INSERT INTO answers VALUES(1293, 'A7', 'Pensions de retraite dun employeur et rentes', 0, 7, 'fr', 0);
+INSERT INTO answers VALUES(1293, 'A7', 'Job related retirement pensions, superannuation and annuities', 0, 7, 'en', 0);
+INSERT INTO answers VALUES(1293, 'A6', 'Prestations du Régime de pensions du Canada ou du Régime des rentes du Québec', 0, 6, 'fr', 0);
+INSERT INTO answers VALUES(1293, 'A6', 'Benefits from Canada or Quebec Pension Plan', 0, 6, 'en', 0);
+INSERT INTO answers VALUES(1293, 'A5', 'Indemnités daccident du travail', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(1293, 'A5', 'Worker''s compensation', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(1293, 'A4', 'Prestations dassurance-emploi', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(1293, 'A4', 'Employment insurance', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(1293, 'A3', 'Dividendes et intérêts (par exemple obligations, épargnes)', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(1293, 'A3', 'Dividends and interest (e.g., on bonds, savings)', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(1293, 'A2', 'Revenu dun travail autonome', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(1293, 'A1', 'Salaires et traitements', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(1293, 'A2', 'Income from self-employment', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(1293, 'A1', 'Wages and salaries', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(1294, 'A11', 'Allocations municipales ou provinciales daide sociale ou de Bien-être social', 0, 11, 'fr', 0);
+INSERT INTO answers VALUES(1294, 'A11', 'Provincial or municipal social assistance or welfare', 0, 11, 'en', 0);
+INSERT INTO answers VALUES(1294, 'A10', 'Supplément de revenu garanti', 0, 10, 'fr', 0);
+INSERT INTO answers VALUES(1294, 'A10', 'Guarenteed Income Supplement', 0, 10, 'en', 0);
+INSERT INTO answers VALUES(1294, 'A9', 'Sécurité de la vieillesse', 0, 9, 'fr', 0);
+INSERT INTO answers VALUES(1294, 'A9', 'Old Age Security', 0, 9, 'en', 0);
+INSERT INTO answers VALUES(1294, 'A8', 'REER/FERR (régime enregistré dépargne-retraite/fonds enregistrés de revenu de retraite)', 0, 8, 'fr', 0);
+INSERT INTO answers VALUES(1294, 'A8', 'RRSP/RRIF (Registered Retirement Savings Plan/Registered Retirement Income Fund)', 0, 8, 'en', 0);
+INSERT INTO answers VALUES(1294, 'A7', 'Pensions de retraite dun employeur et rentes', 0, 7, 'fr', 0);
+INSERT INTO answers VALUES(1294, 'A7', 'Job related retirement pensions, superannuation and annuities', 0, 7, 'en', 0);
+INSERT INTO answers VALUES(1294, 'A6', 'Prestations du Régime de pensions du Canada ou du Régime des rentes du Québec', 0, 6, 'fr', 0);
+INSERT INTO answers VALUES(1294, 'A6', 'Benefits from Canada or Quebec Pension Plan', 0, 6, 'en', 0);
+INSERT INTO answers VALUES(1294, 'A5', 'Indemnités daccident du travail', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(1294, 'A5', 'Worker''s compensation', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(1294, 'A4', 'Prestations dassurance-emploi', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(1294, 'A4', 'Employment insurance', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(1294, 'A3', 'Dividendes et intérêts (par exemple obligations, épargnes)', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(1294, 'A3', 'Dividends and interest (e.g., on bonds, savings)', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(1294, 'A2', 'Revenu dun travail autonome', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(1294, 'A1', 'Salaires et traitements', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(1294, 'A2', 'Income from self-employment', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(1294, 'A1', 'Wages and salaries', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(186, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(186, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(186, 'REFUSED', '[DO NOT READ] Refused', 0, 6, 'en', 0);
+INSERT INTO answers VALUES(186, 'REFUSED', '[NE PAS LIRE] Refus', 0, 6, 'fr', 0);
+INSERT INTO answers VALUES(188, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(188, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(188, 'REFUSED', '[DO NOT READ] Refused', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(188, 'REFUSED', '[NE PAS LIRE] Refus', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(189, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(189, 'REFUSED', '[DO NOT READ] Refused', 0, 6, 'en', 0);
+INSERT INTO answers VALUES(189, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(190, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(190, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(190, 'REFUSED', '[DO NOT READ] Refused', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(190, 'REFUSED', '[NE PAS LIRE] Refus', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(191, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(191, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(191, 'REFUSED', '[DO NOT READ] Refused', 0, 6, 'en', 0);
+INSERT INTO answers VALUES(191, 'REFUSED', '[NE PAS LIRE] Refus', 0, 6, 'fr', 0);
+INSERT INTO answers VALUES(197, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(197, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(197, 'REFUSED', '[DO NOT READ] Refused', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(197, 'REFUSED', '[NE PAS LIRE] Refus', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(198, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(198, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(198, 'REFUSED', '[DO NOT READ] Refused', 0, 6, 'en', 0);
+INSERT INTO answers VALUES(198, 'REFUSED', '[NE PAS LIRE] Refus', 0, 6, 'fr', 0);
+INSERT INTO answers VALUES(200, 'REFUSED', '[DO NOT READ] Refused', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(200, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(200, 'REFUSED', '[NE PAS LIRE] Refus', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(202, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(202, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(202, 'REFUSED', '[DO NOT READ] Refused', 0, 6, 'en', 0);
+INSERT INTO answers VALUES(202, 'REFUSED', '[NE PAS LIRE] Refus', 0, 6, 'fr', 0);
+INSERT INTO answers VALUES(203, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(203, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(203, 'REFUSED', '[DO NOT READ] Refused', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(203, 'REFUSED', '[NE PAS LIRE] Refus', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(204, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(204, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(204, 'REFUSED', '[DO NOT READ] Refused', 0, 6, 'en', 0);
+INSERT INTO answers VALUES(204, 'REFUSED', '[NE PAS LIRE] Refus', 0, 6, 'fr', 0);
+INSERT INTO answers VALUES(205, 'REFUSED', '[DO NOT READ] Refused', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(205, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(205, 'REFUSED', '[NE PAS LIRE] Refus', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(206, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(206, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(206, 'REFUSED', '[DO NOT READ] Refused', 0, 6, 'en', 0);
+INSERT INTO answers VALUES(206, 'REFUSED', '[NE PAS LIRE] Refus', 0, 6, 'fr', 0);
+INSERT INTO answers VALUES(207, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(207, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(207, 'REFUSED', '[DO NOT READ] Refused', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(207, 'REFUSED', '[NE PAS LIRE] Refus', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(209, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(209, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(209, 'REFUSED', '[DO NOT READ] Refused', 0, 6, 'en', 0);
+INSERT INTO answers VALUES(209, 'REFUSED', '[NE PAS LIRE] Refus', 0, 6, 'fr', 0);
+INSERT INTO answers VALUES(210, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(210, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(210, 'REFUSED', '[DO NOT READ] Refused', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(210, 'REFUSED', '[NE PAS LIRE] Refus', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(212, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(212, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(212, 'REFUSED', '[DO NOT READ] Refused', 0, 6, 'en', 0);
+INSERT INTO answers VALUES(212, 'REFUSED', '[NE PAS LIRE] Refus', 0, 6, 'fr', 0);
+INSERT INTO answers VALUES(214, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(214, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(214, 'REFUSED', '[DO NOT READ] Refused', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(214, 'REFUSED', '[NE PAS LIRE] Refus', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(215, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(215, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(215, 'REFUSED', '[DO NOT READ] Refused', 0, 6, 'en', 0);
+INSERT INTO answers VALUES(215, 'REFUSED', '[NE PAS LIRE] Refus', 0, 6, 'fr', 0);
+INSERT INTO answers VALUES(217, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(217, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(217, 'REFUSED', '[DO NOT READ] Refused', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(217, 'REFUSED', '[NE PAS LIRE] Refus', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(219, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(219, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(219, 'REFUSED', '[DO NOT READ] Refused', 0, 6, 'en', 0);
+INSERT INTO answers VALUES(219, 'REFUSED', '[NE PAS LIRE] Refus', 0, 6, 'fr', 0);
+INSERT INTO answers VALUES(220, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(220, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(220, 'REFUSED', '[DO NOT READ] Refused', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(220, 'REFUSED', '[NE PAS LIRE] Refus', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(221, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(221, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(221, 'REFUSED', '[DO NOT READ] Refused', 0, 6, 'en', 0);
+INSERT INTO answers VALUES(221, 'REFUSED', '[NE PAS LIRE] Refus', 0, 6, 'fr', 0);
+INSERT INTO answers VALUES(222, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(222, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(222, 'REFUSED', '[DO NOT READ] Refused', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(222, 'REFUSED', '[NE PAS LIRE] Refus', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(223, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(223, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(223, 'REFUSED', '[DO NOT READ] Refused', 0, 6, 'en', 0);
+INSERT INTO answers VALUES(223, 'REFUSED', '[NE PAS LIRE] Refus', 0, 6, 'fr', 0);
+INSERT INTO answers VALUES(224, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(224, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(224, 'REFUSED', '[DO NOT READ] Refused', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(224, 'REFUSED', '[NE PAS LIRE] Refus', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(1603, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(1607, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(1607, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(1608, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(1608, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(1608, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(1609, 'NO', 'Non', 1, 2, 'fr', 0);
+INSERT INTO answers VALUES(1609, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(996, 'CALL_ANSWERED', 'Appel avec réponse', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(996, 'CALL_ANSWERED', 'Call answered', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(999, 'NOT_AT_THIS_NUMBER', 'Participant nhabite pas à cette adresse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(1003, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(1003, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(1003, 'NO', 'No', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(1011, 'REFUSES_CONFIRMED_ADDRESS_OR_TO_PARTICIPATE', 'Participant refuse de confirmer ladresse / ne souhaite pas participer à létude', 1, 3, 'fr', 0);
+INSERT INTO answers VALUES(1013, 'REFUSES_CONFIRMED_ADDRESS_OR_TO_PARTICIPATE', 'Participant refuse de confirmer ladresse / ne souhaite pas participer à létude', 1, 3, 'fr', 0);
+INSERT INTO answers VALUES(1015, 'REFUSED_PROVIDED_ALT_CONTACT', 'Refuse de donner une personne contact', 1, 3, 'fr', 0);
+INSERT INTO answers VALUES(1016, 'REFUSED_PROVIDED_ALT_CONTACT', 'Refuse de donner une personne contact', 1, 3, 'fr', 0);
+INSERT INTO answers VALUES(1024, 'NO', 'Non', 1, 2, 'fr', 0);
+INSERT INTO answers VALUES(16, 'RUSSIAN', 'Russian', 0, 21, 'en', 0);
+INSERT INTO answers VALUES(16, 'RUSSIAN', 'Russe', 0, 21, 'fr', 0);
+INSERT INTO answers VALUES(16, 'TAMIL', 'Tamil', 0, 22, 'en', 0);
+INSERT INTO answers VALUES(16, 'TAMIL', 'Tamoul', 0, 22, 'fr', 0);
+INSERT INTO answers VALUES(16, 'ABORIGINAL', 'Aboriginal (please specify)', 0, 23, 'en', 0);
+INSERT INTO answers VALUES(16, 'ABORIGINAL', 'Aborigène (veuillez préciser : __________)', 0, 23, 'fr', 0);
+INSERT INTO answers VALUES(16, 'OTHER', 'Other (please specify)', 0, 24, 'en', 0);
+INSERT INTO answers VALUES(16, 'OTHER', 'Autre (veuillez préciser : __________)', 0, 24, 'fr', 0);
+INSERT INTO answers VALUES(16, 'DK_NA', '[DO NOT READ] Don''t know/ No answer', 0, 25, 'en', 0);
+INSERT INTO answers VALUES(16, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 25, 'fr', 0);
+INSERT INTO answers VALUES(16, 'REFUSED', '[DO NOT READ] Refused', 0, 26, 'en', 0);
+INSERT INTO answers VALUES(16, 'REFUSED', '[NE PAS LIRE] Refus', 0, 26, 'fr', 0);
+INSERT INTO answers VALUES(488, 'MORE_5_YEARS', 'More than 5 years', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(488, 'MORE_5_YEARS', 'Plus de 5 ans', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(488, 'DK_NA', '[DO NOT READ] Dont know/ No answer', 0, 6, 'en', 0);
+INSERT INTO answers VALUES(488, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 6, 'fr', 0);
+INSERT INTO answers VALUES(488, 'REFUSED', '[DO NOT READ] Refused', 0, 7, 'en', 0);
+INSERT INTO answers VALUES(488, 'REFUSED', '[NE PAS LIRE] Refus', 0, 7, 'fr', 0);
+INSERT INTO answers VALUES(417, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(498, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(498, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(498, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(1615, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(1622, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(1602, 'NO', 'No', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(1596, 'NO', 'No', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(1585, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(1596, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(1602, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(1584, 'NO', 'No', 1, 2, 'en', 0);
+INSERT INTO answers VALUES(1622, 'NO', 'No', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(1584, 'NO', 'Non', 1, 2, 'fr', 0);
+INSERT INTO answers VALUES(1585, 'NO', 'No', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(325, 'FELL_STANDING_WALKING', 'Vous avez trébuché pendant que vous étiez debout ou en marchant', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(325, 'FELL_STAIRS_STEPS', 'Fell on stairs or steps', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(325, 'FELL_STAIRS_STEPS', 'Vous êtes tombé(e) dans les marches ou un escalier ', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(325, 'FELL_EXERCISING', 'Fell while exercising (except walking)', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(27, 'REFUSED', '[DO NOT READ] Refused', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(27, 'REFUSED', '[NE PAS LIRE] Refus', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(1142, 'NO', 'Non', 1, 2, 'fr', 0);
+INSERT INTO answers VALUES(1142, 'NO', 'No', 1, 2, 'en', 0);
+INSERT INTO answers VALUES(1022, 'NO', 'Non', 1, 2, 'fr', 0);
+INSERT INTO answers VALUES(325, 'FELL_STANDING_WALKING', 'Fell while standing or walking', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(1585, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(1585, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(1584, 'REFUSED', '[DO NOT READ] Refused', 1, 4, 'en', 0);
+INSERT INTO answers VALUES(1584, 'REFUSED', '[NE PAS LIRE] Refus', 1, 4, 'fr', 0);
+INSERT INTO answers VALUES(1590, 'NO', 'Non, na pas bien entendu lenregistrement', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(1591, 'NO', 'Non, na pas bien entendu lenregistrement', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(1596, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(1596, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(1602, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(1602, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(1608, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(1608, 'NO', 'No', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(1615, 'NO', 'Non', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(1615, 'NO', 'No', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(1622, 'REFUSED', '[DO NOT READ] Refused', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(1622, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(482, 'REFUSED', '[DO NOT READ] Refused', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(482, 'REFUSED', '[NE PAS LIRE] Refus', 0, 3, 'fr', 0);
+INSERT INTO answers VALUES(325, 'OTHER', 'Autre (veuillez préciser : __________)', 0, 9, 'fr', 0);
+INSERT INTO answers VALUES(325, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 10, 'en', 0);
+INSERT INTO answers VALUES(325, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 10, 'fr', 0);
+INSERT INTO answers VALUES(325, 'REFUSED', '[DO NOT READ] Refused', 0, 11, 'en', 0);
+INSERT INTO answers VALUES(325, 'REFUSED', '[NE PAS LIRE] Refus', 0, 11, 'fr', 0);
+INSERT INTO answers VALUES(397, 'OTHER', 'Other (please specify)', 0, 9, 'en', 0);
+INSERT INTO answers VALUES(397, 'OTHER', 'Autre (veuillez préciser)', 0, 9, 'fr', 0);
+INSERT INTO answers VALUES(397, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 10, 'en', 0);
+INSERT INTO answers VALUES(397, 'DK_NA', '[NE PAS LIRE] Ne sait pas/pas de réponse', 0, 10, 'fr', 0);
+INSERT INTO answers VALUES(397, 'REFUSED', '[DO NOT READ] Refused', 0, 11, 'en', 0);
+INSERT INTO answers VALUES(397, 'REFUSED', '[NE PAS LIRE] Refus', 0, 11, 'fr', 0);
+INSERT INTO answers VALUES(400, 'OTHER', 'Other (please specify)', 0, 9, 'en', 0);
+INSERT INTO answers VALUES(400, 'OTHER', 'Autre (veuillez préciser :________________)', 0, 9, 'fr', 0);
+INSERT INTO answers VALUES(400, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 10, 'en', 0);
+INSERT INTO answers VALUES(400, 'DK_NA', '[NE PAS LIRE] Ne sait pas/pas de réponse', 0, 10, 'fr', 0);
+INSERT INTO answers VALUES(400, 'REFUSED', '[DO NOT READ] Refused', 0, 11, 'en', 0);
+INSERT INTO answers VALUES(400, 'REFUSED', '[NE PAS LIRE] Refus', 0, 11, 'fr', 0);
+INSERT INTO answers VALUES(409, 'OTHER', 'Other (please specify)', 0, 9, 'en', 0);
+INSERT INTO answers VALUES(409, 'OTHER', 'Autre (veuillez préciser :________________)', 0, 9, 'fr', 0);
+INSERT INTO answers VALUES(409, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 10, 'en', 0);
+INSERT INTO answers VALUES(409, 'DK_NA', '[NE PAS LIRE] Ne sait pas/pas de réponse', 0, 10, 'fr', 0);
+INSERT INTO answers VALUES(409, 'REFUSED', '[DO NOT READ] Refused', 0, 11, 'en', 0);
+INSERT INTO answers VALUES(409, 'REFUSED', '[NE PAS LIRE] Refus', 0, 11, 'fr', 0);
+INSERT INTO answers VALUES(412, 'DID_NOT_READ_INSTRUCTIONS', 'Did not read the instructions', 0, 7, 'en', 0);
+INSERT INTO answers VALUES(412, 'DID_NOT_READ_INSTRUCTIONS', 'Na pas lu les consignes', 0, 7, 'fr', 0);
+INSERT INTO answers VALUES(412, 'YARD_TOOLS_WORN_OUT', 'Les outils de jardinages étaient usés', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(412, 'REFUSED', '[DO NOT READ] Refused', 0, 11, 'en', 0);
+INSERT INTO answers VALUES(412, 'REFUSED', '[NE PAS LIRE] Refus', 0, 11, 'fr', 0);
+INSERT INTO answers VALUES(414, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 10, 'en', 0);
+INSERT INTO answers VALUES(414, 'DK_NA', '[NE PAS LIRE] Ne sait pas/pas de réponse', 0, 10, 'fr', 0);
+INSERT INTO answers VALUES(414, 'REFUSED', '[DO NOT READ] Refused', 0, 11, 'en', 0);
+INSERT INTO answers VALUES(414, 'REFUSED', '[NE PAS LIRE] Refus', 0, 11, 'fr', 0);
+INSERT INTO answers VALUES(418, 'INADEQUATE_INSTRUCTIONS', 'Inadequate instructions', 0, 6, 'en', 0);
+INSERT INTO answers VALUES(418, 'INADEQUATE_INSTRUCTIONS', 'Consignes inadéquates', 0, 6, 'fr', 0);
+INSERT INTO answers VALUES(418, 'DID_NOT_READ_INSTRUCTIONS', 'Did not read the instructions', 0, 7, 'en', 0);
+INSERT INTO answers VALUES(418, 'SPORT_WORN_OUT', 'Other sports equipment was worn out', 0, 5, 'en', 0);
+INSERT INTO answers VALUES(418, 'REFUSED', '[DO NOT READ] Refused', 0, 11, 'en', 0);
+INSERT INTO answers VALUES(418, 'REFUSED', '[NE PAS LIRE] Refus', 0, 11, 'fr', 0);
+INSERT INTO answers VALUES(422, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 10, 'en', 0);
+INSERT INTO answers VALUES(422, 'DK_NA', 'NE PAS LIRE] Ne sait pas/pas de réponse', 0, 10, 'fr', 0);
+INSERT INTO answers VALUES(422, 'REFUSED', '[DO NOT READ] Refused', 0, 11, 'en', 0);
+INSERT INTO answers VALUES(422, 'REFUSED', '[NE PAS LIRE] Refus', 0, 11, 'fr', 0);
+INSERT INTO answers VALUES(218, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(218, 'REFUSED', '[DO NOT READ] Refused', 0, 6, 'en', 0);
+INSERT INTO answers VALUES(218, 'REFUSED', '[NE PAS LIRE] Refus', 0, 6, 'fr', 0);
+INSERT INTO answers VALUES(388, 'DK_NA', '[DO NOT READ] Dont know/No answer', 0, 8, 'en', 0);
+INSERT INTO answers VALUES(388, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 8, 'fr', 0);
+INSERT INTO answers VALUES(388, 'REFUSED', '[DO NOT READ] Refused', 0, 9, 'en', 0);
+INSERT INTO answers VALUES(388, 'REFUSED', '[NE PAS LIRE] Refus', 0, 9, 'fr', 0);
+INSERT INTO answers VALUES(91, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 6, 'en', 0);
+INSERT INTO answers VALUES(91, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 6, 'fr', 0);
+INSERT INTO answers VALUES(91, 'REFUSED', '[DO NOT READ] Refused', 0, 7, 'en', 0);
+INSERT INTO answers VALUES(91, 'REFUSED', '[NE PAS LIRE] Refus', 0, 7, 'fr', 0);
+INSERT INTO answers VALUES(89, 'A12', 'Child Tax Benefit', 1, 12, 'en', 0);
+INSERT INTO answers VALUES(89, 'A12', 'Prestation pour enfants', 1, 12, 'fr', 0);
+INSERT INTO answers VALUES(89, 'A13', 'Child Support', 1, 13, 'en', 0);
+INSERT INTO answers VALUES(89, 'A13', 'Pension alimentaire - aux enfants', 1, 13, 'fr', 0);
+INSERT INTO answers VALUES(89, 'A14', 'Alimony', 1, 14, 'en', 0);
+INSERT INTO answers VALUES(89, 'A14', 'Pension alimentaire - au conjoint', 1, 14, 'fr', 0);
+INSERT INTO answers VALUES(89, 'A15', 'Capital gains (e.g., profits from sale of stocks)', 1, 15, 'en', 0);
+INSERT INTO answers VALUES(89, 'A15', 'Gain en capital (par exemple profits de la vente daction)', 1, 15, 'fr', 0);
+INSERT INTO answers VALUES(89, 'A16', 'Other (e.g., rental income, veteran''s pension)', 1, 16, 'en', 0);
+INSERT INTO answers VALUES(89, 'A16', 'Autre (par exemple, revenu de location, pension des Anciens combattants)', 1, 16, 'fr', 0);
+INSERT INTO answers VALUES(1290, 'A12', 'Child Tax Benefit', 0, 12, 'en', 0);
+INSERT INTO answers VALUES(1290, 'A12', 'Prestation pour enfants', 0, 12, 'fr', 0);
+INSERT INTO answers VALUES(1290, 'A13', 'Child Support', 0, 13, 'en', 0);
+INSERT INTO answers VALUES(1290, 'A13', 'Pension alimentaire - aux enfants', 0, 13, 'fr', 0);
+INSERT INTO answers VALUES(1290, 'A14', 'Alimony', 0, 14, 'en', 0);
+INSERT INTO answers VALUES(1290, 'A14', 'Pension alimentaire - au conjoint', 0, 14, 'fr', 0);
+INSERT INTO answers VALUES(1290, 'A15', 'Capital gains (e.g., profits from sale of stocks)', 0, 15, 'en', 0);
+INSERT INTO answers VALUES(1290, 'A15', 'Gain en capital (par exemple profits de la vente daction)', 0, 15, 'fr', 0);
+INSERT INTO answers VALUES(1290, 'A16', 'Other (e.g., rental income, veteran''s pension)', 0, 16, 'en', 0);
+INSERT INTO answers VALUES(1290, 'A16', 'Autre (par exemple, revenu de location, pension des Anciens combattants)', 0, 16, 'fr', 0);
+INSERT INTO answers VALUES(1291, 'A12', 'Prestation pour enfants', 0, 12, 'fr', 0);
+INSERT INTO answers VALUES(1291, 'A13', 'Child Support', 0, 13, 'en', 0);
+INSERT INTO answers VALUES(1291, 'A13', 'Pension alimentaire - aux enfants', 0, 13, 'fr', 0);
+INSERT INTO answers VALUES(1291, 'A14', 'Alimony', 0, 14, 'en', 0);
+INSERT INTO answers VALUES(1291, 'A14', 'Pension alimentaire - au conjoint', 0, 14, 'fr', 0);
+INSERT INTO answers VALUES(1291, 'A15', 'Capital gains (e.g., profits from sale of stocks)', 0, 15, 'en', 0);
+INSERT INTO answers VALUES(1291, 'A1', 'Wages and salaries', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(1291, 'A1', 'Salaires et traitements', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(1291, 'A2', 'Income from self-employment', 0, 2, 'en', 0);
+INSERT INTO answers VALUES(1291, 'A2', 'Revenu dun travail autonome', 0, 2, 'fr', 0);
+INSERT INTO answers VALUES(1291, 'A15', 'Gain en capital (par exemple profits de la vente daction)', 0, 15, 'fr', 0);
+INSERT INTO answers VALUES(1291, 'A16', 'Other (e.g., rental income, veteran''s pension)', 0, 16, 'en', 0);
+INSERT INTO answers VALUES(1291, 'A16', 'Autre (par exemple, revenu de location, pension des Anciens combattants)', 0, 16, 'fr', 0);
+INSERT INTO answers VALUES(1292, 'A12', 'Child Tax Benefit', 0, 12, 'en', 0);
+INSERT INTO answers VALUES(1292, 'A12', 'Prestation pour enfants', 0, 12, 'fr', 0);
+INSERT INTO answers VALUES(1292, 'A13', 'Child Support', 0, 13, 'en', 0);
+INSERT INTO answers VALUES(1292, 'A13', 'Pension alimentaire - aux enfants', 0, 13, 'fr', 0);
+INSERT INTO answers VALUES(1292, 'A14', 'Alimony', 0, 14, 'en', 0);
+INSERT INTO answers VALUES(1292, 'A14', 'Pension alimentaire - au conjoint', 0, 14, 'fr', 0);
+INSERT INTO answers VALUES(1292, 'A15', 'Capital gains (e.g., profits from sale of stocks)', 0, 15, 'en', 0);
+INSERT INTO answers VALUES(1292, 'A15', 'Gain en capital (par exemple profits de la vente daction)', 0, 15, 'fr', 0);
+INSERT INTO answers VALUES(1292, 'A16', 'Other (e.g., rental income, veteran''s pension)', 0, 16, 'en', 0);
+INSERT INTO answers VALUES(1292, 'A16', 'Autre (par exemple, revenu de location, pension des Anciens combattants)', 0, 16, 'fr', 0);
+INSERT INTO answers VALUES(1293, 'A12', 'Child Tax Benefit', 0, 12, 'en', 0);
+INSERT INTO answers VALUES(1293, 'A12', 'Prestation pour enfants', 0, 12, 'fr', 0);
+INSERT INTO answers VALUES(1293, 'A13', 'Child Support', 0, 13, 'en', 0);
+INSERT INTO answers VALUES(1293, 'A13', 'Pension alimentaire - aux enfants', 0, 13, 'fr', 0);
+INSERT INTO answers VALUES(1293, 'A14', 'Alimony', 0, 14, 'en', 0);
+INSERT INTO answers VALUES(1293, 'A14', 'Pension alimentaire - au conjoint', 0, 14, 'fr', 0);
+INSERT INTO answers VALUES(1293, 'A15', 'Capital gains (e.g., profits from sale of stocks)', 0, 15, 'en', 0);
+INSERT INTO answers VALUES(1293, 'A15', 'Gain en capital (par exemple profits de la vente daction)', 0, 15, 'fr', 0);
+INSERT INTO answers VALUES(1293, 'A16', 'Other (e.g., rental income, veteran''s pension)', 0, 16, 'en', 0);
+INSERT INTO answers VALUES(1293, 'A16', 'Autre (par exemple, revenu de location, pension des Anciens combattants)', 0, 16, 'fr', 0);
+INSERT INTO answers VALUES(1294, 'A12', 'Child Tax Benefit', 0, 12, 'en', 0);
+INSERT INTO answers VALUES(1294, 'A12', 'Prestation pour enfants', 0, 12, 'fr', 0);
+INSERT INTO answers VALUES(1294, 'A13', 'Child Support', 0, 13, 'en', 0);
+INSERT INTO answers VALUES(1294, 'A13', 'Pension alimentaire - aux enfants', 0, 13, 'fr', 0);
+INSERT INTO answers VALUES(1294, 'A14', 'Alimony', 0, 14, 'en', 0);
+INSERT INTO answers VALUES(1294, 'A14', 'Pension alimentaire - au conjoint', 0, 14, 'fr', 0);
+INSERT INTO answers VALUES(1294, 'A15', 'Capital gains (e.g., profits from sale of stocks)', 0, 15, 'en', 0);
+INSERT INTO answers VALUES(1294, 'A15', 'Gain en capital (par exemple profits de la vente daction)', 0, 15, 'fr', 0);
+INSERT INTO answers VALUES(1294, 'A16', 'Other (e.g., rental income, veteran''s pension)', 0, 16, 'en', 0);
+INSERT INTO answers VALUES(1294, 'A16', 'Autre (par exemple, revenu de location, pension des Anciens combattants)', 0, 16, 'fr', 0);
+INSERT INTO answers VALUES(95, '50000_100000', '$50,000 or more, but less than $100,000', 0, 3, 'en', 0);
+INSERT INTO answers VALUES(95, 'LESS_20000', 'Less than $20,000', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(65, '21_25_CIGARETTES', '21 à 25 cigarettes', 0, 5, 'fr', 0);
+INSERT INTO answers VALUES(65, '26_OR_MORE_CIGARETTES', '26+ cigarettes', 0, 6, 'en', 0);
+INSERT INTO answers VALUES(65, '26_OR_MORE_CIGARETTES', '26 cigarettes et plus', 0, 6, 'fr', 0);
+INSERT INTO answers VALUES(75, 'REFUSED', '[DO NOT READ] Refused ', 0, 4, 'en', 0);
+INSERT INTO answers VALUES(75, 'REFUSED', '[NE PAS LIRE] Refus', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(248, 'OTHER', 'Other (please specify)', 0, 6, 'en', 0);
+INSERT INTO answers VALUES(248, 'OTHER', 'Autre (veuillez préciser)', 0, 6, 'fr', 0);
+INSERT INTO answers VALUES(248, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 7, 'en', 0);
+INSERT INTO answers VALUES(248, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 7, 'fr', 0);
+INSERT INTO answers VALUES(248, 'REFUSED', '[DO NOT READ] Refused', 0, 8, 'en', 0);
+INSERT INTO answers VALUES(248, 'REFUSED', '[NE PAS LIRE] Refus', 0, 8, 'fr', 0);
+INSERT INTO answers VALUES(254, 'OTHER', 'Autre (veuillez préciser)', 0, 6, 'fr', 0);
+INSERT INTO answers VALUES(254, 'DK_NA', '[DO NOT READ] Don''t know/No answer', 0, 7, 'en', 0);
+INSERT INTO answers VALUES(254, 'DK_NA', '[NE PAS LIRE] Ne sait pas / pas de réponse', 0, 7, 'fr', 0);
+INSERT INTO answers VALUES(254, 'REFUSED', '[DO NOT READ] Refused', 0, 8, 'en', 0);
+INSERT INTO answers VALUES(254, 'REFUSED', '[NE PAS LIRE] Refus', 0, 8, 'fr', 0);
+INSERT INTO answers VALUES(95, 'REFUSED', '[DO NOT READ] Refused', 0, 7, 'en', 0);
+INSERT INTO answers VALUES(95, 'REFUSED', '[NE PAS LIRE] Refus', 0, 7, 'fr', 0);
+INSERT INTO answers VALUES(996, 'RING_OUT', 'Appel sans réponse - sonnerie seulement', 0, 4, 'fr', 0);
+INSERT INTO answers VALUES(1862, 'NOT_REQUIRES_NEW_CONSENT_FORM', 'Participant does NOT require new consent form', 1, 2, 'en', 0);
+INSERT INTO answers VALUES(1862, 'NOT_REQUIRES_NEW_CONSENT_FORM', 'Participant na PAS besoin dun nouveau formulaire de consentement', 1, 2, 'fr', 0);
+INSERT INTO answers VALUES(1845, 'NO', 'No [SCHEDULE APPOINTMENT & END CALL]', 1, 2, 'en', 0);
+INSERT INTO answers VALUES(1845, 'NO', 'Non [PRENDRE LE RENDEZ-VOUS ET TERMINER LAPPEL]', 1, 2, 'fr', 0);
+INSERT INTO answers VALUES(1848, 'NO', 'No [INTERVIEWER CLICK ''WITHDRAW'' IN SABRETOOTH]', 1, 2, 'en', 0);
+INSERT INTO answers VALUES(1849, 'ANSWERS_SATISFACTORY', 'All questions have been answered to participants satisfaction', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(1861, 'NOT_REQUIRES_NEW_CONSENT_FORM', 'Participant does NOT require new consent form', 1, 2, 'en', 0);
+INSERT INTO answers VALUES(1850, 'NO', 'Non [INTERVIEWEUR CLIQUER WITHDRAW DANS SABRETOOTH]', 1, 2, 'fr', 0);
+INSERT INTO answers VALUES(1850, 'NO', 'No [INTERVIEWER CLICK ''WITHDRAW'' IN SABRETOOTH]', 1, 2, 'en', 0);
+INSERT INTO answers VALUES(1857, 'NO', 'Non', 1, 2, 'fr', 0);
+INSERT INTO answers VALUES(1859, 'NO', 'No [INTERVIEWER CLICK ''WITHDRAW'' IN SABRETOOTH]', 1, 2, 'en', 0);
+INSERT INTO answers VALUES(1860, 'NO', 'Non', 1, 2, 'fr', 0);
+INSERT INTO answers VALUES(1789, 'NO', 'Non', 1, 2, 'fr', 0);
+INSERT INTO answers VALUES(1791, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(1791, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(1822, 'NO_ANSWER_IDENTIFY', 'Appel sans réponse - nom du participant clairement indiqué  sur le répondeur', 1, 2, 'fr', 0);
+INSERT INTO answers VALUES(1789, 'REFUSES_ALTCON', 'Refuses to provide alt. contact', 1, 3, 'en', 0);
+INSERT INTO answers VALUES(1789, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(1787, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(1787, 'NO', 'No', 1, 2, 'en', 0);
+INSERT INTO answers VALUES(1785, 'YES_MAIL', 'Oui, par la poste', 1, 2, 'fr', 0);
+INSERT INTO answers VALUES(1785, 'YES_MAIL', 'Yes mail', 1, 2, 'en', 0);
+INSERT INTO answers VALUES(1822, 'NO_ANSWER_NO_IDENTIFY', 'Appel sans réponse - ne sait pas si le participant habite  à cette adresse', 1, 3, 'fr', 0);
+INSERT INTO answers VALUES(1825, 'PARTICIPANT_NOT_AT_THIS_NUMBER', 'Participant nhabite pas à cette adresse [METTRE FIN À LAPPEL, ENREGISTRER COMME FAUX NUMÉRO]', 1, 3, 'fr', 0);
+INSERT INTO answers VALUES(1825, 'PARTICIPANT_NOT_AVAILABLE', 'Participant non disponible [DEMANDER QUEL SERAIT UN BON MOMENT POUR RAPPELER ET PLANIFIER LE RAPPEL]', 1, 2, 'fr', 0);
+INSERT INTO answers VALUES(1826, 'YES_CONSENT_RETURNED', 'Oui, le formulaire a été signé et retourné', 1, 3, 'fr', 0);
+INSERT INTO answers VALUES(1826, 'YES_CONSENT_DISCARDED', 'Yes, consent discarded', 1, 2, 'en', 0);
+INSERT INTO answers VALUES(1826, 'YES_CONSENT_DISCARDED', 'Oui, mais le formulaire a été jeté', 1, 2, 'fr', 0);
+INSERT INTO answers VALUES(1826, 'YES_CONSENT_RETURNED', 'Yes, consent form signed and returned', 1, 3, 'en', 0);
+INSERT INTO answers VALUES(1827, 'NO', 'Non', 1, 4, 'fr', 0);
+INSERT INTO answers VALUES(1827, 'YES_PACKAGE_DISCARDED', 'Yes, package discarded', 1, 2, 'en', 0);
+INSERT INTO answers VALUES(1827, 'YES_PACKAGE_DISCARDED', 'Oui, mais le formulaire a été jeté', 1, 2, 'fr', 0);
+INSERT INTO answers VALUES(1827, 'YES_CONSENT_RETURNED', 'Yes, consent form signed and returned', 1, 3, 'en', 0);
+INSERT INTO answers VALUES(1827, 'YES_CONSENT_RETURNED', 'Oui, le formulaire a été signé et retourné', 1, 3, 'fr', 0);
+INSERT INTO answers VALUES(1826, 'NO', 'No', 1, 4, 'en', 0);
+INSERT INTO answers VALUES(1828, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(1828, 'NO', 'No', 1, 2, 'en', 0);
+INSERT INTO answers VALUES(1829, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(1829, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(1830, 'NO', 'Non', 1, 2, 'fr', 0);
+INSERT INTO answers VALUES(1830, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(1830, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(1830, 'NO', 'No', 1, 2, 'en', 0);
+INSERT INTO answers VALUES(1838, 'REFUSES_CONFIRMED_ADDRESS_OR_TO_PARTICIPATE', 'Participant refuses to confirm address/ Does not want to participate [INTERVIEWER CLICK ''WITHDRAW'' IN SABRETOOTH]', 1, 3, 'en', 0);
+INSERT INTO answers VALUES(1838, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(1838, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(1838, 'NO', 'No', 1, 2, 'en', 0);
+INSERT INTO answers VALUES(1838, 'NO', 'Non', 1, 2, 'fr', 0);
+INSERT INTO answers VALUES(1845, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(1845, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(1846, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(1846, 'NO', 'No', 1, 2, 'en', 0);
+INSERT INTO answers VALUES(1847, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(1847, 'NO', 'No', 1, 2, 'en', 0);
+INSERT INTO answers VALUES(1848, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(1848, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(1849, 'PARTICIPANT_REFUSES_PARTICIPATION', 'Le participant refuse de participer à létude [INTERVIEWEUR CLIQUER WITHDRAW DANS SABRETOOTH]', 1, 2, 'fr', 0);
+INSERT INTO answers VALUES(1849, 'PARTICIPANT_REFUSES_PARTICIPATION', 'Participant refuses inclusion in study [INTERVIEWER CLICK ''WITHDRAW'' IN SABRETOOTH]', 1, 2, 'en', 0);
+INSERT INTO answers VALUES(1850, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(1850, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(1852, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(1852, 'NO', 'No', 1, 2, 'en', 0);
+INSERT INTO answers VALUES(1853, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(1853, 'NO', 'No', 1, 2, 'en', 0);
+INSERT INTO answers VALUES(1854, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(1854, 'NO', 'No', 1, 2, 'en', 0);
+INSERT INTO answers VALUES(1855, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(1855, 'NO', 'No', 1, 2, 'en', 0);
+INSERT INTO answers VALUES(1856, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(1856, 'NO', 'No', 1, 2, 'en', 0);
+INSERT INTO answers VALUES(1857, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(1857, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(1859, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(1859, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(1860, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(1860, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(1861, 'REQUIRES_NEW_CONSENT_FORM', 'Participant requires a new consent form', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(1861, 'REQUIRES_NEW_CONSENT_FORM', 'Participant a besoin dun nouveau formulaire de consentement', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(1862, 'REQUIRES_NEW_CONSENT_FORM', 'Participant requires a new consent form', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(1862, 'REQUIRES_NEW_CONSENT_FORM', 'Participant a besoin dun nouveau formulaire de consentement', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(1866, 'NO', 'Non [PRENDRE LE RENDEZ-VOUS ET TERMINER LAPPEL]', 1, 2, 'fr', 0);
+INSERT INTO answers VALUES(1826, 'NO', 'Non', 1, 4, 'fr', 0);
+INSERT INTO answers VALUES(1866, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(1866, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(1867, 'CONTINUE', 'Continue', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(1822, 'CALL_ANSWERED', 'Appel avec réponse', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(1785, 'YES_EMAIL', 'Yes email', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(1785, 'YES_EMAIL', 'Oui, par courriel', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(1787, 'NO', 'Non', 1, 2, 'fr', 0);
+INSERT INTO answers VALUES(1787, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(1789, 'NO', 'No', 1, 2, 'en', 0);
+INSERT INTO answers VALUES(1789, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(1791, 'NO', 'No', 1, 2, 'en', 0);
+INSERT INTO answers VALUES(1822, 'NO_ANSWER_NO_IDENTIFY', 'No answer-unknown if participant lives in household', 1, 3, 'en', 0);
+INSERT INTO answers VALUES(1822, 'NO_ANSWER_IDENTIFY', 'No answer-answering machine clearly identifies participant', 1, 2, 'en', 0);
+INSERT INTO answers VALUES(1822, 'CALL_ANSWERED', 'Call answered', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(1825, 'PARTICIPANT_AVAILABLE', 'Participant available', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(1825, 'PARTICIPANT_AVAILABLE', 'Participant disponible', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(1825, 'PARTICIPANT_NOT_AVAILABLE', 'Participant not available [ASK FOR A GOOD TIME TO CALL BACK & SCHEDULE]', 1, 2, 'en', 0);
+INSERT INTO answers VALUES(1826, 'YES_HAS_CONSENT', 'Yes, participant still has consent form', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(1826, 'YES_HAS_CONSENT', 'Oui, le participant a toujours le formulaire', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(1827, 'NO', 'No', 1, 4, 'en', 0);
+INSERT INTO answers VALUES(1827, 'YES_HAS_PACKAGE', 'Yes, participant still has package', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(1827, 'YES_HAS_PACKAGE', 'Oui, le participant a toujours la trousse', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(1828, 'NO', 'Non', 1, 2, 'fr', 0);
+INSERT INTO answers VALUES(1828, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(1829, 'NO_WAIT', 'Non, attendra la nouvelle trousse dinformation', 1, 2, 'fr', 0);
+INSERT INTO answers VALUES(1838, 'REFUSES_CONFIRMED_ADDRESS_OR_TO_PARTICIPATE', 'Participant refuse de confirmer ladresse / ne souhaite pas participer à létude [INTERVIEWEUR CLIQUER WITHDRAW DANS SABRETOOTH]', 1, 3, 'fr', 0);
+INSERT INTO answers VALUES(1846, 'NO', 'Non', 1, 2, 'fr', 0);
+INSERT INTO answers VALUES(1846, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(1847, 'NO', 'Non', 1, 2, 'fr', 0);
+INSERT INTO answers VALUES(1847, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(1848, 'NO', 'Non [INTERVIEWEUR CLIQUER WITHDRAW DANS SABRETOOTH]', 1, 2, 'fr', 0);
+INSERT INTO answers VALUES(1849, 'ANSWERS_SATISFACTORY', 'Toutes les questions répondues à la satisfaction du participant', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(1852, 'NO', 'Non', 1, 2, 'fr', 0);
+INSERT INTO answers VALUES(1852, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(1853, 'NO', 'Non', 1, 2, 'fr', 0);
+INSERT INTO answers VALUES(1853, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(1854, 'NO', 'Non', 1, 2, 'fr', 0);
+INSERT INTO answers VALUES(1854, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(1855, 'NO', 'Non', 1, 2, 'fr', 0);
+INSERT INTO answers VALUES(1855, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(1856, 'NO', 'Non', 1, 2, 'fr', 0);
+INSERT INTO answers VALUES(1856, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(1857, 'NO', 'No', 1, 2, 'en', 0);
+INSERT INTO answers VALUES(1860, 'NO', 'No', 1, 2, 'en', 0);
+INSERT INTO answers VALUES(1861, 'NOT_REQUIRES_NEW_CONSENT_FORM', 'Participant na PAS besoin dun nouveau formulaire de consentement', 1, 2, 'fr', 0);
+INSERT INTO answers VALUES(1826, 'DK_NS', 'Don''t know/ Not sure', 1, 5, 'en', 0);
+INSERT INTO answers VALUES(1825, 'PARTICIPANT_NOT_AT_THIS_NUMBER', 'Participant does not live at this number [END CALL, CODE AS WRONG NUMBER]', 1, 3, 'en', 0);
+INSERT INTO answers VALUES(1866, 'NO', 'No [SCHEDULE APPOINTMENT & END CALL]', 1, 2, 'en', 0);
+INSERT INTO answers VALUES(1867, 'CONTINUE', 'Continue', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(1868, 'YES', 'Oui', 0, 1, 'fr', 0);
+INSERT INTO answers VALUES(1868, 'NO', 'No', 1, 2, 'en', 0);
+INSERT INTO answers VALUES(1868, 'YES', 'Yes', 0, 1, 'en', 0);
+INSERT INTO answers VALUES(1868, 'NO', 'Non', 1, 2, 'fr', 0);
+INSERT INTO answers VALUES(1868, 'DK_NS', 'Don''t know/ Not sure', 1, 3, 'en', 0);
+INSERT INTO answers VALUES(1829, 'NO_WAIT', 'No, will wait for new info package', 1, 2, 'en', 0);
+INSERT INTO answers VALUES(1830, 'REFUSES_CONFIRMED_ADDRESS_OR_TO_PARTICIPATE', 'Participant refuse de confirmer ladresse / ne souhaite pas participer à létude [INTERVIEWEUR CLIQUER WITHDRAW DANS SABRETOOTH]', 1, 3, 'fr', 0);
+INSERT INTO answers VALUES(1859, 'NO', 'Non [INTERVIEWEUR CLIQUER WITHDRAW DANS SABRETOOTH]', 1, 2, 'fr', 0);
+INSERT INTO answers VALUES(1826, 'DK_NS', 'Ne sait pas / nest pas certain', 1, 5, 'fr', 0);
+INSERT INTO answers VALUES(1827, 'DK_NS', 'Don''t know/ Not sure', 1, 5, 'en', 0);
+INSERT INTO answers VALUES(1827, 'DK_NS', 'Ne sait pas / nest pas certain', 1, 5, 'fr', 0);
+INSERT INTO answers VALUES(1791, 'NO', 'Non', 1, 2, 'fr', 0);
+INSERT INTO answers VALUES(1830, 'REFUSES_CONFIRMED_ADDRESS_OR_TO_PARTICIPATE', 'Participant refuses to confirm address/ Does not wish to participate [INTERVIEWER CLICK ''WITHDRAW'' IN SABRETOOTH]', 1, 3, 'en', 0);
+INSERT INTO answers VALUES(1868, 'DK_NS', 'Ne sait pas / nest pas certain', 1, 3, 'fr', 0);
+INSERT INTO answers VALUES(1785, 'NO', 'Non', 1, 3, 'fr', 0);
+INSERT INTO answers VALUES(1785, 'NO', 'No', 1, 3, 'en', 0);
+INSERT INTO answers VALUES(1789, 'REFUSES_ALTCON', 'Refuse de donner une personne contact', 1, 3, 'fr', 0);
+INSERT INTO answers VALUES(1822, 'RING_OUT', 'Appel sans réponse - sonnerie seulement [METTRE FIN À LAPPEL]', 1, 4, 'fr', 0);
+INSERT INTO answers VALUES(1822, 'RING_OUT', 'No answer-ring out [END CALL & ASSIGNMENT]', 1, 4, 'en', 0);
+
