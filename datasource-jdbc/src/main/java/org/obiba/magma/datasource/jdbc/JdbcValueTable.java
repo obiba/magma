@@ -161,7 +161,7 @@ class JdbcValueTable extends AbstractValueTable {
     super.addVariableValueSource(new JdbcVariableValueSource(source));
   }
 
-  private static List<String> getEntityIdentifierColumns(Table table) {
+  static List<String> getEntityIdentifierColumns(Table table) {
     List<String> entityIdentifierColumns = new ArrayList<String>();
     for(Column column : table.getColumns()) {
       if(column.isPrimaryKey()) {
