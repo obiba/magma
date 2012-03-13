@@ -28,7 +28,8 @@ public class LimesurveyDatasourceTest extends AbstractMagmaTest {
   @Test
   public void testCreateDatasourceFromExistingDatabase() {
     LimesurveyDatasource limesurveyDatasource = new LimesurveyDatasource("lime", datasource);
-    Assert.assertEquals(limesurveyDatasource.getValueTableNames().size(), 9);
+    limesurveyDatasource.initialise();
+    Assert.assertEquals(6, limesurveyDatasource.getValueTableNames().size());
   }
 
 }
