@@ -62,4 +62,11 @@ public class UnitMethodsTest extends AbstractJsTest {
       }
     }
   }
+
+  @Test
+  public void test_toUnit_acceptsNull() {
+    ScriptableValue value = evaluate("toUnit('s')", IntegerType.get().nullValue(), "ms");
+    assertThat(value.getUnit(), is("s"));
+    assertThat(value.getValue(), is(IntegerType.get().nullValue()));
+  }
 }
