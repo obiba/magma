@@ -2,6 +2,7 @@ package org.obiba.magma.support;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -53,13 +54,15 @@ public class MagmaEngineFactory {
     return this;
   }
 
-  public void removeFactory(String name) {
-    for(DatasourceFactory factory : factories) {
+  public DatasourceFactory removeFactory(String name) {
+    for(Iterator<DatasourceFactory> i = factories.iterator(); i.hasNext();) {
+      DatasourceFactory factory = i.next();
       if(factory.getName().equals(name)) {
-        factories.remove(factory);
-        break;
+        i.remove();
+        return factory;
       }
     }
+    return null;
   }
 
   public boolean hasDatasourceFactory(String name) {
