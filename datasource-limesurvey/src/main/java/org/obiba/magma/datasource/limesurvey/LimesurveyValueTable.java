@@ -80,7 +80,6 @@ public class LimesurveyValueTable extends AbstractValueTable {
       if(LimesurveyCategoryGroupType.isExplicitCategory(questionType)) {
         SqlRowSet answers = jdbcTemplate.queryForRowSet(sqlAnswer, new Object[] { qid });
         mapAnswers = implodeToMap(answers, "code", new String[] { "answer", "language", "sortorder", "qid" });
-        mapQuestionsAnswers.put(title, mapAnswers);
       } else if(LimesurveyCategoryGroupType.isImplicitCategory(questionType)) {
         LimesurveyImplicitType type = LimesurveyImplicitType._valueOf(questionType);
         for(String category : type.getCategories()) {
