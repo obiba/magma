@@ -39,7 +39,8 @@ public class UnitMethods {
    * $('HEIGHT').unit('cm').unit().any('cm') // returns true
    * </pre>
    */
-  public static ScriptableValue unit(Context ctx, Scriptable thisObj, Object[] args, Function funObj) throws MagmaJsEvaluationRuntimeException {
+  public static ScriptableValue
+      unit(Context ctx, Scriptable thisObj, Object[] args, Function funObj) throws MagmaJsEvaluationRuntimeException {
     ScriptableValue value = (ScriptableValue) thisObj;
     if(args.length == 1) {
       String newUnit = asString(args[0]);
@@ -57,11 +58,16 @@ public class UnitMethods {
    * </pre>
    */
   @SuppressWarnings("unchecked")
-  public static ScriptableValue toUnit(Context ctx, Scriptable thisObj, Object[] args, Function funObj) throws MagmaJsEvaluationRuntimeException {
+  public static ScriptableValue
+      toUnit(Context ctx, Scriptable thisObj, Object[] args, Function funObj) throws MagmaJsEvaluationRuntimeException {
     ScriptableValue value = (ScriptableValue) thisObj;
 
     @SuppressWarnings("rawtypes")
     Unit target = extractUnit(args[0]);
+
+    if(value.getValue().isNull()) {
+      return new ScriptableValue(thisObj, value.getValue(), target.toString());
+    }
 
     Unit<?> source = extractUnit(value);
 
