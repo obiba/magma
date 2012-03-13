@@ -12,20 +12,20 @@ import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
 public class VariableValueTypeFilter extends AbstractFilter<Variable> implements Initialisable {
 
   @XStreamAsAttribute
-  private String type;
+  private String valueType;
 
-  VariableValueTypeFilter(String type) {
-    this.type = type;
+  VariableValueTypeFilter(String valueType) {
+    this.valueType = valueType;
   }
 
   @Override
   public void initialise() {
-    Preconditions.checkState(Strings.isNullOrEmpty(type) == false);
+    Preconditions.checkState(Strings.isNullOrEmpty(valueType) == false);
   }
 
   @Override
   protected Boolean runFilter(Variable item) {
     initialise();
-    return item.getValueType().getName().equalsIgnoreCase(type);
+    return item.getValueType().getName().equalsIgnoreCase(valueType);
   }
 }
