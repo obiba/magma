@@ -83,11 +83,13 @@ public class LimesurveyValueTable extends AbstractValueTable {
         String type = rows.getString("type");
         String language = rows.getString("language");
         String label = rows.getString("question");
+        String other = rows.getString("other");
 
         question.setName(questionName);
         question.setQid(qid);
         question.setType(LimesurveyType._valueOf(type));
         question.addLocalizableAttribute(language, label);
+        question.setOther("Y".equals(other) ? true : false);
 
         questions.put(questionName, question);
       }
@@ -143,10 +145,14 @@ public class LimesurveyValueTable extends AbstractValueTable {
       if(type.hasImplicitCategories()) {
         List<LimeAnswer> answers = Lists.newArrayList();
         for(String implicitAnswer : type.getImplicitAnswers()) {
-          LimeAnswer answer = LimeAnswer.create();
-          answer.setName(implicitAnswer);
+          LimeAnswer answer = LimeAnswer.create(implicitAnswer);
           answers.add(answer);
         }
+        if(question.isOther()) {
+          LimeAnswer answer = LimeAnswer.create("-oth-");
+          answers.add(answer);
+        }
+
         mapAnswers.put(questionName, answers);
       }
     }
@@ -154,9 +160,8 @@ public class LimesurveyValueTable extends AbstractValueTable {
   }
 
   private void buildVariables(Map<String, LimeQuestion> mapQuestions, Map<String, List<LimeAnswer>> mapAnswers) {
-    // TODO put Participant elsewhere
-
     for(LimeQuestion question : mapQuestions.values()) {
+      // TODO put Participant elsewhere
       Variable.Builder vb = Variable.Builder.newVariable(question.getName(), question.getLimesurveyType().getType(), "Participant");
       for(Map.Entry<String, String> attr : question.getLocalizableLabel().entrySet()) {
         vb.addAttribute(attr.getKey(), attr.getValue());
@@ -164,7 +169,7 @@ public class LimesurveyValueTable extends AbstractValueTable {
       for(LimeAnswer answer : mapAnswers.get(question.getName())) {
         Category.Builder cb = Category.Builder.newCategory(answer.getName());
         for(Map.Entry<String, String> attr : answer.getLocalizableLabel().entrySet()) {
-          vb.addAttribute(attr.getKey(), attr.getValue());
+          cb.addAttribute(attr.getKey(), attr.getValue());
         }
         vb.addCategory(cb.build());
       }
@@ -172,7 +177,7 @@ public class LimesurveyValueTable extends AbstractValueTable {
 
       // System.out.println(build.getName() + " " + build.getValueType().getName() + " " + build.getAttributes());
       // for(Category c : build.getCategories()) {
-      // System.out.println("    " + c.getName());
+      // System.out.println("    " + c.getName() + " " + c.getAttributes());
       // }
 
       LimesurveyVariableValueSource variable = new LimesurveyVariableValueSource(build);

@@ -4,7 +4,14 @@ import java.util.Map;
 
 import com.google.common.collect.Maps;
 
-public class LimeLocalizableEntity {
+public abstract class LimeLocalizableEntity {
+
+  public LimeLocalizableEntity() {
+  }
+
+  public LimeLocalizableEntity(String name) {
+    this.name = name;
+  }
 
   private String name;
 

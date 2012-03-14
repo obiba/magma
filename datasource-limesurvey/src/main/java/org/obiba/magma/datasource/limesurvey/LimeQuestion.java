@@ -6,8 +6,22 @@ public class LimeQuestion extends LimeLocalizableEntity {
 
   private LimesurveyType type;
 
+  private boolean other;
+
+  private LimeQuestion() {
+    super();
+  }
+
+  private LimeQuestion(String name) {
+    super(name);
+  }
+
   public static LimeQuestion create() {
     return new LimeQuestion();
+  }
+
+  public static LimeQuestion create(String name) {
+    return new LimeQuestion(name);
   }
 
   public int getQid() {
@@ -24,6 +38,14 @@ public class LimeQuestion extends LimeLocalizableEntity {
 
   public LimesurveyType getLimesurveyType() {
     return type;
+  }
+
+  public boolean isOther() {
+    return other;
+  }
+
+  public void setOther(boolean other) {
+    this.other = other;
   }
 
 }
