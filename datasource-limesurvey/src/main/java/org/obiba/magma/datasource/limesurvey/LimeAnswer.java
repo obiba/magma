@@ -1,6 +1,8 @@
 package org.obiba.magma.datasource.limesurvey;
 
-public class LimeAnswer extends LimeLocalizableEntity {
+public class LimeAnswer extends LimeLocalizableEntity implements Comparable<LimeAnswer> {
+
+  private int sortorder;
 
   private LimeAnswer() {
     super();
@@ -17,4 +19,18 @@ public class LimeAnswer extends LimeLocalizableEntity {
   public static LimeAnswer create(String name) {
     return new LimeAnswer(name);
   }
+
+  public int getSortorder() {
+    return sortorder;
+  }
+
+  public void setSortorder(int sortorder) {
+    this.sortorder = sortorder;
+  }
+
+  @Override
+  public int compareTo(LimeAnswer o) {
+    return new Integer(this.sortorder).compareTo(o.sortorder);
+  }
+
 }

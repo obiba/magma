@@ -62,7 +62,13 @@ public class LimesurveyValueTable extends AbstractValueTable {
   }
 
   private Map<String, LimeQuestion> queryQuestions() {
-    String sqlQuestion = "SELECT * FROM questions WHERE sid=?";
+    // X are boilerplate questions
+    StringBuilder sqlQuestion = new StringBuilder();
+    sqlQuestion.append("SELECT * FROM questions q JOIN groups g ");
+    sqlQuestion.append("ON (q.gid=g.gid AND q.language=g.language) ");
+    sqlQuestion.append("WHERE q.sid=? AND q.type!='X' ");
+    sqlQuestion.append("ORDER BY group_order, question_order ASC ");
+
     SqlRowSet questionsRowSet = jdbcTemplate.queryForRowSet(sqlQuestion.toString(), new Object[] { sid });
     return toQuestions(questionsRowSet);
   }
@@ -100,7 +106,7 @@ public class LimesurveyValueTable extends AbstractValueTable {
 
   private Map<String, List<LimeAnswer>> queryExplicitAnswers(Map<String, LimeQuestion> mapQuestions) {
     Map<String, List<LimeAnswer>> answers = Maps.newHashMap();
-    String sqlAnswer = "SELECT * FROM answers WHERE qid=?";
+    String sqlAnswer = "SELECT * FROM answers WHERE qid=? ORDER BY sortorder";
     for(LimeQuestion question : mapQuestions.values()) {
       SqlRowSet answersRowset = jdbcTemplate.queryForRowSet(sqlAnswer, new Object[] { question.getQid() });
       List<LimeAnswer> answersList = toAnswers(question, answersRowset);
@@ -113,28 +119,25 @@ public class LimesurveyValueTable extends AbstractValueTable {
     List<LimeAnswer> answers = Lists.newArrayList();
     Map<String, LimeAnswer> internAnswers = Maps.newHashMap();
     while(rows.next()) {
+
       String answerName = rows.getString("code");
+      String language = rows.getString("language");
+      String label = rows.getString("answer");
+
       if(internAnswers.containsKey(answerName)) {
         LimeAnswer answer = internAnswers.get(answerName);
-
-        String language = rows.getString("language");
-        String label = rows.getString("answer");
         answer.addLocalizableAttribute(language, label);
       } else {
-        LimeAnswer answer = LimeAnswer.create();
-        String language = rows.getString("language");
-        String label = rows.getString("answer");
-
-        answer.setName(answerName);
+        int sortorder = rows.getInt("sortorder");
+        LimeAnswer answer = LimeAnswer.create(answerName);
+        answer.setSortorder(sortorder);
         answer.addLocalizableAttribute(language, label);
 
         internAnswers.put(answerName, answer);
         answers.add(answer);
       }
     }
-
     return answers;
-
   }
 
   private Map<String, List<LimeAnswer>> buildImplicitAnswers(Map<String, LimeQuestion> mapQuestions) {
@@ -175,10 +178,10 @@ public class LimesurveyValueTable extends AbstractValueTable {
       }
       Variable build = vb.build();
 
-      // System.out.println(build.getName() + " " + build.getValueType().getName() + " " + build.getAttributes());
-      // for(Category c : build.getCategories()) {
-      // System.out.println("    " + c.getName() + " " + c.getAttributes());
-      // }
+      System.out.println(build.getName() + " " + build.getValueType().getName() + " " + build.getAttributes());
+      for(Category c : build.getCategories()) {
+        System.out.println("    " + c.getName() + " " + c.getAttributes());
+      }
 
       LimesurveyVariableValueSource variable = new LimesurveyVariableValueSource(build);
 
