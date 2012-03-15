@@ -4,6 +4,8 @@ public class LimeQuestion extends LimeLocalizableEntity {
 
   private int qid;
 
+  private int parentQid;
+
   private LimesurveyType type;
 
   private boolean other;
@@ -30,6 +32,14 @@ public class LimeQuestion extends LimeLocalizableEntity {
 
   public void setQid(int qid) {
     this.qid = qid;
+  }
+
+  public int getParentQid() {
+    return parentQid;
+  }
+
+  public void setParentQid(int parentQid) {
+    this.parentQid = parentQid;
   }
 
   public void setType(LimesurveyType type) {
