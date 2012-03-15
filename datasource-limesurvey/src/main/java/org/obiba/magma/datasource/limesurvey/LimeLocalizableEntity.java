@@ -6,6 +6,8 @@ import com.google.common.collect.Maps;
 
 public abstract class LimeLocalizableEntity {
 
+  private Map<String, String> localizableLabel = Maps.newHashMap();
+
   public LimeLocalizableEntity() {
   }
 
@@ -22,8 +24,6 @@ public abstract class LimeLocalizableEntity {
   public void setName(String name) {
     this.name = name;
   }
-
-  private Map<String, String> localizableLabel = Maps.newHashMap();
 
   public void addLocalizableAttribute(String key, String value) {
     localizableLabel.put("label:" + key, value);

@@ -8,7 +8,7 @@ public class LimeQuestion extends LimeLocalizableEntity {
 
   private LimesurveyType type;
 
-  private boolean other;
+  private boolean useOther;
 
   private LimeQuestion() {
     super();
@@ -34,6 +34,10 @@ public class LimeQuestion extends LimeLocalizableEntity {
     this.qid = qid;
   }
 
+  public boolean hasParentId() {
+    return parentQid != 0;
+  }
+
   public int getParentQid() {
     return parentQid;
   }
@@ -50,12 +54,12 @@ public class LimeQuestion extends LimeLocalizableEntity {
     return type;
   }
 
-  public boolean isOther() {
-    return other;
+  public boolean isUseOther() {
+    return useOther;
   }
 
-  public void setOther(boolean other) {
-    this.other = other;
+  public void setUseOther(boolean other) {
+    this.useOther = other;
   }
 
 }

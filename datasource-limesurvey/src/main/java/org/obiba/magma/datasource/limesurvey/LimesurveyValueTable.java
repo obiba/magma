@@ -2,12 +2,15 @@ package org.obiba.magma.datasource.limesurvey;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.obiba.magma.Attribute;
 import org.obiba.magma.Category;
 import org.obiba.magma.Datasource;
 import org.obiba.magma.Initialisable;
@@ -17,6 +20,7 @@ import org.obiba.magma.Value;
 import org.obiba.magma.ValueSet;
 import org.obiba.magma.ValueType;
 import org.obiba.magma.Variable;
+import org.obiba.magma.Variable.Builder;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.VariableValueSource;
 import org.obiba.magma.VectorSource;
@@ -28,6 +32,8 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -63,6 +69,32 @@ public class LimesurveyValueTable extends AbstractValueTable {
     mapAnswers.putAll(buildImplicitAnswers(mapQuestions));
 
     buildVariables(mapQuestions, mapAnswers);
+
+    ArrayList<VariableValueSource> newArrayList = Lists.newArrayList(getSources());
+    Collections.sort(newArrayList, new Comparator<VariableValueSource>() {
+
+      @Override
+      public int compare(VariableValueSource o1, VariableValueSource o2) {
+        return o1.getVariable().getName().compareTo(o2.getVariable().getName());
+      }
+    });
+    for(VariableValueSource vvs : newArrayList) {
+      Variable v = vvs.getVariable();
+      System.out.print(v.getName().contains(" ") ? "      " : "");
+      System.out.print("Ques '" + v.getName() + "' " + v.getValueType().getName() + " ");
+      for(Attribute attr : v.getAttributes()) {
+        System.out.print(attr.getName() + "=" + attr.getValue() + ", ");
+      }
+      System.out.println();
+      for(Category c : v.getCategories()) {
+        System.out.print("    Cat '" + c.getName() + "' ");
+        for(Attribute attr : c.getAttributes()) {
+          System.out.print(" " + attr.getName() + "=" + attr.getValue() + ", ");
+        }
+        System.out.println();
+      }
+
+    }
   }
 
   private Map<Integer, LimeQuestion> queryQuestions() {
@@ -78,26 +110,19 @@ public class LimesurveyValueTable extends AbstractValueTable {
   private Map<Integer, LimeQuestion> toQuestions(SqlRowSet rows) {
     Map<Integer, LimeQuestion> questions = Maps.newHashMap();
     while(rows.next()) {
-      String questionName = rows.getString("title");
-      if(questions.containsKey(questionName)) {
-        LimeQuestion question = questions.get(questionName);
-        String language = rows.getString("language");
-        String label = rows.getString("question");
-        question.addLocalizableAttribute(language, label);
+
+      int qid = rows.getInt("qid");
+      if(questions.containsKey(qid)) {
+        LimeQuestion question = questions.get(qid);
+        question.addLocalizableAttribute(rows.getString("language"), rows.getString("question"));
       } else {
         LimeQuestion question = LimeQuestion.create();
-        int qid = rows.getInt("qid");
-        int parentQid = rows.getInt("parent_qid");
-        String type = rows.getString("type");
-        String language = rows.getString("language");
-        String label = rows.getString("question");
-        String other = rows.getString("other");
-        question.setName(questionName);
+        question.setName(rows.getString("title"));
         question.setQid(qid);
-        question.setParentQid(parentQid);
-        question.setType(LimesurveyType._valueOf(type));
-        question.addLocalizableAttribute(language, label);
-        question.setOther("Y".equals(other) ? true : false);
+        question.setParentQid(rows.getInt("parent_qid"));
+        question.setType(LimesurveyType._valueOf(rows.getString("type")));
+        question.addLocalizableAttribute(rows.getString("language"), rows.getString("question"));
+        question.setUseOther("Y".equals(rows.getString("other")) ? true : false);
         questions.put(qid, question);
       }
     }
@@ -134,6 +159,10 @@ public class LimesurveyValueTable extends AbstractValueTable {
         answers.add(answer);
       }
     }
+    if(question.isUseOther()) {
+      LimeAnswer answer = LimeAnswer.create("-oth-");
+      answers.add(answer);
+    }
     return answers;
   }
 
@@ -142,14 +171,10 @@ public class LimesurveyValueTable extends AbstractValueTable {
     for(Integer qid : mapQuestions.keySet()) {
       LimeQuestion question = mapQuestions.get(qid);
       LimesurveyType type = question.getLimesurveyType();
+      List<LimeAnswer> answers = Lists.newArrayList();
       if(type.hasImplicitCategories()) {
-        List<LimeAnswer> answers = Lists.newArrayList();
         for(String implicitAnswer : type.getImplicitAnswers()) {
           LimeAnswer answer = LimeAnswer.create(implicitAnswer);
-          answers.add(answer);
-        }
-        if(question.isOther()) {
-          LimeAnswer answer = LimeAnswer.create("-oth-");
           answers.add(answer);
         }
         mapAnswers.put(qid, answers);
@@ -159,34 +184,72 @@ public class LimesurveyValueTable extends AbstractValueTable {
   }
 
   private void buildVariables(Map<Integer, LimeQuestion> mapQuestions, Map<Integer, List<LimeAnswer>> mapAnswers) {
-    for(LimeQuestion question : mapQuestions.values()) {
-
-      // TODO put Participant elsewhere
-      String questionName = question.getName();
-      LimeQuestion parentQuestion = mapQuestions.get(question.getParentQid());
-      if(parentQuestion != null) {
-        questionName = parentQuestion.getName() + "." + questionName;
-      }
-      Variable.Builder vb = Variable.Builder.newVariable(questionName, question.getLimesurveyType().getType(), "Participant");
-      for(Map.Entry<String, String> attr : question.getLocalizableLabel().entrySet()) {
-        vb.addAttribute(attr.getKey(), attr.getValue());
-      }
-      for(LimeAnswer answer : mapAnswers.get(question.getQid())) {
-        Category.Builder cb = Category.Builder.newCategory(answer.getName());
-        for(Map.Entry<String, String> attr : answer.getLocalizableLabel().entrySet()) {
-          cb.addAttribute(attr.getKey(), attr.getValue());
+    try {
+      for(LimeQuestion question : mapQuestions.values()) {
+        String variableName = question.getName();
+        if(question.hasParentId()) {
+          variableName = getParentQuestion(question, mapQuestions).getName() + " [" + variableName + "]";
         }
-        vb.addCategory(cb.build());
+        Variable.Builder vb = buildVariable(mapQuestions, question, variableName);
+        createOtherVariableIfNecessary(question);
+        for(Map.Entry<String, String> attr : question.getLocalizableLabel().entrySet()) {
+          vb.addAttribute(attr.getKey(), attr.getValue());
+        }
+        if(question.hasParentId()) {
+          buildCategories(question, vb, mapAnswers.get(getParentQuestion(question, mapQuestions).getQid()));
+        } else if(hasSubQuestions(question, mapQuestions) == false) {
+          buildCategories(question, vb, mapAnswers.get(question.getQid()));
+        }
+        LimesurveyVariableValueSource variable = new LimesurveyVariableValueSource(vb.build());
+        addVariableValueSource(variable);
       }
-      Variable build = vb.build();
-      System.out.println(build.getName() + " " + build.getValueType().getName() + " " + build.getAttributes());
-      for(Category c : build.getCategories()) {
-        System.out.println("    " + c.getName() + " " + c.getAttributes());
-      }
-      LimesurveyVariableValueSource variable = new LimesurveyVariableValueSource(build);
-      addVariableValueSource(variable);
-
+    } catch(Exception e) {
+      e.printStackTrace();
     }
+  }
+
+  private Variable.Builder buildVariable(Map<Integer, LimeQuestion> mapQuestions, LimeQuestion question, String variableName) {
+    Variable.Builder vb;
+    if(question.hasParentId()) {
+      LimeQuestion parentQuestion = getParentQuestion(question, mapQuestions);
+      vb = Variable.Builder.newVariable(variableName, parentQuestion.getLimesurveyType().getType(), "Participant");
+    } else {
+      vb = Variable.Builder.newVariable(variableName, question.getLimesurveyType().getType(), "Participant");
+    }
+    return vb;
+  }
+
+  private void createOtherVariableIfNecessary(LimeQuestion question) {
+    if(question.isUseOther()) {
+      Builder other = Variable.Builder.newVariable(question.getName() + " [other]", question.getLimesurveyType().getType(), "Participant");
+      addVariableValueSource(new LimesurveyVariableValueSource(other.build()));
+    }
+  }
+
+  private void buildCategories(LimeQuestion question, Variable.Builder vb, List<LimeAnswer> limeAnswers) {
+    for(LimeAnswer answer : limeAnswers) {
+      Category.Builder cb = Category.Builder.newCategory(answer.getName());
+      for(Map.Entry<String, String> attr : answer.getLocalizableLabel().entrySet()) {
+        cb.addAttribute(attr.getKey(), attr.getValue());
+      }
+      vb.addCategory(cb.build());
+    }
+  }
+
+  private LimeQuestion getParentQuestion(LimeQuestion limeQuestion, Map<Integer, LimeQuestion> mapQuestions) {
+    if(limeQuestion.hasParentId()) {
+      return mapQuestions.get(limeQuestion.getParentQid());
+    }
+    return null;
+  }
+
+  private boolean hasSubQuestions(final LimeQuestion limeQuestion, Map<Integer, LimeQuestion> mapQuestions) {
+    return Iterables.any(mapQuestions.values(), new Predicate<LimeQuestion>() {
+      @Override
+      public boolean apply(LimeQuestion question) {
+        return question.getParentQid() == limeQuestion.getQid();
+      }
+    });
   }
 
   @Override

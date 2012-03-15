@@ -24,12 +24,23 @@ public class LimesurveyDatasourceTest extends AbstractMagmaTest {
   @Autowired
   private DataSource datasource;
 
-  @TestSchema(schemaLocation = "org/obiba/magma/datasource/limesurvey", beforeSchema = "schema-nometa.sql", afterSchema = "schema-notables.sql")
-  @Test
-  public void testCreateDatasourceFromExistingDatabase() {
+  @TestSchema(schemaLocation = "org/obiba/magma/datasource/limesurvey/clsa", beforeSchema = "schema-nometa.sql", afterSchema = "schema-notables.sql")
+  // @Test
+  public void testCreateDatasourceFromCLSADatabase() {
     LimesurveyDatasource limesurveyDatasource = new LimesurveyDatasource("lime", datasource);
     limesurveyDatasource.initialise();
     Assert.assertEquals(6, limesurveyDatasource.getValueTableNames().size());
+  }
+
+  @TestSchema(schemaLocation = "org/obiba/magma/datasource/limesurvey/test", beforeSchema = "schema-nometa.sql", afterSchema = "schema-notables.sql")
+  // @Test
+  public void testCreateDatasourceFromTestDatabase() {
+    LimesurveyDatasource limesurveyDatasource = new LimesurveyDatasource("lime", datasource);
+    limesurveyDatasource.initialise();
+  }
+
+  @Test
+  public void test() {
   }
 
 }
