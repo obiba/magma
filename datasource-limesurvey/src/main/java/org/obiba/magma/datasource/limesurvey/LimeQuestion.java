@@ -8,7 +8,11 @@ public class LimeQuestion extends LimeLocalizableEntity {
 
   private LimesurveyType type;
 
+  // Other text field for question OR subquestions
   private boolean useOther;
+
+  // For '2 dimensions' questions, if =1 : X axis
+  private int scaleId;
 
   private LimeQuestion() {
     super();
@@ -60,6 +64,14 @@ public class LimeQuestion extends LimeLocalizableEntity {
 
   public void setUseOther(boolean other) {
     this.useOther = other;
+  }
+
+  public boolean isScaleEqual1() {
+    return scaleId == 1;
+  }
+
+  public void setScaleId(int scaleId) {
+    this.scaleId = scaleId;
   }
 
 }
