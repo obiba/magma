@@ -2,11 +2,9 @@ package org.obiba.magma.datasource.limesurvey;
 
 import java.util.Map;
 
-import com.google.common.collect.Maps;
-
 public abstract class LimeLocalizableEntity {
 
-  private Map<String, String> localizableLabel = Maps.newHashMap();
+  private LimeLocalizableAttributes localizableLabel = LimeLocalizableAttributes.create();
 
   public LimeLocalizableEntity() {
   }
@@ -26,10 +24,12 @@ public abstract class LimeLocalizableEntity {
   }
 
   public void addLocalizableAttribute(String key, String value) {
-    localizableLabel.put("label:" + key, value);
+    localizableLabel.localizableAttribute(key, value);
   }
 
   public Map<String, String> getLocalizableLabel() {
-    return localizableLabel;
+    return localizableLabel.getAttributes();
   }
+
+  public abstract Map<String, LimeLocalizableAttributes> getImplicitLabel();
 }

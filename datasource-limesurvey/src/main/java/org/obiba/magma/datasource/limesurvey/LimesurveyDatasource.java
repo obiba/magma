@@ -8,6 +8,7 @@ import javax.sql.DataSource;
 
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.support.AbstractDatasource;
+import org.obiba.magma.type.TextType;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 
@@ -16,22 +17,32 @@ import com.google.common.collect.Sets;
 
 public class LimesurveyDatasource extends AbstractDatasource {
 
+  public static final String TABLE_PREFIX_KEY = "table_prefix";
+
   private static final String TYPE = "jdbc";
 
   private JdbcTemplate jdbcTemplate;
 
   private Map<String, Integer> sids;
 
+  private String tablePrefix = "";
+
   protected LimesurveyDatasource(String name, DataSource datasource) {
     super(name, TYPE);
     this.jdbcTemplate = new JdbcTemplate(datasource);
+  }
+
+  protected LimesurveyDatasource(String name, DataSource datasource, String tablePrefix) {
+    this(name, datasource);
+    this.tablePrefix = tablePrefix;
+    setAttributeValue(TABLE_PREFIX_KEY, TextType.get().valueOf(tablePrefix));
   }
 
   @Override
   protected Set<String> getValueTableNames() {
     StringBuilder sql = new StringBuilder();
     sql.append("SELECT s.sid, sls.surveyls_title ");
-    sql.append("FROM surveys s JOIN surveys_languagesettings sls ");
+    sql.append("FROM " + tablePrefix + "surveys s JOIN " + tablePrefix + "surveys_languagesettings sls ");
     sql.append("ON (s.sid=sls.surveyls_survey_id AND s.language=sls.surveyls_language) ");
 
     Set<String> names = Sets.newLinkedHashSet();

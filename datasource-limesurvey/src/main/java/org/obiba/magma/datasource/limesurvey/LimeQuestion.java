@@ -1,5 +1,8 @@
 package org.obiba.magma.datasource.limesurvey;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class LimeQuestion extends LimeLocalizableEntity {
 
   private int qid;
@@ -11,7 +14,6 @@ public class LimeQuestion extends LimeLocalizableEntity {
   // Other text field for question OR subquestions
   private boolean useOther;
 
-  // For '2 dimensions' questions, if =1 : X axis
   private int scaleId;
 
   private LimeQuestion() {
@@ -72,6 +74,18 @@ public class LimeQuestion extends LimeLocalizableEntity {
 
   public void setScaleId(int scaleId) {
     this.scaleId = scaleId;
+  }
+
+  @Override
+  public Map<String, LimeLocalizableAttributes> getImplicitLabel() {
+    return new HashMap<String, LimeLocalizableAttributes>() {
+
+      private static final long serialVersionUID = -4789211495142871372L;
+      {
+        put("other", LimeLocalizableAttributes.create().localizableAttribute("en", "Other").localizableAttribute("fr", "Autre"));
+        put("comment", LimeLocalizableAttributes.create().localizableAttribute("en", "Comment").localizableAttribute("fr", "Commentaire"));
+      }
+    };
   }
 
 }

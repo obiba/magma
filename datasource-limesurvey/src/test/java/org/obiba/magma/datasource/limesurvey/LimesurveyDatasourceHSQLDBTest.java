@@ -27,10 +27,10 @@ import test.TestSchema;
 import com.google.common.collect.Lists;
 
 @org.junit.runner.RunWith(value = SpringJUnit4ClassRunner.class)
-@org.springframework.test.context.ContextConfiguration(locations = { "/test-spring-context.xml" })
+@org.springframework.test.context.ContextConfiguration(locations = { "/test-spring-context-hsqldb.xml" })
 @org.springframework.test.context.transaction.TransactionConfiguration(transactionManager = "transactionManager")
 @org.springframework.test.context.TestExecutionListeners(value = { DependencyInjectionTestExecutionListener.class, DirtiesContextTestExecutionListener.class, TransactionalTestExecutionListener.class, SchemaTestExecutionListener.class, DbUnitAwareTestExecutionListener.class })
-public class LimesurveyDatasourceTest extends AbstractMagmaTest {
+public class LimesurveyDatasourceHSQLDBTest extends AbstractMagmaTest {
 
   @Autowired
   private DataSource datasource;
@@ -40,16 +40,16 @@ public class LimesurveyDatasourceTest extends AbstractMagmaTest {
   public void testCreateDatasourceFromCLSADatabase() {
     LimesurveyDatasource limesurveyDatasource = new LimesurveyDatasource("lime", datasource);
     limesurveyDatasource.initialise();
-    Assert.assertEquals(6, limesurveyDatasource.getValueTableNames().size());
+    Assert.assertEquals(8, limesurveyDatasource.getValueTableNames().size());
     display(limesurveyDatasource);
   }
 
   @TestSchema(schemaLocation = "org/obiba/magma/datasource/limesurvey/test", beforeSchema = "schema-nometa.sql", afterSchema = "schema-notables.sql")
-  // @Test
+  @Test
   public void testCreateDatasourceFromTestDatabase() {
-    LimesurveyDatasource limesurveyDatasource = new LimesurveyDatasource("lime", datasource);
+    LimesurveyDatasource limesurveyDatasource = new LimesurveyDatasource("lime", datasource, "test_");
     limesurveyDatasource.initialise();
-    display(limesurveyDatasource);
+    // display(limesurveyDatasource);
   }
 
   private void display(Datasource datasource) {
@@ -77,13 +77,10 @@ public class LimesurveyDatasourceTest extends AbstractMagmaTest {
           System.out.println();
         }
       }
+      System.out.println(variables.size());
       nbVariable += variables.size();
     }
     System.out.println(nbVariable);
-  }
-
-  @Test
-  public void test() {
   }
 
 }
