@@ -58,6 +58,12 @@ public class ScriptableVariableMethods {
     return new ScriptableValue(thisObj, TextType.get().valueOf(sv.getVariable().getEntityType()));
   }
 
+  public static ScriptableValue refEntityType(Context ctx, Scriptable thisObj, Object[] args, Function funObj) {
+    ScriptableVariable sv = (ScriptableVariable) thisObj;
+    if(sv == null) throw new IllegalArgumentException("thisObj cannot be null");
+    return new ScriptableValue(thisObj, TextType.get().valueOf(sv.getVariable().getReferencedEntityType()));
+  }
+
   public static ScriptableValue mimeType(Context ctx, Scriptable thisObj, Object[] args, Function funObj) {
     ScriptableVariable sv = (ScriptableVariable) thisObj;
     if(sv == null) throw new IllegalArgumentException("thisObj cannot be null");
