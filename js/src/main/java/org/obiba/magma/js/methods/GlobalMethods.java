@@ -51,6 +51,16 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
     return new ScriptableValue(thisObj, DateTimeType.get().valueOf(new Date()));
   }
 
+  /**
+   * Creates a new value.
+   * 
+   * <pre>
+   *   newValue('Foo')
+   *   newValue(123)
+   *   newValue('123','integer')
+   * </pre>
+   * @return an instance of {@code ScriptableValue}
+   */
   public static ScriptableValue newValue(Context cx, Scriptable thisObj, Object[] args, Function funObj) {
     Object value = args[0];
     Value v;
@@ -84,6 +94,15 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
     return valueFromContext(context, thisObj, name);
   }
 
+  /**
+   * Allows joining a variable value to another variable value that provides a entity identifier. Accessed as $join in
+   * javascript.
+   * 
+   * <pre>
+   *   $('medications.Drugs:BRAND_NAME','MEDICATION_1')
+   * </pre>
+   * @return an instance of {@code ScriptableValue}
+   */
   public static Scriptable $join(Context ctx, Scriptable thisObj, Object[] args, Function funObj) {
     if(args.length != 2) {
       throw new IllegalArgumentException("$join() expects exactly two arguments: the name of a variable to be joined and the name of the variable holding entity identifiers.");
