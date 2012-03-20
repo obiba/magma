@@ -7,6 +7,8 @@ import java.util.Set;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.Scriptable;
+import org.obiba.magma.Datasource;
+import org.obiba.magma.MagmaEngine;
 import org.obiba.magma.NoSuchValueSetException;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueSet;
@@ -19,6 +21,7 @@ import org.obiba.magma.js.MagmaContext;
 import org.obiba.magma.js.ScriptableValue;
 import org.obiba.magma.js.ScriptableVariable;
 import org.obiba.magma.support.MagmaEngineVariableResolver;
+import org.obiba.magma.support.VariableEntityBean;
 import org.obiba.magma.type.DateTimeType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,7 +35,7 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
   /**
    * Set of methods to be exposed as top-level methods (ones that can be invoked anywhere)
    */
-  private static final Set<String> GLOBAL_METHODS = ImmutableSet.of("$", "now", "log", "$var", "newValue");
+  private static final Set<String> GLOBAL_METHODS = ImmutableSet.of("$", "$join", "now", "log", "$var", "newValue");
 
   @Override
   protected Set<String> getExposedMethods() {
@@ -77,18 +80,44 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
     MagmaContext context = MagmaContext.asMagmaContext(ctx);
 
     String name = (String) args[0];
+
+    return valueFromContext(context, thisObj, name);
+  }
+
+  public static Scriptable $join(Context ctx, Scriptable thisObj, Object[] args, Function funObj) {
+    if(args.length != 2) {
+      throw new IllegalArgumentException("$join() expects exactly two arguments: the name of a variable to be joined and the name of the variable holding entity identifiers.");
+    }
+
+    MagmaContext context = MagmaContext.asMagmaContext(ctx);
+    String joinedName = (String) args[0];
+    String name = (String) args[1];
     ValueTable valueTable = context.peek(ValueTable.class);
+    Value identifier = valueFromContext(context, thisObj, name).getValue();
 
-    MagmaEngineVariableResolver reference = MagmaEngineVariableResolver.valueOf(name);
+    // Find the joined named source
+    MagmaEngineVariableResolver reference = MagmaEngineVariableResolver.valueOf(joinedName);
+    Datasource datasource = reference.getDatasourceName() == null ? valueTable.getDatasource() : MagmaEngine.get().getDatasource(reference.getDatasourceName());
+    String tableName = reference.getTableName();
+    if(tableName == null) {
+      throw new IllegalArgumentException("Table of the joined variable must be specified.");
+    }
+    ValueTable joinedTable = datasource.getValueTable(tableName);
+    final VariableValueSource source = reference.resolveSource(joinedTable);
 
-    // Find the named source
-    final VariableValueSource source = reference.resolveSource(valueTable);
-
-    // Test whether this is a vector-oriented evaluation or a ValueSet-oriented evaluation
-    if(context.has(VectorCache.class)) {
-      return valuesForVector(context, thisObj, reference, source);
+    if(identifier.isNull()) {
+      return new ScriptableValue(thisObj, source.getValueType().nullValue(), source.getVariable().getUnit());
     } else {
-      return valueForValueSet(context, thisObj, reference, source);
+      Value value = null;
+      try {
+        ValueSet joinedValueSet = joinedTable.getValueSet(new VariableEntityBean(joinedTable.getEntityType(), identifier.toString()));
+        value = source.getValue(joinedValueSet);
+      } catch(NoSuchValueSetException e) {
+        // Entity does not have a ValueSet in joined collection
+        // Return a null value
+        value = source.getValueType().nullValue();
+      }
+      return new ScriptableValue(thisObj, value, source.getVariable().getUnit());
     }
   }
 
@@ -133,6 +162,22 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
       log.info(args[0].toString(), Arrays.copyOfRange(args, 1, args.length));
     }
     return thisObj;
+  }
+
+  private static ScriptableValue valueFromContext(MagmaContext context, Scriptable thisObj, String name) {
+    ValueTable valueTable = context.peek(ValueTable.class);
+
+    MagmaEngineVariableResolver reference = MagmaEngineVariableResolver.valueOf(name);
+
+    // Find the named source
+    final VariableValueSource source = reference.resolveSource(valueTable);
+
+    // Test whether this is a vector-oriented evaluation or a ValueSet-oriented evaluation
+    if(context.has(VectorCache.class)) {
+      return valuesForVector(context, thisObj, reference, source);
+    } else {
+      return valueForValueSet(context, thisObj, reference, source);
+    }
   }
 
   private static ScriptableValue valuesForVector(MagmaContext context, Scriptable thisObj, MagmaEngineVariableResolver reference, VariableValueSource source) {

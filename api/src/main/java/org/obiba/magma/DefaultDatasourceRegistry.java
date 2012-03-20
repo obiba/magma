@@ -42,7 +42,7 @@ public class DefaultDatasourceRegistry implements DatasourceRegistry, Disposable
   }
 
   public Datasource getDatasource(final String name) throws NoSuchDatasourceException {
-    if(name == null) throw new IllegalArgumentException("name cannot be null");
+    if(name == null) throw new IllegalArgumentException("datasource name cannot be null");
     try {
       return Iterables.find(datasources, new Predicate<Datasource>() {
         @Override
