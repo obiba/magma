@@ -166,43 +166,37 @@ public class LimesurveyValueTable extends AbstractValueTable {
   }
 
   private void buildVariables() {
-    try {
-      for(LimeQuestion question : mapQuestions.values()) {
-        if(buildRanking(question) == false) {
-          LimeQuestion parentQuestion = null;
-          boolean isDualScaleCase = false;
-          boolean isArraySubQuestionCase = false;
-          // here are managed special case
-          if(question.hasParentId()) {
-            parentQuestion = getParentQuestion(question);
-            isArraySubQuestionCase = buildArraySubQuestions(question, parentQuestion);
-            isDualScaleCase = buildArrayDualScale(question, parentQuestion);
-          }
-          Variable.Builder vb = null;
-          if(isArraySubQuestionCase == false && isDualScaleCase == false) {
-            vb = buildVariable(question);
-          }
-          buildOtherVariableIfNecessary(question);
-          buildCommentVariableIfNecessary(question, parentQuestion);
+    for(LimeQuestion question : mapQuestions.values()) {
+      if(buildRanking(question) == false) {
+        LimeQuestion parentQuestion = null;
+        boolean isDualScaleCase = false;
+        boolean isArraySubQuestionCase = false;
+        // here are managed special case
+        if(question.hasParentId()) {
+          parentQuestion = getParentQuestion(question);
+          isArraySubQuestionCase = buildArraySubQuestions(question, parentQuestion);
+          isDualScaleCase = buildArrayDualScale(question, parentQuestion);
+        }
+        Variable.Builder vb = null;
+        if(isArraySubQuestionCase == false && isDualScaleCase == false) {
+          vb = buildVariable(question);
+        }
+        buildOtherVariableIfNecessary(question);
+        buildCommentVariableIfNecessary(question, parentQuestion);
 
-          // we stop if we already build 'special' variables cases
-          if(vb != null) {
-            buildAttributes(question, vb);
-            if(question.hasParentId()) {
-              buildCategoriesForVariable(question, vb, mapAnswers.get(parentQuestion.getQid()));
-            } else if(hasSubQuestions(question) == false) {
-              buildCategoriesForVariable(question, vb, mapAnswers.get(question.getQid()));
-            }
-            String subQuestionFieldTitle = question.hasParentId() ? question.getName() : "";
-            LimesurveyVariableValueSource variable = new LimesurveyVariableValueSource(vb.build(), question, subQuestionFieldTitle);
-            addVariableValueSource(variable);
+        // we stop if we already build 'special' variables cases
+        if(vb != null) {
+          buildAttributes(question, vb);
+          if(question.hasParentId()) {
+            buildCategoriesForVariable(question, vb, mapAnswers.get(parentQuestion.getQid()));
+          } else if(hasSubQuestions(question) == false) {
+            buildCategoriesForVariable(question, vb, mapAnswers.get(question.getQid()));
           }
+          String subQuestionFieldTitle = question.hasParentId() ? question.getName() : "";
+          LimesurveyVariableValueSource variable = new LimesurveyVariableValueSource(vb.build(), question, subQuestionFieldTitle);
+          addVariableValueSource(variable);
         }
       }
-      // TODO Remove when done
-    } catch(Exception e) {
-      e.printStackTrace();
-      throw new RuntimeException(e);
     }
   }
 
