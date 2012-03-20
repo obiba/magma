@@ -13,6 +13,7 @@ import org.obiba.magma.Category;
 import org.obiba.magma.Datasource;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.Variable;
+import org.obiba.magma.datasource.limesurvey.LimesurveyValueTable.LimesurveyVariableValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
@@ -22,6 +23,7 @@ import org.springframework.test.context.transaction.TransactionalTestExecutionLi
 import test.AbstractMagmaTest;
 import test.SchemaTestExecutionListener;
 
+import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 
 @org.junit.runner.RunWith(value = SpringJUnit4ClassRunner.class)
@@ -47,21 +49,29 @@ public class LimesurveyDatasourceMysqlTest extends AbstractMagmaTest {
 
   private void display(Datasource datasource) {
     int nbVariable = 0;
-    for(ValueTable table : datasource.getValueTables()) {
-      List<Variable> variables = Lists.newArrayList(table.getVariables());
-      Collections.sort(variables, new Comparator<Variable>() {
+    for(final ValueTable table : datasource.getValueTables()) {
+
+      List<LimesurveyVariableValueSource> variables = Lists.newArrayList(Lists.transform(Lists.newArrayList(table.getVariables()), new Function<Variable, LimesurveyVariableValueSource>() {
 
         @Override
-        public int compare(Variable o1, Variable o2) {
-          return o1.getName().compareTo(o2.getName());
+        public LimesurveyVariableValueSource apply(Variable input) {
+          return (LimesurveyVariableValueSource) table.getVariableValueSource(input.getName());
+        }
+      }));
+      Collections.sort(variables, new Comparator<LimesurveyVariableValueSource>() {
+
+        @Override
+        public int compare(LimesurveyVariableValueSource o1, LimesurveyVariableValueSource o2) {
+          return o1.getVariable().getName().compareTo(o2.getVariable().getName());
         }
       });
-      for(Variable v : variables) {
+      for(LimesurveyVariableValueSource lvv : variables) {
+        Variable v = lvv.getVariable();
         System.out.print("Var '" + v.getName() + "' " + v.getValueType().getName() + " ");
         for(Attribute attr : v.getAttributes()) {
           System.out.print(attr.getName() + "=" + attr.getValue() + ", ");
         }
-        // System.out.println();
+        System.out.println(lvv.getLimesurveyField());
         for(Category c : v.getCategories()) {
           System.out.print("    Cat '" + c.getName() + "' ");
           for(Attribute attr : c.getAttributes()) {

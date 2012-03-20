@@ -143,6 +143,8 @@ CREATE TABLE test_answers (
   PRIMARY KEY (qid,code,language,scale_id)
 )
 
+
+
 INSERT INTO test_surveys (sid, owner_id, admin, active, expires, startdate, adminemail, anonymized, faxto, format, savetimings, template, language, additional_languages, datestamp, usecookie, allowregister, allowsave, autonumber_start, autoredirect, allowprev, printanswers, ipaddr, refurl, datecreated, publicstatistics, publicgraphs, listpublic, htmlemail, tokenanswerspersistence, assessments, usecaptcha, usetokens, bounce_email, attributedescriptions, emailresponseto, emailnotificationto, tokenlength, showxquestions, showgroupinfo, shownoanswer, showqnumcode, bouncetime, bounceprocessing, bounceaccounttype, bounceaccounthost, bounceaccountpass, bounceaccountencryption, bounceaccountuser, showwelcome, showprogress, allowjumps, navigationdelay, nokeyboard, alloweditaftercompletion, googleanalyticsstyle, googleanalyticsapikey) VALUES
 (65284, 1, 'Your Name', 'N', NULL, NULL, 'your-email@example.net', 'N', '', 'G', 'N', 'default', 'en', 'fr ', 'N', 'N', 'N', 'Y', 6, 'N', 'N', 'N', 'N', 'N', '2012-03-15', 'N', 'N', 'Y', 'Y', 'N', 'N', 'D', 'N', 'your-email@example.net', '', '', '', 15, 'Y', 'B', 'Y', 'X', 0, 'N', '', '', '', '', '', 'Y', 'Y', 'N', 0, 'N', 'N', NULL, NULL);
 

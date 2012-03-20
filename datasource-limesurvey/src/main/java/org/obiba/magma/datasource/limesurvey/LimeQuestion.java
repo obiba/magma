@@ -16,6 +16,8 @@ public class LimeQuestion extends LimeLocalizableEntity {
 
   private int scaleId;
 
+  private int groupId;
+
   private LimeQuestion() {
     super();
   }
@@ -74,6 +76,14 @@ public class LimeQuestion extends LimeLocalizableEntity {
 
   public void setScaleId(int scaleId) {
     this.scaleId = scaleId;
+  }
+
+  public int getGroupId() {
+    return groupId;
+  }
+
+  public void setGroupId(int groupId) {
+    this.groupId = groupId;
   }
 
   @Override
