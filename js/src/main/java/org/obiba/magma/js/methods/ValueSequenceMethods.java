@@ -1,6 +1,8 @@
 package org.obiba.magma.js.methods;
 
+import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.List;
 
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
@@ -14,6 +16,7 @@ import org.obiba.magma.type.BinaryType;
 import org.obiba.magma.type.DecimalType;
 import org.obiba.magma.type.IntegerType;
 import org.obiba.magma.type.LocaleType;
+import org.obiba.magma.type.TextType;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
@@ -265,5 +268,146 @@ public class ValueSequenceMethods {
     }
 
     return new ScriptableValue(thisObj, targetType.sequenceOf(sequence));
+  }
+
+  /**
+   * Returns a sequence of values, where each value is the transformation of a tuple of values, the i-th tuple contains
+   * the i-th element from each of the argument sequences. The returned list length is the length of the longest
+   * argument sequence (shortest argument sequence values are null). Not sequential arguments have their value repeated
+   * in each tuple.
+   * 
+   * <pre>
+   *   // returns "a1, b2, c3"
+   *   $('SequenceVarAZ').zip($('SequenceVar19'), function(o1,o2) {
+   *     return o1.concat(o2);
+   *   })
+   *   // returns "afoo1, bfoo2, cfoo3"
+   *   $('SequenceVarAZ').zip($('FooVar'), $('SequenceVar19'), function(o1,o2,o3) {
+   *     return o1.concat(o2,o3);
+   *   })
+   * </pre>
+   * 
+   * @return an instance of {@code ScriptableValue}
+   */
+  public static ScriptableValue zip(final Context ctx, Scriptable thisObj, Object[] args, final Function funObj) throws MagmaJsEvaluationRuntimeException {
+    final ScriptableValue sv = (ScriptableValue) thisObj;
+    if(args == null || args.length == 0) {
+      return sv;
+    }
+
+    // Extract values, the transformation function and the max sequence length
+    List<Object> values = new ArrayList<Object>();
+    values.add(sv.getValue());
+    Function func = null;
+    int length = 0;
+    for(Object arg : args) {
+      if(arg instanceof ScriptableValue) {
+        Value value = ((ScriptableValue) arg).getValue();
+        values.add(value);
+        int size = value.isNull() ? 0 : 1;
+        if(value.isSequence()) {
+          size = value.asSequence().getSize();
+        }
+        length = Math.max(length, size);
+      } else if(arg instanceof Function) {
+        func = (Function) arg;
+      } else {
+        values.add(arg);
+      }
+    }
+
+    if(func == null) {
+      throw new IllegalArgumentException("Zip requires a transform function.");
+    }
+
+    if(length == 0) {
+      return new ScriptableValue(sv, sv.getValueType().nullValue());
+    }
+
+    // Transform value tuples to build a value sequence
+    ValueType rValueType = null;
+    List<Value> rvalues = new ArrayList<Value>();
+    for(int i = 0; i < length; i++) {
+      Object[] objects = new Object[values.size()];
+      for(int j = 0; j < values.size(); j++) {
+        Object obj = values.get(j);
+        if(obj instanceof Value) {
+          Value value = (Value) obj;
+          if(value.isNull()) {
+            objects[j] = new ScriptableValue(sv, value);
+          } else if(value.isSequence()) {
+            ValueSequence seq = value.asSequence();
+            if(i < seq.getSize()) {
+              objects[j] = new ScriptableValue(sv, seq.get(i));
+            } else {
+              objects[j] = new ScriptableValue(sv, seq.getValueType().nullValue());
+            }
+          } else {
+            objects[j] = new ScriptableValue(sv, value);
+          }
+        } else {
+          objects[j] = obj;
+        }
+      }
+      Object fobj = func.call(ctx, sv.getParentScope(), sv, objects);
+      Value fvalue;
+      if(fobj instanceof ScriptableValue) {
+        fvalue = ((ScriptableValue) fobj).getValue();
+      } else {
+        fvalue = ValueType.Factory.newValue(fobj);
+      }
+      rValueType = fvalue.getValueType();
+      rvalues.add(fvalue);
+    }
+
+    return new ScriptableValue(sv, rValueType.sequenceOf(rvalues));
+  }
+
+  /**
+   * Joins the text representation of the values in the sequence, using the provided delimiter, prefix and suffix. A
+   * null (resp. empty sequence) will return a null (resp. empty) text value.
+   * 
+   * <pre>
+   *   // returns "1, 2, 3"
+   *   $('SequenceVar').join(', ')
+   *   // returns "[1, 2, 3]"
+   *   $('SequenceVar').join(', ','[',']')
+   *   // returns "123"
+   *   $('SequenceVar').join()
+   * </pre>
+   * 
+   * @return an instance of {@code ScriptableValue}
+   */
+  public static ScriptableValue join(final Context ctx, Scriptable thisObj, Object[] args, final Function funObj) throws MagmaJsEvaluationRuntimeException {
+    ScriptableValue sv = (ScriptableValue) thisObj;
+    if(sv.getValue().isNull()) {
+      return new ScriptableValue(thisObj, TextType.get().nullValue());
+    }
+    String delimiter = getArgumentAsString(args, 0);
+    String prefix = getArgumentAsString(args, 1);
+    String suffix = getArgumentAsString(args, 2);
+
+    if(sv.getValue().isSequence()) {
+      ValueSequence valueSequence = sv.getValue().asSequence();
+      String rval = "";
+      if(valueSequence.getSize() > 0) {
+        StringBuffer buffer = new StringBuffer(prefix);
+        for(int i = 0; i < valueSequence.getSize(); i++) {
+          buffer.append(valueSequence.get(i).toString());
+          if(i < valueSequence.getSize() - 1) {
+            buffer.append(delimiter);
+          }
+        }
+        buffer.append(suffix);
+        rval = buffer.toString();
+      }
+      return new ScriptableValue(thisObj, TextType.get().valueOf(rval));
+    } else {
+      return new ScriptableValue(thisObj, TextType.get().valueOf(prefix + sv.getValue() + suffix));
+    }
+  }
+
+  private static String getArgumentAsString(Object[] args, int idx) {
+    return args == null || args.length <= idx || args[idx] == null ? "" : args[idx].toString();
   }
 }
