@@ -305,7 +305,7 @@ public class ValueSequenceMethods {
         Value value = ((ScriptableValue) arg).getValue();
         values.add(value);
         int size = value.isNull() ? 0 : 1;
-        if(value.isSequence()) {
+        if(value.isNull() == false && value.isSequence()) {
           size = value.asSequence().getSize();
         }
         length = Math.max(length, size);
@@ -328,39 +328,47 @@ public class ValueSequenceMethods {
     ValueType rValueType = null;
     List<Value> rvalues = new ArrayList<Value>();
     for(int i = 0; i < length; i++) {
-      Object[] objects = new Object[values.size()];
-      for(int j = 0; j < values.size(); j++) {
-        Object obj = values.get(j);
-        if(obj instanceof Value) {
-          Value value = (Value) obj;
-          if(value.isNull()) {
-            objects[j] = new ScriptableValue(sv, value);
-          } else if(value.isSequence()) {
-            ValueSequence seq = value.asSequence();
-            if(i < seq.getSize()) {
-              objects[j] = new ScriptableValue(sv, seq.get(i));
-            } else {
-              objects[j] = new ScriptableValue(sv, seq.getValueType().nullValue());
-            }
-          } else {
-            objects[j] = new ScriptableValue(sv, value);
-          }
-        } else {
-          objects[j] = obj;
-        }
-      }
-      Object fobj = func.call(ctx, sv.getParentScope(), sv, objects);
-      Value fvalue;
-      if(fobj instanceof ScriptableValue) {
-        fvalue = ((ScriptableValue) fobj).getValue();
-      } else {
-        fvalue = ValueType.Factory.newValue(fobj);
-      }
+      Value fvalue = asValue(func.call(ctx, sv.getParentScope(), sv, asArguments(sv, values, i)));
       rValueType = fvalue.getValueType();
       rvalues.add(fvalue);
     }
 
     return new ScriptableValue(sv, rValueType.sequenceOf(rvalues));
+  }
+
+  private static Value asValue(Object obj) {
+    Value value;
+    if(obj instanceof ScriptableValue) {
+      value = ((ScriptableValue) obj).getValue();
+    } else {
+      value = ValueType.Factory.newValue(obj);
+    }
+    return value;
+  }
+
+  private static Object[] asArguments(ScriptableValue sv, List<Object> values, int i) {
+    Object[] objects = new Object[values.size()];
+    for(int j = 0; j < values.size(); j++) {
+      Object obj = values.get(j);
+      if(obj instanceof Value) {
+        Value value = (Value) obj;
+        if(value.isSequence()) {
+          value = getValueAt(value.asSequence(), i);
+        }
+        objects[j] = new ScriptableValue(sv, value);
+      } else {
+        objects[j] = obj;
+      }
+    }
+    return objects;
+  }
+
+  private static Value getValueAt(ValueSequence seq, int i) {
+    if(seq.isNull() || i >= seq.getSize()) {
+      return seq.getValueType().nullValue();
+    } else {
+      return seq.get(i);
+    }
   }
 
   /**
