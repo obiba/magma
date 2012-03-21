@@ -201,7 +201,33 @@ public class ValueSequenceMethods {
       return sv;
     }
   }
-
+  
+  /**
+   * Returns the standard deviation of the {@link Value}s contained in the {@link ValueSequence}. Returns null if the operand is
+   * null or the ValueSequence is empty or contains at least one null value or a non-numeric value.
+   * 
+   * <pre>
+   *   $('SequenceVar').stddev()
+   * </pre>
+   * 
+   * @throws MagmaJsEvaluationRuntimeException if operand does not contain a ValueSequence of numeric values.
+   */
+  public static ScriptableValue stddev(final Context ctx, Scriptable thisObj, Object[] args, final Function funObj) throws MagmaJsEvaluationRuntimeException {
+    ScriptableValue sv = (ScriptableValue) thisObj;
+    if(sv.getValue().isNull()) {
+      return new ScriptableValue(thisObj, DecimalType.get().nullValue());
+    }
+    if(sv.getValueType().isNumeric() == false) {
+      throw new MagmaJsEvaluationRuntimeException("Operand to stddev() method must be numeric, but was invoked for '" + sv.getValueType().getName() + "'");
+    }
+    if(sv.getValue().isSequence()) {
+      ValueSequence valueSequence = sv.getValue().asSequence();
+      return new ScriptableValue(thisObj, DecimalType.get().valueOf(NumericMethods.stddev(valueSequence)), sv.getUnit());
+    } else {
+      // standard deviation of a single value is 0
+      return new ScriptableValue(thisObj, DecimalType.get().valueOf(0), sv.getUnit());
+    }
+  }
   /**
    * Returns the sum of the {@link Value}s contained in the {@link ValueSequence}. Returns null if the operand is null
    * or the ValueSequence is empty or contains at least one null value. This method throws an exception if the operand

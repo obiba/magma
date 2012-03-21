@@ -271,7 +271,7 @@ public class ValueSequenceMethodsTest extends AbstractJsTest {
 
   @Test(expected = MagmaJsEvaluationRuntimeException.class)
   public void test_avg_onNonNumericTypeThrowsAnException() {
-    assertAvgIs(TextType.get().valueOf("This is not a number, so you can't call sum()"), null);
+    assertAvgIs(TextType.get().valueOf("This is not a number, so you can't call avg()"), null);
   }
 
   @Test
@@ -286,6 +286,53 @@ public class ValueSequenceMethodsTest extends AbstractJsTest {
     ScriptableValue result = super.evaluate("avg()", valueToSum);
     Assert.assertNotNull(result);
     Assert.assertEquals(expectedSum, result.getValue().getValue());
+  }
+
+  // stddev
+
+  @Test
+  public void test_stddev_integerType() {
+    assertStdDevIs(Values.asSequence(IntegerType.get(), 2, 4, 4, 4, 5, 5, 7, 9), 2.0);
+  }
+
+  @Test
+  public void test_stddev_decimalType() {
+    assertStdDevIs(Values.asSequence(DecimalType.get(), 2, 4, 4, 4, 5, 5, 7, 9), 2.0);
+  }
+
+  @Test
+  public void test_stddev_sequenceContainsNullReturnsNullValue() {
+    assertStdDevIs(Values.asSequence(DecimalType.get(), 1, null, 3, 4), null);
+  }
+
+  @Test
+  public void test_stddev_nullSequenceReturnsNullValue() {
+    assertStdDevIs(DecimalType.get().nullSequence(), null);
+  }
+
+  @Test
+  public void test_stddev_onNonSequenceReturnsValue() {
+    assertStdDevIs(IntegerType.get().valueOf(4), 0.0);
+    assertStdDevIs(DecimalType.get().valueOf(4), 0.0);
+  }
+
+  @Test(expected = MagmaJsEvaluationRuntimeException.class)
+  public void test_stddev_onNonNumericTypeThrowsAnException() {
+    assertStdDevIs(TextType.get().valueOf("This is not a number, so you can't call stddev()"), null);
+  }
+
+  @Test
+  public void test_stddev_emptySequence() {
+    assertStdDevIs(DecimalType.get().sequenceOf(Collections.<Value> emptyList()), null);
+  }
+
+  private void assertStdDevIs(Value testValue, Number expected) {
+    if(expected instanceof Integer) {
+      expected = new Long(expected.longValue());
+    }
+    ScriptableValue result = super.evaluate("stddev()", testValue);
+    Assert.assertNotNull(result);
+    Assert.assertEquals(expected, result.getValue().getValue());
   }
 
   // sum
