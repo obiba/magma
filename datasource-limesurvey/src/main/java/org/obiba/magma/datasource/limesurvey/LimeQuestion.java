@@ -30,10 +30,6 @@ public class LimeQuestion extends LimeLocalizableEntity {
     return new LimeQuestion();
   }
 
-  public static LimeQuestion create(String name) {
-    return new LimeQuestion(name);
-  }
-
   public int getQid() {
     return qid;
   }

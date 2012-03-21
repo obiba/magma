@@ -11,9 +11,12 @@ import org.obiba.core.test.spring.DbUnitAwareTestExecutionListener;
 import org.obiba.magma.Attribute;
 import org.obiba.magma.Category;
 import org.obiba.magma.Datasource;
+import org.obiba.magma.ValueSet;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.Variable;
+import org.obiba.magma.VariableEntity;
 import org.obiba.magma.datasource.limesurvey.LimesurveyValueTable.LimesurveyVariableValueSource;
+import org.obiba.magma.support.VariableEntityBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
@@ -24,6 +27,7 @@ import test.AbstractMagmaTest;
 import test.SchemaTestExecutionListener;
 
 import com.google.common.base.Function;
+import com.google.common.collect.ImmutableSortedSet;
 import com.google.common.collect.Lists;
 
 @org.junit.runner.RunWith(value = SpringJUnit4ClassRunner.class)
@@ -71,7 +75,7 @@ public class LimesurveyDatasourceMysqlTest extends AbstractMagmaTest {
         for(Attribute attr : v.getAttributes()) {
           System.out.print(attr.getName() + "=" + attr.getValue() + ", ");
         }
-        System.out.println(lvv.getLimesurveyField());
+        System.out.println(lvv.getLimesurveyVariableField());
         for(Category c : v.getCategories()) {
           System.out.print("    Cat '" + c.getName() + "' ");
           for(Attribute attr : c.getAttributes()) {
@@ -79,9 +83,21 @@ public class LimesurveyDatasourceMysqlTest extends AbstractMagmaTest {
           }
           System.out.println();
         }
+
+        VariableEntity entity = new VariableEntityBean(table.getEntityType(), "1234");
+        VariableEntity entity2 = new VariableEntityBean(table.getEntityType(), "5678");
+        ValueSet valueSet = table.getValueSet(entity);
+        ImmutableSortedSet<VariableEntity> sortedSet = ImmutableSortedSet.of(entity, entity2);
+        // Iterable<Value> values = lvv.getValues(sortedSet);
+
+        System.out.println(lvv.getValue(valueSet));
+        // for(Value value : values) {
+        // System.out.println(value);
+        // }
       }
       nbVariable += variables.size();
     }
     System.out.println(nbVariable);
+    System.out.println(datasource.getValueTables().size());
   }
 }

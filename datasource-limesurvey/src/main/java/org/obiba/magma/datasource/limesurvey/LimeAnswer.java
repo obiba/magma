@@ -62,7 +62,7 @@ public class LimeAnswer extends LimeLocalizableEntity implements Comparable<Lime
       put("S", LimeLocalizableAttributes.create().localizableAttribute("en", "Same").localizableAttribute("fr", "Sans changement"));
       put("D", LimeLocalizableAttributes.create().localizableAttribute("en", "Decrease").localizableAttribute("fr", "Diminuer"));
       put("M", LimeLocalizableAttributes.create().localizableAttribute("en", "Male").localizableAttribute("fr", "Masculin"));
-      put("F", LimeLocalizableAttributes.create().localizableAttribute("en", "Female").localizableAttribute("fr", "Féminin"));
+      put("F", LimeLocalizableAttributes.create().localizableAttribute("en", "Female").localizableAttribute("fr", "FÃ©minin"));
     }
   };
 

@@ -1,5 +1,6 @@
 package org.obiba.magma.datasource.limesurvey;
 
+import java.sql.SQLException;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
@@ -21,28 +22,43 @@ public class LimesurveyDatasource extends AbstractDatasource {
 
   private static final String TYPE = "jdbc";
 
-  private JdbcTemplate jdbcTemplate;
+  private DataSource dataSource;
 
   private Map<String, Integer> sids;
 
   private String tablePrefix = "";
 
-  protected LimesurveyDatasource(String name, DataSource datasource) {
+  private String iqs = "";
+
+  protected LimesurveyDatasource(String name, DataSource dataSource) {
     super(name, TYPE);
-    this.jdbcTemplate = new JdbcTemplate(datasource);
+    this.dataSource = dataSource;
+    try {
+      iqs = dataSource.getConnection().getMetaData().getIdentifierQuoteString();
+      // TODO HSQLDB use " (double quote) and seems not valid in SQL Query
+      if("\"".equals(iqs)) {
+        iqs = "";
+      }
+    } catch(SQLException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   protected LimesurveyDatasource(String name, DataSource datasource, String tablePrefix) {
     this(name, datasource);
+    if("".equals(iqs) == false && tablePrefix.contains(iqs)) {
+      throw new RuntimeException("you can not use this identifier Quote String");
+    }
     this.tablePrefix = tablePrefix;
     setAttributeValue(TABLE_PREFIX_KEY, TextType.get().valueOf(tablePrefix));
   }
 
   @Override
   protected Set<String> getValueTableNames() {
+    JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
     StringBuilder sql = new StringBuilder();
     sql.append("SELECT s.sid, sls.surveyls_title ");
-    sql.append("FROM " + tablePrefix + "surveys s JOIN " + tablePrefix + "surveys_languagesettings sls ");
+    sql.append("FROM " + iqs + tablePrefix + "surveys" + iqs + " s JOIN " + iqs + tablePrefix + "surveys_languagesettings" + iqs + " sls ");
     sql.append("ON (s.sid=sls.surveyls_survey_id AND s.language=sls.surveyls_language) ");
 
     Set<String> names = Sets.newLinkedHashSet();
@@ -62,8 +78,12 @@ public class LimesurveyDatasource extends AbstractDatasource {
     return new LimesurveyValueTable(this, tableName, sids.get(tableName));
   }
 
-  public JdbcTemplate getJdbcTemplate() {
-    return jdbcTemplate;
+  public DataSource getDataSource() {
+    return dataSource;
+  }
+
+  public String getIqs() {
+    return iqs;
   }
 
 }

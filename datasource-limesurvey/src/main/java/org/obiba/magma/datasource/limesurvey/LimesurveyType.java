@@ -4,7 +4,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.obiba.magma.ValueType;
-import org.obiba.magma.type.BinaryType;
 import org.obiba.magma.type.DateType;
 import org.obiba.magma.type.DecimalType;
 import org.obiba.magma.type.TextType;
@@ -21,7 +20,7 @@ public enum LimesurveyType {
   ARRAY_NUMBERS(":", DecimalType.get()), //
   ARRAY_TEXT(";", TextType.get()), //
   DATE("D", DateType.get()), //
-  FILE_UPLOAD("|", BinaryType.get()), // text/integer ?
+  FILE_UPLOAD("|", TextType.get()), //
   GENDER("G", TextType.get(), new String[] { "M", "F" }), //
   NUMERICAL_INPUT("N", DecimalType.get()), //
   MULTIPLE_NUMERICAL_INPUT("K", DecimalType.get()), //
@@ -67,6 +66,7 @@ public enum LimesurveyType {
     return answers;
   }
 
+  // special valueOf() because given value is different
   public static LimesurveyType _valueOf(String value) {
     for(LimesurveyType e : values()) {
       if(e.label.equals(value)) {

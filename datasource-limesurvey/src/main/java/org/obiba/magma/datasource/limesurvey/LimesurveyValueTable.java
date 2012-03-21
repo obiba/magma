@@ -1,17 +1,14 @@
 package org.obiba.magma.datasource.limesurvey;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.Collections;
-import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
+import java.util.NoSuchElementException;
+import java.util.SortedSet;
 
 import org.obiba.magma.AttributeAwareBuilder;
 import org.obiba.magma.Category;
 import org.obiba.magma.Datasource;
-import org.obiba.magma.Initialisable;
 import org.obiba.magma.NoSuchValueSetException;
 import org.obiba.magma.Timestamps;
 import org.obiba.magma.Value;
@@ -23,18 +20,17 @@ import org.obiba.magma.VariableEntity;
 import org.obiba.magma.VariableValueSource;
 import org.obiba.magma.VectorSource;
 import org.obiba.magma.support.AbstractValueTable;
-import org.obiba.magma.support.AbstractVariableEntityProvider;
-import org.obiba.magma.support.VariableEntityBean;
 import org.obiba.magma.support.VariableEntityProvider;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 
+import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 
 public class LimesurveyValueTable extends AbstractValueTable {
 
@@ -48,12 +44,16 @@ public class LimesurveyValueTable extends AbstractValueTable {
 
   private Map<Integer, List<LimeAnswer>> mapAnswers;
 
+  private String iqs;
+
   public LimesurveyValueTable(Datasource datasource, String name, Integer sid) {
-    super(datasource, name);
+    super(datasource, name, new LimesurveyVariableEntityProvider("Participant", datasource, name, sid));
+    iqs = ((LimesurveyDatasource) datasource).getIqs();
     if(datasource.hasAttribute(LimesurveyDatasource.TABLE_PREFIX_KEY)) {
       this.tablePrefix = datasource.getAttribute(LimesurveyDatasource.TABLE_PREFIX_KEY).getValue().toString();
     }
     this.sid = sid;
+
   }
 
   public LimesurveyValueTable(Datasource datasource, String name, Integer sid, VariableEntityProvider variableEntityProvider) {
@@ -69,7 +69,7 @@ public class LimesurveyValueTable extends AbstractValueTable {
 
   private void initialiseVariableValueSources() {
     getSources().clear();
-    jdbcTemplate = ((LimesurveyDatasource) getDatasource()).getJdbcTemplate();
+    jdbcTemplate = new JdbcTemplate(getDatasource().getDataSource());
     mapQuestions = queryQuestions();
     mapAnswers = Maps.newHashMap();
     mapAnswers.putAll(queryExplicitAnswers(mapQuestions));
@@ -79,7 +79,8 @@ public class LimesurveyValueTable extends AbstractValueTable {
 
   private Map<Integer, LimeQuestion> queryQuestions() {
     StringBuilder sqlQuestion = new StringBuilder();
-    sqlQuestion.append("SELECT * FROM " + tablePrefix + "questions q JOIN " + tablePrefix + "groups g ");
+
+    sqlQuestion.append("SELECT * FROM " + iqs + tablePrefix + "questions" + iqs + " q JOIN " + tablePrefix + "groups g ");
     sqlQuestion.append("ON (q.gid=g.gid AND q.language=g.language) ");
     sqlQuestion.append("WHERE q.sid=? AND q.type!='X' "); // X are boilerplate questions
     sqlQuestion.append("ORDER BY group_order, question_order ASC ");
@@ -112,7 +113,7 @@ public class LimesurveyValueTable extends AbstractValueTable {
 
   private Map<Integer, List<LimeAnswer>> queryExplicitAnswers(Map<Integer, LimeQuestion> mapQuestions) {
     Map<Integer, List<LimeAnswer>> answers = Maps.newHashMap();
-    String sqlAnswer = "SELECT * FROM " + tablePrefix + "answers WHERE qid=? ORDER BY sortorder";
+    String sqlAnswer = "SELECT * FROM " + iqs + tablePrefix + "answers" + iqs + " WHERE qid=? ORDER BY sortorder";
     for(LimeQuestion question : mapQuestions.values()) {
       SqlRowSet answersRowset = jdbcTemplate.queryForRowSet(sqlAnswer, new Object[] { question.getQid() });
       List<LimeAnswer> answersList = toAnswers(question, answersRowset);
@@ -370,35 +371,7 @@ public class LimesurveyValueTable extends AbstractValueTable {
     return null;
   }
 
-  class LimesurveyVariableEntityProvider extends AbstractVariableEntityProvider implements Initialisable {
-
-    private HashSet<VariableEntity> entities;
-
-    protected LimesurveyVariableEntityProvider(String entityType) {
-      super(entityType);
-    }
-
-    @Override
-    public void initialise() {
-      String sqlEntities = "SELECT " + tablePrefix + "token FROM survey_" + getSid();
-      List<VariableEntity> entityList = getDatasource().getJdbcTemplate().query(sqlEntities, new RowMapper<VariableEntity>() {
-
-        @Override
-        public VariableEntity mapRow(ResultSet rs, int rowNum) throws SQLException {
-          String entityId = rs.getString("token");
-          return new VariableEntityBean("Participant", entityId);
-        }
-      });
-      entities = Sets.newHashSet(entityList);
-    }
-
-    @Override
-    public Set<VariableEntity> getVariableEntities() {
-      return Collections.unmodifiableSet(entities);
-    }
-  }
-
-  class LimesurveyVariableValueSource implements VariableValueSource {
+  class LimesurveyVariableValueSource implements VariableValueSource, VectorSource {
 
     private Variable variable;
 
@@ -429,8 +402,7 @@ public class LimesurveyValueTable extends AbstractValueTable {
 
     @Override
     public VectorSource asVectorSource() {
-      // TODO Auto-generated method stub
-      return null;
+      return this;
     }
 
     @Override
@@ -438,9 +410,74 @@ public class LimesurveyValueTable extends AbstractValueTable {
       return variable;
     }
 
-    public String getLimesurveyField() {
+    public String getLimesurveyVariableField() {
       int qId = question.hasParentId() ? question.getParentQid() : question.getQid();
       return sid + "X" + question.getGroupId() + "X" + qId + subQuestionFieldTitle;
+    }
+
+    @Override
+    public Iterable<Value> getValues(final SortedSet<VariableEntity> entities) {
+      LimesurveyValueTable table = LimesurveyValueTable.this;
+      final NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(getDatasource().getDataSource());
+      final MapSqlParameterSource parameters = new MapSqlParameterSource();
+      Iterable<String> ids = extractIdentifiers(entities);
+      parameters.addValue("ids", Lists.newArrayList(ids));
+
+      final String limesurveyVariableField = getLimesurveyVariableField();
+      final StringBuilder sql = new StringBuilder();
+      // TODO prevent injection
+      sql.append("SELECT " + iqs + limesurveyVariableField + iqs + " FROM survey_" + table.getSid() + " ");
+      sql.append("WHERE token IN (:ids) ");
+      sql.append("ORDER BY token");
+
+      return new Iterable<Value>() {
+
+        @Override
+        public Iterator<Value> iterator() {
+          return new Iterator<Value>() {
+
+            private Iterator<VariableEntity> idsIterator;
+
+            private SqlRowSet rows;
+
+            {
+              idsIterator = entities.iterator();
+              rows = jdbcTemplate.queryForRowSet(sql.toString(), parameters);
+            }
+
+            @Override
+            public boolean hasNext() {
+              return idsIterator.hasNext();
+            }
+
+            @Override
+            public Value next() {
+              if(hasNext() == false) {
+                throw new NoSuchElementException();
+              }
+              idsIterator.next();
+              rows.next();
+              Object object = rows.getObject(limesurveyVariableField);
+              return variable.getValueType().valueOf("".equals(object) ? null : object);
+            }
+
+            @Override
+            public void remove() {
+              throw new UnsupportedOperationException();
+            }
+          };
+        }
+      };
+    }
+
+    private Iterable<String> extractIdentifiers(SortedSet<VariableEntity> entities) {
+      return Iterables.transform(entities, new Function<VariableEntity, String>() {
+
+        @Override
+        public String apply(VariableEntity input) {
+          return input.getIdentifier();
+        }
+      });
     }
 
   }

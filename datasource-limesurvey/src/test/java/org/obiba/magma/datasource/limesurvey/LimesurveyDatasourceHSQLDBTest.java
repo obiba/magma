@@ -78,7 +78,7 @@ public class LimesurveyDatasourceHSQLDBTest extends AbstractMagmaTest {
         for(Attribute attr : v.getAttributes()) {
           System.out.print(attr.getName() + "=" + attr.getValue() + ", ");
         }
-        System.out.println(lvv.getLimesurveyField());
+        System.out.println(lvv.getLimesurveyVariableField());
         for(Category c : v.getCategories()) {
           System.out.print("    Cat '" + c.getName() + "' ");
           for(Attribute attr : c.getAttributes()) {
