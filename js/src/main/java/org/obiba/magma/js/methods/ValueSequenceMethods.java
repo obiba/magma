@@ -328,7 +328,7 @@ public class ValueSequenceMethods {
     ValueType rValueType = null;
     List<Value> rvalues = new ArrayList<Value>();
     for(int i = 0; i < length; i++) {
-      Value fvalue = asValue(func.call(ctx, sv.getParentScope(), sv, asArguments(sv, values, i)));
+      Value fvalue = asValue(func.call(ctx, sv.getParentScope(), sv, getTupleAsArguments(sv, values, i)));
       rValueType = fvalue.getValueType();
       rvalues.add(fvalue);
     }
@@ -346,7 +346,7 @@ public class ValueSequenceMethods {
     return value;
   }
 
-  private static Object[] asArguments(ScriptableValue sv, List<Object> values, int i) {
+  private static Object[] getTupleAsArguments(ScriptableValue sv, List<Object> values, int i) {
     Object[] objects = new Object[values.size()];
     for(int j = 0; j < values.size(); j++) {
       Object obj = values.get(j);
@@ -396,22 +396,39 @@ public class ValueSequenceMethods {
     String suffix = getArgumentAsString(args, 2);
 
     if(sv.getValue().isSequence()) {
-      ValueSequence valueSequence = sv.getValue().asSequence();
-      String rval = "";
-      if(valueSequence.getSize() > 0) {
-        StringBuffer buffer = new StringBuffer(prefix);
-        for(int i = 0; i < valueSequence.getSize(); i++) {
-          buffer.append(valueSequence.get(i).toString());
-          if(i < valueSequence.getSize() - 1) {
-            buffer.append(delimiter);
-          }
-        }
-        buffer.append(suffix);
-        rval = buffer.toString();
-      }
-      return new ScriptableValue(thisObj, TextType.get().valueOf(rval));
+      return joinValueSequence(sv, delimiter, prefix, suffix);
     } else {
-      return new ScriptableValue(thisObj, TextType.get().valueOf(prefix + sv.getValue() + suffix));
+      return joinValue(sv, delimiter, prefix, suffix);
+    }
+  }
+
+  private static ScriptableValue joinValueSequence(ScriptableValue sv, String delimiter, String prefix, String suffix) {
+    ValueSequence valueSequence = sv.getValue().asSequence();
+    String rval = "";
+    if(valueSequence.getSize() > 0) {
+      StringBuffer buffer = new StringBuffer(prefix);
+      for(int i = 0; i < valueSequence.getSize(); i++) {
+        buffer.append(valueSequence.get(i).toString());
+        if(i < valueSequence.getSize() - 1) {
+          buffer.append(delimiter);
+        }
+      }
+      buffer.append(suffix);
+      rval = buffer.toString();
+    }
+    return new ScriptableValue(sv, TextType.get().valueOf(rval));
+  }
+
+  private static ScriptableValue joinValue(ScriptableValue sv, String delimiter, String prefix, String suffix) {
+    Value value = sv.getValue();
+    if(value.isNull()) {
+      return new ScriptableValue(sv, TextType.get().nullValue());
+    } else {
+      String rval = sv.toString();
+      if(rval != null && rval.isEmpty() == false) {
+        rval = prefix + rval + suffix;
+      }
+      return new ScriptableValue(sv, TextType.get().valueOf(rval));
     }
   }
 
