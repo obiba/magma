@@ -15,11 +15,17 @@ public class LimesurveyDatasourceMysqlTest extends AbstractMagmaTest {
   @Autowired
   private DataSource datasource;
 
+  // use to avoid "No runnable methods" exception
   @Test
   public void test() {
 
   }
 
+  /**
+   * To run this test you need to: <br>
+   * - Import test.dump.sql or clsa.limesurvey.sql <br>
+   * - Configure mysql connection in test-spring-context-mysql.xml
+   */
   // @Test
   public void testCreateDatasourceFromTestMySqlDatabase() {
     LimesurveyDatasource limesurveyDatasource = new LimesurveyDatasource("lime", datasource);
