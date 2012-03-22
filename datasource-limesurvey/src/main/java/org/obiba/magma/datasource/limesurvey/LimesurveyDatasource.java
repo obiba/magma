@@ -13,6 +13,8 @@ import org.obiba.magma.support.AbstractDatasource;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 
+import com.google.common.base.Objects;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
@@ -36,8 +38,9 @@ public class LimesurveyDatasource extends AbstractDatasource {
 
   public LimesurveyDatasource(String name, DataSource dataSource, String tablePrefix) {
     super(name, TYPE);
+    Preconditions.checkArgument(dataSource != null);
     this.dataSource = dataSource;
-    this.tablePrefix = tablePrefix;
+    this.tablePrefix = Objects.firstNonNull(tablePrefix , DEFAULT_TABLE_PREFIX);
   }
 
   @Override

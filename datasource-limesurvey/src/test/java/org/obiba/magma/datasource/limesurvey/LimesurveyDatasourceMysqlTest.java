@@ -27,7 +27,7 @@ public class LimesurveyDatasourceMysqlTest extends AbstractMagmaTest {
     BasicDataSource bds = new BasicDataSource();
     bds.setUrl("jdbc:mysql://localhost:3306/limesurvey");
     bds.setUsername("limesurvey");
-    bds.setPassword("limersurvey");
+    bds.setPassword("limesurvey");
     return bds;
   }
 
