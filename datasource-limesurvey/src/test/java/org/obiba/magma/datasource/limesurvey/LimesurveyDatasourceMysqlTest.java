@@ -20,7 +20,7 @@ public class LimesurveyDatasourceMysqlTest extends AbstractMagmaTest {
 
   }
 
-  @Test
+  // @Test
   public void testCreateDatasourceFromTestMySqlDatabase() {
     LimesurveyDatasource limesurveyDatasource = new LimesurveyDatasource("lime", datasource);
     limesurveyDatasource.initialise();
