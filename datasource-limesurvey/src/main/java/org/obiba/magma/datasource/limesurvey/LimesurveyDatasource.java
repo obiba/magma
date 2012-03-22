@@ -79,10 +79,6 @@ public class LimesurveyDatasource extends AbstractDatasource {
     return dataSource;
   }
 
-  String getIqs() {
-    return iqs;
-  }
-
   String quoteIdentifier(String identifier) {
     return iqs + identifier + iqs;
   }
