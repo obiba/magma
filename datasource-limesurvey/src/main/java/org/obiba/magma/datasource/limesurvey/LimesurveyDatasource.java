@@ -40,7 +40,7 @@ public class LimesurveyDatasource extends AbstractDatasource {
     super(name, TYPE);
     Preconditions.checkArgument(dataSource != null);
     this.dataSource = dataSource;
-    this.tablePrefix = Objects.firstNonNull(tablePrefix , DEFAULT_TABLE_PREFIX);
+    this.tablePrefix = Objects.firstNonNull(tablePrefix, DEFAULT_TABLE_PREFIX);
   }
 
   @Override
@@ -50,6 +50,9 @@ public class LimesurveyDatasource extends AbstractDatasource {
       iqs = dataSource.getConnection().getMetaData().getIdentifierQuoteString();
     } catch(SQLException e) {
       throw new MagmaRuntimeException(e);
+    }
+    if(tablePrefix.contains(iqs)) {
+      throw new MagmaRuntimeException("you can not use '" + iqs + "' character in '" + tablePrefix + "'");
     }
   }
 
@@ -68,7 +71,7 @@ public class LimesurveyDatasource extends AbstractDatasource {
     while(rows.next()) {
       String title = rows.getString("surveyls_title");
       names.add(title);
-      sids.put(title, new Integer(rows.getInt("sid")));
+      sids.put(title, rows.getInt("sid"));
     }
     return Collections.unmodifiableSet(names);
   }

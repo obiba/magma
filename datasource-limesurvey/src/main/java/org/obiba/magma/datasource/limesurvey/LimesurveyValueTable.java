@@ -40,9 +40,9 @@ class LimesurveyValueTable extends AbstractValueTable {
 
   private final String tablePrefix;
 
-  private Map<Integer, LimeQuestion> mapQuestions;
+  private Map<Integer, LimeQuestion> mapQuestions = Maps.newHashMap();
 
-  private Map<Integer, List<LimeAnswer>> mapAnswers;
+  private Map<Integer, List<LimeAnswer>> mapAnswers = Maps.newHashMap();
 
   LimesurveyValueTable(LimesurveyDatasource datasource, String name, Integer sid, String tablePrefix) {
     super(datasource, name);
@@ -78,14 +78,13 @@ class LimesurveyValueTable extends AbstractValueTable {
   private void initialiseVariableValueSources() {
     getSources().clear();
     jdbcTemplate = new JdbcTemplate(getDatasource().getDataSource());
-    mapQuestions = queryQuestions();
-    mapAnswers = Maps.newHashMap();
-    mapAnswers.putAll(queryExplicitAnswers(mapQuestions));
-    mapAnswers.putAll(buildImplicitAnswers(mapQuestions));
+    queryQuestions();
+    queryExplicitAnswers();
+    buildImplicitAnswers();
     buildVariables();
   }
 
-  private Map<Integer, LimeQuestion> queryQuestions() {
+  private void queryQuestions() {
     StringBuilder sqlQuestion = new StringBuilder();
 
     sqlQuestion.append("SELECT * FROM " + quoteIdentifier(tablePrefix + "questions") + " q JOIN " + quoteIdentifier(tablePrefix + "groups") + " g ");
@@ -93,15 +92,15 @@ class LimesurveyValueTable extends AbstractValueTable {
     sqlQuestion.append("WHERE q.sid=? AND q.type!='X' "); // X are boilerplate questions
     sqlQuestion.append("ORDER BY group_order, question_order ASC ");
     SqlRowSet questionsRowSet = jdbcTemplate.queryForRowSet(sqlQuestion.toString(), new Object[] { sid });
-    return toQuestions(questionsRowSet);
+
+    toQuestions(questionsRowSet);
   }
 
   private Map<Integer, LimeQuestion> toQuestions(SqlRowSet rows) {
-    Map<Integer, LimeQuestion> questions = Maps.newHashMap();
     while(rows.next()) {
       int qid = rows.getInt("qid");
-      if(questions.containsKey(qid)) {
-        LimeQuestion question = questions.get(qid);
+      if(mapQuestions.containsKey(qid)) {
+        LimeQuestion question = mapQuestions.get(qid);
         question.addLocalizableAttribute(rows.getString("language"), rows.getString("question"));
       } else {
         LimeQuestion question = LimeQuestion.create();
@@ -113,21 +112,19 @@ class LimesurveyValueTable extends AbstractValueTable {
         question.addLocalizableAttribute(rows.getString("language"), rows.getString("question"));
         question.setUseOther("Y".equals(rows.getString("other")) ? true : false);
         question.setScaleId(rows.getInt("scale_id"));
-        questions.put(qid, question);
+        mapQuestions.put(qid, question);
       }
     }
-    return questions;
+    return mapQuestions;
   }
 
-  private Map<Integer, List<LimeAnswer>> queryExplicitAnswers(Map<Integer, LimeQuestion> mapQuestions) {
-    Map<Integer, List<LimeAnswer>> answers = Maps.newHashMap();
+  private void queryExplicitAnswers() {
     String sqlAnswer = "SELECT * FROM " + quoteIdentifier(tablePrefix + "answers") + " WHERE qid=? ORDER BY sortorder";
     for(LimeQuestion question : mapQuestions.values()) {
       SqlRowSet answersRowset = jdbcTemplate.queryForRowSet(sqlAnswer, new Object[] { question.getQid() });
       List<LimeAnswer> answersList = toAnswers(question, answersRowset);
-      answers.put(question.getQid(), answersList);
+      mapAnswers.put(question.getQid(), answersList);
     }
-    return answers;
   }
 
   private List<LimeAnswer> toAnswers(LimeQuestion question, SqlRowSet rows) {
@@ -157,8 +154,7 @@ class LimesurveyValueTable extends AbstractValueTable {
     return answers;
   }
 
-  private Map<Integer, List<LimeAnswer>> buildImplicitAnswers(Map<Integer, LimeQuestion> mapQuestions) {
-    Map<Integer, List<LimeAnswer>> mapAnswers = Maps.newHashMap();
+  private void buildImplicitAnswers() {
     for(Integer qid : mapQuestions.keySet()) {
       LimeQuestion question = mapQuestions.get(qid);
       LimesurveyType type = question.getLimesurveyType();
@@ -171,7 +167,6 @@ class LimesurveyValueTable extends AbstractValueTable {
         mapAnswers.put(qid, answers);
       }
     }
-    return mapAnswers;
   }
 
   private void buildVariables() {
