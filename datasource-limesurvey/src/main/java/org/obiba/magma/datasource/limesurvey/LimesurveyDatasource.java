@@ -35,10 +35,6 @@ public class LimesurveyDatasource extends AbstractDatasource {
     this.dataSource = dataSource;
     try {
       iqs = dataSource.getConnection().getMetaData().getIdentifierQuoteString();
-      // TODO HSQLDB use " (double quote) and seems not valid in SQL Query
-      if("\"".equals(iqs)) {
-        iqs = "";
-      }
     } catch(SQLException e) {
       throw new RuntimeException(e);
     }

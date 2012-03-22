@@ -80,7 +80,7 @@ public class LimesurveyValueTable extends AbstractValueTable {
   private Map<Integer, LimeQuestion> queryQuestions() {
     StringBuilder sqlQuestion = new StringBuilder();
 
-    sqlQuestion.append("SELECT * FROM " + iqs + tablePrefix + "questions" + iqs + " q JOIN " + tablePrefix + "groups g ");
+    sqlQuestion.append("SELECT * FROM " + iqs + tablePrefix + "questions" + iqs + " q JOIN " + iqs + tablePrefix + "groups" + iqs + " g ");
     sqlQuestion.append("ON (q.gid=g.gid AND q.language=g.language) ");
     sqlQuestion.append("WHERE q.sid=? AND q.type!='X' "); // X are boilerplate questions
     sqlQuestion.append("ORDER BY group_order, question_order ASC ");
@@ -360,6 +360,14 @@ public class LimesurveyValueTable extends AbstractValueTable {
     return sid;
   }
 
+  public String getIqs() {
+    return iqs;
+  }
+
+  public String getTablePrefix() {
+    return tablePrefix;
+  }
+
   @Override
   public ValueSet getValueSet(VariableEntity entity) throws NoSuchValueSetException {
     return new LimesurveyValueSet(this, entity);
@@ -367,8 +375,7 @@ public class LimesurveyValueTable extends AbstractValueTable {
 
   @Override
   public Timestamps getTimestamps() {
-    // TODO Auto-generated method stub
-    return null;
+    return new LimesurveyTimestamps(this);
   }
 
   class LimesurveyVariableValueSource implements VariableValueSource, VectorSource {
@@ -425,7 +432,6 @@ public class LimesurveyValueTable extends AbstractValueTable {
 
       final String limesurveyVariableField = getLimesurveyVariableField();
       final StringBuilder sql = new StringBuilder();
-      // TODO prevent injection
       sql.append("SELECT " + iqs + limesurveyVariableField + iqs + " FROM survey_" + table.getSid() + " ");
       sql.append("WHERE token IN (:ids) ");
       sql.append("ORDER BY token");
