@@ -26,7 +26,7 @@ public class LimesurveyDatasourceMysqlTest extends AbstractMagmaTest {
    * - Import test.dump.sql or clsa.limesurvey.sql <br>
    * - Configure mysql connection in test-spring-context-mysql.xml
    */
-  // @Test
+  @Test
   public void testCreateDatasourceFromTestMySqlDatabase() {
     LimesurveyDatasource limesurveyDatasource = new LimesurveyDatasource("lime", datasource);
     limesurveyDatasource.initialise();

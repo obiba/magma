@@ -21,7 +21,7 @@ public class LimesurveyVariableEntityProvider extends AbstractVariableEntityProv
 
   private HashSet<VariableEntity> entities;
 
-  private final String tablePrefix;
+  private String tablePrefix;
 
   private final Integer sid;
 
@@ -29,11 +29,10 @@ public class LimesurveyVariableEntityProvider extends AbstractVariableEntityProv
 
   private String iqs;
 
-  protected LimesurveyVariableEntityProvider(String entityType, Datasource datasource, String tablePrefix, Integer sid) {
+  protected LimesurveyVariableEntityProvider(String entityType, Datasource datasource, Integer sid) {
     super(entityType);
     this.datasource = (LimesurveyDatasource) datasource;
     this.iqs = this.datasource.getIqs();
-    this.tablePrefix = tablePrefix;
     this.sid = sid;
   }
 
@@ -50,6 +49,10 @@ public class LimesurveyVariableEntityProvider extends AbstractVariableEntityProv
       }
     });
     entities = Sets.newHashSet(entityList);
+  }
+
+  public void setTablePrefix(String tablePrefix) {
+    this.tablePrefix = tablePrefix;
   }
 
   @Override

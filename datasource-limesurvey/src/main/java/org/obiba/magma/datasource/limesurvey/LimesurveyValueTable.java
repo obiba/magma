@@ -21,6 +21,7 @@ import org.obiba.magma.VariableValueSource;
 import org.obiba.magma.VectorSource;
 import org.obiba.magma.support.AbstractValueTable;
 import org.obiba.magma.support.VariableEntityProvider;
+import org.obiba.magma.type.IntegerType;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -47,13 +48,15 @@ public class LimesurveyValueTable extends AbstractValueTable {
   private String iqs;
 
   public LimesurveyValueTable(Datasource datasource, String name, Integer sid) {
-    super(datasource, name, new LimesurveyVariableEntityProvider("Participant", datasource, name, sid));
+    super(datasource, name);
     iqs = ((LimesurveyDatasource) datasource).getIqs();
     if(datasource.hasAttribute(LimesurveyDatasource.TABLE_PREFIX_KEY)) {
       this.tablePrefix = datasource.getAttribute(LimesurveyDatasource.TABLE_PREFIX_KEY).getValue().toString();
     }
+    LimesurveyVariableEntityProvider provider = new LimesurveyVariableEntityProvider("Participant", datasource, sid);
+    provider.setTablePrefix(tablePrefix);
+    setVariableEntityProvider(provider);
     this.sid = sid;
-
   }
 
   public LimesurveyValueTable(Datasource datasource, String name, Integer sid, VariableEntityProvider variableEntityProvider) {
@@ -65,6 +68,12 @@ public class LimesurveyValueTable extends AbstractValueTable {
   public void initialise() {
     super.initialise();
     initialiseVariableValueSources();
+    getVariableEntityProvider().initialise();
+  }
+
+  @Override
+  protected LimesurveyVariableEntityProvider getVariableEntityProvider() {
+    return (LimesurveyVariableEntityProvider) super.getVariableEntityProvider();
   }
 
   private void initialiseVariableValueSources() {
@@ -170,22 +179,24 @@ public class LimesurveyValueTable extends AbstractValueTable {
     for(LimeQuestion question : mapQuestions.values()) {
       if(buildRanking(question) == false) {
         LimeQuestion parentQuestion = null;
-        boolean isDualScaleCase = false;
-        boolean isArraySubQuestionCase = false;
+        boolean isDualScale = false;
+        boolean isArraySubQuestion = false;
         // here are managed special case
         if(question.hasParentId()) {
           parentQuestion = getParentQuestion(question);
-          isArraySubQuestionCase = buildArraySubQuestions(question, parentQuestion);
-          isDualScaleCase = buildArrayDualScale(question, parentQuestion);
+          isArraySubQuestion = buildArraySubQuestions(question, parentQuestion);
+          isDualScale = buildArrayDualScale(question, parentQuestion);
         }
         Variable.Builder vb = null;
-        if(isArraySubQuestionCase == false && isDualScaleCase == false) {
+        // if not a special case
+        if(isArraySubQuestion == false && isDualScale == false) {
           vb = buildVariable(question);
         }
+        buildFileCountIfnecessary(question);
         buildOtherVariableIfNecessary(question);
         buildCommentVariableIfNecessary(question, parentQuestion);
 
-        // we stop if we already build 'special' variables cases
+        // we stop if we already build special variables cases
         if(vb != null) {
           buildAttributes(question, vb);
           if(question.hasParentId()) {
@@ -198,6 +209,15 @@ public class LimesurveyValueTable extends AbstractValueTable {
           addVariableValueSource(variable);
         }
       }
+    }
+  }
+
+  private void buildFileCountIfnecessary(LimeQuestion question) {
+    if(question.getLimesurveyType() == LimesurveyType.FILE_UPLOAD) {
+      String name = question.getName() + " [filecount]";
+      Variable.Builder fileCountVb = Variable.Builder.newVariable(name, IntegerType.get(), "Participant");
+      LimesurveyVariableValueSource fileCount = new LimesurveyVariableValueSource(fileCountVb.build(), question, "_filecount");
+      addVariableValueSource(fileCount);
     }
   }
 
