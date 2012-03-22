@@ -35,7 +35,7 @@ public class LimesurveyVariableEntityProvider extends AbstractVariableEntityProv
 
   @Override
   public void initialise() {
-    String sqlEntities = "SELECT " + datasource.quoteIdentifier(tablePrefix + "token") + " FROM survey_" + sid;
+    String sqlEntities = "SELECT " + datasource.quoteIdentifier(tablePrefix + "token") + " FROM " + datasource.quoteIdentifier("survey_" + sid);
     JdbcTemplate jdbcTemplate = new JdbcTemplate(datasource.getDataSource());
     List<VariableEntity> entityList = jdbcTemplate.query(sqlEntities, new RowMapper<VariableEntity>() {
 
