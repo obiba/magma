@@ -7,9 +7,9 @@ import java.util.Set;
 
 import javax.sql.DataSource;
 
+import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.support.AbstractDatasource;
-import org.obiba.magma.type.TextType;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 
@@ -18,35 +18,36 @@ import com.google.common.collect.Sets;
 
 public class LimesurveyDatasource extends AbstractDatasource {
 
-  public static final String TABLE_PREFIX_KEY = "table_prefix";
-
   private static final String TYPE = "jdbc";
 
-  private DataSource dataSource;
+  private static final String DEFAULT_TABLE_PREFIX = "";
+
+  private final DataSource dataSource;
+
+  private final String tablePrefix;
 
   private Map<String, Integer> sids;
 
-  private String tablePrefix = "";
-
   private String iqs = "";
 
-  protected LimesurveyDatasource(String name, DataSource dataSource) {
+  public LimesurveyDatasource(String name, DataSource dataSource) {
+    this(name, dataSource, DEFAULT_TABLE_PREFIX);
+  }
+
+  public LimesurveyDatasource(String name, DataSource dataSource, String tablePrefix) {
     super(name, TYPE);
     this.dataSource = dataSource;
+    this.tablePrefix = tablePrefix;
+  }
+
+  @Override
+  protected void onInitialise() {
+    super.onInitialise();
     try {
       iqs = dataSource.getConnection().getMetaData().getIdentifierQuoteString();
     } catch(SQLException e) {
-      throw new RuntimeException(e);
+      throw new MagmaRuntimeException(e);
     }
-  }
-
-  protected LimesurveyDatasource(String name, DataSource datasource, String tablePrefix) {
-    this(name, datasource);
-    if("".equals(iqs) == false && tablePrefix.contains(iqs)) {
-      throw new RuntimeException("you can not use this identifier Quote String");
-    }
-    this.tablePrefix = tablePrefix;
-    setAttributeValue(TABLE_PREFIX_KEY, TextType.get().valueOf(tablePrefix));
   }
 
   @Override
@@ -54,7 +55,7 @@ public class LimesurveyDatasource extends AbstractDatasource {
     JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
     StringBuilder sql = new StringBuilder();
     sql.append("SELECT s.sid, sls.surveyls_title ");
-    sql.append("FROM " + iqs + tablePrefix + "surveys" + iqs + " s JOIN " + iqs + tablePrefix + "surveys_languagesettings" + iqs + " sls ");
+    sql.append("FROM " + quoteIdentifier(tablePrefix + "surveys") + " s JOIN " + quoteIdentifier(tablePrefix + "surveys_languagesettings") + " sls ");
     sql.append("ON (s.sid=sls.surveyls_survey_id AND s.language=sls.surveyls_language) ");
 
     Set<String> names = Sets.newLinkedHashSet();
@@ -71,15 +72,19 @@ public class LimesurveyDatasource extends AbstractDatasource {
 
   @Override
   protected ValueTable initialiseValueTable(String tableName) {
-    return new LimesurveyValueTable(this, tableName, sids.get(tableName));
+    return new LimesurveyValueTable(this, tableName, sids.get(tableName), tablePrefix);
   }
 
-  public DataSource getDataSource() {
+  DataSource getDataSource() {
     return dataSource;
   }
 
-  public String getIqs() {
+  String getIqs() {
     return iqs;
+  }
+
+  String quoteIdentifier(String identifier) {
+    return iqs + identifier + iqs;
   }
 
 }

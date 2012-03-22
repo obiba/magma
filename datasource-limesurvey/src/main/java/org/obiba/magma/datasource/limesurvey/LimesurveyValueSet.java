@@ -35,13 +35,12 @@ public class LimesurveyValueSet extends ValueSetBean {
 
   private void loadValues(LimesurveyVariableValueSource limesurveyVariableValueSource) {
     LimesurveyValueTable limeValueTable = getValueTable();
-    String iqs = limeValueTable.getIqs();
     String tablePrefix = limeValueTable.getTablePrefix();
     cache = Maps.newHashMap();
     JdbcTemplate jdbcTemplate = new JdbcTemplate(getValueTable().getDatasource().getDataSource());
     String id = getVariableEntity().getIdentifier();
     StringBuilder sql = new StringBuilder();
-    sql.append("SELECT * FROM " + iqs + tablePrefix + "survey_" + limeValueTable.getSid() + iqs + " ");
+    sql.append("SELECT * FROM " + limeValueTable.quoteIdentifier(tablePrefix + "survey_" + limeValueTable.getSid()) + " ");
     sql.append("WHERE token=?");
     SqlRowSet rows = jdbcTemplate.queryForRowSet(sql.toString(), new Object[] { id });
     List<String> columns = Lists.newArrayList(rows.getMetaData().getColumnNames());

@@ -26,11 +26,10 @@ public class LimesurveyTimestamps implements Timestamps {
   }
 
   private Value queryTimestamp(String sqlOperator) {
-    String iqs = limesurveyValueTable.getIqs();
     JdbcTemplate jdbcTemplate = new JdbcTemplate(limesurveyValueTable.getDatasource().getDataSource());
     StringBuilder sql = new StringBuilder();
     sql.append("SELECT " + sqlOperator + "(submitdate) ");
-    sql.append("FROM " + iqs + limesurveyValueTable.getTablePrefix() + "survey_" + limesurveyValueTable.getSid() + iqs);
+    sql.append("FROM " + limesurveyValueTable.quoteIdentifier(limesurveyValueTable.getTablePrefix() + "survey_" + limesurveyValueTable.getSid()));
     Date lastUpdateDate = jdbcTemplate.queryForObject(sql.toString(), Date.class);
     return DateTimeType.get().valueOf(lastUpdateDate);
   }

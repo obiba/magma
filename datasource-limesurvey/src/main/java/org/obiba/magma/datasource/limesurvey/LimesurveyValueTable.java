@@ -8,7 +8,6 @@ import java.util.SortedSet;
 
 import org.obiba.magma.AttributeAwareBuilder;
 import org.obiba.magma.Category;
-import org.obiba.magma.Datasource;
 import org.obiba.magma.NoSuchValueSetException;
 import org.obiba.magma.Timestamps;
 import org.obiba.magma.Value;
@@ -33,34 +32,30 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
-public class LimesurveyValueTable extends AbstractValueTable {
+class LimesurveyValueTable extends AbstractValueTable {
 
   private JdbcTemplate jdbcTemplate;
 
   private final Integer sid;
 
-  private String tablePrefix = "";
+  private final String tablePrefix;
 
   private Map<Integer, LimeQuestion> mapQuestions;
 
   private Map<Integer, List<LimeAnswer>> mapAnswers;
 
-  private String iqs;
-
-  public LimesurveyValueTable(Datasource datasource, String name, Integer sid) {
+  LimesurveyValueTable(LimesurveyDatasource datasource, String name, Integer sid, String tablePrefix) {
     super(datasource, name);
-    iqs = ((LimesurveyDatasource) datasource).getIqs();
-    if(datasource.hasAttribute(LimesurveyDatasource.TABLE_PREFIX_KEY)) {
-      this.tablePrefix = datasource.getAttribute(LimesurveyDatasource.TABLE_PREFIX_KEY).getValue().toString();
-    }
+    this.sid = sid;
+    this.tablePrefix = tablePrefix;
+
     LimesurveyVariableEntityProvider provider = new LimesurveyVariableEntityProvider("Participant", datasource, sid);
     provider.setTablePrefix(tablePrefix);
     setVariableEntityProvider(provider);
-    this.sid = sid;
   }
 
-  public LimesurveyValueTable(Datasource datasource, String name, Integer sid, VariableEntityProvider variableEntityProvider) {
-    this(datasource, name, sid);
+  public LimesurveyValueTable(LimesurveyDatasource datasource, String name, Integer sid, String tablePrefix, VariableEntityProvider variableEntityProvider) {
+    this(datasource, name, sid, tablePrefix);
     setVariableEntityProvider(variableEntityProvider);
   }
 
@@ -74,6 +69,10 @@ public class LimesurveyValueTable extends AbstractValueTable {
   @Override
   protected LimesurveyVariableEntityProvider getVariableEntityProvider() {
     return (LimesurveyVariableEntityProvider) super.getVariableEntityProvider();
+  }
+  
+  String quoteIdentifier(String identifier) {
+    return getDatasource().quoteIdentifier(identifier);
   }
 
   private void initialiseVariableValueSources() {
@@ -89,7 +88,7 @@ public class LimesurveyValueTable extends AbstractValueTable {
   private Map<Integer, LimeQuestion> queryQuestions() {
     StringBuilder sqlQuestion = new StringBuilder();
 
-    sqlQuestion.append("SELECT * FROM " + iqs + tablePrefix + "questions" + iqs + " q JOIN " + iqs + tablePrefix + "groups" + iqs + " g ");
+    sqlQuestion.append("SELECT * FROM " + quoteIdentifier(tablePrefix + "questions") + " q JOIN " + quoteIdentifier(tablePrefix + "groups") + " g ");
     sqlQuestion.append("ON (q.gid=g.gid AND q.language=g.language) ");
     sqlQuestion.append("WHERE q.sid=? AND q.type!='X' "); // X are boilerplate questions
     sqlQuestion.append("ORDER BY group_order, question_order ASC ");
@@ -122,7 +121,7 @@ public class LimesurveyValueTable extends AbstractValueTable {
 
   private Map<Integer, List<LimeAnswer>> queryExplicitAnswers(Map<Integer, LimeQuestion> mapQuestions) {
     Map<Integer, List<LimeAnswer>> answers = Maps.newHashMap();
-    String sqlAnswer = "SELECT * FROM " + iqs + tablePrefix + "answers" + iqs + " WHERE qid=? ORDER BY sortorder";
+    String sqlAnswer = "SELECT * FROM " + quoteIdentifier(tablePrefix + "answers") + " WHERE qid=? ORDER BY sortorder";
     for(LimeQuestion question : mapQuestions.values()) {
       SqlRowSet answersRowset = jdbcTemplate.queryForRowSet(sqlAnswer, new Object[] { question.getQid() });
       List<LimeAnswer> answersList = toAnswers(question, answersRowset);
@@ -380,10 +379,6 @@ public class LimesurveyValueTable extends AbstractValueTable {
     return sid;
   }
 
-  public String getIqs() {
-    return iqs;
-  }
-
   public String getTablePrefix() {
     return tablePrefix;
   }
@@ -452,7 +447,7 @@ public class LimesurveyValueTable extends AbstractValueTable {
 
       final String limesurveyVariableField = getLimesurveyVariableField();
       final StringBuilder sql = new StringBuilder();
-      sql.append("SELECT " + iqs + limesurveyVariableField + iqs + " FROM survey_" + table.getSid() + " ");
+      sql.append("SELECT " + quoteIdentifier(limesurveyVariableField) + " FROM survey_" + table.getSid() + " ");
       sql.append("WHERE token IN (:ids) ");
       sql.append("ORDER BY token");
 
