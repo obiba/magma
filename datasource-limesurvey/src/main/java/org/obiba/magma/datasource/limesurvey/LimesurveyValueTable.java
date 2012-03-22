@@ -468,7 +468,9 @@ public class LimesurveyValueTable extends AbstractValueTable {
 
             {
               idsIterator = entities.iterator();
-              rows = jdbcTemplate.queryForRowSet(sql.toString(), parameters);
+              if(Iterables.isEmpty(entities) == false) {
+                rows = jdbcTemplate.queryForRowSet(sql.toString(), parameters);
+              }
             }
 
             @Override
