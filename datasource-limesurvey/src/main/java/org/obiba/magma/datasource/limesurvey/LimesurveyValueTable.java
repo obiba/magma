@@ -70,7 +70,7 @@ class LimesurveyValueTable extends AbstractValueTable {
   protected LimesurveyVariableEntityProvider getVariableEntityProvider() {
     return (LimesurveyVariableEntityProvider) super.getVariableEntityProvider();
   }
-  
+
   String quoteIdentifier(String identifier) {
     return getDatasource().quoteIdentifier(identifier);
   }
@@ -447,7 +447,7 @@ class LimesurveyValueTable extends AbstractValueTable {
 
       final String limesurveyVariableField = getLimesurveyVariableField();
       final StringBuilder sql = new StringBuilder();
-      sql.append("SELECT " + quoteIdentifier(limesurveyVariableField) + " FROM survey_" + table.getSid() + " ");
+      sql.append("SELECT " + quoteIdentifier(limesurveyVariableField) + " FROM " + quoteIdentifier("survey_" + table.getSid()) + " ");
       sql.append("WHERE token IN (:ids) ");
       sql.append("ORDER BY token");
 
