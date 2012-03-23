@@ -6,6 +6,8 @@ import com.google.common.collect.Maps;
 
 public class LimeLocalizableAttributes {
 
+  public static final String LABEL = "label:";
+
   private Map<String, String> attributes = Maps.newHashMap();
 
   private LimeLocalizableAttributes() {
@@ -16,7 +18,7 @@ public class LimeLocalizableAttributes {
   }
 
   public LimeLocalizableAttributes localizableAttribute(String key, String value) {
-    attributes.put("label:" + key, value);
+    attributes.put(LABEL + key, value);
     return this;
   }
 

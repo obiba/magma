@@ -5,7 +5,7 @@ import javax.sql.DataSource;
 import org.apache.commons.dbcp.BasicDataSource;
 import org.junit.Ignore;
 import org.junit.Test;
-
+import org.obiba.magma.support.DatasourceParsingException;
 import test.AbstractMagmaTest;
 
 public class LimesurveyDatasourceMysqlTest extends AbstractMagmaTest {
@@ -18,9 +18,13 @@ public class LimesurveyDatasourceMysqlTest extends AbstractMagmaTest {
   @Test
   @Ignore("cannot run without manual intervention")
   public void testCreateDatasourceFromTestMySqlDatabase() {
-    LimesurveyDatasource limesurveyDatasource = new LimesurveyDatasource("lime", createDataSource());
-    limesurveyDatasource.initialise();
-    DisplayHelper.display(limesurveyDatasource);
+    try {
+      LimesurveyDatasource limesurveyDatasource = new LimesurveyDatasource("lime", createDataSource());
+      limesurveyDatasource.initialise();
+      DisplayHelper.display(limesurveyDatasource);
+    } catch(DatasourceParsingException e) {
+      e.printList();
+    }
   }
 
   public DataSource createDataSource() {

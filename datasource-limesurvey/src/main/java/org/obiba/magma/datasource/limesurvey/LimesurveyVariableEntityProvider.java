@@ -42,7 +42,7 @@ public class LimesurveyVariableEntityProvider extends AbstractVariableEntityProv
       @Override
       public VariableEntity mapRow(ResultSet rs, int rowNum) throws SQLException {
         String entityId = rs.getString("token");
-        return new VariableEntityBean("Participant", entityId);
+        return new VariableEntityBean(LimesurveyValueTable.PARTICIPANT, entityId);
       }
     });
     entities = Sets.newHashSet(entityList);
