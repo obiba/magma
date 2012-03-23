@@ -46,6 +46,15 @@ public class LimesurveyDatasource extends AbstractDatasource {
   @Override
   protected void onInitialise() {
     super.onInitialise();
+    StringBuilder sqlDbVersion = new StringBuilder();
+    sqlDbVersion.append("SELECT stg_value ");
+    sqlDbVersion.append("FROM settings_global ");
+    sqlDbVersion.append("WHERE stg_name='DBVersion'");
+    JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+    String dbVersion = jdbcTemplate.queryForObject(sqlDbVersion.toString(), String.class);
+    if ("146".equals(dbVersion) == false) {
+      throw new MagmaRuntimeException("Limesurvey database version unsupported:" + dbVersion + " only 146 for the moment");
+    }
     try {
       iqs = dataSource.getConnection().getMetaData().getIdentifierQuoteString();
     } catch(SQLException e) {
