@@ -75,9 +75,9 @@ class LimesurveyValueTable extends AbstractValueTable {
     super.initialise();
     initialiseVariableValueSources();
     getVariableEntityProvider().initialise();
-//    if(exception.getChildren().isEmpty() == false) {
-//      throw exception;
-//    }
+    if(exception.getChildren().isEmpty() == false) {
+      throw exception;
+    }
   }
 
   @Override
@@ -306,9 +306,9 @@ class LimesurveyValueTable extends AbstractValueTable {
 
   private void createLimesurveyVariableValueSource(LimesurveyVariableValueSource lvvs) {
     String name = lvvs.getVariable().getName();
-//    if(names.add(name) == false) {
-//      exception.addChild(new LimesurveyParsingException("Duplicate name", "duplicateVariableName",name));
-//    }
+    if(names.add(name) == false) {
+      exception.addChild(new LimesurveyParsingException("Duplicate name", "duplicateVariableName",name));
+    }
     addVariableValueSource(lvvs);
   }
 
