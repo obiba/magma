@@ -4,7 +4,7 @@ import java.util.Map;
 
 public abstract class LimeLocalizableEntity {
 
-  private LimeLocalizableAttributes localizableLabel = LimeLocalizableAttributes.create();
+  private LimeAttributes localizableAttributes = LimeAttributes.create();
 
   public LimeLocalizableEntity() {
   }
@@ -24,12 +24,12 @@ public abstract class LimeLocalizableEntity {
   }
 
   public void addLocalizableAttribute(String key, String value) {
-    localizableLabel.localizableAttribute(key, value);
+    localizableAttributes.localizableAttribute(key, value);
   }
 
-  public Map<String, String> getLocalizableLabel() {
-    return localizableLabel.getAttributes();
+  public Map<String, String> getLocalizableAttributes() {
+    return localizableAttributes.getAttributes();
   }
 
-  public abstract Map<String, LimeLocalizableAttributes> getImplicitLabel();
+  public abstract Map<String, LimeAttributes> getImplicitLabel();
 }

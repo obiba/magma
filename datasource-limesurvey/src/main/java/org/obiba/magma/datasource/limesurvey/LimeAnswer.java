@@ -47,22 +47,22 @@ public class LimeAnswer extends LimeLocalizableEntity implements Comparable<Lime
   }
 
   @Override
-  public Map<String, LimeLocalizableAttributes> getImplicitLabel() {
+  public Map<String, LimeAttributes> getImplicitLabel() {
     return implicitLabels;
   }
 
-  public static Map<String, LimeLocalizableAttributes> implicitLabels = new HashMap<String, LimeLocalizableAttributes>() {
+  public static Map<String, LimeAttributes> implicitLabels = new HashMap<String, LimeAttributes>() {
 
     private static final long serialVersionUID = -4789211495142871372L;
 
     {
-      put("Y", LimeLocalizableAttributes.create().localizableAttribute("en", "Yes").localizableAttribute("fr", "Oui"));
-      put("N", LimeLocalizableAttributes.create().localizableAttribute("en", "No").localizableAttribute("fr", "Non"));
-      put("I", LimeLocalizableAttributes.create().localizableAttribute("en", "Increase").localizableAttribute("fr", "Augmenter"));
-      put("S", LimeLocalizableAttributes.create().localizableAttribute("en", "Same").localizableAttribute("fr", "Sans changement"));
-      put("D", LimeLocalizableAttributes.create().localizableAttribute("en", "Decrease").localizableAttribute("fr", "Diminuer"));
-      put("M", LimeLocalizableAttributes.create().localizableAttribute("en", "Male").localizableAttribute("fr", "Masculin"));
-      put("F", LimeLocalizableAttributes.create().localizableAttribute("en", "Female").localizableAttribute("fr", "Féminin"));
+      put("Y", LimeAttributes.create().localizableAttribute("en", "Yes").localizableAttribute("fr", "Oui"));
+      put("N", LimeAttributes.create().localizableAttribute("en", "No").localizableAttribute("fr", "Non"));
+      put("I", LimeAttributes.create().localizableAttribute("en", "Increase").localizableAttribute("fr", "Augmenter"));
+      put("S", LimeAttributes.create().localizableAttribute("en", "Same").localizableAttribute("fr", "Sans changement"));
+      put("D", LimeAttributes.create().localizableAttribute("en", "Decrease").localizableAttribute("fr", "Diminuer"));
+      put("M", LimeAttributes.create().localizableAttribute("en", "Male").localizableAttribute("fr", "Masculin"));
+      put("F", LimeAttributes.create().localizableAttribute("en", "Female").localizableAttribute("fr", "Féminin"));
     }
   };
 
