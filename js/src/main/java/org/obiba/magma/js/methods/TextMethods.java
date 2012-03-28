@@ -146,7 +146,7 @@ public class TextMethods {
       }
 
       private boolean isDelimiter(char ch, String delimiters) {
-        if(delimiters == null) {
+        if(delimiters == null || delimiters.length() == 0) {
           return Character.isWhitespace(ch);
         }
         for(char delimiter : delimiters.toCharArray()) {
