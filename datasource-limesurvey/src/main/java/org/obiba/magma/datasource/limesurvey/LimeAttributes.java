@@ -11,9 +11,10 @@ public class LimeAttributes {
 
   public static final String LABEL = "label:";
 
-  private Map<String, String> attributes = Maps.newHashMap();
+  private Map<String, String> attributes;
 
   private LimeAttributes() {
+    attributes = Maps.newHashMap();
   }
 
   public static LimeAttributes create() {

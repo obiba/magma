@@ -43,16 +43,15 @@ class LimesurveyValueTable extends AbstractValueTable {
 
   private final String tablePrefix;
 
-  private Map<Integer, LimeQuestion> mapQuestions = Maps.newHashMap();
+  private Map<Integer, LimeQuestion> mapQuestions;
 
-  private Map<Integer, List<LimeAnswer>> mapAnswers = Maps.newHashMap();
+  private Map<Integer, List<LimeAnswer>> mapAnswers;
 
-  private Map<Integer, LimeAttributes> attributes = Maps.newHashMap();
+  private Map<Integer, LimeAttributes> attributes;
 
-  private Set<String> names = Sets.newHashSet();
+  private Set<String> names;
 
-  private LimesurveyParsingException exception = new LimesurveyParsingException("Limesurvey Root Exception",
-      "parentLimeException");
+  private LimesurveyParsingException exception;
 
   LimesurveyValueTable(LimesurveyDatasource datasource, String name, Integer sid, String tablePrefix) {
     super(datasource, name);
@@ -73,6 +72,12 @@ class LimesurveyValueTable extends AbstractValueTable {
   @Override
   public void initialise() {
     super.initialise();
+    mapQuestions = Maps.newHashMap();
+    mapAnswers = Maps.newHashMap();
+    attributes = Maps.newHashMap();
+    names = Sets.newHashSet();
+    exception = new LimesurveyParsingException("Limesurvey Root Exception",
+        "parentLimeException");
     initialiseVariableValueSources();
     getVariableEntityProvider().initialise();
     if(exception.getChildren().isEmpty() == false) {

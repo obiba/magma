@@ -39,16 +39,17 @@ public enum LimesurveyType {
 
   private String label;
 
-  private List<String> answers = Lists.newArrayList();
+  private List<String> answers;
 
   private ValueType type;
 
-  private boolean commentable = false;
+  private boolean commentable;
 
   LimesurveyType(String label, ValueType type, String... answers) {
     this.label = label;
     this.type = type;
     this.answers = Arrays.asList(answers);
+    this.commentable=false;
   }
 
   LimesurveyType(String label, ValueType type, boolean commentable, String... answers) {

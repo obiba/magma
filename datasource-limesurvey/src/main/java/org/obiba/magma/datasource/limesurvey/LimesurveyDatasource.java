@@ -31,7 +31,7 @@ public class LimesurveyDatasource extends AbstractDatasource {
 
   private Map<String, Integer> sids;
 
-  private String iqs = "";
+  private String iqs;
 
   public LimesurveyDatasource(String name, DataSource dataSource) {
     this(name, dataSource, DEFAULT_TABLE_PREFIX);
@@ -40,6 +40,7 @@ public class LimesurveyDatasource extends AbstractDatasource {
   public LimesurveyDatasource(String name, DataSource dataSource, String tablePrefix) {
     super(name, TYPE);
     Preconditions.checkArgument(dataSource != null);
+    iqs = "";
     this.dataSource = dataSource;
     this.tablePrefix = Objects.firstNonNull(tablePrefix, DEFAULT_TABLE_PREFIX);
   }
