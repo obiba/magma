@@ -51,7 +51,7 @@ class LimesurveyValueTable extends AbstractValueTable {
 
   private Set<String> names = Sets.newHashSet();
 
-  private LimesurveyParsingException exception = new LimesurveyParsingException("parent (useless)",
+  private LimesurveyParsingException exception = new LimesurveyParsingException("Limesurvey Root Exception",
       "parentLimeException");
 
   LimesurveyValueTable(LimesurveyDatasource datasource, String name, Integer sid, String tablePrefix) {
