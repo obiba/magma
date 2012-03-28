@@ -458,7 +458,7 @@ public class ValueSequenceMethodsTest extends AbstractJsTest {
 
   @Test
   public void test_join_delimiter_prefix_suffix_empty() {
-    assertJoinIs(Values.asSequence(IntegerType.get()), "', ','[', ']'", TextType.get().valueOf(""));
+    assertJoinIs(Values.asSequence(IntegerType.get(), new Object[] {}), "', ','[', ']'", TextType.get().valueOf(""));
   }
 
   private void assertJoinIs(Value valueToJoin, String args, Value expected) {
@@ -472,6 +472,51 @@ public class ValueSequenceMethodsTest extends AbstractJsTest {
   }
 
   // zip
+  @Test
+  public void test_zip_concat() {
+    assertZipIs(Values.asSequence(IntegerType.get(), 1, 2, 3), "'foo', function(o1,o2) { return o1.concat(o2); }", Values.asSequence(TextType.get(), "1foo", "2foo", "3foo"));
+  }
+
+  @Test
+  public void test_zip_concat_value() {
+    assertZipIs(Values.asSequence(IntegerType.get(), 1, 2, 3), "newValue('foo'), function(o1,o2) { return o1.concat(o2); }", Values.asSequence(TextType.get(), "1foo", "2foo", "3foo"));
+  }
+
+  @Test
+  public void test_zip_concat_value_sequence() {
+    assertZipIs(Values.asSequence(IntegerType.get(), 1, 2, 3), "newValue('foo').push('bar'), function(o1,o2) { return o1.concat(o2); }", Values.asSequence(TextType.get(), "1foo", "2bar", "3null"));
+  }
+
+  @Test
+  public void test_zip_concat_value_sequence_longer() {
+    assertZipIs(Values.asSequence(IntegerType.get(), 1, 2, 3), "newValue('foo').push('bar').push('patate').push('pwel'), function(o1,o2) { return o1.concat(o2); }", Values.asSequence(TextType.get(), "1foo", "2bar", "3patate", "nullpwel"));
+  }
+
+  @Test
+  public void test_zip_concat_empty() {
+    assertZipIs(Values.asSequence(IntegerType.get(), new Object[] {}), "'foo', function(o1,o2) { return o1.concat(o2); }", Values.asSequence(TextType.get(), "nullfoo"));
+  }
+
+  @Test
+  public void test_zip_concat_null() {
+    assertZipIs(IntegerType.get().nullSequence(), "'foo', function(o1,o2) { return o1.concat(o2); }", Values.asSequence(TextType.get(), "nullfoo"));
+  }
+
+  @Test
+  public void test_zip_plus() {
+    assertZipIs(Values.asSequence(IntegerType.get(), 1, 2, 3), "1, function(o1,o2) { return o1.plus(o2); }", Values.asSequence(IntegerType.get(), 2, 3, 4));
+  }
+
+  private void assertZipIs(Value valueToZip, String args, Value expected) {
+    ScriptableValue result = super.evaluate("zip(" + args + ")", valueToZip);
+    Assert.assertNotNull(result);
+    if(expected.isNull()) {
+      Assert.assertTrue(result.getValue().isNull());
+    } else {
+      Assert.assertTrue(result.getValue().isSequence());
+      Assert.assertTrue(Iterables.elementsEqual(result.getValue().asSequence().getValue(), expected.asSequence().getValue()));
+    }
+  }
 
   @SuppressWarnings("serial")
   private class MyScriptableValueCustomSortAsc extends ScriptableValue {

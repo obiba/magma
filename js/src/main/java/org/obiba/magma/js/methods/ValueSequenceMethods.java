@@ -201,10 +201,10 @@ public class ValueSequenceMethods {
       return sv;
     }
   }
-  
+
   /**
-   * Returns the standard deviation of the {@link Value}s contained in the {@link ValueSequence}. Returns null if the operand is
-   * null or the ValueSequence is empty or contains at least one null value or a non-numeric value.
+   * Returns the standard deviation of the {@link Value}s contained in the {@link ValueSequence}. Returns null if the
+   * operand is null or the ValueSequence is empty or contains at least one null value or a non-numeric value.
    * 
    * <pre>
    *   $('SequenceVar').stddev()
@@ -228,6 +228,7 @@ public class ValueSequenceMethods {
       return new ScriptableValue(thisObj, DecimalType.get().valueOf(0), sv.getUnit());
     }
   }
+
   /**
    * Returns the sum of the {@link Value}s contained in the {@link ValueSequence}. Returns null if the operand is null
    * or the ValueSequence is empty or contains at least one null value. This method throws an exception if the operand
@@ -322,23 +323,21 @@ public class ValueSequenceMethods {
     }
 
     // Extract values, the transformation function and the max sequence length
+
     List<Object> values = new ArrayList<Object>();
     values.add(sv.getValue());
+    int length = getValueSize(sv.getValue());
     Function func = null;
-    int length = 0;
     for(Object arg : args) {
       if(arg instanceof ScriptableValue) {
         Value value = ((ScriptableValue) arg).getValue();
         values.add(value);
-        int size = value.isNull() ? 0 : 1;
-        if(value.isNull() == false && value.isSequence()) {
-          size = value.asSequence().getSize();
-        }
-        length = Math.max(length, size);
+        length = Math.max(length, getValueSize(value));
       } else if(arg instanceof Function) {
         func = (Function) arg;
-      } else {
+      } else if(arg != null) {
         values.add(arg);
+        length = Math.max(length, 1);
       }
     }
 
@@ -347,7 +346,7 @@ public class ValueSequenceMethods {
     }
 
     if(length == 0) {
-      return new ScriptableValue(sv, sv.getValueType().nullValue());
+      return new ScriptableValue(sv, sv.getValueType().nullSequence());
     }
 
     // Transform value tuples to build a value sequence
@@ -360,6 +359,14 @@ public class ValueSequenceMethods {
     }
 
     return new ScriptableValue(sv, rValueType.sequenceOf(rvalues));
+  }
+
+  private static int getValueSize(Value value) {
+    int size = value.isNull() ? 0 : 1;
+    if(value.isNull() == false && value.isSequence()) {
+      size = value.asSequence().getSize();
+    }
+    return size;
   }
 
   private static Value asValue(Object obj) {
