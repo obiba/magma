@@ -425,6 +425,54 @@ public class ValueSequenceMethodsTest extends AbstractJsTest {
     }
   }
 
+  // join
+  @Test
+  public void test_join() {
+    assertJoinIs(Values.asSequence(IntegerType.get(), 1, 2, 3), "", TextType.get().valueOf("123"));
+  }
+
+  @Test
+  public void test_join_not_a_sequence() {
+    assertJoinIs(IntegerType.get().valueOf(1), "', ','[', ']'", TextType.get().valueOf("[1]"));
+  }
+
+  @Test
+  public void test_join_null() {
+    assertJoinIs(IntegerType.get().nullSequence(), "", TextType.get().nullValue());
+  }
+
+  @Test
+  public void test_join_delimiter() {
+    assertJoinIs(Values.asSequence(IntegerType.get(), 1, 2, 3), "', '", TextType.get().valueOf("1, 2, 3"));
+  }
+
+  @Test
+  public void test_join_delimiter_prefix() {
+    assertJoinIs(Values.asSequence(IntegerType.get(), 1, 2, 3), "', ','=> '", TextType.get().valueOf("=> 1, 2, 3"));
+  }
+
+  @Test
+  public void test_join_delimiter_prefix_suffix() {
+    assertJoinIs(Values.asSequence(IntegerType.get(), 1, 2, 3), "', ','[', ']'", TextType.get().valueOf("[1, 2, 3]"));
+  }
+
+  @Test
+  public void test_join_delimiter_prefix_suffix_empty() {
+    assertJoinIs(Values.asSequence(IntegerType.get()), "', ','[', ']'", TextType.get().valueOf(""));
+  }
+
+  private void assertJoinIs(Value valueToJoin, String args, Value expected) {
+    ScriptableValue result = super.evaluate("join(" + args + ")", valueToJoin);
+    Assert.assertNotNull(result);
+    if(expected.isNull()) {
+      Assert.assertTrue(result.getValue().isNull());
+    } else {
+      Assert.assertEquals(expected.getValue(), result.getValue().getValue());
+    }
+  }
+
+  // zip
+
   @SuppressWarnings("serial")
   private class MyScriptableValueCustomSortAsc extends ScriptableValue {
 
