@@ -25,6 +25,86 @@ public class TextMethodsTest extends AbstractJsTest {
   }
 
   @Test
+  public void testTrimValueSequence() {
+    ScriptableValue value = newValue(TextType.get().sequenceOf("\" Value1  \",\"  Value2   \""));
+    ScriptableValue result = TextMethods.trim(Context.getCurrentContext(), value, null, null);
+    Assert.assertNotNull(result);
+    Assert.assertEquals(2, result.getValue().asSequence().getSize());
+    Assert.assertEquals(TextType.get().valueOf("Value1"), result.getValue().asSequence().get(0));
+    Assert.assertEquals(TextType.get().valueOf("Value2"), result.getValue().asSequence().get(1));
+  }
+
+  @Test
+  public void testUpperCase() {
+    ScriptableValue value = newValue(TextType.get().valueOf("value"));
+    ScriptableValue result = TextMethods.upperCase(Context.getCurrentContext(), value, null, null);
+    Assert.assertNotNull(result);
+    Assert.assertEquals(TextType.get().valueOf("VALUE"), result.getValue());
+  }
+
+  @Test
+  public void testUpperCaseWithLocale() {
+    ScriptableValue value = newValue(TextType.get().valueOf("français"));
+    ScriptableValue result = TextMethods.upperCase(Context.getCurrentContext(), value, new Object[] { "fr" }, null);
+    Assert.assertNotNull(result);
+    Assert.assertEquals(TextType.get().valueOf("FRANÇAIS"), result.getValue());
+  }
+
+  @Test
+  public void testUpperCaseValueSequence() {
+    ScriptableValue value = newValue(TextType.get().sequenceOf("\"Value1\",\"Value2\""));
+    ScriptableValue result = TextMethods.upperCase(Context.getCurrentContext(), value, null, null);
+    Assert.assertNotNull(result);
+    Assert.assertEquals(2, result.getValue().asSequence().getSize());
+    Assert.assertEquals(TextType.get().valueOf("VALUE1"), result.getValue().asSequence().get(0));
+    Assert.assertEquals(TextType.get().valueOf("VALUE2"), result.getValue().asSequence().get(1));
+  }
+
+  @Test
+  public void testLowerCase() {
+    ScriptableValue value = newValue(TextType.get().valueOf("VALUE"));
+    ScriptableValue result = TextMethods.lowerCase(Context.getCurrentContext(), value, null, null);
+    Assert.assertNotNull(result);
+    Assert.assertEquals(TextType.get().valueOf("value"), result.getValue());
+  }
+
+  @Test
+  public void testLowerCaseValueSequence() {
+    ScriptableValue value = newValue(TextType.get().sequenceOf("\"Value1\",\"Value2\""));
+    ScriptableValue result = TextMethods.lowerCase(Context.getCurrentContext(), value, null, null);
+    Assert.assertNotNull(result);
+    Assert.assertEquals(2, result.getValue().asSequence().getSize());
+    Assert.assertEquals(TextType.get().valueOf("value1"), result.getValue().asSequence().get(0));
+    Assert.assertEquals(TextType.get().valueOf("value2"), result.getValue().asSequence().get(1));
+  }
+
+  @Test
+  public void testCapitalize() {
+    ScriptableValue value = newValue(TextType.get().valueOf("  évalue foo bar"));
+    ScriptableValue result = TextMethods.capitalize(Context.getCurrentContext(), value, null, null);
+    Assert.assertNotNull(result);
+    Assert.assertEquals(TextType.get().valueOf("  Évalue Foo Bar"), result.getValue());
+  }
+
+  @Test
+  public void testCapitalizeWithDelimiters() {
+    ScriptableValue value = newValue(TextType.get().valueOf("value:foo;bar_patate (toto) one"));
+    ScriptableValue result = TextMethods.capitalize(Context.getCurrentContext(), value, new String[] { ":", ";_", "(" }, null);
+    Assert.assertNotNull(result);
+    Assert.assertEquals(TextType.get().valueOf("Value:Foo;Bar_Patate (Toto) one"), result.getValue());
+  }
+
+  @Test
+  public void testCapitalizeValueSequence() {
+    ScriptableValue value = newValue(TextType.get().sequenceOf("\"value1\",\"value2\""));
+    ScriptableValue result = TextMethods.capitalize(Context.getCurrentContext(), value, null, null);
+    Assert.assertNotNull(result);
+    Assert.assertEquals(2, result.getValue().asSequence().getSize());
+    Assert.assertEquals(TextType.get().valueOf("Value1"), result.getValue().asSequence().get(0));
+    Assert.assertEquals(TextType.get().valueOf("Value2"), result.getValue().asSequence().get(1));
+  }
+
+  @Test
   public void testReplace() {
     ScriptableValue value = newValue(TextType.get().valueOf("H2R 2E1"));
     ScriptableValue result = TextMethods.replace(Context.getCurrentContext(), value, new Object[] { " 2E1", "" }, null);
