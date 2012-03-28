@@ -1,22 +1,23 @@
 package org.obiba.magma.datasource.limesurvey;
 
+import javax.sql.DataSource;
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
-import javax.sql.DataSource;
-
-import org.obiba.magma.MagmaRuntimeException;
-import org.obiba.magma.ValueTable;
-import org.obiba.magma.support.AbstractDatasource;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.support.rowset.SqlRowSet;
-
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import org.obiba.magma.MagmaRuntimeException;
+import org.obiba.magma.ValueTable;
+import org.obiba.magma.support.AbstractDatasource;
+import org.springframework.dao.DataAccessException;
+import org.springframework.jdbc.core.ConnectionCallback;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.support.rowset.SqlRowSet;
 
 public class LimesurveyDatasource extends AbstractDatasource {
 
@@ -52,14 +53,16 @@ public class LimesurveyDatasource extends AbstractDatasource {
     sqlDbVersion.append("WHERE stg_name='DBVersion'");
     JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
     String dbVersion = jdbcTemplate.queryForObject(sqlDbVersion.toString(), String.class);
-    if ("146".equals(dbVersion) == false) {
-      throw new MagmaRuntimeException("Limesurvey database version unsupported:" + dbVersion + " only 146 for the moment");
+    if("146".equals(dbVersion) == false) {
+      throw new MagmaRuntimeException(
+          "Limesurvey database version unsupported:" + dbVersion + " only 146 for the moment");
     }
-    try {
-      iqs = dataSource.getConnection().getMetaData().getIdentifierQuoteString();
-    } catch(SQLException e) {
-      throw new MagmaRuntimeException(e);
-    }
+    iqs = jdbcTemplate.execute(new ConnectionCallback<String>() {
+      @Override
+      public String doInConnection(Connection con) throws SQLException, DataAccessException {
+        return con.getMetaData().getIdentifierQuoteString();
+      }
+    });
     if(tablePrefix.contains(iqs)) {
       throw new MagmaRuntimeException("you can not use '" + iqs + "' character in '" + tablePrefix + "'");
     }
@@ -70,7 +73,8 @@ public class LimesurveyDatasource extends AbstractDatasource {
     JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
     StringBuilder sql = new StringBuilder();
     sql.append("SELECT s.sid, sls.surveyls_title ");
-    sql.append("FROM " + quoteIdentifier(tablePrefix + "surveys") + " s JOIN " + quoteIdentifier(tablePrefix + "surveys_languagesettings") + " sls ");
+    sql.append("FROM " + quoteIdentifier(tablePrefix + "surveys") + " s JOIN " + quoteIdentifier(
+        tablePrefix + "surveys_languagesettings") + " sls ");
     sql.append("ON (s.sid=sls.surveyls_survey_id AND s.language=sls.surveyls_language) ");
 
     Set<String> names = Sets.newLinkedHashSet();
