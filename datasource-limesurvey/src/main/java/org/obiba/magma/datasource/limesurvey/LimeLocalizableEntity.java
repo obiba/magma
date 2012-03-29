@@ -2,14 +2,18 @@ package org.obiba.magma.datasource.limesurvey;
 
 import java.util.Map;
 
+import org.obiba.magma.Attribute;
+
 public abstract class LimeLocalizableEntity {
 
-  private LimeAttributes localizableAttributes = LimeAttributes.create();
+  private LimeAttributes localizableAttributes;
 
   public LimeLocalizableEntity() {
+    localizableAttributes = LimeAttributes.create();
   }
 
   public LimeLocalizableEntity(String name) {
+    this();
     this.name = name;
   }
 
@@ -23,12 +27,12 @@ public abstract class LimeLocalizableEntity {
     this.name = name;
   }
 
-  public void addLocalizableAttribute(String key, String value) {
-    localizableAttributes.localizableAttribute(key, value);
+  public Iterable<Attribute> getMagmaAttributes() {
+    return localizableAttributes.toMagmaAttributes();
   }
 
-  public Map<String, String> getLocalizableAttributes() {
-    return localizableAttributes.getAttributes();
+  public void addLocalizableLabelAttribute(String key, String value) {
+    localizableAttributes.localizableAttribute(key, value);
   }
 
   public abstract Map<String, LimeAttributes> getImplicitLabel();

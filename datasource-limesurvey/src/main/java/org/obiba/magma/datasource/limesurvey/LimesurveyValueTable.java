@@ -13,6 +13,7 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import org.obiba.magma.Attribute;
 import org.obiba.magma.AttributeAwareBuilder;
 import org.obiba.magma.Category;
 import org.obiba.magma.NoSuchValueSetException;
@@ -140,7 +141,7 @@ class LimesurveyValueTable extends AbstractValueTable {
       String language = rows.getString("language");
       if(mapQuestions.containsKey(qid)) {
         LimeQuestion question = mapQuestions.get(qid);
-        question.addLocalizableAttribute(language, rows.getString("question"));
+        question.addLocalizableLabelAttribute(language, rows.getString("question"));
       } else {
         LimeQuestion question = LimeQuestion.create();
         question.setName(rows.getString("title"));
@@ -148,7 +149,7 @@ class LimesurveyValueTable extends AbstractValueTable {
         question.setGroupId(rows.getInt("gid"));
         question.setParentQid(rows.getInt("parent_qid"));
         question.setType(LimesurveyType._valueOf(rows.getString("type")));
-        question.addLocalizableAttribute(language, rows.getString("question"));
+        question.addLocalizableLabelAttribute(language, rows.getString("question"));
         question.setUseOther("Y".equals(rows.getString("other")));
         question.setScaleId(rows.getInt("scale_id"));
         mapQuestions.put(qid, question);
@@ -176,12 +177,12 @@ class LimesurveyValueTable extends AbstractValueTable {
       Integer scaleId = rows.getInt("scale_id");
       if(internAnswers.containsKey(answerName + scaleId)) {
         LimeAnswer answer = internAnswers.get(answerName + scaleId);
-        answer.addLocalizableAttribute(language, label);
+        answer.addLocalizableLabelAttribute(language, label);
       } else {
         LimeAnswer answer = LimeAnswer.create(answerName);
         answer.setSortorder(rows.getInt("sortorder"));
         answer.setScaleId(rows.getInt("scale_id"));
-        answer.addLocalizableAttribute(language, label);
+        answer.addLocalizableLabelAttribute(language, label);
         internAnswers.put(answerName + scaleId, answer);
         answers.add(answer);
       }
@@ -258,16 +259,16 @@ class LimesurveyValueTable extends AbstractValueTable {
 
   private void buildLabelAttributes(LimeLocalizableEntity localizable, AttributeAwareBuilder<?> builder) {
     applyImplicitLabel(localizable, builder);
-    for(Map.Entry<String, String> attr : localizable.getLocalizableAttributes().entrySet()) {
-      builder.addAttribute(attr.getKey(), attr.getValue());
+    for(Attribute attr : localizable.getMagmaAttributes()) {
+      builder.addAttribute(attr);
     }
   }
 
   private void applyImplicitLabel(LimeLocalizableEntity localizable, AttributeAwareBuilder<?> builder) {
     LimeAttributes lla = localizable.getImplicitLabel().get(localizable.getName());
     if(lla != null) {
-      for(Map.Entry<String, String> attrs : lla.getAttributes().entrySet()) {
-        builder.addAttribute(attrs.getKey(), attrs.getValue());
+      for(Attribute attr : lla.toMagmaAttributes()) {
+        builder.addAttribute(attr);
       }
     }
   }
@@ -377,8 +378,8 @@ class LimesurveyValueTable extends AbstractValueTable {
    * @param specialLabel
    */
   private void buildSpecialLabel(LimeQuestion question, Builder builder, String specialLabel) {
-    for(Map.Entry<String, String> attrs : question.getImplicitLabel().get(specialLabel).getAttributes().entrySet()) {
-      builder.addAttribute(attrs.getKey(), attrs.getValue());
+    for(Attribute attr : question.getImplicitLabel().get(specialLabel).toMagmaAttributes()) {
+      builder.addAttribute(attr);
     }
   }
 
