@@ -22,10 +22,6 @@ public class LimeQuestion extends LimeLocalizableEntity {
     super();
   }
 
-  private LimeQuestion(String name) {
-    super(name);
-  }
-
   public static LimeQuestion create() {
     return new LimeQuestion();
   }

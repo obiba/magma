@@ -44,7 +44,7 @@ public class DisplayHelper {
           System.out.print(attr.getName() + (attr.getLocale() != null ? attr.getLocale().toString() : "") + "=" + attr
               .getValue() + ", ");
         }
-        System.out.println(lvv.getLimesurveyVariableField());
+        System.out.println();
         for(Category c : v.getCategories()) {
           System.out.print("    Cat '" + c.getName() + "' ");
           for(Attribute attr : c.getAttributes()) {
