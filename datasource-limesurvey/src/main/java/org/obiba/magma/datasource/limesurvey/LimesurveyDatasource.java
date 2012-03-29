@@ -81,9 +81,9 @@ public class LimesurveyDatasource extends AbstractDatasource {
     Set<String> names = Sets.newLinkedHashSet();
     sids = Maps.newHashMap();
     SqlRowSet rows = jdbcTemplate.queryForRowSet(sql.toString());
-
     while(rows.next()) {
-      String title = rows.getString("surveyls_title");
+      String title = LimesurveyUtils.toValidMagmaName(rows.getString("surveyls_title"));
+      title = LimesurveyUtils.removeSlashes(title);
       names.add(title);
       sids.put(title, rows.getInt("sid"));
     }
