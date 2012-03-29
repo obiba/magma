@@ -74,8 +74,8 @@ public class LimesurveyDatasource extends AbstractDatasource {
     JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
     StringBuilder sql = new StringBuilder();
     sql.append("SELECT s.sid, sls.surveyls_title ");
-    sql.append("FROM " + quoteIdentifier(tablePrefix + "surveys") + " s JOIN " + quoteIdentifier(
-        tablePrefix + "surveys_languagesettings") + " sls ");
+    sql.append("FROM " + quoteAndPrefix("surveys") + " s JOIN " + quoteAndPrefix(
+        "surveys_languagesettings") + " sls ");
     sql.append("ON (s.sid=sls.surveyls_survey_id AND s.language=sls.surveyls_language) ");
 
     Set<String> names = Sets.newLinkedHashSet();
@@ -92,15 +92,15 @@ public class LimesurveyDatasource extends AbstractDatasource {
 
   @Override
   protected ValueTable initialiseValueTable(String tableName) {
-    return new LimesurveyValueTable(this, tableName, sids.get(tableName), tablePrefix);
+    return new LimesurveyValueTable(this, tableName, sids.get(tableName));
   }
 
   DataSource getDataSource() {
     return dataSource;
   }
 
-  String quoteIdentifier(String identifier) {
-    return iqs + identifier + iqs;
+  String quoteAndPrefix(String identifier) {
+    return iqs + tablePrefix + identifier + iqs;
   }
 
 }

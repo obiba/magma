@@ -29,7 +29,7 @@ public class LimesurveyTimestamps implements Timestamps {
     JdbcTemplate jdbcTemplate = new JdbcTemplate(limesurveyValueTable.getDatasource().getDataSource());
     StringBuilder sql = new StringBuilder();
     sql.append("SELECT " + sqlOperator + "(submitdate) ");
-    sql.append("FROM " + limesurveyValueTable.quoteIdentifier(limesurveyValueTable.getTablePrefix() + "survey_" + limesurveyValueTable.getSid()));
+    sql.append("FROM " + limesurveyValueTable.quoteAndPrefix("survey_" + limesurveyValueTable.getSid()));
     Date lastUpdateDate = jdbcTemplate.queryForObject(sql.toString(), Date.class);
     return DateTimeType.get().valueOf(lastUpdateDate);
   }

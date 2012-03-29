@@ -42,8 +42,6 @@ class LimesurveyValueTable extends AbstractValueTable {
 
   private final Integer sid;
 
-  private final String tablePrefix;
-
   private Map<Integer, LimeQuestion> mapQuestions;
 
   private Map<Integer, List<LimeAnswer>> mapAnswers;
@@ -54,19 +52,17 @@ class LimesurveyValueTable extends AbstractValueTable {
 
   private LimesurveyParsingException exception;
 
-  LimesurveyValueTable(LimesurveyDatasource datasource, String name, Integer sid, String tablePrefix) {
+  LimesurveyValueTable(LimesurveyDatasource datasource, String name, Integer sid) {
     super(datasource, name);
     this.sid = sid;
-    this.tablePrefix = tablePrefix;
 
     LimesurveyVariableEntityProvider provider = new LimesurveyVariableEntityProvider(PARTICIPANT, datasource, sid);
-    provider.setTablePrefix(tablePrefix);
     setVariableEntityProvider(provider);
   }
 
-  public LimesurveyValueTable(LimesurveyDatasource datasource, String name, Integer sid, String tablePrefix,
+  public LimesurveyValueTable(LimesurveyDatasource datasource, String name, Integer sid,
       VariableEntityProvider variableEntityProvider) {
-    this(datasource, name, sid, tablePrefix);
+    this(datasource, name, sid);
     setVariableEntityProvider(variableEntityProvider);
   }
 
@@ -91,8 +87,8 @@ class LimesurveyValueTable extends AbstractValueTable {
     return (LimesurveyVariableEntityProvider) super.getVariableEntityProvider();
   }
 
-  String quoteIdentifier(String identifier) {
-    return getDatasource().quoteIdentifier(identifier);
+  String quoteAndPrefix(String identifier) {
+    return getDatasource().quoteAndPrefix(identifier);
   }
 
   private void initialiseVariableValueSources() {
@@ -125,8 +121,8 @@ class LimesurveyValueTable extends AbstractValueTable {
 
   private void queryQuestions() {
     StringBuilder sqlQuestion = new StringBuilder();
-    sqlQuestion.append("SELECT * FROM " + quoteIdentifier(tablePrefix + "questions") + " q JOIN " + quoteIdentifier(
-        tablePrefix + "groups") + " g ");
+    sqlQuestion.append("SELECT * FROM " + quoteAndPrefix("questions") + " q JOIN " + quoteAndPrefix(
+        "groups") + " g ");
     sqlQuestion.append("ON (q.gid=g.gid AND q.language=g.language) ");
     sqlQuestion.append("WHERE q.sid=? AND q.type!='X' "); // X are boilerplate questions
     sqlQuestion.append("ORDER BY group_order, question_order ASC ");
@@ -159,7 +155,7 @@ class LimesurveyValueTable extends AbstractValueTable {
   }
 
   private void queryExplicitAnswers() {
-    String sqlAnswer = "SELECT * FROM " + quoteIdentifier(tablePrefix + "answers") + " WHERE qid=? ORDER BY sortorder";
+    String sqlAnswer = "SELECT * FROM " + quoteAndPrefix("answers") + " WHERE qid=? ORDER BY sortorder";
     for(LimeQuestion question : mapQuestions.values()) {
       SqlRowSet answersRowset = jdbcTemplate.queryForRowSet(sqlAnswer, question.getQid());
       List<LimeAnswer> answersList = toAnswers(question, answersRowset);
@@ -439,10 +435,6 @@ class LimesurveyValueTable extends AbstractValueTable {
     return sid;
   }
 
-  public String getTablePrefix() {
-    return tablePrefix;
-  }
-
   @Override
   public ValueSet getValueSet(VariableEntity entity) throws NoSuchValueSetException {
     return new LimesurveyValueSet(this, entity);
@@ -464,7 +456,7 @@ class LimesurveyValueTable extends AbstractValueTable {
     public LimesurveyVariableValueSource(Builder vb, LimeQuestion question, String subQuestionFieldTitle) {
       this.question = question;
       this.subQuestionFieldTitle = subQuestionFieldTitle;
-      vb.addAttribute("LimeSurveyVariable",getLimesurveyVariableField());
+      vb.addAttribute("LimeSurveyVariable", getLimesurveyVariableField());
       this.variable = vb.build();
     }
 
@@ -504,7 +496,7 @@ class LimesurveyValueTable extends AbstractValueTable {
 
       final String limesurveyVariableField = getLimesurveyVariableField();
       final StringBuilder sql = new StringBuilder();
-      sql.append("SELECT " + quoteIdentifier(limesurveyVariableField) + " FROM " + quoteIdentifier(
+      sql.append("SELECT " + quoteAndPrefix(limesurveyVariableField) + " FROM " + quoteAndPrefix(
           "survey_" + table.getSid()) + " ");
       sql.append("WHERE token IN (:ids) ");
       sql.append("ORDER BY token");

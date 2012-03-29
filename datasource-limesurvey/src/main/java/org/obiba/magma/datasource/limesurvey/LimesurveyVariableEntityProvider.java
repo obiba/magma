@@ -7,6 +7,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import com.google.common.collect.Sets;
 import org.obiba.magma.Datasource;
 import org.obiba.magma.Initialisable;
 import org.obiba.magma.VariableEntity;
@@ -15,13 +16,9 @@ import org.obiba.magma.support.VariableEntityBean;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 
-import com.google.common.collect.Sets;
-
 public class LimesurveyVariableEntityProvider extends AbstractVariableEntityProvider implements Initialisable {
 
   private HashSet<VariableEntity> entities;
-
-  private String tablePrefix;
 
   private final Integer sid;
 
@@ -35,7 +32,8 @@ public class LimesurveyVariableEntityProvider extends AbstractVariableEntityProv
 
   @Override
   public void initialise() {
-    String sqlEntities = "SELECT " + datasource.quoteIdentifier(tablePrefix + "token") + " FROM " + datasource.quoteIdentifier("survey_" + sid);
+    String sqlEntities = "SELECT " + datasource.quoteAndPrefix("token") + " FROM " + datasource
+        .quoteAndPrefix("survey_" + sid);
     JdbcTemplate jdbcTemplate = new JdbcTemplate(datasource.getDataSource());
     List<VariableEntity> entityList = jdbcTemplate.query(sqlEntities, new RowMapper<VariableEntity>() {
 
@@ -46,10 +44,6 @@ public class LimesurveyVariableEntityProvider extends AbstractVariableEntityProv
       }
     });
     entities = Sets.newHashSet(entityList);
-  }
-
-  public void setTablePrefix(String tablePrefix) {
-    this.tablePrefix = tablePrefix;
   }
 
   @Override
