@@ -310,8 +310,8 @@ class LimesurveyValueTable extends AbstractValueTable {
     String name = lvvs.getVariable().getName();
     if(names.add(name) == false) {
       exception.addChild(
-          new LimesurveyParsingException(name + " is defined several times in '" + getName() + "' survey",
-              "LimeDuplicateVariableName", name, getName()));
+          new LimesurveyParsingException("'" + getName() + "' contains duplicated variable names: " + name,
+              "LimeDuplicateVariableName", getName(), name));
     }
     addVariableValueSource(lvvs);
   }
