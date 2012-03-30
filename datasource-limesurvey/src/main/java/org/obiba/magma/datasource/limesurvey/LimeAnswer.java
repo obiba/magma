@@ -56,10 +56,12 @@ public class LimeAnswer extends LimeLocalizableEntity implements Comparable<Lime
     private static final long serialVersionUID = -4789211495142871372L;
 
     {
+      put("-oth-", LimeAttributes.create().localizableAttribute("en", "Other").localizableAttribute("fr", "Autre"));
       put("Y", LimeAttributes.create().localizableAttribute("en", "Yes").localizableAttribute("fr", "Oui"));
       put("N", LimeAttributes.create().localizableAttribute("en", "No").localizableAttribute("fr", "Non"));
       put("I", LimeAttributes.create().localizableAttribute("en", "Increase").localizableAttribute("fr", "Augmenter"));
-      put("S", LimeAttributes.create().localizableAttribute("en", "Same").localizableAttribute("fr", "Sans changement"));
+      put("S",
+          LimeAttributes.create().localizableAttribute("en", "Same").localizableAttribute("fr", "Sans changement"));
       put("D", LimeAttributes.create().localizableAttribute("en", "Decrease").localizableAttribute("fr", "Diminuer"));
       put("M", LimeAttributes.create().localizableAttribute("en", "Male").localizableAttribute("fr", "Masculin"));
       put("F", LimeAttributes.create().localizableAttribute("en", "Female").localizableAttribute("fr", "Féminin"));
