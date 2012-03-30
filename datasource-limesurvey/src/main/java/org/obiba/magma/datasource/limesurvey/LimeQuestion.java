@@ -81,11 +81,10 @@ public class LimeQuestion extends LimeLocalizableEntity {
   @Override
   public Map<String, LimeAttributes> getImplicitLabel() {
     return new HashMap<String, LimeAttributes>() {
-
-      private static final long serialVersionUID = -4789211495142871372L;
       {
         put("other", LimeAttributes.create().localizableAttribute("en", "Other").localizableAttribute("fr", "Autre"));
-        put("comment", LimeAttributes.create().localizableAttribute("en", "Comment").localizableAttribute("fr", "Commentaire"));
+        put("comment",
+            LimeAttributes.create().localizableAttribute("en", "Comment").localizableAttribute("fr", "Commentaire"));
       }
     };
   }
