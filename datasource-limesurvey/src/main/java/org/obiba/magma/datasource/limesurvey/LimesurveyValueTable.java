@@ -11,7 +11,6 @@ import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import org.obiba.magma.Attribute;
 import org.obiba.magma.AttributeAwareBuilder;
@@ -27,9 +26,7 @@ import org.obiba.magma.VariableEntity;
 import org.obiba.magma.VariableValueSource;
 import org.obiba.magma.VectorSource;
 import org.obiba.magma.support.AbstractValueTable;
-import org.obiba.magma.support.VariableEntityProvider;
 import org.obiba.magma.type.IntegerType;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
@@ -38,40 +35,31 @@ class LimesurveyValueTable extends AbstractValueTable {
 
   public static final String PARTICIPANT = "Participant";
 
-  private JdbcTemplate jdbcTemplate;
-
   private final Integer sid;
 
   private Map<Integer, LimeQuestion> mapQuestions;
 
   private Map<Integer, List<LimeAnswer>> mapAnswers;
 
-  private Map<Integer, LimeAttributes> attributes;
+  private Map<Integer, LimeAttributes> mapAttributes;
 
   private Set<String> names;
 
   private LimesurveyParsingException exception;
 
+  private LimesurveyElementProvider elementProvider;
+
   LimesurveyValueTable(LimesurveyDatasource datasource, String name, Integer sid) {
     super(datasource, name);
     this.sid = sid;
-
+    elementProvider = new LimesurveyElementProviderJdbc(datasource, sid);
     LimesurveyVariableEntityProvider provider = new LimesurveyVariableEntityProvider(PARTICIPANT, datasource, sid);
     setVariableEntityProvider(provider);
-  }
-
-  public LimesurveyValueTable(LimesurveyDatasource datasource, String name, Integer sid,
-      VariableEntityProvider variableEntityProvider) {
-    this(datasource, name, sid);
-    setVariableEntityProvider(variableEntityProvider);
   }
 
   @Override
   public void initialise() {
     super.initialise();
-    mapQuestions = Maps.newHashMap();
-    mapAnswers = Maps.newHashMap();
-    attributes = Maps.newHashMap();
     names = Sets.newHashSet();
     exception = new LimesurveyParsingException("Limesurvey Root Exception",
         "parentLimeException");
@@ -93,101 +81,11 @@ class LimesurveyValueTable extends AbstractValueTable {
 
   private void initialiseVariableValueSources() {
     getSources().clear();
-    jdbcTemplate = new JdbcTemplate(getDatasource().getDataSource());
-    queryQuestions();
-    queryExplicitAnswers();
+    mapQuestions = elementProvider.queryQuestions();
+    mapAnswers = elementProvider.queryExplicitAnswers();
     buildImplicitAnswers();
-    queryAttributes();
+    mapAttributes = elementProvider.queryAttributes();
     buildVariables();
-  }
-
-  private void queryAttributes() {
-    StringBuilder sqlAttr = new StringBuilder();
-    sqlAttr.append("SELECT qid, attribute, value ");
-    sqlAttr.append("FROM question_attributes ");
-    SqlRowSet sqlRowSet = jdbcTemplate.queryForRowSet(sqlAttr.toString());
-    while(sqlRowSet.next()) {
-      int qid = sqlRowSet.getInt("qid");
-      String key = sqlRowSet.getString("attribute");
-      String value = sqlRowSet.getString("value");
-      if(attributes.containsKey(qid)) {
-        attributes.get(qid).attribute(key, value);
-      } else {
-        attributes.put(qid, LimeAttributes.create().attribute(key, value));
-      }
-    }
-
-  }
-
-  private void queryQuestions() {
-    StringBuilder sqlQuestion = new StringBuilder();
-    sqlQuestion.append("SELECT * FROM " + quoteAndPrefix("questions") + " q JOIN " + quoteAndPrefix(
-        "groups") + " g ");
-    sqlQuestion.append("ON (q.gid=g.gid AND q.language=g.language) ");
-    sqlQuestion.append("WHERE q.sid=? AND q.type!='X' "); // X are boilerplate questions
-    sqlQuestion.append("ORDER BY group_order, question_order ASC ");
-    SqlRowSet questionsRowSet = jdbcTemplate.queryForRowSet(sqlQuestion.toString(), sid);
-
-    toQuestions(questionsRowSet);
-  }
-
-  private Map<Integer, LimeQuestion> toQuestions(SqlRowSet rows) {
-    while(rows.next()) {
-      int qid = rows.getInt("qid");
-      String language = rows.getString("language");
-      if(mapQuestions.containsKey(qid)) {
-        LimeQuestion question = mapQuestions.get(qid);
-        question.addLocalizableLabelAttribute(language, rows.getString("question"));
-      } else {
-        LimeQuestion question = LimeQuestion.create();
-        question.setName(rows.getString("title"));
-        question.setQid(qid);
-        question.setGroupId(rows.getInt("gid"));
-        question.setParentQid(rows.getInt("parent_qid"));
-        question.setType(LimesurveyType._valueOf(rows.getString("type")));
-        question.addLocalizableLabelAttribute(language, rows.getString("question"));
-        question.setUseOther("Y".equals(rows.getString("other")));
-        question.setScaleId(rows.getInt("scale_id"));
-        mapQuestions.put(qid, question);
-      }
-    }
-    return mapQuestions;
-  }
-
-  private void queryExplicitAnswers() {
-    String sqlAnswer = "SELECT * FROM " + quoteAndPrefix("answers") + " WHERE qid=? ORDER BY sortorder";
-    for(LimeQuestion question : mapQuestions.values()) {
-      SqlRowSet answersRowset = jdbcTemplate.queryForRowSet(sqlAnswer, question.getQid());
-      List<LimeAnswer> answersList = toAnswers(question, answersRowset);
-      mapAnswers.put(question.getQid(), answersList);
-    }
-  }
-
-  private List<LimeAnswer> toAnswers(LimeQuestion question, SqlRowSet rows) {
-    List<LimeAnswer> answers = Lists.newArrayList();
-    Map<String, LimeAnswer> internAnswers = Maps.newHashMap();
-    while(rows.next()) {
-      String answerName = rows.getString("code");
-      String language = rows.getString("language");
-      String label = rows.getString("answer");
-      Integer scaleId = rows.getInt("scale_id");
-      if(internAnswers.containsKey(answerName + scaleId)) {
-        LimeAnswer answer = internAnswers.get(answerName + scaleId);
-        answer.addLocalizableLabelAttribute(language, label);
-      } else {
-        LimeAnswer answer = LimeAnswer.create(answerName);
-        answer.setSortorder(rows.getInt("sortorder"));
-        answer.setScaleId(rows.getInt("scale_id"));
-        answer.addLocalizableLabelAttribute(language, label);
-        internAnswers.put(answerName + scaleId, answer);
-        answers.add(answer);
-      }
-    }
-    if(question.isUseOther()) {
-      LimeAnswer answer = LimeAnswer.create("-oth-");
-      answers.add(answer);
-    }
-    return answers;
   }
 
   private void buildImplicitAnswers() {
@@ -336,7 +234,7 @@ class LimesurveyValueTable extends AbstractValueTable {
 
   private Builder build(LimeQuestion question, String variableName) {
     Builder builder = Builder.newVariable(variableName, question.getLimesurveyType().getType(), PARTICIPANT);
-    LimeAttributes limeAttributes = attributes.get(question.getQid());
+    LimeAttributes limeAttributes = mapAttributes.get(question.getQid());
     if(limeAttributes != null) {
       builder.addAttributes(limeAttributes.toMagmaAttributes());
     }
@@ -489,6 +387,7 @@ class LimesurveyValueTable extends AbstractValueTable {
     }
 
     @Override
+    //TODO move into provider implementation
     public Iterable<Value> getValues(final SortedSet<VariableEntity> entities) {
       LimesurveyValueTable table = LimesurveyValueTable.this;
       final NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(getDatasource().getDataSource());
