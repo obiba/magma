@@ -50,7 +50,7 @@ public class LimesurveyDatasource extends AbstractDatasource {
     super.onInitialise();
     StringBuilder sqlDbVersion = new StringBuilder();
     sqlDbVersion.append("SELECT stg_value ");
-    sqlDbVersion.append("FROM settings_global ");
+    sqlDbVersion.append("FROM " + quoteAndPrefix("settings_global") + " ");
     sqlDbVersion.append("WHERE stg_name='DBVersion'");
     JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
     String dbVersion = jdbcTemplate.queryForObject(sqlDbVersion.toString(), String.class);
