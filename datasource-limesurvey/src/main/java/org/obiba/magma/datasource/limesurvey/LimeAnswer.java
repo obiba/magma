@@ -59,6 +59,8 @@ public class LimeAnswer extends LimeLocalizableEntity implements Comparable<Lime
       put("-oth-", LimeAttributes.create().localizableAttribute("en", "Other").localizableAttribute("fr", "Autre"));
       put("Y", LimeAttributes.create().localizableAttribute("en", "Yes").localizableAttribute("fr", "Oui"));
       put("N", LimeAttributes.create().localizableAttribute("en", "No").localizableAttribute("fr", "Non"));
+      put("U", LimeAttributes.create().localizableAttribute("en", "Uncertain").localizableAttribute("fr",
+          "Incertain"));
       put("I", LimeAttributes.create().localizableAttribute("en", "Increase").localizableAttribute("fr", "Augmenter"));
       put("S",
           LimeAttributes.create().localizableAttribute("en", "Same").localizableAttribute("fr", "Sans changement"));
