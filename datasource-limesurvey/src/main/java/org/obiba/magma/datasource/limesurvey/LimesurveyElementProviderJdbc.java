@@ -60,7 +60,7 @@ public class LimesurveyElementProviderJdbc implements LimesurveyElementProvider 
   public Map<Integer, LimeAttributes> queryAttributes() {
     StringBuilder sqlAttr = new StringBuilder();
     sqlAttr.append("SELECT qid, attribute, value ");
-    sqlAttr.append("FROM question_attributes ");
+    sqlAttr.append("FROM " + datasource.quoteAndPrefix("question_attributes") + " ");
     SqlRowSet sqlRowSet = jdbcTemplate.queryForRowSet(sqlAttr.toString());
     while(sqlRowSet.next()) {
       int qid = sqlRowSet.getInt("qid");
