@@ -1,9 +1,9 @@
 package org.obiba.magma.datasource.limesurvey;
 
-import java.util.List;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Map;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueTable;
@@ -11,10 +11,10 @@ import org.obiba.magma.ValueType;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.datasource.limesurvey.LimesurveyValueTable.LimesurveyVariableValueSource;
 import org.obiba.magma.support.ValueSetBean;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.support.rowset.SqlRowSet;
+import org.springframework.dao.DataAccessException;
+import org.springframework.jdbc.core.ResultSetExtractor;
 
-public class LimesurveyValueSet extends ValueSetBean {
+class LimesurveyValueSet extends ValueSetBean {
 
   private Map<String, Object> cache;
 
@@ -22,32 +22,37 @@ public class LimesurveyValueSet extends ValueSetBean {
     super(table, entity);
   }
 
-  public Value getValue(LimesurveyVariableValueSource limesurveyVariableValueSource) {
+  Value getValue(LimesurveyVariableValueSource limesurveyVariableValueSource) {
     String limesurveyField = limesurveyVariableValueSource.getLimesurveyVariableField();
     if(cache == null) {
-      loadValues(limesurveyVariableValueSource);
+      loadValues();
     }
     ValueType type = limesurveyVariableValueSource.getVariable().getValueType();
     Object object = cache.get(limesurveyField);
     return type.valueOf("".equals(object) ? null : object);
   }
 
-  private void loadValues(LimesurveyVariableValueSource limesurveyVariableValueSource) {
+  private void loadValues() {
     LimesurveyValueTable limeValueTable = getValueTable();
     cache = Maps.newHashMap();
-    JdbcTemplate jdbcTemplate = new JdbcTemplate(getValueTable().getDatasource().getDataSource());
     String id = getVariableEntity().getIdentifier();
     StringBuilder sql = new StringBuilder();
     sql.append("SELECT * FROM " + limeValueTable.quoteAndPrefix("survey_" + limeValueTable.getSid()) + " ");
     sql.append("WHERE token=?");
-    SqlRowSet rows = jdbcTemplate.queryForRowSet(sql.toString(), new Object[] {id});
-    List<String> columns = Lists.newArrayList(rows.getMetaData().getColumnNames());
-    if(rows.next()) {
-      for(String column : columns) {
-        Object object = rows.getObject(column);
-        cache.put(column, object);
-      }
-    }
+    getValueTable().getDatasource().getJdbcTemplate().query(sql.toString(), new Object[] {id},
+        new ResultSetExtractor<Void>() {
+          @Override
+          public Void extractData(ResultSet rs) throws SQLException, DataAccessException {
+            if(rs.next()) {
+              for(int i = 1; i <= rs.getMetaData().getColumnCount(); i++) {
+                String column = rs.getMetaData().getColumnName(i);
+                Object object = rs.getObject(i);
+                cache.put(column, object);
+              }
+            }
+            return null;
+          }
+        });
   }
 
   @Override

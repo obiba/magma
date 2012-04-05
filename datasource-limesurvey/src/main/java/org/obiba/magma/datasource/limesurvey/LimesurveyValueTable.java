@@ -27,6 +27,7 @@ import org.obiba.magma.VariableValueSource;
 import org.obiba.magma.VectorSource;
 import org.obiba.magma.support.AbstractValueTable;
 import org.obiba.magma.type.IntegerType;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
@@ -324,6 +325,10 @@ class LimesurveyValueTable extends AbstractValueTable {
         return question.getParentQid() == limeQuestion.getQid() && question.isScaleEqual1();
       }
     }));
+  }
+
+  public JdbcTemplate getJdbcTemplate() {
+    return ((LimesurveyDatasource) super.getDatasource()).getJdbcTemplate();
   }
 
   @Override

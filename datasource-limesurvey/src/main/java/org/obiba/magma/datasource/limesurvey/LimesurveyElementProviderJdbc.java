@@ -5,14 +5,11 @@ import java.util.Map;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 
 public class LimesurveyElementProviderJdbc implements LimesurveyElementProvider {
 
   private LimesurveyDatasource datasource;
-
-  private JdbcTemplate jdbcTemplate;
 
   private int sid;
 
@@ -24,7 +21,6 @@ public class LimesurveyElementProviderJdbc implements LimesurveyElementProvider 
 
   public LimesurveyElementProviderJdbc(LimesurveyDatasource datasource, int sid) {
     this.datasource = datasource;
-    jdbcTemplate = new JdbcTemplate(datasource.getDataSource());
     this.sid = sid;
     mapQuestions = Maps.newHashMap();
     mapAnswers = Maps.newHashMap();
@@ -40,7 +36,7 @@ public class LimesurveyElementProviderJdbc implements LimesurveyElementProvider 
     sqlQuestion.append("ON (q.gid=g.gid AND q.language=g.language) ");
     sqlQuestion.append("WHERE q.sid=? AND q.type!='X' "); // X are boilerplate questions
     sqlQuestion.append("ORDER BY group_order, question_order ASC ");
-    SqlRowSet questionsRowSet = jdbcTemplate.queryForRowSet(sqlQuestion.toString(), sid);
+    SqlRowSet questionsRowSet = datasource.getJdbcTemplate().queryForRowSet(sqlQuestion.toString(), sid);
 
     return toQuestions(questionsRowSet);
   }
@@ -49,7 +45,7 @@ public class LimesurveyElementProviderJdbc implements LimesurveyElementProvider 
   public Map<Integer, List<LimeAnswer>> queryExplicitAnswers() {
     String sqlAnswer = "SELECT * FROM " + datasource.quoteAndPrefix("answers") + " WHERE qid=? ORDER BY sortorder";
     for(LimeQuestion question : mapQuestions.values()) {
-      SqlRowSet answersRowset = jdbcTemplate.queryForRowSet(sqlAnswer, question.getQid());
+      SqlRowSet answersRowset = datasource.getJdbcTemplate().queryForRowSet(sqlAnswer, question.getQid());
       List<LimeAnswer> answersList = toAnswers(question, answersRowset);
       mapAnswers.put(question.getQid(), answersList);
     }
@@ -61,7 +57,7 @@ public class LimesurveyElementProviderJdbc implements LimesurveyElementProvider 
     StringBuilder sqlAttr = new StringBuilder();
     sqlAttr.append("SELECT qid, attribute, value ");
     sqlAttr.append("FROM " + datasource.quoteAndPrefix("question_attributes") + " ");
-    SqlRowSet sqlRowSet = jdbcTemplate.queryForRowSet(sqlAttr.toString());
+    SqlRowSet sqlRowSet = datasource.getJdbcTemplate().queryForRowSet(sqlAttr.toString());
     while(sqlRowSet.next()) {
       int qid = sqlRowSet.getInt("qid");
       String key = sqlRowSet.getString("attribute");

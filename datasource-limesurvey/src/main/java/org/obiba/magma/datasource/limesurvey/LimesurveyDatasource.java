@@ -27,6 +27,8 @@ public class LimesurveyDatasource extends AbstractDatasource {
 
   private final DataSource dataSource;
 
+  private JdbcTemplate jdbcTemplate;
+
   private final String tablePrefix;
 
   private Map<String, Integer> sids;
@@ -42,6 +44,7 @@ public class LimesurveyDatasource extends AbstractDatasource {
     Preconditions.checkArgument(dataSource != null);
     iqs = "";
     this.dataSource = dataSource;
+    jdbcTemplate = new JdbcTemplate(dataSource);
     this.tablePrefix = Objects.firstNonNull(tablePrefix, DEFAULT_TABLE_PREFIX);
   }
 
@@ -52,7 +55,6 @@ public class LimesurveyDatasource extends AbstractDatasource {
     sqlDbVersion.append("SELECT stg_value ");
     sqlDbVersion.append("FROM " + quoteAndPrefix("settings_global") + " ");
     sqlDbVersion.append("WHERE stg_name='DBVersion'");
-    JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
     String dbVersion = jdbcTemplate.queryForObject(sqlDbVersion.toString(), String.class);
     if("146".equals(dbVersion) == false) {
       throw new MagmaRuntimeException(
@@ -95,7 +97,11 @@ public class LimesurveyDatasource extends AbstractDatasource {
     return new LimesurveyValueTable(this, tableName, sids.get(tableName));
   }
 
-  DataSource getDataSource() {
+  public JdbcTemplate getJdbcTemplate() {
+    return jdbcTemplate;
+  }
+
+  public DataSource getDataSource() {
     return dataSource;
   }
 
