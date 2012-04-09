@@ -32,27 +32,29 @@ class LimesurveyValueSet extends ValueSetBean {
     return type.valueOf("".equals(object) ? null : object);
   }
 
-  private void loadValues() {
-    LimesurveyValueTable limeValueTable = getValueTable();
-    cache = Maps.newHashMap();
-    String id = getVariableEntity().getIdentifier();
-    StringBuilder sql = new StringBuilder();
-    sql.append("SELECT * FROM " + limeValueTable.quoteAndPrefix("survey_" + limeValueTable.getSid()) + " ");
-    sql.append("WHERE token=?");
-    getValueTable().getDatasource().getJdbcTemplate().query(sql.toString(), new Object[] {id},
-        new ResultSetExtractor<Void>() {
-          @Override
-          public Void extractData(ResultSet rs) throws SQLException, DataAccessException {
-            if(rs.next()) {
-              for(int i = 1; i <= rs.getMetaData().getColumnCount(); i++) {
-                String column = rs.getMetaData().getColumnName(i);
-                Object object = rs.getObject(i);
-                cache.put(column, object);
+  private synchronized void loadValues() {
+    if(cache == null) {
+      LimesurveyValueTable limeValueTable = getValueTable();
+      cache = Maps.newHashMap();
+      String id = getVariableEntity().getIdentifier();
+      StringBuilder sql = new StringBuilder();
+      sql.append("SELECT * FROM " + limeValueTable.quoteAndPrefix("survey_" + limeValueTable.getSid()) + " ");
+      sql.append("WHERE token=?");
+      getValueTable().getDatasource().getJdbcTemplate().query(sql.toString(), new Object[] {id},
+          new ResultSetExtractor<Void>() {
+            @Override
+            public Void extractData(ResultSet rs) throws SQLException, DataAccessException {
+              if(rs.next()) {
+                for(int i = 1; i <= rs.getMetaData().getColumnCount(); i++) {
+                  String column = rs.getMetaData().getColumnName(i);
+                  Object object = rs.getObject(i);
+                  cache.put(column, object);
+                }
               }
+              return null;
             }
-            return null;
-          }
-        });
+          });
+    }
   }
 
   @Override
