@@ -1,5 +1,6 @@
 package org.obiba.magma.datasource.limesurvey;
 
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -22,7 +23,7 @@ public class LimesurveyElementProviderJdbc implements LimesurveyElementProvider 
   public LimesurveyElementProviderJdbc(LimesurveyDatasource datasource, int sid) {
     this.datasource = datasource;
     this.sid = sid;
-    mapQuestions = Maps.newHashMap();
+    mapQuestions = new LinkedHashMap<Integer, LimeQuestion>();
     mapAnswers = Maps.newHashMap();
     mapAttributes = Maps.newHashMap();
   }
