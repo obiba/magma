@@ -52,7 +52,7 @@ public class LimeAttributes {
           start = sb.indexOf("<" + tag);
           end = sb.indexOf("</" + tag + ">", start) + tag.length() + 3;
           if(start != -1 && end != -1 && start < end) {
-            sb.replace(start, end, "[script]");
+            sb.replace(start, end, " [script] ");
           }
         } while(start != -1 && end != -1 && start < end);
       }
