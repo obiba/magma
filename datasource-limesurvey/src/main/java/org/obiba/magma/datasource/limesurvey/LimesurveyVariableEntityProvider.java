@@ -54,9 +54,8 @@ public class LimesurveyVariableEntityProvider extends AbstractVariableEntityProv
     } catch(BadSqlGrammarException e) {
       entityList = Lists.newArrayList();
       log.info("survey_" + sid + " is probably not active");
-    } finally {
-      entities = Sets.newHashSet(entityList);
     }
+    entities = Sets.newHashSet(entityList);
   }
 
   @Override

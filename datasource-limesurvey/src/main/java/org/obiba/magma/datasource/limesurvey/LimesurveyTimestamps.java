@@ -5,11 +5,16 @@ import java.util.Date;
 import org.obiba.magma.Timestamps;
 import org.obiba.magma.Value;
 import org.obiba.magma.type.DateTimeType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.jdbc.BadSqlGrammarException;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 public class LimesurveyTimestamps implements Timestamps {
 
   private LimesurveyValueTable limesurveyValueTable;
+
+  private static final Logger log = LoggerFactory.getLogger(LimesurveyVariableEntityProvider.class);
 
   public LimesurveyTimestamps(LimesurveyValueTable limesurveyValueTable) {
     this.limesurveyValueTable = limesurveyValueTable;
@@ -30,7 +35,13 @@ public class LimesurveyTimestamps implements Timestamps {
     StringBuilder sql = new StringBuilder();
     sql.append("SELECT " + sqlOperator + "(submitdate) ");
     sql.append("FROM " + limesurveyValueTable.quoteAndPrefix("survey_" + limesurveyValueTable.getSid()));
-    Date lastUpdateDate = jdbcTemplate.queryForObject(sql.toString(), Date.class);
+    Date lastUpdateDate;
+    try {
+      lastUpdateDate = jdbcTemplate.queryForObject(sql.toString(), Date.class);
+    } catch(BadSqlGrammarException e) {
+      lastUpdateDate = new Date();
+      log.info("survey_" + limesurveyValueTable.getSid() + " is probably not active");
+    }
     return DateTimeType.get().valueOf(lastUpdateDate);
   }
 }
