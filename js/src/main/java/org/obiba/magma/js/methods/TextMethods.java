@@ -197,10 +197,12 @@ public class TextMethods {
 
         // Delegate to Javascript's String.replace method
         boolean matches = false;
-        for(Object arg : args) {
-          Object result = ScriptRuntime.checkRegExpProxy(ctx).action(ctx, thisObj, ScriptRuntime.toObject(ctx, thisObj, stringValue), new Object[] { arg }, RegExpProxy.RA_MATCH);
-          if(result != null) {
-            matches = true;
+        if(stringValue != null) {
+          for(Object arg : args) {
+            Object result = ScriptRuntime.checkRegExpProxy(ctx).action(ctx, thisObj, ScriptRuntime.toObject(ctx, thisObj, stringValue), new Object[] { arg }, RegExpProxy.RA_MATCH);
+            if(result != null) {
+              matches = true;
+            }
           }
         }
 

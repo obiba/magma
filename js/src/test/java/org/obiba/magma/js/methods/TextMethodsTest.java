@@ -36,6 +36,32 @@ public class TextMethodsTest extends AbstractJsTest {
   }
 
   @Test
+  public void testMatches() {
+    ScriptableValue value = newValue(TextType.get().valueOf(" Value  "));
+    ScriptableValue result = TextMethods.matches(Context.getCurrentContext(), value, new Object[] { "lue" }, null);
+    Assert.assertNotNull(result);
+    Assert.assertEquals(BooleanType.get().valueOf(true), result.getValue());
+  }
+
+  @Test
+  public void testMatchesNull() {
+    ScriptableValue value = newValue(TextType.get().nullValue());
+    ScriptableValue result = TextMethods.matches(Context.getCurrentContext(), value, new Object[] { "lue" }, null);
+    Assert.assertNotNull(result);
+    Assert.assertEquals(BooleanType.get().valueOf(false), result.getValue());
+  }
+
+  @Test
+  public void testMatchesValueSequence() {
+    ScriptableValue value = newValue(TextType.get().sequenceOf("\"Value\",\"Patate\""));
+    ScriptableValue result = TextMethods.matches(Context.getCurrentContext(), value, new Object[] { "lue" }, null);
+    Assert.assertNotNull(result);
+    Assert.assertEquals(2, result.getValue().asSequence().getSize());
+    Assert.assertEquals(BooleanType.get().valueOf(true), result.getValue().asSequence().get(0));
+    Assert.assertEquals(BooleanType.get().valueOf(false), result.getValue().asSequence().get(1));
+  }
+
+  @Test
   public void testUpperCase() {
     ScriptableValue value = newValue(TextType.get().valueOf("value"));
     ScriptableValue result = TextMethods.upperCase(Context.getCurrentContext(), value, null, null);
