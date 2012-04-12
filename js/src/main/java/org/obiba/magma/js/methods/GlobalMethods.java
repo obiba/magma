@@ -98,7 +98,7 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
    * javascript.
    * 
    * <pre>
-   *   $('medications.Drugs:BRAND_NAME','MEDICATION_1')
+   *   $join('medications.Drugs:BRAND_NAME','MEDICATION_1')
    * </pre>
    * @return an instance of {@code ScriptableValue}
    */
@@ -191,9 +191,7 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
     }
   }
 
-  private static
-      ScriptableValue
-      valuesForVector(MagmaContext context, Scriptable thisObj, MagmaEngineVariableResolver reference, VariableValueSource source) {
+  private static ScriptableValue valuesForVector(MagmaContext context, Scriptable thisObj, MagmaEngineVariableResolver reference, VariableValueSource source) {
     VectorSource vectorSource = source.asVectorSource();
     if(vectorSource == null) {
       throw new IllegalArgumentException("source cannot provide vectors (" + source.getClass().getName() + ")");
@@ -203,9 +201,7 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
     return new ScriptableValue(thisObj, cache.get(context, vectorSource), source.getVariable().getUnit());
   }
 
-  private static
-      ScriptableValue
-      valueForValueSet(MagmaContext context, Scriptable thisObj, MagmaEngineVariableResolver reference, VariableValueSource source) {
+  private static ScriptableValue valueForValueSet(MagmaContext context, Scriptable thisObj, MagmaEngineVariableResolver reference, VariableValueSource source) {
     ValueSet valueSet = (ValueSet) context.peek(ValueSet.class);
     // Tests whether this valueSet is in the same table as the referenced ValueTable
     if(reference.isJoin(valueSet)) {
