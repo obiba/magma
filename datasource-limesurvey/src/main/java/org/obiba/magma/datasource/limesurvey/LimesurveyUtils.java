@@ -12,12 +12,11 @@ public class LimesurveyUtils {
   }
 
   /**
-   * Remove slashes for the moment but magma (and opal) must deal with slashes in name
+   * Remove slashes
    *
    * @param name
    * @return
    */
-  @Deprecated
   public static String removeSlashes(String name) {
     return name.replaceAll("/", "");
   }

@@ -27,7 +27,6 @@ import org.obiba.magma.VariableValueSource;
 import org.obiba.magma.VectorSource;
 import org.obiba.magma.support.AbstractValueTable;
 import org.obiba.magma.type.IntegerType;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
@@ -154,7 +153,7 @@ class LimesurveyValueTable extends AbstractValueTable {
 
   private void buildLabelAttributes(LimeLocalizableEntity localizable, AttributeAwareBuilder<?> builder) {
     applyImplicitLabel(localizable, builder);
-    for(Attribute attr : localizable.getMagmaAttributes()) {
+    for(Attribute attr : localizable.getMagmaAttributes(localizable instanceof LimeQuestion)) {
       builder.addAttribute(attr);
     }
   }
@@ -162,7 +161,7 @@ class LimesurveyValueTable extends AbstractValueTable {
   private void applyImplicitLabel(LimeLocalizableEntity localizable, AttributeAwareBuilder<?> builder) {
     LimeAttributes lla = localizable.getImplicitLabel().get(localizable.getName());
     if(lla != null) {
-      for(Attribute attr : lla.toMagmaAttributes()) {
+      for(Attribute attr : lla.toMagmaAttributes(localizable instanceof LimeQuestion)) {
         builder.addAttribute(attr);
       }
     }
@@ -237,7 +236,7 @@ class LimesurveyValueTable extends AbstractValueTable {
     Builder builder = Builder.newVariable(variableName, question.getLimesurveyType().getType(), PARTICIPANT);
     LimeAttributes limeAttributes = mapAttributes.get(question.getQid());
     if(limeAttributes != null) {
-      builder.addAttributes(limeAttributes.toMagmaAttributes());
+      builder.addAttributes(limeAttributes.toMagmaAttributes(true));
     }
     return builder;
   }
@@ -275,7 +274,7 @@ class LimesurveyValueTable extends AbstractValueTable {
    * @param specialLabel
    */
   private void buildSpecialLabel(LimeQuestion question, Builder builder, String specialLabel) {
-    for(Attribute attr : question.getImplicitLabel().get(specialLabel).toMagmaAttributes()) {
+    for(Attribute attr : question.getImplicitLabel().get(specialLabel).toMagmaAttributes(true)) {
       builder.addAttribute(attr);
     }
   }
@@ -325,10 +324,6 @@ class LimesurveyValueTable extends AbstractValueTable {
         return question.getParentQid() == limeQuestion.getQid() && question.isScaleEqual1();
       }
     }));
-  }
-
-  public JdbcTemplate getJdbcTemplate() {
-    return ((LimesurveyDatasource) super.getDatasource()).getJdbcTemplate();
   }
 
   @Override

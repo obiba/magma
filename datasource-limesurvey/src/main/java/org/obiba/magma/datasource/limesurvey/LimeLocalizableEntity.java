@@ -27,12 +27,12 @@ public abstract class LimeLocalizableEntity {
     this.name = name;
   }
 
-  public Iterable<Attribute> getMagmaAttributes() {
-    return localizableAttributes.toMagmaAttributes();
+  public Iterable<Attribute> getMagmaAttributes(boolean keepOriginalLocalizable) {
+    return localizableAttributes.toMagmaAttributes(keepOriginalLocalizable);
   }
 
-  public void addLocalizableLabelAttribute(String key, String value) {
-    localizableAttributes.localizableAttribute(key, value);
+  public void addLocalizableAttribute(String key, String value) {
+    localizableAttributes.attribute(key, value);
   }
 
   public abstract Map<String, LimeAttributes> getImplicitLabel();

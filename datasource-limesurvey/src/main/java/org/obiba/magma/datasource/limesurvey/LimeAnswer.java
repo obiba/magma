@@ -56,17 +56,15 @@ public class LimeAnswer extends LimeLocalizableEntity implements Comparable<Lime
     private static final long serialVersionUID = -4789211495142871372L;
 
     {
-      put("-oth-", LimeAttributes.create().localizableAttribute("en", "Other").localizableAttribute("fr", "Autre"));
-      put("Y", LimeAttributes.create().localizableAttribute("en", "Yes").localizableAttribute("fr", "Oui"));
-      put("N", LimeAttributes.create().localizableAttribute("en", "No").localizableAttribute("fr", "Non"));
-      put("U", LimeAttributes.create().localizableAttribute("en", "Uncertain").localizableAttribute("fr",
-          "Incertain"));
-      put("I", LimeAttributes.create().localizableAttribute("en", "Increase").localizableAttribute("fr", "Augmenter"));
-      put("S",
-          LimeAttributes.create().localizableAttribute("en", "Same").localizableAttribute("fr", "Sans changement"));
-      put("D", LimeAttributes.create().localizableAttribute("en", "Decrease").localizableAttribute("fr", "Diminuer"));
-      put("M", LimeAttributes.create().localizableAttribute("en", "Male").localizableAttribute("fr", "Masculin"));
-      put("F", LimeAttributes.create().localizableAttribute("en", "Female").localizableAttribute("fr", "Féminin"));
+      put("-oth-", LimeAttributes.create().attribute("label:en", "Other").attribute("label:fr", "Autre"));
+      put("Y", LimeAttributes.create().attribute("label:en", "Yes").attribute("label:fr", "Oui"));
+      put("N", LimeAttributes.create().attribute("label:en", "No").attribute("label:fr", "Non"));
+      put("U", LimeAttributes.create().attribute("label:en", "Uncertain").attribute("label:fr", "Incertain"));
+      put("I", LimeAttributes.create().attribute("label:en", "Increase").attribute("label:fr", "Augmenter"));
+      put("S", LimeAttributes.create().attribute("label:en", "Same").attribute("label:fr", "Sans changement"));
+      put("D", LimeAttributes.create().attribute("label:en", "Decrease").attribute("label:fr", "Diminuer"));
+      put("M", LimeAttributes.create().attribute("label:en", "Male").attribute("label:fr", "Masculin"));
+      put("F", LimeAttributes.create().attribute("label:en", "Female").attribute("label:fr", "Féminin"));
     }
   };
 

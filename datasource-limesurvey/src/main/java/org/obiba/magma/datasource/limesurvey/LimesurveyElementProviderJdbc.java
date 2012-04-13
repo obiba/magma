@@ -1,11 +1,14 @@
 package org.obiba.magma.datasource.limesurvey;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import org.springframework.jdbc.core.RowCallbackHandler;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 
 public class LimesurveyElementProviderJdbc implements LimesurveyElementProvider {
@@ -69,6 +72,22 @@ public class LimesurveyElementProviderJdbc implements LimesurveyElementProvider 
         mapAttributes.put(qid, LimeAttributes.create().attribute(key, value));
       }
     }
+    StringBuilder sqlHelp = new StringBuilder();
+    sqlHelp.append("SELECT qid, help, language ");
+    sqlHelp.append("FROM " + datasource.quoteAndPrefix("questions") + "");
+    datasource.getJdbcTemplate().query(sqlHelp.toString(), new RowCallbackHandler() {
+      @Override
+      public void processRow(ResultSet rs) throws SQLException {
+        String help = rs.getString("help");
+        int qid = rs.getInt("qid");
+        String key = "help:" + rs.getString("language");
+        if(mapAttributes.containsKey(qid)) {
+          mapAttributes.get(qid).attribute(key, help);
+        } else {
+          mapAttributes.put(qid, LimeAttributes.create().attribute(key, help));
+        }
+      }
+    });
     return mapAttributes;
   }
 
@@ -78,7 +97,7 @@ public class LimesurveyElementProviderJdbc implements LimesurveyElementProvider 
       String language = rows.getString("language");
       if(mapQuestions.containsKey(qid)) {
         LimeQuestion question = mapQuestions.get(qid);
-        question.addLocalizableLabelAttribute(language, rows.getString("question"));
+        question.addLocalizableAttribute("label:" + language, rows.getString("question"));
       } else {
         LimeQuestion question = LimeQuestion.create();
         question.setName(rows.getString("title"));
@@ -86,7 +105,7 @@ public class LimesurveyElementProviderJdbc implements LimesurveyElementProvider 
         question.setGroupId(rows.getInt("gid"));
         question.setParentQid(rows.getInt("parent_qid"));
         question.setType(LimesurveyType._valueOf(rows.getString("type")));
-        question.addLocalizableLabelAttribute(language, rows.getString("question"));
+        question.addLocalizableAttribute("label:" + language, rows.getString("question"));
         question.setUseOther("Y".equals(rows.getString("other")));
         question.setScaleId(rows.getInt("scale_id"));
         mapQuestions.put(qid, question);
@@ -105,12 +124,12 @@ public class LimesurveyElementProviderJdbc implements LimesurveyElementProvider 
       Integer scaleId = rows.getInt("scale_id");
       if(internAnswers.containsKey(answerName + scaleId)) {
         LimeAnswer answer = internAnswers.get(answerName + scaleId);
-        answer.addLocalizableLabelAttribute(language, label);
+        answer.addLocalizableAttribute("label:" + language, label);
       } else {
         LimeAnswer answer = LimeAnswer.create(answerName);
         answer.setSortorder(rows.getInt("sortorder"));
         answer.setScaleId(rows.getInt("scale_id"));
-        answer.addLocalizableLabelAttribute(language, label);
+        answer.addLocalizableAttribute("label:" + language, label);
         internAnswers.put(answerName + scaleId, answer);
         answers.add(answer);
       }

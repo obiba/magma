@@ -82,9 +82,8 @@ public class LimeQuestion extends LimeLocalizableEntity {
   public Map<String, LimeAttributes> getImplicitLabel() {
     return new HashMap<String, LimeAttributes>() {
       {
-        put("other", LimeAttributes.create().localizableAttribute("en", "Other").localizableAttribute("fr", "Autre"));
-        put("comment",
-            LimeAttributes.create().localizableAttribute("en", "Comment").localizableAttribute("fr", "Commentaire"));
+        put("other", LimeAttributes.create().attribute("label:en", "Other").attribute("label:fr", "Autre"));
+        put("comment", LimeAttributes.create().attribute("label:en", "Comment").attribute("label:fr", "Commentaire"));
       }
     };
   }
