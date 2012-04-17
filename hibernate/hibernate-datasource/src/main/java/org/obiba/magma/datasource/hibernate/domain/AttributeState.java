@@ -1,9 +1,8 @@
 package org.obiba.magma.datasource.hibernate.domain;
 
-import java.util.Locale;
-
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
+import java.util.Locale;
 
 import org.hibernate.annotations.Columns;
 import org.hibernate.annotations.Parent;
@@ -29,7 +28,8 @@ public class AttributeState implements Attribute {
   private Locale locale;
 
   @Type(type = "value")
-  @Columns(columns = { @Column(name = "value_type", nullable = false), @Column(name = "is_sequence", nullable = false), @Column(name = "value", length = Integer.MAX_VALUE, nullable = false) })
+  @Columns(columns = {@Column(name = "value_type", nullable = false), @Column(name = "is_sequence",
+      nullable = false), @Column(name = "value", length = Integer.MAX_VALUE, nullable = false)})
   private Value value;
 
   public AttributeState() {
@@ -77,7 +77,7 @@ public class AttributeState implements Attribute {
 
   @Override
   public boolean isLocalised() {
-    return locale != null && locale.toString().isEmpty() == false;
+    return locale != null;
   }
 
 }

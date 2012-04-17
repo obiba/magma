@@ -29,7 +29,7 @@ class AttributeBean implements Attribute, Serializable {
 
   @Override
   public boolean isLocalised() {
-    return locale != null && locale.toString().isEmpty() == false;
+    return locale != null;
   }
 
   @Override
