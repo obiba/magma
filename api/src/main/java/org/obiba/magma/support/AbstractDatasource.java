@@ -15,6 +15,7 @@ import org.obiba.magma.Value;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.ValueTableWriter;
 
+import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.LinkedListMultimap;
@@ -22,17 +23,17 @@ import com.google.common.collect.ListMultimap;
 
 public abstract class AbstractDatasource extends AbstractAttributeAware implements Datasource {
 
-  private String name;
+  private final String name;
 
-  private String type;
+  private final String type;
 
-  private Set<ValueTable> valueTables = new LinkedHashSet<ValueTable>(100);
+  private final Set<ValueTable> valueTables = new LinkedHashSet<ValueTable>(100);
 
-  private ListMultimap<String, Attribute> attributes = LinkedListMultimap.create();
+  private final ListMultimap<String, Attribute> attributes = LinkedListMultimap.create();
 
   protected AbstractDatasource(String name, String type) {
-    if(name == null) throw new NullPointerException("name cannot be null");
-    if(type == null) throw new NullPointerException("type cannot be null");
+    Preconditions.checkNotNull(name, "name cannot be null");
+    Preconditions.checkNotNull(type, "name cannot be null");
     this.name = name;
     this.type = type;
   }
