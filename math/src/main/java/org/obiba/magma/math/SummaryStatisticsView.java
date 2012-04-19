@@ -3,8 +3,6 @@ package org.obiba.magma.math;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
 
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 import org.obiba.magma.Datasource;
@@ -30,6 +28,7 @@ import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Sets;
 
 /**
  * A {@code ValueTable} implementation that will compute a statistical summary for all numerical variables of another
@@ -40,15 +39,12 @@ public class SummaryStatisticsView extends AbstractValueTable implements Initial
 
   private final ValueTable valueTable;
 
-  private final SortedSet<VariableEntity> entities;
-
-  private DescriptiveStatisticsProvider statsProvider = new DefaultDescriptiveStatisticsProvider();
+  private final DescriptiveStatisticsProvider statsProvider = new DefaultDescriptiveStatisticsProvider();
 
   public SummaryStatisticsView(Datasource ds, String name, ValueTable valueTable) {
     super(ds, name);
     if(valueTable == null) throw new IllegalArgumentException("valueTable cannot be null");
     this.valueTable = valueTable;
-    this.entities = new TreeSet<VariableEntity>(valueTable.getVariableEntities());
   }
 
   @Override
@@ -79,7 +75,7 @@ public class SummaryStatisticsView extends AbstractValueTable implements Initial
     protected AggregateValueSet(VariableEntity entity) {
       super(SummaryStatisticsView.this, entity);
       String name = entity.getIdentifier();
-      ds = statsProvider.compute(valueTable.getVariableValueSource(name), entities);
+      ds = statsProvider.compute(valueTable.getVariableValueSource(name), Sets.newTreeSet(valueTable.getVariableEntities()));
     }
 
     DescriptiveStatistics getStats() {
