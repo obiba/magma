@@ -63,6 +63,8 @@ class JdbcValueTableWriter implements ValueTableWriter {
 
   static final String ATTRIBUTE_LOCALE_COLUMN = "attribute_locale";
 
+  static final String ATTRIBUTE_NAMESPACE_COLUMN = "attribute_namespace";
+
   static final String ATTRIBUTE_VALUE_COLUMN = "attribute_value";
 
   static final String CATEGORY_NAME_COLUMN = "name";
@@ -215,7 +217,7 @@ class JdbcValueTableWriter implements ValueTableWriter {
     private void writeAttributes(Variable variable) {
       for(Attribute attribute : variable.getAttributes()) {
         InsertDataChangeBuilder builder = new InsertDataChangeBuilder();
-        builder.tableName(ATTRIBUTE_METADATA_TABLE).withColumn(VALUE_TABLE_COLUMN, valueTable.getSqlName()).withColumn(VARIABLE_NAME_COLUMN, NameConverter.toSqlName(variable.getName())).withColumn(ATTRIBUTE_NAME_COLUMN, attribute.getName()).withColumn(ATTRIBUTE_LOCALE_COLUMN, attribute.isLocalised() ? attribute.getLocale().toString() : "").withColumn(ATTRIBUTE_VALUE_COLUMN, attribute.getValue().toString());
+        builder.tableName(ATTRIBUTE_METADATA_TABLE).withColumn(VALUE_TABLE_COLUMN, valueTable.getSqlName()).withColumn(VARIABLE_NAME_COLUMN, NameConverter.toSqlName(variable.getName())).withColumn(ATTRIBUTE_NAME_COLUMN, attribute.getName()).withColumn(ATTRIBUTE_LOCALE_COLUMN, attribute.isLocalised() ? attribute.getLocale().toString() : "").withColumn(ATTRIBUTE_NAMESPACE_COLUMN, attribute.hasNamespace() ? attribute.getNamespace() : "").withColumn(ATTRIBUTE_VALUE_COLUMN, attribute.getValue().toString());
         changes.add(builder.build());
       }
     }

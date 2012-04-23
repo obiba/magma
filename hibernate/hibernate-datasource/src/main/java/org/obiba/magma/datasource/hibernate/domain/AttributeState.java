@@ -1,8 +1,9 @@
 package org.obiba.magma.datasource.hibernate.domain;
 
+import java.util.Locale;
+
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
-import java.util.Locale;
 
 import org.hibernate.annotations.Columns;
 import org.hibernate.annotations.Parent;
@@ -25,20 +26,24 @@ public class AttributeState implements Attribute {
   @Column(nullable = false)
   private String name;
 
+  private String namespace;
+
   private Locale locale;
 
   @Type(type = "value")
-  @Columns(columns = {@Column(name = "value_type", nullable = false), @Column(name = "is_sequence",
-      nullable = false), @Column(name = "value", length = Integer.MAX_VALUE, nullable = false)})
+  @Columns(
+      columns = { @Column(name = "value_type", nullable = false), @Column(name = "is_sequence", nullable = false), @Column(
+          name = "value", length = Integer.MAX_VALUE, nullable = false) })
   private Value value;
 
   public AttributeState() {
     super();
   }
 
-  public AttributeState(String name, Locale locale, Value value) {
+  public AttributeState(String name, String namespace, Locale locale, Value value) {
     super();
     this.name = name;
+    this.namespace = namespace;
     this.locale = locale;
     setValue(value);
   }
@@ -63,6 +68,16 @@ public class AttributeState implements Attribute {
   @Override
   public String getName() {
     return name;
+  }
+
+  @Override
+  public String getNamespace() {
+    return namespace;
+  }
+
+  @Override
+  public boolean hasNamespace() {
+    return namespace != null;
   }
 
   @Override

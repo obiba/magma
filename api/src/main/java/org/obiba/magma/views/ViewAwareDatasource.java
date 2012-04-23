@@ -1,38 +1,31 @@
 package org.obiba.magma.views;
 
-import java.util.List;
-import java.util.Locale;
 import java.util.Set;
 
-import org.obiba.magma.Attribute;
 import org.obiba.magma.Datasource;
-import org.obiba.magma.NoSuchAttributeException;
 import org.obiba.magma.NoSuchValueTableException;
-import org.obiba.magma.Value;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.ValueTableWriter;
+import org.obiba.magma.support.AbstractDatasourceWrapper;
 import org.obiba.magma.support.Disposables;
 import org.obiba.magma.support.Initialisables;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 
-public class ViewAwareDatasource implements Datasource {
-
-  private final Datasource wrappedDatasource;
+public class ViewAwareDatasource extends AbstractDatasourceWrapper {
 
   private final Set<View> views;
 
   public ViewAwareDatasource(Datasource datasource, Set<View> views) {
-    if(datasource == null) throw new IllegalArgumentException("datasource cannot be null");
+    super(datasource);
     if(views == null) throw new IllegalArgumentException("views cannot be null");
 
-    this.wrappedDatasource = datasource;
     this.views = Sets.newHashSet(views);
   }
 
   public void initialise() {
-    Initialisables.initialise(wrappedDatasource);
+    super.initialise();
 
     // Initialise the views.
     for(View view : views) {
@@ -42,26 +35,18 @@ public class ViewAwareDatasource implements Datasource {
   }
 
   public void dispose() {
-    Disposables.dispose(wrappedDatasource, views);
+    Disposables.dispose(getWrappedDatasource(), views);
   }
 
   public ValueTableWriter createWriter(String tableName, String entityType) {
     if(hasView(tableName)) {
       throw new UnsupportedOperationException("Cannot write to a View");
     }
-    return wrappedDatasource.createWriter(tableName, entityType);
-  }
-
-  public String getName() {
-    return wrappedDatasource.getName();
-  }
-
-  public String getType() {
-    return wrappedDatasource.getType();
+    return getWrappedDatasource().createWriter(tableName, entityType);
   }
 
   public ValueTable getValueTable(String name) throws NoSuchValueTableException {
-    return hasView(name) ? this.getView(name) : this.wrappedDatasource.getValueTable(name);
+    return hasView(name) ? this.getView(name) : this.getWrappedDatasource().getValueTable(name);
   }
 
   public Set<ValueTable> getValueTables() {
@@ -70,61 +55,13 @@ public class ViewAwareDatasource implements Datasource {
 
   @Override
   public boolean hasValueTable(String name) {
-    return hasView(name) || wrappedDatasource.hasValueTable(name);
-  }
-
-  public void setAttributeValue(String name, Value value) {
-    wrappedDatasource.setAttributeValue(name, value);
-  }
-
-  public Attribute getAttribute(String name) throws NoSuchAttributeException {
-    return wrappedDatasource.getAttribute(name);
-  }
-
-  @Override
-  public Attribute getAttribute(String name, Locale locale) throws NoSuchAttributeException {
-    return wrappedDatasource.getAttribute(name, locale);
-  }
-
-  @Override
-  public String getAttributeStringValue(String name) throws NoSuchAttributeException {
-    return wrappedDatasource.getAttributeStringValue(name);
-  }
-
-  @Override
-  public Value getAttributeValue(String name) throws NoSuchAttributeException {
-    return wrappedDatasource.getAttributeValue(name);
-  }
-
-  @Override
-  public List<Attribute> getAttributes(String name) throws NoSuchAttributeException {
-    return wrappedDatasource.getAttributes(name);
-  }
-
-  @Override
-  public List<Attribute> getAttributes() {
-    return wrappedDatasource.getAttributes();
-  }
-
-  @Override
-  public boolean hasAttribute(String name) {
-    return wrappedDatasource.hasAttribute(name);
-  }
-
-  @Override
-  public boolean hasAttribute(String name, Locale locale) {
-    return wrappedDatasource.hasAttribute(name, locale);
-  }
-
-  @Override
-  public boolean hasAttributes() {
-    return wrappedDatasource.hasAttributes();
+    return hasView(name) || getWrappedDatasource().hasValueTable(name);
   }
 
   @Override
   public boolean canDropTable(String name) {
     if(hasView(name)) return true;
-    return wrappedDatasource.canDropTable(name);
+    return getWrappedDatasource().canDropTable(name);
   }
 
   @Override
@@ -132,7 +69,7 @@ public class ViewAwareDatasource implements Datasource {
     if(hasView(name)) {
       removeView(name);
     } else {
-      wrappedDatasource.dropTable(name);
+      getWrappedDatasource().dropTable(name);
     }
   }
 
@@ -144,7 +81,7 @@ public class ViewAwareDatasource implements Datasource {
    * Add or replace View.
    */
   public void addView(View view) {
-    if(wrappedDatasource.hasValueTable(view.getName())) {
+    if(getWrappedDatasource().hasValueTable(view.getName())) {
       throw new IllegalArgumentException("can't add view to datasource: a table with this name '" + view.getName() + "' already exists");
     }
 
@@ -175,7 +112,7 @@ public class ViewAwareDatasource implements Datasource {
     if(view != null) {
       return view;
     }
-    throw new NoSuchValueTableException(wrappedDatasource.getName(), name);
+    throw new NoSuchValueTableException(getName(), name);
   }
 
   private View getViewByName(String name) {
@@ -188,6 +125,6 @@ public class ViewAwareDatasource implements Datasource {
   }
 
   private Set<ValueTable> getWrappedTables() {
-    return wrappedDatasource.getValueTables();
+    return getWrappedDatasource().getValueTables();
   }
 }

@@ -247,17 +247,26 @@ class JdbcValueTable extends AbstractValueTable {
 
     builder.addAttributes(getDatasource().getJdbcTemplate().query(sql.toString(), new Object[] { getSqlName(), variableName }, new RowMapper<Attribute>() {
       public Attribute mapRow(ResultSet rs, int rowNum) throws SQLException {
-        String attributeName = rs.getString("attribute_name");
-        String attributeValue = rs.getString("attribute_value");
-        String attributeLocale = rs.getString("attribute_locale");
+        String attributeName = rs.getString(JdbcValueTableWriter.ATTRIBUTE_NAME_COLUMN);
+        String attributeNamespace = mayNotHaveColumn(rs, JdbcValueTableWriter.ATTRIBUTE_NAMESPACE_COLUMN);
+        String attributeValue = rs.getString(JdbcValueTableWriter.ATTRIBUTE_VALUE_COLUMN);
+        String attributeLocale = rs.getString(JdbcValueTableWriter.ATTRIBUTE_LOCALE_COLUMN);
 
-        Attribute.Builder attr = Attribute.Builder.newAttribute(attributeName);
-        if(attributeLocale.length() > 0) {
+        Attribute.Builder attr = Attribute.Builder.newAttribute(attributeName).withNamespace(attributeNamespace);
+        if(attributeLocale != null && attributeLocale.length() > 0) {
           attr.withValue(new Locale(attributeLocale), attributeValue);
         } else {
           attr.withValue(attributeValue);
         }
         return attr.build();
+      }
+
+      private String mayNotHaveColumn(ResultSet rs, String column) {
+        try {
+          return rs.getString(column);
+        } catch(SQLException e) {
+          return null;
+        }
       }
     }));
   }

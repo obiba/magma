@@ -25,32 +25,37 @@ public class AttributeConverter implements Converter {
   public AttributeConverter() {
   }
 
-  @SuppressWarnings("unchecked")
-  public boolean canConvert(Class type) {
+  public boolean canConvert(@SuppressWarnings("rawtypes") Class type) {
     return Attribute.class.isAssignableFrom(type);
   }
 
   public void marshal(Object source, HierarchicalStreamWriter writer, MarshallingContext context) {
-    Attribute variable = (Attribute) source;
-    writer.addAttribute("name", variable.getName());
-    writer.addAttribute("valueType", variable.getValueType().getName());
-    if(variable.isLocalised()) {
-      writer.addAttribute("locale", variable.getLocale().getLanguage());
+    Attribute attribute = (Attribute) source;
+    writer.addAttribute("name", attribute.getName());
+
+    if(attribute.hasNamespace()) {
+      writer.addAttribute("namespace", attribute.getNamespace());
     }
-    writer.setValue(variable.getValue().toString());
+
+    writer.addAttribute("valueType", attribute.getValueType().getName());
+    if(attribute.isLocalised()) {
+      writer.addAttribute("locale", attribute.getLocale().getLanguage());
+    }
+    writer.setValue(attribute.getValue().toString());
   }
 
   public Object unmarshal(HierarchicalStreamReader reader, UnmarshallingContext context) {
 
     String name = reader.getAttribute("name");
+    String namespace = reader.getAttribute("namespace");
+
     ValueType valueType = ValueType.Factory.forName(reader.getAttribute("valueType"));
-    String locale = reader.getAttribute("locale");
+    String localeName = reader.getAttribute("locale");
+
+    Locale locale = localeName != null ? new Locale(localeName) : null;
 
     String valueString = reader.getValue();
 
-    if(locale == null) {
-      return Attribute.Builder.newAttribute(name).withValue(valueType.valueOf(valueString)).build();
-    }
-    return Attribute.Builder.newAttribute(name).withValue(new Locale(locale), valueString).build();
+    return Attribute.Builder.newAttribute(name).withNamespace(namespace).withValue(valueType.valueOf(valueString)).withLocale(locale).build();
   }
 }

@@ -4,13 +4,21 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import org.obiba.magma.Attribute;
 import org.springframework.util.StringUtils;
 
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+
 public class LimeAttributes {
+
+  private static final String LIMESURVEY_NAMESPACE = "limesurvey";
+  
+  // Attributes that should not be part of the limesurvey namespace
+  private static final Set<String> OPAL_ATTRIBUTES = ImmutableSet.of("label");
 
   private Map<String, String> attributes;
 
@@ -46,20 +54,28 @@ public class LimeAttributes {
       String[] key = entry.getKey().split(":");
 
       if(key.length > 1) {
-        Attribute.Builder builder = Attribute.Builder.newAttribute(key[0]).withValue(new Locale(key[1]),
-            clean(sb.toString()));
+        Locale locale = new Locale(key[1]);
+        String cleaned = clean(sb.toString());
+        Attribute.Builder builder = newAttribute(key[0]).withValue(locale, clean(cleaned));
         attrs.add(builder.build());
-        if(keepOriginalLocalizable) {
-          builder = Attribute.Builder.newAttribute("original" + StringUtils.capitalize(key[0])).withValue(new Locale
-              (key[1]), entry.getValue());
+        if(keepOriginalLocalizable && cleaned.equals(entry.getValue()) == false) {
+          builder = newAttribute("original" + StringUtils.capitalize(key[0])).withValue(locale, entry.getValue());
           attrs.add(builder.build());
         }
       } else {
-        Attribute.Builder builder = Attribute.Builder.newAttribute(key[0]).withValue(clean(sb.toString()));
+        Attribute.Builder builder = newAttribute(key[0]).withValue(clean(sb.toString()));
         attrs.add(builder.build());
       }
     }
     return attrs;
+  }
+  
+  private Attribute.Builder newAttribute(String key) {
+    Attribute.Builder builder = Attribute.Builder.newAttribute(key);
+    if(OPAL_ATTRIBUTES.contains(key) == false) {
+      builder.withNamespace(LIMESURVEY_NAMESPACE);
+    }
+    return builder;
   }
 
   private String clean(String label) {

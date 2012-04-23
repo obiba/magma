@@ -50,12 +50,25 @@ public class VariableConverterTest {
     xstream.registerConverter(new VariableConverter(xstream.getMapper()));
     xstream.registerConverter(new AttributeConverter());
 
-    Variable v = newVariable().addAttribute("firstAttribute", "firstValue").addAttribute("secondAttribute", "secondValue", Locale.ENGLISH).build();
+    Variable v = newVariable()//
+    .addAttribute("firstAttribute", "firstValue")//
+    .addAttribute("secondAttribute", "secondValue", Locale.ENGLISH)//
+    .addAttribute(Attribute.Builder.newAttribute("namespaced").withNamespace("ns1").withValue("ns1").build())//
+    .addAttribute(Attribute.Builder.newAttribute("namespaced").withNamespace("ns2").withLocale(Locale.ENGLISH).withValue("ns2").build())//
+    .build();
+
     String xml = xstream.toXML(v);
     Variable unmarshalled = (Variable) xstream.fromXML(xml);
     Assert.assertTrue(unmarshalled.hasAttribute("firstAttribute"));
+    Assert.assertEquals("firstValue", unmarshalled.getAttribute("firstAttribute").getValue().toString());
+
     Assert.assertTrue(unmarshalled.hasAttribute("secondAttribute"));
     Assert.assertTrue(unmarshalled.getAttribute("secondAttribute").isLocalised());
+    Assert.assertEquals("secondValue", unmarshalled.getAttribute("secondAttribute", Locale.ENGLISH).getValue().toString());
+
+    Assert.assertTrue(unmarshalled.hasAttribute("ns1", "namespaced"));
+    Assert.assertTrue(unmarshalled.hasAttribute("ns1", "namespaced"));
+    Assert.assertEquals("ns1", unmarshalled.getAttribute("ns1", "namespaced").getValue().toString());
   }
 
   @Test

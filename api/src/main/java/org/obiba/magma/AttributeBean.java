@@ -3,11 +3,15 @@ package org.obiba.magma;
 import java.io.Serializable;
 import java.util.Locale;
 
+import com.google.common.base.Objects;
+
 class AttributeBean implements Attribute, Serializable {
 
   private static final long serialVersionUID = -7732601103831162009L;
 
   String name;
+
+  String namespace;
 
   Locale locale;
 
@@ -15,6 +19,19 @@ class AttributeBean implements Attribute, Serializable {
 
   AttributeBean(String name) {
     this.name = name;
+  }
+
+  AttributeBean() {
+  }
+
+  @Override
+  public String getNamespace() {
+    return namespace;
+  }
+
+  @Override
+  public boolean hasNamespace() {
+    return namespace != null;
   }
 
   @Override
@@ -42,42 +59,23 @@ class AttributeBean implements Attribute, Serializable {
     return value.getValueType();
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see java.lang.Object#hashCode()
-   */
   @Override
   public int hashCode() {
-    final int prime = 31;
-    int result = 1;
-    result = prime * result + ((locale == null) ? 0 : locale.hashCode());
-    result = prime * result + ((name == null) ? 0 : name.hashCode());
-    result = prime * result + ((value == null) ? 0 : value.hashCode());
-    return result;
+    return Objects.hashCode(name, namespace, locale, value);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see java.lang.Object#equals(java.lang.Object)
-   */
   @Override
   public boolean equals(Object obj) {
     if(this == obj) return true;
     if(obj == null) return false;
     if(getClass() != obj.getClass()) return false;
     AttributeBean other = (AttributeBean) obj;
-    if(locale == null) {
-      if(other.locale != null) return false;
-    } else if(!locale.equals(other.locale)) return false;
-    if(name == null) {
-      if(other.name != null) return false;
-    } else if(!name.equals(other.name)) return false;
-    if(value == null) {
-      if(other.value != null) return false;
-    } else if(!value.equals(other.value)) return false;
-    return true;
+    return Objects.equal(name, other.name) && Objects.equal(namespace, other.namespace) && Objects.equal(locale, other.locale) && Objects.equal(value, other.value);
+  }
+
+  @Override
+  public String toString() {
+    return Objects.toStringHelper(this).add("namespace", namespace).add("name", name).add("locale", locale).add("value", value).toString();
   }
 
 }

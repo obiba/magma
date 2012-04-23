@@ -135,9 +135,11 @@ public class CsvDatasourceTest {
       }
     }
 
-    Assert.assertEquals(1, var.getAttributes().size());
+    Assert.assertEquals(3, var.getAttributes().size());
     Assert.assertTrue(var.hasAttribute("label"));
     Assert.assertEquals("Hello I'm variable one", var.getAttribute("label", Locale.ENGLISH).getValue().toString());
+    Assert.assertEquals("ns1", var.getAttribute("ns1", "attr").getValue().toString());
+    Assert.assertEquals("ns2", var.getAttribute("ns2", "attr", Locale.ENGLISH).getValue().toString());
   }
 
   @Test
@@ -633,7 +635,8 @@ public class CsvDatasourceTest {
     return tempDirectory;
   }
 
-  private void writeVariableToDatasource(Datasource datasource, String tableName, Variable testVariable) throws IOException {
+  private void
+      writeVariableToDatasource(Datasource datasource, String tableName, Variable testVariable) throws IOException {
     ValueTableWriter writer = datasource.createWriter("test-table", "entityType");
     VariableWriter vw = writer.writeVariables();
     vw.writeVariable(testVariable);
@@ -641,7 +644,9 @@ public class CsvDatasourceTest {
     writer.close();
   }
 
-  private void writeData(VariableEntity variableEntity, ValueTableWriter valueTableWriter, Variable variable, Value value) throws IOException {
+  private
+      void
+      writeData(VariableEntity variableEntity, ValueTableWriter valueTableWriter, Variable variable, Value value) throws IOException {
     ValueSetWriter valueSetWriter = valueTableWriter.writeValueSet(variableEntity);
     valueSetWriter.writeValue(variable, value);
     valueSetWriter.close();

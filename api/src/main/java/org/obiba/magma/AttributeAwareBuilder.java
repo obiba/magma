@@ -26,7 +26,7 @@ public abstract class AttributeAwareBuilder<T extends AttributeAwareBuilder<?>> 
   }
 
   public T addAttribute(Attribute attribute) {
-    getAttributes().put(attribute.getName(), attribute);
+    getAttributes().put(attribute.getName(), Attributes.copyOf(attribute));
     return getBuilder();
   }
 
@@ -41,8 +41,8 @@ public abstract class AttributeAwareBuilder<T extends AttributeAwareBuilder<?>> 
 
   protected abstract T getBuilder();
 
-  public static ListMultimap<String, Attribute> overrideAttributes(List<Attribute> existingAttributes,
-      List<Attribute> overrideAttributes) {
+  public static ListMultimap<String, Attribute>
+      overrideAttributes(List<Attribute> existingAttributes, List<Attribute> overrideAttributes) {
     ListMultimap<String, Attribute> existingAttributesMultimap = LinkedListMultimap.create();
     for(Attribute attribute : existingAttributes) {
       existingAttributesMultimap.put(attribute.getName(), attribute);
@@ -50,8 +50,8 @@ public abstract class AttributeAwareBuilder<T extends AttributeAwareBuilder<?>> 
     return overrideAttributes(existingAttributesMultimap, overrideAttributes);
   }
 
-  public static ListMultimap<String, Attribute> overrideAttributes(ListMultimap<String, Attribute> existingAttributes,
-      List<Attribute> overrideAttributes) {
+  public static ListMultimap<String, Attribute>
+      overrideAttributes(ListMultimap<String, Attribute> existingAttributes, List<Attribute> overrideAttributes) {
     for(Attribute attribute : overrideAttributes) {
       overrideAttribute(existingAttributes, attribute);
     }

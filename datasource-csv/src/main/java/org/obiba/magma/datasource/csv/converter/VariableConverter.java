@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.obiba.magma.Attribute;
+import org.obiba.magma.Attributes;
 import org.obiba.magma.Category;
 import org.obiba.magma.ValueType;
 import org.obiba.magma.Variable;
@@ -101,11 +102,11 @@ public class VariableConverter {
       if(!reservedVariableHeaders.contains(header)) {
         String value = getValueAt(csvVar, header);
         if(value != null) {
-          String attName = getAttributeName(header);
-          if(attName.equals(CATEGORIES)) {
+          if(header.startsWith(CATEGORIES)) {
             unmarshalCategories(value, getAttributeLocale(header), categoryBuilderMap);
           } else {
-            builder.addAttribute(attName, value, getAttributeLocale(header));
+            Attribute.Builder attrBuilder = Attributes.decodeFromHeader(header);
+            builder.addAttribute(attrBuilder.withValue(value).build());
           }
         }
       }
@@ -156,10 +157,6 @@ public class VariableConverter {
     return sb.toString();
   }
 
-  private String getAttributeName(String header) {
-    return header.split(":")[0];
-  }
-
   private Locale getAttributeLocale(String header) {
     String[] h = header.split(":");
     if(h.length > 1 && h[1].trim().isEmpty() == false) {
@@ -192,19 +189,16 @@ public class VariableConverter {
     if(headerMap.containsKey(UNIT)) resultMap.put(headerMap.get(UNIT), variable.getUnit());
     if(headerMap.containsKey(REFERENCED_ENTITY_TYPE)) resultMap.put(headerMap.get(REFERENCED_ENTITY_TYPE), variable.getReferencedEntityType());
 
+    for(Attribute attribute : variable.getAttributes()) {
+      String header = Attributes.encodeForHeader(attribute);
+      if(headerMap.containsKey(header) && !reservedVariableHeaders.contains(header)) {
+        resultMap.put(headerMap.get(header), attribute.getValue().toString());
+      }
+    }
+
     for(String header : headerMap.keySet()) {
-      if(!reservedVariableHeaders.contains(header) && headerMap.containsKey(header)) {
-        String attName = getAttributeName(header);
-        Locale locale = getAttributeLocale(header);
-        if(attName.equals(CATEGORIES)) {
-          resultMap.put(headerMap.get(header), marshalCategories(variable, locale));
-        } else {
-          if(locale != null && variable.hasAttribute(attName, locale)) {
-            resultMap.put(headerMap.get(header), variable.getAttribute(attName, locale).getValue().toString());
-          } else if(variable.hasAttribute(attName)) {
-            resultMap.put(headerMap.get(header), variable.getAttributeStringValue(attName));
-          }
-        }
+      if(header.startsWith(CATEGORIES)) {
+        resultMap.put(headerMap.get(header), marshalCategories(variable, getAttributeLocale(header)));
       }
     }
 
