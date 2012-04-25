@@ -356,7 +356,8 @@ class LimesurveyValueTable extends AbstractValueTable {
     public LimesurveyVariableValueSource(Builder vb, LimeQuestion question, String subQuestionFieldTitle) {
       this.question = question;
       this.subQuestionFieldTitle = subQuestionFieldTitle;
-      vb.addAttribute("LimeSurveyVariable", getLimesurveyVariableField());
+      vb.addAttribute(Attribute.Builder.newAttribute("SGQA").withNamespace(LimeAttributes.LIMESURVEY_NAMESPACE).withValue(getLimesurveyVariableField()).build());
+      vb.addAttribute(Attribute.Builder.newAttribute("SGQ").withNamespace(LimeAttributes.LIMESURVEY_NAMESPACE).withValue(getSgqId()).build());
       this.variable = vb.build();
     }
 
@@ -381,9 +382,17 @@ class LimesurveyValueTable extends AbstractValueTable {
       return variable;
     }
 
+    // SGQA identifier
+    // see http://docs.limesurvey.org/tiki-index.php?page=SGQA+identifier&structure=English+Instructions+for+LimeSurvey
     public String getLimesurveyVariableField() {
       int qId = question.hasParentId() ? question.getParentQid() : question.getQid();
       return sid + "X" + question.getGroupId() + "X" + qId + subQuestionFieldTitle;
+    }
+    
+    // SGQ
+    public String getSgqId() {
+      int qId = question.hasParentId() ? question.getParentQid() : question.getQid();
+      return sid + "X" + question.getGroupId() + "X" + qId;
     }
 
     @Override

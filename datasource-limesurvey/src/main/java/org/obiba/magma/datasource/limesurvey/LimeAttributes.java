@@ -13,9 +13,9 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
-public class LimeAttributes {
+class LimeAttributes {
 
-  private static final String LIMESURVEY_NAMESPACE = "limesurvey";
+  static final String LIMESURVEY_NAMESPACE = "limesurvey";
   
   // Attributes that should not be part of the limesurvey namespace
   private static final Set<String> OPAL_ATTRIBUTES = ImmutableSet.of("label");
