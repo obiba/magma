@@ -5,6 +5,7 @@ import java.util.Collections;
 import org.obiba.magma.NoSuchVariableException;
 import org.obiba.magma.ValueSet;
 import org.obiba.magma.ValueTable;
+import org.obiba.magma.ValueTableWriter.VariableWriter;
 import org.obiba.magma.Variable;
 import org.obiba.magma.VariableValueSource;
 import org.obiba.magma.views.ListClause;
@@ -39,5 +40,10 @@ public final class NoneClause implements SelectClause, WhereClause, ListClause {
   @Override
   public void setValueTable(ValueTable valueTable) {
     // No action take for this method.
+  }
+
+  @Override
+  public VariableWriter createWriter() {
+    throw new UnsupportedOperationException();
   }
 }
