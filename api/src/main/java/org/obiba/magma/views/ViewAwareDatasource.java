@@ -9,6 +9,7 @@ import org.obiba.magma.ValueTableWriter;
 import org.obiba.magma.support.AbstractDatasourceWrapper;
 import org.obiba.magma.support.Disposables;
 import org.obiba.magma.support.Initialisables;
+import org.obiba.magma.type.DateTimeType;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
@@ -87,6 +88,7 @@ public class ViewAwareDatasource extends AbstractDatasourceWrapper {
 
     if(hasView(view.getName())) {
       view.setCreated(getView(view.getName()).getTimestamps().getCreated());
+      view.setUpdated(DateTimeType.get().now());
       removeView(view.getName());
     }
 
