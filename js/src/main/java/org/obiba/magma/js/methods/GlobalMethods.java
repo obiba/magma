@@ -118,18 +118,15 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
     ValueTable joinedTable = reference.resolveTable(valueTable);
     VariableValueSource joinedSource = reference.resolveSource(valueTable);
 
-    if(identifier.isNull()) {
-      return new ScriptableValue(thisObj, joinedSource.getValueType().nullValue(), joinedSource.getVariable().getUnit());
-    } else {
-      // Default value is null if joined table has no valueSet (equivalent to a LEFT JOIN)
-      Value value = joinedSource.getVariable().isRepeatable() ? joinedSource.getValueType().nullSequence() : joinedSource.getValueType().nullValue();
-
+    // Default value is null if joined table has no valueSet (equivalent to a LEFT JOIN)
+    Value value = joinedSource.getVariable().isRepeatable() ? joinedSource.getValueType().nullSequence() : joinedSource.getValueType().nullValue();
+    if(identifier.isNull() == false) {
       VariableEntity entity = new VariableEntityBean(joinedTable.getEntityType(), identifier.toString());
       if(joinedTable.hasValueSet(entity)) {
         value = joinedSource.getValue(joinedTable.getValueSet(entity));
       }
-      return new ScriptableValue(thisObj, value, joinedSource.getVariable().getUnit());
     }
+    return new ScriptableValue(thisObj, value, joinedSource.getVariable().getUnit());
   }
 
   public static Scriptable $var(Context ctx, Scriptable thisObj, Object[] args, Function funObj) {
