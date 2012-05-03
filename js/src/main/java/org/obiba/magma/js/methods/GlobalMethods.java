@@ -122,7 +122,7 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
       return new ScriptableValue(thisObj, joinedSource.getValueType().nullValue(), joinedSource.getVariable().getUnit());
     } else {
       // Default value is null if joined table has no valueSet (equivalent to a LEFT JOIN)
-      Value value = joinedSource.getValueType().nullValue();
+      Value value = joinedSource.getVariable().isRepeatable() ? joinedSource.getValueType().nullSequence() : joinedSource.getValueType().nullValue();
 
       VariableEntity entity = new VariableEntityBean(joinedTable.getEntityType(), identifier.toString());
       if(joinedTable.hasValueSet(entity)) {
