@@ -2,6 +2,7 @@ package org.obiba.magma.datasource.generated;
 
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueSource;
+import org.obiba.magma.ValueType;
 import org.obiba.magma.Variable;
 import org.obiba.magma.js.JavascriptValueSource;
 import org.obiba.magma.support.Initialisables;
@@ -23,8 +24,8 @@ class NumericVariableValueGenerator extends AbstractMissingValueVariableValueGen
     super(variable);
     minimum = makeSource(variable, "minimum");
     maximum = makeSource(variable, "maximum");
-    mean = makeSource(variable, "mean");
-    stddev = makeSource(variable, "stddev");
+    mean = makeSource(variable, DecimalType.get(), "mean");
+    stddev = makeSource(variable, DecimalType.get(), "stddev");
     Initialisables.initialise(minimum, maximum, mean, stddev);
   }
 
@@ -56,10 +57,14 @@ class NumericVariableValueGenerator extends AbstractMissingValueVariableValueGen
   }
 
   private ValueSource makeSource(Variable variable, String scriptAttribute) {
+    return makeSource(variable, variable.getValueType(), scriptAttribute);
+  }
+
+  private ValueSource makeSource(Variable variable, ValueType type, String scriptAttribute) {
     if(variable.hasAttribute(scriptAttribute)) {
-      return new JavascriptValueSource(variable.getValueType(), variable.getAttributeStringValue(scriptAttribute));
+      return new JavascriptValueSource(type, variable.getAttributeStringValue(scriptAttribute));
     } else {
-      return new NullValueSource(variable.getValueType());
+      return new NullValueSource(type);
     }
   }
 
