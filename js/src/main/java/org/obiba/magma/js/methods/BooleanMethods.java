@@ -1,10 +1,15 @@
 package org.obiba.magma.js.methods;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.ScriptRuntime;
 import org.mozilla.javascript.Scriptable;
 import org.obiba.magma.Value;
+import org.obiba.magma.ValueType;
 import org.obiba.magma.js.MagmaJsEvaluationRuntimeException;
 import org.obiba.magma.js.ScriptableValue;
 import org.obiba.magma.lang.Booleans;
@@ -285,14 +290,42 @@ public class BooleanMethods {
 
   public static ScriptableValue whenNull(Context ctx, Scriptable thisObj, Object[] args, Function funObj) throws MagmaJsEvaluationRuntimeException {
     ScriptableValue sv = (ScriptableValue) thisObj;
-    if(sv.getValue().isNull()) {
-      if(args == null || args.length == 0) {
-        return sv;
-      } else {
-        return new ScriptableValue(thisObj, BooleanType.get().valueOf(args[0]));
-      }
+    if(sv.getValue().isSequence()) {
+      return whenNullSequence(ctx, thisObj, args, funObj);
+    } else if(sv.getValue().isNull() && args != null && args.length > 0) {
+      return new ScriptableValue(thisObj, whenNullArgument(sv.getValueType(), args[0]));
     } else {
       return sv;
+    }
+  }
+
+  private static ScriptableValue whenNullSequence(Context ctx, Scriptable thisObj, Object[] args, Function funObj) throws MagmaJsEvaluationRuntimeException {
+    ScriptableValue sv = (ScriptableValue) thisObj;
+    if(sv.getValue().isNull()) {
+      Value rval = whenNullArgument(sv.getValueType(), args[0]);
+      if(rval.isSequence()) {
+        return new ScriptableValue(thisObj, rval);
+      } else {
+        return new ScriptableValue(thisObj, sv.getValueType().sequenceOf(Collections.singleton(rval)));
+      }
+    } else {
+      List<Value> newValues = new ArrayList<Value>();
+      for(Value val : sv.getValue().asSequence().getValues()) {
+        if(val.isNull()) {
+          newValues.add(whenNullArgument(val.getValueType(), args[0]));
+        } else {
+          newValues.add(val);
+        }
+      }
+      return new ScriptableValue(thisObj, sv.getValueType().sequenceOf(newValues));
+    }
+  }
+
+  private static Value whenNullArgument(ValueType type, Object arg) {
+    if(arg instanceof ScriptableValue) {
+      return ((ScriptableValue) arg).getValue();
+    } else {
+      return type.valueOf(arg);
     }
   }
 
