@@ -68,7 +68,7 @@ public class LimeAnswer extends LimeLocalizableEntity implements Comparable<Lime
     return implicitLabels;
   }
 
-  public static Map<String, LimeAttributes> implicitLabels = new HashMap<String, LimeAttributes>() {
+  public static final Map<String, LimeAttributes> implicitLabels = new HashMap<String, LimeAttributes>() {
 
     private static final long serialVersionUID = -4789211495142871372L;
 
