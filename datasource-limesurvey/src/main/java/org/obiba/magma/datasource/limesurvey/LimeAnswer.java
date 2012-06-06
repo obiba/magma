@@ -43,7 +43,7 @@ public class LimeAnswer extends LimeLocalizableEntity implements Comparable<Lime
 
   @Override
   public int compareTo(LimeAnswer o) {
-    return new Integer(this.sortorder).compareTo(o.sortorder);
+    return Integer.valueOf(this.sortorder).compareTo(o.sortorder);
   }
 
   @Override
