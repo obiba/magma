@@ -24,9 +24,7 @@ class LimesurveyValueSet extends ValueSetBean {
 
   Value getValue(LimesurveyVariableValueSource limesurveyVariableValueSource) {
     String limesurveyField = limesurveyVariableValueSource.getLimesurveyVariableField();
-    if(cache == null) {
-      loadValues();
-    }
+    loadValues();
     ValueType type = limesurveyVariableValueSource.getVariable().getValueType();
     Object object = cache.get(limesurveyField);
     return type.valueOf("".equals(object) ? null : object);
