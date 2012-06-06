@@ -45,6 +45,23 @@ public class LimeAnswer extends LimeLocalizableEntity implements Comparable<Lime
   public int compareTo(LimeAnswer o) {
     return Integer.valueOf(this.sortorder).compareTo(o.sortorder);
   }
+  
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) return true;
+    if (obj instanceof LimeAnswer == false) return false;
+    
+    if (this.scaleId != ((LimeAnswer)obj).scaleId) return false;
+    return compareTo((LimeAnswer)obj) == 0;
+  }
+  
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash = 31 * hash + scaleId;
+    hash = 31 * hash + sortorder;
+    return hash;
+  }
 
   @Override
   public Map<String, LimeAttributes> getImplicitLabel() {
