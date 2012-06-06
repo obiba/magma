@@ -213,11 +213,17 @@ public class BooleanMethods {
     if(args == null || args.length == 0) {
       return buildValue(thisObj, booleanValue);
     }
-    if(args[0] instanceof ScriptableValue) {
-      ScriptableValue operand = (ScriptableValue) args[0];
-      booleanValue = Booleans.ternaryOr(booleanValue, toBoolean(operand.getValue()));
-    } else {
-      booleanValue = Booleans.ternaryOr(booleanValue, ScriptRuntime.toBoolean(args[0]));
+
+    for(Object arg : args) {
+      if(arg instanceof ScriptableValue) {
+        ScriptableValue operand = (ScriptableValue) arg;
+        booleanValue = Booleans.ternaryOr(booleanValue, toBoolean(operand.getValue()));
+      } else {
+        booleanValue = Booleans.ternaryOr(booleanValue, ScriptRuntime.toBoolean(arg));
+      }
+      if(Boolean.TRUE.equals(booleanValue)) {
+        return buildValue(thisObj, true);
+      }
     }
     return buildValue(thisObj, booleanValue);
   }

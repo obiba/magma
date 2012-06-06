@@ -304,6 +304,13 @@ public class BooleanMethodsTest extends AbstractJsTest {
     Assert.assertEquals(BooleanType.get().trueValue(), value.getValue());
   }
 
+  @Test
+  public void test_orMultipleBoolean() {
+    ScriptableValue value = evaluate("or(false,true)", BooleanType.get().falseValue());
+    Assert.assertNotNull(value);
+    Assert.assertEquals(BooleanType.get().trueValue(), value.getValue());
+  }
+
   // equals (==)
 
   @Test
