@@ -131,7 +131,7 @@ public class StaticDatasource extends AbstractAttributeAware implements Datasour
   /**
   *
   */
-  private final class StaticValueTableWriter implements ValueTableWriter {
+  private static final class StaticValueTableWriter implements ValueTableWriter {
 
     private final StaticValueTable table;
 
