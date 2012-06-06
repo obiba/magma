@@ -165,7 +165,11 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
       throw new UnsupportedOperationException("log() expects either one or more arguments. e.g. log('message'), log('var 1 {}', $('var1')), log('var 1 {} var 2 {}', $('var1'), $('var2')).");
     }
     if(args.length == 1) {
-      log.info(args[0].toString());
+      if(args[0] instanceof Exception) {
+        log.warn("Exception during JS execution", (Exception) args[0]);
+      } else {
+        log.info(args[0].toString());
+      }
     } else {
       log.info(args[0].toString(), Arrays.copyOfRange(args, 1, args.length));
     }
@@ -188,7 +192,9 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
     }
   }
 
-  private static ScriptableValue valuesForVector(MagmaContext context, Scriptable thisObj, MagmaEngineVariableResolver reference, VariableValueSource source) {
+  private static
+      ScriptableValue
+      valuesForVector(MagmaContext context, Scriptable thisObj, MagmaEngineVariableResolver reference, VariableValueSource source) {
     VectorSource vectorSource = source.asVectorSource();
     if(vectorSource == null) {
       throw new IllegalArgumentException("source cannot provide vectors (" + source.getClass().getName() + ")");
@@ -198,7 +204,9 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
     return new ScriptableValue(thisObj, cache.get(context, vectorSource), source.getVariable().getUnit());
   }
 
-  private static ScriptableValue valueForValueSet(MagmaContext context, Scriptable thisObj, MagmaEngineVariableResolver reference, VariableValueSource source) {
+  private static
+      ScriptableValue
+      valueForValueSet(MagmaContext context, Scriptable thisObj, MagmaEngineVariableResolver reference, VariableValueSource source) {
     ValueSet valueSet = (ValueSet) context.peek(ValueSet.class);
     // Tests whether this valueSet is in the same table as the referenced ValueTable
     if(reference.isJoin(valueSet)) {
