@@ -8,8 +8,8 @@ import java.io.IOException;
 import org.junit.Test;
 import org.obiba.magma.Datasource;
 import org.obiba.magma.ValueTableWriter;
-import org.obiba.magma.Variable;
 import org.obiba.magma.ValueTableWriter.VariableWriter;
+import org.obiba.magma.Variable;
 import org.obiba.magma.test.AbstractMagmaTest;
 import org.obiba.magma.type.IntegerType;
 
@@ -26,7 +26,6 @@ public class JdbcDatasourceFactoryTest extends AbstractMagmaTest {
 
     assertNotNull(jdbcDatasource);
     assertEquals("my-datasource", jdbcDatasource.getName());
-    assertEquals(0, jdbcDatasource.getValueTables().size());
   }
 
   @Test
@@ -37,7 +36,6 @@ public class JdbcDatasourceFactoryTest extends AbstractMagmaTest {
 
     assertNotNull(jdbcDatasource);
     assertEquals("my-datasource", jdbcDatasource.getName());
-    assertEquals(0, jdbcDatasource.getValueTables().size());
 
     ValueTableWriter writer = jdbcDatasource.createWriter("newTable", "test");
     VariableWriter vw = writer.writeVariables();
