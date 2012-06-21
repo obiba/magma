@@ -102,6 +102,7 @@ public class StaticDatasource extends AbstractAttributeAware implements Datasour
       table = tableMap.get(tableName);
     } else {
       table = new StaticValueTable(this, tableName, new HashSet<String>(), entityType);
+      addValueTable(table);
     }
     return new StaticValueTableWriter(table);
   }
@@ -154,13 +155,16 @@ public class StaticDatasource extends AbstractAttributeAware implements Datasour
 
         @Override
         public void writeVariable(Variable variable) {
-          table.addVariable(variable);
+          table.addVariable(Variable.Builder.sameAs(variable).build());
         }
       };
     }
 
     @Override
     public ValueSetWriter writeValueSet(final VariableEntity entity) {
+      if(table.hasVariableEntity(entity) == false) {
+        table.addVariableEntity(entity);
+      }
       return new ValueSetWriter() {
 
         @Override
