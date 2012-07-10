@@ -56,6 +56,11 @@ public class MultithreadedDatasourceCopier {
       return this;
     }
 
+    public Builder withReaderListener(ReaderListener readerListener) {
+      this.copier.readerListener = readerListener;
+      return this;
+    }
+
     public Builder withCopier(DatasourceCopier.Builder copier) {
       this.copier.copier = copier;
       return this;
@@ -84,6 +89,12 @@ public class MultithreadedDatasourceCopier {
     }
   }
 
+  public interface ReaderListener {
+
+    public void onRead(ValueSet valueSet, Value[] values);
+
+  }
+
   private ThreadFactory threadFactory;
 
   private int bufferSize = 150;
@@ -109,6 +120,8 @@ public class MultithreadedDatasourceCopier {
   private long entitiesCopied = 0;
 
   private int nextPercentIncrement = 0;
+
+  private ReaderListener readerListener;
 
   private MultithreadedDatasourceCopier() {
 
@@ -248,6 +261,9 @@ public class MultithreadedDatasourceCopier {
             }
             log.debug("Enqueued entity {}", entity.getIdentifier());
             writeQueue.put(new VariableEntityValues(valueSet, values));
+            if(readerListener != null) {
+              readerListener.onRead(valueSet, values);
+            }
           }
           entity = readQueue.poll();
         }
