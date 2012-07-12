@@ -22,6 +22,7 @@ import org.obiba.magma.js.ScriptableVariable;
 import org.obiba.magma.support.MagmaEngineVariableResolver;
 import org.obiba.magma.support.VariableEntityBean;
 import org.obiba.magma.type.DateTimeType;
+import org.obiba.magma.type.TextType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,7 +35,7 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
   /**
    * Set of methods to be exposed as top-level methods (ones that can be invoked anywhere)
    */
-  private static final Set<String> GLOBAL_METHODS = ImmutableSet.of("$", "$join", "now", "log", "$var", "newValue");
+  private static final Set<String> GLOBAL_METHODS = ImmutableSet.of("$", "$join", "now", "log", "$var", "$id", "newValue");
 
   @Override
   protected Set<String> getExposedMethods() {
@@ -149,6 +150,20 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
   }
 
   /**
+   * Allows accessing the current entity identifier.
+   * 
+   * <pre>
+   * $id()
+   * </pre>
+   * @return an instance of {@code ScriptableValue}
+   */
+  public static Scriptable $id(Context ctx, Scriptable thisObj, Object[] args, Function funObj) {
+    MagmaContext context = MagmaContext.asMagmaContext(ctx);
+    VariableEntity entity = (VariableEntity) context.peek(VariableEntity.class);
+    return new ScriptableValue(thisObj, TextType.get().valueOf(entity.getIdentifier()));
+  }
+
+  /**
    * Provides 'info' level logging of messages and variables. Returns a {@code ScriptableValue}. Accessed as 'log' in
    * javascript.
    * 
@@ -192,9 +207,7 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
     }
   }
 
-  private static
-      ScriptableValue
-      valuesForVector(MagmaContext context, Scriptable thisObj, MagmaEngineVariableResolver reference, VariableValueSource source) {
+  private static ScriptableValue valuesForVector(MagmaContext context, Scriptable thisObj, MagmaEngineVariableResolver reference, VariableValueSource source) {
     VectorSource vectorSource = source.asVectorSource();
     if(vectorSource == null) {
       throw new IllegalArgumentException("source cannot provide vectors (" + source.getClass().getName() + ")");
@@ -204,9 +217,7 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
     return new ScriptableValue(thisObj, cache.get(context, vectorSource), source.getVariable().getUnit());
   }
 
-  private static
-      ScriptableValue
-      valueForValueSet(MagmaContext context, Scriptable thisObj, MagmaEngineVariableResolver reference, VariableValueSource source) {
+  private static ScriptableValue valueForValueSet(MagmaContext context, Scriptable thisObj, MagmaEngineVariableResolver reference, VariableValueSource source) {
     ValueSet valueSet = (ValueSet) context.peek(ValueSet.class);
     // Tests whether this valueSet is in the same table as the referenced ValueTable
     if(reference.isJoin(valueSet)) {
