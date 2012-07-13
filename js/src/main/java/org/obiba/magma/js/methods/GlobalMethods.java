@@ -1,11 +1,14 @@
 package org.obiba.magma.js.methods;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 import java.util.Set;
 
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
+import org.mozilla.javascript.NativeArray;
 import org.mozilla.javascript.NativeObject;
 import org.mozilla.javascript.Scriptable;
 import org.obiba.magma.NoSuchValueSetException;
@@ -42,7 +45,7 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
   /**
    * Set of methods to be exposed as top-level methods (ones that can be invoked anywhere)
    */
-  private static final Set<String> GLOBAL_METHODS = ImmutableSet.of("$", "$join", "now", "log", "$var", "$id", "$group", "newValue");
+  private static final Set<String> GLOBAL_METHODS = ImmutableSet.of("$", "$join", "now", "log", "$var", "$id", "$group", "$groups", "newValue");
 
   @Override
   protected Set<String> getExposedMethods() {
@@ -249,38 +252,70 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
     if(args.length != 2) {
       throw new IllegalArgumentException("$group() expects exactly two arguments: a variable name and a matching criteria (i.e. a value or a function).");
     }
+
+    List<NativeObject> valueMaps = getGroups(ctx, thisObj, args, funObj, true);
+    return valueMaps.size() == 0 ? new NativeObject() : valueMaps.get(0);
+  }
+
+  /**
+   * Get all occurrence group matching criteria and returns an array of maps (variable name/{@code ScriptableValue}).
+   * 
+   * <pre>
+   *   $groups('StageName','StageA')[0]['StageDuration']
+   *   $groups('NumVar', function(value) {
+   *     return value.ge(10);
+   *   })[0]['AnotherVar']
+   * </pre>
+   * @return a javascript object that maps variable names to {@code ScriptableValue}
+   */
+  public static NativeArray $groups(final Context ctx, Scriptable thisObj, Object[] args, final Function funObj) throws MagmaJsEvaluationRuntimeException {
+    if(args.length != 2) {
+      throw new IllegalArgumentException("$groups() expects exactly two arguments: a variable name and a matching criteria (i.e. a value or a function).");
+    }
+
+    return new NativeArray(getGroups(ctx, thisObj, args, funObj, false).toArray());
+  }
+
+  private static List<NativeObject> getGroups(final Context ctx, Scriptable thisObj, Object[] args, final Function funObj, boolean stopAtFirst) {
     String name = (String) args[0];
     Object criteria = args[1];
 
     MagmaContext context = MagmaContext.asMagmaContext(ctx);
 
     ScriptableValue sv = valueFromContext(context, thisObj, name);
-    NativeObject valueMap = new NativeObject();
     Variable variable = variableFromContext(context, name);
     ValueTable valueTable = valueTableFromContext(context);
 
+    List<NativeObject> valueMaps = new ArrayList<NativeObject>();
+
     if(sv.getValue().isNull() || sv.getValue().isSequence() == false) {
       // just map itself
+      NativeObject valueMap = new NativeObject();
+      valueMaps.add(valueMap);
       valueMap.put(variable.getName(), null, sv);
-      return valueMap;
-    }
+    } else {
+      Predicate<Value> predicate = getPredicate(ctx, sv.getParentScope(), thisObj, variable, criteria);
+      Iterable<Variable> variables = getVariablesFromOccurrenceGroup(valueTable, variable);
 
-    Predicate<Value> predicate = getPredicate(ctx, sv.getParentScope(), thisObj, variable, criteria);
-    Iterable<Variable> variables = getVariablesFromOccurrenceGroup(valueTable, variable);
-
-    ValueSequence valueSequence = sv.getValue().asSequence();
-    int index = -1;
-    for(Value value : valueSequence.getValue()) {
-      index++;
-      if(predicate.apply(value)) {
-        valueMap.put(variable.getName(), valueMap, new ScriptableValue(thisObj, value));
-        // get variables of the same occurrence group and map values
-        mapValues(context, thisObj, valueMap, variables, index);
-        break;
+      ValueSequence valueSequence = sv.getValue().asSequence();
+      int index = -1;
+      for(Value value : valueSequence.getValue()) {
+        index++;
+        if(predicate.apply(value)) {
+          NativeObject valueMap = new NativeObject();
+          valueMaps.add(valueMap);
+          // map itself
+          valueMap.put(variable.getName(), valueMap, new ScriptableValue(thisObj, value));
+          // get variables of the same occurrence group and map values
+          mapValues(context, thisObj, valueMap, variables, index);
+          if(stopAtFirst) {
+            break;
+          }
+        }
       }
     }
 
-    return valueMap;
+    return valueMaps;
   }
 
   private static ValueTable valueTableFromContext(MagmaContext context) {
