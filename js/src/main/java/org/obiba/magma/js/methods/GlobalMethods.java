@@ -235,9 +235,15 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
   }
 
   /**
+   * Get first occurrence group matching criteria and returns a map (variable name/{@code ScriptableValue}).
    * 
-   * @return
-   * @throws MagmaJsEvaluationRuntimeException
+   * <pre>
+   *   $group('StageName','StageA')['StageDuration']
+   *   $group('NumVar', function(value) {
+   *     return value.ge(10);
+   *   })['AnotherVar']
+   * </pre>
+   * @return a javascript object that maps variable names to {@code ScriptableValue}
    */
   public static NativeObject $group(final Context ctx, Scriptable thisObj, Object[] args, final Function funObj) throws MagmaJsEvaluationRuntimeException {
     if(args.length != 2) {
