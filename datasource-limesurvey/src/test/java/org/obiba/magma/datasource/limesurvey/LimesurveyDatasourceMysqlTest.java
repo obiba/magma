@@ -5,6 +5,7 @@ import javax.sql.DataSource;
 import junit.framework.Assert;
 
 import org.apache.commons.dbcp.BasicDataSource;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.obiba.magma.ValueTable;
 
@@ -18,7 +19,7 @@ public class LimesurveyDatasourceMysqlTest extends AbstractMagmaTest {
    * - Configure mysql connection in test-spring-context-mysql.xml
    */
   @Test
-  //@Ignore("cannot run without manual intervention")
+  @Ignore("cannot run without manual intervention")
   public void testCreateDatasourceFromTestMySqlDatabase() {
     LimesurveyDatasource limesurveyDatasource = new LimesurveyDatasource("lime", createDataSource());
     limesurveyDatasource.initialise();
