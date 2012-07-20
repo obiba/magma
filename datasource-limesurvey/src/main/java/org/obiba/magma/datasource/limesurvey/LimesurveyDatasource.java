@@ -33,6 +33,7 @@ public class LimesurveyDatasource extends AbstractDatasource {
 
   private Map<String, Integer> sids;
 
+  // identifier quote string
   private String iqs;
 
   public LimesurveyDatasource(String name, DataSource dataSource) {
@@ -56,9 +57,14 @@ public class LimesurveyDatasource extends AbstractDatasource {
     sqlDbVersion.append("FROM " + quoteAndPrefix("settings_global") + " ");
     sqlDbVersion.append("WHERE stg_name='DBVersion'");
     String dbVersion = jdbcTemplate.queryForObject(sqlDbVersion.toString(), String.class);
-    if("146".equals(dbVersion) == false) {
+    try {
+      if(Float.parseFloat(dbVersion)<146) {
+        throw new MagmaRuntimeException(
+            "Limesurvey database version unsupported:" + dbVersion + " only 146 for the moment");
+      }
+    } catch(NumberFormatException e) {
       throw new MagmaRuntimeException(
-          "Limesurvey database version unsupported:" + dbVersion + " only 146 for the moment");
+          "Limesurvey database version unsupported:" + dbVersion);
     }
     iqs = jdbcTemplate.execute(new ConnectionCallback<String>() {
       @Override

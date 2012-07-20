@@ -35,6 +35,7 @@ public class LimesurveyTimestamps implements Timestamps {
     StringBuilder sql = new StringBuilder();
     sql.append("SELECT " + sqlOperator + "(submitdate) ");
     sql.append("FROM " + limesurveyValueTable.quoteAndPrefix("survey_" + limesurveyValueTable.getSid()));
+    sql.append("WHERE submitdate is not NULL");
     Date lastUpdateDate;
     try {
       lastUpdateDate = jdbcTemplate.queryForObject(sql.toString(), Date.class);
