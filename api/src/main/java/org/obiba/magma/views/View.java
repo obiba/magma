@@ -182,6 +182,8 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
   }
 
   public boolean hasValueSet(VariableEntity entity) {
+    if(entity == null) return false;
+
     VariableEntity unmapped = getVariableEntityMappingFunction().unapply(entity);
     if(unmapped == null) return false;
 
@@ -208,7 +210,15 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
     });
 
     // Transform the Iterable, replacing each ValueSet with one that points at the current View.
-    return Iterables.transform(filteredValueSets, getValueSetMappingFunction());
+    return Iterables.filter(Iterables.transform(filteredValueSets, getValueSetMappingFunction()), new Predicate<ValueSet>() {
+
+      @Override
+      public boolean apply(ValueSet input) {
+        // Result of transformation might have returned a non-mappable entity
+        return input.getVariableEntity() != null;
+      }
+
+    });
   }
 
   public ValueSet getValueSet(VariableEntity entity) throws NoSuchValueSetException {
