@@ -21,7 +21,7 @@ import org.springframework.jdbc.support.rowset.SqlRowSet;
 
 public class LimesurveyDatasource extends AbstractDatasource {
 
-  private static final String TYPE = "jdbc";
+  private static final String TYPE = "limesurvey";
 
   private static final String DEFAULT_TABLE_PREFIX = "";
 
