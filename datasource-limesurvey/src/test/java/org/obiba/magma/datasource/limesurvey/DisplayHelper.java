@@ -15,7 +15,7 @@ import org.obiba.magma.Value;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
-import org.obiba.magma.datasource.limesurvey.LimesurveyValueTable.LimesurveyVariableValueSource;
+import org.obiba.magma.datasource.limesurvey.LimesurveyValueTable.LimesurveyQuestionVariableValueSource;
 
 public class DisplayHelper {
   public static void display(LimesurveyDatasource datasource) {
@@ -28,23 +28,23 @@ public class DisplayHelper {
   }
   
   public static int display(final LimesurveyValueTable table) {
-    List<LimesurveyVariableValueSource> variables = Lists.newArrayList(Lists
-        .transform(Lists.newArrayList(table.getVariables()), new Function<Variable, LimesurveyVariableValueSource>() {
+    List<LimesurveyQuestionVariableValueSource> variables = Lists.newArrayList(Lists
+        .transform(Lists.newArrayList(table.getVariables()), new Function<Variable, LimesurveyQuestionVariableValueSource>() {
 
           @Override
-          public LimesurveyVariableValueSource apply(Variable input) {
-            return (LimesurveyVariableValueSource) table.getVariableValueSource(input.getName());
+          public LimesurveyQuestionVariableValueSource apply(Variable input) {
+            return (LimesurveyQuestionVariableValueSource) table.getVariableValueSource(input.getName());
           }
         }));
-    Collections.sort(variables, new Comparator<LimesurveyVariableValueSource>() {
+    Collections.sort(variables, new Comparator<LimesurveyQuestionVariableValueSource>() {
 
       @Override
-      public int compare(LimesurveyVariableValueSource o1, LimesurveyVariableValueSource o2) {
+      public int compare(LimesurveyQuestionVariableValueSource o1, LimesurveyQuestionVariableValueSource o2) {
         return o1.getVariable().getName().compareTo(o2.getVariable().getName());
       }
     });
     TreeSet<VariableEntity> variableEntities = Sets.newTreeSet(table.getVariableEntities());
-    for(LimesurveyVariableValueSource lvv : variables) {
+    for(LimesurveyQuestionVariableValueSource lvv : variables) {
       Variable v = lvv.getVariable();
       System.out.print("Var '" + v.getName() + "' " + v.getValueType().getName() + " ");
       for(Attribute attr : v.getAttributes()) {

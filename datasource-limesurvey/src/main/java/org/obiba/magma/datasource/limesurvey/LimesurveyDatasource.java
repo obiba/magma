@@ -60,7 +60,7 @@ public class LimesurveyDatasource extends AbstractDatasource {
     try {
       if(Float.parseFloat(dbVersion)<146) {
         throw new MagmaRuntimeException(
-            "Limesurvey database version unsupported:" + dbVersion + " only 146 for the moment");
+            "Limesurvey database version unsupported:" + dbVersion + " (must be greater equal than 146)");
       }
     } catch(NumberFormatException e) {
       throw new MagmaRuntimeException(

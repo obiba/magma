@@ -9,7 +9,6 @@ import org.obiba.magma.Value;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.ValueType;
 import org.obiba.magma.VariableEntity;
-import org.obiba.magma.datasource.limesurvey.LimesurveyValueTable.LimesurveyVariableValueSource;
 import org.obiba.magma.support.ValueSetBean;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ResultSetExtractor;
@@ -22,14 +21,13 @@ class LimesurveyValueSet extends ValueSetBean {
     super(table, entity);
   }
 
-  Value getValue(LimesurveyVariableValueSource limesurveyVariableValueSource) {
-    String limesurveyField = limesurveyVariableValueSource.getLimesurveyVariableField();
+  Value getValue(ValueType type, String field) {
     loadValues();
-    ValueType type = limesurveyVariableValueSource.getVariable().getValueType();
-    Object object = cache.get(limesurveyField);
+    Object object = cache.get(field);
     return type.valueOf("".equals(object) ? null : object);
   }
-
+  
+  
   private synchronized void loadValues() {
     if(cache == null) {
       LimesurveyValueTable limeValueTable = getValueTable();
