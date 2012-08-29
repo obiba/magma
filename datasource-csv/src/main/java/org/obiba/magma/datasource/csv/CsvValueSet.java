@@ -8,8 +8,11 @@ import org.obiba.magma.ValueTable;
 import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.support.ValueSetBean;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class CsvValueSet extends ValueSetBean {
+  private static final Logger log = LoggerFactory.getLogger(CsvValueSet.class);
 
   private final Map<String, Integer> headerMap;
 
@@ -27,7 +30,11 @@ public class CsvValueSet extends ValueSetBean {
     if(pos != null && pos < line.length) {
       String strValue = line[pos];
       if(strValue.length() > 0) {
-        value = variable.getValueType().valueOf(strValue);
+        if(variable.isRepeatable()) {
+          value = variable.getValueType().sequenceOf(strValue);
+        } else {
+          value = variable.getValueType().valueOf(strValue);
+        }
       }
     }
     return value;
