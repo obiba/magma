@@ -291,7 +291,7 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
           innerline++;
           nd++;
         } else {
-          log.info("[{}:{}] {}", new Object[] { file.getName(), (line - innerline), nextLine });
+          log.debug("[{}:{}] {}", new Object[] { file.getName(), (line - innerline), nextLine });
           lineNumberMap.put(line - innerline, new CsvIndexEntry(strt, nd));
           innerline = 0;
           nd++;
