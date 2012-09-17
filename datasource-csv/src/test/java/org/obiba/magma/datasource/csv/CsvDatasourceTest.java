@@ -860,4 +860,27 @@ public class CsvDatasourceTest {
     }
     Assert.assertEquals(2, count);
   }
+
+  @Test
+  public void testCharSet() {
+    CsvDatasource datasource = new CsvDatasource("csv-datasource").addValueTable("Drugs", new File("src/test/resources/medications/Drugs.csv"), "Drug");
+    datasource.setQuote(Quote.DOUBLE);
+    datasource.setSeparator(Separator.COMMA);
+    datasource.setCharacterSet("UTF-8");
+    datasource.setFirstRow(1);
+    datasource.initialise();
+
+    ValueTable table = datasource.getValueTable("Drugs");
+
+    Variable var = table.getVariable("MEDICATION");
+
+    checkValue(table, var, "02335204", "PREVNAR 13 (CORYNEBACTERIUM DIPHTHERIAE CRM-197 PROTEIN 34µG, PNEUMOCOCCAL POLYSACCHARIDE SEROTYPE 14 2.2µG, PNEUMOCOCCAL POLYSACCHARIDE SEROTYPE 18C 2.2µG, PNEUMOCOCCAL POLYSACCHARIDE SEROTYPE 19F 2.2µG, PNEUMOCOCCAL POLYSACCHARIDE SEROTYPE 23F 2.2µG, PNEUMOCOCCAL POLYSACCHARIDE SEROTYPE 4 2.2µG, PNEUMOCOCCAL POLYSACCHARIDE SEROTYPE 6B 4.4µG, PNEUMOCOCCAL POLYSACCHARIDE SEROTYPE 9V 2.2µG, PNEUMOCOCCAL POLYSACCHARIDE SEROTYPE 3 2.2µG, PNEUMOCOCCAL POLYSACCHARIDE SEROTYPE 5 2.2µG, PNEUMOCOCCAL POLYSACCHARIDE SEROTYPE 6A 2.2µG, PNEUMOCOCCAL POLYSACCHARIDE SEROTYPE 7F 2.2µG, PNEUMOCOCCAL POLYSACCHARIDE SEROTYP 19A 2.2µG, PNEUMOCOCCAL POLYSACCHARIDE SEROTYPE 1 2.2µG)");
+    checkValue(table, var, "01918346", "COUMADIN TAB 2.5MG (WARFARIN SODIUM 2.5MG)");
+  }
+
+  private void checkValue(ValueTable table, Variable var, String identifier, String expected) {
+    Value value = table.getValue(var, table.getValueSet(new VariableEntityBean("Drug", identifier)));
+    log.info("{} : {}", identifier, value.toString());
+    Assert.assertEquals(expected, value.toString());
+  }
 }
