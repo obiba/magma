@@ -1,10 +1,17 @@
 package org.obiba.magma.type;
 
+import java.io.File;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
+import java.util.List;
 
 import org.obiba.magma.MagmaEngine;
 import org.obiba.magma.Value;
+import org.obiba.magma.ValueSequence;
+import org.obiba.magma.support.BinaryValueFileLoader;
+import org.obiba.magma.support.BinaryValueURLLoader;
+
+import com.google.common.collect.Lists;
 
 public class BinaryType extends AbstractValueType {
 
@@ -76,6 +83,36 @@ public class BinaryType extends AbstractValueType {
       return valueOf((String) object);
     }
     throw new IllegalArgumentException("Cannot construct " + getClass().getSimpleName() + " from type " + type + ".");
+  }
+
+  public ValueSequence sequenceOfReferences(String string) {
+    return sequenceOfReferences(null, string);
+  }
+
+  public ValueSequence sequenceOfReferences(File parent, String string) {
+    List<Value> values = Lists.newArrayList();
+    // values are references to files or URLs
+    Value refValues = TextType.get().sequenceOf(string);
+    for(Value refValue : refValues.asSequence().getValues()) {
+      if(refValue.isNull()) {
+        values.add(BinaryType.get().nullValue());
+      } else {
+        values.add(valueOfReference(parent, refValue.toString()));
+      }
+    }
+    return BinaryType.get().sequenceOf(values);
+  }
+
+  public Value valueOfReference(String string) {
+    return valueOfReference(null, string);
+  }
+
+  public Value valueOfReference(File parent, String string) {
+    if(string.startsWith("http://")) {
+      return valueOf(new BinaryValueURLLoader(string));
+    } else {
+      return valueOf(new BinaryValueFileLoader(parent, string));
+    }
   }
 
   @Override

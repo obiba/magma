@@ -228,6 +228,10 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
     return getCsvDatasource().getCsvWriter(dataFile);
   }
 
+  File getParentFile() {
+    return dataFile.getParentFile();
+  }
+
   private void initialiseData() throws IOException {
     if(dataFile != null) {
       Map<Integer, CsvIndexEntry> lineIndex = buildLineIndex(dataFile);

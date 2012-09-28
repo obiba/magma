@@ -41,8 +41,8 @@ public interface ValueType extends Serializable, Comparator<Value> {
     /**
      * Returns a new {@code Value} instance for the specified object instance. This method will determine the proper
      * {@code ValueType} by passing the object's class to the {@link #forClass(Class)} method. Note that this method
-     * does not accept {@code null} as it would be impossible to determine the {@code ValueType} of the returned {@code
-     * Value}.
+     * does not accept {@code null} as it would be impossible to determine the {@code ValueType} of the returned
+     * {@code Value}.
      * @param value the object instance for which to obtain a {@code Value} instance. Cannot be null.
      * @return a {@code Value} instance for the specified object.
      * @throws IllegalArgumentException when {@code value} is null.
@@ -56,6 +56,10 @@ public interface ValueType extends Serializable, Comparator<Value> {
 
     public static Value newValue(ValueType type, Object value) {
       return new Value(type, value);
+    }
+
+    public static Value newValue(ValueType type, ValueLoader valueLoader) {
+      return new Value(type, valueLoader);
     }
 
     public static ValueSequence newSequence(ValueType type, Iterable<Value> values) {
@@ -75,8 +79,9 @@ public interface ValueType extends Serializable, Comparator<Value> {
   public String getName();
 
   /**
-   * The java class of the value held in a {@code Value} instance of this {@code ValueType}. That is, when a {@code
-   * Value} instance if of this {@code ValueType}, the contained object should be of the type returned by this method.
+   * The java class of the value held in a {@code Value} instance of this {@code ValueType}. That is, when a
+   * {@code Value} instance if of this {@code ValueType}, the contained object should be of the type returned by this
+   * method.
    * 
    * @return the normalized java class for this {@code ValueType}
    */
@@ -149,18 +154,20 @@ public interface ValueType extends Serializable, Comparator<Value> {
 
   /**
    * Builds a {@code Value} instance after converting the specified object to the normalized type returned by
-   * {@link #getJavaClass()} method. Note that this method accepts null values and should return a non-null {@code
-   * Value} instance.
+   * {@link #getJavaClass()} method. Note that this method accepts null values and should return a non-null
+   * {@code Value} instance.
    * <p/>
-   * For example, this method would convert instances of {@code java.util.Date}, {@code java.sql.Date}, {@code
-   * java.sql.Timestamp}, {@code java.util.Calendar} to an instance of {@code java.util.Date} and return a {@code Value}
-   * instance containing the normalized instance.
+   * For example, this method would convert instances of {@code java.util.Date}, {@code java.sql.Date},
+   * {@code java.sql.Timestamp}, {@code java.util.Calendar} to an instance of {@code java.util.Date} and return a
+   * {@code Value} instance containing the normalized instance.
    * 
    * @param object the instance to normalize. May be null, in which case, the returned value is that of calling
    * {@link #nullValue()}
    * @return a {@code Value} instance for the specified object.
    */
   public Value valueOf(Object object);
+
+  public Value valueOf(ValueLoader loader);
 
   /**
    * Returns a {@code ValueSequence} instance containing the specified {@code values}.

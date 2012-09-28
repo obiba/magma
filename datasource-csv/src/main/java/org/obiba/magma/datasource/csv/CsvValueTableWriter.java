@@ -81,7 +81,7 @@ public class CsvValueTableWriter implements ValueTableWriter {
 
     public CsvValueSetWriter(VariableEntity entity) {
       this.entity = entity;
-      csvLine = new CsvLine(entity);
+      csvLine = new CsvLine(entity, valueTable.getParentFile());
 
       // Populate with existing values, if available
       if(valueTable.hasValueSet(entity)) {
