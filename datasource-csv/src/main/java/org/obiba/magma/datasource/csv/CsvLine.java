@@ -43,7 +43,7 @@ public class CsvLine {
     }
 
     if(variable.getValueType().equals(BinaryType.get())) {
-      valueMap.put(variable.getName(), BinaryValueWriter.writeFileValue(parent, variable, entity, value));
+      valueMap.put(variable.getName(), BinaryValueWriter.writeFileValue(new File(parent, variable.getName()), variable, entity, value));
     } else {
       valueMap.put(variable.getName(), value);
     }

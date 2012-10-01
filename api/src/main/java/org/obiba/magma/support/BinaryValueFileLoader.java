@@ -17,6 +17,9 @@ import org.obiba.magma.ValueLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Loads a value from a file path (absolute or relative).
+ */
 public class BinaryValueFileLoader implements ValueLoader {
 
   private static final Logger log = LoggerFactory.getLogger(BinaryValueFileLoader.class);

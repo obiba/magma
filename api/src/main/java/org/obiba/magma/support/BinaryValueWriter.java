@@ -54,7 +54,9 @@ public class BinaryValueWriter {
     } else {
       File file = new File(parent, name + "." + extension);
       try {
-        if(file.exists()) {
+        if(parent.exists() == false) {
+          parent.mkdirs();
+        } else if(file.exists()) {
           file.delete();
         }
         file.createNewFile();

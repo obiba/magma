@@ -5,14 +5,17 @@ import java.util.Arrays;
 import java.util.Map;
 
 import org.obiba.magma.Value;
+import org.obiba.magma.ValueLoaderFactory;
 import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
+import org.obiba.magma.support.BinaryValueStreamLoaderFactory;
 import org.obiba.magma.support.ValueSetBean;
 import org.obiba.magma.type.BinaryType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class CsvValueSet extends ValueSetBean {
+
   private static final Logger log = LoggerFactory.getLogger(CsvValueSet.class);
 
   private final Map<String, Integer> headerMap;
@@ -58,10 +61,11 @@ public class CsvValueSet extends ValueSetBean {
   }
 
   private Value getBinaryValue(Variable variable, String strValue) {
+    ValueLoaderFactory factory = new BinaryValueStreamLoaderFactory(getParentFile());
     if(variable.isRepeatable()) {
-      return BinaryType.get().sequenceOfReferences(getParentFile(), strValue);
+      return BinaryType.get().sequenceOfReferences(factory, strValue);
     } else {
-      return BinaryType.get().valueOfReference(getParentFile(), strValue);
+      return BinaryType.get().valueOfReference(factory, strValue);
     }
   }
 

@@ -10,20 +10,10 @@
 package org.obiba.magma;
 
 /**
- * A value loader allows deferred loading of values given a reference (file path, url etc.).
+ * Factory of value loader, given a string reference.
  */
-public interface ValueLoader {
+public interface ValueLoaderFactory {
 
-  /**
-   * Check if the referred value is null without loading the value, in other words check if the reference is null.
-   * @return
-   */
-  public boolean isNull();
-
-  /**
-   * Load the value from its reference.
-   * @return
-   */
-  public Object getValue();
+  public ValueLoader create(String strValue);
 
 }
