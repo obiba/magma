@@ -28,7 +28,7 @@ import com.google.common.collect.Lists;
 public class BinaryValueWriter {
 
   public static Value writeFileValue(File parent, Variable variable, VariableEntity entity, Value value) {
-    return writeFileValue(parent, getFileName(variable, entity), getFileExtension(variable), value);
+    return writeFileValue(new File(parent, variable.getName()), getFileName(variable, entity), getFileExtension(variable), value);
   }
 
   /**
@@ -66,7 +66,7 @@ public class BinaryValueWriter {
       } catch(Exception e) {
         throw new MagmaRuntimeException("Failed writing file: " + file.getAbsolutePath(), e);
       }
-      rval = TextType.get().valueOf(file.getName());
+      rval = TextType.get().valueOf(parent.getName() + "/" + file.getName());
     }
 
     return rval;
