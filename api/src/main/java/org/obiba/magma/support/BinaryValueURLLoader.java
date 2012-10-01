@@ -43,12 +43,7 @@ public class BinaryValueURLLoader implements ValueLoader {
   public Object getValue() {
     if(value == null) {
       try {
-        log.info("Loading binary from: {}", url);
-        try {
-          throw new MagmaRuntimeException("coucou");
-        } catch(MagmaRuntimeException e) {
-          e.printStackTrace();
-        }
+        log.debug("Loading binary from: {}", url);
         URL u = new URL(url);
         InputStream in = u.openStream();
         value = ByteStreams.toByteArray(in);

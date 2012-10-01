@@ -69,7 +69,7 @@ public class BinaryValueFileLoader implements ValueLoader {
         if(file.isAbsolute() == false && parent != null) {
           file = new File(parent, path);
         }
-        log.info("Loading binary from: {}", file.getAbsolutePath());
+        log.debug("Loading binary from: {}", file.getAbsolutePath());
         FileInputStream fin = new FileInputStream(file);
         value = new byte[(int) file.length()];
         fin.read(value);
