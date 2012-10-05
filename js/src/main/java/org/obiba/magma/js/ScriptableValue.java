@@ -71,6 +71,9 @@ public class ScriptableValue extends ScriptableObject {
     }
     Object defaultValue = value.getValue();
     if(value.getValueType().isDateTime()) {
+      if(value.isNull()) {
+        return Context.toObject(defaultValue, this);
+      }
       double jsDate;
       if(value.getValueType() == DateType.get()) {
         jsDate = ((MagmaDate) defaultValue).asDate().getTime();
