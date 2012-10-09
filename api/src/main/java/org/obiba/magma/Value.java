@@ -104,7 +104,9 @@ public class Value implements Serializable, Comparable<Value> {
     return valueType.compare(this, o);
   }
 
-  public static class StaticValueLoader implements ValueLoader {
+  public static class StaticValueLoader implements ValueLoader, Serializable {
+
+    private static final long serialVersionUID = 8195664792459648506L;
 
     private final Object value;
 
