@@ -85,20 +85,21 @@ public class BinaryType extends AbstractValueType {
 
   public ValueSequence sequenceOfReferences(ValueLoaderFactory factory, String string) {
     List<Value> values = Lists.newArrayList();
-    // values are references to files or URLs
     Value refValues = TextType.get().sequenceOf(string);
+    int occurrence = 0;
     for(Value refValue : refValues.asSequence().getValues()) {
       if(refValue.isNull()) {
         values.add(BinaryType.get().nullValue());
       } else {
-        values.add(valueOfReference(factory, refValue.toString()));
+        values.add(valueOf(factory.create(refValue.toString(), occurrence)));
       }
+      occurrence++;
     }
     return BinaryType.get().sequenceOf(values);
   }
 
   public Value valueOfReference(ValueLoaderFactory factory, String string) {
-    return valueOf(factory.create(string));
+    return valueOf(factory.create(string, null));
   }
 
   @Override

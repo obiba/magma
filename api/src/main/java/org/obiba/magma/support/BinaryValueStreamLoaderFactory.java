@@ -25,7 +25,7 @@ public class BinaryValueStreamLoaderFactory implements ValueLoaderFactory {
     this.parent = parent;
   }
 
-  public ValueLoader create(String strValue) {
+  public ValueLoader create(String strValue, Integer occurrence) {
     if(strValue.startsWith("http://")) {
       return new BinaryValueURLLoader(strValue);
     } else {
