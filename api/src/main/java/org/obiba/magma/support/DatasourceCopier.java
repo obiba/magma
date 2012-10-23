@@ -59,6 +59,11 @@ public class DatasourceCopier {
       return this;
     }
 
+    public Builder copyNullValues(boolean shouldCopy) {
+      copier.copyNullValues = shouldCopy;
+      return this;
+    }
+
     public Builder withListener(DatasourceCopyEventListener listener) {
       if(listener == null) throw new IllegalArgumentException("listener cannot be null");
       copier.listeners.add(listener);
@@ -198,7 +203,9 @@ public class DatasourceCopier {
     }
   }
 
-  public void copy(ValueTable source, String tableName, ValueSet valueSet, Variable[] variables, Value[] values, ValueSetWriter vsw) {
+  public
+      void
+      copy(ValueTable source, String tableName, ValueSet valueSet, Variable[] variables, Value[] values, ValueSetWriter vsw) {
     if(copyValues) {
       notifyListeners(source, valueSet, false);
       for(int i = 0; i < variables.length; i++) {
@@ -218,7 +225,8 @@ public class DatasourceCopier {
     }
   }
 
-  public ValueTableWriter createValueTableWriter(ValueTable source, String destinationTableName, Datasource destination) {
+  public ValueTableWriter
+      createValueTableWriter(ValueTable source, String destinationTableName, Datasource destination) {
     return destination.createWriter(destinationTableName, source.getEntityType());
   }
 

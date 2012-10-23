@@ -10,21 +10,22 @@ public class Value implements Serializable, Comparable<Value> {
 
   private final ValueType valueType;
 
-  private final Object value;
+  private ValueLoader valueLoader;
 
   private transient int hashCode;
 
   Value(ValueType valueType, Object value) {
+    this(valueType, new StaticValueLoader(value));
+  }
+
+  Value(ValueType valueType, ValueLoader valueLoader) {
     if(valueType == null) throw new IllegalArgumentException("valueType cannot be null");
-    if(value == null) {
-      value = NULL;
-    }
     this.valueType = valueType;
-    this.value = value;
+    this.valueLoader = valueLoader == null ? new StaticValueLoader(null) : valueLoader;
   }
 
   public Value copy() {
-    return valueType.valueOf(value);
+    return valueType.valueOf(valueLoader.getValue());
   }
 
   public ValueType getValueType() {
@@ -32,11 +33,11 @@ public class Value implements Serializable, Comparable<Value> {
   }
 
   public Object getValue() {
-    return isNull() ? null : value;
+    return isNull() ? null : valueLoader.getValue();
   }
 
   public boolean isNull() {
-    return value == NULL;
+    return valueLoader.isNull();
   }
 
   /**
@@ -78,10 +79,12 @@ public class Value implements Serializable, Comparable<Value> {
 
     Value other = (Value) obj;
     // Shortcut
-    if(this.value == other.value) {
+    Object val = valueLoader.getValue();
+    Object otherVal = other.valueLoader.getValue();
+    if(val == otherVal) {
       return true;
     }
-    return value.equals(other.value) && valueType.equals(other.valueType);
+    return val.equals(otherVal) && valueType.equals(other.valueType);
   }
 
   @Override
@@ -89,7 +92,7 @@ public class Value implements Serializable, Comparable<Value> {
     if(hashCode == 0) {
       final int prime = 31;
       int result = 1;
-      result = prime * result + value.hashCode();
+      result = prime * result + valueLoader.getValue().hashCode();
       result = prime * result + valueType.hashCode();
       hashCode = result;
     }
@@ -99,5 +102,30 @@ public class Value implements Serializable, Comparable<Value> {
   @Override
   public int compareTo(Value o) {
     return valueType.compare(this, o);
+  }
+
+  public static class StaticValueLoader implements ValueLoader, Serializable {
+
+    private static final long serialVersionUID = 8195664792459648506L;
+
+    private final Object value;
+
+    public StaticValueLoader(Object value) {
+      if(value == null) {
+        value = NULL;
+      }
+      this.value = value;
+    }
+
+    @Override
+    public boolean isNull() {
+      return value == NULL;
+    }
+
+    @Override
+    public Object getValue() {
+      return value;
+    }
+
   }
 }

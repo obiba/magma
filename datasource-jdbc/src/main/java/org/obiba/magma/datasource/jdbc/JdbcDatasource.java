@@ -6,9 +6,10 @@ import static org.obiba.magma.datasource.jdbc.JdbcValueTableWriter.VARIABLE_META
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedHashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
@@ -26,8 +27,11 @@ import liquibase.exception.UnsupportedChangeException;
 
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.ValueTableWriter;
+import org.obiba.magma.datasource.jdbc.support.CreateTableChangeBuilder;
+import org.obiba.magma.datasource.jdbc.support.MySqlEngineVisitor;
 import org.obiba.magma.datasource.jdbc.support.NameConverter;
 import org.obiba.magma.support.AbstractDatasource;
+import org.obiba.magma.type.TextType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
@@ -115,6 +119,9 @@ public class JdbcDatasource extends AbstractDatasource {
 
   @Override
   protected void onInitialise() {
+    if(getSettings().useMetadataTables()) {
+      createMetadataTablesIfNotPresent();
+    }
   }
 
   @Override
@@ -132,7 +139,10 @@ public class JdbcDatasource extends AbstractDatasource {
           if(tableSettings != null) {
             names.add(tableSettings.getMagmaTableName());
           } else {
-            names.add(NameConverter.toMagmaName(table.getName()));
+            // Only add the table if it has a primary key
+            if(JdbcValueTable.getEntityIdentifierColumns(table).isEmpty() == false) {
+              names.add(NameConverter.toMagmaName(table.getName()));
+            }
           }
         }
       }
@@ -196,6 +206,26 @@ public class JdbcDatasource extends AbstractDatasource {
     });
   }
 
+  private void createMetadataTablesIfNotPresent() {
+    List<Change> changes = new ArrayList<Change>();
+    if(getDatabaseSnapshot().getTable(VARIABLE_METADATA_TABLE) == null) {
+      CreateTableChangeBuilder builder = new CreateTableChangeBuilder();
+      builder.tableName(VARIABLE_METADATA_TABLE).withColumn(JdbcValueTableWriter.VALUE_TABLE_COLUMN, "VARCHAR(255)").primaryKey().withColumn("name", "VARCHAR(255)").primaryKey().withColumn(JdbcValueTableWriter.VALUE_TYPE_COLUMN, "VARCHAR(255)").notNull().withColumn("mime_type", "VARCHAR(255)").withColumn("units", "VARCHAR(255)").withColumn("is_repeatable", "BOOLEAN").withColumn("occurrence_group", "VARCHAR(255)");
+      changes.add(builder.build());
+    }
+    if(getDatabaseSnapshot().getTable(ATTRIBUTE_METADATA_TABLE) == null) {
+      CreateTableChangeBuilder builder = new CreateTableChangeBuilder();
+      builder.tableName(ATTRIBUTE_METADATA_TABLE).withColumn(JdbcValueTableWriter.VALUE_TABLE_COLUMN, "VARCHAR(255)").primaryKey().withColumn(JdbcValueTableWriter.VARIABLE_NAME_COLUMN, "VARCHAR(255)").primaryKey().withColumn(JdbcValueTableWriter.ATTRIBUTE_NAME_COLUMN, "VARCHAR(255)").primaryKey().withColumn(JdbcValueTableWriter.ATTRIBUTE_LOCALE_COLUMN, "VARCHAR(20)").primaryKey().withColumn(JdbcValueTableWriter.ATTRIBUTE_NAMESPACE_COLUMN, "VARCHAR(20)").primaryKey().withColumn(JdbcValueTableWriter.ATTRIBUTE_VALUE_COLUMN, SqlTypes.sqlTypeFor(TextType.get(), SqlTypes.TEXT_TYPE_HINT_MEDIUM));
+      changes.add(builder.build());
+    }
+    if(getDatabaseSnapshot().getTable(CATEGORY_METADATA_TABLE) == null) {
+      CreateTableChangeBuilder builder = new CreateTableChangeBuilder();
+      builder.tableName(CATEGORY_METADATA_TABLE).withColumn(JdbcValueTableWriter.VALUE_TABLE_COLUMN, "VARCHAR(255)").primaryKey().withColumn(JdbcValueTableWriter.VARIABLE_NAME_COLUMN, "VARCHAR(255)").primaryKey().withColumn(JdbcValueTableWriter.CATEGORY_NAME_COLUMN, "VARCHAR(255)").primaryKey().withColumn(JdbcValueTableWriter.CATEGORY_CODE_COLUMN, "VARCHAR(255)").withColumn(JdbcValueTableWriter.CATEGORY_MISSING_COLUMN, "BOOLEAN").notNull();
+      changes.add(builder.build());
+    }
+    doWithDatabase(new ChangeDatabaseCallback(changes, ImmutableList.of(new MySqlEngineVisitor())));
+  }
+
   /**
    * Callback used for accessing the {@code Database} instance in a safe and consistent way.
    * @param <T> the type of object returned by the callback if any
@@ -218,7 +248,7 @@ public class JdbcDatasource extends AbstractDatasource {
     }
 
     ChangeDatabaseCallback(Iterable<Change> changes) {
-      this(changes, new LinkedList<SqlVisitor>());
+      this(changes, Collections.<SqlVisitor> emptyList());
     }
 
     ChangeDatabaseCallback(Iterable<Change> changes, Iterable<? extends SqlVisitor> visitors) {

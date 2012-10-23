@@ -149,7 +149,12 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
 
       @Override
       public Value getLastUpdate() {
-        return (updated == null || updated.isNull()) ? from.getTimestamps().getLastUpdate() : updated;
+        if(updated == null || updated.isNull()) {
+          return from.getTimestamps().getLastUpdate();
+        } else {
+          Value fromUpdate = from.getTimestamps().getLastUpdate();
+          return fromUpdate.isNull() == false && updated.compareTo(fromUpdate) < 0 ? fromUpdate : updated;
+        }
       }
 
       @Override
@@ -157,6 +162,12 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
         return (created == null || created.isNull()) ? from.getTimestamps().getCreated() : created;
       }
     };
+  }
+
+  public void setUpdated(Value updated) {
+    if(updated == null) updated = DateTimeType.get().nullValue();
+    if(updated.getValueType() != DateTimeType.get()) throw new IllegalArgumentException();
+    this.updated = updated;
   }
 
   public void setCreated(Value created) {
@@ -171,6 +182,8 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
   }
 
   public boolean hasValueSet(VariableEntity entity) {
+    if(entity == null) return false;
+
     VariableEntity unmapped = getVariableEntityMappingFunction().unapply(entity);
     if(unmapped == null) return false;
 
@@ -197,7 +210,15 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
     });
 
     // Transform the Iterable, replacing each ValueSet with one that points at the current View.
-    return Iterables.transform(filteredValueSets, getValueSetMappingFunction());
+    return Iterables.filter(Iterables.transform(filteredValueSets, getValueSetMappingFunction()), new Predicate<ValueSet>() {
+
+      @Override
+      public boolean apply(ValueSet input) {
+        // Result of transformation might have returned a non-mappable entity
+        return input.getVariableEntity() != null;
+      }
+
+    });
   }
 
   public ValueSet getValueSet(VariableEntity entity) throws NoSuchValueSetException {

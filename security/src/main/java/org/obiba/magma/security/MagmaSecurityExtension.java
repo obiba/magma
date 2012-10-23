@@ -20,6 +20,10 @@ public class MagmaSecurityExtension implements MagmaEngineExtension {
     return "security";
   }
 
+  public Authorizer getAuthorizer() {
+    return authorizer;
+  }
+
   @Override
   public void initialise() {
     Initialisables.initialise(authorizer);

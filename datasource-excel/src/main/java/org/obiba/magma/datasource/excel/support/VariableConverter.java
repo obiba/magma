@@ -2,7 +2,6 @@ package org.obiba.magma.datasource.excel.support;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
@@ -12,8 +11,8 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.obiba.magma.Attribute;
 import org.obiba.magma.AttributeAware;
 import org.obiba.magma.AttributeAwareBuilder;
+import org.obiba.magma.Attributes;
 import org.obiba.magma.Category;
-import org.obiba.magma.Value;
 import org.obiba.magma.ValueType;
 import org.obiba.magma.Variable;
 import org.obiba.magma.datasource.excel.ExcelDatasource;
@@ -34,6 +33,8 @@ public class VariableConverter {
 
   public static final String ENTITY_TYPE = "entityType";
 
+  public static final String REFERENCED_ENTITY_TYPE = "referencedEntityType";
+
   public static final String MIME_TYPE = "mimeType";
 
   public static final String UNIT = "unit";
@@ -52,6 +53,7 @@ public class VariableConverter {
   NAME, //
   VALUE_TYPE, //
   ENTITY_TYPE, //
+  REFERENCED_ENTITY_TYPE, //
   MIME_TYPE, //
   UNIT, //
   REPEATABLE, //
@@ -114,6 +116,7 @@ public class VariableConverter {
     String name = getVariableCellValue(variableRow, NAME).trim();
     String valueTypeStr = getVariableCellValue(variableRow, VALUE_TYPE).trim();
     String entityType = getVariableCellValue(variableRow, ENTITY_TYPE).trim();
+    String referencedEntityType = getVariableCellValue(variableRow, REFERENCED_ENTITY_TYPE).trim();
     String mimeType = getVariableCellValue(variableRow, MIME_TYPE).trim();
     String unit = getVariableCellValue(variableRow, UNIT).trim();
     String occurrenceGroup = getVariableCellValue(variableRow, OCCURRENCE_GROUP).trim();
@@ -159,6 +162,9 @@ public class VariableConverter {
     }
     if(repeatable) {
       builder.repeatable();
+    }
+    if(referencedEntityType.length() > 0) {
+      builder.referencedEntityType(referencedEntityType);
     }
 
     unmarshallCustomAttributes(name, variableRow, getHeaderMapVariables(), getAttributeNamesVariables(), builder);
@@ -256,26 +262,13 @@ public class VariableConverter {
    * @param variableBuilder
    */
   private void unmarshallCustomAttributes(String attributeAwareName, Row attributesRow, Map<String, Integer> headerMap, Set<String> attributeNames, AttributeAwareBuilder<?> builder) {
-    Locale attributeLocale;
     for(String attributeName : attributeNames) {
       String cellValueAsString = getCellValueAsString(attributesRow.getCell(headerMap.get(attributeName)));
       if(cellValueAsString.length() == 0) {
         continue;
       }
-
-      attributeLocale = getAttributeLocale(attributeName);
-      if(attributeLocale != null) {
-        String attributeValue = cellValueAsString;
-        builder.addAttribute(getAttributeShortName(attributeName), attributeValue, attributeLocale);
-      } else {
-        ValueType attributeType = TextType.get();
-        if(attributeType != null) {
-          Value attributeValue = attributeType.valueOf(cellValueAsString);
-          Attribute.Builder attributeBuilder = Attribute.Builder.newAttribute(getAttributeShortName(attributeName));
-          attributeBuilder.withValue(attributeValue);
-          builder.addAttribute(attributeBuilder.build());
-        }
-      }
+      Attribute.Builder attr = Attributes.decodeFromHeader(attributeName);
+      builder.addAttribute(attr.withValue(cellValueAsString).build());
     }
   }
 
@@ -294,6 +287,7 @@ public class VariableConverter {
     ExcelUtil.setCellValue(getVariableCell(variableRow, UNIT), TextType.get(), variable.getUnit());
     ExcelUtil.setCellValue(getVariableCell(variableRow, REPEATABLE), BooleanType.get(), variable.isRepeatable());
     ExcelUtil.setCellValue(getVariableCell(variableRow, VALUE_TYPE), TextType.get(), variable.getValueType().getName());
+    ExcelUtil.setCellValue(getVariableCell(variableRow, REFERENCED_ENTITY_TYPE), TextType.get(), variable.getReferencedEntityType());
 
     marshallCustomAttributes(variable, variable.getName(), variableRow, headerRowVariables, headerMapVariables);
 
@@ -325,24 +319,19 @@ public class VariableConverter {
    * @param attributesRow
    */
   private void marshallCustomAttributes(AttributeAware attributeAware, String attributeAwareName, Row attributesRow, Row headerRow, Map<String, Integer> headerMap) {
-    String customAttributeName;
-    Locale customAttributeLocale;
-    StringBuilder stringBuilder = new StringBuilder();
     Integer attributeCellIndex;
     Cell headerCell;
     for(Attribute customAttribute : attributeAware.getAttributes()) {
-      customAttributeLocale = customAttribute.getLocale();
-      customAttributeName = stringBuilder.append(customAttribute.getName()).append(customAttributeLocale != null ? ":" + customAttributeLocale : "").toString();
-      attributeCellIndex = headerMap.get(customAttributeName);
+      String headerValue = Attributes.encodeForHeader(customAttribute);
+      attributeCellIndex = headerMap.get(headerValue);
       if(attributeCellIndex == null) {
-        headerMap.put(customAttributeName, Integer.valueOf(getLastCellNum(headerRow)));
+        headerMap.put(headerValue, Integer.valueOf(getLastCellNum(headerRow)));
         attributeCellIndex = Integer.valueOf(getLastCellNum(headerRow));
         headerCell = headerRow.createCell(attributeCellIndex);
-        headerCell.setCellValue(customAttributeName);
+        headerCell.setCellValue(headerValue);
         headerCell.setCellStyle(valueTable.getDatasource().getHeaderCellStyle());
       }
       ExcelUtil.setCellValue(attributesRow.getCell(attributeCellIndex, Row.CREATE_NULL_AS_BLANK), customAttribute.getValue());
-      stringBuilder.setLength(0);
     }
   }
 
@@ -399,28 +388,6 @@ public class VariableConverter {
    */
   private String getCellValueAsString(Cell cell) {
     return ExcelUtil.getCellValueAsString(cell);
-  }
-
-  /**
-   * Get the locale part in an attribute header such as 'name:locale'.
-   * @param attributeName
-   * @return null if no locale for this header
-   */
-  private static Locale getAttributeLocale(String attributeName) {
-    String[] parsedAttributeName = attributeName.split(":");
-    if(parsedAttributeName.length > 1 && parsedAttributeName[1].trim().isEmpty() == false) {
-      return new Locale(parsedAttributeName[1].trim());
-    }
-    return null;
-  }
-
-  /**
-   * Get the name part in an attribute header such as 'name:locale'.
-   * @param attributeName
-   * @return
-   */
-  private static String getAttributeShortName(String attributeName) {
-    return attributeName.split(":")[0];
   }
 
   /**
@@ -541,7 +508,8 @@ public class VariableConverter {
    * @return null if no such header
    * @see ExcelUtil#findNormalizedHeader(Iterable, String)
    */
-  private Integer getHeaderIndex(final Map<String, Integer> headerMap, Map<String, Integer> cachedHeaderMap, final String header) {
+  private Integer
+      getHeaderIndex(final Map<String, Integer> headerMap, Map<String, Integer> cachedHeaderMap, final String header) {
     Integer idx = cachedHeaderMap.get(header);
     if(idx == null) {
       String found = ExcelUtil.findNormalizedHeader(headerMap.keySet(), header);

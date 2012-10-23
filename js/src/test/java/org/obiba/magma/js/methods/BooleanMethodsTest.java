@@ -304,6 +304,13 @@ public class BooleanMethodsTest extends AbstractJsTest {
     Assert.assertEquals(BooleanType.get().trueValue(), value.getValue());
   }
 
+  @Test
+  public void test_orMultipleBoolean() {
+    ScriptableValue value = evaluate("or(false,true)", BooleanType.get().falseValue());
+    Assert.assertNotNull(value);
+    Assert.assertEquals(BooleanType.get().trueValue(), value.getValue());
+  }
+
   // equals (==)
 
   @Test
@@ -489,17 +496,17 @@ public class BooleanMethodsTest extends AbstractJsTest {
 
   // whenNull
   @Test
-  public void test_whenNull() {
-    ScriptableValue result = evaluate("whenNull(false)", BooleanType.get().valueOf((Object) null));
+  public void test_whenNullBoolean() {
+    ScriptableValue result = evaluate("whenNull(false)", BooleanType.get().nullValue());
     assertThat(result.getValue(), is(BooleanType.get().valueOf(false)));
 
-    result = evaluate("whenNull(true)", BooleanType.get().valueOf((Object) null));
+    result = evaluate("whenNull(true)", BooleanType.get().nullValue());
     assertThat(result.getValue(), is(BooleanType.get().valueOf(true)));
 
-    result = evaluate("whenNull(null)", BooleanType.get().valueOf((Object) null));
+    result = evaluate("whenNull(null)", BooleanType.get().nullValue());
     assertThat(result.getValue(), is(BooleanType.get().nullValue()));
 
-    result = evaluate("whenNull()", BooleanType.get().valueOf((Object) null));
+    result = evaluate("whenNull()", BooleanType.get().nullValue());
     assertThat(result.getValue(), is(BooleanType.get().nullValue()));
 
     result = evaluate("whenNull(false)", BooleanType.get().valueOf(true));
@@ -525,7 +532,66 @@ public class BooleanMethodsTest extends AbstractJsTest {
 
     result = evaluate("whenNull()", BooleanType.get().valueOf(false));
     assertThat(result.getValue(), is(BooleanType.get().valueOf(false)));
+  }
 
+  @Test
+  public void test_whenNullText() {
+    ScriptableValue result = evaluate("whenNull('patate')", TextType.get().nullValue());
+    assertThat(result.getValue(), is(TextType.get().valueOf("patate")));
+
+    result = evaluate("whenNull(newValue('patate'))", TextType.get().nullValue());
+    assertThat(result.getValue(), is(TextType.get().valueOf("patate")));
+
+    result = evaluate("whenNull(newValue(1))", TextType.get().nullValue());
+    assertThat(result.getValue().getValueType(), is((ValueType) DecimalType.get()));
+
+    result = evaluate("whenNull(1)", TextType.get().nullValue());
+    assertThat(result.getValue(), is(TextType.get().valueOf("1.0")));
+  }
+
+  @Test
+  public void test_whenNullInteger() {
+    ScriptableValue result = evaluate("whenNull(1)", IntegerType.get().nullValue());
+    assertThat(result.getValue(), is(IntegerType.get().valueOf(1)));
+
+    result = evaluate("whenNull(newValue(1))", IntegerType.get().nullValue());
+    assertThat(result.getValue().getValueType(), is((ValueType) DecimalType.get()));
+
+    result = evaluate("whenNull('1')", IntegerType.get().nullValue());
+    assertThat(result.getValue(), is(IntegerType.get().valueOf(1)));
+
+    result = evaluate("whenNull()", IntegerType.get().nullValue());
+    assertThat(result.getValue(), is(IntegerType.get().nullValue()));
+  }
+
+  @Test
+  public void test_whenNullDecimal() {
+    ScriptableValue result = evaluate("whenNull(1)", DecimalType.get().nullValue());
+    assertThat(result.getValue(), is(DecimalType.get().valueOf(1)));
+
+    result = evaluate("whenNull(newValue(1))", DecimalType.get().nullValue());
+    assertThat(result.getValue().getValueType(), is((ValueType) DecimalType.get()));
+
+    result = evaluate("whenNull('1')", DecimalType.get().nullValue());
+    assertThat(result.getValue(), is(DecimalType.get().valueOf(1)));
+  }
+
+  @Test
+  public void test_whenNullTextSequence() {
+    List<Value> values = new ArrayList<Value>();
+    values.add(TextType.get().valueOf("pwel"));
+    values.add(TextType.get().nullValue());
+
+    ScriptableValue result = evaluate("whenNull('patate')", TextType.get().sequenceOf(values));
+    assertThat(result.getValue().isSequence(), is(true));
+    assertThat(result.getValue().asSequence().getSize(), is(2));
+    assertThat(result.getValue().asSequence().get(0), is(TextType.get().valueOf("pwel")));
+    assertThat(result.getValue().asSequence().get(1), is(TextType.get().valueOf("patate")));
+
+    result = evaluate("whenNull('patate')", TextType.get().nullSequence());
+    assertThat(result.getValue().isSequence(), is(true));
+    assertThat(result.getValue().asSequence().getSize(), is(1));
+    assertThat(result.getValue().asSequence().get(0), is(TextType.get().valueOf("patate")));
   }
 
 }

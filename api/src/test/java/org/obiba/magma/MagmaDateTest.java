@@ -31,10 +31,12 @@ public class MagmaDateTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void test_ctor_calendarWithNull() {
+    @SuppressWarnings("unused")
     MagmaDate magmaDate = new MagmaDate((Calendar) null);
   }
 
   @Test
+  @SuppressWarnings("deprecation")
   public void test_ctor_date() {
     Date date = new Date();
     MagmaDate magmaDate = new MagmaDate(date);
@@ -45,6 +47,7 @@ public class MagmaDateTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void test_ctor_dateWithNull() {
+    @SuppressWarnings("unused")
     MagmaDate magmaDate = new MagmaDate((Date) null);
   }
 

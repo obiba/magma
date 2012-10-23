@@ -1,6 +1,6 @@
 package org.obiba.magma.datasource.csv;
 
-import java.io.BufferedInputStream;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -38,6 +38,7 @@ import org.obiba.magma.type.TextType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import au.com.bytecode.opencsv.CSVParser;
 import au.com.bytecode.opencsv.CSVReader;
 import au.com.bytecode.opencsv.CSVWriter;
 
@@ -58,10 +59,6 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
   private File variableFile;
 
   private File dataFile;
-
-  private CSVReader variableReader;
-
-  private CSVReader dataReader;
 
   private CSVVariableEntityProvider variableEntityProvider;
 
@@ -145,12 +142,6 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
 
   @Override
   public void dispose() {
-    try {
-      if(dataReader != null) dataReader.close();
-      if(variableReader != null) variableReader.close();
-    } catch(IOException e) {
-      throw new MagmaRuntimeException(e);
-    }
   }
 
   private void initialiseVariables() throws IOException {
@@ -173,36 +164,41 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
 
   private void initialiseVariablesFromVariablesFile() throws IOException {
     Map<Integer, CsvIndexEntry> lineIndex = buildLineIndex(variableFile);
-    variableReader = getCsvDatasource().getCsvReader(variableFile);
 
-    String[] line = variableReader.readNext();
+    CSVReader variableReader = getCsvDatasource().getCsvReader(variableFile);
+    try {
+      String[] line = variableReader.readNext();
 
-    if(line != null) {
-      // first line is headers
-      variableConverter = new VariableConverter(line);
+      if(line != null) {
+        // first line is headers
+        variableConverter = new VariableConverter(line);
 
-      line = variableReader.readNext();
-      int count = 0;
-      while(line != null) {
-        count++;
-        if(line.length == 1) {
-          line = variableReader.readNext();
-          continue;
-        }
-        Variable var = variableConverter.unmarshal(line);
-        entityType = var.getEntityType();
-
-        variableNameIndex.put(var.getName(), lineIndex.get(count));
-        addVariableValueSource(new CsvVariableValueSource(var));
+        // TODO support multi line
         line = variableReader.readNext();
+        int count = 0;
+        while(line != null) {
+          count++;
+          if(line.length == 1) {
+            line = variableReader.readNext();
+            continue;
+          }
+          Variable var = variableConverter.unmarshal(line);
+          entityType = var.getEntityType();
+
+          variableNameIndex.put(var.getName(), lineIndex.get(count));
+          addVariableValueSource(new CsvVariableValueSource(var));
+          line = variableReader.readNext();
+        }
+      } else {
+        if(variableConverter == null) {
+          String[] defaultVariablesHeader = ((CsvDatasource) getDatasource()).getDefaultVariablesHeader();
+          log.debug("A variables.csv file or header was not explicitly provided for the table {}. Use the default header {}.", getName(), defaultVariablesHeader);
+          variableConverter = new VariableConverter(defaultVariablesHeader);
+        }
+        isVariablesFileEmpty = true;
       }
-    } else {
-      if(variableConverter == null) {
-        String[] defaultVariablesHeader = ((CsvDatasource) getDatasource()).getDefaultVariablesHeader();
-        log.debug("A variables.csv file or header was not explicitly provided for the table {}. Use the default header {}.", getName(), defaultVariablesHeader);
-        variableConverter = new VariableConverter(defaultVariablesHeader);
-      }
-      isVariablesFileEmpty = true;
+    } finally {
+      Closeables.closeQuietly(variableReader);
     }
   }
 
@@ -232,34 +228,48 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
     return getCsvDatasource().getCsvWriter(dataFile);
   }
 
+  File getParentFile() {
+    return dataFile.getParentFile();
+  }
+
   private void initialiseData() throws IOException {
     if(dataFile != null) {
       Map<Integer, CsvIndexEntry> lineIndex = buildLineIndex(dataFile);
 
-      dataReader = getCsvDatasource().getCsvReader(dataFile);
+      CSVParser parser = getCsvDatasource().getCsvParser();
+      BufferedReader reader = new BufferedReader(getCsvDatasource().getReader(dataFile));
+      try {
 
-      String[] line = dataReader.readNext();
-      // first line is headers = entity_id + variable names
-      Map<String, Integer> headerMap = new HashMap<String, Integer>();
-      if(line != null) {
-        for(int i = 1; i < line.length; i++) {
-          headerMap.put(line[i].trim(), i);
+        String nextLine = reader.readLine();
+        String[] line = parser.parseLine(nextLine);
+        // first line is headers = entity_id + variable names
+        Map<String, Integer> headerMap = new HashMap<String, Integer>();
+        if(line != null) {
+          for(int i = 1; i < line.length; i++) {
+            headerMap.put(line[i].trim(), i);
+          }
+        } else {
+          isDataFileEmpty = true;
         }
-      } else {
-        isDataFileEmpty = true;
-      }
-      dataHeaderMap = headerMap;
+        dataHeaderMap = headerMap;
 
-      int count = 0;
-      line = dataReader.readNext();
-      while(line != null) {
-        count++;
-        if(line.length > 0 && line[0] != null && line[0].trim().length() > 0) {
-          VariableEntity entity = new VariableEntityBean(entityType, line[0]);
-          entityIndex.put(entity, lineIndex.get(count));
+        int count = 1;
+        nextLine = reader.readLine();
+        boolean wasPending = false;
+        while(nextLine != null) {
+          line = parser.parseLineMulti(nextLine);
+          if(wasPending == false && line.length > 0 && line[0] != null && line[0].trim().length() > 0) {
+            VariableEntity entity = new VariableEntityBean(entityType, line[0]);
+            entityIndex.put(entity, lineIndex.get(count));
+          }
+          wasPending = parser.isPending();
+          count++;
+          nextLine = reader.readLine();
         }
-        line = dataReader.readNext();
+      } finally {
+        Closeables.closeQuietly(reader);
       }
+
     } else {
       isDataFileEmpty = true;
     }
@@ -268,31 +278,36 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
   @VisibleForTesting
   Map<Integer, CsvIndexEntry> buildLineIndex(File file) throws IOException {
     Map<Integer, CsvIndexEntry> lineNumberMap = new HashMap<Integer, CsvIndexEntry>();
-    BufferedInputStream bis = new BufferedInputStream(new FileInputStream(file));
+
+    CSVParser parser = getCsvDatasource().getCsvParser();
+    BufferedReader reader = new BufferedReader(getCsvDatasource().getReader(file));
     try {
-      int counter = 0;
-      int lineCounter = 0;
-      int b;
-      int previousCharacter = -1;
-      int start = 0;
-      int end = 0;
-      while((b = bis.read()) != -1) {
-        counter++;
-        if(b == NEWLINE_CHARACTER) {
-          end = counter - 1;
-          lineNumberMap.put(lineCounter, new CsvIndexEntry(start, end));
-          start = end + 1;
-          // break;
-          lineCounter++;
+      int line = 0;
+      int innerline = 0;
+      int strt = 0;
+      int nd = 0;
+      String nextLine = reader.readLine();
+      while(nextLine != null) {
+        nd += nextLine.getBytes(getCharacterSet()).length;
+        parser.parseLineMulti(nextLine);
+        if(parser.isPending()) {
+          // we are in a multiline entry
+          innerline++;
+          nd++;
+        } else {
+          log.debug("[{}:{}] {}", new Object[] { file.getName(), (line - innerline), nextLine });
+          lineNumberMap.put(line - innerline, new CsvIndexEntry(strt, nd));
+          innerline = 0;
+          nd++;
+          strt = nd;
         }
-        previousCharacter = b;
-      }
-      if(previousCharacter != NEWLINE_CHARACTER) {
-        lineNumberMap.put(lineCounter, new CsvIndexEntry(start, counter));
+        line++;
+        nextLine = reader.readLine();
       }
     } finally {
-      Closeables.closeQuietly(bis);
+      Closeables.closeQuietly(reader);
     }
+
     return lineNumberMap;
   }
 

@@ -2,6 +2,7 @@ package org.obiba.magma.js.methods;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
@@ -16,7 +17,10 @@ import org.obiba.magma.js.Rhino;
 import org.obiba.magma.js.ScriptableValue;
 import org.obiba.magma.type.BooleanType;
 import org.obiba.magma.type.IntegerType;
+import org.obiba.magma.type.LocaleType;
 import org.obiba.magma.type.TextType;
+
+import com.google.common.collect.Iterables;
 
 /**
  * Methods of the {@code ScriptableValue} javascript class that returns {@code ScriptableValue} of {@code BooleanType}
@@ -29,12 +33,132 @@ public class TextMethods {
    * </pre>
    */
   public static ScriptableValue trim(Context ctx, Scriptable thisObj, Object[] args, Function funObj) {
-    ScriptableValue sv = (ScriptableValue) thisObj;
-    if(sv.getValue().isNull()) {
-      return new ScriptableValue(thisObj, TextType.get().nullValue());
+    com.google.common.base.Function<Value, Value> trimFunction = new com.google.common.base.Function<Value, Value>() {
+
+      @Override
+      public Value apply(Value input) {
+        if(input.isNull()) return TextType.get().nullValue();
+        return TextType.get().valueOf(input.toString().trim());
+      }
+    };
+
+    return transformValue((ScriptableValue) thisObj, trimFunction);
+  }
+
+  /**
+   * <pre>
+   *   $('TextVar').upperCase()
+   *   $('TextVar').upperCase('fr')
+   * </pre>
+   */
+  public static ScriptableValue upperCase(Context ctx, Scriptable thisObj, Object[] args, Function funObj) {
+    final Locale locale = getLocaleArgument(args);
+    com.google.common.base.Function<Value, Value> caseFunction = new com.google.common.base.Function<Value, Value>() {
+
+      @Override
+      public Value apply(Value input) {
+        if(input.isNull()) return TextType.get().nullValue();
+        String stringValue = input.toString();
+        stringValue = locale == null ? stringValue.toUpperCase() : stringValue.toUpperCase(locale);
+        return TextType.get().valueOf(stringValue);
+      }
+    };
+
+    return transformValue((ScriptableValue) thisObj, caseFunction);
+  }
+
+  /**
+   * <pre>
+   *   $('TextVar').lowerCase()
+   *   $('TextVar').lowerCase('fr')
+   * </pre>
+   */
+  public static ScriptableValue lowerCase(Context ctx, Scriptable thisObj, Object[] args, Function funObj) {
+    final Locale locale = getLocaleArgument(args);
+    com.google.common.base.Function<Value, Value> caseFunction = new com.google.common.base.Function<Value, Value>() {
+
+      @Override
+      public Value apply(Value input) {
+        if(input.isNull()) return TextType.get().nullValue();
+        String stringValue = input.toString();
+        stringValue = locale == null ? stringValue.toLowerCase() : stringValue.toLowerCase(locale);
+        return TextType.get().valueOf(stringValue);
+      }
+    };
+
+    return transformValue((ScriptableValue) thisObj, caseFunction);
+  }
+
+  private static Locale getLocaleArgument(Object[] args) {
+    Locale locale = null;
+    if(args != null && args.length > 0) {
+      Object localeArg = args[0];
+      Value localeValue = null;
+      if(args[0] instanceof ScriptableValue) {
+        localeValue = ((ScriptableValue) localeArg).getValue();
+      } else {
+        localeValue = LocaleType.get().valueOf(localeArg);
+      }
+      locale = (Locale) localeValue.getValue();
     }
-    String stringValue = sv.getValue().toString();
-    return new ScriptableValue(thisObj, TextType.get().valueOf(stringValue.trim()));
+    return locale;
+  }
+
+  /**
+   * <pre>
+   *   $('TextVar').capitalize()
+   *   $('TextVar').capitalize(':;_.,(')
+   * </pre>
+   */
+  public static ScriptableValue capitalize(Context ctx, Scriptable thisObj, Object[] args, Function funObj) {
+    final String delim;
+    if(args != null) {
+      StringBuffer buffer = new StringBuffer();
+      for(int i = 0; i < args.length; i++) {
+        if(args[i] != null) {
+          buffer.append(args[i].toString());
+        }
+      }
+      delim = buffer.toString();
+    } else {
+      delim = null;
+    }
+
+    com.google.common.base.Function<Value, Value> capitalizeFunction = new com.google.common.base.Function<Value, Value>() {
+
+      @Override
+      public Value apply(Value input) {
+        if(input.isNull()) return TextType.get().nullValue();
+        String stringValue = input.toString();
+
+        char[] buffer = stringValue.toCharArray();
+        boolean capitalizeNext = true;
+        for(int i = 0; i < buffer.length; i++) {
+          char ch = buffer[i];
+          if(isDelimiter(ch, delim)) {
+            capitalizeNext = true;
+          } else if(capitalizeNext) {
+            buffer[i] = Character.toTitleCase(ch);
+            capitalizeNext = false;
+          }
+        }
+        return TextType.get().valueOf(new String(buffer));
+      }
+
+      private boolean isDelimiter(char ch, String delimiters) {
+        if(delimiters == null || delimiters.length() == 0) {
+          return Character.isWhitespace(ch);
+        }
+        for(char delimiter : delimiters.toCharArray()) {
+          if(ch == delimiter) {
+            return true;
+          }
+        }
+        return false;
+      }
+    };
+
+    return transformValue((ScriptableValue) thisObj, capitalizeFunction);
   }
 
   /**
@@ -43,18 +167,20 @@ public class TextMethods {
    * </pre>
    * @see https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/String/replace
    */
-  public static ScriptableValue replace(Context ctx, Scriptable thisObj, Object[] args, Function funObj) {
-    ScriptableValue sv = (ScriptableValue) thisObj;
-    if(sv.getValue().isNull()) {
-      return new ScriptableValue(thisObj, TextType.get().nullValue());
-    }
+  public static ScriptableValue replace(final Context ctx, final Scriptable thisObj, final Object[] args, Function funObj) {
+    com.google.common.base.Function<Value, Value> replaceFunction = new com.google.common.base.Function<Value, Value>() {
 
-    String stringValue = sv.getValue().toString();
+      @Override
+      public Value apply(Value input) {
+        String stringValue = input.toString();
 
-    // Delegate to Javascript's String.replace method
-    String result = (String) ScriptRuntime.checkRegExpProxy(ctx).action(ctx, thisObj, ScriptRuntime.toObject(ctx, thisObj, stringValue), args, RegExpProxy.RA_REPLACE);
+        // Delegate to Javascript's String.replace method
+        String result = (String) ScriptRuntime.checkRegExpProxy(ctx).action(ctx, thisObj, ScriptRuntime.toObject(ctx, thisObj, stringValue), args, RegExpProxy.RA_REPLACE);
 
-    return new ScriptableValue(thisObj, TextType.get().valueOf(result));
+        return TextType.get().valueOf(result);
+      }
+    };
+    return transformValue((ScriptableValue) thisObj, replaceFunction);
   }
 
   /**
@@ -62,24 +188,28 @@ public class TextMethods {
    *   $('TextVar').matches('regex1', 'regex2', ...)
    * </pre>
    */
-  public static ScriptableValue matches(Context ctx, Scriptable thisObj, Object[] args, Function funObj) {
-    ScriptableValue sv = (ScriptableValue) thisObj;
-    if(sv.getValue().isNull()) {
-      return new ScriptableValue(thisObj, TextType.get().nullValue());
-    }
+  public static ScriptableValue matches(final Context ctx, final Scriptable thisObj, final Object[] args, Function funObj) {
+    com.google.common.base.Function<Value, Value> matchesFunction = new com.google.common.base.Function<Value, Value>() {
 
-    String stringValue = sv.getValue().toString();
+      @Override
+      public Value apply(Value input) {
+        String stringValue = input.toString();
 
-    // Delegate to Javascript's String.replace method
-    boolean matches = false;
-    for(Object arg : args) {
-      Object result = ScriptRuntime.checkRegExpProxy(ctx).action(ctx, thisObj, ScriptRuntime.toObject(ctx, thisObj, stringValue), new Object[] { arg }, RegExpProxy.RA_MATCH);
-      if(result != null) {
-        matches = true;
+        // Delegate to Javascript's String.replace method
+        boolean matches = false;
+        if(stringValue != null) {
+          for(Object arg : args) {
+            Object result = ScriptRuntime.checkRegExpProxy(ctx).action(ctx, thisObj, ScriptRuntime.toObject(ctx, thisObj, stringValue), new Object[] { arg }, RegExpProxy.RA_MATCH);
+            if(result != null) {
+              matches = true;
+            }
+          }
+        }
+
+        return BooleanType.get().valueOf(matches);
       }
-    }
-
-    return new ScriptableValue(thisObj, BooleanType.get().valueOf(matches));
+    };
+    return transformValue((ScriptableValue) thisObj, matchesFunction);
   }
 
   /**
@@ -92,21 +222,26 @@ public class TextMethods {
    *   $('Var').concat('SomeValue')
    * </pre>
    */
-  public static ScriptableValue concat(Context ctx, Scriptable thisObj, Object[] args, Function funObj) {
-    ScriptableValue sv = (ScriptableValue) thisObj;
+  public static ScriptableValue concat(Context ctx, Scriptable thisObj, final Object[] args, Function funObj) {
+    com.google.common.base.Function<Value, Value> concatFunction = new com.google.common.base.Function<Value, Value>() {
 
-    StringBuilder sb = new StringBuilder();
-
-    sb.append(sv.toString());
-    if(args != null) {
-      for(Object arg : args) {
-        if(arg instanceof ScriptableValue) {
-          arg = arg.toString();
+      @Override
+      public Value apply(Value input) {
+        String stringValue = input.toString();
+        StringBuilder sb = new StringBuilder();
+        sb.append(stringValue);
+        if(args != null) {
+          for(Object arg : args) {
+            if(arg instanceof ScriptableValue) {
+              arg = arg.toString();
+            }
+            sb.append(arg);
+          }
         }
-        sb.append(arg);
+        return TextType.get().valueOf(sb.toString());
       }
-    }
-    return new ScriptableValue(thisObj, TextType.get().valueOf(sb.toString()));
+    };
+    return transformValue((ScriptableValue) thisObj, concatFunction);
   }
 
   /**
@@ -287,6 +422,27 @@ public class TextMethods {
       return asNumber.intValue();
     }
     return null;
+  }
+
+  /**
+   * Transform a value or values from a value sequence using the provided function.
+   * @param sv
+   * @param valueFunction
+   * @return
+   */
+  private static ScriptableValue transformValue(ScriptableValue sv, com.google.common.base.Function<Value, Value> valueFunction) {
+    if(sv.getValue().isNull()) {
+      if(sv.getValue().isSequence()) {
+        return new ScriptableValue(sv, TextType.get().nullSequence());
+      } else {
+        return new ScriptableValue(sv, valueFunction.apply(sv.getValue()));
+      }
+    }
+    if(sv.getValue().isSequence()) {
+      return new ScriptableValue(sv, TextType.get().sequenceOf(Iterables.transform(sv.getValue().asSequence().getValue(), valueFunction)));
+    } else {
+      return new ScriptableValue(sv, valueFunction.apply(sv.getValue()));
+    }
   }
 
 }

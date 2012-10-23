@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.obiba.magma.Attribute;
+import org.obiba.magma.Attributes;
 import org.obiba.magma.Category;
 import org.obiba.magma.ValueType;
 import org.obiba.magma.Variable;
@@ -28,6 +29,8 @@ public class VariableConverter {
 
   public static final String ENTITY_TYPE = "entityType";
 
+  public static final String REFERENCED_ENTITY_TYPE = "referencedEntityType";
+
   public static final String MIME_TYPE = "mimeType";
 
   public static final String REPEATABLE = "repeatable";
@@ -43,6 +46,7 @@ public class VariableConverter {
   public static final List<String> reservedVariableHeaders = Lists.newArrayList(NAME, //
   VALUE_TYPE, //
   ENTITY_TYPE, //
+  REFERENCED_ENTITY_TYPE, //
   MIME_TYPE, //
   UNIT, //
   REPEATABLE, //
@@ -78,6 +82,7 @@ public class VariableConverter {
     String name = getValueAt(csvVar, NAME);
     String valueType = getValueAt(csvVar, VALUE_TYPE);
     String entityType = getValueAt(csvVar, ENTITY_TYPE);
+    String referencedEntityType = getValueAt(csvVar, REFERENCED_ENTITY_TYPE);
     String mimeType = getValueAt(csvVar, MIME_TYPE);
     String unit = getValueAt(csvVar, UNIT);
     String repeatable = getValueAt(csvVar, REPEATABLE);
@@ -85,7 +90,7 @@ public class VariableConverter {
 
     log.debug("name={} valueType={} entityType={} mimeType={}", new Object[] { name, valueType, entityType, mimeType });
 
-    Variable.Builder builder = Variable.Builder.newVariable(name, ValueType.Factory.forName(valueType), entityType).mimeType(mimeType).unit(unit).occurrenceGroup(occurrenceGroup);
+    Variable.Builder builder = Variable.Builder.newVariable(name, ValueType.Factory.forName(valueType), entityType).mimeType(mimeType).unit(unit).occurrenceGroup(occurrenceGroup).referencedEntityType(referencedEntityType);
 
     if(Boolean.parseBoolean(repeatable)) {
       builder.repeatable();
@@ -97,11 +102,11 @@ public class VariableConverter {
       if(!reservedVariableHeaders.contains(header)) {
         String value = getValueAt(csvVar, header);
         if(value != null) {
-          String attName = getAttributeName(header);
-          if(attName.equals(CATEGORIES)) {
+          if(header.startsWith(CATEGORIES)) {
             unmarshalCategories(value, getAttributeLocale(header), categoryBuilderMap);
           } else {
-            builder.addAttribute(attName, value, getAttributeLocale(header));
+            Attribute.Builder attrBuilder = Attributes.decodeFromHeader(header);
+            builder.addAttribute(attrBuilder.withValue(value).build());
           }
         }
       }
@@ -152,10 +157,6 @@ public class VariableConverter {
     return sb.toString();
   }
 
-  private String getAttributeName(String header) {
-    return header.split(":")[0];
-  }
-
   private Locale getAttributeLocale(String header) {
     String[] h = header.split(":");
     if(h.length > 1 && h[1].trim().isEmpty() == false) {
@@ -186,20 +187,18 @@ public class VariableConverter {
     if(headerMap.containsKey(REPEATABLE)) resultMap.put(headerMap.get(REPEATABLE), Boolean.toString(variable.isRepeatable()));
     if(headerMap.containsKey(OCCURRENCE_GROUP)) resultMap.put(headerMap.get(OCCURRENCE_GROUP), variable.getOccurrenceGroup());
     if(headerMap.containsKey(UNIT)) resultMap.put(headerMap.get(UNIT), variable.getUnit());
+    if(headerMap.containsKey(REFERENCED_ENTITY_TYPE)) resultMap.put(headerMap.get(REFERENCED_ENTITY_TYPE), variable.getReferencedEntityType());
+
+    for(Attribute attribute : variable.getAttributes()) {
+      String header = Attributes.encodeForHeader(attribute);
+      if(headerMap.containsKey(header) && !reservedVariableHeaders.contains(header)) {
+        resultMap.put(headerMap.get(header), attribute.getValue().toString());
+      }
+    }
 
     for(String header : headerMap.keySet()) {
-      if(!reservedVariableHeaders.contains(header) && headerMap.containsKey(header)) {
-        String attName = getAttributeName(header);
-        Locale locale = getAttributeLocale(header);
-        if(attName.equals(CATEGORIES)) {
-          resultMap.put(headerMap.get(header), marshalCategories(variable, locale));
-        } else {
-          if(locale != null && variable.hasAttribute(attName, locale)) {
-            resultMap.put(headerMap.get(header), variable.getAttribute(attName, locale).getValue().toString());
-          } else if(variable.hasAttribute(attName)) {
-            resultMap.put(headerMap.get(header), variable.getAttributeStringValue(attName));
-          }
-        }
+      if(header.startsWith(CATEGORIES)) {
+        resultMap.put(headerMap.get(header), marshalCategories(variable, getAttributeLocale(header)));
       }
     }
 

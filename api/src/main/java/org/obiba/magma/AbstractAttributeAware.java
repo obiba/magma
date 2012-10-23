@@ -4,31 +4,25 @@ import java.util.List;
 import java.util.Locale;
 import java.util.NoSuchElementException;
 
+import com.google.common.base.Function;
+import com.google.common.base.Objects;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.ListMultimap;
+import com.google.common.collect.Multimaps;
 
 public abstract class AbstractAttributeAware implements AttributeAware {
 
   public abstract String getName();
 
   public boolean hasAttribute(final String name) {
-    return getInstanceAttributes().containsKey(name);
-  }
-
-  @Override
-  public Attribute getAttribute(final String name) {
-    try {
-      return Iterables.get(getInstanceAttributes().get(name), 0);
-    } catch(IndexOutOfBoundsException e) {
-      throw new NoSuchAttributeException(name, getName());
-    }
+    return noNamespaceAttributes().containsKey(name);
   }
 
   public boolean hasAttribute(final String name, final Locale locale) {
-    if(getInstanceAttributes().containsKey(name)) {
-      for(Attribute attribute : getInstanceAttributes().get(name)) {
+    if(noNamespaceAttributes().containsKey(name)) {
+      for(Attribute attribute : noNamespaceAttributes().get(name)) {
         if(attribute.isLocalised() && attribute.getLocale().equals(locale)) {
           return true;
         }
@@ -38,9 +32,37 @@ public abstract class AbstractAttributeAware implements AttributeAware {
   }
 
   @Override
+  public boolean hasAttribute(String namespace, String name) {
+    ListMultimap<String, Attribute> nm = namespaceAttributes(namespace);
+    if(name != null) {
+      return nm.containsKey(name);
+    }
+    return true;
+  }
+
+  @Override
+  public boolean hasAttribute(String namespace, String name, Locale locale) {
+    for(Attribute attribute : namespaceAttributes(namespace).get(name)) {
+      if(attribute.isLocalised() && attribute.getLocale().equals(locale)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  @Override
+  public Attribute getAttribute(final String name) {
+    try {
+      return Iterables.get(noNamespaceAttributes().get(name), 0);
+    } catch(IndexOutOfBoundsException e) {
+      throw new NoSuchAttributeException(name, getName());
+    }
+  }
+
+  @Override
   public Attribute getAttribute(final String name, final Locale locale) {
     try {
-      return Iterables.find(getInstanceAttributes().get(name), new Predicate<Attribute>() {
+      return Iterables.find(noNamespaceAttributes().get(name), new Predicate<Attribute>() {
         @Override
         public boolean apply(Attribute input) {
           return input.isLocalised() && input.getLocale().equals(locale);
@@ -52,8 +74,46 @@ public abstract class AbstractAttributeAware implements AttributeAware {
   }
 
   @Override
+  public Attribute getAttribute(String namespace, String name) throws NoSuchAttributeException {
+    try {
+      return Iterables.get(namespaceAttributes(namespace).get(name), 0);
+    } catch(IndexOutOfBoundsException e) {
+      throw new NoSuchAttributeException(namespace + "::" + name, getName());
+    }
+  }
+
+  @Override
+  public Attribute getAttribute(String namespace, String name, final Locale locale) throws NoSuchAttributeException {
+    try {
+      return Iterables.find(namespaceAttributes(namespace).get(name), new Predicate<Attribute>() {
+        @Override
+        public boolean apply(Attribute input) {
+          return input.isLocalised() && input.getLocale().equals(locale);
+        }
+      });
+    } catch(NoSuchElementException e) {
+      throw new NoSuchAttributeException(name, locale, getName());
+    }
+  }
+
+  @Override
+  public List<Attribute> getAttributes(String namespace, String name) throws NoSuchAttributeException {
+    return ImmutableList.copyOf(namespaceAttributes(namespace).get(name));
+  }
+
+  @Override
+  public List<Attribute> getNamespaceAttributes(String namespace) throws NoSuchAttributeException {
+    return ImmutableList.copyOf(namespaceAttributes(namespace).values());
+  }
+
+  @Override
   public Value getAttributeValue(String name) throws NoSuchAttributeException {
     return getAttribute(name).getValue();
+  }
+
+  @Override
+  public Value getAttributeValue(String namespace, String name) throws NoSuchAttributeException {
+    return getAttribute(namespace, name).getValue();
   }
 
   @Override
@@ -62,9 +122,14 @@ public abstract class AbstractAttributeAware implements AttributeAware {
   }
 
   @Override
+  public String getAttributeStringValue(String namespace, String name) throws NoSuchAttributeException {
+    return getAttribute(namespace, name).getValue().toString();
+  }
+
+  @Override
   public List<Attribute> getAttributes(String name) throws NoSuchAttributeException {
     if(hasAttribute(name) == false) throw new NoSuchAttributeException(name, getName());
-    return ImmutableList.copyOf(getInstanceAttributes().get(name));
+    return ImmutableList.copyOf(noNamespaceAttributes().get(name));
   }
 
   @Override
@@ -78,4 +143,34 @@ public abstract class AbstractAttributeAware implements AttributeAware {
   }
 
   protected abstract ListMultimap<String, Attribute> getInstanceAttributes();
+
+  protected ListMultimap<String, Attribute> noNamespaceAttributes() {
+    return namespaceAttributes(null);
+  }
+
+  /**
+   * Returns a view of the attributes for the specified namespace. If namespace is null, this method returns attributes
+   * that have no namespace (namespace is null).
+   */
+  protected ListMultimap<String, Attribute> namespaceAttributes(final String namespace) {
+    return Multimaps.index(Iterables.filter(getInstanceAttributes().values(), new Predicate<Attribute>() {
+
+      @Override
+      public boolean apply(Attribute input) {
+        // Allows namespace to be null
+        return Objects.equal(namespace, input.getNamespace());
+      }
+    }), AttributeNameFunc.INSTANCE);
+  }
+
+  private static final class AttributeNameFunc implements Function<Attribute, String> {
+
+    private static final AttributeNameFunc INSTANCE = new AttributeNameFunc();
+
+    @Override
+    public String apply(Attribute input) {
+      return input.getName();
+    }
+
+  }
 }

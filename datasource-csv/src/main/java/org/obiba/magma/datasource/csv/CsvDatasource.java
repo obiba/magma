@@ -21,6 +21,7 @@ import org.obiba.magma.datasource.csv.support.Quote;
 import org.obiba.magma.datasource.csv.support.Separator;
 import org.obiba.magma.support.AbstractDatasource;
 
+import au.com.bytecode.opencsv.CSVParser;
 import au.com.bytecode.opencsv.CSVReader;
 import au.com.bytecode.opencsv.CSVWriter;
 
@@ -158,6 +159,10 @@ public class CsvDatasource extends AbstractDatasource {
 
   CSVReader getCsvReader(Reader reader) {
     return new CSVReader(reader, separator.getCharacter(), quote.getCharacter(), firstRow - 1);
+  }
+
+  CSVParser getCsvParser() {
+    return new CSVParser(separator.getCharacter(), quote.getCharacter());
   }
 
   Reader getReader(File file) {

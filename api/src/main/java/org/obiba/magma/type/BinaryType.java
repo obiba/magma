@@ -2,9 +2,14 @@ package org.obiba.magma.type;
 
 import java.io.IOException;
 import java.lang.ref.WeakReference;
+import java.util.List;
 
 import org.obiba.magma.MagmaEngine;
 import org.obiba.magma.Value;
+import org.obiba.magma.ValueLoaderFactory;
+import org.obiba.magma.ValueSequence;
+
+import com.google.common.collect.Lists;
 
 public class BinaryType extends AbstractValueType {
 
@@ -76,6 +81,25 @@ public class BinaryType extends AbstractValueType {
       return valueOf((String) object);
     }
     throw new IllegalArgumentException("Cannot construct " + getClass().getSimpleName() + " from type " + type + ".");
+  }
+
+  public ValueSequence sequenceOfReferences(ValueLoaderFactory factory, String string) {
+    List<Value> values = Lists.newArrayList();
+    Value refValues = TextType.get().sequenceOf(string);
+    int occurrence = 0;
+    for(Value refValue : refValues.asSequence().getValues()) {
+      if(refValue.isNull()) {
+        values.add(BinaryType.get().nullValue());
+      } else {
+        values.add(valueOf(factory.create(refValue.toString(), occurrence)));
+      }
+      occurrence++;
+    }
+    return BinaryType.get().sequenceOf(values);
+  }
+
+  public Value valueOfReference(ValueLoaderFactory factory, String string) {
+    return valueOf(factory.create(string, null));
   }
 
   @Override

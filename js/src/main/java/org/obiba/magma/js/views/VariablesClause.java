@@ -1,11 +1,13 @@
 package org.obiba.magma.js.views;
 
+import java.io.IOException;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.obiba.magma.Initialisable;
 import org.obiba.magma.NoSuchVariableException;
 import org.obiba.magma.ValueTable;
+import org.obiba.magma.ValueTableWriter.VariableWriter;
 import org.obiba.magma.Variable;
 import org.obiba.magma.VariableValueSource;
 import org.obiba.magma.js.JavascriptVariableValueSourceFactory;
@@ -66,6 +68,37 @@ public class VariablesClause implements ListClause, Initialisable {
   public void setValueTable(ValueTable valueTable) {
     if(valueTable == null) throw new IllegalArgumentException("valueTable cannot be null");
     this.valueTable = valueTable;
+  }
+
+  @Override
+  public VariableWriter createWriter() {
+    return new VariableWriter() {
+
+      @Override
+      public void close() throws IOException {
+      }
+
+      @Override
+      public void writeVariable(Variable variable) {
+        // update or add variable
+        LinkedHashSet<Variable> variableSet = new LinkedHashSet<Variable>();
+        boolean updated = false;
+        for(Variable var : variables) {
+          if(var.getName().equals(variable.getName())) {
+            variableSet.add(variable);
+            updated = true;
+          } else {
+            variableSet.add(var);
+          }
+        }
+
+        if(updated == false) {
+          variableSet.add(variable);
+        }
+
+        variables = variableSet;
+      }
+    };
   }
 
 }

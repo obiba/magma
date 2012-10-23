@@ -2,6 +2,7 @@ package org.obiba.magma.views;
 
 import org.obiba.magma.NoSuchVariableException;
 import org.obiba.magma.ValueTable;
+import org.obiba.magma.ValueTableWriter.VariableWriter;
 import org.obiba.magma.VariableValueSource;
 
 /**
@@ -24,6 +25,7 @@ public interface ListClause {
    * @return a {@code VariableValueSource} matching the provided name.
    * @throws NoSuchVariableException If a {@code Variable} (and thus a {@code VariableValueSource) does not exist with
    * the provided name.
+
    */
   public VariableValueSource getVariableValueSource(String name) throws NoSuchVariableException;
 
@@ -33,5 +35,11 @@ public interface ListClause {
    * @param valueTable The table to be set in the {@code ListClause}
    */
   public void setValueTable(ValueTable valueTable);
+
+  /**
+   * Gets a {@link VariableWriter} to update derived variables list.
+   * @return
+   */
+  public VariableWriter createWriter();
 
 }

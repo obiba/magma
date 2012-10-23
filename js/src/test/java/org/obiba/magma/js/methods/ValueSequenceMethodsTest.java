@@ -271,7 +271,7 @@ public class ValueSequenceMethodsTest extends AbstractJsTest {
 
   @Test(expected = MagmaJsEvaluationRuntimeException.class)
   public void test_avg_onNonNumericTypeThrowsAnException() {
-    assertAvgIs(TextType.get().valueOf("This is not a number, so you can't call sum()"), null);
+    assertAvgIs(TextType.get().valueOf("This is not a number, so you can't call avg()"), null);
   }
 
   @Test
@@ -286,6 +286,53 @@ public class ValueSequenceMethodsTest extends AbstractJsTest {
     ScriptableValue result = super.evaluate("avg()", valueToSum);
     Assert.assertNotNull(result);
     Assert.assertEquals(expectedSum, result.getValue().getValue());
+  }
+
+  // stddev
+
+  @Test
+  public void test_stddev_integerType() {
+    assertStdDevIs(Values.asSequence(IntegerType.get(), 2, 4, 4, 4, 5, 5, 7, 9), 2.0);
+  }
+
+  @Test
+  public void test_stddev_decimalType() {
+    assertStdDevIs(Values.asSequence(DecimalType.get(), 2, 4, 4, 4, 5, 5, 7, 9), 2.0);
+  }
+
+  @Test
+  public void test_stddev_sequenceContainsNullReturnsNullValue() {
+    assertStdDevIs(Values.asSequence(DecimalType.get(), 1, null, 3, 4), null);
+  }
+
+  @Test
+  public void test_stddev_nullSequenceReturnsNullValue() {
+    assertStdDevIs(DecimalType.get().nullSequence(), null);
+  }
+
+  @Test
+  public void test_stddev_onNonSequenceReturnsValue() {
+    assertStdDevIs(IntegerType.get().valueOf(4), 0.0);
+    assertStdDevIs(DecimalType.get().valueOf(4), 0.0);
+  }
+
+  @Test(expected = MagmaJsEvaluationRuntimeException.class)
+  public void test_stddev_onNonNumericTypeThrowsAnException() {
+    assertStdDevIs(TextType.get().valueOf("This is not a number, so you can't call stddev()"), null);
+  }
+
+  @Test
+  public void test_stddev_emptySequence() {
+    assertStdDevIs(DecimalType.get().sequenceOf(Collections.<Value> emptyList()), null);
+  }
+
+  private void assertStdDevIs(Value testValue, Number expected) {
+    if(expected instanceof Integer) {
+      expected = new Long(expected.longValue());
+    }
+    ScriptableValue result = super.evaluate("stddev()", testValue);
+    Assert.assertNotNull(result);
+    Assert.assertEquals(expected, result.getValue().getValue());
   }
 
   // sum
@@ -374,6 +421,99 @@ public class ValueSequenceMethodsTest extends AbstractJsTest {
     if(expected.isNull()) {
       Assert.assertTrue(result.getValue().isNull());
     } else {
+      Assert.assertTrue(Iterables.elementsEqual(result.getValue().asSequence().getValue(), expected.asSequence().getValue()));
+    }
+  }
+
+  // join
+  @Test
+  public void test_join() {
+    assertJoinIs(Values.asSequence(IntegerType.get(), 1, 2, 3), "", TextType.get().valueOf("123"));
+  }
+
+  @Test
+  public void test_join_not_a_sequence() {
+    assertJoinIs(IntegerType.get().valueOf(1), "', ','[', ']'", TextType.get().valueOf("[1]"));
+  }
+
+  @Test
+  public void test_join_null() {
+    assertJoinIs(IntegerType.get().nullSequence(), "", TextType.get().nullValue());
+  }
+
+  @Test
+  public void test_join_delimiter() {
+    assertJoinIs(Values.asSequence(IntegerType.get(), 1, 2, 3), "', '", TextType.get().valueOf("1, 2, 3"));
+  }
+
+  @Test
+  public void test_join_delimiter_prefix() {
+    assertJoinIs(Values.asSequence(IntegerType.get(), 1, 2, 3), "', ','=> '", TextType.get().valueOf("=> 1, 2, 3"));
+  }
+
+  @Test
+  public void test_join_delimiter_prefix_suffix() {
+    assertJoinIs(Values.asSequence(IntegerType.get(), 1, 2, 3), "', ','[', ']'", TextType.get().valueOf("[1, 2, 3]"));
+  }
+
+  @Test
+  public void test_join_delimiter_prefix_suffix_empty() {
+    assertJoinIs(Values.asSequence(IntegerType.get(), new Object[] {}), "', ','[', ']'", TextType.get().valueOf(""));
+  }
+
+  private void assertJoinIs(Value valueToJoin, String args, Value expected) {
+    ScriptableValue result = super.evaluate("join(" + args + ")", valueToJoin);
+    Assert.assertNotNull(result);
+    if(expected.isNull()) {
+      Assert.assertTrue(result.getValue().isNull());
+    } else {
+      Assert.assertEquals(expected.getValue(), result.getValue().getValue());
+    }
+  }
+
+  // zip
+  @Test
+  public void test_zip_concat() {
+    assertZipIs(Values.asSequence(IntegerType.get(), 1, 2, 3), "'foo', function(o1,o2) { return o1.concat(o2); }", Values.asSequence(TextType.get(), "1foo", "2foo", "3foo"));
+  }
+
+  @Test
+  public void test_zip_concat_value() {
+    assertZipIs(Values.asSequence(IntegerType.get(), 1, 2, 3), "newValue('foo'), function(o1,o2) { return o1.concat(o2); }", Values.asSequence(TextType.get(), "1foo", "2foo", "3foo"));
+  }
+
+  @Test
+  public void test_zip_concat_value_sequence() {
+    assertZipIs(Values.asSequence(IntegerType.get(), 1, 2, 3), "newValue('foo').push('bar'), function(o1,o2) { return o1.concat(o2); }", Values.asSequence(TextType.get(), "1foo", "2bar", "3null"));
+  }
+
+  @Test
+  public void test_zip_concat_value_sequence_longer() {
+    assertZipIs(Values.asSequence(IntegerType.get(), 1, 2, 3), "newValue('foo').push('bar').push('patate').push('pwel'), function(o1,o2) { return o1.concat(o2); }", Values.asSequence(TextType.get(), "1foo", "2bar", "3patate", "nullpwel"));
+  }
+
+  @Test
+  public void test_zip_concat_empty() {
+    assertZipIs(Values.asSequence(IntegerType.get(), new Object[] {}), "'foo', function(o1,o2) { return o1.concat(o2); }", Values.asSequence(TextType.get(), "nullfoo"));
+  }
+
+  @Test
+  public void test_zip_concat_null() {
+    assertZipIs(IntegerType.get().nullSequence(), "'foo', function(o1,o2) { return o1.concat(o2); }", Values.asSequence(TextType.get(), "nullfoo"));
+  }
+
+  @Test
+  public void test_zip_plus() {
+    assertZipIs(Values.asSequence(IntegerType.get(), 1, 2, 3), "1, function(o1,o2) { return o1.plus(o2); }", Values.asSequence(IntegerType.get(), 2, 3, 4));
+  }
+
+  private void assertZipIs(Value valueToZip, String args, Value expected) {
+    ScriptableValue result = super.evaluate("zip(" + args + ")", valueToZip);
+    Assert.assertNotNull(result);
+    if(expected.isNull()) {
+      Assert.assertTrue(result.getValue().isNull());
+    } else {
+      Assert.assertTrue(result.getValue().isSequence());
       Assert.assertTrue(Iterables.elementsEqual(result.getValue().asSequence().getValue(), expected.asSequence().getValue()));
     }
   }

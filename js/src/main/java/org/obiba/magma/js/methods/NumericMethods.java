@@ -218,7 +218,8 @@ public class NumericMethods {
    * @throws MagmaJsEvaluationRuntimeException if operands are not ScriptableValue Objects of IntegerType or
    * DecimalType.
    */
-  public static ScriptableValue plus(Context ctx, Scriptable thisObj, Object[] args, Function funObj) throws MagmaJsEvaluationRuntimeException {
+  public static ScriptableValue
+      plus(Context ctx, Scriptable thisObj, Object[] args, Function funObj) throws MagmaJsEvaluationRuntimeException {
     return operate((ScriptableValue) thisObj, args, Ops.PLUS);
   }
 
@@ -233,7 +234,8 @@ public class NumericMethods {
    * @throws MagmaJsEvaluationRuntimeException if operands are not ScriptableValue Objects of IntegerType or
    * DecimalType.
    */
-  public static ScriptableValue minus(Context ctx, Scriptable thisObj, Object[] args, Function funObj) throws MagmaJsEvaluationRuntimeException {
+  public static ScriptableValue
+      minus(Context ctx, Scriptable thisObj, Object[] args, Function funObj) throws MagmaJsEvaluationRuntimeException {
     return operate((ScriptableValue) thisObj, args, Ops.MINUS);
   }
 
@@ -248,7 +250,9 @@ public class NumericMethods {
    * @throws MagmaJsEvaluationRuntimeException if operands are not ScriptableValue Objects of IntegerType or
    * DecimalType.
    */
-  public static ScriptableValue multiply(Context ctx, Scriptable thisObj, Object[] args, Function funObj) throws MagmaJsEvaluationRuntimeException {
+  public static
+      ScriptableValue
+      multiply(Context ctx, Scriptable thisObj, Object[] args, Function funObj) throws MagmaJsEvaluationRuntimeException {
     return operate((ScriptableValue) thisObj, args, Ops.MULTIPLY);
   }
 
@@ -262,7 +266,8 @@ public class NumericMethods {
    * @throws MagmaJsEvaluationRuntimeException if operands are not ScriptableValue Objects of IntegerType or
    * DecimalType.
    */
-  public static ScriptableValue div(Context ctx, Scriptable thisObj, Object[] args, Function funObj) throws MagmaJsEvaluationRuntimeException {
+  public static ScriptableValue
+      div(Context ctx, Scriptable thisObj, Object[] args, Function funObj) throws MagmaJsEvaluationRuntimeException {
     return operate((ScriptableValue) thisObj, args, Ops.DIVIDE);
   }
 
@@ -276,7 +281,8 @@ public class NumericMethods {
    * @throws MagmaJsEvaluationRuntimeException if operands are not ScriptableValue Objects of IntegerType or
    * DecimalType.
    */
-  public static ScriptableValue gt(Context ctx, Scriptable thisObj, Object[] args, Function funObj) throws MagmaJsEvaluationRuntimeException {
+  public static ScriptableValue
+      gt(Context ctx, Scriptable thisObj, Object[] args, Function funObj) throws MagmaJsEvaluationRuntimeException {
     return new ScriptableValue(thisObj, compare((ScriptableValue) thisObj, args, Comps.GT));
   }
 
@@ -290,7 +296,8 @@ public class NumericMethods {
    * @throws MagmaJsEvaluationRuntimeException if operands are not ScriptableValue Objects of IntegerType or
    * DecimalType.
    */
-  public static ScriptableValue ge(Context ctx, Scriptable thisObj, Object[] args, Function funObj) throws MagmaJsEvaluationRuntimeException {
+  public static ScriptableValue
+      ge(Context ctx, Scriptable thisObj, Object[] args, Function funObj) throws MagmaJsEvaluationRuntimeException {
     return new ScriptableValue(thisObj, compare((ScriptableValue) thisObj, args, Comps.GE));
   }
 
@@ -304,7 +311,8 @@ public class NumericMethods {
    * @throws MagmaJsEvaluationRuntimeException if operands are not ScriptableValue Objects of IntegerType or
    * DecimalType.
    */
-  public static ScriptableValue lt(Context ctx, Scriptable thisObj, Object[] args, Function funObj) throws MagmaJsEvaluationRuntimeException {
+  public static ScriptableValue
+      lt(Context ctx, Scriptable thisObj, Object[] args, Function funObj) throws MagmaJsEvaluationRuntimeException {
     return new ScriptableValue(thisObj, compare((ScriptableValue) thisObj, args, Comps.LT));
   }
 
@@ -318,7 +326,8 @@ public class NumericMethods {
    * @throws MagmaJsEvaluationRuntimeException if operands are not ScriptableValue Objects of IntegerType or
    * DecimalType.
    */
-  public static ScriptableValue le(Context ctx, Scriptable thisObj, Object[] args, Function funObj) throws MagmaJsEvaluationRuntimeException {
+  public static ScriptableValue
+      le(Context ctx, Scriptable thisObj, Object[] args, Function funObj) throws MagmaJsEvaluationRuntimeException {
     return new ScriptableValue(thisObj, compare((ScriptableValue) thisObj, args, Comps.LE));
   }
 
@@ -329,7 +338,8 @@ public class NumericMethods {
    *   $('NumberVarOne').abs()
    * </pre>
    */
-  public static ScriptableValue abs(Context ctx, Scriptable thisObj, Object[] args, Function funObj) throws MagmaJsEvaluationRuntimeException {
+  public static ScriptableValue
+      abs(Context ctx, Scriptable thisObj, Object[] args, Function funObj) throws MagmaJsEvaluationRuntimeException {
     return operate((ScriptableValue) thisObj, args, Unary.ABS);
   }
 
@@ -340,7 +350,8 @@ public class NumericMethods {
    *   $('NumberVarOne').ln()
    * </pre>
    */
-  public static ScriptableValue ln(Context ctx, Scriptable thisObj, Object[] args, Function funObj) throws MagmaJsEvaluationRuntimeException {
+  public static ScriptableValue
+      ln(Context ctx, Scriptable thisObj, Object[] args, Function funObj) throws MagmaJsEvaluationRuntimeException {
     return operate((ScriptableValue) thisObj, args, Unary.LN);
   }
 
@@ -352,7 +363,8 @@ public class NumericMethods {
    *   $('NumberVarOne').log(2) // log base 2
    * </pre>
    */
-  public static ScriptableValue log(Context ctx, Scriptable thisObj, Object[] args, Function funObj) throws MagmaJsEvaluationRuntimeException {
+  public static ScriptableValue
+      log(Context ctx, Scriptable thisObj, Object[] args, Function funObj) throws MagmaJsEvaluationRuntimeException {
     return operate((ScriptableValue) thisObj, args, Unary.LOG);
   }
 
@@ -364,7 +376,8 @@ public class NumericMethods {
    *   $('NumberVarOne').pow(-2)
    * </pre>
    */
-  public static ScriptableValue pow(Context ctx, Scriptable thisObj, Object[] args, Function funObj) throws MagmaJsEvaluationRuntimeException {
+  public static ScriptableValue
+      pow(Context ctx, Scriptable thisObj, Object[] args, Function funObj) throws MagmaJsEvaluationRuntimeException {
     return operate((ScriptableValue) thisObj, args, Unary.POW);
   }
 
@@ -377,15 +390,18 @@ public class NumericMethods {
    *   $('NumberVarOne').root(42) // arbitrary root
    * </pre>
    */
-  public static ScriptableValue root(Context ctx, Scriptable thisObj, Object[] args, Function funObj) throws MagmaJsEvaluationRuntimeException {
+  public static ScriptableValue
+      root(Context ctx, Scriptable thisObj, Object[] args, Function funObj) throws MagmaJsEvaluationRuntimeException {
     return operate((ScriptableValue) thisObj, args, Unary.ROOT);
   }
 
-  public static ScriptableValue sqroot(Context ctx, Scriptable thisObj, Object[] args, Function funObj) throws MagmaJsEvaluationRuntimeException {
+  public static ScriptableValue
+      sqroot(Context ctx, Scriptable thisObj, Object[] args, Function funObj) throws MagmaJsEvaluationRuntimeException {
     return operate((ScriptableValue) thisObj, new Object[] { 2 }, Unary.ROOT);
   }
 
-  public static ScriptableValue cbroot(Context ctx, Scriptable thisObj, Object[] args, Function funObj) throws MagmaJsEvaluationRuntimeException {
+  public static ScriptableValue
+      cbroot(Context ctx, Scriptable thisObj, Object[] args, Function funObj) throws MagmaJsEvaluationRuntimeException {
     return operate((ScriptableValue) thisObj, new Object[] { 3 }, Unary.ROOT);
   }
 
@@ -497,7 +513,8 @@ public class NumericMethods {
    * @param outliers
    * @return
    */
-  private static Value lookupGroup(Context ctx, Scriptable thisObj, Value value, List<Value> boundaries, List<Value> outliers) {
+  private static Value
+      lookupGroup(Context ctx, Scriptable thisObj, Value value, List<Value> boundaries, List<Value> outliers) {
     if(outliers != null && outliers.contains(value)) {
       return TextType.get().convert(value);
     } else if(value.isNull()) {
@@ -658,6 +675,25 @@ public class NumericMethods {
       return sum / size;
     }
     return null;
+  }
+
+  static Double stddev(ValueSequence valueSequence) {
+    Double avg = average(valueSequence);
+    if(avg == null) return null;
+
+    int size = valueSequence.getSize();
+    if(size == 0) return null;
+
+    double sumDev = 0;
+    for(Value v : valueSequence.getValue()) {
+      if(v.isNull()) {
+        return null;
+      }
+      double d = ((Number) v.getValue()).doubleValue();
+      sumDev += (d - avg) * (d - avg);
+    }
+
+    return Math.sqrt(sumDev / size);
   }
 
 }

@@ -27,7 +27,7 @@ public class CsvIndexEntry {
 
   @Override
   public String toString() {
-    return "CsvIndexEntry [end=" + end + ", start=" + start + "]";
+    return "CsvIndexEntry [start=" + start + ", end=" + end + "]";
   }
 
 }

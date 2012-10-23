@@ -28,7 +28,6 @@ import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.datasource.jdbc.JdbcDatasource.ChangeDatabaseCallback;
 import org.obiba.magma.datasource.jdbc.support.BlobTypeVisitor;
-import org.obiba.magma.datasource.jdbc.support.CreateTableChangeBuilder;
 import org.obiba.magma.datasource.jdbc.support.InsertDataChangeBuilder;
 import org.obiba.magma.datasource.jdbc.support.NameConverter;
 import org.obiba.magma.type.LocaleType;
@@ -63,6 +62,8 @@ class JdbcValueTableWriter implements ValueTableWriter {
   static final String ATTRIBUTE_NAME_COLUMN = "attribute_name";
 
   static final String ATTRIBUTE_LOCALE_COLUMN = "attribute_locale";
+
+  static final String ATTRIBUTE_NAMESPACE_COLUMN = "attribute_namespace";
 
   static final String ATTRIBUTE_VALUE_COLUMN = "attribute_value";
 
@@ -171,9 +172,6 @@ class JdbcValueTableWriter implements ValueTableWriter {
     //
 
     JdbcMetadataVariableWriter() {
-      if(valueTable.getDatasource().getSettings().useMetadataTables()) {
-        createMetadataTablesIfNotPresent();
-      }
     }
 
     //
@@ -216,28 +214,10 @@ class JdbcValueTableWriter implements ValueTableWriter {
     // Methods
     //
 
-    private void createMetadataTablesIfNotPresent() {
-      if(valueTable.getDatasource().getDatabaseSnapshot().getTable(VARIABLE_METADATA_TABLE) == null) {
-        CreateTableChangeBuilder builder = new CreateTableChangeBuilder();
-        builder.tableName(VARIABLE_METADATA_TABLE).withColumn(VALUE_TABLE_COLUMN, "VARCHAR(255)").primaryKey().withColumn("name", "VARCHAR(255)").primaryKey().withColumn(VALUE_TYPE_COLUMN, "VARCHAR(255)").notNull().withColumn("mime_type", "VARCHAR(255)").withColumn("units", "VARCHAR(255)").withColumn("is_repeatable", "BOOLEAN").withColumn("occurrence_group", "VARCHAR(255)");
-        changes.add(builder.build());
-      }
-      if(valueTable.getDatasource().getDatabaseSnapshot().getTable(ATTRIBUTE_METADATA_TABLE) == null) {
-        CreateTableChangeBuilder builder = new CreateTableChangeBuilder();
-        builder.tableName(ATTRIBUTE_METADATA_TABLE).withColumn(VALUE_TABLE_COLUMN, "VARCHAR(255)").primaryKey().withColumn(VARIABLE_NAME_COLUMN, "VARCHAR(255)").primaryKey().withColumn(ATTRIBUTE_NAME_COLUMN, "VARCHAR(255)").primaryKey().withColumn(ATTRIBUTE_LOCALE_COLUMN, "VARCHAR(20)").primaryKey().withColumn(ATTRIBUTE_VALUE_COLUMN, SqlTypes.sqlTypeFor(TextType.get(), SqlTypes.TEXT_TYPE_HINT_MEDIUM));
-        changes.add(builder.build());
-      }
-      if(valueTable.getDatasource().getDatabaseSnapshot().getTable(CATEGORY_METADATA_TABLE) == null) {
-        CreateTableChangeBuilder builder = new CreateTableChangeBuilder();
-        builder.tableName(CATEGORY_METADATA_TABLE).withColumn(VALUE_TABLE_COLUMN, "VARCHAR(255)").primaryKey().withColumn(VARIABLE_NAME_COLUMN, "VARCHAR(255)").primaryKey().withColumn(CATEGORY_NAME_COLUMN, "VARCHAR(255)").primaryKey().withColumn(CATEGORY_CODE_COLUMN, "VARCHAR(255)").withColumn(CATEGORY_MISSING_COLUMN, "BOOLEAN").notNull();
-        changes.add(builder.build());
-      }
-    }
-
     private void writeAttributes(Variable variable) {
       for(Attribute attribute : variable.getAttributes()) {
         InsertDataChangeBuilder builder = new InsertDataChangeBuilder();
-        builder.tableName(ATTRIBUTE_METADATA_TABLE).withColumn(VALUE_TABLE_COLUMN, valueTable.getSqlName()).withColumn(VARIABLE_NAME_COLUMN, NameConverter.toSqlName(variable.getName())).withColumn(ATTRIBUTE_NAME_COLUMN, attribute.getName()).withColumn(ATTRIBUTE_LOCALE_COLUMN, attribute.isLocalised() ? attribute.getLocale().toString() : "").withColumn(ATTRIBUTE_VALUE_COLUMN, attribute.getValue().toString());
+        builder.tableName(ATTRIBUTE_METADATA_TABLE).withColumn(VALUE_TABLE_COLUMN, valueTable.getSqlName()).withColumn(VARIABLE_NAME_COLUMN, NameConverter.toSqlName(variable.getName())).withColumn(ATTRIBUTE_NAME_COLUMN, attribute.getName()).withColumn(ATTRIBUTE_LOCALE_COLUMN, attribute.isLocalised() ? attribute.getLocale().toString() : "").withColumn(ATTRIBUTE_NAMESPACE_COLUMN, attribute.hasNamespace() ? attribute.getNamespace() : "").withColumn(ATTRIBUTE_VALUE_COLUMN, attribute.getValue().toString());
         changes.add(builder.build());
       }
     }

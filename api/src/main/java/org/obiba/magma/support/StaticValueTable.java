@@ -18,6 +18,7 @@ import com.google.common.base.Function;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 
 public class StaticValueTable extends AbstractValueTable {
 
@@ -32,7 +33,7 @@ public class StaticValueTable extends AbstractValueTable {
 
     this.entityType = (entityType != null) ? entityType : "";
 
-    this.entities = ImmutableSet.copyOf(Iterables.transform(entities, new Function<String, VariableEntity>() {
+    this.entities = Sets.newLinkedHashSet(Iterables.transform(entities, new Function<String, VariableEntity>() {
 
       @Override
       public VariableEntity apply(String from) {
@@ -48,7 +49,7 @@ public class StaticValueTable extends AbstractValueTable {
 
       @Override
       public Set<VariableEntity> getVariableEntities() {
-        return StaticValueTable.this.entities;
+        return ImmutableSet.copyOf(StaticValueTable.this.entities);
       }
 
       @Override
@@ -59,7 +60,7 @@ public class StaticValueTable extends AbstractValueTable {
   }
 
   public StaticValueTable(Datasource datasource, String name, Set<String> entities) {
-    this(datasource, name, entities, "");
+    this(datasource, name, entities, "Participant");
   }
 
   public void addVariable(final Variable variable) {
@@ -72,7 +73,8 @@ public class StaticValueTable extends AbstractValueTable {
 
       @Override
       public Value getValue(ValueSet valueSet) {
-        return getValueType().valueOf(table.get(valueSet.getVariableEntity().getIdentifier()).get(variable.getName()));
+        Object value = table.get(valueSet.getVariableEntity().getIdentifier()).get(variable.getName());
+        return (value instanceof Value) ? (Value) value : getValueType().valueOf(value);
       }
 
       @Override
@@ -117,6 +119,13 @@ public class StaticValueTable extends AbstractValueTable {
   public StaticValueTable addValues(String entity, Object... variableAndValues) {
     for(int i = 0; i < variableAndValues.length; i += 2) {
       Object variable = variableAndValues[i];
+      if(variable instanceof Variable) {
+        Variable var = (Variable) variable;
+        if(hasVariable(var.getName()) == false) {
+          addVariable(var);
+        }
+        variable = var.getName();
+      }
       Object value = variableAndValues[i + 1];
       getEntityValues(entity).put(variable.toString(), value);
     }
@@ -131,6 +140,14 @@ public class StaticValueTable extends AbstractValueTable {
   @Override
   public ValueSet getValueSet(VariableEntity entity) throws NoSuchValueSetException {
     return new ValueSetBean(this, entity);
+  }
+
+  boolean hasVariableEntity(VariableEntity entity) {
+    return entities.contains(entity);
+  }
+
+  void addVariableEntity(VariableEntity entity) {
+    entities.add(entity);
   }
 
   private Map<String, Object> getEntityValues(String entity) {

@@ -298,6 +298,35 @@ public class DateTimeMethods {
   }
 
   /**
+   * Returns the number of milliseconds since January 1, 1970, 00:00:00 GMT (epoch time).
+   * 
+   * <pre>
+   *   $('Date').time()
+   * </pre>
+   */
+  public static Scriptable time(Context cx, Scriptable thisObj, Object[] args, Function funObj) {
+    Value currentValue = ((ScriptableValue) thisObj).getValue();
+
+    if(currentValue.isSequence()) {
+      if(currentValue.isNull()) {
+        return new ScriptableValue(thisObj, IntegerType.get().nullSequence());
+      }
+      List<Value> newValues = new ArrayList<Value>();
+      for(Value value : currentValue.asSequence().getValue()) {
+        newValues.add(timeValue(value));
+      }
+      return new ScriptableValue(thisObj, TextType.get().sequenceOf(newValues));
+    } else {
+      return new ScriptableValue(thisObj, timeValue(currentValue));
+    }
+  }
+
+  private static Value timeValue(Value value) {
+    if(value.isNull()) return IntegerType.get().nullValue();
+    return IntegerType.get().valueOf(asDate(value).getTime());
+  }
+
+  /**
    * Returns the text representation of the date formatted as specified by the provided pattern.
    * 
    * <pre>

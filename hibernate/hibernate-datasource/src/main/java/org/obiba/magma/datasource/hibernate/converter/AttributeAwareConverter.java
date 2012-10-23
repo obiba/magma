@@ -3,6 +3,7 @@ package org.obiba.magma.datasource.hibernate.converter;
 import org.obiba.magma.Attribute;
 import org.obiba.magma.AttributeAware;
 import org.obiba.magma.AttributeAwareBuilder;
+import org.obiba.magma.Attributes;
 import org.obiba.magma.datasource.hibernate.domain.AbstractAttributeAwareEntity;
 import org.obiba.magma.datasource.hibernate.domain.AttributeState;
 
@@ -14,7 +15,7 @@ public class AttributeAwareConverter {
       if(hibernateEntity.hasAttribute(attr.getName(), attr.getLocale())) {
         as = hibernateEntity.getAttribute(attr.getName(), attr.getLocale());
       } else {
-        as = new AttributeState(attr.getName(), attr.getLocale(), attr.getValue());
+        as = new AttributeState(attr.getName(), attr.getNamespace(), attr.getLocale(), attr.getValue());
         hibernateEntity.addAttribute(as);
       }
       as.setValue(attr.getValue());
@@ -23,11 +24,7 @@ public class AttributeAwareConverter {
 
   public void buildAttributeAware(AttributeAwareBuilder<?> builder, AbstractAttributeAwareEntity hibernateEntity) {
     for(AttributeState as : hibernateEntity.getAttributes()) {
-      if(as.isLocalised()) {
-        builder.addAttribute(Attribute.Builder.newAttribute(as.getName()).withValue(as.getLocale(), as.getValue().toString()).build());
-      } else {
-        builder.addAttribute(Attribute.Builder.newAttribute(as.getName()).withValue(as.getValue()).build());
-      }
+      builder.addAttribute(Attributes.copyOf(as));
     }
   }
 

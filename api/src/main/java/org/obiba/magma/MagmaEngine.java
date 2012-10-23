@@ -31,7 +31,7 @@ public class MagmaEngine implements DatasourceRegistry {
 
   public MagmaEngine() {
     if(instance != null) {
-      throw new IllegalStateException("MetaEngine already instanciated. Only one instance of MetaEngine should be instantiated.");
+      throw new IllegalStateException("MagmaEngine already instanciated. Only one instance of MagmaEngine should be instantiated.");
     }
     instance = this;
 

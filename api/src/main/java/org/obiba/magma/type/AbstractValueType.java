@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueConverter;
+import org.obiba.magma.ValueLoader;
 import org.obiba.magma.ValueSequence;
 import org.obiba.magma.ValueType;
 
@@ -37,6 +38,11 @@ public abstract class AbstractValueType implements ValueType {
   public ValueSequence nullSequence() {
     return nullSequence;
 
+  }
+
+  @Override
+  public Value valueOf(ValueLoader loader) {
+    return Factory.newValue(this, loader);
   }
 
   @Override
@@ -106,8 +112,8 @@ public abstract class AbstractValueType implements ValueType {
   }
 
   /**
-   * Returns a comma-separated string representation of the sequence. The resulting string can be passed to {@code
-   * sequenceOf(String)} to obtain the original {@code ValueSequence}.
+   * Returns a comma-separated string representation of the sequence. The resulting string can be passed to
+   * {@code sequenceOf(String)} to obtain the original {@code ValueSequence}.
    * 
    * @param sequence
    * @return

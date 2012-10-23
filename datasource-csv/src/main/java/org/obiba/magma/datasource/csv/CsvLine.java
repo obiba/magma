@@ -1,11 +1,14 @@
 package org.obiba.magma.datasource.csv;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.obiba.magma.Value;
 import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
+import org.obiba.magma.support.BinaryValueWriter;
+import org.obiba.magma.type.BinaryType;
 
 /**
  * Use this class to build up a line of csv file to be written to a csv file.
@@ -22,8 +25,14 @@ public class CsvLine {
 
   private final VariableEntity entity;
 
-  public CsvLine(VariableEntity entity) {
+  private final File parent;
+
+  public CsvLine(VariableEntity entity, File parent) {
     this.entity = entity;
+    this.parent = parent;
+    if(parent.exists() == false) {
+      parent.mkdirs();
+    }
     headerMap = new HashMap<String, Integer>();
     valueMap = new HashMap<String, Value>();
   }
@@ -32,7 +41,12 @@ public class CsvLine {
     if(!headerMap.containsKey(variable.getName())) {
       headerMap.put(variable.getName(), index++);
     }
-    valueMap.put(variable.getName(), value);
+
+    if(variable.getValueType().equals(BinaryType.get())) {
+      valueMap.put(variable.getName(), BinaryValueWriter.writeFileValue(parent, variable, entity, value));
+    } else {
+      valueMap.put(variable.getName(), value);
+    }
   }
 
   public String[] getHeader() {
@@ -48,9 +62,12 @@ public class CsvLine {
     String[] line = new String[headerMap.size() + 1];
     line[0] = entity.getIdentifier();
     for(Map.Entry<String, Integer> entry : headerMap.entrySet()) {
-      String value = null;
-      if(valueMap.containsKey(entry.getKey())) value = (valueMap.get(entry.getKey())).toString();
-      line[entry.getValue()] = value;
+      String strValue = null;
+      if(valueMap.containsKey(entry.getKey())) {
+        Value value = (valueMap.get(entry.getKey()));
+        strValue = value.toString();
+      }
+      line[entry.getValue()] = strValue;
     }
     return line;
   }
@@ -62,4 +79,5 @@ public class CsvLine {
   public void setHeaderMap(Map<String, Integer> headerMap) {
     this.headerMap = headerMap;
   }
+
 }
