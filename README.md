@@ -2,6 +2,12 @@
 
 Data and meta-data abstraction layer.
 
+## Documentation
+
+[Variables and Data](http://wiki.obiba.org/display/OPALDOC/Variables+and+Data)
+
+[Magma Javascript API](http://wiki.obiba.org/display/OPALDOC/Magma+Javascript+API)
+
 ## Download
 
 See Obiba Maven 2.x repository: [http://www.obiba.org/maven2](http://www.obiba.org/maven2)
