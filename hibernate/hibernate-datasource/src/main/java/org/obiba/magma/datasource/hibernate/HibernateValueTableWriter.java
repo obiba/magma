@@ -3,16 +3,22 @@
  */
 package org.obiba.magma.datasource.hibernate;
 
+import java.io.File;
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 
 import org.hibernate.FlushMode;
 import org.hibernate.LockMode;
 import org.hibernate.Session;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.obiba.core.service.impl.hibernate.AssociationCriteria;
 import org.obiba.core.service.impl.hibernate.AssociationCriteria.Operation;
+import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.NoSuchVariableException;
 import org.obiba.magma.Value;
+import org.obiba.magma.ValueSequence;
 import org.obiba.magma.ValueTableWriter;
 import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
@@ -23,7 +29,11 @@ import org.obiba.magma.datasource.hibernate.domain.ValueSetState;
 import org.obiba.magma.datasource.hibernate.domain.ValueSetValue;
 import org.obiba.magma.datasource.hibernate.domain.VariableEntityState;
 import org.obiba.magma.datasource.hibernate.domain.VariableState;
+import org.obiba.magma.support.BinaryValueFileHelper;
+import org.obiba.magma.type.BinaryType;
+import org.obiba.magma.type.TextType;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 class HibernateValueTableWriter implements ValueTableWriter {
@@ -143,8 +153,9 @@ class HibernateValueTableWriter implements ValueTableWriter {
           if(value.isNull()) {
             valueSetState.getValues().remove(vsv);
             values.remove(variable.getName());
+            // TODO remove binary file
           } else {
-            vsv.setValue(value);
+            writeValue(vsv, variable, value);
           }
         } else {
           if(value.isNull() == false) {
@@ -153,7 +164,7 @@ class HibernateValueTableWriter implements ValueTableWriter {
               throw new NoSuchVariableException(valueTable.getName(), variable.getName());
             }
             vsv = new ValueSetValue(variableState, valueSetState);
-            vsv.setValue(value);
+            writeValue(vsv, variable, value);
             valueSetState.getValues().add(vsv);
             values.put(variable.getName(), vsv);
           }
@@ -165,6 +176,74 @@ class HibernateValueTableWriter implements ValueTableWriter {
         errorOccurred = true;
         throw e;
       }
+    }
+
+    private void writeValue(ValueSetValue vsv, Variable variable, Value value) {
+      if(value.getValueType().equals(BinaryType.get()) && valueTable.getDatasource().hasDatasourceRoot()) {
+        vsv.setValue(writeBinaryValue(variable, value));
+      } else {
+        vsv.setValue(value);
+      }
+    }
+
+    /**
+     * Write the byte array in a file and return the value reference.
+     * @param variable
+     * @param value
+     * @return
+     */
+    private Value writeBinaryValue(Variable variable, Value value) {
+      Value path = BinaryValueFileHelper.writeValue(getTableRoot(), variable, entity, value);
+      return path;
+      // return toPropertiesValueRef(value, path);
+    }
+
+    /**
+     * Add to path other properties of the byte array.
+     * @param value
+     * @param path
+     * @return
+     */
+    private Value toPropertiesValueRef(Value value, Value path) {
+      Value valueRef;
+      if(value.isSequence()) {
+        List<Value> valueRefs = Lists.newArrayList();
+        ValueSequence valueSequence = value.asSequence();
+        for(int i = 0; i < valueSequence.getValues().size(); i++) {
+          valueRefs.add(getPropertiesValueRef(valueSequence.get(i), path.asSequence().get(i)));
+        }
+        valueRef = TextType.get().sequenceOf(valueRefs);
+      } else {
+        valueRef = getPropertiesValueRef(value, path);
+      }
+      return valueRef;
+    }
+
+    private Value getPropertiesValueRef(Value value, Value path) {
+      if(value.isNull()) {
+        // TODO remove a file
+        return TextType.get().nullValue();
+      }
+
+      try {
+        JSONObject properties = new JSONObject();
+        byte[] array = (byte[]) value.getValue();
+        properties.put("length", array.length);
+        properties.put("path", path.toString());
+        return TextType.get().valueOf(properties.toString());
+      } catch(JSONException e) {
+        throw new MagmaRuntimeException(e);
+      }
+    }
+
+    private File getTableRoot() {
+      File tableRoot = valueTable.getTableRoot();
+      if(tableRoot.exists() == false) {
+        if(tableRoot.mkdirs() == false) {
+          throw new MagmaRuntimeException("Unable to create directory: " + tableRoot.getAbsolutePath());
+        }
+      }
+      return tableRoot;
     }
 
     @Override

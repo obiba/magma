@@ -1,5 +1,7 @@
 package org.obiba.magma.datasource.hibernate.support;
 
+import java.io.File;
+
 import org.obiba.magma.AbstractDatasourceFactory;
 import org.obiba.magma.Datasource;
 import org.obiba.magma.Disposable;
@@ -13,6 +15,8 @@ public class HibernateDatasourceFactory extends AbstractDatasourceFactory implem
 
   private SessionFactoryProvider sessionFactoryProvider;
 
+  private File datasourceRoot;
+
   public HibernateDatasourceFactory() {
 
   }
@@ -23,7 +27,7 @@ public class HibernateDatasourceFactory extends AbstractDatasourceFactory implem
   }
 
   public Datasource internalCreate() {
-    return new HibernateDatasource(getName(), sessionFactoryProvider.getSessionFactory());
+    return new HibernateDatasource(getName(), sessionFactoryProvider.getSessionFactory(), datasourceRoot);
   }
 
   public void setSessionFactoryProvider(SessionFactoryProvider sessionFactoryProvider) {
@@ -42,5 +46,12 @@ public class HibernateDatasourceFactory extends AbstractDatasourceFactory implem
 
   public SessionFactoryProvider getSessionFactoryProvider() {
     return sessionFactoryProvider;
+  }
+
+  /**
+   * @param datasourceRoot
+   */
+  public void setDirectory(File datasourceRoot) {
+    this.datasourceRoot = datasourceRoot;
   }
 }

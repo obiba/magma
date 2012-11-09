@@ -17,6 +17,7 @@ import org.obiba.core.service.SortingClause;
 import org.obiba.core.service.impl.hibernate.AssociationCriteria;
 import org.obiba.core.service.impl.hibernate.AssociationCriteria.Operation;
 import org.obiba.magma.Value;
+import org.obiba.magma.ValueLoaderFactory;
 import org.obiba.magma.ValueSet;
 import org.obiba.magma.ValueType;
 import org.obiba.magma.Variable;
@@ -25,13 +26,19 @@ import org.obiba.magma.VariableValueSource;
 import org.obiba.magma.VariableValueSourceFactory;
 import org.obiba.magma.VectorSource;
 import org.obiba.magma.datasource.hibernate.HibernateValueTable.HibernateValueSet;
+import org.obiba.magma.datasource.hibernate.converter.HibernateValueLoaderFactory;
 import org.obiba.magma.datasource.hibernate.converter.VariableConverter;
 import org.obiba.magma.datasource.hibernate.domain.ValueSetValue;
 import org.obiba.magma.datasource.hibernate.domain.VariableState;
+import org.obiba.magma.type.BinaryType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableList;
 
 class HibernateVariableValueSourceFactory implements VariableValueSourceFactory {
+
+  private static final Logger log = LoggerFactory.getLogger(HibernateVariableValueSourceFactory.class);
 
   private final HibernateValueTable valueTable;
 
@@ -100,8 +107,23 @@ class HibernateVariableValueSourceFactory implements VariableValueSourceFactory 
     public Value getValue(ValueSet valueSet) {
       HibernateValueSet hibernateValueSet = (HibernateValueSet) valueSet;
       ValueSetValue vsv = hibernateValueSet.getValueSetState().getValueMap().get(name);
-      if(vsv != null) return vsv.getValue();
-      return (getVariable().isRepeatable() ? getValueType().nullSequence() : getValueType().nullValue());
+      if(vsv == null) return (getVariable().isRepeatable() ? getValueType().nullSequence() : getValueType().nullValue());
+      if(getVariable().getValueType().equals(BinaryType.get())) {
+        // build a value loader
+        return getBinaryValue(valueSet, vsv);
+      } else {
+        return vsv.getValue();
+      }
+    }
+
+    private Value getBinaryValue(ValueSet valueSet, ValueSetValue vsv) {
+      Value val = vsv.getValue();
+      ValueLoaderFactory factory = new HibernateValueLoaderFactory(valueTable.getTableRoot());
+      if(getVariable().isRepeatable()) {
+        return BinaryType.get().sequenceOfReferences(factory, val);
+      } else {
+        return BinaryType.get().valueOfReference(factory, val);
+      }
     }
 
     @Override

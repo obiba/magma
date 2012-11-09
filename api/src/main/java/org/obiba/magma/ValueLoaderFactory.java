@@ -17,10 +17,10 @@ public interface ValueLoaderFactory {
   /**
    * Create a {@link ValueLoader} given a reference and the occurrence of the value (starting at 0) in the case of a
    * sequence of values.
-   * @param strValue
+   * @param valueRef Provides the reference to the value
    * @param occurrence Null when the value is not a sequence of values
    * @return
    */
-  public ValueLoader create(String strValue, Integer occurrence);
+  public ValueLoader create(Value valueRef, Integer occurrence);
 
 }

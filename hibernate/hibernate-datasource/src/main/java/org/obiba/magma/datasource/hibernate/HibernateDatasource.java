@@ -1,5 +1,6 @@
 package org.obiba.magma.datasource.hibernate;
 
+import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -40,6 +41,8 @@ public class HibernateDatasource extends AbstractDatasource {
 
   private Serializable datasourceId;
 
+  private final File datasourceRoot;
+
   /**
    * A Map of {@code org.hibernate.Transaction} to a list of all {@code HibernateValueTable} involved in the
    * transaction. This map uses weak keys, meaning that when the transaction object is no longer reference anywhere, its
@@ -48,10 +51,15 @@ public class HibernateDatasource extends AbstractDatasource {
   private ConcurrentMap<Transaction, List<HibernateValueTableTransaction>> syncMap = new MapMaker().weakKeys().makeMap();
 
   public HibernateDatasource(String name, SessionFactory sessionFactory) {
+    this(name, sessionFactory, null);
+  }
+
+  public HibernateDatasource(String name, SessionFactory sessionFactory, File datasourceRoot) {
     super(name, HIBERNATE_TYPE);
     if(sessionFactory == null) throw new IllegalArgumentException("sessionFactory cannot be null");
 
     this.sessionFactory = sessionFactory;
+    this.datasourceRoot = datasourceRoot;
   }
 
   /**
@@ -194,6 +202,14 @@ public class HibernateDatasource extends AbstractDatasource {
 
   SessionFactory getSessionFactory() {
     return sessionFactory;
+  }
+
+  File getDatasourceRoot() {
+    return datasourceRoot;
+  }
+
+  boolean hasDatasourceRoot() {
+    return datasourceRoot != null;
   }
 
   DatasourceState getDatasourceState() {

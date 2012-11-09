@@ -10,6 +10,7 @@
 package org.obiba.magma.support;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.util.List;
 
@@ -19,16 +20,41 @@ import org.obiba.magma.Value;
 import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.type.TextType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
+import com.google.common.io.Files;
 
 /**
  *
  */
-public class BinaryValueWriter {
+public class BinaryValueFileHelper {
 
-  public static Value writeFileValue(File parent, Variable variable, VariableEntity entity, Value value) {
-    return writeFileValue(new File(parent, variable.getName()), getFileName(variable, entity), getFileExtension(variable), value);
+  private static final Logger log = LoggerFactory.getLogger(BinaryValueFileHelper.class);
+
+  public static byte[] readValue(File parent, String path) {
+    byte[] value = null;
+    try {
+      File file = new File(path);
+      if(file.isAbsolute() == false && parent != null) {
+        file = new File(parent, path);
+      }
+      log.debug("Loading binary from: {}", file.getAbsolutePath());
+      FileInputStream fin = new FileInputStream(file);
+      value = new byte[(int) file.length()];
+      fin.read(value);
+      fin.close();
+      log.debug("Binary loaded from: {}", file.getAbsolutePath());
+    } catch(Exception e) {
+      value = null;
+      throw new MagmaRuntimeException("File cannot be read: " + path, e);
+    }
+    return value;
+  }
+
+  public static Value writeValue(File parent, Variable variable, VariableEntity entity, Value value) {
+    return writeFileValue(parent, getFileName(variable, entity), getFileExtension(variable), value);
   }
 
   /**
@@ -53,20 +79,24 @@ public class BinaryValueWriter {
       rval = TextType.get().sequenceOf(names);
     } else {
       File file = new File(parent, name + "." + extension);
+      File tmpFile = new File(parent, file.getName() + ".tmp");
       try {
         if(parent.exists() == false) {
           parent.mkdirs();
-        } else if(file.exists()) {
-          file.delete();
         }
-        file.createNewFile();
-        FileOutputStream out = new FileOutputStream(file);
+        tmpFile.createNewFile();
+        FileOutputStream out = new FileOutputStream(tmpFile);
         out.write((byte[]) value.getValue());
         out.close();
+        if(file.exists()) {
+          file.delete();
+        }
+        Files.move(tmpFile, file);
+        log.debug("File written: {}", file.getAbsolutePath());
       } catch(Exception e) {
         throw new MagmaRuntimeException("Failed writing file: " + file.getAbsolutePath(), e);
       }
-      rval = TextType.get().valueOf(parent.getName() + "/" + file.getName());
+      rval = TextType.get().valueOf(file.getName());
     }
 
     return rval;

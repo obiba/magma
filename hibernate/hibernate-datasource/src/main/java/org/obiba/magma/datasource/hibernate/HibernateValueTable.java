@@ -1,5 +1,6 @@
 package org.obiba.magma.datasource.hibernate;
 
+import java.io.File;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Collections;
@@ -200,4 +201,13 @@ class HibernateValueTable extends AbstractValueTable {
       }
     }
   }
+
+  /**
+   * Get the base directory for storing binary files.
+   * @return
+   */
+  public File getTableRoot() {
+    return new File(getDatasource().getDatasourceRoot(), getName());
+  }
+
 }

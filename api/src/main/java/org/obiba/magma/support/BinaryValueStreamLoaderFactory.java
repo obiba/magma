@@ -11,6 +11,7 @@ package org.obiba.magma.support;
 
 import java.io.File;
 
+import org.obiba.magma.Value;
 import org.obiba.magma.ValueLoader;
 import org.obiba.magma.ValueLoaderFactory;
 
@@ -25,7 +26,9 @@ public class BinaryValueStreamLoaderFactory implements ValueLoaderFactory {
     this.parent = parent;
   }
 
-  public ValueLoader create(String strValue, Integer occurrence) {
+  @Override
+  public ValueLoader create(Value valueRef, Integer occurrence) {
+    String strValue = valueRef.toString();
     if(strValue.startsWith("http://")) {
       return new BinaryValueURLLoader(strValue);
     } else {

@@ -7,7 +7,7 @@ import java.util.Map;
 import org.obiba.magma.Value;
 import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
-import org.obiba.magma.support.BinaryValueWriter;
+import org.obiba.magma.support.BinaryValueFileHelper;
 import org.obiba.magma.type.BinaryType;
 
 /**
@@ -43,7 +43,7 @@ public class CsvLine {
     }
 
     if(variable.getValueType().equals(BinaryType.get())) {
-      valueMap.put(variable.getName(), BinaryValueWriter.writeFileValue(parent, variable, entity, value));
+      valueMap.put(variable.getName(), BinaryValueFileHelper.writeValue(parent, variable, entity, value));
     } else {
       valueMap.put(variable.getName(), value);
     }

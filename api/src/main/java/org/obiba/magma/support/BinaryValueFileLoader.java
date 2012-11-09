@@ -10,10 +10,8 @@
 package org.obiba.magma.support;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.Serializable;
 
-import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.ValueLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -67,21 +65,7 @@ public class BinaryValueFileLoader implements ValueLoader, Serializable {
   @Override
   public Object getValue() {
     if(value == null) {
-      try {
-        File file = new File(path);
-        if(file.isAbsolute() == false && parent != null) {
-          file = new File(parent, path);
-        }
-        log.debug("Loading binary from: {}", file.getAbsolutePath());
-        FileInputStream fin = new FileInputStream(file);
-        value = new byte[(int) file.length()];
-        fin.read(value);
-        fin.close();
-        log.debug("Binary loaded from: {}", file.getAbsolutePath());
-      } catch(Exception e) {
-        value = null;
-        throw new MagmaRuntimeException("File cannot be read: " + path, e);
-      }
+      value = BinaryValueFileHelper.readValue(parent, path);
     }
     return value;
   }
