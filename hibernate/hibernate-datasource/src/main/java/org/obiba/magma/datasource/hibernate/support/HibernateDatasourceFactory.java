@@ -10,12 +10,13 @@ import org.obiba.magma.datasource.hibernate.HibernateDatasource;
 import org.obiba.magma.datasource.hibernate.SessionFactoryProvider;
 import org.obiba.magma.support.Disposables;
 import org.obiba.magma.support.Initialisables;
+import org.obiba.magma.support.Placeholders;
 
 public class HibernateDatasourceFactory extends AbstractDatasourceFactory implements Initialisable, Disposable {
 
   private SessionFactoryProvider sessionFactoryProvider;
 
-  private File datasourceRoot;
+  private String binariesDirectory;
 
   public HibernateDatasourceFactory() {
 
@@ -27,7 +28,12 @@ public class HibernateDatasourceFactory extends AbstractDatasourceFactory implem
   }
 
   public Datasource internalCreate() {
-    return new HibernateDatasource(getName(), sessionFactoryProvider.getSessionFactory(), datasourceRoot);
+    if(binariesDirectory != null) {
+      String path = Placeholders.replaceAll(binariesDirectory);
+      return new HibernateDatasource(getName(), sessionFactoryProvider.getSessionFactory(), new File(path, getName()));
+    } else {
+      return new HibernateDatasource(getName(), sessionFactoryProvider.getSessionFactory());
+    }
   }
 
   public void setSessionFactoryProvider(SessionFactoryProvider sessionFactoryProvider) {
@@ -49,9 +55,9 @@ public class HibernateDatasourceFactory extends AbstractDatasourceFactory implem
   }
 
   /**
-   * @param datasourceRoot
+   * @param dir
    */
-  public void setDirectory(File datasourceRoot) {
-    this.datasourceRoot = datasourceRoot;
+  public void setBinariesDirectory(String dir) {
+    this.binariesDirectory = dir;
   }
 }
