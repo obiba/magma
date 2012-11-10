@@ -8,6 +8,8 @@ Data and meta-data abstraction layer.
 
 [Magma Javascript API](http://wiki.obiba.org/display/OPALDOC/Magma+Javascript+API)
 
+[Magma Javadoc](http://apidocs.obiba.org/magma/)
+
 ## Download
 
 See Obiba Maven 2.x repository: [http://www.obiba.org/maven2](http://www.obiba.org/maven2)
