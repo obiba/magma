@@ -10,11 +10,11 @@ Data and meta-data abstraction layer.
 
 [Magma Javadoc](http://apidocs.obiba.org/magma/)
 
-## Download
+## Maven Download
 
-See Obiba Maven 2.x repository: [http://www.obiba.org/maven2](http://www.obiba.org/maven2)
+See [Obiba Maven 2.x repository](http://repo.obiba.org/libs-release-local)
 
-And Obiba Snaphot Maven 2.x repository: [http://www.obiba.org/maven2-snapshots](http://www.obiba.org/maven2-snapshots)
+And [Obiba Snaphot Maven 2.x repository](http://repo.obiba.org/libs-snapshot-local)
 
 
 ## Bug tracker
