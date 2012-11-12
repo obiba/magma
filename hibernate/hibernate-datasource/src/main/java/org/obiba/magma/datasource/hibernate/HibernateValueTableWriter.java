@@ -153,7 +153,8 @@ class HibernateValueTableWriter implements ValueTableWriter {
           if(value.isNull()) {
             valueSetState.getValues().remove(vsv);
             values.remove(variable.getName());
-            // TODO remove binary file
+            // remove binary file
+            BinaryValueFileHelper.removeValue(getTableRoot(), variable, entity);
           } else {
             writeValue(vsv, variable, value);
           }

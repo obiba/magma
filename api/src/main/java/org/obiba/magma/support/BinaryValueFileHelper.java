@@ -12,7 +12,9 @@ package org.obiba.magma.support;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FilenameFilter;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import org.obiba.magma.Attribute;
 import org.obiba.magma.MagmaRuntimeException;
@@ -33,6 +35,12 @@ public class BinaryValueFileHelper {
 
   private static final Logger log = LoggerFactory.getLogger(BinaryValueFileHelper.class);
 
+  /**
+   * Read a file into a binary value.
+   * @param parent
+   * @param path
+   * @return
+   */
   public static byte[] readValue(File parent, String path) {
     byte[] value = null;
     try {
@@ -53,6 +61,43 @@ public class BinaryValueFileHelper {
     return value;
   }
 
+  /**
+   * Remove the file (or files in case of a repeatable variable) for the given variable and entity.
+   * @param parent
+   * @param variable
+   * @param entity
+   */
+  public static void removeValue(File parent, Variable variable, VariableEntity entity) {
+    final String name = getFileName(variable, entity);
+    final String extension = getFileExtension(variable);
+    if(variable.isRepeatable()) {
+      for(File file : parent.listFiles(new FilenameFilter() {
+
+        @Override
+        public boolean accept(File f, String n) {
+          return Pattern.matches(name + "-\\d+" + "\\." + extension, n);
+        }
+      })) {
+        file.delete();
+      }
+    } else {
+      removeFileValue(parent, name, extension);
+    }
+  }
+
+  private static void removeFileValue(File parent, String name, String extension) {
+    File file = new File(parent, name + "." + extension);
+    file.delete();
+  }
+
+  /**
+   * Write binary in file or files in case of a sequence of values.
+   * @param parent
+   * @param variable
+   * @param entity
+   * @param value
+   * @return
+   */
   public static Value writeValue(File parent, Variable variable, VariableEntity entity, Value value) {
     return writeFileValue(parent, getFileName(variable, entity), getFileExtension(variable), value);
   }
@@ -102,6 +147,12 @@ public class BinaryValueFileHelper {
     return rval;
   }
 
+  /**
+   * Get file name from the "filename" or "file-name" variable attribute if any, otherwise use the variable name.
+   * @param variable
+   * @param entity
+   * @return
+   */
   private static String getFileName(Variable variable, VariableEntity entity) {
     String prefix = variable.getName();
 
@@ -118,6 +169,11 @@ public class BinaryValueFileHelper {
     return prefix + "-" + entity.getIdentifier();
   }
 
+  /**
+   * Get the file extension from the "fileextension" or "file-extension" variable attribute if any.
+   * @param variable
+   * @return
+   */
   private static String getFileExtension(Variable variable) {
     String suffix = "bin";
 
@@ -133,6 +189,8 @@ public class BinaryValueFileHelper {
         }
       }
     }
+
+    // TODO get file extension from variable mime-type
 
     return suffix;
   }
