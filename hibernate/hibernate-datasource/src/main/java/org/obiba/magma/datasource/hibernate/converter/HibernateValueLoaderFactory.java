@@ -69,6 +69,7 @@ public class HibernateValueLoaderFactory implements ValueLoaderFactory {
     public Object getValue() {
       if(value == null) {
         if(valueRef.getValueType().equals(BinaryType.get())) {
+          log.info("Loading binary from database");
           // legacy
           value = (byte[]) valueRef.getValue();
         } else {
@@ -80,6 +81,7 @@ public class HibernateValueLoaderFactory implements ValueLoaderFactory {
             } else {
               path = valueRef.toString();
             }
+            log.info("Loading binary from path: {}", path);
             value = BinaryValueFileHelper.readValue(tableRoot, path);
           } catch(JSONException e) {
             log.error("Failed loading JSON binary value reference", e);
