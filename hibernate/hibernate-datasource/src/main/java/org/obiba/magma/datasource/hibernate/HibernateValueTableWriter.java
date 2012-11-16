@@ -151,10 +151,7 @@ class HibernateValueTableWriter implements ValueTableWriter {
         ValueSetValue vsv = values.get(variable.getName());
         if(vsv != null) {
           if(value.isNull()) {
-            valueSetState.getValues().remove(vsv);
-            values.remove(variable.getName());
-            // remove binary file
-            BinaryValueFileHelper.removeValue(getTableRoot(), variable, entity);
+            removeValue(variable, vsv);
           } else {
             writeValue(vsv, variable, value);
           }
@@ -176,6 +173,15 @@ class HibernateValueTableWriter implements ValueTableWriter {
       } catch(Error e) {
         errorOccurred = true;
         throw e;
+      }
+    }
+
+    private void removeValue(Variable variable, ValueSetValue vsv) {
+      valueSetState.getValues().remove(vsv);
+      values.remove(variable.getName());
+      if(variable.getValueType().equals(BinaryType.get())) {
+        // remove binary file
+        BinaryValueFileHelper.removeValue(getTableRoot(), variable, entity);
       }
     }
 

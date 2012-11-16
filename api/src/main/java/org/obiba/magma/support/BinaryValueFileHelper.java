@@ -110,41 +110,71 @@ public class BinaryValueFileHelper {
    * @param value
    * @return
    */
-  private static Value writeFileValue(File parent, String name, String extension, Value value) {
-    if(value.isNull()) return TextType.get().nullValue();
+  private static Value writeFileValue(File parent, final String name, final String extension, Value value) {
+    if(value.isSequence()) return writeFileValueSequence(parent, name, extension, value);
 
-    Value rval;
-    if(value.isSequence()) {
-      int i = 1;
-      List<Value> names = Lists.newArrayList();
-      for(Value val : value.asSequence().getValue()) {
-        names.add(writeFileValue(parent, name + "-" + i, extension, val));
-        i++;
-      }
-      rval = TextType.get().sequenceOf(names);
-    } else {
-      File file = new File(parent, name + "." + extension);
-      File tmpFile = new File(parent, file.getName() + ".tmp");
-      try {
-        if(parent.exists() == false) {
-          parent.mkdirs();
-        }
-        tmpFile.createNewFile();
-        FileOutputStream out = new FileOutputStream(tmpFile);
-        out.write((byte[]) value.getValue());
-        out.close();
-        if(file.exists()) {
-          file.delete();
-        }
-        Files.move(tmpFile, file);
-        log.debug("File written: {}", file.getAbsolutePath());
-      } catch(Exception e) {
-        throw new MagmaRuntimeException("Failed writing file: " + file.getAbsolutePath(), e);
-      }
-      rval = TextType.get().valueOf(file.getName());
+    if(value.isNull()) {
+      removeFileValue(parent, name, extension);
+      return TextType.get().nullValue();
     }
 
-    return rval;
+    File file = new File(parent, name + "." + extension);
+    File tmpFile = new File(parent, file.getName() + ".tmp");
+    try {
+      if(parent.exists() == false) {
+        parent.mkdirs();
+      }
+      tmpFile.createNewFile();
+      FileOutputStream out = new FileOutputStream(tmpFile);
+      out.write((byte[]) value.getValue());
+      out.close();
+      if(file.exists()) {
+        file.delete();
+      }
+      Files.move(tmpFile, file);
+      log.debug("File written: {}", file.getAbsolutePath());
+    } catch(Exception e) {
+      throw new MagmaRuntimeException("Failed writing file: " + file.getAbsolutePath(), e);
+    }
+    return TextType.get().valueOf(file.getName());
+  }
+
+  /**
+   * Returns the value sequence representing the file names that were written.
+   * @param parent
+   * @param name
+   * @param extension
+   * @param value
+   * @return
+   */
+  private static Value writeFileValueSequence(File parent, final String name, final String extension, Value value) {
+    if(value.isNull()) {
+      // remove all files given a pattern
+      for(File f : parent.listFiles(new FilenameFilter() {
+
+        @Override
+        public boolean accept(File dir, String n) {
+          return Pattern.matches(name + "-\\d+\\." + extension, name);
+        }
+      })) {
+        f.delete();
+      }
+      return TextType.get().nullSequence();
+    }
+
+    int i = 1;
+    List<Value> names = Lists.newArrayList();
+    for(Value val : value.asSequence().getValue()) {
+      names.add(writeFileValue(parent, name + "-" + i, extension, val));
+      i++;
+    }
+    // if list was shortened, remove the remaining ones
+    File remaining = new File(parent, name + "-" + i + "." + extension);
+    while(remaining.exists()) {
+      remaining.delete();
+      i++;
+    }
+    return TextType.get().sequenceOf(names);
   }
 
   /**
