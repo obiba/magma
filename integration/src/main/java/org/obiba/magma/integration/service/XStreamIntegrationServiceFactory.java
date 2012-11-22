@@ -13,7 +13,7 @@ import com.thoughtworks.xstream.XStream;
 
 public class XStreamIntegrationServiceFactory {
 
-  private XStream xstream;
+  private final XStream xstream;
 
   public XStreamIntegrationServiceFactory() {
     xstream = new XStream();
@@ -24,7 +24,9 @@ public class XStreamIntegrationServiceFactory {
   }
 
   public IntegrationService buildService(Reader xmlReader) {
-    List<Object> objects = (List<Object>) xstream.fromXML(xmlReader);
-    return new InMemoryIntegrationService(ImmutableList.copyOf(Iterables.filter(objects, Participant.class)), ImmutableList.copyOf(Iterables.filter(objects, Action.class)));
+    @SuppressWarnings("unchecked")
+    Iterable<Object> objects = (Iterable<Object>) xstream.fromXML(xmlReader);
+    return new InMemoryIntegrationService(ImmutableList.copyOf(Iterables.filter(objects, Participant.class)),
+        ImmutableList.copyOf(Iterables.filter(objects, Action.class)));
   }
 }

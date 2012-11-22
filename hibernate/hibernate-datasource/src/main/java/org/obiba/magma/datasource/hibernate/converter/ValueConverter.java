@@ -13,33 +13,36 @@ public class ValueConverter implements HibernateConverter<ValueSetValue, Value> 
   //
 
   @Override
-  public ValueSetValue marshal(Value value, HibernateMarshallingContext context) {
+  public ValueSetValue marshal(Value magmaObject, HibernateMarshallingContext context) {
     ValueSetState valueSetState = context.getValueSet();
     VariableState variableState = context.getVariable();
 
-    AssociationCriteria criteria = AssociationCriteria.create(ValueSetValue.class, context.getSessionFactory().getCurrentSession()).add("valueSet", Operation.eq, context.getValueSet()).add("variable", Operation.eq, context.getVariable());
+    AssociationCriteria criteria = AssociationCriteria
+        .create(ValueSetValue.class, context.getSessionFactory().getCurrentSession()) //
+        .add("valueSet", Operation.eq, context.getValueSet()) //
+        .add("variable", Operation.eq, context.getVariable());
     ValueSetValue valueSetValue = (ValueSetValue) criteria.getCriteria().uniqueResult();
     if(valueSetValue == null) {
       // Only persist non-null values
-      if(value.isNull() == false) {
+      if(magmaObject.isNull() == false) {
         valueSetValue = new ValueSetValue(variableState, valueSetState);
-        valueSetValue.setValue(value);
+        valueSetValue.setValue(magmaObject);
         context.getSessionFactory().getCurrentSession().save(valueSetValue);
       }
-    } else if(valueSetValue != null && value.isNull()) {
+    } else if(magmaObject.isNull()) {
       // Delete existing value since we are writing a null
       context.getSessionFactory().getCurrentSession().delete(valueSetValue);
     } else {
       // Hibernate will persist this modification upon flushing the session. No need to issue a save or update here.
-      valueSetValue.setValue(value);
+      valueSetValue.setValue(magmaObject);
     }
 
     return valueSetValue;
   }
 
   @Override
-  public Value unmarshal(ValueSetValue valueSetValue, HibernateMarshallingContext context) {
-    return valueSetValue.getValue();
+  public Value unmarshal(ValueSetValue jpaObject, HibernateMarshallingContext context) {
+    return jpaObject.getValue();
   }
 
   //

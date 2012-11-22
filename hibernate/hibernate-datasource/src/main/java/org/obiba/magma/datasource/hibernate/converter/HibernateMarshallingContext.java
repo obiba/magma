@@ -65,11 +65,11 @@ public class HibernateMarshallingContext {
 
   public void setVariable(VariableState variable) {
     this.variable = variable;
-    this.attributeAwareEntity = variable;
+    attributeAwareEntity = variable;
   }
 
   public void setAttributeAwareEntity(AbstractAttributeAwareEntity adaptable) {
-    this.attributeAwareEntity = adaptable;
+    attributeAwareEntity = adaptable;
   }
 
   public AbstractAttributeAwareEntity getAttributeAwareEntity() {

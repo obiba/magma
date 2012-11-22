@@ -6,9 +6,9 @@ import org.obiba.magma.VariableEntity;
 
 public interface VariableEntityProvider {
 
-  public String getEntityType();
+  String getEntityType();
 
-  public boolean isForEntityType(String entityType);
+  boolean isForEntityType(String entityType);
 
-  public Set<VariableEntity> getVariableEntities();
+  Set<VariableEntity> getVariableEntities();
 }

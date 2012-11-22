@@ -21,21 +21,23 @@ public class VariableConverter extends AttributeAwareConverter implements Hibern
   }
 
   @Override
-  public VariableState marshal(Variable variable, HibernateMarshallingContext context) {
-    VariableState variableState = getStateForVariable(variable, context);
+  public VariableState marshal(Variable magmaObject, HibernateMarshallingContext context) {
+    VariableState variableState = getStateForVariable(magmaObject, context);
     if(variableState != null) {
-      variableState.copyVariableFields(variable);
+      variableState.copyVariableFields(magmaObject);
     } else {
-      variableState = new VariableState(context.getValueTable(), variable);
+      variableState = new VariableState(context.getValueTable(), magmaObject);
       context.getValueTable().getVariables().add(variableState);
     }
 
-    if(variableState.getValueType() != variable.getValueType()) {
-      throw new MagmaRuntimeException("Changing the value type of a variable is not supported. Cannot modify variable '" + variable.getName() + "' in table '" + context.getValueTable().getName() + "'");
+    if(variableState.getValueType() != magmaObject.getValueType()) {
+      throw new MagmaRuntimeException(
+          "Changing the value type of a variable is not supported. Cannot modify variable '" + magmaObject
+              .getName() + "' in table '" + context.getValueTable().getName() + "'");
     }
 
-    addAttributes(variable, variableState);
-    marshalCategories(variable, variableState);
+    addAttributes(magmaObject, variableState);
+    marshalCategories(magmaObject, variableState);
 
     return variableState;
   }
@@ -64,21 +66,24 @@ public class VariableConverter extends AttributeAwareConverter implements Hibern
   }
 
   @Override
-  public Variable unmarshal(VariableState variableState, HibernateMarshallingContext context) {
-    Variable.Builder builder = Variable.Builder.newVariable(variableState.getName(), variableState.getValueType(), variableState.getEntityType());
-    builder.mimeType(variableState.getMimeType()).occurrenceGroup(variableState.getOccurrenceGroup()).referencedEntityType(variableState.getReferencedEntityType()).unit(variableState.getUnit());
-    if(variableState.isRepeatable()) {
+  public Variable unmarshal(VariableState jpaObject, HibernateMarshallingContext context) {
+    Variable.Builder builder = Variable.Builder
+        .newVariable(jpaObject.getName(), jpaObject.getValueType(), jpaObject.getEntityType());
+    builder.mimeType(jpaObject.getMimeType()).occurrenceGroup(jpaObject.getOccurrenceGroup())
+        .referencedEntityType(jpaObject.getReferencedEntityType()).unit(jpaObject.getUnit());
+    if(jpaObject.isRepeatable()) {
       builder.repeatable();
     }
 
-    buildAttributeAware(builder, variableState);
-    unmarshalCategories(builder, variableState);
+    buildAttributeAware(builder, jpaObject);
+    unmarshalCategories(builder, jpaObject);
     return builder.build();
   }
 
   private void unmarshalCategories(Builder builder, VariableState variableState) {
     for(CategoryState categoryState : variableState.getCategories()) {
-      Category.Builder categoryBuilder = Category.Builder.newCategory(categoryState.getName()).withCode(categoryState.getCode()).missing(categoryState.isMissing());
+      Category.Builder categoryBuilder = Category.Builder.newCategory(categoryState.getName())
+          .withCode(categoryState.getCode()).missing(categoryState.isMissing());
       buildAttributeAware(categoryBuilder, categoryState);
       builder.addCategory(categoryBuilder.build());
     }

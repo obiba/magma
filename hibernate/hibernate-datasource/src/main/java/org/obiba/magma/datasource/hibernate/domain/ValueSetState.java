@@ -1,3 +1,12 @@
+/*
+ * Copyright (c) 2011 OBiBa. All rights reserved.
+ *
+ * This program and the accompanying materials
+ * are made available under the terms of the GNU Public License v3.0.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package org.obiba.magma.datasource.hibernate.domain;
 
 import java.util.Collections;
@@ -19,7 +28,8 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
 @Entity
-@Table(name = "value_set", uniqueConstraints = { @UniqueConstraint(columnNames = { "value_table_id", "variable_entity_id" }) })
+@Table(name = "value_set",
+    uniqueConstraints = {@UniqueConstraint(columnNames = {"value_table_id", "variable_entity_id"})})
 public class ValueSetState extends AbstractTimestampedEntity {
 
   @SuppressWarnings("unused")
@@ -35,17 +45,15 @@ public class ValueSetState extends AbstractTimestampedEntity {
   @JoinColumn(name = "variable_entity_id")
   private VariableEntityState variableEntity;
 
-  @OneToMany(cascade = CascadeType.ALL, mappedBy = "id.valueSet", orphanRemoval = true)
+  @OneToMany(cascade = CascadeType.ALL, mappedBy = "valueSet", orphanRemoval = true)
   private Set<ValueSetValue> values;
 
   private transient Map<String, ValueSetValue> valueMap;
 
   public ValueSetState() {
-    super();
   }
 
   public ValueSetState(ValueTableState valueTable, VariableEntityState variableEntity) {
-    super();
     this.valueTable = valueTable;
     this.variableEntity = variableEntity;
   }
@@ -59,21 +67,21 @@ public class ValueSetState extends AbstractTimestampedEntity {
   }
 
   public Set<ValueSetValue> getValues() {
-    return values != null ? values : (values = Sets.newLinkedHashSet());
+    return values == null ? (values = Sets.newLinkedHashSet()) : values;
   }
 
   public synchronized Map<String, ValueSetValue> getValueMap() {
-    return valueMap != null ? valueMap : valuesAsMap();
+    return valueMap == null ? valuesAsMap() : valueMap;
   }
 
   private synchronized Map<String, ValueSetValue> valuesAsMap() {
     if(valueMap == null) {
-      Map<String, ValueSetValue> valueMap = Maps.newHashMap();
+      Map<String, ValueSetValue> map = Maps.newHashMap();
       for(ValueSetValue vsv : getValues()) {
         // log.info("{}={}", vsv.getVariable().getName(), vsv.getValue().toString());
-        valueMap.put(vsv.getVariable().getName(), vsv);
+        map.put(vsv.getVariable().getName(), vsv);
       }
-      this.valueMap = Collections.unmodifiableMap(valueMap);
+      valueMap = Collections.unmodifiableMap(map);
     }
     return valueMap;
   }

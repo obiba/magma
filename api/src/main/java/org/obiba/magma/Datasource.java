@@ -4,22 +4,22 @@ import java.util.Set;
 
 public interface Datasource extends Initialisable, Disposable, AttributeAware {
 
-  public String getName();
+  String getName();
 
-  public String getType();
+  String getType();
 
-  public boolean hasValueTable(String name);
+  boolean hasValueTable(String tableName);
 
-  public ValueTable getValueTable(String name) throws NoSuchValueTableException;
+  ValueTable getValueTable(String tableName) throws NoSuchValueTableException;
 
-  public Set<ValueTable> getValueTables();
+  Set<ValueTable> getValueTables();
 
-  public boolean canDropTable(String name);
+  boolean canDropTable(String tableName);
 
-  public void dropTable(String name);
+  void dropTable(String tableName);
 
-  public ValueTableWriter createWriter(String tableName, String entityType);
+  ValueTableWriter createWriter(String tableName, String entityType);
 
-  public void setAttributeValue(String name, Value value);
+  void setAttributeValue(String name, Value value);
 
 }

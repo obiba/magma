@@ -33,6 +33,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 
+@SuppressWarnings("OverlyLongMethod")
 public class HibernateDatasourceTest {
 
   LocalSessionFactoryProvider provider;
@@ -67,6 +68,7 @@ public class HibernateDatasourceTest {
 
     // Make sure the table is not visible outside this transaction.
     new TestThread() {
+      @Override
       public void test() {
         // Assert that the datasource does not have the value table
         Assert.assertFalse(MagmaEngine.get().getDatasource(dsName).hasValueTable(tableName));
@@ -77,6 +79,7 @@ public class HibernateDatasourceTest {
 
     // Make sure the table is visible outside this transaction.
     new TestThread() {
+      @Override
       public void test() {
         Assert.assertTrue(MagmaEngine.get().getDatasource(dsName).hasValueTable(tableName));
       }
@@ -88,8 +91,8 @@ public class HibernateDatasourceTest {
   @Test
   public void testTableAndVariablesPersisted() throws Exception {
 
-    final String dsName = "testDs";
-    final String tableName = "testTable";
+    String dsName = "testDs";
+    String tableName = "testTable";
 
     HibernateDatasource ds = new HibernateDatasource(dsName, provider.getSessionFactory());
 
@@ -127,11 +130,13 @@ public class HibernateDatasourceTest {
 
   @Test
   public void testVariableStateChangeIsPersisted() throws Exception {
-    Variable initialState = Variable.Builder.newVariable("Var1", TextType.get(), "Participant").addCategory("C1", "1").addCategory("C2", "2").addCategory("C3", "3").build();
-    Variable changedState = Variable.Builder.newVariable("Var1", TextType.get(), "Participant").addCategory("C3", "3").addCategory("C1", "1").addCategory("C4", "4").addCategory("C2", "2").build();
+    Variable initialState = Variable.Builder.newVariable("Var1", TextType.get(), "Participant").addCategory("C1", "1")
+        .addCategory("C2", "2").addCategory("C3", "3").build();
+    Variable changedState = Variable.Builder.newVariable("Var1", TextType.get(), "Participant").addCategory("C3", "3")
+        .addCategory("C1", "1").addCategory("C4", "4").addCategory("C2", "2").build();
 
-    final String dsName = "testDs";
-    final String tableName = "testTable";
+    String dsName = "testDs";
+    String tableName = "testTable";
 
     HibernateDatasource ds = new HibernateDatasource(dsName, provider.getSessionFactory());
 
@@ -174,8 +179,8 @@ public class HibernateDatasourceTest {
     HibernateDatasource ds = new HibernateDatasource("test", provider.getSessionFactory());
 
     ImmutableSet<Variable> variables = ImmutableSet.of(//
-    Variable.Builder.newVariable("Test Variable", IntegerType.get(), "Participant").build(), //
-    Variable.Builder.newVariable("Other Variable", DecimalType.get(), "Participant").build());
+        Variable.Builder.newVariable("Test Variable", IntegerType.get(), "Participant").build(), //
+        Variable.Builder.newVariable("Other Variable", DecimalType.get(), "Participant").build());
 
     GeneratedValueTable generatedValueTable = new GeneratedValueTable(ds, variables, 300);
     provider.getSessionFactory().getCurrentSession().beginTransaction();
@@ -189,8 +194,8 @@ public class HibernateDatasourceTest {
     HibernateDatasource ds = new HibernateDatasource("vectorSourceTest", provider.getSessionFactory());
 
     ImmutableSet<Variable> variables = ImmutableSet.of(//
-    Variable.Builder.newVariable("Test Variable", IntegerType.get(), "Participant").build(), //
-    Variable.Builder.newVariable("Other Variable", DecimalType.get(), "Participant").build());
+        Variable.Builder.newVariable("Test Variable", IntegerType.get(), "Participant").build(), //
+        Variable.Builder.newVariable("Other Variable", DecimalType.get(), "Participant").build());
 
     GeneratedValueTable generatedValueTable = new GeneratedValueTable(ds, variables, 300);
     provider.getSessionFactory().getCurrentSession().beginTransaction();
@@ -203,7 +208,8 @@ public class HibernateDatasourceTest {
     Assert.assertNotNull(vvs);
     Assert.assertNotNull(vvs.asVectorSource());
     VectorSource vs = vvs.asVectorSource();
-    SortedSet<VariableEntity> entities = new TreeSet<VariableEntity>(ds.getValueTable("NewTable").getVariableEntities());
+    SortedSet<VariableEntity> entities = new TreeSet<VariableEntity>(
+        ds.getValueTable("NewTable").getVariableEntities());
     Iterable<Value> values = vs.getValues(entities);
     Assert.assertNotNull(values);
     Assert.assertEquals(entities.size(), Iterables.size(values));
@@ -215,8 +221,10 @@ public class HibernateDatasourceTest {
     List<Category> actualCategories = Lists.newArrayList(actual.getCategories());
     Assert.assertEquals("Category count mismatch", expectedCategories.size(), actualCategories.size());
     for(int i = 0; i < expectedCategories.size(); i++) {
-      Assert.assertEquals("Category name mismatch at index " + i, expectedCategories.get(i).getName(), actualCategories.get(i).getName());
-      Assert.assertEquals("Category code mismatch at index " + i, expectedCategories.get(i).getCode(), actualCategories.get(i).getCode());
+      Assert.assertEquals("Category name mismatch at index " + i, expectedCategories.get(i).getName(),
+          actualCategories.get(i).getName());
+      Assert.assertEquals("Category code mismatch at index " + i, expectedCategories.get(i).getCode(),
+          actualCategories.get(i).getCode());
     }
 
   }
@@ -235,15 +243,16 @@ public class HibernateDatasourceTest {
   }
 
   private LocalSessionFactoryProvider newProvider(String testName) {
-    LocalSessionFactoryProvider provider = new LocalSessionFactoryProvider("org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:" + testName + ";shutdown=true", "sa", "", "org.hibernate.dialect.HSQLDialect");
+    LocalSessionFactoryProvider newProvider = new LocalSessionFactoryProvider("org.hsqldb.jdbcDriver",
+        "jdbc:hsqldb:mem:" + testName + ";shutdown=true", "sa", "", "org.hibernate.dialect.HSQLDialect");
     Properties p = new Properties();
     p.setProperty(Environment.CACHE_PROVIDER, "org.hibernate.cache.HashtableCacheProvider");
-    provider.setProperties(p);
-    provider.initialise();
-    return provider;
+    newProvider.setProperties(p);
+    newProvider.initialise();
+    return newProvider;
   }
 
-  private abstract class TestThread extends Thread {
+  private abstract static class TestThread extends Thread {
 
     private Throwable threadException;
 

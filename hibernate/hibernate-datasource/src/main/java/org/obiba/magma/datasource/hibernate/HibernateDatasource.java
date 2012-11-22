@@ -1,8 +1,8 @@
 package org.obiba.magma.datasource.hibernate;
 
-import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -31,6 +31,9 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.MapMaker;
 
+/**
+ * Datasource based on entity-attribute-value model.
+ */
 public class HibernateDatasource extends AbstractDatasource {
 
   private static final Logger log = LoggerFactory.getLogger(HibernateDatasource.class);
@@ -41,30 +44,24 @@ public class HibernateDatasource extends AbstractDatasource {
 
   private Serializable datasourceId;
 
-  private final File datasourceRoot;
-
   /**
    * A Map of {@code org.hibernate.Transaction} to a list of all {@code HibernateValueTable} involved in the
    * transaction. This map uses weak keys, meaning that when the transaction object is no longer reference anywhere, its
    * entry is removed from the map.
    */
-  private ConcurrentMap<Transaction, List<HibernateValueTableTransaction>> syncMap = new MapMaker().weakKeys().makeMap();
+  private ConcurrentMap<Transaction, List<HibernateValueTableTransaction>> syncMap = new MapMaker().weakKeys()
+      .makeMap();
 
   public HibernateDatasource(String name, SessionFactory sessionFactory) {
-    this(name, sessionFactory, null);
-  }
-
-  public HibernateDatasource(String name, SessionFactory sessionFactory, File datasourceRoot) {
     super(name, HIBERNATE_TYPE);
     if(sessionFactory == null) throw new IllegalArgumentException("sessionFactory cannot be null");
 
     this.sessionFactory = sessionFactory;
-    this.datasourceRoot = datasourceRoot;
   }
 
   /**
    * Creates a writer for the specified table name and entity type. If the table does not exist, a new one is created.
-   * <p>
+   * <p/>
    * Note that a Hibernate transaction must be active for this method to return an instance of {@code ValueTableWriter}
    */
   @Override
@@ -104,39 +101,44 @@ public class HibernateDatasource extends AbstractDatasource {
   }
 
   /**
-   * Returns the table with the specified name. If a create table transaction is active, the table will be visible
+   * Returns the table with the specified tableName. If a create table transaction is active, the table will be visible
    * within the current transaction only.
    */
   @Override
-  public ValueTable getValueTable(String name) throws NoSuchValueTableException {
-    if(hasTableTransaction(name)) {
-      return getTableTransaction(name).getValueTable();
+  public ValueTable getValueTable(String tableName) throws NoSuchValueTableException {
+    if(hasTableTransaction(tableName)) {
+      return getTableTransaction(tableName).getValueTable();
     }
-    return super.getValueTable(name);
+    return super.getValueTable(tableName);
   }
 
   @Override
-  public boolean canDropTable(String name) {
-    return hasValueTable(name);
+  public boolean canDropTable(String tableName) {
+    return hasValueTable(tableName);
   }
 
   @Override
-  public void dropTable(String name) {
-    log.info("dropping table {}", getName() + "." + name);
+  public void dropTable(String tableName) {
+    log.info("dropping table {}", getName() + "." + tableName);
 
-    HibernateValueTable valueTable = (HibernateValueTable) getValueTable(name);
+    HibernateValueTable valueTable = (HibernateValueTable) getValueTable(tableName);
     ValueTableState state = valueTable.getValueTableState();
 
-    super.removeValueTable(name);
+    removeValueTable(tableName);
 
-    int deleted = getSessionFactory().getCurrentSession().createQuery("delete from ValueSetValue vsv where vsv.id.valueSet.id in (select vs.id from ValueSetState vs where vs.valueTable.id = :valueTableId)").setParameter("valueTableId", state.getId()).executeUpdate();
+    int deleted = getSessionFactory().getCurrentSession().createQuery(
+        "delete from ValueSetValue vsv where vsv.id.valueSet.id in (select vs.id from ValueSetState vs where vs.valueTable.id = :valueTableId)")
+        .setParameter("valueTableId", state.getId()).executeUpdate();
     log.info("deleted {} values", deleted);
 
-    deleted = getSessionFactory().getCurrentSession().createQuery("delete from ValueSetState vs where vs.valueTable.id = :valueTableId").setParameter("valueTableId", state.getId()).executeUpdate();
-    log.info("deleted {} valuesets", deleted);
+    deleted = getSessionFactory().getCurrentSession()
+        .createQuery("delete from ValueSetState vs where vs.valueTable.id = :valueTableId")
+        .setParameter("valueTableId", state.getId()).executeUpdate();
+    log.info("deleted {} valueSets", deleted);
 
     deleted = 0;
-    for(VariableState v : AssociationCriteria.create(VariableState.class, getSessionFactory().getCurrentSession()).add("valueTable", Operation.eq, state).<VariableState> list()) {
+    for(VariableState v : AssociationCriteria.create(VariableState.class, getSessionFactory().getCurrentSession())
+        .add("valueTable", Operation.eq, state).<VariableState>list()) {
       getSessionFactory().getCurrentSession().delete(v);
       deleted++;
     }
@@ -148,12 +150,13 @@ public class HibernateDatasource extends AbstractDatasource {
     log.info("deleted {} variables", deleted);
 
     getSessionFactory().getCurrentSession().delete(state);
-    log.info("table {} was dropped", name);
+    log.info("table {} was dropped", tableName);
   }
 
   @Override
   protected void onInitialise() {
-    DatasourceState datasourceState = (DatasourceState) sessionFactory.getCurrentSession().createCriteria(DatasourceState.class).add(Restrictions.eq("name", getName())).uniqueResult();
+    DatasourceState datasourceState = (DatasourceState) sessionFactory.getCurrentSession()
+        .createCriteria(DatasourceState.class).add(Restrictions.eq("name", getName())).uniqueResult();
 
     // If datasource not persisted, create the persisted DatasourceState.
     if(datasourceState == null) {
@@ -166,7 +169,7 @@ public class HibernateDatasource extends AbstractDatasource {
       }
 
     }
-    this.datasourceId = datasourceState.getId();
+    datasourceId = datasourceState.getId();
   }
 
   @Override
@@ -176,9 +179,11 @@ public class HibernateDatasource extends AbstractDatasource {
     getSessionFactory().getCurrentSession().save(state);
   }
 
+  @Override
   protected Set<String> getValueTableNames() {
     Set<String> names = new LinkedHashSet<String>();
-    AssociationCriteria criteria = AssociationCriteria.create(ValueTableState.class, sessionFactory.getCurrentSession()).add("datasource.id", Operation.eq, datasourceId);
+    AssociationCriteria criteria = AssociationCriteria.create(ValueTableState.class, sessionFactory.getCurrentSession())
+        .add("datasource.id", Operation.eq, datasourceId);
     for(Object obj : criteria.list()) {
       ValueTableState state = (ValueTableState) obj;
       names.add(state.getName());
@@ -186,30 +191,26 @@ public class HibernateDatasource extends AbstractDatasource {
     return names;
   }
 
+  @Override
   protected ValueTable initialiseValueTable(String tableName) {
-    return new HibernateValueTable(this, (ValueTableState) AssociationCriteria.create(ValueTableState.class, sessionFactory.getCurrentSession()).add("datasource.id", Operation.eq, datasourceId).add("name", Operation.eq, tableName).getCriteria().uniqueResult());
+    return new HibernateValueTable(this,
+        (ValueTableState) AssociationCriteria.create(ValueTableState.class, sessionFactory.getCurrentSession())
+            .add("datasource.id", Operation.eq, datasourceId) //
+            .add("name", Operation.eq, tableName) //
+            .getCriteria().uniqueResult());
   }
 
   /**
    * Adds the specified {@code ValueTable} to the set of value tables this datasource holds. This method is used by
    * {@code HibernateValueTableTransaction} to add value tables that are created within a transaction.
-   * 
    * @param vt the value table instance to add
    */
   void commitValueTable(ValueTable vt) {
-    super.addValueTable(vt);
-  };
+    addValueTable(vt);
+  }
 
   SessionFactory getSessionFactory() {
     return sessionFactory;
-  }
-
-  File getDatasourceRoot() {
-    return datasourceRoot;
-  }
-
-  boolean hasDatasourceRoot() {
-    return datasourceRoot != null;
   }
 
   DatasourceState getDatasourceState() {
@@ -227,7 +228,6 @@ public class HibernateDatasource extends AbstractDatasource {
   /**
    * Returns true if a transaction exists on the specified table name. False otherwise. Note that this will return true
    * only if the current thread is associated with the transaction.
-   * 
    * @param name the name of the value table
    * @return true when a {@code HibernateValueTableTransaction} currently exists for the specified table name
    */
@@ -242,10 +242,9 @@ public class HibernateDatasource extends AbstractDatasource {
 
   /**
    * Returns the currently visible {@code HibernateValueTableTransaction} for the specified table name.
-   * <p>
+   * <p/>
    * Note that this method will throw an exception if no transaction exists for the table name. Use
    * {@code #hasTableTransaction} to test the existence of a transaction before calling this method.
-   * 
    * @param name the name of the value table
    * @return the instance of {@code HibernateValueTableTransaction} if one exists.
    * @throws IllegalStateException if no such transaction instance exists.
@@ -266,7 +265,8 @@ public class HibernateDatasource extends AbstractDatasource {
    * @param createTableTransaction true when this transaction is creating the value table, false otherwise.
    * @return a {@code HibernateValueTableTransaction} instance for the specified {@code HibernateValueTable}
    */
-  synchronized HibernateValueTableTransaction newTableTransaction(HibernateValueTable valueTable, boolean createTableTransaction) {
+  synchronized HibernateValueTableTransaction newTableTransaction(HibernateValueTable valueTable,
+      boolean createTableTransaction) {
     if(hasTableTransaction(valueTable.getName())) {
       return getTableTransaction(valueTable.getName());
     }
@@ -279,11 +279,12 @@ public class HibernateDatasource extends AbstractDatasource {
    * Returns the list of {@code HibernateValueTableTransaction} associated with the current
    * {@code org.hibernate.Transaction}. Within one Hibernate transaction, several value tables may be affected, as such,
    * this method returns a list of {@code HibernateValueTableTransaction} instances. This method never returns null.
-   * <p>
+   * <p/>
    * If no Hibernate transaction exists this method returns an empty list.
-   * @return
+   * @return list of {@code HibernateValueTableTransaction} associated with the current
+   *         {@code org.hibernate.Transaction}
    */
-  private List<HibernateValueTableTransaction> lookupTableTransactions() {
+  private Collection<HibernateValueTableTransaction> lookupTableTransactions() {
 
     Session currentSession;
     try {
@@ -295,7 +296,8 @@ public class HibernateDatasource extends AbstractDatasource {
 
     Transaction tx = currentSession.getTransaction();
     if(tx != null) {
-      List<HibernateValueTableTransaction> tableTxs = syncMap.putIfAbsent(tx, new ArrayList<HibernateValueTableTransaction>());
+      List<HibernateValueTableTransaction> tableTxs = syncMap
+          .putIfAbsent(tx, new ArrayList<HibernateValueTableTransaction>());
       if(tableTxs == null) {
         tableTxs = syncMap.get(tx);
       }

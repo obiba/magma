@@ -64,16 +64,16 @@ public abstract class AbstractDatasource extends AbstractAttributeAware implemen
   }
 
   @Override
-  public ValueTable getValueTable(final String name) throws NoSuchValueTableException {
+  public ValueTable getValueTable(final String tableName) throws NoSuchValueTableException {
     try {
       return Iterables.find(getValueTables(), new Predicate<ValueTable>() {
         @Override
         public boolean apply(ValueTable input) {
-          return name.equals(input.getName());
+          return tableName.equals(input.getName());
         }
       });
     } catch(NoSuchElementException e) {
-      throw new NoSuchValueTableException(getName(), name);
+      throw new NoSuchValueTableException(getName(), tableName);
     }
   }
 
@@ -87,12 +87,12 @@ public abstract class AbstractDatasource extends AbstractAttributeAware implemen
         Initialisables.initialise(vt);
         addValueTable(vt);
       } catch(DatasourceParsingException pe) {
-        parsingErrors.add((DatasourceParsingException) pe);
+        parsingErrors.add(pe);
       }
     }
     if(parsingErrors.size() > 0) {
-      DatasourceParsingException parent = new DatasourceParsingException("Errors while parsing tables of datasource: " + getName(), //
-      "DatasourceDefinitionErrors", getName());
+      DatasourceParsingException parent = new DatasourceParsingException(
+          "Errors while parsing tables of datasource: " + getName(), "DatasourceDefinitionErrors", getName());
       parent.setChildren(parsingErrors);
       throw parent;
     }
@@ -114,20 +114,20 @@ public abstract class AbstractDatasource extends AbstractAttributeAware implemen
     Attribute attribute = Attribute.Builder.newAttribute(name).withValue(value).build();
 
     List<Attribute> attributesForName = getInstanceAttributes().get(name);
-    if(!attributesForName.isEmpty()) {
-      attributesForName.set(0, attribute);
-    } else {
+    if(attributesForName.isEmpty()) {
       attributesForName.add(attribute);
+    } else {
+      attributesForName.set(0, attribute);
     }
   }
 
   @Override
-  public boolean canDropTable(String name) {
+  public boolean canDropTable(String tableName) {
     return false;
   }
 
   @Override
-  public void dropTable(String name) {
+  public void dropTable(String tableName) {
     throw new UnsupportedOperationException("cannot drop table");
   }
 
@@ -140,8 +140,8 @@ public abstract class AbstractDatasource extends AbstractAttributeAware implemen
     valueTables.add(vt);
   }
 
-  protected void removeValueTable(String name) {
-    ValueTable toRemove = getValueTable(name);
+  protected void removeValueTable(String tableName) {
+    ValueTable toRemove = getValueTable(tableName);
     valueTables.remove(toRemove);
     Disposables.dispose(toRemove);
   }

@@ -38,6 +38,7 @@ public class ValueSequence extends Value {
     return getValueType().sequenceOf(getValue());
   }
 
+  @Override
   @SuppressWarnings("unchecked")
   public Iterable<Value> getValue() {
     return (Iterable<Value>) super.getValue();
