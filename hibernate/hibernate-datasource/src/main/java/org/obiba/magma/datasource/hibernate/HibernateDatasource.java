@@ -126,30 +126,31 @@ public class HibernateDatasource extends AbstractDatasource {
 
     removeValueTable(tableName);
 
-    int deleted = getSessionFactory().getCurrentSession().createQuery(
-        "delete from ValueSetValue vsv where vsv.id.valueSet.id in (select vs.id from ValueSetState vs where vs.valueTable.id = :valueTableId)")
+    org.hibernate.classic.Session currentSession = getSessionFactory().getCurrentSession();
+    int deleted = currentSession.createQuery( //
+        "delete from ValueSetValue vsv where vsv.id.valueSet.id " + //
+            "in (select vs.id from ValueSetState vs where vs.valueTable.id = :valueTableId)")
         .setParameter("valueTableId", state.getId()).executeUpdate();
     log.info("deleted {} values", deleted);
 
-    deleted = getSessionFactory().getCurrentSession()
-        .createQuery("delete from ValueSetState vs where vs.valueTable.id = :valueTableId")
+    deleted = currentSession.createQuery("delete from ValueSetState vs where vs.valueTable.id = :valueTableId")
         .setParameter("valueTableId", state.getId()).executeUpdate();
     log.info("deleted {} valueSets", deleted);
 
     deleted = 0;
-    for(VariableState v : AssociationCriteria.create(VariableState.class, getSessionFactory().getCurrentSession())
+    for(VariableState v : AssociationCriteria.create(VariableState.class, currentSession)
         .add("valueTable", Operation.eq, state).<VariableState>list()) {
-      getSessionFactory().getCurrentSession().delete(v);
+      currentSession.delete(v);
       deleted++;
     }
 
     // Unsupported because of @OnDelete does not work on unidirectional OneToMany associations.
     // deleted =
-    // getSessionFactory().getCurrentSession().createQuery("delete from VariableState v where v.valueTable.id = :valueTableId").setParameter("valueTableId",
+    // currentSession.createQuery("delete from VariableState v where v.valueTable.id = :valueTableId").setParameter("valueTableId",
     // state.getId()).executeUpdate();
     log.info("deleted {} variables", deleted);
 
-    getSessionFactory().getCurrentSession().delete(state);
+    currentSession.delete(state);
     log.info("table {} was dropped", tableName);
   }
 

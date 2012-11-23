@@ -4,13 +4,19 @@
 package org.obiba.magma.datasource.hibernate;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
+
+import javax.annotation.Nullable;
 
 import org.hibernate.FlushMode;
 import org.hibernate.LockMode;
 import org.hibernate.Session;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.obiba.core.service.impl.hibernate.AssociationCriteria;
 import org.obiba.core.service.impl.hibernate.AssociationCriteria.Operation;
+import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.NoSuchVariableException;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueTableWriter;
@@ -25,7 +31,9 @@ import org.obiba.magma.datasource.hibernate.domain.ValueSetValue;
 import org.obiba.magma.datasource.hibernate.domain.VariableEntityState;
 import org.obiba.magma.datasource.hibernate.domain.VariableState;
 import org.obiba.magma.type.BinaryType;
+import org.obiba.magma.type.TextType;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 class HibernateValueTableWriter implements ValueTableWriter {
@@ -187,36 +195,53 @@ class HibernateValueTableWriter implements ValueTableWriter {
 
     private void writeValue(ValueSetValue valueSetValue, Value value) {
       if(value.getValueType().equals(BinaryType.get())) {
-        valueSetValue.setValue(writeBinaryValue(valueSetValue, value));
+        writeBinaryValue(valueSetValue, value);
       } else {
         valueSetValue.setValue(value);
       }
     }
 
     /**
-     * Write the byte array into ValueSetBinaryValue and return the value reference.
-     *
+     * Write the byte array into ValueSetBinaryValue
      * @param value
-     * @return
      */
-    private Value writeBinaryValue(ValueSetValue valueSetValue, Value value) {
+    private void writeBinaryValue(ValueSetValue valueSetValue, Value value) {
       if(value.isSequence()) {
-        int occurrence = 0;
-        for(Value valueOccurrence : value.asSequence().getValue()) {
-          ValueSetBinaryValue binaryValue = createBinaryValue(valueSetValue, valueOccurrence, occurrence++);
-          valueSetValue.addBinaryValue(binaryValue);
-        }
+        writeBinaryValueSequence(valueSetValue, value);
       } else {
-        valueSetValue.addBinaryValue(createBinaryValue(valueSetValue, value, 0));
+        ValueSetBinaryValue binaryValue = createBinaryValue(valueSetValue, value, 0);
+        if(binaryValue != null) valueSetValue.addBinaryValue(binaryValue);
+        valueSetValue.setValue(getBinaryMetadata(binaryValue));
       }
-      // TODO cthiebault: set json binary info to value
-      return value;
     }
 
+    private void writeBinaryValueSequence(ValueSetValue valueSetValue, Value value) {
+      int occurrence = 0;
+      List<Value> jsonValues = Lists.newArrayList();
+      for(Value valueOccurrence : value.asSequence().getValue()) {
+        ValueSetBinaryValue binaryValue = createBinaryValue(valueSetValue, valueOccurrence, occurrence++);
+        if(binaryValue != null) valueSetValue.addBinaryValue(binaryValue);
+        jsonValues.add(getBinaryMetadata(binaryValue));
+      }
+      valueSetValue.setValue(TextType.get().sequenceOf(jsonValues));
+    }
+
+    @Nullable
     private ValueSetBinaryValue createBinaryValue(ValueSetValue valueSetValue, Value value, int occurrence) {
+      if(value.getValue() == null) return null;
       ValueSetBinaryValue binaryValue = new ValueSetBinaryValue(valueSetValue, occurrence);
       binaryValue.setValue((byte[]) value.getValue());
       return binaryValue;
+    }
+
+    private Value getBinaryMetadata(ValueSetBinaryValue binaryValue) {
+      try {
+        JSONObject properties = new JSONObject();
+        properties.put("size", binaryValue == null ? 0 : binaryValue.getSize());
+        return TextType.get().valueOf(properties.toString());
+      } catch(JSONException e) {
+        throw new MagmaRuntimeException(e);
+      }
     }
 
     @Override
@@ -234,4 +259,5 @@ class HibernateValueTableWriter implements ValueTableWriter {
     }
 
   }
+
 }

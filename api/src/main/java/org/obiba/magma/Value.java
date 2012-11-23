@@ -45,7 +45,6 @@ public class Value implements Serializable, Comparable<Value> {
    * the {@code ValueType} of this {@code Value} is the same as the {@code ValueType} of the items in the sequence. That
    * is if the sequence holds {@code Value} instances of type {@code TextType}, then this {@code Value} also has
    * {@code TextType} as its {@code ValueType}.
-   *
    * @return true when this {@code Value} holds a sequence of other {@code Value} instances
    */
   public boolean isSequence() {
@@ -54,9 +53,9 @@ public class Value implements Serializable, Comparable<Value> {
 
   /**
    * Returns a {@code ValueSequence} view of this {@code Value} when {@code #isSequence()} returns true.
-   *
    * @return
    */
+  @SuppressWarnings("ClassReferencesSubclass")
   public ValueSequence asSequence() {
     throw new IllegalStateException("value is not a sequence");
   }
@@ -82,6 +81,7 @@ public class Value implements Serializable, Comparable<Value> {
     // Shortcut
     Object val = valueLoader.getValue();
     Object otherVal = other.valueLoader.getValue();
+    //noinspection SimplifiableIfStatement
     if(val == otherVal) {
       return true;
     }
@@ -109,14 +109,10 @@ public class Value implements Serializable, Comparable<Value> {
 
     private static final long serialVersionUID = 8195664792459648506L;
 
-    private final Object value;
+    private final Serializable value;
 
-    @SuppressWarnings("AssignmentToMethodParameter")
     public StaticValueLoader(Object value) {
-      if(value == null) {
-        value = NULL;
-      }
-      this.value = value;
+      this.value = value == null ? NULL : (Serializable) value;
     }
 
     @Override

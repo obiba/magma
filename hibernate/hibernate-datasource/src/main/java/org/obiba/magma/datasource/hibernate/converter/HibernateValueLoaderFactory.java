@@ -11,7 +11,6 @@ package org.obiba.magma.datasource.hibernate.converter;
 
 import java.io.Serializable;
 
-import org.hibernate.Query;
 import org.hibernate.SessionFactory;
 import org.obiba.core.service.impl.hibernate.AssociationCriteria;
 import org.obiba.magma.Value;
@@ -19,7 +18,6 @@ import org.obiba.magma.ValueLoader;
 import org.obiba.magma.ValueLoaderFactory;
 import org.obiba.magma.datasource.hibernate.domain.ValueSetBinaryValue;
 import org.obiba.magma.datasource.hibernate.domain.ValueSetValue;
-import org.obiba.magma.type.BinaryType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,7 +39,7 @@ public class HibernateValueLoaderFactory implements ValueLoaderFactory {
 
   @Override
   public ValueLoader create(Value valueRef, Integer occurrence) {
-    return new HibernateBinaryValueLoader(sessionFactory, valueSetValue, valueRef, occurrence);
+    return new HibernateBinaryValueLoader(sessionFactory, valueSetValue, valueRef);
   }
 
   private static final class HibernateBinaryValueLoader implements ValueLoader, Serializable {
@@ -56,16 +54,12 @@ public class HibernateValueLoaderFactory implements ValueLoaderFactory {
 
     private final Value valueRef;
 
-    private final Integer occurrence;
-
     private byte[] value;
 
-    private HibernateBinaryValueLoader(SessionFactory sessionFactory, ValueSetValue valueSetValue, Value valueRef,
-        Integer occurrence) {
+    private HibernateBinaryValueLoader(SessionFactory sessionFactory, ValueSetValue valueSetValue, Value valueRef) {
       this.sessionFactory = sessionFactory;
       this.valueSetValue = valueSetValue;
       this.valueRef = valueRef;
-      this.occurrence = occurrence;
     }
 
     @Override
@@ -76,34 +70,12 @@ public class HibernateValueLoaderFactory implements ValueLoaderFactory {
     @Override
     public Object getValue() {
       if(value == null) {
-        if(valueRef.getValueType().equals(BinaryType.get())) {
-          // legacy
-          log.debug("Loading binary from database");
-          value = (byte[]) valueRef.getValue();
-        } else {
-          // load binary from binary_value_set_value table
-          log.debug("Loading binary from binary_value_set_value table");
+        log.debug("Loading binary from value_set_binary_value table");
 
-          ValueSetBinaryValue binaryValue = (ValueSetBinaryValue) AssociationCriteria
-              .create(ValueSetBinaryValue.class, sessionFactory.getCurrentSession()) //
-              .add("valueSetValue", Operation.eq, valueSetValue).getCriteria().uniqueResult();
-          return binaryValue == null ? null : binaryValue.getValue();
-
-//          try {
-//            String path;
-//            if(valueRef.toString().startsWith("{")) {
-//              JSONObject properties = new JSONObject(valueRef.toString());
-//              path = properties.getString("path");
-//            } else {
-//              path = valueRef.toString();
-//            }
-//            log.info("Loading binary from path: {}", path);
-//            value = BinaryValueFileHelper.readValue(tableRoot, path);
-//          } catch(JSONException e) {
-//            log.error("Failed loading JSON binary value reference", e);
-//            throw new MagmaRuntimeException(e);
-//          }
-        }
+        ValueSetBinaryValue binaryValue = (ValueSetBinaryValue) AssociationCriteria
+            .create(ValueSetBinaryValue.class, sessionFactory.getCurrentSession()) //
+            .add("valueSetValue", Operation.eq, valueSetValue).getCriteria().uniqueResult();
+        value = binaryValue == null ? null : binaryValue.getValue();
       }
       return value;
     }

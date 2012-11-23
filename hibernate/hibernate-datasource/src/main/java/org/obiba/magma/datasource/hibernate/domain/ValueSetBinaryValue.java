@@ -9,10 +9,14 @@
  */
 package org.obiba.magma.datasource.hibernate.domain;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
+import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+
+import org.hibernate.annotations.Index;
 
 @Entity
 @Table(name = "value_set_binary_value")
@@ -20,6 +24,7 @@ public class ValueSetBinaryValue extends AbstractTimestampedEntity {
 
   private static final long serialVersionUID = -7767999255949547929L;
 
+  @Lob
   private byte[] value;
 
   private int size;
@@ -28,6 +33,7 @@ public class ValueSetBinaryValue extends AbstractTimestampedEntity {
   @JoinColumn(name = "value_set_value_id", referencedColumnName = "id")
   private ValueSetValue valueSetValue;
 
+  @Index(name = "occurrenceIndex")
   private int occurrence;
 
   @SuppressWarnings("UnusedDeclaration")
