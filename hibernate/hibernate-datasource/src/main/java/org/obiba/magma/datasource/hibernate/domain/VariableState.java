@@ -32,7 +32,7 @@ import org.obiba.magma.Variable;
 import org.obiba.magma.hibernate.type.ValueTypeHibernateType;
 
 @Entity
-@Table(name = "variable", uniqueConstraints = {@UniqueConstraint(columnNames = {"value_table_id", "name"})})
+@Table(name = "variable", uniqueConstraints = @UniqueConstraint(columnNames = {"value_table_id", "name"}))
 @TypeDef(name = "value_type", typeClass = ValueTypeHibernateType.class)
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 @NamedQuery(name = "allValues", query = "select vs.variableEntity.identifier, vsv.value from ValueSetState as vs " + //
@@ -50,13 +50,11 @@ public class VariableState extends AbstractAttributeAwareEntity implements Times
   @JoinColumn(name = "value_table_id", insertable = false, updatable = false)
   private ValueTableState valueTable;
 
-  @OneToMany(cascade = CascadeType.ALL)
+  @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
   // Creates a column to store the category's index within the list
   @IndexColumn(name = "category_index", nullable = false)
   // Used to prevent an association table from being created
   @JoinColumn(name = "variable_id", nullable = false)
-  // Not supported: https://hibernate.onjira.com/browse/HHH-6382
-  // @OnDelete(action = OnDeleteAction.CASCADE)
   private List<CategoryState> categories;
 
   @Column(nullable = false)
@@ -77,6 +75,7 @@ public class VariableState extends AbstractAttributeAwareEntity implements Times
   @Column(nullable = false)
   private boolean repeatable;
 
+  @SuppressWarnings("UnusedDeclaration")
   public VariableState() {
   }
 

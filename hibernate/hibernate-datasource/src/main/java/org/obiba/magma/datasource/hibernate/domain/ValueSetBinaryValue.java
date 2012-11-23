@@ -15,11 +15,13 @@ import javax.persistence.JoinColumn;
 import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 
 import org.hibernate.annotations.Index;
 
 @Entity
-@Table(name = "value_set_binary_value")
+@Table(name = "value_set_binary_value",
+    uniqueConstraints = @UniqueConstraint(columnNames = {"value_set_value_id", "occurrence"}))
 public class ValueSetBinaryValue extends AbstractTimestampedEntity {
 
   private static final long serialVersionUID = -7767999255949547929L;

@@ -17,6 +17,7 @@ import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
@@ -29,7 +30,9 @@ import com.google.common.collect.Sets;
 
 @Entity
 @Table(name = "value_set",
-    uniqueConstraints = {@UniqueConstraint(columnNames = {"value_table_id", "variable_entity_id"})})
+    uniqueConstraints = @UniqueConstraint(columnNames = {"value_table_id", "variable_entity_id"}))
+@NamedQuery(name = "findValueSetsByTableId",
+    query = "SELECT vs FROM ValueSetState vs where vs.valueTable.id = :valueTableId")
 public class ValueSetState extends AbstractTimestampedEntity {
 
   @SuppressWarnings("unused")
@@ -50,6 +53,7 @@ public class ValueSetState extends AbstractTimestampedEntity {
 
   private transient Map<String, ValueSetValue> valueMap;
 
+  @SuppressWarnings("UnusedDeclaration")
   public ValueSetState() {
   }
 

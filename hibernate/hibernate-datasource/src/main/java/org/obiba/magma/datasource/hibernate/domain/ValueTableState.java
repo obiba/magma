@@ -25,7 +25,7 @@ import javax.persistence.UniqueConstraint;
 import org.hibernate.annotations.IndexColumn;
 
 @Entity
-@Table(name = "value_table", uniqueConstraints = { @UniqueConstraint(columnNames = { "datasource_id", "name" }) })
+@Table(name = "value_table", uniqueConstraints = @UniqueConstraint(columnNames = {"datasource_id", "name"}))
 public class ValueTableState extends AbstractTimestampedEntity {
 
   private static final long serialVersionUID = 1L;
@@ -40,15 +40,14 @@ public class ValueTableState extends AbstractTimestampedEntity {
   @JoinColumn(name = "datasource_id")
   private DatasourceState datasource;
 
-  @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+  @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
   // Creates a column to store the category's index within the list
   @IndexColumn(name = "variable_index", nullable = false)
   // Used to prevent an association table from being created
   @JoinColumn(name = "value_table_id", nullable = false)
-  // Not supported: https://hibernate.onjira.com/browse/HHH-6382
-  // @OnDelete(action = OnDeleteAction.CASCADE)
   private List<VariableState> variables;
 
+  @SuppressWarnings("UnusedDeclaration")
   public ValueTableState() {
   }
 
@@ -62,6 +61,7 @@ public class ValueTableState extends AbstractTimestampedEntity {
     return entityType;
   }
 
+  @SuppressWarnings("UnusedDeclaration")
   public void setEntityType(String entityType) {
     this.entityType = entityType;
   }
@@ -70,6 +70,7 @@ public class ValueTableState extends AbstractTimestampedEntity {
     return name;
   }
 
+  @SuppressWarnings("UnusedDeclaration")
   public DatasourceState getDatasource() {
     return datasource;
   }

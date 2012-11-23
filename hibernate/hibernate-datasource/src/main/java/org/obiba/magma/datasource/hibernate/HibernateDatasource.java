@@ -23,6 +23,7 @@ import org.obiba.magma.datasource.hibernate.converter.AttributeAwareConverter;
 import org.obiba.magma.datasource.hibernate.converter.HibernateMarshallingContext;
 import org.obiba.magma.datasource.hibernate.domain.AttributeState;
 import org.obiba.magma.datasource.hibernate.domain.DatasourceState;
+import org.obiba.magma.datasource.hibernate.domain.ValueSetValue;
 import org.obiba.magma.datasource.hibernate.domain.ValueTableState;
 import org.obiba.magma.datasource.hibernate.domain.VariableState;
 import org.obiba.magma.support.AbstractDatasource;
@@ -92,12 +93,12 @@ public class HibernateDatasource extends AbstractDatasource {
 
   /**
    * Returns true if a value table exists for the specified name or that a create table transaction is active for that
-   * name.
+   * tableName.
    */
   @Override
-  public boolean hasValueTable(String name) {
+  public boolean hasValueTable(String tableName) {
     // If parent doesn't have the table, there may be an active transaction creating this table.
-    return super.hasValueTable(name) || hasTableTransaction(name);
+    return super.hasValueTable(tableName) || hasTableTransaction(tableName);
   }
 
   /**
@@ -122,35 +123,38 @@ public class HibernateDatasource extends AbstractDatasource {
     log.info("dropping table {}", getName() + "." + tableName);
 
     HibernateValueTable valueTable = (HibernateValueTable) getValueTable(tableName);
-    ValueTableState state = valueTable.getValueTableState();
+    ValueTableState tableState = valueTable.getValueTableState();
 
     removeValueTable(tableName);
 
     org.hibernate.classic.Session currentSession = getSessionFactory().getCurrentSession();
+
+    // cannot use cascading because DELETE (and INSERT) do not cascade via relationships in JPQL query
     int deleted = currentSession.createQuery( //
-        "delete from ValueSetValue vsv where vsv.id.valueSet.id " + //
+        "delete from ValueSetBinaryValue bv where bv.valueSetValue.id " + //
+            "in (select vsv.id from ValueSetValue vsv where vsv.valueSet.id " + //
+            "in (select vs.id from ValueSetState vs where vs.valueTable.id = :valueTableId))")
+        .setParameter("valueTableId", tableState.getId()).executeUpdate();
+    log.info("deleted {} binaries from {}", deleted, tableName);
+
+    deleted = currentSession.createQuery( //
+        "delete from ValueSetValue vsv where vsv.valueSet.id " + //
             "in (select vs.id from ValueSetState vs where vs.valueTable.id = :valueTableId)")
-        .setParameter("valueTableId", state.getId()).executeUpdate();
-    log.info("deleted {} values", deleted);
+        .setParameter("valueTableId", tableState.getId()).executeUpdate();
+    log.info("deleted {} values from {}", deleted, tableName);
 
     deleted = currentSession.createQuery("delete from ValueSetState vs where vs.valueTable.id = :valueTableId")
-        .setParameter("valueTableId", state.getId()).executeUpdate();
-    log.info("deleted {} valueSets", deleted);
+        .setParameter("valueTableId", tableState.getId()).executeUpdate();
+    log.info("deleted {} valueSets from {}", deleted, tableName);
 
-    deleted = 0;
-    for(VariableState v : AssociationCriteria.create(VariableState.class, currentSession)
-        .add("valueTable", Operation.eq, state).<VariableState>list()) {
+    List<VariableState> variables = AssociationCriteria.create(VariableState.class, currentSession)
+        .add("valueTable", Operation.eq, tableState).list();
+    for(VariableState v : variables) {
       currentSession.delete(v);
-      deleted++;
     }
+    log.info("deleted {} variables from {}", variables.size(), tableName);
 
-    // Unsupported because of @OnDelete does not work on unidirectional OneToMany associations.
-    // deleted =
-    // currentSession.createQuery("delete from VariableState v where v.valueTable.id = :valueTableId").setParameter("valueTableId",
-    // state.getId()).executeUpdate();
-    log.info("deleted {} variables", deleted);
-
-    currentSession.delete(state);
+    currentSession.delete(tableState);
     log.info("table {} was dropped", tableName);
   }
 

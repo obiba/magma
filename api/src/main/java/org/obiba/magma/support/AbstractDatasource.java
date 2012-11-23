@@ -54,9 +54,9 @@ public abstract class AbstractDatasource extends AbstractAttributeAware implemen
   }
 
   @Override
-  public boolean hasValueTable(String name) {
+  public boolean hasValueTable(String tableName) {
     for(ValueTable vt : getValueTables()) {
-      if(vt.getName().equals(name)) {
+      if(vt.getName().equals(tableName)) {
         return true;
       }
     }
@@ -146,10 +146,12 @@ public abstract class AbstractDatasource extends AbstractAttributeAware implemen
     Disposables.dispose(toRemove);
   }
 
+  @SuppressWarnings("NoopMethodInAbstractClass")
   protected void onInitialise() {
 
   }
 
+  @SuppressWarnings("NoopMethodInAbstractClass")
   protected void onDispose() {
 
   }

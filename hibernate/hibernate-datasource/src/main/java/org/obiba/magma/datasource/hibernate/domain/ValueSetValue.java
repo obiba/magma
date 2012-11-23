@@ -17,9 +17,11 @@ import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
 import javax.persistence.OrderBy;
 import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 
 import org.hibernate.annotations.Columns;
 import org.hibernate.annotations.Type;
@@ -30,8 +32,12 @@ import org.obiba.magma.hibernate.type.ValueHibernateType;
 import com.google.common.collect.Sets;
 
 @Entity
-@Table(name = "value_set_value")
+@Table(name = "value_set_value",
+    uniqueConstraints = @UniqueConstraint(columnNames = {"value_set_id", "variable_id"}))
 @TypeDef(name = "value", typeClass = ValueHibernateType.class)
+@NamedQuery(name = "findValuesByTable",
+    query = "SELECT vsv FROM ValueSetValue vsv WHERE vsv.valueSet.id " + //
+        "IN (SELECT vs.id FROM ValueSetState vs WHERE vs.valueTable.id = :valueTableId)")
 public class ValueSetValue extends AbstractTimestampedEntity {
 
   private static final long serialVersionUID = 4356913652103162813L;
