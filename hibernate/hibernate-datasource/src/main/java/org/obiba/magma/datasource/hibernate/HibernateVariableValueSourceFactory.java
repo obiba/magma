@@ -3,6 +3,7 @@ package org.obiba.magma.datasource.hibernate;
 import java.io.Serializable;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.SortedSet;
@@ -48,12 +49,14 @@ class HibernateVariableValueSourceFactory implements VariableValueSourceFactory 
   @Override
   public Set<VariableValueSource> createSources() {
     Set<VariableValueSource> sources = new LinkedHashSet<VariableValueSource>();
-    AssociationCriteria criteria = AssociationCriteria.create(VariableState.class, getCurrentSession())
+    @SuppressWarnings("unchecked")
+    Iterable<VariableState> variables = (List<VariableState>) AssociationCriteria
+        .create(VariableState.class, getCurrentSession())
         .add("valueTable", Operation.eq, valueTable.getValueTableState()) //
-        .addSortingClauses(SortingClause.create("id"));
-    for(Object obj : criteria.getCriteria().setFetchMode("categories", FetchMode.JOIN).list()) {
-      VariableState state = (VariableState) obj;
-      sources.add(createSource(state));
+        .addSortingClauses(SortingClause.create("id")) //
+        .getCriteria().setFetchMode("categories", FetchMode.JOIN).list();
+    for(VariableState v : variables) {
+      sources.add(createSource(v));
     }
     return sources;
   }
@@ -112,15 +115,14 @@ class HibernateVariableValueSourceFactory implements VariableValueSourceFactory 
         return getVariable().isRepeatable() ? getValueType().nullSequence() : getValueType().nullValue();
       }
       return getVariable().getValueType().equals(BinaryType.get()) //
-          ? getBinaryValue(valueSet, vsv) //
+          ? getBinaryValue(vsv) //
           : vsv.getValue();
     }
 
-    private Value getBinaryValue(ValueSet valueSet, ValueSetValue vsv) {
+    private Value getBinaryValue(ValueSetValue vsv) {
       Value val = vsv.getValue();
       ensureVariableId();
-      ValueLoaderFactory factory = new HibernateValueLoaderFactory(valueTable.getDatasource().getSessionFactory(),
-          vsv);
+      ValueLoaderFactory factory = new HibernateValueLoaderFactory(valueTable.getDatasource().getSessionFactory(), vsv);
       return getVariable().isRepeatable() //
           ? BinaryType.get().sequenceOfReferences(factory, val) //
           : BinaryType.get().valueOfReference(factory, val);
@@ -220,7 +222,6 @@ class HibernateVariableValueSourceFactory implements VariableValueSourceFactory 
 
     /**
      * Initialises the {@code variable} attribute from the provided state
-     *
      * @param state
      */
     private void unmarshall(VariableState state) {

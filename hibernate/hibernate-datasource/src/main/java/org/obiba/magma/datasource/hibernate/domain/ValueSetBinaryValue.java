@@ -14,6 +14,7 @@ import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
+import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
@@ -22,6 +23,8 @@ import org.hibernate.annotations.Index;
 @Entity
 @Table(name = "value_set_binary_value",
     uniqueConstraints = @UniqueConstraint(columnNames = {"value_set_value_id", "occurrence"}))
+@NamedQuery(name = "findBinaryByValueSetValueAndOccurrence",
+    query = "SELECT vb FROM ValueSetBinaryValue vb WHERE vb.valueSetValue = :valueSetValue AND occurrence = :occurrence")
 public class ValueSetBinaryValue extends AbstractTimestampedEntity {
 
   private static final long serialVersionUID = -7767999255949547929L;

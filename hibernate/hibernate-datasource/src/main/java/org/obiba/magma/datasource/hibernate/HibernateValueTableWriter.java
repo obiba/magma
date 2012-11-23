@@ -42,13 +42,15 @@ class HibernateValueTableWriter implements ValueTableWriter {
 
   private final HibernateValueTableTransaction transaction;
 
-  private final VariableConverter variableConverter = new VariableConverter();
+  private final VariableConverter variableConverter = VariableConverter.getInstance();
 
   private final Session session;
 
   private final HibernateVariableValueSourceFactory valueSourceFactory;
 
   private boolean errorOccurred = false;
+
+  private final HibernateMarshallingContext context;
 
   HibernateValueTableWriter(HibernateValueTableTransaction transaction) {
     if(transaction == null) throw new IllegalArgumentException("transaction cannot be null");
@@ -60,6 +62,8 @@ class HibernateValueTableWriter implements ValueTableWriter {
     if(session.getFlushMode() != FlushMode.MANUAL) {
       session.setFlushMode(FlushMode.MANUAL);
     }
+
+    context = valueTable.createContext();
   }
 
   @Override
@@ -77,8 +81,6 @@ class HibernateValueTableWriter implements ValueTableWriter {
   }
 
   private class HibernateVariableWriter implements VariableWriter {
-
-    private final HibernateMarshallingContext context = valueTable.createContext();
 
     private HibernateVariableWriter() {
     }
@@ -123,7 +125,7 @@ class HibernateValueTableWriter implements ValueTableWriter {
       if(entity == null) throw new IllegalArgumentException("entity cannot be null");
       this.entity = entity;
       // find entity or create it
-      VariableEntityState variableEntityState = entityConverter.marshal(entity, valueTable.createContext());
+      VariableEntityState variableEntityState = entityConverter.marshal(entity, context);
 
       AssociationCriteria criteria = AssociationCriteria.create(ValueSetState.class, session)
           .add("valueTable", Operation.eq, valueTable.getValueTableState())
@@ -175,7 +177,13 @@ class HibernateValueTableWriter implements ValueTableWriter {
     private void createValue(Variable variable, Value value, VariableState variableState) {
       ValueSetValue valueSetValue;
       valueSetValue = new ValueSetValue(variableState, valueSetState);
-      writeValue(valueSetValue, value);
+
+      if(value.getValueType().equals(BinaryType.get())) {
+        writeBinaryValue(valueSetValue, value, false);
+      } else {
+        valueSetValue.setValue(value);
+      }
+
       valueSetState.getValues().add(valueSetValue);
       values.put(variable.getName(), valueSetValue);
     }
@@ -184,7 +192,11 @@ class HibernateValueTableWriter implements ValueTableWriter {
       if(value.isNull()) {
         removeValue(variable, valueSetValue);
       } else {
-        writeValue(valueSetValue, value);
+        if(value.getValueType().equals(BinaryType.get())) {
+          writeBinaryValue(valueSetValue, value, true);
+        } else {
+          valueSetValue.setValue(value);
+        }
       }
     }
 
@@ -193,37 +205,42 @@ class HibernateValueTableWriter implements ValueTableWriter {
       values.remove(variable.getName());
     }
 
-    private void writeValue(ValueSetValue valueSetValue, Value value) {
-      if(value.getValueType().equals(BinaryType.get())) {
-        writeBinaryValue(valueSetValue, value);
-      } else {
-        valueSetValue.setValue(value);
-      }
-    }
-
-    /**
-     * Write the byte array into ValueSetBinaryValue
-     * @param value
-     */
-    private void writeBinaryValue(ValueSetValue valueSetValue, Value value) {
+    private void writeBinaryValue(ValueSetValue valueSetValue, Value value, boolean isUpdate) {
       if(value.isSequence()) {
-        writeBinaryValueSequence(valueSetValue, value);
+        List<Value> sequenceValues = Lists.newArrayList();
+        int occurrence = 0;
+        for(Value valueOccurrence : value.asSequence().getValue()) {
+          sequenceValues.add(createBinaryValue(valueSetValue, valueOccurrence, occurrence++, isUpdate));
+        }
+        valueSetValue.setValue(TextType.get().sequenceOf(sequenceValues));
       } else {
-        ValueSetBinaryValue binaryValue = createBinaryValue(valueSetValue, value, 0);
-        if(binaryValue != null) valueSetValue.addBinaryValue(binaryValue);
-        valueSetValue.setValue(getBinaryMetadata(binaryValue));
+        valueSetValue.setValue(createBinaryValue(valueSetValue, value, 0, isUpdate));
       }
     }
 
-    private void writeBinaryValueSequence(ValueSetValue valueSetValue, Value value) {
-      int occurrence = 0;
-      List<Value> jsonValues = Lists.newArrayList();
-      for(Value valueOccurrence : value.asSequence().getValue()) {
-        ValueSetBinaryValue binaryValue = createBinaryValue(valueSetValue, valueOccurrence, occurrence++);
-        if(binaryValue != null) valueSetValue.addBinaryValue(binaryValue);
-        jsonValues.add(getBinaryMetadata(binaryValue));
+    private Value createBinaryValue(ValueSetValue valueSetValue, Value inputValue, int occurrence, boolean isUpdate) {
+      Value value = null;
+      ValueSetBinaryValue binaryValue = isUpdate ? findBinaryValue(valueSetValue, occurrence) : null;
+      if(binaryValue == null) {
+        binaryValue = createBinaryValue(valueSetValue, inputValue, occurrence);
+      } else if(inputValue.getValue() == null) {
+        valueSetValue.removeBinaryValue(binaryValue);
       }
-      valueSetValue.setValue(TextType.get().sequenceOf(jsonValues));
+      if(binaryValue == null) {
+        // can be null if empty byte[]
+        value = TextType.get().nullValue();
+      } else {
+        valueSetValue.addBinaryValue(binaryValue);
+        value = getBinaryMetadata(binaryValue);
+      }
+      return value;
+    }
+
+    private ValueSetBinaryValue findBinaryValue(ValueSetValue valueSetValue, int occurrence) {
+      return (ValueSetBinaryValue) session.getNamedQuery("findBinaryByValueSetValueAndOccurrence") //
+          .setParameter("valueSetValue", valueSetValue) //
+          .setParameter("occurrence", occurrence) //
+          .uniqueResult();
     }
 
     @Nullable

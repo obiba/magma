@@ -22,9 +22,6 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
@@ -34,9 +31,6 @@ import com.google.common.collect.Sets;
 @NamedQuery(name = "findValueSetsByTableId",
     query = "SELECT vs FROM ValueSetState vs where vs.valueTable.id = :valueTableId")
 public class ValueSetState extends AbstractTimestampedEntity {
-
-  @SuppressWarnings("unused")
-  private static final Logger log = LoggerFactory.getLogger(ValueSetState.class);
 
   private static final long serialVersionUID = 1L;
 

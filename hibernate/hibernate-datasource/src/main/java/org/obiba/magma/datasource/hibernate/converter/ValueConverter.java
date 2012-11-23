@@ -1,5 +1,6 @@
 package org.obiba.magma.datasource.hibernate.converter;
 
+import org.hibernate.classic.Session;
 import org.obiba.core.service.impl.hibernate.AssociationCriteria;
 import org.obiba.core.service.impl.hibernate.AssociationCriteria.Operation;
 import org.obiba.magma.Value;
@@ -8,49 +9,44 @@ import org.obiba.magma.datasource.hibernate.domain.ValueSetValue;
 import org.obiba.magma.datasource.hibernate.domain.VariableState;
 
 public class ValueConverter implements HibernateConverter<ValueSetValue, Value> {
-  //
-  // HibernateConverter Methods
-  //
+
+  public static ValueConverter getInstance() {
+    return new ValueConverter();
+  }
+
+  private ValueConverter() {
+  }
 
   @Override
-  public ValueSetValue marshal(Value magmaObject, HibernateMarshallingContext context) {
+  public ValueSetValue marshal(Value value, HibernateMarshallingContext context) {
     ValueSetState valueSetState = context.getValueSet();
     VariableState variableState = context.getVariable();
 
-    AssociationCriteria criteria = AssociationCriteria
-        .create(ValueSetValue.class, context.getSessionFactory().getCurrentSession()) //
+    Session currentSession = context.getSessionFactory().getCurrentSession();
+    ValueSetValue valueSetValue = (ValueSetValue) AssociationCriteria.create(ValueSetValue.class, currentSession) //
         .add("valueSet", Operation.eq, context.getValueSet()) //
-        .add("variable", Operation.eq, context.getVariable());
-    ValueSetValue valueSetValue = (ValueSetValue) criteria.getCriteria().uniqueResult();
+        .add("variable", Operation.eq, context.getVariable()).getCriteria().uniqueResult();
     if(valueSetValue == null) {
       // Only persist non-null values
-      if(magmaObject.isNull() == false) {
+      if(value.isNull() == false) {
         valueSetValue = new ValueSetValue(variableState, valueSetState);
-        valueSetValue.setValue(magmaObject);
-        context.getSessionFactory().getCurrentSession().save(valueSetValue);
+        valueSetValue.setValue(value);
+        currentSession.save(valueSetValue);
       }
-    } else if(magmaObject.isNull()) {
+    } else if(value.isNull()) {
       // Delete existing value since we are writing a null
-      context.getSessionFactory().getCurrentSession().delete(valueSetValue);
+      currentSession.delete(valueSetValue);
     } else {
       // Hibernate will persist this modification upon flushing the session. No need to issue a save or update here.
-      valueSetValue.setValue(magmaObject);
+      valueSetValue.setValue(value);
     }
 
     return valueSetValue;
   }
 
   @Override
-  public Value unmarshal(ValueSetValue jpaObject, HibernateMarshallingContext context) {
-    return jpaObject.getValue();
-  }
-
-  //
-  // Methods
-  //
-
-  public static ValueConverter getInstance() {
-    return new ValueConverter();
+  public Value unmarshal(ValueSetValue valueSetValue, HibernateMarshallingContext context) {
+    return valueSetValue.getValue();
   }
 
 }

@@ -13,6 +13,9 @@ public class VariableConverter extends AttributeAwareConverter implements Hibern
     return new VariableConverter();
   }
 
+  private VariableConverter() {
+  }
+
   public VariableState getStateForVariable(Variable variable, HibernateMarshallingContext context) {
     for(VariableState state : context.getValueTable().getVariables()) {
       if(state.getName().equals(variable.getName())) return state;
