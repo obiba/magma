@@ -39,7 +39,7 @@ public class HibernateValueLoaderFactory implements ValueLoaderFactory {
 
   @Override
   public ValueLoader create(Value valueRef, Integer occurrence) {
-    return new HibernateBinaryValueLoader(sessionFactory, valueSetValue, occurrence, valueRef);
+    return new HibernateBinaryValueLoader(sessionFactory, valueSetValue.getId(), occurrence, valueRef);
   }
 
   private static final class HibernateBinaryValueLoader implements ValueLoader, Serializable {
@@ -50,7 +50,7 @@ public class HibernateValueLoaderFactory implements ValueLoaderFactory {
 
     private final SessionFactory sessionFactory;
 
-    private final ValueSetValue valueSetValue;
+    private final Serializable valueSetValueId;
 
     private final int occurrence;
 
@@ -58,10 +58,10 @@ public class HibernateValueLoaderFactory implements ValueLoaderFactory {
 
     private byte[] value;
 
-    private HibernateBinaryValueLoader(SessionFactory sessionFactory, ValueSetValue valueSetValue, Integer occurrence,
+    private HibernateBinaryValueLoader(SessionFactory sessionFactory, Serializable valueSetValueId, Integer occurrence,
         Value valueRef) {
       this.sessionFactory = sessionFactory;
-      this.valueSetValue = valueSetValue;
+      this.valueSetValueId = valueSetValueId;
       this.occurrence = occurrence == null ? 0 : occurrence;
       this.valueRef = valueRef;
     }
@@ -78,7 +78,7 @@ public class HibernateValueLoaderFactory implements ValueLoaderFactory {
 
         ValueSetBinaryValue binaryValue = (ValueSetBinaryValue) AssociationCriteria
             .create(ValueSetBinaryValue.class, sessionFactory.getCurrentSession()) //
-            .add("valueSetValue", Operation.eq, valueSetValue) //
+            .add("valueSetValue.id", Operation.eq, valueSetValueId) //
             .add("occurrence", Operation.eq, occurrence) //
             .getCriteria().uniqueResult();
         value = binaryValue == null ? null : binaryValue.getValue();
