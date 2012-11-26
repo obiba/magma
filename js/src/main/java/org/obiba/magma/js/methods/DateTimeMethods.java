@@ -3,9 +3,11 @@ package org.obiba.magma.js.methods;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Date;
 import java.util.GregorianCalendar;
-import java.util.List;
+
+import javax.annotation.Nullable;
 
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
@@ -24,7 +26,11 @@ import org.obiba.magma.type.TextType;
 /**
  * Methods of the {@code ScriptableValue} javascript class that deal with {@code ScriptableValue} of {@code DateType}.
  */
+@SuppressWarnings("UnusedDeclaration")
 public class DateTimeMethods {
+
+  private DateTimeMethods() {
+  }
 
   /**
    * <pre>
@@ -37,7 +43,7 @@ public class DateTimeMethods {
 
   /**
    * Returns the month of a Date as an integer starting from 0 (January).
-   * 
+   * <p/>
    * <pre>
    *   $('Date').month()
    * </pre>
@@ -48,7 +54,7 @@ public class DateTimeMethods {
 
   /**
    * Returns the quarter of a Date as an integer starting from 0 (January-March)
-   * 
+   * <p/>
    * <pre>
    *   $('Date').quarter()
    * </pre>
@@ -59,7 +65,7 @@ public class DateTimeMethods {
       if(currentValue.isNull()) {
         return new ScriptableValue(thisObj, IntegerType.get().nullSequence());
       }
-      List<Value> newValues = new ArrayList<Value>();
+      Collection<Value> newValues = new ArrayList<Value>();
       for(Value value : currentValue.asSequence().getValue()) {
         newValues.add(quarter(value));
       }
@@ -88,7 +94,7 @@ public class DateTimeMethods {
 
   /**
    * Returns the semester of a Date as an integer starting from 0 (January-June)
-   * 
+   * <p/>
    * <pre>
    *   $('Date').semester()
    * </pre>
@@ -99,7 +105,7 @@ public class DateTimeMethods {
       if(currentValue.isNull()) {
         return new ScriptableValue(thisObj, IntegerType.get().nullSequence());
       }
-      List<Value> newValues = new ArrayList<Value>();
+      Collection<Value> newValues = new ArrayList<Value>();
       for(Value value : currentValue.asSequence().getValue()) {
         newValues.add(semester(value));
       }
@@ -124,7 +130,7 @@ public class DateTimeMethods {
 
   /**
    * Returns the day of week from a Date as an integer starting from 1 (Sunday).
-   * 
+   * <p/>
    * <pre>
    *   $('Date').dayOfWeek()
    * </pre>
@@ -135,7 +141,7 @@ public class DateTimeMethods {
 
   /**
    * Returns a boolean value indicating whether the date denotes a weekday (between Monday and Friday inclusively)
-   * 
+   * <p/>
    * <pre>
    *   $('Date').weekday()
    * </pre>
@@ -146,7 +152,7 @@ public class DateTimeMethods {
       if(currentValue.isNull()) {
         return new ScriptableValue(thisObj, BooleanType.get().nullSequence());
       }
-      List<Value> newValues = new ArrayList<Value>();
+      Collection<Value> newValues = new ArrayList<Value>();
       for(Value value : currentValue.asSequence().getValue()) {
         newValues.add(weekday(value));
       }
@@ -167,7 +173,7 @@ public class DateTimeMethods {
 
   /**
    * Returns a boolean value indicating whether the date denotes a weekend (either Sunday or Saturday)
-   * 
+   * <p/>
    * <pre>
    *   $('Date').weekend()
    * </pre>
@@ -178,7 +184,7 @@ public class DateTimeMethods {
       if(currentValue.isNull()) {
         return new ScriptableValue(thisObj, BooleanType.get().nullSequence());
       }
-      List<Value> newValues = new ArrayList<Value>();
+      Collection<Value> newValues = new ArrayList<Value>();
       for(Value value : currentValue.asSequence().getValue()) {
         newValues.add(weekend(value));
       }
@@ -199,7 +205,7 @@ public class DateTimeMethods {
 
   /**
    * Returns the day of month from a Date as an integer starting from 1
-   * 
+   * <p/>
    * <pre>
    *   $('Date').dayOfMonth()
    * </pre>
@@ -210,7 +216,7 @@ public class DateTimeMethods {
 
   /**
    * Returns the day of year from a Date as an integer starting from 1
-   * 
+   * <p/>
    * <pre>
    *   $('Date').dayOfYear()
    * </pre>
@@ -221,7 +227,7 @@ public class DateTimeMethods {
 
   /**
    * Returns the week of year from a Date as an integer starting from 1
-   * 
+   * <p/>
    * <pre>
    *   $('Date').weekOfYear()
    * </pre>
@@ -232,7 +238,7 @@ public class DateTimeMethods {
 
   /**
    * Returns the week of month from a Date as an integer starting from 1
-   * 
+   * <p/>
    * <pre>
    *   $('Date').weekOfMonth()
    * </pre>
@@ -243,7 +249,7 @@ public class DateTimeMethods {
 
   /**
    * Returns the hour of the day for the 24-hour clock. For example, at 10:04:15.250 PM the hour of the day is 22.
-   * 
+   * <p/>
    * <pre>
    *   $('Date').hourOfDay()
    * </pre>
@@ -255,7 +261,7 @@ public class DateTimeMethods {
   /**
    * Returns the hour of the day for the 12-hour clock (0 - 11). Noon and midnight are represented by 0, not by 12. For
    * example, at 10:04:15.250 PM the HOUR is 10.
-   * 
+   * <p/>
    * <pre>
    *   $('Date').hour()
    * </pre>
@@ -266,7 +272,7 @@ public class DateTimeMethods {
 
   /**
    * Returns the minute within the hour.
-   * 
+   * <p/>
    * <pre>
    *   $('Date').minute()
    * </pre>
@@ -277,7 +283,7 @@ public class DateTimeMethods {
 
   /**
    * Returns the second within the minute.
-   * 
+   * <p/>
    * <pre>
    *   $('Date').second()
    * </pre>
@@ -288,7 +294,7 @@ public class DateTimeMethods {
 
   /**
    * Returns the millisecond within the second.
-   * 
+   * <p/>
    * <pre>
    *   $('Date').millisecond()
    * </pre>
@@ -299,7 +305,7 @@ public class DateTimeMethods {
 
   /**
    * Returns the number of milliseconds since January 1, 1970, 00:00:00 GMT (epoch time).
-   * 
+   * <p/>
    * <pre>
    *   $('Date').time()
    * </pre>
@@ -311,7 +317,7 @@ public class DateTimeMethods {
       if(currentValue.isNull()) {
         return new ScriptableValue(thisObj, IntegerType.get().nullSequence());
       }
-      List<Value> newValues = new ArrayList<Value>();
+      Collection<Value> newValues = new ArrayList<Value>();
       for(Value value : currentValue.asSequence().getValue()) {
         newValues.add(timeValue(value));
       }
@@ -328,11 +334,10 @@ public class DateTimeMethods {
 
   /**
    * Returns the text representation of the date formatted as specified by the provided pattern.
-   * 
+   * <p/>
    * <pre>
    *   $('Date').format('dd/MM/yyyy')
    * </pre>
-   * 
    * @see java.text.SimpleDateFormat
    */
   public static Scriptable format(Context cx, Scriptable thisObj, Object[] args, Function funObj) {
@@ -341,7 +346,7 @@ public class DateTimeMethods {
       if(currentValue.isNull()) {
         return new ScriptableValue(thisObj, TextType.get().nullSequence());
       }
-      List<Value> newValues = new ArrayList<Value>();
+      Collection<Value> newValues = new ArrayList<Value>();
       for(Value value : currentValue.asSequence().getValue()) {
         newValues.add(format(value, args));
       }
@@ -351,7 +356,8 @@ public class DateTimeMethods {
     }
   }
 
-  private static Value format(Value value, Object[] args) {
+  @SuppressWarnings("ChainOfInstanceofChecks")
+  private static Value format(Value value, Object... args) {
     if(args == null || args.length == 0) {
       return TextType.get().nullValue();
     }
@@ -370,7 +376,7 @@ public class DateTimeMethods {
       if(operand.getValue().isNull()) {
         return TextType.get().nullValue();
       }
-      format = new SimpleDateFormat(((ScriptableValue) arg).toString());
+      format = new SimpleDateFormat(arg.toString());
     } else if(arg instanceof String) {
       format = new SimpleDateFormat((String) arg);
     } else {
@@ -382,13 +388,13 @@ public class DateTimeMethods {
 
   /**
    * Returns true if this Date value is after the specified date value(s)
-   * 
+   * <p/>
    * <pre>
    *   $('Date').after($('OtherDate'))
    *   $('Date').after($('OtherDate'), $('SomeOtherDate'))
    * </pre>
    */
-  public static Scriptable after(Context cx, Scriptable thisObj, Object[] args, Function funObj) {
+  public static Scriptable after(Context cx, Scriptable thisObj, Object[] args, @Nullable Function funObj) {
     if(args == null || args.length == 0) {
       return new ScriptableValue(thisObj, BooleanType.get().falseValue());
     }
@@ -398,7 +404,7 @@ public class DateTimeMethods {
       if(currentValue.isNull()) {
         return new ScriptableValue(thisObj, BooleanType.get().nullSequence());
       }
-      List<Value> newValues = new ArrayList<Value>();
+      Collection<Value> newValues = new ArrayList<Value>();
       for(Value value : currentValue.asSequence().getValue()) {
         newValues.add(after(value, args));
       }
@@ -408,7 +414,7 @@ public class DateTimeMethods {
     }
   }
 
-  private static Value after(Value value, Object[] args) {
+  private static Value after(Value value, Object... args) {
     Calendar thisCalendar = asCalendar(value);
     if(thisCalendar == null) {
       return BooleanType.get().nullValue();
@@ -445,7 +451,9 @@ public class DateTimeMethods {
         return ((MagmaDate) value.getValue()).asDate();
       }
     } else {
-      throw new MagmaJsEvaluationRuntimeException("Invalid ValueType: expected '" + DateTimeType.get().getName() + "' or '" + DateType.get().getName() + "' got '" + value.getValueType().getName() + "'");
+      throw new MagmaJsEvaluationRuntimeException(
+          "Invalid ValueType: expected '" + DateTimeType.get().getName() + "' or '" + DateType.get()
+              .getName() + "' got '" + value.getValueType().getName() + "'");
     }
     return null;
   }
@@ -453,7 +461,6 @@ public class DateTimeMethods {
   /**
    * Converts a {@code Value} instance to a {@code Calendar} instance. If {@code Value#isNull()} returns true, this
    * method returns null.
-   * 
    * @param value
    * @return
    */
@@ -470,19 +477,21 @@ public class DateTimeMethods {
         return ((MagmaDate) value.getValue()).asCalendar();
       }
     } else {
-      throw new MagmaJsEvaluationRuntimeException("Invalid ValueType: expected '" + DateTimeType.get().getName() + "' or '" + DateType.get().getName() + "' got '" + value.getValueType().getName() + "'");
+      throw new MagmaJsEvaluationRuntimeException(
+          "Invalid ValueType: expected '" + DateTimeType.get().getName() + "' or '" + DateType.get()
+              .getName() + "' got '" + value.getValueType().getName() + "'");
     }
     return null;
   }
 
   /**
    * Given a {@code ScriptableValue}, this method extracts a {@code field} from the Calendar.
-   * 
    * @param scope
    * @param sv
    * @param field
    * @return
    */
+  @SuppressWarnings("MagicConstant")
   private static Scriptable asScriptable(Scriptable scope, Scriptable sv, int field) {
     Value currentValue = ((ScriptableValue) sv).getValue();
 
@@ -497,11 +506,12 @@ public class DateTimeMethods {
     }
   }
 
+  @SuppressWarnings("MagicConstant")
   private static Scriptable asScriptable(Scriptable scope, ValueSequence currentValue, int field) {
     if(currentValue.isNull()) {
       return new ScriptableValue(scope, IntegerType.get().nullSequence());
     }
-    List<Value> newValues = new ArrayList<Value>();
+    Collection<Value> newValues = new ArrayList<Value>();
     for(Value value : currentValue.asSequence().getValue()) {
       Calendar c = asCalendar(value);
       if(c != null) {
@@ -519,7 +529,7 @@ public class DateTimeMethods {
 
   /**
    * Adds days to a {@code ScriptableValue} of {@code DateType}.
-   * 
+   * <p/>
    * <pre>
    *   $('Date').add(2)  // Adds 2 days.
    *   $('Date').add(-4) // Subtracts 4 days.
@@ -535,7 +545,7 @@ public class DateTimeMethods {
       if(currentValue.isNull()) {
         return new ScriptableValue(thisObj, DateTimeType.get().nullSequence());
       }
-      List<Value> newValues = new ArrayList<Value>();
+      Collection<Value> newValues = new ArrayList<Value>();
       for(Value value : currentValue.asSequence().getValue()) {
         newValues.add(add(value, args));
       }
@@ -545,7 +555,7 @@ public class DateTimeMethods {
     }
   }
 
-  private static Value add(Value cvalue, Object[] args) {
+  private static Value add(Value cvalue, Object... args) {
     Calendar c = asCalendar(cvalue);
     if(c != null) {
       int argument = 0;

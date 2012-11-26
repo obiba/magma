@@ -1,7 +1,7 @@
 package org.obiba.magma.type;
 
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
 
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueConverter;
@@ -55,7 +55,7 @@ public abstract class AbstractValueType implements ValueType {
     if(string == null) {
       return nullSequence();
     }
-    List<Value> values = new ArrayList<Value>();
+    Collection<Value> values = new ArrayList<Value>();
     StringBuilder currentValue = new StringBuilder();
     for(int i = 0; i < string.length(); i++) {
       char c = string.charAt(i);
@@ -72,6 +72,7 @@ public abstract class AbstractValueType implements ValueType {
     return sequenceOf(values);
   }
 
+  @SuppressWarnings("IfMayBeConditional")
   @Override
   public Value convert(Value value) {
     if(value.getValueType() == this) {
@@ -80,7 +81,7 @@ public abstract class AbstractValueType implements ValueType {
     if(value.isNull()) {
       return value.isSequence() ? nullSequence() : nullValue();
     }
-    final ValueConverter converter = Factory.conveterFor(value.getValueType(), this);
+    final ValueConverter converter = Factory.converterFor(value.getValueType(), this);
     if(value.isSequence()) {
       return sequenceOf(Iterables.transform(value.asSequence().getValue(), new Function<Value, Value>() {
 
@@ -88,7 +89,6 @@ public abstract class AbstractValueType implements ValueType {
         public Value apply(Value from) {
           return converter.convert(from, AbstractValueType.this);
         }
-
       }));
     } else {
       return converter.convert(value, this);
@@ -97,7 +97,9 @@ public abstract class AbstractValueType implements ValueType {
 
   @Override
   public String toString(Value value) {
-    return value.isNull() ? null : value.isSequence() ? toString(value.asSequence()) : toString(value.getValue());
+    return value == null || value.isNull() //
+        ? null //
+        : value.isSequence() ? toString(value.asSequence()) : toString(value.getValue());
   }
 
   /**
@@ -107,7 +109,7 @@ public abstract class AbstractValueType implements ValueType {
    * @return a {@code String} representation of the object
    */
   protected String toString(Object object) {
-    return object.toString();
+    return object == null ? null : object.toString();
   }
 
   /**
@@ -117,6 +119,7 @@ public abstract class AbstractValueType implements ValueType {
    * @return
    */
   protected String toString(ValueSequence sequence) {
+    if(sequence == null) return null;
     StringBuilder sb = new StringBuilder();
     for(Value value : sequence.getValue()) {
       sb.append(value.isNull() ? "" : escapeAndQuoteIfRequired(value.toString())).append(SEPARATOR);

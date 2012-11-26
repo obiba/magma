@@ -1,5 +1,6 @@
 package org.obiba.magma;
 
+import java.io.Serializable;
 import java.util.Comparator;
 import java.util.List;
 
@@ -13,14 +14,13 @@ import com.google.common.collect.Ordering;
  * A {@code Value} instance that holds a sequence of other {@code Value} instances (its elements). The {@code ValueType}
  * of the sequence is the same as its elements. That is, if the elements have a value type {@code BooleanType}, then
  * this {@code ValueSequence} instance also has {@code BooleanType} as its value type.
- * 
  */
 public class ValueSequence extends Value {
 
   private static final long serialVersionUID = -1965362009370797808L;
 
   ValueSequence(ValueType valueType, Iterable<Value> values) {
-    super(valueType, values);
+    super(valueType, (Serializable) values);
   }
 
   @Override

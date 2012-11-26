@@ -1,8 +1,10 @@
 package org.obiba.magma.js.methods;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
+
+import javax.annotation.Nullable;
 
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
@@ -21,19 +23,25 @@ import org.obiba.magma.type.IntegerType;
 import org.obiba.magma.type.TextType;
 
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 
 /**
  * Methods of the {@code ScriptableValue} javascript class that deal with {@code ScriptableValue} of {@code BooleanType}
  * . Note that other methods that use {@code BooleanType} may be defined elsewhere.
  */
+@SuppressWarnings(
+    {"UnusedDeclaration", "IfStatementWithTooManyBranches", "ChainOfInstanceofChecks", "IfMayBeConditional"})
 public class BooleanMethods {
+
+  private BooleanMethods() {
+  }
 
   /**
    * <pre>
    *   $('Categorical').any('CAT1', 'CAT2')
    * </pre>
    * @return true when the value is equal to any of the parameter, false otherwise. Note that this method will always
-   * return false if the value is null.
+   *         return false if the value is null.
    */
   public static ScriptableValue any(Context ctx, Scriptable thisObj, Object[] args, Function funObj) {
     ScriptableValue sv = (ScriptableValue) thisObj;
@@ -55,9 +63,9 @@ public class BooleanMethods {
    *   $('Categorical').all('CAT1', 'CAT2')
    * </pre>
    * @return true when the value contains all specified parameters, false otherwise. Note that this method will always
-   * return false if the value is null.
+   *         return false if the value is null.
    */
-  public static ScriptableValue all(Context ctx, Scriptable thisObj, Object[] args, Function funObj) {
+  public static ScriptableValue all(Context ctx, Scriptable thisObj, Object[] args, @Nullable Function funObj) {
     ScriptableValue sv = (ScriptableValue) thisObj;
     if(sv.getValue().isNull()) {
       return buildValue(thisObj, false);
@@ -70,7 +78,8 @@ public class BooleanMethods {
       } else if(test instanceof ScriptableValue) {
         testValue = ((ScriptableValue) test).getValue();
       } else {
-        throw new MagmaJsEvaluationRuntimeException("cannot invoke all() with argument of type " + test.getClass().getName());
+        throw new MagmaJsEvaluationRuntimeException(
+            "cannot invoke all() with argument of type " + test.getClass().getName());
       }
 
       if(!sv.contains(testValue)) {
@@ -83,7 +92,7 @@ public class BooleanMethods {
   /**
    * Without arguments, must be applied to boolean values only. With arguments, should be considered as a 'not equals'
    * comparison test.
-   * 
+   * <p/>
    * <pre>
    *   $('BooleanVar').not()
    *   $('Categorical').any('CAT1').not()
@@ -116,19 +125,21 @@ public class BooleanMethods {
    * <pre>
    *   $('BooleanVar').and(someBooleanVar)
    *   $('BooleanVar').and(firstBooleanVar, secondBooleanVar)
-   *   $('BooleanVar').and($('OtheBooleanVar'))
-   *   $('BooleanVar').and($('OtheBooleanVar').not())
-   *   $('BooleanVar').and(someBooleanVar, $('OtheBooleanVar'))
+   *   $('BooleanVar').and($('OtherBooleanVar'))
+   *   $('BooleanVar').and($('OtherBooleanVar').not())
+   *   $('BooleanVar').and(someBooleanVar, $('OtherBooleanVar'))
    * </pre>
    */
-  public static ScriptableValue and(Context ctx, Scriptable thisObj, Object[] args, Function funObj) {
+  public static ScriptableValue and(Context ctx, Scriptable thisObj, @Nullable Object[] args,
+      @Nullable Function funObj) {
     ScriptableValue sv = (ScriptableValue) thisObj;
     Value value = sv.getValue();
     if(value.getValueType() != BooleanType.get()) {
       try {
         value = BooleanType.get().convert(value);
       } catch(IllegalArgumentException e) {
-        throw new MagmaJsEvaluationRuntimeException("cannot invoke and() for Value of type " + value.getValueType().getName());
+        throw new MagmaJsEvaluationRuntimeException(
+            "cannot invoke and() for Value of type " + value.getValueType().getName());
       }
     }
     Boolean booleanValue = toBoolean(value);
@@ -174,18 +185,20 @@ public class BooleanMethods {
   /**
    * Returns true {@code BooleanType} if the {@code ScriptableValue} .empty() is operating on is a sequence that
    * contains zero values. Otherwise false is returned.
-   * 
+   * <p/>
    * <pre>
    *   $('Admin.Interview.exportLog.destination').empty()
    * </pre>
    */
-  public static ScriptableValue empty(Context ctx, Scriptable thisObj, Object[] args, Function funObj) {
+  public static ScriptableValue empty(Context ctx, Scriptable thisObj, @Nullable Object[] args,
+      @Nullable Function funObj) {
     ScriptableValue sv = (ScriptableValue) thisObj;
     if(sv.getValue().isNull()) {
       return new ScriptableValue(thisObj, BooleanType.get().nullValue());
     }
 
-    if(sv.getValue().isSequence() && sv.getValue().asSequence().getSize() == 0) return new ScriptableValue(thisObj, BooleanType.get().trueValue());
+    if(sv.getValue().isSequence() && sv.getValue().asSequence().getSize() == 0)
+      return new ScriptableValue(thisObj, BooleanType.get().trueValue());
 
     return new ScriptableValue(thisObj, BooleanType.get().falseValue());
   }
@@ -193,11 +206,11 @@ public class BooleanMethods {
   /**
    * <pre>
    *   $('BooleanVar').or(someBooleanVar)
-   *   $('BooleanVar').or($('OtheBooleanVar'))
-   *   $('BooleanVar').or($('OtheBooleanVar').not())
+   *   $('BooleanVar').or($('OtherBooleanVar'))
+   *   $('BooleanVar').or($('OtherBooleanVar').not())
    * </pre>
    */
-  public static ScriptableValue or(Context ctx, Scriptable thisObj, Object[] args, Function funObj) {
+  public static ScriptableValue or(Context ctx, Scriptable thisObj, Object[] args, @Nullable Function funObj) {
     ScriptableValue sv = (ScriptableValue) thisObj;
     Value value = sv.getValue();
     if(value.getValueType() != BooleanType.get()) {
@@ -232,7 +245,7 @@ public class BooleanMethods {
    * Returns a new {@link ScriptableValue} of the {@link BooleanType} indicating if the first parameter is equal to the
    * second parameter. If either parameters are null, then false is returned. Both parameters must either both be
    * numeric, both be BooleanType or both be TextType.
-   * 
+   * <p/>
    * <pre>
    *   $('NumberVarOne').eq($('NumberVarTwo'))
    *   $('BooleanVarOne').eq($('BooleanVarTwo'))
@@ -241,7 +254,8 @@ public class BooleanMethods {
    * @throws MagmaJsEvaluationRuntimeException if operands are not ScriptableValue Objects of a numeric type,
    * BooleanType or TextType.
    */
-  public static ScriptableValue eq(Context ctx, Scriptable thisObj, Object[] args, Function funObj) throws MagmaJsEvaluationRuntimeException {
+  public static ScriptableValue eq(Context ctx, Scriptable thisObj, @Nullable Object[] args,
+      @Nullable Function funObj) throws MagmaJsEvaluationRuntimeException {
     ScriptableValue firstOperand = (ScriptableValue) thisObj;
     if(firstOperand.getValue().isNull()) {
       if(args != null && args.length > 0) {
@@ -255,7 +269,7 @@ public class BooleanMethods {
       return new ScriptableValue(thisObj, BooleanType.get().falseValue());
     }
 
-    if(args == null || args.length == 0 || (args.length > 0 && args[0] == null)) {
+    if(args == null || args.length == 0 || args.length > 0 && args[0] == null) {
       return new ScriptableValue(thisObj, BooleanType.get().falseValue());
     }
 
@@ -266,7 +280,8 @@ public class BooleanMethods {
       return new ScriptableValue(thisObj, NumericMethods.equals(firstOperand, args));
     } else if(firstOperand.getValueType().equals(TextType.get())) {
       if(args[0] == null) return new ScriptableValue(thisObj, BooleanType.get().nullValue());
-      return textEquals(thisObj, firstOperand, new ScriptableValue(thisObj, TextType.get().valueOf(args[0].toString())));
+      return textEquals(thisObj, firstOperand,
+          new ScriptableValue(thisObj, TextType.get().valueOf(args[0].toString())));
     } else if(firstOperand.getValueType().isDateTime()) {
       if(args[0] == null) return new ScriptableValue(thisObj, BooleanType.get().nullValue());
       if(firstOperand.getValueType().equals(DateType.get())) {
@@ -278,23 +293,31 @@ public class BooleanMethods {
     }
   }
 
-  private static ScriptableValue eqScriptableValue(Scriptable thisObj, ScriptableValue firstOperand, ScriptableValue secondOperand) {
+  private static ScriptableValue eqScriptableValue(Scriptable thisObj, ScriptableValue firstOperand,
+      ScriptableValue secondOperand) {
     if(firstOperand.getValueType().isNumeric() && secondOperand.getValueType().isNumeric()) {
       return numericEquals(thisObj, firstOperand, secondOperand);
-    } else if(firstOperand.getValueType().equals(BooleanType.get()) && secondOperand.getValueType().equals(BooleanType.get())) {
+    } else if(firstOperand.getValueType().equals(BooleanType.get()) && secondOperand.getValueType()
+        .equals(BooleanType.get())) {
       return booleanEquals(thisObj, firstOperand, secondOperand);
-    } else if(firstOperand.getValueType().equals(TextType.get()) && secondOperand.getValueType().equals(TextType.get())) {
+    } else if(firstOperand.getValueType().equals(TextType.get()) && secondOperand.getValueType()
+        .equals(TextType.get())) {
       return textEquals(thisObj, firstOperand, secondOperand);
-    } else if(firstOperand.getValueType().equals(DateType.get()) && secondOperand.getValueType().equals(DateType.get())) {
+    } else if(firstOperand.getValueType().equals(DateType.get()) && secondOperand.getValueType()
+        .equals(DateType.get())) {
       return dateEquals(thisObj, firstOperand, secondOperand);
-    } else if(firstOperand.getValueType().equals(DateTimeType.get()) && secondOperand.getValueType().equals(DateTimeType.get())) {
+    } else if(firstOperand.getValueType().equals(DateTimeType.get()) && secondOperand.getValueType()
+        .equals(DateTimeType.get())) {
       return dateTimeEquals(thisObj, firstOperand, secondOperand);
     } else {
-      throw new MagmaJsEvaluationRuntimeException("Cannot invoke equals() with argument of type '" + firstOperand.getValueType().getName() + "' and '" + secondOperand.getValueType().getName() + "'.");
+      throw new MagmaJsEvaluationRuntimeException(
+          "Cannot invoke equals() with argument of type '" + firstOperand.getValueType()
+              .getName() + "' and '" + secondOperand.getValueType().getName() + "'.");
     }
   }
 
-  public static ScriptableValue whenNull(Context ctx, Scriptable thisObj, Object[] args, Function funObj) throws MagmaJsEvaluationRuntimeException {
+  public static ScriptableValue whenNull(Context ctx, Scriptable thisObj, Object[] args,
+      Function funObj) throws MagmaJsEvaluationRuntimeException {
     ScriptableValue sv = (ScriptableValue) thisObj;
     if(sv.getValue().isSequence()) {
       return whenNullSequence(ctx, thisObj, args, funObj);
@@ -305,17 +328,16 @@ public class BooleanMethods {
     }
   }
 
-  private static ScriptableValue whenNullSequence(Context ctx, Scriptable thisObj, Object[] args, Function funObj) throws MagmaJsEvaluationRuntimeException {
+  private static ScriptableValue whenNullSequence(Context ctx, Scriptable thisObj, Object[] args,
+      Function funObj) throws MagmaJsEvaluationRuntimeException {
     ScriptableValue sv = (ScriptableValue) thisObj;
     if(sv.getValue().isNull()) {
       Value rval = whenNullArgument(sv.getValueType(), args[0]);
-      if(rval.isSequence()) {
-        return new ScriptableValue(thisObj, rval);
-      } else {
-        return new ScriptableValue(thisObj, sv.getValueType().sequenceOf(Collections.singleton(rval)));
-      }
+      return rval.isSequence() //
+          ? new ScriptableValue(thisObj, rval) //
+          : new ScriptableValue(thisObj, sv.getValueType().sequenceOf(Collections.singleton(rval)));
     } else {
-      List<Value> newValues = new ArrayList<Value>();
+      Collection<Value> newValues = new ArrayList<Value>();
       for(Value val : sv.getValue().asSequence().getValues()) {
         if(val.isNull()) {
           newValues.add(whenNullArgument(val.getValueType(), args[0]));
@@ -328,45 +350,51 @@ public class BooleanMethods {
   }
 
   private static Value whenNullArgument(ValueType type, Object arg) {
-    if(arg instanceof ScriptableValue) {
-      return ((ScriptableValue) arg).getValue();
-    } else {
-      return type.valueOf(arg);
-    }
+    return arg instanceof ScriptableValue ? ((ScriptableValue) arg).getValue() : type.valueOf(arg);
   }
 
-  private static ScriptableValue numericEquals(Scriptable thisObj, ScriptableValue firstOperand, ScriptableValue secondOperand) {
+  private static ScriptableValue numericEquals(Scriptable thisObj, ScriptableValue firstOperand,
+      ScriptableValue secondOperand) {
     Number firstNumber = (Number) firstOperand.getValue().getValue();
     Number secondNumber = (Number) secondOperand.getValue().getValue();
-    if(firstOperand.getValueType().equals(IntegerType.get()) && secondOperand.getValueType().equals(IntegerType.get())) {
-      return new ScriptableValue(thisObj, BooleanType.get().valueOf(((Long) firstNumber).equals(((Long) secondNumber))));
-    } else if(firstOperand.getValueType().equals(IntegerType.get()) && secondOperand.getValueType().equals(DecimalType.get())) {
-      return new ScriptableValue(thisObj, BooleanType.get().valueOf(((Long) firstNumber).doubleValue() == (Double) secondNumber));
-    } else if(firstOperand.getValueType().equals(DecimalType.get()) && secondOperand.getValueType().equals(IntegerType.get())) {
-      return new ScriptableValue(thisObj, BooleanType.get().valueOf((Double) firstNumber == ((Long) secondNumber).doubleValue()));
+    if(firstOperand.getValueType().equals(IntegerType.get()) && secondOperand.getValueType()
+        .equals(IntegerType.get())) {
+      return new ScriptableValue(thisObj, BooleanType.get().valueOf(firstNumber.equals(secondNumber)));
+    } else if(firstOperand.getValueType().equals(IntegerType.get()) && secondOperand.getValueType()
+        .equals(DecimalType.get())) {
+      return new ScriptableValue(thisObj,
+          BooleanType.get().valueOf(firstNumber.doubleValue() == (Double) secondNumber));
+    } else if(firstOperand.getValueType().equals(DecimalType.get()) && secondOperand.getValueType()
+        .equals(IntegerType.get())) {
+      return new ScriptableValue(thisObj,
+          BooleanType.get().valueOf((Double) firstNumber == secondNumber.doubleValue()));
     } else {
-      return new ScriptableValue(thisObj, BooleanType.get().valueOf(((Double) firstNumber).equals(((Double) secondNumber))));
+      return new ScriptableValue(thisObj, BooleanType.get().valueOf(firstNumber.equals(secondNumber)));
     }
   }
 
-  private static ScriptableValue booleanEquals(Scriptable thisObj, ScriptableValue firstOperand, ScriptableValue secondOperand) {
+  private static ScriptableValue booleanEquals(Scriptable thisObj, ScriptableValue firstOperand,
+      ScriptableValue secondOperand) {
     Boolean firstBoolean = (Boolean) firstOperand.getValue().getValue();
     Boolean secondBoolean = (Boolean) secondOperand.getValue().getValue();
     return new ScriptableValue(thisObj, BooleanType.get().valueOf(firstBoolean.equals(secondBoolean)));
   }
 
-  private static ScriptableValue textEquals(Scriptable thisObj, ScriptableValue firstOperand, ScriptableValue secondOperand) {
+  private static ScriptableValue textEquals(Scriptable thisObj, ScriptableValue firstOperand,
+      ScriptableValue secondOperand) {
     String firstString = (String) firstOperand.getValue().getValue();
     String secondString = (String) secondOperand.getValue().getValue();
     return new ScriptableValue(thisObj, BooleanType.get().valueOf(firstString.equals(secondString)));
   }
 
-  private static ScriptableValue dateTimeEquals(Scriptable thisObj, ScriptableValue firstOperand, ScriptableValue secondOperand) {
+  private static ScriptableValue dateTimeEquals(Scriptable thisObj, ScriptableValue firstOperand,
+      ScriptableValue secondOperand) {
     boolean result = firstOperand.getValue().equals(secondOperand.getValue());
     return new ScriptableValue(thisObj, BooleanType.get().valueOf(result));
   }
 
-  private static ScriptableValue dateEquals(Scriptable thisObj, ScriptableValue firstOperand, ScriptableValue secondOperand) {
+  private static ScriptableValue dateEquals(Scriptable thisObj, ScriptableValue firstOperand,
+      ScriptableValue secondOperand) {
     boolean result = firstOperand.getValue().equals(secondOperand.getValue());
     return new ScriptableValue(thisObj, BooleanType.get().valueOf(result));
   }
@@ -388,23 +416,26 @@ public class BooleanMethods {
 
       if(value.isSequence()) {
         // Transform the sequence of Boolean values to a sequence of !values
-        Value notSeq = BooleanType.get().sequenceOf(Iterables.transform(value.asSequence().getValue(), new com.google.common.base.Function<Value, Value>() {
-          @Override
-          public Value apply(Value from) {
-            // Transform the input into its invert boolean value
-            return BooleanType.get().not(from);
-          }
+        Value notSeq = BooleanType.get().sequenceOf(Lists.newArrayList(
+            Iterables.transform(value.asSequence().getValue(), new com.google.common.base.Function<Value, Value>() {
+              @Override
+              public Value apply(Value from) {
+                // Transform the input into its invert boolean value
+                return BooleanType.get().not(from);
+              }
 
-        }));
+            })));
         return new ScriptableValue(thisObj, notSeq);
       }
       return new ScriptableValue(thisObj, BooleanType.get().not(value));
     }
-    throw new MagmaJsEvaluationRuntimeException("cannot invoke not() for Value of type " + value.getValueType().getName());
+    throw new MagmaJsEvaluationRuntimeException(
+        "cannot invoke not() for Value of type " + value.getValueType().getName());
   }
 
-  @edu.umd.cs.findbugs.annotations.SuppressWarnings(value = "NP_BOOLEAN_RETURN_NULL", justification = "Clients expect ternary methods to return null as a valid value.")
+  @edu.umd.cs.findbugs.annotations.SuppressWarnings(value = "NP_BOOLEAN_RETURN_NULL",
+      justification = "Clients expect ternary methods to return null as a valid value.")
   private static Boolean toBoolean(Value value) {
-    return !value.isNull() ? (Boolean) value.getValue() : null;
+    return value.isNull() ? null : (Boolean) value.getValue();
   }
 }

@@ -1,5 +1,7 @@
 package org.obiba.magma.js.views;
 
+import java.io.Serializable;
+
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ContextAction;
 import org.mozilla.javascript.ContextFactory;
@@ -28,7 +30,7 @@ public class JavascriptClause implements Initialisable, SelectClause, WhereClaus
 
   private String script;
 
-  private transient Script compiledScript;
+  private Script compiledScript;
 
   //
   // Constructors
@@ -51,7 +53,6 @@ public class JavascriptClause implements Initialisable, SelectClause, WhereClaus
 
   @Override
   public void initialise() throws EvaluatorException {
-    String script = getScript();
     if(script == null) {
       throw new NullPointerException("script cannot be null");
     }
@@ -75,7 +76,8 @@ public class JavascriptClause implements Initialisable, SelectClause, WhereClaus
     }
     if(variable == null) throw new IllegalArgumentException("variable cannot be null");
 
-    return ((Boolean) ContextFactory.getGlobal().call(new ContextAction() {
+    return (Boolean) ContextFactory.getGlobal().call(new ContextAction() {
+      @Override
       public Object run(Context ctx) {
         MagmaContext context = MagmaContext.asMagmaContext(ctx);
         // Don't pollute the global scope
@@ -94,7 +96,7 @@ public class JavascriptClause implements Initialisable, SelectClause, WhereClaus
         }
         return false;
       }
-    }));
+    });
   }
 
   //
@@ -108,7 +110,8 @@ public class JavascriptClause implements Initialisable, SelectClause, WhereClaus
     }
     if(valueSet == null) throw new IllegalArgumentException("valueSet cannot be null");
 
-    return ((Boolean) ContextFactory.getGlobal().call(new ContextAction() {
+    return (Boolean) ContextFactory.getGlobal().call(new ContextAction() {
+      @Override
       public Object run(Context ctx) {
         MagmaContext context = MagmaContext.asMagmaContext(ctx);
         // Don't pollute the global scope
@@ -129,20 +132,23 @@ public class JavascriptClause implements Initialisable, SelectClause, WhereClaus
         }
         return false;
       }
-    }));
+    });
   }
 
   //
   // Query Methods
   //
 
+  @SuppressWarnings("UnusedDeclaration")
   public Value query(final Variable variable) {
     if(compiledScript == null) {
       throw new IllegalStateException("script hasn't been compiled. Call initialise() before calling query().");
     }
     if(variable == null) throw new IllegalArgumentException("variable cannot be null");
 
-    return ((Value) ContextFactory.getGlobal().call(new ContextAction() {
+    return (Value) ContextFactory.getGlobal().call(new ContextAction() {
+      @SuppressWarnings("IfMayBeConditional")
+      @Override
       public Object run(Context ctx) {
         MagmaContext context = MagmaContext.asMagmaContext(ctx);
         // Don't pollute the global scope
@@ -154,13 +160,13 @@ public class JavascriptClause implements Initialisable, SelectClause, WhereClaus
           ScriptableValue scriptable = (ScriptableValue) value;
           return scriptable.getValue();
         } else if(value != null) {
-          return ValueType.Factory.newValue(value);
+          return ValueType.Factory.newValue((Serializable) value);
         } else {
           // TODO: Determine what to return in case of null. Currently returning false (BooleanType).
           return BooleanType.get().falseValue();
         }
       }
-    }));
+    });
   }
 
   //
@@ -172,7 +178,7 @@ public class JavascriptClause implements Initialisable, SelectClause, WhereClaus
   }
 
   public void setScriptName(String name) {
-    this.scriptName = name;
+    scriptName = name;
   }
 
   public String getScript() {
@@ -188,14 +194,14 @@ public class JavascriptClause implements Initialisable, SelectClause, WhereClaus
    * within the context. This method will add the current {@code ValueSet} as a {@code ThreadLocal} variable with
    * {@code ValueSet#class} as its key. This allows other classes to have access to the current {@code ValueSet} during
    * the script's execution.
-   * <p>
+   * <p/>
    * Classes overriding this method must call their super class' method
-   * 
    * @param ctx the current context
    * @param scope the scope of execution of this script
    * @param valueSet the current {@code ValueSet}
    */
-  protected void enterContext(MagmaContext ctx, Scriptable scope, ValueSet valueSet) {
+  protected void enterContext(MagmaContext ctx, @SuppressWarnings("UnusedParameters") Scriptable scope,
+      ValueSet valueSet) {
     ctx.push(ValueSet.class, valueSet);
     ctx.push(ValueTable.class, valueSet.getValueTable());
   }

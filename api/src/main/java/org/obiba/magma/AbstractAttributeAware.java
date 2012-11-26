@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.NoSuchElementException;
 
+import javax.annotation.Nullable;
+
 import com.google.common.base.Function;
 import com.google.common.base.Objects;
 import com.google.common.base.Predicate;
@@ -16,11 +18,14 @@ public abstract class AbstractAttributeAware implements AttributeAware {
 
   public abstract String getName();
 
-  public boolean hasAttribute(final String name) {
+  @Override
+  public boolean hasAttribute(String name) {
     return noNamespaceAttributes().containsKey(name);
   }
 
-  public boolean hasAttribute(final String name, final Locale locale) {
+  @SuppressWarnings("ConstantConditions")
+  @Override
+  public boolean hasAttribute(String name, Locale locale) {
     if(noNamespaceAttributes().containsKey(name)) {
       for(Attribute attribute : noNamespaceAttributes().get(name)) {
         if(attribute.isLocalised() && attribute.getLocale().equals(locale)) {
@@ -34,12 +39,10 @@ public abstract class AbstractAttributeAware implements AttributeAware {
   @Override
   public boolean hasAttribute(String namespace, String name) {
     ListMultimap<String, Attribute> nm = namespaceAttributes(namespace);
-    if(name != null) {
-      return nm.containsKey(name);
-    }
-    return true;
+    return name == null || nm.containsKey(name);
   }
 
+  @SuppressWarnings("ConstantConditions")
   @Override
   public boolean hasAttribute(String namespace, String name, Locale locale) {
     for(Attribute attribute : namespaceAttributes(namespace).get(name)) {
@@ -51,7 +54,7 @@ public abstract class AbstractAttributeAware implements AttributeAware {
   }
 
   @Override
-  public Attribute getAttribute(final String name) {
+  public Attribute getAttribute(String name) {
     try {
       return Iterables.get(noNamespaceAttributes().get(name), 0);
     } catch(IndexOutOfBoundsException e) {
@@ -60,7 +63,7 @@ public abstract class AbstractAttributeAware implements AttributeAware {
   }
 
   @Override
-  public Attribute getAttribute(final String name, final Locale locale) {
+  public Attribute getAttribute(String name, final Locale locale) {
     try {
       return Iterables.find(noNamespaceAttributes().get(name), new Predicate<Attribute>() {
         @Override
@@ -152,7 +155,7 @@ public abstract class AbstractAttributeAware implements AttributeAware {
    * Returns a view of the attributes for the specified namespace. If namespace is null, this method returns attributes
    * that have no namespace (namespace is null).
    */
-  protected ListMultimap<String, Attribute> namespaceAttributes(final String namespace) {
+  protected ListMultimap<String, Attribute> namespaceAttributes(@Nullable final String namespace) {
     return Multimaps.index(Iterables.filter(getInstanceAttributes().values(), new Predicate<Attribute>() {
 
       @Override
@@ -165,11 +168,12 @@ public abstract class AbstractAttributeAware implements AttributeAware {
 
   private static final class AttributeNameFunc implements Function<Attribute, String> {
 
+    @SuppressWarnings("TypeMayBeWeakened")
     private static final AttributeNameFunc INSTANCE = new AttributeNameFunc();
 
     @Override
     public String apply(Attribute input) {
-      return input.getName();
+      return input == null ? null : input.getName();
     }
 
   }
