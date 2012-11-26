@@ -16,6 +16,7 @@ public class TextType extends AbstractValueType {
 
   protected static final String ESCAPED_QUOTE_STR = "" + QUOTE + QUOTE;
 
+  @SuppressWarnings("StaticNonFinalField")
   private static WeakReference<TextType> instance;
 
   protected TextType() {
@@ -34,6 +35,7 @@ public class TextType extends AbstractValueType {
     return "text";
   }
 
+  @Override
   public Class<?> getJavaClass() {
     return String.class;
   }
@@ -43,10 +45,12 @@ public class TextType extends AbstractValueType {
     return String.class.isAssignableFrom(clazz) || clazz.isEnum();
   }
 
+  @Override
   public boolean isDateTime() {
     return false;
   }
 
+  @Override
   public boolean isNumeric() {
     return false;
   }
@@ -85,7 +89,7 @@ public class TextType extends AbstractValueType {
     List<Value> values = new ArrayList<Value>();
 
     // Special case for empty string
-    if(string.length() == 0) {
+    if(string.isEmpty()) {
       values.add(valueOf(string));
       return sequenceOf(values);
     }
@@ -161,9 +165,10 @@ public class TextType extends AbstractValueType {
    * Adds quotes around the string value and also escapes any quotes in the value by prefixing it with another quote.
    * This is the format expected by the {@code sequenceOf(String string)} method.
    */
+  @Override
   protected String escapeAndQuoteIfRequired(String value) {
     // Replace all occurrences of QUOTE by QUOTEQUOTE
-    return new StringBuilder().append(QUOTE).append(value.replaceAll(QUOTE_STR, ESCAPED_QUOTE_STR)).append(QUOTE).toString();
+    return QUOTE + value.replaceAll(QUOTE_STR, ESCAPED_QUOTE_STR) + QUOTE;
   }
 
   @Override

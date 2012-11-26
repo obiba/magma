@@ -1,9 +1,9 @@
 /*******************************************************************************
  * Copyright (c) 2012 OBiBa. All rights reserved.
- *  
+ *
  * This program and the accompanying materials
  * are made available under the terms of the GNU Public License v3.0.
- *  
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
@@ -29,7 +29,7 @@ public class BinaryValueURLLoader implements ValueLoader, Serializable {
 
   private static final Logger log = LoggerFactory.getLogger(BinaryValueURLLoader.class);
 
-  private String url;
+  private final String url;
 
   private byte[] value;
 
@@ -39,7 +39,7 @@ public class BinaryValueURLLoader implements ValueLoader, Serializable {
 
   @Override
   public boolean isNull() {
-    return url == null || url.length() == 0;
+    return url == null || url.isEmpty();
   }
 
   @Override

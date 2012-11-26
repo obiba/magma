@@ -24,7 +24,7 @@ public abstract class AbstractDatasourceFactory implements DatasourceFactory {
 
   @Override
   public String getName() {
-    return this.name;
+    return name;
   }
 
   @Override
@@ -39,7 +39,7 @@ public abstract class AbstractDatasourceFactory implements DatasourceFactory {
 
   @Override
   public DatasourceTransformer getDatasourceTransformer() {
-    return this.transformer;
+    return transformer;
   }
 
 }

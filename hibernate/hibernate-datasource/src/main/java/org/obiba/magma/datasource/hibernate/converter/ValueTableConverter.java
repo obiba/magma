@@ -10,12 +10,19 @@ public class ValueTableConverter implements HibernateConverter<ValueTableState, 
   // HibernateConverter Methods
   //
 
+  private ValueTableConverter() {
+  }
+
   @Override
   public ValueTableState marshal(ValueTable valueTable, HibernateMarshallingContext context) {
-    AssociationCriteria criteria = AssociationCriteria.create(ValueTableState.class, context.getSessionFactory().getCurrentSession()).add("name", Operation.eq, valueTable.getName()).add("datasource", Operation.eq, context.getDatasourceState());
+    AssociationCriteria criteria = AssociationCriteria
+        .create(ValueTableState.class, context.getSessionFactory().getCurrentSession()) //
+        .add("name", Operation.eq, valueTable.getName()) //
+        .add("datasource", Operation.eq, context.getDatasourceState());
     ValueTableState valueTableState = (ValueTableState) criteria.getCriteria().uniqueResult();
     if(valueTableState == null) {
-      valueTableState = new ValueTableState(valueTable.getName(), valueTable.getEntityType(), context.getDatasourceState());
+      valueTableState = new ValueTableState(valueTable.getName(), valueTable.getEntityType(),
+          context.getDatasourceState());
       context.getSessionFactory().getCurrentSession().save(valueTableState);
     }
 

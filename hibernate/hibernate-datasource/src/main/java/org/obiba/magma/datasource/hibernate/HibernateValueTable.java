@@ -1,6 +1,5 @@
 package org.obiba.magma.datasource.hibernate;
 
-import java.io.File;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Collections;
@@ -21,6 +20,7 @@ import org.obiba.magma.ValueSet;
 import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.VariableValueSource;
+import org.obiba.magma.VariableValueSourceFactory;
 import org.obiba.magma.datasource.hibernate.HibernateVariableValueSourceFactory.HibernateVariableValueSource;
 import org.obiba.magma.datasource.hibernate.converter.HibernateMarshallingContext;
 import org.obiba.magma.datasource.hibernate.domain.ValueSetState;
@@ -46,20 +46,15 @@ class HibernateValueTable extends AbstractValueTable {
 
   HibernateValueTable(HibernateDatasource datasource, ValueTableState state) {
     super(datasource, state.getName());
-    this.valueTableId = state.getId();
-    super.setVariableEntityProvider(variableEntityProvider = new HibernateVariableEntityProvider(state.getEntityType()));
+    valueTableId = state.getId();
+    setVariableEntityProvider(variableEntityProvider = new HibernateVariableEntityProvider(state.getEntityType()));
   }
 
   @Override
   public void initialise() {
     super.initialise();
-
-    try {
-      variableEntityProvider.initialise();
-      readVariables();
-    } catch(RuntimeException e) {
-      throw e;
-    }
+    variableEntityProvider.initialise();
+    readVariables();
   }
 
   @Override
@@ -72,11 +67,11 @@ class HibernateValueTable extends AbstractValueTable {
     if(hasValueSet(entity) == false) {
       throw new NoSuchValueSetException(this, entity);
     }
-    AssociationCriteria criteria = AssociationCriteria.create(ValueSetState.class, getDatasource().getSessionFactory().getCurrentSession())
-    //
-    .add("valueTable.id", Operation.eq, valueTableId)
-    //
-    .add("variableEntity.identifier", Operation.eq, entity.getIdentifier()).add("variableEntity.type", Operation.eq, entity.getType());
+    AssociationCriteria criteria = AssociationCriteria
+        .create(ValueSetState.class, getDatasource().getSessionFactory().getCurrentSession())
+        .add("valueTable.id", Operation.eq, valueTableId)
+        .add("variableEntity.identifier", Operation.eq, entity.getIdentifier())
+        .add("variableEntity.type", Operation.eq, entity.getType());
 
     return new HibernateValueSet(entity, criteria.getCriteria().setFetchMode("values", FetchMode.JOIN));
   }
@@ -102,32 +97,36 @@ class HibernateValueTable extends AbstractValueTable {
    * Overridden to include uncommitted sources when a transaction exists on this table and is visible in the current
    * session.
    */
+  @Override
   protected Set<VariableValueSource> getSources() {
     if(getDatasource().hasTableTransaction(getName())) {
-      return new ImmutableSet.Builder<VariableValueSource>().addAll(super.getSources()).addAll(getDatasource().getTableTransaction(getName()).getUncommittedSources()).build();
+      return new ImmutableSet.Builder<VariableValueSource>().addAll(super.getSources())
+          .addAll(getDatasource().getTableTransaction(getName()).getUncommittedSources()).build();
     } else {
       return Collections.unmodifiableSet(super.getSources());
     }
   }
 
   ValueTableState getValueTableState() {
-    return (ValueTableState) this.getDatasource().getSessionFactory().getCurrentSession().get(ValueTableState.class, valueTableId);
+    return (ValueTableState) getDatasource().getSessionFactory().getCurrentSession()
+        .get(ValueTableState.class, valueTableId);
   }
 
   ValueTableState getValueTableState(LockMode lock) {
-    return (ValueTableState) this.getDatasource().getSessionFactory().getCurrentSession().get(ValueTableState.class, valueTableId, new LockOptions(lock));
+    return (ValueTableState) getDatasource().getSessionFactory().getCurrentSession()
+        .get(ValueTableState.class, valueTableId, new LockOptions(lock));
   }
 
   HibernateMarshallingContext createContext() {
     return getDatasource().createContext(getValueTableState());
   }
 
-  void commitEntities(final Collection<VariableEntity> newEntities) {
-    this.variableEntityProvider.entities.addAll(newEntities);
+  void commitEntities(Collection<VariableEntity> newEntities) {
+    variableEntityProvider.entities.addAll(newEntities);
   }
 
-  void commitSources(final Collection<VariableValueSource> uncommitttedSources) {
-    super.addVariableValueSources(uncommitttedSources);
+  void commitSources(Collection<VariableValueSource> uncommittedSources) {
+    addVariableValueSources(uncommittedSources);
   }
 
   Serializable getVariableId(Variable variable) {
@@ -136,7 +135,7 @@ class HibernateValueTable extends AbstractValueTable {
 
   private void readVariables() {
     log.debug("Populating variable cache for table {}", getName());
-    HibernateVariableValueSourceFactory factory = new HibernateVariableValueSourceFactory(this);
+    VariableValueSourceFactory factory = new HibernateVariableValueSourceFactory(this);
     addVariableValueSources(factory.createSources());
     log.debug("Populating variable cache - done. {} variables loaded", super.getSources().size());
   }
@@ -147,7 +146,7 @@ class HibernateValueTable extends AbstractValueTable {
 
     private ValueSetState valueSetState;
 
-    public HibernateValueSet(VariableEntity entity, Criteria valueSetCriteria) {
+    HibernateValueSet(VariableEntity entity, Criteria valueSetCriteria) {
       super(HibernateValueTable.this, entity);
       this.valueSetCriteria = valueSetCriteria;
     }
@@ -170,7 +169,7 @@ class HibernateValueTable extends AbstractValueTable {
 
   public class HibernateVariableEntityProvider extends AbstractVariableEntityProvider implements Initialisable {
 
-    private Set<VariableEntity> entities = new LinkedHashSet<VariableEntity>();
+    private final Set<VariableEntity> entities = new LinkedHashSet<VariableEntity>();
 
     public HibernateVariableEntityProvider(String entityType) {
       super(entityType);
@@ -180,7 +179,9 @@ class HibernateValueTable extends AbstractValueTable {
     public void initialise() {
       log.debug("Populating entity cache for table {}", getName());
       // get the variable entities that have a value set in the table
-      AssociationCriteria criteria = AssociationCriteria.create(ValueSetState.class, getDatasource().getSessionFactory().getCurrentSession()).add("valueTable.id", Operation.eq, valueTableId);
+      AssociationCriteria criteria = AssociationCriteria
+          .create(ValueSetState.class, getDatasource().getSessionFactory().getCurrentSession())
+          .add("valueTable.id", Operation.eq, valueTableId);
       for(Object obj : criteria.list()) {
         VariableEntity entity = ((ValueSetState) obj).getVariableEntity();
         entities.add(new VariableEntityBean(entity.getType(), entity.getIdentifier()));
@@ -195,19 +196,12 @@ class HibernateValueTable extends AbstractValueTable {
     @Override
     public Set<VariableEntity> getVariableEntities() {
       if(getDatasource().hasTableTransaction(getName())) {
-        return ImmutableSet.copyOf(Iterables.concat(entities, getDatasource().getTableTransaction(getName()).getUncommittedEntities()));
+        return ImmutableSet.copyOf(
+            Iterables.concat(entities, getDatasource().getTableTransaction(getName()).getUncommittedEntities()));
       } else {
         return Collections.unmodifiableSet(entities);
       }
     }
-  }
-
-  /**
-   * Get the base directory for storing binary files.
-   * @return
-   */
-  public File getTableRoot() {
-    return new File(getDatasource().getDatasourceRoot(), getName());
   }
 
 }

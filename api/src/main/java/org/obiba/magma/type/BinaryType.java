@@ -15,6 +15,7 @@ public class BinaryType extends AbstractValueType {
 
   private static final long serialVersionUID = -5271259966499174607L;
 
+  @SuppressWarnings("StaticNonFinalField")
   private static WeakReference<BinaryType> instance;
 
   private BinaryType() {
@@ -33,6 +34,7 @@ public class BinaryType extends AbstractValueType {
     return "binary";
   }
 
+  @Override
   public Class<?> getJavaClass() {
     return byte[].class;
   }
@@ -42,10 +44,12 @@ public class BinaryType extends AbstractValueType {
     return byte[].class.isAssignableFrom(clazz);
   }
 
+  @Override
   public boolean isDateTime() {
     return false;
   }
 
+  @Override
   public boolean isNumeric() {
     return false;
   }
@@ -75,7 +79,7 @@ public class BinaryType extends AbstractValueType {
     }
     Class<?> type = object.getClass();
     if(byte[].class.equals(type)) {
-      return Factory.newValue(this, (byte[]) object);
+      return Factory.newValue(this, object);
     }
     if(String.class.isAssignableFrom(type)) {
       return valueOf((String) object);
@@ -93,13 +97,13 @@ public class BinaryType extends AbstractValueType {
     int occurrence = 0;
     for(Value refValue : refValues.asSequence().getValues()) {
       if(refValue.isNull()) {
-        values.add(BinaryType.get().nullValue());
+        values.add(get().nullValue());
       } else {
         values.add(valueOf(factory.create(refValue, occurrence)));
       }
       occurrence++;
     }
-    return BinaryType.get().sequenceOf(values);
+    return get().sequenceOf(values);
   }
 
   public Value valueOfReference(ValueLoaderFactory factory, String string) {

@@ -1,6 +1,5 @@
 package org.obiba.magma.type;
 
-
 public abstract class AbstractNumberType extends AbstractValueType {
 
   private static final long serialVersionUID = -5271259966499174607L;
@@ -9,10 +8,12 @@ public abstract class AbstractNumberType extends AbstractValueType {
 
   }
 
+  @Override
   public boolean isDateTime() {
     return false;
   }
 
+  @Override
   public boolean isNumeric() {
     return true;
   }

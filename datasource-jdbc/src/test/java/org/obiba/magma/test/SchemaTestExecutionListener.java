@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.obiba.magma.test;
 
@@ -19,6 +19,10 @@ public class SchemaTestExecutionListener implements TestExecutionListener {
   //
 
   @Override
+  public void beforeTestClass(TestContext testContext) throws Exception {
+  }
+
+  @Override
   public void prepareTestInstance(TestContext testContext) throws Exception {
     handleElement(testContext, testContext.getTestClass(), true);
   }
@@ -33,6 +37,10 @@ public class SchemaTestExecutionListener implements TestExecutionListener {
     handleElement(testContext, testContext.getTestMethod(), false);
   }
 
+  @Override
+  public void afterTestClass(TestContext testContext) throws Exception {
+  }
+
   //
   // Methods
   //
@@ -44,8 +52,10 @@ public class SchemaTestExecutionListener implements TestExecutionListener {
     }
   }
 
-  private void handleAnnotation(TestContext testContext, TestSchema testSchemaAnnotation, boolean before) throws Exception {
-    DataSource dataSource = (DataSource) testContext.getApplicationContext().getBean(testSchemaAnnotation.dataSourceBean());
+  private void handleAnnotation(TestContext testContext, TestSchema testSchemaAnnotation,
+      boolean before) throws Exception {
+    DataSource dataSource = (DataSource) testContext.getApplicationContext()
+        .getBean(testSchemaAnnotation.dataSourceBean());
     String sqlScript = before ? testSchemaAnnotation.beforeSchema() : testSchemaAnnotation.afterSchema();
     if(sqlScript.length() != 0) {
       String schemaLocation = testSchemaAnnotation.schemaLocation();

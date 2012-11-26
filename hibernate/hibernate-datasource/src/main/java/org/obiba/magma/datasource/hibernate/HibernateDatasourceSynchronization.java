@@ -10,10 +10,9 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Implements {@code Synchronization} and offers two methods for derived classes: commit() and rollback().
- * <p>
+ * <p/>
  * When a new instance of this class is created, it will automatically attach itself to the current transaction. If no
  * transaction exists, an exception is thrown.
- * 
  */
 class HibernateDatasourceSynchronization implements Synchronization {
 
@@ -43,19 +42,19 @@ class HibernateDatasourceSynchronization implements Synchronization {
 
   @Override
   public void afterCompletion(int status) {
-    log.debug("after completion ({}): session {} tx {}", new Object[] { status, session.hashCode(), txId });
+    log.debug("after completion ({}): session {} tx {}", status, session.hashCode(), txId);
     switch(status) {
-    case Status.STATUS_COMMITTED:
-      commit();
-      break;
+      case Status.STATUS_COMMITTED:
+        commit();
+        break;
 
-    case Status.STATUS_ROLLEDBACK:
-      rollback();
-      break;
+      case Status.STATUS_ROLLEDBACK:
+        rollback();
+        break;
 
-    default:
-      log.error("Unknown TX status {} session {} tx {}", new Object[] { status, session.hashCode(), txId });
-      break;
+      default:
+        log.error("Unknown TX status {} session {} tx {}", status, session.hashCode(), txId);
+        break;
     }
   }
 

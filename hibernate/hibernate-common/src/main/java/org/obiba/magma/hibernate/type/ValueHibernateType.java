@@ -41,7 +41,8 @@ public class ValueHibernateType extends AbstractType {
   }
 
   @Override
-  public boolean isDirty(Object old, Object current, boolean[] checkable, SessionImplementor session) throws HibernateException {
+  public boolean isDirty(Object old, Object current, boolean[] checkable,
+      SessionImplementor session) throws HibernateException {
     return old.equals(current) == false;
   }
 
@@ -52,12 +53,14 @@ public class ValueHibernateType extends AbstractType {
   }
 
   @Override
-  public Object nullSafeGet(ResultSet rs, String name, SessionImplementor session, Object owner) throws HibernateException, SQLException {
+  public Object nullSafeGet(ResultSet rs, String name, SessionImplementor session,
+      Object owner) throws HibernateException, SQLException {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public Object nullSafeGet(ResultSet rs, String[] names, SessionImplementor session, Object owner) throws HibernateException, SQLException {
+  public Object nullSafeGet(ResultSet rs, String[] names, SessionImplementor session,
+      Object owner) throws HibernateException, SQLException {
     String valueTypeName = rs.getString(names[0]);
     // Even when the column is NOT NULL, a SELECT statement can return NULL (using a left join for example).
     // When this column is null, we cannot construct a valid {@code Value} instance, so this method returns null
@@ -71,7 +74,8 @@ public class ValueHibernateType extends AbstractType {
   }
 
   @Override
-  public void nullSafeSet(PreparedStatement st, Object obj, int index, boolean[] settable, SessionImplementor session) throws HibernateException, SQLException {
+  public void nullSafeSet(PreparedStatement st, Object obj, int index, boolean[] settable,
+      SessionImplementor session) throws HibernateException, SQLException {
     Value value = (Value) obj;
 
     int offset = 0;
@@ -87,7 +91,8 @@ public class ValueHibernateType extends AbstractType {
   }
 
   @Override
-  public void nullSafeSet(PreparedStatement st, Object obj, int index, SessionImplementor session) throws HibernateException, SQLException {
+  public void nullSafeSet(PreparedStatement st, Object obj, int index,
+      SessionImplementor session) throws HibernateException, SQLException {
     Value value = (Value) obj;
     st.setString(index, value.getValueType().getName());
     st.setBoolean(index + 1, value.isSequence());
@@ -96,7 +101,8 @@ public class ValueHibernateType extends AbstractType {
   }
 
   @Override
-  public Object deepCopy(Object value, EntityMode entityMode, SessionFactoryImplementor factory) throws HibernateException {
+  public Object deepCopy(Object value, EntityMode entityMode,
+      SessionFactoryImplementor factory) throws HibernateException {
     return ((Value) value).copy();
   }
 
@@ -106,8 +112,9 @@ public class ValueHibernateType extends AbstractType {
   }
 
   @Override
-  @SuppressWarnings("unchecked")
-  public Object replace(Object original, Object target, SessionImplementor session, Object owner, Map copyCache) throws HibernateException {
+  @SuppressWarnings({"unchecked", "rawtypes"})
+  public Object replace(Object original, Object target, SessionImplementor session, Object owner,
+      Map copyCache) throws HibernateException {
     // It is safe to return the original parameter since Value instances are immutable
     return original;
   }
@@ -124,12 +131,12 @@ public class ValueHibernateType extends AbstractType {
 
   @Override
   public int[] sqlTypes(Mapping mapping) throws MappingException {
-    return new int[] { Types.VARCHAR, Types.BIT, Types.CLOB };
+    return new int[] {Types.VARCHAR, Types.BIT, Types.CLOB};
   }
 
   @Override
   public boolean[] toColumnNullness(Object value, Mapping mapping) {
-    return new boolean[] { false, false, false };
+    return new boolean[] {false, false, false};
   }
 
   @Override

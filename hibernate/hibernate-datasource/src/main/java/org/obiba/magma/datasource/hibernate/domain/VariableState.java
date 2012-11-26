@@ -1,3 +1,12 @@
+/*
+ * Copyright (c) 2011 OBiBa. All rights reserved.
+ *
+ * This program and the accompanying materials
+ * are made available under the terms of the GNU Public License v3.0.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package org.obiba.magma.datasource.hibernate.domain;
 
 import java.util.ArrayList;
@@ -23,13 +32,13 @@ import org.obiba.magma.Variable;
 import org.obiba.magma.hibernate.type.ValueTypeHibernateType;
 
 @Entity
-@Table(name = "variable", uniqueConstraints = { @UniqueConstraint(columnNames = { "value_table_id", "name" }) })
+@Table(name = "variable", uniqueConstraints = @UniqueConstraint(columnNames = {"value_table_id", "name"}))
 @TypeDef(name = "value_type", typeClass = ValueTypeHibernateType.class)
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 @NamedQuery(name = "allValues", query = "select vs.variableEntity.identifier, vsv.value from ValueSetState as vs " + //
-"left outer join vs.values as vsv with vsv.id.variable.id = :variableId " + //
-"where vs.valueTable.id = :valueTableId " + //
-"order by vs.variableEntity.identifier")
+    "left outer join vs.values as vsv with vsv.id.variable.id = :variableId " + //
+    "where vs.valueTable.id = :valueTableId " + //
+    "order by vs.variableEntity.identifier")
 public class VariableState extends AbstractAttributeAwareEntity implements Timestamped {
 
   private static final long serialVersionUID = 1L;
@@ -41,13 +50,11 @@ public class VariableState extends AbstractAttributeAwareEntity implements Times
   @JoinColumn(name = "value_table_id", insertable = false, updatable = false)
   private ValueTableState valueTable;
 
-  @OneToMany(cascade = CascadeType.ALL)
+  @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
   // Creates a column to store the category's index within the list
   @IndexColumn(name = "category_index", nullable = false)
   // Used to prevent an association table from being created
   @JoinColumn(name = "variable_id", nullable = false)
-  // Not supported: https://hibernate.onjira.com/browse/HHH-6382
-  // @OnDelete(action = OnDeleteAction.CASCADE)
   private List<CategoryState> categories;
 
   @Column(nullable = false)
@@ -68,30 +75,29 @@ public class VariableState extends AbstractAttributeAwareEntity implements Times
   @Column(nullable = false)
   private boolean repeatable;
 
+  @SuppressWarnings("UnusedDeclaration")
   public VariableState() {
-    super();
   }
 
   public VariableState(ValueTableState valueTable, Variable variable) {
-    super();
     this.valueTable = valueTable;
-    this.name = variable.getName();
+    name = variable.getName();
     copyVariableFields(variable);
   }
 
   /**
    * Copies all fields of the specified {@link Variable} (but not its name).
-   * 
+   *
    * @param variable variable
    */
   public void copyVariableFields(Variable variable) {
-    this.entityType = variable.getEntityType();
-    this.valueType = variable.getValueType();
-    this.mimeType = variable.getMimeType();
-    this.occurrenceGroup = variable.getOccurrenceGroup();
-    this.referencedEntityType = variable.getReferencedEntityType();
-    this.unit = variable.getUnit();
-    this.repeatable = variable.isRepeatable();
+    entityType = variable.getEntityType();
+    valueType = variable.getValueType();
+    mimeType = variable.getMimeType();
+    occurrenceGroup = variable.getOccurrenceGroup();
+    referencedEntityType = variable.getReferencedEntityType();
+    unit = variable.getUnit();
+    repeatable = variable.isRepeatable();
   }
 
   public String getName() {

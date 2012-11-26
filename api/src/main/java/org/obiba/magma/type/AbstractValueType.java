@@ -97,13 +97,12 @@ public abstract class AbstractValueType implements ValueType {
 
   @Override
   public String toString(Value value) {
-    return value.isNull() ? null : (value.isSequence() ? toString(value.asSequence()) : toString(value.getValue()));
+    return value.isNull() ? null : value.isSequence() ? toString(value.asSequence()) : toString(value.getValue());
   }
 
   /**
    * Allows {@code ValueType} instance to apply formatting or specialised conversion to string representation. For
    * example, dates would be formatted in a non-locale dependent way.
-   * 
    * @param object a non-null object
    * @return a {@code String} representation of the object
    */
@@ -114,12 +113,11 @@ public abstract class AbstractValueType implements ValueType {
   /**
    * Returns a comma-separated string representation of the sequence. The resulting string can be passed to
    * {@code sequenceOf(String)} to obtain the original {@code ValueSequence}.
-   * 
    * @param sequence
    * @return
    */
   protected String toString(ValueSequence sequence) {
-    final StringBuilder sb = new StringBuilder();
+    StringBuilder sb = new StringBuilder();
     for(Value value : sequence.getValue()) {
       sb.append(value.isNull() ? "" : escapeAndQuoteIfRequired(value.toString())).append(SEPARATOR);
     }
