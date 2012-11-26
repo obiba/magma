@@ -1,8 +1,6 @@
 package org.obiba.magma.js;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.junit.Assert.assertThat;
+import javax.annotation.Nullable;
 
 import org.junit.After;
 import org.junit.Before;
@@ -15,6 +13,10 @@ import org.mozilla.javascript.WrappedException;
 import org.obiba.magma.MagmaEngine;
 import org.obiba.magma.Value;
 import org.obiba.magma.Variable;
+
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.junit.Assert.assertThat;
 
 public abstract class AbstractJsTest {
 
@@ -42,7 +44,7 @@ public abstract class AbstractJsTest {
     return new MagmaEngine();
   }
 
-  public ScriptableValue newValue(Value value, final String unit) {
+  public ScriptableValue newValue(Value value, @Nullable String unit) {
     return new ScriptableValue(getSharedScope(), value, unit);
   }
 
@@ -52,35 +54,35 @@ public abstract class AbstractJsTest {
 
   protected Object evaluate(final String script, final Variable variable) {
     return ContextFactory.getGlobal().call(new ContextAction() {
+      @Override
       public Object run(Context ctx) {
         MagmaContext context = MagmaContext.asMagmaContext(ctx);
         // Don't pollute the global scope
         Scriptable scope = new ScriptableVariable(context.newLocalScope(), variable);
 
-        final Script compiledScript = context.compileString(script, "", 1, null);
-        Object value = compiledScript.exec(ctx, scope);
+        Script compiledScript = context.compileString(script, "", 1, null);
 
-        return value;
+        return compiledScript.exec(ctx, scope);
       }
     });
   }
 
-  protected ScriptableValue evaluate(final String script, final Value value) {
+  protected ScriptableValue evaluate(String script, Value value) {
     return evaluate(script, value, null);
   }
 
-  protected ScriptableValue evaluate(final String script, final Value value, final String unit) {
+  protected ScriptableValue evaluate(final String script, final Value value, @Nullable final String unit) {
     try {
       return (ScriptableValue) ContextFactory.getGlobal().call(new ContextAction() {
+        @Override
         public Object run(Context ctx) {
           MagmaContext context = MagmaContext.asMagmaContext(ctx);
           // Don't pollute the global scope
           Scriptable scope = newValue(value, unit);
 
-          final Script compiledScript = context.compileString(script, "", 1, null);
-          Object value = compiledScript.exec(ctx, scope);
+          Script compiledScript = context.compileString(script, "", 1, null);
 
-          return value;
+          return compiledScript.exec(ctx, scope);
         }
       });
     } catch(WrappedException e) {

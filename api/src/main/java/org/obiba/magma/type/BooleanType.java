@@ -9,6 +9,7 @@ public class BooleanType extends AbstractValueType {
 
   private static final long serialVersionUID = -149385659514790222L;
 
+  @SuppressWarnings("StaticNonFinalField")
   private static WeakReference<BooleanType> instance;
 
   private final Value trueValue;
@@ -56,10 +57,12 @@ public class BooleanType extends AbstractValueType {
   public Value valueOf(String string) {
     if(string == null) {
       return nullValue();
-    } else if(string.equalsIgnoreCase("true") || string.equalsIgnoreCase("false")) {
+    }
+    if("true".equalsIgnoreCase(string) || "false".equalsIgnoreCase(string)) {
       return valueOf(Boolean.valueOf(string).booleanValue());
     }
-    throw new IllegalArgumentException("Cannot construct " + getClass().getSimpleName() + " from type String with value '" + string + "'");
+    throw new IllegalArgumentException(
+        "Cannot construct " + getClass().getSimpleName() + " from type String with value '" + string + "'");
   }
 
   @Override

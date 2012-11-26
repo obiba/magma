@@ -1,9 +1,9 @@
 /*******************************************************************************
  * Copyright (c) 2011 OBiBa. All rights reserved.
- *  
+ *
  * This program and the accompanying materials
  * are made available under the terms of the GNU Public License v3.0.
- *  
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
@@ -20,13 +20,13 @@ public class IdentityValueConverterTest extends AbstractMagmaTest {
 
   @Test
   public void test_converterFor_returnsAConverter() {
-    ValueConverter converter = ValueType.Factory.conveterFor(DecimalType.get(), DecimalType.get());
+    ValueConverter converter = ValueType.Factory.converterFor(DecimalType.get(), DecimalType.get());
     Assert.assertNotNull(converter);
   }
 
   @Test
   public void test_converterFor_returnsAnIdentityConverter() {
-    ValueConverter converter = ValueType.Factory.conveterFor(DecimalType.get(), DecimalType.get());
+    ValueConverter converter = ValueType.Factory.converterFor(DecimalType.get(), DecimalType.get());
     Assert.assertNotNull(converter);
     Value value = DecimalType.get().valueOf(1);
     Value converted = converter.convert(value, DecimalType.get());

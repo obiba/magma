@@ -1,11 +1,5 @@
 package org.obiba.magma.js.methods;
 
-import static org.easymock.EasyMock.createMock;
-import static org.easymock.EasyMock.expect;
-import static org.easymock.EasyMock.replay;
-import static org.easymock.EasyMock.verify;
-import junit.framework.Assert;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.mozilla.javascript.NativeObject;
@@ -15,6 +9,13 @@ import org.obiba.magma.ValueTable;
 import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.js.AbstractJsTest;
+
+import junit.framework.Assert;
+
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.replay;
+import static org.easymock.EasyMock.verify;
 
 public class ScriptableVariableMethodsTest extends AbstractJsTest {
 
@@ -29,17 +30,17 @@ public class ScriptableVariableMethodsTest extends AbstractJsTest {
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void testDefineMethodsFornull() {
-    ScriptableObject prototype = new NativeObject();
-    prototype = null;
-    ScriptableVariableMethods.defineMethods(prototype);
+  public void testDefineMethodsForNull() {
+    ScriptableVariableMethods.defineMethods(null);
   }
 
   @Test
   public void defineMethodsForDefinedness() {
     ScriptableObject prototype = new NativeObject();
     ScriptableObject actual = ScriptableVariableMethods.defineMethods(prototype);
-    prototype.defineFunctionProperties(new String[] { "name", "attribute", "repeatable" }, ScriptableVariableMethods.class, ScriptableObject.DONTENUM);
+    prototype
+        .defineFunctionProperties(new String[] {"name", "attribute", "repeatable"}, ScriptableVariableMethods.class,
+            ScriptableObject.DONTENUM);
     Assert.assertEquals(prototype, actual);
   }
 

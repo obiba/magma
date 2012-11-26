@@ -3,6 +3,8 @@ package org.obiba.magma;
 import java.io.Serializable;
 import java.util.Comparator;
 
+import javax.annotation.Nullable;
+
 /**
  * Provides a common interface for all types of values available in the {@code MagmaEngine}. Through this interface,
  * callers may obtain information on the type's nature, obtain {@code Value} instances from Java objects and convert
@@ -14,7 +16,10 @@ public interface ValueType extends Serializable, Comparator<Value> {
    * Provides access to all {@code ValueType} instances by name or Java type. Also allows creating {@code Value}
    * instances from Java objects.
    */
-  public static final class Factory {
+  final class Factory {
+
+    private Factory() {
+    }
 
     /**
      * Returns the {@code ValueType} instance for the specified {@code name}.
@@ -29,7 +34,6 @@ public interface ValueType extends Serializable, Comparator<Value> {
     /**
      * Returns the {@code ValueType} instance that accepts the specified java {@code Class}, as specified by the
      * {@link ValueType#acceptsJavaClass(Class)} method.
-     * 
      * @param javaClass the Java {@code Class} to test
      * @return the {@code ValueType} instance that accepts the specified {@code Class}.
      * @throws IllegalArgumentException when no type exists for the specified class
@@ -47,26 +51,26 @@ public interface ValueType extends Serializable, Comparator<Value> {
      * @return a {@code Value} instance for the specified object.
      * @throws IllegalArgumentException when {@code value} is null.
      */
-    public static Value newValue(Object value) {
+    public static Value newValue(Serializable value) {
       if(value == null) {
         throw new IllegalArgumentException("cannot determine ValueType for null object");
       }
       return newValue(forClass(value.getClass()), value);
     }
 
-    public static Value newValue(ValueType type, Object value) {
+    public static Value newValue(ValueType type, Serializable value) {
       return new Value(type, value);
     }
 
-    public static Value newValue(ValueType type, ValueLoader valueLoader) {
+    public static Value newValue(ValueType type, @Nullable ValueLoader valueLoader) {
       return new Value(type, valueLoader);
     }
 
-    public static ValueSequence newSequence(ValueType type, Iterable<Value> values) {
+    public static ValueSequence newSequence(ValueType type, @Nullable Iterable<Value> values) {
       return new ValueSequence(type, values);
     }
 
-    public static ValueConverter conveterFor(ValueType from, ValueType to) {
+    public static ValueConverter converterFor(ValueType from, ValueType to) {
       return MagmaEngine.get().getValueTypeFactory().converterFor(from, to);
     }
 
@@ -76,81 +80,76 @@ public interface ValueType extends Serializable, Comparator<Value> {
    * The unique name of this {@code ValueType}.
    * @return this type's unique name
    */
-  public String getName();
+  String getName();
 
   /**
    * The java class of the value held in a {@code Value} instance of this {@code ValueType}. That is, when a
    * {@code Value} instance if of this {@code ValueType}, the contained object should be of the type returned by this
    * method.
-   * 
    * @return the normalized java class for this {@code ValueType}
    */
-  public Class<?> getJavaClass();
+  Class<?> getJavaClass();
 
   /**
    * Returns true if an instance of the specified class is suitable for invoking the {@link #valueOf(Object)} method.
-   * 
    * @param clazz the type to check
    * @return true if the {@link #valueOf(Object)} can be called with an instance of the specified class.
    */
-  public boolean acceptsJavaClass(Class<?> clazz);
+  boolean acceptsJavaClass(Class<?> clazz);
 
   /**
    * Returns true if this type represents a date, time or both.
    * @return if this type represents a date, time or both.
    */
-  public boolean isDateTime();
+  boolean isDateTime();
 
   /**
    * Returns true if this type represents a number.
    * @return true if this type represents a number
    */
-  public boolean isNumeric();
+  boolean isNumeric();
 
   /**
    * Returns a {@code Value} instance that represents the null value for this type. Calling {@link Value#isNull()} on
    * the returned instance will return true.
    * @return a {@code Value} instance for null.
    */
-  public Value nullValue();
+  Value nullValue();
 
   /**
    * Returns a {@code ValueSequence} instance that represents the null value for this type. Calling
    * {@link Value#isNull()} on the returned instance will return true.
    * @return a {@code ValueSequence} instance for null
    */
-  public ValueSequence nullSequence();
+  ValueSequence nullSequence();
 
   /**
    * Given a {@code Value} instance, this method will make a best efforts process to convert the underlying value from
    * its original {@code ValueType} to this {@code ValueType}.
-   * <p>
+   * <p/>
    * Simple cases (no conversion required or null values) are handled directly. Any other case is delegated to an
    * instance of {@code ValueConverter}.
-   * 
    * @param value the value to convert
    * @return a {@code Value} instance of this {@code ValueType}
    */
-  public Value convert(Value value);
+  Value convert(Value value);
 
   /**
    * Returns a string representation of the {@code value}. The string returned can be passed to the
    * {@link #valueOf(String)} method which should return an equivalent {@code Value} instance.
-   * 
    * @param value the value to convert to a string
    * @return a {@code String} representation of the {@code value}.
    */
-  public String toString(Value value);
+  String toString(@Nullable Value value);
 
   /**
    * Converts a string representation of a {@code value} to a {@code Value} instance. The string representation should
    * match the expected format which is specified by the {@link #toString(Value)} method.
-   * 
    * @param string a string representation of the value. May be null, in which case, the returned value is that of
    * calling {@link #nullValue()}
    * @return a {@code Value} instance after converting its string representation.
    */
-  public Value valueOf(String string);
+  Value valueOf(String string);
 
   /**
    * Builds a {@code Value} instance after converting the specified object to the normalized type returned by
@@ -160,25 +159,22 @@ public interface ValueType extends Serializable, Comparator<Value> {
    * For example, this method would convert instances of {@code java.util.Date}, {@code java.sql.Date},
    * {@code java.sql.Timestamp}, {@code java.util.Calendar} to an instance of {@code java.util.Date} and return a
    * {@code Value} instance containing the normalized instance.
-   * 
    * @param object the instance to normalize. May be null, in which case, the returned value is that of calling
    * {@link #nullValue()}
    * @return a {@code Value} instance for the specified object.
    */
-  public Value valueOf(Object object);
+  Value valueOf(Object object);
 
-  public Value valueOf(ValueLoader loader);
+  Value valueOf(ValueLoader loader);
 
   /**
    * Returns a {@code ValueSequence} instance containing the specified {@code values}.
-   * 
    * @param values the sequence of {@code Value} instances to hold in the {@code ValueSequence}. May be null, in which
    * case, the return value is that of calling {@link #nullSequence()}
-   * 
    * @return a {@code ValueSequence} instance containing {@code values}
    */
-  public ValueSequence sequenceOf(Iterable<Value> values);
+  ValueSequence sequenceOf(Iterable<Value> values);
 
-  public ValueSequence sequenceOf(String values);
+  ValueSequence sequenceOf(String values);
 
 }

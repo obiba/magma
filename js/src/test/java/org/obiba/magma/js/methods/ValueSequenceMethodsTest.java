@@ -1,12 +1,9 @@
 package org.obiba.magma.js.methods;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
-
 import java.util.ArrayList;
 import java.util.Collections;
 
-import junit.framework.Assert;
+import javax.annotation.Nullable;
 
 import org.junit.Test;
 import org.mozilla.javascript.Context;
@@ -24,6 +21,12 @@ import org.obiba.magma.type.TextType;
 
 import com.google.common.collect.Iterables;
 
+import junit.framework.Assert;
+
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
+
+@SuppressWarnings({"AssignmentToMethodParameter"})
 public class ValueSequenceMethodsTest extends AbstractJsTest {
 
   // first()
@@ -152,7 +155,8 @@ public class ValueSequenceMethodsTest extends AbstractJsTest {
   public void testValueFirstItemExists() throws Exception {
     ValueSequence valueSequence = TextType.get().sequenceOf("\"A\", \"B\"");
     ScriptableValue scriptableValue = newValue(valueSequence);
-    ScriptableValue result = ValueSequenceMethods.valueAt(Context.getCurrentContext(), scriptableValue, new Object[] { 0 }, null);
+    ScriptableValue result = ValueSequenceMethods
+        .valueAt(Context.getCurrentContext(), scriptableValue, new Object[] {0}, null);
     assertThat(result.getValue(), is(valueSequence.get(0)));
   }
 
@@ -160,7 +164,8 @@ public class ValueSequenceMethodsTest extends AbstractJsTest {
   public void testValueSecondItemExists() throws Exception {
     ValueSequence valueSequence = TextType.get().sequenceOf("\"A\", \"B\"");
     ScriptableValue scriptableValue = newValue(valueSequence);
-    ScriptableValue result = ValueSequenceMethods.valueAt(Context.getCurrentContext(), scriptableValue, new Object[] { 1 }, null);
+    ScriptableValue result = ValueSequenceMethods
+        .valueAt(Context.getCurrentContext(), scriptableValue, new Object[] {1}, null);
     assertThat(result.getValue(), is(valueSequence.get(1)));
   }
 
@@ -168,7 +173,8 @@ public class ValueSequenceMethodsTest extends AbstractJsTest {
   public void testValueIndexOutOfBounds() throws Exception {
     ValueSequence valueSequence = TextType.get().sequenceOf("\"A\", \"B\"");
     ScriptableValue scriptableValue = newValue(valueSequence);
-    ScriptableValue result = ValueSequenceMethods.valueAt(Context.getCurrentContext(), scriptableValue, new Object[] { 2 }, null);
+    ScriptableValue result = ValueSequenceMethods
+        .valueAt(Context.getCurrentContext(), scriptableValue, new Object[] {2}, null);
     assertThat(result.getValue(), is(TextType.get().nullValue()));
   }
 
@@ -176,7 +182,8 @@ public class ValueSequenceMethodsTest extends AbstractJsTest {
   public void testValueIndexNonIntegerType() throws Exception {
     ValueSequence valueSequence = TextType.get().sequenceOf("\"A\", \"B\"");
     ScriptableValue scriptableValue = newValue(valueSequence);
-    ScriptableValue result = ValueSequenceMethods.valueAt(Context.getCurrentContext(), scriptableValue, new Object[] { "One" }, null);
+    ScriptableValue result = ValueSequenceMethods
+        .valueAt(Context.getCurrentContext(), scriptableValue, new Object[] {"One"}, null);
     assertThat(result.getValue(), is(TextType.get().nullValue()));
   }
 
@@ -186,7 +193,8 @@ public class ValueSequenceMethodsTest extends AbstractJsTest {
   public void testSortTextNaturalOrder() throws Exception {
     ValueSequence valueSequence = TextType.get().sequenceOf("\"D\", \"C\", \"A\", \"B\"");
     ScriptableValue scriptableValue = newValue(valueSequence);
-    valueSequence = ValueSequenceMethods.sort(Context.getCurrentContext(), scriptableValue, null, null).getValue().asSequence();
+    valueSequence = ValueSequenceMethods.sort(Context.getCurrentContext(), scriptableValue, null, null).getValue()
+        .asSequence();
     assertThat(valueSequence.getValues().get(0), is(TextType.get().valueOf("A")));
     assertThat(valueSequence.getValues().get(1), is(TextType.get().valueOf("B")));
     assertThat(valueSequence.getValues().get(2), is(TextType.get().valueOf("C")));
@@ -197,7 +205,8 @@ public class ValueSequenceMethodsTest extends AbstractJsTest {
   public void testSortIntegerNaturalOrder() throws Exception {
     ValueSequence valueSequence = IntegerType.get().sequenceOf("4,3,1,2");
     ScriptableValue scriptableValue = newValue(valueSequence);
-    valueSequence = ValueSequenceMethods.sort(Context.getCurrentContext(), scriptableValue, null, null).getValue().asSequence();
+    valueSequence = ValueSequenceMethods.sort(Context.getCurrentContext(), scriptableValue, null, null).getValue()
+        .asSequence();
     assertThat(valueSequence.getValues().get(0), is(IntegerType.get().valueOf(1)));
     assertThat(valueSequence.getValues().get(1), is(IntegerType.get().valueOf(2)));
     assertThat(valueSequence.getValues().get(2), is(IntegerType.get().valueOf(3)));
@@ -205,12 +214,15 @@ public class ValueSequenceMethodsTest extends AbstractJsTest {
   }
 
   @Test
-  public void testSortIntegerDecendingUsingSortFunction() throws Exception {
+  public void testSortIntegerDescendingUsingSortFunction() throws Exception {
     ValueSequence valueSequence = IntegerType.get().sequenceOf("4,3,1,2");
 
     MyScriptableValueCustomSortDesc scriptableValue = newValueDesc(valueSequence);
-    FunctionObject funObj = new FunctionObject("sort", scriptableValue.getClass().getMethod("sort", new Class[] { ScriptableValue.class, ScriptableValue.class }), scriptableValue);
-    valueSequence = ValueSequenceMethods.sort(Context.getCurrentContext(), scriptableValue, new Object[] { funObj }, null).getValue().asSequence();
+    FunctionObject funObj = new FunctionObject("sort",
+        scriptableValue.getClass().getMethod("sort", new Class[] {ScriptableValue.class, ScriptableValue.class}),
+        scriptableValue);
+    valueSequence = ValueSequenceMethods.sort(Context.getCurrentContext(), scriptableValue, new Object[] {funObj}, null)
+        .getValue().asSequence();
     assertThat(valueSequence.getValues().get(0), is(IntegerType.get().valueOf(4)));
     assertThat(valueSequence.getValues().get(1), is(IntegerType.get().valueOf(3)));
     assertThat(valueSequence.getValues().get(2), is(IntegerType.get().valueOf(2)));
@@ -222,8 +234,11 @@ public class ValueSequenceMethodsTest extends AbstractJsTest {
     ValueSequence valueSequence = IntegerType.get().sequenceOf("4,3,1,2");
 
     MyScriptableValueCustomSortAsc scriptableValue = newValueAsc(valueSequence);
-    FunctionObject funObj = new FunctionObject("sort", scriptableValue.getClass().getMethod("sort", new Class[] { ScriptableValue.class, ScriptableValue.class }), scriptableValue);
-    valueSequence = ValueSequenceMethods.sort(Context.getCurrentContext(), scriptableValue, new Object[] { funObj }, null).getValue().asSequence();
+    FunctionObject funObj = new FunctionObject("sort",
+        scriptableValue.getClass().getMethod("sort", new Class[] {ScriptableValue.class, ScriptableValue.class}),
+        scriptableValue);
+    valueSequence = ValueSequenceMethods.sort(Context.getCurrentContext(), scriptableValue, new Object[] {funObj}, null)
+        .getValue().asSequence();
     assertThat(valueSequence.getValues().get(0), is(IntegerType.get().valueOf(1)));
     assertThat(valueSequence.getValues().get(1), is(IntegerType.get().valueOf(2)));
     assertThat(valueSequence.getValues().get(2), is(IntegerType.get().valueOf(3)));
@@ -276,14 +291,15 @@ public class ValueSequenceMethodsTest extends AbstractJsTest {
 
   @Test
   public void test_avg_emptySequence() {
-    assertAvgIs(DecimalType.get().sequenceOf(Collections.<Value> emptyList()), null);
+    assertAvgIs(DecimalType.get().sequenceOf(Collections.<Value>emptyList()), null);
   }
 
-  private void assertAvgIs(Value valueToSum, Number expectedSum) {
+  @SuppressWarnings("AssignmentToMethodParameter")
+  private void assertAvgIs(Value valueToSum, @Nullable Number expectedSum) {
     if(expectedSum instanceof Integer) {
-      expectedSum = new Long(expectedSum.longValue());
+      expectedSum = expectedSum.longValue();
     }
-    ScriptableValue result = super.evaluate("avg()", valueToSum);
+    ScriptableValue result = evaluate("avg()", valueToSum);
     Assert.assertNotNull(result);
     Assert.assertEquals(expectedSum, result.getValue().getValue());
   }
@@ -323,14 +339,15 @@ public class ValueSequenceMethodsTest extends AbstractJsTest {
 
   @Test
   public void test_stddev_emptySequence() {
-    assertStdDevIs(DecimalType.get().sequenceOf(Collections.<Value> emptyList()), null);
+    assertStdDevIs(DecimalType.get().sequenceOf(Collections.<Value>emptyList()), null);
   }
 
-  private void assertStdDevIs(Value testValue, Number expected) {
+  @SuppressWarnings("AssignmentToMethodParameter")
+  private void assertStdDevIs(Value testValue, @Nullable Number expected) {
     if(expected instanceof Integer) {
-      expected = new Long(expected.longValue());
+      expected = expected.longValue();
     }
-    ScriptableValue result = super.evaluate("stddev()", testValue);
+    ScriptableValue result = evaluate("stddev()", testValue);
     Assert.assertNotNull(result);
     Assert.assertEquals(expected, result.getValue().getValue());
   }
@@ -371,14 +388,14 @@ public class ValueSequenceMethodsTest extends AbstractJsTest {
 
   @Test
   public void test_sum_emptySequence() {
-    assertSumIs(DecimalType.get().sequenceOf(Collections.<Value> emptyList()), 0.0);
+    assertSumIs(DecimalType.get().sequenceOf(Collections.<Value>emptyList()), 0.0);
   }
 
-  private void assertSumIs(Value valueToSum, Number expectedSum) {
+  private void assertSumIs(Value valueToSum, @Nullable Number expectedSum) {
     if(expectedSum instanceof Integer) {
-      expectedSum = new Long(expectedSum.longValue());
+      expectedSum = expectedSum.longValue();
     }
-    ScriptableValue result = super.evaluate("sum()", valueToSum);
+    ScriptableValue result = evaluate("sum()", valueToSum);
     Assert.assertNotNull(result);
     Assert.assertEquals(expectedSum, result.getValue().getValue());
   }
@@ -392,7 +409,8 @@ public class ValueSequenceMethodsTest extends AbstractJsTest {
 
   @Test
   public void test_push_multipleValues() {
-    assertPushIs(Values.asSequence(IntegerType.get(), 1, 2, 3), "4,5", Values.asSequence(IntegerType.get(), 1, 2, 3, 4, 5));
+    assertPushIs(Values.asSequence(IntegerType.get(), 1, 2, 3), "4,5",
+        Values.asSequence(IntegerType.get(), 1, 2, 3, 4, 5));
   }
 
   @Test
@@ -407,21 +425,24 @@ public class ValueSequenceMethodsTest extends AbstractJsTest {
 
   @Test
   public void test_push_acceptsNullArgument() {
-    assertPushIs(Values.asSequence(IntegerType.get(), 1, 2, 3), "null", Values.asSequence(IntegerType.get(), 1, 2, 3, null));
+    assertPushIs(Values.asSequence(IntegerType.get(), 1, 2, 3), "null",
+        Values.asSequence(IntegerType.get(), 1, 2, 3, null));
   }
 
   @Test
   public void test_push_acceptsNonSequenceOperand() {
-    assertPushIs(TextType.get().valueOf("this is not a sequence"), "'neither is this'", Values.asSequence(TextType.get(), "this is not a sequence", "neither is this"));
+    assertPushIs(TextType.get().valueOf("this is not a sequence"), "'neither is this'",
+        Values.asSequence(TextType.get(), "this is not a sequence", "neither is this"));
   }
 
   private void assertPushIs(Value valueToPushInto, String push, Value expected) {
-    ScriptableValue result = super.evaluate("push(" + push + ")", valueToPushInto);
+    ScriptableValue result = evaluate("push(" + push + ")", valueToPushInto);
     Assert.assertNotNull(result);
     if(expected.isNull()) {
       Assert.assertTrue(result.getValue().isNull());
     } else {
-      Assert.assertTrue(Iterables.elementsEqual(result.getValue().asSequence().getValue(), expected.asSequence().getValue()));
+      Assert.assertTrue(
+          Iterables.elementsEqual(result.getValue().asSequence().getValue(), expected.asSequence().getValue()));
     }
   }
 
@@ -458,11 +479,11 @@ public class ValueSequenceMethodsTest extends AbstractJsTest {
 
   @Test
   public void test_join_delimiter_prefix_suffix_empty() {
-    assertJoinIs(Values.asSequence(IntegerType.get(), new Object[] {}), "', ','[', ']'", TextType.get().valueOf(""));
+    assertJoinIs(Values.asSequence(IntegerType.get()), "', ','[', ']'", TextType.get().valueOf(""));
   }
 
   private void assertJoinIs(Value valueToJoin, String args, Value expected) {
-    ScriptableValue result = super.evaluate("join(" + args + ")", valueToJoin);
+    ScriptableValue result = evaluate("join(" + args + ")", valueToJoin);
     Assert.assertNotNull(result);
     if(expected.isNull()) {
       Assert.assertTrue(result.getValue().isNull());
@@ -474,71 +495,80 @@ public class ValueSequenceMethodsTest extends AbstractJsTest {
   // zip
   @Test
   public void test_zip_concat() {
-    assertZipIs(Values.asSequence(IntegerType.get(), 1, 2, 3), "'foo', function(o1,o2) { return o1.concat(o2); }", Values.asSequence(TextType.get(), "1foo", "2foo", "3foo"));
+    assertZipIs(Values.asSequence(IntegerType.get(), 1, 2, 3), "'foo', function(o1,o2) { return o1.concat(o2); }",
+        Values.asSequence(TextType.get(), "1foo", "2foo", "3foo"));
   }
 
   @Test
   public void test_zip_concat_value() {
-    assertZipIs(Values.asSequence(IntegerType.get(), 1, 2, 3), "newValue('foo'), function(o1,o2) { return o1.concat(o2); }", Values.asSequence(TextType.get(), "1foo", "2foo", "3foo"));
+    assertZipIs(Values.asSequence(IntegerType.get(), 1, 2, 3),
+        "newValue('foo'), function(o1,o2) { return o1.concat(o2); }",
+        Values.asSequence(TextType.get(), "1foo", "2foo", "3foo"));
   }
 
   @Test
   public void test_zip_concat_value_sequence() {
-    assertZipIs(Values.asSequence(IntegerType.get(), 1, 2, 3), "newValue('foo').push('bar'), function(o1,o2) { return o1.concat(o2); }", Values.asSequence(TextType.get(), "1foo", "2bar", "3null"));
+    assertZipIs(Values.asSequence(IntegerType.get(), 1, 2, 3),
+        "newValue('foo').push('bar'), function(o1,o2) { return o1.concat(o2); }",
+        Values.asSequence(TextType.get(), "1foo", "2bar", "3null"));
   }
 
   @Test
   public void test_zip_concat_value_sequence_longer() {
-    assertZipIs(Values.asSequence(IntegerType.get(), 1, 2, 3), "newValue('foo').push('bar').push('patate').push('pwel'), function(o1,o2) { return o1.concat(o2); }", Values.asSequence(TextType.get(), "1foo", "2bar", "3patate", "nullpwel"));
+    assertZipIs(Values.asSequence(IntegerType.get(), 1, 2, 3),
+        "newValue('foo').push('bar').push('patate').push('pwel'), function(o1,o2) { return o1.concat(o2); }",
+        Values.asSequence(TextType.get(), "1foo", "2bar", "3patate", "nullpwel"));
   }
 
   @Test
   public void test_zip_concat_empty() {
-    assertZipIs(Values.asSequence(IntegerType.get(), new Object[] {}), "'foo', function(o1,o2) { return o1.concat(o2); }", Values.asSequence(TextType.get(), "nullfoo"));
+    assertZipIs(Values.asSequence(IntegerType.get()), "'foo', function(o1,o2) { return o1.concat(o2); }",
+        Values.asSequence(TextType.get(), "nullfoo"));
   }
 
   @Test
   public void test_zip_concat_null() {
-    assertZipIs(IntegerType.get().nullSequence(), "'foo', function(o1,o2) { return o1.concat(o2); }", Values.asSequence(TextType.get(), "nullfoo"));
+    assertZipIs(IntegerType.get().nullSequence(), "'foo', function(o1,o2) { return o1.concat(o2); }",
+        Values.asSequence(TextType.get(), "nullfoo"));
   }
 
   @Test
   public void test_zip_plus() {
-    assertZipIs(Values.asSequence(IntegerType.get(), 1, 2, 3), "1, function(o1,o2) { return o1.plus(o2); }", Values.asSequence(IntegerType.get(), 2, 3, 4));
+    assertZipIs(Values.asSequence(IntegerType.get(), 1, 2, 3), "1, function(o1,o2) { return o1.plus(o2); }",
+        Values.asSequence(IntegerType.get(), 2, 3, 4));
   }
 
   private void assertZipIs(Value valueToZip, String args, Value expected) {
-    ScriptableValue result = super.evaluate("zip(" + args + ")", valueToZip);
+    ScriptableValue result = evaluate("zip(" + args + ")", valueToZip);
     Assert.assertNotNull(result);
     if(expected.isNull()) {
       Assert.assertTrue(result.getValue().isNull());
     } else {
       Assert.assertTrue(result.getValue().isSequence());
-      Assert.assertTrue(Iterables.elementsEqual(result.getValue().asSequence().getValue(), expected.asSequence().getValue()));
+      Assert.assertTrue(
+          Iterables.elementsEqual(result.getValue().asSequence().getValue(), expected.asSequence().getValue()));
     }
   }
 
   @SuppressWarnings("serial")
-  private class MyScriptableValueCustomSortAsc extends ScriptableValue {
+  private static class MyScriptableValueCustomSortAsc extends ScriptableValue {
 
-    public MyScriptableValueCustomSortAsc(Scriptable scope, Value value) {
+    private MyScriptableValueCustomSortAsc(Scriptable scope, Value value) {
       super(scope, value);
     }
 
-    @SuppressWarnings("unused")
     public int sort(ScriptableValue value1, ScriptableValue value2) {
       return (int) ((Long) value1.getValue().getValue() - (Long) value2.getValue().getValue());
     }
   }
 
   @SuppressWarnings("serial")
-  private class MyScriptableValueCustomSortDesc extends ScriptableValue {
+  private static class MyScriptableValueCustomSortDesc extends ScriptableValue {
 
-    public MyScriptableValueCustomSortDesc(Scriptable scope, Value value) {
+    private MyScriptableValueCustomSortDesc(Scriptable scope, Value value) {
       super(scope, value);
     }
 
-    @SuppressWarnings("unused")
     public int sort(ScriptableValue value1, ScriptableValue value2) {
       return (int) ((Long) value2.getValue().getValue() - (Long) value1.getValue().getValue());
     }

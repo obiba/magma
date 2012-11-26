@@ -41,8 +41,8 @@ public abstract class AttributeAwareBuilder<T extends AttributeAwareBuilder<?>> 
 
   protected abstract T getBuilder();
 
-  public static ListMultimap<String, Attribute>
-      overrideAttributes(List<Attribute> existingAttributes, List<Attribute> overrideAttributes) {
+  public static ListMultimap<String, Attribute> overrideAttributes(Iterable<Attribute> existingAttributes,
+      List<Attribute> overrideAttributes) {
     ListMultimap<String, Attribute> existingAttributesMultimap = LinkedListMultimap.create();
     for(Attribute attribute : existingAttributes) {
       existingAttributesMultimap.put(attribute.getName(), attribute);
@@ -50,8 +50,8 @@ public abstract class AttributeAwareBuilder<T extends AttributeAwareBuilder<?>> 
     return overrideAttributes(existingAttributesMultimap, overrideAttributes);
   }
 
-  public static ListMultimap<String, Attribute>
-      overrideAttributes(ListMultimap<String, Attribute> existingAttributes, List<Attribute> overrideAttributes) {
+  public static ListMultimap<String, Attribute> overrideAttributes(ListMultimap<String, Attribute> existingAttributes,
+      Iterable<Attribute> overrideAttributes) {
     for(Attribute attribute : overrideAttributes) {
       overrideAttribute(existingAttributes, attribute);
     }
@@ -76,7 +76,9 @@ public abstract class AttributeAwareBuilder<T extends AttributeAwareBuilder<?>> 
       Attribute attributeToRemove = Iterables.find(attrs.get(attribute.getName()), new Predicate<Attribute>() {
         @Override
         public boolean apply(Attribute input) {
-          return attribute.getName().equals(input.getName()) && attribute.getLocale().equals(input.getLocale());
+          return input != null //
+              && attribute.getName().equals(input.getName()) //
+              && attribute.getLocale().equals(input.getLocale());
         }
       });
       attrs.remove(attributeToRemove.getName(), attributeToRemove);

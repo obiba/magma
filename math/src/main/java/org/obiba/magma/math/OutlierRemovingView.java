@@ -2,6 +2,8 @@ package org.obiba.magma.math;
 
 import java.util.Map;
 
+import javax.annotation.Nullable;
+
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueSet;
 import org.obiba.magma.VariableValueSource;
@@ -26,7 +28,7 @@ public class OutlierRemovingView extends View {
    * OutlierRemovingVariableValueSource} for each {@code VariableValueSource} in the wrapped table. Note that this cache
    * is lazily constructed.
    */
-  private Map<String, OutlierRemovingVariableValueSource> sources = Maps.newHashMap();
+  private final Map<String, OutlierRemovingVariableValueSource> sources = Maps.newHashMap();
 
   public OutlierRemovingView() {
     this(new ExcludeMissingDescriptiveStatisticsProvider());
@@ -49,8 +51,10 @@ public class OutlierRemovingView extends View {
    * @param source
    * @return
    */
-  protected boolean canRemoveOutliers(VariableValueSource source) {
-    return source.asVectorSource() != null && source.getVariable().isRepeatable() == false && source.getValueType().isNumeric();
+  protected boolean canRemoveOutliers(@Nullable VariableValueSource source) {
+    return source != null && source.asVectorSource() != null //
+        && source.getVariable().isRepeatable() == false //
+        && source.getValueType().isNumeric();
   }
 
   /**
@@ -59,11 +63,11 @@ public class OutlierRemovingView extends View {
    * @param from
    * @return
    */
-  protected synchronized OutlierRemovingVariableValueSource cacheLookup(VariableValueSource from) {
-    String variableName = from.getVariable().getName();
-    OutlierRemovingVariableValueSource source = sources.get(variableName);
+  protected synchronized OutlierRemovingVariableValueSource cacheLookup(@Nullable VariableValueSource from) {
+    String variableName = from == null ? null : from.getVariable().getName();
+    OutlierRemovingVariableValueSource source = variableName == null ? null : sources.get(variableName);
     if(source == null) {
-      source = new OutlierRemovingVariableValueSource(OutlierRemovingView.this.getWrappedValueTable(), from, statisticsProvider) {
+      source = new OutlierRemovingVariableValueSource(getWrappedValueTable(), from, statisticsProvider) {
         @Override
         public Value getValue(ValueSet valueSet) {
           return super.getValue(getValueSetMappingFunction().unapply(valueSet));

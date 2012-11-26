@@ -1,5 +1,7 @@
 package org.obiba.magma.js.methods;
 
+import javax.annotation.Nullable;
+
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.Scriptable;
@@ -10,15 +12,21 @@ import org.obiba.magma.type.DecimalType;
 import org.obiba.magma.type.IntegerType;
 import org.obiba.magma.type.TextType;
 
+@SuppressWarnings(
+    {"IfStatementWithTooManyBranches", "UnusedParameters", "IfMayBeConditional", "StaticMethodOnlyUsedInOneClass"})
 public class CompareMethods {
+
+  private CompareMethods() {
+  }
 
   /**
    * Returns a new {@link ScriptableValue} of the {@link IntegerType} indicating if the first parameter is greater than,
    * equal to, or less than the second parameter. Both parameters must either both be numeric, both be BooleanType or
    * both be TextType. Zero (0) is returned if the values are equal. A number greater than zero (1) is returned if the
-   * first paramter is greater than the second. A number less than zero (-1) is returned is the first parameter is less
+   * first parameter is greater than the second. A number less than zero (-1) is returned is the first parameter is
+   * less
    * than the second.
-   * 
+   * <p/>
    * <pre>
    *   $('NumberVarOne').compare($('NumberVarTwo'))
    *   $('BooleanVarOne').compare($('BooleanVarTwo'))
@@ -27,46 +35,66 @@ public class CompareMethods {
    * @throws MagmaJsEvaluationRuntimeException if operands are not ScriptableValue Objects of a numeric type,
    * BooleanType or TextType. Also thrown if operands are null.
    */
-  public static ScriptableValue compare(Context ctx, Scriptable thisObj, Object[] args, Function funObj) throws MagmaJsEvaluationRuntimeException {
+  public static ScriptableValue compare(Context ctx, Scriptable thisObj, Object[] args,
+      @Nullable Function funObj) throws MagmaJsEvaluationRuntimeException {
     ScriptableValue firstOperand = (ScriptableValue) thisObj;
-    if(firstOperand.getValue().isNull()) throw new MagmaJsEvaluationRuntimeException("Cannot invoke compare() with null argument.");
-    if(args != null && args.length > 0 && args[0] instanceof ScriptableValue && !((ScriptableValue) args[0]).getValue().isNull()) {
+    if(firstOperand.getValue().isNull())
+      throw new MagmaJsEvaluationRuntimeException("Cannot invoke compare() with null argument.");
+    if(args != null && args.length > 0 && args[0] instanceof ScriptableValue && !((ScriptableValue) args[0]).getValue()
+        .isNull()) {
       ScriptableValue secondOperand = (ScriptableValue) args[0];
       if(firstOperand.getValueType().isNumeric() && secondOperand.getValueType().isNumeric()) {
         return numericCompare(thisObj, firstOperand, secondOperand);
-      } else if(firstOperand.getValueType().equals(BooleanType.get()) && secondOperand.getValueType().equals(BooleanType.get())) {
+      } else if(firstOperand.getValueType().equals(BooleanType.get()) && secondOperand.getValueType()
+          .equals(BooleanType.get())) {
         return booleanCompare(thisObj, firstOperand, secondOperand);
-      } else if(firstOperand.getValueType().equals(TextType.get()) && secondOperand.getValueType().equals(TextType.get())) {
+      } else if(firstOperand.getValueType().equals(TextType.get()) && secondOperand.getValueType()
+          .equals(TextType.get())) {
         return textCompare(thisObj, firstOperand, secondOperand);
       } else {
-        throw new MagmaJsEvaluationRuntimeException("Cannot invoke compare() with arguments of type '" + firstOperand.getValueType().getName() + "' and '" + secondOperand.getValueType().getName() + "'.");
+        throw new MagmaJsEvaluationRuntimeException(
+            "Cannot invoke compare() with arguments of type '" + firstOperand.getValueType()
+                .getName() + "' and '" + secondOperand.getValueType().getName() + "'.");
       }
     } else {
-      throw new MagmaJsEvaluationRuntimeException("Cannot invoke compare() with null argument or argument that is not a ScriptableValue.");
+      throw new MagmaJsEvaluationRuntimeException(
+          "Cannot invoke compare() with null argument or argument that is not a ScriptableValue.");
     }
   }
 
-  private static ScriptableValue numericCompare(Scriptable thisObj, ScriptableValue firstOperand, ScriptableValue secondOperand) {
+  private static ScriptableValue numericCompare(Scriptable thisObj, ScriptableValue firstOperand,
+      ScriptableValue secondOperand) {
     Number firstNumber = (Number) firstOperand.getValue().getValue();
     Number secondNumber = (Number) secondOperand.getValue().getValue();
-    if(firstOperand.getValueType().equals(IntegerType.get()) && secondOperand.getValueType().equals(IntegerType.get())) {
-      return new ScriptableValue(thisObj, IntegerType.get().valueOf(((Long) firstNumber).compareTo(((Long) secondNumber))));
-    } else if(firstOperand.getValueType().equals(IntegerType.get()) && secondOperand.getValueType().equals(DecimalType.get())) {
-      return new ScriptableValue(thisObj, IntegerType.get().valueOf(Double.compare(((Long) firstNumber).doubleValue(), (Double) secondNumber)));
-    } else if(firstOperand.getValueType().equals(DecimalType.get()) && secondOperand.getValueType().equals(IntegerType.get())) {
-      return new ScriptableValue(thisObj, IntegerType.get().valueOf(Double.compare((Double) firstNumber, ((Long) secondNumber).doubleValue())));
+    if(firstOperand.getValueType().equals(IntegerType.get()) && secondOperand.getValueType()
+        .equals(IntegerType.get())) {
+      return new ScriptableValue(thisObj,
+          IntegerType.get().valueOf(((Long) firstNumber).compareTo((Long) secondNumber)));
+    } else if(firstOperand.getValueType().equals(IntegerType.get()) && secondOperand.getValueType()
+        .equals(DecimalType.get())) {
+      return new ScriptableValue(thisObj,
+          IntegerType.get().valueOf(Double.compare(firstNumber.doubleValue(), (Double) secondNumber)));
+    } else if(firstOperand.getValueType().equals(DecimalType.get()) && secondOperand.getValueType()
+        .equals(IntegerType.get())) {
+      return new ScriptableValue(thisObj,
+          IntegerType.get().valueOf(Double.compare((Double) firstNumber, secondNumber.doubleValue())));
     } else {
-      return new ScriptableValue(thisObj, IntegerType.get().valueOf(((Double) firstNumber).compareTo(((Double) secondNumber))));
+      return new ScriptableValue(thisObj,
+          IntegerType.get().valueOf(((Double) firstNumber).compareTo((Double) secondNumber)));
     }
   }
 
-  private static ScriptableValue booleanCompare(Scriptable thisObj, ScriptableValue firstOperand, ScriptableValue secondOperand) {
+  @SuppressWarnings("TypeMayBeWeakened")
+  private static ScriptableValue booleanCompare(Scriptable thisObj, ScriptableValue firstOperand,
+      ScriptableValue secondOperand) {
     Boolean firstBoolean = (Boolean) firstOperand.getValue().getValue();
     Boolean secondBoolean = (Boolean) secondOperand.getValue().getValue();
     return new ScriptableValue(thisObj, IntegerType.get().valueOf(firstBoolean.compareTo(secondBoolean)));
   }
 
-  private static ScriptableValue textCompare(Scriptable thisObj, ScriptableValue firstOperand, ScriptableValue secondOperand) {
+  @SuppressWarnings("TypeMayBeWeakened")
+  private static ScriptableValue textCompare(Scriptable thisObj, ScriptableValue firstOperand,
+      ScriptableValue secondOperand) {
     String firstString = (String) firstOperand.getValue().getValue();
     String secondString = (String) secondOperand.getValue().getValue();
     return new ScriptableValue(thisObj, IntegerType.get().valueOf(firstString.compareTo(secondString)));
@@ -75,29 +103,36 @@ public class CompareMethods {
   /**
    * Returns a new {@link ScriptableValue} of the {@link IntegerType} indicating if the first parameter is greater than,
    * equal to, or less than the second parameter. Both parameters must be TextType. Case is ignored. Zero (0) is
-   * returned if the values are equal. A number greater than zero (1) is returned if the first paramter is greater than
+   * returned if the values are equal. A number greater than zero (1) is returned if the first parameter is greater
+   * than
    * the second. A number less than zero (-1) is returned is the first parameter is less than the second.
-   * 
+   * <p/>
    * <pre>
    *   $('TextVarOne').compareNoCase($('TextVarTwo'))
    * </pre>
    * @throws MagmaJsEvaluationRuntimeException if operands are not ScriptableValue Objects of TextType. Also thrown if
    * operands are null.
    */
-  public static ScriptableValue compareNoCase(Context ctx, Scriptable thisObj, Object[] args, Function funObj) throws MagmaJsEvaluationRuntimeException {
+  public static ScriptableValue compareNoCase(Context ctx, Scriptable thisObj, Object[] args,
+      @Nullable Function funObj) throws MagmaJsEvaluationRuntimeException {
     ScriptableValue firstOperand = (ScriptableValue) thisObj;
-    if(firstOperand.getValue().isNull()) throw new MagmaJsEvaluationRuntimeException("Cannot invoke compareNoCase() with null argument.");
-    if(args != null && args.length > 0 && args[0] instanceof ScriptableValue && !((ScriptableValue) args[0]).getValue().isNull()) {
+    if(firstOperand.getValue().isNull())
+      throw new MagmaJsEvaluationRuntimeException("Cannot invoke compareNoCase() with null argument.");
+    if(args != null && args.length > 0 && args[0] instanceof ScriptableValue && !((ScriptableValue) args[0]).getValue()
+        .isNull()) {
       ScriptableValue secondOperand = (ScriptableValue) args[0];
       if(firstOperand.getValueType().equals(TextType.get()) && secondOperand.getValueType().equals(TextType.get())) {
         String firstString = (String) firstOperand.getValue().getValue();
         String secondString = (String) secondOperand.getValue().getValue();
         return new ScriptableValue(thisObj, IntegerType.get().valueOf(firstString.compareToIgnoreCase(secondString)));
       } else {
-        throw new MagmaJsEvaluationRuntimeException("Cannot invoke compareNoCase() with arguments of type '" + firstOperand.getValueType().getName() + "' and '" + secondOperand.getValueType().getName() + "'. Use type 'text' only.");
+        throw new MagmaJsEvaluationRuntimeException(
+            "Cannot invoke compareNoCase() with arguments of type '" + firstOperand.getValueType()
+                .getName() + "' and '" + secondOperand.getValueType().getName() + "'. Use type 'text' only.");
       }
     } else {
-      throw new MagmaJsEvaluationRuntimeException("Cannot invoke compareNoCase() with null argument or argument that is not a ScriptableValue.");
+      throw new MagmaJsEvaluationRuntimeException(
+          "Cannot invoke compareNoCase() with null argument or argument that is not a ScriptableValue.");
     }
   }
 }

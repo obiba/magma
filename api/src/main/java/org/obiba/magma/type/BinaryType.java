@@ -1,6 +1,7 @@
 package org.obiba.magma.type;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.lang.ref.WeakReference;
 import java.util.List;
 
@@ -79,7 +80,7 @@ public class BinaryType extends AbstractValueType {
     }
     Class<?> type = object.getClass();
     if(byte[].class.equals(type)) {
-      return Factory.newValue(this, object);
+      return Factory.newValue(this, (Serializable) object);
     }
     if(String.class.isAssignableFrom(type)) {
       return valueOf((String) object);

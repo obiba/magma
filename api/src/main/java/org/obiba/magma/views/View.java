@@ -1,8 +1,11 @@
 package org.obiba.magma.views;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.Set;
+
+import javax.annotation.Nullable;
 
 import org.obiba.magma.Datasource;
 import org.obiba.magma.Disposable;
@@ -45,14 +48,16 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
 
   private WhereClause where;
 
-  /** A list of derived variables. Mutually exclusive with "select". */
+  /**
+   * A list of derived variables. Mutually exclusive with "select".
+   */
   private ListClause variables;
 
   private Value created;
 
   private Value updated;
 
-  private transient ViewAwareDatasource viewDatasource;
+  private ViewAwareDatasource viewDatasource;
 
   //
   // Constructors
@@ -74,11 +79,7 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
       throw new IllegalArgumentException("null or empty table list");
     }
 
-    if(from.length > 1) {
-      this.from = new JoinTable(Arrays.asList(from));
-    } else {
-      this.from = from[0];
-    }
+    this.from = from.length > 1 ? new JoinTable(Arrays.asList(from)) : from[0];
 
     setSelectClause(selectClause);
     setWhereClause(whereClause);
@@ -96,6 +97,7 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
   // Initialisable Methods
   //
 
+  @Override
   public void initialise() {
     variables.setValueTable(from);
     Initialisables.initialise(from, select, where, variables);
@@ -139,6 +141,7 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
     return viewDatasource != null ? viewDatasource : getWrappedValueTable().getDatasource();
   }
 
+  @Override
   public ValueTable getWrappedValueTable() {
     return from;
   }
@@ -159,17 +162,19 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
 
       @Override
       public Value getCreated() {
-        return (created == null || created.isNull()) ? from.getTimestamps().getCreated() : created;
+        return created == null || created.isNull() ? from.getTimestamps().getCreated() : created;
       }
     };
   }
 
+  @SuppressWarnings("AssignmentToMethodParameter")
   public void setUpdated(Value updated) {
     if(updated == null) updated = DateTimeType.get().nullValue();
     if(updated.getValueType() != DateTimeType.get()) throw new IllegalArgumentException();
     this.updated = updated;
   }
 
+  @SuppressWarnings("AssignmentToMethodParameter")
   public void setCreated(Value created) {
     if(created == null) created = DateTimeType.get().nullValue();
     if(created.getValueType() != DateTimeType.get()) throw new IllegalArgumentException();
@@ -181,6 +186,7 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
     return true;
   }
 
+  @Override
   public boolean hasValueSet(VariableEntity entity) {
     if(entity == null) return false;
 
@@ -200,27 +206,31 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
     return hasValueSet;
   }
 
+  @Override
   public Iterable<ValueSet> getValueSets() {
     // Get a ValueSet Iterable, taking into account the WhereClause.
     Iterable<ValueSet> valueSets = super.getValueSets();
     Iterable<ValueSet> filteredValueSets = Iterables.filter(valueSets, new Predicate<ValueSet>() {
+      @Override
       public boolean apply(ValueSet input) {
         return where.where(input);
       }
     });
 
     // Transform the Iterable, replacing each ValueSet with one that points at the current View.
-    return Iterables.filter(Iterables.transform(filteredValueSets, getValueSetMappingFunction()), new Predicate<ValueSet>() {
+    return Iterables
+        .filter(Iterables.transform(filteredValueSets, getValueSetMappingFunction()), new Predicate<ValueSet>() {
 
-      @Override
-      public boolean apply(ValueSet input) {
-        // Result of transformation might have returned a non-mappable entity
-        return input.getVariableEntity() != null;
-      }
+          @Override
+          public boolean apply(ValueSet input) {
+            // Result of transformation might have returned a non-mappable entity
+            return input.getVariableEntity() != null;
+          }
 
-    });
+        });
   }
 
+  @Override
   public ValueSet getValueSet(VariableEntity entity) throws NoSuchValueSetException {
     VariableEntity unmapped = getVariableEntityMappingFunction().unapply(entity);
     if(unmapped == null) throw new NoSuchValueSetException(this, entity);
@@ -233,46 +243,46 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
     return getValueSetMappingFunction().apply(valueSet);
   }
 
+  @Override
   public Iterable<Variable> getVariables() {
     if(isViewOfDerivedVariables()) return getListVariables();
     return getSelectVariables();
   }
 
   private Iterable<Variable> getSelectVariables() {
-    Iterable<Variable> variables = super.getVariables();
-    Iterable<Variable> filteredVariables = Iterables.filter(variables, new Predicate<Variable>() {
+    return Iterables.filter(super.getVariables(), new Predicate<Variable>() {
+      @Override
       public boolean apply(Variable input) {
         return select.select(input);
       }
     });
-    return filteredVariables;
   }
 
   private Iterable<Variable> getListVariables() {
-    Set<Variable> variables = new LinkedHashSet<Variable>();
-    for(VariableValueSource variableValueSource : this.variables.getVariableValueSources()) {
-      variables.add(variableValueSource.getVariable());
+    Collection<Variable> listVariables = new LinkedHashSet<Variable>();
+    for(VariableValueSource variableValueSource : variables.getVariableValueSources()) {
+      listVariables.add(variableValueSource.getVariable());
     }
-    return variables;
+    return listVariables;
   }
 
   @Override
-  public Variable getVariable(String name) throws NoSuchVariableException {
-    if(isViewOfDerivedVariables()) return getListVariable(name);
-    return getSelectVariable(name);
+  public Variable getVariable(String variableName) throws NoSuchVariableException {
+    if(isViewOfDerivedVariables()) return getListVariable(variableName);
+    return getSelectVariable(variableName);
   }
 
-  private Variable getSelectVariable(String name) throws NoSuchVariableException {
-    Variable variable = super.getVariable(name);
+  private Variable getSelectVariable(String variableName) throws NoSuchVariableException {
+    Variable variable = super.getVariable(variableName);
     if(select.select(variable)) {
       return variable;
     } else {
-      throw new NoSuchVariableException(name);
+      throw new NoSuchVariableException(variableName);
     }
   }
 
-  private Variable getListVariable(String name) throws NoSuchVariableException {
-    return variables.getVariableValueSource(name).getVariable();
+  private Variable getListVariable(String variableName) throws NoSuchVariableException {
+    return variables.getVariableValueSource(variableName).getVariable();
   }
 
   @Override
@@ -291,22 +301,22 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
     return getListClauseVariableValueSource(variable.getName()).getValue(valueSet);
   }
 
-  private VariableValueSource getListClauseVariableValueSource(String name) {
-    return getVariableValueSourceMappingFunction().apply(variables.getVariableValueSource(name));
+  private VariableValueSource getListClauseVariableValueSource(String variableName) {
+    return getVariableValueSourceMappingFunction().apply(variables.getVariableValueSource(variableName));
   }
 
   @Override
-  public VariableValueSource getVariableValueSource(String name) throws NoSuchVariableException {
+  public VariableValueSource getVariableValueSource(String variableName) throws NoSuchVariableException {
     if(isViewOfDerivedVariables()) {
-      return getListClauseVariableValueSource(name);
+      return getListClauseVariableValueSource(variableName);
     }
 
-    // Call getVariable(name) to check the SelectClause (if there is one). If the specified variable
+    // Call getVariable(variableName) to check the SelectClause (if there is one). If the specified variable
     // is not selected by the SelectClause, this will result in a NoSuchVariableException.
-    getVariable(name);
+    getVariable(variableName);
 
     // Variable "survived" the SelectClause. Go ahead and call the base class method.
-    return getVariableValueSourceMappingFunction().apply(super.getVariableValueSource(name));
+    return getVariableValueSourceMappingFunction().apply(super.getVariableValueSource(variableName));
   }
 
   @Override
@@ -318,21 +328,24 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
     // where clause)
     // Third, we construct an ImmutableSet from the result
 
-    return ImmutableSet.copyOf(Iterables.filter(Iterables.transform(super.getVariableEntities(), getVariableEntityMappingFunction()), new Predicate<VariableEntity>() {
+    return ImmutableSet.copyOf(Iterables
+        .filter(Iterables.transform(super.getVariableEntities(), getVariableEntityMappingFunction()),
+            new Predicate<VariableEntity>() {
 
-      @Override
-      public boolean apply(VariableEntity input) {
-        // Only VariableEntities for which hasValueSet() is true (this will usually test the where clause)
-        return hasValueSet(input);
-      }
+              @Override
+              public boolean apply(VariableEntity input) {
+                // Only VariableEntities for which hasValueSet() is true (this will usually test the where clause)
+                return hasValueSet(input);
+              }
 
-    }));
+            }));
   }
 
   public void setDatasource(ViewAwareDatasource datasource) {
-    this.viewDatasource = datasource;
+    viewDatasource = datasource;
   }
 
+  @Override
   public String getName() {
     return name;
   }
@@ -341,21 +354,21 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
     if(selectClause == null) {
       throw new IllegalArgumentException("null selectClause");
     }
-    this.select = selectClause;
+    select = selectClause;
   }
 
   public void setWhereClause(WhereClause whereClause) {
     if(whereClause == null) {
       throw new IllegalArgumentException("null whereClause");
     }
-    this.where = whereClause;
+    where = whereClause;
   }
 
   public void setListClause(ListClause listClause) {
     if(listClause == null) {
       throw new IllegalArgumentException("null listClause");
     }
-    this.variables = listClause;
+    variables = listClause;
   }
 
   @Override
@@ -379,8 +392,10 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
     };
   }
 
+  @Override
   public BijectiveFunction<VariableValueSource, VariableValueSource> getVariableValueSourceMappingFunction() {
     return new BijectiveFunction<VariableValueSource, VariableValueSource>() {
+      @Override
       public VariableValueSource apply(VariableValueSource from) {
         return new VariableValueSourceWrapper(from);
       }
@@ -396,7 +411,7 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
 
     private final VariableValueSource wrapped;
 
-    public VariableValueSourceWrapper(VariableValueSource wrapped) {
+    public VariableValueSourceWrapper(@Nullable VariableValueSource wrapped) {
       this.wrapped = wrapped;
     }
 
@@ -431,12 +446,13 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
 
   public static class Builder {
 
-    private View view;
+    private final View view;
 
     public Builder(String name, ValueTable... from) {
       view = new View(name, from);
     }
 
+    @SuppressWarnings("StaticMethodOnlyUsedInOneClass")
     public static Builder newView(String name, ValueTable... from) {
       return new Builder(name, from);
     }
@@ -451,6 +467,7 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
       return this;
     }
 
+    @SuppressWarnings("UnusedDeclaration")
     public Builder cacheWhere() {
       if(view.where == null) throw new IllegalStateException("where clause not specified");
       view.setWhereClause(new CachingWhereClause(view.where));
