@@ -31,7 +31,6 @@ public class LocalSessionFactoryProvider implements SessionFactoryProvider, Init
   }
 
   public LocalSessionFactoryProvider(String driver, String baseUrl, String username, String password, String dialect) {
-    super();
     this.driver = driver;
     this.baseUrl = baseUrl;
     this.username = username;
@@ -66,7 +65,7 @@ public class LocalSessionFactoryProvider implements SessionFactoryProvider, Init
     cfg.setProperty(Environment.PASS, password);
     cfg.setProperty(Environment.DIALECT, dialect);
 
-    this.sessionFactory = cfg.buildSessionFactory();
+    sessionFactory = cfg.buildSessionFactory();
   }
 
   @Override

@@ -1,3 +1,12 @@
+/*
+ * Copyright (c) 2011 OBiBa. All rights reserved.
+ *
+ * This program and the accompanying materials
+ * are made available under the terms of the GNU Public License v3.0.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package org.obiba.magma.datasource.hibernate.domain;
 
 import java.util.ArrayList;
@@ -16,7 +25,7 @@ import javax.persistence.UniqueConstraint;
 import org.hibernate.annotations.IndexColumn;
 
 @Entity
-@Table(name = "value_table", uniqueConstraints = { @UniqueConstraint(columnNames = { "datasource_id", "name" }) })
+@Table(name = "value_table", uniqueConstraints = @UniqueConstraint(columnNames = {"datasource_id", "name"}))
 public class ValueTableState extends AbstractTimestampedEntity {
 
   private static final long serialVersionUID = 1L;
@@ -31,21 +40,18 @@ public class ValueTableState extends AbstractTimestampedEntity {
   @JoinColumn(name = "datasource_id")
   private DatasourceState datasource;
 
-  @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+  @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
   // Creates a column to store the category's index within the list
   @IndexColumn(name = "variable_index", nullable = false)
   // Used to prevent an association table from being created
   @JoinColumn(name = "value_table_id", nullable = false)
-  // Not supported: https://hibernate.onjira.com/browse/HHH-6382
-  // @OnDelete(action = OnDeleteAction.CASCADE)
   private List<VariableState> variables;
 
+  @SuppressWarnings("UnusedDeclaration")
   public ValueTableState() {
-    super();
   }
 
   public ValueTableState(String name, String entityType, DatasourceState datasource) {
-    super();
     this.name = name;
     this.entityType = entityType;
     this.datasource = datasource;
@@ -55,6 +61,7 @@ public class ValueTableState extends AbstractTimestampedEntity {
     return entityType;
   }
 
+  @SuppressWarnings("UnusedDeclaration")
   public void setEntityType(String entityType) {
     this.entityType = entityType;
   }
@@ -63,12 +70,13 @@ public class ValueTableState extends AbstractTimestampedEntity {
     return name;
   }
 
+  @SuppressWarnings("UnusedDeclaration")
   public DatasourceState getDatasource() {
     return datasource;
   }
 
   public List<VariableState> getVariables() {
-    return variables != null ? variables : (variables = new ArrayList<VariableState>());
+    return variables == null ? (variables = new ArrayList<VariableState>()) : variables;
   }
 
 }

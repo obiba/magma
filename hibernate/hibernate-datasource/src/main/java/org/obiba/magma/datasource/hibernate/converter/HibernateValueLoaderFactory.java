@@ -1,42 +1,45 @@
 /*******************************************************************************
  * Copyright (c) 2012 OBiBa. All rights reserved.
- *  
+ *
  * This program and the accompanying materials
  * are made available under the terms of the GNU Public License v3.0.
- *  
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 package org.obiba.magma.datasource.hibernate.converter;
 
-import java.io.File;
 import java.io.Serializable;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.obiba.magma.MagmaRuntimeException;
+import org.hibernate.SessionFactory;
+import org.obiba.core.service.impl.hibernate.AssociationCriteria;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueLoader;
 import org.obiba.magma.ValueLoaderFactory;
-import org.obiba.magma.support.BinaryValueFileHelper;
-import org.obiba.magma.type.BinaryType;
+import org.obiba.magma.datasource.hibernate.domain.ValueSetBinaryValue;
+import org.obiba.magma.datasource.hibernate.domain.ValueSetValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.obiba.core.service.impl.hibernate.AssociationCriteria.Operation;
 
 /**
  *
  */
 public class HibernateValueLoaderFactory implements ValueLoaderFactory {
 
-  private final File tableRoot;
+  private final SessionFactory sessionFactory;
 
-  public HibernateValueLoaderFactory(File tableRoot) {
-    this.tableRoot = tableRoot;
+  private final ValueSetValue valueSetValue;
+
+  public HibernateValueLoaderFactory(SessionFactory sessionFactory, ValueSetValue valueSetValue) {
+    this.sessionFactory = sessionFactory;
+    this.valueSetValue = valueSetValue;
   }
 
   @Override
   public ValueLoader create(Value valueRef, Integer occurrence) {
-    return new HibernateBinaryValueLoader(tableRoot, valueRef, occurrence);
+    return new HibernateBinaryValueLoader(sessionFactory, valueSetValue.getId(), occurrence, valueRef);
   }
 
   private static final class HibernateBinaryValueLoader implements ValueLoader, Serializable {
@@ -45,19 +48,22 @@ public class HibernateValueLoaderFactory implements ValueLoaderFactory {
 
     private static final Logger log = LoggerFactory.getLogger(HibernateBinaryValueLoader.class);
 
-    private final File tableRoot;
+    private final SessionFactory sessionFactory;
+
+    private final Serializable valueSetValueId;
+
+    private final int occurrence;
 
     private final Value valueRef;
 
-    private final Integer occurrence;
-
     private byte[] value;
 
-    public HibernateBinaryValueLoader(File tableRoot, Value valueRef, Integer occurrence) {
-      super();
+    private HibernateBinaryValueLoader(SessionFactory sessionFactory, Serializable valueSetValueId, Integer occurrence,
+        Value valueRef) {
+      this.sessionFactory = sessionFactory;
+      this.valueSetValueId = valueSetValueId;
+      this.occurrence = occurrence == null ? 0 : occurrence;
       this.valueRef = valueRef;
-      this.occurrence = occurrence;
-      this.tableRoot = tableRoot;
     }
 
     @Override
@@ -68,29 +74,18 @@ public class HibernateValueLoaderFactory implements ValueLoaderFactory {
     @Override
     public Object getValue() {
       if(value == null) {
-        if(valueRef.getValueType().equals(BinaryType.get())) {
-          log.info("Loading binary from database");
-          // legacy
-          value = (byte[]) valueRef.getValue();
-        } else {
-          try {
-            String path;
-            if(valueRef.toString().startsWith("{")) {
-              JSONObject properties = new JSONObject(valueRef.toString());
-              path = properties.getString("path");
-            } else {
-              path = valueRef.toString();
-            }
-            log.info("Loading binary from path: {}", path);
-            value = BinaryValueFileHelper.readValue(tableRoot, path);
-          } catch(JSONException e) {
-            log.error("Failed loading JSON binary value reference", e);
-            throw new MagmaRuntimeException(e);
-          }
-        }
+        log.debug("Loading binary from value_set_binary_value table");
+
+        ValueSetBinaryValue binaryValue = (ValueSetBinaryValue) AssociationCriteria
+            .create(ValueSetBinaryValue.class, sessionFactory.getCurrentSession()) //
+            .add("valueSetValue.id", Operation.eq, valueSetValueId) //
+            .add("occurrence", Operation.eq, occurrence) //
+            .getCriteria().uniqueResult();
+        value = binaryValue == null ? null : binaryValue.getValue();
       }
       return value;
     }
+
   }
 
 }
