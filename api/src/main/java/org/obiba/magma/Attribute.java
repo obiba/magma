@@ -10,9 +10,9 @@ import com.google.common.base.Preconditions;
 
 public interface Attribute {
 
-  public static class Builder {
+  class Builder {
 
-    private AttributeBean attribute;
+    private final AttributeBean attribute;
 
     private Builder(String name) {
       Preconditions.checkArgument(name != null, "name cannot be null");
@@ -73,19 +73,19 @@ public interface Attribute {
   }
 
   @Nullable
-  public String getNamespace();
+  String getNamespace();
 
-  public boolean hasNamespace();
+  boolean hasNamespace();
 
-  public String getName();
+  String getName();
 
   @Nullable
-  public Locale getLocale();
+  Locale getLocale();
 
-  public boolean isLocalised();
+  boolean isLocalised();
 
-  public ValueType getValueType();
+  ValueType getValueType();
 
-  public Value getValue();
+  Value getValue();
 
 }

@@ -2,6 +2,8 @@ package org.obiba.magma;
 
 import java.io.Serializable;
 
+import javax.annotation.Nullable;
+
 public class Value implements Serializable, Comparable<Value> {
 
   private static final long serialVersionUID = 779426587031645153L;
@@ -14,11 +16,11 @@ public class Value implements Serializable, Comparable<Value> {
 
   private transient int hashCode;
 
-  Value(ValueType valueType, Object value) {
+  Value(@Nullable ValueType valueType, Serializable value) {
     this(valueType, new StaticValueLoader(value));
   }
 
-  Value(ValueType valueType, ValueLoader valueLoader) {
+  Value(@Nullable ValueType valueType, ValueLoader valueLoader) {
     if(valueType == null) throw new IllegalArgumentException("valueType cannot be null");
     this.valueType = valueType;
     this.valueLoader = valueLoader == null ? new StaticValueLoader(null) : valueLoader;
@@ -105,14 +107,14 @@ public class Value implements Serializable, Comparable<Value> {
     return valueType.compare(this, o);
   }
 
-  public static class StaticValueLoader implements ValueLoader, Serializable {
+  public static class StaticValueLoader implements ValueLoader {
 
     private static final long serialVersionUID = 8195664792459648506L;
 
     private final Serializable value;
 
-    public StaticValueLoader(Object value) {
-      this.value = value == null ? NULL : (Serializable) value;
+    public StaticValueLoader(Serializable value) {
+      this.value = value == null ? NULL : value;
     }
 
     @Override

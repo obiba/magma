@@ -1,8 +1,10 @@
 package org.obiba.magma.js.methods;
 
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
 import java.util.Locale;
+
+import javax.annotation.Nullable;
 
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
@@ -21,18 +23,24 @@ import org.obiba.magma.type.LocaleType;
 import org.obiba.magma.type.TextType;
 
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 
 /**
  * Methods of the {@code ScriptableValue} javascript class that returns {@code ScriptableValue} of {@code BooleanType}
  */
+@SuppressWarnings({"UnusedParameters", "IfMayBeConditional", "UnusedDeclaration", "StaticMethodOnlyUsedInOneClass"})
 public class TextMethods {
+
+  private TextMethods() {
+  }
 
   /**
    * <pre>
    *   $('TextVar').trim()
    * </pre>
    */
-  public static ScriptableValue trim(Context ctx, Scriptable thisObj, Object[] args, Function funObj) {
+  public static ScriptableValue trim(Context ctx, Scriptable thisObj, @Nullable Object[] args,
+      @Nullable Function funObj) {
     com.google.common.base.Function<Value, Value> trimFunction = new com.google.common.base.Function<Value, Value>() {
 
       @Override
@@ -51,7 +59,8 @@ public class TextMethods {
    *   $('TextVar').upperCase('fr')
    * </pre>
    */
-  public static ScriptableValue upperCase(Context ctx, Scriptable thisObj, Object[] args, Function funObj) {
+  public static ScriptableValue upperCase(Context ctx, Scriptable thisObj, @Nullable Object[] args,
+      @Nullable Function funObj) {
     final Locale locale = getLocaleArgument(args);
     com.google.common.base.Function<Value, Value> caseFunction = new com.google.common.base.Function<Value, Value>() {
 
@@ -73,7 +82,8 @@ public class TextMethods {
    *   $('TextVar').lowerCase('fr')
    * </pre>
    */
-  public static ScriptableValue lowerCase(Context ctx, Scriptable thisObj, Object[] args, Function funObj) {
+  public static ScriptableValue lowerCase(Context ctx, Scriptable thisObj, @Nullable Object[] args,
+      @Nullable Function funObj) {
     final Locale locale = getLocaleArgument(args);
     com.google.common.base.Function<Value, Value> caseFunction = new com.google.common.base.Function<Value, Value>() {
 
@@ -89,7 +99,7 @@ public class TextMethods {
     return transformValue((ScriptableValue) thisObj, caseFunction);
   }
 
-  private static Locale getLocaleArgument(Object[] args) {
+  private static Locale getLocaleArgument(Object... args) {
     Locale locale = null;
     if(args != null && args.length > 0) {
       Object localeArg = args[0];
@@ -110,13 +120,14 @@ public class TextMethods {
    *   $('TextVar').capitalize(':;_.,(')
    * </pre>
    */
-  public static ScriptableValue capitalize(Context ctx, Scriptable thisObj, Object[] args, Function funObj) {
+  public static ScriptableValue capitalize(Context ctx, Scriptable thisObj, @Nullable Object[] args,
+      @Nullable Function funObj) {
     final String delim;
     if(args != null) {
-      StringBuffer buffer = new StringBuffer();
-      for(int i = 0; i < args.length; i++) {
-        if(args[i] != null) {
-          buffer.append(args[i].toString());
+      StringBuilder buffer = new StringBuilder();
+      for(Object arg : args) {
+        if(arg != null) {
+          buffer.append(arg.toString());
         }
       }
       delim = buffer.toString();
@@ -146,7 +157,7 @@ public class TextMethods {
       }
 
       private boolean isDelimiter(char ch, String delimiters) {
-        if(delimiters == null || delimiters.length() == 0) {
+        if(delimiters == null || delimiters.isEmpty()) {
           return Character.isWhitespace(ch);
         }
         for(char delimiter : delimiters.toCharArray()) {
@@ -167,7 +178,8 @@ public class TextMethods {
    * </pre>
    * @see https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/String/replace
    */
-  public static ScriptableValue replace(final Context ctx, final Scriptable thisObj, final Object[] args, Function funObj) {
+  public static ScriptableValue replace(final Context ctx, final Scriptable thisObj, final Object[] args,
+      @Nullable Function funObj) {
     com.google.common.base.Function<Value, Value> replaceFunction = new com.google.common.base.Function<Value, Value>() {
 
       @Override
@@ -175,7 +187,8 @@ public class TextMethods {
         String stringValue = input.toString();
 
         // Delegate to Javascript's String.replace method
-        String result = (String) ScriptRuntime.checkRegExpProxy(ctx).action(ctx, thisObj, ScriptRuntime.toObject(ctx, thisObj, stringValue), args, RegExpProxy.RA_REPLACE);
+        String result = (String) ScriptRuntime.checkRegExpProxy(ctx)
+            .action(ctx, thisObj, ScriptRuntime.toObject(ctx, thisObj, stringValue), args, RegExpProxy.RA_REPLACE);
 
         return TextType.get().valueOf(result);
       }
@@ -188,7 +201,8 @@ public class TextMethods {
    *   $('TextVar').matches('regex1', 'regex2', ...)
    * </pre>
    */
-  public static ScriptableValue matches(final Context ctx, final Scriptable thisObj, final Object[] args, Function funObj) {
+  public static ScriptableValue matches(final Context ctx, final Scriptable thisObj, final Object[] args,
+      @Nullable Function funObj) {
     com.google.common.base.Function<Value, Value> matchesFunction = new com.google.common.base.Function<Value, Value>() {
 
       @Override
@@ -199,7 +213,9 @@ public class TextMethods {
         boolean matches = false;
         if(stringValue != null) {
           for(Object arg : args) {
-            Object result = ScriptRuntime.checkRegExpProxy(ctx).action(ctx, thisObj, ScriptRuntime.toObject(ctx, thisObj, stringValue), new Object[] { arg }, RegExpProxy.RA_MATCH);
+            Object result = ScriptRuntime.checkRegExpProxy(ctx)
+                .action(ctx, thisObj, ScriptRuntime.toObject(ctx, thisObj, stringValue), new Object[] {arg},
+                    RegExpProxy.RA_MATCH);
             if(result != null) {
               matches = true;
             }
@@ -215,14 +231,15 @@ public class TextMethods {
   /**
    * Returns a new {@link ScriptableValue} of {@link TextType} combining the String value of this value with the String
    * values of the parameters parameters.
-   * 
+   * <p/>
    * <pre>
    *   $('TextVar').concat($('TextVar'))
    *   $('Var').concat($('Var'))
    *   $('Var').concat('SomeValue')
    * </pre>
    */
-  public static ScriptableValue concat(Context ctx, Scriptable thisObj, final Object[] args, Function funObj) {
+  public static ScriptableValue concat(Context ctx, Scriptable thisObj, final Object[] args,
+      @Nullable Function funObj) {
     com.google.common.base.Function<Value, Value> concatFunction = new com.google.common.base.Function<Value, Value>() {
 
       @Override
@@ -247,25 +264,25 @@ public class TextMethods {
   /**
    * Categorise values of a variable. That is, lookup the current value in an association table and return the
    * associated value. When the current value is not found in the association table, the method returns a null value.
-   * 
+   * <p/>
    * <pre>
    * $('SMOKE').map({'NO':0, 'YES':1, 'DNK':8888, 'PNA':9999})
-   * 
+   *
    * $('SMOKE_ONSET').map(
-   *   {'AGE':$('SMOKE_ONSET_AGE'), 
+   *   {'AGE':$('SMOKE_ONSET_AGE'),
    *    'YEAR':$('SMOKE_ONSET_YEAR').minus($('BIRTH_DATE').year()),
-   *    'DNK':8888, 
+   *    'DNK':8888,
    *    'PNA':9999})
-   *    
+   *
    * // Works for sequences also (FRENCH,ENGLISH --&gt; 0,1)
    * $('LANGUAGES_SPOKEN').map({'FRENCH':0, 'ENGLISH':1});
-   * 
+   *
    * // Specification of default value
    * $('LANGUAGES_SPOKEN').map({'FRENCH':0, 'ENGLISH':1}, 99);
-   * 
+   *
    * // Specification of default value and null value mapping
    * $('LANGUAGES_SPOKEN').map({'FRENCH':0, 'ENGLISH':1}, 99, 88);
-   * 
+   *
    * // Can execute function to calculate lookup value
    * $('BMI_DIAG').map(
    *   {'OVERW': function(value) {
@@ -301,13 +318,14 @@ public class TextMethods {
       if(currentValue.isNull()) {
         return new ScriptableValue(thisObj, returnType.nullSequence());
       }
-      List<Value> newValues = new ArrayList<Value>();
+      Collection<Value> newValues = new ArrayList<Value>();
       for(Value value : currentValue.asSequence().getValue()) {
         newValues.add(lookupValue(ctx, thisObj, value, returnType, valueMap, defaultValue, nullValue));
       }
       return new ScriptableValue(thisObj, returnType.sequenceOf(newValues));
     } else {
-      return new ScriptableValue(thisObj, lookupValue(ctx, thisObj, currentValue, returnType, valueMap, defaultValue, nullValue));
+      return new ScriptableValue(thisObj,
+          lookupValue(ctx, thisObj, currentValue, returnType, valueMap, defaultValue, nullValue));
     }
   }
 
@@ -318,7 +336,7 @@ public class TextMethods {
    * @param args
    * @return
    */
-  private static Value defaultValue(ValueType valueType, Object[] args) {
+  private static Value defaultValue(ValueType valueType, Object... args) {
     if(args.length < 2) {
       // No default value was specified. Return null.
       return valueType.nullValue();
@@ -338,7 +356,7 @@ public class TextMethods {
    * @param args
    * @return
    */
-  private static Value nullValue(ValueType valueType, Object[] args) {
+  private static Value nullValue(ValueType valueType, Object... args) {
     if(args.length < 3) {
       // No value for null was specified. Return what is defined as default value.
       return defaultValue(valueType, args);
@@ -354,7 +372,6 @@ public class TextMethods {
 
   /**
    * Lookup {@code value} in {@code valueMap} and return the mapped value of type {@code returnType}
-   * 
    * @param ctx
    * @param thisObj
    * @param value
@@ -362,7 +379,8 @@ public class TextMethods {
    * @param valueMap
    * @return
    */
-  private static Value lookupValue(Context ctx, Scriptable thisObj, Value value, ValueType returnType, NativeObject valueMap, Value defaultValue, Value nullValue) {
+  private static Value lookupValue(Context ctx, Scriptable thisObj, Value value, ValueType returnType,
+      NativeObject valueMap, Value defaultValue, Value nullValue) {
     if(value.isNull()) {
       return nullValue;
     }
@@ -390,7 +408,8 @@ public class TextMethods {
 
     if(newValue instanceof Function) {
       Function valueFunction = (Function) newValue;
-      Object evaluatedValue = valueFunction.call(ctx, thisObj, thisObj, new Object[] { new ScriptableValue(thisObj, value) });
+      Object evaluatedValue = valueFunction
+          .call(ctx, thisObj, thisObj, new Object[] {new ScriptableValue(thisObj, value)});
       if(evaluatedValue instanceof ScriptableValue) {
         newValue = ((ScriptableValue) evaluatedValue).getValue().getValue();
       } else {
@@ -430,7 +449,8 @@ public class TextMethods {
    * @param valueFunction
    * @return
    */
-  private static ScriptableValue transformValue(ScriptableValue sv, com.google.common.base.Function<Value, Value> valueFunction) {
+  private static ScriptableValue transformValue(ScriptableValue sv,
+      com.google.common.base.Function<Value, Value> valueFunction) {
     if(sv.getValue().isNull()) {
       if(sv.getValue().isSequence()) {
         return new ScriptableValue(sv, TextType.get().nullSequence());
@@ -439,7 +459,8 @@ public class TextMethods {
       }
     }
     if(sv.getValue().isSequence()) {
-      return new ScriptableValue(sv, TextType.get().sequenceOf(Iterables.transform(sv.getValue().asSequence().getValue(), valueFunction)));
+      return new ScriptableValue(sv, TextType.get()
+          .sequenceOf(Lists.newArrayList(Iterables.transform(sv.getValue().asSequence().getValue(), valueFunction))));
     } else {
       return new ScriptableValue(sv, valueFunction.apply(sv.getValue()));
     }
