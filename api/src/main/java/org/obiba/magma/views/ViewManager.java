@@ -2,20 +2,23 @@ package org.obiba.magma.views;
 
 import java.util.Set;
 
+import javax.annotation.Nullable;
+
 import org.obiba.magma.Datasource;
 import org.obiba.magma.Decorator;
 
+@SuppressWarnings("UnusedDeclaration")
 public interface ViewManager extends Decorator<Datasource> {
 
-  public void addView(String datasourceName, View view);
+  void addView(@Nullable String datasourceName, View view);
 
-  public void removeView(String datasourceName, String viewName);
+  void removeView(@Nullable String datasourceName, String viewName);
 
-  public void removeAllViews(String datasourceName);
+  void removeAllViews(@Nullable String datasourceName);
 
-  public boolean hasView(String datasourceName, String viewName);
+  boolean hasView(@Nullable String datasourceName, String viewName);
 
-  public View getView(String datasourceName, String viewName);
+  View getView(@Nullable String datasourceName, String viewName);
 
-  public void addViews(String datasource, Set<View> views);
+  void addViews(@Nullable String datasource, Set<View> views);
 }

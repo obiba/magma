@@ -57,7 +57,9 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
 
   private Value updated;
 
-  private ViewAwareDatasource viewDatasource;
+  // need to be transient because of XML serialization of Views
+  @SuppressWarnings("TransientFieldInNonSerializableClass")
+  private transient ViewAwareDatasource viewDatasource;
 
   //
   // Constructors

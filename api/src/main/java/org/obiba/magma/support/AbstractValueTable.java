@@ -5,6 +5,8 @@ import java.util.Collections;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
+import javax.annotation.Nullable;
+
 import org.obiba.magma.Datasource;
 import org.obiba.magma.Initialisable;
 import org.obiba.magma.NoSuchVariableException;
@@ -32,7 +34,8 @@ public abstract class AbstractValueTable implements ValueTable, Initialisable {
 
   private VariableEntityProvider variableEntityProvider;
 
-  public AbstractValueTable(Datasource datasource, String name, VariableEntityProvider variableEntityProvider) {
+  public AbstractValueTable(@Nullable Datasource datasource, @Nullable String name,
+      @Nullable VariableEntityProvider variableEntityProvider) {
     if(datasource == null) throw new IllegalArgumentException("datasource cannot be null");
     if(name == null) throw new IllegalArgumentException("name cannot be null");
     this.datasource = datasource;
@@ -76,18 +79,19 @@ public abstract class AbstractValueTable implements ValueTable, Initialisable {
 
   @Override
   public Iterable<ValueSet> getValueSets() {
-    return Iterables.transform(getVariableEntityProvider().getVariableEntities(), new Function<VariableEntity, ValueSet>() {
-      @Override
-      public ValueSet apply(VariableEntity from) {
-        return getValueSet(from);
-      }
-    });
+    return Iterables
+        .transform(getVariableEntityProvider().getVariableEntities(), new Function<VariableEntity, ValueSet>() {
+          @Override
+          public ValueSet apply(VariableEntity from) {
+            return getValueSet(from);
+          }
+        });
   }
 
   @Override
-  public boolean hasVariable(String name) {
+  public boolean hasVariable(String variableName) {
     for(VariableValueSource source : getSources()) {
-      if(source.getVariable().getName().equals(name)) {
+      if(source.getVariable().getName().equals(variableName)) {
         return true;
       }
     }
@@ -95,8 +99,8 @@ public abstract class AbstractValueTable implements ValueTable, Initialisable {
   }
 
   @Override
-  public Variable getVariable(String name) {
-    return getVariableValueSource(name).getVariable();
+  public Variable getVariable(String variableName) {
+    return getVariableValueSource(variableName).getVariable();
   }
 
   @Override
@@ -115,16 +119,17 @@ public abstract class AbstractValueTable implements ValueTable, Initialisable {
     }));
   }
 
-  public VariableValueSource getVariableValueSource(final String name) throws NoSuchVariableException {
+  @Override
+  public VariableValueSource getVariableValueSource(final String variableName) throws NoSuchVariableException {
     try {
       return Iterables.find(getSources(), new Predicate<VariableValueSource>() {
         @Override
         public boolean apply(VariableValueSource input) {
-          return input.getVariable().getName().equals(name);
+          return input.getVariable().getName().equals(variableName);
         }
       });
     } catch(NoSuchElementException e) {
-      throw new NoSuchVariableException(getName(), name);
+      throw new NoSuchVariableException(getName(), variableName);
     }
   }
 
@@ -137,7 +142,8 @@ public abstract class AbstractValueTable implements ValueTable, Initialisable {
     sources.addAll(factory.createSources());
   }
 
-  protected void addVariableValueSources(Collection<VariableValueSource> sources) {
+  protected void addVariableValueSources(
+      @SuppressWarnings("ParameterHidesMemberVariable") Collection<VariableValueSource> sources) {
     this.sources.removeAll(sources);
     this.sources.addAll(sources);
   }
@@ -153,7 +159,7 @@ public abstract class AbstractValueTable implements ValueTable, Initialisable {
 
   protected VariableEntityProvider getVariableEntityProvider() {
     if(variableEntityProvider == null) throw new IllegalArgumentException("variableEntityProvider cannot be null");
-    return this.variableEntityProvider;
+    return variableEntityProvider;
   }
 
   protected Set<VariableValueSource> getSources() {

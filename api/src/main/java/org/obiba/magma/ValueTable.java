@@ -4,32 +4,32 @@ import java.util.Set;
 
 public interface ValueTable extends Timestamped {
 
-  public String getName();
+  String getName();
 
-  public Datasource getDatasource();
+  Datasource getDatasource();
 
-  public String getEntityType();
+  String getEntityType();
 
-  public boolean isForEntityType(String entityType);
+  boolean isForEntityType(String entityType);
 
-  public Set<VariableEntity> getVariableEntities();
+  Set<VariableEntity> getVariableEntities();
 
-  public boolean hasValueSet(VariableEntity entity);
+  boolean hasValueSet(VariableEntity entity);
 
-  public Iterable<ValueSet> getValueSets();
+  Iterable<ValueSet> getValueSets();
 
-  public ValueSet getValueSet(VariableEntity entity) throws NoSuchValueSetException;
+  ValueSet getValueSet(VariableEntity entity) throws NoSuchValueSetException;
 
-  public boolean hasVariable(String name);
+  boolean hasVariable(String name);
 
-  public Iterable<Variable> getVariables();
+  Iterable<Variable> getVariables();
 
-  public Variable getVariable(String name) throws NoSuchVariableException;
+  Variable getVariable(String name) throws NoSuchVariableException;
 
-  public Value getValue(Variable variable, ValueSet valueSet);
+  Value getValue(Variable variable, ValueSet valueSet);
 
-  public VariableValueSource getVariableValueSource(String name) throws NoSuchVariableException;
+  VariableValueSource getVariableValueSource(String name) throws NoSuchVariableException;
 
-  public boolean isView();
+  boolean isView();
 
 }
