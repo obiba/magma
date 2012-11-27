@@ -18,9 +18,10 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 
+@SuppressWarnings("UnusedDeclaration")
 public class DefaultViewManagerImpl implements ViewManager, Initialisable, Disposable {
 
-  private final Set<ViewAwareDatasource> viewAwareDatasources = Sets.<ViewAwareDatasource> newHashSet();
+  private final Set<ViewAwareDatasource> viewAwareDatasources = Sets.newHashSet();
 
   private final ViewPersistenceStrategy viewPersistenceStrategy;
 
@@ -40,9 +41,10 @@ public class DefaultViewManagerImpl implements ViewManager, Initialisable, Dispo
     return viewAwareDatasource;
   }
 
+  @Override
   public void addView(String datasourceName, View view) {
-    if(datasourceName == null || datasourceName.equals("")) throw new MagmaRuntimeException("datasourceName cannot be null or empty.");
-    if(view == null) throw new MagmaRuntimeException("view cannot be null.");
+    Preconditions.checkArgument(!Strings.isNullOrEmpty(datasourceName), "datasourceName cannot be null or empty.");
+    Preconditions.checkArgument(view != null, "view cannot be null.");
 
     ViewAwareDatasource viewAwareDatasource = getViewAwareFromName(datasourceName);
     if(viewAwareDatasource == null) throw new NoSuchDatasourceException(datasourceName);
@@ -57,11 +59,14 @@ public class DefaultViewManagerImpl implements ViewManager, Initialisable, Dispo
     }
   }
 
+  @Override
   public void removeView(String datasourceName, String viewName) {
-    if(datasourceName == null || datasourceName.equals("")) throw new MagmaRuntimeException("datasourceName cannot be null or empty.");
+    Preconditions.checkArgument(!Strings.isNullOrEmpty(datasourceName), "datasourceName cannot be null or empty.");
+
     ViewAwareDatasource viewAwareDatasource = getViewAwareFromName(datasourceName);
     if(viewAwareDatasource == null) throw new NoSuchDatasourceException(datasourceName);
-    if(viewName == null || viewName.equals("")) throw new MagmaRuntimeException("viewName cannot be null or empty.");
+
+    Preconditions.checkArgument(!Strings.isNullOrEmpty(viewName), "viewName cannot be null or empty.");
 
     View view = viewAwareDatasource.getView(viewName);
     viewAwareDatasource.removeView(viewName);
@@ -74,22 +79,25 @@ public class DefaultViewManagerImpl implements ViewManager, Initialisable, Dispo
     }
   }
 
+  @Override
   public void removeAllViews(String datasourceName) {
-    Preconditions.checkArgument(Strings.isNullOrEmpty(datasourceName) == false, "datasourceName cannot be null or empty.");
-    viewPersistenceStrategy.writeViews(datasourceName, ImmutableSet.<View> of());
-  };
+    Preconditions.checkArgument(!Strings.isNullOrEmpty(datasourceName), "datasourceName cannot be null or empty.");
+    viewPersistenceStrategy.writeViews(datasourceName, ImmutableSet.<View>of());
+  }
 
+  @Override
   public boolean hasView(String datasourceName, String viewName) {
-    if(datasourceName == null || datasourceName.equals("")) throw new MagmaRuntimeException("datasourceName cannot be null or empty.");
+    Preconditions.checkArgument(!Strings.isNullOrEmpty(datasourceName), "datasourceName cannot be null or empty.");
     ViewAwareDatasource viewAwareDatasource = getViewAwareFromName(datasourceName);
     if(viewAwareDatasource == null) throw new NoSuchDatasourceException(datasourceName);
-    if(viewName == null || viewName.equals("")) throw new MagmaRuntimeException("viewName cannot be null or empty.");
+    Preconditions.checkArgument(!Strings.isNullOrEmpty(viewName), "viewName cannot be null or empty.");
 
     return viewAwareDatasource.hasView(viewName);
   }
 
   /**
    * Return the {@link View} from the datasource with the supplied viewName.
+   *
    * @param datasourceName
    * @param viewName
    * @return The View retrieved from the specified datasource and view.
@@ -97,16 +105,19 @@ public class DefaultViewManagerImpl implements ViewManager, Initialisable, Dispo
    * @throws NoSuchDatasourceException if a Datasource with the supplied datasourceName does not exist
    * @throws NoSuchValueTableException if a View with the supplied viewName does not exist in datasourceName
    */
+  @Override
   public View getView(String datasourceName, String viewName) {
-    if(datasourceName == null || datasourceName.equals("")) throw new MagmaRuntimeException("datasourceName cannot be null or empty.");
+    Preconditions.checkArgument(!Strings.isNullOrEmpty(datasourceName), "datasourceName cannot be null or empty.");
     ViewAwareDatasource viewAwareDatasource = getViewAwareFromName(datasourceName);
     if(viewAwareDatasource == null) throw new NoSuchDatasourceException(datasourceName);
-    if(viewName == null || viewName.equals("")) throw new MagmaRuntimeException("viewName cannot be null or empty.");
+    Preconditions.checkArgument(!Strings.isNullOrEmpty(viewName), "viewName cannot be null or empty.");
 
     return viewAwareDatasource.getView(viewName);
   }
 
+  @Override
   public void addViews(String datasource, Set<View> views) {
+    Preconditions.checkArgument(!Strings.isNullOrEmpty(datasource), "datasource cannot be null or empty.");
     viewPersistenceStrategy.writeViews(datasource, views);
   }
 

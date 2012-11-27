@@ -16,7 +16,7 @@ public class UnionTimestamps implements Timestamps {
   private final Iterable<Timestamps> timestamps;
 
   public UnionTimestamps(Iterable<? extends Timestamped> timestampeds) {
-    this.timestamps = Iterables.transform(timestampeds, Timestamped.ToTimestamps);
+    timestamps = Iterables.transform(timestampeds, Timestamped.ToTimestamps);
   }
 
   @Override
@@ -32,7 +32,6 @@ public class UnionTimestamps implements Timestamps {
   /**
    * Extracts all the timestamp values, sorts them and returns either the earliest value or the latest value depending
    * on the {@code earliest} argument.
-   * 
    * @param extractTimestampFunction the function used to extract the timestamp to work with (either created or
    * lastUpdate)
    * @param earliest whether to return the earliest value or the latest value
@@ -59,7 +58,7 @@ public class UnionTimestamps implements Timestamps {
 
       @Override
       public boolean apply(Value value) {
-        return value != null ? (value.isNull() == false) : false;
+        return value != null && !value.isNull();
       }
 
     });
@@ -68,22 +67,24 @@ public class UnionTimestamps implements Timestamps {
 
   private static final class ExtractLastUpdateFunction implements Function<Timestamps, Value> {
 
+    @SuppressWarnings("TypeMayBeWeakened")
     private static final ExtractLastUpdateFunction INSTANCE = new ExtractLastUpdateFunction();
 
     @Override
     public Value apply(Timestamps from) {
-      return from.getLastUpdate();
+      return from == null ? null : from.getLastUpdate();
     }
 
   }
 
   private static final class ExtractCreatedFunction implements Function<Timestamps, Value> {
 
+    @SuppressWarnings("TypeMayBeWeakened")
     private static final ExtractCreatedFunction INSTANCE = new ExtractCreatedFunction();
 
     @Override
     public Value apply(Timestamps from) {
-      return from.getCreated();
+      return from == null ? null : from.getCreated();
     }
   }
 }

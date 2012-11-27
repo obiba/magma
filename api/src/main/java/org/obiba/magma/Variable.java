@@ -1,20 +1,24 @@
 /*******************************************************************************
  * Copyright 2008(c) The OBiBa Consortium. All rights reserved.
- * 
+ *
  * This program and the accompanying materials
  * are made available under the terms of the GNU Public License v3.0.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 package org.obiba.magma;
 
 import java.lang.reflect.Constructor;
+import java.util.Collection;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
+import javax.annotation.Nullable;
+
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.ListMultimap;
 
 /**
@@ -27,7 +31,7 @@ public interface Variable extends AttributeAware {
    * A builder for {@code Variable} instances. This uses the builder pattern for constructing {@code Variable}
    * instances.
    */
-  public static class Builder extends AttributeAwareBuilder<Builder> {
+  class Builder extends AttributeAwareBuilder<Builder> {
 
     private VariableBean variable = new VariableBean();
 
@@ -37,7 +41,7 @@ public interface Variable extends AttributeAware {
       if(entityType == null) throw new IllegalArgumentException("entityType cannot be null");
 
       if(name.contains(":")) throw new IllegalArgumentException("variable name cannot contain ':'");
-      if(name.length() == 0) throw new IllegalArgumentException("variable name cannot be empty");
+      if(name.isEmpty()) throw new IllegalArgumentException("variable name cannot be empty");
 
       variable.name = name;
       variable.valueType = type;
@@ -45,7 +49,7 @@ public interface Variable extends AttributeAware {
     }
 
     protected Builder(Builder builder) {
-      this.variable = builder.variable;
+      variable = builder.variable;
     }
 
     @Override
@@ -63,7 +67,9 @@ public interface Variable extends AttributeAware {
     }
 
     public static Builder sameAs(Variable variable, boolean sameCategories) {
-      Builder b = newVariable(variable.getName(), variable.getValueType(), variable.getEntityType()).unit(variable.getUnit()).mimeType(variable.getMimeType()).referencedEntityType(variable.getReferencedEntityType());
+      Builder b = newVariable(variable.getName(), variable.getValueType(), variable.getEntityType())
+          .unit(variable.getUnit()).mimeType(variable.getMimeType())
+          .referencedEntityType(variable.getReferencedEntityType());
       if(variable.isRepeatable()) {
         b.repeatable().occurrenceGroup(variable.getOccurrenceGroup());
       }
@@ -95,31 +101,33 @@ public interface Variable extends AttributeAware {
       if(override.getMimeType() != null) variable.mimeType = override.getMimeType();
       if(override.getOccurrenceGroup() != null) variable.occurrenceGroup = override.getOccurrenceGroup();
       if(override.getUnit() != null) variable.unit = override.getUnit();
-      variable.attributes = overrideAttributes(getAttributes(), override.getAttributes());
+      variable.attributes = (LinkedListMultimap<String, Attribute>) overrideAttributes(getAttributes(),
+          override.getAttributes());
       for(Category category : override.getCategories()) {
         overrideCategories(variable.categories, category);
       }
       return this;
     }
 
-    private void overrideCategories(Set<Category> categories, Category overrideCategory) {
-      if(!categoryWithNameExists(categories, overrideCategory.getName())) {
-        categories.add(overrideCategory);
-      } else {
+    private void overrideCategories(Collection<Category> categories, Category overrideCategory) {
+      if(categoryWithNameExists(categories, overrideCategory.getName())) {
         Category existingCategory = getCategoryWithName(categories, overrideCategory.getName());
         Category.Builder builder = Category.Builder.sameAs(existingCategory);
         if(overrideCategory.getCode() != null) builder.withCode(overrideCategory.getCode());
         builder.missing(overrideCategory.isMissing());
         builder.clearAttributes();
-        for(Attribute a : overrideAttributes(existingCategory.getAttributes(), overrideCategory.getAttributes()).values()) {
+        for(Attribute a : overrideAttributes(existingCategory.getAttributes(), overrideCategory.getAttributes())
+            .values()) {
           builder.addAttribute(a);
         }
         categories.remove(existingCategory);
         categories.add(builder.build());
+      } else {
+        categories.add(overrideCategory);
       }
     }
 
-    private static boolean categoryWithNameExists(Set<Category> categories, final String name) {
+    private static boolean categoryWithNameExists(Iterable<Category> categories, String name) {
       try {
         getCategoryWithName(categories, name);
         return true;
@@ -128,20 +136,23 @@ public interface Variable extends AttributeAware {
       }
     }
 
-    private static Category getCategoryWithName(Set<Category> categories, final String name) throws NoSuchElementException {
+    private static Category getCategoryWithName(Iterable<Category> categories,
+        final String name) throws NoSuchElementException {
       return Iterables.find(categories, new Predicate<Category>() {
         @Override
         public boolean apply(Category input) {
-          return input.getName().equals(name);
+          return input != null && input.getName().equals(name);
         }
       });
     }
 
+    @SuppressWarnings("UnusedDeclaration")
     public Builder clearAttributes() {
       getAttributes().clear();
       return this;
     }
 
+    @SuppressWarnings("UnusedDeclaration")
     public Builder clearCategories() {
       variable.categories.clear();
       return this;
@@ -149,7 +160,6 @@ public interface Variable extends AttributeAware {
 
     /**
      * Tests whether this {@code Builder} instance is constructing a variable with any of the the specified names.
-     * 
      * @param name one or more names to test
      * @return true if any of the specified names is equal to the variable's name
      */
@@ -174,6 +184,7 @@ public interface Variable extends AttributeAware {
       return this;
     }
 
+    @SuppressWarnings("UnusedDeclaration")
     public boolean isType(ValueType type) {
       return variable.valueType == type;
     }
@@ -212,7 +223,7 @@ public interface Variable extends AttributeAware {
       return addCategory(name, code, null);
     }
 
-    public Builder addCategory(String name, String code, Set<Category.BuilderVisitor> visitors) {
+    public Builder addCategory(String name, String code, @Nullable Iterable<Category.BuilderVisitor> visitors) {
       Category.Builder categoryBuilder = Category.Builder.newCategory(name).withCode(code);
       if(visitors != null) {
         for(Category.BuilderVisitor categoryVisitor : visitors) {
@@ -236,7 +247,6 @@ public interface Variable extends AttributeAware {
     /**
      * Add an array of category labels. The resulting {@code Category} instances will have a null {@code code} value.
      * This method is useful for creating categories out of {@code enum} constants for example.
-     * 
      * @param names
      * @return this
      */
@@ -283,30 +293,31 @@ public interface Variable extends AttributeAware {
      * signature.
      * <p/>
      * An example class
-     * 
+     * <p/>
      * <pre>
      * public class BuilderExtension extends Variable.Builder {
      *   public BuilderExtension(Variable.Builder builder) {
      *     super(builder);
      *   }
-     * 
+     *
      *   public BuilderExtension withExtension(String value) {
      *     addAttribute(&quot;extension&quot;, value);
      *     return this;
      *   }
      * }
      * </pre>
-     * 
      * @param <T>
      * @param type the {@code Builder} type to construct
      * @return an instance of {@code T} that extends {@code Builder}
      */
     public <T extends Builder> T extend(Class<T> type) {
       try {
-        Constructor<T> ctor = type.getConstructor(Variable.Builder.class);
+        Constructor<T> ctor = type.getConstructor(Builder.class);
         return ctor.newInstance(this);
       } catch(NoSuchMethodException e) {
-        throw new IllegalArgumentException("Builder extension type '" + type.getName() + "' must expose a public constructor that takes a single argument of type '" + Variable.Builder.class.getName() + "'.");
+        throw new IllegalArgumentException("Builder extension type '" + type
+            .getName() + "' must expose a public constructor that takes a single argument of type '" + Builder.class
+            .getName() + "'.");
       } catch(RuntimeException e) {
         throw new IllegalArgumentException("Cannot instantiate builder extension type '" + type.getName() + "'", e);
       } catch(Exception e) {
@@ -318,36 +329,34 @@ public interface Variable extends AttributeAware {
   /**
    * Visitor pattern for contributing to a {@code Builder} instance through composition.
    */
-  public interface BuilderVisitor {
+  interface BuilderVisitor {
 
     /**
      * Visit a builder instance and contribute to the variable being built.
      * @param builder the instance to contribute to.
      */
-    public void visit(Builder builder);
+    void visit(Builder builder);
 
   }
 
   /**
    * The name of the variable. A variable's name must be unique within its {@code Collection}.
-   * 
    * @return the name of the variable.
    */
-  public String getName();
+  String getName();
 
   /**
    * Returns the {@code entityType} this variable is associated with.
-   * 
    * @return
    */
-  public String getEntityType();
+  String getEntityType();
 
   /**
    * Returns true when this variable is for values of the specified {@code entityType}
    * @param type the type of entity to test
    * @return true when this variable is for values of the specified {@code entityType}, false otherwise.
    */
-  public boolean isForEntityType(String type);
+  boolean isForEntityType(String type);
 
   /**
    * Returns true when this variable is repeatable. A repeatable variable is one where multiple {@code Value} instances
@@ -355,63 +364,60 @@ public interface Variable extends AttributeAware {
    * {@link Occurrence} instance.
    * @return true when this variable may have multiple values within a single {@code ValueSet}
    */
-  public boolean isRepeatable();
+  boolean isRepeatable();
 
   /**
    * When a variable is repeatable, the repeated values are grouped together, this method returns the name of this
    * group. The name is arbitrary but must be unique within a {@code Collection}.
    * @return the name of the repeating group
    */
-  public String getOccurrenceGroup();
+  String getOccurrenceGroup();
 
   /**
    * Returns the {@code ValueType} of this variable instance. Any {@code Value} obtained for this {@code variable}
    * should be of this type.
    * @return the {@code ValueType} of this variable.
    */
-  public ValueType getValueType();
+  ValueType getValueType();
 
   /**
    * The SI code of the measurement unit if applicable.
    * @return unit
    */
-  public String getUnit();
+  String getUnit();
 
   /**
    * The IANA mime-type of binary data if applicable.
    * @return the IANA mime-type
    */
-  public String getMimeType();
+  String getMimeType();
 
   /**
    * Used when this variable value is a pointer to another {@code VariableEntity}. The value is considered to point to
    * the referenced entity's {@code identifier}.
-   * 
    * @return the {@code entityType} that this value points to, this method returns null when the variable doesn't point
-   * to another entity.
+   *         to another entity.
    */
-  public String getReferencedEntityType();
+  String getReferencedEntityType();
 
   /**
    * Returns true if this variable has at least on {@code Category}
    * @return
    */
-  public boolean hasCategories();
+  boolean hasCategories();
 
   /**
    * Returns the set of categories for this {@code Variable}. This method returns null when the variable has no
    * categories. To determine if a {@code Variable} instance has categories, use the {@code #hasCategories()} method.
-   * 
    * @return a {@code Set} of {@code Category} instances or null if none exist
    */
-  public Set<Category> getCategories();
+  Set<Category> getCategories();
 
   /**
    * Returns true when {@code value} is equal to a {@code Category} marked as {@code missing} or when
    * {@code Value#isNull} returns true
-   * 
    * @param value the value to test
    * @return true when the value is considered {@code missing}, false otherwise.
    */
-  public boolean isMissingValue(Value value);
+  boolean isMissingValue(Value value);
 }

@@ -30,7 +30,9 @@ public class JavascriptClause implements Initialisable, SelectClause, WhereClaus
 
   private String script;
 
-  private Script compiledScript;
+  // need to be transient because of XML serialization
+  @SuppressWarnings("TransientFieldInNonSerializableClass")
+  private transient Script compiledScript;
 
   //
   // Constructors
@@ -196,6 +198,7 @@ public class JavascriptClause implements Initialisable, SelectClause, WhereClaus
    * the script's execution.
    * <p/>
    * Classes overriding this method must call their super class' method
+   *
    * @param ctx the current context
    * @param scope the scope of execution of this script
    * @param valueSet the current {@code ValueSet}

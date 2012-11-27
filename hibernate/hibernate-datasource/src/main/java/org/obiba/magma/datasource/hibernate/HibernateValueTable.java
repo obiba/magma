@@ -12,6 +12,7 @@ import org.hibernate.LockMode;
 import org.hibernate.LockOptions;
 import org.obiba.core.service.impl.hibernate.AssociationCriteria;
 import org.obiba.core.service.impl.hibernate.AssociationCriteria.Operation;
+import org.obiba.magma.Datasource;
 import org.obiba.magma.Initialisable;
 import org.obiba.magma.NoSuchValueSetException;
 import org.obiba.magma.Timestamps;
@@ -44,7 +45,7 @@ class HibernateValueTable extends AbstractValueTable {
 
   private final HibernateVariableEntityProvider variableEntityProvider;
 
-  HibernateValueTable(HibernateDatasource datasource, ValueTableState state) {
+  HibernateValueTable(Datasource datasource, ValueTableState state) {
     super(datasource, state.getName());
     valueTableId = state.getId();
     setVariableEntityProvider(variableEntityProvider = new HibernateVariableEntityProvider(state.getEntityType()));
@@ -97,6 +98,7 @@ class HibernateValueTable extends AbstractValueTable {
    * Overridden to include uncommitted sources when a transaction exists on this table and is visible in the current
    * session.
    */
+  @SuppressWarnings("IfMayBeConditional")
   @Override
   protected Set<VariableValueSource> getSources() {
     if(getDatasource().hasTableTransaction(getName())) {
@@ -129,6 +131,7 @@ class HibernateValueTable extends AbstractValueTable {
     addVariableValueSources(uncommittedSources);
   }
 
+  @SuppressWarnings("UnusedDeclaration")
   Serializable getVariableId(Variable variable) {
     return ((HibernateVariableValueSource) getVariableValueSource(variable.getName())).getVariableId();
   }
@@ -193,6 +196,7 @@ class HibernateValueTable extends AbstractValueTable {
      * Returns the set of entities in this table. Will also include uncommitted entities when a transaction is active
      * for this table in the current session.
      */
+    @SuppressWarnings("IfMayBeConditional")
     @Override
     public Set<VariableEntity> getVariableEntities() {
       if(getDatasource().hasTableTransaction(getName())) {

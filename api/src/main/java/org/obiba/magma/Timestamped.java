@@ -4,14 +4,14 @@ import com.google.common.base.Function;
 
 public interface Timestamped {
 
-  public Function<Timestamped, Timestamps> ToTimestamps = new Function<Timestamped, Timestamps>() {
+  Function<Timestamped, Timestamps> ToTimestamps = new Function<Timestamped, Timestamps>() {
 
     @Override
     public Timestamps apply(Timestamped from) {
-      return from.getTimestamps();
+      return from == null ? null : from.getTimestamps();
     }
   };
 
-  public Timestamps getTimestamps();
+  Timestamps getTimestamps();
 
 }

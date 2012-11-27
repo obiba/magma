@@ -4,8 +4,8 @@ import java.util.Set;
 
 public interface ViewPersistenceStrategy {
 
-  public void writeViews(String datasourceName, Set<View> views);
+  void writeViews(String datasourceName, Set<View> views);
 
-  public Set<View> readViews(String datasourceName);
+  Set<View> readViews(String datasourceName);
 
 }

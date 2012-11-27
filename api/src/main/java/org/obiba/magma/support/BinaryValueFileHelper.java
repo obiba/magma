@@ -1,9 +1,9 @@
 /*******************************************************************************
  * Copyright (c) 2012 OBiBa. All rights reserved.
- *  
+ *
  * This program and the accompanying materials
  * are made available under the terms of the GNU Public License v3.0.
- *  
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
@@ -31,9 +31,13 @@ import com.google.common.io.Files;
 /**
  *
  */
+@SuppressWarnings("UnusedDeclaration")
 public class BinaryValueFileHelper {
 
   private static final Logger log = LoggerFactory.getLogger(BinaryValueFileHelper.class);
+
+  private BinaryValueFileHelper() {
+  }
 
   /**
    * Read a file into a binary value.
@@ -55,7 +59,6 @@ public class BinaryValueFileHelper {
       fin.close();
       log.debug("Binary loaded from: {}", file.getAbsolutePath());
     } catch(Exception e) {
-      value = null;
       throw new MagmaRuntimeException("File cannot be read: " + path, e);
     }
     return value;
@@ -85,9 +88,14 @@ public class BinaryValueFileHelper {
     }
   }
 
-  private static void removeFileValue(File parent, String name, String extension) {
+  /**
+   * @return <code>true</code> if and only if the file or directory is
+   *         successfully deleted; <code>false</code> otherwise
+   * @see java.io.File#delete()
+   */
+  private static boolean removeFileValue(File parent, String name, String extension) {
     File file = new File(parent, name + "." + extension);
-    file.delete();
+    return file.delete();
   }
 
   /**
@@ -110,7 +118,7 @@ public class BinaryValueFileHelper {
    * @param value
    * @return
    */
-  private static Value writeFileValue(File parent, final String name, final String extension, Value value) {
+  private static Value writeFileValue(File parent, String name, String extension, Value value) {
     if(value.isSequence()) return writeFileValueSequence(parent, name, extension, value);
 
     if(value.isNull()) {
@@ -147,7 +155,8 @@ public class BinaryValueFileHelper {
    * @param value
    * @return
    */
-  private static Value writeFileValueSequence(File parent, final String name, final String extension, Value value) {
+  private static Value writeFileValueSequence(File parent, @SuppressWarnings("TypeMayBeWeakened") final String name,
+      final String extension, Value value) {
     if(value.isNull()) {
       // remove all files given a pattern
       for(File f : parent.listFiles(new FilenameFilter() {
@@ -187,7 +196,7 @@ public class BinaryValueFileHelper {
     String prefix = variable.getName();
 
     for(Attribute attr : variable.getAttributes()) {
-      if(attr.getName().equalsIgnoreCase("filename") || attr.getName().equalsIgnoreCase("file-name")) {
+      if("filename".equalsIgnoreCase(attr.getName()) || "file-name".equalsIgnoreCase(attr.getName())) {
         String name = variable.getAttributeStringValue(attr.getName());
         if(name.length() > 0) {
           prefix = name;
@@ -204,11 +213,11 @@ public class BinaryValueFileHelper {
    * @param variable
    * @return
    */
-  private static String getFileExtension(Variable variable) {
+  private static String getFileExtension(@SuppressWarnings("TypeMayBeWeakened") Variable variable) {
     String suffix = "bin";
 
     for(Attribute attr : variable.getAttributes()) {
-      if(attr.getName().equalsIgnoreCase("fileextension") || attr.getName().equalsIgnoreCase("file-extension")) {
+      if("fileextension".equalsIgnoreCase(attr.getName()) || "file-extension".equalsIgnoreCase(attr.getName())) {
         String extension = variable.getAttributeStringValue(attr.getName());
         if(extension.startsWith(".")) {
           extension = extension.substring(1);
