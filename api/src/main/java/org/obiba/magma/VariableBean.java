@@ -15,7 +15,7 @@ class VariableBean extends AbstractAttributeAware implements Variable, Serializa
 
   private static final long serialVersionUID = 1L;
 
-  ListMultimap<String, Attribute> attributes = LinkedListMultimap.create();
+  LinkedListMultimap<String, Attribute> attributes = LinkedListMultimap.create();
 
   String name;
 
@@ -33,8 +33,10 @@ class VariableBean extends AbstractAttributeAware implements Variable, Serializa
 
   String occurrenceGroup;
 
-  /** Use a linked hash set to keep insertion order */
-  Set<Category> categories = new LinkedHashSet<Category>();
+  /**
+   * Use a linked hash set to keep insertion order
+   */
+  LinkedHashSet<Category> categories = new LinkedHashSet<Category>();
 
   transient Map<Value, Category> categoriesAsValue;
 
@@ -49,7 +51,7 @@ class VariableBean extends AbstractAttributeAware implements Variable, Serializa
   }
 
   @Override
-  public boolean isForEntityType(final String type) {
+  public boolean isForEntityType(String type) {
     return getEntityType().equals(type);
   }
 
@@ -100,10 +102,7 @@ class VariableBean extends AbstractAttributeAware implements Variable, Serializa
 
   @Override
   public boolean equals(Object o) {
-    if(o instanceof Variable) {
-      return ((Variable) o).getName().equals(name);
-    }
-    return false;
+    return o instanceof Variable && ((Variable) o).getName().equals(name);
   }
 
   @Override

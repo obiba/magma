@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.Value;
 import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
@@ -19,7 +20,7 @@ public class CsvLine {
 
   private Map<String, Integer> headerMap;
 
-  private Map<String, Value> valueMap;
+  private final Map<String, Value> valueMap;
 
   private int index = 1;
 
@@ -31,7 +32,9 @@ public class CsvLine {
     this.entity = entity;
     this.parent = parent;
     if(parent.exists() == false) {
-      parent.mkdirs();
+      if(!parent.mkdirs()) {
+        throw new MagmaRuntimeException("Impossible to create " + parent.getPath() + " directory");
+      }
     }
     headerMap = new HashMap<String, Integer>();
     valueMap = new HashMap<String, Value>();
@@ -49,6 +52,7 @@ public class CsvLine {
     }
   }
 
+  @SuppressWarnings("UnusedDeclaration")
   public String[] getHeader() {
     String[] line = new String[headerMap.size() + 1];
     line[0] = ENTITY_ID_NAME;
@@ -64,7 +68,7 @@ public class CsvLine {
     for(Map.Entry<String, Integer> entry : headerMap.entrySet()) {
       String strValue = null;
       if(valueMap.containsKey(entry.getKey())) {
-        Value value = (valueMap.get(entry.getKey()));
+        Value value = valueMap.get(entry.getKey());
         strValue = value.toString();
       }
       line[entry.getValue()] = strValue;

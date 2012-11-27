@@ -1,9 +1,8 @@
 package org.obiba.magma.support;
 
-
 public abstract class AbstractVariableEntityProvider implements VariableEntityProvider {
 
-  private String entityType;
+  private final String entityType;
 
   protected AbstractVariableEntityProvider(String entityType) {
     this.entityType = entityType;
