@@ -1,8 +1,9 @@
 /**
- * 
+ *
  */
 package org.obiba.magma.concurrent;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -11,18 +12,18 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public class LockManager {
 
-  private Map<String, ReentrantLock> locks = new HashMap<String, ReentrantLock>();
+  private final Map<String, ReentrantLock> locks = new HashMap<String, ReentrantLock>();
 
-  public synchronized void lock(Set<String> lockNames) throws InterruptedException {
+  public synchronized void lock(Collection<String> lockNames) throws InterruptedException {
+    @SuppressWarnings("TypeMayBeWeakened")
     Set<String> lockedNames = new HashSet<String>();
-
     while(lockedNames.size() < lockNames.size()) {
       for(String lockName : lockNames) {
         ReentrantLock lock = getOrCreateLock(lockName);
         if(lock.tryLock()) {
           lockedNames.add(lockName);
         } else {
-          if (lockedNames.size() != 0) {
+          if(lockedNames.size() != 0) {
             unlock(lockedNames, false);
             lockedNames.clear();
           }
@@ -33,7 +34,7 @@ public class LockManager {
     }
   }
 
-  public synchronized void unlock(Set<String> lockNames, boolean notify) {
+  public synchronized void unlock(Iterable<String> lockNames, boolean notify) {
     for(String lockName : lockNames) {
       ReentrantLock lock = locks.get(lockName);
       if(lock != null) {

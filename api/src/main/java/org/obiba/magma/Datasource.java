@@ -2,6 +2,8 @@ package org.obiba.magma;
 
 import java.util.Set;
 
+import javax.annotation.Nullable;
+
 public interface Datasource extends Initialisable, Disposable, AttributeAware {
 
   String getName();
@@ -18,7 +20,7 @@ public interface Datasource extends Initialisable, Disposable, AttributeAware {
 
   void dropTable(String tableName);
 
-  ValueTableWriter createWriter(String tableName, String entityType);
+  ValueTableWriter createWriter(@Nullable String tableName, @Nullable String entityType);
 
   void setAttributeValue(String name, Value value);
 
