@@ -1,8 +1,8 @@
 /*******************************************************************************
  * Copyright (c) 2012 OBiBa. All rights reserved.
- * 
+ *
  * This program and the accompanying materials are made available under the terms of the GNU Public License v3.0.
- * 
+ *
  * You should have received a copy of the GNU General Public License along with this program. If not, see
  * <http://www.gnu.org/licenses/>.
  ******************************************************************************/
@@ -28,21 +28,23 @@ import com.google.common.collect.Sets;
 /**
  * Invoke as {@code java -cp jars magma.DataGenerator -i dictionary.xlsx -o output-file.csv -n qty} where {@code qty} is
  * the number of rows to generate.
- * 
  */
 public class DataGenerator {
 
-  public static void main(String[] args) throws IOException {
+  private DataGenerator() {
+  }
+
+  public static void main(String... args) throws IOException {
     Integer number = 500;
     String outputFileName = "output.csv";
     String inputFileName = "input.xlsx";
 
     for(int i = 0; i < args.length; i++) {
-      if(args[i].equalsIgnoreCase("-n")) {
+      if("-n".equalsIgnoreCase(args[i])) {
         number = Integer.parseInt(args[++i]);
-      } else if(args[i].equalsIgnoreCase("-o")) {
+      } else if("-o".equalsIgnoreCase(args[i])) {
         outputFileName = args[++i];
-      } else if(args[i].equalsIgnoreCase("-i")) {
+      } else if("-i".equalsIgnoreCase(args[i])) {
         inputFileName = args[++i];
       }
     }
@@ -82,7 +84,9 @@ public class DataGenerator {
 
     GeneratedValueTable generated = new GeneratedValueTable(null, Sets.newLinkedHashSet(table.getVariables()), number);
 
-    MultithreadedDatasourceCopier.Builder.newCopier().withCopier(DatasourceCopier.Builder.newCopier().dontCopyMetadata()).from(generated).to(target).as(table.getName()).build().copy();
+    MultithreadedDatasourceCopier.Builder.newCopier()
+        .withCopier(DatasourceCopier.Builder.newCopier().dontCopyMetadata()).from(generated).to(target)
+        .as(table.getName()).build().copy();
 
     Disposables.dispose(eds, target);
 

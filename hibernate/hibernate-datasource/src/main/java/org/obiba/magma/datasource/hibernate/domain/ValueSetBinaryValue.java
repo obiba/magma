@@ -9,7 +9,6 @@
  */
 package org.obiba.magma.datasource.hibernate.domain;
 
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.Lob;
@@ -19,13 +18,15 @@ import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
 import org.hibernate.annotations.Index;
+import org.obiba.core.domain.AbstractEntity;
 
 @Entity
 @Table(name = "value_set_binary_value",
     uniqueConstraints = @UniqueConstraint(columnNames = {"value_set_value_id", "occurrence"}))
 @NamedQuery(name = "findBinaryByValueSetValueAndOccurrence",
     query = "SELECT vb FROM ValueSetBinaryValue vb WHERE vb.valueSetValue = :valueSetValue AND occurrence = :occurrence")
-public class ValueSetBinaryValue extends AbstractTimestampedEntity {
+@SuppressWarnings("UnusedDeclaration")
+public class ValueSetBinaryValue extends AbstractEntity {
 
   private static final long serialVersionUID = -7767999255949547929L;
 
@@ -67,6 +68,7 @@ public class ValueSetBinaryValue extends AbstractTimestampedEntity {
     this.valueSetValue = valueSetValue;
   }
 
+  @SuppressWarnings("MethodCanBeVariableArityMethod")
   public void setValue(byte[] value) {
     if(value == null) {
       throw new IllegalArgumentException("cannot persist null values");

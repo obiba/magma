@@ -17,6 +17,8 @@ import org.hibernate.engine.SessionImplementor;
 import org.hibernate.type.AbstractType;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueType;
+import org.obiba.magma.type.BinaryType;
+import org.obiba.magma.type.TextType;
 
 /**
  * A Hibernate Type for persisting {@code Value} instances. The strategy uses 3 columns:
@@ -43,7 +45,7 @@ public class ValueHibernateType extends AbstractType {
   @Override
   public boolean isDirty(Object old, Object current, boolean[] checkable,
       SessionImplementor session) throws HibernateException {
-    return old.equals(current) == false;
+    return !old.equals(current);
   }
 
   @Override
@@ -70,6 +72,10 @@ public class ValueHibernateType extends AbstractType {
     ValueType valueType = ValueType.Factory.forName(valueTypeName);
     boolean isSequence = rs.getBoolean(names[1]);
     String stringValue = rs.getString(names[2]);
+    if(valueType == BinaryType.get()) {
+      // binary value is stored in a separate table, here we extracting JSON metadata
+      return isSequence ? TextType.get().sequenceOf(stringValue) : TextType.get().valueOf(stringValue);
+    }
     return isSequence ? valueType.sequenceOf(stringValue) : valueType.valueOf(stringValue);
   }
 

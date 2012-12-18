@@ -159,8 +159,7 @@ class HibernateValueTable extends AbstractValueTable {
         valueSetState = (ValueSetState) valueSetCriteria.uniqueResult();
         if(valueSetState != null) {
           // this is important when copying from a HibernateDatasource. Otherwise, they accumulate in the session and
-          // make
-          // flushing longer and longer.
+          // make flushing longer and longer.
           getDatasource().getSessionFactory().getCurrentSession().evict(valueSetState);
         } else {
           throw new NoSuchValueSetException(getValueTable(), getVariableEntity());
