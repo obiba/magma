@@ -1,8 +1,7 @@
 package org.obiba.magma;
 
 import java.lang.ref.WeakReference;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.LinkedHashSet;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
@@ -10,14 +9,21 @@ import org.obiba.magma.concurrent.LockManager;
 import org.obiba.magma.support.Disposables;
 import org.obiba.magma.support.Initialisables;
 import org.obiba.magma.support.ValueTableReference;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 
+@SuppressWarnings({"AssignmentToStaticFieldFromInstanceMethod", "StaticNonFinalField", "UnusedDeclaration"})
 public class MagmaEngine implements DatasourceRegistry {
 
-  /** Keeps a reference on all singletons */
-  private static List<Object> singletons;
+  private final static Logger log = LoggerFactory.getLogger(MagmaEngine.class);
+
+  /**
+   * Keeps a reference on all singletons
+   */
+  private static Set<Object> singletons;
 
   private static MagmaEngine instance;
 
@@ -31,24 +37,26 @@ public class MagmaEngine implements DatasourceRegistry {
 
   public MagmaEngine() {
     if(instance != null) {
-      throw new IllegalStateException("MagmaEngine already instanciated. Only one instance of MagmaEngine should be instantiated.");
+      throw new IllegalStateException(
+          "MagmaEngine already instanciated. Only one instance of MagmaEngine should be instantiated.");
     }
     instance = this;
 
-    singletons = new LinkedList<Object>();
+    singletons = new LinkedHashSet<Object>();
     valueTypeFactory = new ValueTypeFactory();
   }
 
   public static MagmaEngine get() {
     if(instance == null) {
-      throw new IllegalStateException("MagmaEngine not instanciated. Make sure you instantiate the engine before accessing other static methods in the api.");
+      log.warn("Instanciating a new MagmaEngine without any extensions.");
+      new MagmaEngine();
     }
     return instance;
   }
 
   public MagmaEngine extend(MagmaEngineExtension extension) {
     if(extension == null) throw new IllegalArgumentException("extension cannot be null");
-    if(hasExtension(extension.getClass()) == false) {
+    if(!hasExtension(extension.getClass())) {
       Initialisables.initialise(extension);
       extensions.add(extension);
     }
@@ -67,11 +75,11 @@ public class MagmaEngine implements DatasourceRegistry {
   /**
    * Returns true if the {@code MagmaEngine} has a instance of {@code MagmaEngineExtension} whose name equals the name
    * provided.
-   * 
+   *
    * @param name
    * @return
    */
-  public boolean hasExtension(final String name) {
+  public boolean hasExtension(String name) {
     for(MagmaEngineExtension e : extensions) {
       if(e.getName().equals(name)) return true;
     }
@@ -91,7 +99,7 @@ public class MagmaEngine implements DatasourceRegistry {
   }
 
   public void decorate(Decorator<DatasourceRegistry> registryDecorator) {
-    this.datasourceRegistry = registryDecorator.decorate(this.datasourceRegistry);
+    datasourceRegistry = registryDecorator.decorate(datasourceRegistry);
   }
 
   @Override
@@ -109,38 +117,47 @@ public class MagmaEngine implements DatasourceRegistry {
     return getDatasourceRegistry().addDatasource(datasource);
   }
 
+  @Override
   public Datasource addDatasource(DatasourceFactory factory) {
     return getDatasourceRegistry().addDatasource(factory);
   }
 
+  @Override
   public void addDecorator(Decorator<Datasource> decorator) {
     getDatasourceRegistry().addDecorator(decorator);
   }
 
+  @Override
   public String addTransientDatasource(DatasourceFactory factory) {
     return getDatasourceRegistry().addTransientDatasource(factory);
   }
 
+  @Override
   public Set<Datasource> getDatasources() {
     return getDatasourceRegistry().getDatasources();
   }
 
+  @Override
   public Datasource getTransientDatasourceInstance(String uid) {
     return getDatasourceRegistry().getTransientDatasourceInstance(uid);
   }
 
+  @Override
   public boolean hasDatasource(String name) {
     return getDatasourceRegistry().hasDatasource(name);
   }
 
+  @Override
   public boolean hasTransientDatasource(String uid) {
     return getDatasourceRegistry().hasTransientDatasource(uid);
   }
 
+  @Override
   public void removeDatasource(Datasource datasource) {
     getDatasourceRegistry().removeDatasource(datasource);
   }
 
+  @Override
   public void removeTransientDatasource(String uid) {
     getDatasourceRegistry().removeTransientDatasource(uid);
   }
@@ -157,13 +174,13 @@ public class MagmaEngine implements DatasourceRegistry {
     lockManager.unlock(lockNames, true);
   }
 
-  public <T> WeakReference<T> registerInstance(final T singleton) {
+  public <T> WeakReference<T> registerInstance(T singleton) {
     singletons.add(singleton);
     return new WeakReference<T>(singleton);
   }
 
   public void shutdown() {
-    for(Disposable d : Iterables.filter(this.extensions, Disposable.class)) {
+    for(Disposable d : Iterables.filter(extensions, Disposable.class)) {
       Disposables.silentlyDispose(d);
     }
     Disposables.silentlyDispose(datasourceRegistry);

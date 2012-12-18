@@ -31,6 +31,7 @@ import org.obiba.magma.hibernate.type.ValueHibernateType;
 
 import com.google.common.collect.Sets;
 
+@SuppressWarnings("UnusedDeclaration")
 @Entity
 @Table(name = "value_set_value",
     uniqueConstraints = @UniqueConstraint(columnNames = {"value_set_id", "variable_id"}))

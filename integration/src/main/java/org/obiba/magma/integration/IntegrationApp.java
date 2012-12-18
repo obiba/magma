@@ -34,13 +34,15 @@ import org.obiba.magma.xstream.MagmaXStreamExtension;
 
 /**
  */
+@SuppressWarnings("UseOfSystemOutOrSystemErr")
 public class IntegrationApp {
 
   public static void main(String[] args) throws IOException, NoSuchAlgorithmException {
     new MagmaEngine().extend(new MagmaJsExtension()).extend(new MagmaXStreamExtension());
 
     XStreamIntegrationServiceFactory factory = new XStreamIntegrationServiceFactory();
-    IntegrationDatasource integrationDatasource = new IntegrationDatasource(factory.buildService(new InputStreamReader(IntegrationApp.class.getResourceAsStream("participants.xml"), "UTF-8")));
+    IntegrationDatasource integrationDatasource = new IntegrationDatasource(factory
+        .buildService(new InputStreamReader(IntegrationApp.class.getResourceAsStream("participants.xml"), "UTF-8")));
 
     MagmaEngine.get().addDatasource(integrationDatasource);
 
@@ -75,7 +77,8 @@ public class IntegrationApp {
             ValueSequence seq = value.asSequence();
             int order = 0;
             for(Value item : seq.getValues()) {
-              System.out.println(variable.getName() + "[" + value.getValueType().getName() + "]@" + (order++) + ": " + item);
+              System.out
+                  .println(variable.getName() + "[" + value.getValueType().getName() + "]@" + order++ + ": " + item);
             }
           } else {
             System.out.println(variable.getName() + "[" + value.getValueType().getName() + "]: " + value);
@@ -95,7 +98,9 @@ public class IntegrationApp {
     // Disconnect it from Magma
     MagmaEngine.get().removeDatasource(fs);
 
-    SessionFactoryProvider provider = new LocalSessionFactoryProvider("org.hsqldb.jdbcDriver", "jdbc:hsqldb:file:target/integration-hibernate.db;shutdown=true", "sa", "", "org.hibernate.dialect.HSQLDialect");
+    SessionFactoryProvider provider = new LocalSessionFactoryProvider("org.hsqldb.jdbcDriver",
+        "jdbc:hsqldb:file:target/integration-hibernate.db;shutdown=true", "sa", "",
+        "org.hibernate.dialect.HSQLDialect");
     HibernateDatasourceFactory hdsFactory = new HibernateDatasourceFactory("integration-hibernate", provider);
 
     try {
@@ -145,7 +150,8 @@ public class IntegrationApp {
     createFile(csvVariablesFile);
     CsvDatasource csvDatasource = new CsvDatasource("csv");
     csvDatasource.addValueTable("integration-app", csvVariablesFile, csvDataFile);
-    csvDatasource.setVariablesHeader("integration-app", "name#valueType#entityType#mimeType#unit#occurrenceGroup#repeatable#script".split("#"));
+    csvDatasource.setVariablesHeader("integration-app",
+        "name#valueType#entityType#mimeType#unit#occurrenceGroup#repeatable#script".split("#"));
     MagmaEngine.get().addDatasource(csvDatasource);
     DatasourceCopier.Builder.newCopier().dontCopyNullValues().build().copy(integrationDatasource, csvDatasource);
 

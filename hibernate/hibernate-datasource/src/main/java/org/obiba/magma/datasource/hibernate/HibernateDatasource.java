@@ -23,13 +23,13 @@ import org.obiba.magma.datasource.hibernate.converter.AttributeAwareConverter;
 import org.obiba.magma.datasource.hibernate.converter.HibernateMarshallingContext;
 import org.obiba.magma.datasource.hibernate.domain.AttributeState;
 import org.obiba.magma.datasource.hibernate.domain.DatasourceState;
-import org.obiba.magma.datasource.hibernate.domain.ValueSetValue;
 import org.obiba.magma.datasource.hibernate.domain.ValueTableState;
 import org.obiba.magma.datasource.hibernate.domain.VariableState;
 import org.obiba.magma.support.AbstractDatasource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.MapMaker;
 
 /**
@@ -67,8 +67,8 @@ public class HibernateDatasource extends AbstractDatasource {
    */
   @Override
   public ValueTableWriter createWriter(String tableName, String entityType) {
-    if(tableName == null) throw new IllegalArgumentException("tableName cannot be null");
-    if(entityType == null) throw new IllegalArgumentException("entityType cannot be null");
+    Preconditions.checkArgument(tableName != null, "tableName cannot be null");
+    Preconditions.checkArgument(entityType != null, "entityType cannot be null");
 
     HibernateValueTableTransaction valueTableTransaction;
     if(hasTableTransaction(tableName)) {
@@ -208,6 +208,7 @@ public class HibernateDatasource extends AbstractDatasource {
   /**
    * Adds the specified {@code ValueTable} to the set of value tables this datasource holds. This method is used by
    * {@code HibernateValueTableTransaction} to add value tables that are created within a transaction.
+   *
    * @param vt the value table instance to add
    */
   void commitValueTable(ValueTable vt) {
@@ -222,6 +223,7 @@ public class HibernateDatasource extends AbstractDatasource {
     return (DatasourceState) sessionFactory.getCurrentSession().get(DatasourceState.class, datasourceId);
   }
 
+  @SuppressWarnings("UnusedDeclaration")
   HibernateMarshallingContext createContext() {
     return HibernateMarshallingContext.create(getSessionFactory(), getDatasourceState());
   }
@@ -233,6 +235,7 @@ public class HibernateDatasource extends AbstractDatasource {
   /**
    * Returns true if a transaction exists on the specified table name. False otherwise. Note that this will return true
    * only if the current thread is associated with the transaction.
+   *
    * @param name the name of the value table
    * @return true when a {@code HibernateValueTableTransaction} currently exists for the specified table name
    */
@@ -250,6 +253,7 @@ public class HibernateDatasource extends AbstractDatasource {
    * <p/>
    * Note that this method will throw an exception if no transaction exists for the table name. Use
    * {@code #hasTableTransaction} to test the existence of a transaction before calling this method.
+   *
    * @param name the name of the value table
    * @return the instance of {@code HibernateValueTableTransaction} if one exists.
    * @throws IllegalStateException if no such transaction instance exists.
@@ -266,6 +270,7 @@ public class HibernateDatasource extends AbstractDatasource {
   /**
    * Creates a new {@code HibernateValueTableTransaction} for the specified value table. If a transaction already
    * exists, that transaction is returned.
+   *
    * @param valueTable the value table for which to create the transaction.
    * @param createTableTransaction true when this transaction is creating the value table, false otherwise.
    * @return a {@code HibernateValueTableTransaction} instance for the specified {@code HibernateValueTable}
@@ -286,6 +291,7 @@ public class HibernateDatasource extends AbstractDatasource {
    * this method returns a list of {@code HibernateValueTableTransaction} instances. This method never returns null.
    * <p/>
    * If no Hibernate transaction exists this method returns an empty list.
+   *
    * @return list of {@code HibernateValueTableTransaction} associated with the current
    *         {@code org.hibernate.Transaction}
    */
