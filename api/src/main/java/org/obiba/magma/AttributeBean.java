@@ -31,7 +31,7 @@ class AttributeBean implements Attribute, Serializable {
 
   @Override
   public boolean hasNamespace() {
-    return namespace != null;
+    return namespace != null && !namespace.isEmpty();
   }
 
   @Override
@@ -46,7 +46,7 @@ class AttributeBean implements Attribute, Serializable {
 
   @Override
   public boolean isLocalised() {
-    return locale != null;
+    return locale != null && !locale.toString().isEmpty();
   }
 
   @Override

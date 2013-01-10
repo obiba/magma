@@ -161,7 +161,7 @@ public abstract class AbstractAttributeAware implements AttributeAware {
       @Override
       public boolean apply(Attribute input) {
         // Allows namespace to be null
-        return Objects.equal(namespace, input.getNamespace());
+        return Objects.equal(namespace, input.hasNamespace() ? input.getNamespace() : null);
       }
     }), AttributeNameFunc.INSTANCE);
   }
