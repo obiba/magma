@@ -2,6 +2,7 @@ package org.obiba.magma.js;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -23,6 +24,8 @@ import org.obiba.magma.ValueTable;
 import org.obiba.magma.ValueType;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.VectorSource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
@@ -31,15 +34,17 @@ import com.google.common.collect.Maps;
 
 /**
  * A {@code ValueSource} implementation that uses a JavaScript script to evaluate the {@code Value} to return.
- * <p>
+ * <p/>
  * Within the JavaScript engine, {@code Value} instances are represented by {@code ScriptableValue} host objects.
- * <p>
+ * <p/>
  * This class implements {@code Initialisable}. During the {@code #initialise()} method, the provided script is
  * compiled. Any compile error is thrown as a {@code EvaluatorException} which contains the details of the error.
- * 
+ *
  * @see ScriptableValue
  */
 public class JavascriptValueSource implements ValueSource, VectorSource, Initialisable {
+
+  private static final Logger log = LoggerFactory.getLogger(JavascriptValueSource.class);
 
   private ValueType type;
 
@@ -47,6 +52,8 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
 
   private String scriptName = "customScript";
 
+  // need to be transient because of XML serialization
+  @SuppressWarnings("TransientFieldInNonSerializableClass")
   private transient Script compiledScript;
 
   public JavascriptValueSource() {
@@ -65,7 +72,7 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
   }
 
   public void setScriptName(String name) {
-    this.scriptName = name;
+    scriptName = name;
   }
 
   public String getScript() {
@@ -73,14 +80,22 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
   }
 
   @Override
-  public Value getValue(final ValueSet valueSet) {
+  public Value getValue(ValueSet valueSet) {
     if(getValueType() == null) {
       throw new IllegalStateException("valueType must be set before calling getValue().");
     }
     if(compiledScript == null) {
       throw new IllegalStateException("script hasn't been compile. Call initialise() before calling getValue().");
     }
-    return ((Value) ContextFactory.getGlobal().call(new ValueSetEvaluationContextAction(valueSet)));
+    /*try {
+      throw new Exception();
+    } catch (Exception e) {
+      log.error("", e);
+    }*/
+    long start = System.currentTimeMillis();
+    Value rval = (Value) ContextFactory.getGlobal().call(new ValueSetEvaluationContextAction(valueSet));
+    log.trace("Evaluation of {}: {}ms", getScriptName(),System.currentTimeMillis() - start);
+    return rval;
   }
 
   @Override
@@ -97,7 +112,7 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
     if(compiledScript == null) {
       throw new IllegalStateException("script hasn't been compile. Call initialise() before calling getValue().");
     }
-    return ((Iterable<Value>) ContextFactory.getGlobal().call(new ValueVectorEvaluationContextAction(entities)));
+    return (Iterable<Value>) ContextFactory.getGlobal().call(new ValueVectorEvaluationContextAction(entities));
   }
 
   @Override
@@ -107,20 +122,16 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
 
   @Override
   public void initialise() throws EvaluatorException {
-    final String script = getScript();
-    if(script == null) {
+    final String script1 = getScript();
+    if(script1 == null) {
       throw new NullPointerException("script cannot be null");
     }
-    try {
-      compiledScript = (Script) ContextFactory.getGlobal().call(new ContextAction() {
-        @Override
-        public Object run(Context cx) {
-          return cx.compileString(script, getScriptName(), 1, null);
-        }
-      });
-    } catch(EvaluatorException e) {
-      throw e;
-    }
+    compiledScript = (Script) ContextFactory.getGlobal().call(new ContextAction() {
+      @Override
+      public Object run(Context cx) {
+        return cx.compileString(script1, getScriptName(), 1, null);
+      }
+    });
   }
 
   protected boolean isSequence() {
@@ -132,9 +143,9 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
    * within the context. This method will add the current {@code ValueSet} as a {@code ThreadLocal} variable with
    * {@code ValueSet#class} as its key. This allows other classes to have access to the current {@code ValueSet} during
    * the script's execution.
-   * <p>
+   * <p/>
    * Classes overriding this method must call their super class' method
-   * 
+   *
    * @param ctx the current context
    * @param scope the scope of execution of this script
    * @param valueSet the current {@code ValueSet}
@@ -147,6 +158,7 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
 
   private abstract class AbstractEvaluationContextAction implements ContextAction {
 
+    @Override
     public Object run(Context ctx) {
       MagmaContext context = MagmaContext.asMagmaContext(ctx);
       // Don't pollute the global scope
@@ -174,33 +186,17 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
 
     Value asValue(Object value) {
       Value result = null;
-      if(value == null) {
+      if(value == null || value instanceof Undefined) {
         result = isSequence() ? getValueType().nullSequence() : getValueType().nullValue();
       } else if(value instanceof ScriptableValue) {
         ScriptableValue scriptableValue = (ScriptableValue) value;
         if(scriptableValue.getValue().isSequence() != isSequence()) {
-          throw new MagmaJsRuntimeException("The returned value is " + (isSequence() ? "" : "not ") + "expected to be a value sequence.");
+          throw new MagmaJsRuntimeException(
+              "The returned value is " + (isSequence() ? "" : "not ") + "expected to be a value sequence.");
         }
         result = scriptableValue.getValue();
-      } else if(value instanceof Undefined) {
-        result = isSequence() ? getValueType().nullSequence() : getValueType().nullValue();
       } else {
-        if(isSequence()) {
-          if(value.getClass().isArray()) {
-            int length = Array.getLength(value);
-            List<Value> values = new ArrayList<Value>(length);
-            for(int i = 0; i < length; i++) {
-              Object v = Rhino.fixRhinoNumber(Array.get(value, i));
-              values.add(getValueType().valueOf(v));
-            }
-            result = getValueType().sequenceOf(values);
-          } else {
-            // Build a singleton sequence
-            result = getValueType().sequenceOf(ImmutableList.of(getValueType().valueOf(Rhino.fixRhinoNumber(value))));
-          }
-        } else {
-          result = getValueType().valueOf(Rhino.fixRhinoNumber(value));
-        }
+        result = isSequence() ? asValueSequence(value) : getValueType().valueOf(Rhino.fixRhinoNumber(value));
       }
 
       if(result.getValueType() != getValueType()) {
@@ -208,13 +204,31 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
         try {
           result = getValueType().convert(result);
         } catch(RuntimeException e) {
-          throw new MagmaJsRuntimeException("Cannot convert value '" + result.toString() + "' to type '" + getValueType().getName() + "'");
+          throw new MagmaJsRuntimeException(
+              "Cannot convert value '" + result.toString() + "' to type '" + getValueType().getName() + "'");
         }
       }
       return result;
     }
 
+    Value asValueSequence(Object value) {
+      Value result = null;
+      if(value.getClass().isArray()) {
+        int length = Array.getLength(value);
+        Collection<Value> values = new ArrayList<Value>(length);
+        for(int i = 0; i < length; i++) {
+          Object v = Rhino.fixRhinoNumber(Array.get(value, i));
+          values.add(getValueType().valueOf(v));
+        }
+        result = getValueType().sequenceOf(values);
+      } else {
+        // Build a singleton sequence
+        result = getValueType().sequenceOf(ImmutableList.of(getValueType().valueOf(Rhino.fixRhinoNumber(value))));
+      }
+      return result;
+    }
   }
+
 
   private final class ValueSetEvaluationContextAction extends AbstractEvaluationContextAction {
 
@@ -346,12 +360,12 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
      * Returns the value of the "row" for this vector. This method will advance the iterator until we reach the
      * requested row. This is required because during evaluation, not all vectors involved in a script are incremented
      * during evaluation (due to 'if' statements in the script).
-     * 
+     * <p/>
      * For example, in the following script:
-     * 
+     * <p/>
      * <pre>
      * $('VAR1') ? $('VAR2') : $('VAR3')
-     * 
+     *
      * <pre>
      * vectors for VAR2 and VAR3 are not incremented at the same "rate" as VAR1.
      */
