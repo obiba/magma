@@ -32,7 +32,7 @@ import org.obiba.magma.Variable;
 import org.obiba.magma.hibernate.type.ValueTypeHibernateType;
 
 @Entity
-@Table(name = "variable", uniqueConstraints = @UniqueConstraint(columnNames = {"value_table_id", "name"}))
+@Table(name = "variable", uniqueConstraints = @UniqueConstraint(columnNames = { "value_table_id", "name" }))
 @TypeDef(name = "value_type", typeClass = ValueTypeHibernateType.class)
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 @NamedQuery(name = "allValues", query = "select vs.variableEntity.identifier, vsv.value from ValueSetState as vs " + //
@@ -180,19 +180,19 @@ public class VariableState extends AbstractAttributeAwareEntity implements Times
     getCategories().add(state);
   }
 
-  public CategoryState getCategory(String name) {
+  public CategoryState getCategory(String categoryName) {
     for(CategoryState state : getCategories()) {
-      if(name.equals(state.getName())) {
+      if(categoryName.equals(state.getName())) {
         return state;
       }
     }
     return null;
   }
 
-  public int getCategoryIndex(String name) {
+  public int getCategoryIndex(String categoryName) {
     int index = 0;
     for(CategoryState state : getCategories()) {
-      if(name.equals(state.getName())) {
+      if(categoryName.equals(state.getName())) {
         return index;
       }
       index++;

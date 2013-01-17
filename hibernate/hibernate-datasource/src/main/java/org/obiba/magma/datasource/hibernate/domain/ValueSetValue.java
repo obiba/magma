@@ -9,19 +9,21 @@
  */
 package org.obiba.magma.datasource.hibernate.domain;
 
-import java.util.Set;
+import java.io.Serializable;
+import java.util.Date;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
+import javax.persistence.Embeddable;
+import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.NamedQuery;
-import javax.persistence.OneToMany;
-import javax.persistence.OrderBy;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 import javax.persistence.UniqueConstraint;
+import javax.persistence.Version;
 
 import org.hibernate.annotations.Columns;
 import org.hibernate.annotations.Type;
@@ -29,38 +31,35 @@ import org.hibernate.annotations.TypeDef;
 import org.obiba.magma.Value;
 import org.obiba.magma.hibernate.type.ValueHibernateType;
 
-import com.google.common.collect.Sets;
-
 @SuppressWarnings("UnusedDeclaration")
 @Entity
 @Table(name = "value_set_value",
-    uniqueConstraints = @UniqueConstraint(columnNames = {"value_set_id", "variable_id"}))
+    uniqueConstraints = @UniqueConstraint(columnNames = { "value_set_id", "variable_id" }))
 @TypeDef(name = "value", typeClass = ValueHibernateType.class)
 @NamedQuery(name = "findValuesByTable",
-    query = "SELECT vsv FROM ValueSetValue vsv WHERE vsv.valueSet.id " + //
+    query = "SELECT vsv FROM ValueSetValue vsv WHERE vsv.id.valueSet " + //
         "IN (SELECT vs.id FROM ValueSetState vs WHERE vs.valueTable.id = :valueTableId)")
-public class ValueSetValue extends AbstractTimestampedEntity {
+public class ValueSetValue implements Timestamped, Serializable {
 
   private static final long serialVersionUID = 4356913652103162813L;
 
-  @ManyToOne(optional = false)
-  @JoinColumn(name = "value_set_id", referencedColumnName = "id")
-  private ValueSetState valueSet;
-
-  @ManyToOne(optional = false)
-  @JoinColumn(name = "variable_id", referencedColumnName = "id")
-  private VariableState variable;
+  @EmbeddedId
+  private ValueSetValueId id;
 
   @Type(type = "value")
   @Columns(columns = { //
       @Column(name = "value_type", nullable = false), //
       @Column(name = "is_sequence", nullable = false), //
-      @Column(name = "value", length = Integer.MAX_VALUE, nullable = false)})
+      @Column(name = "value", length = Integer.MAX_VALUE, nullable = false) })
   private Value value;
 
-  @OrderBy("occurrence")
-  @OneToMany(cascade = CascadeType.ALL, mappedBy = "valueSetValue", orphanRemoval = true, fetch = FetchType.LAZY)
-  private Set<ValueSetBinaryValue> binaryValues;
+  @Temporal(TemporalType.TIMESTAMP)
+  @Column(insertable = true, updatable = false, nullable = false)
+  private Date created = new Date();
+
+  @Version
+  @Column(nullable = false)
+  private Date updated;
 
   @SuppressWarnings("UnusedDeclaration")
   public ValueSetValue() {
@@ -69,8 +68,7 @@ public class ValueSetValue extends AbstractTimestampedEntity {
   public ValueSetValue(VariableState variable, ValueSetState valueSet) {
     if(variable == null) throw new IllegalArgumentException("variable cannot be null");
     if(valueSet == null) throw new IllegalArgumentException("valueSet cannot be null");
-    this.variable = variable;
-    this.valueSet = valueSet;
+    id = new ValueSetValueId(variable, valueSet);
   }
 
   public void setValue(Value value) {
@@ -84,31 +82,96 @@ public class ValueSetValue extends AbstractTimestampedEntity {
     return value;
   }
 
-  public Set<ValueSetBinaryValue> getBinaryValues() {
-    return binaryValues;
+  @Override
+  public Date getCreated() {
+    return new Date(created.getTime());
   }
 
-  public void addBinaryValue(ValueSetBinaryValue binaryValue) {
-    if(binaryValues == null) {
-      binaryValues = Sets.newLinkedHashSet();
-    }
-    if(binaryValues.add(binaryValue)) {
-      binaryValue.setValueSetValue(this);
-    }
-  }
-
-  public void removeBinaryValue(ValueSetBinaryValue binaryValue) {
-    if(binaryValues != null && binaryValues.remove(binaryValue)) {
-      binaryValue.setValueSetValue(null);
-    }
+  @Override
+  public Date getUpdated() {
+    return new Date(updated.getTime());
   }
 
   public ValueSetState getValueSet() {
-    return valueSet;
+    return id.valueSet;
   }
 
   public VariableState getVariable() {
-    return variable;
+    return id.variable;
   }
+
+  @Embeddable
+  public final static class ValueSetValueId implements Serializable {
+
+    private static final long serialVersionUID = 4020718518680731845L;
+
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "value_set_id", referencedColumnName = "id")
+    private ValueSetState valueSet;
+
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "variable_id", referencedColumnName = "id")
+    private VariableState variable;
+
+    public ValueSetValueId() {
+    }
+
+    public ValueSetValueId(VariableState variable, ValueSetState valueSet) {
+      this.valueSet = valueSet;
+      this.variable = variable;
+    }
+
+    @Override
+    public int hashCode() {
+      int prime = 31;
+      int result = 1;
+      result = prime * result + (valueSet == null ? 0 : valueSet.hashCode());
+      result = prime * result + (variable == null ? 0 : variable.hashCode());
+      return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+      if(this == obj) return true;
+      if(obj == null) return false;
+      if(getClass() != obj.getClass()) return false;
+      ValueSetValueId other = (ValueSetValueId) obj;
+      if(valueSet == null) {
+        if(other.valueSet != null) return false;
+      } else if(!valueSet.equals(other.valueSet)) return false;
+      if(variable == null) {
+        if(other.variable != null) return false;
+      } else if(!variable.equals(other.variable)) return false;
+      return true;
+    }
+
+  }
+
+//  public Set<ValueSetBinaryValue> getBinaryValues() {
+//    return binaryValues;
+//  }
+//
+//  public void addBinaryValue(ValueSetBinaryValue binaryValue) {
+//    if(binaryValues == null) {
+//      binaryValues = Sets.newLinkedHashSet();
+//    }
+//    if(binaryValues.add(binaryValue)) {
+//      binaryValue.setValueSetValue(this);
+//    }
+//  }
+//
+//  public void removeBinaryValue(ValueSetBinaryValue binaryValue) {
+//    if(binaryValues != null && binaryValues.remove(binaryValue)) {
+//      binaryValue.setValueSetValue(null);
+//    }
+//  }
+//
+//  public ValueSetState getValueSet() {
+//    return valueSet;
+//  }
+//
+//  public VariableState getVariable() {
+//    return variable;
+//  }
 
 }

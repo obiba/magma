@@ -39,7 +39,7 @@ public class HibernateDatasource extends AbstractDatasource {
 
   private static final Logger log = LoggerFactory.getLogger(HibernateDatasource.class);
 
-  private static final String HIBERNATE_TYPE = "hibernate";
+  public static final String TYPE = "hibernate";
 
   private final SessionFactory sessionFactory;
 
@@ -54,7 +54,7 @@ public class HibernateDatasource extends AbstractDatasource {
       .makeMap();
 
   public HibernateDatasource(String name, SessionFactory sessionFactory) {
-    super(name, HIBERNATE_TYPE);
+    super(name, TYPE);
     if(sessionFactory == null) throw new IllegalArgumentException("sessionFactory cannot be null");
 
     this.sessionFactory = sessionFactory;

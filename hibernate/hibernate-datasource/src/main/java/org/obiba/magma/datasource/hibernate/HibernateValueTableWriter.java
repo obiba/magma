@@ -178,7 +178,7 @@ class HibernateValueTableWriter implements ValueTableWriter {
       ValueSetValue valueSetValue;
       valueSetValue = new ValueSetValue(variableState, valueSetState);
 
-      if(value.getValueType().equals(BinaryType.get())) {
+      if(BinaryType.get().equals(value.getValueType())) {
         writeBinaryValue(valueSetValue, value, false);
       } else {
         valueSetValue.setValue(value);
@@ -192,7 +192,7 @@ class HibernateValueTableWriter implements ValueTableWriter {
       if(value.isNull()) {
         removeValue(variable, valueSetValue);
       } else {
-        if(value.getValueType().equals(BinaryType.get())) {
+        if(BinaryType.get().equals(value.getValueType())) {
           writeBinaryValue(valueSetValue, value, true);
         } else {
           valueSetValue.setValue(value);
@@ -224,13 +224,13 @@ class HibernateValueTableWriter implements ValueTableWriter {
       if(binaryValue == null) {
         binaryValue = createBinaryValue(valueSetValue, inputValue, occurrence);
       } else if(inputValue.getValue() == null) {
-        valueSetValue.removeBinaryValue(binaryValue);
+        session.delete(binaryValue);
       }
       if(binaryValue == null) {
         // can be null if empty byte[]
         value = TextType.get().nullValue();
       } else {
-        valueSetValue.addBinaryValue(binaryValue);
+        session.save(binaryValue);
         value = getBinaryMetadata(binaryValue);
       }
       return value;
@@ -238,7 +238,8 @@ class HibernateValueTableWriter implements ValueTableWriter {
 
     private ValueSetBinaryValue findBinaryValue(ValueSetValue valueSetValue, int occurrence) {
       return (ValueSetBinaryValue) session.getNamedQuery("findBinaryByValueSetValueAndOccurrence") //
-          .setParameter("valueSetValue", valueSetValue) //
+          .setParameter("variableId", valueSetValue.getVariable().getId()) //
+          .setParameter("valueSetId", valueSetValue.getValueSet().getId()) //
           .setParameter("occurrence", occurrence) //
           .uniqueResult();
     }

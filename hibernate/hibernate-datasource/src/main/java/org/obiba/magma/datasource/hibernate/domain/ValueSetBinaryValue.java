@@ -22,9 +22,10 @@ import org.obiba.core.domain.AbstractEntity;
 
 @Entity
 @Table(name = "value_set_binary_value",
-    uniqueConstraints = @UniqueConstraint(columnNames = {"value_set_value_id", "occurrence"}))
-@NamedQuery(name = "findBinaryByValueSetValueAndOccurrence",
-    query = "SELECT vb FROM ValueSetBinaryValue vb WHERE vb.valueSetValue = :valueSetValue AND occurrence = :occurrence")
+    uniqueConstraints = @UniqueConstraint(columnNames = { "value_set_id", "variable_id", "occurrence" }))
+@NamedQuery(name = "findBinaryByValueSetValueAndOccurrence", query = //
+    "SELECT vb FROM ValueSetBinaryValue vb " + //
+        "WHERE vb.valueSet.id = :valueSetId AND vb.variable.id = :variableId AND occurrence = :occurrence")
 @SuppressWarnings("UnusedDeclaration")
 public class ValueSetBinaryValue extends AbstractEntity {
 
@@ -36,8 +37,12 @@ public class ValueSetBinaryValue extends AbstractEntity {
   private int size;
 
   @ManyToOne(optional = false)
-  @JoinColumn(name = "value_set_value_id", referencedColumnName = "id")
-  private ValueSetValue valueSetValue;
+  @JoinColumn(name = "value_set_id", referencedColumnName = "id")
+  private ValueSetState valueSet;
+
+  @ManyToOne(optional = false)
+  @JoinColumn(name = "variable_id", referencedColumnName = "id")
+  private VariableState variable;
 
   @Index(name = "occurrenceIndex")
   private int occurrence;
@@ -48,7 +53,8 @@ public class ValueSetBinaryValue extends AbstractEntity {
 
   public ValueSetBinaryValue(ValueSetValue valueSetValue, int occurrence) {
     if(valueSetValue == null) throw new IllegalArgumentException("valueSetValue cannot be null");
-    this.valueSetValue = valueSetValue;
+    valueSet = valueSetValue.getValueSet();
+    variable = valueSetValue.getVariable();
     this.occurrence = occurrence;
   }
 
@@ -60,12 +66,12 @@ public class ValueSetBinaryValue extends AbstractEntity {
     return value;
   }
 
-  public ValueSetValue getValueSetValue() {
-    return valueSetValue;
+  public ValueSetState getValueSet() {
+    return valueSet;
   }
 
-  public void setValueSetValue(ValueSetValue valueSetValue) {
-    this.valueSetValue = valueSetValue;
+  public VariableState getVariable() {
+    return variable;
   }
 
   @SuppressWarnings("MethodCanBeVariableArityMethod")

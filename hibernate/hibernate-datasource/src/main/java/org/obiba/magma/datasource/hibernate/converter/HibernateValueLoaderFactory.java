@@ -39,7 +39,8 @@ public class HibernateValueLoaderFactory implements ValueLoaderFactory {
 
   @Override
   public ValueLoader create(Value valueRef, Integer occurrence) {
-    return new HibernateBinaryValueLoader(sessionFactory, valueSetValue.getId(), occurrence, valueRef);
+    return new HibernateBinaryValueLoader(sessionFactory, valueSetValue.getVariable().getId(),
+        valueSetValue.getValueSet().getId(), occurrence, valueRef);
   }
 
   private static final class HibernateBinaryValueLoader implements ValueLoader, Serializable {
@@ -50,7 +51,9 @@ public class HibernateValueLoaderFactory implements ValueLoaderFactory {
 
     private final SessionFactory sessionFactory;
 
-    private final Serializable valueSetValueId;
+    private final Serializable variableId;
+
+    private final Serializable valueSetId;
 
     private final int occurrence;
 
@@ -58,10 +61,11 @@ public class HibernateValueLoaderFactory implements ValueLoaderFactory {
 
     private byte[] value;
 
-    private HibernateBinaryValueLoader(SessionFactory sessionFactory, Serializable valueSetValueId, Integer occurrence,
-        Value valueRef) {
+    private HibernateBinaryValueLoader(SessionFactory sessionFactory, Serializable variableId, Serializable valueSetId,
+        Integer occurrence, Value valueRef) {
       this.sessionFactory = sessionFactory;
-      this.valueSetValueId = valueSetValueId;
+      this.variableId = variableId;
+      this.valueSetId = valueSetId;
       this.occurrence = occurrence == null ? 0 : occurrence;
       this.valueRef = valueRef;
     }
@@ -74,11 +78,12 @@ public class HibernateValueLoaderFactory implements ValueLoaderFactory {
     @Override
     public Object getValue() {
       if(value == null) {
-        log.debug("Loading binary from value_set_binary_value table");
+        log.trace("Loading binary from value_set_binary_value table");
 
         ValueSetBinaryValue binaryValue = (ValueSetBinaryValue) AssociationCriteria
             .create(ValueSetBinaryValue.class, sessionFactory.getCurrentSession()) //
-            .add("valueSetValue.id", Operation.eq, valueSetValueId) //
+            .add("variable.id", Operation.eq, variableId) //
+            .add("valueSet.id", Operation.eq, valueSetId) //
             .add("occurrence", Operation.eq, occurrence) //
             .getCriteria().uniqueResult();
         value = binaryValue == null ? null : binaryValue.getValue();

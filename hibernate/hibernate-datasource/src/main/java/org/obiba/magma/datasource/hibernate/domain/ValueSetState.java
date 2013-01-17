@@ -27,7 +27,7 @@ import com.google.common.collect.Sets;
 
 @Entity
 @Table(name = "value_set",
-    uniqueConstraints = @UniqueConstraint(columnNames = {"value_table_id", "variable_entity_id"}))
+    uniqueConstraints = @UniqueConstraint(columnNames = { "value_table_id", "variable_entity_id" }))
 @NamedQuery(name = "findValueSetsByTableId",
     query = "SELECT vs FROM ValueSetState vs where vs.valueTable.id = :valueTableId")
 public class ValueSetState extends AbstractTimestampedEntity {
@@ -44,7 +44,7 @@ public class ValueSetState extends AbstractTimestampedEntity {
 
   @edu.umd.cs.findbugs.annotations.SuppressWarnings(value = "SE_BAD_FIELD",
       justification = "Cannot declare as LinkedHashSet because of Hibernate: Illegal attempt to map a non collection as a @OneToMany")
-  @OneToMany(cascade = CascadeType.ALL, mappedBy = "valueSet", orphanRemoval = true)
+  @OneToMany(cascade = CascadeType.ALL, mappedBy = "id.valueSet", orphanRemoval = true)
   private Set<ValueSetValue> values;
 
   private transient Map<String, ValueSetValue> valueMap;
