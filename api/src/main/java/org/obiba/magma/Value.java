@@ -2,6 +2,7 @@ package org.obiba.magma;
 
 import java.io.Serializable;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public class Value implements Serializable, Comparable<Value> {
@@ -10,6 +11,7 @@ public class Value implements Serializable, Comparable<Value> {
 
   private static final Serializable NULL = "org.obiba.magma.Value.NULL".intern();
 
+  @Nonnull
   private final ValueType valueType;
 
   private final ValueLoader valueLoader;
@@ -20,6 +22,7 @@ public class Value implements Serializable, Comparable<Value> {
     this(valueType, new StaticValueLoader(value));
   }
 
+  @SuppressWarnings("NullableProblems")
   Value(@Nullable ValueType valueType, ValueLoader valueLoader) {
     if(valueType == null) throw new IllegalArgumentException("valueType cannot be null");
     this.valueType = valueType;
@@ -30,6 +33,7 @@ public class Value implements Serializable, Comparable<Value> {
     return valueType.valueOf(valueLoader.getValue());
   }
 
+  @Nonnull
   public ValueType getValueType() {
     return valueType;
   }
@@ -47,6 +51,7 @@ public class Value implements Serializable, Comparable<Value> {
    * the {@code ValueType} of this {@code Value} is the same as the {@code ValueType} of the items in the sequence. That
    * is if the sequence holds {@code Value} instances of type {@code TextType}, then this {@code Value} also has
    * {@code TextType} as its {@code ValueType}.
+   *
    * @return true when this {@code Value} holds a sequence of other {@code Value} instances
    */
   public boolean isSequence() {
@@ -55,6 +60,7 @@ public class Value implements Serializable, Comparable<Value> {
 
   /**
    * Returns a {@code ValueSequence} view of this {@code Value} when {@code #isSequence()} returns true.
+   *
    * @return
    */
   @SuppressWarnings("ClassReferencesSubclass")

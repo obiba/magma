@@ -18,6 +18,7 @@ import org.obiba.magma.ValueLoader;
 import org.obiba.magma.ValueLoaderFactory;
 import org.obiba.magma.datasource.hibernate.domain.ValueSetBinaryValue;
 import org.obiba.magma.datasource.hibernate.domain.ValueSetValue;
+import org.obiba.magma.type.BinaryType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -78,15 +79,19 @@ public class HibernateValueLoaderFactory implements ValueLoaderFactory {
     @Override
     public Object getValue() {
       if(value == null) {
-        log.trace("Loading binary from value_set_binary_value table");
-
-        ValueSetBinaryValue binaryValue = (ValueSetBinaryValue) AssociationCriteria
-            .create(ValueSetBinaryValue.class, sessionFactory.getCurrentSession()) //
-            .add("variable.id", Operation.eq, variableId) //
-            .add("valueSet.id", Operation.eq, valueSetId) //
-            .add("occurrence", Operation.eq, occurrence) //
-            .getCriteria().uniqueResult();
-        value = binaryValue == null ? null : binaryValue.getValue();
+        if(BinaryType.get().equals(valueRef.getValueType())) {
+          log.trace("Loading binary from value_set_value table (Base64)");
+          value = (byte[]) valueRef.getValue();
+        } else {
+          log.trace("Loading binary from value_set_binary_value table");
+          ValueSetBinaryValue binaryValue = (ValueSetBinaryValue) AssociationCriteria
+              .create(ValueSetBinaryValue.class, sessionFactory.getCurrentSession()) //
+              .add("variable.id", Operation.eq, variableId) //
+              .add("valueSet.id", Operation.eq, valueSetId) //
+              .add("occurrence", Operation.eq, occurrence) //
+              .getCriteria().uniqueResult();
+          value = binaryValue == null ? null : binaryValue.getValue();
+        }
       }
       return value;
     }
