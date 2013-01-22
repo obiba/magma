@@ -10,6 +10,7 @@ import java.io.RandomAccessFile;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -17,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.obiba.magma.Datasource;
 import org.obiba.magma.Disposable;
 import org.obiba.magma.Initialisable;
 import org.obiba.magma.MagmaRuntimeException;
@@ -38,12 +40,13 @@ import org.obiba.magma.type.TextType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.annotations.VisibleForTesting;
+
 import au.com.bytecode.opencsv.CSVParser;
 import au.com.bytecode.opencsv.CSVReader;
 import au.com.bytecode.opencsv.CSVWriter;
 
-import com.google.common.annotations.VisibleForTesting;
-
+@SuppressWarnings({ "UnusedDeclaration", "OverlyCoupledClass" })
 public class CsvValueTable extends AbstractValueTable implements Initialisable, Disposable {
 
   public static final String DEFAULT_ENTITY_TYPE = "Participant";
@@ -58,7 +61,7 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
 
   private File variableFile;
 
-  private File dataFile;
+  private final File dataFile;
 
   private CSVVariableEntityProvider variableEntityProvider;
 
@@ -66,9 +69,9 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
 
   private VariableConverter variableConverter;
 
-  private LinkedHashMap<VariableEntity, CsvIndexEntry> entityIndex = new LinkedHashMap<VariableEntity, CsvIndexEntry>();
+  private final LinkedHashMap<VariableEntity, CsvIndexEntry> entityIndex = new LinkedHashMap<VariableEntity, CsvIndexEntry>();
 
-  private LinkedHashMap<String, CsvIndexEntry> variableNameIndex = new LinkedHashMap<String, CsvIndexEntry>();
+  private final LinkedHashMap<String, CsvIndexEntry> variableNameIndex = new LinkedHashMap<String, CsvIndexEntry>();
 
   private boolean isLastDataCharacterNewline;
 
@@ -82,18 +85,18 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
 
   private List<String> missingVariableNames = new ArrayList<String>();
 
-  public CsvValueTable(CsvDatasource datasource, String name, File dataFile, String entityType) {
+  public CsvValueTable(Datasource datasource, String name, File dataFile, String entityType) {
     this(datasource, name, null, dataFile, entityType);
   }
 
-  public CsvValueTable(CsvDatasource datasource, String name, File variableFile, File dataFile, String entityType) {
+  public CsvValueTable(Datasource datasource, String name, File variableFile, File dataFile, String entityType) {
     super(datasource, name);
     this.variableFile = variableFile;
     this.dataFile = dataFile;
     this.entityType = entityType == null ? DEFAULT_ENTITY_TYPE : entityType;
   }
 
-  public CsvValueTable(CsvDatasource datasource, ValueTable refTable, File dataFile) {
+  public CsvValueTable(Datasource datasource, ValueTable refTable, File dataFile) {
     super(datasource, refTable.getName());
     this.refTable = refTable;
     this.dataFile = dataFile;
@@ -136,7 +139,8 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
       initialiseData();
       variableEntityProvider = new CSVVariableEntityProvider(entityType);
     } catch(IOException e) {
-      throw new CsvDatasourceParsingException("Error occurred initialising csv datasource.", e, "CsvInitialisationError", 0, new Object[] {});
+      throw new CsvDatasourceParsingException("Error occurred initialising csv datasource.", e,
+          "CsvInitialisationError", 0);
     }
   }
 
@@ -192,7 +196,9 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
       } else {
         if(variableConverter == null) {
           String[] defaultVariablesHeader = ((CsvDatasource) getDatasource()).getDefaultVariablesHeader();
-          log.debug("A variables.csv file or header was not explicitly provided for the table {}. Use the default header {}.", getName(), defaultVariablesHeader);
+          log.debug(
+              "A variables.csv file or header was not explicitly provided for the table {}. Use the default header {}.",
+              getName(), defaultVariablesHeader);
           variableConverter = new VariableConverter(defaultVariablesHeader);
         }
         isVariablesFileEmpty = true;
@@ -295,7 +301,7 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
           innerline++;
           nd++;
         } else {
-          log.debug("[{}:{}] {}", new Object[] { file.getName(), (line - innerline), nextLine });
+          log.debug("[{}:{}] {}", file.getName(), line - innerline, nextLine);
           lineNumberMap.put(line - innerline, new CsvIndexEntry(strt, nd));
           innerline = 0;
           nd++;
@@ -345,10 +351,9 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
 
   private class CSVVariableEntityProvider implements VariableEntityProvider {
 
-    private String entityType;
+    private final String entityType;
 
-    public CSVVariableEntityProvider(String entityType) {
-      super();
+    private CSVVariableEntityProvider(String entityType) {
       this.entityType = entityType;
     }
 
@@ -433,16 +438,16 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
     isLastVariablesCharacterNewline = true;
   }
 
-  public void updateDataIndex(VariableEntity entity, long lastByte, String[] line) {
+  public void updateDataIndex(VariableEntity entity, long lastByte, String... line) {
     entityIndex.put(entity, new CsvIndexEntry(lastByte, lastByte + lineLength(line)));
   }
 
-  public void updateVariableIndex(Variable variable, long lastByte, String[] line) {
+  public void updateVariableIndex(Variable variable, long lastByte, String... line) {
     variableNameIndex.put(variable.getName(), new CsvIndexEntry(lastByte, lastByte + lineLength(line)));
     addVariableValueSource(new CsvVariableValueSource(variable));
   }
 
-  private int lineLength(String[] line) {
+  private int lineLength(String... line) {
     try {
       int length = 0;
       for(String word : line) {
@@ -474,12 +479,12 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
     this.dataHeaderMap = dataHeaderMap;
   }
 
-  public void setVariablesHeader(String[] header) {
-    this.variableConverter = new VariableConverter(header);
+  public void setVariablesHeader(String... header) {
+    variableConverter = new VariableConverter(header);
   }
 
   public VariableConverter getVariableConverter() {
-    return this.variableConverter;
+    return variableConverter;
   }
 
   public boolean isVariablesFileEmpty() {
@@ -516,7 +521,7 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
 
   /**
    * Skips {@code skip} bytes in {@code is} and tests that that amount of byte were effectively skipped. This method
-   * throws an IOException if the number of bytes actually skiped is not identical to the number of requested bytes to
+   * throws an IOException if the number of bytes actually skipped is not identical to the number of requested bytes to
    * skip.
    */
   private void skipSafely(InputStream is, long skip) throws IOException {
@@ -528,10 +533,11 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
    * for variables names specified in a csv data file that are not provided with associated {@link Variable}s when the
    * CsvValueTable is created. This happens when {@link Variable}s are provided from a reference table, and that
    * reference table does not have a {@link Variable} for every variable named in the csv data file.
+   *
    * @return A collection of missing Variables.
    */
   public Iterable<Variable> getMissingVariables() {
-    List<Variable> variables = new ArrayList<Variable>(missingVariableNames.size());
+    Collection<Variable> variables = new ArrayList<Variable>(missingVariableNames.size());
     for(String variableName : missingVariableNames) {
       Variable.Builder variableBuilder = Variable.Builder.newVariable(variableName, TextType.get(), entityType);
       variables.add(variableBuilder.build());
@@ -543,6 +549,7 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
    * Returns a list of variable names specified in the cvs data file for this table that do not have an associated
    * {@link Variable}. This can occur when {@code Variable}s are obtained from a reference to another table. That table
    * may not have a {@code Variable} for every variable specified in the csv data file.
+   *
    * @return A list of variable names that are missing {@link Variable}s.
    * @throws IOException thrown when there is a problem reading the csv data file.
    */

@@ -7,11 +7,6 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.SortedSet;
 
-import com.google.common.base.Function;
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import org.obiba.magma.Attribute;
 import org.obiba.magma.AttributeAwareBuilder;
 import org.obiba.magma.Category;
@@ -33,6 +28,13 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 
+import com.google.common.base.Function;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
+
+@SuppressWarnings("OverlyCoupledClass")
 class LimesurveyValueTable extends AbstractValueTable {
 
   public static final String PARTICIPANT = "Participant";
@@ -55,16 +57,14 @@ class LimesurveyValueTable extends AbstractValueTable {
     super(datasource, name);
     this.sid = sid;
     elementProvider = new LimesurveyElementProviderJdbc(datasource, sid);
-    LimesurveyVariableEntityProvider provider = new LimesurveyVariableEntityProvider(PARTICIPANT, datasource, sid);
-    setVariableEntityProvider(provider);
+    setVariableEntityProvider(new LimesurveyVariableEntityProvider(PARTICIPANT, datasource, sid));
   }
 
   @Override
   public void initialise() {
     super.initialise();
     names = Sets.newHashSet();
-    exception = new LimesurveyParsingException("Limesurvey Root Exception",
-        "parentLimeException");
+    exception = new LimesurveyParsingException("Limesurvey Root Exception", "parentLimeException");
     initialiseVariableValueSources();
     getVariableEntityProvider().initialise();
     if(exception.getChildren().isEmpty() == false) {
@@ -123,7 +123,7 @@ class LimesurveyValueTable extends AbstractValueTable {
         if(isArraySubQuestion == false && isDualScale == false) {
           vb = buildVariable(question);
         }
-        buildFileCountIfnecessary(question);
+        buildFileCountIfNecessary(question);
         buildOtherVariableIfNecessary(question);
         buildCommentVariableIfNecessary(question, parentQuestion);
 
@@ -131,39 +131,37 @@ class LimesurveyValueTable extends AbstractValueTable {
         if(vb != null) {
           buildLabelAttributes(question, vb);
           if(question.hasParentId()) {
-            buildCategoriesForVariable(question, vb, mapAnswers.get(parentQuestion.getQid()));
+            buildCategoriesForVariable(vb, mapAnswers.get(parentQuestion.getQid()));
           } else if(hasSubQuestions(question) == false) {
-            buildCategoriesForVariable(question, vb, mapAnswers.get(question.getQid()));
+            buildCategoriesForVariable(vb, mapAnswers.get(question.getQid()));
           }
           String subQuestionFieldTitle = question.hasParentId() ? question.getName() : "";
-          LimesurveyQuestionVariableValueSource variable = new LimesurveyQuestionVariableValueSource(vb, question,
-              subQuestionFieldTitle);
+          VariableValueSource variable = new LimesurveyQuestionVariableValueSource(vb, question, subQuestionFieldTitle);
           addLimesurveyVariableValueSource(variable);
         }
       }
     }
   }
-  
+
   private void buildAdministrativeVariables() {
     Builder vb = Builder.newVariable("startdate", DateTimeType.get(), PARTICIPANT);
     addLimesurveyVariableValueSource(new LimesurveyVariableValueSource(vb));
-    
+
     vb = Builder.newVariable("submitdate", DateTimeType.get(), PARTICIPANT);
     addLimesurveyVariableValueSource(new LimesurveyVariableValueSource(vb));
 
     vb = Builder.newVariable("startlanguage", TextType.get(), PARTICIPANT);
     addLimesurveyVariableValueSource(new LimesurveyVariableValueSource(vb));
-    
+
     vb = Builder.newVariable("lastpage", IntegerType.get(), PARTICIPANT);
     addLimesurveyVariableValueSource(new LimesurveyVariableValueSource(vb));
   }
 
-  private void buildFileCountIfnecessary(LimeQuestion question) {
+  private void buildFileCountIfNecessary(LimeQuestion question) {
     if(question.getLimesurveyType() == LimesurveyType.FILE_UPLOAD) {
       String name = question.getName() + " [filecount]";
       Variable.Builder fileCountVb = Variable.Builder.newVariable(name, IntegerType.get(), PARTICIPANT);
-      LimesurveyQuestionVariableValueSource fileCount = new LimesurveyQuestionVariableValueSource(fileCountVb, question,
-          "_filecount");
+      VariableValueSource fileCount = new LimesurveyQuestionVariableValueSource(fileCountVb, question, "_filecount");
       addLimesurveyVariableValueSource(fileCount);
     }
   }
@@ -189,8 +187,7 @@ class LimesurveyValueTable extends AbstractValueTable {
       List<LimeAnswer> answers = mapAnswers.get(question.getQid());
       for(int nbChoices = 1; nbChoices < answers.size() + 1; nbChoices++) {
         Variable.Builder vb = build(question, question.getName() + " [" + nbChoices + "]");
-        LimesurveyQuestionVariableValueSource variable = new LimesurveyQuestionVariableValueSource(vb, question,
-            nbChoices + "");
+        VariableValueSource variable = new LimesurveyQuestionVariableValueSource(vb, question, nbChoices + "");
         addLimesurveyVariableValueSource(variable);
       }
       return true;
@@ -212,7 +209,7 @@ class LimesurveyValueTable extends AbstractValueTable {
             vb.addCategory(cb.build());
           }
         }
-        LimesurveyQuestionVariableValueSource variable = new LimesurveyQuestionVariableValueSource(vb, question,
+        VariableValueSource variable = new LimesurveyQuestionVariableValueSource(vb, question,
             question.getName() + "#" + scale);
         addLimesurveyVariableValueSource(variable);
       }
@@ -267,8 +264,7 @@ class LimesurveyValueTable extends AbstractValueTable {
         String arrayVariableName = parentQuestion.getName() + " [" + dualName + "]";
         Variable.Builder subVb = build(parentQuestion, arrayVariableName);
         buildLabelAttributes(scalableQuestion, subVb);
-        LimesurveyQuestionVariableValueSource variable = new LimesurveyQuestionVariableValueSource(subVb, scalableQuestion,
-            dualName);
+        VariableValueSource variable = new LimesurveyQuestionVariableValueSource(subVb, scalableQuestion, dualName);
         addLimesurveyVariableValueSource(variable);
       }
     }
@@ -310,7 +306,7 @@ class LimesurveyValueTable extends AbstractValueTable {
     }
   }
 
-  private void buildCategoriesForVariable(LimeQuestion question, Variable.Builder vb, List<LimeAnswer> limeAnswers) {
+  private void buildCategoriesForVariable(Builder vb, Iterable<LimeAnswer> limeAnswers) {
     for(LimeAnswer answer : limeAnswers) {
       Category.Builder cb = Category.Builder.newCategory(answer.getName());
       buildLabelAttributes(answer, cb);
@@ -358,22 +354,27 @@ class LimesurveyValueTable extends AbstractValueTable {
   }
 
   @Override
+  public Timestamps getValueSetTimestamps(VariableEntity entity) throws NoSuchValueSetException {
+    return new LimesurveyValueSet(this, entity).getTimestamps();
+  }
+
+  @Override
   public Timestamps getTimestamps() {
     return new LimesurveyTimestamps(this);
   }
-  
+
   class LimesurveyVariableValueSource implements VariableValueSource, VectorSource {
 
     private Variable variable;
 
-    public LimesurveyVariableValueSource(Builder vb) {
+    LimesurveyVariableValueSource(Builder vb) {
       setVariable(vb.build());
     }
 
     protected void setVariable(Variable variable) {
       this.variable = variable;
     }
-    
+
     @Override
     public ValueType getValueType() {
       return variable.getValueType();
@@ -410,10 +411,9 @@ class LimesurveyValueTable extends AbstractValueTable {
 
       final String limesurveyVariableField = getLimesurveyVariableField();
       final StringBuilder sql = new StringBuilder();
-      sql.append("SELECT " + quoteAndPrefix(limesurveyVariableField) + " FROM " + quoteAndPrefix(
-          "survey_" + table.getSid()) + " ");
-      sql.append("WHERE token IN (:ids) ");
-      sql.append("ORDER BY token");
+      sql.append("SELECT ").append(quoteAndPrefix(limesurveyVariableField)).append(" FROM ")
+          .append(quoteAndPrefix("survey_" + table.getSid())).append(" ");
+      sql.append("WHERE token IN (:ids) ORDER BY token");
 
       return new Iterable<Value>() {
 
@@ -457,7 +457,7 @@ class LimesurveyValueTable extends AbstractValueTable {
       };
     }
 
-    private Iterable<String> extractIdentifiers(SortedSet<VariableEntity> entities) {
+    private Iterable<String> extractIdentifiers(Iterable<VariableEntity> entities) {
       return Iterables.transform(entities, new Function<VariableEntity, String>() {
 
         @Override
@@ -468,34 +468,38 @@ class LimesurveyValueTable extends AbstractValueTable {
     }
 
   }
-  
+
   class LimesurveyQuestionVariableValueSource extends LimesurveyVariableValueSource {
 
     private LimeQuestion question;
-    
+
     private String subQuestionFieldTitle = "";
-    
-    public LimesurveyQuestionVariableValueSource(Builder vb, LimeQuestion question, String subQuestionFieldTitle) {
+
+    LimesurveyQuestionVariableValueSource(Builder vb, LimeQuestion question, String subQuestionFieldTitle) {
       super(vb);
       this.question = question;
       this.subQuestionFieldTitle = subQuestionFieldTitle;
-      vb.addAttribute(Attribute.Builder.newAttribute("SGQA").withNamespace(LimeAttributes.LIMESURVEY_NAMESPACE).withValue(getLimesurveyVariableField()).build());
-      vb.addAttribute(Attribute.Builder.newAttribute("SGQ").withNamespace(LimeAttributes.LIMESURVEY_NAMESPACE).withValue(getSgqId()).build());
+      vb.addAttribute(Attribute.Builder.newAttribute("SGQA").withNamespace(LimeAttributes.LIMESURVEY_NAMESPACE)
+          .withValue(getLimesurveyVariableField()).build());
+      vb.addAttribute(
+          Attribute.Builder.newAttribute("SGQ").withNamespace(LimeAttributes.LIMESURVEY_NAMESPACE).withValue(getSgqId())
+              .build());
       setVariable(vb.build());
     }
-    
+
     // SGQA identifier
     // see http://docs.limesurvey.org/tiki-index.php?page=SGQA+identifier&structure=English+Instructions+for+LimeSurvey
+    @Override
     public String getLimesurveyVariableField() {
       int qId = question.hasParentId() ? question.getParentQid() : question.getQid();
       return sid + "X" + question.getGroupId() + "X" + qId + subQuestionFieldTitle;
     }
-    
+
     // SGQ
     public String getSgqId() {
       int qId = question.hasParentId() ? question.getParentQid() : question.getQid();
       return sid + "X" + question.getGroupId() + "X" + qId;
     }
-    
+
   }
 }

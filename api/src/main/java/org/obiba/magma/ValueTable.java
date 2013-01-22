@@ -20,6 +20,8 @@ public interface ValueTable extends Timestamped {
 
   ValueSet getValueSet(VariableEntity entity) throws NoSuchValueSetException;
 
+  Timestamps getValueSetTimestamps(VariableEntity entity) throws NoSuchValueSetException;
+
   boolean hasVariable(String name);
 
   Iterable<Variable> getVariables();

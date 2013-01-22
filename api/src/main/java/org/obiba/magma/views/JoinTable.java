@@ -1,8 +1,9 @@
 /**
- * 
+ *
  */
 package org.obiba.magma.views;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -30,6 +31,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
 
+@SuppressWarnings({ "UnusedDeclaration", "TransientFieldInNonSerializableClass" })
 public class JoinTable implements ValueTable, Initialisable {
   //
   // Instance Variables
@@ -49,6 +51,7 @@ public class JoinTable implements ValueTable, Initialisable {
 
   // An arbitrary number to initialise the LinkedHashSet with a capacity close to the actual value (see
   // getVariableEntities())
+  @SuppressWarnings("MagicNumber")
   private transient int lastEntityCount = 5000;
 
   //
@@ -59,7 +62,6 @@ public class JoinTable implements ValueTable, Initialisable {
    * No-arg constructor (mainly for XStream).
    */
   public JoinTable() {
-    super();
   }
 
   public JoinTable(List<ValueTable> tables, boolean validateEntityTypes) {
@@ -126,6 +128,11 @@ public class JoinTable implements ValueTable, Initialisable {
       return new JoinedValueSet(this, entity);
     }
     throw new NoSuchValueSetException(this, entity);
+  }
+
+  @Override
+  public Timestamps getValueSetTimestamps(VariableEntity entity) throws NoSuchValueSetException {
+    return getValueSet(entity).getTimestamps();
   }
 
   @Override
@@ -202,6 +209,7 @@ public class JoinTable implements ValueTable, Initialisable {
   // Initialisable Methods
   //
 
+  @Override
   public void initialise() {
     for(ValueTable vt : tables) {
       if(vt instanceof Initialisable) {
@@ -225,12 +233,11 @@ public class JoinTable implements ValueTable, Initialisable {
     return sb.toString();
   }
 
-  private synchronized Set<Variable> unionOfVariables() {
+  private synchronized Iterable<Variable> unionOfVariables() {
     if(unionOfVariables == null) {
       unionOfVariables = new LinkedHashSet<Variable>();
 
-      Set<String> unionOfVariableNames = new LinkedHashSet<String>();
-
+      Collection<String> unionOfVariableNames = new LinkedHashSet<String>();
       for(ValueTable vt : tables) {
         for(Variable variable : vt.getVariables()) {
           // Add returns true if the set did not already contain the value
@@ -252,15 +259,13 @@ public class JoinTable implements ValueTable, Initialisable {
     ValueTable cachedTable = variableNameToTableMap.get(variableName);
     if(cachedTable != null) {
       return cachedTable;
-    } else {
-      for(ValueTable vt : tables) {
-        if(vt.hasVariable(variableName)) {
-          variableNameToTableMap.put(variableName, vt);
-          return vt;
-        }
+    }
+    for(ValueTable vt : tables) {
+      if(vt.hasVariable(variableName)) {
+        variableNameToTableMap.put(variableName, vt);
+        return vt;
       }
     }
-
     return null;
   }
 
@@ -335,7 +340,7 @@ public class JoinTable implements ValueTable, Initialisable {
       if(this == that) return true;
       if(that instanceof JoinedVariableValueSource) {
         JoinedVariableValueSource jvvs = (JoinedVariableValueSource) that;
-        return this.owner.equals(jvvs.owner) && this.wrapped.equals(jvvs.wrapped);
+        return owner.equals(jvvs.owner) && wrapped.equals(jvvs.wrapped);
       }
       return super.equals(that);
     }

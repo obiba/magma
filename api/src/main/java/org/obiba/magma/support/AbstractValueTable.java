@@ -9,7 +9,9 @@ import javax.annotation.Nullable;
 
 import org.obiba.magma.Datasource;
 import org.obiba.magma.Initialisable;
+import org.obiba.magma.NoSuchValueSetException;
 import org.obiba.magma.NoSuchVariableException;
+import org.obiba.magma.Timestamps;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueSet;
 import org.obiba.magma.ValueTable;
@@ -169,6 +171,11 @@ public abstract class AbstractValueTable implements ValueTable, Initialisable {
   @Override
   public boolean isView() {
     return false;
+  }
+
+  @Override
+  public Timestamps getValueSetTimestamps(VariableEntity entity) throws NoSuchValueSetException {
+    return getValueSet(entity).getTimestamps();
   }
 
 }

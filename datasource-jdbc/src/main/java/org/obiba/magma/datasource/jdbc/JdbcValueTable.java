@@ -7,6 +7,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -14,13 +15,6 @@ import java.util.Locale;
 import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.SortedSet;
-
-import liquibase.change.ColumnConfig;
-import liquibase.change.ConstraintsConfig;
-import liquibase.change.CreateTableChange;
-import liquibase.database.structure.Column;
-import liquibase.database.structure.DatabaseSnapshot;
-import liquibase.database.structure.Table;
 
 import org.obiba.magma.Attribute;
 import org.obiba.magma.Category;
@@ -45,6 +39,14 @@ import org.obiba.magma.support.VariableEntityBean;
 import org.obiba.magma.type.DateTimeType;
 import org.springframework.jdbc.core.RowMapper;
 
+import liquibase.change.ColumnConfig;
+import liquibase.change.ConstraintsConfig;
+import liquibase.change.CreateTableChange;
+import liquibase.database.structure.Column;
+import liquibase.database.structure.DatabaseSnapshot;
+import liquibase.database.structure.Table;
+
+@SuppressWarnings("TypeMayBeWeakened")
 class JdbcValueTable extends AbstractValueTable {
 
   private final JdbcValueTableSettings settings;
@@ -67,12 +69,13 @@ class JdbcValueTable extends AbstractValueTable {
       createSqlTable(settings.getSqlTableName());
       getDatasource().databaseChanged();
     }
-    this.table = getDatasource().getDatabaseSnapshot().getTable(settings.getSqlTableName());
-    super.setVariableEntityProvider(new JdbcVariableEntityProvider(getEntityType()));
+    table = getDatasource().getDatabaseSnapshot().getTable(settings.getSqlTableName());
+    setVariableEntityProvider(new JdbcVariableEntityProvider(getEntityType()));
   }
 
   JdbcValueTable(JdbcDatasource datasource, Table table, String entityType) {
-    this(datasource, new JdbcValueTableSettings(table.getName(), NameConverter.toMagmaName(table.getName()), entityType, getEntityIdentifierColumns(table)));
+    this(datasource, new JdbcValueTableSettings(table.getName(), NameConverter.toMagmaName(table.getName()), entityType,
+        getEntityIdentifierColumns(table)));
   }
 
   //
@@ -88,7 +91,8 @@ class JdbcValueTable extends AbstractValueTable {
 
   @Override
   public String getEntityType() {
-    return settings.getEntityType() != null ? settings.getEntityType() : getDatasource().getSettings().getDefaultEntityType();
+    return settings.getEntityType() != null ? settings.getEntityType() : getDatasource().getSettings()
+        .getDefaultEntityType();
   }
 
   @Override
@@ -102,26 +106,69 @@ class JdbcValueTable extends AbstractValueTable {
   }
 
   @Override
+  public Timestamps getValueSetTimestamps(final VariableEntity entity) throws NoSuchValueSetException {
+    if(hasCreatedTimestampColumn() && hasUpdatedTimestampColumn()) {
+      return new Timestamps() {
+
+        @Override
+        public Value getLastUpdate() {
+          String sql = appendIdentifierColumns(
+              "SELECT MAX(" + getUpdatedTimestampColumnName() + ") FROM " + escapedSqlTableName);
+          return DateTimeType.get().valueOf(executeQuery(sql));
+        }
+
+        @Override
+        public Value getCreated() {
+          String sql = appendIdentifierColumns(
+              "SELECT MIN(" + getCreatedTimestampColumnName() + ") FROM " + escapedSqlTableName);
+          return DateTimeType.get().valueOf(executeQuery(sql));
+        }
+
+        private String appendIdentifierColumns(String sql) {
+          StringBuilder sb = new StringBuilder(sql);
+          sb.append(" WHERE ");
+          List<String> entityIdentifierColumns = getSettings().getEntityIdentifierColumns();
+          int nbIdentifiers = entityIdentifierColumns.size();
+          for(int i = 0; i < nbIdentifiers; i++) {
+            sb.append(entityIdentifierColumns.get(i));
+            sb.append(" = ?");
+            if(i < nbIdentifiers - 1) {
+              sb.append(" AND ");
+            }
+          }
+          return sb.toString();
+        }
+
+        private Date executeQuery(String sql) {
+          String[] entityIdentifierColumnValues = entity.getIdentifier().split("-");
+          return getDatasource().getJdbcTemplate().queryForObject(sql, entityIdentifierColumnValues, Date.class);
+        }
+
+      };
+    }
+    return NullTimestamps.get();
+  }
+
+  @Override
   public Timestamps getTimestamps() {
     if(hasCreatedTimestampColumn() && hasUpdatedTimestampColumn()) {
       return new Timestamps() {
 
         @Override
         public Value getLastUpdate() {
-          StringBuilder sql = new StringBuilder().append("SELECT MAX(").append(getUpdatedTimestampColumnName()).append(") FROM ").append(escapedSqlTableName);
-          return DateTimeType.get().valueOf(getDatasource().getJdbcTemplate().queryForObject(sql.toString(), java.util.Date.class));
+          String sql = "SELECT MAX(" + getUpdatedTimestampColumnName() + ") FROM " + escapedSqlTableName;
+          return DateTimeType.get().valueOf(getDatasource().getJdbcTemplate().queryForObject(sql, Date.class));
         }
 
         @Override
         public Value getCreated() {
-          StringBuilder sql = new StringBuilder().append("SELECT MIN(").append(getCreatedTimestampColumnName()).append(") FROM ").append(escapedSqlTableName);
-          return DateTimeType.get().valueOf(getDatasource().getJdbcTemplate().queryForObject(sql.toString(), java.util.Date.class));
+          String sql = "SELECT MIN(" + getCreatedTimestampColumnName() + ") FROM " + escapedSqlTableName;
+          return DateTimeType.get().valueOf(getDatasource().getJdbcTemplate().queryForObject(sql, Date.class));
         }
 
       };
-    } else {
-      return NullTimestamps.get();
     }
+    return NullTimestamps.get();
   }
 
   //
@@ -137,28 +184,32 @@ class JdbcValueTable extends AbstractValueTable {
   }
 
   void tableChanged() {
-    table = getDatasource().getDatabaseSnapshot().getTable((settings.getSqlTableName()));
+    table = getDatasource().getDatabaseSnapshot().getTable(settings.getSqlTableName());
     initialise();
   }
 
   boolean hasCreatedTimestampColumn() {
-    return getSettings().isCreatedTimestampColumnNameProvided() || getDatasource().getSettings().isCreatedTimestampColumnNameProvided();
+    return getSettings().isCreatedTimestampColumnNameProvided() || getDatasource().getSettings()
+        .isCreatedTimestampColumnNameProvided();
   }
 
   String getCreatedTimestampColumnName() {
-    return getSettings().isCreatedTimestampColumnNameProvided() ? getSettings().getCreatedTimestampColumnName() : getDatasource().getSettings().getDefaultCreatedTimestampColumnName();
+    return getSettings().isCreatedTimestampColumnNameProvided() ? getSettings()
+        .getCreatedTimestampColumnName() : getDatasource().getSettings().getDefaultCreatedTimestampColumnName();
   }
 
   boolean hasUpdatedTimestampColumn() {
-    return getSettings().isUpdatedTimestampColumnNameProvided() || getDatasource().getSettings().isUpdatedTimestampColumnNameProvided();
+    return getSettings().isUpdatedTimestampColumnNameProvided() || getDatasource().getSettings()
+        .isUpdatedTimestampColumnNameProvided();
   }
 
   String getUpdatedTimestampColumnName() {
-    return getSettings().isUpdatedTimestampColumnNameProvided() ? getSettings().getUpdatedTimestampColumnName() : getDatasource().getSettings().getDefaultUpdatedTimestampColumnName();
+    return getSettings().isUpdatedTimestampColumnNameProvided() ? getSettings()
+        .getUpdatedTimestampColumnName() : getDatasource().getSettings().getDefaultUpdatedTimestampColumnName();
   }
 
   void writeVariableValueSource(Variable source) {
-    super.addVariableValueSource(new JdbcVariableValueSource(source));
+    addVariableValueSource(new JdbcVariableValueSource(source));
   }
 
   static List<String> getEntityIdentifierColumns(Table table) {
@@ -190,11 +241,100 @@ class JdbcValueTable extends AbstractValueTable {
       sql.append(escapedVariablesSqlTableName);
       sql.append(" WHERE value_table = ?");
 
-      List<Variable> results = getDatasource().getJdbcTemplate().query(sql.toString(), new Object[] { getSqlName() }, new RowMapper<Variable>() {
-        public Variable mapRow(ResultSet rs, int rowNum) throws SQLException {
-          return buildVariableFromResultSet(rs);
-        }
-      });
+      List<Variable> results = getDatasource().getJdbcTemplate()
+          .query(sql.toString(), new Object[] { getSqlName() }, new RowMapper<Variable>() {
+            @Override
+            public Variable mapRow(ResultSet rs, int rowNum) throws SQLException {
+              return buildVariableFromResultSet(rs);
+            }
+
+            private Variable buildVariableFromResultSet(ResultSet rs) throws SQLException {
+              String variableName = rs.getString("name");
+              ValueType valueType = ValueType.Factory.forName(rs.getString("value_type"));
+              String mimeType = rs.getString("mime_type");
+              String units = rs.getString("units");
+              boolean isRepeatable = rs.getBoolean("is_repeatable");
+              String occurrenceGroup = rs.getString("occurrence_group");
+
+              Variable.Builder builder = Variable.Builder.newVariable(variableName, valueType, getEntityType())
+                  .mimeType(mimeType).unit(units);
+              if(isRepeatable) {
+                builder.repeatable();
+                builder.occurrenceGroup(occurrenceGroup);
+              }
+
+              addVariableAttributes(variableName, builder);
+              addVariableCategories(variableName, builder);
+
+              return builder.build();
+            }
+
+            private void addVariableAttributes(String variableName, Variable.Builder builder) {
+              // MAGMA-100
+              if(escapedVariableAttributesSqlTableName == null) {
+                escapedVariableAttributesSqlTableName = getDatasource()
+                    .escapeSqlTableName(JdbcValueTableWriter.ATTRIBUTE_METADATA_TABLE);
+              }
+
+              StringBuilder sql = new StringBuilder();
+              sql.append("SELECT *");
+              sql.append(" FROM ");
+              sql.append(escapedVariableAttributesSqlTableName);
+              sql.append(" WHERE value_table = ? AND variable_name = ?");
+
+              builder.addAttributes(getDatasource().getJdbcTemplate()
+                  .query(sql.toString(), new Object[] { getSqlName(), variableName }, new RowMapper<Attribute>() {
+                    @Override
+                    public Attribute mapRow(ResultSet rs, int rowNum) throws SQLException {
+                      String attributeName = rs.getString(JdbcValueTableWriter.ATTRIBUTE_NAME_COLUMN);
+                      String attributeNamespace = mayNotHaveColumn(rs, JdbcValueTableWriter.ATTRIBUTE_NAMESPACE_COLUMN);
+                      String attributeValue = rs.getString(JdbcValueTableWriter.ATTRIBUTE_VALUE_COLUMN);
+                      String attributeLocale = rs.getString(JdbcValueTableWriter.ATTRIBUTE_LOCALE_COLUMN);
+
+                      Attribute.Builder attr = Attribute.Builder.newAttribute(attributeName)
+                          .withNamespace(attributeNamespace);
+                      if(attributeLocale != null && attributeLocale.length() > 0) {
+                        attr.withValue(new Locale(attributeLocale), attributeValue);
+                      } else {
+                        attr.withValue(attributeValue);
+                      }
+                      return attr.build();
+                    }
+
+                    private String mayNotHaveColumn(ResultSet rs, String column) {
+                      try {
+                        return rs.getString(column);
+                      } catch(SQLException e) {
+                        return null;
+                      }
+                    }
+                  }));
+            }
+
+            private void addVariableCategories(String variableName, Variable.Builder builder) {
+              // MAGMA-100
+              if(escapedCategoriesSqlTableName == null) {
+                escapedCategoriesSqlTableName = getDatasource()
+                    .escapeSqlTableName(JdbcValueTableWriter.CATEGORY_METADATA_TABLE);
+              }
+
+              StringBuilder sql = new StringBuilder();
+              sql.append("SELECT *");
+              sql.append(" FROM ");
+              sql.append(escapedCategoriesSqlTableName);
+              sql.append(" WHERE value_table = ? AND variable_name = ?");
+
+              builder.addCategories(getDatasource().getJdbcTemplate()
+                  .query(sql.toString(), new Object[] { getSqlName(), variableName }, new RowMapper<Category>() {
+                    @Override
+                    public Category mapRow(ResultSet rs, int rowNum) throws SQLException {
+                      String categoryName = rs.getString("name");
+                      String categoryCode = rs.getString("code");
+                      return Category.Builder.newCategory(categoryName).withCode(categoryCode).build();
+                    }
+                  }));
+            }
+          });
 
       for(Variable variable : results) {
         addVariableValueSource(new JdbcVariableValueSource(variable));
@@ -210,90 +350,13 @@ class JdbcValueTable extends AbstractValueTable {
 
   private boolean metadataTablesExist() {
     DatabaseSnapshot snapshot = getDatasource().getDatabaseSnapshot();
-    return (snapshot.getTable(JdbcValueTableWriter.VARIABLE_METADATA_TABLE) != null && snapshot.getTable(JdbcValueTableWriter.ATTRIBUTE_METADATA_TABLE) != null && snapshot.getTable(JdbcValueTableWriter.CATEGORY_METADATA_TABLE) != null);
-  }
-
-  private Variable buildVariableFromResultSet(ResultSet rs) throws SQLException {
-    String variableName = rs.getString("name");
-    ValueType valueType = ValueType.Factory.forName(rs.getString("value_type"));
-    String mimeType = rs.getString("mime_type");
-    String units = rs.getString("units");
-    boolean isRepeatable = rs.getBoolean("is_repeatable");
-    String occurrenceGroup = rs.getString("occurrence_group");
-
-    final Variable.Builder builder = Variable.Builder.newVariable(variableName, valueType, getEntityType()).mimeType(mimeType).unit(units);
-    if(isRepeatable) {
-      builder.repeatable();
-      builder.occurrenceGroup(occurrenceGroup);
-    }
-
-    addVariableAttributes(variableName, builder);
-    addVariableCategories(variableName, builder);
-
-    return builder.build();
-  }
-
-  private void addVariableAttributes(String variableName, final Variable.Builder builder) {
-    // MAGMA-100
-    if(escapedVariableAttributesSqlTableName == null) {
-      escapedVariableAttributesSqlTableName = getDatasource().escapeSqlTableName(JdbcValueTableWriter.ATTRIBUTE_METADATA_TABLE);
-    }
-
-    StringBuilder sql = new StringBuilder();
-    sql.append("SELECT *");
-    sql.append(" FROM ");
-    sql.append(escapedVariableAttributesSqlTableName);
-    sql.append(" WHERE value_table = ? AND variable_name = ?");
-
-    builder.addAttributes(getDatasource().getJdbcTemplate().query(sql.toString(), new Object[] { getSqlName(), variableName }, new RowMapper<Attribute>() {
-      public Attribute mapRow(ResultSet rs, int rowNum) throws SQLException {
-        String attributeName = rs.getString(JdbcValueTableWriter.ATTRIBUTE_NAME_COLUMN);
-        String attributeNamespace = mayNotHaveColumn(rs, JdbcValueTableWriter.ATTRIBUTE_NAMESPACE_COLUMN);
-        String attributeValue = rs.getString(JdbcValueTableWriter.ATTRIBUTE_VALUE_COLUMN);
-        String attributeLocale = rs.getString(JdbcValueTableWriter.ATTRIBUTE_LOCALE_COLUMN);
-
-        Attribute.Builder attr = Attribute.Builder.newAttribute(attributeName).withNamespace(attributeNamespace);
-        if(attributeLocale != null && attributeLocale.length() > 0) {
-          attr.withValue(new Locale(attributeLocale), attributeValue);
-        } else {
-          attr.withValue(attributeValue);
-        }
-        return attr.build();
-      }
-
-      private String mayNotHaveColumn(ResultSet rs, String column) {
-        try {
-          return rs.getString(column);
-        } catch(SQLException e) {
-          return null;
-        }
-      }
-    }));
-  }
-
-  private void addVariableCategories(String variableName, final Variable.Builder builder) {
-    // MAGMA-100
-    if(escapedCategoriesSqlTableName == null) {
-      escapedCategoriesSqlTableName = getDatasource().escapeSqlTableName(JdbcValueTableWriter.CATEGORY_METADATA_TABLE);
-    }
-
-    StringBuilder sql = new StringBuilder();
-    sql.append("SELECT *");
-    sql.append(" FROM ");
-    sql.append(escapedCategoriesSqlTableName);
-    sql.append(" WHERE value_table = ? AND variable_name = ?");
-
-    builder.addCategories(getDatasource().getJdbcTemplate().query(sql.toString(), new Object[] { getSqlName(), variableName }, new RowMapper<Category>() {
-      public Category mapRow(ResultSet rs, int rowNum) throws SQLException {
-        String categoryName = rs.getString("name");
-        String categoryCode = rs.getString("code");
-        return Category.Builder.newCategory(categoryName).withCode(categoryCode).build();
-      }
-    }));
+    return snapshot.getTable(JdbcValueTableWriter.VARIABLE_METADATA_TABLE) != null && snapshot
+        .getTable(JdbcValueTableWriter.ATTRIBUTE_METADATA_TABLE) != null && snapshot
+        .getTable(JdbcValueTableWriter.CATEGORY_METADATA_TABLE) != null;
   }
 
   private void createSqlTable(String sqlTableName) {
-    final CreateTableChange ctc = new CreateTableChange();
+    CreateTableChange ctc = new CreateTableChange();
     ctc.setTableName(sqlTableName);
 
     // Create the table initially with just one column -- entity_id -- the primary key.
@@ -361,10 +424,11 @@ class JdbcValueTable extends AbstractValueTable {
 
     private Set<VariableEntity> entities = new LinkedHashSet<VariableEntity>();
 
-    public JdbcVariableEntityProvider(final String entityType) {
+    JdbcVariableEntityProvider(String entityType) {
       super(entityType);
     }
 
+    @Override
     public void initialise() {
       entities = new LinkedHashSet<VariableEntity>();
 
@@ -384,11 +448,13 @@ class JdbcValueTable extends AbstractValueTable {
       sql.append(escapedSqlTableName);
 
       // Execute the query.
-      List<VariableEntity> results = getDatasource().getJdbcTemplate().query(sql.toString(), new RowMapper<VariableEntity>() {
-        public VariableEntity mapRow(ResultSet rs, int rowNum) throws SQLException {
-          return new VariableEntityBean(JdbcValueTable.this.getEntityType(), buildEntityIdentifier(rs));
-        }
-      });
+      List<VariableEntity> results = getDatasource().getJdbcTemplate()
+          .query(sql.toString(), new RowMapper<VariableEntity>() {
+            @Override
+            public VariableEntity mapRow(ResultSet rs, int rowNum) throws SQLException {
+              return new VariableEntityBean(JdbcValueTable.this.getEntityType(), buildEntityIdentifier(rs));
+            }
+          });
 
       entities.addAll(results);
     }
@@ -414,18 +480,20 @@ class JdbcValueTable extends AbstractValueTable {
     //
 
     JdbcVariableValueSource(String entityType, Column column) {
-      this.variable = Variable.Builder.newVariable(column.getName(), SqlTypes.valueTypeFor(column.getDataType()), entityType).build();
-      this.columnName = column.getName();
+      variable = Variable.Builder.newVariable(column.getName(), SqlTypes.valueTypeFor(column.getDataType()), entityType)
+          .build();
+      columnName = column.getName();
     }
 
     JdbcVariableValueSource(String entityType, ColumnConfig columnConfig) {
-      this.variable = Variable.Builder.newVariable(columnConfig.getName(), SqlTypes.valueTypeFor(columnConfig.getType()), entityType).build();
-      this.columnName = columnConfig.getName();
+      variable = Variable.Builder
+          .newVariable(columnConfig.getName(), SqlTypes.valueTypeFor(columnConfig.getType()), entityType).build();
+      columnName = columnConfig.getName();
     }
 
     JdbcVariableValueSource(Variable variable) {
       this.variable = variable;
-      this.columnName = NameConverter.toSqlName(variable.getName());
+      columnName = NameConverter.toSqlName(variable.getName());
     }
 
     //
@@ -456,13 +524,8 @@ class JdbcValueTable extends AbstractValueTable {
     @Override
     public Iterable<Value> getValues(final SortedSet<VariableEntity> entities) {
 
-      final String sql = new StringBuilder()//
-      .append("SELECT ")//
-      .append(getEntityIdentifierColumnsSql()).append(",").append(columnName)//
-      .append(" FROM ")//
-      .append(escapedSqlTableName)//
-      .append(" ORDER BY ")//
-      .append(getEntityIdentifierColumnsSql()).toString();
+      final String sql = "SELECT " + getEntityIdentifierColumnsSql() + "," + columnName +
+          " FROM " + escapedSqlTableName + " ORDER BY " + getEntityIdentifierColumnsSql();
 
       return new Iterable<Value>() {
 
@@ -484,9 +547,9 @@ class JdbcValueTable extends AbstractValueTable {
               private boolean closed = false;
 
               {
-                this.c = getDatasource().getJdbcTemplate().getDataSource().getConnection();
-                this.ps = this.c.prepareStatement(sql.toString());
-                this.rs = ps.executeQuery();
+                c = getDatasource().getJdbcTemplate().getDataSource().getConnection();
+                ps = c.prepareStatement(sql);
+                rs = ps.executeQuery();
                 hasNextResults = rs.next();
                 resultEntities = entities.iterator();
                 closeCursorIfNecessary();
@@ -515,7 +578,8 @@ class JdbcValueTable extends AbstractValueTable {
                     value = variable.getValueType().valueOf(rs.getObject(columnName));
                   }
                   closeCursorIfNecessary();
-                  return value != null ? value : (getVariable().isRepeatable() ? getValueType().nullSequence() : getValueType().nullValue());
+                  return value != null ? value : getVariable().isRepeatable() ? getValueType()
+                      .nullSequence() : getValueType().nullValue();
                 } catch(SQLException e) {
                   throw new RuntimeException(e);
                 }
@@ -535,6 +599,26 @@ class JdbcValueTable extends AbstractValueTable {
                   }
                 }
               }
+
+              private void closeQuietly(Object... objs) {
+                if(objs != null) {
+                  for(Object o : objs) {
+                    try {
+                      if(o instanceof ResultSet) {
+                        ((ResultSet) o).close();
+                      }
+                      if(o instanceof Statement) {
+                        ((Statement) o).close();
+                      }
+                      if(o instanceof Connection) {
+                        ((Connection) o).close();
+                      }
+                    } catch(SQLException e) {
+                      // ignored
+                    }
+                  }
+                }
+              }
             };
           } catch(SQLException e) {
             throw new RuntimeException(e);
@@ -542,26 +626,6 @@ class JdbcValueTable extends AbstractValueTable {
         }
 
       };
-    }
-  }
-
-  private void closeQuietly(Object... objs) {
-    if(objs != null) {
-      for(Object o : objs) {
-        try {
-          if(o instanceof ResultSet) {
-            ((ResultSet) o).close();
-          }
-          if(o instanceof Statement) {
-            ((Statement) o).close();
-          }
-          if(o instanceof Connection) {
-            ((Connection) o).close();
-          }
-        } catch(SQLException e) {
-          // ignored
-        }
-      }
     }
   }
 

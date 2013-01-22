@@ -21,6 +21,7 @@ import com.google.common.collect.ImmutableSet;
 
 public class NullValueTable implements ValueTable {
 
+  @SuppressWarnings("StaticNonFinalField")
   private static WeakReference<NullValueTable> instance = MagmaEngine.get().registerInstance(new NullValueTable());
 
   private NullValueTable() {
@@ -46,6 +47,7 @@ public class NullValueTable implements ValueTable {
     return false;
   }
 
+  @Override
   public Set<VariableEntity> getVariableEntities() {
     return ImmutableSet.of();
   }
@@ -62,6 +64,11 @@ public class NullValueTable implements ValueTable {
 
   @Override
   public ValueSet getValueSet(VariableEntity entity) throws NoSuchValueSetException {
+    throw new NoSuchValueSetException(this, entity);
+  }
+
+  @Override
+  public Timestamps getValueSetTimestamps(VariableEntity entity) throws NoSuchValueSetException {
     throw new NoSuchValueSetException(this, entity);
   }
 

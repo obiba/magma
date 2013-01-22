@@ -10,6 +10,7 @@ import org.hibernate.Criteria;
 import org.hibernate.FetchMode;
 import org.hibernate.LockMode;
 import org.hibernate.LockOptions;
+import org.hibernate.criterion.Restrictions;
 import org.obiba.core.service.impl.hibernate.AssociationCriteria;
 import org.obiba.core.service.impl.hibernate.AssociationCriteria.Operation;
 import org.obiba.magma.Datasource;
@@ -24,10 +25,12 @@ import org.obiba.magma.VariableValueSource;
 import org.obiba.magma.VariableValueSourceFactory;
 import org.obiba.magma.datasource.hibernate.HibernateVariableValueSourceFactory.HibernateVariableValueSource;
 import org.obiba.magma.datasource.hibernate.converter.HibernateMarshallingContext;
+import org.obiba.magma.datasource.hibernate.domain.Timestamped;
 import org.obiba.magma.datasource.hibernate.domain.ValueSetState;
 import org.obiba.magma.datasource.hibernate.domain.ValueTableState;
 import org.obiba.magma.support.AbstractValueTable;
 import org.obiba.magma.support.AbstractVariableEntityProvider;
+import org.obiba.magma.support.NullTimestamps;
 import org.obiba.magma.support.ValueSetBean;
 import org.obiba.magma.support.VariableEntityBean;
 import org.obiba.magma.type.DateTimeType;
@@ -37,6 +40,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 
+@SuppressWarnings("OverlyCoupledClass")
 class HibernateValueTable extends AbstractValueTable {
 
   private static final Logger log = LoggerFactory.getLogger(HibernateValueTable.class);
@@ -75,6 +79,35 @@ class HibernateValueTable extends AbstractValueTable {
         .add("variableEntity.type", Operation.eq, entity.getType());
 
     return new HibernateValueSet(entity, criteria.getCriteria().setFetchMode("values", FetchMode.JOIN));
+  }
+
+  @Override
+  public Timestamps getValueSetTimestamps(VariableEntity entity) throws NoSuchValueSetException {
+    if(hasValueSet(entity) == false) {
+      throw new NoSuchValueSetException(this, entity);
+    }
+    final Timestamped valueSetState = (Timestamped) getDatasource().getSessionFactory().getCurrentSession()
+        .createCriteria(ValueSetState.class) //
+        .add(Restrictions.eq("valueTable.id", valueTableId)) //
+        .add(Restrictions.eq("variableEntity.identifier", entity.getIdentifier())) //
+        .add(Restrictions.eq("variableEntity.type", entity.getType())) //
+        .uniqueResult();
+
+    if(valueSetState == null) return NullTimestamps.get();
+
+    return new Timestamps() {
+
+      @Override
+      public Value getLastUpdate() {
+        return DateTimeType.get().valueOf(valueSetState.getUpdated());
+      }
+
+      @Override
+      public Value getCreated() {
+        return DateTimeType.get().valueOf(valueSetState.getCreated());
+      }
+
+    };
   }
 
   @Override
