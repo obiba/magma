@@ -61,34 +61,37 @@ public class JdbcValueSet extends ValueSetBean {
 
     // ...for the specified entity
     sql.append(" WHERE ");
-    List<String> entityIdentifierColumns = ((JdbcValueTable) getValueTable()).getSettings().getEntityIdentifierColumns();
-    for(int i = 0; i < entityIdentifierColumns.size(); i++) {
+    List<String> entityIdentifierColumns = getValueTable().getSettings().getEntityIdentifierColumns();
+    int size = entityIdentifierColumns.size();
+    for(int i = 0; i < size; i++) {
       sql.append(entityIdentifierColumns.get(i));
       sql.append(" = ?");
-
-      if(i < entityIdentifierColumns.size() - 1) {
+      if(i < size - 1) {
         sql.append(" AND ");
       }
     }
 
     // Execute the query.
     String[] entityIdentifierColumnValues = getVariableEntity().getIdentifier().split("-");
-    getValueTable().getDatasource().getJdbcTemplate().query(sql.toString(), entityIdentifierColumnValues, new ResultSetExtractor<Void>() {
-      public Void extractData(ResultSet rs) throws SQLException {
-        // Cache the data.
-        rs.next();
-        for(int i = 1; i <= rs.getMetaData().getColumnCount(); i++) {
-          if(!getValueTable().getSettings().getEntityIdentifierColumns().contains(rs.getMetaData().getColumnName(i))) {
-            String variableName = NameConverter.toMagmaVariableName(rs.getMetaData().getColumnName(i));
-            Value variableValue = SqlTypes.valueTypeFor(rs.getMetaData().getColumnType(i)).valueOf(rs.getObject(i));
-            resultSetCache.put(variableName, variableValue);
-          }
-        }
+    getValueTable().getDatasource().getJdbcTemplate()
+        .query(sql.toString(), entityIdentifierColumnValues, new ResultSetExtractor<Void>() {
+          @Override
+          public Void extractData(ResultSet rs) throws SQLException {
+            // Cache the data.
+            rs.next();
+            for(int i = 1; i <= rs.getMetaData().getColumnCount(); i++) {
+              if(!getValueTable().getSettings().getEntityIdentifierColumns()
+                  .contains(rs.getMetaData().getColumnName(i))) {
+                String variableName = NameConverter.toMagmaVariableName(rs.getMetaData().getColumnName(i));
+                Value variableValue = SqlTypes.valueTypeFor(rs.getMetaData().getColumnType(i)).valueOf(rs.getObject(i));
+                resultSetCache.put(variableName, variableValue);
+              }
+            }
 
-        // Just return null. We have everything we need in the cache.
-        return null;
-      }
-    });
+            // Just return null. We have everything we need in the cache.
+            return null;
+          }
+        });
 
   }
 
@@ -101,4 +104,5 @@ public class JdbcValueSet extends ValueSetBean {
     loadResultSetCache();
     return resultSetCache.get(getValueTable().getUpdatedTimestampColumnName());
   }
+
 }

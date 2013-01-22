@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.obiba.magma.datasource.generated;
 
@@ -28,9 +28,9 @@ class GeneratedValueSet extends ValueSetBean {
 
   GeneratedValueSet(GeneratedValueTable table, VariableEntity entity) {
     super(table, entity);
-    this.valueGenerator = new JDKRandomGenerator();
-    this.valueGenerator.setSeed(Long.parseLong(entity.getIdentifier()));
-    this.dataGenerator = new RandomDataImpl(valueGenerator);
+    valueGenerator = new JDKRandomGenerator();
+    valueGenerator.setSeed(Long.parseLong(entity.getIdentifier()));
+    dataGenerator = new RandomDataImpl(valueGenerator);
   }
 
   boolean hasValue(String name) {

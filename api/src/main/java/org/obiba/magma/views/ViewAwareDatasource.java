@@ -18,13 +18,14 @@ public class ViewAwareDatasource extends AbstractDatasourceWrapper {
 
   private final Set<View> views;
 
-  public ViewAwareDatasource(Datasource datasource, Set<View> views) {
+  public ViewAwareDatasource(Datasource datasource, Iterable<View> views) {
     super(datasource);
     if(views == null) throw new IllegalArgumentException("views cannot be null");
 
     this.views = Sets.newHashSet(views);
   }
 
+  @Override
   public void initialise() {
     super.initialise();
 
@@ -35,10 +36,12 @@ public class ViewAwareDatasource extends AbstractDatasourceWrapper {
     }
   }
 
+  @Override
   public void dispose() {
     Disposables.dispose(getWrappedDatasource(), views);
   }
 
+  @Override
   public ValueTableWriter createWriter(String tableName, String entityType) {
     if(hasView(tableName)) {
       throw new UnsupportedOperationException("Cannot write to a View");
@@ -46,10 +49,12 @@ public class ViewAwareDatasource extends AbstractDatasourceWrapper {
     return getWrappedDatasource().createWriter(tableName, entityType);
   }
 
+  @Override
   public ValueTable getValueTable(String name) throws NoSuchValueTableException {
-    return hasView(name) ? this.getView(name) : this.getWrappedDatasource().getValueTable(name);
+    return hasView(name) ? getView(name) : getWrappedDatasource().getValueTable(name);
   }
 
+  @Override
   public Set<ValueTable> getValueTables() {
     return Sets.union(getWrappedTables(), views);
   }
@@ -61,8 +66,7 @@ public class ViewAwareDatasource extends AbstractDatasourceWrapper {
 
   @Override
   public boolean canDropTable(String name) {
-    if(hasView(name)) return true;
-    return getWrappedDatasource().canDropTable(name);
+    return hasView(name) || getWrappedDatasource().canDropTable(name);
   }
 
   @Override
@@ -83,7 +87,8 @@ public class ViewAwareDatasource extends AbstractDatasourceWrapper {
    */
   public void addView(View view) {
     if(getWrappedDatasource().hasValueTable(view.getName())) {
-      throw new IllegalArgumentException("can't add view to datasource: a table with this name '" + view.getName() + "' already exists");
+      throw new IllegalArgumentException(
+          "can't add view to datasource: a table with this name '" + view.getName() + "' already exists");
     }
 
     if(hasView(view.getName())) {

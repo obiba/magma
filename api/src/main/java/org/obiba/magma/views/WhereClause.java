@@ -9,9 +9,9 @@ public interface WhereClause {
 
   /**
    * Indicates whether the specified value set is selected by this clause.
-   * 
+   *
    * @param valueSet a value set
    * @return <code>true</code> if selected
    */
-  public boolean where(ValueSet valueSet);
+  boolean where(ValueSet valueSet);
 }

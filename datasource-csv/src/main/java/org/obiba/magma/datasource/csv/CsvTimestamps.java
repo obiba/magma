@@ -26,18 +26,19 @@ public class CsvTimestamps implements Timestamps {
 
   @Override
   public Value getLastUpdate() {
-    Date variablesFileLastUpdated = null;
-    if(variableFile != null) variablesFileLastUpdated = new Date(variableFile.lastModified());
-    Date dataFileLastUpdated = null;
-    if(dataFile != null) dataFileLastUpdated = new Date(dataFile.lastModified());
+    Date variablesFileLastUpdated = variableFile == null ? null : new Date(variableFile.lastModified());
+    Date dataFileLastUpdated = dataFile == null ? null : new Date(dataFile.lastModified());
+
     if(variablesFileLastUpdated != null && dataFileLastUpdated != null) {
-      return variablesFileLastUpdated.after(dataFileLastUpdated) ? DateTimeType.get().valueOf(variablesFileLastUpdated) : DateTimeType.get().valueOf(dataFileLastUpdated);
-    } else if(variablesFileLastUpdated == null && dataFileLastUpdated == null) {
-      return DateTimeType.get().nullValue();
-    } else if(variablesFileLastUpdated != null) {
-      return DateTimeType.get().valueOf(variablesFileLastUpdated);
-    } else {
-      return DateTimeType.get().valueOf(dataFileLastUpdated);
+      return DateTimeType.get().valueOf(
+          variablesFileLastUpdated.after(dataFileLastUpdated) ? variablesFileLastUpdated : dataFileLastUpdated);
     }
+    if(variablesFileLastUpdated == null && dataFileLastUpdated == null) {
+      return DateTimeType.get().nullValue();
+    }
+    if(variablesFileLastUpdated != null) {
+      return DateTimeType.get().valueOf(variablesFileLastUpdated);
+    }
+    return DateTimeType.get().valueOf(dataFileLastUpdated);
   }
 }

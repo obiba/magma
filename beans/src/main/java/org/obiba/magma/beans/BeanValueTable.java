@@ -23,7 +23,7 @@ import com.google.common.collect.Sets;
 
 public class BeanValueTable extends AbstractValueTable {
 
-  private Set<ValueSetBeanResolver> resolvers = Sets.newHashSet();
+  private final Set<ValueSetBeanResolver> resolvers = Sets.newHashSet();
 
   public BeanValueTable(Datasource datasource, String name, VariableEntityProvider provider) {
     super(datasource, name, provider);
@@ -63,10 +63,9 @@ public class BeanValueTable extends AbstractValueTable {
     resolvers.add(resolver);
   }
 
-  // TODO: these were overriden to increase visibility. We should find an alternative to doing this.
+  // TODO: these were overridden to increase visibility. We should find an alternative to doing this.
   @Override
   public void addVariableValueSource(VariableValueSource source) {
-    // TODO Auto-generated method stub
     super.addVariableValueSource(source);
   }
 
@@ -77,7 +76,6 @@ public class BeanValueTable extends AbstractValueTable {
 
   @Override
   public void addVariableValueSources(VariableValueSourceFactory factory) {
-    // TODO Auto-generated method stub
     super.addVariableValueSources(factory);
   }
 

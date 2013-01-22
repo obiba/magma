@@ -9,6 +9,7 @@ import org.obiba.magma.type.DateTimeType;
 
 public class NullTimestamps implements Timestamps {
 
+  @SuppressWarnings("StaticNonFinalField")
   private static WeakReference<NullTimestamps> instance = MagmaEngine.get().registerInstance(new NullTimestamps());
 
   private NullTimestamps() {

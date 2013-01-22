@@ -12,7 +12,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 
 public class LimesurveyTimestamps implements Timestamps {
 
-  private LimesurveyValueTable limesurveyValueTable;
+  private final LimesurveyValueTable limesurveyValueTable;
 
   private static final Logger log = LoggerFactory.getLogger(LimesurveyVariableEntityProvider.class);
 
@@ -33,8 +33,8 @@ public class LimesurveyTimestamps implements Timestamps {
   private Value queryTimestamp(String sqlOperator) {
     JdbcTemplate jdbcTemplate = new JdbcTemplate(limesurveyValueTable.getDatasource().getDataSource());
     StringBuilder sql = new StringBuilder();
-    sql.append("SELECT " + sqlOperator + "(submitdate) ");
-    sql.append("FROM " + limesurveyValueTable.quoteAndPrefix("survey_" + limesurveyValueTable.getSid()));
+    sql.append("SELECT ").append(sqlOperator).append("(submitdate) ");
+    sql.append("FROM ").append(limesurveyValueTable.quoteAndPrefix("survey_" + limesurveyValueTable.getSid()));
     sql.append("WHERE submitdate is not NULL");
     Date lastUpdateDate;
     try {

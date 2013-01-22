@@ -9,6 +9,7 @@ import org.obiba.magma.Datasource;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.datasource.csv.CsvDatasource;
 
+@SuppressWarnings("UnusedDeclaration")
 public class CsvDatasourceFactory extends AbstractDatasourceFactory {
 
   private File bundle;

@@ -1,7 +1,6 @@
 package org.obiba.magma.datasource.fs;
 
 import java.io.EOFException;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.Reader;
@@ -47,18 +46,18 @@ class FsValueTable extends AbstractValueTable implements Initialisable, Disposab
    */
   private FsVariableEntityProvider variableEntityProvider;
 
-  public FsValueTable(FsDatasource datasource, String name) {
+  FsValueTable(FsDatasource datasource, String name) {
     super(datasource, name);
     valueTableEntry = datasource.getEntry(name);
     xstream = datasource.getXStreamInstance();
-    super.setVariableEntityProvider(variableEntityProvider = new FsVariableEntityProvider(this));
+    setVariableEntityProvider(variableEntityProvider = new FsVariableEntityProvider(this));
   }
 
-  public FsValueTable(FsDatasource datasource, String name, String entityType) {
+  FsValueTable(FsDatasource datasource, String name, String entityType) {
     super(datasource, name);
     valueTableEntry = datasource.getEntry(name);
     xstream = datasource.getXStreamInstance();
-    super.setVariableEntityProvider(variableEntityProvider = new FsVariableEntityProvider(this, entityType));
+    setVariableEntityProvider(variableEntityProvider = new FsVariableEntityProvider(this, entityType));
   }
 
   @Override
@@ -89,6 +88,7 @@ class FsValueTable extends AbstractValueTable implements Initialisable, Disposab
     return new LazyValueSet(this, entity);
   }
 
+  @Override
   public FsVariableEntityProvider getVariableEntityProvider() {
     return variableEntityProvider;
   }
@@ -109,8 +109,9 @@ class FsValueTable extends AbstractValueTable implements Initialisable, Disposab
     return getDatasource().createWriter(getEntry(name));
   }
 
-  private void readVariables() throws FileNotFoundException, IOException {
+  private void readVariables() throws IOException {
     readEntry("variables.xml", new InputCallback<Void>() {
+      @SuppressWarnings("InfiniteLoopStatement")
       @Override
       public Void readEntry(Reader reader) throws IOException {
         ObjectInputStream ois = xstream.createObjectInputStream(reader);
@@ -147,7 +148,7 @@ class FsValueTable extends AbstractValueTable implements Initialisable, Disposab
 
     private Variable variable;
 
-    public FsVariableValueSource(Variable variable) {
+    FsVariableValueSource(Variable variable) {
       this.variable = variable;
     }
 
@@ -175,9 +176,10 @@ class FsValueTable extends AbstractValueTable implements Initialisable, Disposab
 
   private class LazyValueSet extends ValueSetBean {
 
+    @SuppressWarnings("TransientFieldInNonSerializableClass")
     private transient volatile XStreamValueSet valueSet;
 
-    public LazyValueSet(ValueTable table, VariableEntity entity) {
+    LazyValueSet(ValueTable table, VariableEntity entity) {
       super(table, entity);
     }
 
