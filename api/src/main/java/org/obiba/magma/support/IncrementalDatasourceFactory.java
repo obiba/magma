@@ -12,17 +12,16 @@ package org.obiba.magma.support;
 import org.obiba.magma.AbstractDatasourceFactory;
 import org.obiba.magma.Datasource;
 import org.obiba.magma.DatasourceFactory;
-import org.obiba.magma.ValueTable;
 
 public class IncrementalDatasourceFactory extends AbstractDatasourceFactory {
 
-  private final ValueTable destinationTable;
-
   private final DatasourceFactory wrappedFactory;
 
-  public IncrementalDatasourceFactory(DatasourceFactory wrappedFactory, ValueTable destinationTable) {
-    this.destinationTable = destinationTable;
+  private final DatasourceFactory destination;
+
+  public IncrementalDatasourceFactory(DatasourceFactory wrappedFactory, DatasourceFactory destination) {
     this.wrappedFactory = wrappedFactory;
+    this.destination = destination;
   }
 
   @Override
@@ -37,7 +36,7 @@ public class IncrementalDatasourceFactory extends AbstractDatasourceFactory {
 
   @Override
   protected Datasource internalCreate() {
-    return new IncrementalDatasource(wrappedFactory.create(), destinationTable);
+    return new IncrementalDatasource(wrappedFactory.create(), destination.create());
   }
 
 }

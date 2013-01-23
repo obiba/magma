@@ -21,28 +21,39 @@ import org.obiba.magma.ValueTable;
  */
 public class IncrementalDatasource extends AbstractDatasourceWrapper {
 
-  private final ValueTable destinationTable;
+  private final Datasource destination;
 
-  public IncrementalDatasource(Datasource wrapped, ValueTable destinationTable) {
-    super(wrapped);
-    this.destinationTable = destinationTable;
+  public IncrementalDatasource(Datasource source, Datasource destination) {
+    super(source);
+    this.destination = destination;
   }
 
   @Override
   public ValueTable getValueTable(String name) throws NoSuchValueTableException {
-    return createIncrementalView(super.getValueTable(name));
+    ValueTable destinationTable = null;
+    try {
+      destinationTable = destination.getValueTable(name);
+    } catch(NoSuchValueTableException ignored) {
+    }
+    ValueTable sourceTable = super.getValueTable(name);
+    return destinationTable == null ? sourceTable : createIncrementalView(sourceTable, destinationTable);
   }
 
   @Override
   public Set<ValueTable> getValueTables() {
     Set<ValueTable> views = new HashSet<ValueTable>();
-    for(ValueTable valueTable : super.getValueTables()) {
-      views.add(createIncrementalView(valueTable));
+    for(ValueTable sourceTable : super.getValueTables()) {
+      ValueTable destinationTable = null;
+      try {
+        destinationTable = destination.getValueTable(sourceTable.getName());
+      } catch(NoSuchValueTableException ignored) {
+      }
+      views.add(destinationTable == null ? sourceTable : createIncrementalView(sourceTable, destinationTable));
     }
     return views;
   }
 
-  private ValueTable createIncrementalView(ValueTable sourceTable) {
+  private ValueTable createIncrementalView(ValueTable sourceTable, ValueTable destinationTable) {
     return new IncrementalView(sourceTable, destinationTable);
   }
 }

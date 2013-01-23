@@ -70,8 +70,12 @@ public class IncrementalView extends View {
       } catch(NoSuchValueSetException ignored) {
       }
 
-      Value v1 = sourceTimestamps == null ? DateTimeType.get().nullValue() : sourceTimestamps.getLastUpdate();
-      Value v2 = destinationTimestamps == null ? DateTimeType.get().nullValue() : destinationTimestamps.getLastUpdate();
+      Value v1 = sourceTimestamps == null || sourceTimestamps.equals(NullTimestamps.get()) //
+          ? DateTimeType.get().nullValue() //
+          : sourceTimestamps.getLastUpdate();
+      Value v2 = destinationTimestamps == null || destinationTimestamps.equals(NullTimestamps.get()) //
+          ? DateTimeType.get().nullValue() //
+          : destinationTimestamps.getLastUpdate();
       log.debug("source.updated: {}, destination.updated: {}", v1, v2);
       return v1.isNull() || v2.isNull() || v1.compareTo(v2) > 0;
     }
