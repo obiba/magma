@@ -1,10 +1,11 @@
 package org.obiba.magma.support;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.util.Collection;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Set;
 
 import org.obiba.magma.Datasource;
@@ -23,10 +24,12 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableList;
 
+@SuppressWarnings("UnusedDeclaration")
 public class DatasourceCopier {
 
   private static final Logger log = LoggerFactory.getLogger(DatasourceCopier.class);
 
+  @SuppressWarnings("ParameterHidesMemberVariable")
   public static class Builder {
 
     private DatasourceCopier copier = new DatasourceCopier();
@@ -61,6 +64,11 @@ public class DatasourceCopier {
 
     public Builder copyNullValues(boolean shouldCopy) {
       copier.copyNullValues = shouldCopy;
+      return this;
+    }
+
+    public Builder incremental(boolean incremental) {
+      copier.incremental = incremental;
       return this;
     }
 
@@ -101,23 +109,24 @@ public class DatasourceCopier {
 
   private boolean copyValues = true;
 
-  private List<DatasourceCopyEventListener> listeners = new LinkedList<DatasourceCopyEventListener>();
+  private boolean incremental = true;
+
+  private Collection<DatasourceCopyEventListener> listeners = new LinkedList<DatasourceCopyEventListener>();
 
   private VariableTransformer variableTransformer = new NoOpTransformer();
 
   private MultiplexingStrategy multiplexer = null;
 
   private DatasourceCopier() {
-
   }
 
   private DatasourceCopier(DatasourceCopier other) {
-    this.copyNullValues = other.copyNullValues;
-    this.copyMetadata = other.copyMetadata;
-    this.copyValues = other.copyValues;
-    this.listeners = ImmutableList.copyOf(other.listeners);
-    this.variableTransformer = other.variableTransformer;
-    this.multiplexer = other.multiplexer;
+    copyNullValues = other.copyNullValues;
+    copyMetadata = other.copyMetadata;
+    copyValues = other.copyValues;
+    listeners = ImmutableList.copyOf(other.listeners);
+    variableTransformer = other.variableTransformer;
+    multiplexer = other.multiplexer;
   }
 
   public void copy(String source, String destination) throws IOException {
@@ -127,7 +136,9 @@ public class DatasourceCopier {
   public void copy(Datasource source, Datasource destination) throws IOException {
     if(source == destination) {
       // Don't copy on itself! The caller probably didn't want to really do this, did they?
-      log.warn("Invoked Datasource to Datasource copy with the same Datasource instance as source and destination. Nothing copied to or from Datasource '{}'.", source.getName());
+      log.warn(
+          "Invoked Datasource to Datasource copy with the same Datasource instance as source and destination. Nothing copied to or from Datasource '{}'.",
+          source.getName());
       return;
     }
 
@@ -142,7 +153,8 @@ public class DatasourceCopier {
   }
 
   public void copy(ValueTable table, String tableName, Datasource destination) throws IOException {
-    log.info("Copying ValueTable '{}' to '{}.{}' (copyMetadata={}, copyValues={}).", new Object[] { table.getName(), destination.getName(), tableName, copyMetadata, copyValues });
+    log.info("Copying ValueTable '{}' to '{}.{}' (copyMetadata={}, copyValues={}).", table.getName(),
+        destination.getName(), tableName, copyMetadata, copyValues);
 
     ValueTableWriter vtw = innerValueTableWriter(table, tableName, destination);
     try {
@@ -175,70 +187,62 @@ public class DatasourceCopier {
   }
 
   public void copy(ValueTable table, String tableName, VariableWriter vw) {
-    if(copyMetadata) {
-      for(Variable variable : table.getVariables()) {
-        notifyListeners(variable, false);
-        vw.writeVariable(variableTransformer.transform(variable));
-        notifyListeners(variable, true);
-      }
+    if(!copyMetadata) return;
+    for(Variable variable : table.getVariables()) {
+      notifyListeners(variable, false);
+      vw.writeVariable(variableTransformer.transform(variable));
+      notifyListeners(variable, true);
     }
   }
 
   public void copy(ValueTable table, ValueSet valueSet, String tableName, ValueSetWriter vsw) {
-    if(copyValues) {
-      notifyListeners(table, valueSet, false);
-      for(Variable variable : table.getVariables()) {
-        Value value = table.getValue(variable, valueSet);
-        if(value.isNull() == false || copyNullValues) {
-          vsw.writeValue(variableTransformer.transform(variable), value);
-        }
+    if(!copyValues) return;
+    notifyListeners(table, valueSet, false);
+    for(Variable variable : table.getVariables()) {
+      Value value = table.getValue(variable, valueSet);
+      if(!value.isNull() || copyNullValues) {
+        vsw.writeValue(variableTransformer.transform(variable), value);
       }
-
-      if(vsw instanceof MultiplexedValueSetWriter) {
-        Set<String> tables = ((MultiplexedValueSetWriter) vsw).getTables();
-        notifyListeners(table, valueSet, true, tables.toArray(new String[] {}));
-      } else {
-        notifyListeners(table, valueSet, true, tableName);
-      }
+    }
+    if(vsw instanceof MultiplexedValueSetWriter) {
+      Set<String> tables = ((MultiplexedValueSetWriter) vsw).getTables();
+      notifyListeners(table, valueSet, true, tables.toArray(new String[tables.size()]));
+    } else {
+      notifyListeners(table, valueSet, true, tableName);
     }
   }
 
-  public
-      void
-      copy(ValueTable source, String tableName, ValueSet valueSet, Variable[] variables, Value[] values, ValueSetWriter vsw) {
-    if(copyValues) {
-      notifyListeners(source, valueSet, false);
-      for(int i = 0; i < variables.length; i++) {
-        Value value = values[i];
-        if(value.isNull() == false || copyNullValues) {
-          Variable variable = variables[i];
-          vsw.writeValue(variableTransformer.transform(variable), value);
-        }
+  public void copy(ValueTable source, String tableName, ValueSet valueSet, Variable[] variables, Value[] values,
+      ValueSetWriter vsw) {
+    if(!copyValues) return;
+    notifyListeners(source, valueSet, false);
+    for(int i = 0; i < variables.length; i++) {
+      Value value = values[i];
+      if(!value.isNull() || copyNullValues) {
+        Variable variable = variables[i];
+        vsw.writeValue(variableTransformer.transform(variable), value);
       }
-
-      if(vsw instanceof MultiplexedValueSetWriter) {
-        Set<String> tables = ((MultiplexedValueSetWriter) vsw).getTables();
-        notifyListeners(source, valueSet, true, tables.toArray(new String[] {}));
-      } else {
-        notifyListeners(source, valueSet, true, tableName);
-      }
+    }
+    if(vsw instanceof MultiplexedValueSetWriter) {
+      Set<String> tables = ((MultiplexedValueSetWriter) vsw).getTables();
+      notifyListeners(source, valueSet, true, tables.toArray(new String[tables.size()]));
+    } else {
+      notifyListeners(source, valueSet, true, tableName);
     }
   }
 
-  public ValueTableWriter
-      createValueTableWriter(ValueTable source, String destinationTableName, Datasource destination) {
+  public ValueTableWriter createValueTableWriter(ValueTable source, String destinationTableName,
+      Datasource destination) {
     return destination.createWriter(destinationTableName, source.getEntityType());
   }
 
   ValueTableWriter innerValueTableWriter(ValueTable source, String destinationTableName, Datasource destination) {
-    if(multiplexer != null) {
-      return new MultiplexingValueTableWriter(source, this, destination, multiplexer);
-    } else {
-      return createValueTableWriter(source, destinationTableName, destination);
-    }
+    return multiplexer == null
+        ? createValueTableWriter(source, destinationTableName, destination)
+        : new MultiplexingValueTableWriter(source, this, destination, multiplexer);
   }
 
-  public void closeValueTableWriter(ValueTableWriter vtw, ValueTable table) throws IOException {
+  public void closeValueTableWriter(Closeable vtw, ValueTable table) throws IOException {
     vtw.close();
   }
 
@@ -286,30 +290,30 @@ public class DatasourceCopier {
 
   public interface DatasourceCopyVariableEventListener extends DatasourceCopyEventListener {
 
-    public void onVariableCopy(Variable variable);
+    void onVariableCopy(Variable variable);
 
-    public void onVariableCopied(Variable variable);
+    void onVariableCopied(Variable variable);
 
   }
 
   public interface DatasourceCopyValueSetEventListener extends DatasourceCopyEventListener {
 
-    public void onValueSetCopy(ValueTable source, ValueSet valueSet);
+    void onValueSetCopy(ValueTable source, ValueSet valueSet);
 
-    public void onValueSetCopied(ValueTable source, ValueSet valueSet, String... tables);
+    void onValueSetCopied(ValueTable source, ValueSet valueSet, String... tables);
 
   }
 
   public interface DatasourceCopyValueTableEventListener extends DatasourceCopyEventListener {
 
-    public void onValueTableCopy(ValueTable valueTable, String destinationTable);
+    void onValueTableCopy(ValueTable valueTable, String destinationTable);
 
-    public void onValueTableCopied(ValueTable valueTable, String destinationTable);
+    void onValueTableCopied(ValueTable valueTable, String destinationTable);
 
   }
 
   public interface VariableTransformer {
-    public Variable transform(Variable variable);
+    Variable transform(Variable variable);
   }
 
   private static class NoOpTransformer implements VariableTransformer {
@@ -327,7 +331,8 @@ public class DatasourceCopier {
 
   }
 
-  private static class LoggingListener implements DatasourceCopyVariableEventListener, DatasourceCopyValueSetEventListener {
+  private static class LoggingListener
+      implements DatasourceCopyVariableEventListener, DatasourceCopyValueSetEventListener {
 
     @Override
     public void onValueSetCopied(ValueTable source, ValueSet valueSet, String... tables) {
@@ -353,29 +358,32 @@ public class DatasourceCopier {
 
   private static class ThroughputListener implements DatasourceCopyValueSetEventListener {
 
+    private static final NumberFormat TWO_DECIMAL_PLACES = DecimalFormat.getNumberInstance();
+
+    static {
+      TWO_DECIMAL_PLACES.setMaximumFractionDigits(2);
+    }
+
     private long count = 0;
 
     private long allDuration = 0;
 
     private long start;
 
-    private NumberFormat twoDecimalPlaces = DecimalFormat.getNumberInstance();
-
-    private ThroughputListener() {
-      twoDecimalPlaces.setMaximumFractionDigits(2);
-    }
-
     @Override
     public void onValueSetCopy(ValueTable source, ValueSet valueSet) {
       start = System.currentTimeMillis();
     }
 
+    @SuppressWarnings("MagicNumber")
     @Override
     public void onValueSetCopied(ValueTable source, ValueSet valueSet, String... tables) {
       long duration = System.currentTimeMillis() - start;
       allDuration += duration;
       count++;
-      log.debug("ValueSet copied in {}s. Average copy duration for {} valueSets: {}s.", new Object[] { twoDecimalPlaces.format(duration / 1000.0d), count, twoDecimalPlaces.format(allDuration / (double) count / 1000.0d) });
+      log.debug("ValueSet copied in {}s. Average copy duration for {} valueSets: {}s.",
+          TWO_DECIMAL_PLACES.format(duration / 1000.0d), count,
+          TWO_DECIMAL_PLACES.format(allDuration / (double) count / 1000.0d));
     }
 
   }
@@ -398,5 +406,13 @@ public class DatasourceCopier {
 
   public void setCopyMetadata(boolean copyMetadata) {
     this.copyMetadata = copyMetadata;
+  }
+
+  public boolean isIncremental() {
+    return incremental;
+  }
+
+  public void setIncremental(boolean incremental) {
+    this.incremental = incremental;
   }
 }

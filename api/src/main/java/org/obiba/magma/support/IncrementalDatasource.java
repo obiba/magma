@@ -35,8 +35,7 @@ public class IncrementalDatasource extends AbstractDatasourceWrapper {
       destinationTable = destination.getValueTable(name);
     } catch(NoSuchValueTableException ignored) {
     }
-    ValueTable sourceTable = super.getValueTable(name);
-    return destinationTable == null ? sourceTable : createIncrementalView(sourceTable, destinationTable);
+    return IncrementalView.Factory.create(super.getValueTable(name), destinationTable);
   }
 
   @Override
@@ -48,12 +47,9 @@ public class IncrementalDatasource extends AbstractDatasourceWrapper {
         destinationTable = destination.getValueTable(sourceTable.getName());
       } catch(NoSuchValueTableException ignored) {
       }
-      views.add(destinationTable == null ? sourceTable : createIncrementalView(sourceTable, destinationTable));
+      views.add(IncrementalView.Factory.create(sourceTable, destinationTable));
     }
     return views;
   }
 
-  private ValueTable createIncrementalView(ValueTable sourceTable, ValueTable destinationTable) {
-    return new IncrementalView(sourceTable, destinationTable);
-  }
 }

@@ -9,7 +9,12 @@
  */
 package org.obiba.magma.support;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
+import org.obiba.magma.Datasource;
 import org.obiba.magma.NoSuchValueSetException;
+import org.obiba.magma.NoSuchValueTableException;
 import org.obiba.magma.Timestamps;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueTable;
@@ -23,13 +28,35 @@ import org.slf4j.LoggerFactory;
 /**
  *
  */
+@SuppressWarnings("ClassTooDeepInInheritanceTree")
 public class IncrementalView extends View {
 
   private final Logger log = LoggerFactory.getLogger(getClass());
 
+  public static class Factory {
+
+    private Factory() {
+    }
+
+    public static ValueTable create(@Nonnull ValueTable sourceTable, @Nullable ValueTable destinationTable) {
+      return destinationTable == null ? sourceTable : new IncrementalView(sourceTable, destinationTable);
+    }
+
+    public static ValueTable create(ValueTable sourceTable, Datasource destinationDatasource) {
+      ValueTable destinationTable = null;
+      try {
+        destinationTable = destinationDatasource.getValueTable(sourceTable.getName());
+      } catch(NoSuchValueTableException ignored) {
+      }
+      return create(sourceTable, destinationTable);
+    }
+
+  }
+
+  @Nonnull
   private final ValueTable destinationTable;
 
-  public IncrementalView(ValueTable sourceTable, ValueTable destinationTable) {
+  private IncrementalView(ValueTable sourceTable, @Nonnull ValueTable destinationTable) {
     super(sourceTable.getName(), sourceTable);
     this.destinationTable = destinationTable;
   }
