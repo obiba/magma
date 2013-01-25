@@ -108,7 +108,7 @@ public class DatasourceCopier {
 
   private boolean copyValues = true;
 
-  private boolean incremental = true;
+  private boolean incremental = false;
 
   private Collection<DatasourceCopyEventListener> listeners = new LinkedList<DatasourceCopyEventListener>();
 
