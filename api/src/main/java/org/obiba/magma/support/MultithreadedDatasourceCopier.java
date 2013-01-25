@@ -313,7 +313,7 @@ public class MultithreadedDatasourceCopier {
           try {
             // Copy the ValueSet to the destinationDatasource
             log.debug("Dequeued entity {}", values.valueSet.getVariableEntity().getIdentifier());
-            copier.build().copy(sourceTable, destinationName, values.valueSet, variables, values.values, writer);
+            copier.build().copyValues(sourceTable, destinationName, values.valueSet, variables, values.values, writer);
           } finally {
             try {
               writer.close();

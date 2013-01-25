@@ -10,7 +10,6 @@ import org.hibernate.Criteria;
 import org.hibernate.FetchMode;
 import org.hibernate.LockMode;
 import org.hibernate.LockOptions;
-import org.hibernate.criterion.Restrictions;
 import org.obiba.core.service.impl.hibernate.AssociationCriteria;
 import org.obiba.core.service.impl.hibernate.AssociationCriteria.Operation;
 import org.obiba.magma.Datasource;
@@ -69,28 +68,30 @@ class HibernateValueTable extends AbstractValueTable {
 
   @Override
   public ValueSet getValueSet(VariableEntity entity) throws NoSuchValueSetException {
-    if(hasValueSet(entity) == false) {
+    if(!hasValueSet(entity)) {
       throw new NoSuchValueSetException(this, entity);
     }
-    AssociationCriteria criteria = AssociationCriteria
-        .create(ValueSetState.class, getDatasource().getSessionFactory().getCurrentSession())
-        .add("valueTable.id", Operation.eq, valueTableId)
-        .add("variableEntity.identifier", Operation.eq, entity.getIdentifier())
-        .add("variableEntity.type", Operation.eq, entity.getType());
+    AssociationCriteria criteria =
+        AssociationCriteria.create(ValueSetState.class, getDatasource().getSessionFactory().getCurrentSession())
+            .add("valueTable.id", Operation.eq, valueTableId)
+            .add("variableEntity.identifier", Operation.eq, entity.getIdentifier())
+            .add("variableEntity.type", Operation.eq, entity.getType());
 
     return new HibernateValueSet(entity, criteria.getCriteria().setFetchMode("values", FetchMode.JOIN));
   }
 
   @Override
   public Timestamps getValueSetTimestamps(VariableEntity entity) throws NoSuchValueSetException {
-    if(hasValueSet(entity) == false) {
+    if(!hasValueSet(entity)) {
       throw new NoSuchValueSetException(this, entity);
     }
-    final Timestamped valueSetState = (Timestamped) getDatasource().getSessionFactory().getCurrentSession()
-        .createCriteria(ValueSetState.class) //
-        .add(Restrictions.eq("valueTable.id", valueTableId)) //
-        .add(Restrictions.eq("variableEntity.identifier", entity.getIdentifier())) //
-        .add(Restrictions.eq("variableEntity.type", entity.getType())) //
+
+    final Timestamped valueSetState = (Timestamped) AssociationCriteria
+        .create(ValueSetState.class, getDatasource().getSessionFactory().getCurrentSession()) //
+        .add("valueTable.id", Operation.eq, valueTableId) //
+        .add("variableEntity.identifier", Operation.eq, entity.getIdentifier()) //
+        .add("variableEntity.type", Operation.eq, entity.getType()) //
+        .getCriteria() //
         .uniqueResult();
 
     if(valueSetState == null) return NullTimestamps.get();
@@ -214,9 +215,9 @@ class HibernateValueTable extends AbstractValueTable {
     public void initialise() {
       log.debug("Populating entity cache for table {}", getName());
       // get the variable entities that have a value set in the table
-      AssociationCriteria criteria = AssociationCriteria
-          .create(ValueSetState.class, getDatasource().getSessionFactory().getCurrentSession())
-          .add("valueTable.id", Operation.eq, valueTableId);
+      AssociationCriteria criteria =
+          AssociationCriteria.create(ValueSetState.class, getDatasource().getSessionFactory().getCurrentSession())
+              .add("valueTable.id", Operation.eq, valueTableId);
       for(Object obj : criteria.list()) {
         VariableEntity entity = ((ValueSetState) obj).getVariableEntity();
         entities.add(new VariableEntityBean(entity.getType(), entity.getIdentifier()));

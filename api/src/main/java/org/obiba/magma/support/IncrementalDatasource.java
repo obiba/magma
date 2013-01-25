@@ -19,6 +19,7 @@ import org.obiba.magma.ValueTable;
 /**
  *
  */
+@SuppressWarnings("UnusedDeclaration")
 public class IncrementalDatasource extends AbstractDatasourceWrapper {
 
   private final Datasource destination;

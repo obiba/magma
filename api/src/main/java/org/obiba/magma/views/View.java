@@ -157,7 +157,7 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
           return from.getTimestamps().getLastUpdate();
         } else {
           Value fromUpdate = from.getTimestamps().getLastUpdate();
-          return fromUpdate.isNull() == false && updated.compareTo(fromUpdate) < 0 ? fromUpdate : updated;
+          return !fromUpdate.isNull() && updated.compareTo(fromUpdate) < 0 ? fromUpdate : updated;
         }
       }
 

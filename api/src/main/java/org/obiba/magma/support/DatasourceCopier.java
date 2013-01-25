@@ -1,6 +1,5 @@
 package org.obiba.magma.support;
 
-import java.io.Closeable;
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
@@ -129,15 +128,15 @@ public class DatasourceCopier {
     multiplexer = other.multiplexer;
   }
 
-  public void copy(String source, String destination) throws IOException {
-    copy(MagmaEngine.get().getDatasource(source), MagmaEngine.get().getDatasource(destination));
+  public void copy(String sourceDatasource, String destinationDatasource) throws IOException {
+    copy(MagmaEngine.get().getDatasource(sourceDatasource), MagmaEngine.get().getDatasource(destinationDatasource));
   }
 
   public void copy(Datasource source, Datasource destination) throws IOException {
     if(source == destination) {
-      // Don't copy on itself! The caller probably didn't want to really do this, did they?
+      // Don't copyMetadata on itself! The caller probably didn't want to really do this, did they?
       log.warn(
-          "Invoked Datasource to Datasource copy with the same Datasource instance as source and destination. Nothing copied to or from Datasource '{}'.",
+          "Invoked Datasource to Datasource copyMetadata with the same Datasource instance as sourceDatasource and destinationDatasource. Nothing copied to or from Datasource '{}'.",
           source.getName());
       return;
     }
@@ -148,71 +147,77 @@ public class DatasourceCopier {
     }
   }
 
-  public void copy(ValueTable table, Datasource destination) throws IOException {
-    copy(table, table.getName(), destination);
+  public void copy(ValueTable sourceTable, Datasource destination) throws IOException {
+    copy(sourceTable, sourceTable.getName(), destination);
   }
 
-  public void copy(ValueTable table, String tableName, Datasource destination) throws IOException {
-    log.info("Copying ValueTable '{}' to '{}.{}' (copyMetadata={}, copyValues={}).", table.getName(),
-        destination.getName(), tableName, copyMetadata, copyValues);
+  public void copy(ValueTable sourceTable, String destinationTableName, Datasource destination) throws IOException {
+    log.info("Copying ValueTable '{}' to '{}.{}' (copyMetadata={}, copyValues={}, incremental={}).",
+        sourceTable.getName(), destination.getName(), destinationTableName, copyMetadata, copyValues, incremental);
 
-    ValueTableWriter vtw = innerValueTableWriter(table, tableName, destination);
+    ValueTableWriter writer = innerValueTableWriter(sourceTable, destinationTableName, destination);
     try {
-      copy(table, tableName, vtw);
+      copy(sourceTable, destination.getValueTable(destinationTableName), writer);
     } finally {
-      closeValueTableWriter(vtw, table);
+      writer.close();
     }
   }
 
-  public void copy(ValueTable table, String tableName, ValueTableWriter vtw) throws IOException {
-    if(copyMetadata) {
-      VariableWriter vw = vtw.writeVariables();
-      try {
-        copy(table, tableName, vw);
-      } finally {
-        vw.close();
-      }
-    }
+  private void copy(ValueTable sourceTable, ValueTable destinationTable, ValueTableWriter vtw) throws IOException {
+    copyMetadata(sourceTable, destinationTable.getName(), vtw);
+    copyValues(sourceTable, destinationTable, vtw);
+  }
 
-    if(copyValues) {
-      for(ValueSet valueSet : table.getValueSets()) {
-        ValueSetWriter vsw = vtw.writeValueSet(valueSet.getVariableEntity());
-        try {
-          copy(table, valueSet, tableName, vsw);
-        } finally {
-          vsw.close();
+  private void copyValues(ValueTable sourceTable, ValueTable destinationTable, ValueTableWriter tableWriter)
+      throws IOException {
+    if(!copyValues) return;
+    ValueTable incrementalSource =
+        incremental ? IncrementalView.Factory.create(sourceTable, destinationTable) : sourceTable;
+
+    log.debug("Copy values from {} {}", incrementalSource.getClass(), incrementalSource.getName());
+    for(ValueSet valueSet : incrementalSource.getValueSets()) {
+      copyValues(incrementalSource, destinationTable.getName(), valueSet, tableWriter);
+    }
+  }
+
+  private void copyValues(ValueTable sourceTable, String destinationTableName, ValueSet valueSet,
+      ValueTableWriter tableWriter) throws IOException {
+    ValueSetWriter valueSetWriter = tableWriter.writeValueSet(valueSet.getVariableEntity());
+    try {
+      notifyListeners(sourceTable, valueSet, false);
+      for(Variable variable : sourceTable.getVariables()) {
+        Value value = sourceTable.getValue(variable, valueSet);
+        if(!value.isNull() || copyNullValues) {
+          valueSetWriter.writeValue(variableTransformer.transform(variable), value);
         }
       }
-    }
-  }
-
-  public void copy(ValueTable table, String tableName, VariableWriter vw) {
-    if(!copyMetadata) return;
-    for(Variable variable : table.getVariables()) {
-      notifyListeners(variable, false);
-      vw.writeVariable(variableTransformer.transform(variable));
-      notifyListeners(variable, true);
-    }
-  }
-
-  public void copy(ValueTable table, ValueSet valueSet, String tableName, ValueSetWriter vsw) {
-    if(!copyValues) return;
-    notifyListeners(table, valueSet, false);
-    for(Variable variable : table.getVariables()) {
-      Value value = table.getValue(variable, valueSet);
-      if(!value.isNull() || copyNullValues) {
-        vsw.writeValue(variableTransformer.transform(variable), value);
+      if(valueSetWriter instanceof MultiplexedValueSetWriter) {
+        Set<String> tables = ((MultiplexedValueSetWriter) valueSetWriter).getTables();
+        notifyListeners(sourceTable, valueSet, true, tables.toArray(new String[tables.size()]));
+      } else {
+        notifyListeners(sourceTable, valueSet, true, destinationTableName);
       }
-    }
-    if(vsw instanceof MultiplexedValueSetWriter) {
-      Set<String> tables = ((MultiplexedValueSetWriter) vsw).getTables();
-      notifyListeners(table, valueSet, true, tables.toArray(new String[tables.size()]));
-    } else {
-      notifyListeners(table, valueSet, true, tableName);
+    } finally {
+      valueSetWriter.close();
     }
   }
 
-  public void copy(ValueTable source, String tableName, ValueSet valueSet, Variable[] variables, Value[] values,
+  private void copyMetadata(ValueTable sourceTable, String destinationTableName, ValueTableWriter tableWriter)
+      throws IOException {
+    if(!copyMetadata) return;
+    VariableWriter variableWriter = tableWriter.writeVariables();
+    try {
+      for(Variable variable : sourceTable.getVariables()) {
+        notifyListeners(variable, false);
+        variableWriter.writeVariable(variableTransformer.transform(variable));
+        notifyListeners(variable, true);
+      }
+    } finally {
+      variableWriter.close();
+    }
+  }
+
+  void copyValues(ValueTable source, String tableName, ValueSet valueSet, Variable[] variables, Value[] values,
       ValueSetWriter vsw) {
     if(!copyValues) return;
     notifyListeners(source, valueSet, false);
@@ -231,8 +236,7 @@ public class DatasourceCopier {
     }
   }
 
-  public ValueTableWriter createValueTableWriter(ValueTable source, String destinationTableName,
-      Datasource destination) {
+  ValueTableWriter createValueTableWriter(ValueTable source, String destinationTableName, Datasource destination) {
     return destination.createWriter(destinationTableName, source.getEntityType());
   }
 
@@ -240,10 +244,6 @@ public class DatasourceCopier {
     return multiplexer == null
         ? createValueTableWriter(source, destinationTableName, destination)
         : new MultiplexingValueTableWriter(source, this, destination, multiplexer);
-  }
-
-  public void closeValueTableWriter(Closeable vtw, ValueTable table) throws IOException {
-    vtw.close();
   }
 
   private void notifyListeners(Variable variable, boolean copied) {
@@ -381,7 +381,7 @@ public class DatasourceCopier {
       long duration = System.currentTimeMillis() - start;
       allDuration += duration;
       count++;
-      log.debug("ValueSet copied in {}s. Average copy duration for {} valueSets: {}s.",
+      log.debug("ValueSet copied in {}s. Average copyMetadata duration for {} valueSets: {}s.",
           TWO_DECIMAL_PLACES.format(duration / 1000.0d), count,
           TWO_DECIMAL_PLACES.format(allDuration / (double) count / 1000.0d));
     }

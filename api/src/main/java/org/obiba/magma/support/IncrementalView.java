@@ -76,12 +76,18 @@ public class IncrementalView extends View {
 
     @Override
     public VariableEntity apply(VariableEntity from) {
-      return isSourceNewerThanDestination(from) ? null : from;
+      boolean newer = isSourceNewerThanDestination(from);
+      VariableEntity entity = newer ? from : null;
+      log.debug("View: {}, entity: {}, sourceIsNewer: {}, return {}", getName(), from, newer, entity);
+      return entity;
     }
 
     @Override
     public VariableEntity unapply(VariableEntity from) {
-      return isSourceNewerThanDestination(from) ? from : null;
+      boolean newer = isSourceNewerThanDestination(from);
+      VariableEntity entity = newer ? null : from;
+      log.debug("View: {}, entity: {}, sourceIsNewer: {}, return {}", getName(), from, newer, entity);
+      return entity;
     }
 
     private boolean isSourceNewerThanDestination(VariableEntity from) {
