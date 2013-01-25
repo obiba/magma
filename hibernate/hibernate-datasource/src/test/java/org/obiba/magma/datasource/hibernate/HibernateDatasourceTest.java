@@ -5,8 +5,6 @@ import java.util.Properties;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import junit.framework.Assert;
-
 import org.hibernate.Transaction;
 import org.hibernate.cfg.Environment;
 import org.junit.After;
@@ -16,6 +14,7 @@ import org.obiba.magma.Category;
 import org.obiba.magma.Datasource;
 import org.obiba.magma.MagmaEngine;
 import org.obiba.magma.Value;
+import org.obiba.magma.ValueTable;
 import org.obiba.magma.ValueTableWriter;
 import org.obiba.magma.ValueTableWriter.VariableWriter;
 import org.obiba.magma.Variable;
@@ -33,7 +32,9 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 
-@SuppressWarnings("OverlyLongMethod")
+import junit.framework.Assert;
+
+@SuppressWarnings({ "OverlyLongMethod", "MagicNumber" })
 public class HibernateDatasourceTest {
 
   LocalSessionFactoryProvider provider;
@@ -182,10 +183,10 @@ public class HibernateDatasourceTest {
         Variable.Builder.newVariable("Test Variable", IntegerType.get(), "Participant").build(), //
         Variable.Builder.newVariable("Other Variable", DecimalType.get(), "Participant").build());
 
-    GeneratedValueTable generatedValueTable = new GeneratedValueTable(ds, variables, 300);
+    ValueTable generatedValueTable = new GeneratedValueTable(ds, variables, 300);
     provider.getSessionFactory().getCurrentSession().beginTransaction();
     MagmaEngine.get().addDatasource(ds);
-    DatasourceCopier.Builder.newCopier().build().copy(generatedValueTable, ds);
+    DatasourceCopier.Builder.newCopier().incremental(false).build().copy(generatedValueTable, ds);
     cleanlyRemoveDatasource(ds);
   }
 
@@ -197,10 +198,10 @@ public class HibernateDatasourceTest {
         Variable.Builder.newVariable("Test Variable", IntegerType.get(), "Participant").build(), //
         Variable.Builder.newVariable("Other Variable", DecimalType.get(), "Participant").build());
 
-    GeneratedValueTable generatedValueTable = new GeneratedValueTable(ds, variables, 300);
+    ValueTable generatedValueTable = new GeneratedValueTable(ds, variables, 300);
     provider.getSessionFactory().getCurrentSession().beginTransaction();
     MagmaEngine.get().addDatasource(ds);
-    DatasourceCopier.Builder.newCopier().build().copy(generatedValueTable, "NewTable", ds);
+    DatasourceCopier.Builder.newCopier().incremental(false).build().copy(generatedValueTable, "NewTable", ds);
     provider.getSessionFactory().getCurrentSession().getTransaction().commit();
 
     provider.getSessionFactory().getCurrentSession().beginTransaction();
@@ -208,8 +209,8 @@ public class HibernateDatasourceTest {
     Assert.assertNotNull(vvs);
     Assert.assertNotNull(vvs.asVectorSource());
     VectorSource vs = vvs.asVectorSource();
-    SortedSet<VariableEntity> entities = new TreeSet<VariableEntity>(
-        ds.getValueTable("NewTable").getVariableEntities());
+    SortedSet<VariableEntity> entities =
+        new TreeSet<VariableEntity>(ds.getValueTable("NewTable").getVariableEntities());
     Iterable<Value> values = vs.getValues(entities);
     Assert.assertNotNull(values);
     Assert.assertEquals(entities.size(), Iterables.size(values));
@@ -231,7 +232,7 @@ public class HibernateDatasourceTest {
 
   private void cleanlyRemoveDatasource(Datasource ds) {
     Transaction tx = provider.getSessionFactory().getCurrentSession().getTransaction();
-    if(tx == null || tx.isActive() == false) {
+    if(tx == null || !tx.isActive()) {
       provider.getSessionFactory().getCurrentSession().beginTransaction();
     }
     MagmaEngine.get().removeDatasource(ds);
@@ -243,8 +244,9 @@ public class HibernateDatasourceTest {
   }
 
   private LocalSessionFactoryProvider newProvider(String testName) {
-    LocalSessionFactoryProvider newProvider = new LocalSessionFactoryProvider("org.hsqldb.jdbcDriver",
-        "jdbc:hsqldb:mem:" + testName + ";shutdown=true", "sa", "", "org.hibernate.dialect.HSQLDialect");
+    LocalSessionFactoryProvider newProvider =
+        new LocalSessionFactoryProvider("org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:" + testName + ";shutdown=true", "sa",
+            "", "org.hibernate.dialect.HSQLDialect");
     Properties p = new Properties();
     p.setProperty(Environment.CACHE_PROVIDER, "org.hibernate.cache.HashtableCacheProvider");
     newProvider.setProperties(p);
