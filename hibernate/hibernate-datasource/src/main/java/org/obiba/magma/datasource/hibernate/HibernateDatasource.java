@@ -130,16 +130,13 @@ public class HibernateDatasource extends AbstractDatasource {
     org.hibernate.classic.Session currentSession = getSessionFactory().getCurrentSession();
 
     // cannot use cascading because DELETE (and INSERT) do not cascade via relationships in JPQL query
-    int deleted = currentSession.createQuery( //
-        "delete from ValueSetBinaryValue bv where bv.valueSetValue.id " + //
-            "in (select vsv.id from ValueSetValue vsv where vsv.valueSet.id " + //
-            "in (select vs.id from ValueSetState vs where vs.valueTable.id = :valueTableId))")
+    int deleted = currentSession.createQuery("delete from ValueSetBinaryValue bv where bv.valueSet.id " +
+        "in (select vs.id from ValueSetState vs where vs.valueTable.id = :valueTableId)")
         .setParameter("valueTableId", tableState.getId()).executeUpdate();
     log.info("deleted {} binaries from {}", deleted, tableName);
 
-    deleted = currentSession.createQuery( //
-        "delete from ValueSetValue vsv where vsv.valueSet.id " + //
-            "in (select vs.id from ValueSetState vs where vs.valueTable.id = :valueTableId)")
+    deleted = currentSession.createQuery("delete from ValueSetValue vsv where vsv.id.valueSet.id " +
+        "in (select vs.id from ValueSetState vs where vs.valueTable.id = :valueTableId)")
         .setParameter("valueTableId", tableState.getId()).executeUpdate();
     log.info("deleted {} values from {}", deleted, tableName);
 
