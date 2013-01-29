@@ -22,7 +22,6 @@ import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
-import javax.persistence.UniqueConstraint;
 import javax.persistence.Version;
 
 import org.hibernate.annotations.Columns;
@@ -33,8 +32,7 @@ import org.obiba.magma.hibernate.type.ValueHibernateType;
 
 @SuppressWarnings("UnusedDeclaration")
 @Entity
-@Table(name = "value_set_value",
-    uniqueConstraints = @UniqueConstraint(columnNames = { "value_set_id", "variable_id" }))
+@Table(name = "value_set_value")
 @TypeDef(name = "value", typeClass = ValueHibernateType.class)
 @NamedQuery(name = "findValuesByTable",
     query = "SELECT vsv FROM ValueSetValue vsv WHERE vsv.id.valueSet " + //
