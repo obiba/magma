@@ -1,10 +1,12 @@
 package org.obiba.magma.js.views;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.obiba.magma.Initialisable;
+import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.NoSuchVariableException;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.ValueTableWriter.VariableWriter;
@@ -23,13 +25,16 @@ public class VariablesClause implements ListClause, Initialisable {
 
   private Set<Variable> variables;
 
+  @SuppressWarnings("TransientFieldInNonSerializableClass")
   private transient ValueTable valueTable;
 
+  @SuppressWarnings("TransientFieldInNonSerializableClass")
   private transient Set<VariableValueSource> variableValueSources;
 
+  @SuppressWarnings("TransientFieldInNonSerializableClass")
   private transient boolean initialised = false;
 
-  public void setVariables(Set<Variable> variables) {
+  public void setVariables(Collection<Variable> variables) {
     this.variables = new LinkedHashSet<Variable>();
     if(variables != null) {
       this.variables.addAll(variables);
@@ -60,7 +65,13 @@ public class VariablesClause implements ListClause, Initialisable {
     factory.setVariables(variables);
     factory.setValueTable(valueTable);
     variableValueSources = factory.createSources();
-    Initialisables.initialise(variableValueSources);
+    for (VariableValueSource vvs : variableValueSources) {
+      try {
+        Initialisables.initialise(vvs);
+      } catch(MagmaRuntimeException ignored) {
+
+      }
+    }
     initialised = true;
   }
 
@@ -81,7 +92,7 @@ public class VariablesClause implements ListClause, Initialisable {
       @Override
       public void writeVariable(Variable variable) {
         // update or add variable
-        LinkedHashSet<Variable> variableSet = new LinkedHashSet<Variable>();
+        Set<Variable> variableSet = new LinkedHashSet<Variable>();
         boolean updated = false;
         for(Variable var : variables) {
           if(var.getName().equals(variable.getName())) {

@@ -4,7 +4,6 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -85,7 +84,7 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
       throw new IllegalStateException("valueType must be set before calling getValue().");
     }
     if(compiledScript == null) {
-      throw new IllegalStateException("script hasn't been compile. Call initialise() before calling getValue().");
+      initialise();
     }
     /*try {
       throw new Exception();
@@ -110,7 +109,7 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
       throw new IllegalStateException("valueType must be set before calling getValue().");
     }
     if(compiledScript == null) {
-      throw new IllegalStateException("script hasn't been compile. Call initialise() before calling getValue().");
+      initialise();
     }
     return (Iterable<Value>) ContextFactory.getGlobal().call(new ValueVectorEvaluationContextAction(entities));
   }
@@ -349,7 +348,7 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
     // The index of the value returned by values.next();
     private int nextIndex = 0;
 
-    // Value of nextIndex - 1 (null after ctor)
+    // Value of nextIndex - 1 (null after vector)
     private Value currentValue;
 
     VectorHolder(Iterator<Value> values) {
