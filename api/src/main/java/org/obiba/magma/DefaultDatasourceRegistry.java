@@ -1,5 +1,6 @@
 package org.obiba.magma;
 
+import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.UUID;
@@ -13,15 +14,18 @@ import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
 public class DefaultDatasourceRegistry implements DatasourceRegistry, Disposable {
 
   private Set<Datasource> datasources = Sets.newHashSet();
 
-  private Set<DatasourceFactory> transientDatasources = Sets.newHashSet();
+  private final Map<String, DatasourceFactory> transientDatasourceFactories = Maps.newHashMap();
 
-  private Set<Decorator<Datasource>> decorators = Sets.newHashSet();
+  private final Map<String, Datasource> transientDatasources = Maps.newHashMap();
+
+  private final Set<Decorator<Datasource>> decorators = Sets.newHashSet();
 
   @Override
   public void dispose() {
@@ -74,7 +78,7 @@ public class DefaultDatasourceRegistry implements DatasourceRegistry, Disposable
     Initialisables.initialise(decorator);
     decorators.add(decorator);
 
-    this.datasources = Sets.newHashSet(Iterables.transform(this.datasources, new Function<Datasource, Datasource>() {
+    datasources = Sets.newHashSet(Iterables.transform(datasources, new Function<Datasource, Datasource>() {
 
       @Override
       public Datasource apply(Datasource input) {
@@ -95,6 +99,7 @@ public class DefaultDatasourceRegistry implements DatasourceRegistry, Disposable
       }
 
       for(Decorator<Datasource> decorator : decorators) {
+        //noinspection AssignmentToMethodParameter
         datasource = decorator.decorate(datasource);
       }
 
@@ -128,11 +133,9 @@ public class DefaultDatasourceRegistry implements DatasourceRegistry, Disposable
     while(hasTransientDatasource(uid)) {
       uid = randomTransientDatasourceName();
     }
-
     factory.setName(uid);
     Initialisables.initialise(factory);
-    transientDatasources.add(factory);
-
+    transientDatasourceFactories.put(factory.getName(), factory);
     return factory.getName();
   }
 
@@ -144,7 +147,7 @@ public class DefaultDatasourceRegistry implements DatasourceRegistry, Disposable
    */
   @Override
   public boolean hasTransientDatasource(String uid) {
-    return getTransientDatasource(uid) != null;
+    return transientDatasourceFactories.containsKey(uid);
   }
 
   /**
@@ -154,10 +157,8 @@ public class DefaultDatasourceRegistry implements DatasourceRegistry, Disposable
    */
   @Override
   public void removeTransientDatasource(String uid) {
-    DatasourceFactory factory = getTransientDatasource(uid);
-    if(factory != null) {
-      transientDatasources.remove(factory);
-    }
+    transientDatasourceFactories.remove(uid);
+    transientDatasources.remove(uid);
   }
 
   /**
@@ -169,17 +170,18 @@ public class DefaultDatasourceRegistry implements DatasourceRegistry, Disposable
    */
   @Override
   public Datasource getTransientDatasourceInstance(String uid) {
-    DatasourceFactory factory = getTransientDatasource(uid);
-    Datasource datasource = null;
-    if(factory != null) {
-      datasource = factory.create();
-      Initialisables.initialise(datasource);
-    } else {
+    DatasourceFactory factory = transientDatasourceFactories.get(uid);
+    if(factory == null) {
       throw new NoSuchDatasourceException(uid);
     }
-
-    for(Decorator<Datasource> decorator : decorators) {
-      datasource = decorator.decorate(datasource);
+    Datasource datasource = transientDatasources.get(uid);
+    if(datasource == null) {
+      datasource = factory.create();
+      Initialisables.initialise(datasource);
+      for(Decorator<Datasource> decorator : decorators) {
+        datasource = decorator.decorate(datasource);
+      }
+      transientDatasources.put(uid, datasource);
     }
     return datasource;
   }
@@ -194,21 +196,4 @@ public class DefaultDatasourceRegistry implements DatasourceRegistry, Disposable
     return UUID.randomUUID().toString();
   }
 
-  /**
-   * Look for a datasource factory with given identifier.
-   *
-   * @param uid
-   * @return null if not found
-   */
-  private DatasourceFactory getTransientDatasource(String uid) {
-    if(uid == null) throw new IllegalArgumentException("uid cannot be null.");
-    DatasourceFactory foundFactory = null;
-    for(DatasourceFactory factory : transientDatasources) {
-      if(factory.getName().equals(uid)) {
-        foundFactory = factory;
-        break;
-      }
-    }
-    return foundFactory;
-  }
 }
