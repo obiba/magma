@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
 @SuppressWarnings("ClassTooDeepInInheritanceTree")
 public class IncrementalView extends View {
 
-  private final Logger log = LoggerFactory.getLogger(getClass());
+  private static final Logger log = LoggerFactory.getLogger(IncrementalView.class);
 
   public static class Factory {
 
@@ -84,10 +84,7 @@ public class IncrementalView extends View {
 
     @Override
     public VariableEntity unapply(VariableEntity from) {
-      boolean newer = isSourceNewerThanDestination(from);
-      VariableEntity entity = newer ? null : from;
-      log.debug("View: {}, entity: {}, sourceIsNewer: {}, return {}", getName(), from, newer, entity);
-      return entity;
+      return from;
     }
 
     private boolean isSourceNewerThanDestination(VariableEntity from) {
@@ -103,14 +100,15 @@ public class IncrementalView extends View {
       } catch(NoSuchValueSetException ignored) {
       }
 
-      Value v1 = sourceTimestamps == null || sourceTimestamps.equals(NullTimestamps.get()) //
+      Value sourceLastUpdate = sourceTimestamps == null || sourceTimestamps.equals(NullTimestamps.get()) //
           ? DateTimeType.get().nullValue() //
           : sourceTimestamps.getLastUpdate();
-      Value v2 = destinationTimestamps == null || destinationTimestamps.equals(NullTimestamps.get()) //
-          ? DateTimeType.get().nullValue() //
+      Value destinationLastUpdate = destinationTimestamps == null || destinationTimestamps.equals(NullTimestamps.get())
+          ? DateTimeType.get().nullValue()
           : destinationTimestamps.getLastUpdate();
-      log.debug("source.updated: {}, destination.updated: {}", v1, v2);
-      return v1.isNull() || v2.isNull() || v1.compareTo(v2) > 0;
+      log.debug("{} - sourceLastUpdate: {}, destinationLastUpdate: {}", from, sourceLastUpdate, destinationLastUpdate);
+      return sourceLastUpdate.isNull() || destinationLastUpdate.isNull() ||
+          sourceLastUpdate.compareTo(destinationLastUpdate) > 0;
     }
   }
 

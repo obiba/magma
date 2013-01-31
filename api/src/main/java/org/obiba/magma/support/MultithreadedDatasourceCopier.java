@@ -130,9 +130,8 @@ public class MultithreadedDatasourceCopier {
   }
 
   public void copy() throws IOException {
-    ThreadPoolExecutor executor = (ThreadPoolExecutor) (threadFactory == null
-        ? Executors.newFixedThreadPool(concurrentReaders)
-        : Executors.newFixedThreadPool(concurrentReaders, threadFactory));
+    ThreadPoolExecutor executor = (ThreadPoolExecutor) (threadFactory == null ? Executors
+        .newFixedThreadPool(concurrentReaders) : Executors.newFixedThreadPool(concurrentReaders, threadFactory));
 
     prepareVariables();
 
@@ -141,15 +140,10 @@ public class MultithreadedDatasourceCopier {
 
     if(copier.build().isCopyValues()) {
 
-      if(copier.build().isIncremental()) {
-        // wrap source table with IncrementalView
-        sourceTable = IncrementalView.Factory.create(sourceTable, destinationDatasource);
-      }
-
       // A queue containing all entities to read the values for.
       // Once this is empty, and all readers are done, then reading is over.
-      BlockingQueue<VariableEntity> readQueue =
-          new LinkedBlockingDeque<VariableEntity>(sourceTable.getVariableEntities());
+      BlockingQueue<VariableEntity> readQueue = new LinkedBlockingDeque<VariableEntity>(
+          sourceTable.getVariableEntities());
       entitiesToCopy = readQueue.size();
       for(int i = 0; i < concurrentReaders; i++) {
         readers.add(executor.submit(new ConcurrentValueSetReader(readQueue, writeQueue)));
@@ -305,8 +299,8 @@ public class MultithreadedDatasourceCopier {
     @Override
     public void run() {
       VariableEntityValues values = next();
-      ValueTableWriter tableWriter =
-          copier.build().innerValueTableWriter(sourceTable, destinationName, destinationDatasource);
+      ValueTableWriter tableWriter = copier.build()
+          .innerValueTableWriter(sourceTable, destinationName, destinationDatasource);
       try {
         while(values != null) {
           ValueSetWriter writer = tableWriter.writeValueSet(values.valueSet.getVariableEntity());

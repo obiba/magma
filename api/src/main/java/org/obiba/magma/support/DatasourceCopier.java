@@ -66,11 +66,6 @@ public class DatasourceCopier {
       return this;
     }
 
-    public Builder incremental(boolean incremental) {
-      copier.incremental = incremental;
-      return this;
-    }
-
     public Builder withListener(DatasourceCopyEventListener listener) {
       if(listener == null) throw new IllegalArgumentException("listener cannot be null");
       copier.listeners.add(listener);
@@ -108,8 +103,6 @@ public class DatasourceCopier {
 
   private boolean copyValues = true;
 
-  private boolean incremental = false;
-
   private Collection<DatasourceCopyEventListener> listeners = new LinkedList<DatasourceCopyEventListener>();
 
   private VariableTransformer variableTransformer = new NoOpTransformer();
@@ -126,7 +119,6 @@ public class DatasourceCopier {
     listeners = ImmutableList.copyOf(other.listeners);
     variableTransformer = other.variableTransformer;
     multiplexer = other.multiplexer;
-    incremental = other.incremental;
   }
 
   public void copy(String sourceDatasource, String destinationDatasource) throws IOException {
@@ -153,8 +145,8 @@ public class DatasourceCopier {
   }
 
   public void copy(ValueTable sourceTable, String destinationTableName, Datasource destination) throws IOException {
-    log.info("Copying ValueTable '{}' to '{}.{}' (copyMetadata={}, copyValues={}, incremental={}).",
-        sourceTable.getName(), destination.getName(), destinationTableName, copyMetadata, copyValues, incremental);
+    log.info("Copying ValueTable '{}' to '{}.{}' (copyMetadata={}, copyValues={}).", sourceTable.getName(),
+        destination.getName(), destinationTableName, copyMetadata, copyValues);
 
     ValueTableWriter tableWriter = innerValueTableWriter(sourceTable, destinationTableName, destination);
     try {
@@ -173,13 +165,9 @@ public class DatasourceCopier {
   private void copyValues(ValueTable sourceTable, ValueTable destinationTable, ValueTableWriter tableWriter)
       throws IOException {
     if(!copyValues) return;
-    //TODO CT: do we keep this here?
-    ValueTable incrementalSource = incremental
-        ? IncrementalView.Factory.create(sourceTable, destinationTable)
-        : sourceTable;
 
-    log.debug("Copy values from {} {}", incrementalSource.getClass(), incrementalSource.getName());
-    for(ValueSet valueSet : incrementalSource.getValueSets()) {
+    log.debug("Copy values from {} {}", sourceTable.getClass(), sourceTable.getName());
+    for(ValueSet valueSet : sourceTable.getValueSets()) {
       ValueSetWriter valueSetWriter = tableWriter.writeValueSet(valueSet.getVariableEntity());
       try {
         copyValues(sourceTable, valueSet, destinationTable.getName(), valueSetWriter);
@@ -418,11 +406,4 @@ public class DatasourceCopier {
     this.copyMetadata = copyMetadata;
   }
 
-  public boolean isIncremental() {
-    return incremental;
-  }
-
-  public void setIncremental(boolean incremental) {
-    this.incremental = incremental;
-  }
 }

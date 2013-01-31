@@ -28,16 +28,17 @@ import org.obiba.magma.transform.TransformingValueTable;
 import org.obiba.magma.type.DateTimeType;
 import org.obiba.magma.views.support.AllClause;
 import org.obiba.magma.views.support.NoneClause;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 
-@SuppressWarnings({ "ParameterHidesMemberVariable", "OverlyCoupledClass" })
+@SuppressWarnings("OverlyCoupledClass")
 public class View extends AbstractValueTableWrapper implements Initialisable, Disposable, TransformingValueTable {
-  //
-  // Instance Variables
-  //
+
+  private static final Logger log = LoggerFactory.getLogger(View.class);
 
   private String name;
 
@@ -139,7 +140,7 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
 
   @Override
   public Datasource getDatasource() {
-    return viewDatasource != null ? viewDatasource : getWrappedValueTable().getDatasource();
+    return viewDatasource == null ? getWrappedValueTable().getDatasource() : viewDatasource;
   }
 
   @Override
@@ -382,12 +383,12 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
     return new BijectiveFunction<ValueSet, ValueSet>() {
 
       @Override
-      public ValueSet unapply(ValueSet from) {
+      public ValueSet unapply(@SuppressWarnings("ParameterHidesMemberVariable") ValueSet from) {
         return ((ValueSetWrapper) from).getWrappedValueSet();
       }
 
       @Override
-      public ValueSet apply(ValueSet from) {
+      public ValueSet apply(@SuppressWarnings("ParameterHidesMemberVariable") ValueSet from) {
         return new ValueSetWrapper(View.this, from);
       }
     };
@@ -397,12 +398,12 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
   public BijectiveFunction<VariableValueSource, VariableValueSource> getVariableValueSourceMappingFunction() {
     return new BijectiveFunction<VariableValueSource, VariableValueSource>() {
       @Override
-      public VariableValueSource apply(VariableValueSource from) {
+      public VariableValueSource apply(@SuppressWarnings("ParameterHidesMemberVariable") VariableValueSource from) {
         return new VariableValueSourceWrapper(from);
       }
 
       @Override
-      public VariableValueSource unapply(VariableValueSource from) {
+      public VariableValueSource unapply(@SuppressWarnings("ParameterHidesMemberVariable") VariableValueSource from) {
         return ((VariableValueSourceWrapper) from).wrapped;
       }
     };
