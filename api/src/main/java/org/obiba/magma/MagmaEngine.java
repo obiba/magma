@@ -1,6 +1,7 @@
 package org.obiba.magma;
 
 import java.lang.ref.WeakReference;
+import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -15,7 +16,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 
-@SuppressWarnings({"AssignmentToStaticFieldFromInstanceMethod", "StaticNonFinalField", "UnusedDeclaration"})
+@SuppressWarnings({ "AssignmentToStaticFieldFromInstanceMethod", "StaticNonFinalField", "UnusedDeclaration" })
 public class MagmaEngine implements DatasourceRegistry {
 
   private final static Logger log = LoggerFactory.getLogger(MagmaEngine.class);
@@ -166,11 +167,11 @@ public class MagmaEngine implements DatasourceRegistry {
     return valueTypeFactory;
   }
 
-  public void lock(Set<String> lockNames) throws InterruptedException {
+  public void lock(Collection<String> lockNames) throws InterruptedException {
     lockManager.lock(lockNames);
   }
 
-  public void unlock(Set<String> lockNames) {
+  public void unlock(Iterable<String> lockNames) {
     lockManager.unlock(lockNames, true);
   }
 

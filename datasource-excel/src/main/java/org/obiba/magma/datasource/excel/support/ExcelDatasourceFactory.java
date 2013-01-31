@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 
+import javax.annotation.Nonnull;
+
 import org.obiba.magma.AbstractDatasourceFactory;
 import org.obiba.magma.Datasource;
 import org.obiba.magma.MagmaRuntimeException;
@@ -23,6 +25,7 @@ public class ExcelDatasourceFactory extends AbstractDatasourceFactory {
     this.readOnly = readOnly;
   }
 
+  @Nonnull
   @Override
   protected Datasource internalCreate() {
     if(readOnly) {

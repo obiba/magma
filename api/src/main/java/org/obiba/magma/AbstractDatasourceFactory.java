@@ -1,5 +1,7 @@
 package org.obiba.magma;
 
+import javax.annotation.Nonnull;
+
 public abstract class AbstractDatasourceFactory implements DatasourceFactory {
   //
   // Instance Variables
@@ -10,6 +12,7 @@ public abstract class AbstractDatasourceFactory implements DatasourceFactory {
 
   private String name;
 
+  @Nonnull
   protected abstract Datasource internalCreate();
 
   //

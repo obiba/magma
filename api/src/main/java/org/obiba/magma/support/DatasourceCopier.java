@@ -137,8 +137,8 @@ public class DatasourceCopier {
     if(source == destination) {
       // Don't copyMetadata on itself! The caller probably didn't want to really do this, did they?
       log.warn(
-          "Invoked Datasource to Datasource copyMetadata with the same Datasource instance as sourceDatasource and destinationDatasource. Nothing copied to or from Datasource '{}'.",
-          source.getName());
+          "Invoked Datasource to Datasource copyMetadata with the same Datasource instance as sourceDatasource and destinationDatasource. " +
+              "Nothing copied to or from Datasource '{}'.", source.getName());
       return;
     }
 
@@ -173,8 +173,10 @@ public class DatasourceCopier {
   private void copyValues(ValueTable sourceTable, ValueTable destinationTable, ValueTableWriter tableWriter)
       throws IOException {
     if(!copyValues) return;
-    ValueTable incrementalSource =
-        incremental ? IncrementalView.Factory.create(sourceTable, destinationTable) : sourceTable;
+    //TODO CT: do we keep this here?
+    ValueTable incrementalSource = incremental
+        ? IncrementalView.Factory.create(sourceTable, destinationTable)
+        : sourceTable;
 
     log.debug("Copy values from {} {}", incrementalSource.getClass(), incrementalSource.getName());
     for(ValueSet valueSet : incrementalSource.getValueSets()) {
@@ -294,8 +296,7 @@ public class DatasourceCopier {
     }
   }
 
-  public interface DatasourceCopyEventListener {
-  }
+  public interface DatasourceCopyEventListener {}
 
   public interface DatasourceCopyVariableEventListener extends DatasourceCopyEventListener {
 

@@ -1,5 +1,7 @@
 package org.obiba.magma.datasource.hibernate.support;
 
+import javax.annotation.Nonnull;
+
 import org.obiba.magma.AbstractDatasourceFactory;
 import org.obiba.magma.Datasource;
 import org.obiba.magma.Disposable;
@@ -23,6 +25,7 @@ public class HibernateDatasourceFactory extends AbstractDatasourceFactory implem
     this.sessionFactoryProvider = sessionFactoryProvider;
   }
 
+  @Nonnull
   @Override
   public Datasource internalCreate() {
     return new HibernateDatasource(getName(), sessionFactoryProvider.getSessionFactory());

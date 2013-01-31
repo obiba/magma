@@ -6,28 +6,28 @@ import org.obiba.magma.support.ValueTableReference;
 
 public interface DatasourceRegistry {
 
-  public ValueTableReference createReference(String reference);
+  ValueTableReference createReference(String reference);
 
-  public Set<Datasource> getDatasources();
+  Set<Datasource> getDatasources();
 
-  public Datasource getDatasource(final String name) throws NoSuchDatasourceException;
+  Datasource getDatasource(String name) throws NoSuchDatasourceException;
 
-  public boolean hasDatasource(final String name);
+  boolean hasDatasource(String name);
 
-  public void addDecorator(Decorator<Datasource> decorator);
+  void addDecorator(Decorator<Datasource> decorator);
 
-  public Datasource addDatasource(Datasource datasource);
+  Datasource addDatasource(Datasource datasource);
 
-  public Datasource addDatasource(final DatasourceFactory factory);
+  Datasource addDatasource(DatasourceFactory factory);
 
-  public void removeDatasource(final Datasource datasource);
+  void removeDatasource(Datasource datasource);
 
-  public String addTransientDatasource(final DatasourceFactory factory);
+  String addTransientDatasource(DatasourceFactory factory);
 
-  public boolean hasTransientDatasource(final String uid);
+  boolean hasTransientDatasource(String uid);
 
-  public void removeTransientDatasource(final String uid);
+  void removeTransientDatasource(String uid);
 
-  public Datasource getTransientDatasourceInstance(final String uid);
+  Datasource getTransientDatasourceInstance(String uid);
 
 }

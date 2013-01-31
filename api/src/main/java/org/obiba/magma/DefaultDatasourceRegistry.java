@@ -23,6 +23,7 @@ public class DefaultDatasourceRegistry implements DatasourceRegistry, Disposable
 
   private Set<Decorator<Datasource>> decorators = Sets.newHashSet();
 
+  @Override
   public void dispose() {
     for(Datasource ds : datasources) {
       Disposables.silentlyDispose(ds);
@@ -37,10 +38,12 @@ public class DefaultDatasourceRegistry implements DatasourceRegistry, Disposable
     return new ValueTableReference(reference);
   }
 
+  @Override
   public Set<Datasource> getDatasources() {
     return ImmutableSet.copyOf(datasources);
   }
 
+  @Override
   public Datasource getDatasource(final String name) throws NoSuchDatasourceException {
     if(name == null) throw new IllegalArgumentException("datasource name cannot be null");
     try {
@@ -55,7 +58,8 @@ public class DefaultDatasourceRegistry implements DatasourceRegistry, Disposable
     }
   }
 
-  public boolean hasDatasource(final String name) {
+  @Override
+  public boolean hasDatasource(String name) {
     for(Datasource d : datasources) {
       if(d.getName().equals(name)) {
         return true;
@@ -79,6 +83,7 @@ public class DefaultDatasourceRegistry implements DatasourceRegistry, Disposable
     }));
   }
 
+  @Override
   public Datasource addDatasource(Datasource datasource) {
     // Repeatedly added datasources are silently ignored. They cannot be added to the set more than once.
     if(!datasources.contains(datasource)) {
@@ -99,22 +104,26 @@ public class DefaultDatasourceRegistry implements DatasourceRegistry, Disposable
     return datasource;
   }
 
-  public Datasource addDatasource(final DatasourceFactory factory) {
+  @Override
+  public Datasource addDatasource(DatasourceFactory factory) {
     Initialisables.initialise(factory);
     return addDatasource(factory.create());
   }
 
-  public void removeDatasource(final Datasource datasource) {
+  @Override
+  public void removeDatasource(Datasource datasource) {
     datasources.remove(datasource);
     Disposables.dispose(datasource);
   }
 
   /**
    * Register a new transient datasource.
+   *
    * @param factory
    * @return a unique identifier that can be used to obtain the registered factory
    */
-  public String addTransientDatasource(final DatasourceFactory factory) {
+  @Override
+  public String addTransientDatasource(DatasourceFactory factory) {
     String uid = randomTransientDatasourceName();
     while(hasTransientDatasource(uid)) {
       uid = randomTransientDatasourceName();
@@ -129,18 +138,22 @@ public class DefaultDatasourceRegistry implements DatasourceRegistry, Disposable
 
   /**
    * Check if a transient datasource is registered with given identifier.
+   *
    * @param uid
    * @return true when uid is associated with a DatasourceFactory instance
    */
-  public boolean hasTransientDatasource(final String uid) {
+  @Override
+  public boolean hasTransientDatasource(String uid) {
     return getTransientDatasource(uid) != null;
   }
 
   /**
    * Remove the transient datasource identified by uid (ignore if none is found).
+   *
    * @param uid
    */
-  public void removeTransientDatasource(final String uid) {
+  @Override
+  public void removeTransientDatasource(String uid) {
     DatasourceFactory factory = getTransientDatasource(uid);
     if(factory != null) {
       transientDatasources.remove(factory);
@@ -150,10 +163,12 @@ public class DefaultDatasourceRegistry implements DatasourceRegistry, Disposable
   /**
    * Returns a new (initialized) instance of Datasource obtained by calling DatasourceFactory.create() associated with
    * uid.
+   *
    * @param uid
    * @return datasource item
    */
-  public Datasource getTransientDatasourceInstance(final String uid) {
+  @Override
+  public Datasource getTransientDatasourceInstance(String uid) {
     DatasourceFactory factory = getTransientDatasource(uid);
     Datasource datasource = null;
     if(factory != null) {
@@ -171,6 +186,7 @@ public class DefaultDatasourceRegistry implements DatasourceRegistry, Disposable
 
   /**
    * Generate a random name.
+   *
    * @return
    */
   @VisibleForTesting
@@ -180,10 +196,11 @@ public class DefaultDatasourceRegistry implements DatasourceRegistry, Disposable
 
   /**
    * Look for a datasource factory with given identifier.
+   *
    * @param uid
    * @return null if not found
    */
-  private DatasourceFactory getTransientDatasource(final String uid) {
+  private DatasourceFactory getTransientDatasource(String uid) {
     if(uid == null) throw new IllegalArgumentException("uid cannot be null.");
     DatasourceFactory foundFactory = null;
     for(DatasourceFactory factory : transientDatasources) {

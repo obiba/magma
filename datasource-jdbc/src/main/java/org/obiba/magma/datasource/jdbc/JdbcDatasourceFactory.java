@@ -2,6 +2,7 @@ package org.obiba.magma.datasource.jdbc;
 
 import java.util.Properties;
 
+import javax.annotation.Nonnull;
 import javax.transaction.TransactionManager;
 
 import org.apache.commons.dbcp.BasicDataSource;
@@ -38,6 +39,7 @@ public class JdbcDatasourceFactory extends AbstractDatasourceFactory {
   // AbstractDatasourceFactory Methods
   //
 
+  @Nonnull
   @Override
   public Datasource internalCreate() {
     BasicDataSource dataSource = new BasicDataSource();

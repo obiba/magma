@@ -4,6 +4,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.Nonnull;
+
 import org.obiba.magma.AbstractDatasourceFactory;
 import org.obiba.magma.Datasource;
 import org.obiba.magma.ValueTable;
@@ -93,14 +95,13 @@ public class CsvDatasourceFactory extends AbstractDatasourceFactory {
     return tables != null ? tables : (tables = new ArrayList<TableBundle>());
   }
 
+  @Nonnull
   @Override
   protected Datasource internalCreate() {
     CsvDatasource datasource;
-    if(bundle != null && bundle.isDirectory()) {
-      datasource = new CsvDatasource(getName(), bundle);
-    } else {
-      datasource = new CsvDatasource(getName());
-    }
+    datasource = bundle != null && bundle.isDirectory()
+        ? new CsvDatasource(getName(), bundle)
+        : new CsvDatasource(getName());
     if(characterSet != null) {
       datasource.setCharacterSet(characterSet);
     }

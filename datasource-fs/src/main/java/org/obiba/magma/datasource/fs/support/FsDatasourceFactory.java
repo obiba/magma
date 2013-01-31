@@ -2,6 +2,8 @@ package org.obiba.magma.datasource.fs.support;
 
 import java.io.File;
 
+import javax.annotation.Nonnull;
+
 import org.obiba.magma.AbstractDatasourceFactory;
 import org.obiba.magma.Datasource;
 import org.obiba.magma.datasource.crypt.DatasourceEncryptionStrategy;
@@ -21,6 +23,7 @@ public class FsDatasourceFactory extends AbstractDatasourceFactory {
     this.encryptionStrategy = encryptionStrategy;
   }
 
+  @Nonnull
   @Override
   protected Datasource internalCreate() {
     FsDatasource datasource = new FsDatasource(getName(), file);
