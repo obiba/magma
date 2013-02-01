@@ -9,7 +9,6 @@ import org.obiba.magma.support.Initialisables;
 import org.obiba.magma.support.ValueTableReference;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
@@ -18,7 +17,7 @@ import com.google.common.collect.Sets;
 
 public class DefaultDatasourceRegistry implements DatasourceRegistry, Disposable {
 
-  private Map<String, Datasource> datasources = Maps.newHashMap();
+  private final Map<String, Datasource> datasources = Maps.newHashMap();
 
   private final Map<String, DatasourceFactory> transientDatasourceFactories = Maps.newHashMap();
 
@@ -62,17 +61,14 @@ public class DefaultDatasourceRegistry implements DatasourceRegistry, Disposable
   }
 
   @Override
-  public void addDecorator(final Decorator<Datasource> decorator) {
+  public void addDecorator(Decorator<Datasource> decorator) {
     if(decorator == null) throw new MagmaRuntimeException("decorator cannot be null.");
     Initialisables.initialise(decorator);
     decorators.add(decorator);
 
-    datasources = Maps.transformValues(datasources, new Function<Datasource, Datasource>() {
-      @Override
-      public Datasource apply(Datasource input) {
-        return decorator.decorate(input);
-      }
-    });
+    for(Datasource datasource : datasources.values()) {
+      datasources.put(datasource.getName(), decorator.decorate(datasource));
+    }
   }
 
   @Override

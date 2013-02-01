@@ -36,48 +36,63 @@ public class SecuredDatasourceRegistry implements DatasourceRegistry {
     return new SudoValueTableReference(authorizer, reference);
   }
 
+  @Override
   public Datasource addDatasource(Datasource datasource) {
     return delegate.addDatasource(datasource);
   }
 
+  @Override
   public Datasource addDatasource(DatasourceFactory factory) {
     return delegate.addDatasource(factory);
   }
 
+  @Override
   public void addDecorator(Decorator<Datasource> decorator) {
     delegate.addDecorator(decorator);
   }
 
+  @Override
   public String addTransientDatasource(DatasourceFactory factory) {
     return delegate.addTransientDatasource(factory);
   }
 
+  @Override
   public Datasource getDatasource(String name) throws NoSuchDatasourceException {
     Datasource ds = delegate.getDatasource(name);
-    if(ds != null && isPermitted(Permissions.DatasourcePermissionBuilder.forDatasource(name).read().build()) == false) throw new NoSuchDatasourceException(name);
+    if(ds != null && isPermitted(Permissions.DatasourcePermissionBuilder.forDatasource(name).read().build()) == false)
+      throw new NoSuchDatasourceException(name);
     return securedDatasourceDecorator.decorate(ds);
   }
 
+  @Override
   public Set<Datasource> getDatasources() {
-    return ImmutableSet.copyOf(Iterables.transform(Sets.filter(delegate.getDatasources(), Permissions.DatasourcePermissionBuilder.forDatasource().read().asPredicate(authorizer)), Decorators.decoratingFunction(this.securedDatasourceDecorator)));
+    return ImmutableSet.copyOf(Iterables.transform(Sets.filter(delegate.getDatasources(),
+        Permissions.DatasourcePermissionBuilder.forDatasource().read().asPredicate(authorizer)),
+        Decorators.decoratingFunction(this.securedDatasourceDecorator)));
   }
 
+  @Override
   public Datasource getTransientDatasourceInstance(String uid) {
     return delegate.getTransientDatasourceInstance(uid);
   }
 
+  @Override
   public boolean hasDatasource(String name) {
-    return delegate.hasDatasource(name) && isPermitted(Permissions.DatasourcePermissionBuilder.forDatasource(name).read().build());
+    return delegate.hasDatasource(name) &&
+        isPermitted(Permissions.DatasourcePermissionBuilder.forDatasource(name).read().build());
   }
 
+  @Override
   public boolean hasTransientDatasource(String uid) {
     return delegate.hasTransientDatasource(uid);
   }
 
+  @Override
   public void removeDatasource(Datasource datasource) {
     delegate.removeDatasource(securedDatasourceDecorator.undecorate(datasource));
   }
 
+  @Override
   public void removeTransientDatasource(String uid) {
     delegate.removeTransientDatasource(uid);
   }

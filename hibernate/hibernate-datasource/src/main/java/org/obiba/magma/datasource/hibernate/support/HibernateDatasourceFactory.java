@@ -11,11 +11,11 @@ import org.obiba.magma.datasource.hibernate.SessionFactoryProvider;
 import org.obiba.magma.support.Disposables;
 import org.obiba.magma.support.Initialisables;
 
+@SuppressWarnings("UnusedDeclaration")
 public class HibernateDatasourceFactory extends AbstractDatasourceFactory implements Initialisable, Disposable {
 
   private SessionFactoryProvider sessionFactoryProvider;
 
-  @SuppressWarnings("UnusedDeclaration")
   public HibernateDatasourceFactory() {
 
   }
@@ -31,12 +31,10 @@ public class HibernateDatasourceFactory extends AbstractDatasourceFactory implem
     return new HibernateDatasource(getName(), sessionFactoryProvider.getSessionFactory());
   }
 
-  @SuppressWarnings("UnusedDeclaration")
   public void setSessionFactoryProvider(SessionFactoryProvider sessionFactoryProvider) {
     this.sessionFactoryProvider = sessionFactoryProvider;
   }
 
-  @SuppressWarnings("UnusedDeclaration")
   public SessionFactoryProvider getSessionFactoryProvider() {
     return sessionFactoryProvider;
   }

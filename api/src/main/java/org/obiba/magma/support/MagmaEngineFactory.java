@@ -14,23 +14,24 @@ import org.obiba.magma.NoSuchDatasourceException;
 
 import com.google.common.collect.Sets;
 
+@SuppressWarnings("UnusedDeclaration")
 public class MagmaEngineFactory {
 
-  private Set<MagmaEngineExtension> extensions = Sets.newLinkedHashSet();
+  private final Set<MagmaEngineExtension> extensions = Sets.newLinkedHashSet();
 
   /**
    * Expose concrete type to force xstream to deserialize using this type. This will keep the order in which factories
    * appear in the xml file
    */
-  private ArrayList<DatasourceFactory> factories = new ArrayList<DatasourceFactory>();
+  private final ArrayList<DatasourceFactory> factories = new ArrayList<DatasourceFactory>();
 
-  private LinkedHashSet<Datasource> datasources = Sets.newLinkedHashSet();
+  private final LinkedHashSet<Datasource> datasources = Sets.newLinkedHashSet();
 
   public MagmaEngineFactory() {
   }
 
   public MagmaEngineFactory withExtension(MagmaEngineExtension extension) {
-    this.extensions.add(extension);
+    extensions.add(extension);
     return this;
   }
 
@@ -55,7 +56,7 @@ public class MagmaEngineFactory {
   }
 
   public DatasourceFactory removeFactory(String name) {
-    for(Iterator<DatasourceFactory> i = factories.iterator(); i.hasNext();) {
+    for(Iterator<DatasourceFactory> i = factories.iterator(); i.hasNext(); ) {
       DatasourceFactory factory = i.next();
       if(factory.getName().equals(name)) {
         i.remove();
@@ -84,7 +85,7 @@ public class MagmaEngineFactory {
   }
 
   public MagmaEngineFactory withDatasource(Datasource datasource) {
-    this.datasources.add(datasource);
+    datasources.add(datasource);
     return this;
   }
 
