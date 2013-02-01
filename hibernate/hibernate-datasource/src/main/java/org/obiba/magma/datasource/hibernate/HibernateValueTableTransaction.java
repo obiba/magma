@@ -11,9 +11,9 @@ import com.google.common.collect.Lists;
 
 /**
  * Transaction synchronisation for modifications made to a {@code HibernateValueTable}.
- * <p>
+ * <p/>
  * Modifications made to an existing table will only appear after completion of the transaction.
- * <p>
+ * <p/>
  * New tables are only added to the {@code HibernateDatasource} after completion of the transaction.
  */
 class HibernateValueTableTransaction extends HibernateDatasourceSynchronization {
@@ -28,13 +28,13 @@ class HibernateValueTableTransaction extends HibernateDatasourceSynchronization 
 
   private final HibernateValueTableWriter transactionWriter;
 
-  HibernateValueTableTransaction(final HibernateValueTable valueTable, final boolean newTable) {
+  HibernateValueTableTransaction(HibernateValueTable valueTable, boolean newTable) {
     super(valueTable.getDatasource());
     this.valueTable = valueTable;
-    this.createTableTransaction = newTable;
-    this.transactionWriter = new HibernateValueTableWriter(this);
+    createTableTransaction = newTable;
+    transactionWriter = new HibernateValueTableWriter(this);
 
-    if(newTable == false) {
+    if(!newTable) {
       valueTable.getValueTableState(LockMode.PESSIMISTIC_FORCE_INCREMENT);
     }
   }
@@ -62,21 +62,23 @@ class HibernateValueTableTransaction extends HibernateDatasourceSynchronization 
     }
   }
 
+  @SuppressWarnings("UnusedDeclaration")
   public boolean isCreateTableTransaction() {
     return createTableTransaction;
   }
 
   /**
    * Add a {@code VariableValueSource} to the list of uncommitted sources to be added after transaction completion.
-   * 
+   *
    * @param source the new {@code VariableValueSource}.
    */
   public void addSource(VariableValueSource source) {
-    this.uncommittedSources.add(source);
+    uncommittedSources.add(source);
   }
 
   /**
    * Returns the list of {@code VariableValueSource} to be committed after transaction completion.
+   *
    * @return
    */
   public List<VariableValueSource> getUncommittedSources() {
@@ -85,15 +87,16 @@ class HibernateValueTableTransaction extends HibernateDatasourceSynchronization 
 
   /**
    * Add a {@code VariableValueSource} to the list of uncommitted sources to be added after transaction completion.
-   * 
+   *
    * @param source the new {@code VariableValueSource}.
    */
   public void addEntity(VariableEntity entity) {
-    this.uncommittedEntities.add(entity);
+    uncommittedEntities.add(entity);
   }
 
   /**
    * Returns the list of {@code VariableEntity} to be committed after transaction completion.
+   *
    * @return
    */
   public List<VariableEntity> getUncommittedEntities() {

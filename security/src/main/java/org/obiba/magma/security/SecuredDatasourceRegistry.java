@@ -2,6 +2,8 @@ package org.obiba.magma.security;
 
 import java.util.Set;
 
+import javax.annotation.Nullable;
+
 import org.obiba.magma.Datasource;
 import org.obiba.magma.DatasourceFactory;
 import org.obiba.magma.DatasourceRegistry;
@@ -93,7 +95,7 @@ public class SecuredDatasourceRegistry implements DatasourceRegistry {
   }
 
   @Override
-  public void removeTransientDatasource(String uid) {
+  public void removeTransientDatasource(@Nullable String uid) {
     delegate.removeTransientDatasource(uid);
   }
 

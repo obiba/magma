@@ -2,6 +2,8 @@ package org.obiba.magma;
 
 import java.util.Set;
 
+import javax.annotation.Nullable;
+
 import org.obiba.magma.support.ValueTableReference;
 
 public interface DatasourceRegistry {
@@ -26,7 +28,7 @@ public interface DatasourceRegistry {
 
   boolean hasTransientDatasource(String uid);
 
-  void removeTransientDatasource(String uid);
+  void removeTransientDatasource(@Nullable String uid);
 
   Datasource getTransientDatasourceInstance(String uid);
 

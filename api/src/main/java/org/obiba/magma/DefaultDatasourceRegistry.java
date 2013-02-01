@@ -4,6 +4,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+import javax.annotation.Nullable;
+
 import org.obiba.magma.support.Disposables;
 import org.obiba.magma.support.Initialisables;
 import org.obiba.magma.support.ValueTableReference;
@@ -140,14 +142,22 @@ public class DefaultDatasourceRegistry implements DatasourceRegistry, Disposable
   }
 
   /**
-   * Remove the transient datasource identified by uid (ignore if none is found).
+   * Dispose & remove the transient datasource & factory identified by uid (ignore if none is found).
    *
    * @param uid
    */
   @Override
-  public void removeTransientDatasource(String uid) {
-    transientDatasourceFactories.remove(uid);
-    transientDatasources.remove(uid);
+  public void removeTransientDatasource(@Nullable String uid) {
+    DatasourceFactory factory = transientDatasourceFactories.get(uid);
+    if(factory != null) {
+      Disposables.dispose(factory);
+      transientDatasourceFactories.remove(uid);
+    }
+    Datasource datasource = transientDatasources.get(uid);
+    if(datasource != null) {
+      Disposables.dispose(datasource);
+      transientDatasources.remove(uid);
+    }
   }
 
   /**

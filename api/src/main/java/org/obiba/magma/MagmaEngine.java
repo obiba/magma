@@ -6,6 +6,8 @@ import java.util.LinkedHashSet;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
+import javax.annotation.Nullable;
+
 import org.obiba.magma.concurrent.LockManager;
 import org.obiba.magma.support.Disposables;
 import org.obiba.magma.support.Initialisables;
@@ -159,7 +161,7 @@ public class MagmaEngine implements DatasourceRegistry {
   }
 
   @Override
-  public void removeTransientDatasource(String uid) {
+  public void removeTransientDatasource(@Nullable String uid) {
     getDatasourceRegistry().removeTransientDatasource(uid);
   }
 
