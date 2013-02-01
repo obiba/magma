@@ -1,5 +1,11 @@
 package org.obiba.magma;
 
+import org.easymock.EasyMock;
+import org.junit.Before;
+import org.junit.Test;
+
+import junit.framework.Assert;
+
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.expectLastCall;
@@ -7,15 +13,12 @@ import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.verify;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
-import junit.framework.Assert;
-
-import org.easymock.EasyMock;
-import org.junit.Test;
 
 public class MagmaEngineTest {
 
   private MagmaEngine magmaEngine;
 
+  @Before
   public void setUp() throws Exception {
     new MagmaEngine();
     magmaEngine = MagmaEngine.get();
@@ -23,13 +26,12 @@ public class MagmaEngineTest {
 
   @Test
   public void testAddingTwoUniqueDatasources() throws Exception {
-    setUp();
     Datasource datasourceOne = createMock(Datasource.class);
     Datasource datasourceTwo = createMock(Datasource.class);
     datasourceOne.initialise();
-    expect(datasourceOne.getName()).andReturn("one");
+    expect(datasourceOne.getName()).andReturn("one").anyTimes();
     datasourceTwo.initialise();
-    expect(datasourceTwo.getName()).andReturn("two");
+    expect(datasourceTwo.getName()).andReturn("two").anyTimes();
     datasourceOne.dispose();
     datasourceTwo.dispose();
     replay(datasourceOne, datasourceTwo);
@@ -45,8 +47,8 @@ public class MagmaEngineTest {
    */
   @Test
   public void testAddingNonUniqueDatasources() throws Exception {
-    setUp();
     Datasource datasourceOne = createMock(Datasource.class);
+    expect(datasourceOne.getName()).andReturn("one").anyTimes();
     datasourceOne.initialise();
     expectLastCall().times(1);
     datasourceOne.dispose();
@@ -60,12 +62,11 @@ public class MagmaEngineTest {
 
   @Test(expected = DuplicateDatasourceNameException.class)
   public void testAddingUniqueDatasourcesWithNonUniqueNames() throws Exception {
-    setUp();
     Datasource datasourceOne = createMock(Datasource.class);
     Datasource datasourceTwo = createMock(Datasource.class);
     datasourceOne.initialise();
-    expect(datasourceOne.getName()).andReturn("fireball").times(2);
-    expect(datasourceTwo.getName()).andReturn("fireball");
+    expect(datasourceOne.getName()).andReturn("fireball").anyTimes();
+    expect(datasourceTwo.getName()).andReturn("fireball").anyTimes();
     datasourceOne.dispose();
     replay(datasourceOne, datasourceTwo);
     magmaEngine.addDatasource(datasourceOne);
@@ -80,7 +81,6 @@ public class MagmaEngineTest {
 
   @Test
   public void testHasTransientDatasourceIsTrue() throws Exception {
-    setUp();
     DatasourceFactory factory = createMock(DatasourceFactory.class);
     expect(factory.getName()).andReturn("uid").atLeastOnce();
     factory.setName((String) EasyMock.anyObject());
@@ -97,7 +97,6 @@ public class MagmaEngineTest {
 
   @Test
   public void testGetTransientDatasourceInstanceIsInitialised() throws Exception {
-    setUp();
     DatasourceFactory factory = createMock(DatasourceFactory.class);
     Datasource datasource = createMock(Datasource.class);
     expect(factory.getName()).andReturn("uid").atLeastOnce();
@@ -117,60 +116,50 @@ public class MagmaEngineTest {
 
   @Test(expected = NoSuchDatasourceException.class)
   public void testGetNonExistingTransientDatasourceInstance() throws Exception {
-    setUp();
     try {
       magmaEngine.getTransientDatasourceInstance("foo");
       magmaEngine.shutdown();
       Assert.fail();
-    } catch(Exception e) {
+    } finally {
       magmaEngine.shutdown();
-      throw e;
     }
   }
 
   @Test(expected = NoSuchDatasourceException.class)
   public void testGetNonExistingDatasource() throws Exception {
-    setUp();
     try {
       magmaEngine.getDatasource("pwel");
       magmaEngine.shutdown();
       Assert.fail();
-    } catch(Exception e) {
+    } finally {
       magmaEngine.shutdown();
-      throw e;
     }
   }
 
   @Test
   public void testRemoveNonExistingTransientDatasourceIsSilent() throws Exception {
-    setUp();
     magmaEngine.removeTransientDatasource("foo");
     magmaEngine.shutdown();
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testGetTransientDatasourceWithNullName() throws Exception {
-    setUp();
     try {
       magmaEngine.getTransientDatasourceInstance(null);
-      magmaEngine.shutdown();
       Assert.fail();
-    } catch(Exception e) {
+    } finally {
       magmaEngine.shutdown();
-      throw e;
     }
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testGetDatasourceWithNullName() throws Exception {
-    setUp();
     try {
       magmaEngine.getDatasource(null);
       magmaEngine.shutdown();
       Assert.fail();
-    } catch(Exception e) {
+    } finally {
       magmaEngine.shutdown();
-      throw e;
     }
   }
 }

@@ -9,7 +9,9 @@ public final class Disposables {
 
   private static final Logger log = LoggerFactory.getLogger(Disposables.class);
 
-  public static final void silentlyDispose(Disposable disposable) {
+  private Disposables() {}
+
+  public static void silentlyDispose(Disposable disposable) {
     try {
       dispose(disposable);
     } catch(RuntimeException e) {
@@ -17,7 +19,7 @@ public final class Disposables {
     }
   }
 
-  public static final void silentlyDispose(Object... disposable) {
+  public static void silentlyDispose(Object... disposable) {
     try {
       dispose(disposable);
     } catch(RuntimeException e) {
@@ -25,7 +27,7 @@ public final class Disposables {
     }
   }
 
-  public static final void dispose(Disposable disposable) {
+  public static void dispose(Disposable disposable) {
     try {
       if(disposable != null) {
         disposable.dispose();
@@ -37,25 +39,25 @@ public final class Disposables {
     }
   }
 
-  public static final void dispose(Object disposable) {
+  public static void dispose(Object disposable) {
     if(disposable instanceof Disposable) {
       dispose((Disposable) disposable);
     }
   }
 
-  public static final void dispose(Disposable... disposables) {
+  public static void dispose(Disposable... disposables) {
     for(Disposable o : disposables) {
       dispose(o);
     }
   }
 
-  public static final void dispose(Object... disposables) {
+  public static void dispose(Object... disposables) {
     for(Object o : disposables) {
       dispose(o);
     }
   }
 
-  public static final void dispose(Iterable<?> disposables) {
+  public static void dispose(Iterable<?> disposables) {
     for(Object o : disposables) {
       dispose(o);
     }

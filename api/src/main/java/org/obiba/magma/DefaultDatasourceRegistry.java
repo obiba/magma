@@ -1,7 +1,6 @@
 package org.obiba.magma;
 
 import java.util.Map;
-import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.UUID;
 
@@ -11,15 +10,15 @@ import org.obiba.magma.support.ValueTableReference;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
-import com.google.common.base.Predicate;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
 public class DefaultDatasourceRegistry implements DatasourceRegistry, Disposable {
 
-  private Set<Datasource> datasources = Sets.newHashSet();
+  private Map<String, Datasource> datasources = Maps.newHashMap();
 
   private final Map<String, DatasourceFactory> transientDatasourceFactories = Maps.newHashMap();
 
@@ -29,7 +28,7 @@ public class DefaultDatasourceRegistry implements DatasourceRegistry, Disposable
 
   @Override
   public void dispose() {
-    for(Datasource ds : datasources) {
+    for(Datasource ds : datasources.values()) {
       Disposables.silentlyDispose(ds);
     }
     for(Decorator<Datasource> decorator : decorators) {
@@ -44,32 +43,22 @@ public class DefaultDatasourceRegistry implements DatasourceRegistry, Disposable
 
   @Override
   public Set<Datasource> getDatasources() {
-    return ImmutableSet.copyOf(datasources);
+    return ImmutableSet.copyOf(datasources.values());
   }
 
   @Override
-  public Datasource getDatasource(final String name) throws NoSuchDatasourceException {
-    if(name == null) throw new IllegalArgumentException("datasource name cannot be null");
-    try {
-      return Iterables.find(datasources, new Predicate<Datasource>() {
-        @Override
-        public boolean apply(Datasource input) {
-          return name.equals(input.getName());
-        }
-      });
-    } catch(NoSuchElementException e) {
+  public Datasource getDatasource(String name) throws NoSuchDatasourceException {
+    Preconditions.checkArgument(!Strings.isNullOrEmpty(name), "datasource name cannot be null or empty");
+    Datasource datasource = datasources.get(name);
+    if(datasource == null) {
       throw new NoSuchDatasourceException(name);
     }
+    return datasource;
   }
 
   @Override
   public boolean hasDatasource(String name) {
-    for(Datasource d : datasources) {
-      if(d.getName().equals(name)) {
-        return true;
-      }
-    }
-    return false;
+    return datasources.containsKey(name);
   }
 
   @Override
@@ -78,33 +67,37 @@ public class DefaultDatasourceRegistry implements DatasourceRegistry, Disposable
     Initialisables.initialise(decorator);
     decorators.add(decorator);
 
-    datasources = Sets.newHashSet(Iterables.transform(datasources, new Function<Datasource, Datasource>() {
-
+    datasources = Maps.transformValues(datasources, new Function<Datasource, Datasource>() {
       @Override
       public Datasource apply(Datasource input) {
         return decorator.decorate(input);
       }
-    }));
+    });
   }
 
   @Override
   public Datasource addDatasource(Datasource datasource) {
     // Repeatedly added datasources are silently ignored. They cannot be added to the set more than once.
-    if(!datasources.contains(datasource)) {
-      for(Datasource ds : datasources) {
-        if(ds.getName().equals(datasource.getName())) {
-          // Unique datasources with identical names cause exceptions.
-          throw new DuplicateDatasourceNameException(ds, datasource);
-        }
+    if(!datasources.containsValue(datasource)) {
+      Datasource existing = datasources.get(datasource.getName());
+      if(existing != null) {
+        // Unique datasources with identical names cause exceptions.
+        throw new DuplicateDatasourceNameException(existing, datasource);
       }
 
-      for(Decorator<Datasource> decorator : decorators) {
-        //noinspection AssignmentToMethodParameter
-        datasource = decorator.decorate(datasource);
-      }
+      //noinspection AssignmentToMethodParameter
+      datasource = decorateDatasource(datasource);
 
       Initialisables.initialise(datasource);
-      datasources.add(datasource);
+      datasources.put(datasource.getName(), datasource);
+    }
+    return datasource;
+  }
+
+  @SuppressWarnings("AssignmentToMethodParameter")
+  private Datasource decorateDatasource(Datasource datasource) {
+    for(Decorator<Datasource> decorator : decorators) {
+      datasource = decorator.decorate(datasource);
     }
     return datasource;
   }
@@ -117,7 +110,7 @@ public class DefaultDatasourceRegistry implements DatasourceRegistry, Disposable
 
   @Override
   public void removeDatasource(Datasource datasource) {
-    datasources.remove(datasource);
+    datasources.remove(datasource.getName());
     Disposables.dispose(datasource);
   }
 
@@ -170,6 +163,7 @@ public class DefaultDatasourceRegistry implements DatasourceRegistry, Disposable
    */
   @Override
   public Datasource getTransientDatasourceInstance(String uid) {
+    Preconditions.checkArgument(!Strings.isNullOrEmpty(uid), "uid cannot be null or empty");
     DatasourceFactory factory = transientDatasourceFactories.get(uid);
     if(factory == null) {
       throw new NoSuchDatasourceException(uid);
@@ -178,9 +172,7 @@ public class DefaultDatasourceRegistry implements DatasourceRegistry, Disposable
     if(datasource == null) {
       datasource = factory.create();
       Initialisables.initialise(datasource);
-      for(Decorator<Datasource> decorator : decorators) {
-        datasource = decorator.decorate(datasource);
-      }
+      datasource = decorateDatasource(datasource);
       transientDatasources.put(uid, datasource);
     }
     return datasource;
