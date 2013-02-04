@@ -23,11 +23,9 @@ public class ExcelTimestamps implements Timestamps {
 
   @Override
   public Value getLastUpdate() {
-    if(excelFile != null && excelFile.exists()) {
-      return DateTimeType.get().valueOf(new Date(excelFile.lastModified()));
-    } else {
-      return DateTimeType.get().nullValue();
-    }
+    return excelFile != null && excelFile.exists()
+        ? DateTimeType.get().valueOf(new Date(excelFile.lastModified()))
+        : DateTimeType.get().nullValue();
   }
 
 }

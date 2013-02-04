@@ -6,6 +6,8 @@ import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import javax.annotation.Nullable;
+
 import org.hibernate.Criteria;
 import org.hibernate.FetchMode;
 import org.hibernate.LockMode;
@@ -71,11 +73,11 @@ class HibernateValueTable extends AbstractValueTable {
     if(!hasValueSet(entity)) {
       throw new NoSuchValueSetException(this, entity);
     }
-    AssociationCriteria criteria =
-        AssociationCriteria.create(ValueSetState.class, getDatasource().getSessionFactory().getCurrentSession())
-            .add("valueTable.id", Operation.eq, valueTableId)
-            .add("variableEntity.identifier", Operation.eq, entity.getIdentifier())
-            .add("variableEntity.type", Operation.eq, entity.getType());
+    AssociationCriteria criteria = AssociationCriteria
+        .create(ValueSetState.class, getDatasource().getSessionFactory().getCurrentSession())
+        .add("valueTable.id", Operation.eq, valueTableId)
+        .add("variableEntity.identifier", Operation.eq, entity.getIdentifier())
+        .add("variableEntity.type", Operation.eq, entity.getType());
 
     return new HibernateValueSet(entity, criteria.getCriteria().setFetchMode("values", FetchMode.JOIN));
   }
@@ -86,7 +88,7 @@ class HibernateValueTable extends AbstractValueTable {
       throw new NoSuchValueSetException(this, entity);
     }
 
-    final Timestamped valueSetState = (Timestamped) AssociationCriteria
+    Timestamped valueSetState = (Timestamped) AssociationCriteria
         .create(ValueSetState.class, getDatasource().getSessionFactory().getCurrentSession()) //
         .add("valueTable.id", Operation.eq, valueTableId) //
         .add("variableEntity.identifier", Operation.eq, entity.getIdentifier()) //
@@ -94,37 +96,26 @@ class HibernateValueTable extends AbstractValueTable {
         .getCriteria() //
         .uniqueResult();
 
-    if(valueSetState == null) return NullTimestamps.get();
-
-    return new Timestamps() {
-
-      @Override
-      public Value getLastUpdate() {
-        return DateTimeType.get().valueOf(valueSetState.getUpdated());
-      }
-
-      @Override
-      public Value getCreated() {
-        return DateTimeType.get().valueOf(valueSetState.getCreated());
-      }
-
-    };
+    return createTimestamps(valueSetState);
   }
 
   @Override
   public Timestamps getTimestamps() {
-    return new Timestamps() {
+    return createTimestamps(getValueTableState());
+  }
+
+  private static Timestamps createTimestamps(@Nullable final Timestamped timestamped) {
+    return timestamped == null ? NullTimestamps.get() : new Timestamps() {
 
       @Override
       public Value getLastUpdate() {
-        return DateTimeType.get().valueOf(getValueTableState().getUpdated());
+        return DateTimeType.get().valueOf(timestamped.getUpdated());
       }
 
       @Override
       public Value getCreated() {
-        return DateTimeType.get().valueOf(getValueTableState().getCreated());
+        return DateTimeType.get().valueOf(timestamped.getCreated());
       }
-
     };
   }
 
@@ -201,6 +192,11 @@ class HibernateValueTable extends AbstractValueTable {
       }
       return valueSetState;
     }
+
+    @Override
+    public Timestamps getTimestamps() {
+      return createTimestamps(getValueSetState());
+    }
   }
 
   public class HibernateVariableEntityProvider extends AbstractVariableEntityProvider implements Initialisable {
@@ -215,9 +211,9 @@ class HibernateValueTable extends AbstractValueTable {
     public void initialise() {
       log.debug("Populating entity cache for table {}", getName());
       // get the variable entities that have a value set in the table
-      AssociationCriteria criteria =
-          AssociationCriteria.create(ValueSetState.class, getDatasource().getSessionFactory().getCurrentSession())
-              .add("valueTable.id", Operation.eq, valueTableId);
+      AssociationCriteria criteria = AssociationCriteria
+          .create(ValueSetState.class, getDatasource().getSessionFactory().getCurrentSession())
+          .add("valueTable.id", Operation.eq, valueTableId);
       for(Object obj : criteria.list()) {
         VariableEntity entity = ((ValueSetState) obj).getVariableEntity();
         entities.add(new VariableEntityBean(entity.getType(), entity.getIdentifier()));
@@ -235,9 +231,8 @@ class HibernateValueTable extends AbstractValueTable {
       if(getDatasource().hasTableTransaction(getName())) {
         return ImmutableSet.copyOf(
             Iterables.concat(entities, getDatasource().getTableTransaction(getName()).getUncommittedEntities()));
-      } else {
-        return Collections.unmodifiableSet(entities);
       }
+      return Collections.unmodifiableSet(entities);
     }
   }
 

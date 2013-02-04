@@ -130,8 +130,9 @@ public class MultithreadedDatasourceCopier {
   }
 
   public void copy() throws IOException {
-    ThreadPoolExecutor executor = (ThreadPoolExecutor) (threadFactory == null ? Executors
-        .newFixedThreadPool(concurrentReaders) : Executors.newFixedThreadPool(concurrentReaders, threadFactory));
+    ThreadPoolExecutor executor = (ThreadPoolExecutor) (threadFactory == null //
+        ? Executors.newFixedThreadPool(concurrentReaders) //
+        : Executors.newFixedThreadPool(concurrentReaders, threadFactory));
 
     prepareVariables();
 

@@ -14,8 +14,8 @@ public class HibernateTimestamps implements Timestamps {
 
   public HibernateTimestamps(ValueSet valueSet) {
     HibernateValueSet hibernateValueSet = (HibernateValueSet) valueSet;
-    this.created = DateTimeType.get().valueOf(hibernateValueSet.getValueSetState().getCreated());
-    this.updated = DateTimeType.get().valueOf(hibernateValueSet.getValueSetState().getUpdated());
+    created = DateTimeType.get().valueOf(hibernateValueSet.getValueSetState().getCreated());
+    updated = DateTimeType.get().valueOf(hibernateValueSet.getValueSetState().getUpdated());
   }
 
   @Override

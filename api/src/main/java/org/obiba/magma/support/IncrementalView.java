@@ -106,7 +106,7 @@ public class IncrementalView extends View {
       Value destinationLastUpdate = destinationTimestamps == null || destinationTimestamps.equals(NullTimestamps.get())
           ? DateTimeType.get().nullValue()
           : destinationTimestamps.getLastUpdate();
-      log.debug("{} - sourceLastUpdate: {}, destinationLastUpdate: {}", from, sourceLastUpdate, destinationLastUpdate);
+      log.trace("{} - sourceLastUpdate: {}, destinationLastUpdate: {}", from, sourceLastUpdate, destinationLastUpdate);
       return sourceLastUpdate.isNull() || destinationLastUpdate.isNull() ||
           sourceLastUpdate.compareTo(destinationLastUpdate) > 0;
     }

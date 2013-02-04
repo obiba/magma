@@ -24,10 +24,8 @@ public class FsTimestamps implements Timestamps {
 
   @Override
   public Value getLastUpdate() {
-    if(valueTableDirectory.exists()) {
-      return DateTimeType.get().valueOf(new Date(valueTableDirectory.lastModified()));
-    } else {
-      return DateTimeType.get().nullValue();
-    }
+    return valueTableDirectory.exists()
+        ? DateTimeType.get().valueOf(new Date(valueTableDirectory.lastModified()))
+        : DateTimeType.get().nullValue();
   }
 }
