@@ -15,6 +15,7 @@ import org.obiba.magma.VariableValueSource;
 
 public abstract class AbstractValueTableWrapper implements ValueTableWrapper {
 
+  @Override
   public abstract ValueTable getWrappedValueTable();
 
   @Override
@@ -45,6 +46,11 @@ public abstract class AbstractValueTableWrapper implements ValueTableWrapper {
   @Override
   public ValueSet getValueSet(VariableEntity entity) throws NoSuchValueSetException {
     return getWrappedValueTable().getValueSet(entity);
+  }
+
+  @Override
+  public Timestamps getValueSetTimestamps(VariableEntity entity) throws NoSuchValueSetException {
+    return getWrappedValueTable().getValueSetTimestamps(entity);
   }
 
   @Override

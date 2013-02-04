@@ -35,7 +35,7 @@ public class FilterChainSelectClause implements SelectClause {
     if(filterChain == null) {
       throw new IllegalStateException("Null filterChain");
     }
-    return (filterChain.filter(variable) != null);
+    return filterChain.filter(variable) != null;
   }
 
   //

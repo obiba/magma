@@ -35,6 +35,7 @@ import com.google.common.collect.Sets;
  * table. Entities of this table are the {@code Variables} of the other. The variables of this table are the available
  * univariate statistics (mean, min, max, sum, etc.).
  */
+@SuppressWarnings("UnusedDeclaration")
 public class SummaryStatisticsView extends AbstractValueTable implements Initialisable {
 
   private final ValueTable valueTable;
@@ -50,12 +51,14 @@ public class SummaryStatisticsView extends AbstractValueTable implements Initial
   @Override
   public void initialise() {
     // Each variable in the wrapped table becomes a valueSet in this table
-    super.setVariableEntityProvider(new AggregateVariableEntityProvider());
-    super.addVariableValueSources(ImmutableSet.<VariableValueSource> of(//
-    new StatVariableValueSource("Min"), new StatVariableValueSource("Max"), new StatVariableValueSource("Mean"),//
-    new StatVariableValueSource("GeometricMean"), new StatVariableValueSource("n"), new StatVariableValueSource("Sum"),//
-    new StatVariableValueSource("SumSq"), new StatVariableValueSource("StandardDeviation"), new StatVariableValueSource("Variance"),//
-    new StatVariableValueSource("Skewness"), new StatVariableValueSource("Kurtosis")));
+    setVariableEntityProvider(new AggregateVariableEntityProvider());
+    addVariableValueSources(ImmutableSet.<VariableValueSource>of(//
+        new StatVariableValueSource("Min"), new StatVariableValueSource("Max"), new StatVariableValueSource("Mean"),//
+        new StatVariableValueSource("GeometricMean"), new StatVariableValueSource("n"),
+        new StatVariableValueSource("Sum"),//
+        new StatVariableValueSource("SumSq"), new StatVariableValueSource("StandardDeviation"),
+        new StatVariableValueSource("Variance"),//
+        new StatVariableValueSource("Skewness"), new StatVariableValueSource("Kurtosis")));
   }
 
   @Override
@@ -68,6 +71,11 @@ public class SummaryStatisticsView extends AbstractValueTable implements Initial
     return new AggregateValueSet(entity);
   }
 
+  @Override
+  public Timestamps getValueSetTimestamps(VariableEntity entity) throws NoSuchValueSetException {
+    return NullTimestamps.get();
+  }
+
   private class AggregateValueSet extends ValueSetBean {
 
     private final DescriptiveStatistics ds;
@@ -75,7 +83,8 @@ public class SummaryStatisticsView extends AbstractValueTable implements Initial
     protected AggregateValueSet(VariableEntity entity) {
       super(SummaryStatisticsView.this, entity);
       String name = entity.getIdentifier();
-      ds = statsProvider.compute(valueTable.getVariableValueSource(name), Sets.newTreeSet(valueTable.getVariableEntities()));
+      ds = statsProvider
+          .compute(valueTable.getVariableValueSource(name), Sets.newTreeSet(valueTable.getVariableEntities()));
     }
 
     DescriptiveStatistics getStats() {
@@ -90,9 +99,9 @@ public class SummaryStatisticsView extends AbstractValueTable implements Initial
 
     private final Method getter;
 
-    public StatVariableValueSource(String name) {
-      this.statName = name;
-      this.getter = Iterables.find(Arrays.asList(DescriptiveStatistics.class.getMethods()), new Predicate<Method>() {
+    private StatVariableValueSource(String name) {
+      statName = name;
+      getter = Iterables.find(Arrays.asList(DescriptiveStatistics.class.getMethods()), new Predicate<Method>() {
 
         @Override
         public boolean apply(Method input) {
@@ -110,7 +119,7 @@ public class SummaryStatisticsView extends AbstractValueTable implements Initial
     @Override
     public Value getValue(ValueSet valueSet) {
       try {
-        return DecimalType.get().valueOf((Number) getter.invoke(((AggregateValueSet) valueSet).getStats()));
+        return DecimalType.get().valueOf(getter.invoke(((AggregateValueSet) valueSet).getStats()));
       } catch(Exception e) {
         throw new RuntimeException(e);
       }
@@ -136,7 +145,8 @@ public class SummaryStatisticsView extends AbstractValueTable implements Initial
 
     @Override
     public Set<VariableEntity> getVariableEntities() {
-      return ImmutableSet.copyOf(Iterables.transform(Iterables.filter(valueTable.getVariables(), new UnivariateFilter()), new VariableToEntity()));
+      return ImmutableSet.copyOf(Iterables
+          .transform(Iterables.filter(valueTable.getVariables(), new UnivariateFilter()), new VariableToEntity()));
     }
 
     @Override

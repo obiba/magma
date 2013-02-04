@@ -9,6 +9,7 @@ import org.obiba.magma.ValueTable;
  * Extends {@link AbstractValueTableWrapper} and uses {@link MagmaEngine} to lookup the referenced {@link ValueTable}
  * instance.
  */
+@SuppressWarnings("UnusedDeclaration")
 public class ValueTableReference extends AbstractValueTableWrapper {
 
   /**
@@ -19,6 +20,7 @@ public class ValueTableReference extends AbstractValueTableWrapper {
   /**
    * Cached {@link MagmaEngineTableResolver}
    */
+  @SuppressWarnings("TransientFieldInNonSerializableClass")
   private transient MagmaEngineTableResolver tableResolver;
 
   /**
@@ -30,9 +32,9 @@ public class ValueTableReference extends AbstractValueTableWrapper {
 
   /**
    * {@link ValueTableReference} constructor.
-   * 
+   * <p/>
    * Note: The constructor creates an instance so long as the specified reference is well-formed (even if no such table
-   * 
+   *
    * @param reference fully-qualified value table reference
    * @throws IllegalArgumentException if the reference is not well-formed
    */

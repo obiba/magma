@@ -9,9 +9,9 @@ public interface SelectClause {
 
   /**
    * Indicates whether the specified variable is selected by this clause.
-   * 
+   *
    * @param variable a variable
    * @return <code>true</code> if selected
    */
-  public boolean select(Variable variable);
+  boolean select(Variable variable);
 }

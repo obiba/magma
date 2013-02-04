@@ -20,6 +20,7 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
+@SuppressWarnings("UnusedDeclaration")
 public class StaticValueTable extends AbstractValueTable {
 
   private final String entityType;
@@ -28,10 +29,10 @@ public class StaticValueTable extends AbstractValueTable {
 
   private final Map<String, Map<String, Object>> table = Maps.newHashMap();
 
-  public StaticValueTable(Datasource datasource, String name, Set<String> entities, String entityType) {
+  public StaticValueTable(Datasource datasource, String name, Iterable<String> entities, String entityType) {
     super(datasource, name);
 
-    this.entityType = (entityType != null) ? entityType : "";
+    this.entityType = entityType == null ? "" : entityType;
 
     this.entities = Sets.newLinkedHashSet(Iterables.transform(entities, new Function<String, VariableEntity>() {
 
@@ -40,11 +41,11 @@ public class StaticValueTable extends AbstractValueTable {
         return new VariableEntityBean(StaticValueTable.this.entityType, from);
       }
     }));
-    super.setVariableEntityProvider(new VariableEntityProvider() {
+    setVariableEntityProvider(new VariableEntityProvider() {
 
       @Override
-      public boolean isForEntityType(String entityType) {
-        return getEntityType().equals(entityType);
+      public boolean isForEntityType(String type) {
+        return getEntityType().equals(type);
       }
 
       @Override
@@ -59,12 +60,12 @@ public class StaticValueTable extends AbstractValueTable {
     });
   }
 
-  public StaticValueTable(Datasource datasource, String name, Set<String> entities) {
+  public StaticValueTable(Datasource datasource, String name, Iterable<String> entities) {
     this(datasource, name, entities, "Participant");
   }
 
   public void addVariable(final Variable variable) {
-    super.addVariableValueSource(new VariableValueSource() {
+    addVariableValueSource(new VariableValueSource() {
 
       @Override
       public ValueType getValueType() {
@@ -74,7 +75,7 @@ public class StaticValueTable extends AbstractValueTable {
       @Override
       public Value getValue(ValueSet valueSet) {
         Object value = table.get(valueSet.getVariableEntity().getIdentifier()).get(variable.getName());
-        return (value instanceof Value) ? (Value) value : getValueType().valueOf(value);
+        return value instanceof Value ? (Value) value : getValueType().valueOf(value);
       }
 
       @Override
@@ -91,11 +92,11 @@ public class StaticValueTable extends AbstractValueTable {
 
   public void addVariables(final ValueType type, String... variables) {
     for(final String variable : variables) {
-      super.addVariableValueSource(new VariableValueSource() {
+      addVariableValueSource(new VariableValueSource() {
 
         @Override
         public Variable getVariable() {
-          return Variable.Builder.newVariable(variable, type, StaticValueTable.this.entityType).build();
+          return Variable.Builder.newVariable(variable, type, entityType).build();
         }
 
         @Override
@@ -140,6 +141,11 @@ public class StaticValueTable extends AbstractValueTable {
   @Override
   public ValueSet getValueSet(VariableEntity entity) throws NoSuchValueSetException {
     return new ValueSetBean(this, entity);
+  }
+
+  @Override
+  public Timestamps getValueSetTimestamps(VariableEntity entity) throws NoSuchValueSetException {
+    return NullTimestamps.get();
   }
 
   boolean hasVariableEntity(VariableEntity entity) {

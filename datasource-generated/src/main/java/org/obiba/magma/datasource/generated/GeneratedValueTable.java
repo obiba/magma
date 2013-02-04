@@ -1,5 +1,6 @@
 package org.obiba.magma.datasource.generated;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -41,31 +42,31 @@ public class GeneratedValueTable implements ValueTable {
 
   private final Value timestamp;
 
-  public GeneratedValueTable(Datasource ds, Set<Variable> dictionary, int entities) {
+  public GeneratedValueTable(Datasource ds, Collection<Variable> dictionary, int entities) {
     this(ds, dictionary, entities, System.currentTimeMillis());
   }
 
-  public GeneratedValueTable(Datasource ds, Set<Variable> dictionary, int entities, long seed) {
-    this.datasource = ds;
+  public GeneratedValueTable(Datasource ds, Collection<Variable> dictionary, int entities, long seed) {
+    datasource = ds;
     this.dictionary = ImmutableSet.copyOf(dictionary);
     this.entities = Sets.newTreeSet();
-    this.randomGenerator = new JDKRandomGenerator();
-    this.randomGenerator.setSeed(seed);
-    this.timestamp = DateTimeType.get().now();
+    randomGenerator = new JDKRandomGenerator();
+    randomGenerator.setSeed(seed);
+    timestamp = DateTimeType.get().now();
     while(this.entities.size() < entities) {
       this.entities.add(generateEntity());
     }
 
-    DefaultVariableValueGeneratorFactory factory = new DefaultVariableValueGeneratorFactory();
-    this.generators = Maps.newHashMap();
-    for(final Variable v : this.dictionary) {
-      this.generators.put(v.getName(), factory.newGenerator(v));
+    VariableValueGeneratorFactory factory = new DefaultVariableValueGeneratorFactory();
+    generators = Maps.newHashMap();
+    for(Variable v : this.dictionary) {
+      generators.put(v.getName(), factory.newGenerator(v));
     }
   }
 
   @Override
   public Datasource getDatasource() {
-    return this.datasource;
+    return datasource;
   }
 
   @Override
@@ -102,15 +103,20 @@ public class GeneratedValueTable implements ValueTable {
 
   @Override
   public ValueSet getValueSet(VariableEntity entity) throws NoSuchValueSetException {
-    if(this.entities.contains(entity)) {
+    if(entities.contains(entity)) {
       return new GeneratedValueSet(this, entity);
     }
     throw new NoSuchValueSetException(this, entity);
   }
 
   @Override
+  public Timestamps getValueSetTimestamps(VariableEntity entity) throws NoSuchValueSetException {
+    return getValueSet(entity).getTimestamps();
+  }
+
+  @Override
   public Iterable<ValueSet> getValueSets() {
-    return Iterables.transform(this.entities, new Function<VariableEntity, ValueSet>() {
+    return Iterables.transform(entities, new Function<VariableEntity, ValueSet>() {
 
       @Override
       public ValueSet apply(VariableEntity from) {
@@ -136,7 +142,7 @@ public class GeneratedValueTable implements ValueTable {
 
   @Override
   public Set<VariableEntity> getVariableEntities() {
-    return Collections.unmodifiableSet(this.entities);
+    return Collections.unmodifiableSet(entities);
   }
 
   @Override
@@ -146,12 +152,12 @@ public class GeneratedValueTable implements ValueTable {
 
   @Override
   public Iterable<Variable> getVariables() {
-    return this.dictionary;
+    return dictionary;
   }
 
   @Override
   public boolean hasValueSet(VariableEntity entity) {
-    return this.entities.contains(entity);
+    return entities.contains(entity);
   }
 
   @Override

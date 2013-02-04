@@ -1,7 +1,6 @@
 package org.obiba.magma.support;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutionException;
@@ -30,6 +29,9 @@ public class MultithreadedDatasourceCopier {
 
   private static final Logger log = LoggerFactory.getLogger(MultithreadedDatasourceCopier.class);
 
+  private static final int BUFFER_SIZE = 150;
+
+  @SuppressWarnings({ "UnusedDeclaration", "ParameterHidesMemberVariable" })
   public static class Builder {
 
     MultithreadedDatasourceCopier copier = new MultithreadedDatasourceCopier();
@@ -47,17 +49,17 @@ public class MultithreadedDatasourceCopier {
     }
 
     public Builder withQueueSize(int size) {
-      this.copier.bufferSize = size;
+      copier.bufferSize = size;
       return this;
     }
 
     public Builder withReaders(int readers) {
-      this.copier.concurrentReaders = readers;
+      copier.concurrentReaders = readers;
       return this;
     }
 
     public Builder withReaderListener(ReaderListener readerListener) {
-      this.copier.readerListener = readerListener;
+      copier.readerListener = readerListener;
       return this;
     }
 
@@ -67,20 +69,20 @@ public class MultithreadedDatasourceCopier {
     }
 
     public Builder from(ValueTable source) {
-      this.copier.source = source;
-      if(this.copier.destinationName == null) {
-        this.copier.destinationName = source.getName();
+      copier.sourceTable = source;
+      if(copier.destinationName == null) {
+        copier.destinationName = source.getName();
       }
       return this;
     }
 
     public Builder to(Datasource destination) {
-      this.copier.destination = destination;
+      copier.destinationDatasource = destination;
       return this;
     }
 
     public Builder as(String name) {
-      this.copier.destinationName = name;
+      copier.destinationName = name;
       return this;
     }
 
@@ -91,29 +93,29 @@ public class MultithreadedDatasourceCopier {
 
   public interface ReaderListener {
 
-    public void onRead(ValueSet valueSet, Value[] values);
+    void onRead(ValueSet valueSet, Value... values);
 
   }
 
   private ThreadFactory threadFactory;
 
-  private int bufferSize = 150;
+  private int bufferSize = BUFFER_SIZE;
 
   private int concurrentReaders = 3;
 
   private DatasourceCopier.Builder copier = DatasourceCopier.Builder.newCopier();
 
-  private ValueTable source;
+  private ValueTable sourceTable;
 
   private String destinationName;
 
-  private Datasource destination;
+  private Datasource destinationDatasource;
 
   private VariableValueSource sources[];
 
   private Variable variables[];
 
-  private List<Future<?>> readers = Lists.newArrayList();
+  private final List<Future<?>> readers = Lists.newArrayList();
 
   private long entitiesToCopy = 0;
 
@@ -128,19 +130,27 @@ public class MultithreadedDatasourceCopier {
   }
 
   public void copy() throws IOException {
-    ThreadPoolExecutor executor = threadFactory != null ? (ThreadPoolExecutor) Executors.newFixedThreadPool(concurrentReaders, threadFactory) : (ThreadPoolExecutor) Executors.newFixedThreadPool(concurrentReaders);
+    ThreadPoolExecutor executor = (ThreadPoolExecutor) (threadFactory == null
+        ? Executors.newFixedThreadPool(concurrentReaders)
+        : Executors.newFixedThreadPool(concurrentReaders, threadFactory));
 
     prepareVariables();
 
-    // A queue containing all entity values available for writing to the destination.
+    // A queue containing all entity values available for writing to the destinationDatasource.
     BlockingQueue<VariableEntityValues> writeQueue = new LinkedBlockingDeque<VariableEntityValues>(bufferSize);
 
     if(copier.build().isCopyValues()) {
-      // A queue containing all entities to read the values for. Once this is empty, and all readers are done, then
-      // reading is over.
-      BlockingQueue<VariableEntity> readQueue = new LinkedBlockingDeque<VariableEntity>(source.getVariableEntities());
-      entitiesToCopy = readQueue.size();
 
+      if(copier.build().isIncremental()) {
+        // wrap source table with IncrementalView
+        sourceTable = IncrementalView.Factory.create(sourceTable, destinationDatasource);
+      }
+
+      // A queue containing all entities to read the values for.
+      // Once this is empty, and all readers are done, then reading is over.
+      BlockingQueue<VariableEntity> readQueue =
+          new LinkedBlockingDeque<VariableEntity>(sourceTable.getVariableEntities());
+      entitiesToCopy = readQueue.size();
       for(int i = 0; i < concurrentReaders; i++) {
         readers.add(executor.submit(new ConcurrentValueSetReader(readQueue, writeQueue)));
       }
@@ -149,7 +159,8 @@ public class MultithreadedDatasourceCopier {
       write(writeQueue);
       checkReadersForException();
     } finally {
-      log.debug("Finished multi-threaded copy. Submited tasks {}, executed tasks {}", executor.getTaskCount(), executor.getCompletedTaskCount());
+      log.debug("Finished multi-threaded copy. Submitted tasks {}, executed tasks {}", executor.getTaskCount(),
+          executor.getCompletedTaskCount());
       executor.shutdownNow();
     }
   }
@@ -161,6 +172,7 @@ public class MultithreadedDatasourceCopier {
     new ConcurrentValueSetWriter(writeQueue).run();
   }
 
+  @SuppressWarnings("OverlyNestedMethod")
   private void checkReadersForException() {
     for(Future<?> reader : readers) {
       try {
@@ -179,49 +191,22 @@ public class MultithreadedDatasourceCopier {
     }
   }
 
-  /**
-   * Returns true when all readers have finished submitting to the writeQueue. false otherwise.
-   * @return
-   */
-  private boolean isReadCompleted() {
-    for(Future<?> reader : readers) {
-      if(reader.isDone() == false) {
-        return false;
-      }
-    }
-    return true;
-  }
-
   private void prepareVariables() {
-    ArrayList<VariableValueSource> sources = Lists.newArrayList();
-    ArrayList<Variable> vars = Lists.newArrayList();
-    for(Variable variable : source.getVariables()) {
-      sources.add(source.getVariableValueSource(variable.getName()));
+    List<VariableValueSource> list = Lists.newArrayList();
+    List<Variable> vars = Lists.newArrayList();
+    for(Variable variable : sourceTable.getVariables()) {
+      list.add(sourceTable.getVariableValueSource(variable.getName()));
       vars.add(variable);
     }
-    this.sources = sources.toArray(new VariableValueSource[sources.size()]);
-    this.variables = vars.toArray(new Variable[sources.size()]);
+    sources = list.toArray(new VariableValueSource[list.size()]);
+    variables = vars.toArray(new Variable[list.size()]);
   }
 
   private void copyVariables() throws IOException {
     DatasourceCopier variableCopier = copier.build();
     if(variableCopier.isCopyMetadata()) {
       variableCopier.setCopyValues(false);
-      variableCopier.copy(source, destinationName, destination);
-    }
-  }
-
-  private void printProgress() {
-    try {
-      if(log.isInfoEnabled() && entitiesToCopy > 0) {
-        int percentComplete = (int) (entitiesCopied / (double) entitiesToCopy * 100);
-        if(percentComplete >= nextPercentIncrement) {
-          log.info("Copy {}% complete.", percentComplete);
-          nextPercentIncrement = percentComplete + 1;
-        }
-      }
-    } catch(RuntimeException e) {
-      // Ignore
+      variableCopier.copy(sourceTable, destinationName, destinationDatasource);
     }
   }
 
@@ -231,7 +216,7 @@ public class MultithreadedDatasourceCopier {
 
     private final Value[] values;
 
-    private VariableEntityValues(ValueSet valueSet, Value[] values) {
+    private VariableEntityValues(ValueSet valueSet, Value... values) {
       this.valueSet = valueSet;
       this.values = values;
     }
@@ -243,18 +228,20 @@ public class MultithreadedDatasourceCopier {
 
     private final BlockingQueue<VariableEntityValues> writeQueue;
 
-    private ConcurrentValueSetReader(BlockingQueue<VariableEntity> readQueue, BlockingQueue<VariableEntityValues> writeQueue) {
+    private ConcurrentValueSetReader(BlockingQueue<VariableEntity> readQueue,
+        BlockingQueue<VariableEntityValues> writeQueue) {
       this.readQueue = readQueue;
       this.writeQueue = writeQueue;
     }
 
+    @SuppressWarnings("OverlyNestedMethod")
     @Override
     public void run() {
       try {
         VariableEntity entity = readQueue.poll();
         while(entity != null) {
-          if(source.hasValueSet(entity)) {
-            ValueSet valueSet = source.getValueSet(entity);
+          if(sourceTable.hasValueSet(entity)) {
+            ValueSet valueSet = sourceTable.getValueSet(entity);
             Value[] values = new Value[sources.length];
             for(int i = 0; i < sources.length; i++) {
               values[i] = sources[i].getValue(valueSet);
@@ -267,7 +254,7 @@ public class MultithreadedDatasourceCopier {
           }
           entity = readQueue.poll();
         }
-      } catch(InterruptedException e) {
+      } catch(InterruptedException ignored) {
 
       }
     }
@@ -284,13 +271,14 @@ public class MultithreadedDatasourceCopier {
     /**
      * Reads the next instance to write. This is a blocking operation. If nothing is left to write, this method will
      * return null.
+     *
      * @return
      */
     VariableEntityValues next() {
       try {
         VariableEntityValues values = writeQueue.poll(1, TimeUnit.SECONDS);
         // If values is null, then it's either because we haven't done reading or we've finished reading
-        while(values == null && isReadCompleted() == false) {
+        while(values == null && !isReadCompleted()) {
           values = writeQueue.poll(1, TimeUnit.SECONDS);
         }
         return values;
@@ -299,17 +287,33 @@ public class MultithreadedDatasourceCopier {
       }
     }
 
+    /**
+     * Returns true when all readers have finished submitting to the writeQueue. false otherwise.
+     *
+     * @return
+     */
+    private boolean isReadCompleted() {
+      for(Future<?> reader : readers) {
+        if(!reader.isDone()) {
+          return false;
+        }
+      }
+      return true;
+    }
+
+    @SuppressWarnings({ "ThrowFromFinallyBlock", "OverlyNestedMethod" })
     @Override
     public void run() {
       VariableEntityValues values = next();
-      ValueTableWriter tableWriter = copier.build().innerValueTableWriter(source, destinationName, destination);
+      ValueTableWriter tableWriter =
+          copier.build().innerValueTableWriter(sourceTable, destinationName, destinationDatasource);
       try {
         while(values != null) {
           ValueSetWriter writer = tableWriter.writeValueSet(values.valueSet.getVariableEntity());
           try {
-            // Copy the ValueSet to the destination
+            // Copy the ValueSet to the destinationDatasource
             log.debug("Dequeued entity {}", values.valueSet.getVariableEntity().getIdentifier());
-            copier.build().copy(source, destinationName, values.valueSet, variables, values.values, writer);
+            copier.build().copyValues(sourceTable, destinationName, values.valueSet, variables, values.values, writer);
           } finally {
             try {
               writer.close();
@@ -328,6 +332,21 @@ public class MultithreadedDatasourceCopier {
         } catch(IOException e) {
           throw new RuntimeException(e);
         }
+      }
+    }
+
+    @SuppressWarnings("NumericCastThatLosesPrecision")
+    private void printProgress() {
+      try {
+        if(log.isInfoEnabled() && entitiesToCopy > 0) {
+          int percentComplete = (int) (entitiesCopied / (double) entitiesToCopy * 100);
+          if(percentComplete >= nextPercentIncrement) {
+            log.info("Copy {}% complete.", percentComplete);
+            nextPercentIncrement = percentComplete + 1;
+          }
+        }
+      } catch(RuntimeException e) {
+        // Ignore
       }
     }
   }

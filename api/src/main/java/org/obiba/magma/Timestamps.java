@@ -2,8 +2,8 @@ package org.obiba.magma;
 
 public interface Timestamps {
 
-  public Value getLastUpdate();
+  Value getLastUpdate();
 
-  public Value getCreated();
+  Value getCreated();
 
 }

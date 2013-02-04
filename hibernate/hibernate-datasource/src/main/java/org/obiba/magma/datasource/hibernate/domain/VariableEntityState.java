@@ -15,6 +15,7 @@ import javax.persistence.UniqueConstraint;
 
 import org.obiba.magma.VariableEntity;
 
+@SuppressWarnings("UnusedDeclaration")
 @Entity
 @Table(name = "variable_entity", uniqueConstraints = { @UniqueConstraint(columnNames = { "type", "identifier" }) })
 public class VariableEntityState extends AbstractTimestampedEntity implements VariableEntity {

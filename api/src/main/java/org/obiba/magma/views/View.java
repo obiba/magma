@@ -5,8 +5,6 @@ import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import javax.annotation.Nullable;
-
 import org.obiba.magma.Datasource;
 import org.obiba.magma.Disposable;
 import org.obiba.magma.Initialisable;
@@ -35,6 +33,7 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 
+@SuppressWarnings({ "ParameterHidesMemberVariable", "OverlyCoupledClass" })
 public class View extends AbstractValueTableWrapper implements Initialisable, Disposable, TransformingValueTable {
   //
   // Instance Variables
@@ -158,7 +157,7 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
           return from.getTimestamps().getLastUpdate();
         } else {
           Value fromUpdate = from.getTimestamps().getLastUpdate();
-          return fromUpdate.isNull() == false && updated.compareTo(fromUpdate) < 0 ? fromUpdate : updated;
+          return !fromUpdate.isNull() && updated.compareTo(fromUpdate) < 0 ? fromUpdate : updated;
         }
       }
 
@@ -413,7 +412,7 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
 
     private final VariableValueSource wrapped;
 
-    public VariableValueSourceWrapper(@Nullable VariableValueSource wrapped) {
+    public VariableValueSourceWrapper(VariableValueSource wrapped) {
       this.wrapped = wrapped;
     }
 

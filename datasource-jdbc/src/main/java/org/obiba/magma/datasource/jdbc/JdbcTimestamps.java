@@ -15,19 +15,15 @@ public class JdbcTimestamps implements Timestamps {
 
   @Override
   public Value getCreated() {
-    if(valueSet.getValueTable().hasCreatedTimestampColumn()) {
-      return valueSet.getCreated();
-    } else {
-      return DateTimeType.get().nullValue();
-    }
+    return valueSet.getValueTable().hasCreatedTimestampColumn() //
+        ? valueSet.getCreated() //
+        : DateTimeType.get().nullValue();
   }
 
   @Override
   public Value getLastUpdate() {
-    if(valueSet.getValueTable().hasUpdatedTimestampColumn()) {
-      return valueSet.getUpdated();
-    } else {
-      return DateTimeType.get().nullValue();
-    }
+    return valueSet.getValueTable().hasUpdatedTimestampColumn() //
+        ? valueSet.getUpdated() //
+        : DateTimeType.get().nullValue();
   }
 }

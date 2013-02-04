@@ -17,6 +17,7 @@ import com.google.common.annotations.VisibleForTesting;
 /**
  * A "where" clause that can be used to create an incremental {@link View}.
  */
+@SuppressWarnings("UnusedDeclaration")
 public class IncrementalWhereClause implements WhereClause {
   //
   // Constants
@@ -43,12 +44,11 @@ public class IncrementalWhereClause implements WhereClause {
    * No-arg constructor (mainly for XStream).
    */
   public IncrementalWhereClause() {
-    super();
   }
 
   /**
    * Creates an <code>IncrementalWhereClause</code>, based on the specified source and destination tables.
-   * 
+   *
    * @param sourceTableName fully-qualified name of the source {@link ValueTable}
    * @param destinationTableName fully-qualified name of the destination {@link ValueTable}
    * @deprecated sourceTableName is no longer required, use alternate ctor
@@ -72,6 +72,7 @@ public class IncrementalWhereClause implements WhereClause {
   // WhereClause Methods
   //
 
+  @Override
   public boolean where(ValueSet valueSet) {
     boolean include = false;
 
@@ -98,11 +99,11 @@ public class IncrementalWhereClause implements WhereClause {
 
   /**
    * Looks up the destination table by its name and returns it. The table is cached for performance.
-   * 
+   * <p/>
    * Note that when data is copied from one datasource to another, the destination table may not exist; the destination
    * datasource may not exist either (e.g., file-based datasource). In these cases, this method returns a
    * {@link NullValueTable}.
-   * 
+   *
    * @return the destination table (or a null value table if it does not exist)
    */
   @VisibleForTesting
@@ -130,10 +131,10 @@ public class IncrementalWhereClause implements WhereClause {
 
   /**
    * Indicates whether the first timestamps are "later than" the second.
-   * 
+   * <p/>
    * Note that if either <code>Timestamps</code> object is <code>null</code>, or if either one contains a
    * <code>null value</code> "updated" timestamp, this method returns <code>true</code>.
-   * 
+   *
    * @return <code>true</code> if <code>ts1</code> is later than <code>ts2</code> (based on the "updated" timestamp)
    */
   @VisibleForTesting
@@ -141,6 +142,6 @@ public class IncrementalWhereClause implements WhereClause {
     Value u1 = ts1 != null ? ts1.getLastUpdate() : DateTimeType.get().nullValue();
     Value u2 = ts2 != null ? ts2.getLastUpdate() : DateTimeType.get().nullValue();
     log.debug("source.updated {} destination.updated {}", u1, u2);
-    return (u1.isNull() || u2.isNull() || u1.compareTo(u2) > 0);
+    return u1.isNull() || u2.isNull() || u1.compareTo(u2) > 0;
   }
 }

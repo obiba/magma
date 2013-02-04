@@ -8,12 +8,13 @@ public class VariableEntityBean implements VariableEntity {
 
   private final String entityIdentifier;
 
+  @SuppressWarnings("TransientFieldInNonSerializableClass")
   private transient volatile int hashCode = 0;
 
   public VariableEntityBean(String entityType, String entityIdentifier) {
     if(entityType == null) throw new IllegalArgumentException("entityType cannot be null");
     if(entityIdentifier == null) throw new IllegalArgumentException("entityIdentifier cannot be null");
-    if(entityIdentifier.trim().length() == 0) throw new IllegalArgumentException("entityIdentifier cannot be empty");
+    if(entityIdentifier.trim().isEmpty()) throw new IllegalArgumentException("entityIdentifier cannot be empty");
 
     this.entityType = entityType;
     this.entityIdentifier = entityIdentifier;
@@ -34,8 +35,8 @@ public class VariableEntityBean implements VariableEntity {
     if(that == null) {
       throw new IllegalArgumentException();
     }
-    int compare = this.entityType.compareTo(that.getType());
-    return compare != 0 ? compare : this.entityIdentifier.compareTo(that.getIdentifier());
+    int compare = entityType.compareTo(that.getType());
+    return compare == 0 ? entityIdentifier.compareTo(that.getIdentifier()) : compare;
   }
 
   @Override
