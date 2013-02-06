@@ -13,6 +13,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
+import javax.annotation.Nonnull;
+
 import org.obiba.magma.Attribute;
 import org.obiba.magma.Datasource;
 import org.obiba.magma.NoSuchAttributeException;
@@ -27,7 +29,8 @@ public abstract class AbstractDatasourceWrapper implements Datasource {
 
   private final Datasource wrapped;
 
-  protected AbstractDatasourceWrapper(Datasource wrapped) {
+  @SuppressWarnings("ConstantConditions")
+  protected AbstractDatasourceWrapper(@Nonnull Datasource wrapped) {
     Preconditions.checkArgument(wrapped != null);
     this.wrapped = wrapped;
   }
