@@ -9,6 +9,8 @@
  */
 package org.obiba.magma.support;
 
+import java.util.Map;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
@@ -25,6 +27,8 @@ import org.obiba.magma.views.View;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.Maps;
+
 /**
  *
  */
@@ -32,6 +36,8 @@ import org.slf4j.LoggerFactory;
 public class IncrementalView extends View {
 
   private static final Logger log = LoggerFactory.getLogger(IncrementalView.class);
+
+  private IncrementalFunction variableEntityMappingFunction;
 
   public static class Factory {
 
@@ -63,7 +69,10 @@ public class IncrementalView extends View {
 
   @Override
   public BijectiveFunction<VariableEntity, VariableEntity> getVariableEntityMappingFunction() {
-    return new IncrementalFunction();
+    if(variableEntityMappingFunction == null) {
+      variableEntityMappingFunction = new IncrementalFunction();
+    }
+    return variableEntityMappingFunction;
   }
 
   /**
@@ -74,11 +83,17 @@ public class IncrementalView extends View {
    */
   private class IncrementalFunction implements BijectiveFunction<VariableEntity, VariableEntity> {
 
+    private final Map<VariableEntity, VariableEntity> applyCache = Maps.newHashMap();
+
     @Override
     public VariableEntity apply(VariableEntity from) {
+      if(applyCache.containsKey(from)) {
+        return applyCache.get(from);
+      }
       boolean newer = isSourceNewerThanDestination(from);
       VariableEntity entity = newer ? from : null;
       log.debug("View: {}, entity: {}, sourceIsNewer: {}, return {}", getName(), from, newer, entity);
+      applyCache.put(from, entity);
       return entity;
     }
 
