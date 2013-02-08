@@ -65,6 +65,7 @@ public class IncrementalView extends View {
   private IncrementalView(ValueTable sourceTable, @Nonnull ValueTable destinationTable) {
     super(sourceTable.getName(), sourceTable);
     this.destinationTable = destinationTable;
+    log.trace("New IncrementalView for {}", sourceTable.getName());
   }
 
   @Override
