@@ -88,6 +88,7 @@ public class IncrementalView extends View {
     @Override
     public VariableEntity apply(VariableEntity from) {
       if(applyCache.containsKey(from)) {
+        log.trace("apply has cached: {}", from.getIdentifier());
         return applyCache.get(from);
       }
       boolean newer = isSourceNewerThanDestination(from);
