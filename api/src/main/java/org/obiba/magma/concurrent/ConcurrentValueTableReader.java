@@ -27,6 +27,8 @@ public class ConcurrentValueTableReader {
 
   private static final Logger log = LoggerFactory.getLogger(ConcurrentValueTableReader.class);
 
+  private boolean ignoreReadErrors = false;
+
   public static class Builder {
 
     ConcurrentValueTableReader reader = new ConcurrentValueTableReader();
@@ -65,6 +67,11 @@ public class ConcurrentValueTableReader {
 
     public Builder entities(Iterable<VariableEntity> entities) {
       reader.entities = entities;
+      return this;
+    }
+
+    public Builder ignoreReadErrors() {
+      reader.ignoreReadErrors = true;
       return this;
     }
 
@@ -118,9 +125,9 @@ public class ConcurrentValueTableReader {
   }
 
   public void read() {
-    ThreadPoolExecutor executor = threadFactory != null ? (ThreadPoolExecutor) Executors
-        .newFixedThreadPool(concurrentReaders, threadFactory) : (ThreadPoolExecutor) Executors
-        .newFixedThreadPool(concurrentReaders);
+    ThreadPoolExecutor executor = threadFactory != null
+        ? (ThreadPoolExecutor) Executors.newFixedThreadPool(concurrentReaders, threadFactory)
+        : (ThreadPoolExecutor) Executors.newFixedThreadPool(concurrentReaders);
 
     Variable[] variables = prepareVariables();
     VariableValueSource[] sources = prepareSources(variables);
@@ -243,6 +250,7 @@ public class ConcurrentValueTableReader {
       this.writeQueue = writeQueue;
     }
 
+    @SuppressWarnings("OverlyNestedMethod")
     @Override
     public void run() {
       try {
@@ -252,7 +260,15 @@ public class ConcurrentValueTableReader {
             ValueSet valueSet = valueTable.getValueSet(entity);
             Value[] values = new Value[sources.length];
             for(int i = 0; i < sources.length; i++) {
-              values[i] = sources[i].getValue(valueSet);
+              try {
+                values[i] = sources[i].getValue(valueSet);
+              } catch(RuntimeException e) {
+                if(ignoreReadErrors) {
+                  values[i] = sources[i].getValueType().nullValue();
+                } else {
+                  throw e;
+                }
+              }
             }
             log.debug("Read entity {}", entity.getIdentifier());
             writeQueue.put(new VariableEntityValues(entity, values));
