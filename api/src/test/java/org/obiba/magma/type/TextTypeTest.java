@@ -3,6 +3,7 @@ package org.obiba.magma.type;
 import junit.framework.Assert;
 
 import org.junit.Test;
+import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueSequence;
 import org.obiba.magma.ValueType;
@@ -36,7 +37,7 @@ public class TextTypeTest extends BaseValueTypeTest {
     return ImmutableList.<Class<?>> of(String.class);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expected = MagmaRuntimeException.class)
   public void testUnterminatedQuotedString() {
     TextType.get().sequenceOf("\"An unterminated, value.");
   }

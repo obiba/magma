@@ -4,6 +4,7 @@ import java.lang.ref.WeakReference;
 import java.math.BigInteger;
 
 import org.obiba.magma.MagmaEngine;
+import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.Value;
 
 public class IntegerType extends AbstractNumberType {
@@ -35,7 +36,9 @@ public class IntegerType extends AbstractNumberType {
 
   @Override
   public boolean acceptsJavaClass(Class<?> clazz) {
-    return Integer.class.isAssignableFrom(clazz) || int.class.isAssignableFrom(clazz) || Long.class.isAssignableFrom(clazz) || long.class.isAssignableFrom(clazz) || BigInteger.class.isAssignableFrom(clazz);
+    return Integer.class.isAssignableFrom(clazz) || int.class.isAssignableFrom(clazz) ||
+        Long.class.isAssignableFrom(clazz) || long.class.isAssignableFrom(clazz) ||
+        BigInteger.class.isAssignableFrom(clazz);
   }
 
   @Override
@@ -43,7 +46,11 @@ public class IntegerType extends AbstractNumberType {
     if(string == null) {
       return nullValue();
     }
-    return Factory.newValue(this, Long.valueOf(string));
+    try {
+      return Factory.newValue(this, Long.valueOf(normalize(string)));
+    } catch(NumberFormatException e) {
+      throw new MagmaRuntimeException("Not a integer value: " + string, e);
+    }
   }
 
   @Override
@@ -58,12 +65,17 @@ public class IntegerType extends AbstractNumberType {
     if(String.class.isAssignableFrom(type)) {
       return valueOf((String) object);
     }
-    throw new IllegalArgumentException("Cannot construct " + getClass().getSimpleName() + " from type " + object.getClass() + ".");
+    throw new IllegalArgumentException(
+        "Cannot construct " + getClass().getSimpleName() + " from type " + object.getClass() + ".");
   }
 
   @Override
   public int compare(Value o1, Value o2) {
     return ((Long) o1.getValue()).compareTo((Long) o2.getValue());
+  }
+
+  private String normalize(String string) {
+    return string.trim();
   }
 
 }

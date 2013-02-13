@@ -1,12 +1,16 @@
 package org.obiba.magma.type;
 
+import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.obiba.magma.MagmaEngine;
+import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueSequence;
+
+import au.com.bytecode.opencsv.CSVParser;
 
 public class TextType extends AbstractValueType {
 
@@ -19,8 +23,10 @@ public class TextType extends AbstractValueType {
   @SuppressWarnings("StaticNonFinalField")
   private static WeakReference<TextType> instance;
 
-  protected TextType() {
+  private CSVParser csvParser;
 
+  protected TextType() {
+    csvParser = new CSVParser(SEPARATOR, QUOTE);
   }
 
   public static TextType get() {
@@ -73,11 +79,11 @@ public class TextType extends AbstractValueType {
 
   /**
    * Reads a comma-separated string value of strings. The format of the string is
-   * 
+   * <p/>
    * <pre>
    * "value","value","value"
    * </pre>
-   * 
+   * <p/>
    * When the original {@code value} contains a {@code "}, it is escaped by adding another {@code "}, as per the CSV
    * standard.
    */
@@ -94,70 +100,14 @@ public class TextType extends AbstractValueType {
       return sequenceOf(values);
     }
 
-    StringBuilder currentValue = new StringBuilder();
-    // Whether we're currently inside quotes
-    boolean inQuotes = false;
-    // Where the current opening quote is located
-    int openingQuoteIndex = -1;
-    for(int i = 0; i < string.length(); i++) {
-      char c = string.charAt(i);
-      if(c == QUOTE) {
-        // If the current character is quote, there are three possibilities:
-        // 1) A new quoted value is starting
-        // 2) The current string value is ending
-        // 3) Escaped quote
-
-        if(inQuotes) {
-          // Either case 2) or 3): the end of the quoted string or an escaped quote
-          // 2 possibilities for case 2):
-          // 2a) End of string (no more characters)
-          // 2b) End of value (next character is a SEPARATOR)
-          // Case 3): next character must be a QUOTE
-          // Anything else is unexpected
-
-          if(i + 1 >= string.length()) {
-            // 2a) End of string
-            inQuotes = false;
-          } else {
-            // The next character should either be a quote or a separator
-            char nextChar = string.charAt(i + 1);
-            if(nextChar == SEPARATOR) {
-              // 2b) End of value
-              inQuotes = false;
-            } else if(nextChar == QUOTE) {
-              // 3) Escaped quote
-              currentValue.append(QUOTE);
-              // skip extra quote
-              i++;
-            } else {
-              // anything else is unexpected
-              throw new IllegalArgumentException("Invalid string value. Unexpected escape character at index " + i + ": '" + string + "'");
-            }
-          }
-        } else {
-          // Case 1): we weren't in a quoted string and from this point on, we are.
-          inQuotes = true;
-          openingQuoteIndex = i;
-        }
-      } else if(c == SEPARATOR && inQuotes == false) {
-        // When we're outside quotes and we encounter a SEPARATOR, then we've finished reading a value.
+    try {
+      for(String currentValue : csvParser.parseLine(string)) {
         values.add(valueOf(currentValue.length() == 0 ? null : currentValue.toString()));
-        currentValue.setLength(0);
-      } else if(inQuotes == true) {
-        // When inside quotes, the character is appended to the value
-        currentValue.append(c);
-      } else {
-        // We've encountered a character that is not a separator outside quotes. This is unexpected, but not a show
-        // stopper. We can keep parsing.
       }
+    } catch(IOException e) {
+      throw new MagmaRuntimeException("Invalid value sequence formatting: " + string, e);
     }
-    // We've finished reading all values.
-    if(inQuotes == true) {
-      // Still inside quoted string. This is bad.
-      throw new IllegalArgumentException("Unterminated string. Opening quote at index " + openingQuoteIndex + " was never closed: '..." + string.substring(openingQuoteIndex) + "'");
-    }
-    // Add the last value to the sequence.
-    values.add(valueOf(currentValue.length() == 0 ? null : currentValue.toString()));
+
     return sequenceOf(values);
   }
 

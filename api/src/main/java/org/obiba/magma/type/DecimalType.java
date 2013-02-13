@@ -4,6 +4,7 @@ import java.lang.ref.WeakReference;
 import java.math.BigDecimal;
 
 import org.obiba.magma.MagmaEngine;
+import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.Value;
 
 public class DecimalType extends AbstractNumberType {
@@ -35,7 +36,9 @@ public class DecimalType extends AbstractNumberType {
 
   @Override
   public boolean acceptsJavaClass(Class<?> clazz) {
-    return Double.class.isAssignableFrom(clazz) || double.class.isAssignableFrom(clazz) || Float.class.isAssignableFrom(clazz) || float.class.isAssignableFrom(clazz) || BigDecimal.class.isAssignableFrom(clazz);
+    return Double.class.isAssignableFrom(clazz) || double.class.isAssignableFrom(clazz) ||
+        Float.class.isAssignableFrom(clazz) || float.class.isAssignableFrom(clazz) ||
+        BigDecimal.class.isAssignableFrom(clazz);
   }
 
   @Override
@@ -43,7 +46,11 @@ public class DecimalType extends AbstractNumberType {
     if(string == null) {
       return nullValue();
     }
-    return Factory.newValue(this, Double.valueOf(string));
+    try {
+      return Factory.newValue(this, Double.valueOf(normalize(string)));
+    } catch(NumberFormatException e) {
+      throw new MagmaRuntimeException("Not a decimal value: " + string, e);
+    }
   }
 
   @Override
@@ -58,11 +65,16 @@ public class DecimalType extends AbstractNumberType {
     if(String.class.isAssignableFrom(type)) {
       return valueOf((String) object);
     }
-    throw new IllegalArgumentException("Cannot construct " + getClass().getSimpleName() + " from type " + object.getClass() + ".");
+    throw new IllegalArgumentException(
+        "Cannot construct " + getClass().getSimpleName() + " from type " + object.getClass() + ".");
   }
 
   @Override
   public int compare(Value o1, Value o2) {
     return ((Double) o1.getValue()).compareTo((Double) o2.getValue());
+  }
+
+  private String normalize(String string) {
+    return string.replace(",",".").trim();
   }
 }

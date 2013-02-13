@@ -5,6 +5,7 @@ import static org.junit.Assert.assertThat;
 
 import org.junit.Test;
 import org.obiba.magma.Value;
+import org.obiba.magma.ValueSequence;
 import org.obiba.magma.ValueType;
 
 import com.google.common.collect.ImmutableList;
@@ -72,5 +73,11 @@ public class IntegerTypeTest extends BaseValueTypeTest {
     Value rightValue = getValueType().valueOf(42);
     int result = getValueType().compare(leftValue, rightValue);
     assertThat(result, is(0));
+  }
+
+  @Test
+  public void testTrim() {
+    Long result = (Long)getValueType().valueOf(" 1 ").getValue();
+    assertThat(result.intValue(), is(1));
   }
 }
