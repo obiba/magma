@@ -4,11 +4,13 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.Map;
 
+import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueLoaderFactory;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
+import org.obiba.magma.datasource.csv.support.CsvDatasourceParsingException;
 import org.obiba.magma.support.BinaryValueStreamLoaderFactory;
 import org.obiba.magma.support.ValueSetBean;
 import org.obiba.magma.type.BinaryType;
@@ -33,7 +35,14 @@ public class CsvValueSet extends ValueSetBean {
     if(pos != null && pos < line.length) {
       String strValue = line[pos];
       if(strValue.length() > 0) {
-        value = getValue(variable, strValue);
+        try {
+          value = getValue(variable, strValue);
+        } catch(MagmaRuntimeException e) {
+          throw new CsvDatasourceParsingException(
+              "Unable to get value for entity " + getVariableEntity().getIdentifier() + " and variable " +
+                  variable.getName() + ": " + e.getMessage(), e, "UnableToGetVariableValueForEntity",
+              getVariableEntity().getIdentifier(), variable.getName(), e.getMessage());
+        }
       }
     }
     return value;

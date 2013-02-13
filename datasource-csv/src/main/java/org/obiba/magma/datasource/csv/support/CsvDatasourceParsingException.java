@@ -31,4 +31,15 @@ public class CsvDatasourceParsingException extends DatasourceParsingException {
     getParameters().add(0, row);
   }
 
+  /**
+   *
+   * @param message default message
+   * @param e cause exception
+   * @param messageKey message key for localization
+   * @param parameters parameters to go in the localized message place holders
+   */
+  public CsvDatasourceParsingException(String message, Throwable e, String messageKey, Object... parameters) {
+    super(message, e, messageKey, parameters);
+  }
+
 }
