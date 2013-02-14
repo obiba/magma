@@ -69,7 +69,8 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
 
   private VariableConverter variableConverter;
 
-  private final LinkedHashMap<VariableEntity, CsvIndexEntry> entityIndex = new LinkedHashMap<VariableEntity, CsvIndexEntry>();
+  private final LinkedHashMap<VariableEntity, CsvIndexEntry> entityIndex
+      = new LinkedHashMap<VariableEntity, CsvIndexEntry>();
 
   private final LinkedHashMap<String, CsvIndexEntry> variableNameIndex = new LinkedHashMap<String, CsvIndexEntry>();
 
@@ -140,7 +141,7 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
       variableEntityProvider = new CSVVariableEntityProvider(entityType);
     } catch(IOException e) {
       throw new CsvDatasourceParsingException("Error occurred initialising csv datasource.", e,
-          "CsvInitialisationError", 0);
+          "CsvInitialisationError", 0, null);
     }
   }
 
