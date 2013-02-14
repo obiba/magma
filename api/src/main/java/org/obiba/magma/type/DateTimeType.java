@@ -6,7 +6,9 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
+import org.obiba.magma.MagmaDate;
 import org.obiba.magma.MagmaEngine;
+import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.Value;
 
 public class DateTimeType extends AbstractValueType {
@@ -15,13 +17,41 @@ public class DateTimeType extends AbstractValueType {
 
   private static WeakReference<DateTimeType> instance;
 
+  /**
+   * Preferred date time format.
+   */
   private final SimpleDateFormat ISO_8601 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
 
-  /** These are used to support other formats that Magma may have used in the past. */
-  private final SimpleDateFormat[] otherFormats = new SimpleDateFormat[] { new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ"), new SimpleDateFormat("yyyy-MM-dd'T'HH:mmZ"), new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSzzz") };
+  /**
+   * These are used to support other common date time formats.
+   */
+  private final SimpleDateFormat[] dateFormats = new SimpleDateFormat[] { //
+      ISO_8601, //
+      new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ"), //
+      new SimpleDateFormat("yyyy-MM-dd'T'HH:mmZ"), //
+      new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSzzz"), //
+      new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"), //
+      new SimpleDateFormat("yyyy/MM/dd HH:mm:ss"), //
+      new SimpleDateFormat("yyyy.MM.dd HH:mm:ss"), //
+      new SimpleDateFormat("yyyy MM dd HH:mm:ss"), //
+      new SimpleDateFormat("yyyy-MM-dd HH:mm"), //
+      new SimpleDateFormat("yyyy/MM/dd HH:mm"), //
+      new SimpleDateFormat("yyyy.MM.dd HH:mm"), //
+      new SimpleDateFormat("yyyy MM dd HH:mm")
+  };
+
+  private String dateFormatPatterns = "";
 
   private DateTimeType() {
-
+    // Force strict year parsing, otherwise 2 digits can be interpreted as a 4 digits year...
+    for(SimpleDateFormat format : dateFormats) {
+      format.setLenient(false);
+      if(dateFormatPatterns.isEmpty()) {
+        dateFormatPatterns = "'" + format.toPattern() + "'";
+      } else {
+        dateFormatPatterns += ", '" + format.toPattern() + "'";
+      }
+    }
   }
 
   public static DateTimeType get() {
@@ -53,7 +83,8 @@ public class DateTimeType extends AbstractValueType {
 
   @Override
   public boolean acceptsJavaClass(Class<?> clazz) {
-    return Date.class.isAssignableFrom(clazz) || java.sql.Date.class.isAssignableFrom(clazz) || java.sql.Timestamp.class.isAssignableFrom(clazz) || Calendar.class.isAssignableFrom(clazz);
+    return Date.class.isAssignableFrom(clazz) || java.sql.Date.class.isAssignableFrom(clazz) ||
+        java.sql.Timestamp.class.isAssignableFrom(clazz) || Calendar.class.isAssignableFrom(clazz);
   }
 
   @Override
@@ -74,22 +105,22 @@ public class DateTimeType extends AbstractValueType {
       // Java before 7 does not support the 'Zulu' timezone (Z). Replace it with a SimpleDateFormat-friendly timezone
       dateToParse = string.replaceFirst("Z$", "UTC");
     }
-    try {
-      // DateFormat is not thread safe
-      synchronized(ISO_8601) {
-        return Factory.newValue(this, ISO_8601.parse(dateToParse));
+
+    for(SimpleDateFormat format : dateFormats) {
+      try {
+        return parseDate(format, dateToParse);
+      } catch(ParseException e) {
+        // ignored
       }
-    } catch(ParseException e) {
-      for(SimpleDateFormat sdf : otherFormats) {
-        try {
-          synchronized(otherFormats) {
-            return Factory.newValue(this, sdf.parse(dateToParse));
-          }
-        } catch(ParseException e1) {
-          // ignore and try next supported format
-        }
-      }
-      throw new IllegalArgumentException("Cannot parse datetime from string value '" + string + "'. Expected format is " + ISO_8601.toPattern());
+    }
+    throw new MagmaRuntimeException(
+        "Cannot parse date from string value '" + string + "'. Expected format is one of " + dateFormatPatterns);
+  }
+
+  private Value parseDate(SimpleDateFormat format, String string) throws ParseException {
+    // DateFormat is not thread safe
+    synchronized(format) {
+      return Factory.newValue(this, format.parse(string));
     }
   }
 
@@ -109,7 +140,8 @@ public class DateTimeType extends AbstractValueType {
     } else if(type.equals(String.class)) {
       return valueOf((String) object);
     }
-    throw new IllegalArgumentException("Cannot construct " + getClass().getSimpleName() + " from type " + object.getClass() + ".");
+    throw new IllegalArgumentException(
+        "Cannot construct " + getClass().getSimpleName() + " from type " + object.getClass() + ".");
   }
 
   @Override
@@ -119,6 +151,7 @@ public class DateTimeType extends AbstractValueType {
 
   /**
    * Returns a {@code Value} that holds today's date.
+   *
    * @return a new {@code Value} initialized with today's date.
    */
   public Value now() {

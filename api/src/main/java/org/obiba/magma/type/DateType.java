@@ -8,6 +8,7 @@ import java.util.Date;
 
 import org.obiba.magma.MagmaDate;
 import org.obiba.magma.MagmaEngine;
+import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.Value;
 
 public class DateType extends AbstractValueType {
@@ -16,10 +17,36 @@ public class DateType extends AbstractValueType {
 
   private static WeakReference<DateType> instance;
 
+  /**
+   * Preferred format.
+   */
   private final SimpleDateFormat ISO_8601 = new SimpleDateFormat("yyyy-MM-dd");
 
-  private DateType() {
+  /**
+   * These are used to support common date formats.
+   */
+  private final SimpleDateFormat[] dateFormats = new SimpleDateFormat[] { //
+      ISO_8601, //
+      new SimpleDateFormat("yyyy/MM/dd"), //
+      new SimpleDateFormat("yyyy.MM.dd"), //
+      new SimpleDateFormat("yyyy MM dd"), //
+      new SimpleDateFormat("dd-MM-yyyy"), //
+      new SimpleDateFormat("dd/MM/yyyy"), //
+      new SimpleDateFormat("dd.MM.yyyy"), //
+      new SimpleDateFormat("dd MM yyyy") };
 
+  private String dateFormatPatterns = "";
+
+  private DateType() {
+    // Force strict year parsing, otherwise 2 digits can be interpreted as a 4 digits year...
+    for(SimpleDateFormat format : dateFormats) {
+      format.setLenient(false);
+      if(dateFormatPatterns.isEmpty()) {
+        dateFormatPatterns = "'" + format.toPattern() + "'";
+      } else {
+        dateFormatPatterns += ", '" + format.toPattern() + "'";
+      }
+    }
   }
 
   public static DateType get() {
@@ -56,9 +83,9 @@ public class DateType extends AbstractValueType {
     // There is a loss of precision if we map Date instances to this ValueType, so it is safer to not accept these
     // types.
     return MagmaDate.class.isAssignableFrom(clazz);// || Date.class.isAssignableFrom(clazz) ||
-                                                   // java.sql.Date.class.isAssignableFrom(clazz) ||
-                                                   // java.sql.Timestamp.class.isAssignableFrom(clazz) ||
-                                                   // Calendar.class.isAssignableFrom(clazz);
+    // java.sql.Date.class.isAssignableFrom(clazz) ||
+    // java.sql.Timestamp.class.isAssignableFrom(clazz) ||
+    // Calendar.class.isAssignableFrom(clazz);
   }
 
   @Override
@@ -67,13 +94,21 @@ public class DateType extends AbstractValueType {
       return nullValue();
     }
 
-    try {
-      // DateFormat is not thread safe
-      synchronized(ISO_8601) {
-        return Factory.newValue(this, new MagmaDate(ISO_8601.parse(string)));
+    for(SimpleDateFormat format : dateFormats) {
+      try {
+        return parseDate(format, string);
+      } catch(ParseException e) {
+        // ignored
       }
-    } catch(ParseException e) {
-      throw new IllegalArgumentException("Cannot parse date from string value '" + string + "'. Expected format is " + ISO_8601.toPattern());
+    }
+    throw new MagmaRuntimeException(
+        "Cannot parse date from string value '" + string + "'. Expected format is one of " + dateFormatPatterns);
+  }
+
+  private Value parseDate(SimpleDateFormat format, String string) throws ParseException {
+    // DateFormat is not thread safe
+    synchronized(format) {
+      return Factory.newValue(this, new MagmaDate(format.parse(string)));
     }
   }
 
@@ -95,7 +130,8 @@ public class DateType extends AbstractValueType {
     } else if(type.equals(String.class)) {
       return valueOf((String) object);
     }
-    throw new IllegalArgumentException("Cannot construct " + getClass().getSimpleName() + " from type " + object.getClass() + ".");
+    throw new IllegalArgumentException(
+        "Cannot construct " + getClass().getSimpleName() + " from type " + object.getClass() + ".");
   }
 
   @Override
@@ -105,6 +141,7 @@ public class DateType extends AbstractValueType {
 
   /**
    * Returns a {@code Value} that holds today's date.
+   *
    * @return a new {@code Value} initialized with today's date.
    */
   public Value now() {

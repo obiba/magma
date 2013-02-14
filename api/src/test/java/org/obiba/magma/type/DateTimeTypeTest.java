@@ -106,6 +106,33 @@ public class DateTimeTypeTest extends BaseValueTypeTest {
   }
 
   @Test
+  public void test_valueOfNoTimeZoneDateFormatString() {
+   Calendar expected = Calendar.getInstance();
+    expected.clear();
+    expected.set(2011, 0, 25, 14, 30, 47);
+    Value value = DateTimeType.get().valueOf("2011-01-25 14:30:47");
+    Assert.assertEquals(new Date(expected.getTimeInMillis()), value.getValue());
+  }
+
+  @Test
+  public void test_valueOfNoTimeZoneDateFormatStringNoSeconds() {
+    Calendar expected = Calendar.getInstance();
+    expected.clear();
+    expected.set(2011, 0, 25, 14, 30);
+    Value value = DateTimeType.get().valueOf("2011-01-25 14:30");
+    Assert.assertEquals(new Date(expected.getTimeInMillis()), value.getValue());
+  }
+
+  @Test
+  public void test_valueOfNoTimeZoneSlashDateFormatStringNoSeconds() {
+    Calendar expected = Calendar.getInstance();
+    expected.clear();
+    expected.set(2011, 0, 25, 14, 30);
+    Value value = DateTimeType.get().valueOf("2011/01/25 14:30");
+    Assert.assertEquals(new Date(expected.getTimeInMillis()), value.getValue());
+  }
+
+  @Test
   public void test_valueOfThatIncludesZuluTimezone() {
     Calendar expected = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
     expected.clear();
