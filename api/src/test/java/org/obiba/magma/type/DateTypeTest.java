@@ -10,6 +10,7 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 import org.obiba.magma.MagmaDate;
+import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.Value;
 
 import com.google.common.collect.ImmutableList;
@@ -90,9 +91,44 @@ public class DateTypeTest extends BaseValueTypeTest {
     assertValueOfUsingDateFormat("yyyy-MM-dd");
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test
+  public void testValueOfDashDateFormatString() {
+    assertValueOfUsingDateFormat("dd-MM-yyyy");
+  }
+
+  @Test
+  public void testValueOfSlashDateFormatString1() {
+    assertValueOfUsingDateFormat("dd/MM/yyyy");
+  }
+
+  @Test
+  public void testValueOfSlashDateFormatString2() {
+    assertValueOfUsingDateFormat("yyyy/MM/dd");
+  }
+
+  @Test
+  public void testValueOfDotDateFormatString1() {
+    assertValueOfUsingDateFormat("dd.MM.yyyy");
+  }
+
+  @Test
+  public void testValueOfDotDateFormatString2() {
+    assertValueOfUsingDateFormat("yyyy.MM.dd");
+  }
+
+  @Test
+  public void testValueOfSpaceDateFormatString1() {
+    assertValueOfUsingDateFormat("dd MM yyyy");
+  }
+
+  @Test
+  public void testValueOfSpaceDateFormatString2() {
+    assertValueOfUsingDateFormat("yyyy MM dd");
+  }
+
+  @Test(expected = MagmaRuntimeException.class)
   public void test_valueOf_invalidFormat() {
-    getValueType().valueOf("2011/11/10");
+    getValueType().valueOf("2011_11_10");
   }
 
   @Test
@@ -110,7 +146,8 @@ public class DateTypeTest extends BaseValueTypeTest {
   private void assertValueOfUsingDateFormat(String dateFormat) {
     DateType dt = DateType.get();
     Date dateValue = new Date();
-    Value value = dt.valueOf(new SimpleDateFormat(dateFormat).format(dateValue));
+    String dateStr = new SimpleDateFormat(dateFormat).format(dateValue);
+    Value value = dt.valueOf(dateStr);
     Assert.assertEquals(new MagmaDate(dateValue), value.getValue());
   }
 }
