@@ -141,7 +141,7 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
       variableEntityProvider = new CSVVariableEntityProvider(entityType);
     } catch(IOException e) {
       throw new CsvDatasourceParsingException("Error occurred initialising csv datasource.", e,
-          "CsvInitialisationError", 0, null);
+          "CsvInitialisationError", 0, (Object[]) null);
     }
   }
 
