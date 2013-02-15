@@ -23,10 +23,9 @@ public class TextType extends AbstractValueType {
   @SuppressWarnings("StaticNonFinalField")
   private static WeakReference<TextType> instance;
 
-  private CSVParser csvParser;
+  private transient CSVParser csvParser;
 
   protected TextType() {
-    csvParser = new CSVParser(SEPARATOR, QUOTE);
   }
 
   public static TextType get() {
@@ -101,7 +100,7 @@ public class TextType extends AbstractValueType {
     }
 
     try {
-      for(String currentValue : csvParser.parseLine(string)) {
+      for(String currentValue : getCsvParser().parseLine(string)) {
         values.add(valueOf(currentValue.length() == 0 ? null : currentValue.toString()));
       }
     } catch(IOException e) {
@@ -125,4 +124,12 @@ public class TextType extends AbstractValueType {
   public int compare(Value o1, Value o2) {
     return ((String) o1.getValue()).compareTo((String) o2.getValue());
   }
+
+  private CSVParser getCsvParser() {
+    if (csvParser == null) {
+      csvParser = new CSVParser(SEPARATOR, QUOTE);
+    }
+    return csvParser;
+  }
+
 }
