@@ -1,0 +1,10 @@
+GET FILE="/home/rhaeri/projects/magma/datasource-spss/src/test/resources/org/obiba/magma/datasource/spss/OV103_PART1.sav".
+
+GET FILE="/home/rhaeri/projects/magma/datasource-spss/src/test/resources/org/obiba/magma/datasource/spss/DatabaseTest.sav".
+
+GET FILE="/home/rhaeri/projects/magma/datasource-spss/src/test/resources/org/obiba/magma/datasource/spss/DatabaseTest.sav".
+
+GET FILE="/home/rhaeri/projects/magma/datasource-spss/src/test/resources/org/obiba/magma/datasource/spss/HOP phase1d LifeLines.sav".
+
+SAVE OUTFILE="/home/rhaeri/projects/magma/datasource-spss/src/test/resources/org/obiba/magma/datasource/spss/HOP phase1d LifeLines.sav".
+
