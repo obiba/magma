@@ -40,7 +40,7 @@ public class CsvValueSet extends ValueSetBean {
         } catch(MagmaRuntimeException e) {
           throw new CsvDatasourceParsingException(
               "Unable to get value for entity " + getVariableEntity().getIdentifier() + " and variable " +
-                  variable.getName() + ": " + e.getMessage(), e, "UnableToGetVariableValueForEntity",
+                  variable.getName() + ": " + e.getMessage(), e, "UnableToGetVariableValueForEntity", -1,
               getVariableEntity().getIdentifier(), variable.getName(), e.getMessage());
         }
       }
