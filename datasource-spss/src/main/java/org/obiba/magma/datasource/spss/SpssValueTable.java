@@ -1,0 +1,104 @@
+/*
+ * Copyright (c) 2012 OBiBa. All rights reserved.
+ *
+ * This program and the accompanying materials
+ * are made available under the terms of the GNU Public License v3.0.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+package org.obiba.magma.datasource.spss;
+
+import java.io.IOException;
+import java.io.File;
+import java.util.Set;
+
+import org.obiba.magma.MagmaRuntimeException;
+import org.obiba.magma.NoSuchValueSetException;
+import org.obiba.magma.Timestamps;
+import org.obiba.magma.ValueSet;
+import org.obiba.magma.VariableEntity;
+import org.obiba.magma.datasource.spss.support.SpssVariableValueSourceFactory;
+import org.obiba.magma.support.AbstractValueTable;
+import org.obiba.magma.support.VariableEntityProvider;
+import org.opendatafoundation.data.spss.SPSSFileException;
+
+public class SpssValueTable extends AbstractValueTable {
+
+  private final File spssFile;
+
+  private boolean initialized = false;
+
+  public SpssValueTable(SpssDatasource datasource, String name, String entityType, File spssFile) {
+    super(datasource, name);
+    this.spssFile = spssFile;
+    setVariableEntityProvider(new SpssVariableEntityProvider(entityType));
+  }
+
+  @Override
+  public void initialise() {
+    if (initialized) {
+      // Don't want to reload the metadata that has already been loaded
+      return;
+    }
+
+    super.initialise();
+
+    try {
+      initializeVariableSources();
+    } catch(IOException e) {
+      throw new MagmaRuntimeException(e);
+    } catch(SPSSFileException e) {
+      throw new MagmaRuntimeException(e);
+    }
+  }
+
+  @Override
+  public ValueSet getValueSet(VariableEntity entity) throws NoSuchValueSetException {
+    return null;  //To change body of implemented methods use File | Settings | File Templates.
+  }
+
+  @Override
+  public Timestamps getTimestamps() {
+    return null;  //To change body of implemented methods use File | Settings | File Templates.
+  }
+
+  //
+  // Private methods
+  //
+
+  private void initializeVariableSources() throws IOException, SPSSFileException {
+    SpssVariableValueSourceFactory factory = new SpssVariableValueSourceFactory(spssFile);
+    addVariableValueSources(factory);
+    initialized = true;
+  }
+
+  //
+  // Inner Classes
+  //
+
+  private class SpssVariableEntityProvider implements VariableEntityProvider {
+
+    private final String entityType;
+
+    private SpssVariableEntityProvider(String entityType) {
+      this.entityType = entityType == null || entityType.trim().isEmpty() ? "Participant" : entityType.trim();
+    }
+
+    @Override
+    public String getEntityType() {
+      return entityType;
+    }
+
+    @Override
+    public boolean isForEntityType(String entityType) {
+      return getEntityType().equals(entityType);
+    }
+
+    @Override
+    public Set<VariableEntity> getVariableEntities() {
+      return null;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+  }
+
+}
