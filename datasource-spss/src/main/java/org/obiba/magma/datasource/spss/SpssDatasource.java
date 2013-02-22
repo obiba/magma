@@ -10,7 +10,6 @@
 package org.obiba.magma.datasource.spss;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,7 +27,6 @@ public class SpssDatasource extends AbstractDatasource {
 
   private Map<String, SpssValueTable> valueTablesMapOnInit = new LinkedHashMap<String, SpssValueTable>();
 
-
   public SpssDatasource(String name, List<File> spssFiles) {
     super(name, "spss");
     this.spssFiles = spssFiles;
@@ -36,21 +34,13 @@ public class SpssDatasource extends AbstractDatasource {
 
   @Override
   protected void onInitialise() {
-    SpssValueTableFactory factory = new SpssValueTableFactory();
 
-    for (File spssFile : spssFiles) {
-      try {
-        String tableName = spssFile.getName();
+    for(File spssFile : spssFiles) {
+      SpssValueTableFactory factory = new SpssValueTableFactory(spssFile);
+      String tableName = factory.getName();
 
-        if (!valueTablesMapOnInit.containsKey(tableName)) {
-          valueTablesMapOnInit.put(tableName, factory.create(this, tableName, DEFAULT_ENTITY_TYPE, spssFile));
-        }
-      }
-      catch(FileNotFoundException exception) {
-        // TODO log or notify that the file did not exist
-      }
-      catch(Exception e) {
-        System.out.print(e);
+      if(!valueTablesMapOnInit.containsKey(tableName)) {
+        valueTablesMapOnInit.put(tableName, factory.create(this, DEFAULT_ENTITY_TYPE));
       }
     }
   }

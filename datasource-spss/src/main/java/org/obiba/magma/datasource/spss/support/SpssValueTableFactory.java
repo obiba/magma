@@ -10,19 +10,39 @@
 package org.obiba.magma.datasource.spss.support;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 
 import org.obiba.magma.datasource.spss.SpssDatasource;
 import org.obiba.magma.datasource.spss.SpssValueTable;
-import org.opendatafoundation.data.spss.SPSSFile;
 
 public class SpssValueTableFactory {
 
-  public SpssValueTable create(SpssDatasource datasource, String name, String entityType, File file) throws FileNotFoundException {
-    SpssValueTable valueTable = new SpssValueTable(datasource, name, entityType, file);
-    System.out.print(">>>> " + valueTable.getName());
-    valueTable.initialise();
+  private final File file;
 
-    return valueTable;
+  private String name;
+
+  public SpssValueTableFactory(File file) {
+    this.file = file;
+    name = createValidFileName(file);
   }
+
+  public SpssValueTable create(SpssDatasource datasource, String entityType) {
+    return new SpssValueTable(datasource, name, entityType, file);
+  }
+
+  public String getName() {
+    return name;
+  }
+
+
+  private String createValidFileName(File file) {
+    String filename = file.getName();
+    int postion = filename.lastIndexOf('.');
+
+    if (postion > 0) {
+      filename = filename.substring(0, postion);
+    }
+
+    return filename.replaceAll("[.:? ]", "");
+  }
+
 }

@@ -8,3 +8,7 @@ GET FILE="/home/rhaeri/projects/magma/datasource-spss/src/test/resources/org/obi
 
 SAVE OUTFILE="/home/rhaeri/projects/magma/datasource-spss/src/test/resources/org/obiba/magma/datasource/spss/HOP phase1d LifeLines.sav".
 
+GET FILE="/home/rhaeri/projects/magma/datasource-spss/src/test/resources/org/obiba/magma/datasource/spss/DatabaseTest.sav".
+
+GET FILE="/home/rhaeri/projects/magma/datasource-spss/src/test/resources/org/obiba/magma/datasource/spss/Database:Test.sav".
+
