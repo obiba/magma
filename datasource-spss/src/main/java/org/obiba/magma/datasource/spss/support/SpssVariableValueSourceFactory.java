@@ -51,19 +51,17 @@ public class SpssVariableValueSourceFactory implements VariableValueSourceFactor
 
   @Override
   public Set<VariableValueSource> createSources() {
-    // TODO this should be taken from application
-    Locale en = new Locale("en");
     Set<VariableValueSource> sources = Sets.newLinkedHashSet();
 
     for(int i = 0; i < spssFile.getVariableCount(); i++) {
       SPSSVariable variable = spssFile.getVariable(i);
-      Variable.Builder builder = createVariableBuilder(en, variable);
+      Variable.Builder builder = createVariableBuilder(variable);
 
       if(variable instanceof SPSSNumericVariable) {
         initializeNumericValueType(variable, builder);
-        initializeNumericCategories(en, variable, builder);
+        initializeNumericCategories(variable, builder);
       } else if(variable instanceof SPSSStringVariable) {
-        initializeStringCategories(en, variable, builder);
+        initializeStringCategories(variable, builder);
       }
 
       sources.add(new SpssVariableValueSource(builder.build()));
@@ -76,21 +74,21 @@ public class SpssVariableValueSourceFactory implements VariableValueSourceFactor
   // Private methods
   //
 
-  private void initializeStringCategories(Locale en, SPSSVariable variable, Variable.Builder builder) {
+  private void initializeStringCategories(SPSSVariable variable, Variable.Builder builder) {
     if(variable.categoryMap != null) {
       for(String category : variable.categoryMap.keySet()) {
         SPSSVariableCategory spssCategory = variable.categoryMap.get(category);
-        builder.addCategory(Category.Builder.newCategory(category).addAttribute("label", spssCategory.label, en)
+        builder.addCategory(Category.Builder.newCategory(category).addAttribute("label", spssCategory.label)
             .missing(variable.isMissingValueCode(spssCategory.strValue)).build());
       }
     }
   }
 
-  private void initializeNumericCategories(Locale en, SPSSVariable variable, Variable.Builder builder) {
+  private void initializeNumericCategories(SPSSVariable variable, Variable.Builder builder) {
     if(variable.categoryMap != null) {
       for(String category : variable.categoryMap.keySet()) {
         SPSSVariableCategory spssCategory = variable.categoryMap.get(category);
-        builder.addCategory(Category.Builder.newCategory(category).addAttribute("label", spssCategory.label, en)
+        builder.addCategory(Category.Builder.newCategory(category).addAttribute("label", spssCategory.label)
             .missing(variable.isMissingValueCode(spssCategory.value)).build());
       }
     }
@@ -104,9 +102,9 @@ public class SpssVariableValueSourceFactory implements VariableValueSourceFactor
     }
   }
 
-  private Variable.Builder createVariableBuilder(Locale en, SPSSVariable variable) {
+  private Variable.Builder createVariableBuilder(SPSSVariable variable) {
     return Variable.Builder.newVariable(variable.getName(), TextType.get(), "Participant")//
-        .addAttribute("label", variable.getLabel(), en)//
+        .addAttribute("label", variable.getLabel())//
         .addAttribute(
             Attribute.Builder.newAttribute("measure").withNamespace("spss").withValue(variable.getMeasureLabel())
                 .build()).addAttribute(

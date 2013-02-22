@@ -16,18 +16,20 @@ import java.util.Set;
 import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.NoSuchValueSetException;
 import org.obiba.magma.Timestamps;
+import org.obiba.magma.Value;
 import org.obiba.magma.ValueSet;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.datasource.spss.support.SpssVariableValueSourceFactory;
 import org.obiba.magma.support.AbstractValueTable;
+import org.obiba.magma.support.NullTimestamps;
 import org.obiba.magma.support.VariableEntityProvider;
 import org.opendatafoundation.data.spss.SPSSFileException;
+
+import com.google.common.collect.Sets;
 
 public class SpssValueTable extends AbstractValueTable {
 
   private final File spssFile;
-
-  private boolean initialized = false;
 
   public SpssValueTable(SpssDatasource datasource, String name, String entityType, File spssFile) {
     super(datasource, name);
@@ -37,13 +39,6 @@ public class SpssValueTable extends AbstractValueTable {
 
   @Override
   public void initialise() {
-    if (initialized) {
-      // Don't want to reload the metadata that has already been loaded
-      return;
-    }
-
-    super.initialise();
-
     try {
       initializeVariableSources();
     } catch(IOException e) {
@@ -51,16 +46,17 @@ public class SpssValueTable extends AbstractValueTable {
     } catch(SPSSFileException e) {
       throw new MagmaRuntimeException(e);
     }
+    super.initialise();
   }
 
   @Override
   public ValueSet getValueSet(VariableEntity entity) throws NoSuchValueSetException {
-    return null;  //To change body of implemented methods use File | Settings | File Templates.
+    throw new NoSuchValueSetException(this, entity);
   }
 
   @Override
   public Timestamps getTimestamps() {
-    return null;  //To change body of implemented methods use File | Settings | File Templates.
+    return NullTimestamps.get();
   }
 
   //
@@ -68,9 +64,7 @@ public class SpssValueTable extends AbstractValueTable {
   //
 
   private void initializeVariableSources() throws IOException, SPSSFileException {
-    SpssVariableValueSourceFactory factory = new SpssVariableValueSourceFactory(spssFile);
-    addVariableValueSources(factory);
-    initialized = true;
+    addVariableValueSources(new SpssVariableValueSourceFactory(spssFile));
   }
 
   //
@@ -97,7 +91,7 @@ public class SpssValueTable extends AbstractValueTable {
 
     @Override
     public Set<VariableEntity> getVariableEntities() {
-      return null;  //To change body of implemented methods use File | Settings | File Templates.
+      return Sets.newHashSet();
     }
   }
 

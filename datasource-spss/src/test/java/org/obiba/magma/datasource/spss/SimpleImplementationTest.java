@@ -12,14 +12,15 @@ import org.obiba.magma.Variable;
 import org.obiba.magma.datasource.spss.support.SpssMagmaEngineTest;
 
 
-public class SpssValueTableFactoryTest extends SpssMagmaEngineTest {
+public class SimpleImplementationTest extends SpssMagmaEngineTest {
+
+  private static final String ROOT_FOLDER = "/home/rhaeri/projects/magma/datasource-spss/";
 
   @Test
   public void testCreation() {
 
-    // TODO add proper test cases and use relative paths for the maven tests
-    File file1 = new File("/home/rhaeri/projects/magma/datasource-spss/src/test/resources/org/obiba/magma/datasource/spss/DatabaseTest.sav");
-    File file2 = new File("/home/rhaeri/projects/magma/datasource-spss/src/test/resources/org/obiba/magma/datasource/spss/HOP phase1d LifeLines.sav");
+    File file1 = new File(ROOT_FOLDER+"src/test/resources/org/obiba/magma/datasource/spss/DatabaseTest.sav");
+    File file2 = new File(ROOT_FOLDER+"src/test/resources/org/obiba/magma/datasource/spss/HOP phase1d LifeLines.sav");
 
     List<File> files = new ArrayList<File>();
     files.add(file1);
@@ -28,20 +29,17 @@ public class SpssValueTableFactoryTest extends SpssMagmaEngineTest {
     SpssDatasource ds = new SpssDatasource("spss", files);
     ds.initialise();
 
-    System.out.println("**********************************************");
-    System.out.println("**********************************************");
-    System.out.println("**********************************************");
 
-    ValueTable valueTable = ds.getValueTable("DatabaseTest.sav");
+    ValueTable valueTable = ds.getValueTable("DatabaseTest");
     System.out.println(">>>>> " + valueTable.getName());
 
     Variable variable = valueTable.getVariable("race");
     System.out.println("N: " + variable.getName() + " T: " + variable.getValueType() +  " CAT: " + variable .getCategories());
 
-    valueTable = ds.getValueTable("HOP phase1d LifeLines.sav");
+    valueTable = ds.getValueTable("HOPphase1dLifeLines");
     System.out.println(">>>>> " + valueTable.getName());
 
-    Set<Category> categories = variable .getCategories();
+    Set<Category> categories = variable.getCategories();
 
     for (Category category : categories) {
       System.out.println("CN: " + category.getName() + " CC: " + category.getCode() + " isMissing: " + category
