@@ -74,6 +74,11 @@
         <artifactId>magma-datasource-jdbc</artifactId>
         <version>${project.version}</version>
       </dependency>
+      <dependency>
+        <groupId>org.obiba.magma</groupId>
+        <artifactId>magma-datasource-spss</artifactId>
+        <version>${project.version}</version>
+      </dependency>
 
       <dependency>
         <groupId>org.obiba</groupId>
@@ -370,6 +375,12 @@
         <artifactId>jta</artifactId>
         <version>${jta.version}</version>
       </dependency>
+      
+      <dependency>
+         <groupId>org.opendatafoundation</groupId>
+         <artifactId>spssreader</artifactId>
+         <version>${spssreader.version}</version>
+      </dependency>
 
     </dependencies>
 
@@ -431,6 +442,7 @@
     <module>datasource-excel</module>
     <module>datasource-null</module>
     <module>datasource-csv</module>
+    <module>datasource-spss</module>
     <module>security</module>
     <module>datasource-generated</module>
   </modules>
@@ -637,6 +649,7 @@
     <spring.version>3.1.2.RELEASE</spring.version>
     <truezip.version>6.6</truezip.version>
     <xstream.version>1.4.2</xstream.version>
+    <spssreader.version>1.0</spssreader.version>
 
     <maven-buildnumber-plugin.version>1.2</maven-buildnumber-plugin.version>
     <maven-cobertura-plugin.version>2.5.2</maven-cobertura-plugin.version>
