@@ -14,39 +14,45 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.Nonnull;
+
+import org.obiba.magma.AbstractDatasourceFactory;
+import org.obiba.magma.Datasource;
 import org.obiba.magma.datasource.spss.SpssDatasource;
 
-public class SpssDatasourceFactory {
+public class SpssDatasourceFactory extends AbstractDatasourceFactory {
 
   public static final String DEFAULT_DATASOURCE_NAME = "spss";
 
-  public SpssDatasource create(String path) {
-    return create(new File(path));
+  //
+  // Data members
+  //
+
+  private List<File> files = new ArrayList<File>();
+
+  public void setFile(String path) {
+    setFile(new File(path));
   }
 
-  public SpssDatasource create(File file) {
-    List<File> files = new ArrayList<File>();
+  public void setFile(File file) {
     files.add(file);
-
-    return create(DEFAULT_DATASOURCE_NAME, files);
   }
 
-  public SpssDatasource create(List<File> files) {
-    return new SpssDatasource(DEFAULT_DATASOURCE_NAME, files);
+  public void addFile(String path) {
+    files.add(new File(path));
   }
 
-  public SpssDatasource create(String name, String path) {
-    return create(name, new File(path));
-  }
-
-  public SpssDatasource create(String name, File file) {
-    List<File> files = new ArrayList<File>();
+  public void addFile(File file) {
     files.add(file);
-
-    return create(name, files);
   }
 
-  public SpssDatasource create(String name, List<File> files) {
-    return new SpssDatasource(name, files);
+  public Datasource create() {
+    return internalCreate();
+  }
+
+  @Nonnull
+  @Override
+  protected Datasource internalCreate() {
+    return new SpssDatasource(getName(), files);
   }
 }
