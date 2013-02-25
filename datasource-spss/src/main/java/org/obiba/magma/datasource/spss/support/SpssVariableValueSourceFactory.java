@@ -103,13 +103,20 @@ public class SpssVariableValueSourceFactory implements VariableValueSourceFactor
   }
 
   private Variable.Builder createVariableBuilder(SPSSVariable variable) {
-    return Variable.Builder.newVariable(variable.getName(), TextType.get(), "Participant")//
-        .addAttribute("label", variable.getLabel())//
+    Variable.Builder builder = Variable.Builder.newVariable(variable.getName(), TextType.get(), "Participant")//
         .addAttribute(
             Attribute.Builder.newAttribute("measure").withNamespace("spss").withValue(variable.getMeasureLabel())
                 .build()).addAttribute(
             Attribute.Builder.newAttribute("shortName").withNamespace("spss").withValue(variable.getShortName())
                 .build()).addAttribute(
             Attribute.Builder.newAttribute("format").withNamespace("spss").withValue(variable.getSPSSFormat()).build());
+
+    String label = variable.getLabel();
+
+    if (label != null && !label.isEmpty()) {
+      builder.addAttribute("label", label);
+    }
+
+    return builder;
   }
 }
