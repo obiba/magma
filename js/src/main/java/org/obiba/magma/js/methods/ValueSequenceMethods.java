@@ -56,8 +56,7 @@ public class ValueSequenceMethods {
           ? new ScriptableValue(thisObj, valueSequence.get(0)) //
           : new ScriptableValue(thisObj, valueSequence.getValueType().nullValue());
     } else {
-      throw new MagmaJsEvaluationRuntimeException(
-          "Operand to first() method must be a ScriptableValue containing a ValueSequence.");
+      return sv;
     }
   }
 
@@ -82,8 +81,7 @@ public class ValueSequenceMethods {
           ? new ScriptableValue(thisObj, valueSequence.get(valueSequence.getSize() - 1)) //
           : new ScriptableValue(thisObj, valueSequence.getValueType().nullValue());
     } else {
-      throw new MagmaJsEvaluationRuntimeException(
-          "Operand to last() method must be a ScriptableValue containing a ValueSequence.");
+      return sv;
     }
   }
 
@@ -105,8 +103,7 @@ public class ValueSequenceMethods {
       ValueSequence valueSequence = sv.getValue().asSequence();
       return new ScriptableValue(thisObj, IntegerType.get().valueOf(valueSequence.getSize()));
     } else {
-      throw new MagmaJsEvaluationRuntimeException(
-          "Operand to size() method must be a ScriptableValue containing a ValueSequence.");
+      return new ScriptableValue(thisObj, IntegerType.get().valueOf(1));
     }
   }
 
@@ -137,8 +134,7 @@ public class ValueSequenceMethods {
           ? new ScriptableValue(thisObj, valueSequence.get(index)) //
           : new ScriptableValue(thisObj, valueSequence.getValueType().nullValue());
     } else {
-      throw new MagmaJsEvaluationRuntimeException(
-          "Operand to valueAt() method must be a ScriptableValue containing a ValueSequence.");
+      return index == 0 ? sv : new ScriptableValue(thisObj, sv.getValueType().nullValue());
     }
   }
 
