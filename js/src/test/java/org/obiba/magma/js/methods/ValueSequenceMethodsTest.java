@@ -47,11 +47,12 @@ public class ValueSequenceMethodsTest extends AbstractJsTest {
     assertThat(result.getValue(), is(valueSequence.get(0)));
   }
 
-  @Test(expected = MagmaJsEvaluationRuntimeException.class)
+  @Test
   public void testFirstOnNonSequence() throws Exception {
     Value value = TextType.get().valueOf("A-Value");
     ScriptableValue scriptableValue = newValue(value);
-    ValueSequenceMethods.first(Context.getCurrentContext(), scriptableValue, null, null);
+    ScriptableValue result = ValueSequenceMethods.first(Context.getCurrentContext(), scriptableValue, null, null);
+    assertThat(result.getValue(), is(value));
   }
 
   @Test
@@ -87,11 +88,12 @@ public class ValueSequenceMethodsTest extends AbstractJsTest {
     assertThat(result.getValue(), is(valueSequence.get(1)));
   }
 
-  @Test(expected = MagmaJsEvaluationRuntimeException.class)
+  @Test
   public void testLastOnNonSequence() throws Exception {
     Value value = TextType.get().valueOf("A-Value");
     ScriptableValue scriptableValue = newValue(value);
-    ValueSequenceMethods.last(Context.getCurrentContext(), scriptableValue, null, null);
+    ScriptableValue result = ValueSequenceMethods.last(Context.getCurrentContext(), scriptableValue, null, null);
+    assertThat(result.getValue(), is(value));
   }
 
   @Test
@@ -127,11 +129,12 @@ public class ValueSequenceMethodsTest extends AbstractJsTest {
     assertThat(result.getValue(), is(IntegerType.get().valueOf(valueSequence.getSize())));
   }
 
-  @Test(expected = MagmaJsEvaluationRuntimeException.class)
+  @Test
   public void testSizeOnNonSequence() throws Exception {
     Value value = TextType.get().valueOf("A-Value");
     ScriptableValue scriptableValue = newValue(value);
-    ValueSequenceMethods.size(Context.getCurrentContext(), scriptableValue, null, null);
+    ScriptableValue result = ValueSequenceMethods.size(Context.getCurrentContext(), scriptableValue, null, null);
+    assertThat(result.getValue(), is(IntegerType.get().valueOf(1)));
   }
 
   @Test
