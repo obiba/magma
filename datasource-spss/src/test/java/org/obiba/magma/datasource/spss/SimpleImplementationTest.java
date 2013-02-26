@@ -14,13 +14,13 @@ import org.obiba.magma.datasource.spss.support.SpssMagmaEngineTest;
 
 public class SimpleImplementationTest extends SpssMagmaEngineTest {
 
-  private static final String ROOT_FOLDER = "/home/rhaeri/projects/magma/datasource-spss/";
+  private static final String ROOT_FOLDER = ".";
 
   @Test
   public void testCreation() {
 
-    File file1 = new File(ROOT_FOLDER+"src/test/resources/org/obiba/magma/datasource/spss/DatabaseTest.sav");
-    File file2 = new File(ROOT_FOLDER+"src/test/resources/org/obiba/magma/datasource/spss/HOP phase1d LifeLines.sav");
+    File file1 = new File(ROOT_FOLDER+"/src/test/resources/org/obiba/magma/datasource/spss/DatabaseTest.sav");
+    File file2 = new File(ROOT_FOLDER+"/src/test/resources/org/obiba/magma/datasource/spss/HOP phase1d LifeLines.sav");
 
     List<File> files = new ArrayList<File>();
     files.add(file1);
