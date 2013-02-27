@@ -10,11 +10,14 @@
 package org.obiba.magma.datasource.spss.support;
 
 import java.io.File;
+import java.io.IOException;
 
+import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.datasource.spss.SpssDatasource;
 import org.obiba.magma.datasource.spss.SpssValueTable;
+import org.opendatafoundation.data.spss.SPSSFile;
 
-public class SpssValueTableFactory {
+public class  SpssValueTableFactory {
 
   private final File file;
 
@@ -26,16 +29,22 @@ public class SpssValueTableFactory {
   }
 
   public SpssValueTable create(SpssDatasource datasource, String entityType) {
-    return new SpssValueTable(datasource, name, entityType, file);
+    try {
+      SPSSFile spssFile = new SPSSFile(file);
+      spssFile.logFlag = false;
+
+      return new SpssValueTable(datasource, name, entityType, spssFile);
+    } catch(IOException e) {
+      throw new MagmaRuntimeException(e);
+    }
   }
 
   public String getName() {
     return name;
   }
 
-
-  private String createValidFileName(File file) {
-    String filename = file.getName();
+  private String createValidFileName(File sourceFile) {
+    String filename = sourceFile.getName();
     int postion = filename.lastIndexOf('.');
 
     if (postion > 0) {
