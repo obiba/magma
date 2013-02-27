@@ -11,17 +11,28 @@ package org.obiba.magma.datasource.spss;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.obiba.magma.Datasource;
 import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.NoSuchVariableException;
+import org.obiba.magma.Value;
+import org.obiba.magma.ValueTable;
+import org.obiba.magma.VariableEntity;
+import org.obiba.magma.VectorSource;
 import org.obiba.magma.datasource.spss.support.SpssDatasourceFactory;
-import org.obiba.magma.type.IntegerType;
+import org.obiba.magma.type.DecimalType;
+import org.obiba.magma.type.TextType;
 
 import junit.framework.Assert;
+
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 public class DatasourceSpssTest {
 
@@ -115,11 +126,111 @@ public class DatasourceSpssTest {
   }
 
   @Test
-  public void getVariableTypeFromValueTable() {
+  public void getDecimalVariableTypeFromValueTable() {
+    dsFactory.setFile("src/test/resources/org/obiba/magma/datasource/spss/RobotChicken.sav");
+    Datasource ds = dsFactory.create();
+    ds.initialise();
+    Assert.assertEquals(DecimalType.class,
+        ds.getValueTable("RobotChicken").getVariable("VarDecimal").getValueType().getClass());
+  }
+
+  @Test
+  public void getQYDVariableTypeFromValueTable() {
+    dsFactory.setFile("src/test/resources/org/obiba/magma/datasource/spss/RobotChicken.sav");
+    Datasource ds = dsFactory.create();
+    ds.initialise();
+    Assert.assertEquals(TextType.class, ds.getValueTable("RobotChicken").getVariable("VarQuarterly").getValueType().getClass());
+  }
+
+  @Test
+  public void getCustomCurrencyVariableTypeFromValueTable() {
+    dsFactory.setFile("src/test/resources/org/obiba/magma/datasource/spss/RobotChicken.sav");
+    Datasource ds = dsFactory.create();
+    ds.initialise();
+    Assert.assertEquals(TextType.class,
+        ds.getValueTable("RobotChicken").getVariable("VarCurrency").getValueType().getClass());
+  }
+
+  @Test
+  public void getVariableEntitiesVariableEntityProvider() {
     dsFactory.setFile("src/test/resources/org/obiba/magma/datasource/spss/DatabaseTest.sav");
     Datasource ds = dsFactory.create();
     ds.initialise();
-    Assert.assertEquals(IntegerType.class, ds.getValueTable("DatabaseTest").getVariable("race").getValueType().getClass());
+
+    ValueTable valueTable = ds.getValueTable("DatabaseTest");
+
+    Set<VariableEntity> variableEntities = valueTable.getVariableEntities();
+    assertTrue(variableEntities.size() == 200);
   }
+
+  @Test
+  public void getValueSetForGivenEntity() {
+    dsFactory.setFile("src/test/resources/org/obiba/magma/datasource/spss/DatabaseTest.sav");
+    Datasource ds = dsFactory.create();
+    ds.initialise();
+
+    ValueTable valueTable = ds.getValueTable("DatabaseTest");
+    Iterator<VariableEntity> iterator = valueTable.getVariableEntities().iterator();
+
+    if (iterator.hasNext()) {
+      SpssValueSet valueSet = (SpssValueSet)valueTable.getValueSet(iterator.next());
+      Value value = valueSet.getValue(ds.getValueTable("DatabaseTest").getVariable("race"));
+      Assert.assertNotNull(value);
+      Assert.assertFalse(value.isNull());
+      Value expected = DecimalType.get().valueOf(4.0);
+      Assert.assertTrue(value.compareTo(expected) == 0);
+    }
+  }
+
+  @Test
+  public void getValueSetForGivenEntityLargeDatasource() {
+    dsFactory.setFile("src/test/resources/org/obiba/magma/datasource/spss/sharew2_rel2-5-0_ac.sav");
+    Datasource ds = dsFactory.create();
+    ds.initialise();
+    ValueTable valueTable = ds.getValueTable("sharew2_rel2-5-0_ac");
+    Iterator<VariableEntity> iterator = valueTable.getVariableEntities().iterator();
+
+    if (iterator.hasNext()) {
+      SpssValueSet valueSet = (SpssValueSet)valueTable.getValueSet(iterator.next());
+      Value value = valueSet.getValue(ds.getValueTable("sharew2_rel2-5-0_ac").getVariable("hhid2"));
+      Assert.assertNotNull(value);
+      Assert.assertFalse(value.isNull());
+      Value expected = TextType.get().valueOf("AT-000327-A");
+      Assert.assertTrue(value.compareTo(expected) == 0);
+    }
+  }
+
+//  @Test
+//  public void getValuesForAllEntitiesOfGivenVariable() {
+//    dsFactory.setFile("src/test/resources/org/obiba/magma/datasource/spss/DatabaseTest.sav");
+//    Datasource ds = dsFactory.create();
+//    ds.initialise();
+//
+//    ValueTable valueTable = ds.getValueTable("DatabaseTest");
+//    Set<VariableEntity> entities = valueTable.getVariableEntities();
+//    Assert.assertNotNull(entities);
+//    Assert.assertEquals(200, entities.size());
+//
+//    VectorSource bdVar = valueTable.getVariableValueSource("write").asVectorSource();
+//    assertNotNull(bdVar);
+//
+//    Iterable<Value> values = bdVar.getValues(new TreeSet<VariableEntity>(entities));
+//    Iterator<Value> iterator = values.iterator();
+//    Assert.assertTrue(iterator.hasNext());
+//    Assert.assertNotNull(values);
+//
+//    // Testing for the first 5 values, notice that the values are sorted
+//    List<Value> expectedValues = new ArrayList<Value>();
+//    expectedValues.add(DecimalType.get().valueOf(44.0));
+//    expectedValues.add(DecimalType.get().valueOf(41.0));
+//    expectedValues.add(DecimalType.get().valueOf(65.0));
+//    expectedValues.add(DecimalType.get().valueOf(50.0));
+//    expectedValues.add(DecimalType.get().valueOf(40.0));
+//
+//    for (Iterator<Value> iteratorExpected = expectedValues.iterator(); iteratorExpected.hasNext();) {
+//      Assert.assertTrue(iterator.next().compareTo(iteratorExpected.next()) == 0);
+//    }
+//
+//  }
 
 }
