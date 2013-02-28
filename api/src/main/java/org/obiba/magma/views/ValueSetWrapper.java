@@ -1,7 +1,9 @@
 /**
- * 
+ *
  */
 package org.obiba.magma.views;
+
+import javax.annotation.Nonnull;
 
 import org.obiba.magma.Timestamps;
 import org.obiba.magma.ValueSet;
@@ -11,11 +13,13 @@ import org.obiba.magma.transform.TransformingValueTable;
 
 public class ValueSetWrapper implements ValueSet {
 
+  @Nonnull
   private final TransformingValueTable mappingTable;
 
+  @Nonnull
   private final ValueSet wrapped;
 
-  ValueSetWrapper(TransformingValueTable mappingTable, ValueSet wrapped) {
+  ValueSetWrapper(@Nonnull TransformingValueTable mappingTable, @Nonnull ValueSet wrapped) {
     this.mappingTable = mappingTable;
     this.wrapped = wrapped;
   }

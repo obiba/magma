@@ -31,7 +31,7 @@ public abstract class AbstractDatasourceWrapper implements Datasource {
 
   @SuppressWarnings("ConstantConditions")
   protected AbstractDatasourceWrapper(@Nonnull Datasource wrapped) {
-    Preconditions.checkArgument(wrapped != null);
+    Preconditions.checkArgument(wrapped != null, "wrapped datasource cannot be null");
     this.wrapped = wrapped;
   }
 
