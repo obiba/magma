@@ -3,6 +3,8 @@ package org.obiba.magma.datasource.hibernate;
 import java.util.Collections;
 import java.util.List;
 
+import javax.annotation.Nonnull;
+
 import org.hibernate.LockMode;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.VariableValueSource;
@@ -18,6 +20,7 @@ import com.google.common.collect.Lists;
  */
 class HibernateValueTableTransaction extends HibernateDatasourceSynchronization {
 
+  @Nonnull
   private final HibernateValueTable valueTable;
 
   private final boolean createTableTransaction;
@@ -28,7 +31,7 @@ class HibernateValueTableTransaction extends HibernateDatasourceSynchronization 
 
   private final HibernateValueTableWriter transactionWriter;
 
-  HibernateValueTableTransaction(HibernateValueTable valueTable, boolean newTable) {
+  HibernateValueTableTransaction(@Nonnull HibernateValueTable valueTable, boolean newTable) {
     super(valueTable.getDatasource());
     this.valueTable = valueTable;
     createTableTransaction = newTable;
@@ -43,6 +46,7 @@ class HibernateValueTableTransaction extends HibernateDatasourceSynchronization 
     return transactionWriter;
   }
 
+  @Nonnull
   public HibernateValueTable getValueTable() {
     return valueTable;
   }

@@ -118,6 +118,7 @@ public class HibernateDatasource extends AbstractDatasource {
     return hasValueTable(tableName);
   }
 
+  @SuppressWarnings("ReuseOfLocalVariable")
   @Override
   public void dropTable(String tableName) {
     log.info("dropping table {}", getName() + "." + tableName);
