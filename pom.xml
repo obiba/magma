@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
   <modelVersion>4.0.0</modelVersion>
 
@@ -375,11 +376,17 @@
         <artifactId>jta</artifactId>
         <version>${jta.version}</version>
       </dependency>
-      
+
       <dependency>
-         <groupId>org.opendatafoundation</groupId>
-         <artifactId>spssreader</artifactId>
-         <version>${spssreader.version}</version>
+        <groupId>org.opendatafoundation</groupId>
+        <artifactId>spssreader</artifactId>
+        <version>${spssreader.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.google.code.findbugs</groupId>
+        <artifactId>jsr305</artifactId>
+        <version>${jsr305.version}</version>
       </dependency>
 
     </dependencies>
@@ -422,6 +429,10 @@
       <artifactId>annotations</artifactId>
       <scope>compile</scope>
       <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>com.google.code.findbugs</groupId>
+      <artifactId>jsr305</artifactId>
     </dependency>
   </dependencies>
 
@@ -628,13 +639,14 @@
     <dbunit.version>2.2.2</dbunit.version>
     <easymock.version>2.5.2</easymock.version>
     <findbugs-annotation.version>1.3.2</findbugs-annotation.version>
-    <guava.version>10.0.1</guava.version>
+    <guava.version>14.0</guava.version>
     <hamcrest.version>1.1</hamcrest.version>
     <hibernate.version>3.5.6-Final</hibernate.version>
     <hsqldb.version>1.8.0.7</hsqldb.version>
     <javassist.version>3.9.0.GA</javassist.version>
     <jscience-physics.version>5.0-r53p01</jscience-physics.version>
     <json.version>20090211</json.version>
+    <jsr305.version>2.0.1</jsr305.version>
     <jta.version>1.0.1B</jta.version>
     <junit.version>4.9</junit.version>
     <liquibase-core.version>1.9.4</liquibase-core.version>
