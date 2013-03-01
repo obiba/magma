@@ -32,19 +32,18 @@ import org.obiba.magma.transform.TransformingValueTable;
 import org.obiba.magma.type.DateTimeType;
 import org.obiba.magma.views.support.AllClause;
 import org.obiba.magma.views.support.NoneClause;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 
 @SuppressWarnings("OverlyCoupledClass")
 public class View extends AbstractValueTableWrapper implements Initialisable, Disposable, TransformingValueTable {
 
-  private static final Logger log = LoggerFactory.getLogger(View.class);
+//  private static final Logger log = LoggerFactory.getLogger(View.class);
 
   private String name;
 
@@ -328,24 +327,33 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
 
   @Override
   public Set<VariableEntity> getVariableEntities() {
+    Set<VariableEntity> entities = Sets.newLinkedHashSet();
+    for(VariableEntity entity : super.getVariableEntities()) {
+      // First, we transform super.getVariableEntities() using getVariableEntityMappingFunction()
+      // (which may modified entity identifiers)
+      entity = getVariableEntityMappingFunction().apply(entity);
 
-    // First, we transform super.getVariableEntities() using getVariableEntityMappingFunction() (which may modified
-    // entity identifiers)
-    // Second, we filter the resulting entities to remove the ones for which hasValueSet() is false (usually due to a
-    // where clause)
+      // Second, we filter the resulting entities to remove the ones for which hasValueSet() is false
+      // (usually due to a where clause)
+      if(hasValueSet(entity)) {
+        entities.add(entity);
+      }
+    }
+
     // Third, we construct an ImmutableSet from the result
+    return ImmutableSet.copyOf(entities);
 
-    return ImmutableSet.copyOf(Iterables
-        .filter(Iterables.transform(super.getVariableEntities(), getVariableEntityMappingFunction()),
-            new Predicate<VariableEntity>() {
-
-              @Override
-              public boolean apply(VariableEntity input) {
-                // Only VariableEntities for which hasValueSet() is true (this will usually test the where clause)
-                return hasValueSet(input);
-              }
-
-            }));
+//    return ImmutableSet.copyOf(Iterables
+//        .filter(Iterables.transform(super.getVariableEntities(), getVariableEntityMappingFunction()),
+//            new Predicate<VariableEntity>() {
+//
+//              @Override
+//              public boolean apply(VariableEntity input) {
+//                // Only VariableEntities for which hasValueSet() is true (this will usually test the where clause)
+//                return hasValueSet(input);
+//              }
+//
+//            }));
   }
 
   public void setDatasource(ViewAwareDatasource datasource) {

@@ -55,7 +55,6 @@ public abstract class AbstractTransformingValueTableWrapper extends AbstractValu
 
   @Override
   public Set<VariableEntity> getVariableEntities() {
-
     return ImmutableSet.copyOf(Iterables
         .filter(Iterables.transform(super.getVariableEntities(), getVariableEntityMappingFunction()),
             new Predicate<VariableEntity>() {
