@@ -9,31 +9,33 @@
  */
 package org.obiba.magma.datasource.spss;
 
-import java.io.IOException;
-import java.io.File;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Set;
 
-import org.obiba.magma.MagmaRuntimeException;
+import org.obiba.magma.Datasource;
 import org.obiba.magma.NoSuchValueSetException;
 import org.obiba.magma.Timestamps;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueSet;
 import org.obiba.magma.VariableEntity;
+import org.obiba.magma.datasource.spss.support.SpssDatasourceParsingException;
 import org.obiba.magma.datasource.spss.support.SpssVariableValueSourceFactory;
 import org.obiba.magma.support.AbstractValueTable;
-import org.obiba.magma.support.NullTimestamps;
 import org.obiba.magma.support.VariableEntityProvider;
 import org.obiba.magma.type.DateTimeType;
+import org.opendatafoundation.data.FileFormatInfo;
+import org.opendatafoundation.data.spss.SPSSFile;
 import org.opendatafoundation.data.spss.SPSSFileException;
+import org.opendatafoundation.data.spss.SPSSVariable;
 
-import com.google.common.collect.Sets;
+import com.google.common.collect.ImmutableSet;
 
 public class SpssValueTable extends AbstractValueTable {
 
-  private final File spssFile;
+  private final SPSSFile spssFile;
 
-  public SpssValueTable(SpssDatasource datasource, String name, String entityType, File spssFile) {
+  public SpssValueTable(Datasource datasource, String name, String entityType, SPSSFile spssFile) {
     super(datasource, name);
     this.spssFile = spssFile;
     setVariableEntityProvider(new SpssVariableEntityProvider(entityType));
@@ -41,19 +43,13 @@ public class SpssValueTable extends AbstractValueTable {
 
   @Override
   public void initialise() {
-    try {
-      initializeVariableSources();
-    } catch(IOException e) {
-      throw new MagmaRuntimeException(e);
-    } catch(SPSSFileException e) {
-      throw new MagmaRuntimeException(e);
-    }
+    initializeVariableSources();
     super.initialise();
   }
 
   @Override
   public ValueSet getValueSet(VariableEntity entity) throws NoSuchValueSetException {
-    throw new NoSuchValueSetException(this, entity);
+    return new SpssValueSet(this, entity, spssFile);
   }
 
   @Override
@@ -61,7 +57,7 @@ public class SpssValueTable extends AbstractValueTable {
     return new Timestamps() {
       @Override
       public Value getLastUpdate() {
-        Date lastModified = new Date(spssFile.lastModified());
+        Date lastModified = new Date(spssFile.file.lastModified());
         return DateTimeType.get().valueOf(lastModified);
       }
 
@@ -77,8 +73,37 @@ public class SpssValueTable extends AbstractValueTable {
   // Private methods
   //
 
-  private void initializeVariableSources() throws IOException, SPSSFileException {
+  private void initializeVariableSources() {
+    loadMetadata();
     addVariableValueSources(new SpssVariableValueSourceFactory(spssFile));
+  }
+
+  private void loadMetadata() {
+    if(spssFile.isMetadataLoaded) {
+      return;
+    }
+
+    try {
+      spssFile.loadMetadata();
+    } catch(Exception e) {
+      throw new SpssDatasourceParsingException(e, "SpssFailedToLoadMetadata", spssFile.file.getName());
+    }
+  }
+
+  private void loadData() {
+    if(spssFile.isDataLoaded) {
+      return;
+    }
+
+    try {
+      if(!spssFile.isMetadataLoaded) {
+        loadMetadata();
+      }
+
+      spssFile.loadData();
+    } catch(Exception e) {
+      throw new SpssDatasourceParsingException(e, "SpssFailedToLoadData", spssFile.file.getName());
+    }
   }
 
   //
@@ -88,6 +113,8 @@ public class SpssValueTable extends AbstractValueTable {
   private class SpssVariableEntityProvider implements VariableEntityProvider {
 
     private final String entityType;
+
+    private Set<VariableEntity> variableEntities;
 
     private SpssVariableEntityProvider(String entityType) {
       this.entityType = entityType == null || entityType.trim().isEmpty() ? "Participant" : entityType.trim();
@@ -99,14 +126,44 @@ public class SpssValueTable extends AbstractValueTable {
     }
 
     @Override
-    public boolean isForEntityType(String entityType) {
-      return getEntityType().equals(entityType);
+    public boolean isForEntityType(String anEntityType) {
+      return getEntityType().equals(anEntityType);
     }
 
     @Override
     public Set<VariableEntity> getVariableEntities() {
-      return Sets.newHashSet();
+
+      if(variableEntities == null) {
+        loadData();
+
+        Set<String> entityIdentifiers = new HashSet<String>();
+        ImmutableSet.Builder<VariableEntity> entitiesBuilder = ImmutableSet.builder();
+        SPSSVariable entityVariable = spssFile.getVariable(0);
+        int numberOfObservations = entityVariable.getNumberOfObservation();
+
+        try {
+
+          for(int i = 1; i <= numberOfObservations; i++) {
+            String identifier = entityVariable.getValueAsString(i, new FileFormatInfo(FileFormatInfo.Format.ASCII));
+
+            if (entityIdentifiers.contains(identifier)) {
+              throw new SpssDatasourceParsingException("Duplicated entity identifier", "SpssDuplicateEntity", getName(), i, identifier);
+            }
+
+            entitiesBuilder.add(new SpssVariableEntity(entityType, identifier, i));
+            entityIdentifiers.add(identifier);
+          }
+
+          variableEntities = entitiesBuilder.build();
+
+        } catch(SPSSFileException e) {
+          throw new SpssDatasourceParsingException(e, "TableDefinitionErrors", getName());
+        }
+      }
+
+      return variableEntities;
     }
+
   }
 
 }
