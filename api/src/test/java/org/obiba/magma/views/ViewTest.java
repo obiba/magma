@@ -1,18 +1,7 @@
 package org.obiba.magma.views;
 
-import static org.easymock.EasyMock.anyObject;
-import static org.easymock.EasyMock.createMock;
-import static org.easymock.EasyMock.expect;
-import static org.easymock.EasyMock.replay;
-import static org.easymock.EasyMock.verify;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
 
 import org.junit.Test;
 import org.obiba.magma.NoSuchValueSetException;
@@ -30,6 +19,17 @@ import org.obiba.magma.type.TextType;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
+
+import static org.easymock.EasyMock.anyObject;
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.replay;
+import static org.easymock.EasyMock.verify;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class ViewTest extends AbstractMagmaTest {
   //
@@ -193,7 +193,7 @@ public class ViewTest extends AbstractMagmaTest {
   public void testGetValueSetsWithDefaultWhereClause() {
     ValueTable valueTableMock = createMock(ValueTable.class);
 
-    List<ValueSet> valueSets = new ArrayList<ValueSet>();
+    Collection<ValueSet> valueSets = new ArrayList<ValueSet>();
     VariableEntity variableEntityFoo = new VariableEntityBean("type", "foo");
     VariableEntity variableEntityBar = new VariableEntityBean("type", "bar");
     ValueSet valueSetFoo = new ValueSetBean(valueTableMock, variableEntityFoo);
@@ -222,7 +222,7 @@ public class ViewTest extends AbstractMagmaTest {
     ValueTable valueTableMock = createMock(ValueTable.class);
     WhereClause whereClauseMock = createMock(WhereClause.class);
 
-    List<ValueSet> valueSets = new ArrayList<ValueSet>();
+    Collection<ValueSet> valueSets = new ArrayList<ValueSet>();
     VariableEntity variableEntityFoo = new VariableEntityBean("type", "foo");
     VariableEntity variableEntityBar = new VariableEntityBean("type", "bar");
     ValueSet valueSetFoo = new ValueSetBean(valueTableMock, variableEntityFoo);
@@ -252,7 +252,7 @@ public class ViewTest extends AbstractMagmaTest {
     ValueTable valueTableMock = createMock(ValueTable.class);
     WhereClause whereClauseMock = createMock(WhereClause.class);
 
-    List<ValueSet> valueSets = new ArrayList<ValueSet>();
+    Collection<ValueSet> valueSets = new ArrayList<ValueSet>();
     VariableEntity variableEntityInclude = new VariableEntityBean("type", "include");
     VariableEntity variableEntityExclude = new VariableEntityBean("type", "exclude");
     ValueSet valueSetInclude = new ValueSetBean(valueTableMock, variableEntityInclude);
@@ -348,7 +348,7 @@ public class ViewTest extends AbstractMagmaTest {
   public void testGetVariablesWithDefaultSelectClause() {
     ValueTable valueTableMock = createMock(ValueTable.class);
 
-    List<Variable> variables = new ArrayList<Variable>();
+    Collection<Variable> variables = new ArrayList<Variable>();
     Variable variableFoo = new Variable.Builder("foo", TextType.get(), "type").build();
     Variable variableBar = new Variable.Builder("bar", TextType.get(), "type").build();
     variables.add(variableFoo);
@@ -375,7 +375,7 @@ public class ViewTest extends AbstractMagmaTest {
     ValueTable valueTableMock = createMock(ValueTable.class);
     SelectClause selectClauseMock = createMock(SelectClause.class);
 
-    List<Variable> variables = new ArrayList<Variable>();
+    Collection<Variable> variables = new ArrayList<Variable>();
     Variable variableFoo = new Variable.Builder("foo", TextType.get(), "type").build();
     Variable variableBar = new Variable.Builder("bar", TextType.get(), "type").build();
     variables.add(variableFoo);
@@ -403,7 +403,7 @@ public class ViewTest extends AbstractMagmaTest {
     ValueTable valueTableMock = createMock(ValueTable.class);
     SelectClause selectClauseMock = createMock(SelectClause.class);
 
-    List<Variable> variables = new ArrayList<Variable>();
+    Collection<Variable> variables = new ArrayList<Variable>();
     Variable variableInclude = new Variable.Builder("include", TextType.get(), "type").build();
     Variable variableExclude = new Variable.Builder("exclude", TextType.get(), "type").build();
     variables.add(variableInclude);
@@ -508,7 +508,7 @@ public class ViewTest extends AbstractMagmaTest {
     ListClause listClauseMock = createMock(ListClause.class);
 
     VariableValueSource variableValueSourceMock = createMock(VariableValueSource.class);
-    List<VariableValueSource> variableValueSourceList = new ArrayList<VariableValueSource>();
+    Collection<VariableValueSource> variableValueSourceList = new ArrayList<VariableValueSource>();
     variableValueSourceList.add(variableValueSourceMock);
 
     expect(listClauseMock.getVariableValueSources()).andReturn(variableValueSourceList);

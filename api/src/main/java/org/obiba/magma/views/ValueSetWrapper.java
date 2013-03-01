@@ -13,6 +13,8 @@ import org.obiba.magma.transform.TransformingValueTable;
 
 public class ValueSetWrapper implements ValueSet {
 
+//  private static final Logger log = LoggerFactory.getLogger(ValueSetWrapper.class);
+
   @Nonnull
   private final TransformingValueTable mappingTable;
 

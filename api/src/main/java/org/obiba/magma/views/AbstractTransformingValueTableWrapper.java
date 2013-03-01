@@ -22,9 +22,10 @@ import com.google.common.collect.HashBiMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 
-public abstract class AbstractTransformingValueTableWrapper extends AbstractValueTableWrapper implements TransformingValueTable {
+public abstract class AbstractTransformingValueTableWrapper extends AbstractValueTableWrapper
+    implements TransformingValueTable {
 
-  private BiMap<String, String> variableNameMapping = HashBiMap.<String, String> create();
+  private final BiMap<String, String> variableNameMapping = HashBiMap.<String, String>create();
 
   protected void addVariableNameMapping(String variableName, String wrappedVariableName) {
     variableNameMapping.put(variableName, wrappedVariableName);
@@ -55,41 +56,43 @@ public abstract class AbstractTransformingValueTableWrapper extends AbstractValu
   @Override
   public Set<VariableEntity> getVariableEntities() {
 
-    return ImmutableSet.copyOf(Iterables.filter(Iterables.transform(super.getVariableEntities(), getVariableEntityMappingFunction()), new Predicate<VariableEntity>() {
+    return ImmutableSet.copyOf(Iterables
+        .filter(Iterables.transform(super.getVariableEntities(), getVariableEntityMappingFunction()),
+            new Predicate<VariableEntity>() {
 
-      @Override
-      public boolean apply(VariableEntity input) {
-        // Only VariableEntities for which hasValueSet() is true (this will usually test the where clause)
-        return hasValueSet(input);
-      }
+              @Override
+              public boolean apply(VariableEntity input) {
+                // Only VariableEntities for which hasValueSet() is true (this will usually test the where clause)
+                return hasValueSet(input);
+              }
 
-    }));
+            }));
   }
 
   @Override
   public boolean hasValueSet(VariableEntity entity) {
     if(entity == null) return false;
     VariableEntity unmapped = getVariableEntityMappingFunction().unapply(entity);
-    if(unmapped == null) return false;
-
-    return super.hasValueSet(unmapped);
+    return unmapped != null && super.hasValueSet(unmapped);
   }
 
   @Override
   public Iterable<ValueSet> getValueSets() {
     // Transform the Iterable, replacing each ValueSet with one that points at the current View.
-    return Iterables.filter(Iterables.transform(super.getValueSets(), getValueSetMappingFunction()), new Predicate<ValueSet>() {
+    return Iterables
+        .filter(Iterables.transform(super.getValueSets(), getValueSetMappingFunction()), new Predicate<ValueSet>() {
 
-      @Override
-      public boolean apply(ValueSet input) {
-        return input.getVariableEntity() != null;
-      }
-    });
+          @Override
+          public boolean apply(ValueSet input) {
+            return input.getVariableEntity() != null;
+          }
+        });
   }
 
   @Override
   public Value getValue(Variable variable, ValueSet valueSet) {
-    Variable wrappedVariable = getWrappedValueTable().getVariable(getVariableNameMappingFunction().unapply(variable.getName()));
+    Variable wrappedVariable = getWrappedValueTable()
+        .getVariable(getVariableNameMappingFunction().unapply(variable.getName()));
     return super.getValue(wrappedVariable, getValueSetMappingFunction().unapply(valueSet));
   }
 
@@ -102,7 +105,8 @@ public abstract class AbstractTransformingValueTableWrapper extends AbstractValu
 
   @Override
   public VariableValueSource getVariableValueSource(String name) throws NoSuchVariableException {
-    return getVariableValueSourceMappingFunction().apply(super.getVariableValueSource(getVariableNameMappingFunction().unapply(name)));
+    return getVariableValueSourceMappingFunction()
+        .apply(super.getVariableValueSource(getVariableNameMappingFunction().unapply(name)));
   }
 
   @Override
@@ -129,6 +133,7 @@ public abstract class AbstractTransformingValueTableWrapper extends AbstractValu
   @Override
   public BijectiveFunction<VariableValueSource, VariableValueSource> getVariableValueSourceMappingFunction() {
     return new BijectiveFunction<VariableValueSource, VariableValueSource>() {
+      @Override
       public VariableValueSource apply(VariableValueSource from) {
         return new VariableValueSourceWrapper(from);
       }
@@ -154,7 +159,8 @@ public abstract class AbstractTransformingValueTableWrapper extends AbstractValu
 
     @Override
     public Variable getVariable() {
-      return AbstractTransformingValueTableWrapper.this.getVariable(getVariableNameMappingFunction().apply(wrapped.getVariable().getName()));
+      return AbstractTransformingValueTableWrapper.this
+          .getVariable(getVariableNameMappingFunction().apply(wrapped.getVariable().getName()));
     }
 
     @Override
