@@ -22,6 +22,7 @@ import org.obiba.magma.ValueTable;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.datasource.spss.support.SpssDatasourceFactory;
 import org.obiba.magma.datasource.spss.support.SpssDatasourceParsingException;
+import org.obiba.magma.datasource.spss.support.SpssMagmaEngineTest;
 import org.obiba.magma.type.DecimalType;
 import org.obiba.magma.type.TextType;
 
@@ -29,7 +30,7 @@ import junit.framework.Assert;
 
 import static org.junit.Assert.assertTrue;
 
-public class DatasourceSpssTest {
+public class DatasourceSpssTest extends SpssMagmaEngineTest {
 
   private SpssDatasourceFactory dsFactory;
 
