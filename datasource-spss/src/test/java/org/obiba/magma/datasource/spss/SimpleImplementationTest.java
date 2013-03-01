@@ -11,6 +11,7 @@ import org.junit.Test;
 import org.obiba.magma.Category;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.Variable;
+import org.obiba.magma.datasource.spss.support.SpssDatasourceFactory;
 import org.obiba.magma.datasource.spss.support.SpssMagmaEngineTest;
 import org.opendatafoundation.data.FileFormatInfo;
 import org.opendatafoundation.data.spss.SPSSFile;
@@ -31,7 +32,12 @@ public class SimpleImplementationTest extends SpssMagmaEngineTest {
     files.add(file1);
     files.add(file2);
 
-    SpssDatasource ds = new SpssDatasource("spss", files);
+    SpssDatasourceFactory factory = new SpssDatasourceFactory();
+    factory.setName(SpssDatasourceFactory.DEFAULT_DATASOURCE_NAME);
+    factory.addFile(file1);
+    factory.addFile(file2);
+
+    SpssDatasource ds = (SpssDatasource)factory.create();
     ds.initialise();
 
 
@@ -68,8 +74,7 @@ public class SimpleImplementationTest extends SpssMagmaEngineTest {
 //    File file = new File(ROOT_FOLDER+"/src/test/resources/org/obiba/magma/datasource/spss/DatabaseTest.sav");
 //    File file = new File(ROOT_FOLDER+"/src/test/resources/org/obiba/magma/datasource/spss/HOP phase1d LifeLines
 // .sav");
-    File file = new File(ROOT_FOLDER+"/src/test/resources/org/obiba/magma/datasource/spss/dictionnaire_variablesT1" +
-        ".sav");
+    File file = new File(ROOT_FOLDER+"/src/test/resources/org/obiba/magma/datasource/spss/dictionnaire_variablesT1.sav");
 
     try {
       SPSSFile spssFile = new SPSSFile(file);

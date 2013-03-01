@@ -9,7 +9,6 @@
  */
 package org.obiba.magma.datasource.spss.support;
 
-import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueType;
 import org.obiba.magma.type.TextType;
@@ -39,18 +38,19 @@ public class SpssValueFactory {
       String rawValue = spssVariable.getValueAsString(variableIndex, new FileFormatInfo(FileFormatInfo.Format.ASCII));
       return valueType.valueOf(valueFormatter.format(rawValue));
     } catch(SPSSFileException e) {
-      throw new MagmaRuntimeException(e);
+      throw new SpssDatasourceParsingException("Error while reading variable", e, "TableDefinitionErrors",
+          spssVariable.getName(), variableIndex, spssVariable.getName());
     }
   }
 
   private void initializeVariableTypeFormatter() {
 
-    if (valueType instanceof TextType) {
+    if(valueType instanceof TextType) {
       valueFormatter = new SpssDefaultTypeFormatter();
       return;
     }
 
-    switch (SpssVariableTypeMapper.getSpssNumericDataType(spssVariable)) {
+    switch(SpssVariableTypeMapper.getSpssNumericDataType(spssVariable)) {
       case DOT:
         valueFormatter = new SpssDotTypeFormatter();
         break;

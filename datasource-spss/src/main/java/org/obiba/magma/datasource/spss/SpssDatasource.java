@@ -25,18 +25,21 @@ public class SpssDatasource extends AbstractDatasource {
 
   private final List<File> spssFiles;
 
+  private final String characterSet;
+
   private Map<String, SpssValueTable> valueTablesMapOnInit = new LinkedHashMap<String, SpssValueTable>();
 
-  public SpssDatasource(String name, List<File> spssFiles) {
+  public SpssDatasource(String name, List<File> spssFiles, String characterSet) {
     super(name, "spss");
     this.spssFiles = spssFiles;
+    this.characterSet = characterSet;
   }
 
   @Override
   protected void onInitialise() {
 
     for(File spssFile : spssFiles) {
-      SpssValueTableFactory factory = new SpssValueTableFactory(spssFile);
+      SpssValueTableFactory factory = new SpssValueTableFactory(spssFile, characterSet);
       String tableName = factory.getName();
 
       if(!valueTablesMapOnInit.containsKey(tableName)) {

@@ -10,28 +10,23 @@
 package org.obiba.magma.datasource.spss;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Set;
-import java.util.TreeSet;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.obiba.magma.Datasource;
-import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.NoSuchVariableException;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.VariableEntity;
-import org.obiba.magma.VectorSource;
 import org.obiba.magma.datasource.spss.support.SpssDatasourceFactory;
+import org.obiba.magma.datasource.spss.support.SpssDatasourceParsingException;
 import org.obiba.magma.type.DecimalType;
 import org.obiba.magma.type.TextType;
 
 import junit.framework.Assert;
 
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 public class DatasourceSpssTest {
@@ -78,7 +73,7 @@ public class DatasourceSpssTest {
     Assert.assertEquals(SpssDatasourceFactory.DEFAULT_DATASOURCE_NAME, ds.getName());
   }
 
-  @Test(expected = MagmaRuntimeException.class)
+  @Test(expected = SpssDatasourceParsingException.class)
   public void initilizeDatasourceWithInvalidFile() {
       dsFactory.setFile("src/test/resources/org/obiba/magma/datasource/spss/DatabaseTest");
       Datasource ds = dsFactory.create();
@@ -107,6 +102,14 @@ public class DatasourceSpssTest {
     Datasource ds = dsFactory.create();
     ds.initialise();
     Assert.assertNotNull(ds.getValueTable("DatabaseTest").getVariable("race"));
+  }
+
+  @Test
+  public void getVariableFromValueTableWithFrenchChars() {
+    dsFactory.setFile("src/test/resources/org/obiba/magma/datasource/spss/dictionnaire_variablesT4.sav");
+    Datasource ds = dsFactory.create();
+    ds.initialise();
+    Assert.assertNotNull(ds.getValueTable("dictionnaire_variablesT4").getVariable("DOMICIT4"));
   }
 
   @Test(expected = NoSuchVariableException.class)
