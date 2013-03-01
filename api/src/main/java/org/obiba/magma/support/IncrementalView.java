@@ -65,14 +65,12 @@ public class IncrementalView extends View {
   private IncrementalView(ValueTable sourceTable, @Nonnull ValueTable destinationTable) {
     super(sourceTable.getName(), sourceTable);
     this.destinationTable = destinationTable;
+    variableEntityMappingFunction = new IncrementalFunction();
     log.trace("New IncrementalView for {}", sourceTable.getName());
   }
 
   @Override
   public BijectiveFunction<VariableEntity, VariableEntity> getVariableEntityMappingFunction() {
-    if(variableEntityMappingFunction == null) {
-      variableEntityMappingFunction = new IncrementalFunction();
-    }
     return variableEntityMappingFunction;
   }
 

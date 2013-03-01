@@ -98,4 +98,10 @@ public abstract class AbstractValueTableWrapper implements ValueTableWrapper {
     return getWrappedValueTable().isView();
   }
 
+  @Override
+  public ValueTable getInnermostWrappedValueTable() {
+    return getWrappedValueTable() instanceof ValueTableWrapper //
+        ? ((ValueTableWrapper) getWrappedValueTable()).getInnermostWrappedValueTable() //
+        : getWrappedValueTable();
+  }
 }
