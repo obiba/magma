@@ -7,10 +7,10 @@ import org.obiba.magma.VariableValueSource;
 
 public interface TransformingValueTable extends ValueTable {
 
-  public BijectiveFunction<VariableEntity, VariableEntity> getVariableEntityMappingFunction();
+  BijectiveFunction<VariableEntity, VariableEntity> getVariableEntityMappingFunction();
 
-  public BijectiveFunction<ValueSet, ValueSet> getValueSetMappingFunction();
+  BijectiveFunction<ValueSet, ValueSet> getValueSetMappingFunction();
 
-  public BijectiveFunction<VariableValueSource, VariableValueSource> getVariableValueSourceMappingFunction();
+  BijectiveFunction<VariableValueSource, VariableValueSource> getVariableValueSourceMappingFunction();
 
 }
