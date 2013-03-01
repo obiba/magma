@@ -10,32 +10,44 @@
 package org.obiba.magma.datasource.spss.support;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.charset.Charset;
 
 import org.obiba.magma.datasource.spss.SpssDatasource;
 import org.obiba.magma.datasource.spss.SpssValueTable;
+import org.opendatafoundation.data.spss.SPSSFile;
 
-public class SpssValueTableFactory {
+public class  SpssValueTableFactory {
 
   private final File file;
 
+  private final String characterSet;
+
   private String name;
 
-  public SpssValueTableFactory(File file) {
+  public SpssValueTableFactory(File file, String characterSet) {
     this.file = file;
+    this.characterSet = characterSet;
     name = createValidFileName(file);
   }
 
   public SpssValueTable create(SpssDatasource datasource, String entityType) {
-    return new SpssValueTable(datasource, name, entityType, file);
+    try {
+      SPSSFile spssFile = new SPSSFile(file, Charset.forName(characterSet));
+      spssFile.logFlag = false;
+
+      return new SpssValueTable(datasource, name, entityType, spssFile);
+    } catch(IOException e) {
+      throw new SpssDatasourceParsingException(e, "FailedToOpenFile", file.getName());
+    }
   }
 
   public String getName() {
     return name;
   }
 
-
-  private String createValidFileName(File file) {
-    String filename = file.getName();
+  private String createValidFileName(File sourceFile) {
+    String filename = sourceFile.getName();
     int postion = filename.lastIndexOf('.');
 
     if (postion > 0) {

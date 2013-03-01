@@ -9,9 +9,7 @@
  */
 package org.obiba.magma.datasource.spss.support;
 
-import java.io.File;
 import java.io.IOException;
-import java.util.Locale;
 import java.util.Set;
 
 import org.obiba.magma.Attribute;
@@ -20,8 +18,6 @@ import org.obiba.magma.Variable;
 import org.obiba.magma.VariableValueSource;
 import org.obiba.magma.VariableValueSourceFactory;
 import org.obiba.magma.datasource.spss.SpssVariableValueSource;
-import org.obiba.magma.type.DateTimeType;
-import org.obiba.magma.type.IntegerType;
 import org.obiba.magma.type.TextType;
 import org.opendatafoundation.data.spss.SPSSFile;
 import org.opendatafoundation.data.spss.SPSSFileException;
@@ -37,34 +33,34 @@ public class SpssVariableValueSourceFactory implements VariableValueSourceFactor
   //
   // Data members
   //
-  private SPSSFile spssFile;
+  private final SPSSFile spssFile;
 
   /**
    * @param spssFile
    * @throws IOException
    * @throws SPSSFileException
    */
-  public SpssVariableValueSourceFactory(File file) throws IOException, SPSSFileException {
-    this.spssFile = new SPSSFile(file);
-    spssFile.loadMetadata();
+  public SpssVariableValueSourceFactory(SPSSFile spssFile) {
+    this.spssFile = spssFile;
   }
 
   @Override
   public Set<VariableValueSource> createSources() {
     Set<VariableValueSource> sources = Sets.newLinkedHashSet();
+    SpssVariableTypeMapper typeMapper = new SpssVariableTypeMapper();
 
-    for(int i = 0; i < spssFile.getVariableCount(); i++) {
+    for(int i = 1; i < spssFile.getVariableCount(); i++) {
       SPSSVariable variable = spssFile.getVariable(i);
       Variable.Builder builder = createVariableBuilder(variable);
+      builder.type(typeMapper.map(variable));
 
       if(variable instanceof SPSSNumericVariable) {
-        initializeNumericValueType(variable, builder);
         initializeNumericCategories(variable, builder);
       } else if(variable instanceof SPSSStringVariable) {
         initializeStringCategories(variable, builder);
       }
 
-      sources.add(new SpssVariableValueSource(builder.build()));
+      sources.add(new SpssVariableValueSource(builder.build(), variable));
     }
 
     return sources;
@@ -94,22 +90,13 @@ public class SpssVariableValueSourceFactory implements VariableValueSourceFactor
     }
   }
 
-  private void initializeNumericValueType(SPSSVariable variable, Variable.Builder builder) {
-    if(variable.getSPSSFormat().toLowerCase().contains("date")) {
-      builder.type(DateTimeType.get());
-    } else {
-      builder.type(IntegerType.get());
-    }
-  }
-
   private Variable.Builder createVariableBuilder(SPSSVariable variable) {
     Variable.Builder builder = Variable.Builder.newVariable(variable.getName(), TextType.get(), "Participant")//
-        .addAttribute(
-            Attribute.Builder.newAttribute("measure").withNamespace("spss").withValue(variable.getMeasureLabel())
-                .build()).addAttribute(
-            Attribute.Builder.newAttribute("shortName").withNamespace("spss").withValue(variable.getShortName())
-                .build()).addAttribute(
-            Attribute.Builder.newAttribute("format").withNamespace("spss").withValue(variable.getSPSSFormat()).build());
+        .addAttribute(createAttribute("measure", variable.getMeasureLabel()))
+        .addAttribute(createAttribute("width", variable.getLength()))
+        .addAttribute(createAttribute("decimals", variable.getDecimals()))
+        .addAttribute(createAttribute("shortName", variable.getShortName()))
+        .addAttribute(createAttribute("format", variable.getSPSSFormat()));
 
     String label = variable.getLabel();
 
@@ -118,5 +105,13 @@ public class SpssVariableValueSourceFactory implements VariableValueSourceFactor
     }
 
     return builder;
+  }
+
+  private Attribute createAttribute(String attributeName, String value) {
+    return Attribute.Builder.newAttribute(attributeName).withNamespace("spss").withValue(value).build();
+  }
+
+  private Attribute createAttribute(String attributeName, int value) {
+    return createAttribute(attributeName, String.valueOf(value));
   }
 }

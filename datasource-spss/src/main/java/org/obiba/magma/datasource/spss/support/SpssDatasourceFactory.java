@@ -24,11 +24,15 @@ public class SpssDatasourceFactory extends AbstractDatasourceFactory {
 
   public static final String DEFAULT_DATASOURCE_NAME = "spss";
 
+  public static final String DEFAULT_CHARACTER_SET = "ISO-8859-1";
+
   //
   // Data members
   //
 
   private List<File> files = new ArrayList<File>();
+
+  private String characterSet;
 
   public void setFile(String path) {
     setFile(new File(path));
@@ -46,6 +50,10 @@ public class SpssDatasourceFactory extends AbstractDatasourceFactory {
     files.add(file);
   }
 
+  public void setCharacterSet(String characterSet) {
+    this.characterSet = characterSet;
+  }
+
   public Datasource create() {
     return internalCreate();
   }
@@ -53,6 +61,10 @@ public class SpssDatasourceFactory extends AbstractDatasourceFactory {
   @Nonnull
   @Override
   protected Datasource internalCreate() {
-    return new SpssDatasource(getName(), files);
+    if (characterSet == null || characterSet.isEmpty()) {
+      characterSet =  DEFAULT_CHARACTER_SET;
+    }
+
+    return new SpssDatasource(getName(), files, characterSet);
   }
 }
