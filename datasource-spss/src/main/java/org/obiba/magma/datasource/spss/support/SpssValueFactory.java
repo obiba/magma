@@ -78,31 +78,36 @@ public class SpssValueFactory {
     String format(String value);
   }
 
-  private class SpssNumberTypeFormatter implements SpssTypeFormatter {
+  private static class SpssNumberTypeFormatter implements SpssTypeFormatter {
+    @Override
     public String format(String value) {
       return value.replaceAll(" ", "").isEmpty() ? "0" : value;
     }
   }
 
-  private class SpssDotTypeFormatter extends SpssNumberTypeFormatter {
+  private static class SpssDotTypeFormatter extends SpssNumberTypeFormatter {
+    @Override
     public String format(String value) {
       return super.format(value.replaceAll("\\.", "").replaceAll(",", "."));
     }
   }
 
-  private class SpssCommaTypeFormatter extends SpssNumberTypeFormatter {
+  private static class SpssCommaTypeFormatter extends SpssNumberTypeFormatter {
+    @Override
     public String format(String value) {
       return super.format(value.replaceAll(",|", ""));
     }
   }
 
-  private class SpssDollarTypeFormatter extends SpssNumberTypeFormatter {
+  private static class SpssDollarTypeFormatter extends SpssNumberTypeFormatter {
+    @Override
     public String format(String value) {
       return super.format(value.replaceAll("\\$|,|", ""));
     }
   }
 
-  private class SpssDefaultTypeFormatter implements SpssTypeFormatter {
+  private static class SpssDefaultTypeFormatter implements SpssTypeFormatter {
+    @Override
     public String format(String value) {
       return value;
     }
