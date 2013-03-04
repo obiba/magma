@@ -3,6 +3,8 @@ package org.obiba.magma.support;
 import java.util.Collections;
 import java.util.SortedSet;
 
+import javax.annotation.Nonnull;
+
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueSet;
 import org.obiba.magma.ValueSource;
@@ -23,6 +25,7 @@ public final class NullValueSource implements ValueSource, VectorSource {
     return valueType;
   }
 
+  @Nonnull
   @Override
   public Value getValue(ValueSet valueSet) {
     return valueType.nullValue();

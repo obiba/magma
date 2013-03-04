@@ -1,5 +1,7 @@
 package org.obiba.magma.datasource.generated;
 
+import javax.annotation.Nonnull;
+
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueSet;
 import org.obiba.magma.ValueSource;
@@ -24,7 +26,8 @@ abstract class GeneratedVariableValueSource implements VariableValueSource {
   protected GeneratedVariableValueSource(Variable variable) {
     this.variable = variable;
     if(variable.hasAttribute("condition")) {
-      JavascriptValueSource src = new JavascriptValueSource(BooleanType.get(), variable.getAttributeStringValue("condition"));
+      JavascriptValueSource src = new JavascriptValueSource(BooleanType.get(),
+          variable.getAttributeStringValue("condition"));
       try {
         Initialisables.initialise(src);
       } catch(RuntimeException e) {
@@ -47,6 +50,7 @@ abstract class GeneratedVariableValueSource implements VariableValueSource {
     return null;
   }
 
+  @Nonnull
   @Override
   public Value getValue(ValueSet valueSet) {
     if(shouldGenerate(valueSet)) {

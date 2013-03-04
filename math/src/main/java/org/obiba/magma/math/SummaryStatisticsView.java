@@ -4,6 +4,8 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Set;
 
+import javax.annotation.Nonnull;
+
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 import org.obiba.magma.Datasource;
 import org.obiba.magma.Initialisable;
@@ -116,6 +118,7 @@ public class SummaryStatisticsView extends AbstractValueTable implements Initial
       return Variable.Builder.newVariable(statName, DecimalType.get(), getEntityType()).build();
     }
 
+    @Nonnull
     @Override
     public Value getValue(ValueSet valueSet) {
       try {

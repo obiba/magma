@@ -7,6 +7,8 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.SortedSet;
 
+import javax.annotation.Nonnull;
+
 import org.obiba.magma.Attribute;
 import org.obiba.magma.AttributeAwareBuilder;
 import org.obiba.magma.Category;
@@ -380,6 +382,7 @@ class LimesurveyValueTable extends AbstractValueTable {
       return variable.getValueType();
     }
 
+    @Nonnull
     @Override
     public Value getValue(ValueSet valueSet) {
       LimesurveyValueSet limesurveyValueSet = (LimesurveyValueSet) valueSet;

@@ -1,13 +1,15 @@
 /*******************************************************************************
  * Copyright 2008(c) The OBiBa Consortium. All rights reserved.
- * 
+ *
  * This program and the accompanying materials
  * are made available under the terms of the GNU Public License v3.0.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 package org.obiba.magma.beans;
+
+import javax.annotation.Nonnull;
 
 import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.Value;
@@ -56,6 +58,7 @@ public class BeanPropertyVariableValueSource implements VariableValueSource {
     return variable.getValueType();
   }
 
+  @Nonnull
   public Value getValue(ValueSet valueSet) {
     Object bean = ((BeanValueSet) valueSet).resolve(beanClass, valueSet, variable);
 
@@ -89,7 +92,9 @@ public class BeanPropertyVariableValueSource implements VariableValueSource {
     } catch(NullValueInNestedPathException e) {
       return null;
     } catch(InvalidPropertyException e) {
-      throw new MagmaRuntimeException("Invalid definition of variable " + getVariable().getName() + ". Cannot obtain value for property '" + e.getPropertyName() + "' on bean of class " + e.getBeanClass(), e);
+      throw new MagmaRuntimeException(
+          "Invalid definition of variable " + getVariable().getName() + ". Cannot obtain value for property '" +
+              e.getPropertyName() + "' on bean of class " + e.getBeanClass(), e);
     }
   }
 }

@@ -2,6 +2,8 @@ package org.obiba.magma.views;
 
 import java.util.Set;
 
+import javax.annotation.Nonnull;
+
 import org.obiba.magma.NoSuchValueSetException;
 import org.obiba.magma.NoSuchVariableException;
 import org.obiba.magma.Value;
@@ -162,6 +164,7 @@ public abstract class AbstractTransformingValueTableWrapper extends AbstractValu
           .getVariable(getVariableNameMappingFunction().apply(wrapped.getVariable().getName()));
     }
 
+    @Nonnull
     @Override
     public Value getValue(ValueSet valueSet) {
       return wrapped.getValue(getValueSetMappingFunction().unapply(valueSet));

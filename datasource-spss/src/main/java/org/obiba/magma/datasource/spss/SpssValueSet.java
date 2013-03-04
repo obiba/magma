@@ -12,6 +12,8 @@ package org.obiba.magma.datasource.spss;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.annotation.Nonnull;
+
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.Variable;
@@ -34,6 +36,7 @@ public class SpssValueSet extends ValueSetBean {
     loadVariables();
   }
 
+  @Nonnull
   @Override
   public SpssValueTable getValueTable() {
     return (SpssValueTable) super.getValueTable();
@@ -54,7 +57,8 @@ public class SpssValueSet extends ValueSetBean {
 
     for(int i = 1; i < spssFile.getVariableCount(); i++) {
       SPSSVariable spssVariable = spssFile.getVariable(i);
-      row.put(spssVariable.getName(), new SpssValueFactory(variableIndex, spssVariable, typeMapper.map(spssVariable)).create());
+      row.put(spssVariable.getName(),
+          new SpssValueFactory(variableIndex, spssVariable, typeMapper.map(spssVariable)).create());
     }
   }
 

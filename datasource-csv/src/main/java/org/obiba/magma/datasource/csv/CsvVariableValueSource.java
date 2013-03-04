@@ -1,5 +1,7 @@
 package org.obiba.magma.datasource.csv;
 
+import javax.annotation.Nonnull;
+
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueSet;
 import org.obiba.magma.ValueType;
@@ -10,7 +12,6 @@ import org.obiba.magma.VectorSource;
 /**
  * Used in two cases: 1. When no variables.csv is provided and the variables are inferred from the header of the
  * data.csv file. 2. When the variables provided are a reference from another table.
- * 
  */
 public class CsvVariableValueSource implements VariableValueSource {
 
@@ -30,6 +31,7 @@ public class CsvVariableValueSource implements VariableValueSource {
     return variable.getValueType();
   }
 
+  @Nonnull
   @Override
   public Value getValue(ValueSet valueSet) {
     return ((CsvValueSet) valueSet).getValue(variable);

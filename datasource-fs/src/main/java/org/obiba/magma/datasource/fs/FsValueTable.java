@@ -6,6 +6,8 @@ import java.io.ObjectInputStream;
 import java.io.Reader;
 import java.io.Writer;
 
+import javax.annotation.Nonnull;
+
 import org.obiba.magma.Disposable;
 import org.obiba.magma.Initialisable;
 import org.obiba.magma.MagmaRuntimeException;
@@ -162,6 +164,7 @@ class FsValueTable extends AbstractValueTable implements Initialisable, Disposab
       return variable.getValueType();
     }
 
+    @Nonnull
     @Override
     public Value getValue(ValueSet valueSet) {
       return ((LazyValueSet) valueSet).getValueSet().getValue(variable);
