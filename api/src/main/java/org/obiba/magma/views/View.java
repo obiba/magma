@@ -71,10 +71,6 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
   @Nullable
   private transient ViewAwareDatasource viewDatasource;
 
-  //
-  // Constructors
-  //
-
   /**
    * No-arg constructor for XStream.
    */
@@ -105,17 +101,13 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
     this(name, new AllClause(), new AllClause(), from);
   }
 
-  //
-  // Initialisable Methods
-  //
-
   @Override
   public void initialise() {
-    variables.setValueTable(from);
-    Initialisables.initialise(from, select, where, variables);
+    getListClause().setValueTable(getWrappedValueTable());
+    Initialisables.initialise(getWrappedValueTable(), getSelectClause(), getWhereClause(), getListClause());
     if(isViewOfDerivedVariables()) {
       setSelectClause(new NoneClause());
-    } else if(!(select instanceof NoneClause)) {
+    } else if(!(getSelectClause() instanceof NoneClause)) {
       setListClause(new NoneClause());
     } else {
       setListClause(new NoneClause());
@@ -125,7 +117,7 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
 
   @Override
   public void dispose() {
-    Disposables.silentlyDispose(from, select, where, variables);
+    Disposables.silentlyDispose(getWrappedValueTable(), getSelectClause(), getWhereClause(), getListClause());
   }
 
   @Nonnull
@@ -148,7 +140,7 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
    * variables.
    */
   private boolean isViewOfDerivedVariables() {
-    return !(variables instanceof NoneClause);
+    return !(getListClause() instanceof NoneClause);
   }
 
   @Override
@@ -169,15 +161,15 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
       @Override
       public Value getLastUpdate() {
         if(updated == null || updated.isNull()) {
-          return from.getTimestamps().getLastUpdate();
+          return getWrappedValueTable().getTimestamps().getLastUpdate();
         }
-        Value fromUpdate = from.getTimestamps().getLastUpdate();
+        Value fromUpdate = getWrappedValueTable().getTimestamps().getLastUpdate();
         return !fromUpdate.isNull() && updated.compareTo(fromUpdate) < 0 ? fromUpdate : updated;
       }
 
       @Override
       public Value getCreated() {
-        return created == null || created.isNull() ? from.getTimestamps().getCreated() : created;
+        return created == null || created.isNull() ? getWrappedValueTable().getTimestamps().getCreated() : created;
       }
     };
   }
@@ -212,11 +204,11 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
 
     if(hasValueSet) {
       // Shortcut some WhereClause to prevent loading the ValueSet which may be expensive
-      if(where instanceof AllClause) return true;
-      if(where instanceof NoneClause) return false;
+      if(getWhereClause() instanceof AllClause) return true;
+      if(getWhereClause() instanceof NoneClause) return false;
 
       ValueSet valueSet = super.getValueSet(unmapped);
-      hasValueSet = where.where(valueSet);
+      hasValueSet = getWhereClause().where(valueSet);
     }
     return hasValueSet;
   }
@@ -226,7 +218,7 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
     // do not use Guava functional stuff to avoid multiple iterations over valueSets
     List<ValueSet> valueSets = Lists.newArrayList();
     for(ValueSet valueSet : super.getValueSets()) {
-      if(where.where(valueSet)) { // taking into account the WhereClause
+      if(getWhereClause().where(valueSet)) { // taking into account the WhereClause
         // replacing each ValueSet with one that points at the current View
         valueSet = getValueSetMappingFunction().apply(valueSet);
         // result of transformation might have returned a non-mappable entity
@@ -244,31 +236,33 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
     if(unmapped == null) throw new NoSuchValueSetException(this, entity);
 
     ValueSet valueSet = super.getValueSet(unmapped);
-    if(!where.where(valueSet)) {
-      throw new NoSuchValueSetException(this, entity);
-    }
+    if(!getWhereClause().where(valueSet)) throw new NoSuchValueSetException(this, entity);
 
     return getValueSetMappingFunction().apply(valueSet);
   }
 
   @Override
+  public Timestamps getValueSetTimestamps(VariableEntity entity) throws NoSuchValueSetException {
+    return getValueSet(entity).getTimestamps();
+  }
+
+  @Override
   public Iterable<Variable> getVariables() {
-    if(isViewOfDerivedVariables()) return getListVariables();
-    return getSelectVariables();
+    return isViewOfDerivedVariables() ? getListVariables() : getSelectVariables();
   }
 
   private Iterable<Variable> getSelectVariables() {
     return Iterables.filter(super.getVariables(), new Predicate<Variable>() {
       @Override
       public boolean apply(Variable input) {
-        return select.select(input);
+        return getSelectClause().select(input);
       }
     });
   }
 
   private Iterable<Variable> getListVariables() {
     Collection<Variable> listVariables = new LinkedHashSet<Variable>();
-    for(VariableValueSource variableValueSource : variables.getVariableValueSources()) {
+    for(VariableValueSource variableValueSource : getListClause().getVariableValueSources()) {
       listVariables.add(variableValueSource.getVariable());
     }
     return listVariables;
@@ -282,14 +276,14 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
 
   private Variable getSelectVariable(String variableName) throws NoSuchVariableException {
     Variable variable = super.getVariable(variableName);
-    if(select.select(variable)) {
+    if(getSelectClause().select(variable)) {
       return variable;
     }
     throw new NoSuchVariableException(variableName);
   }
 
   private Variable getListVariable(String variableName) throws NoSuchVariableException {
-    return variables.getVariableValueSource(variableName).getVariable();
+    return getListClause().getVariableValueSource(variableName).getVariable();
   }
 
   @Override
@@ -297,7 +291,7 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
     if(isViewOfDerivedVariables()) {
       return getListClauseValue(variable, valueSet);
     }
-    if(!where.where(valueSet)) {
+    if(!getWhereClause().where(valueSet)) {
       throw new NoSuchValueSetException(this, valueSet.getVariableEntity());
     }
     return super.getValue(variable, getValueSetMappingFunction().unapply(valueSet));
@@ -308,7 +302,7 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
   }
 
   private VariableValueSource getListClauseVariableValueSource(String variableName) {
-    return getVariableValueSourceMappingFunction().apply(variables.getVariableValueSource(variableName));
+    return getVariableValueSourceMappingFunction().apply(getListClause().getVariableValueSource(variableName));
   }
 
   @Override
@@ -327,33 +321,20 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
 
   @Override
   public Set<VariableEntity> getVariableEntities() {
+    // do not use Guava functional stuff to avoid multiple iterations over entities
     Set<VariableEntity> entities = Sets.newLinkedHashSet();
     for(VariableEntity entity : super.getVariableEntities()) {
-      // First, we transform super.getVariableEntities() using getVariableEntityMappingFunction()
+      // transform super.getVariableEntities() using getVariableEntityMappingFunction()
       // (which may modified entity identifiers)
       entity = getVariableEntityMappingFunction().apply(entity);
 
-      // Second, we filter the resulting entities to remove the ones for which hasValueSet() is false
+      // filter the resulting entities to remove the ones for which hasValueSet() is false
       // (usually due to a where clause)
       if(hasValueSet(entity)) {
         entities.add(entity);
       }
     }
-
-    // Third, we construct an ImmutableSet from the result
     return ImmutableSet.copyOf(entities);
-
-//    return ImmutableSet.copyOf(Iterables
-//        .filter(Iterables.transform(super.getVariableEntities(), getVariableEntityMappingFunction()),
-//            new Predicate<VariableEntity>() {
-//
-//              @Override
-//              public boolean apply(VariableEntity input) {
-//                // Only VariableEntities for which hasValueSet() is true (this will usually test the where clause)
-//                return hasValueSet(input);
-//              }
-//
-//            }));
   }
 
   public void setDatasource(ViewAwareDatasource datasource) {
@@ -456,6 +437,7 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
   // Builder
   //
 
+  @SuppressWarnings({ "UnusedDeclaration", "StaticMethodOnlyUsedInOneClass" })
   public static class Builder {
 
     private final View view;
@@ -464,7 +446,6 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
       view = new View(name, from);
     }
 
-    @SuppressWarnings("StaticMethodOnlyUsedInOneClass")
     public static Builder newView(String name, @Nonnull ValueTable... from) {
       return new Builder(name, from);
     }
@@ -479,7 +460,6 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
       return this;
     }
 
-    @SuppressWarnings("UnusedDeclaration")
     public Builder cacheWhere() {
       view.setWhereClause(new CachingWhereClause(view.where));
       return this;
