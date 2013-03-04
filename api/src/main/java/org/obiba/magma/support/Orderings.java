@@ -9,6 +9,8 @@
  */
 package org.obiba.magma.support;
 
+import javax.annotation.Nullable;
+
 import org.obiba.magma.ValueTable;
 
 import com.google.common.base.Strings;
@@ -21,8 +23,9 @@ public class Orderings {
 
   public static final Ordering<ValueTable> VALUE_TABLE_NAME_ORDERING = new Ordering<ValueTable>() {
     @Override
-    public int compare(ValueTable left, ValueTable right) {
-      return Strings.nullToEmpty(left.getName()).compareTo(Strings.nullToEmpty(right.getName()));
+    public int compare(@Nullable ValueTable left, @Nullable ValueTable right) {
+      return Strings.nullToEmpty(left == null ? "" : left.getName())
+          .compareTo(Strings.nullToEmpty(right == null ? "" : right.getName()));
     }
   };
 
