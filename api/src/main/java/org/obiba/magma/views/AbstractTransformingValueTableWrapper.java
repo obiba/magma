@@ -25,7 +25,7 @@ import com.google.common.collect.Iterables;
 public abstract class AbstractTransformingValueTableWrapper extends AbstractValueTableWrapper
     implements TransformingValueTable {
 
-  private final BiMap<String, String> variableNameMapping = HashBiMap.<String, String>create();
+  private final BiMap<String, String> variableNameMapping = HashBiMap.create();
 
   protected void addVariableNameMapping(String variableName, String wrappedVariableName) {
     variableNameMapping.put(variableName, wrappedVariableName);
