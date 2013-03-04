@@ -11,6 +11,7 @@ package org.obiba.magma.datasource.spss;
 
 import org.obiba.magma.support.VariableEntityBean;
 
+@SuppressWarnings("PMD.EQ_DOESNT_OVERRIDE_EQUALS")
 public class SpssVariableEntity extends VariableEntityBean {
 
   private final int variableIndex;
