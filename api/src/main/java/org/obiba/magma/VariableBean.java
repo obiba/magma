@@ -36,6 +36,7 @@ class VariableBean extends AbstractAttributeAware implements Variable, Serializa
   /**
    * Use a linked hash set to keep insertion order
    */
+  @SuppressWarnings({ "CollectionDeclaredAsConcreteClass", "TypeMayBeWeakened" })
   LinkedHashSet<Category> categories = new LinkedHashSet<Category>();
 
   transient Map<Value, Category> categoriesAsValue;
@@ -112,7 +113,7 @@ class VariableBean extends AbstractAttributeAware implements Variable, Serializa
 
   @Override
   public boolean isMissingValue(Value value) {
-    if(value.isNull() || hasCategories() == false) {
+    if(value.isNull() || !hasCategories()) {
       return value.isNull();
     }
     Category c = categoryAsValue().get(value);

@@ -41,15 +41,17 @@ public class BinaryValueFileHelper {
 
   /**
    * Read a file into a binary value.
+   *
    * @param parent
    * @param path
    * @return
    */
+  @SuppressWarnings({ "ResultOfMethodCallIgnored", "RV_RETURN_VALUE_IGNORED_BAD_PRACTICE" })
   public static byte[] readValue(File parent, String path) {
     byte[] value = null;
     try {
       File file = new File(path);
-      if(file.isAbsolute() == false && parent != null) {
+      if(!file.isAbsolute() && parent != null) {
         file = new File(parent, path);
       }
       log.debug("Loading binary from: {}", file.getAbsolutePath());
@@ -66,10 +68,12 @@ public class BinaryValueFileHelper {
 
   /**
    * Remove the file (or files in case of a repeatable variable) for the given variable and entity.
+   *
    * @param parent
    * @param variable
    * @param entity
    */
+  @SuppressWarnings({ "ResultOfMethodCallIgnored", "RV_RETURN_VALUE_IGNORED_BAD_PRACTICE" })
   public static void removeValue(File parent, Variable variable, VariableEntity entity) {
     final String name = getFileName(variable, entity);
     final String extension = getFileExtension(variable);
@@ -100,6 +104,7 @@ public class BinaryValueFileHelper {
 
   /**
    * Write binary in file or files in case of a sequence of values.
+   *
    * @param parent
    * @param variable
    * @param entity
@@ -112,12 +117,14 @@ public class BinaryValueFileHelper {
 
   /**
    * Returns the value representing the file names that were written.
+   *
    * @param parent
    * @param name
    * @param extension
    * @param value
    * @return
    */
+  @SuppressWarnings({ "ResultOfMethodCallIgnored", "RV_RETURN_VALUE_IGNORED_BAD_PRACTICE" })
   private static Value writeFileValue(File parent, String name, String extension, Value value) {
     if(value.isSequence()) return writeFileValueSequence(parent, name, extension, value);
 
@@ -129,7 +136,7 @@ public class BinaryValueFileHelper {
     File file = new File(parent, name + "." + extension);
     File tmpFile = new File(parent, file.getName() + ".tmp");
     try {
-      if(parent.exists() == false) {
+      if(!parent.exists()) {
         parent.mkdirs();
       }
       tmpFile.createNewFile();
@@ -149,12 +156,14 @@ public class BinaryValueFileHelper {
 
   /**
    * Returns the value sequence representing the file names that were written.
+   *
    * @param parent
    * @param name
    * @param extension
    * @param value
    * @return
    */
+  @SuppressWarnings({ "ResultOfMethodCallIgnored", "RV_RETURN_VALUE_IGNORED_BAD_PRACTICE" })
   private static Value writeFileValueSequence(File parent, @SuppressWarnings("TypeMayBeWeakened") final String name,
       final String extension, Value value) {
     if(value.isNull()) {
@@ -188,6 +197,7 @@ public class BinaryValueFileHelper {
 
   /**
    * Get file name from the "filename" or "file-name" variable attribute if any, otherwise use the variable name.
+   *
    * @param variable
    * @param entity
    * @return
@@ -210,6 +220,7 @@ public class BinaryValueFileHelper {
 
   /**
    * Get the file extension from the "fileextension" or "file-extension" variable attribute if any.
+   *
    * @param variable
    * @return
    */
