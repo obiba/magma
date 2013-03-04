@@ -74,13 +74,14 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
   /**
    * No-arg constructor for XStream.
    */
+  @SuppressWarnings("PMD.NP_NONNULL_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR")
   public View() {
     setSelectClause(new AllClause());
     setWhereClause(new AllClause());
     setListClause(new NoneClause());
   }
 
-  @SuppressWarnings("ConstantConditions")
+  @SuppressWarnings({ "ConstantConditions", "PMD.NP_NONNULL_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR" })
   public View(String name, @Nonnull SelectClause selectClause, @Nonnull WhereClause whereClause,
       @Nonnull ValueTable... from) {
     Preconditions.checkArgument(selectClause != null, "null selectClause");
