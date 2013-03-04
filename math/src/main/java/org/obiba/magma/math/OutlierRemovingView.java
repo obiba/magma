@@ -2,6 +2,7 @@ package org.obiba.magma.math;
 
 import java.util.Map;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import org.obiba.magma.Value;
@@ -15,6 +16,7 @@ import com.google.common.collect.Maps;
 /**
  * A {@code View} that removes outlier values from the underlying table. Note that outliers can only be removed for
  * variables that have a numerical value type ({@code ValueType#isNumeric()} returns true).
+ *
  * @see OutlierRemovingVariableValueSource
  */
 public class OutlierRemovingView extends View {
@@ -48,6 +50,7 @@ public class OutlierRemovingView extends View {
    * Returns true when the {@code VariableValueSource} is a candidate for removing outliers. This method tests that the
    * source can provide a non-null {@code VectorSource}, that the variable is not repeatable and that its {@code
    * ValueType} is numeric.
+   *
    * @param source
    * @return
    */
@@ -60,6 +63,7 @@ public class OutlierRemovingView extends View {
   /**
    * Lookup a {@code OutlierRemovingVariableValueSource} for the corresponding {@code VariableValueSource}, if an entry
    * does not exist, a new one is created and returned.
+   *
    * @param from
    * @return
    */
@@ -68,6 +72,7 @@ public class OutlierRemovingView extends View {
     OutlierRemovingVariableValueSource source = variableName == null ? null : sources.get(variableName);
     if(source == null) {
       source = new OutlierRemovingVariableValueSource(getWrappedValueTable(), from, statisticsProvider) {
+        @Nonnull
         @Override
         public Value getValue(ValueSet valueSet) {
           return super.getValue(getValueSetMappingFunction().unapply(valueSet));

@@ -5,6 +5,6 @@ package org.obiba.magma;
  */
 public interface VariableValueSource extends ValueSource {
 
-  public Variable getVariable();
+  Variable getVariable();
 
 }

@@ -11,8 +11,10 @@ package org.obiba.magma.datasource.spss;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
-import java.util.SortedSet;
 import java.util.Set;
+import java.util.SortedSet;
+
+import javax.annotation.Nonnull;
 
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueSet;
@@ -45,6 +47,7 @@ public class SpssVariableValueSource implements VariableValueSource, VectorSourc
     return variable.getValueType();
   }
 
+  @Nonnull
   @Override
   public Value getValue(ValueSet valueSet) {
     SpssValueSet spssValueSet = (SpssValueSet) valueSet;

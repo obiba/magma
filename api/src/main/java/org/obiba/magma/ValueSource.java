@@ -9,6 +9,8 @@
  ******************************************************************************/
 package org.obiba.magma;
 
+import javax.annotation.Nonnull;
+
 /**
  * Defines the contract for obtaining a particular {@link Value} from a {@code ValueSet}.
  */
@@ -24,6 +26,7 @@ public interface ValueSource {
    * @throws IllegalArgumentException when the provided valueSet is for a entityType different than the variable's
    * entityType
    */
+  @Nonnull
   Value getValue(ValueSet valueSet);
 
   VectorSource asVectorSource();

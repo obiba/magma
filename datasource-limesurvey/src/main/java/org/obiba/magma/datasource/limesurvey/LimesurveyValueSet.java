@@ -4,6 +4,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Map;
 
+import javax.annotation.Nonnull;
+
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.ValueType;
@@ -53,6 +55,7 @@ class LimesurveyValueSet extends ValueSetBean {
     }
   }
 
+  @Nonnull
   @Override
   public LimesurveyValueTable getValueTable() {
     return (LimesurveyValueTable) super.getValueTable();

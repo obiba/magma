@@ -6,7 +6,7 @@ public class NoSuchVariableException extends MagmaRuntimeException {
 
   private String valueTableName;
 
-  private String name;
+  private final String name;
 
   public NoSuchVariableException(String valueTableName, String name) {
     super("No such variable '" + name + "' in table '" + valueTableName + "'");

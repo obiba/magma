@@ -10,32 +10,30 @@ import org.obiba.magma.MagmaRuntimeException;
 
 /**
  * Exception to be used when parsing a datasource based on a file.
- * 
  */
+@SuppressWarnings("UseOfSystemOutOrSystemErr")
 public class DatasourceParsingException extends MagmaRuntimeException {
 
   private static final long serialVersionUID = 1L;
 
-  private String key;
+  private final String key;
 
-  private List<Object> parameters;
+  private final List<Object> parameters;
 
   private List<DatasourceParsingException> children;
 
   /**
-   * 
    * @param message default message
    * @param messageKey message key for localization
    * @param parameters parameters to go in the localized message place holders
    */
   public DatasourceParsingException(String message, String messageKey, Object... parameters) {
     super(message);
-    this.key = messageKey;
+    key = messageKey;
     this.parameters = new ArrayList<Object>(Arrays.asList(parameters));
   }
 
   /**
-   * 
    * @param message default message
    * @param e cause exception
    * @param messageKey message key for localization
@@ -43,7 +41,7 @@ public class DatasourceParsingException extends MagmaRuntimeException {
    */
   public DatasourceParsingException(String message, Throwable e, String messageKey, Object... parameters) {
     super(message, e);
-    this.key = messageKey;
+    key = messageKey;
     this.parameters = new ArrayList<Object>(Arrays.asList(parameters));
   }
 
@@ -62,7 +60,7 @@ public class DatasourceParsingException extends MagmaRuntimeException {
     return this;
   }
 
-  public void setChildren(List<? extends DatasourceParsingException> children) {
+  public void setChildren(Iterable<? extends DatasourceParsingException> children) {
     getChildren().clear();
     for(DatasourceParsingException child : children) {
       addChild(child);
@@ -71,25 +69,27 @@ public class DatasourceParsingException extends MagmaRuntimeException {
 
   /**
    * Get the children exceptions.
+   *
    * @return
    */
   public List<DatasourceParsingException> getChildren() {
-    return children != null ? children : (children = new ArrayList<DatasourceParsingException>());
+    return children == null ? (children = new ArrayList<DatasourceParsingException>()) : children;
   }
 
   /**
    * Get the exception leaves in a list.
+   *
    * @return
    */
   public List<DatasourceParsingException> getChildrenAsList() {
     List<DatasourceParsingException> flat = new ArrayList<DatasourceParsingException>();
     for(DatasourceParsingException child : getChildren()) {
-      if(!child.hasChildren()) {
-        flat.add(child);
-      } else {
-        for(DatasourceParsingException subchild : child.getChildrenAsList()) {
-          flat.add(subchild);
+      if(child.hasChildren()) {
+        for(DatasourceParsingException subChild : child.getChildrenAsList()) {
+          flat.add(subChild);
         }
+      } else {
+        flat.add(child);
       }
     }
     return flat;
@@ -108,14 +108,14 @@ public class DatasourceParsingException extends MagmaRuntimeException {
   }
 
   public void printList(PrintWriter w) {
-    if(!hasChildren()) {
-      w.println(getMessage());
-    } else {
+    if(hasChildren()) {
       for(DatasourceParsingException child : getChildrenAsList()) {
         w.println(child.getMessage());
         w.println("  key: " + child.getKey());
         w.println("  parameters (" + child.getParameters().size() + "): " + child.getParameters());
       }
+    } else {
+      w.println(getMessage());
     }
     w.flush();
   }
@@ -125,13 +125,13 @@ public class DatasourceParsingException extends MagmaRuntimeException {
   }
 
   private void print(DatasourceParsingException e, String indent) {
-    if(!e.hasChildren()) {
-      System.out.println(indent + e.getMessage());
-    } else {
+    if(e.hasChildren()) {
       System.out.println(indent + e.getMessage());
       for(DatasourceParsingException child : e.getChildren()) {
         print(child, indent + "\t");
       }
+    } else {
+      System.out.println(indent + e.getMessage());
     }
   }
 }

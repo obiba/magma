@@ -8,6 +8,8 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.SortedSet;
 
+import javax.annotation.Nonnull;
+
 import org.hibernate.FetchMode;
 import org.hibernate.Query;
 import org.hibernate.ScrollMode;
@@ -107,6 +109,7 @@ class HibernateVariableValueSourceFactory implements VariableValueSourceFactory 
       return variable;
     }
 
+    @Nonnull
     @Override
     public Value getValue(ValueSet valueSet) {
       HibernateValueSet hibernateValueSet = (HibernateValueSet) valueSet;
@@ -189,8 +192,9 @@ class HibernateVariableValueSourceFactory implements VariableValueSourceFactory 
               }
               closeCursorIfNecessary();
 
-              return value != null ? value : getVariable().isRepeatable() ? getValueType()
-                  .nullSequence() : getValueType().nullValue();
+              return value != null
+                  ? value
+                  : getVariable().isRepeatable() ? getValueType().nullSequence() : getValueType().nullValue();
             }
 
             @Override
@@ -222,6 +226,7 @@ class HibernateVariableValueSourceFactory implements VariableValueSourceFactory 
 
     /**
      * Initialises the {@code variable} attribute from the provided state
+     *
      * @param state
      */
     private void unmarshall(VariableState state) {

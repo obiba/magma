@@ -3,6 +3,8 @@ package org.obiba.magma.support;
 import java.util.Map;
 import java.util.Set;
 
+import javax.annotation.Nonnull;
+
 import org.obiba.magma.Datasource;
 import org.obiba.magma.NoSuchValueSetException;
 import org.obiba.magma.Timestamps;
@@ -72,6 +74,7 @@ public class StaticValueTable extends AbstractValueTable {
         return variable.getValueType();
       }
 
+      @Nonnull
       @Override
       public Value getValue(ValueSet valueSet) {
         Object value = table.get(valueSet.getVariableEntity().getIdentifier()).get(variable.getName());
@@ -99,6 +102,7 @@ public class StaticValueTable extends AbstractValueTable {
           return Variable.Builder.newVariable(variable, type, entityType).build();
         }
 
+        @Nonnull
         @Override
         public Value getValue(ValueSet valueSet) {
           return type.valueOf(table.get(valueSet.getVariableEntity().getIdentifier()).get(variable));

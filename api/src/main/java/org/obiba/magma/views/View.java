@@ -418,6 +418,7 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
       return wrapped.getVariable();
     }
 
+    @Nonnull
     @Override
     public Value getValue(ValueSet valueSet) {
       return wrapped.getValue(getValueSetMappingFunction().unapply(valueSet));

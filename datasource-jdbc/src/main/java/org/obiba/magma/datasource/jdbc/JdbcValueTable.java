@@ -16,6 +16,8 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.SortedSet;
 
+import javax.annotation.Nonnull;
+
 import org.obiba.magma.Attribute;
 import org.obiba.magma.Category;
 import org.obiba.magma.Initialisable;
@@ -91,8 +93,9 @@ class JdbcValueTable extends AbstractValueTable {
 
   @Override
   public String getEntityType() {
-    return settings.getEntityType() != null ? settings.getEntityType() : getDatasource().getSettings()
-        .getDefaultEntityType();
+    return settings.getEntityType() != null
+        ? settings.getEntityType()
+        : getDatasource().getSettings().getDefaultEntityType();
   }
 
   @Override
@@ -189,23 +192,25 @@ class JdbcValueTable extends AbstractValueTable {
   }
 
   boolean hasCreatedTimestampColumn() {
-    return getSettings().isCreatedTimestampColumnNameProvided() || getDatasource().getSettings()
-        .isCreatedTimestampColumnNameProvided();
+    return getSettings().isCreatedTimestampColumnNameProvided() ||
+        getDatasource().getSettings().isCreatedTimestampColumnNameProvided();
   }
 
   String getCreatedTimestampColumnName() {
-    return getSettings().isCreatedTimestampColumnNameProvided() ? getSettings()
-        .getCreatedTimestampColumnName() : getDatasource().getSettings().getDefaultCreatedTimestampColumnName();
+    return getSettings().isCreatedTimestampColumnNameProvided()
+        ? getSettings().getCreatedTimestampColumnName()
+        : getDatasource().getSettings().getDefaultCreatedTimestampColumnName();
   }
 
   boolean hasUpdatedTimestampColumn() {
-    return getSettings().isUpdatedTimestampColumnNameProvided() || getDatasource().getSettings()
-        .isUpdatedTimestampColumnNameProvided();
+    return getSettings().isUpdatedTimestampColumnNameProvided() ||
+        getDatasource().getSettings().isUpdatedTimestampColumnNameProvided();
   }
 
   String getUpdatedTimestampColumnName() {
-    return getSettings().isUpdatedTimestampColumnNameProvided() ? getSettings()
-        .getUpdatedTimestampColumnName() : getDatasource().getSettings().getDefaultUpdatedTimestampColumnName();
+    return getSettings().isUpdatedTimestampColumnNameProvided()
+        ? getSettings().getUpdatedTimestampColumnName()
+        : getDatasource().getSettings().getDefaultUpdatedTimestampColumnName();
   }
 
   void writeVariableValueSource(Variable source) {
@@ -350,9 +355,9 @@ class JdbcValueTable extends AbstractValueTable {
 
   private boolean metadataTablesExist() {
     DatabaseSnapshot snapshot = getDatasource().getDatabaseSnapshot();
-    return snapshot.getTable(JdbcValueTableWriter.VARIABLE_METADATA_TABLE) != null && snapshot
-        .getTable(JdbcValueTableWriter.ATTRIBUTE_METADATA_TABLE) != null && snapshot
-        .getTable(JdbcValueTableWriter.CATEGORY_METADATA_TABLE) != null;
+    return snapshot.getTable(JdbcValueTableWriter.VARIABLE_METADATA_TABLE) != null &&
+        snapshot.getTable(JdbcValueTableWriter.ATTRIBUTE_METADATA_TABLE) != null &&
+        snapshot.getTable(JdbcValueTableWriter.CATEGORY_METADATA_TABLE) != null;
   }
 
   private void createSqlTable(String sqlTableName) {
@@ -505,6 +510,7 @@ class JdbcValueTable extends AbstractValueTable {
       return variable;
     }
 
+    @Nonnull
     @Override
     public Value getValue(ValueSet valueSet) {
       JdbcValueSet jdbcValueSet = (JdbcValueSet) valueSet;
@@ -578,8 +584,9 @@ class JdbcValueTable extends AbstractValueTable {
                     value = variable.getValueType().valueOf(rs.getObject(columnName));
                   }
                   closeCursorIfNecessary();
-                  return value != null ? value : getVariable().isRepeatable() ? getValueType()
-                      .nullSequence() : getValueType().nullValue();
+                  return value != null
+                      ? value
+                      : getVariable().isRepeatable() ? getValueType().nullSequence() : getValueType().nullValue();
                 } catch(SQLException e) {
                   throw new RuntimeException(e);
                 }
