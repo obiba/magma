@@ -46,7 +46,7 @@ public class BinaryValueFileHelper {
    * @param path
    * @return
    */
-  @SuppressWarnings({ "ResultOfMethodCallIgnored", "RV_RETURN_VALUE_IGNORED_BAD_PRACTICE" })
+  @SuppressWarnings({ "ResultOfMethodCallIgnored", "PMD.RV_RETURN_VALUE_IGNORED_BAD_PRACTICE" })
   public static byte[] readValue(File parent, String path) {
     byte[] value = null;
     try {
@@ -73,7 +73,7 @@ public class BinaryValueFileHelper {
    * @param variable
    * @param entity
    */
-  @SuppressWarnings({ "ResultOfMethodCallIgnored", "RV_RETURN_VALUE_IGNORED_BAD_PRACTICE" })
+  @SuppressWarnings({ "ResultOfMethodCallIgnored", "PMD.RV_RETURN_VALUE_IGNORED_BAD_PRACTICE" })
   public static void removeValue(File parent, Variable variable, VariableEntity entity) {
     final String name = getFileName(variable, entity);
     final String extension = getFileExtension(variable);
@@ -124,7 +124,7 @@ public class BinaryValueFileHelper {
    * @param value
    * @return
    */
-  @SuppressWarnings({ "ResultOfMethodCallIgnored", "RV_RETURN_VALUE_IGNORED_BAD_PRACTICE" })
+  @SuppressWarnings({ "ResultOfMethodCallIgnored", "PMD.RV_RETURN_VALUE_IGNORED_BAD_PRACTICE" })
   private static Value writeFileValue(File parent, String name, String extension, Value value) {
     if(value.isSequence()) return writeFileValueSequence(parent, name, extension, value);
 
@@ -163,7 +163,7 @@ public class BinaryValueFileHelper {
    * @param value
    * @return
    */
-  @SuppressWarnings({ "ResultOfMethodCallIgnored", "RV_RETURN_VALUE_IGNORED_BAD_PRACTICE" })
+  @SuppressWarnings({ "ResultOfMethodCallIgnored", "PMD.RV_RETURN_VALUE_IGNORED_BAD_PRACTICE" })
   private static Value writeFileValueSequence(File parent, @SuppressWarnings("TypeMayBeWeakened") final String name,
       final String extension, Value value) {
     if(value.isNull()) {
