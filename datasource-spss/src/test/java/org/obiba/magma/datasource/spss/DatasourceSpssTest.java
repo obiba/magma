@@ -107,10 +107,10 @@ public class DatasourceSpssTest extends SpssMagmaEngineTest {
 
   @Test
   public void getVariableFromValueTableWithFrenchChars() {
-    dsFactory.setFile("src/test/resources/org/obiba/magma/datasource/spss/dictionnaire_variablesT4.sav");
+    dsFactory.setFile("src/test/resources/org/obiba/magma/datasource/spss/dictionnaire_variablesT4-simple.sav");
     Datasource ds = dsFactory.create();
     ds.initialise();
-    Assert.assertNotNull(ds.getValueTable("dictionnaire_variablesT4").getVariable("DOMICIT4"));
+    Assert.assertNotNull(ds.getValueTable("dictionnaire_variablesT4-simple").getVariable("ETATCIT4"));
   }
 
   @Test(expected = NoSuchVariableException.class)

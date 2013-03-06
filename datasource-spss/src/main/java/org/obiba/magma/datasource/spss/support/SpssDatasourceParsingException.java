@@ -16,22 +16,11 @@ public class SpssDatasourceParsingException extends DatasourceParsingException {
   private static final long serialVersionUID = 1L;
 
 
-  public SpssDatasourceParsingException(String message, String messageKey, String source, int row, Object... parameters) {
-    super(message + " (" + source + ":" + row + ")", messageKey, parameters);
-    getParameters().add(0, parameters);
-    getParameters().add(1, row);
+  public SpssDatasourceParsingException(String message, String source, int row, String messageKey, Object... messageArgs) {
+    super(message + " (" + source + ":" + row + ")", messageKey, messageArgs);
   }
 
-
-  public SpssDatasourceParsingException(String message, Throwable e, String messageKey, String source, int row, Object... parameters) {
-    super(message + " (" + source + ":" + row + ")", e, messageKey, parameters);
-    getParameters().add(0, parameters);
-    getParameters().add(1, row);
+  public SpssDatasourceParsingException(Throwable e, String messageKey, Object... messageArgs) {
+    super(e.getMessage(), e, messageKey, messageArgs);
   }
-
-  public SpssDatasourceParsingException(Throwable e, String messageKey, Object... parameters) {
-    super("", e, messageKey, parameters);
-    getParameters().add(0, parameters);
-  }
-
 }
