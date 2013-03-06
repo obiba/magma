@@ -1,14 +1,7 @@
 package org.obiba.magma.js.views;
 
-import static org.easymock.EasyMock.createMock;
-import static org.easymock.EasyMock.expect;
-import static org.easymock.EasyMock.replay;
-import static org.easymock.EasyMock.verify;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.junit.Assert.assertThat;
-
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Locale;
@@ -32,11 +25,15 @@ import org.obiba.magma.type.TextType;
 
 import com.google.common.collect.Iterables;
 
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.replay;
+import static org.easymock.EasyMock.verify;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.junit.Assert.assertThat;
+
 public class VariablesClauseTest extends AbstractJsTest {
-
-  private Variable yearVariable;
-
-  private Variable sex;
 
   private Set<Variable> variables;
 
@@ -48,8 +45,8 @@ public class VariablesClauseTest extends AbstractJsTest {
 
   @Before
   public void setUp() throws Exception {
-    yearVariable = buildYear();
-    sex = buildSexWithSameAsAndScript();
+    Variable yearVariable = buildYear();
+    Variable sex = buildSexWithSameAsAndScript();
 
     variables = new HashSet<Variable>();
     variables.add(yearVariable);
@@ -81,7 +78,8 @@ public class VariablesClauseTest extends AbstractJsTest {
   }
 
   private Variable buildHealthQuestionnaireIdentificationSex() {
-    Variable.Builder builder = Variable.Builder.newVariable("HealthQuestionnaireIdentification.SEX", IntegerType.get(), "Participant");
+    Variable.Builder builder = Variable.Builder
+        .newVariable("HealthQuestionnaireIdentification.SEX", IntegerType.get(), "Participant");
     builder.addAttribute("label", "Sex", Locale.CANADA);
     builder.addAttribute("URI", "http://www.obiba.org/sex");
     builder.addAttribute("stage", "HealthQuestionnaire");
@@ -96,14 +94,12 @@ public class VariablesClauseTest extends AbstractJsTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void test_setValueTable_ThrowsIllegalArgumentWhenNull() {
-    VariablesClause clause = new VariablesClause();
-    clause.setValueTable(null);
+    new VariablesClause().setValueTable(null);
   }
 
   @Test(expected = IllegalStateException.class)
   public void test_initialize_ThrowsIfValueTableIsNull() {
-    VariablesClause clause = new VariablesClause();
-    clause.initialise();
+    new VariablesClause().initialise();
   }
 
   @Test
@@ -118,8 +114,7 @@ public class VariablesClauseTest extends AbstractJsTest {
 
   @Test(expected = IllegalStateException.class)
   public void test_getVariablesValueSources_ThrowsIfNotInitialized() {
-    VariablesClause clause = new VariablesClause();
-    clause.getVariableValueSources();
+    new VariablesClause().getVariableValueSources();
   }
 
   @Test(expected = NoSuchVariableException.class)
@@ -138,31 +133,33 @@ public class VariablesClauseTest extends AbstractJsTest {
 
   @Test
   public void testScriptValue() throws Exception {
-    ValueTable valueTableMock = createMock(ValueTable.class);
-    ValueSet valueSetMock = createMock(ValueSet.class);
-    VariableValueSource variableValueSourceMock = createMock(VariableValueSource.class);
-    Variable mockVariable = createMock(Variable.class);
+    ValueTable table = createMock(ValueTable.class);
+    ValueSet valueSet = createMock(ValueSet.class);
+    VariableValueSource variableValueSource = createMock(VariableValueSource.class);
+    Variable variable = createMock(Variable.class);
 
-    expect(valueSetMock.getValueTable()).andReturn(valueTableMock).anyTimes();
-    expect(valueSetMock.getVariableEntity()).andReturn(createMock(VariableEntity.class));
-    expect(valueTableMock.getVariable("HealthQuestionnaireIdentification.SEX")).andReturn(buildHealthQuestionnaireIdentificationSex()).anyTimes();
+    expect(valueSet.getValueTable()).andReturn(table).anyTimes();
+    expect(valueSet.getVariableEntity()).andReturn(createMock(VariableEntity.class));
+    expect(table.getVariable("HealthQuestionnaireIdentification.SEX"))
+        .andReturn(buildHealthQuestionnaireIdentificationSex()).anyTimes();
 
-    expect(valueTableMock.getVariableValueSource("Admin.Participant.birthDate")).andReturn(variableValueSourceMock).once();
-    expect(variableValueSourceMock.getValue(valueSetMock)).andReturn(adminParticipantBirthDateValue).once();
-    expect(variableValueSourceMock.getVariable()).andReturn(mockVariable).once();
-    expect(mockVariable.getUnit()).andReturn(null).once();
+    expect(table.getVariableValueSource("Admin.Participant.birthDate")).andReturn(variableValueSource).once();
+    expect(variableValueSource.getValue(valueSet)).andReturn(adminParticipantBirthDateValue).once();
+    expect(variableValueSource.getVariable()).andReturn(variable).once();
+    expect(variable.getUnit()).andReturn(null).once();
 
-    replay(valueSetMock, valueTableMock, variableValueSourceMock, mockVariable);
+    replay(valueSet, table, variableValueSource, variable);
     VariablesClause clause = new VariablesClause();
     clause.setVariables(variables);
-    clause.setValueTable(valueTableMock);
+    clause.setValueTable(table);
     Initialisables.initialise(clause);
-    VariableValueSource variableValueSource = clause.getVariableValueSource("GENERIC_128");
 
-    assertThat(variableValueSource, is(notNullValue()));
+    VariableValueSource variableValueSource_generic128 = clause.getVariableValueSource("GENERIC_128");
 
-    Value result = variableValueSource.getValue(valueSetMock);
-    verify(valueSetMock, valueTableMock, variableValueSourceMock, mockVariable);
+    assertThat(variableValueSource_generic128, is(notNullValue()));
+
+    Value result = variableValueSource_generic128.getValue(valueSet);
+    verify(valueSet, table, variableValueSource, variable);
 
     assertThat(result.getValueType(), is((ValueType) IntegerType.get()));
     assertThat(result, is(IntegerType.get().valueOf(1955)));
@@ -171,7 +168,8 @@ public class VariablesClauseTest extends AbstractJsTest {
   @Test
   public void testScriptVariable() throws Exception {
     ValueTable valueTableMock = createMock(ValueTable.class);
-    expect(valueTableMock.getVariable("HealthQuestionnaireIdentification.SEX")).andReturn(buildHealthQuestionnaireIdentificationSex()).anyTimes();
+    expect(valueTableMock.getVariable("HealthQuestionnaireIdentification.SEX"))
+        .andReturn(buildHealthQuestionnaireIdentificationSex()).anyTimes();
     replay(valueTableMock);
     VariablesClause clause = new VariablesClause();
     clause.setValueTable(valueTableMock);
@@ -182,8 +180,10 @@ public class VariablesClauseTest extends AbstractJsTest {
     verify(valueTableMock);
     assertThat(variable.getAttribute("label").getLocale(), is(Locale.CANADA));
     assertThat(variable.getAttribute("label").getValue(), is(TextType.get().valueOf("Birth Year")));
-    assertThat(variable.getAttribute("URI").getValue(), is(TextType.get().valueOf("http://www.datashaper.org/owl/2009/10/generic.owl#GENERIC_128")));
-    assertThat(variable.getAttribute("script").getValue(), is(TextType.get().valueOf("$('Admin.Participant.birthDate').year()")));
+    assertThat(variable.getAttribute("URI").getValue(),
+        is(TextType.get().valueOf("http://www.datashaper.org/owl/2009/10/generic.owl#GENERIC_128")));
+    assertThat(variable.getAttribute("script").getValue(),
+        is(TextType.get().valueOf("$('Admin.Participant.birthDate').year()")));
     assertThat(variable.getName(), is("GENERIC_128"));
     assertThat(variable.getEntityType(), is("Participant"));
 
@@ -198,8 +198,10 @@ public class VariablesClauseTest extends AbstractJsTest {
 
     expect(valueSetMock.getValueTable()).andReturn(valueTableMock).anyTimes();
     expect(valueSetMock.getVariableEntity()).andReturn(createMock(VariableEntity.class)).anyTimes();
-    expect(valueTableMock.getVariable("HealthQuestionnaireIdentification.SEX")).andReturn(buildHealthQuestionnaireIdentificationSex()).once();
-    expect(valueTableMock.getVariableValueSource("HealthQuestionnaireIdentification.SEX")).andReturn(variableValueSourceMock).once();
+    expect(valueTableMock.getVariable("HealthQuestionnaireIdentification.SEX"))
+        .andReturn(buildHealthQuestionnaireIdentificationSex()).once();
+    expect(valueTableMock.getVariableValueSource("HealthQuestionnaireIdentification.SEX"))
+        .andReturn(variableValueSourceMock).once();
     expect(variableValueSourceMock.getValue(valueSetMock)).andReturn(healthQuestionnaireIdentificationSexValue).once();
     expect(variableValueSourceMock.getVariable()).andReturn(mockVariable).once();
     expect(mockVariable.getUnit()).andReturn(null).once();
@@ -222,9 +224,11 @@ public class VariablesClauseTest extends AbstractJsTest {
   }
 
   @Test
-  public void testThatDerivedVariableWithSameAsAndScriptAttributesOverridesExistingVariableAttributes() throws Exception {
+  public void testThatDerivedVariableWithSameAsAndScriptAttributesOverridesExistingVariableAttributes()
+      throws Exception {
     ValueTable valueTableMock = createMock(ValueTable.class);
-    expect(valueTableMock.getVariable("HealthQuestionnaireIdentification.SEX")).andReturn(buildHealthQuestionnaireIdentificationSex()).times(2);
+    expect(valueTableMock.getVariable("HealthQuestionnaireIdentification.SEX"))
+        .andReturn(buildHealthQuestionnaireIdentificationSex()).times(2);
     replay(valueTableMock);
     VariablesClause clause = new VariablesClause();
     clause.setValueTable(valueTableMock);
@@ -234,19 +238,23 @@ public class VariablesClauseTest extends AbstractJsTest {
     Variable variable = variableValueSource.getVariable();
 
     verify(valueTableMock);
-    assertThat(variable.getAttribute("sameAs").getValue(), is(TextType.get().valueOf("HealthQuestionnaireIdentification.SEX")));
-    assertThat(variable.getAttribute("script").getValue(), is(TextType.get().valueOf("$('HealthQuestionnaireIdentification.SEX')")));
+    assertThat(variable.getAttribute("sameAs").getValue(),
+        is(TextType.get().valueOf("HealthQuestionnaireIdentification.SEX")));
+    assertThat(variable.getAttribute("script").getValue(),
+        is(TextType.get().valueOf("$('HealthQuestionnaireIdentification.SEX')")));
     assertThat(variable.getName(), is("GENERIC_129"));
     assertThat(variable.getEntityType(), is("Participant"));
   }
 
   @Test
-  public void testThatDerivedVariableWithSameAsAttributeOnlyDoesNotOverrideExistingVariableAttributes() throws Exception {
-    Set<Variable> variableSet = new HashSet<Variable>();
+  public void testThatDerivedVariableWithSameAsAttributeOnlyDoesNotOverrideExistingVariableAttributes()
+      throws Exception {
+    Collection<Variable> variableSet = new HashSet<Variable>();
     variableSet.add(buildSexWithSameAs());
 
     ValueTable valueTableMock = createMock(ValueTable.class);
-    expect(valueTableMock.getVariable("HealthQuestionnaireIdentification.SEX")).andReturn(buildHealthQuestionnaireIdentificationSex()).times(2);
+    expect(valueTableMock.getVariable("HealthQuestionnaireIdentification.SEX"))
+        .andReturn(buildHealthQuestionnaireIdentificationSex()).times(2);
     replay(valueTableMock);
     VariablesClause clause = new VariablesClause();
     clause.setValueTable(valueTableMock);
@@ -255,7 +263,8 @@ public class VariablesClauseTest extends AbstractJsTest {
     VariableValueSource variableValueSource = clause.getVariableValueSource("GENERIC_300");
     Variable variable = variableValueSource.getVariable();
     verify(valueTableMock);
-    assertThat(variable.getAttribute("sameAs").getValue(), is(TextType.get().valueOf("HealthQuestionnaireIdentification.SEX")));
+    assertThat(variable.getAttribute("sameAs").getValue(),
+        is(TextType.get().valueOf("HealthQuestionnaireIdentification.SEX")));
     assertThat(variable.getAttribute("stage").getValue(), is(TextType.get().valueOf("HealthQuestionnaire")));
     assertThat(variable.getName(), is("GENERIC_300"));
     assertThat(variable.getEntityType(), is("Participant"));
