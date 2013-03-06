@@ -1,5 +1,7 @@
 package org.obiba.magma.js;
 
+import javax.annotation.Nonnull;
+
 import org.mozilla.javascript.Scriptable;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.Variable;
@@ -21,9 +23,12 @@ public class JavascriptVariableValueSource extends JavascriptValueSource impleme
     this(variable, null);
   }
 
+  @Nonnull
   @Override
   public String getScript() {
-    return variable.hasAttribute(JavascriptVariableBuilder.SCRIPT_ATTRIBUTE_NAME) ? variable.getAttributeStringValue(JavascriptVariableBuilder.SCRIPT_ATTRIBUTE_NAME) : "";
+    return variable.hasAttribute(JavascriptVariableBuilder.SCRIPT_ATTRIBUTE_NAME) //
+        ? variable.getAttributeStringValue(JavascriptVariableBuilder.SCRIPT_ATTRIBUTE_NAME) //
+        : "";
   }
 
   @Override

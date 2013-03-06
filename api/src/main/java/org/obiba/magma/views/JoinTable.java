@@ -117,7 +117,7 @@ public class JoinTable implements ValueTable, Initialisable {
 
   @Override
   public Datasource getDatasource() {
-    // TODO: A JoinTable does not belong to a Datasource (or does it? which one?).
+    // A JoinTable does not belong to a Datasource (or does it? which one?).
     return null;
   }
 
