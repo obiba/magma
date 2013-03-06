@@ -17,6 +17,11 @@ public class HibernateDatasourceFactory extends AbstractDatasourceFactory implem
   @Nonnull
   private SessionFactoryProvider sessionFactoryProvider;
 
+  /**
+   * Empty constructor for XML serialization
+   */
+  @edu.umd.cs.findbugs.annotations.SuppressWarnings(value = "NP_NONNULL_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR",
+      justification = "Needed by XStream")
   public HibernateDatasourceFactory() { }
 
   public HibernateDatasourceFactory(String name, @Nonnull SessionFactoryProvider sessionFactoryProvider) {

@@ -7,6 +7,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.NativeArray;
@@ -336,6 +339,7 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
     return valueMaps;
   }
 
+  @Nullable
   private static ValueTable valueTableFromContext(MagmaContext context) {
     ValueTable valueTable = null;
     if(context.has(ValueTable.class)) {
@@ -365,7 +369,8 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
     return predicate;
   }
 
-  private static Iterable<Variable> getVariablesFromOccurrenceGroup(ValueTable valueTable, final Variable variable) {
+  private static Iterable<Variable> getVariablesFromOccurrenceGroup(@Nullable ValueTable valueTable,
+      @Nonnull final Variable variable) {
     if(variable.getOccurrenceGroup() == null || valueTable == null) {
       return ImmutableList.<Variable>builder().build();
     }
@@ -407,11 +412,11 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
 
     private final Function criteriaFunction;
 
-    private FunctionPredicate(Context ctx, Scriptable scope, Scriptable thisObj, Function criteria) {
+    private FunctionPredicate(Context ctx, Scriptable scope, Scriptable thisObj, Function criteriaFunction) {
       this.ctx = ctx;
       this.scope = scope;
       this.thisObj = thisObj;
-      criteriaFunction = criteria;
+      this.criteriaFunction = criteriaFunction;
     }
 
     @Override
