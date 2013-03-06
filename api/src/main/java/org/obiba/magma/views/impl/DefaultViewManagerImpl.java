@@ -2,6 +2,8 @@ package org.obiba.magma.views.impl;
 
 import java.util.Set;
 
+import javax.annotation.Nonnull;
+
 import org.obiba.magma.Datasource;
 import org.obiba.magma.Disposable;
 import org.obiba.magma.Initialisable;
@@ -21,16 +23,18 @@ import com.google.common.collect.Sets;
 @SuppressWarnings("UnusedDeclaration")
 public class DefaultViewManagerImpl implements ViewManager, Initialisable, Disposable {
 
+  @Nonnull
   private final Set<ViewAwareDatasource> viewAwareDatasources = Sets.newHashSet();
 
+  @Nonnull
   private final ViewPersistenceStrategy viewPersistenceStrategy;
 
-  public DefaultViewManagerImpl(ViewPersistenceStrategy viewPersistenceStrategy) {
+  public DefaultViewManagerImpl(@Nonnull ViewPersistenceStrategy viewPersistenceStrategy) {
     this.viewPersistenceStrategy = viewPersistenceStrategy;
   }
 
   @Override
-  public Datasource decorate(Datasource datasource) {
+  public Datasource decorate(@Nonnull Datasource datasource) {
     Set<View> views = viewPersistenceStrategy.readViews(datasource.getName());
     ViewAwareDatasource viewAwareDatasource = new ViewAwareDatasource(datasource, views);
 
@@ -41,8 +45,9 @@ public class DefaultViewManagerImpl implements ViewManager, Initialisable, Dispo
     return viewAwareDatasource;
   }
 
+  @SuppressWarnings("ConstantConditions")
   @Override
-  public void addView(String datasourceName, View view) {
+  public void addView(@Nonnull String datasourceName, @Nonnull View view) {
     Preconditions.checkArgument(!Strings.isNullOrEmpty(datasourceName), "datasourceName cannot be null or empty.");
     Preconditions.checkArgument(view != null, "view cannot be null.");
 
@@ -60,7 +65,7 @@ public class DefaultViewManagerImpl implements ViewManager, Initialisable, Dispo
   }
 
   @Override
-  public void removeView(String datasourceName, String viewName) {
+  public void removeView(@Nonnull String datasourceName, @Nonnull String viewName) {
     Preconditions.checkArgument(!Strings.isNullOrEmpty(datasourceName), "datasourceName cannot be null or empty.");
 
     ViewAwareDatasource viewAwareDatasource = getViewAwareFromName(datasourceName);
@@ -80,13 +85,13 @@ public class DefaultViewManagerImpl implements ViewManager, Initialisable, Dispo
   }
 
   @Override
-  public void removeAllViews(String datasourceName) {
+  public void removeAllViews(@Nonnull String datasourceName) {
     Preconditions.checkArgument(!Strings.isNullOrEmpty(datasourceName), "datasourceName cannot be null or empty.");
     viewPersistenceStrategy.writeViews(datasourceName, ImmutableSet.<View>of());
   }
 
   @Override
-  public boolean hasView(String datasourceName, String viewName) {
+  public boolean hasView(@Nonnull String datasourceName, @Nonnull String viewName) {
     Preconditions.checkArgument(!Strings.isNullOrEmpty(datasourceName), "datasourceName cannot be null or empty.");
     ViewAwareDatasource viewAwareDatasource = getViewAwareFromName(datasourceName);
     if(viewAwareDatasource == null) throw new NoSuchDatasourceException(datasourceName);
@@ -106,7 +111,7 @@ public class DefaultViewManagerImpl implements ViewManager, Initialisable, Dispo
    * @throws NoSuchValueTableException if a View with the supplied viewName does not exist in datasourceName
    */
   @Override
-  public View getView(String datasourceName, String viewName) {
+  public View getView(@Nonnull String datasourceName, @Nonnull String viewName) {
     Preconditions.checkArgument(!Strings.isNullOrEmpty(datasourceName), "datasourceName cannot be null or empty.");
     ViewAwareDatasource viewAwareDatasource = getViewAwareFromName(datasourceName);
     if(viewAwareDatasource == null) throw new NoSuchDatasourceException(datasourceName);
@@ -116,12 +121,12 @@ public class DefaultViewManagerImpl implements ViewManager, Initialisable, Dispo
   }
 
   @Override
-  public void addViews(String datasource, Set<View> views) {
+  public void addViews(@Nonnull String datasource, Set<View> views) {
     Preconditions.checkArgument(!Strings.isNullOrEmpty(datasource), "datasource cannot be null or empty.");
     viewPersistenceStrategy.writeViews(datasource, views);
   }
 
-  private ViewAwareDatasource getViewAwareFromName(String datasourceName) {
+  private ViewAwareDatasource getViewAwareFromName(@Nonnull String datasourceName) {
     for(ViewAwareDatasource viewAwareDatasource : viewAwareDatasources) {
       if(viewAwareDatasource.getName().equals(datasourceName)) return viewAwareDatasource;
     }
