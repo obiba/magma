@@ -21,10 +21,10 @@ import org.opendatafoundation.data.spss.SPSSVariable;
 
 public class SpssVariableTypeMapper {
 
-  public SpssVariableTypeMapper() {
+  private SpssVariableTypeMapper() {
   }
 
-  public AbstractValueType map(SPSSVariable variable)
+  public static AbstractValueType map(SPSSVariable variable)
   {
     return variable instanceof SPSSNumericVariable ? mapNumericType(variable) : TextType.get();
   }
@@ -38,7 +38,7 @@ public class SpssVariableTypeMapper {
     return SpssNumericDataType.fromInt(variableRecord.getWriteFormatType());
   }
 
-  private AbstractValueType mapNumericType(SPSSVariable variable) {
+  private static AbstractValueType mapNumericType(SPSSVariable variable) {
 
     switch (getSpssNumericDataType(variable)) {
       case COMMA: // comma
@@ -46,12 +46,7 @@ public class SpssVariableTypeMapper {
       case DOT: // dot
       case FIXED: // fixed format (default)
       case SCIENTIFIC: // scientific notation
-        if (variable.getDecimals() > 0) {
-          return DecimalType.get();
-        }
-        else {
-          return IntegerType.get();
-        }
+        return variable.getDecimals() > 0 ? DecimalType.get() : IntegerType.get();
 
       case DATE: // Date dd-mmm-yyyy or dd-mmm-yy
       case ADATE: // Date in mm/dd/yy or mm/dd/yyyy
