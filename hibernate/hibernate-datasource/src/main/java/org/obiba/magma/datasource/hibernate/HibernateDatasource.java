@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentMap;
 
+import javax.annotation.Nonnull;
+
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -53,7 +55,8 @@ public class HibernateDatasource extends AbstractDatasource {
   private ConcurrentMap<Transaction, List<HibernateValueTableTransaction>> syncMap = new MapMaker().weakKeys()
       .makeMap();
 
-  public HibernateDatasource(String name, SessionFactory sessionFactory) {
+  @SuppressWarnings("ConstantConditions")
+  public HibernateDatasource(@Nonnull String name, @Nonnull SessionFactory sessionFactory) {
     super(name, TYPE);
     if(sessionFactory == null) throw new IllegalArgumentException("sessionFactory cannot be null");
 

@@ -18,12 +18,11 @@ import org.obiba.magma.Timestamps;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueSet;
 import org.obiba.magma.ValueTable;
-import org.obiba.magma.ValueType;
 import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.VariableValueSource;
-import org.obiba.magma.VectorSource;
 import org.obiba.magma.support.AbstractValueTableWrapper;
+import org.obiba.magma.support.AbstractVariableValueSourceWrapper;
 import org.obiba.magma.support.Disposables;
 import org.obiba.magma.support.Initialisables;
 import org.obiba.magma.transform.BijectiveFunction;
@@ -391,48 +390,28 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
     return new BijectiveFunction<VariableValueSource, VariableValueSource>() {
       @Override
       public VariableValueSource apply(@SuppressWarnings("ParameterHidesMemberVariable") VariableValueSource from) {
-        return new VariableValueSourceWrapper(from);
+        return new ViewVariableValueSource(from);
       }
 
       @Override
       public VariableValueSource unapply(@SuppressWarnings("ParameterHidesMemberVariable") VariableValueSource from) {
-        return ((VariableValueSourceWrapper) from).wrapped;
+        return ((AbstractVariableValueSourceWrapper) from).getWrapped();
       }
     };
   }
 
-  protected class VariableValueSourceWrapper implements VariableValueSource {
+  protected class ViewVariableValueSource extends AbstractVariableValueSourceWrapper {
 
-    private final VariableValueSource wrapped;
-
-    public VariableValueSourceWrapper(VariableValueSource wrapped) {
-      this.wrapped = wrapped;
-    }
-
-    public VariableValueSource getWrapped() {
-      return wrapped;
-    }
-
-    @Override
-    public Variable getVariable() {
-      return wrapped.getVariable();
+    public ViewVariableValueSource(VariableValueSource wrapped) {
+      super(wrapped);
     }
 
     @Nonnull
     @Override
     public Value getValue(ValueSet valueSet) {
-      return wrapped.getValue(getValueSetMappingFunction().unapply(valueSet));
+      return getWrapped().getValue(getValueSetMappingFunction().unapply(valueSet));
     }
 
-    @Override
-    public ValueType getValueType() {
-      return wrapped.getValueType();
-    }
-
-    @Override
-    public VectorSource asVectorSource() {
-      return wrapped.asVectorSource();
-    }
   }
 
   //

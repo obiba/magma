@@ -8,12 +8,11 @@ import org.obiba.magma.NoSuchValueSetException;
 import org.obiba.magma.NoSuchVariableException;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueSet;
-import org.obiba.magma.ValueType;
 import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.VariableValueSource;
-import org.obiba.magma.VectorSource;
 import org.obiba.magma.support.AbstractValueTableWrapper;
+import org.obiba.magma.support.AbstractVariableValueSourceWrapper;
 import org.obiba.magma.transform.BijectiveFunction;
 import org.obiba.magma.transform.BijectiveFunctions;
 import org.obiba.magma.transform.TransformingValueTable;
@@ -141,44 +140,29 @@ public abstract class AbstractTransformingValueTableWrapper extends AbstractValu
 
       @Override
       public VariableValueSource unapply(VariableValueSource from) {
-        return ((VariableValueSourceWrapper) from).getWrapped();
+        return ((AbstractVariableValueSourceWrapper) from).getWrapped();
       }
     };
   }
 
-  protected class VariableValueSourceWrapper implements VariableValueSource {
-
-    private final VariableValueSource wrapped;
+  protected class VariableValueSourceWrapper extends AbstractVariableValueSourceWrapper {
 
     public VariableValueSourceWrapper(VariableValueSource wrapped) {
-      this.wrapped = wrapped;
-    }
-
-    public VariableValueSource getWrapped() {
-      return wrapped;
+      super(wrapped);
     }
 
     @Override
     public Variable getVariable() {
       return AbstractTransformingValueTableWrapper.this
-          .getVariable(getVariableNameMappingFunction().apply(wrapped.getVariable().getName()));
+          .getVariable(getVariableNameMappingFunction().apply(getWrapped().getVariable().getName()));
     }
 
     @Nonnull
     @Override
     public Value getValue(ValueSet valueSet) {
-      return wrapped.getValue(getValueSetMappingFunction().unapply(valueSet));
+      return getWrapped().getValue(getValueSetMappingFunction().unapply(valueSet));
     }
 
-    @Override
-    public ValueType getValueType() {
-      return wrapped.getValueType();
-    }
-
-    @Override
-    public VectorSource asVectorSource() {
-      return wrapped.asVectorSource();
-    }
   }
 
 }
