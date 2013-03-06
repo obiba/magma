@@ -85,7 +85,7 @@ public class SpssVariableValueSource implements VariableValueSource, VectorSourc
 
     @Override
     public Value next() {
-      if(hasNext() == false) {
+      if(!hasNext()) {
         throw new NoSuchElementException();
       }
 

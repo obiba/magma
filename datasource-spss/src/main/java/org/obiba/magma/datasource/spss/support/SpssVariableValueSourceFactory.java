@@ -12,6 +12,9 @@ package org.obiba.magma.datasource.spss.support;
 import java.io.IOException;
 import java.util.Set;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 import org.obiba.magma.Attribute;
 import org.obiba.magma.Category;
 import org.obiba.magma.Variable;
@@ -26,9 +29,13 @@ import org.opendatafoundation.data.spss.SPSSStringVariable;
 import org.opendatafoundation.data.spss.SPSSVariable;
 import org.opendatafoundation.data.spss.SPSSVariableCategory;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.Sets;
 
+import static org.obiba.magma.datasource.spss.support.CharacterSetValidator.validate;
+
 public class SpssVariableValueSourceFactory implements VariableValueSourceFactory {
+
 
   //
   // Data members
@@ -47,20 +54,15 @@ public class SpssVariableValueSourceFactory implements VariableValueSourceFactor
   @Override
   public Set<VariableValueSource> createSources() {
     Set<VariableValueSource> sources = Sets.newLinkedHashSet();
-    SpssVariableTypeMapper typeMapper = new SpssVariableTypeMapper();
 
     for(int i = 1; i < spssFile.getVariableCount(); i++) {
-      SPSSVariable variable = spssFile.getVariable(i);
-      Variable.Builder builder = createVariableBuilder(variable);
-      builder.type(typeMapper.map(variable));
-
-      if(variable instanceof SPSSNumericVariable) {
-        initializeNumericCategories(variable, builder);
-      } else if(variable instanceof SPSSStringVariable) {
-        initializeStringCategories(variable, builder);
+      SPSSVariable spssVariable = spssFile.getVariable(i);
+      try {
+        sources.add(new SpssVariableValueSource(createVariableBuilder(spssVariable), spssVariable));
+      } catch(SpssIsoControlCharacterException e) {
+        throw new SpssDatasourceParsingException("Failed to create variable", spssVariable.getName(), i+1,
+            "InvalidCharsetCharacter", i+1);
       }
-
-      sources.add(new SpssVariableValueSource(builder.build(), variable));
     }
 
     return sources;
@@ -70,48 +72,74 @@ public class SpssVariableValueSourceFactory implements VariableValueSourceFactor
   // Private methods
   //
 
-  private void initializeStringCategories(SPSSVariable variable, Variable.Builder builder) {
+  private void initializeStringCategories(SPSSVariable variable, Variable.Builder builder)
+      throws SpssIsoControlCharacterException {
     if(variable.categoryMap != null) {
       for(String category : variable.categoryMap.keySet()) {
         SPSSVariableCategory spssCategory = variable.categoryMap.get(category);
+        validate(spssCategory.label);
         builder.addCategory(Category.Builder.newCategory(category).addAttribute("label", spssCategory.label)
             .missing(variable.isMissingValueCode(spssCategory.strValue)).build());
       }
     }
   }
 
-  private void initializeNumericCategories(SPSSVariable variable, Variable.Builder builder) {
+  private void initializeNumericCategories(SPSSVariable variable, Variable.Builder builder)
+      throws SpssIsoControlCharacterException {
     if(variable.categoryMap != null) {
       for(String category : variable.categoryMap.keySet()) {
         SPSSVariableCategory spssCategory = variable.categoryMap.get(category);
+        validate(spssCategory.label);
         builder.addCategory(Category.Builder.newCategory(category).addAttribute("label", spssCategory.label)
             .missing(variable.isMissingValueCode(spssCategory.value)).build());
       }
     }
   }
 
-  private Variable.Builder createVariableBuilder(SPSSVariable variable) {
-    Variable.Builder builder = Variable.Builder.newVariable(variable.getName(), TextType.get(), "Participant")//
-        .addAttribute(createAttribute("measure", variable.getMeasureLabel()))
-        .addAttribute(createAttribute("width", variable.getLength()))
-        .addAttribute(createAttribute("decimals", variable.getDecimals()))
-        .addAttribute(createAttribute("shortName", variable.getShortName()))
-        .addAttribute(createAttribute("format", variable.getSPSSFormat()));
+  @SuppressWarnings("ChainOfInstanceofChecks")
+  private Variable createVariableBuilder(@Nonnull SPSSVariable spssVariable) throws SpssIsoControlCharacterException {
+    String variableName = spssVariable.getName();
+    validate(variableName);
+    Variable.Builder builder = Variable.Builder.newVariable(variableName, TextType.get(), "Participant");
+    addAttributes(builder, spssVariable);
+    addLabel(builder, spssVariable);
+    builder.type(SpssVariableTypeMapper.map(spssVariable));
 
-    String label = variable.getLabel();
-
-    if (label != null && !label.isEmpty()) {
-      builder.addAttribute("label", label);
+    if(spssVariable instanceof SPSSNumericVariable) {
+      initializeNumericCategories(spssVariable, builder);
+    } else if(spssVariable instanceof SPSSStringVariable) {
+      initializeStringCategories(spssVariable, builder);
     }
 
-    return builder;
+    return builder.build();
   }
 
-  private Attribute createAttribute(String attributeName, String value) {
+  private void addLabel(@Nonnull Variable.Builder builder, @Nonnull SPSSVariable spssVariable)
+      throws SpssIsoControlCharacterException {
+    String label = spssVariable.getLabel();
+
+    if(!Strings.isNullOrEmpty(label)) {
+      validate(label);
+      builder.addAttribute("label", label);
+    }
+  }
+
+  private void addAttributes(Variable.Builder builder, @Nonnull SPSSVariable spssVariable)
+      throws SpssIsoControlCharacterException {
+    builder.addAttribute(createAttribute("measure", spssVariable.getMeasureLabel()))
+        .addAttribute(createAttribute("width", spssVariable.getLength()))
+        .addAttribute(createAttribute("decimals", spssVariable.getDecimals()))
+        .addAttribute(createAttribute("shortName", spssVariable.getShortName()))
+        .addAttribute(createAttribute("format", spssVariable.getSPSSFormat()));
+  }
+
+  private Attribute createAttribute(String attributeName, @Nullable String value)
+      throws SpssIsoControlCharacterException {
+    validate(value);
     return Attribute.Builder.newAttribute(attributeName).withNamespace("spss").withValue(value).build();
   }
 
-  private Attribute createAttribute(String attributeName, int value) {
+  private Attribute createAttribute(String attributeName, int value) throws SpssIsoControlCharacterException {
     return createAttribute(attributeName, String.valueOf(value));
   }
 }
