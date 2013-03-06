@@ -37,7 +37,8 @@ public class ValueTableConverter implements Converter {
   @Override
   public Object unmarshal(HierarchicalStreamReader reader, UnmarshallingContext context) {
     reader.moveDown();
-    ValueTableReference valueTableReference = MagmaEngine.get().getDatasourceRegistry().createReference(reader.getValue());
+    ValueTableReference valueTableReference = MagmaEngine.get().getDatasourceRegistry()
+        .createReference(reader.getValue());
     reader.moveUp();
     return valueTableReference;
   }
