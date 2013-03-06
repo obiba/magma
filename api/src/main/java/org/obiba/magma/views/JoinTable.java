@@ -62,6 +62,9 @@ public class JoinTable implements ValueTable, Initialisable {
   @Nullable
   private transient Multimap<JoinableVariable, ValueTable> variableTables;
 
+  @Nonnull
+  private transient final Map<String, JoinableVariable> joinableVariablesByName = Maps.newHashMap();
+
   // An arbitrary number to initialise the LinkedHashSet with a capacity close to the actual value
   // See getVariableEntities()
   private transient int lastEntityCount = DEFAULT_ENTITY_COUNT;
@@ -180,17 +183,23 @@ public class JoinTable implements ValueTable, Initialisable {
 
   @Nullable
   private JoinableVariable findFirstJoinableVariable(final String name) {
+    if(joinableVariablesByName.containsKey(name)) {
+      return joinableVariablesByName.get(name);
+    }
+
+    JoinableVariable joinableVariable = null;
     try {
       Multiset<JoinableVariable> joinableVariables = getVariableTables().keys();
-      return Iterables.find(joinableVariables, new Predicate<JoinableVariable>() {
+      joinableVariable = Iterables.find(joinableVariables, new Predicate<JoinableVariable>() {
         @Override
         public boolean apply(@Nullable JoinableVariable variable) {
           return variable != null && Objects.equal(variable.getName(), name);
         }
       });
-    } catch(NoSuchElementException e) {
-      return null;
+    } catch(NoSuchElementException ignored) {
     }
+    joinableVariablesByName.put(name, joinableVariable);
+    return joinableVariable;
   }
 
   @Override
