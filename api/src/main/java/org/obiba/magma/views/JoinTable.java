@@ -169,12 +169,10 @@ public class JoinTable implements ValueTable, Initialisable {
   @Override
   public Iterable<ValueSet> getValueSets() {
     return Iterables.transform(getVariableEntities(), new Function<VariableEntity, ValueSet>() {
-
       @Override
       public ValueSet apply(VariableEntity from) {
         return new JoinedValueSet(JoinTable.this, from);
       }
-
     });
   }
 
@@ -265,7 +263,7 @@ public class JoinTable implements ValueTable, Initialisable {
   }
 
   @Nonnull
-  private synchronized List<ValueTable> getTablesWithVariable(Variable variable) throws NoSuchVariableException {
+  private List<ValueTable> getTablesWithVariable(Variable variable) throws NoSuchVariableException {
     return getTablesWithVariable(new JoinableVariable(variable));
   }
 
