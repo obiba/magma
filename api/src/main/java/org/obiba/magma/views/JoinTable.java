@@ -9,7 +9,6 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.NoSuchElementException;
 import java.util.Set;
 
 import javax.annotation.Nonnull;
@@ -33,7 +32,6 @@ import org.obiba.magma.support.ValueSetBean;
 
 import com.google.common.base.Function;
 import com.google.common.base.Objects;
-import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableList;
@@ -41,7 +39,6 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
-import com.google.common.collect.Multiset;
 
 @SuppressWarnings({ "UnusedDeclaration", "TransientFieldInNonSerializableClass" })
 public class JoinTable implements ValueTable, Initialisable {
@@ -62,6 +59,9 @@ public class JoinTable implements ValueTable, Initialisable {
   @Nullable
   private transient Multimap<JoinableVariable, ValueTable> variableTables;
 
+  /**
+   * Map first found JoinableVariable by its name
+   */
   @Nonnull
   private transient final Map<String, JoinableVariable> joinableVariablesByName = Maps.newHashMap();
 
@@ -108,7 +108,9 @@ public class JoinTable implements ValueTable, Initialisable {
   private synchronized void analyseVariables() {
     for(ValueTable table : tables) {
       for(Variable variable : table.getVariables()) {
-        getVariableTables().put(new JoinableVariable(variable), table);
+        JoinableVariable joinableVariable = new JoinableVariable(variable);
+        getVariableTables().put(joinableVariable, table);
+        joinableVariablesByName.put(variable.getName(), joinableVariable);
       }
     }
   }
@@ -178,28 +180,7 @@ public class JoinTable implements ValueTable, Initialisable {
 
   @Override
   public boolean hasVariable(String name) {
-    return findFirstJoinableVariable(name) != null;
-  }
-
-  @Nullable
-  private JoinableVariable findFirstJoinableVariable(final String name) {
-    if(joinableVariablesByName.containsKey(name)) {
-      return joinableVariablesByName.get(name);
-    }
-
-    JoinableVariable joinableVariable = null;
-    try {
-      Multiset<JoinableVariable> joinableVariables = getVariableTables().keys();
-      joinableVariable = Iterables.find(joinableVariables, new Predicate<JoinableVariable>() {
-        @Override
-        public boolean apply(@Nullable JoinableVariable variable) {
-          return variable != null && Objects.equal(variable.getName(), name);
-        }
-      });
-    } catch(NoSuchElementException ignored) {
-    }
-    joinableVariablesByName.put(name, joinableVariable);
-    return joinableVariable;
+    return joinableVariablesByName.containsKey(name);
   }
 
   @Override
@@ -214,7 +195,8 @@ public class JoinTable implements ValueTable, Initialisable {
 
   @Override
   public VariableValueSource getVariableValueSource(String variableName) throws NoSuchVariableException {
-    JoinableVariable joinableVariable = findFirstJoinableVariable(variableName);
+    // find first variable with this name
+    JoinableVariable joinableVariable = joinableVariablesByName.get(variableName);
     if(joinableVariable == null) {
       throw new NoSuchVariableException(variableName);
     }
