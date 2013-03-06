@@ -9,6 +9,7 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ContextAction;
@@ -47,35 +48,43 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
 
   private static final Logger log = LoggerFactory.getLogger(JavascriptValueSource.class);
 
+  @Nonnull
   private ValueType type;
 
+  @Nonnull
   private String script;
 
+  @Nullable
   private String scriptName = "customScript";
 
   // need to be transient because of XML serialization
   @SuppressWarnings("TransientFieldInNonSerializableClass")
   private transient Script compiledScript;
 
+  /**
+   * Empty constructor for XML serialization
+   */
   public JavascriptValueSource() {
-
   }
 
-  public JavascriptValueSource(ValueType type, String script) {
+  @SuppressWarnings("ConstantConditions")
+  public JavascriptValueSource(@Nonnull ValueType type, @Nonnull String script) {
     if(type == null) throw new IllegalArgumentException("type cannot be null");
     if(script == null) throw new IllegalArgumentException("script cannot be null");
     this.type = type;
     this.script = script;
   }
 
+  @Nullable
   public String getScriptName() {
     return scriptName;
   }
 
-  public void setScriptName(String name) {
-    scriptName = name;
+  public void setScriptName(@Nullable String scriptName) {
+    this.scriptName = scriptName;
   }
 
+  @Nonnull
   public String getScript() {
     return script;
   }
@@ -83,17 +92,9 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
   @Nonnull
   @Override
   public Value getValue(ValueSet valueSet) {
-    if(getValueType() == null) {
-      throw new IllegalStateException("valueType must be set before calling getValue().");
-    }
     if(compiledScript == null) {
       initialise();
     }
-    /*try {
-      throw new Exception();
-    } catch (Exception e) {
-      log.error("", e);
-    }*/
     long start = System.currentTimeMillis();
     Value rval = (Value) ContextFactory.getGlobal().call(new ValueSetEvaluationContextAction(valueSet));
     log.trace("Evaluation of {}: {}ms", getScriptName(), System.currentTimeMillis() - start);
@@ -108,9 +109,6 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
   @Override
   @SuppressWarnings("unchecked")
   public Iterable<Value> getValues(SortedSet<VariableEntity> entities) {
-    if(getValueType() == null) {
-      throw new IllegalStateException("valueType must be set before calling getValue().");
-    }
     if(compiledScript == null) {
       initialise();
     }
@@ -124,14 +122,10 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
 
   @Override
   public void initialise() throws EvaluatorException {
-    final String script1 = getScript();
-    if(script1 == null) {
-      throw new NullPointerException("script cannot be null");
-    }
     compiledScript = (Script) ContextFactory.getGlobal().call(new ContextAction() {
       @Override
       public Object run(Context cx) {
-        return cx.compileString(script1, getScriptName(), 1, null);
+        return cx.compileString(script, getScriptName(), 1, null);
       }
     });
   }

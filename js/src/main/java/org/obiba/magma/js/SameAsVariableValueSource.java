@@ -1,5 +1,7 @@
 package org.obiba.magma.js;
 
+import javax.annotation.Nonnull;
+
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.Variable;
 
@@ -12,9 +14,12 @@ public class SameAsVariableValueSource extends JavascriptVariableValueSource {
     if(valueTable == null) throw new IllegalArgumentException("valueTable cannot be null");
   }
 
+  @Nonnull
   @Override
   public String getScript() {
-    return super.getVariable().hasAttribute(JavascriptVariableBuilder.SCRIPT_ATTRIBUTE_NAME) ? super.getScript() : new StringBuilder().append("$('").append(getSameAs()).append("')").toString();
+    return super.getVariable().hasAttribute(JavascriptVariableBuilder.SCRIPT_ATTRIBUTE_NAME)
+        ? super.getScript()
+        : "$('" + getSameAs() + "')";
   }
 
   public String getSameAs() {
