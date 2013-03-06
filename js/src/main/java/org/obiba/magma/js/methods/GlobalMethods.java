@@ -39,7 +39,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 
-@SuppressWarnings({"UnusedDeclaration", "IfMayBeConditional", "ChainOfInstanceofChecks"})
+@SuppressWarnings({ "UnusedDeclaration", "IfMayBeConditional", "ChainOfInstanceofChecks", "OverlyCoupledClass" })
 public final class GlobalMethods extends AbstractGlobalMethodProvider {
 
   private static final Logger log = LoggerFactory.getLogger(GlobalMethods.class);
@@ -57,6 +57,7 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
 
   /**
    * Creates an instance of {@code ScriptableValue} containing the current date and time.
+   *
    * @return an instance of {@code ScriptableValue} containing the current date and time.
    */
   public static ScriptableValue now(Context cx, Scriptable thisObj, Object[] args, Function funObj) {
@@ -71,6 +72,7 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
    *   newValue(123)
    *   newValue('123','integer')
    * </pre>
+   *
    * @return an instance of {@code ScriptableValue}
    */
   public static ScriptableValue newValue(Context cx, Scriptable thisObj, Object[] args, Function funObj) {
@@ -90,6 +92,7 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
    *   $('Participant.firstName')
    *   $('other-collection:SMOKER_STATUS')
    * </pre>
+   *
    * @return an instance of {@code ScriptableValue}
    */
   @SuppressWarnings("UnusedDeclaration")
@@ -112,6 +115,7 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
    * <pre>
    *   $join('medications.Drugs:BRAND_NAME','MEDICATION_1')
    * </pre>
+   *
    * @return an instance of {@code ScriptableValue}
    */
   public static Scriptable $join(Context ctx, Scriptable thisObj, Object[] args, Function funObj) {
@@ -132,9 +136,10 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
     VariableValueSource joinedSource = reference.resolveSource(valueTable);
 
     // Default value is null if joined table has no valueSet (equivalent to a LEFT JOIN)
-    Value value = joinedSource.getVariable().isRepeatable() ? joinedSource.getValueType().nullSequence() : joinedSource
-        .getValueType().nullValue();
-    if(identifier.isNull() == false) {
+    Value value = joinedSource.getVariable().isRepeatable()
+        ? joinedSource.getValueType().nullSequence()
+        : joinedSource.getValueType().nullValue();
+    if(!identifier.isNull()) {
       VariableEntity entity = new VariableEntityBean(joinedTable.getEntityType(), identifier.toString());
       if(joinedTable.hasValueSet(entity)) {
         value = joinedSource.getValue(joinedTable.getValueSet(entity));
@@ -160,6 +165,7 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
    * <pre>
    * $id()
    * </pre>
+   *
    * @return an instance of {@code ScriptableValue}
    */
   public static Scriptable $id(Context ctx, Scriptable thisObj, Object[] args, Function funObj) {
@@ -178,6 +184,7 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
    *   log('The last export date: {}', onyx('org.obiba.onyx.lastExportDate'))
    *   log('The last export date: {} Days before purge: {}', onyx('org.obiba.onyx.lastExportDate'), onyx('org.obiba.onyx.participant.purge'))
    * </pre>
+   *
    * @return an instance of {@code ScriptableValue}
    */
   public static Scriptable log(Context ctx, Scriptable thisObj, Object[] args, Function funObj) {
@@ -250,10 +257,11 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
    *     return value.ge(10);
    *   })['AnotherVar']
    * </pre>
+   *
    * @return a javascript object that maps variable names to {@code ScriptableValue}
    */
-  public static NativeObject $group(Context ctx, Scriptable thisObj, Object[] args,
-      Function funObj) throws MagmaJsEvaluationRuntimeException {
+  public static NativeObject $group(Context ctx, Scriptable thisObj, Object[] args, Function funObj)
+      throws MagmaJsEvaluationRuntimeException {
     if(args.length != 2) {
       throw new IllegalArgumentException(
           "$group() expects exactly two arguments: a variable name and a matching criteria (i.e. a value or a function).");
@@ -272,10 +280,11 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
    *     return value.ge(10);
    *   })[0]['AnotherVar']
    * </pre>
+   *
    * @return a javascript object that maps variable names to {@code ScriptableValue}
    */
-  public static NativeArray $groups(Context ctx, Scriptable thisObj, Object[] args,
-      Function funObj) throws MagmaJsEvaluationRuntimeException {
+  public static NativeArray $groups(Context ctx, Scriptable thisObj, Object[] args, Function funObj)
+      throws MagmaJsEvaluationRuntimeException {
     if(args.length != 2) {
       throw new IllegalArgumentException(
           "$groups() expects exactly two arguments: a variable name and a matching criteria (i.e. a value or a function).");
@@ -297,7 +306,7 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
 
     List<NativeObject> valueMaps = new ArrayList<NativeObject>();
 
-    if(sv.getValue().isNull() || sv.getValue().isSequence() == false) {
+    if(sv.getValue().isNull() || !sv.getValue().isSequence()) {
       // just map itself
       NativeObject valueMap = new NativeObject();
       valueMaps.add(valueMap);
@@ -337,10 +346,8 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
 
   private static Variable variableFromContext(MagmaContext context, String name) {
     MagmaEngineVariableResolver reference = MagmaEngineVariableResolver.valueOf(name);
-
-    VariableValueSource source = null;
-    source = context.has(ValueTable.class) //
-        ? reference.resolveSource(context.peek(ValueTable.class)) //
+    VariableValueSource source = context.has(ValueTable.class)
+        ? reference.resolveSource(context.peek(ValueTable.class))
         : reference.resolveSource();
     return source.getVariable();
   }
@@ -370,14 +377,14 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
     });
   }
 
-  private static void mapValues(MagmaContext context, Scriptable thisObj, NativeObject valueMap,
+  private static void mapValues(MagmaContext context, Scriptable thisObj, Scriptable valueMap,
       Iterable<Variable> variables, int index) {
     if(index < 0) return;
 
     for(Variable var : variables) {
       ScriptableValue svalue = valueFromContext(context, thisObj, var.getName());
       Value val = var.getValueType().nullValue();
-      if(svalue.getValue().isNull() == false) {
+      if(!svalue.getValue().isNull()) {
         ValueSequence valSeq = svalue.getValue().asSequence();
         if(index < valSeq.getSize()) {
           val = valSeq.get(index);
@@ -410,7 +417,7 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
     @Override
     public boolean apply(Value input) {
       Object rval = criteriaFunction
-          .call(ctx, scope, thisObj, new ScriptableValue[] {new ScriptableValue(thisObj, input)});
+          .call(ctx, scope, thisObj, new ScriptableValue[] { new ScriptableValue(thisObj, input) });
       if(rval instanceof ScriptableValue) {
         rval = ((ScriptableValue) rval).getValue().getValue();
       }
