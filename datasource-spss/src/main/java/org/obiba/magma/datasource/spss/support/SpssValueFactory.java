@@ -16,6 +16,8 @@ import org.opendatafoundation.data.FileFormatInfo;
 import org.opendatafoundation.data.spss.SPSSFileException;
 import org.opendatafoundation.data.spss.SPSSVariable;
 
+import static org.obiba.magma.datasource.spss.support.CharacterSetValidator.validate;
+
 public class SpssValueFactory {
 
   private final int variableIndex;
@@ -36,10 +38,13 @@ public class SpssValueFactory {
   public Value create() {
     try {
       String rawValue = spssVariable.getValueAsString(variableIndex, new FileFormatInfo(FileFormatInfo.Format.ASCII));
+      validate(rawValue);
       return valueType.valueOf(valueFormatter.format(rawValue));
     } catch(SPSSFileException e) {
-      throw new SpssDatasourceParsingException("Error while reading variable", e, "TableDefinitionErrors",
-          spssVariable.getName(), variableIndex, spssVariable.getName());
+      throw new SpssDatasourceParsingException(e, "TableDefinitionErrors", spssVariable.getName());
+    } catch(SpssIsoControlCharacterException e) {
+      throw new SpssDatasourceParsingException("Failed to create variable", spssVariable.getName(), variableIndex,
+          "InvalidCharsetCharacter", variableIndex);
     }
   }
 
