@@ -31,12 +31,14 @@ public interface DatasourceFactory {
    * @deprecated Transformers are no longer read from the opal-config.xml file as part of a datasource configuration.
    *             Method is kept to allow an old configuration to be read and upgraded automatically with an upgrade script.
    */
+  @Deprecated
   void setDatasourceTransformer(DatasourceTransformer transformer);
 
   /**
    * @return datasource transformer
    * @deprecated Used only by the upgrade script to retrieve transformers during an upgrade.
    */
+  @Deprecated
   DatasourceTransformer getDatasourceTransformer();
 
 }

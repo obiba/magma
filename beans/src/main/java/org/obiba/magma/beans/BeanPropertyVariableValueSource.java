@@ -49,6 +49,7 @@ public class BeanPropertyVariableValueSource implements VariableValueSource {
     this.propertyPath = propertyPath;
   }
 
+  @Override
   public Variable getVariable() {
     return variable;
   }
@@ -58,6 +59,7 @@ public class BeanPropertyVariableValueSource implements VariableValueSource {
     return variable.getValueType();
   }
 
+  @Override
   @Nonnull
   public Value getValue(ValueSet valueSet) {
     Object bean = ((BeanValueSet) valueSet).resolve(beanClass, valueSet, variable);

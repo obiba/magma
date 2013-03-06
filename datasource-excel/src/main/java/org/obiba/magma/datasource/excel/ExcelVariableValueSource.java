@@ -11,7 +11,7 @@ import org.obiba.magma.VectorSource;
 
 public class ExcelVariableValueSource implements VariableValueSource {
 
-  private Variable variable;
+  private final Variable variable;
 
   public ExcelVariableValueSource(Variable variable) {
     this.variable = variable;

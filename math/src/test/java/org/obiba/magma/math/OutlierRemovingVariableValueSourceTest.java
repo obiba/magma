@@ -1,12 +1,5 @@
 package org.obiba.magma.math;
 
-import static org.easymock.EasyMock.createMock;
-import static org.easymock.EasyMock.expect;
-import static org.easymock.EasyMock.replay;
-import static org.easymock.EasyMock.verify;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
-
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -17,6 +10,7 @@ import org.junit.Test;
 import org.obiba.magma.MagmaEngine;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueSet;
+import org.obiba.magma.ValueSource;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
@@ -26,6 +20,13 @@ import org.obiba.magma.support.Values;
 import org.obiba.magma.type.IntegerType;
 
 import com.google.common.collect.Iterables;
+
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.replay;
+import static org.easymock.EasyMock.verify;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
 
 public class OutlierRemovingVariableValueSourceTest {
 
@@ -84,7 +85,7 @@ public class OutlierRemovingVariableValueSourceTest {
     OutlierRemovingVariableValueSource testedSource = new OutlierRemovingVariableValueSource(mockTable, mockSource);
     assertThat(testedSource.getVariable(), is(testVariable));
     assertThat(testedSource.getValueType(), is(testVariable.getValueType()));
-    assertThat(testedSource.getWrappedSource(), is(mockSource));
+    assertThat(testedSource.getWrapped(), is(mockSource));
     verify(mockSource);
   }
 
@@ -95,7 +96,8 @@ public class OutlierRemovingVariableValueSourceTest {
     expect(mockSource.getValue(mockValueSet)).andReturn(testValue).anyTimes();
     setupForStatsCompute(Values.asValues(IntegerType.get(), 1, 2, 3, 4));
 
-    OutlierRemovingVariableValueSource testedSource = new OutlierRemovingVariableValueSource(mockTable, mockSource, new DefaultDescriptiveStatisticsProvider());
+    ValueSource testedSource = new OutlierRemovingVariableValueSource(mockTable, mockSource,
+        new DefaultDescriptiveStatisticsProvider());
     assertThat(testedSource.getValue(mockValueSet), is(testValue));
 
     verify(mockSource);
@@ -108,7 +110,8 @@ public class OutlierRemovingVariableValueSourceTest {
     expect(mockSource.getValue(mockValueSet)).andReturn(testValue).anyTimes();
     setupForStatsCompute(Values.asValues(IntegerType.get(), 1, 2, 3, 4));
 
-    OutlierRemovingVariableValueSource testedSource = new OutlierRemovingVariableValueSource(mockTable, mockSource, new DefaultDescriptiveStatisticsProvider());
+    ValueSource testedSource = new OutlierRemovingVariableValueSource(mockTable, mockSource,
+        new DefaultDescriptiveStatisticsProvider());
     assertThat(testedSource.getValue(mockValueSet), is(IntegerType.get().nullValue()));
 
     verify(mockSource);
@@ -129,7 +132,7 @@ public class OutlierRemovingVariableValueSourceTest {
     replay(mockProvider);
     setupForStatsCompute(testValues);
 
-    OutlierRemovingVariableValueSource testedSource = new OutlierRemovingVariableValueSource(mockTable, mockSource, mockProvider);
+    ValueSource testedSource = new OutlierRemovingVariableValueSource(mockTable, mockSource, mockProvider);
 
     assertThat(Iterables.elementsEqual(testedSource.asVectorSource().getValues(emptySet), expectedValues), is(true));
 
@@ -141,7 +144,8 @@ public class OutlierRemovingVariableValueSourceTest {
     expect(mockSource.getValue(mockValueSet)).andReturn(IntegerType.get().nullValue()).anyTimes();
     setupForStatsCompute(Values.asValues(IntegerType.get(), 1, 2, 3, 4));
 
-    OutlierRemovingVariableValueSource testedSource = new OutlierRemovingVariableValueSource(mockTable, mockSource, new DefaultDescriptiveStatisticsProvider());
+    ValueSource testedSource = new OutlierRemovingVariableValueSource(mockTable, mockSource,
+        new DefaultDescriptiveStatisticsProvider());
     assertThat(testedSource.getValue(mockValueSet), is(IntegerType.get().nullValue()));
 
     verify(mockSource);

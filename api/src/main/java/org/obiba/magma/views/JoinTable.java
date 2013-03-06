@@ -3,6 +3,7 @@
  */
 package org.obiba.magma.views;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -26,7 +27,7 @@ import org.obiba.magma.ValueType;
 import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.VariableValueSource;
-import org.obiba.magma.VectorSource;
+import org.obiba.magma.support.AbstractVariableValueSourceWrapper;
 import org.obiba.magma.support.Orderings;
 import org.obiba.magma.support.UnionTimestamps;
 import org.obiba.magma.support.ValueSetBean;
@@ -39,8 +40,10 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
+import com.google.common.collect.Multiset;
 
 @SuppressWarnings({ "UnusedDeclaration", "TransientFieldInNonSerializableClass" })
 public class JoinTable implements ValueTable, Initialisable {
@@ -68,7 +71,11 @@ public class JoinTable implements ValueTable, Initialisable {
    * No-arg constructor (mainly for XStream).
    */
   public JoinTable() {
-    tables = ImmutableList.of();
+    this(new ArrayList<ValueTable>());
+  }
+
+  public JoinTable(@Nonnull List<ValueTable> tables) {
+    this(tables, true);
   }
 
   @SuppressWarnings("ConstantConditions")
@@ -85,10 +92,15 @@ public class JoinTable implements ValueTable, Initialisable {
       }
     }
     this.tables = ImmutableList.copyOf(tables);
+    analyseVariables();
   }
 
-  public JoinTable(@Nonnull List<ValueTable> tables) {
-    this(tables, true);
+  private synchronized void analyseVariables() {
+    for(ValueTable table : tables) {
+      for(Variable variable : table.getVariables()) {
+        variableTables.put(new JoinableVariable(variable), table);
+      }
+    }
   }
 
   @Nonnull
@@ -162,7 +174,8 @@ public class JoinTable implements ValueTable, Initialisable {
   @Nullable
   private JoinableVariable findFirstJoinableVariable(final String name) {
     try {
-      return Iterables.find(variableTables.keys(), new Predicate<JoinableVariable>() {
+      Multiset<JoinableVariable> joinableVariables = variableTables.keys();
+      return Iterables.find(joinableVariables, new Predicate<JoinableVariable>() {
         @Override
         public boolean apply(@Nullable JoinableVariable variable) {
           return variable != null && Objects.equal(variable.getName(), name);
@@ -254,33 +267,23 @@ public class JoinTable implements ValueTable, Initialisable {
   }
 
   @Nonnull
-  private synchronized Set<ValueTable> getTablesWithVariable(Variable variable) {
+  private synchronized Set<ValueTable> getTablesWithVariable(Variable variable) throws NoSuchVariableException {
     return getTablesWithVariable(new JoinableVariable(variable));
   }
 
   @Nonnull
   private synchronized Set<ValueTable> getTablesWithVariable(@Nonnull JoinableVariable joinableVariable)
       throws NoSuchVariableException {
-    if(variableTables.containsKey(joinableVariable)) {
-      Collection<ValueTable> cachedTables = variableTables.get(joinableVariable);
-      if(cachedTables == null) {
-        throw new NoSuchVariableException(joinableVariable.getName());
-      }
-      Set<ValueTable> filteredSet = ImmutableSet.copyOf(Iterables.filter(cachedTables, Predicates.notNull()));
-      if(filteredSet.isEmpty()) {
-        throw new NoSuchVariableException(joinableVariable.getName());
-      }
-      return filteredSet;
+
+    Collection<ValueTable> cachedTables = variableTables.get(joinableVariable);
+    if(cachedTables == null) {
+      throw new NoSuchVariableException(joinableVariable.getName());
     }
-    for(ValueTable table : tables) {
-      JoinableVariable tableVariable = null;
-      try {
-        tableVariable = new JoinableVariable(table.getVariable(joinableVariable.getName()));
-      } catch(NoSuchVariableException ignored) {
-      }
-      variableTables.put(joinableVariable, Objects.equal(joinableVariable, tableVariable) ? table : null);
+    Set<ValueTable> filteredSet = ImmutableSet.copyOf(Iterables.filter(cachedTables, Predicates.notNull()));
+    if(filteredSet.isEmpty()) {
+      throw new NoSuchVariableException(joinableVariable.getName());
     }
-    return getTablesWithVariable(joinableVariable);
+    return filteredSet;
   }
 
   @Override
@@ -293,11 +296,12 @@ public class JoinTable implements ValueTable, Initialisable {
     return false;
   }
 
-  private static class JoinedValueSet extends ValueSetBean {
+  static class JoinedValueSet extends ValueSetBean {
 
+    @Nonnull
     private final Map<String, ValueSet> valueSetsByTable = Maps.newHashMap();
 
-    private JoinedValueSet(@Nonnull ValueTable table, @Nonnull VariableEntity entity) {
+    JoinedValueSet(@Nonnull ValueTable table, @Nonnull VariableEntity entity) {
       super(table, entity);
     }
 
@@ -306,58 +310,40 @@ public class JoinTable implements ValueTable, Initialisable {
       return new UnionTimestamps(valueSetsByTable.values());
     }
 
-    synchronized ValueSet getInnerTableValueSet(Iterable<ValueTable> valueTables) {
-      ValueSet valueSet = null;
+    synchronized Iterable<ValueSet> getInnerTableValueSets(Iterable<ValueTable> valueTables) {
+      List<ValueSet> valueSets = Lists.newArrayList();
       for(ValueTable valueTable : valueTables) {
-        if(valueTable.hasValueSet(getVariableEntity())) {
-          valueSet = valueSetsByTable.get(valueTable.getName());
-          if(valueSet == null) {
-            valueSet = valueTable.getValueSet(getVariableEntity());
-            valueSetsByTable.put(valueTable.getName(), valueSet);
-          }
+        if(valueSetsByTable.containsKey(valueTable.getName())) {
+          ValueSet valueSet = valueSetsByTable.get(valueTable.getName());
+          if(valueSet != null) valueSets.add(valueSet);
+        } else if(valueTable.hasValueSet(getVariableEntity())) {
+          ValueSet valueSet = valueTable.getValueSet(getVariableEntity());
+          valueSetsByTable.put(valueTable.getName(), valueSet);
+          valueSets.add(valueSet);
         }
       }
-      return valueSet;
+      return valueSets;
     }
   }
 
-  private static class JoinedVariableValueSource implements VariableValueSource {
+  private static class JoinedVariableValueSource extends AbstractVariableValueSourceWrapper {
 
     @Nonnull
     private final List<ValueTable> owners;
 
-    @Nonnull
-    private final VariableValueSource wrapped;
-
     private JoinedVariableValueSource(@Nonnull Iterable<ValueTable> owners, @Nonnull VariableValueSource wrapped) {
+      super(wrapped);
       this.owners = Orderings.VALUE_TABLE_NAME_ORDERING.sortedCopy(owners);
-      this.wrapped = wrapped;
-    }
-
-    @Override
-    public Variable getVariable() {
-      return wrapped.getVariable();
     }
 
     @Nonnull
     @Override
     public Value getValue(ValueSet valueSet) {
-      JoinedValueSet joined = (JoinedValueSet) valueSet;
-      ValueSet joinedSet = joined.getInnerTableValueSet(owners);
-      if(joinedSet != null) {
-        return wrapped.getValue(joinedSet);
+      for(ValueSet joinedValueSet : ((JoinedValueSet) valueSet).getInnerTableValueSets(owners)) {
+        Value value = getWrapped().getValue(joinedValueSet);
+        if(!value.isNull()) return value;
       }
       return getVariable().isRepeatable() ? getValueType().nullSequence() : getValueType().nullValue();
-    }
-
-    @Override
-    public ValueType getValueType() {
-      return wrapped.getValueType();
-    }
-
-    @Override
-    public VectorSource asVectorSource() {
-      return wrapped.asVectorSource();
     }
 
     @Override
@@ -365,7 +351,7 @@ public class JoinTable implements ValueTable, Initialisable {
       if(this == that) return true;
       if(that instanceof JoinedVariableValueSource) {
         JoinedVariableValueSource jvvs = (JoinedVariableValueSource) that;
-        return Iterables.elementsEqual(owners, jvvs.owners) && wrapped.equals(jvvs.wrapped);
+        return getWrapped().equals(jvvs.getWrapped()) && Iterables.elementsEqual(owners, jvvs.owners);
       }
       return super.equals(that);
     }
@@ -374,7 +360,7 @@ public class JoinTable implements ValueTable, Initialisable {
     public int hashCode() {
       int result = 17;
       result = 37 * result + owners.hashCode();
-      result = 37 * result + wrapped.hashCode();
+      result = 37 * result + getWrapped().hashCode();
       return result;
     }
 

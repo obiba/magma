@@ -9,11 +9,10 @@ import org.apache.commons.math.stat.descriptive.StatisticalSummaryValues;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueSet;
 import org.obiba.magma.ValueTable;
-import org.obiba.magma.ValueType;
-import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.VariableValueSource;
 import org.obiba.magma.VectorSource;
+import org.obiba.magma.support.AbstractVariableValueSourceWrapper;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
@@ -34,11 +33,9 @@ import com.google.common.collect.Sets;
  *
  * @see OutlierRemovingView
  */
-public class OutlierRemovingVariableValueSource implements VariableValueSource, VectorSource {
+public class OutlierRemovingVariableValueSource extends AbstractVariableValueSourceWrapper implements VectorSource {
 
   private final ValueTable valueTable;
-
-  private final VariableValueSource wrappedSource;
 
   private final DescriptiveStatisticsProvider statisticsProvider;
 
@@ -50,25 +47,19 @@ public class OutlierRemovingVariableValueSource implements VariableValueSource, 
 
   public OutlierRemovingVariableValueSource(ValueTable valueTable, VariableValueSource wrappedSource,
       DescriptiveStatisticsProvider statisticsProvider) {
+    super(wrappedSource);
     if(statisticsProvider == null) throw new IllegalArgumentException("statisticsProvider cannot be null");
     if(valueTable == null) throw new IllegalArgumentException("valueTable cannot be null");
-    if(wrappedSource == null) throw new IllegalArgumentException("wrappedSource cannot be null");
     if(wrappedSource.asVectorSource() == null)
       throw new IllegalArgumentException("wrappedSource cannot provide vectors");
     this.statisticsProvider = statisticsProvider;
-    this.wrappedSource = wrappedSource;
     this.valueTable = valueTable;
-  }
-
-  @Override
-  public Variable getVariable() {
-    return wrappedSource.getVariable();
   }
 
   @Nonnull
   @Override
   public Value getValue(ValueSet valueSet) {
-    Value value = wrappedSource.getValue(valueSet);
+    Value value = getWrapped().getValue(valueSet);
     return isOutlier(value) ? valueForOutlier(value) : value;
   }
 
@@ -78,13 +69,8 @@ public class OutlierRemovingVariableValueSource implements VariableValueSource, 
   }
 
   @Override
-  public ValueType getValueType() {
-    return wrappedSource.getValueType();
-  }
-
-  @Override
   public Iterable<Value> getValues(SortedSet<VariableEntity> entities) {
-    return Iterables.transform(wrappedSource.asVectorSource().getValues(entities), new Function<Value, Value>() {
+    return Iterables.transform(getWrapped().asVectorSource().getValues(entities), new Function<Value, Value>() {
 
       @Override
       public Value apply(Value from) {
@@ -92,10 +78,6 @@ public class OutlierRemovingVariableValueSource implements VariableValueSource, 
       }
 
     });
-  }
-
-  public VariableValueSource getWrappedSource() {
-    return wrappedSource;
   }
 
   /**
@@ -124,7 +106,7 @@ public class OutlierRemovingVariableValueSource implements VariableValueSource, 
     double mean = stats.getMean();
     double sd = stats.getStandardDeviation() * 3;
 
-    return value < (mean - sd) || value > (mean + sd);
+    return value < mean - sd || value > mean + sd;
   }
 
   /**
@@ -138,11 +120,11 @@ public class OutlierRemovingVariableValueSource implements VariableValueSource, 
 
   private synchronized StatisticalSummary calculateStats() {
     if(variableStatistics == null) {
-      StatisticalSummary summary = this.statisticsProvider
-          .compute(getWrappedSource(), Sets.newTreeSet(valueTable.getVariableEntities()));
+      StatisticalSummary summary = statisticsProvider
+          .compute(getWrapped(), Sets.newTreeSet(valueTable.getVariableEntities()));
       // Copy into value-object so we don't keep a reference to the actual values (DescriptiveStatistics keeps all
       // values)
-      this.variableStatistics = new StatisticalSummaryValues(summary.getMean(), summary.getVariance(), summary.getN(),
+      variableStatistics = new StatisticalSummaryValues(summary.getMean(), summary.getVariance(), summary.getN(),
           summary.getMax(), summary.getMin(), summary.getSum());
     }
     return variableStatistics;

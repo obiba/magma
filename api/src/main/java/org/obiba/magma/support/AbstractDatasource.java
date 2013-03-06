@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
+import javax.annotation.Nonnull;
+
 import org.obiba.magma.AbstractAttributeAware;
 import org.obiba.magma.Attribute;
 import org.obiba.magma.Datasource;
@@ -31,7 +33,7 @@ public abstract class AbstractDatasource extends AbstractAttributeAware implemen
 
   private final ListMultimap<String, Attribute> attributes = LinkedListMultimap.create();
 
-  protected AbstractDatasource(String name, String type) {
+  protected AbstractDatasource(@Nonnull String name, String type) {
     Preconditions.checkNotNull(name, "name cannot be null");
     Preconditions.checkNotNull(type, "name cannot be null");
     this.name = name;
