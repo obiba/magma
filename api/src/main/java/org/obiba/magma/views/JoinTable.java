@@ -59,7 +59,8 @@ public class JoinTable implements ValueTable, Initialisable {
   /**
    * Cached map of variable names to tables.
    */
-  private final transient Multimap<JoinableVariable, ValueTable> variableTables = ArrayListMultimap.create();
+  @Nullable
+  private transient Multimap<JoinableVariable, ValueTable> variableTables;
 
   // An arbitrary number to initialise the LinkedHashSet with a capacity close to the actual value
   // See getVariableEntities()
@@ -90,13 +91,21 @@ public class JoinTable implements ValueTable, Initialisable {
       }
     }
     this.tables = ImmutableList.copyOf(tables);
-    analyseVariables();
+  }
+
+  @Nonnull
+  private Multimap<JoinableVariable, ValueTable> getVariableTables() {
+    if(variableTables == null) {
+      variableTables = ArrayListMultimap.create();
+      analyseVariables();
+    }
+    return variableTables;
   }
 
   private synchronized void analyseVariables() {
     for(ValueTable table : tables) {
       for(Variable variable : table.getVariables()) {
-        variableTables.put(new JoinableVariable(variable), table);
+        getVariableTables().put(new JoinableVariable(variable), table);
       }
     }
   }
@@ -172,7 +181,7 @@ public class JoinTable implements ValueTable, Initialisable {
   @Nullable
   private JoinableVariable findFirstJoinableVariable(final String name) {
     try {
-      Multiset<JoinableVariable> joinableVariables = variableTables.keys();
+      Multiset<JoinableVariable> joinableVariables = getVariableTables().keys();
       return Iterables.find(joinableVariables, new Predicate<JoinableVariable>() {
         @Override
         public boolean apply(@Nullable JoinableVariable variable) {
@@ -273,7 +282,7 @@ public class JoinTable implements ValueTable, Initialisable {
   private synchronized List<ValueTable> getTablesWithVariable(@Nonnull JoinableVariable joinableVariable)
       throws NoSuchVariableException {
 
-    Collection<ValueTable> cachedTables = variableTables.get(joinableVariable);
+    Collection<ValueTable> cachedTables = getVariableTables().get(joinableVariable);
     if(cachedTables == null) {
       throw new NoSuchVariableException(joinableVariable.getName());
     }

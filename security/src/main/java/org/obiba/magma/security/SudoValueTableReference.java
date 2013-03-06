@@ -7,10 +7,11 @@ import org.apache.shiro.SecurityUtils;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.security.permissions.Permissions;
 import org.obiba.magma.support.ValueTableReference;
+import org.obiba.magma.support.ValueTableWrapper;
 
 /**
  * An implementation of {@link ValueTableReference} that uses super user privileges to access the referenced table.
- * <p>
+ * <p/>
  * Note that this implementation will also remove the {@link SecuredValueTable} decorator such that the returned table
  * is no longer secured.
  */
@@ -23,7 +24,8 @@ public class SudoValueTableReference extends ValueTableReference {
   public SudoValueTableReference(Authorizer authz, String reference) {
     super(reference);
     this.authz = authz;
-    this.permission = Permissions.DatasourcePermissionBuilder.forDatasource(getResolver().getDatasourceName()).table(getResolver().getTableName()).read().build();
+    permission = Permissions.DatasourcePermissionBuilder.forDatasource(getResolver().getDatasourceName())
+        .table(getResolver().getTableName()).read().build();
   }
 
   @Override
@@ -35,12 +37,7 @@ public class SudoValueTableReference extends ValueTableReference {
       return valueTable;
     }
 
-    if(authz.isPermitted(permission)) {
-      valueTable = super.getWrappedValueTable();
-    } else {
-      // this subject is not allowed to dereference the table. Try to get super user privileges.
-      valueTable = sudo();
-    }
+    valueTable = authz.isPermitted(permission) ? super.getWrappedValueTable() : sudo();
     storeInSession(valueTable);
     return valueTable;
   }
@@ -49,17 +46,17 @@ public class SudoValueTableReference extends ValueTableReference {
     SecurityUtils.getSubject().getSession().setAttribute(getReference(), new WeakReference<ValueTable>(valueTable));
   }
 
+  @SuppressWarnings("unchecked")
   protected ValueTable lookInSession() {
-    WeakReference<ValueTable> ref = (WeakReference<ValueTable>) SecurityUtils.getSubject().getSession().getAttribute(getReference());
-    if(ref != null) {
-      return ref.get();
-    }
-    return null;
+    WeakReference<ValueTable> ref = (WeakReference<ValueTable>) SecurityUtils.getSubject().getSession()
+        .getAttribute(getReference());
+    return ref == null ? null : ref.get();
   }
 
   /**
    * Escalates user privileges to obtain the referenced valueTable. If successful, the result is an unsecured
    * ValueTable.
+   *
    * @return
    */
   protected ValueTable sudo() {
@@ -73,10 +70,7 @@ public class SudoValueTableReference extends ValueTableReference {
   }
 
   protected ValueTable unwrap(ValueTable table) {
-    if(table instanceof SecuredValueTable) {
-      return ((SecuredValueTable) table).getWrappedValueTable();
-    }
-    return table;
+    return table instanceof SecuredValueTable ? ((ValueTableWrapper) table).getWrappedValueTable() : table;
   }
 
 }
