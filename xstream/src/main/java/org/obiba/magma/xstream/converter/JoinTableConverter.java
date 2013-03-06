@@ -14,9 +14,6 @@ import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
 
 public class JoinTableConverter implements Converter {
-  //
-  // Converter Methods
-  //
 
   @Override
   public boolean canConvert(@SuppressWarnings("rawtypes") Class type) {
@@ -47,8 +44,7 @@ public class JoinTableConverter implements Converter {
     List<ValueTable> tables = new ArrayList<ValueTable>();
     while(reader.hasMoreChildren()) {
       reader.moveDown();
-      ValueTableReference tableReference = (ValueTableReference) context.convertAnother(context.currentObject(), ValueTableReference.class);
-      tables.add(tableReference);
+      tables.add((ValueTable) context.convertAnother(context.currentObject(), ValueTableReference.class));
       reader.moveUp();
     }
 

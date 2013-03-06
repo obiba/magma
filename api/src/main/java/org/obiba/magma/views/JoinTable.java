@@ -28,7 +28,6 @@ import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.VariableValueSource;
 import org.obiba.magma.support.AbstractVariableValueSourceWrapper;
-import org.obiba.magma.support.Orderings;
 import org.obiba.magma.support.UnionTimestamps;
 import org.obiba.magma.support.ValueSetBean;
 
@@ -36,9 +35,8 @@ import com.google.common.base.Function;
 import com.google.common.base.Objects;
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
-import com.google.common.collect.HashMultimap;
+import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -61,7 +59,7 @@ public class JoinTable implements ValueTable, Initialisable {
   /**
    * Cached map of variable names to tables.
    */
-  private final transient Multimap<JoinableVariable, ValueTable> variableTables = HashMultimap.create();
+  private final transient Multimap<JoinableVariable, ValueTable> variableTables = ArrayListMultimap.create();
 
   // An arbitrary number to initialise the LinkedHashSet with a capacity close to the actual value
   // See getVariableEntities()
@@ -202,7 +200,7 @@ public class JoinTable implements ValueTable, Initialisable {
     if(joinableVariable == null) {
       throw new NoSuchVariableException(variableName);
     }
-    Set<ValueTable> tablesWithVariable = getTablesWithVariable(joinableVariable);
+    List<ValueTable> tablesWithVariable = getTablesWithVariable(joinableVariable);
     ValueTable table = Iterables.getFirst(tablesWithVariable, null);
     if(table == null) {
       throw new NoSuchVariableException(variableName);
@@ -267,23 +265,23 @@ public class JoinTable implements ValueTable, Initialisable {
   }
 
   @Nonnull
-  private synchronized Set<ValueTable> getTablesWithVariable(Variable variable) throws NoSuchVariableException {
+  private synchronized List<ValueTable> getTablesWithVariable(Variable variable) throws NoSuchVariableException {
     return getTablesWithVariable(new JoinableVariable(variable));
   }
 
   @Nonnull
-  private synchronized Set<ValueTable> getTablesWithVariable(@Nonnull JoinableVariable joinableVariable)
+  private synchronized List<ValueTable> getTablesWithVariable(@Nonnull JoinableVariable joinableVariable)
       throws NoSuchVariableException {
 
     Collection<ValueTable> cachedTables = variableTables.get(joinableVariable);
     if(cachedTables == null) {
       throw new NoSuchVariableException(joinableVariable.getName());
     }
-    Set<ValueTable> filteredSet = ImmutableSet.copyOf(Iterables.filter(cachedTables, Predicates.notNull()));
-    if(filteredSet.isEmpty()) {
+    List<ValueTable> filteredList = ImmutableList.copyOf(Iterables.filter(cachedTables, Predicates.notNull()));
+    if(filteredList.isEmpty()) {
       throw new NoSuchVariableException(joinableVariable.getName());
     }
-    return filteredSet;
+    return filteredList;
   }
 
   @Override
@@ -331,9 +329,9 @@ public class JoinTable implements ValueTable, Initialisable {
     @Nonnull
     private final List<ValueTable> owners;
 
-    private JoinedVariableValueSource(@Nonnull Iterable<ValueTable> owners, @Nonnull VariableValueSource wrapped) {
+    private JoinedVariableValueSource(@Nonnull List<ValueTable> owners, @Nonnull VariableValueSource wrapped) {
       super(wrapped);
-      this.owners = Orderings.VALUE_TABLE_NAME_ORDERING.sortedCopy(owners);
+      this.owners = owners;
     }
 
     @Nonnull
