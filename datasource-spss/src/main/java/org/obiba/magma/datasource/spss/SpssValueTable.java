@@ -90,6 +90,7 @@ public class SpssValueTable extends AbstractValueTable {
     }
   }
 
+  @SuppressWarnings("MethodOnlyUsedFromInnerClass")
   private void loadData() {
     if(spssFile.isDataLoaded) {
       return;
@@ -130,6 +131,7 @@ public class SpssValueTable extends AbstractValueTable {
       return getEntityType().equals(anEntityType);
     }
 
+    @SuppressWarnings("TypeMayBeWeakened")
     @Override
     public Set<VariableEntity> getVariableEntities() {
 
@@ -147,7 +149,7 @@ public class SpssValueTable extends AbstractValueTable {
             String identifier = entityVariable.getValueAsString(i, new FileFormatInfo(FileFormatInfo.Format.ASCII));
 
             if (entityIdentifiers.contains(identifier)) {
-              throw new SpssDatasourceParsingException("Duplicated entity identifier", "SpssDuplicateEntity", getName(), i, identifier);
+              throw new SpssDatasourceParsingException("Duplicated entity identifier", getName(), i, "SpssDuplicateEntity", identifier, i);
             }
 
             entitiesBuilder.add(new SpssVariableEntity(entityType, identifier, i));

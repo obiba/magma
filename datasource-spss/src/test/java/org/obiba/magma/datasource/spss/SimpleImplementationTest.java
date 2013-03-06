@@ -13,7 +13,6 @@ import org.obiba.magma.ValueTable;
 import org.obiba.magma.Variable;
 import org.obiba.magma.datasource.spss.support.SpssDatasourceFactory;
 import org.obiba.magma.datasource.spss.support.SpssMagmaEngineTest;
-import org.opendatafoundation.data.FileFormatInfo;
 import org.opendatafoundation.data.spss.SPSSFile;
 import org.opendatafoundation.data.spss.SPSSFileException;
 import org.opendatafoundation.data.spss.SPSSVariable;
@@ -86,9 +85,10 @@ public class SimpleImplementationTest extends SpssMagmaEngineTest {
       SPSSVariable entity = spssFile.getVariable(0);
       System.out.println("Variable entity column: " + entity.getName());
 
-      for(int i = 1; i <= entity.getNumberOfObservation(); i++) {
-        System.out.println("Value: " + entity.getValueAsString(i, new FileFormatInfo(FileFormatInfo.Format.ASCII)));
-      }
+      // Uncomment only for testing
+//      for(int i = 1; i <= entity.getNumberOfObservation(); i++) {
+//        System.out.println("Value: " + entity.getValueAsString(i, new FileFormatInfo(FileFormatInfo.Format.ASCII)));
+//      }
 
     } catch(FileNotFoundException e) {
       e.printStackTrace();
