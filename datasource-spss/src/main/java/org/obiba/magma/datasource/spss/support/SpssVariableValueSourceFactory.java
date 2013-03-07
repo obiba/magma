@@ -59,7 +59,7 @@ public class SpssVariableValueSourceFactory implements VariableValueSourceFactor
       SPSSVariable spssVariable = spssFile.getVariable(i);
       try {
         sources.add(new SpssVariableValueSource(createVariableBuilder(spssVariable), spssVariable));
-      } catch(SpssIsoControlCharacterException e) {
+      } catch(SpssInvalidCharacterException e) {
         throw new SpssDatasourceParsingException("Failed to create variable", spssVariable.getName(), i+1,
             "InvalidCharsetCharacter", i+1);
       }
@@ -73,7 +73,7 @@ public class SpssVariableValueSourceFactory implements VariableValueSourceFactor
   //
 
   private void initializeStringCategories(SPSSVariable variable, Variable.Builder builder)
-      throws SpssIsoControlCharacterException {
+      throws SpssInvalidCharacterException {
     if(variable.categoryMap != null) {
       for(String category : variable.categoryMap.keySet()) {
         SPSSVariableCategory spssCategory = variable.categoryMap.get(category);
@@ -85,7 +85,7 @@ public class SpssVariableValueSourceFactory implements VariableValueSourceFactor
   }
 
   private void initializeNumericCategories(SPSSVariable variable, Variable.Builder builder)
-      throws SpssIsoControlCharacterException {
+      throws SpssInvalidCharacterException {
     if(variable.categoryMap != null) {
       for(String category : variable.categoryMap.keySet()) {
         SPSSVariableCategory spssCategory = variable.categoryMap.get(category);
@@ -97,7 +97,7 @@ public class SpssVariableValueSourceFactory implements VariableValueSourceFactor
   }
 
   @SuppressWarnings("ChainOfInstanceofChecks")
-  private Variable createVariableBuilder(@Nonnull SPSSVariable spssVariable) throws SpssIsoControlCharacterException {
+  private Variable createVariableBuilder(@Nonnull SPSSVariable spssVariable) throws SpssInvalidCharacterException {
     String variableName = spssVariable.getName();
     validate(variableName);
     Variable.Builder builder = Variable.Builder.newVariable(variableName, TextType.get(), "Participant");
@@ -115,7 +115,7 @@ public class SpssVariableValueSourceFactory implements VariableValueSourceFactor
   }
 
   private void addLabel(@Nonnull Variable.Builder builder, @Nonnull SPSSVariable spssVariable)
-      throws SpssIsoControlCharacterException {
+      throws SpssInvalidCharacterException {
     String label = spssVariable.getLabel();
 
     if(!Strings.isNullOrEmpty(label)) {
@@ -125,7 +125,7 @@ public class SpssVariableValueSourceFactory implements VariableValueSourceFactor
   }
 
   private void addAttributes(Variable.Builder builder, @Nonnull SPSSVariable spssVariable)
-      throws SpssIsoControlCharacterException {
+      throws SpssInvalidCharacterException {
     builder.addAttribute(createAttribute("measure", spssVariable.getMeasureLabel()))
         .addAttribute(createAttribute("width", spssVariable.getLength()))
         .addAttribute(createAttribute("decimals", spssVariable.getDecimals()))
@@ -134,12 +134,12 @@ public class SpssVariableValueSourceFactory implements VariableValueSourceFactor
   }
 
   private Attribute createAttribute(String attributeName, @Nullable String value)
-      throws SpssIsoControlCharacterException {
+      throws SpssInvalidCharacterException {
     validate(value);
     return Attribute.Builder.newAttribute(attributeName).withNamespace("spss").withValue(value).build();
   }
 
-  private Attribute createAttribute(String attributeName, int value) throws SpssIsoControlCharacterException {
+  private Attribute createAttribute(String attributeName, int value) throws SpssInvalidCharacterException {
     return createAttribute(attributeName, String.valueOf(value));
   }
 }

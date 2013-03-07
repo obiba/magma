@@ -9,11 +9,11 @@
  */
 package org.obiba.magma.datasource.spss.support;
 
-public class SpssIsoControlCharacterException extends Exception {
+public class SpssInvalidCharacterException extends Exception {
 
   private static final long serialVersionUID = 1911128114283266676L;
 
-  public SpssIsoControlCharacterException(String message) {
+  public SpssInvalidCharacterException(String message) {
     super(message);
   }
 
