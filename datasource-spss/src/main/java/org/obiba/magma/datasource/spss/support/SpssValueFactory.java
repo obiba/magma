@@ -42,7 +42,7 @@ public class SpssValueFactory {
       return valueType.valueOf(valueFormatter.format(rawValue));
     } catch(SPSSFileException e) {
       throw new SpssDatasourceParsingException(e, "TableDefinitionErrors", spssVariable.getName());
-    } catch(SpssIsoControlCharacterException e) {
+    } catch(SpssInvalidCharacterException e) {
       throw new SpssDatasourceParsingException("Failed to create variable", spssVariable.getName(), variableIndex,
           "InvalidCharsetCharacter", variableIndex);
     }
@@ -83,10 +83,18 @@ public class SpssValueFactory {
     String format(String value);
   }
 
-  private static class SpssNumberTypeFormatter implements SpssTypeFormatter {
+  private static class SpssDefaultTypeFormatter implements SpssTypeFormatter {
     @Override
     public String format(String value) {
-      return value.replaceAll(" ", "").isEmpty() ? "0" : value;
+      String trimmed = value.trim();
+      return trimmed.isEmpty() ? null : trimmed;
+    }
+  }
+
+  private static class SpssNumberTypeFormatter extends SpssDefaultTypeFormatter {
+    @Override
+    public String format(String value) {
+      return super.format(value.replaceAll("\\*", "")); // removes overflow delimeter if any
     }
   }
 
@@ -100,21 +108,14 @@ public class SpssValueFactory {
   private static class SpssCommaTypeFormatter extends SpssNumberTypeFormatter {
     @Override
     public String format(String value) {
-      return super.format(value.replaceAll(",|", ""));
+      return super.format(value.replaceAll(",", ""));
     }
   }
 
   private static class SpssDollarTypeFormatter extends SpssNumberTypeFormatter {
     @Override
     public String format(String value) {
-      return super.format(value.replaceAll("\\$|,|", ""));
-    }
-  }
-
-  private static class SpssDefaultTypeFormatter implements SpssTypeFormatter {
-    @Override
-    public String format(String value) {
-      return value;
+      return super.format(value.replaceAll("\\$|,", ""));
     }
   }
 
