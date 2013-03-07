@@ -21,12 +21,12 @@ public final class CharacterSetValidator {
   }
 
   @SuppressWarnings("ConstantConditions")
-  public static void validate(@Nullable String source) throws SpssIsoControlCharacterException {
+  public static void validate(@Nullable String source) throws SpssInvalidCharacterException {
     if(Strings.isNullOrEmpty(source)) return;
 
     for(int i = 0; i < source.length(); i++) {
       if(!isPrintableChar(source.charAt(i))) {
-        throw new SpssIsoControlCharacterException("String contains a non-printable character'");
+        throw new SpssInvalidCharacterException("String contains a non-printable character'");
       }
     }
 
