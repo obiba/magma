@@ -9,6 +9,7 @@
  */
 package org.obiba.magma.datasource.spss;
 
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
@@ -90,22 +91,6 @@ public class SpssValueTable extends AbstractValueTable {
     }
   }
 
-  private void loadData() {
-    if(spssFile.isDataLoaded) {
-      return;
-    }
-
-    try {
-      if(!spssFile.isMetadataLoaded) {
-        loadMetadata();
-      }
-
-      spssFile.loadData();
-    } catch(Exception e) {
-      throw new SpssDatasourceParsingException(e, "SpssFailedToLoadData", spssFile.file.getName());
-    }
-  }
-
   //
   // Inner Classes
   //
@@ -130,13 +115,14 @@ public class SpssValueTable extends AbstractValueTable {
       return getEntityType().equals(anEntityType);
     }
 
+
     @Override
     public Set<VariableEntity> getVariableEntities() {
 
       if(variableEntities == null) {
         loadData();
 
-        Set<String> entityIdentifiers = new HashSet<String>();
+        Collection<String> entityIdentifiers = new HashSet<String>();
         ImmutableSet.Builder<VariableEntity> entitiesBuilder = ImmutableSet.builder();
         SPSSVariable entityVariable = spssFile.getVariable(0);
         int numberOfObservations = entityVariable.getNumberOfObservation();
@@ -147,7 +133,7 @@ public class SpssValueTable extends AbstractValueTable {
             String identifier = entityVariable.getValueAsString(i, new FileFormatInfo(FileFormatInfo.Format.ASCII));
 
             if (entityIdentifiers.contains(identifier)) {
-              throw new SpssDatasourceParsingException("Duplicated entity identifier", "SpssDuplicateEntity", getName(), i, identifier);
+              throw new SpssDatasourceParsingException("Duplicated entity identifier", getName(), i, "SpssDuplicateEntity", identifier, i);
             }
 
             entitiesBuilder.add(new SpssVariableEntity(entityType, identifier, i));
@@ -162,6 +148,22 @@ public class SpssValueTable extends AbstractValueTable {
       }
 
       return variableEntities;
+    }
+
+    private void loadData() {
+      if(spssFile.isDataLoaded) {
+        return;
+      }
+
+      try {
+        if(!spssFile.isMetadataLoaded) {
+          loadMetadata();
+        }
+
+        spssFile.loadData();
+      } catch(Exception e) {
+        throw new SpssDatasourceParsingException(e, "SpssFailedToLoadData", spssFile.file.getName());
+      }
     }
 
   }

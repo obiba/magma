@@ -13,16 +13,17 @@ import java.io.File;
 import java.util.Iterator;
 import java.util.Set;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.obiba.magma.Datasource;
+import org.obiba.magma.MagmaEngine;
 import org.obiba.magma.NoSuchVariableException;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.datasource.spss.support.SpssDatasourceFactory;
 import org.obiba.magma.datasource.spss.support.SpssDatasourceParsingException;
-import org.obiba.magma.datasource.spss.support.SpssMagmaEngineTest;
 import org.obiba.magma.type.DecimalType;
 import org.obiba.magma.type.TextType;
 
@@ -30,14 +31,20 @@ import junit.framework.Assert;
 
 import static org.junit.Assert.assertTrue;
 
-public class DatasourceSpssTest extends SpssMagmaEngineTest {
+public class SpssDatasourceTest {
 
   private SpssDatasourceFactory dsFactory;
 
   @Before
-  public void setUp() {
+  public void before() {
+    new MagmaEngine();
     dsFactory = new SpssDatasourceFactory();
     dsFactory.setName(SpssDatasourceFactory.DEFAULT_DATASOURCE_NAME);
+  }
+
+  @After
+  public void after() {
+    MagmaEngine.get().shutdown();
   }
 
   @Test
@@ -57,7 +64,7 @@ public class DatasourceSpssTest extends SpssMagmaEngineTest {
   @Test
   public void createDatasourceWithTwoFiles() {
     File file1 = new File("src/test/resources/org/obiba/magma/datasource/spss/DatabaseTest.sav");
-    File file2 = new File("src/test/resources/org/obiba/magma/datasource/spss/HOP phase1d LifeLines.sav");
+    File file2 = new File("src/test/resources/org/obiba/magma/datasource/spss/StringCategories.sav");
 
     dsFactory.addFile(file1);
     dsFactory.addFile(file2);
@@ -83,10 +90,10 @@ public class DatasourceSpssTest extends SpssMagmaEngineTest {
 
   @Test
   public void getValueTableDatasourceWithValidFile() {
-    dsFactory.setFile("src/test/resources/org/obiba/magma/datasource/spss/HOP phase1d LifeLines.sav");
+    dsFactory.setFile("src/test/resources/org/obiba/magma/datasource/spss/StringCategories.sav");
     Datasource ds = dsFactory.create();
     ds.initialise();
-    Assert.assertNotNull(ds.getValueTable("HOPphase1dLifeLines"));
+    Assert.assertNotNull(ds.getValueTable("StringCategories"));
   }
 
   @Test
@@ -107,10 +114,10 @@ public class DatasourceSpssTest extends SpssMagmaEngineTest {
 
   @Test
   public void getVariableFromValueTableWithFrenchChars() {
-    dsFactory.setFile("src/test/resources/org/obiba/magma/datasource/spss/dictionnaire_variablesT4.sav");
+    dsFactory.setFile("src/test/resources/org/obiba/magma/datasource/spss/dictionnaire_variablesT4-simple.sav");
     Datasource ds = dsFactory.create();
     ds.initialise();
-    Assert.assertNotNull(ds.getValueTable("dictionnaire_variablesT4").getVariable("DOMICIT4"));
+    Assert.assertNotNull(ds.getValueTable("dictionnaire_variablesT4-simple").getVariable("ETATCIT4"));
   }
 
   @Test(expected = NoSuchVariableException.class)
@@ -188,18 +195,18 @@ public class DatasourceSpssTest extends SpssMagmaEngineTest {
 
   @Test
   public void getValueSetForGivenEntityLargeDatasource() {
-    dsFactory.setFile("src/test/resources/org/obiba/magma/datasource/spss/sharew2_rel2-5-0_ac.sav");
+    dsFactory.setFile("src/test/resources/org/obiba/magma/datasource/spss/DatabaseTest.sav");
     Datasource ds = dsFactory.create();
     ds.initialise();
-    ValueTable valueTable = ds.getValueTable("sharew2_rel2-5-0_ac");
+    ValueTable valueTable = ds.getValueTable("DatabaseTest");
     Iterator<VariableEntity> iterator = valueTable.getVariableEntities().iterator();
 
     if (iterator.hasNext()) {
       SpssValueSet valueSet = (SpssValueSet)valueTable.getValueSet(iterator.next());
-      Value value = valueSet.getValue(ds.getValueTable("sharew2_rel2-5-0_ac").getVariable("hhid2"));
+      Value value = valueSet.getValue(ds.getValueTable("DatabaseTest").getVariable("race"));
       Assert.assertNotNull(value);
       Assert.assertFalse(value.isNull());
-      Value expected = TextType.get().valueOf("AT-000327-A");
+      Value expected = DecimalType.get().valueOf(4.0);
       Assert.assertTrue(value.compareTo(expected) == 0);
     }
   }

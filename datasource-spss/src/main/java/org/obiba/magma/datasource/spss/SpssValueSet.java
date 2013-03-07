@@ -53,12 +53,10 @@ public class SpssValueSet extends ValueSetBean {
   private void loadVariables() {
     SpssVariableEntity variableEntity = (SpssVariableEntity) getVariableEntity();
     int variableIndex = variableEntity.getVariableIndex();
-    SpssVariableTypeMapper typeMapper = new SpssVariableTypeMapper();
 
     for(int i = 1; i < spssFile.getVariableCount(); i++) {
       SPSSVariable spssVariable = spssFile.getVariable(i);
-      row.put(spssVariable.getName(),
-          new SpssValueFactory(variableIndex, spssVariable, typeMapper.map(spssVariable)).create());
+      row.put(spssVariable.getName(), new SpssValueFactory(variableIndex, spssVariable, SpssVariableTypeMapper.map(spssVariable)).create());
     }
   }
 
