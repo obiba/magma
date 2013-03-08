@@ -18,8 +18,9 @@ import org.obiba.magma.Value;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
-import org.obiba.magma.datasource.spss.support.SpssValueFactory;
+import org.obiba.magma.datasource.spss.support.SpssNumericDataType;
 import org.obiba.magma.datasource.spss.support.SpssVariableTypeMapper;
+import org.obiba.magma.datasource.spss.support.SpssVariableValueFactory;
 import org.obiba.magma.support.ValueSetBean;
 import org.opendatafoundation.data.spss.SPSSFile;
 import org.opendatafoundation.data.spss.SPSSVariable;
@@ -56,7 +57,8 @@ public class SpssValueSet extends ValueSetBean {
 
     for(int i = 1; i < spssFile.getVariableCount(); i++) {
       SPSSVariable spssVariable = spssFile.getVariable(i);
-      row.put(spssVariable.getName(), new SpssValueFactory(variableIndex, spssVariable, SpssVariableTypeMapper.map(spssVariable)).create());
+      row.put(spssVariable.getName(),
+          new SpssVariableValueFactory(variableIndex, spssVariable, SpssVariableTypeMapper.map(spssVariable)).create());
     }
   }
 
