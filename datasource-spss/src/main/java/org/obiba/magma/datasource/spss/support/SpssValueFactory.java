@@ -12,19 +12,17 @@ package org.obiba.magma.datasource.spss.support;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueType;
 import org.obiba.magma.type.TextType;
-import org.opendatafoundation.data.FileFormatInfo;
-import org.opendatafoundation.data.spss.SPSSFileException;
 import org.opendatafoundation.data.spss.SPSSVariable;
 
 import static org.obiba.magma.datasource.spss.support.CharacterSetValidator.validate;
 
-public class SpssValueFactory {
+public abstract class SpssValueFactory {
 
-  private final int variableIndex;
+  protected final int variableIndex;
 
-  private final SPSSVariable spssVariable;
+  protected final SPSSVariable spssVariable;
 
-  private final ValueType valueType;
+  protected final ValueType valueType;
 
   private SpssTypeFormatter valueFormatter;
 
@@ -35,18 +33,15 @@ public class SpssValueFactory {
     initializeVariableTypeFormatter();
   }
 
-  public Value create() {
-    try {
-      String rawValue = spssVariable.getValueAsString(variableIndex, new FileFormatInfo(FileFormatInfo.Format.ASCII));
-      validate(rawValue);
-      return valueType.valueOf(valueFormatter.format(rawValue));
-    } catch(SPSSFileException e) {
-      throw new SpssDatasourceParsingException(e, "TableDefinitionErrors", spssVariable.getName());
-    } catch(SpssInvalidCharacterException e) {
-      throw new SpssDatasourceParsingException("Failed to create variable", spssVariable.getName(), variableIndex,
-          "InvalidCharsetCharacter", variableIndex);
-    }
+  public abstract Value create();
+
+  protected Value createValue() throws SpssInvalidCharacterException {
+    String value = getValue();
+    validate(value);
+    return valueType.valueOf(valueFormatter.format(value));
   }
+
+  protected abstract String getValue();
 
   private void initializeVariableTypeFormatter() {
 
@@ -78,6 +73,10 @@ public class SpssValueFactory {
     }
 
   }
+
+  //
+  // Inner classes
+  //
 
   private interface SpssTypeFormatter {
     String format(String value);
@@ -118,5 +117,4 @@ public class SpssValueFactory {
       return super.format(value.replaceAll("\\$|,", ""));
     }
   }
-
 }
