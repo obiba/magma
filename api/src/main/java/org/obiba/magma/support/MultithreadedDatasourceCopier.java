@@ -11,6 +11,9 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 import org.obiba.magma.Datasource;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueSet;
@@ -97,12 +100,14 @@ public class MultithreadedDatasourceCopier {
 
   }
 
+  @Nullable
   private ThreadFactory threadFactory;
 
   private int bufferSize = BUFFER_SIZE;
 
   private int concurrentReaders = 3;
 
+  @Nonnull
   private DatasourceCopier.Builder copier = DatasourceCopier.Builder.newCopier();
 
   private ValueTable sourceTable;
@@ -111,6 +116,7 @@ public class MultithreadedDatasourceCopier {
 
   private Datasource destinationDatasource;
 
+  @Nonnull
   private VariableValueSource sources[];
 
   private Variable variables[];
@@ -139,7 +145,8 @@ public class MultithreadedDatasourceCopier {
     // A queue containing all entity values available for writing to the destinationDatasource.
     BlockingQueue<VariableEntityValues> writeQueue = new LinkedBlockingDeque<VariableEntityValues>(bufferSize);
 
-    if(copier.build().isCopyValues()) {
+    DatasourceCopier datasourceCopier = copier.build();
+    if(datasourceCopier.isCopyValues()) {
 
       // A queue containing all entities to read the values for.
       // Once this is empty, and all readers are done, then reading is over.
@@ -147,7 +154,8 @@ public class MultithreadedDatasourceCopier {
           sourceTable.getVariableEntities());
       entitiesToCopy = readQueue.size();
       for(int i = 0; i < concurrentReaders; i++) {
-        readers.add(executor.submit(new ConcurrentValueSetReader(readQueue, writeQueue)));
+        readers.add(
+            executor.submit(new ConcurrentValueSetReader(readQueue, writeQueue, datasourceCopier.isCopyNullValues())));
       }
     }
     try {
@@ -223,10 +231,13 @@ public class MultithreadedDatasourceCopier {
 
     private final BlockingQueue<VariableEntityValues> writeQueue;
 
+    private final boolean copyNullValues;
+
     private ConcurrentValueSetReader(BlockingQueue<VariableEntity> readQueue,
-        BlockingQueue<VariableEntityValues> writeQueue) {
+        BlockingQueue<VariableEntityValues> writeQueue, boolean copyNullValues) {
       this.readQueue = readQueue;
       this.writeQueue = writeQueue;
+      this.copyNullValues = copyNullValues;
     }
 
     @SuppressWarnings("OverlyNestedMethod")
@@ -239,7 +250,12 @@ public class MultithreadedDatasourceCopier {
             ValueSet valueSet = sourceTable.getValueSet(entity);
             Value[] values = new Value[sources.length];
             for(int i = 0; i < sources.length; i++) {
-              values[i] = sources[i].getValue(valueSet);
+              Value srcValue = sources[i].getValue(valueSet);
+              if(srcValue.isNull()) {
+                if(copyNullValues) values[i] = srcValue;
+              } else {
+                values[i] = srcValue;
+              }
             }
             log.debug("Enqueued entity {}", entity.getIdentifier());
             writeQueue.put(new VariableEntityValues(valueSet, values));

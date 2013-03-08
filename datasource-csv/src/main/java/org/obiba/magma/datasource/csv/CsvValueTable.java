@@ -18,6 +18,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.annotation.Nullable;
+
 import org.obiba.magma.Datasource;
 import org.obiba.magma.Disposable;
 import org.obiba.magma.Initialisable;
@@ -59,8 +61,10 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
 
   private ValueTable refTable;
 
+  @Nullable
   private File variableFile;
 
+  @Nullable
   private final File dataFile;
 
   private CSVVariableEntityProvider variableEntityProvider;
@@ -90,14 +94,15 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
     this(datasource, name, null, dataFile, entityType);
   }
 
-  public CsvValueTable(Datasource datasource, String name, File variableFile, File dataFile, String entityType) {
+  public CsvValueTable(Datasource datasource, String name, @Nullable File variableFile, @Nullable File dataFile,
+      String entityType) {
     super(datasource, name);
     this.variableFile = variableFile;
     this.dataFile = dataFile;
     this.entityType = entityType == null ? DEFAULT_ENTITY_TYPE : entityType;
   }
 
-  public CsvValueTable(Datasource datasource, ValueTable refTable, File dataFile) {
+  public CsvValueTable(Datasource datasource, ValueTable refTable, @Nullable File dataFile) {
     super(datasource, refTable.getName());
     this.refTable = refTable;
     this.dataFile = dataFile;
@@ -265,7 +270,7 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
         boolean wasPending = false;
         while(nextLine != null) {
           line = parser.parseLineMulti(nextLine);
-          if(wasPending == false && line.length > 0 && line[0] != null && line[0].trim().length() > 0) {
+          if(!wasPending && line.length > 0 && line[0] != null && line[0].trim().length() > 0) {
             VariableEntity entity = new VariableEntityBean(entityType, line[0]);
             entityIndex.put(entity, lineIndex.get(count));
           }
