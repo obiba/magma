@@ -6,7 +6,8 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
-import org.obiba.magma.MagmaDate;
+import javax.annotation.Nullable;
+
 import org.obiba.magma.MagmaEngine;
 import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.Value;
@@ -37,8 +38,7 @@ public class DateTimeType extends AbstractValueType {
       new SimpleDateFormat("yyyy-MM-dd HH:mm"), //
       new SimpleDateFormat("yyyy/MM/dd HH:mm"), //
       new SimpleDateFormat("yyyy.MM.dd HH:mm"), //
-      new SimpleDateFormat("yyyy MM dd HH:mm")
-  };
+      new SimpleDateFormat("yyyy MM dd HH:mm") };
 
   private String dateFormatPatterns = "";
 
@@ -96,7 +96,7 @@ public class DateTimeType extends AbstractValueType {
   }
 
   @Override
-  public Value valueOf(String string) {
+  public Value valueOf(@Nullable String string) {
     if(string == null) {
       return nullValue();
     }

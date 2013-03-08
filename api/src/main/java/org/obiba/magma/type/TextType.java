@@ -5,6 +5,8 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.Nullable;
+
 import org.obiba.magma.MagmaEngine;
 import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.Value;
@@ -61,7 +63,7 @@ public class TextType extends AbstractValueType {
   }
 
   @Override
-  public Value valueOf(String string) {
+  public Value valueOf(@Nullable String string) {
     if(string == null) {
       return nullValue();
     }
@@ -126,7 +128,7 @@ public class TextType extends AbstractValueType {
   }
 
   private CSVParser getCsvParser() {
-    if (csvParser == null) {
+    if(csvParser == null) {
       csvParser = new CSVParser(SEPARATOR, QUOTE);
     }
     return csvParser;

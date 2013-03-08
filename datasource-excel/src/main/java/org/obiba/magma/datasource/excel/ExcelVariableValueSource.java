@@ -22,6 +22,7 @@ public class ExcelVariableValueSource implements VariableValueSource {
     return variable;
   }
 
+  @Nonnull
   @Override
   public ValueType getValueType() {
     return variable.getValueType();

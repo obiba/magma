@@ -377,6 +377,7 @@ class LimesurveyValueTable extends AbstractValueTable {
       this.variable = variable;
     }
 
+    @Nonnull
     @Override
     public ValueType getValueType() {
       return variable.getValueType();

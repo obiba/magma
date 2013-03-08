@@ -10,6 +10,7 @@
 package org.obiba.magma.beans;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.Value;
@@ -54,6 +55,7 @@ public class BeanPropertyVariableValueSource implements VariableValueSource {
     return variable;
   }
 
+  @Nonnull
   @Override
   public ValueType getValueType() {
     return variable.getValueType();
@@ -83,11 +85,13 @@ public class BeanPropertyVariableValueSource implements VariableValueSource {
     }
   }
 
+  @Nullable
   @Override
   public VectorSource asVectorSource() {
     return null;
   }
 
+  @Nullable
   protected Object getPropertyValue(String propertyPath, BeanWrapper bw) {
     try {
       return bw.getPropertyValue(propertyPath);

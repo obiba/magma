@@ -3,6 +3,8 @@ package org.obiba.magma.type;
 import java.lang.ref.WeakReference;
 import java.util.Locale;
 
+import javax.annotation.Nullable;
+
 import org.obiba.magma.MagmaEngine;
 import org.obiba.magma.Value;
 
@@ -63,24 +65,24 @@ public class LocaleType extends AbstractValueType {
   }
 
   @Override
-  public Value valueOf(String string) {
+  public Value valueOf(@Nullable String string) {
     if(string == null) {
       return nullValue();
     }
     String parts[] = string.split("_");
     Locale locale;
     switch(parts.length) {
-    case 1:
-      locale = new Locale(parts[0]);
-      break;
-    case 2:
-      locale = new Locale(parts[0], parts[1]);
-      break;
-    case 3:
-      locale = new Locale(parts[0], parts[1], parts[2]);
-      break;
-    default:
-      throw new IllegalArgumentException("Invalid locale string " + string);
+      case 1:
+        locale = new Locale(parts[0]);
+        break;
+      case 2:
+        locale = new Locale(parts[0], parts[1]);
+        break;
+      case 3:
+        locale = new Locale(parts[0], parts[1], parts[2]);
+        break;
+      default:
+        throw new IllegalArgumentException("Invalid locale string " + string);
     }
     return Factory.newValue(this, locale);
   }

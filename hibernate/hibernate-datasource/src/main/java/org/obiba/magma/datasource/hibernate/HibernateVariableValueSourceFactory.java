@@ -219,6 +219,7 @@ class HibernateVariableValueSourceFactory implements VariableValueSourceFactory 
 
     }
 
+    @Nonnull
     @Override
     public ValueType getValueType() {
       return getVariable().getValueType();

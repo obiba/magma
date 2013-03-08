@@ -2,6 +2,8 @@ package org.obiba.magma.type;
 
 import java.lang.ref.WeakReference;
 
+import javax.annotation.Nullable;
+
 import org.obiba.magma.MagmaEngine;
 import org.obiba.magma.Value;
 
@@ -54,7 +56,7 @@ public class BooleanType extends AbstractValueType {
   }
 
   @Override
-  public Value valueOf(String string) {
+  public Value valueOf(@Nullable String string) {
     if(string == null) {
       return nullValue();
     }

@@ -11,6 +11,8 @@ package org.obiba.magma.datasource.hibernate.converter;
 
 import java.io.Serializable;
 
+import javax.annotation.Nonnull;
+
 import org.hibernate.SessionFactory;
 import org.obiba.core.service.impl.hibernate.AssociationCriteria;
 import org.obiba.magma.Value;
@@ -76,6 +78,7 @@ public class HibernateValueLoaderFactory implements ValueLoaderFactory {
       return valueRef == null || valueRef.isNull();
     }
 
+    @Nonnull
     @Override
     public Object getValue() {
       if(value == null) {

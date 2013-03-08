@@ -18,17 +18,18 @@ public class Value implements Serializable, Comparable<Value> {
 
   private transient int hashCode;
 
-  Value(@Nullable ValueType valueType, Serializable value) {
+  Value(@Nonnull ValueType valueType, @Nullable Serializable value) {
     this(valueType, new StaticValueLoader(value));
   }
 
   @SuppressWarnings("NullableProblems")
-  Value(@Nullable ValueType valueType, ValueLoader valueLoader) {
+  Value(@Nonnull ValueType valueType, @Nullable ValueLoader valueLoader) {
     if(valueType == null) throw new IllegalArgumentException("valueType cannot be null");
     this.valueType = valueType;
     this.valueLoader = valueLoader == null ? new StaticValueLoader(null) : valueLoader;
   }
 
+  @Nonnull
   public Value copy() {
     return valueType.valueOf(valueLoader.getValue());
   }
@@ -38,6 +39,7 @@ public class Value implements Serializable, Comparable<Value> {
     return valueType;
   }
 
+  @Nullable
   public Object getValue() {
     return isNull() ? null : valueLoader.getValue();
   }
@@ -68,6 +70,7 @@ public class Value implements Serializable, Comparable<Value> {
     throw new IllegalStateException("value is not a sequence");
   }
 
+  @Nullable
   @Override
   public String toString() {
     return getValueType().toString(this);
@@ -117,9 +120,10 @@ public class Value implements Serializable, Comparable<Value> {
 
     private static final long serialVersionUID = 8195664792459648506L;
 
+    @Nonnull
     private final Serializable value;
 
-    public StaticValueLoader(Serializable value) {
+    public StaticValueLoader(@Nullable Serializable value) {
       this.value = value == null ? NULL : value;
     }
 
@@ -129,6 +133,7 @@ public class Value implements Serializable, Comparable<Value> {
     }
 
     @Override
+    @Nonnull
     public Object getValue() {
       return value;
     }

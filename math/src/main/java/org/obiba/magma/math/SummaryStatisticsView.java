@@ -128,6 +128,7 @@ public class SummaryStatisticsView extends AbstractValueTable implements Initial
       }
     }
 
+    @Nonnull
     @Override
     public ValueType getValueType() {
       return DecimalType.get();

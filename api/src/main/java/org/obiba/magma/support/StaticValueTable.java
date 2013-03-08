@@ -69,6 +69,7 @@ public class StaticValueTable extends AbstractValueTable {
   public void addVariable(final Variable variable) {
     addVariableValueSource(new VariableValueSource() {
 
+      @Nonnull
       @Override
       public ValueType getValueType() {
         return variable.getValueType();
@@ -108,6 +109,7 @@ public class StaticValueTable extends AbstractValueTable {
           return type.valueOf(table.get(valueSet.getVariableEntity().getIdentifier()).get(variable));
         }
 
+        @Nonnull
         @Override
         public ValueType getValueType() {
           return type;

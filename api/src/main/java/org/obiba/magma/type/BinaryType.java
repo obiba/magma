@@ -5,6 +5,9 @@ import java.io.Serializable;
 import java.lang.ref.WeakReference;
 import java.util.List;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 import org.obiba.magma.MagmaEngine;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueLoaderFactory;
@@ -23,6 +26,7 @@ public class BinaryType extends AbstractValueType {
 
   }
 
+  @Nonnull
   public static BinaryType get() {
     if(instance == null || instance.get() == null) {
       instance = MagmaEngine.get().registerInstance(new BinaryType());
@@ -61,7 +65,7 @@ public class BinaryType extends AbstractValueType {
   }
 
   @Override
-  public Value valueOf(String string) {
+  public Value valueOf(@Nullable String string) {
     if(string == null) {
       return nullValue();
     }

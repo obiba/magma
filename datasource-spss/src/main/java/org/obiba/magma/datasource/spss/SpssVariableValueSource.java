@@ -42,6 +42,7 @@ public class SpssVariableValueSource implements VariableValueSource, VectorSourc
     return variable;
   }
 
+  @Nonnull
   @Override
   public ValueType getValueType() {
     return variable.getValueType();

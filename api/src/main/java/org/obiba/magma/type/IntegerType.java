@@ -3,6 +3,8 @@ package org.obiba.magma.type;
 import java.lang.ref.WeakReference;
 import java.math.BigInteger;
 
+import javax.annotation.Nullable;
+
 import org.obiba.magma.MagmaEngine;
 import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.Value;
@@ -42,7 +44,7 @@ public class IntegerType extends AbstractNumberType {
   }
 
   @Override
-  public Value valueOf(String string) {
+  public Value valueOf(@Nullable String string) {
     if(string == null) {
       return nullValue();
     }

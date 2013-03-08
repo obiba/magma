@@ -13,6 +13,8 @@ import java.io.InputStream;
 import java.io.Serializable;
 import java.net.URL;
 
+import javax.annotation.Nonnull;
+
 import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.ValueLoader;
 import org.slf4j.Logger;
@@ -42,6 +44,7 @@ public class BinaryValueURLLoader implements ValueLoader, Serializable {
     return url == null || url.isEmpty();
   }
 
+  @Nonnull
   @Override
   public Object getValue() {
     if(value == null) {

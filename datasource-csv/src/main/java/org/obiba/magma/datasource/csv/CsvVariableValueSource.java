@@ -26,6 +26,7 @@ public class CsvVariableValueSource implements VariableValueSource {
     return variable;
   }
 
+  @Nonnull
   @Override
   public ValueType getValueType() {
     return variable.getValueType();

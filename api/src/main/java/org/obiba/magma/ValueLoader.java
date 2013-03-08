@@ -11,6 +11,8 @@ package org.obiba.magma;
 
 import java.io.Serializable;
 
+import javax.annotation.Nonnull;
+
 /**
  * A value loader allows deferred loading of values given a reference (file path, url etc.).
  */
@@ -28,6 +30,7 @@ public interface ValueLoader extends Serializable {
    *
    * @return
    */
+  @Nonnull
   Object getValue();
 
 }

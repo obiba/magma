@@ -159,6 +159,7 @@ class FsValueTable extends AbstractValueTable implements Initialisable, Disposab
       return variable;
     }
 
+    @Nonnull
     @Override
     public ValueType getValueType() {
       return variable.getValueType();

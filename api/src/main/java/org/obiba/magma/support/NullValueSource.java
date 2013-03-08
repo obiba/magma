@@ -20,6 +20,7 @@ public final class NullValueSource implements ValueSource, VectorSource {
     this.valueType = valueType;
   }
 
+  @Nonnull
   @Override
   public ValueType getValueType() {
     return valueType;
