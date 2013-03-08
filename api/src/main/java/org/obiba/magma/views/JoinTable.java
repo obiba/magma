@@ -56,8 +56,8 @@ public class JoinTable implements ValueTable, Initialisable {
   /**
    * Cached map of variable names to tables.
    */
-  @Nullable
-  private transient Multimap<JoinableVariable, ValueTable> variableTables;
+  @Nonnull
+  private transient final Multimap<JoinableVariable, ValueTable> variableTables = ArrayListMultimap.create();
 
   /**
    * Map first found JoinableVariable by its name
@@ -68,6 +68,8 @@ public class JoinTable implements ValueTable, Initialisable {
   // An arbitrary number to initialise the LinkedHashSet with a capacity close to the actual value
   // See getVariableEntities()
   private transient int lastEntityCount = DEFAULT_ENTITY_COUNT;
+
+  private transient boolean variableAnalysed = false;
 
   /**
    * No-arg constructor (mainly for XStream).
@@ -98,21 +100,25 @@ public class JoinTable implements ValueTable, Initialisable {
 
   @Nonnull
   private Multimap<JoinableVariable, ValueTable> getVariableTables() {
-    if(variableTables == null) {
-      variableTables = ArrayListMultimap.create();
-      analyseVariables();
-    }
+    if(!variableAnalysed) analyseVariables();
     return variableTables;
+  }
+
+  @Nonnull
+  public Map<String, JoinableVariable> getJoinableVariablesByName() {
+    if(!variableAnalysed) analyseVariables();
+    return joinableVariablesByName;
   }
 
   private synchronized void analyseVariables() {
     for(ValueTable table : tables) {
       for(Variable variable : table.getVariables()) {
         JoinableVariable joinableVariable = new JoinableVariable(variable);
-        getVariableTables().put(joinableVariable, table);
+        variableTables.put(joinableVariable, table);
         joinableVariablesByName.put(variable.getName(), joinableVariable);
       }
     }
+    variableAnalysed = true;
   }
 
   @Nonnull
@@ -120,6 +126,7 @@ public class JoinTable implements ValueTable, Initialisable {
     return tables;
   }
 
+  @Nullable
   @Override
   public Datasource getDatasource() {
     // A JoinTable does not belong to a Datasource (or does it? which one?).
@@ -178,7 +185,7 @@ public class JoinTable implements ValueTable, Initialisable {
 
   @Override
   public boolean hasVariable(String name) {
-    return joinableVariablesByName.containsKey(name);
+    return getJoinableVariablesByName().containsKey(name);
   }
 
   @Override
@@ -194,7 +201,7 @@ public class JoinTable implements ValueTable, Initialisable {
   @Override
   public VariableValueSource getVariableValueSource(String variableName) throws NoSuchVariableException {
     // find first variable with this name
-    JoinableVariable joinableVariable = joinableVariablesByName.get(variableName);
+    JoinableVariable joinableVariable = getJoinableVariablesByName().get(variableName);
     if(joinableVariable == null) {
       throw new NoSuchVariableException(variableName);
     }
