@@ -6,6 +6,8 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
+import javax.annotation.Nullable;
+
 import org.obiba.magma.MagmaDate;
 import org.obiba.magma.MagmaEngine;
 import org.obiba.magma.MagmaRuntimeException;
@@ -89,7 +91,7 @@ public class DateType extends AbstractValueType {
   }
 
   @Override
-  public Value valueOf(String string) {
+  public Value valueOf(@Nullable String string) {
     if(string == null) {
       return nullValue();
     }

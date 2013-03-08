@@ -8,6 +8,8 @@ import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import javax.annotation.Nonnull;
+
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ContextAction;
 import org.mozilla.javascript.ContextFactory;
@@ -78,6 +80,7 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
     return script;
   }
 
+  @Nonnull
   @Override
   public Value getValue(ValueSet valueSet) {
     if(getValueType() == null) {
@@ -114,6 +117,7 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
     return (Iterable<Value>) ContextFactory.getGlobal().call(new ValueVectorEvaluationContextAction(entities));
   }
 
+  @Nonnull
   @Override
   public ValueType getValueType() {
     return type;

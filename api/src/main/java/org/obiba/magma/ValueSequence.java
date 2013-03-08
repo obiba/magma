@@ -4,6 +4,9 @@ import java.io.Serializable;
 import java.util.Comparator;
 import java.util.List;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 import org.obiba.magma.type.BinaryType;
 import org.obiba.magma.type.LocaleType;
 
@@ -19,7 +22,7 @@ public class ValueSequence extends Value {
 
   private static final long serialVersionUID = -1965362009370797808L;
 
-  ValueSequence(ValueType valueType, Iterable<Value> values) {
+  ValueSequence(ValueType valueType, @Nullable Iterable<Value> values) {
     super(valueType, (Serializable) values);
   }
 
@@ -33,11 +36,13 @@ public class ValueSequence extends Value {
     return this;
   }
 
+  @Nonnull
   @Override
   public Value copy() {
     return getValueType().sequenceOf(getValue());
   }
 
+  @Nullable
   @Override
   @SuppressWarnings("unchecked")
   public Iterable<Value> getValue() {
@@ -58,6 +63,7 @@ public class ValueSequence extends Value {
   /**
    * Returns a copy of this {@link ValueSequence} with the {@link Value}s sorted based on the specific
    * {@link Comparator} implementation.
+   *
    * @param comparator Custom Comparator which will be used to sort the ValueSequence.
    */
   public ValueSequence sort(Comparator<Value> comparator) {
@@ -66,6 +72,7 @@ public class ValueSequence extends Value {
 
   /**
    * The size of this sequence
+   *
    * @return
    */
   public int getSize() {
@@ -74,6 +81,7 @@ public class ValueSequence extends Value {
 
   /**
    * Returns an ordered view of the values.
+   *
    * @return
    */
   public List<Value> getValues() {
@@ -82,6 +90,7 @@ public class ValueSequence extends Value {
 
   /**
    * Returns the {@code i}th element of the sequence
+   *
    * @param i
    * @return
    * @throws IndexOutOfBoundsException when {@code i >=} {@code #getSize()}
@@ -92,6 +101,7 @@ public class ValueSequence extends Value {
 
   /**
    * Returns true if this sequence contains the specified {@code Value}
+   *
    * @param value
    * @return
    */

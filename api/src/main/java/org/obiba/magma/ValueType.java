@@ -23,6 +23,7 @@ public interface ValueType extends Serializable, Comparator<Value> {
 
     /**
      * Returns the {@code ValueType} instance for the specified {@code name}.
+     *
      * @param name the unique name of the {@code ValueType} instance
      * @return the {@code ValueType} instance for the specified {@code name}
      * @throws IllegalArgumentException when no type exists for the specified name
@@ -34,6 +35,7 @@ public interface ValueType extends Serializable, Comparator<Value> {
     /**
      * Returns the {@code ValueType} instance that accepts the specified java {@code Class}, as specified by the
      * {@link ValueType#acceptsJavaClass(Class)} method.
+     *
      * @param javaClass the Java {@code Class} to test
      * @return the {@code ValueType} instance that accepts the specified {@code Class}.
      * @throws IllegalArgumentException when no type exists for the specified class
@@ -47,6 +49,7 @@ public interface ValueType extends Serializable, Comparator<Value> {
      * {@code ValueType} by passing the object's class to the {@link #forClass(Class)} method. Note that this method
      * does not accept {@code null} as it would be impossible to determine the {@code ValueType} of the returned
      * {@code Value}.
+     *
      * @param value the object instance for which to obtain a {@code Value} instance. Cannot be null.
      * @return a {@code Value} instance for the specified object.
      * @throws IllegalArgumentException when {@code value} is null.
@@ -78,6 +81,7 @@ public interface ValueType extends Serializable, Comparator<Value> {
 
   /**
    * The unique name of this {@code ValueType}.
+   *
    * @return this type's unique name
    */
   String getName();
@@ -86,12 +90,14 @@ public interface ValueType extends Serializable, Comparator<Value> {
    * The java class of the value held in a {@code Value} instance of this {@code ValueType}. That is, when a
    * {@code Value} instance if of this {@code ValueType}, the contained object should be of the type returned by this
    * method.
+   *
    * @return the normalized java class for this {@code ValueType}
    */
   Class<?> getJavaClass();
 
   /**
    * Returns true if an instance of the specified class is suitable for invoking the {@link #valueOf(Object)} method.
+   *
    * @param clazz the type to check
    * @return true if the {@link #valueOf(Object)} can be called with an instance of the specified class.
    */
@@ -99,12 +105,14 @@ public interface ValueType extends Serializable, Comparator<Value> {
 
   /**
    * Returns true if this type represents a date, time or both.
+   *
    * @return if this type represents a date, time or both.
    */
   boolean isDateTime();
 
   /**
    * Returns true if this type represents a number.
+   *
    * @return true if this type represents a number
    */
   boolean isNumeric();
@@ -112,6 +120,7 @@ public interface ValueType extends Serializable, Comparator<Value> {
   /**
    * Returns a {@code Value} instance that represents the null value for this type. Calling {@link Value#isNull()} on
    * the returned instance will return true.
+   *
    * @return a {@code Value} instance for null.
    */
   Value nullValue();
@@ -119,6 +128,7 @@ public interface ValueType extends Serializable, Comparator<Value> {
   /**
    * Returns a {@code ValueSequence} instance that represents the null value for this type. Calling
    * {@link Value#isNull()} on the returned instance will return true.
+   *
    * @return a {@code ValueSequence} instance for null
    */
   ValueSequence nullSequence();
@@ -129,6 +139,7 @@ public interface ValueType extends Serializable, Comparator<Value> {
    * <p/>
    * Simple cases (no conversion required or null values) are handled directly. Any other case is delegated to an
    * instance of {@code ValueConverter}.
+   *
    * @param value the value to convert
    * @return a {@code Value} instance of this {@code ValueType}
    */
@@ -137,19 +148,22 @@ public interface ValueType extends Serializable, Comparator<Value> {
   /**
    * Returns a string representation of the {@code value}. The string returned can be passed to the
    * {@link #valueOf(String)} method which should return an equivalent {@code Value} instance.
+   *
    * @param value the value to convert to a string
    * @return a {@code String} representation of the {@code value}.
    */
+  @Nullable
   String toString(@Nullable Value value);
 
   /**
    * Converts a string representation of a {@code value} to a {@code Value} instance. The string representation should
    * match the expected format which is specified by the {@link #toString(Value)} method.
+   *
    * @param string a string representation of the value. May be null, in which case, the returned value is that of
    * calling {@link #nullValue()}
    * @return a {@code Value} instance after converting its string representation.
    */
-  Value valueOf(String string);
+  Value valueOf(@Nullable String string);
 
   /**
    * Builds a {@code Value} instance after converting the specified object to the normalized type returned by
@@ -159,6 +173,7 @@ public interface ValueType extends Serializable, Comparator<Value> {
    * For example, this method would convert instances of {@code java.util.Date}, {@code java.sql.Date},
    * {@code java.sql.Timestamp}, {@code java.util.Calendar} to an instance of {@code java.util.Date} and return a
    * {@code Value} instance containing the normalized instance.
+   *
    * @param object the instance to normalize. May be null, in which case, the returned value is that of calling
    * {@link #nullValue()}
    * @return a {@code Value} instance for the specified object.
@@ -169,11 +184,12 @@ public interface ValueType extends Serializable, Comparator<Value> {
 
   /**
    * Returns a {@code ValueSequence} instance containing the specified {@code values}.
+   *
    * @param values the sequence of {@code Value} instances to hold in the {@code ValueSequence}. May be null, in which
    * case, the return value is that of calling {@link #nullSequence()}
    * @return a {@code ValueSequence} instance containing {@code values}
    */
-  ValueSequence sequenceOf(Iterable<Value> values);
+  ValueSequence sequenceOf(@Nullable Iterable<Value> values);
 
   ValueSequence sequenceOf(String values);
 

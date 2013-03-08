@@ -10,12 +10,14 @@
 package org.obiba.magma;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  * Defines the contract for obtaining a particular {@link Value} from a {@code ValueSet}.
  */
 public interface ValueSource {
 
+  @Nonnull
   ValueType getValueType();
 
   /**
@@ -29,6 +31,7 @@ public interface ValueSource {
   @Nonnull
   Value getValue(ValueSet valueSet);
 
+  @Nullable
   VectorSource asVectorSource();
 
 }

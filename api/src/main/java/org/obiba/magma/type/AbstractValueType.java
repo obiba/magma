@@ -3,6 +3,8 @@ package org.obiba.magma.type;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import javax.annotation.Nullable;
+
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueConverter;
 import org.obiba.magma.ValueLoader;
@@ -46,7 +48,7 @@ public abstract class AbstractValueType implements ValueType {
   }
 
   @Override
-  public ValueSequence sequenceOf(Iterable<Value> values) {
+  public ValueSequence sequenceOf(@Nullable Iterable<Value> values) {
     return Factory.newSequence(this, values);
   }
 
@@ -95,8 +97,9 @@ public abstract class AbstractValueType implements ValueType {
     }
   }
 
+  @Nullable
   @Override
-  public String toString(Value value) {
+  public String toString(@Nullable Value value) {
     return value == null || value.isNull() //
         ? null //
         : value.isSequence() ? toString(value.asSequence()) : toString(value.getValue());
@@ -105,9 +108,11 @@ public abstract class AbstractValueType implements ValueType {
   /**
    * Allows {@code ValueType} instance to apply formatting or specialised conversion to string representation. For
    * example, dates would be formatted in a non-locale dependent way.
+   *
    * @param object a non-null object
    * @return a {@code String} representation of the object
    */
+  @Nullable
   protected String toString(Object object) {
     return object == null ? null : object.toString();
   }
@@ -115,9 +120,11 @@ public abstract class AbstractValueType implements ValueType {
   /**
    * Returns a comma-separated string representation of the sequence. The resulting string can be passed to
    * {@code sequenceOf(String)} to obtain the original {@code ValueSequence}.
+   *
    * @param sequence
    * @return
    */
+  @Nullable
   protected String toString(ValueSequence sequence) {
     if(sequence == null) return null;
     StringBuilder sb = new StringBuilder();

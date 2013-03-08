@@ -66,6 +66,7 @@ abstract class GeneratedVariableValueSource implements VariableValueSource {
     return getValueType().nullValue();
   }
 
+  @Nonnull
   @Override
   public ValueType getValueType() {
     return getVariable().getValueType();

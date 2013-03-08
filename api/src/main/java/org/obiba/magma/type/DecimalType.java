@@ -3,6 +3,8 @@ package org.obiba.magma.type;
 import java.lang.ref.WeakReference;
 import java.math.BigDecimal;
 
+import javax.annotation.Nullable;
+
 import org.obiba.magma.MagmaEngine;
 import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.Value;
@@ -42,7 +44,7 @@ public class DecimalType extends AbstractNumberType {
   }
 
   @Override
-  public Value valueOf(String string) {
+  public Value valueOf(@Nullable String string) {
     if(string == null) {
       return nullValue();
     }
@@ -75,6 +77,6 @@ public class DecimalType extends AbstractNumberType {
   }
 
   private String normalize(String string) {
-    return string.replace(",",".").trim();
+    return string.replace(",", ".").trim();
   }
 }

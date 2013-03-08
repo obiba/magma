@@ -42,6 +42,7 @@ public abstract class AbstractVariableValueSourceWrapper implements VariableValu
     return wrapped.getVariable();
   }
 
+  @Nonnull
   @Override
   public ValueType getValueType() {
     return wrapped.getValueType();

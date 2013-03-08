@@ -66,12 +66,12 @@ public class MultithreadedDatasourceCopier {
       return this;
     }
 
-    public Builder withCopier(DatasourceCopier.Builder copier) {
+    public Builder withCopier(@Nonnull DatasourceCopier.Builder copier) {
       this.copier.copier = copier;
       return this;
     }
 
-    public Builder from(ValueTable source) {
+    public Builder from(@Nonnull ValueTable source) {
       copier.sourceTable = source;
       if(copier.destinationName == null) {
         copier.destinationName = source.getName();
@@ -248,17 +248,19 @@ public class MultithreadedDatasourceCopier {
         while(entity != null) {
           if(sourceTable.hasValueSet(entity)) {
             ValueSet valueSet = sourceTable.getValueSet(entity);
+            boolean hasOnlyNullValues = true;
             Value[] values = new Value[sources.length];
             for(int i = 0; i < sources.length; i++) {
-              Value srcValue = sources[i].getValue(valueSet);
-              if(srcValue.isNull()) {
-                if(copyNullValues) values[i] = srcValue;
-              } else {
-                values[i] = srcValue;
-              }
+              Value value = sources[i].getValue(valueSet);
+              values[i] = value;
+              hasOnlyNullValues &= value.isNull();
             }
-            log.debug("Enqueued entity {}", entity.getIdentifier());
-            writeQueue.put(new VariableEntityValues(valueSet, values));
+            if(copyNullValues || !hasOnlyNullValues) {
+              log.debug("Enqueued entity {}", entity.getIdentifier());
+              writeQueue.put(new VariableEntityValues(valueSet, values));
+            } else {
+              log.debug("Skip entity {} because of null values", entity.getIdentifier());
+            }
             if(readerListener != null) {
               readerListener.onRead(valueSet, values);
             }
@@ -266,7 +268,6 @@ public class MultithreadedDatasourceCopier {
           entity = readQueue.poll();
         }
       } catch(InterruptedException ignored) {
-
       }
     }
   }
@@ -316,7 +317,8 @@ public class MultithreadedDatasourceCopier {
     @Override
     public void run() {
       VariableEntityValues values = next();
-      ValueTableWriter tableWriter = copier.build()
+      DatasourceCopier datasourceCopier = copier.build();
+      ValueTableWriter tableWriter = datasourceCopier
           .innerValueTableWriter(sourceTable, destinationName, destinationDatasource);
       try {
         while(values != null) {
@@ -324,7 +326,8 @@ public class MultithreadedDatasourceCopier {
           try {
             // Copy the ValueSet to the destinationDatasource
             log.debug("Dequeued entity {}", values.valueSet.getVariableEntity().getIdentifier());
-            copier.build().copyValues(sourceTable, destinationName, values.valueSet, variables, values.values, writer);
+            datasourceCopier
+                .copyValues(sourceTable, destinationName, values.valueSet, variables, values.values, writer);
           } finally {
             try {
               writer.close();

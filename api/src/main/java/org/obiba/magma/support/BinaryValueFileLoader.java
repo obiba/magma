@@ -12,6 +12,8 @@ package org.obiba.magma.support;
 import java.io.File;
 import java.io.Serializable;
 
+import javax.annotation.Nonnull;
+
 import org.obiba.magma.ValueLoader;
 
 /**
@@ -62,6 +64,7 @@ public class BinaryValueFileLoader implements ValueLoader, Serializable {
     return path == null || path.isEmpty();
   }
 
+  @Nonnull
   @Override
   public Object getValue() {
     if(value == null) {

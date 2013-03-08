@@ -517,6 +517,7 @@ class JdbcValueTable extends AbstractValueTable {
       return jdbcValueSet.getValue(variable);
     }
 
+    @Nonnull
     @Override
     public ValueType getValueType() {
       return variable.getValueType();
