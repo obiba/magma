@@ -14,6 +14,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import javax.annotation.Nullable;
+
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.ValueTableWriter;
 import org.obiba.magma.datasource.csv.support.CsvDatasourceParsingException;
@@ -35,9 +37,10 @@ public class CsvDatasource extends AbstractDatasource {
 
   public static final String DEFAULT_CHARACTER_SET = "UTF-8";
 
-  private Map<String, CsvValueTable> valueTables = new HashMap<String, CsvValueTable>();
+  private final Map<String, CsvValueTable> valueTables = new HashMap<String, CsvValueTable>();
 
-  private String[] defaultVariablesHeader = "name#valueType#entityType#mimeType#unit#occurrenceGroup#repeatable#script".split("#");
+  private String[] defaultVariablesHeader = "name#valueType#entityType#mimeType#unit#occurrenceGroup#repeatable#script"
+      .split("#");
 
   private Separator separator = Separator.COMMA;
 
@@ -57,8 +60,8 @@ public class CsvDatasource extends AbstractDatasource {
       File[] directories = bundle.listFiles(new FileFilter() {
 
         @Override
-        public boolean accept(File pathname) {
-          return pathname.isDirectory();
+        public boolean accept(File pathName) {
+          return pathName.isDirectory();
         }
       });
 
@@ -81,12 +84,14 @@ public class CsvDatasource extends AbstractDatasource {
   }
 
   public CsvDatasource addValueTable(File tableDirectory) {
-    addValueTable(tableDirectory.getName(), new File(tableDirectory, VARIABLES_FILE), new File(tableDirectory, DATA_FILE));
+    addValueTable(tableDirectory.getName(), new File(tableDirectory, VARIABLES_FILE),
+        new File(tableDirectory, DATA_FILE));
     return this;
   }
 
-  public CsvDatasource addValueTable(String tableName, File variablesFile, File dataFile) {
-    valueTables.put(tableName, new CsvValueTable(this, tableName, variablesFile, dataFile, CsvValueTable.DEFAULT_ENTITY_TYPE));
+  public CsvDatasource addValueTable(String tableName, @Nullable File variablesFile, @Nullable File dataFile) {
+    valueTables
+        .put(tableName, new CsvValueTable(this, tableName, variablesFile, dataFile, CsvValueTable.DEFAULT_ENTITY_TYPE));
     return this;
   }
 
@@ -106,16 +111,20 @@ public class CsvDatasource extends AbstractDatasource {
     if(hasValueTable(tableName)) {
       valueTable = (CsvValueTable) getValueTable(tableName);
     } else {
-      throw new CsvDatasourceParsingException("Cannot create writer. A table with the name " + tableName + " does not exist.", "CsvCannotCreateWriter", 0, tableName);
+      throw new CsvDatasourceParsingException(
+          "Cannot create writer. A table with the name " + tableName + " does not exist.", "CsvCannotCreateWriter", 0,
+          tableName);
     }
     return new CsvValueTableWriter(valueTable);
   }
 
-  public void setVariablesHeader(String tableName, String[] header) {
+  public void setVariablesHeader(String tableName, String... header) {
     if(valueTables.containsKey(tableName)) {
       valueTables.get(tableName).setVariablesHeader(header);
     } else {
-      throw new CsvDatasourceParsingException("Cannot set variables header. A table with the name " + tableName + " does not exist.", "CsvCannotSetVariableHeader", 0, tableName);
+      throw new CsvDatasourceParsingException(
+          "Cannot set variables header. A table with the name " + tableName + " does not exist.",
+          "CsvCannotSetVariableHeader", 0, tableName);
     }
   }
 
@@ -133,7 +142,7 @@ public class CsvDatasource extends AbstractDatasource {
    * applies to new variables.csv files that are being written for the first time. Otherwise the existing header will be
    * used.
    */
-  public void setDefaultVariablesHeader(String[] defaultVariablesHeader) {
+  public void setDefaultVariablesHeader(String... defaultVariablesHeader) {
     this.defaultVariablesHeader = Arrays.copyOf(defaultVariablesHeader, defaultVariablesHeader.length);
   }
 
@@ -149,7 +158,7 @@ public class CsvDatasource extends AbstractDatasource {
     try {
       return new OutputStreamWriter(new FileOutputStream(file, true), getCharacterSet());
     } catch(IOException e) {
-      throw new CsvDatasourceParsingException("Can not get csv writer.", e, "CsvCannotObtainWriter", 0, new Object[] {});
+      throw new CsvDatasourceParsingException("Can not get csv writer.", e, "CsvCannotObtainWriter", 0);
     }
   }
 
@@ -169,7 +178,7 @@ public class CsvDatasource extends AbstractDatasource {
     try {
       return new InputStreamReader(new FileInputStream(file), getCharacterSet());
     } catch(IOException e) {
-      throw new CsvDatasourceParsingException("Can not get csv reader.", e, "CsvCannotObtainReader", 0, new Object[] {});
+      throw new CsvDatasourceParsingException("Can not get csv reader.", e, "CsvCannotObtainReader", 0);
     }
   }
 

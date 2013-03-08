@@ -4,7 +4,11 @@ import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import org.obiba.magma.MagmaRuntimeException;
 
@@ -18,6 +22,7 @@ public class DatasourceParsingException extends MagmaRuntimeException {
 
   private final String key;
 
+  @Nonnull
   private final List<Object> parameters;
 
   private List<DatasourceParsingException> children;
@@ -27,10 +32,10 @@ public class DatasourceParsingException extends MagmaRuntimeException {
    * @param messageKey message key for localization
    * @param parameters parameters to go in the localized message place holders
    */
-  public DatasourceParsingException(String message, String messageKey, Object... parameters) {
+  public DatasourceParsingException(String message, String messageKey, @Nullable Object... parameters) {
     super(message);
     key = messageKey;
-    this.parameters = new ArrayList<Object>(Arrays.asList(parameters));
+    this.parameters = parameters == null ? Collections.emptyList() : new ArrayList<Object>(Arrays.asList(parameters));
   }
 
   /**
@@ -39,16 +44,17 @@ public class DatasourceParsingException extends MagmaRuntimeException {
    * @param messageKey message key for localization
    * @param parameters parameters to go in the localized message place holders
    */
-  public DatasourceParsingException(String message, Throwable e, String messageKey, Object... parameters) {
+  public DatasourceParsingException(String message, Throwable e, String messageKey, @Nullable Object... parameters) {
     super(message, e);
     key = messageKey;
-    this.parameters = new ArrayList<Object>(Arrays.asList(parameters));
+    this.parameters = parameters == null ? Collections.emptyList() : new ArrayList<Object>(Arrays.asList(parameters));
   }
 
   public String getKey() {
     return key;
   }
 
+  @Nonnull
   public List<Object> getParameters() {
     return parameters;
   }
@@ -120,6 +126,7 @@ public class DatasourceParsingException extends MagmaRuntimeException {
     w.flush();
   }
 
+  @SuppressWarnings("UnusedDeclaration")
   public void printTree() {
     print(this, "");
   }
