@@ -23,7 +23,7 @@ import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.VariableValueSource;
 import org.obiba.magma.VectorSource;
-import org.obiba.magma.datasource.spss.support.SpssValueFactory;
+import org.obiba.magma.datasource.spss.support.SpssVariableValueFactory;
 import org.opendatafoundation.data.spss.SPSSVariable;
 
 public class SpssVariableValueSource implements VariableValueSource, VectorSource {
@@ -94,7 +94,8 @@ public class SpssVariableValueSource implements VariableValueSource, VectorSourc
       }
 
       SpssVariableEntity variableEntity = (SpssVariableEntity) entitiesIterator.next();
-      return new SpssValueFactory(variableEntity.getVariableIndex(), spssVariable, variable.getValueType()).create();
+      return new SpssVariableValueFactory(variableEntity.getVariableIndex(), spssVariable, variable.getValueType())
+          .create();
     }
 
     @Override

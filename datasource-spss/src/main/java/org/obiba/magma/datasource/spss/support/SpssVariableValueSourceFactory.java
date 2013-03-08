@@ -17,6 +17,8 @@ import javax.annotation.Nullable;
 
 import org.obiba.magma.Attribute;
 import org.obiba.magma.Category;
+import org.obiba.magma.Value;
+import org.obiba.magma.ValueType;
 import org.obiba.magma.Variable;
 import org.obiba.magma.VariableValueSource;
 import org.obiba.magma.VariableValueSourceFactory;
@@ -25,7 +27,6 @@ import org.obiba.magma.type.TextType;
 import org.opendatafoundation.data.spss.SPSSFile;
 import org.opendatafoundation.data.spss.SPSSFileException;
 import org.opendatafoundation.data.spss.SPSSNumericVariable;
-import org.opendatafoundation.data.spss.SPSSStringVariable;
 import org.opendatafoundation.data.spss.SPSSVariable;
 import org.opendatafoundation.data.spss.SPSSVariableCategory;
 
@@ -35,7 +36,6 @@ import com.google.common.collect.Sets;
 import static org.obiba.magma.datasource.spss.support.CharacterSetValidator.validate;
 
 public class SpssVariableValueSourceFactory implements VariableValueSourceFactory {
-
 
   //
   // Data members
@@ -58,10 +58,10 @@ public class SpssVariableValueSourceFactory implements VariableValueSourceFactor
     for(int i = 1; i < spssFile.getVariableCount(); i++) {
       SPSSVariable spssVariable = spssFile.getVariable(i);
       try {
-        sources.add(new SpssVariableValueSource(createVariableBuilder(spssVariable), spssVariable));
+        sources.add(new SpssVariableValueSource(createVariableBuilder(i, spssVariable), spssVariable));
       } catch(SpssInvalidCharacterException e) {
-        throw new SpssDatasourceParsingException("Failed to create variable", spssVariable.getName(), i+1,
-            "InvalidCharsetCharacter", i+1);
+        throw new SpssDatasourceParsingException("Failed to create variable", spssVariable.getName(), i + 1,
+            "InvalidCharsetCharacter", i + 1);
       }
     }
 
@@ -72,44 +72,39 @@ public class SpssVariableValueSourceFactory implements VariableValueSourceFactor
   // Private methods
   //
 
-  private void initializeStringCategories(SPSSVariable variable, Variable.Builder builder)
-      throws SpssInvalidCharacterException {
+  private void initializeCategories(int variableIndex, SPSSVariable variable, ValueType valueType,
+      Variable.Builder builder) throws SpssInvalidCharacterException {
     if(variable.categoryMap != null) {
       for(String category : variable.categoryMap.keySet()) {
+        Value categoryName = new SpssCategoryNameValueFactory(category, variableIndex, variable, valueType).create();
         SPSSVariableCategory spssCategory = variable.categoryMap.get(category);
         validate(spssCategory.label);
-        builder.addCategory(Category.Builder.newCategory(category).addAttribute("label", spssCategory.label)
-            .missing(variable.isMissingValueCode(spssCategory.strValue)).build());
+        builder.addCategory(
+            Category.Builder.newCategory(categoryName.getValue().toString()).addAttribute("label", spssCategory.label)
+                .missing(isCategoryValueMissingCode(variable, spssCategory)).build());
       }
     }
   }
 
-  private void initializeNumericCategories(SPSSVariable variable, Variable.Builder builder)
-      throws SpssInvalidCharacterException {
-    if(variable.categoryMap != null) {
-      for(String category : variable.categoryMap.keySet()) {
-        SPSSVariableCategory spssCategory = variable.categoryMap.get(category);
-        validate(spssCategory.label);
-        builder.addCategory(Category.Builder.newCategory(category).addAttribute("label", spssCategory.label)
-            .missing(variable.isMissingValueCode(spssCategory.value)).build());
-      }
+  private boolean isCategoryValueMissingCode(SPSSVariable spssVariable, SPSSVariableCategory spssCategory) {
+    if(spssVariable instanceof SPSSNumericVariable) {
+      return spssVariable.isMissingValueCode(spssCategory.value);
     }
+
+    return spssVariable.isMissingValueCode(spssCategory.strValue);
   }
 
   @SuppressWarnings("ChainOfInstanceofChecks")
-  private Variable createVariableBuilder(@Nonnull SPSSVariable spssVariable) throws SpssInvalidCharacterException {
+  private Variable createVariableBuilder(int variableIndex, @Nonnull SPSSVariable spssVariable)
+      throws SpssInvalidCharacterException {
     String variableName = spssVariable.getName();
     validate(variableName);
     Variable.Builder builder = Variable.Builder.newVariable(variableName, TextType.get(), "Participant");
     addAttributes(builder, spssVariable);
     addLabel(builder, spssVariable);
-    builder.type(SpssVariableTypeMapper.map(spssVariable));
-
-    if(spssVariable instanceof SPSSNumericVariable) {
-      initializeNumericCategories(spssVariable, builder);
-    } else if(spssVariable instanceof SPSSStringVariable) {
-      initializeStringCategories(spssVariable, builder);
-    }
+    ValueType valueType = SpssVariableTypeMapper.map(spssVariable);
+    builder.type(valueType);
+    initializeCategories(variableIndex, spssVariable, valueType, builder);
 
     return builder.build();
   }
@@ -133,8 +128,7 @@ public class SpssVariableValueSourceFactory implements VariableValueSourceFactor
         .addAttribute(createAttribute("format", spssVariable.getSPSSFormat()));
   }
 
-  private Attribute createAttribute(String attributeName, @Nullable String value)
-      throws SpssInvalidCharacterException {
+  private Attribute createAttribute(String attributeName, @Nullable String value) throws SpssInvalidCharacterException {
     validate(value);
     return Attribute.Builder.newAttribute(attributeName).withNamespace("spss").withValue(value).build();
   }
