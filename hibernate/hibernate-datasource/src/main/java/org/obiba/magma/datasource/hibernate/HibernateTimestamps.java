@@ -1,5 +1,7 @@
 package org.obiba.magma.datasource.hibernate;
 
+import javax.annotation.Nonnull;
+
 import org.obiba.magma.Timestamps;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueSet;
@@ -18,11 +20,13 @@ public class HibernateTimestamps implements Timestamps {
     updated = DateTimeType.get().valueOf(hibernateValueSet.getValueSetState().getUpdated());
   }
 
+  @Nonnull
   @Override
   public Value getCreated() {
     return created;
   }
 
+  @Nonnull
   @Override
   public Value getLastUpdate() {
     return updated;

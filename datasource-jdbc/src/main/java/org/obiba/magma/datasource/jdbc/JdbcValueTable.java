@@ -113,6 +113,7 @@ class JdbcValueTable extends AbstractValueTable {
     if(hasCreatedTimestampColumn() && hasUpdatedTimestampColumn()) {
       return new Timestamps() {
 
+        @Nonnull
         @Override
         public Value getLastUpdate() {
           String sql = appendIdentifierColumns(
@@ -120,6 +121,7 @@ class JdbcValueTable extends AbstractValueTable {
           return DateTimeType.get().valueOf(executeQuery(sql));
         }
 
+        @Nonnull
         @Override
         public Value getCreated() {
           String sql = appendIdentifierColumns(
@@ -157,12 +159,14 @@ class JdbcValueTable extends AbstractValueTable {
     if(hasCreatedTimestampColumn() && hasUpdatedTimestampColumn()) {
       return new Timestamps() {
 
+        @Nonnull
         @Override
         public Value getLastUpdate() {
           String sql = "SELECT MAX(" + getUpdatedTimestampColumnName() + ") FROM " + escapedSqlTableName;
           return DateTimeType.get().valueOf(getDatasource().getJdbcTemplate().queryForObject(sql, Date.class));
         }
 
+        @Nonnull
         @Override
         public Value getCreated() {
           String sql = "SELECT MIN(" + getCreatedTimestampColumnName() + ") FROM " + escapedSqlTableName;

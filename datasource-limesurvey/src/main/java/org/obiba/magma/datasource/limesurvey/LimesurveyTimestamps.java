@@ -2,6 +2,8 @@ package org.obiba.magma.datasource.limesurvey;
 
 import java.util.Date;
 
+import javax.annotation.Nonnull;
+
 import org.obiba.magma.Timestamps;
 import org.obiba.magma.Value;
 import org.obiba.magma.type.DateTimeType;
@@ -20,11 +22,13 @@ public class LimesurveyTimestamps implements Timestamps {
     this.limesurveyValueTable = limesurveyValueTable;
   }
 
+  @Nonnull
   @Override
   public Value getLastUpdate() {
     return queryTimestamp("MAX");
   }
 
+  @Nonnull
   @Override
   public Value getCreated() {
     return queryTimestamp("MIN");

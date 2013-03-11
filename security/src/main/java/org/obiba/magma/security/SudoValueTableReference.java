@@ -3,6 +3,8 @@ package org.obiba.magma.security;
 import java.lang.ref.WeakReference;
 import java.util.concurrent.Callable;
 
+import javax.annotation.Nullable;
+
 import org.apache.shiro.SecurityUtils;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.security.permissions.Permissions;
@@ -46,6 +48,7 @@ public class SudoValueTableReference extends ValueTableReference {
     SecurityUtils.getSubject().getSession().setAttribute(getReference(), new WeakReference<ValueTable>(valueTable));
   }
 
+  @Nullable
   @SuppressWarnings("unchecked")
   protected ValueTable lookInSession() {
     WeakReference<ValueTable> ref = (WeakReference<ValueTable>) SecurityUtils.getSubject().getSession()
