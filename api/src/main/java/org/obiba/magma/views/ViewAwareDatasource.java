@@ -2,6 +2,8 @@ package org.obiba.magma.views;
 
 import java.util.Set;
 
+import javax.annotation.Nullable;
+
 import org.obiba.magma.Datasource;
 import org.obiba.magma.NoSuchValueTableException;
 import org.obiba.magma.ValueTable;
@@ -122,6 +124,7 @@ public class ViewAwareDatasource extends AbstractDatasourceWrapper {
     throw new NoSuchValueTableException(getName(), name);
   }
 
+  @Nullable
   private View getViewByName(String name) {
     for(View view : views) {
       if(view.getName().equals(name)) {
