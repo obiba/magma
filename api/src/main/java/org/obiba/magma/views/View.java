@@ -159,6 +159,7 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
   public Timestamps getTimestamps() {
     return new Timestamps() {
 
+      @Nonnull
       @Override
       public Value getLastUpdate() {
         if(updated == null || updated.isNull()) {
@@ -168,6 +169,7 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
         return !fromUpdate.isNull() && updated.compareTo(fromUpdate) < 0 ? fromUpdate : updated;
       }
 
+      @Nonnull
       @Override
       public Value getCreated() {
         return created == null || created.isNull() ? getWrappedValueTable().getTimestamps().getCreated() : created;
@@ -176,14 +178,14 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
   }
 
   @SuppressWarnings({ "AssignmentToMethodParameter", "PMD.AvoidReassigningParameters" })
-  public void setUpdated(Value updated) {
+  public void setUpdated(@Nullable Value updated) {
     if(updated == null) updated = DateTimeType.get().nullValue();
     if(updated.getValueType() != DateTimeType.get()) throw new IllegalArgumentException();
     this.updated = updated;
   }
 
   @SuppressWarnings({ "AssignmentToMethodParameter", "PMD.AvoidReassigningParameters" })
-  public void setCreated(Value created) {
+  public void setCreated(@Nullable Value created) {
     if(created == null) created = DateTimeType.get().nullValue();
     if(created.getValueType() != DateTimeType.get()) throw new IllegalArgumentException();
     this.created = created;
@@ -195,7 +197,7 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
   }
 
   @Override
-  public boolean hasValueSet(VariableEntity entity) {
+  public boolean hasValueSet(@Nullable VariableEntity entity) {
     if(entity == null) return false;
 
     VariableEntity unmapped = getVariableEntityMappingFunction().unapply(entity);

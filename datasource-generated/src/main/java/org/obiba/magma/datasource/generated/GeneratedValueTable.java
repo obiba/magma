@@ -6,6 +6,8 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
+import javax.annotation.Nonnull;
+
 import org.apache.commons.math.random.JDKRandomGenerator;
 import org.apache.commons.math.random.RandomGenerator;
 import org.obiba.magma.Datasource;
@@ -40,6 +42,7 @@ public class GeneratedValueTable implements ValueTable {
 
   private final Map<String, VariableValueSource> generators;
 
+  @Nonnull
   private final Value timestamp;
 
   public GeneratedValueTable(Datasource ds, Collection<Variable> dictionary, int entities) {
@@ -83,11 +86,13 @@ public class GeneratedValueTable implements ValueTable {
   public Timestamps getTimestamps() {
     return new Timestamps() {
 
+      @Nonnull
       @Override
       public Value getLastUpdate() {
         return timestamp;
       }
 
+      @Nonnull
       @Override
       public Value getCreated() {
         return timestamp;

@@ -2,6 +2,8 @@ package org.obiba.magma.support;
 
 import java.util.Arrays;
 
+import javax.annotation.Nonnull;
+
 import org.obiba.magma.Timestamped;
 import org.obiba.magma.Timestamps;
 import org.obiba.magma.Value;
@@ -19,11 +21,13 @@ public class UnionTimestamps implements Timestamps {
     timestamps = Iterables.transform(timestampeds, Timestamped.ToTimestamps);
   }
 
+  @Nonnull
   @Override
   public Value getCreated() {
     return getTimestamp(ExtractCreatedFunction.INSTANCE, true);
   }
 
+  @Nonnull
   @Override
   public Value getLastUpdate() {
     return getTimestamp(ExtractLastUpdateFunction.INSTANCE, false);
@@ -32,6 +36,7 @@ public class UnionTimestamps implements Timestamps {
   /**
    * Extracts all the timestamp values, sorts them and returns either the earliest value or the latest value depending
    * on the {@code earliest} argument.
+   *
    * @param extractTimestampFunction the function used to extract the timestamp to work with (either created or
    * lastUpdate)
    * @param earliest whether to return the earliest value or the latest value
@@ -50,6 +55,7 @@ public class UnionTimestamps implements Timestamps {
 
   /**
    * Filters Value instances that are null or that isNull() returns true out of {@code values}.
+   *
    * @param values
    * @return
    */
