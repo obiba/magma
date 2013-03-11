@@ -129,7 +129,7 @@ public abstract class AbstractDatasource extends AbstractAttributeAware implemen
   }
 
   @Override
-  public void dropTable(String tableName) {
+  public void dropTable(@Nonnull String tableName) {
     throw new UnsupportedOperationException("cannot drop table");
   }
 
