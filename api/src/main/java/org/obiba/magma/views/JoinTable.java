@@ -119,7 +119,7 @@ public class JoinTable implements ValueTable, Initialisable {
         if(existing != null && !existing.equals(joinableVariable)) {
           throw new IllegalArgumentException(
               "Cannot have variables with same name and different value type or repeatability: '" +
-                  variable.getName() + "'");
+                  buildJoinTableName() + "." + variable.getName() + "'");
         }
         variableTables.put(joinableVariable, table);
         joinableVariablesByName.put(variable.getName(), joinableVariable);
@@ -130,7 +130,7 @@ public class JoinTable implements ValueTable, Initialisable {
 
   @Nonnull
   public List<ValueTable> getTables() {
-    if(!variableAnalysed) analyseVariables();
+    // don't analyse variables here as it is called very often
     return tables;
   }
 
@@ -171,6 +171,8 @@ public class JoinTable implements ValueTable, Initialisable {
 
   @Override
   public Set<VariableEntity> getVariableEntities() {
+    if(!variableAnalysed) analyseVariables();
+
     // Set the initial capacity to the number of entities we saw in the previous call to this method
     Set<VariableEntity> entities = new LinkedHashSet<VariableEntity>(lastEntityCount);
     for(ValueTable table : getTables()) {
@@ -231,6 +233,8 @@ public class JoinTable implements ValueTable, Initialisable {
 
   @Override
   public boolean hasValueSet(VariableEntity entity) {
+    if(!variableAnalysed) analyseVariables();
+
     for(ValueTable table : getTables()) {
       if(table.hasValueSet(entity)) {
         return true;
@@ -265,6 +269,8 @@ public class JoinTable implements ValueTable, Initialisable {
   private synchronized Iterable<Variable> unionOfVariables() {
     if(unionOfVariables == null) {
       unionOfVariables = new LinkedHashSet<Variable>();
+
+      if(!variableAnalysed) analyseVariables();
 
       Collection<String> unionOfVariableNames = new LinkedHashSet<String>();
       for(ValueTable table : getTables()) {
