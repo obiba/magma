@@ -85,21 +85,20 @@ public class DefaultDatasourceRegistry implements DatasourceRegistry, Disposable
         throw new DuplicateDatasourceNameException(existing, datasource);
       }
 
-      //noinspection AssignmentToMethodParameter
-      datasource = decorateDatasource(datasource);
-
-      Initialisables.initialise(datasource);
-      datasources.put(datasource.getName(), datasource);
+      Datasource decorated = decorateDatasource(datasource);
+      Initialisables.initialise(decorated);
+      datasources.put(decorated.getName(), decorated);
+      return decorated;
     }
     return datasource;
   }
 
-  @SuppressWarnings("AssignmentToMethodParameter")
   private Datasource decorateDatasource(Datasource datasource) {
+    Datasource decorated = datasource;
     for(Decorator<Datasource> decorator : decorators) {
-      datasource = decorator.decorate(datasource);
+      decorated = decorator.decorate(decorated);
     }
-    return datasource;
+    return decorated;
   }
 
   @Override

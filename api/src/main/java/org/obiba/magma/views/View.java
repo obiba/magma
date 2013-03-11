@@ -175,14 +175,14 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
     };
   }
 
-  @SuppressWarnings("AssignmentToMethodParameter")
+  @SuppressWarnings({ "AssignmentToMethodParameter", "PMD.AvoidReassigningParameters" })
   public void setUpdated(Value updated) {
     if(updated == null) updated = DateTimeType.get().nullValue();
     if(updated.getValueType() != DateTimeType.get()) throw new IllegalArgumentException();
     this.updated = updated;
   }
 
-  @SuppressWarnings("AssignmentToMethodParameter")
+  @SuppressWarnings({ "AssignmentToMethodParameter", "PMD.AvoidReassigningParameters" })
   public void setCreated(Value created) {
     if(created == null) created = DateTimeType.get().nullValue();
     if(created.getValueType() != DateTimeType.get()) throw new IllegalArgumentException();

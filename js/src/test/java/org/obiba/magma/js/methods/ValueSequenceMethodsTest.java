@@ -26,7 +26,7 @@ import junit.framework.Assert;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
-@SuppressWarnings({"AssignmentToMethodParameter"})
+@SuppressWarnings({ "AssignmentToMethodParameter" })
 public class ValueSequenceMethodsTest extends AbstractJsTest {
 
   // first()
@@ -159,7 +159,7 @@ public class ValueSequenceMethodsTest extends AbstractJsTest {
     ValueSequence valueSequence = TextType.get().sequenceOf("\"A\", \"B\"");
     ScriptableValue scriptableValue = newValue(valueSequence);
     ScriptableValue result = ValueSequenceMethods
-        .valueAt(Context.getCurrentContext(), scriptableValue, new Object[] {0}, null);
+        .valueAt(Context.getCurrentContext(), scriptableValue, new Object[] { 0 }, null);
     assertThat(result.getValue(), is(valueSequence.get(0)));
   }
 
@@ -168,7 +168,7 @@ public class ValueSequenceMethodsTest extends AbstractJsTest {
     ValueSequence valueSequence = TextType.get().sequenceOf("\"A\", \"B\"");
     ScriptableValue scriptableValue = newValue(valueSequence);
     ScriptableValue result = ValueSequenceMethods
-        .valueAt(Context.getCurrentContext(), scriptableValue, new Object[] {1}, null);
+        .valueAt(Context.getCurrentContext(), scriptableValue, new Object[] { 1 }, null);
     assertThat(result.getValue(), is(valueSequence.get(1)));
   }
 
@@ -177,7 +177,7 @@ public class ValueSequenceMethodsTest extends AbstractJsTest {
     ValueSequence valueSequence = TextType.get().sequenceOf("\"A\", \"B\"");
     ScriptableValue scriptableValue = newValue(valueSequence);
     ScriptableValue result = ValueSequenceMethods
-        .valueAt(Context.getCurrentContext(), scriptableValue, new Object[] {2}, null);
+        .valueAt(Context.getCurrentContext(), scriptableValue, new Object[] { 2 }, null);
     assertThat(result.getValue(), is(TextType.get().nullValue()));
   }
 
@@ -186,7 +186,7 @@ public class ValueSequenceMethodsTest extends AbstractJsTest {
     ValueSequence valueSequence = TextType.get().sequenceOf("\"A\", \"B\"");
     ScriptableValue scriptableValue = newValue(valueSequence);
     ScriptableValue result = ValueSequenceMethods
-        .valueAt(Context.getCurrentContext(), scriptableValue, new Object[] {"One"}, null);
+        .valueAt(Context.getCurrentContext(), scriptableValue, new Object[] { "One" }, null);
     assertThat(result.getValue(), is(TextType.get().nullValue()));
   }
 
@@ -222,10 +222,10 @@ public class ValueSequenceMethodsTest extends AbstractJsTest {
 
     MyScriptableValueCustomSortDesc scriptableValue = newValueDesc(valueSequence);
     FunctionObject funObj = new FunctionObject("sort",
-        scriptableValue.getClass().getMethod("sort", new Class[] {ScriptableValue.class, ScriptableValue.class}),
+        scriptableValue.getClass().getMethod("sort", new Class[] { ScriptableValue.class, ScriptableValue.class }),
         scriptableValue);
-    valueSequence = ValueSequenceMethods.sort(Context.getCurrentContext(), scriptableValue, new Object[] {funObj}, null)
-        .getValue().asSequence();
+    valueSequence = ValueSequenceMethods
+        .sort(Context.getCurrentContext(), scriptableValue, new Object[] { funObj }, null).getValue().asSequence();
     assertThat(valueSequence.getValues().get(0), is(IntegerType.get().valueOf(4)));
     assertThat(valueSequence.getValues().get(1), is(IntegerType.get().valueOf(3)));
     assertThat(valueSequence.getValues().get(2), is(IntegerType.get().valueOf(2)));
@@ -238,10 +238,10 @@ public class ValueSequenceMethodsTest extends AbstractJsTest {
 
     MyScriptableValueCustomSortAsc scriptableValue = newValueAsc(valueSequence);
     FunctionObject funObj = new FunctionObject("sort",
-        scriptableValue.getClass().getMethod("sort", new Class[] {ScriptableValue.class, ScriptableValue.class}),
+        scriptableValue.getClass().getMethod("sort", new Class[] { ScriptableValue.class, ScriptableValue.class }),
         scriptableValue);
-    valueSequence = ValueSequenceMethods.sort(Context.getCurrentContext(), scriptableValue, new Object[] {funObj}, null)
-        .getValue().asSequence();
+    valueSequence = ValueSequenceMethods
+        .sort(Context.getCurrentContext(), scriptableValue, new Object[] { funObj }, null).getValue().asSequence();
     assertThat(valueSequence.getValues().get(0), is(IntegerType.get().valueOf(1)));
     assertThat(valueSequence.getValues().get(1), is(IntegerType.get().valueOf(2)));
     assertThat(valueSequence.getValues().get(2), is(IntegerType.get().valueOf(3)));
@@ -297,7 +297,7 @@ public class ValueSequenceMethodsTest extends AbstractJsTest {
     assertAvgIs(DecimalType.get().sequenceOf(Collections.<Value>emptyList()), null);
   }
 
-  @SuppressWarnings("AssignmentToMethodParameter")
+  @SuppressWarnings({ "AssignmentToMethodParameter", "PMD.AvoidReassigningParameters" })
   private void assertAvgIs(Value valueToSum, @Nullable Number expectedSum) {
     if(expectedSum instanceof Integer) {
       expectedSum = expectedSum.longValue();
@@ -345,7 +345,7 @@ public class ValueSequenceMethodsTest extends AbstractJsTest {
     assertStdDevIs(DecimalType.get().sequenceOf(Collections.<Value>emptyList()), null);
   }
 
-  @SuppressWarnings("AssignmentToMethodParameter")
+  @SuppressWarnings({ "AssignmentToMethodParameter", "PMD.AvoidReassigningParameters" })
   private void assertStdDevIs(Value testValue, @Nullable Number expected) {
     if(expected instanceof Integer) {
       expected = expected.longValue();

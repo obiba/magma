@@ -125,6 +125,7 @@ public class MultithreadedDatasourceCopier {
 
   private long entitiesToCopy = 0;
 
+  @SuppressWarnings("FieldMayBeFinal")
   private long entitiesCopied = 0;
 
   private int nextPercentIncrement = 0;
