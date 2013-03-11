@@ -17,17 +17,18 @@ import com.google.common.collect.Sets;
 
 public class MultiplexingValueTableWriter implements ValueTableWriter {
 
-  private ValueTable source;
+  private final ValueTable source;
 
-  private DatasourceCopier copier;
+  private final DatasourceCopier copier;
 
   private final Datasource destination;
 
   private final MultiplexingStrategy strategy;
 
-  private Map<String, ValueTableWriter> writers = Maps.newHashMap();
+  private final Map<String, ValueTableWriter> writers = Maps.newHashMap();
 
-  public MultiplexingValueTableWriter(ValueTable source, DatasourceCopier copier, Datasource destination, MultiplexingStrategy strategy) {
+  public MultiplexingValueTableWriter(ValueTable source, DatasourceCopier copier, Datasource destination,
+      MultiplexingStrategy strategy) {
     this.source = source;
     this.copier = copier;
     this.destination = destination;
@@ -51,7 +52,8 @@ public class MultiplexingValueTableWriter implements ValueTableWriter {
     }
   }
 
-  private ValueTableWriter lookupWriter(Variable variable, String tableName) {
+  @SuppressWarnings({ "AssignmentToMethodParameter", "PMD.AvoidReassigningParameters" })
+  private ValueTableWriter lookupWriter(String tableName) {
     if(tableName == null) {
       tableName = source.getName();
     }
@@ -66,11 +68,11 @@ public class MultiplexingValueTableWriter implements ValueTableWriter {
 
   private class MultiplexedVariableWriter implements VariableWriter {
 
-    private Map<ValueTableWriter, VariableWriter> writers = Maps.newHashMap();
+    private final Map<ValueTableWriter, VariableWriter> writers = Maps.newHashMap();
 
     @Override
     public void writeVariable(Variable variable) {
-      ValueTableWriter vtw = lookupWriter(variable, strategy.multiplexVariable(variable));
+      ValueTableWriter vtw = lookupWriter(strategy.multiplexVariable(variable));
       VariableWriter writer = writers.get(vtw);
       if(writer == null) {
         writer = vtw.writeVariables();
@@ -91,11 +93,11 @@ public class MultiplexingValueTableWriter implements ValueTableWriter {
 
   public class MultiplexedValueSetWriter implements ValueSetWriter {
 
-    private VariableEntity entity;
+    private final VariableEntity entity;
 
-    private Map<ValueTableWriter, ValueSetWriter> writers = Maps.newHashMap();
+    private final Map<ValueTableWriter, ValueSetWriter> writers = Maps.newHashMap();
 
-    private Set<String> tables = Sets.newLinkedHashSet();
+    private final Set<String> tables = Sets.newLinkedHashSet();
 
     public MultiplexedValueSetWriter(VariableEntity entity) {
       this.entity = entity;
@@ -109,7 +111,7 @@ public class MultiplexingValueTableWriter implements ValueTableWriter {
     public void writeValue(Variable variable, Value value) {
       String tableName = strategy.multiplexValueSet(entity, variable);
       tables.add(tableName);
-      ValueTableWriter vtw = lookupWriter(variable, tableName);
+      ValueTableWriter vtw = lookupWriter(tableName);
 
       ValueSetWriter writer = writers.get(vtw);
       if(writer == null) {
