@@ -9,6 +9,8 @@
  ******************************************************************************/
 package org.obiba.magma.views;
 
+import javax.annotation.Nonnull;
+
 import org.easymock.EasyMock;
 import org.junit.Assert;
 import org.junit.Test;
@@ -76,11 +78,13 @@ public class IncrementalWhereClauseTest extends AbstractMagmaTest {
   private Timestamps mockTimestamps(final String updated) {
     return new Timestamps() {
 
+      @Nonnull
       @Override
       public Value getLastUpdate() {
         return DateTimeType.get().valueOf(updated);
       }
 
+      @Nonnull
       @Override
       public Value getCreated() {
         return DateTimeType.get().nullValue();

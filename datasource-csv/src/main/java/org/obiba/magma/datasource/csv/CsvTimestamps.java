@@ -3,6 +3,8 @@ package org.obiba.magma.datasource.csv;
 import java.io.File;
 import java.util.Date;
 
+import javax.annotation.Nonnull;
+
 import org.obiba.magma.Timestamps;
 import org.obiba.magma.Value;
 import org.obiba.magma.type.DateTimeType;
@@ -18,12 +20,14 @@ public class CsvTimestamps implements Timestamps {
     this.dataFile = dataFile;
   }
 
+  @Nonnull
   @Override
   public Value getCreated() {
     // Not currently possible to read a file creation timestamp. Coming in JDK 7 NIO.
     return DateTimeType.get().nullValue();
   }
 
+  @Nonnull
   @Override
   public Value getLastUpdate() {
     Date variablesFileLastUpdated = variableFile == null ? null : new Date(variableFile.lastModified());

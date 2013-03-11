@@ -2,6 +2,8 @@ package org.obiba.magma.support;
 
 import java.lang.ref.WeakReference;
 
+import javax.annotation.Nonnull;
+
 import org.obiba.magma.MagmaEngine;
 import org.obiba.magma.Timestamps;
 import org.obiba.magma.Value;
@@ -16,6 +18,7 @@ public class NullTimestamps implements Timestamps {
 
   }
 
+  @Nonnull
   public static NullTimestamps get() {
     if(instance == null || instance.get() == null) {
       instance = MagmaEngine.get().registerInstance(new NullTimestamps());
@@ -23,11 +26,13 @@ public class NullTimestamps implements Timestamps {
     return instance.get();
   }
 
+  @Nonnull
   @Override
   public Value getCreated() {
     return DateTimeType.get().nullValue();
   }
 
+  @Nonnull
   @Override
   public Value getLastUpdate() {
     return DateTimeType.get().nullValue();
