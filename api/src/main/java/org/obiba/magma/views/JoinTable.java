@@ -114,6 +114,12 @@ public class JoinTable implements ValueTable, Initialisable {
     for(ValueTable table : tables) {
       for(Variable variable : table.getVariables()) {
         JoinableVariable joinableVariable = new JoinableVariable(variable);
+        JoinableVariable existing = joinableVariablesByName.get(variable.getName());
+        if(existing != null && !existing.equals(joinableVariable)) {
+          throw new IllegalArgumentException(
+              "Cannot have variables with same name and different value type or repeatability: '" +
+                  variable.getName() + "");
+        }
         variableTables.put(joinableVariable, table);
         joinableVariablesByName.put(variable.getName(), joinableVariable);
       }
