@@ -14,6 +14,8 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.annotation.Nonnull;
+
 import org.obiba.magma.Datasource;
 import org.obiba.magma.NoSuchValueSetException;
 import org.obiba.magma.Timestamps;
@@ -56,12 +58,14 @@ public class SpssValueTable extends AbstractValueTable {
   @Override
   public Timestamps getTimestamps() {
     return new Timestamps() {
+      @Nonnull
       @Override
       public Value getLastUpdate() {
         Date lastModified = new Date(spssFile.file.lastModified());
         return DateTimeType.get().valueOf(lastModified);
       }
 
+      @Nonnull
       @Override
       public Value getCreated() {
         // Not currently possible to read a file creation timestamp. Coming in JDK 7 NIO.
@@ -115,7 +119,6 @@ public class SpssValueTable extends AbstractValueTable {
       return getEntityType().equals(anEntityType);
     }
 
-
     @Override
     public Set<VariableEntity> getVariableEntities() {
 
@@ -132,8 +135,9 @@ public class SpssValueTable extends AbstractValueTable {
           for(int i = 1; i <= numberOfObservations; i++) {
             String identifier = entityVariable.getValueAsString(i, new FileFormatInfo(FileFormatInfo.Format.ASCII));
 
-            if (entityIdentifiers.contains(identifier)) {
-              throw new SpssDatasourceParsingException("Duplicated entity identifier", getName(), i, "SpssDuplicateEntity", identifier, i);
+            if(entityIdentifiers.contains(identifier)) {
+              throw new SpssDatasourceParsingException("Duplicated entity identifier", getName(), i,
+                  "SpssDuplicateEntity", identifier, i);
             }
 
             entitiesBuilder.add(new SpssVariableEntity(entityType, identifier, i));

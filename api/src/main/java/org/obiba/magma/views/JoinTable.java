@@ -111,6 +111,7 @@ public class JoinTable implements ValueTable, Initialisable {
   }
 
   private synchronized void analyseVariables() {
+    if(variableAnalysed) return;
     for(ValueTable table : tables) {
       for(Variable variable : table.getVariables()) {
         JoinableVariable joinableVariable = new JoinableVariable(variable);
@@ -118,7 +119,7 @@ public class JoinTable implements ValueTable, Initialisable {
         if(existing != null && !existing.equals(joinableVariable)) {
           throw new IllegalArgumentException(
               "Cannot have variables with same name and different value type or repeatability: '" +
-                  variable.getName() + "");
+                  variable.getName() + "'");
         }
         variableTables.put(joinableVariable, table);
         joinableVariablesByName.put(variable.getName(), joinableVariable);
@@ -129,6 +130,7 @@ public class JoinTable implements ValueTable, Initialisable {
 
   @Nonnull
   public List<ValueTable> getTables() {
+    if(!variableAnalysed) analyseVariables();
     return tables;
   }
 
@@ -141,7 +143,7 @@ public class JoinTable implements ValueTable, Initialisable {
 
   @Override
   public String getEntityType() {
-    return tables.get(0).getEntityType();
+    return getTables().get(0).getEntityType();
   }
 
   @Override
@@ -171,7 +173,7 @@ public class JoinTable implements ValueTable, Initialisable {
   public Set<VariableEntity> getVariableEntities() {
     // Set the initial capacity to the number of entities we saw in the previous call to this method
     Set<VariableEntity> entities = new LinkedHashSet<VariableEntity>(lastEntityCount);
-    for(ValueTable table : tables) {
+    for(ValueTable table : getTables()) {
       entities.addAll(table.getVariableEntities());
     }
     // Remember this value so that next time around, the set is initialised with a capacity closer to the actual value.
@@ -206,6 +208,8 @@ public class JoinTable implements ValueTable, Initialisable {
 
   @Override
   public VariableValueSource getVariableValueSource(String variableName) throws NoSuchVariableException {
+    if(!variableAnalysed) analyseVariables();
+
     // find first variable with this name
     JoinableVariable joinableVariable = getJoinableVariablesByName().get(variableName);
     if(joinableVariable == null) {
@@ -221,12 +225,13 @@ public class JoinTable implements ValueTable, Initialisable {
 
   @Override
   public Iterable<Variable> getVariables() {
+    if(!variableAnalysed) analyseVariables();
     return unionOfVariables();
   }
 
   @Override
   public boolean hasValueSet(VariableEntity entity) {
-    for(ValueTable table : tables) {
+    for(ValueTable table : getTables()) {
       if(table.hasValueSet(entity)) {
         return true;
       }
@@ -250,7 +255,7 @@ public class JoinTable implements ValueTable, Initialisable {
 
   private String buildJoinTableName() {
     StringBuilder sb = new StringBuilder();
-    for(Iterator<ValueTable> it = tables.iterator(); it.hasNext(); ) {
+    for(Iterator<ValueTable> it = getTables().iterator(); it.hasNext(); ) {
       sb.append(it.next().getName());
       if(it.hasNext()) sb.append('-');
     }
@@ -262,7 +267,7 @@ public class JoinTable implements ValueTable, Initialisable {
       unionOfVariables = new LinkedHashSet<Variable>();
 
       Collection<String> unionOfVariableNames = new LinkedHashSet<String>();
-      for(ValueTable table : tables) {
+      for(ValueTable table : getTables()) {
         for(Variable variable : table.getVariables()) {
           // Add returns true if the set did not already contain the value
           if(unionOfVariableNames.add(variable.getName())) {
@@ -297,7 +302,7 @@ public class JoinTable implements ValueTable, Initialisable {
 
   @Override
   public Timestamps getTimestamps() {
-    return new UnionTimestamps(tables);
+    return new UnionTimestamps(getTables());
   }
 
   @Override

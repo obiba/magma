@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import org.hibernate.Criteria;
@@ -107,11 +108,13 @@ class HibernateValueTable extends AbstractValueTable {
   private static Timestamps createTimestamps(@Nullable final Timestamped timestamped) {
     return timestamped == null ? NullTimestamps.get() : new Timestamps() {
 
+      @Nonnull
       @Override
       public Value getLastUpdate() {
         return DateTimeType.get().valueOf(timestamped.getUpdated());
       }
 
+      @Nonnull
       @Override
       public Value getCreated() {
         return DateTimeType.get().valueOf(timestamped.getCreated());
