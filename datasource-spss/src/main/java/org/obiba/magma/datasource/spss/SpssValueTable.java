@@ -9,6 +9,7 @@
  */
 package org.obiba.magma.datasource.spss;
 
+import java.io.IOException;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
@@ -17,6 +18,7 @@ import java.util.Set;
 import javax.annotation.Nonnull;
 
 import org.obiba.magma.Datasource;
+import org.obiba.magma.Disposable;
 import org.obiba.magma.NoSuchValueSetException;
 import org.obiba.magma.Timestamps;
 import org.obiba.magma.Value;
@@ -35,7 +37,7 @@ import org.opendatafoundation.data.spss.SPSSVariable;
 
 import com.google.common.collect.ImmutableSet;
 
-public class SpssValueTable extends AbstractValueTable {
+public class SpssValueTable extends AbstractValueTable implements Disposable {
 
   private final SPSSFile spssFile;
 
@@ -93,6 +95,17 @@ public class SpssValueTable extends AbstractValueTable {
       spssFile.loadMetadata();
     } catch(Exception e) {
       throw new SpssDatasourceParsingException(e, "SpssFailedToLoadMetadata", spssFile.file.getName());
+    }
+  }
+
+  @Nonnull
+  @Override
+  public void dispose() {
+    if (spssFile != null) {
+      try {
+        spssFile.close();
+      } catch(IOException e) {
+      }
     }
   }
 
