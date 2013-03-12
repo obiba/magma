@@ -21,15 +21,16 @@ import org.obiba.magma.NoSuchValueSetException;
 import org.obiba.magma.Timestamps;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueSet;
+import org.obiba.magma.ValueType;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.datasource.spss.support.SpssDatasourceParsingException;
+import org.obiba.magma.datasource.spss.support.SpssVariableTypeMapper;
+import org.obiba.magma.datasource.spss.support.SpssVariableValueFactory;
 import org.obiba.magma.datasource.spss.support.SpssVariableValueSourceFactory;
 import org.obiba.magma.support.AbstractValueTable;
 import org.obiba.magma.support.VariableEntityProvider;
 import org.obiba.magma.type.DateTimeType;
-import org.opendatafoundation.data.FileFormatInfo;
 import org.opendatafoundation.data.spss.SPSSFile;
-import org.opendatafoundation.data.spss.SPSSFileException;
 import org.opendatafoundation.data.spss.SPSSVariable;
 
 import com.google.common.collect.ImmutableSet;
@@ -129,26 +130,23 @@ public class SpssValueTable extends AbstractValueTable {
         ImmutableSet.Builder<VariableEntity> entitiesBuilder = ImmutableSet.builder();
         SPSSVariable entityVariable = spssFile.getVariable(0);
         int numberOfObservations = entityVariable.getNumberOfObservation();
+        ValueType valueType = SpssVariableTypeMapper.map(entityVariable);
 
-        try {
+        for(int i = 1; i <= numberOfObservations; i++) {
+          Value identifierValue = new SpssVariableValueFactory(i, entityVariable, valueType).create();
+          String identifier = identifierValue.getValue().toString();
 
-          for(int i = 1; i <= numberOfObservations; i++) {
-            String identifier = entityVariable.getValueAsString(i, new FileFormatInfo(FileFormatInfo.Format.ASCII));
-
-            if(entityIdentifiers.contains(identifier)) {
-              throw new SpssDatasourceParsingException("Duplicated entity identifier", getName(), i,
-                  "SpssDuplicateEntity", identifier, i);
-            }
-
-            entitiesBuilder.add(new SpssVariableEntity(entityType, identifier, i));
-            entityIdentifiers.add(identifier);
+          if(entityIdentifiers.contains(identifier)) {
+            throw new SpssDatasourceParsingException("Duplicated entity identifier", getName(), i,
+                "SpssDuplicateEntity", identifier, i);
           }
 
-          variableEntities = entitiesBuilder.build();
-
-        } catch(SPSSFileException e) {
-          throw new SpssDatasourceParsingException(e, "TableDefinitionErrors", getName());
+          entitiesBuilder.add(new SpssVariableEntity(entityType, identifier, i));
+          entityIdentifiers.add(identifier);
         }
+
+        variableEntities = entitiesBuilder.build();
+
       }
 
       return variableEntities;
