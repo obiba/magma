@@ -212,37 +212,4 @@ public class SpssDatasourceTest {
     }
   }
 
-//  @Test
-//  public void getValuesForAllEntitiesOfGivenVariable() {
-//    dsFactory.setFile("src/test/resources/org/obiba/magma/datasource/spss/DatabaseTest.sav");
-//    Datasource ds = dsFactory.create();
-//    ds.initialise();
-//
-//    ValueTable valueTable = ds.getValueTable("DatabaseTest");
-//    Set<VariableEntity> entities = valueTable.getVariableEntities();
-//    Assert.assertNotNull(entities);
-//    Assert.assertEquals(200, entities.size());
-//
-//    VectorSource bdVar = valueTable.getVariableValueSource("write").asVectorSource();
-//    assertNotNull(bdVar);
-//
-//    Iterable<Value> values = bdVar.getValues(new TreeSet<VariableEntity>(entities));
-//    Iterator<Value> iterator = values.iterator();
-//    Assert.assertTrue(iterator.hasNext());
-//    Assert.assertNotNull(values);
-//
-//    // Testing for the first 5 values, notice that the values are sorted
-//    List<Value> expectedValues = new ArrayList<Value>();
-//    expectedValues.add(DecimalType.get().valueOf(44.0));
-//    expectedValues.add(DecimalType.get().valueOf(41.0));
-//    expectedValues.add(DecimalType.get().valueOf(65.0));
-//    expectedValues.add(DecimalType.get().valueOf(50.0));
-//    expectedValues.add(DecimalType.get().valueOf(40.0));
-//
-//    for (Iterator<Value> iteratorExpected = expectedValues.iterator(); iteratorExpected.hasNext();) {
-//      Assert.assertTrue(iterator.next().compareTo(iteratorExpected.next()) == 0);
-//    }
-//
-//  }
-
 }
