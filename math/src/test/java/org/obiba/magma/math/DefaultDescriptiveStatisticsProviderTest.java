@@ -1,13 +1,5 @@
 package org.obiba.magma.math;
 
-import static org.easymock.EasyMock.createMock;
-import static org.easymock.EasyMock.expect;
-import static org.easymock.EasyMock.replay;
-import static org.easymock.EasyMock.verify;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.junit.Assert.assertThat;
-
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -24,6 +16,14 @@ import org.obiba.magma.support.Values;
 import org.obiba.magma.type.DecimalType;
 
 import com.google.common.collect.ImmutableList;
+
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.replay;
+import static org.easymock.EasyMock.verify;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.junit.Assert.assertThat;
 
 public class DefaultDescriptiveStatisticsProviderTest {
 
@@ -72,7 +72,7 @@ public class DefaultDescriptiveStatisticsProviderTest {
     VectorSource mockVector = createMock(VectorSource.class);
 
     expect(mockSource.asVectorSource()).andReturn(mockVector);
-    expect(mockVector.getValues(emptySet)).andReturn(ImmutableList.<Value> of());
+    expect(mockVector.getValues(emptySet)).andReturn(ImmutableList.<Value>of());
 
     replay(mockSource, mockVector);
 
@@ -90,7 +90,8 @@ public class DefaultDescriptiveStatisticsProviderTest {
     VectorSource mockVector = createMock(VectorSource.class);
 
     expect(mockSource.asVectorSource()).andReturn(mockVector);
-    expect(mockVector.getValues(emptySet)).andReturn(Values.asValues(DecimalType.get(), 2d, 4d, 6d, 8d, null, null, 10d));
+    expect(mockVector.getValues(emptySet))
+        .andReturn(Values.asValues(DecimalType.get(), 2d, 4d, 6d, 8d, null, null, 10d));
 
     replay(mockSource, mockVector);
 

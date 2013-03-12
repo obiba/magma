@@ -42,9 +42,9 @@ public class AttributeState implements Attribute, Serializable {
   private Locale locale;
 
   @Type(type = "value")
-  @Columns(columns = {@Column(name = "value_type", nullable = false), //
+  @Columns(columns = { @Column(name = "value_type", nullable = false), //
       @Column(name = "is_sequence", nullable = false), //
-      @Column(name = "value", length = Integer.MAX_VALUE, nullable = false)})
+      @Column(name = "value", length = Integer.MAX_VALUE, nullable = false) })
   private Value value;
 
   public AttributeState() {

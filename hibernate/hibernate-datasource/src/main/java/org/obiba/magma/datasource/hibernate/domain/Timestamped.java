@@ -18,12 +18,14 @@ public interface Timestamped {
 
   /**
    * Returns the timestamp for the creation this entity.
+   *
    * @return The creation timestamp.
    */
   Date getCreated();
 
   /**
    * Returns the timestamp for the last update of this entity.
+   *
    * @return The update timestamp.
    */
   Date getUpdated();

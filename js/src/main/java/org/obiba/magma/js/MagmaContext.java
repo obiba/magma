@@ -21,7 +21,8 @@ public class MagmaContext extends Context {
     try {
       return (MagmaContext) ctx;
     } catch(ClassCastException e) {
-      throw new MagmaJsRuntimeException("No MagmaContext available. Make sure MagmaJsExtension has been intialized before using JavascriptValueSource instances.");
+      throw new MagmaJsRuntimeException(
+          "No MagmaContext available. Make sure MagmaJsExtension has been intialized before using JavascriptValueSource instances.");
     }
   }
 
@@ -29,6 +30,7 @@ public class MagmaContext extends Context {
    * Returns the instance of the {@code sharedScope} configured by {@code #initStandardObjects()}. A call to {@code
    * #initStandardObjects()} must be made prior to invoking this method, otherwise an {@code IllegalStateException} is
    * thrown.
+   *
    * @return the {@code sharedScope}
    */
   public ScriptableObject sharedScope() {
@@ -38,10 +40,10 @@ public class MagmaContext extends Context {
   /**
    * Creates a new {@code Scriptable} instance for use as a transient scope. The returned {@code Scriptable} has no
    * parent scope and has the {@code sharedScope} has prototype.
-   * <p>
+   * <p/>
    * The purpose of this method is to obtain a scope instance that extends the global scope and into which new objects
    * and properties can be defined without polluting the global scope.
-   * 
+   *
    * @return a new instance of {@code Scriptable} for use as a top-level scope.
    */
   public Scriptable newLocalScope() {

@@ -8,6 +8,7 @@ public final class Decorators {
 
   /**
    * The no-op decorator.
+   *
    * @param <T>
    * @return an implementation of {@code Decorator} that returns its argument untouched.
    */
@@ -18,6 +19,7 @@ public final class Decorators {
 
   /**
    * Returns a {@code Function} implementation that calls {@code Decorator#decorate(Object)} passing it its argument.
+   *
    * @param <T> the type of {@code Function}
    * @param decorator a {@code Decorator} implementation of type {@code <T>}
    * @return a {@code Function} that decorates its argument using {@code decorator}

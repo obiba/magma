@@ -1,15 +1,15 @@
 package org.obiba.magma.math.stat;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.junit.Assert.assertThat;
-
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Random;
 
 import org.junit.Test;
 import org.obiba.magma.math.stat.IntervalFrequency.Interval;
+
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.junit.Assert.assertThat;
 
 public class IntervalFrequencyTest {
 
@@ -178,6 +178,7 @@ public class IntervalFrequencyTest {
 
   /**
    * Creates a new IntervalFrequency instance with random lower and upper bounds, with random intervals between [1,15]
+   *
    * @param observations the number of random observations to add
    * @return
    */

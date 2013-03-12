@@ -126,7 +126,8 @@ public class CsvValueTableWriter implements ValueTableWriter {
           for(String header : extraHeaders) {
             sb.append(header).append(" ");
           }
-          throw new MagmaRuntimeException("Cannot update the CSV ValueTable [" + valueTable.getName() + "]. The new ValueSet (record) included the following unexpected Variables (fields): " + sb.toString());
+          throw new MagmaRuntimeException("Cannot update the CSV ValueTable [" + valueTable.getName() +
+              "]. The new ValueSet (record) included the following unexpected Variables (fields): " + sb.toString());
         }
 
         if(valueTable.hasValueSet(entity)) {
@@ -151,7 +152,8 @@ public class CsvValueTableWriter implements ValueTableWriter {
       return valueTable.getDataHeaderMap();
     }
 
-    private List<String> getExtraHeadersFromNewValueSet(Map<String, Integer> existingHeaderMap, Map<String, Integer> valueSetHeaderMap) {
+    private List<String> getExtraHeadersFromNewValueSet(Map<String, Integer> existingHeaderMap,
+        Map<String, Integer> valueSetHeaderMap) {
       List<String> result = new ArrayList<String>();
       for(Map.Entry<String, Integer> entry : valueSetHeaderMap.entrySet()) {
         if(!existingHeaderMap.containsKey(entry.getKey())) {

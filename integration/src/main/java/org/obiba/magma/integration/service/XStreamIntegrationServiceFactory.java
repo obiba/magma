@@ -1,7 +1,6 @@
 package org.obiba.magma.integration.service;
 
 import java.io.Reader;
-import java.util.List;
 
 import org.obiba.magma.integration.model.Action;
 import org.obiba.magma.integration.model.Interview;

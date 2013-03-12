@@ -13,9 +13,9 @@ import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
 
 /**
  * Converts an {@code Attribute} instance.
- * <p>
+ * <p/>
  * Resulting XML:
- * 
+ * <p/>
  * <pre>
  * &lt;attribute name="attributeName" valueType="integer" locale="en"&gt;12345&lt;/attribute>
  * </pre>
@@ -56,6 +56,7 @@ public class AttributeConverter implements Converter {
 
     String valueString = reader.getValue();
 
-    return Attribute.Builder.newAttribute(name).withNamespace(namespace).withValue(valueType.valueOf(valueString)).withLocale(locale).build();
+    return Attribute.Builder.newAttribute(name).withNamespace(namespace).withValue(valueType.valueOf(valueString))
+        .withLocale(locale).build();
   }
 }

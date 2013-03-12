@@ -13,7 +13,6 @@ import org.obiba.magma.ValueType;
 
 /**
  * String representation of {@link ValueType}.
- * 
  */
 public class ValueTypeHibernateType extends ImmutableType implements DiscriminatorType {
 

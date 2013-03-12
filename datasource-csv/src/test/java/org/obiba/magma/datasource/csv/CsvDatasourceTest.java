@@ -1,16 +1,9 @@
 package org.obiba.magma.datasource.csv;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.hamcrest.CoreMatchers.nullValue;
-import static org.junit.Assert.assertThat;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.Locale;
 import java.util.Map;
-
-import junit.framework.Assert;
 
 import org.junit.After;
 import org.junit.Before;
@@ -40,6 +33,13 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
+
+import junit.framework.Assert;
+
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.CoreMatchers.nullValue;
+import static org.junit.Assert.assertThat;
 
 public class CsvDatasourceTest {
 
@@ -471,7 +471,8 @@ public class CsvDatasourceTest {
   }
 
   @Test
-  public void testWritingDataOnlyModifyingMultipleValueSetsAndReadingBackFromReinitializedDatasource() throws Exception {
+  public void testWritingDataOnlyModifyingMultipleValueSetsAndReadingBackFromReinitializedDatasource()
+      throws Exception {
     String tableName = "TableDataOnly";
     String entityName = "Participant";
     CsvDatasource datasource = new TempTableBuilder(tableName)
@@ -643,8 +644,8 @@ public class CsvDatasourceTest {
     return tempDirectory;
   }
 
-  private void writeVariableToDatasource(Datasource datasource, String tableName,
-      Variable testVariable) throws IOException {
+  private void writeVariableToDatasource(Datasource datasource, String tableName, Variable testVariable)
+      throws IOException {
     ValueTableWriter writer = datasource.createWriter("test-table", "entityType");
     VariableWriter vw = writer.writeVariables();
     vw.writeVariable(testVariable);

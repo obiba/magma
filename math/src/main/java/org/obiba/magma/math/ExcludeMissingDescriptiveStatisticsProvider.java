@@ -23,7 +23,7 @@ public class ExcludeMissingDescriptiveStatisticsProvider extends AbstractDescrip
    * Returns true when {@code value} is considered {@code missing} for {@code variable}. More formally, this method
    * returns true when {@code value#isNull()} is true or when {@code value#toString()} is equal to the name of any
    * missing category ({@code Category#isMissing()} is {@code true}).
-   * 
+   *
    * @param variable
    * @param value
    * @return

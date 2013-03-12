@@ -1,9 +1,9 @@
 /*******************************************************************************
  * Copyright 2008(c) The OBiBa Consortium. All rights reserved.
- * 
+ *
  * This program and the accompanying materials
  * are made available under the terms of the GNU Public License v3.0.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
@@ -19,9 +19,9 @@ import java.util.Set;
 
 import org.obiba.magma.ValueType;
 import org.obiba.magma.Variable;
+import org.obiba.magma.Variable.BuilderVisitor;
 import org.obiba.magma.VariableValueSource;
 import org.obiba.magma.VariableValueSourceFactory;
-import org.obiba.magma.Variable.BuilderVisitor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.PropertyAccessorUtils;
 import org.springframework.util.Assert;
@@ -32,7 +32,7 @@ import com.google.common.collect.HashBiMap;
 import com.google.common.collect.Iterables;
 
 /**
- * 
+ *
  */
 public class BeanVariableValueSourceFactory<T> implements VariableValueSourceFactory {
 
@@ -40,18 +40,26 @@ public class BeanVariableValueSourceFactory<T> implements VariableValueSourceFac
 
   private String entityType;
 
-  /** The set of bean properties that are returned as variables */
+  /**
+   * The set of bean properties that are returned as variables
+   */
   private Set<String> properties = Collections.emptySet();
 
   private String prefix;
 
-  /** Maps property names to variable name */
+  /**
+   * Maps property names to variable name
+   */
   private BiMap<String, String> propertyNameToVariableName = HashBiMap.create();
 
-  /** Maps property names to property type */
+  /**
+   * Maps property names to property type
+   */
   private Map<String, Class<?>> propertyNameToPropertyType = new HashMap<String, Class<?>>();
 
-  /** Maps mapped property names to property type */
+  /**
+   * Maps mapped property names to property type
+   */
   private Map<String, Class<?>> mappedPropertyType = new HashMap<String, Class<?>>();
 
   private Set<? extends BuilderVisitor> variableBuilderVisitors = Collections.emptySet();
@@ -108,6 +116,7 @@ public class BeanVariableValueSourceFactory<T> implements VariableValueSourceFac
   /**
    * Finds the type ({@code Class}) for a given {@code propertyName} which may denote a nested property (property path
    * e.g: a.b.c) or mapped property (attribute[key]) or a combination of both (e.g.: a.b[c].d).
+   *
    * @param propertyName
    * @return
    */
@@ -143,7 +152,9 @@ public class BeanVariableValueSourceFactory<T> implements VariableValueSourceFac
       } else {
         PropertyDescriptor currentProperty = BeanUtils.getPropertyDescriptor(currentType, nestedProperty);
         if(currentProperty == null) {
-          throw new IllegalArgumentException("Invalid path '" + propertyName + "' for type " + getBeanClass().getName() + ": nested property '" + nestedProperty + "' does not exist on type " + currentType.getName());
+          throw new IllegalArgumentException(
+              "Invalid path '" + propertyName + "' for type " + getBeanClass().getName() + ": nested property '" +
+                  nestedProperty + "' does not exist on type " + currentType.getName());
         }
         // Change the current type so it points to the nested type
         currentType = currentProperty.getPropertyType();
@@ -155,7 +166,9 @@ public class BeanVariableValueSourceFactory<T> implements VariableValueSourceFac
     // propertyPath is a direct reference to a property of the currentType (no longer a path)
     PropertyDescriptor descriptor = BeanUtils.getPropertyDescriptor(currentType, propertyPath);
     if(descriptor == null) {
-      throw new IllegalArgumentException("Invalid path '" + propertyName + "' for type " + getBeanClass().getName() + ": property '" + propertyPath + "' does not exist on type " + currentType.getName());
+      throw new IllegalArgumentException(
+          "Invalid path '" + propertyName + "' for type " + getBeanClass().getName() + ": property '" + propertyPath +
+              "' does not exist on type " + currentType.getName());
     }
     return descriptor.getPropertyType();
   }
@@ -164,7 +177,7 @@ public class BeanVariableValueSourceFactory<T> implements VariableValueSourceFac
    * Returns the type for values in a mapped property. It is not possible (or at least, I haven't found how) to
    * determine the type of a mapped property (i.e.: property[key]). For this reason, the type to use for such properties
    * has to be specified through configuration. This method must return the type for values in the {@code Map}.
-   * 
+   *
    * @param propertyName the name of the property (without any key element). Given "property[key]", this method will be
    * passed "property".
    * @return the type of the values in the Map
@@ -172,7 +185,9 @@ public class BeanVariableValueSourceFactory<T> implements VariableValueSourceFac
   protected Class<?> getMapAttributeType(String propertyName) {
     Class<?> type = mappedPropertyType.get(propertyName);
     if(type == null) {
-      throw new IllegalStateException("Property '" + propertyName + "' is a mapped property; the value type cannot be determined by relfection. As such, the type of values in the map must be specified through configuration. Use the setMappedPropertyType() method to provide the mapping between property names and value types. Ensure that an entry with the key '" + propertyName + "' exists in this map.");
+      throw new IllegalStateException("Property '" + propertyName +
+          "' is a mapped property; the value type cannot be determined by relfection. As such, the type of values in the map must be specified through configuration. Use the setMappedPropertyType() method to provide the mapping between property names and value types. Ensure that an entry with the key '" +
+          propertyName + "' exists in this map.");
     }
     return type;
   }
@@ -180,6 +195,7 @@ public class BeanVariableValueSourceFactory<T> implements VariableValueSourceFac
   /**
    * Returns the variable name for a given property name. If none is configured, this method returns the property name
    * as-is.
+   *
    * @param propertyName
    * @return
    */
@@ -199,6 +215,7 @@ public class BeanVariableValueSourceFactory<T> implements VariableValueSourceFac
   /**
    * Returns the property name for a given variable name. If no variable is found, this method returns the variable name
    * as-is.
+   *
    * @param name
    * @return
    */
@@ -227,9 +244,12 @@ public class BeanVariableValueSourceFactory<T> implements VariableValueSourceFac
         for(String propertyPath : propertiesCopy) {
           Class<?> propertyType = getPropertyType(propertyPath);
           if(propertyType == null) {
-            throw new IllegalArgumentException("Invalid property path'" + propertyPath + "' for type " + getBeanClass().getName());
+            throw new IllegalArgumentException(
+                "Invalid property path'" + propertyPath + "' for type " + getBeanClass().getName());
           }
-          sources.add(new BeanPropertyVariableValueSource(doBuildVariable(propertyType, lookupVariableName(propertyPath)), beanClass, propertyPath));
+          sources.add(
+              new BeanPropertyVariableValueSource(doBuildVariable(propertyType, lookupVariableName(propertyPath)),
+                  beanClass, propertyPath));
         }
       }
     }
@@ -241,7 +261,8 @@ public class BeanVariableValueSourceFactory<T> implements VariableValueSourceFac
     Variable.Builder builder = Variable.Builder.newVariable(name, type, entityType);
     if(propertyType.isEnum()) {
       Enum<?>[] constants = (Enum<?>[]) propertyType.getEnumConstants();
-      String[] names = Iterables.toArray(Iterables.transform(Arrays.asList(constants), Functions.toStringFunction()), String.class);
+      String[] names = Iterables
+          .toArray(Iterables.transform(Arrays.asList(constants), Functions.toStringFunction()), String.class);
       builder.addCategories(names);
     }
 

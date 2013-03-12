@@ -18,7 +18,8 @@ public class ViewAwareDatasourceTransformer implements DatasourceTransformer {
 
   // TODO: this is no longer used. It must not be removed because some configuration files may still refer to this
   // property.
-  @edu.umd.cs.findbugs.annotations.SuppressWarnings(value = "URF_UNREAD_FIELD", justification = "This is no longer used. It must not be removed because some configuration files may still refer to this property.")
+  @edu.umd.cs.findbugs.annotations.SuppressWarnings(value = "URF_UNREAD_FIELD",
+      justification = "This is no longer used. It must not be removed because some configuration files may still refer to this property.")
   @Deprecated
   private String name;
 

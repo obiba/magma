@@ -19,7 +19,7 @@ public class ScriptableValueMethods {
   /**
    * Returns the javascript value of a {@code ScriptableValue}. Useful to turn BooleanType ScriptableValues into native
    * javascript values to be used inside if/else statements.
-   * 
+   * <p/>
    * <pre>
    *   if($('Admin.Interview.exportLog.destination').empty().value()) {
    *      // true
@@ -38,11 +38,11 @@ public class ScriptableValueMethods {
 
   /**
    * 1) Invoked with no arguments - ex: type()
-   * 
+   * <p/>
    * Returns a new {@code ScriptableValue} of type "text" containing the name of the {@code ValueType}.
-   * 
+   * <p/>
    * 2) Invoked with type argument - ex: type("text")
-   * 
+   * <p/>
    * Performs a {@code ValueType} conversion and returns a new {@code ScriptableValue} of the requested type.
    */
   public static ScriptableValue type(Context ctx, Scriptable thisObj, Object[] args, Function funObj) {

@@ -30,7 +30,7 @@ public class LocaleTypeTest extends BaseValueTypeTest {
 
   @Override
   Iterable<Class<?>> validClasses() {
-    return ImmutableList.<Class<?>> of(Locale.class);
+    return ImmutableList.<Class<?>>of(Locale.class);
   }
 
 }

@@ -23,7 +23,7 @@ import org.obiba.magma.type.TextType;
  * Creates a {@link DatasourceCipherFactory} that creates {@code Cipher} instances using a newly generated
  * {@code SecretKey}. The secret key is encrypted using the {@code PublicKey} returned by the {@link KeyProvider}
  * instance. A {@code Cipher} instance is initialised to obtain a {@code AlgorithmParameters} instance.
- * <p>
+ * <p/>
  * The following attributes are added to the datasource to allow decryption using the corresponding {@code PrivateKey}:
  * <ul>
  * <li>{@link CipherAttributeConstants#SECRET_KEY}</li>
@@ -66,7 +66,8 @@ public class GeneratedSecretKeyDatasourceEncryptionStrategy implements Datasourc
   public DatasourceCipherFactory createDatasourceCipherFactory(Datasource ds) {
     // If there's already a secret key in the datasource, then stop. We cannot read the contents.
     if(ds.hasAttribute(CipherAttributeConstants.SECRET_KEY)) {
-      throw new MagmaCryptRuntimeException("Datasource '" + ds.getName() + "' is encrypted and cannot be read without the proper decryption key.");
+      throw new MagmaCryptRuntimeException(
+          "Datasource '" + ds.getName() + "' is encrypted and cannot be read without the proper decryption key.");
     }
 
     try {
@@ -127,12 +128,14 @@ public class GeneratedSecretKeyDatasourceEncryptionStrategy implements Datasourc
     return sk;
   }
 
-  private AlgorithmParameters initialiseParameters(Datasource ds, String transformation, SecretKey sk) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, IOException {
+  private AlgorithmParameters initialiseParameters(Datasource ds, String transformation, SecretKey sk)
+      throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, IOException {
     // Initialise a Cipher. This causes the creation of the cipher's AlgorithmParameters.
     Cipher cipher = Cipher.getInstance(transformation);
     cipher.init(Cipher.ENCRYPT_MODE, sk);
     ds.setAttributeValue(CipherAttributeConstants.CIPHER_TRANSFORMATION, TextType.get().valueOf(transformation));
-    ds.setAttributeValue(CipherAttributeConstants.CIPHER_ALGORITHM_PARAMETERS, BinaryType.get().valueOf(cipher.getParameters().getEncoded()));
+    ds.setAttributeValue(CipherAttributeConstants.CIPHER_ALGORITHM_PARAMETERS,
+        BinaryType.get().valueOf(cipher.getParameters().getEncoded()));
     if(cipher.getIV() != null) {
       ds.setAttributeValue(CipherAttributeConstants.CIPHER_IV, BinaryType.get().valueOf(cipher.getIV()));
     }
@@ -144,9 +147,12 @@ public class GeneratedSecretKeyDatasourceEncryptionStrategy implements Datasourc
     try {
       PublicKey publicKey = keyProvider.getPublicKey(datasource);
       if(publicKey.getEncoded() != null) {
-        datasource.setAttributeValue(CipherAttributeConstants.PUBLIC_KEY, BinaryType.get().valueOf(publicKey.getEncoded()));
-        datasource.setAttributeValue(CipherAttributeConstants.PUBLIC_KEY_FORMAT, TextType.get().valueOf(publicKey.getFormat()));
-        datasource.setAttributeValue(CipherAttributeConstants.PUBLIC_KEY_ALGORITHM, TextType.get().valueOf(publicKey.getAlgorithm()));
+        datasource
+            .setAttributeValue(CipherAttributeConstants.PUBLIC_KEY, BinaryType.get().valueOf(publicKey.getEncoded()));
+        datasource.setAttributeValue(CipherAttributeConstants.PUBLIC_KEY_FORMAT,
+            TextType.get().valueOf(publicKey.getFormat()));
+        datasource.setAttributeValue(CipherAttributeConstants.PUBLIC_KEY_ALGORITHM,
+            TextType.get().valueOf(publicKey.getAlgorithm()));
       }
 
       Cipher cipher = Cipher.getInstance(publicKey.getAlgorithm());

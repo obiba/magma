@@ -70,12 +70,14 @@ class AttributeBean implements Attribute, Serializable {
     if(obj == null) return false;
     if(getClass() != obj.getClass()) return false;
     AttributeBean other = (AttributeBean) obj;
-    return Objects.equal(name, other.name) && Objects.equal(namespace, other.namespace) && Objects.equal(locale, other.locale) && Objects.equal(value, other.value);
+    return Objects.equal(name, other.name) && Objects.equal(namespace, other.namespace) &&
+        Objects.equal(locale, other.locale) && Objects.equal(value, other.value);
   }
 
   @Override
   public String toString() {
-    return Objects.toStringHelper(this).add("namespace", namespace).add("name", name).add("locale", locale).add("value", value).toString();
+    return Objects.toStringHelper(this).add("namespace", namespace).add("name", name).add("locale", locale)
+        .add("value", value).toString();
   }
 
 }

@@ -1,18 +1,18 @@
 package org.obiba.magma;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-
-import junit.framework.Assert;
 
 import org.junit.Test;
 import org.obiba.magma.test.AbstractMagmaTest;
 import org.obiba.magma.type.IntegerType;
 import org.obiba.magma.type.TextType;
+
+import junit.framework.Assert;
+
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
 
 public class VariableTest extends AbstractMagmaTest {
 
@@ -43,7 +43,8 @@ public class VariableTest extends AbstractMagmaTest {
 
   @Test
   public void test_isMissingValue_TextType() {
-    Variable v = Variable.Builder.newVariable("name", TextType.get(), "entityType").addCategory("YES", null, false).addCategory("DNK", null, true).build();
+    Variable v = Variable.Builder.newVariable("name", TextType.get(), "entityType").addCategory("YES", null, false)
+        .addCategory("DNK", null, true).build();
     Assert.assertFalse(v.isMissingValue(TextType.get().valueOf("YES")));
     // Accepts unknown categories
     Assert.assertFalse(v.isMissingValue(TextType.get().valueOf("No such category")));
@@ -53,7 +54,8 @@ public class VariableTest extends AbstractMagmaTest {
 
   @Test
   public void test_isMissingValue_IntegerType() {
-    Variable v = Variable.Builder.newVariable("name", IntegerType.get(), "entityType").addCategory("1", null, false).addCategory("8888", null, true).build();
+    Variable v = Variable.Builder.newVariable("name", IntegerType.get(), "entityType").addCategory("1", null, false)
+        .addCategory("8888", null, true).build();
     Assert.assertFalse(v.isMissingValue(IntegerType.get().valueOf(1)));
     // Accepts unknown categories
     Assert.assertFalse(v.isMissingValue(IntegerType.get().valueOf(2)));
@@ -208,8 +210,10 @@ public class VariableTest extends AbstractMagmaTest {
     List<Category> categories = new ArrayList<Category>(derived.getCategories());
     assertThat(categories.size(), is(1));
     Category category = categories.get(0);
-    assertThat(category.getAttribute("label", Locale.ENGLISH).getValue(), is(TextType.get().valueOf("Prefer not to answer")));
-    assertThat(category.getAttribute("label", Locale.FRENCH).getValue(), is(TextType.get().valueOf("Préfère ne pas répondre")));
+    assertThat(category.getAttribute("label", Locale.ENGLISH).getValue(),
+        is(TextType.get().valueOf("Prefer not to answer")));
+    assertThat(category.getAttribute("label", Locale.FRENCH).getValue(),
+        is(TextType.get().valueOf("Préfère ne pas répondre")));
     assertThat(category.getAttribute("A.1", Locale.ENGLISH).getValue(), is(TextType.get().valueOf("World")));
     assertThat(category.getAttribute("A.2").getValue(), is(TextType.get().valueOf("Earth")));
     assertThat("number of attributes", category.getAttributes().size(), is(4));

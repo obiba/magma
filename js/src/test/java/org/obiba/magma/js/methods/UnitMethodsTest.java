@@ -1,9 +1,5 @@
 package org.obiba.magma.js.methods;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.nullValue;
-import static org.junit.Assert.assertThat;
-
 import java.util.ResourceBundle;
 
 import org.jscience.physics.unit.PhysicsUnit;
@@ -14,6 +10,10 @@ import org.obiba.magma.js.ScriptableValue;
 import org.obiba.magma.type.DecimalType;
 import org.obiba.magma.type.IntegerType;
 import org.obiba.magma.type.TextType;
+
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.nullValue;
+import static org.junit.Assert.assertThat;
 
 public class UnitMethodsTest extends AbstractJsTest {
 

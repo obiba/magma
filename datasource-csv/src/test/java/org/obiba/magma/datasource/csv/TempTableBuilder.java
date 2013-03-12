@@ -84,8 +84,8 @@ public class TempTableBuilder {
   public CsvDatasource buildCsvDatasource(String datasourceName) throws IOException {
     build();
     CsvDatasource datasource = new CsvDatasource(datasourceName).addValueTable(tableName, //
-    variablesFile, //
-    dataFile);
+        variablesFile, //
+        dataFile);
     if(variablesHeader != null) datasource.setVariablesHeader(tableName, variablesHeader);
     datasource.initialise();
     return datasource;

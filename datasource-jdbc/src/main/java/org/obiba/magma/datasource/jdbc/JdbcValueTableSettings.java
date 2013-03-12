@@ -19,10 +19,14 @@ public class JdbcValueTableSettings {
 
   private List<String> entityIdentifierColumns;
 
-  /** If provided, a column with this name will be populated with creation timestamps. */
+  /**
+   * If provided, a column with this name will be populated with creation timestamps.
+   */
   private String createdTimestampColumnName;
 
-  /** If provided, a column with this name will be populated with last update timestamps. */
+  /**
+   * If provided, a column with this name will be populated with last update timestamps.
+   */
   private String updatedTimestampColumnName;
 
   //
@@ -33,7 +37,8 @@ public class JdbcValueTableSettings {
     super();
   }
 
-  public JdbcValueTableSettings(String sqlTableName, String magmaTableName, String entityType, List<String> entityIdentifierColumns) {
+  public JdbcValueTableSettings(String sqlTableName, String magmaTableName, String entityType,
+      List<String> entityIdentifierColumns) {
     if(sqlTableName == null) {
       throw new IllegalArgumentException("null sqlTableName");
     }

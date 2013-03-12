@@ -1,14 +1,14 @@
 package org.obiba.magma.type;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
-
 import java.util.Date;
 
 import org.junit.Test;
 import org.obiba.magma.MagmaDate;
 import org.obiba.magma.Value;
 import org.obiba.magma.test.AbstractMagmaTest;
+
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
 
 public class DateTimeValueConverterTest extends AbstractMagmaTest {
 

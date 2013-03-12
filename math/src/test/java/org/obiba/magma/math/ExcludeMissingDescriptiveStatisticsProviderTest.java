@@ -1,13 +1,5 @@
 package org.obiba.magma.math;
 
-import static org.easymock.EasyMock.createMock;
-import static org.easymock.EasyMock.expect;
-import static org.easymock.EasyMock.replay;
-import static org.easymock.EasyMock.verify;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.junit.Assert.assertThat;
-
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -26,6 +18,14 @@ import org.obiba.magma.type.IntegerType;
 
 import com.google.common.collect.ImmutableList;
 
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.replay;
+import static org.easymock.EasyMock.verify;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.junit.Assert.assertThat;
+
 public class ExcludeMissingDescriptiveStatisticsProviderTest {
 
   SortedSet<VariableEntity> emptySet = new TreeSet<VariableEntity>();
@@ -35,7 +35,8 @@ public class ExcludeMissingDescriptiveStatisticsProviderTest {
   @Before
   public void startYourEngine() {
     new MagmaEngine();
-    testVariable = Variable.Builder.newVariable("test-variable", IntegerType.get(), "test").addCategories("1", "2").addCategory("88", "88", true).build();
+    testVariable = Variable.Builder.newVariable("test-variable", IntegerType.get(), "test").addCategories("1", "2")
+        .addCategory("88", "88", true).build();
   }
 
   @After
@@ -63,7 +64,7 @@ public class ExcludeMissingDescriptiveStatisticsProviderTest {
     VectorSource mockVector = createMock(VectorSource.class);
 
     expect(mockSource.asVectorSource()).andReturn(mockVector);
-    expect(mockVector.getValues(emptySet)).andReturn(ImmutableList.<Value> of());
+    expect(mockVector.getValues(emptySet)).andReturn(ImmutableList.<Value>of());
 
     replay(mockSource, mockVector);
 
@@ -83,7 +84,8 @@ public class ExcludeMissingDescriptiveStatisticsProviderTest {
     expect(mockSource.asVectorSource()).andReturn(mockVector);
     expect(mockSource.getVariable()).andReturn(testVariable).anyTimes();
 
-    expect(mockVector.getValues(emptySet)).andReturn(Values.asValues(IntegerType.get(), 1, 2, 2, 88, null, null, 88, 2));
+    expect(mockVector.getValues(emptySet))
+        .andReturn(Values.asValues(IntegerType.get(), 1, 2, 2, 88, null, null, 88, 2));
 
     replay(mockSource, mockVector);
 

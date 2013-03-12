@@ -44,15 +44,16 @@ public class VariableConverter {
   public static final String LABEL = "label";
 
   public static final List<String> reservedVariableHeaders = Lists.newArrayList(NAME, //
-  VALUE_TYPE, //
-  ENTITY_TYPE, //
-  REFERENCED_ENTITY_TYPE, //
-  MIME_TYPE, //
-  UNIT, //
-  REPEATABLE, //
-  OCCURRENCE_GROUP);
+      VALUE_TYPE, //
+      ENTITY_TYPE, //
+      REFERENCED_ENTITY_TYPE, //
+      MIME_TYPE, //
+      UNIT, //
+      REPEATABLE, //
+      OCCURRENCE_GROUP);
 
-  public static final List<String> categoriesReservedAttributeNames = Lists.newArrayList("table", "variable", "name", "code", "missing");
+  public static final List<String> categoriesReservedAttributeNames = Lists
+      .newArrayList("table", "variable", "name", "code", "missing");
 
   private Map<String, Integer> headerMap = new HashMap<String, Integer>();
 
@@ -73,9 +74,15 @@ public class VariableConverter {
   }
 
   private void validateHeader() {
-    if(!headerMap.containsKey(NAME)) throw new CsvDatasourceParsingException("The variables.csv header must contain 'name'.", "CsvVariablesHeaderMustContainName", 0, new Object[] {});
-    if(!headerMap.containsKey(VALUE_TYPE)) throw new CsvDatasourceParsingException("The variables.csv header must contain 'valueType'.", "CsvVariablesHeaderMustContainValueType", 0, new Object[] {});
-    if(!headerMap.containsKey(ENTITY_TYPE)) throw new CsvDatasourceParsingException("The variables.csv header must contain 'entityType'.", "CsvVariablesHeaderMustContainEntityType", 0, new Object[] {});
+    if(!headerMap.containsKey(NAME))
+      throw new CsvDatasourceParsingException("The variables.csv header must contain 'name'.",
+          "CsvVariablesHeaderMustContainName", 0, new Object[] { });
+    if(!headerMap.containsKey(VALUE_TYPE))
+      throw new CsvDatasourceParsingException("The variables.csv header must contain 'valueType'.",
+          "CsvVariablesHeaderMustContainValueType", 0, new Object[] { });
+    if(!headerMap.containsKey(ENTITY_TYPE))
+      throw new CsvDatasourceParsingException("The variables.csv header must contain 'entityType'.",
+          "CsvVariablesHeaderMustContainEntityType", 0, new Object[] { });
   }
 
   public Variable unmarshal(String[] csvVar) {
@@ -90,7 +97,8 @@ public class VariableConverter {
 
     log.debug("name={} valueType={} entityType={} mimeType={}", new Object[] { name, valueType, entityType, mimeType });
 
-    Variable.Builder builder = Variable.Builder.newVariable(name, ValueType.Factory.forName(valueType), entityType).mimeType(mimeType).unit(unit).occurrenceGroup(occurrenceGroup).referencedEntityType(referencedEntityType);
+    Variable.Builder builder = Variable.Builder.newVariable(name, ValueType.Factory.forName(valueType), entityType)
+        .mimeType(mimeType).unit(unit).occurrenceGroup(occurrenceGroup).referencedEntityType(referencedEntityType);
 
     if(Boolean.parseBoolean(repeatable)) {
       builder.repeatable();
@@ -184,10 +192,13 @@ public class VariableConverter {
     resultMap.put(headerMap.get(VALUE_TYPE), variable.getValueType().getName());
     resultMap.put(headerMap.get(ENTITY_TYPE), variable.getEntityType());
     if(headerMap.containsKey(MIME_TYPE)) resultMap.put(headerMap.get(MIME_TYPE), variable.getMimeType());
-    if(headerMap.containsKey(REPEATABLE)) resultMap.put(headerMap.get(REPEATABLE), Boolean.toString(variable.isRepeatable()));
-    if(headerMap.containsKey(OCCURRENCE_GROUP)) resultMap.put(headerMap.get(OCCURRENCE_GROUP), variable.getOccurrenceGroup());
+    if(headerMap.containsKey(REPEATABLE))
+      resultMap.put(headerMap.get(REPEATABLE), Boolean.toString(variable.isRepeatable()));
+    if(headerMap.containsKey(OCCURRENCE_GROUP))
+      resultMap.put(headerMap.get(OCCURRENCE_GROUP), variable.getOccurrenceGroup());
     if(headerMap.containsKey(UNIT)) resultMap.put(headerMap.get(UNIT), variable.getUnit());
-    if(headerMap.containsKey(REFERENCED_ENTITY_TYPE)) resultMap.put(headerMap.get(REFERENCED_ENTITY_TYPE), variable.getReferencedEntityType());
+    if(headerMap.containsKey(REFERENCED_ENTITY_TYPE))
+      resultMap.put(headerMap.get(REFERENCED_ENTITY_TYPE), variable.getReferencedEntityType());
 
     for(Attribute attribute : variable.getAttributes()) {
       String header = Attributes.encodeForHeader(attribute);

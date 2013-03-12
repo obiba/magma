@@ -1,9 +1,9 @@
 /*******************************************************************************
  * Copyright 2008(c) The OBiBa Consortium. All rights reserved.
- * 
+ *
  * This program and the accompanying materials
  * are made available under the terms of the GNU Public License v3.0.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
@@ -63,14 +63,15 @@ public class SpringContextScanningDatasource extends AbstractDatasource {
       removeValueTable(name);
     }
 
-    Set<ValueTableFactoryBean> factories = Sets.newLinkedHashSet(Iterables.filter(this.valueTableFactoryBeans, new Predicate<ValueTableFactoryBean>() {
+    Set<ValueTableFactoryBean> factories = Sets
+        .newLinkedHashSet(Iterables.filter(this.valueTableFactoryBeans, new Predicate<ValueTableFactoryBean>() {
 
-      @Override
-      public boolean apply(ValueTableFactoryBean input) {
-        return input.getValueTableName().equals(name) == false;
-      }
+          @Override
+          public boolean apply(ValueTableFactoryBean input) {
+            return input.getValueTableName().equals(name) == false;
+          }
 
-    }));
+        }));
     this.valueTableFactoryBeans = factories;
     // We cannot remove the table from the ValueTableFactoryBeanProvider instances.
   }

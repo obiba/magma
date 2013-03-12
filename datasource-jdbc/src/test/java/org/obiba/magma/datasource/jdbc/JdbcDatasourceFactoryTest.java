@@ -1,8 +1,5 @@
 package org.obiba.magma.datasource.jdbc;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-
 import java.io.IOException;
 
 import org.junit.Test;
@@ -15,6 +12,9 @@ import org.obiba.magma.type.IntegerType;
 
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.converters.reflection.PureJavaReflectionProvider;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 public class JdbcDatasourceFactoryTest extends AbstractMagmaTest {
 
@@ -69,6 +69,7 @@ public class JdbcDatasourceFactoryTest extends AbstractMagmaTest {
   }
 
   private JdbcDatasourceFactory readSettings(String settings) {
-    return (JdbcDatasourceFactory) new XStream(new PureJavaReflectionProvider()).fromXML(JdbcDatasourceFactoryTest.class.getResourceAsStream(settings));
+    return (JdbcDatasourceFactory) new XStream(new PureJavaReflectionProvider())
+        .fromXML(JdbcDatasourceFactoryTest.class.getResourceAsStream(settings));
   }
 }

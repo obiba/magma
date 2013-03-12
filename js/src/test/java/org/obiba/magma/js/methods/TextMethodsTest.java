@@ -1,9 +1,5 @@
 package org.obiba.magma.js.methods;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.junit.Assert.assertThat;
-
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -14,6 +10,10 @@ import org.obiba.magma.type.BooleanType;
 import org.obiba.magma.type.DecimalType;
 import org.obiba.magma.type.IntegerType;
 import org.obiba.magma.type.TextType;
+
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.junit.Assert.assertThat;
 
 public class TextMethodsTest extends AbstractJsTest {
 
@@ -117,7 +117,8 @@ public class TextMethodsTest extends AbstractJsTest {
   @Test
   public void testCapitalizeWithDelimiters() {
     ScriptableValue value = newValue(TextType.get().valueOf("value:foo;bar_patate (toto) one"));
-    ScriptableValue result = TextMethods.capitalize(Context.getCurrentContext(), value, new String[] { ":", ";_", "(" }, null);
+    ScriptableValue result = TextMethods
+        .capitalize(Context.getCurrentContext(), value, new String[] { ":", ";_", "(" }, null);
     Assert.assertNotNull(result);
     Assert.assertEquals(TextType.get().valueOf("Value:Foo;Bar_Patate (Toto) one"), result.getValue());
   }
@@ -144,7 +145,8 @@ public class TextMethodsTest extends AbstractJsTest {
   public void testStringConcatString() throws Exception {
     ScriptableValue hello = newValue(TextType.get().valueOf("Hello "));
     ScriptableValue world = newValue(TextType.get().valueOf("World!"));
-    ScriptableValue result = TextMethods.concat(Context.getCurrentContext(), hello, new ScriptableValue[] { world }, null);
+    ScriptableValue result = TextMethods
+        .concat(Context.getCurrentContext(), hello, new ScriptableValue[] { world }, null);
     assertThat(result.getValue(), is(TextType.get().valueOf("Hello World!")));
   }
 
@@ -152,7 +154,8 @@ public class TextMethodsTest extends AbstractJsTest {
   public void testStringConcatInteger() throws Exception {
     ScriptableValue hello = newValue(TextType.get().valueOf("Hello "));
     ScriptableValue twentyThree = newValue(IntegerType.get().valueOf(23));
-    ScriptableValue result = TextMethods.concat(Context.getCurrentContext(), hello, new ScriptableValue[] { twentyThree }, null);
+    ScriptableValue result = TextMethods
+        .concat(Context.getCurrentContext(), hello, new ScriptableValue[] { twentyThree }, null);
     assertThat(result.getValue(), is(TextType.get().valueOf("Hello 23")));
   }
 
@@ -160,7 +163,8 @@ public class TextMethodsTest extends AbstractJsTest {
   public void testDecimalConcatString() throws Exception {
     ScriptableValue twentyThreePointThirtyTwo = newValue(DecimalType.get().valueOf(23.32));
     ScriptableValue hello = newValue(TextType.get().valueOf(" Hello"));
-    ScriptableValue result = TextMethods.concat(Context.getCurrentContext(), twentyThreePointThirtyTwo, new ScriptableValue[] { hello }, null);
+    ScriptableValue result = TextMethods
+        .concat(Context.getCurrentContext(), twentyThreePointThirtyTwo, new ScriptableValue[] { hello }, null);
     assertThat(result.getValue(), is(TextType.get().valueOf("23.32 Hello")));
   }
 
@@ -168,7 +172,8 @@ public class TextMethodsTest extends AbstractJsTest {
   public void testDecimalConcatTrue() throws Exception {
     ScriptableValue twentyThreePointThirtyTwo = newValue(DecimalType.get().valueOf(23.32));
     ScriptableValue trueOperand = newValue(BooleanType.get().trueValue());
-    ScriptableValue result = TextMethods.concat(Context.getCurrentContext(), twentyThreePointThirtyTwo, new ScriptableValue[] { trueOperand }, null);
+    ScriptableValue result = TextMethods
+        .concat(Context.getCurrentContext(), twentyThreePointThirtyTwo, new ScriptableValue[] { trueOperand }, null);
     assertThat(result.getValue(), is(TextType.get().valueOf("23.32true")));
   }
 
@@ -176,7 +181,8 @@ public class TextMethodsTest extends AbstractJsTest {
   public void testDecimalConcatNull() throws Exception {
     ScriptableValue twentyThreePointThirtyTwo = newValue(DecimalType.get().valueOf(23.32));
     ScriptableValue nullOperand = newValue(BooleanType.get().nullValue());
-    ScriptableValue result = TextMethods.concat(Context.getCurrentContext(), twentyThreePointThirtyTwo, new ScriptableValue[] { nullOperand }, null);
+    ScriptableValue result = TextMethods
+        .concat(Context.getCurrentContext(), twentyThreePointThirtyTwo, new ScriptableValue[] { nullOperand }, null);
     assertThat(result.getValue(), is(TextType.get().valueOf("23.32null")));
   }
 
@@ -184,7 +190,8 @@ public class TextMethodsTest extends AbstractJsTest {
   public void testNullConcatString() throws Exception {
     ScriptableValue nullOperand = newValue(TextType.get().nullValue());
     ScriptableValue world = newValue(TextType.get().valueOf("World!"));
-    ScriptableValue result = TextMethods.concat(Context.getCurrentContext(), nullOperand, new ScriptableValue[] { world }, null);
+    ScriptableValue result = TextMethods
+        .concat(Context.getCurrentContext(), nullOperand, new ScriptableValue[] { world }, null);
     assertThat(result.getValue(), is(TextType.get().valueOf("nullWorld!")));
   }
 
@@ -193,7 +200,8 @@ public class TextMethodsTest extends AbstractJsTest {
     ScriptableValue hello = newValue(TextType.get().valueOf("Hello "));
     ScriptableValue world = newValue(TextType.get().valueOf("World!"));
     ScriptableValue greet = newValue(TextType.get().valueOf("How are you, "));
-    ScriptableValue result = TextMethods.concat(Context.getCurrentContext(), hello, new Object[] { world, " ", greet, "Mr. Potato Head", "?" }, null);
+    ScriptableValue result = TextMethods
+        .concat(Context.getCurrentContext(), hello, new Object[] { world, " ", greet, "Mr. Potato Head", "?" }, null);
     assertThat(result.getValue(), is(TextType.get().valueOf("Hello World! How are you, Mr. Potato Head?")));
   }
 
@@ -313,7 +321,8 @@ public class TextMethodsTest extends AbstractJsTest {
 
   @Test
   public void testMapWithFunctionMapping() {
-    ScriptableValue value = evaluate("map({'YES':function(value){return value.concat('-YES');}, 'NO':2})", TextType.get().valueOf("YES"));
+    ScriptableValue value = evaluate("map({'YES':function(value){return value.concat('-YES');}, 'NO':2})",
+        TextType.get().valueOf("YES"));
     assertThat(value, notNullValue());
     assertThat(value.getValue(), is(TextType.get().valueOf("YES-YES")));
   }

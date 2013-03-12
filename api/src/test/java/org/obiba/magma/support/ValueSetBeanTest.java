@@ -1,15 +1,15 @@
 package org.obiba.magma.support;
 
-import static org.easymock.EasyMock.createMock;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.obiba.magma.Timestamps;
 import org.obiba.magma.ValueSet;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.VariableEntity;
+
+import static org.easymock.EasyMock.createMock;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
 
 public class ValueSetBeanTest {
 

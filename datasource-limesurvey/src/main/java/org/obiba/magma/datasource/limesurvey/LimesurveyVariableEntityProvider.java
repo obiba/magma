@@ -7,8 +7,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import org.obiba.magma.Datasource;
 import org.obiba.magma.Initialisable;
 import org.obiba.magma.VariableEntity;
@@ -19,6 +17,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.BadSqlGrammarException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
+
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 
 public class LimesurveyVariableEntityProvider extends AbstractVariableEntityProvider implements Initialisable {
 
@@ -38,8 +39,9 @@ public class LimesurveyVariableEntityProvider extends AbstractVariableEntityProv
 
   @Override
   public void initialise() {
-    String sqlEntities = "SELECT " + datasource.quoteAndPrefix("token") + " FROM " + datasource
-        .quoteAndPrefix("survey_" + sid) + " WHERE " + datasource.quoteAndPrefix("submitdate") + " is not NULL";
+    String sqlEntities = "SELECT " + datasource.quoteAndPrefix("token") + " FROM " +
+        datasource.quoteAndPrefix("survey_" + sid) + " WHERE " + datasource.quoteAndPrefix("submitdate") +
+        " is not NULL";
     JdbcTemplate jdbcTemplate = new JdbcTemplate(datasource.getDataSource());
 
     List<VariableEntity> entityList = null;

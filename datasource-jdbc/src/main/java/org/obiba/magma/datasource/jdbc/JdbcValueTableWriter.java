@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.obiba.magma.datasource.jdbc;
 
@@ -14,11 +14,6 @@ import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-
-import liquibase.change.AddColumnChange;
-import liquibase.change.Change;
-import liquibase.change.ColumnConfig;
-import liquibase.change.ModifyColumnChange;
 
 import org.obiba.magma.Attribute;
 import org.obiba.magma.Category;
@@ -41,6 +36,11 @@ import org.springframework.jdbc.support.lob.LobCreator;
 import org.springframework.util.Assert;
 
 import com.google.common.collect.ImmutableList;
+
+import liquibase.change.AddColumnChange;
+import liquibase.change.Change;
+import liquibase.change.ColumnConfig;
+import liquibase.change.ModifyColumnChange;
 
 class JdbcValueTableWriter implements ValueTableWriter {
 
@@ -109,7 +109,9 @@ class JdbcValueTableWriter implements ValueTableWriter {
     @Override
     public void writeVariable(Variable variable) {
       if(!valueTable.isForEntityType(variable.getEntityType())) {
-        throw new InvalidParameterException("Wrong entity type for variable '" + variable.getName() + "': " + valueTable.getEntityType() + " expected, " + variable.getEntityType() + " received.");
+        throw new InvalidParameterException(
+            "Wrong entity type for variable '" + variable.getName() + "': " + valueTable.getEntityType() +
+                " expected, " + variable.getEntityType() + " received.");
       }
 
       doWriteVariable(variable);
@@ -129,7 +131,8 @@ class JdbcValueTableWriter implements ValueTableWriter {
       column.setName(columnName);
 
       if(!variable.isRepeatable()) {
-        column.setType(SqlTypes.sqlTypeFor(variable.getValueType(), variable.getValueType().equals(TextType.get()) ? SqlTypes.TEXT_TYPE_HINT_MEDIUM : null));
+        column.setType(SqlTypes.sqlTypeFor(variable.getValueType(),
+            variable.getValueType().equals(TextType.get()) ? SqlTypes.TEXT_TYPE_HINT_MEDIUM : null));
       } else {
         column.setType(SqlTypes.sqlTypeFor(TextType.get(), SqlTypes.TEXT_TYPE_HINT_LARGE));
       }
@@ -159,13 +162,13 @@ class JdbcValueTableWriter implements ValueTableWriter {
     //
 
     private static final String DELETE_VARIABLE_SQL = //
-    "DELETE FROM " + VARIABLE_METADATA_TABLE + " WHERE value_table = ? AND name = ?";
+        "DELETE FROM " + VARIABLE_METADATA_TABLE + " WHERE value_table = ? AND name = ?";
 
     private static final String DELETE_VARIABLE_ATTRIBUTES_SQL = //
-    "DELETE FROM " + ATTRIBUTE_METADATA_TABLE + " WHERE value_table = ? AND variable_name = ?";
+        "DELETE FROM " + ATTRIBUTE_METADATA_TABLE + " WHERE value_table = ? AND variable_name = ?";
 
     private static final String DELETE_VARIABLE_CATEGORIES_SQL = //
-    "DELETE FROM " + CATEGORY_METADATA_TABLE + " WHERE value_table = ? AND variable_name = ?";
+        "DELETE FROM " + CATEGORY_METADATA_TABLE + " WHERE value_table = ? AND variable_name = ?";
 
     //
     // Constructors
@@ -194,7 +197,11 @@ class JdbcValueTableWriter implements ValueTableWriter {
 
       // For ALL variables (existing and new), insert the new metadata.
       InsertDataChangeBuilder builder = new InsertDataChangeBuilder();
-      builder.tableName(VARIABLE_METADATA_TABLE).withColumn(VALUE_TABLE_COLUMN, valueTable.getName()).withColumn("name", variableSqlName).withColumn(VALUE_TYPE_COLUMN, variable.getValueType().getName()).withColumn("mime_type", variable.getMimeType()).withColumn("units", variable.getUnit()).withColumn("is_repeatable", variable.isRepeatable()).withColumn("occurrence_group", variable.getOccurrenceGroup());
+      builder.tableName(VARIABLE_METADATA_TABLE).withColumn(VALUE_TABLE_COLUMN, valueTable.getName())
+          .withColumn("name", variableSqlName).withColumn(VALUE_TYPE_COLUMN, variable.getValueType().getName())
+          .withColumn("mime_type", variable.getMimeType()).withColumn("units", variable.getUnit())
+          .withColumn("is_repeatable", variable.isRepeatable())
+          .withColumn("occurrence_group", variable.getOccurrenceGroup());
       changes.add(builder.build());
 
       if(variable.hasAttributes()) {
@@ -217,7 +224,12 @@ class JdbcValueTableWriter implements ValueTableWriter {
     private void writeAttributes(Variable variable) {
       for(Attribute attribute : variable.getAttributes()) {
         InsertDataChangeBuilder builder = new InsertDataChangeBuilder();
-        builder.tableName(ATTRIBUTE_METADATA_TABLE).withColumn(VALUE_TABLE_COLUMN, valueTable.getSqlName()).withColumn(VARIABLE_NAME_COLUMN, NameConverter.toSqlName(variable.getName())).withColumn(ATTRIBUTE_NAME_COLUMN, attribute.getName()).withColumn(ATTRIBUTE_LOCALE_COLUMN, attribute.isLocalised() ? attribute.getLocale().toString() : "").withColumn(ATTRIBUTE_NAMESPACE_COLUMN, attribute.hasNamespace() ? attribute.getNamespace() : "").withColumn(ATTRIBUTE_VALUE_COLUMN, attribute.getValue().toString());
+        builder.tableName(ATTRIBUTE_METADATA_TABLE).withColumn(VALUE_TABLE_COLUMN, valueTable.getSqlName())
+            .withColumn(VARIABLE_NAME_COLUMN, NameConverter.toSqlName(variable.getName()))
+            .withColumn(ATTRIBUTE_NAME_COLUMN, attribute.getName())
+            .withColumn(ATTRIBUTE_LOCALE_COLUMN, attribute.isLocalised() ? attribute.getLocale().toString() : "")
+            .withColumn(ATTRIBUTE_NAMESPACE_COLUMN, attribute.hasNamespace() ? attribute.getNamespace() : "")
+            .withColumn(ATTRIBUTE_VALUE_COLUMN, attribute.getValue().toString());
         changes.add(builder.build());
       }
     }
@@ -225,7 +237,10 @@ class JdbcValueTableWriter implements ValueTableWriter {
     private void writeCategories(Variable variable) {
       for(Category category : variable.getCategories()) {
         InsertDataChangeBuilder builder = new InsertDataChangeBuilder();
-        builder.tableName(CATEGORY_METADATA_TABLE).withColumn(VALUE_TABLE_COLUMN, valueTable.getSqlName()).withColumn(VARIABLE_NAME_COLUMN, NameConverter.toSqlName(variable.getName())).withColumn(CATEGORY_NAME_COLUMN, category.getName()).withColumn(CATEGORY_CODE_COLUMN, category.getCode()).withColumn(CATEGORY_MISSING_COLUMN, category.isMissing());
+        builder.tableName(CATEGORY_METADATA_TABLE).withColumn(VALUE_TABLE_COLUMN, valueTable.getSqlName())
+            .withColumn(VARIABLE_NAME_COLUMN, NameConverter.toSqlName(variable.getName()))
+            .withColumn(CATEGORY_NAME_COLUMN, category.getName()).withColumn(CATEGORY_CODE_COLUMN, category.getCode())
+            .withColumn(CATEGORY_MISSING_COLUMN, category.isMissing());
         changes.add(builder.build());
       }
     }
@@ -267,28 +282,34 @@ class JdbcValueTableWriter implements ValueTableWriter {
       if(columnValueMap.size() != 0) {
         JdbcTemplate jdbcTemplate = JdbcValueTableWriter.this.valueTable.getDatasource().getJdbcTemplate();
 
-        jdbcTemplate.execute(valueTable.hasValueSet(entity) ? getUpdateSql() : getInsertSql(), new AbstractLobCreatingPreparedStatementCallback(new DefaultLobHandler()) {
-          protected void setValues(PreparedStatement ps, LobCreator lobCreator) throws SQLException {
-            int index = 1;
-            for(Map.Entry<String, Object> entry : columnValueMap.entrySet()) {
-              if(entry.getValue() instanceof byte[]) {
-                lobCreator.setBlobAsBinaryStream(ps, index++, new ByteArrayInputStream((byte[]) entry.getValue()), ((byte[]) entry.getValue()).length);
-              } else {
-                ps.setObject(index++, entry.getValue());
+        jdbcTemplate.execute(valueTable.hasValueSet(entity) ? getUpdateSql() : getInsertSql(),
+            new AbstractLobCreatingPreparedStatementCallback(new DefaultLobHandler()) {
+              protected void setValues(PreparedStatement ps, LobCreator lobCreator) throws SQLException {
+                int index = 1;
+                for(Map.Entry<String, Object> entry : columnValueMap.entrySet()) {
+                  if(entry.getValue() instanceof byte[]) {
+                    lobCreator.setBlobAsBinaryStream(ps, index++, new ByteArrayInputStream((byte[]) entry.getValue()),
+                        ((byte[]) entry.getValue()).length);
+                  } else {
+                    ps.setObject(index++, entry.getValue());
+                  }
+                }
               }
-            }
-          }
-        });
+            });
       }
     }
 
     private String getInsertSql() {
       String timestamp = formattedDate(new Date());
       if(valueTable.hasCreatedTimestampColumn()) {
-        writeValue(Variable.Builder.newVariable(valueTable.getCreatedTimestampColumnName(), TextType.get(), valueTable.getEntityType()).build(), TextType.get().valueOf(timestamp));
+        writeValue(Variable.Builder
+            .newVariable(valueTable.getCreatedTimestampColumnName(), TextType.get(), valueTable.getEntityType())
+            .build(), TextType.get().valueOf(timestamp));
       }
       if(valueTable.hasUpdatedTimestampColumn()) {
-        writeValue(Variable.Builder.newVariable(valueTable.getUpdatedTimestampColumnName(), TextType.get(), valueTable.getEntityType()).build(), TextType.get().valueOf(timestamp));
+        writeValue(Variable.Builder
+            .newVariable(valueTable.getUpdatedTimestampColumnName(), TextType.get(), valueTable.getEntityType())
+            .build(), TextType.get().valueOf(timestamp));
       }
 
       StringBuffer sql = new StringBuffer();
@@ -329,7 +350,9 @@ class JdbcValueTableWriter implements ValueTableWriter {
 
     private String getUpdateSql() {
       if(valueTable.hasUpdatedTimestampColumn()) {
-        writeValue(Variable.Builder.newVariable(valueTable.getUpdatedTimestampColumnName(), TextType.get(), valueTable.getEntityType()).build(), TextType.get().valueOf(formattedDate(new Date())));
+        writeValue(Variable.Builder
+            .newVariable(valueTable.getUpdatedTimestampColumnName(), TextType.get(), valueTable.getEntityType())
+            .build(), TextType.get().valueOf(formattedDate(new Date())));
       }
       StringBuffer sql = new StringBuffer();
 
@@ -377,7 +400,8 @@ class JdbcValueTableWriter implements ValueTableWriter {
       } else {
         entityIdentifierValues = new String[] { entity.getIdentifier() };
       }
-      Assert.isTrue(entityIdentifierColumns.size() == entityIdentifierValues.length, "number of entity identifier columns does not match number of entity identifiers");
+      Assert.isTrue(entityIdentifierColumns.size() == entityIdentifierValues.length,
+          "number of entity identifier columns does not match number of entity identifiers");
 
       for(int i = 0; i < entityIdentifierColumns.size(); i++) {
         entityIdentifierColumnValueMap.put(entityIdentifierColumns.get(i), entityIdentifierValues[i]);

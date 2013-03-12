@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.obiba.magma.datasource.csv.support;
 

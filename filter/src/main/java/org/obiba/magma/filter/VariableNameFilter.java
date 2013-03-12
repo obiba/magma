@@ -40,8 +40,10 @@ public class VariableNameFilter extends AbstractFilter<Variable> implements Init
   }
 
   private void validateArguments(String prefix, String match) {
-    if(prefix == null && match == null) throw new IllegalArgumentException("The arguments [prefix] and [match] cannot both be null.");
-    if(prefix != null && match != null) throw new IllegalArgumentException("The arguments [prefix] and [match] cannot both have values.");
+    if(prefix == null && match == null)
+      throw new IllegalArgumentException("The arguments [prefix] and [match] cannot both be null.");
+    if(prefix != null && match != null)
+      throw new IllegalArgumentException("The arguments [prefix] and [match] cannot both have values.");
   }
 
   @Override

@@ -6,10 +6,11 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import org.springframework.jdbc.core.RowCallbackHandler;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
+
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 public class LimesurveyElementProviderJdbc implements LimesurveyElementProvider {
 
@@ -34,9 +35,9 @@ public class LimesurveyElementProviderJdbc implements LimesurveyElementProvider 
   @Override
   public Map<Integer, LimeQuestion> queryQuestions() {
     StringBuilder sqlQuestion = new StringBuilder();
-    sqlQuestion.append("SELECT * FROM " + datasource.quoteAndPrefix("questions") + " q JOIN " + datasource
-        .quoteAndPrefix(
-            "groups") + " g ");
+    sqlQuestion.append(
+        "SELECT * FROM " + datasource.quoteAndPrefix("questions") + " q JOIN " + datasource.quoteAndPrefix("groups") +
+            " g ");
     sqlQuestion.append("ON (q.gid=g.gid AND q.language=g.language) ");
     sqlQuestion.append("WHERE q.sid=? AND q.type!='X' "); // X are boilerplate questions
     sqlQuestion.append("ORDER BY group_order, question_order ASC ");

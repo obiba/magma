@@ -39,7 +39,6 @@ public abstract class AbstractBeanVariableEntityProvider<T> extends AbstractVari
   }
 
   /**
-   * 
    * @return
    */
   protected abstract Iterable<T> loadBeans();

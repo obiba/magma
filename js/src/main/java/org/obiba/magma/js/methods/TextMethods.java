@@ -28,7 +28,7 @@ import com.google.common.collect.Lists;
 /**
  * Methods of the {@code ScriptableValue} javascript class that returns {@code ScriptableValue} of {@code BooleanType}
  */
-@SuppressWarnings({"UnusedParameters", "IfMayBeConditional", "UnusedDeclaration", "StaticMethodOnlyUsedInOneClass"})
+@SuppressWarnings({ "UnusedParameters", "IfMayBeConditional", "UnusedDeclaration", "StaticMethodOnlyUsedInOneClass" })
 public class TextMethods {
 
   private TextMethods() {
@@ -135,7 +135,8 @@ public class TextMethods {
       delim = null;
     }
 
-    com.google.common.base.Function<Value, Value> capitalizeFunction = new com.google.common.base.Function<Value, Value>() {
+    com.google.common.base.Function<Value, Value> capitalizeFunction
+        = new com.google.common.base.Function<Value, Value>() {
 
       @Override
       public Value apply(Value input) {
@@ -176,11 +177,13 @@ public class TextMethods {
    * <pre>
    *   $('TextVar').replace('regex', '$1')
    * </pre>
+   *
    * @see https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/String/replace
    */
   public static ScriptableValue replace(final Context ctx, final Scriptable thisObj, final Object[] args,
       @Nullable Function funObj) {
-    com.google.common.base.Function<Value, Value> replaceFunction = new com.google.common.base.Function<Value, Value>() {
+    com.google.common.base.Function<Value, Value> replaceFunction
+        = new com.google.common.base.Function<Value, Value>() {
 
       @Override
       public Value apply(Value input) {
@@ -203,7 +206,8 @@ public class TextMethods {
    */
   public static ScriptableValue matches(final Context ctx, final Scriptable thisObj, final Object[] args,
       @Nullable Function funObj) {
-    com.google.common.base.Function<Value, Value> matchesFunction = new com.google.common.base.Function<Value, Value>() {
+    com.google.common.base.Function<Value, Value> matchesFunction
+        = new com.google.common.base.Function<Value, Value>() {
 
       @Override
       public Value apply(Value input) {
@@ -214,7 +218,7 @@ public class TextMethods {
         if(stringValue != null) {
           for(Object arg : args) {
             Object result = ScriptRuntime.checkRegExpProxy(ctx)
-                .action(ctx, thisObj, ScriptRuntime.toObject(ctx, thisObj, stringValue), new Object[] {arg},
+                .action(ctx, thisObj, ScriptRuntime.toObject(ctx, thisObj, stringValue), new Object[] { arg },
                     RegExpProxy.RA_MATCH);
             if(result != null) {
               matches = true;
@@ -293,6 +297,7 @@ public class TextMethods {
    *    'NORMW': 0
    *   }
    * </pre>
+   *
    * @param ctx
    * @param thisObj
    * @param args
@@ -332,6 +337,7 @@ public class TextMethods {
   /**
    * Returns the default value to use when the lookup value is not found in the map. This method is used by the map()
    * method.
+   *
    * @param valueType
    * @param args
    * @return
@@ -352,6 +358,7 @@ public class TextMethods {
 
   /**
    * Returns the value to use when the lookup value is null. This method is used by the map() method.
+   *
    * @param valueType
    * @param args
    * @return
@@ -372,6 +379,7 @@ public class TextMethods {
 
   /**
    * Lookup {@code value} in {@code valueMap} and return the mapped value of type {@code returnType}
+   *
    * @param ctx
    * @param thisObj
    * @param value
@@ -409,7 +417,7 @@ public class TextMethods {
     if(newValue instanceof Function) {
       Function valueFunction = (Function) newValue;
       Object evaluatedValue = valueFunction
-          .call(ctx, thisObj, thisObj, new Object[] {new ScriptableValue(thisObj, value)});
+          .call(ctx, thisObj, thisObj, new Object[] { new ScriptableValue(thisObj, value) });
       if(evaluatedValue instanceof ScriptableValue) {
         newValue = ((ScriptableValue) evaluatedValue).getValue().getValue();
       } else {
@@ -422,6 +430,7 @@ public class TextMethods {
 
   /**
    * Try to convert the input value as a index usable as a integer-based lookup
+   *
    * @param value
    * @return
    */
@@ -445,6 +454,7 @@ public class TextMethods {
 
   /**
    * Transform a value or values from a value sequence using the provided function.
+   *
    * @param sv
    * @param valueFunction
    * @return

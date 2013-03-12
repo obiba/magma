@@ -11,7 +11,8 @@ public class MagmaNamingStrategy extends ImprovedNamingStrategy {
   /**
    * Overridden to generate the column name: &lt;tableName&gt;_&lt;columnName&gt;
    */
-  public String foreignKeyColumnName(String propertyName, String propertyEntityName, String propertyTableName, String referencedColumnName) {
+  public String foreignKeyColumnName(String propertyName, String propertyEntityName, String propertyTableName,
+      String referencedColumnName) {
     String header = propertyName != null ? StringHelper.unqualify(propertyName) : propertyTableName;
     if(header == null) throw new AssertionFailure("NamingStrategy not properly filled");
     return columnName(header) + "_" + referencedColumnName;// not used for backward compatibility

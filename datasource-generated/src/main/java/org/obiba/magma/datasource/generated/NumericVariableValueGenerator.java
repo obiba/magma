@@ -42,13 +42,17 @@ class NumericVariableValueGenerator extends AbstractMissingValueVariableValueGen
     Value stddevValue = stddev.getValue(gvs);
     if(meanValue.isNull() || stddevValue.isNull()) {
       if(getValueType() == IntegerType.get()) {
-        return getValueType().valueOf(minimum.equals(maximum) ? minimum : gvs.dataGenerator.nextLong(minimum.longValue(), maximum.longValue()));
+        return getValueType().valueOf(
+            minimum.equals(maximum) ? minimum : gvs.dataGenerator.nextLong(minimum.longValue(), maximum.longValue()));
       } else if(getValueType() == DecimalType.get()) {
-        return getValueType().valueOf(minimum.equals(maximum) ? minimum : gvs.dataGenerator.nextUniform(minimum.doubleValue(), maximum.doubleValue()));
+        return getValueType().valueOf(minimum.equals(maximum)
+            ? minimum
+            : gvs.dataGenerator.nextUniform(minimum.doubleValue(), maximum.doubleValue()));
       }
       throw new IllegalStateException();
     } else {
-      double v = gvs.dataGenerator.nextGaussian(((Number) meanValue.getValue()).doubleValue(), ((Number) stddevValue.getValue()).doubleValue());
+      double v = gvs.dataGenerator
+          .nextGaussian(((Number) meanValue.getValue()).doubleValue(), ((Number) stddevValue.getValue()).doubleValue());
       // Make sure value is between absolute min and max
       v = Math.min(v, maximum.doubleValue());
       v = Math.max(v, minimum.doubleValue());

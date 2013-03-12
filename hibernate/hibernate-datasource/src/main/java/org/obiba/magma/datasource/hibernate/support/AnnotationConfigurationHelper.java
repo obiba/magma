@@ -3,9 +3,9 @@ package org.obiba.magma.datasource.hibernate.support;
 import java.util.Set;
 
 import org.hibernate.cfg.AnnotationConfiguration;
+import org.obiba.magma.datasource.hibernate.domain.AttributeState;
 import org.obiba.magma.datasource.hibernate.domain.CategoryState;
 import org.obiba.magma.datasource.hibernate.domain.DatasourceState;
-import org.obiba.magma.datasource.hibernate.domain.AttributeState;
 import org.obiba.magma.datasource.hibernate.domain.ValueSetBinaryValue;
 import org.obiba.magma.datasource.hibernate.domain.ValueSetState;
 import org.obiba.magma.datasource.hibernate.domain.ValueSetValue;

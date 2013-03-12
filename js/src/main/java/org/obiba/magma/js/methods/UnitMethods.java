@@ -24,23 +24,24 @@ public class UnitMethods {
    * UCUM does not have a default for overloaded units (international inches vs. us inches vs. british inches). This
    * UCUMFormat instance maps some common symbols to the international standard or the US standard when no international
    * standard exists. Mass units use the 'avoirdupoids' definitions.
-   * 
+   * <p/>
    * Only three units overlap with SI notation: ft, pt (pint) and yd. This results in masking the "femto-ton",
    * "pico-ton" and the "yotta-day", so it should not have any impact as these are not common units and can be expressed
    * differently.
    */
-  private static final UCUMFormat DEFAULTS = UCUMFormat.getCaseSensitiveInstance(new SymbolMap(ResourceBundle.getBundle(UnitMethods.class.getName() + "_CS")));
+  private static final UCUMFormat DEFAULTS = UCUMFormat
+      .getCaseSensitiveInstance(new SymbolMap(ResourceBundle.getBundle(UnitMethods.class.getName() + "_CS")));
 
   /**
    * Forces the unit to a specific value (one argument) or returns the current unit value if no arguments are provided.
-   * 
+   * <p/>
    * <pre>
    * $('HEIGHT').unit('cm')
    * $('HEIGHT').unit('cm').unit().any('cm') // returns true
    * </pre>
    */
-  public static ScriptableValue
-      unit(Context ctx, Scriptable thisObj, Object[] args, Function funObj) throws MagmaJsEvaluationRuntimeException {
+  public static ScriptableValue unit(Context ctx, Scriptable thisObj, Object[] args, Function funObj)
+      throws MagmaJsEvaluationRuntimeException {
     ScriptableValue value = (ScriptableValue) thisObj;
     if(args.length == 1) {
       String newUnit = asString(args[0]);
@@ -52,14 +53,14 @@ public class UnitMethods {
   /**
    * Converts the current value to the specified unit. The current value must have a non-empty unit for this method to
    * succeed.
-   * 
+   * <p/>
    * <pre>
    * $('HEIGHT').toUnit('cm')
    * </pre>
    */
   @SuppressWarnings("unchecked")
-  public static ScriptableValue
-      toUnit(Context ctx, Scriptable thisObj, Object[] args, Function funObj) throws MagmaJsEvaluationRuntimeException {
+  public static ScriptableValue toUnit(Context ctx, Scriptable thisObj, Object[] args, Function funObj)
+      throws MagmaJsEvaluationRuntimeException {
     ScriptableValue value = (ScriptableValue) thisObj;
 
     @SuppressWarnings("rawtypes")
@@ -77,7 +78,8 @@ public class UnitMethods {
 
     if(source == SI.ONE) {
       if(Strings.isNullOrEmpty(value.getUnit())) {
-        throw new MagmaJsEvaluationRuntimeException(String.format("current unit is not specified. use unit() method to specify it."));
+        throw new MagmaJsEvaluationRuntimeException(
+            String.format("current unit is not specified. use unit() method to specify it."));
       }
       throw new MagmaJsEvaluationRuntimeException(String.format("current unit is unknown: '%s'.", value.getUnit()));
     }

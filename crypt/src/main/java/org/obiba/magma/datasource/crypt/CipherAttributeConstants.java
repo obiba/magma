@@ -35,18 +35,21 @@ final class CipherAttributeConstants {
   /**
    * The key value for the algorithm parameters attribute. Stores the {@code AlgorithmParameter} used by the {@code
    * Cipher} to process bytes.
+   *
    * @see Cipher#getParameters()
    */
   static final String CIPHER_ALGORITHM_PARAMETERS = "magma.crypt.algorithmParameters";
 
   /**
    * The key value for the IV attribute. Stores the initialisation vector used by the {@code Cipher} to process bytes.
+   *
    * @see Cipher#getIV()
    */
   static final String CIPHER_IV = "magma.crypt.iv";
 
   /**
    * The key value for the transformation string attribute. Stores the transformation used by the {@code Cipher}.
+   *
    * @see Cipher#getInstance(String)
    */
   static final String CIPHER_TRANSFORMATION = "magma.crypt.transformation";

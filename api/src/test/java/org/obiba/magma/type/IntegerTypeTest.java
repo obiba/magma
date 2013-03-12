@@ -1,14 +1,13 @@
 package org.obiba.magma.type;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
-
 import org.junit.Test;
 import org.obiba.magma.Value;
-import org.obiba.magma.ValueSequence;
 import org.obiba.magma.ValueType;
 
 import com.google.common.collect.ImmutableList;
+
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
 
 public class IntegerTypeTest extends BaseValueTypeTest {
 
@@ -34,7 +33,7 @@ public class IntegerTypeTest extends BaseValueTypeTest {
 
   @Override
   Iterable<Class<?>> validClasses() {
-    return ImmutableList.<Class<?>> of(int.class, Integer.class, long.class, Long.class);
+    return ImmutableList.<Class<?>>of(int.class, Integer.class, long.class, Long.class);
   }
 
   @Test(expected = ClassCastException.class)
@@ -77,7 +76,7 @@ public class IntegerTypeTest extends BaseValueTypeTest {
 
   @Test
   public void testTrim() {
-    Long result = (Long)getValueType().valueOf(" 1 ").getValue();
+    Long result = (Long) getValueType().valueOf(" 1 ").getValue();
     assertThat(result.intValue(), is(1));
   }
 }

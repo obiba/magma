@@ -1,13 +1,13 @@
 package org.obiba.magma.js.views;
 
-import static org.easymock.EasyMock.createMock;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
-
 import org.junit.Test;
 import org.obiba.magma.ValueSet;
 import org.obiba.magma.Variable;
 import org.obiba.magma.js.AbstractJsTest;
+
+import static org.easymock.EasyMock.createMock;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
 
 public class JavascriptClauseTest extends AbstractJsTest {
 

@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.obiba.magma.test;
 

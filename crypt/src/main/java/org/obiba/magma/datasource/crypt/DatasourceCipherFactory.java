@@ -9,12 +9,14 @@ public interface DatasourceCipherFactory {
 
   /**
    * Returns a newly initialised instance of a {@code Cipher} configured for encryption.
+   *
    * @return a new encrypting {@code Cipher} instance.
    */
   public Cipher createEncryptingCipher();
 
   /**
    * Returns a newly initialised instance of a {@code Cipher} configured for decryption.
+   *
    * @return a new decrypting {@code Cipher} instance.
    */
   public Cipher createDecryptingCipher();

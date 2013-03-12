@@ -33,13 +33,15 @@ public class SecuredDatasource extends AbstractDatasourceWrapper {
 
   @Override
   public Set<ValueTable> getValueTables() {
-    return ImmutableSet.copyOf(Iterables.transform(Iterables.filter(getWrappedDatasource().getValueTables(), builder().tables().read().asPredicate(authz)), new Function<ValueTable, ValueTable>() {
+    return ImmutableSet.copyOf(Iterables.transform(
+        Iterables.filter(getWrappedDatasource().getValueTables(), builder().tables().read().asPredicate(authz)),
+        new Function<ValueTable, ValueTable>() {
 
-      @Override
-      public ValueTable apply(ValueTable from) {
-        return new SecuredValueTable(authz, SecuredDatasource.this, from);
-      }
-    }));
+          @Override
+          public ValueTable apply(ValueTable from) {
+            return new SecuredValueTable(authz, SecuredDatasource.this, from);
+          }
+        }));
   }
 
   @Override

@@ -16,7 +16,7 @@ import com.google.common.collect.Maps;
 class LimeAttributes {
 
   static final String LIMESURVEY_NAMESPACE = "limesurvey";
-  
+
   // Attributes that should not be part of the limesurvey namespace
   private static final Set<String> OPAL_ATTRIBUTES = ImmutableSet.of("label");
 
@@ -69,7 +69,7 @@ class LimeAttributes {
     }
     return attrs;
   }
-  
+
   private Attribute.Builder newAttribute(String key) {
     Attribute.Builder builder = Attribute.Builder.newAttribute(key);
     if(OPAL_ATTRIBUTES.contains(key) == false) {

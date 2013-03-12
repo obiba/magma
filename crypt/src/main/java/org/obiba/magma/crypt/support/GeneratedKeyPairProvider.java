@@ -18,11 +18,14 @@ import org.obiba.magma.crypt.PublicKeyProvider;
  */
 public class GeneratedKeyPairProvider implements KeyProvider {
 
-  /** Holds the generated {@code KeyPair} */
+  /**
+   * Holds the generated {@code KeyPair}
+   */
   private KeyPair keyPair;
 
   /**
    * Creates a new instance using the {@code RSA} algorithm.
+   *
    * @throws NoSuchAlgorithmException
    */
   public GeneratedKeyPairProvider() throws NoSuchAlgorithmException {
@@ -31,6 +34,7 @@ public class GeneratedKeyPairProvider implements KeyProvider {
 
   /**
    * Creates a new instance using the specified algorithm.
+   *
    * @throws NoSuchAlgorithmException
    */
   public GeneratedKeyPairProvider(String algorithm) throws NoSuchAlgorithmException {

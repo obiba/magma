@@ -20,7 +20,7 @@ public class ScriptableVariableMethods {
   public static ScriptableObject defineMethods(@Nullable ScriptableObject prototype) {
     if(prototype == null) throw new IllegalArgumentException("thisObj cannot be null");
     prototype
-        .defineFunctionProperties(new String[] {"name", "attribute", "repeatable"}, ScriptableVariableMethods.class,
+        .defineFunctionProperties(new String[] { "name", "attribute", "repeatable" }, ScriptableVariableMethods.class,
             ScriptableObject.DONTENUM);
     return prototype;
   }
@@ -40,8 +40,9 @@ public class ScriptableVariableMethods {
   public static ScriptableValue attribute(Context ctx, Scriptable thisObj, Object[] args, Function funObj) {
     ScriptableVariable sv = (ScriptableVariable) thisObj;
     String attributeName = (String) args[0];
-    Value value = sv.getVariable().hasAttribute(attributeName) ? sv.getVariable()
-        .getAttributeValue(attributeName) : TextType.get().nullValue();
+    Value value = sv.getVariable().hasAttribute(attributeName)
+        ? sv.getVariable().getAttributeValue(attributeName)
+        : TextType.get().nullValue();
     return new ScriptableValue(thisObj, value);
   }
 

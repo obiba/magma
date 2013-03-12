@@ -2,14 +2,13 @@ package org.obiba.magma.datasource.limesurvey;
 
 import javax.sql.DataSource;
 
-import junit.framework.Assert;
-
 import org.apache.commons.dbcp.BasicDataSource;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.obiba.magma.ValueSet;
 import org.obiba.magma.ValueTable;
 
+import junit.framework.Assert;
 import test.AbstractMagmaTest;
 
 public class LimesurveyDatasourceMysqlTest extends AbstractMagmaTest {
@@ -32,8 +31,10 @@ public class LimesurveyDatasourceMysqlTest extends AbstractMagmaTest {
 //      System.out.println(var.getName() + ":" + var.getValueType().getName());
 //    }
     ValueSet vs = table.getValueSet(table.getVariableEntities().iterator().next());
-    Assert.assertEquals("2012-07-20T10:28:35.000-0400", table.getVariableValueSource("startdate").getValue(vs).toString());
-    Assert.assertEquals("2012-07-20T10:40:41.000-0400", table.getVariableValueSource("submitdate").getValue(vs).toString());
+    Assert.assertEquals("2012-07-20T10:28:35.000-0400",
+        table.getVariableValueSource("startdate").getValue(vs).toString());
+    Assert.assertEquals("2012-07-20T10:40:41.000-0400",
+        table.getVariableValueSource("submitdate").getValue(vs).toString());
     Assert.assertEquals("548", table.getVariableValueSource("lastpage").getValue(vs).toString());
     Assert.assertEquals("en", table.getVariableValueSource("startlanguage").getValue(vs).toString());
     //DisplayHelper.display(limesurveyDatasource);

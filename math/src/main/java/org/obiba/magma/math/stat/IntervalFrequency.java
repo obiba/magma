@@ -30,10 +30,10 @@ public class IntervalFrequency {
   private long n;
 
   /**
-   * Builds a {@code IntervalFrequency} for values between {@code [lower,upper]} split into {@code intervals} intervals.
+   * Builds a {@code IntervalFrequency} for values between {@code [lower, upper]} split into {@code intervals} intervals.
    * The flag {@code roundToIntegers} controls whether the bounds of intervals should be rounded to the closest integer
    * value (usually true when input data are integers).
-   * 
+   *
    * @param min the lower bound of all values to count
    * @param max the upper bound of all values to count
    * @param intervals the number of intervals to use, note that the current algorithm may end up using {@code intervals
@@ -44,8 +44,10 @@ public class IntervalFrequency {
     if(min >= max) throw new IllegalArgumentException("lower bound must be less than upper bound: " + min + ">" + max);
     if(intervals < 1) throw new IllegalArgumentException("intervals must be positive");
 
-    this.min = maybeRoundToInteger(BigDecimal.valueOf(min), roundToIntegers, RoundingMode.FLOOR).round(new MathContext(6, RoundingMode.FLOOR));
-    this.max = maybeRoundToInteger(BigDecimal.valueOf(max), roundToIntegers, RoundingMode.CEILING).round(new MathContext(6, RoundingMode.CEILING));
+    this.min = maybeRoundToInteger(BigDecimal.valueOf(min), roundToIntegers, RoundingMode.FLOOR)
+        .round(new MathContext(6, RoundingMode.FLOOR));
+    this.max = maybeRoundToInteger(BigDecimal.valueOf(max), roundToIntegers, RoundingMode.CEILING)
+        .round(new MathContext(6, RoundingMode.CEILING));
 
     // (max - min) / intervals
     BigDecimal intervalSize = this.max.subtract(this.min).divide(BigDecimal.valueOf(intervals), CTX);
@@ -58,7 +60,8 @@ public class IntervalFrequency {
 
     // Can't seem to find a case that will actually throw the exception. We'll leave the condition anyway since the rest
     // of the code expects non-zero intervalSize value.
-    if(intervalSize.compareTo(BigDecimal.valueOf(Double.MIN_VALUE)) == 0) throw new ArithmeticException("computed interval size was 0");
+    if(intervalSize.compareTo(BigDecimal.valueOf(Double.MIN_VALUE)) == 0)
+      throw new ArithmeticException("computed interval size was 0");
 
     this.intervalSize = intervalSize;
 
@@ -71,7 +74,8 @@ public class IntervalFrequency {
   }
 
   /**
-   * Builds a {@code IntervalFrequency} for values between {@code [lower,upper]} split into {@code intervals} intervals.
+   * Builds a {@code IntervalFrequency} for values between {@code [lower, upper]} split into {@code intervals} intervals.
+   *
    * @param min the lower bound of all values to count
    * @param max the upper bound of all values to count
    * @param intervals the number of intervals to use, note that the current algorithm may end up using {@code intervals
@@ -83,6 +87,7 @@ public class IntervalFrequency {
 
   /**
    * Adds 1 to the frequency of the interval that contains {@code d}.
+   *
    * @param d
    */
   public void add(double d) {
@@ -98,6 +103,7 @@ public class IntervalFrequency {
   /**
    * Returns an unmodifiable view of interval frequency computed by this instance. Note that the iterator will iterate
    * on intervals in order ({@code Interval#compareTo(Interval)})
+   *
    * @return an {@code Iterable} over the {@code Interval}
    */
   public SortedSet<Interval> intervals() {
@@ -107,7 +113,8 @@ public class IntervalFrequency {
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
-    sb.append("[").append(min).append(",").append(max).append("]/").append(freqTable.size()).append('(').append(intervalSize).append(')').append(" n:").append(n).append('\n');
+    sb.append("[").append(min).append(",").append(max).append("]/").append(freqTable.size()).append('(')
+        .append(intervalSize).append(')').append(" n:").append(n).append('\n');
     for(Interval interval : freqTable) {
       sb.append(interval).append('\n');
     }
@@ -119,7 +126,7 @@ public class IntervalFrequency {
   }
 
   /**
-   * Maintains the frequency of the values between {@code [lower,upper[}
+   * Maintains the frequency of the values between {@code [lower, upper[}
    */
   public class Interval implements Comparable<Interval> {
 
@@ -144,6 +151,7 @@ public class IntervalFrequency {
 
     /**
      * Returns the absolute frequency of observations in this interval
+     *
      * @return
      */
     public long getFreq() {
@@ -152,9 +160,10 @@ public class IntervalFrequency {
 
     /**
      * Returns the density of this interval (freq / width)
-     * <p>
+     * <p/>
      * This is the value usually plotted in a histogram, because the surface area of an interval is the frequency of
      * observations.
+     *
      * @return
      */
     public double getDensity() {
@@ -163,8 +172,9 @@ public class IntervalFrequency {
 
     /**
      * Returns the density percentage of this interval (freq / total / width)
-     * <p>
+     * <p/>
      * This value represents the proportion of this interval in regards to all others
+     *
      * @return
      */
     public double getDensityPct() {
@@ -176,7 +186,8 @@ public class IntervalFrequency {
     }
 
     /**
-     * Returns true when {@code d} is within {@code [lower,upper[}, false otherwise
+     * Returns true when {@code d} is within {@code [lower, upper[}, false otherwise
+     *
      * @param d
      * @return
      */
@@ -218,12 +229,14 @@ public class IntervalFrequency {
 
     @Override
     public String toString() {
-      return new StringBuilder().append("[").append(lower).append(',').append(upper).append("[:").append(freq).append(" (").append(density()).append(',').append(getDensityPct()).append(")").toString();
+      return new StringBuilder().append("[").append(lower).append(',').append(upper).append("[:").append(freq)
+          .append(" (").append(density()).append(',').append(getDensityPct()).append(")").toString();
     }
 
     /**
-     * increments the frequency and returns true if {@code d} is within {@code [lower,upper[}. Otherwise returns false
+     * increments the frequency and returns true if {@code d} is within {@code [lower, upper[}. Otherwise returns false
      * and frequency remains unchanged.
+     *
      * @param d
      * @return
      */
@@ -235,6 +248,7 @@ public class IntervalFrequency {
 
     /**
      * Computes the density of this interval and rounds the result using {@code CTX}
+     *
      * @return
      */
     protected BigDecimal density() {

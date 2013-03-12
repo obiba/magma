@@ -9,7 +9,7 @@ import org.obiba.magma.crypt.KeyProvider;
 public interface DatasourceEncryptionStrategy {
   /**
    * Sets the {@link KeyProvider} to be used by this strategy.
-   * 
+   *
    * @param keyProvider key provider
    */
   public void setKeyProvider(KeyProvider keyProvider);
@@ -18,13 +18,14 @@ public interface DatasourceEncryptionStrategy {
    * Returns true if this strategy is able to decrypt an existing datasource. This may return false when the strategy
    * uses a {@code PublicKey} to encrypt a datasource. Once encrypted, the datasource can only be read by the owner of
    * the corresponding {@code PrivateKey}.
-   * 
+   *
    * @return true when this strategy can be used to decrypt an existing datasource.
    */
   public boolean canDecryptExistingDatasource();
 
   /**
    * Creates a new instance of {@code DatasourceCipherFactory}
+   *
    * @param ds
    * @return
    */

@@ -1,7 +1,5 @@
 package org.obiba.magma.js;
 
-import static org.hamcrest.CoreMatchers.is;
-
 import org.easymock.EasyMock;
 import org.junit.Assert;
 import org.junit.Test;
@@ -9,6 +7,8 @@ import org.obiba.magma.Variable;
 import org.obiba.magma.type.BooleanType;
 import org.obiba.magma.type.DecimalType;
 import org.obiba.magma.type.TextType;
+
+import static org.hamcrest.CoreMatchers.is;
 
 public class ScriptableVariableTest extends AbstractJsTest {
 

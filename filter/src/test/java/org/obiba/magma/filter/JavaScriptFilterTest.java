@@ -1,9 +1,5 @@
 package org.obiba.magma.filter;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.nullValue;
-import static org.junit.Assert.assertThat;
-
 import org.easymock.EasyMock;
 import org.junit.After;
 import org.junit.Before;
@@ -19,6 +15,10 @@ import org.obiba.magma.support.ValueSetBean;
 import org.obiba.magma.support.VariableEntityBean;
 import org.obiba.magma.type.BooleanType;
 import org.obiba.magma.type.TextType;
+
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.nullValue;
+import static org.junit.Assert.assertThat;
 
 public class JavaScriptFilterTest {
 
@@ -68,13 +68,16 @@ public class JavaScriptFilterTest {
 
   @Test
   public void testScriptAnyReturnsTrue() throws Exception {
-    JavaScriptFilter filter = JavaScriptFilter.Builder.newFilter().javascript("$('Admin.Interview.exported').any('TRUE')").include().build();
+    JavaScriptFilter filter = JavaScriptFilter.Builder.newFilter()
+        .javascript("$('Admin.Interview.exported').any('TRUE')").include().build();
 
-    Variable variable = Variable.Builder.newVariable("Admin.Interview.exported", BooleanType.get(), "Participant").build();
+    Variable variable = Variable.Builder.newVariable("Admin.Interview.exported", BooleanType.get(), "Participant")
+        .build();
 
     VariableValueSource mockSource = EasyMock.createMock(VariableValueSource.class);
     EasyMock.expect(mockSource.getVariable()).andReturn(variable).anyTimes();
-    EasyMock.expect(mockSource.getValue((ValueSet) EasyMock.anyObject())).andReturn(BooleanType.get().valueOf("TRUE")).anyTimes();
+    EasyMock.expect(mockSource.getValue((ValueSet) EasyMock.anyObject())).andReturn(BooleanType.get().valueOf("TRUE"))
+        .anyTimes();
 
     ValueTable tableMock = EasyMock.createMock(ValueTable.class);
     ValueSet valueSet = new ValueSetBean(tableMock, new VariableEntityBean("Participant", "1234"));
@@ -88,13 +91,16 @@ public class JavaScriptFilterTest {
 
   @Test
   public void testScriptAnyReturnsFalse() throws Exception {
-    JavaScriptFilter filter = JavaScriptFilter.Builder.newFilter().javascript("$('Admin.Interview.exported').any('FALSE')").include().build();
+    JavaScriptFilter filter = JavaScriptFilter.Builder.newFilter()
+        .javascript("$('Admin.Interview.exported').any('FALSE')").include().build();
 
-    Variable variable = Variable.Builder.newVariable("Admin.Interview.exported", BooleanType.get(), "Participant").build();
+    Variable variable = Variable.Builder.newVariable("Admin.Interview.exported", BooleanType.get(), "Participant")
+        .build();
 
     VariableValueSource mockSource = EasyMock.createMock(VariableValueSource.class);
     EasyMock.expect(mockSource.getVariable()).andReturn(variable).anyTimes();
-    EasyMock.expect(mockSource.getValue((ValueSet) EasyMock.anyObject())).andReturn(BooleanType.get().valueOf("TRUE")).anyTimes();
+    EasyMock.expect(mockSource.getValue((ValueSet) EasyMock.anyObject())).andReturn(BooleanType.get().valueOf("TRUE"))
+        .anyTimes();
 
     ValueTable tableMock = EasyMock.createMock(ValueTable.class);
     ValueSet valueSet = new ValueSetBean(tableMock, new VariableEntityBean("Participant", "1234"));
@@ -108,13 +114,16 @@ public class JavaScriptFilterTest {
 
   @Test
   public void testScriptAnyMultipleReturnsTrue() throws Exception {
-    JavaScriptFilter filter = JavaScriptFilter.Builder.newFilter().javascript("$('Participant.Interview.status').any('CANCELED','CLOSED')").include().build();
+    JavaScriptFilter filter = JavaScriptFilter.Builder.newFilter()
+        .javascript("$('Participant.Interview.status').any('CANCELED','CLOSED')").include().build();
 
-    Variable variable = Variable.Builder.newVariable("Admin.Interview.exported", BooleanType.get(), "Participant").build();
+    Variable variable = Variable.Builder.newVariable("Admin.Interview.exported", BooleanType.get(), "Participant")
+        .build();
 
     VariableValueSource mockSource = EasyMock.createMock(VariableValueSource.class);
     EasyMock.expect(mockSource.getVariable()).andReturn(variable).anyTimes();
-    EasyMock.expect(mockSource.getValue((ValueSet) EasyMock.anyObject())).andReturn(TextType.get().valueOf("CLOSED")).anyTimes();
+    EasyMock.expect(mockSource.getValue((ValueSet) EasyMock.anyObject())).andReturn(TextType.get().valueOf("CLOSED"))
+        .anyTimes();
 
     ValueTable tableMock = EasyMock.createMock(ValueTable.class);
     ValueSet valueSet = new ValueSetBean(tableMock, new VariableEntityBean("Participant", "1234"));
@@ -128,13 +137,16 @@ public class JavaScriptFilterTest {
 
   @Test
   public void testScriptAnyMultipleReturnsFalse() throws Exception {
-    JavaScriptFilter filter = JavaScriptFilter.Builder.newFilter().javascript("$('Participant.Interview.status').any('CANCELED','CLOSED')").include().build();
+    JavaScriptFilter filter = JavaScriptFilter.Builder.newFilter()
+        .javascript("$('Participant.Interview.status').any('CANCELED','CLOSED')").include().build();
 
-    Variable variable = Variable.Builder.newVariable("Admin.Interview.exported", BooleanType.get(), "Participant").build();
+    Variable variable = Variable.Builder.newVariable("Admin.Interview.exported", BooleanType.get(), "Participant")
+        .build();
 
     VariableValueSource mockSource = EasyMock.createMock(VariableValueSource.class);
     EasyMock.expect(mockSource.getVariable()).andReturn(variable).anyTimes();
-    EasyMock.expect(mockSource.getValue((ValueSet) EasyMock.anyObject())).andReturn(TextType.get().valueOf("IN_PROGRESS")).anyTimes();
+    EasyMock.expect(mockSource.getValue((ValueSet) EasyMock.anyObject()))
+        .andReturn(TextType.get().valueOf("IN_PROGRESS")).anyTimes();
 
     ValueTable tableMock = EasyMock.createMock(ValueTable.class);
     ValueSet valueSet = new ValueSetBean(tableMock, new VariableEntityBean("Participant", "1234"));
@@ -148,13 +160,16 @@ public class JavaScriptFilterTest {
 
   @Test
   public void testScriptNotEqualReturnsTrue() throws Exception {
-    JavaScriptFilter filter = JavaScriptFilter.Builder.newFilter().javascript("$('Participant.Interview.status').not('CANCELED')").include().build();
+    JavaScriptFilter filter = JavaScriptFilter.Builder.newFilter()
+        .javascript("$('Participant.Interview.status').not('CANCELED')").include().build();
 
-    Variable variable = Variable.Builder.newVariable("Admin.Interview.exported", BooleanType.get(), "Participant").build();
+    Variable variable = Variable.Builder.newVariable("Admin.Interview.exported", BooleanType.get(), "Participant")
+        .build();
 
     VariableValueSource mockSource = EasyMock.createMock(VariableValueSource.class);
     EasyMock.expect(mockSource.getVariable()).andReturn(variable).anyTimes();
-    EasyMock.expect(mockSource.getValue((ValueSet) EasyMock.anyObject())).andReturn(TextType.get().valueOf("IN_PROGRESS")).anyTimes();
+    EasyMock.expect(mockSource.getValue((ValueSet) EasyMock.anyObject()))
+        .andReturn(TextType.get().valueOf("IN_PROGRESS")).anyTimes();
 
     ValueTable tableMock = EasyMock.createMock(ValueTable.class);
     ValueSet valueSet = new ValueSetBean(tableMock, new VariableEntityBean("Participant", "1234"));
@@ -168,13 +183,16 @@ public class JavaScriptFilterTest {
 
   @Test
   public void testScriptNotEqualReturnsFalse() throws Exception {
-    JavaScriptFilter filter = JavaScriptFilter.Builder.newFilter().javascript("$('Participant.Interview.status').not('IN_PROGRESS')").include().build();
+    JavaScriptFilter filter = JavaScriptFilter.Builder.newFilter()
+        .javascript("$('Participant.Interview.status').not('IN_PROGRESS')").include().build();
 
-    Variable variable = Variable.Builder.newVariable("Admin.Interview.exported", BooleanType.get(), "Participant").build();
+    Variable variable = Variable.Builder.newVariable("Admin.Interview.exported", BooleanType.get(), "Participant")
+        .build();
 
     VariableValueSource mockSource = EasyMock.createMock(VariableValueSource.class);
     EasyMock.expect(mockSource.getVariable()).andReturn(variable).anyTimes();
-    EasyMock.expect(mockSource.getValue((ValueSet) EasyMock.anyObject())).andReturn(TextType.get().valueOf("IN_PROGRESS")).anyTimes();
+    EasyMock.expect(mockSource.getValue((ValueSet) EasyMock.anyObject()))
+        .andReturn(TextType.get().valueOf("IN_PROGRESS")).anyTimes();
 
     ValueTable tableMock = EasyMock.createMock(ValueTable.class);
     ValueSet valueSet = new ValueSetBean(tableMock, new VariableEntityBean("Participant", "1234"));

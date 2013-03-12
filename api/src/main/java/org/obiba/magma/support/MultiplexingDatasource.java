@@ -1,9 +1,9 @@
 /*******************************************************************************
  * Copyright (c) 2012 OBiBa. All rights reserved.
- *  
+ *
  * This program and the accompanying materials
  * are made available under the terms of the GNU Public License v3.0.
- *  
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
@@ -35,7 +35,8 @@ public class MultiplexingDatasource extends AbstractDatasourceWrapper {
 
   private HashMap<String, MultiplexValueTable> tables = Maps.newHashMap();
 
-  public MultiplexingDatasource(Datasource wrapped, ValueTableMultiplexer tableMultiplexer, VariableTransformer variableTransformer) {
+  public MultiplexingDatasource(Datasource wrapped, ValueTableMultiplexer tableMultiplexer,
+      VariableTransformer variableTransformer) {
     super(wrapped);
     this.variableTransformer = variableTransformer == null ? new NoOpTransformer() : variableTransformer;
     this.tableMultiplexer = tableMultiplexer == null ? new NoOpMultiplexer() : tableMultiplexer;
@@ -73,7 +74,7 @@ public class MultiplexingDatasource extends AbstractDatasourceWrapper {
 
   @Override
   public Set<ValueTable> getValueTables() {
-    return ImmutableSet.<ValueTable> builder().addAll(tables.values()).build();
+    return ImmutableSet.<ValueTable>builder().addAll(tables.values()).build();
   }
 
   @Override
@@ -118,7 +119,9 @@ public class MultiplexingDatasource extends AbstractDatasourceWrapper {
 
     @Override
     public String multiplex(ValueTable table, Variable variable) {
-      return variable.hasAttribute(attributeName) ? variable.getAttributeStringValue(attributeName) : getDefaultMultiplex(table);
+      return variable.hasAttribute(attributeName)
+          ? variable.getAttributeStringValue(attributeName)
+          : getDefaultMultiplex(table);
     }
 
     private String getDefaultMultiplex(ValueTable table) {
@@ -196,11 +199,15 @@ public class MultiplexingDatasource extends AbstractDatasourceWrapper {
 
     protected void addVariable(final ValueTable table, final Variable variable) {
       if(wrappedTable.getName().equals(table.getName()) == false) {
-        throw new UnsupportedOperationException("cannot multiplex different tables (" + wrappedTable.getName() + ", " + table.getName() + ") into the same table: " + getName());
+        throw new UnsupportedOperationException(
+            "cannot multiplex different tables (" + wrappedTable.getName() + ", " + table.getName() +
+                ") into the same table: " + getName());
       }
       Variable transformed = variableTransformer.transform(variable);
       if(variables.containsKey(transformed.getName())) {
-        throw new UnsupportedOperationException("cannot transform several variables (" + variable.getName() + ",...) into variable with same name: " + transformed.getName());
+        throw new UnsupportedOperationException(
+            "cannot transform several variables (" + variable.getName() + ",...) into variable with same name: " +
+                transformed.getName());
       }
       variables.put(transformed.getName(), transformed);
       addVariableNameMapping(transformed.getName(), variable.getName());
@@ -208,7 +215,7 @@ public class MultiplexingDatasource extends AbstractDatasourceWrapper {
 
     @Override
     public Iterable<Variable> getVariables() {
-      return ImmutableSet.<Variable> builder().addAll(variables.values()).build();
+      return ImmutableSet.<Variable>builder().addAll(variables.values()).build();
     }
 
     @Override

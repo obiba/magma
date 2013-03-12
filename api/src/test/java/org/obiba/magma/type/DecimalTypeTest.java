@@ -32,7 +32,7 @@ public class DecimalTypeTest extends BaseValueTypeTest {
 
   @Override
   Iterable<Class<?>> validClasses() {
-    return ImmutableList.<Class<?>> of(double.class, Double.class, float.class, Float.class);
+    return ImmutableList.<Class<?>>of(double.class, Double.class, float.class, Float.class);
   }
 
   @Test
@@ -46,6 +46,5 @@ public class DecimalTypeTest extends BaseValueTypeTest {
     Double result = (Double) getValueType().valueOf("1,2").getValue();
     assertThat(result, is(1.2));
   }
-
 
 }

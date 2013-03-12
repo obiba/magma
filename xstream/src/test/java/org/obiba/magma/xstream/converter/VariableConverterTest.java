@@ -51,11 +51,12 @@ public class VariableConverterTest {
     xstream.registerConverter(new AttributeConverter());
 
     Variable v = newVariable()//
-    .addAttribute("firstAttribute", "firstValue")//
-    .addAttribute("secondAttribute", "secondValue", Locale.ENGLISH)//
-    .addAttribute(Attribute.Builder.newAttribute("namespaced").withNamespace("ns1").withValue("ns1").build())//
-    .addAttribute(Attribute.Builder.newAttribute("namespaced").withNamespace("ns2").withLocale(Locale.ENGLISH).withValue("ns2").build())//
-    .build();
+        .addAttribute("firstAttribute", "firstValue")//
+        .addAttribute("secondAttribute", "secondValue", Locale.ENGLISH)//
+        .addAttribute(Attribute.Builder.newAttribute("namespaced").withNamespace("ns1").withValue("ns1").build())//
+        .addAttribute(Attribute.Builder.newAttribute("namespaced").withNamespace("ns2").withLocale(Locale.ENGLISH)
+            .withValue("ns2").build())//
+        .build();
 
     String xml = xstream.toXML(v);
     Variable unmarshalled = (Variable) xstream.fromXML(xml);
@@ -64,7 +65,8 @@ public class VariableConverterTest {
 
     Assert.assertTrue(unmarshalled.hasAttribute("secondAttribute"));
     Assert.assertTrue(unmarshalled.getAttribute("secondAttribute").isLocalised());
-    Assert.assertEquals("secondValue", unmarshalled.getAttribute("secondAttribute", Locale.ENGLISH).getValue().toString());
+    Assert.assertEquals("secondValue",
+        unmarshalled.getAttribute("secondAttribute", Locale.ENGLISH).getValue().toString());
 
     Assert.assertTrue(unmarshalled.hasAttribute("ns1", "namespaced"));
     Assert.assertTrue(unmarshalled.hasAttribute("ns1", "namespaced"));
@@ -80,7 +82,11 @@ public class VariableConverterTest {
 
     final Set<String> names = ImmutableSet.of("YES", "NO", "DNK", "PNA");
 
-    Variable v = newVariable().addCategories("YES", "NO").addCategory(Category.Builder.newCategory("DNK").withCode("8888").build()).addCategory(Category.Builder.newCategory("PNA").withCode("9999").addAttribute(Attribute.Builder.newAttribute("label").withValue(Locale.ENGLISH, "Prefer not to answer").build()).build()).build();
+    Variable v = newVariable().addCategories("YES", "NO")
+        .addCategory(Category.Builder.newCategory("DNK").withCode("8888").build()).addCategory(
+            Category.Builder.newCategory("PNA").withCode("9999").addAttribute(
+                Attribute.Builder.newAttribute("label").withValue(Locale.ENGLISH, "Prefer not to answer").build())
+                .build()).build();
     String xml = xstream.toXML(v);
     Variable unmarshalled = (Variable) xstream.fromXML(xml);
     Assert.assertNotNull(unmarshalled.getCategories());

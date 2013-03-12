@@ -62,6 +62,7 @@ public interface Category extends AttributeAware {
 
     /**
      * Accepts a {@code BuilderVisitor} to allow it to visit this {@code Builder} instance.
+     *
      * @param visitor the visitor to accept; cannot be null.
      * @return this
      */
@@ -72,6 +73,7 @@ public interface Category extends AttributeAware {
 
     /**
      * Accepts a collection of visitors and calls {@code #accept(BuilderVisitor)} on each instance.
+     *
      * @param visitors the collection of visitors to accept
      * @return this
      */
@@ -91,6 +93,7 @@ public interface Category extends AttributeAware {
 
     /**
      * Visit a builder instance and contribute to the category being built.
+     *
      * @param builder the instance to contribute to.
      */
     public void visit(Builder builder);

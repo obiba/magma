@@ -50,6 +50,7 @@ public abstract class MagmaEngineReferenceResolver {
 
   /**
    * Returns true if the specified {@code ValueSet} is within a different table than the referenced {@code ValueTable}
+   *
    * @param context
    * @return
    */

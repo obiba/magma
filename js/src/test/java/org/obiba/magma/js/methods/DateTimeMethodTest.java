@@ -26,7 +26,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
 
-@SuppressWarnings({"MagicConstant"})
+@SuppressWarnings({ "MagicConstant" })
 public class DateTimeMethodTest extends AbstractJsTest {
 
   @Test
@@ -271,7 +271,7 @@ public class DateTimeMethodTest extends AbstractJsTest {
     ScriptableValue now = newValue(DateTimeType.get().valueOf(new Date()));
     ScriptableValue nullDate = newValue(DateTimeType.get().nullValue());
     ScriptableValue result = (ScriptableValue) DateTimeMethods
-        .after(Context.getCurrentContext(), now, new ScriptableValue[] {nullDate}, null);
+        .after(Context.getCurrentContext(), now, new ScriptableValue[] { nullDate }, null);
     Assert.assertNotNull(result);
     Assert.assertEquals(BooleanType.get().nullValue(), result.getValue());
   }
@@ -281,7 +281,7 @@ public class DateTimeMethodTest extends AbstractJsTest {
     ScriptableValue now = newValue(DateTimeType.get().valueOf(new Date()));
     ScriptableValue nullDate = newValue(DateTimeType.get().nullValue());
     ScriptableValue result = (ScriptableValue) DateTimeMethods
-        .after(Context.getCurrentContext(), nullDate, new ScriptableValue[] {now}, null);
+        .after(Context.getCurrentContext(), nullDate, new ScriptableValue[] { now }, null);
     Assert.assertNotNull(result);
     Assert.assertEquals(BooleanType.get().nullValue(), result.getValue());
   }
@@ -318,6 +318,7 @@ public class DateTimeMethodTest extends AbstractJsTest {
 
   /**
    * Executes {@code script} with {@code testValue} as its scope and asserts that the returned value is
+   *
    * @param script
    * @param field
    * @param testValue

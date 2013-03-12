@@ -20,7 +20,7 @@ public class BeanValueTableFactoryBean implements ValueTableFactoryBean {
   public void setValueTableName(String name) {
     this.valueTableName = name;
   }
-  
+
   @Override
   public String getValueTableName() {
     return valueTableName;

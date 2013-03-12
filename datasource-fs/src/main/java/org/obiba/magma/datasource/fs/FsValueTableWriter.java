@@ -27,7 +27,8 @@ class FsValueTableWriter implements ValueTableWriter {
   public ValueSetWriter writeValueSet(VariableEntity entity) {
     String entry = valueTable.getVariableEntityProvider().addEntity(entity);
     try {
-      return new XStreamValueSetWriter(valueTable.createWriter(entry), new XStreamValueSet(valueTable.getName(), entity));
+      return new XStreamValueSetWriter(valueTable.createWriter(entry),
+          new XStreamValueSet(valueTable.getName(), entity));
     } catch(IOException e) {
       throw new RuntimeException(e);
     }
@@ -59,7 +60,8 @@ class FsValueTableWriter implements ValueTableWriter {
       oos.close();
     }
 
-    @edu.umd.cs.findbugs.annotations.SuppressWarnings(value = "DMI_NONSERIALIZABLE_OBJECT_WRITTEN", justification = "XStream implementation of ObjectOutputStream does not expect or require objects to implement the Serializable marker interface. http://xstream.codehaus.org/faq.html#Serialization")
+    @edu.umd.cs.findbugs.annotations.SuppressWarnings(value = "DMI_NONSERIALIZABLE_OBJECT_WRITTEN",
+        justification = "XStream implementation of ObjectOutputStream does not expect or require objects to implement the Serializable marker interface. http://xstream.codehaus.org/faq.html#Serialization")
     @Override
     public void writeVariable(Variable variable) {
       try {

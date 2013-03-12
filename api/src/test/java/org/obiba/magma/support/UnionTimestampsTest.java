@@ -1,12 +1,5 @@
 package org.obiba.magma.support;
 
-import static org.easymock.EasyMock.createMock;
-import static org.easymock.EasyMock.expect;
-import static org.easymock.EasyMock.replay;
-import static org.easymock.EasyMock.verify;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
-
 import java.util.Date;
 
 import org.junit.Before;
@@ -14,11 +7,17 @@ import org.junit.Test;
 import org.obiba.magma.Timestamped;
 import org.obiba.magma.Timestamps;
 import org.obiba.magma.Value;
-import org.obiba.magma.support.UnionTimestamps;
 import org.obiba.magma.test.AbstractMagmaTest;
 import org.obiba.magma.type.DateTimeType;
 
 import com.google.common.collect.ImmutableList;
+
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.replay;
+import static org.easymock.EasyMock.verify;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
 
 public class UnionTimestampsTest extends AbstractMagmaTest {
 
@@ -45,7 +44,8 @@ public class UnionTimestampsTest extends AbstractMagmaTest {
 
   @Test
   public void testGetCreated_AllNullCreationDatesReturnNull() throws Exception {
-    assertCreatedTimestamps(DateTimeType.get().nullValue(), DateTimeType.get().nullValue(), DateTimeType.get().nullValue());
+    assertCreatedTimestamps(DateTimeType.get().nullValue(), DateTimeType.get().nullValue(),
+        DateTimeType.get().nullValue());
   }
 
   @Test
@@ -61,7 +61,8 @@ public class UnionTimestampsTest extends AbstractMagmaTest {
 
   @Test
   public void testGetLastUpdate_AllNullCreationDatesReturnNull() throws Exception {
-    assertUpdatedTimestamps(DateTimeType.get().nullValue(), DateTimeType.get().nullValue(), DateTimeType.get().nullValue());
+    assertUpdatedTimestamps(DateTimeType.get().nullValue(), DateTimeType.get().nullValue(),
+        DateTimeType.get().nullValue());
   }
 
   private void assertCreatedTimestamps(Value firstTimestamp, Value secondTimestamp, Value expectedTimestamp) {
@@ -72,7 +73,8 @@ public class UnionTimestampsTest extends AbstractMagmaTest {
     assertTimestamps(false, firstTimestamp, secondTimestamp, expectedTimestamp);
   }
 
-  private void assertTimestamps(boolean useCreatedTimestamps, Value firstTimestamp, Value secondTimestamp, Value expectedTimestamp) {
+  private void assertTimestamps(boolean useCreatedTimestamps, Value firstTimestamp, Value secondTimestamp,
+      Value expectedTimestamp) {
 
     Timestamped firstTimestamped = createMock(Timestamped.class);
     Timestamped secondTimestamped = createMock(Timestamped.class);

@@ -22,7 +22,7 @@ import org.obiba.magma.support.VariableEntityBean;
 
 @Entity
 @Table(name = "variable_entity_audit_log",
-    uniqueConstraints = {@UniqueConstraint(columnNames = {"variableEntityType", "variableEntityIdentifier"})})
+    uniqueConstraints = { @UniqueConstraint(columnNames = { "variableEntityType", "variableEntityIdentifier" }) })
 public class HibernateVariableEntityAuditLog extends AbstractEntity implements VariableEntityAuditLog {
 
   private static final long serialVersionUID = 1L;
@@ -63,8 +63,8 @@ public class HibernateVariableEntityAuditLog extends AbstractEntity implements V
   public List<VariableEntityAuditEvent> getAuditEvents(ValueTable valueTable) {
     List<VariableEntityAuditEvent> filteredEvents = new ArrayList<VariableEntityAuditEvent>();
     for(VariableEntityAuditEvent auditEvent : auditEvents) {
-      if(auditEvent.getDatasource().equals(valueTable.getDatasource().getName()) && auditEvent.getValueTable()
-          .equals(valueTable.getName())) {
+      if(auditEvent.getDatasource().equals(valueTable.getDatasource().getName()) &&
+          auditEvent.getValueTable().equals(valueTable.getName())) {
         filteredEvents.add(auditEvent);
       }
     }

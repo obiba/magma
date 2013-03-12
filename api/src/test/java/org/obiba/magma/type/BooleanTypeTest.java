@@ -30,7 +30,7 @@ public class BooleanTypeTest extends BaseValueTypeTest {
 
   @Override
   Iterable<Class<?>> validClasses() {
-    return ImmutableList.<Class<?>> of(boolean.class, Boolean.class);
+    return ImmutableList.<Class<?>>of(boolean.class, Boolean.class);
   }
 
   @Test
