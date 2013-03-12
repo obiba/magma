@@ -3,6 +3,7 @@ package org.obiba.magma.type;
 import java.lang.ref.WeakReference;
 import java.math.BigDecimal;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import org.obiba.magma.MagmaEngine;
@@ -19,6 +20,8 @@ public class DecimalType extends AbstractNumberType {
 
   }
 
+  @SuppressWarnings("ConstantConditions")
+  @Nonnull
   public static DecimalType get() {
     if(instance == null || instance.get() == null) {
       instance = MagmaEngine.get().registerInstance(new DecimalType());
@@ -31,18 +34,20 @@ public class DecimalType extends AbstractNumberType {
     return Double.class;
   }
 
+  @Nonnull
   @Override
   public String getName() {
     return "decimal";
   }
 
   @Override
-  public boolean acceptsJavaClass(Class<?> clazz) {
+  public boolean acceptsJavaClass(@Nonnull Class<?> clazz) {
     return Double.class.isAssignableFrom(clazz) || double.class.isAssignableFrom(clazz) ||
         Float.class.isAssignableFrom(clazz) || float.class.isAssignableFrom(clazz) ||
         BigDecimal.class.isAssignableFrom(clazz);
   }
 
+  @Nonnull
   @Override
   public Value valueOf(@Nullable String string) {
     if(string == null) {
@@ -55,8 +60,9 @@ public class DecimalType extends AbstractNumberType {
     }
   }
 
+  @Nonnull
   @Override
-  public Value valueOf(Object object) {
+  public Value valueOf(@Nullable Object object) {
     if(object == null) {
       return nullValue();
     }

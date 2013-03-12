@@ -22,7 +22,8 @@ public class DatetimeValueConverter implements ValueConverter {
     if(to == DateType.get()) {
       Date date = (Date) value.getValue();
       return to.valueOf(date);
-    } else if(to == DateTimeType.get()) {
+    }
+    if(to == DateTimeType.get()) {
       MagmaDate date = (MagmaDate) value.getValue();
       return to.valueOf(date.asCalendar());
     }

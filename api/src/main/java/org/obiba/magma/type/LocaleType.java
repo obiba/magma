@@ -3,6 +3,7 @@ package org.obiba.magma.type;
 import java.lang.ref.WeakReference;
 import java.util.Locale;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import org.obiba.magma.MagmaEngine;
@@ -18,6 +19,8 @@ public class LocaleType extends AbstractValueType {
 
   }
 
+  @SuppressWarnings("ConstantConditions")
+  @Nonnull
   public static LocaleType get() {
     if(instance == null || instance.get() == null) {
       instance = MagmaEngine.get().registerInstance(new LocaleType());
@@ -25,6 +28,7 @@ public class LocaleType extends AbstractValueType {
     return instance.get();
   }
 
+  @Nonnull
   @Override
   public String getName() {
     return "locale";
@@ -35,7 +39,7 @@ public class LocaleType extends AbstractValueType {
   }
 
   @Override
-  public boolean acceptsJavaClass(Class<?> clazz) {
+  public boolean acceptsJavaClass(@Nonnull Class<?> clazz) {
     return Locale.class.isAssignableFrom(clazz);
   }
 
@@ -49,8 +53,9 @@ public class LocaleType extends AbstractValueType {
     return false;
   }
 
+  @Nonnull
   @Override
-  public Value valueOf(Object object) {
+  public Value valueOf(@Nullable Object object) {
     if(object == null) {
       return nullValue();
     }
@@ -64,6 +69,7 @@ public class LocaleType extends AbstractValueType {
     throw new IllegalArgumentException("Cannot construct " + getClass().getSimpleName() + " from type " + type + ".");
   }
 
+  @Nonnull
   @Override
   public Value valueOf(@Nullable String string) {
     if(string == null) {

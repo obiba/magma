@@ -26,6 +26,7 @@ public class BinaryType extends AbstractValueType {
 
   }
 
+  @SuppressWarnings("ConstantConditions")
   @Nonnull
   public static BinaryType get() {
     if(instance == null || instance.get() == null) {
@@ -34,6 +35,7 @@ public class BinaryType extends AbstractValueType {
     return instance.get();
   }
 
+  @Nonnull
   @Override
   public String getName() {
     return "binary";
@@ -45,7 +47,7 @@ public class BinaryType extends AbstractValueType {
   }
 
   @Override
-  public boolean acceptsJavaClass(Class<?> clazz) {
+  public boolean acceptsJavaClass(@Nonnull Class<?> clazz) {
     return byte[].class.isAssignableFrom(clazz);
   }
 
@@ -64,6 +66,7 @@ public class BinaryType extends AbstractValueType {
     return Base64.encodeBytes((byte[]) object);
   }
 
+  @Nonnull
   @Override
   public Value valueOf(@Nullable String string) {
     if(string == null) {
@@ -76,8 +79,9 @@ public class BinaryType extends AbstractValueType {
     }
   }
 
+  @Nonnull
   @Override
-  public Value valueOf(Object object) {
+  public Value valueOf(@Nullable Object object) {
     // input type is expected to be byte[]
     if(object == null) {
       return nullValue();
