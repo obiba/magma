@@ -7,7 +7,7 @@
     <gender>Male</gender>
     <barcode>12345</barcode>
     <interview>
-      <participant reference="phil" />
+      <participant reference="phil"/>
       <startDate>2009-10-28 15:16:04.0 EST</startDate>
     </interview>
   </participant>
@@ -18,7 +18,7 @@
     <gender>Male</gender>
     <barcode>45678</barcode>
     <interview>
-      <participant reference="mart" />
+      <participant reference="mart"/>
       <startDate>2009-01-01 00:00:00.0 EST</startDate>
       <endDate>2009-01-01 01:00:00.0 EST</endDate>
     </interview>
@@ -30,12 +30,12 @@
     <gender>Female</gender>
     <barcode>111</barcode>
     <interview>
-      <participant reference="raph" />
+      <participant reference="raph"/>
       <startDate>2008-02-22 18:30:00.0 EST</startDate>
       <endDate>2009-02-23 07:20:00.0 EST</endDate>
     </interview>
   </participant>
-  
+
   <action>
     <participant reference="phil"/>
     <stage>BloodPressure</stage>
@@ -48,10 +48,10 @@
     <participant reference="phil"/>
     <stage>Samples</stage>
   </action>
-  
+
   <action>
     <participant reference="mart"/>
     <stage>CIQ</stage>
   </action>
-  
+
 </linked-list>

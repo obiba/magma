@@ -73,27 +73,27 @@ public class ExcelUtil {
     String value = "";
     if(cell != null) {
       switch(cell.getCellType()) {
-      case Cell.CELL_TYPE_STRING:
-      case Cell.CELL_TYPE_BLANK:
-        value = cell.getStringCellValue();
-        break;
-      case Cell.CELL_TYPE_BOOLEAN:
-        value = String.valueOf(cell.getBooleanCellValue());
-        break;
-      case Cell.CELL_TYPE_ERROR:
-        value = String.valueOf(cell.getErrorCellValue());
-        break;
-      case Cell.CELL_TYPE_FORMULA:
-        value = String.valueOf(cell.getCellFormula());
-        break;
-      case Cell.CELL_TYPE_NUMERIC:
-        value = String.valueOf(cell.getNumericCellValue());
-        if(value.endsWith(".0")) {
-          value = value.substring(0, value.length() - 2);
-        }
-        break;
-      default:
-        break;
+        case Cell.CELL_TYPE_STRING:
+        case Cell.CELL_TYPE_BLANK:
+          value = cell.getStringCellValue();
+          break;
+        case Cell.CELL_TYPE_BOOLEAN:
+          value = String.valueOf(cell.getBooleanCellValue());
+          break;
+        case Cell.CELL_TYPE_ERROR:
+          value = String.valueOf(cell.getErrorCellValue());
+          break;
+        case Cell.CELL_TYPE_FORMULA:
+          value = String.valueOf(cell.getCellFormula());
+          break;
+        case Cell.CELL_TYPE_NUMERIC:
+          value = String.valueOf(cell.getNumericCellValue());
+          if(value.endsWith(".0")) {
+            value = value.substring(0, value.length() - 2);
+          }
+          break;
+        default:
+          break;
       }
     }
     return value;
@@ -101,6 +101,7 @@ public class ExcelUtil {
 
   /**
    * Find in user headers the given magma excel header.
+   *
    * @param headers as defined by the user
    * @param header
    * @return null if not found
@@ -117,6 +118,7 @@ public class ExcelUtil {
 
   /**
    * Allow for instance "Value Type" or "value_type" or "Value-Type" or "valuetype" for "valueType".
+   *
    * @param userHeader
    * @return
    */

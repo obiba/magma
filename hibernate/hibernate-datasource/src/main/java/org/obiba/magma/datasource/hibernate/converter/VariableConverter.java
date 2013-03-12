@@ -35,8 +35,8 @@ public class VariableConverter extends AttributeAwareConverter implements Hibern
 
     if(variableState.getValueType() != magmaObject.getValueType()) {
       throw new MagmaRuntimeException(
-          "Changing the value type of a variable is not supported. Cannot modify variable '" + magmaObject
-              .getName() + "' in table '" + context.getValueTable().getName() + "'");
+          "Changing the value type of a variable is not supported. Cannot modify variable '" + magmaObject.getName() +
+              "' in table '" + context.getValueTable().getName() + "'");
     }
 
     addAttributes(magmaObject, variableState);

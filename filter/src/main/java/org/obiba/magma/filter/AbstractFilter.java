@@ -10,9 +10,13 @@ public abstract class AbstractFilter<T> implements Filter<T> {
   private static final Logger log = LoggerFactory.getLogger(AbstractFilter.class);
 
   protected static enum Type {
-    /** Exclude item from the result set if filter successful. */
+    /**
+     * Exclude item from the result set if filter successful.
+     */
     EXCLUDE,
-    /** Include item in the result set if filter successful. */
+    /**
+     * Include item in the result set if filter successful.
+     */
     INCLUDE
   }
 

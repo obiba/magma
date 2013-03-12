@@ -16,7 +16,8 @@ public abstract class AbstractAttributeAwareConverter extends AbstractCollection
     super(mapper);
   }
 
-  protected void marshallAttributes(AttributeAware attributeAware, HierarchicalStreamWriter writer, MarshallingContext context) {
+  protected void marshallAttributes(AttributeAware attributeAware, HierarchicalStreamWriter writer,
+      MarshallingContext context) {
     if(attributeAware.hasAttributes()) {
       writer.startNode("attributes");
       for(Attribute a : attributeAware.getAttributes()) {

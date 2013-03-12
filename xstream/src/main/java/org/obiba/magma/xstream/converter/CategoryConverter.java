@@ -11,9 +11,9 @@ import com.thoughtworks.xstream.mapper.Mapper;
 
 /**
  * Converts a {@code Category} instance.
- * <p>
+ * <p/>
  * Resulting XML:
- * 
+ * <p/>
  * <pre>
  * &lt;category name="categoryName" code="8888"&gt;
  *   &lt;attributes&gt;
@@ -50,7 +50,8 @@ public class CategoryConverter extends AbstractAttributeAwareConverter {
     String missing = reader.getAttribute("missing");
     String code = reader.getAttribute("code");
 
-    Category.Builder builder = Category.Builder.newCategory(name).withCode(code).missing(missing != null && Boolean.valueOf(missing));
+    Category.Builder builder = Category.Builder.newCategory(name).withCode(code)
+        .missing(missing != null && Boolean.valueOf(missing));
     while(reader.hasMoreChildren()) {
       reader.moveDown();
       if(isAttributesNode(reader.getNodeName())) {

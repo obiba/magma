@@ -1,9 +1,9 @@
 /*******************************************************************************
  * Copyright (c) 2012 OBiBa. All rights reserved.
- *  
+ *
  * This program and the accompanying materials
  * are made available under the terms of the GNU Public License v3.0.
- *  
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
@@ -19,7 +19,7 @@ public final class Attributes {
 
   /**
    * Makes a defensive copy of an attribute to make sure the result is immutable.
-   * 
+   *
    * @param attribute the attribute to copy
    * @return a new immutable attribute, or the same instance if it is determined to be immutable
    */
@@ -28,12 +28,13 @@ public final class Attributes {
       // AttributeBean is immutable.
       return attribute;
     }
-    return Attribute.Builder.newAttribute(attribute.getName()).withNamespace(attribute.getNamespace()).withValue(attribute.getValue()).withLocale(attribute.getLocale()).build();
+    return Attribute.Builder.newAttribute(attribute.getName()).withNamespace(attribute.getNamespace())
+        .withValue(attribute.getValue()).withLocale(attribute.getLocale()).build();
   }
 
   /**
    * Encodes the attribute namespace, name and locale for use in a tabular file header.
-   * 
+   *
    * @param attribute
    * @return
    */

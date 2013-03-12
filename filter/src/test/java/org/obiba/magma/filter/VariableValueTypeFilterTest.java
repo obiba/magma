@@ -1,8 +1,5 @@
 package org.obiba.magma.filter;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -10,6 +7,9 @@ import org.obiba.magma.MagmaEngine;
 import org.obiba.magma.Variable;
 import org.obiba.magma.type.BinaryType;
 import org.obiba.magma.type.TextType;
+
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
 
 public class VariableValueTypeFilterTest {
 

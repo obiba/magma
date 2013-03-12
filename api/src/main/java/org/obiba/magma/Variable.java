@@ -91,6 +91,7 @@ public interface Variable extends AttributeAware {
     /**
      * Values from the provided override {@code Variable} will overwrite values in the {@code Variable} currently being
      * built.
+     *
      * @param override The {@code Variable} contains values that will override values in the {@code Variable} currently
      * being built.
      */
@@ -136,8 +137,8 @@ public interface Variable extends AttributeAware {
       }
     }
 
-    private static Category getCategoryWithName(Iterable<Category> categories,
-        final String name) throws NoSuchElementException {
+    private static Category getCategoryWithName(Iterable<Category> categories, final String name)
+        throws NoSuchElementException {
       return Iterables.find(categories, new Predicate<Category>() {
         @Override
         public boolean apply(Category input) {
@@ -160,6 +161,7 @@ public interface Variable extends AttributeAware {
 
     /**
      * Tests whether this {@code Builder} instance is constructing a variable with any of the the specified names.
+     *
      * @param name one or more names to test
      * @return true if any of the specified names is equal to the variable's name
      */
@@ -247,6 +249,7 @@ public interface Variable extends AttributeAware {
     /**
      * Add an array of category labels. The resulting {@code Category} instances will have a null {@code code} value.
      * This method is useful for creating categories out of {@code enum} constants for example.
+     *
      * @param names
      * @return this
      */
@@ -266,6 +269,7 @@ public interface Variable extends AttributeAware {
 
     /**
      * Accepts a {@code BuilderVisitor} to allow it to visit this {@code Builder} instance.
+     *
      * @param visitor the visitor to accept; cannot be null.
      * @return this
      */
@@ -276,6 +280,7 @@ public interface Variable extends AttributeAware {
 
     /**
      * Accepts a collection of visitors and calls {@code #accept(BuilderVisitor)} on each instance.
+     *
      * @param visitors the collection of visitors to accept
      * @return this
      */
@@ -306,6 +311,7 @@ public interface Variable extends AttributeAware {
      *   }
      * }
      * </pre>
+     *
      * @param <T>
      * @param type the {@code Builder} type to construct
      * @return an instance of {@code T} that extends {@code Builder}
@@ -315,9 +321,9 @@ public interface Variable extends AttributeAware {
         Constructor<T> ctor = type.getConstructor(Builder.class);
         return ctor.newInstance(this);
       } catch(NoSuchMethodException e) {
-        throw new IllegalArgumentException("Builder extension type '" + type
-            .getName() + "' must expose a public constructor that takes a single argument of type '" + Builder.class
-            .getName() + "'.");
+        throw new IllegalArgumentException("Builder extension type '" + type.getName() +
+            "' must expose a public constructor that takes a single argument of type '" + Builder.class.getName() +
+            "'.");
       } catch(RuntimeException e) {
         throw new IllegalArgumentException("Cannot instantiate builder extension type '" + type.getName() + "'", e);
       } catch(Exception e) {
@@ -333,6 +339,7 @@ public interface Variable extends AttributeAware {
 
     /**
      * Visit a builder instance and contribute to the variable being built.
+     *
      * @param builder the instance to contribute to.
      */
     void visit(Builder builder);
@@ -341,18 +348,21 @@ public interface Variable extends AttributeAware {
 
   /**
    * The name of the variable. A variable's name must be unique within its {@code Collection}.
+   *
    * @return the name of the variable.
    */
   String getName();
 
   /**
    * Returns the {@code entityType} this variable is associated with.
+   *
    * @return
    */
   String getEntityType();
 
   /**
    * Returns true when this variable is for values of the specified {@code entityType}
+   *
    * @param type the type of entity to test
    * @return true when this variable is for values of the specified {@code entityType}, false otherwise.
    */
@@ -362,6 +372,7 @@ public interface Variable extends AttributeAware {
    * Returns true when this variable is repeatable. A repeatable variable is one where multiple {@code Value} instances
    * may exist within a single {@code ValueSet}. A single {@code Value} within a {@code ValueSet} is referenced by an
    * {@link Occurrence} instance.
+   *
    * @return true when this variable may have multiple values within a single {@code ValueSet}
    */
   boolean isRepeatable();
@@ -369,6 +380,7 @@ public interface Variable extends AttributeAware {
   /**
    * When a variable is repeatable, the repeated values are grouped together, this method returns the name of this
    * group. The name is arbitrary but must be unique within a {@code Collection}.
+   *
    * @return the name of the repeating group
    */
   String getOccurrenceGroup();
@@ -376,18 +388,21 @@ public interface Variable extends AttributeAware {
   /**
    * Returns the {@code ValueType} of this variable instance. Any {@code Value} obtained for this {@code variable}
    * should be of this type.
+   *
    * @return the {@code ValueType} of this variable.
    */
   ValueType getValueType();
 
   /**
    * The SI code of the measurement unit if applicable.
+   *
    * @return unit
    */
   String getUnit();
 
   /**
    * The IANA mime-type of binary data if applicable.
+   *
    * @return the IANA mime-type
    */
   String getMimeType();
@@ -395,6 +410,7 @@ public interface Variable extends AttributeAware {
   /**
    * Used when this variable value is a pointer to another {@code VariableEntity}. The value is considered to point to
    * the referenced entity's {@code identifier}.
+   *
    * @return the {@code entityType} that this value points to, this method returns null when the variable doesn't point
    *         to another entity.
    */
@@ -402,6 +418,7 @@ public interface Variable extends AttributeAware {
 
   /**
    * Returns true if this variable has at least on {@code Category}
+   *
    * @return
    */
   boolean hasCategories();
@@ -409,6 +426,7 @@ public interface Variable extends AttributeAware {
   /**
    * Returns the set of categories for this {@code Variable}. This method returns null when the variable has no
    * categories. To determine if a {@code Variable} instance has categories, use the {@code #hasCategories()} method.
+   *
    * @return a {@code Set} of {@code Category} instances or null if none exist
    */
   Set<Category> getCategories();
@@ -416,6 +434,7 @@ public interface Variable extends AttributeAware {
   /**
    * Returns true when {@code value} is equal to a {@code Category} marked as {@code missing} or when
    * {@code Value#isNull} returns true
+   *
    * @param value the value to test
    * @return true when the value is considered {@code missing}, false otherwise.
    */

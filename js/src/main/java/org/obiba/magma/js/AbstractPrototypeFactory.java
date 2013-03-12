@@ -17,7 +17,8 @@ import com.google.common.collect.Iterables;
 
 public abstract class AbstractPrototypeFactory {
 
-  private final Set<String> excluded = ImmutableSet.of("wait", "toString", "getClass", "equals", "hashCode", "notify", "notifyAll");
+  private final Set<String> excluded = ImmutableSet
+      .of("wait", "toString", "getClass", "equals", "hashCode", "notify", "notifyAll");
 
   private Set<Class<?>> methodProviders = new HashSet<Class<?>>();
 
@@ -36,17 +37,18 @@ public abstract class AbstractPrototypeFactory {
   }
 
   protected void createMethods(ScriptableObject so) {
-    Iterable<Method> methods = Iterables.concat(Iterables.transform(methodProviders, new Function<Class<?>, Iterable<Method>>() {
-      @Override
-      public Iterable<Method> apply(Class<?> from) {
-        return Iterables.filter(Arrays.asList(from.getMethods()), new Predicate<Method>() {
+    Iterable<Method> methods = Iterables
+        .concat(Iterables.transform(methodProviders, new Function<Class<?>, Iterable<Method>>() {
           @Override
-          public boolean apply(Method input) {
-            return excluded.contains(input.getName()) == false;
+          public Iterable<Method> apply(Class<?> from) {
+            return Iterables.filter(Arrays.asList(from.getMethods()), new Predicate<Method>() {
+              @Override
+              public boolean apply(Method input) {
+                return excluded.contains(input.getName()) == false;
+              }
+            });
           }
-        });
-      }
-    }));
+        }));
 
     for(Method method : methods) {
       FunctionObject fo = new FunctionObject(method.getName(), method, so);

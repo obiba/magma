@@ -1,10 +1,9 @@
 package org.obiba.magma.support;
 
+import org.junit.Test;
+
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
-
-import org.junit.Test;
-import org.obiba.magma.support.VariableEntityBean;
 
 public class VariableEntityBeanTest {
 

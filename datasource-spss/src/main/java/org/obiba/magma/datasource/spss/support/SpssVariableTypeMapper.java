@@ -24,13 +24,12 @@ public class SpssVariableTypeMapper {
   private SpssVariableTypeMapper() {
   }
 
-  public static AbstractValueType map(SPSSVariable variable)
-  {
+  public static AbstractValueType map(SPSSVariable variable) {
     return variable instanceof SPSSNumericVariable ? mapNumericType(variable) : TextType.get();
   }
 
   public static SpssNumericDataType getSpssNumericDataType(SPSSVariable variable) {
-    if (!(variable instanceof SPSSNumericVariable)) {
+    if(!(variable instanceof SPSSNumericVariable)) {
       throw new IllegalArgumentException("Variable must be of type " + SPSSNumericVariable.class);
     }
 
@@ -40,7 +39,7 @@ public class SpssVariableTypeMapper {
 
   private static AbstractValueType mapNumericType(SPSSVariable variable) {
 
-    switch (getSpssNumericDataType(variable)) {
+    switch(getSpssNumericDataType(variable)) {
       case COMMA: // comma
       case DOLLAR: // dollar
       case DOT: // dot

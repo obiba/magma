@@ -38,7 +38,9 @@ class FsVariableEntityProvider implements VariableEntityProvider, Initialisable,
 
   private boolean entityToFileMapModified = false;
 
-  /** Pads filenames with zeroes */
+  /**
+   * Pads filenames with zeroes
+   */
   private NumberFormat entryFilenameFormat = new DecimalFormat("0000000");
 
   FsVariableEntityProvider(FsValueTable valueTable) {

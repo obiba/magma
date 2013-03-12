@@ -31,7 +31,8 @@ public class VariableAttributeFilter extends AbstractFilter<Variable> implements
   }
 
   private void validateArguments(String attributeName, String value) {
-    if(attributeName == null || value == null) throw new IllegalArgumentException("The arguments [attribute] and [value] cannot be null.");
+    if(attributeName == null || value == null)
+      throw new IllegalArgumentException("The arguments [attribute] and [value] cannot be null.");
   }
 
   @Override

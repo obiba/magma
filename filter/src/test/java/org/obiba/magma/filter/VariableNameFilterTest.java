@@ -1,14 +1,14 @@
 package org.obiba.magma.filter;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.obiba.magma.MagmaEngine;
 import org.obiba.magma.ValueType;
 import org.obiba.magma.Variable;
+
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
 
 public class VariableNameFilterTest {
 
@@ -17,7 +17,8 @@ public class VariableNameFilterTest {
   @Before
   public void setUp() throws Exception {
     new MagmaEngine();
-    variable = Variable.Builder.newVariable("Admin.Participant.Name", ValueType.Factory.forName("text"), "Participant").build();
+    variable = Variable.Builder.newVariable("Admin.Participant.Name", ValueType.Factory.forName("text"), "Participant")
+        .build();
   }
 
   @After

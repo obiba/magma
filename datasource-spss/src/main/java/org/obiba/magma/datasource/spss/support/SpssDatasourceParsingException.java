@@ -15,8 +15,8 @@ public class SpssDatasourceParsingException extends DatasourceParsingException {
 
   private static final long serialVersionUID = 1L;
 
-
-  public SpssDatasourceParsingException(String message, String source, int row, String messageKey, Object... messageArgs) {
+  public SpssDatasourceParsingException(String message, String source, int row, String messageKey,
+      Object... messageArgs) {
     super(message + " (" + source + ":" + row + ")", messageKey, messageArgs);
   }
 

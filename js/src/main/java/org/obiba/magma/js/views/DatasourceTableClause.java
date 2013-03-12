@@ -14,7 +14,6 @@ import com.google.common.collect.ImmutableSet;
 
 /**
  * Get the list of variables from a value table in a datasource.
- * 
  */
 public class DatasourceTableClause extends VariablesClause implements Disposable {
 

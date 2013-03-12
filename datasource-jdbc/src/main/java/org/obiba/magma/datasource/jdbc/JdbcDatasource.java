@@ -1,9 +1,5 @@
 package org.obiba.magma.datasource.jdbc;
 
-import static org.obiba.magma.datasource.jdbc.JdbcValueTableWriter.ATTRIBUTE_METADATA_TABLE;
-import static org.obiba.magma.datasource.jdbc.JdbcValueTableWriter.CATEGORY_METADATA_TABLE;
-import static org.obiba.magma.datasource.jdbc.JdbcValueTableWriter.VARIABLE_METADATA_TABLE;
-
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -14,16 +10,6 @@ import java.util.List;
 import java.util.Set;
 
 import javax.sql.DataSource;
-
-import liquibase.change.Change;
-import liquibase.database.Database;
-import liquibase.database.DatabaseFactory;
-import liquibase.database.sql.SqlStatement;
-import liquibase.database.sql.visitor.SqlVisitor;
-import liquibase.database.structure.DatabaseSnapshot;
-import liquibase.database.structure.Table;
-import liquibase.exception.JDBCException;
-import liquibase.exception.UnsupportedChangeException;
 
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.ValueTableWriter;
@@ -41,6 +27,20 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 
+import liquibase.change.Change;
+import liquibase.database.Database;
+import liquibase.database.DatabaseFactory;
+import liquibase.database.sql.SqlStatement;
+import liquibase.database.sql.visitor.SqlVisitor;
+import liquibase.database.structure.DatabaseSnapshot;
+import liquibase.database.structure.Table;
+import liquibase.exception.JDBCException;
+import liquibase.exception.UnsupportedChangeException;
+
+import static org.obiba.magma.datasource.jdbc.JdbcValueTableWriter.ATTRIBUTE_METADATA_TABLE;
+import static org.obiba.magma.datasource.jdbc.JdbcValueTableWriter.CATEGORY_METADATA_TABLE;
+import static org.obiba.magma.datasource.jdbc.JdbcValueTableWriter.VARIABLE_METADATA_TABLE;
+
 public class JdbcDatasource extends AbstractDatasource {
 
   private static final Logger log = LoggerFactory.getLogger(JdbcDatasource.class);
@@ -55,7 +55,8 @@ public class JdbcDatasource extends AbstractDatasource {
   // Instance Variables
   //
 
-  private Set<String> RESERVED_NAMES = ImmutableSet.of(VARIABLE_METADATA_TABLE, ATTRIBUTE_METADATA_TABLE, CATEGORY_METADATA_TABLE);
+  private Set<String> RESERVED_NAMES = ImmutableSet
+      .of(VARIABLE_METADATA_TABLE, ATTRIBUTE_METADATA_TABLE, CATEGORY_METADATA_TABLE);
 
   private final JdbcTemplate jdbcTemplate;
 
@@ -91,7 +92,7 @@ public class JdbcDatasource extends AbstractDatasource {
 
   /**
    * Returns a {@link ValueTableWriter} for writing to a new or existing {@link JdbcValueTable}.
-   * 
+   * <p/>
    * Note: Newly created tables have a single entity identifier column, "entity_id".
    */
   @Override
@@ -107,7 +108,8 @@ public class JdbcDatasource extends AbstractDatasource {
       // Create a new JdbcValueTable. This will create the SQL table if it does not exist.
       JdbcValueTableSettings tableSettings = settings.getTableSettingsForMagmaTable(tableName);
       if(tableSettings == null) {
-        tableSettings = new JdbcValueTableSettings(NameConverter.toSqlName(tableName), tableName, entityType, Arrays.asList("entity_id"));
+        tableSettings = new JdbcValueTableSettings(NameConverter.toSqlName(tableName), tableName, entityType,
+            Arrays.asList("entity_id"));
         settings.getTableSettings().add(tableSettings);
       }
       table = new JdbcValueTable(this, tableSettings);
@@ -210,17 +212,31 @@ public class JdbcDatasource extends AbstractDatasource {
     List<Change> changes = new ArrayList<Change>();
     if(getDatabaseSnapshot().getTable(VARIABLE_METADATA_TABLE) == null) {
       CreateTableChangeBuilder builder = new CreateTableChangeBuilder();
-      builder.tableName(VARIABLE_METADATA_TABLE).withColumn(JdbcValueTableWriter.VALUE_TABLE_COLUMN, "VARCHAR(255)").primaryKey().withColumn("name", "VARCHAR(255)").primaryKey().withColumn(JdbcValueTableWriter.VALUE_TYPE_COLUMN, "VARCHAR(255)").notNull().withColumn("mime_type", "VARCHAR(255)").withColumn("units", "VARCHAR(255)").withColumn("is_repeatable", "BOOLEAN").withColumn("occurrence_group", "VARCHAR(255)");
+      builder.tableName(VARIABLE_METADATA_TABLE).withColumn(JdbcValueTableWriter.VALUE_TABLE_COLUMN, "VARCHAR(255)")
+          .primaryKey().withColumn("name", "VARCHAR(255)").primaryKey()
+          .withColumn(JdbcValueTableWriter.VALUE_TYPE_COLUMN, "VARCHAR(255)").notNull()
+          .withColumn("mime_type", "VARCHAR(255)").withColumn("units", "VARCHAR(255)")
+          .withColumn("is_repeatable", "BOOLEAN").withColumn("occurrence_group", "VARCHAR(255)");
       changes.add(builder.build());
     }
     if(getDatabaseSnapshot().getTable(ATTRIBUTE_METADATA_TABLE) == null) {
       CreateTableChangeBuilder builder = new CreateTableChangeBuilder();
-      builder.tableName(ATTRIBUTE_METADATA_TABLE).withColumn(JdbcValueTableWriter.VALUE_TABLE_COLUMN, "VARCHAR(255)").primaryKey().withColumn(JdbcValueTableWriter.VARIABLE_NAME_COLUMN, "VARCHAR(255)").primaryKey().withColumn(JdbcValueTableWriter.ATTRIBUTE_NAME_COLUMN, "VARCHAR(255)").primaryKey().withColumn(JdbcValueTableWriter.ATTRIBUTE_LOCALE_COLUMN, "VARCHAR(20)").primaryKey().withColumn(JdbcValueTableWriter.ATTRIBUTE_NAMESPACE_COLUMN, "VARCHAR(20)").primaryKey().withColumn(JdbcValueTableWriter.ATTRIBUTE_VALUE_COLUMN, SqlTypes.sqlTypeFor(TextType.get(), SqlTypes.TEXT_TYPE_HINT_MEDIUM));
+      builder.tableName(ATTRIBUTE_METADATA_TABLE).withColumn(JdbcValueTableWriter.VALUE_TABLE_COLUMN, "VARCHAR(255)")
+          .primaryKey().withColumn(JdbcValueTableWriter.VARIABLE_NAME_COLUMN, "VARCHAR(255)").primaryKey()
+          .withColumn(JdbcValueTableWriter.ATTRIBUTE_NAME_COLUMN, "VARCHAR(255)").primaryKey()
+          .withColumn(JdbcValueTableWriter.ATTRIBUTE_LOCALE_COLUMN, "VARCHAR(20)").primaryKey()
+          .withColumn(JdbcValueTableWriter.ATTRIBUTE_NAMESPACE_COLUMN, "VARCHAR(20)").primaryKey()
+          .withColumn(JdbcValueTableWriter.ATTRIBUTE_VALUE_COLUMN,
+              SqlTypes.sqlTypeFor(TextType.get(), SqlTypes.TEXT_TYPE_HINT_MEDIUM));
       changes.add(builder.build());
     }
     if(getDatabaseSnapshot().getTable(CATEGORY_METADATA_TABLE) == null) {
       CreateTableChangeBuilder builder = new CreateTableChangeBuilder();
-      builder.tableName(CATEGORY_METADATA_TABLE).withColumn(JdbcValueTableWriter.VALUE_TABLE_COLUMN, "VARCHAR(255)").primaryKey().withColumn(JdbcValueTableWriter.VARIABLE_NAME_COLUMN, "VARCHAR(255)").primaryKey().withColumn(JdbcValueTableWriter.CATEGORY_NAME_COLUMN, "VARCHAR(255)").primaryKey().withColumn(JdbcValueTableWriter.CATEGORY_CODE_COLUMN, "VARCHAR(255)").withColumn(JdbcValueTableWriter.CATEGORY_MISSING_COLUMN, "BOOLEAN").notNull();
+      builder.tableName(CATEGORY_METADATA_TABLE).withColumn(JdbcValueTableWriter.VALUE_TABLE_COLUMN, "VARCHAR(255)")
+          .primaryKey().withColumn(JdbcValueTableWriter.VARIABLE_NAME_COLUMN, "VARCHAR(255)").primaryKey()
+          .withColumn(JdbcValueTableWriter.CATEGORY_NAME_COLUMN, "VARCHAR(255)").primaryKey()
+          .withColumn(JdbcValueTableWriter.CATEGORY_CODE_COLUMN, "VARCHAR(255)")
+          .withColumn(JdbcValueTableWriter.CATEGORY_MISSING_COLUMN, "BOOLEAN").notNull();
       changes.add(builder.build());
     }
     doWithDatabase(new ChangeDatabaseCallback(changes, ImmutableList.of(new MySqlEngineVisitor())));
@@ -228,6 +244,7 @@ public class JdbcDatasource extends AbstractDatasource {
 
   /**
    * Callback used for accessing the {@code Database} instance in a safe and consistent way.
+   *
    * @param <T> the type of object returned by the callback if any
    */
   interface DatabaseCallback<T> {
@@ -248,7 +265,7 @@ public class JdbcDatasource extends AbstractDatasource {
     }
 
     ChangeDatabaseCallback(Iterable<Change> changes) {
-      this(changes, Collections.<SqlVisitor> emptyList());
+      this(changes, Collections.<SqlVisitor>emptyList());
     }
 
     ChangeDatabaseCallback(Iterable<Change> changes, Iterable<? extends SqlVisitor> visitors) {

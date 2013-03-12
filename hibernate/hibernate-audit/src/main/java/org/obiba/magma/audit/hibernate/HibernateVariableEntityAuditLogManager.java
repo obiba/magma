@@ -40,7 +40,8 @@ public class HibernateVariableEntityAuditLogManager implements VariableEntityAud
   private UserProvider userProvider;
 
   @Override
-  public CopyAuditor createAuditor(Builder builder, Datasource destination, Function<VariableEntity, VariableEntity> entityMapper) {
+  public CopyAuditor createAuditor(Builder builder, Datasource destination,
+      Function<VariableEntity, VariableEntity> entityMapper) {
     HibernateCopyAuditor auditor = new HibernateCopyAuditor(destination, entityMapper);
     builder.withListener(auditor);
     return auditor;
@@ -48,8 +49,12 @@ public class HibernateVariableEntityAuditLogManager implements VariableEntityAud
 
   @Override
   public VariableEntityAuditLog getAuditLog(VariableEntity entity) {
-    AssociationCriteria criteria = AssociationCriteria.create(HibernateVariableEntityAuditLog.class, sessionFactory.getCurrentSession()).add("variableEntityType", Operation.eq, entity.getType()).add("variableEntityIdentifier", Operation.eq, entity.getIdentifier());
-    HibernateVariableEntityAuditLog log = (HibernateVariableEntityAuditLog) criteria.getCriteria().setFetchMode("auditEvents", FetchMode.JOIN).uniqueResult();
+    AssociationCriteria criteria = AssociationCriteria
+        .create(HibernateVariableEntityAuditLog.class, sessionFactory.getCurrentSession())
+        .add("variableEntityType", Operation.eq, entity.getType())
+        .add("variableEntityIdentifier", Operation.eq, entity.getIdentifier());
+    HibernateVariableEntityAuditLog log = (HibernateVariableEntityAuditLog) criteria.getCriteria()
+        .setFetchMode("auditEvents", FetchMode.JOIN).uniqueResult();
     if(log == null) {
       log = new HibernateVariableEntityAuditLog(entity);
     }
@@ -57,7 +62,8 @@ public class HibernateVariableEntityAuditLogManager implements VariableEntityAud
   }
 
   @Override
-  public VariableEntityAuditEvent createAuditEvent(VariableEntityAuditLog log, ValueTable source, String type, Map<String, Value> details) {
+  public VariableEntityAuditEvent createAuditEvent(VariableEntityAuditLog log, ValueTable source, String type,
+      Map<String, Value> details) {
     if(log == null) throw new IllegalArgumentException("log cannot be null");
     if(source == null) throw new IllegalArgumentException("source cannot be null");
     if(type == null) throw new IllegalArgumentException("type cannot be null");
@@ -96,7 +102,9 @@ public class HibernateVariableEntityAuditLogManager implements VariableEntityAud
 
     @Override
     public void onValueSetCopied(final ValueTable source, ValueSet valueSet, final String... tables) {
-      final VariableEntity entity = entityMapper != null ? entityMapper.apply(valueSet.getVariableEntity()) : valueSet.getVariableEntity();
+      final VariableEntity entity = entityMapper != null
+          ? entityMapper.apply(valueSet.getVariableEntity())
+          : valueSet.getVariableEntity();
       audits.add(new Callable<Object>() {
 
         @Override

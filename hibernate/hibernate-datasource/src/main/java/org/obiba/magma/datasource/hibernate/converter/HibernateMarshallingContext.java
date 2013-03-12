@@ -28,7 +28,8 @@ public class HibernateMarshallingContext {
     return create(sessionFactory, datasourceState, null);
   }
 
-  public static HibernateMarshallingContext create(SessionFactory sessionFactory, DatasourceState datasourceState, ValueTableState valueTable) {
+  public static HibernateMarshallingContext create(SessionFactory sessionFactory, DatasourceState datasourceState,
+      ValueTableState valueTable) {
     if(sessionFactory == null) throw new IllegalArgumentException("sessionFactory cannot be null");
     if(datasourceState == null) throw new IllegalArgumentException("datasourceState cannot be null");
 

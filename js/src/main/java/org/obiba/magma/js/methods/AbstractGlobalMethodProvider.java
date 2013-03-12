@@ -19,7 +19,6 @@ import com.google.common.collect.Iterables;
  * to be exposed in the JavaScript context. Extending classes may also rename the methods before exposing them to the
  * JavaScript engine by implementing the {@code #getMethodNameMap()} method and returning a {@code Map} of Java method
  * name to JavaScript method name.
- * 
  */
 public abstract class AbstractGlobalMethodProvider implements GlobalMethodProvider {
 
@@ -51,6 +50,7 @@ public abstract class AbstractGlobalMethodProvider implements GlobalMethodProvid
 
   /**
    * Returns the {@code Set} of this class' method names to expose.
+   *
    * @return a {@code Set} of method names to expose
    */
   protected abstract Set<String> getExposedMethods();
@@ -58,6 +58,7 @@ public abstract class AbstractGlobalMethodProvider implements GlobalMethodProvid
   /**
    * Returns a {@code Map} of Java method name to JavaScript method name. This implementation returns an empty map which
    * will effectively not rename any method.
+   *
    * @return a {@code Map} of method names
    */
   protected Map<String, String> getMethodNameMap() {

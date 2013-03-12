@@ -6,7 +6,7 @@ import org.apache.shiro.subject.Subject;
 
 /**
  * {@code AuthorizationToken} for performing an action with elevated privileges.
- * <p>
+ * <p/>
  * TODO: add the action being performed.
  */
 public class SudoAuthToken implements AuthenticationToken {

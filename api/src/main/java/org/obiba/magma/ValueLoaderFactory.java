@@ -19,6 +19,7 @@ public interface ValueLoaderFactory {
   /**
    * Create a {@link ValueLoader} given a reference and the occurrence of the value (starting at 0) in the case of a
    * sequence of values.
+   *
    * @param valueRef Provides the reference to the value
    * @param occurrence Null when the value is not a sequence of values
    * @return

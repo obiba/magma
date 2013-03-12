@@ -30,7 +30,8 @@ public class JavascriptVariableValueSourceTest extends AbstractJsTest {
 
     VariableValueSource mockSource = EasyMock.createMock(VariableValueSource.class);
     EasyMock.expect(mockSource.getVariable()).andReturn(anotherVariable).anyTimes();
-    EasyMock.expect(mockSource.getValue((ValueSet) EasyMock.anyObject())).andReturn(TextType.get().valueOf("The Value")).anyTimes();
+    EasyMock.expect(mockSource.getValue((ValueSet) EasyMock.anyObject())).andReturn(TextType.get().valueOf("The Value"))
+        .anyTimes();
 
     ValueTable mockTable = EasyMock.createMock(ValueTable.class);
     ValueSet valueSet = new ValueSetBean(mockTable, new VariableEntityBean("Participant", "1234"));
@@ -52,7 +53,8 @@ public class JavascriptVariableValueSourceTest extends AbstractJsTest {
 
     // Build the javascript variable that returns AnotherVariable's value
     Variable.Builder builder = Variable.Builder.newVariable("JavascriptVariable", TextType.get(), "Participant");
-    Variable variable = builder.extend(JavascriptVariableBuilder.class).setScript("$('anotherTable:AnotherVariable')").build();
+    Variable variable = builder.extend(JavascriptVariableBuilder.class).setScript("$('anotherTable:AnotherVariable')")
+        .build();
     JavascriptVariableValueSource source = new JavascriptVariableValueSource(variable);
 
     source.initialise();
@@ -62,7 +64,8 @@ public class JavascriptVariableValueSourceTest extends AbstractJsTest {
 
     VariableValueSource mockSource = EasyMock.createMock(VariableValueSource.class);
     EasyMock.expect(mockSource.getVariable()).andReturn(anotherVariable).anyTimes();
-    EasyMock.expect(mockSource.getValue((ValueSet) EasyMock.anyObject())).andReturn(TextType.get().valueOf("The Value")).anyTimes();
+    EasyMock.expect(mockSource.getValue((ValueSet) EasyMock.anyObject())).andReturn(TextType.get().valueOf("The Value"))
+        .anyTimes();
 
     Datasource mockDatasource = EasyMock.createMock(Datasource.class);
     ValueTable mockTable = EasyMock.createMock(ValueTable.class);

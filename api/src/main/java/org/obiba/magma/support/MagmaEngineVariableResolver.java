@@ -16,7 +16,8 @@ public class MagmaEngineVariableResolver extends MagmaEngineReferenceResolver {
   /**
    * Resolves a reference to a {@code VariableValueSource} using the specified {@code ValueSet} as a context.
    */
-  public VariableValueSource resolveSource(ValueSet context) throws NoSuchDatasourceException, NoSuchValueTableException, NoSuchVariableException {
+  public VariableValueSource resolveSource(ValueSet context)
+      throws NoSuchDatasourceException, NoSuchValueTableException, NoSuchVariableException {
     return resolveTable(context).getVariableValueSource(getVariableName());
   }
 
@@ -31,8 +32,10 @@ public class MagmaEngineVariableResolver extends MagmaEngineReferenceResolver {
    * Resolves a reference to a {@code VariableValueSource} without a context. This can be used to resolve fully
    * qualified variable names.
    */
-  public VariableValueSource resolveSource() throws NoSuchDatasourceException, NoSuchValueTableException, NoSuchVariableException {
-    return MagmaEngine.get().getDatasource(getDatasourceName()).getValueTable(getTableName()).getVariableValueSource(getVariableName());
+  public VariableValueSource resolveSource()
+      throws NoSuchDatasourceException, NoSuchValueTableException, NoSuchVariableException {
+    return MagmaEngine.get().getDatasource(getDatasourceName()).getValueTable(getTableName())
+        .getVariableValueSource(getVariableName());
   }
 
   /**
@@ -47,6 +50,7 @@ public class MagmaEngineVariableResolver extends MagmaEngineReferenceResolver {
    * <code>SMOKER_STATUS</code> within a table named <code>otherTable</code> within a {@code Datasource} named
    * <code>ds</code></li>
    * </ul>
+   *
    * @param name the name of the {@code VariableValueSource} to resolve
    * @return an instance of {@code MagmaEngineReferenceResolver}
    * @throws NoSuchDatasourceException when the referenced datasource cannot be resolved

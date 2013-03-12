@@ -1,16 +1,16 @@
 package org.obiba.magma.lang;
 
+import java.io.Closeable;
+import java.io.IOException;
+
+import org.junit.Test;
+
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.verify;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
-
-import java.io.Closeable;
-import java.io.IOException;
-
-import org.junit.Test;
 
 public class CloseablesTest {
 

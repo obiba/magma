@@ -1,10 +1,5 @@
 package org.obiba.magma.datasource.jdbc;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
 import java.io.IOException;
 import java.util.TreeSet;
 
@@ -38,10 +33,18 @@ import org.springframework.test.context.transaction.TransactionalTestExecutionLi
 
 import com.google.common.collect.Iterables;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 @org.junit.runner.RunWith(value = SpringJUnit4ClassRunner.class)
 @org.springframework.test.context.ContextConfiguration(locations = { "/test-spring-context.xml" })
 @org.springframework.test.context.transaction.TransactionConfiguration(transactionManager = "transactionManager")
-@org.springframework.test.context.TestExecutionListeners(value = { DependencyInjectionTestExecutionListener.class, DirtiesContextTestExecutionListener.class, TransactionalTestExecutionListener.class, SchemaTestExecutionListener.class, DbUnitAwareTestExecutionListener.class })
+@org.springframework.test.context.TestExecutionListeners(
+    value = { DependencyInjectionTestExecutionListener.class, DirtiesContextTestExecutionListener.class,
+        TransactionalTestExecutionListener.class, SchemaTestExecutionListener.class,
+        DbUnitAwareTestExecutionListener.class })
 public class JdbcDatasourceTest extends AbstractMagmaTest {
   //
   // Instance Variables
@@ -54,7 +57,8 @@ public class JdbcDatasourceTest extends AbstractMagmaTest {
   // Test Methods
   //
 
-  @TestSchema(schemaLocation = "org/obiba/magma/datasource/jdbc", beforeSchema = "schema-nometa.sql", afterSchema = "schema-notables.sql")
+  @TestSchema(schemaLocation = "org/obiba/magma/datasource/jdbc", beforeSchema = "schema-nometa.sql",
+      afterSchema = "schema-notables.sql")
   @Dataset(filenames = "JdbcDatasourceTest-nometa.xml")
   @Test
   public void testCreateDatasourceFromExistingDatabase() {
@@ -66,7 +70,8 @@ public class JdbcDatasourceTest extends AbstractMagmaTest {
     jdbcDatasource.dispose();
   }
 
-  @TestSchema(schemaLocation = "org/obiba/magma/datasource/jdbc", beforeSchema = "schema-meta.sql", afterSchema = "schema-notables.sql")
+  @TestSchema(schemaLocation = "org/obiba/magma/datasource/jdbc", beforeSchema = "schema-meta.sql",
+      afterSchema = "schema-notables.sql")
   @Dataset(filenames = "JdbcDatasourceTest.xml")
   @Test
   public void testCreateDatasourceFromExistingDatabaseUsingMetadataTables() {
@@ -92,7 +97,8 @@ public class JdbcDatasourceTest extends AbstractMagmaTest {
     jdbcDatasource.dispose();
   }
 
-  @TestSchema(schemaLocation = "org/obiba/magma/datasource/jdbc", beforeSchema = "schema-nometa.sql", afterSchema = "schema-notables.sql")
+  @TestSchema(schemaLocation = "org/obiba/magma/datasource/jdbc", beforeSchema = "schema-nometa.sql",
+      afterSchema = "schema-notables.sql")
   @Dataset(filenames = "JdbcDatasourceTest-nometa.xml")
   @Test
   public void test_vectorSource() {
@@ -119,7 +125,8 @@ public class JdbcDatasourceTest extends AbstractMagmaTest {
     jdbcDatasource.dispose();
   }
 
-  @TestSchema(schemaLocation = "org/obiba/magma/datasource/jdbc", beforeSchema = "schema-notables.sql", afterSchema = "schema-notables.sql")
+  @TestSchema(schemaLocation = "org/obiba/magma/datasource/jdbc", beforeSchema = "schema-notables.sql",
+      afterSchema = "schema-notables.sql")
   @Test
   public void testCreateDatasourceFromScratch() { // i.e., no existing database
     JdbcDatasource jdbcDatasource = new JdbcDatasource("my-datasource-nodb", dataSource, "Participant", false);
@@ -130,7 +137,8 @@ public class JdbcDatasourceTest extends AbstractMagmaTest {
     jdbcDatasource.dispose();
   }
 
-  @TestSchema(schemaLocation = "org/obiba/magma/datasource/jdbc", beforeSchema = "schema-notables.sql", afterSchema = "schema-notables.sql")
+  @TestSchema(schemaLocation = "org/obiba/magma/datasource/jdbc", beforeSchema = "schema-notables.sql",
+      afterSchema = "schema-notables.sql")
   @Test
   public void testCreateDatasourceFromScratchUsingMetadataTables() {
     JdbcDatasourceSettings settings = new JdbcDatasourceSettings("Participant", null, null, true);
@@ -142,7 +150,8 @@ public class JdbcDatasourceTest extends AbstractMagmaTest {
     jdbcDatasource.dispose();
   }
 
-  @TestSchema(schemaLocation = "org/obiba/magma/datasource/jdbc", beforeSchema = "schema-notables.sql", afterSchema = "schema-notables.sql")
+  @TestSchema(schemaLocation = "org/obiba/magma/datasource/jdbc", beforeSchema = "schema-notables.sql",
+      afterSchema = "schema-notables.sql")
   @Test
   public void test_Timestamped() {
     JdbcDatasourceSettings settings = new JdbcDatasourceSettings("Participant", null, null, false);

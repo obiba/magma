@@ -19,7 +19,7 @@ import org.obiba.magma.datasource.spss.SpssDatasource;
 import org.obiba.magma.datasource.spss.SpssValueTable;
 import org.opendatafoundation.data.spss.SPSSFile;
 
-public class  SpssValueTableFactory {
+public class SpssValueTableFactory {
 
   private final File file;
 
@@ -53,7 +53,7 @@ public class  SpssValueTableFactory {
     String filename = sourceFile.getName();
     int postion = filename.lastIndexOf('.');
 
-    if (postion > 0) {
+    if(postion > 0) {
       filename = filename.substring(0, postion);
     }
 

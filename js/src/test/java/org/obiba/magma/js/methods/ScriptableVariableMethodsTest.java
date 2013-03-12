@@ -39,7 +39,7 @@ public class ScriptableVariableMethodsTest extends AbstractJsTest {
     ScriptableObject prototype = new NativeObject();
     ScriptableObject actual = ScriptableVariableMethods.defineMethods(prototype);
     prototype
-        .defineFunctionProperties(new String[] {"name", "attribute", "repeatable"}, ScriptableVariableMethods.class,
+        .defineFunctionProperties(new String[] { "name", "attribute", "repeatable" }, ScriptableVariableMethods.class,
             ScriptableObject.DONTENUM);
     Assert.assertEquals(prototype, actual);
   }

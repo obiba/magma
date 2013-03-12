@@ -11,7 +11,9 @@ import com.google.common.collect.ImmutableSet;
 
 public class AnnotationConfigurationHelper {
 
-  private final Set<Class<? extends AbstractEntity>> annotatedTypes = new ImmutableSet.Builder<Class<? extends AbstractEntity>>().add(HibernateVariableEntityAuditEvent.class, HibernateVariableEntityAuditLog.class).build();
+  private final Set<Class<? extends AbstractEntity>> annotatedTypes
+      = new ImmutableSet.Builder<Class<? extends AbstractEntity>>()
+      .add(HibernateVariableEntityAuditEvent.class, HibernateVariableEntityAuditLog.class).build();
 
   public AnnotationConfiguration configure(AnnotationConfiguration configuration) {
     for(Class<?> type : getAnnotatedTypes()) {

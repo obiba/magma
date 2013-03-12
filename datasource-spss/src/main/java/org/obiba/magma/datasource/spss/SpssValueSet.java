@@ -18,7 +18,6 @@ import org.obiba.magma.Value;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
-import org.obiba.magma.datasource.spss.support.SpssNumericDataType;
 import org.obiba.magma.datasource.spss.support.SpssVariableTypeMapper;
 import org.obiba.magma.datasource.spss.support.SpssVariableValueFactory;
 import org.obiba.magma.support.ValueSetBean;

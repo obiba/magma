@@ -13,7 +13,7 @@ import org.obiba.magma.type.IntegerType;
 import org.obiba.magma.type.TextType;
 
 @SuppressWarnings(
-    {"IfStatementWithTooManyBranches", "UnusedParameters", "IfMayBeConditional", "StaticMethodOnlyUsedInOneClass"})
+    { "IfStatementWithTooManyBranches", "UnusedParameters", "IfMayBeConditional", "StaticMethodOnlyUsedInOneClass" })
 public class CompareMethods {
 
   private CompareMethods() {
@@ -32,29 +32,30 @@ public class CompareMethods {
    *   $('BooleanVarOne').compare($('BooleanVarTwo'))
    *   $('TextVarOne').compare($('TextVarTwo'))
    * </pre>
+   *
    * @throws MagmaJsEvaluationRuntimeException if operands are not ScriptableValue Objects of a numeric type,
    * BooleanType or TextType. Also thrown if operands are null.
    */
-  public static ScriptableValue compare(Context ctx, Scriptable thisObj, Object[] args,
-      @Nullable Function funObj) throws MagmaJsEvaluationRuntimeException {
+  public static ScriptableValue compare(Context ctx, Scriptable thisObj, Object[] args, @Nullable Function funObj)
+      throws MagmaJsEvaluationRuntimeException {
     ScriptableValue firstOperand = (ScriptableValue) thisObj;
     if(firstOperand.getValue().isNull())
       throw new MagmaJsEvaluationRuntimeException("Cannot invoke compare() with null argument.");
-    if(args != null && args.length > 0 && args[0] instanceof ScriptableValue && !((ScriptableValue) args[0]).getValue()
-        .isNull()) {
+    if(args != null && args.length > 0 && args[0] instanceof ScriptableValue &&
+        !((ScriptableValue) args[0]).getValue().isNull()) {
       ScriptableValue secondOperand = (ScriptableValue) args[0];
       if(firstOperand.getValueType().isNumeric() && secondOperand.getValueType().isNumeric()) {
         return numericCompare(thisObj, firstOperand, secondOperand);
-      } else if(firstOperand.getValueType().equals(BooleanType.get()) && secondOperand.getValueType()
-          .equals(BooleanType.get())) {
+      } else if(firstOperand.getValueType().equals(BooleanType.get()) &&
+          secondOperand.getValueType().equals(BooleanType.get())) {
         return booleanCompare(thisObj, firstOperand, secondOperand);
-      } else if(firstOperand.getValueType().equals(TextType.get()) && secondOperand.getValueType()
-          .equals(TextType.get())) {
+      } else if(firstOperand.getValueType().equals(TextType.get()) &&
+          secondOperand.getValueType().equals(TextType.get())) {
         return textCompare(thisObj, firstOperand, secondOperand);
       } else {
         throw new MagmaJsEvaluationRuntimeException(
-            "Cannot invoke compare() with arguments of type '" + firstOperand.getValueType()
-                .getName() + "' and '" + secondOperand.getValueType().getName() + "'.");
+            "Cannot invoke compare() with arguments of type '" + firstOperand.getValueType().getName() + "' and '" +
+                secondOperand.getValueType().getName() + "'.");
       }
     } else {
       throw new MagmaJsEvaluationRuntimeException(
@@ -66,16 +67,16 @@ public class CompareMethods {
       ScriptableValue secondOperand) {
     Number firstNumber = (Number) firstOperand.getValue().getValue();
     Number secondNumber = (Number) secondOperand.getValue().getValue();
-    if(firstOperand.getValueType().equals(IntegerType.get()) && secondOperand.getValueType()
-        .equals(IntegerType.get())) {
+    if(firstOperand.getValueType().equals(IntegerType.get()) &&
+        secondOperand.getValueType().equals(IntegerType.get())) {
       return new ScriptableValue(thisObj,
           IntegerType.get().valueOf(((Long) firstNumber).compareTo((Long) secondNumber)));
-    } else if(firstOperand.getValueType().equals(IntegerType.get()) && secondOperand.getValueType()
-        .equals(DecimalType.get())) {
+    } else if(firstOperand.getValueType().equals(IntegerType.get()) &&
+        secondOperand.getValueType().equals(DecimalType.get())) {
       return new ScriptableValue(thisObj,
           IntegerType.get().valueOf(Double.compare(firstNumber.doubleValue(), (Double) secondNumber)));
-    } else if(firstOperand.getValueType().equals(DecimalType.get()) && secondOperand.getValueType()
-        .equals(IntegerType.get())) {
+    } else if(firstOperand.getValueType().equals(DecimalType.get()) &&
+        secondOperand.getValueType().equals(IntegerType.get())) {
       return new ScriptableValue(thisObj,
           IntegerType.get().valueOf(Double.compare((Double) firstNumber, secondNumber.doubleValue())));
     } else {
@@ -110,16 +111,17 @@ public class CompareMethods {
    * <pre>
    *   $('TextVarOne').compareNoCase($('TextVarTwo'))
    * </pre>
+   *
    * @throws MagmaJsEvaluationRuntimeException if operands are not ScriptableValue Objects of TextType. Also thrown if
    * operands are null.
    */
-  public static ScriptableValue compareNoCase(Context ctx, Scriptable thisObj, Object[] args,
-      @Nullable Function funObj) throws MagmaJsEvaluationRuntimeException {
+  public static ScriptableValue compareNoCase(Context ctx, Scriptable thisObj, Object[] args, @Nullable Function funObj)
+      throws MagmaJsEvaluationRuntimeException {
     ScriptableValue firstOperand = (ScriptableValue) thisObj;
     if(firstOperand.getValue().isNull())
       throw new MagmaJsEvaluationRuntimeException("Cannot invoke compareNoCase() with null argument.");
-    if(args != null && args.length > 0 && args[0] instanceof ScriptableValue && !((ScriptableValue) args[0]).getValue()
-        .isNull()) {
+    if(args != null && args.length > 0 && args[0] instanceof ScriptableValue &&
+        !((ScriptableValue) args[0]).getValue().isNull()) {
       ScriptableValue secondOperand = (ScriptableValue) args[0];
       if(firstOperand.getValueType().equals(TextType.get()) && secondOperand.getValueType().equals(TextType.get())) {
         String firstString = (String) firstOperand.getValue().getValue();
@@ -127,8 +129,8 @@ public class CompareMethods {
         return new ScriptableValue(thisObj, IntegerType.get().valueOf(firstString.compareToIgnoreCase(secondString)));
       } else {
         throw new MagmaJsEvaluationRuntimeException(
-            "Cannot invoke compareNoCase() with arguments of type '" + firstOperand.getValueType()
-                .getName() + "' and '" + secondOperand.getValueType().getName() + "'. Use type 'text' only.");
+            "Cannot invoke compareNoCase() with arguments of type '" + firstOperand.getValueType().getName() +
+                "' and '" + secondOperand.getValueType().getName() + "'. Use type 'text' only.");
       }
     } else {
       throw new MagmaJsEvaluationRuntimeException(

@@ -1,11 +1,11 @@
 package org.obiba.magma.transform;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
-
 import java.io.Serializable;
 
 import com.google.common.collect.BiMap;
+
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 public final class BijectiveFunctions {
 
@@ -62,7 +62,9 @@ public final class BijectiveFunctions {
       K result = map.inverse().get(key);
       checkArgument(result != null || map.inverse().containsKey(key), "Key '%s' not present in inverse map", key);
       return result;
-    };
+    }
+
+    ;
 
     @Override
     public boolean equals(Object o) {

@@ -7,7 +7,8 @@ public class NameConverter {
   }
 
   public static String toSqlName(String magmaName) {
-    return magmaName.replace(' ', '_').replace('.', '_').replace('-', '_').replace('\'', '_').replace('"', '_').replace('/', '_').replace('\\', '_').replace('<', '_').replace('>', '_');
+    return magmaName.replace(' ', '_').replace('.', '_').replace('-', '_').replace('\'', '_').replace('"', '_')
+        .replace('/', '_').replace('\\', '_').replace('<', '_').replace('>', '_');
   }
 
   public static String toMagmaVariableName(String sqlColumnName) {

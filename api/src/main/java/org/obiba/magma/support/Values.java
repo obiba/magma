@@ -18,6 +18,7 @@ public final class Values {
   /**
    * Returns a {@code Function} instance that converts {@code from} to a {@code Value} instance using {@code
    * ValueType#valueOf(Object)}
+   *
    * @param type the {@code ValueType} of the returned {@code Value} instances
    * @return a {@code Function} instance that can be used to convert Object instances to {@code Value} instances
    */
@@ -34,6 +35,7 @@ public final class Values {
 
   /**
    * Returns an {@code Iterable} view of the {@code values} array converted to {@code Value} instances.
+   *
    * @param type
    * @param values
    * @return
@@ -44,6 +46,7 @@ public final class Values {
 
   /**
    * Returns a {@code ValueSequence} with the specified values as the sequence
+   *
    * @param type
    * @param values
    * @return

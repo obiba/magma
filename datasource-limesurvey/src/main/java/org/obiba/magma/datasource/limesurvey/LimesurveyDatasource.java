@@ -1,16 +1,13 @@
 package org.obiba.magma.datasource.limesurvey;
 
-import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
-import com.google.common.base.Objects;
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
+import javax.sql.DataSource;
+
 import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.support.AbstractDatasource;
@@ -18,6 +15,11 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ConnectionCallback;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
+
+import com.google.common.base.Objects;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 
 public class LimesurveyDatasource extends AbstractDatasource {
 
@@ -58,13 +60,12 @@ public class LimesurveyDatasource extends AbstractDatasource {
     sqlDbVersion.append("WHERE stg_name='DBVersion'");
     String dbVersion = jdbcTemplate.queryForObject(sqlDbVersion.toString(), String.class);
     try {
-      if(Float.parseFloat(dbVersion)<146) {
+      if(Float.parseFloat(dbVersion) < 146) {
         throw new MagmaRuntimeException(
             "Limesurvey database version unsupported:" + dbVersion + " (must be greater equal than 146)");
       }
     } catch(NumberFormatException e) {
-      throw new MagmaRuntimeException(
-          "Limesurvey database version unsupported:" + dbVersion);
+      throw new MagmaRuntimeException("Limesurvey database version unsupported:" + dbVersion);
     }
     iqs = jdbcTemplate.execute(new ConnectionCallback<String>() {
       @Override
@@ -82,8 +83,7 @@ public class LimesurveyDatasource extends AbstractDatasource {
     JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
     StringBuilder sql = new StringBuilder();
     sql.append("SELECT s.sid, sls.surveyls_title ");
-    sql.append("FROM " + quoteAndPrefix("surveys") + " s JOIN " + quoteAndPrefix(
-        "surveys_languagesettings") + " sls ");
+    sql.append("FROM " + quoteAndPrefix("surveys") + " s JOIN " + quoteAndPrefix("surveys_languagesettings") + " sls ");
     sql.append("ON (s.sid=sls.surveyls_survey_id AND s.language=sls.surveyls_language) ");
 
     Set<String> names = Sets.newLinkedHashSet();

@@ -33,7 +33,8 @@ class DateVariableValueGenerator extends AbstractMissingValueVariableValueGenera
   protected Value getValue(GeneratedValueSet gvs, Value minimumValue, Value maximumValue) {
     long minimum = minimumValue.isNull() ? Long.MIN_VALUE : getTime(minimumValue);
     long maximum = maximumValue.isNull() ? Long.MAX_VALUE : getTime(maximumValue);
-    return getValueType().valueOf(new Date(minimum == maximum ? minimum : gvs.dataGenerator.nextLong(minimum, maximum)));
+    return getValueType()
+        .valueOf(new Date(minimum == maximum ? minimum : gvs.dataGenerator.nextLong(minimum, maximum)));
   }
 
   private ValueSource makeSource(Variable variable, String scriptAttribute) {

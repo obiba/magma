@@ -1,7 +1,5 @@
 package org.obiba.magma.type;
 
-import junit.framework.Assert;
-
 import org.junit.Test;
 import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.Value;
@@ -9,6 +7,8 @@ import org.obiba.magma.ValueSequence;
 import org.obiba.magma.ValueType;
 
 import com.google.common.collect.ImmutableList;
+
+import junit.framework.Assert;
 
 public class TextTypeTest extends BaseValueTypeTest {
 
@@ -34,7 +34,7 @@ public class TextTypeTest extends BaseValueTypeTest {
 
   @Override
   Iterable<Class<?>> validClasses() {
-    return ImmutableList.<Class<?>> of(String.class);
+    return ImmutableList.<Class<?>>of(String.class);
   }
 
   @Test(expected = MagmaRuntimeException.class)

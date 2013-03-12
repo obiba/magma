@@ -153,7 +153,8 @@ public class Permissions {
 
         @Override
         public boolean apply(Datasource input) {
-          return authorizer.isPermitted(DatasourcePermissionBuilder.this.newCopy().instance("datasource").instance(input.getName()).build());
+          return authorizer.isPermitted(
+              DatasourcePermissionBuilder.this.newCopy().instance("datasource").instance(input.getName()).build());
         }
       };
     }
@@ -190,7 +191,8 @@ public class Permissions {
 
         @Override
         public boolean apply(ValueTable input) {
-          return authorizer.isPermitted(ValueTablePermissionBuilder.this.newCopy().instance("table").instance(input.getName()).build());
+          return authorizer.isPermitted(
+              ValueTablePermissionBuilder.this.newCopy().instance("table").instance(input.getName()).build());
         }
       };
     }
@@ -216,7 +218,8 @@ public class Permissions {
 
         @Override
         public boolean apply(Variable input) {
-          return authorizer.isPermitted(VariablePermissionBuilder.this.newCopy().instance("variable").instance(input.getName()).build());
+          return authorizer.isPermitted(
+              VariablePermissionBuilder.this.newCopy().instance("variable").instance(input.getName()).build());
         }
       };
     }

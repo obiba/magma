@@ -1,9 +1,9 @@
 /*******************************************************************************
  * Copyright (c) 2011 OBiBa. All rights reserved.
- *  
+ *
  * This program and the accompanying materials
  * are made available under the terms of the GNU Public License v3.0.
- *  
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
@@ -29,7 +29,9 @@ public class ValueTypeTest extends AbstractMagmaTest {
 
   @Test
   public void test_factory_forName() {
-    for(ValueType type : ImmutableList.of(TextType.get(), IntegerType.get(), DateType.get(), DateTimeType.get(), BinaryType.get(), BooleanType.get())) {
+    for(ValueType type : ImmutableList
+        .of(TextType.get(), IntegerType.get(), DateType.get(), DateTimeType.get(), BinaryType.get(),
+            BooleanType.get())) {
       Assert.assertTrue(type == ValueType.Factory.forName(type.getName()));
     }
   }

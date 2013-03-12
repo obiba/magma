@@ -17,10 +17,14 @@ public class JdbcDatasourceSettings {
 
   private boolean useMetadataTables;
 
-  /** The default a column name for creation timestamps */
+  /**
+   * The default a column name for creation timestamps
+   */
   private String defaultCreatedTimestampColumnName;
 
-  /** The default a column name for update timestamps */
+  /**
+   * The default a column name for update timestamps
+   */
   private String defaultUpdatedTimestampColumnName;
 
   //
@@ -34,7 +38,8 @@ public class JdbcDatasourceSettings {
     defaultUpdatedTimestampColumnName = null;
   }
 
-  public JdbcDatasourceSettings(String defaultEntityType, Set<String> mappedTables, Set<JdbcValueTableSettings> tableSettings, boolean useMetadataTables) {
+  public JdbcDatasourceSettings(String defaultEntityType, Set<String> mappedTables,
+      Set<JdbcValueTableSettings> tableSettings, boolean useMetadataTables) {
     if(defaultEntityType == null) {
       throw new IllegalArgumentException("null defaultEntityType");
     }
@@ -88,7 +93,7 @@ public class JdbcDatasourceSettings {
   }
 
   public Set<JdbcValueTableSettings> getTableSettings() {
-    return tableSettings != null ? tableSettings : Collections.<JdbcValueTableSettings> emptySet();
+    return tableSettings != null ? tableSettings : Collections.<JdbcValueTableSettings>emptySet();
   }
 
   public JdbcValueTableSettings getTableSettingsForSqlTable(String sqlTableName) {

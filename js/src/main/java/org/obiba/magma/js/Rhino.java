@@ -1,9 +1,9 @@
 /*******************************************************************************
  * Copyright (c) 2011 OBiBa. All rights reserved.
- *  
+ *
  * This program and the accompanying materials
  * are made available under the terms of the GNU Public License v3.0.
- *  
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
@@ -17,10 +17,9 @@ public final class Rhino {
   /**
    * Fix for Rhino bug 448499. If the input is a Double value of 1.0 or 0.0, this method will convert it to its integer
    * value.
-   * 
+   *
    * @param value a value coming from a Rhino evaluation.
    * @return the value untouched or converted to an int for specific values
-   * 
    * @see https://bugzilla.mozilla.org/show_bug.cgi?id=448499
    */
   public static Object fixRhinoNumber(final Object value) {

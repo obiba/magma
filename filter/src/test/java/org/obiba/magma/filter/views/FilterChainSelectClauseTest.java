@@ -1,14 +1,14 @@
 package org.obiba.magma.filter.views;
 
+import org.junit.Test;
+import org.obiba.magma.Variable;
+import org.obiba.magma.filter.FilterChain;
+
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.verify;
 import static org.junit.Assert.assertEquals;
-
-import org.junit.Test;
-import org.obiba.magma.Variable;
-import org.obiba.magma.filter.FilterChain;
 
 public class FilterChainSelectClauseTest {
   //

@@ -61,8 +61,9 @@ public class XStreamValueSet {
 
   /**
    * XStream does not instantiate default values for fields. Thus, we must implement readResolve and set it ourself.
-   * <p>
+   * <p/>
    * Note that we don't set the {@code #values} field as it will never be null after deserialisation.
+   *
    * @return this
    */
   private Object readResolve() {

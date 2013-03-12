@@ -36,10 +36,12 @@ public class ShiroAuthorizer implements Authorizer {
   /**
    * Tries to authenticate the current subject with a {@link SudoAuthToken}. If successful, this method returns the
    * {@code Subject} instance to use to run the privileged code.
-   * 
+   *
    * @return a {@code Subject} instance for performing the privileged action
    */
   protected Subject sudoSubject() throws AuthenticationException {
-    return new Subject.Builder().principals(SecurityUtils.getSecurityManager().authenticate(new SudoAuthToken(SecurityUtils.getSubject())).getPrincipals()).authenticated(true).buildSubject();
+    return new Subject.Builder().principals(
+        SecurityUtils.getSecurityManager().authenticate(new SudoAuthToken(SecurityUtils.getSubject())).getPrincipals())
+        .authenticated(true).buildSubject();
   }
 }

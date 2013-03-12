@@ -98,12 +98,15 @@ public class FsDatasource extends AbstractDatasource {
       if(newDatasource || datasourceEncryptionStrategy.canDecryptExistingDatasource()) {
         DatasourceCipherFactory cipherFactory = datasourceEncryptionStrategy.createDatasourceCipherFactory(this);
         inputStreamWrapper = new CipherInputStreamWrapper(cipherFactory);
-        outputStreamWrapper = new ChainedOutputStreamWrapper(new CipherOutputStreamWrapper(cipherFactory), new DigestOutputStreamWrapper());
+        outputStreamWrapper = new ChainedOutputStreamWrapper(new CipherOutputStreamWrapper(cipherFactory),
+            new DigestOutputStreamWrapper());
       } else {
-        throw new MagmaRuntimeException("Existing Datasource '" + getName() + "' cannot be decrypted using the specified encryption strategy.");
+        throw new MagmaRuntimeException(
+            "Existing Datasource '" + getName() + "' cannot be decrypted using the specified encryption strategy.");
       }
     } else if(isEncrypted()) {
-      throw new MagmaRuntimeException("Datasource '" + getName() + "' is encrypted. An instance of DatasourceEncryptionStrategy must be provided.");
+      throw new MagmaRuntimeException(
+          "Datasource '" + getName() + "' is encrypted. An instance of DatasourceEncryptionStrategy must be provided.");
     }
   }
 
@@ -144,14 +147,16 @@ public class FsDatasource extends AbstractDatasource {
   }
 
   protected boolean isEncrypted() {
-    return hasAttribute("magma.datasource.fs.encrypted") && (Boolean) getAttributeValue("magma.datasource.fs.encrypted").getValue();
+    return hasAttribute("magma.datasource.fs.encrypted") &&
+        (Boolean) getAttributeValue("magma.datasource.fs.encrypted").getValue();
   }
 
   @SuppressWarnings("unchecked")
   protected void readAttributes() {
     Reader reader = null;
     try {
-      List<Attribute> attributes = (List<Attribute>) getXStreamInstance().fromXML(reader = new InputStreamReader(new FileInputStream(new File(datasourceArchive, "metadata.xml")), CHARSET));
+      List<Attribute> attributes = (List<Attribute>) getXStreamInstance().fromXML(
+          reader = new InputStreamReader(new FileInputStream(new File(datasourceArchive, "metadata.xml")), CHARSET));
       for(Attribute a : attributes) {
         getInstanceAttributes().put(a.getName(), a);
       }
@@ -165,7 +170,8 @@ public class FsDatasource extends AbstractDatasource {
   protected void writeAttributes() {
     Writer writer = null;
     try {
-      getXStreamInstance().toXML(new LinkedList<Attribute>(getInstanceAttributes().values()), writer = new OutputStreamWriter(new FileOutputStream(new File(datasourceArchive, "metadata.xml")), CHARSET));
+      getXStreamInstance().toXML(new LinkedList<Attribute>(getInstanceAttributes().values()),
+          writer = new OutputStreamWriter(new FileOutputStream(new File(datasourceArchive, "metadata.xml")), CHARSET));
       instanceAttributesModified = false;
     } catch(FileNotFoundException e) {
       throw new MagmaRuntimeException(e);

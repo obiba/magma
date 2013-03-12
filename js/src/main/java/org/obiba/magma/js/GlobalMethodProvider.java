@@ -7,7 +7,7 @@ import org.obiba.magma.js.methods.AbstractGlobalMethodProvider;
 
 /**
  * Provides global JavaScript extension methods.
- * <p>
+ * <p/>
  * Consider extending {@link AbstractGlobalMethodProvider} instead of implementing this interface directly.
  */
 public interface GlobalMethodProvider {
@@ -20,7 +20,7 @@ public interface GlobalMethodProvider {
   /**
    * Returns the name of the JavaScript method. This method allows renaming the Java method before exposing it in the
    * JavaScript scope.
-   * 
+   *
    * @param method the Java method to rename.
    * @return the name of the JavaScript method.
    */

@@ -29,7 +29,7 @@ import com.google.common.collect.Lists;
 /**
  * JavaScript methods that operate on {@link ValueSequence} objects wrapped in {@link ScriptableValue} objects.
  */
-@SuppressWarnings({"UnusedDeclaration", "StaticMethodOnlyUsedInOneClass"})
+@SuppressWarnings({ "UnusedDeclaration", "StaticMethodOnlyUsedInOneClass" })
 public class ValueSequenceMethods {
 
   private ValueSequenceMethods() {
@@ -42,6 +42,7 @@ public class ValueSequenceMethods {
    * <pre>
    *   $('SequenceVar').first()
    * </pre>
+   *
    * @throws MagmaJsEvaluationRuntimeException if operand does not contain a ValueSequence.
    */
   public static ScriptableValue first(Context ctx, Scriptable thisObj, @Nullable Object[] args,
@@ -67,6 +68,7 @@ public class ValueSequenceMethods {
    * <pre>
    *   $('SequenceVar').last()
    * </pre>
+   *
    * @throws MagmaJsEvaluationRuntimeException if operand does not contain a ValueSequence.
    */
   public static ScriptableValue last(Context ctx, Scriptable thisObj, @Nullable Object[] args,
@@ -91,6 +93,7 @@ public class ValueSequenceMethods {
    * <pre>
    *   $('SequenceVar').size()
    * </pre>
+   *
    * @throws MagmaJsEvaluationRuntimeException if operand does not contain a ValueSequence.
    */
   public static ScriptableValue size(Context ctx, Scriptable thisObj, @Nullable Object[] args,
@@ -114,10 +117,11 @@ public class ValueSequenceMethods {
    * <pre>
    *   $('SequenceVar').valueAt(0)
    * </pre>
+   *
    * @throws MagmaJsEvaluationRuntimeException if operand does not contain a ValueSequence.
    */
-  public static ScriptableValue valueAt(Context ctx, Scriptable thisObj, Object[] args,
-      @Nullable Function funObj) throws MagmaJsEvaluationRuntimeException {
+  public static ScriptableValue valueAt(Context ctx, Scriptable thisObj, Object[] args, @Nullable Function funObj)
+      throws MagmaJsEvaluationRuntimeException {
     ScriptableValue sv = (ScriptableValue) thisObj;
     if(sv.getValue().isNull()) {
       return new ScriptableValue(thisObj, sv.getValue());
@@ -150,6 +154,7 @@ public class ValueSequenceMethods {
    *      return first.value() - second.value()
    *    })
    * </pre>
+   *
    * @throws MagmaJsEvaluationRuntimeException if operand does not contain a ValueSequence.
    */
   public static ScriptableValue sort(final Context ctx, Scriptable thisObj, @Nullable Object[] args,
@@ -170,7 +175,7 @@ public class ValueSequenceMethods {
           @Override
           public int compare(Value o1, Value o2) {
             return ((Number) func.call(ctx, sv.getParentScope(), sv,
-                new ScriptableValue[] {new ScriptableValue(sv, o1), new ScriptableValue(sv, o2)})).intValue();
+                new ScriptableValue[] { new ScriptableValue(sv, o1), new ScriptableValue(sv, o2) })).intValue();
           }
         });
       } else {
@@ -191,10 +196,11 @@ public class ValueSequenceMethods {
    * <pre>
    *   $('SequenceVar').avg()
    * </pre>
+   *
    * @throws MagmaJsEvaluationRuntimeException if operand does not contain a ValueSequence of numeric values.
    */
-  public static ScriptableValue avg(Context ctx, Scriptable thisObj, Object[] args,
-      Function funObj) throws MagmaJsEvaluationRuntimeException {
+  public static ScriptableValue avg(Context ctx, Scriptable thisObj, Object[] args, Function funObj)
+      throws MagmaJsEvaluationRuntimeException {
     ScriptableValue sv = (ScriptableValue) thisObj;
     if(sv.getValue().isNull()) {
       return new ScriptableValue(thisObj, DecimalType.get().nullValue());
@@ -220,10 +226,11 @@ public class ValueSequenceMethods {
    * <pre>
    *   $('SequenceVar').stddev()
    * </pre>
+   *
    * @throws MagmaJsEvaluationRuntimeException if operand does not contain a ValueSequence of numeric values.
    */
-  public static ScriptableValue stddev(Context ctx, Scriptable thisObj, Object[] args,
-      Function funObj) throws MagmaJsEvaluationRuntimeException {
+  public static ScriptableValue stddev(Context ctx, Scriptable thisObj, Object[] args, Function funObj)
+      throws MagmaJsEvaluationRuntimeException {
     ScriptableValue sv = (ScriptableValue) thisObj;
     if(sv.getValue().isNull()) {
       return new ScriptableValue(thisObj, DecimalType.get().nullValue());
@@ -250,10 +257,11 @@ public class ValueSequenceMethods {
    * <pre>
    *   $('SequenceVar').sum()
    * </pre>
+   *
    * @throws MagmaJsEvaluationRuntimeException if operand does not contain a ValueSequence of numeric values.
    */
-  public static ScriptableValue sum(Context ctx, Scriptable thisObj, Object[] args,
-      Function funObj) throws MagmaJsEvaluationRuntimeException {
+  public static ScriptableValue sum(Context ctx, Scriptable thisObj, Object[] args, Function funObj)
+      throws MagmaJsEvaluationRuntimeException {
     ScriptableValue sv = (ScriptableValue) thisObj;
     if(sv.getValueType().isNumeric() == false) {
       throw new MagmaJsEvaluationRuntimeException(
@@ -271,8 +279,8 @@ public class ValueSequenceMethods {
   }
 
   @SuppressWarnings("IfMayBeConditional")
-  public static ScriptableValue push(Context ctx, Scriptable thisObj, Object[] args,
-      Function funObj) throws MagmaJsEvaluationRuntimeException {
+  public static ScriptableValue push(Context ctx, Scriptable thisObj, Object[] args, Function funObj)
+      throws MagmaJsEvaluationRuntimeException {
     ScriptableValue sv = (ScriptableValue) thisObj;
     ValueType targetType = sv.getValueType();
     Iterable<Value> sequence;
@@ -319,10 +327,11 @@ public class ValueSequenceMethods {
    *     return o1.concat(o2,o3);
    *   })
    * </pre>
+   *
    * @return an instance of {@code ScriptableValue}
    */
-  public static ScriptableValue zip(Context ctx, Scriptable thisObj, Object[] args,
-      Function funObj) throws MagmaJsEvaluationRuntimeException {
+  public static ScriptableValue zip(Context ctx, Scriptable thisObj, Object[] args, Function funObj)
+      throws MagmaJsEvaluationRuntimeException {
     ScriptableValue sv = (ScriptableValue) thisObj;
     if(args == null || args.length == 0) {
       return sv;
@@ -415,10 +424,11 @@ public class ValueSequenceMethods {
    *   // returns "123"
    *   $('SequenceVar').join()
    * </pre>
+   *
    * @return an instance of {@code ScriptableValue}
    */
-  public static ScriptableValue join(Context ctx, Scriptable thisObj, Object[] args,
-      Function funObj) throws MagmaJsEvaluationRuntimeException {
+  public static ScriptableValue join(Context ctx, Scriptable thisObj, Object[] args, Function funObj)
+      throws MagmaJsEvaluationRuntimeException {
     ScriptableValue sv = (ScriptableValue) thisObj;
     if(sv.getValue().isNull()) {
       return new ScriptableValue(thisObj, TextType.get().nullValue());

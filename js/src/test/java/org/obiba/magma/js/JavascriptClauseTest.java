@@ -1,11 +1,5 @@
 package org.obiba.magma.js;
 
-import static org.easymock.EasyMock.createMock;
-import static org.easymock.EasyMock.expect;
-import static org.easymock.EasyMock.replay;
-import static org.easymock.EasyMock.verify;
-import static org.junit.Assert.assertEquals;
-
 import org.junit.Test;
 import org.obiba.magma.ValueSet;
 import org.obiba.magma.ValueTable;
@@ -13,6 +7,12 @@ import org.obiba.magma.Variable;
 import org.obiba.magma.VariableValueSource;
 import org.obiba.magma.js.views.JavascriptClause;
 import org.obiba.magma.type.TextType;
+
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.replay;
+import static org.easymock.EasyMock.verify;
+import static org.junit.Assert.assertEquals;
 
 public class JavascriptClauseTest extends AbstractJsTest {
 

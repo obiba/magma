@@ -1,9 +1,9 @@
 /*******************************************************************************
  * Copyright (c) 2012 OBiBa. All rights reserved.
- *  
+ *
  * This program and the accompanying materials
  * are made available under the terms of the GNU Public License v3.0.
- *  
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
@@ -79,7 +79,7 @@ public class StaticDatasource extends AbstractAttributeAware implements Datasour
 
   @Override
   public Set<ValueTable> getValueTables() {
-    return ImmutableSet.<ValueTable> builder().addAll(tableMap.values()).build();
+    return ImmutableSet.<ValueTable>builder().addAll(tableMap.values()).build();
   }
 
   @Override
@@ -130,8 +130,8 @@ public class StaticDatasource extends AbstractAttributeAware implements Datasour
   }
 
   /**
-  *
-  */
+   *
+   */
   private static final class StaticValueTableWriter implements ValueTableWriter {
 
     private final StaticValueTable table;

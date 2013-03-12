@@ -52,8 +52,8 @@ public class SchemaTestExecutionListener implements TestExecutionListener {
     }
   }
 
-  private void handleAnnotation(TestContext testContext, TestSchema testSchemaAnnotation,
-      boolean before) throws Exception {
+  private void handleAnnotation(TestContext testContext, TestSchema testSchemaAnnotation, boolean before)
+      throws Exception {
     DataSource dataSource = (DataSource) testContext.getApplicationContext()
         .getBean(testSchemaAnnotation.dataSourceBean());
     String sqlScript = before ? testSchemaAnnotation.beforeSchema() : testSchemaAnnotation.afterSchema();

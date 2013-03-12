@@ -1,16 +1,16 @@
 package org.obiba.magma.support;
 
-import static org.easymock.EasyMock.createMock;
-import static org.easymock.EasyMock.expectLastCall;
-import static org.easymock.EasyMock.replay;
-import static org.easymock.EasyMock.verify;
-
 import org.junit.Test;
 import org.obiba.magma.Disposable;
 import org.obiba.magma.Initialisable;
 import org.obiba.magma.MagmaRuntimeException;
 
 import com.google.common.collect.ImmutableList;
+
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.expectLastCall;
+import static org.easymock.EasyMock.replay;
+import static org.easymock.EasyMock.verify;
 
 public class InitialisablesTest {
 
@@ -74,7 +74,8 @@ public class InitialisablesTest {
 
   @Test
   public void test_initialise_Iterable() {
-    iterable(ImmutableList.of(createMock(Initialisable.class), createMock(Initialisable.class), createMock(Initialisable.class)));
+    iterable(ImmutableList
+        .of(createMock(Initialisable.class), createMock(Initialisable.class), createMock(Initialisable.class)));
   }
 
   private void vararg(Initialisable... mocks) {

@@ -6,14 +6,14 @@ import org.obiba.magma.Datasource;
 
 /**
  * A simple interface for mapping a {@code PublicKey} to a name.
- * <p>
+ * <p/>
  * A {@code KeyStore} is a type of {@code PublicKeyProvider}, since it can contain a public key mapped to an alias.
  */
 public interface PublicKeyProvider {
 
   /**
    * Returns the {@code PublicKey} for the specified {@code datasource}.
-   * 
+   *
    * @param name
    * @return
    */

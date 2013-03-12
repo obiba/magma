@@ -27,7 +27,7 @@ import org.obiba.magma.crypt.NoSuchKeyException;
  * Creates a {@link DatasourceCipherFactory} that creates {@code Cipher} instances using a {@code SecretKey} obtained
  * from the {@code Datasource} instance's attributes. The {@code SecretKey} is expected to be encrypted using a
  * {@code PublicKey} for which the instance of {@code KeyProvider} can provide the corresponding {@code KeyPair}.
- * <p>
+ * <p/>
  * The required attributes are:
  * <ul>
  * <li>{@link CipherAttributeConstants#SECRET_KEY}</li>
@@ -38,6 +38,7 @@ import org.obiba.magma.crypt.NoSuchKeyException;
  * <li>{@link CipherAttributeConstants#PUBLIC_KEY_FORMAT}</li>
  * <li>{@link CipherAttributeConstants#PUBLIC_KEY_ALGORITHM}</li>
  * </ul>
+ *
  * @see GeneratedSecretKeyDatasourceEncryptionStrategy
  */
 public class EncryptedSecretKeyDatasourceEncryptionStrategy implements DatasourceEncryptionStrategy {
@@ -64,13 +65,17 @@ public class EncryptedSecretKeyDatasourceEncryptionStrategy implements Datasourc
     try {
       SecretKey secretKey = getSecretKey(ds);
       String transformation = ds.getAttributeStringValue(CipherAttributeConstants.CIPHER_TRANSFORMATION);
-      return new DefaultDatasourceCipherFactory(transformation, secretKey, getAlgorithmParameters(ds, secretKey.getAlgorithm()));
+      return new DefaultDatasourceCipherFactory(transformation, secretKey,
+          getAlgorithmParameters(ds, secretKey.getAlgorithm()));
     } catch(NoSuchAttributeException e) {
-      throw new MagmaCryptRuntimeException("Missing metadata in Datasource '" + ds.getName() + "' to extract secret key. Expected attribute '" + e.getAttributeName() + "' is absent.", e);
+      throw new MagmaCryptRuntimeException(
+          "Missing metadata in Datasource '" + ds.getName() + "' to extract secret key. Expected attribute '" +
+              e.getAttributeName() + "' is absent.", e);
     } catch(GeneralSecurityException e) {
       throw new MagmaCryptRuntimeException("Unable to decrypt Datasource '" + ds.getName() + "' secret key", e);
     } catch(IOException e) {
-      throw new MagmaCryptRuntimeException("Unexpected error while reading encryption metadata for Datasource '" + ds.getName() + "'", e);
+      throw new MagmaCryptRuntimeException(
+          "Unexpected error while reading encryption metadata for Datasource '" + ds.getName() + "'", e);
     }
   }
 
@@ -78,7 +83,8 @@ public class EncryptedSecretKeyDatasourceEncryptionStrategy implements Datasourc
   // Methods
   //
 
-  private AlgorithmParameters getAlgorithmParameters(Datasource datasource, String algorithm) throws IOException, NoSuchAlgorithmException {
+  private AlgorithmParameters getAlgorithmParameters(Datasource datasource, String algorithm)
+      throws IOException, NoSuchAlgorithmException {
     AlgorithmParameters algorithmParameters = null;
 
     // It is assumed here that there may be no algorithmParameters entry in the metadata
@@ -102,13 +108,15 @@ public class EncryptedSecretKeyDatasourceEncryptionStrategy implements Datasourc
     return (SecretKey) cipher.unwrap(wrappedKey, algorithm, Cipher.SECRET_KEY);
   }
 
-  private PrivateKey getPrivateKey(Datasource datasource) throws NoSuchKeyException, NoSuchAlgorithmException, InvalidKeySpecException {
+  private PrivateKey getPrivateKey(Datasource datasource)
+      throws NoSuchKeyException, NoSuchAlgorithmException, InvalidKeySpecException {
     KeyPair keyPair = keyProvider.getKeyPair(getPublicKey(datasource));
     return keyPair.getPrivate();
   }
 
   /**
    * Extract the public key that was used to encrypt the secret key.
+   *
    * @param datasource
    * @return the {@code PublicKey} used to encrypt the {@code SecretKey}
    * @throws NoSuchAlgorithmException

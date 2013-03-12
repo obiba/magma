@@ -39,12 +39,12 @@ public class HibernateVariableEntityAuditEvent extends AbstractEntity implements
   private Date datetime;
 
   @CollectionOfElements(targetElement = Value.class)
-  @MapKey(columns = {@Column(name = "name")})
+  @MapKey(columns = { @Column(name = "name") })
   @Type(type = "value")
   @Columns(columns = { //
       @Column(name = "value_type", nullable = false), //
       @Column(name = "is_sequence", nullable = false), //
-      @Column(name = "value", length = Integer.MAX_VALUE, nullable = false)})
+      @Column(name = "value", length = Integer.MAX_VALUE, nullable = false) })
   @Cascade(CascadeType.ALL)
   private Map<String, Value> details;
 

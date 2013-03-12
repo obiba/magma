@@ -15,9 +15,10 @@ import org.obiba.magma.type.TextType;
 
 /**
  * A {@code Scriptable} implementation for {@code Value} objects.
- * <p>
+ * <p/>
  * Methods available on the {@code ScriptableValue} instances are built by the {@code ScriptableValuePrototypeFactory}.
  * It allows extending the methods of {@code ScriptableValue}.
+ *
  * @see ScriptableValuePrototypeFactory
  */
 public class ScriptableValue extends ScriptableObject {

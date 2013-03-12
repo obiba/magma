@@ -1,12 +1,6 @@
 package org.obiba.magma.js;
 
-import static org.easymock.EasyMock.createMock;
-import static org.easymock.EasyMock.expect;
-import static org.easymock.EasyMock.replay;
-
 import java.util.Date;
-
-import junit.framework.Assert;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -19,6 +13,12 @@ import org.obiba.magma.type.DateTimeType;
 import org.obiba.magma.type.DecimalType;
 import org.obiba.magma.type.IntegerType;
 import org.obiba.magma.type.TextType;
+
+import junit.framework.Assert;
+
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.replay;
 
 public class JavascriptValueSourceTest extends AbstractJsTest {
 

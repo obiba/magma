@@ -1,9 +1,9 @@
 /*******************************************************************************
  * Copyright 2008(c) The OBiBa Consortium. All rights reserved.
- * 
+ *
  * This program and the accompanying materials
  * are made available under the terms of the GNU Public License v3.0.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
@@ -51,7 +51,8 @@ public class BeanVariableProviderTest {
 
   @Test
   public void testSimpleProperties() {
-    Set<String> properties = Sets.newHashSet("firstName", "lastName", "integer", "decimal", "enumProperty", "language", "state");
+    Set<String> properties = Sets
+        .newHashSet("firstName", "lastName", "integer", "decimal", "enumProperty", "language", "state");
     BeanVariableValueSourceFactory<TestBean> bvp = new BeanVariableValueSourceFactory<TestBean>("Test", TestBean.class);
     bvp.setProperties(properties);
 
@@ -60,14 +61,17 @@ public class BeanVariableProviderTest {
 
   @Test
   public void test_correctValueTypesAreInferred() {
-    Set<String> properties = Sets.newLinkedHashSet(ImmutableList.of("firstName", "lastName", "integer", "decimal", "enumProperty", "language", "state", "date"));
-    List<String> types = ImmutableList.of("text", "text", "integer", "decimal", "text", "locale", "boolean", "datetime");
+    Set<String> properties = Sets.newLinkedHashSet(
+        ImmutableList.of("firstName", "lastName", "integer", "decimal", "enumProperty", "language", "state", "date"));
+    List<String> types = ImmutableList
+        .of("text", "text", "integer", "decimal", "text", "locale", "boolean", "datetime");
     BeanVariableValueSourceFactory<TestBean> bvp = new BeanVariableValueSourceFactory<TestBean>("Test", TestBean.class);
     bvp.setProperties(properties);
     Iterator<String> i = types.iterator();
     for(VariableValueSource source : bvp.createSources()) {
       String type = i.next();
-      Assert.assertEquals("wrong type for property " + source.getVariable().getName(), type, source.getValueType().getName());
+      Assert.assertEquals("wrong type for property " + source.getVariable().getName(), type,
+          source.getValueType().getName());
     }
   }
 
@@ -108,7 +112,8 @@ public class BeanVariableProviderTest {
   @Test
   public void testOverridenVariableName() {
     Set<String> properties = Sets.newHashSet("nestedBean.decimal", "firstName");
-    Map<String, String> nameOverride = new ImmutableMap.Builder<String, String>().put("nestedBean.decimal", "NestedDecimal").put("firstName", "FirstName").build();
+    Map<String, String> nameOverride = new ImmutableMap.Builder<String, String>()
+        .put("nestedBean.decimal", "NestedDecimal").put("firstName", "FirstName").build();
 
     BeanVariableValueSourceFactory<TestBean> bvp = new BeanVariableValueSourceFactory<TestBean>("Test", TestBean.class);
     bvp.setProperties(properties);
@@ -119,7 +124,8 @@ public class BeanVariableProviderTest {
   @Test
   public void testMapAttributes() {
     Set<String> properties = Sets.newHashSet("attributes[phoneNumber].data");
-    Map<String, Class<?>> mappedPropertyType = new ImmutableMap.Builder<String, Class<?>>().put("attributes", NestedTestBean.class).build();
+    Map<String, Class<?>> mappedPropertyType = new ImmutableMap.Builder<String, Class<?>>()
+        .put("attributes", NestedTestBean.class).build();
 
     BeanVariableValueSourceFactory<TestBean> bvp = new BeanVariableValueSourceFactory<TestBean>("Test", TestBean.class);
     bvp.setProperties(properties);
@@ -137,7 +143,8 @@ public class BeanVariableProviderTest {
     tb.setAttributes(ImmutableMap.of("phone.number", nb));
 
     Set<String> properties = Sets.newHashSet("attributes[phone.number].data");
-    Map<String, Class<?>> mappedPropertyType = new ImmutableMap.Builder<String, Class<?>>().put("attributes", NestedTestBean.class).build();
+    Map<String, Class<?>> mappedPropertyType = new ImmutableMap.Builder<String, Class<?>>()
+        .put("attributes", NestedTestBean.class).build();
     BeanVariableValueSourceFactory<TestBean> bvp = new BeanVariableValueSourceFactory<TestBean>("Test", TestBean.class);
     bvp.setProperties(properties);
     bvp.setMappedPropertyType(mappedPropertyType);
@@ -146,7 +153,9 @@ public class BeanVariableProviderTest {
 
     BeanValueSet bvs = EasyMock.createMock(BeanValueSet.class);
     // "If you use an argument matcher for one argument, you must use an argument matcher for all the arguments."
-    EasyMock.expect(bvs.resolve((Class<?>) EasyMock.anyObject(), (ValueSet) EasyMock.anyObject(), (Variable) EasyMock.anyObject())).andReturn(tb).anyTimes();
+    EasyMock.expect(
+        bvs.resolve((Class<?>) EasyMock.anyObject(), (ValueSet) EasyMock.anyObject(), (Variable) EasyMock.anyObject()))
+        .andReturn(tb).anyTimes();
     EasyMock.replay(bvs);
 
     for(VariableValueSource source : variableValueSources) {
@@ -174,7 +183,9 @@ public class BeanVariableProviderTest {
 
     BeanValueSet bvs = EasyMock.createMock(BeanValueSet.class);
     // "If you use an argument matcher for one argument, you must use an argument matcher for all the arguments."
-    EasyMock.expect(bvs.resolve((Class<?>) EasyMock.anyObject(), (ValueSet) EasyMock.anyObject(), (Variable) EasyMock.anyObject())).andReturn(tb).anyTimes();
+    EasyMock.expect(
+        bvs.resolve((Class<?>) EasyMock.anyObject(), (ValueSet) EasyMock.anyObject(), (Variable) EasyMock.anyObject()))
+        .andReturn(tb).anyTimes();
     EasyMock.replay(bvs);
 
     for(VariableValueSource source : variableValueSources) {
@@ -196,7 +207,9 @@ public class BeanVariableProviderTest {
 
     BeanValueSet bvs = EasyMock.createMock(BeanValueSet.class);
     // "If you use an argument matcher for one argument, you must use an argument matcher for all the arguments."
-    EasyMock.expect(bvs.resolve((Class<?>) EasyMock.anyObject(), (ValueSet) EasyMock.anyObject(), (Variable) EasyMock.anyObject())).andReturn(new TestBean()).anyTimes();
+    EasyMock.expect(
+        bvs.resolve((Class<?>) EasyMock.anyObject(), (ValueSet) EasyMock.anyObject(), (Variable) EasyMock.anyObject()))
+        .andReturn(new TestBean()).anyTimes();
     EasyMock.replay(bvs);
 
     for(VariableValueSource source : variableValueSources) {
@@ -209,11 +222,13 @@ public class BeanVariableProviderTest {
     }
   }
 
-  protected Set<VariableValueSource> assertVariablesFromProperties(BeanVariableValueSourceFactory<TestBean> bvp, Set<String> properties) {
+  protected Set<VariableValueSource> assertVariablesFromProperties(BeanVariableValueSourceFactory<TestBean> bvp,
+      Set<String> properties) {
     return assertVariablesFromProperties(bvp, properties, null);
   }
 
-  protected Set<VariableValueSource> assertVariablesFromProperties(BeanVariableValueSourceFactory<TestBean> bvp, Set<String> properties, Map<String, String> nameOverride) {
+  protected Set<VariableValueSource> assertVariablesFromProperties(BeanVariableValueSourceFactory<TestBean> bvp,
+      Set<String> properties, Map<String, String> nameOverride) {
     Set<VariableValueSource> variables = bvp.createSources();
     // There are no more and no less than what was specified
     Assert.assertEquals(properties.size(), variables.size());

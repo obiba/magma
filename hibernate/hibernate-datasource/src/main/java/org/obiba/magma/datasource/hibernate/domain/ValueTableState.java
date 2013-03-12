@@ -25,7 +25,7 @@ import javax.persistence.UniqueConstraint;
 import org.hibernate.annotations.IndexColumn;
 
 @Entity
-@Table(name = "value_table", uniqueConstraints = @UniqueConstraint(columnNames = {"datasource_id", "name"}))
+@Table(name = "value_table", uniqueConstraints = @UniqueConstraint(columnNames = { "datasource_id", "name" }))
 public class ValueTableState extends AbstractTimestampedEntity {
 
   private static final long serialVersionUID = 1L;

@@ -7,6 +7,7 @@ import org.obiba.magma.VariableValueSource;
  * The StateEnvelope is a container holding the item to be filtered as well as its current state: indicating if its IN
  * or OUT of the result set. The StateEnvelope is passed to a {@link Filter} which filters the item inside and then
  * adjusts the state in the envelope if necessary.
+ *
  * @param <T> the item being filtered, {@link ValueSet} or {@link VariableValueSource}.
  */
 public class StateEnvelope<T> {

@@ -28,7 +28,8 @@ public class MagmaContextFactory extends ContextFactory implements Initialisable
 
   private ScriptableValuePrototypeFactory scriptableValuePrototypeFactory = new ScriptableValuePrototypeFactory();
 
-  private ScriptableVariablePrototypeFactory scriptableVariablePrototypeFactory = new ScriptableVariablePrototypeFactory();
+  private ScriptableVariablePrototypeFactory scriptableVariablePrototypeFactory
+      = new ScriptableVariablePrototypeFactory();
 
   private Set<GlobalMethodProvider> globalMethodProviders = Collections.emptySet();
 
@@ -39,7 +40,8 @@ public class MagmaContextFactory extends ContextFactory implements Initialisable
 
   public ScriptableObject sharedScope() {
     if(sharedScope == null) {
-      throw new MagmaJsRuntimeException("Shared scope not initialised. Make sure the MagmaJsExtension has been added to the MagmaEngine before evaluating scripts.");
+      throw new MagmaJsRuntimeException(
+          "Shared scope not initialised. Make sure the MagmaJsExtension has been added to the MagmaEngine before evaluating scripts.");
     }
     return sharedScope;
   }
@@ -65,7 +67,8 @@ public class MagmaContextFactory extends ContextFactory implements Initialisable
         ScriptableObject sharedScope = cx.initStandardObjects(null, true);
 
         // Register Global methods
-        for(GlobalMethodProvider provider : Iterables.concat(ImmutableSet.of(new GlobalMethods()), globalMethodProviders)) {
+        for(GlobalMethodProvider provider : Iterables
+            .concat(ImmutableSet.of(new GlobalMethods()), globalMethodProviders)) {
           for(Method globalMethod : provider.getJavaScriptExtensionMethods()) {
             String name = provider.getJavaScriptMethodName(globalMethod);
             FunctionObject fo = new FunctionObject(name, globalMethod, sharedScope);

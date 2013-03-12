@@ -338,6 +338,7 @@ public class DateTimeMethods {
    * <pre>
    *   $('Date').format('dd/MM/yyyy')
    * </pre>
+   *
    * @see java.text.SimpleDateFormat
    */
   public static Scriptable format(Context cx, Scriptable thisObj, Object[] args, Function funObj) {
@@ -452,8 +453,8 @@ public class DateTimeMethods {
       }
     } else {
       throw new MagmaJsEvaluationRuntimeException(
-          "Invalid ValueType: expected '" + DateTimeType.get().getName() + "' or '" + DateType.get()
-              .getName() + "' got '" + value.getValueType().getName() + "'");
+          "Invalid ValueType: expected '" + DateTimeType.get().getName() + "' or '" + DateType.get().getName() +
+              "' got '" + value.getValueType().getName() + "'");
     }
     return null;
   }
@@ -461,6 +462,7 @@ public class DateTimeMethods {
   /**
    * Converts a {@code Value} instance to a {@code Calendar} instance. If {@code Value#isNull()} returns true, this
    * method returns null.
+   *
    * @param value
    * @return
    */
@@ -478,14 +480,15 @@ public class DateTimeMethods {
       }
     } else {
       throw new MagmaJsEvaluationRuntimeException(
-          "Invalid ValueType: expected '" + DateTimeType.get().getName() + "' or '" + DateType.get()
-              .getName() + "' got '" + value.getValueType().getName() + "'");
+          "Invalid ValueType: expected '" + DateTimeType.get().getName() + "' or '" + DateType.get().getName() +
+              "' got '" + value.getValueType().getName() + "'");
     }
     return null;
   }
 
   /**
    * Given a {@code ScriptableValue}, this method extracts a {@code field} from the Calendar.
+   *
    * @param scope
    * @param sv
    * @param field

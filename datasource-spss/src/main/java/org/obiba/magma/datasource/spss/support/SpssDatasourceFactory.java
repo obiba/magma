@@ -61,8 +61,8 @@ public class SpssDatasourceFactory extends AbstractDatasourceFactory {
   @Nonnull
   @Override
   protected Datasource internalCreate() {
-    if (characterSet == null || characterSet.isEmpty()) {
-      characterSet =  DEFAULT_CHARACTER_SET;
+    if(characterSet == null || characterSet.isEmpty()) {
+      characterSet = DEFAULT_CHARACTER_SET;
     }
 
     return new SpssDatasource(getName(), files, characterSet);

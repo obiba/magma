@@ -83,9 +83,9 @@ public class SpssDatasourceTest {
 
   @Test(expected = SpssDatasourceParsingException.class)
   public void initilizeDatasourceWithInvalidFile() {
-      dsFactory.setFile("src/test/resources/org/obiba/magma/datasource/spss/DatabaseTest");
-      Datasource ds = dsFactory.create();
-      ds.initialise();
+    dsFactory.setFile("src/test/resources/org/obiba/magma/datasource/spss/DatabaseTest");
+    Datasource ds = dsFactory.create();
+    ds.initialise();
   }
 
   @Test
@@ -150,7 +150,8 @@ public class SpssDatasourceTest {
     dsFactory.setFile("src/test/resources/org/obiba/magma/datasource/spss/RobotChicken.sav");
     Datasource ds = dsFactory.create();
     ds.initialise();
-    Assert.assertEquals(TextType.class, ds.getValueTable("RobotChicken").getVariable("VarQuarterly").getValueType().getClass());
+    Assert.assertEquals(TextType.class,
+        ds.getValueTable("RobotChicken").getVariable("VarQuarterly").getValueType().getClass());
   }
 
   @Test
@@ -183,8 +184,8 @@ public class SpssDatasourceTest {
     ValueTable valueTable = ds.getValueTable("DatabaseTest");
     Iterator<VariableEntity> iterator = valueTable.getVariableEntities().iterator();
 
-    if (iterator.hasNext()) {
-      SpssValueSet valueSet = (SpssValueSet)valueTable.getValueSet(iterator.next());
+    if(iterator.hasNext()) {
+      SpssValueSet valueSet = (SpssValueSet) valueTable.getValueSet(iterator.next());
       Value value = valueSet.getValue(ds.getValueTable("DatabaseTest").getVariable("race"));
       Assert.assertNotNull(value);
       Assert.assertFalse(value.isNull());
@@ -201,8 +202,8 @@ public class SpssDatasourceTest {
     ValueTable valueTable = ds.getValueTable("sharew2_rel2-5-0_ac");
     Iterator<VariableEntity> iterator = valueTable.getVariableEntities().iterator();
 
-    if (iterator.hasNext()) {
-      SpssValueSet valueSet = (SpssValueSet)valueTable.getValueSet(iterator.next());
+    if(iterator.hasNext()) {
+      SpssValueSet valueSet = (SpssValueSet) valueTable.getValueSet(iterator.next());
       Value value = valueSet.getValue(ds.getValueTable("sharew2_rel2-5-0_ac").getVariable("hhid2"));
       Assert.assertNotNull(value);
       Assert.assertFalse(value.isNull());

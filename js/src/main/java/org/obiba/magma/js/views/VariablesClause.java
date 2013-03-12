@@ -43,7 +43,8 @@ public class VariablesClause implements ListClause, Initialisable {
 
   @Override
   public VariableValueSource getVariableValueSource(String name) throws NoSuchVariableException {
-    if(!initialised) throw new IllegalStateException("The initialise() method must be called before getVariableValueSource().");
+    if(!initialised)
+      throw new IllegalStateException("The initialise() method must be called before getVariableValueSource().");
     for(VariableValueSource variableValueSource : variableValueSources) {
       if(variableValueSource.getVariable().getName().equals(name)) {
         return variableValueSource;
@@ -54,18 +55,20 @@ public class VariablesClause implements ListClause, Initialisable {
 
   @Override
   public Iterable<VariableValueSource> getVariableValueSources() {
-    if(!initialised) throw new IllegalStateException("The initialise() method must be called before getVariableValueSources().");
+    if(!initialised)
+      throw new IllegalStateException("The initialise() method must be called before getVariableValueSources().");
     return variableValueSources;
   }
 
   @Override
   public void initialise() {
-    if(valueTable == null) throw new IllegalStateException("The setValueTable() method must be called before initialise().");
+    if(valueTable == null)
+      throw new IllegalStateException("The setValueTable() method must be called before initialise().");
     JavascriptVariableValueSourceFactory factory = new JavascriptVariableValueSourceFactory();
     factory.setVariables(variables);
     factory.setValueTable(valueTable);
     variableValueSources = factory.createSources();
-    for (VariableValueSource vvs : variableValueSources) {
+    for(VariableValueSource vvs : variableValueSources) {
       try {
         Initialisables.initialise(vvs);
       } catch(MagmaRuntimeException ignored) {

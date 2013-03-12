@@ -7,13 +7,13 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.TimeZone;
 
-import junit.framework.Assert;
-
 import org.junit.Test;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueType;
 
 import com.google.common.collect.ImmutableList;
+
+import junit.framework.Assert;
 
 public class DateTimeTypeTest extends BaseValueTypeTest {
 
@@ -39,7 +39,7 @@ public class DateTimeTypeTest extends BaseValueTypeTest {
 
   @Override
   Iterable<Class<?>> validClasses() {
-    return ImmutableList.<Class<?>> of(Date.class, Timestamp.class, Calendar.class);
+    return ImmutableList.<Class<?>>of(Date.class, Timestamp.class, Calendar.class);
   }
 
   @Test
@@ -107,7 +107,7 @@ public class DateTimeTypeTest extends BaseValueTypeTest {
 
   @Test
   public void test_valueOfNoTimeZoneDateFormatString() {
-   Calendar expected = Calendar.getInstance();
+    Calendar expected = Calendar.getInstance();
     expected.clear();
     expected.set(2011, 0, 25, 14, 30, 47);
     Value value = DateTimeType.get().valueOf("2011-01-25 14:30:47");

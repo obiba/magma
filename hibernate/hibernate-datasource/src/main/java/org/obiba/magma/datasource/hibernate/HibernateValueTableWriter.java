@@ -89,8 +89,9 @@ class HibernateValueTableWriter implements ValueTableWriter {
     public void writeVariable(Variable variable) {
       if(variable == null) throw new IllegalArgumentException("variable cannot be null");
       if(!valueTable.isForEntityType(variable.getEntityType())) {
-        throw new IllegalArgumentException("Wrong entity type for variable '" + variable.getName() + "': " + valueTable
-            .getEntityType() + " expected, " + variable.getEntityType() + " received.");
+        throw new IllegalArgumentException(
+            "Wrong entity type for variable '" + variable.getName() + "': " + valueTable.getEntityType() +
+                " expected, " + variable.getEntityType() + " received.");
       }
 
       // add or update variable

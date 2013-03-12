@@ -54,7 +54,8 @@ public class ExcelDatasource extends AbstractDatasource {
 
   public static final String DEFAULT_TABLE_NAME = "Table";
 
-  public static final Set<String> sheetReservedNames = Sets.newHashSet(new String[] { VARIABLES_SHEET, CATEGORIES_SHEET, HELP_SHEET });
+  public static final Set<String> sheetReservedNames = Sets
+      .newHashSet(new String[] { VARIABLES_SHEET, CATEGORIES_SHEET, HELP_SHEET });
 
   private Workbook excelWorkbook;
 
@@ -75,6 +76,7 @@ public class ExcelDatasource extends AbstractDatasource {
   /**
    * Excel workbook will be read from the provided file if it exists, and will be written in the file at datasource
    * disposal.
+   *
    * @param name
    * @param excelFile
    */
@@ -85,6 +87,7 @@ public class ExcelDatasource extends AbstractDatasource {
 
   /**
    * Excel workbook will be written in the output stream at datasource disposal.
+   *
    * @param name
    * @param output
    */
@@ -95,6 +98,7 @@ public class ExcelDatasource extends AbstractDatasource {
 
   /**
    * Excel workbook will be read from input stream.
+   *
    * @param name
    * @param input
    */
@@ -105,6 +109,7 @@ public class ExcelDatasource extends AbstractDatasource {
 
   /**
    * Set the output stream to which the Excel workbook will be persisted at datasource disposal.
+   *
    * @param excelOutput
    */
   public void setExcelOutput(OutputStream excelOutput) {
@@ -149,7 +154,8 @@ public class ExcelDatasource extends AbstractDatasource {
     } else {
       if(excelFile.getName().endsWith("xls")) {
         // Excel 97 format. Supports up to 256 columns only.
-        log.warn("Creating an ExcelDatasource using Excel 97 format which only supports 256 columns. This may not be sufficient for large amounts of variables. Specify a filename with an extension other than 'xls' to use Excel 2007 format.");
+        log.warn(
+            "Creating an ExcelDatasource using Excel 97 format which only supports 256 columns. This may not be sufficient for large amounts of variables. Specify a filename with an extension other than 'xls' to use Excel 2007 format.");
         excelWorkbook = new HSSFWorkbook();
       } else {
         // Create a XSSFWorkbook to support more than 256 columns and 64K rows.
@@ -162,7 +168,8 @@ public class ExcelDatasource extends AbstractDatasource {
     try {
       excelWorkbook = WorkbookFactory.create(excelInput);
     } catch(IllegalArgumentException e) {
-      throw new MagmaRuntimeException("Invalid excel spreadsheet format from input stream (neither an OLE2 stream nor an OOXML stream).");
+      throw new MagmaRuntimeException(
+          "Invalid excel spreadsheet format from input stream (neither an OLE2 stream nor an OOXML stream).");
     } catch(InvalidFormatException e) {
       throw new MagmaRuntimeException("Invalid excel spreadsheet format from input stream.");
     } catch(IOException e) {
@@ -172,6 +179,7 @@ public class ExcelDatasource extends AbstractDatasource {
 
   /**
    * Write the Excel workbook into provided output stream.
+   *
    * @param excelOutputStream
    * @throws IOException
    */
@@ -213,10 +221,12 @@ public class ExcelDatasource extends AbstractDatasource {
       if(headerVariables != null) {
         Map<String, Integer> headerMapVariables = getVariablesHeaderMap();
         if(headerMapVariables != null) {
-          List<ExcelDatasourceParsingException> errors = readValueTablesFromVariableSheet(headerMapVariables, sheetNames);
+          List<ExcelDatasourceParsingException> errors = readValueTablesFromVariableSheet(headerMapVariables,
+              sheetNames);
           if(errors.size() > 0) {
-            ExcelDatasourceParsingException parent = new ExcelDatasourceParsingException("Errors while parsing variables", //
-            "TableDefinitionErrors", getVariablesSheet().getSheetName(), 1, getName());
+            ExcelDatasourceParsingException parent = new ExcelDatasourceParsingException(
+                "Errors while parsing variables", //
+                "TableDefinitionErrors", getVariablesSheet().getSheetName(), 1, getName());
             parent.setChildren(errors);
             throw parent;
           }
@@ -236,7 +246,8 @@ public class ExcelDatasource extends AbstractDatasource {
     return valueTablesMapOnInit.keySet();
   }
 
-  private List<ExcelDatasourceParsingException> readValueTablesFromVariableSheet(Map<String, Integer> headerMapVariables, Set<String> sheetNames) {
+  private List<ExcelDatasourceParsingException> readValueTablesFromVariableSheet(
+      Map<String, Integer> headerMapVariables, Set<String> sheetNames) {
     List<ExcelDatasourceParsingException> errors = new ArrayList<ExcelDatasourceParsingException>();
 
     for(int i = 1; i < getVariablesSheet().getPhysicalNumberOfRows(); i++) {
@@ -247,11 +258,12 @@ public class ExcelDatasource extends AbstractDatasource {
         tableName = ExcelUtil.getCellValueAsString(variableRow.getCell(headerMapVariables.get(tableHeader)));
         if(tableName.trim().isEmpty()) {
           errors.add(new ExcelDatasourceParsingException("Table name is required", //
-          "TableNameRequired", getVariablesSheet().getSheetName(), i + 1));
+              "TableNameRequired", getVariablesSheet().getSheetName(), i + 1));
         }
       }
       if(!valueTablesMapOnInit.containsKey(tableName)) {
-        String entityTypeHeader = ExcelUtil.findNormalizedHeader(headerMapVariables.keySet(), VariableConverter.ENTITY_TYPE);
+        String entityTypeHeader = ExcelUtil
+            .findNormalizedHeader(headerMapVariables.keySet(), VariableConverter.ENTITY_TYPE);
         String entityType = "Participant";
         if(entityTypeHeader != null) {
           entityType = ExcelUtil.getCellValueAsString(variableRow.getCell(headerMapVariables.get(entityTypeHeader)));
@@ -342,6 +354,7 @@ public class ExcelDatasource extends AbstractDatasource {
 
   /**
    * Get converted sheet name from table name.
+   *
    * @param tableName
    * @return
    */
@@ -357,6 +370,7 @@ public class ExcelDatasource extends AbstractDatasource {
 
   /**
    * Get the sheet from table name.
+   *
    * @param tableName
    * @return null if sheet does not exists
    */

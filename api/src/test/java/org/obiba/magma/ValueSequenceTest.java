@@ -1,16 +1,13 @@
 /*******************************************************************************
  * Copyright (c) 2011 OBiBa. All rights reserved.
- *  
+ *
  * This program and the accompanying materials
  * are made available under the terms of the GNU Public License v3.0.
- *  
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 package org.obiba.magma;
-
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
 
 import java.util.Comparator;
 
@@ -19,6 +16,9 @@ import org.obiba.magma.support.Values;
 import org.obiba.magma.type.TextType;
 
 import com.google.common.collect.ImmutableList;
+
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
 
 public class ValueSequenceTest extends AbstractValueTest {
 
@@ -91,7 +91,9 @@ public class ValueSequenceTest extends AbstractValueTest {
 
   protected ValueSequence testValue() {
     return TextType.get().sequenceOf(testObject());
-  };
+  }
+
+  ;
 
   @Override
   protected Iterable<Value> testObject() {

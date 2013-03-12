@@ -3,14 +3,14 @@ package org.obiba.magma.type;
 import java.util.ArrayList;
 import java.util.List;
 
-import junit.framework.Assert;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueSequence;
 import org.obiba.magma.ValueType;
 import org.obiba.magma.test.AbstractMagmaTest;
+
+import junit.framework.Assert;
 
 public abstract class BaseValueTypeTest extends AbstractMagmaTest {
 
