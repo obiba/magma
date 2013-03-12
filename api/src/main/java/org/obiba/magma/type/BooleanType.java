@@ -2,6 +2,7 @@ package org.obiba.magma.type;
 
 import java.lang.ref.WeakReference;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import org.obiba.magma.MagmaEngine;
@@ -23,6 +24,8 @@ public class BooleanType extends AbstractValueType {
     falseValue = Factory.newValue(this, Boolean.FALSE);
   }
 
+  @SuppressWarnings("ConstantConditions")
+  @Nonnull
   public static BooleanType get() {
     if(instance == null || instance.get() == null) {
       instance = MagmaEngine.get().registerInstance(new BooleanType());
@@ -45,16 +48,18 @@ public class BooleanType extends AbstractValueType {
     return Boolean.class;
   }
 
+  @Nonnull
   @Override
   public String getName() {
     return "boolean";
   }
 
   @Override
-  public boolean acceptsJavaClass(Class<?> clazz) {
+  public boolean acceptsJavaClass(@Nonnull Class<?> clazz) {
     return Boolean.class.isAssignableFrom(clazz) || boolean.class.isAssignableFrom(clazz);
   }
 
+  @Nonnull
   @Override
   public Value valueOf(@Nullable String string) {
     if(string == null) {
@@ -67,8 +72,9 @@ public class BooleanType extends AbstractValueType {
         "Cannot construct " + getClass().getSimpleName() + " from type String with value '" + string + "'");
   }
 
+  @Nonnull
   @Override
-  public Value valueOf(Object object) {
+  public Value valueOf(@Nullable Object object) {
     if(object == null) {
       return nullValue();
     }

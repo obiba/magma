@@ -14,6 +14,7 @@ public class Value implements Serializable, Comparable<Value> {
   @Nonnull
   private final ValueType valueType;
 
+  @Nonnull
   private final ValueLoader valueLoader;
 
   private transient int hashCode;
@@ -66,6 +67,7 @@ public class Value implements Serializable, Comparable<Value> {
    * @return
    */
   @SuppressWarnings("ClassReferencesSubclass")
+  @Nonnull
   public ValueSequence asSequence() {
     throw new IllegalStateException("value is not a sequence");
   }

@@ -6,6 +6,9 @@ import java.util.LinkedHashSet;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 import org.obiba.magma.type.AnyToTextValueConverter;
 import org.obiba.magma.type.BinaryType;
 import org.obiba.magma.type.BooleanType;
@@ -26,9 +29,9 @@ import com.google.common.collect.Iterables;
 
 class ValueTypeFactory {
 
-  private Set<ValueType> types = new HashSet<ValueType>();
+  private final Set<ValueType> types = new HashSet<ValueType>();
 
-  private Set<ValueConverter> converters = new LinkedHashSet<ValueConverter>();
+  private final Set<ValueConverter> converters = new LinkedHashSet<ValueConverter>();
 
   ValueTypeFactory() {
     registerBuiltInTypes();
@@ -47,7 +50,7 @@ class ValueTypeFactory {
     }
   }
 
-  ValueType forName(final String name) {
+  ValueType forName(@Nullable final String name) {
     try {
       return Iterables.find(types, new Predicate<ValueType>() {
         @Override
@@ -64,6 +67,7 @@ class ValueTypeFactory {
     return Collections.unmodifiableSet(types);
   }
 
+  @Nonnull
   ValueConverter converterFor(final ValueType from, final ValueType to) {
     try {
       return Iterables.find(converters, new Predicate<ValueConverter>() {

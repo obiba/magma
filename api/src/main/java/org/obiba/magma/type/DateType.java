@@ -6,6 +6,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import org.obiba.magma.MagmaDate;
@@ -51,6 +52,8 @@ public class DateType extends AbstractValueType {
     }
   }
 
+  @SuppressWarnings("ConstantConditions")
+  @Nonnull
   public static DateType get() {
     if(instance == null || instance.get() == null) {
       instance = MagmaEngine.get().registerInstance(new DateType());
@@ -73,13 +76,14 @@ public class DateType extends AbstractValueType {
     return MagmaDate.class;
   }
 
+  @Nonnull
   @Override
   public String getName() {
     return "date";
   }
 
   @Override
-  public boolean acceptsJavaClass(Class<?> clazz) {
+  public boolean acceptsJavaClass(@Nonnull Class<?> clazz) {
     // MAGMA-166: Although the API states that this method should return true for Date instances, it conflicts with
     // DateTimeType.
     // There is a loss of precision if we map Date instances to this ValueType, so it is safer to not accept these
@@ -90,6 +94,7 @@ public class DateType extends AbstractValueType {
     // Calendar.class.isAssignableFrom(clazz);
   }
 
+  @Nonnull
   @Override
   public Value valueOf(@Nullable String string) {
     if(string == null) {
@@ -114,8 +119,9 @@ public class DateType extends AbstractValueType {
     }
   }
 
+  @Nonnull
   @Override
-  public Value valueOf(Object object) {
+  public Value valueOf(@Nullable Object object) {
     if(object == null) {
       return nullValue();
     }

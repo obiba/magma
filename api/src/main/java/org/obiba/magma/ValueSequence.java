@@ -22,7 +22,7 @@ public class ValueSequence extends Value {
 
   private static final long serialVersionUID = -1965362009370797808L;
 
-  ValueSequence(ValueType valueType, @Nullable Iterable<Value> values) {
+  ValueSequence(@Nonnull ValueType valueType, @Nullable Iterable<Value> values) {
     super(valueType, (Serializable) values);
   }
 
@@ -31,6 +31,7 @@ public class ValueSequence extends Value {
     return true;
   }
 
+  @Nonnull
   @Override
   public ValueSequence asSequence() {
     return this;
@@ -84,8 +85,10 @@ public class ValueSequence extends Value {
    *
    * @return
    */
+  @Nonnull
   public List<Value> getValues() {
-    return ImmutableList.copyOf(getValue());
+    Iterable<Value> value = getValue();
+    return value == null ? ImmutableList.<Value>of() : ImmutableList.copyOf(value);
   }
 
   /**
@@ -105,7 +108,7 @@ public class ValueSequence extends Value {
    * @param value
    * @return
    */
-  public boolean contains(Value value) {
+  public boolean contains(@Nonnull Value value) {
     List<Value> values = getValues();
     return values.contains(value);
   }
