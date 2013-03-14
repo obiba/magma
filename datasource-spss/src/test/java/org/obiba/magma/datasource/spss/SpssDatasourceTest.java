@@ -10,17 +10,22 @@
 package org.obiba.magma.datasource.spss;
 
 import java.io.File;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.obiba.magma.Category;
 import org.obiba.magma.Datasource;
 import org.obiba.magma.MagmaEngine;
 import org.obiba.magma.NoSuchVariableException;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueTable;
+import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.datasource.spss.support.SpssDatasourceFactory;
 import org.obiba.magma.datasource.spss.support.SpssDatasourceParsingException;
@@ -29,6 +34,10 @@ import org.obiba.magma.type.TextType;
 
 import junit.framework.Assert;
 
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.nullValue;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 public class SpssDatasourceTest {
@@ -209,6 +218,22 @@ public class SpssDatasourceTest {
       Assert.assertFalse(value.isNull());
       Value expected = DecimalType.get().valueOf(4.0);
       Assert.assertTrue(value.compareTo(expected) == 0);
+    }
+  }
+
+  @Test
+  public void getStringVariableCategories() {
+    dsFactory.setFile("/home/rhaeri/projects/magma/datasource-spss/"+"src/test/resources/org/obiba/magma/datasource/spss/StringCategories.sav");
+    Datasource ds = dsFactory.create();
+    ds.initialise();
+    Variable variable = ds.getValueTable("StringCategories").getVariable("var1");
+    assertThat(variable, not(is(nullValue())));
+    Set<Category> categories = variable.getCategories();
+    assertThat(categories.size(), is(4));
+    Collection<String> expectedNames = new HashSet<String>(Arrays.asList(new String[] { "a", "b", "c", "d" }));
+
+    for (Category category : categories) {
+      assertThat(expectedNames.contains(category.getName()), is(true));
     }
   }
 
