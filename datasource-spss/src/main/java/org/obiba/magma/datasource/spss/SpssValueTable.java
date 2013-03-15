@@ -86,7 +86,7 @@ public class SpssValueTable extends AbstractValueTable implements Disposable {
 
   private void initializeVariableSources() {
     loadMetadata();
-    addVariableValueSources(new SpssVariableValueSourceFactory(spssFile));
+    addVariableValueSources(new SpssVariableValueSourceFactory(spssFile, getEntityType()));
   }
 
   private void loadMetadata() {

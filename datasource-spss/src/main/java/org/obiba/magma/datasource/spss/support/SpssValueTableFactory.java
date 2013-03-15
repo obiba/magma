@@ -15,12 +15,19 @@ import java.nio.charset.Charset;
 
 import javax.annotation.Nonnull;
 
-import org.obiba.magma.datasource.spss.SpssDatasource;
+import org.obiba.magma.Datasource;
 import org.obiba.magma.datasource.spss.SpssValueTable;
 import org.opendatafoundation.data.spss.SPSSFile;
 
 public class SpssValueTableFactory {
 
+  @Nonnull
+  private final Datasource datasource;
+
+  @Nonnull
+  private final String entityType;
+
+  @Nonnull
   private final File file;
 
   @Nonnull
@@ -28,13 +35,16 @@ public class SpssValueTableFactory {
 
   private String name;
 
-  public SpssValueTableFactory(File file, @Nonnull String characterSet) {
+  public SpssValueTableFactory(@Nonnull Datasource datasource, @Nonnull String entityType, @Nonnull File file,
+      @Nonnull String characterSet) {
+    this.datasource = datasource;
+    this.entityType = entityType;
     this.file = file;
     this.characterSet = characterSet;
     name = createValidFileName(file);
   }
 
-  public SpssValueTable create(SpssDatasource datasource, String entityType) {
+  public SpssValueTable create() {
     try {
       SPSSFile spssFile = new SPSSFile(file, Charset.forName(characterSet));
       spssFile.logFlag = false;
