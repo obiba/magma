@@ -20,11 +20,17 @@ import org.obiba.magma.AbstractDatasourceFactory;
 import org.obiba.magma.Datasource;
 import org.obiba.magma.datasource.spss.SpssDatasource;
 
+import com.google.common.base.Strings;
+
 public class SpssDatasourceFactory extends AbstractDatasourceFactory {
 
   public static final String DEFAULT_DATASOURCE_NAME = "spss";
 
   public static final String DEFAULT_CHARACTER_SET = "ISO-8859-1";
+
+  private static final String DEFAULT_ENTITY_TYPE = "Participant";
+
+
 
   //
   // Data members
@@ -33,6 +39,8 @@ public class SpssDatasourceFactory extends AbstractDatasourceFactory {
   private List<File> files = new ArrayList<File>();
 
   private String characterSet;
+
+  private String entityType;
 
   public void setFile(String path) {
     setFile(new File(path));
@@ -54,6 +62,11 @@ public class SpssDatasourceFactory extends AbstractDatasourceFactory {
     this.characterSet = characterSet;
   }
 
+  public void setEntityType(String entityType) {
+    this.entityType = entityType;
+  }
+
+  @Override
   public Datasource create() {
     return internalCreate();
   }
@@ -61,10 +74,14 @@ public class SpssDatasourceFactory extends AbstractDatasourceFactory {
   @Nonnull
   @Override
   protected Datasource internalCreate() {
-    if(characterSet == null || characterSet.isEmpty()) {
+    if(Strings.isNullOrEmpty(characterSet)) {
       characterSet = DEFAULT_CHARACTER_SET;
     }
 
-    return new SpssDatasource(getName(), files, characterSet);
+    if (Strings.isNullOrEmpty(entityType)) {
+      entityType = DEFAULT_ENTITY_TYPE;
+    }
+
+    return new SpssDatasource(getName(), files, characterSet, entityType);
   }
 }

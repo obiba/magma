@@ -10,6 +10,7 @@
 package org.obiba.magma.datasource.spss;
 
 import java.io.File;
+import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
@@ -39,6 +40,7 @@ import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class SpssDatasourceTest {
 
@@ -232,9 +234,27 @@ public class SpssDatasourceTest {
     assertThat(categories.size(), is(4));
     Collection<String> expectedNames = new HashSet<String>(Arrays.asList(new String[] { "a", "b", "c", "d" }));
 
-    for (Category category : categories) {
+    for(Category category : categories) {
       assertThat(expectedNames.contains(category.getName()), is(true));
     }
   }
 
+  @Test
+  public void createUserDefinedEntityType() {
+    try {
+      File file = new File(
+          getClass().getClassLoader().getResource("org/obiba/magma/datasource/spss/StringCategories.sav").toURI());
+
+      dsFactory.addFile(file);
+      dsFactory.setEntityType("Patate");
+      Datasource ds = dsFactory.create();
+      assertThat(ds, not(is(nullValue())));
+      ds.initialise();
+      ValueTable valueTable = ds.getValueTable("StringCategories");
+      assertThat(valueTable, not(is(nullValue())));
+      assertThat(valueTable.getEntityType(), is("Patate"));
+    } catch(Exception e) {
+      fail();
+    }
+  }
 }
