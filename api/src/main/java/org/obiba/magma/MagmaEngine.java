@@ -19,7 +19,8 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 
-@SuppressWarnings({ "AssignmentToStaticFieldFromInstanceMethod", "StaticNonFinalField", "UnusedDeclaration" })
+@SuppressWarnings(
+    { "AssignmentToStaticFieldFromInstanceMethod", "UnusedDeclaration", "StaticMethodOnlyUsedInOneClass" })
 public class MagmaEngine implements DatasourceRegistry {
 
   private final static Logger log = LoggerFactory.getLogger(MagmaEngine.class);
@@ -27,9 +28,11 @@ public class MagmaEngine implements DatasourceRegistry {
   /**
    * Keeps a reference on all singletons
    */
+  @SuppressWarnings("StaticNonFinalField")
   private static Set<Object> singletons;
 
   @Nullable
+  @SuppressWarnings("StaticNonFinalField")
   private static MagmaEngine instance;
 
   private ValueTypeFactory valueTypeFactory;
@@ -58,6 +61,10 @@ public class MagmaEngine implements DatasourceRegistry {
       new MagmaEngine();
     }
     return instance;
+  }
+
+  public static boolean isInstanciated() {
+    return instance != null;
   }
 
   public MagmaEngine extend(MagmaEngineExtension extension) {
