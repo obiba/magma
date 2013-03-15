@@ -15,6 +15,7 @@ import javax.annotation.Nonnull;
 
 import org.hibernate.SessionFactory;
 import org.obiba.core.service.impl.hibernate.AssociationCriteria;
+import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueLoader;
 import org.obiba.magma.ValueLoaderFactory;
@@ -80,6 +81,8 @@ public class HibernateValueLoaderFactory implements ValueLoaderFactory {
 
     @Nonnull
     @Override
+    @SuppressWarnings("ConstantConditions")
+    @edu.umd.cs.findbugs.annotations.SuppressWarnings("NP_NULL_ON_SOME_PATH")
     public Object getValue() {
       if(value == null) {
         if(BinaryType.get().equals(valueRef.getValueType())) {
@@ -93,7 +96,12 @@ public class HibernateValueLoaderFactory implements ValueLoaderFactory {
               .add("valueSet.id", Operation.eq, valueSetId) //
               .add("occurrence", Operation.eq, occurrence) //
               .getCriteria().uniqueResult();
-          value = binaryValue == null ? null : binaryValue.getValue();
+          if(binaryValue == null) {
+            throw new MagmaRuntimeException(
+                "Cannot find binary value for variable[" + variableId + "], valueSet[" + valueSetId +
+                    "] and occurrence[" + occurrence + "]");
+          }
+          value = binaryValue.getValue();
         }
       }
       return value;
