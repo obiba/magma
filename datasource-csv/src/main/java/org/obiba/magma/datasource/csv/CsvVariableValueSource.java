@@ -10,8 +10,11 @@ import org.obiba.magma.VariableValueSource;
 import org.obiba.magma.VectorSource;
 
 /**
- * Used in two cases: 1. When no variables.csv is provided and the variables are inferred from the header of the
- * data.csv file. 2. When the variables provided are a reference from another table.
+ * Used in two cases:
+ * <ol>
+ * <li>When no variables.csv is provided and the variables are inferred from the header of the data.csv file</li>
+ * <li>When the variables provided are a reference from another table</li>
+ * </ol>
  */
 public class CsvVariableValueSource implements VariableValueSource {
 
@@ -50,13 +53,13 @@ public class CsvVariableValueSource implements VariableValueSource {
     }
     if(obj instanceof CsvVariableValueSource) {
       CsvVariableValueSource that = (CsvVariableValueSource) obj;
-      return this.variable.getName().equals(that.variable.getName());
+      return variable.getName().equals(that.variable.getName());
     }
     return super.equals(obj);
   }
 
   @Override
   public int hashCode() {
-    return this.variable.getName().hashCode();
+    return variable.getName().hashCode();
   }
 }

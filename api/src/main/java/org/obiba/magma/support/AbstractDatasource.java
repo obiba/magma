@@ -1,6 +1,7 @@
 package org.obiba.magma.support;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -81,7 +82,7 @@ public abstract class AbstractDatasource extends AbstractAttributeAware implemen
 
   @Override
   public void initialise() {
-    List<DatasourceParsingException> parsingErrors = new ArrayList<DatasourceParsingException>();
+    Collection<DatasourceParsingException> parsingErrors = new ArrayList<DatasourceParsingException>();
     onInitialise();
     for(String valueTable : getValueTableNames()) {
       ValueTable vt = initialiseValueTable(valueTable);

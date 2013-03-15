@@ -8,6 +8,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import javax.annotation.Nullable;
+
 import org.obiba.magma.Attribute;
 import org.obiba.magma.Attributes;
 import org.obiba.magma.Category;
@@ -55,12 +57,11 @@ public class VariableConverter {
   public static final List<String> categoriesReservedAttributeNames = Lists
       .newArrayList("table", "variable", "name", "code", "missing");
 
-  private Map<String, Integer> headerMap = new HashMap<String, Integer>();
+  private final Map<String, Integer> headerMap = new HashMap<String, Integer>();
 
-  private String[] header;
+  private final String[] header;
 
-  public VariableConverter(String[] headers) {
-    super();
+  public VariableConverter(String... headers) {
     header = new String[headers.length];
     for(int i = 0; i < headers.length; i++) {
       String headerColumnName = headers[i].trim();
@@ -76,16 +77,16 @@ public class VariableConverter {
   private void validateHeader() {
     if(!headerMap.containsKey(NAME))
       throw new CsvDatasourceParsingException("The variables.csv header must contain 'name'.",
-          "CsvVariablesHeaderMustContainName", 0, new Object[] { });
+          "CsvVariablesHeaderMustContainName", 0);
     if(!headerMap.containsKey(VALUE_TYPE))
       throw new CsvDatasourceParsingException("The variables.csv header must contain 'valueType'.",
-          "CsvVariablesHeaderMustContainValueType", 0, new Object[] { });
+          "CsvVariablesHeaderMustContainValueType", 0);
     if(!headerMap.containsKey(ENTITY_TYPE))
       throw new CsvDatasourceParsingException("The variables.csv header must contain 'entityType'.",
-          "CsvVariablesHeaderMustContainEntityType", 0, new Object[] { });
+          "CsvVariablesHeaderMustContainEntityType", 0);
   }
 
-  public Variable unmarshal(String[] csvVar) {
+  public Variable unmarshal(String... csvVar) {
     String name = getValueAt(csvVar, NAME);
     String valueType = getValueAt(csvVar, VALUE_TYPE);
     String entityType = getValueAt(csvVar, ENTITY_TYPE);
@@ -95,7 +96,7 @@ public class VariableConverter {
     String repeatable = getValueAt(csvVar, REPEATABLE);
     String occurrenceGroup = getValueAt(csvVar, OCCURRENCE_GROUP);
 
-    log.debug("name={} valueType={} entityType={} mimeType={}", new Object[] { name, valueType, entityType, mimeType });
+    log.debug("name={} valueType={} entityType={} mimeType={}", name, valueType, entityType, mimeType);
 
     Variable.Builder builder = Variable.Builder.newVariable(name, ValueType.Factory.forName(valueType), entityType)
         .mimeType(mimeType).unit(unit).occurrenceGroup(occurrenceGroup).referencedEntityType(referencedEntityType);
@@ -129,8 +130,8 @@ public class VariableConverter {
 
   private void unmarshalCategories(String categories, Locale locale, Map<String, Category.Builder> categoryBuilderMap) {
     String[] cats = categories.split(";");
-    for(int i = 0; i < cats.length; i++) {
-      String[] cat = cats[i].trim().split("=");
+    for(String cat1 : cats) {
+      String[] cat = cat1.trim().split("=");
 
       String catName = cat[0].trim();
       Category.Builder catBuilder;
@@ -150,11 +151,9 @@ public class VariableConverter {
       sb.append(category.getName());
       Attribute label = null;
       if(category.hasAttribute(LABEL)) {
-        if(locale != null && category.hasAttribute(LABEL, locale)) {
-          label = category.getAttribute(LABEL, locale);
-        } else {
-          label = category.getAttribute(LABEL);
-        }
+        label = locale != null && category.hasAttribute(LABEL, locale)
+            ? category.getAttribute(LABEL, locale)
+            : category.getAttribute(LABEL);
       }
       if(label != null) {
         sb.append("=").append(label.getValue().toString());
@@ -165,20 +164,22 @@ public class VariableConverter {
     return sb.toString();
   }
 
+  @Nullable
   private Locale getAttributeLocale(String header) {
     String[] h = header.split(":");
-    if(h.length > 1 && h[1].trim().isEmpty() == false) {
+    if(h.length > 1 && !h[1].trim().isEmpty()) {
       return new Locale(h[1].trim());
     }
     return null;
   }
 
+  @Nullable
   private String getValueAt(String[] csvVar, String header) {
     String value = null;
     Integer pos = headerMap.get(header);
     if(pos != null && pos < csvVar.length) {
       value = csvVar[pos];
-      if(value.length() == 0) {
+      if(value.isEmpty()) {
         value = null;
       }
     }

@@ -19,6 +19,8 @@ public abstract class AbstractValueType implements ValueType {
 
   private static final long serialVersionUID = -2655334789781837332L;
 
+  //private static final Logger log = LoggerFactory.getLogger(AbstractValueType.class);
+
   protected static final char SEPARATOR = ',';
 
   protected static final char QUOTE = '"';
@@ -141,8 +143,9 @@ public abstract class AbstractValueType implements ValueType {
       }
     }
     // Remove the last separator
-    if(sb.length() > 0) {
-      sb.deleteCharAt(sb.length() - 1);
+    int length = sb.length();
+    if(length > 0) {
+      sb.deleteCharAt(length - 1);
     }
     return sb.toString();
   }

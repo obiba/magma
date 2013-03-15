@@ -5,9 +5,10 @@ import java.io.IOException;
 
 import org.apache.commons.io.FileUtils;
 
+@SuppressWarnings({ "ParameterHidesMemberVariable", "UnusedDeclaration" })
 public class TempTableBuilder {
 
-  public final String DEFAULT_TEMP_DIRECTORY_SUFFIX = "csvTest";
+  public static final String DEFAULT_TEMP_DIRECTORY_SUFFIX = "csvTest";
 
   private final String tableName;
 
@@ -38,13 +39,13 @@ public class TempTableBuilder {
 
   public TempTableBuilder addData(File dataFile) {
     hasData = true;
-    this.srcDataFile = dataFile;
+    srcDataFile = dataFile;
     return this;
   }
 
   public TempTableBuilder addVariables(File variablesFile) {
     hasVariables = true;
-    this.srcVariablesFile = variablesFile;
+    srcVariablesFile = variablesFile;
     return this;
   }
 
@@ -54,28 +55,29 @@ public class TempTableBuilder {
   }
 
   public TempTableBuilder setTempDirectorySuffix(String suffix) {
-    this.tempDirectorySuffix = suffix;
+    tempDirectorySuffix = suffix;
     return this;
   }
 
+  @SuppressWarnings("ResultOfMethodCallIgnored")
   public File build() throws IOException {
     File tempDirectory = createTempDirectory(tempDirectorySuffix);
     File testTableDirectory = new File(tempDirectory.getAbsoluteFile(), tableName);
     testTableDirectory.mkdir();
     if(hasData) {
       dataFile = new File(testTableDirectory.getAbsoluteFile(), CsvDatasource.DATA_FILE);
-      if(this.srcDataFile != null) {
-        FileUtils.copyFile(this.srcDataFile, dataFile);
-      } else {
+      if(srcDataFile == null) {
         dataFile.createNewFile();
+      } else {
+        FileUtils.copyFile(srcDataFile, dataFile);
       }
     }
     if(hasVariables) {
       variablesFile = new File(testTableDirectory.getAbsoluteFile(), CsvDatasource.VARIABLES_FILE);
-      if(this.srcVariablesFile != null) {
-        FileUtils.copyFile(this.srcVariablesFile, variablesFile);
-      } else {
+      if(srcVariablesFile == null) {
         variablesFile.createNewFile();
+      } else {
+        FileUtils.copyFile(srcVariablesFile, variablesFile);
       }
     }
     return tempDirectory;
@@ -91,6 +93,7 @@ public class TempTableBuilder {
     return datasource;
   }
 
+  @SuppressWarnings("ResultOfMethodCallIgnored")
   private File createTempDirectory(String suffix) throws IOException {
     File tempDirectory = File.createTempFile(suffix, "");
     tempDirectory.delete();
@@ -98,7 +101,7 @@ public class TempTableBuilder {
     return tempDirectory;
   }
 
-  public TempTableBuilder variablesHeader(String[] variablesHeader) {
+  public TempTableBuilder variablesHeader(String... variablesHeader) {
     this.variablesHeader = variablesHeader;
     return this;
   }

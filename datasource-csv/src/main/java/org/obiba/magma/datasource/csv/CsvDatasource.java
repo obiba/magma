@@ -146,8 +146,9 @@ public class CsvDatasource extends AbstractDatasource {
     this.defaultVariablesHeader = Arrays.copyOf(defaultVariablesHeader, defaultVariablesHeader.length);
   }
 
-  CSVWriter getCsvWriter(File file) {
-    return getCsvWriter(getWriter(file));
+  @Nullable
+  CSVWriter getCsvWriter(@Nullable File file) {
+    return file == null ? null : getCsvWriter(getWriter(file));
   }
 
   CSVWriter getCsvWriter(Writer writer) {
@@ -162,8 +163,9 @@ public class CsvDatasource extends AbstractDatasource {
     }
   }
 
-  CSVReader getCsvReader(File file) {
-    return getCsvReader(getReader(file));
+  @Nullable
+  CSVReader getCsvReader(@Nullable File file) {
+    return file == null ? null : getCsvReader(getReader(file));
   }
 
   CSVReader getCsvReader(Reader reader) {

@@ -48,9 +48,11 @@ public class CsvValueTableWriter implements ValueTableWriter {
         if(valueTable.isVariablesFileEmpty()) {
           // Write Header
           CSVWriter writer = valueTable.getVariableWriter();
-          writer.writeNext(variableConverter.getHeader());
-          writer.close();
-          valueTable.setVariablesFileEmpty(false);
+          if(writer != null) {
+            writer.writeNext(variableConverter.getHeader());
+            writer.close();
+            valueTable.setVariablesFileEmpty(false);
+          }
         } else if(valueTable.hasVariable(variable.getName())) {
           // doing an update.
           valueTable.clearVariable(variable);
@@ -59,8 +61,10 @@ public class CsvValueTableWriter implements ValueTableWriter {
         String[] line = variableConverter.marshal(variable);
         long lastByte = valueTable.getVariablesLastByte();
         CSVWriter writer = valueTable.getVariableWriter();
-        writer.writeNext(line);
-        writer.close();
+        if(writer != null) {
+          writer.writeNext(line);
+          writer.close();
+        }
         valueTable.updateVariableIndex(variable, lastByte, line);
       } catch(IOException e) {
         throw new MagmaRuntimeException(e);
@@ -79,8 +83,12 @@ public class CsvValueTableWriter implements ValueTableWriter {
 
     private final CsvLine csvLine;
 
-    public CsvValueSetWriter(VariableEntity entity) {
+    private CsvValueSetWriter(VariableEntity entity) {
       this.entity = entity;
+      if(valueTable.getParentFile() == null) {
+        throw new IllegalArgumentException("valueTable.getParentFile() cannot be null");
+      }
+      //noinspection ConstantConditions
       csvLine = new CsvLine(entity, valueTable.getParentFile());
 
       // Populate with existing values, if available
@@ -101,23 +109,7 @@ public class CsvValueTableWriter implements ValueTableWriter {
     public void close() throws IOException {
 
       if(valueTable.isDataFileEmpty()) {
-        // Write Header
-        if(valueTable.getDataHeaderMap().size() == 0) {
-          Map<String, Integer> generatedHeader = generateDataHeaderMapFromVariables();
-          if(generatedHeader.size() > 0) {
-            valueTable.setDataHeaderMap(generateDataHeaderMapFromVariables());
-            csvLine.setHeaderMap(valueTable.getDataHeaderMap()); //
-          } else {
-            valueTable.setDataHeaderMap(csvLine.getHeaderMap());
-          }
-        }
-
-        CSVWriter writer = valueTable.getValueWriter();
-        writer.writeNext(valueTable.getDataHeaderAsArray());
-        writer.close();
-        getExistingHeaderMap();
-        valueTable.setDataHeaderMap(csvLine.getHeaderMap());
-        valueTable.setDataFileEmpty(false);
+        writeTableWithoutData();
       } else {
         // Test header is a subset
         List<String> extraHeaders = getExtraHeadersFromNewValueSet(getExistingHeaderMap(), csvLine.getHeaderMap());
@@ -142,10 +134,34 @@ public class CsvValueTableWriter implements ValueTableWriter {
       long lastByte = valueTable.getDataLastByte();
       String[] line = csvLine.getLine();
       CSVWriter writer = valueTable.getValueWriter();
-      writer.writeNext(line);
-      writer.close();
+      if(writer != null) {
+        writer.writeNext(line);
+        writer.close();
+      }
       // Update index
       valueTable.updateDataIndex(entity, lastByte, line);
+    }
+
+    private void writeTableWithoutData() throws IOException {
+      // Write Header
+      if(valueTable.getDataHeaderMap().isEmpty()) {
+        Map<String, Integer> generatedHeader = generateDataHeaderMapFromVariables();
+        if(generatedHeader.size() > 0) {
+          valueTable.setDataHeaderMap(generateDataHeaderMapFromVariables());
+          csvLine.setHeaderMap(valueTable.getDataHeaderMap());
+        } else {
+          valueTable.setDataHeaderMap(csvLine.getHeaderMap());
+        }
+      }
+
+      CSVWriter writer = valueTable.getValueWriter();
+      if(writer != null) {
+        writer.writeNext(valueTable.getDataHeaderAsArray());
+        writer.close();
+      }
+      getExistingHeaderMap();
+      valueTable.setDataHeaderMap(csvLine.getHeaderMap());
+      valueTable.setDataFileEmpty(false);
     }
 
     private Map<String, Integer> getExistingHeaderMap() {

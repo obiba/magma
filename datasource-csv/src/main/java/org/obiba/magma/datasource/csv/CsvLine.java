@@ -4,6 +4,8 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.annotation.Nonnull;
+
 import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.Value;
 import org.obiba.magma.Variable;
@@ -24,14 +26,16 @@ public class CsvLine {
 
   private int index = 1;
 
+  @Nonnull
   private final VariableEntity entity;
 
+  @Nonnull
   private final File parent;
 
-  public CsvLine(VariableEntity entity, File parent) {
+  public CsvLine(@Nonnull VariableEntity entity, @Nonnull File parent) {
     this.entity = entity;
     this.parent = parent;
-    if(parent.exists() == false) {
+    if(!parent.exists()) {
       if(!parent.mkdirs()) {
         throw new MagmaRuntimeException("Impossible to create " + parent.getPath() + " directory");
       }
@@ -45,11 +49,8 @@ public class CsvLine {
       headerMap.put(variable.getName(), index++);
     }
 
-    if(variable.getValueType().equals(BinaryType.get())) {
-      valueMap.put(variable.getName(), BinaryValueFileHelper.writeValue(parent, variable, entity, value));
-    } else {
-      valueMap.put(variable.getName(), value);
-    }
+    valueMap.put(variable.getName(), variable.getValueType().equals(BinaryType.get()) ? BinaryValueFileHelper
+        .writeValue(parent, variable, entity, value) : value);
   }
 
   @SuppressWarnings("UnusedDeclaration")
@@ -67,9 +68,18 @@ public class CsvLine {
     line[0] = entity.getIdentifier();
     for(Map.Entry<String, Integer> entry : headerMap.entrySet()) {
       String strValue = null;
-      if(valueMap.containsKey(entry.getKey())) {
-        Value value = valueMap.get(entry.getKey());
+      String variableName = entry.getKey();
+      if(valueMap.containsKey(variableName)) {
+        Value value = valueMap.get(variableName);
         strValue = value.toString();
+        if(strValue != null) {
+          // escape backslashes: replace all '\' by '\\'
+          strValue = strValue.replaceAll("\\\\", "\\\\\\\\");
+          if(value.isSequence()) {
+            // re-escape backslashes as it's a csv inside a csv
+            strValue = strValue.replaceAll("\\\\", "\\\\\\\\");
+          }
+        }
       }
       line[entry.getValue()] = strValue;
     }
