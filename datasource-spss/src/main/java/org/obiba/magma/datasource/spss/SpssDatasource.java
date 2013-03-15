@@ -21,29 +21,30 @@ import org.obiba.magma.support.AbstractDatasource;
 
 public class SpssDatasource extends AbstractDatasource {
 
-  private static final String DEFAULT_ENTITY_TYPE = "Participant";
-
   private final List<File> spssFiles;
 
   private final String characterSet;
 
+  private final String entityType;
+
   private Map<String, SpssValueTable> valueTablesMapOnInit = new LinkedHashMap<String, SpssValueTable>();
 
-  public SpssDatasource(String name, List<File> spssFiles, String characterSet) {
+  public SpssDatasource(String name, List<File> spssFiles, String characterSet, String entityType) {
     super(name, "spss");
     this.spssFiles = spssFiles;
     this.characterSet = characterSet;
+    this.entityType = entityType;
   }
 
   @Override
   protected void onInitialise() {
 
     for(File spssFile : spssFiles) {
-      SpssValueTableFactory factory = new SpssValueTableFactory(spssFile, characterSet);
+      SpssValueTableFactory factory = new SpssValueTableFactory(this, entityType, spssFile, characterSet);
       String tableName = factory.getName();
 
       if(!valueTablesMapOnInit.containsKey(tableName)) {
-        valueTablesMapOnInit.put(tableName, factory.create(this, DEFAULT_ENTITY_TYPE));
+        valueTablesMapOnInit.put(tableName, factory.create());
       }
     }
   }
