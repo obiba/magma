@@ -17,6 +17,7 @@ import com.google.common.base.Strings;
 
 import au.com.bytecode.opencsv.CSVParser;
 
+@SuppressWarnings("MethodReturnAlwaysConstant")
 public class TextType extends AbstractValueType {
 
   private static final long serialVersionUID = -5271259966499174607L;
@@ -24,6 +25,10 @@ public class TextType extends AbstractValueType {
   protected static final String QUOTE_STR = "" + QUOTE;
 
   protected static final String ESCAPED_QUOTE_STR = "" + QUOTE + QUOTE;
+
+  public static final String BACKSLASH = "\\\\";
+
+  public static final String DOUBLE_BACKSLASH = BACKSLASH + BACKSLASH;
 
   @SuppressWarnings("StaticNonFinalField")
   @Nullable
@@ -35,6 +40,7 @@ public class TextType extends AbstractValueType {
   }
 
   @SuppressWarnings("ConstantConditions")
+  @edu.umd.cs.findbugs.annotations.SuppressWarnings("NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE")
   @Nonnull
   public static TextType get() {
     if(instance == null || instance.get() == null) {
@@ -132,6 +138,8 @@ public class TextType extends AbstractValueType {
     String escaped = value == null ? "" : value;
     // Replace all occurrences of " by ""
     escaped = escaped.replaceAll(QUOTE_STR, ESCAPED_QUOTE_STR);
+    // escape backslashes: replace all '\' by '\\'
+    escaped = escaped.replaceAll(BACKSLASH, DOUBLE_BACKSLASH);
     return QUOTE + escaped + QUOTE;
   }
 

@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.SortedSet;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueSet;
@@ -32,6 +33,7 @@ public final class NullValueSource implements ValueSource, VectorSource {
     return valueType.nullValue();
   }
 
+  @Nullable
   @Override
   public VectorSource asVectorSource() {
     return this;

@@ -9,6 +9,7 @@
  */
 package org.obiba.magma.datasource.hibernate.domain;
 
+import javax.annotation.Nonnull;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.Lob;
@@ -51,7 +52,7 @@ public class ValueSetBinaryValue extends AbstractEntity {
   public ValueSetBinaryValue() {
   }
 
-  public ValueSetBinaryValue(ValueSetValue valueSetValue, int occurrence) {
+  public ValueSetBinaryValue(@Nonnull ValueSetValue valueSetValue, int occurrence) {
     if(valueSetValue == null) throw new IllegalArgumentException("valueSetValue cannot be null");
     valueSet = valueSetValue.getValueSet();
     variable = valueSetValue.getVariable();
@@ -75,7 +76,7 @@ public class ValueSetBinaryValue extends AbstractEntity {
   }
 
   @SuppressWarnings("MethodCanBeVariableArityMethod")
-  public void setValue(byte[] value) {
+  public void setValue(@Nonnull byte[] value) {
     if(value == null) {
       throw new IllegalArgumentException("cannot persist null values");
     }

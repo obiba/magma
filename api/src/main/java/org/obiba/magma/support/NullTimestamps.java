@@ -18,6 +18,7 @@ public class NullTimestamps implements Timestamps {
 
   }
 
+  @SuppressWarnings("ConstantConditions")
   @Nonnull
   public static NullTimestamps get() {
     if(instance == null || instance.get() == null) {

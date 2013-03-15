@@ -9,6 +9,7 @@ import java.util.Set;
 import java.util.SortedSet;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import org.hibernate.FetchMode;
 import org.hibernate.Query;
@@ -131,6 +132,7 @@ class HibernateVariableValueSourceFactory implements VariableValueSourceFactory 
           : BinaryType.get().valueOfReference(factory, val);
     }
 
+    @Nullable
     @Override
     public VectorSource asVectorSource() {
       return this;

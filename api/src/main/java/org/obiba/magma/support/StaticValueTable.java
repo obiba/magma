@@ -4,6 +4,7 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import org.obiba.magma.Datasource;
 import org.obiba.magma.NoSuchValueSetException;
@@ -82,6 +83,7 @@ public class StaticValueTable extends AbstractValueTable {
         return value instanceof Value ? (Value) value : getValueType().valueOf(value);
       }
 
+      @Nullable
       @Override
       public VectorSource asVectorSource() {
         return null;
@@ -115,6 +117,7 @@ public class StaticValueTable extends AbstractValueTable {
           return type;
         }
 
+        @Nullable
         @Override
         public VectorSource asVectorSource() {
           return null;

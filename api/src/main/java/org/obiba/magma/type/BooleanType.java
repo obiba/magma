@@ -25,6 +25,7 @@ public class BooleanType extends AbstractValueType {
   }
 
   @SuppressWarnings("ConstantConditions")
+  @edu.umd.cs.findbugs.annotations.SuppressWarnings("NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE")
   @Nonnull
   public static BooleanType get() {
     if(instance == null || instance.get() == null) {

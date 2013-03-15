@@ -100,6 +100,7 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
     return rval;
   }
 
+  @Nonnull
   @Override
   public VectorSource asVectorSource() {
     return this;

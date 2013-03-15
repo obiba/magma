@@ -7,6 +7,8 @@ import java.sql.SQLException;
 import java.sql.Types;
 import java.util.Map;
 
+import javax.annotation.Nullable;
+
 import org.dom4j.Node;
 import org.hibernate.EntityMode;
 import org.hibernate.HibernateException;
@@ -58,6 +60,7 @@ public class ValueHibernateType extends AbstractType {
     throw new UnsupportedOperationException();
   }
 
+  @Nullable
   @Override
   public Object nullSafeGet(ResultSet rs, String[] names, SessionImplementor session, Object owner)
       throws HibernateException, SQLException {
@@ -97,7 +100,7 @@ public class ValueHibernateType extends AbstractType {
     st.setString(index, value.getValueType().getName());
     st.setBoolean(index + 1, value.isSequence());
     String stringValue = value.toString();
-    st.setClob(index + 2, new StringReader(stringValue), stringValue.length());
+    st.setClob(index + 2, new StringReader(stringValue), stringValue == null ? 0 : stringValue.length());
   }
 
   @Override

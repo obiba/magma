@@ -17,6 +17,7 @@ import java.util.Set;
 import java.util.SortedSet;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import org.obiba.magma.Attribute;
 import org.obiba.magma.Category;
@@ -527,6 +528,7 @@ class JdbcValueTable extends AbstractValueTable {
       return variable.getValueType();
     }
 
+    @Nullable
     @Override
     public VectorSource asVectorSource() {
       return this;

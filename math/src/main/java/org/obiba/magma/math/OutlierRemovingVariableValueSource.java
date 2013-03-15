@@ -3,6 +3,7 @@ package org.obiba.magma.math;
 import java.util.SortedSet;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import org.apache.commons.math.stat.descriptive.StatisticalSummary;
 import org.apache.commons.math.stat.descriptive.StatisticalSummaryValues;
@@ -63,6 +64,7 @@ public class OutlierRemovingVariableValueSource extends AbstractVariableValueSou
     return isOutlier(value) ? valueForOutlier(value) : value;
   }
 
+  @Nullable
   @Override
   public VectorSource asVectorSource() {
     return this;

@@ -15,6 +15,7 @@ import java.util.Set;
 import java.util.SortedSet;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueSet;
@@ -55,6 +56,7 @@ public class SpssVariableValueSource implements VariableValueSource, VectorSourc
     return spssValueSet.getValue(variable);
   }
 
+  @Nullable
   @Override
   public VectorSource asVectorSource() {
     return this;

@@ -37,6 +37,7 @@ import org.obiba.magma.type.TextType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Objects;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
@@ -376,8 +377,8 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
     }
     return Iterables.filter(valueTable.getVariables(), new Predicate<Variable>() {
       @Override
-      public boolean apply(Variable input) {
-        return variable.getOccurrenceGroup().equals(input.getOccurrenceGroup());
+      public boolean apply(@Nullable Variable input) {
+        return input != null && variable.getOccurrenceGroup().equals(input.getOccurrenceGroup());
       }
     });
   }
@@ -420,7 +421,8 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
     }
 
     @Override
-    public boolean apply(Value input) {
+    public boolean apply(@Nullable Value input) {
+      if(input == null) return false;
       Object rval = criteriaFunction
           .call(ctx, scope, thisObj, new ScriptableValue[] { new ScriptableValue(thisObj, input) });
       if(rval instanceof ScriptableValue) {
@@ -435,15 +437,16 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
    */
   private static final class ValuePredicate implements Predicate<Value> {
 
+    @Nonnull
     private final Value criteriaValue;
 
-    private ValuePredicate(Value criteriaValue) {
+    private ValuePredicate(@Nonnull Value criteriaValue) {
       this.criteriaValue = criteriaValue;
     }
 
     @Override
-    public boolean apply(Value input) {
-      return input.equals(criteriaValue);
+    public boolean apply(@Nullable Value input) {
+      return Objects.equal(input, criteriaValue);
     }
   }
 }
