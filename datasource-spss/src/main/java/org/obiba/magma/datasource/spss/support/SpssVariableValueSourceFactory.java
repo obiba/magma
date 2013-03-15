@@ -33,6 +33,7 @@ import org.opendatafoundation.data.spss.SPSSVariableCategory;
 import com.google.common.base.Strings;
 import com.google.common.collect.Sets;
 
+
 import static org.obiba.magma.datasource.spss.support.CharacterSetValidator.validate;
 
 public class SpssVariableValueSourceFactory implements VariableValueSourceFactory {
@@ -40,15 +41,20 @@ public class SpssVariableValueSourceFactory implements VariableValueSourceFactor
   //
   // Data members
   //
+  @Nonnull
   private final SPSSFile spssFile;
+
+  @Nonnull
+  private final String entityType;
 
   /**
    * @param spssFile
    * @throws IOException
    * @throws SPSSFileException
    */
-  public SpssVariableValueSourceFactory(SPSSFile spssFile) {
+  public SpssVariableValueSourceFactory(@Nonnull SPSSFile spssFile, @Nonnull String entityType) {
     this.spssFile = spssFile;
+    this.entityType = entityType;
   }
 
   @Override
@@ -99,7 +105,7 @@ public class SpssVariableValueSourceFactory implements VariableValueSourceFactor
       throws SpssInvalidCharacterException {
     String variableName = spssVariable.getName();
     validate(variableName);
-    Variable.Builder builder = Variable.Builder.newVariable(variableName, TextType.get(), "Participant");
+    Variable.Builder builder = Variable.Builder.newVariable(variableName, TextType.get(), entityType);
     addAttributes(builder, spssVariable);
     addLabel(builder, spssVariable);
     ValueType valueType = SpssVariableTypeMapper.map(spssVariable);
