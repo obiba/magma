@@ -34,11 +34,14 @@ import org.obiba.magma.support.VariableEntityProvider;
 import org.obiba.magma.type.DateTimeType;
 import org.opendatafoundation.data.spss.SPSSFile;
 import org.opendatafoundation.data.spss.SPSSVariable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableSet;
 
 public class SpssValueTable extends AbstractValueTable implements Disposable {
 
+  private final static Logger log = LoggerFactory.getLogger(SpssValueTable.class);
   private final SPSSFile spssFile;
 
   public SpssValueTable(Datasource datasource, String name, String entityType, SPSSFile spssFile) {
@@ -98,13 +101,13 @@ public class SpssValueTable extends AbstractValueTable implements Disposable {
     }
   }
 
-  @Nonnull
   @Override
   public void dispose() {
     if (spssFile != null) {
       try {
         spssFile.close();
       } catch(IOException e) {
+        log.warn("Error occured while closing SPSS file: {}", e.getMessage());
       }
     }
   }
@@ -142,7 +145,7 @@ public class SpssValueTable extends AbstractValueTable implements Disposable {
         Collection<String> entityIdentifiers = new HashSet<String>();
         ImmutableSet.Builder<VariableEntity> entitiesBuilder = ImmutableSet.builder();
         SPSSVariable entityVariable = spssFile.getVariable(0);
-        int numberOfObservations = entityVariable.getNumberOfObservation();
+        int numberOfObservations = entityVariable.getNumberOfObservations();
         ValueType valueType = SpssVariableTypeMapper.map(entityVariable);
 
         for(int i = 1; i <= numberOfObservations; i++) {
