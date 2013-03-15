@@ -4,6 +4,8 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.Map;
 
+import javax.annotation.Nullable;
+
 import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueLoaderFactory;
@@ -67,6 +69,7 @@ public class CsvValueSet extends ValueSetBean {
         : BinaryType.get().valueOfReference(factory, strValue);
   }
 
+  @Nullable
   private File getParentFile() {
     return ((CsvValueTable) getValueTable()).getParentFile();
   }

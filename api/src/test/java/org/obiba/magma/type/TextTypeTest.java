@@ -8,7 +8,10 @@ import org.obiba.magma.ValueType;
 
 import com.google.common.collect.ImmutableList;
 
-import junit.framework.Assert;
+import static junit.framework.Assert.fail;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.junit.Assert.assertThat;
 
 public class TextTypeTest extends BaseValueTypeTest {
 
@@ -90,19 +93,41 @@ public class TextTypeTest extends BaseValueTypeTest {
     assertSequence(sequence, "\"", "\"\"", "\"\"\"");
   }
 
+  @SuppressWarnings("ConstantConditions")
   private void assertSequence(ValueSequence sequence, String... strings) {
-    Assert.assertNotNull(sequence);
-    Assert.assertEquals(strings.length, sequence.getValues().size());
+    assertThat(sequence, notNullValue());
+    assertThat(sequence.getValues().size(), is(strings.length));
     int index = 0;
     for(Value value : sequence.getValue()) {
       String string = strings[index];
       if(string == null) {
-        Assert.assertTrue(value.isNull());
+        assertThat(value.isNull(), is(true));
       } else {
-        Assert.assertEquals(string, value.getValue());
+        assertThat((String) value.getValue(), is(string));
       }
       index++;
     }
+  }
+
+  @SuppressWarnings("ReuseOfLocalVariable")
+  @Test
+  public void testSequenceOfValueWithBackslash() {
+    try {
+      TextType.get().sequenceOf("\"A value\\\"");
+      fail("Should throw MagmaRuntimeException: Invalid value sequence formatting: \"A value\\\"");
+    } catch(MagmaRuntimeException e) {
+    }
+
+    ValueSequence sequence = TextType.get().sequenceOf("\"A value\\\\\"");
+    assertSequence(sequence, "A value\\");
+
+    // \n was not escaped. It should be \\n
+    sequence = TextType.get().sequenceOf("\"A\\nvalue\"");
+    assertSequence(sequence, "Anvalue");
+
+    sequence = TextType.get().sequenceOf("\"A\\\\nvalue\"");
+    assertSequence(sequence, "A\\nvalue");
+
   }
 
 }

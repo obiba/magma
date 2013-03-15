@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.Date;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import org.obiba.magma.Timestamps;
 import org.obiba.magma.Value;
@@ -11,11 +12,13 @@ import org.obiba.magma.type.DateTimeType;
 
 public class CsvTimestamps implements Timestamps {
 
+  @Nullable
   private final File variableFile;
 
+  @Nullable
   private final File dataFile;
 
-  public CsvTimestamps(File variableFile, File dataFile) {
+  public CsvTimestamps(@Nullable File variableFile, @Nullable File dataFile) {
     this.variableFile = variableFile;
     this.dataFile = dataFile;
   }

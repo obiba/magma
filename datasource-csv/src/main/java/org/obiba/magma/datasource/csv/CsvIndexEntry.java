@@ -11,7 +11,6 @@ public class CsvIndexEntry {
   private final long end;
 
   CsvIndexEntry(long start, long end) {
-    super();
     this.start = start;
     this.end = end;
   }

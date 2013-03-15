@@ -6,6 +6,7 @@ import java.util.LinkedHashSet;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import org.obiba.magma.concurrent.LockManager;
@@ -28,6 +29,7 @@ public class MagmaEngine implements DatasourceRegistry {
    */
   private static Set<Object> singletons;
 
+  @Nullable
   private static MagmaEngine instance;
 
   private ValueTypeFactory valueTypeFactory;
@@ -49,6 +51,7 @@ public class MagmaEngine implements DatasourceRegistry {
     valueTypeFactory = new ValueTypeFactory();
   }
 
+  @Nonnull
   public static MagmaEngine get() {
     if(instance == null) {
       log.warn("Instanciating a new MagmaEngine without any extensions.");

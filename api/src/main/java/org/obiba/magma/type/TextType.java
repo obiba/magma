@@ -129,8 +129,10 @@ public class TextType extends AbstractValueType {
   @Nullable
   @Override
   protected String escapeAndQuoteIfRequired(@Nullable String value) {
-    // Replace all occurrences of QUOTE by QUOTEQUOTE
-    return QUOTE + (value == null ? "" : value.replaceAll(QUOTE_STR, ESCAPED_QUOTE_STR)) + QUOTE;
+    String escaped = value == null ? "" : value;
+    // Replace all occurrences of " by ""
+    escaped = escaped.replaceAll(QUOTE_STR, ESCAPED_QUOTE_STR);
+    return QUOTE + escaped + QUOTE;
   }
 
   @Override

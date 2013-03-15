@@ -2,8 +2,14 @@ package org.obiba.magma.datasource.csv;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.Locale;
 import java.util.Map;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import org.junit.After;
 import org.junit.Before;
@@ -13,6 +19,7 @@ import org.obiba.magma.Category;
 import org.obiba.magma.Datasource;
 import org.obiba.magma.MagmaEngine;
 import org.obiba.magma.MagmaRuntimeException;
+import org.obiba.magma.NoSuchValueSetException;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueSequence;
 import org.obiba.magma.ValueSet;
@@ -24,6 +31,7 @@ import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.datasource.csv.support.Quote;
 import org.obiba.magma.datasource.csv.support.Separator;
+import org.obiba.magma.support.AbstractValueTable;
 import org.obiba.magma.support.DatasourceParsingException;
 import org.obiba.magma.support.VariableEntityBean;
 import org.obiba.magma.type.IntegerType;
@@ -36,11 +44,17 @@ import com.google.common.collect.Iterables;
 
 import junit.framework.Assert;
 
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertFalse;
+import static junit.framework.Assert.assertNull;
+import static junit.framework.Assert.assertTrue;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.nullValue;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
+@SuppressWarnings({ "OverlyLongMethod", "ResultOfMethodCallIgnored", "OverlyCoupledClass" })
 public class CsvDatasourceTest {
 
   private static final Logger log = LoggerFactory.getLogger(CsvDatasourceTest.class);
@@ -57,20 +71,28 @@ public class CsvDatasourceTest {
 
   @Test
   public void testSeparators() {
-    Assert.assertEquals(Quote.SINGLE, Quote.fromString("'"));
-    Assert.assertEquals(Quote.DOUBLE, Quote.fromString("\""));
-    Assert.assertEquals('|', Quote.fromString("|").getCharacter());
+    assertEquals(Quote.SINGLE, Quote.fromString("'"));
+    assertEquals(Quote.DOUBLE, Quote.fromString("\""));
+    assertEquals('|', Quote.fromString("|").getCharacter());
 
-    Assert.assertEquals(Separator.COMMA, Separator.fromString(","));
-    Assert.assertEquals(Separator.SEMICOLON, Separator.fromString(";"));
-    Assert.assertEquals(Separator.COLON, Separator.fromString(":"));
-    Assert.assertEquals(Separator.TAB, Separator.fromString("\t"));
-    Assert.assertEquals('|', Separator.fromString("|").getCharacter());
+    assertEquals(Separator.COMMA, Separator.fromString(","));
+    assertEquals(Separator.SEMICOLON, Separator.fromString(";"));
+    assertEquals(Separator.COLON, Separator.fromString(":"));
+    assertEquals(Separator.TAB, Separator.fromString("\t"));
+    assertEquals('|', Separator.fromString("|").getCharacter());
+  }
+
+  @Nonnull
+  static File getFileFromResource(String path) throws URISyntaxException {
+    URL resource = CsvDatasourceTest.class.getClassLoader().getResource(path);
+    URI uri = resource == null ? null : resource.toURI();
+    if(uri == null) throw new IllegalArgumentException("Cannot find file at " + path);
+    return new File(uri);
   }
 
   @Test
-  public void test_supportsAnySeparator() {
-    File samples = new File("src/test/resources/separators");
+  public void test_supportsAnySeparator() throws URISyntaxException {
+    File samples = getFileFromResource("separators");
     File variables = new File(samples, "variables.csv");
 
     CsvDatasource ds = new CsvDatasource("variables").addValueTable("variables", variables, (File) null);
@@ -80,8 +102,10 @@ public class CsvDatasourceTest {
     Map<String, String> separators = ImmutableMap.<String, String>builder().put("sample-comma.csv", ",")
         .put("sample-semicolon.csv", ";").put("sample-colon.csv", ":").put("sample-tab.csv", "tab")
         .put("sample-pipe.csv", "|").put("sample-space.csv", " ").build();
-    for(File sample : samples.listFiles()) {
-      if(separators.containsKey(sample.getName()) == false) continue;
+    File[] files = samples.listFiles();
+    assertNotNull(files);
+    for(File sample : files) {
+      if(!separators.containsKey(sample.getName())) continue;
       CsvDatasource datasource = new CsvDatasource("csv-datasource");
       datasource.setSeparator(Separator.fromString(separators.get(sample.getName())));
       datasource.addValueTable(reference, sample);
@@ -92,7 +116,7 @@ public class CsvDatasourceTest {
         throw e;
       }
       ValueTable valueTable = datasource.getValueTable(reference.getName());
-      Assert.assertEquals(16, valueTable.getVariableEntities().size());
+      assertEquals(16, valueTable.getVariableEntities().size());
       for(Variable v : valueTable.getVariables()) {
         for(ValueSet vs : valueTable.getValueSets()) {
           valueTable.getVariableValueSource(v.getName()).getValue(vs);
@@ -102,61 +126,64 @@ public class CsvDatasourceTest {
     }
   }
 
+  @SuppressWarnings("IfStatementWithTooManyBranches")
   @Test
-  public void testTable1VariableRead() {
+  public void testTable1VariableRead() throws URISyntaxException {
     CsvDatasource datasource = new CsvDatasource("csv-datasource").addValueTable("Table1", //
-        new File("src/test/resources/Table1/variables.csv"), //
-        new File("src/test/resources/Table1/data.csv"));
+        getFileFromResource("Table1/variables.csv"), //
+        getFileFromResource("Table1/data.csv"));
     datasource.initialise();
-    Assert.assertEquals(1, datasource.getValueTableNames().size());
+    assertThat(datasource.getValueTableNames().size(), is(1));
 
     ValueTable table = datasource.getValueTable("Table1");
-    Assert.assertNotNull(table);
-    Assert.assertEquals("Participant", table.getEntityType());
+    assertThat(table, notNullValue());
+    assertThat(table.getEntityType(), is("Participant"));
 
     Variable var = table.getVariable("var1");
-    Assert.assertNotNull(var);
-    Assert.assertEquals("text", var.getValueType().getName());
-    Assert.assertEquals("Participant", var.getEntityType());
-    Assert.assertNull(var.getMimeType());
-    Assert.assertNull(var.getUnit());
-    Assert.assertNull(var.getOccurrenceGroup());
-    Assert.assertFalse(var.isRepeatable());
+    assertThat(var, notNullValue());
+    assertThat(var.getValueType().getName(), is("text"));
+    assertEquals("Participant", var.getEntityType());
+    assertNull(var.getMimeType());
+    assertNull(var.getUnit());
+    assertNull(var.getOccurrenceGroup());
+    assertFalse(var.isRepeatable());
 
-    Assert.assertEquals(4, var.getCategories().size());
+    assertEquals(4, var.getCategories().size());
     for(Category category : var.getCategories()) {
-      if("Y".equals(category.getName())) {
-        Assert.assertEquals("yes", category.getAttribute("label", Locale.ENGLISH).getValue().toString());
-      } else if("N".equals(category.getName())) {
-        Assert.assertEquals("no", category.getAttribute("label", Locale.ENGLISH).getValue().toString());
-      } else if("PNA".equals(category.getName())) {
-        Assert
-            .assertEquals("prefer not to answer", category.getAttribute("label", Locale.ENGLISH).getValue().toString());
-      } else if("DNK".equals(category.getName())) {
-        Assert.assertEquals("don't know", category.getAttribute("label", Locale.ENGLISH).getValue().toString());
+      String label = category.getAttribute("label", Locale.ENGLISH).getValue().toString();
+      String categoryName = category.getName();
+      if("Y".equals(categoryName)) {
+        assertEquals("yes", label);
+      } else if("N".equals(categoryName)) {
+        assertEquals("no", label);
+      } else if("PNA".equals(categoryName)) {
+        assertEquals("prefer not to answer", label);
+      } else if("DNK".equals(categoryName)) {
+        assertEquals("don't know", label);
       } else {
-        Assert.assertFalse(true);
+        Assert.fail();
       }
     }
 
-    Assert.assertEquals(3, var.getAttributes().size());
-    Assert.assertTrue(var.hasAttribute("label"));
-    Assert.assertEquals("Hello I'm variable one", var.getAttribute("label", Locale.ENGLISH).getValue().toString());
-    Assert.assertEquals("ns1", var.getAttribute("ns1", "attr").getValue().toString());
-    Assert.assertEquals("ns2", var.getAttribute("ns2", "attr", Locale.ENGLISH).getValue().toString());
+    assertEquals(3, var.getAttributes().size());
+    assertTrue(var.hasAttribute("label"));
+    assertEquals("Hello I'm variable one", var.getAttribute("label", Locale.ENGLISH).getValue().toString());
+    assertEquals("ns1", var.getAttribute("ns1", "attr").getValue().toString());
+    assertEquals("ns2", var.getAttribute("ns2", "attr", Locale.ENGLISH).getValue().toString());
   }
 
+  @SuppressWarnings("IfStatementWithTooManyBranches")
   @Test
-  public void testTable1DataRead() {
+  public void testTable1DataRead() throws URISyntaxException {
     CsvDatasource datasource = new CsvDatasource("csv-datasource").addValueTable("Table1", //
-        new File("src/test/resources/Table1/variables.csv"), //
-        new File("src/test/resources/Table1/data.csv"));
+        getFileFromResource("Table1/variables.csv"), //
+        getFileFromResource("Table1/data.csv"));
     datasource.initialise();
-    Assert.assertEquals(1, datasource.getValueTableNames().size());
+    assertThat(datasource.getValueTableNames().size(), is(1));
 
     ValueTable table = datasource.getValueTable("Table1");
-    Assert.assertNotNull(table);
-    Assert.assertEquals("Participant", table.getEntityType());
+    assertThat(table, notNullValue());
+    assertThat(table.getEntityType(), is("Participant"));
 
     Variable var = table.getVariable("var1");
 
@@ -164,17 +191,17 @@ public class CsvDatasourceTest {
       String identifier = valueSet.getVariableEntity().getIdentifier();
       Value value = table.getValue(var, valueSet);
       log.debug("var1[{}]={}", identifier, value);
-      Assert.assertEquals("text", value.getValueType().getName());
+      assertEquals("text", value.getValueType().getName());
       if("1".equals(identifier)) {
-        Assert.assertEquals("Y", value.getValue());
+        assertEquals("Y", value.getValue());
       } else if("2".equals(identifier)) {
-        Assert.assertEquals("N", value.getValue());
+        assertEquals("N", value.getValue());
       } else if("3".equals(identifier)) {
-        Assert.assertEquals("PNA", value.getValue());
+        assertEquals("PNA", value.getValue());
       } else if("4".equals(identifier)) {
-        Assert.assertEquals("DNK", value.getValue());
+        assertEquals("DNK", value.getValue());
       } else {
-        Assert.assertFalse(true);
+        Assert.fail();
       }
     }
   }
@@ -183,7 +210,7 @@ public class CsvDatasourceTest {
   public void testReadingDataOnlyTableHasOnlyOneTable() throws Exception {
     CsvDatasource datasource = new CsvDatasource("csv-datasource").addValueTable("TableDataOnly", //
         null, //
-        new File("src/test/resources/TableDataOnly/data.csv"));
+        getFileFromResource("TableDataOnly/data.csv"));
     datasource.initialise();
 
     assertThat(datasource.getValueTableNames().size(), is(1));
@@ -193,7 +220,7 @@ public class CsvDatasourceTest {
   public void testReadingDataOnlyTableIsNotNull() throws Exception {
     CsvDatasource datasource = new CsvDatasource("csv-datasource").addValueTable("TableDataOnly", //
         null, //
-        new File("src/test/resources/TableDataOnly/data.csv"));
+        getFileFromResource("TableDataOnly/data.csv"));
     datasource.initialise();
 
     assertThat(datasource.getValueTable("TableDataOnly"), notNullValue());
@@ -203,7 +230,7 @@ public class CsvDatasourceTest {
   public void testReadingDataOnlyTableEntityTypeIsDefaultParticipant() throws Exception {
     CsvDatasource datasource = new CsvDatasource("csv-datasource").addValueTable("TableDataOnly", //
         null, //
-        new File("src/test/resources/TableDataOnly/data.csv"));
+        getFileFromResource("TableDataOnly/data.csv"));
     datasource.initialise();
     ValueTable table = datasource.getValueTable("TableDataOnly");
 
@@ -211,10 +238,10 @@ public class CsvDatasourceTest {
   }
 
   @Test
-  public void testReadingDataOnlyFavouriteIcecreamVariableExists() throws Exception {
+  public void testReadingDataOnlyFavouriteIceCreamVariableExists() throws Exception {
     CsvDatasource datasource = new CsvDatasource("csv-datasource").addValueTable("TableDataOnly", //
         null, //
-        new File("src/test/resources/TableDataOnly/data.csv"));
+        getFileFromResource("TableDataOnly/data.csv"));
     datasource.initialise();
     ValueTable table = datasource.getValueTable("TableDataOnly");
 
@@ -225,7 +252,7 @@ public class CsvDatasourceTest {
   public void testReadingSingleDataOnlyTableNullIcecreamValue() throws Exception {
     CsvDatasource datasource = new CsvDatasource("csv-datasource").addValueTable("TableDataOnly", //
         null, //
-        new File("src/test/resources/TableDataOnly/data.csv"));
+        getFileFromResource("TableDataOnly/data.csv"));
     datasource.initialise();
     ValueTable table = datasource.getValueTable("TableDataOnly");
 
@@ -244,7 +271,7 @@ public class CsvDatasourceTest {
   public void testReadingDataOnlyValueTypeIsText() throws Exception {
     CsvDatasource datasource = new CsvDatasource("csv-datasource").addValueTable("TableDataOnly", //
         null, //
-        new File("src/test/resources/TableDataOnly/data.csv"));
+        getFileFromResource("TableDataOnly/data.csv"));
     datasource.initialise();
     ValueTable table = datasource.getValueTable("TableDataOnly");
 
@@ -284,6 +311,8 @@ public class CsvDatasourceTest {
 
     for(ValueSet valueSet : table.getValueSets()) {
       Value value = table.getValue(variable, valueSet);
+      assertNotNull(value.getValue());
+      //noinspection ConstantConditions
       assertThat(value.getValue().toString(), is("Second Cup"));
     }
   }
@@ -292,7 +321,7 @@ public class CsvDatasourceTest {
   public void testValueTableGetVariableEntities() throws Exception {
     CsvDatasource datasource = new CsvDatasource("csv-datasource").addValueTable("TableDataOnly", //
         null, //
-        new File("src/test/resources/TableDataOnly/data.csv"));
+        getFileFromResource("TableDataOnly/data.csv"));
     datasource.initialise();
 
     ValueTable table = datasource.getValueTable("TableDataOnly");
@@ -303,12 +332,13 @@ public class CsvDatasourceTest {
   public void testValueTableGetVariables() throws Exception {
     CsvDatasource datasource = new CsvDatasource("csv-datasource").addValueTable("TableDataOnly", //
         null, //
-        new File("src/test/resources/TableDataOnly/data.csv"));
+        getFileFromResource("TableDataOnly/data.csv"));
     datasource.initialise();
 
     ValueTable table = datasource.getValueTable("TableDataOnly");
     assertThat(Iterables.size(table.getVariables()), is(5));
 
+    //noinspection TypeMayBeWeakened
     CsvValueTable cvsValueTable = (CsvValueTable) table;
     assertThat(cvsValueTable.getVariables().size(), is(5));
   }
@@ -318,7 +348,7 @@ public class CsvDatasourceTest {
     // This existing datasource has the following header: entity_id,FirstName,LastName,Sex,City,FavouriteIcecream
     CsvDatasource datasource = new CsvDatasource("csv-datasource").addValueTable("TableDataOnly", //
         null, //
-        new File("src/test/resources/TableDataOnly/data.csv"));
+        getFileFromResource("TableDataOnly/data.csv"));
     datasource.initialise();
 
     // Attempt to add a new ValueSet containing a new Variable "coffee". Expect this to fail.
@@ -475,8 +505,8 @@ public class CsvDatasourceTest {
       throws Exception {
     String tableName = "TableDataOnly";
     String entityName = "Participant";
-    CsvDatasource datasource = new TempTableBuilder(tableName)
-        .addData(new File("src/test/resources/TableDataOnly/data.csv")).buildCsvDatasource("csv-datasource");
+    CsvDatasource datasource = new TempTableBuilder(tableName).addData(getFileFromResource("TableDataOnly/data.csv"))
+        .buildCsvDatasource("csv-datasource");
 
     Variable cityVariable = Variable.Builder.newVariable("City", TextType.get(), "Participant").build();
     Value cityValueVancouver = TextType.get().valueOf("Vancouver");
@@ -496,8 +526,8 @@ public class CsvDatasourceTest {
   public void testWritingDataOnlyModifyingMultipleValueSetsAndReadingBackFromDatasource() throws Exception {
     String tableName = "TableDataOnly";
     String entityName = "Participant";
-    CsvDatasource datasource = new TempTableBuilder(tableName)
-        .addData(new File("src/test/resources/TableDataOnly/data.csv")).buildCsvDatasource("csv-datasource");
+    CsvDatasource datasource = new TempTableBuilder(tableName).addData(getFileFromResource("TableDataOnly/data.csv"))
+        .buildCsvDatasource("csv-datasource");
 
     Variable cityVariable = Variable.Builder.newVariable("City", TextType.get(), "Participant").build();
     Value cityValueVancouver = TextType.get().valueOf("Vancouver");
@@ -518,8 +548,8 @@ public class CsvDatasourceTest {
   public void testWritingDataOnlyModifyingMultipleWideByteValueSetsAndReadingBackFromDatasource() throws Exception {
     String tableName = "TableDataOnly";
     String entityName = "Participant";
-    CsvDatasource datasource = new TempTableBuilder(tableName)
-        .addData(new File("src/test/resources/TableDataOnly/data.csv")).buildCsvDatasource("csv-datasource");
+    CsvDatasource datasource = new TempTableBuilder(tableName).addData(getFileFromResource("TableDataOnly/data.csv"))
+        .buildCsvDatasource("csv-datasource");
 
     Variable cityVariable = Variable.Builder.newVariable("City", TextType.get(), "Participant").build();
     Value wideByteCityName = TextType.get().valueOf("Suggéré");
@@ -538,6 +568,7 @@ public class CsvDatasourceTest {
     datasource.dispose();
   }
 
+  @Nullable
   private Value readValue(ValueTable valueTable, VariableEntity variableEntity, Variable variable) {
     for(ValueSet valueSet : valueTable.getValueSets()) {
       Value value = valueTable.getValue(variable, valueSet);
@@ -549,21 +580,21 @@ public class CsvDatasourceTest {
   }
 
   @Test
-  public void testRefTable1DataRead() {
+  public void testRefTable1DataRead() throws URISyntaxException {
     CsvDatasource refDatasource = new CsvDatasource("csv-datasource1").addValueTable("Table1", //
-        new File("src/test/resources/Table1/variables.csv"), //
-        new File("src/test/resources/Table1/data.csv"));
+        getFileFromResource("Table1/variables.csv"), //
+        getFileFromResource("Table1/data.csv"));
     refDatasource.initialise();
     ValueTable refTable = refDatasource.getValueTable("Table1");
 
     CsvDatasource datasource = new CsvDatasource("csv-datasource2").addValueTable(refTable, //
-        new File("src/test/resources/Table1/data2.csv"));
+        getFileFromResource("Table1/data2.csv"));
     datasource.initialise();
-    Assert.assertEquals(1, datasource.getValueTableNames().size());
+    assertThat(datasource.getValueTableNames().size(), is(1));
 
     ValueTable table = datasource.getValueTable("Table1");
-    Assert.assertNotNull(table);
-    Assert.assertEquals("Participant", table.getEntityType());
+    assertThat(table, notNullValue());
+    assertThat(table.getEntityType(), is("Participant"));
 
     Variable var = table.getVariable("var2");
 
@@ -571,17 +602,17 @@ public class CsvDatasourceTest {
       String identifier = valueSet.getVariableEntity().getIdentifier();
       Value value = table.getValue(var, valueSet);
       log.debug("var2[{}]={}", identifier, value);
-      Assert.assertEquals("integer", value.getValueType().getName());
+      assertEquals("integer", value.getValueType().getName());
       if("5".equals(identifier)) {
-        Assert.assertEquals(15l, value.getValue());
+        assertEquals(15l, value.getValue());
       } else if("6".equals(identifier)) {
-        Assert.assertEquals(16l, value.getValue());
+        assertEquals(16l, value.getValue());
       } else if("7".equals(identifier)) {
-        Assert.assertEquals(17l, value.getValue());
+        assertEquals(17l, value.getValue());
       } else if("8".equals(identifier)) {
-        Assert.assertEquals(18l, value.getValue());
+        assertEquals(18l, value.getValue());
       } else {
-        Assert.assertFalse(true);
+        assertFalse(true);
       }
     }
   }
@@ -601,7 +632,7 @@ public class CsvDatasourceTest {
         new File(testTableDirectory.getAbsoluteFile(), "data.csv"));
     // CsvDatasource datasource = new CsvDatasource("bubba").addValueTable(tableName, variablesFile, dataFile)
     datasource.initialise();
-    writeVariableToDatasource(datasource, "test-table", testVariable);
+    writeVariableToDatasource(datasource, testVariable);
     datasource.dispose();
   }
 
@@ -621,7 +652,7 @@ public class CsvDatasourceTest {
     // new File(testTableDirectory.getAbsoluteFile(), "data.csv"));
 
     datasource.initialise();
-    writeVariableToDatasource(datasource, "test-table", testVariable);
+    writeVariableToDatasource(datasource, testVariable);
     datasource.dispose();
 
     CsvDatasource readDs = new CsvDatasource("test-datasource").addValueTable("test-table", //
@@ -644,8 +675,7 @@ public class CsvDatasourceTest {
     return tempDirectory;
   }
 
-  private void writeVariableToDatasource(Datasource datasource, String tableName, Variable testVariable)
-      throws IOException {
+  private void writeVariableToDatasource(Datasource datasource, Variable testVariable) throws IOException {
     ValueTableWriter writer = datasource.createWriter("test-table", "entityType");
     VariableWriter vw = writer.writeVariables();
     vw.writeVariable(testVariable);
@@ -672,8 +702,8 @@ public class CsvDatasourceTest {
   public void testReadingVariables_ConfirmVarMetadata() throws Exception {
     String tableName = "TableVariablesOnly";
     String entityName = "Participant";
-    CsvDatasource datasource = new TempTableBuilder(tableName)
-        .addVariables(new File("src/test/resources/Table1/variables.csv")).buildCsvDatasource("csv-datasource");
+    CsvDatasource datasource = new TempTableBuilder(tableName).addVariables(getFileFromResource("Table1/variables.csv"))
+        .buildCsvDatasource("csv-datasource");
 
     ValueTable table = datasource.getValueTable(tableName);
     Variable variable = table.getVariable("var2");
@@ -688,28 +718,28 @@ public class CsvDatasourceTest {
   @Test(expected = MagmaRuntimeException.class)
   public void testWritingVariables_HeaderInFileWithoutRequiredNameCausesError() throws Exception {
     String tableName = "TableVariablesOnly";
-    new TempTableBuilder(tableName).addVariables(new File("src/test/resources/Table1/variables_with_no_name.csv"))
+    new TempTableBuilder(tableName).addVariables(getFileFromResource("Table1/variables_with_no_name.csv"))
         .buildCsvDatasource("csv-datasource");
   }
 
   @Test(expected = MagmaRuntimeException.class)
   public void testWritingVariables_HeaderInFileWithoutRequiredTypeCausesError() throws Exception {
     String tableName = "TableVariablesOnly";
-    new TempTableBuilder(tableName).addVariables(new File("src/test/resources/Table1/variables_with_no_type.csv"))
+    new TempTableBuilder(tableName).addVariables(getFileFromResource("Table1/variables_with_no_type.csv"))
         .buildCsvDatasource("csv-datasource");
   }
 
   @Test(expected = MagmaRuntimeException.class)
   public void testWritingVariables_HeaderInFileWithoutRequiredEntityTypeCausesError() throws Exception {
     String tableName = "TableVariablesOnly";
-    new TempTableBuilder(tableName).addVariables(new File("src/test/resources/Table1/variables_with_no_entityType.csv"))
+    new TempTableBuilder(tableName).addVariables(getFileFromResource("Table1/variables_with_no_entityType.csv"))
         .buildCsvDatasource("csv-datasource");
   }
 
   @Test
   public void testWritingVariables_MinimalHeaderIsValid() throws Exception {
     String tableName = "TableVariablesOnly";
-    new TempTableBuilder(tableName).addVariables(new File("src/test/resources/Table1/variables_minimal_header.csv"))
+    new TempTableBuilder(tableName).addVariables(getFileFromResource("Table1/variables_minimal_header.csv"))
         .buildCsvDatasource("csv-datasource");
   }
 
@@ -746,8 +776,8 @@ public class CsvDatasourceTest {
   public void testWritingVariables_AddingVariablesToAnExistingFile() throws Exception {
     String tableName = "TableVariablesOnly";
     String entityName = "Participant";
-    CsvDatasource datasource = new TempTableBuilder(tableName)
-        .addVariables(new File("src/test/resources/Table1/variables.csv")).buildCsvDatasource("csv-datasource");
+    CsvDatasource datasource = new TempTableBuilder(tableName).addVariables(getFileFromResource("Table1/variables.csv"))
+        .buildCsvDatasource("csv-datasource");
 
     Variable variable = Variable.Builder.newVariable("coffee", TextType.get(), entityName)
         .addAttribute("label", "Please indicated your favourite coffee vendor.").build();
@@ -765,8 +795,8 @@ public class CsvDatasourceTest {
   public void testWritingVariables_UpdatingVariable() throws Exception {
     String tableName = "TableVariablesOnly";
     String entityName = "Participant";
-    CsvDatasource datasource = new TempTableBuilder(tableName)
-        .addVariables(new File("src/test/resources/Table1/variables.csv")).buildCsvDatasource("csv-datasource");
+    CsvDatasource datasource = new TempTableBuilder(tableName).addVariables(getFileFromResource("Table1/variables.csv"))
+        .buildCsvDatasource("csv-datasource");
 
     Variable variable = Variable.Builder.newVariable("var2", TextType.get(), entityName)
         .addAttribute("label", "Please indicated your favourite coffee vendor.").build();
@@ -786,18 +816,18 @@ public class CsvDatasourceTest {
   @Test
   public void testReadingVariables_GetVariables() throws Exception {
     String tableName = "TableVariablesOnly";
-    CsvDatasource datasource = new TempTableBuilder(tableName)
-        .addVariables(new File("src/test/resources/Table1/variables.csv")).buildCsvDatasource("csv-datasource");
+    CsvDatasource datasource = new TempTableBuilder(tableName).addVariables(getFileFromResource("Table1/variables.csv"))
+        .buildCsvDatasource("csv-datasource");
 
-    assertThat(((CsvValueTable) datasource.getValueTable(tableName)).getVariables().size(), is(2));
+    assertThat(((AbstractValueTable) datasource.getValueTable(tableName)).getVariables().size(), is(2));
   }
 
   @Test
   public void testWritingVariables_UpdatingWideByteVariable() throws Exception {
     String tableName = "TableVariablesOnly";
     String entityName = "Participant";
-    CsvDatasource datasource = new TempTableBuilder(tableName)
-        .addVariables(new File("src/test/resources/Table1/variables.csv")).buildCsvDatasource("csv-datasource");
+    CsvDatasource datasource = new TempTableBuilder(tableName).addVariables(getFileFromResource("Table1/variables.csv"))
+        .buildCsvDatasource("csv-datasource");
 
     Variable variable = Variable.Builder.newVariable("var2", TextType.get(), entityName)
         .addAttribute("label", "suggéré").build();
@@ -816,19 +846,19 @@ public class CsvDatasourceTest {
   }
 
   @Test
-  public void testRepeatableDataRead() {
+  public void testRepeatableDataRead() throws URISyntaxException {
     CsvDatasource datasource = new CsvDatasource("csv-datasource").addValueTable("Participants", //
-        new File("src/test/resources/Participants/variables.csv"), //
-        new File("src/test/resources/Participants/data.csv"));
+        getFileFromResource("Participants/variables.csv"), //
+        getFileFromResource("Participants/data.csv"));
     datasource.initialise();
-    Assert.assertEquals(1, datasource.getValueTableNames().size());
+    assertThat(datasource.getValueTableNames().size(), is(1));
 
     ValueTable table = datasource.getValueTable("Participants");
-    Assert.assertNotNull(table);
-    Assert.assertEquals("Participant", table.getEntityType());
+    assertThat(table, notNullValue());
+    assertThat(table.getEntityType(), is("Participant"));
 
     Variable var = table.getVariable("Admin.Action.actionType");
-    Assert.assertTrue(var.isRepeatable());
+    assertTrue(var.isRepeatable());
 
     int count = 0;
     for(ValueSet valueSet : table.getValueSets()) {
@@ -837,34 +867,34 @@ public class CsvDatasourceTest {
         String identifier = valueSet.getVariableEntity().getIdentifier();
         Value value = table.getValue(var, valueSet);
         log.info("Admin.Action.actionType[{}]={}", identifier, value);
-        Assert.assertEquals("text", value.getValueType().getName());
-        Assert.assertTrue(value.isSequence());
+        assertEquals("text", value.getValueType().getName());
+        assertTrue(value.isSequence());
         ValueSequence seq = value.asSequence();
-        Assert.assertEquals(33, seq.getSize());
+        assertEquals(33, seq.getSize());
       }
     }
-    Assert.assertEquals(2, count);
+    assertEquals(2, count);
   }
 
   @Test
-  public void testMultilineDataRead() {
+  public void testMultilineDataRead() throws URISyntaxException {
     CsvDatasource datasource = new CsvDatasource("csv-datasource").addValueTable("Participants", //
-        new File("src/test/resources/Participants/variables.csv"), //
-        new File("src/test/resources/Participants/data.csv"));
+        getFileFromResource("Participants/variables.csv"), //
+        getFileFromResource("Participants/data.csv"));
     datasource.setQuote(Quote.DOUBLE);
     datasource.setSeparator(Separator.COMMA);
     datasource.setCharacterSet("UTF-8");
     datasource.setFirstRow(1);
     datasource.initialise();
 
-    Assert.assertEquals(1, datasource.getValueTableNames().size());
+    assertThat(datasource.getValueTableNames().size(), is(1));
 
     ValueTable table = datasource.getValueTable("Participants");
-    Assert.assertNotNull(table);
-    Assert.assertEquals("Participant", table.getEntityType());
+    assertThat(table, notNullValue());
+    assertThat(table.getEntityType(), is("Participant"));
 
     Variable var = table.getVariable("Admin.Action.comment");
-    Assert.assertTrue(var.isRepeatable());
+    assertTrue(var.isRepeatable());
 
     int count = 0;
     for(ValueSet valueSet : table.getValueSets()) {
@@ -873,25 +903,25 @@ public class CsvDatasourceTest {
       Value value = table.getValue(var, valueSet);
       log.info("Admin.Action.comment[{}]={}", identifier, value);
       Assert.assertNotNull(value);
-      Assert.assertEquals("text", value.getValueType().getName());
-      Assert.assertTrue(value.isSequence());
+      assertEquals("text", value.getValueType().getName());
+      assertTrue(value.isSequence());
       ValueSequence seq = value.asSequence();
       if(count == 1) {
-        Assert.assertEquals(33, seq.getSize());
-        Assert.assertEquals("sample collection by Val\ndata entry by Evan", seq.get(22).toString());
+        assertEquals(33, seq.getSize());
+        assertEquals("sample collection by Val\ndata entry by Evan", seq.get(22).toString());
       } else if(count == 2) {
-        Assert.assertEquals(
-            "Unable to draw from left arm due to vein rolling upon puncture. Ct refused puncture to right arm. Saliva kit complete",
-            seq.get(5).toString());
+        assertEquals(
+            "Unable to draw from left arm due to vein rolling upon puncture. Ct refused puncture to right arm. " +
+                "Saliva kit complete", seq.get(5).toString());
       }
     }
-    Assert.assertEquals(2, count);
+    assertEquals(2, count);
   }
 
   @Test
-  public void testCharSet() {
+  public void testCharSet() throws URISyntaxException {
     CsvDatasource datasource = new CsvDatasource("csv-datasource")
-        .addValueTable("Drugs", new File("src/test/resources/medications/Drugs.csv"), "Drug");
+        .addValueTable("Drugs", getFileFromResource("medications/Drugs.csv"), "Drug");
     datasource.setQuote(Quote.DOUBLE);
     datasource.setSeparator(Separator.COMMA);
     datasource.setCharacterSet("UTF-8");
@@ -910,6 +940,81 @@ public class CsvDatasourceTest {
   private void checkValue(ValueTable table, Variable var, String identifier, String expected) {
     Value value = table.getValue(var, table.getValueSet(new VariableEntityBean("Drug", identifier)));
     log.info("{} : {}", identifier, value.toString());
-    Assert.assertEquals(expected, value.toString());
+    assertThat(value.toString(), is(expected));
   }
+
+  @SuppressWarnings("ReuseOfLocalVariable")
+  @Test
+  public void test_backslash() throws URISyntaxException {
+    CsvDatasource datasource = new CsvDatasource("csv-datasource").addValueTable("Table1", //
+        getFileFromResource("Table1/escaped-variables.csv"), //
+        getFileFromResource("Table1/escaped-data.csv"));
+    datasource.initialise();
+
+    assertThat(datasource.getValueTableNames().size(), is(1));
+
+    ValueTable table = datasource.getValueTable("Table1");
+    assertThat(table, notNullValue());
+    assertThat(table.getEntityType(), is("Participant"));
+
+    Variable name = table.getVariable("name");
+    assertThat(name, notNullValue());
+    assertThat(name.getValueType().getName(), is("text"));
+    assertThat(name.getEntityType(), is("Participant"));
+    assertThat(name.getMimeType(), nullValue());
+    assertThat(name.getUnit(), nullValue());
+    assertThat(name.getOccurrenceGroup(), nullValue());
+    assertThat(name.isRepeatable(), is(false));
+
+    Variable children = table.getVariable("children");
+    assertThat(children, notNullValue());
+    assertThat(children.getValueType().getName(), is("text"));
+    assertThat(children.getEntityType(), is("Participant"));
+    assertThat(children.getMimeType(), nullValue());
+    assertThat(children.getUnit(), nullValue());
+    assertThat(children.getOccurrenceGroup(), nullValue());
+    assertThat(children.isRepeatable(), is(true));
+
+    VariableEntity entity1 = new VariableEntityBean("Participant", "1");
+    Value value = table.getValue(name, table.getValueSet(entity1));
+    assertThat(value.isSequence(), is(false));
+    assertThat((String) value.getValue(), is("Julius\nCaesar"));
+
+    value = table.getValue(children, table.getValueSet(entity1));
+    assertThat(value.isSequence(), is(true));
+    ValueSequence valueSequence = value.asSequence();
+    assertThat((String) valueSequence.get(0).getValue(), is("Julia"));
+    assertThat((String) valueSequence.get(1).getValue(), is("Caesarion"));
+    assertThat((String) valueSequence.get(2).getValue(), is("Gaius\\Julius Caesar Octavianus"));
+    assertThat(valueSequence.get(3).isNull(), is(true));
+    assertThat((String) valueSequence.get(4).getValue(), is("Marcus Junius Brutus"));
+
+    VariableEntity entity2 = new VariableEntityBean("Participant", "2");
+
+    value = table.getValue(name, table.getValueSet(entity2));
+    assertThat(value.isSequence(), is(false));
+    assertThat((String) value.getValue(), is("Cleopatra\\VII")); // \\ from csv become single \
+
+    value = table.getValue(children, table.getValueSet(entity2));
+    assertThat(value.isSequence(), is(true));
+    valueSequence = value.asSequence();
+    assertThat((String) valueSequence.get(0).getValue(), is("Ptolemy XV"));
+    assertThat(valueSequence.get(1).isNull(), is(true));
+    assertThat((String) valueSequence.get(2).getValue(), is("Caesarion"));
+    assertThat((String) valueSequence.get(3).getValue(), is("Alexander Helios"));
+    assertThat((String) valueSequence.get(4).getValue(), is("Cleopatra Selene"));
+    assertThat((String) valueSequence.get(5).getValue(), is("Ptolemy XVI Philadelphus"));
+
+    value = table.getValue(name, table.getValueSet(new VariableEntityBean("Participant", "3")));
+    assertThat(value.isSequence(), is(false));
+    assertThat((String) value.getValue(), is("Claudius"));
+
+    try {
+      table.getValue(name, table.getValueSet(new VariableEntityBean("Participant", "4")));
+      Assert.fail("Should throw NoSuchValueSetException for Participant 4");
+    } catch(NoSuchValueSetException e) {
+    }
+
+  }
+
 }
