@@ -2,6 +2,9 @@ package org.obiba.magma.js;
 
 import java.util.Date;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ScriptRuntime;
 import org.mozilla.javascript.Scriptable;
@@ -27,6 +30,7 @@ public class ScriptableValue extends ScriptableObject {
 
   static final String VALUE_CLASS_NAME = "Value";
 
+  @Nonnull
   private Value value;
 
   private String unit;
@@ -38,7 +42,7 @@ public class ScriptableValue extends ScriptableObject {
 
   }
 
-  public ScriptableValue(Scriptable scope, Value value, String unit) {
+  public ScriptableValue(Scriptable scope, @Nonnull Value value, @Nullable String unit) {
     super(scope, ScriptableObject.getClassPrototype(scope, VALUE_CLASS_NAME));
     if(value == null) {
       throw new NullPointerException("value cannot be null");
@@ -47,7 +51,7 @@ public class ScriptableValue extends ScriptableObject {
     this.unit = unit;
   }
 
-  public ScriptableValue(Scriptable scope, Value value) {
+  public ScriptableValue(Scriptable scope, @Nonnull Value value) {
     this(scope, value, null);
   }
 
@@ -64,9 +68,9 @@ public class ScriptableValue extends ScriptableObject {
     return VALUE_CLASS_NAME;
   }
 
+  @Nullable
   @Override
   public Object getDefaultValue(Class<?> typeHint) {
-    Value value = getValue();
     if(value.isSequence()) {
       return value.asSequence().toString();
     }
@@ -76,11 +80,9 @@ public class ScriptableValue extends ScriptableObject {
         return Context.toObject(defaultValue, this);
       }
       double jsDate;
-      if(value.getValueType() == DateType.get()) {
-        jsDate = ((MagmaDate) defaultValue).asDate().getTime();
-      } else {
-        jsDate = ((Date) defaultValue).getTime();
-      }
+      jsDate = value.getValueType() == DateType.get()
+          ? ((MagmaDate) defaultValue).asDate().getTime()
+          : ((Date) defaultValue).getTime();
       return Context.toObject(ScriptRuntime.wrapNumber(jsDate), this);
     }
     if(value.getValueType().isNumeric()) {
@@ -95,6 +97,7 @@ public class ScriptableValue extends ScriptableObject {
     return defaultValue;
   }
 
+  @Nonnull
   public Value getValue() {
     return value;
   }
@@ -115,8 +118,9 @@ public class ScriptableValue extends ScriptableObject {
    * 
    * @see java.lang.Object#toString()
    */
+  @Nullable
   @Override
   public String toString() {
-    return this.getValue().toString();
+    return getValue().toString();
   }
 }

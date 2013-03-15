@@ -4,8 +4,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Locale;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import org.mozilla.javascript.Callable;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.NativeObject;
@@ -43,9 +45,10 @@ public class TextMethods {
       @Nullable Function funObj) {
     com.google.common.base.Function<Value, Value> trimFunction = new com.google.common.base.Function<Value, Value>() {
 
+      @SuppressWarnings("ConstantConditions")
       @Override
       public Value apply(Value input) {
-        if(input.isNull()) return TextType.get().nullValue();
+        if(input == null || input.isNull()) return TextType.get().nullValue();
         return TextType.get().valueOf(input.toString().trim());
       }
     };
@@ -65,8 +68,9 @@ public class TextMethods {
     com.google.common.base.Function<Value, Value> caseFunction = new com.google.common.base.Function<Value, Value>() {
 
       @Override
+      @SuppressWarnings("ConstantConditions")
       public Value apply(Value input) {
-        if(input.isNull()) return TextType.get().nullValue();
+        if(input == null || input.isNull()) return TextType.get().nullValue();
         String stringValue = input.toString();
         stringValue = locale == null ? stringValue.toUpperCase() : stringValue.toUpperCase(locale);
         return TextType.get().valueOf(stringValue);
@@ -88,8 +92,9 @@ public class TextMethods {
     com.google.common.base.Function<Value, Value> caseFunction = new com.google.common.base.Function<Value, Value>() {
 
       @Override
+      @SuppressWarnings("ConstantConditions")
       public Value apply(Value input) {
-        if(input.isNull()) return TextType.get().nullValue();
+        if(input == null || input.isNull()) return TextType.get().nullValue();
         String stringValue = input.toString();
         stringValue = locale == null ? stringValue.toLowerCase() : stringValue.toLowerCase(locale);
         return TextType.get().valueOf(stringValue);
@@ -99,16 +104,14 @@ public class TextMethods {
     return transformValue((ScriptableValue) thisObj, caseFunction);
   }
 
-  private static Locale getLocaleArgument(Object... args) {
+  @Nullable
+  private static Locale getLocaleArgument(@Nullable Object... args) {
     Locale locale = null;
     if(args != null && args.length > 0) {
       Object localeArg = args[0];
-      Value localeValue = null;
-      if(args[0] instanceof ScriptableValue) {
-        localeValue = ((ScriptableValue) localeArg).getValue();
-      } else {
-        localeValue = LocaleType.get().valueOf(localeArg);
-      }
+      Value localeValue = localeArg instanceof ScriptableValue
+          ? ((ScriptableValue) localeArg).getValue()
+          : LocaleType.get().valueOf(localeArg);
       locale = (Locale) localeValue.getValue();
     }
     return locale;
@@ -138,9 +141,10 @@ public class TextMethods {
     com.google.common.base.Function<Value, Value> capitalizeFunction
         = new com.google.common.base.Function<Value, Value>() {
 
+      @SuppressWarnings("ConstantConditions")
       @Override
       public Value apply(Value input) {
-        if(input.isNull()) return TextType.get().nullValue();
+        if(input == null || input.isNull()) return TextType.get().nullValue();
         String stringValue = input.toString();
 
         char[] buffer = stringValue.toCharArray();
@@ -157,7 +161,7 @@ public class TextMethods {
         return TextType.get().valueOf(new String(buffer));
       }
 
-      private boolean isDelimiter(char ch, String delimiters) {
+      private boolean isDelimiter(char ch, @Nullable String delimiters) {
         if(delimiters == null || delimiters.isEmpty()) {
           return Character.isWhitespace(ch);
         }
@@ -187,7 +191,7 @@ public class TextMethods {
 
       @Override
       public Value apply(Value input) {
-        String stringValue = input.toString();
+        String stringValue = input == null ? null : input.toString();
 
         // Delegate to Javascript's String.replace method
         String result = (String) ScriptRuntime.checkRegExpProxy(ctx)
@@ -211,7 +215,7 @@ public class TextMethods {
 
       @Override
       public Value apply(Value input) {
-        String stringValue = input.toString();
+        String stringValue = input == null ? null : input.toString();
 
         // Delegate to Javascript's String.replace method
         boolean matches = false;
@@ -248,7 +252,7 @@ public class TextMethods {
 
       @Override
       public Value apply(Value input) {
-        String stringValue = input.toString();
+        String stringValue = input == null ? null : input.toString();
         StringBuilder sb = new StringBuilder();
         sb.append(stringValue);
         if(args != null) {
@@ -305,7 +309,7 @@ public class TextMethods {
    * @return
    */
   public static ScriptableValue map(Context ctx, Scriptable thisObj, Object[] args, Function funObj) {
-    if(args == null || args.length < 1 || args[0] instanceof NativeObject == false) {
+    if(args == null || args.length < 1 || !(args[0] instanceof NativeObject)) {
       throw new MagmaJsEvaluationRuntimeException("illegal arguments to map()");
     }
 
@@ -388,16 +392,15 @@ public class TextMethods {
    * @return
    */
   private static Value lookupValue(Context ctx, Scriptable thisObj, Value value, ValueType returnType,
-      NativeObject valueMap, Value defaultValue, Value nullValue) {
+      Scriptable valueMap, Value defaultValue, Value nullValue) {
     if(value.isNull()) {
       return nullValue;
     }
 
-    Object newValue = null;
     // MAGMA-163: lookup using string and index-based keys
     // Lookup using a string-based key
     String asName = value.toString();
-    newValue = valueMap.get(asName, null);
+    Object newValue = valueMap.get(asName, null);
     if(newValue == NativeObject.NOT_FOUND) {
       // Not found, try converting the input to an Integer and use an indexed-lookup if it works
       Integer index = asJsIndex(value);
@@ -415,7 +418,7 @@ public class TextMethods {
     }
 
     if(newValue instanceof Function) {
-      Function valueFunction = (Function) newValue;
+      Callable valueFunction = (Callable) newValue;
       Object evaluatedValue = valueFunction
           .call(ctx, thisObj, thisObj, new Object[] { new ScriptableValue(thisObj, value) });
       if(evaluatedValue instanceof ScriptableValue) {
@@ -434,6 +437,7 @@ public class TextMethods {
    * @param value
    * @return
    */
+  @Nullable
   private static Integer asJsIndex(Value value) {
     Number asNumber = null;
     if(value.getValueType() == IntegerType.get()) {
@@ -461,19 +465,18 @@ public class TextMethods {
    */
   private static ScriptableValue transformValue(ScriptableValue sv,
       com.google.common.base.Function<Value, Value> valueFunction) {
+
     if(sv.getValue().isNull()) {
-      if(sv.getValue().isSequence()) {
-        return new ScriptableValue(sv, TextType.get().nullSequence());
-      } else {
-        return new ScriptableValue(sv, valueFunction.apply(sv.getValue()));
-      }
+      return sv.getValue().isSequence()
+          ? new ScriptableValue(sv, TextType.get().nullSequence())
+          : new ScriptableValue(sv, valueFunction.apply(sv.getValue()));
     }
+
     if(sv.getValue().isSequence()) {
       return new ScriptableValue(sv, TextType.get()
           .sequenceOf(Lists.newArrayList(Iterables.transform(sv.getValue().asSequence().getValue(), valueFunction))));
-    } else {
-      return new ScriptableValue(sv, valueFunction.apply(sv.getValue()));
     }
+    return new ScriptableValue(sv, valueFunction.apply(sv.getValue()));
   }
 
 }
