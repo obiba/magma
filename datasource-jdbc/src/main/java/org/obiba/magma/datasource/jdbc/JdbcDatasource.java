@@ -9,6 +9,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import javax.annotation.Nullable;
 import javax.sql.DataSource;
 
 import org.obiba.magma.ValueTable;
@@ -45,28 +46,16 @@ public class JdbcDatasource extends AbstractDatasource {
 
   private static final Logger log = LoggerFactory.getLogger(JdbcDatasource.class);
 
-  //
-  // Constants
-  //
+  private static final Set<String> RESERVED_NAMES = ImmutableSet
+      .of(VARIABLE_METADATA_TABLE, ATTRIBUTE_METADATA_TABLE, CATEGORY_METADATA_TABLE);
 
   private static final String TYPE = "jdbc";
-
-  //
-  // Instance Variables
-  //
-
-  private Set<String> RESERVED_NAMES = ImmutableSet
-      .of(VARIABLE_METADATA_TABLE, ATTRIBUTE_METADATA_TABLE, CATEGORY_METADATA_TABLE);
 
   private final JdbcTemplate jdbcTemplate;
 
   private final JdbcDatasourceSettings settings;
 
   private DatabaseSnapshot snapshot;
-
-  //
-  // Constructors
-  //
 
   public JdbcDatasource(String name, DataSource datasource, JdbcDatasourceSettings settings) {
     super(name, TYPE);
@@ -79,7 +68,7 @@ public class JdbcDatasource extends AbstractDatasource {
     }
 
     this.settings = settings;
-    this.jdbcTemplate = new JdbcTemplate(datasource);
+    jdbcTemplate = new JdbcTemplate(datasource);
   }
 
   public JdbcDatasource(String name, DataSource datasource, String defaultEntityType, boolean useMetadataTables) {
@@ -95,8 +84,9 @@ public class JdbcDatasource extends AbstractDatasource {
    * <p/>
    * Note: Newly created tables have a single entity identifier column, "entity_id".
    */
+  @SuppressWarnings({ "AssignmentToMethodParameter", "PMD.AvoidReassigningParameters" })
   @Override
-  public ValueTableWriter createWriter(String tableName, String entityType) {
+  public ValueTableWriter createWriter(String tableName, @Nullable String entityType) {
     if(entityType == null) {
       entityType = settings.getDefaultEntityType();
     }
@@ -130,6 +120,7 @@ public class JdbcDatasource extends AbstractDatasource {
   protected void onDispose() {
   }
 
+  @Override
   protected Set<String> getValueTableNames() {
     Set<String> names = new LinkedHashSet<String>();
     for(Table table : getDatabaseSnapshot().getTables()) {
@@ -142,7 +133,7 @@ public class JdbcDatasource extends AbstractDatasource {
             names.add(tableSettings.getMagmaTableName());
           } else {
             // Only add the table if it has a primary key
-            if(JdbcValueTable.getEntityIdentifierColumns(table).isEmpty() == false) {
+            if(!JdbcValueTable.getEntityIdentifierColumns(table).isEmpty()) {
               names.add(NameConverter.toMagmaName(table.getName()));
             }
           }
@@ -152,13 +143,12 @@ public class JdbcDatasource extends AbstractDatasource {
     return names;
   }
 
+  @Override
   protected ValueTable initialiseValueTable(String tableName) {
     JdbcValueTableSettings tableSettings = settings.getTableSettingsForMagmaTable(tableName);
-    if(tableSettings != null) {
-      return new JdbcValueTable(this, tableSettings);
-    } else {
-      return new JdbcValueTable(this, getDatabaseSnapshot().getTable(tableName), settings.getDefaultEntityType());
-    }
+    return tableSettings != null
+        ? new JdbcValueTable(this, tableSettings)
+        : new JdbcValueTable(this, getDatabaseSnapshot().getTable(tableName), settings.getDefaultEntityType());
   }
 
   //
@@ -196,7 +186,8 @@ public class JdbcDatasource extends AbstractDatasource {
   }
 
   <T> T doWithDatabase(final DatabaseCallback<T> databaseCallback) {
-    return (T) jdbcTemplate.execute(new ConnectionCallback<T>() {
+    return jdbcTemplate.execute(new ConnectionCallback<T>() {
+      @Nullable
       @Override
       public T doInConnection(Connection con) throws SQLException, DataAccessException {
         try {
@@ -248,7 +239,8 @@ public class JdbcDatasource extends AbstractDatasource {
    * @param <T> the type of object returned by the callback if any
    */
   interface DatabaseCallback<T> {
-    public T doInDatabase(Database database) throws JDBCException;
+    @Nullable
+    T doInDatabase(Database database) throws JDBCException;
   }
 
   /**
@@ -272,9 +264,10 @@ public class JdbcDatasource extends AbstractDatasource {
       if(changes == null) throw new IllegalArgumentException("changes cannot be null");
       if(visitors == null) throw new IllegalArgumentException("visitors cannot be null");
       this.changes = changes;
-      this.sqlVisitors = ImmutableList.copyOf(visitors);
+      sqlVisitors = ImmutableList.copyOf(visitors);
     }
 
+    @Nullable
     @Override
     public Object doInDatabase(Database database) throws JDBCException {
       try {
