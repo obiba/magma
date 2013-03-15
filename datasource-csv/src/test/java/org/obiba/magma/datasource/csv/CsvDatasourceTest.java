@@ -363,6 +363,7 @@ public class CsvDatasourceTest {
     writer.close();
   }
 
+  @SuppressWarnings("ConstantConditions")
   @Test
   public void testWritingDataOnlyAddingNewValueSet() throws Exception {
     File tempTestDirectory = new TempTableBuilder("TableDataOnly").addData().build();
@@ -434,6 +435,7 @@ public class CsvDatasourceTest {
     }
   }
 
+  @SuppressWarnings("ConstantConditions")
   @Test
   public void testWritingDataOnlyModifyingValueSet() throws Exception {
     File tempTestDirectory = new TempTableBuilder("TableDataOnly").addData().build();
@@ -579,6 +581,7 @@ public class CsvDatasourceTest {
     return null;
   }
 
+  @SuppressWarnings("IfStatementWithTooManyBranches")
   @Test
   public void testRefTable1DataRead() throws URISyntaxException {
     CsvDatasource refDatasource = new CsvDatasource("csv-datasource1").addValueTable("Table1", //

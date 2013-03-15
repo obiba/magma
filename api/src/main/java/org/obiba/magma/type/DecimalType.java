@@ -14,6 +14,7 @@ public class DecimalType extends AbstractNumberType {
 
   private static final long serialVersionUID = -149385659514790222L;
 
+  @SuppressWarnings("StaticNonFinalField")
   private static WeakReference<DecimalType> instance;
 
   private DecimalType() {
@@ -21,6 +22,7 @@ public class DecimalType extends AbstractNumberType {
   }
 
   @SuppressWarnings("ConstantConditions")
+  @edu.umd.cs.findbugs.annotations.SuppressWarnings("NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE")
   @Nonnull
   public static DecimalType get() {
     if(instance == null || instance.get() == null) {

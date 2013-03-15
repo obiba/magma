@@ -1,6 +1,7 @@
 package org.obiba.magma.datasource.csv;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueSet;
@@ -41,6 +42,7 @@ public class CsvVariableValueSource implements VariableValueSource {
     return ((CsvValueSet) valueSet).getValue(variable);
   }
 
+  @Nullable
   @Override
   public VectorSource asVectorSource() {
     return null;

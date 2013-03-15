@@ -287,11 +287,6 @@ public class JoinTable implements ValueTable, Initialisable {
   }
 
   @Nonnull
-  private List<ValueTable> getTablesWithVariable(Variable variable) throws NoSuchVariableException {
-    return getTablesWithVariable(new JoinableVariable(variable));
-  }
-
-  @Nonnull
   private synchronized List<ValueTable> getTablesWithVariable(@Nonnull JoinableVariable joinableVariable)
       throws NoSuchVariableException {
 

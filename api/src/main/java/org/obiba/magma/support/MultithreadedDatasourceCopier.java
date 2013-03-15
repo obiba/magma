@@ -132,6 +132,8 @@ public class MultithreadedDatasourceCopier {
 
   private ReaderListener readerListener;
 
+  @edu.umd.cs.findbugs.annotations.SuppressWarnings(value = "NP_NONNULL_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR",
+      justification = "Fields will be populated by Builder")
   private MultithreadedDatasourceCopier() {
 
   }

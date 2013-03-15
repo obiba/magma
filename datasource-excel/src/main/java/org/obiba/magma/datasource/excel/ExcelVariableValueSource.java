@@ -1,6 +1,7 @@
 package org.obiba.magma.datasource.excel;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueSet;
@@ -28,6 +29,7 @@ public class ExcelVariableValueSource implements VariableValueSource {
     return variable.getValueType();
   }
 
+  @Nullable
   @Override
   public VectorSource asVectorSource() {
     return null;

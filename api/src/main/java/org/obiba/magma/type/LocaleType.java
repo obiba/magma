@@ -13,6 +13,7 @@ public class LocaleType extends AbstractValueType {
 
   private static final long serialVersionUID = 6256436421177197681L;
 
+  @SuppressWarnings("StaticNonFinalField")
   private static WeakReference<LocaleType> instance;
 
   private LocaleType() {
@@ -20,6 +21,7 @@ public class LocaleType extends AbstractValueType {
   }
 
   @SuppressWarnings("ConstantConditions")
+  @edu.umd.cs.findbugs.annotations.SuppressWarnings("NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE")
   @Nonnull
   public static LocaleType get() {
     if(instance == null || instance.get() == null) {

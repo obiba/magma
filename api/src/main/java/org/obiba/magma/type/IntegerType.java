@@ -14,6 +14,7 @@ public class IntegerType extends AbstractNumberType {
 
   private static final long serialVersionUID = 2345566305016760446L;
 
+  @SuppressWarnings("StaticNonFinalField")
   private static WeakReference<IntegerType> instance;
 
   private IntegerType() {
@@ -21,6 +22,7 @@ public class IntegerType extends AbstractNumberType {
   }
 
   @SuppressWarnings("ConstantConditions")
+  @edu.umd.cs.findbugs.annotations.SuppressWarnings("NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE")
   @Nonnull
   public static IntegerType get() {
     if(instance == null || instance.get() == null) {

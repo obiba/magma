@@ -18,12 +18,13 @@ public class DateType extends AbstractValueType {
 
   private static final long serialVersionUID = -149385659514790222L;
 
+  @SuppressWarnings("StaticNonFinalField")
   private static WeakReference<DateType> instance;
 
   /**
    * Preferred format.
    */
-  private final SimpleDateFormat ISO_8601 = new SimpleDateFormat("yyyy-MM-dd");
+  private static final SimpleDateFormat ISO_8601 = new SimpleDateFormat("yyyy-MM-dd");
 
   /**
    * These are used to support common date formats.
@@ -53,6 +54,7 @@ public class DateType extends AbstractValueType {
   }
 
   @SuppressWarnings("ConstantConditions")
+  @edu.umd.cs.findbugs.annotations.SuppressWarnings("NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE")
   @Nonnull
   public static DateType get() {
     if(instance == null || instance.get() == null) {

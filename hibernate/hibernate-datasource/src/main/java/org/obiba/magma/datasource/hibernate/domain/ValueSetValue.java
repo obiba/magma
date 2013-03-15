@@ -12,6 +12,7 @@ package org.obiba.magma.datasource.hibernate.domain;
 import java.io.Serializable;
 import java.util.Date;
 
+import javax.annotation.Nonnull;
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
 import javax.persistence.EmbeddedId;
@@ -51,6 +52,7 @@ public class ValueSetValue implements Timestamped, Serializable {
       @Column(name = "value", length = Integer.MAX_VALUE, nullable = false) })
   private Value value;
 
+  @SuppressWarnings("FieldMayBeFinal")
   @Temporal(TemporalType.TIMESTAMP)
   @Column(insertable = true, updatable = false, nullable = false)
   private Date created = new Date();
@@ -63,7 +65,7 @@ public class ValueSetValue implements Timestamped, Serializable {
   public ValueSetValue() {
   }
 
-  public ValueSetValue(VariableState variable, ValueSetState valueSet) {
+  public ValueSetValue(@Nonnull VariableState variable, @Nonnull ValueSetState valueSet) {
     if(variable == null) throw new IllegalArgumentException("variable cannot be null");
     if(valueSet == null) throw new IllegalArgumentException("valueSet cannot be null");
     id = new ValueSetValueId(variable, valueSet);

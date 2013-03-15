@@ -7,6 +7,7 @@ import java.io.Reader;
 import java.io.Writer;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import org.obiba.magma.Disposable;
 import org.obiba.magma.Initialisable;
@@ -171,6 +172,7 @@ class FsValueTable extends AbstractValueTable implements Initialisable, Disposab
       return ((LazyValueSet) valueSet).getValueSet().getValue(variable);
     }
 
+    @Nullable
     @Override
     public VectorSource asVectorSource() {
       return null;

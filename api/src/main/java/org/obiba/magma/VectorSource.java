@@ -15,8 +15,8 @@ import java.util.SortedSet;
  */
 public interface VectorSource {
 
-  public ValueType getValueType();
+  ValueType getValueType();
 
-  public Iterable<Value> getValues(SortedSet<VariableEntity> entities);
+  Iterable<Value> getValues(SortedSet<VariableEntity> entities);
 
 }

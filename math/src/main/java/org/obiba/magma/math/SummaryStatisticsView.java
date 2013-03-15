@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.Set;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 import org.obiba.magma.Datasource;
@@ -134,6 +135,7 @@ public class SummaryStatisticsView extends AbstractValueTable implements Initial
       return DecimalType.get();
     }
 
+    @Nullable
     @Override
     public VectorSource asVectorSource() {
       return null;

@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import org.hibernate.FlushMode;
@@ -103,7 +104,7 @@ class HibernateValueTableWriter implements ValueTableWriter {
 
     @Override
     public void close() throws IOException {
-      if(errorOccurred == false) {
+      if(!errorOccurred) {
         session.flush();
         session.clear();
       }
@@ -116,13 +117,14 @@ class HibernateValueTableWriter implements ValueTableWriter {
 
     private final ValueSetState valueSetState;
 
+    @Nonnull
     private final VariableEntity entity;
 
     private final boolean isNewValueSet;
 
     private final Map<String, ValueSetValue> values;
 
-    private HibernateValueSetWriter(VariableEntity entity) {
+    private HibernateValueSetWriter(@Nonnull VariableEntity entity) {
       if(entity == null) throw new IllegalArgumentException("entity cannot be null");
       this.entity = entity;
       // find entity or create it
@@ -149,7 +151,7 @@ class HibernateValueTableWriter implements ValueTableWriter {
     }
 
     @Override
-    public void writeValue(Variable variable, Value value) {
+    public void writeValue(@Nonnull Variable variable, @Nonnull Value value) {
       if(variable == null) throw new IllegalArgumentException("variable cannot be null");
       if(value == null) throw new IllegalArgumentException("value cannot be null");
 
@@ -160,7 +162,7 @@ class HibernateValueTableWriter implements ValueTableWriter {
         }
         ValueSetValue valueSetValue = values.get(variable.getName());
         if(valueSetValue == null) {
-          if(value.isNull() == false) {
+          if(!value.isNull()) {
             createValue(variable, value, variableState);
           }
         } else {
@@ -206,6 +208,7 @@ class HibernateValueTableWriter implements ValueTableWriter {
       values.remove(variable.getName());
     }
 
+    @SuppressWarnings("ConstantConditions")
     private void writeBinaryValue(ValueSetValue valueSetValue, Value value, boolean isUpdate) {
       if(value.isSequence()) {
         List<Value> sequenceValues = Lists.newArrayList();
@@ -247,9 +250,10 @@ class HibernateValueTableWriter implements ValueTableWriter {
 
     @Nullable
     private ValueSetBinaryValue createBinaryValue(ValueSetValue valueSetValue, Value value, int occurrence) {
-      if(value.getValue() == null) return null;
+      Object bytes = value.getValue();
+      if(bytes == null) return null;
       ValueSetBinaryValue binaryValue = new ValueSetBinaryValue(valueSetValue, occurrence);
-      binaryValue.setValue((byte[]) value.getValue());
+      binaryValue.setValue((byte[]) bytes);
       return binaryValue;
     }
 
@@ -265,7 +269,7 @@ class HibernateValueTableWriter implements ValueTableWriter {
 
     @Override
     public void close() throws IOException {
-      if(errorOccurred == false) {
+      if(!errorOccurred) {
         if(isNewValueSet) {
           // Make the entity visible within this transaction
           transaction.addEntity(entity);

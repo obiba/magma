@@ -132,15 +132,13 @@ public abstract class AbstractValueType implements ValueType {
    * @param sequence
    * @return
    */
+  @SuppressWarnings("ConstantConditions")
   @Nullable
   protected String toString(@Nullable ValueSequence sequence) {
-    if(sequence == null) return null;
+    if(sequence == null || sequence.isNull()) return null;
     StringBuilder sb = new StringBuilder();
-    Iterable<Value> values = sequence.getValue();
-    if(values != null) {
-      for(Value value : values) {
-        sb.append(value.isNull() ? "" : escapeAndQuoteIfRequired(value.toString())).append(SEPARATOR);
-      }
+    for(Value value : sequence.getValue()) {
+      sb.append(value.isNull() ? "" : escapeAndQuoteIfRequired(value.toString())).append(SEPARATOR);
     }
     // Remove the last separator
     int length = sb.length();
