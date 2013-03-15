@@ -20,6 +20,7 @@ public class Permissions {
     public static final String DELETE = "DELETE";
   }
 
+  @SuppressWarnings({ "ParameterHidesMemberVariable", "UnusedDeclaration" })
   public static class Builder<T extends Builder<?>> {
 
     protected String domain;
@@ -32,9 +33,9 @@ public class Permissions {
     }
 
     private Builder(Builder<?> builder) {
-      this.domain = builder.domain;
-      this.action = builder.action;
-      this.path = new StringBuilder(builder.path);
+      domain = builder.domain;
+      action = builder.action;
+      path = new StringBuilder(builder.path);
     }
 
     public T domain(String domain) {
@@ -43,7 +44,7 @@ public class Permissions {
     }
 
     public T anyDomain() {
-      this.domain = WILDCARD;
+      domain = WILDCARD;
       return asT();
     }
 
@@ -53,28 +54,28 @@ public class Permissions {
     }
 
     public T anyAction() {
-      this.action = WILDCARD;
+      action = WILDCARD;
       return asT();
     }
 
     public T read() {
-      this.action = Actions.READ;
+      action = Actions.READ;
       return asT();
     }
 
     public T delete() {
-      this.action = Actions.DELETE;
+      action = Actions.DELETE;
       return asT();
     }
 
     public T instance(String instance) {
-      this.path.append('/').append(instance);
+      path.append('/').append(instance);
       return asT();
     }
 
     public T instances(String... instances) {
       for(String i : instances) {
-        this.instance(i);
+        instance(i);
       }
       return asT();
     }
@@ -96,13 +97,15 @@ public class Permissions {
     }
 
     private String appendNonNull(String permission, String... segments) {
+      String newPermission = permission;
       for(String segment : segments) {
-        permission = appendNonNull(permission, segment);
+        newPermission = appendNonNull(newPermission, segment);
       }
-      return permission;
+      return newPermission;
     }
   }
 
+  @SuppressWarnings("StaticMethodOnlyUsedInOneClass")
   public static class DatasourcePermissionBuilder extends Builder<DatasourcePermissionBuilder> {
 
     private static final String DOMAIN = "magma";
@@ -112,7 +115,6 @@ public class Permissions {
     }
 
     private DatasourcePermissionBuilder() {
-      super();
     }
 
     public static DatasourcePermissionBuilder forDatasource(String name) {
@@ -153,13 +155,13 @@ public class Permissions {
 
         @Override
         public boolean apply(Datasource input) {
-          return authorizer.isPermitted(
-              DatasourcePermissionBuilder.this.newCopy().instance("datasource").instance(input.getName()).build());
+          return authorizer.isPermitted(newCopy().instance("datasource").instance(input.getName()).build());
         }
       };
     }
   }
 
+  @SuppressWarnings("StaticMethodOnlyUsedInOneClass")
   public static class ValueTablePermissionBuilder extends Builder<ValueTablePermissionBuilder> {
 
     ValueTablePermissionBuilder(DatasourcePermissionBuilder builder) {
@@ -191,14 +193,14 @@ public class Permissions {
 
         @Override
         public boolean apply(ValueTable input) {
-          return authorizer.isPermitted(
-              ValueTablePermissionBuilder.this.newCopy().instance("table").instance(input.getName()).build());
+          return authorizer.isPermitted(newCopy().instance("table").instance(input.getName()).build());
         }
       };
     }
 
   }
 
+  @SuppressWarnings("UnusedDeclaration")
   public static class VariablePermissionBuilder extends Builder<VariablePermissionBuilder> {
 
     public VariablePermissionBuilder(ValueTablePermissionBuilder builder) {
@@ -218,8 +220,7 @@ public class Permissions {
 
         @Override
         public boolean apply(Variable input) {
-          return authorizer.isPermitted(
-              VariablePermissionBuilder.this.newCopy().instance("variable").instance(input.getName()).build());
+          return authorizer.isPermitted(newCopy().instance("variable").instance(input.getName()).build());
         }
       };
     }
