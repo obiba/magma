@@ -223,7 +223,7 @@ public class SpssDatasourceTest {
 
   @Test
   public void getStringVariableCategories() {
-    dsFactory.setFile("/home/rhaeri/projects/magma/datasource-spss/"+"src/test/resources/org/obiba/magma/datasource/spss/StringCategories.sav");
+    dsFactory.setFile("src/test/resources/org/obiba/magma/datasource/spss/StringCategories.sav");
     Datasource ds = dsFactory.create();
     ds.initialise();
     Variable variable = ds.getValueTable("StringCategories").getVariable("var1");
