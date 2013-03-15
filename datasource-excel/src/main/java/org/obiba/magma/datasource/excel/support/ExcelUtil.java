@@ -3,6 +3,9 @@ package org.obiba.magma.datasource.excel.support;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 import org.apache.poi.ss.usermodel.Cell;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueType;
@@ -16,6 +19,11 @@ import org.obiba.magma.type.TextType;
 
 public class ExcelUtil {
 
+  private static final int MAX_CELL_VALUE = 32767;
+
+  private ExcelUtil() {}
+
+  @SuppressWarnings("ConstantConditions")
   public static void setCellValue(Cell cell, Value value) {
     if(value.isNull()) {
       return;
@@ -23,29 +31,31 @@ public class ExcelUtil {
 
     ValueType valueType = value.getValueType();
 
+    String valueStr = value.toString();
     if(value.isSequence()) {
-      setCellValue(cell, valueType, value.toString());
+      setCellValue(cell, valueType, valueStr);
       return;
     }
 
-    if(valueType.getName().equals(BinaryType.get().getName())) {
-      setCellValue(cell, valueType, value.toString());
-    } else if(valueType.getName().equals(BooleanType.get().getName())) {
+    String valueTypeName = valueType.getName();
+
+    //noinspection IfStatementWithTooManyBranches
+    if(valueTypeName.equals(BinaryType.get().getName())) {
+      setCellValue(cell, valueType, valueStr);
+    } else if(valueTypeName.equals(BooleanType.get().getName())) {
       setCellValue(cell, valueType, (Boolean) value.getValue());
-    } else if(valueType.getName().equals(DateTimeType.get().getName())) {
-      setCellValue(cell, valueType, value.toString());
-    } else if(valueType.getName().equals(DecimalType.get().getName())) {
+    } else if(valueTypeName.equals(DateTimeType.get().getName())) {
+      setCellValue(cell, valueType, valueStr);
+    } else if(valueTypeName.equals(DecimalType.get().getName())) {
       setCellValue(cell, valueType, (Double) value.getValue());
-    } else if(valueType.getName().equals(IntegerType.get().getName())) {
+    } else if(valueTypeName.equals(IntegerType.get().getName())) {
       setCellValue(cell, valueType, (Long) value.getValue());
-    } else if(valueType.getName().equals(LocaleType.get().getName())) {
-      setCellValue(cell, valueType, value.toString());
-    } else if(valueType.getName().equals(TextType.get().getName())) {
-      setCellValue(cell, valueType, value.toString());
+    } else if(valueTypeName.equals(LocaleType.get().getName()) || valueTypeName.equals(TextType.get().getName())) {
+      setCellValue(cell, valueType, valueStr);
     }
   }
 
-  public static void setCellValue(Cell cell, ValueType valueType, boolean value) {
+  public static void setCellValue(@Nonnull Cell cell, ValueType valueType, boolean value) {
     if(valueType.getName().equals(BooleanType.get().getName())) {
       cell.setCellValue(value ? "1" : "0");
     } else {
@@ -53,23 +63,25 @@ public class ExcelUtil {
     }
   }
 
-  public static void setCellValue(Cell cell, ValueType valueType, Double value) {
+  public static void setCellValue(@Nonnull Cell cell, ValueType valueType, Double value) {
     cell.setCellValue(value);
   }
 
-  public static void setCellValue(Cell cell, ValueType valueType, Long value) {
+  public static void setCellValue(@Nonnull Cell cell, ValueType valueType, Long value) {
     cell.setCellValue(value);
   }
 
-  public static void setCellValue(Cell cell, ValueType valueType, String value) {
+  public static void setCellValue(@Nonnull Cell cell, ValueType valueType, @Nullable String value) {
     if(cell == null) throw new IllegalArgumentException("Cell cannot be null before setting a value");
-    if(value != null && value.length() > 32767) {
-      value = "WARN: Value to large for Excel.";
+    String validated = value;
+    if(value != null && value.length() > MAX_CELL_VALUE) {
+      validated = "WARN: Value to large for Excel.";
     }
-    cell.setCellValue(value);
+    cell.setCellValue(validated);
   }
 
-  public static String getCellValueAsString(Cell cell) {
+  @SuppressWarnings({ "OverlyLongMethod", "PMD.NcssMethodCount" })
+  public static String getCellValueAsString(@Nullable Cell cell) {
     String value = "";
     if(cell != null) {
       switch(cell.getCellType()) {
@@ -106,7 +118,8 @@ public class ExcelUtil {
    * @param header
    * @return null if not found
    */
-  public static String findNormalizedHeader(final Iterable<String> headers, final String header) {
+  @Nullable
+  public static String findNormalizedHeader(Iterable<String> headers, String header) {
     String normalized = normalizeHeader(header);
     for(String userHeader : headers) {
       if(normalizeHeader(userHeader).equals(normalized)) {
@@ -127,18 +140,18 @@ public class ExcelUtil {
     if(cached != null) {
       return cached;
     } else {
-      StringBuffer buf = new StringBuffer();
+      StringBuilder sb = new StringBuilder();
       for(int i = 0; i < userHeader.length(); i++) {
         char c = userHeader.charAt(i);
         if(c != ' ' && c != '_' && c != '-') {
-          buf.append(c);
+          sb.append(c);
         }
       }
-      String h = buf.toString().toLowerCase();
+      String h = sb.toString().toLowerCase();
       cachedNormalizedHeaders.put(userHeader, h);
       return h;
     }
   }
 
-  private static Map<String, String> cachedNormalizedHeaders = new HashMap<String, String>();
+  private static final Map<String, String> cachedNormalizedHeaders = new HashMap<String, String>();
 }
