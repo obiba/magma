@@ -46,6 +46,7 @@ public class BinaryValueURLLoader implements ValueLoader, Serializable {
 
   @Nonnull
   @Override
+  @edu.umd.cs.findbugs.annotations.SuppressWarnings("EI_EXPOSE_REP")
   public Object getValue() {
     if(value == null) {
       try {

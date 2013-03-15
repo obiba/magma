@@ -63,6 +63,7 @@ public class ValueSetBinaryValue extends AbstractEntity {
     return occurrence;
   }
 
+  @edu.umd.cs.findbugs.annotations.SuppressWarnings("EI_EXPOSE_REP")
   public byte[] getValue() {
     return value;
   }
@@ -76,6 +77,7 @@ public class ValueSetBinaryValue extends AbstractEntity {
   }
 
   @SuppressWarnings("MethodCanBeVariableArityMethod")
+  @edu.umd.cs.findbugs.annotations.SuppressWarnings("EI_EXPOSE_REP2")
   public void setValue(@Nonnull byte[] value) {
     if(value == null) {
       throw new IllegalArgumentException("cannot persist null values");

@@ -16,6 +16,8 @@ import java.io.FilenameFilter;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import javax.annotation.Nullable;
+
 import org.obiba.magma.Attribute;
 import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.Value;
@@ -48,7 +50,7 @@ public class BinaryValueFileHelper {
    */
   @SuppressWarnings("ResultOfMethodCallIgnored")
   @edu.umd.cs.findbugs.annotations.SuppressWarnings("RV_RETURN_VALUE_IGNORED_BAD_PRACTICE")
-  public static byte[] readValue(File parent, String path) {
+  public static byte[] readValue(@Nullable File parent, String path) {
     byte[] value = null;
     try {
       File file = new File(path);

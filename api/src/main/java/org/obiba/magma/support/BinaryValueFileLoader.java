@@ -13,6 +13,7 @@ import java.io.File;
 import java.io.Serializable;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import org.obiba.magma.ValueLoader;
 
@@ -25,6 +26,7 @@ public class BinaryValueFileLoader implements ValueLoader, Serializable {
 
 //  private static final Logger log = LoggerFactory.getLogger(BinaryValueFileLoader.class);
 
+  @Nullable
   private File parent;
 
   private final String path;
@@ -42,20 +44,20 @@ public class BinaryValueFileLoader implements ValueLoader, Serializable {
     this.path = path;
   }
 
-  public BinaryValueFileLoader(File parent, String path) {
+  public BinaryValueFileLoader(@Nullable File parent, String path) {
     setParent(parent);
     this.path = path;
   }
 
-  public void setParent(String parent) {
-    if(parent != null) {
-      setParent(new File(parent));
-    } else {
+  public void setParent(@Nullable String parent) {
+    if(parent == null) {
       this.parent = null;
+    } else {
+      setParent(new File(parent));
     }
   }
 
-  public void setParent(File parent) {
+  public void setParent(@Nullable File parent) {
     this.parent = parent;
   }
 
@@ -66,6 +68,7 @@ public class BinaryValueFileLoader implements ValueLoader, Serializable {
 
   @Nonnull
   @Override
+  @edu.umd.cs.findbugs.annotations.SuppressWarnings("EI_EXPOSE_REP")
   public Object getValue() {
     if(value == null) {
       value = BinaryValueFileHelper.readValue(parent, path);

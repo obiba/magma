@@ -9,10 +9,14 @@
  ******************************************************************************/
 package org.obiba.magma.js;
 
+import javax.annotation.Nullable;
+
 /**
  * Utility class for Rhino-related concerns
  */
 public final class Rhino {
+
+  private Rhino() {}
 
   /**
    * Fix for Rhino bug 448499. If the input is a Double value of 1.0 or 0.0, this method will convert it to its integer
@@ -22,15 +26,16 @@ public final class Rhino {
    * @return the value untouched or converted to an int for specific values
    * @see https://bugzilla.mozilla.org/show_bug.cgi?id=448499
    */
-  public static Object fixRhinoNumber(final Object value) {
+  @Nullable
+  public static Object fixRhinoNumber(@Nullable Object value) {
     if(value == null) return value;
 
     Object newValue = value;
     if(value instanceof Double) {
-      if(((Double) value).doubleValue() == 1.0d) {
-        newValue = (int) 1;
-      } else if(((Double) value).doubleValue() == 0.0d) {
-        newValue = (int) 0;
+      if((Double) value == 1.0d) {
+        newValue = 1;
+      } else if((Double) value == 0.0d) {
+        newValue = 0;
       }
     }
     return newValue;

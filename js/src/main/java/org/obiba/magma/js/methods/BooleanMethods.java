@@ -436,6 +436,7 @@ public class BooleanMethods {
         "cannot invoke not() for Value of type " + value.getValueType().getName());
   }
 
+  @Nullable
   @edu.umd.cs.findbugs.annotations.SuppressWarnings(value = "NP_BOOLEAN_RETURN_NULL",
       justification = "Clients expect ternary methods to return null as a valid value.")
   private static Boolean toBoolean(Value value) {
