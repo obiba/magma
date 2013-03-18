@@ -23,6 +23,6 @@ public interface DescriptiveStatisticsProvider {
    * @param entities the set of entities to evaluate over
    * @return a statistical summary (min, max, mean, std dev, etc.)
    */
-  public DescriptiveStatistics compute(VariableValueSource valueSource, SortedSet<VariableEntity> entities);
+  DescriptiveStatistics compute(VariableValueSource valueSource, SortedSet<VariableEntity> entities);
 
 }

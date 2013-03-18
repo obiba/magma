@@ -33,6 +33,7 @@ abstract class GeneratedVariableValueSource implements VariableValueSource {
         Initialisables.initialise(src);
       } catch(RuntimeException e) {
         log.info("Cannot compile condition for variable {}", variable.getName());
+        //noinspection AssignmentToNull
         src = null;
       }
       condition = src;

@@ -15,7 +15,7 @@ public interface GlobalMethodProvider {
   /**
    * Returns a collection of Java {@code Method} to be exposed in the global JavaScript scope.
    */
-  public Collection<Method> getJavaScriptExtensionMethods();
+  Collection<Method> getJavaScriptExtensionMethods();
 
   /**
    * Returns the name of the JavaScript method. This method allows renaming the Java method before exposing it in the
@@ -24,6 +24,6 @@ public interface GlobalMethodProvider {
    * @param method the Java method to rename.
    * @return the name of the JavaScript method.
    */
-  public String getJavaScriptMethodName(Method method);
+  String getJavaScriptMethodName(Method method);
 
 }

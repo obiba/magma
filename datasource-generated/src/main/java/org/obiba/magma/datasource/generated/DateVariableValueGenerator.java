@@ -18,7 +18,7 @@ class DateVariableValueGenerator extends AbstractMissingValueVariableValueGenera
 
   private final ValueSource maximum;
 
-  DateVariableValueGenerator(final Variable variable) {
+  DateVariableValueGenerator(Variable variable) {
     super(variable);
     minimum = makeSource(variable, "minimum");
     maximum = makeSource(variable, "maximum");
@@ -38,17 +38,16 @@ class DateVariableValueGenerator extends AbstractMissingValueVariableValueGenera
   }
 
   private ValueSource makeSource(Variable variable, String scriptAttribute) {
-    if(variable.hasAttribute(scriptAttribute)) {
-      return new JavascriptValueSource(variable.getValueType(), variable.getAttributeStringValue(scriptAttribute));
-    } else {
-      return new NullValueSource(variable.getValueType());
-    }
+    return variable.hasAttribute(scriptAttribute) //
+        ? new JavascriptValueSource(variable.getValueType(), variable.getAttributeStringValue(scriptAttribute)) //
+        : new NullValueSource(variable.getValueType());
   }
 
   private long getTime(Value value) {
     if(value.getValueType() == DateTimeType.get()) {
       return ((Date) value.getValue()).getTime();
-    } else if(value.getValueType() == DateType.get()) {
+    }
+    if(value.getValueType() == DateType.get()) {
       return ((MagmaDate) value.getValue()).asDate().getTime();
     }
     throw new IllegalArgumentException("value is neither date nor datetime");

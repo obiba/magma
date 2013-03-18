@@ -14,6 +14,7 @@ import org.obiba.magma.ValueSequence;
 import org.obiba.magma.ValueSet;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.Variable;
+import org.obiba.magma.crypt.KeyProvider;
 import org.obiba.magma.crypt.support.GeneratedKeyPairProvider;
 import org.obiba.magma.datasource.crypt.EncryptedSecretKeyDatasourceEncryptionStrategy;
 import org.obiba.magma.datasource.crypt.GeneratedSecretKeyDatasourceEncryptionStrategy;
@@ -34,8 +35,10 @@ import org.obiba.magma.xstream.MagmaXStreamExtension;
 
 /**
  */
-@SuppressWarnings("UseOfSystemOutOrSystemErr")
+@SuppressWarnings({ "UseOfSystemOutOrSystemErr", "CallToPrintStackTrace" })
 public class IntegrationApp {
+
+  private IntegrationApp() {}
 
   public static void main(String[] args) throws IOException, NoSuchAlgorithmException {
     new MagmaEngine().extend(new MagmaJsExtension()).extend(new MagmaXStreamExtension());
@@ -50,7 +53,7 @@ public class IntegrationApp {
     deleteFile(encrypted);
 
     // Generate a new KeyPair.
-    GeneratedKeyPairProvider keyPairProvider = new GeneratedKeyPairProvider();
+    KeyProvider keyPairProvider = new GeneratedKeyPairProvider();
     GeneratedSecretKeyDatasourceEncryptionStrategy generatedEncryptionStrategy
         = new GeneratedSecretKeyDatasourceEncryptionStrategy();
     generatedEncryptionStrategy.setKeyProvider(keyPairProvider);
@@ -75,7 +78,7 @@ public class IntegrationApp {
       for(ValueSet valueSet : table.getValueSets()) {
         for(Variable variable : table.getVariables()) {
           Value value = table.getValue(variable, valueSet);
-          if(value.isSequence() && value.isNull() == false) {
+          if(value.isSequence() && !value.isNull()) {
             ValueSequence seq = value.asSequence();
             int order = 0;
             for(Value item : seq.getValues()) {
@@ -161,7 +164,7 @@ public class IntegrationApp {
 
     File excelFile = new File("target", "excel-datasource.xls");
     deleteFile(excelFile);
-    ExcelDatasource ed = new ExcelDatasource("excel", excelFile);
+    Datasource ed = new ExcelDatasource("excel", excelFile);
     MagmaEngine.get().addDatasource(ed);
 
     DatasourceCopier.Builder.newCopier().dontCopyValues().build().copy(integrationDatasource, ed);

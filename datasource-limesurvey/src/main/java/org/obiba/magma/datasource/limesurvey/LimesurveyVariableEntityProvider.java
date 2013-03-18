@@ -3,7 +3,6 @@ package org.obiba.magma.datasource.limesurvey;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -25,7 +24,7 @@ public class LimesurveyVariableEntityProvider extends AbstractVariableEntityProv
 
   private static final Logger log = LoggerFactory.getLogger(LimesurveyVariableEntityProvider.class);
 
-  private HashSet<VariableEntity> entities;
+  private Set<VariableEntity> entities;
 
   private final Integer sid;
 

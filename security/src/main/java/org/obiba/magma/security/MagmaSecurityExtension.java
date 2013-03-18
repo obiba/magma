@@ -13,7 +13,7 @@ public class MagmaSecurityExtension implements MagmaEngineExtension {
 
   private static final Logger log = LoggerFactory.getLogger(MagmaSecurityExtension.class);
 
-  private Authorizer authorizer = new ShiroAuthorizer();
+  private final Authorizer authorizer = new ShiroAuthorizer();
 
   @Override
   public String getName() {

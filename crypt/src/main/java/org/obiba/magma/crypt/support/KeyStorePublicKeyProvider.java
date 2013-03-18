@@ -16,7 +16,7 @@ import org.obiba.magma.crypt.PublicKeyProvider;
  */
 public class KeyStorePublicKeyProvider implements PublicKeyProvider {
 
-  private KeyStore keyStore;
+  private final KeyStore keyStore;
 
   public KeyStorePublicKeyProvider(KeyStore keyStore) {
     this.keyStore = keyStore;

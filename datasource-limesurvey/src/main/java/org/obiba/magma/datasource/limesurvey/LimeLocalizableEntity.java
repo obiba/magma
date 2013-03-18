@@ -6,7 +6,7 @@ import org.obiba.magma.Attribute;
 
 public abstract class LimeLocalizableEntity {
 
-  private LimeAttributes localizableAttributes;
+  private final LimeAttributes localizableAttributes;
 
   public LimeLocalizableEntity() {
     localizableAttributes = LimeAttributes.create();

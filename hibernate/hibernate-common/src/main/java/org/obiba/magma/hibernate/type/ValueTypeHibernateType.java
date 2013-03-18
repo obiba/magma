@@ -18,6 +18,7 @@ public class ValueTypeHibernateType extends ImmutableType implements Discriminat
 
   private static final long serialVersionUID = 1L;
 
+  @Override
   public Object stringToObject(String xml) throws Exception {
     return ValueType.Factory.forName(xml);
   }
@@ -47,14 +48,17 @@ public class ValueTypeHibernateType extends ImmutableType implements Discriminat
     return ((ValueType) value).getName();
   }
 
+  @Override
   public String getName() {
     return "value_type";
   }
 
+  @Override
   public Class<?> getReturnedClass() {
     return ValueType.class;
   }
 
+  @Override
   public String objectToSQLString(Object value, Dialect dialect) throws Exception {
     return '\'' + toString(value) + '\'';
   }

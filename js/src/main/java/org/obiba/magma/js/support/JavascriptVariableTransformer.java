@@ -9,10 +9,11 @@
  ******************************************************************************/
 package org.obiba.magma.js.support;
 
+import javax.annotation.Nullable;
+
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ContextAction;
 import org.mozilla.javascript.ContextFactory;
-import org.mozilla.javascript.EvaluatorException;
 import org.mozilla.javascript.Script;
 import org.mozilla.javascript.Scriptable;
 import org.obiba.magma.Variable;
@@ -27,21 +28,22 @@ import org.obiba.magma.type.TextType;
  */
 public class JavascriptVariableTransformer implements VariableTransformer {
 
-  private String scriptName = "customScript";
+  private static final String SCRIPT_NAME = "customScript";
 
-  private String script;
+  private final String script;
 
   private Script compiledScript;
 
   public JavascriptVariableTransformer(String script) {
-    super();
     this.script = script;
     initialise();
   }
 
   @Override
   public Variable transform(final Variable variable) {
-    String newName = ((String) ContextFactory.getGlobal().call(new ContextAction() {
+    String newName = (String) ContextFactory.getGlobal().call(new ContextAction() {
+      @Nullable
+      @Override
       public Object run(Context ctx) {
         MagmaContext context = MagmaContext.asMagmaContext(ctx);
         // Don't pollute the global scope
@@ -60,7 +62,7 @@ public class JavascriptVariableTransformer implements VariableTransformer {
         }
         return null;
       }
-    }));
+    });
 
     return Variable.Builder.sameAs(variable).name(newName != null ? newName : variable.getName()).build();
   }
@@ -70,20 +72,16 @@ public class JavascriptVariableTransformer implements VariableTransformer {
       throw new NullPointerException("script cannot be null");
     }
 
-    try {
-      this.compiledScript = (Script) ContextFactory.getGlobal().call(new ContextAction() {
-        @Override
-        public Object run(Context cx) {
-          return cx.compileString(getScript(), getScriptName(), 1, null);
-        }
-      });
-    } catch(EvaluatorException e) {
-      throw e;
-    }
+    compiledScript = (Script) ContextFactory.getGlobal().call(new ContextAction() {
+      @Override
+      public Object run(Context cx) {
+        return cx.compileString(getScript(), getScriptName(), 1, null);
+      }
+    });
   }
 
   public String getScriptName() {
-    return scriptName;
+    return SCRIPT_NAME;
   }
 
   public String getScript() {

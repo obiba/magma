@@ -141,13 +141,11 @@ public class JdbcDatasourceSettings {
   }
 
   public boolean isCreatedTimestampColumnNameProvided() {
-    if(defaultCreatedTimestampColumnName != null && !defaultCreatedTimestampColumnName.equals("")) return true;
-    return false;
+    return defaultCreatedTimestampColumnName != null && !"".equals(defaultCreatedTimestampColumnName);
   }
 
   public boolean isUpdatedTimestampColumnNameProvided() {
-    if(defaultUpdatedTimestampColumnName != null && !defaultUpdatedTimestampColumnName.equals("")) return true;
-    return false;
+    return defaultUpdatedTimestampColumnName != null && !"".equals(defaultUpdatedTimestampColumnName);
   }
 
 }

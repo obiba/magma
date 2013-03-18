@@ -28,11 +28,13 @@ public class CategoryConverter extends AbstractAttributeAwareConverter {
     super(mapper);
   }
 
+  @Override
   @SuppressWarnings("unchecked")
   public boolean canConvert(Class type) {
     return Category.class.isAssignableFrom(type);
   }
 
+  @Override
   public void marshal(Object source, HierarchicalStreamWriter writer, MarshallingContext context) {
     Category category = (Category) source;
     writer.addAttribute("name", category.getName());
@@ -45,6 +47,7 @@ public class CategoryConverter extends AbstractAttributeAwareConverter {
     marshallAttributes(category, writer, context);
   }
 
+  @Override
   public Object unmarshal(HierarchicalStreamReader reader, UnmarshallingContext context) {
     String name = reader.getAttribute("name");
     String missing = reader.getAttribute("missing");

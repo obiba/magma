@@ -6,6 +6,8 @@ import com.google.common.base.Function;
 
 public final class Decorators {
 
+  private Decorators() {}
+
   /**
    * The no-op decorator.
    *

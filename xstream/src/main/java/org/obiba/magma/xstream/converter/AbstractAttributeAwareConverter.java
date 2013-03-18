@@ -50,7 +50,7 @@ public abstract class AbstractAttributeAwareConverter extends AbstractCollection
   @SuppressWarnings("unchecked")
   protected <T> T readChildItem(HierarchicalStreamReader reader, UnmarshallingContext context, Object current) {
     reader.moveDown();
-    T o = (T) super.readItem(reader, context, current);
+    T o = (T) readItem(reader, context, current);
     reader.moveUp();
     return o;
   }

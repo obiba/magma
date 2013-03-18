@@ -10,7 +10,6 @@ public class LimeAnswer extends LimeLocalizableEntity implements Comparable<Lime
   private int scaleId;
 
   private LimeAnswer() {
-    super();
   }
 
   private LimeAnswer(String name) {
@@ -43,15 +42,15 @@ public class LimeAnswer extends LimeLocalizableEntity implements Comparable<Lime
 
   @Override
   public int compareTo(LimeAnswer o) {
-    return Integer.valueOf(this.sortorder).compareTo(o.sortorder);
+    return Integer.valueOf(sortorder).compareTo(o.sortorder);
   }
 
   @Override
   public boolean equals(Object obj) {
     if(this == obj) return true;
-    if(obj instanceof LimeAnswer == false) return false;
+    if(!(obj instanceof LimeAnswer)) return false;
 
-    if(this.scaleId != ((LimeAnswer) obj).scaleId) return false;
+    if(scaleId != ((LimeAnswer) obj).scaleId) return false;
     return compareTo((LimeAnswer) obj) == 0;
   }
 

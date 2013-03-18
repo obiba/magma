@@ -1,5 +1,6 @@
 package org.obiba.magma.type;
 
+import java.io.Serializable;
 import java.lang.ref.WeakReference;
 import java.util.Locale;
 
@@ -36,6 +37,7 @@ public class LocaleType extends AbstractValueType {
     return "locale";
   }
 
+  @Override
   public Class<?> getJavaClass() {
     return Locale.class;
   }
@@ -63,7 +65,7 @@ public class LocaleType extends AbstractValueType {
     }
     Class<?> type = object.getClass();
     if(Locale.class.isAssignableFrom(type)) {
-      return Factory.newValue(this, (Locale) object);
+      return Factory.newValue(this, (Serializable) object);
     }
     if(String.class.isAssignableFrom(type)) {
       return valueOf((String) object);

@@ -21,13 +21,13 @@ public class SecuredDatasource extends AbstractDatasourceWrapper {
   public SecuredDatasource(Authorizer authorizer, Datasource datasource) {
     super(datasource);
     if(authorizer == null) throw new IllegalArgumentException("authorizer cannot be null");
-    this.authz = authorizer;
+    authz = authorizer;
   }
 
   @Override
   public ValueTable getValueTable(String name) throws NoSuchValueTableException {
     ValueTable table = getWrappedDatasource().getValueTable(name);
-    if(table != null && authzReadTable(name) == false) throw new NoSuchValueTableException(getName(), name);
+    if(table != null && !authzReadTable(name)) throw new NoSuchValueTableException(getName(), name);
     return new SecuredValueTable(authz, this, table);
   }
 
@@ -56,12 +56,11 @@ public class SecuredDatasource extends AbstractDatasourceWrapper {
 
   @Override
   public void dropTable(String name) {
-    if(hasValueTable(name) == true) {
-      if(authzDropTable(name) == false) {
+    if(hasValueTable(name)) {
+      if(!authzDropTable(name)) {
         throw new MagmaRuntimeException("not authorized to drop table " + getName() + "." + name);
-      } else {
-        getWrappedDatasource().dropTable(name);
       }
+      getWrappedDatasource().dropTable(name);
     }
   }
 

@@ -19,6 +19,7 @@ import org.obiba.magma.datasource.csv.support.CsvDatasourceParsingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 
 public class VariableConverter {
@@ -179,11 +180,8 @@ public class VariableConverter {
     Integer pos = headerMap.get(header);
     if(pos != null && pos < csvVar.length) {
       value = csvVar[pos];
-      if(value.isEmpty()) {
-        value = null;
-      }
     }
-    return value;
+    return Strings.emptyToNull(value);
   }
 
   public String[] marshal(Variable variable) {

@@ -29,11 +29,9 @@ public class BinaryValueStreamLoaderFactory implements ValueLoaderFactory {
   @Override
   public ValueLoader create(Value valueRef, Integer occurrence) {
     String strValue = valueRef.toString();
-    if(strValue.startsWith("http://")) {
-      return new BinaryValueURLLoader(strValue);
-    } else {
-      return new BinaryValueFileLoader(parent, strValue);
-    }
+    return strValue.startsWith("http://")
+        ? new BinaryValueURLLoader(strValue)
+        : new BinaryValueFileLoader(parent, strValue);
   }
 
 }

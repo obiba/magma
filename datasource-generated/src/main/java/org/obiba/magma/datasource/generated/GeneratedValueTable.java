@@ -7,6 +7,7 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import org.apache.commons.math.random.JDKRandomGenerator;
 import org.apache.commons.math.random.RandomGenerator;
@@ -45,11 +46,11 @@ public class GeneratedValueTable implements ValueTable {
   @Nonnull
   private final Value timestamp;
 
-  public GeneratedValueTable(Datasource ds, Collection<Variable> dictionary, int entities) {
+  public GeneratedValueTable(@Nullable Datasource ds, Collection<Variable> dictionary, int entities) {
     this(ds, dictionary, entities, System.currentTimeMillis());
   }
 
-  public GeneratedValueTable(Datasource ds, Collection<Variable> dictionary, int entities, long seed) {
+  public GeneratedValueTable(@Nullable Datasource ds, Collection<Variable> dictionary, int entities, long seed) {
     datasource = ds;
     this.dictionary = ImmutableSet.copyOf(dictionary);
     this.entities = Sets.newTreeSet();

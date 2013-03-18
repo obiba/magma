@@ -70,7 +70,7 @@ public class DecimalType extends AbstractNumberType {
     }
     Class<?> type = object.getClass();
     if(Number.class.isAssignableFrom(type)) {
-      return Factory.newValue(this, Double.valueOf(((Number) object).doubleValue()));
+      return Factory.newValue(this, ((Number) object).doubleValue());
     }
     if(String.class.isAssignableFrom(type)) {
       return valueOf((String) object);

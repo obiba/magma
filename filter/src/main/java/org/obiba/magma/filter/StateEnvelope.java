@@ -18,7 +18,7 @@ public class StateEnvelope<T> {
 
   public StateEnvelope(T item) {
     this.item = item;
-    this.state = FilterState.IN;
+    state = FilterState.IN;
   }
 
   public FilterState getState() {

@@ -14,11 +14,11 @@ import com.thoughtworks.xstream.XStream;
 
 class FsValueTableWriter implements ValueTableWriter {
 
-  private FsValueTable valueTable;
+  private final FsValueTable valueTable;
 
-  private XStream xstream;
+  private final XStream xstream;
 
-  public FsValueTableWriter(FsValueTable valueTable, XStream xstream) {
+  FsValueTableWriter(FsValueTable valueTable, XStream xstream) {
     this.valueTable = valueTable;
     this.xstream = xstream;
   }

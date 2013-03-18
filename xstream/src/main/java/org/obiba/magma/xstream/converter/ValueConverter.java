@@ -3,6 +3,7 @@ package org.obiba.magma.xstream.converter;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueType;
 
+import com.google.common.base.Strings;
 import com.thoughtworks.xstream.converters.Converter;
 import com.thoughtworks.xstream.converters.MarshallingContext;
 import com.thoughtworks.xstream.converters.UnmarshallingContext;
@@ -27,7 +28,7 @@ public class ValueConverter implements Converter {
       int order = ValueSequenceConverter.ContextHelper.getCurrentOrder(context);
       writer.addAttribute("order", Integer.toString(order));
     }
-    if(value.isNull() == false) {
+    if(!value.isNull()) {
       writer.setValue(value.toString());
     }
   }
@@ -42,10 +43,7 @@ public class ValueConverter implements Converter {
     }
 
     String value = reader.getValue();
-    if(value != null && value.isEmpty()) {
-      value = null;
-    }
-    return ValueType.Factory.forName(valueType).valueOf(value);
+    return ValueType.Factory.forName(valueType).valueOf(Strings.emptyToNull(value));
   }
 
 }

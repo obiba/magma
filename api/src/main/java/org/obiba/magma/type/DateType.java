@@ -1,5 +1,6 @@
 package org.obiba.magma.type;
 
+import java.io.Serializable;
 import java.lang.ref.WeakReference;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -130,14 +131,18 @@ public class DateType extends AbstractValueType {
 
     Class<?> type = object.getClass();
     if(type.equals(MagmaDate.class)) {
-      return Factory.newValue(this, (MagmaDate) object);
-    } else if(type.equals(Date.class)) {
+      return Factory.newValue(this, (Serializable) object);
+    }
+    if(type.equals(Date.class)) {
       return Factory.newValue(this, new MagmaDate((Date) object));
-    } else if(Date.class.isAssignableFrom(type)) {
+    }
+    if(Date.class.isAssignableFrom(type)) {
       return Factory.newValue(this, new MagmaDate(new Date(((Date) object).getTime())));
-    } else if(Calendar.class.isAssignableFrom(type)) {
+    }
+    if(Calendar.class.isAssignableFrom(type)) {
       return Factory.newValue(this, new MagmaDate((Calendar) object));
-    } else if(type.equals(String.class)) {
+    }
+    if(type.equals(String.class)) {
       return valueOf((String) object);
     }
     throw new IllegalArgumentException(

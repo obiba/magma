@@ -20,8 +20,8 @@ public class Separator {
 
   public Separator(char separator, String... from) {
     this.separator = separator;
-    this.acceptable = from != null ? Arrays.copyOf(from, from.length + 1) : new String[1];
-    this.acceptable[this.acceptable.length - 1] = new StringBuilder().append(separator).toString();
+    acceptable = from != null ? Arrays.copyOf(from, from.length + 1) : new String[1];
+    acceptable[acceptable.length - 1] = String.valueOf(separator);
   }
 
   public char getCharacter() {
@@ -38,9 +38,8 @@ public class Separator {
 
     if(value.length() == 1) {
       return new Separator(value.charAt(0));
-    } else {
-      throw new IllegalArgumentException("separator must be one character");
     }
+    throw new IllegalArgumentException("separator must be one character");
   }
 
   private static boolean isOneOf(String value, String[] strings) {

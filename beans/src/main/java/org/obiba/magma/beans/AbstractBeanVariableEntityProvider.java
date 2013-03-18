@@ -12,7 +12,7 @@ import com.google.common.collect.ImmutableSet;
 
 public abstract class AbstractBeanVariableEntityProvider<T> extends AbstractVariableEntityProvider {
 
-  private String entityIdentifierPropertyPath;
+  private final String entityIdentifierPropertyPath;
 
   public AbstractBeanVariableEntityProvider(String entityType, String entityIdentifierPropertyPath) {
     super(entityType);

@@ -18,7 +18,7 @@ public class BeanValueTableFactoryBean implements ValueTableFactoryBean {
   private VariableValueSourceFactory factory;
 
   public void setValueTableName(String name) {
-    this.valueTableName = name;
+    valueTableName = name;
   }
 
   @Override

@@ -6,7 +6,7 @@ public class NoSuchAttributeException extends MagmaRuntimeException {
 
   private static final long serialVersionUID = 5887330656285998606L;
 
-  private String attributeName;
+  private final String attributeName;
 
   public NoSuchAttributeException(String attribute, String attributeAware) {
     this(attribute, null, attributeAware);
@@ -15,7 +15,7 @@ public class NoSuchAttributeException extends MagmaRuntimeException {
   public NoSuchAttributeException(String attribute, Locale locale, String attributeAware) {
     super("No such attribute '" + attribute + (locale != null ? "'@" + locale.toString() : "'") + " for '" +
         attributeAware + "'");
-    this.attributeName = attribute;
+    attributeName = attribute;
   }
 
   public String getAttributeName() {

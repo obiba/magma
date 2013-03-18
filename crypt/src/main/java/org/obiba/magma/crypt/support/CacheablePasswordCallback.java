@@ -22,7 +22,7 @@ public class CacheablePasswordCallback extends PasswordCallback {
   // Instance Variables
   //
 
-  private String passwordKey;
+  private final String passwordKey;
 
   //
   // Constructors

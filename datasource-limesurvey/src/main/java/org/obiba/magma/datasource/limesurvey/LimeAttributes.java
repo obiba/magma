@@ -20,7 +20,7 @@ class LimeAttributes {
   // Attributes that should not be part of the limesurvey namespace
   private static final Set<String> OPAL_ATTRIBUTES = ImmutableSet.of("label");
 
-  private Map<String, String> attributes;
+  private final Map<String, String> attributes;
 
   private LimeAttributes() {
     attributes = Maps.newHashMap();
@@ -58,7 +58,7 @@ class LimeAttributes {
         String cleaned = clean(sb.toString());
         Attribute.Builder builder = newAttribute(key[0]).withValue(locale, clean(cleaned));
         attrs.add(builder.build());
-        if(keepOriginalLocalizable && cleaned.equals(entry.getValue()) == false) {
+        if(keepOriginalLocalizable && !cleaned.equals(entry.getValue())) {
           builder = newAttribute("original" + StringUtils.capitalize(key[0])).withValue(locale, entry.getValue());
           attrs.add(builder.build());
         }
@@ -72,7 +72,7 @@ class LimeAttributes {
 
   private Attribute.Builder newAttribute(String key) {
     Attribute.Builder builder = Attribute.Builder.newAttribute(key);
-    if(OPAL_ATTRIBUTES.contains(key) == false) {
+    if(!OPAL_ATTRIBUTES.contains(key)) {
       builder.withNamespace(LIMESURVEY_NAMESPACE);
     }
     return builder;

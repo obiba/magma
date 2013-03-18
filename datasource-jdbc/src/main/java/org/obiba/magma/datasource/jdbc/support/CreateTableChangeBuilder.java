@@ -9,7 +9,7 @@ import liquibase.change.CreateTableChange;
 
 public class CreateTableChangeBuilder {
 
-  private CreateTableChange createTableChange = new CreateTableChange();
+  private final CreateTableChange createTableChange = new CreateTableChange();
 
   private ColumnConfig lastColumn;
 
