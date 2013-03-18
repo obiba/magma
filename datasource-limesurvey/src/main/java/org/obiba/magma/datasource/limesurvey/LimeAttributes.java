@@ -38,36 +38,36 @@ class LimeAttributes {
   public Iterable<Attribute> toMagmaAttributes(boolean keepOriginalLocalizable) {
     List<Attribute> attrs = Lists.newArrayList();
     for(Map.Entry<String, String> entry : attributes.entrySet()) {
-
-      StringBuilder sb = new StringBuilder(entry.getValue());
-      for(String tag : Arrays.asList("script")) {
-        int start;
-        int end;
-        do {
-          start = sb.indexOf("<" + tag);
-          end = sb.indexOf("</" + tag + ">", start) + tag.length() + 3;
-          if(start != -1 && end != -1 && start < end) {
-            sb.replace(start, end, " [script] ");
-          }
-        } while(start != -1 && end != -1 && start < end);
-      }
+      String attValue = entry.getValue();
+      String cleaned = cleanAttributeValue(attValue);
       String[] key = entry.getKey().split(":");
-
       if(key.length > 1) {
         Locale locale = new Locale(key[1]);
-        String cleaned = clean(sb.toString());
-        Attribute.Builder builder = newAttribute(key[0]).withValue(locale, clean(cleaned));
-        attrs.add(builder.build());
-        if(keepOriginalLocalizable && !cleaned.equals(entry.getValue())) {
-          builder = newAttribute("original" + StringUtils.capitalize(key[0])).withValue(locale, entry.getValue());
-          attrs.add(builder.build());
+        attrs.add(newAttribute(key[0]).withValue(locale, clean(cleaned)).build());
+        if(keepOriginalLocalizable && !cleaned.equals(attValue)) {
+          attrs.add(newAttribute("original" + StringUtils.capitalize(key[0])).withValue(locale, attValue).build());
         }
       } else {
-        Attribute.Builder builder = newAttribute(key[0]).withValue(clean(sb.toString()));
-        attrs.add(builder.build());
+        attrs.add(newAttribute(key[0]).withValue(cleaned).build());
       }
     }
     return attrs;
+  }
+
+  private String cleanAttributeValue(String value) {
+    StringBuilder sb = new StringBuilder(value);
+    for(String tag : Arrays.asList("script")) {
+      int start;
+      int end;
+      do {
+        start = sb.indexOf("<" + tag);
+        end = sb.indexOf("</" + tag + ">", start) + tag.length() + 3;
+        if(start != -1 && end != -1 && start < end) {
+          sb.replace(start, end, " [script] ");
+        }
+      } while(start != -1 && end != -1 && start < end);
+    }
+    return clean(sb.toString());
   }
 
   private Attribute.Builder newAttribute(String key) {

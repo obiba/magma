@@ -118,31 +118,76 @@ public class VariableConverter {
   //
   // unmarshall
   //
-
+  @SuppressWarnings({ "OverlyLongMethod", "PMD.NcssMethodCount" })
   public Variable unmarshall(Row variableRow) {
-    String name = getVariableCellValue(variableRow, NAME).trim();
-    String valueTypeStr = getVariableCellValue(variableRow, VALUE_TYPE).trim();
-    String entityType = getVariableCellValue(variableRow, ENTITY_TYPE).trim();
-    String referencedEntityType = getVariableCellValue(variableRow, REFERENCED_ENTITY_TYPE).trim();
-    String mimeType = getVariableCellValue(variableRow, MIME_TYPE).trim();
-    String unit = getVariableCellValue(variableRow, UNIT).trim();
-    String occurrenceGroup = getVariableCellValue(variableRow, OCCURRENCE_GROUP).trim();
-    boolean repeatable = parseBoolean(getVariableCellValue(variableRow, REPEATABLE).trim());
+    String tableName = valueTable.getName();
+    int rowNum = variableRow.getRowNum();
 
-    // required values
+    String name = getVariableCellValue(variableRow, NAME).trim();
     if(name.isEmpty()) {
-      throw new ExcelDatasourceParsingException("Variable name is required in table: " + valueTable.getName(), //
-          "VariableNameRequired", ExcelDatasource.VARIABLES_SHEET, variableRow.getRowNum() + 1, valueTable.getName());
+      throw new ExcelDatasourceParsingException("Variable name is required in table: " + tableName, //
+          "VariableNameRequired", ExcelDatasource.VARIABLES_SHEET, rowNum + 1, tableName);
     }
     if(name.contains(":")) {
       throw new ExcelDatasourceParsingException(
-          "Variable name cannot contain ':' in variable: " + valueTable.getName() + " / " + name, //
-          "VariableNameCannotContainColon", ExcelDatasource.VARIABLES_SHEET, variableRow.getRowNum() + 1,
-          valueTable.getName(), name);
+          "Variable name cannot contain ':' in variable: " + tableName + " / " + name, //
+          "VariableNameCannotContainColon", ExcelDatasource.VARIABLES_SHEET, rowNum + 1, tableName, name);
     }
 
-    // default values
+    String entityType = getVariableCellValue(variableRow, ENTITY_TYPE).trim();
+    if(entityType.isEmpty()) entityType = "Participant";
+    ValueType valueType = unmarshallValueType(variableRow, name, tableName, rowNum);
+
+    Variable.Builder builder = Variable.Builder.newVariable(name, valueType, entityType);
+    unmarshallMimeType(variableRow, builder);
+    unmarshallUnit(variableRow, builder);
+    unmarshallOccurrenceGroup(variableRow, builder);
+    unmarshallRepeatable(variableRow, builder);
+    unmarshallReferencedEntityType(variableRow, builder);
+    unmarshallCustomAttributes(variableRow, getHeaderMapVariables(), getAttributeNamesVariables(), builder);
+    unmarshallCategories(name, builder);
+    variableRows.put(name, variableRow);
+    return builder.build();
+  }
+
+  private void unmarshallReferencedEntityType(Row variableRow, Variable.Builder builder) {
+    String referencedEntityType = getVariableCellValue(variableRow, REFERENCED_ENTITY_TYPE).trim();
+    if(referencedEntityType.length() > 0) {
+      builder.referencedEntityType(referencedEntityType);
+    }
+  }
+
+  private void unmarshallRepeatable(Row variableRow, Variable.Builder builder) {
+    boolean repeatable = parseBoolean(getVariableCellValue(variableRow, REPEATABLE).trim());
+    if(repeatable) {
+      builder.repeatable();
+    }
+  }
+
+  private void unmarshallOccurrenceGroup(Row variableRow, Variable.Builder builder) {
+    String occurrenceGroup = getVariableCellValue(variableRow, OCCURRENCE_GROUP).trim();
+    if(occurrenceGroup.length() > 0) {
+      builder.occurrenceGroup(occurrenceGroup);
+    }
+  }
+
+  private void unmarshallUnit(Row variableRow, Variable.Builder builder) {
+    String unit = getVariableCellValue(variableRow, UNIT).trim();
+    if(unit.length() > 0) {
+      builder.unit(unit);
+    }
+  }
+
+  private void unmarshallMimeType(Row variableRow, Variable.Builder builder) {
+    String mimeType = getVariableCellValue(variableRow, MIME_TYPE).trim();
+    if(mimeType.length() > 0) {
+      builder.mimeType(mimeType);
+    }
+  }
+
+  private ValueType unmarshallValueType(Row variableRow, String name, String tableName, int rowNum) {
     ValueType valueType;
+    String valueTypeStr = getVariableCellValue(variableRow, VALUE_TYPE).trim();
     if(valueTypeStr.isEmpty() || "string".equalsIgnoreCase(valueTypeStr)) {
       valueType = TextType.get();
     } else {
@@ -150,41 +195,11 @@ public class VariableConverter {
         valueType = ValueType.Factory.forName(valueTypeStr);
       } catch(Exception e) {
         throw new ExcelDatasourceParsingException(
-            "Unknown value type '" + valueTypeStr + "' for variable: " + valueTable.getName() + " / " + name, //
-            "UnknownValueType", ExcelDatasource.VARIABLES_SHEET, variableRow.getRowNum() + 1, valueTable.getName(),
-            name, valueTypeStr);
+            "Unknown value type '" + valueTypeStr + "' for variable: " + tableName + " / " + name, //
+            "UnknownValueType", ExcelDatasource.VARIABLES_SHEET, rowNum + 1, tableName, name, valueTypeStr);
       }
     }
-    if(entityType.isEmpty()) {
-      entityType = "Participant";
-    }
-
-    Variable.Builder builder = Variable.Builder.newVariable(name, valueType, entityType);
-
-    // more default values
-    if(mimeType.length() > 0) {
-      builder.mimeType(mimeType);
-    }
-    if(unit.length() > 0) {
-      builder.unit(unit);
-    }
-    if(occurrenceGroup.length() > 0) {
-      builder.occurrenceGroup(occurrenceGroup);
-    }
-    if(repeatable) {
-      builder.repeatable();
-    }
-    if(referencedEntityType.length() > 0) {
-      builder.referencedEntityType(referencedEntityType);
-    }
-
-    unmarshallCustomAttributes(variableRow, getHeaderMapVariables(), getAttributeNamesVariables(), builder);
-
-    unmarshallCategories(name, builder);
-
-    variableRows.put(name, variableRow);
-
-    return builder.build();
+    return valueType;
   }
 
   /**
@@ -203,41 +218,43 @@ public class VariableConverter {
     Collection<String> categoryNames = new ArrayList<String>();
     Collection<ExcelDatasourceParsingException> errors = new ArrayList<ExcelDatasourceParsingException>();
     Row firstRow = null;
-
     for(int rowIndex : variableCategoryRows) {
       Row categoryRow = categoriesSheet.getRow(rowIndex);
-
       if(firstRow == null) firstRow = categoryRow;
-      try {
-        Category category = unmarshallCategory(variableName, categoryRow);
-        if(categoryNames.contains(category.getName())) {
-          errors.add(new ExcelDatasourceParsingException(
-              "Duplicate category name in variable: " + valueTable.getName() + " / " + variableName, //
-              "DuplicateCategoryName", ExcelDatasource.CATEGORIES_SHEET, categoryRow.getRowNum() + 1,
-              valueTable.getName(), variableName, category.getName()));
-        } else {
-          categoryNames.add(category.getName());
-          variableBuilder.addCategory(category);
-          String key = variableName + category.getName();
-          categoryRows.put(key, categoryRow);
-        }
-      } catch(ExcelDatasourceParsingException pe) {
-        errors.add(pe);
-      } catch(Exception e) {
-        errors.add(new ExcelDatasourceParsingException("Unexpected error in category: " + e.getMessage(), e, //
-            "UnexpectedErrorInCategory", ExcelDatasource.CATEGORIES_SHEET, categoryRow.getRowNum() + 1,
-            valueTable.getName(), variableName));
-      }
-
+      unmarshallCategories(variableName, variableBuilder, categoryNames, errors, categoryRow);
     }
 
     if(errors.size() > 0) {
       ExcelDatasourceParsingException parent = new ExcelDatasourceParsingException(
-          "Errors while parsing categories of variable: " + valueTable.getName() + " / " + variableName, //
+          "Errors while parsing categories of variable: " + valueTable.getName() + " / " + variableName,
           "VariableCategoriesDefinitionErrors", ExcelDatasource.CATEGORIES_SHEET, firstRow.getRowNum() + 1,
           valueTable.getName(), variableName);
       parent.setChildren(errors);
       throw parent;
+    }
+  }
+
+  private void unmarshallCategories(String variableName, Variable.Builder variableBuilder,
+      Collection<String> categoryNames, Collection<ExcelDatasourceParsingException> errors, Row categoryRow) {
+    try {
+      Category category = unmarshallCategory(variableName, categoryRow);
+      if(categoryNames.contains(category.getName())) {
+        errors.add(new ExcelDatasourceParsingException(
+            "Duplicate category name in variable: " + valueTable.getName() + " / " + variableName,
+            "DuplicateCategoryName", ExcelDatasource.CATEGORIES_SHEET, categoryRow.getRowNum() + 1,
+            valueTable.getName(), variableName, category.getName()));
+      } else {
+        categoryNames.add(category.getName());
+        variableBuilder.addCategory(category);
+        String key = variableName + category.getName();
+        categoryRows.put(key, categoryRow);
+      }
+    } catch(ExcelDatasourceParsingException pe) {
+      errors.add(pe);
+    } catch(Exception e) {
+      errors.add(new ExcelDatasourceParsingException("Unexpected error in category: " + e.getMessage(), e,
+          "UnexpectedErrorInCategory", ExcelDatasource.CATEGORIES_SHEET, categoryRow.getRowNum() + 1,
+          valueTable.getName(), variableName));
     }
   }
 
@@ -249,7 +266,7 @@ public class VariableConverter {
     // required values
     if(name.isEmpty()) {
       throw new ExcelDatasourceParsingException(
-          "Category name is required for variable: " + valueTable.getName() + " / " + variableName, //
+          "Category name is required for variable: " + valueTable.getName() + " / " + variableName,
           "CategoryNameRequired", ExcelDatasource.CATEGORIES_SHEET, categoryRow.getRowNum() + 1, valueTable.getName(),
           variableName);
     }

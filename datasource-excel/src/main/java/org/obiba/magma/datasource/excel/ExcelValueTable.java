@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.annotation.Nullable;
+
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -234,14 +236,51 @@ public class ExcelValueTable extends AbstractValueTable implements Initialisable
   private void readVariablesFromVariablesSheet(Collection<String> variableNames) {
     if(!hasVariablesSheet()) return;
 
+    Collection<ExcelDatasourceParsingException> errors = new ArrayList<ExcelDatasourceParsingException>();
+    Row firstRow = parseVariableNames(variableNames, errors);
+
+    // check that all categories for this table has a variable definition
+    parseCategoryNames(variableNames, errors);
+
+    if(errors.size() > 0) {
+      ExcelDatasourceParsingException parent = new ExcelDatasourceParsingException(
+          "Errors while parsing variables of table: " + getName(), "TableDefinitionErrors",
+          ExcelDatasource.VARIABLES_SHEET, firstRow == null ? -1 : firstRow.getRowNum() + 1, getName());
+      parent.setChildren(errors);
+      throw parent;
+    }
+  }
+
+  private void parseCategoryNames(Collection<String> variableNames,
+      Collection<ExcelDatasourceParsingException> errors) {
+    Sheet categoriesSheet = getDatasource().getCategoriesSheet();
+    int categoryRowCount = categoriesSheet.getPhysicalNumberOfRows();
+    for(int i = 1; i < categoryRowCount; i++) {
+      Row categoryRow = categoriesSheet.getRow(i);
+      String variableName = converter.getCategoryVariableName(categoryRow);
+      if(converter.getCategoryTableName(categoryRow).equals(getName())) {
+        if(variableName.isEmpty()) {
+          errors.add(new ExcelDatasourceParsingException("Unidentified variable for a category",
+              "CategoryVariableNameRequired", ExcelDatasource.CATEGORIES_SHEET, categoryRow.getRowNum() + 1,
+              getName()));
+        } else if(!variableNames.contains(variableName)) {
+          errors.add(new ExcelDatasourceParsingException("Unidentified variable name: " + variableName,
+              "UnidentifiedVariableName", ExcelDatasource.CATEGORIES_SHEET, categoryRow.getRowNum() + 1, getName(),
+              variableName));
+        }
+      }
+    }
+  }
+
+  @Nullable
+  private Row parseVariableNames(Collection<String> variableNames, Collection<ExcelDatasourceParsingException> errors) {
+
     Sheet variablesSheet = getDatasource().getVariablesSheet();
     int variableRowCount = variablesSheet.getPhysicalNumberOfRows();
-    Collection<ExcelDatasourceParsingException> errors = new ArrayList<ExcelDatasourceParsingException>();
-    Row variableRow;
-    Row firstRow = null;
 
+    Row firstRow = null;
     for(int i = 1; i < variableRowCount; i++) {
-      variableRow = variablesSheet.getRow(i);
+      Row variableRow = variablesSheet.getRow(i);
       if(converter.isVariableRow(variableRow)) {
         if(firstRow == null) firstRow = variableRow;
         String name = converter.getVariableName(variableRow);
@@ -264,33 +303,7 @@ public class ExcelValueTable extends AbstractValueTable implements Initialisable
         }
       }
     }
-
-    // check that all categories for this table has a variable definition
-    Sheet categoriesSheet = getDatasource().getCategoriesSheet();
-    int categoryRowCount = categoriesSheet.getPhysicalNumberOfRows();
-    for(int x = 1; x < categoryRowCount; x++) {
-      Row categoryRow = categoriesSheet.getRow(x);
-      String variableName = converter.getCategoryVariableName(categoryRow);
-      if(converter.getCategoryTableName(categoryRow).equals(getName())) {
-        if(variableName.isEmpty()) {
-          errors.add(new ExcelDatasourceParsingException("Unidentified variable for a category", //
-              "CategoryVariableNameRequired", ExcelDatasource.CATEGORIES_SHEET, categoryRow.getRowNum() + 1,
-              getName()));
-        } else if(!variableNames.contains(variableName)) {
-          errors.add(new ExcelDatasourceParsingException("Unidentified variable name: " + variableName, //
-              "UnidentifiedVariableName", ExcelDatasource.CATEGORIES_SHEET, categoryRow.getRowNum() + 1, getName(),
-              variableName));
-        }
-      }
-    }
-
-    if(errors.size() > 0) {
-      ExcelDatasourceParsingException parent = new ExcelDatasourceParsingException(
-          "Errors while parsing variables of table: " + getName(), //
-          "TableDefinitionErrors", ExcelDatasource.VARIABLES_SHEET, firstRow.getRowNum() + 1, getName());
-      parent.setChildren(errors);
-      throw parent;
-    }
+    return firstRow;
   }
 
   public List<Integer> getVariableCategoryRows(String variableName) {
