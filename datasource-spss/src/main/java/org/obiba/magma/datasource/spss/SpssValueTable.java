@@ -154,7 +154,7 @@ public class SpssValueTable extends AbstractValueTable implements Disposable {
 
           if(entityIdentifiers.contains(identifier)) {
             throw new SpssDatasourceParsingException("Duplicated entity identifier", getName(), i,
-                "SpssDuplicateEntity", identifier, i);
+                "SpssDuplicateEntity", identifier, i, entityVariable.getName());
           }
 
           entitiesBuilder.add(new SpssVariableEntity(entityType, identifier, i));
