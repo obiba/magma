@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.NoSuchElementException;
 
+import javax.annotation.Nullable;
+
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.LinkedListMultimap;
@@ -16,7 +18,7 @@ public abstract class AttributeAwareBuilder<T extends AttributeAwareBuilder<?>> 
     return getBuilder();
   }
 
-  public T addAttribute(String name, String value, Locale locale) {
+  public T addAttribute(String name, String value, @Nullable Locale locale) {
     if(locale != null && "".equals(locale.toString())) {
       addAttribute(name, value);
     } else {

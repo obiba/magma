@@ -330,6 +330,7 @@ public class ValueSequenceMethods {
    *
    * @return an instance of {@code ScriptableValue}
    */
+  @SuppressWarnings({ "OverlyLongMethod", "PMD.NcssMethodCount" })
   public static ScriptableValue zip(Context ctx, Scriptable thisObj, Object[] args, Function funObj)
       throws MagmaJsEvaluationRuntimeException {
     ScriptableValue sv = (ScriptableValue) thisObj;
