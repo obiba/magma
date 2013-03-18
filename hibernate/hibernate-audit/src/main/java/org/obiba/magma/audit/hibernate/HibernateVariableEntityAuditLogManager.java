@@ -9,6 +9,7 @@ import java.util.concurrent.Callable;
 import org.hibernate.FetchMode;
 import org.hibernate.FlushMode;
 import org.hibernate.SessionFactory;
+import org.obiba.core.domain.IEntity;
 import org.obiba.core.service.impl.hibernate.AssociationCriteria;
 import org.obiba.core.service.impl.hibernate.AssociationCriteria.Operation;
 import org.obiba.magma.Datasource;
@@ -94,7 +95,7 @@ public class HibernateVariableEntityAuditLogManager implements VariableEntityAud
 
     private final List<Callable<?>> audits = Lists.newArrayList();
 
-    public HibernateCopyAuditor(Datasource destination, Function<VariableEntity, VariableEntity> entityMapper) {
+    private HibernateCopyAuditor(Datasource destination, Function<VariableEntity, VariableEntity> entityMapper) {
       if(destination == null) throw new IllegalArgumentException("destination cannot be null");
       this.destination = destination;
       this.entityMapper = entityMapper;
@@ -113,7 +114,7 @@ public class HibernateVariableEntityAuditLogManager implements VariableEntityAud
           for(String tableName : tables) {
             createAuditEvent(log, source, "COPY", createCopyDetails(entity, tableName));
           }
-          if(((HibernateVariableEntityAuditLog) log).getId() == null) {
+          if(((IEntity) log).getId() == null) {
             sessionFactory.getCurrentSession().save(log);
           }
           return null;

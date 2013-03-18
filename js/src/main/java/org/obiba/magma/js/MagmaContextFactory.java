@@ -28,7 +28,7 @@ public class MagmaContextFactory extends ContextFactory implements Initialisable
 
   private ScriptableValuePrototypeFactory scriptableValuePrototypeFactory = new ScriptableValuePrototypeFactory();
 
-  private ScriptableVariablePrototypeFactory scriptableVariablePrototypeFactory
+  private final ScriptableVariablePrototypeFactory scriptableVariablePrototypeFactory
       = new ScriptableVariablePrototypeFactory();
 
   private Set<GlobalMethodProvider> globalMethodProviders = Collections.emptySet();
@@ -57,9 +57,10 @@ public class MagmaContextFactory extends ContextFactory implements Initialisable
 
   public void setScriptableValuePrototypeFactory(ScriptableValuePrototypeFactory factory) {
     if(factory == null) throw new IllegalArgumentException("factory cannot be null");
-    this.scriptableValuePrototypeFactory = factory;
+    scriptableValuePrototypeFactory = factory;
   }
 
+  @Override
   public void initialise() {
     sharedScope = (ScriptableObject) ContextFactory.getGlobal().call(new ContextAction() {
       @Override

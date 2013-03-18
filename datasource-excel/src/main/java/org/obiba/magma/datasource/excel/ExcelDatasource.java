@@ -71,7 +71,7 @@ public class ExcelDatasource extends AbstractDatasource {
 
   private Map<String, CellStyle> excelStyles;
 
-  private Map<String, ExcelValueTable> valueTablesMapOnInit = new LinkedHashMap<String, ExcelValueTable>(100);
+  private final Map<String, ExcelValueTable> valueTablesMapOnInit = new LinkedHashMap<String, ExcelValueTable>(100);
 
   /**
    * Excel workbook will be read from the provided file if it exists, and will be written in the file at datasource
@@ -93,7 +93,7 @@ public class ExcelDatasource extends AbstractDatasource {
    */
   public ExcelDatasource(String name, OutputStream output) {
     super(name, "excel");
-    this.excelOutput = output;
+    excelOutput = output;
   }
 
   /**
@@ -104,7 +104,7 @@ public class ExcelDatasource extends AbstractDatasource {
    */
   public ExcelDatasource(String name, InputStream input) {
     super(name, "excel");
-    this.excelInput = input;
+    excelInput = input;
   }
 
   /**
@@ -116,6 +116,7 @@ public class ExcelDatasource extends AbstractDatasource {
     this.excelOutput = excelOutput;
   }
 
+  @Override
   public ValueTableWriter createWriter(String name, String entityType) {
     ExcelValueTable valueTable = null;
     if(hasValueTable(name)) {
@@ -192,11 +193,7 @@ public class ExcelDatasource extends AbstractDatasource {
     // Write the workbook (datasource) to file/outputstream if any of them is defined
     OutputStream out = null;
     try {
-      if(excelFile != null) {
-        out = new FileOutputStream(excelFile);
-      } else {
-        out = excelOutput;
-      }
+      out = excelFile == null ? excelOutput : new FileOutputStream(excelFile);
       if(out != null) {
         writeWorkbook(out);
       }

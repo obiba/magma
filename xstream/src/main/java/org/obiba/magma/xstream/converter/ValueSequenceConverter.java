@@ -31,7 +31,7 @@ public class ValueSequenceConverter implements Converter {
 
     try {
       writer.addAttribute("valueType", sequence.getValueType().getName());
-      if(sequence.isNull() == false) {
+      if(!sequence.isNull()) {
         writer.addAttribute("size", Integer.toString(sequence.getSize()));
         int order = 0;
         for(Value value : sequence.getValue()) {
@@ -50,7 +50,7 @@ public class ValueSequenceConverter implements Converter {
   public Object unmarshal(HierarchicalStreamReader reader, UnmarshallingContext context) {
     String valueType = reader.getAttribute("valueType");
     String size = reader.getAttribute("size");
-    if(reader.hasMoreChildren() == false) {
+    if(!reader.hasMoreChildren()) {
       return ValueType.Factory.forName(valueType).nullSequence();
     }
 
@@ -69,13 +69,15 @@ public class ValueSequenceConverter implements Converter {
 
   static class ContextHelper {
 
+    private ContextHelper() {}
+
     static public void startSequence(DataHolder holder) {
       holder.put(ValueSequence.class, new Object());
     }
 
     static public void setCurrentOrder(DataHolder holder, int order) {
       Object key = holder.get(ValueSequence.class);
-      holder.put(key, Integer.valueOf(order));
+      holder.put(key, order);
     }
 
     static public int getCurrentOrder(DataHolder holder) {

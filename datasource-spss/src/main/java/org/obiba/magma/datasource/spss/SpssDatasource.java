@@ -27,7 +27,7 @@ public class SpssDatasource extends AbstractDatasource {
 
   private final String characterSet;
 
-  private Map<String, SpssValueTable> valueTablesMapOnInit = new LinkedHashMap<String, SpssValueTable>();
+  private final Map<String, SpssValueTable> valueTablesMapOnInit = new LinkedHashMap<String, SpssValueTable>();
 
   public SpssDatasource(String name, List<File> spssFiles, String characterSet) {
     super(name, "spss");

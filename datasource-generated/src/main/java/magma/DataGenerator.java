@@ -29,13 +29,17 @@ import com.google.common.collect.Sets;
  * Invoke as {@code java -cp jars magma.DataGenerator -i dictionary.xlsx -o output-file.csv -n qty} where {@code qty} is
  * the number of rows to generate.
  */
+@SuppressWarnings("UseOfSystemOutOrSystemErr")
 public class DataGenerator {
+
+  private static final int DEFAULT_NB_ENTITIES = 500;
 
   private DataGenerator() {
   }
 
+  @SuppressWarnings({ "OverlyLongMethod", "PMD.NcssMethodCount" })
   public static void main(String... args) throws IOException {
-    Integer number = 500;
+    Integer number = DEFAULT_NB_ENTITIES;
     String outputFileName = "output.csv";
     String inputFileName = "input.xlsx";
 
@@ -50,17 +54,17 @@ public class DataGenerator {
     }
 
     File inputFile = new File(inputFileName);
-    if(inputFile.exists() == false) {
+    if(!inputFile.exists()) {
       System.err.println(String.format("Input file %s does not exist.", inputFileName));
       return;
     }
 
     File outputFile = new File(outputFileName);
-    if(outputFile.exists() && outputFile.delete() == false) {
+    if(outputFile.exists() && !outputFile.delete()) {
       System.err.println(String.format("Cannot delete output file %s.", outputFile));
       return;
     }
-    if(outputFile.createNewFile() == false) {
+    if(!outputFile.createNewFile()) {
       System.err.println(String.format("Cannot create output file %s.", outputFile));
       return;
     }
@@ -82,7 +86,7 @@ public class DataGenerator {
       return;
     }
 
-    GeneratedValueTable generated = new GeneratedValueTable(null, Sets.newLinkedHashSet(table.getVariables()), number);
+    ValueTable generated = new GeneratedValueTable(null, Sets.newLinkedHashSet(table.getVariables()), number);
 
     MultithreadedDatasourceCopier.Builder.newCopier()
         .withCopier(DatasourceCopier.Builder.newCopier().dontCopyMetadata()).from(generated).to(target)

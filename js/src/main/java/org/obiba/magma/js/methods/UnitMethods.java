@@ -32,6 +32,8 @@ public class UnitMethods {
   private static final UCUMFormat DEFAULTS = UCUMFormat
       .getCaseSensitiveInstance(new SymbolMap(ResourceBundle.getBundle(UnitMethods.class.getName() + "_CS")));
 
+  private UnitMethods() {}
+
   /**
    * Forces the unit to a specific value (one argument) or returns the current unit value if no arguments are provided.
    * <p/>
@@ -84,7 +86,7 @@ public class UnitMethods {
       throw new MagmaJsEvaluationRuntimeException(String.format("current unit is unknown: '%s'.", value.getUnit()));
     }
 
-    if(target.isCompatible(source) == false) {
+    if(!target.isCompatible(source)) {
       throw new MagmaJsEvaluationRuntimeException(String.format("unit %s cannot be converted to %s", source, target));
     }
 

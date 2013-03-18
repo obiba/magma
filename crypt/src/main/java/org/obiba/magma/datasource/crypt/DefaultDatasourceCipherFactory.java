@@ -14,16 +14,16 @@ import org.obiba.magma.crypt.MagmaCryptRuntimeException;
  */
 class DefaultDatasourceCipherFactory implements DatasourceCipherFactory {
 
-  private String transformation;
+  private final String transformation;
 
-  private SecretKey secretKey;
+  private final SecretKey secretKey;
 
-  private AlgorithmParameters algorithmParameters;
+  private final AlgorithmParameters algorithmParameters;
 
   DefaultDatasourceCipherFactory(String transformation, SecretKey secretKey, AlgorithmParameters parameters) {
     this.transformation = transformation;
     this.secretKey = secretKey;
-    this.algorithmParameters = parameters;
+    algorithmParameters = parameters;
   }
 
   @Override

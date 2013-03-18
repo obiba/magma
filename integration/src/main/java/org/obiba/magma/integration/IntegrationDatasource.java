@@ -26,7 +26,7 @@ import com.google.common.collect.ImmutableSet;
 
 public class IntegrationDatasource extends AbstractDatasource {
 
-  private IntegrationService service;
+  private final IntegrationService service;
 
   IntegrationDatasource(IntegrationService service) {
     super("integration-ds", "beans");
@@ -41,7 +41,7 @@ public class IntegrationDatasource extends AbstractDatasource {
   @Override
   protected ValueTable initialiseValueTable(String tableName) {
 
-    final ImmutableSet.Builder<VariableValueSource> sources = new ImmutableSet.Builder<VariableValueSource>();
+    ImmutableSet.Builder<VariableValueSource> sources = new ImmutableSet.Builder<VariableValueSource>();
 
     BeanVariableValueSourceFactory<Participant> variables = new BeanVariableValueSourceFactory<Participant>(
         "Participant", Participant.class);
@@ -74,7 +74,7 @@ public class IntegrationDatasource extends AbstractDatasource {
 
       @Override
       protected Iterable<Interview> loadBeans() {
-        return IntegrationDatasource.this.service.getInterviews();
+        return service.getInterviews();
       }
     };
 

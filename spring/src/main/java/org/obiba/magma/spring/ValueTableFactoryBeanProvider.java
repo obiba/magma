@@ -7,5 +7,5 @@ import java.util.Set;
  */
 public interface ValueTableFactoryBeanProvider {
 
-  public Set<? extends ValueTableFactoryBean> getValueTableFactoryBeans();
+  Set<? extends ValueTableFactoryBean> getValueTableFactoryBeans();
 }

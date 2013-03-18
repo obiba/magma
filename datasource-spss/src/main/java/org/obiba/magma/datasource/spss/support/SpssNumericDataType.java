@@ -41,10 +41,10 @@ public enum SpssNumericDataType {
   SDATE(39); // Date in yyyy/mm/dd or yy/mm/dd (?)
 
   public static SpssNumericDataType fromInt(int i) {
-    SpssNumericDataType type = intToTypeMap.get(Integer.valueOf(i));
+    SpssNumericDataType type = intToTypeMap.get(i);
 
     if(type == null) {
-      return SpssNumericDataType.UNKNOWN;
+      return UNKNOWN;
     }
 
     return type;
@@ -66,7 +66,7 @@ public enum SpssNumericDataType {
   //
   private final int value;
 
-  private SpssNumericDataType(int value) {
+  SpssNumericDataType(int value) {
     this.value = value;
   }
 

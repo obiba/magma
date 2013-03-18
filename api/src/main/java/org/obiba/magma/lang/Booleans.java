@@ -1,5 +1,7 @@
 package org.obiba.magma.lang;
 
+import javax.annotation.Nullable;
+
 /**
  * Boolean helper methods.
  * <p/>
@@ -95,7 +97,7 @@ public final class Booleans {
    */
   @edu.umd.cs.findbugs.annotations.SuppressWarnings(value = "NP_BOOLEAN_RETURN_NULL",
       justification = "Clients expect ternaryAnd to return null as a valid value.")
-  public static Boolean ternaryAnd(Boolean op1, Boolean op2) {
+  public static Boolean ternaryAnd(@Nullable Boolean op1, @Nullable Boolean op2) {
     // If either operands is null, then the outcome is either null or false.
     if(isNull(op1) || isNull(op2)) {
       // The outcome is false if either operand is false
@@ -114,7 +116,7 @@ public final class Booleans {
    */
   @edu.umd.cs.findbugs.annotations.SuppressWarnings(value = "NP_BOOLEAN_RETURN_NULL",
       justification = "Clients expect ternaryOr to return null as a valid value.")
-  public static Boolean ternaryOr(Boolean op1, Boolean op2) {
+  public static Boolean ternaryOr(@Nullable Boolean op1, @Nullable Boolean op2) {
     // If either operands is null, then the outcome is either null or true.
     if(isNull(op1) || isNull(op2)) {
       // The outcome is true if either operand is true
@@ -146,7 +148,7 @@ public final class Booleans {
    * @return true when {@code op} is {@code false}
    */
   public static boolean isFalse(Boolean op) {
-    return op != null && op == false;
+    return op != null && !op;
   }
 
   /**
@@ -157,7 +159,7 @@ public final class Booleans {
    * @return true when {@code op} is {@code true}
    */
   public static boolean isTrue(Boolean op) {
-    return op != null && op == true;
+    return op != null && op;
   }
 
   /**

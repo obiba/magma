@@ -24,18 +24,22 @@ public class MagmaEngineFactoryBean implements FactoryBean, InitializingBean, Di
 
   private Set<MagmaEngineExtension> extensions;
 
+  @Override
   public Object getObject() throws Exception {
     return MagmaEngine.get();
   }
 
+  @Override
   public Class<?> getObjectType() {
     return MagmaEngine.class;
   }
 
+  @Override
   public boolean isSingleton() {
     return true;
   }
 
+  @Override
   public void afterPropertiesSet() throws Exception {
     MagmaEngine engine = new MagmaEngine();
     for(MagmaEngineExtension extension : extensions) {
@@ -43,6 +47,7 @@ public class MagmaEngineFactoryBean implements FactoryBean, InitializingBean, Di
     }
   }
 
+  @Override
   public void destroy() throws Exception {
     MagmaEngine.get().shutdown();
   }

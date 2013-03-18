@@ -575,14 +575,14 @@ class JdbcValueTable extends AbstractValueTable {
 
               @Override
               public Value next() {
-                if(hasNext() == false) {
+                if(!hasNext()) {
                   throw new NoSuchElementException();
                 }
 
                 String nextEntity = resultEntities.next().getIdentifier();
                 try {
                   // Scroll until we find the required entity or reach the end of the results
-                  while(hasNextResults && buildEntityIdentifier(rs).equals(nextEntity) == false) {
+                  while(hasNextResults && !buildEntityIdentifier(rs).equals(nextEntity)) {
                     hasNextResults = rs.next();
                   }
 
@@ -605,9 +605,9 @@ class JdbcValueTable extends AbstractValueTable {
               }
 
               private void closeCursorIfNecessary() throws SQLException {
-                if(closed == false) {
+                if(!closed) {
                   // Close the cursor if we don't have any more results or no more entities to return
-                  if(hasNextResults == false || hasNext() == false) {
+                  if(!hasNextResults || !hasNext()) {
                     closed = true;
                     closeQuietly(rs, ps, c);
                   }

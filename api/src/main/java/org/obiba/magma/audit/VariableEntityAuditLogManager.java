@@ -17,7 +17,7 @@ import com.google.common.base.Function;
  */
 public interface VariableEntityAuditLogManager {
 
-  public CopyAuditor createAuditor(DatasourceCopier.Builder builder, Datasource destination,
+  CopyAuditor createAuditor(DatasourceCopier.Builder builder, Datasource destination,
       Function<VariableEntity, VariableEntity> entityMapper);
 
   /**
@@ -26,7 +26,7 @@ public interface VariableEntityAuditLogManager {
    * @param entity Entity from which to obtain the VariableEntityAuditLog.
    * @return A VariableEntityAuditLog
    */
-  public VariableEntityAuditLog getAuditLog(VariableEntity entity);
+  VariableEntityAuditLog getAuditLog(VariableEntity entity);
 
   /**
    * Allows creating new entries (events) within a log.
@@ -38,7 +38,7 @@ public interface VariableEntityAuditLogManager {
    * @param details A list of event-specific values that provide additional context.
    * @return The event created
    */
-  public VariableEntityAuditEvent createAuditEvent(VariableEntityAuditLog log, ValueTable valueTable, String type,
+  VariableEntityAuditEvent createAuditEvent(VariableEntityAuditLog log, ValueTable valueTable, String type,
       Map<String, Value> details);
 
 }

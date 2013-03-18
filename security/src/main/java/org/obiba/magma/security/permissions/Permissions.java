@@ -11,6 +11,8 @@ public class Permissions {
 
   public static final String WILDCARD = "*";
 
+  private Permissions() {}
+
   public static final class Actions {
 
     public static final String READ = "GET";
@@ -18,6 +20,8 @@ public class Permissions {
     public static final String WRITE = "POST";
 
     public static final String DELETE = "DELETE";
+
+    private Actions() {}
   }
 
   @SuppressWarnings({ "ParameterHidesMemberVariable", "UnusedDeclaration" })

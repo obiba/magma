@@ -54,7 +54,7 @@ class LimesurveyValueTable extends AbstractValueTable {
 
   private LimesurveyParsingException exception;
 
-  private LimesurveyElementProvider elementProvider;
+  private final LimesurveyElementProvider elementProvider;
 
   LimesurveyValueTable(LimesurveyDatasource datasource, String name, Integer sid) {
     super(datasource, name);
@@ -70,7 +70,7 @@ class LimesurveyValueTable extends AbstractValueTable {
     exception = new LimesurveyParsingException("Limesurvey Root Exception", "parentLimeException");
     initialiseVariableValueSources();
     getVariableEntityProvider().initialise();
-    if(exception.getChildren().isEmpty() == false) {
+    if(!exception.getChildren().isEmpty()) {
       throw exception;
     }
   }
@@ -111,7 +111,7 @@ class LimesurveyValueTable extends AbstractValueTable {
   private void buildVariables() {
     buildAdministrativeVariables();
     for(LimeQuestion question : mapQuestions.values()) {
-      if(buildRanking(question) == false) {
+      if(!buildRanking(question)) {
         LimeQuestion parentQuestion = null;
         boolean isDualScale = false;
         boolean isArraySubQuestion = false;
@@ -123,7 +123,7 @@ class LimesurveyValueTable extends AbstractValueTable {
         }
         Variable.Builder vb = null;
         // if not a special case
-        if(isArraySubQuestion == false && isDualScale == false) {
+        if(!isArraySubQuestion && !isDualScale) {
           vb = buildVariable(question);
         }
         buildFileCountIfNecessary(question);
@@ -135,7 +135,7 @@ class LimesurveyValueTable extends AbstractValueTable {
           buildLabelAttributes(question, vb);
           if(question.hasParentId()) {
             buildCategoriesForVariable(vb, mapAnswers.get(parentQuestion.getQid()));
-          } else if(hasSubQuestions(question) == false) {
+          } else if(!hasSubQuestions(question)) {
             buildCategoriesForVariable(vb, mapAnswers.get(question.getQid()));
           }
           String subQuestionFieldTitle = question.hasParentId() ? question.getName() : "";
@@ -223,7 +223,7 @@ class LimesurveyValueTable extends AbstractValueTable {
 
   private void addLimesurveyVariableValueSource(VariableValueSource vvs) {
     String name = vvs.getVariable().getName();
-    if(names.add(name) == false) {
+    if(!names.add(name)) {
       exception.addChild(
           new LimesurveyParsingException("'" + getName() + "' contains duplicated variable names: " + name,
               "LimeDuplicateVariableName", getName(), name));
@@ -234,7 +234,7 @@ class LimesurveyValueTable extends AbstractValueTable {
   private Variable.Builder buildVariable(LimeQuestion question) {
     Variable.Builder vb;
     // do not create variable for parent question
-    if(hasSubQuestions(question) == false) {
+    if(!hasSubQuestions(question)) {
       String variableName = question.getName();
       if(question.hasParentId()) {
         LimeQuestion parentQuestion = getParentQuestion(question);
@@ -261,7 +261,7 @@ class LimesurveyValueTable extends AbstractValueTable {
   private boolean buildArraySubQuestions(LimeQuestion question, LimeQuestion parentQuestion) {
     List<LimeQuestion> scalableSubQuestions = getScaledOneSubQuestions(parentQuestion);
     if(scalableSubQuestions.isEmpty()) return false;
-    if(question.isScaleEqual1() == false) {
+    if(!question.isScaleEqual1()) {
       for(LimeQuestion scalableQuestion : scalableSubQuestions) {
         String dualName = question.getName() + "_" + scalableQuestion.getName();
         String arrayVariableName = parentQuestion.getName() + " [" + dualName + "]";
@@ -296,7 +296,7 @@ class LimesurveyValueTable extends AbstractValueTable {
   }
 
   private void buildCommentVariableIfNecessary(LimeQuestion question, LimeQuestion parentQuestion) {
-    if(question.getLimesurveyType().isCommentable() && hasSubQuestions(question) == false) {
+    if(question.getLimesurveyType().isCommentable() && !hasSubQuestions(question)) {
       Builder comment = build(question, question.getName() + " [comment]");
       buildSpecialLabel(question, comment, "comment");
       addLimesurveyVariableValueSource(new LimesurveyQuestionVariableValueSource(comment, question, "comment"));
@@ -427,13 +427,13 @@ class LimesurveyValueTable extends AbstractValueTable {
         public Iterator<Value> iterator() {
           return new Iterator<Value>() {
 
-            private Iterator<VariableEntity> idsIterator;
+            private final Iterator<VariableEntity> idsIterator;
 
             private SqlRowSet rows;
 
             {
               idsIterator = entities.iterator();
-              if(Iterables.isEmpty(entities) == false) {
+              if(!Iterables.isEmpty(entities)) {
                 rows = jdbcTemplate.queryForRowSet(sql.toString(), parameters);
               }
             }
@@ -445,7 +445,7 @@ class LimesurveyValueTable extends AbstractValueTable {
 
             @Override
             public Value next() {
-              if(hasNext() == false) {
+              if(!hasNext()) {
                 throw new NoSuchElementException();
               }
               idsIterator.next();
@@ -477,7 +477,7 @@ class LimesurveyValueTable extends AbstractValueTable {
 
   class LimesurveyQuestionVariableValueSource extends LimesurveyVariableValueSource {
 
-    private LimeQuestion question;
+    private final LimeQuestion question;
 
     private String subQuestionFieldTitle = "";
 

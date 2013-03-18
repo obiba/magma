@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Locale;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import org.mozilla.javascript.Callable;
@@ -126,7 +125,10 @@ public class TextMethods {
   public static ScriptableValue capitalize(Context ctx, Scriptable thisObj, @Nullable Object[] args,
       @Nullable Function funObj) {
     final String delim;
-    if(args != null) {
+    if(args == null) {
+      //noinspection AssignmentToNull
+      delim = null;
+    } else {
       StringBuilder buffer = new StringBuilder();
       for(Object arg : args) {
         if(arg != null) {
@@ -134,8 +136,6 @@ public class TextMethods {
         }
       }
       delim = buffer.toString();
-    } else {
-      delim = null;
     }
 
     com.google.common.base.Function<Value, Value> capitalizeFunction

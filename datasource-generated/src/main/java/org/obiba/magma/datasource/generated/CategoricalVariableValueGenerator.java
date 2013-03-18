@@ -15,7 +15,7 @@ class CategoricalVariableValueGenerator extends AbstractMissingValueVariableValu
   CategoricalVariableValueGenerator(Variable variable) {
     super(variable);
     for(Category c : variable.getCategories()) {
-      if(c.isMissing() == false) {
+      if(!c.isMissing()) {
         dataCategories.add(c);
       }
     }
@@ -23,7 +23,7 @@ class CategoricalVariableValueGenerator extends AbstractMissingValueVariableValu
 
   @Override
   protected Value nonMissingValue(Variable variable, GeneratedValueSet gvs) {
-    if(dataCategories.size() == 0) return variable.getValueType().nullValue();
+    if(dataCategories.isEmpty()) return variable.getValueType().nullValue();
     int c = gvs.valueGenerator.nextInt(dataCategories.size());
     return variable.getValueType().valueOf(dataCategories.get(c).getName());
   }

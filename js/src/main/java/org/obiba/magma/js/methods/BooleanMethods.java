@@ -112,15 +112,15 @@ public class BooleanMethods {
           if(testValue.isNull()) {
             return buildValue(thisObj, false);
           }
-        } else if(sv.contains(testValue)) {
+        }
+        if(sv.contains(testValue)) {
           return buildValue(thisObj, false);
         }
       }
       return buildValue(thisObj, true);
-    } else {
-      // Is of form .not()
-      return not(ctx, thisObj, funObj);
     }
+    // Is of form .not()
+    return not(ctx, thisObj, funObj);
   }
 
   /**
@@ -257,6 +257,7 @@ public class BooleanMethods {
    * @throws MagmaJsEvaluationRuntimeException if operands are not ScriptableValue Objects of a numeric type,
    * BooleanType or TextType.
    */
+  @SuppressWarnings({ "OverlyLongMethod", "PMD.NcssMethodCount" })
   public static ScriptableValue eq(Context ctx, Scriptable thisObj, @Nullable Object[] args, @Nullable Function funObj)
       throws MagmaJsEvaluationRuntimeException {
     ScriptableValue firstOperand = (ScriptableValue) thisObj;
@@ -265,9 +266,8 @@ public class BooleanMethods {
         if(args[0] instanceof ScriptableValue) {
           ScriptableValue secondOperand = (ScriptableValue) args[0];
           return new ScriptableValue(thisObj, BooleanType.get().valueOf(secondOperand.getValue().isNull()));
-        } else {
-          return new ScriptableValue(thisObj, BooleanType.get().valueOf(args[0] == null));
         }
+        return new ScriptableValue(thisObj, BooleanType.get().valueOf(args[0] == null));
       }
       return new ScriptableValue(thisObj, BooleanType.get().falseValue());
     }
@@ -279,44 +279,51 @@ public class BooleanMethods {
     if(args[0] instanceof ScriptableValue) {
       ScriptableValue secondOperand = (ScriptableValue) args[0];
       return eqScriptableValue(thisObj, firstOperand, secondOperand);
-    } else if(firstOperand.getValueType().isNumeric()) {
+    }
+    if(firstOperand.getValueType().isNumeric()) {
       return new ScriptableValue(thisObj, NumericMethods.equals(firstOperand, args));
-    } else if(firstOperand.getValueType().equals(TextType.get())) {
+    }
+    if(firstOperand.getValueType().equals(TextType.get())) {
       if(args[0] == null) return new ScriptableValue(thisObj, BooleanType.get().nullValue());
       return textEquals(thisObj, firstOperand,
           new ScriptableValue(thisObj, TextType.get().valueOf(args[0].toString())));
-    } else if(firstOperand.getValueType().isDateTime()) {
-      if(args[0] == null) return new ScriptableValue(thisObj, BooleanType.get().nullValue());
-      if(firstOperand.getValueType().equals(DateType.get())) {
-        return dateEquals(thisObj, firstOperand, new ScriptableValue(thisObj, DateType.get().valueOf(args[0])));
-      }
-      return dateEquals(thisObj, firstOperand, new ScriptableValue(thisObj, DateTimeType.get().valueOf(args[0])));
-    } else {
-      return new ScriptableValue(thisObj, BooleanType.get().falseValue());
     }
+    if(firstOperand.getValueType().isDateTime()) {
+      return eqDateTime(thisObj, args[0], firstOperand);
+    }
+    return new ScriptableValue(thisObj, BooleanType.get().falseValue());
+  }
+
+  private static ScriptableValue eqDateTime(Scriptable thisObj, Object arg, ScriptableValue firstOperand) {
+    if(arg == null) return new ScriptableValue(thisObj, BooleanType.get().nullValue());
+    if(firstOperand.getValueType().equals(DateType.get())) {
+      return dateEquals(thisObj, firstOperand, new ScriptableValue(thisObj, DateType.get().valueOf(arg)));
+    }
+    return dateEquals(thisObj, firstOperand, new ScriptableValue(thisObj, DateTimeType.get().valueOf(arg)));
   }
 
   private static ScriptableValue eqScriptableValue(Scriptable thisObj, ScriptableValue firstOperand,
       ScriptableValue secondOperand) {
     if(firstOperand.getValueType().isNumeric() && secondOperand.getValueType().isNumeric()) {
       return numericEquals(thisObj, firstOperand, secondOperand);
-    } else if(firstOperand.getValueType().equals(BooleanType.get()) &&
+    }
+    if(firstOperand.getValueType().equals(BooleanType.get()) &&
         secondOperand.getValueType().equals(BooleanType.get())) {
       return booleanEquals(thisObj, firstOperand, secondOperand);
-    } else if(firstOperand.getValueType().equals(TextType.get()) &&
-        secondOperand.getValueType().equals(TextType.get())) {
+    }
+    if(firstOperand.getValueType().equals(TextType.get()) && secondOperand.getValueType().equals(TextType.get())) {
       return textEquals(thisObj, firstOperand, secondOperand);
-    } else if(firstOperand.getValueType().equals(DateType.get()) &&
-        secondOperand.getValueType().equals(DateType.get())) {
+    }
+    if(firstOperand.getValueType().equals(DateType.get()) && secondOperand.getValueType().equals(DateType.get())) {
       return dateEquals(thisObj, firstOperand, secondOperand);
-    } else if(firstOperand.getValueType().equals(DateTimeType.get()) &&
+    }
+    if(firstOperand.getValueType().equals(DateTimeType.get()) &&
         secondOperand.getValueType().equals(DateTimeType.get())) {
       return dateTimeEquals(thisObj, firstOperand, secondOperand);
-    } else {
-      throw new MagmaJsEvaluationRuntimeException(
-          "Cannot invoke equals() with argument of type '" + firstOperand.getValueType().getName() + "' and '" +
-              secondOperand.getValueType().getName() + "'.");
     }
+    throw new MagmaJsEvaluationRuntimeException(
+        "Cannot invoke equals() with argument of type '" + firstOperand.getValueType().getName() + "' and '" +
+            secondOperand.getValueType().getName() + "'.");
   }
 
   public static ScriptableValue whenNull(Context ctx, Scriptable thisObj, Object[] args, Function funObj)
@@ -324,11 +331,11 @@ public class BooleanMethods {
     ScriptableValue sv = (ScriptableValue) thisObj;
     if(sv.getValue().isSequence()) {
       return whenNullSequence(ctx, thisObj, args, funObj);
-    } else if(sv.getValue().isNull() && args != null && args.length > 0) {
-      return new ScriptableValue(thisObj, whenNullArgument(sv.getValueType(), args[0]));
-    } else {
-      return sv;
     }
+    if(sv.getValue().isNull() && args != null && args.length > 0) {
+      return new ScriptableValue(thisObj, whenNullArgument(sv.getValueType(), args[0]));
+    }
+    return sv;
   }
 
   private static ScriptableValue whenNullSequence(Context ctx, Scriptable thisObj, Object[] args, Function funObj)
@@ -339,17 +346,16 @@ public class BooleanMethods {
       return rval.isSequence() //
           ? new ScriptableValue(thisObj, rval) //
           : new ScriptableValue(thisObj, sv.getValueType().sequenceOf(Collections.singleton(rval)));
-    } else {
-      Collection<Value> newValues = new ArrayList<Value>();
-      for(Value val : sv.getValue().asSequence().getValues()) {
-        if(val.isNull()) {
-          newValues.add(whenNullArgument(val.getValueType(), args[0]));
-        } else {
-          newValues.add(val);
-        }
-      }
-      return new ScriptableValue(thisObj, sv.getValueType().sequenceOf(newValues));
     }
+    Collection<Value> newValues = new ArrayList<Value>();
+    for(Value val : sv.getValue().asSequence().getValues()) {
+      if(val.isNull()) {
+        newValues.add(whenNullArgument(val.getValueType(), args[0]));
+      } else {
+        newValues.add(val);
+      }
+    }
+    return new ScriptableValue(thisObj, sv.getValueType().sequenceOf(newValues));
   }
 
   private static Value whenNullArgument(ValueType type, Object arg) {
@@ -363,17 +369,18 @@ public class BooleanMethods {
     if(firstOperand.getValueType().equals(IntegerType.get()) &&
         secondOperand.getValueType().equals(IntegerType.get())) {
       return new ScriptableValue(thisObj, BooleanType.get().valueOf(firstNumber.equals(secondNumber)));
-    } else if(firstOperand.getValueType().equals(IntegerType.get()) &&
+    }
+    if(firstOperand.getValueType().equals(IntegerType.get()) &&
         secondOperand.getValueType().equals(DecimalType.get())) {
       return new ScriptableValue(thisObj,
           BooleanType.get().valueOf(firstNumber.doubleValue() == (Double) secondNumber));
-    } else if(firstOperand.getValueType().equals(DecimalType.get()) &&
+    }
+    if(firstOperand.getValueType().equals(DecimalType.get()) &&
         secondOperand.getValueType().equals(IntegerType.get())) {
       return new ScriptableValue(thisObj,
           BooleanType.get().valueOf((Double) firstNumber == secondNumber.doubleValue()));
-    } else {
-      return new ScriptableValue(thisObj, BooleanType.get().valueOf(firstNumber.equals(secondNumber)));
     }
+    return new ScriptableValue(thisObj, BooleanType.get().valueOf(firstNumber.equals(secondNumber)));
   }
 
   private static ScriptableValue booleanEquals(Scriptable thisObj, ScriptableValue firstOperand,
@@ -402,7 +409,7 @@ public class BooleanMethods {
     return new ScriptableValue(thisObj, BooleanType.get().valueOf(result));
   }
 
-  private static ScriptableValue buildValue(Scriptable scope, Boolean value) {
+  private static ScriptableValue buildValue(Scriptable scope, @Nullable Boolean value) {
     if(value == null) {
       return new ScriptableValue(scope, BooleanType.get().nullValue());
     }

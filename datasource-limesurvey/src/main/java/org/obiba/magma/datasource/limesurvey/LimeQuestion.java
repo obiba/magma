@@ -19,7 +19,6 @@ public class LimeQuestion extends LimeLocalizableEntity {
   private int groupId;
 
   private LimeQuestion() {
-    super();
   }
 
   public static LimeQuestion create() {
@@ -59,7 +58,7 @@ public class LimeQuestion extends LimeLocalizableEntity {
   }
 
   public void setUseOther(boolean other) {
-    this.useOther = other;
+    useOther = other;
   }
 
   public boolean isScaleEqual1() {

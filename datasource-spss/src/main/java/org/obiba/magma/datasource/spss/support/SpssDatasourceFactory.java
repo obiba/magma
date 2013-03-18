@@ -30,7 +30,7 @@ public class SpssDatasourceFactory extends AbstractDatasourceFactory {
   // Data members
   //
 
-  private List<File> files = new ArrayList<File>();
+  private final List<File> files = new ArrayList<File>();
 
   private String characterSet;
 
@@ -54,6 +54,7 @@ public class SpssDatasourceFactory extends AbstractDatasourceFactory {
     this.characterSet = characterSet;
   }
 
+  @Override
   public Datasource create() {
     return internalCreate();
   }

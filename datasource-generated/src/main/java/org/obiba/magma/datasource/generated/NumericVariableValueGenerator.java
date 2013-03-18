@@ -20,7 +20,7 @@ class NumericVariableValueGenerator extends AbstractMissingValueVariableValueGen
 
   private final ValueSource stddev;
 
-  NumericVariableValueGenerator(final Variable variable) {
+  NumericVariableValueGenerator(Variable variable) {
     super(variable);
     minimum = makeSource(variable, "minimum");
     maximum = makeSource(variable, "maximum");
@@ -44,7 +44,8 @@ class NumericVariableValueGenerator extends AbstractMissingValueVariableValueGen
       if(getValueType() == IntegerType.get()) {
         return getValueType().valueOf(
             minimum.equals(maximum) ? minimum : gvs.dataGenerator.nextLong(minimum.longValue(), maximum.longValue()));
-      } else if(getValueType() == DecimalType.get()) {
+      }
+      if(getValueType() == DecimalType.get()) {
         return getValueType().valueOf(minimum.equals(maximum)
             ? minimum
             : gvs.dataGenerator.nextUniform(minimum.doubleValue(), maximum.doubleValue()));
@@ -65,11 +66,9 @@ class NumericVariableValueGenerator extends AbstractMissingValueVariableValueGen
   }
 
   private ValueSource makeSource(Variable variable, ValueType type, String scriptAttribute) {
-    if(variable.hasAttribute(scriptAttribute)) {
-      return new JavascriptValueSource(type, variable.getAttributeStringValue(scriptAttribute));
-    } else {
-      return new NullValueSource(type);
-    }
+    return variable.hasAttribute(scriptAttribute) //
+        ? new JavascriptValueSource(type, variable.getAttributeStringValue(scriptAttribute)) //
+        : new NullValueSource(type);
   }
 
 }

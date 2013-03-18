@@ -7,11 +7,13 @@ public class DefaultVariableValueGeneratorFactory implements VariableValueGenera
 
   @Override
   public GeneratedVariableValueSource newGenerator(Variable variable) {
-    if(variable.hasCategories() && isAllMissing(variable.getCategories()) == false) {
+    if(variable.hasCategories() && !isAllMissing(variable.getCategories())) {
       return new CategoricalVariableValueGenerator(variable);
-    } else if(variable.getValueType().isNumeric() && isAllMissing(variable.getCategories()) == true) {
+    }
+    if(variable.getValueType().isNumeric() && isAllMissing(variable.getCategories())) {
       return new NumericVariableValueGenerator(variable);
-    } else if(variable.getValueType().isDateTime()) {
+    }
+    if(variable.getValueType().isDateTime()) {
       return new DateVariableValueGenerator(variable);
     }
     return new NullVariableValueGenerator(variable);
@@ -19,7 +21,7 @@ public class DefaultVariableValueGeneratorFactory implements VariableValueGenera
 
   private boolean isAllMissing(Iterable<Category> categories) {
     for(Category c : categories) {
-      if(c.isMissing() == false) return false;
+      if(!c.isMissing()) return false;
     }
     return true;
   }

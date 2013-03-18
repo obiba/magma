@@ -35,19 +35,19 @@ public enum LimesurveyType {
   HUGE_FREE_TEXT("U", TextType.get()), //
   MULTIPLE_SHORT_TEXT("Q", TextType.get());
 
-  private String label;
+  private final String label;
 
-  private List<String> answers;
+  private final List<String> answers;
 
-  private ValueType type;
+  private final ValueType type;
 
-  private boolean commentable;
+  private final boolean commentable;
 
   LimesurveyType(String label, ValueType type, String... answers) {
     this.label = label;
     this.type = type;
     this.answers = Arrays.asList(answers);
-    this.commentable = false;
+    commentable = false;
   }
 
   LimesurveyType(String label, ValueType type, boolean commentable, String... answers) {
@@ -58,7 +58,7 @@ public enum LimesurveyType {
   }
 
   public boolean hasImplicitCategories() {
-    return answers.isEmpty() == false;
+    return !answers.isEmpty();
   }
 
   public List<String> getImplicitAnswers() {

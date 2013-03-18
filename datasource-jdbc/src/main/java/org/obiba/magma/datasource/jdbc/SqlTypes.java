@@ -1,5 +1,9 @@
 package org.obiba.magma.datasource.jdbc;
 
+import java.sql.Types;
+
+import javax.annotation.Nullable;
+
 import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.ValueType;
 import org.obiba.magma.type.BinaryType;
@@ -16,40 +20,43 @@ class SqlTypes {
 
   static final String TEXT_TYPE_HINT_LARGE = "LARGE";
 
+  private SqlTypes() {}
+
+  @SuppressWarnings({ "PMD.NcssMethodCount", "OverlyLongMethod" })
   static final ValueType valueTypeFor(int sqlType) {
     switch(sqlType) {
       // BinaryType
-      case java.sql.Types.BLOB: // fall through
-      case java.sql.Types.LONGVARBINARY: // fall through
-      case java.sql.Types.VARBINARY:
+      case Types.BLOB: // fall through
+      case Types.LONGVARBINARY: // fall through
+      case Types.VARBINARY:
         return BinaryType.get();
 
       // BooleanType
-      case java.sql.Types.BIT: // fall through
-      case java.sql.Types.BOOLEAN:
+      case Types.BIT: // fall through
+      case Types.BOOLEAN:
         return BooleanType.get();
 
       // DecimalType
-      case java.sql.Types.DECIMAL: // fall through
-      case java.sql.Types.DOUBLE: // fall through
-      case java.sql.Types.FLOAT: // fall through
-      case java.sql.Types.NUMERIC: // fall through
-      case java.sql.Types.REAL:
+      case Types.DECIMAL: // fall through
+      case Types.DOUBLE: // fall through
+      case Types.FLOAT: // fall through
+      case Types.NUMERIC: // fall through
+      case Types.REAL:
         return DecimalType.get();
 
       // DateType
-      case java.sql.Types.DATE:
+      case Types.DATE:
         return DateType.get();
 
       // DateTimeType
-      case java.sql.Types.TIMESTAMP:
+      case Types.TIMESTAMP:
         return DateTimeType.get();
 
       // IntegerType
-      case java.sql.Types.BIGINT: // fall through
-      case java.sql.Types.INTEGER: // fall through
-      case java.sql.Types.SMALLINT: // fall through
-      case java.sql.Types.TINYINT:
+      case Types.BIGINT: // fall through
+      case Types.INTEGER: // fall through
+      case Types.SMALLINT: // fall through
+      case Types.TINYINT:
         return IntegerType.get();
 
       // Everything else is mapped to TextType. Maybe this is not a correct approach, not every remaining type may map
@@ -60,22 +67,22 @@ class SqlTypes {
   }
 
   static final ValueType valueTypeFor(String sqlType) {
-    if(sqlType.equals("VARCHAR")) {
+    if("VARCHAR".equals(sqlType)) {
       return TextType.get();
     }
-    if(sqlType.equals("BIGINT")) {
+    if("BIGINT".equals(sqlType)) {
       return IntegerType.get();
     }
-    if(sqlType.equals("DECIMAL")) {
+    if("DECIMAL".equals(sqlType)) {
       return DecimalType.get();
     }
-    if(sqlType.equals("DATE")) {
+    if("DATE".equals(sqlType)) {
       return DateType.get();
     }
-    if(sqlType.equals("TIMESTAMP")) {
+    if("TIMESTAMP".equals(sqlType)) {
       return DateTimeType.get();
     }
-    if(sqlType.equals("BLOB")) {
+    if("BLOB".equals(sqlType)) {
       return BinaryType.get();
     }
 
@@ -86,16 +93,17 @@ class SqlTypes {
     return sqlTypeFor(valueType, null);
   }
 
-  static final String sqlTypeFor(ValueType valueType, String hint) {
+  @SuppressWarnings({ "PMD.NcssMethodCount", "OverlyLongMethod" })
+  static final String sqlTypeFor(ValueType valueType, @Nullable String hint) {
     if(valueType.equals(TextType.get())) {
       // TODO: Formalize the notion of a "hint".
       if(TEXT_TYPE_HINT_MEDIUM.equals(hint)) {
         return "LONGVARCHAR"; // ONYX-285
-      } else if(TEXT_TYPE_HINT_LARGE.equals(hint)) {
-        return "LONGVARCHAR";
-      } else {
-        return "VARCHAR";
       }
+      if(TEXT_TYPE_HINT_LARGE.equals(hint)) {
+        return "LONGVARCHAR";
+      }
+      return "VARCHAR";
     }
     if(valueType.equals(IntegerType.get())) {
       return "BIGINT";

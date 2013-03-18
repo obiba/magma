@@ -33,7 +33,7 @@ public class MultiplexingDatasource extends AbstractDatasourceWrapper {
 
   private final VariableTransformer variableTransformer;
 
-  private HashMap<String, MultiplexValueTable> tables = Maps.newHashMap();
+  private final HashMap<String, MultiplexValueTable> tables = Maps.newHashMap();
 
   public MultiplexingDatasource(Datasource wrapped, ValueTableMultiplexer tableMultiplexer,
       VariableTransformer variableTransformer) {
@@ -66,7 +66,7 @@ public class MultiplexingDatasource extends AbstractDatasourceWrapper {
 
   @Override
   public ValueTable getValueTable(String name) throws NoSuchValueTableException {
-    if(tables.containsKey(name) == false) {
+    if(!tables.containsKey(name)) {
       throw new NoSuchValueTableException(name);
     }
     return tables.get(name);
@@ -98,7 +98,7 @@ public class MultiplexingDatasource extends AbstractDatasourceWrapper {
 
   public interface ValueTableMultiplexer {
 
-    public String multiplex(ValueTable table, Variable variable);
+    String multiplex(ValueTable table, Variable variable);
 
   }
 
@@ -156,7 +156,6 @@ public class MultiplexingDatasource extends AbstractDatasourceWrapper {
     }
 
     public VariableAliasTransformer(String alias) {
-      super();
       this.alias = alias;
     }
 
@@ -180,9 +179,9 @@ public class MultiplexingDatasource extends AbstractDatasourceWrapper {
 
     private final String name;
 
-    private HashMap<String, Variable> variables = Maps.newLinkedHashMap();
+    private final HashMap<String, Variable> variables = Maps.newLinkedHashMap();
 
-    public MultiplexValueTable(String name, ValueTable wrappedTable) {
+    private MultiplexValueTable(String name, ValueTable wrappedTable) {
       this.name = name;
       this.wrappedTable = wrappedTable;
     }
@@ -197,8 +196,8 @@ public class MultiplexingDatasource extends AbstractDatasourceWrapper {
       return wrappedTable;
     }
 
-    protected void addVariable(final ValueTable table, final Variable variable) {
-      if(wrappedTable.getName().equals(table.getName()) == false) {
+    protected void addVariable(ValueTable table, Variable variable) {
+      if(!wrappedTable.getName().equals(table.getName())) {
         throw new UnsupportedOperationException(
             "cannot multiplex different tables (" + wrappedTable.getName() + ", " + table.getName() +
                 ") into the same table: " + getName());

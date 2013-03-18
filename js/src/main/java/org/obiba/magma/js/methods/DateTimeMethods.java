@@ -444,11 +444,11 @@ public class DateTimeMethods {
   private static Date asDate(Value value) {
 
     if(value.getValueType() == DateTimeType.get()) {
-      if(value.isNull() == false) {
+      if(!value.isNull()) {
         return (Date) value.getValue();
       }
     } else if(value.getValueType() == DateType.get()) {
-      if(value.isNull() == false) {
+      if(!value.isNull()) {
         return ((MagmaDate) value.getValue()).asDate();
       }
     } else {
@@ -468,14 +468,14 @@ public class DateTimeMethods {
    */
   private static Calendar asCalendar(Value value) {
     if(value.getValueType() == DateTimeType.get()) {
-      if(value.isNull() == false) {
+      if(!value.isNull()) {
         Date date = (Date) value.getValue();
         Calendar c = GregorianCalendar.getInstance();
         c.setTimeInMillis(date.getTime());
         return c;
       }
     } else if(value.getValueType() == DateType.get()) {
-      if(value.isNull() == false) {
+      if(!value.isNull()) {
         return ((MagmaDate) value.getValue()).asCalendar();
       }
     } else {

@@ -52,9 +52,9 @@ public class SpringContextScanningDatasource extends AbstractDatasource {
    */
   public void addValueTable(ValueTableFactoryBean tableFactory) {
     // Make a copy: we don't know if the injected set is mutable.
-    Set<ValueTableFactoryBean> newTables = Sets.newLinkedHashSet(this.valueTableFactoryBeans);
+    Set<ValueTableFactoryBean> newTables = Sets.newLinkedHashSet(valueTableFactoryBeans);
     newTables.add(tableFactory);
-    this.valueTableFactoryBeans = newTables;
+    valueTableFactoryBeans = newTables;
     reloadValueTable(tableFactory.getValueTableName());
   }
 
@@ -63,16 +63,15 @@ public class SpringContextScanningDatasource extends AbstractDatasource {
       removeValueTable(name);
     }
 
-    Set<ValueTableFactoryBean> factories = Sets
-        .newLinkedHashSet(Iterables.filter(this.valueTableFactoryBeans, new Predicate<ValueTableFactoryBean>() {
+    valueTableFactoryBeans = Sets
+        .newLinkedHashSet(Iterables.filter(valueTableFactoryBeans, new Predicate<ValueTableFactoryBean>() {
 
           @Override
           public boolean apply(ValueTableFactoryBean input) {
-            return input.getValueTableName().equals(name) == false;
+            return !input.getValueTableName().equals(name);
           }
 
         }));
-    this.valueTableFactoryBeans = factories;
     // We cannot remove the table from the ValueTableFactoryBeanProvider instances.
   }
 

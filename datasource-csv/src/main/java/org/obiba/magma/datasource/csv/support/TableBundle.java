@@ -20,31 +20,26 @@ public class TableBundle {
   private String entityType;
 
   public TableBundle() {
-    super();
   }
 
   public TableBundle(String name, File data, String entityType) {
-    super();
     this.name = name;
     this.entityType = entityType;
     this.data = data;
   }
 
   public TableBundle(String name, File variables, File data) {
-    super();
     this.name = name;
     this.variables = variables;
     this.data = data;
   }
 
   public TableBundle(File directory) {
-    super();
     setDirectory(directory);
   }
 
   public TableBundle(ValueTable refTable, File data) {
-    super();
-    this.name = refTable.getName();
+    name = refTable.getName();
     this.refTable = refTable;
     this.data = data;
   }
@@ -82,9 +77,9 @@ public class TableBundle {
   }
 
   public void setDirectory(File directory) {
-    this.name = directory.getName();
-    this.variables = new File(directory, CsvDatasource.VARIABLES_FILE);
-    this.data = new File(directory, CsvDatasource.DATA_FILE);
+    name = directory.getName();
+    variables = new File(directory, CsvDatasource.VARIABLES_FILE);
+    data = new File(directory, CsvDatasource.DATA_FILE);
   }
 
   public boolean hasRefTable() {

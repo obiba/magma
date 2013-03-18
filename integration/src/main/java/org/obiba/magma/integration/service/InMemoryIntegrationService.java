@@ -14,9 +14,9 @@ import com.google.common.collect.Iterables;
 
 public class InMemoryIntegrationService implements IntegrationService {
 
-  private List<Participant> participants;
+  private final List<Participant> participants;
 
-  private List<Action> actions;
+  private final List<Action> actions;
 
   public InMemoryIntegrationService(List<Participant> participants, List<Action> actions) {
     this.participants = participants;

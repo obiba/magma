@@ -35,7 +35,7 @@ public class FilterChainWhereClause implements WhereClause {
     if(filterChain == null) {
       throw new IllegalStateException("Null filterChain");
     }
-    return (filterChain.filter(valueSet) != null);
+    return filterChain.filter(valueSet) != null;
   }
 
   //

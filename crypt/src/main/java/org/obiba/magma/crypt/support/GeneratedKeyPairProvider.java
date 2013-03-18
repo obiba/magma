@@ -21,7 +21,7 @@ public class GeneratedKeyPairProvider implements KeyProvider {
   /**
    * Holds the generated {@code KeyPair}
    */
-  private KeyPair keyPair;
+  private final KeyPair keyPair;
 
   /**
    * Creates a new instance using the {@code RSA} algorithm.

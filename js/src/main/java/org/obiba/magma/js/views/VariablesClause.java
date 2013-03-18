@@ -106,7 +106,7 @@ public class VariablesClause implements ListClause, Initialisable {
           }
         }
 
-        if(updated == false) {
+        if(!updated) {
           variableSet.add(variable);
         }
 

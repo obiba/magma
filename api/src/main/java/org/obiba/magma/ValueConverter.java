@@ -18,7 +18,7 @@ public interface ValueConverter {
    * @param to the {@code ValueType} the resulting {@code Value} instance has
    * @return true when this converter can handle the conversion
    */
-  public boolean converts(ValueType from, ValueType to);
+  boolean converts(ValueType from, ValueType to);
 
   /**
    * Converts the given {@code Value} instance to the {@code ValueType} {@code to}
@@ -27,6 +27,6 @@ public interface ValueConverter {
    * @param to the {@code ValueType} to convert to
    * @return a {@code Value} instance of {@code ValueType} {@code to}
    */
-  public Value convert(Value value, ValueType to);
+  Value convert(Value value, ValueType to);
 
 }

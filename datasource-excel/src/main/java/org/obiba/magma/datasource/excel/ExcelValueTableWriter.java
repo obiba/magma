@@ -15,7 +15,7 @@ import org.obiba.magma.type.TextType;
 
 public class ExcelValueTableWriter implements ValueTableWriter {
 
-  private ExcelValueTable valueTable;
+  private final ExcelValueTable valueTable;
 
   public ExcelValueTableWriter(ExcelValueTable valueTable) {
     this.valueTable = valueTable;
@@ -37,7 +37,7 @@ public class ExcelValueTableWriter implements ValueTableWriter {
 
   private class ExcelVariableWriter implements VariableWriter {
 
-    public ExcelVariableWriter() {
+    private ExcelVariableWriter() {
     }
 
     private Sheet getVariablesSheet() {
@@ -48,6 +48,7 @@ public class ExcelValueTableWriter implements ValueTableWriter {
       return valueTable.getDatasource().getCategoriesSheet();
     }
 
+    @Override
     public void writeVariable(Variable variable) {
       VariableConverter converter = valueTable.getVariableConverter();
 
@@ -71,7 +72,7 @@ public class ExcelValueTableWriter implements ValueTableWriter {
       VariableConverter converter = valueTable.getVariableConverter();
       for(String reservedAttributeName : VariableConverter.reservedVariableHeaders) {
         if(converter.getVariableHeaderIndex(reservedAttributeName) == null) {
-          converter.putVariableHeaderIndex(reservedAttributeName, Integer.valueOf(getLastCellNum(headerRow)));
+          converter.putVariableHeaderIndex(reservedAttributeName, getLastCellNum(headerRow));
           createHeaderCell(headerRow, reservedAttributeName);
         }
       }
@@ -81,13 +82,13 @@ public class ExcelValueTableWriter implements ValueTableWriter {
       VariableConverter converter = valueTable.getVariableConverter();
       for(String reservedAttributeName : VariableConverter.reservedCategoryHeaders) {
         if(converter.getCategoryHeaderIndex(reservedAttributeName) == null) {
-          converter.putCategoryHeaderIndex(reservedAttributeName, Integer.valueOf(getLastCellNum(headerRow)));
+          converter.putCategoryHeaderIndex(reservedAttributeName, getLastCellNum(headerRow));
           createHeaderCell(headerRow, reservedAttributeName);
         }
       }
     }
 
-    private void createHeaderCell(Row headerRow, final String header) {
+    private void createHeaderCell(Row headerRow, String header) {
       Cell headerCell = headerRow.createCell(getLastCellNum(headerRow));
       headerCell.setCellValue(header);
       headerCell.setCellStyle(valueTable.getDatasource().getHeaderCellStyle());

@@ -50,7 +50,7 @@ class FsVariableEntityProvider implements VariableEntityProvider, Initialisable,
   FsVariableEntityProvider(FsValueTable valueTable, String entityType) {
     this.valueTable = valueTable;
     this.entityType = entityType;
-    this.xstream = valueTable.getDatasource().getXStreamInstance();
+    xstream = valueTable.getDatasource().getXStreamInstance();
   }
 
   @Override
@@ -76,7 +76,7 @@ class FsVariableEntityProvider implements VariableEntityProvider, Initialisable,
 
   @Override
   public void dispose() {
-    if(entityToFileMapModified || valueTable.getEntry(ENTITIES_NAME).exists() == false) {
+    if(entityToFileMapModified || !valueTable.getEntry(ENTITIES_NAME).exists()) {
       valueTable.writeEntry(ENTITIES_NAME, new OutputCallback<Void>() {
         @Override
         public Void writeEntry(Writer writer) throws IOException {
@@ -110,7 +110,7 @@ class FsVariableEntityProvider implements VariableEntityProvider, Initialisable,
   }
 
   String addEntity(VariableEntity entity) {
-    if(entityToFile.containsKey(entity) == false) {
+    if(!entityToFile.containsKey(entity)) {
       entityToFile.put(entity, entryFilenameFormat.format(entityToFile.size() + 1) + ".xml");
       entityToFileMapModified = true;
     }

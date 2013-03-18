@@ -8,7 +8,6 @@ public class MagmaRuntimeException extends RuntimeException {
   private static final long serialVersionUID = -1825626210129821160L;
 
   public MagmaRuntimeException() {
-    super();
   }
 
   public MagmaRuntimeException(String message, Throwable cause) {

@@ -36,9 +36,9 @@ import com.google.common.collect.Iterables;
  */
 public class BeanVariableValueSourceFactory<T> implements VariableValueSourceFactory {
 
-  private Class<T> beanClass;
+  private final Class<T> beanClass;
 
-  private String entityType;
+  private final String entityType;
 
   /**
    * The set of bean properties that are returned as variables
@@ -108,6 +108,7 @@ public class BeanVariableValueSourceFactory<T> implements VariableValueSourceFac
     this.occurrenceGroup = occurrenceGroup;
   }
 
+  @Override
   public Set<VariableValueSource> createSources() {
     doBuildVariables();
     return sources;
@@ -120,6 +121,7 @@ public class BeanVariableValueSourceFactory<T> implements VariableValueSourceFac
    * @param propertyName
    * @return
    */
+  @SuppressWarnings({ "OverlyLongMethod", "PMD.NcssMethodCount" })
   protected Class<?> getPropertyType(String propertyName) {
     // Has a property type been explicitly declared? If so, use it.
     Class<?> declaredPropertyType = propertyNameToPropertyType.get(propertyName);
@@ -128,16 +130,13 @@ public class BeanVariableValueSourceFactory<T> implements VariableValueSourceFac
     }
 
     Class<?> currentType = getBeanClass();
-
     String propertyPath = propertyName;
+
     // Loop as long as the propertyPath designates a nested property
     while(PropertyAccessorUtils.isNestedOrIndexedProperty(propertyPath)) {
       int pos = PropertyAccessorUtils.getFirstNestedPropertySeparatorIndex(propertyPath);
 
-      String nestedProperty = propertyPath;
-      if(pos > -1) {
-        nestedProperty = propertyPath.substring(0, pos);
-      }
+      String nestedProperty = pos > -1 ? propertyPath.substring(0, pos) : propertyPath;
 
       // Check whether this is a mapped property (a[b])
       if(PropertyAccessorUtils.isNestedOrIndexedProperty(nestedProperty)) {

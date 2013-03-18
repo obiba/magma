@@ -26,7 +26,7 @@ public class SpssValueTableFactory {
   @Nonnull
   private final String characterSet;
 
-  private String name;
+  private final String name;
 
   public SpssValueTableFactory(File file, @Nonnull String characterSet) {
     this.file = file;

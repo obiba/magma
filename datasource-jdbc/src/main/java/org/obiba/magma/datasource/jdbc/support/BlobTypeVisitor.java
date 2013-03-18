@@ -18,21 +18,20 @@ public class BlobTypeVisitor implements SqlVisitor {
     return BlobTypeVisitor.class.getSimpleName();
   }
 
+  @Override
   @SuppressWarnings("unchecked")
   public void setApplicableDbms(Collection applicableDbms) {
     // no-op
   }
 
+  @Override
   public boolean isApplicable(Database database) {
-    if(database.getTypeName().equals("mysql")) {
-      return true;
-    }
-    return false;
+    return "mysql".equals(database.getTypeName());
   }
 
   @Override
   public String modifySql(String sql, Database database) {
-    if(database.getTypeName().equals("mysql")) {
+    if("mysql".equals(database.getTypeName())) {
       return sql.replaceAll("BLOB", "LONGBLOB");
     }
     return sql;
