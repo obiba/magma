@@ -988,7 +988,7 @@ public class CsvDatasourceTest {
     ValueSequence valueSequence = value.asSequence();
     assertThat((String) valueSequence.get(0).getValue(), is("Julia"));
     assertThat((String) valueSequence.get(1).getValue(), is("Caesarion"));
-    assertThat((String) valueSequence.get(2).getValue(), is("Gaius\\Julius Caesar Octavianus"));
+    assertThat((String) valueSequence.get(2).getValue(), is("Gaius\\\\\\\\Julius Caesar Octavianus"));
     assertThat(valueSequence.get(3).isNull(), is(true));
     assertThat((String) valueSequence.get(4).getValue(), is("Marcus Junius Brutus"));
 
@@ -996,7 +996,7 @@ public class CsvDatasourceTest {
 
     value = table.getValue(name, table.getValueSet(entity2));
     assertThat(value.isSequence(), is(false));
-    assertThat((String) value.getValue(), is("Cleopatra\\VII")); // \\ from csv become single \
+    assertThat((String) value.getValue(), is("Cleopatra\\\\\"VII"));
 
     value = table.getValue(children, table.getValueSet(entity2));
     assertThat(value.isSequence(), is(true));
@@ -1010,14 +1010,67 @@ public class CsvDatasourceTest {
 
     value = table.getValue(name, table.getValueSet(new VariableEntityBean("Participant", "3")));
     assertThat(value.isSequence(), is(false));
-    assertThat((String) value.getValue(), is("Claudius"));
+    assertThat((String) value.getValue(), is("Clau\\dius"));
 
     try {
       table.getValue(name, table.getValueSet(new VariableEntityBean("Participant", "4")));
+    } catch(NoSuchValueSetException e) {
       Assert.fail("Should throw NoSuchValueSetException for Participant 4");
+    }
+    try {
+      table.getValue(name, table.getValueSet(new VariableEntityBean("Participant", "5")));
+      Assert.fail("Should throw NoSuchValueSetException for Participant 5");
     } catch(NoSuchValueSetException e) {
     }
+  }
 
+  @SuppressWarnings("ReuseOfLocalVariable")
+  @Test
+  public void test_WindowsEndOfLine() throws URISyntaxException {
+    CsvDatasource datasource = new CsvDatasource("csv-datasource").addValueTable("Table1", //
+        getFileFromResource("Table1/windows-end-of-lines-variables.csv"), //
+        getFileFromResource("Table1/windows-end-of-lines-data.csv"));
+    datasource.initialise();
+
+    assertThat(datasource.getValueTableNames().size(), is(1));
+
+    ValueTable table = datasource.getValueTable("Table1");
+    assertThat(table, notNullValue());
+    assertThat(table.getEntityType(), is("Participant"));
+
+    Variable var1 = table.getVariable("HIGH_BP_ONSET");
+    assertThat(var1, notNullValue());
+    assertThat(var1.getValueType().getName(), is("integer"));
+    assertThat(var1.getEntityType(), is("Participant"));
+    assertThat(var1.getMimeType(), nullValue());
+    assertThat(var1.getUnit(), nullValue());
+    assertThat(var1.getOccurrenceGroup(), nullValue());
+    assertThat(var1.isRepeatable(), is(false));
+
+    Variable var2 = table.getVariable("HIGH_BP_ONSET_Ca");
+    assertThat(var2, notNullValue());
+    assertThat(var2.getValueType().getName(), is("integer"));
+    assertThat(var2.getEntityType(), is("Participant"));
+    assertThat(var2.getMimeType(), nullValue());
+    assertThat(var2.getUnit(), nullValue());
+    assertThat(var2.getOccurrenceGroup(), nullValue());
+    assertThat(var2.isRepeatable(), is(false));
+
+    VariableEntity entity1 = new VariableEntityBean("Participant", "1");
+    Value value = table.getValue(var1, table.getValueSet(entity1));
+    assertThat(value.isSequence(), is(false));
+    assertThat((Long) value.getValue(), is(42l));
+
+    value = table.getValue(var2, table.getValueSet(entity1));
+    assertThat(value.isNull(), is(true));
+
+    VariableEntity entity5 = new VariableEntityBean("Participant", "5");
+    value = table.getValue(var1, table.getValueSet(entity5));
+    assertThat(value.isNull(), is(true));
+
+    value = table.getValue(var2, table.getValueSet(entity5));
+    assertThat(value.isSequence(), is(false));
+    assertThat((Long) value.getValue(), is(9999l));
   }
 
 }

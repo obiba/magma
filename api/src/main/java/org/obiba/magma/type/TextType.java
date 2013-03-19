@@ -22,13 +22,11 @@ public class TextType extends AbstractValueType {
 
   private static final long serialVersionUID = -5271259966499174607L;
 
-  protected static final String QUOTE_STR = "" + QUOTE;
+  private static final String QUOTE_STR = "" + QUOTE;
 
-  protected static final String ESCAPED_QUOTE_STR = "" + QUOTE + QUOTE;
+  private static final String ESCAPED_QUOTE_STR = "" + QUOTE + QUOTE;
 
-  public static final String BACKSLASH = "\\\\";
-
-  public static final String DOUBLE_BACKSLASH = BACKSLASH + BACKSLASH;
+  private static final char DEL_CHAR = (char) 127;
 
   @SuppressWarnings("StaticNonFinalField")
   @Nullable
@@ -138,8 +136,6 @@ public class TextType extends AbstractValueType {
     String escaped = value == null ? "" : value;
     // Replace all occurrences of " by ""
     escaped = escaped.replaceAll(QUOTE_STR, ESCAPED_QUOTE_STR);
-    // escape backslashes: replace all '\' by '\\'
-    escaped = escaped.replaceAll(BACKSLASH, DOUBLE_BACKSLASH);
     return QUOTE + escaped + QUOTE;
   }
 
@@ -152,7 +148,8 @@ public class TextType extends AbstractValueType {
 
   private CSVParser getCsvParser() {
     if(csvParser == null) {
-      csvParser = new CSVParser(SEPARATOR, QUOTE);
+      // we don't want escape processing try DEL as a rare character until we can turn it off
+      csvParser = new CSVParser(SEPARATOR, QUOTE, DEL_CHAR);
     }
     return csvParser;
   }

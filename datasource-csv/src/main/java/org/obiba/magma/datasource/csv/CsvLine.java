@@ -12,7 +12,6 @@ import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.support.BinaryValueFileHelper;
 import org.obiba.magma.type.BinaryType;
-import org.obiba.magma.type.TextType;
 
 /**
  * Use this class to build up a line of csv file to be written to a csv file.
@@ -73,10 +72,6 @@ public class CsvLine {
       if(valueMap.containsKey(variableName)) {
         Value value = valueMap.get(variableName);
         strValue = value.toString();
-        if(strValue != null && value.isSequence()) {
-          // re-escape backslashes as it's a csv inside a csv
-          strValue = strValue.replaceAll(TextType.BACKSLASH, TextType.DOUBLE_BACKSLASH);
-        }
       }
       line[entry.getValue()] = strValue;
     }
