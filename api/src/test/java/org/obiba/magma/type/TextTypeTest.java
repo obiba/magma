@@ -114,19 +114,27 @@ public class TextTypeTest extends BaseValueTypeTest {
   public void testSequenceOfValueWithBackslash() {
     try {
       TextType.get().sequenceOf("\"A value\\\"");
-      fail("Should throw MagmaRuntimeException: Invalid value sequence formatting: \"A value\\\"");
+    } catch(MagmaRuntimeException e) {
+      fail("Should not throw MagmaRuntimeException: Invalid value sequence formatting: \"A value\\\"");
+    }
+
+    try {
+      TextType.get().sequenceOf("\"A value\"\"");
+      fail("Should not throw MagmaRuntimeException: Invalid value sequence formatting: \"A value\"\"");
     } catch(MagmaRuntimeException e) {
     }
 
     ValueSequence sequence = TextType.get().sequenceOf("\"A value\\\\\"");
-    assertSequence(sequence, "A value\\");
+    assertSequence(sequence, "A value\\\\");
 
-    // \n was not escaped. It should be \\n
-    sequence = TextType.get().sequenceOf("\"A\\nvalue\"");
-    assertSequence(sequence, "Anvalue");
+    sequence = TextType.get().sequenceOf("\"A\nvalue\"");
+    assertSequence(sequence, "A\nvalue");
+
+    sequence = TextType.get().sequenceOf("\"A\r\nvalue\"");
+    assertSequence(sequence, "A\r\nvalue");
 
     sequence = TextType.get().sequenceOf("\"A\\\\nvalue\"");
-    assertSequence(sequence, "A\\nvalue");
+    assertSequence(sequence, "A\\\\nvalue");
 
   }
 

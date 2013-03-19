@@ -33,6 +33,7 @@ import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.VariableValueSource;
 import org.obiba.magma.datasource.csv.converter.VariableConverter;
+import org.obiba.magma.datasource.csv.support.BufferedReaderEolSupport;
 import org.obiba.magma.datasource.csv.support.CsvDatasourceParsingException;
 import org.obiba.magma.lang.Closeables;
 import org.obiba.magma.support.AbstractValueTable;
@@ -316,29 +317,26 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
     if(file == null) return lineNumberMap;
 
     CSVParser parser = getCsvDatasource().getCsvParser();
-    BufferedReader reader = new BufferedReader(getCsvDatasource().getReader(file));
+    BufferedReaderEolSupport reader = new BufferedReaderEolSupport(getCsvDatasource().getReader(file));
     try {
       int line = 0;
       int innerline = 0;
-      int strt = 0;
-      int nd = 0;
-      String nextLine = reader.readLine();
-      while(nextLine != null) {
-        nd += nextLine.getBytes(getCharacterSet()).length;
+      int start = 0;
+      String nextLine = null;
+      while((nextLine = reader.readLine()) != null) {
         parser.parseLineMulti(nextLine);
         if(parser.isPending()) {
           // we are in a multiline entry
           innerline++;
-          nd++;
         } else {
-          log.debug("[{}:{}] {}", file.getName(), line - innerline, nextLine);
-          lineNumberMap.put(line - innerline, new CsvIndexEntry(strt, nd));
+          int lineNumber = line - innerline;
+          log.debug("[{}:{}] {}", file.getName(), lineNumber, nextLine);
+          int nextChar = reader.getNextCharPosition();
+          lineNumberMap.put(lineNumber, new CsvIndexEntry(start, nextChar));
           innerline = 0;
-          nd++;
-          strt = nd;
+          start = nextChar;
         }
         line++;
-        nextLine = reader.readLine();
       }
     } finally {
       Closeables.closeQuietly(reader);

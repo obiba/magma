@@ -1,0 +1,4 @@
+name,valueType,entityType,mimeType,unit,repeatable,occurrenceGroup,categories:en,label:en
+entity_id,integer,Participant,,,,,,"entity_id"
+HIGH_BP_ONSET,integer,Participant,,,,,,"HIGH_BP_ONSET"
+HIGH_BP_ONSET_Ca,integer,Participant,,,,,,"HIGH_BP_ONSET_Ca"

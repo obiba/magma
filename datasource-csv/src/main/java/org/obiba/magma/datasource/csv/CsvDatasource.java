@@ -37,6 +37,8 @@ public class CsvDatasource extends AbstractDatasource {
 
   public static final String DEFAULT_CHARACTER_SET = "UTF-8";
 
+  public static final char DEL_CHAR = (char) 127;
+
   private final Map<String, CsvValueTable> valueTables = new HashMap<String, CsvValueTable>();
 
   private String[] defaultVariablesHeader = "name#valueType#entityType#mimeType#unit#occurrenceGroup#repeatable#script"
@@ -169,11 +171,13 @@ public class CsvDatasource extends AbstractDatasource {
   }
 
   CSVReader getCsvReader(Reader reader) {
-    return new CSVReader(reader, separator.getCharacter(), quote.getCharacter(), firstRow - 1);
+    // we don't want escape processing try DEL as a rare character until we can turn it off
+    return new CSVReader(reader, separator.getCharacter(), quote.getCharacter(), DEL_CHAR, firstRow - 1);
   }
 
   CSVParser getCsvParser() {
-    return new CSVParser(separator.getCharacter(), quote.getCharacter());
+    // we don't want escape processing try DEL as a rare character until we can turn it off
+    return new CSVParser(separator.getCharacter(), quote.getCharacter(), DEL_CHAR);
   }
 
   Reader getReader(File file) {
