@@ -2,11 +2,9 @@ package org.obiba.magma.datasource.csv;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.RandomAccessFile;
+import java.io.Reader;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -51,7 +49,7 @@ import au.com.bytecode.opencsv.CSVParser;
 import au.com.bytecode.opencsv.CSVReader;
 import au.com.bytecode.opencsv.CSVWriter;
 
-@SuppressWarnings({ "UnusedDeclaration", "OverlyCoupledClass" })
+@SuppressWarnings({ "OverlyCoupledClass" })
 public class CsvValueTable extends AbstractValueTable implements Initialisable, Disposable {
 
   public static final String DEFAULT_ENTITY_TYPE = "Participant";
@@ -127,18 +125,16 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
     if(indexEntry == null) {
       throw new NoSuchValueSetException(this, entity);
     }
-    FileInputStream fis = null;
+    @SuppressWarnings("ConstantConditions")
+    Reader reader = getCsvDatasource().getReader(dataFile);
     try {
-      InputStreamReader fr = new InputStreamReader(fis = new FileInputStream(dataFile), getCharacterSet());
-      CSVReader csvReader = getCsvDatasource().getCsvReader(fr);
-      skipSafely(fis, indexEntry.getStart());
-      String[] line = csvReader.readNext();
-      log.debug("{} line: {}", entity, Arrays.toString(line));
-      return new CsvValueSet(this, entity, dataHeaderMap, line);
+      CSVReader csvReader = getCsvDatasource().getCsvReader(reader);
+      skipSafely(reader, indexEntry.getStart());
+      return new CsvValueSet(this, entity, dataHeaderMap, csvReader.readNext());
     } catch(IOException e) {
       throw new MagmaRuntimeException(e);
     } finally {
-      Closeables.closeQuietly(fis);
+      Closeables.closeQuietly(reader);
     }
   }
 
@@ -377,20 +373,14 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
     for(Map.Entry<Integer, T> entry : lineNumberMap.entrySet()) {
       CsvIndexEntry indexEntry = entry.getValue();
       log.debug("{}: {}", entry.getKey(), indexEntry);
-      int start = Long.valueOf(indexEntry.getStart()).intValue();
-      int end = Long.valueOf(indexEntry.getEnd()).intValue();
-      int length = end - start;
-      char[] buf = new char[length];
-      FileInputStream fis = null;
+      Reader reader = getCsvDatasource().getReader(file);
       try {
-        fis = new FileInputStream(file);
-        InputStreamReader inputStream = new InputStreamReader(fis, getCharacterSet());
-        skipSafely(fis, indexEntry.getStart());
-        log.debug("   '{}'", new BufferedReader(inputStream).readLine());
+        skipSafely(reader, indexEntry.getStart());
+        log.debug("   '{}'", new BufferedReader(reader).readLine());
       } catch(IOException e) {
         throw new MagmaRuntimeException(e);
       } finally {
-        Closeables.closeQuietly(fis);
+        Closeables.closeQuietly(reader);
       }
     }
   }
@@ -452,10 +442,12 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
 
   }
 
+  @SuppressWarnings("UnusedDeclaration")
   public boolean isLastDataCharacterNewline() {
     return isLastDataCharacterNewline;
   }
 
+  @SuppressWarnings("UnusedDeclaration")
   public boolean isLastVariablesCharacterNewline() {
     return isLastVariablesCharacterNewline;
 
@@ -488,10 +480,12 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
     }
   }
 
+  @SuppressWarnings("UnusedDeclaration")
   public char getDataLastCharacter() throws IOException {
     return getLastCharacter(dataFile);
   }
 
+  @SuppressWarnings("UnusedDeclaration")
   public char getVariableLastCharacter() throws IOException {
     return getLastCharacter(variableFile);
   }
@@ -506,11 +500,13 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
     }
   }
 
+  @SuppressWarnings("UnusedDeclaration")
   public void addDataNewline() throws IOException {
     addNewline(dataFile);
     isLastDataCharacterNewline = true;
   }
 
+  @SuppressWarnings("UnusedDeclaration")
   public void addVariablesNewline() throws IOException {
     addNewline(variableFile);
     isLastVariablesCharacterNewline = true;
@@ -598,12 +594,12 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
   }
 
   /**
-   * Skips {@code skip} bytes in {@code is} and tests that that amount of byte were effectively skipped. This method
+   * Skips {@code skip} bytes in {@code reader} and tests that that amount of byte were effectively skipped. This method
    * throws an IOException if the number of bytes actually skipped is not identical to the number of requested bytes to
    * skip.
    */
-  private void skipSafely(InputStream is, long skip) throws IOException {
-    if(is.skip(skip) != skip) throw new IOException("error seeking in file");
+  private void skipSafely(Reader reader, long skip) throws IOException {
+    if(reader.skip(skip) != skip) throw new IOException("error seeking in file");
   }
 
   /**
