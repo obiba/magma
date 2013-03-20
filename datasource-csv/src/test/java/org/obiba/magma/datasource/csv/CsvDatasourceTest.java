@@ -11,6 +11,7 @@ import java.util.Map;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -103,11 +104,13 @@ public class CsvDatasourceTest {
         .put("sample-semicolon.csv", ";").put("sample-colon.csv", ":").put("sample-tab.csv", "tab")
         .put("sample-pipe.csv", "|").put("sample-space.csv", " ").build();
     File[] files = samples.listFiles();
-    assertNotNull(files);
+    assertThat(files, notNullValue());
+    //noinspection ConstantConditions
     for(File sample : files) {
-      if(!separators.containsKey(sample.getName())) continue;
+      String fileName = sample.getName();
+      if(!separators.containsKey(fileName)) continue;
       CsvDatasource datasource = new CsvDatasource("csv-datasource");
-      datasource.setSeparator(Separator.fromString(separators.get(sample.getName())));
+      datasource.setSeparator(Separator.fromString(separators.get(fileName)));
       datasource.addValueTable(reference, sample);
       try {
         datasource.initialise();
@@ -116,7 +119,7 @@ public class CsvDatasourceTest {
         throw e;
       }
       ValueTable valueTable = datasource.getValueTable(reference.getName());
-      assertEquals(16, valueTable.getVariableEntities().size());
+      assertThat(valueTable.getVariableEntities().size(), is(16));
       for(Variable v : valueTable.getVariables()) {
         for(ValueSet vs : valueTable.getValueSets()) {
           valueTable.getVariableValueSource(v.getName()).getValue(vs);
@@ -870,13 +873,12 @@ public class CsvDatasourceTest {
         String identifier = valueSet.getVariableEntity().getIdentifier();
         Value value = table.getValue(var, valueSet);
         log.info("Admin.Action.actionType[{}]={}", identifier, value);
-        assertEquals("text", value.getValueType().getName());
-        assertTrue(value.isSequence());
-        ValueSequence seq = value.asSequence();
-        assertEquals(33, seq.getSize());
+        assertThat(value.getValueType().getName(), is("text"));
+        assertThat(value.isSequence(), is(true));
+        assertThat(value.asSequence().getSize(), is(33));
       }
     }
-    assertEquals(2, count);
+    assertThat(count, is(2));
   }
 
   @Test
@@ -897,7 +899,7 @@ public class CsvDatasourceTest {
     assertThat(table.getEntityType(), is("Participant"));
 
     Variable var = table.getVariable("Admin.Action.comment");
-    assertTrue(var.isRepeatable());
+    assertThat(var.isRepeatable(), is(true));
 
     int count = 0;
     for(ValueSet valueSet : table.getValueSets()) {
@@ -905,20 +907,20 @@ public class CsvDatasourceTest {
       String identifier = valueSet.getVariableEntity().getIdentifier();
       Value value = table.getValue(var, valueSet);
       log.info("Admin.Action.comment[{}]={}", identifier, value);
-      Assert.assertNotNull(value);
-      assertEquals("text", value.getValueType().getName());
-      assertTrue(value.isSequence());
+      assertThat(value, notNullValue());
+      assertThat(value.getValueType().getName(), is("text"));
+      assertThat(value.isSequence(), is(true));
+
       ValueSequence seq = value.asSequence();
       if(count == 1) {
-        assertEquals(33, seq.getSize());
-        assertEquals("sample collection by Val\ndata entry by Evan", seq.get(22).toString());
+        assertThat(seq.getSize(), is(33));
+        assertThat(seq.get(22).toString(), is("sample collection by Val\ndata entry by Evan"));
       } else if(count == 2) {
-        assertEquals(
-            "Unable to draw from left arm due to vein rolling upon puncture. Ct refused puncture to right arm. " +
-                "Saliva kit complete", seq.get(5).toString());
+        assertThat(seq.get(5).toString(), is("Unable to draw from left arm due to vein rolling upon puncture. " +
+            "Ct refused puncture to right arm. Saliva kit complete"));
       }
     }
-    assertEquals(2, count);
+    assertThat(count, is(2));
   }
 
   @Test
@@ -1026,10 +1028,21 @@ public class CsvDatasourceTest {
 
   @SuppressWarnings("ReuseOfLocalVariable")
   @Test
-  public void test_WindowsEndOfLine() throws URISyntaxException {
-    CsvDatasource datasource = new CsvDatasource("csv-datasource").addValueTable("Table1", //
-        getFileFromResource("Table1/windows-end-of-lines-variables.csv"), //
-        getFileFromResource("Table1/windows-end-of-lines-data.csv"));
+  public void test_EndOfLine() throws URISyntaxException, IOException {
+
+    StringBuilder sb = new StringBuilder();
+    sb.append("entity_id,Name,\"Complete name\"\n");
+    sb.append("1,Augustus,\"GAIVS IVLIVS \nCAESAR OCTAVIANVS\"\n");
+    sb.append("2,Tiberius,\"TIBERIVS IVLIVS CAESAR AVGVSTVS\"\r");
+    sb.append("3,Caligula,\"GAIVS IVLIVS CAESAR AVGVSTVS GERMANICVS\"\r\n");
+    sb.append("4,Claudius,\"TIBERIVS CLAVDIVS CAESAR AVGVSTVS GERMANICVS\"\n\n");
+    sb.append("5,Nero,\"NERO CLAVDIVS CAESAR AVGVSTVS GERMANICVS\"");
+
+    File dataFile = File.createTempFile("magma", "test-eol");
+    dataFile.deleteOnExit();
+    FileUtils.writeStringToFile(dataFile, sb.toString(), "utf-8");
+
+    CsvDatasource datasource = new CsvDatasource("csv-datasource").addValueTable("Table1", dataFile, "Participant");
     datasource.initialise();
 
     assertThat(datasource.getValueTableNames().size(), is(1));
@@ -1038,39 +1051,38 @@ public class CsvDatasourceTest {
     assertThat(table, notNullValue());
     assertThat(table.getEntityType(), is("Participant"));
 
-    Variable var1 = table.getVariable("HIGH_BP_ONSET");
-    assertThat(var1, notNullValue());
-    assertThat(var1.getValueType().getName(), is("integer"));
-    assertThat(var1.getEntityType(), is("Participant"));
-    assertThat(var1.getMimeType(), nullValue());
-    assertThat(var1.getUnit(), nullValue());
-    assertThat(var1.getOccurrenceGroup(), nullValue());
-    assertThat(var1.isRepeatable(), is(false));
+    assertEolVariable(table, "Name");
+    assertEolVariable(table, "Complete name");
 
-    Variable var2 = table.getVariable("HIGH_BP_ONSET_Ca");
-    assertThat(var2, notNullValue());
-    assertThat(var2.getValueType().getName(), is("integer"));
-    assertThat(var2.getEntityType(), is("Participant"));
-    assertThat(var2.getMimeType(), nullValue());
-    assertThat(var2.getUnit(), nullValue());
-    assertThat(var2.getOccurrenceGroup(), nullValue());
-    assertThat(var2.isRepeatable(), is(false));
+    assertEolValue(table, "1", "Augustus", "GAIVS IVLIVS \nCAESAR OCTAVIANVS");
+    assertEolValue(table, "2", "Tiberius", "TIBERIVS IVLIVS CAESAR AVGVSTVS");
+    assertEolValue(table, "3", "Caligula", "GAIVS IVLIVS CAESAR AVGVSTVS GERMANICVS");
+    assertEolValue(table, "4", "Claudius", "TIBERIVS CLAVDIVS CAESAR AVGVSTVS GERMANICVS");
+    assertEolValue(table, "5", "Nero", "NERO CLAVDIVS CAESAR AVGVSTVS GERMANICVS");
+  }
 
-    VariableEntity entity1 = new VariableEntityBean("Participant", "1");
-    Value value = table.getValue(var1, table.getValueSet(entity1));
+  private void assertEolVariable(ValueTable table, String name) {
+    Variable variable = table.getVariable(name);
+    assertThat(variable, notNullValue());
+    assertThat(variable.getName(), is(name));
+    assertThat(variable.getValueType().getName(), is("text"));
+    assertThat(variable.getEntityType(), is("Participant"));
+    assertThat(variable.getMimeType(), nullValue());
+    assertThat(variable.getUnit(), nullValue());
+    assertThat(variable.getOccurrenceGroup(), nullValue());
+    assertThat(variable.isRepeatable(), is(false));
+  }
+
+  @SuppressWarnings("ReuseOfLocalVariable")
+  private void assertEolValue(ValueTable table, String entityId, String name, String completeName) {
+    VariableEntity entity = new VariableEntityBean("Participant", entityId);
+    Value value = table.getValue(table.getVariable("Name"), table.getValueSet(entity));
     assertThat(value.isSequence(), is(false));
-    assertThat((Long) value.getValue(), is(42l));
+    assertThat((String) value.getValue(), is(name));
 
-    value = table.getValue(var2, table.getValueSet(entity1));
-    assertThat(value.isNull(), is(true));
-
-    VariableEntity entity5 = new VariableEntityBean("Participant", "5");
-    value = table.getValue(var1, table.getValueSet(entity5));
-    assertThat(value.isNull(), is(true));
-
-    value = table.getValue(var2, table.getValueSet(entity5));
+    value = table.getValue(table.getVariable("Complete name"), table.getValueSet(entity));
     assertThat(value.isSequence(), is(false));
-    assertThat((Long) value.getValue(), is(9999l));
+    assertThat((String) value.getValue(), is(completeName));
   }
 
 }

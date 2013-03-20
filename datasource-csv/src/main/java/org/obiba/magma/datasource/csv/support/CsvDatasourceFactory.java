@@ -52,39 +52,35 @@ public class CsvDatasourceFactory extends AbstractDatasourceFactory {
 
   public CsvDatasourceFactory addTable(File tableDirectory) {
     if(tableDirectory != null && !hasTable(tableDirectory.getName())) {
-      TableBundle bundle = new TableBundle(tableDirectory);
-      getTables().add(bundle);
+      getTables().add(new TableBundle(tableDirectory));
     }
     return this;
   }
 
   public CsvDatasourceFactory addTable(String name, File data, String entityType) {
     if(name != null && !hasTable(name)) {
-      TableBundle bundle = new TableBundle(name, data, entityType);
-      getTables().add(bundle);
+      getTables().add(new TableBundle(name, data, entityType));
     }
     return this;
   }
 
   public CsvDatasourceFactory addTable(String name, File variables, File data) {
     if(name != null && !hasTable(name)) {
-      TableBundle bundle = new TableBundle(name, variables, data);
-      getTables().add(bundle);
+      getTables().add(new TableBundle(name, variables, data));
     }
     return this;
   }
 
   public CsvDatasourceFactory addTable(ValueTable refTable, File data) {
     if(refTable.getName() != null && !hasTable(refTable.getName())) {
-      TableBundle bundle = new TableBundle(refTable, data);
-      getTables().add(bundle);
+      getTables().add(new TableBundle(refTable, data));
     }
     return this;
   }
 
   public boolean hasTable(String name) {
-    for(TableBundle bundle : getTables()) {
-      if(bundle.getName().equals(name)) {
+    for(TableBundle table : getTables()) {
+      if(table.getName().equals(name)) {
         return true;
       }
     }

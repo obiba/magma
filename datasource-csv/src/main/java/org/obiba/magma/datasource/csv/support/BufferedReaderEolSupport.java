@@ -310,8 +310,8 @@ public class BufferedReaderEolSupport extends Reader {
             skipLF = true;
           }
 
-          // Skip a leftover '\n', if necessary
-          if(cb[nextChar] == '\n') {
+          // Skip leftover '\n' or '\r', if necessary
+          while(cb[nextChar] == '\n' || cb[nextChar] == '\r') {
             nextChar++;
           }
 

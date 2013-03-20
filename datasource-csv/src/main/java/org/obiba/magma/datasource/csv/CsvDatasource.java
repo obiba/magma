@@ -66,7 +66,6 @@ public class CsvDatasource extends AbstractDatasource {
           return pathName.isDirectory();
         }
       });
-
       for(File dir : directories) {
         addValueTable(dir);
       }
@@ -172,7 +171,7 @@ public class CsvDatasource extends AbstractDatasource {
 
   CSVReader getCsvReader(Reader reader) {
     // we don't want escape processing try DEL as a rare character until we can turn it off
-    return new CSVReader(reader, separator.getCharacter(), quote.getCharacter(), DEL_CHAR, firstRow - 1);
+    return new CSVReader(reader, separator.getCharacter(), quote.getCharacter(), DEL_CHAR, getFirstRow() - 1);
   }
 
   CSVParser getCsvParser() {
