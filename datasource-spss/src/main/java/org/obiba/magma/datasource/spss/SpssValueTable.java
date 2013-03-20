@@ -150,6 +150,12 @@ public class SpssValueTable extends AbstractValueTable implements Disposable {
 
         for(int i = 1; i <= numberOfObservations; i++) {
           Value identifierValue = new SpssVariableValueFactory(i, entityVariable, valueType).create();
+
+          if (identifierValue.isNull()) {
+            throw new SpssDatasourceParsingException("Invalid entity identifier", getName(), i,
+                "SpssEmptyIdentifier", entityVariable.getName(), i);
+          }
+
           String identifier = identifierValue.getValue().toString();
 
           if(entityIdentifiers.contains(identifier)) {
