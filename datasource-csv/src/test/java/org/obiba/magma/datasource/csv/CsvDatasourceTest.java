@@ -71,7 +71,7 @@ public class CsvDatasourceTest {
   }
 
   @Test
-  public void testSeparators() {
+  public void test_separators() {
     assertEquals(Quote.SINGLE, Quote.fromString("'"));
     assertEquals(Quote.DOUBLE, Quote.fromString("\""));
     assertEquals('|', Quote.fromString("|").getCharacter());
@@ -92,7 +92,7 @@ public class CsvDatasourceTest {
   }
 
   @Test
-  public void test_supportsAnySeparator() throws URISyntaxException {
+  public void test_supports_any_separator() throws URISyntaxException {
     File samples = getFileFromResource("separators");
     File variables = new File(samples, "variables.csv");
 
@@ -131,7 +131,7 @@ public class CsvDatasourceTest {
 
   @SuppressWarnings("IfStatementWithTooManyBranches")
   @Test
-  public void testTable1VariableRead() throws URISyntaxException {
+  public void test_table_variable_read() throws URISyntaxException {
     CsvDatasource datasource = new CsvDatasource("csv-datasource").addValueTable("Table1", //
         getFileFromResource("Table1/variables.csv"), //
         getFileFromResource("Table1/data.csv"));
@@ -177,7 +177,7 @@ public class CsvDatasourceTest {
 
   @SuppressWarnings("IfStatementWithTooManyBranches")
   @Test
-  public void testTable1DataRead() throws URISyntaxException {
+  public void test_table_data_read() throws URISyntaxException {
     CsvDatasource datasource = new CsvDatasource("csv-datasource").addValueTable("Table1", //
         getFileFromResource("Table1/variables.csv"), //
         getFileFromResource("Table1/data.csv"));
@@ -210,7 +210,7 @@ public class CsvDatasourceTest {
   }
 
   @Test
-  public void testReadingDataOnlyTableHasOnlyOneTable() throws Exception {
+  public void test_reading_data_only_table_has_only_one_table() throws Exception {
     CsvDatasource datasource = new CsvDatasource("csv-datasource").addValueTable("TableDataOnly", //
         null, //
         getFileFromResource("TableDataOnly/data.csv"));
@@ -220,7 +220,7 @@ public class CsvDatasourceTest {
   }
 
   @Test
-  public void testReadingDataOnlyTableIsNotNull() throws Exception {
+  public void test_reading_data_only_table_is_not_null() throws Exception {
     CsvDatasource datasource = new CsvDatasource("csv-datasource").addValueTable("TableDataOnly", //
         null, //
         getFileFromResource("TableDataOnly/data.csv"));
@@ -230,7 +230,7 @@ public class CsvDatasourceTest {
   }
 
   @Test
-  public void testReadingDataOnlyTableEntityTypeIsDefaultParticipant() throws Exception {
+  public void test_reading_data_only_table_entity_type_is_default_participant() throws Exception {
     CsvDatasource datasource = new CsvDatasource("csv-datasource").addValueTable("TableDataOnly", //
         null, //
         getFileFromResource("TableDataOnly/data.csv"));
@@ -241,7 +241,7 @@ public class CsvDatasourceTest {
   }
 
   @Test
-  public void testReadingDataOnlyFavouriteIceCreamVariableExists() throws Exception {
+  public void test_reading_data_only_favourite_ice_cream_variable_exists() throws Exception {
     CsvDatasource datasource = new CsvDatasource("csv-datasource").addValueTable("TableDataOnly", //
         null, //
         getFileFromResource("TableDataOnly/data.csv"));
@@ -252,7 +252,7 @@ public class CsvDatasourceTest {
   }
 
   @Test
-  public void testReadingSingleDataOnlyTableNullIcecreamValue() throws Exception {
+  public void test_reading_single_data_only_table_null_ice_cream_value() throws Exception {
     CsvDatasource datasource = new CsvDatasource("csv-datasource").addValueTable("TableDataOnly", //
         null, //
         getFileFromResource("TableDataOnly/data.csv"));
@@ -271,7 +271,7 @@ public class CsvDatasourceTest {
   }
 
   @Test
-  public void testReadingDataOnlyValueTypeIsText() throws Exception {
+  public void test_reading_data_only_value_type_is_text() throws Exception {
     CsvDatasource datasource = new CsvDatasource("csv-datasource").addValueTable("TableDataOnly", //
         null, //
         getFileFromResource("TableDataOnly/data.csv"));
@@ -284,7 +284,7 @@ public class CsvDatasourceTest {
   }
 
   @Test
-  public void testWritingDataOnlyOneTextVariable() throws Exception {
+  public void test_writing_data_only_one_text_variable() throws Exception {
     File tempTestDirectory = new TempTableBuilder("TableDataOnly").addData().build();
 
     CsvDatasource datasource = new CsvDatasource("csv-datasource").addValueTable("TableDataOnly", //
@@ -321,10 +321,9 @@ public class CsvDatasourceTest {
   }
 
   @Test
-  public void testValueTableGetVariableEntities() throws Exception {
+  public void test_value_table_get_variable_entities() throws Exception {
     CsvDatasource datasource = new CsvDatasource("csv-datasource").addValueTable("TableDataOnly", //
-        null, //
-        getFileFromResource("TableDataOnly/data.csv"));
+        null, getFileFromResource("TableDataOnly/data.csv"));
     datasource.initialise();
 
     ValueTable table = datasource.getValueTable("TableDataOnly");
@@ -332,10 +331,9 @@ public class CsvDatasourceTest {
   }
 
   @Test
-  public void testValueTableGetVariables() throws Exception {
+  public void test_value_table_get_variables() throws Exception {
     CsvDatasource datasource = new CsvDatasource("csv-datasource").addValueTable("TableDataOnly", //
-        null, //
-        getFileFromResource("TableDataOnly/data.csv"));
+        null, getFileFromResource("TableDataOnly/data.csv"));
     datasource.initialise();
 
     ValueTable table = datasource.getValueTable("TableDataOnly");
@@ -347,7 +345,7 @@ public class CsvDatasourceTest {
   }
 
   @Test(expected = MagmaRuntimeException.class)
-  public void testWritingDataOnlyEnsureWritingExtraHeaderFails() throws Exception {
+  public void test_writing_data_only_ensure_writing_extra_header_fails() throws Exception {
     // This existing datasource has the following header: entity_id,FirstName,LastName,Sex,City,FavouriteIcecream
     CsvDatasource datasource = new CsvDatasource("csv-datasource").addValueTable("TableDataOnly", //
         null, //
@@ -368,7 +366,7 @@ public class CsvDatasourceTest {
 
   @SuppressWarnings("ConstantConditions")
   @Test
-  public void testWritingDataOnlyAddingNewValueSet() throws Exception {
+  public void test_writing_data_only_adding_new_value_set() throws Exception {
     File tempTestDirectory = new TempTableBuilder("TableDataOnly").addData().build();
 
     CsvDatasource setupDatasource = new CsvDatasource("setup-datasource").addValueTable("TableDataOnly", //
@@ -440,12 +438,11 @@ public class CsvDatasourceTest {
 
   @SuppressWarnings("ConstantConditions")
   @Test
-  public void testWritingDataOnlyModifyingValueSet() throws Exception {
+  public void test_writing_data_only_modifying_value_set() throws Exception {
     File tempTestDirectory = new TempTableBuilder("TableDataOnly").addData().build();
 
     CsvDatasource setupDatasource = new CsvDatasource("setup-datasource").addValueTable("TableDataOnly", //
-        null, //
-        new File(tempTestDirectory.getCanonicalFile() + "/TableDataOnly", "data.csv"));
+        null, new File(tempTestDirectory.getCanonicalFile() + "/TableDataOnly", "data.csv"));
     setupDatasource.initialise();
 
     VariableEntity variableEntity = new VariableEntityBean("Participant", "1");
@@ -506,7 +503,7 @@ public class CsvDatasourceTest {
   }
 
   @Test
-  public void testWritingDataOnlyModifyingMultipleValueSetsAndReadingBackFromReinitializedDatasource()
+  public void test_writing_data_only_modifying_multiple_value_sets_and_reading_back_from_reinitialized_datasource()
       throws Exception {
     String tableName = "TableDataOnly";
     String entityName = "Participant";
@@ -528,7 +525,7 @@ public class CsvDatasourceTest {
   }
 
   @Test
-  public void testWritingDataOnlyModifyingMultipleValueSetsAndReadingBackFromDatasource() throws Exception {
+  public void test_writing_data_only_modifying_multiple_value_sets_and_reading_back_from_datasource() throws Exception {
     String tableName = "TableDataOnly";
     String entityName = "Participant";
     CsvDatasource datasource = new TempTableBuilder(tableName).addData(getFileFromResource("TableDataOnly/data.csv"))
@@ -550,7 +547,8 @@ public class CsvDatasourceTest {
   }
 
   @Test
-  public void testWritingDataOnlyModifyingMultipleWideByteValueSetsAndReadingBackFromDatasource() throws Exception {
+  public void test_writing_data_only_modifying_multiple_wide_byte_value_sets_and_reading_back_from_datasource()
+      throws Exception {
     String tableName = "TableDataOnly";
     String entityName = "Participant";
     CsvDatasource datasource = new TempTableBuilder(tableName).addData(getFileFromResource("TableDataOnly/data.csv"))
@@ -586,7 +584,7 @@ public class CsvDatasourceTest {
 
   @SuppressWarnings("IfStatementWithTooManyBranches")
   @Test
-  public void testRefTable1DataRead() throws URISyntaxException {
+  public void test_refTable_data_read() throws URISyntaxException {
     CsvDatasource refDatasource = new CsvDatasource("csv-datasource1").addValueTable("Table1", //
         getFileFromResource("Table1/variables.csv"), //
         getFileFromResource("Table1/data.csv"));
@@ -625,7 +623,7 @@ public class CsvDatasourceTest {
 
   @Ignore
   @Test
-  public void testWriteVariableIsReadBack() throws Exception {
+  public void test_write_variable_is_read_back() throws Exception {
     File tempCsvTestDirectory = createTempDirectory("csvTest");
     File testTableDirectory = new File(tempCsvTestDirectory.getAbsoluteFile(), "test-table");
     testTableDirectory.mkdir();
@@ -644,7 +642,7 @@ public class CsvDatasourceTest {
 
   @Ignore
   @Test
-  public void testWriteVariableSchemaLine() throws Exception {
+  public void test_write_variable_schema_line() throws Exception {
     File tempCsvTestDirectory = createTempDirectory("csvTest");
     File testTableDirectory = new File(tempCsvTestDirectory.getAbsoluteFile(), "test-table");
     testTableDirectory.mkdir();
@@ -705,7 +703,7 @@ public class CsvDatasourceTest {
   // Variable Tests
 
   @Test
-  public void testReadingVariables_ConfirmVarMetadata() throws Exception {
+  public void test_reading_variables_confirm_var_metadata() throws Exception {
     String tableName = "TableVariablesOnly";
     String entityName = "Participant";
     CsvDatasource datasource = new TempTableBuilder(tableName).addVariables(getFileFromResource("Table1/variables.csv"))
@@ -722,35 +720,35 @@ public class CsvDatasourceTest {
   }
 
   @Test(expected = MagmaRuntimeException.class)
-  public void testWritingVariables_HeaderInFileWithoutRequiredNameCausesError() throws Exception {
+  public void test_writing_variables_header_in_file_without_required_name_causes_error() throws Exception {
     String tableName = "TableVariablesOnly";
     new TempTableBuilder(tableName).addVariables(getFileFromResource("Table1/variables_with_no_name.csv"))
         .buildCsvDatasource("csv-datasource");
   }
 
   @Test(expected = MagmaRuntimeException.class)
-  public void testWritingVariables_HeaderInFileWithoutRequiredTypeCausesError() throws Exception {
+  public void test_writing_variables_header_in_file_without_required_type_causes_error() throws Exception {
     String tableName = "TableVariablesOnly";
     new TempTableBuilder(tableName).addVariables(getFileFromResource("Table1/variables_with_no_type.csv"))
         .buildCsvDatasource("csv-datasource");
   }
 
   @Test(expected = MagmaRuntimeException.class)
-  public void testWritingVariables_HeaderInFileWithoutRequiredEntityTypeCausesError() throws Exception {
+  public void test_writing_variables_header_in_file_without_required_entity_type_causes_error() throws Exception {
     String tableName = "TableVariablesOnly";
     new TempTableBuilder(tableName).addVariables(getFileFromResource("Table1/variables_with_no_entityType.csv"))
         .buildCsvDatasource("csv-datasource");
   }
 
   @Test
-  public void testWritingVariables_MinimalHeaderIsValid() throws Exception {
+  public void test_writing_variables_minimal_header_is_valid() throws Exception {
     String tableName = "TableVariablesOnly";
     new TempTableBuilder(tableName).addVariables(getFileFromResource("Table1/variables_minimal_header.csv"))
         .buildCsvDatasource("csv-datasource");
   }
 
   @Test
-  public void testWritingVariables_WriteNewVariableToEmptyFile() throws Exception {
+  public void test_writing_variables_write_new_variable_to_empty_file() throws Exception {
     String tableName = "TableVariablesOnly";
     String entityName = "Participant";
     CsvDatasource datasource = new TempTableBuilder(tableName).addVariables()
@@ -765,7 +763,8 @@ public class CsvDatasourceTest {
   }
 
   @Test
-  public void testWritingVariables_WriteNewVariableToEmptyFileWithoutProvidingVariablesHeader() throws Exception {
+  public void test_writing_variables_write_new_variable_to_empty_file_without_providing_variables_header()
+      throws Exception {
     String tableName = "TableVariablesOnly";
     String entityName = "Participant";
     CsvDatasource datasource = new TempTableBuilder(tableName).addVariables().buildCsvDatasource("csv-datasource");
@@ -779,7 +778,7 @@ public class CsvDatasourceTest {
   }
 
   @Test
-  public void testWritingVariables_AddingVariablesToAnExistingFile() throws Exception {
+  public void test_writing_variables_adding_variables_to_an_existing_file() throws Exception {
     String tableName = "TableVariablesOnly";
     String entityName = "Participant";
     CsvDatasource datasource = new TempTableBuilder(tableName).addVariables(getFileFromResource("Table1/variables.csv"))
@@ -798,7 +797,7 @@ public class CsvDatasourceTest {
   }
 
   @Test
-  public void testWritingVariables_UpdatingVariable() throws Exception {
+  public void test_writing_variables_updating_variable() throws Exception {
     String tableName = "TableVariablesOnly";
     String entityName = "Participant";
     CsvDatasource datasource = new TempTableBuilder(tableName).addVariables(getFileFromResource("Table1/variables.csv"))
@@ -820,7 +819,7 @@ public class CsvDatasourceTest {
   }
 
   @Test
-  public void testReadingVariables_GetVariables() throws Exception {
+  public void test_reading_variables_get_variables() throws Exception {
     String tableName = "TableVariablesOnly";
     CsvDatasource datasource = new TempTableBuilder(tableName).addVariables(getFileFromResource("Table1/variables.csv"))
         .buildCsvDatasource("csv-datasource");
@@ -829,7 +828,7 @@ public class CsvDatasourceTest {
   }
 
   @Test
-  public void testWritingVariables_UpdatingWideByteVariable() throws Exception {
+  public void test_writing_variables_updating_wide_byte_variable() throws Exception {
     String tableName = "TableVariablesOnly";
     String entityName = "Participant";
     CsvDatasource datasource = new TempTableBuilder(tableName).addVariables(getFileFromResource("Table1/variables.csv"))
@@ -852,7 +851,7 @@ public class CsvDatasourceTest {
   }
 
   @Test
-  public void testRepeatableDataRead() throws URISyntaxException {
+  public void test_repeatable_data_read() throws URISyntaxException {
     CsvDatasource datasource = new CsvDatasource("csv-datasource").addValueTable("Participants", //
         getFileFromResource("Participants/variables.csv"), //
         getFileFromResource("Participants/data.csv"));
@@ -882,7 +881,7 @@ public class CsvDatasourceTest {
   }
 
   @Test
-  public void testMultilineDataRead() throws URISyntaxException {
+  public void test_multiline_data_read() throws URISyntaxException {
     CsvDatasource datasource = new CsvDatasource("csv-datasource").addValueTable("Participants", //
         getFileFromResource("Participants/variables.csv"), //
         getFileFromResource("Participants/data.csv"));
@@ -924,25 +923,31 @@ public class CsvDatasourceTest {
   }
 
   @Test
-  public void testCharSet() throws URISyntaxException {
+  public void test_charSet() throws URISyntaxException {
+    test_charSet("Drugs-iso.csv", "ISO-8859-1");
+    test_charSet("Drugs-utf8.csv", "UTF-8");
+  }
+
+  public void test_charSet(String filename, String encoding) throws URISyntaxException {
+    log.info("Test {}", encoding);
+
     CsvDatasource datasource = new CsvDatasource("csv-datasource")
-        .addValueTable("Drugs", getFileFromResource("medications/Drugs.csv"), "Drug");
+        .addValueTable("Drugs", getFileFromResource("medications/" + filename), "Drug");
     datasource.setQuote(Quote.DOUBLE);
     datasource.setSeparator(Separator.COMMA);
-    datasource.setCharacterSet("UTF-8");
+    datasource.setCharacterSet(encoding);
     datasource.setFirstRow(1);
+
     datasource.initialise();
 
     ValueTable table = datasource.getValueTable("Drugs");
-
     Variable var = table.getVariable("MEDICATION");
-
-    checkValue(table, var, "02335204",
+    assertCharSetValue(table, var, "02335204",
         "PREVNAR 13 (CORYNEBACTERIUM DIPHTHERIAE CRM-197 PROTEIN 34\u00b5G, PNEUMOCOCCAL POLYSACCHARIDE SEROTYPE 14 2.2\u00b5G, PNEUMOCOCCAL POLYSACCHARIDE SEROTYPE 18C 2.2\u00b5G, PNEUMOCOCCAL POLYSACCHARIDE SEROTYPE 19F 2.2\u00b5G, PNEUMOCOCCAL POLYSACCHARIDE SEROTYPE 23F 2.2\u00b5G, PNEUMOCOCCAL POLYSACCHARIDE SEROTYPE 4 2.2\u00b5G, PNEUMOCOCCAL POLYSACCHARIDE SEROTYPE 6B 4.4\u00b5G, PNEUMOCOCCAL POLYSACCHARIDE SEROTYPE 9V 2.2\u00b5G, PNEUMOCOCCAL POLYSACCHARIDE SEROTYPE 3 2.2\u00b5G, PNEUMOCOCCAL POLYSACCHARIDE SEROTYPE 5 2.2\u00b5G, PNEUMOCOCCAL POLYSACCHARIDE SEROTYPE 6A 2.2\u00b5G, PNEUMOCOCCAL POLYSACCHARIDE SEROTYPE 7F 2.2\u00b5G, PNEUMOCOCCAL POLYSACCHARIDE SEROTYP 19A 2.2\u00b5G, PNEUMOCOCCAL POLYSACCHARIDE SEROTYPE 1 2.2\u00b5G)");
-    checkValue(table, var, "01918346", "COUMADIN TAB 2.5MG (WARFARIN SODIUM 2.5MG)");
+    assertCharSetValue(table, var, "01918346", "COUMADIN TAB 2.5MG (WARFARIN SODIUM 2.5MG)");
   }
 
-  private void checkValue(ValueTable table, Variable var, String identifier, String expected) {
+  private void assertCharSetValue(ValueTable table, Variable var, String identifier, String expected) {
     Value value = table.getValue(var, table.getValueSet(new VariableEntityBean("Drug", identifier)));
     log.info("{} : {}", identifier, value.toString());
     assertThat(value.toString(), is(expected));
@@ -1028,7 +1033,7 @@ public class CsvDatasourceTest {
 
   @SuppressWarnings("ReuseOfLocalVariable")
   @Test
-  public void test_EndOfLine() throws URISyntaxException, IOException {
+  public void test_endOfLine() throws URISyntaxException, IOException {
 
     StringBuilder sb = new StringBuilder();
     sb.append("entity_id,Name,\"Complete name\"\n");
