@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import org.obiba.magma.Datasource;
@@ -44,6 +45,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Strings;
 
 import au.com.bytecode.opencsv.CSVParser;
 import au.com.bytecode.opencsv.CSVReader;
@@ -130,7 +132,9 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
       InputStreamReader fr = new InputStreamReader(fis = new FileInputStream(dataFile), getCharacterSet());
       CSVReader csvReader = getCsvDatasource().getCsvReader(fr);
       skipSafely(fis, indexEntry.getStart());
-      return new CsvValueSet(this, entity, dataHeaderMap, csvReader.readNext());
+      String[] line = csvReader.readNext();
+      log.debug("{} line: {}", entity, Arrays.toString(line));
+      return new CsvValueSet(this, entity, dataHeaderMap, line);
     } catch(IOException e) {
       throw new MagmaRuntimeException(e);
     } finally {
@@ -176,23 +180,22 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
 
   private void initialiseVariablesFromVariablesFile() throws IOException {
     CSVReader variableReader = getCsvDatasource().getCsvReader(variableFile);
-    if(variableReader == null) return;
-
     try {
+      @SuppressWarnings("ConstantConditions")
       String[] line = variableReader.readNext();
       if(line == null) {
-        initialiseFromEmptyVariablesFile();
+        initialiseVariablesFromEmptyFile();
       } else {
-        initialiseFromLines(variableReader, line);
+        initialiseVariablesFromLines(variableReader, line);
       }
     } finally {
       Closeables.closeQuietly(variableReader);
     }
   }
 
-  private void initialiseFromLines(CSVReader variableReader, String... line) throws IOException {
+  private void initialiseVariablesFromLines(CSVReader variableReader, String... line) throws IOException {
 
-    Map<Integer, CsvIndexEntry> lineIndex = buildLineIndex(variableFile);
+    Map<Integer, CsvIndexEntry> lineIndex = buildVariableLineIndex();
 
     // first line is headers
     variableConverter = new VariableConverter(line);
@@ -215,7 +218,7 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
     }
   }
 
-  private void initialiseFromEmptyVariablesFile() {
+  private void initialiseVariablesFromEmptyFile() {
     if(variableConverter == null) {
       String[] defaultVariablesHeader = ((CsvDatasource) getDatasource()).getDefaultVariablesHeader();
       log.debug(
@@ -261,63 +264,21 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
   }
 
   private void initialiseData() throws IOException {
-    if(dataFile == null) {
-      isDataFileEmpty = true;
-      return;
-    }
-
-    Map<Integer, CsvIndexEntry> lineIndex = buildLineIndex(dataFile);
-    CSVParser parser = getCsvDatasource().getCsvParser();
-    BufferedReader reader = new BufferedReader(getCsvDatasource().getReader(dataFile));
-    try {
-      readHeader(parser, reader);
-      readValues(lineIndex, parser, reader);
-    } finally {
-      Closeables.closeQuietly(reader);
-    }
+    buildDataLineIndex();
   }
 
-  private void readValues(Map<Integer, CsvIndexEntry> lineIndex, CSVParser parser, BufferedReader reader)
-      throws IOException {
-    int count = 1;
-    String nextLine = reader.readLine();
-    boolean wasPending = false;
-    while(nextLine != null) {
-      String[] line = parser.parseLineMulti(nextLine);
-      if(!wasPending && line.length > 0 && line[0] != null && line[0].trim().length() > 0) {
-        VariableEntity entity = new VariableEntityBean(entityType, line[0]);
-        entityIndex.put(entity, lineIndex.get(count));
-      }
-      wasPending = parser.isPending();
-      count++;
-      nextLine = reader.readLine();
-    }
-  }
-
-  private void readHeader(CSVParser parser, BufferedReader reader) throws IOException {
-    String nextLine = reader.readLine();
-    String[] line = parser.parseLine(nextLine);
-    // first line is headers = entity_id + variable names
-    Map<String, Integer> headerMap = new HashMap<String, Integer>();
-    if(line == null) {
-      isDataFileEmpty = true;
-    } else {
-      for(int i = 1; i < line.length; i++) {
-        headerMap.put(line[i].trim(), i);
-      }
-    }
-    dataHeaderMap = headerMap;
-  }
-
-  @SuppressWarnings({ "OverlyLongMethod", "PMD.NcssMethodCount" })
+  @Nonnull
   @VisibleForTesting
-  Map<Integer, CsvIndexEntry> buildLineIndex(@Nullable File file) throws IOException {
+  @SuppressWarnings({ "OverlyLongMethod", "PMD.NcssMethodCount" })
+  Map<Integer, CsvIndexEntry> buildVariableLineIndex() throws IOException {
     Map<Integer, CsvIndexEntry> lineNumberMap = new HashMap<Integer, CsvIndexEntry>();
 
-    if(file == null) return lineNumberMap;
+    if(variableFile == null || !variableFile.exists()) {
+      return lineNumberMap;
+    }
 
     CSVParser parser = getCsvDatasource().getCsvParser();
-    BufferedReaderEolSupport reader = new BufferedReaderEolSupport(getCsvDatasource().getReader(file));
+    BufferedReaderEolSupport reader = new BufferedReaderEolSupport(getCsvDatasource().getReader(variableFile));
     try {
       int line = 0;
       int innerline = 0;
@@ -330,9 +291,10 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
           innerline++;
         } else {
           int lineNumber = line - innerline;
-          log.debug("[{}:{}] {}", file.getName(), lineNumber, nextLine);
           int nextChar = reader.getNextCharPosition();
-          lineNumberMap.put(lineNumber, new CsvIndexEntry(start, nextChar));
+          CsvIndexEntry indexEntry = new CsvIndexEntry(start, nextChar);
+          lineNumberMap.put(lineNumber, indexEntry);
+          log.debug("[{}:{}] {}", variableFile.getName(), lineNumber, indexEntry);
           innerline = 0;
           start = nextChar;
         }
@@ -342,7 +304,95 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
       Closeables.closeQuietly(reader);
     }
 
+    debugLineNumberMap(lineNumberMap, variableFile);
+
     return lineNumberMap;
+  }
+
+  @Nonnull
+  @SuppressWarnings({ "OverlyLongMethod", "PMD.NcssMethodCount" })
+  Map<Integer, CsvIndexEntry> buildDataLineIndex() throws IOException {
+
+    Map<Integer, CsvIndexEntry> lineNumberMap = new HashMap<Integer, CsvIndexEntry>();
+    isDataFileEmpty = true;
+    if(dataFile == null || !dataFile.exists()) {
+      return lineNumberMap;
+    }
+
+    CSVParser parser = getCsvDatasource().getCsvParser();
+    BufferedReaderEolSupport reader = new BufferedReaderEolSupport(getCsvDatasource().getReader(dataFile));
+    try {
+      int line = 0;
+      int innerline = 0;
+      int start = 0;
+      String nextLine = null;
+      List<String> multiLineValues = new ArrayList<String>();
+      while((nextLine = reader.readLine()) != null) {
+        if(isDataFileEmpty) isDataFileEmpty = false;
+
+        String[] values = parser.parseLineMulti(nextLine);
+        Collections.addAll(multiLineValues, values);
+        if(parser.isPending()) {
+          // we are in a multiline entry
+          innerline++;
+        } else {
+          int nextChar = reader.getNextCharPosition();
+
+          if(dataHeaderMap == null) {
+            // first line is headers = entity_id + variable names
+            dataHeaderMap = new HashMap<String, Integer>();
+            for(int i = 1; i < values.length; i++) {
+              dataHeaderMap.put(values[i].trim(), i);
+            }
+          } else {
+            int lineNumber = line - innerline;
+            log.debug("[{}:{}] {}", dataFile.getName(), lineNumber, nextLine);
+            String identifier = multiLineValues.get(0);
+            if(Strings.isNullOrEmpty(identifier)) {
+              throw new MagmaRuntimeException(
+                  "Cannot find identifier for line " + line + " in file " + dataFile.getName());
+            }
+            CsvIndexEntry indexEntry = new CsvIndexEntry(start, nextChar);
+            lineNumberMap.put(lineNumber, indexEntry);
+            entityIndex.put(new VariableEntityBean(entityType, identifier), indexEntry);
+          }
+          multiLineValues.clear();
+          innerline = 0;
+          start = nextChar;
+        }
+        line++;
+      }
+    } finally {
+      Closeables.closeQuietly(reader);
+    }
+
+    debugLineNumberMap(lineNumberMap, dataFile);
+
+    return lineNumberMap;
+  }
+
+  private <T extends CsvIndexEntry> void debugLineNumberMap(Map<Integer, T> lineNumberMap, File file) {
+    if(!log.isDebugEnabled()) return;
+    log.debug("lineNumberMap: {}", lineNumberMap);
+    for(Map.Entry<Integer, T> entry : lineNumberMap.entrySet()) {
+      CsvIndexEntry indexEntry = entry.getValue();
+      log.debug("{}: {}", entry.getKey(), indexEntry);
+      int start = Long.valueOf(indexEntry.getStart()).intValue();
+      int end = Long.valueOf(indexEntry.getEnd()).intValue();
+      int length = end - start;
+      char[] buf = new char[length];
+      FileInputStream fis = null;
+      try {
+        fis = new FileInputStream(file);
+        InputStreamReader inputStream = new InputStreamReader(fis, getCharacterSet());
+        skipSafely(fis, indexEntry.getStart());
+        log.debug("   '{}'", new BufferedReader(inputStream).readLine());
+      } catch(IOException e) {
+        throw new MagmaRuntimeException(e);
+      } finally {
+        Closeables.closeQuietly(fis);
+      }
+    }
   }
 
   public void clear(@Nullable File file, CsvIndexEntry indexEntry) throws IOException {
