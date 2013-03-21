@@ -282,7 +282,7 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
       long start = 0;
       String nextLine = null;
       while((nextLine = reader.readLine()) != null) {
-        String[] strings = parser.parseLineMulti(nextLine);
+        parser.parseLineMulti(nextLine);
         if(parser.isPending()) {
           // we are in a multiline entry
           innerline++;

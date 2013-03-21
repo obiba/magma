@@ -45,7 +45,7 @@ public class LimesurveyTimestamps implements Timestamps {
       lastUpdateDate = jdbcTemplate.queryForObject(sql.toString(), Date.class);
     } catch(BadSqlGrammarException e) {
       lastUpdateDate = new Date();
-      log.info("survey_" + limesurveyValueTable.getSid() + " is probably not active");
+      log.info("survey_{} is probably not active", limesurveyValueTable.getSid());
     }
     return DateTimeType.get().valueOf(lastUpdateDate);
   }
