@@ -45,8 +45,10 @@ public class SpssVariableTypeMapper {
       case DOLLAR: // dollar
       case DOT: // dot
       case FIXED: // fixed format (default)
-      case SCIENTIFIC: // scientific notation
         return variable.getDecimals() > 0 ? DecimalType.get() : IntegerType.get();
+
+      case SCIENTIFIC: // scientific notation
+        return DecimalType.get();
 
       case ADATE: // Date in mm/dd/yy or mm/dd/yyyy
       case EDATE: // Date in dd.mm.yy or dd.mm.yyyy
@@ -54,8 +56,6 @@ public class SpssVariableTypeMapper {
         return DateType.get();
 
       case DATETIME: // DateTime in dd-mmm-yyyy hh:mm, dd-mmm-yyyy hh:mm:ss or dd-mmm-yyyy hh:mm:ss.ss
-        return DateTimeType.get();
-
       case DATE: // Date dd-mmm-yyyy or dd-mmm-yy
       case TIME: // Time in hh:mm, hh:mm:ss or hh:mm:ss.ss
       case JDATE: // Date in yyyyddd or yyddd
