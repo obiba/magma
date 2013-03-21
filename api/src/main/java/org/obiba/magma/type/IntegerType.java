@@ -70,7 +70,7 @@ public class IntegerType extends AbstractNumberType {
     }
     Class<?> type = object.getClass();
     if(Number.class.isAssignableFrom(type)) {
-      return Factory.newValue(this, Long.valueOf(((Number) object).longValue()));
+      return Factory.newValue(this, ((Number) object).longValue());
     }
     if(String.class.isAssignableFrom(type)) {
       return valueOf((String) object);

@@ -8,11 +8,11 @@ import org.obiba.magma.integration.model.Participant;
 
 public interface IntegrationService {
 
-  public Participant getParticipant(String barcode);
+  Participant getParticipant(String barcode);
 
-  public List<Participant> getParticipants();
+  List<Participant> getParticipants();
 
-  public List<Interview> getInterviews();
+  List<Interview> getInterviews();
 
-  public List<Action> getActions(Participant participant);
+  List<Action> getActions(Participant participant);
 }

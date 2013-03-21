@@ -9,6 +9,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 public final class BijectiveFunctions {
 
+  private BijectiveFunctions() {}
+
   /**
    * Returns the identity function.
    */
@@ -21,6 +23,7 @@ public final class BijectiveFunctions {
   private enum IdentityFunction implements BijectiveFunction<Object, Object> {
     INSTANCE;
 
+    @Override
     public Object apply(Object o) {
       return o;
     }
@@ -52,19 +55,19 @@ public final class BijectiveFunctions {
       this.map = checkNotNull(map);
     }
 
+    @Override
     public V apply(K key) {
       V result = map.get(key);
       checkArgument(result != null || map.containsKey(key), "Key '%s' not present in map", key);
       return result;
     }
 
+    @Override
     public K unapply(V key) {
       K result = map.inverse().get(key);
       checkArgument(result != null || map.inverse().containsKey(key), "Key '%s' not present in inverse map", key);
       return result;
     }
-
-    ;
 
     @Override
     public boolean equals(Object o) {

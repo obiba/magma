@@ -4,9 +4,9 @@ import com.google.common.collect.ListMultimap;
 
 public interface Category extends AttributeAware {
 
-  public static class Builder extends AttributeAwareBuilder<Builder> {
+  class Builder extends AttributeAwareBuilder<Builder> {
 
-    private CategoryBean category;
+    private final CategoryBean category;
 
     private Builder(String name) {
       category = new CategoryBean(name, null);
@@ -89,21 +89,21 @@ public interface Category extends AttributeAware {
   /**
    * Visitor pattern for contributing to a {@code Builder} instance through composition.
    */
-  public interface BuilderVisitor {
+  interface BuilderVisitor {
 
     /**
      * Visit a builder instance and contribute to the category being built.
      *
      * @param builder the instance to contribute to.
      */
-    public void visit(Builder builder);
+    void visit(Builder builder);
 
   }
 
-  public String getName();
+  String getName();
 
-  public String getCode();
+  String getCode();
 
-  public boolean isMissing();
+  boolean isMissing();
 
 }

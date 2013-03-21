@@ -14,7 +14,7 @@ public class JavaScriptFilter extends AbstractFilter<ValueSet> implements Initia
 
   private static final String SCRIPT_NAME = "JAVASCRIPT_FILTER_SCRIPT";
 
-  private String javascript;
+  private final String javascript;
 
   @XStreamOmitField
   private JavascriptValueSource javascriptSource;
@@ -86,6 +86,6 @@ public class JavaScriptFilter extends AbstractFilter<ValueSet> implements Initia
 
   @Override
   public String toString() {
-    return new StringBuilder().append(SCRIPT_NAME).append("[").append(javascript).append("]").toString();
+    return SCRIPT_NAME + "[" + javascript + "]";
   }
 }

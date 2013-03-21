@@ -27,15 +27,17 @@ public class LimesurveyDatasource extends AbstractDatasource {
 
   private static final String DEFAULT_TABLE_PREFIX = "";
 
+  private static final int LIMESURVEY_DB_MIN_VERSION = 146;
+
   private final DataSource dataSource;
 
-  private JdbcTemplate jdbcTemplate;
+  private final JdbcTemplate jdbcTemplate;
 
   private final String tablePrefix;
 
   private Map<String, Integer> sids;
 
-  // identifier quote string
+  @SuppressWarnings("FieldMayBeFinal")
   private String iqs;
 
   public LimesurveyDatasource(String name, DataSource dataSource) {
@@ -54,13 +56,10 @@ public class LimesurveyDatasource extends AbstractDatasource {
   @Override
   protected void onInitialise() {
     super.onInitialise();
-    StringBuilder sqlDbVersion = new StringBuilder();
-    sqlDbVersion.append("SELECT stg_value ");
-    sqlDbVersion.append("FROM " + quoteAndPrefix("settings_global") + " ");
-    sqlDbVersion.append("WHERE stg_name='DBVersion'");
-    String dbVersion = jdbcTemplate.queryForObject(sqlDbVersion.toString(), String.class);
+    String sqlDbVersion = "SELECT stg_value FROM " + quoteAndPrefix("settings_global") + " WHERE stg_name='DBVersion'";
+    String dbVersion = jdbcTemplate.queryForObject(sqlDbVersion, String.class);
     try {
-      if(Float.parseFloat(dbVersion) < 146) {
+      if(Float.parseFloat(dbVersion) < LIMESURVEY_DB_MIN_VERSION) {
         throw new MagmaRuntimeException(
             "Limesurvey database version unsupported:" + dbVersion + " (must be greater equal than 146)");
       }
@@ -81,14 +80,13 @@ public class LimesurveyDatasource extends AbstractDatasource {
   @Override
   protected Set<String> getValueTableNames() {
     JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-    StringBuilder sql = new StringBuilder();
-    sql.append("SELECT s.sid, sls.surveyls_title ");
-    sql.append("FROM " + quoteAndPrefix("surveys") + " s JOIN " + quoteAndPrefix("surveys_languagesettings") + " sls ");
-    sql.append("ON (s.sid=sls.surveyls_survey_id AND s.language=sls.surveyls_language) ");
+    String sql = "SELECT s.sid, sls.surveyls_title FROM " + quoteAndPrefix("surveys") + " s JOIN " +
+        quoteAndPrefix("surveys_languagesettings") +
+        " sls ON (s.sid=sls.surveyls_survey_id AND s.language=sls.surveyls_language) ";
 
     Set<String> names = Sets.newLinkedHashSet();
     sids = Maps.newHashMap();
-    SqlRowSet rows = jdbcTemplate.queryForRowSet(sql.toString());
+    SqlRowSet rows = jdbcTemplate.queryForRowSet(sql);
     while(rows.next()) {
       String title = LimesurveyUtils.toValidMagmaName(rows.getString("surveyls_title"));
       title = LimesurveyUtils.removeSlashes(title);

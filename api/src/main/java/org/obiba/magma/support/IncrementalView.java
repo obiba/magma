@@ -37,7 +37,7 @@ public class IncrementalView extends View {
 
   private static final Logger log = LoggerFactory.getLogger(IncrementalView.class);
 
-  private IncrementalFunction variableEntityMappingFunction;
+  private final IncrementalFunction variableEntityMappingFunction;
 
   public static class Factory {
 

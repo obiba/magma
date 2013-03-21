@@ -144,6 +144,7 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
         ? joinedSource.getValueType().nullSequence()
         : joinedSource.getValueType().nullValue();
     if(!identifier.isNull()) {
+      @SuppressWarnings("ConstantConditions")
       VariableEntity entity = new VariableEntityBean(joinedTable.getEntityType(), identifier.toString());
       if(joinedTable.hasValueSet(entity)) {
         value = joinedSource.getValue(joinedTable.getValueSet(entity));
@@ -297,6 +298,7 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
     return new NativeArray(getGroups(ctx, thisObj, args, funObj, false).toArray());
   }
 
+  @SuppressWarnings({ "OverlyLongMethod", "PMD.NcssMethodCount" })
   private static List<NativeObject> getGroups(Context ctx, Scriptable thisObj, Object[] args, Function funObj,
       boolean stopAtFirst) {
     String name = (String) args[0];
@@ -321,6 +323,7 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
 
       ValueSequence valueSequence = sv.getValue().asSequence();
       int index = -1;
+      //noinspection ConstantConditions
       for(Value value : valueSequence.getValue()) {
         index++;
         if(predicate.apply(value)) {

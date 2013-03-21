@@ -177,14 +177,14 @@ class HibernateVariableValueSourceFactory implements VariableValueSourceFactory 
 
             @Override
             public Value next() {
-              if(hasNext() == false) {
+              if(!hasNext()) {
                 throw new NoSuchElementException();
               }
 
               String nextEntity = resultEntities.next().getIdentifier();
 
               // Scroll until we find the required entity or reach the end of the results
-              while(hasNextResults && results.getString(0).equals(nextEntity) == false) {
+              while(hasNextResults && !results.getString(0).equals(nextEntity)) {
                 hasNextResults = results.next();
               }
 
@@ -205,9 +205,9 @@ class HibernateVariableValueSourceFactory implements VariableValueSourceFactory 
             }
 
             private void closeCursorIfNecessary() {
-              if(closed == false) {
+              if(!closed) {
                 // Close the cursor if we don't have any more results or no more entities to return
-                if(hasNextResults == false || hasNext() == false) {
+                if(!hasNextResults || !hasNext()) {
                   closed = true;
                   results.close();
                 }
@@ -255,7 +255,7 @@ class HibernateVariableValueSourceFactory implements VariableValueSourceFactory 
       if(obj == null) {
         return false;
       }
-      if(obj instanceof HibernateVariableValueSource == false) {
+      if(!(obj instanceof HibernateVariableValueSource)) {
         return super.equals(obj);
       }
       HibernateVariableValueSource rhs = (HibernateVariableValueSource) obj;

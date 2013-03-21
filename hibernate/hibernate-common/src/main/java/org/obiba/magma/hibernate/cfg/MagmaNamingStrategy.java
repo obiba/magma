@@ -11,6 +11,7 @@ public class MagmaNamingStrategy extends ImprovedNamingStrategy {
   /**
    * Overridden to generate the column name: &lt;tableName&gt;_&lt;columnName&gt;
    */
+  @Override
   public String foreignKeyColumnName(String propertyName, String propertyEntityName, String propertyTableName,
       String referencedColumnName) {
     String header = propertyName != null ? StringHelper.unqualify(propertyName) : propertyTableName;

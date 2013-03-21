@@ -23,7 +23,7 @@ public class SecuredValueTable extends AbstractValueTableWrapper {
     if(authorizer == null) throw new IllegalArgumentException("authorizer cannot be null");
     if(securedDatasource == null) throw new IllegalArgumentException("securedDatasource cannot be null");
     if(table == null) throw new IllegalArgumentException("table cannot be null");
-    this.authz = authorizer;
+    authz = authorizer;
     this.securedDatasource = securedDatasource;
     this.table = table;
   }
@@ -74,7 +74,7 @@ public class SecuredValueTable extends AbstractValueTableWrapper {
   }
 
   private ValueTablePermissionBuilder builder() {
-    return Permissions.ValueTablePermissionBuilder.forValueTable(this.table);
+    return Permissions.ValueTablePermissionBuilder.forValueTable(table);
   }
 
 }

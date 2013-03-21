@@ -19,7 +19,7 @@ public class ScriptableVariable extends ScriptableObject {
    * No-arg ctor for building the prototype
    */
   public ScriptableVariable() {
-    this.variable = null;
+    variable = null;
   }
 
   public ScriptableVariable(Scriptable scope, Variable variable) {

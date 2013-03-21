@@ -10,9 +10,9 @@ import com.thoughtworks.xstream.annotations.XStreamOmitField;
 public class VariableAttributeFilter extends AbstractFilter<Variable> implements Initialisable {
 
   @XStreamAlias("attribute")
-  private String attributeName;
+  private final String attributeName;
 
-  private String value;
+  private final String value;
 
   @XStreamOmitField
   private boolean initialised;
@@ -57,7 +57,7 @@ public class VariableAttributeFilter extends AbstractFilter<Variable> implements
     }
 
     public Builder attributeValue(String attributeValue) {
-      this.value = attributeValue;
+      value = attributeValue;
       return this;
     }
 

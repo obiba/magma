@@ -22,9 +22,10 @@ public class ChainedOutputStreamWrapper implements OutputStreamWrapper {
 
   @Override
   public OutputStream wrap(OutputStream os, File file) {
+    OutputStream wrapped = os;
     for(OutputStreamWrapper factory : factories) {
-      os = factory.wrap(os, file);
+      wrapped = factory.wrap(wrapped, file);
     }
-    return os;
+    return wrapped;
   }
 }

@@ -14,7 +14,7 @@ public interface KeyProvider {
    * @throws NoSuchKeyException if the requested <code>KeyPair</code> was not found
    * @throws KeyProviderSecurityException if access to the <code>KeyPair</code> was forbidden
    */
-  public KeyPair getKeyPair(String alias) throws NoSuchKeyException, KeyProviderSecurityException;
+  KeyPair getKeyPair(String alias) throws NoSuchKeyException, KeyProviderSecurityException;
 
   /**
    * Returns the <code>KeyPair</code> for the specified public key.
@@ -24,7 +24,7 @@ public interface KeyProvider {
    * @throws NoSuchKeyException if the requested <code>KeyPair</code> was not found
    * @throws KeyProviderSecurityException if access to the <code>KeyPair</code> was forbidden
    */
-  public KeyPair getKeyPair(PublicKey publicKey) throws NoSuchKeyException, KeyProviderSecurityException;
+  KeyPair getKeyPair(PublicKey publicKey) throws NoSuchKeyException, KeyProviderSecurityException;
 
   /**
    * Returns the {@code PublicKey} for the specified {@code datasource}.
@@ -32,5 +32,5 @@ public interface KeyProvider {
    * @param name
    * @return
    */
-  public PublicKey getPublicKey(Datasource datasource) throws NoSuchKeyException;
+  PublicKey getPublicKey(Datasource datasource) throws NoSuchKeyException;
 }

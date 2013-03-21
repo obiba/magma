@@ -14,15 +14,15 @@ import com.google.common.collect.Maps;
 
 public class LimesurveyElementProviderJdbc implements LimesurveyElementProvider {
 
-  private LimesurveyDatasource datasource;
+  private final LimesurveyDatasource datasource;
 
-  private int sid;
+  private final int sid;
 
-  private Map<Integer, LimeQuestion> mapQuestions;
+  private final Map<Integer, LimeQuestion> mapQuestions;
 
-  private Map<Integer, List<LimeAnswer>> mapAnswers;
+  private final Map<Integer, List<LimeAnswer>> mapAnswers;
 
-  private Map<Integer, LimeAttributes> mapAttributes;
+  private final Map<Integer, LimeAttributes> mapAttributes;
 
   public LimesurveyElementProviderJdbc(LimesurveyDatasource datasource, int sid) {
     this.datasource = datasource;
@@ -34,14 +34,13 @@ public class LimesurveyElementProviderJdbc implements LimesurveyElementProvider 
 
   @Override
   public Map<Integer, LimeQuestion> queryQuestions() {
-    StringBuilder sqlQuestion = new StringBuilder();
-    sqlQuestion.append(
-        "SELECT * FROM " + datasource.quoteAndPrefix("questions") + " q JOIN " + datasource.quoteAndPrefix("groups") +
-            " g ");
-    sqlQuestion.append("ON (q.gid=g.gid AND q.language=g.language) ");
-    sqlQuestion.append("WHERE q.sid=? AND q.type!='X' "); // X are boilerplate questions
-    sqlQuestion.append("ORDER BY group_order, question_order ASC ");
-    SqlRowSet questionsRowSet = datasource.getJdbcTemplate().queryForRowSet(sqlQuestion.toString(), sid);
+    String sqlQuestion = "SELECT * FROM " + datasource.quoteAndPrefix("questions") + " q JOIN " +
+        datasource.quoteAndPrefix("groups") +
+        " g " //
+        + "ON (q.gid=g.gid AND q.language=g.language) " //
+        + "WHERE q.sid=? AND q.type!='X' " // X are boilerplate questions
+        + "ORDER BY group_order, question_order ASC ";
+    SqlRowSet questionsRowSet = datasource.getJdbcTemplate().queryForRowSet(sqlQuestion, sid);
 
     return toQuestions(questionsRowSet);
   }

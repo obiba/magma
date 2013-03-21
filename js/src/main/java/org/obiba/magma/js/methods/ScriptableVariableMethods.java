@@ -17,6 +17,8 @@ import org.obiba.magma.type.TextType;
  */
 public class ScriptableVariableMethods {
 
+  private ScriptableVariableMethods() {}
+
   public static ScriptableObject defineMethods(@Nullable ScriptableObject prototype) {
     if(prototype == null) throw new IllegalArgumentException("thisObj cannot be null");
     prototype

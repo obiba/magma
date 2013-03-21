@@ -17,13 +17,15 @@ import com.google.common.collect.ImmutableList;
 
 public final class Attributes {
 
+  private Attributes() {}
+
   /**
    * Makes a defensive copy of an attribute to make sure the result is immutable.
    *
    * @param attribute the attribute to copy
    * @return a new immutable attribute, or the same instance if it is determined to be immutable
    */
-  public static final Attribute copyOf(Attribute attribute) {
+  public static Attribute copyOf(Attribute attribute) {
     if(attribute instanceof AttributeBean) {
       // AttributeBean is immutable.
       return attribute;
@@ -38,7 +40,7 @@ public final class Attributes {
    * @param attribute
    * @return
    */
-  public static final String encodeForHeader(Attribute attribute) {
+  public static String encodeForHeader(Attribute attribute) {
     StringBuilder builder = new StringBuilder();
     if(attribute.hasNamespace()) {
       builder.append(attribute.getNamespace()).append("::");
@@ -54,7 +56,7 @@ public final class Attributes {
 
   final static Splitter localeSplitter = Splitter.on(":").trimResults().omitEmptyStrings().limit(2);
 
-  public static final Attribute.Builder decodeFromHeader(String header) {
+  public static Attribute.Builder decodeFromHeader(String header) {
     Attribute.Builder builder = Attribute.Builder.newAttribute();
     List<String> parts = ImmutableList.copyOf(namespaceSplitter.split(header));
     String remaining = header;

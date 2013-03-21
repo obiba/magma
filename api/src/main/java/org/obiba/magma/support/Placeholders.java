@@ -18,7 +18,9 @@ public final class Placeholders {
 
   private static final String POSTFIX = "}";
 
-  public static String replaceAll(final String value) {
+  private Placeholders() {}
+
+  public static String replaceAll(String value) {
     if(value == null || value.isEmpty()) return value;
     String replaced = value;
     Properties sysProps = System.getProperties();

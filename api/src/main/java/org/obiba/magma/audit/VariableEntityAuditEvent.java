@@ -15,7 +15,7 @@ public interface VariableEntityAuditEvent {
    *
    * @return User identifier
    */
-  public String getUser();
+  String getUser();
 
   /**
    * Gets the application-specific nature of the event. For example, an application may define "CREATE" and "DELETE"
@@ -23,35 +23,35 @@ public interface VariableEntityAuditEvent {
    *
    * @return Type of event
    */
-  public String getType();
+  String getType();
 
   /**
    * Gets the datasource where the event stems from.
    *
    * @return Datasource of event
    */
-  public String getDatasource();
+  String getDatasource();
 
   /**
    * Gets the ValueTable where the event stems from.
    *
    * @return ValueTable of event
    */
-  public String getValueTable();
+  String getValueTable();
 
   /**
    * Gets the date and time the event occurred.
    *
    * @return Time of event
    */
-  public Date getDatetime();
+  Date getDatetime();
 
   /**
    * Gets a list of event-specific values that provide additional context.
    *
    * @return Event details
    */
-  public Map<String, Value> getDetails();
+  Map<String, Value> getDetails();
 
   /**
    * Gets the value for a specific event detail.
@@ -59,5 +59,5 @@ public interface VariableEntityAuditEvent {
    * @param name Name of the specific detail for which the value will be retrieved.
    * @return Value
    */
-  public Value getDetailValue(String name);
+  Value getDetailValue(String name);
 }

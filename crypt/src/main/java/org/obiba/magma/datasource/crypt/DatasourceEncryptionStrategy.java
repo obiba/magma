@@ -12,7 +12,7 @@ public interface DatasourceEncryptionStrategy {
    *
    * @param keyProvider key provider
    */
-  public void setKeyProvider(KeyProvider keyProvider);
+  void setKeyProvider(KeyProvider keyProvider);
 
   /**
    * Returns true if this strategy is able to decrypt an existing datasource. This may return false when the strategy
@@ -21,7 +21,7 @@ public interface DatasourceEncryptionStrategy {
    *
    * @return true when this strategy can be used to decrypt an existing datasource.
    */
-  public boolean canDecryptExistingDatasource();
+  boolean canDecryptExistingDatasource();
 
   /**
    * Creates a new instance of {@code DatasourceCipherFactory}
@@ -29,6 +29,6 @@ public interface DatasourceEncryptionStrategy {
    * @param ds
    * @return
    */
-  public DatasourceCipherFactory createDatasourceCipherFactory(Datasource ds);
+  DatasourceCipherFactory createDatasourceCipherFactory(Datasource ds);
 
 }

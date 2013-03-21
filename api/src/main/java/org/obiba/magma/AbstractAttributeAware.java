@@ -131,7 +131,7 @@ public abstract class AbstractAttributeAware implements AttributeAware {
 
   @Override
   public List<Attribute> getAttributes(String name) throws NoSuchAttributeException {
-    if(hasAttribute(name) == false) throw new NoSuchAttributeException(name, getName());
+    if(!hasAttribute(name)) throw new NoSuchAttributeException(name, getName());
     return ImmutableList.copyOf(noNamespaceAttributes().get(name));
   }
 

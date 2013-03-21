@@ -33,7 +33,7 @@ public class SpssValueTableFactory {
   @Nonnull
   private final String characterSet;
 
-  private String name;
+  private final String name;
 
   public SpssValueTableFactory(@Nonnull Datasource datasource, @Nonnull String entityType, @Nonnull File file,
       @Nonnull String characterSet) {

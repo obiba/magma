@@ -17,7 +17,7 @@ abstract class AbstractMissingValueVariableValueGenerator extends GeneratedVaria
 
   AbstractMissingValueVariableValueGenerator(Variable variable) {
     super(variable);
-    this.percentMissing = 1;
+    percentMissing = 1;
     for(Category c : variable.getCategories()) {
       if(c.isMissing()) {
         missingCategories.add(c);
@@ -30,7 +30,7 @@ abstract class AbstractMissingValueVariableValueGenerator extends GeneratedVaria
     boolean isMissing = missingCategories.size() > 0 && gvs.valueGenerator.nextInt(100) <= percentMissing;
 
     if(isMissing) {
-      if(missingCategories.size() == 0) return TextType.get().nullValue();
+      if(missingCategories.isEmpty()) return TextType.get().nullValue();
       int c = gvs.valueGenerator.nextInt(missingCategories.size());
       return variable.getValueType().valueOf(missingCategories.get(c).getName());
     } else {

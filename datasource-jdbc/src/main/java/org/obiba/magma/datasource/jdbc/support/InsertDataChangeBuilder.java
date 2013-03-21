@@ -3,6 +3,7 @@
  */
 package org.obiba.magma.datasource.jdbc.support;
 
+import java.sql.Timestamp;
 import java.util.Date;
 
 import liquibase.change.ColumnConfig;
@@ -10,7 +11,7 @@ import liquibase.change.InsertDataChange;
 
 public class InsertDataChangeBuilder {
 
-  private InsertDataChange insertDataChange = new InsertDataChange();
+  private final InsertDataChange insertDataChange = new InsertDataChange();
 
   public static InsertDataChangeBuilder newBuilder() {
     return new InsertDataChangeBuilder();
@@ -41,7 +42,7 @@ public class InsertDataChangeBuilder {
 
   public InsertDataChangeBuilder withColumn(String columnName, Date columnValue) {
     ColumnConfig column = getColumn(columnName);
-    column.setValueDate(new java.sql.Timestamp(columnValue.getTime()));
+    column.setValueDate(new Timestamp(columnValue.getTime()));
 
     insertDataChange.addColumn(column);
 

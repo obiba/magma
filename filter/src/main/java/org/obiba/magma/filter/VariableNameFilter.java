@@ -14,10 +14,10 @@ import com.thoughtworks.xstream.annotations.XStreamOmitField;
 public class VariableNameFilter extends AbstractFilter<Variable> implements Initialisable {
 
   @XStreamAsAttribute
-  private String prefix;
+  private final String prefix;
 
   @XStreamAsAttribute
-  private String match;
+  private final String match;
 
   @XStreamOmitField
   private Pattern matchPattern;

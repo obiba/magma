@@ -2,6 +2,8 @@ package org.obiba.magma.xstream;
 
 import java.util.List;
 
+import javax.annotation.Nullable;
+
 import org.obiba.magma.ValueType;
 import org.obiba.magma.xstream.converter.AttributeConverter;
 import org.obiba.magma.xstream.converter.CategoryConverter;
@@ -20,7 +22,7 @@ import com.thoughtworks.xstream.mapper.MapperWrapper;
 
 public class DefaultXStreamFactory implements XStreamFactory {
 
-  private transient List<Converter> converters = Lists.newArrayList();
+  private final transient List<Converter> converters = Lists.newArrayList();
 
   @Override
   public XStream createXStream() {
@@ -28,8 +30,9 @@ public class DefaultXStreamFactory implements XStreamFactory {
   }
 
   @Override
-  public XStream createXStream(ReflectionProvider reflectionProvider) {
+  public XStream createXStream(@Nullable ReflectionProvider reflectionProvider) {
     XStream xstream = null;
+    //noinspection IfMayBeConditional
     if(reflectionProvider == null) {
       xstream = new XStream() {
         @Override
@@ -55,7 +58,7 @@ public class DefaultXStreamFactory implements XStreamFactory {
     xstream.registerConverter(new JoinTableConverter());
 
     // Converters are prioritized in reverse order of their addition
-    for(Converter converter : this.converters) {
+    for(Converter converter : converters) {
       xstream.registerConverter(converter);
     }
 

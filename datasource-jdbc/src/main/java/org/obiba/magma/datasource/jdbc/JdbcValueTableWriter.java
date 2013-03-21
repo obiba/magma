@@ -78,7 +78,6 @@ class JdbcValueTableWriter implements ValueTableWriter {
   private final JdbcValueTable valueTable;
 
   JdbcValueTableWriter(JdbcValueTable valueTable) {
-    super();
     this.valueTable = valueTable;
   }
 
@@ -89,11 +88,9 @@ class JdbcValueTableWriter implements ValueTableWriter {
 
   @Override
   public VariableWriter writeVariables() {
-    if(valueTable.getDatasource().getSettings().useMetadataTables()) {
-      return new JdbcMetadataVariableWriter();
-    } else {
-      return new JdbcVariableWriter();
-    }
+    return valueTable.getDatasource().getSettings().useMetadataTables()
+        ? new JdbcMetadataVariableWriter()
+        : new JdbcVariableWriter();
   }
 
   @Override
@@ -130,11 +127,11 @@ class JdbcValueTableWriter implements ValueTableWriter {
       ColumnConfig column = new ColumnConfig();
       column.setName(columnName);
 
-      if(!variable.isRepeatable()) {
+      if(variable.isRepeatable()) {
+        column.setType(SqlTypes.sqlTypeFor(TextType.get(), SqlTypes.TEXT_TYPE_HINT_LARGE));
+      } else {
         column.setType(SqlTypes.sqlTypeFor(variable.getValueType(),
             variable.getValueType().equals(TextType.get()) ? SqlTypes.TEXT_TYPE_HINT_MEDIUM : null));
-      } else {
-        column.setType(SqlTypes.sqlTypeFor(TextType.get(), SqlTypes.TEXT_TYPE_HINT_LARGE));
       }
 
       if(variableExists(variable)) {
@@ -250,11 +247,11 @@ class JdbcValueTableWriter implements ValueTableWriter {
 
     private final SimpleDateFormat timestampDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
-    private VariableEntity entity;
+    private final VariableEntity entity;
 
-    private Map<String, Object> columnValueMap;
+    private final Map<String, Object> columnValueMap;
 
-    public JdbcValueSetWriter(VariableEntity entity) {
+    private JdbcValueSetWriter(VariableEntity entity) {
       this.entity = entity;
       columnValueMap = new LinkedHashMap<String, Object>();
     }
@@ -263,15 +260,15 @@ class JdbcValueTableWriter implements ValueTableWriter {
     public void writeValue(Variable variable, Value value) {
       Object columnValue = null;
       if(!value.isNull()) {
-        if(!value.isSequence()) {
+        if(value.isSequence()) {
+          columnValue = value.toString();
+        } else {
           columnValue = value.getValue();
 
           // Persist Locale objects as strings.
           if(value.getValueType() == LocaleType.get()) {
             columnValue = value.toString();
           }
-        } else {
-          columnValue = value.toString();
         }
       }
       columnValueMap.put(NameConverter.toSqlName(variable.getName()), columnValue);
@@ -280,10 +277,11 @@ class JdbcValueTableWriter implements ValueTableWriter {
     @Override
     public void close() throws IOException {
       if(columnValueMap.size() != 0) {
-        JdbcTemplate jdbcTemplate = JdbcValueTableWriter.this.valueTable.getDatasource().getJdbcTemplate();
+        JdbcTemplate jdbcTemplate = valueTable.getDatasource().getJdbcTemplate();
 
         jdbcTemplate.execute(valueTable.hasValueSet(entity) ? getUpdateSql() : getInsertSql(),
             new AbstractLobCreatingPreparedStatementCallback(new DefaultLobHandler()) {
+              @Override
               protected void setValues(PreparedStatement ps, LobCreator lobCreator) throws SQLException {
                 int index = 1;
                 for(Map.Entry<String, Object> entry : columnValueMap.entrySet()) {
@@ -299,6 +297,7 @@ class JdbcValueTableWriter implements ValueTableWriter {
       }
     }
 
+    @SuppressWarnings({ "PMD.NcssMethodCount", "OverlyLongMethod" })
     private String getInsertSql() {
       String timestamp = formattedDate(new Date());
       if(valueTable.hasCreatedTimestampColumn()) {
@@ -394,12 +393,9 @@ class JdbcValueTableWriter implements ValueTableWriter {
 
       List<String> entityIdentifierColumns = valueTable.getSettings().getEntityIdentifierColumns();
 
-      String[] entityIdentifierValues = null;
-      if(entityIdentifierColumns.size() > 1) {
-        entityIdentifierValues = entity.getIdentifier().split("-");
-      } else {
-        entityIdentifierValues = new String[] { entity.getIdentifier() };
-      }
+      String[] entityIdentifierValues = entityIdentifierColumns.size() > 1
+          ? entity.getIdentifier().split("-")
+          : new String[] { entity.getIdentifier() };
       Assert.isTrue(entityIdentifierColumns.size() == entityIdentifierValues.length,
           "number of entity identifier columns does not match number of entity identifiers");
 

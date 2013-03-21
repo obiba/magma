@@ -16,6 +16,8 @@ public class ScriptableValueMethods {
 
   private static final Logger log = LoggerFactory.getLogger(ScriptableValueMethods.class);
 
+  private ScriptableValueMethods() {}
+
   /**
    * Returns the javascript value of a {@code ScriptableValue}. Useful to turn BooleanType ScriptableValues into native
    * javascript values to be used inside if/else statements.

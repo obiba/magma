@@ -59,13 +59,14 @@ public class DigestOutputStreamWrapper implements OutputStreamWrapper {
    */
   private class WrappedDigestOutputStream extends DigestOutputStream {
 
-    private File digestEntry;
+    private final File digestEntry;
 
-    public WrappedDigestOutputStream(OutputStream stream, File digestEntry) {
+    private WrappedDigestOutputStream(OutputStream stream, File digestEntry) {
       super(stream, newDigest());
       this.digestEntry = digestEntry;
     }
 
+    @Override
     public void close() throws IOException {
       super.close();
       ByteArrayInputStream bais = new ByteArrayInputStream(getMessageDigest().digest());

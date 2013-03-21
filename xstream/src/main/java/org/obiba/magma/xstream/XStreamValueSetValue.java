@@ -9,7 +9,7 @@ import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
 public class XStreamValueSetValue {
 
   @XStreamAsAttribute
-  private String variable;
+  private final String variable;
 
   private Value value;
 

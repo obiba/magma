@@ -12,7 +12,7 @@ public class DefaultDescriptiveStatisticsProvider extends AbstractDescriptiveSta
 
   @Override
   protected void processValue(VariableValueSource valueSource, Value value, DescriptiveStatistics stats) {
-    if(value.isNull() == false) {
+    if(!value.isNull()) {
       stats.addValue(((Number) value.getValue()).doubleValue());
     }
   }

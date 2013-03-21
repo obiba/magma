@@ -4,8 +4,8 @@ import org.obiba.magma.support.DatasourceCopier.DatasourceCopyValueSetEventListe
 
 public interface CopyAuditor extends DatasourceCopyValueSetEventListener {
 
-  public void startAuditing();
+  void startAuditing();
 
-  public void completeAuditing();
+  void completeAuditing();
 
 }

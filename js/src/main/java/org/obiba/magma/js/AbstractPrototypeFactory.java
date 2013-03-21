@@ -20,7 +20,7 @@ public abstract class AbstractPrototypeFactory {
   private final Set<String> excluded = ImmutableSet
       .of("wait", "toString", "getClass", "equals", "hashCode", "notify", "notifyAll");
 
-  private Set<Class<?>> methodProviders = new HashSet<Class<?>>();
+  private final Set<Class<?>> methodProviders = new HashSet<Class<?>>();
 
   public void addMethodProvider(Class<?> methodProvider) {
     methodProviders.add(methodProvider);
@@ -44,7 +44,7 @@ public abstract class AbstractPrototypeFactory {
             return Iterables.filter(Arrays.asList(from.getMethods()), new Predicate<Method>() {
               @Override
               public boolean apply(Method input) {
-                return excluded.contains(input.getName()) == false;
+                return !excluded.contains(input.getName());
               }
             });
           }
