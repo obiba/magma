@@ -19,6 +19,10 @@
       <groupId>net.sf.opencsv</groupId>
       <artifactId>opencsv</artifactId>
     </dependency>
+    <dependency>
+      <groupId>org.obiba.magma</groupId>
+      <artifactId>magma-test</artifactId>
+    </dependency>
   </dependencies>
 
 </project>

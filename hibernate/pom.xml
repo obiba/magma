@@ -25,7 +25,10 @@
     <dependency>
       <groupId>org.obiba.magma</groupId>
       <artifactId>magma-api</artifactId>
-      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.obiba.magma</groupId>
+      <artifactId>magma-test</artifactId>
     </dependency>
 
     <dependency>

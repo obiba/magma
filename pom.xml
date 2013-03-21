@@ -80,6 +80,12 @@
         <artifactId>magma-datasource-spss</artifactId>
         <version>${project.version}</version>
       </dependency>
+      <dependency>
+        <groupId>org.obiba.magma</groupId>
+        <artifactId>magma-test</artifactId>
+        <version>${project.version}</version>
+        <scope>test</scope>
+      </dependency>
 
       <dependency>
         <groupId>org.obiba</groupId>
@@ -404,18 +410,18 @@
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
     </dependency>
-
-    <!-- Use log4j during testing -->
     <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-log4j12</artifactId>
+      <groupId>net.sourceforge.findbugs</groupId>
+      <artifactId>annotations</artifactId>
+      <scope>compile</scope>
+      <optional>true</optional>
     </dependency>
     <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>jcl-over-slf4j</artifactId>
+      <groupId>com.google.code.findbugs</groupId>
+      <artifactId>jsr305</artifactId>
     </dependency>
 
-
+    <!-- test -->
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
@@ -428,16 +434,17 @@
       <groupId>org.hamcrest</groupId>
       <artifactId>hamcrest-all</artifactId>
     </dependency>
+
+    <!-- Use log4j during testing -->
     <dependency>
-      <groupId>net.sourceforge.findbugs</groupId>
-      <artifactId>annotations</artifactId>
-      <scope>compile</scope>
-      <optional>true</optional>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-log4j12</artifactId>
     </dependency>
     <dependency>
-      <groupId>com.google.code.findbugs</groupId>
-      <artifactId>jsr305</artifactId>
+      <groupId>org.slf4j</groupId>
+      <artifactId>jcl-over-slf4j</artifactId>
     </dependency>
+
   </dependencies>
 
   <modules>
@@ -460,6 +467,7 @@
     <module>datasource-spss</module>
     <module>security</module>
     <module>datasource-generated</module>
+    <module>test</module>
   </modules>
 
   <build>
