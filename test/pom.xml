@@ -10,23 +10,12 @@
     <version>1.5-SNAPSHOT</version>
   </parent>
 
-  <artifactId>magma-datasource-excel</artifactId>
-  <name>Magma Excel Datasource</name>
+  <artifactId>magma-test</artifactId>
+  <name>test</name>
+
 
   <dependencies>
-    <dependency>
-      <groupId>org.obiba.magma</groupId>
-      <artifactId>magma-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.obiba.magma</groupId>
-      <artifactId>magma-test</artifactId>
-    </dependency>
 
-    <dependency>
-      <groupId>org.apache.poi</groupId>
-      <artifactId>poi-ooxml</artifactId>
-    </dependency>
   </dependencies>
 
 </project>

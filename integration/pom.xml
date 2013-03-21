@@ -20,6 +20,10 @@
     </dependency>
     <dependency>
       <groupId>org.obiba.magma</groupId>
+      <artifactId>magma-test</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.obiba.magma</groupId>
       <artifactId>magma-beans</artifactId>
     </dependency>
     <dependency>

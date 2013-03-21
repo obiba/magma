@@ -22,6 +22,10 @@
       <groupId>org.springframework</groupId>
       <artifactId>spring-beans</artifactId>
     </dependency>
+    <dependency>
+      <groupId>org.obiba.magma</groupId>
+      <artifactId>magma-test</artifactId>
+    </dependency>
   </dependencies>
 
 </project>
