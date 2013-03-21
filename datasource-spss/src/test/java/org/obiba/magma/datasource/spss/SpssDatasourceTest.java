@@ -10,7 +10,6 @@
 package org.obiba.magma.datasource.spss;
 
 import java.io.File;
-import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
@@ -253,6 +252,34 @@ public class SpssDatasourceTest {
       ValueTable valueTable = ds.getValueTable("StringCategories");
       assertThat(valueTable, not(is(nullValue())));
       assertThat(valueTable.getEntityType(), is("Patate"));
+    } catch(Exception e) {
+      fail();
+    }
+  }
+
+  @Test
+  public void readScientificNotationVarType() {
+    try {
+      File file = new File(
+          getClass().getClassLoader().getResource("org/obiba/magma/datasource/spss/ScientificNotationVar.sav").toURI());
+
+      dsFactory.addFile(file);
+      dsFactory.setEntityType("Patate");
+      Datasource ds = dsFactory.create();
+      ds.initialise();
+      ValueTable valueTable = ds.getValueTable("ScientificNotationVar");
+      assertThat(valueTable, not(is(nullValue())));
+      Iterator<VariableEntity> iterator = valueTable.getVariableEntities().iterator();
+
+      if(iterator.hasNext()) {
+        SpssValueSet valueSet = (SpssValueSet) valueTable.getValueSet(iterator.next());
+        Value value = valueSet.getValue(ds.getValueTable("ScientificNotationVar").getVariable("num"));
+        Assert.assertNotNull(value);
+        Assert.assertFalse(value.isNull());
+        Value expected = DecimalType.get().valueOf(1E+010);
+        Assert.assertTrue(value.compareTo(expected) == 0);
+      }
+
     } catch(Exception e) {
       fail();
     }
