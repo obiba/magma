@@ -1,6 +1,5 @@
 package org.obiba.magma.datasource.csv;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -87,7 +86,9 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
 
   private boolean isDataFileEmpty;
 
-  private Map<String, Integer> dataHeaderMap;
+  private Map<String, Integer> dataHeaderMap = new HashMap<String, Integer>();
+
+  private boolean dataHeaderMapInitialized = false;
 
   private List<String> missingVariableNames = new ArrayList<String>();
 
@@ -267,7 +268,7 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
   @VisibleForTesting
   @SuppressWarnings({ "OverlyLongMethod", "PMD.NcssMethodCount" })
   Map<Integer, CsvIndexEntry> buildVariableLineIndex() throws IOException {
-    Map<Integer, CsvIndexEntry> lineNumberMap = new HashMap<Integer, CsvIndexEntry>();
+    Map<Integer, CsvIndexEntry> lineNumberMap = new LinkedHashMap<Integer, CsvIndexEntry>();
 
     if(variableFile == null || !variableFile.exists()) {
       return lineNumberMap;
@@ -278,21 +279,22 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
     try {
       int line = 0;
       int innerline = 0;
-      int start = 0;
+      long start = 0;
       String nextLine = null;
       while((nextLine = reader.readLine()) != null) {
-        parser.parseLineMulti(nextLine);
+        String[] strings = parser.parseLineMulti(nextLine);
         if(parser.isPending()) {
           // we are in a multiline entry
           innerline++;
         } else {
           int lineNumber = line - innerline;
-          int nextChar = reader.getNextCharPosition();
-          CsvIndexEntry indexEntry = new CsvIndexEntry(start, nextChar);
+          long cursorPosition = reader.getCursorPosition();
+
+          CsvIndexEntry indexEntry = new CsvIndexEntry(start, cursorPosition);
           lineNumberMap.put(lineNumber, indexEntry);
-          log.debug("[{}:{}] {}", variableFile.getName(), lineNumber, indexEntry);
+          log.trace("[{}:{}] {}", variableFile.getName(), lineNumber, indexEntry);
           innerline = 0;
-          start = nextChar;
+          start = cursorPosition;
         }
         line++;
       }
@@ -300,7 +302,7 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
       Closeables.closeQuietly(reader);
     }
 
-    debugLineNumberMap(lineNumberMap, variableFile);
+    if(log.isTraceEnabled()) traceLineNumberMap(lineNumberMap, variableFile);
 
     return lineNumberMap;
   }
@@ -309,7 +311,7 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
   @SuppressWarnings({ "OverlyLongMethod", "PMD.NcssMethodCount" })
   Map<Integer, CsvIndexEntry> buildDataLineIndex() throws IOException {
 
-    Map<Integer, CsvIndexEntry> lineNumberMap = new HashMap<Integer, CsvIndexEntry>();
+    Map<Integer, CsvIndexEntry> lineNumberMap = new LinkedHashMap<Integer, CsvIndexEntry>();
     isDataFileEmpty = true;
     if(dataFile == null || !dataFile.exists()) {
       return lineNumberMap;
@@ -320,7 +322,7 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
     try {
       int line = 0;
       int innerline = 0;
-      int start = 0;
+      long start = 0;
       String nextLine = null;
       List<String> multiLineValues = new ArrayList<String>();
       while((nextLine = reader.readLine()) != null) {
@@ -332,15 +334,9 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
           // we are in a multiline entry
           innerline++;
         } else {
-          int nextChar = reader.getNextCharPosition();
+          long cursorPosition = reader.getCursorPosition();
 
-          if(dataHeaderMap == null) {
-            // first line is headers = entity_id + variable names
-            dataHeaderMap = new HashMap<String, Integer>();
-            for(int i = 1; i < values.length; i++) {
-              dataHeaderMap.put(values[i].trim(), i);
-            }
-          } else {
+          if(dataHeaderMapInitialized) {
             int lineNumber = line - innerline;
             log.debug("[{}:{}] {}", dataFile.getName(), lineNumber, nextLine);
             String identifier = multiLineValues.get(0);
@@ -348,13 +344,19 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
               throw new MagmaRuntimeException(
                   "Cannot find identifier for line " + line + " in file " + dataFile.getName());
             }
-            CsvIndexEntry indexEntry = new CsvIndexEntry(start, nextChar);
+            CsvIndexEntry indexEntry = new CsvIndexEntry(start, cursorPosition);
             lineNumberMap.put(lineNumber, indexEntry);
             entityIndex.put(new VariableEntityBean(entityType, identifier), indexEntry);
+          } else {
+            // first line is headers = entity_id + variable names
+            for(int i = 1; i < values.length; i++) {
+              dataHeaderMap.put(values[i].trim(), i);
+            }
+            dataHeaderMapInitialized = true;
           }
           multiLineValues.clear();
           innerline = 0;
-          start = nextChar;
+          start = cursorPosition;
         }
         line++;
       }
@@ -362,21 +364,23 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
       Closeables.closeQuietly(reader);
     }
 
-    debugLineNumberMap(lineNumberMap, dataFile);
+    if(log.isTraceEnabled()) traceLineNumberMap(lineNumberMap, dataFile);
 
     return lineNumberMap;
   }
 
-  private <T extends CsvIndexEntry> void debugLineNumberMap(Map<Integer, T> lineNumberMap, File file) {
-    if(!log.isDebugEnabled()) return;
-    log.debug("lineNumberMap: {}", lineNumberMap);
+  private <T extends CsvIndexEntry> void traceLineNumberMap(Map<Integer, T> lineNumberMap, File file) {
+
+    if(!log.isTraceEnabled()) return;
+
     for(Map.Entry<Integer, T> entry : lineNumberMap.entrySet()) {
       CsvIndexEntry indexEntry = entry.getValue();
-      log.debug("{}: {}", entry.getKey(), indexEntry);
+      log.trace("{}: {}", entry.getKey(), indexEntry);
       Reader reader = getCsvDatasource().getReader(file);
       try {
+        CSVReader csvReader = getCsvDatasource().getCsvReader(reader);
         skipSafely(reader, indexEntry.getStart());
-        log.debug("   '{}'", new BufferedReader(reader).readLine());
+        log.trace("   '{}'", Arrays.toString(csvReader.readNext()));
       } catch(IOException e) {
         throw new MagmaRuntimeException(e);
       } finally {
@@ -551,6 +555,7 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
 
   public void setDataHeaderMap(Map<String, Integer> dataHeaderMap) {
     this.dataHeaderMap = dataHeaderMap;
+    dataHeaderMapInitialized = true;
   }
 
   public void setVariablesHeader(String... header) {
