@@ -35,10 +35,8 @@ public class CsvLine {
   public CsvLine(@Nonnull VariableEntity entity, @Nonnull File parent) {
     this.entity = entity;
     this.parent = parent;
-    if(!parent.exists()) {
-      if(!parent.mkdirs()) {
-        throw new MagmaRuntimeException("Impossible to create " + parent.getPath() + " directory");
-      }
+    if(!parent.exists() && !parent.mkdirs()) {
+      throw new MagmaRuntimeException("Impossible to create " + parent.getPath() + " directory");
     }
     headerMap = new HashMap<String, Integer>();
     valueMap = new HashMap<String, Value>();

@@ -439,11 +439,11 @@ public class CsvDatasourceTest {
   @SuppressWarnings("ConstantConditions")
   @Test
   public void test_writing_data_only_modifying_value_set() throws Exception {
-    File tempTestDirectory = new TempTableBuilder("TableDataOnly").addData().build();
+    File tempDir = new TempTableBuilder("TableDataOnly").addData().build();
 
-    CsvDatasource setupDatasource = new CsvDatasource("setup-datasource").addValueTable("TableDataOnly", //
-        null, new File(tempTestDirectory.getCanonicalFile() + "/TableDataOnly", "data.csv"));
-    setupDatasource.initialise();
+    CsvDatasource datasource = new CsvDatasource("setup-datasource").addValueTable("TableDataOnly", //
+        null, new File(tempDir.getCanonicalFile() + "/TableDataOnly", "data.csv"));
+    datasource.initialise();
 
     VariableEntity variableEntity = new VariableEntityBean("Participant", "1");
 
@@ -456,18 +456,18 @@ public class CsvDatasourceTest {
     Variable biscuitVariable = Variable.Builder.newVariable("biscuit", TextType.get(), "Participant").build();
     Value cheese = TextType.get().valueOf("cheese");
 
-    ValueTableWriter writer = setupDatasource.createWriter("TableDataOnly", "Participant");
+    ValueTableWriter writer = datasource.createWriter("TableDataOnly", "Participant");
     ValueSetWriter vsw = writer.writeValueSet(variableEntity);
     vsw.writeValue(coffeeVariable, secondCup);
     vsw.writeValue(teaVariable, earlGrey);
     vsw.writeValue(biscuitVariable, cheese);
     vsw.close();
     writer.close();
-    setupDatasource.dispose();
+    datasource.dispose();
 
     CsvDatasource writeDatasource = new CsvDatasource("csv-datasource").addValueTable("TableDataOnly", //
         null, //
-        new File(tempTestDirectory.getCanonicalFile() + "/TableDataOnly", "data.csv"));
+        new File(tempDir.getCanonicalFile() + "/TableDataOnly", "data.csv"));
     writeDatasource.initialise();
 
     Value orangePekoe = TextType.get().valueOf("Orange Pekoe");
@@ -480,7 +480,7 @@ public class CsvDatasourceTest {
 
     CsvDatasource readDatasource = new CsvDatasource("read-datasource").addValueTable("TableDataOnly", //
         null, //
-        new File(tempTestDirectory.getCanonicalFile() + "/TableDataOnly", "data.csv"));
+        new File(tempDir.getCanonicalFile() + "/TableDataOnly", "data.csv"));
     readDatasource.initialise();
 
     ValueTable table = readDatasource.getValueTable("TableDataOnly");

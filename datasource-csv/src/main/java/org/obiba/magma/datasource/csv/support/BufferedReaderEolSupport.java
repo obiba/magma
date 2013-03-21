@@ -53,6 +53,8 @@ public class BufferedReaderEolSupport extends Reader {
 
   private static int defaultExpectedLineLength = 80;
 
+  private long bufferOffset;
+
   /**
    * Creates a buffering character-input stream that uses an input buffer of the specified size.
    *
@@ -125,6 +127,7 @@ public class BufferedReaderEolSupport extends Reader {
     } while(n == 0);
     if(n > 0) {
       nChars = dst + n;
+      bufferOffset += nextChar;
       nextChar = dst;
     }
   }
@@ -457,8 +460,7 @@ public class BufferedReaderEolSupport extends Reader {
     }
   }
 
-  public int getNextCharPosition() {
-    return nextChar;
+  public long getCursorPosition() {
+    return bufferOffset + nextChar;
   }
-
 }

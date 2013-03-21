@@ -68,8 +68,10 @@ public class VariableConverter {
       headerMap.put(headerColumnName, i);
       header[i] = headerColumnName;
     }
-    for(Entry<String, Integer> entry : headerMap.entrySet()) {
-      log.debug("headerMap[{}]={}", entry.getKey(), entry.getValue());
+    if(log.isTraceEnabled()) {
+      for(Entry<String, Integer> entry : headerMap.entrySet()) {
+        log.trace("headerMap[{}]={}", entry.getKey(), entry.getValue());
+      }
     }
     validateHeader();
   }
