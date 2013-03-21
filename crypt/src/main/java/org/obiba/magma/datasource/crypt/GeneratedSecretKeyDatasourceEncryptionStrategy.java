@@ -55,14 +55,17 @@ public class GeneratedSecretKeyDatasourceEncryptionStrategy implements Datasourc
   // DatasourceEncryptionStrategy Methods
   //
 
+  @Override
   public void setKeyProvider(KeyProvider keyProvider) {
     this.keyProvider = keyProvider;
   }
 
+  @Override
   public boolean canDecryptExistingDatasource() {
     return false;
   }
 
+  @Override
   public DatasourceCipherFactory createDatasourceCipherFactory(Datasource ds) {
     // If there's already a secret key in the datasource, then stop. We cannot read the contents.
     if(ds.hasAttribute(CipherAttributeConstants.SECRET_KEY)) {

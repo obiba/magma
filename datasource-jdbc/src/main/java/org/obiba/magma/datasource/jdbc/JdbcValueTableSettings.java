@@ -34,7 +34,6 @@ public class JdbcValueTableSettings {
   //
 
   public JdbcValueTableSettings() {
-    super();
   }
 
   public JdbcValueTableSettings(String sqlTableName, String magmaTableName, String entityType,
@@ -48,7 +47,7 @@ public class JdbcValueTableSettings {
 
     this.sqlTableName = sqlTableName;
 
-    this.magmaTableName = (magmaTableName != null) ? magmaTableName : NameConverter.toMagmaName(sqlTableName);
+    this.magmaTableName = magmaTableName != null ? magmaTableName : NameConverter.toMagmaName(sqlTableName);
 
     this.entityType = entityType;
 
@@ -72,7 +71,7 @@ public class JdbcValueTableSettings {
   }
 
   public String getMagmaTableName() {
-    return (magmaTableName != null) ? magmaTableName : NameConverter.toMagmaName(sqlTableName);
+    return magmaTableName != null ? magmaTableName : NameConverter.toMagmaName(sqlTableName);
   }
 
   public void setEntityType(String entityType) {
@@ -111,12 +110,10 @@ public class JdbcValueTableSettings {
   }
 
   public boolean isCreatedTimestampColumnNameProvided() {
-    if(createdTimestampColumnName != null && !createdTimestampColumnName.equals("")) return true;
-    return false;
+    return createdTimestampColumnName != null && !"".equals(createdTimestampColumnName);
   }
 
   public boolean isUpdatedTimestampColumnNameProvided() {
-    if(updatedTimestampColumnName != null && !updatedTimestampColumnName.equals("")) return true;
-    return false;
+    return updatedTimestampColumnName != null && !"".equals(updatedTimestampColumnName);
   }
 }

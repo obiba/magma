@@ -1,6 +1,8 @@
 package org.obiba.magma.type;
 
+import java.io.Serializable;
 import java.lang.ref.WeakReference;
+import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -90,7 +92,7 @@ public class DateTimeType extends AbstractValueType {
   @Override
   public boolean acceptsJavaClass(@Nonnull Class<?> clazz) {
     return Date.class.isAssignableFrom(clazz) || java.sql.Date.class.isAssignableFrom(clazz) ||
-        java.sql.Timestamp.class.isAssignableFrom(clazz) || Calendar.class.isAssignableFrom(clazz);
+        Timestamp.class.isAssignableFrom(clazz) || Calendar.class.isAssignableFrom(clazz);
   }
 
   @Override
@@ -139,13 +141,16 @@ public class DateTimeType extends AbstractValueType {
     }
     Class<?> type = object.getClass();
     if(type.equals(Date.class)) {
-      return Factory.newValue(this, (Date) object);
-    } else if(Date.class.isAssignableFrom(type)) {
+      return Factory.newValue(this, (Serializable) object);
+    }
+    if(Date.class.isAssignableFrom(type)) {
       return Factory.newValue(this, new Date(((Date) object).getTime()));
-    } else if(Calendar.class.isAssignableFrom(type)) {
+    }
+    if(Calendar.class.isAssignableFrom(type)) {
       Calendar c = (Calendar) object;
       return Factory.newValue(this, c.getTime());
-    } else if(type.equals(String.class)) {
+    }
+    if(type.equals(String.class)) {
       return valueOf((String) object);
     }
     throw new IllegalArgumentException(

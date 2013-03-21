@@ -1,6 +1,8 @@
 package org.obiba.magma.datasource.limesurvey;
 
 public class LimesurveyUtils {
+  private LimesurveyUtils() {}
+
   /**
    * Remove ':' and '.'
    *

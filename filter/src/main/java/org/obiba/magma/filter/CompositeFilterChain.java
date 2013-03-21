@@ -8,9 +8,9 @@ public class CompositeFilterChain<T> implements FilterChain<T> {
   // Instance Variables
   //
 
-  private String entityType;
+  private final String entityType;
 
-  private List<FilterChain<T>> filterChains;
+  private final List<FilterChain<T>> filterChains;
 
   //
   // Constructors
@@ -29,6 +29,7 @@ public class CompositeFilterChain<T> implements FilterChain<T> {
   // FilterChain Methods
   //
 
+  @Override
   public T filter(T item) {
     if(filterChains.isEmpty()) {
       return item;
@@ -42,6 +43,7 @@ public class CompositeFilterChain<T> implements FilterChain<T> {
     return result;
   }
 
+  @Override
   public String getEntityType() {
     return entityType;
   }

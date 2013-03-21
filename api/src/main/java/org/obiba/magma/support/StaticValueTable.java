@@ -131,7 +131,7 @@ public class StaticValueTable extends AbstractValueTable {
       Object variable = variableAndValues[i];
       if(variable instanceof Variable) {
         Variable var = (Variable) variable;
-        if(hasVariable(var.getName()) == false) {
+        if(!hasVariable(var.getName())) {
           addVariable(var);
         }
         variable = var.getName();

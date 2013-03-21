@@ -17,6 +17,6 @@ public interface PublicKeyProvider {
    * @param name
    * @return
    */
-  public PublicKey getPublicKey(Datasource datasource) throws NoSuchKeyException;
+  PublicKey getPublicKey(Datasource datasource) throws NoSuchKeyException;
 
 }

@@ -53,14 +53,17 @@ public class EncryptedSecretKeyDatasourceEncryptionStrategy implements Datasourc
   // DatasourceEncryptionStrategy Methods
   //
 
+  @Override
   public void setKeyProvider(KeyProvider keyProvider) {
     this.keyProvider = keyProvider;
   }
 
+  @Override
   public boolean canDecryptExistingDatasource() {
     return true;
   }
 
+  @Override
   public DatasourceCipherFactory createDatasourceCipherFactory(Datasource ds) {
     try {
       SecretKey secretKey = getSecretKey(ds);

@@ -19,6 +19,7 @@ import org.obiba.magma.datasource.csv.support.CsvDatasourceParsingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 
 public class VariableConverter {
@@ -108,21 +109,7 @@ public class VariableConverter {
     }
 
     // attributes and categories
-    Map<String, Category.Builder> categoryBuilderMap = new LinkedHashMap<String, Category.Builder>();
-    for(String header : headerMap.keySet()) {
-      if(!reservedVariableHeaders.contains(header)) {
-        String value = getValueAt(csvVar, header);
-        if(value != null) {
-          if(header.startsWith(CATEGORIES)) {
-            unmarshalCategories(value, getAttributeLocale(header), categoryBuilderMap);
-          } else {
-            Attribute.Builder attrBuilder = Attributes.decodeFromHeader(header);
-            builder.addAttribute(attrBuilder.withValue(value).build());
-          }
-        }
-      }
-    }
-
+    Map<String, Category.Builder> categoryBuilderMap = unmarshalCategoriesAndAttributes(builder, csvVar);
     for(Map.Entry<String, Category.Builder> entry : categoryBuilderMap.entrySet()) {
       builder.addCategory(entry.getValue().build());
     }
@@ -130,7 +117,26 @@ public class VariableConverter {
     return builder.build();
   }
 
-  private void unmarshalCategories(String categories, Locale locale, Map<String, Category.Builder> categoryBuilderMap) {
+  private Map<String, Category.Builder> unmarshalCategoriesAndAttributes(Variable.Builder builder, String... csvVar) {
+    Map<String, Category.Builder> categoryBuilderMap = new LinkedHashMap<String, Category.Builder>();
+    for(String headerName : headerMap.keySet()) {
+      if(!reservedVariableHeaders.contains(headerName)) {
+        String value = getValueAt(csvVar, headerName);
+        if(value != null) {
+          if(headerName.startsWith(CATEGORIES)) {
+            unmarshalCategories(value, getAttributeLocale(headerName), categoryBuilderMap);
+          } else {
+            Attribute.Builder attrBuilder = Attributes.decodeFromHeader(headerName);
+            builder.addAttribute(attrBuilder.withValue(value).build());
+          }
+        }
+      }
+    }
+    return categoryBuilderMap;
+  }
+
+  private void unmarshalCategories(String categories, @Nullable Locale locale,
+      Map<String, Category.Builder> categoryBuilderMap) {
     String[] cats = categories.split(";");
     for(String cat1 : cats) {
       String[] cat = cat1.trim().split("=");
@@ -181,49 +187,62 @@ public class VariableConverter {
     Integer pos = headerMap.get(header);
     if(pos != null && pos < csvVar.length) {
       value = csvVar[pos];
-      if(value.isEmpty()) {
-        value = null;
-      }
     }
-    return value;
+    return Strings.emptyToNull(value);
   }
 
+  @SuppressWarnings({ "OverlyLongMethod", "PMD.NcssMethodCount" })
   public String[] marshal(Variable variable) {
     Map<Integer, String> resultMap = new HashMap<Integer, String>();
 
     resultMap.put(headerMap.get(NAME), variable.getName());
     resultMap.put(headerMap.get(VALUE_TYPE), variable.getValueType().getName());
     resultMap.put(headerMap.get(ENTITY_TYPE), variable.getEntityType());
-    if(headerMap.containsKey(MIME_TYPE)) resultMap.put(headerMap.get(MIME_TYPE), variable.getMimeType());
-    if(headerMap.containsKey(REPEATABLE))
+    if(headerMap.containsKey(MIME_TYPE)) {
+      resultMap.put(headerMap.get(MIME_TYPE), variable.getMimeType());
+    }
+    if(headerMap.containsKey(REPEATABLE)) {
       resultMap.put(headerMap.get(REPEATABLE), Boolean.toString(variable.isRepeatable()));
-    if(headerMap.containsKey(OCCURRENCE_GROUP))
+    }
+    if(headerMap.containsKey(OCCURRENCE_GROUP)) {
       resultMap.put(headerMap.get(OCCURRENCE_GROUP), variable.getOccurrenceGroup());
-    if(headerMap.containsKey(UNIT)) resultMap.put(headerMap.get(UNIT), variable.getUnit());
-    if(headerMap.containsKey(REFERENCED_ENTITY_TYPE))
+    }
+    if(headerMap.containsKey(UNIT)) {
+      resultMap.put(headerMap.get(UNIT), variable.getUnit());
+    }
+    if(headerMap.containsKey(REFERENCED_ENTITY_TYPE)) {
       resultMap.put(headerMap.get(REFERENCED_ENTITY_TYPE), variable.getReferencedEntityType());
-
-    for(Attribute attribute : variable.getAttributes()) {
-      String header = Attributes.encodeForHeader(attribute);
-      if(headerMap.containsKey(header) && !reservedVariableHeaders.contains(header)) {
-        resultMap.put(headerMap.get(header), attribute.getValue().toString());
-      }
     }
 
-    for(String header : headerMap.keySet()) {
-      if(header.startsWith(CATEGORIES)) {
-        resultMap.put(headerMap.get(header), marshalCategories(variable, getAttributeLocale(header)));
-      }
-    }
+    marshalAttributes(variable, resultMap);
+    marshalCategories(variable, resultMap);
 
-    String[] result = new String[headerMap.size()];
-    for(int i = 0; i < headerMap.size(); i++) {
+    int size = headerMap.size();
+    String[] result = new String[size];
+    for(int i = 0; i < size; i++) {
       if(resultMap.containsKey(i)) {
         result[i] = resultMap.get(i);
       }
     }
 
     return result;
+  }
+
+  private void marshalCategories(Variable variable, Map<Integer, String> resultMap) {
+    for(String header : headerMap.keySet()) {
+      if(header.startsWith(CATEGORIES)) {
+        resultMap.put(headerMap.get(header), marshalCategories(variable, getAttributeLocale(header)));
+      }
+    }
+  }
+
+  private void marshalAttributes(Variable variable, Map<Integer, String> resultMap) {
+    for(Attribute attribute : variable.getAttributes()) {
+      String header = Attributes.encodeForHeader(attribute);
+      if(headerMap.containsKey(header) && !reservedVariableHeaders.contains(header)) {
+        resultMap.put(headerMap.get(header), attribute.getValue().toString());
+      }
+    }
   }
 
   public String[] getHeader() {

@@ -6,6 +6,6 @@ import de.schlichtherle.io.File;
 
 public interface InputStreamWrapper {
 
-  public InputStream wrap(InputStream is, File file);
+  InputStream wrap(InputStream is, File file);
 
 }

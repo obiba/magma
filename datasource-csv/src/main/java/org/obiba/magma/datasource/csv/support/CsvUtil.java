@@ -11,6 +11,8 @@ import org.obiba.magma.datasource.csv.converter.VariableConverter;
 
 public class CsvUtil {
 
+  private CsvUtil() {}
+
   public static String[] getCsvVariableHeader(ValueTable table) {
     List<String> headers = new ArrayList<String>();
 
@@ -54,6 +56,7 @@ public class CsvUtil {
   private static void addVariableAttributesHeaders(ValueTable table, List<String> headers) {
     for(Variable variable : table.getVariables()) {
       for(Attribute attribute : variable.getAttributes()) {
+        //noinspection NonConstantStringShouldBeStringBuffer
         String header = attribute.getName();
         if(attribute.isLocalised()) {
           header += ":" + attribute.getLocale();

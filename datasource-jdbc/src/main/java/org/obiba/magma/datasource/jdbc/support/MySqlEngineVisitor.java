@@ -12,21 +12,20 @@ public class MySqlEngineVisitor implements SqlVisitor {
     return MySqlEngineVisitor.class.getSimpleName();
   }
 
+  @Override
   @SuppressWarnings("unchecked")
   public void setApplicableDbms(Collection applicableDbms) {
     // no-op
   }
 
+  @Override
   public boolean isApplicable(Database database) {
-    if(database.getTypeName().equals("mysql")) {
-      return true;
-    }
-    return false;
+    return "mysql".equals(database.getTypeName());
   }
 
   @Override
   public String modifySql(String sql, Database database) {
-    if(sql.toLowerCase().startsWith("create table") && sql.toLowerCase().contains("engine=") == false) {
+    if(sql.toLowerCase().startsWith("create table") && !sql.toLowerCase().contains("engine=")) {
       return sql + "ENGINE=InnoDB";
     }
     return sql;

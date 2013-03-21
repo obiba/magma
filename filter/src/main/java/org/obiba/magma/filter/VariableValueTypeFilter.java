@@ -12,7 +12,7 @@ import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
 public class VariableValueTypeFilter extends AbstractFilter<Variable> implements Initialisable {
 
   @XStreamAsAttribute
-  private String valueType;
+  private final String valueType;
 
   VariableValueTypeFilter(String valueType) {
     this.valueType = valueType;
@@ -20,7 +20,7 @@ public class VariableValueTypeFilter extends AbstractFilter<Variable> implements
 
   @Override
   public void initialise() {
-    Preconditions.checkState(Strings.isNullOrEmpty(valueType) == false);
+    Preconditions.checkState(!Strings.isNullOrEmpty(valueType));
   }
 
   @Override

@@ -28,7 +28,7 @@ public class ValueConverter implements HibernateConverter<ValueSetValue, Value> 
         .add("variable", Operation.eq, context.getVariable()).getCriteria().uniqueResult();
     if(valueSetValue == null) {
       // Only persist non-null values
-      if(value.isNull() == false) {
+      if(!value.isNull()) {
         valueSetValue = new ValueSetValue(variableState, valueSetState);
         valueSetValue.setValue(value);
         currentSession.save(valueSetValue);

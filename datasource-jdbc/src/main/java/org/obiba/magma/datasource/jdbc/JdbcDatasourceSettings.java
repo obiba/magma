@@ -4,6 +4,8 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.annotation.Nullable;
+
 public class JdbcDatasourceSettings {
   //
   // Instance Variables
@@ -38,8 +40,8 @@ public class JdbcDatasourceSettings {
     defaultUpdatedTimestampColumnName = null;
   }
 
-  public JdbcDatasourceSettings(String defaultEntityType, Set<String> mappedTables,
-      Set<JdbcValueTableSettings> tableSettings, boolean useMetadataTables) {
+  public JdbcDatasourceSettings(String defaultEntityType, @Nullable Set<String> mappedTables,
+      @Nullable Set<JdbcValueTableSettings> tableSettings, boolean useMetadataTables) {
     if(defaultEntityType == null) {
       throw new IllegalArgumentException("null defaultEntityType");
     }
@@ -139,13 +141,11 @@ public class JdbcDatasourceSettings {
   }
 
   public boolean isCreatedTimestampColumnNameProvided() {
-    if(defaultCreatedTimestampColumnName != null && !defaultCreatedTimestampColumnName.equals("")) return true;
-    return false;
+    return defaultCreatedTimestampColumnName != null && !"".equals(defaultCreatedTimestampColumnName);
   }
 
   public boolean isUpdatedTimestampColumnNameProvided() {
-    if(defaultUpdatedTimestampColumnName != null && !defaultUpdatedTimestampColumnName.equals("")) return true;
-    return false;
+    return defaultUpdatedTimestampColumnName != null && !"".equals(defaultUpdatedTimestampColumnName);
   }
 
 }

@@ -17,7 +17,7 @@ public interface VariableEntityAuditLog {
    *
    * @return
    */
-  public VariableEntity getVariableEntity();
+  VariableEntity getVariableEntity();
 
   /**
    * Gets the list of events from the log for a specific datasource, most recent first.
@@ -25,7 +25,7 @@ public interface VariableEntityAuditLog {
    * @param datasource
    * @return
    */
-  public List<VariableEntityAuditEvent> getAuditEvents(Datasource datasource);
+  List<VariableEntityAuditEvent> getAuditEvents(Datasource datasource);
 
   /**
    * Gets the list of events from the log for a specific value table, most recent first.
@@ -33,7 +33,7 @@ public interface VariableEntityAuditLog {
    * @param value table
    * @return
    */
-  public List<VariableEntityAuditEvent> getAuditEvents(ValueTable valueTable);
+  List<VariableEntityAuditEvent> getAuditEvents(ValueTable valueTable);
 
   /**
    * Gets a list of events from the log for a specific type, most recent first.
@@ -41,12 +41,12 @@ public interface VariableEntityAuditLog {
    * @param type
    * @return
    */
-  public List<VariableEntityAuditEvent> getAuditEvents(String type);
+  List<VariableEntityAuditEvent> getAuditEvents(String type);
 
   /**
    * Gets the complete list of events from the log, most recent first.
    *
    * @return
    */
-  public List<VariableEntityAuditEvent> getAuditEvents();
+  List<VariableEntityAuditEvent> getAuditEvents();
 }

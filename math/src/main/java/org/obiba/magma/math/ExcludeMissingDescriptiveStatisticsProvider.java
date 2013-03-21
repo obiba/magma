@@ -14,7 +14,7 @@ public class ExcludeMissingDescriptiveStatisticsProvider extends AbstractDescrip
 
   @Override
   protected void processValue(VariableValueSource valueSource, Value value, DescriptiveStatistics stats) {
-    if(isMissing(valueSource.getVariable(), value) == false) {
+    if(!isMissing(valueSource.getVariable(), value)) {
       stats.addValue(((Number) value.getValue()).doubleValue());
     }
   }

@@ -5,8 +5,8 @@ import org.obiba.magma.ValueTable;
 
 public interface ValueTableFactoryBean {
 
-  public String getValueTableName();
+  String getValueTableName();
 
-  public ValueTable buildValueTable(Datasource datasource);
+  ValueTable buildValueTable(Datasource datasource);
 
 }

@@ -6,10 +6,10 @@ import com.thoughtworks.xstream.converters.reflection.ReflectionProvider;
 
 public interface XStreamFactory {
 
-  public XStream createXStream();
+  XStream createXStream();
 
-  public XStream createXStream(ReflectionProvider reflectionProvider);
+  XStream createXStream(ReflectionProvider reflectionProvider);
 
-  public void registerConverter(Converter converter);
+  void registerConverter(Converter converter);
 
 }

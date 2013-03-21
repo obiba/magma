@@ -54,4 +54,5 @@ final class CipherAttributeConstants {
    */
   static final String CIPHER_TRANSFORMATION = "magma.crypt.transformation";
 
+  private CipherAttributeConstants() {}
 }

@@ -6,6 +6,6 @@ import de.schlichtherle.io.File;
 
 public interface OutputStreamWrapper {
 
-  public OutputStream wrap(OutputStream os, File file);
+  OutputStream wrap(OutputStream os, File file);
 
 }

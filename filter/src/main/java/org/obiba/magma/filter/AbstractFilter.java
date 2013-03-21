@@ -9,7 +9,7 @@ public abstract class AbstractFilter<T> implements Filter<T> {
 
   private static final Logger log = LoggerFactory.getLogger(AbstractFilter.class);
 
-  protected static enum Type {
+  protected enum Type {
     /**
      * Exclude item from the result set if filter successful.
      */
@@ -30,12 +30,11 @@ public abstract class AbstractFilter<T> implements Filter<T> {
     if(type == null) type = Type.EXCLUDE;
     if(isExclude() && stateEnvelope.isState(FilterState.OUT)) {
       return stateEnvelope;
-    } else if(isInclude() && stateEnvelope.isState(FilterState.IN)) {
-      return stateEnvelope;
-    } else {
-      return updateStateEnvelope(stateEnvelope);
     }
-
+    if(isInclude() && stateEnvelope.isState(FilterState.IN)) {
+      return stateEnvelope;
+    }
+    return updateStateEnvelope(stateEnvelope);
   }
 
   private StateEnvelope<T> updateStateEnvelope(StateEnvelope<T> stateEnvelope) {
@@ -73,12 +72,12 @@ public abstract class AbstractFilter<T> implements Filter<T> {
     protected Type type;
 
     public Builder include() {
-      this.type = Type.INCLUDE;
+      type = Type.INCLUDE;
       return this;
     }
 
     public Builder exclude() {
-      this.type = Type.EXCLUDE;
+      type = Type.EXCLUDE;
       return this;
     }
   }

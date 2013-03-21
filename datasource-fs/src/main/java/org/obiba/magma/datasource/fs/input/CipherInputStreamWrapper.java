@@ -11,7 +11,7 @@ import de.schlichtherle.io.File;
 
 public class CipherInputStreamWrapper implements InputStreamWrapper {
 
-  private DatasourceCipherFactory cipherProvider;
+  private final DatasourceCipherFactory cipherProvider;
 
   public CipherInputStreamWrapper(DatasourceCipherFactory cipherProvider) {
     this.cipherProvider = cipherProvider;

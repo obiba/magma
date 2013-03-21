@@ -69,7 +69,7 @@ public class FsDatasource extends AbstractDatasource {
 
   public FsDatasource(String name, java.io.File outputFile) {
     super(name, "fs");
-    this.datasourceArchive = new File(outputFile);
+    datasourceArchive = new File(outputFile);
   }
 
   public void setEncryptionStrategy(DatasourceEncryptionStrategy datasourceEncryptionStrategy) {
@@ -110,6 +110,7 @@ public class FsDatasource extends AbstractDatasource {
     }
   }
 
+  @Override
   public ValueTableWriter createWriter(String name, String entityType) {
     FsValueTable valueTable = null;
     if(hasValueTable(name)) {
@@ -137,13 +138,14 @@ public class FsDatasource extends AbstractDatasource {
     }
   }
 
+  @Override
   public void setAttributeValue(String name, Value value) {
     getInstanceAttributes().put(name, Attribute.Builder.newAttribute(name).withValue(value).build());
     instanceAttributesModified = true;
   }
 
   protected boolean hasEncryptionStrategy() {
-    return this.datasourceEncryptionStrategy != null;
+    return datasourceEncryptionStrategy != null;
   }
 
   protected boolean isEncrypted() {

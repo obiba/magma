@@ -18,15 +18,19 @@ import com.thoughtworks.xstream.annotations.XStreamOmitField;
 public class XStreamValueSet {
 
   @XStreamAsAttribute
-  private String valueTable;
+  @SuppressWarnings("FieldCanBeLocal")
+  private final String valueTable;
 
   @XStreamAsAttribute
-  private String entityType;
+  @SuppressWarnings("FieldCanBeLocal")
+  private final String entityType;
 
   @XStreamAsAttribute
-  private String entityIdentifier;
+  @SuppressWarnings("FieldCanBeLocal")
+  private final String entityIdentifier;
 
   @XStreamImplicit
+  @SuppressWarnings("TypeMayBeWeakened")
   private List<XStreamValueSetValue> values = new LinkedList<XStreamValueSetValue>();
 
   @XStreamOmitField
@@ -34,8 +38,8 @@ public class XStreamValueSet {
 
   public XStreamValueSet(String valueTable, VariableEntity entity) {
     this.valueTable = valueTable;
-    this.entityType = entity.getType();
-    this.entityIdentifier = entity.getIdentifier();
+    entityType = entity.getType();
+    entityIdentifier = entity.getIdentifier();
   }
 
   public void setValue(Variable variable, Value value) {
@@ -52,11 +56,7 @@ public class XStreamValueSet {
 
   public Value getValue(Variable variable) {
     XStreamValueSetValue valueSetValue = valueMap.get(variable.getName());
-    if(valueSetValue != null) {
-      return valueSetValue.getValue();
-    } else {
-      return variable.getValueType().nullValue();
-    }
+    return valueSetValue == null ? variable.getValueType().nullValue() : valueSetValue.getValue();
   }
 
   /**

@@ -13,6 +13,7 @@ public class ShiroAuthorizer implements Authorizer {
 
   private static final Logger log = LoggerFactory.getLogger(ShiroAuthorizer.class);
 
+  @Override
   public boolean isPermitted(String permission) {
     boolean p = SecurityUtils.getSubject().isPermitted(permission);
     log.debug(String.format("isPermitted(%s, %s)==%s", SecurityUtils.getSubject().getPrincipal(), permission, p));

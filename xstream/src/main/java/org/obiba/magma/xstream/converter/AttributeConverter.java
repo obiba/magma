@@ -25,10 +25,12 @@ public class AttributeConverter implements Converter {
   public AttributeConverter() {
   }
 
+  @Override
   public boolean canConvert(@SuppressWarnings("rawtypes") Class type) {
     return Attribute.class.isAssignableFrom(type);
   }
 
+  @Override
   public void marshal(Object source, HierarchicalStreamWriter writer, MarshallingContext context) {
     Attribute attribute = (Attribute) source;
     writer.addAttribute("name", attribute.getName());
@@ -44,6 +46,7 @@ public class AttributeConverter implements Converter {
     writer.setValue(attribute.getValue().toString());
   }
 
+  @Override
   public Object unmarshal(HierarchicalStreamReader reader, UnmarshallingContext context) {
 
     String name = reader.getAttribute("name");

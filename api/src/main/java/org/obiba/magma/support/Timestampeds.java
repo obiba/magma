@@ -40,4 +40,6 @@ public final class Timestampeds {
     }
 
   };
+
+  private Timestampeds() {}
 }

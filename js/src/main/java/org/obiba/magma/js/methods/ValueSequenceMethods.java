@@ -205,7 +205,7 @@ public class ValueSequenceMethods {
     if(sv.getValue().isNull()) {
       return new ScriptableValue(thisObj, DecimalType.get().nullValue());
     }
-    if(sv.getValueType().isNumeric() == false) {
+    if(!sv.getValueType().isNumeric()) {
       throw new MagmaJsEvaluationRuntimeException(
           "Operand to avg() method must be numeric, but was invoked for '" + sv.getValueType().getName() + "'");
     }
@@ -235,7 +235,7 @@ public class ValueSequenceMethods {
     if(sv.getValue().isNull()) {
       return new ScriptableValue(thisObj, DecimalType.get().nullValue());
     }
-    if(sv.getValueType().isNumeric() == false) {
+    if(!sv.getValueType().isNumeric()) {
       throw new MagmaJsEvaluationRuntimeException(
           "Operand to stddev() method must be numeric, but was invoked for '" + sv.getValueType().getName() + "'");
     }
@@ -263,7 +263,7 @@ public class ValueSequenceMethods {
   public static ScriptableValue sum(Context ctx, Scriptable thisObj, Object[] args, Function funObj)
       throws MagmaJsEvaluationRuntimeException {
     ScriptableValue sv = (ScriptableValue) thisObj;
-    if(sv.getValueType().isNumeric() == false) {
+    if(!sv.getValueType().isNumeric()) {
       throw new MagmaJsEvaluationRuntimeException(
           "Operand to sum() method must be numeric, but was invoked for '" + sv.getValueType().getName() + "'");
     }
@@ -330,6 +330,7 @@ public class ValueSequenceMethods {
    *
    * @return an instance of {@code ScriptableValue}
    */
+  @SuppressWarnings({ "OverlyLongMethod", "PMD.NcssMethodCount" })
   public static ScriptableValue zip(Context ctx, Scriptable thisObj, Object[] args, Function funObj)
       throws MagmaJsEvaluationRuntimeException {
     ScriptableValue sv = (ScriptableValue) thisObj;
@@ -379,7 +380,7 @@ public class ValueSequenceMethods {
 
   private static int getValueSize(Value value) {
     int size = value.isNull() ? 0 : 1;
-    if(value.isNull() == false && value.isSequence()) {
+    if(!value.isNull() && value.isSequence()) {
       size = value.asSequence().getSize();
     }
     return size;
@@ -465,7 +466,7 @@ public class ValueSequenceMethods {
       return new ScriptableValue(sv, TextType.get().nullValue());
     } else {
       String rval = sv.toString();
-      if(rval != null && rval.isEmpty() == false) {
+      if(rval != null && !rval.isEmpty()) {
         rval = prefix + rval + suffix;
       }
       return new ScriptableValue(sv, TextType.get().valueOf(rval));

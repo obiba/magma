@@ -440,11 +440,11 @@ public class NumericMethods {
    */
   public static ScriptableValue group(Context ctx, Scriptable thisObj, Object[] args, Function funObj) {
 
-    if(args == null || args.length < 1 || args[0] instanceof NativeArray == false) {
+    if(args == null || args.length < 1 || !(args[0] instanceof NativeArray)) {
       throw new MagmaJsEvaluationRuntimeException("illegal arguments to group()");
     }
 
-    if(args.length == 2 && args[1] instanceof NativeArray == false) {
+    if(args.length == 2 && !(args[1] instanceof NativeArray)) {
       throw new MagmaJsEvaluationRuntimeException("illegal arguments to group()");
     }
 
@@ -570,7 +570,7 @@ public class NumericMethods {
     for(Object argument : args) {
       BigDecimal rhs = asBigDecimal(argument);
       if(rhs == null) return BooleanType.get().nullValue();
-      if(comparator.apply(value.compareTo(rhs)) == false) {
+      if(!comparator.apply(value.compareTo(rhs))) {
         return BooleanType.get().falseValue();
       }
     }

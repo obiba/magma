@@ -29,8 +29,8 @@ public class SecuredDatasourceRegistry implements DatasourceRegistry {
     if(authorizer == null) throw new IllegalArgumentException("authorizer cannot be null");
     if(datasourceRegistry == null) throw new IllegalArgumentException("datasourceRegistry cannot be null");
     this.authorizer = authorizer;
-    this.delegate = datasourceRegistry;
-    this.securedDatasourceDecorator = new SecuredDatasourceDecorator(authorizer);
+    delegate = datasourceRegistry;
+    securedDatasourceDecorator = new SecuredDatasourceDecorator(authorizer);
   }
 
   @Override
@@ -61,7 +61,7 @@ public class SecuredDatasourceRegistry implements DatasourceRegistry {
   @Override
   public Datasource getDatasource(String name) throws NoSuchDatasourceException {
     Datasource ds = delegate.getDatasource(name);
-    if(ds != null && isPermitted(Permissions.DatasourcePermissionBuilder.forDatasource(name).read().build()) == false)
+    if(ds != null && !isPermitted(Permissions.DatasourcePermissionBuilder.forDatasource(name).read().build()))
       throw new NoSuchDatasourceException(name);
     return securedDatasourceDecorator.decorate(ds);
   }
@@ -70,7 +70,7 @@ public class SecuredDatasourceRegistry implements DatasourceRegistry {
   public Set<Datasource> getDatasources() {
     return ImmutableSet.copyOf(Iterables.transform(Sets.filter(delegate.getDatasources(),
         Permissions.DatasourcePermissionBuilder.forDatasource().read().asPredicate(authorizer)),
-        Decorators.decoratingFunction(this.securedDatasourceDecorator)));
+        Decorators.decoratingFunction(securedDatasourceDecorator)));
   }
 
   @Override

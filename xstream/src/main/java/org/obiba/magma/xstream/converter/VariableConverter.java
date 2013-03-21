@@ -49,11 +49,13 @@ public class VariableConverter extends AbstractAttributeAwareConverter {
     super(mapper);
   }
 
+  @Override
   @SuppressWarnings("unchecked")
   public boolean canConvert(Class type) {
     return Variable.class.isAssignableFrom(type);
   }
 
+  @Override
   public void marshal(Object source, HierarchicalStreamWriter writer, MarshallingContext context) {
     Variable variable = (Variable) source;
     writer.addAttribute("name", variable.getName());
@@ -78,6 +80,7 @@ public class VariableConverter extends AbstractAttributeAwareConverter {
     marshallCategories(variable, writer, context);
   }
 
+  @Override
   public Object unmarshal(HierarchicalStreamReader reader, UnmarshallingContext context) {
     Variable.Builder builder = Variable.Builder
         .newVariable(reader.getAttribute("name"), ValueType.Factory.forName(reader.getAttribute("valueType")),

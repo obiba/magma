@@ -39,10 +39,9 @@ public class StaticDatasource extends AbstractAttributeAware implements Datasour
 
   private final ListMultimap<String, Attribute> attributes = LinkedListMultimap.create();
 
-  private Map<String, StaticValueTable> tableMap = new LinkedHashMap<String, StaticValueTable>();
+  private final Map<String, StaticValueTable> tableMap = new LinkedHashMap<String, StaticValueTable>();
 
   public StaticDatasource(String name) {
-    super();
     this.name = name;
   }
 
@@ -112,10 +111,10 @@ public class StaticDatasource extends AbstractAttributeAware implements Datasour
     Attribute attribute = Attribute.Builder.newAttribute(name).withValue(value).build();
 
     List<Attribute> attributesForName = getInstanceAttributes().get(name);
-    if(!attributesForName.isEmpty()) {
-      attributesForName.set(0, attribute);
-    } else {
+    if(attributesForName.isEmpty()) {
       attributesForName.add(attribute);
+    } else {
+      attributesForName.set(0, attribute);
     }
   }
 
@@ -136,8 +135,7 @@ public class StaticDatasource extends AbstractAttributeAware implements Datasour
 
     private final StaticValueTable table;
 
-    public StaticValueTableWriter(StaticValueTable table) {
-      super();
+    private StaticValueTableWriter(StaticValueTable table) {
       this.table = table;
     }
 
@@ -162,7 +160,7 @@ public class StaticDatasource extends AbstractAttributeAware implements Datasour
 
     @Override
     public ValueSetWriter writeValueSet(final VariableEntity entity) {
-      if(table.hasVariableEntity(entity) == false) {
+      if(!table.hasVariableEntity(entity)) {
         table.addVariableEntity(entity);
       }
       return new ValueSetWriter() {

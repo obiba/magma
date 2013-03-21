@@ -22,6 +22,7 @@ public class CollectionFilterChain<T> implements FilterChain<T> {
     this.entityType = entityType;
   }
 
+  @Override
   public T filter(T item) {
     StateEnvelope<T> envelope = new StateEnvelope<T>(item);
 

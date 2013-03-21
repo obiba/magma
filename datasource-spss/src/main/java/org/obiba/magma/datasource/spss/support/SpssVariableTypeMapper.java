@@ -37,6 +37,7 @@ public class SpssVariableTypeMapper {
     return SpssNumericDataType.fromInt(variableRecord.getWriteFormatType());
   }
 
+  @SuppressWarnings({ "OverlyLongMethod", "PMD.NcssMethodCount" })
   private static AbstractValueType mapNumericType(SPSSVariable variable) {
 
     switch(getSpssNumericDataType(variable)) {

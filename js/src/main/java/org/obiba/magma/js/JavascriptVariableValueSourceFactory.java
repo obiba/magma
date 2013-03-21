@@ -31,12 +31,11 @@ public class JavascriptVariableValueSourceFactory implements VariableValueSource
 
   private ValueTable valueTable;
 
+  @Override
   public Set<VariableValueSource> createSources() {
-    if(variables != null && variables.size() > 0) {
-      return createSourcesFromVariables();
-    } else {
-      return ImmutableSet.of();
-    }
+    return variables != null && variables.size() > 0
+        ? createSourcesFromVariables()
+        : ImmutableSet.<VariableValueSource>of();
   }
 
   private Set<VariableValueSource> createSourcesFromVariables() {

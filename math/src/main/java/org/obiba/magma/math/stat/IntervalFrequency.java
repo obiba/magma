@@ -193,10 +193,7 @@ public class IntervalFrequency {
      */
     public boolean contains(double d) {
       BigDecimal dd = BigDecimal.valueOf(d);
-      if(dd.compareTo(lower) >= 0 && dd.compareTo(upper) < 0) {
-        return true;
-      }
-      return false;
+      return dd.compareTo(lower) >= 0 && dd.compareTo(upper) < 0;
     }
 
     @Override
@@ -214,7 +211,7 @@ public class IntervalFrequency {
       }
       if(obj instanceof Interval) {
         Interval that = (Interval) obj;
-        return this.lower.compareTo(that.lower) == 0 && this.upper.compareTo(that.upper) == 0;
+        return lower.compareTo(that.lower) == 0 && upper.compareTo(that.upper) == 0;
       }
       return super.equals(obj);
     }
@@ -229,8 +226,7 @@ public class IntervalFrequency {
 
     @Override
     public String toString() {
-      return new StringBuilder().append("[").append(lower).append(',').append(upper).append("[:").append(freq)
-          .append(" (").append(density()).append(',').append(getDensityPct()).append(")").toString();
+      return "[" + lower + ',' + upper + "[:" + freq + " (" + density() + ',' + getDensityPct() + ")";
     }
 
     /**

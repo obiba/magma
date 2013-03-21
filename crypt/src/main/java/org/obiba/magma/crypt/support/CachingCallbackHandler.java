@@ -14,5 +14,5 @@ import javax.security.auth.callback.CallbackHandler;
 
 public interface CachingCallbackHandler extends CallbackHandler {
 
-  public void cacheCallbackResult(Callback callback);
+  void cacheCallbackResult(Callback callback);
 }
