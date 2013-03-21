@@ -14,10 +14,13 @@
   <name>crypt</name>
 
   <dependencies>
-
     <dependency>
       <groupId>org.obiba.magma</groupId>
       <artifactId>magma-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.obiba.magma</groupId>
+      <artifactId>magma-test</artifactId>
     </dependency>
   </dependencies>
 
