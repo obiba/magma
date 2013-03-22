@@ -2,13 +2,8 @@ package org.obiba.magma.datasource.csv;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.Locale;
 import java.util.Map;
-
-import javax.annotation.Nonnull;
 
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
@@ -47,6 +42,7 @@ import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.obiba.magma.datasource.csv.CsvValueTable.DEFAULT_ENTITY_TYPE;
+import static org.obiba.magma.test.TestUtils.getFileFromResource;
 
 @SuppressWarnings({ "OverlyLongMethod", "ResultOfMethodCallIgnored", "OverlyCoupledClass" })
 public class CsvDatasourceTest {
@@ -76,17 +72,8 @@ public class CsvDatasourceTest {
     assertEquals('|', Separator.fromString("|").getCharacter());
   }
 
-  @Nonnull
-  //TODO move tis util to test module
-  static File getFileFromResource(String path) throws URISyntaxException {
-    URL resource = CsvDatasourceTest.class.getClassLoader().getResource(path);
-    URI uri = resource == null ? null : resource.toURI();
-    if(uri == null) throw new IllegalArgumentException("Cannot find file at " + path);
-    return new File(uri);
-  }
-
   @Test
-  public void test_supports_any_separator() throws URISyntaxException {
+  public void test_supports_any_separator() {
     File samples = getFileFromResource("separators");
     File variables = new File(samples, "variables.csv");
 
@@ -125,7 +112,7 @@ public class CsvDatasourceTest {
 
   @SuppressWarnings("IfStatementWithTooManyBranches")
   @Test
-  public void test_table_variable_read() throws URISyntaxException {
+  public void test_table_variable_read() {
     CsvDatasource datasource = new CsvDatasource("csv-datasource").addValueTable("Table1", //
         getFileFromResource("Table1/variables.csv"), //
         getFileFromResource("Table1/data.csv"));
@@ -171,7 +158,7 @@ public class CsvDatasourceTest {
 
   @SuppressWarnings("IfStatementWithTooManyBranches")
   @Test
-  public void test_table_data_read() throws URISyntaxException {
+  public void test_table_data_read() {
     CsvDatasource datasource = new CsvDatasource("csv-datasource").addValueTable("Table1", //
         getFileFromResource("Table1/variables.csv"), //
         getFileFromResource("Table1/data.csv"));
@@ -303,7 +290,7 @@ public class CsvDatasourceTest {
 
   @SuppressWarnings("IfStatementWithTooManyBranches")
   @Test
-  public void test_refTable_data_read() throws URISyntaxException {
+  public void test_refTable_data_read() {
     CsvDatasource refDatasource = new CsvDatasource("csv-datasource1").addValueTable("Table1", //
         getFileFromResource("Table1/variables.csv"), //
         getFileFromResource("Table1/data.csv"));
@@ -368,7 +355,7 @@ public class CsvDatasourceTest {
   }
 
   @Test
-  public void test_repeatable_data_read() throws URISyntaxException {
+  public void test_repeatable_data_read() {
     CsvDatasource datasource = new CsvDatasource("csv-datasource").addValueTable("Participants", //
         getFileFromResource("Participants/variables.csv"), //
         getFileFromResource("Participants/data.csv"));
@@ -398,7 +385,7 @@ public class CsvDatasourceTest {
   }
 
   @Test
-  public void test_multiline_data_read() throws URISyntaxException {
+  public void test_multiline_data_read() {
     CsvDatasource datasource = new CsvDatasource("csv-datasource").addValueTable("Participants", //
         getFileFromResource("Participants/variables.csv"), //
         getFileFromResource("Participants/data.csv"));
@@ -440,12 +427,12 @@ public class CsvDatasourceTest {
   }
 
   @Test
-  public void test_charSet() throws URISyntaxException {
+  public void test_charSet() {
     test_charSet("Drugs-iso.csv", "ISO-8859-1");
     test_charSet("Drugs-utf8.csv", "UTF-8");
   }
 
-  public void test_charSet(String filename, String encoding) throws URISyntaxException {
+  public void test_charSet(String filename, String encoding) {
     log.info("Test {}", encoding);
 
     CsvDatasource datasource = new CsvDatasource("csv-datasource")
@@ -472,7 +459,7 @@ public class CsvDatasourceTest {
 
   @SuppressWarnings("ReuseOfLocalVariable")
   @Test
-  public void test_escaped_characters() throws URISyntaxException {
+  public void test_escaped_characters() {
     CsvDatasource datasource = new CsvDatasource("csv-datasource").addValueTable("Table1", //
         getFileFromResource("Table1/escaped-variables.csv"), //
         getFileFromResource("Table1/escaped-data.csv"));
@@ -531,7 +518,7 @@ public class CsvDatasourceTest {
 
   @SuppressWarnings("ReuseOfLocalVariable")
   @Test
-  public void test_end_of_line() throws URISyntaxException, IOException {
+  public void test_end_of_line() throws IOException {
 
     StringBuilder sb = new StringBuilder();
     sb.append("entity_id,Name,\"Complete name\"\n");
