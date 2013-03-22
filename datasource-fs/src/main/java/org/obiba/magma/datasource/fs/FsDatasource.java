@@ -71,7 +71,7 @@ public class FsDatasource extends AbstractDatasource {
 
   public FsDatasource(String name, java.io.File outputFile) {
     super(name, "fs");
-    this.datasourceArchive = new File(outputFile);
+    datasourceArchive = new File(outputFile);
   }
 
   public void setEncryptionStrategy(DatasourceEncryptionStrategy datasourceEncryptionStrategy) {
@@ -87,14 +87,15 @@ public class FsDatasource extends AbstractDatasource {
       newDatasource = false;
     } else {
       setAttributeValue("magma.datasource.fs.version", TextType.get().valueOf("1"));
-      if(hasEncryptionStrategy()) {
-        setAttributeValue("magma.datasource.fs.encrypted", BooleanType.get().trueValue());
-      } else {
-        setAttributeValue("magma.datasource.fs.encrypted", BooleanType.get().falseValue());
-      }
+      setAttributeValue("magma.datasource.fs.encrypted",
+          hasEncryptionStrategy() ? BooleanType.get().trueValue() : BooleanType.get().falseValue());
     }
 
     // Setup cipher wrappers in the case where
+    initialiseEncrypted(newDatasource);
+  }
+
+  private void initialiseEncrypted(boolean newDatasource) {
     if(isEncrypted() && hasEncryptionStrategy()) {
       // Make sure our strategy is able to read an existing datasource.
       if(newDatasource || datasourceEncryptionStrategy.canDecryptExistingDatasource()) {

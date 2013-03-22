@@ -22,6 +22,7 @@ import org.obiba.magma.type.DecimalType;
 import org.obiba.magma.type.IntegerType;
 import org.obiba.magma.type.TextType;
 
+import com.google.common.base.Objects;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 
@@ -132,6 +133,7 @@ public class BooleanMethods {
    *   $('BooleanVar').and(someBooleanVar, $('OtherBooleanVar'))
    * </pre>
    */
+  @SuppressWarnings("PMD.NcssMethodCount")
   public static ScriptableValue and(Context ctx, Scriptable thisObj, @Nullable Object[] args,
       @Nullable Function funObj) {
     ScriptableValue sv = (ScriptableValue) thisObj;
@@ -368,7 +370,7 @@ public class BooleanMethods {
     Number secondNumber = (Number) secondOperand.getValue().getValue();
     if(firstOperand.getValueType().equals(IntegerType.get()) &&
         secondOperand.getValueType().equals(IntegerType.get())) {
-      return new ScriptableValue(thisObj, BooleanType.get().valueOf(firstNumber.equals(secondNumber)));
+      return new ScriptableValue(thisObj, BooleanType.get().valueOf(Objects.equal(firstNumber, secondNumber)));
     }
     if(firstOperand.getValueType().equals(IntegerType.get()) &&
         secondOperand.getValueType().equals(DecimalType.get())) {
@@ -380,21 +382,21 @@ public class BooleanMethods {
       return new ScriptableValue(thisObj,
           BooleanType.get().valueOf((Double) firstNumber == secondNumber.doubleValue()));
     }
-    return new ScriptableValue(thisObj, BooleanType.get().valueOf(firstNumber.equals(secondNumber)));
+    return new ScriptableValue(thisObj, BooleanType.get().valueOf(Objects.equal(firstNumber, secondNumber)));
   }
 
   private static ScriptableValue booleanEquals(Scriptable thisObj, ScriptableValue firstOperand,
       ScriptableValue secondOperand) {
     Boolean firstBoolean = (Boolean) firstOperand.getValue().getValue();
     Boolean secondBoolean = (Boolean) secondOperand.getValue().getValue();
-    return new ScriptableValue(thisObj, BooleanType.get().valueOf(firstBoolean.equals(secondBoolean)));
+    return new ScriptableValue(thisObj, BooleanType.get().valueOf(Objects.equal(firstBoolean, secondBoolean)));
   }
 
   private static ScriptableValue textEquals(Scriptable thisObj, ScriptableValue firstOperand,
       ScriptableValue secondOperand) {
     String firstString = (String) firstOperand.getValue().getValue();
     String secondString = (String) secondOperand.getValue().getValue();
-    return new ScriptableValue(thisObj, BooleanType.get().valueOf(firstString.equals(secondString)));
+    return new ScriptableValue(thisObj, BooleanType.get().valueOf(Objects.equal(firstString, secondString)));
   }
 
   private static ScriptableValue dateTimeEquals(Scriptable thisObj, ScriptableValue firstOperand,

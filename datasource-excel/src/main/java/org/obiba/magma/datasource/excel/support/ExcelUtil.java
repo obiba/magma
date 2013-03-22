@@ -23,7 +23,7 @@ public class ExcelUtil {
 
   private ExcelUtil() {}
 
-  @SuppressWarnings("ConstantConditions")
+  @SuppressWarnings({ "PMD.NcssMethodCount", "ConstantConditions" })
   public static void setCellValue(Cell cell, Value value) {
     if(value.isNull()) {
       return;

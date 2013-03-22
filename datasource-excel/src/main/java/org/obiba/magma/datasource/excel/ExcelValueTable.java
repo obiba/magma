@@ -180,22 +180,22 @@ public class ExcelValueTable extends AbstractValueTable implements Initialisable
    */
   private void readVariablesFromTableSheet(Collection<String> variableNames) {
     Sheet sheet = getDatasource().getSheet(getName());
+    if(sheet == null) return;
+
     Collection<String> columnNames = new ArrayList<String>();
     Collection<ExcelDatasourceParsingException> errors = new ArrayList<ExcelDatasourceParsingException>();
 
-    if(sheet != null) {
-      Row variableNameRow = getValueTableSheet().getRow(0);
-      for(int i = 1; i < variableNameRow.getPhysicalNumberOfCells(); i++) {
-        // variable is just a name and with text values
-        Cell cell = variableNameRow.getCell(i);
-        String name = ExcelUtil.getCellValueAsString(cell).trim();
-        // required values
-        if(validateVariableName(sheet, columnNames, errors, name)) {
-          columnNames.add(name);
-          if(!variableNames.contains(name)) {
-            Variable.Builder variableBuilder = Variable.Builder.newVariable(name, TextType.get(), getEntityType());
-            addVariableValueSource(new ExcelVariableValueSource(variableBuilder.build()));
-          }
+    Row variableNameRow = getValueTableSheet().getRow(0);
+    for(int i = 1; i < variableNameRow.getPhysicalNumberOfCells(); i++) {
+      // variable is just a name and with text values
+      Cell cell = variableNameRow.getCell(i);
+      String name = ExcelUtil.getCellValueAsString(cell).trim();
+      // required values
+      if(validateVariableName(sheet, columnNames, errors, name)) {
+        columnNames.add(name);
+        if(!variableNames.contains(name)) {
+          Variable.Builder variableBuilder = Variable.Builder.newVariable(name, TextType.get(), getEntityType());
+          addVariableValueSource(new ExcelVariableValueSource(variableBuilder.build()));
         }
       }
     }
@@ -203,7 +203,7 @@ public class ExcelValueTable extends AbstractValueTable implements Initialisable
     if(errors.size() > 0) {
       ExcelDatasourceParsingException parent = new ExcelDatasourceParsingException(
           "Errors while parsing variables of table: " + getName(), //
-          "TableDefinitionErrors", sheet == null ? "null" : sheet.getSheetName(), 1, getName());
+          "TableDefinitionErrors", sheet.getSheetName(), 1, getName());
       parent.setChildren(errors);
       throw parent;
     }
@@ -291,19 +291,23 @@ public class ExcelValueTable extends AbstractValueTable implements Initialisable
               "DuplicateVariableName", ExcelDatasource.VARIABLES_SHEET, variableRow.getRowNum() + 1, getName(), name));
         } else {
           variableNames.add(name);
-          try {
-            Variable variable = converter.unmarshall(variableRow);
-            addVariableValueSource(new ExcelVariableValueSource(variable));
-          } catch(ExcelDatasourceParsingException pe) {
-            errors.add(pe);
-          } catch(Exception e) {
-            errors.add(new ExcelDatasourceParsingException("Unexpected error in variable: " + e.getMessage(), e, //
-                "UnexpectedErrorInVariable", ExcelDatasource.VARIABLES_SHEET, variableRow.getRowNum() + 1, getName()));
-          }
+          addParsedVariable(errors, variableRow);
         }
       }
     }
     return firstRow;
+  }
+
+  private void addParsedVariable(Collection<ExcelDatasourceParsingException> errors, Row variableRow) {
+    try {
+      Variable variable = converter.unmarshall(variableRow);
+      addVariableValueSource(new ExcelVariableValueSource(variable));
+    } catch(ExcelDatasourceParsingException pe) {
+      errors.add(pe);
+    } catch(Exception e) {
+      errors.add(new ExcelDatasourceParsingException("Unexpected error in variable: " + e.getMessage(), e, //
+          "UnexpectedErrorInVariable", ExcelDatasource.VARIABLES_SHEET, variableRow.getRowNum() + 1, getName()));
+    }
   }
 
   public List<Integer> getVariableCategoryRows(String variableName) {

@@ -20,6 +20,8 @@ import java.nio.CharBuffer;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
+import javax.annotation.Nullable;
+
 /**
  * <p>
  * Encodes and decodes to and from Base64 notation.
@@ -148,7 +150,9 @@ import java.util.zip.GZIPOutputStream;
  * @author rob@iharder.net
  * @version 2.3.5
  */
-@SuppressWarnings({ "PMD.NcssMethodCount", "OverlyLongMethod", "CallToPrintStackTrace" })
+@SuppressWarnings(
+    { "PMD.NcssMethodCount", "OverlyLongMethod", "CallToPrintStackTrace", "MagicNumber", "UnusedDeclaration",
+        "CaughtExceptionImmediatelyRethrown", "ConstantConditions" })
 class Base64 {
 
   /*    ******** P U B L I C F I E L D S ******** */
@@ -597,6 +601,7 @@ class Base64 {
    * @see Base64#DO_BREAK_LINES
    * @since 2.0
    */
+  @edu.umd.cs.findbugs.annotations.SuppressWarnings("DM_DEFAULT_ENCODING")
   public static String encodeObject(Serializable serializableObject, int options) throws IOException {
 
     if(serializableObject == null) {
@@ -631,19 +636,19 @@ class Base64 {
     finally {
       try {
         oos.close();
-      } catch(Exception e) {
+      } catch(Exception ignored) {
       }
       try {
         gzos.close();
-      } catch(Exception e) {
+      } catch(Exception ignored) {
       }
       try {
         b64os.close();
-      } catch(Exception e) {
+      } catch(Exception ignored) {
       }
       try {
         baos.close();
-      } catch(Exception e) {
+      } catch(Exception ignored) {
       }
     } // end finally
 
@@ -666,7 +671,7 @@ class Base64 {
    * @throws NullPointerException if source array is null
    * @since 1.4
    */
-  public static String encodeBytes(byte[] source) {
+  public static String encodeBytes(byte... source) {
     // Since we're not going to have the GZIP encoding turned on,
     // we're not going to have an java.io.IOException thrown, so
     // we should not force the user to have to catch it.
@@ -779,6 +784,7 @@ class Base64 {
    * @see Base64#DO_BREAK_LINES
    * @since 2.0
    */
+  @edu.umd.cs.findbugs.annotations.SuppressWarnings("DM_DEFAULT_ENCODING")
   public static String encodeBytes(byte[] source, int off, int len, int options) throws IOException {
     byte[] encoded = encodeBytesToBytes(source, off, len, options);
 
@@ -801,7 +807,7 @@ class Base64 {
    * @throws NullPointerException if source array is null
    * @since 2.3.1
    */
-  public static byte[] encodeBytesToBytes(byte[] source) {
+  public static byte[] encodeBytesToBytes(byte... source) {
     byte[] encoded = null;
     try {
       encoded = encodeBytesToBytes(source, 0, source.length, NO_OPTIONS);
@@ -827,6 +833,7 @@ class Base64 {
    * @see Base64#DO_BREAK_LINES
    * @since 2.3.1
    */
+  @SuppressWarnings("ConstantConditions")
   public static byte[] encodeBytesToBytes(byte[] source, int off, int len, int options) throws IOException {
 
     if(source == null) {
@@ -917,15 +924,15 @@ class Base64 {
       finally {
         try {
           gzos.close();
-        } catch(Exception e) {
+        } catch(Exception ignored) {
         }
         try {
           b64os.close();
-        } catch(Exception e) {
+        } catch(Exception ignored) {
         }
         try {
           baos.close();
-        } catch(Exception e) {
+        } catch(Exception ignored) {
         }
       } // end finally
 
@@ -1032,7 +1039,7 @@ class Base64 {
    * @return decoded data
    * @since 2.3.1
    */
-  public static byte[] decode(byte[] source) {
+  public static byte[] decode(byte... source) {
     byte[] decoded = null;
     try {
       decoded = decode(source, 0, source.length, NO_OPTIONS);
@@ -1112,6 +1119,7 @@ class Base64 {
       } // end if: white space, equals sign or better
       else {
         // There's a bad input character in the Base64 stream.
+        //noinspection MalformedFormatString
         throw new IOException(String.format("Bad Base64 input character '%c' in array position %d", source[i], i));
       } // end else:
     } // each input character
@@ -1143,6 +1151,7 @@ class Base64 {
    * @throws NullPointerException if <tt>s</tt> is null
    * @since 1.4
    */
+  @edu.umd.cs.findbugs.annotations.SuppressWarnings("DM_DEFAULT_ENCODING")
   public static byte[] decode(String s, int options) throws IOException {
 
     if(s == null) {
@@ -1239,7 +1248,8 @@ class Base64 {
    * @throws ClassNotFoundException if the decoded object is of a class that cannot be found by the JVM
    * @since 2.3.4
    */
-  public static Object decodeToObject(String encodedObject, int options, final ClassLoader loader)
+  @SuppressWarnings("ConstantConditions")
+  public static Object decodeToObject(String encodedObject, int options, @Nullable final ClassLoader loader)
       throws IOException, ClassNotFoundException {
 
     // Decode and gunzip if necessary
@@ -1284,11 +1294,11 @@ class Base64 {
     finally {
       try {
         bais.close();
-      } catch(Exception e) {
+      } catch(Exception ignored) {
       }
       try {
         ois.close();
-      } catch(Exception e) {
+      } catch(Exception ignored) {
       }
     } // end finally
 
@@ -1309,6 +1319,7 @@ class Base64 {
    * @throws NullPointerException if dataToEncode is null
    * @since 2.1
    */
+  @SuppressWarnings("ConstantConditions")
   public static void encodeToFile(byte[] dataToEncode, String filename) throws IOException {
 
     if(dataToEncode == null) {
@@ -1326,7 +1337,7 @@ class Base64 {
     finally {
       try {
         bos.close();
-      } catch(Exception e) {
+      } catch(Exception ignored) {
       }
     } // end finally
 
@@ -1345,6 +1356,7 @@ class Base64 {
    * @throws IOException if there is an error
    * @since 2.1
    */
+  @SuppressWarnings("ConstantConditions")
   public static void decodeToFile(String dataToDecode, String filename) throws IOException {
 
     OutputStream bos = null;
@@ -1358,7 +1370,7 @@ class Base64 {
     finally {
       try {
         bos.close();
-      } catch(Exception e) {
+      } catch(Exception ignored) {
       }
     } // end finally
 
@@ -1377,6 +1389,7 @@ class Base64 {
    * @throws IOException if there is an error
    * @since 2.1
    */
+  @SuppressWarnings("ConstantConditions")
   public static byte[] decodeFromFile(String filename) throws IOException {
 
     byte[] decodedData = null;
@@ -1384,7 +1397,6 @@ class Base64 {
     try {
       // Set up some useful variables
       File file = new File(filename);
-      byte[] buffer = null;
       int length = 0;
       int numBytes = 0;
 
@@ -1392,7 +1404,7 @@ class Base64 {
       if(file.length() > Integer.MAX_VALUE) {
         throw new IOException("File is too big for this convenience method (" + file.length() + " bytes).");
       } // end if: file too big for int index
-      buffer = new byte[(int) file.length()];
+      byte[] buffer = new byte[(int) file.length()];
 
       // Open a stream
       bis = new InputStream(new BufferedInputStream(new FileInputStream(file)), DECODE);
@@ -1413,7 +1425,7 @@ class Base64 {
     finally {
       try {
         bis.close();
-      } catch(Exception e) {
+      } catch(Exception ignored) {
       }
     } // end finally
 
@@ -1433,6 +1445,7 @@ class Base64 {
    * @throws IOException if there is an error
    * @since 2.1
    */
+  @SuppressWarnings("ConstantConditions")
   public static String encodeFromFile(String filename) throws IOException {
 
     String encodedData = null;
@@ -1464,7 +1477,7 @@ class Base64 {
     finally {
       try {
         bis.close();
-      } catch(Exception e) {
+      } catch(Exception ignored) {
       }
     } // end finally
 
@@ -1479,6 +1492,7 @@ class Base64 {
    * @throws IOException if there is an error
    * @since 2.2
    */
+  @SuppressWarnings("ConstantConditions")
   public static void encodeFileToFile(String infile, String outfile) throws IOException {
 
     String encoded = encodeFromFile(infile);
@@ -1493,7 +1507,7 @@ class Base64 {
     finally {
       try {
         out.close();
-      } catch(Exception ex) {
+      } catch(Exception ignored) {
       }
     } // end finally
   } // end encodeFileToFile
@@ -1506,6 +1520,7 @@ class Base64 {
    * @throws IOException if there is an error
    * @since 2.2
    */
+  @SuppressWarnings("ConstantConditions")
   public static void decodeFileToFile(String infile, String outfile) throws IOException {
 
     byte[] decoded = decodeFromFile(infile);
@@ -1520,7 +1535,7 @@ class Base64 {
     finally {
       try {
         out.close();
-      } catch(Exception ex) {
+      } catch(Exception ignored) {
       }
     } // end finally
   } // end decodeFileToFile

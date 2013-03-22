@@ -66,6 +66,7 @@ public class DateTimeMethods {
         return new ScriptableValue(thisObj, IntegerType.get().nullSequence());
       }
       Collection<Value> newValues = new ArrayList<Value>();
+      //noinspection ConstantConditions
       for(Value value : currentValue.asSequence().getValue()) {
         newValues.add(quarter(value));
       }
@@ -106,6 +107,7 @@ public class DateTimeMethods {
         return new ScriptableValue(thisObj, IntegerType.get().nullSequence());
       }
       Collection<Value> newValues = new ArrayList<Value>();
+      //noinspection ConstantConditions
       for(Value value : currentValue.asSequence().getValue()) {
         newValues.add(semester(value));
       }
@@ -153,6 +155,7 @@ public class DateTimeMethods {
         return new ScriptableValue(thisObj, BooleanType.get().nullSequence());
       }
       Collection<Value> newValues = new ArrayList<Value>();
+      //noinspection ConstantConditions
       for(Value value : currentValue.asSequence().getValue()) {
         newValues.add(weekday(value));
       }
@@ -185,6 +188,7 @@ public class DateTimeMethods {
         return new ScriptableValue(thisObj, BooleanType.get().nullSequence());
       }
       Collection<Value> newValues = new ArrayList<Value>();
+      //noinspection ConstantConditions
       for(Value value : currentValue.asSequence().getValue()) {
         newValues.add(weekend(value));
       }
@@ -318,6 +322,7 @@ public class DateTimeMethods {
         return new ScriptableValue(thisObj, IntegerType.get().nullSequence());
       }
       Collection<Value> newValues = new ArrayList<Value>();
+      //noinspection ConstantConditions
       for(Value value : currentValue.asSequence().getValue()) {
         newValues.add(timeValue(value));
       }
@@ -329,6 +334,7 @@ public class DateTimeMethods {
 
   private static Value timeValue(Value value) {
     if(value.isNull()) return IntegerType.get().nullValue();
+    //noinspection ConstantConditions
     return IntegerType.get().valueOf(asDate(value).getTime());
   }
 
@@ -348,6 +354,7 @@ public class DateTimeMethods {
         return new ScriptableValue(thisObj, TextType.get().nullSequence());
       }
       Collection<Value> newValues = new ArrayList<Value>();
+      //noinspection ConstantConditions
       for(Value value : currentValue.asSequence().getValue()) {
         newValues.add(format(value, args));
       }
@@ -357,16 +364,17 @@ public class DateTimeMethods {
     }
   }
 
-  @SuppressWarnings("ChainOfInstanceofChecks")
+  @SuppressWarnings({ "ChainOfInstanceofChecks", "PMD.NcssMethodCount" })
   private static Value format(Value value, Object... args) {
     if(args == null || args.length == 0) {
       return TextType.get().nullValue();
     }
 
-    Date thisDate = asDate(value);
-    if(thisDate == null) {
+    Date date = asDate(value);
+    if(date == null) {
       return TextType.get().nullValue();
     }
+
     SimpleDateFormat format = null;
     Object arg = args[0];
     if(arg instanceof ScriptableValue) {
@@ -384,7 +392,7 @@ public class DateTimeMethods {
       throw new MagmaJsEvaluationRuntimeException("Argument to format() method must be a String or a ScriptableValue.");
     }
 
-    return TextType.get().valueOf(format.format(thisDate));
+    return TextType.get().valueOf(format.format(date));
   }
 
   /**
@@ -406,6 +414,7 @@ public class DateTimeMethods {
         return new ScriptableValue(thisObj, BooleanType.get().nullSequence());
       }
       Collection<Value> newValues = new ArrayList<Value>();
+      //noinspection ConstantConditions
       for(Value value : currentValue.asSequence().getValue()) {
         newValues.add(after(value, args));
       }
@@ -441,6 +450,7 @@ public class DateTimeMethods {
     return BooleanType.get().trueValue();
   }
 
+  @Nullable
   private static Date asDate(Value value) {
 
     if(value.getValueType() == DateTimeType.get()) {
@@ -449,6 +459,7 @@ public class DateTimeMethods {
       }
     } else if(value.getValueType() == DateType.get()) {
       if(!value.isNull()) {
+        //noinspection ConstantConditions
         return ((MagmaDate) value.getValue()).asDate();
       }
     } else {
@@ -466,6 +477,8 @@ public class DateTimeMethods {
    * @param value
    * @return
    */
+  @SuppressWarnings("ConstantConditions")
+  @Nullable
   private static Calendar asCalendar(Value value) {
     if(value.getValueType() == DateTimeType.get()) {
       if(!value.isNull()) {
@@ -515,6 +528,7 @@ public class DateTimeMethods {
       return new ScriptableValue(scope, IntegerType.get().nullSequence());
     }
     Collection<Value> newValues = new ArrayList<Value>();
+    //noinspection ConstantConditions
     for(Value value : currentValue.asSequence().getValue()) {
       Calendar c = asCalendar(value);
       if(c != null) {
@@ -549,6 +563,7 @@ public class DateTimeMethods {
         return new ScriptableValue(thisObj, DateTimeType.get().nullSequence());
       }
       Collection<Value> newValues = new ArrayList<Value>();
+      //noinspection ConstantConditions
       for(Value value : currentValue.asSequence().getValue()) {
         newValues.add(add(value, args));
       }

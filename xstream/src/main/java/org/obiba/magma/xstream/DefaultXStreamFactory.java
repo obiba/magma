@@ -30,6 +30,7 @@ public class DefaultXStreamFactory implements XStreamFactory {
   }
 
   @Override
+  @SuppressWarnings("PMD.NcssMethodCount")
   public XStream createXStream(@Nullable ReflectionProvider reflectionProvider) {
     XStream xstream = null;
     //noinspection IfMayBeConditional

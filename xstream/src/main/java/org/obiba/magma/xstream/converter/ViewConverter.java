@@ -25,6 +25,7 @@ public class ViewConverter implements Converter {
   }
 
   @Override
+  @SuppressWarnings("PMD.NcssMethodCount")
   public void marshal(Object source, HierarchicalStreamWriter writer, MarshallingContext context) {
     View view = (View) source;
 
