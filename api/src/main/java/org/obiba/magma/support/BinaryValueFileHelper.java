@@ -141,16 +141,15 @@ public class BinaryValueFileHelper {
     File file = new File(parent, name + "." + extension);
     File tmpFile = new File(parent, file.getName() + ".tmp");
     try {
-      if(!parent.exists()) {
-        parent.mkdirs();
-      }
+      if(!parent.exists()) parent.mkdirs();
+
       tmpFile.createNewFile();
       FileOutputStream out = new FileOutputStream(tmpFile);
       out.write((byte[]) value.getValue());
       out.close();
-      if(file.exists()) {
-        file.delete();
-      }
+
+      if(file.exists()) file.delete();
+
       Files.move(tmpFile, file);
       log.debug("File written: {}", file.getAbsolutePath());
     } catch(Exception e) {

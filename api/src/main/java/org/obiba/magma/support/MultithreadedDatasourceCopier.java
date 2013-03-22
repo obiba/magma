@@ -243,34 +243,39 @@ public class MultithreadedDatasourceCopier {
       this.copyNullValues = copyNullValues;
     }
 
-    @SuppressWarnings("OverlyNestedMethod")
     @Override
     public void run() {
       try {
-        VariableEntity entity = readQueue.poll();
-        while(entity != null) {
-          if(sourceTable.hasValueSet(entity)) {
-            ValueSet valueSet = sourceTable.getValueSet(entity);
-            boolean hasOnlyNullValues = true;
-            Value[] values = new Value[sources.length];
-            for(int i = 0; i < sources.length; i++) {
-              Value value = sources[i].getValue(valueSet);
-              values[i] = value;
-              hasOnlyNullValues &= value.isNull();
-            }
-            if(copyNullValues || !hasOnlyNullValues) {
-              log.debug("Enqueued entity {}", entity.getIdentifier());
-              writeQueue.put(new VariableEntityValues(valueSet, values));
-            } else {
-              log.debug("Skip entity {} because of null values", entity.getIdentifier());
-            }
-            if(readerListener != null) {
-              readerListener.onRead(valueSet, values);
-            }
-          }
-          entity = readQueue.poll();
+        VariableEntity entity = null;
+        while((entity = readQueue.poll()) != null) {
+          copyEntity(entity);
         }
       } catch(InterruptedException ignored) {
+      }
+    }
+
+    private void copyEntity(VariableEntity entity) throws InterruptedException {
+      if(!sourceTable.hasValueSet(entity)) return;
+
+      ValueSet valueSet = sourceTable.getValueSet(entity);
+      boolean hasOnlyNullValues = true;
+      Value[] values = new Value[sources.length];
+
+      for(int i = 0; i < sources.length; i++) {
+        Value value = sources[i].getValue(valueSet);
+        values[i] = value;
+        hasOnlyNullValues &= value.isNull();
+      }
+
+      if(copyNullValues || !hasOnlyNullValues) {
+        log.debug("Enqueued entity {}", entity.getIdentifier());
+        writeQueue.put(new VariableEntityValues(valueSet, values));
+      } else {
+        log.debug("Skip entity {} because of null values", entity.getIdentifier());
+      }
+
+      if(readerListener != null) {
+        readerListener.onRead(valueSet, values);
       }
     }
   }
@@ -316,31 +321,16 @@ public class MultithreadedDatasourceCopier {
       return true;
     }
 
-    @SuppressWarnings({ "ThrowFromFinallyBlock", "OverlyNestedMethod" })
+    @SuppressWarnings("ThrowFromFinallyBlock")
     @Override
     public void run() {
-      VariableEntityValues values = next();
       DatasourceCopier datasourceCopier = copier.build();
       ValueTableWriter tableWriter = datasourceCopier
           .innerValueTableWriter(sourceTable, destinationName, destinationDatasource);
       try {
-        while(values != null) {
-          ValueSetWriter writer = tableWriter.writeValueSet(values.valueSet.getVariableEntity());
-          try {
-            // Copy the ValueSet to the destinationDatasource
-            log.debug("Dequeued entity {}", values.valueSet.getVariableEntity().getIdentifier());
-            datasourceCopier
-                .copyValues(sourceTable, destinationName, values.valueSet, variables, values.values, writer);
-          } finally {
-            try {
-              writer.close();
-            } catch(IOException e) {
-              throw new RuntimeException(e);
-            }
-          }
-          entitiesCopied++;
-          printProgress();
-          values = next();
+        VariableEntityValues values = null;
+        while((values = next()) != null) {
+          copyValue(datasourceCopier, tableWriter, values);
         }
       } finally {
         log.debug("Writer finished.");
@@ -350,6 +340,25 @@ public class MultithreadedDatasourceCopier {
           throw new RuntimeException(e);
         }
       }
+    }
+
+    @SuppressWarnings("ThrowFromFinallyBlock")
+    private void copyValue(DatasourceCopier datasourceCopier, ValueTableWriter tableWriter,
+        VariableEntityValues values) {
+      ValueSetWriter writer = tableWriter.writeValueSet(values.valueSet.getVariableEntity());
+      try {
+        // Copy the ValueSet to the destinationDatasource
+        log.debug("Dequeued entity {}", values.valueSet.getVariableEntity().getIdentifier());
+        datasourceCopier.copyValues(sourceTable, destinationName, values.valueSet, variables, values.values, writer);
+      } finally {
+        try {
+          writer.close();
+        } catch(IOException e) {
+          throw new RuntimeException(e);
+        }
+      }
+      entitiesCopied++;
+      printProgress();
     }
 
     @SuppressWarnings("NumericCastThatLosesPrecision")

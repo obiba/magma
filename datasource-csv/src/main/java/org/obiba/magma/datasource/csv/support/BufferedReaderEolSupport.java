@@ -20,7 +20,7 @@ import javax.annotation.Nullable;
  */
 @SuppressWarnings({ "OverlyLongMethod", "FieldCanBeLocal", "SynchronizeOnNonFinalField", "UnusedLabel",
     "UnnecessaryLabelOnBreakStatement", "ParameterHidesMemberVariable", "StaticNonFinalField", "FieldMayBeFinal",
-    "MagicNumber" })
+    "MagicNumber", "PMD.NcssMethodCount" })
 public class BufferedReaderEolSupport extends Reader {
 
   private Reader in;
