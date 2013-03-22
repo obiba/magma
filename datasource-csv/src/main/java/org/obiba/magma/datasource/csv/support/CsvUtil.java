@@ -1,6 +1,7 @@
 package org.obiba.magma.datasource.csv.support;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.obiba.magma.Attribute;
@@ -25,7 +26,7 @@ public class CsvUtil {
     return headersArray;
   }
 
-  private static void addVariableHeaders(List<String> headers) {
+  private static void addVariableHeaders(Collection<String> headers) {
     headers.add(VariableConverter.NAME);
     headers.add(VariableConverter.VALUE_TYPE);
     headers.add(VariableConverter.ENTITY_TYPE);
@@ -53,7 +54,7 @@ public class CsvUtil {
     }
   }
 
-  private static void addVariableAttributesHeaders(ValueTable table, List<String> headers) {
+  private static void addVariableAttributesHeaders(ValueTable table, Collection<String> headers) {
     for(Variable variable : table.getVariables()) {
       for(Attribute attribute : variable.getAttributes()) {
         //noinspection NonConstantStringShouldBeStringBuffer

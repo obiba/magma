@@ -11,6 +11,7 @@ import java.util.Map.Entry;
 import javax.annotation.Nullable;
 
 import org.obiba.magma.Attribute;
+import org.obiba.magma.AttributeAware;
 import org.obiba.magma.Attributes;
 import org.obiba.magma.Category;
 import org.obiba.magma.ValueType;
@@ -236,7 +237,7 @@ public class VariableConverter {
     }
   }
 
-  private void marshalAttributes(Variable variable, Map<Integer, String> resultMap) {
+  private void marshalAttributes(AttributeAware variable, Map<Integer, String> resultMap) {
     for(Attribute attribute : variable.getAttributes()) {
       String header = Attributes.encodeForHeader(attribute);
       if(headerMap.containsKey(header) && !reservedVariableHeaders.contains(header)) {
