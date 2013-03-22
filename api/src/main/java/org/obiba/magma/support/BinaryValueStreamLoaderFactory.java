@@ -11,6 +11,8 @@ package org.obiba.magma.support;
 
 import java.io.File;
 
+import javax.annotation.Nullable;
+
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueLoader;
 import org.obiba.magma.ValueLoaderFactory;
@@ -22,7 +24,7 @@ public class BinaryValueStreamLoaderFactory implements ValueLoaderFactory {
 
   private final File parent;
 
-  public BinaryValueStreamLoaderFactory(File parent) {
+  public BinaryValueStreamLoaderFactory(@Nullable File parent) {
     this.parent = parent;
   }
 
