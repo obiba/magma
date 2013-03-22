@@ -133,7 +133,7 @@ public class TextType extends AbstractValueType {
   @Nullable
   @Override
   protected String escapeAndQuoteIfRequired(@Nullable String value) {
-    String escaped = value == null ? "" : value;
+    String escaped = Strings.nullToEmpty(value);
     // Replace all occurrences of " by ""
     escaped = escaped.replaceAll(QUOTE_STR, ESCAPED_QUOTE_STR);
     return QUOTE + escaped + QUOTE;

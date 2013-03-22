@@ -12,6 +12,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import javax.annotation.Nonnull;
+
 import org.obiba.magma.Attribute;
 import org.obiba.magma.MagmaEngine;
 import org.obiba.magma.MagmaRuntimeException;
@@ -69,7 +71,7 @@ public class FsDatasource extends AbstractDatasource {
 
   public FsDatasource(String name, java.io.File outputFile) {
     super(name, "fs");
-    datasourceArchive = new File(outputFile);
+    this.datasourceArchive = new File(outputFile);
   }
 
   public void setEncryptionStrategy(DatasourceEncryptionStrategy datasourceEncryptionStrategy) {
@@ -111,6 +113,7 @@ public class FsDatasource extends AbstractDatasource {
   }
 
   @Override
+  @Nonnull
   public ValueTableWriter createWriter(String name, String entityType) {
     FsValueTable valueTable = null;
     if(hasValueTable(name)) {

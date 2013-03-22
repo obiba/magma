@@ -9,6 +9,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.sql.DataSource;
 
@@ -85,6 +86,7 @@ public class JdbcDatasource extends AbstractDatasource {
    * Note: Newly created tables have a single entity identifier column, "entity_id".
    */
   @SuppressWarnings({ "AssignmentToMethodParameter", "PMD.AvoidReassigningParameters" })
+  @Nonnull
   @Override
   public ValueTableWriter createWriter(String tableName, @Nullable String entityType) {
     if(entityType == null) {

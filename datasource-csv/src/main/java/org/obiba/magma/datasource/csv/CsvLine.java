@@ -47,8 +47,10 @@ public class CsvLine {
       headerMap.put(variable.getName(), index++);
     }
 
-    valueMap.put(variable.getName(), variable.getValueType().equals(BinaryType.get()) ? BinaryValueFileHelper
-        .writeValue(parent, variable, entity, value) : value);
+    Value valueToWrite = variable.getValueType().equals(BinaryType.get()) //
+        ? BinaryValueFileHelper.writeValue(parent, variable, entity, value) //
+        : value;
+    valueMap.put(variable.getName(), valueToWrite);
   }
 
   @SuppressWarnings("UnusedDeclaration")

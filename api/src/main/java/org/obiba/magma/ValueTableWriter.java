@@ -2,18 +2,21 @@ package org.obiba.magma;
 
 import java.io.Closeable;
 
+import javax.annotation.Nonnull;
+
 public interface ValueTableWriter extends Closeable {
 
   VariableWriter writeVariables();
 
-  ValueSetWriter writeValueSet(VariableEntity entity);
+  @Nonnull
+  ValueSetWriter writeValueSet(@Nonnull VariableEntity entity);
 
   interface VariableWriter extends Closeable {
-    void writeVariable(Variable variable);
+    void writeVariable(@Nonnull Variable variable);
   }
 
   interface ValueSetWriter extends Closeable {
-    void writeValue(Variable variable, Value value);
+    void writeValue(@Nonnull Variable variable, Value value);
   }
 
 }

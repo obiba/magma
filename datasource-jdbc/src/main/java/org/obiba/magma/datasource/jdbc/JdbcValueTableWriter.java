@@ -15,6 +15,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.Nonnull;
+
 import org.obiba.magma.Attribute;
 import org.obiba.magma.Category;
 import org.obiba.magma.Value;
@@ -81,8 +83,9 @@ class JdbcValueTableWriter implements ValueTableWriter {
     this.valueTable = valueTable;
   }
 
+  @Nonnull
   @Override
-  public ValueSetWriter writeValueSet(VariableEntity entity) {
+  public ValueSetWriter writeValueSet(@Nonnull VariableEntity entity) {
     return new JdbcValueSetWriter(entity);
   }
 
@@ -104,7 +107,7 @@ class JdbcValueTableWriter implements ValueTableWriter {
     protected List<Change> changes = new ArrayList<Change>();
 
     @Override
-    public void writeVariable(Variable variable) {
+    public void writeVariable(@Nonnull Variable variable) {
       if(!valueTable.isForEntityType(variable.getEntityType())) {
         throw new InvalidParameterException(
             "Wrong entity type for variable '" + variable.getName() + "': " + valueTable.getEntityType() +
@@ -257,7 +260,7 @@ class JdbcValueTableWriter implements ValueTableWriter {
     }
 
     @Override
-    public void writeValue(Variable variable, Value value) {
+    public void writeValue(@Nonnull Variable variable, Value value) {
       Object columnValue = null;
       if(!value.isNull()) {
         if(value.isSequence()) {

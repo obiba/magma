@@ -6,6 +6,8 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import javax.annotation.Nullable;
+
 import org.obiba.magma.Datasource;
 import org.obiba.magma.DatasourceFactory;
 import org.obiba.magma.MagmaEngine;
@@ -55,6 +57,7 @@ public class MagmaEngineFactory {
     return this;
   }
 
+  @Nullable
   public DatasourceFactory removeFactory(String name) {
     for(Iterator<DatasourceFactory> i = factories.iterator(); i.hasNext(); ) {
       DatasourceFactory factory = i.next();

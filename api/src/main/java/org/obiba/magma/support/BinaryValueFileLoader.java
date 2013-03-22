@@ -50,11 +50,7 @@ public class BinaryValueFileLoader implements ValueLoader, Serializable {
   }
 
   public void setParent(@Nullable String parent) {
-    if(parent == null) {
-      this.parent = null;
-    } else {
-      setParent(new File(parent));
-    }
+    this.parent = parent == null ? null : new File(parent);
   }
 
   public void setParent(@Nullable File parent) {

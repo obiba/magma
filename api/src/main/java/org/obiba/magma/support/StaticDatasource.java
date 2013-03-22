@@ -16,6 +16,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.annotation.Nonnull;
+
 import org.obiba.magma.AbstractAttributeAware;
 import org.obiba.magma.Attribute;
 import org.obiba.magma.Datasource;
@@ -91,6 +93,7 @@ public class StaticDatasource extends AbstractAttributeAware implements Datasour
     tableMap.remove(name);
   }
 
+  @Nonnull
   @Override
   public ValueTableWriter createWriter(String tableName, String entityType) {
     if(tableName == null) throw new IllegalArgumentException("tableName cannot be null");
@@ -152,12 +155,13 @@ public class StaticDatasource extends AbstractAttributeAware implements Datasour
         }
 
         @Override
-        public void writeVariable(Variable variable) {
+        public void writeVariable(@Nonnull Variable variable) {
           table.addVariable(Variable.Builder.sameAs(variable).build());
         }
       };
     }
 
+    @Nonnull
     @Override
     public ValueSetWriter writeValueSet(final VariableEntity entity) {
       if(!table.hasVariableEntity(entity)) {
@@ -170,7 +174,7 @@ public class StaticDatasource extends AbstractAttributeAware implements Datasour
         }
 
         @Override
-        public void writeValue(Variable variable, Value value) {
+        public void writeValue(@Nonnull Variable variable, Value value) {
           table.addValues(entity.getIdentifier(), variable, value);
         }
       };

@@ -2,6 +2,8 @@ package org.obiba.magma.datasource.excel;
 
 import java.io.IOException;
 
+import javax.annotation.Nonnull;
+
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -26,8 +28,9 @@ public class ExcelValueTableWriter implements ValueTableWriter {
     return new ExcelVariableWriter();
   }
 
+  @Nonnull
   @Override
-  public ValueSetWriter writeValueSet(VariableEntity entity) {
+  public ValueSetWriter writeValueSet(@Nonnull VariableEntity entity) {
     return new ExcelValueSetWriter(entity);
   }
 
@@ -49,7 +52,7 @@ public class ExcelValueTableWriter implements ValueTableWriter {
     }
 
     @Override
-    public void writeVariable(Variable variable) {
+    public void writeVariable(@Nonnull Variable variable) {
       VariableConverter converter = valueTable.getVariableConverter();
 
       // prepare the header rows
@@ -115,7 +118,7 @@ public class ExcelValueTableWriter implements ValueTableWriter {
     }
 
     @Override
-    public void writeValue(Variable variable, Value value) {
+    public void writeValue(@Nonnull Variable variable, Value value) {
       // Will create the column if it doesn't exist.
       int variableColumn = valueTable.getVariableColumn(variable);
       ExcelUtil.setCellValue(entityRow.createCell(variableColumn), value);

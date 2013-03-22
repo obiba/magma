@@ -12,6 +12,8 @@ package org.obiba.magma.support;
 import java.util.HashMap;
 import java.util.Set;
 
+import javax.annotation.Nonnull;
+
 import org.obiba.magma.Datasource;
 import org.obiba.magma.NoSuchValueTableException;
 import org.obiba.magma.NoSuchVariableException;
@@ -87,6 +89,7 @@ public class MultiplexingDatasource extends AbstractDatasourceWrapper {
     throw new UnsupportedOperationException("cannot drop table");
   }
 
+  @Nonnull
   @Override
   public ValueTableWriter createWriter(String tableName, String entityType) {
     throw new UnsupportedOperationException("cannot write table");
