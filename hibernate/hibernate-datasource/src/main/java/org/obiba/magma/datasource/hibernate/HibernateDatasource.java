@@ -68,6 +68,7 @@ public class HibernateDatasource extends AbstractDatasource {
    * <p/>
    * Note that a Hibernate transaction must be active for this method to return an instance of {@code ValueTableWriter}
    */
+  @Nonnull
   @Override
   public ValueTableWriter createWriter(String tableName, String entityType) {
     Preconditions.checkArgument(tableName != null, "tableName cannot be null");

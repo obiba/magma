@@ -15,6 +15,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.annotation.Nonnull;
+
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Cell;
@@ -117,6 +119,7 @@ public class ExcelDatasource extends AbstractDatasource {
   }
 
   @Override
+  @Nonnull
   public ValueTableWriter createWriter(String name, String entityType) {
     ExcelValueTable valueTable = null;
     if(hasValueTable(name)) {
@@ -193,7 +196,11 @@ public class ExcelDatasource extends AbstractDatasource {
     // Write the workbook (datasource) to file/outputstream if any of them is defined
     OutputStream out = null;
     try {
-      out = excelFile == null ? excelOutput : new FileOutputStream(excelFile);
+      if(excelFile != null) {
+        out = new FileOutputStream(excelFile);
+      } else {
+        out = excelOutput;
+      }
       if(out != null) {
         writeWorkbook(out);
       }

@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import org.obiba.magma.ValueTable;
@@ -106,17 +107,15 @@ public class CsvDatasource extends AbstractDatasource {
     return this;
   }
 
+  @Nonnull
   @Override
   public ValueTableWriter createWriter(String tableName, String entityType) {
-    CsvValueTable valueTable = null;
-    if(hasValueTable(tableName)) {
-      valueTable = (CsvValueTable) getValueTable(tableName);
-    } else {
+    if(!hasValueTable(tableName)) {
       throw new CsvDatasourceParsingException(
           "Cannot create writer. A table with the name " + tableName + " does not exist.", "CsvCannotCreateWriter", 0,
           tableName);
     }
-    return new CsvValueTableWriter(valueTable);
+    return new CsvValueTableWriter((CsvValueTable) getValueTable(tableName));
   }
 
   public void setVariablesHeader(String tableName, String... header) {

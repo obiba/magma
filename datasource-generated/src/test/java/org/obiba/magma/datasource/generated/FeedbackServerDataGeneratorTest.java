@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
+import javax.annotation.Nullable;
+
 import org.junit.Test;
 import org.obiba.magma.Category;
 import org.obiba.magma.Datasource;
@@ -25,8 +27,8 @@ import com.google.common.collect.Iterables;
 
 public class FeedbackServerDataGeneratorTest {
 
+  @SuppressWarnings("ResultOfMethodCallIgnored")
   @Test
-  // @Ignore
   public void generateTestData() throws IOException {
 
     new MagmaEngine().extend(new MagmaJsExtension()).extend(new MagmaXStreamExtension());
@@ -41,7 +43,7 @@ public class FeedbackServerDataGeneratorTest {
 
     ValueTable table = eds.getValueTables().iterator().next();
 
-    GeneratedValueTable generated = new GeneratedValueTable(null, fixConditions(table), 3000);
+    ValueTable generated = new GeneratedValueTable(null, fixConditions(table), 3000);
 
     MultithreadedDatasourceCopier.Builder.newCopier().from(generated).to(target).as(table.getName()).build().copy();
 
@@ -77,6 +79,7 @@ public class FeedbackServerDataGeneratorTest {
     });
   }
 
+  @Nullable
   private String patate(ValueTable table, String conditionString) {
     String s = or(table, conditionString);
     if(s != null && s.length() > 0) {

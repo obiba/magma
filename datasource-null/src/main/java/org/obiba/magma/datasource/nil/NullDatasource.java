@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.Set;
 
+import javax.annotation.Nonnull;
+
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.ValueTableWriter;
@@ -32,14 +34,16 @@ public class NullDatasource extends AbstractDatasource {
   }
 
   @Override
+  @Nonnull
   public ValueTableWriter createWriter(String name, String entityType) {
     return new NullValueTableWriter();
   }
 
   private static class NullValueTableWriter implements ValueTableWriter {
 
+    @Nonnull
     @Override
-    public ValueSetWriter writeValueSet(VariableEntity entity) {
+    public ValueSetWriter writeValueSet(@Nonnull VariableEntity entity) {
       return new ValueSetWriter() {
 
         @Override
@@ -47,7 +51,7 @@ public class NullDatasource extends AbstractDatasource {
         }
 
         @Override
-        public void writeValue(Variable variable, Value value) {
+        public void writeValue(@Nonnull Variable variable, Value value) {
         }
       };
     }
@@ -61,7 +65,7 @@ public class NullDatasource extends AbstractDatasource {
         }
 
         @Override
-        public void writeVariable(Variable variable) {
+        public void writeVariable(@Nonnull Variable variable) {
         }
       };
     }
