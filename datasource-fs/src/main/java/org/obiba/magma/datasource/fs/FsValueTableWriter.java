@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.Writer;
 
+import javax.annotation.Nonnull;
+
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueTableWriter;
 import org.obiba.magma.Variable;
@@ -23,8 +25,9 @@ class FsValueTableWriter implements ValueTableWriter {
     this.xstream = xstream;
   }
 
+  @Nonnull
   @Override
-  public ValueSetWriter writeValueSet(VariableEntity entity) {
+  public ValueSetWriter writeValueSet(@Nonnull VariableEntity entity) {
     String entry = valueTable.getVariableEntityProvider().addEntity(entity);
     try {
       return new XStreamValueSetWriter(valueTable.createWriter(entry),
@@ -63,7 +66,7 @@ class FsValueTableWriter implements ValueTableWriter {
     @edu.umd.cs.findbugs.annotations.SuppressWarnings(value = "DMI_NONSERIALIZABLE_OBJECT_WRITTEN",
         justification = "XStream implementation of ObjectOutputStream does not expect or require objects to implement the Serializable marker interface. http://xstream.codehaus.org/faq.html#Serialization")
     @Override
-    public void writeVariable(Variable variable) {
+    public void writeVariable(@Nonnull Variable variable) {
       try {
         oos.writeObject(variable);
       } catch(IOException e) {
@@ -93,7 +96,7 @@ class FsValueTableWriter implements ValueTableWriter {
     }
 
     @Override
-    public void writeValue(Variable variable, Value value) {
+    public void writeValue(@Nonnull Variable variable, Value value) {
       valueSet.setValue(variable, value);
     }
   }

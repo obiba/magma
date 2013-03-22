@@ -2,6 +2,7 @@ package org.obiba.magma.views;
 
 import java.util.Set;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import org.obiba.magma.Datasource;
@@ -43,6 +44,7 @@ public class ViewAwareDatasource extends AbstractDatasourceWrapper {
     Disposables.dispose(getWrappedDatasource(), views);
   }
 
+  @Nonnull
   @Override
   public ValueTableWriter createWriter(String tableName, String entityType) {
     if(hasView(tableName)) {

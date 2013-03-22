@@ -9,6 +9,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import javax.annotation.Nonnull;
 import javax.sql.DataSource;
 
 import org.obiba.magma.ValueTable;
@@ -95,6 +96,7 @@ public class JdbcDatasource extends AbstractDatasource {
    * <p/>
    * Note: Newly created tables have a single entity identifier column, "entity_id".
    */
+  @Nonnull
   @Override
   public ValueTableWriter createWriter(String tableName, String entityType) {
     if(entityType == null) {

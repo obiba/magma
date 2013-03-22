@@ -94,6 +94,7 @@ public abstract class AbstractDatasourceWrapper implements Datasource {
     return getWrappedDatasource().hasAttribute(name);
   }
 
+  @Nonnull
   @Override
   public ValueTableWriter createWriter(String tableName, String entityType) {
     return getWrappedDatasource().createWriter(tableName, entityType);

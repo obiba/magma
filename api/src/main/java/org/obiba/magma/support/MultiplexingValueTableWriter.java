@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.Set;
 
+import javax.annotation.Nonnull;
+
 import org.obiba.magma.Datasource;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueTable;
@@ -35,8 +37,9 @@ public class MultiplexingValueTableWriter implements ValueTableWriter {
     this.strategy = strategy;
   }
 
+  @Nonnull
   @Override
-  public ValueSetWriter writeValueSet(VariableEntity entity) {
+  public ValueSetWriter writeValueSet(@Nonnull VariableEntity entity) {
     return new MultiplexedValueSetWriter(entity);
   }
 
@@ -71,7 +74,7 @@ public class MultiplexingValueTableWriter implements ValueTableWriter {
     private final Map<ValueTableWriter, VariableWriter> writers = Maps.newHashMap();
 
     @Override
-    public void writeVariable(Variable variable) {
+    public void writeVariable(@Nonnull Variable variable) {
       ValueTableWriter vtw = lookupWriter(strategy.multiplexVariable(variable));
       VariableWriter writer = writers.get(vtw);
       if(writer == null) {
@@ -108,7 +111,7 @@ public class MultiplexingValueTableWriter implements ValueTableWriter {
     }
 
     @Override
-    public void writeValue(Variable variable, Value value) {
+    public void writeValue(@Nonnull Variable variable, Value value) {
       String tableName = strategy.multiplexValueSet(entity, variable);
       tables.add(tableName);
       ValueTableWriter vtw = lookupWriter(tableName);

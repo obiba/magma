@@ -282,7 +282,7 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
       long start = 0;
       String nextLine = null;
       while((nextLine = reader.readLine()) != null) {
-        String[] strings = parser.parseLineMulti(nextLine);
+        parser.parseLineMulti(nextLine);
         if(parser.isPending()) {
           // we are in a multiline entry
           innerline++;
@@ -338,7 +338,7 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
 
           if(dataHeaderMapInitialized) {
             int lineNumber = line - innerline;
-            log.debug("[{}:{}] {}", dataFile.getName(), lineNumber, nextLine);
+            log.trace("[{}:{}] {}", dataFile.getName(), lineNumber, nextLine);
             String identifier = multiLineValues.get(0);
             if(Strings.isNullOrEmpty(identifier)) {
               throw new MagmaRuntimeException(
@@ -389,7 +389,7 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
     }
   }
 
-  public void clear(@Nullable File file, CsvIndexEntry indexEntry) throws IOException {
+  public void clear(@Nonnull File file, CsvIndexEntry indexEntry) throws IOException {
     RandomAccessFile raf = new RandomAccessFile(file, "rws");
     try {
       int length = (int) (indexEntry.getEnd() - indexEntry.getStart());
@@ -403,6 +403,9 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
   }
 
   public void clearEntity(VariableEntity entity) throws IOException {
+    if(dataFile == null) {
+      throw new MagmaRuntimeException("Cannot write to null data file for table " + getName());
+    }
     CsvIndexEntry indexEntry = entityIndex.get(entity);
     if(indexEntry != null) {
       clear(dataFile, indexEntry);
@@ -411,6 +414,9 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
   }
 
   public void clearVariable(Variable variable) throws IOException {
+    if(variableFile == null) {
+      throw new MagmaRuntimeException("Cannot write to null variable file for table " + getName());
+    }
     CsvIndexEntry indexEntry = variableNameIndex.get(variable.getName());
     if(indexEntry != null) {
       clear(variableFile, indexEntry);
@@ -457,7 +463,7 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
 
   }
 
-  private long getLastByte(@Nullable File file) throws IOException {
+  private long getLastByte(@Nonnull File file) throws IOException {
     RandomAccessFile raf = new RandomAccessFile(file, "r");
     try {
       return raf.length();
@@ -467,14 +473,20 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
   }
 
   public long getDataLastByte() throws IOException {
+    if(dataFile == null) {
+      throw new MagmaRuntimeException("Cannot read last byte from null data file for table " + getName());
+    }
     return getLastByte(dataFile);
   }
 
   public long getVariablesLastByte() throws IOException {
+    if(variableFile == null) {
+      throw new MagmaRuntimeException("Cannot read last byte from null variable file for table " + getName());
+    }
     return getLastByte(variableFile);
   }
 
-  private char getLastCharacter(@Nullable File file) throws IOException {
+  private char getLastCharacter(@Nonnull File file) throws IOException {
     RandomAccessFile raf = new RandomAccessFile(file, "r");
     try {
       raf.seek(raf.length() - 1);
@@ -486,15 +498,21 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
 
   @SuppressWarnings("UnusedDeclaration")
   public char getDataLastCharacter() throws IOException {
+    if(dataFile == null) {
+      throw new MagmaRuntimeException("Cannot read last character from null data file for table " + getName());
+    }
     return getLastCharacter(dataFile);
   }
 
   @SuppressWarnings("UnusedDeclaration")
   public char getVariableLastCharacter() throws IOException {
+    if(variableFile == null) {
+      throw new MagmaRuntimeException("Cannot read last character from null variable file for table " + getName());
+    }
     return getLastCharacter(variableFile);
   }
 
-  private void addNewline(@Nullable File file) throws IOException {
+  private void addNewline(@Nonnull File file) throws IOException {
     RandomAccessFile raf = new RandomAccessFile(file, "rws");
     try {
       raf.seek(raf.length());
@@ -506,17 +524,24 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
 
   @SuppressWarnings("UnusedDeclaration")
   public void addDataNewline() throws IOException {
+    if(dataFile == null) {
+      throw new MagmaRuntimeException("Cannot write new line to null data file for table " + getName());
+    }
     addNewline(dataFile);
     isLastDataCharacterNewline = true;
   }
 
   @SuppressWarnings("UnusedDeclaration")
   public void addVariablesNewline() throws IOException {
+    if(variableFile == null) {
+      throw new MagmaRuntimeException("Cannot write new line to null variable file for table " + getName());
+    }
     addNewline(variableFile);
     isLastVariablesCharacterNewline = true;
   }
 
   public void updateDataIndex(VariableEntity entity, long lastByte, String... line) {
+    log.trace("entityIndex: {}", entityIndex);
     entityIndex.put(entity, new CsvIndexEntry(lastByte, lastByte + lineLength(line)));
   }
 

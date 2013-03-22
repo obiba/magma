@@ -67,8 +67,9 @@ class HibernateValueTableWriter implements ValueTableWriter {
     context = valueTable.createContext();
   }
 
+  @Nonnull
   @Override
-  public ValueSetWriter writeValueSet(VariableEntity entity) {
+  public ValueSetWriter writeValueSet(@Nonnull VariableEntity entity) {
     return new HibernateValueSetWriter(entity);
   }
 
@@ -87,7 +88,7 @@ class HibernateValueTableWriter implements ValueTableWriter {
     }
 
     @Override
-    public void writeVariable(Variable variable) {
+    public void writeVariable(@Nonnull Variable variable) {
       if(variable == null) throw new IllegalArgumentException("variable cannot be null");
       if(!valueTable.isForEntityType(variable.getEntityType())) {
         throw new IllegalArgumentException(
