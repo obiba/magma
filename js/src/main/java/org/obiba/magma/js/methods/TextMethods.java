@@ -124,19 +124,8 @@ public class TextMethods {
    */
   public static ScriptableValue capitalize(Context ctx, Scriptable thisObj, @Nullable Object[] args,
       @Nullable Function funObj) {
-    final String delim;
-    if(args == null) {
-      //noinspection AssignmentToNull
-      delim = null;
-    } else {
-      StringBuilder buffer = new StringBuilder();
-      for(Object arg : args) {
-        if(arg != null) {
-          buffer.append(arg.toString());
-        }
-      }
-      delim = buffer.toString();
-    }
+
+    final String delim = getDelim(args);
 
     com.google.common.base.Function<Value, Value> capitalizeFunction
         = new com.google.common.base.Function<Value, Value>() {
@@ -146,7 +135,6 @@ public class TextMethods {
       public Value apply(Value input) {
         if(input == null || input.isNull()) return TextType.get().nullValue();
         String stringValue = input.toString();
-
         char[] buffer = stringValue.toCharArray();
         boolean capitalizeNext = true;
         for(int i = 0; i < buffer.length; i++) {
@@ -175,6 +163,16 @@ public class TextMethods {
     };
 
     return transformValue((ScriptableValue) thisObj, capitalizeFunction);
+  }
+
+  @Nullable
+  private static String getDelim(@Nullable Object... args) {
+    if(args == null) return null;
+    StringBuilder sb = new StringBuilder();
+    for(Object arg : args) {
+      if(arg != null) sb.append(arg.toString());
+    }
+    return sb.toString();
   }
 
   /**
@@ -314,7 +312,7 @@ public class TextMethods {
     }
 
     ScriptableValue sv = (ScriptableValue) thisObj;
-    NativeObject valueMap = (NativeObject) args[0];
+    Scriptable valueMap = (Scriptable) args[0];
 
     // This could be determined by looking at the mapped values (if all ints, then 'integer', else 'text', etc.)
     ValueType returnType = TextType.get();
@@ -328,6 +326,7 @@ public class TextMethods {
         return new ScriptableValue(thisObj, returnType.nullSequence());
       }
       Collection<Value> newValues = new ArrayList<Value>();
+      //noinspection ConstantConditions
       for(Value value : currentValue.asSequence().getValue()) {
         newValues.add(lookupValue(ctx, thisObj, value, returnType, valueMap, defaultValue, nullValue));
       }
@@ -391,14 +390,13 @@ public class TextMethods {
    * @param valueMap
    * @return
    */
+  @SuppressWarnings("PMD.ExcessiveParameterList")
   private static Value lookupValue(Context ctx, Scriptable thisObj, Value value, ValueType returnType,
       Scriptable valueMap, Value defaultValue, Value nullValue) {
-    if(value.isNull()) {
-      return nullValue;
-    }
+
+    if(value.isNull()) return nullValue;
 
     // MAGMA-163: lookup using string and index-based keys
-    // Lookup using a string-based key
     String asName = value.toString();
     Object newValue = valueMap.get(asName, null);
     if(newValue == NativeObject.NOT_FOUND) {
@@ -409,23 +407,17 @@ public class TextMethods {
       }
     }
 
-    if(newValue == null) {
-      return returnType.nullValue();
-    }
+    if(newValue == null) return returnType.nullValue();
 
-    if(newValue == NativeObject.NOT_FOUND) {
-      return defaultValue;
-    }
+    if(newValue == NativeObject.NOT_FOUND) return defaultValue;
 
     if(newValue instanceof Function) {
       Callable valueFunction = (Callable) newValue;
       Object evaluatedValue = valueFunction
           .call(ctx, thisObj, thisObj, new Object[] { new ScriptableValue(thisObj, value) });
-      if(evaluatedValue instanceof ScriptableValue) {
-        newValue = ((ScriptableValue) evaluatedValue).getValue().getValue();
-      } else {
-        newValue = evaluatedValue;
-      }
+      newValue = evaluatedValue instanceof ScriptableValue
+          ? ((ScriptableValue) evaluatedValue).getValue().getValue()
+          : evaluatedValue;
     }
 
     return returnType.valueOf(Rhino.fixRhinoNumber(newValue));
