@@ -12,6 +12,7 @@ package org.obiba.magma.datasource.csv;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.Nullable;
 
@@ -36,6 +37,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
@@ -318,9 +320,16 @@ public class CsvValueTableWriterTest {
     Variable cityVariable = Variable.Builder.newVariable("City", TextType.get(), "Participant").build();
     Value cityValueVancouver = TextType.get().valueOf("Vancouver");
 
+    Map<Variable, Value> values = Maps.newHashMap();
+
     ValueTableWriter writer = datasource.createWriter(tableName, entityName);
-    writeData(new VariableEntityBean(entityName, "4"), writer, cityVariable, cityValueVancouver);
-    writeData(new VariableEntityBean(entityName, "2"), writer, cityVariable, cityValueVancouver);
+
+    values.put(cityVariable, cityValueVancouver);
+    writeValueSet(new VariableEntityBean(DEFAULT_ENTITY_TYPE, "4"), writer, values);
+
+    values.put(cityVariable, cityValueVancouver);
+    writeValueSet(new VariableEntityBean(DEFAULT_ENTITY_TYPE, "2"), writer, values);
+
     writer.close();
     datasource.dispose();
     datasource.initialise();
@@ -338,12 +347,23 @@ public class CsvValueTableWriterTest {
     Variable cityVariable = Variable.Builder.newVariable("City", TextType.get(), "Participant").build();
     Value cityValueVancouver = TextType.get().valueOf("Vancouver");
 
+    VariableEntity entity2 = new VariableEntityBean(DEFAULT_ENTITY_TYPE, "2");
+
+    Map<Variable, Value> values = Maps.newHashMap();
     ValueTableWriter writer = datasource.createWriter(tableName, DEFAULT_ENTITY_TYPE);
-    writeData(new VariableEntityBean(DEFAULT_ENTITY_TYPE, "4"), writer, cityVariable, cityValueVancouver);
-    writeData(new VariableEntityBean(DEFAULT_ENTITY_TYPE, "2"), writer, cityVariable,
-        TextType.get().valueOf("Moncton"));
-    writeData(new VariableEntityBean(DEFAULT_ENTITY_TYPE, "2"), writer, cityVariable, TextType.get().valueOf("Regina"));
-    writeData(new VariableEntityBean(DEFAULT_ENTITY_TYPE, "2"), writer, cityVariable, cityValueVancouver);
+
+    values.put(cityVariable, cityValueVancouver);
+    writeValueSet(new VariableEntityBean(DEFAULT_ENTITY_TYPE, "4"), writer, values);
+
+    values.put(cityVariable, TextType.get().valueOf("Moncton"));
+    writeValueSet(entity2, writer, values);
+
+    values.put(cityVariable, TextType.get().valueOf("Regina"));
+    writeValueSet(entity2, writer, values);
+
+    values.put(cityVariable, cityValueVancouver);
+    writeValueSet(entity2, writer, values);
+
     writer.close();
 
     assertThat(
@@ -362,14 +382,22 @@ public class CsvValueTableWriterTest {
     Variable cityVariable = Variable.Builder.newVariable("City", TextType.get(), "Participant").build();
     Value wideByteCityName = TextType.get().valueOf("Suggéré");
 
+    Map<Variable, Value> values = Maps.newHashMap();
+    VariableEntity entity2 = new VariableEntityBean(DEFAULT_ENTITY_TYPE, "2");
+
     ValueTableWriter writer = datasource.createWriter(tableName, DEFAULT_ENTITY_TYPE);
     // Write wide byte line
-    writeData(new VariableEntityBean(DEFAULT_ENTITY_TYPE, "2"), writer, cityVariable, wideByteCityName);
+    values.put(cityVariable, wideByteCityName);
+    writeValueSet(entity2, writer, values);
+
     // Write line after wide byte line. This one is in danger of being partially overwritten during an update.
-    writeData(new VariableEntityBean(DEFAULT_ENTITY_TYPE, "3"), writer, cityVariable,
-        TextType.get().valueOf("Moncton"));
+    values.put(cityVariable, TextType.get().valueOf("Moncton"));
+    writeValueSet(new VariableEntityBean(DEFAULT_ENTITY_TYPE, "3"), writer, values);
+
     // Update the wide byte line (2) to ensure that line (3) is not affected.
-    writeData(new VariableEntityBean(DEFAULT_ENTITY_TYPE, "2"), writer, cityVariable, TextType.get().valueOf("Regina"));
+    values.put(cityVariable, TextType.get().valueOf("Regina"));
+    writeValueSet(entity2, writer, values);
+
     writer.close();
 
     assertThat(
@@ -515,11 +543,12 @@ public class CsvValueTableWriterTest {
     ValueTableWriter writer = datasource.createWriter(table.getName(), table.getEntityType());
 
     VariableEntity entity = new VariableEntityBean(DEFAULT_ENTITY_TYPE, "1");
-    writeData(entity, writer, name, TextType.get().valueOf("Julius\nCaesar"));
-    log.trace("\n=====\n{}=====", FileUtils.readFileToString(dataFile));
-    writeData(entity, writer, children,
+
+    Map<Variable, Value> values = Maps.newHashMap();
+    values.put(name, TextType.get().valueOf("Julius\nCaesar"));
+    values.put(children,
         getSequenceOf("Julia", "Caesarion", "Gaius\\\\Julius Caesar \"Octavianus\"", null, "Marcus Junius\" Brutus"));
-    log.trace("\n=====\n{}=====", FileUtils.readFileToString(dataFile));
+    writeValueSet(entity, writer, values);
     writer.close();
 
     assertJuliusCaesarName(table, name, entity);
@@ -529,9 +558,8 @@ public class CsvValueTableWriterTest {
     log.debug("\n=====\n{}=====", fileContent);
 
     assertThat(fileContent, is("\"entity_id\",\"name\",\"children\"\n" +
-//        "                    \n" +
         "\"1\",\"Julius\n" +
-        "Caesar\",\"\"\"Julia\"\",\"\"Caesarion\"\",\"\"Gaius\\\\Julius Caesar \"\"\"\"Octavianus\"\"\"\"\"\",,\"\"Marcus Junius\"\"\"\" Brutus\"\"\""));
+        "Caesar\",\"\"\"Julia\"\",\"\"Caesarion\"\",\"\"Gaius\\\\Julius Caesar \"\"\"\"Octavianus\"\"\"\"\"\",,\"\"Marcus Junius\"\"\"\" Brutus\"\"\"\n"));
 
     datasource.dispose();
 
@@ -584,10 +612,12 @@ public class CsvValueTableWriterTest {
     writer.close();
   }
 
-  private void writeData(VariableEntity variableEntity, ValueTableWriter valueTableWriter, Variable variable,
-      Value value) throws IOException {
+  private void writeValueSet(VariableEntity variableEntity, ValueTableWriter valueTableWriter,
+      Map<Variable, Value> values) throws IOException {
     ValueTableWriter.ValueSetWriter valueSetWriter = valueTableWriter.writeValueSet(variableEntity);
-    valueSetWriter.writeValue(variable, value);
+    for(Map.Entry<Variable, Value> entry : values.entrySet()) {
+      valueSetWriter.writeValue(entry.getKey(), entry.getValue());
+    }
     valueSetWriter.close();
   }
 
