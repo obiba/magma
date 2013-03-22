@@ -5,6 +5,8 @@ import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import javax.annotation.Nonnull;
+
 import org.obiba.magma.Initialisable;
 import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.NoSuchVariableException;
@@ -93,7 +95,7 @@ public class VariablesClause implements ListClause, Initialisable {
       }
 
       @Override
-      public void writeVariable(Variable variable) {
+      public void writeVariable(@Nonnull Variable variable) {
         // update or add variable
         Set<Variable> variableSet = new LinkedHashSet<Variable>();
         boolean updated = false;

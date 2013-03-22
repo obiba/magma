@@ -1,4 +1,3 @@
 name,valueType,entityType,mimeType,unit,repeatable,occurrenceGroup,categories:en,label:en
-id,integer,Participant,,,,,,"ID"
 name,text,Participant,,,,,,"Name"
 children,text,Participant,,,true,,,"Children names"

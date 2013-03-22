@@ -15,6 +15,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.annotation.Nonnull;
+
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Cell;
@@ -116,6 +118,7 @@ public class ExcelDatasource extends AbstractDatasource {
     this.excelOutput = excelOutput;
   }
 
+  @Nonnull
   public ValueTableWriter createWriter(String name, String entityType) {
     ExcelValueTable valueTable = null;
     if(hasValueTable(name)) {
