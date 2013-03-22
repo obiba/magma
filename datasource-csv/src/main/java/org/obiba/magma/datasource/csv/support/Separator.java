@@ -2,6 +2,8 @@ package org.obiba.magma.datasource.csv.support;
 
 import java.util.Arrays;
 
+import javax.annotation.Nonnull;
+
 import com.google.common.collect.ImmutableList;
 
 public class Separator {
@@ -42,7 +44,7 @@ public class Separator {
     throw new IllegalArgumentException("separator must be one character");
   }
 
-  private static boolean isOneOf(String value, String[] strings) {
+  private static boolean isOneOf(@Nonnull String value, @Nonnull String... strings) {
     for(String str : strings) {
       if(value.contains(str)) {
         return true;

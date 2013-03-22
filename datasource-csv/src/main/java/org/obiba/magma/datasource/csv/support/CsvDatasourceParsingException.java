@@ -33,10 +33,10 @@ public class CsvDatasourceParsingException extends DatasourceParsingException {
   }
 
   /**
-   * Helper function to builg an error message with the row number if supplied
+   * Helper function to build an error message with the row number if supplied
    *
    * @param errorMessage
-   * @param row -1 implies to exlude the row number from message
+   * @param row -1 implies to exclude the row number from message
    */
   private static String createMessage(String errorMessage, int row) {
     return row > -1 ? errorMessage + " (" + row + ")" : errorMessage;

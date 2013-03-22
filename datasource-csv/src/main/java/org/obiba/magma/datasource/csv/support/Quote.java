@@ -18,7 +18,7 @@ public class Quote {
     return quote;
   }
 
-  public static Quote fromString(String value) {
+  public static Quote fromString(@SuppressWarnings("TypeMayBeWeakened") String value) {
     if(value == null) throw new IllegalArgumentException("value cannot be null");
     for(Quote quote : ImmutableList.of(DOUBLE, SINGLE)) {
       if(value.equals("" + quote.quote)) {
