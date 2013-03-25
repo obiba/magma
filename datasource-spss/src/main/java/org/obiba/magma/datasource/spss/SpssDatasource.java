@@ -27,20 +27,23 @@ public class SpssDatasource extends AbstractDatasource {
 
   private final String entityType;
 
-  private Map<String, SpssValueTable> valueTablesMapOnInit = new LinkedHashMap<String, SpssValueTable>();
+  private final String locale;
 
-  public SpssDatasource(String name, List<File> spssFiles, String characterSet, String entityType) {
+  private final Map<String, SpssValueTable> valueTablesMapOnInit = new LinkedHashMap<String, SpssValueTable>();
+
+  public SpssDatasource(String name, List<File> spssFiles, String characterSet, String entityType, String locale) {
     super(name, "spss");
     this.spssFiles = spssFiles;
     this.characterSet = characterSet;
     this.entityType = entityType;
+    this.locale = locale;
   }
 
   @Override
   protected void onInitialise() {
 
     for(File spssFile : spssFiles) {
-      SpssValueTableFactory factory = new SpssValueTableFactory(this, entityType, spssFile, characterSet);
+      SpssValueTableFactory factory = new SpssValueTableFactory(this, entityType, spssFile, characterSet, locale);
       String tableName = factory.getName();
 
       if(!valueTablesMapOnInit.containsKey(tableName)) {
