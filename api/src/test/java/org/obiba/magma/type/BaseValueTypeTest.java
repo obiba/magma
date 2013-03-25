@@ -1,7 +1,7 @@
 package org.obiba.magma.type;
 
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -25,7 +25,7 @@ public abstract class BaseValueTypeTest extends AbstractMagmaTest {
   abstract Iterable<Class<?>> validClasses();
 
   ValueSequence getSequence(int size) {
-    List<Value> values = new ArrayList<Value>(size);
+    Collection<Value> values = new ArrayList<Value>(size);
     for(int i = 0; i < size; i++) {
       values.add(getValueType().valueOf(getObjectForType()));
     }
@@ -96,7 +96,7 @@ public abstract class BaseValueTypeTest extends AbstractMagmaTest {
   }
 
   @Test
-  public void testToStringOfValueObjecttIsNotNull() {
+  public void testToStringOfValueObjectIsNotNull() {
     Object valueObject = getObjectForType();
     Value value = getValueType().valueOf(valueObject);
     Assert.assertNotNull(value.toString());
@@ -147,7 +147,7 @@ public abstract class BaseValueTypeTest extends AbstractMagmaTest {
   }
 
   @Test
-  public void test_isDateTyime() {
+  public void test_isDateTime() {
     Assert.assertEquals(isDateTime(), getValueType().isDateTime());
   }
 
@@ -159,7 +159,7 @@ public abstract class BaseValueTypeTest extends AbstractMagmaTest {
   }
 
   @Test
-  public void test_acceptsJavaClass_doesntAcceptInvalidClass() {
+  public void test_acceptsJavaClass_doesNotAcceptInvalidClass() {
     Assert.assertFalse(getValueType().acceptsJavaClass(NullPointerException.class));
   }
 }
