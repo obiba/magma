@@ -33,14 +33,17 @@ public class SpssValueTableFactory {
   @Nonnull
   private final String characterSet;
 
-  private String name;
+  private final String locale;
+
+  private final String name;
 
   public SpssValueTableFactory(@Nonnull Datasource datasource, @Nonnull String entityType, @Nonnull File file,
-      @Nonnull String characterSet) {
+      @Nonnull String characterSet, @Nonnull String locale) {
     this.datasource = datasource;
     this.entityType = entityType;
     this.file = file;
     this.characterSet = characterSet;
+    this.locale = locale;
     name = createValidFileName(file);
   }
 
@@ -49,7 +52,7 @@ public class SpssValueTableFactory {
       SPSSFile spssFile = new SPSSFile(file, Charset.forName(characterSet));
       spssFile.logFlag = false;
 
-      return new SpssValueTable(datasource, name, entityType, spssFile);
+      return new SpssValueTable(datasource, name, entityType, locale, spssFile);
     } catch(IOException e) {
       throw new SpssDatasourceParsingException(e, "FailedToOpenFile", file.getName());
     }
