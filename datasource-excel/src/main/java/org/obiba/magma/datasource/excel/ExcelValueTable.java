@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import org.apache.poi.ss.usermodel.Cell;
@@ -69,6 +70,7 @@ public class ExcelValueTable extends AbstractValueTable implements Initialisable
     }
   }
 
+  @Nonnull
   @Override
   public ExcelDatasource getDatasource() {
     return (ExcelDatasource) super.getDatasource();

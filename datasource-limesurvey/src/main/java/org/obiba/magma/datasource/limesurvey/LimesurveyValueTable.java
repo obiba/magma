@@ -349,6 +349,7 @@ class LimesurveyValueTable extends AbstractValueTable {
     }));
   }
 
+  @Nonnull
   @Override
   public LimesurveyDatasource getDatasource() {
     return (LimesurveyDatasource) super.getDatasource();

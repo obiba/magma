@@ -68,6 +68,7 @@ public class GeneratedValueTable implements ValueTable {
     }
   }
 
+  @Nonnull
   @Override
   public Datasource getDatasource() {
     return datasource;
@@ -78,6 +79,7 @@ public class GeneratedValueTable implements ValueTable {
     return dictionary.iterator().next().getEntityType();
   }
 
+  @Nonnull
   @Override
   public String getName() {
     return "generated";
@@ -152,8 +154,8 @@ public class GeneratedValueTable implements ValueTable {
   }
 
   @Override
-  public VariableValueSource getVariableValueSource(String name) throws NoSuchVariableException {
-    return generators.get(name);
+  public VariableValueSource getVariableValueSource(String variableName) throws NoSuchVariableException {
+    return generators.get(variableName);
   }
 
   @Override

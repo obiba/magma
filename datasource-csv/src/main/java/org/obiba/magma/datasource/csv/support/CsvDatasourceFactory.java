@@ -94,8 +94,7 @@ public class CsvDatasourceFactory extends AbstractDatasourceFactory {
   @Nonnull
   @Override
   protected Datasource internalCreate() {
-    CsvDatasource datasource;
-    datasource = bundle != null && bundle.isDirectory()
+    CsvDatasource datasource = bundle != null && bundle.isDirectory()
         ? new CsvDatasource(getName(), bundle)
         : new CsvDatasource(getName());
     if(characterSet != null) {

@@ -31,6 +31,8 @@ import org.hibernate.annotations.TypeDef;
 import org.obiba.magma.Value;
 import org.obiba.magma.hibernate.type.ValueHibernateType;
 
+import com.google.common.base.Objects;
+
 @SuppressWarnings("UnusedDeclaration")
 @Entity
 @Table(name = "value_set_value")
@@ -123,26 +125,15 @@ public class ValueSetValue implements Timestamped, Serializable {
 
     @Override
     public int hashCode() {
-      int prime = 31;
-      int result = 1;
-      result = prime * result + (valueSet == null ? 0 : valueSet.hashCode());
-      result = prime * result + (variable == null ? 0 : variable.hashCode());
-      return result;
+      return Objects.hashCode(valueSet, variable);
     }
 
     @Override
     public boolean equals(Object obj) {
       if(this == obj) return true;
-      if(obj == null) return false;
-      if(getClass() != obj.getClass()) return false;
+      if(obj == null || getClass() != obj.getClass()) return false;
       ValueSetValueId other = (ValueSetValueId) obj;
-      if(valueSet == null) {
-        if(other.valueSet != null) return false;
-      } else if(!valueSet.equals(other.valueSet)) return false;
-      if(variable == null) {
-        if(other.variable != null) return false;
-      } else if(!variable.equals(other.variable)) return false;
-      return true;
+      return Objects.equal(valueSet, other.valueSet) && Objects.equal(variable, other.variable);
     }
 
   }

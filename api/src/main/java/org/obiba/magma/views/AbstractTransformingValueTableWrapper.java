@@ -104,9 +104,9 @@ public abstract class AbstractTransformingValueTableWrapper extends AbstractValu
   }
 
   @Override
-  public VariableValueSource getVariableValueSource(String name) throws NoSuchVariableException {
+  public VariableValueSource getVariableValueSource(String variableName) throws NoSuchVariableException {
     return getVariableValueSourceMappingFunction()
-        .apply(super.getVariableValueSource(getVariableNameMappingFunction().unapply(name)));
+        .apply(super.getVariableValueSource(getVariableNameMappingFunction().unapply(variableName)));
   }
 
   @Override

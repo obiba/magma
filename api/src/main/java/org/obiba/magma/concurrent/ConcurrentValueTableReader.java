@@ -164,11 +164,11 @@ public class ConcurrentValueTableReader {
     }
   }
 
-  private void flushQueue(Variable[] variables, BlockingQueue<VariableEntityValues> writeQueue) {
-    VariableEntityValues values = writeQueue.poll();
-    while(values != null) {
+  private void flushQueue(@SuppressWarnings("ParameterHidesMemberVariable") Variable[] variables,
+      BlockingQueue<VariableEntityValues> writeQueue) {
+    VariableEntityValues values = null;
+    while((values = writeQueue.poll()) != null) {
       callback.onValues(values.getEntity(), variables, values.getValues());
-      values = writeQueue.poll();
     }
   }
 
@@ -204,7 +204,8 @@ public class ConcurrentValueTableReader {
     }
   }
 
-  private VariableValueSource[] prepareSources(Variable... variables) {
+  private VariableValueSource[] prepareSources(
+      @SuppressWarnings("ParameterHidesMemberVariable") Variable... variables) {
     VariableValueSource[] sources = new VariableValueSource[variables.length];
     for(int i = 0; i < variables.length; i++) {
       sources[i] = valueTable.getVariableValueSource(variables[i].getName());

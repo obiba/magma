@@ -81,6 +81,7 @@ class FsValueTable extends AbstractValueTable implements Initialisable, Disposab
     variableEntityProvider.dispose();
   }
 
+  @Nonnull
   @Override
   public FsDatasource getDatasource() {
     return (FsDatasource) super.getDatasource();

@@ -12,7 +12,6 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 import org.obiba.magma.Datasource;
 import org.obiba.magma.Initialisable;
@@ -134,7 +133,7 @@ public class JoinTable implements ValueTable, Initialisable {
     return tables;
   }
 
-  @Nullable
+  @Nonnull
   @Override
   public Datasource getDatasource() {
     // A JoinTable does not belong to a Datasource (or does it? which one?).
@@ -146,6 +145,7 @@ public class JoinTable implements ValueTable, Initialisable {
     return getTables().get(0).getEntityType();
   }
 
+  @Nonnull
   @Override
   public String getName() {
     return buildJoinTableName();

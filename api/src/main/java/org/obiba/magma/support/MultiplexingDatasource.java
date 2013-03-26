@@ -189,6 +189,7 @@ public class MultiplexingDatasource extends AbstractDatasourceWrapper {
       this.wrappedTable = wrappedTable;
     }
 
+    @Nonnull
     @Override
     public String getName() {
       return name;

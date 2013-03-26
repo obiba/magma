@@ -146,6 +146,7 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
     return !(getListClause() instanceof NoneClause);
   }
 
+  @Nonnull
   @Override
   public Datasource getDatasource() {
     return viewDatasource == null ? getWrappedValueTable().getDatasource() : viewDatasource;
@@ -346,6 +347,7 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
     viewDatasource = datasource;
   }
 
+  @Nonnull
   @Override
   public String getName() {
     return name;

@@ -4,6 +4,8 @@ import java.lang.ref.WeakReference;
 import java.util.Collections;
 import java.util.Set;
 
+import javax.annotation.Nonnull;
+
 import org.obiba.magma.Datasource;
 import org.obiba.magma.MagmaEngine;
 import org.obiba.magma.NoSuchValueSetException;
@@ -27,11 +29,13 @@ public class NullValueTable implements ValueTable {
   private NullValueTable() {
   }
 
+  @Nonnull
   @Override
   public String getName() {
     return null;
   }
 
+  @Nonnull
   @Override
   public Datasource getDatasource() {
     return null;
@@ -93,8 +97,8 @@ public class NullValueTable implements ValueTable {
   }
 
   @Override
-  public VariableValueSource getVariableValueSource(String name) throws NoSuchVariableException {
-    throw new NoSuchVariableException("null", name);
+  public VariableValueSource getVariableValueSource(String variableName) throws NoSuchVariableException {
+    throw new NoSuchVariableException("null", variableName);
   }
 
   @Override

@@ -2,10 +2,14 @@ package org.obiba.magma;
 
 import java.util.Set;
 
+import javax.annotation.Nonnull;
+
 public interface ValueTable extends Timestamped {
 
+  @Nonnull
   String getName();
 
+  @Nonnull
   Datasource getDatasource();
 
   String getEntityType();
@@ -30,7 +34,7 @@ public interface ValueTable extends Timestamped {
 
   Value getValue(Variable variable, ValueSet valueSet);
 
-  VariableValueSource getVariableValueSource(String name) throws NoSuchVariableException;
+  VariableValueSource getVariableValueSource(String variableName) throws NoSuchVariableException;
 
   boolean isView();
 
