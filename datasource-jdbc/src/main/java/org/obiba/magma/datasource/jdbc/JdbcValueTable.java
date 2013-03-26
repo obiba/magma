@@ -99,6 +99,7 @@ class JdbcValueTable extends AbstractValueTable {
         : getDatasource().getSettings().getDefaultEntityType();
   }
 
+  @Nonnull
   @Override
   public JdbcDatasource getDatasource() {
     return (JdbcDatasource) super.getDatasource();
@@ -136,8 +137,7 @@ class JdbcValueTable extends AbstractValueTable {
           List<String> entityIdentifierColumns = getSettings().getEntityIdentifierColumns();
           int nbIdentifiers = entityIdentifierColumns.size();
           for(int i = 0; i < nbIdentifiers; i++) {
-            sb.append(entityIdentifierColumns.get(i));
-            sb.append(" = ?");
+            sb.append(entityIdentifierColumns.get(i)).append(" = ?");
             if(i < nbIdentifiers - 1) {
               sb.append(" AND ");
             }

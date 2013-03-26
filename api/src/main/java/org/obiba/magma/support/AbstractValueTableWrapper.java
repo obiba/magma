@@ -2,6 +2,8 @@ package org.obiba.magma.support;
 
 import java.util.Set;
 
+import javax.annotation.Nonnull;
+
 import org.obiba.magma.Datasource;
 import org.obiba.magma.NoSuchValueSetException;
 import org.obiba.magma.NoSuchVariableException;
@@ -18,6 +20,7 @@ public abstract class AbstractValueTableWrapper implements ValueTableWrapper {
   @Override
   public abstract ValueTable getWrappedValueTable();
 
+  @Nonnull
   @Override
   public Datasource getDatasource() {
     return getWrappedValueTable().getDatasource();
@@ -28,6 +31,7 @@ public abstract class AbstractValueTableWrapper implements ValueTableWrapper {
     return getWrappedValueTable().getEntityType();
   }
 
+  @Nonnull
   @Override
   public String getName() {
     return getWrappedValueTable().getName();
@@ -74,8 +78,8 @@ public abstract class AbstractValueTableWrapper implements ValueTableWrapper {
   }
 
   @Override
-  public VariableValueSource getVariableValueSource(String name) throws NoSuchVariableException {
-    return getWrappedValueTable().getVariableValueSource(name);
+  public VariableValueSource getVariableValueSource(String variableName) throws NoSuchVariableException {
+    return getWrappedValueTable().getVariableValueSource(variableName);
   }
 
   @Override

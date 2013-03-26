@@ -439,4 +439,7 @@ public interface Variable extends AttributeAware {
    * @return true when the value is considered {@code missing}, false otherwise.
    */
   boolean isMissingValue(Value value);
+
+  boolean areAllCategoriesMissing();
+
 }

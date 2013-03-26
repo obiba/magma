@@ -128,7 +128,7 @@ public class BinaryValueFileHelper {
    * @param value
    * @return
    */
-  @SuppressWarnings("ResultOfMethodCallIgnored")
+  @SuppressWarnings({ "ResultOfMethodCallIgnored", "PMD.NcssMethodCount" })
   @edu.umd.cs.findbugs.annotations.SuppressWarnings("RV_RETURN_VALUE_IGNORED_BAD_PRACTICE")
   private static Value writeFileValue(File parent, String name, String extension, Value value) {
     if(value.isSequence()) return writeFileValueSequence(parent, name, extension, value);

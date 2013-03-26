@@ -133,4 +133,12 @@ class VariableBean extends AbstractAttributeAware implements Variable, Serializa
     }
     return categoriesAsValue;
   }
+
+  @Override
+  public boolean areAllCategoriesMissing() {
+    for(Category category : getCategories()) {
+      if(!category.isMissing()) return false;
+    }
+    return true;
+  }
 }

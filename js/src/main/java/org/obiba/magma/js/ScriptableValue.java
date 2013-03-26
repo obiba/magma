@@ -38,6 +38,8 @@ public class ScriptableValue extends ScriptableObject {
   /**
    * No-arg ctor for building the prototype
    */
+  @edu.umd.cs.findbugs.annotations.SuppressWarnings(value = "NP_NONNULL_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR",
+      justification = "Needed by ScriptableValuePrototypeFactory")
   ScriptableValue() {
 
   }
@@ -80,6 +82,7 @@ public class ScriptableValue extends ScriptableObject {
         return Context.toObject(defaultValue, this);
       }
       double jsDate;
+      //noinspection ConstantConditions
       jsDate = value.getValueType() == DateType.get()
           ? ((MagmaDate) defaultValue).asDate().getTime()
           : ((Date) defaultValue).getTime();

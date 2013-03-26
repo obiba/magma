@@ -64,6 +64,7 @@ class HibernateValueTable extends AbstractValueTable {
     readVariables();
   }
 
+  @Nonnull
   @Override
   public HibernateDatasource getDatasource() {
     return (HibernateDatasource) super.getDatasource();
