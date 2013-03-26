@@ -13,6 +13,7 @@ package org.obiba.magma.datasource.spss.support;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import javax.annotation.Nonnull;
 
@@ -30,17 +31,19 @@ public class SpssDatasourceFactory extends AbstractDatasourceFactory {
 
   private static final String DEFAULT_ENTITY_TYPE = "Participant";
 
-
+  private static final String DEFAULT_LOCALE = "en";
 
   //
   // Data members
   //
 
-  private List<File> files = new ArrayList<File>();
+  private final List<File> files = new ArrayList<File>();
 
   private String characterSet;
 
   private String entityType;
+
+  private String locale;
 
   public void setFile(String path) {
     setFile(new File(path));
@@ -66,6 +69,10 @@ public class SpssDatasourceFactory extends AbstractDatasourceFactory {
     this.entityType = entityType;
   }
 
+  public void setLocale(String locale) {
+    this.locale = locale;
+  }
+
   @Override
   public Datasource create() {
     return internalCreate();
@@ -82,6 +89,10 @@ public class SpssDatasourceFactory extends AbstractDatasourceFactory {
       entityType = DEFAULT_ENTITY_TYPE;
     }
 
-    return new SpssDatasource(getName(), files, characterSet, entityType);
+    if (Strings.isNullOrEmpty(locale)) {
+      locale = DEFAULT_LOCALE;
+    }
+
+    return new SpssDatasource(getName(), files, characterSet, entityType, locale);
   }
 }
