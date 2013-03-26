@@ -10,6 +10,7 @@
 package org.obiba.magma.datasource.spss.support;
 
 import java.io.IOException;
+import java.util.Locale;
 import java.util.Set;
 
 import javax.annotation.Nonnull;
@@ -47,14 +48,18 @@ public class SpssVariableValueSourceFactory implements VariableValueSourceFactor
   @Nonnull
   private final String entityType;
 
+  @Nonnull
+  private final String locale;
+
   /**
    * @param spssFile
    * @throws IOException
    * @throws SPSSFileException
    */
-  public SpssVariableValueSourceFactory(@Nonnull SPSSFile spssFile, @Nonnull String entityType) {
+  public SpssVariableValueSourceFactory(@Nonnull SPSSFile spssFile, @Nonnull String entityType, @Nonnull String locale) {
     this.spssFile = spssFile;
     this.entityType = entityType;
+    this.locale = locale;
   }
 
   @Override
@@ -121,7 +126,8 @@ public class SpssVariableValueSourceFactory implements VariableValueSourceFactor
 
     if(!Strings.isNullOrEmpty(label)) {
       validate(label);
-      builder.addAttribute("label", label);
+      builder.addAttribute(
+          Attribute.Builder.newAttribute("label").withValue(label).withLocale(new Locale(locale)).build());
     }
   }
 
