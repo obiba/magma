@@ -42,11 +42,15 @@ import com.google.common.collect.ImmutableSet;
 public class SpssValueTable extends AbstractValueTable implements Disposable {
 
   private final static Logger log = LoggerFactory.getLogger(SpssValueTable.class);
+
   private final SPSSFile spssFile;
 
-  public SpssValueTable(Datasource datasource, String name, String entityType, SPSSFile spssFile) {
+  private final String locale;
+
+  public SpssValueTable(Datasource datasource, String name, String entityType, String locale, SPSSFile spssFile) {
     super(datasource, name);
     this.spssFile = spssFile;
+    this.locale = locale;
     setVariableEntityProvider(new SpssVariableEntityProvider(entityType));
   }
 
@@ -86,7 +90,7 @@ public class SpssValueTable extends AbstractValueTable implements Disposable {
 
   private void initializeVariableSources() {
     loadMetadata();
-    addVariableValueSources(new SpssVariableValueSourceFactory(spssFile, getEntityType()));
+    addVariableValueSources(new SpssVariableValueSourceFactory(spssFile, getEntityType(), locale));
   }
 
   private void loadMetadata() {
