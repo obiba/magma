@@ -29,6 +29,7 @@ public class ConcurrentValueTableReader {
 
   private boolean ignoreReadErrors = false;
 
+  @SuppressWarnings("ParameterHidesMemberVariable")
   public static class Builder {
 
     ConcurrentValueTableReader reader = new ConcurrentValueTableReader();
@@ -80,6 +81,7 @@ public class ConcurrentValueTableReader {
     }
   }
 
+  @SuppressWarnings("ParameterHidesMemberVariable")
   public interface ConcurrentReaderCallback {
 
     /**
