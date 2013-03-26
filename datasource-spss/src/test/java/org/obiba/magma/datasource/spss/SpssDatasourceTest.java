@@ -10,6 +10,7 @@
 package org.obiba.magma.datasource.spss;
 
 import java.io.File;
+import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
@@ -59,192 +60,274 @@ public class SpssDatasourceTest {
 
   @Test
   public void createDatasourceWithValidFile() {
-    dsFactory.setFile("src/test/resources/org/obiba/magma/datasource/spss/DatabaseTest.sav");
-    Datasource ds = dsFactory.create();
-    Assert.assertEquals(SpssDatasourceFactory.DEFAULT_DATASOURCE_NAME, ds.getName());
+    try {
+      dsFactory.setFile(getResourceFile("org/obiba/magma/datasource/spss/DatabaseTest.sav"));
+      Datasource ds = dsFactory.create();
+      Assert.assertEquals(SpssDatasourceFactory.DEFAULT_DATASOURCE_NAME, ds.getName());
+    }
+    catch(Exception e) {
+      fail();
+    }
+
   }
 
   @Test
   public void createDatasourceWithInvalidFile() {
-    dsFactory.setFile("src/test/resources/org/obiba/magma/datasource/spss/DatabaseTest.sav");
-    Datasource ds = dsFactory.create();
-    Assert.assertEquals(SpssDatasourceFactory.DEFAULT_DATASOURCE_NAME, ds.getName());
+    try {
+      dsFactory.setFile(getResourceFile("org/obiba/magma/datasource/spss/DatabaseTest.sav"));
+      Datasource ds = dsFactory.create();
+      Assert.assertEquals(SpssDatasourceFactory.DEFAULT_DATASOURCE_NAME, ds.getName());
+    }
+    catch(Exception e) {
+      fail();
+    }
   }
 
   @Test
   public void createDatasourceWithTwoFiles() {
-    File file1 = new File("src/test/resources/org/obiba/magma/datasource/spss/DatabaseTest.sav");
-    File file2 = new File("src/test/resources/org/obiba/magma/datasource/spss/HOP phase1d LifeLines.sav");
+    try {
+      File file1 = getResourceFile("org/obiba/magma/datasource/spss/DatabaseTest.sav");
+      File file2 = getResourceFile("org/obiba/magma/datasource/spss/HOP phase1d LifeLines.sav");
 
-    dsFactory.addFile(file1);
-    dsFactory.addFile(file2);
+      dsFactory.addFile(file1);
+      dsFactory.addFile(file2);
 
-    Datasource ds = dsFactory.create();
-    Assert.assertEquals(SpssDatasourceFactory.DEFAULT_DATASOURCE_NAME, ds.getName());
+      Datasource ds = dsFactory.create();
+      Assert.assertEquals(SpssDatasourceFactory.DEFAULT_DATASOURCE_NAME, ds.getName());
+    }
+    catch(Exception e) {
+      fail();
+    }
   }
 
   @Test
   public void initilizeDatasourceWithValidFile() {
-    dsFactory.setFile("src/test/resources/org/obiba/magma/datasource/spss/DatabaseTest.sav");
-    Datasource ds = dsFactory.create();
-    ds.initialise();
-    Assert.assertEquals(SpssDatasourceFactory.DEFAULT_DATASOURCE_NAME, ds.getName());
+    try {
+      dsFactory.setFile(getResourceFile("org/obiba/magma/datasource/spss/DatabaseTest.sav"));
+      Datasource ds = dsFactory.create();
+      ds.initialise();
+      Assert.assertEquals(SpssDatasourceFactory.DEFAULT_DATASOURCE_NAME, ds.getName());
+    }
+    catch(Exception e) {
+      fail();
+    }
   }
 
   @Test(expected = SpssDatasourceParsingException.class)
   public void initilizeDatasourceWithInvalidFile() {
-    dsFactory.setFile("src/test/resources/org/obiba/magma/datasource/spss/DatabaseTest");
-    Datasource ds = dsFactory.create();
-    ds.initialise();
+      dsFactory.setFile("org/obiba/magma/datasource/spss/DatabaseTest");
+      Datasource ds = dsFactory.create();
+      ds.initialise();
   }
 
   @Test
   public void getValueTableDatasourceWithValidFile() {
-    dsFactory.setFile("src/test/resources/org/obiba/magma/datasource/spss/HOP phase1d LifeLines.sav");
-    Datasource ds = dsFactory.create();
-    ds.initialise();
-    Assert.assertNotNull(ds.getValueTable("HOPphase1dLifeLines"));
+    try {
+      dsFactory.setFile(getResourceFile("org/obiba/magma/datasource/spss/HOP phase1d LifeLines.sav"));
+      Datasource ds = dsFactory.create();
+      ds.initialise();
+      Assert.assertNotNull(ds.getValueTable("HOPphase1dLifeLines"));
+    }
+    catch(Exception e) {
+      fail();
+    }
   }
 
   @Test
   public void getValueTableDatasourceWithColonFileName() {
-    dsFactory.setFile("src/test/resources/org/obiba/magma/datasource/spss/Database:Test.sav");
-    Datasource ds = dsFactory.create();
-    ds.initialise();
-    Assert.assertNotNull(ds.getValueTable("DatabaseTest"));
+    try {
+      dsFactory.setFile(getResourceFile("org/obiba/magma/datasource/spss/Database:Test.sav"));
+      Datasource ds = dsFactory.create();
+      ds.initialise();
+      Assert.assertNotNull(ds.getValueTable("DatabaseTest"));
+    }
+    catch(Exception e) {
+      fail();
+    }
   }
 
   @Test
   public void getVariableFromValueTable() {
-    dsFactory.setFile("src/test/resources/org/obiba/magma/datasource/spss/DatabaseTest.sav");
-    Datasource ds = dsFactory.create();
-    ds.initialise();
-    Assert.assertNotNull(ds.getValueTable("DatabaseTest").getVariable("race"));
+    try {
+      dsFactory.setFile(getResourceFile("org/obiba/magma/datasource/spss/DatabaseTest.sav"));
+      Datasource ds = dsFactory.create();
+      ds.initialise();
+      Assert.assertNotNull(ds.getValueTable("DatabaseTest").getVariable("race"));
+    }
+    catch(Exception e) {
+      fail();
+    }
+
   }
 
   @Test
   public void getVariableFromValueTableWithFrenchChars() {
-    dsFactory.setFile("src/test/resources/org/obiba/magma/datasource/spss/dictionnaire_variablesT4-simple.sav");
-    Datasource ds = dsFactory.create();
-    ds.initialise();
-    Assert.assertNotNull(ds.getValueTable("dictionnaire_variablesT4-simple").getVariable("ETATCIT4"));
+    try {
+      dsFactory.setFile(getResourceFile("org/obiba/magma/datasource/spss/dictionnaire_variablesT4-simple.sav"));
+      Datasource ds = dsFactory.create();
+      ds.initialise();
+      Assert.assertNotNull(ds.getValueTable("dictionnaire_variablesT4-simple").getVariable("ETATCIT4"));
+    }
+    catch(URISyntaxException e) {
+      fail();
+    }
   }
 
   @Test(expected = NoSuchVariableException.class)
   public void getVariableInUpperCaseFromValueTable() {
-    dsFactory.setFile("src/test/resources/org/obiba/magma/datasource/spss/DatabaseTest.sav");
-    Datasource ds = dsFactory.create();
-    ds.initialise();
-    Assert.assertNotNull(ds.getValueTable("DatabaseTest").getVariable("RACE"));
+    try {
+      dsFactory.setFile(getResourceFile("org/obiba/magma/datasource/spss/DatabaseTest.sav"));
+      Datasource ds = dsFactory.create();
+      ds.initialise();
+      Assert.assertNotNull(ds.getValueTable("DatabaseTest").getVariable("RACE"));
+    } catch(URISyntaxException e) {
+      fail();
+    }
   }
 
   @Test(expected = NoSuchVariableException.class)
   public void getInvalidVariableFromValueTable() {
-    dsFactory.setFile("src/test/resources/org/obiba/magma/datasource/spss/DatabaseTest.sav");
-    Datasource ds = dsFactory.create();
-    ds.initialise();
-    Assert.assertNotNull(ds.getValueTable("DatabaseTest").getVariable("blabla"));
+    try {
+      dsFactory.setFile(getResourceFile("org/obiba/magma/datasource/spss/DatabaseTest.sav"));
+      Datasource ds = dsFactory.create();
+      ds.initialise();
+      Assert.assertNotNull(ds.getValueTable("DatabaseTest").getVariable("blabla"));
+    }
+    catch(URISyntaxException e) {
+      fail();
+    }
   }
 
   @Test
   public void getDecimalVariableTypeFromValueTable() {
-    dsFactory.setFile("src/test/resources/org/obiba/magma/datasource/spss/RobotChicken.sav");
-    Datasource ds = dsFactory.create();
-    ds.initialise();
-    Assert.assertEquals(DecimalType.class,
-        ds.getValueTable("RobotChicken").getVariable("VarDecimal").getValueType().getClass());
+    try {
+      dsFactory.setFile(getResourceFile("org/obiba/magma/datasource/spss/RobotChicken.sav"));
+      Datasource ds = dsFactory.create();
+      ds.initialise();
+      Assert.assertEquals(DecimalType.class,
+          ds.getValueTable("RobotChicken").getVariable("VarDecimal").getValueType().getClass());
+    }
+    catch(Exception e) {
+      fail();
+    }
   }
 
   @Test
   public void getQYDVariableTypeFromValueTable() {
-    dsFactory.setFile("src/test/resources/org/obiba/magma/datasource/spss/RobotChicken.sav");
-    Datasource ds = dsFactory.create();
-    ds.initialise();
-    Assert.assertEquals(TextType.class,
-        ds.getValueTable("RobotChicken").getVariable("VarQuarterly").getValueType().getClass());
+    try {
+      dsFactory.setFile(getResourceFile("org/obiba/magma/datasource/spss/RobotChicken.sav"));
+      Datasource ds = dsFactory.create();
+      ds.initialise();
+      Assert.assertEquals(TextType.class,
+          ds.getValueTable("RobotChicken").getVariable("VarQuarterly").getValueType().getClass());
+    }
+    catch(Exception e) {
+      fail();
+    }
   }
 
   @Test
   public void getCustomCurrencyVariableTypeFromValueTable() {
-    dsFactory.setFile("src/test/resources/org/obiba/magma/datasource/spss/RobotChicken.sav");
-    Datasource ds = dsFactory.create();
-    ds.initialise();
-    Assert.assertEquals(TextType.class,
-        ds.getValueTable("RobotChicken").getVariable("VarCurrency").getValueType().getClass());
+    try {
+      dsFactory.setFile(getResourceFile("org/obiba/magma/datasource/spss/RobotChicken.sav"));
+      Datasource ds = dsFactory.create();
+      ds.initialise();
+      Assert.assertEquals(TextType.class,
+          ds.getValueTable("RobotChicken").getVariable("VarCurrency").getValueType().getClass());    }
+    catch(Exception e) {
+      fail();
+    }
   }
 
   @Test
   public void getVariableEntitiesVariableEntityProvider() {
-    dsFactory.setFile("src/test/resources/org/obiba/magma/datasource/spss/DatabaseTest.sav");
-    Datasource ds = dsFactory.create();
-    ds.initialise();
+    try {
+      dsFactory.setFile(getResourceFile("org/obiba/magma/datasource/spss/DatabaseTest.sav"));
+      Datasource ds = dsFactory.create();
+      ds.initialise();
 
-    ValueTable valueTable = ds.getValueTable("DatabaseTest");
+      ValueTable valueTable = ds.getValueTable("DatabaseTest");
 
-    Set<VariableEntity> variableEntities = valueTable.getVariableEntities();
-    assertTrue(variableEntities.size() == 200);
+      Set<VariableEntity> variableEntities = valueTable.getVariableEntities();
+      assertTrue(variableEntities.size() == 200);
+    }
+    catch(Exception e) {
+      fail();
+    }
   }
 
   @Test
   public void getValueSetForGivenEntity() {
-    dsFactory.setFile("src/test/resources/org/obiba/magma/datasource/spss/DatabaseTest.sav");
-    Datasource ds = dsFactory.create();
-    ds.initialise();
+    try {
+      dsFactory.setFile(getResourceFile("org/obiba/magma/datasource/spss/DatabaseTest.sav"));
+      Datasource ds = dsFactory.create();
+      ds.initialise();
 
-    ValueTable valueTable = ds.getValueTable("DatabaseTest");
-    Iterator<VariableEntity> iterator = valueTable.getVariableEntities().iterator();
+      ValueTable valueTable = ds.getValueTable("DatabaseTest");
+      Iterator<VariableEntity> iterator = valueTable.getVariableEntities().iterator();
 
-    if(iterator.hasNext()) {
-      SpssValueSet valueSet = (SpssValueSet) valueTable.getValueSet(iterator.next());
-      Value value = valueSet.getValue(ds.getValueTable("DatabaseTest").getVariable("race"));
-      Assert.assertNotNull(value);
-      Assert.assertFalse(value.isNull());
-      Value expected = DecimalType.get().valueOf(4.0);
-      Assert.assertTrue(value.compareTo(expected) == 0);
+      if(iterator.hasNext()) {
+        SpssValueSet valueSet = (SpssValueSet) valueTable.getValueSet(iterator.next());
+        Value value = valueSet.getValue(ds.getValueTable("DatabaseTest").getVariable("race"));
+        Assert.assertNotNull(value);
+        Assert.assertFalse(value.isNull());
+        Value expected = DecimalType.get().valueOf(4.0);
+        Assert.assertTrue(value.compareTo(expected) == 0);
+      }
+    }
+    catch(Exception e) {
+      fail();
     }
   }
 
   @Test
   public void getValueSetForGivenEntityLargeDatasource() {
-    dsFactory.setFile("src/test/resources/org/obiba/magma/datasource/spss/sharew2_rel2-5-0_ac.sav");
-    Datasource ds = dsFactory.create();
-    ds.initialise();
-    ValueTable valueTable = ds.getValueTable("sharew2_rel2-5-0_ac");
-    Iterator<VariableEntity> iterator = valueTable.getVariableEntities().iterator();
+    try {
+      dsFactory.setFile(getResourceFile("org/obiba/magma/datasource/spss/sharew2_rel2-5-0_ac.sav"));
+      Datasource ds = dsFactory.create();
+      ds.initialise();
+      ValueTable valueTable = ds.getValueTable("sharew2_rel2-5-0_ac");
+      Iterator<VariableEntity> iterator = valueTable.getVariableEntities().iterator();
 
-    if(iterator.hasNext()) {
-      SpssValueSet valueSet = (SpssValueSet) valueTable.getValueSet(iterator.next());
-      Value value = valueSet.getValue(ds.getValueTable("sharew2_rel2-5-0_ac").getVariable("hhid2"));
-      Assert.assertNotNull(value);
-      Assert.assertFalse(value.isNull());
-      Value expected = TextType.get().valueOf("AT-000327-A");
-      Assert.assertTrue(value.compareTo(expected) == 0);
+      if(iterator.hasNext()) {
+        SpssValueSet valueSet = (SpssValueSet) valueTable.getValueSet(iterator.next());
+        Value value = valueSet.getValue(ds.getValueTable("sharew2_rel2-5-0_ac").getVariable("hhid2"));
+        Assert.assertNotNull(value);
+        Assert.assertFalse(value.isNull());
+        Value expected = TextType.get().valueOf("AT-000327-A");
+        Assert.assertTrue(value.compareTo(expected) == 0);
+      }
+    }
+    catch(Exception e) {
+      fail();
     }
   }
 
   @Test
   public void getStringVariableCategories() {
-    dsFactory.setFile("src/test/resources/org/obiba/magma/datasource/spss/StringCategories.sav");
-    Datasource ds = dsFactory.create();
-    ds.initialise();
-    Variable variable = ds.getValueTable("StringCategories").getVariable("var1");
-    assertThat(variable, not(is(nullValue())));
-    Set<Category> categories = variable.getCategories();
-    assertThat(categories.size(), is(4));
-    Collection<String> expectedNames = new HashSet<String>(Arrays.asList(new String[] { "a", "b", "c", "d" }));
+    try {
+      dsFactory.setFile(getResourceFile("org/obiba/magma/datasource/spss/StringCategories.sav"));
+      Datasource ds = dsFactory.create();
+      ds.initialise();
+      Variable variable = ds.getValueTable("StringCategories").getVariable("var1");
+      assertThat(variable, not(is(nullValue())));
+      Set<Category> categories = variable.getCategories();
+      assertThat(categories.size(), is(4));
+      Collection<String> expectedNames = new HashSet<String>(Arrays.asList(new String[] { "a", "b", "c", "d" }));
 
-    for(Category category : categories) {
-      assertThat(expectedNames.contains(category.getName()), is(true));
+      for(Category category : categories) {
+        assertThat(expectedNames.contains(category.getName()), is(true));
+      }
+    }
+    catch(Exception e) {
+      fail();
     }
   }
 
   @Test
   public void createUserDefinedEntityType() {
     try {
-      File file = new File(
-          getClass().getClassLoader().getResource("org/obiba/magma/datasource/spss/StringCategories.sav").toURI());
-
-      dsFactory.addFile(file);
+      dsFactory.addFile(getResourceFile("org/obiba/magma/datasource/spss/StringCategories.sav"));
       dsFactory.setEntityType("Patate");
       Datasource ds = dsFactory.create();
       assertThat(ds, not(is(nullValue())));
@@ -260,10 +343,7 @@ public class SpssDatasourceTest {
   @Test
   public void readScientificNotationVarType() {
     try {
-      File file = new File(
-          getClass().getClassLoader().getResource("org/obiba/magma/datasource/spss/ScientificNotationVar.sav").toURI());
-
-      dsFactory.addFile(file);
+      dsFactory.addFile(getResourceFile("org/obiba/magma/datasource/spss/ScientificNotationVar.sav"));
       dsFactory.setEntityType("Patate");
       Datasource ds = dsFactory.create();
       ds.initialise();
@@ -283,5 +363,9 @@ public class SpssDatasourceTest {
     } catch(Exception e) {
       fail();
     }
+  }
+
+  private File getResourceFile(String resourcePath) throws URISyntaxException {
+    return new File(getClass().getClassLoader().getResource(resourcePath).toURI());
   }
 }
