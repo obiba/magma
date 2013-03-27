@@ -13,7 +13,6 @@
   <artifactId>magma-api</artifactId>
   <name>api</name>
 
-
   <dependencies>
     <dependency>
       <groupId>net.sf.opencsv</groupId>
