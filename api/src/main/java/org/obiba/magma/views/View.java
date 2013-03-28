@@ -200,6 +200,11 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
   }
 
   @Override
+  public String getTableReference() {
+    return getDatasource().getName() + "." + getName();
+  }
+
+  @Override
   public boolean hasValueSet(@Nullable VariableEntity entity) {
     if(entity == null) return false;
 

@@ -6,6 +6,8 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
+import javax.annotation.Nonnull;
+
 import com.google.common.base.Function;
 import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.ListMultimap;
@@ -37,7 +39,7 @@ class VariableBean extends AbstractAttributeAware implements Variable, Serializa
    * Use a linked hash set to keep insertion order
    */
   @SuppressWarnings({ "CollectionDeclaredAsConcreteClass", "TypeMayBeWeakened" })
-  LinkedHashSet<Category> categories = new LinkedHashSet<Category>();
+  final LinkedHashSet<Category> categories = new LinkedHashSet<Category>();
 
   transient Map<Value, Category> categoriesAsValue;
 
@@ -141,4 +143,10 @@ class VariableBean extends AbstractAttributeAware implements Variable, Serializa
     }
     return true;
   }
+
+  @Override
+  public String getVariableReference(@Nonnull ValueTable table) {
+    return table.getTableReference() + ":" + getName();
+  }
+
 }

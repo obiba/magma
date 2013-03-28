@@ -111,10 +111,17 @@ public class NullValueTable implements ValueTable {
     return false;
   }
 
+  @Override
+  public String getTableReference() {
+    return null;
+  }
+
+  @Nonnull
   public static NullValueTable get() {
     if(instance == null || instance.get() == null) {
       instance = MagmaEngine.get().registerInstance(new NullValueTable());
     }
+    //noinspection ConstantConditions
     return instance.get();
   }
 

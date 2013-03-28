@@ -191,4 +191,9 @@ public class GeneratedValueTable implements ValueTable {
     return false;
   }
 
+  @Override
+  public String getTableReference() {
+    return (datasource == null ? "" : datasource.getName()) + "." + getName();
+  }
+
 }

@@ -134,6 +134,7 @@ public class JoinTable implements ValueTable, Initialisable {
   }
 
   @Nonnull
+  @SuppressWarnings({ "NullableProblems", "ConstantConditions" })
   @Override
   public Datasource getDatasource() {
     // A JoinTable does not belong to a Datasource (or does it? which one?).
@@ -309,6 +310,12 @@ public class JoinTable implements ValueTable, Initialisable {
   @Override
   public boolean isView() {
     return false;
+  }
+
+  @Override
+  public String getTableReference() {
+    // A JoinTable does not belong to a Datasource (or does it? which one?).
+    return "";
   }
 
   static class JoinedValueSet extends ValueSetBean {

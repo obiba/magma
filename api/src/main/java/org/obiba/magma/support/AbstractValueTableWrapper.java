@@ -108,4 +108,10 @@ public abstract class AbstractValueTableWrapper implements ValueTableWrapper {
         ? ((ValueTableWrapper) getWrappedValueTable()).getInnermostWrappedValueTable() //
         : getWrappedValueTable();
   }
+
+  @Override
+  public String getTableReference() {
+    return getWrappedValueTable().getTableReference();
+  }
+
 }
