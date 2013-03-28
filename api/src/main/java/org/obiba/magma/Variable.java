@@ -14,6 +14,7 @@ import java.util.Collection;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.google.common.base.Predicate;
@@ -441,5 +442,7 @@ public interface Variable extends AttributeAware {
   boolean isMissingValue(Value value);
 
   boolean areAllCategoriesMissing();
+
+  String getVariableReference(@Nonnull ValueTable table);
 
 }

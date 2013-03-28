@@ -38,4 +38,5 @@ public interface ValueTable extends Timestamped {
 
   boolean isView();
 
+  String getTableReference();
 }

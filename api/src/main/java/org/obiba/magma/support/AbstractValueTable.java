@@ -184,4 +184,8 @@ public abstract class AbstractValueTable implements ValueTable, Initialisable {
     return getValueSet(entity).getTimestamps();
   }
 
+  @Override
+  public String getTableReference() {
+    return getDatasource().getName() + "." + getName();
+  }
 }
