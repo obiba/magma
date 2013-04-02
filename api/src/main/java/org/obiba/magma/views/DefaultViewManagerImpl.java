@@ -1,4 +1,4 @@
-package org.obiba.magma.views.impl;
+package org.obiba.magma.views;
 
 import java.util.Set;
 
@@ -6,14 +6,12 @@ import javax.annotation.Nonnull;
 
 import org.obiba.magma.Datasource;
 import org.obiba.magma.Disposable;
+import org.obiba.magma.IncompatibleEntityTypeException;
 import org.obiba.magma.Initialisable;
 import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.NoSuchDatasourceException;
 import org.obiba.magma.NoSuchValueTableException;
-import org.obiba.magma.views.View;
-import org.obiba.magma.views.ViewAwareDatasource;
-import org.obiba.magma.views.ViewManager;
-import org.obiba.magma.views.ViewPersistenceStrategy;
+import org.obiba.magma.Variable;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
@@ -53,6 +51,15 @@ public class DefaultViewManagerImpl implements ViewManager, Initialisable, Dispo
 
     ViewAwareDatasource viewAwareDatasource = getViewAwareFromName(datasourceName);
     if(viewAwareDatasource == null) throw new NoSuchDatasourceException(datasourceName);
+
+    Preconditions.checkArgument(!Strings.isNullOrEmpty(view.getName()), "view name cannot be null or empty.");
+
+    // Check that variables have the same entity type as the from table
+    for(Variable v : view.getVariables()) {
+      if(!view.getEntityType().equals(v.getEntityType())) {
+        throw new IncompatibleEntityTypeException(view.getEntityType(), v.getEntityType());
+      }
+    }
 
     viewAwareDatasource.addView(view);
     try {

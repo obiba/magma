@@ -2,13 +2,18 @@ package org.obiba.magma.views;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.junit.Test;
+import org.obiba.magma.Datasource;
+import org.obiba.magma.IncompatibleEntityTypeException;
 import org.obiba.magma.NoSuchValueSetException;
 import org.obiba.magma.NoSuchVariableException;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueSet;
 import org.obiba.magma.ValueTable;
+import org.obiba.magma.ValueType;
 import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.VariableValueSource;
@@ -543,6 +548,41 @@ public class ViewTest extends AbstractMagmaTest {
 
     // Verify state.
     assertNotNull(result);
+  }
+
+  @Test(expected = IncompatibleEntityTypeException.class)
+  public void testCreateViewDifferentEntityType() {
+    ValueTable valueTableMock = createMock(ValueTable.class);
+    ListClause listClauseMock = createMock(ListClause.class);
+
+    ViewPersistenceStrategy viewPersistenceMock = createMock(ViewPersistenceStrategy.class);
+    Datasource datasourceMock = createMock(Datasource.class);
+
+    DefaultViewManagerImpl manager = new DefaultViewManagerImpl(viewPersistenceMock);
+
+    Set<View> views = new HashSet<View>();
+    View view = View.Builder.newView("view", valueTableMock).list(listClauseMock).build();
+    views.add(view);
+
+    Set<Variable> variables = new HashSet<Variable>();
+    Variable v = Variable.Builder.newVariable("variable", ValueType.Factory.forName("text"), "Martian").build();
+    variables.add(v);
+
+    VariableValueSource vSourceMock = createMock(VariableValueSource.class);
+
+    Set<VariableValueSource> variablesValueSource = new HashSet<VariableValueSource>();
+    variablesValueSource.add(vSourceMock);
+
+    expect(viewPersistenceMock.readViews("datasource")).andReturn(views);
+    expect(datasourceMock.getName()).andReturn("datasource").anyTimes();
+    expect(listClauseMock.getVariableValueSources()).andReturn(variablesValueSource);
+    expect(vSourceMock.getVariable()).andReturn(v).once();
+    expect(valueTableMock.getEntityType()).andReturn("NotMartian").anyTimes();
+
+    replay(datasourceMock, valueTableMock, listClauseMock, viewPersistenceMock, vSourceMock);
+
+    manager.decorate(datasourceMock);
+    manager.addView("datasource", view);
   }
 
   //
