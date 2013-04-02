@@ -45,6 +45,11 @@
       <artifactId>magma-datasource-csv</artifactId>
       <optional>true</optional>
     </dependency>
+    <dependency>
+      <groupId>org.obiba</groupId>
+      <artifactId>obiba-core</artifactId>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
 </project>

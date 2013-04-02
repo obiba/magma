@@ -41,8 +41,8 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
+import static org.obiba.core.util.FileUtil.getFileFromResource;
 import static org.obiba.magma.datasource.csv.CsvValueTable.DEFAULT_ENTITY_TYPE;
-import static org.obiba.magma.test.TestUtils.getFileFromResource;
 
 @SuppressWarnings({ "OverlyLongMethod", "ResultOfMethodCallIgnored", "OverlyCoupledClass" })
 public class CsvDatasourceTest {
