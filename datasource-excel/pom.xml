@@ -27,6 +27,13 @@
       <groupId>org.apache.poi</groupId>
       <artifactId>poi-ooxml</artifactId>
     </dependency>
+
+    <dependency>
+      <groupId>org.obiba</groupId>
+      <artifactId>obiba-core</artifactId>
+      <scope>test</scope>
+    </dependency>
+
   </dependencies>
 
 </project>

@@ -43,8 +43,8 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
+import static org.obiba.core.util.FileUtil.getFileFromResource;
 import static org.obiba.magma.datasource.csv.CsvValueTable.DEFAULT_ENTITY_TYPE;
-import static org.obiba.magma.test.TestUtils.getFileFromResource;
 
 /**
  *

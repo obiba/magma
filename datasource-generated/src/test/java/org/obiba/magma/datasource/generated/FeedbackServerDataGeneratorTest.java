@@ -8,6 +8,7 @@ import java.util.Set;
 import javax.annotation.Nullable;
 
 import org.junit.Test;
+import org.obiba.core.util.FileUtil;
 import org.obiba.magma.Category;
 import org.obiba.magma.Datasource;
 import org.obiba.magma.MagmaEngine;
@@ -36,7 +37,7 @@ public class FeedbackServerDataGeneratorTest {
     File targetFile = new File("target/generated.zip");
     targetFile.delete();
 
-    ExcelDatasource eds = new ExcelDatasource("patate", new File("src/test/resources/clsa-opal.xls"));
+    ExcelDatasource eds = new ExcelDatasource("patate", FileUtil.getFileFromResource("clsa-opal.xls"));
     Datasource target = new FsDatasource("target", targetFile);
 
     Initialisables.initialise(eds, target);

@@ -15,6 +15,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.obiba.core.util.FileUtil;
 import org.obiba.magma.Category;
 import org.obiba.magma.Datasource;
 import org.obiba.magma.MagmaEngine;
@@ -51,7 +52,7 @@ public class ExcelDatasourceTest {
   @Test
   public void testReadUserDefined() {
     ExcelDatasource datasource = new ExcelDatasource("user-defined",
-        new File("src/test/resources/org/obiba/magma/datasource/excel/user-defined.xls"));
+        FileUtil.getFileFromResource("org/obiba/magma/datasource/excel/user-defined.xls"));
     datasource.initialise();
 
     ValueTable table = datasource.getValueTable("Table1");
@@ -97,7 +98,7 @@ public class ExcelDatasourceTest {
   public void testReadUserDefinedBogus() {
 
     ExcelDatasource datasource = new ExcelDatasource("user-defined-bogus",
-        new File("src/test/resources/org/obiba/magma/datasource/excel/user-defined-bogus.xls"));
+        FileUtil.getFileFromResource("org/obiba/magma/datasource/excel/user-defined-bogus.xls"));
     try {
       datasource.initialise();
     } catch(DatasourceParsingException dpe) {
@@ -131,7 +132,7 @@ public class ExcelDatasourceTest {
   @Test
   public void testReadWriteUserDefinedNoTableColumn() throws IOException {
     ExcelDatasource datasource = new ExcelDatasource("user-defined-no-table-column",
-        new File("src/test/resources/org/obiba/magma/datasource/excel/user-defined-no-table-column.xls"));
+        FileUtil.getFileFromResource("org/obiba/magma/datasource/excel/user-defined-no-table-column.xls"));
     datasource.initialise();
 
     Assert.assertEquals(1, datasource.getValueTables().size());
@@ -151,7 +152,7 @@ public class ExcelDatasourceTest {
   @Test
   public void testReadWriteUserDefinedNoMeta() throws IOException {
     ExcelDatasource datasource = new ExcelDatasource("user-defined-no-meta",
-        new File("src/test/resources/org/obiba/magma/datasource/excel/user-defined-no-meta.xls"));
+        FileUtil.getFileFromResource("org/obiba/magma/datasource/excel/user-defined-no-meta.xls"));
     datasource.initialise();
 
     Assert.assertEquals(1, datasource.getValueTables().size());
@@ -177,7 +178,7 @@ public class ExcelDatasourceTest {
   @Test
   public void testReadUserDefinedMixedMeta() throws IOException {
     ExcelDatasource datasource = new ExcelDatasource("user-defined-mixed-meta",
-        new File("src/test/resources/org/obiba/magma/datasource/excel/user-defined-mixed-meta.xls"));
+        FileUtil.getFileFromResource("org/obiba/magma/datasource/excel/user-defined-mixed-meta.xls"));
     datasource.initialise();
 
     Assert.assertEquals(1, datasource.getValueTables().size());
@@ -199,7 +200,7 @@ public class ExcelDatasourceTest {
   @Test
   public void testReadUserDefinedBogusNoTableColumn() {
     ExcelDatasource datasource = new ExcelDatasource("user-defined-bogus-no-table-column",
-        new File("src/test/resources/org/obiba/magma/datasource/excel/user-defined-bogus-no-table-column.xls"));
+        FileUtil.getFileFromResource("org/obiba/magma/datasource/excel/user-defined-bogus-no-table-column.xls"));
     try {
       datasource.initialise();
     } catch(MagmaRuntimeException e) {
@@ -267,7 +268,7 @@ public class ExcelDatasourceTest {
     Workbook w = new XSSFWorkbook();
     Sheet s = w.createSheet();
     int i = 0;
-    for(String str : readStrings("src/test/resources/org/obiba/magma/datasource/excel/opal-238-strings.txt")) {
+    for(String str : readStrings("org/obiba/magma/datasource/excel/opal-238-strings.txt")) {
       s.createRow(i++).createCell(0).setCellValue(str);
     }
 
@@ -280,14 +281,14 @@ public class ExcelDatasourceTest {
   @Test
   public void testCreateDatasourceOnEmptyExcelFile() {
     ExcelDatasource datasource = new ExcelDatasource("empty",
-        new File("src/test/resources/org/obiba/magma/datasource/excel/empty.xls"));
+        FileUtil.getFileFromResource("org/obiba/magma/datasource/excel/empty.xls"));
     datasource.initialise();
   }
 
   @Test
   public void testReadLongTableNames() {
     ExcelDatasource datasource = new ExcelDatasource("long",
-        new File("src/test/resources/org/obiba/magma/datasource/excel/long-table-names.xlsx"));
+        FileUtil.getFileFromResource("org/obiba/magma/datasource/excel/long-table-names.xlsx"));
     datasource.initialise();
 
     assertLongTableNames(datasource);
@@ -296,7 +297,7 @@ public class ExcelDatasourceTest {
   @Test
   public void testWriteLongTableNames() {
     ExcelDatasource datasource = new ExcelDatasource("long",
-        new File("src/test/resources/org/obiba/magma/datasource/excel/long-table-names.xlsx"));
+        FileUtil.getFileFromResource("org/obiba/magma/datasource/excel/long-table-names.xlsx"));
     datasource.initialise();
 
     File testFile = new File("target/long-table-names.xlsx");
@@ -339,7 +340,7 @@ public class ExcelDatasourceTest {
 
   private List<String> readStrings(String filename) throws IOException {
     List<String> strs = new ArrayList<String>();
-    BufferedReader bis = new BufferedReader(new FileReader(new File(filename)));
+    BufferedReader bis = new BufferedReader(new FileReader(FileUtil.getFileFromResource(filename)));
     String s;
     while((s = bis.readLine()) != null) {
       if(s.trim().length() > 0) strs.add(s.trim());
