@@ -4,7 +4,6 @@ import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
 import java.util.SortedSet;
-import java.util.TreeSet;
 
 import com.google.common.collect.ImmutableSortedSet;
 import com.google.common.collect.Sets;
@@ -19,7 +18,7 @@ public class IntervalFrequency {
   // Used for rounding computations to 6 significant digits
   private final static MathContext CTX = new MathContext(6);
 
-  private final TreeSet<Interval> freqTable = Sets.newTreeSet();
+  private final SortedSet<Interval> freqTable = Sets.newTreeSet();
 
   private final BigDecimal min;
 
@@ -50,20 +49,21 @@ public class IntervalFrequency {
         .round(new MathContext(6, RoundingMode.CEILING));
 
     // (max - min) / intervals
-    BigDecimal intervalSize = this.max.subtract(this.min).divide(BigDecimal.valueOf(intervals), CTX);
-    intervalSize = maybeRoundToInteger(intervalSize, roundToIntegers, RoundingMode.HALF_UP);
+    BigDecimal localIntervalSize = this.max.subtract(this.min).divide(BigDecimal.valueOf(intervals), CTX);
+    localIntervalSize = maybeRoundToInteger(localIntervalSize, roundToIntegers, RoundingMode.HALF_UP);
 
     // When rounding to integer, we may have rounded the interval size to 0: change it to 1, the smallest interval size
-    if(roundToIntegers && intervalSize.compareTo(BigDecimal.ZERO) == 0) {
-      intervalSize = BigDecimal.ONE;
+    if(roundToIntegers && localIntervalSize.compareTo(BigDecimal.ZERO) == 0) {
+      localIntervalSize = BigDecimal.ONE;
     }
 
     // Can't seem to find a case that will actually throw the exception. We'll leave the condition anyway since the rest
-    // of the code expects non-zero intervalSize value.
-    if(intervalSize.compareTo(BigDecimal.valueOf(Double.MIN_VALUE)) == 0)
+    // of the code expects non-zero localIntervalSize value.
+    if(localIntervalSize.compareTo(BigDecimal.valueOf(Double.MIN_VALUE)) == 0) {
       throw new ArithmeticException("computed interval size was 0");
+    }
 
-    this.intervalSize = intervalSize;
+    intervalSize = localIntervalSize;
 
     BigDecimal lower = this.min;
     while(lower.compareTo(this.max) <= 0) {
