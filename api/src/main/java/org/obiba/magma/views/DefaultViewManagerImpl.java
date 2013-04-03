@@ -55,6 +55,7 @@ public class DefaultViewManagerImpl implements ViewManager, Initialisable, Dispo
     Preconditions.checkArgument(!Strings.isNullOrEmpty(view.getName()), "view name cannot be null or empty.");
 
     // Check that variables have the same entity type as the from table
+    view.initialise();
     for(Variable v : view.getVariables()) {
       if(!view.getEntityType().equals(v.getEntityType())) {
         throw new IncompatibleEntityTypeException(view.getEntityType(), v.getEntityType());
