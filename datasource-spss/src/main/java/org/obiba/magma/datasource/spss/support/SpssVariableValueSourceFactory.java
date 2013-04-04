@@ -34,7 +34,6 @@ import org.opendatafoundation.data.spss.SPSSVariableCategory;
 import com.google.common.base.Strings;
 import com.google.common.collect.Sets;
 
-
 import static org.obiba.magma.datasource.spss.support.CharacterSetValidator.validate;
 
 public class SpssVariableValueSourceFactory implements VariableValueSourceFactory {
@@ -56,7 +55,8 @@ public class SpssVariableValueSourceFactory implements VariableValueSourceFactor
    * @throws IOException
    * @throws SPSSFileException
    */
-  public SpssVariableValueSourceFactory(@Nonnull SPSSFile spssFile, @Nonnull String entityType, @Nonnull String locale) {
+  public SpssVariableValueSourceFactory(@Nonnull SPSSFile spssFile, @Nonnull String entityType,
+      @Nonnull String locale) {
     this.spssFile = spssFile;
     this.entityType = entityType;
     this.locale = locale;
@@ -90,9 +90,9 @@ public class SpssVariableValueSourceFactory implements VariableValueSourceFactor
         Value categoryName = new SpssCategoryNameValueFactory(category, variableIndex, variable, valueType).create();
         SPSSVariableCategory spssCategory = variable.categoryMap.get(category);
         validate(spssCategory.label);
-        builder.addCategory(
-            Category.Builder.newCategory(categoryName.getValue().toString()).addAttribute("label", spssCategory.label)
-                .missing(isCategoryValueMissingCode(variable, spssCategory)).build());
+        builder.addCategory(Category.Builder.newCategory(categoryName.getValue().toString())
+            .addAttribute(addLabelAttribute(spssCategory.label))
+            .missing(isCategoryValueMissingCode(variable, spssCategory)).build());
       }
     }
   }
@@ -126,9 +126,18 @@ public class SpssVariableValueSourceFactory implements VariableValueSourceFactor
 
     if(!Strings.isNullOrEmpty(label)) {
       validate(label);
-      builder.addAttribute(
-          Attribute.Builder.newAttribute("label").withValue(label).withLocale(new Locale(locale)).build());
+      builder.addAttribute(addLabelAttribute(label));
     }
+  }
+
+  private Attribute addLabelAttribute(String value) {
+    Attribute.Builder attributeBuilder = Attribute.Builder.newAttribute("label").withValue(value);
+
+    if(!Strings.isNullOrEmpty(locale)) {
+      attributeBuilder.withLocale(new Locale(locale));
+    }
+
+    return attributeBuilder.build();
   }
 
   private void addAttributes(Variable.Builder builder, @Nonnull SPSSVariable spssVariable)
