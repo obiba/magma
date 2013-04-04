@@ -11,10 +11,12 @@ package org.obiba.magma.datasource.spss;
 
 import java.io.File;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 import org.junit.After;
@@ -363,6 +365,48 @@ public class SpssDatasourceTest {
     } catch(Exception e) {
       fail();
     }
+  }
+
+  @Test
+  public void testCategoryWithLocale() {
+    try {
+      dsFactory.addFile(getResourceFile("org/obiba/magma/datasource/spss/DatabaseTest.sav"));
+      dsFactory.setLocale("no");
+      Datasource ds = dsFactory.create();
+      ds.initialise();
+      Variable variable = ds.getValueTable("DatabaseTest").getVariable("race");
+      assertThat(variable, not(is(nullValue())));
+
+      for (Category category : variable.getCategories()) {
+        assertThat(category.getAttribute("label").getLocale().getLanguage(), is("no"));
+      }
+    } catch(Exception e) {
+      fail();
+    }
+
+  }
+
+  @Test
+  public void testCategoryWithoutLocaleEntityTypeCharset() {
+    try {
+      List<File> files = new ArrayList<File>();
+      files.add(getResourceFile("org/obiba/magma/datasource/spss/DatabaseTest.sav"));
+      Datasource ds = new SpssDatasource("spss", files, null, null, null);
+      ds.initialise();
+      Variable variable = ds.getValueTable("DatabaseTest").getVariable("race");
+      assertThat(variable, not(is(nullValue())));
+
+      ValueTable valueTable = ds.getValueTable("DatabaseTest");
+      assertThat(valueTable, not(is(nullValue())));
+      assertThat(valueTable.getEntityType(), is("Participant"));
+
+      for (Category category : variable.getCategories()) {
+        assertThat(category.getAttribute("label").getLocale(), is(nullValue()));
+      }
+    } catch(Exception e) {
+      fail();
+    }
+
   }
 
   private File getResourceFile(String resourcePath) throws URISyntaxException {
