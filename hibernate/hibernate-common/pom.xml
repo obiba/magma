@@ -6,7 +6,7 @@
   <parent>
     <artifactId>magma-hibernate</artifactId>
     <groupId>org.obiba.magma</groupId>
-    <version>1.5.1</version>
+    <version>1.5-SNAPSHOT</version>
   </parent>
 
   <artifactId>magma-hibernate-common</artifactId>
