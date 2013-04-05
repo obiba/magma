@@ -5,6 +5,8 @@ import java.math.MathContext;
 import java.math.RoundingMode;
 import java.util.SortedSet;
 
+import javax.annotation.Nullable;
+
 import com.google.common.collect.ImmutableSortedSet;
 import com.google.common.collect.Sets;
 
@@ -49,25 +51,25 @@ public class IntervalFrequency {
         .round(new MathContext(6, RoundingMode.CEILING));
 
     // (max - min) / intervals
-    BigDecimal localIntervalSize = this.max.subtract(this.min).divide(BigDecimal.valueOf(intervals), CTX);
-    localIntervalSize = maybeRoundToInteger(localIntervalSize, roundToIntegers, RoundingMode.HALF_UP);
+    BigDecimal is = this.max.subtract(this.min).divide(BigDecimal.valueOf(intervals), CTX);
+    is = maybeRoundToInteger(is, roundToIntegers, RoundingMode.HALF_UP);
 
     // When rounding to integer, we may have rounded the interval size to 0: change it to 1, the smallest interval size
-    if(roundToIntegers && localIntervalSize.compareTo(BigDecimal.ZERO) == 0) {
-      localIntervalSize = BigDecimal.ONE;
+    if(roundToIntegers && is.compareTo(BigDecimal.ZERO) == 0) {
+      is = BigDecimal.ONE;
     }
 
     // Can't seem to find a case that will actually throw the exception. We'll leave the condition anyway since the rest
-    // of the code expects non-zero localIntervalSize value.
-    if(localIntervalSize.compareTo(BigDecimal.valueOf(Double.MIN_VALUE)) == 0) {
+    // of the code expects non-zero intervalSize value.
+    if(is.compareTo(BigDecimal.valueOf(Double.MIN_VALUE)) == 0) {
       throw new ArithmeticException("computed interval size was 0");
     }
 
-    intervalSize = localIntervalSize;
+    intervalSize = is;
 
     BigDecimal lower = this.min;
     while(lower.compareTo(this.max) <= 0) {
-      BigDecimal upper = lower.add(intervalSize);
+      BigDecimal upper = lower.add(is);
       freqTable.add(new Interval(lower, upper));
       lower = upper;
     }
@@ -202,7 +204,7 @@ public class IntervalFrequency {
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(@Nullable Object obj) {
       if(obj == null) {
         return false;
       }

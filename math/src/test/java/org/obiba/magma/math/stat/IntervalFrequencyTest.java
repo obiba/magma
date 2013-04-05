@@ -171,6 +171,7 @@ public class IntervalFrequencyTest {
 
     // Other equals tests
     Interval equals = first.intervals().first();
+    //noinspection ObjectEqualsNull
     assertThat(equals.equals(null), is(false));
     assertThat(equals.equals(equals), is(true));
     assertThat(equals.equals(new Object()), is(false));
