@@ -9,10 +9,10 @@ import java.io.Reader;
 import java.io.Writer;
 import java.nio.charset.Charset;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Set;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import org.obiba.magma.Attribute;
 import org.obiba.magma.MagmaEngine;
@@ -56,6 +56,7 @@ public class FsDatasource extends AbstractDatasource {
 
   private final File datasourceArchive;
 
+  @Nullable
   private DatasourceEncryptionStrategy datasourceEncryptionStrategy;
 
   private InputStreamWrapper inputStreamWrapper = new NullInputStreamWrapper();
@@ -64,7 +65,8 @@ public class FsDatasource extends AbstractDatasource {
 
   private boolean instanceAttributesModified = false;
 
-  public FsDatasource(String name, java.io.File outputFile, DatasourceEncryptionStrategy datasourceEncryptionStrategy) {
+  public FsDatasource(String name, java.io.File outputFile,
+      @Nullable DatasourceEncryptionStrategy datasourceEncryptionStrategy) {
     this(name, outputFile);
     this.datasourceEncryptionStrategy = datasourceEncryptionStrategy;
   }
@@ -98,7 +100,8 @@ public class FsDatasource extends AbstractDatasource {
   private void initialiseEncrypted(boolean newDatasource) {
     if(isEncrypted() && hasEncryptionStrategy()) {
       // Make sure our strategy is able to read an existing datasource.
-      if(newDatasource || datasourceEncryptionStrategy.canDecryptExistingDatasource()) {
+      if(datasourceEncryptionStrategy != null &&
+          (newDatasource || datasourceEncryptionStrategy.canDecryptExistingDatasource())) {
         DatasourceCipherFactory cipherFactory = datasourceEncryptionStrategy.createDatasourceCipherFactory(this);
         inputStreamWrapper = new CipherInputStreamWrapper(cipherFactory);
         outputStreamWrapper = new ChainedOutputStreamWrapper(new CipherOutputStreamWrapper(cipherFactory),
@@ -153,15 +156,19 @@ public class FsDatasource extends AbstractDatasource {
   }
 
   protected boolean isEncrypted() {
-    return hasAttribute("magma.datasource.fs.encrypted") &&
-        (Boolean) getAttributeValue("magma.datasource.fs.encrypted").getValue();
+    if(hasAttribute("magma.datasource.fs.encrypted")) {
+      Value value = getAttributeValue("magma.datasource.fs.encrypted");
+      //noinspection ConstantConditions
+      return !value.isNull() && (Boolean) value.getValue();
+    }
+    return false;
   }
 
   @SuppressWarnings("unchecked")
   protected void readAttributes() {
     Reader reader = null;
     try {
-      List<Attribute> attributes = (List<Attribute>) getXStreamInstance().fromXML(
+      Iterable<Attribute> attributes = (Iterable<Attribute>) getXStreamInstance().fromXML(
           reader = new InputStreamReader(new FileInputStream(new File(datasourceArchive, "metadata.xml")), CHARSET));
       for(Attribute a : attributes) {
         getInstanceAttributes().put(a.getName(), a);
@@ -218,6 +225,7 @@ public class FsDatasource extends AbstractDatasource {
     return MagmaEngine.get().getExtension(MagmaXStreamExtension.class).getXStreamFactory().createXStream();
   }
 
+  @Nullable
   <T> T readEntry(File entry, InputCallback<T> callback) {
     if(entry.exists()) {
       Reader reader = null;
@@ -235,10 +243,6 @@ public class FsDatasource extends AbstractDatasource {
     return null;
   }
 
-  <T> T readEntry(String name, InputCallback<T> callback) {
-    return readEntry(new File(datasourceArchive, name), callback);
-  }
-
   <T> T writeEntry(File file, OutputCallback<T> callback) {
     Writer writer = null;
     try {
@@ -248,10 +252,6 @@ public class FsDatasource extends AbstractDatasource {
     } finally {
       Closeables.closeQuietly(writer);
     }
-  }
-
-  <T> T writeEntry(String name, OutputCallback<T> callback) {
-    return writeEntry(new File(datasourceArchive, name), callback);
   }
 
   Reader createReader(File entry) {
