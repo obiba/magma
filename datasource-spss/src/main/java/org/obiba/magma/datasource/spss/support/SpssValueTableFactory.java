@@ -19,6 +19,8 @@ import org.obiba.magma.Datasource;
 import org.obiba.magma.datasource.spss.SpssValueTable;
 import org.opendatafoundation.data.spss.SPSSFile;
 
+import com.google.common.base.Strings;
+
 public class SpssValueTableFactory {
 
   @Nonnull
@@ -49,7 +51,7 @@ public class SpssValueTableFactory {
 
   public SpssValueTable create() {
     try {
-      SPSSFile spssFile = new SPSSFile(file, Charset.forName(characterSet));
+      SPSSFile spssFile = new SPSSFile(file, Strings.isNullOrEmpty(characterSet) ? null : Charset.forName(characterSet));
       spssFile.logFlag = false;
 
       return new SpssValueTable(datasource, name, entityType, locale, spssFile);

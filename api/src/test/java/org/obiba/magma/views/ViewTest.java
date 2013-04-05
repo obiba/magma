@@ -555,6 +555,8 @@ public class ViewTest extends AbstractMagmaTest {
     ValueTable valueTableMock = createMock(ValueTable.class);
     ListClause listClauseMock = createMock(ListClause.class);
 
+    listClauseMock.setValueTable(valueTableMock);
+
     ViewPersistenceStrategy viewPersistenceMock = createMock(ViewPersistenceStrategy.class);
     Datasource datasourceMock = createMock(Datasource.class);
 
