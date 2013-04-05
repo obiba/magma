@@ -17,8 +17,10 @@ public class DatetimeValueConverter implements ValueConverter {
     return from.isDateTime() && to.isDateTime();
   }
 
+  @SuppressWarnings("ConstantConditions")
   @Override
   public Value convert(Value value, ValueType to) {
+    if(value.isNull()) return to.nullValue();
     if(to == DateType.get()) {
       Date date = (Date) value.getValue();
       return to.valueOf(date);
@@ -27,6 +29,6 @@ public class DatetimeValueConverter implements ValueConverter {
       MagmaDate date = (MagmaDate) value.getValue();
       return to.valueOf(date.asCalendar());
     }
-    throw new IllegalArgumentException("unkown valueType '" + to.getName() + "'");
+    throw new IllegalArgumentException("unknown valueType '" + to.getName() + "'");
   }
 }
