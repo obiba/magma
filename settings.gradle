@@ -47,3 +47,10 @@ project(':magma-datasource-spss').projectDir = "$rootDir/datasource-spss" as Fil
 project(':magma-security').projectDir = "$rootDir/security" as File
 project(':magma-data-generator').projectDir = "$rootDir/datasource-generated" as File
 project(':magma-test').projectDir = "$rootDir/test" as File
+
+// allow us to rename subprojects’ build files
+rootProject.children.each { project ->
+    project.buildFileName = "${project.name}.gradle"
+    assert project.projectDir.isDirectory()
+    assert project.buildFile.isFile()
+}
