@@ -1,5 +1,28 @@
 rootProject.name = 'magma'
-include ':magma-api', ':magma-beans', ':magma-js', ':magma-xstream', ':magma-integration', ':magma-filter', ':magma-spring', ':magma-crypt', ':magma-math', ':magma-datasource-fs', ':magma-hibernate:magma-hibernate-common', ':magma-hibernate:magma-hibernate-audit', ':magma-hibernate:magma-hibernate-datasource', ':magma-hibernate', ':magma-datasource-jdbc', ':magma-datasource-limesurvey', ':magma-datasource-excel', ':magma-datasource-null', ':magma-datasource-csv', ':magma-datasource-spss', ':magma-security', ':magma-data-generator', ':magma-test'
+
+include ':magma-api', 
+	':magma-beans', 
+	':magma-js', 
+	':magma-xstream', 
+	':magma-integration', 
+	':magma-filter', 
+	':magma-spring', 
+	':magma-crypt', 
+	':magma-math', 
+	':magma-datasource-fs', 
+	':magma-hibernate', 
+	':magma-hibernate:magma-hibernate-common', 
+	':magma-hibernate:magma-hibernate-datasource', 
+	':magma-hibernate:magma-hibernate-audit', 
+	':magma-datasource-jdbc', 
+	':magma-datasource-limesurvey', 
+	':magma-datasource-excel', 
+	':magma-datasource-null', 
+	':magma-datasource-csv', 
+	':magma-datasource-spss', 
+	':magma-security', 
+	':magma-data-generator', 
+	':magma-test'
 
 project(':magma-api').projectDir = "$rootDir/api" as File
 project(':magma-beans').projectDir = "$rootDir/beans" as File

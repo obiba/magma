@@ -6,6 +6,7 @@ dependencies {
   compile project(':magma-api')
   compile project(':magma-crypt')
   compile project(':magma-xstream')
-    compile group: 'de.schlichtherle.io', name: 'truezip', version:'6.6'
+  compile( libraries.truezip )
+
   testCompile project(':magma-test')
-  }
+}

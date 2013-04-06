@@ -5,11 +5,8 @@ description = 'spring'
 dependencies {
   compile project(':magma-api')
   compile project(':magma-beans')
-    compile(group: 'org.springframework', name: 'spring-beans', version:'3.1.4.RELEASE') {
-exclude(module: 'commons-logging')
-}
-    compile(group: 'org.springframework', name: 'spring-context', version:'3.1.4.RELEASE') {
-exclude(module: 'commons-logging')
-}
+  compile( libraries.spring_beans )
+  compile( libraries.spring_context )
+
   testCompile project(':magma-test')
-  }
+}

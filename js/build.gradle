@@ -4,11 +4,11 @@ description = 'js'
 
 dependencies {
   compile project(':magma-api')
-    compile group: 'rhino', name: 'js', version:'1.7R2'
-    compile(group: 'org.jscience', name: 'jscience-physics', version:'5.0-r53p01') {
-exclude(module: 'core')
-exclude(module: 'org.osgi.compendium')
-}
+  compile( libraries.rhino_js )
+  compile( libraries.jscience_physics ) {
+	exclude(module: 'core')
+	exclude(module: 'org.osgi.compendium')
+  }
   testCompile project(':magma-test')
   testCompile project(':magma-xstream')
-  }
+}
