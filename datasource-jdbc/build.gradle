@@ -1,0 +1,26 @@
+
+
+description = 'Magma JDBC Datasource'
+
+dependencies {
+  compile project(':magma-api')
+    compile(group: 'org.springframework', name: 'spring-jdbc', version:'3.1.4.RELEASE') {
+exclude(module: 'commons-logging')
+}
+    compile group: 'org.liquibase', name: 'liquibase-core', version:'1.9.4'
+    compile group: 'commons-dbcp', name: 'commons-dbcp', version:'1.4'
+    compile group: 'javax.transaction', name: 'jta', version:'1.0.1B'
+  testCompile project(':magma-test')
+    testCompile group: 'org.obiba', name: 'obiba-core', version:'1.4-SNAPSHOT'
+    testCompile(group: 'org.springframework', name: 'spring-test', version:'3.1.4.RELEASE') {
+exclude(module: 'commons-logging')
+}
+    testCompile(group: 'org.dbunit', name: 'dbunit', version:'2.2.2') {
+exclude(module: 'commons-logging')
+exclude(module: 'poi')
+exclude(module: 'junit-addons')
+exclude(module: 'slf4j-nop')
+}
+  testCompile project(':magma-datasource-fs')
+    testCompile group: 'hsqldb', name: 'hsqldb', version:'1.8.0.10'
+  }

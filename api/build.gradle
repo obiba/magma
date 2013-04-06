@@ -1,0 +1,8 @@
+
+
+description = 'api'
+
+dependencies {
+    compile group: 'net.sf.opencsv', name: 'opencsv', version:'2.3'
+  testCompile project(':magma-test')
+  }

@@ -1,0 +1,11 @@
+
+
+description = 'security'
+
+dependencies {
+  compile project(':magma-api')
+    compile group: 'org.apache.shiro', name: 'shiro-core', version:'1.1.0'
+    compile group: 'eu.flatwhite.shiro', name: 'shiro-extras', version:'1.0.1-obiba'
+    compile group: 'cglib', name: 'cglib-nodep', version:'2.2.2'
+  testCompile project(':magma-test')
+  }
