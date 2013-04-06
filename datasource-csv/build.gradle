@@ -3,9 +3,12 @@
 description = 'Magma CSV Datasource'
 
 dependencies {
-  compile project(':magma-api')
-    compile group: 'net.sf.opencsv', name: 'opencsv', version:'2.3'
-  testCompile project(':magma-test')
-    testCompile group: 'org.apache.commons', name: 'commons-io', version:'1.3.2'
-    testCompile group: 'org.obiba', name: 'obiba-core', version:'1.4-SNAPSHOT'
-  }
+  	compile project(':magma-api')
+  
+  	compile( libraries.opencsv )
+
+  	testCompile project(':magma-test')
+	testCompile( libraries.commons_io )
+	testCompile( libraries.obiba_core )
+
+}

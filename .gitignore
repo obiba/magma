@@ -6,3 +6,5 @@ build/
 .project
 atlassian-ide-plugin.xml
 *.jnl
+.gradle
+

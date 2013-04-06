@@ -13,9 +13,9 @@ dependencies {
   compile project(':magma-datasource-jdbc')
   compile project(':magma-crypt')
   compile project(':magma-xstream')
-    compile group: 'commons-dbcp', name: 'commons-dbcp', version:'1.4'
-    compile group: 'com.thoughtworks.xstream', name: 'xstream', version:'1.4.4'
-    runtime group: 'hsqldb', name: 'hsqldb', version:'1.8.0.10'
-    runtime group: 'mysql', name: 'mysql-connector-java', version:'5.1.24'
+  compile( libraries.commons_dbcp )
+  compile( libraries.xstream )
+  runtime( libraries.hsqldb )
+  runtime( libraries.mysql_connector_java )
   testCompile project(':magma-test')
-  }
+}

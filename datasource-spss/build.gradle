@@ -4,6 +4,7 @@ description = 'Magma SPSS Datasource'
 
 dependencies {
   compile project(':magma-api')
-    compile group: 'org.opendatafoundation', name: 'spssreader', version:'1.0.0'
+
+  compile( libraries.spssreader )
   testCompile project(':magma-test')
-  }
+}

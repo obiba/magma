@@ -1,14 +1,11 @@
-
-
 description = 'Magma Limesurvey Datasource'
 
 dependencies {
   compile project(':magma-api')
-    compile(group: 'org.springframework', name: 'spring-jdbc', version:'3.1.4.RELEASE') {
-exclude(module: 'commons-logging')
-}
+  compile( libraries.spring_jdbc )
+
   testCompile project(':magma-test')
   testCompile project(':magma-datasource-fs')
-    testCompile group: 'mysql', name: 'mysql-connector-java', version:'5.1.24'
-    testCompile group: 'commons-dbcp', name: 'commons-dbcp', version:'1.4'
-  }
+  testCompile( libraries.mysql_connector_java )
+  testCompile( libraries.commons_dbcp )
+}
