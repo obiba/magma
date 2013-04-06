@@ -2,10 +2,16 @@ apply plugin: 'idea'
 apply from: "./libraries.gradle"
 
 allprojects {
-    apply plugin: 'maven'
 
     group = 'org.obiba.magma'
     version = '1.6-SNAPSHOT'
+
+    repositories {
+        mavenLocal()
+
+        mavenRepo url: "http://repo.obiba.org/repo"
+        mavenRepo url: "http://repo.maven.apache.org/maven2"
+    }
 
 }
 
@@ -20,13 +26,6 @@ subprojects {
     }
     
     artifacts.archives packageSources
-    
-    repositories {
-        mavenLocal()
-
-        mavenRepo url: "http://repo.obiba.org/repo"
-        mavenRepo url: "http://repo.maven.apache.org/maven2"
-    }
     
     configurations {
 		compile
