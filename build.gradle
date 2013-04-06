@@ -1,0 +1,50 @@
+apply plugin: 'idea'
+apply from: "./libraries.gradle"
+
+allprojects {
+    apply plugin: 'maven'
+
+    group = 'org.obiba.magma'
+    version = '1.6-SNAPSHOT'
+
+}
+
+subprojects {
+    apply plugin: 'java'
+    sourceCompatibility = 1.6
+    targetCompatibility = 1.6
+
+    task packageSources(type: Jar) {
+        classifier = 'sources'
+        from sourceSets.main.allSource
+    }
+    
+    artifacts.archives packageSources
+    
+    repositories {
+        mavenLocal()
+
+        mavenRepo url: "http://repo.obiba.org/repo"
+        mavenRepo url: "http://repo.maven.apache.org/maven2"
+    }
+    
+    configurations {
+		compile
+		runtime
+		all*.exclude group: 'commons-logging' 
+	}
+
+    dependencies {
+		compile( libraries.guava )
+		compile( libraries.slf4j_api )
+		compile( libraries.jsr305 )
+		compile( libraries.findbugs_annotation ) // TODO remove this one and keep jsr305
+
+		testCompile( libraries.junit )
+		testCompile( libraries.easymock )
+		testCompile( libraries.hamcrest )
+		testCompile( libraries.slf4j_log4j12 )
+		testCompile( libraries.jcl_slf4j )
+    }
+
+}

@@ -1,0 +1,15 @@
+
+
+description = 'Magma Excel Datasource'
+
+dependencies {
+  	compile project(':magma-api')
+	compile( libraries.poi_ooxml ) {
+		exclude(module: 'geronimo-stax-api_1.0_spec')
+		exclude(module: 'stax-api')
+		exclude(module: 'xml-apis')
+	}
+  
+  	testCompile project(':magma-test')
+    testCompile( libraries.obiba_core )
+  }
