@@ -1,0 +1,16 @@
+
+
+description = 'Magma Hibernate'
+
+dependencies {
+	
+  	compile project(':magma-api')
+	compile( libraries.obiba_core )
+	compile( libraries.hibernate_core )
+	compile( libraries.hibernate_annotations )
+	compile( libraries.spring_beans )
+
+	testCompile project(':magma-test')
+
+
+}

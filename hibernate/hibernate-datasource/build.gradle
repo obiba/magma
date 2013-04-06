@@ -4,7 +4,8 @@ description = 'Magma Hibernate Datasource'
 
 dependencies {
 	
-  	compile project(':magma-hibernate:magma-hibernate-common')
+  	compile project(':magma-hibernate')
+	compile project(':magma-hibernate:magma-hibernate-common')
 	compile( libraries.json )
 
   	testCompile project(':magma-data-generator')
