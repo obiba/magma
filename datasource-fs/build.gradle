@@ -1,0 +1,11 @@
+
+
+description = 'File system-based Datasource'
+
+dependencies {
+  compile project(':magma-api')
+  compile project(':magma-crypt')
+  compile project(':magma-xstream')
+    compile group: 'de.schlichtherle.io', name: 'truezip', version:'6.6'
+  testCompile project(':magma-test')
+  }

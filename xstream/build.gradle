@@ -1,0 +1,9 @@
+
+
+description = 'xstream'
+
+dependencies {
+  compile project(':magma-api')
+    compile group: 'com.thoughtworks.xstream', name: 'xstream', version:'1.4.4'
+  testCompile project(':magma-test')
+  }

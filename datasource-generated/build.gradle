@@ -1,0 +1,14 @@
+
+
+description = 'data generator'
+
+dependencies {
+  compile project(':magma-api')
+    compile group: 'org.apache.commons', name: 'commons-math', version:'2.2'
+  compile project(':magma-js')
+  compile project(':magma-datasource-excel')
+  compile project(':magma-datasource-csv')
+  testCompile project(':magma-test')
+  testCompile project(':magma-datasource-fs')
+    testCompile group: 'org.obiba', name: 'obiba-core', version:'1.4-SNAPSHOT'
+  }

@@ -1,0 +1,9 @@
+
+
+description = 'math'
+
+dependencies {
+  compile project(':magma-api')
+    compile group: 'org.apache.commons', name: 'commons-math', version:'2.2'
+  testCompile project(':magma-test')
+  }
