@@ -23,7 +23,7 @@ ext {
         
         guava: 'com.google.guava:guava:14.0.1', 
         
-        hamcrest: 'org.hamcrest:hamcrest:1.1', 
+        hamcrest: 'org.hamcrest:hamcrest-all:1.1', 
         
         hibernate_annotations: "org.hibernate:hibernate-annotations:${hibernateVersion}", 
         hibernate_core: "org.hibernate:hibernate-core:${hibernateVersion}",
