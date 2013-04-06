@@ -1,0 +1,21 @@
+
+
+description = 'integration'
+
+dependencies {
+  compile project(':magma-api')
+  compile project(':magma-beans')
+  compile project(':magma-js')
+  compile project(':magma-datasource-fs')
+  compile project(':magma-datasource-excel')
+  compile project(':magma-datasource-csv')
+  compile project(':magma-hibernate:magma-hibernate-datasource')
+  compile project(':magma-datasource-jdbc')
+  compile project(':magma-crypt')
+  compile project(':magma-xstream')
+  compile( libraries.commons_dbcp )
+  compile( libraries.xstream )
+  runtime( libraries.hsqldb )
+  runtime( libraries.mysql_connector_java )
+  testCompile project(':magma-test')
+}
