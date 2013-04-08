@@ -1,10 +1,11 @@
 description = 'Magma Hibernate Datasource'
 
 dependencies {
-  //compile project(':magma-api')
-  compile project(':magma-hibernate')
   compile project(':magma-hibernate:magma-hibernate-common')
   compile(libraries.json)
+
+//  compile project(':magma-api')
+//  compile project(':magma-hibernate')
 //  compile(libraries.jta)
 //  compile(libraries.obiba_core)
 //  compile(libraries.hibernate_core)
