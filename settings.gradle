@@ -1,28 +1,28 @@
 rootProject.name = 'magma'
 
-include ':magma-api', 
-	':magma-beans', 
-	':magma-js', 
-	':magma-xstream', 
-	':magma-integration', 
-	':magma-filter', 
-	':magma-spring', 
-	':magma-crypt', 
-	':magma-math', 
-	':magma-datasource-fs', 
-	':magma-hibernate', 
-	':magma-hibernate:magma-hibernate-common', 
-	':magma-hibernate:magma-hibernate-datasource', 
-	':magma-hibernate:magma-hibernate-audit', 
-	':magma-datasource-jdbc', 
-	':magma-datasource-limesurvey', 
-	':magma-datasource-excel', 
-	':magma-datasource-null', 
-	':magma-datasource-csv', 
-	':magma-datasource-spss', 
-	':magma-security', 
-	':magma-data-generator', 
-	':magma-test'
+include ':magma-api',
+    ':magma-beans',
+    ':magma-js',
+    ':magma-xstream',
+    ':magma-integration',
+    ':magma-filter',
+    ':magma-spring',
+    ':magma-crypt',
+    ':magma-math',
+    ':magma-datasource-fs',
+    ':magma-hibernate',
+    ':magma-hibernate:magma-hibernate-common',
+    ':magma-hibernate:magma-hibernate-datasource',
+    ':magma-hibernate:magma-hibernate-audit',
+    ':magma-datasource-jdbc',
+    ':magma-datasource-limesurvey',
+    ':magma-datasource-excel',
+    ':magma-datasource-null',
+    ':magma-datasource-csv',
+    ':magma-datasource-spss',
+    ':magma-security',
+    ':magma-data-generator',
+    ':magma-test'
 
 project(':magma-api').projectDir = "$rootDir/api" as File
 project(':magma-beans').projectDir = "$rootDir/beans" as File
@@ -50,7 +50,7 @@ project(':magma-test').projectDir = "$rootDir/test" as File
 
 // allow us to rename subprojects’ build files
 rootProject.children.each { project ->
-    project.buildFileName = "${project.name}.gradle"
-    assert project.projectDir.isDirectory()
-    assert project.buildFile.isFile()
+  project.buildFileName = "${project.name}.gradle"
+  assert project.projectDir.isDirectory()
+  assert project.buildFile.isFile()
 }

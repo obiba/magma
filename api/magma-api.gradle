@@ -1,9 +1,7 @@
-
-
 description = 'api'
 
 dependencies {
-	compile( libraries.opencsv )
-    
-  	testCompile project(':magma-test')
+  compile(libraries.opencsv)
+
+  testCompile project(':magma-test')
 }

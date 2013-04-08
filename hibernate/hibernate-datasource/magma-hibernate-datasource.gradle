@@ -1,15 +1,12 @@
-
-
 description = 'Magma Hibernate Datasource'
 
 dependencies {
-	
-  	compile project(':magma-hibernate')
-	compile project(':magma-hibernate:magma-hibernate-common')
-	compile( libraries.json )
+  compile project(':magma-hibernate')
+  compile project(':magma-hibernate:magma-hibernate-common')
+  compile(libraries.json)
 
-  	testCompile project(':magma-data-generator')
-	testCompile( libraries.mysql_connector_java )
-	testCompile( libraries.javassist )
-	testCompile( libraries.hibernate_ehcache )
+  testCompile project(':magma-data-generator')
+  testCompile(libraries.mysql_connector_java)
+  testCompile(libraries.javassist)
+  testCompile(libraries.hibernate_ehcache)
 }
