@@ -1,11 +1,8 @@
-
-
 description = 'beans'
 
 dependencies {
   compile project(':magma-api')
-
-  compile( libraries.spring_beans )
+  compile(libraries.spring_beans)
 
   testCompile project(':magma-test')
 }

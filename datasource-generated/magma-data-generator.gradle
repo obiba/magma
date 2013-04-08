@@ -1,5 +1,3 @@
-
-
 description = 'data generator'
 
 dependencies {
@@ -7,9 +5,9 @@ dependencies {
   compile project(':magma-js')
   compile project(':magma-datasource-excel')
   compile project(':magma-datasource-csv')
-  compile( libraries.commons_math )
-  
+  compile(libraries.commons_math)
+
   testCompile project(':magma-test')
   testCompile project(':magma-datasource-fs')
-  testCompile( libraries.obiba_core )
+  testCompile(libraries.obiba_core)
 }

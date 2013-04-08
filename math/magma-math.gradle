@@ -1,9 +1,8 @@
-
-
 description = 'math'
 
 dependencies {
   compile project(':magma-api')
-  compile( libraries.commons_math )
+  compile(libraries.commons_math)
+
   testCompile project(':magma-test')
 }

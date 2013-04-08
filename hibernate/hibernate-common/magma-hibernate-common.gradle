@@ -1,8 +1,5 @@
-
-
 description = 'Magma Hibernate common support code'
 
 dependencies {
-	
-  	compile project(':magma-hibernate')
+  compile project(':magma-hibernate')
 }
