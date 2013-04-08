@@ -24,30 +24,6 @@ include ':magma-api',
     ':magma-data-generator',
     ':magma-test'
 
-project(':magma-api').projectDir = "$rootDir/api" as File
-project(':magma-beans').projectDir = "$rootDir/beans" as File
-project(':magma-js').projectDir = "$rootDir/js" as File
-project(':magma-xstream').projectDir = "$rootDir/xstream" as File
-project(':magma-integration').projectDir = "$rootDir/integration" as File
-project(':magma-filter').projectDir = "$rootDir/filter" as File
-project(':magma-spring').projectDir = "$rootDir/spring" as File
-project(':magma-crypt').projectDir = "$rootDir/crypt" as File
-project(':magma-math').projectDir = "$rootDir/math" as File
-project(':magma-datasource-fs').projectDir = "$rootDir/datasource-fs" as File
-project(':magma-hibernate:magma-hibernate-common').projectDir = "$rootDir/hibernate/hibernate-common" as File
-project(':magma-hibernate:magma-hibernate-audit').projectDir = "$rootDir/hibernate/hibernate-audit" as File
-project(':magma-hibernate:magma-hibernate-datasource').projectDir = "$rootDir/hibernate/hibernate-datasource" as File
-project(':magma-hibernate').projectDir = "$rootDir/hibernate" as File
-project(':magma-datasource-jdbc').projectDir = "$rootDir/datasource-jdbc" as File
-project(':magma-datasource-limesurvey').projectDir = "$rootDir/datasource-limesurvey" as File
-project(':magma-datasource-excel').projectDir = "$rootDir/datasource-excel" as File
-project(':magma-datasource-null').projectDir = "$rootDir/datasource-null" as File
-project(':magma-datasource-csv').projectDir = "$rootDir/datasource-csv" as File
-project(':magma-datasource-spss').projectDir = "$rootDir/datasource-spss" as File
-project(':magma-security').projectDir = "$rootDir/security" as File
-project(':magma-data-generator').projectDir = "$rootDir/datasource-generated" as File
-project(':magma-test').projectDir = "$rootDir/test" as File
-
 // allow us to rename subprojects’ build files
 rootProject.children.each { project ->
   project.buildFileName = "${project.name}.gradle"
