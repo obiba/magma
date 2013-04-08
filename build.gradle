@@ -3,47 +3,47 @@ apply from: "./libraries.gradle"
 
 allprojects {
 
-    group = 'org.obiba.magma'
-    version = '1.6-SNAPSHOT'
+  group = 'org.obiba.magma'
+  version = '1.6-SNAPSHOT'
 
-    repositories {
-        mavenLocal()
+  repositories {
+    mavenLocal()
 
-        mavenRepo url: "http://repo.obiba.org/repo"
-        mavenRepo url: "http://repo.maven.apache.org/maven2"
-    }
+    mavenRepo url: "http://repo.obiba.org/repo"
+    mavenRepo url: "http://repo.maven.apache.org/maven2"
+  }
 
 }
 
 subprojects {
-    apply plugin: 'java'
-    sourceCompatibility = 1.6
-    targetCompatibility = 1.6
+  apply plugin: 'java'
+  sourceCompatibility = 1.6
+  targetCompatibility = 1.6
 
-    task packageSources(type: Jar) {
-        classifier = 'sources'
-        from sourceSets.main.allSource
-    }
-    
-    artifacts.archives packageSources
-    
-    configurations {
-		compile
-		runtime
-		all*.exclude group: 'commons-logging' 
-	}
+  task packageSources(type: Jar) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+  }
 
-    dependencies {
-		compile( libraries.guava )
-		compile( libraries.slf4j_api )
-		compile( libraries.jsr305 )
-		compile( libraries.findbugs_annotation ) // TODO remove this one and keep jsr305
+  artifacts.archives packageSources
 
-		testCompile( libraries.junit )
-		testCompile( libraries.easymock )
-		testCompile( libraries.hamcrest )
-		testCompile( libraries.slf4j_log4j12 )
-		testCompile( libraries.jcl_slf4j )
-    }
+  configurations {
+    compile
+    runtime
+    all*.exclude group: 'commons-logging'
+  }
+
+  dependencies {
+    compile(libraries.guava)
+    compile(libraries.slf4j_api)
+    compile(libraries.jsr305)
+    compile(libraries.findbugs_annotation)
+
+    testCompile(libraries.junit)
+    testCompile(libraries.easymock)
+    testCompile(libraries.hamcrest)
+    testCompile(libraries.slf4j_log4j12)
+    testCompile(libraries.jcl_slf4j)
+  }
 
 }
