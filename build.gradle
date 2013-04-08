@@ -9,9 +9,9 @@ allprojects {
   version = '1.6-SNAPSHOT'
 
   repositories {
-    mavenCentral()
     mavenLocal()
     mavenRepo url: "http://repo.obiba.org/repo"
+    mavenCentral()
   }
 
 }
