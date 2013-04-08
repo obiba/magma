@@ -1,12 +1,10 @@
-
-
 description = 'File system-based Datasource'
 
 dependencies {
   compile project(':magma-api')
   compile project(':magma-crypt')
   compile project(':magma-xstream')
-  compile( libraries.truezip )
+  compile(libraries.truezip)
 
   testCompile project(':magma-test')
 }

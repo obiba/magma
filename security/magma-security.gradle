@@ -1,11 +1,10 @@
-
-
 description = 'security'
 
 dependencies {
   compile project(':magma-api')
-  compile( libraries.shiro_core )
-  compile( libraries.shiro_extras )
-  compile( libraries.cglib_nodep )
+  compile(libraries.shiro_core)
+  compile(libraries.shiro_extras)
+  compile(libraries.cglib_nodep)
+
   testCompile project(':magma-test')
 }
