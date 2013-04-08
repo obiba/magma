@@ -47,8 +47,10 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
 
   private static final Logger log = LoggerFactory.getLogger(JavascriptValueSource.class);
 
+  @Nonnull
   private ValueType type;
 
+  @Nonnull
   private String script;
 
   private String scriptName = "customScript";
@@ -61,7 +63,7 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
 
   }
 
-  public JavascriptValueSource(ValueType type, String script) {
+  public JavascriptValueSource(@Nonnull ValueType type, @Nonnull String script) {
     if(type == null) throw new IllegalArgumentException("type cannot be null");
     if(script == null) throw new IllegalArgumentException("script cannot be null");
     this.type = type;
@@ -76,6 +78,7 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
     scriptName = name;
   }
 
+  @Nonnull
   public String getScript() {
     return script;
   }
