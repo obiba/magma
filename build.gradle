@@ -3,22 +3,32 @@ apply from: "./libraries.gradle"
 
 allprojects {
 
+  apply plugin: 'maven'
+
   group = 'org.obiba.magma'
   version = '1.6-SNAPSHOT'
 
   repositories {
+    mavenCentral()
     mavenLocal()
-
     mavenRepo url: "http://repo.obiba.org/repo"
-    mavenRepo url: "http://repo.maven.apache.org/maven2"
   }
 
 }
 
+task wrapper(type: Wrapper) {
+  gradleVersion = '1.5'
+}
+
 subprojects {
   apply plugin: 'java'
+
   sourceCompatibility = 1.6
   targetCompatibility = 1.6
+
+  defaultTasks 'build'
+
+  buildDir = "target"
 
   task packageSources(type: Jar) {
     classifier = 'sources'
