@@ -1,6 +1,7 @@
 package org.obiba.magma.js;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import org.mozilla.javascript.Scriptable;
 import org.obiba.magma.ValueTable;
@@ -11,9 +12,10 @@ public class JavascriptVariableValueSource extends JavascriptValueSource impleme
 
   private final Variable variable;
 
+  @Nullable
   private final ValueTable valueTable;
 
-  public JavascriptVariableValueSource(Variable variable, ValueTable valueTable) {
+  public JavascriptVariableValueSource(Variable variable, @Nullable ValueTable valueTable) {
     super(variable.getValueType(), "");
     this.variable = variable;
     this.valueTable = valueTable;
@@ -46,6 +48,7 @@ public class JavascriptVariableValueSource extends JavascriptValueSource impleme
     return variable.getName();
   }
 
+  @Nullable
   public ValueTable getValueTable() {
     return valueTable;
   }
@@ -53,7 +56,6 @@ public class JavascriptVariableValueSource extends JavascriptValueSource impleme
   @Override
   protected void enterContext(MagmaContext ctx, Scriptable scope) {
     super.enterContext(ctx, scope);
-
     if(valueTable != null) {
       ctx.push(ValueTable.class, valueTable);
     }
@@ -63,7 +65,6 @@ public class JavascriptVariableValueSource extends JavascriptValueSource impleme
   @Override
   protected void exitContext(MagmaContext ctx) {
     super.exitContext(ctx);
-
     if(valueTable != null) {
       ctx.pop(ValueTable.class);
     }
