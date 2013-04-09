@@ -25,8 +25,13 @@ include ':magma-api',
     ':magma-test'
 
 // allow us to rename subprojects’ build files
-rootProject.children.each { project ->
-  project.buildFileName = "${project.name}.gradle"
-  assert project.projectDir.isDirectory()
-  assert project.buildFile.isFile()
+setBuildFileName(rootProject)
+
+def setBuildFileName(project) {
+  project.children.each { childProject ->
+    childProject.buildFileName = "${childProject.name}.gradle"
+    assert childProject.projectDir.isDirectory()
+    assert childProject.buildFile.isFile()
+    setBuildFileName(childProject)
+  }
 }
