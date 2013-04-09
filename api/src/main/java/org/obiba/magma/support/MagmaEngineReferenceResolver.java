@@ -1,5 +1,7 @@
 package org.obiba.magma.support;
 
+import javax.annotation.Nullable;
+
 import org.obiba.magma.Datasource;
 import org.obiba.magma.MagmaEngine;
 import org.obiba.magma.NoSuchDatasourceException;
@@ -21,7 +23,8 @@ public abstract class MagmaEngineReferenceResolver {
   /**
    * Resolves a reference to a {@code ValueTable} using the specified {@code ValueTable} as a context.
    */
-  public ValueTable resolveTable(ValueTable context) throws NoSuchDatasourceException, NoSuchValueTableException {
+  public ValueTable resolveTable(@Nullable ValueTable context)
+      throws NoSuchDatasourceException, NoSuchValueTableException {
     if(tableName == null) {
       if(context == null) {
         throw new IllegalStateException("cannot resolve table without a context.");
