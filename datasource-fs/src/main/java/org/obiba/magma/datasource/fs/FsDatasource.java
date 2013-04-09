@@ -118,7 +118,7 @@ public class FsDatasource extends AbstractDatasource {
 
   @Override
   @Nonnull
-  public ValueTableWriter createWriter(String name, String entityType) {
+  public ValueTableWriter createWriter(@Nonnull String name, @Nonnull String entityType) {
     FsValueTable valueTable = null;
     if(hasValueTable(name)) {
       valueTable = (FsValueTable) getValueTable(name);

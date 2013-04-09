@@ -46,7 +46,7 @@ public class ViewAwareDatasource extends AbstractDatasourceWrapper {
 
   @Nonnull
   @Override
-  public ValueTableWriter createWriter(String tableName, String entityType) {
+  public ValueTableWriter createWriter(@Nonnull String tableName, @Nonnull String entityType) {
     if(hasView(tableName)) {
       throw new UnsupportedOperationException("Cannot write to a View");
     }

@@ -179,8 +179,7 @@ class HibernateValueTableWriter implements ValueTableWriter {
     }
 
     private void createValue(Variable variable, Value value, VariableState variableState) {
-      ValueSetValue valueSetValue;
-      valueSetValue = new ValueSetValue(variableState, valueSetState);
+      ValueSetValue valueSetValue = new ValueSetValue(variableState, valueSetState);
 
       if(BinaryType.get().equals(value.getValueType())) {
         writeBinaryValue(valueSetValue, value, false);

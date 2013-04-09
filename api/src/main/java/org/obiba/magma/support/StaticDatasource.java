@@ -95,7 +95,7 @@ public class StaticDatasource extends AbstractAttributeAware implements Datasour
 
   @Nonnull
   @Override
-  public ValueTableWriter createWriter(String tableName, String entityType) {
+  public ValueTableWriter createWriter(@Nonnull String tableName, @Nonnull String entityType) {
     if(tableName == null) throw new IllegalArgumentException("tableName cannot be null");
     if(entityType == null) throw new IllegalArgumentException("entityType cannot be null");
 
@@ -163,7 +163,7 @@ public class StaticDatasource extends AbstractAttributeAware implements Datasour
 
     @Nonnull
     @Override
-    public ValueSetWriter writeValueSet(final VariableEntity entity) {
+    public ValueSetWriter writeValueSet(@Nonnull final VariableEntity entity) {
       if(!table.hasVariableEntity(entity)) {
         table.addVariableEntity(entity);
       }

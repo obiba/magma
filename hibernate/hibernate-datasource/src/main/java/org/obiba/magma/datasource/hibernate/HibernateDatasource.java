@@ -70,8 +70,10 @@ public class HibernateDatasource extends AbstractDatasource {
    */
   @Nonnull
   @Override
-  public ValueTableWriter createWriter(String tableName, String entityType) {
+  public ValueTableWriter createWriter(@Nonnull String tableName, @Nonnull String entityType) {
+    //noinspection ConstantConditions
     Preconditions.checkArgument(tableName != null, "tableName cannot be null");
+    //noinspection ConstantConditions
     Preconditions.checkArgument(entityType != null, "entityType cannot be null");
 
     HibernateValueTableTransaction valueTableTransaction;
