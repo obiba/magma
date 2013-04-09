@@ -109,7 +109,7 @@ public class CsvDatasource extends AbstractDatasource {
 
   @Nonnull
   @Override
-  public ValueTableWriter createWriter(String tableName, String entityType) {
+  public ValueTableWriter createWriter(@Nonnull String tableName, @Nonnull String entityType) {
     if(!hasValueTable(tableName)) {
       throw new CsvDatasourceParsingException(
           "Cannot create writer. A table with the name " + tableName + " does not exist.", "CsvCannotCreateWriter", 0,

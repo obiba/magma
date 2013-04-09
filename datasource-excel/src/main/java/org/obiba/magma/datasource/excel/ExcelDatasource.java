@@ -120,7 +120,7 @@ public class ExcelDatasource extends AbstractDatasource {
 
   @Override
   @Nonnull
-  public ValueTableWriter createWriter(String name, String entityType) {
+  public ValueTableWriter createWriter(@Nonnull String name, @Nonnull String entityType) {
     ExcelValueTable valueTable = null;
     if(hasValueTable(name)) {
       valueTable = (ExcelValueTable) getValueTable(name);

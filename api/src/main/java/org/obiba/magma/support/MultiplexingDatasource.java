@@ -91,7 +91,7 @@ public class MultiplexingDatasource extends AbstractDatasourceWrapper {
 
   @Nonnull
   @Override
-  public ValueTableWriter createWriter(String tableName, String entityType) {
+  public ValueTableWriter createWriter(@Nonnull String tableName, @Nonnull String entityType) {
     throw new UnsupportedOperationException("cannot write table");
   }
 

@@ -88,7 +88,8 @@ public class JdbcDatasource extends AbstractDatasource {
   @SuppressWarnings({ "AssignmentToMethodParameter", "PMD.AvoidReassigningParameters" })
   @Nonnull
   @Override
-  public ValueTableWriter createWriter(String tableName, @Nullable String entityType) {
+  public ValueTableWriter createWriter(@Nonnull String tableName, @Nonnull String entityType) {
+    //noinspection ConstantConditions
     if(entityType == null) {
       entityType = settings.getDefaultEntityType();
     }

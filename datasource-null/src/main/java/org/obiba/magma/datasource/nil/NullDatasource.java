@@ -35,7 +35,7 @@ public class NullDatasource extends AbstractDatasource {
 
   @Override
   @Nonnull
-  public ValueTableWriter createWriter(String name, String entityType) {
+  public ValueTableWriter createWriter(@Nonnull String name, @Nonnull String entityType) {
     return new NullValueTableWriter();
   }
 
