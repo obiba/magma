@@ -1,5 +1,5 @@
 apply plugin: 'idea'
-apply from: "./libraries.gradle"
+apply from: 'libraries.gradle'
 
 allprojects {
 
@@ -10,7 +10,7 @@ allprojects {
 
   repositories {
     mavenLocal()
-    mavenRepo url: "http://repo.obiba.org/repo"
+    mavenRepo url: 'http://repo.obiba.org/repo'
     mavenCentral()
   }
 
@@ -28,7 +28,7 @@ subprojects {
 
   defaultTasks 'build'
 
-  buildDir = "target"
+  buildDir = 'target'
 
   task packageSources(type: Jar) {
     classifier = 'sources'
