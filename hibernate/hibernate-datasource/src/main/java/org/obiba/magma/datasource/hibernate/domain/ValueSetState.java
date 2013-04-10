@@ -29,7 +29,7 @@ import com.google.common.collect.Sets;
 @Table(name = "value_set",
     uniqueConstraints = @UniqueConstraint(columnNames = { "value_table_id", "variable_entity_id" }))
 @NamedQuery(name = "findValueSetsByTableId",
-    query = "SELECT vs FROM ValueSetState vs where vs.valueTable.id = :valueTableId")
+    query = "SELECT vs FROM ValueSetState vs WHERE vs.valueTable.id = :valueTableId")
 public class ValueSetState extends AbstractTimestampedEntity {
 
   private static final long serialVersionUID = 1L;
