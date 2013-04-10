@@ -24,7 +24,7 @@ include ':magma-api',
     ':magma-data-generator',
     ':magma-test'
 
-// allow us to rename subprojects’ build files
+// allow us to rename sub-projects’ build files
 setBuildFileName(rootProject)
 
 def setBuildFileName(project) {

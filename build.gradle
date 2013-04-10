@@ -1,18 +1,54 @@
 apply plugin: 'idea'
 apply from: 'libraries.gradle'
 
+ext {
+  javaVersion = '1.6'
+}
+
 allprojects {
 
+  apply plugin: 'java'
   apply plugin: 'maven'
 
   group = 'org.obiba.magma'
   version = '1.6-gradle-SNAPSHOT'
+
+  sourceCompatibility = javaVersion
+  targetCompatibility = javaVersion
+
+  defaultTasks 'build'
+
+  buildDir = 'target'
 
   repositories {
     mavenLocal()
     mavenRepo url: 'http://repo.obiba.org/repo'
     mavenCentral()
   }
+
+  tasks.withType(Compile) {
+    options.encoding = 'UTF-8'
+  }
+
+  configurations {
+    compile
+    runtime
+    all*.exclude group: 'commons-logging'
+  }
+
+  apply plugin: 'pmd'
+  pmd {
+    targetJdk = javaVersion
+    ignoreFailures = true   // Don't fail the build process when rule violations are found.
+//    ruleSetFiles = files('https://github.com/obiba/conventions/raw/master/obiba-pmd-ruleset.xml')
+  }
+
+  // FindBugs
+//  apply plugin: 'findbugs'
+//  tasks.withType(FindBugs) {
+//    reports.html.enabled true
+//    reports.xml.enabled false
+//  }
 
 }
 
@@ -21,25 +57,6 @@ task wrapper(type: Wrapper) {
 }
 
 subprojects {
-  apply plugin: 'java'
-  apply plugin: 'pmd'
-
-
-  sourceCompatibility = 1.6
-  targetCompatibility = 1.6
-
-  defaultTasks 'build'
-
-  buildDir = 'target'
-
-  sourceSets {
-    util
-  }
-  pmd {
-    // Don't fail the build process when rule violations are found.
-    ignoreFailures = true
-  }
-
 
   task packageSources(type: Jar) {
     classifier = 'sources'
@@ -47,12 +64,6 @@ subprojects {
   }
 
   artifacts.archives packageSources
-
-  configurations {
-    compile
-    runtime
-    all*.exclude group: 'commons-logging'
-  }
 
   dependencies {
     compile(libraries.guava)
