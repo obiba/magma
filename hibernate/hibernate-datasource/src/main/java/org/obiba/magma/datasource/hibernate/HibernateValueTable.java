@@ -4,6 +4,8 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.annotation.Nonnull;
@@ -13,6 +15,7 @@ import org.hibernate.Criteria;
 import org.hibernate.FetchMode;
 import org.hibernate.LockMode;
 import org.hibernate.LockOptions;
+import org.hibernate.Query;
 import org.obiba.core.service.impl.hibernate.AssociationCriteria;
 import org.obiba.core.service.impl.hibernate.AssociationCriteria.Operation;
 import org.obiba.magma.Datasource;
@@ -41,6 +44,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Maps;
 
 @SuppressWarnings("OverlyCoupledClass")
 class HibernateValueTable extends AbstractValueTable {
@@ -50,6 +54,8 @@ class HibernateValueTable extends AbstractValueTable {
   private final Serializable valueTableId;
 
   private final HibernateVariableEntityProvider variableEntityProvider;
+
+  private Map<String, Timestamps> valueSetTimestamps;
 
   HibernateValueTable(Datasource datasource, ValueTableState state) {
     super(datasource, state.getName());
@@ -89,16 +95,37 @@ class HibernateValueTable extends AbstractValueTable {
     if(!hasValueSet(entity)) {
       throw new NoSuchValueSetException(this, entity);
     }
+    if(valueSetTimestamps == null) {
+      cacheValueSetTimestamps();
+    }
+    Timestamps cachedTimestamps = valueSetTimestamps.get(entity.getIdentifier());
+    return cachedTimestamps == null ? NullTimestamps.get() : cachedTimestamps;
+  }
 
-    Timestamped valueSetState = (Timestamped) AssociationCriteria
-        .create(ValueSetState.class, getDatasource().getSessionFactory().getCurrentSession()) //
-        .add("valueTable.id", Operation.eq, valueTableId) //
-        .add("variableEntity.identifier", Operation.eq, entity.getIdentifier()) //
-        .add("variableEntity.type", Operation.eq, entity.getType()) //
-        .getCriteria() //
-        .uniqueResult();
+  @SuppressWarnings("unchecked")
+  private void cacheValueSetTimestamps() {
+    valueSetTimestamps = Maps.newHashMap();
+    Query query = getDatasource().getSessionFactory().getCurrentSession().createSQLQuery(
+        "SELECT ve.identifier, vs.created, vs.updated FROM value_set vs, variable_entity ve " +
+            "WHERE ve.id = vs.variable_entity_id AND vs.value_table_id = :value_table_id AND ve.type = :entity_type")
+        .setParameter("value_table_id", valueTableId) //
+        .setParameter("entity_type", getEntityType());
+    for(final Object[] row : (List<Object[]>) query.list()) {
+      valueSetTimestamps.put((String) row[0], new Timestamps() {
 
-    return createTimestamps(valueSetState);
+        @Nonnull
+        @Override
+        public Value getCreated() {
+          return DateTimeType.get().valueOf(row[1]);
+        }
+
+        @Nonnull
+        @Override
+        public Value getLastUpdate() {
+          return DateTimeType.get().valueOf(row[2]);
+        }
+      });
+    }
   }
 
   @Override
