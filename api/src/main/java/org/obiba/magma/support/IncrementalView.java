@@ -24,8 +24,6 @@ import org.obiba.magma.VariableEntity;
 import org.obiba.magma.transform.BijectiveFunction;
 import org.obiba.magma.type.DateTimeType;
 import org.obiba.magma.views.View;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Maps;
 
@@ -35,7 +33,7 @@ import com.google.common.collect.Maps;
 @SuppressWarnings("ClassTooDeepInInheritanceTree")
 public class IncrementalView extends View {
 
-  private static final Logger log = LoggerFactory.getLogger(IncrementalView.class);
+//  private static final Logger log = LoggerFactory.getLogger(IncrementalView.class);
 
   private final IncrementalFunction variableEntityMappingFunction;
 
@@ -66,7 +64,7 @@ public class IncrementalView extends View {
     super(sourceTable.getName(), sourceTable);
     this.destinationTable = destinationTable;
     variableEntityMappingFunction = new IncrementalFunction();
-    log.trace("New IncrementalView for {}", sourceTable.getName());
+//    log.trace("New IncrementalView for {}", sourceTable.getName());
   }
 
   @Override
@@ -87,12 +85,12 @@ public class IncrementalView extends View {
     @Override
     public VariableEntity apply(VariableEntity from) {
       if(applyCache.containsKey(from)) {
-        log.trace("apply has cached: {}", from.getIdentifier());
+//        log.trace("apply has cached: {}", from.getIdentifier());
         return applyCache.get(from);
       }
       boolean newer = isSourceNewerThanDestination(from);
       VariableEntity entity = newer ? from : null;
-      log.debug("View: {}, entity: {}, sourceIsNewer: {}, return {}", getName(), from, newer, entity);
+//      log.debug("View: {}, entity: {}, sourceIsNewer: {}, return {}", getName(), from, newer, entity);
       applyCache.put(from, entity);
       return entity;
     }
@@ -121,7 +119,7 @@ public class IncrementalView extends View {
       Value destinationLastUpdate = destinationTimestamps == null || destinationTimestamps.equals(NullTimestamps.get())
           ? DateTimeType.get().nullValue()
           : destinationTimestamps.getLastUpdate();
-      log.trace("{} - sourceLastUpdate: {}, destinationLastUpdate: {}", from, sourceLastUpdate, destinationLastUpdate);
+//      log.trace("{} - sourceLastUpdate: {}, destinationLastUpdate: {}", from, sourceLastUpdate, destinationLastUpdate);
       return sourceLastUpdate.isNull() || destinationLastUpdate.isNull() ||
           sourceLastUpdate.compareTo(destinationLastUpdate) > 0;
     }
