@@ -39,6 +39,8 @@ import com.google.common.collect.Maps;
 
 class HibernateValueTableWriter implements ValueTableWriter {
 
+//  private static final Logger log = LoggerFactory.getLogger(HibernateValueTableWriter.class);
+
   private final HibernateValueTable valueTable;
 
   private final HibernateValueTableTransaction transaction;
@@ -163,9 +165,7 @@ class HibernateValueTableWriter implements ValueTableWriter {
         }
         ValueSetValue valueSetValue = values.get(variable.getName());
         if(valueSetValue == null) {
-          if(!value.isNull()) {
-            createValue(variable, value, variableState);
-          }
+          createValue(variable, value, variableState);
         } else {
           updateValue(variable, value, valueSetValue);
         }
@@ -179,6 +179,8 @@ class HibernateValueTableWriter implements ValueTableWriter {
     }
 
     private void createValue(Variable variable, Value value, VariableState variableState) {
+      if(value.isNull()) return;
+
       ValueSetValue valueSetValue = new ValueSetValue(variableState, valueSetState);
 
       if(BinaryType.get().equals(value.getValueType())) {
@@ -187,8 +189,7 @@ class HibernateValueTableWriter implements ValueTableWriter {
         valueSetValue.setValue(value);
       }
 
-      valueSetState.getValues().add(valueSetValue);
-      values.put(variable.getName(), valueSetValue);
+      addValue(variable, valueSetValue);
     }
 
     private void updateValue(Variable variable, Value value, ValueSetValue valueSetValue) {
@@ -201,6 +202,11 @@ class HibernateValueTableWriter implements ValueTableWriter {
           valueSetValue.setValue(value);
         }
       }
+    }
+
+    private void addValue(Variable variable, ValueSetValue valueSetValue) {
+      valueSetState.getValues().add(valueSetValue);
+      values.put(variable.getName(), valueSetValue);
     }
 
     private void removeValue(Variable variable, ValueSetValue valueSetValue) {
@@ -223,7 +229,6 @@ class HibernateValueTableWriter implements ValueTableWriter {
     }
 
     private Value createBinaryValue(ValueSetValue valueSetValue, Value inputValue, int occurrence, boolean isUpdate) {
-      Value value = null;
       ValueSetBinaryValue binaryValue = isUpdate ? findBinaryValue(valueSetValue, occurrence) : null;
       if(binaryValue == null) {
         binaryValue = createBinaryValue(valueSetValue, inputValue, occurrence);
@@ -232,12 +237,10 @@ class HibernateValueTableWriter implements ValueTableWriter {
       }
       if(binaryValue == null) {
         // can be null if empty byte[]
-        value = TextType.get().nullValue();
-      } else {
-        session.save(binaryValue);
-        value = getBinaryMetadata(binaryValue);
+        return TextType.get().nullValue();
       }
-      return value;
+      session.save(binaryValue);
+      return getBinaryMetadata(binaryValue);
     }
 
     private ValueSetBinaryValue findBinaryValue(ValueSetValue valueSetValue, int occurrence) {
@@ -277,7 +280,7 @@ class HibernateValueTableWriter implements ValueTableWriter {
         // Persists valueSetState
         session.flush();
         // Empty the Session so we don't fill it up
-        session.evict(valueSetState);
+        session.clear();
       }
     }
 
