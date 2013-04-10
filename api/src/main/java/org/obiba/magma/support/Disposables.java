@@ -1,5 +1,8 @@
 package org.obiba.magma.support;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 import org.obiba.magma.Disposable;
 import org.obiba.magma.MagmaRuntimeException;
 import org.slf4j.Logger;
@@ -11,7 +14,7 @@ public final class Disposables {
 
   private Disposables() {}
 
-  public static void silentlyDispose(Disposable disposable) {
+  public static void silentlyDispose(@Nullable Disposable disposable) {
     try {
       dispose(disposable);
     } catch(RuntimeException e) {
@@ -19,7 +22,7 @@ public final class Disposables {
     }
   }
 
-  public static void silentlyDispose(Object... disposable) {
+  public static void silentlyDispose(@Nonnull Object... disposable) {
     try {
       dispose(disposable);
     } catch(RuntimeException e) {
@@ -27,7 +30,7 @@ public final class Disposables {
     }
   }
 
-  public static void dispose(Disposable disposable) {
+  public static void dispose(@Nullable Disposable disposable) {
     try {
       if(disposable != null) {
         disposable.dispose();
@@ -39,25 +42,25 @@ public final class Disposables {
     }
   }
 
-  public static void dispose(Object disposable) {
+  public static void dispose(@Nullable Object disposable) {
     if(disposable instanceof Disposable) {
       dispose((Disposable) disposable);
     }
   }
 
-  public static void dispose(Disposable... disposables) {
+  public static void dispose(@Nonnull Disposable... disposables) {
     for(Disposable o : disposables) {
       dispose(o);
     }
   }
 
-  public static void dispose(Object... disposables) {
+  public static void dispose(@Nonnull Object... disposables) {
     for(Object o : disposables) {
       dispose(o);
     }
   }
 
-  public static void dispose(Iterable<?> disposables) {
+  public static void dispose(@Nonnull Iterable<?> disposables) {
     for(Object o : disposables) {
       dispose(o);
     }
