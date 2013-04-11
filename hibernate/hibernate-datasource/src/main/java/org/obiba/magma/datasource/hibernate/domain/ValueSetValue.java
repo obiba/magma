@@ -19,6 +19,7 @@ import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
@@ -33,13 +34,15 @@ import org.obiba.magma.hibernate.type.ValueHibernateType;
 
 import com.google.common.base.Objects;
 
-@SuppressWarnings("UnusedDeclaration")
 @Entity
 @Table(name = "value_set_value")
 @TypeDef(name = "value", typeClass = ValueHibernateType.class)
-@NamedQuery(name = "findValuesByTable",
-    query = "SELECT vsv FROM ValueSetValue vsv WHERE vsv.id.valueSet " + //
-        "IN (SELECT vs.id FROM ValueSetState vs WHERE vs.valueTable.id = :valueTableId)")
+@NamedQueries({ //
+    @NamedQuery(name = "findValuesByTable",
+        query = "SELECT vsv FROM ValueSetValue vsv WHERE vsv.id.valueSet " + //
+            "IN (SELECT vs.id FROM ValueSetState vs WHERE vs.valueTable.id = :valueTableId)"),
+    @NamedQuery(name = "deleteValueSetValues",
+        query = "DELETE FROM ValueSetValue WHERE id.valueSet.id IN (:valueSetIds)") })
 public class ValueSetValue implements Timestamped, Serializable {
 
   private static final long serialVersionUID = 4356913652103162813L;
