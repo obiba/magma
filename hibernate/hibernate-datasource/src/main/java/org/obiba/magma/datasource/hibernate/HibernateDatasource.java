@@ -18,6 +18,7 @@ import org.hibernate.Transaction;
 import org.hibernate.criterion.Restrictions;
 import org.obiba.core.service.impl.hibernate.AssociationCriteria;
 import org.obiba.core.service.impl.hibernate.AssociationCriteria.Operation;
+import org.obiba.core.util.TimedExecution;
 import org.obiba.magma.NoSuchValueTableException;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.ValueTableWriter;
@@ -124,42 +125,60 @@ public class HibernateDatasource extends AbstractDatasource {
     return hasValueTable(tableName);
   }
 
-  @SuppressWarnings("ReuseOfLocalVariable")
   @Override
   public void dropTable(@Nonnull String tableName) {
-    log.info("dropping table {}", getName() + "." + tableName);
+    TimedExecution timedExecution = new TimedExecution().start();
+
+    String tableFullName = getName() + "." + tableName;
+    log.info("Dropping table {}", tableFullName);
 
     HibernateValueTable valueTable = (HibernateValueTable) getValueTable(tableName);
     ValueTableState tableState = valueTable.getValueTableState();
-
     removeValueTable(tableName);
 
-    org.hibernate.classic.Session currentSession = getSessionFactory().getCurrentSession();
-
     // cannot use cascading because DELETE (and INSERT) do not cascade via relationships in JPQL query
-    int deleted = currentSession.createQuery("delete from ValueSetBinaryValue bv where bv.valueSet.id " +
-        "in (select vs.id from ValueSetState vs where vs.valueTable.id = :valueTableId)")
-        .setParameter("valueTableId", tableState.getId()).executeUpdate();
-    log.info("deleted {} binaries from {}", deleted, tableName);
 
-    deleted = currentSession.createQuery("delete from ValueSetValue vsv where vsv.id.valueSet.id " +
-        "in (select vs.id from ValueSetState vs where vs.valueTable.id = :valueTableId)")
-        .setParameter("valueTableId", tableState.getId()).executeUpdate();
-    log.info("deleted {} values from {}", deleted, tableName);
+    Session session = getSessionFactory().getCurrentSession();
 
-    deleted = currentSession.createQuery("delete from ValueSetState vs where vs.valueTable.id = :valueTableId")
-        .setParameter("valueTableId", tableState.getId()).executeUpdate();
-    log.info("deleted {} valueSets from {}", deleted, tableName);
+    TimedExecution valueSetIdsTime = new TimedExecution().start();
+    List<?> valueSetIds = session.createQuery("SELECT id FROM ValueSetState WHERE valueTable.id = :valueTableId")
+        .setParameter("valueTableId", tableState.getId()).list();
+    log.debug("Found {} valueSetIds in {} in {}", valueSetIds.size(), tableFullName,
+        valueSetIdsTime.end().formatExecutionTime());
+    if(!valueSetIds.isEmpty()) {
+      deleteValueSets(tableFullName, session, valueSetIds);
+    }
 
-    List<VariableState> variables = AssociationCriteria.create(VariableState.class, currentSession)
+    TimedExecution variablesTime = new TimedExecution().start();
+    List<VariableState> variables = AssociationCriteria.create(VariableState.class, session)
         .add("valueTable", Operation.eq, tableState).list();
     for(VariableState v : variables) {
-      currentSession.delete(v);
+      session.delete(v);
     }
-    log.info("deleted {} variables from {}", variables.size(), tableName);
+    log.debug("Deleted {} variables from {} in {}", variables.size(), tableFullName,
+        variablesTime.end().formatExecutionTime());
 
-    currentSession.delete(tableState);
-    log.info("table {} was dropped", tableName);
+    session.delete(tableState);
+    log.info("Dropped table '{}' in {}", tableFullName, timedExecution.end().formatExecutionTime());
+  }
+
+  @SuppressWarnings("ReuseOfLocalVariable")
+  private void deleteValueSets(String tableFullName, Session session, Collection<?> valueSetIds) {
+    TimedExecution deleteBinariesTime = new TimedExecution().start();
+    int deleted = session.getNamedQuery("deleteValueSetBinaryValues").setParameterList("valueSetIds", valueSetIds)
+        .executeUpdate();
+    log.debug("Deleted {} binaries from {} in {}", deleted, tableFullName,
+        deleteBinariesTime.end().formatExecutionTime());
+
+    TimedExecution valuesTime = new TimedExecution().start();
+    deleted = session.getNamedQuery("deleteValueSetValues").setParameterList("valueSetIds", valueSetIds)
+        .executeUpdate();
+    log.debug("Deleted {} values from {} in {}", deleted, tableFullName, valuesTime.end().formatExecutionTime());
+
+    TimedExecution valueSetsTime = new TimedExecution().start();
+    deleted = session.getNamedQuery("deleteValueSetStates").setParameterList("valueTableIds", valueSetIds)
+        .executeUpdate();
+    log.debug("Deleted {} valueSets from {} in {}", deleted, tableFullName, valueSetsTime.end().formatExecutionTime());
   }
 
   @Override

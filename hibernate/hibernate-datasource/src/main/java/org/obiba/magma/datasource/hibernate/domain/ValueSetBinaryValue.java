@@ -14,6 +14,7 @@ import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
+import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
@@ -24,10 +25,12 @@ import org.obiba.core.domain.AbstractEntity;
 @Entity
 @Table(name = "value_set_binary_value",
     uniqueConstraints = @UniqueConstraint(columnNames = { "value_set_id", "variable_id", "occurrence" }))
-@NamedQuery(name = "findBinaryByValueSetValueAndOccurrence", query = //
-    "SELECT vb FROM ValueSetBinaryValue vb " + //
-        "WHERE vb.valueSet.id = :valueSetId AND vb.variable.id = :variableId AND occurrence = :occurrence")
-@SuppressWarnings("UnusedDeclaration")
+@NamedQueries({ //
+    @NamedQuery(name = "findBinaryByValueSetValueAndOccurrence", //
+        query = "SELECT vb FROM ValueSetBinaryValue vb " + //
+            "WHERE vb.valueSet.id = :valueSetId AND vb.variable.id = :variableId AND occurrence = :occurrence"),
+    @NamedQuery(name = "deleteValueSetBinaryValues",
+        query = "DELETE FROM ValueSetBinaryValue WHERE valueSet.id IN (:valueSetIds)") })
 public class ValueSetBinaryValue extends AbstractEntity {
 
   private static final long serialVersionUID = -7767999255949547929L;

@@ -17,6 +17,7 @@ import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
@@ -28,8 +29,11 @@ import com.google.common.collect.Sets;
 @Entity
 @Table(name = "value_set",
     uniqueConstraints = @UniqueConstraint(columnNames = { "value_table_id", "variable_entity_id" }))
-@NamedQuery(name = "findValueSetsByTableId",
-    query = "SELECT vs FROM ValueSetState vs WHERE vs.valueTable.id = :valueTableId")
+@NamedQueries({ //
+    @NamedQuery(name = "findValueSetsByTableId",
+        query = "SELECT vs FROM ValueSetState vs WHERE vs.valueTable.id = :valueTableId"),
+    @NamedQuery(name = "deleteValueSetStates",
+        query = "DELETE FROM ValueSetState WHERE id IN (:valueTableIds)") })
 public class ValueSetState extends AbstractTimestampedEntity {
 
   private static final long serialVersionUID = 1L;
