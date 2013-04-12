@@ -5,6 +5,7 @@ ext {
   javaVersion = '1.6'
 }
 
+
 allprojects {
 
   apply plugin: 'java'
@@ -22,7 +23,9 @@ allprojects {
 
   repositories {
     mavenLocal()
-    mavenRepo url: 'http://repo.obiba.org/repo'
+    maven {
+      url 'http://repo.obiba.org'
+    }
     mavenCentral()
   }
 
@@ -31,27 +34,11 @@ allprojects {
   }
 
   configurations {
+    pmd
     compile
     runtime
     all*.exclude group: 'commons-logging'
   }
-
-  // PMD
-  apply plugin: 'pmd'
-  pmd {
-    targetJdk = javaVersion
-    ignoreFailures = true   // Don't fail the build process when rule violations are found.
-    ruleSetFiles = rootProject.files('src/main/resources/pmd-ruleset.xml')
-//    ruleSetFiles = files("$rootProject.projectDir/src/main/resources/pmd-ruleset.xml")
-//    ruleSets = ["$rootProject.projectDir/src/main/resources/pmd-ruleset.xml"]
-  }
-
-  // FindBugs
-//  apply plugin: 'findbugs'
-//  findbugs {
-//    ignoreFailures = true
-//    excludeFilter = file("$rootProject.projectDir/src/main/resources/findbugs-exclude.xml")
-//  }
 
 }
 
@@ -79,6 +66,21 @@ subprojects {
     testCompile(libraries.hamcrest)
     testCompile(libraries.slf4j_log4j12)
     testCompile(libraries.jcl_slf4j)
+
+    pmd 'net.sourceforge.pmd:pmd:5.0.3'
+  }
+
+  task pmd << {
+    ant {
+      taskdef(name: 'pmd', classname: 'net.sourceforge.pmd.ant.PMDTask', classpath: configurations.pmd.asPath)
+      pmd(shortFilenames: 'true', failonruleviolation: 'false', rulesetfiles: rootProject.file('src/main/resources/pmd-ruleset.xml').toURI().toString()) {
+        formatter(type: 'html', toFile: "$buildDir/reports/pmd.html")
+        formatter(type: 'xml', toFile: "$buildDir/reports/pmd.xml")
+        fileset(dir: 'src') {
+          include(name: '**/*.java')
+        }
+      }
+    }
   }
 
 }
