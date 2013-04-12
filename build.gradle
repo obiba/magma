@@ -5,7 +5,6 @@ ext {
   javaVersion = '1.6'
 }
 
-
 allprojects {
 
   apply plugin: 'java'
@@ -53,6 +52,11 @@ subprojects {
     from sourceSets.main.allSource
   }
 
+  apply plugin: 'project-report'
+  reporting {
+    baseDir "$buildDir/reports"
+  }
+
   artifacts.archives packageSources
 
   dependencies {
@@ -70,13 +74,21 @@ subprojects {
     pmd 'net.sourceforge.pmd:pmd:5.0.3'
   }
 
+  apply plugin: 'findbugs'
+  findbugs {
+    reportsDir = file("${reporting.baseDir}/findbugs-output")
+    excludeFilter = file(rootProject.file('src/main/resources/findbugs-exclude.xml'))
+    ignoreFailures = true
+  }
+
+
   task pmd << {
-    file("$buildDir/reports").mkdirs()
+    file("${reporting.baseDir}").mkdirs()
     ant {
       taskdef(name: 'pmd', classname: 'net.sourceforge.pmd.ant.PMDTask', classpath: configurations.pmd.asPath)
       pmd(shortFilenames: 'true', failonruleviolation: 'false', rulesetfiles: rootProject.file('src/main/resources/pmd-ruleset.xml').toURI().toString()) {
-        formatter(type: 'html', toFile: "$buildDir/reports/pmd.html")
-        formatter(type: 'xml', toFile: "$buildDir/reports/pmd.xml")
+        formatter(type: 'html', toFile: "${reporting.baseDir}/pmd.html")
+        formatter(type: 'xml', toFile: "${reporting.baseDir}/pmd.xml")
         fileset(dir: 'src') {
           include(name: '**/*.java')
         }
