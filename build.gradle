@@ -71,6 +71,7 @@ subprojects {
   }
 
   task pmd << {
+    file("$buildDir/reports").mkdirs()
     ant {
       taskdef(name: 'pmd', classname: 'net.sourceforge.pmd.ant.PMDTask', classpath: configurations.pmd.asPath)
       pmd(shortFilenames: 'true', failonruleviolation: 'false', rulesetfiles: rootProject.file('src/main/resources/pmd-ruleset.xml').toURI().toString()) {
