@@ -14,6 +14,7 @@ import java.io.Serializable;
 import javax.annotation.Nonnull;
 
 import org.hibernate.SessionFactory;
+import org.hibernate.classic.Session;
 import org.obiba.core.service.impl.hibernate.AssociationCriteria;
 import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.Value;
@@ -90,8 +91,9 @@ public class HibernateValueLoaderFactory implements ValueLoaderFactory {
           value = (byte[]) valueRef.getValue();
         } else {
           log.trace("Loading binary from value_set_binary_value table");
+          Session session = sessionFactory.getCurrentSession();
           ValueSetBinaryValue binaryValue = (ValueSetBinaryValue) AssociationCriteria
-              .create(ValueSetBinaryValue.class, sessionFactory.getCurrentSession()) //
+              .create(ValueSetBinaryValue.class, session) //
               .add("variable.id", Operation.eq, variableId) //
               .add("valueSet.id", Operation.eq, valueSetId) //
               .add("occurrence", Operation.eq, occurrence) //
@@ -102,6 +104,7 @@ public class HibernateValueLoaderFactory implements ValueLoaderFactory {
                     "] and occurrence[" + occurrence + "]");
           }
           value = binaryValue.getValue();
+          session.evict(binaryValue); // remove binaries from session to avoid filling up memory
         }
       }
       return value;

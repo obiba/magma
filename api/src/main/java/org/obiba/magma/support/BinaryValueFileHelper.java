@@ -187,6 +187,7 @@ public class BinaryValueFileHelper {
 
     int i = 1;
     List<Value> names = Lists.newArrayList();
+    //noinspection ConstantConditions
     for(Value val : value.asSequence().getValue()) {
       names.add(writeFileValue(parent, name + "-" + i, extension, val));
       i++;
