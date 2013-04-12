@@ -39,6 +39,15 @@ allprojects {
     all*.exclude group: 'commons-logging'
   }
 
+  jar {
+    manifest {
+      attributes 'Implementation-Title': project.name,
+          'Implementation-Version': project.version,
+          'Implementation-Vendor-Id': project.group,
+          'Implementation-Vendor': 'OBiBa'
+    }
+  }
+
 }
 
 task wrapper(type: Wrapper) {
@@ -74,6 +83,7 @@ subprojects {
     pmd 'net.sourceforge.pmd:pmd:5.0.3'
   }
 
+  // FindBugs
   apply plugin: 'findbugs'
   findbugs {
     reportsDir = file("${reporting.baseDir}/findbugs-output")
@@ -81,7 +91,7 @@ subprojects {
     ignoreFailures = true
   }
 
-
+  // PMD
   task pmd << {
     file("${reporting.baseDir}").mkdirs()
     ant {
