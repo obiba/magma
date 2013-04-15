@@ -93,6 +93,7 @@ subprojects {
 
   // PMD
   task pmd << {
+    if (!file('src').exists()) return;
     file("${reporting.baseDir}").mkdirs()
     ant {
       taskdef(name: 'pmd', classname: 'net.sourceforge.pmd.ant.PMDTask', classpath: configurations.pmd.asPath)
