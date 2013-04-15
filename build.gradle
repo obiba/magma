@@ -21,11 +21,10 @@ allprojects {
   buildDir = 'target'
 
   repositories {
-//    maven {
-//      url 'http://repo.obiba.org'
-//    }
-//    mavenCentral()
-    mavenCentral name: "Obiba repo", artifactUrls: ['http://repo.obiba.org']
+    maven {
+      url 'http://repo.obiba.org/repo'
+    }
+    mavenCentral()
     mavenLocal()
   }
 
