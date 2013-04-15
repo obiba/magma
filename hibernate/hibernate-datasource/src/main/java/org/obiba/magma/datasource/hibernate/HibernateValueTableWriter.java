@@ -12,6 +12,7 @@ import javax.annotation.Nullable;
 
 import org.hibernate.FlushMode;
 import org.hibernate.LockMode;
+import org.hibernate.LockOptions;
 import org.hibernate.Session;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -36,6 +37,8 @@ import org.obiba.magma.type.TextType;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+
+import static com.google.common.base.Preconditions.checkArgument;
 
 class HibernateValueTableWriter implements ValueTableWriter {
 
@@ -91,18 +94,21 @@ class HibernateValueTableWriter implements ValueTableWriter {
 
     @Override
     public void writeVariable(@Nonnull Variable variable) {
-      if(variable == null) throw new IllegalArgumentException("variable cannot be null");
-      if(!valueTable.isForEntityType(variable.getEntityType())) {
-        throw new IllegalArgumentException(
-            "Wrong entity type for variable '" + variable.getName() + "': " + valueTable.getEntityType() +
-                " expected, " + variable.getEntityType() + " received.");
-      }
+      //noinspection ConstantConditions
+      checkArgument(variable != null, "variable cannot be null");
+      checkArgument(valueTable.isForEntityType(variable.getEntityType()),
+          "Wrong entity type for variable '" + variable.getName() + "': " + valueTable.getEntityType() +
+              " expected, " + variable.getEntityType() + " received.");
 
       // add or update variable
       errorOccurred = true;
       VariableState state = variableConverter.marshal(variable, context);
       transaction.addSource(valueSourceFactory.createSource(state));
       errorOccurred = false;
+
+      // update valueTable timestamp
+      session.buildLockRequest(new LockOptions(LockMode.PESSIMISTIC_FORCE_INCREMENT))
+          .lock(valueTable.getValueTableState());
     }
 
     @Override
@@ -130,15 +136,15 @@ class HibernateValueTableWriter implements ValueTableWriter {
     private HibernateValueSetWriter(@Nonnull VariableEntity entity) {
       if(entity == null) throw new IllegalArgumentException("entity cannot be null");
       this.entity = entity;
+
       // find entity or create it
       VariableEntityState variableEntityState = entityConverter.marshal(entity, context);
 
-      AssociationCriteria criteria = AssociationCriteria.create(ValueSetState.class, session)
-          .add("valueTable", Operation.eq, valueTable.getValueTableState())
-          .add("variableEntity", Operation.eq, variableEntityState);
-
       // Will update version timestamp if it exists
-      ValueSetState state = (ValueSetState) criteria.getCriteria().setLockMode(LockMode.PESSIMISTIC_FORCE_INCREMENT)
+      ValueSetState state = (ValueSetState) AssociationCriteria.create(ValueSetState.class, session) //
+          .add("valueTable", Operation.eq, valueTable.getValueTableState()) //
+          .add("variableEntity", Operation.eq, variableEntityState) //
+          .getCriteria().setLockMode(LockMode.PESSIMISTIC_FORCE_INCREMENT) //
           .uniqueResult();
       if(state == null) {
         state = new ValueSetState(valueTable.getValueTableState(), variableEntityState);
@@ -169,6 +175,9 @@ class HibernateValueTableWriter implements ValueTableWriter {
         } else {
           updateValue(variable, value, valueSetValue);
         }
+        // update valueTable timestamp
+        session.buildLockRequest(new LockOptions(LockMode.PESSIMISTIC_FORCE_INCREMENT))
+            .lock(valueTable.getValueTableState());
       } catch(RuntimeException e) {
         errorOccurred = true;
         throw e;
