@@ -1,5 +1,7 @@
 package org.obiba.magma.datasource.hibernate.converter;
 
+import javax.annotation.Nullable;
+
 import org.obiba.magma.Category;
 import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.Variable;
@@ -16,6 +18,7 @@ public class VariableConverter extends AttributeAwareConverter implements Hibern
   private VariableConverter() {
   }
 
+  @Nullable
   public VariableState getStateForVariable(Variable variable, HibernateMarshallingContext context) {
     for(VariableState state : context.getValueTable().getVariables()) {
       if(state.getName().equals(variable.getName())) return state;
@@ -26,11 +29,11 @@ public class VariableConverter extends AttributeAwareConverter implements Hibern
   @Override
   public VariableState marshal(Variable magmaObject, HibernateMarshallingContext context) {
     VariableState variableState = getStateForVariable(magmaObject, context);
-    if(variableState != null) {
-      variableState.copyVariableFields(magmaObject);
-    } else {
+    if(variableState == null) {
       variableState = new VariableState(context.getValueTable(), magmaObject);
       context.getValueTable().getVariables().add(variableState);
+    } else {
+      variableState.copyVariableFields(magmaObject);
     }
 
     if(variableState.getValueType() != magmaObject.getValueType()) {
@@ -69,7 +72,7 @@ public class VariableConverter extends AttributeAwareConverter implements Hibern
   }
 
   @Override
-  public Variable unmarshal(VariableState jpaObject, HibernateMarshallingContext context) {
+  public Variable unmarshal(VariableState jpaObject, @Nullable HibernateMarshallingContext context) {
     Variable.Builder builder = Variable.Builder
         .newVariable(jpaObject.getName(), jpaObject.getValueType(), jpaObject.getEntityType());
     builder.mimeType(jpaObject.getMimeType()).occurrenceGroup(jpaObject.getOccurrenceGroup())

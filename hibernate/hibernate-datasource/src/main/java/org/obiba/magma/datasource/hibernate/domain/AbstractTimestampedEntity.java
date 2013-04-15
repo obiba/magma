@@ -34,6 +34,7 @@ public abstract class AbstractTimestampedEntity extends AbstractEntity implement
   @Column(insertable = true, updatable = false, nullable = false)
   private Date created = new Date();
 
+  @SuppressWarnings("UnusedDeclaration")
   @Version
   @Column(nullable = false)
   private Date updated;

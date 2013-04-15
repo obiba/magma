@@ -1,5 +1,7 @@
 package org.obiba.magma.datasource.hibernate.converter;
 
+import javax.annotation.Nullable;
+
 import org.hibernate.SessionFactory;
 import org.obiba.magma.AttributeAwareBuilder;
 import org.obiba.magma.datasource.hibernate.domain.AbstractAttributeAwareEntity;
@@ -29,7 +31,7 @@ public class HibernateMarshallingContext {
   }
 
   public static HibernateMarshallingContext create(SessionFactory sessionFactory, DatasourceState datasourceState,
-      ValueTableState valueTable) {
+      @Nullable ValueTableState valueTable) {
     if(sessionFactory == null) throw new IllegalArgumentException("sessionFactory cannot be null");
     if(datasourceState == null) throw new IllegalArgumentException("datasourceState cannot be null");
 

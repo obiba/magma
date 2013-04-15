@@ -17,6 +17,7 @@ import org.hibernate.ScrollMode;
 import org.hibernate.ScrollableResults;
 import org.hibernate.Session;
 import org.hibernate.criterion.Restrictions;
+import org.obiba.core.domain.IEntity;
 import org.obiba.core.service.SortingClause;
 import org.obiba.core.service.impl.hibernate.AssociationCriteria;
 import org.obiba.core.service.impl.hibernate.AssociationCriteria.Operation;
@@ -238,7 +239,7 @@ class HibernateVariableValueSourceFactory implements VariableValueSourceFactory 
 
     private Serializable ensureVariableId() {
       if(variableId == null) {
-        VariableState state = (VariableState) getCurrentSession().createCriteria(VariableState.class)//
+        IEntity state = (IEntity) getCurrentSession().createCriteria(VariableState.class) //
             .add(Restrictions.eq("name", name))//
             .add(Restrictions.eq("valueTable", valueTable.getValueTableState())).uniqueResult();
         if(state == null) throw new IllegalStateException("variable '" + name + "' not persisted yet.");
