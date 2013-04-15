@@ -21,11 +21,11 @@ allprojects {
   buildDir = 'target'
 
   repositories {
-    mavenLocal()
     maven {
       url 'http://repo.obiba.org'
     }
     mavenCentral()
+    mavenLocal()
   }
 
   tasks.withType(Compile) {
