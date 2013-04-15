@@ -29,8 +29,6 @@ import org.obiba.magma.support.DatasourceCopier;
 import org.obiba.magma.type.DecimalType;
 import org.obiba.magma.type.IntegerType;
 import org.obiba.magma.type.TextType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
@@ -45,7 +43,7 @@ import static org.junit.Assert.assertThat;
 @SuppressWarnings({ "OverlyLongMethod", "MagicNumber", "ReuseOfLocalVariable" })
 public class HibernateDatasourceTest {
 
-  private static final Logger log = LoggerFactory.getLogger(HibernateDatasourceTest.class);
+//  private static final Logger log = LoggerFactory.getLogger(HibernateDatasourceTest.class);
 
   LocalSessionFactoryProvider provider;
 
@@ -251,9 +249,7 @@ public class HibernateDatasourceTest {
         lastValueSetUpdate = lastUpdate;
       }
     }
-    log.info("lastValueSetUpdate: {}", lastValueSetUpdate);
     Date tableLastUpdate = (Date) table.getTimestamps().getLastUpdate().getValue();
-    log.info("table lastUpdate: {}", tableLastUpdate);
 
     //noinspection ConstantConditions
     assertThat(
