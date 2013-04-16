@@ -9,12 +9,16 @@
  */
 package org.obiba.magma.datasource.nil.support;
 
+import javax.annotation.Nonnull;
+
 import org.obiba.magma.AbstractDatasourceFactory;
 import org.obiba.magma.Datasource;
 import org.obiba.magma.datasource.nil.NullDatasource;
 
 public class NullDatasourceFactory extends AbstractDatasourceFactory {
 
+  @Override
+  @Nonnull
   protected Datasource internalCreate() {
     return new NullDatasource(getName());
   }
