@@ -56,6 +56,11 @@ task wrapper(type: Wrapper) {
 
 subprojects {
 
+  test {
+    classpath += rootProject.sourceSets.test.resources
+    testLogging.showStandardStreams = true
+  }
+
   task packageSources(type: Jar) {
     classifier = 'sources'
     from sourceSets.main.allSource
