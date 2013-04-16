@@ -90,6 +90,7 @@ public class UnitMethods {
       throw new MagmaJsEvaluationRuntimeException(String.format("unit %s cannot be converted to %s", source, target));
     }
 
+    //noinspection ConstantConditions
     double sourceValue = (Double) DecimalType.get().convert(value.getValue()).getValue();
 
     double newValue = source.getConverterTo(target).convert(sourceValue);
@@ -113,7 +114,7 @@ public class UnitMethods {
     } catch(IllegalArgumentException e) {
       try {
         return PhysicsUnit.valueOf(value);
-      } catch(IllegalArgumentException e2) {
+      } catch(IllegalArgumentException ignored) {
       }
     }
     return SI.ONE;
