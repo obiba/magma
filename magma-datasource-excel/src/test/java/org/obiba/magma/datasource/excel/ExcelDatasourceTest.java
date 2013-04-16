@@ -12,13 +12,10 @@ import java.util.List;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import org.obiba.core.util.FileUtil;
 import org.obiba.magma.Category;
 import org.obiba.magma.Datasource;
-import org.obiba.magma.MagmaEngine;
 import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.ValueTableWriter;
@@ -26,6 +23,7 @@ import org.obiba.magma.ValueTableWriter.VariableWriter;
 import org.obiba.magma.Variable;
 import org.obiba.magma.support.DatasourceParsingException;
 import org.obiba.magma.support.Disposables;
+import org.obiba.magma.test.AbstractMagmaTest;
 import org.obiba.magma.type.IntegerType;
 import org.obiba.magma.type.TextType;
 
@@ -33,17 +31,7 @@ import com.google.common.collect.Iterables;
 
 import junit.framework.Assert;
 
-public class ExcelDatasourceTest {
-
-  @Before
-  public void before() {
-    new MagmaEngine();
-  }
-
-  @After
-  public void after() {
-    MagmaEngine.get().shutdown();
-  }
+public class ExcelDatasourceTest extends AbstractMagmaTest {
 
   /**
    * Test: missing columns, default values and user named columns. See:

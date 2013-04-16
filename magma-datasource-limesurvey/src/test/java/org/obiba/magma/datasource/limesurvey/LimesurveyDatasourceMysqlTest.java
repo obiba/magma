@@ -7,9 +7,9 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.obiba.magma.ValueSet;
 import org.obiba.magma.ValueTable;
+import org.obiba.magma.test.AbstractMagmaTest;
 
-import junit.framework.Assert;
-import test.AbstractMagmaTest;
+import static junit.framework.Assert.assertEquals;
 
 public class LimesurveyDatasourceMysqlTest extends AbstractMagmaTest {
 
@@ -24,19 +24,17 @@ public class LimesurveyDatasourceMysqlTest extends AbstractMagmaTest {
     LimesurveyDatasource limesurveyDatasource = new LimesurveyDatasource("lime", createDataSource());
     limesurveyDatasource.initialise();
     ValueTable table = limesurveyDatasource.getValueTable("60 min Questionnaire (Tracking Main Wave & Injury)");
-    Assert.assertEquals(1, table.getVariableEntities().size());
-    Assert.assertEquals("2012-07-20T10:40:41.000-0400", table.getTimestamps().getLastUpdate().toString());
-    Assert.assertEquals("2012-07-20T10:40:41.000-0400", table.getTimestamps().getCreated().toString());
+    assertEquals(1, table.getVariableEntities().size());
+    assertEquals("2012-07-20T10:40:41.000-0400", table.getTimestamps().getLastUpdate().toString());
+    assertEquals("2012-07-20T10:40:41.000-0400", table.getTimestamps().getCreated().toString());
 //    for (Variable var :table.getVariables()) {
 //      System.out.println(var.getName() + ":" + var.getValueType().getName());
 //    }
     ValueSet vs = table.getValueSet(table.getVariableEntities().iterator().next());
-    Assert.assertEquals("2012-07-20T10:28:35.000-0400",
-        table.getVariableValueSource("startdate").getValue(vs).toString());
-    Assert.assertEquals("2012-07-20T10:40:41.000-0400",
-        table.getVariableValueSource("submitdate").getValue(vs).toString());
-    Assert.assertEquals("548", table.getVariableValueSource("lastpage").getValue(vs).toString());
-    Assert.assertEquals("en", table.getVariableValueSource("startlanguage").getValue(vs).toString());
+    assertEquals("2012-07-20T10:28:35.000-0400", table.getVariableValueSource("startdate").getValue(vs).toString());
+    assertEquals("2012-07-20T10:40:41.000-0400", table.getVariableValueSource("submitdate").getValue(vs).toString());
+    assertEquals("548", table.getVariableValueSource("lastpage").getValue(vs).toString());
+    assertEquals("en", table.getVariableValueSource("startlanguage").getValue(vs).toString());
     //DisplayHelper.display(limesurveyDatasource);
   }
 

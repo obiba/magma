@@ -6,11 +6,8 @@ import java.util.Locale;
 import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import org.obiba.magma.Category;
-import org.obiba.magma.MagmaEngine;
 import org.obiba.magma.NoSuchValueSetException;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueSequence;
@@ -23,6 +20,7 @@ import org.obiba.magma.datasource.csv.support.Separator;
 import org.obiba.magma.support.AbstractValueTable;
 import org.obiba.magma.support.DatasourceParsingException;
 import org.obiba.magma.support.VariableEntityBean;
+import org.obiba.magma.test.AbstractMagmaTest;
 import org.obiba.magma.type.IntegerType;
 import org.obiba.magma.type.TextType;
 import org.slf4j.Logger;
@@ -45,19 +43,9 @@ import static org.obiba.core.util.FileUtil.getFileFromResource;
 import static org.obiba.magma.datasource.csv.CsvValueTable.DEFAULT_ENTITY_TYPE;
 
 @SuppressWarnings({ "OverlyLongMethod", "ResultOfMethodCallIgnored", "OverlyCoupledClass" })
-public class CsvDatasourceTest {
+public class CsvDatasourceTest extends AbstractMagmaTest {
 
   private static final Logger log = LoggerFactory.getLogger(CsvDatasourceTest.class);
-
-  @Before
-  public void before() {
-    new MagmaEngine();
-  }
-
-  @After
-  public void after() {
-    MagmaEngine.get().shutdown();
-  }
 
   @Test
   public void test_separators() {

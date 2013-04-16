@@ -6,6 +6,7 @@ import java.util.TreeSet;
 import javax.sql.DataSource;
 
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.obiba.core.test.spring.Dataset;
 import org.obiba.core.test.spring.DbUnitAwareTestExecutionListener;
 import org.obiba.magma.Category;
@@ -26,9 +27,12 @@ import org.obiba.magma.test.TestSchema;
 import org.obiba.magma.type.DecimalType;
 import org.obiba.magma.type.IntegerType;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
 import org.springframework.test.context.support.DirtiesContextTestExecutionListener;
+import org.springframework.test.context.transaction.TransactionConfiguration;
 import org.springframework.test.context.transaction.TransactionalTestExecutionListener;
 
 import com.google.common.collect.Iterables;
@@ -38,10 +42,11 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-@org.junit.runner.RunWith(value = SpringJUnit4ClassRunner.class)
-@org.springframework.test.context.ContextConfiguration(locations = { "/test-spring-context.xml" })
-@org.springframework.test.context.transaction.TransactionConfiguration(transactionManager = "transactionManager")
-@org.springframework.test.context.TestExecutionListeners(
+@SuppressWarnings("ReuseOfLocalVariable")
+@RunWith(value = SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = { "/test-spring-context.xml" })
+@TransactionConfiguration(transactionManager = "transactionManager")
+@TestExecutionListeners(
     value = { DependencyInjectionTestExecutionListener.class, DirtiesContextTestExecutionListener.class,
         TransactionalTestExecutionListener.class, SchemaTestExecutionListener.class,
         DbUnitAwareTestExecutionListener.class })

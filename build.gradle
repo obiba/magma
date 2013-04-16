@@ -54,29 +54,6 @@ task wrapper(type: Wrapper) {
 
 subprojects {
 
-  test {
-    classpath += rootProject.sourceSets.test.resources    // configure log4j for testing
-    testLogging.showStandardStreams = true
-
-    // listen to events in the test execution lifecycle
-//    beforeTest { descriptor ->
-//      logger.lifecycle("classpath for " + descriptor)
-//      classpath.each { logger.lifecycle("    " + it.getPath()) }
-//    }
-  }
-
-  task packageSources(type: Jar) {
-    classifier = 'sources'
-    from sourceSets.main.allSource
-  }
-
-  apply plugin: 'project-report'
-  reporting {
-    baseDir "$buildDir/reports"
-  }
-
-  artifacts.archives packageSources
-
   dependencies {
     compile(libraries.guava)
     compile(libraries.slf4j_api)
@@ -90,6 +67,23 @@ subprojects {
     testCompile(libraries.jcl_slf4j)
 
     pmd 'net.sourceforge.pmd:pmd:5.0.3'
+  }
+
+  test {
+    testLogging.showStandardStreams = true
+  }
+
+  // TODO: do we need this?
+  task packageSources(type: Jar) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+  }
+  artifacts.archives packageSources
+
+  // Reporting
+  apply plugin: 'project-report'
+  reporting {
+    baseDir "$buildDir/reports"
   }
 
   // FindBugs

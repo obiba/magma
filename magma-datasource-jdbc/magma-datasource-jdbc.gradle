@@ -7,7 +7,7 @@ dependencies {
   compile(libraries.commons_dbcp)
   compile(libraries.jta)
 
-
+  testCompile project(':magma-test')
   testCompile project(':magma-datasource-fs')
   testCompile(libraries.obiba_core)
   testCompile(libraries.spring_test)

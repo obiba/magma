@@ -49,7 +49,7 @@ public class HibernateDatasourceTest {
 
   @Before
   public void startYourEngine() {
-    new MagmaEngine();
+    MagmaEngine.get();
     provider = newProvider("theTest");
   }
 

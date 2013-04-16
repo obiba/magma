@@ -8,5 +8,6 @@ dependencies {
     exclude(module: 'org.osgi.compendium')
   }
 
+  testCompile project(':magma-test')
   testCompile project(':magma-xstream')
 }

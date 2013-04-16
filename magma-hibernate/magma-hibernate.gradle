@@ -6,4 +6,6 @@ dependencies {
   compile(libraries.hibernate_core)
   compile(libraries.hibernate_annotations)
   compile(libraries.spring_beans)
+
+  testCompile project(':magma-test')
 }

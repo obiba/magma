@@ -1,6 +1,7 @@
 package org.obiba.magma;
 
 import org.easymock.EasyMock;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -22,6 +23,11 @@ public class MagmaEngineTest {
   public void setUp() throws Exception {
     new MagmaEngine();
     magmaEngine = MagmaEngine.get();
+  }
+
+  @After
+  public void stopMagmaEngine() {
+    MagmaEngine.get().shutdown();
   }
 
   @Test

@@ -8,6 +8,6 @@ dependencies {
     exclude(module: 'xml-apis')
   }
 
-
+  testCompile project(':magma-test')
   testCompile(libraries.obiba_core)
 }

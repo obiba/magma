@@ -4,15 +4,13 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
-import org.obiba.magma.MagmaEngine;
 import org.obiba.magma.Value;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.VariableValueSource;
 import org.obiba.magma.VectorSource;
 import org.obiba.magma.support.Values;
+import org.obiba.magma.test.AbstractMagmaTest;
 import org.obiba.magma.type.DecimalType;
 
 import com.google.common.collect.ImmutableList;
@@ -25,29 +23,19 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
 
-public class DefaultDescriptiveStatisticsProviderTest {
+public class DefaultDescriptiveStatisticsProviderTest extends AbstractMagmaTest {
 
   SortedSet<VariableEntity> emptySet = new TreeSet<VariableEntity>();
 
-  @Before
-  public void startYourEngine() {
-    new MagmaEngine();
-  }
-
-  @After
-  public void stopYourEngine() {
-    MagmaEngine.get().shutdown();
-  }
-
   @Test(expected = IllegalArgumentException.class)
   public void test_compute_nullSource() {
-    DefaultDescriptiveStatisticsProvider defaultProvider = new DefaultDescriptiveStatisticsProvider();
+    DescriptiveStatisticsProvider defaultProvider = new DefaultDescriptiveStatisticsProvider();
     DescriptiveStatistics ds = defaultProvider.compute(null, emptySet);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void test_compute_nullSet() {
-    DefaultDescriptiveStatisticsProvider defaultProvider = new DefaultDescriptiveStatisticsProvider();
+    DescriptiveStatisticsProvider defaultProvider = new DefaultDescriptiveStatisticsProvider();
     VariableValueSource mockSource = createMock(VariableValueSource.class);
     DescriptiveStatistics ds = defaultProvider.compute(mockSource, null);
   }
@@ -59,7 +47,7 @@ public class DefaultDescriptiveStatisticsProviderTest {
 
     replay(mockSource);
 
-    DefaultDescriptiveStatisticsProvider defaultProvider = new DefaultDescriptiveStatisticsProvider();
+    DescriptiveStatisticsProvider defaultProvider = new DefaultDescriptiveStatisticsProvider();
     DescriptiveStatistics ds = defaultProvider.compute(mockSource, emptySet);
 
     assertThat(ds, notNullValue());
@@ -76,7 +64,7 @@ public class DefaultDescriptiveStatisticsProviderTest {
 
     replay(mockSource, mockVector);
 
-    DefaultDescriptiveStatisticsProvider defaultProvider = new DefaultDescriptiveStatisticsProvider();
+    DescriptiveStatisticsProvider defaultProvider = new DefaultDescriptiveStatisticsProvider();
     DescriptiveStatistics ds = defaultProvider.compute(mockSource, emptySet);
 
     assertThat(ds, notNullValue());
@@ -95,7 +83,7 @@ public class DefaultDescriptiveStatisticsProviderTest {
 
     replay(mockSource, mockVector);
 
-    DefaultDescriptiveStatisticsProvider defaultProvider = new DefaultDescriptiveStatisticsProvider();
+    DescriptiveStatisticsProvider defaultProvider = new DefaultDescriptiveStatisticsProvider();
     DescriptiveStatistics ds = defaultProvider.compute(mockSource, emptySet);
 
     assertThat(ds, notNullValue());
