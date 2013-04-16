@@ -55,7 +55,7 @@ public class UnitMethodsTest extends AbstractJsTest {
     for(String key : units.keySet()) {
       String unit = units.getString(key);
       try {
-        PhysicsUnit conflict = PhysicsUnit.valueOf(unit);
+        PhysicsUnit<?> conflict = PhysicsUnit.valueOf(unit);
         Assert.assertFalse("Unit " + unit + " is conflicting with a system unit.", conflict.isSystemUnit());
       } catch(IllegalArgumentException e) {
         // normal

@@ -15,6 +15,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
 
+@SuppressWarnings("ReuseOfLocalVariable")
 public class TextMethodsTest extends AbstractJsTest {
 
   @Test
