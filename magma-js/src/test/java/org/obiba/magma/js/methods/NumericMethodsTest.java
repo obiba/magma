@@ -3,9 +3,10 @@ package org.obiba.magma.js.methods;
 import org.junit.Test;
 import org.mozilla.javascript.Context;
 import org.obiba.magma.Value;
+import org.obiba.magma.ValueType;
 import org.obiba.magma.js.AbstractJsTest;
+import org.obiba.magma.js.MagmaJsEvaluationRuntimeException;
 import org.obiba.magma.js.ScriptableValue;
-import org.obiba.magma.type.AbstractNumberType;
 import org.obiba.magma.type.BooleanType;
 import org.obiba.magma.type.DecimalType;
 import org.obiba.magma.type.IntegerType;
@@ -15,6 +16,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
 
+@SuppressWarnings("ReuseOfLocalVariable")
 public class NumericMethodsTest extends AbstractJsTest {
 
   @Test
@@ -173,11 +175,15 @@ public class NumericMethodsTest extends AbstractJsTest {
 
   @Test
   public void test_integer_multiply_decimal() throws Exception {
-    ScriptableValue integerOne = newValue(IntegerType.get().valueOf(2));
-    ScriptableValue decimalTwo = newValue(DecimalType.get().valueOf(1.5));
-    ScriptableValue result = NumericMethods
-        .multiply(Context.getCurrentContext(), integerOne, new Object[] { decimalTwo }, null);
-    assertThat(result.getValue(), is(IntegerType.get().valueOf(3)));
+    try {
+      ScriptableValue integerOne = newValue(IntegerType.get().valueOf(2));
+      ScriptableValue decimalTwo = newValue(DecimalType.get().valueOf(1.5));
+      ScriptableValue result = NumericMethods
+          .multiply(Context.getCurrentContext(), integerOne, new Object[] { decimalTwo }, null);
+      assertThat(result.getValue(), is(IntegerType.get().valueOf(3)));
+    } catch(MagmaJsEvaluationRuntimeException e) {
+      e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+    }
   }
 
   @Test
@@ -665,7 +671,7 @@ public class NumericMethodsTest extends AbstractJsTest {
     assertThat(value.getValue().asSequence(), is(TextType.get().nullSequence()));
   }
 
-  private void test_group_WithBoundariesAndNoOutliers(AbstractNumberType numberType) {
+  private void test_group_WithBoundariesAndNoOutliers(ValueType numberType) {
     String group = "group([0,5,10,15,20])";
     ScriptableValue value = evaluate(group, numberType.valueOf("-1"));
     assertThat(value, notNullValue());
@@ -698,7 +704,7 @@ public class NumericMethodsTest extends AbstractJsTest {
     test_group_WithBoundariesAndOutliers(DecimalType.get());
   }
 
-  private void test_group_WithBoundariesAndOutliers(AbstractNumberType numberType) {
+  private void test_group_WithBoundariesAndOutliers(ValueType numberType) {
     ScriptableValue value = evaluate("group([5,10,15,20],[11,20])", numberType.valueOf("11"));
     assertThat(value, notNullValue());
     assertThat(value.getValue(), is(TextType.get().valueOf(numberType.valueOf("11"))));

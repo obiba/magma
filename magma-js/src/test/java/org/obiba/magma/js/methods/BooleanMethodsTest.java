@@ -26,6 +26,7 @@ import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
+@SuppressWarnings("ReuseOfLocalVariable")
 public class BooleanMethodsTest extends AbstractJsTest {
   // Any
   @Test
@@ -55,14 +56,14 @@ public class BooleanMethodsTest extends AbstractJsTest {
   @Test
   public void testAllWithScriptableValueArguments() {
     // Create a ValueSequence containing "odd" values.
-    List<Value> values = new ArrayList<Value>();
+    Collection<Value> values = new ArrayList<Value>();
     for(int i = 1; i <= 5; i += 2) {
       values.add(TextType.get().valueOf("CAT" + i));
     }
     ScriptableValue value = newValue(ValueType.Factory.newSequence(TextType.get(), values));
 
     // Create a matching list of ScriptableValue arguments.
-    List<ScriptableValue> args = new ArrayList<ScriptableValue>();
+    Collection<ScriptableValue> args = new ArrayList<ScriptableValue>();
     for(int i = 1; i <= 5; i += 2) {
       args.add(newValue(TextType.get().valueOf("CAT" + i)));
     }
@@ -212,7 +213,7 @@ public class BooleanMethodsTest extends AbstractJsTest {
   @Test
   public void testEmpty() {
     // Verify that empty() returns FALSE on a non-empty sequence.
-    List<Value> values = new ArrayList<Value>();
+    Collection<Value> values = new ArrayList<Value>();
     for(int i = 0; i < 3; i++) {
       values.add(TextType.get().valueOf("CAT" + i));
     }
@@ -608,7 +609,7 @@ public class BooleanMethodsTest extends AbstractJsTest {
 
   @Test
   public void test_whenNullTextSequence() {
-    List<Value> values = new ArrayList<Value>();
+    Collection<Value> values = new ArrayList<Value>();
     values.add(TextType.get().valueOf("pwel"));
     values.add(TextType.get().nullValue());
 
