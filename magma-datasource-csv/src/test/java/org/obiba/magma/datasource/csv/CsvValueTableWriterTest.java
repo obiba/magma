@@ -17,12 +17,9 @@ import java.util.Map;
 import javax.annotation.Nullable;
 
 import org.apache.commons.io.FileUtils;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.obiba.magma.Datasource;
-import org.obiba.magma.MagmaEngine;
 import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueSequence;
@@ -32,6 +29,7 @@ import org.obiba.magma.ValueTableWriter;
 import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.support.VariableEntityBean;
+import org.obiba.magma.test.AbstractMagmaTest;
 import org.obiba.magma.type.TextType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,19 +48,9 @@ import static org.obiba.magma.datasource.csv.CsvValueTable.DEFAULT_ENTITY_TYPE;
  *
  */
 @SuppressWarnings({ "ResultOfMethodCallIgnored", "OverlyLongMethod" })
-public class CsvValueTableWriterTest {
+public class CsvValueTableWriterTest extends AbstractMagmaTest {
 
   private static final Logger log = LoggerFactory.getLogger(CsvValueTableWriterTest.class);
-
-  @Before
-  public void before() {
-    new MagmaEngine();
-  }
-
-  @After
-  public void after() {
-    MagmaEngine.get().shutdown();
-  }
 
   @Test
   public void test_writing_data_only_one_text_variable() throws Exception {
@@ -380,7 +368,7 @@ public class CsvValueTableWriterTest {
         .buildCsvDatasource("csv-datasource");
 
     Variable cityVariable = Variable.Builder.newVariable("City", TextType.get(), "Participant").build();
-    Value wideByteCityName = TextType.get().valueOf("Suggéré");
+    Value wideByteCityName = TextType.get().valueOf("Suggï¿½rï¿½");
 
     Map<Variable, Value> values = Maps.newHashMap();
     VariableEntity entity2 = new VariableEntityBean(DEFAULT_ENTITY_TYPE, "2");
@@ -508,7 +496,7 @@ public class CsvValueTableWriterTest {
         .buildCsvDatasource("csv-datasource");
 
     Variable variable = Variable.Builder.newVariable("var2", TextType.get(), DEFAULT_ENTITY_TYPE)
-        .addAttribute("label", "suggéré").build();
+        .addAttribute("label", "suggï¿½rï¿½").build();
     Variable variable2 = Variable.Builder.newVariable("var2", TextType.get(), DEFAULT_ENTITY_TYPE).build();
 
     ValueTableWriter writer = datasource.createWriter(tableName, DEFAULT_ENTITY_TYPE);

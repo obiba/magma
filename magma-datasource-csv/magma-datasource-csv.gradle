@@ -4,7 +4,7 @@ dependencies {
   compile project(':magma-api')
   compile(libraries.opencsv)
 
-
+  testCompile project(':magma-test')
   testCompile(libraries.commons_io)
   testCompile(libraries.obiba_core)
 }

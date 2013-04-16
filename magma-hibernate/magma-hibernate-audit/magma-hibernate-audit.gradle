@@ -2,4 +2,6 @@ description = 'Magma Hibernate Audit Log'
 
 dependencies {
   compile project(':magma-hibernate:magma-hibernate-common')
+
+  testCompile project(':magma-test')
 }

@@ -1,22 +1,10 @@
 package org.obiba.magma.xstream;
 
-import org.junit.After;
-import org.junit.Before;
-import org.obiba.magma.MagmaEngine;
+import org.obiba.magma.test.AbstractMagmaTest;
 
 import com.thoughtworks.xstream.XStream;
 
-public abstract class AbstractMagmaXStreamTest {
-
-  @Before
-  public void startYourEngine() {
-    new MagmaEngine();
-  }
-
-  @After
-  public void stopYourEngine() {
-    MagmaEngine.get().shutdown();
-  }
+public abstract class AbstractMagmaXStreamTest extends AbstractMagmaTest {
 
   protected XStream getDefaultXStream() {
     return new DefaultXStreamFactory().createXStream();

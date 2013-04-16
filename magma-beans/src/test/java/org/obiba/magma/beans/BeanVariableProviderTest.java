@@ -28,6 +28,7 @@ import org.obiba.magma.Value;
 import org.obiba.magma.ValueSet;
 import org.obiba.magma.Variable;
 import org.obiba.magma.VariableValueSource;
+import org.obiba.magma.test.AbstractMagmaTest;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -37,17 +38,7 @@ import com.google.common.collect.Sets;
 /**
  *
  */
-public class BeanVariableProviderTest {
-
-  @Before
-  public void createMetaEngine() {
-    new MagmaEngine();
-  }
-
-  @After
-  public void shutdownMetaEngine() {
-    MagmaEngine.get().shutdown();
-  }
+public class BeanVariableProviderTest extends AbstractMagmaTest {
 
   @Test
   public void testSimpleProperties() {

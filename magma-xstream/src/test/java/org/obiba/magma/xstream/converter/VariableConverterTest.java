@@ -3,14 +3,12 @@ package org.obiba.magma.xstream.converter;
 import java.util.Locale;
 import java.util.Set;
 
-import org.junit.After;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 import org.obiba.magma.Attribute;
 import org.obiba.magma.Category;
-import org.obiba.magma.MagmaEngine;
 import org.obiba.magma.Variable;
+import org.obiba.magma.test.AbstractMagmaTest;
 import org.obiba.magma.type.TextType;
 
 import com.google.common.base.Predicate;
@@ -18,17 +16,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.thoughtworks.xstream.XStream;
 
-public class VariableConverterTest {
-
-  @Before
-  public void startYourEngine() {
-    new MagmaEngine();
-  }
-
-  @After
-  public void stopYourEngine() {
-    MagmaEngine.get().shutdown();
-  }
+public class VariableConverterTest extends AbstractMagmaTest {
 
   @Test
   public void testBasicVariable() {

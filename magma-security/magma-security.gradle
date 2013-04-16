@@ -7,4 +7,6 @@ dependencies {
     exclude(module: 'jcl-over-slf4j')
   }
   compile(libraries.cglib_nodep)
+
+  testCompile project(':magma-test')
 }
