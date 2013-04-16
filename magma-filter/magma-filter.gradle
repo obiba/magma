@@ -4,6 +4,4 @@ dependencies {
   compile project(':magma-api')
   compile project(':magma-xstream')
   compile project(':magma-js')
-
-  testCompile project(':magma-test')
 }

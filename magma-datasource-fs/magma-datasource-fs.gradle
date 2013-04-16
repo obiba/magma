@@ -6,5 +6,5 @@ dependencies {
   compile project(':magma-xstream')
   compile(libraries.truezip)
 
-  testCompile project(':magma-test')
+
 }
