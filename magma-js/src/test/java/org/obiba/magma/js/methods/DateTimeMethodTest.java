@@ -26,7 +26,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
 
-@SuppressWarnings({ "MagicConstant" })
+@SuppressWarnings({ "MagicConstant", "ReuseOfLocalVariable" })
 public class DateTimeMethodTest extends AbstractJsTest {
 
   @Test
