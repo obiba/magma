@@ -21,8 +21,7 @@ include ':magma-api',
     ':magma-datasource-csv',
     ':magma-datasource-spss',
     ':magma-security',
-    ':magma-data-generator',
-    ':magma-test'
+    ':magma-data-generator'
 
 // allow us to rename sub-projects’ build files
 setBuildFileName(rootProject)
