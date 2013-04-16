@@ -249,12 +249,17 @@ public class HibernateDatasourceTest {
         lastValueSetUpdate = lastUpdate;
       }
     }
+    Date tableCreated = (Date) table.getTimestamps().getCreated().getValue();
     Date tableLastUpdate = (Date) table.getTimestamps().getLastUpdate().getValue();
 
+    // allow max 5ms of delay between last valueSet update and table last update
     //noinspection ConstantConditions
+    long delta = tableLastUpdate.getTime() - lastValueSetUpdate.getTime();
     assertThat(
         "Table lastUpdate (" + tableLastUpdate + ") is older than its last valueSet lastUpdate (" + lastValueSetUpdate +
-            ")", tableLastUpdate.getTime() >= lastValueSetUpdate.getTime(), is(true));
+            ")", delta < 5, is(true));
+    assertThat("Table created date (" + tableCreated + ") is older than last update (" + tableLastUpdate +
+        ")", tableLastUpdate.after(tableCreated), is(true));
 
     cleanlyRemoveDatasource(ds);
   }
