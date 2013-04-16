@@ -2,10 +2,10 @@ description = 'Magma Limesurvey Datasource'
 
 dependencies {
   compile project(':magma-api')
-  compile( libraries.spring_jdbc )
+  compile(libraries.spring_jdbc)
 
-  testCompile project(':magma-test')
+
   testCompile project(':magma-datasource-fs')
-  testCompile( libraries.mysql_connector_java )
-  testCompile( libraries.commons_dbcp )
+  testCompile(libraries.mysql_connector_java)
+  testCompile(libraries.commons_dbcp)
 }

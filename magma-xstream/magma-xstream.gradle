@@ -3,6 +3,4 @@ description = 'xstream'
 dependencies {
   compile project(':magma-api')
   compile(libraries.xstream)
-
-  testCompile project(':magma-test')
 }

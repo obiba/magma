@@ -57,7 +57,7 @@ task wrapper(type: Wrapper) {
 subprojects {
 
   test {
-    classpath += rootProject.sourceSets.test.resources
+    classpath += rootProject.sourceSets.test.resources    // configure log4j for testing
     testLogging.showStandardStreams = true
   }
 
