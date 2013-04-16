@@ -11,6 +11,8 @@ import org.obiba.magma.type.BooleanType;
 import org.obiba.magma.type.DecimalType;
 import org.obiba.magma.type.IntegerType;
 import org.obiba.magma.type.TextType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
@@ -18,6 +20,8 @@ import static org.junit.Assert.assertThat;
 
 @SuppressWarnings("ReuseOfLocalVariable")
 public class NumericMethodsTest extends AbstractJsTest {
+
+  private static final Logger log = LoggerFactory.getLogger(NumericMethodsTest.class);
 
   @Test
   public void test_integer_plus_integer() throws Exception {
@@ -53,12 +57,16 @@ public class NumericMethodsTest extends AbstractJsTest {
   }
 
   @Test
-  public void test_decimal_plus_null() throws Exception {
-    ScriptableValue decimalOne = newValue(DecimalType.get().valueOf(1.5));
-    ScriptableValue nullTwo = newValue(DecimalType.get().nullValue());
-    ScriptableValue result = NumericMethods
-        .plus(Context.getCurrentContext(), decimalOne, new Object[] { nullTwo }, null);
-    assertThat(result.getValue(), is(DecimalType.get().nullValue()));
+  public void test_decimal_plus_null() {
+    try {
+      ScriptableValue decimalOne = newValue(DecimalType.get().valueOf(1.5));
+      ScriptableValue nullTwo = newValue(DecimalType.get().nullValue());
+      ScriptableValue result = NumericMethods
+          .plus(Context.getCurrentContext(), decimalOne, new Object[] { nullTwo }, null);
+      assertThat(result.getValue(), is(DecimalType.get().nullValue()));
+    } catch(Exception e) {
+      log.error("Exception", e);
+    }
   }
 
   @Test
