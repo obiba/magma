@@ -21,9 +21,7 @@ allprojects {
   buildDir = 'target'
 
   repositories {
-    maven {
-      url 'http://repo.obiba.org/repo'
-    }
+    maven { url 'http://repo.obiba.org/repo' }
     mavenCentral()
     mavenLocal()
   }
@@ -59,6 +57,12 @@ subprojects {
   test {
     classpath += rootProject.sourceSets.test.resources    // configure log4j for testing
     testLogging.showStandardStreams = true
+
+    // listen to events in the test execution lifecycle
+//    beforeTest { descriptor ->
+//      logger.lifecycle("classpath for " + descriptor)
+//      classpath.each { logger.lifecycle("    " + it.getPath()) }
+//    }
   }
 
   task packageSources(type: Jar) {
