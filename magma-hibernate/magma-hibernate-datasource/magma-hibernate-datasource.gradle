@@ -4,7 +4,6 @@ dependencies {
   compile project(':magma-hibernate:magma-hibernate-common')
   compile(libraries.json)
 
-  testCompile project(':magma-test')
   testCompile project(':magma-data-generator')
   testCompile(libraries.mysql_connector_java)
   testCompile(libraries.javassist)
