@@ -3,5 +3,5 @@ description = 'Magma Null Datasource'
 dependencies {
   compile project(':magma-api')
 
-  testCompile project(':magma-test')
+
 }

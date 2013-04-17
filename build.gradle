@@ -60,6 +60,7 @@ subprojects {
     compile(libraries.jsr305)
     compile(libraries.findbugs_annotation)
 
+    testCompile project(':magma-test')
     testCompile(libraries.junit)
     testCompile(libraries.easymock)
     testCompile(libraries.hamcrest)

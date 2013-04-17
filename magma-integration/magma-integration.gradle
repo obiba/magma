@@ -16,6 +16,4 @@ dependencies {
 
   runtime(libraries.hsqldb)
   runtime(libraries.mysql_connector_java)
-
-  testCompile project(':magma-test')
 }
