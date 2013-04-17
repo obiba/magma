@@ -108,6 +108,12 @@ public class ConcurrentValueTableReader {
      */
     void onComplete();
 
+    /**
+     * Request for readers to cancel prematurely.
+     * @return
+     */
+    boolean isCancelled();
+
   }
 
   private ThreadFactory threadFactory;
@@ -258,7 +264,7 @@ public class ConcurrentValueTableReader {
     public void run() {
       try {
         VariableEntity entity = readQueue.poll();
-        while(entity != null) {
+        while(entity != null && !callback.isCancelled()) {
           if(valueTable.hasValueSet(entity)) {
             ValueSet valueSet = valueTable.getValueSet(entity);
             Value[] values = new Value[sources.length];
