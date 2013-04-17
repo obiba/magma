@@ -52,7 +52,7 @@ task wrapper(type: Wrapper) {
   gradleVersion = '1.5'
 }
 
-subprojects {
+subprojects { subProject ->
 
   dependencies {
     compile(libraries.guava)
@@ -74,12 +74,48 @@ subprojects {
     testLogging.showStandardStreams = true
   }
 
-  // TODO: do we need this?
-  task packageSources(type: Jar) {
+  // customize the generated POM used during upload
+  def pomConfig = {
+    name 'Magma'
+    description 'Data and meta-data abstraction layer'
+    url 'http://www.obiba.org'
+    organization {
+      name 'OBiBa'
+      url 'http://www.obiba.org'
+    }
+    issueManagement {
+      system 'jira'
+      url 'http://jira.obiba.org/jira/browse/MAGMA'
+    }
+    scm {
+      url "https://github.com/obiba/magma"
+      connection "scm:git:git://github.com/obiba/magma.git"
+      developerConnection "scm:git:https://github.com/obiba/magma.git"
+    }
+    licenses {
+      license {
+        name 'GNU Public License version 3'
+        url 'http://www.obiba.org/node/62'
+        distribution 'repo'
+      }
+    }
+  }
+
+  subProject.ext.basePomConfig = pomConfig
+
+  configure(install.repositories.mavenInstaller) {
+    pom.project pomConfig
+  }
+
+  // TODO: buildNumber
+
+  task packageSources(type: Jar, dependsOn: compileJava) {
     classifier = 'sources'
     from sourceSets.main.allSource
   }
-  artifacts.archives packageSources
+  artifacts {
+    archives packageSources
+  }
 
   // Reporting
   apply plugin: 'project-report'
