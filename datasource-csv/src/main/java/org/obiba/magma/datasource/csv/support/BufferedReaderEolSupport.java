@@ -314,7 +314,7 @@ public class BufferedReaderEolSupport extends Reader {
           }
 
           // Skip leftover '\n' or '\r', if necessary
-          while(cb[nextChar] == '\n' || cb[nextChar] == '\r') {
+          while(nextChar < cb.length && (cb[nextChar] == '\n' || cb[nextChar] == '\r')) {
             nextChar++;
           }
 
