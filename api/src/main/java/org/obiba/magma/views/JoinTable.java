@@ -114,12 +114,6 @@ public class JoinTable implements ValueTable, Initialisable {
     for(ValueTable table : tables) {
       for(Variable variable : table.getVariables()) {
         JoinableVariable joinableVariable = new JoinableVariable(variable);
-        JoinableVariable existing = joinableVariablesByName.get(variable.getName());
-        if(existing != null && !existing.equals(joinableVariable)) {
-          throw new IllegalArgumentException(
-              "Cannot have variables with same name and different value type or repeatability: '" +
-                  buildJoinTableName() + "." + variable.getName() + "'");
-        }
         variableTables.put(joinableVariable, table);
         joinableVariablesByName.put(variable.getName(), joinableVariable);
       }
@@ -436,8 +430,7 @@ public class JoinTable implements ValueTable, Initialisable {
         return false;
       }
       JoinableVariable other = (JoinableVariable) obj;
-      return Objects.equal(name, other.name) && Objects.equal(valueType, other.valueType) &&
-          repeatable == other.repeatable;
+      return Objects.equal(name, other.name);
     }
   }
 }
