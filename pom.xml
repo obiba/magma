@@ -677,7 +677,7 @@
     <junit.version>4.9</junit.version>
     <liquibase-core.version>1.9.4</liquibase-core.version>
     <mysql-connector-java.version>5.1.24</mysql-connector-java.version>
-    <obiba-core.version>1.4-SNAPSHOT</obiba-core.version>
+    <obiba-core.version>1.4.0</obiba-core.version>
     <opencsv.version>2.3</opencsv.version>
     <poi-ooxml.version>3.9</poi-ooxml.version>
     <rhino-js.version>1.7R2</rhino-js.version>
