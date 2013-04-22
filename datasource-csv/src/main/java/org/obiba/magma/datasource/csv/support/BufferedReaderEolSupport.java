@@ -317,6 +317,7 @@ public class BufferedReaderEolSupport extends Reader {
           if(nextChar >= nChars) fill();
           while(nextChar < cb.length && (cb[nextChar] == '\n' || cb[nextChar] == '\r')) {
             nextChar++;
+            if(nextChar >= nChars) fill();
           }
 
           return str;
