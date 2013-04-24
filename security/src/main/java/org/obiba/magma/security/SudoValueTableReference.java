@@ -1,11 +1,7 @@
 package org.obiba.magma.security;
 
-import java.lang.ref.WeakReference;
 import java.util.concurrent.Callable;
 
-import javax.annotation.Nullable;
-
-import org.apache.shiro.SecurityUtils;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.security.permissions.Permissions;
 import org.obiba.magma.support.ValueTableReference;
@@ -32,28 +28,7 @@ public class SudoValueTableReference extends ValueTableReference {
 
   @Override
   public ValueTable getWrappedValueTable() {
-    // First look in the user's session. Maybe we already dereferenced this ValueTable
-    ValueTable valueTable = lookInSession();
-
-    if(valueTable != null) {
-      return valueTable;
-    }
-
-    valueTable = authz.isPermitted(permission) ? super.getWrappedValueTable() : sudo();
-    storeInSession(valueTable);
-    return valueTable;
-  }
-
-  protected void storeInSession(ValueTable valueTable) {
-    SecurityUtils.getSubject().getSession().setAttribute(getReference(), new WeakReference<ValueTable>(valueTable));
-  }
-
-  @Nullable
-  @SuppressWarnings("unchecked")
-  protected ValueTable lookInSession() {
-    WeakReference<ValueTable> ref = (WeakReference<ValueTable>) SecurityUtils.getSubject().getSession()
-        .getAttribute(getReference());
-    return ref == null ? null : ref.get();
+    return sudo();
   }
 
   /**
