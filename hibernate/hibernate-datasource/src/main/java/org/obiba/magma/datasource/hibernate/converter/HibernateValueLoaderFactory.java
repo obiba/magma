@@ -13,6 +13,7 @@ import java.io.Serializable;
 
 import javax.annotation.Nonnull;
 
+import org.hibernate.Query;
 import org.hibernate.SessionFactory;
 import org.hibernate.classic.Session;
 import org.obiba.core.service.impl.hibernate.AssociationCriteria;
@@ -108,6 +109,23 @@ public class HibernateValueLoaderFactory implements ValueLoaderFactory {
         }
       }
       return value;
+    }
+
+    @Override
+    public long getSize() {
+      if(BinaryType.get().equals(valueRef.getValueType())) {
+        log.trace("Loading binary from value_set_value table (Base64)");
+        value = (byte[]) valueRef.getValue();
+        return value == null ? 0 : value.length;
+      } else {
+        Query query = sessionFactory.getCurrentSession().createSQLQuery(
+            "SELECT vsbv.size FROM value_set_binary_value vsbv WHERE vsbv.variable_id = :variable_id AND vsbv.value_set_id = :value_set_id AND vsbv.occurrence = :occurrence")
+            .setParameter("variable_id", variableId) //
+            .setParameter("value_set_id", valueSetId) //
+            .setParameter("occurrence", occurrence);
+        Integer result = (Integer) query.uniqueResult();
+        return result == null ? 0 : result.longValue();
+      }
     }
 
   }
