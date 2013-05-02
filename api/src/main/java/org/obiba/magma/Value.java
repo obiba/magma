@@ -49,6 +49,17 @@ public class Value implements Serializable, Comparable<Value> {
     return valueLoader.isNull();
   }
 
+  public long getValueSize() {
+    if (isNull()) return 0;
+    try {
+      return valueLoader.getSize();
+    } catch (UnsupportedOperationException e){
+      // fallback to the length of the string representation of the value
+      String str = toString();
+      return str == null ? 0 : str.length();
+    }
+  }
+
   /**
    * Returns true when this {@code Value} instance holds a sequence of other {@code Value} instances. In this situation,
    * the {@code ValueType} of this {@code Value} is the same as the {@code ValueType} of the items in the sequence. That
@@ -140,5 +151,12 @@ public class Value implements Serializable, Comparable<Value> {
       return value;
     }
 
+    @Override
+    public long getSize() {
+      if (isNull()) return 0;
+      throw new UnsupportedOperationException();
+    }
+
   }
+
 }
