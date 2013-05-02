@@ -33,4 +33,10 @@ public interface ValueLoader extends Serializable {
   @Nonnull
   Object getValue();
 
+  /**
+   * Get the size of the value.
+   * @return
+   */
+  long getSize();
+
 }

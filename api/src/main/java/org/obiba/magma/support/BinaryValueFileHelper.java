@@ -70,6 +70,24 @@ public class BinaryValueFileHelper {
   }
 
   /**
+   * Get the value size by the length of the file.
+   * @param parent
+   * @param path
+   * @return
+   */
+  public static long readValueSize(@Nullable File parent, String path) {
+    try {
+      File file = new File(path);
+      if(!file.isAbsolute() && parent != null) {
+        file = new File(parent, path);
+      }
+      return file.length();
+    } catch(Exception e) {
+      throw new MagmaRuntimeException("File cannot be read: " + path, e);
+    }
+  }
+
+  /**
    * Remove the file (or files in case of a repeatable variable) for the given variable and entity.
    *
    * @param parent
