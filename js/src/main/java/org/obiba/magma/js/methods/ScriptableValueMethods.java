@@ -1,10 +1,14 @@
 package org.obiba.magma.js.methods;
 
+import javax.annotation.Nullable;
+
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.Scriptable;
+import org.obiba.magma.ValueSequence;
 import org.obiba.magma.ValueType;
 import org.obiba.magma.js.ScriptableValue;
+import org.obiba.magma.type.IntegerType;
 import org.obiba.magma.type.TextType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,6 +65,23 @@ public class ScriptableValueMethods {
         log.warn("{} extra parameters were passed to the javascript method.  These will be ignored.", args.length - 1);
       }
       return new ScriptableValue(thisObj, ValueType.Factory.forName(args[0].toString()).convert(sv.getValue()));
+    }
+  }
+
+  /**
+   * Get the value size in Bytes. If it is a sequence, the sum of the size of the values is returned.
+   */
+  public static ScriptableValue length(Context ctx, Scriptable thisObj, @Nullable Object[] args,
+      @Nullable Function funObj) {
+    ScriptableValue sv = (ScriptableValue) thisObj;
+    if(sv.getValue().isNull()) {
+      return new ScriptableValue(thisObj, IntegerType.get().nullValue());
+    }
+    if(sv.getValue().isSequence()) {
+      ValueSequence valueSequence = sv.getValue().asSequence();
+      return new ScriptableValue(thisObj, IntegerType.get().valueOf(valueSequence.getValueSize()));
+    } else {
+      return new ScriptableValue(thisObj, IntegerType.get().valueOf(sv.getValue().getValueSize()));
     }
   }
 
