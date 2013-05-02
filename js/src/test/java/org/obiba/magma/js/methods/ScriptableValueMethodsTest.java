@@ -112,4 +112,20 @@ public class ScriptableValueMethodsTest extends AbstractJsTest {
     Assert.assertSame(IntegerType.class, integerValue.getValueType().getClass());
     Assert.assertEquals("12", convertedValue.getValue().getValue());
   }
+
+  @Test
+  public void lengthOfIntegerValue() {
+    ScriptableValue value = newValue(IntegerType.get().valueOf(123));
+    ScriptableValue length = ScriptableValueMethods
+        .length(Context.getCurrentContext(), value, new Object[] { }, null);
+    Assert.assertEquals(3l, length.getValue().getValue());
+  }
+
+  @Test
+  public void lengthOfTextValue() {
+    ScriptableValue value = newValue(TextType.get().valueOf("abcd"));
+    ScriptableValue length = ScriptableValueMethods
+        .length(Context.getCurrentContext(), value, new Object[] { }, null);
+    Assert.assertEquals(4l, length.getValue().getValue());
+  }
 }
