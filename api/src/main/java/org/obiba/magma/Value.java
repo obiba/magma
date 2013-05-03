@@ -49,10 +49,10 @@ public class Value implements Serializable, Comparable<Value> {
     return valueLoader.isNull();
   }
 
-  public long getValueSize() {
+  public long getLength() {
     if (isNull()) return 0;
     try {
-      return valueLoader.getSize();
+      return valueLoader.getLength();
     } catch (UnsupportedOperationException e){
       // fallback to the length of the string representation of the value
       String str = toString();
@@ -152,7 +152,7 @@ public class Value implements Serializable, Comparable<Value> {
     }
 
     @Override
-    public long getSize() {
+    public long getLength() {
       if (isNull()) return 0;
       throw new UnsupportedOperationException();
     }
