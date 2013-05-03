@@ -112,7 +112,7 @@ public class HibernateValueLoaderFactory implements ValueLoaderFactory {
     }
 
     @Override
-    public long getSize() {
+    public long getLength() {
       if(BinaryType.get().equals(valueRef.getValueType())) {
         log.trace("Loading binary from value_set_value table (Base64)");
         value = (byte[]) valueRef.getValue();

@@ -73,7 +73,7 @@ public class BinaryValueFileLoader implements ValueLoader, Serializable {
   }
 
   @Override
-  public long getSize() {
+  public long getLength() {
     return isNull() ? 0 : BinaryValueFileHelper.readValueSize(parent, path);
   }
 

@@ -5,6 +5,7 @@ import javax.annotation.Nullable;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.Scriptable;
+import org.obiba.magma.Value;
 import org.obiba.magma.ValueSequence;
 import org.obiba.magma.ValueType;
 import org.obiba.magma.js.ScriptableValue;
@@ -12,6 +13,9 @@ import org.obiba.magma.type.IntegerType;
 import org.obiba.magma.type.TextType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 
 /**
  * Methods of the {@code ScriptableValue} javascript class that apply to all data ValueTypes.
@@ -69,19 +73,34 @@ public class ScriptableValueMethods {
   }
 
   /**
-   * Get the value size in Bytes. If it is a sequence, the sum of the size of the values is returned.
+   * Get the value length: length of the string representation (default) or number of bytes for a binary value.
+   * If it is a sequence, a sequence of each value length is returned.
    */
   public static ScriptableValue length(Context ctx, Scriptable thisObj, @Nullable Object[] args,
       @Nullable Function funObj) {
     ScriptableValue sv = (ScriptableValue) thisObj;
-    if(sv.getValue().isNull()) {
-      return new ScriptableValue(thisObj, IntegerType.get().nullValue());
-    }
+
     if(sv.getValue().isSequence()) {
       ValueSequence valueSequence = sv.getValue().asSequence();
-      return new ScriptableValue(thisObj, IntegerType.get().valueOf(valueSequence.getValueSize()));
+      Value rval = valueSequence.isNull()
+          ? IntegerType.get().nullSequence()
+          : IntegerType.get().sequenceOf(Lists.newArrayList(
+              Iterables.transform(valueSequence.getValue(), new com.google.common.base.Function<Value, Value>() {
+
+                @Nullable
+                @Override
+                public Value apply(@Nullable Value input) {
+                  return input == null || input.isNull()
+                      ? IntegerType.get().nullValue()
+                      : IntegerType.get().valueOf(input.getLength());
+                }
+              })));
+      return new ScriptableValue(sv, rval);
     } else {
-      return new ScriptableValue(thisObj, IntegerType.get().valueOf(sv.getValue().getValueSize()));
+      Value rval = sv.getValue().isNull()
+          ? IntegerType.get().nullValue()
+          : IntegerType.get().valueOf(sv.getValue().getLength());
+      return new ScriptableValue(thisObj, rval);
     }
   }
 

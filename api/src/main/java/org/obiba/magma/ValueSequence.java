@@ -85,10 +85,10 @@ public class ValueSequence extends Value {
    * @return
    */
   @Override
-  public long getValueSize() {
+  public long getLength() {
     long size = 0;
     for (Value val : getValues()) {
-      size += val.getValueSize();
+      size += val.getLength();
     }
     return size;
   }
