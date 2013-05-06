@@ -6,7 +6,7 @@
   <groupId>org.obiba.magma</groupId>
   <artifactId>magma</artifactId>
   <packaging>pom</packaging>
-  <version>1.6-SNAPSHOT</version>
+  <version>1.6.5</version>
   <name>magma</name>
   <url>http://www.obiba.org</url>
 
@@ -649,7 +649,7 @@
     <connection>scm:git:git://github.com/obiba/magma.git</connection>
     <developerConnection>scm:git:https://github.com/obiba/magma.git</developerConnection>
     <url>https://github.com/obiba/magma</url>
-    <tag>HEAD</tag>
+    <tag>1.6.5</tag>
   </scm>
 
   <properties>
