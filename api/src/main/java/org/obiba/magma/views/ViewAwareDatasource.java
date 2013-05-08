@@ -4,7 +4,6 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 import org.obiba.magma.Datasource;
 import org.obiba.magma.NoSuchValueTableException;
@@ -27,7 +26,7 @@ public class ViewAwareDatasource extends AbstractDatasourceWrapper {
     super(datasource);
     if(views == null) throw new IllegalArgumentException("views cannot be null");
 
-    this.views = Maps.newHashMap();
+    this.views = Maps.newLinkedHashMap();
     for (View view : views) {
       this.views.put(view.getName(), view);
     }
