@@ -1,5 +1,6 @@
 package org.obiba.magma.views;
 
+import java.util.Map;
 import java.util.Set;
 
 import javax.annotation.Nonnull;
@@ -15,17 +16,21 @@ import org.obiba.magma.support.Initialisables;
 import org.obiba.magma.type.DateTimeType;
 
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
 public class ViewAwareDatasource extends AbstractDatasourceWrapper {
 
-  private final Set<View> views;
+  private final Map<String, View> views;
 
   public ViewAwareDatasource(Datasource datasource, Iterable<View> views) {
     super(datasource);
     if(views == null) throw new IllegalArgumentException("views cannot be null");
 
-    this.views = Sets.newHashSet(views);
+    this.views = Maps.newHashMap();
+    for (View view : views) {
+      this.views.put(view.getName(), view);
+    }
   }
 
   @Override
@@ -33,7 +38,7 @@ public class ViewAwareDatasource extends AbstractDatasourceWrapper {
     super.initialise();
 
     // Initialise the views.
-    for(View view : views) {
+    for(View view : views.values()) {
       view.setDatasource(this);
       Initialisables.initialise(view);
     }
@@ -60,7 +65,7 @@ public class ViewAwareDatasource extends AbstractDatasourceWrapper {
 
   @Override
   public Set<ValueTable> getValueTables() {
-    return Sets.union(getWrappedTables(), views);
+    return Sets.union(getWrappedTables(), Sets.newHashSet(views.values()));
   }
 
   @Override
@@ -83,13 +88,13 @@ public class ViewAwareDatasource extends AbstractDatasourceWrapper {
   }
 
   public Set<View> getViews() {
-    return ImmutableSet.copyOf(views);
+    return ImmutableSet.copyOf(views.values());
   }
 
   /**
    * Add or replace View.
    */
-  public void addView(View view) {
+  public synchronized void addView(View view) {
     if(getWrappedDatasource().hasValueTable(view.getName())) {
       throw new IllegalArgumentException(
           "can't add view to datasource: a table with this name '" + view.getName() + "' already exists");
@@ -102,38 +107,28 @@ public class ViewAwareDatasource extends AbstractDatasourceWrapper {
     }
 
     Initialisables.initialise(view);
-    views.add(view);
+    views.put(view.getName(), view);
     view.setDatasource(this);
   }
 
-  public void removeView(String name) {
-    View view = getViewByName(name);
-    if(view != null) {
-      views.remove(view);
+  public synchronized void removeView(String name) {
+    if(views.containsKey(name)) {
+      View view = views.get(name);
+      views.remove(name);
       Disposables.dispose(view);
     }
   }
 
   public boolean hasView(String name) {
-    return getViewByName(name) != null;
+    return views.get(name) != null;
   }
 
   public View getView(String name) {
-    View view = getViewByName(name);
+    View view = views.get(name);
     if(view != null) {
       return view;
     }
     throw new NoSuchValueTableException(getName(), name);
-  }
-
-  @Nullable
-  private View getViewByName(String name) {
-    for(View view : views) {
-      if(view.getName().equals(name)) {
-        return view;
-      }
-    }
-    return null;
   }
 
   private Set<ValueTable> getWrappedTables() {
