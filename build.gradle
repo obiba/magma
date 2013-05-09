@@ -21,7 +21,6 @@ allprojects {
   apply plugin: 'artifactory-publish'
 
   group = 'org.obiba.magma'
-  version = '1.6-gradle-SNAPSHOT'
 
   sourceCompatibility = javaVersion
   targetCompatibility = javaVersion
