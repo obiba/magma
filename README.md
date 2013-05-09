@@ -17,6 +17,11 @@ See [Obiba Maven 2.x repository](http://repo.obiba.org/libs-release-local)
 And [Obiba Snaphot Maven 2.x repository](http://repo.obiba.org/libs-snapshot-local)
 
 
+## Build
+
+Run `gradlew`
+
+
 ## Bug tracker
 
 Have a bug? Please create an issue on [OBiBa JIRA](http://jira.obiba.org/jira/browse/MAGMA).
