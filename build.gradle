@@ -18,6 +18,7 @@ allprojects {
 
   apply plugin: 'java'
   apply plugin: 'maven'
+  apply plugin: 'maven-publish'
   apply plugin: 'artifactory-publish'
 
   group = 'org.obiba.magma'
@@ -63,6 +64,9 @@ allprojects {
         repoKey = 'libs-snapshot-local' //TODO publish to libs-release-local for release
         username = "${artifactory_user}"
         password = "${artifactory_password}"
+      }
+      defaults {
+        publications ('mavenJava')
       }
     }
     resolve {
@@ -137,7 +141,6 @@ subprojects { subProject ->
   }
 
   // TODO: buildNumber
-
   task packageSources(type: Jar, dependsOn: compileJava) {
     classifier = 'sources'
     from sourceSets.main.allSource
@@ -146,12 +149,27 @@ subprojects { subProject ->
     classifier = 'javadoc'
     from javadoc.destinationDir
   }
-  artifactoryPublish {
-    dependsOn packageSources, packageJavadoc
-  }
-  artifacts {
-    archives packageSources
-    archives packageJavadoc
+//  artifactoryPublish {
+//    dependsOn packageSources, packageJavadoc
+//  }
+//  artifacts {
+//    archives packageSources
+//    archives packageJavadoc
+//  }
+
+  publishing {
+    publications {
+      mavenJava(MavenPublication) {
+        from components.java
+
+        artifact packageSources {
+          classifier "sources"
+        }
+        artifact packageJavadoc {
+          classifier "javadoc"
+        }
+      }
+    }
   }
 
   // Reporting
