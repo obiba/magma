@@ -57,11 +57,72 @@ allprojects {
     }
   }
 
+  // customize the generated POM used during packaging
+  def pomConfig = {
+    name 'Magma'
+    description 'Data and meta-data abstraction layer'
+    url 'http://www.obiba.org'
+    organization {
+      name 'OBiBa'
+      url 'http://www.obiba.org'
+    }
+    issueManagement {
+      system 'jira'
+      url 'http://jira.obiba.org/jira/browse/MAGMA'
+    }
+    scm {
+      url "https://github.com/obiba/magma"
+      connection "scm:git:git://github.com/obiba/magma.git"
+      developerConnection "scm:git:https://github.com/obiba/magma.git"
+    }
+    licenses {
+      license {
+        name 'GNU Public License version 3'
+        url 'http://www.obiba.org/node/62'
+        distribution 'repo'
+      }
+    }
+  }
+  project.ext.basePomConfig = pomConfig
+
+  configure(install.repositories.mavenInstaller) {
+    pom.project pomConfig
+  }
+
+  // create jar with sources
+  task packageSources(type: Jar, dependsOn: compileJava) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+  }
+
+  // create jar with javadoc
+  task packageJavadoc(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+  }
+
+  // configure publication tu upload binary, sources & javadoc
+  publishing {
+    publications {
+      mavenJava(MavenPublication) {
+        from components.java
+
+        artifact packageSources {
+          classifier "sources"
+        }
+        artifact packageJavadoc {
+          classifier "javadoc"
+        }
+      }
+    }
+  }
+
+  // configure artifactory plugin
   artifactory {
     contextUrl = 'http://repo.obiba.org'
     publish {
       repository {
-        repoKey = 'libs-snapshot-local' //TODO publish to libs-release-local for release
+        repoKey = "${version}".endsWith('SNAPSHOT') ? 'libs-snapshot-local' : 'libs-release-local'
         username = "${artifactory_user}"
         password = "${artifactory_password}"
       }
@@ -75,8 +136,6 @@ allprojects {
         repoKey = 'libs-releases'
       }
     }
-    // Redefine basic properties of the build info object
-    //clientConfig.info.setBuildNumber('' + new java.util.Random(System.currentTimeMillis()).nextInt(20000))
   }
 
 }
@@ -105,71 +164,6 @@ subprojects { subProject ->
 
   test {
     testLogging.showStandardStreams = true
-  }
-
-  // customize the generated POM used during upload
-  def pomConfig = {
-    name 'Magma'
-    description 'Data and meta-data abstraction layer'
-    url 'http://www.obiba.org'
-    organization {
-      name 'OBiBa'
-      url 'http://www.obiba.org'
-    }
-    issueManagement {
-      system 'jira'
-      url 'http://jira.obiba.org/jira/browse/MAGMA'
-    }
-    scm {
-      url "https://github.com/obiba/magma"
-      connection "scm:git:git://github.com/obiba/magma.git"
-      developerConnection "scm:git:https://github.com/obiba/magma.git"
-    }
-    licenses {
-      license {
-        name 'GNU Public License version 3'
-        url 'http://www.obiba.org/node/62'
-        distribution 'repo'
-      }
-    }
-  }
-
-  subProject.ext.basePomConfig = pomConfig
-
-  configure(install.repositories.mavenInstaller) {
-    pom.project pomConfig
-  }
-
-  // TODO: buildNumber
-  task packageSources(type: Jar, dependsOn: compileJava) {
-    classifier = 'sources'
-    from sourceSets.main.allSource
-  }
-  task packageJavadoc(type: Jar, dependsOn: javadoc) {
-    classifier = 'javadoc'
-    from javadoc.destinationDir
-  }
-//  artifactoryPublish {
-//    dependsOn packageSources, packageJavadoc
-//  }
-//  artifacts {
-//    archives packageSources
-//    archives packageJavadoc
-//  }
-
-  publishing {
-    publications {
-      mavenJava(MavenPublication) {
-        from components.java
-
-        artifact packageSources {
-          classifier "sources"
-        }
-        artifact packageJavadoc {
-          classifier "javadoc"
-        }
-      }
-    }
   }
 
   // Reporting
