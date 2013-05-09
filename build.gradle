@@ -17,7 +17,6 @@ buildscript {
 allprojects {
 
   apply plugin: 'java'
-  apply plugin: 'maven'
   apply plugin: 'maven-publish'
   apply plugin: 'artifactory-publish'
 
@@ -57,38 +56,6 @@ allprojects {
     }
   }
 
-  // customize the generated POM used during packaging
-  def pomConfig = {
-    name 'Magma'
-    description 'Data and meta-data abstraction layer'
-    url 'http://www.obiba.org'
-    organization {
-      name 'OBiBa'
-      url 'http://www.obiba.org'
-    }
-    issueManagement {
-      system 'jira'
-      url 'http://jira.obiba.org/jira/browse/MAGMA'
-    }
-    scm {
-      url "https://github.com/obiba/magma"
-      connection "scm:git:git://github.com/obiba/magma.git"
-      developerConnection "scm:git:https://github.com/obiba/magma.git"
-    }
-    licenses {
-      license {
-        name 'GNU Public License version 3'
-        url 'http://www.obiba.org/node/62'
-        distribution 'repo'
-      }
-    }
-  }
-  project.ext.basePomConfig = pomConfig
-
-  configure(install.repositories.mavenInstaller) {
-    pom.project pomConfig
-  }
-
   // create jar with sources
   task packageSources(type: Jar, dependsOn: compileJava) {
     classifier = 'sources'
@@ -101,12 +68,35 @@ allprojects {
     from javadoc.destinationDir
   }
 
-  // configure publication tu upload binary, sources & javadoc
+  // configure publication tu upload binary, POM.xml, sources & javadoc
   publishing {
     publications {
       mavenJava(MavenPublication) {
         from components.java
+        pom.withXml {
+          def Node root = asNode();
+          root.appendNode('name', 'Magma')
+          root.appendNode('description', 'Data and meta-data abstraction layer')
+          root.appendNode('url', 'http://www.obiba.org')
 
+          def org = root.appendNode('organization')
+          org.appendNode('name', 'OBiBa')
+          org.appendNode('url', 'http://www.obiba.org')
+
+          def issues = root.appendNode('issueManagement')
+          issues.appendNode('system', 'jira')
+          issues.appendNode('url', 'http://jira.obiba.org/jira/browse/MAGMA')
+
+          def scm = root.appendNode('scm')
+          scm.appendNode('url', 'https://github.com/obiba/magma')
+          scm.appendNode('connection', 'scm:git:git://github.com/obiba/magma.git')
+          scm.appendNode('developerConnection', 'scm:git:git://github.com/obiba/magma.git')
+
+          def license = root.appendNode('licenses').appendNode('license');
+          license.appendNode('name', 'GNU Public License version 3')
+          license.appendNode('url', 'http://www.obiba.org/node/62')
+          license.appendNode('distribution', 'repo')
+        }
         artifact packageSources {
           classifier "sources"
         }
@@ -127,7 +117,7 @@ allprojects {
         password = "${artifactory_password}"
       }
       defaults {
-        publications ('mavenJava')
+        publications('mavenJava')
       }
     }
     resolve {
