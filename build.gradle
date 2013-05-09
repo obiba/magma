@@ -5,10 +5,20 @@ ext {
   javaVersion = '1.6'
 }
 
+buildscript {
+  repositories {
+    maven { url 'http://repo.obiba.org/obiba-gradle-plugins-release' }
+  }
+  dependencies {
+    classpath(group: 'org.jfrog.buildinfo', name: 'build-info-extractor-gradle', version: '2.1.0')
+  }
+}
+
 allprojects {
 
   apply plugin: 'java'
   apply plugin: 'maven'
+  apply plugin: 'artifactory-publish'
 
   group = 'org.obiba.magma'
   version = '1.6-gradle-SNAPSHOT'
@@ -44,6 +54,25 @@ allprojects {
           'Implementation-Vendor-Id': project.group,
           'Implementation-Vendor': 'OBiBa'
     }
+  }
+
+  artifactory {
+    contextUrl = 'http://repo.obiba.org'
+    publish {
+      repository {
+        repoKey = 'libs-snapshot-local' //TODO publish to libs-release-local for release
+        username = "${artifactory_user}"
+        password = "${artifactory_password}"
+      }
+    }
+    resolve {
+      contextUrl = 'http://repo.obiba.org'
+      repository {
+        repoKey = 'libs-releases'
+      }
+    }
+    // Redefine basic properties of the build info object
+    //clientConfig.info.setBuildNumber('' + new java.util.Random(System.currentTimeMillis()).nextInt(20000))
   }
 
 }
@@ -113,8 +142,16 @@ subprojects { subProject ->
     classifier = 'sources'
     from sourceSets.main.allSource
   }
+  task packageJavadoc(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+  }
+  artifactoryPublish {
+    dependsOn packageSources, packageJavadoc
+  }
   artifacts {
     archives packageSources
+    archives packageJavadoc
   }
 
   // Reporting
