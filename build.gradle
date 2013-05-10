@@ -111,12 +111,10 @@ allprojects {
     contextUrl = 'http://repo.obiba.org'
     publish {
       repository {
+        // these settings are overridden by Artifactory Jenkins plugin
         repoKey = 'libs-snapshot-local'
         username = 'user'
         password = 'password'
-//        repoKey = "${version}".endsWith('SNAPSHOT') ? 'libs-snapshot-local' : 'libs-release-local'
-//        username = "${artifactory_user}"
-//        password = "${artifactory_password}"
       }
       defaults {
         publications('mavenJava')
