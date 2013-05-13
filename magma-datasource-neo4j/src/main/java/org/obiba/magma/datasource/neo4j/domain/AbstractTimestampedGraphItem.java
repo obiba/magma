@@ -11,10 +11,12 @@ package org.obiba.magma.datasource.neo4j.domain;
 
 import java.util.Date;
 
-public abstract class AbstractTimestampedNode extends AbstractNode implements Timestamped {
+public abstract class AbstractTimestampedGraphItem extends AbstractGraphItem implements Timestamped {
 
   Date created = new Date();
 
+  //TODO update on save
+  // http://stackoverflow.com/questions/16529133/neo4j-and-timestamps
   Date updated;
 
   @Override

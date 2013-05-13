@@ -11,16 +11,14 @@ package org.obiba.magma.datasource.neo4j.domain;
 
 import java.util.List;
 
-import org.springframework.data.neo4j.annotation.GraphId;
+import org.neo4j.graphdb.Direction;
 import org.springframework.data.neo4j.annotation.Indexed;
+import org.springframework.data.neo4j.annotation.NodeEntity;
 import org.springframework.data.neo4j.annotation.RelatedTo;
 import org.springframework.data.neo4j.support.index.IndexType;
 
-//@NodeEntity
-public class CategoryNode {
-
-  @GraphId
-  Long nodeId;
+@NodeEntity
+public class CategoryNode extends AbstractGraphItem {
 
   @Indexed(indexType = IndexType.FULLTEXT, indexName = "category", unique = true)
   private String name;
@@ -29,22 +27,38 @@ public class CategoryNode {
 
   private boolean missing;
 
-  @RelatedTo
+  @RelatedTo(type = "HAS_CATEGORIES", direction = Direction.INCOMING)
   private List<VariableNode> variables;
 
-  @Override
-  public boolean equals(Object o) {
-    if(this == o) return true;
-    if(o == null || getClass() != o.getClass()) return false;
-
-    CategoryNode node = (CategoryNode) o;
-    if(nodeId == null) return super.equals(o);
-    return nodeId.equals(node.nodeId);
-
+  public String getName() {
+    return name;
   }
 
-  @Override
-  public int hashCode() {
-    return nodeId == null ? super.hashCode() : nodeId.hashCode();
+  public void setName(String name) {
+    this.name = name;
+  }
+
+  public String getCode() {
+    return code;
+  }
+
+  public void setCode(String code) {
+    this.code = code;
+  }
+
+  public boolean isMissing() {
+    return missing;
+  }
+
+  public void setMissing(boolean missing) {
+    this.missing = missing;
+  }
+
+  public List<VariableNode> getVariables() {
+    return variables;
+  }
+
+  public void setVariables(List<VariableNode> variables) {
+    this.variables = variables;
   }
 }
