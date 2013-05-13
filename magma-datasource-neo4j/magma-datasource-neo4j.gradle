@@ -1,0 +1,16 @@
+description = 'Magma Neo4j Datasource'
+
+dependencies {
+  compile project(':magma-api')
+  compile(libraries.cglib_nodep)
+  compile(libraries.hibernate_validator)
+  compile(libraries.neo4j)
+  compile(libraries.neo4j_cypher)
+  compile(libraries.neo4j_kernel)
+  compile(libraries.spring_beans)
+  compile(libraries.spring_data_neo4j)
+
+  testCompile group: 'org.neo4j', name: 'neo4j-kernel', version: neo4jVersion, classifier: 'tests'
+  testCompile(libraries.spring_test)
+
+}

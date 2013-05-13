@@ -1,0 +1,15 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:neo4j="http://www.springframework.org/schema/data/neo4j"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+
+        http://www.springframework.org/schema/data/neo4j http://www.springframework.org/schema/data/neo4j/spring-neo4j.xsd">
+
+  <!--<context:annotation-config />-->
+  <!--<context:spring-configured/>-->
+  <!--<tx:annotation-driven mode="proxy"/>-->
+
+  <neo4j:config storeDirectory="target/data/graph.db"/>
+  <neo4j:repositories base-package="org.obiba.magma.datasource.neo4j"/>
+
+</beans>
