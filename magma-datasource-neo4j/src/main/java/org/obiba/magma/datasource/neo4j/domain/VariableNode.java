@@ -12,24 +12,24 @@ package org.obiba.magma.datasource.neo4j.domain;
 import java.util.List;
 
 import org.obiba.magma.ValueType;
-import org.springframework.data.neo4j.annotation.GraphId;
 import org.springframework.data.neo4j.annotation.Indexed;
+import org.springframework.data.neo4j.annotation.NodeEntity;
 import org.springframework.data.neo4j.annotation.RelatedTo;
 import org.springframework.data.neo4j.support.index.IndexType;
 
-//@NodeEntity
-public class VariableNode {
+import static org.neo4j.graphdb.Direction.INCOMING;
+import static org.neo4j.graphdb.Direction.OUTGOING;
 
-  @GraphId
-  Long nodeId;
+@NodeEntity
+public class VariableNode extends AbstractGraphItem {
 
   @Indexed(indexType = IndexType.FULLTEXT, indexName = "variable")
   private String name;
 
-  @RelatedTo
+  @RelatedTo(type = "HAS_VARIABLES", direction = INCOMING)
   private ValueTableNode valueTable;
 
-  @RelatedTo
+  @RelatedTo(type = "HAS_CATEGORIES", direction = OUTGOING)
   private List<CategoryNode> categories;
 
   private String entityType;
@@ -46,19 +46,83 @@ public class VariableNode {
 
   private boolean repeatable;
 
-  @Override
-  public boolean equals(Object o) {
-    if(this == o) return true;
-    if(o == null || getClass() != o.getClass()) return false;
-
-    VariableNode node = (VariableNode) o;
-    if(nodeId == null) return super.equals(o);
-    return nodeId.equals(node.nodeId);
-
+  public String getName() {
+    return name;
   }
 
-  @Override
-  public int hashCode() {
-    return nodeId == null ? super.hashCode() : nodeId.hashCode();
+  public void setName(String name) {
+    this.name = name;
+  }
+
+  public ValueTableNode getValueTable() {
+    return valueTable;
+  }
+
+  public void setValueTable(ValueTableNode valueTable) {
+    this.valueTable = valueTable;
+  }
+
+  public List<CategoryNode> getCategories() {
+    return categories;
+  }
+
+  public void setCategories(List<CategoryNode> categories) {
+    this.categories = categories;
+  }
+
+  public String getEntityType() {
+    return entityType;
+  }
+
+  public void setEntityType(String entityType) {
+    this.entityType = entityType;
+  }
+
+  public String getMimeType() {
+    return mimeType;
+  }
+
+  public void setMimeType(String mimeType) {
+    this.mimeType = mimeType;
+  }
+
+  public String getOccurrenceGroup() {
+    return occurrenceGroup;
+  }
+
+  public void setOccurrenceGroup(String occurrenceGroup) {
+    this.occurrenceGroup = occurrenceGroup;
+  }
+
+  public String getReferencedEntityType() {
+    return referencedEntityType;
+  }
+
+  public void setReferencedEntityType(String referencedEntityType) {
+    this.referencedEntityType = referencedEntityType;
+  }
+
+  public String getUnit() {
+    return unit;
+  }
+
+  public void setUnit(String unit) {
+    this.unit = unit;
+  }
+
+  public ValueType getValueType() {
+    return valueType;
+  }
+
+  public void setValueType(ValueType valueType) {
+    this.valueType = valueType;
+  }
+
+  public boolean isRepeatable() {
+    return repeatable;
+  }
+
+  public void setRepeatable(boolean repeatable) {
+    this.repeatable = repeatable;
   }
 }

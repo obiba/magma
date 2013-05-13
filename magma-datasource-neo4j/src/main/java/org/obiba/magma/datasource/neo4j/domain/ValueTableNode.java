@@ -11,36 +11,26 @@ package org.obiba.magma.datasource.neo4j.domain;
 
 import java.util.List;
 
-import org.springframework.data.neo4j.annotation.GraphId;
+import org.neo4j.graphdb.Direction;
 import org.springframework.data.neo4j.annotation.Indexed;
 import org.springframework.data.neo4j.annotation.NodeEntity;
 import org.springframework.data.neo4j.annotation.RelatedTo;
 import org.springframework.data.neo4j.support.index.IndexType;
 
 @NodeEntity
-public class ValueTableNode {
-
-  @GraphId
-  private Long nodeId;
+public class ValueTableNode extends AbstractGraphItem {
 
   @Indexed(indexType = IndexType.FULLTEXT, indexName = "table")
   private String name;
 
+  @Indexed(indexType = IndexType.FULLTEXT, indexName = "table")
   private String entityType;
 
-  @RelatedTo
+  @RelatedTo(type = "HAS_TABLES", direction = Direction.INCOMING)
   private DatasourceNode datasource;
 
-  //  @RelatedTo
+  @RelatedTo(type = "HAS_VARIABLES", direction = Direction.OUTGOING)
   private List<VariableNode> variables;
-
-  public Long getNodeId() {
-    return nodeId;
-  }
-
-  public void setNodeId(Long nodeId) {
-    this.nodeId = nodeId;
-  }
 
   public String getName() {
     return name;
@@ -74,19 +64,4 @@ public class ValueTableNode {
     this.variables = variables;
   }
 
-  @Override
-  public boolean equals(Object o) {
-    if(this == o) return true;
-    if(o == null || getClass() != o.getClass()) return false;
-
-    ValueTableNode node = (ValueTableNode) o;
-    if(nodeId == null) return super.equals(o);
-    return nodeId.equals(node.nodeId);
-
-  }
-
-  @Override
-  public int hashCode() {
-    return nodeId == null ? super.hashCode() : nodeId.hashCode();
-  }
 }
