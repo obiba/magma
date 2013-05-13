@@ -9,16 +9,32 @@
  */
 package org.obiba.magma.datasource.neo4j.domain;
 
-import org.springframework.data.neo4j.annotation.GraphId;
+import org.springframework.data.neo4j.annotation.Indexed;
+import org.springframework.data.neo4j.annotation.NodeEntity;
+import org.springframework.data.neo4j.support.index.IndexType;
 
-//@NodeEntity
-public class VariableEntityNode {
+@NodeEntity
+public class VariableEntityNode extends AbstractGraphItem {
 
-  @GraphId
-  Long nodeId;
-
+  @Indexed(indexType = IndexType.FULLTEXT, indexName = "variable_entity")
   private String identifier;
 
+  @Indexed(indexType = IndexType.FULLTEXT, indexName = "variable_entity")
   private String type;
 
+  public String getIdentifier() {
+    return identifier;
+  }
+
+  public void setIdentifier(String identifier) {
+    this.identifier = identifier;
+  }
+
+  public String getType() {
+    return type;
+  }
+
+  public void setType(String type) {
+    this.type = type;
+  }
 }
