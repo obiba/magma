@@ -20,7 +20,7 @@ import static org.neo4j.graphdb.Direction.OUTGOING;
 import static org.springframework.data.neo4j.support.index.IndexType.FULLTEXT;
 
 @NodeEntity
-public class ValueTableNode extends AbstractGraphItem {
+public class ValueTableNode extends AbstractTimestampedGraphItem {
 
   @Indexed(indexType = FULLTEXT, indexName = "table")
   private String name;
