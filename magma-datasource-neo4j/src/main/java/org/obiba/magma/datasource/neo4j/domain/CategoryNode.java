@@ -11,23 +11,24 @@ package org.obiba.magma.datasource.neo4j.domain;
 
 import java.util.List;
 
-import org.neo4j.graphdb.Direction;
 import org.springframework.data.neo4j.annotation.Indexed;
 import org.springframework.data.neo4j.annotation.NodeEntity;
 import org.springframework.data.neo4j.annotation.RelatedTo;
 import org.springframework.data.neo4j.support.index.IndexType;
 
-@NodeEntity
-public class CategoryNode extends AbstractGraphItem {
+import static org.neo4j.graphdb.Direction.INCOMING;
 
-  @Indexed(indexType = IndexType.FULLTEXT, indexName = "category", unique = true)
+@NodeEntity
+public class CategoryNode extends AbstractAttributeAwareNode {
+
+  @Indexed(indexType = IndexType.FULLTEXT, indexName = "category")
   private String name;
 
   private String code;
 
   private boolean missing;
 
-  @RelatedTo(type = "HAS_CATEGORIES", direction = Direction.INCOMING)
+  @RelatedTo(type = "HAS_CATEGORIES", direction = INCOMING)
   private List<VariableNode> variables;
 
   public String getName() {

@@ -11,11 +11,12 @@ package org.obiba.magma.datasource.neo4j.domain;
 
 import java.util.List;
 
-import org.neo4j.graphdb.Direction;
 import org.springframework.data.neo4j.annotation.Indexed;
 import org.springframework.data.neo4j.annotation.NodeEntity;
 import org.springframework.data.neo4j.annotation.RelatedTo;
 import org.springframework.data.neo4j.support.index.IndexType;
+
+import static org.neo4j.graphdb.Direction.OUTGOING;
 
 @NodeEntity
 public class DatasourceNode extends AbstractAttributeAwareNode implements Timestamped {
@@ -23,7 +24,7 @@ public class DatasourceNode extends AbstractAttributeAwareNode implements Timest
   @Indexed(indexType = IndexType.FULLTEXT, indexName = "datasource", unique = true)
   private String name;
 
-  @RelatedTo(type = "HAS_TABLES", direction = Direction.OUTGOING)
+  @RelatedTo(type = "HAS_TABLES", direction = OUTGOING)
   private List<ValueTableNode> valueTables;
 
   public DatasourceNode() {
