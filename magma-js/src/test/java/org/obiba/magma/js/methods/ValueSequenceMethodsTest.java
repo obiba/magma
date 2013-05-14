@@ -190,6 +190,14 @@ public class ValueSequenceMethodsTest extends AbstractJsTest {
     assertThat(result.getValue(), is(TextType.get().nullValue()));
   }
 
+  @Test
+  public void testNullSequenceValueAt() throws Exception {
+    ValueSequence valueSequence = TextType.get().nullSequence();
+    ScriptableValue scriptableValue = newValue(valueSequence);
+    ScriptableValue result = ValueSequenceMethods.valueAt(Context.getCurrentContext(), scriptableValue, new Object[] { 2 }, null);
+    assertThat(result.getValue(), is(TextType.get().nullValue()));
+  }
+
   // sort()
 
   @Test
