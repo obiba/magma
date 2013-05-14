@@ -7,17 +7,20 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package org.obiba.magma.datasource.neo4j;
 
+import java.util.LinkedHashSet;
 import java.util.Set;
 
-import javax.annotation.Nonnull;
-
 import org.obiba.magma.ValueTable;
+import org.obiba.magma.datasource.neo4j.domain.DatasourceNode;
+import org.obiba.magma.datasource.neo4j.domain.ValueTableNode;
+import org.obiba.magma.datasource.neo4j.repository.DatasourceRepository;
 import org.obiba.magma.support.AbstractDatasource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.neo4j.support.Neo4jTemplate;
 
 public class Neo4jDatasource extends AbstractDatasource {
 
@@ -25,17 +28,36 @@ public class Neo4jDatasource extends AbstractDatasource {
 
   public static final String TYPE = "neo4j";
 
-  public Neo4jDatasource(@Nonnull String name) {
+  @Autowired
+  private DatasourceRepository datasourceRepository;
+
+  @Autowired
+  private Neo4jTemplate neo4jTemplate;
+
+  public Neo4jDatasource(String name) {
     super(name, TYPE);
   }
 
   @Override
   protected Set<String> getValueTableNames() {
-    return null;  //To change body of implemented methods use File | Settings | File Templates.
+    Set<String> names = new LinkedHashSet<String>();
+    DatasourceNode datasourceNode = datasourceRepository.findByName(getName());
+    for(ValueTableNode tableNode : datasourceNode.getValueTables()) {
+      names.add(tableNode.getName());
+    }
+    return names;
   }
 
   @Override
   protected ValueTable initialiseValueTable(String tableName) {
-    return null;  //To change body of implemented methods use File | Settings | File Templates.
+    return new Neo4jValueTable(this, tableName);
+  }
+
+  public Neo4jTemplate getNeo4jTemplate() {
+    return neo4jTemplate;
+  }
+
+  public DatasourceRepository getDatasourceRepository() {
+    return datasourceRepository;
   }
 }

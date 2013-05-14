@@ -10,26 +10,17 @@
 
 package org.obiba.magma.datasource.neo4j;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
 import org.obiba.magma.Datasource;
 import org.obiba.magma.NoSuchValueSetException;
 import org.obiba.magma.Timestamps;
 import org.obiba.magma.ValueSet;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.support.AbstractValueTable;
-import org.obiba.magma.support.VariableEntityProvider;
 
 public class Neo4jValueTable extends AbstractValueTable {
 
   public Neo4jValueTable(Datasource datasource, String name) {
     super(datasource, name);
-  }
-
-  public Neo4jValueTable(@Nonnull Datasource datasource, @Nonnull String name,
-      @Nullable VariableEntityProvider variableEntityProvider) {
-    super(datasource, name, variableEntityProvider);
   }
 
   @Override
