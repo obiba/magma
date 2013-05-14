@@ -122,7 +122,7 @@ public class ValueSequenceMethods {
       throws MagmaJsEvaluationRuntimeException {
     ScriptableValue sv = (ScriptableValue) thisObj;
     if(sv.getValue().isNull()) {
-      return new ScriptableValue(thisObj, sv.getValue());
+      return new ScriptableValue(thisObj, sv.getValueType().nullValue());
     }
     Integer index = null;
     if(args != null && args.length > 0 && args[0] instanceof Number) {
