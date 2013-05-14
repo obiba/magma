@@ -11,26 +11,31 @@ package org.obiba.magma.datasource.neo4j.domain;
 
 import java.util.List;
 
-import org.neo4j.graphdb.Direction;
 import org.springframework.data.neo4j.annotation.Indexed;
 import org.springframework.data.neo4j.annotation.NodeEntity;
 import org.springframework.data.neo4j.annotation.RelatedTo;
-import org.springframework.data.neo4j.support.index.IndexType;
+
+import static org.neo4j.graphdb.Direction.INCOMING;
+import static org.neo4j.graphdb.Direction.OUTGOING;
+import static org.springframework.data.neo4j.support.index.IndexType.FULLTEXT;
 
 @NodeEntity
 public class ValueTableNode extends AbstractGraphItem {
 
-  @Indexed(indexType = IndexType.FULLTEXT, indexName = "table")
+  @Indexed(indexType = FULLTEXT, indexName = "table")
   private String name;
 
-  @Indexed(indexType = IndexType.FULLTEXT, indexName = "table")
+  @Indexed(indexType = FULLTEXT, indexName = "table")
   private String entityType;
 
-  @RelatedTo(type = "HAS_TABLES", direction = Direction.INCOMING)
+  @RelatedTo(type = "HAS_TABLES", direction = INCOMING)
   private DatasourceNode datasource;
 
-  @RelatedTo(type = "HAS_VARIABLES", direction = Direction.OUTGOING)
+  @RelatedTo(type = "HAS_VARIABLES", direction = OUTGOING)
   private List<VariableNode> variables;
+
+  @RelatedTo(type = "HAS_VALUE_SETS", direction = OUTGOING)
+  private List<ValueSetNode> valueSets;
 
   public String getName() {
     return name;
@@ -64,4 +69,11 @@ public class ValueTableNode extends AbstractGraphItem {
     this.variables = variables;
   }
 
+  public List<ValueSetNode> getValueSets() {
+    return valueSets;
+  }
+
+  public void setValueSets(List<ValueSetNode> valueSets) {
+    this.valueSets = valueSets;
+  }
 }

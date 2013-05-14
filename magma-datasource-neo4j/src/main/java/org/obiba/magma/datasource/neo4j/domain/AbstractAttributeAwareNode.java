@@ -13,7 +13,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-import org.neo4j.graphdb.Direction;
 import org.obiba.magma.NoSuchAttributeException;
 import org.springframework.data.neo4j.annotation.NodeEntity;
 import org.springframework.data.neo4j.annotation.RelatedTo;
@@ -21,10 +20,12 @@ import org.springframework.data.neo4j.annotation.RelatedTo;
 import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.Multimap;
 
+import static org.neo4j.graphdb.Direction.OUTGOING;
+
 @NodeEntity
 public abstract class AbstractAttributeAwareNode extends AbstractTimestampedGraphItem {
 
-  @RelatedTo(type = "HAS_ATTRIBUTES", direction = Direction.OUTGOING)
+  @RelatedTo(type = "HAS_ATTRIBUTES", direction = OUTGOING)
   private List<AttributeNode> attributes;
 
   @SuppressWarnings("TransientFieldInNonSerializableClass")
