@@ -11,14 +11,15 @@ package org.obiba.magma.datasource.neo4j.domain;
 
 import java.util.Locale;
 
-import org.neo4j.graphdb.Direction;
 import org.springframework.data.neo4j.annotation.RelatedTo;
 
 import com.google.common.base.Strings;
 
-public class AttributeNode extends AbstractGraphItem {
+import static org.neo4j.graphdb.Direction.INCOMING;
 
-  @RelatedTo(type = "HAS_ATTRIBUTES", direction = Direction.INCOMING)
+public class AttributeNode extends AbstractValueAwareNode {
+
+  @RelatedTo(type = "HAS_ATTRIBUTES", direction = INCOMING)
   private AbstractAttributeAwareNode parent;
 
   private String name;
@@ -26,17 +27,6 @@ public class AttributeNode extends AbstractGraphItem {
   private String namespace;
 
   private String localeStr;
-
-  @RelatedTo(type = "HAS_VALUES", direction = Direction.OUTGOING)
-  private ValueNode value;
-
-  public ValueNode getValue() {
-    return value;
-  }
-
-  public void setValue(ValueNode value) {
-    this.value = value;
-  }
 
   public AbstractAttributeAwareNode getParent() {
     return parent;
@@ -62,16 +52,16 @@ public class AttributeNode extends AbstractGraphItem {
     this.namespace = namespace;
   }
 
-  public Locale getLocale() {
-    return isLocalised() ? new Locale(localeStr) : null;
-  }
-
   public String getLocaleStr() {
     return localeStr;
   }
 
   public void setLocaleStr(String localeStr) {
     this.localeStr = localeStr;
+  }
+
+  public Locale getLocale() {
+    return isLocalised() ? new Locale(localeStr) : null;
   }
 
   public boolean isLocalised() {

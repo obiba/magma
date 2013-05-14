@@ -9,18 +9,26 @@
  */
 package org.obiba.magma.datasource.neo4j.domain;
 
+import java.util.List;
+
 import org.springframework.data.neo4j.annotation.Indexed;
 import org.springframework.data.neo4j.annotation.NodeEntity;
-import org.springframework.data.neo4j.support.index.IndexType;
+import org.springframework.data.neo4j.annotation.RelatedTo;
+
+import static org.neo4j.graphdb.Direction.OUTGOING;
+import static org.springframework.data.neo4j.support.index.IndexType.FULLTEXT;
 
 @NodeEntity
-public class VariableEntityNode extends AbstractGraphItem {
+public class VariableEntityNode extends AbstractTimestampedGraphItem {
 
-  @Indexed(indexType = IndexType.FULLTEXT, indexName = "variable_entity")
+  @Indexed(indexType = FULLTEXT, indexName = "variable_entity")
   private String identifier;
 
-  @Indexed(indexType = IndexType.FULLTEXT, indexName = "variable_entity")
+  @Indexed(indexType = FULLTEXT, indexName = "variable_entity")
   private String type;
+
+  @RelatedTo(type = "HAS_ENTITIES", direction = OUTGOING)
+  private List<ValueSetNode> valueSets;
 
   public String getIdentifier() {
     return identifier;
@@ -36,5 +44,13 @@ public class VariableEntityNode extends AbstractGraphItem {
 
   public void setType(String type) {
     this.type = type;
+  }
+
+  public List<ValueSetNode> getValueSets() {
+    return valueSets;
+  }
+
+  public void setValueSets(List<ValueSetNode> valueSets) {
+    this.valueSets = valueSets;
   }
 }

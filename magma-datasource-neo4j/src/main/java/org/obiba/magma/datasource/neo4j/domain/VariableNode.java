@@ -15,15 +15,15 @@ import org.obiba.magma.ValueType;
 import org.springframework.data.neo4j.annotation.Indexed;
 import org.springframework.data.neo4j.annotation.NodeEntity;
 import org.springframework.data.neo4j.annotation.RelatedTo;
-import org.springframework.data.neo4j.support.index.IndexType;
 
 import static org.neo4j.graphdb.Direction.INCOMING;
 import static org.neo4j.graphdb.Direction.OUTGOING;
+import static org.springframework.data.neo4j.support.index.IndexType.FULLTEXT;
 
 @NodeEntity
-public class VariableNode extends AbstractGraphItem {
+public class VariableNode extends AbstractAttributeAwareNode {
 
-  @Indexed(indexType = IndexType.FULLTEXT, indexName = "variable")
+  @Indexed(indexType = FULLTEXT, indexName = "variable")
   private String name;
 
   @RelatedTo(type = "HAS_VARIABLES", direction = INCOMING)
@@ -31,6 +31,9 @@ public class VariableNode extends AbstractGraphItem {
 
   @RelatedTo(type = "HAS_CATEGORIES", direction = OUTGOING)
   private List<CategoryNode> categories;
+
+  @RelatedTo(type = "HAS_VALUE_SET_VALUES", direction = OUTGOING)
+  private List<ValueSetValueNode> valueSetValues;
 
   private String entityType;
 
@@ -124,5 +127,13 @@ public class VariableNode extends AbstractGraphItem {
 
   public void setRepeatable(boolean repeatable) {
     this.repeatable = repeatable;
+  }
+
+  public List<ValueSetValueNode> getValueSetValues() {
+    return valueSetValues;
+  }
+
+  public void setValueSetValues(List<ValueSetValueNode> valueSetValues) {
+    this.valueSetValues = valueSetValues;
   }
 }

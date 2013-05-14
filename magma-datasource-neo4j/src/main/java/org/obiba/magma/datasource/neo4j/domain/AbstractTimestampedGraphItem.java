@@ -11,22 +11,41 @@ package org.obiba.magma.datasource.neo4j.domain;
 
 import java.util.Date;
 
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+
 public abstract class AbstractTimestampedGraphItem extends AbstractGraphItem implements Timestamped {
 
-  Date created = new Date();
+  @CreatedDate
+  private long createdDate;
 
-  //TODO update on save
-  // http://stackoverflow.com/questions/16529133/neo4j-and-timestamps
-  Date updated;
+  @LastModifiedDate
+  private long lastModifiedDate;
+
+  public long getCreatedDate() {
+    return createdDate;
+  }
+
+  public void setCreatedDate(long createdDate) {
+    this.createdDate = createdDate;
+  }
+
+  public long getLastModifiedDate() {
+    return lastModifiedDate;
+  }
+
+  public void setLastModifiedDate(long lastModifiedDate) {
+    this.lastModifiedDate = lastModifiedDate;
+  }
 
   @Override
   public Date getCreated() {
-    return new Date(created.getTime());
+    return new Date(createdDate);
   }
 
   @Override
   public Date getUpdated() {
-    return new Date(updated.getTime());
+    return new Date(lastModifiedDate);
   }
 
 }

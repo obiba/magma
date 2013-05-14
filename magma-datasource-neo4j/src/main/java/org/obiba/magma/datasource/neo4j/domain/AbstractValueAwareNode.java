@@ -10,14 +10,21 @@
 package org.obiba.magma.datasource.neo4j.domain;
 
 import org.springframework.data.neo4j.annotation.NodeEntity;
+import org.springframework.data.neo4j.annotation.RelatedTo;
+
+import static org.neo4j.graphdb.Direction.OUTGOING;
 
 @NodeEntity
-public class BinaryValueNode extends ValueNode {
+public abstract class AbstractValueAwareNode extends AbstractTimestampedGraphItem {
 
-  //TODO cross storage to JPA
+  @RelatedTo(type = "HAS_VALUE", direction = OUTGOING)
+  private ValueNode value;
 
-//  private byte[] value;
-//
-//  private int size;
+  public ValueNode getValue() {
+    return value;
+  }
 
+  public void setValue(ValueNode value) {
+    this.value = value;
+  }
 }

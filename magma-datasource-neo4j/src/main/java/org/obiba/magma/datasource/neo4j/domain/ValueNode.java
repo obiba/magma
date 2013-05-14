@@ -1,10 +1,25 @@
+/*
+ * Copyright (c) 2013 OBiBa. All rights reserved.
+ *
+ * This program and the accompanying materials
+ * are made available under the terms of the GNU Public License v3.0.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package org.obiba.magma.datasource.neo4j.domain;
 
 import org.obiba.magma.ValueType;
 import org.springframework.data.neo4j.annotation.NodeEntity;
+import org.springframework.data.neo4j.annotation.RelatedTo;
+
+import static org.neo4j.graphdb.Direction.INCOMING;
 
 @NodeEntity
-public class ValueNode extends AbstractGraphItem {
+public class ValueNode extends AbstractTimestampedGraphItem {
+
+  @RelatedTo(type = "HAS_VALUE", direction = INCOMING)
+  private AbstractValueAwareNode parent;
 
   private ValueType valueType;
 
@@ -38,4 +53,11 @@ public class ValueNode extends AbstractGraphItem {
     this.value = value;
   }
 
+  public AbstractValueAwareNode getParent() {
+    return parent;
+  }
+
+  public void setParent(AbstractValueAwareNode parent) {
+    this.parent = parent;
+  }
 }
