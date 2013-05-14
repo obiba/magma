@@ -9,38 +9,71 @@
  */
 package org.obiba.magma.datasource.neo4j.domain;
 
+import java.util.Collections;
+import java.util.Map;
 import java.util.Set;
 
 import org.springframework.data.neo4j.annotation.NodeEntity;
+import org.springframework.data.neo4j.annotation.RelatedTo;
+
+import com.google.common.collect.Maps;
+
+import static org.neo4j.graphdb.Direction.INCOMING;
+import static org.neo4j.graphdb.Direction.OUTGOING;
 
 @NodeEntity
 public class ValueSetNode extends AbstractAttributeAwareNode {
 
+  @RelatedTo(type = "HAS_VALUE_SETS", direction = INCOMING)
   private ValueTableNode valueTable;
 
+  @RelatedTo(type = "HAS_ENTITIES", direction = INCOMING)
   private VariableEntityNode variableEntity;
 
-  private Set<ValueSetValueNode> values;
+  @RelatedTo(type = "HAS_VALUE_SET_VALUES", direction = OUTGOING)
+  private Set<ValueSetValueNode> valueSetValues;
 
-//  private transient Map<String, ValueNode> valueMap;
+  @SuppressWarnings("TransientFieldInNonSerializableClass")
+  private transient Map<String, ValueSetValueNode> valueMap;
 
-  public ValueSetNode() {
+  public synchronized Map<String, ValueSetValueNode> getValueMap() {
+    return valueMap == null ? valuesAsMap() : valueMap;
   }
 
-//  public synchronized Map<String, ValueNode> getValueMap() {
-//    return valueMap == null ? valuesAsMap() : valueMap;
-//  }
-//
-//  private synchronized Map<String, ValueNode> valuesAsMap() {
-//    if(valueMap == null) {
-//      Map<String, ValueNode> map = Maps.newHashMap();
-//      for(ValueNode vsv : getValues()) {
-//        // log.info("{}={}", vsv.getVariable().getName(), vsv.getValue().toString());
-//        map.put(vsv.getVariable().getName(), vsv);
-//      }
-//      valueMap = Collections.unmodifiableMap(map);
-//    }
-//    return valueMap;
-//  }
+  private synchronized Map<String, ValueSetValueNode> valuesAsMap() {
+    if(valueMap == null) {
+      Map<String, ValueSetValueNode> map = Maps.newHashMap();
+      for(ValueSetValueNode vsv : getValueSetValues()) {
+        // log.info("{}={}", vsv.getVariable().getName(), vsv.getValue().toString());
+        map.put(vsv.getVariable().getName(), vsv);
+      }
+      valueMap = Collections.unmodifiableMap(map);
+    }
+    return valueMap;
+  }
+
+  public ValueTableNode getValueTable() {
+    return valueTable;
+  }
+
+  public void setValueTable(ValueTableNode valueTable) {
+    this.valueTable = valueTable;
+  }
+
+  public VariableEntityNode getVariableEntity() {
+    return variableEntity;
+  }
+
+  public void setVariableEntity(VariableEntityNode variableEntity) {
+    this.variableEntity = variableEntity;
+  }
+
+  public Set<ValueSetValueNode> getValueSetValues() {
+    return valueSetValues;
+  }
+
+  public void setValueSetValues(Set<ValueSetValueNode> valueSetValues) {
+    this.valueSetValues = valueSetValues;
+  }
 
 }
