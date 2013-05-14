@@ -22,7 +22,7 @@ import static org.neo4j.graphdb.Direction.INCOMING;
 import static org.neo4j.graphdb.Direction.OUTGOING;
 
 @NodeEntity
-public class ValueSetNode extends AbstractAttributeAwareNode {
+public class ValueSetNode extends AbstractTimestampedGraphItem {
 
   @RelatedTo(type = "HAS_VALUE_SETS", direction = INCOMING)
   private ValueTableNode valueTable;
