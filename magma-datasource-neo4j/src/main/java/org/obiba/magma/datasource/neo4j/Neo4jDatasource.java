@@ -71,9 +71,8 @@ public class Neo4jDatasource extends AbstractDatasource {
   @Nullable
   private ValueTableNode getValueTableNode(String tableName) {
     // TODO replace by a query
-    Set<ValueTableNode> valueTables = getNode().getValueTables();
-    neo4jTemplate.fetch(valueTables); // fetch tables properties (name)
-    for(ValueTableNode tableNode : valueTables) {
+    for(ValueTableNode tableNode : getNode().getValueTables()) {
+      neo4jTemplate.fetch(tableNode); // fetch table properties (name)
       if(Objects.equals(tableName, tableNode.getName())) {
         return tableNode;
       }
