@@ -9,7 +9,7 @@
  */
 package org.obiba.magma.datasource.neo4j.domain;
 
-import java.util.List;
+import java.util.Set;
 
 import org.springframework.data.neo4j.annotation.Indexed;
 import org.springframework.data.neo4j.annotation.NodeEntity;
@@ -32,10 +32,10 @@ public class ValueTableNode extends AbstractTimestampedGraphItem {
   private DatasourceNode datasource;
 
   @RelatedTo(type = "HAS_VARIABLES", direction = OUTGOING)
-  private List<VariableNode> variables;
+  private Set<VariableNode> variables;
 
   @RelatedTo(type = "HAS_VALUE_SETS", direction = OUTGOING)
-  private List<ValueSetNode> valueSets;
+  private Set<ValueSetNode> valueSets;
 
   public ValueTableNode() {
   }
@@ -70,19 +70,19 @@ public class ValueTableNode extends AbstractTimestampedGraphItem {
     this.datasource = datasource;
   }
 
-  public List<VariableNode> getVariables() {
+  public Set<VariableNode> getVariables() {
     return variables;
   }
 
-  public void setVariables(List<VariableNode> variables) {
+  public void setVariables(Set<VariableNode> variables) {
     this.variables = variables;
   }
 
-  public List<ValueSetNode> getValueSets() {
+  public Set<ValueSetNode> getValueSets() {
     return valueSets;
   }
 
-  public void setValueSets(List<ValueSetNode> valueSets) {
+  public void setValueSets(Set<ValueSetNode> valueSets) {
     this.valueSets = valueSets;
   }
 }

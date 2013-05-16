@@ -15,18 +15,25 @@ import javax.annotation.Nonnull;
 import org.obiba.magma.Datasource;
 import org.obiba.magma.NoSuchValueSetException;
 import org.obiba.magma.Timestamps;
+import org.obiba.magma.Value;
 import org.obiba.magma.ValueSet;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.datasource.neo4j.domain.ValueTableNode;
 import org.obiba.magma.support.AbstractValueTable;
+import org.obiba.magma.type.DateTimeType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class Neo4jValueTable extends AbstractValueTable {
 
-  private Long graphId;
+  private static final Logger log = LoggerFactory.getLogger(Neo4jValueTable.class);
+
+  private final Long graphId;
 
   public Neo4jValueTable(Datasource datasource, @Nonnull ValueTableNode valueTableNode) {
     super(datasource, valueTableNode.getName());
     graphId = valueTableNode.getGraphId();
+    log.debug("ValueTable: {}, graphId: {}", valueTableNode.getName(), graphId);
   }
 
   @Override
@@ -36,6 +43,31 @@ public class Neo4jValueTable extends AbstractValueTable {
 
   @Override
   public Timestamps getTimestamps() {
-    return null;  //To change body of implemented methods use File | Settings | File Templates.
+    final ValueTableNode node = getNode();
+    return new Timestamps() {
+
+      @Nonnull
+      @Override
+      public Value getCreated() {
+        return DateTimeType.get().valueOf(node.getCreated());
+      }
+
+      @Nonnull
+      @Override
+      public Value getLastUpdate() {
+        return DateTimeType.get().valueOf(node.getUpdated());
+      }
+    };
+  }
+
+  @Nonnull
+  @Override
+  public Neo4jDatasource getDatasource() {
+    return (Neo4jDatasource) super.getDatasource();
+  }
+
+  @Nonnull
+  private ValueTableNode getNode() {
+    return getDatasource().getNeo4jTemplate().findOne(graphId, ValueTableNode.class);
   }
 }
