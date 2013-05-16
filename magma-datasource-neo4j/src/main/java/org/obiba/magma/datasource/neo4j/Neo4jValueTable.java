@@ -14,6 +14,7 @@ import javax.annotation.Nonnull;
 
 import org.obiba.magma.Datasource;
 import org.obiba.magma.NoSuchValueSetException;
+import org.obiba.magma.NoSuchValueTableException;
 import org.obiba.magma.Timestamps;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueSet;
@@ -67,7 +68,11 @@ public class Neo4jValueTable extends AbstractValueTable {
   }
 
   @Nonnull
-  private ValueTableNode getNode() {
-    return getDatasource().getNeo4jTemplate().findOne(graphId, ValueTableNode.class);
+  private ValueTableNode getNode() throws NoSuchValueTableException {
+    try {
+      return getDatasource().getNeo4jTemplate().findOne(graphId, ValueTableNode.class);
+    } catch(Exception e) {
+      throw new NoSuchValueTableException(getName());
+    }
   }
 }
