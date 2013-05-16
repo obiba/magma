@@ -16,6 +16,7 @@ import java.util.Set;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import org.obiba.magma.NoSuchDatasourceException;
 import org.obiba.magma.NoSuchValueTableException;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.ValueTableWriter;
@@ -64,8 +65,12 @@ public class Neo4jDatasource extends AbstractDatasource {
     neo4jTemplate.save(datasourceNode);
   }
 
-  DatasourceNode getNode() {
-    return neo4jTemplate.findOne(graphId, DatasourceNode.class);
+  DatasourceNode getNode() throws NoSuchDatasourceException {
+    try {
+      return neo4jTemplate.findOne(graphId, DatasourceNode.class);
+    } catch(Exception e) {
+      throw new NoSuchDatasourceException(getName());
+    }
   }
 
   @Nullable
