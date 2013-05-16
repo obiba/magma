@@ -8,7 +8,9 @@ import org.obiba.magma.Value;
 import org.obiba.magma.ValueTableWriter;
 import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
+import org.obiba.magma.datasource.neo4j.converter.Neo4jMarshallingContext;
 import org.obiba.magma.datasource.neo4j.converter.VariableConverter;
+import org.obiba.magma.datasource.neo4j.domain.VariableNode;
 import org.springframework.util.Assert;
 
 public class Neo4jValueTableWriter implements ValueTableWriter {
@@ -17,8 +19,11 @@ public class Neo4jValueTableWriter implements ValueTableWriter {
 
   private final VariableConverter variableConverter = VariableConverter.getInstance();
 
+  private final Neo4jMarshallingContext context;
+
   public Neo4jValueTableWriter(Neo4jValueTable valueTable) {
     this.valueTable = valueTable;
+    context = valueTable.createContext();
   }
 
   @Override
@@ -63,7 +68,9 @@ public class Neo4jValueTableWriter implements ValueTableWriter {
           "Wrong entity type for variable '" + variable.getName() + "': " + valueTable.getEntityType() +
               " expected, " + variable.getEntityType() + " received.");
 
-      //To change body of implemented methods use File | Settings | File Templates.
+      VariableNode node = variableConverter.marshal(variable, context);
+      valueTable.getDatasource().getNeo4jTemplate().save(node);
+      //TODO update ValueTableNode timestamps
     }
 
     @Override

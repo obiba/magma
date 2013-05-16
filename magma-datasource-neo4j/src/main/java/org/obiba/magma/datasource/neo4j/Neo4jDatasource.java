@@ -20,6 +20,7 @@ import org.obiba.magma.NoSuchDatasourceException;
 import org.obiba.magma.NoSuchValueTableException;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.ValueTableWriter;
+import org.obiba.magma.datasource.neo4j.converter.Neo4jMarshallingContext;
 import org.obiba.magma.datasource.neo4j.domain.DatasourceNode;
 import org.obiba.magma.datasource.neo4j.domain.ValueTableNode;
 import org.obiba.magma.datasource.neo4j.repository.DatasourceRepository;
@@ -130,5 +131,9 @@ public class Neo4jDatasource extends AbstractDatasource {
 
   public DatasourceRepository getDatasourceRepository() {
     return datasourceRepository;
+  }
+
+  Neo4jMarshallingContext createContext(ValueTableNode valueTableNode) {
+    return Neo4jMarshallingContext.create(neo4jTemplate, getNode(), valueTableNode);
   }
 }

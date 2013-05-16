@@ -100,9 +100,15 @@ public class Neo4jDatasourceTest {
 
     ValueTableWriter.VariableWriter variableWriter = tableWriter.writeVariables();
     variableWriter.writeVariable(Variable.Builder.newVariable("Var1", TextType.get(), PARTICIPANT).build());
-    assertThat(datasource.getValueTable(TABLE_NAME).getVariable("Var1"), notNullValue());
+    Variable var1 = datasource.getValueTable(TABLE_NAME).getVariable("Var1");
+    assertThat(var1, notNullValue());
+    assertThat(var1.getName(), is("Var1"));
+
     variableWriter.writeVariable(Variable.Builder.newVariable("Var2", IntegerType.get(), PARTICIPANT).build());
-    assertThat(datasource.getValueTable(TABLE_NAME).getVariable("Var2"), notNullValue());
+    Variable var2 = datasource.getValueTable(TABLE_NAME).getVariable("Var2");
+    assertThat(var2, notNullValue());
+    assertThat(var2.getName(), is("Var2"));
+
     variableWriter.close();
     tableWriter.close();
 

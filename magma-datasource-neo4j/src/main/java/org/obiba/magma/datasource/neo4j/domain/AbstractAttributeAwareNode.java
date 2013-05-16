@@ -40,7 +40,7 @@ public abstract class AbstractAttributeAwareNode extends AbstractTimestampedGrap
   }
 
   public AttributeNode getAttribute(String name, Locale locale) {
-    for(AttributeNode attribute : attributeMap.get(name)) {
+    for(AttributeNode attribute : getAttributeMap().get(name)) {
       if(locale != null && attribute.isLocalised() && locale.equals(attribute.getLocale())) {
         return attribute;
       }
