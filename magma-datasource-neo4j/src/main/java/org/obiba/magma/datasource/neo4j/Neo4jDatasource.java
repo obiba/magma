@@ -10,9 +10,14 @@
 package org.obiba.magma.datasource.neo4j;
 
 import java.util.LinkedHashSet;
+import java.util.Objects;
 import java.util.Set;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 import org.obiba.magma.ValueTable;
+import org.obiba.magma.ValueTableWriter;
 import org.obiba.magma.datasource.neo4j.domain.DatasourceNode;
 import org.obiba.magma.datasource.neo4j.domain.ValueTableNode;
 import org.obiba.magma.datasource.neo4j.repository.DatasourceRepository;
@@ -21,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
+import org.springframework.util.Assert;
 
 public class Neo4jDatasource extends AbstractDatasource {
 
@@ -34,15 +40,65 @@ public class Neo4jDatasource extends AbstractDatasource {
   @Autowired
   private Neo4jTemplate neo4jTemplate;
 
+  private Long graphId;
+
   public Neo4jDatasource(String name) {
     super(name, TYPE);
   }
 
   @Override
+  protected void onInitialise() {
+    DatasourceNode datasourceNode = datasourceRepository.findByName(getName());
+    if(datasourceNode == null) {
+      datasourceNode = neo4jTemplate.save(new DatasourceNode(getName()));
+    }
+    graphId = datasourceNode.getGraphId();
+  }
+
+  @Override
+  protected void onDispose() {
+    DatasourceNode datasourceNode = getNode();
+    //TODO set attributes if needed
+    neo4jTemplate.save(datasourceNode);
+  }
+
+  private DatasourceNode getNode() {
+    return neo4jTemplate.findOne(graphId, DatasourceNode.class);
+  }
+
+  @Nullable
+  private ValueTableNode getValueTableNode(String tableName) {
+    // TODO replace by a query?
+    for(ValueTableNode tableNode : getNode().getValueTables()) {
+      if(Objects.equals(tableName, tableNode.getName())) {
+        return tableNode;
+      }
+    }
+    return null;
+  }
+
+  @Nonnull
+  @Override
+  public ValueTableWriter createWriter(@Nonnull String tableName, @Nonnull String entityType) {
+    Assert.notNull(tableName, "tableName cannot be null");
+    Assert.notNull(entityType, "entityType cannot be null");
+
+    ValueTableNode valueTableNode = getValueTableNode(tableName);
+    if(valueTableNode == null) {
+      valueTableNode = neo4jTemplate.save(new ValueTableNode(tableName, entityType, getNode()));
+    }
+    return new Neo4jValueTableWriter(new Neo4jValueTable(this, valueTableNode));
+  }
+
+  @Override
+  public boolean hasValueTable(String tableName) {
+    return getValueTableNode(tableName) != null;
+  }
+
+  @Override
   protected Set<String> getValueTableNames() {
     Set<String> names = new LinkedHashSet<String>();
-    DatasourceNode datasourceNode = datasourceRepository.findByName(getName());
-    for(ValueTableNode tableNode : datasourceNode.getValueTables()) {
+    for(ValueTableNode tableNode : getNode().getValueTables()) {
       names.add(tableNode.getName());
     }
     return names;
@@ -50,7 +106,7 @@ public class Neo4jDatasource extends AbstractDatasource {
 
   @Override
   protected ValueTable initialiseValueTable(String tableName) {
-    return new Neo4jValueTable(this, tableName);
+    return new Neo4jValueTable(this, getValueTableNode(tableName));
   }
 
   public Neo4jTemplate getNeo4jTemplate() {

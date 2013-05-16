@@ -12,6 +12,7 @@ package org.obiba.magma.datasource.neo4j.domain;
 import java.util.List;
 
 import org.obiba.magma.ValueType;
+import org.obiba.magma.Variable;
 import org.springframework.data.neo4j.annotation.Indexed;
 import org.springframework.data.neo4j.annotation.NodeEntity;
 import org.springframework.data.neo4j.annotation.RelatedTo;
@@ -48,6 +49,29 @@ public class VariableNode extends AbstractAttributeAwareNode {
   private ValueType valueType;
 
   private boolean repeatable;
+
+  public VariableNode() {}
+
+  public VariableNode(ValueTableNode valueTable, Variable variable) {
+    this.valueTable = valueTable;
+    name = variable.getName();
+    copyVariableFields(variable);
+  }
+
+  /**
+   * Copies all fields of the specified {@link Variable} (but not its name).
+   *
+   * @param variable variable
+   */
+  public void copyVariableFields(Variable variable) {
+    entityType = variable.getEntityType();
+    valueType = variable.getValueType();
+    mimeType = variable.getMimeType();
+    occurrenceGroup = variable.getOccurrenceGroup();
+    referencedEntityType = variable.getReferencedEntityType();
+    unit = variable.getUnit();
+    repeatable = variable.isRepeatable();
+  }
 
   public String getName() {
     return name;
