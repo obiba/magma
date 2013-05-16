@@ -1,9 +1,9 @@
 package org.obiba.magma.datasource.hibernate.converter;
 
-public interface HibernateConverter<T, E> {
+public interface HibernateConverter<TJpaObject, TMagmaObject> {
 
-  T marshal(E magmaObject, HibernateMarshallingContext context);
+  TJpaObject marshal(TMagmaObject magmaObject, HibernateMarshallingContext context);
 
-  E unmarshal(T jpaObject, HibernateMarshallingContext context);
+  TMagmaObject unmarshal(TJpaObject jpaObject, HibernateMarshallingContext context);
 
 }

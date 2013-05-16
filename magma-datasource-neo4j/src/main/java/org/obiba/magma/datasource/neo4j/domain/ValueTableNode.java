@@ -37,6 +37,15 @@ public class ValueTableNode extends AbstractTimestampedGraphItem {
   @RelatedTo(type = "HAS_VALUE_SETS", direction = OUTGOING)
   private List<ValueSetNode> valueSets;
 
+  public ValueTableNode() {
+  }
+
+  public ValueTableNode(String name, String entityType, DatasourceNode datasource) {
+    this.name = name;
+    this.entityType = entityType;
+    this.datasource = datasource;
+  }
+
   public String getName() {
     return name;
   }
