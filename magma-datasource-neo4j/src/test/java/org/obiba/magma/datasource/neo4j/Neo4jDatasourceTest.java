@@ -1,5 +1,8 @@
 package org.obiba.magma.datasource.neo4j;
 
+import java.io.IOException;
+
+import org.hamcrest.core.IsNull;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -12,7 +15,8 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
 
-import junit.framework.Assert;
+import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertThat;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("/application-context-test-neo4j.xml")
@@ -33,20 +37,24 @@ public class Neo4jDatasourceTest {
   }
 
   @Test
-  public void canCreateDatasourceAndTable() {
+  @Transactional
+  public void canCreateDatasourceAndTable() throws IOException {
     String dsName = "testDs";
     String tableName = "testTable";
 
-    Neo4jDatasource ds = new Neo4jDatasource(dsName);
+    Neo4jDatasource datasource = new Neo4jDatasource(dsName);
+
     //TODO replace with @Configurable
-    applicationContext.getAutowireCapableBeanFactory().autowireBean(ds);
+    applicationContext.getAutowireCapableBeanFactory().autowireBean(datasource);
 
-    MagmaEngine.get().addDatasource(ds);
-    ValueTableWriter vtWriter = ds.createWriter(tableName, "Participant");
-    vtWriter.close();
+    MagmaEngine.get().addDatasource(datasource);
+    assertThat(datasource.getNode().getName(), is(dsName));
 
-    Assert.assertTrue(ds.hasValueTable(tableName));
-    Assert.assertNotNull(ds.getValueTable(tableName));
+    ValueTableWriter tableWriter = datasource.createWriter(tableName, "Participant");
+    tableWriter.close();
+
+    assertThat(datasource.hasValueTable(tableName), is(true));
+    assertThat(datasource.getValueTable(tableName), IsNull.notNullValue());
   }
 
 }

@@ -9,8 +9,9 @@
  */
 package org.obiba.magma.datasource.neo4j.domain;
 
-import java.util.List;
+import java.util.Set;
 
+import org.obiba.magma.Category;
 import org.springframework.data.neo4j.annotation.Indexed;
 import org.springframework.data.neo4j.annotation.NodeEntity;
 import org.springframework.data.neo4j.annotation.RelatedTo;
@@ -29,7 +30,20 @@ public class CategoryNode extends AbstractAttributeAwareNode {
   private boolean missing;
 
   @RelatedTo(type = "HAS_CATEGORIES", direction = INCOMING)
-  private List<VariableNode> variables;
+  private Set<VariableNode> variables;
+
+  public CategoryNode() {
+  }
+
+  public CategoryNode(Category category) {
+    copyCategoryFields(category);
+  }
+
+  public void copyCategoryFields(Category category) {
+    name = category.getName();
+    code = category.getCode();
+    missing = category.isMissing();
+  }
 
   public String getName() {
     return name;
@@ -55,11 +69,11 @@ public class CategoryNode extends AbstractAttributeAwareNode {
     this.missing = missing;
   }
 
-  public List<VariableNode> getVariables() {
+  public Set<VariableNode> getVariables() {
     return variables;
   }
 
-  public void setVariables(List<VariableNode> variables) {
+  public void setVariables(Set<VariableNode> variables) {
     this.variables = variables;
   }
 }

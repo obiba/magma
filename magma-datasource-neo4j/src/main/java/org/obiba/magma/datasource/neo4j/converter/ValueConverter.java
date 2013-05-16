@@ -13,10 +13,8 @@ import com.google.common.collect.Iterables;
 
 public class ValueConverter implements Neo4jConverter<ValueNode, Value> {
 
-  private static final ValueConverter INSTANCE = new ValueConverter();
-
   public static ValueConverter getInstance() {
-    return INSTANCE;
+    return new ValueConverter();
   }
 
   private ValueConverter() {

@@ -16,6 +16,7 @@ import java.util.Set;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import org.obiba.magma.NoSuchValueTableException;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.ValueTableWriter;
 import org.obiba.magma.datasource.neo4j.domain.DatasourceNode;
@@ -53,6 +54,7 @@ public class Neo4jDatasource extends AbstractDatasource {
       datasourceNode = neo4jTemplate.save(new DatasourceNode(getName()));
     }
     graphId = datasourceNode.getGraphId();
+    log.debug("Datasource: {}, graphId: {}", datasourceNode.getName(), graphId);
   }
 
   @Override
@@ -62,14 +64,16 @@ public class Neo4jDatasource extends AbstractDatasource {
     neo4jTemplate.save(datasourceNode);
   }
 
-  private DatasourceNode getNode() {
+  DatasourceNode getNode() {
     return neo4jTemplate.findOne(graphId, DatasourceNode.class);
   }
 
   @Nullable
   private ValueTableNode getValueTableNode(String tableName) {
-    // TODO replace by a query?
-    for(ValueTableNode tableNode : getNode().getValueTables()) {
+    // TODO replace by a query
+    Set<ValueTableNode> valueTables = getNode().getValueTables();
+    neo4jTemplate.fetch(valueTables); // fetch tables properties (name)
+    for(ValueTableNode tableNode : valueTables) {
       if(Objects.equals(tableName, tableNode.getName())) {
         return tableNode;
       }
@@ -105,7 +109,14 @@ public class Neo4jDatasource extends AbstractDatasource {
   }
 
   @Override
-  protected ValueTable initialiseValueTable(String tableName) {
+  public ValueTable getValueTable(String tableName) throws NoSuchValueTableException {
+    ValueTableNode tableNode = getValueTableNode(tableName);
+    if(tableNode == null) throw new NoSuchValueTableException(tableName);
+    return new Neo4jValueTable(this, tableNode);
+  }
+
+  @Override
+  protected ValueTable initialiseValueTable(@Nonnull String tableName) {
     return new Neo4jValueTable(this, getValueTableNode(tableName));
   }
 
