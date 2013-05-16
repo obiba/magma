@@ -9,9 +9,9 @@
  */
 package org.obiba.magma.datasource.neo4j.domain;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Locale;
+import java.util.Set;
 
 import org.obiba.magma.NoSuchAttributeException;
 import org.springframework.data.neo4j.annotation.NodeEntity;
@@ -26,16 +26,16 @@ import static org.neo4j.graphdb.Direction.OUTGOING;
 public abstract class AbstractAttributeAwareNode extends AbstractTimestampedGraphItem {
 
   @RelatedTo(type = "HAS_ATTRIBUTES", direction = OUTGOING)
-  private List<AttributeNode> attributes;
+  private Set<AttributeNode> attributes;
 
   @SuppressWarnings("TransientFieldInNonSerializableClass")
   private transient Multimap<String, AttributeNode> attributeMap;
 
-  public List<AttributeNode> getAttributes() {
-    return attributes == null ? (attributes = new ArrayList<AttributeNode>()) : attributes;
+  public Set<AttributeNode> getAttributes() {
+    return attributes == null ? (attributes = new HashSet<AttributeNode>()) : attributes;
   }
 
-  public void setAttributes(List<AttributeNode> attributes) {
+  public void setAttributes(Set<AttributeNode> attributes) {
     this.attributes = attributes;
   }
 

@@ -9,7 +9,7 @@
  */
 package org.obiba.magma.datasource.neo4j.domain;
 
-import java.util.List;
+import java.util.Set;
 
 import org.springframework.data.neo4j.annotation.Indexed;
 import org.springframework.data.neo4j.annotation.NodeEntity;
@@ -25,7 +25,7 @@ public class DatasourceNode extends AbstractAttributeAwareNode implements Timest
   private String name;
 
   @RelatedTo(type = "HAS_TABLES", direction = OUTGOING)
-  private List<ValueTableNode> valueTables;
+  private Set<ValueTableNode> valueTables;
 
   public DatasourceNode() {
   }
@@ -42,11 +42,11 @@ public class DatasourceNode extends AbstractAttributeAwareNode implements Timest
     this.name = name;
   }
 
-  public List<ValueTableNode> getValueTables() {
+  public Set<ValueTableNode> getValueTables() {
     return valueTables;
   }
 
-  public void setValueTables(List<ValueTableNode> valueTables) {
+  public void setValueTables(Set<ValueTableNode> valueTables) {
     this.valueTables = valueTables;
   }
 
