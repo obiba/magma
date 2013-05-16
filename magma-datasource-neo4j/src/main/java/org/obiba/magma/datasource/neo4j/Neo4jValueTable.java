@@ -10,17 +10,23 @@
 
 package org.obiba.magma.datasource.neo4j;
 
+import javax.annotation.Nonnull;
+
 import org.obiba.magma.Datasource;
 import org.obiba.magma.NoSuchValueSetException;
 import org.obiba.magma.Timestamps;
 import org.obiba.magma.ValueSet;
 import org.obiba.magma.VariableEntity;
+import org.obiba.magma.datasource.neo4j.domain.ValueTableNode;
 import org.obiba.magma.support.AbstractValueTable;
 
 public class Neo4jValueTable extends AbstractValueTable {
 
-  public Neo4jValueTable(Datasource datasource, String name) {
-    super(datasource, name);
+  private Long graphId;
+
+  public Neo4jValueTable(Datasource datasource, @Nonnull ValueTableNode valueTableNode) {
+    super(datasource, valueTableNode.getName());
+    graphId = valueTableNode.getGraphId();
   }
 
   @Override
