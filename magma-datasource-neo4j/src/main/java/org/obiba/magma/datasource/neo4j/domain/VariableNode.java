@@ -9,7 +9,10 @@
  */
 package org.obiba.magma.datasource.neo4j.domain;
 
-import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+
+import javax.annotation.Nullable;
 
 import org.obiba.magma.ValueType;
 import org.obiba.magma.Variable;
@@ -31,10 +34,10 @@ public class VariableNode extends AbstractAttributeAwareNode {
   private ValueTableNode valueTable;
 
   @RelatedTo(type = "HAS_CATEGORIES", direction = OUTGOING)
-  private List<CategoryNode> categories;
+  private Set<CategoryNode> categories;
 
   @RelatedTo(type = "HAS_VALUE_SET_VALUES", direction = OUTGOING)
-  private List<ValueSetValueNode> valueSetValues;
+  private Set<ValueSetValueNode> valueSetValues;
 
   private String entityType;
 
@@ -89,12 +92,22 @@ public class VariableNode extends AbstractAttributeAwareNode {
     this.valueTable = valueTable;
   }
 
-  public List<CategoryNode> getCategories() {
+  public Set<CategoryNode> getCategories() {
     return categories;
   }
 
-  public void setCategories(List<CategoryNode> categories) {
+  public void setCategories(Set<CategoryNode> categories) {
     this.categories = categories;
+  }
+
+  @Nullable
+  public CategoryNode getCategory(String categoryName) {
+    for(CategoryNode category : getCategories()) {
+      if(Objects.equals(categoryName, category.getName())) {
+        return category;
+      }
+    }
+    return null;
   }
 
   public String getEntityType() {
@@ -153,11 +166,11 @@ public class VariableNode extends AbstractAttributeAwareNode {
     this.repeatable = repeatable;
   }
 
-  public List<ValueSetValueNode> getValueSetValues() {
+  public Set<ValueSetValueNode> getValueSetValues() {
     return valueSetValues;
   }
 
-  public void setValueSetValues(List<ValueSetValueNode> valueSetValues) {
+  public void setValueSetValues(Set<ValueSetValueNode> valueSetValues) {
     this.valueSetValues = valueSetValues;
   }
 }
