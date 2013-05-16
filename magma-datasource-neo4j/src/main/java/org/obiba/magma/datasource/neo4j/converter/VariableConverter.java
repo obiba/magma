@@ -26,6 +26,7 @@ public class VariableConverter extends AttributeAwareConverter implements Neo4jC
       variableNode = new VariableNode(valueTableNode, variable);
       valueTableNode.getVariables().add(variableNode);
     } else {
+      context.getNeo4jTemplate().fetch(variableNode);
       variableNode.copyVariableFields(variable);
     }
 
@@ -35,8 +36,8 @@ public class VariableConverter extends AttributeAwareConverter implements Neo4jC
               "' in table '" + valueTableNode.getName() + "'");
     }
 
-    addAttributes(variable, variableNode);
-    marshalCategories(variable, variableNode);
+    addAttributes(variable, variableNode, context);
+    marshalCategories(variable, variableNode, context);
 
     return variableNode;
   }
@@ -51,8 +52,8 @@ public class VariableConverter extends AttributeAwareConverter implements Neo4jC
       builder.repeatable();
     }
 
-    buildAttributeAware(builder, variableNode);
-    unmarshalCategories(builder, variableNode);
+    buildAttributeAware(builder, variableNode, context);
+    unmarshalCategories(builder, variableNode, context);
     return builder.build();
   }
 
@@ -64,7 +65,8 @@ public class VariableConverter extends AttributeAwareConverter implements Neo4jC
     return null;
   }
 
-  private void marshalCategories(Variable variable, VariableNode variableNode) {
+  private void marshalCategories(Variable variable, VariableNode variableNode, Neo4jMarshallingContext context) {
+    context.getNeo4jTemplate().fetch(variableNode.getCategories());
     for(Category category : variable.getCategories()) {
       CategoryNode categoryNode = variableNode.getCategory(category.getName());
       if(categoryNode == null) {
@@ -75,11 +77,13 @@ public class VariableConverter extends AttributeAwareConverter implements Neo4jC
     }
   }
 
-  private void unmarshalCategories(Variable.Builder builder, VariableNode variableNode) {
+  private void unmarshalCategories(Variable.Builder builder, VariableNode variableNode,
+      Neo4jMarshallingContext context) {
+    context.getNeo4jTemplate().fetch(variableNode.getCategories());
     for(CategoryNode categoryNode : variableNode.getCategories()) {
       Category.Builder categoryBuilder = Category.Builder.newCategory(categoryNode.getName())
           .withCode(categoryNode.getCode()).missing(categoryNode.isMissing());
-      buildAttributeAware(categoryBuilder, categoryNode);
+      buildAttributeAware(categoryBuilder, categoryNode, context);
       builder.addCategory(categoryBuilder.build());
     }
   }
