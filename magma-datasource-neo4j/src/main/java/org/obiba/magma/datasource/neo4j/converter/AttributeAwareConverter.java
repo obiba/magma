@@ -11,7 +11,9 @@ public abstract class AttributeAwareConverter {
 
   private final ValueConverter valueConverter = ValueConverter.getInstance();
 
-  public void addAttributes(AttributeAware attributeAware, AbstractAttributeAwareNode node) {
+  public void addAttributes(AttributeAware attributeAware, AbstractAttributeAwareNode node,
+      Neo4jMarshallingContext context) {
+    context.getNeo4jTemplate().fetch(node.getAttributes());
     for(Attribute attribute : attributeAware.getAttributes()) {
       if(node.hasAttribute(attribute.getName(), attribute.getLocale())) {
         AttributeNode attributeNode = node.getAttribute(attribute.getName(), attribute.getLocale());
@@ -22,7 +24,9 @@ public abstract class AttributeAwareConverter {
     }
   }
 
-  public void buildAttributeAware(AttributeAwareBuilder<?> builder, AbstractAttributeAwareNode node) {
+  public void buildAttributeAware(AttributeAwareBuilder<?> builder, AbstractAttributeAwareNode node,
+      Neo4jMarshallingContext context) {
+    context.getNeo4jTemplate().fetch(node.getAttributes());
     for(AttributeNode attributeNode : node.getAttributes()) {
       Value value = valueConverter.unmarshal(attributeNode.getValue(), null);
       builder.addAttribute(
