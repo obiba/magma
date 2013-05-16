@@ -19,6 +19,7 @@ import org.obiba.magma.Timestamps;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueSet;
 import org.obiba.magma.VariableEntity;
+import org.obiba.magma.datasource.neo4j.converter.Neo4jMarshallingContext;
 import org.obiba.magma.datasource.neo4j.domain.ValueTableNode;
 import org.obiba.magma.support.AbstractValueTable;
 import org.obiba.magma.type.DateTimeType;
@@ -74,5 +75,9 @@ public class Neo4jValueTable extends AbstractValueTable {
     } catch(Exception e) {
       throw new NoSuchValueTableException(getName());
     }
+  }
+
+  Neo4jMarshallingContext createContext() {
+    return getDatasource().createContext(getNode());
   }
 }
