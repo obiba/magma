@@ -14,13 +14,23 @@ import org.obiba.magma.datasource.neo4j.domain.ValueTableNode;
 import org.springframework.data.neo4j.annotation.Query;
 import org.springframework.data.neo4j.repository.GraphRepository;
 import org.springframework.data.neo4j.repository.RelationshipOperationsRepository;
+import org.springframework.data.repository.query.Param;
 
 public interface ValueTableRepository
     extends GraphRepository<ValueTableNode>, RelationshipOperationsRepository<ValueTableNode> {
 
-  @Query("start user=node:User({0}) match user-[r:RATED]->movie return movie order by r.stars desc limit 10")
-  ValueTableNode findByName(DatasourceNode datasource, String name);
+  @Query("start datasource=node({datasource}) " + //
+      "match (datasource)-[:HAS_TABLES]->(table) " + //
+      "where table.name={tableName} " + //
+      "return table")
+  ValueTableNode findByDatasourceAndName(@Param("datasource") DatasourceNode datasource,
+      @Param("tableName") String name);
 
-  ValueTableNode findByName(String datasourceName, String name);
+  @Query("start datasource=node:datasource(name={datasourceName}) " + //
+      "match (datasource)-[:HAS_TABLES]->(table) " + //
+      "where table.name={tableName} " + //
+      "return table")
+  ValueTableNode findByDatasourceAndName(@Param("datasourceName") String datasourceName,
+      @Param("tableName") String name);
 
 }
