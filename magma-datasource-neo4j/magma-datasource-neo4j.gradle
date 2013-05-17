@@ -7,6 +7,7 @@ dependencies {
   compile(libraries.neo4j)
   compile(libraries.neo4j_cypher)
   compile(libraries.neo4j_kernel)
+  compile(libraries.obiba_core)
   compile(libraries.spring_beans)
   compile(libraries.spring_data_neo4j)
 
