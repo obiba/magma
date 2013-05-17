@@ -30,6 +30,14 @@ public class VariableEntityNode extends AbstractTimestampedGraphItem {
   @RelatedTo(type = "HAS_ENTITIES", direction = OUTGOING)
   private Set<ValueSetNode> valueSets;
 
+  public VariableEntityNode() {
+  }
+
+  public VariableEntityNode(String identifier, String type) {
+    this.identifier = identifier;
+    this.type = type;
+  }
+
   public String getIdentifier() {
     return identifier;
   }
