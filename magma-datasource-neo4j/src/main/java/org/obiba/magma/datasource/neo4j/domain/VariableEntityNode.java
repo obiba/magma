@@ -27,7 +27,7 @@ public class VariableEntityNode extends AbstractTimestampedGraphItem {
   @Indexed(indexType = FULLTEXT, indexName = "variable_entity")
   private String type;
 
-  @RelatedTo(type = "HAS_ENTITIES", direction = OUTGOING)
+  @RelatedTo(type = "ENTITIES_HAS_VALUE_SETS", direction = OUTGOING)
   private Set<ValueSetNode> valueSets;
 
   public VariableEntityNode() {
