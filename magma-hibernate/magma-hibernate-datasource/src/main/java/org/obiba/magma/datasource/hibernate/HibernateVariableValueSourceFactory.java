@@ -36,6 +36,7 @@ import org.obiba.magma.datasource.hibernate.converter.VariableConverter;
 import org.obiba.magma.datasource.hibernate.domain.ValueSetValue;
 import org.obiba.magma.datasource.hibernate.domain.VariableState;
 import org.obiba.magma.type.BinaryType;
+import org.springframework.util.Assert;
 
 import com.google.common.collect.ImmutableList;
 
@@ -45,8 +46,8 @@ class HibernateVariableValueSourceFactory implements VariableValueSourceFactory 
 
   private final HibernateValueTable valueTable;
 
-  HibernateVariableValueSourceFactory(HibernateValueTable valueTable) {
-    if(valueTable == null) throw new IllegalArgumentException("valueTable cannot be null");
+  HibernateVariableValueSourceFactory(@Nonnull HibernateValueTable valueTable) {
+    Assert.notNull(valueTable, "valueTable cannot be null");
     this.valueTable = valueTable;
   }
 

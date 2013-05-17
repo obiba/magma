@@ -36,7 +36,7 @@ public class VariableNode extends AbstractAttributeAwareNode {
   @RelatedTo(type = "HAS_CATEGORIES", direction = OUTGOING)
   private Set<CategoryNode> categories;
 
-  @RelatedTo(type = "HAS_VALUE_SET_VALUES", direction = OUTGOING)
+  @RelatedTo(type = "VARIABLE_HAS_VALUE_SET_VALUES", direction = OUTGOING)
   private Set<ValueSetValueNode> valueSetValues;
 
   private String entityType;
