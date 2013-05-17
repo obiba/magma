@@ -12,6 +12,7 @@ package org.obiba.magma.datasource.neo4j.domain;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.obiba.magma.datasource.neo4j.repository.DatasourceRepository;
+import org.obiba.magma.datasource.neo4j.repository.ValueSetRepository;
 import org.obiba.magma.datasource.neo4j.repository.ValueTableRepository;
 import org.obiba.magma.type.TextType;
 import org.slf4j.Logger;
@@ -49,11 +50,15 @@ public class Neo4jTest {
   @Autowired
   private ValueTableRepository valueTableRepository;
 
+  @Autowired
+  private ValueSetRepository valueSetRepository;
+
   @Test
   public void persistedDatasourceShouldBeRetrievableFromGraphDb() {
     DatasourceNode datasource = createDatasource();
     DatasourceNode retrievedDatasource = template.findOne(datasource.getGraphId(), DatasourceNode.class);
     assertThat(retrievedDatasource, is(datasource));
+    assertThat(retrievedDatasource.getName(), is(datasource.getName()));
   }
 
   @Test
@@ -92,6 +97,8 @@ public class Neo4jTest {
     VariableNode retrievedVariable = template.findOne(variable.getGraphId(), VariableNode.class);
     assertThat(retrievedVariable, is(variable));
     assertThat(retrievedVariable.getValueTable(), is(table));
+    template.fetch(retrievedVariable.getValueTable());
+    assertThat(retrievedVariable.getValueTable().getDatasource(), is(datasource));
   }
 
   @Test
@@ -100,8 +107,12 @@ public class Neo4jTest {
     ValueTableNode table = createTable(datasource);
     VariableNode variable = createVariable(table);
     VariableEntityNode entity = template.save(new VariableEntityNode("1", PARTICIPANT));
-    ValueNode value = template.save(new ValueNode(TextType.Factory.newValue("value1")));
     ValueSetNode valueSet = createValueSet(table, entity);
+
+    ValueSetNode retrievedValueSet = valueSetRepository.find(table, entity);
+    assertThat(retrievedValueSet, is(valueSet));
+
+    ValueNode value = template.save(new ValueNode(TextType.Factory.newValue("value1")));
     ValueSetValueNode valueSetValue = createValueSetValue(variable, value, valueSet);
   }
 

@@ -27,7 +27,7 @@ public class ValueSetNode extends AbstractTimestampedGraphItem {
   @RelatedTo(type = "HAS_VALUE_SETS", direction = INCOMING)
   private ValueTableNode valueTable;
 
-  @RelatedTo(type = "HAS_ENTITIES", direction = INCOMING)
+  @RelatedTo(type = "ENTITIES_HAS_VALUE_SETS", direction = INCOMING)
   private VariableEntityNode variableEntity;
 
   @RelatedTo(type = "VALUE_SET_HAS_VALUE_SET_VALUES", direction = OUTGOING)
