@@ -53,32 +53,32 @@ public class Neo4jTest {
   public void persistedDatasourceShouldBeRetrievableFromGraphDb() {
     DatasourceNode datasource = createDatasource();
     DatasourceNode retrievedDatasource = template.findOne(datasource.getGraphId(), DatasourceNode.class);
-    assertThat(datasource, is(retrievedDatasource));
+    assertThat(retrievedDatasource, is(datasource));
   }
 
   @Test
   public void canFindDatasourceByName() {
     DatasourceNode datasource = createDatasource();
     DatasourceNode retrievedDatasource = datasourceRepository.findByName(DS_NAME);
-    assertThat(datasource, is(retrievedDatasource));
+    assertThat(retrievedDatasource, is(datasource));
   }
 
   @SuppressWarnings("ReuseOfLocalVariable")
   @Test
-  public void canAddTablesToDatasource() {
+  public void canAddAndQueryTablesToDatasource() {
     DatasourceNode datasource = createDatasource();
     ValueTableNode table = createTable(datasource);
     ValueTableNode retrievedTable = template.findOne(table.getGraphId(), ValueTableNode.class);
-    assertThat(table, is(retrievedTable));
-    assertThat(datasource, is(retrievedTable.getDatasource()));
+    assertThat(retrievedTable, is(table));
+    assertThat(retrievedTable.getDatasource(), is(datasource));
 
-    retrievedTable = valueTableRepository.findByName(datasource.getName(), TABLE_NAME);
-    assertThat(table, is(retrievedTable));
-    assertThat(datasource, is(retrievedTable.getDatasource()));
+    retrievedTable = valueTableRepository.findByDatasourceAndName(datasource.getName(), TABLE_NAME);
+    assertThat(retrievedTable, is(table));
+    assertThat(retrievedTable.getDatasource(), is(datasource));
 
-    retrievedTable = valueTableRepository.findByName(datasource, TABLE_NAME);
-    assertThat(table, is(retrievedTable));
-    assertThat(datasource, is(retrievedTable.getDatasource()));
+    retrievedTable = valueTableRepository.findByDatasourceAndName(datasource, TABLE_NAME);
+    assertThat(retrievedTable, is(table));
+    assertThat(retrievedTable.getDatasource(), is(datasource));
 
     DatasourceNode retrievedDatasource = template.findOne(datasource.getGraphId(), DatasourceNode.class);
     assertThat(retrievedDatasource.getValueTables().contains(retrievedTable), is(true));
@@ -90,8 +90,8 @@ public class Neo4jTest {
     ValueTableNode table = createTable(datasource);
     VariableNode variable = createVariable(table);
     VariableNode retrievedVariable = template.findOne(variable.getGraphId(), VariableNode.class);
-    assertThat(variable, is(retrievedVariable));
-    assertThat(table, is(retrievedVariable.getValueTable()));
+    assertThat(retrievedVariable, is(variable));
+    assertThat(retrievedVariable.getValueTable(), is(table));
   }
 
   @Test
