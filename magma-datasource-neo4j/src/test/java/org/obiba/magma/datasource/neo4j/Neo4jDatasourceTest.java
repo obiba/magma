@@ -5,9 +5,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.obiba.magma.MagmaEngine;
-import org.obiba.magma.ValueTable;
 import org.obiba.magma.ValueTableWriter;
 import org.obiba.magma.Variable;
+import org.obiba.magma.datasource.neo4j.domain.DatasourceNode;
+import org.obiba.magma.datasource.neo4j.domain.ValueTableNode;
 import org.obiba.magma.type.IntegerType;
 import org.obiba.magma.type.TextType;
 import org.slf4j.Logger;
@@ -64,16 +65,26 @@ public class Neo4jDatasourceTest {
     Neo4jDatasource datasource = createDatasource();
 
     MagmaEngine.get().addDatasource(datasource);
-    assertThat(datasource.getNode().getName(), is(DS_NAME));
+
+    DatasourceNode datasourceNode = datasource.getNode();
+    assertThat(datasourceNode.getName(), is(DS_NAME));
+    assertThat(datasourceNode.getCreatedDate(), notNullValue());
+    assertThat(datasourceNode.getLastModifiedDate(), notNullValue());
 
     ValueTableWriter tableWriter = datasource.createWriter(TABLE_NAME, PARTICIPANT);
     tableWriter.close();
 
     assertThat(datasource.hasValueTable(TABLE_NAME), is(true));
 
-    ValueTable valueTable = datasource.getValueTable(TABLE_NAME);
+    Neo4jValueTable valueTable = (Neo4jValueTable) datasource.getValueTable(TABLE_NAME);
+    ValueTableNode tableNode = valueTable.getNode();
+    assertThat(tableNode.getName(), is(TABLE_NAME));
+    assertThat(tableNode.getCreatedDate(), notNullValue());
+    assertThat(tableNode.getLastModifiedDate(), notNullValue());
+
     assertThat(valueTable, notNullValue());
     assertThat(valueTable.getName(), is(TABLE_NAME));
+    assertThat(valueTable.getTimestamps(), notNullValue());
 
     // Make sure the table is not visible outside this transaction.
     new TestThread() {

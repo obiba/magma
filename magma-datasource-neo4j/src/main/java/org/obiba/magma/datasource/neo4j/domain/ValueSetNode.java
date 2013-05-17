@@ -30,7 +30,7 @@ public class ValueSetNode extends AbstractTimestampedGraphItem {
   @RelatedTo(type = "HAS_ENTITIES", direction = INCOMING)
   private VariableEntityNode variableEntity;
 
-  @RelatedTo(type = "HAS_VALUE_SET_VALUES", direction = OUTGOING)
+  @RelatedTo(type = "VALUE_SET_HAS_VALUE_SET_VALUES", direction = OUTGOING)
   private Set<ValueSetValueNode> valueSetValues;
 
   @SuppressWarnings("TransientFieldInNonSerializableClass")
@@ -41,7 +41,7 @@ public class ValueSetNode extends AbstractTimestampedGraphItem {
   }
 
   private synchronized Map<String, ValueSetValueNode> valuesAsMap() {
-    if(valueMap == null) {
+    if(getValueSetValues() != null && valueMap == null) {
       Map<String, ValueSetValueNode> map = Maps.newHashMap();
       for(ValueSetValueNode vsv : getValueSetValues()) {
         // log.info("{}={}", vsv.getVariable().getName(), vsv.getValue().toString());

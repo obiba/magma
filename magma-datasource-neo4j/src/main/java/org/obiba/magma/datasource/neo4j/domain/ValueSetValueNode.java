@@ -17,10 +17,10 @@ import static org.neo4j.graphdb.Direction.INCOMING;
 @NodeEntity
 public class ValueSetValueNode extends AbstractValueAwareNode {
 
-  @RelatedTo(type = "HAS_VALUE_SET_VALUES", direction = INCOMING)
+  @RelatedTo(type = "VALUE_SET_HAS_VALUE_SET_VALUES", direction = INCOMING)
   private ValueSetNode valueSet;
 
-  @RelatedTo(type = "HAS_VALUE_SET_VALUES", direction = INCOMING)
+  @RelatedTo(type = "VARIABLE_HAS_VALUE_SET_VALUES", direction = INCOMING)
   private VariableNode variable;
 
   public ValueSetNode getValueSet() {
