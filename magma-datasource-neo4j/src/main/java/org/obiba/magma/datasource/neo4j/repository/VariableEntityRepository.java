@@ -10,13 +10,16 @@
 package org.obiba.magma.datasource.neo4j.repository;
 
 import org.obiba.magma.datasource.neo4j.domain.VariableEntityNode;
+import org.springframework.data.neo4j.annotation.Query;
 import org.springframework.data.neo4j.repository.GraphRepository;
 import org.springframework.data.neo4j.repository.RelationshipOperationsRepository;
+import org.springframework.data.repository.query.Param;
 
 public interface VariableEntityRepository
     extends GraphRepository<VariableEntityNode>, RelationshipOperationsRepository<VariableEntityNode> {
 
-  // TODO query
-  VariableEntityNode findByIdentifierAndType(String identifier, String type);
+  //TODO it would maybe be faster to do "start entity=node:variable_entity(identifier={identifier} and entity.type={type}) return entity"
+  @Query("start entity=node:variable_entity(identifier={identifier}) where entity.type={type} return entity")
+  VariableEntityNode findByIdentifierAndType(@Param("identifier") String identifier, @Param("type") String type);
 
 }

@@ -79,6 +79,8 @@ public class Neo4jValueTableWriter implements ValueTableWriter {
 
       VariableNode node = variableConverter.marshal(variable, context);
       valueTable.getDatasource().getNeo4jTemplate().save(node);
+      valueTable.writeVariableValueSource(node, variable);
+
       //TODO update ValueTableNode timestamps
     }
 

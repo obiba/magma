@@ -16,6 +16,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.obiba.magma.MagmaEngine;
+import org.obiba.magma.ValueTable;
 import org.obiba.magma.ValueTableWriter;
 import org.obiba.magma.Variable;
 import org.obiba.magma.datasource.neo4j.domain.DatasourceNode;
@@ -85,6 +86,7 @@ public class Neo4jDatasourceTest {
     tableWriter.close();
 
     assertThat(datasource.hasValueTable(TABLE_NAME), is(true));
+    assertThat(datasource.getValueTableNames().contains(TABLE_NAME), is(true));
 
     Neo4jValueTable valueTable = (Neo4jValueTable) datasource.getValueTable(TABLE_NAME);
     ValueTableNode tableNode = valueTable.getNode();
@@ -121,12 +123,13 @@ public class Neo4jDatasourceTest {
 
     ValueTableWriter.VariableWriter variableWriter = tableWriter.writeVariables();
     variableWriter.writeVariable(Variable.Builder.newVariable("Var1", TextType.get(), PARTICIPANT).build());
-    Variable var1 = datasource.getValueTable(TABLE_NAME).getVariable("Var1");
+    ValueTable valueTable = datasource.getValueTable(TABLE_NAME);
+    Variable var1 = valueTable.getVariable("Var1");
     assertThat(var1, notNullValue());
     assertThat(var1.getName(), is("Var1"));
 
     variableWriter.writeVariable(Variable.Builder.newVariable("Var2", IntegerType.get(), PARTICIPANT).build());
-    Variable var2 = datasource.getValueTable(TABLE_NAME).getVariable("Var2");
+    Variable var2 = valueTable.getVariable("Var2");
     assertThat(var2, notNullValue());
     assertThat(var2.getName(), is("Var2"));
 

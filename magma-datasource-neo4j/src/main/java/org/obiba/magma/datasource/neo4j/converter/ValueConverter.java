@@ -11,6 +11,7 @@ package org.obiba.magma.datasource.neo4j.converter;
 
 import java.io.Serializable;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import org.obiba.magma.Value;
@@ -30,13 +31,13 @@ public class ValueConverter implements Neo4jConverter<ValueNode, Value> {
   }
 
   @Override
-  public ValueNode marshal(Value value, Neo4jMarshallingContext context) {
+  public ValueNode marshal(@Nonnull Value value, @Nonnull Neo4jMarshallingContext context) {
     return null;  //To change body of implemented methods use File | Settings | File Templates.
   }
 
   @SuppressWarnings("unchecked")
   @Override
-  public Value unmarshal(ValueNode valueNode, Neo4jMarshallingContext context) {
+  public Value unmarshal(@Nonnull ValueNode valueNode, @Nonnull Neo4jMarshallingContext context) {
     final ValueType valueType = valueNode.getValueType();
     if(valueNode.isSequence()) {
       Iterable<Value> values = Iterables
