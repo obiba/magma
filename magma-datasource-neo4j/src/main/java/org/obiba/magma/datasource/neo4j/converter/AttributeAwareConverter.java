@@ -37,7 +37,7 @@ public abstract class AttributeAwareConverter {
       Neo4jMarshallingContext context) {
     context.getNeo4jTemplate().fetch(node.getAttributes());
     for(AttributeNode attributeNode : node.getAttributes()) {
-      Value value = valueConverter.unmarshal(attributeNode.getValue(), null);
+      Value value = valueConverter.unmarshal(attributeNode.getValue(), context);
       builder.addAttribute(
           Attribute.Builder.newAttribute().withName(attributeNode.getName()).withNamespace(attributeNode.getNamespace())
               .withLocale(attributeNode.getLocale()).withValue(value).build());

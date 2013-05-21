@@ -9,6 +9,8 @@
  */
 package org.obiba.magma.datasource.neo4j.converter;
 
+import javax.annotation.Nonnull;
+
 import org.obiba.magma.Category;
 import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.Variable;
@@ -26,10 +28,9 @@ public class VariableConverter extends AttributeAwareConverter implements Neo4jC
   }
 
   @Override
-  public VariableNode marshal(Variable variable, Neo4jMarshallingContext context) {
-    VariableNode variableNode = context.getVariableRepository()
-        .findByTableAndName(context.getValueTable(), variable.getName());
+  public VariableNode marshal(@Nonnull Variable variable, @Nonnull Neo4jMarshallingContext context) {
     ValueTableNode valueTableNode = context.getValueTable();
+    VariableNode variableNode = context.getVariableRepository().findByTableAndName(valueTableNode, variable.getName());
     if(variableNode == null) {
       variableNode = new VariableNode(valueTableNode, variable);
       valueTableNode.getVariables().add(variableNode);
@@ -51,7 +52,7 @@ public class VariableConverter extends AttributeAwareConverter implements Neo4jC
   }
 
   @Override
-  public Variable unmarshal(VariableNode variableNode, Neo4jMarshallingContext context) {
+  public Variable unmarshal(@Nonnull VariableNode variableNode, @Nonnull Neo4jMarshallingContext context) {
     Variable.Builder builder = Variable.Builder
         .newVariable(variableNode.getName(), variableNode.getValueType(), variableNode.getEntityType());
     builder.mimeType(variableNode.getMimeType()).occurrenceGroup(variableNode.getOccurrenceGroup())

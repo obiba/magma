@@ -76,7 +76,9 @@ public class Neo4jDatasource extends AbstractDatasource {
 
   DatasourceNode getNode() throws NoSuchDatasourceException {
     try {
-      return neo4jTemplate.findOne(graphId, DatasourceNode.class);
+      DatasourceNode datasourceNode = neo4jTemplate.findOne(graphId, DatasourceNode.class);
+      neo4jTemplate.fetch(datasourceNode);
+      return datasourceNode;
     } catch(Exception e) {
       throw new NoSuchDatasourceException(getName());
     }
@@ -85,7 +87,7 @@ public class Neo4jDatasource extends AbstractDatasource {
   @Nullable
   private ValueTableNode getValueTableNode(String tableName) {
     ValueTableNode tableNode = valueTableRepository.findByDatasourceAndName(getNode(), tableName);
-    neo4jTemplate.fetch(tableNode);
+    if(tableNode != null) neo4jTemplate.fetch(tableNode);
     return tableNode;
   }
 
@@ -95,11 +97,12 @@ public class Neo4jDatasource extends AbstractDatasource {
     Assert.notNull(tableName, "tableName cannot be null");
     Assert.notNull(entityType, "entityType cannot be null");
 
-    ValueTableNode valueTableNode = getValueTableNode(tableName);
-    if(valueTableNode == null) {
-      valueTableNode = neo4jTemplate.save(new ValueTableNode(tableName, entityType, getNode()));
+    ValueTableNode tableNode = getValueTableNode(tableName);
+    if(tableNode == null) {
+      tableNode = neo4jTemplate.save(new ValueTableNode(tableName, entityType, getNode()));
+      neo4jTemplate.fetch(tableNode);
     }
-    return new Neo4jValueTableWriter(new Neo4jValueTable(this, valueTableNode));
+    return new Neo4jValueTableWriter(new Neo4jValueTable(this, tableNode));
   }
 
   @Override
@@ -111,6 +114,7 @@ public class Neo4jDatasource extends AbstractDatasource {
   protected Set<String> getValueTableNames() {
     Set<String> names = new LinkedHashSet<String>();
     for(ValueTableNode tableNode : getNode().getValueTables()) {
+      neo4jTemplate.fetch(tableNode);
       names.add(tableNode.getName());
     }
     return names;
@@ -130,10 +134,6 @@ public class Neo4jDatasource extends AbstractDatasource {
 
   public Neo4jTemplate getNeo4jTemplate() {
     return neo4jTemplate;
-  }
-
-  public DatasourceRepository getDatasourceRepository() {
-    return datasourceRepository;
   }
 
   Neo4jMarshallingContext createContext(ValueTableNode valueTableNode) {
