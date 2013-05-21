@@ -9,6 +9,8 @@
  */
 package org.obiba.magma.datasource.neo4j;
 
+import javax.annotation.Resource;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -22,7 +24,6 @@ import org.obiba.magma.type.IntegerType;
 import org.obiba.magma.type.TextType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -46,7 +47,7 @@ public class Neo4jDatasourceTest {
 
   public static final String PARTICIPANT = "Participant";
 
-  @Autowired
+  @Resource
   private ApplicationContext applicationContext;
 
   @Before
