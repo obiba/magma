@@ -10,11 +10,11 @@
 package org.obiba.magma.datasource.neo4j;
 
 import java.util.LinkedHashSet;
-import java.util.Objects;
 import java.util.Set;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.annotation.Resource;
 
 import org.obiba.magma.NoSuchDatasourceException;
 import org.obiba.magma.NoSuchValueTableException;
@@ -24,23 +24,31 @@ import org.obiba.magma.datasource.neo4j.converter.Neo4jMarshallingContext;
 import org.obiba.magma.datasource.neo4j.domain.DatasourceNode;
 import org.obiba.magma.datasource.neo4j.domain.ValueTableNode;
 import org.obiba.magma.datasource.neo4j.repository.DatasourceRepository;
+import org.obiba.magma.datasource.neo4j.repository.ValueTableRepository;
+import org.obiba.magma.datasource.neo4j.repository.VariableRepository;
 import org.obiba.magma.support.AbstractDatasource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.util.Assert;
 
+@SuppressWarnings("SpringJavaAutowiringInspection")
 public class Neo4jDatasource extends AbstractDatasource {
 
   private static final Logger log = LoggerFactory.getLogger(Neo4jDatasource.class);
 
   public static final String TYPE = "neo4j";
 
-  @Autowired
+  @Resource
   private DatasourceRepository datasourceRepository;
 
-  @Autowired
+  @Resource
+  private ValueTableRepository valueTableRepository;
+
+  @Resource
+  private VariableRepository variableRepository;
+
+  @Resource
   private Neo4jTemplate neo4jTemplate;
 
   private Long graphId;
@@ -76,14 +84,9 @@ public class Neo4jDatasource extends AbstractDatasource {
 
   @Nullable
   private ValueTableNode getValueTableNode(String tableName) {
-    // TODO replace by a query
-    for(ValueTableNode tableNode : getNode().getValueTables()) {
-      neo4jTemplate.fetch(tableNode); // fetch table properties (name)
-      if(Objects.equals(tableName, tableNode.getName())) {
-        return tableNode;
-      }
-    }
-    return null;
+    ValueTableNode tableNode = valueTableRepository.findByDatasourceAndName(getNode(), tableName);
+    neo4jTemplate.fetch(tableNode);
+    return tableNode;
   }
 
   @Nonnull
@@ -134,6 +137,6 @@ public class Neo4jDatasource extends AbstractDatasource {
   }
 
   Neo4jMarshallingContext createContext(ValueTableNode valueTableNode) {
-    return Neo4jMarshallingContext.create(neo4jTemplate, getNode(), valueTableNode);
+    return Neo4jMarshallingContext.create(neo4jTemplate, variableRepository, getNode(), valueTableNode);
   }
 }

@@ -9,8 +9,6 @@
  */
 package org.obiba.magma.datasource.neo4j.converter;
 
-import javax.annotation.Nullable;
-
 import org.obiba.magma.Category;
 import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.Variable;
@@ -29,7 +27,8 @@ public class VariableConverter extends AttributeAwareConverter implements Neo4jC
 
   @Override
   public VariableNode marshal(Variable variable, Neo4jMarshallingContext context) {
-    VariableNode variableNode = getNodeForVariable(variable, context);
+    VariableNode variableNode = context.getVariableRepository()
+        .findByTableAndName(context.getValueTable(), variable.getName());
     ValueTableNode valueTableNode = context.getValueTable();
     if(variableNode == null) {
       variableNode = new VariableNode(valueTableNode, variable);
@@ -64,14 +63,6 @@ public class VariableConverter extends AttributeAwareConverter implements Neo4jC
     buildAttributeAware(builder, variableNode, context);
     unmarshalCategories(builder, variableNode, context);
     return builder.build();
-  }
-
-  @Nullable
-  private VariableNode getNodeForVariable(Variable variable, Neo4jMarshallingContext context) {
-    for(VariableNode node : context.getValueTable().getVariables()) {
-      if(node.getName().equals(variable.getName())) return node;
-    }
-    return null;
   }
 
   private void marshalCategories(Variable variable, VariableNode variableNode, Neo4jMarshallingContext context) {
