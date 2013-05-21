@@ -13,11 +13,14 @@ import org.obiba.magma.datasource.neo4j.domain.DatasourceNode;
 import org.obiba.magma.datasource.neo4j.domain.ValueSetNode;
 import org.obiba.magma.datasource.neo4j.domain.ValueTableNode;
 import org.obiba.magma.datasource.neo4j.domain.VariableNode;
+import org.obiba.magma.datasource.neo4j.repository.VariableRepository;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
 
 public class Neo4jMarshallingContext {
 
   private Neo4jTemplate neo4jTemplate;
+
+  private VariableRepository variableRepository;
 
   private DatasourceNode datasource;
 
@@ -27,14 +30,15 @@ public class Neo4jMarshallingContext {
 
   private VariableNode variable;
 
-  public static Neo4jMarshallingContext create(Neo4jTemplate neo4jTemplate, DatasourceNode datasource) {
-    return create(neo4jTemplate, datasource, null);
-  }
+//  public static Neo4jMarshallingContext create(Neo4jTemplate neo4jTemplate, DatasourceNode datasource) {
+//    return create(neo4jTemplate, datasource, null);
+//  }
 
-  public static Neo4jMarshallingContext create(Neo4jTemplate neo4jTemplate, DatasourceNode datasource,
-      ValueTableNode valueTable) {
+  public static Neo4jMarshallingContext create(Neo4jTemplate neo4jTemplate, VariableRepository variableRepository,
+      DatasourceNode datasource, ValueTableNode valueTable) {
     Neo4jMarshallingContext context = new Neo4jMarshallingContext();
     context.neo4jTemplate = neo4jTemplate;
+    context.variableRepository = variableRepository;
     context.datasource = datasource;
     context.valueTable = valueTable;
 
@@ -47,6 +51,10 @@ public class Neo4jMarshallingContext {
 
   public Neo4jTemplate getNeo4jTemplate() {
     return neo4jTemplate;
+  }
+
+  public VariableRepository getVariableRepository() {
+    return variableRepository;
   }
 
   public DatasourceNode getDatasource() {

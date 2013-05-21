@@ -9,15 +9,17 @@
  */
 package org.obiba.magma.datasource.neo4j.domain;
 
+import javax.annotation.Resource;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.obiba.magma.datasource.neo4j.repository.DatasourceRepository;
 import org.obiba.magma.datasource.neo4j.repository.ValueSetRepository;
 import org.obiba.magma.datasource.neo4j.repository.ValueTableRepository;
+import org.obiba.magma.datasource.neo4j.repository.VariableRepository;
 import org.obiba.magma.type.TextType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -41,16 +43,19 @@ public class Neo4jTest {
 
   public static final String VAR_NAME = "var1";
 
-  @Autowired
+  @Resource
   private Neo4jTemplate template;
 
-  @Autowired
+  @Resource
   private DatasourceRepository datasourceRepository;
 
-  @Autowired
+  @Resource
   private ValueTableRepository valueTableRepository;
 
-  @Autowired
+  @Resource
+  private VariableRepository variableRepository;
+
+  @Resource
   private ValueSetRepository valueSetRepository;
 
   @Test
@@ -99,6 +104,10 @@ public class Neo4jTest {
     assertThat(retrievedVariable.getValueTable(), is(table));
     template.fetch(retrievedVariable.getValueTable());
     assertThat(retrievedVariable.getValueTable().getDatasource(), is(datasource));
+
+    retrievedVariable = variableRepository.findByTableAndName(table, VAR_NAME);
+    assertThat(retrievedVariable, is(variable));
+    assertThat(retrievedVariable.getValueTable(), is(table));
   }
 
   @Test
