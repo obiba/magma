@@ -13,6 +13,7 @@ import java.util.Set;
 
 import org.springframework.data.neo4j.annotation.Indexed;
 import org.springframework.data.neo4j.annotation.NodeEntity;
+import org.springframework.data.neo4j.annotation.Query;
 import org.springframework.data.neo4j.annotation.RelatedTo;
 
 import static org.neo4j.graphdb.Direction.INCOMING;
@@ -25,7 +26,6 @@ public class ValueTableNode extends AbstractTimestampedGraphItem {
   @Indexed(indexType = FULLTEXT, indexName = "table")
   private String name;
 
-  @Indexed(indexType = FULLTEXT, indexName = "table")
   private String entityType;
 
   @RelatedTo(type = "HAS_TABLES", direction = INCOMING)
@@ -36,6 +36,11 @@ public class ValueTableNode extends AbstractTimestampedGraphItem {
 
   @RelatedTo(type = "HAS_VALUE_SETS", direction = OUTGOING)
   private Set<ValueSetNode> valueSets;
+
+  @Query("start table=node({self}) " +
+      "match (table)-[:HAS_VALUE_SETS]->(valueSets)<-[:ENTITIES_HAS_VALUE_SETS]-(variableEntity) " +
+      "return variableEntity")
+  private Iterable<VariableEntityNode> variableEntities;
 
   public ValueTableNode() {
   }
@@ -84,5 +89,13 @@ public class ValueTableNode extends AbstractTimestampedGraphItem {
 
   public void setValueSets(Set<ValueSetNode> valueSets) {
     this.valueSets = valueSets;
+  }
+
+  public Iterable<VariableEntityNode> getVariableEntities() {
+    return variableEntities;
+  }
+
+  public void setVariableEntities(Iterable<VariableEntityNode> variableEntities) {
+    this.variableEntities = variableEntities;
   }
 }

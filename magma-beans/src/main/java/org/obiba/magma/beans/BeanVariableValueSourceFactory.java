@@ -235,7 +235,7 @@ public class BeanVariableValueSourceFactory<T> implements VariableValueSourceFac
    * each variable.
    */
   protected void doBuildVariables() {
-    Set<String> propertiesCopy = new LinkedHashSet<String>(properties);
+    Iterable<String> propertiesCopy = new LinkedHashSet<String>(properties);
 
     synchronized(this) {
       if(sources == null) {

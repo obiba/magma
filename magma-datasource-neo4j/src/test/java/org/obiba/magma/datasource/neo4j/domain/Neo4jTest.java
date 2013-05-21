@@ -16,6 +16,7 @@ import org.junit.runner.RunWith;
 import org.obiba.magma.datasource.neo4j.repository.DatasourceRepository;
 import org.obiba.magma.datasource.neo4j.repository.ValueSetRepository;
 import org.obiba.magma.datasource.neo4j.repository.ValueTableRepository;
+import org.obiba.magma.datasource.neo4j.repository.VariableEntityRepository;
 import org.obiba.magma.datasource.neo4j.repository.VariableRepository;
 import org.obiba.magma.type.TextType;
 import org.slf4j.Logger;
@@ -25,12 +26,17 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.google.common.collect.Iterables;
+
 import static org.hamcrest.core.Is.is;
+import static org.hamcrest.core.IsNot.not;
+import static org.hamcrest.core.IsNull.notNullValue;
 import static org.junit.Assert.assertThat;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("/application-context-test-neo4j.xml")
 @Transactional
+@SuppressWarnings({ "SpringJavaAutowiringInspection", "ReuseOfLocalVariable" })
 public class Neo4jTest {
 
   private static final Logger log = LoggerFactory.getLogger(Neo4jTest.class);
@@ -58,6 +64,9 @@ public class Neo4jTest {
   @Resource
   private ValueSetRepository valueSetRepository;
 
+  @Resource
+  private VariableEntityRepository variableEntityRepository;
+
   @Test
   public void persistedDatasourceShouldBeRetrievableFromGraphDb() {
     DatasourceNode datasource = createDatasource();
@@ -73,7 +82,6 @@ public class Neo4jTest {
     assertThat(retrievedDatasource, is(datasource));
   }
 
-  @SuppressWarnings("ReuseOfLocalVariable")
   @Test
   public void canAddAndQueryTablesToDatasource() {
     DatasourceNode datasource = createDatasource();
@@ -121,8 +129,21 @@ public class Neo4jTest {
     ValueSetNode retrievedValueSet = valueSetRepository.find(table, entity);
     assertThat(retrievedValueSet, is(valueSet));
 
+    assertThat(table.getVariableEntities(), notNullValue());
+    assertThat(Iterables.contains(table.getVariableEntities(), entity), is(true));
+
     ValueNode value = template.save(new ValueNode(TextType.Factory.newValue("value1")));
     ValueSetValueNode valueSetValue = createValueSetValue(variable, value, valueSet);
+
+  }
+
+  @Test
+  public void canAddEntities() {
+    VariableEntityNode entity = template.save(new VariableEntityNode("1", PARTICIPANT));
+    VariableEntityNode entity2 = template.save(new VariableEntityNode("1", "drug"));
+    VariableEntityNode retrievedEntity = variableEntityRepository.findByIdentifierAndType("1", PARTICIPANT);
+    assertThat(retrievedEntity, is(entity));
+    assertThat(retrievedEntity, not(entity2));
   }
 
   private DatasourceNode createDatasource() {
