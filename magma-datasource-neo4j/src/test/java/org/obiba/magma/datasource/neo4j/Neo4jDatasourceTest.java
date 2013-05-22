@@ -19,6 +19,7 @@ import org.obiba.magma.MagmaEngine;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.ValueTableWriter;
 import org.obiba.magma.Variable;
+import org.obiba.magma.datasource.neo4j.domain.AttributeNode;
 import org.obiba.magma.datasource.neo4j.domain.DatasourceNode;
 import org.obiba.magma.datasource.neo4j.domain.ValueTableNode;
 import org.obiba.magma.type.IntegerType;
@@ -26,6 +27,7 @@ import org.obiba.magma.type.TextType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
+import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
@@ -51,6 +53,9 @@ public class Neo4jDatasourceTest {
   @Resource
   private ApplicationContext applicationContext;
 
+  @Resource
+  private Neo4jTemplate neo4jTemplate;
+
   @Before
   public void startYourEngine() {
     MagmaEngine.get();
@@ -71,16 +76,31 @@ public class Neo4jDatasourceTest {
   }
 
   @Test
-  public void canPersistDatasourceAndTable() throws Exception {
-
+  public void canPersistDatasource() throws Exception {
     Neo4jDatasource datasource = createDatasource();
-
+    datasource.setAttributeValue("type", TextType.Factory.newValue("neo4j"));
     MagmaEngine.get().addDatasource(datasource);
 
     DatasourceNode datasourceNode = datasource.getNode();
     assertThat(datasourceNode.getName(), is(DS_NAME));
     assertThat(datasourceNode.getCreatedDate(), notNullValue());
     assertThat(datasourceNode.getLastModifiedDate(), notNullValue());
+
+    AttributeNode attributeNode = datasourceNode.getAttribute("type", null);
+    assertThat(attributeNode, notNullValue());
+
+    neo4jTemplate.fetch(attributeNode.getValue());
+    assertThat((String) attributeNode.getValue().getValue(), is("neo4j"));
+
+    assertThat(datasource.getAttributeStringValue("type"), is("neo4j"));
+  }
+
+  @Test
+  public void canPersistTables() throws Exception {
+
+    Neo4jDatasource datasource = createDatasource();
+
+    MagmaEngine.get().addDatasource(datasource);
 
     ValueTableWriter tableWriter = datasource.createWriter(TABLE_NAME, PARTICIPANT);
     tableWriter.close();

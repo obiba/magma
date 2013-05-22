@@ -9,10 +9,7 @@
  */
 package org.obiba.magma.datasource.neo4j.domain;
 
-import java.io.Serializable;
-
 import org.obiba.magma.Value;
-import org.obiba.magma.ValueType;
 import org.springframework.data.neo4j.annotation.NodeEntity;
 import org.springframework.data.neo4j.annotation.RelatedTo;
 
@@ -24,13 +21,13 @@ public class ValueNode extends AbstractTimestampedGraphItem {
   @RelatedTo(type = "HAS_VALUE", direction = INCOMING)
   private AbstractValueAwareNode parent;
 
-  private ValueType valueType;
+  private String valueType;
 
   private boolean sequence;
 
   // TODO binaries will be stored with JPA
   // http://api.neo4j.org/1.8/org/neo4j/graphdb/PropertyContainer.html#setProperty(java.lang.String, java.lang.Object)
-  private Serializable value;
+  private String value;
 
   public ValueNode() {
   }
@@ -40,16 +37,16 @@ public class ValueNode extends AbstractTimestampedGraphItem {
   }
 
   public void copyProperties(Value magmaValue) {
-    valueType = magmaValue.getValueType();
+    valueType = magmaValue.getValueType().getName();
     sequence = magmaValue.isSequence();
-    value = (Serializable) magmaValue.getValue();
+    value = magmaValue.toString();
   }
 
-  public ValueType getValueType() {
+  public String getValueType() {
     return valueType;
   }
 
-  public void setValueType(ValueType valueType) {
+  public void setValueType(String valueType) {
     this.valueType = valueType;
   }
 
@@ -61,11 +58,11 @@ public class ValueNode extends AbstractTimestampedGraphItem {
     this.sequence = sequence;
   }
 
-  public Serializable getValue() {
+  public String getValue() {
     return value;
   }
 
-  public void setValue(Serializable value) {
+  public void setValue(String value) {
     this.value = value;
   }
 
