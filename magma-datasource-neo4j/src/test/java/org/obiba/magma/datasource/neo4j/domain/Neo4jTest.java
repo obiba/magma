@@ -14,13 +14,12 @@ import javax.annotation.Resource;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.obiba.magma.datasource.neo4j.repository.DatasourceRepository;
+import org.obiba.magma.datasource.neo4j.repository.ValueRepository;
 import org.obiba.magma.datasource.neo4j.repository.ValueSetRepository;
 import org.obiba.magma.datasource.neo4j.repository.ValueTableRepository;
 import org.obiba.magma.datasource.neo4j.repository.VariableEntityRepository;
 import org.obiba.magma.datasource.neo4j.repository.VariableRepository;
 import org.obiba.magma.type.TextType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -39,7 +38,7 @@ import static org.junit.Assert.assertThat;
 @SuppressWarnings({ "SpringJavaAutowiringInspection", "ReuseOfLocalVariable" })
 public class Neo4jTest {
 
-  private static final Logger log = LoggerFactory.getLogger(Neo4jTest.class);
+//  private static final Logger log = LoggerFactory.getLogger(Neo4jTest.class);
 
   public static final String DS_NAME = "ds1";
 
@@ -66,6 +65,9 @@ public class Neo4jTest {
 
   @Resource
   private VariableEntityRepository variableEntityRepository;
+
+  @Resource
+  private ValueRepository valueRepository;
 
   @Test
   public void persistedDatasourceShouldBeRetrievableFromGraphDb() {
@@ -134,6 +136,9 @@ public class Neo4jTest {
 
     ValueNode value = template.save(new ValueNode(TextType.Factory.newValue("value1")));
     ValueSetValueNode valueSetValue = createValueSetValue(variable, value, valueSet);
+
+    ValueNode retrievedValue = valueRepository.find(variable, valueSet);
+    assertThat(retrievedValue, is(value));
 
   }
 
