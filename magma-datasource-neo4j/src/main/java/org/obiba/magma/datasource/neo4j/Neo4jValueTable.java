@@ -27,13 +27,17 @@ import org.obiba.magma.NoSuchValueTableException;
 import org.obiba.magma.Timestamps;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueSet;
+import org.obiba.magma.ValueTable;
 import org.obiba.magma.ValueType;
 import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.VariableValueSource;
 import org.obiba.magma.VectorSource;
 import org.obiba.magma.datasource.neo4j.converter.Neo4jMarshallingContext;
+import org.obiba.magma.datasource.neo4j.converter.ValueConverter;
 import org.obiba.magma.datasource.neo4j.converter.VariableConverter;
+import org.obiba.magma.datasource.neo4j.domain.ValueNode;
+import org.obiba.magma.datasource.neo4j.domain.ValueSetNode;
 import org.obiba.magma.datasource.neo4j.domain.ValueTableNode;
 import org.obiba.magma.datasource.neo4j.domain.VariableEntityNode;
 import org.obiba.magma.datasource.neo4j.domain.VariableNode;
@@ -181,7 +185,7 @@ public class Neo4jValueTable extends AbstractValueTable {
     @Override
     public Variable getVariable() {
       if(variable == null) {
-        VariableNode node = getNeo4jTemplate().findOne(graphId, VariableNode.class);
+        VariableNode node = getVariableNode();
         getNeo4jTemplate().fetch(node);
         getNeo4jTemplate().fetch(node.getCategories());
         variable = VariableConverter.getInstance().unmarshal(node, createContext());
@@ -192,8 +196,21 @@ public class Neo4jValueTable extends AbstractValueTable {
     @Nonnull
     @Override
     public Value getValue(ValueSet valueSet) {
-      //TODO
-      return null;
+      VariableEntity entity = valueSet.getVariableEntity();
+      VariableEntityNode entityNode = getDatasource().getVariableEntityRepository()
+          .findByIdentifierAndType(entity.getIdentifier(), entity.getType());
+
+      ValueTable valueTable = valueSet.getValueTable();
+      ValueTableNode tableNode = getDatasource().getValueTableRepository()
+          .findByDatasourceAndName(valueTable.getDatasource().getName(), valueTable.getName());
+
+      ValueSetNode valueSetNode = getDatasource().getValueSetRepository().find(tableNode, entityNode);
+      ValueNode valueNode = getDatasource().getValueRepository().find(getVariableNode(), valueSetNode);
+      return ValueConverter.getInstance().unmarshal(valueNode, createContext());
+    }
+
+    private VariableNode getVariableNode() {
+      return getNeo4jTemplate().findOne(graphId, VariableNode.class);
     }
 
     @Nullable
