@@ -44,11 +44,10 @@ import org.obiba.magma.type.DateTimeType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.neo4j.support.Neo4jTemplate;
-import org.springframework.util.Assert;
 
-import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Iterables;
+
+import static org.springframework.util.Assert.notNull;
 
 public class Neo4jValueTable extends AbstractValueTable {
 
@@ -109,7 +108,7 @@ public class Neo4jValueTable extends AbstractValueTable {
     }
   }
 
-  private Neo4jTemplate getNeo4jTemplate() {
+  Neo4jTemplate getNeo4jTemplate() {
     return getDatasource().getNeo4jTemplate();
   }
 
@@ -121,7 +120,7 @@ public class Neo4jValueTable extends AbstractValueTable {
     log.debug("Populating variable cache for table {}", getName());
     TimedExecution timedExecution = new TimedExecution().start();
     for(VariableNode variableNode : getNode().getVariables()) {
-      addVariableValueSource(new Neo4jVariableValueSource(variableNode, true));
+      addVariableValueSource(new Neo4jVariableValueSource(variableNode));
     }
     log.debug("Populating variable cache for {}: {} variables loaded in {}", getName(), getSources().size(),
         timedExecution.end().formatExecutionTime());
@@ -160,44 +159,32 @@ public class Neo4jValueTable extends AbstractValueTable {
 
   public class Neo4jVariableValueSource implements VariableValueSource, VectorSource {
 
-    private final String variableName;
-
-    private Long graphId;
+    @Nonnull
+    private final Long graphId;
 
     private Variable variable;
 
     Neo4jVariableValueSource(@Nonnull VariableNode node, @Nonnull Variable variable) {
-      Assert.notNull(node, "VariableNode cannot be null");
-      Assert.notNull(variable, "variable cannot be null");
-
-      getNeo4jTemplate().fetch(node);
-      variableName = node.getName();
+      notNull(node, "node cannot be null");
+      notNull(node.getGraphId(), "node graphId cannot be null");
+      notNull(variable, "variable cannot be null");
       graphId = node.getGraphId();
       this.variable = variable;
     }
 
-    Neo4jVariableValueSource(@Nonnull VariableNode node, boolean unmarshall) {
-      Assert.notNull(node, "VariableNode cannot be null");
-
-      getNeo4jTemplate().fetch(node);
-
-      variableName = node.getName();
+    Neo4jVariableValueSource(@Nonnull VariableNode node) {
+      notNull(node, "node cannot be null");
+      notNull(node.getGraphId(), "node graphId cannot be null");
       graphId = node.getGraphId();
-
-      if(unmarshall) {
-        getNeo4jTemplate().fetch(node.getCategories());
-        unmarshall(node);
-      }
-    }
-
-    Long getGraphId() {
-      return graphId;
     }
 
     @Override
     public Variable getVariable() {
       if(variable == null) {
-        unmarshall(getNeo4jTemplate().findOne(ensureGraphId(), VariableNode.class));
+        VariableNode node = getNeo4jTemplate().findOne(graphId, VariableNode.class);
+        getNeo4jTemplate().fetch(node);
+        getNeo4jTemplate().fetch(node.getCategories());
+        variable = VariableConverter.getInstance().unmarshal(node, createContext());
       }
       return variable;
     }
@@ -205,17 +192,7 @@ public class Neo4jValueTable extends AbstractValueTable {
     @Nonnull
     @Override
     public Value getValue(ValueSet valueSet) {
-//      ValueSetNode valueSetNode = getNeo4jTemplate()
-//          .query("start p=(%person) match p<-[:WORKS_WITH]-other return other.name", map("table", thomas))
-//          .to(ValueSetNode.class).single();
-//      HibernateValueSet hibernateValueSet = (HibernateValueSet) valueSet;
-//      ValueSetValue vsv = hibernateValueSet.getValueSetState().getValueMap().get(variableName);
-//      if(vsv == null) {
-//        return getVariable().isRepeatable() ? getValueType().nullSequence() : getValueType().nullValue();
-//      }
-//      return getVariable().getValueType().equals(BinaryType.get()) //
-//          ? getBinaryValue(vsv) //
-//          : vsv.getValue();
+      //TODO
       return null;
     }
 
@@ -226,85 +203,12 @@ public class Neo4jValueTable extends AbstractValueTable {
     }
 
     @Override
-    public Iterable<Value> getValues(final SortedSet<VariableEntity> entities) {
+    public Iterable<Value> getValues(SortedSet<VariableEntity> entities) {
       if(entities.isEmpty()) {
         return ImmutableList.of();
       }
+      //TODO
       return null;
-
-      // This will returns one row per value set in the value table (so it includes nulls)
-//      final Query valuesQuery = getCurrentSession().getNamedQuery("allValues")//
-//          .setParameter("valueTableId", valueTable.getValueTableState().getId())//
-//          .setParameter("variableId", ensureVariableId());
-//      return new Iterable<Value>() {
-//
-//        @Override
-//        public Iterator<Value> iterator() {
-//
-//          return new Iterator<Value>() {
-//
-//            private final ScrollableResults results;
-//
-//            private final Iterator<VariableEntity> resultEntities;
-//
-//            private boolean hasNextResults;
-//
-//            private boolean closed;
-//
-//            {
-//              resultEntities = entities.iterator();
-//              results = valuesQuery.scroll(ScrollMode.FORWARD_ONLY);
-//              hasNextResults = results.next();
-//            }
-//
-//            @Override
-//            public boolean hasNext() {
-//              return resultEntities.hasNext();
-//            }
-//
-//            @Override
-//            public Value next() {
-//              if(!hasNext()) {
-//                throw new NoSuchElementException();
-//              }
-//
-//              String nextEntity = resultEntities.next().getIdentifier();
-//
-//              // Scroll until we find the required entity or reach the end of the results
-//              while(hasNextResults && !results.getString(0).equals(nextEntity)) {
-//                hasNextResults = results.next();
-//              }
-//
-//              Value value = null;
-//              if(hasNextResults) {
-//                value = (Value) results.get(1);
-//              }
-//              closeCursorIfNecessary();
-//
-//              return value != null
-//                  ? value
-//                  : getVariable().isRepeatable() ? getValueType().nullSequence() : getValueType().nullValue();
-//            }
-//
-//            @Override
-//            public void remove() {
-//              throw new UnsupportedOperationException();
-//            }
-//
-//            private void closeCursorIfNecessary() {
-//              if(!closed) {
-//                // Close the cursor if we don't have any more results or no more entities to return
-//                if(!hasNextResults || !hasNext()) {
-//                  closed = true;
-//                  results.close();
-//                }
-//              }
-//            }
-//
-//          };
-//        }
-//
-//      };
 
     }
 
@@ -312,30 +216,6 @@ public class Neo4jValueTable extends AbstractValueTable {
     @Override
     public ValueType getValueType() {
       return getVariable().getValueType();
-    }
-
-    /**
-     * Initialises the {@code variable} attribute from the provided state
-     *
-     * @param state
-     */
-    private void unmarshall(VariableNode variableNode) {
-      variable = VariableConverter.getInstance().unmarshal(variableNode, null);
-    }
-
-    private Long ensureGraphId() {
-      if(graphId == null) {
-        VariableNode variableNode = Iterables.find(getNode().getVariables(), new Predicate<VariableNode>() {
-          @Override
-          public boolean apply(VariableNode input) {
-            getNeo4jTemplate().fetch(input);
-            return Objects.equals(input.getName(), variableName);
-          }
-        }, null);
-        if(variableNode == null) throw new IllegalStateException("variable '" + variableName + "' not persisted yet.");
-        graphId = variableNode.getGraphId();
-      }
-      return graphId;
     }
 
     @Override
@@ -349,12 +229,12 @@ public class Neo4jValueTable extends AbstractValueTable {
       if(!(obj instanceof Neo4jVariableValueSource)) {
         return super.equals(obj);
       }
-      return Objects.equals(((Neo4jVariableValueSource) obj).variableName, variableName);
+      return Objects.equals(((Neo4jVariableValueSource) obj).graphId, graphId);
     }
 
     @Override
     public int hashCode() {
-      return variableName.hashCode();
+      return graphId.hashCode();
     }
   }
 }
