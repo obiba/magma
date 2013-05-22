@@ -15,11 +15,19 @@ import org.obiba.magma.AttributeAwareBuilder;
 import org.obiba.magma.Value;
 import org.obiba.magma.datasource.neo4j.domain.AbstractAttributeAwareNode;
 import org.obiba.magma.datasource.neo4j.domain.AttributeNode;
+import org.obiba.magma.datasource.neo4j.domain.ValueNode;
 
-public abstract class AttributeAwareConverter {
+public class AttributeAwareConverter {
 
   private final ValueConverter valueConverter = ValueConverter.getInstance();
 
+  public static AttributeAwareConverter getInstance() {
+    return new AttributeAwareConverter();
+  }
+
+  /**
+   * Create and save AttributeNode
+   */
   public void addAttributes(AttributeAware attributeAware, AbstractAttributeAwareNode node,
       Neo4jMarshallingContext context) {
     context.getNeo4jTemplate().fetch(node.getAttributes());
@@ -28,7 +36,18 @@ public abstract class AttributeAwareConverter {
         AttributeNode attributeNode = node.getAttribute(attribute.getName(), attribute.getLocale());
         attributeNode.getValue().copyProperties(attribute.getValue());
       } else {
-        node.addAttribute(new AttributeNode(attribute));
+        ValueNode valueNode = new ValueNode(attribute.getValue());
+        context.getNeo4jTemplate().save(valueNode);
+
+        AttributeNode attributeNode = new AttributeNode();
+        attributeNode.setName(attribute.getName());
+        attributeNode.setNamespace(attribute.getNamespace());
+        attributeNode.setLocale(attribute.getLocale());
+        attributeNode.setValue(valueNode);
+        attributeNode.setParent(node);
+        context.getNeo4jTemplate().save(attributeNode);
+
+        node.addAttribute(attributeNode);
       }
     }
   }

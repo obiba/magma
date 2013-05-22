@@ -11,7 +11,6 @@ package org.obiba.magma.datasource.neo4j.domain;
 
 import java.util.Locale;
 
-import org.obiba.magma.Attribute;
 import org.springframework.data.neo4j.annotation.RelatedTo;
 
 import com.google.common.base.Strings;
@@ -30,13 +29,6 @@ public class AttributeNode extends AbstractValueAwareNode {
   private String localeStr;
 
   public AttributeNode() {
-  }
-
-  public AttributeNode(Attribute attribute) {
-    name = attribute.getName();
-    namespace = attribute.getNamespace();
-    setLocale(attribute.getLocale());
-    setValue(new ValueNode(attribute.getValue()));
   }
 
   public AbstractAttributeAwareNode getParent() {
