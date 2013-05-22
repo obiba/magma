@@ -9,17 +9,11 @@
  */
 package org.obiba.magma.datasource.neo4j.converter;
 
-import java.io.Serializable;
-
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueType;
 import org.obiba.magma.datasource.neo4j.domain.ValueNode;
-
-import com.google.common.base.Function;
-import com.google.common.collect.Iterables;
 
 public class ValueConverter implements Neo4jConverter<ValueNode, Value> {
 
@@ -38,16 +32,18 @@ public class ValueConverter implements Neo4jConverter<ValueNode, Value> {
   @SuppressWarnings("unchecked")
   @Override
   public Value unmarshal(@Nonnull ValueNode valueNode, @Nonnull Neo4jMarshallingContext context) {
-    final ValueType valueType = valueNode.getValueType();
+    final ValueType valueType = ValueType.Factory.forName(valueNode.getValueType());
     if(valueNode.isSequence()) {
-      Iterable<Value> values = Iterables
-          .transform((Iterable<Serializable>) valueNode.getValue(), new Function<Serializable, Value>() {
-            @Override
-            public Value apply(@Nullable Serializable input) {
-              return ValueType.Factory.newValue(valueType, input);
-            }
-          });
-      return ValueType.Factory.newSequence(valueType, values);
+      //TODO
+      return null;
+//      Iterable<Value> values = Iterables
+//          .transform((Iterable<Serializable>) valueNode.getValue(), new Function<Serializable, Value>() {
+//            @Override
+//            public Value apply(@Nullable Serializable input) {
+//              return ValueType.Factory.newValue(valueType, input);
+//            }
+//          });
+//      return ValueType.Factory.newSequence(valueType, values);
     }
     return ValueType.Factory.newValue(valueType, valueNode.getValue());
   }

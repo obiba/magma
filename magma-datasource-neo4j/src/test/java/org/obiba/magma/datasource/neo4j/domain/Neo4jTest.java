@@ -70,7 +70,7 @@ public class Neo4jTest {
   private ValueRepository valueRepository;
 
   @Test
-  public void persistedDatasourceShouldBeRetrievableFromGraphDb() {
+  public void canPersistDatasource() {
     DatasourceNode datasource = createDatasource();
     DatasourceNode retrievedDatasource = template.findOne(datasource.getGraphId(), DatasourceNode.class);
     assertThat(retrievedDatasource, is(datasource));
