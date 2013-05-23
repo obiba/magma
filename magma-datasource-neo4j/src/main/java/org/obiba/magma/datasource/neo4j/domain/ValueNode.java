@@ -26,7 +26,6 @@ public class ValueNode extends AbstractTimestampedGraphItem {
   private boolean sequence;
 
   // TODO binaries will be stored with JPA
-  // http://api.neo4j.org/1.8/org/neo4j/graphdb/PropertyContainer.html#setProperty(java.lang.String, java.lang.Object)
   private String value;
 
   public ValueNode() {
