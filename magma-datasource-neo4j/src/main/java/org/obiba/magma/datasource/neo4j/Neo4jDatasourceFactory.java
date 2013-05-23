@@ -18,6 +18,7 @@ import org.obiba.magma.Initialisable;
 import org.obiba.magma.support.Disposables;
 import org.obiba.magma.support.Initialisables;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
+import org.springframework.context.ApplicationContext;
 
 public class Neo4jDatasourceFactory extends AbstractDatasourceFactory implements Initialisable, Disposable {
 
@@ -31,8 +32,8 @@ public class Neo4jDatasourceFactory extends AbstractDatasourceFactory implements
       justification = "Needed by XStream")
   public Neo4jDatasourceFactory() { }
 
-  public Neo4jDatasourceFactory(String name, @Nonnull AutowireCapableBeanFactory autowireCapableBeanFactory) {
-    this.autowireCapableBeanFactory = autowireCapableBeanFactory;
+  public Neo4jDatasourceFactory(String name, @Nonnull ApplicationContext applicationContext) {
+    autowireCapableBeanFactory = applicationContext.getAutowireCapableBeanFactory();
     setName(name);
   }
 

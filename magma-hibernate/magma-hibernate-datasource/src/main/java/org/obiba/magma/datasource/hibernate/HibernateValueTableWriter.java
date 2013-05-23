@@ -39,6 +39,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static org.springframework.util.Assert.notNull;
 
 class HibernateValueTableWriter implements ValueTableWriter {
 
@@ -134,7 +135,7 @@ class HibernateValueTableWriter implements ValueTableWriter {
     private final Map<String, ValueSetValue> values;
 
     private HibernateValueSetWriter(@Nonnull VariableEntity entity) {
-      if(entity == null) throw new IllegalArgumentException("entity cannot be null");
+      notNull(entity, "entity cannot be null");
       this.entity = entity;
 
       // find entity or create it
@@ -161,8 +162,8 @@ class HibernateValueTableWriter implements ValueTableWriter {
 
     @Override
     public void writeValue(@Nonnull Variable variable, @Nonnull Value value) {
-      if(variable == null) throw new IllegalArgumentException("variable cannot be null");
-      if(value == null) throw new IllegalArgumentException("value cannot be null");
+      notNull(variable, "variable cannot be null");
+      notNull(value, "value cannot be null");
 
       try {
         VariableState variableState = variableConverter.getStateForVariable(variable, valueTable.createContext());

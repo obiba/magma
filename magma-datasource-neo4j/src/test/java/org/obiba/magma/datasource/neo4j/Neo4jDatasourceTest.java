@@ -18,12 +18,15 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.obiba.magma.MagmaEngine;
+import org.obiba.magma.ValueSet;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.ValueTableWriter;
 import org.obiba.magma.Variable;
+import org.obiba.magma.VariableEntity;
 import org.obiba.magma.datasource.neo4j.domain.AttributeNode;
 import org.obiba.magma.datasource.neo4j.domain.DatasourceNode;
 import org.obiba.magma.datasource.neo4j.domain.ValueTableNode;
+import org.obiba.magma.support.VariableEntityBean;
 import org.obiba.magma.type.IntegerType;
 import org.obiba.magma.type.TextType;
 import org.slf4j.Logger;
@@ -33,6 +36,8 @@ import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.google.common.collect.Iterables;
 
 import junit.framework.Assert;
 
@@ -73,12 +78,7 @@ public class Neo4jDatasourceTest {
   }
 
   private Neo4jDatasource createDatasource() {
-    Neo4jDatasource datasource = new Neo4jDatasource(DS_NAME);
-
-    //TODO replace with @Configurable
-    applicationContext.getAutowireCapableBeanFactory().autowireBean(datasource);
-
-    return datasource;
+    return (Neo4jDatasource) new Neo4jDatasourceFactory(DS_NAME, applicationContext).create();
   }
 
   @Test
@@ -161,30 +161,62 @@ public class Neo4jDatasourceTest {
     Neo4jDatasource datasource = createDatasource();
     MagmaEngine.get().addDatasource(datasource);
     ValueTableWriter tableWriter = datasource.createWriter(TABLE_NAME, PARTICIPANT);
-    assertThat(datasource.hasValueTable(TABLE_NAME), is(true));
     ValueTable valueTable = datasource.getValueTable(TABLE_NAME);
 
     Date timestampAtCreation = (Date) valueTable.getTimestamps().getLastUpdate().getValue();
 
     ValueTableWriter.VariableWriter variableWriter = tableWriter.writeVariables();
-    variableWriter.writeVariable(Variable.Builder.newVariable("Var1", TextType.get(), PARTICIPANT).build());
+
+    Variable variable1 = Variable.Builder.newVariable("Var1", TextType.get(), PARTICIPANT).build();
+    variableWriter.writeVariable(variable1);
+    assertThat(Iterables.size(valueTable.getVariables()), is(1));
+    assertThat(Iterables.contains(valueTable.getVariables(), variable1), is(true));
+    Variable retrievedVariable1 = valueTable.getVariable("Var1");
+    assertThat(retrievedVariable1, notNullValue());
+    assertThat(retrievedVariable1.getName(), is("Var1"));
 
     Date timestampAfterVariableAdded = (Date) valueTable.getTimestamps().getLastUpdate().getValue();
-
     assertThat(timestampAtCreation + "should be before " + timestampAfterVariableAdded,
         timestampAtCreation.before(timestampAfterVariableAdded), is(true));
 
-    Variable var1 = valueTable.getVariable("Var1");
-    assertThat(var1, notNullValue());
-    assertThat(var1.getName(), is("Var1"));
+    Variable variable2 = Variable.Builder.newVariable("Var2", IntegerType.get(), PARTICIPANT).build();
+    variableWriter.writeVariable(variable2);
+    assertThat(Iterables.contains(valueTable.getVariables(), variable2), is(true));
 
-    variableWriter.writeVariable(Variable.Builder.newVariable("Var2", IntegerType.get(), PARTICIPANT).build());
-    Variable var2 = valueTable.getVariable("Var2");
-    assertThat(var2, notNullValue());
-    assertThat(var2.getName(), is("Var2"));
+    Variable retrievedVariable2 = valueTable.getVariable("Var2");
+    assertThat(retrievedVariable2, notNullValue());
+    assertThat(retrievedVariable2.getName(), is("Var2"));
+
+    assertThat(Iterables.size(valueTable.getVariables()), is(2));
 
     variableWriter.close();
     tableWriter.close();
+  }
+
+  @Test
+  public void canPersistValues() throws Exception {
+
+    Neo4jDatasource datasource = createDatasource();
+    MagmaEngine.get().addDatasource(datasource);
+    ValueTableWriter tableWriter = datasource.createWriter(TABLE_NAME, PARTICIPANT);
+    ValueTableWriter.VariableWriter variableWriter = tableWriter.writeVariables();
+    Variable variable = Variable.Builder.newVariable("Var1", TextType.get(), PARTICIPANT).build();
+    variableWriter.writeVariable(variable);
+
+    VariableEntity entity = new VariableEntityBean(PARTICIPANT, "participant_1");
+    ValueTableWriter.ValueSetWriter valueSetWriter = tableWriter.writeValueSet(entity);
+
+    valueSetWriter.writeValue(variable, TextType.Factory.newValue("value1"));
+
+    ValueTable valueTable = datasource.getValueTable(TABLE_NAME);
+
+    assertThat(Iterables.size(valueTable.getVariableEntities()), is(1));
+    assertThat(Iterables.size(valueTable.getValueSets()), is(1));
+
+    ValueSet valueSet = valueTable.getValueSet(entity);
+    assertThat(valueSet.getValueTable(), is(valueTable));
+    assertThat(valueSet.getVariableEntity(), is(entity));
+
   }
 
   private abstract static class TestThread extends Thread {
