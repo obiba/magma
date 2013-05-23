@@ -58,13 +58,16 @@ allprojects {
   // support incremental build for test task
   // see http://www.practicalgradle.org/blog/2011/06/incremental-tests-with-jenkins/
   task jenkinsTest {
+    println('>>> jenkinsTest')
     inputs.files test.outputs.files
     doLast {
       def timestamp = System.currentTimeMillis()
       test.testResultsDir.eachFile {
+        println(it.path)
         it.lastModified = timestamp
       }
       test.testReportDir.eachFile {
+        println(it.path)
         it.lastModified = timestamp
       }
     }
