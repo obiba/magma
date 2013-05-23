@@ -13,14 +13,25 @@ import java.io.IOException;
 
 import javax.annotation.Nonnull;
 
+import org.obiba.magma.NoSuchVariableException;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueTableWriter;
 import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.datasource.neo4j.converter.Neo4jMarshallingContext;
 import org.obiba.magma.datasource.neo4j.converter.VariableConverter;
+import org.obiba.magma.datasource.neo4j.converter.VariableEntityConverter;
+import org.obiba.magma.datasource.neo4j.domain.ValueNode;
+import org.obiba.magma.datasource.neo4j.domain.ValueSetNode;
+import org.obiba.magma.datasource.neo4j.domain.ValueSetValueNode;
+import org.obiba.magma.datasource.neo4j.domain.ValueTableNode;
+import org.obiba.magma.datasource.neo4j.domain.VariableEntityNode;
 import org.obiba.magma.datasource.neo4j.domain.VariableNode;
+import org.obiba.magma.type.BinaryType;
+import org.springframework.data.neo4j.support.Neo4jTemplate;
 import org.springframework.util.Assert;
+
+import static org.springframework.util.Assert.notNull;
 
 public class Neo4jValueTableWriter implements ValueTableWriter {
 
@@ -28,11 +39,16 @@ public class Neo4jValueTableWriter implements ValueTableWriter {
 
   private final VariableConverter variableConverter = VariableConverter.getInstance();
 
+  private final VariableEntityConverter entityConverter = VariableEntityConverter.getInstance();
+
   private final Neo4jMarshallingContext context;
+
+  private final Neo4jTemplate neo4jTemplate;
 
   public Neo4jValueTableWriter(Neo4jValueTable valueTable) {
     this.valueTable = valueTable;
     context = valueTable.createContext();
+    neo4jTemplate = valueTable.getDatasource().getNeo4jTemplate();
   }
 
   @Override
@@ -48,23 +64,79 @@ public class Neo4jValueTableWriter implements ValueTableWriter {
 
   @Override
   public void close() throws IOException {
-    //To change body of implemented methods use File | Settings | File Templates.
   }
 
   private class Neo4jValueSetWriter implements ValueSetWriter {
 
-    private Neo4jValueSetWriter(VariableEntity entity) {
-      //To change body of created methods use File | Settings | File Templates.
+    private ValueSetNode valueSetNode;
+
+    private Neo4jValueSetWriter(@Nonnull VariableEntity entity) {
+      notNull(entity, "entity cannot be null");
+
+      // find entity or create it
+      VariableEntityNode entityNode = entityConverter.marshal(entity, context);
+
+      ValueTableNode tableNode = valueTable.getNode();
+      valueSetNode = valueTable.getDatasource().getValueSetRepository().find(tableNode, entityNode);
+      if(valueSetNode == null) {
+        valueSetNode = new ValueSetNode();
+        valueSetNode.setValueTable(tableNode);
+        valueSetNode.setVariableEntity(entityNode);
+      }
+      // update timestamps
+      valueSetNode = neo4jTemplate.save(valueSetNode);
     }
 
     @Override
-    public void writeValue(@Nonnull Variable variable, Value value) {
-      //To change body of implemented methods use File | Settings | File Templates.
+    public void writeValue(@Nonnull Variable variable, @Nonnull Value value) {
+      notNull(variable, "variable cannot be null");
+      notNull(value, "value cannot be null");
+
+      ValueTableNode tableNode = valueTable.getNode();
+      VariableNode variableNode = valueTable.getDatasource().getVariableRepository()
+          .findByTableAndName(tableNode, variable.getName());
+      if(variableNode == null) {
+        throw new NoSuchVariableException(valueTable.getName(), variable.getName());
+      }
+
+      ValueNode valueNode = valueTable.getDatasource().getValueRepository().find(variableNode, valueSetNode);
+      if(valueNode == null) {
+        createValue(value, variableNode);
+      } else {
+        updateValue(value, valueNode);
+      }
+
+      // update timestamps
+      neo4jTemplate.save(tableNode);
+      neo4jTemplate.save(valueSetNode);
+    }
+
+    private void createValue(Value value, VariableNode variableNode) {
+      ValueNode newValueNode = neo4jTemplate.save(new ValueNode(value));
+      ValueSetValueNode valueSetValue = new ValueSetValueNode();
+      valueSetValue.setValue(newValueNode);
+      valueSetValue.setValueSet(valueSetNode);
+      valueSetValue.setVariable(variableNode);
+      neo4jTemplate.save(valueSetValue);
+    }
+
+    private void updateValue(Value value, ValueNode valueNode) {
+      neo4jTemplate.fetch(valueNode);
+      if(value.isNull()) {
+//        neo4jTemplate.fetch(valueNode.getParent());
+        neo4jTemplate.delete(valueNode.getParent());
+        neo4jTemplate.delete(valueNode);
+      } else {
+        if(BinaryType.get().equals(value.getValueType())) {
+          //TODO write binary value
+        } else {
+          valueNode.copyProperties(value);
+        }
+      }
     }
 
     @Override
     public void close() throws IOException {
-      //To change body of implemented methods use File | Settings | File Templates.
     }
   }
 
@@ -72,20 +144,19 @@ public class Neo4jValueTableWriter implements ValueTableWriter {
 
     @Override
     public void writeVariable(@Nonnull Variable variable) {
-      Assert.notNull(variable, "variable cannot be null");
+      notNull(variable, "variable cannot be null");
       Assert.isTrue(valueTable.isForEntityType(variable.getEntityType()),
           "Wrong entity type for variable '" + variable.getName() + "': " + valueTable.getEntityType() +
               " expected, " + variable.getEntityType() + " received.");
 
       VariableNode node = variableConverter.marshal(variable, context);
-      valueTable.getNeo4jTemplate().save(node);
-      valueTable.getNeo4jTemplate().save(valueTable.getNode()); // update ValueTableNode timestamps
+      neo4jTemplate.save(node);
+      neo4jTemplate.save(valueTable.getNode()); // update ValueTableNode timestamps
       valueTable.writeVariableValueSource(node, variable);
     }
 
     @Override
     public void close() throws IOException {
-      //To change body of implemented methods use File | Settings | File Templates.
     }
   }
 }
