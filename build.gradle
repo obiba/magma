@@ -54,6 +54,12 @@ allprojects {
           'Implementation-Vendor': 'OBiBa'
     }
   }
+  
+  // disable incremental build feature for test task because Jenkins recognizes, that the test results 
+  // are older than the build run itself and marks the build as failed
+  test{
+    outputs.upToDateWhen { false }
+  }
 
   // create jar with sources
   task packageSources(type: Jar, dependsOn: compileJava) {
