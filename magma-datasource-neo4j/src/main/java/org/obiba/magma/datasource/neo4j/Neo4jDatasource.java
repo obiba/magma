@@ -195,11 +195,12 @@ public class Neo4jDatasource extends AbstractDatasource {
   }
 
   Neo4jMarshallingContext createContext() {
-    return Neo4jMarshallingContext.create(neo4jTemplate, variableRepository, null, null);
+    return Neo4jMarshallingContext.create(neo4jTemplate, variableRepository, variableEntityRepository, null, null);
   }
 
   Neo4jMarshallingContext createContext(ValueTableNode valueTableNode) {
-    return Neo4jMarshallingContext.create(neo4jTemplate, variableRepository, getNode(), valueTableNode);
+    return Neo4jMarshallingContext
+        .create(neo4jTemplate, variableRepository, variableEntityRepository, getNode(), valueTableNode);
   }
 
 }
