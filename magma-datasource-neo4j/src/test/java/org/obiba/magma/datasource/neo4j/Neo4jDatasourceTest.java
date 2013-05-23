@@ -9,6 +9,8 @@
  */
 package org.obiba.magma.datasource.neo4j;
 
+import java.util.Date;
+
 import javax.annotation.Resource;
 
 import org.junit.After;
@@ -43,6 +45,8 @@ import static org.junit.Assert.fail;
 @ContextConfiguration("/application-context-test-neo4j.xml")
 @Transactional
 public class Neo4jDatasourceTest {
+
+  private static final Logger log = LoggerFactory.getLogger(Neo4jDatasourceTest.class);
 
   public static final String DS_NAME = "testDs";
 
@@ -96,8 +100,11 @@ public class Neo4jDatasourceTest {
     assertThat(datasource.getAttributeStringValue("type"), is("neo4j"));
   }
 
+  @SuppressWarnings("ConstantConditions")
   @Test
   public void canPersistTables() throws Exception {
+
+    Date now = new Date();
 
     Neo4jDatasource datasource = createDatasource();
 
@@ -110,6 +117,18 @@ public class Neo4jDatasourceTest {
     assertThat(datasource.getValueTableNames().contains(TABLE_NAME), is(true));
 
     Neo4jValueTable valueTable = (Neo4jValueTable) datasource.getValueTable(TABLE_NAME);
+    assertThat(valueTable.getName(), is(TABLE_NAME));
+
+    assertThat(valueTable.getTimestamps(), notNullValue());
+
+    Date created = (Date) valueTable.getTimestamps().getCreated().getValue();
+    assertThat(created, notNullValue());
+    assertThat(created + " should be after " + now, created.after(now), is(true));
+
+    Date lastUpdate = (Date) valueTable.getTimestamps().getLastUpdate().getValue();
+    assertThat(lastUpdate, notNullValue());
+    assertThat(lastUpdate + " should be after " + now, lastUpdate.after(now), is(true));
+
     ValueTableNode tableNode = valueTable.getNode();
     assertThat(tableNode.getName(), is(TABLE_NAME));
     assertThat(tableNode.getCreatedDate(), notNullValue());
@@ -141,10 +160,19 @@ public class Neo4jDatasourceTest {
     MagmaEngine.get().addDatasource(datasource);
     ValueTableWriter tableWriter = datasource.createWriter(TABLE_NAME, PARTICIPANT);
     assertThat(datasource.hasValueTable(TABLE_NAME), is(true));
+    ValueTable valueTable = datasource.getValueTable(TABLE_NAME);
+
+    Date timestampAtCreation = (Date) valueTable.getTimestamps().getLastUpdate().getValue();
+    System.out.println("timestampAtCreation: " + timestampAtCreation);
 
     ValueTableWriter.VariableWriter variableWriter = tableWriter.writeVariables();
     variableWriter.writeVariable(Variable.Builder.newVariable("Var1", TextType.get(), PARTICIPANT).build());
-    ValueTable valueTable = datasource.getValueTable(TABLE_NAME);
+
+    Date timestampAfterVariableAdded = (Date) valueTable.getTimestamps().getLastUpdate().getValue();
+    System.out.println("timestampAfterVariableAdded: " + timestampAfterVariableAdded);
+
+    assertThat(timestampAtCreation.before(timestampAfterVariableAdded), is(true));
+
     Variable var1 = valueTable.getVariable("Var1");
     assertThat(var1, notNullValue());
     assertThat(var1.getName(), is("Var1"));
