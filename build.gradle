@@ -54,17 +54,22 @@ allprojects {
           'Implementation-Vendor': 'OBiBa'
     }
   }
-  
+
   // support incremental build for test task
   // see http://www.practicalgradle.org/blog/2011/06/incremental-tests-with-jenkins/
-  task jenkinsTest{
-    inputs.files test.outputs.files	
-  	doLast{
-  		def timestamp = System.currentTimeMillis()
-  		test.testResultsDir.eachFile { it.lastModified = timestamp }
-  	}
+  task jenkinsTest {
+    inputs.files test.outputs.files
+    doLast {
+      def timestamp = System.currentTimeMillis()
+      test.testResultsDir.eachFile {
+        it.lastModified = timestamp
+      }
+      test.testReportDir.eachFile {
+        it.lastModified = timestamp
+      }
+    }
   }
- 
+
   build.dependsOn(jenkinsTest)
 
   // create jar with sources
