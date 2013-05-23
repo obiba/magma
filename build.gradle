@@ -55,11 +55,17 @@ allprojects {
     }
   }
   
-  // disable incremental build feature for test task because Jenkins recognizes, that the test results 
-  // are older than the build run itself and marks the build as failed
-  test{
-    outputs.upToDateWhen { false }
+  // support incremental build for test task
+  // see http://www.practicalgradle.org/blog/2011/06/incremental-tests-with-jenkins/
+  task jenkinsTest{
+    inputs.files test.outputs.files	
+  	doLast{
+  		def timestamp = System.currentTimeMillis()
+  		test.testResultsDir.eachFile { it.lastModified = timestamp }
+  	}
   }
+ 
+  build.dependsOn(jenkinsTest)
 
   // create jar with sources
   task packageSources(type: Jar, dependsOn: compileJava) {
