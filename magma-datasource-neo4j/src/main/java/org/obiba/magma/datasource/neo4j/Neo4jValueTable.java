@@ -75,7 +75,14 @@ public class Neo4jValueTable extends AbstractValueTable {
 
   @Override
   public ValueSet getValueSet(VariableEntity entity) throws NoSuchValueSetException {
-    return null;  //To change body of implemented methods use File | Settings | File Templates.
+    if(!hasValueSet(entity)) {
+      throw new NoSuchValueSetException(this, entity);
+    }
+    VariableEntityNode entityNode = getDatasource().getVariableEntityRepository()
+        .findByIdentifierAndType(entity.getIdentifier(), entity.getType());
+    getNeo4jTemplate().fetch(entityNode);
+    ValueSetNode valueSetNode = getDatasource().getValueSetRepository().find(getNode(), entityNode);
+    return new Neo4jValueSet(this, entity, valueSetNode);
   }
 
   @Override
@@ -106,7 +113,9 @@ public class Neo4jValueTable extends AbstractValueTable {
   @Nonnull
   ValueTableNode getNode() throws NoSuchValueTableException {
     try {
-      return getNeo4jTemplate().findOne(graphId, ValueTableNode.class);
+      ValueTableNode tableNode = getNeo4jTemplate().findOne(graphId, ValueTableNode.class);
+      getNeo4jTemplate().fetch(tableNode);
+      return tableNode;
     } catch(Exception e) {
       throw new NoSuchValueTableException(getName());
     }
@@ -224,7 +233,7 @@ public class Neo4jValueTable extends AbstractValueTable {
       if(entities.isEmpty()) {
         return ImmutableList.of();
       }
-      //TODO
+      //TODO getValues
       return null;
 
     }
