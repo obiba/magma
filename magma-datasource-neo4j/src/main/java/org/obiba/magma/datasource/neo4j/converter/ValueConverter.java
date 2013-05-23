@@ -32,19 +32,8 @@ public class ValueConverter implements Neo4jConverter<ValueNode, Value> {
   @SuppressWarnings("unchecked")
   @Override
   public Value unmarshal(@Nonnull ValueNode valueNode, @Nonnull Neo4jMarshallingContext context) {
-    final ValueType valueType = ValueType.Factory.forName(valueNode.getValueType());
-    if(valueNode.isSequence()) {
-      //TODO
-      return null;
-//      Iterable<Value> values = Iterables
-//          .transform((Iterable<Serializable>) valueNode.getValue(), new Function<Serializable, Value>() {
-//            @Override
-//            public Value apply(@Nullable Serializable input) {
-//              return ValueType.Factory.newValue(valueType, input);
-//            }
-//          });
-//      return ValueType.Factory.newSequence(valueType, values);
-    }
-    return ValueType.Factory.newValue(valueType, valueNode.getValue());
+    ValueType valueType = ValueType.Factory.forName(valueNode.getValueType());
+    String stringValue = valueNode.getValue();
+    return valueNode.isSequence() ? valueType.sequenceOf(stringValue) : valueType.valueOf(stringValue);
   }
 }
