@@ -71,6 +71,7 @@ public class BinaryValueFileHelper {
 
   /**
    * Get the value size by the length of the file.
+   *
    * @param parent
    * @param path
    * @return

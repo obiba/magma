@@ -116,24 +116,21 @@ public class ScriptableValueMethodsTest extends AbstractJsTest {
   @Test
   public void lengthOfIntegerValue() {
     ScriptableValue value = newValue(IntegerType.get().valueOf(123));
-    ScriptableValue length = ScriptableValueMethods
-        .length(Context.getCurrentContext(), value, new Object[] { }, null);
+    ScriptableValue length = ScriptableValueMethods.length(Context.getCurrentContext(), value, new Object[] { }, null);
     Assert.assertEquals(3l, length.getValue().getValue());
   }
 
   @Test
   public void lengthOfTextValue() {
     ScriptableValue value = newValue(TextType.get().valueOf("abcd"));
-    ScriptableValue length = ScriptableValueMethods
-        .length(Context.getCurrentContext(), value, new Object[] { }, null);
+    ScriptableValue length = ScriptableValueMethods.length(Context.getCurrentContext(), value, new Object[] { }, null);
     Assert.assertEquals(4l, length.getValue().getValue());
   }
 
   @Test
   public void lengthOfTextValueSequence() {
     ScriptableValue value = newValue(TextType.get().sequenceOf("abcd,efg"));
-    ScriptableValue length = ScriptableValueMethods
-        .length(Context.getCurrentContext(), value, new Object[] { }, null);
+    ScriptableValue length = ScriptableValueMethods.length(Context.getCurrentContext(), value, new Object[] { }, null);
     Assert.assertEquals(2l, length.getValue().asSequence().getSize());
     Assert.assertEquals(4l, length.getValue().asSequence().getValues().get(0).getValue());
     Assert.assertEquals(3l, length.getValue().asSequence().getValues().get(1).getValue());
