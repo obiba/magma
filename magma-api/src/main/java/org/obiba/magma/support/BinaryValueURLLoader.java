@@ -64,4 +64,14 @@ public class BinaryValueURLLoader implements ValueLoader, Serializable {
     return value;
   }
 
+  /**
+   * Downloads the value to get its size.
+   * @return
+   */
+  @Override
+  public long getLength() {
+    getValue();
+    return value == null ? 0 : value.length;
+  }
+
 }
