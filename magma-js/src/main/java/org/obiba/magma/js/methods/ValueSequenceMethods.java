@@ -88,13 +88,11 @@ public class ValueSequenceMethods {
   }
 
   /**
-   * Returns the size of the {@link ValueSequence}. Returns null if the operand is null.
+   * Returns the size of the {@link ValueSequence}. Returns null if the operand is null, 1 if the value is not a sequence.
    * <p/>
    * <pre>
    *   $('SequenceVar').size()
    * </pre>
-   *
-   * @throws MagmaJsEvaluationRuntimeException if operand does not contain a ValueSequence.
    */
   public static ScriptableValue size(Context ctx, Scriptable thisObj, @Nullable Object[] args,
       @Nullable Function funObj) {

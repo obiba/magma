@@ -586,4 +586,12 @@ public class CsvDatasourceTest extends AbstractMagmaTest {
     assertThat(children.getOccurrenceGroup(), nullValue());
     assertThat(children.isRepeatable(), is(true));
   }
+
+  @Test
+  public void test_OPAL_1811() throws Exception {
+    CsvDatasource datasource = new CsvDatasource("csv-datasource").addValueTable("TableDataOnly", //
+        null, //
+        getFileFromResource("TableDataOnly/study3.csv"));
+    datasource.initialise();
+  }
 }

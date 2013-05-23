@@ -1,15 +1,20 @@
 package org.obiba.magma.security;
 
-import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.concurrent.Callable;
 
-import javax.annotation.Nullable;
-
-import org.apache.shiro.SecurityUtils;
+import org.obiba.magma.Datasource;
+import org.obiba.magma.MagmaEngine;
+import org.obiba.magma.NoSuchDatasourceException;
+import org.obiba.magma.NoSuchValueTableException;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.security.permissions.Permissions;
+import org.obiba.magma.support.StaticValueTable;
 import org.obiba.magma.support.ValueTableReference;
 import org.obiba.magma.support.ValueTableWrapper;
+
+import com.google.common.collect.ImmutableList;
 
 /**
  * An implementation of {@link ValueTableReference} that uses super user privileges to access the referenced table.
@@ -32,28 +37,7 @@ public class SudoValueTableReference extends ValueTableReference {
 
   @Override
   public ValueTable getWrappedValueTable() {
-    // First look in the user's session. Maybe we already dereferenced this ValueTable
-    ValueTable valueTable = lookInSession();
-
-    if(valueTable != null) {
-      return valueTable;
-    }
-
-    valueTable = authz.isPermitted(permission) ? super.getWrappedValueTable() : sudo();
-    storeInSession(valueTable);
-    return valueTable;
-  }
-
-  protected void storeInSession(ValueTable valueTable) {
-    SecurityUtils.getSubject().getSession().setAttribute(getReference(), new WeakReference<ValueTable>(valueTable));
-  }
-
-  @Nullable
-  @SuppressWarnings("unchecked")
-  protected ValueTable lookInSession() {
-    WeakReference<ValueTable> ref = (WeakReference<ValueTable>) SecurityUtils.getSubject().getSession()
-        .getAttribute(getReference());
-    return ref == null ? null : ref.get();
+    return sudo();
   }
 
   /**
@@ -67,7 +51,21 @@ public class SudoValueTableReference extends ValueTableReference {
 
       @Override
       public ValueTable call() throws Exception {
-        return unwrap(getResolver().resolveTable());
+        try {
+          return unwrap(getResolver().resolveTable());
+        } catch(NoSuchValueTableException e1) {
+          return getDummyValueTable();
+        }
+      }
+
+      // OPAL-1821
+      private ValueTable getDummyValueTable() {
+        try {
+          Datasource ds = MagmaEngine.get().getDatasource(getResolver().getDatasourceName());
+          return new StaticValueTable(ds, getResolver().getTableName(), new ArrayList<String>(), "?");
+        } catch(NoSuchDatasourceException e2) {
+          return new StaticValueTable(getDatasource(), getResolver().getTableName(), new ArrayList<String>(), "?");
+        }
       }
     });
   }
