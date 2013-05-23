@@ -41,6 +41,7 @@ import static org.hamcrest.core.IsNull.notNullValue;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
+@SuppressWarnings("OverlyLongMethod")
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("/application-context-test-neo4j.xml")
 @Transactional
@@ -153,6 +154,7 @@ public class Neo4jDatasourceTest {
 
   }
 
+  @SuppressWarnings("ConstantConditions")
   @Test
   public void canPersistVariables() throws Exception {
 
@@ -163,15 +165,14 @@ public class Neo4jDatasourceTest {
     ValueTable valueTable = datasource.getValueTable(TABLE_NAME);
 
     Date timestampAtCreation = (Date) valueTable.getTimestamps().getLastUpdate().getValue();
-    System.out.println("timestampAtCreation: " + timestampAtCreation);
 
     ValueTableWriter.VariableWriter variableWriter = tableWriter.writeVariables();
     variableWriter.writeVariable(Variable.Builder.newVariable("Var1", TextType.get(), PARTICIPANT).build());
 
     Date timestampAfterVariableAdded = (Date) valueTable.getTimestamps().getLastUpdate().getValue();
-    System.out.println("timestampAfterVariableAdded: " + timestampAfterVariableAdded);
 
-    assertThat(timestampAtCreation.before(timestampAfterVariableAdded), is(true));
+    assertThat(timestampAtCreation + "should be before " + timestampAfterVariableAdded,
+        timestampAtCreation.before(timestampAfterVariableAdded), is(true));
 
     Variable var1 = valueTable.getVariable("Var1");
     assertThat(var1, notNullValue());
