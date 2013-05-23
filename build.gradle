@@ -55,28 +55,14 @@ allprojects {
     }
   }
 
-  // disable incremental build for test task
-//  test {
-//    outputs.upToDateWhen { false }
-//  }
-
-  // support incremental build for test task
+  // support incremental build for test task and artifactoryPublish
   // see http://www.practicalgradle.org/blog/2011/06/incremental-tests-with-jenkins/
   task jenkinsTest {
-    println('>>> jenkinsTest')
     inputs.files test.outputs.files
     doLast {
-      println('>>> doLast')
-
       def timestamp = System.currentTimeMillis()
-      test.testResultsDir.eachFile {
-        println('testResultsDir: ' + it.path)
-        it.lastModified = timestamp
-      }
-      test.testReportDir.eachFile {
-        println('testReportDir: ' + it.path)
-        it.lastModified = timestamp
-      }
+      test.testResultsDir.eachFile { it.lastModified = timestamp }
+      test.testReportDir.eachFile { it.lastModified = timestamp }
     }
   }
   build.dependsOn(jenkinsTest)
