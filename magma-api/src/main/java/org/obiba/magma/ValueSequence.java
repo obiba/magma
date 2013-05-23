@@ -82,12 +82,13 @@ public class ValueSequence extends Value {
 
   /**
    * The size is the sum of the size of the values in the sequence.
+   *
    * @return
    */
   @Override
   public long getLength() {
     long size = 0;
-    for (Value val : getValues()) {
+    for(Value val : getValues()) {
       size += val.getLength();
     }
     return size;

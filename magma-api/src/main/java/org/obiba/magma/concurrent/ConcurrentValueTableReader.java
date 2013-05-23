@@ -110,6 +110,7 @@ public class ConcurrentValueTableReader {
 
     /**
      * Request for readers to cancel prematurely.
+     *
      * @return
      */
     boolean isCancelled();

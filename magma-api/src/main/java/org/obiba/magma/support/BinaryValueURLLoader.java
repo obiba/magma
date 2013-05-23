@@ -66,6 +66,7 @@ public class BinaryValueURLLoader implements ValueLoader, Serializable {
 
   /**
    * Downloads the value to get its size.
+   *
    * @return
    */
   @Override
