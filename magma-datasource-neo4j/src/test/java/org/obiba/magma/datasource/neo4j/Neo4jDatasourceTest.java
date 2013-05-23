@@ -53,6 +53,7 @@ public class Neo4jDatasourceTest {
   @Resource
   private ApplicationContext applicationContext;
 
+  @SuppressWarnings("SpringJavaAutowiringInspection")
   @Resource
   private Neo4jTemplate neo4jTemplate;
 
@@ -90,7 +91,7 @@ public class Neo4jDatasourceTest {
     assertThat(attributeNode, notNullValue());
 
     neo4jTemplate.fetch(attributeNode.getValue());
-    assertThat((String) attributeNode.getValue().getValue(), is("neo4j"));
+    assertThat(attributeNode.getValue().getValue(), is("neo4j"));
 
     assertThat(datasource.getAttributeStringValue("type"), is("neo4j"));
   }
@@ -155,17 +156,6 @@ public class Neo4jDatasourceTest {
 
     variableWriter.close();
     tableWriter.close();
-
-//
-//    // Re-create same datasource and assert that everything is still there.
-//    ds = new HibernateDatasource(dsName, provider.getSessionFactory());
-//    provider.getSessionFactory().getCurrentSession().beginTransaction();
-//    MagmaEngine.get().addDatasource(ds);
-//    Assert.assertNotNull(ds.getValueTable(tableName));
-//    Assert.assertNotNull(ds.getValueTable(tableName).getVariable("Var1"));
-//    Assert.assertNotNull(ds.getValueTable(tableName).getVariable("Var2"));
-//
-//    cleanlyRemoveDatasource(dsName);
   }
 
   private abstract static class TestThread extends Thread {
