@@ -19,8 +19,8 @@ import org.springframework.data.neo4j.lifecycle.AuditingEventListener;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 @Configuration
-@EnableNeo4jRepositories("org.obiba.magma.datasource.neo4j.repository")
 @EnableTransactionManagement
+@EnableNeo4jRepositories("org.obiba.magma.datasource.neo4j.repository")
 public class Neo4jDatasourceConfiguration extends Neo4jConfiguration {
 
   @Bean(destroyMethod = "shutdown")
