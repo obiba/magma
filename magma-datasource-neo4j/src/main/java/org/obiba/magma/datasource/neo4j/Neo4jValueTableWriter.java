@@ -20,7 +20,6 @@ import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.datasource.neo4j.converter.Neo4jMarshallingContext;
 import org.obiba.magma.datasource.neo4j.converter.VariableConverter;
-import org.obiba.magma.datasource.neo4j.converter.VariableEntityConverter;
 import org.obiba.magma.datasource.neo4j.domain.ValueNode;
 import org.obiba.magma.datasource.neo4j.domain.ValueSetNode;
 import org.obiba.magma.datasource.neo4j.domain.ValueSetValueNode;
@@ -38,8 +37,6 @@ public class Neo4jValueTableWriter implements ValueTableWriter {
   private final Neo4jValueTable valueTable;
 
   private final VariableConverter variableConverter = VariableConverter.getInstance();
-
-  private final VariableEntityConverter entityConverter = VariableEntityConverter.getInstance();
 
   private final Neo4jMarshallingContext context;
 
@@ -74,7 +71,13 @@ public class Neo4jValueTableWriter implements ValueTableWriter {
       notNull(entity, "entity cannot be null");
 
       // find entity or create it
-      VariableEntityNode entityNode = entityConverter.marshal(entity, context);
+      VariableEntityNode entityNode = context.getVariableEntityRepository()
+          .findByIdentifierAndType(entity.getIdentifier(), entity.getType());
+      if(entityNode == null) {
+        entityNode = context.getNeo4jTemplate().save(new VariableEntityNode(entity.getIdentifier(), entity.getType()));
+        valueTable.writeVariableEntity(entity);
+      }
+      context.getNeo4jTemplate().fetch(entityNode);
 
       ValueTableNode tableNode = valueTable.getNode();
       valueSetNode = valueTable.getDatasource().getValueSetRepository().find(tableNode, entityNode);
@@ -112,10 +115,11 @@ public class Neo4jValueTableWriter implements ValueTableWriter {
     }
 
     private void createValue(Value value, VariableNode variableNode) {
-      ValueNode newValueNode = neo4jTemplate.save(new ValueNode(value));
+      ValueNode valueNode = neo4jTemplate.save(new ValueNode(value));
       ValueSetValueNode valueSetValue = new ValueSetValueNode();
-      valueSetValue.setValue(newValueNode);
+      valueSetValue.setValue(valueNode);
       valueSetValue.setValueSet(valueSetNode);
+      valueSetNode.getValueSetValues().add(valueSetValue);
       valueSetValue.setVariable(variableNode);
       neo4jTemplate.save(valueSetValue);
     }

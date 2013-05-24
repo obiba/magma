@@ -59,9 +59,12 @@ public class Neo4jValueTable extends AbstractValueTable {
 
   private final Long graphId;
 
+  private final Neo4jTemplate neo4jTemplate;
+
   public Neo4jValueTable(Datasource datasource, @Nonnull ValueTableNode valueTableNode) {
     super(datasource, valueTableNode.getName());
     graphId = valueTableNode.getGraphId();
+    neo4jTemplate = ((Neo4jDatasource) datasource).getNeo4jTemplate();
     log.debug("ValueTable: {}, graphId: {}", valueTableNode.getName(), graphId);
     setVariableEntityProvider(new Neo4jVariableEntityProvider(valueTableNode.getEntityType()));
   }
@@ -80,8 +83,10 @@ public class Neo4jValueTable extends AbstractValueTable {
     }
     VariableEntityNode entityNode = getDatasource().getVariableEntityRepository()
         .findByIdentifierAndType(entity.getIdentifier(), entity.getType());
-    getNeo4jTemplate().fetch(entityNode);
+    neo4jTemplate.fetch(entityNode);
     ValueSetNode valueSetNode = getDatasource().getValueSetRepository().find(getNode(), entityNode);
+    neo4jTemplate.fetch(valueSetNode);
+    neo4jTemplate.fetch(valueSetNode.getValueSetValues());
     return new Neo4jValueSet(this, entity, valueSetNode);
   }
 
@@ -113,16 +118,12 @@ public class Neo4jValueTable extends AbstractValueTable {
   @Nonnull
   ValueTableNode getNode() throws NoSuchValueTableException {
     try {
-      ValueTableNode tableNode = getNeo4jTemplate().findOne(graphId, ValueTableNode.class);
-      getNeo4jTemplate().fetch(tableNode);
+      ValueTableNode tableNode = neo4jTemplate.findOne(graphId, ValueTableNode.class);
+      neo4jTemplate.fetch(tableNode);
       return tableNode;
     } catch(Exception e) {
       throw new NoSuchValueTableException(getName());
     }
-  }
-
-  Neo4jTemplate getNeo4jTemplate() {
-    return getDatasource().getNeo4jTemplate();
   }
 
   Neo4jMarshallingContext createContext() {
@@ -143,6 +144,10 @@ public class Neo4jValueTable extends AbstractValueTable {
     addVariableValueSource(new Neo4jVariableValueSource(node, variable));
   }
 
+  void writeVariableEntity(VariableEntity entity) {
+    ((Neo4jVariableEntityProvider) getVariableEntityProvider()).addVariableEntity(entity);
+  }
+
   public class Neo4jVariableEntityProvider extends AbstractVariableEntityProvider implements Initialisable {
 
     private final Set<VariableEntity> entities = new LinkedHashSet<VariableEntity>();
@@ -157,7 +162,7 @@ public class Neo4jValueTable extends AbstractValueTable {
       // get the variable entities that have a value set in the table
       TimedExecution timedExecution = new TimedExecution().start();
       for(VariableEntityNode entityNode : getNode().getVariableEntities()) {
-        getNeo4jTemplate().fetch(entityNode);
+        neo4jTemplate.fetch(entityNode);
         entities.add(new VariableEntityBean(entityNode.getType(), entityNode.getIdentifier()));
       }
       log.debug("Populating entity cache for {}: {} entities loaded in {}", getName(), entities.size(),
@@ -168,35 +173,36 @@ public class Neo4jValueTable extends AbstractValueTable {
     public Set<VariableEntity> getVariableEntities() {
       return Collections.unmodifiableSet(entities);
     }
+
+    void addVariableEntity(VariableEntity entity) {
+      entities.add(entity);
+    }
   }
 
   public class Neo4jVariableValueSource implements VariableValueSource, VectorSource {
 
     @Nonnull
-    private final Long graphId;
+    private final VariableNode node;
 
     private Variable variable;
 
     Neo4jVariableValueSource(@Nonnull VariableNode node, @Nonnull Variable variable) {
       notNull(node, "node cannot be null");
-      notNull(node.getGraphId(), "node graphId cannot be null");
       notNull(variable, "variable cannot be null");
-      graphId = node.getGraphId();
+      this.node = node;
       this.variable = variable;
     }
 
     Neo4jVariableValueSource(@Nonnull VariableNode node) {
       notNull(node, "node cannot be null");
-      notNull(node.getGraphId(), "node graphId cannot be null");
-      graphId = node.getGraphId();
+      this.node = node;
     }
 
     @Override
     public Variable getVariable() {
       if(variable == null) {
-        VariableNode node = getVariableNode();
-        getNeo4jTemplate().fetch(node);
-        getNeo4jTemplate().fetch(node.getCategories());
+        neo4jTemplate.fetch(node);
+        neo4jTemplate.fetch(node.getCategories());
         variable = VariableConverter.getInstance().unmarshal(node, createContext());
       }
       return variable;
@@ -214,12 +220,10 @@ public class Neo4jValueTable extends AbstractValueTable {
           .findByDatasourceAndName(valueTable.getDatasource().getName(), valueTable.getName());
 
       ValueSetNode valueSetNode = getDatasource().getValueSetRepository().find(tableNode, entityNode);
-      ValueNode valueNode = getDatasource().getValueRepository().find(getVariableNode(), valueSetNode);
+      neo4jTemplate.fetch(valueSetNode);
+      neo4jTemplate.fetch(valueSetNode.getValueSetValues());
+      ValueNode valueNode = getDatasource().getValueRepository().find(node, valueSetNode);
       return ValueConverter.getInstance().unmarshal(valueNode, createContext());
-    }
-
-    private VariableNode getVariableNode() {
-      return getNeo4jTemplate().findOne(graphId, VariableNode.class);
     }
 
     @Nullable
@@ -255,12 +259,12 @@ public class Neo4jValueTable extends AbstractValueTable {
       if(!(obj instanceof Neo4jVariableValueSource)) {
         return super.equals(obj);
       }
-      return Objects.equals(((Neo4jVariableValueSource) obj).graphId, graphId);
+      return Objects.equals(((Neo4jVariableValueSource) obj).node, node);
     }
 
     @Override
     public int hashCode() {
-      return graphId.hashCode();
+      return node.hashCode();
     }
   }
 }
