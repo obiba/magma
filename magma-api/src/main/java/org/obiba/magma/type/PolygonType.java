@@ -26,6 +26,8 @@ import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueSequence;
 
+import com.google.common.collect.Iterables;
+
 public class PolygonType extends JSONAwareValueType {
 
   private static final long serialVersionUID = 1175515418625286891L;
@@ -133,18 +135,18 @@ public class PolygonType extends JSONAwareValueType {
 
     Class<?> type = object.getClass();
 
-    if(type.equals(this.getJavaClass())) {
+    if(type.equals(getJavaClass())) {
 
-      if(((List) object).isEmpty()) {
+      if(((Collection<?>) object).isEmpty()) {
         throw new MagmaRuntimeException("A polygon can't be empty");
       }
 
-      List<List<Coordinate>> polygon = new ArrayList<List<Coordinate>>();
+      Collection<List<Coordinate>> polygon = new ArrayList<List<Coordinate>>();
       List<Coordinate> pts = new ArrayList<Coordinate>();
 
-      for(Object l : (List) object) {
+      for(Object l : (List<?>) object) {
         try {
-          pts = getCoordinatesList((List) l);
+          pts = getCoordinatesList((Iterable<?>) l);
         } catch(ClassCastException e) {
           throw new MagmaRuntimeException("List of Coordinates expected", e);
         }
@@ -160,11 +162,11 @@ public class PolygonType extends JSONAwareValueType {
         "Cannot construct " + getClass().getSimpleName() + " from type " + object.getClass() + ".");
   }
 
-  private List<Coordinate> getCoordinatesList(List<?> object) {
+  private List<Coordinate> getCoordinatesList(Iterable<?> list) {
 
     List<Coordinate> points = new ArrayList<Coordinate>();
 
-    for(Object o : object) {
+    for(Object o : list) {
       if(o.getClass().equals(Coordinate.class)) {
         points.add((Coordinate) o);
       } else if(o.getClass().equals(String.class)) {
@@ -178,19 +180,19 @@ public class PolygonType extends JSONAwareValueType {
     return points;
   }
 
+  @SuppressWarnings("unchecked")
   @Override
   public int compare(Value o1, Value o2) {
-    List<List<Coordinate>> l1 = (List<List<Coordinate>>) o1.getValue();
-    List<List<Coordinate>> l2 = (List<List<Coordinate>>) o2.getValue();
+    Iterable<List<Coordinate>> list1 = (Iterable<List<Coordinate>>) o1.getValue();
+    Iterable<List<Coordinate>> list2 = (Iterable<List<Coordinate>>) o2.getValue();
 
-    if(l1.size() == l2.size()) {
-
-      for(List<Coordinate> l : l1) {
-        if(!comparePoints(l, l2)) return -1;
+    if(Iterables.size(list1) == Iterables.size(list2)) {
+      for(List<Coordinate> l : list1) {
+        if(!Iterables.contains(list2, l)) return -1;
       }
       return 0;
     }
-    if(l1.size() < l2.size()) {
+    if(Iterables.size(list1) < Iterables.size(list2)) {
       return -1;
     }
     return 1;
@@ -202,10 +204,4 @@ public class PolygonType extends JSONAwareValueType {
     return "[" + super.toString(sequence) + "]";
   }
 
-  private boolean comparePoints(Collection<Coordinate> l1, Iterable<List<Coordinate>> polygon) {
-    for(List<Coordinate> list : polygon) {
-      if(l1.containsAll(list) && l1.size() == list.size()) return true;
-    }
-    return false;
-  }
 }
