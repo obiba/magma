@@ -18,7 +18,7 @@ import com.google.common.base.Strings;
 import au.com.bytecode.opencsv.CSVParser;
 
 @SuppressWarnings("MethodReturnAlwaysConstant")
-public class TextType extends AbstractValueType {
+public class TextType extends CSVAwareValueType {
 
   private static final long serialVersionUID = -5271259966499174607L;
 
@@ -26,13 +26,9 @@ public class TextType extends AbstractValueType {
 
   private static final String ESCAPED_QUOTE_STR = "" + QUOTE + QUOTE;
 
-  private static final char DEL_CHAR = (char) 127;
-
   @SuppressWarnings("StaticNonFinalField")
   @Nullable
   private static WeakReference<TextType> instance;
-
-  private transient CSVParser csvParser;
 
   protected TextType() {
   }
@@ -92,41 +88,6 @@ public class TextType extends AbstractValueType {
   }
 
   /**
-   * Reads a comma-separated string value of strings. The format of the string is
-   * <p/>
-   * <pre>
-   * "value","value","value"
-   * </pre>
-   * <p/>
-   * When the original {@code value} contains a {@code "}, it is escaped by adding another {@code "}, as per the CSV
-   * standard.
-   */
-  @Nonnull
-  @Override
-  public ValueSequence sequenceOf(@Nullable String string) {
-    if(string == null) {
-      return nullSequence();
-    }
-    Collection<Value> values = new ArrayList<Value>();
-
-    // Special case for empty string
-    if(string.isEmpty()) {
-      values.add(valueOf(string));
-      return sequenceOf(values);
-    }
-
-    try {
-      for(String currentValue : getCsvParser().parseLine(string)) {
-        values.add(valueOf(currentValue.isEmpty() ? null : currentValue));
-      }
-    } catch(IOException e) {
-      throw new MagmaRuntimeException("Invalid value sequence formatting: " + string, e);
-    }
-
-    return sequenceOf(values);
-  }
-
-  /**
    * Adds quotes around the string value and also escapes any quotes in the value by prefixing it with another quote.
    * This is the format expected by the {@code sequenceOf(String string)} method.
    */
@@ -144,14 +105,6 @@ public class TextType extends AbstractValueType {
     String s1 = (String) o1.getValue();
     String s2 = (String) o2.getValue();
     return Strings.nullToEmpty(s1).compareTo(Strings.nullToEmpty(s2));
-  }
-
-  private CSVParser getCsvParser() {
-    if(csvParser == null) {
-      // we don't want escape processing try DEL as a rare character until we can turn it off
-      csvParser = new CSVParser(SEPARATOR, QUOTE, DEL_CHAR);
-    }
-    return csvParser;
   }
 
 }
