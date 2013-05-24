@@ -10,7 +10,7 @@
 package org.obiba.magma;
 
 import java.io.Serializable;
-import java.lang.Double;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -21,23 +21,24 @@ public class Coordinate implements Comparable<Coordinate>, Serializable {
 
   private static final long serialVersionUID = 8139103526460838188L;
 
+  private static final String[] LATITUDES_KEYS = new String[] { "lat", "latitude", "lt" };
+
+  private static final String[] LONGITUDES_KEYS = new String[] { "lon", "lng", "longitude", "lg" };
+
   private final double longitude;
+
   private final double latitude;
 
-
-  private static final String [] latitudesKeys  = new String [] {"lat","latitude","lt"};
-  private static final String [] longitudesKeys = new String [] {"lon", "lng", "longitude","lg"};
-
-  public Coordinate(double longitude, double latitude){
+  public Coordinate(double longitude, double latitude) {
     this.longitude = longitude;
     this.latitude = latitude;
   }
 
-  public double getLongitude(){
+  public double getLongitude() {
     return longitude;
   }
 
-  public double getLatitude(){
+  public double getLatitude() {
     return latitude;
   }
 
@@ -63,7 +64,7 @@ public class Coordinate implements Comparable<Coordinate>, Serializable {
   }
 
   @Override
-  public int hashCode(){
+  public int hashCode() {
 
     int result = 17;
     result = 37 * result + Double.valueOf(longitude).hashCode();
@@ -73,35 +74,36 @@ public class Coordinate implements Comparable<Coordinate>, Serializable {
 
   @Override
   public String toString() {
-    return "["+longitude+","+latitude+"]";
+    return "[" + longitude + "," + latitude + "]";
   }
 
   public static Coordinate valueOf(String string) {
 
-    double [] coordinate;
+    double[] coordinate;
 
     // GeoJSON coordinate
-    if(string.trim().startsWith("[")){
+    if(string.trim().startsWith("[")) {
       coordinate = parseGeoJson(string);
     }
     // JSON coordinate
-    else if(string.trim().startsWith("{")){
+    else if(string.trim().startsWith("{")) {
       coordinate = parseJSON(string);
     }
     // Google coordinate  lat,long
     else {
-      String stringToParse = "["+string.trim()+"]";
+      String stringToParse = "[" + string.trim() + "]";
       coordinate = parseGoogleMap(stringToParse);
     }
 
     // parse s to Coordinate
-      return new Coordinate(coordinate[0],coordinate[1]);
+    return new Coordinate(coordinate[0], coordinate[1]);
   }
 
   /**
    * Parse a string representing a GeoJSON coordinate
+   *
    * @param s
-   * @return [longitude,latitude]
+   * @return [longitude, latitude]
    */
   private static double[] parseGeoJson(String s) {
     double lng;
@@ -110,62 +112,64 @@ public class Coordinate implements Comparable<Coordinate>, Serializable {
       JSONArray array = new JSONArray(s);
       lng = array.getDouble(0);
       lat = array.getDouble(1);
-    } catch (JSONException e) {
-      throw new MagmaRuntimeException("Not a coordinate point",e);
+    } catch(JSONException e) {
+      throw new MagmaRuntimeException("Not a coordinate point", e);
     }
-    return new double[] { lng, lat};
+    return new double[] { lng, lat };
   }
 
   /**
    * Parse a string representing a Google Map coordinate
+   *
    * @param s
-   * @return [longitude,latitude]
+   * @return [longitude, latitude]
    */
-  private static double[] parseGoogleMap (String s) {
+  private static double[] parseGoogleMap(String s) {
     double lng;
     double lat;
     try {
       JSONArray array = new JSONArray(s);
       lng = array.getDouble(1);
       lat = array.getDouble(0);
-    } catch (JSONException e) {
-      throw new MagmaRuntimeException("Not a coordinate point",e);
+    } catch(JSONException e) {
+      throw new MagmaRuntimeException("Not a coordinate point", e);
     }
     return new double[] { lng, lat };
   }
 
   /**
    * Parse a string representing a JSON coordinate
+   *
    * @param s
-   * @return [longitude,latitude]
+   * @return [longitude, latitude]
    */
-  private static double [] parseJSON (String s){
+  private static double[] parseJSON(String s) {
 
     double lng;
     double lat;
 
-    try{
+    try {
       JSONObject object = new JSONObject(s);
 
-      lat  = getKeyValue(latitudesKeys, object);
-      lng = getKeyValue(longitudesKeys,object);
+      lat = getKeyValue(LATITUDES_KEYS, object);
+      lng = getKeyValue(LONGITUDES_KEYS, object);
 
-    }catch(JSONException e){
+    } catch(JSONException e) {
       throw new MagmaRuntimeException("Not a coordinate point");
     }
-    return new double[] {lng, lat};
+    return new double[] { lng, lat };
   }
 
-  private static double getKeyValue( String[] keyList, JSONObject object){
+  private static double getKeyValue(String[] keyList, JSONObject object) {
     double value = 0;
 
-    for (String key: keyList) {
-      value  = object.optDouble(key);
-      if(!isNaN(value)){
+    for(String key : keyList) {
+      value = object.optDouble(key);
+      if(!isNaN(value)) {
         break;
       }
     }
-    if(isNaN(value)){
+    if(isNaN(value)) {
       throw new MagmaRuntimeException("The latitude or the longitude is not defined");
     }
     return value;
