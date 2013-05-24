@@ -15,6 +15,8 @@ import org.obiba.magma.Value;
 import org.obiba.magma.ValueType;
 import org.obiba.magma.datasource.neo4j.domain.ValueNode;
 
+import static org.springframework.util.Assert.notNull;
+
 public class ValueConverter implements Neo4jConverter<ValueNode, Value> {
 
   public static ValueConverter getInstance() {
@@ -32,6 +34,8 @@ public class ValueConverter implements Neo4jConverter<ValueNode, Value> {
   @SuppressWarnings("unchecked")
   @Override
   public Value unmarshal(@Nonnull ValueNode valueNode, @Nonnull Neo4jMarshallingContext context) {
+    notNull(valueNode, "valueNode cannot be null");
+    notNull(context, "context cannot be null");
     ValueType valueType = ValueType.Factory.forName(valueNode.getValueType());
     String stringValue = valueNode.getValue();
     return valueNode.isSequence() ? valueType.sequenceOf(stringValue) : valueType.valueOf(stringValue);

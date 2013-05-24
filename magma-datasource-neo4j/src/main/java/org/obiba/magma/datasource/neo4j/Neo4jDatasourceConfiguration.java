@@ -25,7 +25,8 @@ public class Neo4jDatasourceConfiguration extends Neo4jConfiguration {
 
   @Bean(destroyMethod = "shutdown")
   public EmbeddedGraphDatabase graphDatabaseService() {
-    return new EmbeddedGraphDatabase("data/neo4j.db");
+    //TODO extract graph storeDir
+    return new EmbeddedGraphDatabase("target/data/neo4j.db");
   }
 
   @Bean

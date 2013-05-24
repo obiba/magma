@@ -18,6 +18,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.obiba.magma.MagmaEngine;
+import org.obiba.magma.Value;
 import org.obiba.magma.ValueSet;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.ValueTableWriter;
@@ -214,9 +215,16 @@ public class Neo4jDatasourceTest {
     assertThat(Iterables.size(valueTable.getValueSets()), is(1));
 
     ValueSet valueSet = valueTable.getValueSet(entity);
+    assertThat(valueSet, notNullValue());
     assertThat(valueSet.getValueTable(), is(valueTable));
     assertThat(valueSet.getVariableEntity(), is(entity));
 
+    Value value = valueTable.getValue(variable, valueSet);
+    assertThat(value, notNullValue());
+    assertThat(value.isNull(), is(false));
+    assertThat(value.isSequence(), is(false));
+    assertThat((TextType) value.getValueType(), is(TextType.get()));
+    assertThat((String) value.getValue(), is("value1"));
   }
 
   private abstract static class TestThread extends Thread {
