@@ -1,7 +1,6 @@
 description = 'api'
 
 dependencies {
-  compile(libraries.opencsv)
-
-
+    compile(libraries.opencsv)
+    compile(libraries.json)
 }
