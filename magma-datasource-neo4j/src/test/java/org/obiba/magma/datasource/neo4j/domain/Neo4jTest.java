@@ -140,6 +140,11 @@ public class Neo4jTest {
     ValueNode retrievedValue = valueRepository.find(variable, valueSet);
     assertThat(retrievedValue, is(value));
 
+//    Iterable<ValueNode> values = valueRepository.find(variable, Lists.newArrayList(entity));
+//    assertThat(values, notNullValue());
+//    assertThat(Iterables.size(values), is(1));
+//    assertThat(Iterables.getFirst(values, null), is(value));
+
   }
 
   @Test

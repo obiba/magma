@@ -11,6 +11,7 @@
 package org.obiba.magma.datasource.neo4j;
 
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -237,9 +238,32 @@ public class Neo4jValueTable extends AbstractValueTable {
       if(entities.isEmpty()) {
         return ImmutableList.of();
       }
-      //TODO getValues
-      return null;
+      return new Iterable<Value>() {
+        @Override
+        public Iterator<Value> iterator() {
+          return new Iterator<Value>() {
 
+            {
+              //getDatasource().getValueRepository().find(node, )
+            }
+
+            @Override
+            public boolean hasNext() {
+              return false;  //To change body of implemented methods use File | Settings | File Templates.
+            }
+
+            @Override
+            public Value next() {
+              return null;  //To change body of implemented methods use File | Settings | File Templates.
+            }
+
+            @Override
+            public void remove() {
+              //To change body of implemented methods use File | Settings | File Templates.
+            }
+          };
+        }
+      };
     }
 
     @Nonnull
