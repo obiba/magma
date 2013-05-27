@@ -9,8 +9,11 @@
  */
 package org.obiba.magma.datasource.neo4j.repository;
 
+import java.util.Collection;
+
 import org.obiba.magma.datasource.neo4j.domain.ValueNode;
 import org.obiba.magma.datasource.neo4j.domain.ValueSetNode;
+import org.obiba.magma.datasource.neo4j.domain.VariableEntityNode;
 import org.obiba.magma.datasource.neo4j.domain.VariableNode;
 import org.springframework.data.neo4j.annotation.Query;
 import org.springframework.data.neo4j.repository.GraphRepository;
@@ -24,5 +27,12 @@ public interface ValueRepository extends GraphRepository<ValueNode>, Relationshi
       "(valueSet)-[:VALUE_SET_HAS_VALUE_SET_VALUES]->(valueSetValue)-[:HAS_VALUE]->(value)" +
       "return value")
   ValueNode find(@Param("variable") VariableNode variable, @Param("valueSet") ValueSetNode valueSet);
+
+  @Query("start variable=node({variable}), entity=node({entities}) " +
+      "match (variable)-[:VARIABLE_HAS_VALUE_SET_VALUES]->(valueSetValue), " +
+      "(entity)-[:ENTITIES_HAS_VALUE_SETS]->(valueSet)-[:VALUE_SET_HAS_VALUE_SET_VALUES]->(valueSetValue)-[:HAS_VALUE]->(value)" +
+      "return value")
+  Iterable<ValueNode> find(@Param("variable") VariableNode variable,
+      @Param("entities") Collection<VariableEntityNode> entities);
 
 }
