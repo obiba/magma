@@ -24,6 +24,8 @@ import org.obiba.magma.ValueTable;
 import org.obiba.magma.ValueTableWriter;
 import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
+import org.obiba.magma.VariableValueSource;
+import org.obiba.magma.VectorSource;
 import org.obiba.magma.datasource.neo4j.domain.AttributeNode;
 import org.obiba.magma.datasource.neo4j.domain.DatasourceNode;
 import org.obiba.magma.datasource.neo4j.domain.ValueTableNode;
@@ -39,6 +41,8 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 
 import junit.framework.Assert;
 
@@ -201,7 +205,7 @@ public class Neo4jDatasourceTest {
     MagmaEngine.get().addDatasource(datasource);
     ValueTableWriter tableWriter = datasource.createWriter(TABLE_NAME, PARTICIPANT);
     ValueTableWriter.VariableWriter variableWriter = tableWriter.writeVariables();
-    Variable variable = Variable.Builder.newVariable("Var1", TextType.get(), PARTICIPANT).build();
+    Variable variable = Variable.Builder.newVariable("var1", TextType.get(), PARTICIPANT).build();
     variableWriter.writeVariable(variable);
 
     VariableEntity entity = new VariableEntityBean(PARTICIPANT, "participant_1");
@@ -225,6 +229,20 @@ public class Neo4jDatasourceTest {
     assertThat(value.isSequence(), is(false));
     assertThat((TextType) value.getValueType(), is(TextType.get()));
     assertThat((String) value.getValue(), is("value1"));
+
+    VariableValueSource valueSource = valueTable.getVariableValueSource("var1");
+    assertThat(valueSource, notNullValue());
+    assertThat(valueSource.getVariable(), is(variable));
+    assertThat(valueSource.getValue(valueSet), is(value));
+    assertThat((TextType) valueSource.getValueType(), is(TextType.get()));
+
+    VectorSource vectorSource = (VectorSource) valueSource;
+    assertThat((TextType) vectorSource.getValueType(), is(TextType.get()));
+
+    Iterable<Value> values = vectorSource.getValues(Sets.newTreeSet(Lists.newArrayList(entity)));
+    assertThat(values, notNullValue());
+    assertThat(Iterables.size(values), is(1));
+    assertThat(Iterables.getFirst(values, null), is(value));
   }
 
   private abstract static class TestThread extends Thread {
