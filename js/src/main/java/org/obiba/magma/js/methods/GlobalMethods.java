@@ -316,7 +316,7 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
       // just map itself
       NativeObject valueMap = new NativeObject();
       valueMaps.add(valueMap);
-      valueMap.put(variable.getName(), null, sv);
+      valueMap.put(variable.getName(), valueMap, sv);
     } else {
       Predicate<Value> predicate = getPredicate(ctx, sv.getParentScope(), thisObj, variable, criteria);
       Iterable<Variable> variables = getVariablesFromOccurrenceGroup(valueTable, variable);
