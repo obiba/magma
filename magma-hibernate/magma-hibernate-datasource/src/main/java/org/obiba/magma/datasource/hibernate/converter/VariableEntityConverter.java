@@ -1,9 +1,13 @@
 package org.obiba.magma.datasource.hibernate.converter;
 
+import javax.annotation.Nonnull;
+
 import org.hibernate.criterion.Restrictions;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.datasource.hibernate.domain.VariableEntityState;
 import org.obiba.magma.support.VariableEntityBean;
+
+import static org.springframework.util.Assert.notNull;
 
 public class VariableEntityConverter implements HibernateConverter<VariableEntityState, VariableEntity> {
   //
@@ -11,9 +15,10 @@ public class VariableEntityConverter implements HibernateConverter<VariableEntit
   //
 
   @Override
-  public VariableEntityState marshal(VariableEntity variableEntity, HibernateMarshallingContext context) {
-    if(variableEntity == null) throw new IllegalArgumentException("variableEntity cannot be null");
-    if(context == null) throw new IllegalArgumentException("context cannot be null");
+  public VariableEntityState marshal(@Nonnull VariableEntity variableEntity,
+      @Nonnull HibernateMarshallingContext context) {
+    notNull(variableEntity, "variableEntity cannot be null");
+    notNull(context, "context cannot be null");
 
     VariableEntityState variableEntityState = (VariableEntityState) context.getSessionFactory().getCurrentSession()
         .createCriteria(VariableEntityState.class).add(Restrictions.eq("identifier", variableEntity.getIdentifier()))

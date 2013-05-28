@@ -43,6 +43,10 @@ import static org.junit.Assert.assertThat;
 @SuppressWarnings({ "OverlyLongMethod", "MagicNumber", "ReuseOfLocalVariable" })
 public class HibernateDatasourceTest {
 
+  private static final String DS_NAME = "testDs";
+
+  private static final String TABLE_NAME = "testTable";
+
 //  private static final Logger log = LoggerFactory.getLogger(HibernateDatasourceTest.class);
 
   LocalSessionFactoryProvider provider;
@@ -62,25 +66,22 @@ public class HibernateDatasourceTest {
   @Test
   public void testTransactionalTableCreation() throws Exception {
 
-    final String dsName = "testDs";
-    final String tableName = "testTable";
-
-    HibernateDatasource ds = new HibernateDatasource(dsName, provider.getSessionFactory());
+    HibernateDatasource ds = new HibernateDatasource(DS_NAME, provider.getSessionFactory());
 
     provider.getSessionFactory().getCurrentSession().beginTransaction();
     MagmaEngine.get().addDatasource(ds);
-    ValueTableWriter vtWriter = ds.createWriter(tableName, "Participant");
+    ValueTableWriter vtWriter = ds.createWriter(TABLE_NAME, "Participant");
     vtWriter.close();
 
-    Assert.assertTrue(ds.hasValueTable(tableName));
-    Assert.assertNotNull(ds.getValueTable(tableName));
+    Assert.assertTrue(ds.hasValueTable(TABLE_NAME));
+    Assert.assertNotNull(ds.getValueTable(TABLE_NAME));
 
     // Make sure the table is not visible outside this transaction.
     new TestThread() {
       @Override
       public void test() {
         // Assert that the datasource does not have the value table
-        Assert.assertFalse(MagmaEngine.get().getDatasource(dsName).hasValueTable(tableName));
+        Assert.assertFalse(MagmaEngine.get().getDatasource(DS_NAME).hasValueTable(TABLE_NAME));
       }
     }.assertNoException();
 
@@ -90,51 +91,48 @@ public class HibernateDatasourceTest {
     new TestThread() {
       @Override
       public void test() {
-        Assert.assertTrue(MagmaEngine.get().getDatasource(dsName).hasValueTable(tableName));
+        Assert.assertTrue(MagmaEngine.get().getDatasource(DS_NAME).hasValueTable(TABLE_NAME));
       }
     }.assertNoException();
 
-    cleanlyRemoveDatasource(dsName);
+    cleanlyRemoveDatasource(DS_NAME);
   }
 
   @Test
   public void testTableAndVariablesPersisted() throws Exception {
 
-    String dsName = "testDs";
-    String tableName = "testTable";
-
-    HibernateDatasource ds = new HibernateDatasource(dsName, provider.getSessionFactory());
+    HibernateDatasource ds = new HibernateDatasource(DS_NAME, provider.getSessionFactory());
 
     provider.getSessionFactory().getCurrentSession().beginTransaction();
     MagmaEngine.get().addDatasource(ds);
 
-    ValueTableWriter vtWriter = ds.createWriter(tableName, "Participant");
+    ValueTableWriter vtWriter = ds.createWriter(TABLE_NAME, "Participant");
 
     // Test that the table is visible
-    Assert.assertTrue(ds.hasValueTable(tableName));
+    Assert.assertTrue(ds.hasValueTable(TABLE_NAME));
 
     // Write variables and assert that they are visible.
     VariableWriter vw = vtWriter.writeVariables();
     vw.writeVariable(Variable.Builder.newVariable("Var1", TextType.get(), "Participant").build());
-    Assert.assertNotNull(ds.getValueTable(tableName).getVariable("Var1"));
+    Assert.assertNotNull(ds.getValueTable(TABLE_NAME).getVariable("Var1"));
     vw.writeVariable(Variable.Builder.newVariable("Var2", IntegerType.get(), "Participant").build());
-    Assert.assertNotNull(ds.getValueTable(tableName).getVariable("Var2"));
+    Assert.assertNotNull(ds.getValueTable(TABLE_NAME).getVariable("Var2"));
     vw.close();
     vtWriter.close();
 
     provider.getSessionFactory().getCurrentSession().getTransaction().commit();
 
-    cleanlyRemoveDatasource(dsName);
+    cleanlyRemoveDatasource(DS_NAME);
 
     // Re-create same datasource and assert that everything is still there.
-    ds = new HibernateDatasource(dsName, provider.getSessionFactory());
+    ds = new HibernateDatasource(DS_NAME, provider.getSessionFactory());
     provider.getSessionFactory().getCurrentSession().beginTransaction();
     MagmaEngine.get().addDatasource(ds);
-    Assert.assertNotNull(ds.getValueTable(tableName));
-    Assert.assertNotNull(ds.getValueTable(tableName).getVariable("Var1"));
-    Assert.assertNotNull(ds.getValueTable(tableName).getVariable("Var2"));
+    Assert.assertNotNull(ds.getValueTable(TABLE_NAME));
+    Assert.assertNotNull(ds.getValueTable(TABLE_NAME).getVariable("Var1"));
+    Assert.assertNotNull(ds.getValueTable(TABLE_NAME).getVariable("Var2"));
 
-    cleanlyRemoveDatasource(dsName);
+    cleanlyRemoveDatasource(DS_NAME);
   }
 
   @Test
@@ -144,15 +142,12 @@ public class HibernateDatasourceTest {
     Variable changedState = Variable.Builder.newVariable("Var1", TextType.get(), "Participant").addCategory("C3", "3")
         .addCategory("C1", "1").addCategory("C4", "4").addCategory("C2", "2").build();
 
-    String dsName = "testDs";
-    String tableName = "testTable";
-
-    HibernateDatasource ds = new HibernateDatasource(dsName, provider.getSessionFactory());
+    HibernateDatasource ds = new HibernateDatasource(DS_NAME, provider.getSessionFactory());
 
     provider.getSessionFactory().getCurrentSession().beginTransaction();
     MagmaEngine.get().addDatasource(ds);
 
-    ValueTableWriter vtWriter = ds.createWriter(tableName, "Participant");
+    ValueTableWriter vtWriter = ds.createWriter(TABLE_NAME, "Participant");
 
     // Write variables and assert that they are visible.
     VariableWriter vw = vtWriter.writeVariables();
@@ -164,10 +159,10 @@ public class HibernateDatasourceTest {
 
     provider.getSessionFactory().getCurrentSession().beginTransaction();
 
-    Variable v = ds.getValueTable(tableName).getVariable("Var1");
+    Variable v = ds.getValueTable(TABLE_NAME).getVariable("Var1");
     assertSameCategories(initialState, v);
 
-    vtWriter = ds.createWriter(tableName, "Participant");
+    vtWriter = ds.createWriter(TABLE_NAME, "Participant");
     // Write variables and assert that they are visible.
     vw = vtWriter.writeVariables();
     vw.writeVariable(changedState);
@@ -177,10 +172,10 @@ public class HibernateDatasourceTest {
     provider.getSessionFactory().getCurrentSession().getTransaction().commit();
 
     provider.getSessionFactory().getCurrentSession().beginTransaction();
-    v = ds.getValueTable(tableName).getVariable("Var1");
+    v = ds.getValueTable(TABLE_NAME).getVariable("Var1");
     assertSameCategories(changedState, v);
 
-    cleanlyRemoveDatasource(dsName);
+    cleanlyRemoveDatasource(DS_NAME);
   }
 
   @Test

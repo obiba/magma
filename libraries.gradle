@@ -1,6 +1,7 @@
 ext {
 
   hibernateVersion = '3.5.6-Final'
+  neo4jVersion = '1.8.2'
   slf4jVersion = '1.7.4'
   springVersion = '3.1.4.RELEASE'
 
@@ -28,6 +29,8 @@ ext {
       hibernate_core: "org.hibernate:hibernate-core:${hibernateVersion}",
       hibernate_ehcache: "org.hibernate:hibernate-ehcache:${hibernateVersion}",
 
+      hibernate_validator: 'org.hibernate:hibernate-validator:5.0.1.Final',
+
       hsqldb: 'hsqldb:hsqldb:1.8.0.10',
 
       javassist: 'javassist:javassist:3.9.0.GA',
@@ -46,6 +49,10 @@ ext {
 
       mysql_connector_java: 'mysql:mysql-connector-java:5.1.24',
 
+      neo4j: "org.neo4j:neo4j:${neo4jVersion}",
+      neo4j_cypher: "org.neo4j:neo4j-cypher:${neo4jVersion}",
+      neo4j_kernel: "org.neo4j:neo4j-kernel:${neo4jVersion}",
+
       obiba_core: 'org.obiba:obiba-core:1.4.0',
 
       opencsv: 'net.sf.opencsv:opencsv:2.3',
@@ -63,6 +70,7 @@ ext {
 
       spring_beans: "org.springframework:spring-beans:${springVersion}",
       spring_context: "org.springframework:spring-context:${springVersion}",
+      spring_data_neo4j: 'org.springframework.data:spring-data-neo4j:2.2.0.RELEASE',
       spring_jdbc: "org.springframework:spring-jdbc:${springVersion}",
       spring_test: "org.springframework:spring-test:${springVersion}",
 

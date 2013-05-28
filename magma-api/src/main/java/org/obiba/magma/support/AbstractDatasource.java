@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.Set;
 
 import javax.annotation.Nonnull;
@@ -59,7 +60,7 @@ public abstract class AbstractDatasource extends AbstractAttributeAware implemen
   @Override
   public boolean hasValueTable(String tableName) {
     for(ValueTable vt : getValueTables()) {
-      if(vt.getName().equals(tableName)) {
+      if(Objects.equals(vt.getName(), tableName)) {
         return true;
       }
     }
