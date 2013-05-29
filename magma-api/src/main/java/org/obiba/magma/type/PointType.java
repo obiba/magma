@@ -16,6 +16,8 @@ import java.lang.ref.WeakReference;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.obiba.magma.Coordinate;
 import org.obiba.magma.MagmaEngine;
 import org.obiba.magma.Value;
@@ -27,7 +29,6 @@ public class PointType extends JSONAwareValueType {
 
   @SuppressWarnings("StaticNonFinalField")
   private static WeakReference<PointType> instance;
-
 
   private PointType() {
 
@@ -69,13 +70,10 @@ public class PointType extends JSONAwareValueType {
     return false;
   }
 
-
   @Nonnull
   @Override
   public Value valueOf(@Nullable String string) {
-    // parse string and return a value
-
-    if(string== null){
+    if(string == null) {
       return nullValue();
     }
     return Factory.newValue(this, Coordinate.valueOf(string));
@@ -96,19 +94,25 @@ public class PointType extends JSONAwareValueType {
     if(type.equals(String.class)) {
       return valueOf((String) object);
     }
+    if(type.equals(JSONArray.class)) {
+      return valueOf(object.toString());
+    }
+    if(type.equals(JSONObject.class)) {
+      return valueOf(object.toString());
+    }
     throw new IllegalArgumentException(
         "Cannot construct " + getClass().getSimpleName() + " from type " + object.getClass() + ".");
   }
 
   @Override
   public int compare(Value o1, Value o2) {
-      return ((Coordinate)o1.getValue()).compareTo((Coordinate)o2.getValue());
+    return ((Coordinate) o1.getValue()).compareTo((Coordinate) o2.getValue());
   }
 
   @Nullable
   @Override
   protected String toString(@Nullable ValueSequence sequence) {
-    return "["  + super.toString(sequence) + "]";
+    return "[" + super.toString(sequence) + "]";
   }
 
 }

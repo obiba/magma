@@ -160,6 +160,9 @@ public class PolygonType extends JSONAwareValueType {
     if(type.equals(String.class)) {
       return valueOf((String) object);
     }
+    if(type.equals(JSONArray.class)) {
+      return valueOf(object.toString());
+    }
     throw new IllegalArgumentException(
         "Cannot construct " + getClass().getSimpleName() + " from type " + object.getClass() + ".");
   }
