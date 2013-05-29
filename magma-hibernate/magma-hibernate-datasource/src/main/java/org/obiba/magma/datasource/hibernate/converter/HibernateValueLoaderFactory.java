@@ -36,17 +36,23 @@ public class HibernateValueLoaderFactory implements ValueLoaderFactory {
 
   private final SessionFactory sessionFactory;
 
-  private final ValueSetValue valueSetValue;
+  private final Serializable variableId;
+
+  private final Serializable valueSetId;
+
+  public HibernateValueLoaderFactory(SessionFactory sessionFactory, Serializable variableId, Serializable valueSetId) {
+    this.sessionFactory = sessionFactory;
+    this.variableId = variableId;
+    this.valueSetId = valueSetId;
+  }
 
   public HibernateValueLoaderFactory(SessionFactory sessionFactory, ValueSetValue valueSetValue) {
-    this.sessionFactory = sessionFactory;
-    this.valueSetValue = valueSetValue;
+    this(sessionFactory, valueSetValue.getVariable().getId(), valueSetValue.getValueSet().getId());
   }
 
   @Override
   public ValueLoader create(Value valueRef, Integer occurrence) {
-    return new HibernateBinaryValueLoader(sessionFactory, valueSetValue.getVariable().getId(),
-        valueSetValue.getValueSet().getId(), occurrence, valueRef);
+    return new HibernateBinaryValueLoader(sessionFactory, variableId, valueSetId, occurrence, valueRef);
   }
 
   private static final class HibernateBinaryValueLoader implements ValueLoader, Serializable {
@@ -118,9 +124,11 @@ public class HibernateValueLoaderFactory implements ValueLoaderFactory {
         value = (byte[]) valueRef.getValue();
         return value == null ? 0 : value.length;
       }
-      Query query = sessionFactory.getCurrentSession().createSQLQuery(
-          "SELECT vsbv.size FROM value_set_binary_value vsbv " +
-              "WHERE vsbv.variable_id = :variable_id AND vsbv.value_set_id = :value_set_id AND vsbv.occurrence = :occurrence")
+      Query query = sessionFactory.getCurrentSession()
+          .createSQLQuery("SELECT binaryValue.size FROM value_set_binary_value binaryValue " + //
+              "WHERE binaryValue.variable_id = :variable_id " + //
+              "AND binaryValue.value_set_id = :value_set_id " + //
+              "AND binaryValue.occurrence = :occurrence") //
           .setParameter("variable_id", variableId) //
           .setParameter("value_set_id", valueSetId) //
           .setParameter("occurrence", occurrence);
