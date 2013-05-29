@@ -32,13 +32,15 @@ public class BinaryTypeTest extends BaseValueTypeTest {
     return ImmutableList.<Class<?>>of(byte[].class);
   }
 
-  @Ignore(
-      "equals() on arrays does not compare array contents. We need to override the value.equals() method for BinaryType.")
+  @Override
+  @Ignore("equals() on arrays does not compare array contents. " +
+      "We need to override the value.equals() method for BinaryType.")
   public void testValueOfToStringIsEqual() {
   }
 
-  @Ignore(
-      "equals() on arrays does not compare array contents. We need to override the value.equals() method for BinaryType.")
+  @Override
+  @Ignore("equals() on arrays does not compare array contents. " +
+      "We need to override the value.equals() method for BinaryType.")
   public void testValueOfToStringSequence() {
   }
 }

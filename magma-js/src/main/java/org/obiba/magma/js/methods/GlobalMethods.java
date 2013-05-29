@@ -218,8 +218,8 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
     VariableValueSource source = reference.resolveSource(valueTable);
 
     // Test whether this is a vector-oriented evaluation or a ValueSet-oriented evaluation
-    return context.has(VectorCache.class) //
-        ? valuesForVector(context, thisObj, reference, source) //
+    return context.has(VectorCache.class)
+        ? valuesForVector(context, thisObj, reference, source)
         : valueForValueSet(context, thisObj, reference, source);
   }
 
