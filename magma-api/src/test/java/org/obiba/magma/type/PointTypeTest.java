@@ -9,11 +9,12 @@
  */
 package org.obiba.magma.type;
 
+import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 import org.junit.Test;
 import org.obiba.magma.Coordinate;
 import org.obiba.magma.MagmaRuntimeException;
-import org.obiba.magma.Value;
 import org.obiba.magma.ValueType;
 
 import com.google.common.collect.ImmutableList;
@@ -21,6 +22,7 @@ import com.google.common.collect.ImmutableList;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
+@SuppressWarnings("ConstantConditions")
 public class PointTypeTest extends BaseValueTypeTest {
 
   @Override
@@ -30,7 +32,7 @@ public class PointTypeTest extends BaseValueTypeTest {
 
   @Override
   Object getObjectForType() {
-    return new Coordinate(42,34);
+    return new Coordinate(42, 34);
   }
 
   @Override
@@ -62,7 +64,6 @@ public class PointTypeTest extends BaseValueTypeTest {
     assertThat(result.getLongitude(), is(-71.34));
   }
 
-
   @Test
   public void testParseGeoJSONCoordinates() {
     Coordinate result = (Coordinate) getValueType().valueOf("[-71.34,41.12]").getValue();
@@ -76,18 +77,22 @@ public class PointTypeTest extends BaseValueTypeTest {
     assertThat(result1.getLatitude(), is(41.12));
     assertThat(result1.getLongitude(), is(-71.34));
   }
+
   @Test
   public void testJSONCoordinates2() {
-    Coordinate result2 = (Coordinate) getValueType().valueOf("{\"latitude\" : 41.12,\"longitude\" : -71.34 }").getValue();
+    Coordinate result2 = (Coordinate) getValueType().valueOf("{\"latitude\" : 41.12,\"longitude\" : -71.34 }")
+        .getValue();
     assertThat(result2.getLatitude(), is(41.12));
     assertThat(result2.getLongitude(), is(-71.34));
   }
+
   @Test
   public void testJSONCoordinates3() {
     Coordinate result3 = (Coordinate) getValueType().valueOf("{\"lt\" : 41.12,\"lg\" : -71.34 }").getValue();
     assertThat(result3.getLatitude(), is(41.12));
     assertThat(result3.getLongitude(), is(-71.34));
   }
+
   @Test
   public void testJSONCoordinates4() {
     Coordinate result4 = (Coordinate) getValueType().valueOf("{\"lat\" : 41.12,\"lng\" : -71.34 }").getValue();
@@ -95,15 +100,16 @@ public class PointTypeTest extends BaseValueTypeTest {
     assertThat(result4.getLongitude(), is(-71.34));
 
   }
+
   @Test
   public void testValueOfCoordinateInstance() {
-    Coordinate coordinate = new Coordinate(-71.34,41.12);
-    Coordinate result  = (Coordinate) getValueType().valueOf(coordinate).getValue();
+    Coordinate coordinate = new Coordinate(-71.34, 41.12);
+    Coordinate result = (Coordinate) getValueType().valueOf(coordinate).getValue();
     assertThat(result.getLatitude(), is(41.12));
     assertThat(result.getLongitude(), is(-71.34));
   }
 
-  @Test (expected = IllegalArgumentException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void testValueOfInvalidCoordinate() {
     Object o = DateType.get();
     getValueType().valueOf(o).getValue();
@@ -118,7 +124,6 @@ public class PointTypeTest extends BaseValueTypeTest {
   public void testParseGeoJSONCoordinatesMalformed() {
     getValueType().valueOf("[-71.34,-71").getValue();
   }
-
 
   //this kind of points is accepted by JSON
   @Test//(expected = MagmaRuntimeException.class)
@@ -139,6 +144,22 @@ public class PointTypeTest extends BaseValueTypeTest {
   @Test(expected = MagmaRuntimeException.class)
   public void testParseJSONCoordinatesMalformed3() {
     getValueType().valueOf("{\"lat\" : 41.12,\"lion\" : -71.34 }").getValue();
+  }
+
+  @Test
+  public void testJSONArray() throws JSONException {
+    JSONArray array = new JSONArray("[-71.34,41.12]");
+    Coordinate result = (Coordinate) getValueType().valueOf(array).getValue();
+    assertThat(result.getLatitude(), is(41.12));
+    assertThat(result.getLongitude(), is(-71.34));
+  }
+
+  @Test
+  public void testJSONObject() throws JSONException {
+    JSONObject o = new JSONObject("{\"lat\" : 41.12,\"lon\" : -71.34 }");
+    Coordinate result = (Coordinate) getValueType().valueOf(o).getValue();
+    assertThat(result.getLatitude(), is(41.12));
+    assertThat(result.getLongitude(), is(-71.34));
   }
 
 }
