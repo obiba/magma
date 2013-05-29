@@ -64,12 +64,11 @@ public class ScriptableValueMethods {
       return new ScriptableValue(thisObj, ValueType.Factory.newValue(TextType.get(), valueType.getName()));
 
       // Perform a ValueType conversion
-    } else {
-      if(args.length > 1) {
-        log.warn("{} extra parameters were passed to the javascript method.  These will be ignored.", args.length - 1);
-      }
-      return new ScriptableValue(thisObj, ValueType.Factory.forName(args[0].toString()).convert(sv.getValue()));
     }
+    if(args.length > 1) {
+      log.warn("{} extra parameters were passed to the javascript method.  These will be ignored.", args.length - 1);
+    }
+    return new ScriptableValue(thisObj, ValueType.Factory.forName(args[0].toString()).convert(sv.getValue()));
   }
 
   /**
@@ -79,9 +78,9 @@ public class ScriptableValueMethods {
   public static ScriptableValue length(Context ctx, Scriptable thisObj, @Nullable Object[] args,
       @Nullable Function funObj) {
     ScriptableValue sv = (ScriptableValue) thisObj;
-
-    if(sv.getValue().isSequence()) {
-      ValueSequence valueSequence = sv.getValue().asSequence();
+    Value value = sv.getValue();
+    if(value.isSequence()) {
+      ValueSequence valueSequence = value.asSequence();
       Value rval = valueSequence.isNull()
           ? IntegerType.get().nullSequence()
           : IntegerType.get().sequenceOf(Lists.newArrayList(
@@ -96,12 +95,9 @@ public class ScriptableValueMethods {
                 }
               })));
       return new ScriptableValue(sv, rval);
-    } else {
-      Value rval = sv.getValue().isNull()
-          ? IntegerType.get().nullValue()
-          : IntegerType.get().valueOf(sv.getValue().getLength());
-      return new ScriptableValue(thisObj, rval);
     }
+    Value rval = value.isNull() ? IntegerType.get().nullValue() : IntegerType.get().valueOf(value.getLength());
+    return new ScriptableValue(thisObj, rval);
   }
 
 }
