@@ -8,11 +8,11 @@ import org.obiba.magma.Variable;
 
 import com.google.common.collect.Lists;
 
-class CategoricalVariableValueGenerator extends AbstractMissingValueVariableValueGenerator {
+class CategoricalValueGenerator extends AbstractMissingValueVariableValueGenerator {
 
   private final List<Category> dataCategories = Lists.newArrayList();
 
-  CategoricalVariableValueGenerator(Variable variable) {
+  CategoricalValueGenerator(Variable variable) {
     super(variable);
     for(Category c : variable.getCategories()) {
       if(!c.isMissing()) {
