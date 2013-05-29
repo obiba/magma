@@ -92,6 +92,8 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
 
   private List<String> missingVariableNames = new ArrayList<String>();
 
+  private final CsvTimestamps timestamps;
+
   public CsvValueTable(Datasource datasource, String name, File dataFile, String entityType) {
     this(datasource, name, null, dataFile, entityType);
   }
@@ -102,12 +104,14 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
     this.variableFile = variableFile;
     this.dataFile = dataFile;
     this.entityType = entityType == null ? DEFAULT_ENTITY_TYPE : entityType;
+    timestamps = new CsvTimestamps(variableFile, dataFile);
   }
 
   public CsvValueTable(Datasource datasource, ValueTable refTable, @Nullable File dataFile) {
     super(datasource, refTable.getName());
     this.refTable = refTable;
     this.dataFile = dataFile;
+    timestamps = new CsvTimestamps(variableFile, dataFile);
   }
 
   @Override
@@ -609,7 +613,15 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
 
   @Override
   public Timestamps getTimestamps() {
-    return new CsvTimestamps(variableFile, dataFile);
+    return timestamps;
+  }
+
+  @Override
+  public Timestamps getValueSetTimestamps(VariableEntity entity) throws NoSuchValueSetException {
+    if(!entityIndex.containsKey(entity)) {
+      throw new NoSuchValueSetException(this, entity);
+    }
+    return timestamps;
   }
 
   /**
