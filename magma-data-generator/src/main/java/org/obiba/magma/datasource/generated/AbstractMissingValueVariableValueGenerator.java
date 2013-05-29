@@ -33,9 +33,8 @@ abstract class AbstractMissingValueVariableValueGenerator extends GeneratedVaria
       if(missingCategories.isEmpty()) return TextType.get().nullValue();
       int c = gvs.valueGenerator.nextInt(missingCategories.size());
       return variable.getValueType().valueOf(missingCategories.get(c).getName());
-    } else {
-      return nonMissingValue(variable, gvs);
     }
+    return nonMissingValue(variable, gvs);
   }
 
   protected abstract Value nonMissingValue(Variable variable, GeneratedValueSet gvs);

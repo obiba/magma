@@ -120,13 +120,12 @@ public class FeedbackServerDataGeneratorTest {
       builder.append(s);
       if(parts.length > 1) {
         String rhs = and(table, parts[1]);
-        if(rhs.isEmpty() == false) builder.append(".and(").append(and(table, parts[1])).append(')');
+        if(!rhs.isEmpty()) builder.append(".and(").append(and(table, parts[1])).append(')');
       }
       return builder.toString();
-    } else {
-      if(parts.length > 1) {
-        return builder.append(and(table, parts[1])).toString();
-      }
+    }
+    if(parts.length > 1) {
+      return builder.append(and(table, parts[1])).toString();
     }
     return "";
   }
@@ -138,11 +137,10 @@ public class FeedbackServerDataGeneratorTest {
 
     if(parts.length == 1) {
       return builder.append(and(table, parts[0])).toString();
-    } else {
-      builder.append(and(table, parts[0]));
-      String rhs = or(table, parts[1]);
-      if(rhs.isEmpty() == false) builder.append(".or(").append(or(table, parts[1])).append(')');
-      return builder.toString();
     }
+    builder.append(and(table, parts[0]));
+    String rhs = or(table, parts[1]);
+    if(!rhs.isEmpty()) builder.append(".or(").append(or(table, parts[1])).append(')');
+    return builder.toString();
   }
 }
