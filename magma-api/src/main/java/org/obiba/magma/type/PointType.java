@@ -10,14 +10,11 @@
 
 package org.obiba.magma.type;
 
-import java.io.Serializable;
 import java.lang.ref.WeakReference;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
 import org.obiba.magma.Coordinate;
 import org.obiba.magma.MagmaEngine;
 import org.obiba.magma.Value;
@@ -76,7 +73,7 @@ public class PointType extends JSONAwareValueType {
     if(string == null) {
       return nullValue();
     }
-    return Factory.newValue(this, Coordinate.valueOf(string));
+    return Factory.newValue(this, Coordinate.getCoordinateFrom(string));
   }
 
   @Nonnull
@@ -85,23 +82,7 @@ public class PointType extends JSONAwareValueType {
     if(object == null) {
       return nullValue();
     }
-
-    Class<?> type = object.getClass();
-
-    if(type.equals(Coordinate.class)) {
-      return Factory.newValue(this, (Serializable) object);
-    }
-    if(type.equals(String.class)) {
-      return valueOf((String) object);
-    }
-    if(type.equals(JSONArray.class)) {
-      return valueOf(object.toString());
-    }
-    if(type.equals(JSONObject.class)) {
-      return valueOf(object.toString());
-    }
-    throw new IllegalArgumentException(
-        "Cannot construct " + getClass().getSimpleName() + " from type " + object.getClass() + ".");
+    return Factory.newValue(this, Coordinate.getCoordinateFrom(object));
   }
 
   @Override
