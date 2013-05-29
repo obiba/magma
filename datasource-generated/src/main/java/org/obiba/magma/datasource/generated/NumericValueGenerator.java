@@ -11,7 +11,7 @@ import org.obiba.magma.support.NullValueSource;
 import org.obiba.magma.type.DecimalType;
 import org.obiba.magma.type.IntegerType;
 
-class NumericVariableValueGenerator extends AbstractMissingValueVariableValueGenerator {
+class NumericValueGenerator extends AbstractMissingValueVariableValueGenerator {
 
   private final ValueSource minimum;
 
@@ -21,7 +21,7 @@ class NumericVariableValueGenerator extends AbstractMissingValueVariableValueGen
 
   private final ValueSource stddev;
 
-  NumericVariableValueGenerator(Variable variable) {
+  NumericValueGenerator(Variable variable) {
     super(variable);
     minimum = makeSource(variable, "minimum");
     maximum = makeSource(variable, "maximum");

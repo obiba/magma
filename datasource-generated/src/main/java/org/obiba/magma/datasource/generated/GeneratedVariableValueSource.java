@@ -1,5 +1,7 @@
 package org.obiba.magma.datasource.generated;
 
+import java.util.List;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
@@ -15,6 +17,8 @@ import org.obiba.magma.support.Initialisables;
 import org.obiba.magma.type.BooleanType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.Lists;
 
 abstract class GeneratedVariableValueSource implements VariableValueSource {
 
@@ -60,7 +64,18 @@ abstract class GeneratedVariableValueSource implements VariableValueSource {
       GeneratedValueSet gvs = (GeneratedValueSet) valueSet;
       try {
         Value existingValue = gvs.getExistingValue(getVariable().getName());
-        return existingValue == null ? gvs.put(getVariable().getName(), nextValue(getVariable(), gvs)) : existingValue;
+        if(existingValue != null) {
+          return existingValue;
+        }
+        if(variable.isRepeatable()) {
+          int sequenceLength = gvs.dataGenerator.nextInt(0, 10);
+          List<Value> values = Lists.newArrayListWithCapacity(sequenceLength);
+          for(int i = 0; i < sequenceLength; i++) {
+            values.add(nextValue(getVariable(), gvs));
+          }
+          return gvs.put(getVariable().getName(), ValueType.Factory.newSequence(variable.getValueType(), values));
+        }
+        return gvs.put(getVariable().getName(), nextValue(getVariable(), gvs));
       } catch(RuntimeException e) {
         //noinspection StringConcatenationArgumentToLogCall
         log.warn("Error generating data for variable " + getVariable().getName(), e);

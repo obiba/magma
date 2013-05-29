@@ -22,7 +22,7 @@ import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.VariableValueSource;
 import org.obiba.magma.VectorSource;
-import org.obiba.magma.datasource.generated.BinaryVariableValueGenerator;
+import org.obiba.magma.datasource.generated.BinaryValueGenerator;
 import org.obiba.magma.datasource.generated.GeneratedValueTable;
 import org.obiba.magma.datasource.hibernate.support.LocalSessionFactoryProvider;
 import org.obiba.magma.support.DatasourceCopier;
@@ -55,6 +55,7 @@ public class HibernateDatasourceTest {
   public void startYourEngine() {
     new MagmaEngine();
     provider = newProvider("theTest");
+//    provider = newMysqlProvider();
   }
 
   @After
@@ -247,10 +248,10 @@ public class HibernateDatasourceTest {
     HibernateDatasource ds = new HibernateDatasource("vectorSourceTest", provider.getSessionFactory());
 
     ImmutableSet<Variable> variables = ImmutableSet.of( //
-        Variable.Builder.newVariable("Test Binary", BinaryType.get(), "Participant").build()/*,
-        Variable.Builder.newVariable("Test Repeatable Binary", BinaryType.get(), "Participant").repeatable().build()*/);
+        Variable.Builder.newVariable("Test Binary", BinaryType.get(), "Participant").build(),
+        Variable.Builder.newVariable("Test Repeatable Binary", BinaryType.get(), "Participant").repeatable().build());
 
-    ValueTable generatedValueTable = new GeneratedValueTable(ds, variables, 2);
+    ValueTable generatedValueTable = new GeneratedValueTable(ds, variables, 5);
     provider.getSessionFactory().getCurrentSession().beginTransaction();
     MagmaEngine.get().addDatasource(ds);
     DatasourceCopier.Builder.newCopier().build().copy(generatedValueTable, "NewTable", ds);
@@ -272,7 +273,7 @@ public class HibernateDatasourceTest {
       Iterable<Value> values = vectorSource.getValues(entities);
       assertThat(values, notNullValue());
       assertThat(Iterables.size(values), is(entities.size()));
-      long length = BinaryVariableValueGenerator.getLength();
+      long length = BinaryValueGenerator.getLength();
       for(Value value : values) {
         assertThat(value.isNull(), is(false));
         assertThat(value.isSequence(), is(variable.isRepeatable()));
@@ -356,6 +357,17 @@ public class HibernateDatasourceTest {
     newProvider.initialise();
     return newProvider;
   }
+
+//  private LocalSessionFactoryProvider newMysqlProvider() {
+//    LocalSessionFactoryProvider newProvider = new LocalSessionFactoryProvider("com.mysql.jdbc.Driver",
+//        "jdbc:mysql://localhost:3306/magma_test?characterEncoding=UTF-8", "root", "1234",
+//        "org.hibernate.dialect.MySQL5InnoDBDialect");
+//    Properties p = new Properties();
+//    p.setProperty(Environment.CACHE_PROVIDER, "org.hibernate.cache.HashtableCacheProvider");
+//    newProvider.setProperties(p);
+//    newProvider.initialise();
+//    return newProvider;
+//  }
 
   private abstract static class TestThread extends Thread {
 

@@ -4,26 +4,34 @@ import javax.annotation.Nonnull;
 
 import org.obiba.magma.Variable;
 import org.obiba.magma.type.BinaryType;
+import org.obiba.magma.type.TextType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class DefaultVariableValueGeneratorFactory implements VariableValueGeneratorFactory {
+
+  private static final Logger log = LoggerFactory.getLogger(DefaultVariableValueGeneratorFactory.class);
 
   @Override
   public GeneratedVariableValueSource newGenerator(@Nonnull Variable variable) {
     boolean isAllMissing = variable.areAllCategoriesMissing();
     if(variable.hasCategories() && !isAllMissing) {
-      return new CategoricalVariableValueGenerator(variable);
+      return new CategoricalValueGenerator(variable);
     }
     if(variable.getValueType().isNumeric() && isAllMissing) {
-      return new NumericVariableValueGenerator(variable);
+      return new NumericValueGenerator(variable);
     }
     if(variable.getValueType().isDateTime()) {
-      return new DateVariableValueGenerator(variable);
+      return new DateValueGenerator(variable);
     }
     if(variable.getValueType().equals(BinaryType.get())) {
-      return new BinaryVariableValueGenerator(variable);
+      return new BinaryValueGenerator(variable);
     }
-
-    return new NullVariableValueGenerator(variable);
+    if(variable.getValueType().equals(TextType.get())) {
+      return new TextValueGenerator(variable);
+    }
+    log.warn("{} is not supported by data generator for variable {}", variable.getValueType(), variable.getName());
+    return new NullValueGenerator(variable);
   }
 
 }
