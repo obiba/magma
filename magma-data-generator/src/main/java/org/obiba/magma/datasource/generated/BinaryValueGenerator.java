@@ -9,12 +9,12 @@ import org.obiba.magma.Variable;
 
 import com.google.common.io.Resources;
 
-public class BinaryVariableValueGenerator extends GeneratedVariableValueSource {
+public class BinaryValueGenerator extends GeneratedVariableValueSource {
 
-  public static final String PATH = File.separator +
-      BinaryVariableValueGenerator.class.getName().replaceAll("\\.", File.separator) + ".class";
+  private static final String PATH = File.separator +
+      BinaryValueGenerator.class.getName().replaceAll("\\.", File.separator) + ".class";
 
-  public BinaryVariableValueGenerator(Variable variable) {
+  public BinaryValueGenerator(Variable variable) {
     super(variable);
   }
 
@@ -28,7 +28,7 @@ public class BinaryVariableValueGenerator extends GeneratedVariableValueSource {
   }
 
   private static byte[] getBytes() throws IOException {
-    return Resources.toByteArray(BinaryVariableValueGenerator.class.getResource(PATH));
+    return Resources.toByteArray(BinaryValueGenerator.class.getResource(PATH));
   }
 
   public static long getLength() throws IOException {

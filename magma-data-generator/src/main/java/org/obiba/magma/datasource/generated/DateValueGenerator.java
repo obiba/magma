@@ -12,13 +12,13 @@ import org.obiba.magma.support.NullValueSource;
 import org.obiba.magma.type.DateTimeType;
 import org.obiba.magma.type.DateType;
 
-class DateVariableValueGenerator extends AbstractMissingValueVariableValueGenerator {
+class DateValueGenerator extends AbstractMissingValueVariableValueGenerator {
 
   private final ValueSource minimum;
 
   private final ValueSource maximum;
 
-  DateVariableValueGenerator(Variable variable) {
+  DateValueGenerator(Variable variable) {
     super(variable);
     minimum = makeSource(variable, "minimum");
     maximum = makeSource(variable, "maximum");

@@ -3,9 +3,9 @@ package org.obiba.magma.datasource.generated;
 import org.obiba.magma.Value;
 import org.obiba.magma.Variable;
 
-class NullVariableValueGenerator extends GeneratedVariableValueSource {
+class NullValueGenerator extends GeneratedVariableValueSource {
 
-  NullVariableValueGenerator(Variable variable) {
+  NullValueGenerator(Variable variable) {
     super(variable);
   }
 
