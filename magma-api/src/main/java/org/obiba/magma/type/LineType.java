@@ -76,22 +76,27 @@ public class LineType extends JSONAwareValueType {
     if(string == null) {
       return nullValue();
     }
-
-    List<Coordinate> line;
-    Coordinate coordinate;
-
     try {
       JSONArray array = new JSONArray(string.trim());
-      line = new ArrayList<Coordinate>(array.length());
-
-      for(int i = 0; i < array.length(); i++) {
-        coordinate = Coordinate.valueOf(array.getString(i));
-        line.add(coordinate);
-      }
+      return valueOf(array);
     } catch(JSONException e) {
       throw new MagmaRuntimeException("Invalid Line format", e);
     }
+  }
 
+  public Value valueOf(@Nullable JSONArray array) {
+    if(array == null) {
+      return nullValue();
+    }
+
+    Collection<Coordinate> line = new ArrayList<Coordinate>(array.length());
+    for(int i = 0; i < array.length(); i++) {
+      try {
+        line.add(Coordinate.getCoordinateFrom(array.get(i)));
+      } catch(JSONException e) {
+        throw new MagmaRuntimeException("Invalid Line format", e);
+      }
+    }
     if(line.isEmpty()) {
       throw new MagmaRuntimeException("The Line can't be empty");
     }
@@ -106,28 +111,21 @@ public class LineType extends JSONAwareValueType {
     }
 
     Class<?> type = object.getClass();
-    Collection<Coordinate> line = new ArrayList<Coordinate>();
-
-    if(type.equals(getJavaClass())) {
-      if(((Collection<?>) object).isEmpty()) {
-        throw new MagmaRuntimeException("A Line can't be empty");
-      }
-
-      for(Object o : (List<?>) object) {
-        if(o.getClass().equals(Coordinate.class)) {
-          line.add((Coordinate) o);
-        } else if(o.getClass().equals(String.class)) {
-          line.add(Coordinate.valueOf((String) o));
-        }
-      }
-      return Factory.newValue(this, (Serializable) line);
-    }
-
     if(type.equals(String.class)) {
       return valueOf((String) object);
     }
     if(type.equals(JSONArray.class)) {
-      return valueOf(object.toString());
+      return valueOf((JSONArray) object);
+    }
+    if(type.equals(getJavaClass())) {
+      Collection<Coordinate> line = new ArrayList<Coordinate>();
+      for(Object o : (List<?>) object) {
+        line.add(Coordinate.getCoordinateFrom(o));
+      }
+      if(line.isEmpty()) {
+        throw new MagmaRuntimeException("The Line can't be empty");
+      }
+      return Factory.newValue(this, (Serializable) line);
     }
     throw new IllegalArgumentException(
         "Cannot construct " + getClass().getSimpleName() + " from type " + object.getClass() + ".");
