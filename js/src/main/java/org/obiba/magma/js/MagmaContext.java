@@ -22,7 +22,7 @@ public class MagmaContext extends Context {
       return (MagmaContext) ctx;
     } catch(ClassCastException e) {
       throw new MagmaJsRuntimeException(
-          "No MagmaContext available. Make sure MagmaJsExtension has been intialized before using JavascriptValueSource instances.");
+          "No MagmaContext available. Make sure MagmaJsExtension has been initialized before using JavascriptValueSource instances.");
     }
   }
 
@@ -66,6 +66,13 @@ public class MagmaContext extends Context {
     stack.push(value);
   }
 
+  /**
+   * Removes the object at the top of this stack and returns that object as the value of this function.
+   *
+   * @param type
+   * @param <T>
+   * @return The object at the top of this stack (the last item of the <tt>Vector</tt> object).
+   */
   @SuppressWarnings("unchecked")
   public <T> T pop(Class<T> type) {
     Stack<T> stack = (Stack<T>) getThreadLocal(type);
@@ -80,6 +87,13 @@ public class MagmaContext extends Context {
     }
   }
 
+  /**
+   * Looks at the object at the top of this stack without removing it from the stack.
+   *
+   * @param type
+   * @param <T>
+   * @return the object at the top of this stack (the last item of the <tt>Vector</tt> object).
+   */
   @SuppressWarnings("unchecked")
   public <T> T peek(Class<T> type) {
     Stack<T> stack = (Stack<T>) getThreadLocal(type);

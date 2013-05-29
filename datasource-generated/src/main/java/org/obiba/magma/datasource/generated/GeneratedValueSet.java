@@ -1,6 +1,3 @@
-/**
- *
- */
 package org.obiba.magma.datasource.generated;
 
 import java.util.concurrent.ConcurrentMap;
@@ -10,6 +7,7 @@ import org.apache.commons.math.random.RandomData;
 import org.apache.commons.math.random.RandomDataImpl;
 import org.apache.commons.math.random.RandomGenerator;
 import org.obiba.magma.Value;
+import org.obiba.magma.ValueTable;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.support.ValueSetBean;
 
@@ -26,7 +24,7 @@ class GeneratedValueSet extends ValueSetBean {
 
   final ConcurrentMap<String, Value> generatedValues = new MapMaker().makeMap();
 
-  GeneratedValueSet(GeneratedValueTable table, VariableEntity entity) {
+  GeneratedValueSet(ValueTable table, VariableEntity entity) {
     super(table, entity);
     valueGenerator = new JDKRandomGenerator();
     valueGenerator.setSeed(Long.parseLong(entity.getIdentifier()));

@@ -92,15 +92,10 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
     if(compiledScript == null) {
       initialise();
     }
-    /*try {
-      throw new Exception();
-    } catch (Exception e) {
-      log.error("", e);
-    }*/
     long start = System.currentTimeMillis();
-    Value rval = (Value) ContextFactory.getGlobal().call(new ValueSetEvaluationContextAction(valueSet));
+    Value value = (Value) ContextFactory.getGlobal().call(new ValueSetEvaluationContextAction(valueSet));
     log.trace("Evaluation of {}: {}ms", getScriptName(), System.currentTimeMillis() - start);
-    return rval;
+    return value;
   }
 
   @Nonnull

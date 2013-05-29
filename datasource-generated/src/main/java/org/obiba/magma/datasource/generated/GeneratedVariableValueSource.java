@@ -32,7 +32,7 @@ abstract class GeneratedVariableValueSource implements VariableValueSource {
       try {
         Initialisables.initialise(src);
       } catch(RuntimeException e) {
-        log.info("Cannot compile condition for variable {}", variable.getName());
+        log.warn("Cannot compile condition for variable {}", variable.getName());
         //noinspection AssignmentToNull
         src = null;
       }
@@ -60,9 +60,10 @@ abstract class GeneratedVariableValueSource implements VariableValueSource {
       GeneratedValueSet gvs = (GeneratedValueSet) valueSet;
       try {
         Value existingValue = gvs.getExistingValue(getVariable().getName());
-        return existingValue != null ? existingValue : gvs.put(getVariable().getName(), nextValue(getVariable(), gvs));
+        return existingValue == null ? gvs.put(getVariable().getName(), nextValue(getVariable(), gvs)) : existingValue;
       } catch(RuntimeException e) {
-        log.info("Error generating data for variable {}: {}", getVariable().getName(), e);
+        //noinspection StringConcatenationArgumentToLogCall
+        log.warn("Error generating data for variable " + getVariable().getName(), e);
         return getValueType().nullValue();
       }
     }
@@ -80,7 +81,7 @@ abstract class GeneratedVariableValueSource implements VariableValueSource {
       try {
         return (Boolean) condition.getValue(valueSet).getValue();
       } catch(RuntimeException e) {
-        log.info("Error evaluating condition for variable {}", getVariable().getName());
+        log.warn("Error evaluating condition for variable {}", getVariable().getName());
       }
     }
     return true;

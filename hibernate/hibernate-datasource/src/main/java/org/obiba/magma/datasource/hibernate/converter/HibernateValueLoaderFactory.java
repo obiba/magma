@@ -117,15 +117,15 @@ public class HibernateValueLoaderFactory implements ValueLoaderFactory {
         log.trace("Loading binary from value_set_value table (Base64)");
         value = (byte[]) valueRef.getValue();
         return value == null ? 0 : value.length;
-      } else {
-        Query query = sessionFactory.getCurrentSession().createSQLQuery(
-            "SELECT vsbv.size FROM value_set_binary_value vsbv WHERE vsbv.variable_id = :variable_id AND vsbv.value_set_id = :value_set_id AND vsbv.occurrence = :occurrence")
-            .setParameter("variable_id", variableId) //
-            .setParameter("value_set_id", valueSetId) //
-            .setParameter("occurrence", occurrence);
-        Integer result = (Integer) query.uniqueResult();
-        return result == null ? 0 : result.longValue();
       }
+      Query query = sessionFactory.getCurrentSession().createSQLQuery(
+          "SELECT vsbv.size FROM value_set_binary_value vsbv " +
+              "WHERE vsbv.variable_id = :variable_id AND vsbv.value_set_id = :value_set_id AND vsbv.occurrence = :occurrence")
+          .setParameter("variable_id", variableId) //
+          .setParameter("value_set_id", valueSetId) //
+          .setParameter("occurrence", occurrence);
+      Integer result = (Integer) query.uniqueResult();
+      return result == null ? 0 : result.longValue();
     }
 
   }

@@ -1,29 +1,29 @@
 package org.obiba.magma.datasource.generated;
 
-import org.obiba.magma.Category;
+import javax.annotation.Nonnull;
+
 import org.obiba.magma.Variable;
+import org.obiba.magma.type.BinaryType;
 
 public class DefaultVariableValueGeneratorFactory implements VariableValueGeneratorFactory {
 
   @Override
-  public GeneratedVariableValueSource newGenerator(Variable variable) {
-    if(variable.hasCategories() && !isAllMissing(variable.getCategories())) {
+  public GeneratedVariableValueSource newGenerator(@Nonnull Variable variable) {
+    boolean isAllMissing = variable.areAllCategoriesMissing();
+    if(variable.hasCategories() && !isAllMissing) {
       return new CategoricalVariableValueGenerator(variable);
     }
-    if(variable.getValueType().isNumeric() && isAllMissing(variable.getCategories())) {
+    if(variable.getValueType().isNumeric() && isAllMissing) {
       return new NumericVariableValueGenerator(variable);
     }
     if(variable.getValueType().isDateTime()) {
       return new DateVariableValueGenerator(variable);
     }
-    return new NullVariableValueGenerator(variable);
-  }
-
-  private boolean isAllMissing(Iterable<Category> categories) {
-    for(Category c : categories) {
-      if(!c.isMissing()) return false;
+    if(variable.getValueType().equals(BinaryType.get())) {
+      return new BinaryVariableValueGenerator(variable);
     }
-    return true;
+
+    return new NullVariableValueGenerator(variable);
   }
 
 }

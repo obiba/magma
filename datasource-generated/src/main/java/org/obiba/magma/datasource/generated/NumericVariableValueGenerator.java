@@ -1,5 +1,6 @@
 package org.obiba.magma.datasource.generated;
 
+import org.obiba.magma.AttributeAware;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueSource;
 import org.obiba.magma.ValueType;
@@ -34,38 +35,37 @@ class NumericVariableValueGenerator extends AbstractMissingValueVariableValueGen
     return getInteger(gvs, minimum.getValue(gvs), maximum.getValue(gvs));
   }
 
+  @SuppressWarnings("ConstantConditions")
   protected Value getInteger(GeneratedValueSet gvs, Value minimumValue, Value maximumValue) {
-    Number minimum = minimumValue.isNull() ? Long.MIN_VALUE : (Number) minimumValue.getValue();
-    Number maximum = maximumValue.isNull() ? Long.MAX_VALUE : (Number) maximumValue.getValue();
+    Number min = minimumValue.isNull() ? Long.MIN_VALUE : (Number) minimumValue.getValue();
+    Number max = maximumValue.isNull() ? Long.MAX_VALUE : (Number) maximumValue.getValue();
 
     Value meanValue = mean.getValue(gvs);
     Value stddevValue = stddev.getValue(gvs);
     if(meanValue.isNull() || stddevValue.isNull()) {
       if(getValueType() == IntegerType.get()) {
-        return getValueType().valueOf(
-            minimum.equals(maximum) ? minimum : gvs.dataGenerator.nextLong(minimum.longValue(), maximum.longValue()));
+        return getValueType()
+            .valueOf(min.equals(max) ? min : gvs.dataGenerator.nextLong(min.longValue(), max.longValue()));
       }
       if(getValueType() == DecimalType.get()) {
-        return getValueType().valueOf(minimum.equals(maximum)
-            ? minimum
-            : gvs.dataGenerator.nextUniform(minimum.doubleValue(), maximum.doubleValue()));
+        return getValueType()
+            .valueOf(min.equals(max) ? min : gvs.dataGenerator.nextUniform(min.doubleValue(), max.doubleValue()));
       }
       throw new IllegalStateException();
-    } else {
-      double v = gvs.dataGenerator
-          .nextGaussian(((Number) meanValue.getValue()).doubleValue(), ((Number) stddevValue.getValue()).doubleValue());
-      // Make sure value is between absolute min and max
-      v = Math.min(v, maximum.doubleValue());
-      v = Math.max(v, minimum.doubleValue());
-      return getValueType().valueOf(v);
     }
+    double v = gvs.dataGenerator
+        .nextGaussian(((Number) meanValue.getValue()).doubleValue(), ((Number) stddevValue.getValue()).doubleValue());
+    // Make sure value is between absolute min and max
+    v = Math.min(v, max.doubleValue());
+    v = Math.max(v, min.doubleValue());
+    return getValueType().valueOf(v);
   }
 
   private ValueSource makeSource(Variable variable, String scriptAttribute) {
     return makeSource(variable, variable.getValueType(), scriptAttribute);
   }
 
-  private ValueSource makeSource(Variable variable, ValueType type, String scriptAttribute) {
+  private ValueSource makeSource(AttributeAware variable, ValueType type, String scriptAttribute) {
     return variable.hasAttribute(scriptAttribute) //
         ? new JavascriptValueSource(type, variable.getAttributeStringValue(scriptAttribute)) //
         : new NullValueSource(type);
