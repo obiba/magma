@@ -208,11 +208,12 @@ public class HibernateDatasourceTest {
 
     ImmutableSet<Variable> variables = ImmutableSet.of(//
         Variable.Builder.newVariable("Test Variable", IntegerType.get(), "Participant").build(), //
+        Variable.Builder.newVariable("Test Repeatable", TextType.get(), "Participant").repeatable().build(), //
         Variable.Builder.newVariable("Test Date", DateType.get(), "Participant").build(), //
         Variable.Builder.newVariable("Test DateTime", DateTimeType.get(), "Participant").build(), //
         Variable.Builder.newVariable("Other Variable", DecimalType.get(), "Participant").build());
 
-    ValueTable generatedValueTable = new GeneratedValueTable(ds, variables, 300);
+    ValueTable generatedValueTable = new GeneratedValueTable(ds, variables, 100);
     provider.getSessionFactory().getCurrentSession().beginTransaction();
     MagmaEngine.get().addDatasource(ds);
     DatasourceCopier.Builder.newCopier().build().copy(generatedValueTable, "NewTable", ds);
@@ -233,6 +234,10 @@ public class HibernateDatasourceTest {
       Iterable<Value> values = vectorSource.getValues(entities);
       assertThat(values, notNullValue());
       assertThat(Iterables.size(values), is(entities.size()));
+      for(Value value : values) {
+        assertThat(value, notNullValue());
+        assertThat(value.isSequence(), is(variable.isRepeatable()));
+      }
     }
     cleanlyRemoveDatasource(ds);
   }
@@ -241,9 +246,11 @@ public class HibernateDatasourceTest {
   public void testBinaryVectorSource() throws Exception {
     HibernateDatasource ds = new HibernateDatasource("vectorSourceTest", provider.getSessionFactory());
 
-    Variable variable = Variable.Builder.newVariable("Test Binary", BinaryType.get(), "Participant").build();
+    ImmutableSet<Variable> variables = ImmutableSet.of( //
+        Variable.Builder.newVariable("Test Binary", BinaryType.get(), "Participant").build()/*,
+        Variable.Builder.newVariable("Test Repeatable Binary", BinaryType.get(), "Participant").repeatable().build()*/);
 
-    ValueTable generatedValueTable = new GeneratedValueTable(ds, ImmutableSet.of(variable), 2);
+    ValueTable generatedValueTable = new GeneratedValueTable(ds, variables, 2);
     provider.getSessionFactory().getCurrentSession().beginTransaction();
     MagmaEngine.get().addDatasource(ds);
     DatasourceCopier.Builder.newCopier().build().copy(generatedValueTable, "NewTable", ds);
@@ -252,25 +259,28 @@ public class HibernateDatasourceTest {
     provider.getSessionFactory().getCurrentSession().beginTransaction();
     ValueTable valueTable = ds.getValueTable("NewTable");
 
-    VariableValueSource valueSource = valueTable.getVariableValueSource(variable.getName());
-    assertThat(valueSource, notNullValue());
-    assertThat(valueSource.asVectorSource(), notNullValue());
+    for(Variable variable : variables) {
 
-    SortedSet<VariableEntity> entities = Sets.newTreeSet(valueTable.getVariableEntities());
-    VectorSource vectorSource = valueSource.asVectorSource();
-    assertThat(vectorSource, notNullValue());
-    //noinspection ConstantConditions
-    Iterable<Value> values = vectorSource.getValues(entities);
-    assertThat(values, notNullValue());
-    assertThat(Iterables.size(values), is(entities.size()));
-    long length = BinaryVariableValueGenerator.getLength();
-    for(Value value : values) {
-      assertThat(value.isNull(), is(false));
+      VariableValueSource valueSource = valueTable.getVariableValueSource(variable.getName());
+      assertThat(valueSource, notNullValue());
+      assertThat(valueSource.asVectorSource(), notNullValue());
+
+      SortedSet<VariableEntity> entities = Sets.newTreeSet(valueTable.getVariableEntities());
+      VectorSource vectorSource = valueSource.asVectorSource();
+      assertThat(vectorSource, notNullValue());
       //noinspection ConstantConditions
-      assertThat(value.getValue().getClass(), is(byte[].class));
-      assertThat(value.getLength(), is(length));
+      Iterable<Value> values = vectorSource.getValues(entities);
+      assertThat(values, notNullValue());
+      assertThat(Iterables.size(values), is(entities.size()));
+      long length = BinaryVariableValueGenerator.getLength();
+      for(Value value : values) {
+        assertThat(value.isNull(), is(false));
+        assertThat(value.isSequence(), is(variable.isRepeatable()));
+        //noinspection ConstantConditions
+        assertThat(value.getValue().getClass(), is(byte[].class));
+        assertThat(value.getLength(), is(length));
+      }
     }
-
     cleanlyRemoveDatasource(ds);
   }
 

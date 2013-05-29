@@ -141,31 +141,4 @@ public class ValueSetValue implements Timestamped, Serializable {
 
   }
 
-//  public Set<ValueSetBinaryValue> getBinaryValues() {
-//    return binaryValues;
-//  }
-//
-//  public void addBinaryValue(ValueSetBinaryValue binaryValue) {
-//    if(binaryValues == null) {
-//      binaryValues = Sets.newLinkedHashSet();
-//    }
-//    if(binaryValues.add(binaryValue)) {
-//      binaryValue.setValueSetValue(this);
-//    }
-//  }
-//
-//  public void removeBinaryValue(ValueSetBinaryValue binaryValue) {
-//    if(binaryValues != null && binaryValues.remove(binaryValue)) {
-//      binaryValue.setValueSetValue(null);
-//    }
-//  }
-//
-//  public ValueSetState getValueSet() {
-//    return valueSet;
-//  }
-//
-//  public VariableState getVariable() {
-//    return variable;
-//  }
-
 }
