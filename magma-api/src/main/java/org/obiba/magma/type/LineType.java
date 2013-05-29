@@ -43,7 +43,7 @@ public class LineType extends JSONAwareValueType {
   @Nonnull
   @Override
   public String getName() {
-    return "Line";
+    return "line";
   }
 
   @Override
@@ -89,11 +89,11 @@ public class LineType extends JSONAwareValueType {
         line.add(coordinate);
       }
     } catch(JSONException e) {
-      throw new MagmaRuntimeException("Invalid Polygon format", e);
+      throw new MagmaRuntimeException("Invalid Line format", e);
     }
 
     if(line.isEmpty()) {
-      throw new MagmaRuntimeException("The polygon can't be empty");
+      throw new MagmaRuntimeException("The Line can't be empty");
     }
     return Factory.newValue(this, (Serializable) line);
   }

@@ -57,13 +57,15 @@ public class PolygonType extends JSONAwareValueType {
 
   @Override
   public Class<?> getJavaClass() {
-    List<List<Coordinate>> polygon = new ArrayList<List<Coordinate>>();
+    List<List<Coordinate>> polygon;
+    polygon = new ArrayList<List<Coordinate>>();
     return polygon.getClass();
   }
 
   @Override
   public boolean acceptsJavaClass(@Nonnull Class<?> clazz) {
-    List<List<Coordinate>> polygon = new ArrayList<List<Coordinate>>();
+    List<List<Coordinate>> polygon;
+    polygon = new ArrayList<List<Coordinate>>();
     return polygon.getClass().isAssignableFrom(clazz);
   }
 

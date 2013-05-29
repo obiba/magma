@@ -71,7 +71,7 @@ public class LineTypeTest extends BaseValueTypeTest {
     getValueType().valueOf("[[[0,0],[0,e1],[1,0],[1,1],[0,0]]]").getValue();
   }
 
-  @Test//(expected = MagmaRuntimeException.class)
+  @Test
   public void testAssertObject() {
     Collection<Object> c = new ArrayList<Object>();
     c.add(new Coordinate(0.0, 0.1));
