@@ -72,12 +72,12 @@ public interface ValueType extends Serializable, Comparator<Value> {
     }
 
     @Nonnull
-    public static Value newValue(ValueType type, @Nullable ValueLoader valueLoader) {
+    public static Value newValue(@Nonnull ValueType type, @Nullable ValueLoader valueLoader) {
       return new Value(type, valueLoader);
     }
 
     @Nonnull
-    public static ValueSequence newSequence(ValueType type, @Nullable Iterable<Value> values) {
+    public static ValueSequence newSequence(@Nonnull ValueType type, @Nullable Iterable<Value> values) {
       return new ValueSequence(type, values);
     }
 
