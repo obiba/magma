@@ -81,9 +81,8 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
    */
   public static ScriptableValue newValue(Context cx, Scriptable thisObj, Object[] args, Function funObj) {
     Object value = args[0];
-    Value v;
-    v = args.length > 1 //
-        ? ValueType.Factory.forName((String) args[1]).valueOf(value) //
+    Value v = args.length > 1
+        ? ValueType.Factory.forName((String) args[1]).valueOf(value)
         : ValueType.Factory.newValue((Serializable) value);
     return new ScriptableValue(thisObj, v);
   }

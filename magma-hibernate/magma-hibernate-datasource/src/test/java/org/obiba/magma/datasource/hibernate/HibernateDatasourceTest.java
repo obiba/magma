@@ -42,6 +42,7 @@ import junit.framework.Assert;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.core.IsInstanceOf.instanceOf;
 import static org.junit.Assert.assertThat;
 
 @SuppressWarnings({ "OverlyLongMethod", "MagicNumber", "ReuseOfLocalVariable" })
@@ -243,6 +244,7 @@ public class HibernateDatasourceTest {
     cleanlyRemoveDatasource(ds);
   }
 
+  @SuppressWarnings("ConstantConditions")
   @Test
   public void testBinaryVectorSource() throws Exception {
     HibernateDatasource ds = new HibernateDatasource("vectorSourceTest", provider.getSessionFactory());
@@ -251,7 +253,7 @@ public class HibernateDatasourceTest {
         Variable.Builder.newVariable("Test Binary", BinaryType.get(), "Participant").build(),
         Variable.Builder.newVariable("Test Repeatable Binary", BinaryType.get(), "Participant").repeatable().build());
 
-    ValueTable generatedValueTable = new GeneratedValueTable(ds, variables, 5);
+    ValueTable generatedValueTable = new GeneratedValueTable(ds, variables, 1);
     provider.getSessionFactory().getCurrentSession().beginTransaction();
     MagmaEngine.get().addDatasource(ds);
     DatasourceCopier.Builder.newCopier().build().copy(generatedValueTable, "NewTable", ds);
@@ -269,7 +271,6 @@ public class HibernateDatasourceTest {
       SortedSet<VariableEntity> entities = Sets.newTreeSet(valueTable.getVariableEntities());
       VectorSource vectorSource = valueSource.asVectorSource();
       assertThat(vectorSource, notNullValue());
-      //noinspection ConstantConditions
       Iterable<Value> values = vectorSource.getValues(entities);
       assertThat(values, notNullValue());
       assertThat(Iterables.size(values), is(entities.size()));
@@ -277,9 +278,15 @@ public class HibernateDatasourceTest {
       for(Value value : values) {
         assertThat(value.isNull(), is(false));
         assertThat(value.isSequence(), is(variable.isRepeatable()));
-        //noinspection ConstantConditions
-        assertThat(value.getValue().getClass(), is(byte[].class));
-        assertThat(value.getLength(), is(length));
+        if(value.isSequence()) {
+          for(Value v : value.asSequence().getValue()) {
+            assertThat(v.getValue(), instanceOf(byte[].class));
+            assertThat(v.getLength(), is(length));
+          }
+        } else {
+          assertThat(value.getValue(), instanceOf(byte[].class));
+          assertThat(value.getLength(), is(length));
+        }
       }
     }
     cleanlyRemoveDatasource(ds);
