@@ -28,8 +28,10 @@ public class BinaryValueStreamLoaderFactory implements ValueLoaderFactory {
     this.parent = parent;
   }
 
+  @SuppressWarnings("ConstantConditions")
   @Override
   public ValueLoader create(Value valueRef, Integer occurrence) {
+    if(valueRef.isNull()) return null;
     String strValue = valueRef.toString();
     return strValue.startsWith("http://")
         ? new BinaryValueURLLoader(strValue)
