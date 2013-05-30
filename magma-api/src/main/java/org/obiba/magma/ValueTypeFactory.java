@@ -1,5 +1,6 @@
 package org.obiba.magma;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -34,7 +35,7 @@ class ValueTypeFactory {
 
   private final Set<ValueType> types = new HashSet<ValueType>();
 
-  private final Set<ValueConverter> converters = new LinkedHashSet<ValueConverter>();
+  private final Collection<ValueConverter> converters = new LinkedHashSet<ValueConverter>();
 
   ValueTypeFactory() {
     registerBuiltInTypes();
