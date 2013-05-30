@@ -10,7 +10,6 @@
 
 package org.obiba.magma.type;
 
-import java.io.Serializable;
 import java.lang.ref.WeakReference;
 
 import javax.annotation.Nonnull;
@@ -27,7 +26,6 @@ public class PointType extends JSONAwareValueType {
 
   @SuppressWarnings("StaticNonFinalField")
   private static WeakReference<PointType> instance;
-
 
   private PointType() {
 
@@ -69,16 +67,13 @@ public class PointType extends JSONAwareValueType {
     return false;
   }
 
-
   @Nonnull
   @Override
   public Value valueOf(@Nullable String string) {
-    // parse string and return a value
-
-    if(string== null){
+    if(string == null) {
       return nullValue();
     }
-    return Factory.newValue(this, Coordinate.valueOf(string));
+    return Factory.newValue(this, Coordinate.getCoordinateFrom(string));
   }
 
   @Nonnull
@@ -87,28 +82,18 @@ public class PointType extends JSONAwareValueType {
     if(object == null) {
       return nullValue();
     }
-
-    Class<?> type = object.getClass();
-
-    if(type.equals(Coordinate.class)) {
-      return Factory.newValue(this, (Serializable) object);
-    }
-    if(type.equals(String.class)) {
-      return valueOf((String) object);
-    }
-    throw new IllegalArgumentException(
-        "Cannot construct " + getClass().getSimpleName() + " from type " + object.getClass() + ".");
+    return Factory.newValue(this, Coordinate.getCoordinateFrom(object));
   }
 
   @Override
   public int compare(Value o1, Value o2) {
-      return ((Coordinate)o1.getValue()).compareTo((Coordinate)o2.getValue());
+    return ((Coordinate) o1.getValue()).compareTo((Coordinate) o2.getValue());
   }
 
   @Nullable
   @Override
   protected String toString(@Nullable ValueSequence sequence) {
-    return "["  + super.toString(sequence) + "]";
+    return "[" + super.toString(sequence) + "]";
   }
 
 }

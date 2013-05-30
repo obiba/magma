@@ -77,87 +77,68 @@ public class Coordinate implements Comparable<Coordinate>, Serializable {
     return "[" + longitude + "," + latitude + "]";
   }
 
-  public static Coordinate valueOf(String string) {
-
-    double[] coordinate;
-
+  public static Coordinate getCoordinateFrom(String string) {
     // GeoJSON coordinate
     if(string.trim().startsWith("[")) {
-      coordinate = parseGeoJson(string);
+      JSONArray array = null;
+      try {
+        array = new JSONArray(string);
+        return getCoordinateFrom(array);
+      } catch(JSONException e) {
+        throw new MagmaRuntimeException("Not a valid GeoJSON coordinate", e);
+      }
     }
     // JSON coordinate
-    else if(string.trim().startsWith("{")) {
-      coordinate = parseJSON(string);
+    if(string.trim().startsWith("{")) {
+      JSONObject object = null;
+      try {
+        object = new JSONObject(string);
+        return getCoordinateFrom(object);
+      } catch(JSONException e) {
+        throw new MagmaRuntimeException("Not a valid JSON coordinate", e);
+      }
     }
     // Google coordinate  lat,long
     else {
       String stringToParse = "[" + string.trim() + "]";
-      coordinate = parseGoogleMap(stringToParse);
+      JSONArray array = null;
+      try {
+        array = new JSONArray(stringToParse);
+        return new Coordinate(array.getDouble(1), array.getDouble(0));
+      } catch(JSONException e) {
+        throw new MagmaRuntimeException("Not a valid Google Map coordinate", e);
+      }
     }
-
-    // parse s to Coordinate
-    return new Coordinate(coordinate[0], coordinate[1]);
   }
 
-  /**
-   * Parse a string representing a GeoJSON coordinate
-   *
-   * @param s
-   * @return [longitude, latitude]
-   */
-  private static double[] parseGeoJson(String s) {
-    double lng;
-    double lat;
-    try {
-      JSONArray array = new JSONArray(s);
-      lng = array.getDouble(0);
-      lat = array.getDouble(1);
-    } catch(JSONException e) {
-      throw new MagmaRuntimeException("Not a coordinate point", e);
+  public static Coordinate getCoordinateFrom(Object o) {
+    if(o.getClass().equals(Coordinate.class)) {
+      return (Coordinate) o;
     }
-    return new double[] { lng, lat };
+    if(o.getClass().equals(String.class)) {
+      return getCoordinateFrom((String) o);
+    }
+    if(o.getClass().equals(JSONArray.class)) {
+      return getCoordinateFrom((JSONArray) o);
+    }
+    if(o.getClass().equals(JSONObject.class)) {
+      return getCoordinateFrom((JSONObject) o);
+    }
+    throw new IllegalArgumentException("Cannot construct a Coordinate from this class");
   }
 
-  /**
-   * Parse a string representing a Google Map coordinate
-   *
-   * @param s
-   * @return [longitude, latitude]
-   */
-  private static double[] parseGoogleMap(String s) {
-    double lng;
-    double lat;
-    try {
-      JSONArray array = new JSONArray(s);
-      lng = array.getDouble(1);
-      lat = array.getDouble(0);
-    } catch(JSONException e) {
-      throw new MagmaRuntimeException("Not a coordinate point", e);
-    }
-    return new double[] { lng, lat };
+  public static Coordinate getCoordinateFrom(JSONObject object) {
+    double lat = getKeyValue(LATITUDES_KEYS, object);
+    double lng = getKeyValue(LONGITUDES_KEYS, object);
+    return new Coordinate(lng, lat);
   }
 
-  /**
-   * Parse a string representing a JSON coordinate
-   *
-   * @param s
-   * @return [longitude, latitude]
-   */
-  private static double[] parseJSON(String s) {
-
-    double lng;
-    double lat;
-
+  public static Coordinate getCoordinateFrom(JSONArray array) {
     try {
-      JSONObject object = new JSONObject(s);
-
-      lat = getKeyValue(LATITUDES_KEYS, object);
-      lng = getKeyValue(LONGITUDES_KEYS, object);
-
+      return new Coordinate(array.getDouble(0), array.getDouble(1));
     } catch(JSONException e) {
-      throw new MagmaRuntimeException("Not a coordinate point");
+      throw new MagmaRuntimeException("Not a valid GeoJSON coordinate", e);
     }
-    return new double[] { lng, lat };
   }
 
   private static double getKeyValue(String[] keyList, JSONObject object) {
