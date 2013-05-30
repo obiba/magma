@@ -14,6 +14,12 @@ import org.obiba.magma.type.DateType;
 
 class DateValueGenerator extends AbstractMissingValueVariableValueGenerator {
 
+  // don't use Long.MIN_VALUE && Long.MAX_VALUE in order to keep year as 4 digits number
+
+  private static final long DEFAULT_MIN_DATE = -30610202400l; // 01/01/1000
+
+  private static final long DEFAULT_MAX_DATE = 253402236000l; // 12/31/9999
+
   private final ValueSource minimum;
 
   private final ValueSource maximum;
@@ -31,10 +37,9 @@ class DateValueGenerator extends AbstractMissingValueVariableValueGenerator {
   }
 
   protected Value getValue(GeneratedValueSet gvs, Value minimumValue, Value maximumValue) {
-    long minimum = minimumValue.isNull() ? Long.MIN_VALUE : getTime(minimumValue);
-    long maximum = maximumValue.isNull() ? Long.MAX_VALUE : getTime(maximumValue);
-    return getValueType()
-        .valueOf(new Date(minimum == maximum ? minimum : gvs.dataGenerator.nextLong(minimum, maximum)));
+    long min = minimumValue.isNull() ? DEFAULT_MIN_DATE : getTime(minimumValue);
+    long max = maximumValue.isNull() ? DEFAULT_MAX_DATE : getTime(maximumValue);
+    return getValueType().valueOf(new Date(min == max ? min : gvs.dataGenerator.nextLong(min, max)));
   }
 
   private ValueSource makeSource(Variable variable, String scriptAttribute) {
@@ -43,6 +48,7 @@ class DateValueGenerator extends AbstractMissingValueVariableValueGenerator {
         : new NullValueSource(variable.getValueType());
   }
 
+  @SuppressWarnings("ConstantConditions")
   private long getTime(Value value) {
     if(value.getValueType() == DateTimeType.get()) {
       return ((Date) value.getValue()).getTime();
