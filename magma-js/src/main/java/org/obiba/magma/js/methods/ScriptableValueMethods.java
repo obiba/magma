@@ -62,12 +62,11 @@ public class ScriptableValueMethods {
     // Return the ValueType name
     if(args.length == 0) {
       return new ScriptableValue(thisObj, ValueType.Factory.newValue(TextType.get(), valueType.getName()));
-
-      // Perform a ValueType conversion
     }
     if(args.length > 1) {
-      log.warn("{} extra parameters were passed to the javascript method.  These will be ignored.", args.length - 1);
+      log.warn("{} extra parameters were passed to the javascript method. These will be ignored.", args.length - 1);
     }
+    // Perform a ValueType conversion
     return new ScriptableValue(thisObj, ValueType.Factory.forName(args[0].toString()).convert(sv.getValue()));
   }
 
@@ -98,6 +97,17 @@ public class ScriptableValueMethods {
     }
     Value rval = value.isNull() ? IntegerType.get().nullValue() : IntegerType.get().valueOf(value.getLength());
     return new ScriptableValue(thisObj, rval);
+  }
+
+  /**
+   * Transform a Value into a ValueSequence
+   */
+  public static ScriptableValue asSequence(Context cx, Scriptable thisObj, Object[] args, Function funObj) {
+    ScriptableValue sv = (ScriptableValue) thisObj;
+    Value value = sv.getValue();
+    return value.isSequence()
+        ? sv
+        : new ScriptableValue(thisObj, ValueType.Factory.newSequence(value.getValueType(), Lists.newArrayList(value)));
   }
 
 }
