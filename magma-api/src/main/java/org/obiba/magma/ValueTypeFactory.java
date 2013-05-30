@@ -18,8 +18,11 @@ import org.obiba.magma.type.DatetimeValueConverter;
 import org.obiba.magma.type.DecimalType;
 import org.obiba.magma.type.IdentityValueConverter;
 import org.obiba.magma.type.IntegerType;
+import org.obiba.magma.type.LineType;
 import org.obiba.magma.type.LocaleType;
 import org.obiba.magma.type.NumericValueConverter;
+import org.obiba.magma.type.PointType;
+import org.obiba.magma.type.PolygonType;
 import org.obiba.magma.type.TextToAnyTypeValueConverter;
 import org.obiba.magma.type.TextToNumericTypeValueConverter;
 import org.obiba.magma.type.TextType;
@@ -91,6 +94,9 @@ class ValueTypeFactory {
     types.add(BinaryType.get());
     types.add(DateTimeType.get());
     types.add(DateType.get());
+    types.add(PointType.get());
+    types.add(LineType.get());
+    types.add(PolygonType.get());
 
     converters.add(new IdentityValueConverter());
     converters.add(new TextToNumericTypeValueConverter());
