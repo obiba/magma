@@ -37,7 +37,6 @@ import org.obiba.magma.datasource.hibernate.domain.ValueSetValue;
 import org.obiba.magma.datasource.hibernate.domain.VariableState;
 import org.obiba.magma.type.BinaryType;
 
-import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 
 class HibernateVariableValueSourceFactory implements VariableValueSourceFactory {
@@ -141,14 +140,16 @@ class HibernateVariableValueSourceFactory implements VariableValueSourceFactory 
     }
 
     @Override
-    public Iterable<Value> getValues(SortedSet<VariableEntity> entities) {
+    public Iterable<Value> getValues(final SortedSet<VariableEntity> entities) {
       if(entities.isEmpty()) {
         return ImmutableList.of();
       }
-      return getValueType().equals(BinaryType.get())
-          ? new BinaryValueIterable(entities.iterator())
-          : new DefaultValueIterable(entities.iterator());
-
+      return new Iterable<Value>() {
+        @Override
+        public Iterator<Value> iterator() {
+          return new ValueIterator(entities.iterator());
+        }
+      };
     }
 
     @Nonnull
@@ -197,170 +198,80 @@ class HibernateVariableValueSourceFactory implements VariableValueSourceFactory 
       return name.hashCode();
     }
 
-    private class DefaultValueIterable implements Iterable<Value> {
+    private class ValueIterator implements Iterator<Value> {
 
-      private final Query query;
+      private final ScrollableResults results;
 
-      private final Iterator<VariableEntity> resultEntities;
+      private boolean hasNextResults;
 
-      private DefaultValueIterable(Iterator<VariableEntity> resultEntities) {
-        Preconditions.checkArgument(!getValueType().equals(BinaryType.get()));
-        this.resultEntities = resultEntities;
-        query = getCurrentSession().getNamedQuery("allValues") //
-            .setParameter("valueTableId", valueTable.getValueTableState().getId()) //
-            .setParameter("variableId", ensureVariableId());
-      }
-
-      @Override
-      public Iterator<Value> iterator() {
-
-        return new Iterator<Value>() {
-
-          private final ScrollableResults results;
-
-          private boolean hasNextResults;
-
-          private boolean closed;
-
-          {
-            results = query.scroll(ScrollMode.FORWARD_ONLY);
-            hasNextResults = results.next();
-          }
-
-          @Override
-          public boolean hasNext() {
-            return resultEntities.hasNext();
-          }
-
-          @Override
-          public Value next() {
-            if(!hasNext()) {
-              throw new NoSuchElementException();
-            }
-
-            String nextEntity = resultEntities.next().getIdentifier();
-
-            // Scroll until we find the required entity or reach the end of the results
-            while(hasNextResults && !results.getString(0).equals(nextEntity)) {
-              hasNextResults = results.next();
-            }
-
-            Value value = null;
-            if(hasNextResults) {
-              value = (Value) results.get(1);
-            }
-            closeCursorIfNecessary();
-
-            if(value == null) {
-              return getVariable().isRepeatable() ? getValueType().nullSequence() : getValueType().nullValue();
-            }
-            return value;
-          }
-
-          @Override
-          public void remove() {
-            throw new UnsupportedOperationException();
-          }
-
-          private void closeCursorIfNecessary() {
-            if(!closed) {
-              // Close the cursor if we don't have any more results or no more entities to return
-              if(!hasNextResults || !hasNext()) {
-                closed = true;
-                results.close();
-              }
-            }
-          }
-
-        };
-      }
-    }
-
-    private class BinaryValueIterable implements Iterable<Value> {
-
-      private final Query query;
+      private boolean closed;
 
       private final Iterator<VariableEntity> resultEntities;
 
-      private BinaryValueIterable(Iterator<VariableEntity> resultEntities) {
-        Preconditions.checkArgument(getValueType().equals(BinaryType.get()));
+      private ValueIterator(Iterator<VariableEntity> resultEntities) {
+
         this.resultEntities = resultEntities;
-        query = getCurrentSession().getNamedQuery("allBinaryValues") //
+        Query query = getCurrentSession().getNamedQuery("allValues") //
             .setParameter("valueTableId", valueTable.getValueTableState().getId()) //
             .setParameter("variableId", ensureVariableId());
+        results = query.scroll(ScrollMode.FORWARD_ONLY);
+        hasNextResults = results.next();
       }
 
       @Override
-      public Iterator<Value> iterator() {
+      public boolean hasNext() {
+        return resultEntities.hasNext();
+      }
 
-        return new Iterator<Value>() {
+      @Override
+      public Value next() {
+        if(!hasNext()) {
+          throw new NoSuchElementException();
+        }
 
-          private final ScrollableResults results;
+        String nextEntity = resultEntities.next().getIdentifier();
 
-          private boolean hasNextResults;
+        // Scroll until we find the required entity or reach the end of the results
+        while(hasNextResults && !results.getString(0).equals(nextEntity)) {
+          hasNextResults = results.next();
+        }
 
-          private boolean closed;
+        Value value = null;
+        Serializable valueSetId = null;
+        if(hasNextResults) {
+          value = (Value) results.get(1);
+          valueSetId = (Serializable) results.get(2);
+        }
+        closeCursorIfNecessary();
 
-          {
-            results = query.scroll(ScrollMode.FORWARD_ONLY);
-            hasNextResults = results.next();
+        if(value == null) {
+          return getVariable().isRepeatable() ? getValueType().nullSequence() : getValueType().nullValue();
+        }
+
+        if(getValueType().equals(BinaryType.get())) {
+          ValueLoaderFactory factory = new HibernateValueLoaderFactory(valueTable.getDatasource().getSessionFactory(),
+              ensureVariableId(), valueSetId);
+          return getVariable().isRepeatable()
+              ? BinaryType.get().sequenceOfReferences(factory, value)
+              : BinaryType.get().valueOfReference(factory, value);
+        }
+        return value;
+      }
+
+      @Override
+      public void remove() {
+        throw new UnsupportedOperationException();
+      }
+
+      private void closeCursorIfNecessary() {
+        if(!closed) {
+          // Close the cursor if we don't have any more results or no more entities to return
+          if(!hasNextResults || !hasNext()) {
+            closed = true;
+            results.close();
           }
-
-          @Override
-          public boolean hasNext() {
-            return resultEntities.hasNext();
-          }
-
-          @Override
-          public Value next() {
-            if(!hasNext()) {
-              throw new NoSuchElementException();
-            }
-
-            String nextEntity = resultEntities.next().getIdentifier();
-
-            // Scroll until we find the required entity or reach the end of the results
-            while(hasNextResults && !results.getString(0).equals(nextEntity)) {
-              hasNextResults = results.next();
-            }
-
-            Serializable valueSetId = null;
-            Value value = null;
-            if(hasNextResults) {
-              value = (Value) results.get(1);
-              valueSetId = (Serializable) results.get(2);
-            }
-            closeCursorIfNecessary();
-
-            if(value == null) {
-              return getVariable().isRepeatable() ? getValueType().nullSequence() : getValueType().nullValue();
-            }
-
-            ValueLoaderFactory factory = new HibernateValueLoaderFactory(valueTable.getDatasource().getSessionFactory(),
-                ensureVariableId(), valueSetId);
-            return getVariable().isRepeatable() //
-                ? BinaryType.get().sequenceOfReferences(factory, value) //
-                : BinaryType.get().valueOfReference(factory, value);
-          }
-
-          @Override
-          public void remove() {
-            throw new UnsupportedOperationException();
-          }
-
-          private void closeCursorIfNecessary() {
-            if(!closed) {
-              // Close the cursor if we don't have any more results or no more entities to return
-              if(!hasNextResults || !hasNext()) {
-                closed = true;
-                results.close();
-              }
-            }
-          }
-
-        };
+        }
       }
     }
-
   }
 }
