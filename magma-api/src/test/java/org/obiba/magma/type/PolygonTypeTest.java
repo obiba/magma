@@ -10,6 +10,7 @@
 package org.obiba.magma.type;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.junit.Test;
@@ -22,6 +23,7 @@ import com.google.common.collect.ImmutableList;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
+@SuppressWarnings({ "unchecked", "ConstantConditions" })
 public class PolygonTypeTest extends BaseValueTypeTest {
 
   @Override
@@ -31,7 +33,7 @@ public class PolygonTypeTest extends BaseValueTypeTest {
 
   @Override
   Object getObjectForType() {
-    List<List<Coordinate>> polygon = new ArrayList<List<Coordinate>>(1);
+    Collection<List<Coordinate>> polygon = new ArrayList<List<Coordinate>>(1);
     List<Coordinate> points = new ArrayList<Coordinate>(4);
     points.add(new Coordinate(0, 0));
     points.add(new Coordinate(0, 1));
@@ -54,7 +56,8 @@ public class PolygonTypeTest extends BaseValueTypeTest {
 
   @Override
   Iterable<Class<?>> validClasses() {
-    List<List<Coordinate>> polygon = new ArrayList<List<Coordinate>>();
+    List<List<Coordinate>> polygon;
+    polygon = new ArrayList<List<Coordinate>>();
     return ImmutableList.<Class<?>>of(polygon.getClass());
   }
 
@@ -68,8 +71,7 @@ public class PolygonTypeTest extends BaseValueTypeTest {
 
   @Test
   public void testParseTwoShapePolygonGeoJSONPoints() {
-    List<List<Coordinate>> result = new ArrayList<List<Coordinate>>();
-    result = (List<List<Coordinate>>) getValueType()
+    List<List<Coordinate>> result = (List<List<Coordinate>>) getValueType()
         .valueOf("[[ {\"lat\" : 100.0,\"lon\" : 0.0 } , {\"lat\" : 101.0,\"lon\" : 0.0 }, " +
             "{\"lat\" : 101.0,\"lon\" : 1.0 }, {\"lat\" : 100.0,\"lon\" : 1.0 }, {\"lat\" : 100.0,\"lon\" : 0.0 } ]," +
             " [ {\"lat\" : 100.2,\"lon\" : 0.2 }, {\"lat\" : 100.8,\"lon\" : 0.2 }, {\"lat\" : 100.8,\"lon\" : 0.8 }," +
@@ -90,7 +92,7 @@ public class PolygonTypeTest extends BaseValueTypeTest {
   @Test
   public void testAssertObjectOfPolygon() {
     List<List<Coordinate>> polygon = new ArrayList<List<Coordinate>>(1);
-    ArrayList<Coordinate> points = new ArrayList<Coordinate>(4);
+    List<Coordinate> points = new ArrayList<Coordinate>(4);
     points.add(new Coordinate(100.0, 0.0));
     points.add(new Coordinate(101.0, 0.0));
     points.add(new Coordinate(101.0, 1.0));
@@ -99,7 +101,6 @@ public class PolygonTypeTest extends BaseValueTypeTest {
     polygon.add(points);
 
     List<List<Coordinate>> result = (List<List<Coordinate>>) getValueType().valueOf(polygon).getValue();
-    ;
 
     assertThat(polygon.size(), is(1));
     assertThat(polygon.get(0).size(), is(5));
@@ -110,7 +111,7 @@ public class PolygonTypeTest extends BaseValueTypeTest {
 
   @Test
   public void testAssertObjectOfPolygon1() {
-    ArrayList<ArrayList<Coordinate>> polygon = new ArrayList<ArrayList<Coordinate>>(1);
+    List<ArrayList<Coordinate>> polygon = new ArrayList<ArrayList<Coordinate>>(1);
     ArrayList<Coordinate> points = new ArrayList<Coordinate>(4);
     points.add(new Coordinate(100.0, 0.0));
     points.add(new Coordinate(101.0, 0.0));
@@ -120,7 +121,6 @@ public class PolygonTypeTest extends BaseValueTypeTest {
     polygon.add(points);
 
     List<List<Coordinate>> result = (List<List<Coordinate>>) getValueType().valueOf(polygon).getValue();
-    ;
 
     assertThat(polygon.size(), is(1));
     assertThat(polygon.get(0).size(), is(5));
@@ -133,7 +133,7 @@ public class PolygonTypeTest extends BaseValueTypeTest {
 
   @Test
   public void testAssertObjectOfPolygon2() {
-    List<List<String>> polygon = new ArrayList<List<String>>(1);
+    Collection<List<String>> polygon = new ArrayList<List<String>>(1);
 
     List<String> points = new ArrayList<String>(4);
     points.add("[100.0,0.0]");
@@ -186,10 +186,10 @@ public class PolygonTypeTest extends BaseValueTypeTest {
 
   @Test(expected = MagmaRuntimeException.class)
   public void testAssertObjectPolygonMalformed3() {
-    ArrayList<Object> c = new ArrayList<Object>();
+    Collection<Object> c = new ArrayList<Object>();
     Coordinate coordinate = new Coordinate(0.0, 0.1);
     c.add(coordinate);
-    List<List<Coordinate>> result = (List<List<Coordinate>>) getValueType().valueOf(c).getValue();
+    getValueType().valueOf(c).getValue();
   }
 
   @Test(expected = MagmaRuntimeException.class)
@@ -203,7 +203,7 @@ public class PolygonTypeTest extends BaseValueTypeTest {
     assertThat(getValueType().valueOf(result).isNull(), is(true));
   }
 
-  @Test(expected = MagmaRuntimeException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void testParsePolygonGoogleMapPoints() {
     getValueType().valueOf("[[100.0, 0.0, 101.0, 0.0, 101.0, 1.0, 100.0, 1.0, 100.0, 0.0  ]]").getValue();
   }
