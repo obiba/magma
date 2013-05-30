@@ -276,7 +276,6 @@ public class ValueSequenceMethods {
     }
   }
 
-  @SuppressWarnings("IfMayBeConditional")
   public static ScriptableValue push(Context ctx, Scriptable thisObj, Object[] args, Function funObj)
       throws MagmaJsEvaluationRuntimeException {
     ScriptableValue sv = (ScriptableValue) thisObj;
