@@ -52,7 +52,7 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
    * Set of methods to be exposed as top-level methods (ones that can be invoked anywhere)
    */
   private static final Set<String> GLOBAL_METHODS = ImmutableSet
-      .of("$", "$join", "now", "log", "$var", "$id", "$group", "$groups", "newValue");
+      .of("$", "$join", "now", "log", "$var", "$id", "$group", "$groups", "newValue", "newSequence");
 
   @Override
   protected Set<String> getExposedMethods() {
@@ -85,6 +85,47 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
         ? ValueType.Factory.forName((String) args[1]).valueOf(value)
         : ValueType.Factory.newValue((Serializable) value);
     return new ScriptableValue(thisObj, v);
+  }
+
+  /**
+   * Creates a new value sequence.
+   * <p/>
+   * <pre>
+   *   newSequence('Foo')
+   *   newSequence(['Foo', 'Bar'])
+   *   newSequence(123)
+   *   newSequence('123','integer')
+   *   newSequence([123, 456])
+   *   newSequence(['123', '456'],'integer')
+   * </pre>
+   *
+   * @return an instance of {@code ScriptableValue}
+   */
+  public static ScriptableValue newSequence(Context cx, Scriptable thisObj, Object[] args, Function funObj) {
+    Object value = args[0];
+    ValueType valueType = args.length > 1 ? ValueType.Factory.forName((String) args[1]) : null;
+    List<Value> values = null;
+    if(value instanceof NativeArray) {
+      values = nativeArrayToValueList(valueType, (NativeArray) value);
+      if(valueType == null) {
+        if(values.isEmpty()) {
+          throw new IllegalArgumentException("cannot determine ValueType for null object");
+        }
+        valueType = values.get(0).getValueType();
+      }
+    } else {
+      values = new ArrayList<Value>();
+      values.add(ValueType.Factory.newValue(valueType, (Serializable) value));
+    }
+    return new ScriptableValue(thisObj, ValueType.Factory.newSequence(valueType, values));
+  }
+
+  private static List<Value> nativeArrayToValueList(@Nullable ValueType valueType, NativeArray nativeArray) {
+    List<Value> newValues = new ArrayList<Value>();
+    for(int i = 0; i < (int) nativeArray.getLength(); i++) {
+      newValues.add(ValueType.Factory.newValue(valueType, (Serializable) nativeArray.get(i, nativeArray)));
+    }
+    return newValues;
   }
 
   /**
@@ -218,12 +259,11 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
 
     // Test whether this is a vector-oriented evaluation or a ValueSet-oriented evaluation
     return context.has(VectorCache.class)
-        ? valuesForVector(context, thisObj, reference, source)
+        ? valuesForVector(context, thisObj, source)
         : valueForValueSet(context, thisObj, reference, source);
   }
 
-  private static ScriptableValue valuesForVector(MagmaContext context, Scriptable thisObj,
-      MagmaEngineVariableResolver reference, VariableValueSource source) {
+  private static ScriptableValue valuesForVector(MagmaContext context, Scriptable thisObj, VariableValueSource source) {
     VectorSource vectorSource = source.asVectorSource();
     if(vectorSource == null) {
       throw new IllegalArgumentException("source cannot provide vectors (" + source.getClass().getName() + ")");
@@ -271,7 +311,7 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
           "$group() expects exactly two arguments: a variable name and a matching criteria (i.e. a value or a function).");
     }
 
-    List<NativeObject> valueMaps = getGroups(ctx, thisObj, args, funObj, true);
+    List<NativeObject> valueMaps = getGroups(ctx, thisObj, args, true);
     return valueMaps.isEmpty() ? new NativeObject() : valueMaps.get(0);
   }
 
@@ -294,12 +334,11 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
           "$groups() expects exactly two arguments: a variable name and a matching criteria (i.e. a value or a function).");
     }
 
-    return new NativeArray(getGroups(ctx, thisObj, args, funObj, false).toArray());
+    return new NativeArray(getGroups(ctx, thisObj, args, false).toArray());
   }
 
   @SuppressWarnings({ "OverlyLongMethod", "PMD.NcssMethodCount" })
-  private static List<NativeObject> getGroups(Context ctx, Scriptable thisObj, Object[] args, Function funObj,
-      boolean stopAtFirst) {
+  private static List<NativeObject> getGroups(Context ctx, Scriptable thisObj, Object[] args, boolean stopAtFirst) {
     String name = (String) args[0];
     Object criteria = args[1];
 
