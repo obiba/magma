@@ -107,15 +107,15 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
     List<Value> values = null;
     if(value instanceof NativeArray) {
       values = nativeArrayToValueList(valueType, (NativeArray) value);
-      if(valueType == null) {
-        if(values.isEmpty()) {
-          throw new IllegalArgumentException("cannot determine ValueType for null object");
-        }
-        valueType = values.get(0).getValueType();
-      }
     } else {
       values = new ArrayList<Value>();
       values.add(ValueType.Factory.newValue(valueType, (Serializable) value));
+    }
+    if(valueType == null) {
+      if(values.isEmpty()) {
+        throw new IllegalArgumentException("cannot determine ValueType for null object");
+      }
+      valueType = values.get(0).getValueType();
     }
     return new ScriptableValue(thisObj, ValueType.Factory.newSequence(valueType, values));
   }
@@ -123,7 +123,9 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
   private static List<Value> nativeArrayToValueList(@Nullable ValueType valueType, NativeArray nativeArray) {
     List<Value> newValues = new ArrayList<Value>();
     for(int i = 0; i < (int) nativeArray.getLength(); i++) {
-      newValues.add(ValueType.Factory.newValue(valueType, (Serializable) nativeArray.get(i, nativeArray)));
+      Value value = ValueType.Factory.newValue(valueType, (Serializable) nativeArray.get(i, nativeArray));
+      log.debug("Value {} {}", value.getValueType().getClass().getName(), value.getValue());
+      newValues.add(value);
     }
     return newValues;
   }
