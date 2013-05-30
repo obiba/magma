@@ -9,7 +9,6 @@
  */
 package org.obiba.magma.type;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -24,12 +23,11 @@ import org.obiba.magma.ValueSequence;
 
 import au.com.bytecode.opencsv.CSVParser;
 
-public abstract class JSONAwareValueType extends AbstractValueType{
+public abstract class JSONAwareValueType extends AbstractValueType {
 
   private static final char DEL_CHAR = (char) 127;
 
   private transient CSVParser csvParser;
-
 
   /**
    * Reads a JSON string value of strings. The format of the string is
@@ -57,8 +55,8 @@ public abstract class JSONAwareValueType extends AbstractValueType{
 
     try {
       JSONArray array = new JSONArray(string);
-      for (int i=0; i<array.length();i++) {
-        values.add(valueOf(array.get(i).toString()));
+      for(int i = 0; i < array.length(); i++) {
+        values.add(valueOf(array.get(i)));
       }
     } catch(JSONException e) {
       throw new MagmaRuntimeException("Invalid value sequence formatting: " + string, e);
@@ -66,6 +64,5 @@ public abstract class JSONAwareValueType extends AbstractValueType{
 
     return sequenceOf(values);
   }
-
 
 }
