@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
   <modelVersion>4.0.0</modelVersion>
 
@@ -93,8 +94,8 @@
       </dependency>
 
       <dependency>
-        <groupId>rhino</groupId>
-        <artifactId>js</artifactId>
+        <groupId>org.mozilla</groupId>
+        <artifactId>rhino</artifactId>
         <version>${rhino-js.version}</version>
       </dependency>
 
@@ -679,7 +680,7 @@
     <obiba-core.version>1.4.0</obiba-core.version>
     <opencsv.version>2.3</opencsv.version>
     <poi-ooxml.version>3.9</poi-ooxml.version>
-    <rhino-js.version>1.7R2</rhino-js.version>
+    <rhino-js.version>1.7R4</rhino-js.version>
     <shiro.version>1.1.0</shiro.version>
     <shiro-extras.version>1.0.1-obiba</shiro-extras.version>
     <slf4j.version>1.7.4</slf4j.version>
