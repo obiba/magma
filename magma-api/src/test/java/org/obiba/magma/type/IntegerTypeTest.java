@@ -75,6 +75,14 @@ public class IntegerTypeTest extends BaseValueTypeTest {
   }
 
   @Test
+  public void test_compare_with_null() throws Exception {
+    Value leftValue = getValueType().valueOf(42);
+    Value rightValue = getValueType().nullValue();
+    int result = getValueType().compare(leftValue, rightValue);
+    assertThat(result, is(1));
+  }
+
+  @Test
   public void testTrim() {
     Long result = (Long) getValueType().valueOf(" 1 ").getValue();
     assertThat(result.intValue(), is(1));

@@ -20,9 +20,9 @@ import static org.junit.Assert.assertThat;
 public abstract class AbstractValueTest extends AbstractMagmaTest {
 
   public AbstractValueTest() {
-    super();
   }
 
+  @SuppressWarnings("ConstantConditions")
   @Test(expected = RuntimeException.class)
   public void test_ctorThrowsWhenValueTypeIsNull() {
     new Value(null, null);

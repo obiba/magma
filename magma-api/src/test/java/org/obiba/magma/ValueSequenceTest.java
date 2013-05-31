@@ -89,11 +89,10 @@ public class ValueSequenceTest extends AbstractValueTest {
     assertThat(value.contains(TextType.get().valueOf("CBa")), is(false));
   }
 
+  @Override
   protected ValueSequence testValue() {
     return TextType.get().sequenceOf(testObject());
   }
-
-  ;
 
   @Override
   protected Iterable<Value> testObject() {
