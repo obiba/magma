@@ -79,11 +79,6 @@ public class IntegerType extends AbstractNumberType {
         "Cannot construct " + getClass().getSimpleName() + " from type " + object.getClass() + ".");
   }
 
-  @Override
-  public int compare(Value o1, Value o2) {
-    return ((Long) o1.getValue()).compareTo((Long) o2.getValue());
-  }
-
   private String normalize(String string) {
     return string.trim();
   }

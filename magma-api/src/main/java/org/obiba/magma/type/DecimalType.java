@@ -79,11 +79,6 @@ public class DecimalType extends AbstractNumberType {
         "Cannot construct " + getClass().getSimpleName() + " from type " + object.getClass() + ".");
   }
 
-  @Override
-  public int compare(Value o1, Value o2) {
-    return ((Double) o1.getValue()).compareTo((Double) o2.getValue());
-  }
-
   private String normalize(String string) {
     return string.replace(",", ".").trim();
   }
