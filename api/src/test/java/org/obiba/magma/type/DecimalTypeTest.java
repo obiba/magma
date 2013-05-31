@@ -1,6 +1,7 @@
 package org.obiba.magma.type;
 
 import org.junit.Test;
+import org.obiba.magma.Value;
 import org.obiba.magma.ValueType;
 
 import com.google.common.collect.ImmutableList;
@@ -39,6 +40,14 @@ public class DecimalTypeTest extends BaseValueTypeTest {
   public void testTrim() {
     Double result = (Double) getValueType().valueOf(" 1 ").getValue();
     assertThat(result.intValue(), is(1));
+  }
+
+  @Test
+  public void test_compare_with_null() throws Exception {
+    Value leftValue = getValueType().valueOf(42);
+    Value rightValue = getValueType().nullValue();
+    int result = getValueType().compare(leftValue, rightValue);
+    assertThat(result, is(1));
   }
 
   @Test
