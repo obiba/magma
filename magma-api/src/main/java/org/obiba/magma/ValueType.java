@@ -55,20 +55,18 @@ public interface ValueType extends Serializable, Comparator<Value> {
      * @return a {@code Value} instance for the specified object.
      * @throws IllegalArgumentException when {@code value} is null.
      */
+    @SuppressWarnings("ConstantConditions")
     @Nonnull
-    public static Value newValue(@Nullable Serializable value) {
+    public static Value newValue(@Nonnull Serializable value) {
       if(value == null) {
         throw new IllegalArgumentException("cannot determine ValueType for null object");
       }
-      return newValue(forClass(value.getClass()), value);
+      return forClass(value.getClass()).valueOf(value);
     }
 
     @Nonnull
-    public static Value newValue(@Nullable ValueType type, @Nullable Serializable value) {
-      if(type == null && value == null) {
-        throw new IllegalArgumentException("cannot determine ValueType for null object");
-      }
-      return new Value(type == null ? forClass(value.getClass()) : type, value);
+    public static Value newValue(@Nonnull ValueType type, @Nullable Serializable value) {
+      return new Value(type, value);
     }
 
     @Nonnull

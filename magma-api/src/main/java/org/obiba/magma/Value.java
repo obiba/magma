@@ -23,7 +23,7 @@ public class Value implements Serializable, Comparable<Value> {
     this(valueType, new StaticValueLoader(value));
   }
 
-  @SuppressWarnings("NullableProblems")
+  @SuppressWarnings({ "NullableProblems", "ConstantConditions" })
   Value(@Nonnull ValueType valueType, @Nullable ValueLoader valueLoader) {
     if(valueType == null) throw new IllegalArgumentException("valueType cannot be null");
     this.valueType = valueType;

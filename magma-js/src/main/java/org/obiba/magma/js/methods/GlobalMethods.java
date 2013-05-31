@@ -109,7 +109,7 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
       values = nativeArrayToValueList(valueType, (NativeArray) value);
     } else {
       values = new ArrayList<Value>();
-      values.add(ValueType.Factory.newValue(valueType, (Serializable) value));
+      values.add(valueType == null ? ValueType.Factory.newValue((Serializable) value) : valueType.valueOf(value));
     }
     if(valueType == null) {
       if(values.isEmpty()) {
@@ -124,9 +124,7 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
     List<Value> newValues = new ArrayList<Value>();
     for(long i = 0; i < nativeArray.getLength(); i++) {
       Serializable serializable = (Serializable) nativeArray.get(i);
-      Value value = ValueType.Factory.newValue(valueType, serializable);
-      log.debug("Value {} {}", value.getValueType().getClass().getName(), value.getValue());
-      newValues.add(value);
+      newValues.add(valueType == null ? ValueType.Factory.newValue(serializable) : valueType.valueOf(serializable));
     }
     return newValues;
   }

@@ -25,6 +25,9 @@ import org.obiba.magma.type.TextType;
 
 import com.google.common.collect.ImmutableList;
 
+import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertThat;
+
 public class ValueTypeTest extends AbstractMagmaTest {
 
   @Test
@@ -53,7 +56,7 @@ public class ValueTypeTest extends AbstractMagmaTest {
 
   @Test
   public void test_factory_newValue() {
-    Assert.assertEquals(TextType.get().valueOf("A Value"), ValueType.Factory.newValue("A Value"));
+    assertThat(TextType.get().valueOf("A Value"), is(ValueType.Factory.newValue("A Value")));
   }
 
   @Test(expected = IllegalArgumentException.class)
