@@ -21,8 +21,8 @@ public class MagmaContext extends Context {
     try {
       return (MagmaContext) ctx;
     } catch(ClassCastException e) {
-      throw new MagmaJsRuntimeException(
-          "No MagmaContext available. Make sure MagmaJsExtension has been initialized before using JavascriptValueSource instances.");
+      throw new MagmaJsRuntimeException("No MagmaContext available. " +
+          "Make sure MagmaJsExtension has been initialized before using JavascriptValueSource instances.", e);
     }
   }
 
