@@ -14,12 +14,13 @@ import org.obiba.magma.ValueType;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 
 public abstract class AbstractValueType implements ValueType {
 
   private static final long serialVersionUID = -2655334789781837332L;
 
-  //private static final Logger log = LoggerFactory.getLogger(AbstractValueType.class);
+//  private static final Logger log = LoggerFactory.getLogger(AbstractValueType.class);
 
   protected static final char SEPARATOR = ',';
 
@@ -94,13 +95,14 @@ public abstract class AbstractValueType implements ValueType {
     }
     final ValueConverter converter = Factory.converterFor(value.getValueType(), this);
     if(value.isSequence()) {
-      return sequenceOf(Iterables.transform(value.asSequence().getValue(), new Function<Value, Value>() {
+      return sequenceOf(
+          Lists.newArrayList(Iterables.transform(value.asSequence().getValue(), new Function<Value, Value>() {
 
-        @Override
-        public Value apply(Value from) {
-          return converter.convert(from, AbstractValueType.this);
-        }
-      }));
+            @Override
+            public Value apply(Value from) {
+              return converter.convert(from, AbstractValueType.this);
+            }
+          })));
     }
     return converter.convert(value, this);
   }
