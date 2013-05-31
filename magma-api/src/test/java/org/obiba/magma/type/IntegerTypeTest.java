@@ -85,6 +85,7 @@ public class IntegerTypeTest extends BaseValueTypeTest {
   @Test
   public void testTrim() {
     Long result = (Long) getValueType().valueOf(" 1 ").getValue();
+    //noinspection ConstantConditions
     assertThat(result.intValue(), is(1));
   }
 }

@@ -10,6 +10,8 @@ import org.obiba.magma.MagmaEngine;
 import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.Value;
 
+import com.google.common.base.Strings;
+
 public class IntegerType extends AbstractNumberType {
 
   private static final long serialVersionUID = 2345566305016760446L;
@@ -52,11 +54,8 @@ public class IntegerType extends AbstractNumberType {
   @Nonnull
   @Override
   public Value valueOf(@Nullable String string) {
-    if(string == null) {
-      return nullValue();
-    }
     try {
-      return Factory.newValue(this, Long.valueOf(normalize(string)));
+      return Strings.isNullOrEmpty(string) ? nullValue() : Factory.newValue(this, Long.valueOf(normalize(string)));
     } catch(NumberFormatException e) {
       throw new MagmaRuntimeException("Not a integer value: " + string, e);
     }

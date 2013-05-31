@@ -26,7 +26,7 @@ import junit.framework.Assert;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
-@SuppressWarnings({ "AssignmentToMethodParameter" })
+@SuppressWarnings({ "AssignmentToMethodParameter", "PMD.AvoidReassigningParameters" })
 public class ValueSequenceMethodsTest extends AbstractJsTest {
 
   // first()
@@ -194,7 +194,8 @@ public class ValueSequenceMethodsTest extends AbstractJsTest {
   public void testNullSequenceValueAt() throws Exception {
     ValueSequence valueSequence = TextType.get().nullSequence();
     ScriptableValue scriptableValue = newValue(valueSequence);
-    ScriptableValue result = ValueSequenceMethods.valueAt(Context.getCurrentContext(), scriptableValue, new Object[] { 2 }, null);
+    ScriptableValue result = ValueSequenceMethods
+        .valueAt(Context.getCurrentContext(), scriptableValue, new Object[] { 2 }, null);
     assertThat(result.getValue(), is(TextType.get().nullValue()));
   }
 
