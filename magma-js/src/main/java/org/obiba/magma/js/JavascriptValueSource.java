@@ -125,6 +125,7 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
   @Override
   public void initialise() throws EvaluatorException {
     final String script1 = getScript();
+    //noinspection ConstantConditions
     if(script1 == null) {
       throw new NullPointerException("script cannot be null");
     }
@@ -207,7 +208,7 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
           result = getValueType().convert(result);
         } catch(RuntimeException e) {
           throw new MagmaJsRuntimeException(
-              "Cannot convert value '" + result.toString() + "' to type '" + getValueType().getName() + "'");
+              "Cannot convert value '" + result.toString() + "' to type '" + getValueType().getName() + "'", e);
         }
       }
       return result;
