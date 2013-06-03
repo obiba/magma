@@ -107,7 +107,7 @@ public class ScriptableValueMethods {
     Value value = sv.getValue();
     return value.isSequence()
         ? sv
-        : new ScriptableValue(thisObj, ValueType.Factory.newSequence(value.getValueType(), Lists.newArrayList(value)));
+        : new ScriptableValue(thisObj, value.getValueType().sequenceOf(Lists.newArrayList(value)));
   }
 
 }
