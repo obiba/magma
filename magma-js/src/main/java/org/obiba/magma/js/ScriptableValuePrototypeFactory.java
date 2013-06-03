@@ -4,6 +4,7 @@ import org.mozilla.javascript.Scriptable;
 import org.obiba.magma.js.methods.BooleanMethods;
 import org.obiba.magma.js.methods.CompareMethods;
 import org.obiba.magma.js.methods.DateTimeMethods;
+import org.obiba.magma.js.methods.GeoMethods;
 import org.obiba.magma.js.methods.NumericMethods;
 import org.obiba.magma.js.methods.ScriptableValueMethods;
 import org.obiba.magma.js.methods.TextMethods;
@@ -53,6 +54,7 @@ public class ScriptableValuePrototypeFactory extends AbstractPrototypeFactory {
     addMethodProvider(NumericMethods.class);
     addMethodProvider(CompareMethods.class);
     addMethodProvider(UnitMethods.class);
+    addMethodProvider(GeoMethods.class);
   }
 
   @Override
