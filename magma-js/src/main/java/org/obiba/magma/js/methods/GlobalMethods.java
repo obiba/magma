@@ -43,7 +43,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 
-@SuppressWarnings({ "UnusedDeclaration", "IfMayBeConditional", "ChainOfInstanceofChecks", "OverlyCoupledClass" })
+@SuppressWarnings({ "IfMayBeConditional", "ChainOfInstanceofChecks", "OverlyCoupledClass" })
 public final class GlobalMethods extends AbstractGlobalMethodProvider {
 
   private static final Logger log = LoggerFactory.getLogger(GlobalMethods.class);
@@ -122,8 +122,9 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
 
   private static List<Value> nativeArrayToValueList(@Nullable ValueType valueType, NativeArray nativeArray) {
     List<Value> newValues = new ArrayList<Value>();
-    for(int i = 0; i < (int) nativeArray.getLength(); i++) {
-      Value value = ValueType.Factory.newValue(valueType, (Serializable) nativeArray.get(i, nativeArray));
+    for(long i = 0; i < nativeArray.getLength(); i++) {
+      Serializable serializable = (Serializable) nativeArray.get(i);
+      Value value = ValueType.Factory.newValue(valueType, serializable);
       log.debug("Value {} {}", value.getValueType().getClass().getName(), value.getValue());
       newValues.add(value);
     }
