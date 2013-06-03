@@ -106,7 +106,7 @@ public class Coordinate implements Comparable<Coordinate>, Serializable {
         array = new JSONArray(stringToParse);
         return new Coordinate(array.getDouble(1), array.getDouble(0));
       } catch(JSONException e) {
-        throw new MagmaRuntimeException("Not a valid Google Map coordinate", e);
+        throw new MagmaRuntimeException("Not a valid coordinate", e);
       }
     }
   }
@@ -124,7 +124,7 @@ public class Coordinate implements Comparable<Coordinate>, Serializable {
     if(o.getClass().equals(JSONObject.class)) {
       return getCoordinateFrom((JSONObject) o);
     }
-    throw new IllegalArgumentException("Cannot construct a Coordinate from this class");
+    throw new IllegalArgumentException("Cannot construct a Coordinate from class " + o.getClass());
   }
 
   public static Coordinate getCoordinateFrom(JSONObject object) {
