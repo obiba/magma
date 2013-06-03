@@ -44,6 +44,8 @@ ext {
 
       liquibase_core: 'org.liquibase:liquibase-core:1.9.4',
 
+      mongodb_java_driver: 'org.mongodb:mongo-java-driver:2.11.1',
+
       mysql_connector_java: 'mysql:mysql-connector-java:5.1.24',
 
       obiba_core: 'org.obiba:obiba-core:1.4.0',
