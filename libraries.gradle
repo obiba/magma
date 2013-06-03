@@ -52,7 +52,7 @@ ext {
 
       poi_ooxml: 'org.apache.poi:poi-ooxml:3.9',
 
-      rhino_js: 'rhino:js:1.7R2',
+      rhino_js: 'org.mozilla:rhino:1.7R4',
 
       shiro_core: 'org.apache.shiro:shiro-core:1.1.0',
       shiro_extras: 'eu.flatwhite.shiro:shiro-extras:1.0.1-obiba',
