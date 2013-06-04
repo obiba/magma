@@ -20,7 +20,7 @@ class GeneratedValueSet extends ValueSetBean {
 
   final RandomGenerator valueGenerator;
 
-  final RandomData dataGenerator;
+  final RandomDataImpl dataGenerator;
 
   final ConcurrentMap<String, Value> generatedValues = new MapMaker().makeMap();
 
