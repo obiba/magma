@@ -3,7 +3,13 @@ package org.obiba.magma.datasource.mongodb;
 import java.util.Set;
 
 import org.obiba.magma.VariableEntity;
+import org.obiba.magma.support.VariableEntityBean;
 import org.obiba.magma.support.VariableEntityProvider;
+
+import com.google.common.collect.ImmutableSet;
+import com.mongodb.BasicDBObject;
+import com.mongodb.BasicDBObjectBuilder;
+import com.mongodb.DBCursor;
 
 class MongoDBVariableEntityProvider implements VariableEntityProvider {
 
@@ -26,11 +32,22 @@ class MongoDBVariableEntityProvider implements VariableEntityProvider {
 
   @Override
   public boolean isForEntityType(String entityType) {
-    return false;  //To change body of implemented methods use File | Settings | File Templates.
+    return this.entityType.equals(entityType);
   }
 
   @Override
   public Set<VariableEntity> getVariableEntities() {
-    return null;  //To change body of implemented methods use File | Settings | File Templates.
+    ImmutableSet.Builder<VariableEntity> builder = ImmutableSet.builder();
+
+    DBCursor cursor = table.getValueSetCollection().find(new BasicDBObject(), BasicDBObjectBuilder.start("_id",1).get());
+    try {
+      while(cursor.hasNext()) {
+        builder.add(new VariableEntityBean(table.getEntityType(), cursor.next().get("_id").toString()));
+      }
+    } finally {
+      cursor.close();
+    }
+
+    return builder.build();
   }
 }
