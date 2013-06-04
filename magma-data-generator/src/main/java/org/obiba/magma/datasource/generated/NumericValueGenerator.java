@@ -13,6 +13,10 @@ import org.obiba.magma.type.IntegerType;
 
 class NumericValueGenerator extends AbstractMissingValueVariableValueGenerator {
 
+  private static final long MIN_VALUE = -100;
+
+  private static final long MAX_VALUE = 100;
+
   private final ValueSource minimum;
 
   private final ValueSource maximum;
@@ -37,8 +41,8 @@ class NumericValueGenerator extends AbstractMissingValueVariableValueGenerator {
 
   @SuppressWarnings("ConstantConditions")
   protected Value getInteger(GeneratedValueSet gvs, Value minimumValue, Value maximumValue) {
-    Number min = minimumValue.isNull() ? Long.MIN_VALUE : (Number) minimumValue.getValue();
-    Number max = maximumValue.isNull() ? Long.MAX_VALUE : (Number) maximumValue.getValue();
+    Number min = minimumValue.isNull() ? MIN_VALUE : (Number) minimumValue.getValue();
+    Number max = maximumValue.isNull() ? MAX_VALUE : (Number) maximumValue.getValue();
 
     Value meanValue = mean.getValue(gvs);
     Value stddevValue = stddev.getValue(gvs);
@@ -63,15 +67,6 @@ class NumericValueGenerator extends AbstractMissingValueVariableValueGenerator {
 
   private ValueSource makeSource(Variable variable, String... scriptAttributes) {
     return makeSource(variable, variable.getValueType(), scriptAttributes);
-  }
-
-  private ValueSource makeSource(AttributeAware variable, ValueType type, String... scriptAttributes) {
-    for (String scriptAttribute : scriptAttributes) {
-      if(variable.hasAttribute(scriptAttribute)) {
-        return new JavascriptValueSource(type, variable.getAttributeStringValue(scriptAttribute));
-      }
-    }
-    return new NullValueSource(type);
   }
 
 }
