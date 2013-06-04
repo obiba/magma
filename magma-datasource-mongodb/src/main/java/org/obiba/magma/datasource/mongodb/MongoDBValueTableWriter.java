@@ -5,6 +5,7 @@ import java.util.Date;
 
 import javax.annotation.Nonnull;
 
+import org.bson.BSONObject;
 import org.obiba.magma.ValueTableWriter;
 import org.obiba.magma.VariableEntity;
 
@@ -15,38 +16,28 @@ class MongoDBValueTableWriter implements ValueTableWriter {
 
   private final MongoDBValueTable table;
 
-  private DBObject tableObject;
-
-  MongoDBValueTableWriter(MongoDBValueTable table) {
+  MongoDBValueTableWriter(@Nonnull MongoDBValueTable table) {
     this.table = table;
   }
 
   @Override
   public VariableWriter writeVariables() {
-    return new MongoDBVariableWriter(getTableObject());
+    return table.createVariableWriter();
   }
 
   @Nonnull
   @Override
   public ValueSetWriter writeValueSet(@Nonnull VariableEntity entity) {
-    return null;
-  }
-
-  private DBObject getTableObject() {
-    if (tableObject == null) {
-      tableObject = table.asDBObject();
-    }
-    return tableObject;
+    return table.createValueSetWriter(entity);
   }
 
   @Override
   public void close() throws IOException {
-    if(tableObject != null) {
-      DBObject timestamps = (DBObject) tableObject.get("timestamps");
-      timestamps.put("updated", new Date());
-      // insert or update
-      table.getValueTableCollection().save(tableObject);
-    }
+    DBObject tableObject = table.asDBObject();
+    BSONObject timestamps = (BSONObject) tableObject.get(MongoDBValueTable.TIMESTAMPS_FIELD);
+    timestamps.put("updated", new Date());
+    // insert or update
+    table.getValueTableCollection().save(tableObject);
   }
 
 }

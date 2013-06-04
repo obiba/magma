@@ -12,6 +12,10 @@ import com.mongodb.DBObject;
 
 public class VariableConverter {
 
+  public static String normalizeFieldName(String name) {
+    return name.replaceAll("[.$]","_");
+  }
+
   public static Variable unmarshall(DBObject object) {
     ValueType valueType = ValueType.Factory.forName(object.get("valueType").toString());
     String entityType = object.get("entityType").toString();
@@ -19,7 +23,7 @@ public class VariableConverter {
   }
 
   public static DBObject marshall(Variable variable) {
-    BasicDBObjectBuilder builder = BasicDBObjectBuilder.start() //
+    BasicDBObjectBuilder builder = BasicDBObjectBuilder.start("_id", variable.getName()) //
         .add("name", variable.getName()) //
         .add("valueType", variable.getValueType().getName()) //
         .add("entityType", variable.getEntityType()) //

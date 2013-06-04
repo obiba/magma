@@ -26,10 +26,6 @@ public class MongoDBDatasource extends AbstractDatasource {
 
   static final String VALUE_TABLE_COLLECTION = "value_table";
 
-  static final String VARIABLE_SUFFIX = "-variable";
-
-  static final String VALUESET_SUFFIX = "-value_set";
-
   private final String host;
 
   private final int port;
