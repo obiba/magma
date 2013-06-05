@@ -79,6 +79,11 @@ public class PolygonType extends JSONAwareValueType {
     return false;
   }
 
+  @Override
+  public boolean isGeo() {
+    return true;
+  }
+
   @Nonnull
   @Override
   public Value valueOf(@Nullable String string) {

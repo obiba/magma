@@ -35,6 +35,11 @@ public abstract class AbstractValueType implements ValueType {
     nullSequence = Factory.newSequence(this, null);
   }
 
+  @Override
+  public boolean isGeo() {
+    return false;
+  }
+
   @Nonnull
   @Override
   public Value nullValue() {

@@ -9,6 +9,7 @@ import org.mozilla.javascript.ScriptableObject;
 import org.obiba.magma.Value;
 import org.obiba.magma.js.ScriptableValue;
 import org.obiba.magma.js.ScriptableVariable;
+import org.obiba.magma.support.VariableNature;
 import org.obiba.magma.type.BooleanType;
 import org.obiba.magma.type.TextType;
 
@@ -82,6 +83,12 @@ public class ScriptableVariableMethods {
     ScriptableVariable sv = (ScriptableVariable) thisObj;
     if(sv == null) throw new IllegalArgumentException("thisObj cannot be null");
     return new ScriptableValue(thisObj, TextType.get().valueOf(sv.getVariable().getUnit()));
+  }
+
+  public static ScriptableValue nature(Context ctx, Scriptable thisObj, Object[] args, Function funObj) {
+    ScriptableVariable sv = (ScriptableVariable) thisObj;
+    if(sv == null) throw new IllegalArgumentException("thisObj cannot be null");
+    return new ScriptableValue(thisObj, TextType.get().valueOf(VariableNature.getNature(sv.getVariable()).toString()));
   }
 
 }
