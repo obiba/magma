@@ -76,13 +76,13 @@ public class GeoMethods {
   }
 
   /**
-   * Returns the size of a {@link PolygonType}.
+   * Returns the dimension of a {@link PolygonType}.
    * <pre>
-   *   $('Polygon').size()
+   *   $('Polygon').dim()
    * </pre>
    */
   @SuppressWarnings({ "unchecked", "OverlyStrongTypeCast" })
-  public static ScriptableValue size(Context ctx, Scriptable thisObj, @Nullable Object[] args,
+  public static ScriptableValue dim(Context ctx, Scriptable thisObj, @Nullable Object[] args,
       @Nullable Function funObj) {
     ScriptableValue sv = (ScriptableValue) thisObj;
     Value value = sv.getValue();
