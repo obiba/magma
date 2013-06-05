@@ -21,6 +21,11 @@ public abstract class AbstractNumberType extends AbstractValueType {
   }
 
   @Override
+  public boolean isGeo() {
+    return false;
+  }
+
+  @Override
   @SuppressWarnings({ "rawtypes", "unchecked" })
   public int compare(Value o1, Value o2) {
     Comparable l1 = (Comparable) o1.getValue();

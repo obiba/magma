@@ -58,7 +58,7 @@ public class GeoMethodsTest extends AbstractJsTest {
     Value value = PolygonType.get().valueOf(s);
     ScriptableValue scriptableValue = newValue(value);
 
-    ScriptableValue size = GeoMethods.size(Context.getCurrentContext(), scriptableValue, new Object[] { }, null);
+    ScriptableValue size = GeoMethods.dim(Context.getCurrentContext(), scriptableValue, new Object[] { }, null);
     assertThat(size.getValue().isNull(), is(false));
     assertThat((IntegerType) size.getValue().getValueType(), is(IntegerType.get()));
     assertThat((Long) size.getValue().getValue(), is(1L));
@@ -71,7 +71,7 @@ public class GeoMethodsTest extends AbstractJsTest {
         "[[0.0,0.0] , [0.4,0.0] , [0.1,0.1] , [4.0,0.1] , [0.0,0.0]] ]";
     Value value = PolygonType.get().valueOf(s);
     ScriptableValue scriptableValue = newValue(value);
-    ScriptableValue size = GeoMethods.size(Context.getCurrentContext(), scriptableValue, new Object[] { }, null);
+    ScriptableValue size = GeoMethods.dim(Context.getCurrentContext(), scriptableValue, new Object[] { }, null);
 
     assertThat(size.getValue().isNull(), is(false));
     assertThat((IntegerType) size.getValue().getValueType(), is(IntegerType.get()));
