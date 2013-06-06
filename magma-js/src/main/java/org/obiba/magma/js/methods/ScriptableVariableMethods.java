@@ -91,4 +91,22 @@ public class ScriptableVariableMethods {
     return new ScriptableValue(thisObj, TextType.get().valueOf(VariableNature.getNature(sv.getVariable()).toString()));
   }
 
+  public static ScriptableValue isNumeric(Context ctx, Scriptable thisObj, Object[] args, Function funObj) {
+    ScriptableVariable sv = (ScriptableVariable) thisObj;
+    if(sv == null) throw new IllegalArgumentException("thisObj cannot be null");
+    return new ScriptableValue(thisObj, BooleanType.get().valueOf(sv.getVariable().getValueType().isNumeric()));
+  }
+
+  public static ScriptableValue isDateTime(Context ctx, Scriptable thisObj, Object[] args, Function funObj) {
+    ScriptableVariable sv = (ScriptableVariable) thisObj;
+    if(sv == null) throw new IllegalArgumentException("thisObj cannot be null");
+    return new ScriptableValue(thisObj, BooleanType.get().valueOf(sv.getVariable().getValueType().isDateTime()));
+  }
+
+  public static ScriptableValue isGeo(Context ctx, Scriptable thisObj, Object[] args, Function funObj) {
+    ScriptableVariable sv = (ScriptableVariable) thisObj;
+    if(sv == null) throw new IllegalArgumentException("thisObj cannot be null");
+    return new ScriptableValue(thisObj, BooleanType.get().valueOf(sv.getVariable().getValueType().isGeo()));
+  }
+
 }
