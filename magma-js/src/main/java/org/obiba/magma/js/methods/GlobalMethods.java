@@ -297,7 +297,7 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
   }
 
   /**
-   * Get first occurrence group matching criteria and returns a map (variable name/{@code ScriptableValue}).
+   * Get occurrence group matching criteria and returns a map (variable name/{@code ScriptableValue}).
    * <p/>
    * <pre>
    *   $group('StageName','StageA')['StageDuration']
