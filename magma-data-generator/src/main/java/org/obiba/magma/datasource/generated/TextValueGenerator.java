@@ -5,6 +5,7 @@ import java.util.Random;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueType;
 import org.obiba.magma.Variable;
+import org.obiba.magma.type.TextType;
 
 public class TextValueGenerator extends GeneratedVariableValueSource {
 
@@ -16,8 +17,8 @@ public class TextValueGenerator extends GeneratedVariableValueSource {
 
   @Override
   protected Value nextValue(Variable variable, GeneratedValueSet valueSet) {
-    return ValueType.Factory.newValue(
-        LOREM_IPSUM.paragraphs(valueSet.dataGenerator.nextInt(1, 10), valueSet.dataGenerator.nextInt(0, 1) == 0));
+    return valueSet.dataGenerator.nextInt(0,1) == 0 ? variable.getValueType().nullValue() : variable.getValueType().valueOf(
+        LOREM_IPSUM.paragraphs(valueSet.dataGenerator.nextInt(0, 1), valueSet.dataGenerator.nextInt(0, 1) == 0));
   }
 
   /*
@@ -150,6 +151,8 @@ public class TextValueGenerator extends GeneratedVariableValueSource {
      * @useStandard - begin with the STANDARD Lorem Ipsum paragraph?
      */
     public String paragraphs(int count, boolean useStandard) {
+      if (count == 0) return null;
+
       StringBuilder s = new StringBuilder();
       while(count-- > 0) {
         s.append(paragraph(useStandard)).append(EOL).append(EOL);
