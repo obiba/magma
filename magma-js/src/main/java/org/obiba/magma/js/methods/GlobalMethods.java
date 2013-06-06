@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.annotation.Nonnull;
@@ -42,6 +43,8 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 @SuppressWarnings({ "IfMayBeConditional", "ChainOfInstanceofChecks", "OverlyCoupledClass" })
 public final class GlobalMethods extends AbstractGlobalMethodProvider {
@@ -301,85 +304,110 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
    *   $group('NumVar', function(value) {
    *     return value.ge(10);
    *   })['AnotherVar']
+   *   $group('StageName','StageA', 'StageDuration')
    * </pre>
    *
    * @return a javascript object that maps variable names to {@code ScriptableValue}
    */
-  public static NativeObject $group(Context ctx, Scriptable thisObj, Object[] args, Function funObj)
+  public static Object $group(Context ctx, Scriptable thisObj, Object[] args, Function funObj)
       throws MagmaJsEvaluationRuntimeException {
-    if(args.length != 2) {
+    if(args.length < 2 || args.length > 3) {
       throw new IllegalArgumentException(
-          "$group() expects exactly two arguments: a variable name and a matching criteria (i.e. a value or a function).");
+          "$group() expects two required arguments (a variable name and a matching criteria (i.e. a value or a function)) and one optional argument (a variable name from the same occurrence group).");
     }
 
-    List<NativeObject> valueMaps = getGroups(ctx, thisObj, args, true);
-    return valueMaps.isEmpty() ? new NativeObject() : valueMaps.get(0);
-  }
-
-  /**
-   * Get all occurrence group matching criteria and returns an array of maps (variable name/{@code ScriptableValue}).
-   * <p/>
-   * <pre>
-   *   $groups('StageName','StageA')[0]['StageDuration']
-   *   $groups('NumVar', function(value) {
-   *     return value.ge(10);
-   *   })[0]['AnotherVar']
-   * </pre>
-   *
-   * @return a javascript object that maps variable names to {@code ScriptableValue}
-   */
-  public static NativeArray $groups(Context ctx, Scriptable thisObj, Object[] args, Function funObj)
-      throws MagmaJsEvaluationRuntimeException {
-    if(args.length != 2) {
-      throw new IllegalArgumentException(
-          "$groups() expects exactly two arguments: a variable name and a matching criteria (i.e. a value or a function).");
-    }
-
-    return new NativeArray(getGroups(ctx, thisObj, args, false).toArray());
-  }
-
-  @SuppressWarnings({ "OverlyLongMethod", "PMD.NcssMethodCount" })
-  private static List<NativeObject> getGroups(Context ctx, Scriptable thisObj, Object[] args, boolean stopAtFirst) {
+    // name of the 'source' variable on which the criteria is to be applied
     String name = (String) args[0];
+    // criteria for selecting values of the 'source' variable
     Object criteria = args[1];
+    // 'destination' variable to be selected
+    String select = args.length == 3 ? (String) args[2] : null;
 
+    if(args.length == 2) return getGroups(ctx, thisObj, name, criteria);
+    else return new ScriptableValue(thisObj, getGroupValue(ctx, thisObj, name, criteria, select));
+  }
+
+  private static Value getGroupValue(Context ctx, Scriptable thisObj, String name, Object criteria, String select) {
+    MagmaContext context = MagmaContext.asMagmaContext(ctx);
+    ScriptableValue sv = valueFromContext(context, thisObj, name);
+    Variable variable = variableFromContext(context, name);
+    ValueTable valueTable = valueTableFromContext(context);
+    Variable selectVariable = getVariableFromOccurrenceGroup(valueTable, variable, select);
+
+    Value rval = selectVariable.getValueType().nullValue();
+
+    ValueSequence sourceValue = sv.getValue().asSequence();
+
+    if(!sourceValue.isNull() && sourceValue.isSequence()) {
+      Predicate<Value> predicate = getPredicate(ctx, sv.getParentScope(), thisObj, variable, criteria);
+      ValueSequence destinationValue = valueFromContext(context, thisObj, selectVariable.getName()).getValue()
+          .asSequence();
+
+      List<Value> rvalues = Lists.newArrayList();
+      int index = -1;
+      for(Value value : sourceValue.getValues()) {
+        index++;
+        if(predicate.apply(value) && index < destinationValue.getSize()) {
+          rvalues.add(destinationValue.get(index));
+        }
+      }
+
+      if(rvalues.size() == 1) {
+        rval = rvalues.get(0);
+      } else if(rvalues.size() > 1) {
+        rval = selectVariable.getValueType().sequenceOf(rvalues);
+      }
+    }
+
+    return rval;
+  }
+
+  @Deprecated
+  @SuppressWarnings({ "OverlyLongMethod", "PMD.NcssMethodCount" })
+  private static NativeObject getGroups(Context ctx, Scriptable thisObj, String name, Object criteria) {
     MagmaContext context = MagmaContext.asMagmaContext(ctx);
 
     ScriptableValue sv = valueFromContext(context, thisObj, name);
     Variable variable = variableFromContext(context, name);
-    ValueTable valueTable = valueTableFromContext(context);
 
-    List<NativeObject> valueMaps = new ArrayList<NativeObject>();
+    NativeObject valueObject = new NativeObject();
 
     if(sv.getValue().isNull() || !sv.getValue().isSequence()) {
       // just map itself
-      NativeObject valueMap = new NativeObject();
-      valueMaps.add(valueMap);
-      valueMap.put(variable.getName(), valueMap, sv);
+      valueObject.put(variable.getName(), valueObject, sv);
     } else {
+      ValueTable valueTable = valueTableFromContext(context);
       Predicate<Value> predicate = getPredicate(ctx, sv.getParentScope(), thisObj, variable, criteria);
-      Iterable<Variable> variables = getVariablesFromOccurrenceGroup(valueTable, variable);
+      Iterable<Variable> variables = getVariablesFromOccurrenceGroup(valueTable, variable, null);
 
       ValueSequence valueSequence = sv.getValue().asSequence();
+      Map<String, List<Value>> valueMap = Maps.newHashMap();
       int index = -1;
-      //noinspection ConstantConditions
+      // foreach elligible value, look for corresponding values of the same variable group
       for(Value value : valueSequence.getValue()) {
         index++;
         if(predicate.apply(value)) {
-          NativeObject valueMap = new NativeObject();
-          valueMaps.add(valueMap);
           // map itself
-          valueMap.put(variable.getName(), valueMap, new ScriptableValue(thisObj, value));
+          addVariableValue(valueMap, variable, value);
           // get variables of the same occurrence group and map values
           mapValues(context, thisObj, valueMap, variables, index);
-          if(stopAtFirst) {
-            break;
-          }
         }
+      }
+
+      // make it a native map
+      for(String varName : valueMap.keySet()) {
+        List<Value> values = valueMap.get(varName);
+        Value value;
+        if(values.size() == 1) {
+          value = values.get(0);
+        } else {
+          value = values.get(0).getValueType().sequenceOf(values);
+        }
+        valueObject.put(varName, valueObject, new ScriptableValue(thisObj, value));
       }
     }
 
-    return valueMaps;
+    return valueObject;
   }
 
   @Nullable
@@ -412,20 +440,47 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
     return predicate;
   }
 
-  private static Iterable<Variable> getVariablesFromOccurrenceGroup(@Nullable ValueTable valueTable,
-      @Nonnull final Variable variable) {
-    if(variable.getOccurrenceGroup() == null || valueTable == null) {
-      return ImmutableList.<Variable>builder().build();
+  private static Variable getVariableFromOccurrenceGroup(@Nullable ValueTable valueTable,
+      @Nonnull final Variable variable, @Nonnull final String select) {
+    List<Variable> variables = getVariablesFromOccurrenceGroup(valueTable, variable, select);
+    if(variables.size() != 1) {
+      throw new IllegalArgumentException(
+          "Cannot find one variable with name '" + select + "' in the same occurrence group as '" + variable.getName() +
+              "'");
     }
-    return Iterables.filter(valueTable.getVariables(), new Predicate<Variable>() {
-      @Override
-      public boolean apply(@Nullable Variable input) {
-        return input != null && variable.getOccurrenceGroup().equals(input.getOccurrenceGroup());
-      }
-    });
+
+    return variables.get(0);
   }
 
-  private static void mapValues(MagmaContext context, Scriptable thisObj, Scriptable valueMap,
+  private static List<Variable> getVariablesFromOccurrenceGroup(@Nullable ValueTable valueTable,
+      @Nonnull final Variable variable, final String select) {
+    ImmutableList.Builder<Variable> builder = ImmutableList.builder();
+
+    if(variable.getOccurrenceGroup() == null || valueTable == null) {
+      return builder.build();
+    }
+
+    for(Variable var : valueTable.getVariables()) {
+      if(variable.getOccurrenceGroup().equals(var.getOccurrenceGroup())) {
+        if(select == null || select.equals(var.getName())) {
+          builder.add(var);
+        }
+      }
+    }
+
+    return builder.build();
+  }
+
+  private static void addVariableValue(Map<String, List<Value>> valueMap, Variable variable, Value value) {
+    List<Value> values = valueMap.get(variable.getName());
+    if(values == null) {
+      values = Lists.newArrayList();
+      valueMap.put(variable.getName(), values);
+    }
+    values.add(value);
+  }
+
+  private static void mapValues(MagmaContext context, Scriptable thisObj, Map<String, List<Value>> valueMap,
       Iterable<Variable> variables, int index) {
     if(index < 0) return;
 
@@ -438,7 +493,7 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
           val = valSeq.get(index);
         }
       }
-      valueMap.put(var.getName(), valueMap, new ScriptableValue(thisObj, val));
+      addVariableValue(valueMap, var, val);
     }
   }
 
