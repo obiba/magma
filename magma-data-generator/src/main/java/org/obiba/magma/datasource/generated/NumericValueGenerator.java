@@ -36,16 +36,13 @@ class NumericValueGenerator extends AbstractMissingValueVariableValueGenerator {
 
   @Override
   protected Value nonMissingValue(Variable variable, GeneratedValueSet gvs) {
-    return getInteger(gvs, minimum.getValue(gvs), maximum.getValue(gvs));
+    return getInteger(gvs, getMinimum(gvs), getMaximum(gvs));
   }
 
   @SuppressWarnings("ConstantConditions")
-  protected Value getInteger(GeneratedValueSet gvs, Value minimumValue, Value maximumValue) {
-    Number min = minimumValue.isNull() ? MIN_VALUE : (Number) minimumValue.getValue();
-    Number max = maximumValue.isNull() ? MAX_VALUE : (Number) maximumValue.getValue();
-
-    Value meanValue = mean.getValue(gvs);
-    Value stddevValue = stddev.getValue(gvs);
+  protected Value getInteger(GeneratedValueSet gvs, Number min, Number max) {
+    Value meanValue = getMeanValue(gvs);
+    Value stddevValue = getStdDevValue(gvs);
     if(meanValue.isNull() || stddevValue.isNull()) {
       if(getValueType() == IntegerType.get()) {
         return getValueType()
@@ -67,6 +64,46 @@ class NumericValueGenerator extends AbstractMissingValueVariableValueGenerator {
 
   private ValueSource makeSource(Variable variable, String... scriptAttributes) {
     return makeSource(variable, variable.getValueType(), scriptAttributes);
+  }
+
+  private Number getMinimum(GeneratedValueSet gvs) {
+    Value minimumValue = minimum.getValue(gvs);
+    Number min = MIN_VALUE;
+    try {
+      min = minimumValue.isNull() ? MIN_VALUE : (Number) minimumValue.getValue();
+    } catch(Exception e) {
+      //e.printStackTrace();
+    }
+    return min;
+  }
+
+  private Number getMaximum(GeneratedValueSet gvs) {
+    Value maximumValue = maximum.getValue(gvs);
+    Number max = MAX_VALUE;
+    try {
+      max = maximumValue.isNull() ? MIN_VALUE : (Number) maximumValue.getValue();
+    } catch(Exception e) {
+      //e.printStackTrace();
+    }
+    return max;
+  }
+
+  private Value getMeanValue(GeneratedValueSet gvs) {
+    try {
+      return mean.getValue(gvs);
+    } catch (Exception e) {
+      //e.printStackTrace();
+      return mean.getValueType().nullValue();
+    }
+  }
+
+  private Value getStdDevValue(GeneratedValueSet gvs) {
+    try {
+      return stddev.getValue(gvs);
+    } catch (Exception e) {
+      //e.printStackTrace();
+      return stddev.getValueType().nullValue();
+    }
   }
 
 }
