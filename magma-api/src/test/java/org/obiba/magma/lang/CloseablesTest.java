@@ -56,6 +56,6 @@ public class CloseablesTest {
 
   @Test
   public void test_closeQuietly_acceptsNull() {
-    Closeables.closeQuietly(null);
+    Closeables.closeQuietly((Closeable)null);
   }
 }
