@@ -75,30 +75,4 @@ public class GeoMethods {
     }
   }
 
-  /**
-   * Returns the dimension of a {@link PolygonType}.
-   * <pre>
-   *   $('Polygon').dim()
-   * </pre>
-   */
-  @SuppressWarnings({ "unchecked", "OverlyStrongTypeCast" })
-  public static ScriptableValue dim(Context ctx, Scriptable thisObj, @Nullable Object[] args,
-      @Nullable Function funObj) {
-    ScriptableValue sv = (ScriptableValue) thisObj;
-    Value value = sv.getValue();
-
-    if(value.isSequence()) {
-      Collection<Value> values = new ArrayList<Value>();
-      for(Value val : value.asSequence().getValue()) {
-        int polygonSize = ((List<List<Coordinate>>) val.getValue()).size();
-        values.add(IntegerType.get().valueOf(polygonSize));
-      }
-      return new ScriptableValue(thisObj, IntegerType.get().valueOf(values));
-    } else {
-      Value newValue = PolygonType.get().valueOf(value.toString());
-      int polygonSize = ((List<List<Coordinate>>) newValue.getValue()).size();
-      return new ScriptableValue(thisObj, IntegerType.get().valueOf(polygonSize));
-    }
-  }
-
 }
