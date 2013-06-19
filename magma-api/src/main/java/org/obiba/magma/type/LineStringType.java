@@ -1,3 +1,12 @@
+/*
+ * Copyright (c) 2013 OBiBa. All rights reserved.
+ *
+ * This program and the accompanying materials
+ * are made available under the terms of the GNU Public License v3.0.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package org.obiba.magma.type;
 
 import java.io.Serializable;
@@ -19,23 +28,23 @@ import org.obiba.magma.ValueSequence;
 
 import com.google.common.collect.Iterables;
 
-public class LineType extends JSONAwareValueType {
+public class LineStringType extends JSONAwareValueType {
 
   private static final long serialVersionUID = 1415659902603617833L;
 
   @SuppressWarnings("StaticNonFinalField")
-  private static WeakReference<LineType> instance;
+  private static WeakReference<LineStringType> instance;
 
-  private LineType() {
+  private LineStringType() {
 
   }
 
   @SuppressWarnings("ConstantConditions")
   @edu.umd.cs.findbugs.annotations.SuppressWarnings("NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE")
   @Nonnull
-  public static LineType get() {
+  public static LineStringType get() {
     if(instance == null || instance.get() == null) {
-      instance = MagmaEngine.get().registerInstance(new LineType());
+      instance = MagmaEngine.get().registerInstance(new LineStringType());
     }
     return instance.get();
   }
@@ -43,7 +52,7 @@ public class LineType extends JSONAwareValueType {
   @Nonnull
   @Override
   public String getName() {
-    return "line";
+    return "linestring";
   }
 
   @Override
@@ -85,7 +94,7 @@ public class LineType extends JSONAwareValueType {
       JSONArray array = new JSONArray(string.trim());
       return valueOf(array);
     } catch(JSONException e) {
-      throw new MagmaRuntimeException("Invalid Line format", e);
+      throw new MagmaRuntimeException("Invalid LineString format", e);
     }
   }
 
@@ -99,11 +108,11 @@ public class LineType extends JSONAwareValueType {
       try {
         line.add(Coordinate.getCoordinateFrom(array.get(i)));
       } catch(JSONException e) {
-        throw new MagmaRuntimeException("Invalid Line format", e);
+        throw new MagmaRuntimeException("Invalid LineString format", e);
       }
     }
     if(line.isEmpty()) {
-      throw new MagmaRuntimeException("The Line can't be empty");
+      throw new MagmaRuntimeException("The LineString can't be empty");
     }
     return Factory.newValue(this, (Serializable) line);
   }
@@ -128,7 +137,7 @@ public class LineType extends JSONAwareValueType {
         line.add(Coordinate.getCoordinateFrom(o));
       }
       if(line.isEmpty()) {
-        throw new MagmaRuntimeException("The Line can't be empty");
+        throw new MagmaRuntimeException("The LineString can't be empty");
       }
       return Factory.newValue(this, (Serializable) line);
     }

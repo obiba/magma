@@ -1,3 +1,12 @@
+/*******************************************************************************
+ * Copyright (c) 2013 OBiBa. All rights reserved.
+ *
+ * This program and the accompanying materials
+ * are made available under the terms of the GNU Public License v3.0.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ ******************************************************************************/
 package org.obiba.magma.js.methods;
 
 import java.util.ArrayList;
@@ -53,34 +62,7 @@ public class GeoMethodsTest extends AbstractJsTest {
   }
 
   @Test
-  public void testSizeOneShapePolygon() {
-    String s = "[[[100.0, 0.0], [101.0, 0.0], [101.0, 1.0], [100.0, 1.0], [100.0, 0.0]  ]]";
-    Value value = PolygonType.get().valueOf(s);
-    ScriptableValue scriptableValue = newValue(value);
-
-    ScriptableValue size = GeoMethods.dim(Context.getCurrentContext(), scriptableValue, new Object[] { }, null);
-    assertThat(size.getValue().isNull(), is(false));
-    assertThat((IntegerType) size.getValue().getValueType(), is(IntegerType.get()));
-    assertThat((Long) size.getValue().getValue(), is(1L));
-  }
-
-  @Test
-  public void testSizeThreeShapePolygon() {
-    String s = "[ [[100.0, 0.0], [101.0, 0.0], [101.0, 1.0], [100.0, 1.0], [100.0, 0.0]]," +
-        "[[0.0,0.0] , [0.1,0.0] , [0.1,0.1] , [0.0,0.1] , [0.0,0.0]]," +
-        "[[0.0,0.0] , [0.4,0.0] , [0.1,0.1] , [4.0,0.1] , [0.0,0.0]] ]";
-    Value value = PolygonType.get().valueOf(s);
-    ScriptableValue scriptableValue = newValue(value);
-    ScriptableValue size = GeoMethods.dim(Context.getCurrentContext(), scriptableValue, new Object[] { }, null);
-
-    assertThat(size.getValue().isNull(), is(false));
-    assertThat((IntegerType) size.getValue().getValueType(), is(IntegerType.get()));
-    assertThat((Long) size.getValue().getValue(), is(3L));
-  }
-
-  @Test
-  public void test_semester_sequence() {
-
+  public void testPointSequenceLongitude() {
     Collection<Value> values = new ArrayList<Value>();
     for(int i = 0; i < 12; i++) {
       Coordinate coordinate = new Coordinate(10.25, i);
