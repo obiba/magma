@@ -52,7 +52,7 @@ public class PolygonType extends JSONAwareValueType {
   @Nonnull
   @Override
   public String getName() {
-    return "Polygon";
+    return "polygon";
   }
 
   @Override
