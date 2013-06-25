@@ -95,6 +95,7 @@ public class JoinTable implements ValueTable, Initialisable {
       }
     }
     this.tables = ImmutableList.copyOf(tables);
+    analyseVariables();
   }
 
   @Nonnull
