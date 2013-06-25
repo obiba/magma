@@ -1,6 +1,8 @@
 package org.obiba.magma.js;
 
+import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -9,11 +11,16 @@ import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ScriptRuntime;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
+import org.obiba.magma.Coordinate;
 import org.obiba.magma.MagmaDate;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueType;
 import org.obiba.magma.type.BooleanType;
 import org.obiba.magma.type.DateType;
+import org.obiba.magma.type.IntegerType;
+import org.obiba.magma.type.LineStringType;
+import org.obiba.magma.type.PointType;
+import org.obiba.magma.type.PolygonType;
 import org.obiba.magma.type.TextType;
 
 /**
@@ -77,16 +84,19 @@ public class ScriptableValue extends ScriptableObject {
       return value.asSequence().toString();
     }
     Object defaultValue = value.getValue();
+    if(value.isNull()) {
+      return Context.toObject(defaultValue, this);
+    }
     if(value.getValueType().isDateTime()) {
-      if(value.isNull()) {
-        return Context.toObject(defaultValue, this);
-      }
       double jsDate;
       //noinspection ConstantConditions
       jsDate = value.getValueType() == DateType.get()
           ? ((MagmaDate) defaultValue).asDate().getTime()
           : ((Date) defaultValue).getTime();
       return Context.toObject(ScriptRuntime.wrapNumber(jsDate), this);
+    }
+    if(value.getValueType().isGeo()) {
+      return getGeoDefaultValue(value.getValueType(), defaultValue);
     }
     if(value.getValueType().isNumeric()) {
       return Context.toNumber(defaultValue);
@@ -98,6 +108,39 @@ public class ScriptableValue extends ScriptableObject {
       return Context.toString(defaultValue);
     }
     return defaultValue;
+  }
+
+  private Object getGeoDefaultValue(ValueType type, Object defaultValue) {
+    if(PointType.get().equals(type)) {
+      return ((Coordinate) defaultValue).toArray();
+    }
+    if(LineStringType.get().equals(type)) {
+      return getLineDefaultValue((Collection<Coordinate>) defaultValue);
+    }
+    if(PolygonType.get().equals(type)) {
+      return getPolygonDefaultValue((List<List<Coordinate>>) defaultValue);
+    }
+    return defaultValue;
+  }
+
+  private double[][] getLineDefaultValue(Collection<Coordinate> line) {
+    double[][] dline = new double[line.size()][];
+    int i = 0;
+    for(Coordinate coordinate : line) {
+      dline[i++] = coordinate.toArray();
+    }
+    return dline;
+  }
+
+  private double[][][] getPolygonDefaultValue(List<List<Coordinate>> polygon) {
+    double[][][] dpolygon = new double[polygon.size()][][];
+
+    int i = 0;
+    for(List<Coordinate> line : polygon) {
+      dpolygon[i++] = getLineDefaultValue(line);
+    }
+
+    return dpolygon;
   }
 
   @Nonnull

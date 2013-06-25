@@ -42,6 +42,10 @@ public class Coordinate implements Comparable<Coordinate>, Serializable {
     return latitude;
   }
 
+  public double[] toArray() {
+    return new double[] { longitude, latitude };
+  }
+
   @Override
   public int compareTo(Coordinate o) {
     if(longitude < o.getLongitude()) return -1;
