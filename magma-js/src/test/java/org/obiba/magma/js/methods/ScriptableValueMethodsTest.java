@@ -10,13 +10,17 @@ import org.obiba.magma.js.ScriptableValue;
 import org.obiba.magma.type.BinaryType;
 import org.obiba.magma.type.BooleanType;
 import org.obiba.magma.type.DateTimeType;
+import org.obiba.magma.type.DateType;
+import org.obiba.magma.type.DecimalType;
 import org.obiba.magma.type.IntegerType;
 import org.obiba.magma.type.LocaleType;
+import org.obiba.magma.type.PointType;
 import org.obiba.magma.type.TextType;
 
 import junit.framework.Assert;
 
 import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertTrue;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.notNullValue;
 import static org.junit.Assert.assertThat;
@@ -157,5 +161,47 @@ public class ScriptableValueMethodsTest extends AbstractJsTest {
     assertThat(sv.getValue(), notNullValue());
     assertThat(sv.getValue().isNull(), is(false));
     assertThat(sv.getValue(), is(value.getValue()));
+  }
+
+  @Test
+  public void testValueForBooleanValue() {
+    ScriptableValue booleanValue = newValue(BooleanType.get().valueOf(true));
+    Object value = ScriptableValueMethods.value(getCurrentContext(), booleanValue, new Object[] { }, null);
+    assertEquals("java.lang.Boolean", value.getClass().getName());
+  }
+
+  @Test
+  public void testValueForDateTimeValue() {
+    ScriptableValue dateValue = newValue(DateTimeType.get().valueOf(new Date()));
+    Object value = ScriptableValueMethods.value(getCurrentContext(), dateValue, new Object[] { }, null);
+    assertEquals("org.mozilla.javascript.NativeNumber", value.getClass().getName());
+  }
+
+  @Test
+  public void testValueForDateValue() {
+    ScriptableValue dateValue = newValue(DateType.get().valueOf(new Date()));
+    Object value = ScriptableValueMethods.value(getCurrentContext(), dateValue, new Object[] { }, null);
+    assertEquals("org.mozilla.javascript.NativeNumber", value.getClass().getName());
+  }
+
+  @Test
+  public void testValueForIntegerValue() {
+    ScriptableValue nbValue = newValue(IntegerType.get().valueOf(2));
+    Object value = ScriptableValueMethods.value(getCurrentContext(), nbValue, new Object[] { }, null);
+    assertEquals("java.lang.Double", value.getClass().getName());
+  }
+
+  @Test
+  public void testValueForDecimalValue() {
+    ScriptableValue nbValue = newValue(DecimalType.get().valueOf(2));
+    Object value = ScriptableValueMethods.value(getCurrentContext(), nbValue, new Object[] { }, null);
+    assertEquals("java.lang.Double", value.getClass().getName());
+  }
+
+  @Test
+  public void testValueForPointValue() {
+    ScriptableValue gValue = newValue(PointType.get().valueOf("[45.3,56.4]"));
+    Object value = ScriptableValueMethods.value(getCurrentContext(), gValue, new Object[] { }, null);
+    assertEquals("org.mozilla.javascript.NativeJavaArray", value.getClass().getName());
   }
 }
