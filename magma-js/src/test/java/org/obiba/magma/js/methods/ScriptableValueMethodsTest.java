@@ -13,8 +13,10 @@ import org.obiba.magma.type.DateTimeType;
 import org.obiba.magma.type.DateType;
 import org.obiba.magma.type.DecimalType;
 import org.obiba.magma.type.IntegerType;
+import org.obiba.magma.type.LineStringType;
 import org.obiba.magma.type.LocaleType;
 import org.obiba.magma.type.PointType;
+import org.obiba.magma.type.PolygonType;
 import org.obiba.magma.type.TextType;
 
 import junit.framework.Assert;
@@ -202,6 +204,23 @@ public class ScriptableValueMethodsTest extends AbstractJsTest {
   public void testValueForPointValue() {
     ScriptableValue gValue = newValue(PointType.get().valueOf("[45.3,56.4]"));
     Object value = ScriptableValueMethods.value(getCurrentContext(), gValue, new Object[] { }, null);
-    assertEquals("org.mozilla.javascript.NativeJavaArray", value.getClass().getName());
+    // array of doubles
+    assertEquals("[D", value.getClass().getName());
+  }
+
+  @Test
+  public void testValueForLineStringValue() {
+    ScriptableValue gValue = newValue(LineStringType.get().valueOf("[[45.3,56.4],[55.0,46.1]]"));
+    Object value = ScriptableValueMethods.value(getCurrentContext(), gValue, new Object[] { }, null);
+    // array of arrays of doubles
+    assertEquals("[[D", value.getClass().getName());
+  }
+
+  @Test
+  public void testValueForPolygonValue() {
+    ScriptableValue gValue = newValue(PolygonType.get().valueOf("[[[45.3,56.4],[55.0,46.1],[45.3,56.4]]]"));
+    Object value = ScriptableValueMethods.value(getCurrentContext(), gValue, new Object[] { }, null);
+    // array of arrays of arrays of doubles
+    assertEquals("[[[D", value.getClass().getName());
   }
 }
