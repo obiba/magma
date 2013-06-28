@@ -17,12 +17,13 @@ import org.obiba.magma.ValueSet;
 import org.obiba.magma.ValueType;
 import org.obiba.magma.Variable;
 import org.obiba.magma.VariableValueSource;
+import org.obiba.magma.VariableValueSourceWrapper;
 import org.obiba.magma.VectorSource;
 
 /**
  *
  */
-public abstract class AbstractVariableValueSourceWrapper implements VariableValueSource {
+public abstract class AbstractVariableValueSourceWrapper implements VariableValueSourceWrapper {
 
   @Nonnull
   private final VariableValueSource wrapped;
@@ -34,6 +35,7 @@ public abstract class AbstractVariableValueSourceWrapper implements VariableValu
   }
 
   @Nonnull
+  @Override
   public VariableValueSource getWrapped() {
     return wrapped;
   }

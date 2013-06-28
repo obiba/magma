@@ -25,6 +25,7 @@ import org.obiba.magma.ValueTable;
 import org.obiba.magma.ValueType;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.VectorSource;
+import org.obiba.magma.views.ValueSetWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

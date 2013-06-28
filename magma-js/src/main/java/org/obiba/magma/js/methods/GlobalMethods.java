@@ -35,6 +35,7 @@ import org.obiba.magma.support.MagmaEngineVariableResolver;
 import org.obiba.magma.support.VariableEntityBean;
 import org.obiba.magma.type.DateTimeType;
 import org.obiba.magma.type.TextType;
+import org.obiba.magma.views.View;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,7 +56,7 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
    * Set of methods to be exposed as top-level methods (ones that can be invoked anywhere)
    */
   private static final Set<String> GLOBAL_METHODS = ImmutableSet
-      .of("$", "$join", "now", "log", "$var", "$id", "$group", "$groups", "newValue", "newSequence");
+      .of("$", "$this", "$join", "now", "log", "$var", "$id", "$group", "$groups", "newValue", "newSequence");
 
   @Override
   protected Set<String> getExposedMethods() {
@@ -157,6 +158,36 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
   }
 
   /**
+   * Allows invoking {@code VariableValueSource#getValue(ValueSet)} and returns a {@code ScriptableValue}. Accessed as $this
+   * in javascript. Argument is expected to be the name of a variable from the current view.
+   * <p/>
+   * <pre>
+   *   $this('SMOKER_STATUS')
+   * </pre>
+   *
+   * @return an instance of {@code ScriptableValue}
+   */
+  public static Scriptable $this(Context ctx, Scriptable thisObj, Object[] args, Function funObj) {
+    if(args.length != 1) {
+      throw new IllegalArgumentException("$this() expects exactly one argument: a variable name.");
+    }
+
+    MagmaContext context = MagmaContext.asMagmaContext(ctx);
+
+    if (!context.has(View.class)) {
+      throw new IllegalArgumentException("$this() can only be used in the context of a view.");
+    }
+
+    String name = (String) args[0];
+
+    if (name.contains(":")) {
+      throw new IllegalArgumentException("$this() expects a variable name of the current view.");
+    }
+
+    return valueFromViewContext(context, thisObj, name);
+  }
+
+  /**
    * Allows joining a variable value to another variable value that provides a entity identifier. Accessed as $join in
    * javascript.
    * <p/>
@@ -197,6 +228,14 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
     return new ScriptableValue(thisObj, value, joinedSource.getVariable().getUnit());
   }
 
+  /**
+   * Allows accessing the variable with the given name.
+   * <p/>
+   * <pre>
+   * $var('DO_YOU_SMOKE')
+   * </pre>
+   * @return an instalce of {@code ScriptableVariable}
+   */
   public static Scriptable $var(Context ctx, Scriptable thisObj, Object[] args, Function funObj) {
     if(args.length != 1) {
       throw new IllegalArgumentException("$var() expects exactly one argument: a variable name.");
@@ -251,6 +290,26 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
       log.info(args[0].toString(), Arrays.copyOfRange(args, 1, args.length));
     }
     return thisObj;
+  }
+
+  private static ScriptableValue valueFromViewContext(MagmaContext context, Scriptable thisObj, String name) {
+    View view = context.peek(View.class);
+
+    MagmaEngineVariableResolver reference = MagmaEngineVariableResolver.valueOf(name);
+
+    // Find the named source, which is in this context a view variable value source.
+    VariableValueSource source = reference.resolveSource(view);
+
+    // Test whether this is a vector-oriented evaluation or a ValueSet-oriented evaluation
+    if (context.has(VectorCache.class)) {
+      return valuesForVector(context, thisObj, source);
+    } else {
+      ValueSet valueSet = context.peek(ValueSet.class);
+      // The ValueSet is the one of the "from" table of the view
+      ValueSet viewValueSet = view.getValueSetMappingFunction().apply(valueSet);
+      Value value = source.getValue(viewValueSet);
+      return new ScriptableValue(thisObj, value, source.getVariable().getUnit());
+    }
   }
 
   private static ScriptableValue valueFromContext(MagmaContext context, Scriptable thisObj, String name) {
