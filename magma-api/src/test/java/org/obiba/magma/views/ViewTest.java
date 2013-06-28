@@ -555,8 +555,6 @@ public class ViewTest extends AbstractMagmaTest {
     ValueTable valueTableMock = createMock(ValueTable.class);
     ListClause listClauseMock = createMock(ListClause.class);
 
-    listClauseMock.setValueTable(valueTableMock);
-
     ViewPersistenceStrategy viewPersistenceMock = createMock(ViewPersistenceStrategy.class);
     Datasource datasourceMock = createMock(Datasource.class);
 
@@ -565,6 +563,8 @@ public class ViewTest extends AbstractMagmaTest {
     Set<View> views = new HashSet<View>();
     View view = View.Builder.newView("view", valueTableMock).list(listClauseMock).build();
     views.add(view);
+
+    listClauseMock.setValueTable(view);
 
     Set<Variable> variables = new HashSet<Variable>();
     Variable v = Variable.Builder.newVariable("variable", ValueType.Factory.forName("text"), "Martian").build();

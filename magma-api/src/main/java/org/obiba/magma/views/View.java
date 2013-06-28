@@ -106,7 +106,7 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
 
   @Override
   public void initialise() {
-    getListClause().setValueTable(this);//getWrappedValueTable());
+    getListClause().setValueTable(this);
     Initialisables.initialise(getWrappedValueTable(), getSelectClause(), getWhereClause(), getListClause());
     if(isViewOfDerivedVariables()) {
       setSelectClause(new NoneClause());
