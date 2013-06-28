@@ -146,6 +146,7 @@ public class VariablesClauseTest extends AbstractJsTest {
     expect(table.getVariableValueSource("Admin.Participant.birthDate")).andReturn(variableValueSource).once();
     expect(variableValueSource.getValue(valueSet)).andReturn(adminParticipantBirthDateValue).once();
     expect(variableValueSource.getVariable()).andReturn(variable).once();
+    expect(table.isView()).andReturn(false).atLeastOnce();
     expect(variable.getUnit()).andReturn(null).once();
 
     replay(valueSet, table, variableValueSource, variable);
@@ -170,6 +171,7 @@ public class VariablesClauseTest extends AbstractJsTest {
     ValueTable valueTableMock = createMock(ValueTable.class);
     expect(valueTableMock.getVariable("HealthQuestionnaireIdentification.SEX"))
         .andReturn(buildHealthQuestionnaireIdentificationSex()).anyTimes();
+    expect(valueTableMock.isView()).andReturn(false).atLeastOnce();
     replay(valueTableMock);
     VariablesClause clause = new VariablesClause();
     clause.setValueTable(valueTableMock);
@@ -202,6 +204,7 @@ public class VariablesClauseTest extends AbstractJsTest {
         .andReturn(buildHealthQuestionnaireIdentificationSex()).once();
     expect(valueTableMock.getVariableValueSource("HealthQuestionnaireIdentification.SEX"))
         .andReturn(variableValueSourceMock).once();
+    expect(valueTableMock.isView()).andReturn(false).atLeastOnce();
     expect(variableValueSourceMock.getValue(valueSetMock)).andReturn(healthQuestionnaireIdentificationSexValue).once();
     expect(variableValueSourceMock.getVariable()).andReturn(mockVariable).once();
     expect(mockVariable.getUnit()).andReturn(null).once();
@@ -229,6 +232,7 @@ public class VariablesClauseTest extends AbstractJsTest {
     ValueTable valueTableMock = createMock(ValueTable.class);
     expect(valueTableMock.getVariable("HealthQuestionnaireIdentification.SEX"))
         .andReturn(buildHealthQuestionnaireIdentificationSex()).times(2);
+    expect(valueTableMock.isView()).andReturn(false).atLeastOnce();
     replay(valueTableMock);
     VariablesClause clause = new VariablesClause();
     clause.setValueTable(valueTableMock);
@@ -255,6 +259,7 @@ public class VariablesClauseTest extends AbstractJsTest {
     ValueTable valueTableMock = createMock(ValueTable.class);
     expect(valueTableMock.getVariable("HealthQuestionnaireIdentification.SEX"))
         .andReturn(buildHealthQuestionnaireIdentificationSex()).times(2);
+    expect(valueTableMock.isView()).andReturn(false).atLeastOnce();
     replay(valueTableMock);
     VariablesClause clause = new VariablesClause();
     clause.setValueTable(valueTableMock);

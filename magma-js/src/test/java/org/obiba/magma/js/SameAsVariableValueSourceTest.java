@@ -40,6 +40,7 @@ public class SameAsVariableValueSourceTest extends AbstractJsTest {
 
     expect(valueTableMock.getVariable("HealthQuestionnaireIdentification.SEX"))
         .andReturn(buildHealthQuestionnaireIdentificationSex()).once();
+    expect(valueTableMock.isView()).andReturn(false).atLeastOnce();
     replay(valueTableMock);
     Variable variable = source.getVariable();
 
@@ -59,6 +60,7 @@ public class SameAsVariableValueSourceTest extends AbstractJsTest {
 
     expect(valueTableMock.getVariable("HealthQuestionnaireIdentification.SEX"))
         .andReturn(buildHealthQuestionnaireIdentificationSex()).once();
+    expect(valueTableMock.isView()).andReturn(false).atLeastOnce();
     replay(valueTableMock);
     Variable variable = source.getVariable();
 
