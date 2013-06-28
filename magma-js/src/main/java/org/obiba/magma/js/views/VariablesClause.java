@@ -17,6 +17,7 @@ import org.obiba.magma.VariableValueSource;
 import org.obiba.magma.js.JavascriptVariableValueSourceFactory;
 import org.obiba.magma.support.Initialisables;
 import org.obiba.magma.views.ListClause;
+import org.obiba.magma.views.View;
 
 /**
  * This implementation of {@link ListClause} will contain {@link Variable}s with a "script" attribute and/or a "sameAs"
