@@ -11,6 +11,7 @@ import java.util.Date;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import org.obiba.magma.MagmaDate;
 import org.obiba.magma.MagmaEngine;
 import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.Value;
@@ -143,6 +144,9 @@ public class DateTimeType extends AbstractValueType {
     if(type.equals(Date.class)) {
       return Factory.newValue(this, (Serializable) object);
     }
+    if(type.equals(MagmaDate.class)) {
+      return Factory.newValue(this, ((MagmaDate) object).asDate());
+    }
     if(Date.class.isAssignableFrom(type)) {
       return Factory.newValue(this, new Date(((Date) object).getTime()));
     }
@@ -153,8 +157,10 @@ public class DateTimeType extends AbstractValueType {
     if(type.equals(String.class)) {
       return valueOf((String) object);
     }
-    throw new IllegalArgumentException(
-        "Cannot construct " + getClass().getSimpleName() + " from type " + object.getClass() + ".");
+    if(type.equals(Value.class)) {
+      return valueOf(((Value) object).getValue());
+    }
+    return valueOf(object.toString());
   }
 
   @Override
