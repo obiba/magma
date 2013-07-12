@@ -145,8 +145,10 @@ public class DateType extends AbstractValueType {
     if(type.equals(String.class)) {
       return valueOf((String) object);
     }
-    throw new IllegalArgumentException(
-        "Cannot construct " + getClass().getSimpleName() + " from type " + object.getClass() + ".");
+    if(type.equals(Value.class)) {
+      return valueOf(((Value) object).getValue());
+    }
+    return valueOf(object.toString());
   }
 
   @Override

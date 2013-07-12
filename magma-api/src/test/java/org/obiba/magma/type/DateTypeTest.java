@@ -87,6 +87,23 @@ public class DateTypeTest extends BaseValueTypeTest {
   }
 
   @Test
+  public void testValueOfDateValue() {
+    Value val = DateType.get().valueOf(new Date());
+
+    Value conv = DateType.get().valueOf(val);
+    Assert.assertEquals(val, conv);
+  }
+
+  @Test
+  public void testValueOfTextValue() {
+    Date now = new Date();
+    Value val = TextType.get().valueOf(new SimpleDateFormat("yyyy-MM-dd").format(now));
+
+    Value conv = DateType.get().valueOf(val);
+    Assert.assertEquals(val.toString(), conv.toString());
+  }
+
+  @Test
   public void testValueOfISODateFormatString() {
     assertValueOfUsingDateFormat("yyyy-MM-dd");
   }
