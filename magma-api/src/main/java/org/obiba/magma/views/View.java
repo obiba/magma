@@ -280,6 +280,16 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
   }
 
   @Override
+  public boolean hasVariable(String name) {
+    try {
+    getVariable(name);
+      return true;
+    } catch (NoSuchVariableException e) {
+      return false;
+    }
+  }
+
+  @Override
   public Variable getVariable(String variableName) throws NoSuchVariableException {
     if(isViewOfDerivedVariables()) return getListVariable(variableName);
     return getSelectVariable(variableName);
