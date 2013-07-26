@@ -1,6 +1,15 @@
+/*
+ * Copyright (c) 2013 OBiBa. All rights reserved.
+ *
+ * This program and the accompanying materials
+ * are made available under the terms of the GNU Public License v3.0.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package org.obiba.magma.datasource.mongodb;
 
-import java.io.IOException;
 import java.net.UnknownHostException;
 import java.util.Set;
 
@@ -10,7 +19,6 @@ import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.NoSuchValueTableException;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.ValueTableWriter;
-import org.obiba.magma.VariableEntity;
 import org.obiba.magma.support.AbstractDatasource;
 
 import com.google.common.collect.ImmutableSet;
@@ -19,10 +27,15 @@ import com.mongodb.BasicDBObjectBuilder;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
-import com.mongodb.DBObject;
 import com.mongodb.MongoClient;
 
 public class MongoDBDatasource extends AbstractDatasource {
+
+  public static final String TYPE = "mongodb";
+
+  static final String DEFAULT_HOST = "localhost";
+
+  static final int DEFAULT_PORT = 27017;
 
   static final String VALUE_TABLE_COLLECTION = "value_table";
 
@@ -33,15 +46,15 @@ public class MongoDBDatasource extends AbstractDatasource {
   private MongoClient client;
 
   public MongoDBDatasource(@Nonnull String name) {
-    this(name, "localhost", 27017);
+    this(name, DEFAULT_HOST, DEFAULT_PORT);
   }
 
   public MongoDBDatasource(@Nonnull String name, String host) {
-    this(name, host, 27017);
+    this(name, host, DEFAULT_PORT);
   }
 
   public MongoDBDatasource(@Nonnull String name, String host, int port) {
-    super(name, "mongodb");
+    super(name, TYPE);
     this.host = host;
     this.port = port;
   }
