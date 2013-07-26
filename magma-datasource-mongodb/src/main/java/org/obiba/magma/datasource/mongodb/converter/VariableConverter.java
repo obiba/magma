@@ -29,7 +29,11 @@ public class VariableConverter {
   public static Variable unmarshall(DBObject object) {
     ValueType valueType = ValueType.Factory.forName(object.get("valueType").toString());
     String entityType = object.get("entityType").toString();
-    return Variable.Builder.newVariable(object.get("name").toString(), valueType, entityType).build();
+
+    Variable.Builder builder = Variable.Builder.newVariable(object.get("name").toString(), valueType, entityType) //
+        .repeatable(Boolean.parseBoolean(object.get("repeatable").toString()));
+
+    return builder.build();
   }
 
   public static DBObject marshall(Variable variable) {

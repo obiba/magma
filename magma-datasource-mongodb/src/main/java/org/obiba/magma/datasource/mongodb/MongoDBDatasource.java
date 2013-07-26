@@ -114,7 +114,6 @@ public class MongoDBDatasource extends AbstractDatasource {
 
   @Override
   protected ValueTable initialiseValueTable(String tableName) {
-    if(!hasValueTable(tableName)) throw new NoSuchValueTableException(tableName);
     return new MongoDBValueTable(this, tableName);
   }
 }

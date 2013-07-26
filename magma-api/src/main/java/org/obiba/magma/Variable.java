@@ -206,6 +206,12 @@ public interface Variable extends AttributeAware {
       return this;
     }
 
+    public Builder repeatable(boolean repeatable) {
+      if (repeatable)
+        variable.repeatable = true;
+      return this;
+    }
+
     public Builder unit(String unit) {
       // TODO: Should we parse the unit and make it's valid? Using jscience API for example.
       variable.unit = unit;
