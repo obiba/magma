@@ -10,6 +10,7 @@
 
 package org.obiba.magma.datasource.mongodb.converter;
 
+import org.obiba.magma.MagmaDate;
 import org.obiba.magma.Value;
 import org.obiba.magma.Variable;
 import org.obiba.magma.type.LocaleType;
@@ -34,6 +35,10 @@ public class ValueConverter {
 
   private static Object marshall(Value value) {
     if (value == null || value.isNull()) return null;
+    Object rawValue = value.getValue();
+    if (rawValue instanceof MagmaDate) {
+      return ((MagmaDate)rawValue).asDate();
+    }
     return value.getValueType().equals(LocaleType.get())  ? value.getValueType().toString(value) : value.getValue();
   }
 

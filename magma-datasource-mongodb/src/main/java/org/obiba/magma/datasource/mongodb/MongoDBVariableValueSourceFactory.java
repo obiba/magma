@@ -90,7 +90,11 @@ public class MongoDBVariableValueSourceFactory implements VariableValueSourceFac
     @Override
     public Value getValue(ValueSet valueSet) {
       // TODO
-      return null;
+      return getNullValue();
+    }
+
+    private Value getNullValue() {
+      return variable.isRepeatable() ? getValueType().nullSequence() : getValueType().nullValue();
     }
 
     @Nullable
@@ -106,7 +110,7 @@ public class MongoDBVariableValueSourceFactory implements VariableValueSourceFac
         @Override
         public Iterable<Value> getValues(SortedSet<VariableEntity> entities) {
           // TODO
-          return null;
+          return ImmutableSet.of(getNullValue());
         }
       };
     }
