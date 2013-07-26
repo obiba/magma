@@ -64,7 +64,7 @@ public class DefaultViewManagerImpl implements ViewManager, Initialisable, Dispo
 
     viewAwareDatasource.addView(view);
     try {
-      viewPersistenceStrategy.writeViews(viewAwareDatasource.getName(), viewAwareDatasource.getViews());
+      viewPersistenceStrategy.writeView(viewAwareDatasource.getName(), view);
     } catch(RuntimeException e) {
       // rollback
       viewAwareDatasource.removeView(view.getName());
@@ -84,7 +84,7 @@ public class DefaultViewManagerImpl implements ViewManager, Initialisable, Dispo
     View view = viewAwareDatasource.getView(viewName);
     viewAwareDatasource.removeView(viewName);
     try {
-      viewPersistenceStrategy.writeViews(viewAwareDatasource.getName(), viewAwareDatasource.getViews());
+      viewPersistenceStrategy.removeView(viewAwareDatasource.getName(), viewName);
     } catch(RuntimeException e) {
       // rollback
       viewAwareDatasource.addView(view);
@@ -95,7 +95,7 @@ public class DefaultViewManagerImpl implements ViewManager, Initialisable, Dispo
   @Override
   public void removeAllViews(@Nonnull String datasourceName) {
     Preconditions.checkArgument(!Strings.isNullOrEmpty(datasourceName), "datasourceName cannot be null or empty.");
-    viewPersistenceStrategy.writeViews(datasourceName, ImmutableSet.<View>of());
+    viewPersistenceStrategy.removeViews(datasourceName);
   }
 
   @Override
@@ -143,12 +143,12 @@ public class DefaultViewManagerImpl implements ViewManager, Initialisable, Dispo
 
   @Override
   public void initialise() {
-    // Initialise persistence strategy. Nothing required.
+    viewPersistenceStrategy.initialise();
   }
 
   @Override
   public void dispose() {
-    // Dispose of persistence strategy. Nothing required.
+    viewPersistenceStrategy.dispose();
   }
 
 }
