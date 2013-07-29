@@ -27,7 +27,9 @@ import com.mongodb.BasicDBObjectBuilder;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
+import com.mongodb.DBPort;
 import com.mongodb.MongoClient;
+import com.mongodb.ServerAddress;
 
 public class MongoDBDatasource extends AbstractDatasource {
 
@@ -35,32 +37,29 @@ public class MongoDBDatasource extends AbstractDatasource {
 
   static final String DEFAULT_HOST = "localhost";
 
-  static final int DEFAULT_PORT = 27017;
+  static final int DEFAULT_PORT = DBPort.PORT;
 
   static final String VALUE_TABLE_COLLECTION = "value_table";
 
-  private final String host;
-
-  private final int port;
+  private final ServerAddress serverAddress;
 
   private MongoClient client;
 
-  public MongoDBDatasource(@Nonnull String name) {
-    this(name, DEFAULT_HOST, DEFAULT_PORT);
+  public MongoDBDatasource(@Nonnull String name) throws UnknownHostException {
+    this(name, new ServerAddress(DEFAULT_HOST));
   }
 
-  public MongoDBDatasource(@Nonnull String name, String host) {
-    this(name, host, DEFAULT_PORT);
+  public MongoDBDatasource(@Nonnull String name, String host) throws UnknownHostException {
+    this(name, new ServerAddress(host));
   }
 
-  public MongoDBDatasource(@Nonnull String name, String host, int port) {
+  public MongoDBDatasource(@Nonnull String name, String host, int port) throws UnknownHostException {
+    this(name, new ServerAddress(host, port));
+  }
+
+  public MongoDBDatasource(@Nonnull String name, @Nonnull ServerAddress serverAddress) {
     super(name, TYPE);
-    this.host = host;
-    this.port = port;
-  }
-
-  MongoClient getClient() {
-    return client;
+    this.serverAddress = serverAddress;
   }
 
   DB getDB() {
@@ -73,11 +72,7 @@ public class MongoDBDatasource extends AbstractDatasource {
 
   @Override
   protected void onInitialise() {
-    try {
-      client = new MongoClient(host, port);
-    } catch(UnknownHostException e) {
-      throw new MagmaRuntimeException(e);
-    }
+    client = new MongoClient(serverAddress);
   }
 
   @Nonnull

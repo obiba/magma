@@ -10,10 +10,13 @@
 
 package org.obiba.magma.datasource.mongodb;
 
+import java.net.UnknownHostException;
+
 import javax.annotation.Nonnull;
 
 import org.obiba.magma.AbstractDatasourceFactory;
 import org.obiba.magma.Datasource;
+import org.obiba.magma.MagmaRuntimeException;
 
 public class MongoDBDatasourceFactory extends AbstractDatasourceFactory {
 
@@ -32,6 +35,10 @@ public class MongoDBDatasourceFactory extends AbstractDatasourceFactory {
   @Nonnull
   @Override
   protected Datasource internalCreate() {
-    return new MongoDBDatasource(getName(), host, port);
+    try {
+      return new MongoDBDatasource(getName(), host, port);
+    } catch(UnknownHostException e) {
+      throw new MagmaRuntimeException(e);
+    }
   }
 }
