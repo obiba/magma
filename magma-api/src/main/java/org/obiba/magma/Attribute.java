@@ -63,6 +63,11 @@ public interface Attribute {
       return this;
     }
 
+    public Builder withLocale(String locale) {
+      attribute.locale = new Locale(locale);
+      return this;
+    }
+
     public Attribute build() {
       if(attribute.value == null) {
         attribute.value = TextType.get().nullValue();
