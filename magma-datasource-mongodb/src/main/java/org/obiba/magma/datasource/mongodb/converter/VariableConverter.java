@@ -10,12 +10,14 @@
 
 package org.obiba.magma.datasource.mongodb.converter;
 
+import org.bson.types.BasicBSONList;
 import org.obiba.magma.Attribute;
-import org.obiba.magma.AttributeAware;
 import org.obiba.magma.Category;
 import org.obiba.magma.ValueType;
 import org.obiba.magma.Variable;
 
+import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableList;
 import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObjectBuilder;
 import com.mongodb.DBObject;
@@ -23,7 +25,7 @@ import com.mongodb.DBObject;
 public class VariableConverter {
 
   public static String normalizeFieldName(String name) {
-    return name.replaceAll("[.$]","_");
+    return name.replaceAll("[.$]", "_");
   }
 
   public static Variable unmarshall(DBObject object) {
@@ -31,9 +33,58 @@ public class VariableConverter {
     String entityType = object.get("entityType").toString();
 
     Variable.Builder builder = Variable.Builder.newVariable(object.get("name").toString(), valueType, entityType) //
-        .repeatable(Boolean.parseBoolean(object.get("repeatable").toString()));
+        .repeatable(Boolean.parseBoolean(object.get("repeatable").toString())) //
+        .mimeType(getFieldAsString(object, "mimeType")) //
+        .mimeType(getFieldAsString(object, "referencedEntityType")) //
+        .mimeType(getFieldAsString(object, "occurrenceGroup")) //
+        .mimeType(getFieldAsString(object, "unit"));
+
+    if(object.containsField("categories")) {
+      builder.addCategories(unmarshallCategories((BasicBSONList) object.get("categories")));
+    }
+
+    if(object.containsField("attributes")) {
+      builder.addAttributes(unmarshallAttributes((BasicBSONList) object.get("attributes")));
+    }
 
     return builder.build();
+  }
+
+  private static Iterable<Category> unmarshallCategories(BasicBSONList cats) {
+    ImmutableList.Builder<Category> list = ImmutableList.builder();
+    for(Object o : cats) {
+      DBObject cat = (DBObject) o;
+      Category.Builder catBuilder = Category.Builder.newCategory(cat.get("name").toString()).missing(Boolean.parseBoolean(cat.get("missing").toString()));
+      if(cat.containsField("attributes")) {
+        catBuilder.addAttributes(unmarshallAttributes((BasicBSONList) cat.get("attributes")));
+      }
+      list.add(catBuilder.build());
+    }
+    return list.build();
+  }
+
+  private static Iterable<Attribute> unmarshallAttributes(BasicBSONList attrs) {
+    ImmutableList.Builder<Attribute> list = ImmutableList.builder();
+    for(Object o : attrs) {
+      DBObject attr = (DBObject) o;
+      String value = getFieldAsString(attr, "value");
+      if(!Strings.isNullOrEmpty(value)) {
+        Attribute.Builder attrBuilder = Attribute.Builder.newAttribute(attr.get("name").toString()) //
+            .withNamespace(getFieldAsString(attr, "namespace")).withValue(value);
+
+        String locale = getFieldAsString(attr, "locale");
+        if(!Strings.isNullOrEmpty(locale)) attrBuilder.withLocale(locale);
+
+        list.add(attrBuilder.build());
+      }
+    }
+    return list.build();
+  }
+
+  private static String getFieldAsString(DBObject object, String key) {
+    if(!object.containsField(key)) return null;
+    Object value = object.get(key);
+    return value == null ? null : value.toString();
   }
 
   public static DBObject marshall(Variable variable) {
