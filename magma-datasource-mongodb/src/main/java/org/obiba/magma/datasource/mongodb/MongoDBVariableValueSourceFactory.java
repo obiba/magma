@@ -89,8 +89,8 @@ public class MongoDBVariableValueSourceFactory implements VariableValueSourceFac
     @Nonnull
     @Override
     public Value getValue(ValueSet valueSet) {
-      // TODO
-      return getNullValue();
+      MongoDBValueSet vs = (MongoDBValueSet)valueSet;
+      return vs.getValue(getVariable());
     }
 
     private Value getNullValue() {

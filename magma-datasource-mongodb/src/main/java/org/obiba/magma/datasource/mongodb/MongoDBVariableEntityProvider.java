@@ -52,7 +52,7 @@ class MongoDBVariableEntityProvider implements VariableEntityProvider {
     DBCursor cursor = table.getValueSetCollection().find(new BasicDBObject(), BasicDBObjectBuilder.start("_id",1).get());
     try {
       while(cursor.hasNext()) {
-        builder.add(new VariableEntityBean(table.getEntityType(), cursor.next().get("_id").toString()));
+        builder.add(new VariableEntityBean(getEntityType(), cursor.next().get("_id").toString()));
       }
     } finally {
       cursor.close();
