@@ -49,11 +49,13 @@ public class ValueConverter {
 
   public static Value unmarshall(Variable variable, DBObject object) {
     ValueType type = variable.getValueType();
-    if(!object.containsField(variable.getName()))
+    String field = VariableConverter.normalizeFieldName(variable.getName());
+
+    if(!object.containsField(field))
       return variable.isRepeatable() ? type.nullSequence() : type.nullValue();
 
     if(variable.isRepeatable()) {
-      BasicBSONList values = (BasicBSONList) object.get(variable.getName());
+      BasicBSONList values = (BasicBSONList) object.get(field);
       if(values == null) return type.nullSequence();
       ImmutableList.Builder<Value> list = ImmutableList.builder();
       for(Object o : values) {
@@ -61,7 +63,7 @@ public class ValueConverter {
       }
       return variable.getValueType().sequenceOf(list.build());
     } else {
-      return unmarshall(type, object.get(variable.getName()));
+      return unmarshall(type, object.get(field));
     }
   }
 
