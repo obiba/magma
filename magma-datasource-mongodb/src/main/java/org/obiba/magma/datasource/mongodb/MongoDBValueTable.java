@@ -77,9 +77,14 @@ public class MongoDBValueTable extends AbstractValueTable {
   }
 
   DBObject asDBObject() {
-    DBObject tableObject = getValueTableCollection().findOne(BasicDBObjectBuilder.start().add("name", getName()).get());
+    DBObject tableObject = getValueTableCollection().findOne(BasicDBObjectBuilder.start() //
+        .add("name", getName()) //
+        .get());
     if(tableObject == null) {
-      tableObject = BasicDBObjectBuilder.start().add("name", getName()).add("entityType", getEntityType())
+      tableObject = BasicDBObjectBuilder.start() //
+          .add("name", getName()) //
+          .add("entityType", getEntityType()) //
+          .add("_name", normalizeCollectionName(getName())) //
           .add(TIMESTAMPS_FIELD, createTimestampsObject()).get();
       getValueTableCollection().insert(tableObject);
     }
