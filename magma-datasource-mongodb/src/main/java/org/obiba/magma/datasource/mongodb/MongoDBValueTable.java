@@ -62,11 +62,13 @@ public class MongoDBValueTable extends AbstractValueTable {
   }
 
   DBCollection getVariablesCollection() {
-    return ((MongoDBDatasource) getDatasource()).getDB().getCollection(normalizeCollectionName(getName() + VARIABLE_SUFFIX));
+    return ((MongoDBDatasource) getDatasource()).getDB()
+        .getCollection(normalizeCollectionName(getName() + VARIABLE_SUFFIX));
   }
 
   DBCollection getValueSetCollection() {
-    return ((MongoDBDatasource) getDatasource()).getDB().getCollection(normalizeCollectionName(getName() + VALUESET_SUFFIX));
+    return ((MongoDBDatasource) getDatasource()).getDB()
+        .getCollection(normalizeCollectionName(getName() + VALUESET_SUFFIX));
   }
 
   DBObject asDBObject() {
@@ -85,7 +87,7 @@ public class MongoDBValueTable extends AbstractValueTable {
   }
 
   private String normalizeCollectionName(String name) {
-    String norm = name.replaceAll("[$]","_");
+    String norm = name.replaceAll("[$]", "_");
     return norm.startsWith("system") ? "_" + norm.substring(6) : norm;
   }
 
@@ -158,23 +160,21 @@ public class MongoDBValueTable extends AbstractValueTable {
     @Override
     public void writeValue(@Nonnull Variable variable, Value value) {
       String field = VariableConverter.normalizeFieldName(variable.getName());
-      getValueSetObject().put(field, ValueConverter.marshall(variable,value));
+      getValueSetObject().put(field, ValueConverter.marshall(variable, value));
     }
 
     @Override
     public void close() throws IOException {
-      if(valueSetObject != null) {
-        BSONObject timestamps = (BSONObject) valueSetObject.get(TIMESTAMPS_FIELD);
-        timestamps.put("updated", new Date());
-        getValueSetCollection().save(valueSetObject);
-      }
+      BSONObject timestamps = (BSONObject) getValueSetObject().get(TIMESTAMPS_FIELD);
+      timestamps.put("updated", new Date());
+      getValueSetCollection().save(valueSetObject);
     }
   }
 
   private class MongoDBVariableWriter implements ValueTableWriter.VariableWriter {
     @Override
     public void writeVariable(@Nonnull Variable variable) {
-      if (getVariablesCollection().findOne(BasicDBObjectBuilder.start("_id",variable.getName()).get()) == null) {
+      if(getVariablesCollection().findOne(BasicDBObjectBuilder.start("_id", variable.getName()).get()) == null) {
         addVariableValueSource(new MongoDBVariableValueSource(MongoDBValueTable.this, variable.getName()));
       }
       // insert or update
