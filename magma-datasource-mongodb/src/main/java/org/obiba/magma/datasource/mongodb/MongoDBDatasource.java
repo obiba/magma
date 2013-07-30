@@ -75,6 +75,18 @@ public class MongoDBDatasource extends AbstractDatasource {
     client = new MongoClient(serverAddress);
   }
 
+  @Override
+  public boolean canDropTable(String tableName) {
+    return true;
+  }
+
+  @Override
+  public void dropTable(@Nonnull String tableName) {
+    MongoDBValueTable valueTable = (MongoDBValueTable) getValueTable(tableName);
+    valueTable.drop();
+    removeValueTable(tableName);
+  }
+
   @Nonnull
   @Override
   public ValueTableWriter createWriter(@Nonnull String tableName, @Nonnull String entityType) {

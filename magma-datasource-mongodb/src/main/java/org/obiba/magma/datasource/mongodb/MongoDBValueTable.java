@@ -128,6 +128,13 @@ public class MongoDBValueTable extends AbstractValueTable {
     };
   }
 
+  public void drop() {
+    // drop associated collections
+    getValueSetCollection().drop();
+    getVariablesCollection().drop();
+    getValueTableCollection().remove(BasicDBObjectBuilder.start().add("name", getName()).get());
+  }
+
   private class MongoDBValueSetWriter implements ValueTableWriter.ValueSetWriter {
 
     private final VariableEntity entity;
