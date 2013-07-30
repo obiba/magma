@@ -12,29 +12,22 @@ package org.obiba.magma.datasource.mongodb;
 
 import java.io.IOException;
 import java.util.Date;
-import java.util.Set;
 
 import javax.annotation.Nonnull;
 
 import org.bson.BSONObject;
-import org.obiba.magma.Initialisable;
 import org.obiba.magma.NoSuchValueSetException;
 import org.obiba.magma.Timestamps;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueSet;
-import org.obiba.magma.ValueTable;
 import org.obiba.magma.ValueTableWriter;
 import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
-import org.obiba.magma.VariableValueSourceFactory;
 import org.obiba.magma.datasource.mongodb.converter.ValueConverter;
 import org.obiba.magma.datasource.mongodb.converter.VariableConverter;
 import org.obiba.magma.support.AbstractValueTable;
-import org.obiba.magma.support.AbstractVariableEntityProvider;
-import org.obiba.magma.support.VariableEntityProvider;
 import org.obiba.magma.type.DateTimeType;
 
-import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObjectBuilder;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
@@ -182,12 +175,10 @@ public class MongoDBValueTable extends AbstractValueTable {
     @Override
     public void writeVariable(@Nonnull Variable variable) {
       if (getVariablesCollection().findOne(BasicDBObjectBuilder.start("_id",variable.getName()).get()) == null) {
-        // TODO
-        addVariableValueSource(new MongoDBVariableValueSourceFactory.MongoDBVariableValueSource(MongoDBValueTable.this, variable.getName()));
+        addVariableValueSource(new MongoDBVariableValueSource(MongoDBValueTable.this, variable.getName()));
       }
-      // _id is variable name
-      DBObject varObject = VariableConverter.marshall(variable);
       // insert or update
+      DBObject varObject = VariableConverter.marshall(variable);
       getVariablesCollection().save(varObject);
     }
 
