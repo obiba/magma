@@ -48,20 +48,20 @@ public class ValueConverter {
   }
 
   public static Value unmarshall(Variable variable, DBObject object) {
-    ValueType type = variable.getValueType();
-    String field = VariableConverter.normalizeFieldName(variable.getName());
+    return unmarshall(variable.getValueType(), variable.isRepeatable(), VariableConverter.normalizeFieldName(variable.getName()), object);
+  }
 
-    if(!object.containsField(field))
-      return variable.isRepeatable() ? type.nullSequence() : type.nullValue();
+  public static Value unmarshall(ValueType type, boolean repeatable, String field, DBObject object) {
+    if(object == null || !object.containsField(field)) return repeatable ? type.nullSequence() : type.nullValue();
 
-    if(variable.isRepeatable()) {
+    if(repeatable) {
       BasicBSONList values = (BasicBSONList) object.get(field);
       if(values == null) return type.nullSequence();
       ImmutableList.Builder<Value> list = ImmutableList.builder();
       for(Object o : values) {
         list.add(unmarshall(type, o));
       }
-      return variable.getValueType().sequenceOf(list.build());
+      return type.sequenceOf(list.build());
     } else {
       return unmarshall(type, object.get(field));
     }
