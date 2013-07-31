@@ -18,16 +18,36 @@ import org.obiba.magma.AbstractDatasourceFactory;
 import org.obiba.magma.Datasource;
 import org.obiba.magma.MagmaRuntimeException;
 
+import com.mongodb.ServerAddress;
+
 public class MongoDBDatasourceFactory extends AbstractDatasourceFactory {
+
+  private String database;
 
   private String host = MongoDBDatasource.DEFAULT_HOST;
 
   private int port = MongoDBDatasource.DEFAULT_PORT;
 
+  /**
+   * Mongo database name.
+   * @param database
+   */
+  public void setDatabase(String database) {
+    this.database = database;
+  }
+
+  /**
+   * Mongo server host.
+   * @param host
+   */
   public void setHost(String host) {
     this.host = host;
   }
 
+  /**
+   * Mongo server port number.
+   * @param port
+   */
   public void setPort(int port) {
     this.port = port;
   }
@@ -36,7 +56,7 @@ public class MongoDBDatasourceFactory extends AbstractDatasourceFactory {
   @Override
   protected Datasource internalCreate() {
     try {
-      return new MongoDBDatasource(getName(), host, port);
+      return new MongoDBDatasource(getName(), database == null ? getName() : database, new ServerAddress(host, port));
     } catch(UnknownHostException e) {
       throw new MagmaRuntimeException(e);
     }

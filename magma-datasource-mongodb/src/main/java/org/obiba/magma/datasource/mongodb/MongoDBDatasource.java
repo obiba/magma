@@ -41,29 +41,24 @@ public class MongoDBDatasource extends AbstractDatasource {
 
   static final String VALUE_TABLE_COLLECTION = "value_table";
 
+  private final String database;
+
   private final ServerAddress serverAddress;
 
   private MongoClient client;
 
-  public MongoDBDatasource(@Nonnull String name) throws UnknownHostException {
-    this(name, new ServerAddress(DEFAULT_HOST));
+  public MongoDBDatasource(@Nonnull String name, @Nonnull String database) throws UnknownHostException {
+    this(name, database, new ServerAddress(DEFAULT_HOST, DEFAULT_PORT));
   }
 
-  public MongoDBDatasource(@Nonnull String name, String host) throws UnknownHostException {
-    this(name, new ServerAddress(host));
-  }
-
-  public MongoDBDatasource(@Nonnull String name, String host, int port) throws UnknownHostException {
-    this(name, new ServerAddress(host, port));
-  }
-
-  public MongoDBDatasource(@Nonnull String name, @Nonnull ServerAddress serverAddress) {
+  public MongoDBDatasource(@Nonnull String name, @Nonnull String database, @Nonnull ServerAddress serverAddress) {
     super(name, TYPE);
+    this.database = database;
     this.serverAddress = serverAddress;
   }
 
   DB getDB() {
-    return client.getDB(getName());
+    return client.getDB(database);
   }
 
   DBCollection getValueTableCollection() {
