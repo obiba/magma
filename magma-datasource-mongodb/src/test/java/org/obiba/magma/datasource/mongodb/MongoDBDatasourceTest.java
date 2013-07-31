@@ -20,9 +20,10 @@ import com.mongodb.MongoClient;
 
 import junit.framework.Assert;
 
-public class MongoDBDatasourceTest  {
+public class MongoDBDatasourceTest {
 
-  private static final String DB_TEST = "datasource_test";
+  private static final String DB_TEST = "magma-test";
+
   @Before
   public void startYourEngine() {
     new MagmaEngine().extend(new MagmaXStreamExtension());
@@ -32,6 +33,7 @@ public class MongoDBDatasourceTest  {
   public void stopYourEngine() {
     MagmaEngine.get().shutdown();
   }
+
   @Before
   public void before() throws UnknownHostException {
     MongoClient client = new MongoClient();
@@ -42,13 +44,13 @@ public class MongoDBDatasourceTest  {
   @Ignore("cannot run without manual intervention")
   public void testWriters() throws IOException {
     FsDatasource onyx = new FsDatasource("onyx", FileUtil.getFileFromResource("20-onyx-data.zip"));
-    MongoDBDatasource ds = new MongoDBDatasource(DB_TEST);
+    MongoDBDatasource ds = new MongoDBDatasource("ds-" + DB_TEST, DB_TEST);
     Initialisables.initialise(ds, onyx);
 
     DatasourceCopier copier = DatasourceCopier.Builder.newCopier().build();
     copier.copy(onyx, ds);
 
     Assert.assertEquals(20, ds.getValueTable("AnkleBrachial").getVariableEntities().size());
-    Assert.assertEquals(20, Iterables.size(ds.getValueTable("AnkleBrachial").getVariables()));
+    Assert.assertEquals(21, Iterables.size(ds.getValueTable("AnkleBrachial").getVariables()));
   }
 }

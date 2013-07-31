@@ -62,32 +62,33 @@ public class MongoDBValueTable extends AbstractValueTable {
   }
 
   DBCollection getVariablesCollection() {
-    return ((MongoDBDatasource) getDatasource()).getDB()
-        .getCollection(normalizeCollectionName(getName() + VARIABLE_SUFFIX));
+    return ((MongoDBDatasource) getDatasource()).getDB().getCollection(getId() + VARIABLE_SUFFIX);
   }
 
   DBCollection getValueSetCollection() {
-    return ((MongoDBDatasource) getDatasource()).getDB()
-        .getCollection(normalizeCollectionName(getName() + VALUESET_SUFFIX));
+    return ((MongoDBDatasource) getDatasource()).getDB().getCollection(getId() + VALUESET_SUFFIX);
   }
 
   DBObject asDBObject() {
     DBObject tableObject = getValueTableCollection().findOne(BasicDBObjectBuilder.start() //
-        .add("name", getName()) //
+        .add("_id", getId()) //
         .get());
+
     if(tableObject == null) {
       tableObject = BasicDBObjectBuilder.start() //
+          .add("_id", getId()) //
+          .add("datasource", getDatasource().getName()) //
           .add("name", getName()) //
           .add("entityType", getEntityType()) //
-          .add("_name", normalizeCollectionName(getName())) //
           .add(TIMESTAMPS_FIELD, createTimestampsObject()).get();
       getValueTableCollection().insert(tableObject);
     }
+
     return tableObject;
   }
 
-  private String normalizeCollectionName(String name) {
-    String norm = name.replaceAll("[$]", "_");
+  private String getId() {
+    String norm = (getDatasource().getName() + "__" + getName()).replaceAll("[-:$]", "_");
     return norm.startsWith("system") ? "_" + norm.substring(6) : norm;
   }
 
@@ -132,7 +133,7 @@ public class MongoDBValueTable extends AbstractValueTable {
     // drop associated collections
     getValueSetCollection().drop();
     getVariablesCollection().drop();
-    getValueTableCollection().remove(BasicDBObjectBuilder.start().add("name", getName()).get());
+    getValueTableCollection().remove(BasicDBObjectBuilder.start().add("_id", getId()).get());
   }
 
   private class MongoDBValueSetWriter implements ValueTableWriter.ValueSetWriter {
