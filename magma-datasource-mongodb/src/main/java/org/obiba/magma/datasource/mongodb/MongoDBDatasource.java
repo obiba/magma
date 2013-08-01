@@ -15,8 +15,6 @@ import java.util.Set;
 
 import javax.annotation.Nonnull;
 
-import org.obiba.magma.MagmaRuntimeException;
-import org.obiba.magma.NoSuchValueTableException;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.ValueTableWriter;
 import org.obiba.magma.support.AbstractDatasource;
@@ -29,7 +27,7 @@ import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.DBPort;
 import com.mongodb.MongoClient;
-import com.mongodb.ServerAddress;
+import com.mongodb.MongoClientURI;
 
 public class MongoDBDatasource extends AbstractDatasource {
 
@@ -41,24 +39,23 @@ public class MongoDBDatasource extends AbstractDatasource {
 
   static final String VALUE_TABLE_COLLECTION = "value_table";
 
-  private final String database;
-
-  private final ServerAddress serverAddress;
+  private MongoClientURI mongoClientURI;
 
   private MongoClient client;
 
-  public MongoDBDatasource(@Nonnull String name, @Nonnull String database) throws UnknownHostException {
-    this(name, database, new ServerAddress(DEFAULT_HOST, DEFAULT_PORT));
-  }
-
-  public MongoDBDatasource(@Nonnull String name, @Nonnull String database, @Nonnull ServerAddress serverAddress) {
+  /**
+   * See <a href="http://docs.mongodb.org/manual/reference/connection-string">MongoDB connection string specifications</a>.
+   *
+   * @param name
+   * @param mongoURI
+   */
+  public MongoDBDatasource(@Nonnull String name, @Nonnull MongoClientURI mongoClientURI) {
     super(name, TYPE);
-    this.database = database;
-    this.serverAddress = serverAddress;
+    this.mongoClientURI = mongoClientURI;
   }
 
   DB getDB() {
-    return client.getDB(database);
+    return client.getDB(mongoClientURI.getDatabase());
   }
 
   DBCollection getValueTableCollection() {
@@ -67,7 +64,11 @@ public class MongoDBDatasource extends AbstractDatasource {
 
   @Override
   protected void onInitialise() {
-    client = new MongoClient(serverAddress);
+    try {
+      client = new MongoClient(mongoClientURI);
+    } catch(UnknownHostException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   @Override
