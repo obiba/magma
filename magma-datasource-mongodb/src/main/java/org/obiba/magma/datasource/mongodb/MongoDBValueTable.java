@@ -87,8 +87,12 @@ public class MongoDBValueTable extends AbstractValueTable {
     return tableObject;
   }
 
+  /**
+   * See <a href="http://docs.mongodb.org/manual/reference/limits/">MongoDB Limits and Thresholds</a>.
+   * @return
+   */
   private String getId() {
-    String norm = (getDatasource().getName() + "__" + getName()).replaceAll("[-:$]", "_");
+    String norm = (getDatasource().getName() + "." + getName()).replaceAll("[$]", "_");
     return norm.startsWith("system") ? "_" + norm.substring(6) : norm;
   }
 
