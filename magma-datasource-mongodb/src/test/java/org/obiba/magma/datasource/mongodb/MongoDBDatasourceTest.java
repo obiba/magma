@@ -42,7 +42,7 @@ public class MongoDBDatasourceTest {
   }
 
   @Test
-  //@Ignore("cannot run without manual intervention")
+  @Ignore("cannot run without manual intervention")
   public void testWriters() throws IOException {
     FsDatasource onyx = new FsDatasource("onyx", FileUtil.getFileFromResource("20-onyx-data.zip"));
     MongoDBDatasourceFactory factory = new MongoDBDatasourceFactory();
