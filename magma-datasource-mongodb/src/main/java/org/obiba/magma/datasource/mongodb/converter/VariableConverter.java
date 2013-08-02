@@ -24,6 +24,11 @@ import com.mongodb.DBObject;
 
 public class VariableConverter {
 
+  /**
+   * See <a href="http://docs.mongodb.org/manual/reference/limits/">MongoDB Limits and Thresholds</a>.
+   * @param name
+   * @return
+   */
   public static String normalizeFieldName(String name) {
     return name.replaceAll("[.$]", "_");
   }
