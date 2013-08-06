@@ -47,6 +47,8 @@ public class MongoDBValueTable extends AbstractValueTable {
   public MongoDBValueTable(@Nonnull MongoDBDatasource datasource, @Nonnull String name, @Nonnull String entityType) {
     super(datasource, name);
     setVariableEntityProvider(new MongoDBVariableEntityProvider(this, entityType));
+    // ensure corresponding document is stored
+    asDBObject();
   }
 
   ValueTableWriter.VariableWriter createVariableWriter() {
