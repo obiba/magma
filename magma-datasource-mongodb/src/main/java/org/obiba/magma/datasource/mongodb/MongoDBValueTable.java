@@ -14,8 +14,10 @@ import java.io.IOException;
 import java.util.Date;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import org.bson.BSONObject;
+import org.obiba.magma.Datasource;
 import org.obiba.magma.NoSuchValueSetException;
 import org.obiba.magma.Timestamps;
 import org.obiba.magma.Value;
@@ -46,11 +48,11 @@ public class MongoDBValueTable extends AbstractValueTable {
 
   static final String TIMESTAMPS_UPDATED_FIELD = "updated";
 
-  public MongoDBValueTable(@Nonnull MongoDBDatasource datasource, @Nonnull String name) {
+  public MongoDBValueTable(@Nonnull Datasource datasource, @Nonnull String name) {
     this(datasource, name, null);
   }
 
-  public MongoDBValueTable(@Nonnull MongoDBDatasource datasource, @Nonnull String name, @Nonnull String entityType) {
+  public MongoDBValueTable(@Nonnull Datasource datasource, @Nonnull String name, @Nullable String entityType) {
     super(datasource, name);
     setVariableEntityProvider(new MongoDBVariableEntityProvider(this, entityType));
     // ensure corresponding document is stored
@@ -61,7 +63,7 @@ public class MongoDBValueTable extends AbstractValueTable {
     return new MongoDBVariableWriter();
   }
 
-  ValueTableWriter.ValueSetWriter createValueSetWriter(@Nonnull final VariableEntity entity) {
+  ValueTableWriter.ValueSetWriter createValueSetWriter(@Nonnull VariableEntity entity) {
     return new MongoDBValueSetWriter(entity);
   }
 
@@ -106,7 +108,8 @@ public class MongoDBValueTable extends AbstractValueTable {
   }
 
   private DBObject createTimestampsObject() {
-    return BasicDBObjectBuilder.start().add(TIMESTAMPS_CREATED_FIELD, new Date()).add(TIMESTAMPS_UPDATED_FIELD, new Date()).get();
+    return BasicDBObjectBuilder.start().add(TIMESTAMPS_CREATED_FIELD, new Date())
+        .add(TIMESTAMPS_UPDATED_FIELD, new Date()).get();
   }
 
   @Override
