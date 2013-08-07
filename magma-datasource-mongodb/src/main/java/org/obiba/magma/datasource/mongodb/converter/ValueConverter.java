@@ -10,8 +10,6 @@
 
 package org.obiba.magma.datasource.mongodb.converter;
 
-import java.util.List;
-
 import javax.annotation.Nullable;
 
 import org.bson.types.BasicBSONList;
@@ -33,6 +31,8 @@ import com.mongodb.DBObject;
 
 public class ValueConverter {
 
+  private ValueConverter() {}
+
   public static Object marshall(Variable variable, Value value) {
     if(value == null || value.isNull()) return null;
 
@@ -48,7 +48,8 @@ public class ValueConverter {
   }
 
   public static Value unmarshall(Variable variable, DBObject object) {
-    return unmarshall(variable.getValueType(), variable.isRepeatable(), VariableConverter.normalizeFieldName(variable.getName()), object);
+    return unmarshall(variable.getValueType(), variable.isRepeatable(),
+        VariableConverter.normalizeFieldName(variable.getName()), object);
   }
 
   public static Value unmarshall(ValueType type, boolean repeatable, String field, DBObject object) {
@@ -99,9 +100,11 @@ public class ValueConverter {
     ValueType type = value.getValueType();
     if(PointType.get().equals(type)) {
       return marshallPoint((Coordinate) value.getValue());
-    } else if(LineStringType.get().equals(type)) {
+    }
+    if(LineStringType.get().equals(type)) {
       return marshallLine((Iterable<Coordinate>) value.getValue());
-    } else if(PolygonType.get().equals(type)) {
+    }
+    if(PolygonType.get().equals(type)) {
       return marshallPolygon((Iterable<Iterable<Coordinate>>) value.getValue());
     }
     throw new RuntimeException("Geo value type expected: " + value.getValueType());

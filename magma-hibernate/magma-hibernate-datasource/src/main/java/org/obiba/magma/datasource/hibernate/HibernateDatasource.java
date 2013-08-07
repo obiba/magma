@@ -162,6 +162,19 @@ public class HibernateDatasource extends AbstractDatasource {
     log.info("Dropped table '{}' in {}", tableFullName, timedExecution.end().formatExecutionTime());
   }
 
+  @Override
+  public boolean canDrop() {
+    return true;
+  }
+
+  @Override
+  public void drop() {
+    for(ValueTable valueTable : getValueTables()) {
+      dropTable(valueTable.getName());
+    }
+    sessionFactory.getCurrentSession().delete(getDatasourceState());
+  }
+
   @SuppressWarnings("ReuseOfLocalVariable")
   private void deleteValueSets(String tableFullName, Session session, Collection<?> valueSetIds) {
     TimedExecution deleteBinariesTime = new TimedExecution().start();

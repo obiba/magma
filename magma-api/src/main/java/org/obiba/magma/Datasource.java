@@ -20,6 +20,10 @@ public interface Datasource extends Initialisable, Disposable, AttributeAware {
 
   void dropTable(String tableName);
 
+  void drop();
+
+  boolean canDrop();
+
   @Nonnull
   ValueTableWriter createWriter(@Nonnull String tableName, @Nonnull String entityType);
 
