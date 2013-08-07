@@ -136,6 +136,16 @@ public abstract class AbstractDatasource extends AbstractAttributeAware implemen
   }
 
   @Override
+  public boolean canDrop() {
+    return false;
+  }
+
+  @Override
+  public void drop() {
+    throw new UnsupportedOperationException("cannot drop datasource");
+  }
+
+  @Override
   protected ListMultimap<String, Attribute> getInstanceAttributes() {
     return attributes;
   }

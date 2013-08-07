@@ -90,6 +90,16 @@ public abstract class AbstractDatasourceWrapper implements Datasource {
   }
 
   @Override
+  public boolean canDrop() {
+    return getWrappedDatasource().canDrop();
+  }
+
+  @Override
+  public void drop() {
+    getWrappedDatasource().drop();
+  }
+
+  @Override
   public boolean hasAttribute(String name) {
     return getWrappedDatasource().hasAttribute(name);
   }

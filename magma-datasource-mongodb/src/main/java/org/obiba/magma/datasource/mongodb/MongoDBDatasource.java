@@ -83,6 +83,19 @@ public class MongoDBDatasource extends AbstractDatasource {
     removeValueTable(tableName);
   }
 
+  @Override
+  public boolean canDrop() {
+    return true;
+  }
+
+  @Override
+  public void drop() {
+    for(ValueTable valueTable : getValueTables()) {
+      dropTable(valueTable.getName());
+    }
+    //TODO delete mongo database
+  }
+
   @Nonnull
   @Override
   public ValueTableWriter createWriter(@Nonnull String tableName, @Nonnull String entityType) {

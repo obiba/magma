@@ -24,8 +24,11 @@ import com.mongodb.DBObject;
 
 public class VariableConverter {
 
+  private VariableConverter() {}
+
   /**
    * See <a href="http://docs.mongodb.org/manual/reference/limits/">MongoDB Limits and Thresholds</a>.
+   *
    * @param name
    * @return
    */
@@ -59,7 +62,8 @@ public class VariableConverter {
     ImmutableList.Builder<Category> list = ImmutableList.builder();
     for(Object o : cats) {
       DBObject cat = (DBObject) o;
-      Category.Builder catBuilder = Category.Builder.newCategory(cat.get("name").toString()).missing(Boolean.parseBoolean(cat.get("missing").toString()));
+      Category.Builder catBuilder = Category.Builder.newCategory(cat.get("name").toString())
+          .missing(Boolean.parseBoolean(cat.get("missing").toString()));
       if(cat.containsField("attributes")) {
         catBuilder.addAttributes(unmarshallAttributes((BasicBSONList) cat.get("attributes")));
       }

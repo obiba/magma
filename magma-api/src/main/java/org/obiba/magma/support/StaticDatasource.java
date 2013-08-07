@@ -93,6 +93,17 @@ public class StaticDatasource extends AbstractAttributeAware implements Datasour
     tableMap.remove(name);
   }
 
+  @Override
+  public boolean canDrop() {
+    return true;
+  }
+
+  @Override
+  public void drop() {
+    tableMap.clear();
+    attributes.clear();
+  }
+
   @Nonnull
   @Override
   public ValueTableWriter createWriter(@Nonnull String tableName, @Nonnull String entityType) {
