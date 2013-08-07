@@ -22,7 +22,7 @@ import com.mongodb.DBCursor;
 
 public class MongoDBVariableValueSourceFactory implements VariableValueSourceFactory {
 
-  private MongoDBValueTable table;
+  private final MongoDBValueTable table;
 
   public MongoDBVariableValueSourceFactory(MongoDBValueTable table) {
     this.table = table;

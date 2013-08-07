@@ -34,14 +34,14 @@ class MongoDBVariableEntityProvider implements VariableEntityProvider {
 
   @Override
   public String getEntityType() {
-    if (entityType == null) {
+    if(entityType == null) {
       entityType = (String) table.asDBObject().get("entityType");
     }
     return entityType;
   }
 
   @Override
-  public boolean isForEntityType(String entityType) {
+  public boolean isForEntityType(@SuppressWarnings("ParameterHidesMemberVariable") String entityType) {
     return this.entityType.equals(entityType);
   }
 
@@ -49,7 +49,8 @@ class MongoDBVariableEntityProvider implements VariableEntityProvider {
   public Set<VariableEntity> getVariableEntities() {
     ImmutableSet.Builder<VariableEntity> builder = ImmutableSet.builder();
 
-    DBCursor cursor = table.getValueSetCollection().find(new BasicDBObject(), BasicDBObjectBuilder.start("_id",1).get());
+    DBCursor cursor = table.getValueSetCollection()
+        .find(new BasicDBObject(), BasicDBObjectBuilder.start("_id", 1).get());
     try {
       while(cursor.hasNext()) {
         builder.add(new VariableEntityBean(getEntityType(), cursor.next().get("_id").toString()));

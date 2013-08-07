@@ -33,7 +33,7 @@ class MongoDBValueSet implements ValueSet {
 
   private DBObject object;
 
-  public MongoDBValueSet(MongoDBValueTable valueTable, VariableEntity entity) {
+  MongoDBValueSet(MongoDBValueTable valueTable, VariableEntity entity) {
     this.valueTable = valueTable;
     this.entity = entity;
   }

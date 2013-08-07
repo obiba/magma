@@ -96,6 +96,7 @@ public class ValueConverter {
     return type.equals(LocaleType.get()) ? type.toString(value) : value.getValue();
   }
 
+  @SuppressWarnings("unchecked")
   private static Object marshallGeo(Value value) {
     ValueType type = value.getValueType();
     if(PointType.get().equals(type)) {

@@ -139,6 +139,7 @@ public class VariableConverter {
     return builder.get();
   }
 
+  @SuppressWarnings("ConstantConditions")
   private static DBObject marshall(Attribute attribute) {
     return BasicDBObjectBuilder.start()//
         .add("namespace", attribute.getNamespace()) //
