@@ -31,6 +31,7 @@ import org.obiba.magma.type.DateTimeType;
 import com.mongodb.BasicDBObjectBuilder;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
+import com.mongodb.WriteConcern;
 
 public class MongoDBValueTable extends AbstractValueTable {
 
@@ -83,7 +84,7 @@ public class MongoDBValueTable extends AbstractValueTable {
           .add("name", getName()) //
           .add("entityType", getEntityType()) //
           .add(TIMESTAMPS_FIELD, createTimestampsObject()).get();
-      getValueTableCollection().insert(tableObject);
+      getValueTableCollection().insert(tableObject, WriteConcern.ACKNOWLEDGED);
     }
 
     return tableObject;
