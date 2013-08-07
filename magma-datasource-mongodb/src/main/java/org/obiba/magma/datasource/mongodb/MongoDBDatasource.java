@@ -39,7 +39,7 @@ public class MongoDBDatasource extends AbstractDatasource {
 
   static final String VALUE_TABLE_COLLECTION = "value_table";
 
-  private MongoClientURI mongoClientURI;
+  private final MongoClientURI mongoClientURI;
 
   private MongoClient client;
 
@@ -108,11 +108,6 @@ public class MongoDBDatasource extends AbstractDatasource {
       cursor.close();
     }
     return builder.build();
-  }
-
-  @Override
-  public Set<ValueTable> getValueTables() {
-    return super.getValueTables();    //To change body of overridden methods use File | Settings | File Templates.
   }
 
   @Override
