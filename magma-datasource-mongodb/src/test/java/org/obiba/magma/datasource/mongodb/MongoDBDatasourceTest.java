@@ -14,7 +14,6 @@ import org.obiba.magma.Value;
 import org.obiba.magma.ValueSet;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.ValueTableWriter;
-import org.obiba.magma.ValueType;
 import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.datasource.fs.FsDatasource;
@@ -159,7 +158,7 @@ public class MongoDBDatasourceTest {
   public void testBinaryWriter() throws IOException {
     Datasource ds = createDatasource();
     int id = 1;
-    //testWriteReadValue(ds, id++, BinaryType.get().valueOf(new String("coucou").getBytes()));
+    testWriteReadValue(ds, id++, BinaryType.get().valueOf(new String("coucou").getBytes()));
     testWriteReadValue(ds, id++, BinaryType.get().valueOf(new byte[2]));
     testWriteReadValue(ds, id++, BinaryType.get().nullValue());
   }
