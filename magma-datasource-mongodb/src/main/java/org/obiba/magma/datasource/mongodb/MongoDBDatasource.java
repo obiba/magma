@@ -28,6 +28,7 @@ import com.mongodb.DBCursor;
 import com.mongodb.DBPort;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
+import com.mongodb.gridfs.GridFS;
 
 public class MongoDBDatasource extends AbstractDatasource {
 
@@ -43,6 +44,10 @@ public class MongoDBDatasource extends AbstractDatasource {
 
   private MongoClient client;
 
+  private DB db;
+
+  private GridFS gridFS;
+
   /**
    * See <a href="http://docs.mongodb.org/manual/reference/connection-string">MongoDB connection string specifications</a>.
    *
@@ -55,7 +60,18 @@ public class MongoDBDatasource extends AbstractDatasource {
   }
 
   DB getDB() {
-    return client.getDB(mongoClientURI.getDatabase());
+    if(db == null) {
+      db = client.getDB(mongoClientURI.getDatabase());
+    }
+    return db;
+//    return client.getDB(mongoClientURI.getDatabase());
+  }
+
+  GridFS getGridFS() {
+    if(gridFS == null) {
+      gridFS = new GridFS(getDB());
+    }
+    return gridFS;
   }
 
   DBCollection getValueTableCollection() {

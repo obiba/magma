@@ -10,7 +10,6 @@
 
 package org.obiba.magma.datasource.mongodb;
 
-import java.io.IOException;
 import java.util.Date;
 
 import javax.annotation.Nonnull;
@@ -22,25 +21,24 @@ import org.obiba.magma.NoSuchValueSetException;
 import org.obiba.magma.Timestamps;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueSet;
-import org.obiba.magma.ValueTableWriter;
-import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
-import org.obiba.magma.datasource.mongodb.converter.ValueConverter;
-import org.obiba.magma.datasource.mongodb.converter.VariableConverter;
+import org.obiba.magma.VariableValueSource;
 import org.obiba.magma.support.AbstractValueTable;
 import org.obiba.magma.type.DateTimeType;
 
 import com.mongodb.BasicDBObjectBuilder;
+import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 import com.mongodb.WriteConcern;
+import com.mongodb.gridfs.GridFS;
 
 public class MongoDBValueTable extends AbstractValueTable {
 
   static final String VARIABLE_SUFFIX = "_variable";
 
-  static final String VALUESET_SUFFIX = "_value_set";
+  static final String VALUE_SET_SUFFIX = "_value_set";
 
   static final String TIMESTAMPS_FIELD = "_timestamps";
 
@@ -59,12 +57,12 @@ public class MongoDBValueTable extends AbstractValueTable {
     asDBObject();
   }
 
-  ValueTableWriter.VariableWriter createVariableWriter() {
-    return new MongoDBVariableWriter();
+  DB getDB() {
+    return ((MongoDBDatasource) getDatasource()).getDB();
   }
 
-  ValueTableWriter.ValueSetWriter createValueSetWriter(@Nonnull VariableEntity entity) {
-    return new MongoDBValueSetWriter(entity);
+  GridFS getGridFS() {
+    return ((MongoDBDatasource) getDatasource()).getGridFS();
   }
 
   DBCollection getValueTableCollection() {
@@ -72,11 +70,11 @@ public class MongoDBValueTable extends AbstractValueTable {
   }
 
   DBCollection getVariablesCollection() {
-    return ((MongoDBDatasource) getDatasource()).getDB().getCollection(getId() + VARIABLE_SUFFIX);
+    return getDB().getCollection(getId() + VARIABLE_SUFFIX);
   }
 
   DBCollection getValueSetCollection() {
-    return ((MongoDBDatasource) getDatasource()).getDB().getCollection(getId() + VALUESET_SUFFIX);
+    return getDB().getCollection(getId() + VALUE_SET_SUFFIX);
   }
 
   DBObject asDBObject() {
@@ -107,9 +105,19 @@ public class MongoDBValueTable extends AbstractValueTable {
     return norm.startsWith("system") ? "_" + norm.substring(6) : norm;
   }
 
+<<<<<<< HEAD
   private DBObject createTimestampsObject() {
     return BasicDBObjectBuilder.start().add(TIMESTAMPS_CREATED_FIELD, new Date())
         .add(TIMESTAMPS_UPDATED_FIELD, new Date()).get();
+=======
+  DBObject createTimestampsObject() {
+    return BasicDBObjectBuilder.start().add("created", new Date()).add("updated", new Date()).get();
+>>>>>>> Work on GridFS
+  }
+
+  @Override
+  protected void addVariableValueSource(VariableValueSource source) {
+    super.addVariableValueSource(source);
   }
 
   @Override
@@ -152,6 +160,7 @@ public class MongoDBValueTable extends AbstractValueTable {
     getValueTableCollection().remove(BasicDBObjectBuilder.start().add("_id", getId()).get());
   }
 
+<<<<<<< HEAD
   private class MongoDBValueSetWriter implements ValueTableWriter.ValueSetWriter {
 
     private final VariableEntity entity;
@@ -231,4 +240,6 @@ public class MongoDBValueTable extends AbstractValueTable {
 
     }
   }
+=======
+>>>>>>> Work on GridFS
 }

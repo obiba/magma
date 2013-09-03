@@ -1,7 +1,7 @@
 ext {
 
   hibernateVersion = '3.5.6-Final'
-  slf4jVersion = '1.7.4'
+  slf4jVersion = '1.7.5'
   springVersion = '3.2.3.RELEASE'
 
   libraries = [
@@ -44,7 +44,7 @@ ext {
 
       liquibase_core: 'org.liquibase:liquibase-core:1.9.4',
 
-      mongodb_java_driver: 'org.mongodb:mongo-java-driver:2.11.1',
+      mongodb_java_driver: 'org.mongodb:mongo-java-driver:2.11.2',
 
       mysql_connector_java: 'mysql:mysql-connector-java:5.1.24',
 
