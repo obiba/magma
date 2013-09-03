@@ -10,6 +10,7 @@ dependencies {
 
   testCompile project(':magma-datasource-fs')
   testCompile(libraries.obiba_core)
+  testCompile(libraries.spring_context)
   testCompile(libraries.spring_test)
   testCompile(libraries.hsqldb)
   testCompile(libraries.dbunit) {
