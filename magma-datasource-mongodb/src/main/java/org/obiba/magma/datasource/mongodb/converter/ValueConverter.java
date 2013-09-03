@@ -42,9 +42,8 @@ public class ValueConverter {
         list.add(marshall(val));
       }
       return list;
-    } else {
-      return marshall(value);
     }
+    return marshall(value);
   }
 
   public static Value unmarshall(Variable variable, DBObject object) {
@@ -63,9 +62,8 @@ public class ValueConverter {
         list.add(unmarshall(type, o));
       }
       return type.sequenceOf(list.build());
-    } else {
-      return unmarshall(type, object.get(field));
     }
+    return unmarshall(type, object.get(field));
   }
 
   public static Value unmarshall(ValueType type, Object value) {
