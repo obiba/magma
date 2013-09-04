@@ -115,7 +115,22 @@ public class VariablesClause implements ListClause, Initialisable {
 
         variables = variableSet;
       }
+
+      @Override
+      public void removeVariable(@Nonnull Variable variable) {
+        // update or add variable
+        Set<Variable> variableSet = new LinkedHashSet<Variable>();
+        for(Variable var : variables) {
+          if(!var.getName().equals(variable.getName())) {
+            variableSet.add(var);
+          }
+        }
+
+        variables = variableSet;
+      }
     };
   }
+
+
 
 }

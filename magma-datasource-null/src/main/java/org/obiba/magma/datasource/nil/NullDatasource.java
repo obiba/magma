@@ -67,6 +67,10 @@ public class NullDatasource extends AbstractDatasource {
         @Override
         public void writeVariable(@Nonnull Variable variable) {
         }
+
+        @Override
+        public void removeVariable(@Nonnull Variable variable) {
+        }
       };
     }
 

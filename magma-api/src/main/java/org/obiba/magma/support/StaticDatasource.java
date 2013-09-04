@@ -169,6 +169,11 @@ public class StaticDatasource extends AbstractAttributeAware implements Datasour
         public void writeVariable(@Nonnull Variable variable) {
           table.addVariable(Variable.Builder.sameAs(variable).build());
         }
+
+        @Override
+        public void removeVariable(@Nonnull Variable variable) {
+          table.removeVariable(variable.getName());
+        }
       };
     }
 
