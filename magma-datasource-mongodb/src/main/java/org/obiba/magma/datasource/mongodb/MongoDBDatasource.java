@@ -64,7 +64,6 @@ public class MongoDBDatasource extends AbstractDatasource {
       db = client.getDB(mongoClientURI.getDatabase());
     }
     return db;
-//    return client.getDB(mongoClientURI.getDatabase());
   }
 
   GridFS getGridFS() {
@@ -109,7 +108,7 @@ public class MongoDBDatasource extends AbstractDatasource {
     for(ValueTable valueTable : getValueTables()) {
       dropTable(valueTable.getName());
     }
-    //TODO delete mongo database
+    getDB().dropDatabase();
   }
 
   @Nonnull

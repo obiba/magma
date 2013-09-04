@@ -32,7 +32,7 @@ class MongoDBValueSet implements ValueSet {
 
   private final VariableEntity entity;
 
-  private DBObject object;
+  private BSONObject object;
 
   MongoDBValueSet(MongoDBValueTable valueTable, VariableEntity entity) {
     this.valueTable = valueTable;
@@ -50,8 +50,7 @@ class MongoDBValueSet implements ValueSet {
   }
 
   public Value getValue(Variable variable) {
-    loadDBObject();
-    return ValueConverter.unmarshall(variable, object);
+    return ValueConverter.unmarshall(variable, getDBObject());
   }
 
   @Override
@@ -70,14 +69,14 @@ class MongoDBValueSet implements ValueSet {
       }
 
       private Value getTimestamp(String key) {
-        loadDBObject();
-        BSONObject timestamps = (BSONObject) object.get(MongoDBValueTable.TIMESTAMPS_FIELD);
+        BSONObject timestamps = (BSONObject) getDBObject().get(MongoDBValueTable.TIMESTAMPS_FIELD);
         return ValueConverter.unmarshall(DateTimeType.get(), timestamps.get(key));
       }
     };
   }
 
-  private void loadDBObject() {
+  @Nonnull
+  private BSONObject getDBObject() {
     if(object == null) {
       DBObject template = BasicDBObjectBuilder.start("_id", entity.getIdentifier()).get();
       object = valueTable.getValueSetCollection().findOne(template);
@@ -85,6 +84,7 @@ class MongoDBValueSet implements ValueSet {
         throw new NoSuchValueSetException(valueTable, entity);
       }
     }
+    return object;
   }
 
 }
