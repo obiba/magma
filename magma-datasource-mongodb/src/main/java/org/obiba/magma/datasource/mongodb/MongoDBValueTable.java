@@ -42,6 +42,10 @@ public class MongoDBValueTable extends AbstractValueTable {
 
   static final String TIMESTAMPS_FIELD = "_timestamps";
 
+  static final String TIMESTAMPS_CREATED_FIELD = "created";
+
+  static final String TIMESTAMPS_UPDATED_FIELD = "updated";
+
   public MongoDBValueTable(@Nonnull MongoDBDatasource datasource, @Nonnull String name) {
     this(datasource, name, null);
   }
@@ -102,7 +106,7 @@ public class MongoDBValueTable extends AbstractValueTable {
   }
 
   private DBObject createTimestampsObject() {
-    return BasicDBObjectBuilder.start().add("created", new Date()).add("updated", new Date()).get();
+    return BasicDBObjectBuilder.start().add(TIMESTAMPS_CREATED_FIELD, new Date()).add(TIMESTAMPS_UPDATED_FIELD, new Date()).get();
   }
 
   @Override
@@ -176,7 +180,7 @@ public class MongoDBValueTable extends AbstractValueTable {
     @Override
     public void close() throws IOException {
       BSONObject timestamps = (BSONObject) getValueSetObject().get(TIMESTAMPS_FIELD);
-      timestamps.put("updated", new Date());
+      timestamps.put(TIMESTAMPS_UPDATED_FIELD, new Date());
       getValueSetCollection().save(valueSetObject);
     }
   }
@@ -202,6 +206,10 @@ public class MongoDBValueTable extends AbstractValueTable {
       removeVariableValueSource(variable.getName());
       variablesCollection.remove(varObj);
       // remove associated values from the value set sollection
+      removeVariableValues(variable);
+    }
+
+    private void removeVariableValues(@Nonnull Variable variable) {
       DBCollection valueSetCollection = getValueSetCollection();
       DBCursor cursor = valueSetCollection.find();
       String field = VariableConverter.normalizeFieldName(variable.getName());
@@ -209,6 +217,8 @@ public class MongoDBValueTable extends AbstractValueTable {
         DBObject obj = cursor.next();
         // TODO enough to remove a binary file?
         obj.removeField(field);
+        BSONObject timestamps = (BSONObject) obj.get(TIMESTAMPS_FIELD);
+        timestamps.put(TIMESTAMPS_UPDATED_FIELD, new Date());
         valueSetCollection.save(obj);
       }
     }
