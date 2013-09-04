@@ -10,9 +10,11 @@
 
 package org.obiba.magma.datasource.mongodb.converter;
 
+import java.util.Collection;
+
 import javax.annotation.Nullable;
 
-import org.bson.types.BasicBSONList;
+import org.bson.BSONObject;
 import org.obiba.magma.Coordinate;
 import org.obiba.magma.MagmaDate;
 import org.obiba.magma.Value;
@@ -27,7 +29,6 @@ import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.mongodb.BasicDBList;
-import com.mongodb.DBObject;
 
 public class ValueConverter {
 
@@ -37,7 +38,7 @@ public class ValueConverter {
     if(value == null || value.isNull()) return null;
 
     if(variable.isRepeatable()) {
-      BasicDBList list = new BasicDBList();
+      Collection<Object> list = new BasicDBList();
       for(Value val : value.asSequence().getValues()) {
         list.add(marshall(val));
       }
@@ -46,16 +47,16 @@ public class ValueConverter {
     return marshall(value);
   }
 
-  public static Value unmarshall(Variable variable, DBObject object) {
+  public static Value unmarshall(Variable variable, BSONObject object) {
     return unmarshall(variable.getValueType(), variable.isRepeatable(),
         VariableConverter.normalizeFieldName(variable.getName()), object);
   }
 
-  public static Value unmarshall(ValueType type, boolean repeatable, String field, DBObject object) {
+  public static Value unmarshall(ValueType type, boolean repeatable, String field, BSONObject object) {
     if(object == null || !object.containsField(field)) return repeatable ? type.nullSequence() : type.nullValue();
 
     if(repeatable) {
-      BasicBSONList values = (BasicBSONList) object.get(field);
+      Iterable<?> values = (Iterable<?>) object.get(field);
       if(values == null) return type.nullSequence();
       ImmutableList.Builder<Value> list = ImmutableList.builder();
       for(Object o : values) {

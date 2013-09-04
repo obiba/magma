@@ -10,7 +10,9 @@
 
 package org.obiba.magma.datasource.mongodb.converter;
 
-import org.bson.types.BasicBSONList;
+import java.util.Collection;
+
+import org.bson.BSONObject;
 import org.obiba.magma.Attribute;
 import org.obiba.magma.Category;
 import org.obiba.magma.ValueType;
@@ -36,7 +38,7 @@ public class VariableConverter {
     return name.replaceAll("[.$]", "_");
   }
 
-  public static Variable unmarshall(DBObject object) {
+  public static Variable unmarshall(BSONObject object) {
     ValueType valueType = ValueType.Factory.forName(object.get("valueType").toString());
     String entityType = object.get("entityType").toString();
 
@@ -48,34 +50,34 @@ public class VariableConverter {
         .mimeType(getFieldAsString(object, "unit"));
 
     if(object.containsField("categories")) {
-      builder.addCategories(unmarshallCategories((BasicBSONList) object.get("categories")));
+      builder.addCategories(unmarshallCategories((Iterable<?>) object.get("categories")));
     }
 
     if(object.containsField("attributes")) {
-      builder.addAttributes(unmarshallAttributes((BasicBSONList) object.get("attributes")));
+      builder.addAttributes(unmarshallAttributes((Iterable<?>) object.get("attributes")));
     }
 
     return builder.build();
   }
 
-  private static Iterable<Category> unmarshallCategories(BasicBSONList cats) {
+  private static Iterable<Category> unmarshallCategories(Iterable<?> cats) {
     ImmutableList.Builder<Category> list = ImmutableList.builder();
     for(Object o : cats) {
-      DBObject cat = (DBObject) o;
+      BSONObject cat = (BSONObject) o;
       Category.Builder catBuilder = Category.Builder.newCategory(cat.get("name").toString())
           .missing(Boolean.parseBoolean(cat.get("missing").toString()));
       if(cat.containsField("attributes")) {
-        catBuilder.addAttributes(unmarshallAttributes((BasicBSONList) cat.get("attributes")));
+        catBuilder.addAttributes(unmarshallAttributes((Iterable<?>) cat.get("attributes")));
       }
       list.add(catBuilder.build());
     }
     return list.build();
   }
 
-  private static Iterable<Attribute> unmarshallAttributes(BasicBSONList attrs) {
+  private static Iterable<Attribute> unmarshallAttributes(Iterable<?> attrs) {
     ImmutableList.Builder<Attribute> list = ImmutableList.builder();
     for(Object o : attrs) {
-      DBObject attr = (DBObject) o;
+      BSONObject attr = (BSONObject) o;
       String value = getFieldAsString(attr, "value");
       if(!Strings.isNullOrEmpty(value)) {
         Attribute.Builder attrBuilder = Attribute.Builder.newAttribute(attr.get("name").toString()) //
@@ -90,7 +92,7 @@ public class VariableConverter {
     return list.build();
   }
 
-  private static String getFieldAsString(DBObject object, String key) {
+  private static String getFieldAsString(BSONObject object, String key) {
     if(!object.containsField(key)) return null;
     Object value = object.get(key);
     return value == null ? null : value.toString();
@@ -108,7 +110,7 @@ public class VariableConverter {
         .add("unit", variable.getUnit());
 
     if(variable.hasCategories()) {
-      BasicDBList list = new BasicDBList();
+      Collection<Object> list = new BasicDBList();
       for(Category category : variable.getCategories()) {
         list.add(marshall(category));
       }
@@ -116,7 +118,7 @@ public class VariableConverter {
     }
 
     if(variable.hasAttributes()) {
-      BasicDBList list = new BasicDBList();
+      Collection<Object> list = new BasicDBList();
       for(Attribute attribute : variable.getAttributes()) {
         list.add(marshall(attribute));
       }
@@ -130,7 +132,7 @@ public class VariableConverter {
     BasicDBObjectBuilder builder = BasicDBObjectBuilder.start() //
         .add("name", category.getName()).add("missing", category.isMissing());
     if(category.hasAttributes()) {
-      BasicDBList list = new BasicDBList();
+      Collection<Object> list = new BasicDBList();
       for(Attribute attribute : category.getAttributes()) {
         list.add(marshall(attribute));
       }

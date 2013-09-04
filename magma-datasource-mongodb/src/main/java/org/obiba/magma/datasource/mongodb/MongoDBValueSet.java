@@ -12,6 +12,7 @@ package org.obiba.magma.datasource.mongodb;
 
 import javax.annotation.Nonnull;
 
+import org.bson.BSONObject;
 import org.obiba.magma.NoSuchValueSetException;
 import org.obiba.magma.Timestamps;
 import org.obiba.magma.Value;
@@ -70,7 +71,7 @@ class MongoDBValueSet implements ValueSet {
 
       private Value getTimestamp(String key) {
         loadDBObject();
-        DBObject timestamps = (DBObject) object.get(MongoDBValueTable.TIMESTAMPS_FIELD);
+        BSONObject timestamps = (BSONObject) object.get(MongoDBValueTable.TIMESTAMPS_FIELD);
         return ValueConverter.unmarshall(DateTimeType.get(), timestamps.get(key));
       }
     };
