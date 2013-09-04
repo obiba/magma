@@ -73,6 +73,11 @@ class FsValueTableWriter implements ValueTableWriter {
         throw new RuntimeException(e);
       }
     }
+
+    @Override
+    public void removeVariable(@Nonnull Variable variable) {
+      throw new UnsupportedOperationException("Variable cannot be removed from a XML file");
+    }
   }
 
   private class XStreamValueSetWriter implements ValueSetWriter {

@@ -72,6 +72,11 @@ public class CsvValueTableWriter implements ValueTableWriter {
       }
     }
 
+    @Override
+    public void removeVariable(@Nonnull Variable variable) {
+      throw new UnsupportedOperationException("Variable cannot be removed from a CSV file");
+    }
+
     private void writeVariableToCsv(String... strings) throws IOException {
       CSVWriter writer = valueTable.getVariableWriter();
       if(writer == null) {

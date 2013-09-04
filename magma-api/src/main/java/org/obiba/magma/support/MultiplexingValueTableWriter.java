@@ -85,6 +85,11 @@ public class MultiplexingValueTableWriter implements ValueTableWriter {
     }
 
     @Override
+    public void removeVariable(@Nonnull Variable variable) {
+      throw new UnsupportedOperationException("Variable cannot be removed from a Multiplexing table");
+    }
+
+    @Override
     public void close() throws IOException {
       for(VariableWriter vw : writers.values()) {
         vw.close();

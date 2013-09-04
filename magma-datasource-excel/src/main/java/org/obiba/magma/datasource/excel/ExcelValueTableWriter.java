@@ -71,6 +71,11 @@ public class ExcelValueTableWriter implements ValueTableWriter {
       converter.marshall(variable, headerRowVariables, headerRowCategories);
     }
 
+    @Override
+    public void removeVariable(@Nonnull Variable variable) {
+      throw new UnsupportedOperationException("Variable cannot be removed from a Excel file");
+    }
+
     private void updateVariableSheetHeaderRow(Row headerRow) {
       VariableConverter converter = valueTable.getVariableConverter();
       for(String reservedAttributeName : VariableConverter.reservedVariableHeaders) {

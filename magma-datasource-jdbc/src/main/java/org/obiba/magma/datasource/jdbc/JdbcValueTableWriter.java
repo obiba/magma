@@ -120,6 +120,11 @@ class JdbcValueTableWriter implements ValueTableWriter {
     }
 
     @Override
+    public void removeVariable(@Nonnull Variable variable) {
+      throw new UnsupportedOperationException("Variable removal not implemented yet");
+    }
+
+    @Override
     public void close() throws IOException {
       Iterable<BlobTypeVisitor> visitors = ImmutableList.of(new BlobTypeVisitor());
       valueTable.getDatasource().doWithDatabase(new ChangeDatabaseCallback(changes, visitors));
@@ -243,6 +248,11 @@ class JdbcValueTableWriter implements ValueTableWriter {
             .withColumn(CATEGORY_MISSING_COLUMN, category.isMissing());
         changes.add(builder.build());
       }
+    }
+
+    @Override
+    public void removeVariable(@Nonnull Variable variable) {
+      throw new UnsupportedOperationException("Variable removal not implemented yet");
     }
   }
 

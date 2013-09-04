@@ -191,6 +191,11 @@ public class MongoDBValueTable extends AbstractValueTable {
     }
 
     @Override
+    public void removeVariable(@Nonnull Variable variable) {
+      throw new UnsupportedOperationException("Variable removal not implemented yet");
+    }
+
+    @Override
     public void close() throws IOException {
 
     }

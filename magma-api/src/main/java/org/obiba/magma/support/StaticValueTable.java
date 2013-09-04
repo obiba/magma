@@ -67,6 +67,10 @@ public class StaticValueTable extends AbstractValueTable {
     this(datasource, name, entities, "Participant");
   }
 
+  public void removeVariable(String variableName) {
+    removeVariableValueSource(variableName);
+  }
+
   public void addVariable(final Variable variable) {
     addVariableValueSource(new VariableValueSource() {
 
