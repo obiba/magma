@@ -12,11 +12,15 @@ package org.obiba.magma.datasource.mongodb;
 
 import java.io.IOException;
 import java.util.Date;
+import java.util.List;
 import java.util.Set;
 
 import javax.annotation.Nonnull;
 
 import org.bson.BSONObject;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueTableWriter;
 import org.obiba.magma.Variable;
@@ -24,11 +28,12 @@ import org.obiba.magma.VariableEntity;
 import org.obiba.magma.datasource.mongodb.converter.ValueConverter;
 import org.obiba.magma.datasource.mongodb.converter.VariableConverter;
 import org.obiba.magma.type.BinaryType;
+import org.obiba.magma.type.TextType;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.mongodb.BasicDBObjectBuilder;
 import com.mongodb.DBObject;
-import com.mongodb.gridfs.GridFS;
 import com.mongodb.gridfs.GridFSInputFile;
 
 import static org.obiba.magma.datasource.mongodb.MongoDBValueTable.TIMESTAMPS_FIELD;
@@ -89,36 +94,53 @@ class MongoDBValueTableWriter implements ValueTableWriter {
     public void writeValue(@Nonnull Variable variable, Value value) {
       String field = VariableConverter.normalizeFieldName(variable.getName());
       if(BinaryType.get().equals(value.getValueType())) {
-        if(getValueSetObject().containsField(field)) {
-          updateBinary(variable, value);
-        } else {
-          createBinary(variable, value);
-        }
+        Value fileMetadata = getValueSetObject().containsField(field)
+            ? updateBinary(variable, value)
+            : createBinary(variable, value);
+        getValueSetObject().put(field, ValueConverter.marshall(variable, fileMetadata));
       } else {
         getValueSetObject().put(field, ValueConverter.marshall(variable, value));
       }
     }
 
-    private void updateBinary(Variable variable, Value value) {
+    private Value updateBinary(Variable variable, Value value) {
       if(value.isNull()) {
         // TODO remove file
+//        GridFS gridFS = table.getGridFS();
+//        gridFS.
+
       }
+      return null;
     }
 
-    private void createBinary(Variable variable, Value value) {
-      GridFS gridFS = table.getGridFS();
+    private Value createBinary(Variable variable, Value value) {
       if(value.isNull()) {
-      } else {
-        if(variable.isRepeatable()) {
-          for(Value val : value.asSequence().getValues()) {
-            GridFSInputFile gridFSFile = gridFS.createFile((byte[]) val.getValue());
-            files.add(gridFSFile);
-          }
-        } else {
-          GridFSInputFile gridFSFile = gridFS.createFile((byte[]) value.getValue());
-          files.add(gridFSFile);
-        }
+        return TextType.get().nullValue();
       }
+      if(variable.isRepeatable()) {
+        int occurrence = 0;
+        List<Value> sequenceValues = Lists.newArrayList();
+        for(Value occurrenceValue : value.asSequence().getValues()) {
+          sequenceValues.add(createFile(variable, occurrenceValue, occurrence++));
+        }
+        return TextType.get().sequenceOf(sequenceValues);
+      }
+      return createFile(variable, value, null);
+    }
+
+    private Value createFile(Variable variable, Value value, Integer occurrence) {
+      BasicDBObjectBuilder metaDataBuilder = BasicDBObjectBuilder.start() //
+          .add("datasource", table.getDatasource().getName()) //
+          .add("table", table.getName()) //
+          .add("variable", variable.getName()) //
+          .add("entity", entity.getIdentifier());
+      if(occurrence != null) metaDataBuilder.add("occurrence", occurrence);
+
+      GridFSInputFile gridFSFile = table.getGridFS().createFile((byte[]) value.getValue());
+      gridFSFile.setMetaData(metaDataBuilder.get());
+
+      files.add(gridFSFile);
+      return getBinaryMetadata(gridFSFile);
     }
 
     @Override
@@ -130,6 +152,18 @@ class MongoDBValueTableWriter implements ValueTableWriter {
         file.save();
       }
       files.clear();
+    }
+
+    private Value getBinaryMetadata(GridFSInputFile gridFSFile) {
+      try {
+        JSONObject properties = new JSONObject();
+        properties.put("_id", gridFSFile.getId());
+        properties.put("size", gridFSFile.getLength());
+        properties.put("md5", gridFSFile.getMD5());
+        return TextType.get().valueOf(properties.toString());
+      } catch(JSONException e) {
+        throw new MagmaRuntimeException(e);
+      }
     }
   }
 
