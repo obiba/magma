@@ -38,9 +38,11 @@ import com.mongodb.MongoClient;
 
 import junit.framework.Assert;
 
+@SuppressWarnings("UnusedAssignment")
 public class MongoDBDatasourceTest {
 
   private static final String DB_TEST = "magma-test";
+
   private static final String TABLE_TEST = "TABLE";
 
   @Before
@@ -158,7 +160,7 @@ public class MongoDBDatasourceTest {
   public void testBinaryWriter() throws IOException {
     Datasource ds = createDatasource();
     int id = 1;
-    testWriteReadValue(ds, id++, BinaryType.get().valueOf(new String("coucou").getBytes()));
+    testWriteReadValue(ds, id++, BinaryType.get().valueOf("coucou".getBytes()));
     testWriteReadValue(ds, id++, BinaryType.get().valueOf(new byte[2]));
     testWriteReadValue(ds, id++, BinaryType.get().nullValue());
   }
@@ -187,7 +189,8 @@ public class MongoDBDatasourceTest {
     Datasource ds = createDatasource();
     int id = 1;
     testWriteReadValue(ds, id++, PolygonType.get().valueOf("[[[30.1,40.2],[21.3,44.55],[30.1,40.2]]]"));
-    testWriteReadValue(ds, id++, PolygonType.get().valueOf("[[[30.1,40.2],[21.3,44.55],[30.1,40.2]],[[1.1,2.2],[3.3,4.4],[1.1,2.2]]]"));
+    testWriteReadValue(ds, id++,
+        PolygonType.get().valueOf("[[[30.1,40.2],[21.3,44.55],[30.1,40.2]],[[1.1,2.2],[3.3,4.4],[1.1,2.2]]]"));
     testWriteReadValue(ds, id++, PolygonType.get().nullValue());
   }
 
@@ -224,7 +227,9 @@ public class MongoDBDatasourceTest {
   }
 
   private void writeValue(Datasource ds, String identifier, Value value) throws IOException {
-    Variable variable = Variable.Builder.newVariable(value.getValueType().getName().toUpperCase(), value.getValueType(), "Participant").repeatable(value.isSequence()).build();
+    Variable variable = Variable.Builder
+        .newVariable(value.getValueType().getName().toUpperCase(), value.getValueType(), "Participant")
+        .repeatable(value.isSequence()).build();
     VariableEntity entity = new VariableEntityBean("Participant", identifier);
     writeValue(ds, entity, variable, value);
   }
@@ -241,7 +246,8 @@ public class MongoDBDatasourceTest {
   }
 
   private void readValue(Datasource ds, String identifier, Value expected) {
-    Variable variable = Variable.Builder.newVariable(expected.getValueType().getName().toUpperCase(), expected.getValueType(), "Participant").build();
+    Variable variable = Variable.Builder
+        .newVariable(expected.getValueType().getName().toUpperCase(), expected.getValueType(), "Participant").build();
     VariableEntity entity = new VariableEntityBean("Participant", identifier);
     readValue(ds, entity, variable, expected);
   }
@@ -253,7 +259,7 @@ public class MongoDBDatasourceTest {
 
     Assert.assertEquals(variable.getEntityType(), vt.getEntityType());
     Assert.assertEquals(variable.getValueType(), vt.getVariable(variable.getName()).getValueType());
-    if (expected.isSequence()) {
+    if(expected.isSequence()) {
       Assert.assertEquals(expected.asSequence().getSize(), value.asSequence().getSize());
     }
     Assert.assertEquals(expected.toString(), value.toString());
