@@ -30,6 +30,7 @@ import org.obiba.magma.type.DateTimeType;
 
 import com.mongodb.BasicDBObjectBuilder;
 import com.mongodb.DBCollection;
+import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 import com.mongodb.WriteConcern;
 
@@ -92,6 +93,7 @@ public class MongoDBValueTable extends AbstractValueTable {
 
   /**
    * See <a href="http://docs.mongodb.org/manual/reference/limits/">MongoDB Limits and Thresholds</a>.
+   *
    * @return
    */
   private String getId() {
@@ -192,7 +194,23 @@ public class MongoDBValueTable extends AbstractValueTable {
 
     @Override
     public void removeVariable(@Nonnull Variable variable) {
-      throw new UnsupportedOperationException("Variable removal not implemented yet");
+      DBCollection variablesCollection = getVariablesCollection();
+      DBObject varObj = variablesCollection.findOne(BasicDBObjectBuilder.start("_id", variable.getName()).get());
+      if(varObj == null) return;
+
+      // remove from the variable collection
+      removeVariableValueSource(variable.getName());
+      variablesCollection.remove(varObj);
+      // remove associated values from the value set sollection
+      DBCollection valueSetCollection = getValueSetCollection();
+      DBCursor cursor = valueSetCollection.find();
+      String field = VariableConverter.normalizeFieldName(variable.getName());
+      while(cursor.hasNext()) {
+        DBObject obj = cursor.next();
+        // TODO enough to remove a binary file?
+        obj.removeField(field);
+        valueSetCollection.save(obj);
+      }
     }
 
     @Override
