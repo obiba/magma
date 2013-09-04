@@ -79,10 +79,6 @@ public class MongoDBVariableValueSource implements VariableValueSource, VectorSo
     return vs.getValue(getVariable());
   }
 
-  private Value getNullValue() {
-    return variable.isRepeatable() ? getValueType().nullSequence() : getValueType().nullValue();
-  }
-
   @Nullable
   @Override
   public VectorSource asVectorSource() {
@@ -118,7 +114,8 @@ public class MongoDBVariableValueSource implements VariableValueSource, VectorSo
     public Value next() {
       VariableEntity entity = entities.next();
       DBObject template = BasicDBObjectBuilder.start("_id", entity.getIdentifier()).get();
-      return ValueConverter.unmarshall(type, repeatable, field, table.getValueSetCollection().findOne(template, fields));
+      return ValueConverter
+          .unmarshall(type, repeatable, field, table.getValueSetCollection().findOne(template, fields));
     }
 
     @Override
