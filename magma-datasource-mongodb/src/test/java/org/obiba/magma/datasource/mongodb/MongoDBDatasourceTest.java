@@ -191,6 +191,23 @@ public class MongoDBDatasourceTest {
     testWriteReadValue(ds, id++, PolygonType.get().nullValue());
   }
 
+  @Test
+  public void testRemoveVariable() throws IOException {
+    Datasource ds = createDatasource();
+    int id = 1;
+    testWriteReadValue(ds, id++, TextType.get().valueOf("toto"));
+    testWriteReadValue(ds, id++, TextType.get().valueOf("tutu"));
+    testWriteReadValue(ds, id++, TextType.get().nullValue());
+    testWriteReadValue(ds, id++, TextType.get().valueOf("tata"));
+    id = 1;
+    testWriteReadValue(ds, id++, IntegerType.get().valueOf("1"));
+    testWriteReadValue(ds, id++, IntegerType.get().nullValue());
+    testWriteReadValue(ds, id++, IntegerType.get().valueOf(Long.MAX_VALUE));
+    testWriteReadValue(ds, id++, IntegerType.get().valueOf(Long.MIN_VALUE));
+    ValueTableWriter.VariableWriter vw = ds.createWriter(TABLE_TEST, "Participant").writeVariables();
+    vw.removeVariable(ds.getValueTable(TABLE_TEST).getVariable("TEXT"));
+  }
+
   private Datasource createDatasource() {
     MongoDBDatasourceFactory factory = new MongoDBDatasourceFactory();
     factory.setName("ds-" + DB_TEST);

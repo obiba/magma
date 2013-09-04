@@ -21,8 +21,6 @@ public interface ValueTableWriter extends Closeable {
   interface ValueSetWriter extends Closeable {
 
     void writeValue(@Nonnull Variable variable, Value value);
-
-    //void removeValue(@Nonnull Variable variable);
   }
 
 }
