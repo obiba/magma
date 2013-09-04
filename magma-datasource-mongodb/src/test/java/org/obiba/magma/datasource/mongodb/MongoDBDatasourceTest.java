@@ -192,6 +192,7 @@ public class MongoDBDatasourceTest {
   }
 
   @Test
+  @Ignore("need mongodb server to be available")
   public void testRemoveVariable() throws IOException {
     Datasource ds = createDatasource();
     int id = 1;
