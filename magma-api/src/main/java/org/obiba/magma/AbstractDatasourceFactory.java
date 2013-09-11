@@ -19,8 +19,9 @@ public abstract class AbstractDatasourceFactory implements DatasourceFactory {
   // DatasourceFactory Methods
   //
 
+  @SuppressWarnings("ConstantConditions")
   @Override
-  public void setName(String name) {
+  public void setName(@Nonnull String name) {
     if(name == null) throw new IllegalArgumentException("Datasource name cannot be null.");
     this.name = name;
   }

@@ -10,7 +10,6 @@
 
 package org.obiba.magma.datasource.mongodb;
 
-import java.net.UnknownHostException;
 import java.util.Set;
 
 import javax.annotation.Nonnull;
@@ -26,9 +25,6 @@ import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.DBPort;
-import com.mongodb.MongoClient;
-import com.mongodb.MongoClientURI;
-import com.mongodb.gridfs.GridFS;
 
 public class MongoDBDatasource extends AbstractDatasource {
 
@@ -38,15 +34,10 @@ public class MongoDBDatasource extends AbstractDatasource {
 
   static final int DEFAULT_PORT = DBPort.PORT;
 
-  static final String VALUE_TABLE_COLLECTION = "value_table";
+  private static final String VALUE_TABLE_COLLECTION = "value_table";
 
-  private final MongoClientURI mongoClientURI;
-
-  private MongoClient client;
-
-  private DB db;
-
-  private GridFS gridFS;
+  @Nonnull
+  private final MongoDBFactory mongoDBFactory;
 
   /**
    * See <a href="http://docs.mongodb.org/manual/reference/connection-string">MongoDB connection string specifications</a>.
@@ -54,23 +45,18 @@ public class MongoDBDatasource extends AbstractDatasource {
    * @param name
    * @param mongoURI
    */
-  public MongoDBDatasource(@Nonnull String name, @Nonnull MongoClientURI mongoClientURI) {
+  public MongoDBDatasource(@Nonnull String name, @Nonnull MongoDBFactory mongoDBFactory) {
     super(name, TYPE);
-    this.mongoClientURI = mongoClientURI;
+    this.mongoDBFactory = mongoDBFactory;
   }
 
   DB getDB() {
-    if(db == null) {
-      db = client.getDB(mongoClientURI.getDatabase());
-    }
-    return db;
+    return mongoDBFactory.getDB();
   }
 
-  GridFS getGridFS() {
-    if(gridFS == null) {
-      gridFS = new GridFS(getDB());
-    }
-    return gridFS;
+  @Nonnull
+  MongoDBFactory getMongoDBFactory() {
+    return mongoDBFactory;
   }
 
   DBCollection getValueTableCollection() {
@@ -79,11 +65,7 @@ public class MongoDBDatasource extends AbstractDatasource {
 
   @Override
   protected void onInitialise() {
-    try {
-      client = new MongoClient(mongoClientURI);
-    } catch(UnknownHostException e) {
-      throw new RuntimeException(e);
-    }
+    mongoDBFactory.getMongoClient();
   }
 
   @Override

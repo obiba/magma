@@ -33,7 +33,7 @@ public class MultiplexingDatasourceFactory extends AbstractDatasourceFactory {
   }
 
   @Override
-  public void setName(String name) {
+  public void setName(@Nonnull String name) {
     wrappedFactory.setName(name);
   }
 

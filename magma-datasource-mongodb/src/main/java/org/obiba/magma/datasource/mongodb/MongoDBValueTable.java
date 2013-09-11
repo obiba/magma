@@ -57,12 +57,16 @@ public class MongoDBValueTable extends AbstractValueTable {
     asDBObject();
   }
 
+  MongoDBFactory getMongoDBFactory() {
+    return ((MongoDBDatasource) getDatasource()).getMongoDBFactory();
+  }
+
   DB getDB() {
-    return ((MongoDBDatasource) getDatasource()).getDB();
+    return getMongoDBFactory().getDB();
   }
 
   GridFS getGridFS() {
-    return ((MongoDBDatasource) getDatasource()).getGridFS();
+    return getMongoDBFactory().getGridFS();
   }
 
   DBCollection getValueTableCollection() {

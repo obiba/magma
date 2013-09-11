@@ -10,19 +10,28 @@
 
 package org.obiba.magma.datasource.mongodb;
 
+import java.util.List;
+
 import javax.annotation.Nonnull;
 
 import org.bson.BSONObject;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.NoSuchValueSetException;
 import org.obiba.magma.Timestamps;
 import org.obiba.magma.Value;
+import org.obiba.magma.ValueLoaderFactory;
 import org.obiba.magma.ValueSet;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.datasource.mongodb.converter.ValueConverter;
+import org.obiba.magma.type.BinaryType;
 import org.obiba.magma.type.DateTimeType;
+import org.obiba.magma.type.TextType;
 
+import com.google.common.collect.Lists;
 import com.mongodb.BasicDBObjectBuilder;
 import com.mongodb.DBObject;
 
@@ -49,8 +58,35 @@ class MongoDBValueSet implements ValueSet {
     return entity;
   }
 
-  public Value getValue(Variable variable) {
-    return ValueConverter.unmarshall(variable, getDBObject());
+  Value getValue(Variable variable) {
+    BSONObject valueObject = getDBObject();
+    return variable.getValueType().equals(BinaryType.get())
+        ? getBinaryValue(valueObject, variable)
+        : ValueConverter.unmarshall(variable, valueObject);
+  }
+
+  @SuppressWarnings("unchecked")
+  private Value getBinaryValue(BSONObject valueObject, Variable variable) {
+    ValueLoaderFactory factory = new MongoDBValueLoaderFactory(valueTable.getMongoDBFactory());
+    if(variable.isRepeatable()) {
+      List<Value> sequenceValues = Lists.newArrayList();
+      for(BSONObject occurrenceObj : (Iterable<BSONObject>) valueObject) {
+        sequenceValues.add(getBinaryMetadata(occurrenceObj));
+      }
+      return BinaryType.get().sequenceOfReferences(factory, TextType.get().sequenceOf(sequenceValues));
+    }
+    return BinaryType.get().valueOfReference(factory, getBinaryMetadata(valueObject));
+  }
+
+  private Value getBinaryMetadata(BSONObject valueObject) {
+    try {
+      JSONObject properties = new JSONObject();
+      properties.put("_id", valueObject.get("_id"));
+      properties.put("size", valueObject.containsField("size") ? valueObject.get("size") : 0);
+      return TextType.get().valueOf(properties.toString());
+    } catch(JSONException e) {
+      throw new MagmaRuntimeException(e);
+    }
   }
 
   @Override
