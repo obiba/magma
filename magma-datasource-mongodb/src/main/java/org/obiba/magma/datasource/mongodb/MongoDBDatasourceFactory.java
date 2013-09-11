@@ -17,7 +17,6 @@ import org.obiba.magma.Datasource;
 import org.obiba.magma.MagmaRuntimeException;
 
 import com.google.common.base.Strings;
-import com.mongodb.MongoClientURI;
 
 /**
  * Create a MongoDB datasource by either providing a connection string
@@ -124,6 +123,6 @@ public class MongoDBDatasourceFactory extends AbstractDatasourceFactory {
       }
       connectionURI = uri.toString();
     }
-    return new MongoDBDatasource(getName(), new MongoClientURI(connectionURI));
+    return new MongoDBDatasource(getName(), new MongoDBFactory(connectionURI));
   }
 }

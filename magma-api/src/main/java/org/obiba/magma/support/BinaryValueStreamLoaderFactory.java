@@ -30,7 +30,7 @@ public class BinaryValueStreamLoaderFactory implements ValueLoaderFactory {
 
   @SuppressWarnings("ConstantConditions")
   @Override
-  public ValueLoader create(Value valueRef, Integer occurrence) {
+  public ValueLoader create(Value valueRef, @Nullable Integer occurrence) {
     if(valueRef.isNull()) return null;
     String strValue = valueRef.toString();
     return strValue.startsWith("http://")

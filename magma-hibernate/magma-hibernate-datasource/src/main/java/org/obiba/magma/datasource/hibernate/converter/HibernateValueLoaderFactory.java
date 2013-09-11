@@ -12,6 +12,7 @@ package org.obiba.magma.datasource.hibernate.converter;
 import java.io.Serializable;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import org.hibernate.Query;
 import org.hibernate.SessionFactory;
@@ -51,11 +52,11 @@ public class HibernateValueLoaderFactory implements ValueLoaderFactory {
   }
 
   @Override
-  public ValueLoader create(Value valueRef, Integer occurrence) {
+  public ValueLoader create(Value valueRef, @Nullable Integer occurrence) {
     return new HibernateBinaryValueLoader(sessionFactory, variableId, valueSetId, occurrence, valueRef);
   }
 
-  private static final class HibernateBinaryValueLoader implements ValueLoader, Serializable {
+  private static final class HibernateBinaryValueLoader implements ValueLoader {
 
     private static final long serialVersionUID = -1878370804810810064L;
 
@@ -69,12 +70,13 @@ public class HibernateValueLoaderFactory implements ValueLoaderFactory {
 
     private final int occurrence;
 
+    @Nullable
     private final Value valueRef;
 
     private byte[] value;
 
     private HibernateBinaryValueLoader(SessionFactory sessionFactory, Serializable variableId, Serializable valueSetId,
-        Integer occurrence, Value valueRef) {
+        @Nullable Integer occurrence, @Nullable Value valueRef) {
       this.sessionFactory = sessionFactory;
       this.variableId = variableId;
       this.valueSetId = valueSetId;
@@ -119,6 +121,7 @@ public class HibernateValueLoaderFactory implements ValueLoaderFactory {
 
     @Override
     public long getLength() {
+      if(valueRef == null) return 0;
       if(BinaryType.get().equals(valueRef.getValueType())) {
         log.trace("Loading binary from value_set_value table (Base64)");
         value = (byte[]) valueRef.getValue();

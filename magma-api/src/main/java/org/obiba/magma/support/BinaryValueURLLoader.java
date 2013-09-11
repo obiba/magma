@@ -10,7 +10,6 @@
 package org.obiba.magma.support;
 
 import java.io.InputStream;
-import java.io.Serializable;
 import java.net.URL;
 
 import javax.annotation.Nonnull;
@@ -25,7 +24,7 @@ import com.google.common.io.ByteStreams;
 /**
  * Loads a binary value from a url.
  */
-public class BinaryValueURLLoader implements ValueLoader, Serializable {
+public class BinaryValueURLLoader implements ValueLoader {
 
   private static final long serialVersionUID = -8549264329027093382L;
 

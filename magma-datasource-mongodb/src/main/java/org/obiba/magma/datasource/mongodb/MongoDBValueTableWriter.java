@@ -12,16 +12,12 @@ package org.obiba.magma.datasource.mongodb;
 
 import java.io.IOException;
 import java.util.Date;
-import java.util.List;
 import java.util.Set;
 
 import javax.annotation.Nonnull;
 
 import org.bson.BSONObject;
 import org.bson.types.ObjectId;
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueTableWriter;
 import org.obiba.magma.Variable;
@@ -29,10 +25,9 @@ import org.obiba.magma.VariableEntity;
 import org.obiba.magma.datasource.mongodb.converter.ValueConverter;
 import org.obiba.magma.datasource.mongodb.converter.VariableConverter;
 import org.obiba.magma.type.BinaryType;
-import org.obiba.magma.type.TextType;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObjectBuilder;
 import com.mongodb.DBObject;
 import com.mongodb.gridfs.GridFS;
@@ -70,12 +65,6 @@ class MongoDBValueTableWriter implements ValueTableWriter {
 
   private class MongoDBValueSetWriter implements ValueTableWriter.ValueSetWriter {
 
-    private static final String GRID_FILE_ID = "_id";
-
-    private static final String GRID_FILE_SIZE = "size";
-
-    private static final String GRID_FILE_MD_5 = "md5";
-
     private final VariableEntity entity;
 
     private DBObject valueSetObject;
@@ -102,56 +91,51 @@ class MongoDBValueTableWriter implements ValueTableWriter {
     public void writeValue(@Nonnull Variable variable, Value value) {
       String field = VariableConverter.normalizeFieldName(variable.getName());
       if(BinaryType.get().equals(value.getValueType())) {
-        Value fileMetadata = getValueSetObject().containsField(field)
+        DBObject fileMetadata = getValueSetObject().containsField(field)
             ? updateBinary(variable, value, field)
             : createBinary(variable, value);
-        getValueSetObject().put(field, ValueConverter.marshall(variable, fileMetadata));
+        getValueSetObject().put(field, fileMetadata);
       } else {
         getValueSetObject().put(field, ValueConverter.marshall(variable, value));
       }
     }
 
-    private Value updateBinary(Variable variable, Value value, String field) {
-      if(value.isNull()) {
-
-        // TODO remove file
-        BSONObject binaryValueMetaData = (BSONObject) getValueSetObject().get(field);
-        Object gridFileId = binaryValueMetaData.get(GRID_FILE_ID);
-
-      }
-      return null;
+    private DBObject updateBinary(Variable variable, Value value, String field) {
+      removeFile(variable, field);
+      return value.isNull() ? null : createBinary(variable, value);
     }
 
+    @SuppressWarnings("unchecked")
     private void removeFile(Variable variable, String field) {
-      GridFS gridFS = table.getGridFS();
-      if(variable.isRepeatable()) {
-
-      } else {
-        try {
-          JSONObject jsonMetaData = new JSONObject(getValueSetObject().get(field).toString());
-          gridFS.remove(new ObjectId(jsonMetaData.getString(GRID_FILE_ID)));
-        } catch(JSONException e) {
-          throw new MagmaRuntimeException("Invalid LineString format", e);
+      BSONObject binaryValueMetaData = (BSONObject) getValueSetObject().get(field);
+      if(binaryValueMetaData != null) {
+        GridFS gridFS = table.getGridFS();
+        if(variable.isRepeatable()) {
+          for(BSONObject obj : (Iterable<BSONObject>) binaryValueMetaData) {
+            gridFS.remove((ObjectId) obj.get("_id"));
+          }
+        } else {
+          gridFS.remove((ObjectId) binaryValueMetaData.get("_id"));
         }
       }
     }
 
-    private Value createBinary(Variable variable, Value value) {
+    private DBObject createBinary(Variable variable, Value value) {
       if(value.isNull()) {
-        return TextType.get().nullValue();
+        return null;
       }
       if(variable.isRepeatable()) {
         int occurrence = 0;
-        List<Value> sequenceValues = Lists.newArrayList();
+        BasicDBList metadata = new BasicDBList();
         for(Value occurrenceValue : value.asSequence().getValues()) {
-          sequenceValues.add(createFile(variable, occurrenceValue, occurrence++));
+          metadata.add(createFile(variable, occurrenceValue, occurrence++));
         }
-        return TextType.get().sequenceOf(sequenceValues);
+        return metadata;
       }
       return createFile(variable, value, null);
     }
 
-    private Value createFile(Variable variable, Value value, Integer occurrence) {
+    private DBObject createFile(Variable variable, Value value, Integer occurrence) {
       BasicDBObjectBuilder metaDataBuilder = BasicDBObjectBuilder.start() //
           .add("datasource", table.getDatasource().getName()) //
           .add("table", table.getName()) //
@@ -163,7 +147,7 @@ class MongoDBValueTableWriter implements ValueTableWriter {
       gridFSFile.setMetaData(metaDataBuilder.get());
 
       files.add(gridFSFile);
-      return getBinaryMetadata(gridFSFile);
+      return getBinaryValueMetadata(gridFSFile, occurrence);
     }
 
     @Override
@@ -177,16 +161,12 @@ class MongoDBValueTableWriter implements ValueTableWriter {
       files.clear();
     }
 
-    private Value getBinaryMetadata(GridFSInputFile gridFSFile) {
-      try {
-        JSONObject properties = new JSONObject();
-        properties.put(GRID_FILE_ID, gridFSFile.getId());
-        properties.put(GRID_FILE_SIZE, gridFSFile.getLength());
-        properties.put(GRID_FILE_MD_5, gridFSFile.getMD5());
-        return TextType.get().valueOf(properties.toString());
-      } catch(JSONException e) {
-        throw new MagmaRuntimeException(e);
-      }
+    private DBObject getBinaryValueMetadata(GridFSInputFile gridFSFile, Integer occurrence) {
+      BasicDBObjectBuilder builder = BasicDBObjectBuilder.start() //
+          .add("_id", gridFSFile.getId()) //
+          .add("size", gridFSFile.getLength());
+      if(occurrence != null) builder.add("occurrence", occurrence);
+      return builder.get();
     }
   }
 

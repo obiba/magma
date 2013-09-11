@@ -74,9 +74,9 @@ public class VariableConverter {
     return list.build();
   }
 
-  private static Iterable<Attribute> unmarshallAttributes(Iterable<?> attrs) {
+  private static Iterable<Attribute> unmarshallAttributes(Iterable<?> attributes) {
     ImmutableList.Builder<Attribute> list = ImmutableList.builder();
-    for(Object o : attrs) {
+    for(Object o : attributes) {
       BSONObject attr = (BSONObject) o;
       String value = getFieldAsString(attr, "value");
       if(!Strings.isNullOrEmpty(value)) {

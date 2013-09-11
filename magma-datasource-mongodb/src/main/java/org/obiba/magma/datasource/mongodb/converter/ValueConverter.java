@@ -53,7 +53,9 @@ public class ValueConverter {
   }
 
   public static Value unmarshall(ValueType type, boolean repeatable, String field, BSONObject object) {
-    if(object == null || !object.containsField(field)) return repeatable ? type.nullSequence() : type.nullValue();
+    if(object == null || !object.containsField(field)) {
+      return repeatable ? type.nullSequence() : type.nullValue();
+    }
 
     if(repeatable) {
       Iterable<?> values = (Iterable<?>) object.get(field);
