@@ -218,10 +218,10 @@ public class MongoDBDatasourceTest {
   public void testRemoveVariable() throws IOException {
     Datasource ds = createDatasource();
     int id = 1;
-    testWriteReadValue(ds, id++, TextType.get().valueOf("toto"));
-    testWriteReadValue(ds, id++, TextType.get().valueOf("tutu"));
-    testWriteReadValue(ds, id++, TextType.get().nullValue());
-    testWriteReadValue(ds, id++, TextType.get().valueOf("tata"));
+    testWriteReadValue(ds, id++, BinaryType.get().valueOf("tutu".getBytes()));
+    testWriteReadValue(ds, id++, BinaryType.get().valueOf(new byte[2]));
+    testWriteReadValue(ds, id++, BinaryType.get().nullValue());
+    testWriteReadValue(ds, id++, BinaryType.get().valueOf("toto".getBytes()));
 
     id = 1;
     testWriteReadValue(ds, id++, IntegerType.get().valueOf("1"));
@@ -231,7 +231,7 @@ public class MongoDBDatasourceTest {
 
     ValueTable table = ds.getValueTable(TABLE_TEST);
     ValueSet valueSet = table.getValueSet(new VariableEntityBean(PARTICIPANT, "1"));
-    Variable textVariable = table.getVariable(generateVariableName(TextType.get()));
+    Variable textVariable = table.getVariable(generateVariableName(BinaryType.get()));
 
     assertThat(Iterables.size(table.getVariables()), is(2));
     assertThat(textVariable, notNullValue());
@@ -255,8 +255,10 @@ public class MongoDBDatasourceTest {
       table.getVariable(textVariable.getName());
       fail("Should throw NoSuchVariableException");
     } catch(NoSuchVariableException e) {
-
     }
+
+    //TODO check binary files were removed
+
   }
 
   private Datasource createDatasource() {

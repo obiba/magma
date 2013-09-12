@@ -242,6 +242,7 @@ class MongoDBValueTableWriter implements ValueTableWriter {
     @SuppressWarnings("unchecked")
     private void removeBinaryFiles(Variable variable, String field, BSONObject valueSetObject) {
       BSONObject fileMetadata = (BSONObject) valueSetObject.get(field);
+      if(fileMetadata == null) return;
       if(variable.isRepeatable()) {
         for(BSONObject occurrenceObj : (Iterable<BSONObject>) fileMetadata) {
           removeFile(occurrenceObj);
