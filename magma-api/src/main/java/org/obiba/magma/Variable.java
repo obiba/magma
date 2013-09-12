@@ -36,7 +36,8 @@ public interface Variable extends AttributeAware {
 
     private VariableBean variable = new VariableBean();
 
-    public Builder(String name, ValueType type, String entityType) {
+    @SuppressWarnings("ConstantConditions")
+    public Builder(@Nonnull String name, @Nonnull ValueType type, @Nonnull String entityType) {
       if(name == null) throw new IllegalArgumentException("name cannot be null");
       if(type == null) throw new IllegalArgumentException("type cannot be null");
       if(entityType == null) throw new IllegalArgumentException("entityType cannot be null");
@@ -175,13 +176,15 @@ public interface Variable extends AttributeAware {
       return false;
     }
 
-    public Builder name(String name) {
+    @SuppressWarnings("ConstantConditions")
+    public Builder name(@Nonnull String name) {
       if(name == null) throw new IllegalArgumentException("name cannot be null");
       variable.name = name;
       return this;
     }
 
-    public Builder type(ValueType type) {
+    @SuppressWarnings("ConstantConditions")
+    public Builder type(@Nonnull ValueType type) {
       if(type == null) throw new IllegalArgumentException("type cannot be null");
       variable.valueType = type;
       return this;
@@ -201,15 +204,13 @@ public interface Variable extends AttributeAware {
       return this;
     }
 
-    public Builder repeatable() {
-      variable.repeatable = true;
+    public Builder repeatable(boolean repeatable) {
+      variable.repeatable = repeatable;
       return this;
     }
 
-    public Builder repeatable(boolean repeatable) {
-      if (repeatable)
-        variable.repeatable = true;
-      return this;
+    public Builder repeatable() {
+      return repeatable(true);
     }
 
     public Builder unit(String unit) {

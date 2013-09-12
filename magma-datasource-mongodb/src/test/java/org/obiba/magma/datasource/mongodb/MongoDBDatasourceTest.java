@@ -12,6 +12,7 @@ import org.obiba.core.util.FileUtil;
 import org.obiba.magma.Datasource;
 import org.obiba.magma.MagmaEngine;
 import org.obiba.magma.Value;
+import org.obiba.magma.ValueSequence;
 import org.obiba.magma.ValueSet;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.ValueTableWriter;
@@ -41,7 +42,7 @@ import com.mongodb.MongoClient;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
-@SuppressWarnings("UnusedAssignment")
+@SuppressWarnings({ "UnusedAssignment", "OverlyCoupledClass" })
 public class MongoDBDatasourceTest {
 
   private static final String DB_TEST = "magma-test";
@@ -166,12 +167,18 @@ public class MongoDBDatasourceTest {
     testWriteReadValue(ds, id++, BinaryType.get().valueOf("coucou".getBytes()));
     testWriteReadValue(ds, id++, BinaryType.get().valueOf(new byte[2]));
     testWriteReadValue(ds, id++, BinaryType.get().nullValue());
+  }
+
+  @Test
+  public void testBinarySequenceWriter() throws IOException {
+    Datasource ds = createDatasource();
 
     Collection<Value> sequence = Lists.newArrayList();
     sequence.add(BinaryType.get().valueOf("coucou".getBytes()));
     sequence.add(BinaryType.get().nullValue());
     sequence.add(BinaryType.get().valueOf(new byte[2]));
-    testWriteReadValue(ds, id++, BinaryType.get().sequenceOf(sequence));
+
+    testWriteReadValue(ds, 1, BinaryType.get().sequenceOf(sequence));
   }
 
   @Test
@@ -229,15 +236,11 @@ public class MongoDBDatasourceTest {
 
   private void testWriteReadValue(Datasource ds, int identifier, Value value) throws IOException {
     VariableEntity entity = new VariableEntityBean("Participant", Integer.toString(identifier));
-    writeValue(ds, entity, value);
-    readValue(ds, entity, value);
-  }
-
-  private void writeValue(Datasource ds, VariableEntity entity, Value value) throws IOException {
     Variable variable = Variable.Builder
         .newVariable(value.getValueType().getName().toUpperCase(), value.getValueType(), entity.getType())
         .repeatable(value.isSequence()).build();
     writeValue(ds, entity, variable, value);
+    readValue(ds, entity, variable, value);
   }
 
   private void writeValue(Datasource ds, VariableEntity entity, Variable variable, Value value) throws IOException {
@@ -251,13 +254,6 @@ public class MongoDBDatasourceTest {
     tableWriter.close();
   }
 
-  private void readValue(Datasource ds, VariableEntity entity, Value expected) {
-    Variable variable = Variable.Builder
-        .newVariable(expected.getValueType().getName().toUpperCase(), expected.getValueType(), entity.getType())
-        .build();
-    readValue(ds, entity, variable, expected);
-  }
-
   private void readValue(Datasource ds, VariableEntity entity, Variable variable, Value expected) {
     ValueTable table = ds.getValueTable(TABLE_TEST);
     ValueSet valueSet = table.getValueSet(entity);
@@ -266,8 +262,19 @@ public class MongoDBDatasourceTest {
     assertThat(table.getEntityType(), is(variable.getEntityType()));
     assertThat(table.getVariable(variable.getName()).getValueType(), is(variable.getValueType()));
     if(expected.isSequence()) {
-      assertThat(value.asSequence().getSize(), is(expected.asSequence().getSize()));
+      ValueSequence valueSequence = value.asSequence();
+      ValueSequence expectedSequence = expected.asSequence();
+      int expectedSize = expectedSequence.getSize();
+      assertThat(valueSequence.getSize(), is(expectedSize));
+      for(int i = 0; i < expectedSize; i++) {
+        Value valueItem = valueSequence.get(i);
+        Value expectedItem = expectedSequence.get(i);
+        assertThat(valueItem.isNull(), is(expectedItem.isNull()));
+        assertThat(valueItem.toString(), is(expectedItem.toString()));
+      }
+    } else {
+      assertThat(value.isNull(), is(expected.isNull()));
+      assertThat(value.toString(), is(expected.toString()));
     }
-    assertThat(value.toString(), is(expected.toString()));
   }
 }
