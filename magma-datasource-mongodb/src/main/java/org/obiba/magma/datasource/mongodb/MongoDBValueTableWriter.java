@@ -64,10 +64,13 @@ class MongoDBValueTableWriter implements ValueTableWriter {
 
   @Override
   public void close() throws IOException {
+    updateTableLastUpdate();
+  }
+
+  private void updateTableLastUpdate() {
     DBObject tableObject = table.asDBObject();
     BSONObject timestamps = (BSONObject) tableObject.get(TIMESTAMPS_FIELD);
     timestamps.put("updated", new Date());
-    // insert or update
     table.getValueTableCollection().save(tableObject);
   }
 
@@ -83,7 +86,7 @@ class MongoDBValueTableWriter implements ValueTableWriter {
       this.entity = entity;
     }
 
-    private BSONObject getValueSetObject() {
+    private DBObject getValueSetObject() {
       if(valueSetObject == null) {
         DBObject template = BasicDBObjectBuilder.start("_id", entity.getIdentifier()).get();
         valueSetObject = table.getValueSetCollection().findOne(template);
@@ -163,14 +166,22 @@ class MongoDBValueTableWriter implements ValueTableWriter {
 
     @Override
     public void close() throws IOException {
-      BSONObject timestamps = (BSONObject) getValueSetObject().get(TIMESTAMPS_FIELD);
-      timestamps.put(TIMESTAMPS_UPDATED_FIELD, new Date());
-      table.getValueSetCollection().save(valueSetObject);
+      saveFiles();
+      updateValueSetLastUpdate();
+    }
 
+    private void saveFiles() {
       for(GridFSInputFile file : files) {
         file.save();
       }
       files.clear();
+    }
+
+    private void updateValueSetLastUpdate() {
+      BSONObject timestamps = (BSONObject) getValueSetObject().get(TIMESTAMPS_FIELD);
+      timestamps.put(TIMESTAMPS_UPDATED_FIELD, new Date());
+      table.getValueSetCollection().save(getValueSetObject());
+      updateTableLastUpdate();
     }
 
     private DBObject getBinaryValueMetadata(@Nullable GridFSInputFile gridFSFile, Integer occurrence) {
@@ -184,6 +195,7 @@ class MongoDBValueTableWriter implements ValueTableWriter {
   }
 
   private class MongoDBVariableWriter implements ValueTableWriter.VariableWriter {
+
     @Override
     public void writeVariable(@Nonnull Variable variable) {
       if(table.getVariablesCollection().findOne(BasicDBObjectBuilder.start("_id", variable.getName()).get()) == null) {
@@ -203,8 +215,11 @@ class MongoDBValueTableWriter implements ValueTableWriter {
       // remove from the variable collection
       table.removeVariableValueSource(variable.getName());
       variablesCollection.remove(varObj);
+
       // remove associated values from the value set collection
       removeVariableValues(variable);
+
+      updateTableLastUpdate();
     }
 
     private void removeVariableValues(@Nonnull Variable variable) {
@@ -212,18 +227,39 @@ class MongoDBValueTableWriter implements ValueTableWriter {
       DBCursor cursor = valueSetCollection.find();
       String field = VariableConverter.normalizeFieldName(variable.getName());
       while(cursor.hasNext()) {
-        DBObject obj = cursor.next();
-        // TODO enough to remove a binary file?
-        obj.removeField(field);
-        BSONObject timestamps = (BSONObject) obj.get(TIMESTAMPS_FIELD);
+        DBObject valueSetObject = cursor.next();
+        if(variable.getValueType().equals(BinaryType.get())) {
+          removeBinaryFiles(variable, field, valueSetObject);
+        }
+        valueSetObject.removeField(field);
+
+        BSONObject timestamps = (BSONObject) valueSetObject.get(TIMESTAMPS_FIELD);
         timestamps.put(TIMESTAMPS_UPDATED_FIELD, new Date());
-        valueSetCollection.save(obj);
+        valueSetCollection.save(valueSetObject);
+      }
+    }
+
+    @SuppressWarnings("unchecked")
+    private void removeBinaryFiles(Variable variable, String field, BSONObject valueSetObject) {
+      BSONObject fileMetadata = (BSONObject) valueSetObject.get(field);
+      if(fileMetadata == null) return;
+      if(variable.isRepeatable()) {
+        for(BSONObject occurrenceObj : (Iterable<BSONObject>) fileMetadata) {
+          removeFile(occurrenceObj);
+        }
+      } else {
+        removeFile(fileMetadata);
+      }
+    }
+
+    private void removeFile(BSONObject fileMetadata) {
+      if(fileMetadata.containsField(GRID_FILE_ID)) {
+        table.getGridFS().remove(new ObjectId((String) fileMetadata.get(GRID_FILE_ID)));
       }
     }
 
     @Override
     public void close() throws IOException {
-
     }
   }
 
