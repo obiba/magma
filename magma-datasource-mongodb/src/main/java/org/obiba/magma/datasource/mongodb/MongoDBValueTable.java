@@ -35,13 +35,13 @@ import com.mongodb.gridfs.GridFS;
 
 public class MongoDBValueTable extends AbstractValueTable {
 
-  static final String VARIABLE_SUFFIX = "_variable";
+  private static final String VARIABLE_SUFFIX = "_variable";
 
-  static final String VALUE_SET_SUFFIX = "_value_set";
+  private static final String VALUE_SET_SUFFIX = "_value_set";
 
   static final String TIMESTAMPS_FIELD = "_timestamps";
 
-  static final String TIMESTAMPS_CREATED_FIELD = "created";
+  private static final String TIMESTAMPS_CREATED_FIELD = "created";
 
   static final String TIMESTAMPS_UPDATED_FIELD = "updated";
 
