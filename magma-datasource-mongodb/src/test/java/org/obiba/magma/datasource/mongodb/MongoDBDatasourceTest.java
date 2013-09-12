@@ -2,10 +2,11 @@ package org.obiba.magma.datasource.mongodb;
 
 import java.io.IOException;
 import java.net.UnknownHostException;
+import java.util.Collection;
 
 import org.junit.After;
+import org.junit.Assume;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.obiba.core.util.FileUtil;
 import org.obiba.magma.Datasource;
@@ -34,9 +35,11 @@ import org.obiba.magma.type.TextType;
 import org.obiba.magma.xstream.MagmaXStreamExtension;
 
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import com.mongodb.MongoClient;
 
-import junit.framework.Assert;
+import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertThat;
 
 @SuppressWarnings("UnusedAssignment")
 public class MongoDBDatasourceTest {
@@ -47,9 +50,19 @@ public class MongoDBDatasourceTest {
 
   @Before
   public void before() throws UnknownHostException {
-    MongoClient client = new MongoClient();
-    client.dropDatabase(DB_TEST);
-    new MagmaEngine().extend(new MagmaXStreamExtension());
+    // run test only if MongoDB is running
+    Assume.assumeTrue(setupMongoDB());
+  }
+
+  private boolean setupMongoDB() throws UnknownHostException {
+    try {
+      MongoClient client = new MongoClient();
+      client.dropDatabase(DB_TEST);
+      new MagmaEngine().extend(new MagmaXStreamExtension());
+      return true;
+    } catch(Exception e) {
+      return false;
+    }
   }
 
   @After
@@ -58,7 +71,6 @@ public class MongoDBDatasourceTest {
   }
 
   @Test
-  @Ignore("need mongodb server to be available")
   public void testWriters() throws IOException {
     FsDatasource onyx = new FsDatasource("onyx", FileUtil.getFileFromResource("20-onyx-data.zip"));
     MongoDBDatasourceFactory factory = new MongoDBDatasourceFactory();
@@ -70,12 +82,11 @@ public class MongoDBDatasourceTest {
     DatasourceCopier copier = DatasourceCopier.Builder.newCopier().build();
     copier.copy(onyx, ds);
 
-    Assert.assertEquals(20, ds.getValueTable("AnkleBrachial").getVariableEntities().size());
-    Assert.assertEquals(21, Iterables.size(ds.getValueTable("AnkleBrachial").getVariables()));
+    assertThat(ds.getValueTable("AnkleBrachial").getVariableEntities().size(), is(20));
+    assertThat(Iterables.size(ds.getValueTable("AnkleBrachial").getVariables()), is(21));
   }
 
   @Test
-  @Ignore("need mongodb server to be available")
   public void testIntegerSequenceWriter() throws IOException {
     Datasource ds = createDatasource();
     int id = 1;
@@ -84,7 +95,6 @@ public class MongoDBDatasourceTest {
   }
 
   @Test
-  @Ignore("need mongodb server to be available")
   public void testTextWriter() throws IOException {
     Datasource ds = createDatasource();
     int id = 1;
@@ -94,7 +104,6 @@ public class MongoDBDatasourceTest {
   }
 
   @Test
-  @Ignore("need mongodb server to be available")
   public void testIntegerWriter() throws IOException {
     Datasource ds = createDatasource();
     int id = 1;
@@ -106,7 +115,6 @@ public class MongoDBDatasourceTest {
   }
 
   @Test
-  @Ignore("need mongodb server to be available")
   public void testDecimalWriter() throws IOException {
     Datasource ds = createDatasource();
     int id = 1;
@@ -118,7 +126,6 @@ public class MongoDBDatasourceTest {
   }
 
   @Test
-  @Ignore("need mongodb server to be available")
   public void testDateWriter() throws IOException {
     Datasource ds = createDatasource();
     int id = 1;
@@ -127,7 +134,6 @@ public class MongoDBDatasourceTest {
   }
 
   @Test
-  @Ignore("need mongodb server to be available")
   public void testDateTimeWriter() throws IOException {
     Datasource ds = createDatasource();
     int id = 1;
@@ -136,7 +142,6 @@ public class MongoDBDatasourceTest {
   }
 
   @Test
-  @Ignore("need mongodb server to be available")
   public void testBooleanWriter() throws IOException {
     Datasource ds = createDatasource();
     int id = 1;
@@ -146,7 +151,6 @@ public class MongoDBDatasourceTest {
   }
 
   @Test
-  @Ignore("need mongodb server to be available")
   public void testLocaleWriter() throws IOException {
     Datasource ds = createDatasource();
     int id = 1;
@@ -156,17 +160,21 @@ public class MongoDBDatasourceTest {
   }
 
   @Test
-  @Ignore("need mongodb server to be available")
   public void testBinaryWriter() throws IOException {
     Datasource ds = createDatasource();
     int id = 1;
     testWriteReadValue(ds, id++, BinaryType.get().valueOf("coucou".getBytes()));
     testWriteReadValue(ds, id++, BinaryType.get().valueOf(new byte[2]));
     testWriteReadValue(ds, id++, BinaryType.get().nullValue());
+
+    Collection<Value> sequence = Lists.newArrayList();
+    sequence.add(BinaryType.get().valueOf("coucou".getBytes()));
+    sequence.add(BinaryType.get().nullValue());
+    sequence.add(BinaryType.get().valueOf(new byte[2]));
+    testWriteReadValue(ds, id++, BinaryType.get().sequenceOf(sequence));
   }
 
   @Test
-  @Ignore("need mongodb server to be available")
   public void testPointWriter() throws IOException {
     Datasource ds = createDatasource();
     int id = 1;
@@ -175,7 +183,6 @@ public class MongoDBDatasourceTest {
   }
 
   @Test
-  @Ignore("need mongodb server to be available")
   public void testLineStringWriter() throws IOException {
     Datasource ds = createDatasource();
     int id = 1;
@@ -184,7 +191,6 @@ public class MongoDBDatasourceTest {
   }
 
   @Test
-  @Ignore("need mongodb server to be available")
   public void testPolygonWriter() throws IOException {
     Datasource ds = createDatasource();
     int id = 1;
@@ -222,46 +228,46 @@ public class MongoDBDatasourceTest {
   }
 
   private void testWriteReadValue(Datasource ds, int identifier, Value value) throws IOException {
-    writeValue(ds, Integer.toString(identifier), value);
-    readValue(ds, Integer.toString(identifier), value);
+    VariableEntity entity = new VariableEntityBean("Participant", Integer.toString(identifier));
+    writeValue(ds, entity, value);
+    readValue(ds, entity, value);
   }
 
-  private void writeValue(Datasource ds, String identifier, Value value) throws IOException {
+  private void writeValue(Datasource ds, VariableEntity entity, Value value) throws IOException {
     Variable variable = Variable.Builder
-        .newVariable(value.getValueType().getName().toUpperCase(), value.getValueType(), "Participant")
+        .newVariable(value.getValueType().getName().toUpperCase(), value.getValueType(), entity.getType())
         .repeatable(value.isSequence()).build();
-    VariableEntity entity = new VariableEntityBean("Participant", identifier);
     writeValue(ds, entity, variable, value);
   }
 
   private void writeValue(Datasource ds, VariableEntity entity, Variable variable, Value value) throws IOException {
-    ValueTableWriter vtw = ds.createWriter(TABLE_TEST, variable.getEntityType());
-    ValueTableWriter.VariableWriter vw = vtw.writeVariables();
-    vw.writeVariable(variable);
-    vw.close();
-    ValueTableWriter.ValueSetWriter vsw = vtw.writeValueSet(entity);
-    vsw.writeValue(variable, value);
-    vsw.close();
-    vtw.close();
+    ValueTableWriter tableWriter = ds.createWriter(TABLE_TEST, variable.getEntityType());
+    ValueTableWriter.VariableWriter variableWriter = tableWriter.writeVariables();
+    variableWriter.writeVariable(variable);
+    variableWriter.close();
+    ValueTableWriter.ValueSetWriter valueSetWriter = tableWriter.writeValueSet(entity);
+    valueSetWriter.writeValue(variable, value);
+    valueSetWriter.close();
+    tableWriter.close();
   }
 
-  private void readValue(Datasource ds, String identifier, Value expected) {
+  private void readValue(Datasource ds, VariableEntity entity, Value expected) {
     Variable variable = Variable.Builder
-        .newVariable(expected.getValueType().getName().toUpperCase(), expected.getValueType(), "Participant").build();
-    VariableEntity entity = new VariableEntityBean("Participant", identifier);
+        .newVariable(expected.getValueType().getName().toUpperCase(), expected.getValueType(), entity.getType())
+        .build();
     readValue(ds, entity, variable, expected);
   }
 
   private void readValue(Datasource ds, VariableEntity entity, Variable variable, Value expected) {
-    ValueTable vt = ds.getValueTable(TABLE_TEST);
-    ValueSet vs = vt.getValueSet(entity);
-    Value value = vt.getValue(variable, vs);
+    ValueTable table = ds.getValueTable(TABLE_TEST);
+    ValueSet valueSet = table.getValueSet(entity);
+    Value value = table.getValue(variable, valueSet);
 
-    Assert.assertEquals(variable.getEntityType(), vt.getEntityType());
-    Assert.assertEquals(variable.getValueType(), vt.getVariable(variable.getName()).getValueType());
+    assertThat(table.getEntityType(), is(variable.getEntityType()));
+    assertThat(table.getVariable(variable.getName()).getValueType(), is(variable.getValueType()));
     if(expected.isSequence()) {
-      Assert.assertEquals(expected.asSequence().getSize(), value.asSequence().getSize());
+      assertThat(value.asSequence().getSize(), is(expected.asSequence().getSize()));
     }
-    Assert.assertEquals(expected.toString(), value.toString());
+    assertThat(value.toString(), is(expected.toString()));
   }
 }
