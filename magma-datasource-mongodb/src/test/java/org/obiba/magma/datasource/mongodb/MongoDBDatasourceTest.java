@@ -11,11 +11,13 @@ import org.junit.Test;
 import org.obiba.core.util.FileUtil;
 import org.obiba.magma.Datasource;
 import org.obiba.magma.MagmaEngine;
+import org.obiba.magma.NoSuchVariableException;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueSequence;
 import org.obiba.magma.ValueSet;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.ValueTableWriter;
+import org.obiba.magma.ValueType;
 import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.datasource.fs.FsDatasource;
@@ -40,7 +42,9 @@ import com.google.common.collect.Lists;
 import com.mongodb.MongoClient;
 
 import static org.hamcrest.core.Is.is;
+import static org.hamcrest.core.IsNull.notNullValue;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 
 @SuppressWarnings({ "UnusedAssignment", "OverlyCoupledClass" })
 public class MongoDBDatasourceTest {
@@ -48,6 +52,8 @@ public class MongoDBDatasourceTest {
   private static final String DB_TEST = "magma-test";
 
   private static final String TABLE_TEST = "TABLE";
+
+  public static final String PARTICIPANT = "Participant";
 
   @Before
   public void before() throws UnknownHostException {
@@ -207,8 +213,8 @@ public class MongoDBDatasourceTest {
     testWriteReadValue(ds, id++, PolygonType.get().nullValue());
   }
 
+  @SuppressWarnings({ "ReuseOfLocalVariable", "OverlyLongMethod" })
   @Test
-  @Ignore("need mongodb server to be available")
   public void testRemoveVariable() throws IOException {
     Datasource ds = createDatasource();
     int id = 1;
@@ -216,13 +222,29 @@ public class MongoDBDatasourceTest {
     testWriteReadValue(ds, id++, TextType.get().valueOf("tutu"));
     testWriteReadValue(ds, id++, TextType.get().nullValue());
     testWriteReadValue(ds, id++, TextType.get().valueOf("tata"));
+
     id = 1;
     testWriteReadValue(ds, id++, IntegerType.get().valueOf("1"));
     testWriteReadValue(ds, id++, IntegerType.get().nullValue());
     testWriteReadValue(ds, id++, IntegerType.get().valueOf(Long.MAX_VALUE));
     testWriteReadValue(ds, id++, IntegerType.get().valueOf(Long.MIN_VALUE));
-    ValueTableWriter.VariableWriter vw = ds.createWriter(TABLE_TEST, "Participant").writeVariables();
-    vw.removeVariable(ds.getValueTable(TABLE_TEST).getVariable("TEXT"));
+
+    ValueTable table = ds.getValueTable(TABLE_TEST);
+    Variable textVariable = table.getVariable(generateVariableName(TextType.get()));
+
+    assertThat(Iterables.size(table.getVariables()), is(2));
+    assertThat(textVariable, notNullValue());
+    assertThat(table.getVariable(generateVariableName(IntegerType.get())), notNullValue());
+
+    ValueTableWriter.VariableWriter variableWriter = ds.createWriter(TABLE_TEST, PARTICIPANT).writeVariables();
+    variableWriter.removeVariable(textVariable);
+
+    try {
+      table.getVariable(textVariable.getName());
+      fail("Should throw NoSuchVariableException");
+    } catch(NoSuchVariableException e) {
+
+    }
   }
 
   private Datasource createDatasource() {
@@ -234,10 +256,14 @@ public class MongoDBDatasourceTest {
     return ds;
   }
 
+  private String generateVariableName(ValueType type) {
+    return type.getName().toUpperCase();
+  }
+
   private void testWriteReadValue(Datasource ds, int identifier, Value value) throws IOException {
     VariableEntity entity = new VariableEntityBean("Participant", Integer.toString(identifier));
     Variable variable = Variable.Builder
-        .newVariable(value.getValueType().getName().toUpperCase(), value.getValueType(), entity.getType())
+        .newVariable(generateVariableName(value.getValueType()), value.getValueType(), entity.getType())
         .repeatable(value.isSequence()).build();
     writeValue(ds, entity, variable, value);
     readValue(ds, entity, variable, value);

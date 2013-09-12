@@ -29,7 +29,6 @@ import org.obiba.magma.type.DateTimeType;
 import com.mongodb.BasicDBObjectBuilder;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
-import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 import com.mongodb.WriteConcern;
 import com.mongodb.gridfs.GridFS;
@@ -109,19 +108,19 @@ public class MongoDBValueTable extends AbstractValueTable {
     return norm.startsWith("system") ? "_" + norm.substring(6) : norm;
   }
 
-<<<<<<< HEAD
-  private DBObject createTimestampsObject() {
+  DBObject createTimestampsObject() {
     return BasicDBObjectBuilder.start().add(TIMESTAMPS_CREATED_FIELD, new Date())
         .add(TIMESTAMPS_UPDATED_FIELD, new Date()).get();
-=======
-  DBObject createTimestampsObject() {
-    return BasicDBObjectBuilder.start().add("created", new Date()).add("updated", new Date()).get();
->>>>>>> Work on GridFS
   }
 
   @Override
   protected void addVariableValueSource(VariableValueSource source) {
     super.addVariableValueSource(source);
+  }
+
+  @Override
+  protected void removeVariableValueSource(String variableName) {
+    super.removeVariableValueSource(variableName);
   }
 
   @Override
@@ -164,86 +163,4 @@ public class MongoDBValueTable extends AbstractValueTable {
     getValueTableCollection().remove(BasicDBObjectBuilder.start().add("_id", getId()).get());
   }
 
-<<<<<<< HEAD
-  private class MongoDBValueSetWriter implements ValueTableWriter.ValueSetWriter {
-
-    private final VariableEntity entity;
-
-    private DBObject valueSetObject;
-
-    private MongoDBValueSetWriter(VariableEntity entity) {
-      this.entity = entity;
-    }
-
-    private BSONObject getValueSetObject() {
-      if(valueSetObject == null) {
-        DBObject template = BasicDBObjectBuilder.start("_id", entity.getIdentifier()).get();
-        valueSetObject = getValueSetCollection().findOne(template);
-        if(valueSetObject == null) {
-          valueSetObject = template;
-          valueSetObject.put(TIMESTAMPS_FIELD, createTimestampsObject());
-        }
-      }
-      return valueSetObject;
-    }
-
-    @Override
-    public void writeValue(@Nonnull Variable variable, Value value) {
-      String field = VariableConverter.normalizeFieldName(variable.getName());
-      getValueSetObject().put(field, ValueConverter.marshall(variable, value));
-    }
-
-    @Override
-    public void close() throws IOException {
-      BSONObject timestamps = (BSONObject) getValueSetObject().get(TIMESTAMPS_FIELD);
-      timestamps.put(TIMESTAMPS_UPDATED_FIELD, new Date());
-      getValueSetCollection().save(valueSetObject);
-    }
-  }
-
-  private class MongoDBVariableWriter implements ValueTableWriter.VariableWriter {
-    @Override
-    public void writeVariable(@Nonnull Variable variable) {
-      if(getVariablesCollection().findOne(BasicDBObjectBuilder.start("_id", variable.getName()).get()) == null) {
-        addVariableValueSource(new MongoDBVariableValueSource(MongoDBValueTable.this, variable.getName()));
-      }
-      // insert or update
-      DBObject varObject = VariableConverter.marshall(variable);
-      getVariablesCollection().save(varObject);
-    }
-
-    @Override
-    public void removeVariable(@Nonnull Variable variable) {
-      DBCollection variablesCollection = getVariablesCollection();
-      DBObject varObj = variablesCollection.findOne(BasicDBObjectBuilder.start("_id", variable.getName()).get());
-      if(varObj == null) return;
-
-      // remove from the variable collection
-      removeVariableValueSource(variable.getName());
-      variablesCollection.remove(varObj);
-      // remove associated values from the value set sollection
-      removeVariableValues(variable);
-    }
-
-    private void removeVariableValues(@Nonnull Variable variable) {
-      DBCollection valueSetCollection = getValueSetCollection();
-      DBCursor cursor = valueSetCollection.find();
-      String field = VariableConverter.normalizeFieldName(variable.getName());
-      while(cursor.hasNext()) {
-        DBObject obj = cursor.next();
-        // TODO enough to remove a binary file?
-        obj.removeField(field);
-        BSONObject timestamps = (BSONObject) obj.get(TIMESTAMPS_FIELD);
-        timestamps.put(TIMESTAMPS_UPDATED_FIELD, new Date());
-        valueSetCollection.save(obj);
-      }
-    }
-
-    @Override
-    public void close() throws IOException {
-
-    }
-  }
-=======
->>>>>>> Work on GridFS
 }

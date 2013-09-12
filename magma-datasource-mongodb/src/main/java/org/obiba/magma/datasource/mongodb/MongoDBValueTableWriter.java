@@ -30,11 +30,14 @@ import org.obiba.magma.type.BinaryType;
 import com.google.common.collect.Sets;
 import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObjectBuilder;
+import com.mongodb.DBCollection;
+import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 import com.mongodb.gridfs.GridFS;
 import com.mongodb.gridfs.GridFSInputFile;
 
 import static org.obiba.magma.datasource.mongodb.MongoDBValueTable.TIMESTAMPS_FIELD;
+import static org.obiba.magma.datasource.mongodb.MongoDBValueTable.TIMESTAMPS_UPDATED_FIELD;
 
 class MongoDBValueTableWriter implements ValueTableWriter {
 
@@ -161,8 +164,9 @@ class MongoDBValueTableWriter implements ValueTableWriter {
     @Override
     public void close() throws IOException {
       BSONObject timestamps = (BSONObject) getValueSetObject().get(TIMESTAMPS_FIELD);
-      timestamps.put("updated", new Date());
+      timestamps.put(TIMESTAMPS_UPDATED_FIELD, new Date());
       table.getValueSetCollection().save(valueSetObject);
+
       for(GridFSInputFile file : files) {
         file.save();
       }
@@ -191,8 +195,36 @@ class MongoDBValueTableWriter implements ValueTableWriter {
     }
 
     @Override
+    public void removeVariable(@Nonnull Variable variable) {
+      DBCollection variablesCollection = table.getVariablesCollection();
+      DBObject varObj = variablesCollection.findOne(BasicDBObjectBuilder.start("_id", variable.getName()).get());
+      if(varObj == null) return;
+
+      // remove from the variable collection
+      table.removeVariableValueSource(variable.getName());
+      variablesCollection.remove(varObj);
+      // remove associated values from the value set collection
+      removeVariableValues(variable);
+    }
+
+    private void removeVariableValues(@Nonnull Variable variable) {
+      DBCollection valueSetCollection = table.getValueSetCollection();
+      DBCursor cursor = valueSetCollection.find();
+      String field = VariableConverter.normalizeFieldName(variable.getName());
+      while(cursor.hasNext()) {
+        DBObject obj = cursor.next();
+        // TODO enough to remove a binary file?
+        obj.removeField(field);
+        BSONObject timestamps = (BSONObject) obj.get(TIMESTAMPS_FIELD);
+        timestamps.put(TIMESTAMPS_UPDATED_FIELD, new Date());
+        valueSetCollection.save(obj);
+      }
+    }
+
+    @Override
     public void close() throws IOException {
 
     }
   }
+
 }
