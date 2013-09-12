@@ -48,7 +48,13 @@ import static org.junit.Assert.assertThat;
 @SuppressWarnings({ "OverlyLongMethod", "MagicNumber", "ReuseOfLocalVariable" })
 public class HibernateDatasourceTest {
 
-//  private static final Logger log = LoggerFactory.getLogger(HibernateDatasourceTest.class);
+  //  private static final Logger log = LoggerFactory.getLogger(HibernateDatasourceTest.class);
+
+  private static final String PARTICIPANT = "Participant";
+
+  private static final String DATASOURCE = "testDs";
+
+  private static final String TABLE = "testTable";
 
   LocalSessionFactoryProvider provider;
 
@@ -68,25 +74,22 @@ public class HibernateDatasourceTest {
   @Test
   public void testTransactionalTableCreation() throws Exception {
 
-    final String dsName = "testDs";
-    final String tableName = "testTable";
-
-    HibernateDatasource ds = new HibernateDatasource(dsName, provider.getSessionFactory());
+    HibernateDatasource ds = new HibernateDatasource(DATASOURCE, provider.getSessionFactory());
 
     provider.getSessionFactory().getCurrentSession().beginTransaction();
     MagmaEngine.get().addDatasource(ds);
-    ValueTableWriter vtWriter = ds.createWriter(tableName, "Participant");
+    ValueTableWriter vtWriter = ds.createWriter(TABLE, PARTICIPANT);
     vtWriter.close();
 
-    Assert.assertTrue(ds.hasValueTable(tableName));
-    Assert.assertNotNull(ds.getValueTable(tableName));
+    Assert.assertTrue(ds.hasValueTable(TABLE));
+    Assert.assertNotNull(ds.getValueTable(TABLE));
 
     // Make sure the table is not visible outside this transaction.
     new TestThread() {
       @Override
       public void test() {
         // Assert that the datasource does not have the value table
-        Assert.assertFalse(MagmaEngine.get().getDatasource(dsName).hasValueTable(tableName));
+        Assert.assertFalse(MagmaEngine.get().getDatasource(DATASOURCE).hasValueTable(TABLE));
       }
     }.assertNoException();
 
@@ -96,69 +99,63 @@ public class HibernateDatasourceTest {
     new TestThread() {
       @Override
       public void test() {
-        Assert.assertTrue(MagmaEngine.get().getDatasource(dsName).hasValueTable(tableName));
+        Assert.assertTrue(MagmaEngine.get().getDatasource(DATASOURCE).hasValueTable(TABLE));
       }
     }.assertNoException();
 
-    cleanlyRemoveDatasource(dsName);
+    cleanlyRemoveDatasource(DATASOURCE);
   }
 
   @Test
   public void testTableAndVariablesPersisted() throws Exception {
 
-    String dsName = "testDs";
-    String tableName = "testTable";
-
-    HibernateDatasource ds = new HibernateDatasource(dsName, provider.getSessionFactory());
+    HibernateDatasource ds = new HibernateDatasource(DATASOURCE, provider.getSessionFactory());
 
     provider.getSessionFactory().getCurrentSession().beginTransaction();
     MagmaEngine.get().addDatasource(ds);
 
-    ValueTableWriter vtWriter = ds.createWriter(tableName, "Participant");
+    ValueTableWriter vtWriter = ds.createWriter(TABLE, PARTICIPANT);
 
     // Test that the table is visible
-    Assert.assertTrue(ds.hasValueTable(tableName));
+    Assert.assertTrue(ds.hasValueTable(TABLE));
 
     // Write variables and assert that they are visible.
     VariableWriter vw = vtWriter.writeVariables();
-    vw.writeVariable(Variable.Builder.newVariable("Var1", TextType.get(), "Participant").build());
-    Assert.assertNotNull(ds.getValueTable(tableName).getVariable("Var1"));
-    vw.writeVariable(Variable.Builder.newVariable("Var2", IntegerType.get(), "Participant").build());
-    Assert.assertNotNull(ds.getValueTable(tableName).getVariable("Var2"));
+    vw.writeVariable(Variable.Builder.newVariable("Var1", TextType.get(), PARTICIPANT).build());
+    Assert.assertNotNull(ds.getValueTable(TABLE).getVariable("Var1"));
+    vw.writeVariable(Variable.Builder.newVariable("Var2", IntegerType.get(), PARTICIPANT).build());
+    Assert.assertNotNull(ds.getValueTable(TABLE).getVariable("Var2"));
     vw.close();
     vtWriter.close();
 
     provider.getSessionFactory().getCurrentSession().getTransaction().commit();
 
-    cleanlyRemoveDatasource(dsName);
+    cleanlyRemoveDatasource(DATASOURCE);
 
     // Re-create same datasource and assert that everything is still there.
-    ds = new HibernateDatasource(dsName, provider.getSessionFactory());
+    ds = new HibernateDatasource(DATASOURCE, provider.getSessionFactory());
     provider.getSessionFactory().getCurrentSession().beginTransaction();
     MagmaEngine.get().addDatasource(ds);
-    Assert.assertNotNull(ds.getValueTable(tableName));
-    Assert.assertNotNull(ds.getValueTable(tableName).getVariable("Var1"));
-    Assert.assertNotNull(ds.getValueTable(tableName).getVariable("Var2"));
+    Assert.assertNotNull(ds.getValueTable(TABLE));
+    Assert.assertNotNull(ds.getValueTable(TABLE).getVariable("Var1"));
+    Assert.assertNotNull(ds.getValueTable(TABLE).getVariable("Var2"));
 
-    cleanlyRemoveDatasource(dsName);
+    cleanlyRemoveDatasource(DATASOURCE);
   }
 
   @Test
   public void testVariableStateChangeIsPersisted() throws Exception {
-    Variable initialState = Variable.Builder.newVariable("Var1", TextType.get(), "Participant").addCategory("C1", "1")
+    Variable initialState = Variable.Builder.newVariable("Var1", TextType.get(), PARTICIPANT).addCategory("C1", "1")
         .addCategory("C2", "2").addCategory("C3", "3").build();
-    Variable changedState = Variable.Builder.newVariable("Var1", TextType.get(), "Participant").addCategory("C3", "3")
+    Variable changedState = Variable.Builder.newVariable("Var1", TextType.get(), PARTICIPANT).addCategory("C3", "3")
         .addCategory("C1", "1").addCategory("C4", "4").addCategory("C2", "2").build();
 
-    String dsName = "testDs";
-    String tableName = "testTable";
-
-    HibernateDatasource ds = new HibernateDatasource(dsName, provider.getSessionFactory());
+    HibernateDatasource ds = new HibernateDatasource(DATASOURCE, provider.getSessionFactory());
 
     provider.getSessionFactory().getCurrentSession().beginTransaction();
     MagmaEngine.get().addDatasource(ds);
 
-    ValueTableWriter vtWriter = ds.createWriter(tableName, "Participant");
+    ValueTableWriter vtWriter = ds.createWriter(TABLE, PARTICIPANT);
 
     // Write variables and assert that they are visible.
     VariableWriter vw = vtWriter.writeVariables();
@@ -170,10 +167,10 @@ public class HibernateDatasourceTest {
 
     provider.getSessionFactory().getCurrentSession().beginTransaction();
 
-    Variable v = ds.getValueTable(tableName).getVariable("Var1");
+    Variable v = ds.getValueTable(TABLE).getVariable("Var1");
     assertSameCategories(initialState, v);
 
-    vtWriter = ds.createWriter(tableName, "Participant");
+    vtWriter = ds.createWriter(TABLE, PARTICIPANT);
     // Write variables and assert that they are visible.
     vw = vtWriter.writeVariables();
     vw.writeVariable(changedState);
@@ -183,10 +180,10 @@ public class HibernateDatasourceTest {
     provider.getSessionFactory().getCurrentSession().getTransaction().commit();
 
     provider.getSessionFactory().getCurrentSession().beginTransaction();
-    v = ds.getValueTable(tableName).getVariable("Var1");
+    v = ds.getValueTable(TABLE).getVariable("Var1");
     assertSameCategories(changedState, v);
 
-    cleanlyRemoveDatasource(dsName);
+    cleanlyRemoveDatasource(DATASOURCE);
   }
 
   @Test
@@ -194,8 +191,8 @@ public class HibernateDatasourceTest {
     HibernateDatasource ds = new HibernateDatasource("test", provider.getSessionFactory());
 
     ImmutableSet<Variable> variables = ImmutableSet.of( //
-        Variable.Builder.newVariable("Test Variable", IntegerType.get(), "Participant").build(), //
-        Variable.Builder.newVariable("Other Variable", DecimalType.get(), "Participant").build());
+        Variable.Builder.newVariable("Test Variable", IntegerType.get(), PARTICIPANT).build(), //
+        Variable.Builder.newVariable("Other Variable", DecimalType.get(), PARTICIPANT).build());
 
     ValueTable generatedValueTable = new GeneratedValueTable(ds, variables, 300);
     provider.getSessionFactory().getCurrentSession().beginTransaction();
@@ -209,11 +206,11 @@ public class HibernateDatasourceTest {
     HibernateDatasource ds = new HibernateDatasource("vectorSourceTest", provider.getSessionFactory());
 
     ImmutableSet<Variable> variables = ImmutableSet.of(//
-        Variable.Builder.newVariable("Test Variable", IntegerType.get(), "Participant").build(), //
-        Variable.Builder.newVariable("Test Repeatable", TextType.get(), "Participant").repeatable().build(), //
-        Variable.Builder.newVariable("Test Date", DateType.get(), "Participant").build(), //
-        Variable.Builder.newVariable("Test DateTime", DateTimeType.get(), "Participant").build(), //
-        Variable.Builder.newVariable("Other Variable", DecimalType.get(), "Participant").build());
+        Variable.Builder.newVariable("Test Variable", IntegerType.get(), PARTICIPANT).build(), //
+        Variable.Builder.newVariable("Test Repeatable", TextType.get(), PARTICIPANT).repeatable().build(), //
+        Variable.Builder.newVariable("Test Date", DateType.get(), PARTICIPANT).build(), //
+        Variable.Builder.newVariable("Test DateTime", DateTimeType.get(), PARTICIPANT).build(), //
+        Variable.Builder.newVariable("Other Variable", DecimalType.get(), PARTICIPANT).build());
 
     ValueTable generatedValueTable = new GeneratedValueTable(ds, variables, 100);
     provider.getSessionFactory().getCurrentSession().beginTransaction();
@@ -250,8 +247,8 @@ public class HibernateDatasourceTest {
     HibernateDatasource ds = new HibernateDatasource("vectorSourceTest", provider.getSessionFactory());
 
     ImmutableSet<Variable> variables = ImmutableSet.of( //
-        Variable.Builder.newVariable("Test Binary", BinaryType.get(), "Participant").build(),
-        Variable.Builder.newVariable("Test Repeatable Binary", BinaryType.get(), "Participant").repeatable().build());
+        Variable.Builder.newVariable("Test Binary", BinaryType.get(), PARTICIPANT).build(),
+        Variable.Builder.newVariable("Test Repeatable Binary", BinaryType.get(), PARTICIPANT).repeatable().build());
 
     ValueTable generatedValueTable = new GeneratedValueTable(ds, variables, 1);
     provider.getSessionFactory().getCurrentSession().beginTransaction();
@@ -292,12 +289,13 @@ public class HibernateDatasourceTest {
     cleanlyRemoveDatasource(ds);
   }
 
+  @SuppressWarnings("ConstantConditions")
   @Test
   public void testTimestamps() throws Exception {
     HibernateDatasource ds = new HibernateDatasource("testTimestamps", provider.getSessionFactory());
     ImmutableSet<Variable> variables = ImmutableSet.of(//
-        Variable.Builder.newVariable("Test Variable", IntegerType.get(), "Participant").build(), //
-        Variable.Builder.newVariable("Other Variable", DecimalType.get(), "Participant").build());
+        Variable.Builder.newVariable("Test Variable", IntegerType.get(), PARTICIPANT).build(), //
+        Variable.Builder.newVariable("Other Variable", DecimalType.get(), PARTICIPANT).build());
 
     ValueTable generatedValueTable = new GeneratedValueTable(ds, variables, 300);
     provider.getSessionFactory().getCurrentSession().beginTransaction();
@@ -319,7 +317,6 @@ public class HibernateDatasourceTest {
     Date tableLastUpdate = (Date) table.getTimestamps().getLastUpdate().getValue();
 
     // allow max 5ms of delay between last valueSet update and table last update
-    //noinspection ConstantConditions
     long delta = tableLastUpdate.getTime() - lastValueSetUpdate.getTime();
     assertThat(
         "Table lastUpdate (" + tableLastUpdate + ") is older than its last valueSet lastUpdate (" + lastValueSetUpdate +
