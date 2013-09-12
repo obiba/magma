@@ -24,9 +24,11 @@ import org.obiba.magma.Value;
 import org.obiba.magma.ValueLoaderFactory;
 import org.obiba.magma.ValueSet;
 import org.obiba.magma.ValueTable;
+import org.obiba.magma.ValueType;
 import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.datasource.mongodb.converter.ValueConverter;
+import org.obiba.magma.datasource.mongodb.converter.VariableConverter;
 import org.obiba.magma.type.BinaryType;
 import org.obiba.magma.type.DateTimeType;
 import org.obiba.magma.type.TextType;
@@ -34,6 +36,9 @@ import org.obiba.magma.type.TextType;
 import com.google.common.collect.Lists;
 import com.mongodb.BasicDBObjectBuilder;
 import com.mongodb.DBObject;
+
+import static org.obiba.magma.datasource.mongodb.MongoDBValueTableWriter.GRID_FILE_ID;
+import static org.obiba.magma.datasource.mongodb.MongoDBValueTableWriter.GRID_FILE_SIZE;
 
 class MongoDBValueSet implements ValueSet {
 
@@ -60,7 +65,8 @@ class MongoDBValueSet implements ValueSet {
 
   Value getValue(Variable variable) {
     BSONObject valueObject = getDBObject();
-    return variable.getValueType().equals(BinaryType.get())
+    ValueType valueType = variable.getValueType();
+    return valueType.equals(BinaryType.get())
         ? getBinaryValue(valueObject, variable)
         : ValueConverter.unmarshall(variable, valueObject);
   }
@@ -68,21 +74,27 @@ class MongoDBValueSet implements ValueSet {
   @SuppressWarnings("unchecked")
   private Value getBinaryValue(BSONObject valueObject, Variable variable) {
     ValueLoaderFactory factory = new MongoDBValueLoaderFactory(valueTable.getMongoDBFactory());
+    String field = VariableConverter.normalizeFieldName(variable.getName());
+    BSONObject fileMetadata = (BSONObject) valueObject.get(field);
+    if(fileMetadata == null) {
+      return TextType.get().nullValue();
+    }
+
     if(variable.isRepeatable()) {
       List<Value> sequenceValues = Lists.newArrayList();
-      for(BSONObject occurrenceObj : (Iterable<BSONObject>) valueObject) {
+      for(BSONObject occurrenceObj : (Iterable<BSONObject>) fileMetadata) {
         sequenceValues.add(getBinaryMetadata(occurrenceObj));
       }
       return BinaryType.get().sequenceOfReferences(factory, TextType.get().sequenceOf(sequenceValues));
     }
-    return BinaryType.get().valueOfReference(factory, getBinaryMetadata(valueObject));
+    return BinaryType.get().valueOfReference(factory, getBinaryMetadata(fileMetadata));
   }
 
   private Value getBinaryMetadata(BSONObject valueObject) {
     try {
       JSONObject properties = new JSONObject();
-      properties.put("_id", valueObject.get("_id"));
-      properties.put("size", valueObject.containsField("size") ? valueObject.get("size") : 0);
+      properties.put(GRID_FILE_ID, valueObject.get(GRID_FILE_ID));
+      properties.put(GRID_FILE_SIZE, valueObject.containsField(GRID_FILE_SIZE) ? valueObject.get(GRID_FILE_SIZE) : 0);
       return TextType.get().valueOf(properties.toString());
     } catch(JSONException e) {
       throw new MagmaRuntimeException(e);

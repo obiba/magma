@@ -16,6 +16,8 @@ import org.obiba.magma.ValueLoaderFactory;
 
 import com.mongodb.gridfs.GridFSDBFile;
 
+import static org.obiba.magma.datasource.mongodb.MongoDBValueTableWriter.GRID_FILE_ID;
+
 public class MongoDBValueLoaderFactory implements ValueLoaderFactory {
 
   private final MongoDBFactory mongoDBFactory;
@@ -54,17 +56,17 @@ public class MongoDBValueLoaderFactory implements ValueLoaderFactory {
     public Object getValue() {
       if(value == null) {
         ObjectId fileId = null;
-        JSONObject properties = new JSONObject(valueRef.getValue());
+        String json = (String) valueRef.getValue();
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         try {
-          fileId = ObjectId.massageToObjectId(properties.get("_id"));
+          fileId = new ObjectId(new JSONObject(json).getString(GRID_FILE_ID));
           GridFSDBFile file = mongoDBFactory.getGridFS().findOne(fileId);
           file.writeTo(outputStream);
           value = outputStream.toByteArray();
         } catch(IOException e) {
           throw new MagmaRuntimeException("Cannot retrieve content of gridFsFile [" + fileId + "]", e);
         } catch(JSONException e) {
-          throw new MagmaRuntimeException("Cannot retrieve grid file Id for " + valueRef.getValue(), e);
+          throw new MagmaRuntimeException("Cannot retrieve grid file Id for " + json, e);
         } finally {
           try {
             outputStream.close();

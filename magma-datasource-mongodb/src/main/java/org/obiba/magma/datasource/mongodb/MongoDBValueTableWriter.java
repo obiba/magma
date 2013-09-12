@@ -37,6 +37,10 @@ import static org.obiba.magma.datasource.mongodb.MongoDBValueTable.TIMESTAMPS_FI
 
 class MongoDBValueTableWriter implements ValueTableWriter {
 
+  static final String GRID_FILE_ID = "_grid_file_id";
+
+  static final String GRID_FILE_SIZE = "size";
+
   private final MongoDBValueTable table;
 
   MongoDBValueTableWriter(@Nonnull MongoDBValueTable table) {
@@ -163,8 +167,8 @@ class MongoDBValueTableWriter implements ValueTableWriter {
 
     private DBObject getBinaryValueMetadata(GridFSInputFile gridFSFile, Integer occurrence) {
       BasicDBObjectBuilder builder = BasicDBObjectBuilder.start() //
-          .add("_id", gridFSFile.getId()) //
-          .add("size", gridFSFile.getLength());
+          .add(GRID_FILE_ID, gridFSFile.getId().toString()) //
+          .add(GRID_FILE_SIZE, gridFSFile.getLength());
       if(occurrence != null) builder.add("occurrence", occurrence);
       return builder.get();
     }
