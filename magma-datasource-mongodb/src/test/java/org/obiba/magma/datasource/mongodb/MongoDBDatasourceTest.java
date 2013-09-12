@@ -1,9 +1,9 @@
 package org.obiba.magma.datasource.mongodb;
 
 import java.io.IOException;
-import java.net.UnknownHostException;
 import java.util.Collection;
 
+import org.hamcrest.number.IsGreaterThan;
 import org.junit.After;
 import org.junit.Assume;
 import org.junit.Before;
@@ -53,15 +53,15 @@ public class MongoDBDatasourceTest {
 
   private static final String TABLE_TEST = "TABLE";
 
-  public static final String PARTICIPANT = "Participant";
+  private static final String PARTICIPANT = "Participant";
 
   @Before
-  public void before() throws UnknownHostException {
+  public void before() {
     // run test only if MongoDB is running
     Assume.assumeTrue(setupMongoDB());
   }
 
-  private boolean setupMongoDB() throws UnknownHostException {
+  private boolean setupMongoDB() {
     try {
       MongoClient client = new MongoClient();
       client.dropDatabase(DB_TEST);
@@ -218,10 +218,10 @@ public class MongoDBDatasourceTest {
   public void testRemoveVariable() throws IOException {
     Datasource ds = createDatasource();
     int id = 1;
-    testWriteReadValue(ds, id++, TextType.get().valueOf("toto"));
-    testWriteReadValue(ds, id++, TextType.get().valueOf("tutu"));
-    testWriteReadValue(ds, id++, TextType.get().nullValue());
-    testWriteReadValue(ds, id++, TextType.get().valueOf("tata"));
+    testWriteReadValue(ds, id++, BinaryType.get().valueOf("tutu".getBytes()));
+    testWriteReadValue(ds, id++, BinaryType.get().valueOf(new byte[2]));
+    testWriteReadValue(ds, id++, BinaryType.get().nullValue());
+    testWriteReadValue(ds, id++, BinaryType.get().valueOf("toto".getBytes()));
 
     id = 1;
     testWriteReadValue(ds, id++, IntegerType.get().valueOf("1"));
@@ -230,21 +230,35 @@ public class MongoDBDatasourceTest {
     testWriteReadValue(ds, id++, IntegerType.get().valueOf(Long.MIN_VALUE));
 
     ValueTable table = ds.getValueTable(TABLE_TEST);
-    Variable textVariable = table.getVariable(generateVariableName(TextType.get()));
+    ValueSet valueSet = table.getValueSet(new VariableEntityBean(PARTICIPANT, "1"));
+    Variable textVariable = table.getVariable(generateVariableName(BinaryType.get()));
 
     assertThat(Iterables.size(table.getVariables()), is(2));
     assertThat(textVariable, notNullValue());
     assertThat(table.getVariable(generateVariableName(IntegerType.get())), notNullValue());
 
+    Value tableLastUpdate = table.getTimestamps().getLastUpdate();
+    Value valueSetLastUpdate = valueSet.getTimestamps().getLastUpdate();
+
     ValueTableWriter.VariableWriter variableWriter = ds.createWriter(TABLE_TEST, PARTICIPANT).writeVariables();
     variableWriter.removeVariable(textVariable);
+
+    int tableLastUpdateCompare = ds.getValueTable(TABLE_TEST).getTimestamps().getLastUpdate()
+        .compareTo(tableLastUpdate);
+    assertThat(tableLastUpdateCompare, is(new IsGreaterThan<Integer>(0)));
+
+    int valueSetLastUpdateCompare = table.getValueSet(new VariableEntityBean(PARTICIPANT, "1")).getTimestamps()
+        .getLastUpdate().compareTo(valueSetLastUpdate);
+    assertThat(valueSetLastUpdateCompare, is(new IsGreaterThan<Integer>(0)));
 
     try {
       table.getVariable(textVariable.getName());
       fail("Should throw NoSuchVariableException");
     } catch(NoSuchVariableException e) {
-
     }
+
+    //TODO check binary files were removed
+
   }
 
   private Datasource createDatasource() {
