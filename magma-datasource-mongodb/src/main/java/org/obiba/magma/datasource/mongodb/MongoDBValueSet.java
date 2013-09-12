@@ -91,6 +91,9 @@ class MongoDBValueSet implements ValueSet {
   }
 
   private Value getBinaryMetadata(BSONObject valueObject) {
+    if(!valueObject.containsField(GRID_FILE_ID)) {
+      return TextType.get().nullValue();
+    }
     try {
       JSONObject properties = new JSONObject();
       properties.put(GRID_FILE_ID, valueObject.get(GRID_FILE_ID));

@@ -39,11 +39,10 @@ public class VariableConverter {
   }
 
   public static Variable unmarshall(BSONObject object) {
-    ValueType valueType = ValueType.Factory.forName(object.get("valueType").toString());
-    String entityType = object.get("entityType").toString();
-
-    Variable.Builder builder = Variable.Builder.newVariable(object.get("name").toString(), valueType, entityType) //
-        .repeatable(Boolean.parseBoolean(object.get("repeatable").toString())) //
+    ValueType valueType = ValueType.Factory.forName(getFieldAsString(object, "valueType"));
+    Variable.Builder builder = Variable.Builder
+        .newVariable(getFieldAsString(object, "name"), valueType, getFieldAsString(object, "entityType")) //
+        .repeatable(getFieldAsBoolean(object, "repeatable")) //
         .mimeType(getFieldAsString(object, "mimeType")) //
         .mimeType(getFieldAsString(object, "referencedEntityType")) //
         .mimeType(getFieldAsString(object, "occurrenceGroup")) //
@@ -96,6 +95,12 @@ public class VariableConverter {
     if(!object.containsField(key)) return null;
     Object value = object.get(key);
     return value == null ? null : value.toString();
+  }
+
+  private static boolean getFieldAsBoolean(BSONObject object, String key) {
+    if(!object.containsField(key)) return false;
+    Object value = object.get(key);
+    return value == null ? false : Boolean.valueOf(value.toString());
   }
 
   public static DBObject marshall(Variable variable) {

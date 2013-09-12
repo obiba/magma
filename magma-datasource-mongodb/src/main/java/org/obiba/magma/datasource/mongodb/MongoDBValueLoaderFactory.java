@@ -17,6 +17,7 @@ import org.obiba.magma.ValueLoaderFactory;
 import com.mongodb.gridfs.GridFSDBFile;
 
 import static org.obiba.magma.datasource.mongodb.MongoDBValueTableWriter.GRID_FILE_ID;
+import static org.obiba.magma.datasource.mongodb.MongoDBValueTableWriter.GRID_FILE_SIZE;
 
 public class MongoDBValueLoaderFactory implements ValueLoaderFactory {
 
@@ -55,33 +56,40 @@ public class MongoDBValueLoaderFactory implements ValueLoaderFactory {
     @Override
     public Object getValue() {
       if(value == null) {
-        ObjectId fileId = null;
         String json = (String) valueRef.getValue();
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         try {
-          fileId = new ObjectId(new JSONObject(json).getString(GRID_FILE_ID));
-          GridFSDBFile file = mongoDBFactory.getGridFS().findOne(fileId);
-          file.writeTo(outputStream);
-          value = outputStream.toByteArray();
-        } catch(IOException e) {
-          throw new MagmaRuntimeException("Cannot retrieve content of gridFsFile [" + fileId + "]", e);
+          JSONObject jsonObject = new JSONObject(json);
+          if(jsonObject.has(GRID_FILE_ID)) {
+            value = getByteArray(jsonObject.getString(GRID_FILE_ID));
+          }
         } catch(JSONException e) {
           throw new MagmaRuntimeException("Cannot retrieve grid file Id for " + json, e);
-        } finally {
-          try {
-            outputStream.close();
-          } catch(IOException ignored) {
-          }
         }
       }
       return value;
+    }
+
+    private byte[] getByteArray(String fileId) {
+      ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+      try {
+        GridFSDBFile file = mongoDBFactory.getGridFS().findOne(new ObjectId(fileId));
+        file.writeTo(outputStream);
+        return outputStream.toByteArray();
+      } catch(IOException e) {
+        throw new MagmaRuntimeException("Cannot retrieve content of gridFsFile [" + fileId + "]", e);
+      } finally {
+        try {
+          outputStream.close();
+        } catch(IOException ignored) {
+        }
+      }
     }
 
     @Override
     public long getLength() {
       try {
         JSONObject properties = new JSONObject(valueRef.getValue());
-        return properties.has("size") ? properties.getLong("size") : 0;
+        return properties.has(GRID_FILE_SIZE) ? properties.getLong(GRID_FILE_SIZE) : 0;
       } catch(JSONException e) {
         throw new MagmaRuntimeException("Cannot retrieve grid file size for " + valueRef.getValue(), e);
       }

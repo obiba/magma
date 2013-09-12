@@ -15,6 +15,7 @@ import java.util.Date;
 import java.util.Set;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import org.bson.BSONObject;
 import org.bson.types.ObjectId;
@@ -140,6 +141,9 @@ class MongoDBValueTableWriter implements ValueTableWriter {
     }
 
     private DBObject createFile(Variable variable, Value value, Integer occurrence) {
+      if(value.isNull()) {
+        return getBinaryValueMetadata(null, occurrence);
+      }
       BasicDBObjectBuilder metaDataBuilder = BasicDBObjectBuilder.start() //
           .add("datasource", table.getDatasource().getName()) //
           .add("table", table.getName()) //
@@ -165,10 +169,11 @@ class MongoDBValueTableWriter implements ValueTableWriter {
       files.clear();
     }
 
-    private DBObject getBinaryValueMetadata(GridFSInputFile gridFSFile, Integer occurrence) {
-      BasicDBObjectBuilder builder = BasicDBObjectBuilder.start() //
-          .add(GRID_FILE_ID, gridFSFile.getId().toString()) //
-          .add(GRID_FILE_SIZE, gridFSFile.getLength());
+    private DBObject getBinaryValueMetadata(@Nullable GridFSInputFile gridFSFile, Integer occurrence) {
+      BasicDBObjectBuilder builder = BasicDBObjectBuilder.start();
+      if(gridFSFile != null) {
+        builder.add(GRID_FILE_ID, gridFSFile.getId().toString()).add(GRID_FILE_SIZE, gridFSFile.getLength());
+      }
       if(occurrence != null) builder.add("occurrence", occurrence);
       return builder.get();
     }
