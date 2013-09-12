@@ -4,6 +4,8 @@
 package org.obiba.magma.datasource.hibernate;
 
 import java.io.IOException;
+import java.io.Serializable;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -34,6 +36,8 @@ import org.obiba.magma.datasource.hibernate.domain.VariableEntityState;
 import org.obiba.magma.datasource.hibernate.domain.VariableState;
 import org.obiba.magma.type.BinaryType;
 import org.obiba.magma.type.TextType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -42,7 +46,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 
 class HibernateValueTableWriter implements ValueTableWriter {
 
-//  private static final Logger log = LoggerFactory.getLogger(HibernateValueTableWriter.class);
+  private static final Logger log = LoggerFactory.getLogger(HibernateValueTableWriter.class);
 
   private final HibernateValueTable valueTable;
 
@@ -87,6 +91,11 @@ class HibernateValueTableWriter implements ValueTableWriter {
   public void close() throws IOException {
   }
 
+  private void updateTableLastUpdate() {
+    session.buildLockRequest(new LockOptions(LockMode.PESSIMISTIC_FORCE_INCREMENT))
+        .lock(valueTable.getValueTableState());
+  }
+
   private class HibernateVariableWriter implements VariableWriter {
 
     private HibernateVariableWriter() {
@@ -107,13 +116,40 @@ class HibernateValueTableWriter implements ValueTableWriter {
       errorOccurred = false;
 
       // update valueTable timestamp
-      session.buildLockRequest(new LockOptions(LockMode.PESSIMISTIC_FORCE_INCREMENT))
-          .lock(valueTable.getValueTableState());
+      updateTableLastUpdate();
     }
 
     @Override
     public void removeVariable(@Nonnull Variable variable) {
-      throw new UnsupportedOperationException("Variable removal not implemented yet");
+
+      Serializable variableId = valueTable.getVariableId(variable);
+
+      int deleted = session.getNamedQuery("deleteVariableValueSetValues") //
+          .setParameter("variableId", variableId) //
+          .executeUpdate();
+      log.debug("Deleted {} value from {}", deleted, valueTable.getName());
+
+      Serializable tableId = valueTable.getValueTableState().getId();
+      if(variable.getValueType().equals(BinaryType.get())) {
+        List<?> valueSetIds = session.getNamedQuery("findValueSetIdsByTableId") //
+            .setParameter("valueTableId", tableId) //
+            .list();
+
+        int binariesDeleted = session.getNamedQuery("deleteVariableBinaryValues") //
+            .setParameterList("valueSetIds", valueSetIds) //
+            .setParameter("variableId", variableId) //
+            .executeUpdate();
+        log.debug("Deleted {} binaries from {}", binariesDeleted, valueTable.getName());
+      }
+
+      // update all value sets last update
+      int updated = session.getNamedQuery("setLastUpdateForTableId") //
+          .setParameter("updated", new Date()) //
+          .setParameter("valueTableId", tableId) //
+          .executeUpdate();
+      log.debug("Updated lastUpdate for {} value sets for {}", updated, valueTable.getName());
+
+      updateTableLastUpdate();
     }
 
     @Override
@@ -181,8 +217,8 @@ class HibernateValueTableWriter implements ValueTableWriter {
           updateValue(variable, value, valueSetValue);
         }
         // update valueTable timestamp
-        session.buildLockRequest(new LockOptions(LockMode.PESSIMISTIC_FORCE_INCREMENT))
-            .lock(valueTable.getValueTableState());
+        updateTableLastUpdate();
+
       } catch(RuntimeException e) {
         errorOccurred = true;
         throw e;

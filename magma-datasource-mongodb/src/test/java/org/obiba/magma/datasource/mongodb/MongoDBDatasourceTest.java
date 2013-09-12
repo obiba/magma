@@ -257,7 +257,7 @@ public class MongoDBDatasourceTest {
     } catch(NoSuchVariableException e) {
     }
 
-    //TODO check binary files were removed
+    //TODO check in mongo that values were removed
 
   }
 
