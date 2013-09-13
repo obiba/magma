@@ -28,7 +28,7 @@ public class SpringBeanSessionFactoryProvider implements SessionFactoryProvider 
   public SessionFactory getSessionFactory() {
     if(beanFactory == null) throw new IllegalArgumentException("beanFactory cannot be null");
     if(beanName == null) throw new IllegalArgumentException("beanName cannot be null");
-    return (SessionFactory) beanFactory.getBean(beanName, SessionFactory.class);
+    return beanFactory.getBean(beanName, SessionFactory.class);
   }
 
   public BeanFactory getBeanFactory() {

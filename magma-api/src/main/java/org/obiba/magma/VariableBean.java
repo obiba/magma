@@ -9,6 +9,7 @@ import java.util.Set;
 import javax.annotation.Nonnull;
 
 import com.google.common.base.Function;
+import com.google.common.base.Objects;
 import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Maps;
@@ -149,4 +150,9 @@ class VariableBean extends AbstractAttributeAware implements Variable, Serializa
     return table.getTableReference() + ":" + getName();
   }
 
+  @Override
+  public String toString() {
+    return Objects.toStringHelper(this).add("name", name).add("valueType", valueType).add("repeatable", repeatable)
+        .add("entityType", entityType).toString();
+  }
 }

@@ -30,8 +30,10 @@ import com.google.common.collect.Sets;
 @Table(name = "value_set",
     uniqueConstraints = @UniqueConstraint(columnNames = { "value_table_id", "variable_entity_id" }))
 @NamedQueries({ //
-    @NamedQuery(name = "findValueSetsByTableId",
-        query = "SELECT vs FROM ValueSetState vs WHERE vs.valueTable.id = :valueTableId"),
+    @NamedQuery(name = "findValueSetIdsByTableId",
+        query = "SELECT id FROM ValueSetState WHERE valueTable.id = :valueTableId"),
+    @NamedQuery(name = "setLastUpdateForTableId",
+        query = "UPDATE ValueSetState SET updated = :updated WHERE valueTable.id = :valueTableId"),
     @NamedQuery(name = "deleteValueSetStates",
         query = "DELETE FROM ValueSetState WHERE id IN (:valueTableIds)") })
 public class ValueSetState extends AbstractTimestampedEntity {

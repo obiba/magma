@@ -1,18 +1,21 @@
 package org.obiba.magma.datasource.hibernate;
 
+import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 import java.util.SortedSet;
 
+import org.hamcrest.core.Is;
+import org.hamcrest.core.IsNull;
 import org.hibernate.Transaction;
 import org.hibernate.cfg.Environment;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.obiba.magma.Category;
-import org.obiba.magma.Datasource;
 import org.obiba.magma.MagmaEngine;
+import org.obiba.magma.NoSuchVariableException;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueSet;
 import org.obiba.magma.ValueTable;
@@ -44,19 +47,27 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.core.IsInstanceOf.instanceOf;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 
-@SuppressWarnings({ "OverlyLongMethod", "MagicNumber", "ReuseOfLocalVariable" })
+@SuppressWarnings({ "OverlyLongMethod", "ReuseOfLocalVariable" })
 public class HibernateDatasourceTest {
 
 //  private static final Logger log = LoggerFactory.getLogger(HibernateDatasourceTest.class);
+
+  private static final String PARTICIPANT = "Participant";
+
+  private static final String DATASOURCE = "testDs";
+
+  private static final String TABLE = "testTable";
 
   LocalSessionFactoryProvider provider;
 
   @Before
   public void startYourEngine() {
     MagmaEngine.get();
-    provider = newProvider("theTest");
+    provider = newHsqlProvider();
 //    provider = newMysqlProvider();
+    cleanlyRemoveDatasource(true);
   }
 
   @After
@@ -68,25 +79,22 @@ public class HibernateDatasourceTest {
   @Test
   public void testTransactionalTableCreation() throws Exception {
 
-    final String dsName = "testDs";
-    final String tableName = "testTable";
-
-    HibernateDatasource ds = new HibernateDatasource(dsName, provider.getSessionFactory());
+    HibernateDatasource ds = createDatasource();
 
     provider.getSessionFactory().getCurrentSession().beginTransaction();
     MagmaEngine.get().addDatasource(ds);
-    ValueTableWriter vtWriter = ds.createWriter(tableName, "Participant");
+    ValueTableWriter vtWriter = ds.createWriter(TABLE, PARTICIPANT);
     vtWriter.close();
 
-    Assert.assertTrue(ds.hasValueTable(tableName));
-    Assert.assertNotNull(ds.getValueTable(tableName));
+    assertThat(ds.hasValueTable(TABLE), is(true));
+    assertThat(ds.getValueTable(TABLE), notNullValue());
 
     // Make sure the table is not visible outside this transaction.
     new TestThread() {
       @Override
       public void test() {
         // Assert that the datasource does not have the value table
-        Assert.assertFalse(MagmaEngine.get().getDatasource(dsName).hasValueTable(tableName));
+        assertThat(MagmaEngine.get().getDatasource(DATASOURCE).hasValueTable(TABLE), is(false));
       }
     }.assertNoException();
 
@@ -96,69 +104,60 @@ public class HibernateDatasourceTest {
     new TestThread() {
       @Override
       public void test() {
-        Assert.assertTrue(MagmaEngine.get().getDatasource(dsName).hasValueTable(tableName));
+        assertThat(MagmaEngine.get().getDatasource(DATASOURCE).hasValueTable(TABLE), is(true));
       }
     }.assertNoException();
 
-    cleanlyRemoveDatasource(dsName);
   }
 
   @Test
   public void testTableAndVariablesPersisted() throws Exception {
 
-    String dsName = "testDs";
-    String tableName = "testTable";
-
-    HibernateDatasource ds = new HibernateDatasource(dsName, provider.getSessionFactory());
+    HibernateDatasource ds = createDatasource();
 
     provider.getSessionFactory().getCurrentSession().beginTransaction();
     MagmaEngine.get().addDatasource(ds);
 
-    ValueTableWriter vtWriter = ds.createWriter(tableName, "Participant");
+    ValueTableWriter vtWriter = ds.createWriter(TABLE, PARTICIPANT);
 
     // Test that the table is visible
-    Assert.assertTrue(ds.hasValueTable(tableName));
+    Assert.assertTrue(ds.hasValueTable(TABLE));
 
     // Write variables and assert that they are visible.
     VariableWriter vw = vtWriter.writeVariables();
-    vw.writeVariable(Variable.Builder.newVariable("Var1", TextType.get(), "Participant").build());
-    Assert.assertNotNull(ds.getValueTable(tableName).getVariable("Var1"));
-    vw.writeVariable(Variable.Builder.newVariable("Var2", IntegerType.get(), "Participant").build());
-    Assert.assertNotNull(ds.getValueTable(tableName).getVariable("Var2"));
+    vw.writeVariable(Variable.Builder.newVariable("Var1", TextType.get(), PARTICIPANT).build());
+    Assert.assertNotNull(ds.getValueTable(TABLE).getVariable("Var1"));
+    vw.writeVariable(Variable.Builder.newVariable("Var2", IntegerType.get(), PARTICIPANT).build());
+    Assert.assertNotNull(ds.getValueTable(TABLE).getVariable("Var2"));
     vw.close();
     vtWriter.close();
 
     provider.getSessionFactory().getCurrentSession().getTransaction().commit();
 
-    cleanlyRemoveDatasource(dsName);
+    cleanlyRemoveDatasource(false);
 
     // Re-create same datasource and assert that everything is still there.
-    ds = new HibernateDatasource(dsName, provider.getSessionFactory());
+    ds = createDatasource();
     provider.getSessionFactory().getCurrentSession().beginTransaction();
     MagmaEngine.get().addDatasource(ds);
-    Assert.assertNotNull(ds.getValueTable(tableName));
-    Assert.assertNotNull(ds.getValueTable(tableName).getVariable("Var1"));
-    Assert.assertNotNull(ds.getValueTable(tableName).getVariable("Var2"));
-
-    cleanlyRemoveDatasource(dsName);
+    Assert.assertNotNull(ds.getValueTable(TABLE));
+    Assert.assertNotNull(ds.getValueTable(TABLE).getVariable("Var1"));
+    Assert.assertNotNull(ds.getValueTable(TABLE).getVariable("Var2"));
   }
 
   @Test
   public void testVariableStateChangeIsPersisted() throws Exception {
-    Variable initialState = Variable.Builder.newVariable("Var1", TextType.get(), "Participant").addCategory("C1", "1")
+    Variable initialState = Variable.Builder.newVariable("Var1", TextType.get(), PARTICIPANT).addCategory("C1", "1")
         .addCategory("C2", "2").addCategory("C3", "3").build();
-    Variable changedState = Variable.Builder.newVariable("Var1", TextType.get(), "Participant").addCategory("C3", "3")
+    Variable changedState = Variable.Builder.newVariable("Var1", TextType.get(), PARTICIPANT).addCategory("C3", "3")
         .addCategory("C1", "1").addCategory("C4", "4").addCategory("C2", "2").build();
 
-    String dsName = "testDs";
-    String tableName = "testTable";
-
-    HibernateDatasource ds = new HibernateDatasource(dsName, provider.getSessionFactory());
+    HibernateDatasource ds = createDatasource();
 
     provider.getSessionFactory().getCurrentSession().beginTransaction();
     MagmaEngine.get().addDatasource(ds);
 
-    ValueTableWriter vtWriter = ds.createWriter(tableName, "Participant");
+    ValueTableWriter vtWriter = ds.createWriter(TABLE, PARTICIPANT);
 
     // Write variables and assert that they are visible.
     VariableWriter vw = vtWriter.writeVariables();
@@ -170,10 +169,10 @@ public class HibernateDatasourceTest {
 
     provider.getSessionFactory().getCurrentSession().beginTransaction();
 
-    Variable v = ds.getValueTable(tableName).getVariable("Var1");
+    Variable v = ds.getValueTable(TABLE).getVariable("Var1");
     assertSameCategories(initialState, v);
 
-    vtWriter = ds.createWriter(tableName, "Participant");
+    vtWriter = ds.createWriter(TABLE, PARTICIPANT);
     // Write variables and assert that they are visible.
     vw = vtWriter.writeVariables();
     vw.writeVariable(changedState);
@@ -183,39 +182,37 @@ public class HibernateDatasourceTest {
     provider.getSessionFactory().getCurrentSession().getTransaction().commit();
 
     provider.getSessionFactory().getCurrentSession().beginTransaction();
-    v = ds.getValueTable(tableName).getVariable("Var1");
+    v = ds.getValueTable(TABLE).getVariable("Var1");
     assertSameCategories(changedState, v);
 
-    cleanlyRemoveDatasource(dsName);
   }
 
   @Test
   public void testWrite() throws Exception {
-    HibernateDatasource ds = new HibernateDatasource("test", provider.getSessionFactory());
+    HibernateDatasource ds = createDatasource();
 
     ImmutableSet<Variable> variables = ImmutableSet.of( //
-        Variable.Builder.newVariable("Test Variable", IntegerType.get(), "Participant").build(), //
-        Variable.Builder.newVariable("Other Variable", DecimalType.get(), "Participant").build());
+        Variable.Builder.newVariable("Test Variable", IntegerType.get(), PARTICIPANT).build(), //
+        Variable.Builder.newVariable("Other Variable", DecimalType.get(), PARTICIPANT).build());
 
-    ValueTable generatedValueTable = new GeneratedValueTable(ds, variables, 300);
+    ValueTable generatedValueTable = new GeneratedValueTable(ds, variables, 50);
     provider.getSessionFactory().getCurrentSession().beginTransaction();
     MagmaEngine.get().addDatasource(ds);
     DatasourceCopier.Builder.newCopier().build().copy(generatedValueTable, ds);
-    cleanlyRemoveDatasource(ds);
   }
 
   @Test
   public void testVectorSource() throws Exception {
-    HibernateDatasource ds = new HibernateDatasource("vectorSourceTest", provider.getSessionFactory());
+    HibernateDatasource ds = createDatasource();
 
     ImmutableSet<Variable> variables = ImmutableSet.of(//
-        Variable.Builder.newVariable("Test Variable", IntegerType.get(), "Participant").build(), //
-        Variable.Builder.newVariable("Test Repeatable", TextType.get(), "Participant").repeatable().build(), //
-        Variable.Builder.newVariable("Test Date", DateType.get(), "Participant").build(), //
-        Variable.Builder.newVariable("Test DateTime", DateTimeType.get(), "Participant").build(), //
-        Variable.Builder.newVariable("Other Variable", DecimalType.get(), "Participant").build());
+        Variable.Builder.newVariable("Test Variable", IntegerType.get(), PARTICIPANT).build(), //
+        Variable.Builder.newVariable("Test Repeatable", TextType.get(), PARTICIPANT).repeatable().build(), //
+        Variable.Builder.newVariable("Test Date", DateType.get(), PARTICIPANT).build(), //
+        Variable.Builder.newVariable("Test DateTime", DateTimeType.get(), PARTICIPANT).build(), //
+        Variable.Builder.newVariable("Other Variable", DecimalType.get(), PARTICIPANT).build());
 
-    ValueTable generatedValueTable = new GeneratedValueTable(ds, variables, 100);
+    ValueTable generatedValueTable = new GeneratedValueTable(ds, variables, 50);
     provider.getSessionFactory().getCurrentSession().beginTransaction();
     MagmaEngine.get().addDatasource(ds);
     DatasourceCopier.Builder.newCopier().build().copy(generatedValueTable, "NewTable", ds);
@@ -241,17 +238,16 @@ public class HibernateDatasourceTest {
         assertThat(value.isSequence(), is(variable.isRepeatable()));
       }
     }
-    cleanlyRemoveDatasource(ds);
   }
 
   @SuppressWarnings("ConstantConditions")
   @Test
   public void testBinaryVectorSource() throws Exception {
-    HibernateDatasource ds = new HibernateDatasource("vectorSourceTest", provider.getSessionFactory());
+    HibernateDatasource ds = createDatasource();
 
     ImmutableSet<Variable> variables = ImmutableSet.of( //
-        Variable.Builder.newVariable("Test Binary", BinaryType.get(), "Participant").build(),
-        Variable.Builder.newVariable("Test Repeatable Binary", BinaryType.get(), "Participant").repeatable().build());
+        Variable.Builder.newVariable("Test Binary", BinaryType.get(), PARTICIPANT).build(),
+        Variable.Builder.newVariable("Test Repeatable Binary", BinaryType.get(), PARTICIPANT).repeatable().build());
 
     ValueTable generatedValueTable = new GeneratedValueTable(ds, variables, 1);
     provider.getSessionFactory().getCurrentSession().beginTransaction();
@@ -289,17 +285,18 @@ public class HibernateDatasourceTest {
         }
       }
     }
-    cleanlyRemoveDatasource(ds);
   }
 
+  @SuppressWarnings("ConstantConditions")
   @Test
   public void testTimestamps() throws Exception {
-    HibernateDatasource ds = new HibernateDatasource("testTimestamps", provider.getSessionFactory());
-    ImmutableSet<Variable> variables = ImmutableSet.of(//
-        Variable.Builder.newVariable("Test Variable", IntegerType.get(), "Participant").build(), //
-        Variable.Builder.newVariable("Other Variable", DecimalType.get(), "Participant").build());
+    HibernateDatasource ds = createDatasource();
 
-    ValueTable generatedValueTable = new GeneratedValueTable(ds, variables, 300);
+    ImmutableSet<Variable> variables = ImmutableSet.of(//
+        Variable.Builder.newVariable("Test Variable", IntegerType.get(), PARTICIPANT).build(), //
+        Variable.Builder.newVariable("Other Variable", DecimalType.get(), PARTICIPANT).build());
+
+    ValueTable generatedValueTable = new GeneratedValueTable(ds, variables, 50);
     provider.getSessionFactory().getCurrentSession().beginTransaction();
     MagmaEngine.get().addDatasource(ds);
     DatasourceCopier.Builder.newCopier().build().copy(generatedValueTable, "NewTable", ds);
@@ -319,7 +316,6 @@ public class HibernateDatasourceTest {
     Date tableLastUpdate = (Date) table.getTimestamps().getLastUpdate().getValue();
 
     // allow max 5ms of delay between last valueSet update and table last update
-    //noinspection ConstantConditions
     long delta = tableLastUpdate.getTime() - lastValueSetUpdate.getTime();
     assertThat(
         "Table lastUpdate (" + tableLastUpdate + ") is older than its last valueSet lastUpdate (" + lastValueSetUpdate +
@@ -327,7 +323,45 @@ public class HibernateDatasourceTest {
     assertThat("Table created date (" + tableCreated + ") is older than last update (" + tableLastUpdate +
         ")", tableLastUpdate.after(tableCreated), is(true));
 
-    cleanlyRemoveDatasource(ds);
+  }
+
+  @SuppressWarnings({ "ReuseOfLocalVariable", "OverlyLongMethod" })
+  @Test
+  public void testRemoveVariable() throws IOException {
+    HibernateDatasource ds = createDatasource();
+    ImmutableSet<Variable> variables = ImmutableSet.of(//
+        Variable.Builder.newVariable("Test Variable", IntegerType.get(), PARTICIPANT).build(), //
+        Variable.Builder.newVariable("Other Variable", DecimalType.get(), PARTICIPANT).build());
+
+    ValueTable generatedValueTable = new GeneratedValueTable(ds, variables, 50);
+    provider.getSessionFactory().getCurrentSession().beginTransaction();
+    MagmaEngine.get().addDatasource(ds);
+    DatasourceCopier.Builder.newCopier().build().copy(generatedValueTable, TABLE, ds);
+    provider.getSessionFactory().getCurrentSession().getTransaction().commit();
+
+    provider.getSessionFactory().getCurrentSession().beginTransaction();
+
+    ValueTable table = ds.getValueTable(TABLE);
+    Variable variable = table.getVariable("Test Variable");
+
+    assertThat(Iterables.size(table.getVariables()), Is.is(2));
+    assertThat(variable, IsNull.notNullValue());
+    assertThat(table.getVariable("Other Variable"), IsNull.notNullValue());
+
+    ValueTableWriter.VariableWriter variableWriter = ds.createWriter(TABLE, PARTICIPANT).writeVariables();
+    variableWriter.removeVariable(variable);
+
+    provider.getSessionFactory().getCurrentSession().getTransaction().commit();
+
+    provider.getSessionFactory().getCurrentSession().beginTransaction();
+    try {
+      table.getVariable("Test Variable");
+      fail("Should throw NoSuchVariableException");
+    } catch(NoSuchVariableException e) {
+    }
+
+    //TODO check in database that values were removed
+
   }
 
   private void assertSameCategories(Variable expected, Variable actual) {
@@ -342,22 +376,31 @@ public class HibernateDatasourceTest {
     }
   }
 
-  private void cleanlyRemoveDatasource(Datasource ds) {
-    Transaction tx = provider.getSessionFactory().getCurrentSession().getTransaction();
-    if(tx == null || !tx.isActive()) {
-      provider.getSessionFactory().getCurrentSession().beginTransaction();
+  private HibernateDatasource createDatasource() {
+    return new HibernateDatasource(DATASOURCE, provider.getSessionFactory());
+  }
+
+  private void cleanlyRemoveDatasource(boolean drop) {
+    try {
+      Transaction tx = provider.getSessionFactory().getCurrentSession().getTransaction();
+      if(tx == null || !tx.isActive()) {
+        tx = provider.getSessionFactory().getCurrentSession().beginTransaction();
+      }
+      if(drop) {
+        HibernateDatasource datasource = createDatasource();
+        MagmaEngine.get().addDatasource(datasource);
+        datasource.drop();
+      }
+      MagmaEngine.get().removeDatasource(MagmaEngine.get().getDatasource(DATASOURCE));
+      tx.commit();
+    } catch(Exception e) {
     }
-    MagmaEngine.get().removeDatasource(ds);
-    provider.getSessionFactory().getCurrentSession().getTransaction().commit();
   }
 
-  private void cleanlyRemoveDatasource(String name) {
-    cleanlyRemoveDatasource(MagmaEngine.get().getDatasource(name));
-  }
-
-  private LocalSessionFactoryProvider newProvider(String testName) {
+  @SuppressWarnings("UnusedDeclaration")
+  private LocalSessionFactoryProvider newHsqlProvider() {
     LocalSessionFactoryProvider newProvider = new LocalSessionFactoryProvider("org.hsqldb.jdbcDriver",
-        "jdbc:hsqldb:mem:" + testName + ";shutdown=true", "sa", "", "org.hibernate.dialect.HSQLDialect");
+        "jdbc:hsqldb:mem:magma_test;shutdown=true", "sa", "", "org.hibernate.dialect.HSQLDialect");
     Properties p = new Properties();
     p.setProperty(Environment.CACHE_PROVIDER, "org.hibernate.cache.HashtableCacheProvider");
     newProvider.setProperties(p);
@@ -365,16 +408,17 @@ public class HibernateDatasourceTest {
     return newProvider;
   }
 
-//  private LocalSessionFactoryProvider newMysqlProvider() {
-//    LocalSessionFactoryProvider newProvider = new LocalSessionFactoryProvider("com.mysql.jdbc.Driver",
-//        "jdbc:mysql://localhost:3306/magma_test?characterEncoding=UTF-8", "root", "1234",
-//        "org.hibernate.dialect.MySQL5InnoDBDialect");
-//    Properties p = new Properties();
-//    p.setProperty(Environment.CACHE_PROVIDER, "org.hibernate.cache.HashtableCacheProvider");
-//    newProvider.setProperties(p);
-//    newProvider.initialise();
-//    return newProvider;
-//  }
+  @SuppressWarnings("UnusedDeclaration")
+  private LocalSessionFactoryProvider newMysqlProvider() {
+    LocalSessionFactoryProvider newProvider = new LocalSessionFactoryProvider("com.mysql.jdbc.Driver",
+        "jdbc:mysql://localhost:3306/magma_test?characterEncoding=UTF-8", "root", "1234",
+        "org.hibernate.dialect.MySQL5InnoDBDialect");
+    Properties p = new Properties();
+    p.setProperty(Environment.CACHE_PROVIDER, "org.hibernate.cache.HashtableCacheProvider");
+    newProvider.setProperties(p);
+    newProvider.initialise();
+    return newProvider;
+  }
 
   private abstract static class TestThread extends Thread {
 
