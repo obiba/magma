@@ -4,6 +4,7 @@ import org.obiba.core.util.FileUtil;
 import org.obiba.magma.Initialisable;
 import org.obiba.magma.MagmaEngine;
 
+@SuppressWarnings("UseOfSystemOutOrSystemErr")
 public class ExcelDatasourceProfile {
 
   public static void main(String... args) {

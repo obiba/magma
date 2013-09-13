@@ -24,10 +24,12 @@ public class ValueTest extends AbstractValueTest {
     value.asSequence();
   }
 
+  @Override
   protected Value testValue() {
     return TextType.get().valueOf(testObject());
   }
 
+  @Override
   protected Object testObject() {
     return "A Test";
   }

@@ -21,12 +21,6 @@ public class VariableClauseWriterTest {
 
   private XStream xstream;
 
-  private Variable yearVariable;
-
-  private Variable smokingAge;
-
-  private Variable sex;
-
   private Set<Variable> variables;
 
   @Before
@@ -34,9 +28,9 @@ public class VariableClauseWriterTest {
     new MagmaEngine();
     xstream = new DefaultXStreamFactory().createXStream();
 
-    yearVariable = buildYear();
-    smokingAge = buildSmokingAge();
-    sex = buildSex();
+    Variable yearVariable = buildYear();
+    Variable smokingAge = buildSmokingAge();
+    Variable sex = buildSex();
 
     variables = new HashSet<Variable>();
     variables.add(yearVariable);
