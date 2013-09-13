@@ -10,19 +10,17 @@ ext {
 
       commons_dbcp: 'commons-dbcp:commons-dbcp:1.4',
 
-      commons_io: 'org.apache.commons:commons-io:1.3.2',
+      commons_io: 'commons-io:commons-io:2.4',
 
       commons_math: 'org.apache.commons:commons-math:2.2',
 
-      dbunit: 'org.dbunit:dbunit:2.2.2',
+      dbunit: 'org.dbunit:dbunit:2.4.9',
 
       easymock: 'org.easymock:easymock:3.2',
 
       findbugs_annotation: 'net.sourceforge.findbugs:annotations:1.3.2',
 
-      guava: 'com.google.guava:guava:14.0.1',
-
-      hamcrest: 'org.hamcrest:hamcrest-all:1.1',
+      guava: 'com.google.guava:guava:15.0',
 
       hibernate_annotations: "org.hibernate:hibernate-annotations:${hibernateVersion}",
       hibernate_core: "org.hibernate:hibernate-core:${hibernateVersion}",
@@ -46,7 +44,7 @@ ext {
 
       mongodb_java_driver: 'org.mongodb:mongo-java-driver:2.11.2',
 
-      mysql_connector_java: 'mysql:mysql-connector-java:5.1.24',
+      mysql_connector_java: 'mysql:mysql-connector-java:5.1.26',
 
       obiba_core: 'org.obiba:obiba-core:1.4.0',
 
