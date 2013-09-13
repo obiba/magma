@@ -19,6 +19,7 @@ import javax.persistence.Transient;
 import org.hibernate.annotations.CollectionOfElements;
 import org.obiba.magma.NoSuchAttributeException;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.Multimap;
 
@@ -35,7 +36,7 @@ public abstract class AbstractAttributeAwareEntity extends AbstractTimestampedEn
   private Multimap<String, AttributeState> attributeMap;
 
   public List<AttributeState> getAttributes() {
-    return attributes != null ? attributes : (attributes = new ArrayList<AttributeState>());
+    return attributes == null ? (attributes = new ArrayList<AttributeState>()) : attributes;
   }
 
   public void setAttributes(List<AttributeState> attributes) {
@@ -60,6 +61,18 @@ public abstract class AbstractAttributeAwareEntity extends AbstractTimestampedEn
 
   public boolean hasAttribute(String name) {
     return getAttributeMap().containsKey(name);
+  }
+
+  public void removeAttribute(AttributeState attribute) {
+    getAttributeMap().remove(attribute.getName(), attribute);
+    getAttributes().remove(attribute);
+    attribute.setParent(null);
+  }
+
+  public void removeAllAttributes() {
+    for(AttributeState attribute : ImmutableList.copyOf(getAttributes())) {
+      removeAttribute(attribute);
+    }
   }
 
   public boolean hasAttribute(String name, Locale locale) {

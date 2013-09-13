@@ -170,8 +170,8 @@ public class HibernateDatasource extends AbstractDatasource {
 
   @Override
   public void drop() {
-    for(ValueTable valueTable : getValueTables()) {
-      dropTable(valueTable.getName());
+    for(String valueTable : getValueTableNames()) {
+      dropTable(valueTable);
     }
     sessionFactory.getCurrentSession().delete(getDatasourceState());
   }

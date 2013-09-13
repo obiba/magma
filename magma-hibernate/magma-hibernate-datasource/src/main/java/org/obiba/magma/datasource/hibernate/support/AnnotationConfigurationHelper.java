@@ -17,7 +17,6 @@ import com.google.common.collect.ImmutableSet;
 
 public class AnnotationConfigurationHelper {
 
-  @SuppressWarnings("unchecked")
   private final Set<Class<?>> annotatedTypes = new ImmutableSet.Builder<Class<?>>()
       .add(DatasourceState.class, VariableEntityState.class, ValueTableState.class, ValueSetState.class,
           ValueSetValue.class, ValueSetBinaryValue.class, VariableState.class, CategoryState.class,

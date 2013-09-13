@@ -150,10 +150,9 @@ public abstract class AbstractValueTable implements ValueTable, Initialisable {
     sources.addAll(factory.createSources());
   }
 
-  protected void addVariableValueSources(
-      @SuppressWarnings("ParameterHidesMemberVariable") Collection<VariableValueSource> sources) {
-    this.sources.removeAll(sources);
-    this.sources.addAll(sources);
+  protected void addVariableValueSources(Collection<VariableValueSource> sourcesToAdd) {
+    removeVariableValueSources(sourcesToAdd);
+    sources.addAll(sourcesToAdd);
   }
 
   protected void addVariableValueSource(VariableValueSource source) {
@@ -167,6 +166,10 @@ public abstract class AbstractValueTable implements ValueTable, Initialisable {
     } catch(NoSuchVariableException ex) {
       // ignore
     }
+  }
+
+  protected void removeVariableValueSources(Collection<VariableValueSource> sourcesToAdd) {
+    sources.removeAll(sourcesToAdd);
   }
 
   protected void setVariableEntityProvider(VariableEntityProvider variableEntityProvider) {

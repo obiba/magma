@@ -122,14 +122,17 @@ class HibernateValueTableWriter implements ValueTableWriter {
     @Override
     public void removeVariable(@Nonnull Variable variable) {
 
-      Serializable variableId = valueTable.getVariableId(variable);
+      errorOccurred = true;
+
+      VariableState variableState = valueTable.getVariableState(variable);
 
       int deleted = session.getNamedQuery("deleteVariableValueSetValues") //
-          .setParameter("variableId", variableId) //
+          .setParameter("variableId", variableState.getId()) //
           .executeUpdate();
       log.debug("Deleted {} value from {}", deleted, valueTable.getName());
 
       Serializable tableId = valueTable.getValueTableState().getId();
+
       if(variable.getValueType().equals(BinaryType.get())) {
         List<?> valueSetIds = session.getNamedQuery("findValueSetIdsByTableId") //
             .setParameter("valueTableId", tableId) //
@@ -137,7 +140,7 @@ class HibernateValueTableWriter implements ValueTableWriter {
 
         int binariesDeleted = session.getNamedQuery("deleteVariableBinaryValues") //
             .setParameterList("valueSetIds", valueSetIds) //
-            .setParameter("variableId", variableId) //
+            .setParameter("variableId", variableState.getId()) //
             .executeUpdate();
         log.debug("Deleted {} binaries from {}", binariesDeleted, valueTable.getName());
       }
@@ -148,6 +151,10 @@ class HibernateValueTableWriter implements ValueTableWriter {
           .setParameter("valueTableId", tableId) //
           .executeUpdate();
       log.debug("Updated lastUpdate for {} value sets for {}", updated, valueTable.getName());
+
+      transaction.removeSource(valueSourceFactory.createSource(variableState));
+
+      errorOccurred = false;
 
       updateTableLastUpdate();
     }
@@ -175,6 +182,7 @@ class HibernateValueTableWriter implements ValueTableWriter {
     private final Map<String, ValueSetValue> values;
 
     private HibernateValueSetWriter(@Nonnull VariableEntity entity) {
+      //noinspection ConstantConditions
       if(entity == null) throw new IllegalArgumentException("entity cannot be null");
       this.entity = entity;
 
@@ -202,7 +210,9 @@ class HibernateValueTableWriter implements ValueTableWriter {
 
     @Override
     public void writeValue(@Nonnull Variable variable, @Nonnull Value value) {
+      //noinspection ConstantConditions
       if(variable == null) throw new IllegalArgumentException("variable cannot be null");
+      //noinspection ConstantConditions
       if(value == null) throw new IllegalArgumentException("value cannot be null");
 
       try {

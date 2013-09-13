@@ -73,7 +73,9 @@ public class ValueSetValue implements Timestamped, Serializable {
   }
 
   public ValueSetValue(@Nonnull VariableState variable, @Nonnull ValueSetState valueSet) {
+    //noinspection ConstantConditions
     if(variable == null) throw new IllegalArgumentException("variable cannot be null");
+    //noinspection ConstantConditions
     if(valueSet == null) throw new IllegalArgumentException("valueSet cannot be null");
     id = new ValueSetValueId(variable, valueSet);
   }

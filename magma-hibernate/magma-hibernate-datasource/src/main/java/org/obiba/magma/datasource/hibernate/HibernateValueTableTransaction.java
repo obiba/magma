@@ -27,6 +27,8 @@ class HibernateValueTableTransaction extends HibernateDatasourceSynchronization 
 
   private final List<VariableValueSource> uncommittedSources = Lists.newLinkedList();
 
+  private final List<VariableValueSource> uncommittedRemovedSources = Lists.newLinkedList();
+
   private final List<VariableEntity> uncommittedEntities = Lists.newLinkedList();
 
   private final HibernateValueTableWriter transactionWriter;
@@ -61,14 +63,10 @@ class HibernateValueTableTransaction extends HibernateDatasourceSynchronization 
     super.commit();
     valueTable.commitEntities(uncommittedEntities);
     valueTable.commitSources(uncommittedSources);
+    valueTable.commitRemovedSources(uncommittedRemovedSources);
     if(createTableTransaction) {
       valueTable.getDatasource().commitValueTable(valueTable);
     }
-  }
-
-  @SuppressWarnings("UnusedDeclaration")
-  public boolean isCreateTableTransaction() {
-    return createTableTransaction;
   }
 
   /**
@@ -80,13 +78,19 @@ class HibernateValueTableTransaction extends HibernateDatasourceSynchronization 
     uncommittedSources.add(source);
   }
 
+  public void removeSource(VariableValueSource source) {
+    uncommittedRemovedSources.add(source);
+  }
+
   /**
    * Returns the list of {@code VariableValueSource} to be committed after transaction completion.
    *
    * @return
    */
   public List<VariableValueSource> getUncommittedSources() {
-    return Collections.unmodifiableList(uncommittedSources);
+    List<VariableValueSource> copy = Lists.newArrayList(uncommittedSources);
+    copy.removeAll(uncommittedRemovedSources);
+    return Collections.unmodifiableList(copy);
   }
 
   /**

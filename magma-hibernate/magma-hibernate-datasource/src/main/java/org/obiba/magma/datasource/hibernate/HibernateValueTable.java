@@ -33,6 +33,7 @@ import org.obiba.magma.datasource.hibernate.converter.HibernateMarshallingContex
 import org.obiba.magma.datasource.hibernate.domain.Timestamped;
 import org.obiba.magma.datasource.hibernate.domain.ValueSetState;
 import org.obiba.magma.datasource.hibernate.domain.ValueTableState;
+import org.obiba.magma.datasource.hibernate.domain.VariableState;
 import org.obiba.magma.support.AbstractValueTable;
 import org.obiba.magma.support.AbstractVariableEntityProvider;
 import org.obiba.magma.support.NullTimestamps;
@@ -154,15 +155,15 @@ class HibernateValueTable extends AbstractValueTable {
    * Overridden to include uncommitted sources when a transaction exists on this table and is visible in the current
    * session.
    */
-  @SuppressWarnings("IfMayBeConditional")
   @Override
   protected Set<VariableValueSource> getSources() {
     if(getDatasource().hasTableTransaction(getName())) {
-      return new ImmutableSet.Builder<VariableValueSource>().addAll(super.getSources())
-          .addAll(getDatasource().getTableTransaction(getName()).getUncommittedSources()).build();
-    } else {
-      return Collections.unmodifiableSet(super.getSources());
+      return new ImmutableSet.Builder<VariableValueSource>() //
+          .addAll(super.getSources()) //
+          .addAll(getDatasource().getTableTransaction(getName()).getUncommittedSources()) //
+          .build();
     }
+    return Collections.unmodifiableSet(super.getSources());
   }
 
   ValueTableState getValueTableState() {
@@ -187,9 +188,14 @@ class HibernateValueTable extends AbstractValueTable {
     addVariableValueSources(uncommittedSources);
   }
 
-  @SuppressWarnings("UnusedDeclaration")
-  Serializable getVariableId(Variable variable) {
-    return ((HibernateVariableValueSource) getVariableValueSource(variable.getName())).getVariableId();
+  void commitRemovedSources(Collection<VariableValueSource> uncommittedRemovedSources) {
+    removeVariableValueSources(uncommittedRemovedSources);
+  }
+
+  VariableState getVariableState(Variable variable) {
+    HibernateVariableValueSource variableValueSource = (HibernateVariableValueSource) getVariableValueSource(
+        variable.getName());
+    return variableValueSource.getVariableState();
   }
 
   private void readVariables() {
@@ -256,7 +262,6 @@ class HibernateValueTable extends AbstractValueTable {
      * Returns the set of entities in this table. Will also include uncommitted entities when a transaction is active
      * for this table in the current session.
      */
-    @SuppressWarnings("IfMayBeConditional")
     @Override
     public Set<VariableEntity> getVariableEntities() {
       if(getDatasource().hasTableTransaction(getName())) {

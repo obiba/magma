@@ -58,6 +58,7 @@ public class ValueSetBinaryValue extends AbstractEntity {
   }
 
   public ValueSetBinaryValue(@Nonnull ValueSetValue valueSetValue, int occurrence) {
+    //noinspection ConstantConditions
     if(valueSetValue == null) throw new IllegalArgumentException("valueSetValue cannot be null");
     valueSet = valueSetValue.getValueSet();
     variable = valueSetValue.getVariable();
@@ -84,6 +85,7 @@ public class ValueSetBinaryValue extends AbstractEntity {
   @SuppressWarnings("MethodCanBeVariableArityMethod")
   @edu.umd.cs.findbugs.annotations.SuppressWarnings("EI_EXPOSE_REP2")
   public void setValue(@Nonnull byte[] value) {
+    //noinspection ConstantConditions
     if(value == null) {
       throw new IllegalArgumentException("cannot persist null values");
     }
