@@ -42,7 +42,9 @@ import com.google.common.base.Objects;
         query = "SELECT vsv FROM ValueSetValue vsv WHERE vsv.id.valueSet " + //
             "IN (SELECT vs.id FROM ValueSetState vs WHERE vs.valueTable.id = :valueTableId)"),
     @NamedQuery(name = "deleteValueSetValues",
-        query = "DELETE FROM ValueSetValue WHERE id.valueSet.id IN (:valueSetIds)") })
+        query = "DELETE FROM ValueSetValue WHERE id.valueSet.id IN (:valueSetIds)"),
+    @NamedQuery(name = "deleteVariableValueSetValues",
+        query = "DELETE FROM ValueSetValue WHERE id.variable.id = :variableId") })
 public class ValueSetValue implements Timestamped, Serializable {
 
   private static final long serialVersionUID = 4356913652103162813L;
@@ -71,7 +73,9 @@ public class ValueSetValue implements Timestamped, Serializable {
   }
 
   public ValueSetValue(@Nonnull VariableState variable, @Nonnull ValueSetState valueSet) {
+    //noinspection ConstantConditions
     if(variable == null) throw new IllegalArgumentException("variable cannot be null");
+    //noinspection ConstantConditions
     if(valueSet == null) throw new IllegalArgumentException("valueSet cannot be null");
     id = new ValueSetValueId(variable, valueSet);
   }

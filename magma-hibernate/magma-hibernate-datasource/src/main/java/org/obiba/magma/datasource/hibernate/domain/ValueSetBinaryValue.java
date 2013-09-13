@@ -30,7 +30,9 @@ import org.obiba.core.domain.AbstractEntity;
         query = "SELECT vb FROM ValueSetBinaryValue vb " + //
             "WHERE vb.valueSet.id = :valueSetId AND vb.variable.id = :variableId AND occurrence = :occurrence"),
     @NamedQuery(name = "deleteValueSetBinaryValues",
-        query = "DELETE FROM ValueSetBinaryValue WHERE valueSet.id IN (:valueSetIds)") })
+        query = "DELETE FROM ValueSetBinaryValue WHERE valueSet.id IN (:valueSetIds)"),
+    @NamedQuery(name = "deleteVariableBinaryValues",
+        query = "DELETE FROM ValueSetBinaryValue WHERE valueSet.id IN (:valueSetIds) AND variable = :variableId") })
 public class ValueSetBinaryValue extends AbstractEntity {
 
   private static final long serialVersionUID = -7767999255949547929L;
@@ -56,6 +58,7 @@ public class ValueSetBinaryValue extends AbstractEntity {
   }
 
   public ValueSetBinaryValue(@Nonnull ValueSetValue valueSetValue, int occurrence) {
+    //noinspection ConstantConditions
     if(valueSetValue == null) throw new IllegalArgumentException("valueSetValue cannot be null");
     valueSet = valueSetValue.getValueSet();
     variable = valueSetValue.getVariable();
@@ -82,6 +85,7 @@ public class ValueSetBinaryValue extends AbstractEntity {
   @SuppressWarnings("MethodCanBeVariableArityMethod")
   @edu.umd.cs.findbugs.annotations.SuppressWarnings("EI_EXPOSE_REP2")
   public void setValue(@Nonnull byte[] value) {
+    //noinspection ConstantConditions
     if(value == null) {
       throw new IllegalArgumentException("cannot persist null values");
     }

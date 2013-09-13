@@ -141,8 +141,9 @@ public class HibernateDatasource extends AbstractDatasource {
     Session session = getSessionFactory().getCurrentSession();
 
     TimedExecution valueSetIdsTime = new TimedExecution().start();
-    List<?> valueSetIds = session.createQuery("SELECT id FROM ValueSetState WHERE valueTable.id = :valueTableId")
-        .setParameter("valueTableId", tableState.getId()).list();
+    List<?> valueSetIds = session.getNamedQuery("findValueSetIdsByTableId") //
+        .setParameter("valueTableId", tableState.getId()) //
+        .list();
     log.debug("Found {} valueSetIds in {} in {}", valueSetIds.size(), tableFullName,
         valueSetIdsTime.end().formatExecutionTime());
     if(!valueSetIds.isEmpty()) {
@@ -169,8 +170,8 @@ public class HibernateDatasource extends AbstractDatasource {
 
   @Override
   public void drop() {
-    for(ValueTable valueTable : getValueTables()) {
-      dropTable(valueTable.getName());
+    for(String valueTable : getValueTableNames()) {
+      dropTable(valueTable);
     }
     sessionFactory.getCurrentSession().delete(getDatasourceState());
   }
