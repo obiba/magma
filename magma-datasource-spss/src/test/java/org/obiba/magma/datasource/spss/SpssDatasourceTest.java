@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.obiba.magma.Category;
@@ -34,8 +35,6 @@ import org.obiba.magma.datasource.spss.support.SpssDatasourceFactory;
 import org.obiba.magma.datasource.spss.support.SpssDatasourceParsingException;
 import org.obiba.magma.type.DecimalType;
 import org.obiba.magma.type.TextType;
-
-import junit.framework.Assert;
 
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
@@ -66,8 +65,7 @@ public class SpssDatasourceTest {
       dsFactory.setFile(getResourceFile("org/obiba/magma/datasource/spss/DatabaseTest.sav"));
       Datasource ds = dsFactory.create();
       Assert.assertEquals(SpssDatasourceFactory.DEFAULT_DATASOURCE_NAME, ds.getName());
-    }
-    catch(Exception e) {
+    } catch(Exception e) {
       fail();
     }
 
@@ -79,8 +77,7 @@ public class SpssDatasourceTest {
       dsFactory.setFile(getResourceFile("org/obiba/magma/datasource/spss/DatabaseTest.sav"));
       Datasource ds = dsFactory.create();
       Assert.assertEquals(SpssDatasourceFactory.DEFAULT_DATASOURCE_NAME, ds.getName());
-    }
-    catch(Exception e) {
+    } catch(Exception e) {
       fail();
     }
   }
@@ -96,8 +93,7 @@ public class SpssDatasourceTest {
 
       Datasource ds = dsFactory.create();
       Assert.assertEquals(SpssDatasourceFactory.DEFAULT_DATASOURCE_NAME, ds.getName());
-    }
-    catch(Exception e) {
+    } catch(Exception e) {
       fail();
     }
   }
@@ -109,17 +105,16 @@ public class SpssDatasourceTest {
       Datasource ds = dsFactory.create();
       ds.initialise();
       Assert.assertEquals(SpssDatasourceFactory.DEFAULT_DATASOURCE_NAME, ds.getName());
-    }
-    catch(Exception e) {
+    } catch(Exception e) {
       fail();
     }
   }
 
   @Test(expected = SpssDatasourceParsingException.class)
   public void initilizeDatasourceWithInvalidFile() {
-      dsFactory.setFile("org/obiba/magma/datasource/spss/DatabaseTest");
-      Datasource ds = dsFactory.create();
-      ds.initialise();
+    dsFactory.setFile("org/obiba/magma/datasource/spss/DatabaseTest");
+    Datasource ds = dsFactory.create();
+    ds.initialise();
   }
 
   @Test
@@ -129,8 +124,7 @@ public class SpssDatasourceTest {
       Datasource ds = dsFactory.create();
       ds.initialise();
       Assert.assertNotNull(ds.getValueTable("HOPphase1dLifeLines"));
-    }
-    catch(Exception e) {
+    } catch(Exception e) {
       fail();
     }
   }
@@ -142,8 +136,7 @@ public class SpssDatasourceTest {
       Datasource ds = dsFactory.create();
       ds.initialise();
       Assert.assertNotNull(ds.getValueTable("DatabaseTest"));
-    }
-    catch(Exception e) {
+    } catch(Exception e) {
       fail();
     }
   }
@@ -155,8 +148,7 @@ public class SpssDatasourceTest {
       Datasource ds = dsFactory.create();
       ds.initialise();
       Assert.assertNotNull(ds.getValueTable("DatabaseTest").getVariable("race"));
-    }
-    catch(Exception e) {
+    } catch(Exception e) {
       fail();
     }
 
@@ -169,8 +161,7 @@ public class SpssDatasourceTest {
       Datasource ds = dsFactory.create();
       ds.initialise();
       Assert.assertNotNull(ds.getValueTable("dictionnaire_variablesT4-simple").getVariable("ETATCIT4"));
-    }
-    catch(URISyntaxException e) {
+    } catch(URISyntaxException e) {
       fail();
     }
   }
@@ -194,8 +185,7 @@ public class SpssDatasourceTest {
       Datasource ds = dsFactory.create();
       ds.initialise();
       Assert.assertNotNull(ds.getValueTable("DatabaseTest").getVariable("blabla"));
-    }
-    catch(URISyntaxException e) {
+    } catch(URISyntaxException e) {
       fail();
     }
   }
@@ -208,8 +198,7 @@ public class SpssDatasourceTest {
       ds.initialise();
       Assert.assertEquals(DecimalType.class,
           ds.getValueTable("RobotChicken").getVariable("VarDecimal").getValueType().getClass());
-    }
-    catch(Exception e) {
+    } catch(Exception e) {
       fail();
     }
   }
@@ -222,8 +211,7 @@ public class SpssDatasourceTest {
       ds.initialise();
       Assert.assertEquals(TextType.class,
           ds.getValueTable("RobotChicken").getVariable("VarQuarterly").getValueType().getClass());
-    }
-    catch(Exception e) {
+    } catch(Exception e) {
       fail();
     }
   }
@@ -235,8 +223,8 @@ public class SpssDatasourceTest {
       Datasource ds = dsFactory.create();
       ds.initialise();
       Assert.assertEquals(TextType.class,
-          ds.getValueTable("RobotChicken").getVariable("VarCurrency").getValueType().getClass());    }
-    catch(Exception e) {
+          ds.getValueTable("RobotChicken").getVariable("VarCurrency").getValueType().getClass());
+    } catch(Exception e) {
       fail();
     }
   }
@@ -252,8 +240,7 @@ public class SpssDatasourceTest {
 
       Set<VariableEntity> variableEntities = valueTable.getVariableEntities();
       assertTrue(variableEntities.size() == 200);
-    }
-    catch(Exception e) {
+    } catch(Exception e) {
       fail();
     }
   }
@@ -276,8 +263,7 @@ public class SpssDatasourceTest {
         Value expected = DecimalType.get().valueOf(4.0);
         Assert.assertTrue(value.compareTo(expected) == 0);
       }
-    }
-    catch(Exception e) {
+    } catch(Exception e) {
       fail();
     }
   }
@@ -299,8 +285,7 @@ public class SpssDatasourceTest {
         Value expected = TextType.get().valueOf("AT-000327-A");
         Assert.assertTrue(value.compareTo(expected) == 0);
       }
-    }
-    catch(Exception e) {
+    } catch(Exception e) {
       fail();
     }
   }
@@ -320,8 +305,7 @@ public class SpssDatasourceTest {
       for(Category category : categories) {
         assertThat(expectedNames.contains(category.getName()), is(true));
       }
-    }
-    catch(Exception e) {
+    } catch(Exception e) {
       fail();
     }
   }
@@ -377,7 +361,7 @@ public class SpssDatasourceTest {
       Variable variable = ds.getValueTable("DatabaseTest").getVariable("race");
       assertThat(variable, not(is(nullValue())));
 
-      for (Category category : variable.getCategories()) {
+      for(Category category : variable.getCategories()) {
         assertThat(category.getAttribute("label").getLocale().getLanguage(), is("no"));
       }
     } catch(Exception e) {
@@ -400,7 +384,7 @@ public class SpssDatasourceTest {
       assertThat(valueTable, not(is(nullValue())));
       assertThat(valueTable.getEntityType(), is("Participant"));
 
-      for (Category category : variable.getCategories()) {
+      for(Category category : variable.getCategories()) {
         assertThat(category.getAttribute("label").getLocale(), is(nullValue()));
       }
     } catch(Exception e) {

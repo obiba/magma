@@ -11,6 +11,7 @@ import org.hamcrest.core.IsNull;
 import org.hibernate.Transaction;
 import org.hibernate.cfg.Environment;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.obiba.magma.Category;
@@ -40,8 +41,6 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-
-import junit.framework.Assert;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;

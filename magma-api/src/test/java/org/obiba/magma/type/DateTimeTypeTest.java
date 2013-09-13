@@ -7,13 +7,12 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.TimeZone;
 
+import org.junit.Assert;
 import org.junit.Test;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueType;
 
 import com.google.common.collect.ImmutableList;
-
-import junit.framework.Assert;
 
 public class DateTimeTypeTest extends BaseValueTypeTest {
 

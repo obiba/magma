@@ -6,14 +6,13 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
+import org.junit.Assert;
 import org.junit.Test;
 import org.obiba.magma.MagmaDate;
 import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.Value;
 
 import com.google.common.collect.ImmutableList;
-
-import junit.framework.Assert;
 
 public class DateTypeTest extends BaseValueTypeTest {
 
