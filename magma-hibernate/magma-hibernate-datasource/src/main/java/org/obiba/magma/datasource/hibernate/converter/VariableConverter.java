@@ -42,7 +42,7 @@ public class VariableConverter extends AttributeAwareConverter implements Hibern
               "' in table '" + context.getValueTable().getName() + "'");
     }
 
-    addAttributes(magmaObject, variableState);
+    setAttributes(magmaObject, variableState);
     marshalCategories(magmaObject, variableState);
 
     return variableState;
@@ -66,7 +66,7 @@ public class VariableConverter extends AttributeAwareConverter implements Hibern
           variableState.getCategories().set(currentCategoryIndex, previousCategory);
         }
       }
-      addAttributes(c, categoryState);
+      setAttributes(c, categoryState);
       categoryIndex++;
     }
   }

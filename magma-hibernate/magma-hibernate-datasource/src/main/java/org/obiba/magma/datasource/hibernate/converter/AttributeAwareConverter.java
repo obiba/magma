@@ -22,6 +22,11 @@ public class AttributeAwareConverter {
     }
   }
 
+  public void setAttributes(AttributeAware attributeAware, AbstractAttributeAwareEntity hibernateEntity) {
+    hibernateEntity.removeAllAttributes();
+    addAttributes(attributeAware, hibernateEntity);
+  }
+
   public void buildAttributeAware(AttributeAwareBuilder<?> builder, AbstractAttributeAwareEntity hibernateEntity) {
     for(AttributeState as : hibernateEntity.getAttributes()) {
       builder.addAttribute(Attributes.copyOf(as));

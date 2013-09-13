@@ -34,9 +34,9 @@ public abstract class AbstractDatasource extends AbstractAttributeAware implemen
 
   private final ListMultimap<String, Attribute> attributes = LinkedListMultimap.create();
 
-  protected AbstractDatasource(@Nonnull String name, String type) {
+  protected AbstractDatasource(@Nonnull String name, @Nonnull String type) {
     Preconditions.checkNotNull(name, "name cannot be null");
-    Preconditions.checkNotNull(type, "name cannot be null");
+    Preconditions.checkNotNull(type, "type cannot be null");
     this.name = name;
     this.type = type;
   }
