@@ -1,7 +1,5 @@
 package org.obiba.magma.datasource.generated.support;
 
-import java.util.Random;
-
 import org.apache.commons.math.random.JDKRandomGenerator;
 import org.apache.commons.math.random.RandomGenerator;
 
@@ -24,7 +22,7 @@ import org.apache.commons.math.random.RandomGenerator;
 
 public class ShuffleBag<E> {
 
-  private RandomGenerator gen;
+  private final RandomGenerator gen;
 
   private int capacity;
 
@@ -99,7 +97,7 @@ public class ShuffleBag<E> {
       int pos = size;
       size += quantity;
       if(size > capacity) {
-        capacity = (capacity * 3) / 2 + 1;
+        capacity = capacity * 3 / 2 + 1;
         if(size > capacity) capacity = size;
         Object[] oldData = data;
         data = new Object[capacity];

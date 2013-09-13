@@ -54,7 +54,7 @@ public class JavascriptValueSourceTest extends AbstractJsTest {
     Date dateValue = (Date) value.getValue();
     Date now = new Date();
     // Make sure both dates are within 1 second of one-another
-    Assert.assertTrue((now.getTime() - dateValue.getTime()) < 1000);
+    Assert.assertTrue(now.getTime() - dateValue.getTime() < 1000);
   }
 
   @Test

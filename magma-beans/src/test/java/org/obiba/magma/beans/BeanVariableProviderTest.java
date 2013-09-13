@@ -18,12 +18,9 @@ import java.util.Map;
 import java.util.Set;
 
 import org.easymock.EasyMock;
-import org.junit.After;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 import org.obiba.magma.Category;
-import org.obiba.magma.MagmaEngine;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueSet;
 import org.obiba.magma.Variable;
@@ -126,7 +123,7 @@ public class BeanVariableProviderTest extends AbstractMagmaTest {
 
   @Test
   public void testMapAttributesWithDotsInKeyValues() {
-    final TestBean tb = new TestBean();
+    TestBean tb = new TestBean();
     tb.setFirstName("TestBean");
     NestedTestBean nb = new NestedTestBean();
     nb.setDecimal(42.0);
@@ -159,7 +156,7 @@ public class BeanVariableProviderTest extends AbstractMagmaTest {
 
   @Test
   public void testValues() {
-    final TestBean tb = new TestBean();
+    TestBean tb = new TestBean();
     tb.setFirstName("TestBean");
     NestedTestBean nb = new NestedTestBean();
     nb.setDecimal(42.0);
@@ -375,7 +372,7 @@ public class BeanVariableProviderTest extends AbstractMagmaTest {
 
   }
 
-  public static enum TestEnum {
+  public enum TestEnum {
     VALUE1, VALUE2
   }
 }

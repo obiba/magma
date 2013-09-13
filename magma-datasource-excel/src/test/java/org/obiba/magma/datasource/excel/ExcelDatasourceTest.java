@@ -64,7 +64,7 @@ public class ExcelDatasourceTest extends AbstractMagmaTest {
       Assert.assertNull(cat.getCode());
       Assert.assertFalse(cat.isMissing());
 
-      if(cat.getName().equals("C1")) {
+      if("C1".equals(cat.getName())) {
         Assert.assertEquals(1, cat.getAttributes().size());
         Assert.assertEquals("tata", cat.getAttributeStringValue("toto"));
       } else {
@@ -85,7 +85,7 @@ public class ExcelDatasourceTest extends AbstractMagmaTest {
   @Test
   public void testReadUserDefinedBogus() {
 
-    ExcelDatasource datasource = new ExcelDatasource("user-defined-bogus",
+    Datasource datasource = new ExcelDatasource("user-defined-bogus",
         FileUtil.getFileFromResource("org/obiba/magma/datasource/excel/user-defined-bogus.xls"));
     try {
       datasource.initialise();
