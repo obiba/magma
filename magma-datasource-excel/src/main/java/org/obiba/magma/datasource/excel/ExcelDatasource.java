@@ -56,8 +56,7 @@ public class ExcelDatasource extends AbstractDatasource {
 
   public static final String DEFAULT_TABLE_NAME = "Table";
 
-  public static final Set<String> sheetReservedNames = Sets
-      .newHashSet(new String[] { VARIABLES_SHEET, CATEGORIES_SHEET, HELP_SHEET });
+  public static final Set<String> sheetReservedNames = Sets.newHashSet(VARIABLES_SHEET, CATEGORIES_SHEET, HELP_SHEET);
 
   private Workbook excelWorkbook;
 

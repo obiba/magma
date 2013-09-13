@@ -261,7 +261,7 @@ public class SpssDatasourceTest {
         Assert.assertNotNull(value);
         Assert.assertFalse(value.isNull());
         Value expected = DecimalType.get().valueOf(4.0);
-        Assert.assertTrue(value.compareTo(expected) == 0);
+        assertTrue(value.compareTo(expected) == 0);
       }
     } catch(Exception e) {
       fail();
@@ -283,7 +283,7 @@ public class SpssDatasourceTest {
         Assert.assertNotNull(value);
         Assert.assertFalse(value.isNull());
         Value expected = DecimalType.get().valueOf(4.0);
-        Assert.assertTrue(value.compareTo(expected) == 0);
+        assertTrue(value.compareTo(expected) == 0);
       }
     } catch(Exception e) {
       fail();
@@ -343,7 +343,7 @@ public class SpssDatasourceTest {
         Assert.assertNotNull(value);
         Assert.assertFalse(value.isNull());
         Value expected = DecimalType.get().valueOf(1E+010);
-        Assert.assertTrue(value.compareTo(expected) == 0);
+        assertTrue(value.compareTo(expected) == 0);
       }
 
     } catch(Exception e) {

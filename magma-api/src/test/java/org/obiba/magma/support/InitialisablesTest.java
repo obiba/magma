@@ -58,7 +58,7 @@ public class InitialisablesTest {
   public void test_initialise_Object() {
     Disposable notInitialisable = createMock(Disposable.class);
     replay(notInitialisable);
-    Initialisables.initialise((Object) notInitialisable);
+    Initialisables.initialise(notInitialisable);
     verify(notInitialisable);
   }
 

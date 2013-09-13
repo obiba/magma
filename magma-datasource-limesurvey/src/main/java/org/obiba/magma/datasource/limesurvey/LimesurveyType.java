@@ -9,24 +9,24 @@ import org.obiba.magma.type.DecimalType;
 import org.obiba.magma.type.TextType;
 
 public enum LimesurveyType {
-  ARRAY_5("A", TextType.get(), new String[] { "1", "2", "3", "4", "5" }), //
-  ARRAY_10("B", TextType.get(), new String[] { "1", "2", "3", "4", "5", "6", "7", "8", "9", "10" }), //
-  ARRAY_YNU("C", TextType.get(), new String[] { "Y", "N", "U" }), //
-  ARRAY_ISD("E", TextType.get(), new String[] { "I", "S", "D" }), //
+  ARRAY_5("A", TextType.get(), "1", "2", "3", "4", "5"), //
+  ARRAY_10("B", TextType.get(), "1", "2", "3", "4", "5", "6", "7", "8", "9", "10"), //
+  ARRAY_YNU("C", TextType.get(), "Y", "N", "U"), //
+  ARRAY_ISD("E", TextType.get(), "I", "S", "D"), //
   ARRAY_BY_COLUMN("H", TextType.get()), //
   ARRAY_DUAL_SCALE("1", TextType.get()), //
   ARRAY_NUMBERS(":", DecimalType.get()), //
   ARRAY_TEXT(";", TextType.get()), //
   DATE("D", DateType.get()), //
   FILE_UPLOAD("|", TextType.get()), //
-  GENDER("G", TextType.get(), new String[] { "M", "F" }), //
+  GENDER("G", TextType.get(), "M", "F"), //
   NUMERICAL_INPUT("N", DecimalType.get()), //
   MULTIPLE_NUMERICAL_INPUT("K", DecimalType.get()), //
   RANKING("R", TextType.get()), //
-  YES_NO("Y", TextType.get(), new String[] { "Y", "N" }), //
-  MULTIPLE_CHOICE("M", TextType.get(), new String[] { "Y", "N" }), //
-  MULTIPLE_CHOICE_COMMENTS("P", TextType.get(), true, new String[] { "Y", "N" }), //
-  FIVE_POINT_CHOICE("5", TextType.get(), new String[] { "1", "2", "3", "4", "5" }), //
+  YES_NO("Y", TextType.get(), "Y", "N"), //
+  MULTIPLE_CHOICE("M", TextType.get(), "Y", "N"), //
+  MULTIPLE_CHOICE_COMMENTS("P", TextType.get(), true, "Y", "N"), //
+  FIVE_POINT_CHOICE("5", TextType.get(), "1", "2", "3", "4", "5"), //
   LIST_DROPDOWN("!", TextType.get()), //
   LIST_RADIO("L", TextType.get()), //
   LIST_WITH_COMMENT("O", TextType.get(), true), //
