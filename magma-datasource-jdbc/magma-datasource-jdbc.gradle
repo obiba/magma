@@ -7,8 +7,6 @@ dependencies {
   compile(libraries.commons_dbcp)
   compile(libraries.jta)
 
-
-  testCompile project(':magma-datasource-fs')
   testCompile(libraries.obiba_core)
   testCompile(libraries.spring_context)
   testCompile(libraries.spring_test)

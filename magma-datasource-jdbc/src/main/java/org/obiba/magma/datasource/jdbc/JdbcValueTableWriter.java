@@ -195,9 +195,9 @@ class JdbcValueTableWriter implements ValueTableWriter {
       // For an EXISTING variable, delete the existing metadata.
       if(variableExists) {
         JdbcTemplate jdbcTemplate = valueTable.getDatasource().getJdbcTemplate();
-        jdbcTemplate.update(DELETE_VARIABLE_SQL, new Object[] { valueTable.getSqlName(), variableSqlName });
-        jdbcTemplate.update(DELETE_VARIABLE_ATTRIBUTES_SQL, new Object[] { valueTable.getSqlName(), variableSqlName });
-        jdbcTemplate.update(DELETE_VARIABLE_CATEGORIES_SQL, new Object[] { valueTable.getSqlName(), variableSqlName });
+        jdbcTemplate.update(DELETE_VARIABLE_SQL, valueTable.getSqlName(), variableSqlName);
+        jdbcTemplate.update(DELETE_VARIABLE_ATTRIBUTES_SQL, valueTable.getSqlName(), variableSqlName);
+        jdbcTemplate.update(DELETE_VARIABLE_CATEGORIES_SQL, valueTable.getSqlName(), variableSqlName);
       }
 
       // For ALL variables (existing and new), insert the new metadata.

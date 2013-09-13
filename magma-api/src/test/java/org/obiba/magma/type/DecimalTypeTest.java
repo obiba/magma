@@ -18,7 +18,7 @@ public class DecimalTypeTest extends BaseValueTypeTest {
 
   @Override
   Object getObjectForType() {
-    return new Double(78372.543543d);
+    return 78372.543543d;
   }
 
   @Override

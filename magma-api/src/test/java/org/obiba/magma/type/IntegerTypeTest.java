@@ -18,7 +18,7 @@ public class IntegerTypeTest extends BaseValueTypeTest {
 
   @Override
   Object getObjectForType() {
-    return new Long(42);
+    return (long) 42;
   }
 
   @Override

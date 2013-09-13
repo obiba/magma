@@ -22,12 +22,13 @@ import org.obiba.magma.ValueSequence;
 
 import au.com.bytecode.opencsv.CSVParser;
 
-public abstract class CSVAwareValueType extends AbstractValueType{
+public abstract class CSVAwareValueType extends AbstractValueType {
+
+  private static final long serialVersionUID = 1864782499603380247L;
 
   private static final char DEL_CHAR = (char) 127;
 
   private transient CSVParser csvParser;
-
 
   /**
    * Reads a comma-separated string value of strings. The format of the string is
