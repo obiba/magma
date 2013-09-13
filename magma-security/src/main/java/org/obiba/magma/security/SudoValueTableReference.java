@@ -1,7 +1,6 @@
 package org.obiba.magma.security;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.concurrent.Callable;
 
 import org.obiba.magma.Datasource;
@@ -14,8 +13,6 @@ import org.obiba.magma.support.StaticValueTable;
 import org.obiba.magma.support.ValueTableReference;
 import org.obiba.magma.support.ValueTableWrapper;
 
-import com.google.common.collect.ImmutableList;
-
 /**
  * An implementation of {@link ValueTableReference} that uses super user privileges to access the referenced table.
  * <p/>
@@ -26,12 +23,10 @@ public class SudoValueTableReference extends ValueTableReference {
 
   private final Authorizer authz;
 
-  private final String permission;
-
   public SudoValueTableReference(Authorizer authz, String reference) {
     super(reference);
     this.authz = authz;
-    permission = Permissions.DatasourcePermissionBuilder.forDatasource(getResolver().getDatasourceName())
+    Permissions.DatasourcePermissionBuilder.forDatasource(getResolver().getDatasourceName())
         .table(getResolver().getTableName()).read().build();
   }
 

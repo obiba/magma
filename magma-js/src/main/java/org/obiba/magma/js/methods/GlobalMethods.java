@@ -43,7 +43,6 @@ import com.google.common.base.Objects;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
@@ -174,13 +173,13 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
 
     MagmaContext context = MagmaContext.asMagmaContext(ctx);
 
-    if (!context.has(View.class)) {
+    if(!context.has(View.class)) {
       throw new IllegalArgumentException("$this() can only be used in the context of a view.");
     }
 
     String name = (String) args[0];
 
-    if (name.contains(":")) {
+    if(name.contains(":")) {
       throw new IllegalArgumentException("$this() expects a variable name of the current view.");
     }
 
@@ -234,6 +233,7 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
    * <pre>
    * $var('DO_YOU_SMOKE')
    * </pre>
+   *
    * @return an instalce of {@code ScriptableVariable}
    */
   public static Scriptable $var(Context ctx, Scriptable thisObj, Object[] args, Function funObj) {
@@ -301,7 +301,7 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
     VariableValueSource source = reference.resolveSource(view);
 
     // Test whether this is a vector-oriented evaluation or a ValueSet-oriented evaluation
-    if (context.has(VectorCache.class)) {
+    if(context.has(VectorCache.class)) {
       return valuesForVector(context, thisObj, source);
     } else {
       ValueSet valueSet = context.peek(ValueSet.class);
@@ -499,8 +499,8 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
     return predicate;
   }
 
-  private static Variable getVariableFromOccurrenceGroup(@Nullable ValueTable valueTable,
-      @Nonnull final Variable variable, @Nonnull final String select) {
+  private static Variable getVariableFromOccurrenceGroup(@Nullable ValueTable valueTable, @Nonnull Variable variable,
+      @Nonnull String select) {
     List<Variable> variables = getVariablesFromOccurrenceGroup(valueTable, variable, select);
     if(variables.size() != 1) {
       throw new IllegalArgumentException(
@@ -512,7 +512,7 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
   }
 
   private static List<Variable> getVariablesFromOccurrenceGroup(@Nullable ValueTable valueTable,
-      @Nonnull final Variable variable, final String select) {
+      @Nonnull Variable variable, String select) {
     ImmutableList.Builder<Variable> builder = ImmutableList.builder();
 
     if(variable.getOccurrenceGroup() == null || valueTable == null) {

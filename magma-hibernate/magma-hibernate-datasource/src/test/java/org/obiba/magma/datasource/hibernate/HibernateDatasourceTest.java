@@ -325,7 +325,6 @@ public class HibernateDatasourceTest {
 
   }
 
-  @SuppressWarnings({ "ReuseOfLocalVariable", "OverlyLongMethod" })
   @Test
   public void testRemoveVariable() throws IOException {
     HibernateDatasource ds = createDatasource();

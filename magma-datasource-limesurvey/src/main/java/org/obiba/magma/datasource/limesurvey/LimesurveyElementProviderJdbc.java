@@ -60,7 +60,7 @@ public class LimesurveyElementProviderJdbc implements LimesurveyElementProvider 
   public Map<Integer, LimeAttributes> queryAttributes() {
     StringBuilder sqlAttr = new StringBuilder();
     sqlAttr.append("SELECT qid, attribute, value ");
-    sqlAttr.append("FROM " + datasource.quoteAndPrefix("question_attributes") + " ");
+    sqlAttr.append("FROM ").append(datasource.quoteAndPrefix("question_attributes")).append(" ");
     SqlRowSet sqlRowSet = datasource.getJdbcTemplate().queryForRowSet(sqlAttr.toString());
     while(sqlRowSet.next()) {
       int qid = sqlRowSet.getInt("qid");
@@ -74,7 +74,7 @@ public class LimesurveyElementProviderJdbc implements LimesurveyElementProvider 
     }
     StringBuilder sqlHelp = new StringBuilder();
     sqlHelp.append("SELECT qid, help, language ");
-    sqlHelp.append("FROM " + datasource.quoteAndPrefix("questions") + "");
+    sqlHelp.append("FROM ").append(datasource.quoteAndPrefix("questions")).append("");
     datasource.getJdbcTemplate().query(sqlHelp.toString(), new RowCallbackHandler() {
       @Override
       public void processRow(ResultSet rs) throws SQLException {

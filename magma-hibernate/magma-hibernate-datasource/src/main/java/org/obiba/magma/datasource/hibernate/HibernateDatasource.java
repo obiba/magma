@@ -53,7 +53,7 @@ public class HibernateDatasource extends AbstractDatasource {
    * transaction. This map uses weak keys, meaning that when the transaction object is no longer reference anywhere, its
    * entry is removed from the map.
    */
-  private ConcurrentMap<Transaction, List<HibernateValueTableTransaction>> syncMap = new MapMaker().weakKeys()
+  private final ConcurrentMap<Transaction, List<HibernateValueTableTransaction>> syncMap = new MapMaker().weakKeys()
       .makeMap();
 
   @SuppressWarnings("ConstantConditions")
