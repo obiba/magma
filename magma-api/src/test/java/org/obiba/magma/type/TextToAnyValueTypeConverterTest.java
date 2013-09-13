@@ -34,7 +34,7 @@ public class TextToAnyValueTypeConverterTest extends AbstractMagmaTest {
   public void test_convert_false_boolean_text_to_boolean() {
     Value value = TextType.get().valueOf("fAlse");
     Value converted = BooleanType.get().convert(value);
-    Assert.assertTrue((Boolean) converted.getValue() == false);
+    Assert.assertTrue(!((Boolean) converted.getValue()));
   }
 
   @Test(expected = IllegalArgumentException.class)

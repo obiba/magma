@@ -196,11 +196,7 @@ public class ExcelDatasource extends AbstractDatasource {
     // Write the workbook (datasource) to file/outputstream if any of them is defined
     OutputStream out = null;
     try {
-      if(excelFile != null) {
-        out = new FileOutputStream(excelFile);
-      } else {
-        out = excelOutput;
-      }
+      out = excelFile == null ? excelOutput : new FileOutputStream(excelFile);
       if(out != null) {
         writeWorkbook(out);
       }

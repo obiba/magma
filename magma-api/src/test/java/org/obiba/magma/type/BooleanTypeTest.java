@@ -15,7 +15,7 @@ public class BooleanTypeTest extends BaseValueTypeTest {
 
   @Override
   Object getObjectForType() {
-    return new Boolean(true);
+    return Boolean.TRUE;
   }
 
   @Override
@@ -35,9 +35,9 @@ public class BooleanTypeTest extends BaseValueTypeTest {
 
   @Test
   public void test_valueOf_Boolean() {
-    Value value = getValueType().valueOf(new Boolean(true));
+    Value value = getValueType().valueOf(Boolean.TRUE);
     Assert.assertEquals(getValueType().trueValue(), value);
-    value = getValueType().valueOf(new Boolean(false));
+    value = getValueType().valueOf(Boolean.FALSE);
     Assert.assertEquals(getValueType().falseValue(), value);
     value = getValueType().valueOf((Boolean) null);
     Assert.assertEquals(value.isNull(), true);

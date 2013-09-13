@@ -59,8 +59,7 @@ public class GeneratedValueTable implements ValueTable {
     timestamp = DateTimeType.get().now();
     while(this.entities.size() < entities) {
       VariableEntity entity = generateEntity();
-      if (!this.entities.contains(entity))
-        this.entities.add(entity);
+      if(!this.entities.contains(entity)) this.entities.add(entity);
     }
 
     VariableValueGeneratorFactory factory = new DefaultVariableValueGeneratorFactory();
@@ -185,11 +184,11 @@ public class GeneratedValueTable implements ValueTable {
   }
 
   private VariableEntity generateEntity(long seed, int length) {
-    String id = Long.toString(Math.abs(seed));
-    while (id.length()<length) {
-      id = 0 + id;
+    StringBuilder id = new StringBuilder(Long.toString(Math.abs(seed)));
+    while(id.length() < length) {
+      id.append(0).append(id);
     }
-    return new VariableEntityBean("", id);
+    return new VariableEntityBean("", id.toString());
   }
 
   @Override

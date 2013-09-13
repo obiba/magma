@@ -593,6 +593,7 @@ public class ViewTest extends AbstractMagmaTest {
 
   private boolean containsVariable(Iterable<Variable> iterable, final Variable variable) {
     return Iterables.any(iterable, new Predicate<Variable>() {
+      @Override
       public boolean apply(Variable input) {
         return input.getName().equals(variable.getName());
       }
@@ -601,6 +602,7 @@ public class ViewTest extends AbstractMagmaTest {
 
   private boolean containsValueSet(Iterable<ValueSet> iterable, final ValueSet valueSet) {
     return Iterables.any(iterable, new Predicate<ValueSet>() {
+      @Override
       public boolean apply(ValueSet input) {
         return input.getVariableEntity().getIdentifier().equals(valueSet.getVariableEntity().getIdentifier());
       }

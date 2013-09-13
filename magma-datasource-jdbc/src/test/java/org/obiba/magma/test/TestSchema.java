@@ -9,11 +9,11 @@ import java.lang.annotation.RetentionPolicy;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface TestSchema {
 
-  public String dataSourceBean() default "dataSource";
+  String dataSourceBean() default "dataSource";
 
-  public String schemaLocation() default "";
+  String schemaLocation() default "";
 
-  public String beforeSchema() default "";
+  String beforeSchema() default "";
 
-  public String afterSchema() default "";
+  String afterSchema() default "";
 }
