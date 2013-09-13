@@ -5,6 +5,7 @@ import java.util.Collections;
 
 import javax.annotation.Nullable;
 
+import org.junit.Assert;
 import org.junit.Test;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.FunctionObject;
@@ -20,8 +21,6 @@ import org.obiba.magma.type.IntegerType;
 import org.obiba.magma.type.TextType;
 
 import com.google.common.collect.Iterables;
-
-import junit.framework.Assert;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;

@@ -2,9 +2,8 @@ package org.obiba.magma.datasource.excel.support;
 
 import java.util.Arrays;
 
+import org.junit.Assert;
 import org.junit.Test;
-
-import junit.framework.Assert;
 
 public class VariableConverterTest {
 
