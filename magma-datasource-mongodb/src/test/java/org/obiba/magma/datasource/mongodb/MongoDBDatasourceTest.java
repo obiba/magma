@@ -37,6 +37,7 @@ import org.obiba.magma.type.PolygonType;
 import org.obiba.magma.type.TextType;
 import org.obiba.magma.xstream.MagmaXStreamExtension;
 
+import com.google.common.base.Charsets;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.mongodb.MongoClient;
@@ -170,7 +171,7 @@ public class MongoDBDatasourceTest {
   public void testBinaryWriter() throws IOException {
     Datasource ds = createDatasource();
     int id = 1;
-    testWriteReadValue(ds, id++, BinaryType.get().valueOf("coucou".getBytes()));
+    testWriteReadValue(ds, id++, BinaryType.get().valueOf("coucou".getBytes(Charsets.UTF_8)));
     testWriteReadValue(ds, id++, BinaryType.get().valueOf(new byte[2]));
     testWriteReadValue(ds, id++, BinaryType.get().nullValue());
   }
@@ -180,7 +181,7 @@ public class MongoDBDatasourceTest {
     Datasource ds = createDatasource();
 
     Collection<Value> sequence = Lists.newArrayList();
-    sequence.add(BinaryType.get().valueOf("coucou".getBytes()));
+    sequence.add(BinaryType.get().valueOf("coucou".getBytes(Charsets.UTF_8)));
     sequence.add(BinaryType.get().nullValue());
     sequence.add(BinaryType.get().valueOf(new byte[2]));
 
@@ -218,7 +219,7 @@ public class MongoDBDatasourceTest {
   public void testRemoveVariable() throws IOException {
     Datasource ds = createDatasource();
     int id = 1;
-    testWriteReadValue(ds, id++, BinaryType.get().valueOf("tutu".getBytes()));
+    testWriteReadValue(ds, id++, BinaryType.get().valueOf("tutu".getBytes(Charsets.UTF_8)));
     testWriteReadValue(ds, id++, BinaryType.get().valueOf(new byte[2]));
     testWriteReadValue(ds, id++, BinaryType.get().nullValue());
     testWriteReadValue(ds, id++, BinaryType.get().valueOf("toto".getBytes()));
