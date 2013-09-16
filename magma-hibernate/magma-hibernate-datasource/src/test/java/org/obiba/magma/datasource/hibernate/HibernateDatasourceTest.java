@@ -59,10 +59,10 @@ public class HibernateDatasourceTest {
 
   private static final String TABLE = "testTable";
 
-  LocalSessionFactoryProvider provider;
+  private LocalSessionFactoryProvider provider;
 
   @Before
-  public void startYourEngine() {
+  public void setup() {
     MagmaEngine.get();
     provider = newHsqlProvider();
 //    provider = newMysqlProvider();
@@ -70,8 +70,10 @@ public class HibernateDatasourceTest {
   }
 
   @After
-  public void stopYourEngine() {
+  public void shutdown() {
+    provider.getSessionFactory().getCurrentSession().beginTransaction();
     MagmaEngine.get().shutdown();
+    provider.getSessionFactory().getCurrentSession().getTransaction().commit();
     provider.getSessionFactory().close();
   }
 
