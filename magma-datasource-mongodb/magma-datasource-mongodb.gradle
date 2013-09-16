@@ -4,7 +4,6 @@ dependencies {
   compile project(':magma-api')
   compile(libraries.mongodb_java_driver)
 
-
   testCompile project(':magma-datasource-fs')
   testCompile(libraries.commons_io)
   testCompile(libraries.obiba_core)

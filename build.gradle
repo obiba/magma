@@ -165,6 +165,7 @@ subprojects { subProject ->
 
     testCompile project(':magma-test')
     testCompile(libraries.junit)
+    testCompile(libraries.hamcrest)
     testCompile(libraries.easymock)
     testCompile(libraries.slf4j_log4j12)
     testCompile(libraries.jcl_slf4j)
