@@ -9,7 +9,7 @@ import org.obiba.magma.ValueSet;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.test.AbstractMagmaTest;
 
-import static junit.framework.Assert.assertEquals;
+import static org.junit.Assert.assertEquals;
 
 public class LimesurveyDatasourceMysqlTest extends AbstractMagmaTest {
 

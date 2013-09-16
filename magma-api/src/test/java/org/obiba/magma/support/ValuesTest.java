@@ -17,7 +17,7 @@ public class ValuesTest extends AbstractMagmaTest {
   @Test
   public void test_toValueFunction_returnsFunctionForProperType() {
     Function<Object, Value> func = Values.toValueFunction(IntegerType.get());
-    assertThat(func.apply(new Integer(1)), is(IntegerType.get().valueOf(1)));
+    assertThat(func.apply(1), is(IntegerType.get().valueOf(1)));
   }
 
   @Test

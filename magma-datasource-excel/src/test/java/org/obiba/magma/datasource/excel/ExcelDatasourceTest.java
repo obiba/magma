@@ -12,6 +12,7 @@ import java.util.List;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.junit.Assert;
 import org.junit.Test;
 import org.obiba.core.util.FileUtil;
 import org.obiba.magma.Category;
@@ -28,8 +29,6 @@ import org.obiba.magma.type.IntegerType;
 import org.obiba.magma.type.TextType;
 
 import com.google.common.collect.Iterables;
-
-import junit.framework.Assert;
 
 public class ExcelDatasourceTest extends AbstractMagmaTest {
 

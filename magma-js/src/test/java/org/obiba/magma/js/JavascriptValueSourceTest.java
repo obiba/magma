@@ -2,6 +2,7 @@ package org.obiba.magma.js;
 
 import java.util.Date;
 
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mozilla.javascript.EvaluatorException;
@@ -13,8 +14,6 @@ import org.obiba.magma.type.DateTimeType;
 import org.obiba.magma.type.DecimalType;
 import org.obiba.magma.type.IntegerType;
 import org.obiba.magma.type.TextType;
-
-import junit.framework.Assert;
 
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expect;
@@ -38,7 +37,7 @@ public class JavascriptValueSourceTest extends AbstractJsTest {
     source.initialise();
 
     Value value = source.getValue(mockValueSet);
-    Assert.assertEquals(new Double(1), value.getValue());
+    Assert.assertEquals((double) 1, value.getValue());
   }
 
   @Test

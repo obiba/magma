@@ -11,10 +11,9 @@ package org.obiba.magma;
 
 import java.util.Locale;
 
+import org.junit.Assert;
 import org.junit.Test;
 import org.obiba.magma.test.AbstractMagmaTest;
-
-import junit.framework.Assert;
 
 public class AttributesTest extends AbstractMagmaTest {
 
