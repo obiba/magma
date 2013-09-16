@@ -11,6 +11,7 @@ dependencies {
   testCompile(libraries.spring_context)
   testCompile(libraries.spring_test)
   testCompile(libraries.hsqldb)
+  testCompile(libraries.xstream)
   testCompile(libraries.dbunit) {
     exclude(module: 'poi')
     exclude(module: 'junit-addons')

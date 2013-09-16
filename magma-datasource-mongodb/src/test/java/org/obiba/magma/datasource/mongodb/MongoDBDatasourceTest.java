@@ -3,7 +3,6 @@ package org.obiba.magma.datasource.mongodb;
 import java.io.IOException;
 import java.util.Collection;
 
-import org.hamcrest.number.IsGreaterThan;
 import org.junit.After;
 import org.junit.Assume;
 import org.junit.Before;
@@ -246,11 +245,11 @@ public class MongoDBDatasourceTest {
 
     int tableLastUpdateCompare = ds.getValueTable(TABLE_TEST).getTimestamps().getLastUpdate()
         .compareTo(tableLastUpdate);
-    assertThat(tableLastUpdateCompare, is(new IsGreaterThan<Integer>(0)));
+    assertThat(tableLastUpdateCompare > 0, is(true));
 
     int valueSetLastUpdateCompare = table.getValueSet(new VariableEntityBean(PARTICIPANT, "1")).getTimestamps()
         .getLastUpdate().compareTo(valueSetLastUpdate);
-    assertThat(valueSetLastUpdateCompare, is(new IsGreaterThan<Integer>(0)));
+    assertThat(valueSetLastUpdateCompare > 0, is(true));
 
     try {
       table.getVariable(textVariable.getName());

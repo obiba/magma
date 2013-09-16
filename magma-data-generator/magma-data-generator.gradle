@@ -7,7 +7,6 @@ dependencies {
   compile project(':magma-datasource-csv')
   compile(libraries.commons_math)
 
-
   testCompile project(':magma-datasource-fs')
   testCompile(libraries.obiba_core)
 }
