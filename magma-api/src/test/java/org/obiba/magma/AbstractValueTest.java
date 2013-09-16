@@ -60,6 +60,7 @@ public abstract class AbstractValueTest extends AbstractMagmaTest {
     assertThat(value.equals(another), is(true));
     assertThat(another.equals(value), is(true));
 
+    //noinspection ObjectEqualsNull
     assertThat(value.equals(null), is(false));
     assertThat(value.equals(testObject()), is(false));
   }

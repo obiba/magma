@@ -25,6 +25,8 @@ import au.com.bytecode.opencsv.CSVParser;
 
 public abstract class JSONAwareValueType extends AbstractValueType {
 
+  private static final long serialVersionUID = 3530785145782662091L;
+
   private static final char DEL_CHAR = (char) 127;
 
   private transient CSVParser csvParser;

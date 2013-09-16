@@ -3,6 +3,7 @@ package org.obiba.magma.js.methods;
 import java.util.Date;
 import java.util.Locale;
 
+import org.junit.Assert;
 import org.junit.Test;
 import org.obiba.magma.ValueSequence;
 import org.obiba.magma.js.AbstractJsTest;
@@ -19,12 +20,9 @@ import org.obiba.magma.type.PointType;
 import org.obiba.magma.type.PolygonType;
 import org.obiba.magma.type.TextType;
 
-import junit.framework.Assert;
-
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertTrue;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.notNullValue;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.mozilla.javascript.Context.getCurrentContext;
 

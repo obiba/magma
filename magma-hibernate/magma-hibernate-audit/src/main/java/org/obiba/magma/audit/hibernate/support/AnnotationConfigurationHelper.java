@@ -11,6 +11,7 @@ import com.google.common.collect.ImmutableSet;
 
 public class AnnotationConfigurationHelper {
 
+  @SuppressWarnings("unchecked")
   private final Set<Class<? extends AbstractEntity>> annotatedTypes
       = new ImmutableSet.Builder<Class<? extends AbstractEntity>>()
       .add(HibernateVariableEntityAuditEvent.class, HibernateVariableEntityAuditLog.class).build();
