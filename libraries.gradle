@@ -30,7 +30,7 @@ ext {
 
       hsqldb: 'org.hsqldb:hsqldb:2.3.0',
 
-      javassist: 'javassist:javassist:3.9.0.GA',
+      javassist: 'javassist:javassist:3.12.1.GA',
 
       jscience_physics: 'org.jscience:jscience-physics:5.0-r53p01',
 
