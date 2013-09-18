@@ -6,6 +6,7 @@ dependencies {
 
   testCompile project(':magma-data-generator')
   testCompile(libraries.mysql_connector_java)
+  testCompile(libraries.postgresql)
   testCompile(libraries.javassist)
   testCompile(libraries.hibernate_ehcache)
   testCompile(libraries.hsqldb)

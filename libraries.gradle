@@ -54,6 +54,8 @@ ext {
 
       poi_ooxml: 'org.apache.poi:poi-ooxml:3.9',
 
+      postgresql: 'org.postgresql:postgresql:9.2-1003-jdbc4',
+
       rhino_js: 'org.mozilla:rhino:1.7R4',
 
       shiro_core: 'org.apache.shiro:shiro-core:1.1.0',
