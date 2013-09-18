@@ -4,7 +4,6 @@
 package org.obiba.magma.datasource.hibernate;
 
 import java.io.IOException;
-import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -60,6 +59,8 @@ class HibernateValueTableWriter implements ValueTableWriter {
 
   private boolean errorOccurred = false;
 
+  private boolean dirty = false;
+
   private final HibernateMarshallingContext context;
 
   HibernateValueTableWriter(HibernateValueTableTransaction transaction) {
@@ -92,7 +93,7 @@ class HibernateValueTableWriter implements ValueTableWriter {
   }
 
   private void updateTableLastUpdate() {
-    session.buildLockRequest(new LockOptions(LockMode.PESSIMISTIC_FORCE_INCREMENT))
+    session.buildLockRequest(new LockOptions(LockMode.OPTIMISTIC_FORCE_INCREMENT))
         .lock(valueTable.getValueTableState());
   }
 
@@ -115,8 +116,7 @@ class HibernateValueTableWriter implements ValueTableWriter {
       transaction.addSource(valueSourceFactory.createSource(state));
       errorOccurred = false;
 
-      // update valueTable timestamp
-      updateTableLastUpdate();
+      dirty = true;
     }
 
     @Override
@@ -131,11 +131,9 @@ class HibernateValueTableWriter implements ValueTableWriter {
           .executeUpdate();
       log.debug("Deleted {} value from {}", deleted, valueTable.getName());
 
-      Serializable tableId = valueTable.getValueTableState().getId();
-
       if(variable.getValueType().equals(BinaryType.get())) {
         List<?> valueSetIds = session.getNamedQuery("findValueSetIdsByTableId") //
-            .setParameter("valueTableId", tableId) //
+            .setParameter("valueTableId", valueTable.getValueTableId()) //
             .list();
 
         int binariesDeleted = session.getNamedQuery("deleteVariableBinaryValues") //
@@ -148,7 +146,7 @@ class HibernateValueTableWriter implements ValueTableWriter {
       // update all value sets last update
       int updated = session.getNamedQuery("setLastUpdateForTableId") //
           .setParameter("updated", new Date()) //
-          .setParameter("valueTableId", tableId) //
+          .setParameter("valueTableId", valueTable.getValueTableId()) //
           .executeUpdate();
       log.debug("Updated lastUpdate for {} value sets for {}", updated, valueTable.getName());
 
@@ -156,12 +154,18 @@ class HibernateValueTableWriter implements ValueTableWriter {
 
       errorOccurred = false;
 
-      updateTableLastUpdate();
+      dirty = true;
     }
 
     @Override
     public void close() throws IOException {
       if(!errorOccurred) {
+
+        if(dirty) {
+          updateTableLastUpdate();
+          dirty = false;
+        }
+
         session.flush();
         session.clear();
       }
@@ -226,8 +230,8 @@ class HibernateValueTableWriter implements ValueTableWriter {
         } else {
           updateValue(variable, value, valueSetValue);
         }
-        // update valueTable timestamp
-        updateTableLastUpdate();
+
+        dirty = true;
 
       } catch(RuntimeException e) {
         errorOccurred = true;
@@ -337,6 +341,12 @@ class HibernateValueTableWriter implements ValueTableWriter {
           // Make the entity visible within this transaction
           transaction.addEntity(entity);
         }
+
+        if(dirty) {
+          updateTableLastUpdate();
+          dirty = false;
+        }
+
         // Persists valueSetState
         session.flush();
         // Empty the Session so we don't fill it up
