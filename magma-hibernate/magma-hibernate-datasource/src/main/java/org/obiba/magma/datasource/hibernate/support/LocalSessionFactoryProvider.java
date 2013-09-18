@@ -65,6 +65,12 @@ public class LocalSessionFactoryProvider implements SessionFactoryProvider, Init
     cfg.setProperty(Environment.PASS, password);
     cfg.setProperty(Environment.DIALECT, dialect);
 
+    // we want to store byte[] as oid instead of bytea.
+    // See http://in.relation.to/15492.lace
+    if("org.hibernate.dialect.PostgreSQLDialect".equals(dialect)) {
+      cfg.setProperty("hibernate.jdbc.use_streams_for_binary", "false");
+    }
+
     sessionFactory = cfg.buildSessionFactory();
   }
 

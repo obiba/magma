@@ -22,6 +22,7 @@ import javax.persistence.UniqueConstraint;
 import org.hibernate.annotations.Index;
 import org.obiba.core.domain.AbstractEntity;
 
+@SuppressWarnings("UnusedDeclaration")
 @Entity
 @Table(name = "value_set_binary_value",
     uniqueConstraints = @UniqueConstraint(columnNames = { "value_set_id", "variable_id", "occurrence" }))

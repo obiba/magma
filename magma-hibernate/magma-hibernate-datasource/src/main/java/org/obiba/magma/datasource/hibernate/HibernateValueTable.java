@@ -205,6 +205,10 @@ class HibernateValueTable extends AbstractValueTable {
     log.debug("Populating variable cache - done. {} variables loaded", super.getSources().size());
   }
 
+  Serializable getValueTableId() {
+    return valueTableId;
+  }
+
   class HibernateValueSet extends ValueSetBean {
 
     private final Criteria valueSetCriteria;
