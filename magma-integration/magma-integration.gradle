@@ -7,7 +7,7 @@ dependencies {
   compile project(':magma-datasource-fs')
   compile project(':magma-datasource-excel')
   compile project(':magma-datasource-csv')
-  compile project(':magma-hibernate:magma-hibernate-datasource')
+  compile project(':magma-datasource-hibernate')
   compile project(':magma-datasource-jdbc')
   compile project(':magma-crypt')
   compile project(':magma-xstream')
