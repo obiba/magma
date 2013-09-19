@@ -126,6 +126,7 @@ public class ShuffleBag<E> {
    *
    * @return the next item from this bag
    */
+  @SuppressWarnings("unchecked")
   public E next() {
     if(cursor < 1) {
       cursor = size - 1;

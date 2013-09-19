@@ -3,4 +3,6 @@ description = 'test'
 dependencies {
   compile project(':magma-api')
   compile(libraries.junit)
+  compile(libraries.hamcrest)
+  compile(libraries.hamcrest_date)
 }
