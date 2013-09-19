@@ -18,6 +18,8 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 
+import edu.umd.cs.findbugs.annotations.Nullable;
+
 @SuppressWarnings("UnusedDeclaration")
 public class DefaultViewManagerImpl implements ViewManager, Initialisable, Disposable {
 
@@ -45,7 +47,7 @@ public class DefaultViewManagerImpl implements ViewManager, Initialisable, Dispo
 
   @SuppressWarnings("ConstantConditions")
   @Override
-  public void addView(@Nonnull String datasourceName, @Nonnull View view) {
+  public void addView(@Nonnull String datasourceName, @Nonnull View view, @Nullable String comment) {
     Preconditions.checkArgument(!Strings.isNullOrEmpty(datasourceName), "datasourceName cannot be null or empty.");
     Preconditions.checkArgument(view != null, "view cannot be null.");
 
@@ -64,7 +66,7 @@ public class DefaultViewManagerImpl implements ViewManager, Initialisable, Dispo
 
     viewAwareDatasource.addView(view);
     try {
-      viewPersistenceStrategy.writeView(viewAwareDatasource.getName(), view);
+      viewPersistenceStrategy.writeView(viewAwareDatasource.getName(), view, comment);
     } catch(RuntimeException e) {
       // rollback
       viewAwareDatasource.removeView(view.getName());
@@ -129,9 +131,9 @@ public class DefaultViewManagerImpl implements ViewManager, Initialisable, Dispo
   }
 
   @Override
-  public void addViews(@Nonnull String datasource, Set<View> views) {
+  public void addViews(@Nonnull String datasource, Set<View> views, @Nullable String comment) {
     Preconditions.checkArgument(!Strings.isNullOrEmpty(datasource), "datasource cannot be null or empty.");
-    viewPersistenceStrategy.writeViews(datasource, views);
+    viewPersistenceStrategy.writeViews(datasource, views, comment);
   }
 
   private ViewAwareDatasource getViewAwareFromName(@Nonnull String datasourceName) {
