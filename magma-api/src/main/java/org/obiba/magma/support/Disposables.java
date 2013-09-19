@@ -18,7 +18,7 @@ public final class Disposables {
     try {
       dispose(disposable);
     } catch(RuntimeException e) {
-      log.warn("Ignoring exception during diposable.dispose().", e);
+      log.warn("Ignoring exception during disposable.dispose().", e);
     }
   }
 
@@ -26,7 +26,7 @@ public final class Disposables {
     try {
       dispose(disposable);
     } catch(RuntimeException e) {
-      log.warn("Ignoring exception during diposable.dispose().", e);
+      log.warn("Ignoring exception during disposable.dispose().", e);
     }
   }
 
