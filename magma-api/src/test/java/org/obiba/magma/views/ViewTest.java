@@ -584,7 +584,7 @@ public class ViewTest extends AbstractMagmaTest {
     replay(datasourceMock, valueTableMock, listClauseMock, viewPersistenceMock, vSourceMock);
 
     manager.decorate(datasourceMock);
-    manager.addView("datasource", view);
+    manager.addView("datasource", view, null);
   }
 
   //
