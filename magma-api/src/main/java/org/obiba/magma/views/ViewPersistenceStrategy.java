@@ -7,6 +7,8 @@ import javax.annotation.Nonnull;
 import org.obiba.magma.Disposable;
 import org.obiba.magma.Initialisable;
 
+import edu.umd.cs.findbugs.annotations.Nullable;
+
 public interface ViewPersistenceStrategy extends Initialisable, Disposable {
 
   /**
@@ -14,14 +16,14 @@ public interface ViewPersistenceStrategy extends Initialisable, Disposable {
    * @param datasourceName
    * @param views
    */
-  void writeViews(@Nonnull String datasourceName, @Nonnull Set<View> views);
+  void writeViews(@Nonnull String datasourceName, @Nonnull Set<View> views, @Nullable String comment);
 
   /**
    * Add or update the view for the datasource.
    * @param datasourceName
    * @param view
    */
-  void writeView(@Nonnull String datasourceName, @Nonnull View view);
+  void writeView(@Nonnull String datasourceName, @Nonnull View view, @Nullable String comment);
 
   /**
    * Remove a specified view of a datasource. Silently ignore if no such view exists.
