@@ -4,12 +4,11 @@ dependencies {
   compile project(':magma-api')
   compile(libraries.spring_jdbc)
   compile(libraries.liquibase_core)
-  compile(libraries.commons_dbcp)
-  compile(libraries.jta)
 
   testCompile(libraries.obiba_core)
   testCompile(libraries.spring_context)
   testCompile(libraries.spring_test)
+  testCompile(libraries.commons_dbcp)
   testCompile(libraries.hsqldb)
   testCompile(libraries.xstream)
   testCompile(libraries.dbunit) {
