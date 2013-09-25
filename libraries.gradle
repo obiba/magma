@@ -38,8 +38,6 @@ ext {
 
       jsr305: 'com.google.code.findbugs:jsr305:2.0.1',
 
-      jta: 'javax.transaction:jta:1.1',
-
       junit: 'junit:junit:4.11',
 
       liquibase_core: 'org.liquibase:liquibase-core:1.9.4',

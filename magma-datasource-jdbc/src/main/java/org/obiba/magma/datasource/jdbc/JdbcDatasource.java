@@ -58,16 +58,11 @@ public class JdbcDatasource extends AbstractDatasource {
 
   private DatabaseSnapshot snapshot;
 
-  public JdbcDatasource(String name, DataSource datasource, JdbcDatasourceSettings settings) {
+  @SuppressWarnings("ConstantConditions")
+  public JdbcDatasource(String name, @Nonnull DataSource datasource, @Nonnull JdbcDatasourceSettings settings) {
     super(name, TYPE);
-
-    if(settings == null) {
-      throw new IllegalArgumentException("null settings");
-    }
-    if(datasource == null) {
-      throw new IllegalArgumentException("null datasource");
-    }
-
+    if(settings == null) throw new IllegalArgumentException("null settings");
+    if(datasource == null) throw new IllegalArgumentException("null datasource");
     this.settings = settings;
     jdbcTemplate = new JdbcTemplate(datasource);
   }

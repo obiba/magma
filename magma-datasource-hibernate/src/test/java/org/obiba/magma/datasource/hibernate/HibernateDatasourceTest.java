@@ -441,6 +441,8 @@ public class HibernateDatasourceTest {
       }
     });
 
+    Thread.sleep(1000);
+
     transactionTemplate.execute(new TransactionCallbackWithoutResult() {
       @Override
       protected void doInTransactionWithoutResult(TransactionStatus status) {
@@ -456,13 +458,14 @@ public class HibernateDatasourceTest {
       }
     });
 
+    Thread.sleep(1000);
+
     transactionTemplate.execute(new TransactionCallbackWithoutResult() {
       @Override
       protected void doInTransactionWithoutResult(TransactionStatus status) {
         try {
           HibernateDatasource ds = getDatasource();
           ValueTable table = ds.getValueTable("NewTable");
-
           Date lastValueSetUpdate = null;
           for(ValueSet valueSet : table.getValueSets()) {
             Date lastUpdate = (Date) valueSet.getTimestamps().getLastUpdate().getValue();
