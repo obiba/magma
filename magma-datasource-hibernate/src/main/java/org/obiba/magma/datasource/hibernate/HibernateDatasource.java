@@ -177,7 +177,8 @@ public class HibernateDatasource extends AbstractDatasource {
   }
 
   @SuppressWarnings("ReuseOfLocalVariable")
-  private void deleteValueSets(String tableFullName, Session session, Collection<?> valueSetIds) {
+  private void deleteValueSets(String tableFullName, @SuppressWarnings("TypeMayBeWeakened") Session session,
+      Collection<?> valueSetIds) {
     TimedExecution deleteBinariesTime = new TimedExecution().start();
     int deleted = session.getNamedQuery("deleteValueSetBinaryValues").setParameterList("valueSetIds", valueSetIds)
         .executeUpdate();
