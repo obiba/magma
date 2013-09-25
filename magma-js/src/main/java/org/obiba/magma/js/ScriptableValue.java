@@ -17,7 +17,6 @@ import org.obiba.magma.Value;
 import org.obiba.magma.ValueType;
 import org.obiba.magma.type.BooleanType;
 import org.obiba.magma.type.DateType;
-import org.obiba.magma.type.IntegerType;
 import org.obiba.magma.type.LineStringType;
 import org.obiba.magma.type.PointType;
 import org.obiba.magma.type.PolygonType;
@@ -53,6 +52,7 @@ public class ScriptableValue extends ScriptableObject {
 
   public ScriptableValue(Scriptable scope, @Nonnull Value value, @Nullable String unit) {
     super(scope, ScriptableObject.getClassPrototype(scope, VALUE_CLASS_NAME));
+    //noinspection ConstantConditions
     if(value == null) {
       throw new NullPointerException("value cannot be null");
     }
@@ -110,6 +110,7 @@ public class ScriptableValue extends ScriptableObject {
     return defaultValue;
   }
 
+  @SuppressWarnings("unchecked")
   private Object getGeoDefaultValue(ValueType type, Object defaultValue) {
     if(PointType.get().equals(type)) {
       return ((Coordinate) defaultValue).toArray();
@@ -118,7 +119,7 @@ public class ScriptableValue extends ScriptableObject {
       return getLineDefaultValue((Collection<Coordinate>) defaultValue);
     }
     if(PolygonType.get().equals(type)) {
-      return getPolygonDefaultValue((List<List<Coordinate>>) defaultValue);
+      return getPolygonDefaultValue((Collection<List<Coordinate>>) defaultValue);
     }
     return defaultValue;
   }
@@ -132,7 +133,7 @@ public class ScriptableValue extends ScriptableObject {
     return dline;
   }
 
-  private double[][][] getPolygonDefaultValue(List<List<Coordinate>> polygon) {
+  private double[][][] getPolygonDefaultValue(Collection<List<Coordinate>> polygon) {
     double[][][] dpolygon = new double[polygon.size()][][];
 
     int i = 0;
