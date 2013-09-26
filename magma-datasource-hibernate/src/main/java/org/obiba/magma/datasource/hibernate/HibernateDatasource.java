@@ -255,7 +255,12 @@ public class HibernateDatasource extends AbstractDatasource {
     addValueTable(vt);
   }
 
-  SessionFactory getSessionFactory() {
+  /**
+   * Use with caution!
+   *
+   * @return sessionFactory used by the datasource
+   */
+  public SessionFactory getSessionFactory() {
     return sessionFactory;
   }
 

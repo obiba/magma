@@ -17,7 +17,7 @@ import com.google.common.collect.ImmutableSet;
 
 public class HibernateConfigurationHelper {
 
-  private final Set<Class<?>> annotatedTypes = new ImmutableSet.Builder<Class<?>>()
+  private final static Set<Class<?>> ANNOTATED_TYPES = new ImmutableSet.Builder<Class<?>>()
       .add(DatasourceState.class, VariableEntityState.class, ValueTableState.class, ValueSetState.class,
           ValueSetValue.class, ValueSetBinaryValue.class, VariableState.class, CategoryState.class,
           AttributeState.class).build();
@@ -29,7 +29,11 @@ public class HibernateConfigurationHelper {
     return configuration;
   }
 
-  public Set<Class<?>> getAnnotatedTypes() {
-    return annotatedTypes;
+  public static Set<Class<?>> getAnnotatedTypes() {
+    return ANNOTATED_TYPES;
+  }
+
+  public static Class<?>[] getAnnotatedTypesAsArray() {
+    return ANNOTATED_TYPES.toArray(new Class<?>[ANNOTATED_TYPES.size()]);
   }
 }
