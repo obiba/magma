@@ -42,7 +42,7 @@ public class IntegrationApp {
 
   private IntegrationApp() {}
 
-  public static void main(String[] args) throws IOException, NoSuchAlgorithmException {
+  public static void main(String... args) throws IOException, NoSuchAlgorithmException {
     new MagmaEngine().extend(new MagmaJsExtension()).extend(new MagmaXStreamExtension());
 
     XStreamIntegrationServiceFactory factory = new XStreamIntegrationServiceFactory();
@@ -105,8 +105,7 @@ public class IntegrationApp {
     // Disconnect it from Magma
     MagmaEngine.get().removeDatasource(fs);
 
-    SessionFactoryProvider provider = new LocalSessionFactoryProvider("org.hsqldb.jdbcDriver",
-        "jdbc:hsqldb:file:target/integration-hibernate.db;shutdown=true", "sa", "",
+    SessionFactoryProvider provider = new LocalSessionFactoryProvider(getDataSource("integration-hibernate.db"),
         "org.hibernate.dialect.HSQLDialect");
     HibernateDatasourceFactory hdsFactory = new HibernateDatasourceFactory("integration-hibernate", provider);
 
@@ -173,7 +172,7 @@ public class IntegrationApp {
 
     JdbcDatasourceFactory jdbcDatasourceFactory = new JdbcDatasourceFactory();
     jdbcDatasourceFactory.setName("jdbc");
-    jdbcDatasourceFactory.setDataSource(getDataSource());
+    jdbcDatasourceFactory.setDataSource(getDataSource("datasource_jdbc.db"));
     jdbcDatasourceFactory.setDatasourceSettings(new JdbcDatasourceSettings("Participant", null, null, true));
     Datasource jd = jdbcDatasourceFactory.create();
     MagmaEngine.get().addDatasource(jd);
@@ -182,10 +181,10 @@ public class IntegrationApp {
     MagmaEngine.get().shutdown();
   }
 
-  private static DataSource getDataSource() {
+  private static DataSource getDataSource(String db) {
     BasicDataSource dataSource = new BasicDataSource();
     dataSource.setDriverClassName("org.hsqldb.jdbcDriver");
-    dataSource.setUrl("jdbc:hsqldb:file:target/datasource_jdbc.db;shutdown=true");
+    dataSource.setUrl("jdbc:hsqldb:file:target/" + db + ";shutdown=true");
     dataSource.setUsername("sa");
     dataSource.setPassword("");
     return dataSource;
