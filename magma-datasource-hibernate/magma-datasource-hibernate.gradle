@@ -1,0 +1,19 @@
+description = 'Magma Hibernate Datasource'
+
+dependencies {
+  compile project(':magma-api')
+  compile(libraries.obiba_core)
+  compile(libraries.hibernate_core)
+  compile(libraries.spring_beans)
+  compile(libraries.spring_context)
+  compile(libraries.spring_orm)
+  compile(libraries.json)
+
+  testCompile project(':magma-data-generator')
+  testCompile(libraries.spring_test)
+  testCompile(libraries.hibernate_ehcache)
+  testCompile(libraries.javassist)
+  testCompile(libraries.hsqldb)
+  testCompile(libraries.mysql_connector_java)
+  testCompile(libraries.postgresql)
+}

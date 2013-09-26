@@ -45,22 +45,14 @@ import static org.junit.Assert.fail;
 @SuppressWarnings("ReuseOfLocalVariable")
 @RunWith(value = SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "/test-spring-context.xml" })
-@TransactionConfiguration(transactionManager = "transactionManager")
-@TestExecutionListeners(
-    value = { DependencyInjectionTestExecutionListener.class, DirtiesContextTestExecutionListener.class,
-        TransactionalTestExecutionListener.class, SchemaTestExecutionListener.class,
-        DbUnitAwareTestExecutionListener.class })
+@TransactionConfiguration
+@TestExecutionListeners({ DependencyInjectionTestExecutionListener.class, DirtiesContextTestExecutionListener.class,
+    TransactionalTestExecutionListener.class, SchemaTestExecutionListener.class,
+    DbUnitAwareTestExecutionListener.class })
 public class JdbcDatasourceTest extends AbstractMagmaTest {
-  //
-  // Instance Variables
-  //
 
   @Autowired
   private DataSource dataSource;
-
-  //
-  // Test Methods
-  //
 
   @TestSchema(schemaLocation = "org/obiba/magma/datasource/jdbc", beforeSchema = "schema-nometa.sql",
       afterSchema = "schema-notables.sql")
