@@ -38,6 +38,7 @@ import com.mongodb.BasicDBObjectBuilder;
 import com.mongodb.DBObject;
 
 import static org.obiba.magma.datasource.mongodb.MongoDBValueTableWriter.GRID_FILE_ID;
+import static org.obiba.magma.datasource.mongodb.MongoDBValueTableWriter.GRID_FILE_MD5;
 import static org.obiba.magma.datasource.mongodb.MongoDBValueTableWriter.GRID_FILE_SIZE;
 
 class MongoDBValueSet implements ValueSet {
@@ -98,6 +99,7 @@ class MongoDBValueSet implements ValueSet {
       JSONObject properties = new JSONObject();
       properties.put(GRID_FILE_ID, valueObject.get(GRID_FILE_ID));
       properties.put(GRID_FILE_SIZE, valueObject.containsField(GRID_FILE_SIZE) ? valueObject.get(GRID_FILE_SIZE) : 0);
+      properties.put(GRID_FILE_MD5, valueObject.get(GRID_FILE_MD5));
       return TextType.get().valueOf(properties.toString());
     } catch(JSONException e) {
       throw new MagmaRuntimeException(e);
