@@ -13,7 +13,7 @@ import static org.junit.Assert.assertThat;
 
 public class ValueSetBeanTest {
 
-  private final VariableEntity entity = new VariableEntityBean("type", "1234");
+  private static final VariableEntity ENTITY = new VariableEntityBean("type", "1234");
 
   private ValueTable mockTable;
 
@@ -22,11 +22,15 @@ public class ValueSetBeanTest {
     mockTable = createMock(ValueTable.class);
   }
 
+  @SuppressWarnings("ConstantConditions")
+  @edu.umd.cs.findbugs.annotations.SuppressWarnings("NP_NONNULL_PARAM_VIOLATION")
   @Test(expected = IllegalArgumentException.class)
   public void test_ctor_preconditions_1() {
-    new ValueSetBean(null, entity);
+    new ValueSetBean(null, ENTITY);
   }
 
+  @SuppressWarnings("ConstantConditions")
+  @edu.umd.cs.findbugs.annotations.SuppressWarnings("NP_NONNULL_PARAM_VIOLATION")
   @Test(expected = IllegalArgumentException.class)
   public void test_ctor_preconditions_2() {
     new ValueSetBean(mockTable, null);
@@ -43,7 +47,7 @@ public class ValueSetBeanTest {
 
       @Override
       public VariableEntity getVariableEntity() {
-        return entity;
+        return ENTITY;
       }
 
       @Override
@@ -77,17 +81,17 @@ public class ValueSetBeanTest {
 
   @Test
   public void test_getters() {
-    ValueSetBean vsb = new ValueSetBean(mockTable, entity);
+    ValueSet vsb = new ValueSetBean(mockTable, ENTITY);
     assertThat(vsb.getValueTable(), is(mockTable));
-    assertThat(vsb.getVariableEntity(), is(entity));
+    assertThat(vsb.getVariableEntity(), is(ENTITY));
   }
 
   @Test
   public void test_toString_containsTableAndEntity() {
-    ValueSetBean vsb = new ValueSetBean(mockTable, entity);
+    ValueSetBean vsb = new ValueSetBean(mockTable, ENTITY);
     String str = vsb.toString();
     // We can't mock toString()
     assertThat(str.contains("EasyMock"), is(true));
-    assertThat(str.contains(entity.toString()), is(true));
+    assertThat(str.contains(ENTITY.toString()), is(true));
   }
 }

@@ -221,7 +221,7 @@ public class MongoDBDatasourceTest {
     testWriteReadValue(ds, id++, BinaryType.get().valueOf("tutu".getBytes(Charsets.UTF_8)));
     testWriteReadValue(ds, id++, BinaryType.get().valueOf(new byte[2]));
     testWriteReadValue(ds, id++, BinaryType.get().nullValue());
-    testWriteReadValue(ds, id++, BinaryType.get().valueOf("toto".getBytes()));
+    testWriteReadValue(ds, id++, BinaryType.get().valueOf("toto".getBytes(Charsets.UTF_8)));
 
     id = 1;
     testWriteReadValue(ds, id++, IntegerType.get().valueOf("1"));

@@ -42,7 +42,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-@SuppressWarnings("ReuseOfLocalVariable")
+@SuppressWarnings({ "ReuseOfLocalVariable", "OverlyLongMethod" })
 @RunWith(value = SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "/test-spring-context.xml" })
 @TransactionConfiguration
@@ -214,7 +214,7 @@ public class JdbcDatasourceTest extends AbstractMagmaTest {
 
   private void testCreateDatasourceFromScratch(JdbcDatasource jdbcDatasource) {
     // Create a new ValueTable.
-    ValueTableWriter tableWriter = jdbcDatasource.createWriter("my_table", null);
+    ValueTableWriter tableWriter = jdbcDatasource.createWriter("my_table", "Participant");
     try {
       assertNotNull(tableWriter);
       assertEquals("my-datasource-nodb", jdbcDatasource.getName());

@@ -204,7 +204,7 @@ class LimesurveyValueTable extends AbstractValueTable {
   }
 
   private boolean buildArrayDualScale(LimeQuestion question, @Nullable LimeQuestion parentQuestion) {
-    if(parentQuestion.getLimesurveyType() == LimesurveyType.ARRAY_DUAL_SCALE) {
+    if(parentQuestion != null && parentQuestion.getLimesurveyType() == LimesurveyType.ARRAY_DUAL_SCALE) {
       for(int scale = 0; scale < 2; scale++) {
         String hierarchicalVariableName = parentQuestion.getName() + " [" + question.getName() + "][" + scale + "]";
         Variable.Builder vb = build(question, hierarchicalVariableName);
@@ -340,7 +340,7 @@ class LimesurveyValueTable extends AbstractValueTable {
     });
   }
 
-  private List<LimeQuestion> getScaledOneSubQuestions(final LimeQuestion limeQuestion) {
+  private List<LimeQuestion> getScaledOneSubQuestions(@Nullable final LimeQuestion limeQuestion) {
     return Lists.newArrayList(Iterables.filter(mapQuestions.values(), new Predicate<LimeQuestion>() {
       @Override
       public boolean apply(LimeQuestion question) {

@@ -30,6 +30,7 @@ import org.obiba.magma.type.TextType;
 
 import com.google.common.collect.Iterables;
 
+@SuppressWarnings("OverlyLongMethod")
 public class ExcelDatasourceTest extends AbstractMagmaTest {
 
   /**
@@ -260,14 +261,14 @@ public class ExcelDatasourceTest extends AbstractMagmaTest {
     }
 
     w.write(new FileOutputStream(tmp));
-    w = new XSSFWorkbook(new FileInputStream(tmp));
+    new XSSFWorkbook(new FileInputStream(tmp));
 
     tmp.delete();
   }
 
   @Test
   public void testCreateDatasourceOnEmptyExcelFile() {
-    ExcelDatasource datasource = new ExcelDatasource("empty",
+    Datasource datasource = new ExcelDatasource("empty",
         FileUtil.getFileFromResource("org/obiba/magma/datasource/excel/empty.xls"));
     datasource.initialise();
   }
@@ -283,7 +284,7 @@ public class ExcelDatasourceTest extends AbstractMagmaTest {
 
   @Test
   public void testWriteLongTableNames() {
-    ExcelDatasource datasource = new ExcelDatasource("long",
+    Datasource datasource = new ExcelDatasource("long",
         FileUtil.getFileFromResource("org/obiba/magma/datasource/excel/long-table-names.xlsx"));
     datasource.initialise();
 
@@ -325,7 +326,7 @@ public class ExcelDatasourceTest extends AbstractMagmaTest {
     Assert.assertEquals(2, datasource.getValueTableNames().size());
   }
 
-  private List<String> readStrings(String filename) throws IOException {
+  private Iterable<String> readStrings(String filename) throws IOException {
     List<String> strs = new ArrayList<String>();
     BufferedReader bis = new BufferedReader(new FileReader(FileUtil.getFileFromResource(filename)));
     String s;
