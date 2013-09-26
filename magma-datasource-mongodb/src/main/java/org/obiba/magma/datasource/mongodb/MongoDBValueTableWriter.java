@@ -12,7 +12,6 @@ package org.obiba.magma.datasource.mongodb;
 
 import java.io.IOException;
 import java.util.Date;
-import java.util.Set;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -27,7 +26,6 @@ import org.obiba.magma.datasource.mongodb.converter.ValueConverter;
 import org.obiba.magma.datasource.mongodb.converter.VariableConverter;
 import org.obiba.magma.type.BinaryType;
 
-import com.google.common.collect.Sets;
 import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObjectBuilder;
 import com.mongodb.DBCollection;
@@ -44,6 +42,8 @@ class MongoDBValueTableWriter implements ValueTableWriter {
   static final String GRID_FILE_ID = "_grid_file_id";
 
   static final String GRID_FILE_SIZE = "size";
+
+  static final String GRID_FILE_MD5 = "md5";
 
   private final MongoDBValueTable table;
 
@@ -79,8 +79,6 @@ class MongoDBValueTableWriter implements ValueTableWriter {
     private final VariableEntity entity;
 
     private DBObject valueSetObject;
-
-    private final Set<GridFSInputFile> files = Sets.newHashSet();
 
     private MongoDBValueSetWriter(VariableEntity entity) {
       this.entity = entity;
@@ -159,22 +157,13 @@ class MongoDBValueTableWriter implements ValueTableWriter {
 
       GridFSInputFile gridFSFile = table.getGridFS().createFile((byte[]) value.getValue());
       gridFSFile.setMetaData(metaDataBuilder.get());
-
-      files.add(gridFSFile);
+      gridFSFile.save();
       return getBinaryValueMetadata(gridFSFile, occurrence);
     }
 
     @Override
     public void close() throws IOException {
-      saveFiles();
       updateValueSetLastUpdate();
-    }
-
-    private void saveFiles() {
-      for(GridFSInputFile file : files) {
-        file.save();
-      }
-      files.clear();
     }
 
     private void updateValueSetLastUpdate() {
@@ -187,7 +176,9 @@ class MongoDBValueTableWriter implements ValueTableWriter {
     private DBObject getBinaryValueMetadata(@Nullable GridFSInputFile gridFSFile, Integer occurrence) {
       BasicDBObjectBuilder builder = BasicDBObjectBuilder.start();
       if(gridFSFile != null) {
-        builder.add(GRID_FILE_ID, gridFSFile.getId().toString()).add(GRID_FILE_SIZE, gridFSFile.getLength());
+        builder.add(GRID_FILE_ID, gridFSFile.getId().toString()) //
+            .add(GRID_FILE_SIZE, gridFSFile.getLength()) //
+            .add(GRID_FILE_MD5, gridFSFile.getMD5());
       }
       if(occurrence != null) builder.add("occurrence", occurrence);
       return builder.get();
