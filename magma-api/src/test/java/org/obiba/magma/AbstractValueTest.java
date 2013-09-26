@@ -23,6 +23,7 @@ public abstract class AbstractValueTest extends AbstractMagmaTest {
   }
 
   @SuppressWarnings("ConstantConditions")
+  @edu.umd.cs.findbugs.annotations.SuppressWarnings("NP_NONNULL_PARAM_VIOLATION")
   @Test(expected = RuntimeException.class)
   public void test_ctorThrowsWhenValueTypeIsNull() {
     new Value(null, null);

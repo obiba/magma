@@ -1,5 +1,6 @@
 package org.obiba.magma.support;
 
+import java.io.OutputStreamWriter;
 import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -11,6 +12,8 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import org.obiba.magma.MagmaRuntimeException;
+
+import com.google.common.base.Charsets;
 
 /**
  * Exception to be used when parsing a datasource based on a file.
@@ -110,7 +113,7 @@ public class DatasourceParsingException extends MagmaRuntimeException {
   }
 
   public void printList(PrintStream s) {
-    printList(new PrintWriter(s));
+    printList(new PrintWriter(new OutputStreamWriter(s, Charsets.UTF_8)));
   }
 
   public void printList(PrintWriter w) {

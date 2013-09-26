@@ -9,7 +9,6 @@ import java.util.Set;
 import org.junit.Test;
 import org.obiba.magma.NoSuchValueSetException;
 import org.obiba.magma.NoSuchVariableException;
-import org.obiba.magma.Value;
 import org.obiba.magma.ValueSet;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.Variable;
@@ -22,7 +21,6 @@ import org.obiba.magma.type.TextType;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expect;
@@ -39,6 +37,7 @@ public class JoinTableTest extends AbstractMagmaTest {
   private static final String PARTICIPANT_ENTITY_TYPE = "Participant";
 
   @SuppressWarnings("ConstantConditions")
+  @edu.umd.cs.findbugs.annotations.SuppressWarnings("NP_NONNULL_PARAM_VIOLATION")
   @Test(expected = IllegalArgumentException.class)
   public void testTableListCannotBeNull() {
     new JoinTable(null);
@@ -221,26 +220,26 @@ public class JoinTableTest extends AbstractMagmaTest {
 
   //TODO testGetValue but hard to test with mockups
   // @Test
-  public void testGetValue() {
+//  public void testGetValue() {
+//
+//    VariableEntityBean entity1 = newEntity("1");
+//    VariableEntityBean entity2 = newEntity("2");
+//
+//    Variable var1 = newVariableMock("var1").build();
+//
+//    ValueTable table1 = newTableMock().withName("table1").withEntities(entity1).withVariables(var1)
+//        .withGetValue(var1, "1-1").withGetValueSet("1").build();
+//
+//    ValueTable table2 = newTableMock().withName("table2").withEntities(entity2).build();
+//
+//    JoinTable joinTable = JoinTableBuilder.newBuilder().withMockTable(table1).withMockTable(table2).build();
+//
+//    Value value = joinTable.getValue(var1, new JoinTable.JoinedValueSet(table1, entity1));
+//    assertNotNull(value);
+//    assertEquals("1-1", value.toString());
+//  }
 
-    VariableEntityBean entity1 = newEntity("1");
-    VariableEntityBean entity2 = newEntity("2");
-
-    Variable var1 = newVariableMock("var1").build();
-
-    ValueTable table1 = newTableMock().withName("table1").withEntities(entity1).withVariables(var1)
-        .withGetValue(var1, "1-1").withGetValueSet("1").build();
-
-    ValueTable table2 = newTableMock().withName("table2").withEntities(entity2).build();
-
-    JoinTable joinTable = JoinTableBuilder.newBuilder().withMockTable(table1).withMockTable(table2).build();
-
-    Value value = joinTable.getValue(var1, new JoinTable.JoinedValueSet(table1, entity1));
-    assertNotNull(value);
-    assertEquals("1-1", value.toString());
-  }
-
-  private static VariableEntityBean newEntity(String entityIdentifier) {
+  private static VariableEntity newEntity(String entityIdentifier) {
     return new VariableEntityBean(PARTICIPANT_ENTITY_TYPE, entityIdentifier);
   }
 
@@ -315,20 +314,8 @@ public class JoinTableTest extends AbstractMagmaTest {
       return this;
     }
 
-    MockValueTableBuilder withGetValue(Variable variable, String value) {
-      expect(mock.getValue(variable, null)).andReturn(TextType.get().valueOf(value)).anyTimes();
-      return this;
-    }
-
     MockValueTableBuilder expectHasValueSet(String identifier, boolean expect) {
       expect(mock.hasValueSet(new VariableEntityBean(entityType, identifier))).andReturn(expect).anyTimes();
-      return this;
-    }
-
-    MockValueTableBuilder withGetValueSet(String identifier) {
-      VariableEntityBean entity = new VariableEntityBean(entityType, identifier);
-      expect(mock.hasValueSet(new VariableEntityBean(entityType, identifier))).andReturn(true).anyTimes();
-      expect(mock.getValueSet(entity)).andReturn(new JoinTable.JoinedValueSet(mock, entity)).anyTimes();
       return this;
     }
 
@@ -355,11 +342,6 @@ public class JoinTableTest extends AbstractMagmaTest {
 
     MockValueTableBuilder withEntities(String... identifiers) {
       expect(mock.getVariableEntities()).andReturn(createEntitySet(entityType, identifiers)).anyTimes();
-      return this;
-    }
-
-    MockValueTableBuilder withEntities(VariableEntity... entities) {
-      expect(mock.getVariableEntities()).andReturn(Sets.newHashSet(entities)).anyTimes();
       return this;
     }
 

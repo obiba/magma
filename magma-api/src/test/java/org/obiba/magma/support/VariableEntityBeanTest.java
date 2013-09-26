@@ -1,17 +1,22 @@
 package org.obiba.magma.support;
 
 import org.junit.Test;
+import org.obiba.magma.VariableEntity;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
 public class VariableEntityBeanTest {
 
+  @SuppressWarnings("ConstantConditions")
+  @edu.umd.cs.findbugs.annotations.SuppressWarnings("NP_NONNULL_PARAM_VIOLATION")
   @Test(expected = IllegalArgumentException.class)
   public void test_ctor_preconditions_1() {
     new VariableEntityBean(null, "1");
   }
 
+  @SuppressWarnings("ConstantConditions")
+  @edu.umd.cs.findbugs.annotations.SuppressWarnings("NP_NONNULL_PARAM_VIOLATION")
   @Test(expected = IllegalArgumentException.class)
   public void test_ctor_preconditions_2() {
     new VariableEntityBean("type", null);
@@ -29,7 +34,7 @@ public class VariableEntityBeanTest {
 
   @Test
   public void test_getters() {
-    VariableEntityBean veb = new VariableEntityBean("type", "1");
+    VariableEntity veb = new VariableEntityBean("type", "1");
     assertThat(veb.getType(), is("type"));
     assertThat(veb.getIdentifier(), is("1"));
   }
@@ -48,7 +53,7 @@ public class VariableEntityBeanTest {
   }
 
   @Test
-  public void test_equals_hashcode_equivalent() {
+  public void test_equals_hashCode_equivalent() {
     VariableEntityBean lhs = new VariableEntityBean("type", "1");
     VariableEntityBean rhs = new VariableEntityBean("type", "1");
     assertThat(lhs.equals(rhs), is(true));

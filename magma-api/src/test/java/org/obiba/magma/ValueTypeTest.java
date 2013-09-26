@@ -59,6 +59,8 @@ public class ValueTypeTest extends AbstractMagmaTest {
     assertThat(TextType.get().valueOf("A Value"), is(ValueType.Factory.newValue("A Value")));
   }
 
+  @SuppressWarnings("ConstantConditions")
+  @edu.umd.cs.findbugs.annotations.SuppressWarnings("NP_NONNULL_PARAM_VIOLATION")
   @Test(expected = IllegalArgumentException.class)
   public void test_factory_newValue_doesNotAcceptNull() {
     ValueType.Factory.newValue(null);

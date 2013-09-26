@@ -31,24 +31,21 @@ public class MagmaDateTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void test_ctor_calendarWithNull() {
-    @SuppressWarnings("unused")
-    MagmaDate magmaDate = new MagmaDate((Calendar) null);
+    new MagmaDate((Calendar) null);
   }
 
   @Test
-  @SuppressWarnings("deprecation")
   public void test_ctor_date() {
-    Date date = new Date();
-    MagmaDate magmaDate = new MagmaDate(date);
-    Assert.assertThat(magmaDate.getYear(), is(date.getYear() + 1900));
-    Assert.assertThat(magmaDate.getMonth(), is(date.getMonth()));
-    Assert.assertThat(magmaDate.getDayOfMonth(), is(date.getDate()));
+    Calendar c = Calendar.getInstance();
+    MagmaDate magmaDate = new MagmaDate(c.getTime());
+    Assert.assertThat(magmaDate.getYear(), is(c.get(Calendar.YEAR)));
+    Assert.assertThat(magmaDate.getMonth(), is(c.get(Calendar.MONTH)));
+    Assert.assertThat(magmaDate.getDayOfMonth(), is(c.get(Calendar.DAY_OF_MONTH)));
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void test_ctor_dateWithNull() {
-    @SuppressWarnings("unused")
-    MagmaDate magmaDate = new MagmaDate((Date) null);
+    new MagmaDate((Date) null);
   }
 
   @Test
@@ -69,33 +66,33 @@ public class MagmaDateTest {
 
   @Test
   public void test_comparable_notEqual() {
-    assertLessThan(new MagmaDate(2011, 01, 01), new MagmaDate(2012, 01, 01));
-    assertLessThan(new MagmaDate(2011, 01, 01), new MagmaDate(2011, 02, 01));
-    assertLessThan(new MagmaDate(2011, 01, 01), new MagmaDate(2011, 01, 02));
+    assertLessThan(new MagmaDate(2011, 1, 1), new MagmaDate(2012, 1, 1));
+    assertLessThan(new MagmaDate(2011, 1, 1), new MagmaDate(2011, 2, 1));
+    assertLessThan(new MagmaDate(2011, 1, 1), new MagmaDate(2011, 1, 2));
 
-    assertLessThan(new MagmaDate(2011, 00, 31), new MagmaDate(2011, 01, 01));
-    assertLessThan(new MagmaDate(2011, 11, 31), new MagmaDate(2012, 00, 01));
+    assertLessThan(new MagmaDate(2011, 0, 31), new MagmaDate(2011, 1, 1));
+    assertLessThan(new MagmaDate(2011, 11, 31), new MagmaDate(2012, 0, 1));
   }
 
   @Test
   public void test_equal() {
-    assertEqual(new MagmaDate(2011, 01, 01), new MagmaDate(2011, 01, 01));
+    assertEqual(new MagmaDate(2011, 1, 1), new MagmaDate(2011, 1, 1));
 
     // January 32nd == February 1st
-    assertEqual(new MagmaDate(2011, 01, 01), new MagmaDate(2011, 00, 32));
+    assertEqual(new MagmaDate(2011, 1, 1), new MagmaDate(2011, 0, 32));
 
     // 1st day of 13th month == January 1st
-    assertEqual(new MagmaDate(2011, 00, 01), new MagmaDate(2010, 12, 01));
+    assertEqual(new MagmaDate(2011, 0, 1), new MagmaDate(2010, 12, 1));
   }
 
   @Test
   public void test_notEqual() {
-    assertNotEqual(new MagmaDate(2011, 01, 01), new MagmaDate(2011, 01, 02));
+    assertNotEqual(new MagmaDate(2011, 1, 1), new MagmaDate(2011, 1, 2));
   }
 
   @Test
   public void test_hashCode() {
-    assertHashCode(new MagmaDate(2011, 01, 01), new MagmaDate(2011, 01, 01));
+    assertHashCode(new MagmaDate(2011, 1, 1), new MagmaDate(2011, 1, 1));
   }
 
   private void assertHashCode(MagmaDate lhs, MagmaDate rhs) {
