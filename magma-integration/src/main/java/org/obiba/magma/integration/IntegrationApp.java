@@ -5,8 +5,10 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.security.NoSuchAlgorithmException;
 import java.util.Date;
-import java.util.Properties;
 
+import javax.sql.DataSource;
+
+import org.apache.commons.dbcp.BasicDataSource;
 import org.obiba.magma.Datasource;
 import org.obiba.magma.MagmaEngine;
 import org.obiba.magma.Value;
@@ -35,7 +37,7 @@ import org.obiba.magma.xstream.MagmaXStreamExtension;
 
 /**
  */
-@SuppressWarnings({ "UseOfSystemOutOrSystemErr", "CallToPrintStackTrace" })
+@SuppressWarnings({ "UseOfSystemOutOrSystemErr", "CallToPrintStackTrace", "OverlyCoupledClass" })
 public class IntegrationApp {
 
   private IntegrationApp() {}
@@ -44,7 +46,7 @@ public class IntegrationApp {
     new MagmaEngine().extend(new MagmaJsExtension()).extend(new MagmaXStreamExtension());
 
     XStreamIntegrationServiceFactory factory = new XStreamIntegrationServiceFactory();
-    IntegrationDatasource integrationDatasource = new IntegrationDatasource(factory
+    Datasource integrationDatasource = new IntegrationDatasource(factory
         .buildService(new InputStreamReader(IntegrationApp.class.getResourceAsStream("participants.xml"), "UTF-8")));
 
     MagmaEngine.get().addDatasource(integrationDatasource);
@@ -171,7 +173,7 @@ public class IntegrationApp {
 
     JdbcDatasourceFactory jdbcDatasourceFactory = new JdbcDatasourceFactory();
     jdbcDatasourceFactory.setName("jdbc");
-    jdbcDatasourceFactory.setJdbcProperties(getJdbcProperties());
+    jdbcDatasourceFactory.setDataSource(getDataSource());
     jdbcDatasourceFactory.setDatasourceSettings(new JdbcDatasourceSettings("Participant", null, null, true));
     Datasource jd = jdbcDatasourceFactory.create();
     MagmaEngine.get().addDatasource(jd);
@@ -180,14 +182,13 @@ public class IntegrationApp {
     MagmaEngine.get().shutdown();
   }
 
-  private static Properties getJdbcProperties() {
-    Properties jdbcProperties = new Properties();
-    jdbcProperties.setProperty(JdbcDatasourceFactory.DRIVER_CLASS_NAME, "org.hsqldb.jdbcDriver");
-    jdbcProperties.setProperty(JdbcDatasourceFactory.URL, "jdbc:hsqldb:file:target/datasource_jdbc.db;shutdown=true");
-    jdbcProperties.setProperty(JdbcDatasourceFactory.USERNAME, "sa");
-    jdbcProperties.setProperty(JdbcDatasourceFactory.PASSWORD, "");
-
-    return jdbcProperties;
+  private static DataSource getDataSource() {
+    BasicDataSource dataSource = new BasicDataSource();
+    dataSource.setDriverClassName("org.hsqldb.jdbcDriver");
+    dataSource.setUrl("jdbc:hsqldb:file:target/datasource_jdbc.db;shutdown=true");
+    dataSource.setUsername("sa");
+    dataSource.setPassword("");
+    return dataSource;
   }
 
   private static void deleteFile(File file) {
