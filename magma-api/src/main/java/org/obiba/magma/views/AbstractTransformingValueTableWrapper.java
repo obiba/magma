@@ -84,7 +84,7 @@ public abstract class AbstractTransformingValueTableWrapper extends AbstractValu
 
           @Override
           public boolean apply(ValueSet input) {
-            return input.getVariableEntity() != null;
+            return hasValueSet(input.getVariableEntity());
           }
         });
   }
