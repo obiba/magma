@@ -1,5 +1,8 @@
 package org.obiba.magma.datasource.hibernate.converter;
 
+import java.util.ArrayList;
+import java.util.Collection;
+
 import javax.annotation.Nullable;
 
 import org.obiba.magma.Category;
@@ -68,6 +71,14 @@ public class VariableConverter extends AttributeAwareConverter implements Hibern
       }
       setAttributes(c, categoryState);
       categoryIndex++;
+    }
+    // Remaining categories needs to be deleted
+    if(categoryIndex < variableState.getCategories().size()) {
+      Collection<CategoryState> toDelete = new ArrayList<CategoryState>();
+      for(int i = categoryIndex; i < variableState.getCategories().size(); i++) {
+        toDelete.add(variableState.getCategories().get(i));
+      }
+      variableState.getCategories().removeAll(toDelete);
     }
   }
 
