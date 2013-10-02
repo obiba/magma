@@ -73,9 +73,9 @@ public class VariableConverter extends AttributeAwareConverter implements Hibern
       categoryIndex++;
     }
     // Remaining categories needs to be deleted
-    if(categoryIndex < variableState.getCategories().size()) {
+    int nbCategories = variableState.getCategories().size();
+    if(categoryIndex < nbCategories) {
       Collection<CategoryState> toDelete = new ArrayList<CategoryState>();
-      int nbCategories = variableState.getCategories().size();
       for(int i = categoryIndex; i < nbCategories; i++) {
         toDelete.add(variableState.getCategories().get(i));
       }
