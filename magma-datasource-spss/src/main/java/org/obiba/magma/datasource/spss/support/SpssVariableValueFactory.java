@@ -27,7 +27,7 @@ public class SpssVariableValueFactory extends SpssValueFactory {
       return createValue();
     } catch(SpssInvalidCharacterException e) {
       throw new SpssDatasourceParsingException("Failed to create variable", spssVariable.getName(), variableIndex,
-          "InvalidCharsetCharacter", variableIndex);
+          "InvalidCharsetCharacter", variableIndex, e.getSource());
     }
   }
 
