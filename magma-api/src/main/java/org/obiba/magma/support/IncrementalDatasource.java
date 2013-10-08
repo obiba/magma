@@ -32,7 +32,7 @@ public class IncrementalDatasource extends AbstractDatasourceWrapperWithCachedTa
       destinationTable = destination.getValueTable(table.getName());
     } catch(NoSuchValueTableException ignored) {
     }
-    return IncrementalView.Factory.create(table, destinationTable);
+    return IncrementalValueTable.Factory.create(table, destinationTable);
   }
 
 }

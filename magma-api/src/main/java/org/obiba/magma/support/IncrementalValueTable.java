@@ -23,19 +23,26 @@ import org.obiba.magma.ValueTable;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.transform.BijectiveFunction;
 import org.obiba.magma.type.DateTimeType;
+import org.obiba.magma.views.AbstractTransformingValueTableWrapper;
 import org.obiba.magma.views.View;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Maps;
 
 /**
  *
  */
-@SuppressWarnings("ClassTooDeepInInheritanceTree")
-public class IncrementalView extends View {
+public class IncrementalValueTable extends AbstractTransformingValueTableWrapper {
 
-//  private static final Logger log = LoggerFactory.getLogger(IncrementalView.class);
+  private static final Logger log = LoggerFactory.getLogger(IncrementalValueTable.class);
 
   private final IncrementalFunction variableEntityMappingFunction;
+
+  @Override
+  public ValueTable getWrappedValueTable() {
+    return sourceTable;
+  }
 
   public static class Factory {
 
@@ -43,7 +50,7 @@ public class IncrementalView extends View {
     }
 
     public static ValueTable create(@Nonnull ValueTable sourceTable, @Nullable ValueTable destinationTable) {
-      return destinationTable == null ? sourceTable : new IncrementalView(sourceTable, destinationTable);
+      return destinationTable == null ? sourceTable : new IncrementalValueTable(sourceTable, destinationTable);
     }
 
     public static ValueTable create(ValueTable sourceTable, Datasource destinationDatasource) {
@@ -58,13 +65,15 @@ public class IncrementalView extends View {
   }
 
   @Nonnull
+  private final ValueTable sourceTable;
+
+  @Nonnull
   private final ValueTable destinationTable;
 
-  private IncrementalView(ValueTable sourceTable, @Nonnull ValueTable destinationTable) {
-    super(sourceTable.getName(), sourceTable);
+  private IncrementalValueTable(ValueTable sourceTable, @Nonnull ValueTable destinationTable) {
+    this.sourceTable = sourceTable;
     this.destinationTable = destinationTable;
     variableEntityMappingFunction = new IncrementalFunction();
-//    log.trace("New IncrementalView for {}", sourceTable.getName());
   }
 
   @Override
