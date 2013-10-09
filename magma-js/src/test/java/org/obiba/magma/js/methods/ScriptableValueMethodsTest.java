@@ -222,19 +222,4 @@ public class ScriptableValueMethodsTest extends AbstractJsTest {
     assertEquals("[[[D", value.getClass().getName());
   }
 
-  @Test
-  public void dateConvertWithFormat() {
-    ScriptableValue value = newValue(TextType.get().valueOf("10/23/12"));
-    ScriptableValue date = ScriptableValueMethods.date(getCurrentContext(), value, new Object[] { "MM/dd/yy" }, null);
-    assertEquals("2012-10-23", date.getValue().toString());
-  }
-
-  @Test
-  public void datetimeConvertWithFormat() {
-    ScriptableValue value = newValue(TextType.get().valueOf("10/23/12 10:59 PM"));
-    ScriptableValue date = ScriptableValueMethods.datetime(getCurrentContext(), value, new Object[] { "MM/dd/yy h:mm a" }, null);
-    String str = date.getValue().toString();
-    // exclude timezone from the test
-    assertEquals("2012-10-23T22:59:00.000", str.substring(0, str.lastIndexOf('-')));
-  }
 }
