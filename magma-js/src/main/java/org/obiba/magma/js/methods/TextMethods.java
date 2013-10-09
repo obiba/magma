@@ -1,7 +1,10 @@
 package org.obiba.magma.js.methods;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.Locale;
 
 import javax.annotation.Nullable;
@@ -14,11 +17,14 @@ import org.mozilla.javascript.RegExpProxy;
 import org.mozilla.javascript.ScriptRuntime;
 import org.mozilla.javascript.Scriptable;
 import org.obiba.magma.Value;
+import org.obiba.magma.ValueSequence;
 import org.obiba.magma.ValueType;
 import org.obiba.magma.js.MagmaJsEvaluationRuntimeException;
 import org.obiba.magma.js.Rhino;
 import org.obiba.magma.js.ScriptableValue;
 import org.obiba.magma.type.BooleanType;
+import org.obiba.magma.type.DateTimeType;
+import org.obiba.magma.type.DateType;
 import org.obiba.magma.type.IntegerType;
 import org.obiba.magma.type.LocaleType;
 import org.obiba.magma.type.TextType;
@@ -335,6 +341,72 @@ public class TextMethods {
       return new ScriptableValue(thisObj,
           lookupValue(ctx, thisObj, currentValue, returnType, valueMap, defaultValue, nullValue));
     }
+  }
+
+  /**
+   * Tries to convert value of any type to a Date value given a date format.
+   * <pre>
+   *   $('VAR').date('MM/dd/yy')
+   * </pre>
+   * @param ctx
+   * @param thisObj
+   * @param args
+   * @param funObj
+   * @return
+   */
+  public static ScriptableValue date(Context ctx, Scriptable thisObj, Object[] args, Function funObj) {
+    ScriptableValue sv = (ScriptableValue) thisObj;
+
+    // Return the ValueType name
+    if(args.length == 0 || args[0] == null) {
+      throw new MagmaJsEvaluationRuntimeException("date format is missing to date()");
+    }
+    return getDateValue(thisObj, DateType.get(), sv.getValue(), args[0].toString());
+  }
+
+  /**
+   * Tries to convert value of any type to a DateTime value given a date format.
+   * <pre>
+   *   $('VAR').date('MM/dd/yy HH:mm')
+   * </pre>
+   * @param ctx
+   * @param thisObj
+   * @param args
+   * @param funObj
+   * @return
+   */
+  public static ScriptableValue datetime(Context ctx, Scriptable thisObj, Object[] args, Function funObj) {
+    ScriptableValue sv = (ScriptableValue) thisObj;
+
+    // Return the ValueType name
+    if(args.length == 0 || args[0] == null) {
+      throw new MagmaJsEvaluationRuntimeException("date time format is missing to datetime()");
+    }
+    return getDateValue(thisObj, DateTimeType.get(), sv.getValue(), args[0].toString());
+  }
+
+  private static ScriptableValue getDateValue(Scriptable thisObj, final ValueType dateType, Value value, String formatArg) {
+    final SimpleDateFormat format = new SimpleDateFormat(formatArg);
+    com.google.common.base.Function<Value, Value> dateFunction = new com.google.common.base.Function<Value, Value>() {
+
+      @Override
+      public Value apply(Value input) {
+        if(input == null || input.isNull()) return dateType.nullValue();
+
+        String inputStr = input.toString();
+
+        if (inputStr == null || inputStr.trim().isEmpty()) return dateType.nullValue();
+
+        try {
+          Date date = format.parse(inputStr);
+          return dateType.valueOf(date);
+        } catch(ParseException e) {
+          throw new MagmaJsEvaluationRuntimeException(
+              "date/datetime format '" + format.toPattern() + "' fails to parse: '" + inputStr +"'");
+        }
+      }
+    };
+    return transformValue((ScriptableValue) thisObj, dateFunction);
   }
 
   /**
