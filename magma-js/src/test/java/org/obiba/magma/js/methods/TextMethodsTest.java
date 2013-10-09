@@ -11,9 +11,13 @@ import org.obiba.magma.type.DecimalType;
 import org.obiba.magma.type.IntegerType;
 import org.obiba.magma.type.TextType;
 
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertNull;
+import static junit.framework.Assert.assertTrue;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
+import static org.mozilla.javascript.Context.getCurrentContext;
 
 @SuppressWarnings("ReuseOfLocalVariable")
 public class TextMethodsTest extends AbstractJsTest {
@@ -327,5 +331,51 @@ public class TextMethodsTest extends AbstractJsTest {
     assertThat(value, notNullValue());
     assertThat(value.getValue(), is(TextType.get().valueOf("YES-YES")));
   }
+
+
+  @Test
+  public void testDateConvertWithFormat() {
+    ScriptableValue value = newValue(TextType.get().valueOf("10/23/12"));
+    ScriptableValue date = TextMethods.date(getCurrentContext(), value, new Object[] { "MM/dd/yy" }, null);
+    assertEquals("2012-10-23", date.getValue().toString());
+  }
+
+  @Test
+  public void testEmptyDateConvertWithFormat() {
+    ScriptableValue value = newValue(TextType.get().valueOf(""));
+    ScriptableValue date = TextMethods.date(getCurrentContext(), value, new Object[] { "MM/dd/yy" }, null);
+    assertTrue(date.getValue().isNull());
+  }
+
+  @Test
+  public void testTrimEmptyDateConvertWithFormat() {
+    ScriptableValue value = newValue(TextType.get().valueOf(" "));
+    ScriptableValue date = TextMethods.date(getCurrentContext(), value, new Object[] { "MM/dd/yy" }, null);
+    assertTrue(date.getValue().isNull());
+  }
+
+  @Test
+  public void testDatetimeConvertWithFormat() {
+    ScriptableValue value = newValue(TextType.get().valueOf("10/23/12 10:59 PM"));
+    ScriptableValue date = TextMethods.datetime(getCurrentContext(), value, new Object[] { "MM/dd/yy h:mm a" }, null);
+    String str = date.getValue().toString();
+    // exclude timezone from the test
+    assertEquals("2012-10-23T22:59:00.000", str.substring(0, str.lastIndexOf('-')));
+  }
+
+  @Test
+  public void testEmptyDatetimeConvertWithFormat() {
+    ScriptableValue value = newValue(TextType.get().valueOf(""));
+    ScriptableValue date = TextMethods.datetime(getCurrentContext(), value, new Object[] { "MM/dd/yy h:mm a" }, null);
+    assertTrue(date.getValue().isNull());
+  }
+
+  @Test
+  public void testTrimEmptyDatetimeConvertWithFormat() {
+    ScriptableValue value = newValue(TextType.get().valueOf(" "));
+    ScriptableValue date = TextMethods.datetime(getCurrentContext(), value, new Object[] { "MM/dd/yy h:mm a" }, null);
+    assertTrue(date.getValue().isNull());
+  }
+
 
 }
