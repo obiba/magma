@@ -131,6 +131,9 @@ public class MongoDBValueTable extends AbstractValueTable {
 
   @Override
   public ValueSet getValueSet(VariableEntity entity) throws NoSuchValueSetException {
+    if(!hasValueSet(entity)) {
+      throw new NoSuchValueSetException(this, entity);
+    }
     return new MongoDBValueSet(this, entity);
   }
 
