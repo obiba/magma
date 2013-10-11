@@ -100,6 +100,11 @@ class HibernateValueTable extends AbstractValueTable {
       cacheValueSetTimestamps();
     }
     Timestamps cachedTimestamps = valueSetTimestamps.get(entity.getIdentifier());
+    // cache is outdated ?
+    if (cachedTimestamps == null) {
+      cacheValueSetTimestamps();
+      cachedTimestamps = valueSetTimestamps.get(entity.getIdentifier());
+    }
     return cachedTimestamps == null ? NullTimestamps.get() : cachedTimestamps;
   }
 

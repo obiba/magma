@@ -94,12 +94,12 @@ public class IncrementalValueTable extends AbstractTransformingValueTableWrapper
     @Override
     public VariableEntity apply(VariableEntity from) {
       if(applyCache.containsKey(from)) {
-//        log.trace("apply has cached: {}", from.getIdentifier());
+        //log.info("apply has cached: {}", from.getIdentifier());
         return applyCache.get(from);
       }
       boolean newer = isSourceNewerThanDestination(from);
       VariableEntity entity = newer ? from : null;
-//      log.debug("View: {}, entity: {}, sourceIsNewer: {}, return {}", getName(), from, newer, entity);
+      //log.info("View: {}, entity: {}, sourceIsNewer: {}, return {}", getName(), from, newer, entity);
       applyCache.put(from, entity);
       return entity;
     }
@@ -111,24 +111,22 @@ public class IncrementalValueTable extends AbstractTransformingValueTableWrapper
 
     private boolean isSourceNewerThanDestination(VariableEntity from) {
       Timestamps sourceTimestamps = null;
+      Value sourceLastUpdate = DateTimeType.get().nullValue();
+      Value destinationLastUpdate = DateTimeType.get().nullValue();
       try {
         sourceTimestamps = getWrappedValueTable().getValueSetTimestamps(from);
+        if(sourceTimestamps != null) sourceLastUpdate = sourceTimestamps.getLastUpdate();
       } catch(NoSuchValueSetException ignored) {
       }
 
       Timestamps destinationTimestamps = null;
       try {
         destinationTimestamps = destinationTable.getValueSetTimestamps(from);
+        if(destinationTimestamps != null) destinationLastUpdate = destinationTimestamps.getLastUpdate();
       } catch(NoSuchValueSetException ignored) {
       }
 
-      Value sourceLastUpdate = sourceTimestamps == null || sourceTimestamps.equals(NullTimestamps.get()) //
-          ? DateTimeType.get().nullValue() //
-          : sourceTimestamps.getLastUpdate();
-      Value destinationLastUpdate = destinationTimestamps == null || destinationTimestamps.equals(NullTimestamps.get())
-          ? DateTimeType.get().nullValue()
-          : destinationTimestamps.getLastUpdate();
-//      log.trace("{} - sourceLastUpdate: {}, destinationLastUpdate: {}", from, sourceLastUpdate, destinationLastUpdate);
+      //log.info("{} - sourceLastUpdate: {}, destinationLastUpdate: {}", from, sourceLastUpdate, destinationLastUpdate);
       return sourceLastUpdate.isNull() || destinationLastUpdate.isNull() ||
           sourceLastUpdate.compareTo(destinationLastUpdate) > 0;
     }
