@@ -91,7 +91,7 @@ class JdbcValueTableWriter implements ValueTableWriter {
 
   @Override
   public VariableWriter writeVariables() {
-    return valueTable.getDatasource().getSettings().useMetadataTables()
+    return valueTable.getDatasource().getSettings().isUseMetadataTables()
         ? new JdbcMetadataVariableWriter()
         : new JdbcVariableWriter();
   }

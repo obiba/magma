@@ -235,7 +235,7 @@ class JdbcValueTable extends AbstractValueTable {
   private void initialiseVariableValueSources() {
     getSources().clear();
 
-    if(getDatasource().getSettings().useMetadataTables()) {
+    if(getDatasource().getSettings().isUseMetadataTables()) {
       if(!metadataTablesExist()) {
         throw new MagmaRuntimeException("metadata tables not found");
       }
