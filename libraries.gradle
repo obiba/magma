@@ -30,6 +30,8 @@ ext {
 
       hsqldb: 'org.hsqldb:hsqldb:2.3.0',
 
+      httpclient: 'org.apache.httpcomponents:httpclient:4.3',
+
       javassist: 'javassist:javassist:3.12.1.GA',
 
       jscience_physics: 'org.jscience:jscience-physics:5.0-r53p01',

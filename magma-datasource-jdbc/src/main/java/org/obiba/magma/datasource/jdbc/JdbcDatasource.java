@@ -109,7 +109,7 @@ public class JdbcDatasource extends AbstractDatasource {
 
   @Override
   protected void onInitialise() {
-    if(getSettings().useMetadataTables()) {
+    if(getSettings().isUseMetadataTables()) {
       createMetadataTablesIfNotPresent();
     }
   }
