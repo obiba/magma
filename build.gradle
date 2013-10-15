@@ -1,9 +1,15 @@
+import com.sun.org.apache.xalan.internal.xsltc.cmdline.Compile
+
 apply plugin: 'idea'
 apply plugin: 'versions'
 apply from: 'libraries.gradle'
 
 ext {
   javaVersion = '1.6'
+}
+
+task wrapper(type: Wrapper) {
+  gradleVersion = '1.8'
 }
 
 buildscript {
@@ -149,10 +155,6 @@ allprojects {
     }
   }
 
-}
-
-task wrapper(type: Wrapper) {
-  gradleVersion = '1.6'
 }
 
 subprojects { subProject ->
