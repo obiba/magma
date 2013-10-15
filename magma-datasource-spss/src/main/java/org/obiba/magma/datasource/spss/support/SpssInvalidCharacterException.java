@@ -13,8 +13,14 @@ public class SpssInvalidCharacterException extends Exception {
 
   private static final long serialVersionUID = 1911128114283266676L;
 
-  public SpssInvalidCharacterException(String message) {
+  private final String source;
+
+  public SpssInvalidCharacterException(String message, String source) {
     super(message);
+    this.source = source;
   }
 
+  public String getSource() {
+    return source;
+  }
 }
