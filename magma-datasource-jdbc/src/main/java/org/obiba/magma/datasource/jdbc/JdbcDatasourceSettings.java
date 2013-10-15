@@ -1,16 +1,20 @@
 package org.obiba.magma.datasource.jdbc;
 
-import java.util.Collections;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+
+import com.google.common.base.Strings;
 
 public class JdbcDatasourceSettings {
   //
   // Instance Variables
   //
 
+  @Nonnull
   private String defaultEntityType;
 
   private Set<String> mappedTables;
@@ -34,22 +38,15 @@ public class JdbcDatasourceSettings {
   //
 
   public JdbcDatasourceSettings() {
-    setMappedTables(null);
-    setTableSettings(null);
-    defaultCreatedTimestampColumnName = null;
-    defaultUpdatedTimestampColumnName = null;
   }
 
-  public JdbcDatasourceSettings(String defaultEntityType, @Nullable Set<String> mappedTables,
+  public JdbcDatasourceSettings(@Nonnull String defaultEntityType, @Nullable Set<String> mappedTables,
       @Nullable Set<JdbcValueTableSettings> tableSettings, boolean useMetadataTables) {
-    if(defaultEntityType == null) {
-      throw new IllegalArgumentException("null defaultEntityType");
-    }
+    //noinspection ConstantConditions
+    if(defaultEntityType == null) throw new IllegalArgumentException("null defaultEntityType");
     this.defaultEntityType = defaultEntityType;
-
     setMappedTables(mappedTables);
     setTableSettings(tableSettings);
-
     this.useMetadataTables = useMetadataTables;
   }
 
@@ -57,95 +54,93 @@ public class JdbcDatasourceSettings {
   // Methods
   //
 
-  public void setDefaultEntityType(String defaultEntityType) {
+  public void setDefaultEntityType(@Nonnull String defaultEntityType) {
     this.defaultEntityType = defaultEntityType;
   }
 
+  @Nonnull
   public String getDefaultEntityType() {
     return defaultEntityType;
   }
 
   public void setMappedTables(Set<String> mappedTables) {
-    this.mappedTables = new HashSet<String>();
-    if(mappedTables != null) {
-      this.mappedTables.addAll(mappedTables);
-    }
+    this.mappedTables = mappedTables;
   }
 
-  public Set<String> getMappedTables() {
+  @Nonnull
+  public Collection<String> getMappedTables() {
+    if(mappedTables == null) mappedTables = new HashSet<String>();
     return mappedTables;
   }
 
   public boolean hasMappedTable(String tableName) {
-    return mappedTables.contains(tableName);
+    return getMappedTables().contains(tableName);
   }
 
   public void setTableSettings(Set<JdbcValueTableSettings> tableSettings) {
-    this.tableSettings = new HashSet<JdbcValueTableSettings>();
-    if(tableSettings != null) {
-      this.tableSettings.addAll(tableSettings);
-    }
+    this.tableSettings = tableSettings;
   }
 
-  public void addTableSettings(JdbcValueTableSettings tableSettings) {
-    if(this.tableSettings == null) {
-      this.tableSettings = new HashSet<JdbcValueTableSettings>();
-    }
-    this.tableSettings.add(tableSettings);
+  public void addTableSettings(JdbcValueTableSettings settings) {
+    getTableSettings().add(settings);
   }
 
+  @Nonnull
   public Set<JdbcValueTableSettings> getTableSettings() {
-    return tableSettings != null ? tableSettings : Collections.<JdbcValueTableSettings>emptySet();
+    if(tableSettings == null) tableSettings = new HashSet<JdbcValueTableSettings>();
+    return tableSettings;
   }
 
+  @Nullable
   public JdbcValueTableSettings getTableSettingsForSqlTable(String sqlTableName) {
-    for(JdbcValueTableSettings tableSettings : getTableSettings()) {
-      if(tableSettings.getSqlTableName().equals(sqlTableName)) {
-        return tableSettings;
+    for(JdbcValueTableSettings settings : getTableSettings()) {
+      if(settings.getSqlTableName().equals(sqlTableName)) {
+        return settings;
       }
     }
     return null;
   }
 
+  @Nullable
   public JdbcValueTableSettings getTableSettingsForMagmaTable(String magmaTableName) {
-    for(JdbcValueTableSettings tableSettings : getTableSettings()) {
-      if(tableSettings.getMagmaTableName().equals(magmaTableName)) {
-        return tableSettings;
+    for(JdbcValueTableSettings settings : getTableSettings()) {
+      if(settings.getMagmaTableName().equals(magmaTableName)) {
+        return settings;
       }
     }
     return null;
+  }
+
+  public boolean isUseMetadataTables() {
+    return useMetadataTables;
   }
 
   public void setUseMetadataTables(boolean useMetadataTables) {
     this.useMetadataTables = useMetadataTables;
   }
 
-  public boolean useMetadataTables() {
-    return useMetadataTables;
+  public String getDefaultCreatedTimestampColumnName() {
+    return defaultCreatedTimestampColumnName;
   }
 
   public void setDefaultCreatedTimestampColumnName(String defaultCreatedTimestampColumnName) {
     this.defaultCreatedTimestampColumnName = defaultCreatedTimestampColumnName;
   }
 
-  public String getDefaultCreatedTimestampColumnName() {
-    return defaultCreatedTimestampColumnName;
+  public String getDefaultUpdatedTimestampColumnName() {
+    return defaultUpdatedTimestampColumnName;
   }
 
   public void setDefaultUpdatedTimestampColumnName(String defaultUpdatedTimestampColumnName) {
     this.defaultUpdatedTimestampColumnName = defaultUpdatedTimestampColumnName;
   }
 
-  public String getDefaultUpdatedTimestampColumnName() {
-    return defaultUpdatedTimestampColumnName;
-  }
-
   public boolean isCreatedTimestampColumnNameProvided() {
-    return defaultCreatedTimestampColumnName != null && !"".equals(defaultCreatedTimestampColumnName);
+    return !Strings.isNullOrEmpty(defaultCreatedTimestampColumnName);
   }
 
   public boolean isUpdatedTimestampColumnNameProvided() {
-    return defaultUpdatedTimestampColumnName != null && !"".equals(defaultUpdatedTimestampColumnName);
+    return !Strings.isNullOrEmpty(defaultUpdatedTimestampColumnName);
   }
 
 }

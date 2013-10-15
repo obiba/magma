@@ -51,6 +51,8 @@ public class MongoDBDatasourceTest {
 
   private static final String DB_TEST = "magma-test";
 
+  private static final String DB_URL = "mongodb://localhost/" + DB_TEST;
+
   private static final String TABLE_TEST = "TABLE";
 
   private static final String PARTICIPANT = "Participant";
@@ -82,7 +84,7 @@ public class MongoDBDatasourceTest {
     FsDatasource onyx = new FsDatasource("onyx", FileUtil.getFileFromResource("20-onyx-data.zip"));
     MongoDBDatasourceFactory factory = new MongoDBDatasourceFactory();
     factory.setName("ds-" + DB_TEST);
-    factory.setDatabase(DB_TEST);
+    factory.setUrl(DB_URL);
     Datasource ds = factory.create();
     Initialisables.initialise(ds, onyx);
 
@@ -264,7 +266,7 @@ public class MongoDBDatasourceTest {
   private Datasource createDatasource() {
     MongoDBDatasourceFactory factory = new MongoDBDatasourceFactory();
     factory.setName("ds-" + DB_TEST);
-    factory.setDatabase(DB_TEST);
+    factory.setUrl(DB_URL);
     Datasource ds = factory.create();
     Initialisables.initialise(ds);
     return ds;
