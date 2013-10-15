@@ -24,6 +24,7 @@ import org.obiba.magma.Variable;
 import org.obiba.magma.VariableValueSource;
 import org.obiba.magma.VariableValueSourceFactory;
 import org.obiba.magma.datasource.spss.SpssVariableValueSource;
+import org.obiba.magma.support.DatasourceParsingException;
 import org.obiba.magma.type.TextType;
 import org.opendatafoundation.data.spss.SPSSFile;
 import org.opendatafoundation.data.spss.SPSSFileException;
@@ -71,8 +72,8 @@ public class SpssVariableValueSourceFactory implements VariableValueSourceFactor
       try {
         sources.add(new SpssVariableValueSource(createVariableBuilder(i, spssVariable), spssVariable));
       } catch(SpssInvalidCharacterException e) {
-        throw new SpssDatasourceParsingException("Failed to create variable", spssVariable.getName(), i + 1,
-            "InvalidCharsetCharacter", i + 1);
+        throw new DatasourceParsingException("Failed to create variable", "InvalidCharsetCharacter", i + 1,
+            e.getSource());
       }
     }
 
