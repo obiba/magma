@@ -19,10 +19,10 @@ import javax.annotation.Nullable;
 
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.ValueTableWriter;
-import org.obiba.magma.datasource.csv.support.CsvDatasourceParsingException;
 import org.obiba.magma.datasource.csv.support.Quote;
 import org.obiba.magma.datasource.csv.support.Separator;
 import org.obiba.magma.support.AbstractDatasource;
+import org.obiba.magma.support.DatasourceParsingException;
 
 import au.com.bytecode.opencsv.CSVParser;
 import au.com.bytecode.opencsv.CSVReader;
@@ -111,8 +111,8 @@ public class CsvDatasource extends AbstractDatasource {
   @Override
   public ValueTableWriter createWriter(@Nonnull String tableName, @Nonnull String entityType) {
     if(!hasValueTable(tableName)) {
-      throw new CsvDatasourceParsingException(
-          "Cannot create writer. A table with the name " + tableName + " does not exist.", "CsvCannotCreateWriter", 0,
+      throw new DatasourceParsingException(
+          "Cannot create writer. A table with the name " + tableName + " does not exist.", "CsvCannotCreateWriter",
           tableName);
     }
     return new CsvValueTableWriter((CsvValueTable) getValueTable(tableName));
@@ -122,9 +122,9 @@ public class CsvDatasource extends AbstractDatasource {
     if(valueTables.containsKey(tableName)) {
       valueTables.get(tableName).setVariablesHeader(header);
     } else {
-      throw new CsvDatasourceParsingException(
+      throw new DatasourceParsingException(
           "Cannot set variables header. A table with the name " + tableName + " does not exist.",
-          "CsvCannotSetVariableHeader", 0, tableName);
+          "CsvCannotSetVariableHeader", tableName);
     }
   }
 
@@ -159,7 +159,7 @@ public class CsvDatasource extends AbstractDatasource {
     try {
       return new OutputStreamWriter(new FileOutputStream(file, true), getCharacterSet());
     } catch(IOException e) {
-      throw new CsvDatasourceParsingException("Can not get csv writer.", e, "CsvCannotObtainWriter", 0);
+      throw new DatasourceParsingException("Can not get csv writer.", e, "CsvCannotObtainWriter");
     }
   }
 
@@ -182,7 +182,7 @@ public class CsvDatasource extends AbstractDatasource {
     try {
       return new InputStreamReader(new FileInputStream(file), getCharacterSet());
     } catch(IOException e) {
-      throw new CsvDatasourceParsingException("Can not get csv reader.", e, "CsvCannotObtainReader", 0);
+      throw new DatasourceParsingException("Can not get csv reader.", e, "CsvCannotObtainReader");
     }
   }
 

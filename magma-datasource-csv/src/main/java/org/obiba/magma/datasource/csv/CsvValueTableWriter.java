@@ -16,7 +16,7 @@ import org.obiba.magma.ValueTableWriter;
 import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.datasource.csv.converter.VariableConverter;
-import org.obiba.magma.datasource.csv.support.CsvDatasourceParsingException;
+import org.obiba.magma.support.DatasourceParsingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -75,9 +75,9 @@ public class CsvValueTableWriter implements ValueTableWriter {
     private void writeVariableToCsv(String... strings) throws IOException {
       CSVWriter writer = valueTable.getVariableWriter();
       if(writer == null) {
-        throw new CsvDatasourceParsingException(
+        throw new DatasourceParsingException(
             "Cannot create variable writer. Table " + valueTable.getName() + " does not have variable file.",
-            "CsvCannotCreateWriter", 0, valueTable.getName());
+            "CsvCannotCreateWriter", valueTable.getName());
       }
       log.trace("write '{}'", Arrays.toString(strings));
       writer.writeNext(strings);
@@ -173,9 +173,9 @@ public class CsvValueTableWriter implements ValueTableWriter {
     private void writeValueToCsv(String... strings) throws IOException {
       CSVWriter writer = valueTable.getValueWriter();
       if(writer == null) {
-        throw new CsvDatasourceParsingException(
+        throw new DatasourceParsingException(
             "Cannot create data writer. Table " + valueTable.getName() + " does not have data file.",
-            "CsvCannotCreateWriter", 0, valueTable.getName());
+            "CsvCannotCreateWriter", valueTable.getName());
       }
       log.trace("write '{}'", Arrays.toString(strings));
       writer.writeNext(strings);
