@@ -25,11 +25,11 @@ import org.obiba.magma.Value;
 import org.obiba.magma.ValueSet;
 import org.obiba.magma.ValueType;
 import org.obiba.magma.VariableEntity;
-import org.obiba.magma.datasource.spss.support.SpssDatasourceParsingException;
 import org.obiba.magma.datasource.spss.support.SpssVariableTypeMapper;
 import org.obiba.magma.datasource.spss.support.SpssVariableValueFactory;
 import org.obiba.magma.datasource.spss.support.SpssVariableValueSourceFactory;
 import org.obiba.magma.support.AbstractValueTable;
+import org.obiba.magma.support.DatasourceParsingException;
 import org.obiba.magma.support.VariableEntityProvider;
 import org.obiba.magma.type.DateTimeType;
 import org.opendatafoundation.data.spss.SPSSFile;
@@ -101,7 +101,7 @@ public class SpssValueTable extends AbstractValueTable implements Disposable {
     try {
       spssFile.loadMetadata();
     } catch(Exception e) {
-      throw new SpssDatasourceParsingException(e, "SpssFailedToLoadMetadata", spssFile.file.getName());
+      throw new DatasourceParsingException(e.getMessage(), "SpssFailedToLoadMetadata", spssFile.file.getName());
     }
   }
 
@@ -156,15 +156,15 @@ public class SpssValueTable extends AbstractValueTable implements Disposable {
           Value identifierValue = new SpssVariableValueFactory(i, entityVariable, valueType).create();
 
           if (identifierValue.isNull()) {
-            throw new SpssDatasourceParsingException("Invalid entity identifier", getName(), i,
-                "SpssEmptyIdentifier", entityVariable.getName(), i);
+            throw new DatasourceParsingException("Invalid entity identifier", "SpssEmptyIdentifier",
+                entityVariable.getName(), i);
           }
 
           String identifier = identifierValue.getValue().toString();
 
           if(entityIdentifiers.contains(identifier)) {
-            throw new SpssDatasourceParsingException("Duplicated entity identifier", getName(), i,
-                "SpssDuplicateEntity", identifier, i, entityVariable.getName());
+            throw new DatasourceParsingException("Duplicated entity identifier", "SpssDuplicateEntity", identifier, i,
+                entityVariable.getName());
           }
 
           entitiesBuilder.add(new SpssVariableEntity(entityType, identifier, i));
@@ -190,7 +190,7 @@ public class SpssValueTable extends AbstractValueTable implements Disposable {
 
         spssFile.loadData();
       } catch(Exception e) {
-        throw new SpssDatasourceParsingException(e, "SpssFailedToLoadData", spssFile.file.getName());
+        throw new DatasourceParsingException(e.getMessage(), "SpssFailedToLoadData", spssFile.file.getName());
       }
     }
 

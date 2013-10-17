@@ -594,4 +594,37 @@ public class CsvDatasourceTest extends AbstractMagmaTest {
         getFileFromResource("TableDataOnly/study3.csv"));
     datasource.initialise();
   }
+
+  @Test(expected = DatasourceParsingException.class)
+  public void test_FailGettingReader() {
+    CsvDatasource datasource = new CsvDatasource("bozo").addValueTable(new File("tata"));
+    datasource.initialise();
+  }
+
+  @Test(expected = DatasourceParsingException.class)
+  public void test_MissingNameHeader() {
+      File samples = getFileFromResource("exceptions");
+      File variables = new File(samples, "missing-name-variables.csv");
+
+      CsvDatasource ds = new CsvDatasource("variables").addValueTable("variables", variables, (File) null);
+      ds.initialise();
+  }
+
+  @Test(expected = DatasourceParsingException.class)
+  public void test_MissingValueTypeHeader() {
+      File samples = getFileFromResource("exceptions");
+      File variables = new File(samples, "missing-valueType-variables.csv");
+
+      CsvDatasource ds = new CsvDatasource("variables").addValueTable("variables", variables, (File) null);
+      ds.initialise();
+  }
+
+  @Test(expected = DatasourceParsingException.class)
+  public void test_MissingEntityTypeHeader() {
+      File samples = getFileFromResource("exceptions");
+      File variables = new File(samples, "missing-entityType-variables.csv");
+
+      CsvDatasource ds = new CsvDatasource("variables").addValueTable("variables", variables, (File) null);
+      ds.initialise();
+  }
 }
