@@ -90,7 +90,7 @@ public class TextValueGenerator extends GeneratedVariableValueSource {
      *
      * @param count - the number of WORDS to fetch
      */
-    @SuppressWarnings({ "AssignmentToMethodParameter", "AvoidReassigningParameters" })
+    @SuppressWarnings({ "AssignmentToMethodParameter", "PMD.AvoidReassigningParameters" })
     public String words(int count) {
       StringBuilder s = new StringBuilder();
       while(count-- > 0) s.append(randomWord()).append(" ");
@@ -126,7 +126,7 @@ public class TextValueGenerator extends GeneratedVariableValueSource {
      *
      * @param count - the number of sentences
      */
-    @SuppressWarnings({ "AssignmentToMethodParameter", "AvoidReassigningParameters" })
+    @SuppressWarnings({ "AssignmentToMethodParameter", "PMD.AvoidReassigningParameters" })
     public String sentences(int count) {
       StringBuilder s = new StringBuilder();
       while(count-- > 0) s.append(sentence()).append("  ");
@@ -152,7 +152,7 @@ public class TextValueGenerator extends GeneratedVariableValueSource {
      * @param count - the number of paragraphs
      * @useStandard - begin with the STANDARD Lorem Ipsum paragraph?
      */
-    @SuppressWarnings({ "AssignmentToMethodParameter", "AvoidReassigningParameters" })
+    @SuppressWarnings({ "AssignmentToMethodParameter", "PMD.AvoidReassigningParameters" })
     public String paragraphs(int count, boolean useStandard) {
       if(count == 0) return null;
 
