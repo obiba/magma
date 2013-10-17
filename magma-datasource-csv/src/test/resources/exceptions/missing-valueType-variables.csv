@@ -1,0 +1,4 @@
+"table","name","entityType","mimeType","unit","repeatable","occurrenceGroup","Universe and Conditions","definition:en","Domain","minimum","label:en","script","Required field? (Y/N)","Direct or Derived","maximum","Level of Measurement","Coding procedures (Teleform)
+Critical (C)
+Non-Critical (NC)","condition","Field Length","Validation Online","Validation TELEform","Importance (According to P3G Generic DS)"
+"Baseline Questionnaire","ADOPTED","text","Participant",,,"0",,"All respondents","Indicator of whether participant is adopted","Family Characteristics","0","Were you adopted?","$('ADOPTED')","N","Direct","$('CURRENT_AGE')","Categorical","NC",,,,,

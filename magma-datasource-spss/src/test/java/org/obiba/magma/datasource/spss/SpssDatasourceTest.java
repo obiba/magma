@@ -32,7 +32,7 @@ import org.obiba.magma.ValueTable;
 import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.datasource.spss.support.SpssDatasourceFactory;
-import org.obiba.magma.datasource.spss.support.SpssDatasourceParsingException;
+import org.obiba.magma.support.DatasourceParsingException;
 import org.obiba.magma.type.DecimalType;
 import org.obiba.magma.type.TextType;
 
@@ -110,7 +110,7 @@ public class SpssDatasourceTest {
     }
   }
 
-  @Test(expected = SpssDatasourceParsingException.class)
+  @Test(expected = DatasourceParsingException.class)
   public void initilizeDatasourceWithInvalidFile() {
     dsFactory.setFile("org/obiba/magma/datasource/spss/DatabaseTest");
     Datasource ds = dsFactory.create();
@@ -391,6 +391,32 @@ public class SpssDatasourceTest {
       fail();
     }
 
+  }
+
+  @Test(expected = DatasourceParsingException.class)
+  public void testDuplicateIdentifier() {
+    try {
+      dsFactory.setFile(getResourceFile("org/obiba/magma/datasource/spss/DuplicateIdentifier.sav"));
+      Datasource ds = dsFactory.create();
+      ds.initialise();
+      ValueTable valueTable = ds.getValueTable("DuplicateIdentifier");
+      valueTable.getVariableEntities();
+    } catch(URISyntaxException e) {
+      fail();
+    }
+  }
+
+  @Test(expected = DatasourceParsingException.class)
+  public void testInvalidEntityDueToVariableValueOverflow() {
+    try {
+      dsFactory.setFile(getResourceFile("org/obiba/magma/datasource/spss/OverflowVarValue.sav"));
+      Datasource ds = dsFactory.create();
+      ds.initialise();
+      ValueTable valueTable = ds.getValueTable("OverflowVarValue");
+      valueTable.getVariableEntities();
+    } catch(URISyntaxException e) {
+      fail();
+    }
   }
 
   private File getResourceFile(String resourcePath) throws URISyntaxException {
