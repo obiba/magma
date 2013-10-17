@@ -52,6 +52,7 @@ public class FeedbackServerDataGeneratorTest {
 
   }
 
+  @SuppressWarnings("PMD.AvoidDeeplyNestedIfStmts")
   private Set<Variable> fixConditions(ValueTable table) {
     ImmutableSet.Builder<Variable> builder = ImmutableSet.builder();
     for(Variable v : table.getVariables()) {
@@ -82,13 +83,10 @@ public class FeedbackServerDataGeneratorTest {
 
   @Nullable
   private String patate(ValueTable table, String conditionString) {
-    String s = or(table, conditionString);
-    if(s != null && s.length() > 0) {
-      return s;
-    }
-    return null;
+    return or(table, conditionString);
   }
 
+  @SuppressWarnings("PMD.AvoidDeeplyNestedIfStmts")
   private String varCond(ValueTable table, String conditionString) {
     if(conditionString.contains("=")) {
       String[] parts = conditionString.split("=");
@@ -110,6 +108,7 @@ public class FeedbackServerDataGeneratorTest {
     return null;
   }
 
+  @SuppressWarnings("PMD.AvoidDeeplyNestedIfStmts")
   private String and(ValueTable table, String condition) {
     StringBuilder builder = new StringBuilder();
 
@@ -124,10 +123,7 @@ public class FeedbackServerDataGeneratorTest {
       }
       return builder.toString();
     }
-    if(parts.length > 1) {
-      return builder.append(and(table, parts[1])).toString();
-    }
-    return "";
+    return parts.length > 1 ? builder.append(and(table, parts[1])).toString() : "";
   }
 
   private String or(ValueTable table, String condition) {

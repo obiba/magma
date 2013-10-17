@@ -170,15 +170,19 @@ public class PolygonType extends JSONAwareValueType {
     Iterable<List<Coordinate>> list1 = (Iterable<List<Coordinate>>) o1.getValue();
     Iterable<List<Coordinate>> list2 = (Iterable<List<Coordinate>>) o2.getValue();
 
-    if(Iterables.size(list1) == Iterables.size(list2)) {
-      if(list1 != null) {
-        for(List<Coordinate> l : list1) {
-          if(!Iterables.contains(list2, l)) return -1;
-        }
-        return 0;
+    if(list1 == list2) return 0;
+    if(list1 == null) return -1;
+    if(list2 == null) return 1;
+
+    int size1 = Iterables.size(list1);
+    int size2 = Iterables.size(list2);
+    if(size1 == size2) {
+      for(List<Coordinate> l : list1) {
+        if(!Iterables.contains(list2, l)) return -1;
       }
+      return 0;
     }
-    if(Iterables.size(list1) < Iterables.size(list2)) {
+    if(size1 < size2) {
       return -1;
     }
     return 1;

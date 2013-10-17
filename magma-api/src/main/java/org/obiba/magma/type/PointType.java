@@ -89,9 +89,15 @@ public class PointType extends JSONAwareValueType {
     return Factory.newValue(this, Coordinate.getCoordinateFrom(object));
   }
 
+  @SuppressWarnings({ "unchecked", "rawtypes" })
   @Override
   public int compare(Value o1, Value o2) {
-    return ((Coordinate) o1.getValue()).compareTo((Coordinate) o2.getValue());
+    Comparable coordinate1 = (Comparable) o1.getValue();
+    Comparable coordinate2 = (Comparable) o2.getValue();
+    if(coordinate1 == coordinate2) return 0;
+    if(coordinate1 == null) return -1;
+    if(coordinate2 == null) return 1;
+    return coordinate1.compareTo(coordinate2);
   }
 
   @Nullable
