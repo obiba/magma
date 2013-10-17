@@ -393,6 +393,32 @@ public class SpssDatasourceTest {
 
   }
 
+  @Test(expected = DatasourceParsingException.class)
+  public void testDuplicateIdentifier() {
+    try {
+      dsFactory.setFile(getResourceFile("org/obiba/magma/datasource/spss/DuplicateIdentifier.sav"));
+      Datasource ds = dsFactory.create();
+      ds.initialise();
+      ValueTable valueTable = ds.getValueTable("DuplicateIdentifier");
+      valueTable.getVariableEntities();
+    } catch(URISyntaxException e) {
+      fail();
+    }
+  }
+
+  @Test(expected = DatasourceParsingException.class)
+  public void testInvalidEntityDueToVariableValueOverflow() {
+    try {
+      dsFactory.setFile(getResourceFile("org/obiba/magma/datasource/spss/OverflowVarValue.sav"));
+      Datasource ds = dsFactory.create();
+      ds.initialise();
+      ValueTable valueTable = ds.getValueTable("OverflowVarValue");
+      valueTable.getVariableEntities();
+    } catch(URISyntaxException e) {
+      fail();
+    }
+  }
+
   private File getResourceFile(String resourcePath) throws URISyntaxException {
     return new File(getClass().getClassLoader().getResource(resourcePath).toURI());
   }
