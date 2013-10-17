@@ -23,6 +23,7 @@ import org.apache.http.client.utils.URIBuilder;
 import org.obiba.magma.AbstractDatasourceFactory;
 import org.obiba.magma.Datasource;
 
+import com.google.common.base.Charsets;
 import com.google.common.base.Strings;
 
 /**
@@ -132,7 +133,7 @@ public class MongoDBDatasourceFactory extends AbstractDatasourceFactory {
     Properties prop = new Properties();
     try {
       if(!Strings.isNullOrEmpty(options)) {
-        prop.load(new ByteArrayInputStream(options.getBytes()));
+        prop.load(new ByteArrayInputStream(options.getBytes(Charsets.UTF_8)));
       }
     } catch(IOException e) {
       // can't really happen
