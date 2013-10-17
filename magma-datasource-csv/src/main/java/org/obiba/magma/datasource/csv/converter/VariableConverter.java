@@ -16,7 +16,7 @@ import org.obiba.magma.Attributes;
 import org.obiba.magma.Category;
 import org.obiba.magma.ValueType;
 import org.obiba.magma.Variable;
-import org.obiba.magma.datasource.csv.support.CsvDatasourceParsingException;
+import org.obiba.magma.support.DatasourceParsingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -80,14 +80,14 @@ public class VariableConverter {
 
   private void validateHeader() {
     if(!headerMap.containsKey(NAME))
-      throw new CsvDatasourceParsingException("The variables.csv header must contain 'name'.",
-          "CsvVariablesHeaderMustContainName", 0);
+      throw new DatasourceParsingException("The variables.csv header must contain 'name'.",
+          "CsvVariablesHeaderMustContainName");
     if(!headerMap.containsKey(VALUE_TYPE))
-      throw new CsvDatasourceParsingException("The variables.csv header must contain 'valueType'.",
-          "CsvVariablesHeaderMustContainValueType", 0);
+      throw new DatasourceParsingException("The variables.csv header must contain 'valueType'.",
+          "CsvVariablesHeaderMustContainValueType");
     if(!headerMap.containsKey(ENTITY_TYPE))
-      throw new CsvDatasourceParsingException("The variables.csv header must contain 'entityType'.",
-          "CsvVariablesHeaderMustContainEntityType", 0);
+      throw new DatasourceParsingException("The variables.csv header must contain 'entityType'.",
+          "CsvVariablesHeaderMustContainEntityType");
   }
 
   public Variable unmarshal(String... csvVar) {
