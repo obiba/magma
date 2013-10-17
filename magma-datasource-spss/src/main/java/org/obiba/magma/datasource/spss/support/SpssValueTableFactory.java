@@ -17,6 +17,7 @@ import javax.annotation.Nonnull;
 
 import org.obiba.magma.Datasource;
 import org.obiba.magma.datasource.spss.SpssValueTable;
+import org.obiba.magma.support.DatasourceParsingException;
 import org.opendatafoundation.data.spss.SPSSFile;
 
 import com.google.common.base.Strings;
@@ -56,7 +57,7 @@ public class SpssValueTableFactory {
 
       return new SpssValueTable(datasource, name, entityType, locale, spssFile);
     } catch(IOException e) {
-      throw new SpssDatasourceParsingException(e, "FailedToOpenFile", file.getName());
+      throw new DatasourceParsingException(e.getMessage(), "FailedToOpenFile", file.getName());
     }
   }
 

@@ -66,7 +66,7 @@ ext {
       spring_jdbc: "org.springframework:spring-jdbc:${springVersion}",
       spring_test: "org.springframework:spring-test:${springVersion}",
 
-      spssreader: 'org.opendatafoundation:spssreader:1.0.0',
+      spssreader: 'org.opendatafoundation:spssreader:1.1.0',
 
       truezip: 'de.schlichtherle.io:truezip:6.6',
 
