@@ -11,6 +11,7 @@ package org.obiba.magma.datasource.spss.support;
 
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueType;
+import org.obiba.magma.support.DatasourceParsingException;
 import org.opendatafoundation.data.spss.SPSSVariable;
 
 public class SpssCategoryNameValueFactory extends SpssValueFactory {
@@ -28,8 +29,8 @@ public class SpssCategoryNameValueFactory extends SpssValueFactory {
     try {
       return createValue();
     } catch(SpssInvalidCharacterException e) {
-      throw new SpssDatasourceParsingException("Failed to create variable", spssVariable.getName(), variableIndex,
-          "InvalidCategoryCharsetCharacter", variableIndex, spssVariable.getName());
+      throw new DatasourceParsingException("Failed to create variable", "InvalidCategoryCharsetCharacter",
+          variableIndex, spssVariable.getName(), e.getSource());
     }
   }
 
