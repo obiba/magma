@@ -3,9 +3,7 @@ package org.obiba.magma.datasource.generated;
 import java.util.Random;
 
 import org.obiba.magma.Value;
-import org.obiba.magma.ValueType;
 import org.obiba.magma.Variable;
-import org.obiba.magma.type.TextType;
 
 public class TextValueGenerator extends GeneratedVariableValueSource {
 
@@ -17,8 +15,10 @@ public class TextValueGenerator extends GeneratedVariableValueSource {
 
   @Override
   protected Value nextValue(Variable variable, GeneratedValueSet valueSet) {
-    return valueSet.dataGenerator.nextInt(0,1) == 0 ? variable.getValueType().nullValue() : variable.getValueType().valueOf(
-        LOREM_IPSUM.paragraphs(valueSet.dataGenerator.nextInt(0, 1), valueSet.dataGenerator.nextInt(0, 1) == 0));
+    return valueSet.dataGenerator.nextInt(0, 1) == 0
+        ? variable.getValueType().nullValue()
+        : variable.getValueType().valueOf(
+            LOREM_IPSUM.paragraphs(valueSet.dataGenerator.nextInt(0, 1), valueSet.dataGenerator.nextInt(0, 1) == 0));
   }
 
   /*
@@ -90,6 +90,7 @@ public class TextValueGenerator extends GeneratedVariableValueSource {
      *
      * @param count - the number of WORDS to fetch
      */
+    @SuppressWarnings({ "AssignmentToMethodParameter", "PMD.AvoidReassigningParameters" })
     public String words(int count) {
       StringBuilder s = new StringBuilder();
       while(count-- > 0) s.append(randomWord()).append(" ");
@@ -125,6 +126,7 @@ public class TextValueGenerator extends GeneratedVariableValueSource {
      *
      * @param count - the number of sentences
      */
+    @SuppressWarnings({ "AssignmentToMethodParameter", "PMD.AvoidReassigningParameters" })
     public String sentences(int count) {
       StringBuilder s = new StringBuilder();
       while(count-- > 0) s.append(sentence()).append("  ");
@@ -150,8 +152,9 @@ public class TextValueGenerator extends GeneratedVariableValueSource {
      * @param count - the number of paragraphs
      * @useStandard - begin with the STANDARD Lorem Ipsum paragraph?
      */
+    @SuppressWarnings({ "AssignmentToMethodParameter", "PMD.AvoidReassigningParameters" })
     public String paragraphs(int count, boolean useStandard) {
-      if (count == 0) return null;
+      if(count == 0) return null;
 
       StringBuilder s = new StringBuilder();
       while(count-- > 0) {

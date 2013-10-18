@@ -6,7 +6,6 @@ import java.util.Locale;
 import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
-import org.junit.Assert;
 import org.junit.Test;
 import org.obiba.magma.Category;
 import org.obiba.magma.NoSuchValueSetException;
@@ -30,14 +29,16 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 
+import junit.framework.Assert;
+
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertFalse;
+import static junit.framework.Assert.assertNull;
+import static junit.framework.Assert.assertTrue;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.nullValue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
 import static org.obiba.core.util.FileUtil.getFileFromResource;
 import static org.obiba.magma.datasource.csv.CsvValueTable.DEFAULT_ENTITY_TYPE;
 
@@ -592,5 +593,38 @@ public class CsvDatasourceTest extends AbstractMagmaTest {
         null, //
         getFileFromResource("TableDataOnly/study3.csv"));
     datasource.initialise();
+  }
+
+  @Test(expected = DatasourceParsingException.class)
+  public void test_FailGettingReader() {
+    CsvDatasource datasource = new CsvDatasource("bozo").addValueTable(new File("tata"));
+    datasource.initialise();
+  }
+
+  @Test(expected = DatasourceParsingException.class)
+  public void test_MissingNameHeader() {
+      File samples = getFileFromResource("exceptions");
+      File variables = new File(samples, "missing-name-variables.csv");
+
+      CsvDatasource ds = new CsvDatasource("variables").addValueTable("variables", variables, (File) null);
+      ds.initialise();
+  }
+
+  @Test(expected = DatasourceParsingException.class)
+  public void test_MissingValueTypeHeader() {
+      File samples = getFileFromResource("exceptions");
+      File variables = new File(samples, "missing-valueType-variables.csv");
+
+      CsvDatasource ds = new CsvDatasource("variables").addValueTable("variables", variables, (File) null);
+      ds.initialise();
+  }
+
+  @Test(expected = DatasourceParsingException.class)
+  public void test_MissingEntityTypeHeader() {
+      File samples = getFileFromResource("exceptions");
+      File variables = new File(samples, "missing-entityType-variables.csv");
+
+      CsvDatasource ds = new CsvDatasource("variables").addValueTable("variables", variables, (File) null);
+      ds.initialise();
   }
 }
