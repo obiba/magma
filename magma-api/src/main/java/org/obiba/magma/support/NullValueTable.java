@@ -31,12 +31,16 @@ public class NullValueTable implements ValueTable {
 
   @Nonnull
   @Override
+  @SuppressWarnings("ConstantConditions")
+  @edu.umd.cs.findbugs.annotations.SuppressWarnings("NP_NONNULL_RETURN_VIOLATION")
   public String getName() {
     return null;
   }
 
   @Nonnull
   @Override
+  @SuppressWarnings("ConstantConditions")
+  @edu.umd.cs.findbugs.annotations.SuppressWarnings("NP_NONNULL_RETURN_VIOLATION")
   public Datasource getDatasource() {
     return null;
   }

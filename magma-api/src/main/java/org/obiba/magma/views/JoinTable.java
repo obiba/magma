@@ -135,8 +135,9 @@ public class JoinTable implements ValueTable, Initialisable {
   }
 
   @Nonnull
-  @SuppressWarnings({ "NullableProblems", "ConstantConditions" })
   @Override
+  @SuppressWarnings({ "NullableProblems", "ConstantConditions" })
+  @edu.umd.cs.findbugs.annotations.SuppressWarnings("NP_NONNULL_RETURN_VIOLATION")
   public Datasource getDatasource() {
     // A JoinTable does not belong to a Datasource (or does it? which one?).
     return null;

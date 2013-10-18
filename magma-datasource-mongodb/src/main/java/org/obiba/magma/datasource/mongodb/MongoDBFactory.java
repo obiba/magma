@@ -1,6 +1,7 @@
 package org.obiba.magma.datasource.mongodb;
 
 import java.io.Serializable;
+import java.net.URI;
 import java.net.UnknownHostException;
 
 import javax.annotation.Nonnull;
@@ -33,6 +34,10 @@ public class MongoDBFactory implements Serializable {
 
   @Nullable
   private transient GridFS gridFS;
+
+  public MongoDBFactory(@Nonnull URI uri) {
+    this(uri.toString());
+  }
 
   public MongoDBFactory(@Nonnull String connectionURI) {
     Preconditions.checkArgument(!Strings.isNullOrEmpty(connectionURI), "connectionURI cannot be null or empty");
