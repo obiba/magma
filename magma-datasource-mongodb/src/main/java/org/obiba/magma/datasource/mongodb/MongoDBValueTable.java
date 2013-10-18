@@ -130,6 +130,15 @@ public class MongoDBValueTable extends AbstractValueTable {
   }
 
   @Override
+  public Timestamps getValueSetTimestamps(VariableEntity entity) throws NoSuchValueSetException {
+    if(!hasValueSet(entity)) {
+      throw new NoSuchValueSetException(this, entity);
+    }
+    return super
+        .getValueSetTimestamps(entity);
+  }
+
+  @Override
   public ValueSet getValueSet(VariableEntity entity) throws NoSuchValueSetException {
     if(!hasValueSet(entity)) {
       throw new NoSuchValueSetException(this, entity);
