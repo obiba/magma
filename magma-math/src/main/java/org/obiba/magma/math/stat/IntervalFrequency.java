@@ -1,5 +1,6 @@
 package org.obiba.magma.math.stat;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
@@ -15,7 +16,9 @@ import com.google.common.collect.Sets;
  * upper bound and a number of intervals to create, this class will count the frequency of observations for values
  * within each interval. This can effectively be used for producing histograms.
  */
-public class IntervalFrequency {
+public class IntervalFrequency implements Serializable {
+
+  private static final long serialVersionUID = 8258609483659122494L;
 
   // Used for rounding computations to 6 significant digits
   private final static MathContext CTX = new MathContext(6);
@@ -130,7 +133,9 @@ public class IntervalFrequency {
   /**
    * Maintains the frequency of the values between {@code [lower, upper[}
    */
-  public class Interval implements Comparable<Interval> {
+  public class Interval implements Comparable<Interval>, Serializable {
+
+    private static final long serialVersionUID = -166445440512189129L;
 
     private final BigDecimal lower;
 
