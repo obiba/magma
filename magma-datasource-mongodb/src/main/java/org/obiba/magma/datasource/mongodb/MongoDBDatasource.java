@@ -108,7 +108,7 @@ public class MongoDBDatasource extends AbstractDatasource {
   @Override
   protected Set<String> getValueTableNames() {
     DBCursor cursor = getValueTableCollection()
-        .find(new BasicDBObject(), BasicDBObjectBuilder.start().add("name", 1).get());
+        .find(BasicDBObjectBuilder.start().add("datasource",getName()).get(), BasicDBObjectBuilder.start().add("name", 1).get());
     ImmutableSet.Builder<String> builder = ImmutableSet.builder();
     try {
       while(cursor.hasNext()) {
