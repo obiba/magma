@@ -170,11 +170,11 @@ subprojects { subProject ->
     compile(libraries.findbugs_annotation)
 
     testCompile project(':magma-test')
-    testCompile(libraries.junit)
-    testCompile(libraries.hamcrest)
     testCompile(libraries.easymock)
-    testCompile(libraries.slf4j_log4j12)
+    testCompile(libraries.hamcrest)
     testCompile(libraries.jcl_slf4j)
+    testCompile(libraries.junit)
+    testCompile(libraries.logback_classic)
 
     pmd 'net.sourceforge.pmd:pmd:5.0.5'
   }

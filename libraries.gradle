@@ -44,6 +44,8 @@ ext {
 
       liquibase_core: 'org.liquibase:liquibase-core:1.9.4',
 
+      logback_classic: 'ch.qos.logback:logback-classic:1.0.13',
+
       mongodb_java_driver: 'org.mongodb:mongo-java-driver:2.11.3',
 
       mysql_connector_java: 'mysql:mysql-connector-java:5.1.26',
@@ -62,7 +64,6 @@ ext {
       shiro_extras: 'eu.flatwhite.shiro:shiro-extras:1.0.1-obiba',
 
       slf4j_api: "org.slf4j:slf4j-api:${slf4jVersion}",
-      slf4j_log4j12: "org.slf4j:slf4j-log4j12:${slf4jVersion}",
       jcl_slf4j: "org.slf4j:jcl-over-slf4j:${slf4jVersion}",
 
       spring_beans: "org.springframework:spring-beans:${springVersion}",
