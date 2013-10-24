@@ -22,11 +22,12 @@ public class MagmaEngineFactory {
   private final Set<MagmaEngineExtension> extensions = Sets.newLinkedHashSet();
 
   /**
-   * Expose concrete type to force xstream to deserialize using this type. This will keep the order in which factories
-   * appear in the xml file
+   * Expose concrete type to force xstream to deserialize using this type.
+   * This will keep the order in which factories appear in the xml file
    */
   private final ArrayList<DatasourceFactory> factories = new ArrayList<DatasourceFactory>();
 
+  @SuppressWarnings("CollectionDeclaredAsConcreteClass")
   private final LinkedHashSet<Datasource> datasources = Sets.newLinkedHashSet();
 
   public MagmaEngineFactory() {
