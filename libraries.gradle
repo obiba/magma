@@ -1,6 +1,6 @@
 ext {
 
-  hibernateVersion = '4.2.5.Final'
+  hibernateVersion = '4.2.7.SP1'
   slf4jVersion = '1.7.5'
   springVersion = '3.2.4.RELEASE'
 
@@ -28,9 +28,9 @@ ext {
       hibernate_core: "org.hibernate:hibernate-core:${hibernateVersion}",
       hibernate_ehcache: "org.hibernate:hibernate-ehcache:${hibernateVersion}",
 
-      hsqldb: 'org.hsqldb:hsqldb:2.3.0',
+      hsqldb: 'org.hsqldb:hsqldb:2.3.1',
 
-      httpclient: 'org.apache.httpcomponents:httpclient:4.3',
+      httpclient: 'org.apache.httpcomponents:httpclient:4.3.1',
 
       javassist: 'javassist:javassist:3.12.1.GA',
 
@@ -38,7 +38,7 @@ ext {
 
       json: 'org.json:json:20090211',
 
-      jsr305: 'com.google.code.findbugs:jsr305:2.0.1',
+      jsr305: 'com.google.code.findbugs:jsr305:2.0.2',
 
       junit: 'junit:junit:4.11',
 
@@ -76,7 +76,7 @@ ext {
 
       truezip: 'de.schlichtherle.io:truezip:6.6',
 
-      xstream: 'com.thoughtworks.xstream:xstream:1.4.4'
+      xstream: 'com.thoughtworks.xstream:xstream:1.4.5'
 
   ]
 }
