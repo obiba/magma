@@ -44,9 +44,9 @@ public class VariableConverter {
         .newVariable(getFieldAsString(object, "name"), valueType, getFieldAsString(object, "entityType")) //
         .repeatable(getFieldAsBoolean(object, "repeatable")) //
         .mimeType(getFieldAsString(object, "mimeType")) //
-        .mimeType(getFieldAsString(object, "referencedEntityType")) //
-        .mimeType(getFieldAsString(object, "occurrenceGroup")) //
-        .mimeType(getFieldAsString(object, "unit"));
+        .referencedEntityType(getFieldAsString(object, "referencedEntityType")) //
+        .occurrenceGroup(getFieldAsString(object, "occurrenceGroup")) //
+        .unit(getFieldAsString(object, "unit"));
 
     if(object.containsField("categories")) {
       builder.addCategories(unmarshallCategories((Iterable<?>) object.get("categories")));
