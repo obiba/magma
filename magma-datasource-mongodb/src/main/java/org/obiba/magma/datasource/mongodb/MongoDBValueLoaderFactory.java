@@ -88,7 +88,7 @@ public class MongoDBValueLoaderFactory implements ValueLoaderFactory {
     @Override
     public long getLength() {
       try {
-        JSONObject properties = new JSONObject(valueRef.getValue());
+        JSONObject properties = new JSONObject((String)valueRef.getValue());
         return properties.has(GRID_FILE_SIZE) ? properties.getLong(GRID_FILE_SIZE) : 0;
       } catch(JSONException e) {
         throw new MagmaRuntimeException("Cannot retrieve grid file size for " + valueRef.getValue(), e);
