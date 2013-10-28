@@ -38,6 +38,8 @@ public class MongoDBVariableValueSource implements VariableValueSource, VectorSo
 
   private Variable variable;
 
+  private Value lastUpdated = null;
+
   public MongoDBVariableValueSource(MongoDBValueTable table, String name) {
     this.table = table;
     this.name = name;
@@ -45,7 +47,9 @@ public class MongoDBVariableValueSource implements VariableValueSource, VectorSo
 
   @Override
   public Variable getVariable() {
-    if(variable == null) {
+    Value updatedTimestamp = table.getTimestamps().getLastUpdate();
+    if (lastUpdated == null || !lastUpdated.equals(updatedTimestamp)) {
+      lastUpdated = updatedTimestamp;
       DBObject template = BasicDBObjectBuilder.start("_id", name).get();
       variable = VariableConverter.unmarshall(table.getVariablesCollection().findOne(template));
     }
