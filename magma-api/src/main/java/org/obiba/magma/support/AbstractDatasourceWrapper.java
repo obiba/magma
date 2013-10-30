@@ -19,6 +19,7 @@ import org.obiba.magma.Attribute;
 import org.obiba.magma.Datasource;
 import org.obiba.magma.NoSuchAttributeException;
 import org.obiba.magma.NoSuchValueTableException;
+import org.obiba.magma.Timestamps;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.ValueTableWriter;
@@ -97,6 +98,11 @@ public abstract class AbstractDatasourceWrapper implements Datasource {
   @Override
   public void drop() {
     getWrappedDatasource().drop();
+  }
+
+  @Override
+  public Timestamps getTimestamps() {
+    return new DatasourceTimestamps(this);
   }
 
   @Override

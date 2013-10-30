@@ -4,7 +4,7 @@ import java.util.Set;
 
 import javax.annotation.Nonnull;
 
-public interface Datasource extends Initialisable, Disposable, AttributeAware {
+public interface Datasource extends Initialisable, Disposable, AttributeAware, Timestamped {
 
   String getName();
 

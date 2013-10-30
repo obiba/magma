@@ -22,6 +22,7 @@ import org.obiba.magma.AbstractAttributeAware;
 import org.obiba.magma.Attribute;
 import org.obiba.magma.Datasource;
 import org.obiba.magma.NoSuchValueTableException;
+import org.obiba.magma.Timestamps;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.ValueTableWriter;
@@ -102,6 +103,11 @@ public class StaticDatasource extends AbstractAttributeAware implements Datasour
   public void drop() {
     tableMap.clear();
     attributes.clear();
+  }
+
+  @Override
+  public Timestamps getTimestamps() {
+    return new DatasourceTimestamps(this);
   }
 
   @Nonnull
