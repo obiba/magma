@@ -66,6 +66,11 @@ public abstract class AbstractDatasourceWrapper implements Datasource {
   }
 
   @Override
+  public boolean hasEntities() {
+    return getWrappedDatasource().hasEntities();
+  }
+
+  @Override
   public boolean hasAttributes() {
     return getWrappedDatasource().hasAttributes();
   }

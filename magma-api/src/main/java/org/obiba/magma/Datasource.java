@@ -12,6 +12,8 @@ public interface Datasource extends Initialisable, Disposable, AttributeAware, T
 
   boolean hasValueTable(String tableName);
 
+  boolean hasEntities();
+
   ValueTable getValueTable(String tableName) throws NoSuchValueTableException;
 
   Set<ValueTable> getValueTables();
