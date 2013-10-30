@@ -14,9 +14,11 @@ import org.obiba.magma.AbstractAttributeAware;
 import org.obiba.magma.Attribute;
 import org.obiba.magma.Datasource;
 import org.obiba.magma.NoSuchValueTableException;
+import org.obiba.magma.Timestamps;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.ValueTableWriter;
+import org.obiba.magma.type.DateTimeType;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
@@ -143,6 +145,11 @@ public abstract class AbstractDatasource extends AbstractAttributeAware implemen
   @Override
   public void drop() {
     throw new UnsupportedOperationException("cannot drop datasource");
+  }
+
+  @Override
+  public Timestamps getTimestamps() {
+    return new DatasourceTimestamps(this);
   }
 
   @Override

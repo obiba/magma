@@ -388,7 +388,7 @@ public class ExcelDatasource extends AbstractDatasource {
     excelStyles.put("headerCellStyle", headerCellStyle);
   }
 
-  Timestamps getTimestamps() {
+  public Timestamps getTimestamps() {
     return new ExcelTimestamps(excelFile);
   }
 
