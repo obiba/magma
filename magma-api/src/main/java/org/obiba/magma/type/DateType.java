@@ -153,6 +153,9 @@ public class DateType extends AbstractValueType {
 
   @Override
   public int compare(Value o1, Value o2) {
+    if (o1.isNull() && o2.isNull()) return 0;
+    if (o1.isNull()) return -1;
+    if (o2.isNull()) return 1;
     return ((MagmaDate) o1.getValue()).compareTo((MagmaDate) o2.getValue());
   }
 
