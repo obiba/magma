@@ -165,6 +165,9 @@ public class DateTimeType extends AbstractValueType {
 
   @Override
   public int compare(Value o1, Value o2) {
+    if (o1.isNull() && o2.isNull()) return 0;
+    if (o1.isNull()) return -1;
+    if (o2.isNull()) return 1;
     return ((Date) o1.getValue()).compareTo((Date) o2.getValue());
   }
 
