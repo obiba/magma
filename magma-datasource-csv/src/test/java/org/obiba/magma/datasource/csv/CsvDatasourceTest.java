@@ -627,4 +627,30 @@ public class CsvDatasourceTest extends AbstractMagmaTest {
       CsvDatasource ds = new CsvDatasource("variables").addValueTable("variables", variables, (File) null);
       ds.initialise();
   }
+
+  @Test
+  public void test_HasNoEntitiesOnEmptyFile() {
+    File empty = getFileFromResource("empty.csv");
+    CsvDatasource datasource = new CsvDatasource("csv-datasource").addValueTable("NoEntities", empty, (File) null);
+    datasource.initialise();
+    assertThat(datasource.hasEntities(), is(false));
+  }
+
+  @Test
+  public void test_HasNoEntities() {
+    File samples = getFileFromResource("separators");
+    File variables = new File(samples, "variables.csv");
+    CsvDatasource datasource = new CsvDatasource("csv-datasource").addValueTable("HasEntities", variables, (File)null);
+    datasource.initialise();
+    assertThat(datasource.hasEntities(), is(false));
+  }
+
+  @Test
+  public void test_HasEntities() {
+    CsvDatasource datasource = new CsvDatasource("csv-datasource").addValueTable("Table1", //
+        getFileFromResource("Table1/variables.csv"), //
+        getFileFromResource("Table1/data.csv"));
+    datasource.initialise();
+    assertThat(datasource.hasEntities(), is(true));
+  }
 }

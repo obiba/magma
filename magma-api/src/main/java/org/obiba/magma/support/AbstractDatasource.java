@@ -69,6 +69,14 @@ public abstract class AbstractDatasource extends AbstractAttributeAware implemen
   }
 
   @Override
+  public boolean hasEntities() {
+    for(ValueTable vt : getValueTables()) {
+      if (!vt.getVariableEntities().isEmpty()) return true;
+    }
+    return false;
+  }
+
+  @Override
   public ValueTable getValueTable(final String tableName) throws NoSuchValueTableException {
     try {
       return Iterables.find(getValueTables(), new Predicate<ValueTable>() {

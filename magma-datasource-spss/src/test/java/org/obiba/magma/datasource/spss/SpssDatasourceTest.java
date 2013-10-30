@@ -419,6 +419,18 @@ public class SpssDatasourceTest {
     }
   }
 
+  @Test
+  public void testHasEntities() {
+    try {
+      dsFactory.setFile(getResourceFile("org/obiba/magma/datasource/spss/empty.sav"));
+      Datasource ds = dsFactory.create();
+      ds.initialise();
+      assertThat(ds.hasEntities(), is(false));
+    } catch(URISyntaxException e) {
+      fail();
+    }
+  }
+
   private File getResourceFile(String resourcePath) throws URISyntaxException {
     return new File(getClass().getClassLoader().getResource(resourcePath).toURI());
   }

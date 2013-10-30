@@ -75,6 +75,14 @@ public class StaticDatasource extends AbstractAttributeAware implements Datasour
   }
 
   @Override
+  public boolean hasEntities() {
+    for (StaticValueTable vt : tableMap.values()) {
+      if (!vt.getVariableEntities().isEmpty()) return true;
+    }
+    return false;
+  }
+
+  @Override
   public ValueTable getValueTable(String name) throws NoSuchValueTableException {
     return tableMap.get(name);
   }
