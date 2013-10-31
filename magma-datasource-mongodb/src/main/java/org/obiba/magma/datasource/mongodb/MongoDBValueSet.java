@@ -122,7 +122,7 @@ class MongoDBValueSet implements ValueSet {
       }
 
       private Value getTimestamp(String key) {
-        BSONObject timestamps = (BSONObject) getDBObject().get(MongoDBValueTable.TIMESTAMPS_FIELD);
+        BSONObject timestamps = (BSONObject) getDBObject().get(MongoDBDatasource.TIMESTAMPS_FIELD);
         return ValueConverter.unmarshall(DateTimeType.get(), timestamps.get(key));
       }
     };

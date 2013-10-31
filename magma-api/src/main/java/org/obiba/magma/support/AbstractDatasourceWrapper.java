@@ -102,7 +102,7 @@ public abstract class AbstractDatasourceWrapper implements Datasource {
 
   @Override
   public Timestamps getTimestamps() {
-    return new DatasourceTimestamps(this);
+    return getWrappedDatasource().getTimestamps();
   }
 
   @Override

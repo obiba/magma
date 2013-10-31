@@ -34,9 +34,6 @@ import com.mongodb.DBObject;
 import com.mongodb.gridfs.GridFS;
 import com.mongodb.gridfs.GridFSInputFile;
 
-import static org.obiba.magma.datasource.mongodb.MongoDBValueTable.TIMESTAMPS_FIELD;
-import static org.obiba.magma.datasource.mongodb.MongoDBValueTable.TIMESTAMPS_UPDATED_FIELD;
-
 class MongoDBValueTableWriter implements ValueTableWriter {
 
   static final String GRID_FILE_ID = "_grid_file_id";
@@ -64,14 +61,11 @@ class MongoDBValueTableWriter implements ValueTableWriter {
 
   @Override
   public void close() throws IOException {
-    updateTableLastUpdate();
+    updateLastUpdate();
   }
 
-  private void updateTableLastUpdate() {
-    DBObject tableObject = table.asDBObject();
-    BSONObject timestamps = (BSONObject) tableObject.get(TIMESTAMPS_FIELD);
-    timestamps.put("updated", new Date());
-    table.getValueTableCollection().save(tableObject);
+  private void updateLastUpdate() {
+    table.setLastUpdate(new Date());
   }
 
   private class MongoDBValueSetWriter implements ValueTableWriter.ValueSetWriter {
@@ -90,7 +84,7 @@ class MongoDBValueTableWriter implements ValueTableWriter {
         valueSetObject = table.getValueSetCollection().findOne(template);
         if(valueSetObject == null) {
           valueSetObject = template;
-          valueSetObject.put(TIMESTAMPS_FIELD, table.createTimestampsObject());
+          valueSetObject.put(MongoDBDatasource.TIMESTAMPS_FIELD, MongoDBDatasource.createTimestampsObject());
         }
       }
       return valueSetObject;
@@ -167,10 +161,10 @@ class MongoDBValueTableWriter implements ValueTableWriter {
     }
 
     private void updateValueSetLastUpdate() {
-      BSONObject timestamps = (BSONObject) getValueSetObject().get(TIMESTAMPS_FIELD);
-      timestamps.put(TIMESTAMPS_UPDATED_FIELD, new Date());
+      BSONObject timestamps = (BSONObject) getValueSetObject().get(MongoDBDatasource.TIMESTAMPS_FIELD);
+      timestamps.put(MongoDBDatasource.TIMESTAMPS_UPDATED_FIELD, new Date());
       table.getValueSetCollection().save(getValueSetObject());
-      updateTableLastUpdate();
+      updateLastUpdate();
     }
 
     private DBObject getBinaryValueMetadata(@Nullable GridFSInputFile gridFSFile, Integer occurrence) {
@@ -195,6 +189,8 @@ class MongoDBValueTableWriter implements ValueTableWriter {
       // insert or update
       DBObject varObject = VariableConverter.marshall(variable);
       table.getVariablesCollection().save(varObject);
+
+      updateLastUpdate();
     }
 
     @Override
@@ -210,7 +206,7 @@ class MongoDBValueTableWriter implements ValueTableWriter {
       // remove associated values from the value set collection
       removeVariableValues(variable);
 
-      updateTableLastUpdate();
+      updateLastUpdate();
     }
 
     private void removeVariableValues(@Nonnull Variable variable) {
@@ -224,8 +220,8 @@ class MongoDBValueTableWriter implements ValueTableWriter {
         }
         valueSetObject.removeField(field);
 
-        BSONObject timestamps = (BSONObject) valueSetObject.get(TIMESTAMPS_FIELD);
-        timestamps.put(TIMESTAMPS_UPDATED_FIELD, new Date());
+        BSONObject timestamps = (BSONObject) valueSetObject.get(MongoDBDatasource.TIMESTAMPS_FIELD);
+        timestamps.put(MongoDBDatasource.TIMESTAMPS_UPDATED_FIELD, new Date());
         valueSetCollection.save(valueSetObject);
       }
     }
