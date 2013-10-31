@@ -7,11 +7,14 @@ import javax.annotation.Nonnull;
 
 import org.obiba.magma.Datasource;
 import org.obiba.magma.NoSuchValueTableException;
+import org.obiba.magma.Timestamped;
+import org.obiba.magma.Timestamps;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.ValueTableWriter;
 import org.obiba.magma.support.AbstractDatasourceWrapper;
 import org.obiba.magma.support.Disposables;
 import org.obiba.magma.support.Initialisables;
+import org.obiba.magma.support.UnionTimestamps;
 import org.obiba.magma.type.DateTimeType;
 
 import com.google.common.collect.ImmutableSet;
@@ -84,6 +87,19 @@ public class ViewAwareDatasource extends AbstractDatasourceWrapper {
     } else {
       getWrappedDatasource().dropTable(name);
     }
+  }
+
+  @Override
+  public Timestamps getTimestamps() {
+    final Timestamps ts = super.getTimestamps();
+    ImmutableSet.Builder<Timestamped> builder = ImmutableSet.builder();
+    builder.addAll(getViews()).add(new Timestamped() {
+      @Override
+      public Timestamps getTimestamps() {
+        return ts;
+      }
+    });
+    return new UnionTimestamps(builder.build());
   }
 
   public Set<View> getViews() {

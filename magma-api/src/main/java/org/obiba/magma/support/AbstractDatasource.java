@@ -149,7 +149,7 @@ public abstract class AbstractDatasource extends AbstractAttributeAware implemen
 
   @Override
   public Timestamps getTimestamps() {
-    return new DatasourceTimestamps(this);
+    return new UnionTimestamps(getValueTables());
   }
 
   @Override

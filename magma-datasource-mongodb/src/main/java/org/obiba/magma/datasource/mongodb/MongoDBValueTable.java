@@ -39,12 +39,6 @@ public class MongoDBValueTable extends AbstractValueTable {
 
   private static final String VALUE_SET_SUFFIX = "_value_set";
 
-  static final String TIMESTAMPS_FIELD = "_timestamps";
-
-  private static final String TIMESTAMPS_CREATED_FIELD = "created";
-
-  static final String TIMESTAMPS_UPDATED_FIELD = "updated";
-
   public MongoDBValueTable(@Nonnull Datasource datasource, @Nonnull String name) {
     this(datasource, name, null);
   }
@@ -72,12 +66,20 @@ public class MongoDBValueTable extends AbstractValueTable {
     return ((MongoDBDatasource) getDatasource()).getValueTableCollection();
   }
 
+  DBCollection getDatasourceCollection() {
+    return ((MongoDBDatasource) getDatasource()).getDatasourceCollection();
+  }
+
   DBCollection getVariablesCollection() {
     return getDB().getCollection(getId() + VARIABLE_SUFFIX);
   }
 
   DBCollection getValueSetCollection() {
     return getDB().getCollection(getId() + VALUE_SET_SUFFIX);
+  }
+
+  DBObject getDatasourceDBObject() {
+    return ((MongoDBDatasource) getDatasource()).asDBObject();
   }
 
   DBObject asDBObject() {
@@ -91,11 +93,19 @@ public class MongoDBValueTable extends AbstractValueTable {
           .add("datasource", getDatasource().getName()) //
           .add("name", getName()) //
           .add("entityType", getEntityType()) //
-          .add(TIMESTAMPS_FIELD, createTimestampsObject()).get();
+          .add(MongoDBDatasource.TIMESTAMPS_FIELD, MongoDBDatasource.createTimestampsObject()).get();
       getValueTableCollection().insert(tableObject, WriteConcern.ACKNOWLEDGED);
     }
 
     return tableObject;
+  }
+
+  void setLastUpdate(Date date) {
+    DBObject tableObject = asDBObject();
+    BSONObject timestamps = (BSONObject) tableObject.get(MongoDBDatasource.TIMESTAMPS_FIELD);
+    timestamps.put("updated", date);
+    getValueTableCollection().save(tableObject);
+    ((MongoDBDatasource) getDatasource()).setLastUpdate(date);
   }
 
   /**
@@ -106,11 +116,6 @@ public class MongoDBValueTable extends AbstractValueTable {
   private String getId() {
     String norm = (getDatasource().getName() + "." + getName()).replaceAll("[$]", "_");
     return norm.startsWith("system") ? "_" + norm.substring(6) : norm;
-  }
-
-  DBObject createTimestampsObject() {
-    return BasicDBObjectBuilder.start().add(TIMESTAMPS_CREATED_FIELD, new Date())
-        .add(TIMESTAMPS_UPDATED_FIELD, new Date()).get();
   }
 
   @Override
@@ -134,8 +139,7 @@ public class MongoDBValueTable extends AbstractValueTable {
     if(!hasValueSet(entity)) {
       throw new NoSuchValueSetException(this, entity);
     }
-    return super
-        .getValueSetTimestamps(entity);
+    return super.getValueSetTimestamps(entity);
   }
 
   @Override
@@ -151,19 +155,19 @@ public class MongoDBValueTable extends AbstractValueTable {
     return new Timestamps() {
 
       private BSONObject getTimestampsObject() {
-        return (BSONObject) asDBObject().get(TIMESTAMPS_FIELD);
+        return (BSONObject) asDBObject().get(MongoDBDatasource.TIMESTAMPS_FIELD);
       }
 
       @Nonnull
       @Override
       public Value getLastUpdate() {
-        return DateTimeType.get().valueOf(getTimestampsObject().get("updated"));
+        return DateTimeType.get().valueOf(getTimestampsObject().get(MongoDBDatasource.TIMESTAMPS_UPDATED_FIELD));
       }
 
       @Nonnull
       @Override
       public Value getCreated() {
-        return DateTimeType.get().valueOf(getTimestampsObject().get("created"));
+        return DateTimeType.get().valueOf(getTimestampsObject().get(MongoDBDatasource.TIMESTAMPS_CREATED_FIELD));
       }
     };
   }
@@ -173,6 +177,7 @@ public class MongoDBValueTable extends AbstractValueTable {
     getValueSetCollection().drop();
     getVariablesCollection().drop();
     getValueTableCollection().remove(BasicDBObjectBuilder.start().add("_id", getId()).get());
+    ((MongoDBDatasource) getDatasource()).setLastUpdate(new Date());
   }
 
 }

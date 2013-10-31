@@ -107,7 +107,7 @@ public class StaticDatasource extends AbstractAttributeAware implements Datasour
 
   @Override
   public Timestamps getTimestamps() {
-    return new DatasourceTimestamps(this);
+    return new UnionTimestamps(getValueTables());
   }
 
   @Nonnull
