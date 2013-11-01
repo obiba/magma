@@ -9,6 +9,7 @@ import org.obiba.magma.Datasource;
 import org.obiba.magma.NoSuchValueTableException;
 import org.obiba.magma.Timestamped;
 import org.obiba.magma.Timestamps;
+import org.obiba.magma.Value;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.ValueTableWriter;
 import org.obiba.magma.support.AbstractDatasourceWrapper;
@@ -24,6 +25,8 @@ import com.google.common.collect.Sets;
 public class ViewAwareDatasource extends AbstractDatasourceWrapper {
 
   private final Map<String, View> views;
+
+  private Value lastUpdate = DateTimeType.get().nullValue();
 
   public ViewAwareDatasource(Datasource datasource, Iterable<View> views) {
     super(datasource);
@@ -98,7 +101,7 @@ public class ViewAwareDatasource extends AbstractDatasourceWrapper {
       public Timestamps getTimestamps() {
         return ts;
       }
-    });
+    }).add(new ViewAwareDatasourceTimestamped());
     return new UnionTimestamps(builder.build());
   }
 
@@ -124,6 +127,7 @@ public class ViewAwareDatasource extends AbstractDatasourceWrapper {
     Initialisables.initialise(view);
     views.put(view.getName(), view);
     view.setDatasource(this);
+    lastUpdate = DateTimeType.get().now();
   }
 
   public synchronized void removeView(String name) {
@@ -131,6 +135,7 @@ public class ViewAwareDatasource extends AbstractDatasourceWrapper {
       View view = views.get(name);
       views.remove(name);
       Disposables.dispose(view);
+      lastUpdate = DateTimeType.get().now();
     }
   }
 
@@ -148,5 +153,24 @@ public class ViewAwareDatasource extends AbstractDatasourceWrapper {
 
   private Set<ValueTable> getWrappedTables() {
     return getWrappedDatasource().getValueTables();
+  }
+
+  private class ViewAwareDatasourceTimestamped implements Timestamped {
+    @Override
+    public Timestamps getTimestamps() {
+      return new Timestamps() {
+        @Nonnull
+        @Override
+        public Value getLastUpdate() {
+          return lastUpdate;
+        }
+
+        @Nonnull
+        @Override
+        public Value getCreated() {
+          return DateTimeType.get().nullValue();
+        }
+      };
+    }
   }
 }
