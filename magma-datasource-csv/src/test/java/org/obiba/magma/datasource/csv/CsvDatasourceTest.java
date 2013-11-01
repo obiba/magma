@@ -19,6 +19,7 @@ import org.obiba.magma.datasource.csv.support.Quote;
 import org.obiba.magma.datasource.csv.support.Separator;
 import org.obiba.magma.support.AbstractValueTable;
 import org.obiba.magma.support.DatasourceParsingException;
+import org.obiba.magma.support.EntitiesPredicate;
 import org.obiba.magma.support.VariableEntityBean;
 import org.obiba.magma.test.AbstractMagmaTest;
 import org.obiba.magma.type.IntegerType;
@@ -626,5 +627,31 @@ public class CsvDatasourceTest extends AbstractMagmaTest {
 
       CsvDatasource ds = new CsvDatasource("variables").addValueTable("variables", variables, (File) null);
       ds.initialise();
+  }
+
+  @Test
+  public void test_HasNoEntitiesOnEmptyFile() {
+    File empty = getFileFromResource("empty.csv");
+    CsvDatasource datasource = new CsvDatasource("csv-datasource").addValueTable("NoEntities", empty, (File) null);
+    datasource.initialise();
+    assertThat(datasource.hasEntities(new EntitiesPredicate.NonViewEntitiesPredicate()), is(false));
+  }
+
+  @Test
+  public void test_HasNoEntities() {
+    File samples = getFileFromResource("separators");
+    File variables = new File(samples, "variables.csv");
+    CsvDatasource datasource = new CsvDatasource("csv-datasource").addValueTable("HasEntities", variables, (File)null);
+    datasource.initialise();
+    assertThat(datasource.hasEntities(new EntitiesPredicate.NonViewEntitiesPredicate()), is(false));
+  }
+
+  @Test
+  public void test_HasEntities() {
+    CsvDatasource datasource = new CsvDatasource("csv-datasource").addValueTable("Table1", //
+        getFileFromResource("Table1/variables.csv"), //
+        getFileFromResource("Table1/data.csv"));
+    datasource.initialise();
+    assertThat(datasource.hasEntities(new EntitiesPredicate.NonViewEntitiesPredicate()), is(true));
   }
 }

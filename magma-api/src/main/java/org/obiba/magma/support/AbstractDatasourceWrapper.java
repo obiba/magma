@@ -25,6 +25,8 @@ import org.obiba.magma.ValueTable;
 import org.obiba.magma.ValueTableWriter;
 
 import com.google.common.base.Preconditions;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
 
 public abstract class AbstractDatasourceWrapper implements Datasource {
 
@@ -63,6 +65,11 @@ public abstract class AbstractDatasourceWrapper implements Datasource {
   @Override
   public boolean hasValueTable(String name) {
     return getWrappedDatasource().hasValueTable(name);
+  }
+
+  @Override
+  public boolean hasEntities(Predicate<ValueTable> predicate) {
+    return Iterables.filter(getValueTables(), predicate).iterator().hasNext();
   }
 
   @Override
