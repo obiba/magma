@@ -4,6 +4,8 @@ import java.util.Set;
 
 import javax.annotation.Nonnull;
 
+import com.google.common.base.Predicate;
+
 public interface Datasource extends Initialisable, Disposable, AttributeAware, Timestamped {
 
   String getName();
@@ -11,6 +13,8 @@ public interface Datasource extends Initialisable, Disposable, AttributeAware, T
   String getType();
 
   boolean hasValueTable(String tableName);
+
+  boolean hasEntities(Predicate<ValueTable> predicate);
 
   ValueTable getValueTable(String tableName) throws NoSuchValueTableException;
 
