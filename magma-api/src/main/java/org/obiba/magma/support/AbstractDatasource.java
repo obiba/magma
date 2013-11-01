@@ -3,6 +3,7 @@ package org.obiba.magma.support;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -18,7 +19,6 @@ import org.obiba.magma.Timestamps;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.ValueTableWriter;
-import org.obiba.magma.type.DateTimeType;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
@@ -69,11 +69,8 @@ public abstract class AbstractDatasource extends AbstractAttributeAware implemen
   }
 
   @Override
-  public boolean hasEntities() {
-    for(ValueTable vt : getValueTables()) {
-      if (!vt.getVariableEntities().isEmpty()) return true;
-    }
-    return false;
+  public boolean hasEntities(Predicate<ValueTable> predicate) {
+    return Iterables.filter(getValueTables(), predicate).iterator().hasNext();
   }
 
   @Override

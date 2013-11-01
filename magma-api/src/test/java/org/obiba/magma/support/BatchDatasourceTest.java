@@ -45,4 +45,22 @@ public class BatchDatasourceTest {
     assertThat(batchedTable.hasValueSet(new VariableEntityBean("Participant","100")), is(false));
   }
 
+  @Test
+  public void testHasEntities() {
+    StaticDatasource originalDs = new StaticDatasource("original");
+    originalDs.addValueTable(new StaticValueTable(originalDs, "table", originalEntities));
+    BatchDatasource batchDs = new BatchDatasource(originalDs, 50);
+    Initialisables.initialise(originalDs, batchDs);
+    assertThat(originalDs.hasEntities(new EntitiesPredicate.NonViewEntitiesPredicate()), is(true));
+  }
+
+
+  @Test
+  public void testHasNoEntities() {
+    StaticDatasource originalDs = new StaticDatasource("original");
+    BatchDatasource batchDs = new BatchDatasource(originalDs, 50);
+    Initialisables.initialise(originalDs, batchDs);
+    assertThat(originalDs.hasEntities(new EntitiesPredicate.NonViewEntitiesPredicate()), is(false));
+  }
+
 }
