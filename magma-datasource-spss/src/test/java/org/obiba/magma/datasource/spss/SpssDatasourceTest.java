@@ -35,6 +35,7 @@ import org.obiba.magma.datasource.spss.support.SpssDatasourceFactory;
 import org.obiba.magma.support.DatasourceParsingException;
 import org.obiba.magma.type.DecimalType;
 import org.obiba.magma.type.TextType;
+import org.obiba.magma.support.EntitiesPredicate;
 
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
@@ -420,12 +421,24 @@ public class SpssDatasourceTest {
   }
 
   @Test
-  public void testHasEntities() {
+  public void testHasNoEntities() {
     try {
       dsFactory.setFile(getResourceFile("org/obiba/magma/datasource/spss/empty.sav"));
       Datasource ds = dsFactory.create();
       ds.initialise();
-      assertThat(ds.hasEntities(), is(false));
+      assertThat(ds.hasEntities(new EntitiesPredicate.NonViewEntitiesPredicate()), is(false));
+    } catch(URISyntaxException e) {
+      fail();
+    }
+  }
+
+  @Test
+  public void testHasEntities() {
+    try {
+      dsFactory.setFile(getResourceFile("org/obiba/magma/datasource/spss/DatabaseTest.sav"));
+      Datasource ds = dsFactory.create();
+      ds.initialise();
+      assertThat(ds.hasEntities(new EntitiesPredicate.NonViewEntitiesPredicate()), is(true));
     } catch(URISyntaxException e) {
       fail();
     }

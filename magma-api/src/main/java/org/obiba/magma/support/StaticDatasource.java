@@ -11,6 +11,7 @@ package org.obiba.magma.support;
 
 import java.io.IOException;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,7 +30,9 @@ import org.obiba.magma.ValueTableWriter;
 import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
 
+import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.ListMultimap;
 
@@ -75,11 +78,8 @@ public class StaticDatasource extends AbstractAttributeAware implements Datasour
   }
 
   @Override
-  public boolean hasEntities() {
-    for (StaticValueTable vt : tableMap.values()) {
-      if (!vt.getVariableEntities().isEmpty()) return true;
-    }
-    return false;
+  public boolean hasEntities(Predicate<ValueTable> predicate) {
+    return Iterables.filter(getValueTables(), predicate).iterator().hasNext();
   }
 
   @Override
