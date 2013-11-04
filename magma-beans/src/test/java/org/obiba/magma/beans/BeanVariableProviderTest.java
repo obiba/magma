@@ -25,6 +25,7 @@ import org.obiba.magma.Value;
 import org.obiba.magma.ValueSet;
 import org.obiba.magma.Variable;
 import org.obiba.magma.VariableValueSource;
+import org.obiba.magma.VariableValueSourceFactory;
 import org.obiba.magma.test.AbstractMagmaTest;
 
 import com.google.common.collect.ImmutableList;
@@ -98,7 +99,7 @@ public class BeanVariableProviderTest extends AbstractMagmaTest {
   }
 
   @Test
-  public void testOverridenVariableName() {
+  public void testOverriddenVariableName() {
     Set<String> properties = Sets.newHashSet("nestedBean.decimal", "firstName");
     Map<String, String> nameOverride = new ImmutableMap.Builder<String, String>()
         .put("nestedBean.decimal", "NestedDecimal").put("firstName", "FirstName").build();
@@ -210,13 +211,13 @@ public class BeanVariableProviderTest extends AbstractMagmaTest {
     }
   }
 
-  protected Set<VariableValueSource> assertVariablesFromProperties(BeanVariableValueSourceFactory<TestBean> bvp,
-      Set<String> properties) {
+  protected Set<VariableValueSource> assertVariablesFromProperties(VariableValueSourceFactory bvp,
+      Collection<String> properties) {
     return assertVariablesFromProperties(bvp, properties, null);
   }
 
-  protected Set<VariableValueSource> assertVariablesFromProperties(BeanVariableValueSourceFactory<TestBean> bvp,
-      Set<String> properties, Map<String, String> nameOverride) {
+  protected Set<VariableValueSource> assertVariablesFromProperties(VariableValueSourceFactory bvp,
+      Collection<String> properties, Map<String, String> nameOverride) {
     Set<VariableValueSource> variables = bvp.createSources();
     // There are no more and no less than what was specified
     Assert.assertEquals(properties.size(), variables.size());
@@ -228,6 +229,7 @@ public class BeanVariableProviderTest extends AbstractMagmaTest {
     return variables;
   }
 
+  @SuppressWarnings({ "UnusedDeclaration", "AssignmentToDateFieldFromParameter" })
   public static class TestBean {
 
     private String firstName;
@@ -292,10 +294,12 @@ public class BeanVariableProviderTest extends AbstractMagmaTest {
       this.state = state;
     }
 
+    @edu.umd.cs.findbugs.annotations.SuppressWarnings(value = "EI_EXPOSE_REP")
     public final Date getDate() {
       return date;
     }
 
+    @edu.umd.cs.findbugs.annotations.SuppressWarnings(value = "EI_EXPOSE_REP2")
     public final void setDate(Date date) {
       this.date = date;
     }
@@ -349,6 +353,7 @@ public class BeanVariableProviderTest extends AbstractMagmaTest {
     }
   }
 
+  @SuppressWarnings("UnusedDeclaration")
   public static class NestedTestBean {
     private Double decimal;
 
@@ -362,16 +367,19 @@ public class BeanVariableProviderTest extends AbstractMagmaTest {
       this.decimal = decimal;
     }
 
+    @edu.umd.cs.findbugs.annotations.SuppressWarnings(value = "EI_EXPOSE_REP")
     public final byte[] getData() {
       return data;
     }
 
-    public final void setData(byte[] data) {
+    @edu.umd.cs.findbugs.annotations.SuppressWarnings(value = "EI_EXPOSE_REP2")
+    public final void setData(byte... data) {
       this.data = data;
     }
 
   }
 
+  @SuppressWarnings("UnusedDeclaration")
   public enum TestEnum {
     VALUE1, VALUE2
   }

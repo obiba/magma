@@ -133,6 +133,7 @@ public class IntervalFrequency implements Serializable {
   /**
    * Maintains the frequency of the values between {@code [lower, upper[}
    */
+  @edu.umd.cs.findbugs.annotations.SuppressWarnings("SE_INNER_CLASS")
   public class Interval implements Comparable<Interval>, Serializable {
 
     private static final long serialVersionUID = -166445440512189129L;

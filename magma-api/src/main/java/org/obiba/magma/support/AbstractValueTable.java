@@ -122,7 +122,6 @@ public abstract class AbstractValueTable implements ValueTable, Initialisable {
       @Override
       public Variable apply(VariableValueSource from) {
         return from.getVariable();
-
       }
     }));
   }

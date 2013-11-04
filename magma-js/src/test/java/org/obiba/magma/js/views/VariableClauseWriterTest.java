@@ -81,7 +81,7 @@ public class VariableClauseWriterTest {
   public void testWriteVariableClauseToXml() throws Exception {
     VariablesClause variablesClause = new VariablesClause();
     variablesClause.setVariables(variables);
-    String xml = xstream.toXML(variablesClause);
+    xstream.toXML(variablesClause);
     // TODO: assert xml result
   }
 
@@ -89,7 +89,7 @@ public class VariableClauseWriterTest {
   public void testWriteVariableClauseToSpringResource() throws Exception {
     VariablesClause variablesClause = new VariablesClause();
     variablesClause.setVariables(variables);
-    String xml = xstream.toXML(variablesClause);
+    xstream.toXML(variablesClause);
     // TODO: assert xml result
   }
 }

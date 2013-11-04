@@ -29,6 +29,7 @@ import com.google.common.collect.Iterables;
 public class FeedbackServerDataGeneratorTest {
 
   @SuppressWarnings("ResultOfMethodCallIgnored")
+  @edu.umd.cs.findbugs.annotations.SuppressWarnings("RV_RETURN_VALUE_IGNORED_BAD_PRACTICE")
   @Test
   public void generateTestData() throws IOException {
 

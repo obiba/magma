@@ -442,7 +442,7 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
       ValueSequence valueSequence = sv.getValue().asSequence();
       Map<String, List<Value>> valueMap = Maps.newHashMap();
       int index = -1;
-      // foreach elligible value, look for corresponding values of the same variable group
+      // foreach eligible value, look for corresponding values of the same variable group
       for(Value value : valueSequence.getValue()) {
         index++;
         if(predicate.apply(value)) {
@@ -454,15 +454,15 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
       }
 
       // make it a native map
-      for(String varName : valueMap.keySet()) {
-        List<Value> values = valueMap.get(varName);
+      for(Map.Entry<String, List<Value>> entry : valueMap.entrySet()) {
+        List<Value> values = entry.getValue();
         Value value;
         if(values.size() == 1) {
           value = values.get(0);
         } else {
           value = values.get(0).getValueType().sequenceOf(values);
         }
-        valueObject.put(varName, valueObject, new ScriptableValue(thisObj, value));
+        valueObject.put(entry.getKey(), valueObject, new ScriptableValue(thisObj, value));
       }
     }
 

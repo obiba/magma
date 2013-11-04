@@ -30,14 +30,14 @@ public class DefaultDescriptiveStatisticsProviderTest extends AbstractMagmaTest 
   @Test(expected = IllegalArgumentException.class)
   public void test_compute_nullSource() {
     DescriptiveStatisticsProvider defaultProvider = new DefaultDescriptiveStatisticsProvider();
-    DescriptiveStatistics ds = defaultProvider.compute(null, emptySet);
+    defaultProvider.compute(null, emptySet);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void test_compute_nullSet() {
     DescriptiveStatisticsProvider defaultProvider = new DefaultDescriptiveStatisticsProvider();
     VariableValueSource mockSource = createMock(VariableValueSource.class);
-    DescriptiveStatistics ds = defaultProvider.compute(mockSource, null);
+    defaultProvider.compute(mockSource, null);
   }
 
   @Test
