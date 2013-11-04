@@ -9,14 +9,19 @@
  */
 package org.obiba.magma.datasource.hibernate.domain;
 
+import javax.annotation.Nonnull;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
+import org.obiba.magma.Timestamps;
+import org.obiba.magma.Value;
+import org.obiba.magma.type.DateTimeType;
+
 @Entity
 @Table(name = "datasource", uniqueConstraints = { @UniqueConstraint(columnNames = "name") })
-public class DatasourceState extends AbstractAttributeAwareEntity implements Timestamped {
+public class DatasourceState extends AbstractAttributeAwareEntity implements Timestamped, org.obiba.magma.Timestamped {
 
   private static final long serialVersionUID = 1L;
 
@@ -34,4 +39,22 @@ public class DatasourceState extends AbstractAttributeAwareEntity implements Tim
     return name;
   }
 
+  @Nonnull
+  @Override
+  public Timestamps getTimestamps() {
+    return new Timestamps() {
+
+      @Nonnull
+      @Override
+      public Value getLastUpdate() {
+        return DateTimeType.get().valueOf(getUpdated());
+      }
+
+      @Nonnull
+      @Override
+      public Value getCreated() {
+        return DateTimeType.get().valueOf(DatasourceState.this.getCreated());
+      }
+    };
+  }
 }
