@@ -52,12 +52,10 @@ public class ValueSetBeanTest {
         return ENTITY;
       }
 
-      @SuppressWarnings("ConstantConditions")
-      @edu.umd.cs.findbugs.annotations.SuppressWarnings("NP_NONNULL_PARAM_VIOLATION")
       @Nonnull
       @Override
       public Timestamps getTimestamps() {
-        return null;
+        return createMock(Timestamps.class);
       }
 
     });
@@ -77,12 +75,10 @@ public class ValueSetBeanTest {
         return null;
       }
 
-      @SuppressWarnings("ConstantConditions")
-      @edu.umd.cs.findbugs.annotations.SuppressWarnings("NP_NONNULL_PARAM_VIOLATION")
       @Nonnull
       @Override
       public Timestamps getTimestamps() {
-        return null;
+        return createMock(Timestamps.class);
       }
     });
   }

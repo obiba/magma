@@ -32,6 +32,7 @@ import static org.junit.Assert.assertTrue;
 import static org.obiba.magma.views.JoinTableTest.MockValueTableBuilder.newTableMock;
 import static org.obiba.magma.views.JoinTableTest.MockVariableBuilder.newVariableMock;
 
+@SuppressWarnings("ReuseOfLocalVariable")
 public class JoinTableTest extends AbstractMagmaTest {
 
   private static final String PARTICIPANT_ENTITY_TYPE = "Participant";
@@ -172,7 +173,6 @@ public class JoinTableTest extends AbstractMagmaTest {
     assertEquals(2, Iterables.size(valueSets));
   }
 
-  @SuppressWarnings("ReuseOfLocalVariable")
   @Test
   public void test_hasValueSet() {
     JoinTable joinTable = JoinTableBuilder.newBuilder() //
@@ -203,7 +203,6 @@ public class JoinTableTest extends AbstractMagmaTest {
     joinTable.getValueSet(newEntity("test"));
   }
 
-  @SuppressWarnings("ReuseOfLocalVariable")
   @Test
   public void test_getValueSet() {
     JoinTable joinTable = JoinTableBuilder.newBuilder() //
@@ -269,6 +268,7 @@ public class JoinTableTest extends AbstractMagmaTest {
     }
   }
 
+  @SuppressWarnings("StaticMethodOnlyUsedInOneClass")
   static class MockVariableBuilder {
 
     Variable mock = createMock(Variable.class);
