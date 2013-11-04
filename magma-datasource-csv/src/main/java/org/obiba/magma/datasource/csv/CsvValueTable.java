@@ -130,7 +130,6 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
     if(indexEntry == null) {
       throw new NoSuchValueSetException(this, entity);
     }
-    @SuppressWarnings("ConstantConditions")
     Reader reader = getCsvDatasource().getReader(dataFile);
     try {
       CSVReader csvReader = getCsvDatasource().getCsvReader(reader);
@@ -610,6 +609,7 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
     this.isDataFileEmpty = isDataFileEmpty;
   }
 
+  @Nonnull
   @Override
   public Timestamps getTimestamps() {
     return timestamps;

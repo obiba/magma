@@ -21,6 +21,7 @@ import org.obiba.magma.ValueTable;
 import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.VariableValueSource;
+import org.obiba.magma.VariableValueSourceWrapper;
 import org.obiba.magma.support.AbstractValueTableWrapper;
 import org.obiba.magma.support.AbstractVariableValueSourceWrapper;
 import org.obiba.magma.support.Disposables;
@@ -158,6 +159,7 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
     return from;
   }
 
+  @Nonnull
   @Override
   public Timestamps getTimestamps() {
     return new Timestamps() {
@@ -280,11 +282,11 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
   }
 
   @Override
-  public boolean hasVariable(String name) {
+  public boolean hasVariable(@SuppressWarnings("ParameterHidesMemberVariable") String name) {
     try {
-    getVariable(name);
+      getVariable(name);
       return true;
-    } catch (NoSuchVariableException e) {
+    } catch(NoSuchVariableException e) {
       return false;
     }
   }
@@ -417,7 +419,7 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
 
       @Override
       public VariableValueSource unapply(@SuppressWarnings("ParameterHidesMemberVariable") VariableValueSource from) {
-        return ((AbstractVariableValueSourceWrapper) from).getWrapped();
+        return ((VariableValueSourceWrapper) from).getWrapped();
       }
     };
   }

@@ -4,6 +4,8 @@ import java.util.Collection;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
+import javax.annotation.Nonnull;
+
 import org.obiba.magma.Datasource;
 import org.obiba.magma.NoSuchValueSetException;
 import org.obiba.magma.Timestamps;
@@ -38,6 +40,7 @@ public class BeanValueTable extends AbstractValueTable {
         return entity;
       }
 
+      @Nonnull
       @Override
       public Timestamps getTimestamps() {
         return BeanValueTable.this.getTimestamps();
@@ -49,13 +52,23 @@ public class BeanValueTable extends AbstractValueTable {
       }
 
       @Override
-      public Object resolve(Class<?> type, ValueSet valueSet, Variable variable) throws NoSuchBeanException {
-        return BeanValueTable.this.resolve(type, valueSet, variable);
+      public Object resolve(final Class<?> type, ValueSet valueSet, Variable variable) throws NoSuchBeanException {
+        try {
+          return Iterables.find(getResolvers(), new Predicate<ValueSetBeanResolver>() {
+            @Override
+            public boolean apply(ValueSetBeanResolver input) {
+              return input.resolves(type);
+            }
+          }).resolve(type, valueSet, variable);
+        } catch(NoSuchElementException e) {
+          throw new NoSuchBeanException(valueSet, type,
+              "No resolver for bean of type " + type + " in table " + getName());
+        }
       }
     };
   }
 
-  protected Set<ValueSetBeanResolver> getResolvers() {
+  protected Iterable<ValueSetBeanResolver> getResolvers() {
     return resolvers;
   }
 
@@ -79,19 +92,7 @@ public class BeanValueTable extends AbstractValueTable {
     super.addVariableValueSources(factory);
   }
 
-  private Object resolve(final Class<?> type, ValueSet valueSet, Variable variable) throws NoSuchBeanException {
-    try {
-      return Iterables.find(getResolvers(), new Predicate<ValueSetBeanResolver>() {
-        @Override
-        public boolean apply(ValueSetBeanResolver input) {
-          return input.resolves(type);
-        }
-      }).resolve(type, valueSet, variable);
-    } catch(NoSuchElementException e) {
-      throw new NoSuchBeanException(valueSet, type, "No resolver for bean of type " + type + " in table " + getName());
-    }
-  }
-
+  @Nonnull
   @Override
   public Timestamps getTimestamps() {
     return NullTimestamps.get();

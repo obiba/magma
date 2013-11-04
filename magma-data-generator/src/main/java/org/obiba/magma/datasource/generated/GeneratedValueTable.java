@@ -86,6 +86,7 @@ public class GeneratedValueTable implements ValueTable {
     return "generated";
   }
 
+  @Nonnull
   @Override
   public Timestamps getTimestamps() {
     return new Timestamps() {

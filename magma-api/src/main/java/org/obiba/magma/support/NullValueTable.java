@@ -105,6 +105,7 @@ public class NullValueTable implements ValueTable {
     throw new NoSuchVariableException("null", variableName);
   }
 
+  @Nonnull
   @Override
   public Timestamps getTimestamps() {
     return NullTimestamps.get();

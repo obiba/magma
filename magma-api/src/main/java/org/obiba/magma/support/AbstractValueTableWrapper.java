@@ -92,6 +92,7 @@ public abstract class AbstractValueTableWrapper implements ValueTableWrapper {
     return getWrappedValueTable().isForEntityType(entityType);
   }
 
+  @Nonnull
   @Override
   public Timestamps getTimestamps() {
     return getWrappedValueTable().getTimestamps();

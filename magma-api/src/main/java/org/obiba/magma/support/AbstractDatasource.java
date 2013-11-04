@@ -3,7 +3,6 @@ package org.obiba.magma.support;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -152,6 +151,7 @@ public abstract class AbstractDatasource extends AbstractAttributeAware implemen
     throw new UnsupportedOperationException("cannot drop datasource");
   }
 
+  @Nonnull
   @Override
   public Timestamps getTimestamps() {
     return new UnionTimestamps(getValueTables());

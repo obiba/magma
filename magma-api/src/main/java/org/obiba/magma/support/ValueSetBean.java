@@ -27,6 +27,7 @@ public class ValueSetBean implements ValueSet {
     this(valueSet.getValueTable(), valueSet.getVariableEntity());
   }
 
+  @Nonnull
   @Override
   public Timestamps getTimestamps() {
     return getValueTable().getTimestamps();

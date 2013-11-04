@@ -40,6 +40,7 @@ public class ValueSetWrapper implements ValueSet {
     return wrapped;
   }
 
+  @Nonnull
   @Override
   public Timestamps getTimestamps() {
     return wrapped.getTimestamps();

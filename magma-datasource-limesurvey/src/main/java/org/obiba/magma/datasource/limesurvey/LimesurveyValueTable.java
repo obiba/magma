@@ -369,6 +369,7 @@ class LimesurveyValueTable extends AbstractValueTable {
     return new LimesurveyValueSet(this, entity).getTimestamps();
   }
 
+  @Nonnull
   @Override
   public Timestamps getTimestamps() {
     return new LimesurveyTimestamps(this);

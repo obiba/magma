@@ -37,17 +37,17 @@ class FsValueTable extends AbstractValueTable implements Initialisable, Disposab
   /**
    * The directory of this {@code ValueTable}
    */
-  private File valueTableEntry;
+  private final File valueTableEntry;
 
   /**
    * XStream instance used to de/serialize instances.
    */
-  private XStream xstream;
+  private final XStream xstream;
 
   /**
    * Our VariableEntityProvider instance
    */
-  private FsVariableEntityProvider variableEntityProvider;
+  private final FsVariableEntityProvider variableEntityProvider;
 
   FsValueTable(FsDatasource datasource, String name) {
     super(datasource, name);
@@ -113,7 +113,7 @@ class FsValueTable extends AbstractValueTable implements Initialisable, Disposab
     return getDatasource().createWriter(getEntry(name));
   }
 
-  private void readVariables() throws IOException {
+  private void readVariables() {
     readEntry("variables.xml", new InputCallback<Void>() {
       @SuppressWarnings("InfiniteLoopStatement")
       @Override
@@ -133,19 +133,6 @@ class FsValueTable extends AbstractValueTable implements Initialisable, Disposab
       }
     });
 
-  }
-
-  private XStreamValueSet readValueSet(VariableEntity entity) {
-    String entryName = variableEntityProvider.getEntityFile(entity);
-    if(entryName == null) {
-      throw new NoSuchValueSetException(this, entity);
-    }
-    return readEntry(entryName, new InputCallback<XStreamValueSet>() {
-      @Override
-      public XStreamValueSet readEntry(Reader reader) throws IOException {
-        return (XStreamValueSet) xstream.fromXML(reader);
-      }
-    });
   }
 
   private static class FsVariableValueSource implements VariableValueSource {
@@ -197,8 +184,22 @@ class FsValueTable extends AbstractValueTable implements Initialisable, Disposab
       return valueSet;
     }
 
+    private XStreamValueSet readValueSet(VariableEntity entity) {
+      String entryName = variableEntityProvider.getEntityFile(entity);
+      if(entryName == null) {
+        throw new NoSuchValueSetException(FsValueTable.this, entity);
+      }
+      return readEntry(entryName, new InputCallback<XStreamValueSet>() {
+        @Override
+        public XStreamValueSet readEntry(Reader reader) throws IOException {
+          return (XStreamValueSet) xstream.fromXML(reader);
+        }
+      });
+    }
+
   }
 
+  @Nonnull
   @Override
   public Timestamps getTimestamps() {
     return new FsTimestamps(valueTableEntry);

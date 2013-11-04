@@ -64,6 +64,7 @@ public class SummaryStatisticsView extends AbstractValueTable implements Initial
         new StatVariableValueSource("Skewness"), new StatVariableValueSource("Kurtosis")));
   }
 
+  @Nonnull
   @Override
   public Timestamps getTimestamps() {
     return NullTimestamps.get();

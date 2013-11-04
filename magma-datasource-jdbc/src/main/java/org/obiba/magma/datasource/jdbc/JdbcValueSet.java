@@ -35,6 +35,7 @@ public class JdbcValueSet extends ValueSetBean {
     return (JdbcValueTable) super.getValueTable();
   }
 
+  @Nonnull
   @Override
   public Timestamps getTimestamps() {
     return new JdbcTimestamps(this);
