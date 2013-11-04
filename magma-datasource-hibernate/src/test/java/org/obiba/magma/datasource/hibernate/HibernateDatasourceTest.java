@@ -409,6 +409,9 @@ public class HibernateDatasourceTest {
               }
             }
           }
+        } catch(RuntimeException e) {
+          fail(e.getMessage());
+          throw e;
         } catch(Exception e) {
           fail(e.getMessage());
           throw new RuntimeException(e);
