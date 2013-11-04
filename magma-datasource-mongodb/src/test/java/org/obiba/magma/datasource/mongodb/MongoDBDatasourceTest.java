@@ -9,6 +9,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.obiba.core.util.FileUtil;
 import org.obiba.magma.Datasource;
+import org.obiba.magma.DatasourceFactory;
 import org.obiba.magma.MagmaEngine;
 import org.obiba.magma.NoSuchVariableException;
 import org.obiba.magma.Value;
@@ -82,9 +83,7 @@ public class MongoDBDatasourceTest {
   @Test
   public void testWriters() throws IOException {
     FsDatasource onyx = new FsDatasource("onyx", FileUtil.getFileFromResource("20-onyx-data.zip"));
-    MongoDBDatasourceFactory factory = new MongoDBDatasourceFactory();
-    factory.setName("ds-" + DB_TEST);
-    factory.setUrl(DB_URL);
+    DatasourceFactory factory = new MongoDBDatasourceFactory("ds-" + DB_TEST, DB_URL);
     Datasource ds = factory.create();
     Initialisables.initialise(ds, onyx);
 
@@ -264,9 +263,7 @@ public class MongoDBDatasourceTest {
   }
 
   private Datasource createDatasource() {
-    MongoDBDatasourceFactory factory = new MongoDBDatasourceFactory();
-    factory.setName("ds-" + DB_TEST);
-    factory.setUrl(DB_URL);
+    DatasourceFactory factory = new MongoDBDatasourceFactory("ds-" + DB_TEST, DB_URL);
     Datasource ds = factory.create();
     Initialisables.initialise(ds);
     return ds;

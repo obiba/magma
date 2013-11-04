@@ -25,7 +25,6 @@ import org.obiba.magma.ValueTable;
 import org.obiba.magma.ValueType;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.VectorSource;
-import org.obiba.magma.views.ValueSetWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,10 +48,10 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
   private static final Logger log = LoggerFactory.getLogger(JavascriptValueSource.class);
 
   @Nonnull
-  private ValueType type;
+  private final ValueType type;
 
   @Nonnull
-  private String script;
+  private final String script;
 
   private String scriptName = "customScript";
 
@@ -60,12 +59,10 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
   @SuppressWarnings("TransientFieldInNonSerializableClass")
   private transient Script compiledScript;
 
-  public JavascriptValueSource() {
-
-  }
-
   public JavascriptValueSource(@Nonnull ValueType type, @Nonnull String script) {
+    //noinspection ConstantConditions
     if(type == null) throw new IllegalArgumentException("type cannot be null");
+    //noinspection ConstantConditions
     if(script == null) throw new IllegalArgumentException("script cannot be null");
     this.type = type;
     this.script = script;
