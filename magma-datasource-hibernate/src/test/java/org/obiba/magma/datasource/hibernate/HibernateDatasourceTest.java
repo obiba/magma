@@ -60,7 +60,7 @@ import static org.junit.Assert.fail;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("/test-context.xml")
-@SuppressWarnings({ "OverlyLongMethod", "MagicNumber" })
+@SuppressWarnings({ "OverlyLongMethod", "MagicNumber", "PMD.NcssMethodCount" })
 public class HibernateDatasourceTest {
 
   private static final Logger log = LoggerFactory.getLogger(HibernateDatasourceTest.class);
