@@ -1,12 +1,9 @@
 package org.obiba.magma.datasource.excel;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.poi.ss.usermodel.Sheet;
@@ -17,6 +14,7 @@ import org.junit.Test;
 import org.obiba.core.util.FileUtil;
 import org.obiba.magma.Category;
 import org.obiba.magma.Datasource;
+import org.obiba.magma.Initialisable;
 import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.ValueTableWriter;
@@ -28,9 +26,12 @@ import org.obiba.magma.test.AbstractMagmaTest;
 import org.obiba.magma.type.IntegerType;
 import org.obiba.magma.type.TextType;
 
+import com.google.common.base.Charsets;
 import com.google.common.collect.Iterables;
+import com.google.common.io.Files;
 
-@SuppressWarnings("OverlyLongMethod")
+@SuppressWarnings({ "OverlyLongMethod", "ReuseOfLocalVariable", "ResultOfMethodCallIgnored" })
+@edu.umd.cs.findbugs.annotations.SuppressWarnings("RV_RETURN_VALUE_IGNORED_BAD_PRACTICE")
 public class ExcelDatasourceTest extends AbstractMagmaTest {
 
   /**
@@ -85,7 +86,7 @@ public class ExcelDatasourceTest extends AbstractMagmaTest {
   @Test
   public void testReadUserDefinedBogus() {
 
-    Datasource datasource = new ExcelDatasource("user-defined-bogus",
+    Initialisable datasource = new ExcelDatasource("user-defined-bogus",
         FileUtil.getFileFromResource("org/obiba/magma/datasource/excel/user-defined-bogus.xls"));
     try {
       datasource.initialise();
@@ -187,7 +188,7 @@ public class ExcelDatasourceTest extends AbstractMagmaTest {
 
   @Test
   public void testReadUserDefinedBogusNoTableColumn() {
-    ExcelDatasource datasource = new ExcelDatasource("user-defined-bogus-no-table-column",
+    Initialisable datasource = new ExcelDatasource("user-defined-bogus-no-table-column",
         FileUtil.getFileFromResource("org/obiba/magma/datasource/excel/user-defined-bogus-no-table-column.xls"));
     try {
       datasource.initialise();
@@ -268,7 +269,7 @@ public class ExcelDatasourceTest extends AbstractMagmaTest {
 
   @Test
   public void testCreateDatasourceOnEmptyExcelFile() {
-    Datasource datasource = new ExcelDatasource("empty",
+    Initialisable datasource = new ExcelDatasource("empty",
         FileUtil.getFileFromResource("org/obiba/magma/datasource/excel/empty.xls"));
     datasource.initialise();
   }
@@ -327,13 +328,7 @@ public class ExcelDatasourceTest extends AbstractMagmaTest {
   }
 
   private Iterable<String> readStrings(String filename) throws IOException {
-    List<String> strs = new ArrayList<String>();
-    BufferedReader bis = new BufferedReader(new FileReader(FileUtil.getFileFromResource(filename)));
-    String s;
-    while((s = bis.readLine()) != null) {
-      if(s.trim().length() > 0) strs.add(s.trim());
-    }
-    return strs;
+    return Files.readLines(FileUtil.getFileFromResource(filename), Charsets.UTF_8);
   }
 
   private File createTempFile(String suffix) throws IOException {
