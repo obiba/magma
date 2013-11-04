@@ -45,7 +45,8 @@ public class MongoDBDatasourceFactory extends AbstractDatasourceFactory {
 
   private String options;
 
-  public MongoDBDatasourceFactory() {
+  public MongoDBDatasourceFactory(@Nonnull String name, @Nonnull String url) {
+    this(name, url, null, null, null);
   }
 
   public MongoDBDatasourceFactory(@Nonnull String name, @Nonnull String url, String username, String password,

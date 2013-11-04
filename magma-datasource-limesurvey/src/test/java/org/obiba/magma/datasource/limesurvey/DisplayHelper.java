@@ -39,6 +39,7 @@ public class DisplayHelper {
         .transform(Lists.newArrayList(table.getVariables()),
             new Function<Variable, LimesurveyQuestionVariableValueSource>() {
               @Override
+              @edu.umd.cs.findbugs.annotations.SuppressWarnings("NP_PARAMETER_MUST_BE_NONNULL_BUT_MARKED_AS_NULLABLE")
               public LimesurveyQuestionVariableValueSource apply(Variable input) {
                 return (LimesurveyQuestionVariableValueSource) table.getVariableValueSource(input.getName());
               }

@@ -7,6 +7,7 @@ import org.mozilla.javascript.Scriptable;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.Variable;
 import org.obiba.magma.VariableValueSource;
+import org.obiba.magma.support.ValueTableWrapper;
 import org.obiba.magma.views.View;
 
 public class JavascriptVariableValueSource extends JavascriptValueSource implements VariableValueSource {
@@ -51,7 +52,7 @@ public class JavascriptVariableValueSource extends JavascriptValueSource impleme
 
   @Nullable
   public ValueTable getValueTable() {
-    if (valueTable.isView()) return ((View)valueTable).getWrappedValueTable();
+    if(valueTable != null && valueTable.isView()) return ((ValueTableWrapper) valueTable).getWrappedValueTable();
     return valueTable;
   }
 
@@ -60,8 +61,8 @@ public class JavascriptVariableValueSource extends JavascriptValueSource impleme
     super.enterContext(ctx, scope);
     if(valueTable != null) {
       ctx.push(ValueTable.class, getValueTable());
-      if (valueTable.isView()) {
-        ctx.push(View.class, (View)valueTable);
+      if(valueTable.isView()) {
+        ctx.push(View.class, (View) valueTable);
       }
     }
     ctx.push(Variable.class, variable);
@@ -72,7 +73,7 @@ public class JavascriptVariableValueSource extends JavascriptValueSource impleme
     super.exitContext(ctx);
     if(valueTable != null) {
       ctx.pop(ValueTable.class);
-      if (valueTable.isView()) {
+      if(valueTable.isView()) {
         ctx.pop(View.class);
       }
     }
