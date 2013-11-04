@@ -57,16 +57,12 @@ public class PolygonType extends JSONAwareValueType {
 
   @Override
   public Class<?> getJavaClass() {
-    List<List<Coordinate>> polygon;
-    polygon = new ArrayList<List<Coordinate>>();
-    return polygon.getClass();
+    return ArrayList.class;
   }
 
   @Override
   public boolean acceptsJavaClass(@Nonnull Class<?> clazz) {
-    List<List<Coordinate>> polygon;
-    polygon = new ArrayList<List<Coordinate>>();
-    return polygon.getClass().isAssignableFrom(clazz);
+    return getJavaClass().isAssignableFrom(clazz);
   }
 
   @Override
@@ -142,26 +138,30 @@ public class PolygonType extends JSONAwareValueType {
       return valueOf((JSONArray) object);
     }
     if(type.equals(getJavaClass())) {
-      Collection<List<Coordinate>> polygon = new ArrayList<List<Coordinate>>();
-      List<Coordinate> pts = new ArrayList<Coordinate>();
-
-      for(Object obj : (List<?>) object) {
-        try {
-          for(Object o : (Iterable<?>) obj) {
-            pts.add(Coordinate.getCoordinateFrom(o));
-          }
-        } catch(ClassCastException e) {
-          throw new MagmaRuntimeException("List of Coordinates expected", e);
-        }
-      }
-      if(pts.isEmpty()) {
-        throw new MagmaRuntimeException("A polygon can't be empty");
-      }
-      polygon.add(pts);
-      return Factory.newValue(this, (Serializable) polygon);
+      return valueOfPolygon((Iterable<?>) object);
     }
     throw new IllegalArgumentException(
         "Cannot construct " + getClass().getSimpleName() + " from type " + object.getClass() + ".");
+  }
+
+  private Value valueOfPolygon(Iterable<?> object) {
+    Collection<List<Coordinate>> polygon = new ArrayList<List<Coordinate>>();
+    List<Coordinate> pts = new ArrayList<Coordinate>();
+
+    for(Object obj : object) {
+      try {
+        for(Object o : (Iterable<?>) obj) {
+          pts.add(Coordinate.getCoordinateFrom(o));
+        }
+      } catch(ClassCastException e) {
+        throw new MagmaRuntimeException("List of Coordinates expected", e);
+      }
+    }
+    if(pts.isEmpty()) {
+      throw new MagmaRuntimeException("A polygon can't be empty");
+    }
+    polygon.add(pts);
+    return Factory.newValue(this, (Serializable) polygon);
   }
 
   @SuppressWarnings("unchecked")
@@ -182,10 +182,7 @@ public class PolygonType extends JSONAwareValueType {
       }
       return 0;
     }
-    if(size1 < size2) {
-      return -1;
-    }
-    return 1;
+    return size1 < size2 ? -1 : 1;
   }
 
   @Nullable

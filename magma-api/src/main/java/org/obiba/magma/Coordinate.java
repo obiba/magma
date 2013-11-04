@@ -84,34 +84,26 @@ public class Coordinate implements Comparable<Coordinate>, Serializable {
   public static Coordinate getCoordinateFrom(String string) {
     // GeoJSON coordinate
     if(string.trim().startsWith("[")) {
-      JSONArray array = null;
       try {
-        array = new JSONArray(string);
-        return getCoordinateFrom(array);
+        return getCoordinateFrom(new JSONArray(string));
       } catch(JSONException e) {
         throw new MagmaRuntimeException("Not a valid GeoJSON coordinate", e);
       }
     }
     // JSON coordinate
     if(string.trim().startsWith("{")) {
-      JSONObject object = null;
       try {
-        object = new JSONObject(string);
-        return getCoordinateFrom(object);
+        return getCoordinateFrom(new JSONObject(string));
       } catch(JSONException e) {
         throw new MagmaRuntimeException("Not a valid JSON coordinate", e);
       }
     }
     // Google coordinate  lat,long
-    else {
-      String stringToParse = "[" + string.trim() + "]";
-      JSONArray array = null;
-      try {
-        array = new JSONArray(stringToParse);
-        return new Coordinate(array.getDouble(1), array.getDouble(0));
-      } catch(JSONException e) {
-        throw new MagmaRuntimeException("Not a valid coordinate", e);
-      }
+    try {
+      JSONArray array = new JSONArray("[" + string.trim() + "]");
+      return new Coordinate(array.getDouble(1), array.getDouble(0));
+    } catch(JSONException e) {
+      throw new MagmaRuntimeException("Not a valid coordinate", e);
     }
   }
 
