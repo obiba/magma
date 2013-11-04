@@ -12,6 +12,7 @@ import org.obiba.magma.Value;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
+import org.obiba.magma.VectorSource;
 import org.obiba.magma.datasource.limesurvey.LimesurveyValueTable.LimesurveyQuestionVariableValueSource;
 
 import com.google.common.base.Function;
@@ -54,27 +55,32 @@ public class DisplayHelper {
     SortedSet<VariableEntity> variableEntities = Sets.newTreeSet(table.getVariableEntities());
     for(LimesurveyQuestionVariableValueSource lvv : variables) {
       Variable v = lvv.getVariable();
-      System.out.print("Var '" + v.getName() + "' " + v.getValueType().getName() + " ");
-      for(Attribute attr : v.getAttributes()) {
-        System.out.print(attr.getName() + (attr.getLocale() == null ? "" : attr.getLocale()) + "=" + attr.getValue() +
-            ", ");
-      }
-      System.out.println();
-      for(Category c : v.getCategories()) {
-        System.out.print("    Cat '" + c.getName() + "' ");
-        for(Attribute attr : c.getAttributes()) {
-          System.out.print(" " + attr.getName() + (attr.getLocale() == null ? "" : attr.getLocale()) + "=" +
-              attr.getValue() + ", ");
-        }
-        System.out.println();
-      }
-
-      Iterable<Value> values = lvv.getValues(variableEntities);
-
-      for(Value value : values) {
-        System.out.println(value);
-      }
+      displayMetadata(v);
+      displayValues(variableEntities, lvv);
     }
     return variables.size();
+  }
+
+  private static void displayValues(SortedSet<VariableEntity> variableEntities, VectorSource vectorSource) {
+    for(Value value : vectorSource.getValues(variableEntities)) {
+      System.out.println(value);
+    }
+  }
+
+  private static void displayMetadata(Variable variable) {
+    System.out.print("Var '" + variable.getName() + "' " + variable.getValueType().getName() + " ");
+    for(Attribute attr : variable.getAttributes()) {
+      System.out.print(attr.getName() + (attr.getLocale() == null ? "" : attr.getLocale()) + "=" + attr.getValue() +
+          ", ");
+    }
+    System.out.println();
+    for(Category c : variable.getCategories()) {
+      System.out.print("    Cat '" + c.getName() + "' ");
+      for(Attribute attr : c.getAttributes()) {
+        System.out.print(" " + attr.getName() + (attr.getLocale() == null ? "" : attr.getLocale()) + "=" +
+            attr.getValue() + ", ");
+      }
+      System.out.println();
+    }
   }
 }

@@ -214,7 +214,7 @@ public class MongoDBDatasourceTest {
     testWriteReadValue(ds, id++, PolygonType.get().nullValue());
   }
 
-  @SuppressWarnings({ "ReuseOfLocalVariable", "OverlyLongMethod" })
+  @SuppressWarnings({ "ReuseOfLocalVariable", "OverlyLongMethod", "PMD.NcssMethodCount" })
   @Test
   public void testRemoveVariable() throws IOException {
     Datasource ds = createDatasource();
