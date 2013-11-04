@@ -16,7 +16,9 @@ import org.obiba.magma.ValueConverter;
 import org.obiba.magma.ValueType;
 import org.obiba.magma.test.AbstractMagmaTest;
 
+@SuppressWarnings("ConstantConditions")
 public class TextToAnyValueTypeConverterTest extends AbstractMagmaTest {
+
   @Test
   public void test_converterFor_returnsAConverter() {
     ValueConverter converter = ValueType.Factory.converterFor(TextType.get(), BooleanType.get());
@@ -51,6 +53,7 @@ public class TextToAnyValueTypeConverterTest extends AbstractMagmaTest {
   }
 
   @Test
+  @edu.umd.cs.findbugs.annotations.SuppressWarnings("FE_FLOATING_POINT_EQUALITY")
   public void test_convert_1_text_to_decimal() {
     Value value = TextType.get().valueOf("1.1");
     Value converted = DecimalType.get().convert(value);

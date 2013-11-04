@@ -21,9 +21,7 @@ import org.obiba.magma.ValueType;
 import org.obiba.magma.js.AbstractJsTest;
 import org.obiba.magma.js.ScriptableValue;
 import org.obiba.magma.type.DecimalType;
-import org.obiba.magma.type.IntegerType;
 import org.obiba.magma.type.PointType;
-import org.obiba.magma.type.PolygonType;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
@@ -57,8 +55,7 @@ public class GeoMethodsTest extends AbstractJsTest {
   @Test(expected = MagmaRuntimeException.class)
   public void testStringLongitude() {
     ScriptableValue scriptableValue = newValue(ValueType.Factory.newValue("test"));
-    ScriptableValue longitude = GeoMethods
-        .longitude(Context.getCurrentContext(), scriptableValue, new Object[] { }, null);
+    GeoMethods.longitude(Context.getCurrentContext(), scriptableValue, new Object[] { }, null);
   }
 
   @Test

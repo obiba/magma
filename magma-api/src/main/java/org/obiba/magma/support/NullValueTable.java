@@ -121,12 +121,13 @@ public class NullValueTable implements ValueTable {
     return null;
   }
 
+  @SuppressWarnings("ConstantConditions")
+  @edu.umd.cs.findbugs.annotations.SuppressWarnings("NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE")
   @Nonnull
   public static NullValueTable get() {
     if(instance == null || instance.get() == null) {
       instance = MagmaEngine.get().registerInstance(new NullValueTable());
     }
-    //noinspection ConstantConditions
     return instance.get();
   }
 

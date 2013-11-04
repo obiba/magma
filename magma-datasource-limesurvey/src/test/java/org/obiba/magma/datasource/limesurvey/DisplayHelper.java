@@ -38,7 +38,6 @@ public class DisplayHelper {
     List<LimesurveyQuestionVariableValueSource> variables = Lists.newArrayList(Lists
         .transform(Lists.newArrayList(table.getVariables()),
             new Function<Variable, LimesurveyQuestionVariableValueSource>() {
-
               @Override
               public LimesurveyQuestionVariableValueSource apply(Variable input) {
                 return (LimesurveyQuestionVariableValueSource) table.getVariableValueSource(input.getName());

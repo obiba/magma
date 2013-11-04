@@ -14,7 +14,6 @@ public class JdbcDatasourceSettings {
   // Instance Variables
   //
 
-  @Nonnull
   private String defaultEntityType;
 
   private Set<String> mappedTables;
@@ -33,13 +32,12 @@ public class JdbcDatasourceSettings {
    */
   private String defaultUpdatedTimestampColumnName;
 
-  //
-  // Constructors
-  //
-
   public JdbcDatasourceSettings() {
   }
 
+  //
+  // Constructors
+  //
   public JdbcDatasourceSettings(@Nonnull String defaultEntityType, @Nullable Set<String> mappedTables,
       @Nullable Set<JdbcValueTableSettings> tableSettings, boolean useMetadataTables) {
     //noinspection ConstantConditions
@@ -58,7 +56,6 @@ public class JdbcDatasourceSettings {
     this.defaultEntityType = defaultEntityType;
   }
 
-  @Nonnull
   public String getDefaultEntityType() {
     return defaultEntityType;
   }

@@ -44,6 +44,7 @@ import static org.obiba.core.util.FileUtil.getFileFromResource;
 import static org.obiba.magma.datasource.csv.CsvValueTable.DEFAULT_ENTITY_TYPE;
 
 @SuppressWarnings({ "OverlyLongMethod", "ResultOfMethodCallIgnored", "OverlyCoupledClass" })
+@edu.umd.cs.findbugs.annotations.SuppressWarnings("RV_RETURN_VALUE_IGNORED_BAD_PRACTICE")
 public class CsvDatasourceTest extends AbstractMagmaTest {
 
   private static final Logger log = LoggerFactory.getLogger(CsvDatasourceTest.class);
@@ -604,29 +605,29 @@ public class CsvDatasourceTest extends AbstractMagmaTest {
 
   @Test(expected = DatasourceParsingException.class)
   public void test_MissingNameHeader() {
-      File samples = getFileFromResource("exceptions");
-      File variables = new File(samples, "missing-name-variables.csv");
+    File samples = getFileFromResource("exceptions");
+    File variables = new File(samples, "missing-name-variables.csv");
 
-      CsvDatasource ds = new CsvDatasource("variables").addValueTable("variables", variables, (File) null);
-      ds.initialise();
+    CsvDatasource ds = new CsvDatasource("variables").addValueTable("variables", variables, (File) null);
+    ds.initialise();
   }
 
   @Test(expected = DatasourceParsingException.class)
   public void test_MissingValueTypeHeader() {
-      File samples = getFileFromResource("exceptions");
-      File variables = new File(samples, "missing-valueType-variables.csv");
+    File samples = getFileFromResource("exceptions");
+    File variables = new File(samples, "missing-valueType-variables.csv");
 
-      CsvDatasource ds = new CsvDatasource("variables").addValueTable("variables", variables, (File) null);
-      ds.initialise();
+    CsvDatasource ds = new CsvDatasource("variables").addValueTable("variables", variables, (File) null);
+    ds.initialise();
   }
 
   @Test(expected = DatasourceParsingException.class)
   public void test_MissingEntityTypeHeader() {
-      File samples = getFileFromResource("exceptions");
-      File variables = new File(samples, "missing-entityType-variables.csv");
+    File samples = getFileFromResource("exceptions");
+    File variables = new File(samples, "missing-entityType-variables.csv");
 
-      CsvDatasource ds = new CsvDatasource("variables").addValueTable("variables", variables, (File) null);
-      ds.initialise();
+    CsvDatasource ds = new CsvDatasource("variables").addValueTable("variables", variables, (File) null);
+    ds.initialise();
   }
 
   @Test
@@ -641,7 +642,7 @@ public class CsvDatasourceTest extends AbstractMagmaTest {
   public void test_HasNoEntities() {
     File samples = getFileFromResource("separators");
     File variables = new File(samples, "variables.csv");
-    CsvDatasource datasource = new CsvDatasource("csv-datasource").addValueTable("HasEntities", variables, (File)null);
+    CsvDatasource datasource = new CsvDatasource("csv-datasource").addValueTable("HasEntities", variables, (File) null);
     datasource.initialise();
     assertThat(datasource.hasEntities(new EntitiesPredicate.NonViewEntitiesPredicate()), is(false));
   }

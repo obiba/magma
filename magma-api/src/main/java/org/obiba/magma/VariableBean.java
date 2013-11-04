@@ -34,13 +34,14 @@ class VariableBean extends AbstractAttributeAware implements Variable, Serializa
 
   boolean repeatable;
 
-  String occurrenceGroup;
-
   /**
    * Use a linked hash set to keep insertion order
    */
   @SuppressWarnings({ "CollectionDeclaredAsConcreteClass", "TypeMayBeWeakened" })
+  @edu.umd.cs.findbugs.annotations.SuppressWarnings("SE_BAD_FIELD")
   final LinkedHashSet<Category> categories = new LinkedHashSet<Category>();
+
+  String occurrenceGroup;
 
   transient Map<Value, Category> categoriesAsValue;
 

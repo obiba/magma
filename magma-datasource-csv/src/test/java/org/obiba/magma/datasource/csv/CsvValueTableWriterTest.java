@@ -48,6 +48,7 @@ import static org.obiba.magma.datasource.csv.CsvValueTable.DEFAULT_ENTITY_TYPE;
  *
  */
 @SuppressWarnings({ "ResultOfMethodCallIgnored", "OverlyLongMethod" })
+@edu.umd.cs.findbugs.annotations.SuppressWarnings("RV_RETURN_VALUE_IGNORED_BAD_PRACTICE")
 public class CsvValueTableWriterTest extends AbstractMagmaTest {
 
   private static final Logger log = LoggerFactory.getLogger(CsvValueTableWriterTest.class);

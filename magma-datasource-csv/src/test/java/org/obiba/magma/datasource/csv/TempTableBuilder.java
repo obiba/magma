@@ -60,6 +60,7 @@ public class TempTableBuilder {
   }
 
   @SuppressWarnings("ResultOfMethodCallIgnored")
+  @edu.umd.cs.findbugs.annotations.SuppressWarnings("RV_RETURN_VALUE_IGNORED_BAD_PRACTICE")
   public File build() throws IOException {
     File tempDirectory = createTempDirectory(tempDirectorySuffix);
     File testTableDirectory = new File(tempDirectory.getAbsoluteFile(), tableName);
@@ -94,6 +95,7 @@ public class TempTableBuilder {
   }
 
   @SuppressWarnings("ResultOfMethodCallIgnored")
+  @edu.umd.cs.findbugs.annotations.SuppressWarnings("RV_RETURN_VALUE_IGNORED_BAD_PRACTICE")
   private File createTempDirectory(String suffix) throws IOException {
     File tempDirectory = File.createTempFile(suffix, "");
     tempDirectory.delete();
