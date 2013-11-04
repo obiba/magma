@@ -40,6 +40,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
 
@@ -97,7 +98,7 @@ public class HibernateDatasourceTest {
   }
 
   @Test
-  public void testTransactionalTableCreation() {
+  public void test_transactional_table_creation() {
 
     transactionTemplate.execute(new TransactionCallbackWithoutResult() {
       @Override
@@ -149,7 +150,7 @@ public class HibernateDatasourceTest {
   }
 
   @Test
-  public void testTableAndVariablesPersisted() {
+  public void test_table_and_variables_persisted() {
 
     transactionTemplate.execute(new TransactionCallbackWithoutResult() {
       @Override
@@ -201,7 +202,7 @@ public class HibernateDatasourceTest {
   }
 
   @Test
-  public void testVariableStateChangeIsPersisted() {
+  public void test_variable_state_change_is_persisted() {
     final Variable initialState = Variable.Builder.newVariable("Var1", TextType.get(), PARTICIPANT)
         .addCategory("C1", "1").addCategory("C2", "2").addCategory("C3", "3").build();
     final Variable changedState = Variable.Builder.newVariable("Var1", TextType.get(), PARTICIPANT)
@@ -269,7 +270,7 @@ public class HibernateDatasourceTest {
   }
 
   @Test
-  public void testWrite() {
+  public void test_write() {
 
     transactionTemplate.execute(new TransactionCallbackWithoutResult() {
       @Override
@@ -294,7 +295,7 @@ public class HibernateDatasourceTest {
   }
 
   @Test
-  public void testVectorSource() {
+  public void test_vector_source() {
 
     final ImmutableSet<Variable> variables = ImmutableSet.of(//
         Variable.Builder.newVariable("Test Variable", IntegerType.get(), PARTICIPANT).build(), //
@@ -353,7 +354,7 @@ public class HibernateDatasourceTest {
 
   @SuppressWarnings("ConstantConditions")
   @Test
-  public void testBinaryVectorSource() {
+  public void test_binary_vector_source() {
 
     final ImmutableSet<Variable> variables = ImmutableSet.of( //
         Variable.Builder.newVariable("Test Binary", BinaryType.get(), PARTICIPANT).build(),
@@ -423,9 +424,9 @@ public class HibernateDatasourceTest {
 
   @SuppressWarnings("ConstantConditions")
   @Test
-  public void testTimestamps() throws Exception {
+  public void test_timestamps_adding_data() throws Exception {
 
-    final ImmutableSet<Variable> variables = ImmutableSet.of(//
+    final ImmutableSet<Variable> variables = ImmutableSet.of( //
         Variable.Builder.newVariable("Test Variable", IntegerType.get(), PARTICIPANT).build(), //
         Variable.Builder.newVariable("Other Variable", DecimalType.get(), PARTICIPANT).build());
 
@@ -493,7 +494,177 @@ public class HibernateDatasourceTest {
   }
 
   @Test
-  public void testRemoveVariable() {
+  public void test_timestamps_adding_variable() throws Exception {
+
+    transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+      @Override
+      protected void doInTransactionWithoutResult(TransactionStatus status) {
+        try {
+          HibernateDatasource ds = createDatasource();
+          ValueTable generatedValueTable = new GeneratedValueTable(ds,
+              ImmutableSet.of(Variable.Builder.newVariable("Test Variable", IntegerType.get(), PARTICIPANT).build()),
+              1);
+          MagmaEngine.get().addDatasource(ds);
+          DatasourceCopier.Builder.newCopier().build().copy(generatedValueTable, TABLE, ds);
+        } catch(Exception e) {
+          fail(e.getMessage());
+          throw new RuntimeException(e);
+        }
+      }
+    });
+
+    Thread.sleep(1000);
+
+    Date datasourceLastUpdate = getDatasourceStateLastUpdate();
+    Date tableLastUpdate = getTableLastUpdate(TABLE);
+
+    // add new variable
+    transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+      @Override
+      protected void doInTransactionWithoutResult(TransactionStatus status) {
+        try {
+          HibernateDatasource ds = getDatasource();
+
+          ValueTableWriter tableWriter = ds.createWriter(TABLE, PARTICIPANT);
+          VariableWriter variableWriter = tableWriter.writeVariables();
+          variableWriter
+              .writeVariable(Variable.Builder.newVariable("New Variable", TextType.get(), PARTICIPANT).build());
+          variableWriter.close();
+          tableWriter.close();
+
+        } catch(Exception e) {
+          fail(e.getMessage());
+          throw new RuntimeException(e);
+        }
+      }
+    });
+
+    assertThat(datasourceLastUpdate, DateMatchers.sameMillisecond(getDatasourceStateLastUpdate()));
+    assertThat(datasourceLastUpdate, DateMatchers.before(getDatasourceLastUpdate()));
+    assertThat(tableLastUpdate, DateMatchers.before(getTableLastUpdate(TABLE)));
+  }
+
+  @Test
+  public void test_timestamps_removing_variable() throws Exception {
+
+    final Variable variable = Variable.Builder.newVariable("Test Variable", IntegerType.get(), PARTICIPANT).build();
+
+    transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+      @Override
+      protected void doInTransactionWithoutResult(TransactionStatus status) {
+        try {
+          HibernateDatasource ds = createDatasource();
+          ValueTable generatedValueTable = new GeneratedValueTable(ds, ImmutableSet.of(variable), 1);
+          MagmaEngine.get().addDatasource(ds);
+          DatasourceCopier.Builder.newCopier().build().copy(generatedValueTable, TABLE, ds);
+        } catch(Exception e) {
+          fail(e.getMessage());
+          throw new RuntimeException(e);
+        }
+      }
+    });
+
+    Thread.sleep(1000);
+
+    Date datasourceLastUpdate = getDatasourceStateLastUpdate();
+    Date tableLastUpdate = getTableLastUpdate(TABLE);
+
+    // remove variable
+    transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+      @Override
+      protected void doInTransactionWithoutResult(TransactionStatus status) {
+        try {
+          HibernateDatasource ds = getDatasource();
+
+          ValueTableWriter tableWriter = ds.createWriter(TABLE, PARTICIPANT);
+          VariableWriter variableWriter = tableWriter.writeVariables();
+          variableWriter.removeVariable(variable);
+          variableWriter.close();
+          tableWriter.close();
+
+        } catch(Exception e) {
+          fail(e.getMessage());
+          throw new RuntimeException(e);
+        }
+      }
+    });
+
+    assertThat(datasourceLastUpdate, DateMatchers.sameMillisecond(getDatasourceStateLastUpdate()));
+    assertThat(datasourceLastUpdate, DateMatchers.before(getDatasourceLastUpdate()));
+    assertThat(tableLastUpdate, DateMatchers.before(getTableLastUpdate(TABLE)));
+  }
+
+  @Test
+  public void test_timestamps_removing_table() throws Exception {
+
+    final Variable variable = Variable.Builder.newVariable("Test Variable", IntegerType.get(), PARTICIPANT).build();
+
+    transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+      @Override
+      protected void doInTransactionWithoutResult(TransactionStatus status) {
+        try {
+          HibernateDatasource ds = createDatasource();
+          ValueTable generatedValueTable = new GeneratedValueTable(ds, ImmutableSet.of(variable), 1);
+          MagmaEngine.get().addDatasource(ds);
+          DatasourceCopier.Builder.newCopier().build().copy(generatedValueTable, TABLE, ds);
+        } catch(Exception e) {
+          fail(e.getMessage());
+          throw new RuntimeException(e);
+        }
+      }
+    });
+
+    Thread.sleep(1000);
+
+    Date datasourceLastUpdate = getDatasourceStateLastUpdate();
+
+    // drop table
+    transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+      @Override
+      protected void doInTransactionWithoutResult(TransactionStatus status) {
+        try {
+          HibernateDatasource ds = getDatasource();
+          ds.dropTable(TABLE);
+        } catch(Exception e) {
+          fail(e.getMessage());
+          throw new RuntimeException(e);
+        }
+      }
+    });
+
+    assertThat(datasourceLastUpdate, DateMatchers.before(getDatasourceStateLastUpdate()));
+    assertThat(datasourceLastUpdate, DateMatchers.before(getDatasourceLastUpdate()));
+  }
+
+  private Date getDatasourceStateLastUpdate() {
+    return transactionTemplate.execute(new TransactionCallback<Date>() {
+      @Override
+      public Date doInTransaction(TransactionStatus status) {
+        return getDatasource().getDatasourceState().getUpdated();
+      }
+    });
+  }
+
+  private Date getDatasourceLastUpdate() {
+    return transactionTemplate.execute(new TransactionCallback<Date>() {
+      @Override
+      public Date doInTransaction(TransactionStatus status) {
+        return (Date) getDatasource().getTimestamps().getLastUpdate().getValue();
+      }
+    });
+  }
+
+  private Date getTableLastUpdate(final String tableName) {
+    return transactionTemplate.execute(new TransactionCallback<Date>() {
+      @Override
+      public Date doInTransaction(TransactionStatus status) {
+        return (Date) getDatasource().getValueTable(tableName).getTimestamps().getLastUpdate().getValue();
+      }
+    });
+  }
+
+  @Test
+  public void test_remove_variable() {
 
     transactionTemplate.execute(new TransactionCallbackWithoutResult() {
       @Override

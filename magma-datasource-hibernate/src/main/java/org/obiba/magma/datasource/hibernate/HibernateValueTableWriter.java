@@ -166,6 +166,7 @@ class HibernateValueTableWriter implements ValueTableWriter {
           dirty = false;
         }
 
+        // persists data and empty the Session so we don't fill it up
         session.flush();
         session.clear();
       }
@@ -347,9 +348,8 @@ class HibernateValueTableWriter implements ValueTableWriter {
           dirty = false;
         }
 
-        // Persists valueSetState
+        // persists valueSetState and empty the Session so we don't fill it up
         session.flush();
-        // Empty the Session so we don't fill it up
         session.clear();
       }
     }

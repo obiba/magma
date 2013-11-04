@@ -12,6 +12,8 @@ import java.util.concurrent.ConcurrentMap;
 import javax.annotation.Nonnull;
 
 import org.hibernate.HibernateException;
+import org.hibernate.LockMode;
+import org.hibernate.LockOptions;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
@@ -141,7 +143,6 @@ public class HibernateDatasource extends AbstractDatasource {
     removeValueTable(tableName);
 
     // cannot use cascading because DELETE (and INSERT) do not cascade via relationships in JPQL query
-
     Session session = getSessionFactory().getCurrentSession();
 
     TimedExecution valueSetIdsTime = new TimedExecution().start();
@@ -165,6 +166,14 @@ public class HibernateDatasource extends AbstractDatasource {
 
     session.delete(tableState);
     log.info("Dropped table '{}' in {}", tableFullName, timedExecution.end().formatExecutionTime());
+
+    // force datasource timestamp update
+    updateDatasourceLastUpdate();
+  }
+
+  private void updateDatasourceLastUpdate() {
+    sessionFactory.getCurrentSession().buildLockRequest(new LockOptions(LockMode.PESSIMISTIC_FORCE_INCREMENT))
+        .lock(getDatasourceState());
   }
 
   @Override
