@@ -98,13 +98,13 @@ class HibernateValueTable extends AbstractValueTable {
     }
     Timestamps cachedTimestamps = valueSetTimestamps.get(entity.getIdentifier());
     if(cachedTimestamps == null) {
-      if(!hasValueSet(entity)) {
-        // not in the cache because not a valid value set
-        throw new NoSuchValueSetException(this, entity);
-      } else {
+      if(hasValueSet(entity)) {
         // not in the cache because cache is outdated
         cacheValueSetTimestamps();
         cachedTimestamps = valueSetTimestamps.get(entity.getIdentifier());
+      } else {
+        // not in the cache because not a valid value set
+        throw new NoSuchValueSetException(this, entity);
       }
     }
 
@@ -137,6 +137,7 @@ class HibernateValueTable extends AbstractValueTable {
     }
   }
 
+  @Nonnull
   @Override
   public Timestamps getTimestamps() {
     return createTimestamps(getValueTableState());
@@ -242,6 +243,7 @@ class HibernateValueTable extends AbstractValueTable {
       return valueSetState;
     }
 
+    @Nonnull
     @Override
     public Timestamps getTimestamps() {
       return createTimestamps(getValueSetState());

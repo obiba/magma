@@ -146,6 +146,7 @@ public class StaticValueTable extends AbstractValueTable {
     return this;
   }
 
+  @Nonnull
   @Override
   public Timestamps getTimestamps() {
     return NullTimestamps.get();

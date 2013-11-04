@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -56,7 +57,11 @@ public class ExcelDatasource extends AbstractDatasource {
 
   public static final String DEFAULT_TABLE_NAME = "Table";
 
-  public static final Set<String> sheetReservedNames = Sets.newHashSet(VARIABLES_SHEET, CATEGORIES_SHEET, HELP_SHEET);
+  public static final Set<String> SHEET_RESERVED_NAMES = Sets.newHashSet(VARIABLES_SHEET, CATEGORIES_SHEET, HELP_SHEET);
+
+  private static final int SHEET_NAME_MAX_LENGTH = 30;
+
+  private static final int BOLD_WEIGHT = 700;
 
   private Workbook excelWorkbook;
 
@@ -192,7 +197,7 @@ public class ExcelDatasource extends AbstractDatasource {
 
   @Override
   protected void onDispose() {
-    // Write the workbook (datasource) to file/outputstream if any of them is defined
+    // Write the workbook (datasource) to file/OutputStream if any of them is defined
     OutputStream out = null;
     try {
       out = excelFile == null ? excelOutput : new FileOutputStream(excelFile);
@@ -212,7 +217,7 @@ public class ExcelDatasource extends AbstractDatasource {
 
   @Override
   protected Set<String> getValueTableNames() {
-    Set<String> sheetNames = new LinkedHashSet<String>(100);
+    Collection<String> sheetNames = new LinkedHashSet<String>(100);
 
     // find the table names from the Variables sheet
     if(hasVariablesSheet()) {
@@ -237,7 +242,7 @@ public class ExcelDatasource extends AbstractDatasource {
     int sheetCount = excelWorkbook.getNumberOfSheets();
     for(int i = 0; i < sheetCount; i++) {
       String sheetName = excelWorkbook.getSheetAt(i).getSheetName();
-      if(!sheetNames.contains(sheetName) && !sheetReservedNames.contains(sheetName)) {
+      if(!sheetNames.contains(sheetName) && !SHEET_RESERVED_NAMES.contains(sheetName)) {
         valueTablesMapOnInit.put(sheetName, new ExcelValueTable(this, sheetName, "Participant"));
       }
     }
@@ -246,7 +251,7 @@ public class ExcelDatasource extends AbstractDatasource {
   }
 
   private List<ExcelDatasourceParsingException> readValueTablesFromVariableSheet(
-      Map<String, Integer> headerMapVariables, Set<String> sheetNames) {
+      Map<String, Integer> headerMapVariables, Collection<String> sheetNames) {
     List<ExcelDatasourceParsingException> errors = new ArrayList<ExcelDatasourceParsingException>();
 
     for(int i = 1; i < getVariablesSheet().getPhysicalNumberOfRows(); i++) {
@@ -306,7 +311,7 @@ public class ExcelDatasource extends AbstractDatasource {
     return getCustomAttributeNames(getCategoriesSheet().getRow(0), VariableConverter.reservedCategoryHeaders);
   }
 
-  private Set<String> getCustomAttributeNames(Row rowHeader, List<String> reservedAttributeNames) {
+  private Set<String> getCustomAttributeNames(Row rowHeader, Iterable<String> reservedAttributeNames) {
     Set<String> attributesNames = new HashSet<String>();
     int cellCount = rowHeader.getPhysicalNumberOfCells();
     for(int i = 0; i < cellCount; i++) {
@@ -360,8 +365,8 @@ public class ExcelDatasource extends AbstractDatasource {
   private String getSheetName(String tableName) {
     String sheetName = NameConverter.toExcelName(tableName);
     // Excel allows a maximum of 30 chars for table names
-    if(sheetName.length() > 30) {
-      sheetName = sheetName.substring(0, 27) + "$" + (sheetName.length() - 30);
+    if(sheetName.length() > SHEET_NAME_MAX_LENGTH) {
+      sheetName = sheetName.substring(0, 27) + "$" + (sheetName.length() - SHEET_NAME_MAX_LENGTH);
     }
     log.debug("{}={}", tableName, sheetName);
     return sheetName;
@@ -382,12 +387,14 @@ public class ExcelDatasource extends AbstractDatasource {
 
     CellStyle headerCellStyle = excelWorkbook.createCellStyle();
     Font headerFont = excelWorkbook.createFont();
-    headerFont.setBoldweight((short) 700);
+    headerFont.setBoldweight((short) BOLD_WEIGHT);
     headerCellStyle.setFont(headerFont);
 
     excelStyles.put("headerCellStyle", headerCellStyle);
   }
 
+  @Override
+  @Nonnull
   public Timestamps getTimestamps() {
     return new ExcelTimestamps(excelFile);
   }

@@ -11,7 +11,6 @@ package org.obiba.magma.support;
 
 import java.io.IOException;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -113,6 +112,7 @@ public class StaticDatasource extends AbstractAttributeAware implements Datasour
     attributes.clear();
   }
 
+  @Nonnull
   @Override
   public Timestamps getTimestamps() {
     return new UnionTimestamps(getValueTables());
@@ -121,7 +121,9 @@ public class StaticDatasource extends AbstractAttributeAware implements Datasour
   @Nonnull
   @Override
   public ValueTableWriter createWriter(@Nonnull String tableName, @Nonnull String entityType) {
+    //noinspection ConstantConditions
     if(tableName == null) throw new IllegalArgumentException("tableName cannot be null");
+    //noinspection ConstantConditions
     if(entityType == null) throw new IllegalArgumentException("entityType cannot be null");
 
     StaticValueTable table;

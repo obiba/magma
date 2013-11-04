@@ -106,6 +106,7 @@ class MongoDBValueSet implements ValueSet {
     }
   }
 
+  @Nonnull
   @Override
   public Timestamps getTimestamps() {
     return new Timestamps() {

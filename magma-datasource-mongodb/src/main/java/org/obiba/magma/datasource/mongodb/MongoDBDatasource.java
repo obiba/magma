@@ -26,8 +26,6 @@ import org.obiba.magma.support.UnionTimestamps;
 import org.obiba.magma.type.DateTimeType;
 
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Iterables;
-import com.mongodb.BasicDBObject;
 import com.mongodb.BasicDBObjectBuilder;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
@@ -146,7 +144,7 @@ public class MongoDBDatasource extends AbstractDatasource {
   @Override
   public ValueTableWriter createWriter(@Nonnull String tableName, @Nonnull String entityType) {
     MongoDBValueTable valueTable = null;
-    if (getValueTableNames().isEmpty()) {
+    if(getValueTableNames().isEmpty()) {
       // make sure datasource document exists
       asDBObject();
     }
@@ -161,8 +159,8 @@ public class MongoDBDatasource extends AbstractDatasource {
 
   @Override
   protected Set<String> getValueTableNames() {
-    DBCursor cursor = getValueTableCollection()
-        .find(BasicDBObjectBuilder.start().add("datasource",getName()).get(), BasicDBObjectBuilder.start().add("name", 1).get());
+    DBCursor cursor = getValueTableCollection().find(BasicDBObjectBuilder.start().add("datasource", getName()).get(),
+        BasicDBObjectBuilder.start().add("name", 1).get());
     ImmutableSet.Builder<String> builder = ImmutableSet.builder();
     try {
       while(cursor.hasNext()) {
@@ -179,6 +177,7 @@ public class MongoDBDatasource extends AbstractDatasource {
     return new MongoDBValueTable(this, tableName);
   }
 
+  @Nonnull
   @Override
   public Timestamps getTimestamps() {
     ImmutableSet.Builder<Timestamped> builder = ImmutableSet.builder();
@@ -187,6 +186,7 @@ public class MongoDBDatasource extends AbstractDatasource {
   }
 
   private class MongoDBDatasourceTimestamped implements Timestamped {
+    @Nonnull
     @Override
     public Timestamps getTimestamps() {
       return new Timestamps() {

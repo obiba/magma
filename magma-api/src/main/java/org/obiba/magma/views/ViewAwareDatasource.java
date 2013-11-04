@@ -33,7 +33,7 @@ public class ViewAwareDatasource extends AbstractDatasourceWrapper {
     if(views == null) throw new IllegalArgumentException("views cannot be null");
 
     this.views = Maps.newLinkedHashMap();
-    for (View view : views) {
+    for(View view : views) {
       this.views.put(view.getName(), view);
     }
   }
@@ -92,11 +92,13 @@ public class ViewAwareDatasource extends AbstractDatasourceWrapper {
     }
   }
 
+  @Nonnull
   @Override
   public Timestamps getTimestamps() {
     final Timestamps ts = super.getTimestamps();
     ImmutableSet.Builder<Timestamped> builder = ImmutableSet.builder();
     builder.addAll(getViews()).add(new Timestamped() {
+      @Nonnull
       @Override
       public Timestamps getTimestamps() {
         return ts;
@@ -156,6 +158,7 @@ public class ViewAwareDatasource extends AbstractDatasourceWrapper {
   }
 
   private class ViewAwareDatasourceTimestamped implements Timestamped {
+    @Nonnull
     @Override
     public Timestamps getTimestamps() {
       return new Timestamps() {

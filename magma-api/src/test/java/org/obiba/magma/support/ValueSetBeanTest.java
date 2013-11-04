@@ -1,5 +1,7 @@
 package org.obiba.magma.support;
 
+import javax.annotation.Nonnull;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.obiba.magma.Timestamps;
@@ -50,6 +52,9 @@ public class ValueSetBeanTest {
         return ENTITY;
       }
 
+      @SuppressWarnings("ConstantConditions")
+      @edu.umd.cs.findbugs.annotations.SuppressWarnings("NP_NONNULL_PARAM_VIOLATION")
+      @Nonnull
       @Override
       public Timestamps getTimestamps() {
         return null;
@@ -72,6 +77,9 @@ public class ValueSetBeanTest {
         return null;
       }
 
+      @SuppressWarnings("ConstantConditions")
+      @edu.umd.cs.findbugs.annotations.SuppressWarnings("NP_NONNULL_PARAM_VIOLATION")
+      @Nonnull
       @Override
       public Timestamps getTimestamps() {
         return null;

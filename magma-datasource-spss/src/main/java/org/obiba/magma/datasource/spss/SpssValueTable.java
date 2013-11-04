@@ -65,6 +65,7 @@ public class SpssValueTable extends AbstractValueTable implements Disposable {
     return new SpssValueSet(this, entity, spssFile);
   }
 
+  @Nonnull
   @Override
   public Timestamps getTimestamps() {
     return new Timestamps() {
@@ -107,11 +108,11 @@ public class SpssValueTable extends AbstractValueTable implements Disposable {
 
   @Override
   public void dispose() {
-    if (spssFile != null) {
+    if(spssFile != null) {
       try {
         spssFile.close();
       } catch(IOException e) {
-        log.warn("Error occured while closing SPSS file: {}", e.getMessage());
+        log.warn("Error occurred while closing SPSS file: {}", e.getMessage());
       }
     }
   }
@@ -155,7 +156,7 @@ public class SpssValueTable extends AbstractValueTable implements Disposable {
         for(int i = 1; i <= numberOfObservations; i++) {
           Value identifierValue = new SpssVariableValueFactory(i, entityVariable, valueType).create();
 
-          if (identifierValue.isNull()) {
+          if(identifierValue.isNull()) {
             throw new DatasourceParsingException("Invalid entity identifier", "SpssEmptyIdentifier",
                 entityVariable.getName(), i);
           }

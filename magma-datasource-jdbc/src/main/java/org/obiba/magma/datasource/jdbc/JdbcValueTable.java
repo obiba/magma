@@ -155,6 +155,7 @@ class JdbcValueTable extends AbstractValueTable {
     return NullTimestamps.get();
   }
 
+  @Nonnull
   @Override
   public Timestamps getTimestamps() {
     if(hasCreatedTimestampColumn() && hasUpdatedTimestampColumn()) {
@@ -604,7 +605,7 @@ class JdbcValueTable extends AbstractValueTable {
                 throw new UnsupportedOperationException();
               }
 
-              private void closeCursorIfNecessary() throws SQLException {
+              private void closeCursorIfNecessary() {
                 if(!closed) {
                   // Close the cursor if we don't have any more results or no more entities to return
                   if(!hasNextResults || !hasNext()) {
@@ -614,6 +615,7 @@ class JdbcValueTable extends AbstractValueTable {
                 }
               }
 
+              @SuppressWarnings("OverlyStrongTypeCast")
               private void closeQuietly(Object... objs) {
                 if(objs != null) {
                   for(Object o : objs) {

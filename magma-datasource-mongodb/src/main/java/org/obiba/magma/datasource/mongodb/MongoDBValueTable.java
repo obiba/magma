@@ -150,6 +150,7 @@ public class MongoDBValueTable extends AbstractValueTable {
     return new MongoDBValueSet(this, entity);
   }
 
+  @Nonnull
   @Override
   public Timestamps getTimestamps() {
     return new Timestamps() {

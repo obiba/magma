@@ -35,6 +35,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
+@SuppressWarnings("OverlyCoupledClass")
 public class ExcelValueTable extends AbstractValueTable implements Initialisable {
 
   private Sheet valueTableSheet;
@@ -149,7 +150,7 @@ public class ExcelValueTable extends AbstractValueTable implements Initialisable
    * @throws FileNotFoundException
    * @throws IOException
    */
-  private void readVariables() throws IOException {
+  private void readVariables() {
     Collection<String> variableNames = new ArrayList<String>();
     Collection<ExcelDatasourceParsingException> errors = new ArrayList<ExcelDatasourceParsingException>();
 
@@ -375,6 +376,7 @@ public class ExcelValueTable extends AbstractValueTable implements Initialisable
 
   }
 
+  @Nonnull
   @Override
   public Timestamps getTimestamps() {
     return getDatasource().getTimestamps();

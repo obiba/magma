@@ -304,6 +304,7 @@ public class JoinTable implements ValueTable, Initialisable {
     return filteredList;
   }
 
+  @Nonnull
   @Override
   public Timestamps getTimestamps() {
     return new UnionTimestamps(getTables());
@@ -329,6 +330,7 @@ public class JoinTable implements ValueTable, Initialisable {
       super(table, entity);
     }
 
+    @Nonnull
     @Override
     public Timestamps getTimestamps() {
       return new UnionTimestamps(valueSetsByTable.values());
