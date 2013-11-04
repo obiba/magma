@@ -20,6 +20,8 @@ import org.obiba.core.service.impl.hibernate.AssociationCriteria;
 import org.obiba.core.service.impl.hibernate.AssociationCriteria.Operation;
 import org.obiba.core.util.TimedExecution;
 import org.obiba.magma.NoSuchValueTableException;
+import org.obiba.magma.Timestamped;
+import org.obiba.magma.Timestamps;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.ValueTableWriter;
 import org.obiba.magma.datasource.hibernate.converter.AttributeAwareConverter;
@@ -29,10 +31,12 @@ import org.obiba.magma.datasource.hibernate.domain.DatasourceState;
 import org.obiba.magma.datasource.hibernate.domain.ValueTableState;
 import org.obiba.magma.datasource.hibernate.domain.VariableState;
 import org.obiba.magma.support.AbstractDatasource;
+import org.obiba.magma.support.UnionTimestamps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.MapMaker;
 
 /**
@@ -243,6 +247,14 @@ public class HibernateDatasource extends AbstractDatasource {
             .add("datasource.id", Operation.eq, datasourceId) //
             .add("name", Operation.eq, tableName) //
             .getCriteria().uniqueResult());
+  }
+
+  @Nonnull
+  @Override
+  public Timestamps getTimestamps() {
+    ImmutableSet.Builder<Timestamped> builder = ImmutableSet.builder();
+    builder.addAll(getValueTables()).add(getDatasourceState());
+    return new UnionTimestamps(builder.build());
   }
 
   /**
