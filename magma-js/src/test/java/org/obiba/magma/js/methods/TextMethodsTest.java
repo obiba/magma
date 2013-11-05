@@ -1,9 +1,7 @@
 package org.obiba.magma.js.methods;
 
-import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.mozilla.javascript.Context;
 import org.obiba.magma.js.AbstractJsTest;
 import org.obiba.magma.js.ScriptableValue;
 import org.obiba.magma.type.BooleanType;
@@ -11,12 +9,12 @@ import org.obiba.magma.type.DecimalType;
 import org.obiba.magma.type.IntegerType;
 import org.obiba.magma.type.TextType;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertNull;
-import static junit.framework.Assert.assertTrue;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.mozilla.javascript.Context.getCurrentContext;
 
 @SuppressWarnings("ReuseOfLocalVariable")
@@ -25,133 +23,131 @@ public class TextMethodsTest extends AbstractJsTest {
   @Test
   public void testTrim() {
     ScriptableValue value = newValue(TextType.get().valueOf(" Value  "));
-    ScriptableValue result = TextMethods.trim(Context.getCurrentContext(), value, null, null);
-    Assert.assertNotNull(result);
-    Assert.assertEquals(TextType.get().valueOf("Value"), result.getValue());
+    ScriptableValue result = TextMethods.trim(getCurrentContext(), value, null, null);
+    assertNotNull(result);
+    assertEquals(TextType.get().valueOf("Value"), result.getValue());
   }
 
   @Test
   public void testTrimValueSequence() {
     ScriptableValue value = newValue(TextType.get().sequenceOf("\" Value1  \",\"  Value2   \""));
-    ScriptableValue result = TextMethods.trim(Context.getCurrentContext(), value, null, null);
-    Assert.assertNotNull(result);
-    Assert.assertEquals(2, result.getValue().asSequence().getSize());
-    Assert.assertEquals(TextType.get().valueOf("Value1"), result.getValue().asSequence().get(0));
-    Assert.assertEquals(TextType.get().valueOf("Value2"), result.getValue().asSequence().get(1));
+    ScriptableValue result = TextMethods.trim(getCurrentContext(), value, null, null);
+    assertNotNull(result);
+    assertEquals(2, result.getValue().asSequence().getSize());
+    assertEquals(TextType.get().valueOf("Value1"), result.getValue().asSequence().get(0));
+    assertEquals(TextType.get().valueOf("Value2"), result.getValue().asSequence().get(1));
   }
 
   @Test
   public void testMatches() {
     ScriptableValue value = newValue(TextType.get().valueOf(" Value  "));
-    ScriptableValue result = TextMethods.matches(Context.getCurrentContext(), value, new Object[] { "lue" }, null);
-    Assert.assertNotNull(result);
-    Assert.assertEquals(BooleanType.get().valueOf(true), result.getValue());
+    ScriptableValue result = TextMethods.matches(getCurrentContext(), value, new Object[] { "lue" }, null);
+    assertNotNull(result);
+    assertEquals(BooleanType.get().valueOf(true), result.getValue());
   }
 
   @Test
   public void testMatchesNull() {
     ScriptableValue value = newValue(TextType.get().nullValue());
-    ScriptableValue result = TextMethods.matches(Context.getCurrentContext(), value, new Object[] { "lue" }, null);
-    Assert.assertNotNull(result);
-    Assert.assertEquals(BooleanType.get().valueOf(false), result.getValue());
+    ScriptableValue result = TextMethods.matches(getCurrentContext(), value, new Object[] { "lue" }, null);
+    assertNotNull(result);
+    assertEquals(BooleanType.get().valueOf(false), result.getValue());
   }
 
   @Test
   public void testMatchesValueSequence() {
     ScriptableValue value = newValue(TextType.get().sequenceOf("\"Value\",\"Patate\""));
-    ScriptableValue result = TextMethods.matches(Context.getCurrentContext(), value, new Object[] { "lue" }, null);
-    Assert.assertNotNull(result);
-    Assert.assertEquals(2, result.getValue().asSequence().getSize());
-    Assert.assertEquals(BooleanType.get().valueOf(true), result.getValue().asSequence().get(0));
-    Assert.assertEquals(BooleanType.get().valueOf(false), result.getValue().asSequence().get(1));
+    ScriptableValue result = TextMethods.matches(getCurrentContext(), value, new Object[] { "lue" }, null);
+    assertNotNull(result);
+    assertEquals(2, result.getValue().asSequence().getSize());
+    assertEquals(BooleanType.get().valueOf(true), result.getValue().asSequence().get(0));
+    assertEquals(BooleanType.get().valueOf(false), result.getValue().asSequence().get(1));
   }
 
   @Test
   public void testUpperCase() {
     ScriptableValue value = newValue(TextType.get().valueOf("value"));
-    ScriptableValue result = TextMethods.upperCase(Context.getCurrentContext(), value, null, null);
-    Assert.assertNotNull(result);
-    Assert.assertEquals(TextType.get().valueOf("VALUE"), result.getValue());
+    ScriptableValue result = TextMethods.upperCase(getCurrentContext(), value, null, null);
+    assertNotNull(result);
+    assertEquals(TextType.get().valueOf("VALUE"), result.getValue());
   }
 
   @Ignore
   @Test
   public void testUpperCaseWithLocale() {
     ScriptableValue value = newValue(TextType.get().valueOf("français"));
-    ScriptableValue result = TextMethods.upperCase(Context.getCurrentContext(), value, new Object[] { "fr" }, null);
-    Assert.assertNotNull(result);
-    Assert.assertEquals(TextType.get().valueOf("FRANÇAIS"), result.getValue());
+    ScriptableValue result = TextMethods.upperCase(getCurrentContext(), value, new Object[] { "fr" }, null);
+    assertNotNull(result);
+    assertEquals(TextType.get().valueOf("FRANÇAIS"), result.getValue());
   }
 
   @Test
   public void testUpperCaseValueSequence() {
     ScriptableValue value = newValue(TextType.get().sequenceOf("\"Value1\",\"Value2\""));
-    ScriptableValue result = TextMethods.upperCase(Context.getCurrentContext(), value, null, null);
-    Assert.assertNotNull(result);
-    Assert.assertEquals(2, result.getValue().asSequence().getSize());
-    Assert.assertEquals(TextType.get().valueOf("VALUE1"), result.getValue().asSequence().get(0));
-    Assert.assertEquals(TextType.get().valueOf("VALUE2"), result.getValue().asSequence().get(1));
+    ScriptableValue result = TextMethods.upperCase(getCurrentContext(), value, null, null);
+    assertNotNull(result);
+    assertEquals(2, result.getValue().asSequence().getSize());
+    assertEquals(TextType.get().valueOf("VALUE1"), result.getValue().asSequence().get(0));
+    assertEquals(TextType.get().valueOf("VALUE2"), result.getValue().asSequence().get(1));
   }
 
   @Test
   public void testLowerCase() {
     ScriptableValue value = newValue(TextType.get().valueOf("VALUE"));
-    ScriptableValue result = TextMethods.lowerCase(Context.getCurrentContext(), value, null, null);
-    Assert.assertNotNull(result);
-    Assert.assertEquals(TextType.get().valueOf("value"), result.getValue());
+    ScriptableValue result = TextMethods.lowerCase(getCurrentContext(), value, null, null);
+    assertNotNull(result);
+    assertEquals(TextType.get().valueOf("value"), result.getValue());
   }
 
   @Test
   public void testLowerCaseValueSequence() {
     ScriptableValue value = newValue(TextType.get().sequenceOf("\"Value1\",\"Value2\""));
-    ScriptableValue result = TextMethods.lowerCase(Context.getCurrentContext(), value, null, null);
-    Assert.assertNotNull(result);
-    Assert.assertEquals(2, result.getValue().asSequence().getSize());
-    Assert.assertEquals(TextType.get().valueOf("value1"), result.getValue().asSequence().get(0));
-    Assert.assertEquals(TextType.get().valueOf("value2"), result.getValue().asSequence().get(1));
+    ScriptableValue result = TextMethods.lowerCase(getCurrentContext(), value, null, null);
+    assertNotNull(result);
+    assertEquals(2, result.getValue().asSequence().getSize());
+    assertEquals(TextType.get().valueOf("value1"), result.getValue().asSequence().get(0));
+    assertEquals(TextType.get().valueOf("value2"), result.getValue().asSequence().get(1));
   }
 
   @Test
   public void testCapitalize() {
     ScriptableValue value = newValue(TextType.get().valueOf("  value foo bar"));
-    ScriptableValue result = TextMethods.capitalize(Context.getCurrentContext(), value, null, null);
-    Assert.assertNotNull(result);
-    Assert.assertEquals(TextType.get().valueOf("  Value Foo Bar"), result.getValue());
+    ScriptableValue result = TextMethods.capitalize(getCurrentContext(), value, null, null);
+    assertNotNull(result);
+    assertEquals(TextType.get().valueOf("  Value Foo Bar"), result.getValue());
   }
 
   @Test
   public void testCapitalizeWithDelimiters() {
     ScriptableValue value = newValue(TextType.get().valueOf("value:foo;bar_patate (toto) one"));
-    ScriptableValue result = TextMethods
-        .capitalize(Context.getCurrentContext(), value, new String[] { ":", ";_", "(" }, null);
-    Assert.assertNotNull(result);
-    Assert.assertEquals(TextType.get().valueOf("Value:Foo;Bar_Patate (Toto) one"), result.getValue());
+    ScriptableValue result = TextMethods.capitalize(getCurrentContext(), value, new String[] { ":", ";_", "(" }, null);
+    assertNotNull(result);
+    assertEquals(TextType.get().valueOf("Value:Foo;Bar_Patate (Toto) one"), result.getValue());
   }
 
   @Test
   public void testCapitalizeValueSequence() {
     ScriptableValue value = newValue(TextType.get().sequenceOf("\"value1\",\"value2\""));
-    ScriptableValue result = TextMethods.capitalize(Context.getCurrentContext(), value, null, null);
-    Assert.assertNotNull(result);
-    Assert.assertEquals(2, result.getValue().asSequence().getSize());
-    Assert.assertEquals(TextType.get().valueOf("Value1"), result.getValue().asSequence().get(0));
-    Assert.assertEquals(TextType.get().valueOf("Value2"), result.getValue().asSequence().get(1));
+    ScriptableValue result = TextMethods.capitalize(getCurrentContext(), value, null, null);
+    assertNotNull(result);
+    assertEquals(2, result.getValue().asSequence().getSize());
+    assertEquals(TextType.get().valueOf("Value1"), result.getValue().asSequence().get(0));
+    assertEquals(TextType.get().valueOf("Value2"), result.getValue().asSequence().get(1));
   }
 
   @Test
   public void testReplace() {
     ScriptableValue value = newValue(TextType.get().valueOf("H2R 2E1"));
-    ScriptableValue result = TextMethods.replace(Context.getCurrentContext(), value, new Object[] { " 2E1", "" }, null);
-    Assert.assertNotNull(result);
-    Assert.assertEquals(TextType.get().valueOf("H2R"), result.getValue());
+    ScriptableValue result = TextMethods.replace(getCurrentContext(), value, new Object[] { " 2E1", "" }, null);
+    assertNotNull(result);
+    assertEquals(TextType.get().valueOf("H2R"), result.getValue());
   }
 
   @Test
   public void testStringConcatString() throws Exception {
     ScriptableValue hello = newValue(TextType.get().valueOf("Hello "));
     ScriptableValue world = newValue(TextType.get().valueOf("World!"));
-    ScriptableValue result = TextMethods
-        .concat(Context.getCurrentContext(), hello, new ScriptableValue[] { world }, null);
+    ScriptableValue result = TextMethods.concat(getCurrentContext(), hello, new ScriptableValue[] { world }, null);
     assertThat(result.getValue(), is(TextType.get().valueOf("Hello World!")));
   }
 
@@ -160,7 +156,7 @@ public class TextMethodsTest extends AbstractJsTest {
     ScriptableValue hello = newValue(TextType.get().valueOf("Hello "));
     ScriptableValue twentyThree = newValue(IntegerType.get().valueOf(23));
     ScriptableValue result = TextMethods
-        .concat(Context.getCurrentContext(), hello, new ScriptableValue[] { twentyThree }, null);
+        .concat(getCurrentContext(), hello, new ScriptableValue[] { twentyThree }, null);
     assertThat(result.getValue(), is(TextType.get().valueOf("Hello 23")));
   }
 
@@ -169,7 +165,7 @@ public class TextMethodsTest extends AbstractJsTest {
     ScriptableValue twentyThreePointThirtyTwo = newValue(DecimalType.get().valueOf(23.32));
     ScriptableValue hello = newValue(TextType.get().valueOf(" Hello"));
     ScriptableValue result = TextMethods
-        .concat(Context.getCurrentContext(), twentyThreePointThirtyTwo, new ScriptableValue[] { hello }, null);
+        .concat(getCurrentContext(), twentyThreePointThirtyTwo, new ScriptableValue[] { hello }, null);
     assertThat(result.getValue(), is(TextType.get().valueOf("23.32 Hello")));
   }
 
@@ -178,7 +174,7 @@ public class TextMethodsTest extends AbstractJsTest {
     ScriptableValue twentyThreePointThirtyTwo = newValue(DecimalType.get().valueOf(23.32));
     ScriptableValue trueOperand = newValue(BooleanType.get().trueValue());
     ScriptableValue result = TextMethods
-        .concat(Context.getCurrentContext(), twentyThreePointThirtyTwo, new ScriptableValue[] { trueOperand }, null);
+        .concat(getCurrentContext(), twentyThreePointThirtyTwo, new ScriptableValue[] { trueOperand }, null);
     assertThat(result.getValue(), is(TextType.get().valueOf("23.32true")));
   }
 
@@ -187,7 +183,7 @@ public class TextMethodsTest extends AbstractJsTest {
     ScriptableValue twentyThreePointThirtyTwo = newValue(DecimalType.get().valueOf(23.32));
     ScriptableValue nullOperand = newValue(BooleanType.get().nullValue());
     ScriptableValue result = TextMethods
-        .concat(Context.getCurrentContext(), twentyThreePointThirtyTwo, new ScriptableValue[] { nullOperand }, null);
+        .concat(getCurrentContext(), twentyThreePointThirtyTwo, new ScriptableValue[] { nullOperand }, null);
     assertThat(result.getValue(), is(TextType.get().valueOf("23.32null")));
   }
 
@@ -196,7 +192,7 @@ public class TextMethodsTest extends AbstractJsTest {
     ScriptableValue nullOperand = newValue(TextType.get().nullValue());
     ScriptableValue world = newValue(TextType.get().valueOf("World!"));
     ScriptableValue result = TextMethods
-        .concat(Context.getCurrentContext(), nullOperand, new ScriptableValue[] { world }, null);
+        .concat(getCurrentContext(), nullOperand, new ScriptableValue[] { world }, null);
     assertThat(result.getValue(), is(TextType.get().valueOf("nullWorld!")));
   }
 
@@ -206,7 +202,7 @@ public class TextMethodsTest extends AbstractJsTest {
     ScriptableValue world = newValue(TextType.get().valueOf("World!"));
     ScriptableValue greet = newValue(TextType.get().valueOf("How are you, "));
     ScriptableValue result = TextMethods
-        .concat(Context.getCurrentContext(), hello, new Object[] { world, " ", greet, "Mr. Potato Head", "?" }, null);
+        .concat(getCurrentContext(), hello, new Object[] { world, " ", greet, "Mr. Potato Head", "?" }, null);
     assertThat(result.getValue(), is(TextType.get().valueOf("Hello World! How are you, Mr. Potato Head?")));
   }
 
@@ -332,7 +328,6 @@ public class TextMethodsTest extends AbstractJsTest {
     assertThat(value.getValue(), is(TextType.get().valueOf("YES-YES")));
   }
 
-
   @Test
   public void testDateConvertWithFormat() {
     ScriptableValue value = newValue(TextType.get().valueOf("10/23/12"));
@@ -376,6 +371,5 @@ public class TextMethodsTest extends AbstractJsTest {
     ScriptableValue date = TextMethods.datetime(getCurrentContext(), value, new Object[] { "MM/dd/yy h:mm a" }, null);
     assertTrue(date.getValue().isNull());
   }
-
 
 }
