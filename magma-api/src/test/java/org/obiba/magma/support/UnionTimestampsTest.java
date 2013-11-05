@@ -73,6 +73,7 @@ public class UnionTimestampsTest extends AbstractMagmaTest {
     assertTimestamps(false, firstTimestamp, secondTimestamp, expectedTimestamp);
   }
 
+  @SuppressWarnings({ "PMD.NcssMethodCount", "OverlyLongMethod" })
   private void assertTimestamps(boolean useCreatedTimestamps, Value firstTimestamp, Value secondTimestamp,
       Value expectedTimestamp) {
 

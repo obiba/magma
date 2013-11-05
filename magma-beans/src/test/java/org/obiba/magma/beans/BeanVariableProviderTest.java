@@ -123,6 +123,7 @@ public class BeanVariableProviderTest extends AbstractMagmaTest {
   }
 
   @Test
+  @SuppressWarnings({ "PMD.NcssMethodCount", "OverlyLongMethod" })
   public void testMapAttributesWithDotsInKeyValues() {
     TestBean tb = new TestBean();
     tb.setFirstName("TestBean");
@@ -156,6 +157,7 @@ public class BeanVariableProviderTest extends AbstractMagmaTest {
   }
 
   @Test
+  @SuppressWarnings({ "PMD.NcssMethodCount", "OverlyLongMethod" })
   public void testValues() {
     TestBean tb = new TestBean();
     tb.setFirstName("TestBean");
