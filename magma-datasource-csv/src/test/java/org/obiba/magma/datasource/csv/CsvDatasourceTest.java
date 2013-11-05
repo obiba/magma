@@ -597,13 +597,13 @@ public class CsvDatasourceTest extends AbstractMagmaTest {
   }
 
   @Test(expected = DatasourceParsingException.class)
-  public void test_FailGettingReader() {
+  public void test_fail_getting_reader() {
     CsvDatasource datasource = new CsvDatasource("bozo").addValueTable(new File("tata"));
     datasource.initialise();
   }
 
   @Test(expected = DatasourceParsingException.class)
-  public void test_MissingNameHeader() {
+  public void test_missing_name_header() {
     File samples = getFileFromResource("exceptions");
     File variables = new File(samples, "missing-name-variables.csv");
 
@@ -612,7 +612,7 @@ public class CsvDatasourceTest extends AbstractMagmaTest {
   }
 
   @Test(expected = DatasourceParsingException.class)
-  public void test_MissingValueTypeHeader() {
+  public void test_missing_value_type_header() {
     File samples = getFileFromResource("exceptions");
     File variables = new File(samples, "missing-valueType-variables.csv");
 
@@ -621,7 +621,7 @@ public class CsvDatasourceTest extends AbstractMagmaTest {
   }
 
   @Test(expected = DatasourceParsingException.class)
-  public void test_MissingEntityTypeHeader() {
+  public void test_missing_entity_type_header() {
     File samples = getFileFromResource("exceptions");
     File variables = new File(samples, "missing-entityType-variables.csv");
 
@@ -630,7 +630,7 @@ public class CsvDatasourceTest extends AbstractMagmaTest {
   }
 
   @Test
-  public void test_HasNoEntitiesOnEmptyFile() {
+  public void test_has_no_entities_on_empty_file() {
     File empty = getFileFromResource("empty.csv");
     CsvDatasource datasource = new CsvDatasource("csv-datasource").addValueTable("NoEntities", empty, (File) null);
     datasource.initialise();
@@ -638,7 +638,7 @@ public class CsvDatasourceTest extends AbstractMagmaTest {
   }
 
   @Test
-  public void test_HasNoEntities() {
+  public void test_has_no_entities() {
     File samples = getFileFromResource("separators");
     File variables = new File(samples, "variables.csv");
     CsvDatasource datasource = new CsvDatasource("csv-datasource").addValueTable("HasEntities", variables, (File) null);
@@ -647,7 +647,7 @@ public class CsvDatasourceTest extends AbstractMagmaTest {
   }
 
   @Test
-  public void test_HasEntities() {
+  public void test_has_entities() {
     CsvDatasource datasource = new CsvDatasource("csv-datasource").addValueTable("Table1", //
         getFileFromResource("Table1/variables.csv"), //
         getFileFromResource("Table1/data.csv"));
