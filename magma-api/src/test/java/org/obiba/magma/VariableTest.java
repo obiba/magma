@@ -13,6 +13,7 @@ import org.obiba.magma.type.TextType;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
+@SuppressWarnings({ "PMD.NcssMethodCount", "OverlyLongMethod" })
 public class VariableTest extends AbstractMagmaTest {
 
   @Test(expected = IllegalArgumentException.class)

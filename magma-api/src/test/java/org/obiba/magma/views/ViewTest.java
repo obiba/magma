@@ -36,6 +36,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+@SuppressWarnings({ "PMD.NcssMethodCount", "OverlyLongMethod", "OverlyCoupledClass" })
 public class ViewTest extends AbstractMagmaTest {
   //
   // Test Methods
@@ -558,7 +559,7 @@ public class ViewTest extends AbstractMagmaTest {
     ViewPersistenceStrategy viewPersistenceMock = createMock(ViewPersistenceStrategy.class);
     Datasource datasourceMock = createMock(Datasource.class);
 
-    DefaultViewManagerImpl manager = new DefaultViewManagerImpl(viewPersistenceMock);
+    ViewManager manager = new DefaultViewManagerImpl(viewPersistenceMock);
 
     Set<View> views = new HashSet<View>();
     View view = View.Builder.newView("view", valueTableMock).list(listClauseMock).build();
@@ -566,19 +567,17 @@ public class ViewTest extends AbstractMagmaTest {
 
     listClauseMock.setValueTable(view);
 
-    Set<Variable> variables = new HashSet<Variable>();
-    Variable v = Variable.Builder.newVariable("variable", ValueType.Factory.forName("text"), "Martian").build();
-    variables.add(v);
+    Variable variable = Variable.Builder.newVariable("variable", ValueType.Factory.forName("text"), "Martian").build();
 
     VariableValueSource vSourceMock = createMock(VariableValueSource.class);
 
-    Set<VariableValueSource> variablesValueSource = new HashSet<VariableValueSource>();
+    Collection<VariableValueSource> variablesValueSource = new HashSet<VariableValueSource>();
     variablesValueSource.add(vSourceMock);
 
     expect(viewPersistenceMock.readViews("datasource")).andReturn(views);
     expect(datasourceMock.getName()).andReturn("datasource").anyTimes();
     expect(listClauseMock.getVariableValueSources()).andReturn(variablesValueSource);
-    expect(vSourceMock.getVariable()).andReturn(v).once();
+    expect(vSourceMock.getVariable()).andReturn(variable).once();
     expect(valueTableMock.getEntityType()).andReturn("NotMartian").anyTimes();
 
     replay(datasourceMock, valueTableMock, listClauseMock, viewPersistenceMock, vSourceMock);
