@@ -177,7 +177,10 @@ public abstract class AbstractDatasource extends AbstractAttributeAware implemen
   }
 
   protected void removeValueTable(String tableName) {
-    ValueTable toRemove = getValueTable(tableName);
+    removeValueTable(getValueTable(tableName));
+  }
+
+  protected void removeValueTable(ValueTable toRemove) {
     valueTables.remove(toRemove);
     Disposables.dispose(toRemove);
   }
