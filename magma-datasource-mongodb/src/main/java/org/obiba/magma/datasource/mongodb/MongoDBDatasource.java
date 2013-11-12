@@ -16,16 +16,20 @@ import java.util.Set;
 import javax.annotation.Nonnull;
 
 import org.bson.BSONObject;
+import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.Timestamped;
 import org.obiba.magma.Timestamps;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.ValueTableWriter;
 import org.obiba.magma.support.AbstractDatasource;
+import org.obiba.magma.support.Initialisables;
 import org.obiba.magma.support.UnionTimestamps;
 import org.obiba.magma.type.DateTimeType;
 
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Iterables;
+import com.mongodb.BasicDBObject;
 import com.mongodb.BasicDBObjectBuilder;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
@@ -76,7 +80,11 @@ public class MongoDBDatasource extends AbstractDatasource {
   }
 
   DBCollection getValueTableCollection() {
-    return getDB().getCollection(VALUE_TABLE_COLLECTION);
+    DB db = getDB();
+    DBCollection coll = db.getCollection(VALUE_TABLE_COLLECTION);
+    coll.ensureIndex("datasource");
+    coll.ensureIndex("name");
+    return coll;
   }
 
   DBCollection getDatasourceCollection() {
@@ -128,14 +136,37 @@ public class MongoDBDatasource extends AbstractDatasource {
   }
 
   @Override
+  public boolean canRenameTable(String tableName) {
+    return hasValueTable(tableName);
+  }
+
+  @Override
+  public void renameTable(String tableName, String newName) {
+    if (hasValueTable(newName)) throw new MagmaRuntimeException("A table already exists with the name: " + newName);
+
+    MongoDBValueTable valueTable = (MongoDBValueTable) getValueTable(tableName);
+
+    DBObject obj = valueTable.asDBObject();
+    obj.put("name", newName);
+    BSONObject timestamps = (BSONObject) obj.get(TIMESTAMPS_FIELD);
+    timestamps.put("updated", new Date());
+    getValueTableCollection().save(obj, WriteConcern.ACKNOWLEDGED);
+    removeValueTable(valueTable);
+
+    MongoDBValueTable newTable = new MongoDBValueTable(this, newName);
+    Initialisables.initialise(newTable);
+    addValueTable(newTable);
+  }
+
+  @Override
   public boolean canDrop() {
     return true;
   }
 
   @Override
   public void drop() {
-    for(String valueTable : getValueTableNames()) {
-      dropTable(valueTable);
+    for(ValueTable valueTable : getValueTables()) {
+      dropTable(valueTable.getName());
     }
     getDatasourceCollection().remove(BasicDBObjectBuilder.start().add("_id", getName()).get());
   }
@@ -177,7 +208,6 @@ public class MongoDBDatasource extends AbstractDatasource {
     return new MongoDBValueTable(this, tableName);
   }
 
-  @Nonnull
   @Override
   public Timestamps getTimestamps() {
     ImmutableSet.Builder<Timestamped> builder = ImmutableSet.builder();
@@ -186,7 +216,6 @@ public class MongoDBDatasource extends AbstractDatasource {
   }
 
   private class MongoDBDatasourceTimestamped implements Timestamped {
-    @Nonnull
     @Override
     public Timestamps getTimestamps() {
       return new Timestamps() {

@@ -66,10 +66,6 @@ public class MongoDBValueTable extends AbstractValueTable {
     return ((MongoDBDatasource) getDatasource()).getValueTableCollection();
   }
 
-  DBCollection getDatasourceCollection() {
-    return ((MongoDBDatasource) getDatasource()).getDatasourceCollection();
-  }
-
   DBCollection getVariablesCollection() {
     return getDB().getCollection(getId() + VARIABLE_SUFFIX);
   }
@@ -78,18 +74,14 @@ public class MongoDBValueTable extends AbstractValueTable {
     return getDB().getCollection(getId() + VALUE_SET_SUFFIX);
   }
 
-  DBObject getDatasourceDBObject() {
-    return ((MongoDBDatasource) getDatasource()).asDBObject();
-  }
-
   DBObject asDBObject() {
     DBObject tableObject = getValueTableCollection().findOne(BasicDBObjectBuilder.start() //
-        .add("_id", getId()) //
+        .add("datasource", getDatasource().getName()) //
+        .add("name", getName()) //
         .get());
 
     if(tableObject == null) {
       tableObject = BasicDBObjectBuilder.start() //
-          .add("_id", getId()) //
           .add("datasource", getDatasource().getName()) //
           .add("name", getName()) //
           .add("entityType", getEntityType()) //
@@ -108,14 +100,8 @@ public class MongoDBValueTable extends AbstractValueTable {
     ((MongoDBDatasource) getDatasource()).setLastUpdate(date);
   }
 
-  /**
-   * See <a href="http://docs.mongodb.org/manual/reference/limits/">MongoDB Limits and Thresholds</a>.
-   *
-   * @return
-   */
   private String getId() {
-    String norm = (getDatasource().getName() + "." + getName()).replaceAll("[$]", "_");
-    return norm.startsWith("system") ? "_" + norm.substring(6) : norm;
+    return asDBObject().get("_id").toString();
   }
 
   @Override
@@ -150,7 +136,6 @@ public class MongoDBValueTable extends AbstractValueTable {
     return new MongoDBValueSet(this, entity);
   }
 
-  @Nonnull
   @Override
   public Timestamps getTimestamps() {
     return new Timestamps() {
