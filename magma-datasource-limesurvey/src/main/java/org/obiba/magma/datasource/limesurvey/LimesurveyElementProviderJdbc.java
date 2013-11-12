@@ -6,6 +6,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.RowCallbackHandler;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 
@@ -13,6 +15,8 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 public class LimesurveyElementProviderJdbc implements LimesurveyElementProvider {
+
+  private static final Logger log = LoggerFactory.getLogger(LimesurveyElementProviderJdbc.class);
 
   private final LimesurveyDatasource datasource;
 
@@ -99,19 +103,31 @@ public class LimesurveyElementProviderJdbc implements LimesurveyElementProvider 
         LimeQuestion question = mapQuestions.get(qid);
         question.addLocalizableAttribute("label:" + language, rows.getString("question"));
       } else {
-        LimeQuestion question = LimeQuestion.create();
-        question.setName(rows.getString("title"));
-        question.setQid(qid);
-        question.setGroupId(rows.getInt("gid"));
-        question.setParentQid(rows.getInt("parent_qid"));
-        question.setType(LimesurveyType._valueOf(rows.getString("type")));
-        question.addLocalizableAttribute("label:" + language, rows.getString("question"));
-        question.setUseOther("Y".equals(rows.getString("other")));
-        question.setScaleId(rows.getInt("scale_id"));
-        mapQuestions.put(qid, question);
+        String strType = rows.getString("type");
+        LimesurveyType type = LimesurveyType._valueOf(strType);
+        if(type == null) {
+          throw new LimesurveyParsingException(
+              "Unidentified question type for question '" + rows.getString("title") + "' (with id " + qid + "): " +
+                  strType, "LimeUnknownQuestionType", rows.getString("title"), strType);
+        } else {
+          mapQuestions.put(qid, toQuestion(rows, qid, type, language));
+        }
       }
     }
     return mapQuestions;
+  }
+
+  private LimeQuestion toQuestion(SqlRowSet rows, int qId, LimesurveyType type, String language) {
+    LimeQuestion question = LimeQuestion.create();
+    question.setName(rows.getString("title"));
+    question.setQid(qId);
+    question.setGroupId(rows.getInt("gid"));
+    question.setParentQid(rows.getInt("parent_qid"));
+    question.setType(type);
+    question.addLocalizableAttribute("label:" + language, rows.getString("question"));
+    question.setUseOther("Y".equals(rows.getString("other")));
+    question.setScaleId(rows.getInt("scale_id"));
+    return question;
   }
 
   private List<LimeAnswer> toAnswers(LimeQuestion question, SqlRowSet rows) {
