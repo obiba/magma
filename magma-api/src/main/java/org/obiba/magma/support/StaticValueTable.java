@@ -32,8 +32,12 @@ public class StaticValueTable extends AbstractValueTable {
 
   private final Map<String, Map<String, Object>> table = Maps.newHashMap();
 
+  private String name;
+
   public StaticValueTable(Datasource datasource, String name, Iterable<String> entities, String entityType) {
     super(datasource, name);
+
+    this.name = name;
 
     this.entityType = entityType == null ? "" : entityType;
 
@@ -65,6 +69,14 @@ public class StaticValueTable extends AbstractValueTable {
 
   public StaticValueTable(Datasource datasource, String name, Iterable<String> entities) {
     this(datasource, name, entities, "Participant");
+  }
+
+  public String getName() {
+    return name;
+  }
+
+  public void setName(String name) {
+    this.name = name;
   }
 
   public void removeVariable(String variableName) {

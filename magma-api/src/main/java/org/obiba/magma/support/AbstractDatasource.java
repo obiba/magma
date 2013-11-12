@@ -142,6 +142,16 @@ public abstract class AbstractDatasource extends AbstractAttributeAware implemen
   }
 
   @Override
+  public boolean canRenameTable(String tableName) {
+    return false;
+  }
+
+  @Override
+  public void renameTable(String tableName, String newName) {
+    throw new UnsupportedOperationException("cannot rename table");
+  }
+
+  @Override
   public boolean canDrop() {
     return false;
   }
