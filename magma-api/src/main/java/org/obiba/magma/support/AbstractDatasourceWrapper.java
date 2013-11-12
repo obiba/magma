@@ -98,6 +98,16 @@ public abstract class AbstractDatasourceWrapper implements Datasource {
   }
 
   @Override
+  public boolean canRenameTable(String name) {
+    return getWrappedDatasource().canRenameTable(name);
+  }
+
+  @Override
+  public void renameTable(String name, String newName) {
+    getWrappedDatasource().renameTable(name, newName);
+  }
+
+  @Override
   public boolean canDrop() {
     return getWrappedDatasource().canDrop();
   }

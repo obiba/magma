@@ -24,6 +24,10 @@ public interface Datasource extends Initialisable, Disposable, AttributeAware, T
 
   void dropTable(String tableName);
 
+  boolean canRenameTable(String tableName);
+
+  void renameTable(String tableName, String newName);
+
   void drop();
 
   boolean canDrop();

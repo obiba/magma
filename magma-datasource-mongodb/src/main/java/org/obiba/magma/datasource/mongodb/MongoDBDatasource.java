@@ -117,7 +117,7 @@ public class MongoDBDatasource extends AbstractDatasource {
 
   @Override
   public boolean canDropTable(String tableName) {
-    return true;
+    return hasValueTable(tableName);
   }
 
   @Override

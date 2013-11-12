@@ -94,6 +94,20 @@ public class ViewAwareDatasource extends AbstractDatasourceWrapper {
 
   @Nonnull
   @Override
+  public boolean canRenameTable(String name) {
+    return hasView(name) || getWrappedDatasource().canRenameTable(name);
+  }
+
+  @Override
+  public void renameTable(String name, String newName) {
+    if(hasView(name)) {
+      renameView(name, newName);
+    } else {
+      getWrappedDatasource().renameTable(name, newName);
+    }
+  }
+
+  @Override
   public Timestamps getTimestamps() {
     final Timestamps ts = super.getTimestamps();
     ImmutableSet.Builder<Timestamped> builder = ImmutableSet.builder();
@@ -137,6 +151,15 @@ public class ViewAwareDatasource extends AbstractDatasourceWrapper {
       View view = views.get(name);
       views.remove(name);
       Disposables.dispose(view);
+      lastUpdate = DateTimeType.get().now();
+    }
+  }
+
+  public synchronized void renameView(String name, String newName) {
+    if(views.containsKey(name)) {
+      View view = views.remove(name);
+      view.setName(newName);
+      views.put(newName, view);
       lastUpdate = DateTimeType.get().now();
     }
   }

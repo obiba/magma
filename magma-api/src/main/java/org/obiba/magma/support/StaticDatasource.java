@@ -97,6 +97,18 @@ public class StaticDatasource extends AbstractAttributeAware implements Datasour
   }
 
   @Override
+  public boolean canRenameTable(String tableName) {
+    return hasValueTable(name);
+  }
+
+  @Override
+  public void renameTable(String tableName, String newName) {
+    StaticValueTable table = tableMap.remove(tableName);
+    table.setName(newName);
+    tableMap.put(newName, table);
+  }
+
+  @Override
   public void dropTable(String name) {
     tableMap.remove(name);
   }
