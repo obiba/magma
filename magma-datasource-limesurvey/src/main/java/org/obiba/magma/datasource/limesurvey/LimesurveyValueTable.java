@@ -27,6 +27,8 @@ import org.obiba.magma.support.AbstractValueTable;
 import org.obiba.magma.type.DateTimeType;
 import org.obiba.magma.type.IntegerType;
 import org.obiba.magma.type.TextType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
@@ -39,6 +41,8 @@ import com.google.common.collect.Sets;
 
 @SuppressWarnings("OverlyCoupledClass")
 class LimesurveyValueTable extends AbstractValueTable {
+
+  private static final Logger log = LoggerFactory.getLogger(LimesurveyValueTable.class);
 
   public static final String PARTICIPANT = "Participant";
 
@@ -97,8 +101,8 @@ class LimesurveyValueTable extends AbstractValueTable {
     for(Integer qid : mapQuestions.keySet()) {
       LimeQuestion question = mapQuestions.get(qid);
       LimesurveyType type = question.getLimesurveyType();
-      List<LimeAnswer> answers = Lists.newArrayList();
-      if(type.hasImplicitCategories()) {
+      if(type != null && type.hasImplicitCategories()) {
+        List<LimeAnswer> answers = Lists.newArrayList();
         for(String implicitAnswer : type.getImplicitAnswers()) {
           LimeAnswer answer = LimeAnswer.create(implicitAnswer);
           answers.add(answer);
@@ -204,7 +208,7 @@ class LimesurveyValueTable extends AbstractValueTable {
   }
 
   private boolean buildArrayDualScale(LimeQuestion question, @Nullable LimeQuestion parentQuestion) {
-    if(parentQuestion.getLimesurveyType() == LimesurveyType.ARRAY_DUAL_SCALE) {
+    if(parentQuestion != null && parentQuestion.getLimesurveyType() == LimesurveyType.ARRAY_DUAL_SCALE) {
       for(int scale = 0; scale < 2; scale++) {
         String hierarchicalVariableName = parentQuestion.getName() + " [" + question.getName() + "][" + scale + "]";
         Variable.Builder vb = build(question, hierarchicalVariableName);
@@ -244,8 +248,13 @@ class LimesurveyValueTable extends AbstractValueTable {
       String variableName = question.getName();
       if(question.hasParentId()) {
         LimeQuestion parentQuestion = getParentQuestion(question);
-        String hierarchicalVariableName = parentQuestion.getName() + " [" + variableName + "]";
-        vb = build(parentQuestion, hierarchicalVariableName);
+        if(parentQuestion == null) {
+          log.error("Cannot find parent of question '{}' with id: {}", question.getQid(), question.getParentQid());
+          vb = build(question, variableName);
+        } else {
+          String hierarchicalVariableName = parentQuestion.getName() + " [" + variableName + "]";
+          vb = build(parentQuestion, hierarchicalVariableName);
+        }
       } else {
         vb = build(question, variableName);
       }
@@ -341,6 +350,8 @@ class LimesurveyValueTable extends AbstractValueTable {
   }
 
   private List<LimeQuestion> getScaledOneSubQuestions(final LimeQuestion limeQuestion) {
+    if(limeQuestion == null) return Lists.newArrayList();
+
     return Lists.newArrayList(Iterables.filter(mapQuestions.values(), new Predicate<LimeQuestion>() {
       @Override
       public boolean apply(LimeQuestion question) {
