@@ -101,8 +101,14 @@ class LimesurveyValueTable extends AbstractValueTable {
     for(Integer qid : mapQuestions.keySet()) {
       LimeQuestion question = mapQuestions.get(qid);
       LimesurveyType type = question.getLimesurveyType();
-      if(type != null && type.hasImplicitCategories()) {
-        List<LimeAnswer> answers = Lists.newArrayList();
+
+      if (type == null) {
+        throw new LimesurveyParsingException("Unknown type for Limesurvey question: " + question.getName(),
+            "LimeUnknownQuestionType", question.getName());
+      }
+
+      List<LimeAnswer> answers = Lists.newArrayList();
+      if(type.hasImplicitCategories()) {
         for(String implicitAnswer : type.getImplicitAnswers()) {
           LimeAnswer answer = LimeAnswer.create(implicitAnswer);
           answers.add(answer);
