@@ -12,13 +12,13 @@ package org.obiba.magma;
 import javax.annotation.Nonnull;
 
 /**
- * Listener to events on ValueTable
+ * Listener to events on Datasource.
  */
-public interface ValueTableUpdateListener {
+public interface DatasourceUpdateListener {
 
   /**
-   * Called when a value table is deleted.
+   * Called when a datasource is deleted.
    */
-  void onDelete(@Nonnull ValueTable vt);
+  void onDelete(@Nonnull Datasource datasource);
 
 }
