@@ -17,6 +17,7 @@ public enum LimesurveyType {
   ARRAY_DUAL_SCALE("1", TextType.get()), //
   ARRAY_NUMBERS(":", DecimalType.get()), //
   ARRAY_TEXT(";", TextType.get()), //
+  ARRAY_FLEXIBLE_LABELS("F", TextType.get()), //
   DATE("D", DateType.get()), //
   FILE_UPLOAD("|", TextType.get()), //
   GENDER("G", TextType.get(), "M", "F"), //
