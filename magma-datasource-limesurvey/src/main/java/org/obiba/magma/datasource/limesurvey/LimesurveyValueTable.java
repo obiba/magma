@@ -125,22 +125,23 @@ class LimesurveyValueTable extends AbstractValueTable {
     if(buildRanking(question)) return;
 
     LimeQuestion parentQuestion = null;
-    boolean isDualScale = false;
-    boolean isArraySubQuestion = false;
+    boolean isHierarchicalQuestion = false;
     // here are managed special case
     if(question.hasParentId()) {
       parentQuestion = getParentQuestion(question);
-      isArraySubQuestion = buildArraySubQuestions(question, parentQuestion);
-      isDualScale = buildArrayDualScale(question, parentQuestion);
+      isHierarchicalQuestion = buildArraySubQuestions(question, parentQuestion) ||
+          buildArrayDualScale(question, parentQuestion) || buildArrayFlexibleLabels(question, parentQuestion);
     }
-    Builder builder = !isArraySubQuestion && !isDualScale ? buildVariable(question) : null;
     buildFileCountIfNecessary(question);
     buildOtherVariableIfNecessary(question);
     buildCommentVariableIfNecessary(question, parentQuestion);
 
-    // we stop if we already built special variables cases
-    if(builder != null) {
-      buildCategories(question, parentQuestion, builder);
+    if (!isHierarchicalQuestion) {
+      // Questions that have sub questions must be ignored (See
+      Builder builder = buildVariable(question);
+      if (builder != null) {
+        buildCategories(question, parentQuestion, builder);
+      }
     }
   }
 
@@ -206,6 +207,26 @@ class LimesurveyValueTable extends AbstractValueTable {
       }
       return true;
     }
+    return false;
+  }
+
+  private boolean   buildArrayFlexibleLabels(LimeQuestion question, @Nullable LimeQuestion parentQuestion) {
+    if(parentQuestion != null && parentQuestion.getLimesurveyType() == LimesurveyType.ARRAY_FLEXIBLE_LABELS) {
+      String hierarchicalVariableName = parentQuestion.getName() + " [" + question.getName() + "]";
+      Variable.Builder vb = build(question, hierarchicalVariableName);
+      buildLabelAttributes(question, vb);
+      List<LimeAnswer> answers = mapAnswers.get(parentQuestion.getQid());
+      for(LimeAnswer answer : answers) {
+        Category.Builder cb = Category.Builder.newCategory(answer.getName());
+        buildLabelAttributes(answer, cb);
+        vb.addCategory(cb.build());
+      }
+      VariableValueSource variable = new LimesurveyQuestionVariableValueSource(vb, question,
+          question.getName());
+      addLimesurveyVariableValueSource(variable);
+      return true;
+    }
+
     return false;
   }
 
