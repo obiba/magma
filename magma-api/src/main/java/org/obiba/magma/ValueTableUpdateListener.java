@@ -17,7 +17,14 @@ import javax.annotation.Nonnull;
 public interface ValueTableUpdateListener {
 
   /**
+   * Called a value table is being renamed.
+   * @param newName
+   */
+  void onRename(@Nonnull ValueTable vt, String newName);
+
+  /**
    * Called when a value table is deleted.
+   * @param vt
    */
   void onDelete(@Nonnull ValueTable vt);
 
