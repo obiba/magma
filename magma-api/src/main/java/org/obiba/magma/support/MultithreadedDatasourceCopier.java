@@ -268,10 +268,10 @@ public class MultithreadedDatasourceCopier {
       }
 
       if(copyNullValues || !hasOnlyNullValues) {
-        log.debug("Enqueued entity {}", entity.getIdentifier());
+        log.trace("Enqueued entity {}", entity.getIdentifier());
         writeQueue.put(new VariableEntityValues(valueSet, values));
       } else {
-        log.debug("Skip entity {} because of null values", entity.getIdentifier());
+        log.trace("Skip entity {} because of null values", entity.getIdentifier());
       }
 
       if(readerListener != null) {
@@ -348,7 +348,7 @@ public class MultithreadedDatasourceCopier {
       ValueSetWriter writer = tableWriter.writeValueSet(values.valueSet.getVariableEntity());
       try {
         // Copy the ValueSet to the destinationDatasource
-        log.debug("Dequeued entity {}", values.valueSet.getVariableEntity().getIdentifier());
+        log.trace("Dequeued entity {}", values.valueSet.getVariableEntity().getIdentifier());
         datasourceCopier.copyValues(sourceTable, destinationName, values.valueSet, variables, values.values, writer);
       } finally {
         try {
