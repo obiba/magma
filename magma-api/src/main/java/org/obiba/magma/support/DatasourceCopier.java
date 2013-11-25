@@ -21,7 +21,9 @@ import org.obiba.magma.support.MultiplexingValueTableWriter.MultiplexedValueSetW
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Stopwatch;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 
 @SuppressWarnings("UnusedDeclaration")
 public class DatasourceCopier {
@@ -134,8 +136,11 @@ public class DatasourceCopier {
       return;
     }
 
-    log.info("Copying Datasource '{}' to '{}'.", source.getName(), destination.getName());
+    int nbTables = source.getValueTables().size();
+    log.info("Copying Datasource '{}' to '{}' ({} tables)", source.getName(), destination.getName(), nbTables);
+    int i = 1;
     for(ValueTable table : source.getValueTables()) {
+      log.debug("Copy table {} / {}", i++, nbTables);
       copy(table, destination);
     }
   }
@@ -147,12 +152,21 @@ public class DatasourceCopier {
   public void copy(ValueTable sourceTable, String destinationTableName, Datasource destination) throws IOException {
     log.info("Copying ValueTable '{}' to '{}.{}' (copyMetadata={}, copyValues={}).", sourceTable.getName(),
         destination.getName(), destinationTableName, copyMetadata, copyValues);
-
+    Stopwatch stopwatch = null;
+    if(log.isDebugEnabled()) {
+      stopwatch = Stopwatch.createStarted();
+      log.debug("  --> {} variables, {} valueSets", Lists.newArrayList(sourceTable.getVariables()).size(),
+          Lists.newArrayList(sourceTable.getValueSets()).size());
+    }
     ValueTableWriter tableWriter = innerValueTableWriter(sourceTable, destinationTableName, destination);
     try {
       copy(sourceTable, destination.getValueTable(destinationTableName), tableWriter);
     } finally {
       tableWriter.close();
+    }
+    if(log.isDebugEnabled()) {
+      //noinspection ConstantConditions
+      log.debug("Copied ValueTable '{}' n {}", sourceTable.getName(), stopwatch.stop());
     }
   }
 
@@ -379,7 +393,7 @@ public class DatasourceCopier {
       long duration = System.currentTimeMillis() - start;
       allDuration += duration;
       count++;
-      log.debug("ValueSet copied in {}s. Average copy duration for {} valueSets: {}s.",
+      log.trace("ValueSet copied in {}s. Average copy duration for {} valueSets: {}s.",
           TWO_DECIMAL_PLACES.format(duration / 1000.0d), count,
           TWO_DECIMAL_PLACES.format(allDuration / (double) count / 1000.0d));
     }
