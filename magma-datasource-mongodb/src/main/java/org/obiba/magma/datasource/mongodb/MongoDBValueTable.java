@@ -16,6 +16,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import org.bson.BSONObject;
+import org.bson.types.ObjectId;
 import org.obiba.magma.Datasource;
 import org.obiba.magma.NoSuchValueSetException;
 import org.obiba.magma.Timestamps;
@@ -104,6 +105,10 @@ public class MongoDBValueTable extends AbstractValueTable {
     return asDBObject().get("_id").toString();
   }
 
+  private ObjectId getIdAsObjectId() {
+    return new ObjectId(getId());
+  }
+
   @Override
   protected void addVariableValueSource(VariableValueSource source) {
     super.addVariableValueSource(source);
@@ -162,7 +167,7 @@ public class MongoDBValueTable extends AbstractValueTable {
     // drop associated collections
     getValueSetCollection().drop();
     getVariablesCollection().drop();
-    getValueTableCollection().remove(BasicDBObjectBuilder.start().add("_id", getId()).get());
+    getValueTableCollection().remove(BasicDBObjectBuilder.start().add("_id", getIdAsObjectId()).get());
     ((MongoDBDatasource) getDatasource()).setLastUpdate(new Date());
   }
 
