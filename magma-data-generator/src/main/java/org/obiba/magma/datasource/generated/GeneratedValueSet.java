@@ -3,7 +3,7 @@ package org.obiba.magma.datasource.generated;
 import java.util.concurrent.ConcurrentMap;
 
 import org.apache.commons.math3.random.JDKRandomGenerator;
-import org.apache.commons.math3.random.RandomDataImpl;
+import org.apache.commons.math3.random.RandomDataGenerator;
 import org.apache.commons.math3.random.RandomGenerator;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueTable;
@@ -19,7 +19,7 @@ class GeneratedValueSet extends ValueSetBean {
 
   final RandomGenerator valueGenerator;
 
-  final RandomDataImpl dataGenerator;
+  final RandomDataGenerator dataGenerator;
 
   final ConcurrentMap<String, Value> generatedValues = new MapMaker().makeMap();
 
@@ -27,7 +27,7 @@ class GeneratedValueSet extends ValueSetBean {
     super(table, entity);
     valueGenerator = new JDKRandomGenerator();
     valueGenerator.setSeed(Long.parseLong(entity.getIdentifier()));
-    dataGenerator = new RandomDataImpl(valueGenerator);
+    dataGenerator = new RandomDataGenerator(valueGenerator);
   }
 
   boolean hasValue(String name) {
