@@ -165,9 +165,8 @@ public class MongoDBDatasource extends AbstractDatasource {
 
   @Override
   public void drop() {
-    Set<ValueTable> valueTables = getValueTables();
-    for(ValueTable valueTable : valueTables) {
-      dropTable(valueTable.getName());
+    for(String name : getValueTableNames()) {
+      dropTable(name);
     }
     getDatasourceCollection().remove(BasicDBObjectBuilder.start().add("_id", getName()).get());
   }
