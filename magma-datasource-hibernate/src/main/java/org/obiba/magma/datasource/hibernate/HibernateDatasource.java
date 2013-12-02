@@ -20,7 +20,6 @@ import org.hibernate.Transaction;
 import org.hibernate.criterion.Restrictions;
 import org.obiba.core.service.impl.hibernate.AssociationCriteria;
 import org.obiba.core.service.impl.hibernate.AssociationCriteria.Operation;
-import org.obiba.core.util.TimedExecution;
 import org.obiba.magma.NoSuchValueTableException;
 import org.obiba.magma.Timestamped;
 import org.obiba.magma.Timestamps;
@@ -38,6 +37,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Preconditions;
+import com.google.common.base.Stopwatch;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.MapMaker;
 
@@ -133,7 +133,7 @@ public class HibernateDatasource extends AbstractDatasource {
 
   @Override
   public void dropTable(@Nonnull String tableName) {
-    TimedExecution timedExecution = new TimedExecution().start();
+    Stopwatch stopwatch = Stopwatch.createStarted();
 
     String tableFullName = getName() + "." + tableName;
     log.info("Dropping table {}", tableFullName);
@@ -145,27 +145,26 @@ public class HibernateDatasource extends AbstractDatasource {
     // cannot use cascading because DELETE (and INSERT) do not cascade via relationships in JPQL query
     Session session = getSessionFactory().getCurrentSession();
 
-    TimedExecution valueSetIdsTime = new TimedExecution().start();
+    stopwatch.start();
+
     List<?> valueSetIds = session.getNamedQuery("findValueSetIdsByTableId") //
         .setParameter("valueTableId", tableState.getId()) //
         .list();
-    log.debug("Found {} valueSetIds in {} in {}", valueSetIds.size(), tableFullName,
-        valueSetIdsTime.end().formatExecutionTime());
+    log.debug("Found {} valueSetIds in {} in {}", valueSetIds.size(), tableFullName, stopwatch.stop());
     if(!valueSetIds.isEmpty()) {
       deleteValueSets(tableFullName, session, valueSetIds);
     }
 
-    TimedExecution variablesTime = new TimedExecution().start();
+    stopwatch.start();
     List<VariableState> variables = AssociationCriteria.create(VariableState.class, session)
         .add("valueTable", Operation.eq, tableState).list();
     for(VariableState v : variables) {
       session.delete(v);
     }
-    log.debug("Deleted {} variables from {} in {}", variables.size(), tableFullName,
-        variablesTime.end().formatExecutionTime());
+    log.debug("Deleted {} variables from {} in {}", variables.size(), tableFullName, stopwatch.stop());
 
     session.delete(tableState);
-    log.info("Dropped table '{}' in {}", tableFullName, timedExecution.end().formatExecutionTime());
+    log.info("Dropped table '{}' in {}", tableFullName, stopwatch.stop());
 
     // force datasource timestamp update
     updateDatasourceLastUpdate();
@@ -192,21 +191,20 @@ public class HibernateDatasource extends AbstractDatasource {
   @SuppressWarnings("ReuseOfLocalVariable")
   private void deleteValueSets(String tableFullName, @SuppressWarnings("TypeMayBeWeakened") Session session,
       Collection<?> valueSetIds) {
-    TimedExecution deleteBinariesTime = new TimedExecution().start();
+    Stopwatch stopwatch = Stopwatch.createStarted();
     int deleted = session.getNamedQuery("deleteValueSetBinaryValues").setParameterList("valueSetIds", valueSetIds)
         .executeUpdate();
-    log.debug("Deleted {} binaries from {} in {}", deleted, tableFullName,
-        deleteBinariesTime.end().formatExecutionTime());
+    log.debug("Deleted {} binaries from {} in {}", deleted, tableFullName, stopwatch.stop());
 
-    TimedExecution valuesTime = new TimedExecution().start();
+    stopwatch.start();
     deleted = session.getNamedQuery("deleteValueSetValues").setParameterList("valueSetIds", valueSetIds)
         .executeUpdate();
-    log.debug("Deleted {} values from {} in {}", deleted, tableFullName, valuesTime.end().formatExecutionTime());
+    log.debug("Deleted {} values from {} in {}", deleted, tableFullName, stopwatch.stop());
 
-    TimedExecution valueSetsTime = new TimedExecution().start();
+    stopwatch.start();
     deleted = session.getNamedQuery("deleteValueSetStates").setParameterList("valueTableIds", valueSetIds)
         .executeUpdate();
-    log.debug("Deleted {} valueSets from {} in {}", deleted, tableFullName, valueSetsTime.end().formatExecutionTime());
+    log.debug("Deleted {} valueSets from {} in {}", deleted, tableFullName, stopwatch.stop());
   }
 
   @Override
@@ -359,7 +357,7 @@ public class HibernateDatasource extends AbstractDatasource {
    * If no Hibernate transaction exists this method returns an empty list.
    *
    * @return list of {@code HibernateValueTableTransaction} associated with the current
-   *         {@code org.hibernate.Transaction}
+   * {@code org.hibernate.Transaction}
    */
   private Collection<HibernateValueTableTransaction> lookupTableTransactions() {
 
