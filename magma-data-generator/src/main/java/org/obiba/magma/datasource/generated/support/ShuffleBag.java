@@ -1,7 +1,7 @@
 package org.obiba.magma.datasource.generated.support;
 
-import org.apache.commons.math.random.JDKRandomGenerator;
-import org.apache.commons.math.random.RandomGenerator;
+import org.apache.commons.math3.random.JDKRandomGenerator;
+import org.apache.commons.math3.random.RandomGenerator;
 
 /**
  * An enlargeable continuous shuffled sequence generator. Basically it's like a <tt>List</tt>,

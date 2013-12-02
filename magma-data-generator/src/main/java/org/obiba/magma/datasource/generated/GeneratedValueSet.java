@@ -2,10 +2,9 @@ package org.obiba.magma.datasource.generated;
 
 import java.util.concurrent.ConcurrentMap;
 
-import org.apache.commons.math.random.JDKRandomGenerator;
-import org.apache.commons.math.random.RandomData;
-import org.apache.commons.math.random.RandomDataImpl;
-import org.apache.commons.math.random.RandomGenerator;
+import org.apache.commons.math3.random.JDKRandomGenerator;
+import org.apache.commons.math3.random.RandomDataImpl;
+import org.apache.commons.math3.random.RandomGenerator;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.VariableEntity;

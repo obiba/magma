@@ -12,7 +12,7 @@ ext {
 
       commons_io: 'commons-io:commons-io:2.4',
 
-      commons_math: 'org.apache.commons:commons-math:2.2',
+      commons_math: 'org.apache.commons:commons-math3:3.2',
 
       dbunit: 'org.dbunit:dbunit:2.4.9',
 

@@ -1,6 +1,6 @@
 package org.obiba.magma.math;
 
-import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
+import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.obiba.magma.Category;
 import org.obiba.magma.Value;
 import org.obiba.magma.Variable;

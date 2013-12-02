@@ -3,7 +3,7 @@ package org.obiba.magma.math;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
+import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
