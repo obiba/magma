@@ -1,15 +1,9 @@
 package org.obiba.magma.datasource.generated;
 
-import java.util.List;
-
 import org.obiba.magma.Category;
 import org.obiba.magma.Value;
-import org.obiba.magma.ValueSource;
 import org.obiba.magma.Variable;
 import org.obiba.magma.datasource.generated.support.ShuffleBag;
-import org.obiba.magma.type.IntegerType;
-
-import com.google.common.collect.Lists;
 
 class CategoricalValueGenerator extends AbstractMissingValueVariableValueGenerator {
 
