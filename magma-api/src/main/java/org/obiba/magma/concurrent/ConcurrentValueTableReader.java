@@ -1,13 +1,14 @@
 package org.obiba.magma.concurrent;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.ThreadPoolExecutor;
 
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueSet;
@@ -29,55 +30,194 @@ public class ConcurrentValueTableReader {
 
   private boolean ignoreReadErrors = false;
 
-  @SuppressWarnings("ParameterHidesMemberVariable")
-  public static class Builder {
+  private ThreadFactory threadFactory;
 
-    ConcurrentValueTableReader reader = new ConcurrentValueTableReader();
+  private ConcurrentReaderCallback callback;
 
-    public Builder() {
+  private int nbConcurrentReaders = Runtime.getRuntime().availableProcessors() * 2;
+
+  private ValueTable valueTable;
+
+  private Iterable<Variable> variablesFilter;
+
+  private Iterable<VariableEntity> entitiesFilter;
+
+  private Variable[] variables;
+
+  private BlockingQueue<VariableEntityValues> writeQueue;
+
+  private ConcurrentValueTableReader() {
+
+  }
+
+  public void read() {
+    ExecutorService executorService = threadFactory == null
+        ? Executors.newFixedThreadPool(nbConcurrentReaders)
+        : Executors.newFixedThreadPool(nbConcurrentReaders, threadFactory);
+
+    variables = Iterables
+        .toArray(variablesFilter == null ? valueTable.getVariables() : variablesFilter, Variable.class);
+
+    VariableValueSource[] variableValueSources = getVariableValueSources();
+
+    List<VariableEntity> entities = ImmutableList
+        .copyOf(entitiesFilter == null ? valueTable.getVariableEntities() : entitiesFilter);
+
+    // A queue containing all entities to read the values for.
+    // Once this is empty, and all readers are done, then  reading is over.
+    BlockingQueue<VariableEntity> readQueue = new LinkedBlockingDeque<VariableEntity>(entities);
+    writeQueue = new LinkedBlockingDeque<VariableEntityValues>();
+    try {
+      callback.onBegin(entities, variables);
+      List<Future<?>> readers = entities.isEmpty()
+          ? new ArrayList<Future<?>>()
+          : concurrentRead(executorService, variableValueSources, readQueue);
+      callback.onComplete();
+      waitForReaders(readers);
+    } finally {
+      executorService.shutdownNow();
+    }
+  }
+
+  private List<Future<?>> concurrentRead(ExecutorService executorService, VariableValueSource[] variableValueSources,
+      BlockingQueue<VariableEntity> readQueue) {
+    List<Future<?>> readers = Lists.newArrayList();
+    for(int i = 0; i < nbConcurrentReaders; i++) {
+      readers.add(executorService.submit(new ConcurrentValueSetReader(variableValueSources, readQueue, writeQueue)));
+    }
+    while(!isReadCompleted(readers)) {
+      flushQueue();
+    }
+    // Flush remaining values if any
+    // This is necessary due to a race condition between isReadComplete() and readers appending to the write queue
+    flushQueue();
+    return readers;
+  }
+
+  private VariableValueSource[] getVariableValueSources() {
+    VariableValueSource[] variableValueSources = new VariableValueSource[variables.length];
+    for(int i = 0; i < variables.length; i++) {
+      variableValueSources[i] = valueTable.getVariableValueSource(variables[i].getName());
+    }
+    return variableValueSources;
+  }
+
+  private void flushQueue() {
+    VariableEntityValues values = null;
+    while((values = writeQueue.poll()) != null) {
+      callback.onValues(values.getEntity(), variables, values.getValues());
+    }
+  }
+
+  /**
+   * Returns true when all readers have finished submitting to the writeQueue. false otherwise.
+   *
+   * @return
+   */
+  private boolean isReadCompleted(Iterable<Future<?>> readers) {
+    for(Future<?> reader : readers) {
+      if(!reader.isDone()) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  private void waitForReaders(Iterable<Future<?>> readers) {
+    for(Future<?> reader : readers) {
+      try {
+        reader.get();
+      } catch(InterruptedException e) {
+        throw new RuntimeException(e);
+      } catch(ExecutionException e) {
+        Throwable cause = e.getCause();
+        if(cause != null) {
+          if(cause instanceof RuntimeException) {
+            throw (RuntimeException) cause;
+          }
+        }
+        throw new RuntimeException(cause);
+      }
+    }
+  }
+
+  private VariableValueSource[] prepareSources(
+      @SuppressWarnings("ParameterHidesMemberVariable") Variable... variables) {
+    VariableValueSource[] sources = new VariableValueSource[variables.length];
+    for(int i = 0; i < variables.length; i++) {
+      sources[i] = valueTable.getVariableValueSource(variables[i].getName());
+    }
+    return sources;
+  }
+
+  private static class VariableEntityValues {
+
+    private final VariableEntity entity;
+
+    private final Value[] values;
+
+    private VariableEntityValues(VariableEntity entity, Value... values) {
+      this.entity = entity;
+      this.values = values;
     }
 
-    public static Builder newReader() {
-      return new Builder();
+    public VariableEntity getEntity() {
+      return entity;
     }
 
-    public Builder withThreads(ThreadFactory factory) {
-      reader.threadFactory = factory;
-      return this;
+    @edu.umd.cs.findbugs.annotations.SuppressWarnings(value = "EI_EXPOSE_REP")
+    public Value[] getValues() {
+      return values;
+    }
+  }
+
+  private class ConcurrentValueSetReader implements Runnable {
+
+    private final VariableValueSource[] sources;
+
+    private final BlockingQueue<VariableEntity> readQueue;
+
+    private final BlockingQueue<VariableEntityValues> writeQueue;
+
+    private ConcurrentValueSetReader(VariableValueSource[] sources, BlockingQueue<VariableEntity> readQueue,
+        BlockingQueue<VariableEntityValues> writeQueue) {
+      this.sources = sources;
+      this.readQueue = readQueue;
+      this.writeQueue = writeQueue;
     }
 
-    public Builder withReaders(int readers) {
-      reader.concurrentReaders = readers;
-      return this;
+    @Override
+    public void run() {
+      try {
+        VariableEntity entity = readQueue.poll();
+        while(entity != null && !callback.isCancelled()) {
+          if(valueTable.hasValueSet(entity)) {
+            log.trace("Read entity {}", entity.getIdentifier());
+            writeQueue.put(new VariableEntityValues(entity, readValues(entity)));
+          }
+          entity = readQueue.poll();
+        }
+      } catch(InterruptedException e) {
+        // do nothing
+      }
     }
 
-    public Builder from(ValueTable source) {
-      reader.valueTable = source;
-      return this;
-    }
-
-    public Builder to(ConcurrentReaderCallback callback) {
-      reader.callback = callback;
-      return this;
-    }
-
-    public Builder variables(Iterable<Variable> variables) {
-      reader.variables = variables;
-      return this;
-    }
-
-    public Builder entities(Iterable<VariableEntity> entities) {
-      reader.entities = entities;
-      return this;
-    }
-
-    public Builder ignoreReadErrors() {
-      reader.ignoreReadErrors = true;
-      return this;
-    }
-
-    public ConcurrentValueTableReader build() {
-      return reader;
+    private Value[] readValues(VariableEntity entity) {
+      ValueSet valueSet = valueTable.getValueSet(entity);
+      Value[] values = new Value[sources.length];
+      for(int i = 0; i < sources.length; i++) {
+        try {
+          values[i] = sources[i].getValue(valueSet);
+        } catch(RuntimeException e) {
+          log.debug("Read exception", e);
+          if(ignoreReadErrors) {
+            values[i] = sources[i].getValueType().nullValue();
+          } else {
+            throw e;
+          }
+        }
+      }
+      return values;
     }
   }
 
@@ -117,178 +257,55 @@ public class ConcurrentValueTableReader {
 
   }
 
-  private ThreadFactory threadFactory;
+  @SuppressWarnings("ParameterHidesMemberVariable")
+  public static class Builder {
 
-  private ConcurrentReaderCallback callback;
+    ConcurrentValueTableReader reader = new ConcurrentValueTableReader();
 
-  private int concurrentReaders = Runtime.getRuntime().availableProcessors() * 2;
+    public Builder() {
+    }
 
-  private ValueTable valueTable;
+    public static Builder newReader() {
+      return new Builder();
+    }
 
-  private Iterable<Variable> variables;
+    public Builder withThreads(ThreadFactory factory) {
+      reader.threadFactory = factory;
+      return this;
+    }
 
-  private Iterable<VariableEntity> entities;
+    public Builder withReaders(int readers) {
+      reader.nbConcurrentReaders = readers;
+      return this;
+    }
 
-  private ConcurrentValueTableReader() {
+    public Builder from(ValueTable source) {
+      reader.valueTable = source;
+      return this;
+    }
 
-  }
+    public Builder to(ConcurrentReaderCallback callback) {
+      reader.callback = callback;
+      return this;
+    }
 
-  public void read() {
-    ThreadPoolExecutor executor = threadFactory != null
-        ? (ThreadPoolExecutor) Executors.newFixedThreadPool(concurrentReaders, threadFactory)
-        : (ThreadPoolExecutor) Executors.newFixedThreadPool(concurrentReaders);
+    public Builder variablesFilter(Iterable<Variable> variablesFilter) {
+      reader.variablesFilter = variablesFilter;
+      return this;
+    }
 
-    Variable[] variables = prepareVariables();
-    VariableValueSource[] sources = prepareSources(variables);
+    public Builder entitiesFilter(Iterable<VariableEntity> entitiesFilter) {
+      reader.entitiesFilter = entitiesFilter;
+      return this;
+    }
 
-    List<VariableEntity> entitiesToCopy = ImmutableList
-        .copyOf(entities == null ? valueTable.getVariableEntities() : entities);
+    public Builder ignoreReadErrors() {
+      reader.ignoreReadErrors = true;
+      return this;
+    }
 
-    // A queue containing all entities to read the values for. Once this is empty, and all readers are done, then
-    // reading is over.
-    BlockingQueue<VariableEntity> readQueue = new LinkedBlockingDeque<VariableEntity>(entitiesToCopy);
-    BlockingQueue<VariableEntityValues> writeQueue = new LinkedBlockingDeque<VariableEntityValues>();
-
-    try {
-      callback.onBegin(entitiesToCopy, variables);
-      List<Future<?>> readers = Lists.newArrayList();
-      if(entitiesToCopy.size() > 0) {
-        for(int i = 0; i < concurrentReaders; i++) {
-          readers.add(executor.submit(new ConcurrentValueSetReader(sources, readQueue, writeQueue)));
-        }
-
-        while(!isReadCompleted(readers)) {
-          flushQueue(variables, writeQueue);
-        }
-        // Flush remaining values if any
-        // This is necessary due to a race condition between isReadComplete() and readers appending to the write queue
-        flushQueue(variables, writeQueue);
-      }
-      callback.onComplete();
-      waitForReaders(readers);
-    } finally {
-      executor.shutdownNow();
+    public ConcurrentValueTableReader build() {
+      return reader;
     }
   }
-
-  private void flushQueue(@SuppressWarnings("ParameterHidesMemberVariable") Variable[] variables,
-      BlockingQueue<VariableEntityValues> writeQueue) {
-    VariableEntityValues values = null;
-    while((values = writeQueue.poll()) != null) {
-      callback.onValues(values.getEntity(), variables, values.getValues());
-    }
-  }
-
-  /**
-   * Returns true when all readers have finished submitting to the writeQueue. false otherwise.
-   *
-   * @return
-   */
-  private boolean isReadCompleted(Iterable<Future<?>> readers) {
-    for(Future<?> reader : readers) {
-      if(!reader.isDone()) {
-        return false;
-      }
-    }
-    return true;
-  }
-
-  private void waitForReaders(Iterable<Future<?>> readers) {
-    for(Future<?> reader : readers) {
-      try {
-        reader.get();
-      } catch(InterruptedException e) {
-        throw new RuntimeException(e);
-      } catch(ExecutionException e) {
-        Throwable cause = e.getCause();
-        if(cause != null) {
-          if(cause instanceof RuntimeException) {
-            throw (RuntimeException) cause;
-          }
-        }
-        throw new RuntimeException(e.getCause());
-      }
-    }
-  }
-
-  private VariableValueSource[] prepareSources(
-      @SuppressWarnings("ParameterHidesMemberVariable") Variable... variables) {
-    VariableValueSource[] sources = new VariableValueSource[variables.length];
-    for(int i = 0; i < variables.length; i++) {
-      sources[i] = valueTable.getVariableValueSource(variables[i].getName());
-    }
-    return sources;
-  }
-
-  private Variable[] prepareVariables() {
-    return Iterables.toArray(variables == null ? valueTable.getVariables() : variables, Variable.class);
-  }
-
-  private static class VariableEntityValues {
-
-    private final VariableEntity entity;
-
-    private final Value[] values;
-
-    private VariableEntityValues(VariableEntity entity, Value... values) {
-      this.entity = entity;
-      this.values = values;
-    }
-
-    public VariableEntity getEntity() {
-      return entity;
-    }
-
-    @edu.umd.cs.findbugs.annotations.SuppressWarnings(value = "EI_EXPOSE_REP")
-    public Value[] getValues() {
-      return values;
-    }
-  }
-
-  private class ConcurrentValueSetReader implements Runnable {
-
-    private final VariableValueSource[] sources;
-
-    private final BlockingQueue<VariableEntity> readQueue;
-
-    private final BlockingQueue<VariableEntityValues> writeQueue;
-
-    private ConcurrentValueSetReader(VariableValueSource[] sources, BlockingQueue<VariableEntity> readQueue,
-        BlockingQueue<VariableEntityValues> writeQueue) {
-      this.sources = sources;
-      this.readQueue = readQueue;
-      this.writeQueue = writeQueue;
-    }
-
-    @SuppressWarnings("OverlyNestedMethod")
-    @Override
-    public void run() {
-      try {
-        VariableEntity entity = readQueue.poll();
-        while(entity != null && !callback.isCancelled()) {
-          if(valueTable.hasValueSet(entity)) {
-            ValueSet valueSet = valueTable.getValueSet(entity);
-            Value[] values = new Value[sources.length];
-            for(int i = 0; i < sources.length; i++) {
-              try {
-                values[i] = sources[i].getValue(valueSet);
-              } catch(RuntimeException e) {
-                if(ignoreReadErrors) {
-                  values[i] = sources[i].getValueType().nullValue();
-                } else {
-                  throw e;
-                }
-              }
-            }
-            log.debug("Read entity {}", entity.getIdentifier());
-            writeQueue.put(new VariableEntityValues(entity, values));
-          }
-          entity = readQueue.poll();
-        }
-      } catch(InterruptedException e) {
-        // do nothing
-      }
-    }
-  }
-
 }
