@@ -133,7 +133,6 @@ public class HibernateDatasource extends AbstractDatasource {
 
   @Override
   public void dropTable(@Nonnull String tableName) {
-    Stopwatch stopwatch = Stopwatch.createStarted();
 
     String tableFullName = getName() + "." + tableName;
     log.info("Dropping table {}", tableFullName);
@@ -145,7 +144,8 @@ public class HibernateDatasource extends AbstractDatasource {
     // cannot use cascading because DELETE (and INSERT) do not cascade via relationships in JPQL query
     Session session = getSessionFactory().getCurrentSession();
 
-    stopwatch.start();
+    Stopwatch tableStopwatch = Stopwatch.createStarted();
+    Stopwatch stopwatch = Stopwatch.createStarted();
 
     List<?> valueSetIds = session.getNamedQuery("findValueSetIdsByTableId") //
         .setParameter("valueTableId", tableState.getId()) //
@@ -164,7 +164,7 @@ public class HibernateDatasource extends AbstractDatasource {
     log.debug("Deleted {} variables from {} in {}", variables.size(), tableFullName, stopwatch.stop());
 
     session.delete(tableState);
-    log.info("Dropped table '{}' in {}", tableFullName, stopwatch.stop());
+    log.info("Dropped table '{}' in {}", tableFullName, tableStopwatch.stop());
 
     // force datasource timestamp update
     updateDatasourceLastUpdate();
