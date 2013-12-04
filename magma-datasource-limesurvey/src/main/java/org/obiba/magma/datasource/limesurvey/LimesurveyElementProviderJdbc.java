@@ -114,6 +114,7 @@ public class LimesurveyElementProviderJdbc implements LimesurveyElementProvider 
     return mapQuestions;
   }
 
+  @SuppressWarnings("PMD.NcssMethodCount")
   private List<LimeAnswer> toAnswers(LimeQuestion question, SqlRowSet rows) {
     List<LimeAnswer> answers = Lists.newArrayList();
     Map<String, LimeAnswer> internAnswers = Maps.newHashMap();

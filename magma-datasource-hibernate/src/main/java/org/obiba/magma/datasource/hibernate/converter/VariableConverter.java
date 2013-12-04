@@ -54,12 +54,12 @@ public class VariableConverter extends AttributeAwareConverter implements Hibern
   private void marshalCategories(Variable variable, VariableState variableState) {
     // Make sure the ordering of the categories is correct
     int categoryIndex = 0;
-    for(Category c : variable.getCategories()) {
+    for(Category category : variable.getCategories()) {
       CategoryState categoryState;
-      int currentCategoryIndex = variableState.getCategoryIndex(c.getName());
+      int currentCategoryIndex = variableState.getCategoryIndex(category.getName());
       if(currentCategoryIndex == -1) {
         // Category does not exist
-        categoryState = new CategoryState(c.getName(), c.getCode(), c.isMissing());
+        categoryState = new CategoryState(category.getName(), category.getCode(), category.isMissing());
         variableState.getCategories().add(categoryIndex, categoryState);
       } else {
         categoryState = variableState.getCategories().get(currentCategoryIndex);
@@ -69,10 +69,14 @@ public class VariableConverter extends AttributeAwareConverter implements Hibern
           variableState.getCategories().set(currentCategoryIndex, previousCategory);
         }
       }
-      setAttributes(c, categoryState);
+      setAttributes(category, categoryState);
       categoryIndex++;
     }
     // Remaining categories needs to be deleted
+    deleteRemainingCategories(variableState, categoryIndex);
+  }
+
+  private void deleteRemainingCategories(VariableState variableState, int categoryIndex) {
     int nbCategories = variableState.getCategories().size();
     if(categoryIndex < nbCategories) {
       Collection<CategoryState> toDelete = new ArrayList<CategoryState>();

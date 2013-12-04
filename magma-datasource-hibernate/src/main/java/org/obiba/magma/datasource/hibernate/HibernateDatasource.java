@@ -134,6 +134,7 @@ public class HibernateDatasource extends AbstractDatasource {
   @Override
   public void dropTable(@Nonnull String tableName) {
 
+    Stopwatch stopwatch = Stopwatch.createStarted();
     String tableFullName = getName() + "." + tableName;
     log.info("Dropping table {}", tableFullName);
 
@@ -144,30 +145,26 @@ public class HibernateDatasource extends AbstractDatasource {
     // cannot use cascading because DELETE (and INSERT) do not cascade via relationships in JPQL query
     Session session = getSessionFactory().getCurrentSession();
 
-    Stopwatch tableStopwatch = Stopwatch.createStarted();
+    deleteValueSets(tableFullName, session,
+        session.getNamedQuery("findValueSetIdsByTableId").setParameter("valueTableId", tableState.getId()).list());
+
+    deleteTableVariables(tableFullName, tableState, session);
+
+    session.delete(tableState);
+    log.info("Dropped table '{}' in {}", tableFullName, stopwatch.stop());
+
+    // force datasource timestamp update
+    updateDatasourceLastUpdate();
+  }
+
+  private void deleteTableVariables(String tableFullName, ValueTableState tableState, Session session) {
     Stopwatch stopwatch = Stopwatch.createStarted();
-
-    List<?> valueSetIds = session.getNamedQuery("findValueSetIdsByTableId") //
-        .setParameter("valueTableId", tableState.getId()) //
-        .list();
-    log.debug("Found {} valueSetIds in {} in {}", valueSetIds.size(), tableFullName, stopwatch.stop());
-    if(!valueSetIds.isEmpty()) {
-      deleteValueSets(tableFullName, session, valueSetIds);
-    }
-
-    stopwatch.start();
     List<VariableState> variables = AssociationCriteria.create(VariableState.class, session)
         .add("valueTable", Operation.eq, tableState).list();
     for(VariableState v : variables) {
       session.delete(v);
     }
     log.debug("Deleted {} variables from {} in {}", variables.size(), tableFullName, stopwatch.stop());
-
-    session.delete(tableState);
-    log.info("Dropped table '{}' in {}", tableFullName, tableStopwatch.stop());
-
-    // force datasource timestamp update
-    updateDatasourceLastUpdate();
   }
 
   private void updateDatasourceLastUpdate() {
@@ -191,6 +188,7 @@ public class HibernateDatasource extends AbstractDatasource {
   @SuppressWarnings("ReuseOfLocalVariable")
   private void deleteValueSets(String tableFullName, @SuppressWarnings("TypeMayBeWeakened") Session session,
       Collection<?> valueSetIds) {
+    if(valueSetIds.isEmpty()) return;
     Stopwatch stopwatch = Stopwatch.createStarted();
     int deleted = session.getNamedQuery("deleteValueSetBinaryValues").setParameterList("valueSetIds", valueSetIds)
         .executeUpdate();

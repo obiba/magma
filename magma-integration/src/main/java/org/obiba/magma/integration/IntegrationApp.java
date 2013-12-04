@@ -37,7 +37,9 @@ import org.obiba.magma.xstream.MagmaXStreamExtension;
 
 /**
  */
-@SuppressWarnings({ "UseOfSystemOutOrSystemErr", "CallToPrintStackTrace", "OverlyCoupledClass" })
+
+@SuppressWarnings({ "UseOfSystemOutOrSystemErr", "CallToPrintStackTrace", "OverlyCoupledClass", "PMD.NcssMethodCount",
+    "OverlyLongMethod" })
 public class IntegrationApp {
 
   private IntegrationApp() {}
