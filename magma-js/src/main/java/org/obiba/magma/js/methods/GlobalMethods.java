@@ -372,7 +372,8 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
       throws MagmaJsEvaluationRuntimeException {
     if(args.length < 2 || args.length > 3) {
       throw new IllegalArgumentException(
-          "$group() expects two required arguments (a variable name and a matching criteria (i.e. a value or a function)) and one optional argument (a variable name from the same occurrence group).");
+          "$group() expects two required arguments (a variable name and a matching criteria (i.e. a value or a function)) " +
+              "and one optional argument (a variable name from the same occurrence group).");
     }
 
     // name of the 'source' variable on which the criteria is to be applied
@@ -382,8 +383,10 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
     // 'destination' variable to be selected
     String select = args.length == 3 ? (String) args[2] : null;
 
-    if(args.length == 2) return getGroups(ctx, thisObj, name, criteria);
-    else return new ScriptableValue(thisObj, getGroupValue(ctx, thisObj, name, criteria, select));
+    if(args.length == 2) {
+      return getGroups(ctx, thisObj, name, criteria);
+    }
+    return new ScriptableValue(thisObj, getGroupValue(ctx, thisObj, name, criteria, select));
   }
 
   private static Value getGroupValue(Context ctx, Scriptable thisObj, String name, Object criteria, String select) {
@@ -393,32 +396,37 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
     ValueTable valueTable = valueTableFromContext(context);
     Variable selectVariable = getVariableFromOccurrenceGroup(valueTable, variable, select);
 
-    Value rval = selectVariable.getValueType().nullValue();
-
     ValueSequence sourceValue = sv.getValue().asSequence();
+    if(sourceValue.isNull() || !sourceValue.isSequence()) {
+      return selectVariable.getValueType().nullValue();
+    }
 
-    if(!sourceValue.isNull() && sourceValue.isSequence()) {
-      Predicate<Value> predicate = getPredicate(ctx, sv.getParentScope(), thisObj, variable, criteria);
-      ValueSequence destinationValue = valueFromContext(context, thisObj, selectVariable.getName()).getValue()
-          .asSequence();
+    Predicate<Value> predicate = getPredicate(ctx, sv.getParentScope(), thisObj, variable, criteria);
+    ValueSequence destinationValue = valueFromContext(context, thisObj, selectVariable.getName()).getValue()
+        .asSequence();
 
-      List<Value> rvalues = Lists.newArrayList();
-      int index = -1;
-      for(Value value : sourceValue.getValues()) {
-        index++;
-        if(predicate.apply(value) && index < destinationValue.getSize()) {
-          rvalues.add(destinationValue.get(index));
-        }
-      }
+    return getSequenceGroupValue(selectVariable.getValueType(), sourceValue, predicate, destinationValue);
+  }
 
-      if(rvalues.size() == 1) {
-        rval = rvalues.get(0);
-      } else if(rvalues.size() > 1) {
-        rval = selectVariable.getValueType().sequenceOf(rvalues);
+  private static Value getSequenceGroupValue(ValueType valueType, ValueSequence sourceValue, Predicate<Value> predicate,
+      ValueSequence destinationValue) {
+
+    List<Value> rvalues = Lists.newArrayList();
+    int index = -1;
+    for(Value value : sourceValue.getValues()) {
+      index++;
+      if(predicate.apply(value) && index < destinationValue.getSize()) {
+        rvalues.add(destinationValue.get(index));
       }
     }
 
-    return rval;
+    if(rvalues.size() == 1) {
+      return rvalues.get(0);
+    }
+    if(rvalues.size() > 1) {
+      return valueType.sequenceOf(rvalues);
+    }
+    return valueType.nullValue();
   }
 
   @Deprecated

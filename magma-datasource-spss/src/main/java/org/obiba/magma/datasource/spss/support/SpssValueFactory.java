@@ -43,6 +43,7 @@ public abstract class SpssValueFactory {
 
   protected abstract String getValue();
 
+  @SuppressWarnings("PMD.NcssMethodCount")
   private void initializeVariableTypeFormatter() {
 
     if(valueType instanceof TextType) {

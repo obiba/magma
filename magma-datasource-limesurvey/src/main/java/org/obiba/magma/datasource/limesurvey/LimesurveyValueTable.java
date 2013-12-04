@@ -28,6 +28,7 @@ import org.obiba.magma.type.DateTimeType;
 import org.obiba.magma.type.IntegerType;
 import org.obiba.magma.type.TextType;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 
@@ -98,7 +99,7 @@ class LimesurveyValueTable extends AbstractValueTable {
       LimeQuestion question = mapQuestions.get(qid);
       LimesurveyType type = question.getLimesurveyType();
 
-      if (type == null) {
+      if(type == null) {
         throw new LimesurveyParsingException("Unknown type for Limesurvey question: " + question.getName(),
             "LimeUnknownQuestionType", question.getName());
       }
@@ -136,10 +137,10 @@ class LimesurveyValueTable extends AbstractValueTable {
     buildOtherVariableIfNecessary(question);
     buildCommentVariableIfNecessary(question, parentQuestion);
 
-    if (!isHierarchicalQuestion) {
+    if(!isHierarchicalQuestion) {
       // Questions that have sub questions must be ignored (See
       Builder builder = buildVariable(question);
-      if (builder != null) {
+      if(builder != null) {
         buildCategories(question, parentQuestion, builder);
       }
     }
@@ -210,7 +211,7 @@ class LimesurveyValueTable extends AbstractValueTable {
     return false;
   }
 
-  private boolean   buildArrayFlexibleLabels(LimeQuestion question, @Nullable LimeQuestion parentQuestion) {
+  private boolean buildArrayFlexibleLabels(LimeQuestion question, @Nullable LimeQuestion parentQuestion) {
     if(parentQuestion != null && parentQuestion.getLimesurveyType() == LimesurveyType.ARRAY_FLEXIBLE_LABELS) {
       String hierarchicalVariableName = parentQuestion.getName() + " [" + question.getName() + "]";
       Variable.Builder vb = build(question, hierarchicalVariableName);
@@ -221,8 +222,7 @@ class LimesurveyValueTable extends AbstractValueTable {
         buildLabelAttributes(answer, cb);
         vb.addCategory(cb.build());
       }
-      VariableValueSource variable = new LimesurveyQuestionVariableValueSource(vb, question,
-          question.getName());
+      VariableValueSource variable = new LimesurveyQuestionVariableValueSource(vb, question, question.getName());
       addLimesurveyVariableValueSource(variable);
       return true;
     }
@@ -445,68 +445,63 @@ class LimesurveyValueTable extends AbstractValueTable {
     @Override
     //TODO move into provider implementation
     public Iterable<Value> getValues(final SortedSet<VariableEntity> entities) {
-      LimesurveyValueTable table = LimesurveyValueTable.this;
-      final NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(getDatasource().getDataSource());
-      final MapSqlParameterSource parameters = new MapSqlParameterSource();
-      Iterable<String> ids = extractIdentifiers(entities);
-      parameters.addValue("ids", Lists.newArrayList(ids));
-
-      final String limesurveyVariableField = getLimesurveyVariableField();
-      final StringBuilder sql = new StringBuilder();
-      sql.append("SELECT ").append(quoteAndPrefix(limesurveyVariableField)).append(" FROM ")
-          .append(quoteAndPrefix("survey_" + table.getSid())).append(" ");
-      sql.append("WHERE token IN (:ids) ORDER BY token");
-
       return new Iterable<Value>() {
 
         @Override
         public Iterator<Value> iterator() {
-          return new Iterator<Value>() {
+          NamedParameterJdbcOperations jdbcTemplate = new NamedParameterJdbcTemplate(getDatasource().getDataSource());
+          MapSqlParameterSource parameters = new MapSqlParameterSource();
+          parameters.addValue("ids", Lists.newArrayList(extractIdentifiers(entities)));
+          String sql = "SELECT " + quoteAndPrefix(getLimesurveyVariableField()) + " FROM " +
+              quoteAndPrefix("survey_" + getSid()) + " WHERE token IN (:ids) ORDER BY token";
+          return new ValueIterator(entities, jdbcTemplate.queryForRowSet(sql, parameters));
+        }
 
-            private final Iterator<VariableEntity> idsIterator;
-
-            private SqlRowSet rows;
-
-            {
-              idsIterator = entities.iterator();
-              if(!Iterables.isEmpty(entities)) {
-                rows = jdbcTemplate.queryForRowSet(sql.toString(), parameters);
-              }
-            }
+        private Iterable<String> extractIdentifiers(Iterable<VariableEntity> entities) {
+          return Iterables.transform(entities, new Function<VariableEntity, String>() {
 
             @Override
-            public boolean hasNext() {
-              return idsIterator.hasNext();
+            public String apply(VariableEntity input) {
+              return input.getIdentifier();
             }
-
-            @Override
-            public Value next() {
-              if(!hasNext()) {
-                throw new NoSuchElementException();
-              }
-              idsIterator.next();
-              rows.next();
-              Object object = rows.getObject(limesurveyVariableField);
-              return variable.getValueType().valueOf("".equals(object) ? null : object);
-            }
-
-            @Override
-            public void remove() {
-              throw new UnsupportedOperationException();
-            }
-          };
+          });
         }
       };
     }
 
-    private Iterable<String> extractIdentifiers(Iterable<VariableEntity> entities) {
-      return Iterables.transform(entities, new Function<VariableEntity, String>() {
+    private class ValueIterator implements Iterator<Value> {
 
-        @Override
-        public String apply(VariableEntity input) {
-          return input.getIdentifier();
+      private final Iterator<VariableEntity> idsIterator;
+
+      private SqlRowSet rows;
+
+      private ValueIterator(Set<VariableEntity> entities, SqlRowSet rows) {
+        idsIterator = entities.iterator();
+        if(!Iterables.isEmpty(entities)) {
+          this.rows = rows;
         }
-      });
+      }
+
+      @Override
+      public boolean hasNext() {
+        return idsIterator.hasNext();
+      }
+
+      @Override
+      public Value next() {
+        if(!hasNext()) {
+          throw new NoSuchElementException();
+        }
+        idsIterator.next();
+        rows.next();
+        Object object = rows.getObject(getLimesurveyVariableField());
+        return variable.getValueType().valueOf("".equals(object) ? null : object);
+      }
+
+      @Override
+      public void remove() {
+        throw new UnsupportedOperationException();
+      }
     }
 
   }

@@ -39,6 +39,7 @@ public class IntegrationDatasource extends AbstractDatasource {
   }
 
   @Override
+  @SuppressWarnings("PMD.NcssMethodCount")
   protected ValueTable initialiseValueTable(String tableName) {
 
     ImmutableSet.Builder<VariableValueSource> sources = new ImmutableSet.Builder<VariableValueSource>();

@@ -214,6 +214,7 @@ class HibernateValueTableWriter implements ValueTableWriter {
     }
 
     @Override
+    @SuppressWarnings("PMD.NcssMethodCount")
     public void writeValue(@Nonnull Variable variable, @Nonnull Value value) {
       //noinspection ConstantConditions
       if(variable == null) throw new IllegalArgumentException("variable cannot be null");
