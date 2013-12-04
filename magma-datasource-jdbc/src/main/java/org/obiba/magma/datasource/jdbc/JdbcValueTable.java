@@ -528,110 +528,111 @@ class JdbcValueTable extends AbstractValueTable {
     @Override
     public Iterable<Value> getValues(final SortedSet<VariableEntity> entities) {
 
-      final String sql = "SELECT " + getEntityIdentifierColumnsSql() + "," + columnName +
-          " FROM " + escapedSqlTableName + " ORDER BY " + getEntityIdentifierColumnsSql();
-
       return new Iterable<Value>() {
 
         @Override
         public Iterator<Value> iterator() {
           try {
-            return new Iterator<Value>() {
-
-              private final Connection c;
-
-              private final PreparedStatement ps;
-
-              private final ResultSet rs;
-
-              private final Iterator<VariableEntity> resultEntities;
-
-              private boolean hasNextResults;
-
-              private boolean closed = false;
-
-              {
-                c = getDatasource().getJdbcTemplate().getDataSource().getConnection();
-                ps = c.prepareStatement(sql);
-                rs = ps.executeQuery();
-                hasNextResults = rs.next();
-                resultEntities = entities.iterator();
-                closeCursorIfNecessary();
-              }
-
-              @Override
-              public boolean hasNext() {
-                return resultEntities.hasNext();
-              }
-
-              @Override
-              public Value next() {
-                if(!hasNext()) {
-                  throw new NoSuchElementException();
-                }
-
-                String nextEntity = resultEntities.next().getIdentifier();
-                try {
-                  // Scroll until we find the required entity or reach the end of the results
-                  while(hasNextResults && !buildEntityIdentifier(rs).equals(nextEntity)) {
-                    hasNextResults = rs.next();
-                  }
-
-                  Value value = null;
-                  if(hasNextResults) {
-                    value = variable.getValueType().valueOf(rs.getObject(columnName));
-                  }
-                  closeCursorIfNecessary();
-                  return value != null
-                      ? value
-                      : getVariable().isRepeatable() ? getValueType().nullSequence() : getValueType().nullValue();
-                } catch(SQLException e) {
-                  throw new RuntimeException(e);
-                }
-              }
-
-              @Override
-              public void remove() {
-                throw new UnsupportedOperationException();
-              }
-
-              private void closeCursorIfNecessary() {
-                if(!closed) {
-                  // Close the cursor if we don't have any more results or no more entities to return
-                  if(!hasNextResults || !hasNext()) {
-                    closed = true;
-                    closeQuietly(rs, ps, c);
-                  }
-                }
-              }
-
-              @SuppressWarnings("OverlyStrongTypeCast")
-              private void closeQuietly(Object... objs) {
-                if(objs != null) {
-                  for(Object o : objs) {
-                    try {
-                      if(o instanceof ResultSet) {
-                        ((ResultSet) o).close();
-                      }
-                      if(o instanceof Statement) {
-                        ((Statement) o).close();
-                      }
-                      if(o instanceof Connection) {
-                        ((Connection) o).close();
-                      }
-                    } catch(SQLException e) {
-                      // ignored
-                    }
-                  }
-                }
-              }
-            };
+            return new ValueIterator(getDatasource().getJdbcTemplate().getDataSource().getConnection(), entities);
           } catch(SQLException e) {
             throw new RuntimeException(e);
           }
         }
 
       };
+    }
+
+    private class ValueIterator implements Iterator<Value> {
+
+      private final Connection connection;
+
+      private final PreparedStatement statement;
+
+      private final ResultSet rs;
+
+      private final Iterator<VariableEntity> resultEntities;
+
+      private boolean hasNextResults;
+
+      private boolean closed = false;
+
+      private ValueIterator(Connection connection, SortedSet<VariableEntity> entities) throws SQLException {
+        this.connection = connection;
+        String column = getEntityIdentifierColumnsSql();
+        statement = connection.prepareStatement("SELECT " + column + "," + columnName +
+            " FROM " + escapedSqlTableName + " ORDER BY " + column);
+        rs = statement.executeQuery();
+        hasNextResults = rs.next();
+        resultEntities = entities.iterator();
+        closeCursorIfNecessary();
+      }
+
+      @Override
+      public boolean hasNext() {
+        return resultEntities.hasNext();
+      }
+
+      @Override
+      public Value next() {
+        if(!hasNext()) {
+          throw new NoSuchElementException();
+        }
+
+        String nextEntity = resultEntities.next().getIdentifier();
+        try {
+          // Scroll until we find the required entity or reach the end of the results
+          while(hasNextResults && !buildEntityIdentifier(rs).equals(nextEntity)) {
+            hasNextResults = rs.next();
+          }
+
+          Value value = null;
+          if(hasNextResults) {
+            value = variable.getValueType().valueOf(rs.getObject(columnName));
+          }
+          closeCursorIfNecessary();
+          return value != null
+              ? value
+              : getVariable().isRepeatable() ? getValueType().nullSequence() : getValueType().nullValue();
+        } catch(SQLException e) {
+          throw new RuntimeException(e);
+        }
+      }
+
+      @Override
+      public void remove() {
+        throw new UnsupportedOperationException();
+      }
+
+      private void closeCursorIfNecessary() {
+        if(!closed) {
+          // Close the cursor if we don't have any more results or no more entities to return
+          if(!hasNextResults || !hasNext()) {
+            closed = true;
+            closeQuietly(rs, statement, connection);
+          }
+        }
+      }
+
+      @SuppressWarnings({ "OverlyStrongTypeCast", "ChainOfInstanceofChecks" })
+      private void closeQuietly(Object... objs) {
+        if(objs != null) {
+          for(Object o : objs) {
+            try {
+              if(o instanceof ResultSet) {
+                ((ResultSet) o).close();
+              }
+              if(o instanceof Statement) {
+                ((Statement) o).close();
+              }
+              if(o instanceof Connection) {
+                ((Connection) o).close();
+              }
+            } catch(SQLException e) {
+              // ignored
+            }
+          }
+        }
+      }
     }
   }
 
