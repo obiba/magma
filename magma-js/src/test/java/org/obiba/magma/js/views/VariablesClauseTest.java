@@ -33,6 +33,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
 
+@SuppressWarnings({ "OverlyLongMethod", "PMD.NcssMethodCount" })
 public class VariablesClauseTest extends AbstractJsTest {
 
   private Set<Variable> variables;
@@ -127,8 +128,7 @@ public class VariablesClauseTest extends AbstractJsTest {
 
   @Test(expected = IllegalStateException.class)
   public void test_getVariablesValueSource_ThrowsIfNotInitialized() {
-    VariablesClause clause = new VariablesClause();
-    clause.getVariableValueSource("test");
+    new VariablesClause().getVariableValueSource("test");
   }
 
   @Test

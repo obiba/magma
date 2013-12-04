@@ -14,6 +14,7 @@ import org.obiba.magma.support.ValueSetBean;
 import org.obiba.magma.support.VariableEntityBean;
 import org.obiba.magma.type.TextType;
 
+@SuppressWarnings({ "OverlyLongMethod", "PMD.NcssMethodCount" })
 public class JavascriptVariableValueSourceTest extends AbstractJsTest {
 
   @Test

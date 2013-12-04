@@ -2,7 +2,6 @@ package org.obiba.magma.js.methods;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 import javax.annotation.Nullable;
 
@@ -26,7 +25,7 @@ import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
-@SuppressWarnings("ReuseOfLocalVariable")
+@SuppressWarnings({ "ReuseOfLocalVariable", "OverlyLongMethod", "PMD.NcssMethodCount" })
 public class BooleanMethodsTest extends AbstractJsTest {
   // Any
   @Test
