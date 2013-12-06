@@ -40,7 +40,7 @@ public class CsvDatasource extends AbstractDatasource {
 
   public static final char DEL_CHAR = (char) 127;
 
-  private final Map<String, CsvValueTable> valueTables = new HashMap<String, CsvValueTable>();
+  private final Map<String, CsvValueTable> valueTables = new HashMap<>();
 
   private String[] defaultVariablesHeader = "name#valueType#entityType#mimeType#unit#occurrenceGroup#repeatable#script"
       .split("#");

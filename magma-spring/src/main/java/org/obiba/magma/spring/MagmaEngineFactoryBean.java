@@ -20,12 +20,12 @@ import org.springframework.beans.factory.InitializingBean;
 /**
  *
  */
-public class MagmaEngineFactoryBean implements FactoryBean, InitializingBean, DisposableBean {
+public class MagmaEngineFactoryBean implements FactoryBean<MagmaEngine>, InitializingBean, DisposableBean {
 
   private Set<MagmaEngineExtension> extensions;
 
   @Override
-  public Object getObject() throws Exception {
+  public MagmaEngine getObject() throws Exception {
     return MagmaEngine.get();
   }
 

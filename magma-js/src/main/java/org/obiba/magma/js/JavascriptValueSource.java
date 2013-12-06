@@ -216,7 +216,7 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
       Value result = null;
       if(value.getClass().isArray()) {
         int length = Array.getLength(value);
-        Collection<Value> values = new ArrayList<Value>(length);
+        Collection<Value> values = new ArrayList<>(length);
         for(int i = 0; i < length; i++) {
           Object v = Rhino.fixRhinoNumber(Array.get(value, i));
           values.add(getValueType().valueOf(v));
@@ -273,7 +273,7 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
 
     SortedSet<VariableEntity> getEntities(MagmaContext context) {
       if(entities == null) {
-        return new TreeSet<VariableEntity>(context.peek(ValueTable.class).getVariableEntities());
+        return new TreeSet<>(context.peek(ValueTable.class).getVariableEntities());
       }
       return entities;
     }

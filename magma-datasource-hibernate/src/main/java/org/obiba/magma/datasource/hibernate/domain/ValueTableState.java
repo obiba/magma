@@ -76,7 +76,7 @@ public class ValueTableState extends AbstractTimestampedEntity {
   }
 
   public List<VariableState> getVariables() {
-    return variables == null ? (variables = new ArrayList<VariableState>()) : variables;
+    return variables == null ? (variables = new ArrayList<>()) : variables;
   }
 
 }

@@ -207,7 +207,7 @@ public class VariableTest extends AbstractMagmaTest {
     Variable derived = derivedBuilder.build();
 
     assertThat(derived.hasCategories(), is(true));
-    List<Category> categories = new ArrayList<Category>(derived.getCategories());
+    List<Category> categories = new ArrayList<>(derived.getCategories());
     assertThat(categories.size(), is(1));
     Category category = categories.get(0);
     assertThat(category.getAttribute("label", Locale.ENGLISH).getValue(),

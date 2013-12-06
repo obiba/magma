@@ -19,6 +19,7 @@ public class ValueSequenceConverter implements Converter {
   }
 
   @Override
+  @SuppressWarnings("rawtypes")
   public boolean canConvert(Class type) {
     return ValueSequence.class.equals(type);
   }

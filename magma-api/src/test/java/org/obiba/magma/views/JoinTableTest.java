@@ -46,13 +46,13 @@ public class JoinTableTest extends AbstractMagmaTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testTableListCannotBeEmpty() {
-    List<ValueTable> tables = new ArrayList<ValueTable>();
+    List<ValueTable> tables = new ArrayList<>();
     new JoinTable(tables);
   }
 
   @Test
   public void testTableListWithTwoTablesAllowed() {
-    List<ValueTable> tables = new ArrayList<ValueTable>();
+    List<ValueTable> tables = new ArrayList<>();
     tables.add(newTableMock().build());
     tables.add(newTableMock().build());
 
@@ -61,7 +61,7 @@ public class JoinTableTest extends AbstractMagmaTest {
 
   @Test
   public void testTableListWithMoreThanTwoTablesAllowed() {
-    List<ValueTable> tables = new ArrayList<ValueTable>();
+    List<ValueTable> tables = new ArrayList<>();
     tables.add(newTableMock().build());
     tables.add(newTableMock().build());
     tables.add(newTableMock().build());
@@ -71,7 +71,7 @@ public class JoinTableTest extends AbstractMagmaTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testAllTablesMustHaveTheSameEntityType() {
-    List<ValueTable> tables = new ArrayList<ValueTable>();
+    List<ValueTable> tables = new ArrayList<>();
     tables.add(newTableMock().build());
 
     ValueTable mock = createMock(ValueTable.class);
@@ -128,7 +128,7 @@ public class JoinTableTest extends AbstractMagmaTest {
     Iterable<Variable> variables = joinTable.getVariables();
     assertNotNull(variables);
 
-    Collection<String> variableNameList = new ArrayList<String>();
+    Collection<String> variableNameList = new ArrayList<>();
     for(Variable variable : variables) {
       variableNameList.add(variable.getName());
     }
@@ -248,7 +248,7 @@ public class JoinTableTest extends AbstractMagmaTest {
 
   static class JoinTableBuilder {
 
-    private final List<ValueTable> mocks = new ArrayList<ValueTable>();
+    private final List<ValueTable> mocks = new ArrayList<>();
 
     static JoinTableBuilder newBuilder() {
       return new JoinTableBuilder();
@@ -294,7 +294,7 @@ public class JoinTableTest extends AbstractMagmaTest {
 
     private String entityType;
 
-    private final Collection<Variable> variables = new HashSet<Variable>();
+    private final Collection<Variable> variables = new HashSet<>();
 
     static MockValueTableBuilder newTableMock() {
       return newTableMock(PARTICIPANT_ENTITY_TYPE);

@@ -235,10 +235,7 @@ class HibernateValueTableWriter implements ValueTableWriter {
 
         dirty = true;
 
-      } catch(RuntimeException e) {
-        errorOccurred = true;
-        throw e;
-      } catch(Error e) {
+      } catch(RuntimeException | Error e) {
         errorOccurred = true;
         throw e;
       }

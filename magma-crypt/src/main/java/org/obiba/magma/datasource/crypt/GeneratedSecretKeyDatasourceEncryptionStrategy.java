@@ -81,9 +81,7 @@ public class GeneratedSecretKeyDatasourceEncryptionStrategy implements Datasourc
       AlgorithmParameters parameters = initialiseParameters(ds, transformation, sk);
 
       return new DefaultDatasourceCipherFactory(transformation, sk, parameters);
-    } catch(GeneralSecurityException e) {
-      throw new MagmaRuntimeException(e);
-    } catch(IOException e) {
+    } catch(GeneralSecurityException | IOException e) {
       throw new MagmaRuntimeException(e);
     }
   }

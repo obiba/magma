@@ -42,10 +42,10 @@ public class IntegrationDatasource extends AbstractDatasource {
   @SuppressWarnings("PMD.NcssMethodCount")
   protected ValueTable initialiseValueTable(String tableName) {
 
-    ImmutableSet.Builder<VariableValueSource> sources = new ImmutableSet.Builder<VariableValueSource>();
+    ImmutableSet.Builder<VariableValueSource> sources = new ImmutableSet.Builder<>();
 
-    BeanVariableValueSourceFactory<Participant> variables = new BeanVariableValueSourceFactory<Participant>(
-        "Participant", Participant.class);
+    BeanVariableValueSourceFactory<Participant> variables = new BeanVariableValueSourceFactory<>("Participant",
+        Participant.class);
     variables.setProperties(
         ImmutableSet.of("barcode", "firstName", "lastName", "gender", "interview.startDate", "interview.endDate"));
     sources.addAll(variables.createSources());
@@ -63,7 +63,7 @@ public class IntegrationDatasource extends AbstractDatasource {
         Variable.Builder.newVariable("isFemale", BooleanType.get(), "Participant")
             .extend(JavascriptVariableBuilder.class).setScript("$('gender').any('Female')").build()));
 
-    BeanVariableValueSourceFactory<Action> actionFactory = new BeanVariableValueSourceFactory<Action>("Participant",
+    BeanVariableValueSourceFactory<Action> actionFactory = new BeanVariableValueSourceFactory<>("Participant",
         Action.class);
     actionFactory.setProperties(ImmutableSet.of("stage"));
     actionFactory.setPrefix("Action");

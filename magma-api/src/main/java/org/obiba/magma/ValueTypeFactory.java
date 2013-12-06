@@ -33,9 +33,9 @@ import com.google.common.collect.Iterables;
 
 class ValueTypeFactory {
 
-  private final Set<ValueType> types = new HashSet<ValueType>();
+  private final Set<ValueType> types = new HashSet<>();
 
-  private final Collection<ValueConverter> converters = new LinkedHashSet<ValueConverter>();
+  private final Collection<ValueConverter> converters = new LinkedHashSet<>();
 
   ValueTypeFactory() {
     registerBuiltInTypes();

@@ -44,7 +44,7 @@ public class StaticDatasource extends AbstractAttributeAware implements Datasour
 
   private final ListMultimap<String, Attribute> attributes = LinkedListMultimap.create();
 
-  private final Map<String, StaticValueTable> tableMap = new LinkedHashMap<String, StaticValueTable>();
+  private final Map<String, StaticValueTable> tableMap = new LinkedHashMap<>();
 
   public StaticDatasource(String name) {
     this.name = name;

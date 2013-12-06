@@ -174,7 +174,7 @@ public class VariableState extends AbstractAttributeAwareEntity implements Times
   }
 
   public List<CategoryState> getCategories() {
-    return categories != null ? categories : (categories = new ArrayList<CategoryState>());
+    return categories != null ? categories : (categories = new ArrayList<>());
   }
 
   public void addCategory(CategoryState state) {

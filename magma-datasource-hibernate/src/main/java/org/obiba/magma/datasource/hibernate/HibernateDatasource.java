@@ -235,7 +235,7 @@ public class HibernateDatasource extends AbstractDatasource {
 
   @Override
   protected Set<String> getValueTableNames() {
-    Set<String> names = new LinkedHashSet<String>();
+    Set<String> names = new LinkedHashSet<>();
     AssociationCriteria criteria = AssociationCriteria.create(ValueTableState.class, sessionFactory.getCurrentSession())
         .add("datasource.id", Operation.eq, datasourceId);
     for(Object obj : criteria.list()) {

@@ -33,7 +33,7 @@ public class DatasourceTableClause extends VariablesClause implements Disposable
 
   @Override
   public void initialise() {
-    ImmutableSet.Builder<Variable> variableSet = new ImmutableSet.Builder<Variable>();
+    ImmutableSet.Builder<Variable> variableSet = new ImmutableSet.Builder<>();
 
     try {
       // read the variables from the excel datasource

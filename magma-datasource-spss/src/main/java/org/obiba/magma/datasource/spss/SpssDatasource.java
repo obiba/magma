@@ -29,7 +29,7 @@ public class SpssDatasource extends AbstractDatasource {
 
   private final String locale;
 
-  private final Map<String, SpssValueTable> valueTablesMapOnInit = new LinkedHashMap<String, SpssValueTable>();
+  private final Map<String, SpssValueTable> valueTablesMapOnInit = new LinkedHashMap<>();
 
   public SpssDatasource(String name, List<File> spssFiles, String characterSet, String entityType, String locale) {
     super(name, "spss");

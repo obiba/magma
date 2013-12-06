@@ -136,17 +136,15 @@ public class EncryptedSecretKeyDatasourceEncryptionStrategy implements Datasourc
     return keyFactory.generatePublic(keySpec);
   }
 
-  private EncodedKeySpec getEncodedKeySpec(String format, byte[] encodedKey) {
-    EncodedKeySpec keySpec = null;
-
-    if(format.equals(X509_KEYSPEC_FORMAT)) {
-      keySpec = new X509EncodedKeySpec(encodedKey);
-    } else if(format.equals(PKCS8_KEYSPEC_FORMAT)) {
-      keySpec = new PKCS8EncodedKeySpec(encodedKey);
-    } else {
-      // TODO: Support other formats.
-      throw new RuntimeException("Unsupported KeySpec format (" + format + ")");
+  private EncodedKeySpec getEncodedKeySpec(String format, byte... encodedKey) {
+    switch(format) {
+      case X509_KEYSPEC_FORMAT:
+        return new X509EncodedKeySpec(encodedKey);
+      case PKCS8_KEYSPEC_FORMAT:
+        return new PKCS8EncodedKeySpec(encodedKey);
+      default:
+        // TODO: Support other formats.
+        throw new RuntimeException("Unsupported KeySpec format (" + format + ")");
     }
-    return keySpec;
   }
 }

@@ -332,8 +332,6 @@ public interface Variable extends AttributeAware {
         throw new IllegalArgumentException("Builder extension type '" + type.getName() +
             "' must expose a public constructor that takes a single argument of type '" + Builder.class.getName() +
             "'.");
-      } catch(RuntimeException e) {
-        throw new IllegalArgumentException("Cannot instantiate builder extension type '" + type.getName() + "'", e);
       } catch(Exception e) {
         throw new IllegalArgumentException("Cannot instantiate builder extension type '" + type.getName() + "'", e);
       }
@@ -420,7 +418,7 @@ public interface Variable extends AttributeAware {
    * the referenced entity's {@code identifier}.
    *
    * @return the {@code entityType} that this value points to, this method returns null when the variable doesn't point
-   *         to another entity.
+   * to another entity.
    */
   String getReferencedEntityType();
 

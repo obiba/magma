@@ -13,7 +13,6 @@ package org.obiba.magma.datasource.spss.support;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 import javax.annotation.Nonnull;
 
@@ -37,7 +36,7 @@ public class SpssDatasourceFactory extends AbstractDatasourceFactory {
   // Data members
   //
 
-  private final List<File> files = new ArrayList<File>();
+  private final List<File> files = new ArrayList<>();
 
   private String characterSet;
 
@@ -85,11 +84,11 @@ public class SpssDatasourceFactory extends AbstractDatasourceFactory {
       characterSet = DEFAULT_CHARACTER_SET;
     }
 
-    if (Strings.isNullOrEmpty(entityType)) {
+    if(Strings.isNullOrEmpty(entityType)) {
       entityType = DEFAULT_ENTITY_TYPE;
     }
 
-    if (Strings.isNullOrEmpty(locale)) {
+    if(Strings.isNullOrEmpty(locale)) {
       locale = DEFAULT_LOCALE;
     }
 

@@ -30,7 +30,7 @@ public class ExcludeAllFilterTest {
   @Test
   public void testValueSetFilterIsAlwaysTheExcludeType() throws Exception {
     ExcludeAllFilter<ValueSet> filter = ExcludeAllFilter.Builder.newFilter().buildForValueSet();
-    StateEnvelope<ValueSet> stateEnvelope = new StateEnvelope<ValueSet>(valueSetMock);
+    StateEnvelope<ValueSet> stateEnvelope = new StateEnvelope<>(valueSetMock);
     assertThat(filter.doIt(stateEnvelope).getState(), is(FilterState.OUT));
   }
 
@@ -43,7 +43,7 @@ public class ExcludeAllFilterTest {
   @Test
   public void testVariableValueSourceFilterIsAlwaysTheExcludeType() throws Exception {
     ExcludeAllFilter<VariableValueSource> filter = ExcludeAllFilter.Builder.newFilter().buildForVariableValueSource();
-    StateEnvelope<VariableValueSource> stateEnvelope = new StateEnvelope<VariableValueSource>(variableValueSourceMock);
+    StateEnvelope<VariableValueSource> stateEnvelope = new StateEnvelope<>(variableValueSourceMock);
     assertThat(filter.doIt(stateEnvelope).getState(), is(FilterState.OUT));
   }
 }

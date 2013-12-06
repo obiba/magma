@@ -10,6 +10,7 @@ public class ValueTypeConverter extends AbstractSingleValueConverter {
   }
 
   @Override
+  @SuppressWarnings("rawtypes")
   public boolean canConvert(Class type) {
     return ValueType.class.isAssignableFrom(type);
   }

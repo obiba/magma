@@ -105,7 +105,7 @@ public class DatasourceCopier {
 
   private boolean copyValues = true;
 
-  private Collection<DatasourceCopyEventListener> listeners = new LinkedList<DatasourceCopyEventListener>();
+  private Collection<DatasourceCopyEventListener> listeners = new LinkedList<>();
 
   private VariableTransformer variableTransformer = new NoOpTransformer();
 
@@ -158,11 +158,8 @@ public class DatasourceCopier {
       log.debug("  --> {} variables, {} valueSets", Lists.newArrayList(sourceTable.getVariables()).size(),
           Lists.newArrayList(sourceTable.getValueSets()).size());
     }
-    ValueTableWriter tableWriter = innerValueTableWriter(sourceTable, destinationTableName, destination);
-    try {
+    try(ValueTableWriter tableWriter = innerValueTableWriter(sourceTable, destinationTableName, destination)) {
       copy(sourceTable, destination.getValueTable(destinationTableName), tableWriter);
-    } finally {
-      tableWriter.close();
     }
     if(log.isDebugEnabled()) {
       //noinspection ConstantConditions
@@ -182,11 +179,8 @@ public class DatasourceCopier {
 
     log.debug("Copy values from {} {}", sourceTable.getClass(), sourceTable.getName());
     for(ValueSet valueSet : sourceTable.getValueSets()) {
-      ValueSetWriter valueSetWriter = tableWriter.writeValueSet(valueSet.getVariableEntity());
-      try {
+      try(ValueSetWriter valueSetWriter = tableWriter.writeValueSet(valueSet.getVariableEntity())) {
         copyValues(sourceTable, valueSet, destinationTable.getName(), valueSetWriter);
-      } finally {
-        valueSetWriter.close();
       }
     }
   }
@@ -212,11 +206,8 @@ public class DatasourceCopier {
   public void copyMetadata(ValueTable sourceTable, String destinationTableName, ValueTableWriter tableWriter)
       throws IOException {
     if(!copyMetadata) return;
-    VariableWriter variableWriter = tableWriter.writeVariables();
-    try {
+    try(VariableWriter variableWriter = tableWriter.writeVariables()) {
       copyMetadata(sourceTable, variableWriter);
-    } finally {
-      variableWriter.close();
     }
   }
 

@@ -15,7 +15,7 @@ public class CsvUtil {
   private CsvUtil() {}
 
   public static String[] getCsvVariableHeader(ValueTable table) {
-    List<String> headers = new ArrayList<String>();
+    List<String> headers = new ArrayList<>();
 
     addVariableHeaders(headers);
     addCategoriesHeaders(table, headers);

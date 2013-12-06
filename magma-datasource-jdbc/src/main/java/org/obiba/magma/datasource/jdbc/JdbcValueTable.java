@@ -187,7 +187,7 @@ class JdbcValueTable extends AbstractValueTable {
   }
 
   static List<String> getEntityIdentifierColumns(Table table) {
-    List<String> entityIdentifierColumns = new ArrayList<String>();
+    List<String> entityIdentifierColumns = new ArrayList<>();
     for(Column column : table.getColumns()) {
       if(column.isPrimaryKey()) {
         entityIdentifierColumns.add(column.getName());
@@ -433,7 +433,7 @@ class JdbcValueTable extends AbstractValueTable {
 
   class JdbcVariableEntityProvider extends AbstractVariableEntityProvider implements Initialisable {
 
-    private Set<VariableEntity> entities = new LinkedHashSet<VariableEntity>();
+    private Set<VariableEntity> entities = new LinkedHashSet<>();
 
     JdbcVariableEntityProvider(String entityType) {
       super(entityType);
@@ -441,7 +441,7 @@ class JdbcValueTable extends AbstractValueTable {
 
     @Override
     public void initialise() {
-      entities = new LinkedHashSet<VariableEntity>();
+      entities = new LinkedHashSet<>();
 
       // MAGMA-100
       if(escapedSqlTableName == null) {

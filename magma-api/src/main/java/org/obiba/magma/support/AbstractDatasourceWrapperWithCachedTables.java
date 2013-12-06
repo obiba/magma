@@ -27,7 +27,7 @@ import com.google.common.collect.Sets;
  */
 public abstract class AbstractDatasourceWrapperWithCachedTables extends AbstractDatasourceWrapper {
 
-  private final Map<String, ValueTable> valueTablesCache = new LinkedHashMap<String, ValueTable>(100);
+  private final Map<String, ValueTable> valueTablesCache = new LinkedHashMap<>(100);
 
   protected AbstractDatasourceWrapperWithCachedTables(@Nonnull Datasource wrapped) {
     super(wrapped);

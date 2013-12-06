@@ -35,13 +35,13 @@ public class MagmaEngine implements DatasourceRegistry {
   @SuppressWarnings("StaticNonFinalField")
   private static MagmaEngine instance;
 
-  private ValueTypeFactory valueTypeFactory;
+  private final ValueTypeFactory valueTypeFactory;
 
   private DatasourceRegistry datasourceRegistry = new DefaultDatasourceRegistry();
 
-  private Set<MagmaEngineExtension> extensions = Sets.newHashSet();
+  private final Set<MagmaEngineExtension> extensions = Sets.newHashSet();
 
-  private LockManager lockManager = new LockManager();
+  private final LockManager lockManager = new LockManager();
 
   public MagmaEngine() {
     if(instance != null) {
@@ -50,7 +50,7 @@ public class MagmaEngine implements DatasourceRegistry {
     }
     instance = this;
 
-    singletons = new LinkedHashSet<Object>();
+    singletons = new LinkedHashSet<>();
     valueTypeFactory = new ValueTypeFactory();
   }
 
@@ -189,7 +189,7 @@ public class MagmaEngine implements DatasourceRegistry {
 
   public <T> WeakReference<T> registerInstance(T singleton) {
     singletons.add(singleton);
-    return new WeakReference<T>(singleton);
+    return new WeakReference<>(singleton);
   }
 
   public void shutdown() {

@@ -31,7 +31,7 @@ public abstract class AbstractDatasource extends AbstractAttributeAware implemen
 
   private final String type;
 
-  private final Set<ValueTable> valueTables = new LinkedHashSet<ValueTable>(100);
+  private final Set<ValueTable> valueTables = new LinkedHashSet<>(100);
 
   private final ListMultimap<String, Attribute> attributes = LinkedListMultimap.create();
 
@@ -88,7 +88,7 @@ public abstract class AbstractDatasource extends AbstractAttributeAware implemen
 
   @Override
   public void initialise() {
-    Collection<DatasourceParsingException> parsingErrors = new ArrayList<DatasourceParsingException>();
+    Collection<DatasourceParsingException> parsingErrors = new ArrayList<>();
     onInitialise();
     for(String valueTable : getValueTableNames()) {
       ValueTable vt = initialiseValueTable(valueTable);

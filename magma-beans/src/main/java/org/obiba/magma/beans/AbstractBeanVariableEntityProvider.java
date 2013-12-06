@@ -25,7 +25,7 @@ public abstract class AbstractBeanVariableEntityProvider<T> extends AbstractVari
 
   @Override
   public Set<VariableEntity> getVariableEntities() {
-    ImmutableSet.Builder<VariableEntity> builder = new ImmutableSet.Builder<VariableEntity>();
+    ImmutableSet.Builder<VariableEntity> builder = new ImmutableSet.Builder<>();
     for(Object bean : loadBeans()) {
       BeanWrapper bw = PropertyAccessorFactory.forBeanPropertyAccess(bean);
 

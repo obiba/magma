@@ -4,10 +4,6 @@ apply plugin: 'idea'
 apply plugin: 'versions'
 apply from: 'libraries.gradle'
 
-ext {
-  javaVersion = '1.6'
-}
-
 task wrapper(type: Wrapper) {
   gradleVersion = '1.9'
 }
@@ -31,8 +27,8 @@ allprojects {
 
   group = 'org.obiba.magma'
 
-  sourceCompatibility = javaVersion
-  targetCompatibility = javaVersion
+  sourceCompatibility = JavaVersion.VERSION_1_7
+  targetCompatibility = JavaVersion.VERSION_1_7
 
   defaultTasks 'build'
 

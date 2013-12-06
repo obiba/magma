@@ -199,7 +199,7 @@ public class ViewTest extends AbstractMagmaTest {
   public void testGetValueSetsWithDefaultWhereClause() {
     ValueTable valueTableMock = createMock(ValueTable.class);
 
-    Collection<ValueSet> valueSets = new ArrayList<ValueSet>();
+    Collection<ValueSet> valueSets = new ArrayList<>();
     VariableEntity variableEntityFoo = new VariableEntityBean("type", "foo");
     VariableEntity variableEntityBar = new VariableEntityBean("type", "bar");
     ValueSet valueSetFoo = new ValueSetBean(valueTableMock, variableEntityFoo);
@@ -228,7 +228,7 @@ public class ViewTest extends AbstractMagmaTest {
     ValueTable valueTableMock = createMock(ValueTable.class);
     WhereClause whereClauseMock = createMock(WhereClause.class);
 
-    Collection<ValueSet> valueSets = new ArrayList<ValueSet>();
+    Collection<ValueSet> valueSets = new ArrayList<>();
     VariableEntity variableEntityFoo = new VariableEntityBean("type", "foo");
     VariableEntity variableEntityBar = new VariableEntityBean("type", "bar");
     ValueSet valueSetFoo = new ValueSetBean(valueTableMock, variableEntityFoo);
@@ -258,7 +258,7 @@ public class ViewTest extends AbstractMagmaTest {
     ValueTable valueTableMock = createMock(ValueTable.class);
     WhereClause whereClauseMock = createMock(WhereClause.class);
 
-    Collection<ValueSet> valueSets = new ArrayList<ValueSet>();
+    Collection<ValueSet> valueSets = new ArrayList<>();
     VariableEntity variableEntityInclude = new VariableEntityBean("type", "include");
     VariableEntity variableEntityExclude = new VariableEntityBean("type", "exclude");
     ValueSet valueSetInclude = new ValueSetBean(valueTableMock, variableEntityInclude);
@@ -354,7 +354,7 @@ public class ViewTest extends AbstractMagmaTest {
   public void testGetVariablesWithDefaultSelectClause() {
     ValueTable valueTableMock = createMock(ValueTable.class);
 
-    Collection<Variable> variables = new ArrayList<Variable>();
+    Collection<Variable> variables = new ArrayList<>();
     Variable variableFoo = new Variable.Builder("foo", TextType.get(), "type").build();
     Variable variableBar = new Variable.Builder("bar", TextType.get(), "type").build();
     variables.add(variableFoo);
@@ -381,7 +381,7 @@ public class ViewTest extends AbstractMagmaTest {
     ValueTable valueTableMock = createMock(ValueTable.class);
     SelectClause selectClauseMock = createMock(SelectClause.class);
 
-    Collection<Variable> variables = new ArrayList<Variable>();
+    Collection<Variable> variables = new ArrayList<>();
     Variable variableFoo = new Variable.Builder("foo", TextType.get(), "type").build();
     Variable variableBar = new Variable.Builder("bar", TextType.get(), "type").build();
     variables.add(variableFoo);
@@ -409,7 +409,7 @@ public class ViewTest extends AbstractMagmaTest {
     ValueTable valueTableMock = createMock(ValueTable.class);
     SelectClause selectClauseMock = createMock(SelectClause.class);
 
-    Collection<Variable> variables = new ArrayList<Variable>();
+    Collection<Variable> variables = new ArrayList<>();
     Variable variableInclude = new Variable.Builder("include", TextType.get(), "type").build();
     Variable variableExclude = new Variable.Builder("exclude", TextType.get(), "type").build();
     variables.add(variableInclude);
@@ -514,7 +514,7 @@ public class ViewTest extends AbstractMagmaTest {
     ListClause listClauseMock = createMock(ListClause.class);
 
     VariableValueSource variableValueSourceMock = createMock(VariableValueSource.class);
-    Collection<VariableValueSource> variableValueSourceList = new ArrayList<VariableValueSource>();
+    Collection<VariableValueSource> variableValueSourceList = new ArrayList<>();
     variableValueSourceList.add(variableValueSourceMock);
 
     expect(listClauseMock.getVariableValueSources()).andReturn(variableValueSourceList);
@@ -561,7 +561,7 @@ public class ViewTest extends AbstractMagmaTest {
 
     ViewManager manager = new DefaultViewManagerImpl(viewPersistenceMock);
 
-    Set<View> views = new HashSet<View>();
+    Set<View> views = new HashSet<>();
     View view = View.Builder.newView("view", valueTableMock).list(listClauseMock).build();
     views.add(view);
 
@@ -571,7 +571,7 @@ public class ViewTest extends AbstractMagmaTest {
 
     VariableValueSource vSourceMock = createMock(VariableValueSource.class);
 
-    Collection<VariableValueSource> variablesValueSource = new HashSet<VariableValueSource>();
+    Collection<VariableValueSource> variablesValueSource = new HashSet<>();
     variablesValueSource.add(vSourceMock);
 
     expect(viewPersistenceMock.readViews("datasource")).andReturn(views);

@@ -47,7 +47,7 @@ public abstract class JSONAwareValueType extends AbstractValueType {
     if(string == null) {
       return nullSequence();
     }
-    Collection<Value> values = new ArrayList<Value>();
+    Collection<Value> values = new ArrayList<>();
 
     // Special case for empty string
     if(string.isEmpty()) {

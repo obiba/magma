@@ -151,8 +151,8 @@ public class ExcelValueTable extends AbstractValueTable implements Initialisable
    * @throws IOException
    */
   private void readVariables() {
-    Collection<String> variableNames = new ArrayList<String>();
-    Collection<ExcelDatasourceParsingException> errors = new ArrayList<ExcelDatasourceParsingException>();
+    Collection<String> variableNames = new ArrayList<>();
+    Collection<ExcelDatasourceParsingException> errors = new ArrayList<>();
 
     if(hasVariablesSheet()) {
       try {
@@ -185,8 +185,8 @@ public class ExcelValueTable extends AbstractValueTable implements Initialisable
     Sheet sheet = getDatasource().getSheet(getName());
     if(sheet == null) return;
 
-    Collection<String> columnNames = new ArrayList<String>();
-    Collection<ExcelDatasourceParsingException> errors = new ArrayList<ExcelDatasourceParsingException>();
+    Collection<String> columnNames = new ArrayList<>();
+    Collection<ExcelDatasourceParsingException> errors = new ArrayList<>();
 
     Row variableNameRow = getValueTableSheet().getRow(0);
     for(int i = 1; i < variableNameRow.getPhysicalNumberOfCells(); i++) {
@@ -239,7 +239,7 @@ public class ExcelValueTable extends AbstractValueTable implements Initialisable
   private void readVariablesFromVariablesSheet(Collection<String> variableNames) {
     if(!hasVariablesSheet()) return;
 
-    Collection<ExcelDatasourceParsingException> errors = new ArrayList<ExcelDatasourceParsingException>();
+    Collection<ExcelDatasourceParsingException> errors = new ArrayList<>();
     Row firstRow = parseVariableNames(variableNames, errors);
 
     // check that all categories for this table has a variable definition

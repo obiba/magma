@@ -42,7 +42,7 @@ public class BatchValueTable extends AbstractTransformingValueTableWrapper {
 
     private final int limit;
 
-    private Set<VariableEntity> entities = Sets.newHashSet();
+    private final Set<VariableEntity> entities = Sets.newHashSet();
 
     private BatchFunction(int limit) {
       this.limit = limit;
@@ -59,7 +59,8 @@ public class BatchValueTable extends AbstractTransformingValueTableWrapper {
       if(entities.size() < limit) {
         entities.add(input);
         return input;
-      } else if (entities.contains(input)) {
+      }
+      if(entities.contains(input)) {
         return input;
       }
       return null;

@@ -25,7 +25,7 @@ public class MagmaEngineFactory {
    * Expose concrete type to force xstream to deserialize using this type.
    * This will keep the order in which factories appear in the xml file
    */
-  private final ArrayList<DatasourceFactory> factories = new ArrayList<DatasourceFactory>();
+  private final ArrayList<DatasourceFactory> factories = new ArrayList<>();
 
   @SuppressWarnings("CollectionDeclaredAsConcreteClass")
   private final LinkedHashSet<Datasource> datasources = Sets.newLinkedHashSet();

@@ -458,7 +458,7 @@ public class NumericMethods {
       if(currentValue.isNull()) {
         return new ScriptableValue(thisObj, TextType.get().nullSequence());
       }
-      Collection<Value> newValues = new ArrayList<Value>();
+      Collection<Value> newValues = new ArrayList<>();
       for(Value value : currentValue.asSequence().getValue()) {
         newValues.add(lookupGroup(ctx, thisObj, value, boundaries, outliers));
       }
@@ -502,7 +502,7 @@ public class NumericMethods {
    */
   private static List<Value> nativeArrayToValueList(ValueType valueType, Object array) {
     NativeArray a = (NativeArray) array;
-    List<Value> newValues = new ArrayList<Value>();
+    List<Value> newValues = new ArrayList<>();
     Value newValue;
     for(int index = 0; index < (int) a.getLength(); index++) {
       newValue = valueType.valueOf(a.get(index, a));

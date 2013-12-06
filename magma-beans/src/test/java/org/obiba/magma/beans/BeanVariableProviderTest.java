@@ -42,7 +42,7 @@ public class BeanVariableProviderTest extends AbstractMagmaTest {
   public void testSimpleProperties() {
     Set<String> properties = Sets
         .newHashSet("firstName", "lastName", "integer", "decimal", "enumProperty", "language", "state");
-    BeanVariableValueSourceFactory<TestBean> bvp = new BeanVariableValueSourceFactory<TestBean>("Test", TestBean.class);
+    BeanVariableValueSourceFactory<TestBean> bvp = new BeanVariableValueSourceFactory<>("Test", TestBean.class);
     bvp.setProperties(properties);
 
     assertVariablesFromProperties(bvp, properties);
@@ -54,7 +54,7 @@ public class BeanVariableProviderTest extends AbstractMagmaTest {
         ImmutableList.of("firstName", "lastName", "integer", "decimal", "enumProperty", "language", "state", "date"));
     List<String> types = ImmutableList
         .of("text", "text", "integer", "decimal", "text", "locale", "boolean", "datetime");
-    BeanVariableValueSourceFactory<TestBean> bvp = new BeanVariableValueSourceFactory<TestBean>("Test", TestBean.class);
+    BeanVariableValueSourceFactory<TestBean> bvp = new BeanVariableValueSourceFactory<>("Test", TestBean.class);
     bvp.setProperties(properties);
     Iterator<String> i = types.iterator();
     for(VariableValueSource source : bvp.createSources()) {
@@ -67,7 +67,7 @@ public class BeanVariableProviderTest extends AbstractMagmaTest {
   @Test
   public void testEnumHasCategories() {
     Set<String> properties = Sets.newHashSet("enumProperty");
-    BeanVariableValueSourceFactory<TestBean> bvp = new BeanVariableValueSourceFactory<TestBean>("Test", TestBean.class);
+    BeanVariableValueSourceFactory<TestBean> bvp = new BeanVariableValueSourceFactory<>("Test", TestBean.class);
     bvp.setProperties(properties);
 
     Set<VariableValueSource> sources = assertVariablesFromProperties(bvp, properties);
@@ -84,7 +84,7 @@ public class BeanVariableProviderTest extends AbstractMagmaTest {
   @Test
   public void testPropertyWithoutField() {
     Set<String> properties = Sets.newHashSet("composedProperty");
-    BeanVariableValueSourceFactory<TestBean> bvp = new BeanVariableValueSourceFactory<TestBean>("Test", TestBean.class);
+    BeanVariableValueSourceFactory<TestBean> bvp = new BeanVariableValueSourceFactory<>("Test", TestBean.class);
     bvp.setProperties(properties);
 
     assertVariablesFromProperties(bvp, properties);
@@ -93,7 +93,7 @@ public class BeanVariableProviderTest extends AbstractMagmaTest {
   @Test
   public void testNestedProperties() {
     Set<String> properties = Sets.newHashSet("nestedBean.decimal", "nestedBean.data");
-    BeanVariableValueSourceFactory<TestBean> bvp = new BeanVariableValueSourceFactory<TestBean>("Test", TestBean.class);
+    BeanVariableValueSourceFactory<TestBean> bvp = new BeanVariableValueSourceFactory<>("Test", TestBean.class);
     bvp.setProperties(properties);
     assertVariablesFromProperties(bvp, properties);
   }
@@ -104,7 +104,7 @@ public class BeanVariableProviderTest extends AbstractMagmaTest {
     Map<String, String> nameOverride = new ImmutableMap.Builder<String, String>()
         .put("nestedBean.decimal", "NestedDecimal").put("firstName", "FirstName").build();
 
-    BeanVariableValueSourceFactory<TestBean> bvp = new BeanVariableValueSourceFactory<TestBean>("Test", TestBean.class);
+    BeanVariableValueSourceFactory<TestBean> bvp = new BeanVariableValueSourceFactory<>("Test", TestBean.class);
     bvp.setProperties(properties);
     bvp.setPropertyNameToVariableName(nameOverride);
     assertVariablesFromProperties(bvp, properties, nameOverride);
@@ -116,7 +116,7 @@ public class BeanVariableProviderTest extends AbstractMagmaTest {
     Map<String, Class<?>> mappedPropertyType = new ImmutableMap.Builder<String, Class<?>>()
         .put("attributes", NestedTestBean.class).build();
 
-    BeanVariableValueSourceFactory<TestBean> bvp = new BeanVariableValueSourceFactory<TestBean>("Test", TestBean.class);
+    BeanVariableValueSourceFactory<TestBean> bvp = new BeanVariableValueSourceFactory<>("Test", TestBean.class);
     bvp.setProperties(properties);
     bvp.setMappedPropertyType(mappedPropertyType);
     assertVariablesFromProperties(bvp, properties);
@@ -135,7 +135,7 @@ public class BeanVariableProviderTest extends AbstractMagmaTest {
     Set<String> properties = Sets.newHashSet("attributes[phone.number].data");
     Map<String, Class<?>> mappedPropertyType = new ImmutableMap.Builder<String, Class<?>>()
         .put("attributes", NestedTestBean.class).build();
-    BeanVariableValueSourceFactory<TestBean> bvp = new BeanVariableValueSourceFactory<TestBean>("Test", TestBean.class);
+    BeanVariableValueSourceFactory<TestBean> bvp = new BeanVariableValueSourceFactory<>("Test", TestBean.class);
     bvp.setProperties(properties);
     bvp.setMappedPropertyType(mappedPropertyType);
 
@@ -167,7 +167,7 @@ public class BeanVariableProviderTest extends AbstractMagmaTest {
     tb.setNestedBean(nb);
 
     Set<String> properties = Sets.newHashSet("firstName", "nestedBean.decimal", "nestedBean.data");
-    BeanVariableValueSourceFactory<TestBean> bvp = new BeanVariableValueSourceFactory<TestBean>("Test", TestBean.class);
+    BeanVariableValueSourceFactory<TestBean> bvp = new BeanVariableValueSourceFactory<>("Test", TestBean.class);
     bvp.setProperties(properties);
 
     Set<VariableValueSource> variableValueSources = assertVariablesFromProperties(bvp, properties);
@@ -191,7 +191,7 @@ public class BeanVariableProviderTest extends AbstractMagmaTest {
   public void testNullValueInPropertyPath() {
 
     Set<String> properties = Sets.newHashSet("anotherNestedBean.data");
-    BeanVariableValueSourceFactory<TestBean> bvp = new BeanVariableValueSourceFactory<TestBean>("Test", TestBean.class);
+    BeanVariableValueSourceFactory<TestBean> bvp = new BeanVariableValueSourceFactory<>("Test", TestBean.class);
     bvp.setProperties(properties);
 
     Set<VariableValueSource> variableValueSources = assertVariablesFromProperties(bvp, properties);

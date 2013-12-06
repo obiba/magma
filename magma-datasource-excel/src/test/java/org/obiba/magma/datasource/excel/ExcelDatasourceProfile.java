@@ -7,6 +7,8 @@ import org.obiba.magma.MagmaEngine;
 @SuppressWarnings("UseOfSystemOutOrSystemErr")
 public class ExcelDatasourceProfile {
 
+  private ExcelDatasourceProfile() {}
+
   public static void main(String... args) {
     new MagmaEngine();
     long before = System.currentTimeMillis();

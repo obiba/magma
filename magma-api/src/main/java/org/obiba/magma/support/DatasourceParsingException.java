@@ -38,7 +38,7 @@ public class DatasourceParsingException extends MagmaRuntimeException {
   public DatasourceParsingException(String message, String messageKey, @Nullable Object... parameters) {
     super(message);
     key = messageKey;
-    this.parameters = parameters == null ? Collections.emptyList() : new ArrayList<Object>(Arrays.asList(parameters));
+    this.parameters = parameters == null ? Collections.emptyList() : new ArrayList<>(Arrays.asList(parameters));
   }
 
   /**
@@ -50,7 +50,7 @@ public class DatasourceParsingException extends MagmaRuntimeException {
   public DatasourceParsingException(String message, Throwable e, String messageKey, @Nullable Object... parameters) {
     super(message, e);
     key = messageKey;
-    this.parameters = parameters == null ? Collections.emptyList() : new ArrayList<Object>(Arrays.asList(parameters));
+    this.parameters = parameters == null ? Collections.emptyList() : new ArrayList<>(Arrays.asList(parameters));
   }
 
   public String getKey() {
@@ -82,7 +82,7 @@ public class DatasourceParsingException extends MagmaRuntimeException {
    * @return
    */
   public List<DatasourceParsingException> getChildren() {
-    return children == null ? (children = new ArrayList<DatasourceParsingException>()) : children;
+    return children == null ? (children = new ArrayList<>()) : children;
   }
 
   /**
@@ -91,7 +91,7 @@ public class DatasourceParsingException extends MagmaRuntimeException {
    * @return
    */
   public List<DatasourceParsingException> getChildrenAsList() {
-    List<DatasourceParsingException> flat = new ArrayList<DatasourceParsingException>();
+    List<DatasourceParsingException> flat = new ArrayList<>();
     for(DatasourceParsingException child : getChildren()) {
       if(child.hasChildren()) {
         for(DatasourceParsingException subChild : child.getChildrenAsList()) {

@@ -28,20 +28,20 @@ class FsVariableEntityProvider implements VariableEntityProvider, Initialisable,
 
   private static final String ENTITIES_NAME = "entities.xml";
 
-  private FsValueTable valueTable;
+  private final FsValueTable valueTable;
 
   private String entityType;
 
-  private XStream xstream;
+  private final XStream xstream;
 
-  private BiMap<VariableEntity, String> entityToFile = HashBiMap.create();
+  private final BiMap<VariableEntity, String> entityToFile = HashBiMap.create();
 
   private boolean entityToFileMapModified = false;
 
   /**
    * Pads filenames with zeroes
    */
-  private NumberFormat entryFilenameFormat = new DecimalFormat("0000000");
+  private final NumberFormat entryFilenameFormat = new DecimalFormat("0000000");
 
   FsVariableEntityProvider(FsValueTable valueTable) {
     this(valueTable, null);

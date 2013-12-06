@@ -120,7 +120,7 @@ public class JdbcDatasource extends AbstractDatasource {
 
   @Override
   protected Set<String> getValueTableNames() {
-    Set<String> names = new LinkedHashSet<String>();
+    Set<String> names = new LinkedHashSet<>();
     for(Table table : getDatabaseSnapshot().getTables()) {
       // Ignore tables with "reserved" names (i.e., the metadata tables).
       if(!RESERVED_NAMES.contains(table.getName().toLowerCase())) {
@@ -198,7 +198,7 @@ public class JdbcDatasource extends AbstractDatasource {
   }
 
   private void createMetadataTablesIfNotPresent() {
-    List<Change> changes = new ArrayList<Change>();
+    List<Change> changes = new ArrayList<>();
     if(getDatabaseSnapshot().getTable(VARIABLE_METADATA_TABLE) == null) {
       CreateTableChangeBuilder builder = new CreateTableChangeBuilder();
       builder.tableName(VARIABLE_METADATA_TABLE).withColumn(JdbcValueTableWriter.VALUE_TABLE_COLUMN, "VARCHAR(255)")

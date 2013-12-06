@@ -16,6 +16,7 @@ public class ValueConverter implements Converter {
   }
 
   @Override
+  @SuppressWarnings("rawtypes")
   public boolean canConvert(Class type) {
     return Value.class.equals(type);
   }

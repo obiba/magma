@@ -16,6 +16,7 @@ public class ValueSetConverter extends AbstractCollectionConverter {
   }
 
   @Override
+  @SuppressWarnings("rawtypes")
   public boolean canConvert(Class type) {
     return ValueSet.class.isAssignableFrom(type);
   }

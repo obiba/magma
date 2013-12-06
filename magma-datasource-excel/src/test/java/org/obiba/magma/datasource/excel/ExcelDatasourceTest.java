@@ -261,17 +261,11 @@ public class ExcelDatasourceTest extends AbstractMagmaTest {
       s.createRow(i++).createCell(0).setCellValue(str);
     }
 
-    FileOutputStream outputStream = new FileOutputStream(tmp);
-    try {
+    try(FileOutputStream outputStream = new FileOutputStream(tmp)) {
       w.write(outputStream);
-    } finally {
-      outputStream.close();
     }
-    FileInputStream inputStream = new FileInputStream(tmp);
-    try {
+    try(FileInputStream inputStream = new FileInputStream(tmp)) {
       new XSSFWorkbook(inputStream);
-    } finally {
-      inputStream.close();
     }
 
     tmp.delete();

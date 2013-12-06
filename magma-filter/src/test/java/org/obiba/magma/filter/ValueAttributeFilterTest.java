@@ -77,7 +77,7 @@ public class ValueAttributeFilterTest {
   public void testSuccessfulExcludeFilterLeavesItemInOutState() throws Exception {
     VariableAttributeFilter filter = VariableAttributeFilter.Builder.newFilter().attributeName(TEST_ATTRIBUTE_NAME)
         .attributeValue(TEST_ATTRIBUTE_VALUE.toString()).exclude().build();
-    StateEnvelope<Variable> stateEnvelope = new StateEnvelope<Variable>(variable);
+    StateEnvelope<Variable> stateEnvelope = new StateEnvelope<>(variable);
     stateEnvelope.setState(FilterState.IN);
     assertThat(filter.doIt(stateEnvelope).getState(), is(FilterState.OUT));
   }
@@ -86,7 +86,7 @@ public class ValueAttributeFilterTest {
   public void testSuccessfulIncludeFilterLeavesItemInInState() throws Exception {
     VariableAttributeFilter filter = VariableAttributeFilter.Builder.newFilter().attributeName(TEST_ATTRIBUTE_NAME)
         .attributeValue(TEST_ATTRIBUTE_VALUE.toString()).include().build();
-    StateEnvelope<Variable> stateEnvelope = new StateEnvelope<Variable>(variable);
+    StateEnvelope<Variable> stateEnvelope = new StateEnvelope<>(variable);
     stateEnvelope.setState(FilterState.OUT);
     assertThat(filter.doIt(stateEnvelope).getState(), is(FilterState.IN));
   }

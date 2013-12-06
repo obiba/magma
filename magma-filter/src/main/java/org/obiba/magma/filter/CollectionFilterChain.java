@@ -24,7 +24,7 @@ public class CollectionFilterChain<T> implements FilterChain<T> {
 
   @Override
   public T filter(T item) {
-    StateEnvelope<T> envelope = new StateEnvelope<T>(item);
+    StateEnvelope<T> envelope = new StateEnvelope<>(item);
 
     // No filter, item is IN by default.
     if(getFilters() == null) return item;
@@ -49,7 +49,7 @@ public class CollectionFilterChain<T> implements FilterChain<T> {
   }
 
   public void addFilter(Filter<T> filter) {
-    if(filters == null) filters = new ArrayList<Filter<T>>();
+    if(filters == null) filters = new ArrayList<>();
     filters.add(filter);
   }
 

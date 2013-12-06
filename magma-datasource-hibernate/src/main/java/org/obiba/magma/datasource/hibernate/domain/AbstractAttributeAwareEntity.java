@@ -34,7 +34,7 @@ public abstract class AbstractAttributeAwareEntity extends AbstractTimestampedEn
   private Multimap<String, AttributeState> attributeMap;
 
   public List<AttributeState> getAttributes() {
-    return attributes == null ? (attributes = new ArrayList<AttributeState>()) : attributes;
+    return attributes == null ? (attributes = new ArrayList<>()) : attributes;
   }
 
   public void setAttributes(List<AttributeState> attributes) {

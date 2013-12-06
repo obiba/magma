@@ -77,7 +77,7 @@ public class ExcelDatasource extends AbstractDatasource {
 
   private Map<String, CellStyle> excelStyles;
 
-  private final Map<String, ExcelValueTable> valueTablesMapOnInit = new LinkedHashMap<String, ExcelValueTable>(100);
+  private final Map<String, ExcelValueTable> valueTablesMapOnInit = new LinkedHashMap<>(100);
 
   /**
    * Excel workbook will be read from the provided file if it exists, and will be written in the file at datasource
@@ -217,7 +217,7 @@ public class ExcelDatasource extends AbstractDatasource {
 
   @Override
   protected Set<String> getValueTableNames() {
-    Collection<String> sheetNames = new LinkedHashSet<String>(100);
+    Collection<String> sheetNames = new LinkedHashSet<>(100);
 
     // find the table names from the Variables sheet
     if(hasVariablesSheet()) {
@@ -252,7 +252,7 @@ public class ExcelDatasource extends AbstractDatasource {
 
   private List<ExcelDatasourceParsingException> readValueTablesFromVariableSheet(
       Map<String, Integer> headerMapVariables, Collection<String> sheetNames) {
-    List<ExcelDatasourceParsingException> errors = new ArrayList<ExcelDatasourceParsingException>();
+    List<ExcelDatasourceParsingException> errors = new ArrayList<>();
 
     for(int i = 1; i < getVariablesSheet().getPhysicalNumberOfRows(); i++) {
       Row variableRow = getVariablesSheet().getRow(i);
@@ -312,7 +312,7 @@ public class ExcelDatasource extends AbstractDatasource {
   }
 
   private Set<String> getCustomAttributeNames(Row rowHeader, Iterable<String> reservedAttributeNames) {
-    Set<String> attributesNames = new HashSet<String>();
+    Set<String> attributesNames = new HashSet<>();
     int cellCount = rowHeader.getPhysicalNumberOfCells();
     for(int i = 0; i < cellCount; i++) {
       String attributeName = ExcelUtil.getCellValueAsString(rowHeader.getCell(i)).trim();
@@ -334,7 +334,7 @@ public class ExcelDatasource extends AbstractDatasource {
   private Map<String, Integer> getMapSheetHeader(Row rowHeader) {
     Map<String, Integer> headerMap = null;
     if(rowHeader != null) {
-      headerMap = new HashMap<String, Integer>();
+      headerMap = new HashMap<>();
       int cellCount = rowHeader.getPhysicalNumberOfCells();
       Cell cell;
 
@@ -383,7 +383,7 @@ public class ExcelDatasource extends AbstractDatasource {
   }
 
   private void createExcelStyles() {
-    excelStyles = new HashMap<String, CellStyle>();
+    excelStyles = new HashMap<>();
 
     CellStyle headerCellStyle = excelWorkbook.createCellStyle();
     Font headerFont = excelWorkbook.createFont();

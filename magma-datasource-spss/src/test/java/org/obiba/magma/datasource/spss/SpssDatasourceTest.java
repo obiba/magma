@@ -33,9 +33,9 @@ import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.datasource.spss.support.SpssDatasourceFactory;
 import org.obiba.magma.support.DatasourceParsingException;
+import org.obiba.magma.support.EntitiesPredicate;
 import org.obiba.magma.type.DecimalType;
 import org.obiba.magma.type.TextType;
-import org.obiba.magma.support.EntitiesPredicate;
 
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
@@ -301,7 +301,7 @@ public class SpssDatasourceTest {
       assertThat(variable, not(is(nullValue())));
       Set<Category> categories = variable.getCategories();
       assertThat(categories.size(), is(4));
-      Collection<String> expectedNames = new HashSet<String>(Arrays.asList(new String[] { "a", "b", "c", "d" }));
+      Collection<String> expectedNames = new HashSet<>(Arrays.asList(new String[] { "a", "b", "c", "d" }));
 
       for(Category category : categories) {
         assertThat(expectedNames.contains(category.getName()), is(true));
@@ -374,7 +374,7 @@ public class SpssDatasourceTest {
   @Test
   public void testCategoryWithoutLocaleEntityTypeCharset() {
     try {
-      List<File> files = new ArrayList<File>();
+      List<File> files = new ArrayList<>();
       files.add(getResourceFile("org/obiba/magma/datasource/spss/DatabaseTest.sav"));
       Datasource ds = new SpssDatasource("spss", files, null, null, null);
       ds.initialise();

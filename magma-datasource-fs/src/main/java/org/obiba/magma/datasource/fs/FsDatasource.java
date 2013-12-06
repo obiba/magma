@@ -183,7 +183,7 @@ public class FsDatasource extends AbstractDatasource {
   protected void writeAttributes() {
     Writer writer = null;
     try {
-      getXStreamInstance().toXML(new LinkedList<Attribute>(getInstanceAttributes().values()),
+      getXStreamInstance().toXML(new LinkedList<>(getInstanceAttributes().values()),
           writer = new OutputStreamWriter(new FileOutputStream(new File(datasourceArchive, "metadata.xml")), CHARSET));
       instanceAttributesModified = false;
     } catch(FileNotFoundException e) {
@@ -231,9 +231,6 @@ public class FsDatasource extends AbstractDatasource {
       Reader reader = null;
       try {
         return callback.readEntry(reader = createReader(entry));
-      } catch(FileNotFoundException e) {
-        // this cannot happen since we tested file.exists().
-        throw new MagmaRuntimeException(e);
       } catch(IOException e) {
         throw new MagmaRuntimeException(e);
       } finally {

@@ -33,8 +33,8 @@ public class PolygonTypeTest extends BaseValueTypeTest {
 
   @Override
   Object getObjectForType() {
-    Collection<List<Coordinate>> polygon = new ArrayList<List<Coordinate>>(1);
-    List<Coordinate> points = new ArrayList<Coordinate>(4);
+    Collection<List<Coordinate>> polygon = new ArrayList<>(1);
+    List<Coordinate> points = new ArrayList<>(4);
     points.add(new Coordinate(0, 0));
     points.add(new Coordinate(0, 1));
     points.add(new Coordinate(1, 0));
@@ -57,7 +57,7 @@ public class PolygonTypeTest extends BaseValueTypeTest {
   @Override
   Iterable<Class<?>> validClasses() {
     List<List<Coordinate>> polygon;
-    polygon = new ArrayList<List<Coordinate>>();
+    polygon = new ArrayList<>();
     return ImmutableList.<Class<?>>of(polygon.getClass());
   }
 
@@ -91,8 +91,8 @@ public class PolygonTypeTest extends BaseValueTypeTest {
 
   @Test
   public void testAssertObjectOfPolygon() {
-    List<List<Coordinate>> polygon = new ArrayList<List<Coordinate>>(1);
-    List<Coordinate> points = new ArrayList<Coordinate>(4);
+    List<List<Coordinate>> polygon = new ArrayList<>(1);
+    List<Coordinate> points = new ArrayList<>(4);
     points.add(new Coordinate(100.0, 0.0));
     points.add(new Coordinate(101.0, 0.0));
     points.add(new Coordinate(101.0, 1.0));
@@ -111,8 +111,8 @@ public class PolygonTypeTest extends BaseValueTypeTest {
 
   @Test
   public void testAssertObjectOfPolygon1() {
-    List<ArrayList<Coordinate>> polygon = new ArrayList<ArrayList<Coordinate>>(1);
-    ArrayList<Coordinate> points = new ArrayList<Coordinate>(4);
+    List<ArrayList<Coordinate>> polygon = new ArrayList<>(1);
+    ArrayList<Coordinate> points = new ArrayList<>(4);
     points.add(new Coordinate(100.0, 0.0));
     points.add(new Coordinate(101.0, 0.0));
     points.add(new Coordinate(101.0, 1.0));
@@ -133,9 +133,9 @@ public class PolygonTypeTest extends BaseValueTypeTest {
 
   @Test
   public void testAssertObjectOfPolygon2() {
-    Collection<List<String>> polygon = new ArrayList<List<String>>(1);
+    Collection<List<String>> polygon = new ArrayList<>(1);
 
-    List<String> points = new ArrayList<String>(4);
+    List<String> points = new ArrayList<>(4);
     points.add("[100.0,0.0]");
     points.add("[101.0,0.0]");
     points.add("[101.0,1.0]");
@@ -174,19 +174,19 @@ public class PolygonTypeTest extends BaseValueTypeTest {
 
   @Test(expected = MagmaRuntimeException.class)
   public void testAssertObjectNullPointerException() {
-    ArrayList<Object> c = new ArrayList<Object>();
+    ArrayList<Object> c = new ArrayList<>();
     getValueType().valueOf(c).getValue();
   }
 
   @Test(expected = MagmaRuntimeException.class)
   public void testAssertObjectNullPointerException2() {
-    List<List<Object>> c = new ArrayList<List<Object>>();
+    List<List<Object>> c = new ArrayList<>();
     getValueType().valueOf(c).getValue();
   }
 
   @Test(expected = MagmaRuntimeException.class)
   public void testAssertObjectPolygonMalformed3() {
-    Collection<Object> c = new ArrayList<Object>();
+    Collection<Object> c = new ArrayList<>();
     Coordinate coordinate = new Coordinate(0.0, 0.1);
     c.add(coordinate);
     getValueType().valueOf(c).getValue();
@@ -199,7 +199,7 @@ public class PolygonTypeTest extends BaseValueTypeTest {
 
   @Test(expected = MagmaRuntimeException.class)
   public void testNullPolygon2() {
-    List<List<Coordinate>> result = new ArrayList<List<Coordinate>>();
+    List<List<Coordinate>> result = new ArrayList<>();
     assertThat(getValueType().valueOf(result).isNull(), is(true));
   }
 

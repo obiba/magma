@@ -38,7 +38,7 @@ public class OutlierRemovingVariableValueSourceTest {
 
   ValueSet mockValueSet = createMock(ValueSet.class);
 
-  SortedSet<VariableEntity> emptySet = new TreeSet<VariableEntity>();
+  SortedSet<VariableEntity> emptySet = new TreeSet<>();
 
   Variable testVariable;
 

@@ -215,8 +215,8 @@ public class VariableConverter {
 
     Sheet categoriesSheet = valueTable.getDatasource().getCategoriesSheet();
     List<Integer> variableCategoryRows = valueTable.getVariableCategoryRows(variableName);
-    Collection<String> categoryNames = new ArrayList<String>();
-    Collection<ExcelDatasourceParsingException> errors = new ArrayList<ExcelDatasourceParsingException>();
+    Collection<String> categoryNames = new ArrayList<>();
+    Collection<ExcelDatasourceParsingException> errors = new ArrayList<>();
     Row firstRow = null;
     for(int rowIndex : variableCategoryRows) {
       Row categoryRow = categoriesSheet.getRow(rowIndex);

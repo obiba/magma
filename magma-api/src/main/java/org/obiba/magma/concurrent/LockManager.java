@@ -12,11 +12,11 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public class LockManager {
 
-  private final Map<String, ReentrantLock> locks = new HashMap<String, ReentrantLock>();
+  private final Map<String, ReentrantLock> locks = new HashMap<>();
 
   public synchronized void lock(Collection<String> lockNames) throws InterruptedException {
     @SuppressWarnings("TypeMayBeWeakened")
-    Set<String> lockedNames = new HashSet<String>();
+    Set<String> lockedNames = new HashSet<>();
     while(lockedNames.size() < lockNames.size()) {
       for(String lockName : lockNames) {
         ReentrantLock lock = getOrCreateLock(lockName);

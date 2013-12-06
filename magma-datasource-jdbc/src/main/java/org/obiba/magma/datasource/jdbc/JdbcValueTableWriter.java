@@ -104,7 +104,7 @@ class JdbcValueTableWriter implements ValueTableWriter {
 
   private class JdbcVariableWriter implements VariableWriter {
 
-    protected List<Change> changes = new ArrayList<Change>();
+    protected List<Change> changes = new ArrayList<>();
 
     @Override
     public void writeVariable(@Nonnull Variable variable) {
@@ -266,7 +266,7 @@ class JdbcValueTableWriter implements ValueTableWriter {
 
     private JdbcValueSetWriter(VariableEntity entity) {
       this.entity = entity;
-      columnValueMap = new LinkedHashMap<String, Object>();
+      columnValueMap = new LinkedHashMap<>();
     }
 
     @Override
@@ -402,7 +402,7 @@ class JdbcValueTableWriter implements ValueTableWriter {
     }
 
     private Map<String, String> getEntityIdentifierColumnValueMap() {
-      Map<String, String> entityIdentifierColumnValueMap = new LinkedHashMap<String, String>();
+      Map<String, String> entityIdentifierColumnValueMap = new LinkedHashMap<>();
 
       List<String> entityIdentifierColumns = valueTable.getSettings().getEntityIdentifierColumns();
 

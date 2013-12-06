@@ -71,6 +71,7 @@ public class StaticValueTable extends AbstractValueTable {
     this(datasource, name, entities, "Participant");
   }
 
+  @Override
   public String getName() {
     return name;
   }

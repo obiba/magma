@@ -28,8 +28,6 @@ import org.obiba.magma.support.UnionTimestamps;
 import org.obiba.magma.type.DateTimeType;
 
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Iterables;
-import com.mongodb.BasicDBObject;
 import com.mongodb.BasicDBObjectBuilder;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
@@ -142,7 +140,7 @@ public class MongoDBDatasource extends AbstractDatasource {
 
   @Override
   public void renameTable(String tableName, String newName) {
-    if (hasValueTable(newName)) throw new MagmaRuntimeException("A table already exists with the name: " + newName);
+    if(hasValueTable(newName)) throw new MagmaRuntimeException("A table already exists with the name: " + newName);
 
     MongoDBValueTable valueTable = (MongoDBValueTable) getValueTable(tableName);
 
@@ -190,15 +188,13 @@ public class MongoDBDatasource extends AbstractDatasource {
 
   @Override
   protected Set<String> getValueTableNames() {
-    DBCursor cursor = getValueTableCollection().find(BasicDBObjectBuilder.start().add("datasource", getName()).get(),
-        BasicDBObjectBuilder.start().add("name", 1).get());
     ImmutableSet.Builder<String> builder = ImmutableSet.builder();
-    try {
+    try(DBCursor cursor = getValueTableCollection()
+        .find(BasicDBObjectBuilder.start().add("datasource", getName()).get(),
+            BasicDBObjectBuilder.start().add("name", 1).get())) {
       while(cursor.hasNext()) {
         builder.add(cursor.next().get("name").toString());
       }
-    } finally {
-      cursor.close();
     }
     return builder.build();
   }

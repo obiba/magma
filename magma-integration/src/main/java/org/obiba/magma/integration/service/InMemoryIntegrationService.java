@@ -35,7 +35,7 @@ public class InMemoryIntegrationService implements IntegrationService {
 
   @Override
   public List<Interview> getInterviews() {
-    List<Interview> interviews = new ArrayList<Interview>();
+    List<Interview> interviews = new ArrayList<>();
     for(Participant p : getParticipants()) {
       if(p.getInterview() != null) {
         interviews.add(p.getInterview());
