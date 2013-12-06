@@ -129,45 +129,48 @@ public class TextMethods {
    */
   public static ScriptableValue capitalize(Context ctx, Scriptable thisObj, @Nullable Object[] args,
       @Nullable Function funObj) {
+    return transformValue((ScriptableValue) thisObj, new CapitalizeFunction(getDelim(args)));
+  }
 
-    final String delim = getDelim(args);
+  private static class CapitalizeFunction implements com.google.common.base.Function<Value, Value> {
 
-    com.google.common.base.Function<Value, Value> capitalizeFunction
-        = new com.google.common.base.Function<Value, Value>() {
+    private final String delim;
 
+    private CapitalizeFunction(String delim) {
+      this.delim = delim;
+    }
+
+    @Override
+    public Value apply(Value input) {
+      if(input == null || input.isNull()) {
+        return TextType.get().nullValue();
+      }
       @SuppressWarnings("ConstantConditions")
-      @Override
-      public Value apply(Value input) {
-        if(input == null || input.isNull()) return TextType.get().nullValue();
-        String stringValue = input.toString();
-        char[] buffer = stringValue.toCharArray();
-        boolean capitalizeNext = true;
-        for(int i = 0; i < buffer.length; i++) {
-          char ch = buffer[i];
-          if(isDelimiter(ch, delim)) {
-            capitalizeNext = true;
-          } else if(capitalizeNext) {
-            buffer[i] = Character.toTitleCase(ch);
-            capitalizeNext = false;
-          }
+      char[] buffer = input.toString().toCharArray();
+      boolean capitalizeNext = true;
+      for(int i = 0; i < buffer.length; i++) {
+        char ch = buffer[i];
+        if(isDelimiter(ch, delim)) {
+          capitalizeNext = true;
+        } else if(capitalizeNext) {
+          buffer[i] = Character.toTitleCase(ch);
+          capitalizeNext = false;
         }
-        return TextType.get().valueOf(new String(buffer));
       }
+      return TextType.get().valueOf(new String(buffer));
+    }
 
-      private boolean isDelimiter(char ch, @Nullable String delimiters) {
-        if(delimiters == null || delimiters.isEmpty()) {
-          return Character.isWhitespace(ch);
-        }
-        for(char delimiter : delimiters.toCharArray()) {
-          if(ch == delimiter) {
-            return true;
-          }
-        }
-        return false;
+    private boolean isDelimiter(char ch, @Nullable String delimiters) {
+      if(delimiters == null || delimiters.isEmpty()) {
+        return Character.isWhitespace(ch);
       }
-    };
-
-    return transformValue((ScriptableValue) thisObj, capitalizeFunction);
+      for(char delimiter : delimiters.toCharArray()) {
+        if(ch == delimiter) {
+          return true;
+        }
+      }
+      return false;
+    }
   }
 
   @Nullable

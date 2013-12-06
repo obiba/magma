@@ -88,46 +88,48 @@ public class VariablesClause implements ListClause, Initialisable {
 
   @Override
   public VariableWriter createWriter() {
-    return new VariableWriter() {
+    return new JsVariableWriter();
+  }
 
-      @Override
-      public void close() throws IOException {
-      }
+  private class JsVariableWriter implements VariableWriter {
 
-      @Override
-      public void writeVariable(@Nonnull Variable variable) {
-        // update or add variable
-        Set<Variable> variableSet = new LinkedHashSet<>();
-        boolean updated = false;
-        for(Variable var : variables) {
-          if(var.getName().equals(variable.getName())) {
-            variableSet.add(variable);
-            updated = true;
-          } else {
-            variableSet.add(var);
-          }
-        }
-
-        if(!updated) {
+    @Override
+    public void writeVariable(@Nonnull Variable variable) {
+      // update or add variable
+      Set<Variable> variableSet = new LinkedHashSet<>();
+      boolean updated = false;
+      for(Variable var : variables) {
+        if(var.getName().equals(variable.getName())) {
           variableSet.add(variable);
+          updated = true;
+        } else {
+          variableSet.add(var);
         }
-
-        variables = variableSet;
       }
 
-      @Override
-      public void removeVariable(@Nonnull Variable variable) {
-        // update or add variable
-        Set<Variable> variableSet = new LinkedHashSet<>();
-        for(Variable var : variables) {
-          if(!var.getName().equals(variable.getName())) {
-            variableSet.add(var);
-          }
-        }
-
-        variables = variableSet;
+      if(!updated) {
+        variableSet.add(variable);
       }
-    };
+
+      variables = variableSet;
+    }
+
+    @Override
+    public void removeVariable(@Nonnull Variable variable) {
+      // update or add variable
+      Set<Variable> variableSet = new LinkedHashSet<>();
+      for(Variable var : variables) {
+        if(!var.getName().equals(variable.getName())) {
+          variableSet.add(var);
+        }
+      }
+
+      variables = variableSet;
+    }
+
+    @Override
+    public void close() throws IOException {
+    }
   }
 
 }
