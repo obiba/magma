@@ -66,7 +66,7 @@ public class JdbcDatasourceSettings {
 
   @Nonnull
   public Collection<String> getMappedTables() {
-    if(mappedTables == null) mappedTables = new HashSet<String>();
+    if(mappedTables == null) mappedTables = new HashSet<>();
     return mappedTables;
   }
 
@@ -84,7 +84,7 @@ public class JdbcDatasourceSettings {
 
   @Nonnull
   public Set<JdbcValueTableSettings> getTableSettings() {
-    if(tableSettings == null) tableSettings = new HashSet<JdbcValueTableSettings>();
+    if(tableSettings == null) tableSettings = new HashSet<>();
     return tableSettings;
   }
 

@@ -60,7 +60,7 @@ public class MagmaContext extends Context {
   public <T> void push(Class<T> type, T value) {
     Stack<T> stack = (Stack<T>) getThreadLocal(type);
     if(stack == null) {
-      stack = new Stack<T>();
+      stack = new Stack<>();
       putThreadLocal(type, stack);
     }
     stack.push(value);

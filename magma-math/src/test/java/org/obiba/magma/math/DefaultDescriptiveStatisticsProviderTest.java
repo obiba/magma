@@ -25,7 +25,7 @@ import static org.junit.Assert.assertThat;
 
 public class DefaultDescriptiveStatisticsProviderTest extends AbstractMagmaTest {
 
-  SortedSet<VariableEntity> emptySet = new TreeSet<VariableEntity>();
+  SortedSet<VariableEntity> emptySet = new TreeSet<>();
 
   @Test(expected = IllegalArgumentException.class)
   public void test_compute_nullSource() {

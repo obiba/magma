@@ -49,14 +49,11 @@ class MongoDBVariableEntityProvider implements VariableEntityProvider {
   public Set<VariableEntity> getVariableEntities() {
     ImmutableSet.Builder<VariableEntity> builder = ImmutableSet.builder();
 
-    DBCursor cursor = table.getValueSetCollection()
-        .find(new BasicDBObject(), BasicDBObjectBuilder.start("_id", 1).get());
-    try {
+    try(DBCursor cursor = table.getValueSetCollection()
+        .find(new BasicDBObject(), BasicDBObjectBuilder.start("_id", 1).get())) {
       while(cursor.hasNext()) {
         builder.add(new VariableEntityBean(getEntityType(), cursor.next().get("_id").toString()));
       }
-    } finally {
-      cursor.close();
     }
 
     return builder.build();

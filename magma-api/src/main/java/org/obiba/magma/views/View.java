@@ -278,7 +278,7 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
   }
 
   private Iterable<Variable> getListVariables() {
-    Collection<Variable> listVariables = new LinkedHashSet<Variable>();
+    Collection<Variable> listVariables = new LinkedHashSet<>();
     for(VariableValueSource variableValueSource : getListClause().getVariableValueSources()) {
       listVariables.add(variableValueSource.getVariable());
     }

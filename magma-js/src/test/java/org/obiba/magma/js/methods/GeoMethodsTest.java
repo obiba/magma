@@ -60,7 +60,7 @@ public class GeoMethodsTest extends AbstractJsTest {
 
   @Test
   public void testPointSequenceLongitude() {
-    Collection<Value> values = new ArrayList<Value>();
+    Collection<Value> values = new ArrayList<>();
     for(int i = 0; i < 12; i++) {
       Coordinate coordinate = new Coordinate(10.25, i);
       values.add(PointType.get().valueOf(coordinate));

@@ -31,7 +31,7 @@ public class XStreamValueSet {
 
   @XStreamImplicit
   @SuppressWarnings("TypeMayBeWeakened")
-  private List<XStreamValueSetValue> values = new LinkedList<XStreamValueSetValue>();
+  private List<XStreamValueSetValue> values = new LinkedList<>();
 
   @XStreamOmitField
   private Map<String, XStreamValueSetValue> valueMap = Maps.newHashMap();
@@ -68,7 +68,7 @@ public class XStreamValueSet {
    */
   private Object readResolve() {
     if(values == null) {
-      values = new LinkedList<XStreamValueSetValue>();
+      values = new LinkedList<>();
     }
     valueMap = Maps.newHashMap();
     for(XStreamValueSetValue xvalue : values) {

@@ -55,14 +55,14 @@ public class BooleanMethodsTest extends AbstractJsTest {
   @Test
   public void testAllWithScriptableValueArguments() {
     // Create a ValueSequence containing "odd" values.
-    Collection<Value> values = new ArrayList<Value>();
+    Collection<Value> values = new ArrayList<>();
     for(int i = 1; i <= 5; i += 2) {
       values.add(TextType.get().valueOf("CAT" + i));
     }
     ScriptableValue value = newValue(ValueType.Factory.newSequence(TextType.get(), values));
 
     // Create a matching list of ScriptableValue arguments.
-    Collection<ScriptableValue> args = new ArrayList<ScriptableValue>();
+    Collection<ScriptableValue> args = new ArrayList<>();
     for(int i = 1; i <= 5; i += 2) {
       args.add(newValue(TextType.get().valueOf("CAT" + i)));
     }
@@ -104,7 +104,7 @@ public class BooleanMethodsTest extends AbstractJsTest {
 
   @Test
   public void testNotWithBooleanSequence() {
-    Collection<Value> trueList = new ArrayList<Value>();
+    Collection<Value> trueList = new ArrayList<>();
     trueList.add(BooleanType.get().trueValue());
     ScriptableValue result = evaluate("not()", BooleanType.get().sequenceOf(trueList));
     assertThat(result, notNullValue());
@@ -212,7 +212,7 @@ public class BooleanMethodsTest extends AbstractJsTest {
   @Test
   public void testEmpty() {
     // Verify that empty() returns FALSE on a non-empty sequence.
-    Collection<Value> values = new ArrayList<Value>();
+    Collection<Value> values = new ArrayList<>();
     for(int i = 0; i < 3; i++) {
       values.add(TextType.get().valueOf("CAT" + i));
     }
@@ -608,7 +608,7 @@ public class BooleanMethodsTest extends AbstractJsTest {
 
   @Test
   public void test_whenNullTextSequence() {
-    Collection<Value> values = new ArrayList<Value>();
+    Collection<Value> values = new ArrayList<>();
     values.add(TextType.get().valueOf("pwel"));
     values.add(TextType.get().nullValue());
 

@@ -252,7 +252,7 @@ class HibernateValueTable extends AbstractValueTable {
 
   public class HibernateVariableEntityProvider extends AbstractVariableEntityProvider implements Initialisable {
 
-    private final Set<VariableEntity> entities = new LinkedHashSet<VariableEntity>();
+    private final Set<VariableEntity> entities = new LinkedHashSet<>();
 
     public HibernateVariableEntityProvider(String entityType) {
       super(entityType);

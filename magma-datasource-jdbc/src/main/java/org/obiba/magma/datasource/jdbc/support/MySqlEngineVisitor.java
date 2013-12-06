@@ -13,7 +13,7 @@ public class MySqlEngineVisitor implements SqlVisitor {
   }
 
   @Override
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({ "unchecked", "rawtypes" })
   public void setApplicableDbms(Collection applicableDbms) {
     // no-op
   }

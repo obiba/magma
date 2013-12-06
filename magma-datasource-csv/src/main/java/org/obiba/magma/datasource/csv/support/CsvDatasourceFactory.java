@@ -88,7 +88,7 @@ public class CsvDatasourceFactory extends AbstractDatasourceFactory {
   }
 
   public List<TableBundle> getTables() {
-    return tables == null ? tables = new ArrayList<TableBundle>() : tables;
+    return tables == null ? tables = new ArrayList<>() : tables;
   }
 
   @Nonnull

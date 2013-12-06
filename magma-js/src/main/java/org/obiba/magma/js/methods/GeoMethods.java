@@ -2,7 +2,6 @@ package org.obiba.magma.js.methods;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 import javax.annotation.Nullable;
 
@@ -13,9 +12,7 @@ import org.obiba.magma.Coordinate;
 import org.obiba.magma.Value;
 import org.obiba.magma.js.ScriptableValue;
 import org.obiba.magma.type.DecimalType;
-import org.obiba.magma.type.IntegerType;
 import org.obiba.magma.type.PointType;
-import org.obiba.magma.type.PolygonType;
 
 @SuppressWarnings("ConstantConditions")
 public class GeoMethods {
@@ -37,7 +34,7 @@ public class GeoMethods {
     Value value = sv.getValue();
 
     if(value.isSequence()) {
-      Collection<Value> values = new ArrayList<Value>();
+      Collection<Value> values = new ArrayList<>();
       for(Value val : value.asSequence().getValue()) {
         Double longitude = ((Coordinate) val.getValue()).getLongitude();
         values.add(DecimalType.get().valueOf(longitude));
@@ -62,7 +59,7 @@ public class GeoMethods {
     ScriptableValue sv = (ScriptableValue) thisObj;
     Value value = sv.getValue();
     if(value.isSequence()) {
-      Collection<Value> values = new ArrayList<Value>();
+      Collection<Value> values = new ArrayList<>();
       for(Value val : value.asSequence().getValue()) {
         Double latitude = ((Coordinate) val.getValue()).getLatitude();
         values.add(DecimalType.get().valueOf(latitude));

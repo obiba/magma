@@ -177,7 +177,7 @@ public class JoinTable implements ValueTable, Initialisable {
     if(!variableAnalysed) analyseVariables();
 
     // Set the initial capacity to the number of entities we saw in the previous call to this method
-    Set<VariableEntity> entities = new LinkedHashSet<VariableEntity>(lastEntityCount);
+    Set<VariableEntity> entities = new LinkedHashSet<>(lastEntityCount);
     for(ValueTable table : getTables()) {
       entities.addAll(table.getVariableEntities());
     }
@@ -271,11 +271,11 @@ public class JoinTable implements ValueTable, Initialisable {
 
   private synchronized Iterable<Variable> unionOfVariables() {
     if(unionOfVariables == null) {
-      unionOfVariables = new LinkedHashSet<Variable>();
+      unionOfVariables = new LinkedHashSet<>();
 
       if(!variableAnalysed) analyseVariables();
 
-      Collection<String> unionOfVariableNames = new LinkedHashSet<String>();
+      Collection<String> unionOfVariableNames = new LinkedHashSet<>();
       for(ValueTable table : getTables()) {
         for(Variable variable : table.getVariables()) {
           // Add returns true if the set did not already contain the value

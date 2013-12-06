@@ -32,7 +32,7 @@ public class LineStringTypeTest extends BaseValueTypeTest {
 
   @Override
   Object getObjectForType() {
-    Collection<Coordinate> line = new ArrayList<Coordinate>(3);
+    Collection<Coordinate> line = new ArrayList<>(3);
     line.add(new Coordinate(22.2, 44.1));
     line.add(new Coordinate(33.4, 55.3));
     line.add(new Coordinate(32.12, 44));
@@ -52,7 +52,7 @@ public class LineStringTypeTest extends BaseValueTypeTest {
   @Override
   Iterable<Class<?>> validClasses() {
     List<Coordinate> line;
-    line = new ArrayList<Coordinate>();
+    line = new ArrayList<>();
     return ImmutableList.<Class<?>>of(line.getClass());
   }
 
@@ -82,7 +82,7 @@ public class LineStringTypeTest extends BaseValueTypeTest {
 
   @Test
   public void testAssertObject() {
-    Collection<Object> c = new ArrayList<Object>();
+    Collection<Object> c = new ArrayList<>();
     c.add(new Coordinate(0.0, 0.1));
     c.add(new Coordinate(1.0, 1.1));
     assertThat(((List<Coordinate>) getValueType().valueOf(c).getValue()).get(0).getLongitude(), is(0.0));
@@ -90,7 +90,7 @@ public class LineStringTypeTest extends BaseValueTypeTest {
 
   @Test(expected = MagmaRuntimeException.class)
   public void testInvalidObject() {
-    Collection<Object> c = new ArrayList<Object>();
+    Collection<Object> c = new ArrayList<>();
     c.add("expected ");
     c.add("MagmaRuntime");
     c.add("Exception");
@@ -100,7 +100,7 @@ public class LineStringTypeTest extends BaseValueTypeTest {
 
   @Test(expected = MagmaRuntimeException.class)
   public void testNullObject() {
-    Collection<Object> c = new ArrayList<Object>();
+    Collection<Object> c = new ArrayList<>();
     getValueType().valueOf(c).getValue();
   }
 }

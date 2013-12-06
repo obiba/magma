@@ -39,7 +39,7 @@ public class JavascriptVariableValueSourceFactory implements VariableValueSource
   }
 
   private Set<VariableValueSource> createSourcesFromVariables() {
-    ImmutableSet.Builder<VariableValueSource> sources = new ImmutableSet.Builder<VariableValueSource>();
+    ImmutableSet.Builder<VariableValueSource> sources = new ImmutableSet.Builder<>();
     for(Variable variable : variables) {
       if(variable.hasAttribute(SameAsVariableValueSource.SAME_AS_ATTRIBUTE_NAME)) {
         sources.add(new SameAsVariableValueSource(variable, valueTable));
@@ -51,7 +51,7 @@ public class JavascriptVariableValueSourceFactory implements VariableValueSource
   }
 
   public void setVariables(Set<Variable> variables) {
-    this.variables = new LinkedHashSet<Variable>();
+    this.variables = new LinkedHashSet<>();
     if(variables != null) {
       this.variables.addAll(variables);
     }

@@ -65,24 +65,28 @@ public class ViewConverter implements Converter {
 
     while(reader.hasMoreChildren()) {
       reader.moveDown();
-
       String nodeName = reader.getNodeName();
-      //noinspection IfStatementWithTooManyBranches
-      if("name".equals(nodeName)) {
-        name = reader.getValue();
-      } else if("select".equals(nodeName)) {
-        select = (SelectClause) context.convertAnother(context.currentObject(), getClass(reader.getAttribute("class")));
-      } else if("where".equals(nodeName)) {
-        where = (WhereClause) context.convertAnother(context.currentObject(), getClass(reader.getAttribute("class")));
-      } else if("variables".equals(nodeName)) {
-        variables = (ListClause) context
-            .convertAnother(context.currentObject(), getClass(reader.getAttribute("class")));
-      } else if("from".equals(nodeName)) {
-        from = unmarshalFromTable(reader, context);
-      } else {
-        throw new RuntimeException("Unexpected view child node: " + nodeName);
+      switch(nodeName) {
+        case "name":
+          name = reader.getValue();
+          break;
+        case "select":
+          select = (SelectClause) context
+              .convertAnother(context.currentObject(), getClass(reader.getAttribute("class")));
+          break;
+        case "where":
+          where = (WhereClause) context.convertAnother(context.currentObject(), getClass(reader.getAttribute("class")));
+          break;
+        case "variables":
+          variables = (ListClause) context
+              .convertAnother(context.currentObject(), getClass(reader.getAttribute("class")));
+          break;
+        case "from":
+          from = unmarshalFromTable(reader, context);
+          break;
+        default:
+          throw new RuntimeException("Unexpected view child node: " + nodeName);
       }
-
       reader.moveUp();
     }
     return new View.Builder(name, from).select(select).where(where).list(variables).build();

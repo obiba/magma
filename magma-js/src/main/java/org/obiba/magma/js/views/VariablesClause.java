@@ -17,7 +17,6 @@ import org.obiba.magma.VariableValueSource;
 import org.obiba.magma.js.JavascriptVariableValueSourceFactory;
 import org.obiba.magma.support.Initialisables;
 import org.obiba.magma.views.ListClause;
-import org.obiba.magma.views.View;
 
 /**
  * This implementation of {@link ListClause} will contain {@link Variable}s with a "script" attribute and/or a "sameAs"
@@ -38,7 +37,7 @@ public class VariablesClause implements ListClause, Initialisable {
   private transient boolean initialised = false;
 
   public void setVariables(Collection<Variable> variables) {
-    this.variables = new LinkedHashSet<Variable>();
+    this.variables = new LinkedHashSet<>();
     if(variables != null) {
       this.variables.addAll(variables);
     }
@@ -98,7 +97,7 @@ public class VariablesClause implements ListClause, Initialisable {
       @Override
       public void writeVariable(@Nonnull Variable variable) {
         // update or add variable
-        Set<Variable> variableSet = new LinkedHashSet<Variable>();
+        Set<Variable> variableSet = new LinkedHashSet<>();
         boolean updated = false;
         for(Variable var : variables) {
           if(var.getName().equals(variable.getName())) {
@@ -119,7 +118,7 @@ public class VariablesClause implements ListClause, Initialisable {
       @Override
       public void removeVariable(@Nonnull Variable variable) {
         // update or add variable
-        Set<Variable> variableSet = new LinkedHashSet<Variable>();
+        Set<Variable> variableSet = new LinkedHashSet<>();
         for(Variable var : variables) {
           if(!var.getName().equals(variable.getName())) {
             variableSet.add(var);
@@ -130,7 +129,5 @@ public class VariablesClause implements ListClause, Initialisable {
       }
     };
   }
-
-
 
 }

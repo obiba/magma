@@ -27,7 +27,7 @@ public class LimesurveyElementProviderJdbc implements LimesurveyElementProvider 
   public LimesurveyElementProviderJdbc(LimesurveyDatasource datasource, int sid) {
     this.datasource = datasource;
     this.sid = sid;
-    mapQuestions = new LinkedHashMap<Integer, LimeQuestion>();
+    mapQuestions = new LinkedHashMap<>();
     mapAnswers = Maps.newHashMap();
     mapAttributes = Maps.newHashMap();
   }

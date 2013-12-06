@@ -38,8 +38,8 @@ public class CsvLine {
     if(!parent.exists() && !parent.mkdirs()) {
       throw new MagmaRuntimeException("Impossible to create " + parent.getPath() + " directory");
     }
-    headerMap = new HashMap<String, Integer>();
-    valueMap = new HashMap<String, Value>();
+    headerMap = new HashMap<>();
+    valueMap = new HashMap<>();
   }
 
   public void setValue(Variable variable, Value value) {

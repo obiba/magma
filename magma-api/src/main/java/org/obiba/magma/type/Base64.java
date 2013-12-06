@@ -1285,13 +1285,9 @@ class Base64 {
 
       obj = ois.readObject();
     } // end try
-    catch(IOException e) {
+    catch(IOException | ClassNotFoundException e) {
       throw e; // Catch and throw in order to execute finally{}
-    } // end catch
-    catch(ClassNotFoundException e) {
-      throw e; // Catch and throw in order to execute finally{}
-    } // end catch
-    finally {
+    } finally {
       try {
         bais.close();
       } catch(Exception ignored) {
@@ -1551,23 +1547,23 @@ class Base64 {
    */
   public static class InputStream extends FilterInputStream {
 
-    private boolean encode; // Encoding or decoding
+    private final boolean encode; // Encoding or decoding
 
     private int position; // Current position in the buffer
 
-    private byte[] buffer; // Small buffer holding converted data
+    private final byte[] buffer; // Small buffer holding converted data
 
-    private int bufferLength; // Length of buffer (3 or 4)
+    private final int bufferLength; // Length of buffer (3 or 4)
 
     private int numSigBytes; // Number of meaningful bytes in the buffer
 
     private int lineLength;
 
-    private boolean breakLines; // Break lines at less than 80 characters
+    private final boolean breakLines; // Break lines at less than 80 characters
 
-    private int options; // Record options used to create the stream.
+    private final int options; // Record options used to create the stream.
 
-    private byte[] decodabet; // Local copies to avoid extra method calls
+    private final byte[] decodabet; // Local copies to avoid extra method calls
 
     /**
      * Constructs a {@link InputStream} in DECODE mode.
@@ -1756,25 +1752,25 @@ class Base64 {
    */
   public static class OutputStream extends FilterOutputStream {
 
-    private boolean encode;
+    private final boolean encode;
 
     private int position;
 
     private byte[] buffer;
 
-    private int bufferLength;
+    private final int bufferLength;
 
     private int lineLength;
 
-    private boolean breakLines;
+    private final boolean breakLines;
 
-    private byte[] b4; // Scratch used in a few places
+    private final byte[] b4; // Scratch used in a few places
 
     private boolean suspendEncoding;
 
-    private int options; // Record for later
+    private final int options; // Record for later
 
-    private byte[] decodabet; // Local copies to avoid extra method calls
+    private final byte[] decodabet; // Local copies to avoid extra method calls
 
     /**
      * Constructs a {@link OutputStream} in ENCODE mode.

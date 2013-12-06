@@ -51,7 +51,7 @@ public class JdbcValueTableSettings {
 
     this.entityType = entityType;
 
-    this.entityIdentifierColumns = new ArrayList<String>(entityIdentifierColumns);
+    this.entityIdentifierColumns = new ArrayList<>(entityIdentifierColumns);
   }
 
   //
@@ -83,7 +83,7 @@ public class JdbcValueTableSettings {
   }
 
   public void setEntityIdentifierColumns(List<String> entityIdentifierColumns) {
-    this.entityIdentifierColumns = new ArrayList<String>();
+    this.entityIdentifierColumns = new ArrayList<>();
     if(entityIdentifierColumns != null) {
       this.entityIdentifierColumns.addAll(entityIdentifierColumns);
     }

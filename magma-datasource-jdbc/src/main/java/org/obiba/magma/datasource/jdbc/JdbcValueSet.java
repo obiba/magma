@@ -24,7 +24,7 @@ public class JdbcValueSet extends ValueSetBean {
 
   public JdbcValueSet(JdbcValueTable valueTable, VariableEntity variableEntity) {
     super(valueTable, variableEntity);
-    resultSetCache = new HashMap<String, Value>();
+    resultSetCache = new HashMap<>();
     String sqlTableName = valueTable.getSettings().getSqlTableName();
     escapedSqlTableName = valueTable.getDatasource().escapeSqlTableName(sqlTableName);
   }

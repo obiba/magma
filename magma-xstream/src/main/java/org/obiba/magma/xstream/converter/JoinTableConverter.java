@@ -43,7 +43,7 @@ public class JoinTableConverter implements Converter {
   @Override
   public Object unmarshal(HierarchicalStreamReader reader, UnmarshallingContext context) {
     reader.moveDown();
-    List<ValueTable> tables = new ArrayList<ValueTable>();
+    List<ValueTable> tables = new ArrayList<>();
     while(reader.hasMoreChildren()) {
       reader.moveDown();
       tables.add((ValueTable) context.convertAnother(context.currentObject(), ValueTableReference.class));

@@ -92,7 +92,7 @@ public class DateTimeMethodTest extends AbstractJsTest {
   public void test_semester_sequence() {
     Calendar calendar = Calendar.getInstance();
 
-    Collection<Value> values = new ArrayList<Value>();
+    Collection<Value> values = new ArrayList<>();
     for(int i = 0; i < 12; i++) {
       calendar.set(Calendar.MONTH, i);
       values.add(DateType.get().valueOf(calendar));

@@ -71,7 +71,7 @@ public abstract class AbstractValueType implements ValueType {
     if(string == null) {
       return nullSequence();
     }
-    Collection<Value> values = new ArrayList<Value>();
+    Collection<Value> values = new ArrayList<>();
     StringBuilder currentValue = new StringBuilder();
     for(int i = 0; i < string.length(); i++) {
       char c = string.charAt(i);

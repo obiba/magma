@@ -32,7 +32,7 @@ public class VariableClauseWriterTest {
     Variable smokingAge = buildSmokingAge();
     Variable sex = buildSex();
 
-    variables = new HashSet<Variable>();
+    variables = new HashSet<>();
     variables.add(yearVariable);
     variables.add(smokingAge);
     variables.add(sex);

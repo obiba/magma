@@ -193,7 +193,7 @@ public class CsvValueTableWriter implements ValueTableWriter {
 
     private List<String> getExtraHeadersFromNewValueSet(Map<String, Integer> existingHeaderMap,
         Map<String, Integer> valueSetHeaderMap) {
-      List<String> result = new ArrayList<String>();
+      List<String> result = new ArrayList<>();
       for(Map.Entry<String, Integer> entry : valueSetHeaderMap.entrySet()) {
         if(!existingHeaderMap.containsKey(entry.getKey())) {
           result.add(entry.getKey());
@@ -203,7 +203,7 @@ public class CsvValueTableWriter implements ValueTableWriter {
     }
 
     public Map<String, Integer> generateDataHeaderMapFromVariables() {
-      Map<String, Integer> headerMap = new HashMap<String, Integer>();
+      Map<String, Integer> headerMap = new HashMap<>();
       int count = 1;
       for(Variable variable : valueTable.getVariables()) {
         headerMap.put(variable.getName(), count++);

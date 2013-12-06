@@ -34,11 +34,11 @@ import com.google.common.collect.Iterables;
  */
 public class BeanPropertyVariableValueSource implements VariableValueSource {
 
-  private Variable variable;
+  private final Variable variable;
 
-  private Class<?> beanClass;
+  private final Class<?> beanClass;
 
-  private String propertyPath;
+  private final String propertyPath;
 
   public BeanPropertyVariableValueSource(Variable variable, Class<?> beanClass, String propertyPath) {
     Assert.notNull(variable, "variable cannot be null");

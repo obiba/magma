@@ -100,11 +100,11 @@ public class PolygonType extends JSONAwareValueType {
       return nullValue();
     }
 
-    Collection<List<Coordinate>> polygon = new ArrayList<List<Coordinate>>(array.length());
+    Collection<List<Coordinate>> polygon = new ArrayList<>(array.length());
 
     for(int i = 0; i < array.length(); i++) {
       try {
-        List<Coordinate> points = new ArrayList<Coordinate>(array.getJSONArray(i).length());
+        List<Coordinate> points = new ArrayList<>(array.getJSONArray(i).length());
         for(int j = 0; j < array.getJSONArray(i).length(); j++) {
           points.add(Coordinate.getCoordinateFrom(array.getJSONArray(i).get(j)));
         }
@@ -145,8 +145,8 @@ public class PolygonType extends JSONAwareValueType {
   }
 
   private Value valueOfPolygon(Iterable<?> object) {
-    Collection<List<Coordinate>> polygon = new ArrayList<List<Coordinate>>();
-    List<Coordinate> pts = new ArrayList<Coordinate>();
+    Collection<List<Coordinate>> polygon = new ArrayList<>();
+    List<Coordinate> pts = new ArrayList<>();
 
     for(Object obj : object) {
       try {

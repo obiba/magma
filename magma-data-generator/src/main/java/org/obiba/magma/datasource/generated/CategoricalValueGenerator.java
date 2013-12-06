@@ -7,7 +7,7 @@ import org.obiba.magma.datasource.generated.support.ShuffleBag;
 
 class CategoricalValueGenerator extends AbstractMissingValueVariableValueGenerator {
 
-  private final ShuffleBag<String> shuffleBag = new ShuffleBag<String>();
+  private final ShuffleBag<String> shuffleBag = new ShuffleBag<>();
 
   private boolean hasNonMissing = false;
 

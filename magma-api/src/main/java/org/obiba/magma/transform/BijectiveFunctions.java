@@ -44,7 +44,7 @@ public final class BijectiveFunctions {
    * given a key that does not exist in the map.
    */
   public static <K, V> BijectiveFunction<K, V> forBiMap(BiMap<K, V> map) {
-    return new BijectiveFunctionForMapNoDefault<K, V>(map);
+    return new BijectiveFunctionForMapNoDefault<>(map);
   }
 
   private static class BijectiveFunctionForMapNoDefault<K, V> implements BijectiveFunction<K, V>, Serializable {

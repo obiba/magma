@@ -53,7 +53,7 @@ public enum SpssNumericDataType {
   //
   // Enum private members
   //
-  private static final Map<Integer, SpssNumericDataType> intToTypeMap = new HashMap<Integer, SpssNumericDataType>();
+  private static final Map<Integer, SpssNumericDataType> intToTypeMap = new HashMap<>();
 
   static {
     for(SpssNumericDataType type : SpssNumericDataType.values()) {

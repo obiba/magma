@@ -24,13 +24,13 @@ public class ExcludeAllFilter<T> extends AbstractFilter<T> {
     }
 
     public ExcludeAllFilter<ValueSet> buildForValueSet() {
-      ExcludeAllFilter<ValueSet> filter = new ExcludeAllFilter<ValueSet>();
+      ExcludeAllFilter<ValueSet> filter = new ExcludeAllFilter<>();
       filter.setType(Type.EXCLUDE);
       return filter;
     }
 
     public ExcludeAllFilter<VariableValueSource> buildForVariableValueSource() {
-      ExcludeAllFilter<VariableValueSource> filter = new ExcludeAllFilter<VariableValueSource>();
+      ExcludeAllFilter<VariableValueSource> filter = new ExcludeAllFilter<>();
       filter.setType(Type.EXCLUDE);
       return filter;
     }

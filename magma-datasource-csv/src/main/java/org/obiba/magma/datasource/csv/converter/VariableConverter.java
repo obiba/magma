@@ -59,7 +59,7 @@ public class VariableConverter {
   public static final List<String> categoriesReservedAttributeNames = Lists
       .newArrayList("table", "variable", "name", "code", "missing");
 
-  private final Map<String, Integer> headerMap = new HashMap<String, Integer>();
+  private final Map<String, Integer> headerMap = new HashMap<>();
 
   private final String[] header;
 
@@ -119,7 +119,7 @@ public class VariableConverter {
   }
 
   private Map<String, Category.Builder> unmarshalCategoriesAndAttributes(Variable.Builder builder, String... csvVar) {
-    Map<String, Category.Builder> categoryBuilderMap = new LinkedHashMap<String, Category.Builder>();
+    Map<String, Category.Builder> categoryBuilderMap = new LinkedHashMap<>();
     for(String headerName : headerMap.keySet()) {
       if(!reservedVariableHeaders.contains(headerName)) {
         String value = getValueAt(csvVar, headerName);
@@ -194,7 +194,7 @@ public class VariableConverter {
 
   @SuppressWarnings({ "OverlyLongMethod", "PMD.NcssMethodCount" })
   public String[] marshal(Variable variable) {
-    Map<Integer, String> resultMap = new HashMap<Integer, String>();
+    Map<Integer, String> resultMap = new HashMap<>();
 
     resultMap.put(headerMap.get(NAME), variable.getName());
     resultMap.put(headerMap.get(VALUE_TYPE), variable.getValueType().getName());

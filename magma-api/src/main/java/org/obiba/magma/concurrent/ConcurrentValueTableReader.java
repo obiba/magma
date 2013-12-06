@@ -65,8 +65,8 @@ public class ConcurrentValueTableReader {
 
     // A queue containing all entities to read the values for.
     // Once this is empty, and all readers are done, then  reading is over.
-    BlockingQueue<VariableEntity> readQueue = new LinkedBlockingDeque<VariableEntity>(entities);
-    writeQueue = new LinkedBlockingDeque<VariableEntityValues>();
+    BlockingQueue<VariableEntity> readQueue = new LinkedBlockingDeque<>(entities);
+    writeQueue = new LinkedBlockingDeque<>();
     try {
       callback.onBegin(entities, variables);
       List<Future<?>> readers = entities.isEmpty()

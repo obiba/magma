@@ -147,7 +147,7 @@ public class SpssValueTable extends AbstractValueTable implements Disposable {
       if(variableEntities == null) {
         loadData();
 
-        Collection<String> entityIdentifiers = new HashSet<String>();
+        Collection<String> entityIdentifiers = new HashSet<>();
         ImmutableSet.Builder<VariableEntity> entitiesBuilder = ImmutableSet.builder();
         SPSSVariable entityVariable = spssFile.getVariable(0);
         int numberOfObservations = entityVariable.getNumberOfObservations();

@@ -73,10 +73,9 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
 
   private VariableConverter variableConverter;
 
-  private final LinkedHashMap<VariableEntity, CsvIndexEntry> entityIndex
-      = new LinkedHashMap<VariableEntity, CsvIndexEntry>();
+  private final LinkedHashMap<VariableEntity, CsvIndexEntry> entityIndex = new LinkedHashMap<>();
 
-  private final LinkedHashMap<String, CsvIndexEntry> variableNameIndex = new LinkedHashMap<String, CsvIndexEntry>();
+  private final LinkedHashMap<String, CsvIndexEntry> variableNameIndex = new LinkedHashMap<>();
 
   private boolean isLastDataCharacterNewline;
 
@@ -86,11 +85,11 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
 
   private boolean isDataFileEmpty;
 
-  private Map<String, Integer> dataHeaderMap = new HashMap<String, Integer>();
+  private Map<String, Integer> dataHeaderMap = new HashMap<>();
 
   private boolean dataHeaderMapInitialized = false;
 
-  private List<String> missingVariableNames = new ArrayList<String>();
+  private List<String> missingVariableNames = new ArrayList<>();
 
   private final CsvTimestamps timestamps;
 
@@ -270,7 +269,7 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
   @VisibleForTesting
   @SuppressWarnings({ "OverlyLongMethod", "PMD.NcssMethodCount" })
   Map<Integer, CsvIndexEntry> buildVariableLineIndex() throws IOException {
-    Map<Integer, CsvIndexEntry> lineNumberMap = new LinkedHashMap<Integer, CsvIndexEntry>();
+    Map<Integer, CsvIndexEntry> lineNumberMap = new LinkedHashMap<>();
 
     if(variableFile == null || !variableFile.exists()) {
       return lineNumberMap;
@@ -313,7 +312,7 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
   @SuppressWarnings({ "OverlyLongMethod", "PMD.NcssMethodCount" })
   Map<Integer, CsvIndexEntry> buildDataLineIndex() throws IOException {
 
-    Map<Integer, CsvIndexEntry> lineNumberMap = new LinkedHashMap<Integer, CsvIndexEntry>();
+    Map<Integer, CsvIndexEntry> lineNumberMap = new LinkedHashMap<>();
     isDataFileEmpty = true;
     if(dataFile == null || !dataFile.exists()) {
       return lineNumberMap;
@@ -326,7 +325,7 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
       int innerline = 0;
       long start = 0;
       String nextLine = null;
-      List<String> multiLineValues = new ArrayList<String>();
+      List<String> multiLineValues = new ArrayList<>();
       while((nextLine = reader.readLine()) != null) {
         if(isDataFileEmpty) isDataFileEmpty = false;
 
@@ -652,7 +651,7 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
    * @return A collection of missing Variables.
    */
   public Iterable<Variable> getMissingVariables() {
-    Collection<Variable> variables = new ArrayList<Variable>(missingVariableNames.size());
+    Collection<Variable> variables = new ArrayList<>(missingVariableNames.size());
     for(String variableName : missingVariableNames) {
       Variable.Builder variableBuilder = Variable.Builder.newVariable(variableName, TextType.get(), entityType);
       variables.add(variableBuilder.build());
@@ -669,7 +668,7 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
    * @throws IOException thrown when there is a problem reading the csv data file.
    */
   private List<String> getMissingVariableNames() throws IOException {
-    List<String> missingVariables = new ArrayList<String>();
+    List<String> missingVariables = new ArrayList<>();
     // Obtain the variable names from the first line of the data file. Header line is = entity_id + variable names
     CSVReader dataHeaderReader = getCsvDatasource().getCsvReader(dataFile);
     if(dataHeaderReader != null) {

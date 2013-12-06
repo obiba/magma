@@ -17,7 +17,6 @@ import org.mozilla.javascript.RegExpProxy;
 import org.mozilla.javascript.ScriptRuntime;
 import org.mozilla.javascript.Scriptable;
 import org.obiba.magma.Value;
-import org.obiba.magma.ValueSequence;
 import org.obiba.magma.ValueType;
 import org.obiba.magma.js.MagmaJsEvaluationRuntimeException;
 import org.obiba.magma.js.Rhino;
@@ -331,7 +330,7 @@ public class TextMethods {
       if(currentValue.isNull()) {
         return new ScriptableValue(thisObj, returnType.nullSequence());
       }
-      Collection<Value> newValues = new ArrayList<Value>();
+      Collection<Value> newValues = new ArrayList<>();
       //noinspection ConstantConditions
       for(Value value : currentValue.asSequence().getValue()) {
         newValues.add(lookupValue(ctx, thisObj, value, returnType, valueMap, defaultValue, nullValue));
@@ -348,6 +347,7 @@ public class TextMethods {
    * <pre>
    *   $('VAR').date('MM/dd/yy')
    * </pre>
+   *
    * @param ctx
    * @param thisObj
    * @param args
@@ -369,6 +369,7 @@ public class TextMethods {
    * <pre>
    *   $('VAR').date('MM/dd/yy HH:mm')
    * </pre>
+   *
    * @param ctx
    * @param thisObj
    * @param args
@@ -385,7 +386,8 @@ public class TextMethods {
     return getDateValue(thisObj, DateTimeType.get(), sv.getValue(), args[0].toString());
   }
 
-  private static ScriptableValue getDateValue(Scriptable thisObj, final ValueType dateType, Value value, String formatArg) {
+  private static ScriptableValue getDateValue(Scriptable thisObj, final ValueType dateType, Value value,
+      String formatArg) {
     final SimpleDateFormat format = new SimpleDateFormat(formatArg);
     com.google.common.base.Function<Value, Value> dateFunction = new com.google.common.base.Function<Value, Value>() {
 
@@ -395,14 +397,14 @@ public class TextMethods {
 
         String inputStr = input.toString();
 
-        if (inputStr == null || inputStr.trim().isEmpty()) return dateType.nullValue();
+        if(inputStr == null || inputStr.trim().isEmpty()) return dateType.nullValue();
 
         try {
           Date date = format.parse(inputStr);
           return dateType.valueOf(date);
         } catch(ParseException e) {
           throw new MagmaJsEvaluationRuntimeException(
-              "date/datetime format '" + format.toPattern() + "' fails to parse: '" + inputStr +"'");
+              "date/datetime format '" + format.toPattern() + "' fails to parse: '" + inputStr + "'");
         }
       }
     };

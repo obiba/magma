@@ -52,7 +52,7 @@ class HibernateVariableValueSourceFactory implements VariableValueSourceFactory 
 
   @Override
   public Set<VariableValueSource> createSources() {
-    Set<VariableValueSource> sources = new LinkedHashSet<VariableValueSource>();
+    Set<VariableValueSource> sources = new LinkedHashSet<>();
     @SuppressWarnings("unchecked")
     Iterable<VariableState> variables = (List<VariableState>) AssociationCriteria
         .create(VariableState.class, getCurrentSession())

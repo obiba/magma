@@ -111,7 +111,7 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
     if(value instanceof NativeArray) {
       values = nativeArrayToValueList(valueType, (NativeArray) value);
     } else {
-      values = new ArrayList<Value>();
+      values = new ArrayList<>();
       values.add(valueType == null ? ValueType.Factory.newValue((Serializable) value) : valueType.valueOf(value));
     }
     if(valueType == null) {
@@ -124,7 +124,7 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
   }
 
   private static List<Value> nativeArrayToValueList(@Nullable ValueType valueType, NativeArray nativeArray) {
-    List<Value> newValues = new ArrayList<Value>();
+    List<Value> newValues = new ArrayList<>();
     for(long i = 0; i < nativeArray.getLength(); i++) {
       Serializable serializable = (Serializable) nativeArray.get(i);
       newValues.add(valueType == null ? ValueType.Factory.newValue(serializable) : valueType.valueOf(serializable));

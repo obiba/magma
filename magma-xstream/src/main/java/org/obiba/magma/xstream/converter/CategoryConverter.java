@@ -29,7 +29,7 @@ public class CategoryConverter extends AbstractAttributeAwareConverter {
   }
 
   @Override
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({ "unchecked", "rawtypes" })
   public boolean canConvert(Class type) {
     return Category.class.isAssignableFrom(type);
   }

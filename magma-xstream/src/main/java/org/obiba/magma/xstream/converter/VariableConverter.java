@@ -50,7 +50,7 @@ public class VariableConverter extends AbstractAttributeAwareConverter {
   }
 
   @Override
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({ "unchecked", "rawtypes" })
   public boolean canConvert(Class type) {
     return Variable.class.isAssignableFrom(type);
   }

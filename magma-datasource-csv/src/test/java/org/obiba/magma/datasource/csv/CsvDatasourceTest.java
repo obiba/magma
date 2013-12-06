@@ -125,16 +125,22 @@ public class CsvDatasourceTest extends AbstractMagmaTest {
     for(Category category : var.getCategories()) {
       String label = category.getAttribute("label", Locale.ENGLISH).getValue().toString();
       String categoryName = category.getName();
-      if("Y".equals(categoryName)) {
-        assertEquals("yes", label);
-      } else if("N".equals(categoryName)) {
-        assertEquals("no", label);
-      } else if("PNA".equals(categoryName)) {
-        assertEquals("prefer not to answer", label);
-      } else if("DNK".equals(categoryName)) {
-        assertEquals("don't know", label);
-      } else {
-        Assert.fail();
+      switch(categoryName) {
+        case "Y":
+          assertEquals("yes", label);
+          break;
+        case "N":
+          assertEquals("no", label);
+          break;
+        case "PNA":
+          assertEquals("prefer not to answer", label);
+          break;
+        case "DNK":
+          assertEquals("don't know", label);
+          break;
+        default:
+          Assert.fail();
+          break;
       }
     }
 
@@ -165,16 +171,22 @@ public class CsvDatasourceTest extends AbstractMagmaTest {
       Value value = table.getValue(var, valueSet);
       log.debug("var1[{}]={}", identifier, value);
       assertEquals("text", value.getValueType().getName());
-      if("1".equals(identifier)) {
-        assertEquals("Y", value.getValue());
-      } else if("2".equals(identifier)) {
-        assertEquals("N", value.getValue());
-      } else if("3".equals(identifier)) {
-        assertEquals("PNA", value.getValue());
-      } else if("4".equals(identifier)) {
-        assertEquals("DNK", value.getValue());
-      } else {
-        Assert.fail();
+      switch(identifier) {
+        case "1":
+          assertEquals("Y", value.getValue());
+          break;
+        case "2":
+          assertEquals("N", value.getValue());
+          break;
+        case "3":
+          assertEquals("PNA", value.getValue());
+          break;
+        case "4":
+          assertEquals("DNK", value.getValue());
+          break;
+        default:
+          Assert.fail();
+          break;
       }
     }
   }
@@ -302,16 +314,22 @@ public class CsvDatasourceTest extends AbstractMagmaTest {
       Value value = table.getValue(var, valueSet);
       log.debug("var2[{}]={}", identifier, value);
       assertEquals("integer", value.getValueType().getName());
-      if("5".equals(identifier)) {
-        assertEquals(15l, value.getValue());
-      } else if("6".equals(identifier)) {
-        assertEquals(16l, value.getValue());
-      } else if("7".equals(identifier)) {
-        assertEquals(17l, value.getValue());
-      } else if("8".equals(identifier)) {
-        assertEquals(18l, value.getValue());
-      } else {
-        assertFalse(true);
+      switch(identifier) {
+        case "5":
+          assertEquals(15l, value.getValue());
+          break;
+        case "6":
+          assertEquals(16l, value.getValue());
+          break;
+        case "7":
+          assertEquals(17l, value.getValue());
+          break;
+        case "8":
+          assertEquals(18l, value.getValue());
+          break;
+        default:
+          assertFalse(true);
+          break;
       }
     }
   }

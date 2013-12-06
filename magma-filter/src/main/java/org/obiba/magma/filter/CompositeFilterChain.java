@@ -22,7 +22,7 @@ public class CompositeFilterChain<T> implements FilterChain<T> {
     }
     this.entityType = entityType;
 
-    filterChains = new ArrayList<FilterChain<T>>();
+    filterChains = new ArrayList<>();
   }
 
   //

@@ -58,14 +58,14 @@ public class LineStringType extends JSONAwareValueType {
   @Override
   public Class<?> getJavaClass() {
     List<Coordinate> line;
-    line = new ArrayList<Coordinate>();
+    line = new ArrayList<>();
     return line.getClass();
   }
 
   @Override
   public boolean acceptsJavaClass(@Nonnull Class<?> clazz) {
     List<Coordinate> line;
-    line = new ArrayList<Coordinate>();
+    line = new ArrayList<>();
     return line.getClass().isAssignableFrom(clazz);
   }
 
@@ -103,7 +103,7 @@ public class LineStringType extends JSONAwareValueType {
       return nullValue();
     }
 
-    Collection<Coordinate> line = new ArrayList<Coordinate>(array.length());
+    Collection<Coordinate> line = new ArrayList<>(array.length());
     for(int i = 0; i < array.length(); i++) {
       try {
         line.add(Coordinate.getCoordinateFrom(array.get(i)));
@@ -132,7 +132,7 @@ public class LineStringType extends JSONAwareValueType {
       return valueOf((JSONArray) object);
     }
     if(type.equals(getJavaClass())) {
-      Collection<Coordinate> line = new ArrayList<Coordinate>();
+      Collection<Coordinate> line = new ArrayList<>();
       for(Object o : (List<?>) object) {
         line.add(Coordinate.getCoordinateFrom(o));
       }

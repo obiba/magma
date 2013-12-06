@@ -43,7 +43,7 @@ public class BooleanMethods {
    * </pre>
    *
    * @return true when the value is equal to any of the parameter, false otherwise. Note that this method will always
-   *         return false if the value is null.
+   * return false if the value is null.
    */
   public static ScriptableValue any(Context ctx, Scriptable thisObj, Object[] args, Function funObj) {
     ScriptableValue sv = (ScriptableValue) thisObj;
@@ -66,7 +66,7 @@ public class BooleanMethods {
    * </pre>
    *
    * @return true when the value contains all specified parameters, false otherwise. Note that this method will always
-   *         return false if the value is null.
+   * return false if the value is null.
    */
   public static ScriptableValue all(Context ctx, Scriptable thisObj, Object[] args, @Nullable Function funObj) {
     ScriptableValue sv = (ScriptableValue) thisObj;
@@ -349,7 +349,7 @@ public class BooleanMethods {
           ? new ScriptableValue(thisObj, rval) //
           : new ScriptableValue(thisObj, sv.getValueType().sequenceOf(Collections.singleton(rval)));
     }
-    Collection<Value> newValues = new ArrayList<Value>();
+    Collection<Value> newValues = new ArrayList<>();
     for(Value val : sv.getValue().asSequence().getValues()) {
       if(val.isNull()) {
         newValues.add(whenNullArgument(val.getValueType(), args[0]));

@@ -24,7 +24,7 @@ public abstract class BaseValueTypeTest extends AbstractMagmaTest {
   abstract Iterable<Class<?>> validClasses();
 
   ValueSequence getSequence(int size) {
-    Collection<Value> values = new ArrayList<Value>(size);
+    Collection<Value> values = new ArrayList<>(size);
     for(int i = 0; i < size; i++) {
       values.add(getValueType().valueOf(getObjectForType()));
     }

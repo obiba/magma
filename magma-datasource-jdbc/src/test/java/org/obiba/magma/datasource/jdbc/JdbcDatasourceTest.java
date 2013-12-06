@@ -112,11 +112,11 @@ public class JdbcDatasourceTest extends AbstractMagmaTest {
     assertNotNull(bdVar);
     assertNotNull(bdVar2);
 
-    Iterable<Value> values = bdVar.getValues(new TreeSet<VariableEntity>(valueTable.getVariableEntities()));
+    Iterable<Value> values = bdVar.getValues(new TreeSet<>(valueTable.getVariableEntities()));
 
     assertTrue(Iterables.size(values) == 2);
 
-    values = bdVar2.getValues(new TreeSet<VariableEntity>(valueTable.getVariableEntities()));
+    values = bdVar2.getValues(new TreeSet<>(valueTable.getVariableEntities()));
     assertTrue(Iterables.size(values) == 2);
 
     jdbcDatasource.dispose();

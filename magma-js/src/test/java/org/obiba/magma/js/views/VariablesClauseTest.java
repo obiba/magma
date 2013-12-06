@@ -49,7 +49,7 @@ public class VariablesClauseTest extends AbstractJsTest {
     Variable yearVariable = buildYear();
     Variable sex = buildSexWithSameAsAndScript();
 
-    variables = new HashSet<Variable>();
+    variables = new HashSet<>();
     variables.add(yearVariable);
     variables.add(sex);
 
@@ -253,7 +253,7 @@ public class VariablesClauseTest extends AbstractJsTest {
   @Test
   public void testThatDerivedVariableWithSameAsAttributeOnlyDoesNotOverrideExistingVariableAttributes()
       throws Exception {
-    Collection<Variable> variableSet = new HashSet<Variable>();
+    Collection<Variable> variableSet = new HashSet<>();
     variableSet.add(buildSexWithSameAs());
 
     ValueTable valueTableMock = createMock(ValueTable.class);

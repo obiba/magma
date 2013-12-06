@@ -26,7 +26,7 @@ import org.opendatafoundation.data.spss.SPSSVariable;
 
 public class SpssValueSet extends ValueSetBean {
 
-  private final Map<String, Value> row = new HashMap<String, Value>();
+  private final Map<String, Value> row = new HashMap<>();
 
   private final SPSSFile spssFile;
 

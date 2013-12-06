@@ -47,7 +47,7 @@ public class ViewAwareDatasourceTransformer implements DatasourceTransformer {
   }
 
   public void setViews(Set<View> views) {
-    this.views = new HashSet<View>();
+    this.views = new HashSet<>();
     if(views != null) {
       this.views.addAll(views);
     }

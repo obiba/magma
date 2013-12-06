@@ -337,7 +337,7 @@ public class ValueSequenceMethods {
 
     // Extract values, the transformation function and the max sequence length
 
-    List<Object> values = new ArrayList<Object>();
+    List<Object> values = new ArrayList<>();
     values.add(sv.getValue());
     int length = getValueSize(sv.getValue());
     Function func = null;
@@ -364,7 +364,7 @@ public class ValueSequenceMethods {
 
     // Transform value tuples to build a value sequence
     ValueType rValueType = null;
-    Collection<Value> rvalues = new ArrayList<Value>();
+    Collection<Value> rvalues = new ArrayList<>();
     for(int i = 0; i < length; i++) {
       Value fvalue = asValue(func.call(ctx, sv.getParentScope(), sv, getTupleAsArguments(sv, values, i)));
       rValueType = fvalue.getValueType();

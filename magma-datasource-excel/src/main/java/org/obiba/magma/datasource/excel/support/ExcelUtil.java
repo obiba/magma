@@ -153,5 +153,5 @@ public class ExcelUtil {
     }
   }
 
-  private static final Map<String, String> cachedNormalizedHeaders = new HashMap<String, String>();
+  private static final Map<String, String> cachedNormalizedHeaders = new HashMap<>();
 }

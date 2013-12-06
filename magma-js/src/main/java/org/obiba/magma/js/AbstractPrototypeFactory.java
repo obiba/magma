@@ -20,7 +20,7 @@ public abstract class AbstractPrototypeFactory {
   private final Set<String> excluded = ImmutableSet
       .of("wait", "toString", "getClass", "equals", "hashCode", "notify", "notifyAll");
 
-  private final Set<Class<?>> methodProviders = new HashSet<Class<?>>();
+  private final Set<Class<?>> methodProviders = new HashSet<>();
 
   public void addMethodProvider(Class<?> methodProvider) {
     methodProviders.add(methodProvider);

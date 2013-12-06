@@ -55,12 +55,12 @@ public class BeanVariableValueSourceFactory<T> implements VariableValueSourceFac
   /**
    * Maps property names to property type
    */
-  private Map<String, Class<?>> propertyNameToPropertyType = new HashMap<String, Class<?>>();
+  private Map<String, Class<?>> propertyNameToPropertyType = new HashMap<>();
 
   /**
    * Maps mapped property names to property type
    */
-  private Map<String, Class<?>> mappedPropertyType = new HashMap<String, Class<?>>();
+  private Map<String, Class<?>> mappedPropertyType = new HashMap<>();
 
   private Set<? extends BuilderVisitor> variableBuilderVisitors = Collections.emptySet();
 
@@ -235,11 +235,11 @@ public class BeanVariableValueSourceFactory<T> implements VariableValueSourceFac
    * each variable.
    */
   protected void doBuildVariables() {
-    Set<String> propertiesCopy = new LinkedHashSet<String>(properties);
+    Set<String> propertiesCopy = new LinkedHashSet<>(properties);
 
     synchronized(this) {
       if(sources == null) {
-        sources = new LinkedHashSet<VariableValueSource>();
+        sources = new LinkedHashSet<>();
         for(String propertyPath : propertiesCopy) {
           Class<?> propertyType = getPropertyType(propertyPath);
           if(propertyType == null) {

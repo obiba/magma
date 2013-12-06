@@ -28,7 +28,7 @@ import static org.junit.Assert.assertThat;
 
 public class ExcludeMissingDescriptiveStatisticsProviderTest {
 
-  SortedSet<VariableEntity> emptySet = new TreeSet<VariableEntity>();
+  SortedSet<VariableEntity> emptySet = new TreeSet<>();
 
   Variable testVariable;
 
