@@ -1,6 +1,7 @@
 package org.obiba.magma.js;
 
 import java.lang.reflect.Method;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Set;
 
@@ -46,7 +47,7 @@ public class MagmaContextFactory extends ContextFactory implements Initialisable
     return sharedScope;
   }
 
-  public void setGlobalMethodProviders(Set<GlobalMethodProvider> globalMethodProviders) {
+  public void setGlobalMethodProviders(Collection<GlobalMethodProvider> globalMethodProviders) {
     if(globalMethodProviders == null) throw new IllegalArgumentException("globalMethodProviders cannot be null");
     this.globalMethodProviders = ImmutableSet.copyOf(globalMethodProviders);
   }
@@ -65,26 +66,26 @@ public class MagmaContextFactory extends ContextFactory implements Initialisable
     sharedScope = (ScriptableObject) ContextFactory.getGlobal().call(new ContextAction() {
       @Override
       public Object run(Context cx) {
-        ScriptableObject sharedScope = cx.initStandardObjects(null, true);
+        ScriptableObject scriptableObject = cx.initStandardObjects(null, true);
 
         // Register Global methods
         for(GlobalMethodProvider provider : Iterables
             .concat(ImmutableSet.of(new GlobalMethods()), globalMethodProviders)) {
           for(Method globalMethod : provider.getJavaScriptExtensionMethods()) {
             String name = provider.getJavaScriptMethodName(globalMethod);
-            FunctionObject fo = new FunctionObject(name, globalMethod, sharedScope);
-            sharedScope.defineProperty(name, fo, ScriptableObject.DONTENUM);
+            FunctionObject fo = new FunctionObject(name, globalMethod, scriptableObject);
+            scriptableObject.defineProperty(name, fo, ScriptableObject.DONTENUM);
           }
         }
 
         Scriptable valuePrototype = scriptableValuePrototypeFactory.buildPrototype();
-        ScriptableObject.putProperty(sharedScope, valuePrototype.getClassName(), valuePrototype);
+        ScriptableObject.putProperty(scriptableObject, valuePrototype.getClassName(), valuePrototype);
 
         Scriptable variablePrototype = scriptableVariablePrototypeFactory.buildPrototype();
-        ScriptableObject.putProperty(sharedScope, variablePrototype.getClassName(), variablePrototype);
+        ScriptableObject.putProperty(scriptableObject, variablePrototype.getClassName(), variablePrototype);
 
-        sharedScope.sealObject();
-        return sharedScope;
+        scriptableObject.sealObject();
+        return scriptableObject;
       }
     });
   }
