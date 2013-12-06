@@ -15,6 +15,7 @@ buildscript {
   dependencies {
     classpath 'org.jfrog.buildinfo:build-info-extractor-gradle:2.1.0'
     classpath 'com.github.ben-manes:gradle-versions-plugin:0.4'
+//    classpath 'net.saliman:gradle-cobertura-plugin:2.1.0'
   }
 }
 
@@ -192,6 +193,8 @@ subprojects { subProject ->
     excludeFilter = file(rootProject.file('src/main/resources/findbugs-exclude.xml'))
     ignoreFailures = true
   }
+
+//  apply plugin: 'cobertura'
 
   // PMD
   task pmd << {
