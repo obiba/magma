@@ -9,6 +9,7 @@ import java.util.Set;
 import org.obiba.magma.Attribute;
 import org.springframework.util.StringUtils;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -39,6 +40,7 @@ class LimeAttributes {
     List<Attribute> attrs = Lists.newArrayList();
     for(Map.Entry<String, String> entry : attributes.entrySet()) {
       String attValue = entry.getValue();
+      if (Strings.isNullOrEmpty(attValue)) continue;
       String cleaned = cleanAttributeValue(attValue);
       String[] key = entry.getKey().split(":");
       if(key.length > 1) {
