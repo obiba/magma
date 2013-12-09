@@ -4,35 +4,41 @@ import java.util.List;
 import java.util.Locale;
 import java.util.NoSuchElementException;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.google.common.base.Predicate;
+import com.google.common.base.Strings;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.ListMultimap;
 
 public abstract class AttributeAwareBuilder<T extends AttributeAwareBuilder<?>> {
 
-  public T addAttribute(String name, String value) {
-    getAttributes().put(name, Attribute.Builder.newAttribute(name).withValue(value).build());
+  public T addAttribute(@Nonnull String name, @Nonnull String value) {
+    if (!Strings.isNullOrEmpty(name) && !Strings.isNullOrEmpty(value)) {
+      getAttributes().put(name, Attribute.Builder.newAttribute(name).withValue(value).build());
+    }
     return getBuilder();
   }
 
-  public T addAttribute(String name, String value, @Nullable Locale locale) {
+  public T addAttribute(@Nonnull String name, @Nonnull String value, @Nullable Locale locale) {
     if(locale != null && "".equals(locale.toString())) {
       addAttribute(name, value);
-    } else {
+    } else if (!Strings.isNullOrEmpty(name) && !Strings.isNullOrEmpty(value)) {
       getAttributes().put(name, Attribute.Builder.newAttribute(name).withValue(locale, value).build());
     }
     return getBuilder();
   }
 
-  public T addAttribute(Attribute attribute) {
-    getAttributes().put(attribute.getName(), Attributes.copyOf(attribute));
+  public T addAttribute(@Nonnull Attribute attribute) {
+    if (attribute != null) {
+      getAttributes().put(attribute.getName(), Attributes.copyOf(attribute));
+    }
     return getBuilder();
   }
 
-  public T addAttributes(Iterable<Attribute> attributes) {
+  public T addAttributes(@Nonnull Iterable<Attribute> attributes) {
     for(Attribute attribute : attributes) {
       addAttribute(attribute);
     }
