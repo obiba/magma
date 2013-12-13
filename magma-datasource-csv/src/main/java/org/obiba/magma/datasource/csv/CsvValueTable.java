@@ -337,8 +337,8 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
         } else {
           long cursorPosition = reader.getCursorPosition();
 
-          if(dataHeaderMapInitialized) {
-            int lineNumber = line - innerline;
+          int lineNumber = line - innerline;
+          if(lineNumber>= getCsvDatasource().getFirstRow()) {
             log.trace("[{}:{}] {}", dataFile.getName(), lineNumber, nextLine);
             String identifier = multiLineValues.get(0);
             if(Strings.isNullOrEmpty(identifier)) {
@@ -348,8 +348,8 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
             CsvIndexEntry indexEntry = new CsvIndexEntry(start, cursorPosition);
             lineNumberMap.put(lineNumber, indexEntry);
             entityIndex.put(new VariableEntityBean(entityType, identifier), indexEntry);
-          } else {
-            // first line is headers = entity_id + variable names
+          } else if (!dataHeaderMapInitialized) {
+            // first line(s) is headers = entity_id + variable names
             for(int i = 1; i < values.length; i++) {
               dataHeaderMap.put(values[i].trim(), i);
             }
