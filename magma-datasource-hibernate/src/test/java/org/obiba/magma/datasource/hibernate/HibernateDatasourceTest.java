@@ -354,7 +354,7 @@ public class HibernateDatasourceTest {
   }
 
   @SuppressWarnings("ConstantConditions")
-
+  @Test
   public void test_binary_vector_source() {
 
     final ImmutableSet<Variable> variables = ImmutableSet.of( //
