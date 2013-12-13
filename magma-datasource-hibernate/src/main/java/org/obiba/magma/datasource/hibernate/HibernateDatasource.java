@@ -20,6 +20,7 @@ import org.hibernate.Transaction;
 import org.hibernate.criterion.Restrictions;
 import org.obiba.core.service.impl.hibernate.AssociationCriteria;
 import org.obiba.core.service.impl.hibernate.AssociationCriteria.Operation;
+import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.NoSuchValueTableException;
 import org.obiba.magma.Timestamped;
 import org.obiba.magma.Timestamps;
@@ -32,6 +33,7 @@ import org.obiba.magma.datasource.hibernate.domain.DatasourceState;
 import org.obiba.magma.datasource.hibernate.domain.ValueTableState;
 import org.obiba.magma.datasource.hibernate.domain.VariableState;
 import org.obiba.magma.support.AbstractDatasource;
+import org.obiba.magma.support.Initialisables;
 import org.obiba.magma.support.UnionTimestamps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -260,6 +262,32 @@ public class HibernateDatasource extends AbstractDatasource {
     ImmutableSet.Builder<Timestamped> builder = ImmutableSet.builder();
     builder.addAll(getValueTables()).add(getDatasourceState());
     return new UnionTimestamps(builder.build());
+  }
+
+  @Override
+  public boolean canRenameTable(String tableName) {
+    return hasValueTable(tableName);
+  }
+
+  @Override
+  public void renameTable(String tableName, String newName) {
+    if(canRenameTable(newName)) throw new MagmaRuntimeException("A table already exists with the name: " + newName);
+
+    HibernateValueTable valueTable = (HibernateValueTable) getValueTable(tableName);
+
+    log.info("Renaming table {} to {}", tableName, newName);
+
+    valueTable.setName(newName);
+    ValueTableState valueTableState = valueTable.getValueTableState();
+
+    HibernateValueTable newTable = new HibernateValueTable(this, valueTableState);
+    newTable.setName(newName);
+
+    Initialisables.initialise(newTable);
+    addValueTable(newTable);
+    dropTable(tableName);
+
+    updateDatasourceLastUpdate();
   }
 
   /**
