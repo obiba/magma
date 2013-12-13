@@ -33,7 +33,7 @@ public abstract class AbstractValueTable implements ValueTable, Initialisable {
   private final Datasource datasource;
 
   @Nonnull
-  private final String name;
+  protected String name;
 
   private final Set<VariableValueSource> sources = Sets.newLinkedHashSet();
 

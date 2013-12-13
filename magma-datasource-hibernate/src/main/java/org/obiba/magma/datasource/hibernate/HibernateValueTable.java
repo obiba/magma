@@ -143,6 +143,10 @@ class HibernateValueTable extends AbstractValueTable {
     return createTimestamps(getValueTableState());
   }
 
+  public void setName(String name) {
+    this.name = name;
+  }
+
   private static Timestamps createTimestamps(@Nullable final Timestamped timestamped) {
     return timestamped == null ? NullTimestamps.get() : new Timestamps() {
 
