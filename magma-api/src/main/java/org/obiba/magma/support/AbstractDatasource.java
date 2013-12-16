@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.Set;
 
 import javax.annotation.Nonnull;
@@ -193,6 +194,23 @@ public abstract class AbstractDatasource extends AbstractAttributeAware implemen
   @SuppressWarnings("NoopMethodInAbstractClass")
   protected void onDispose() {
 
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(name);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if(this == obj) {
+      return true;
+    }
+    if(obj == null || getClass() != obj.getClass()) {
+      return false;
+    }
+    AbstractDatasource other = (AbstractDatasource) obj;
+    return Objects.equals(name, other.name);
   }
 
   protected abstract Set<String> getValueTableNames();
