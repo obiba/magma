@@ -144,6 +144,9 @@ class HibernateValueTable extends AbstractValueTable {
   }
 
   public void setName(String name) {
+    ValueTableState tableState = getValueTableState();
+    tableState.setName(name);
+    getDatasource().getSessionFactory().getCurrentSession().save(tableState);
     this.name = name;
   }
 
@@ -289,5 +292,20 @@ class HibernateValueTable extends AbstractValueTable {
       return Collections.unmodifiableSet(entities);
     }
   }
+
+//  @Override
+//  public int hashCode() {
+//    return (getDatasource().getName() + name).hashCode();
+//  }
+//
+//  @Override
+//  public boolean equals(Object obj) {
+//    if (obj instanceof ValueTable){
+//    return name.equals(((ValueTable) obj).getName()) &&
+//        getDatasource().getName().equals(((ValueTable) obj).getDatasource().getName());
+//    }
+//
+//    return false;
+//  }
 
 }

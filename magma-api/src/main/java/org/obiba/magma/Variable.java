@@ -29,6 +29,104 @@ import com.google.common.collect.ListMultimap;
 public interface Variable extends AttributeAware {
 
   /**
+   * The name of the variable. A variable's name must be unique within its {@code Collection}.
+   *
+   * @return the name of the variable.
+   */
+  String getName();
+
+  /**
+   * Returns the {@code entityType} this variable is associated with.
+   *
+   * @return
+   */
+  String getEntityType();
+
+  /**
+   * Returns true when this variable is for values of the specified {@code entityType}
+   *
+   * @param type the type of entity to test
+   * @return true when this variable is for values of the specified {@code entityType}, false otherwise.
+   */
+  boolean isForEntityType(String type);
+
+  /**
+   * Returns true when this variable is repeatable. A repeatable variable is one where multiple {@code Value} instances
+   * may exist within a single {@code ValueSet}. A single {@code Value} within a {@code ValueSet} is referenced by an
+   * {@link Occurrence} instance.
+   *
+   * @return true when this variable may have multiple values within a single {@code ValueSet}
+   */
+  boolean isRepeatable();
+
+  /**
+   * When a variable is repeatable, the repeated values are grouped together, this method returns the name of this
+   * group. The name is arbitrary but must be unique within a {@code Collection}.
+   *
+   * @return the name of the repeating group
+   */
+  String getOccurrenceGroup();
+
+  /**
+   * Returns the {@code ValueType} of this variable instance. Any {@code Value} obtained for this {@code variable}
+   * should be of this type.
+   *
+   * @return the {@code ValueType} of this variable.
+   */
+  ValueType getValueType();
+
+  /**
+   * The SI code of the measurement unit if applicable.
+   *
+   * @return unit
+   */
+  String getUnit();
+
+  /**
+   * The IANA mime-type of binary data if applicable.
+   *
+   * @return the IANA mime-type
+   */
+  String getMimeType();
+
+  /**
+   * Used when this variable value is a pointer to another {@code VariableEntity}. The value is considered to point to
+   * the referenced entity's {@code identifier}.
+   *
+   * @return the {@code entityType} that this value points to, this method returns null when the variable doesn't point
+   * to another entity.
+   */
+  String getReferencedEntityType();
+
+  /**
+   * Returns true if this variable has at least on {@code Category}
+   *
+   * @return
+   */
+  boolean hasCategories();
+
+  /**
+   * Returns the set of categories for this {@code Variable}. This method returns null when the variable has no
+   * categories. To determine if a {@code Variable} instance has categories, use the {@code #hasCategories()} method.
+   *
+   * @return a {@code Set} of {@code Category} instances or null if none exist
+   */
+  Set<Category> getCategories();
+
+  /**
+   * Returns true when {@code value} is equal to a {@code Category} marked as {@code missing} or when
+   * {@code Value#isNull} returns true
+   *
+   * @param value the value to test
+   * @return true when the value is considered {@code missing}, false otherwise.
+   */
+  boolean isMissingValue(Value value);
+
+  boolean areAllCategoriesMissing();
+
+  String getVariableReference(@Nonnull ValueTable table);
+
+  /**
    * A builder for {@code Variable} instances. This uses the builder pattern for constructing {@code Variable}
    * instances.
    */
@@ -351,103 +449,5 @@ public interface Variable extends AttributeAware {
     void visit(Builder builder);
 
   }
-
-  /**
-   * The name of the variable. A variable's name must be unique within its {@code Collection}.
-   *
-   * @return the name of the variable.
-   */
-  String getName();
-
-  /**
-   * Returns the {@code entityType} this variable is associated with.
-   *
-   * @return
-   */
-  String getEntityType();
-
-  /**
-   * Returns true when this variable is for values of the specified {@code entityType}
-   *
-   * @param type the type of entity to test
-   * @return true when this variable is for values of the specified {@code entityType}, false otherwise.
-   */
-  boolean isForEntityType(String type);
-
-  /**
-   * Returns true when this variable is repeatable. A repeatable variable is one where multiple {@code Value} instances
-   * may exist within a single {@code ValueSet}. A single {@code Value} within a {@code ValueSet} is referenced by an
-   * {@link Occurrence} instance.
-   *
-   * @return true when this variable may have multiple values within a single {@code ValueSet}
-   */
-  boolean isRepeatable();
-
-  /**
-   * When a variable is repeatable, the repeated values are grouped together, this method returns the name of this
-   * group. The name is arbitrary but must be unique within a {@code Collection}.
-   *
-   * @return the name of the repeating group
-   */
-  String getOccurrenceGroup();
-
-  /**
-   * Returns the {@code ValueType} of this variable instance. Any {@code Value} obtained for this {@code variable}
-   * should be of this type.
-   *
-   * @return the {@code ValueType} of this variable.
-   */
-  ValueType getValueType();
-
-  /**
-   * The SI code of the measurement unit if applicable.
-   *
-   * @return unit
-   */
-  String getUnit();
-
-  /**
-   * The IANA mime-type of binary data if applicable.
-   *
-   * @return the IANA mime-type
-   */
-  String getMimeType();
-
-  /**
-   * Used when this variable value is a pointer to another {@code VariableEntity}. The value is considered to point to
-   * the referenced entity's {@code identifier}.
-   *
-   * @return the {@code entityType} that this value points to, this method returns null when the variable doesn't point
-   * to another entity.
-   */
-  String getReferencedEntityType();
-
-  /**
-   * Returns true if this variable has at least on {@code Category}
-   *
-   * @return
-   */
-  boolean hasCategories();
-
-  /**
-   * Returns the set of categories for this {@code Variable}. This method returns null when the variable has no
-   * categories. To determine if a {@code Variable} instance has categories, use the {@code #hasCategories()} method.
-   *
-   * @return a {@code Set} of {@code Category} instances or null if none exist
-   */
-  Set<Category> getCategories();
-
-  /**
-   * Returns true when {@code value} is equal to a {@code Category} marked as {@code missing} or when
-   * {@code Value#isNull} returns true
-   *
-   * @param value the value to test
-   * @return true when the value is considered {@code missing}, false otherwise.
-   */
-  boolean isMissingValue(Value value);
-
-  boolean areAllCategoriesMissing();
-
-  String getVariableReference(@Nonnull ValueTable table);
 
 }

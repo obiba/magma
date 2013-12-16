@@ -3,6 +3,7 @@ package org.obiba.magma.support;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.Set;
 
 import javax.annotation.Nonnull;
@@ -198,5 +199,20 @@ public abstract class AbstractValueTable implements ValueTable, Initialisable {
   @Override
   public String getTableReference() {
     return getDatasource().getName() + "." + getName();
+  }
+
+  @Override
+  public int hashCode() {return Objects.hash(datasource, name);}
+
+  @Override
+  public boolean equals(Object obj) {
+    if(this == obj) {
+      return true;
+    }
+    if(obj == null || getClass() != obj.getClass()) {
+      return false;
+    }
+    AbstractValueTable other = (AbstractValueTable) obj;
+    return Objects.equals(datasource, other.datasource) && Objects.equals(name, other.name);
   }
 }

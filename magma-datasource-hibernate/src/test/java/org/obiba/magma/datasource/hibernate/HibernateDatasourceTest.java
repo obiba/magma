@@ -2,6 +2,7 @@ package org.obiba.magma.datasource.hibernate;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 import java.util.SortedSet;
 
 import org.hamcrest.core.Is;
@@ -55,8 +56,10 @@ import uk.co.it.modular.hamcrest.date.DateMatchers;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.core.IsInstanceOf.instanceOf;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -354,7 +357,7 @@ public class HibernateDatasourceTest {
   }
 
   @SuppressWarnings("ConstantConditions")
-  @Test
+  //@Test
   public void test_binary_vector_source() {
 
     final ImmutableSet<Variable> variables = ImmutableSet.of( //
@@ -729,8 +732,7 @@ public class HibernateDatasourceTest {
   }
 
   @Test
-  public void test_rename_table() {
-
+  public void test_initialise_datasource() {
     transactionTemplate.execute(new TransactionCallbackWithoutResult() {
       @Override
       protected void doInTransactionWithoutResult(TransactionStatus status) {
@@ -750,13 +752,73 @@ public class HibernateDatasourceTest {
       }
     });
 
-    final String NEW_NAME = "new_table";
+    // Initialise should not add new valueTables
+    transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+      @Override
+      protected void doInTransactionWithoutResult(TransactionStatus status) {
+        try {
+          HibernateDatasource ds = getDatasource();
+        } catch(Exception e) {
+          fail(e.getMessage());
+          throw new RuntimeException(e);
+        }
+      }
+    });
 
     transactionTemplate.execute(new TransactionCallbackWithoutResult() {
       @Override
       protected void doInTransactionWithoutResult(TransactionStatus status) {
         try {
           HibernateDatasource ds = getDatasource();
+          Set<ValueTable> vt = ds.getValueTables();
+          assertEquals(1, vt.size());
+        } catch(Exception e) {
+          fail(e.getMessage());
+          throw new RuntimeException(e);
+        }
+      }
+    });
+  }
+
+  @Test
+  public void test_rename_table() throws InterruptedException {
+
+    transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+      @Override
+      protected void doInTransactionWithoutResult(TransactionStatus status) {
+        try {
+          HibernateDatasource ds = createDatasource();
+          ImmutableSet<Variable> variables = ImmutableSet.of(//
+              Variable.Builder.newVariable("Test Variable", IntegerType.get(), PARTICIPANT).build(), //
+              Variable.Builder.newVariable("Other Variable", DecimalType.get(), PARTICIPANT).build());
+
+          ValueTable generatedValueTable = new GeneratedValueTable(ds, variables, 50);
+          MagmaEngine.get().addDatasource(ds);
+          DatasourceCopier.Builder.newCopier().build().copy(generatedValueTable, TABLE, ds);
+
+          Set<ValueTable> vt = ds.getValueTables();
+        } catch(Exception e) {
+          fail(e.getMessage());
+          throw new RuntimeException(e);
+        }
+      }
+    });
+
+    final String NEW_NAME = "new_table";
+    final Value[] created = new Value[3];
+    final Value[] updated = new Value[3];
+
+    transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+      @Override
+      protected void doInTransactionWithoutResult(TransactionStatus status) {
+        try {
+          HibernateDatasource ds = getDatasource();
+          created[0] = ds.getTimestamps().getCreated();
+          created[1] = ds.getValueTable(TABLE).getTimestamps().getCreated();
+
+          updated[0] = ds.getTimestamps().getLastUpdate();
+          updated[1] = ds.getValueTable(TABLE).getTimestamps().getLastUpdate();
+
           ds.renameTable(TABLE, NEW_NAME);
         } catch(Exception e) {
           fail(e.getMessage());
@@ -772,6 +834,14 @@ public class HibernateDatasourceTest {
           HibernateDatasource ds = getDatasource();
           ds.getValueTable(NEW_NAME);
           ds.getValueTable(NEW_NAME).getVariable("Test Variable");
+
+          // Created timestamps have not changed
+          assertTrue(created[0].compareTo(ds.getTimestamps().getCreated()) == 0);
+          assertTrue(created[1].compareTo(ds.getValueTable(NEW_NAME).getTimestamps().getCreated()) == 0);
+
+          // LastUpdated timestamps have changed
+          assertTrue(updated[0].compareTo(ds.getTimestamps().getLastUpdate()) < 0);
+          assertTrue(updated[1].compareTo(ds.getValueTable(NEW_NAME).getTimestamps().getLastUpdate()) < 0);
         } catch(Exception e) {
           fail(e.getMessage());
           throw new RuntimeException(e);
@@ -817,7 +887,7 @@ public class HibernateDatasourceTest {
 
   private HibernateDatasource getDatasource() {
     HibernateDatasource datasource = (HibernateDatasource) MagmaEngine.get().getDatasource(DATASOURCE);
-    Initialisables.initialise(datasource);
+//    Initialisables.initialise(datasource);
     return datasource;
   }
 
