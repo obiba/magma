@@ -887,7 +887,6 @@ public class HibernateDatasourceTest {
 
   private HibernateDatasource getDatasource() {
     HibernateDatasource datasource = (HibernateDatasource) MagmaEngine.get().getDatasource(DATASOURCE);
-//    Initialisables.initialise(datasource);
     return datasource;
   }
 
