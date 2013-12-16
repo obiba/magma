@@ -2,7 +2,6 @@ package org.obiba.magma;
 
 import java.util.Locale;
 
-import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 
 import org.obiba.magma.type.TextType;
@@ -78,7 +77,7 @@ public interface Attribute {
 
   }
 
-  @Nullable
+  @NotNull
   String getNamespace();
 
   boolean hasNamespace();

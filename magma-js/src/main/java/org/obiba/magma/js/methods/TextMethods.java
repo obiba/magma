@@ -196,7 +196,7 @@ public class TextMethods {
 
       @Override
       public Value apply(Value input) {
-        String stringValue = input == null ? null : input.toString();
+        String stringValue = input == null || input.isNull() ? null : input.toString();
 
         // Delegate to Javascript's String.replace method
         String result = (String) ScriptRuntime.checkRegExpProxy(ctx)
@@ -220,7 +220,7 @@ public class TextMethods {
 
       @Override
       public Value apply(Value input) {
-        String stringValue = input == null ? null : input.toString();
+        String stringValue = input == null || input.isNull() ? null : input.toString();
 
         // Delegate to Javascript's String.replace method
         boolean matches = false;
@@ -257,7 +257,7 @@ public class TextMethods {
 
       @Override
       public Value apply(Value input) {
-        String stringValue = input == null ? null : input.toString();
+        String stringValue = input == null || input.isNull() ? null : input.toString();
         StringBuilder sb = new StringBuilder();
         sb.append(stringValue);
         if(args != null) {

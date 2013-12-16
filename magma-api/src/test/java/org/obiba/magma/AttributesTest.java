@@ -16,7 +16,6 @@ import org.obiba.magma.test.AbstractMagmaTest;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
 
 public class AttributesTest extends AbstractMagmaTest {
 
@@ -24,7 +23,7 @@ public class AttributesTest extends AbstractMagmaTest {
   public void test_decodeFromHeader_handlesNameOnly() {
     Attribute attribute = Attributes.decodeFromHeader("label").build();
     assertEquals("label", attribute.getName());
-    assertNull(attribute.getNamespace());
+    assertFalse(attribute.hasNamespace());
     assertFalse(attribute.isLocalised());
   }
 
@@ -32,7 +31,7 @@ public class AttributesTest extends AbstractMagmaTest {
   public void test_decodeFromHeader_handlesNameAndLocale() {
     Attribute attribute = Attributes.decodeFromHeader("label:en").build();
     assertEquals("label", attribute.getName());
-    assertNull(attribute.getNamespace());
+    assertFalse(attribute.hasNamespace());
     assertEquals(new Locale("en"), attribute.getLocale());
   }
 

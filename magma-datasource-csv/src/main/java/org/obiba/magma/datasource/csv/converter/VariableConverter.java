@@ -165,7 +165,7 @@ public class VariableConverter {
             : category.getAttribute(LABEL);
       }
       if(label != null) {
-        sb.append("=").append(label.getValue().toString());
+        sb.append("=").append(label.getValue());
       }
       sb.append(";"); // TODO configure separator.
     }

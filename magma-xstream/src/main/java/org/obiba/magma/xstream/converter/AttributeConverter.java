@@ -55,7 +55,7 @@ public class AttributeConverter implements Converter {
     ValueType valueType = ValueType.Factory.forName(reader.getAttribute("valueType"));
     String localeName = reader.getAttribute("locale");
 
-    Locale locale = localeName != null ? new Locale(localeName) : null;
+    Locale locale = localeName == null ? null : new Locale(localeName);
 
     String valueString = reader.getValue();
 

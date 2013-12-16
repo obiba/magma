@@ -26,8 +26,12 @@ class AttributeBean implements Attribute, Serializable {
   AttributeBean() {
   }
 
+  @NotNull
   @Override
   public String getNamespace() {
+    if(namespace == null) {
+      throw new NullPointerException("Namespace is null");
+    }
     return namespace;
   }
 
