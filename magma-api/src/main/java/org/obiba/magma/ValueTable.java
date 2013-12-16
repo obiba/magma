@@ -2,14 +2,14 @@ package org.obiba.magma;
 
 import java.util.Set;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 public interface ValueTable extends Timestamped {
 
-  @Nonnull
+  @NotNull
   String getName();
 
-  @Nonnull
+  @NotNull
   Datasource getDatasource();
 
   String getEntityType();

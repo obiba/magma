@@ -108,6 +108,7 @@ public class IntervalFrequencyTest {
   }
 
   @Test
+  @SuppressWarnings("ResultOfMethodCallIgnored")
   public void test_ctor_integerRounding() {
     IntervalFrequency freqs = new IntervalFrequency(40, 60, 8, true);
     for(Interval freq : freqs.intervals()) {

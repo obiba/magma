@@ -1,6 +1,6 @@
 package org.obiba.magma.js;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.Variable;
@@ -14,7 +14,7 @@ public class SameAsVariableValueSource extends JavascriptVariableValueSource {
     if(valueTable == null) throw new IllegalArgumentException("valueTable cannot be null");
   }
 
-  @Nonnull
+  @NotNull
   @Override
   public String getScript() {
     return super.getVariable().hasAttribute(JavascriptVariableBuilder.SCRIPT_ATTRIBUTE_NAME)

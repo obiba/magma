@@ -6,7 +6,7 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 import com.google.common.base.Function;
 import com.google.common.base.Objects;
@@ -147,7 +147,7 @@ class VariableBean extends AbstractAttributeAware implements Variable, Serializa
   }
 
   @Override
-  public String getVariableReference(@Nonnull ValueTable table) {
+  public String getVariableReference(@NotNull ValueTable table) {
     return table.getTableReference() + ":" + getName();
   }
 

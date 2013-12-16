@@ -99,6 +99,8 @@ public class ValueConverter {
 
   @SuppressWarnings("unchecked")
   private static Object marshallGeo(Value value) {
+    if(value == null || value.isNull()) return null;
+
     ValueType type = value.getValueType();
     if(PointType.get().equals(type)) {
       return marshallPoint((Coordinate) value.getValue());

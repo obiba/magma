@@ -4,7 +4,7 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.Value;
@@ -26,13 +26,13 @@ public class CsvLine {
 
   private int index = 1;
 
-  @Nonnull
+  @NotNull
   private final VariableEntity entity;
 
-  @Nonnull
+  @NotNull
   private final File parent;
 
-  public CsvLine(@Nonnull VariableEntity entity, @Nonnull File parent) {
+  public CsvLine(@NotNull VariableEntity entity, @NotNull File parent) {
     this.entity = entity;
     this.parent = parent;
     if(!parent.exists() && !parent.mkdirs()) {

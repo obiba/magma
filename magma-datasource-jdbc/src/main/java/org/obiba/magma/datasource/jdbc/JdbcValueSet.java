@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 import org.obiba.magma.Timestamps;
 import org.obiba.magma.Value;
@@ -29,13 +29,13 @@ public class JdbcValueSet extends ValueSetBean {
     escapedSqlTableName = valueTable.getDatasource().escapeSqlTableName(sqlTableName);
   }
 
-  @Nonnull
+  @NotNull
   @Override
   public JdbcValueTable getValueTable() {
     return (JdbcValueTable) super.getValueTable();
   }
 
-  @Nonnull
+  @NotNull
   @Override
   public Timestamps getTimestamps() {
     return new JdbcTimestamps(this);

@@ -4,8 +4,8 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
 
 import com.google.common.base.Strings;
 
@@ -38,7 +38,7 @@ public class JdbcDatasourceSettings {
   //
   // Constructors
   //
-  public JdbcDatasourceSettings(@Nonnull String defaultEntityType, @Nullable Set<String> mappedTables,
+  public JdbcDatasourceSettings(@NotNull String defaultEntityType, @Nullable Set<String> mappedTables,
       @Nullable Set<JdbcValueTableSettings> tableSettings, boolean useMetadataTables) {
     //noinspection ConstantConditions
     if(defaultEntityType == null) throw new IllegalArgumentException("null defaultEntityType");
@@ -52,7 +52,7 @@ public class JdbcDatasourceSettings {
   // Methods
   //
 
-  public void setDefaultEntityType(@Nonnull String defaultEntityType) {
+  public void setDefaultEntityType(@NotNull String defaultEntityType) {
     this.defaultEntityType = defaultEntityType;
   }
 
@@ -64,7 +64,7 @@ public class JdbcDatasourceSettings {
     this.mappedTables = mappedTables;
   }
 
-  @Nonnull
+  @NotNull
   public Collection<String> getMappedTables() {
     if(mappedTables == null) mappedTables = new HashSet<>();
     return mappedTables;
@@ -82,7 +82,7 @@ public class JdbcDatasourceSettings {
     getTableSettings().add(settings);
   }
 
-  @Nonnull
+  @NotNull
   public Set<JdbcValueTableSettings> getTableSettings() {
     if(tableSettings == null) tableSettings = new HashSet<>();
     return tableSettings;

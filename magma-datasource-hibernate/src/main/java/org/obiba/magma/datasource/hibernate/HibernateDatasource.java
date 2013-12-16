@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentMap;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 import org.hibernate.HibernateException;
 import org.hibernate.LockMode;
@@ -64,7 +64,7 @@ public class HibernateDatasource extends AbstractDatasource {
       .makeMap();
 
   @SuppressWarnings("ConstantConditions")
-  public HibernateDatasource(@Nonnull String name, @Nonnull SessionFactory sessionFactory) {
+  public HibernateDatasource(@NotNull String name, @NotNull SessionFactory sessionFactory) {
     super(name, TYPE);
     if(sessionFactory == null) throw new IllegalArgumentException("sessionFactory cannot be null");
 
@@ -76,9 +76,9 @@ public class HibernateDatasource extends AbstractDatasource {
    * <p/>
    * Note that a Hibernate transaction must be active for this method to return an instance of {@code ValueTableWriter}
    */
-  @Nonnull
+  @NotNull
   @Override
-  public ValueTableWriter createWriter(@Nonnull String tableName, @Nonnull String entityType) {
+  public ValueTableWriter createWriter(@NotNull String tableName, @NotNull String entityType) {
     //noinspection ConstantConditions
     Preconditions.checkArgument(tableName != null, "tableName cannot be null");
     //noinspection ConstantConditions
@@ -133,7 +133,7 @@ public class HibernateDatasource extends AbstractDatasource {
   }
 
   @Override
-  public void dropTable(@Nonnull String tableName) {
+  public void dropTable(@NotNull String tableName) {
 
     Stopwatch stopwatch = Stopwatch.createStarted();
     String tableFullName = getName() + "." + tableName;
@@ -255,7 +255,7 @@ public class HibernateDatasource extends AbstractDatasource {
             .getCriteria().uniqueResult());
   }
 
-  @Nonnull
+  @NotNull
   @Override
   public Timestamps getTimestamps() {
     ImmutableSet.Builder<Timestamped> builder = ImmutableSet.builder();

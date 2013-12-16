@@ -3,14 +3,14 @@ package org.obiba.magma;
 import java.util.Collection;
 import java.util.List;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 import com.google.common.collect.ImmutableList;
 
 @SuppressWarnings("UnusedDeclaration")
 public class CompositeDatasourceTransformer implements DatasourceTransformer {
 
-  @Nonnull
+  @NotNull
   private final List<DatasourceTransformer> transformers;
 
   // Public default ctor for XStream de-ser
@@ -18,7 +18,7 @@ public class CompositeDatasourceTransformer implements DatasourceTransformer {
     transformers = ImmutableList.of();
   }
 
-  public CompositeDatasourceTransformer(@Nonnull Collection<DatasourceTransformer> transformers) {
+  public CompositeDatasourceTransformer(@NotNull Collection<DatasourceTransformer> transformers) {
     if(transformers == null) throw new IllegalArgumentException("transformers cannot be null");
     this.transformers = ImmutableList.copyOf(transformers);
   }

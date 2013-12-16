@@ -2,7 +2,7 @@ package org.obiba.magma.support;
 
 import java.util.Set;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 import org.obiba.magma.Datasource;
 import org.obiba.magma.NoSuchValueSetException;
@@ -20,7 +20,7 @@ public abstract class AbstractValueTableWrapper implements ValueTableWrapper {
   @Override
   public abstract ValueTable getWrappedValueTable();
 
-  @Nonnull
+  @NotNull
   @Override
   public Datasource getDatasource() {
     return getWrappedValueTable().getDatasource();
@@ -31,7 +31,7 @@ public abstract class AbstractValueTableWrapper implements ValueTableWrapper {
     return getWrappedValueTable().getEntityType();
   }
 
-  @Nonnull
+  @NotNull
   @Override
   public String getName() {
     return getWrappedValueTable().getName();
@@ -92,7 +92,7 @@ public abstract class AbstractValueTableWrapper implements ValueTableWrapper {
     return getWrappedValueTable().isForEntityType(entityType);
   }
 
-  @Nonnull
+  @NotNull
   @Override
   public Timestamps getTimestamps() {
     return getWrappedValueTable().getTimestamps();

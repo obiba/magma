@@ -1,6 +1,6 @@
 package org.obiba.magma;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 import org.obiba.magma.support.AbstractValueTableWrapper;
 
@@ -24,7 +24,7 @@ public class RenameValueTable extends AbstractValueTableWrapper {
     return wrapped;
   }
 
-  @Nonnull
+  @NotNull
   @Override
   public String getName() {
     return name;

@@ -3,8 +3,8 @@ package org.obiba.magma.datasource.excel.support;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.obiba.magma.Value;
@@ -55,7 +55,7 @@ public class ExcelUtil {
     }
   }
 
-  public static void setCellValue(@Nonnull Cell cell, ValueType valueType, boolean value) {
+  public static void setCellValue(@NotNull Cell cell, ValueType valueType, boolean value) {
     if(valueType.getName().equals(BooleanType.get().getName())) {
       cell.setCellValue(value ? "1" : "0");
     } else {
@@ -63,15 +63,15 @@ public class ExcelUtil {
     }
   }
 
-  public static void setCellValue(@Nonnull Cell cell, ValueType valueType, Double value) {
+  public static void setCellValue(@NotNull Cell cell, ValueType valueType, Double value) {
     cell.setCellValue(value);
   }
 
-  public static void setCellValue(@Nonnull Cell cell, ValueType valueType, Long value) {
+  public static void setCellValue(@NotNull Cell cell, ValueType valueType, Long value) {
     cell.setCellValue(value);
   }
 
-  public static void setCellValue(@Nonnull Cell cell, ValueType valueType, @Nullable String value) {
+  public static void setCellValue(@NotNull Cell cell, ValueType valueType, @Nullable String value) {
     if(cell == null) throw new IllegalArgumentException("Cell cannot be null before setting a value");
     String validated = value;
     if(value != null && value.length() > MAX_CELL_VALUE) {

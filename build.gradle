@@ -161,10 +161,11 @@ allprojects {
 subprojects { subProject ->
 
   dependencies {
+    compile(libraries.findbugs_annotation)
     compile(libraries.guava)
     compile(libraries.slf4j_api)
     compile(libraries.jsr305)
-    compile(libraries.findbugs_annotation)
+    compile(libraries.validation)
 
     testCompile project(':magma-test')
     testCompile(libraries.easymock)

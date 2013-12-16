@@ -48,7 +48,7 @@ public class JavaScriptFilter extends AbstractFilter<ValueSet> implements Initia
     initialise();
     Value value = javascriptSource.getValue(item);
     // JavaScript can return null.
-    if(value.equals(BooleanType.get().nullValue())) return null;
+    if(value.isNull() || value.equals(BooleanType.get().nullValue())) return null;
     return (Boolean) value.getValue();
   }
 

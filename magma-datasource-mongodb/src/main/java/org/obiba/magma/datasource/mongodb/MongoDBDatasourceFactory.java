@@ -17,7 +17,7 @@ import java.net.URISyntaxException;
 import java.util.Map;
 import java.util.Properties;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 import org.apache.http.client.utils.URIBuilder;
 import org.obiba.magma.AbstractDatasourceFactory;
@@ -36,7 +36,7 @@ public class MongoDBDatasourceFactory extends AbstractDatasourceFactory {
   /**
    * mongodb://[username:password@]host1[:port1][,host2[:port2],...[,hostN[:portN]]][/[database][?options]]
    */
-  @Nonnull
+  @NotNull
   private String url;
 
   private String username;
@@ -45,11 +45,11 @@ public class MongoDBDatasourceFactory extends AbstractDatasourceFactory {
 
   private String options;
 
-  public MongoDBDatasourceFactory(@Nonnull String name, @Nonnull String url) {
+  public MongoDBDatasourceFactory(@NotNull String name, @NotNull String url) {
     this(name, url, null, null, null);
   }
 
-  public MongoDBDatasourceFactory(@Nonnull String name, @Nonnull String url, String username, String password,
+  public MongoDBDatasourceFactory(@NotNull String name, @NotNull String url, String username, String password,
       String options) {
     setName(name);
     this.url = url;
@@ -58,7 +58,7 @@ public class MongoDBDatasourceFactory extends AbstractDatasourceFactory {
     this.options = options;
   }
 
-  @Nonnull
+  @NotNull
   @Override
   protected Datasource internalCreate() {
     return new MongoDBDatasource(getName(), getMongoDBFactory());
@@ -113,12 +113,12 @@ public class MongoDBDatasourceFactory extends AbstractDatasourceFactory {
     this.password = password;
   }
 
-  @Nonnull
+  @NotNull
   public String getUrl() {
     return url;
   }
 
-  public void setUrl(@Nonnull String url) {
+  public void setUrl(@NotNull String url) {
     this.url = url;
   }
 

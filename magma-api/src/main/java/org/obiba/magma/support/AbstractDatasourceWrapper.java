@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 import org.obiba.magma.Attribute;
 import org.obiba.magma.Datasource;
@@ -33,7 +33,7 @@ public abstract class AbstractDatasourceWrapper implements Datasource {
   private final Datasource wrapped;
 
   @SuppressWarnings("ConstantConditions")
-  protected AbstractDatasourceWrapper(@Nonnull Datasource wrapped) {
+  protected AbstractDatasourceWrapper(@NotNull Datasource wrapped) {
     Preconditions.checkArgument(wrapped != null, "wrapped datasource cannot be null");
     this.wrapped = wrapped;
   }
@@ -117,7 +117,7 @@ public abstract class AbstractDatasourceWrapper implements Datasource {
     getWrappedDatasource().drop();
   }
 
-  @Nonnull
+  @NotNull
   @Override
   public Timestamps getTimestamps() {
     return getWrappedDatasource().getTimestamps();
@@ -128,9 +128,9 @@ public abstract class AbstractDatasourceWrapper implements Datasource {
     return getWrappedDatasource().hasAttribute(name);
   }
 
-  @Nonnull
+  @NotNull
   @Override
-  public ValueTableWriter createWriter(@Nonnull String tableName, @Nonnull String entityType) {
+  public ValueTableWriter createWriter(@NotNull String tableName, @NotNull String entityType) {
     return getWrappedDatasource().createWriter(tableName, entityType);
   }
 

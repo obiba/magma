@@ -8,8 +8,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
@@ -71,7 +71,7 @@ public class ExcelValueTable extends AbstractValueTable implements Initialisable
     }
   }
 
-  @Nonnull
+  @NotNull
   @Override
   public ExcelDatasource getDatasource() {
     return (ExcelDatasource) super.getDatasource();
@@ -376,7 +376,7 @@ public class ExcelValueTable extends AbstractValueTable implements Initialisable
 
   }
 
-  @Nonnull
+  @NotNull
   @Override
   public Timestamps getTimestamps() {
     return getDatasource().getTimestamps();

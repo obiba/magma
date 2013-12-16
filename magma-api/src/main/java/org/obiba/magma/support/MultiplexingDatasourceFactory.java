@@ -9,7 +9,7 @@
  ******************************************************************************/
 package org.obiba.magma.support;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 import org.obiba.magma.AbstractDatasourceFactory;
 import org.obiba.magma.Datasource;
@@ -33,7 +33,7 @@ public class MultiplexingDatasourceFactory extends AbstractDatasourceFactory {
   }
 
   @Override
-  public void setName(@Nonnull String name) {
+  public void setName(@NotNull String name) {
     wrappedFactory.setName(name);
   }
 
@@ -42,7 +42,7 @@ public class MultiplexingDatasourceFactory extends AbstractDatasourceFactory {
     return wrappedFactory.getName();
   }
 
-  @Nonnull
+  @NotNull
   @Override
   protected Datasource internalCreate() {
     return new MultiplexingDatasource(wrappedFactory.create(), tableMultiplexer, variableTransformer);

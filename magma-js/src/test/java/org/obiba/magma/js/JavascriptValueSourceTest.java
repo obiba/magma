@@ -83,9 +83,4 @@ public class JavascriptValueSourceTest extends AbstractJsTest {
     Assert.assertEquals("1", value.getValue());
   }
 
-  @Test(expected = NullPointerException.class)
-  public void testInitiliseWithNullValue() {
-    JavascriptValueSource source = null;
-    source.initialise();
-  }
 }

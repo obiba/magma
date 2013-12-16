@@ -10,7 +10,6 @@
 package org.obiba.magma.datasource.spss.support;
 
 import org.obiba.magma.type.AbstractValueType;
-import org.obiba.magma.type.DateTimeType;
 import org.obiba.magma.type.DateType;
 import org.obiba.magma.type.DecimalType;
 import org.obiba.magma.type.IntegerType;

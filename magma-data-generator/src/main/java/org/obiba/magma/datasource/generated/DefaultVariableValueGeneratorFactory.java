@@ -1,6 +1,6 @@
 package org.obiba.magma.datasource.generated;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 import org.obiba.magma.Variable;
 import org.obiba.magma.type.BinaryType;
@@ -13,7 +13,7 @@ public class DefaultVariableValueGeneratorFactory implements VariableValueGenera
   private static final Logger log = LoggerFactory.getLogger(DefaultVariableValueGeneratorFactory.class);
 
   @Override
-  public GeneratedVariableValueSource newGenerator(@Nonnull Variable variable) {
+  public GeneratedVariableValueSource newGenerator(@NotNull Variable variable) {
     boolean isAllMissing = variable.areAllCategoriesMissing();
     if(variable.hasCategories() && !isAllMissing) {
       return new CategoricalValueGenerator(variable);

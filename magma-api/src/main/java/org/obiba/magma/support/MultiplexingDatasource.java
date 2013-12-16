@@ -12,7 +12,7 @@ package org.obiba.magma.support;
 import java.util.HashMap;
 import java.util.Set;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 import org.obiba.magma.Datasource;
 import org.obiba.magma.NoSuchValueTableException;
@@ -89,9 +89,9 @@ public class MultiplexingDatasource extends AbstractDatasourceWrapper {
     throw new UnsupportedOperationException("cannot drop table");
   }
 
-  @Nonnull
+  @NotNull
   @Override
-  public ValueTableWriter createWriter(@Nonnull String tableName, @Nonnull String entityType) {
+  public ValueTableWriter createWriter(@NotNull String tableName, @NotNull String entityType) {
     throw new UnsupportedOperationException("cannot write table");
   }
 
@@ -189,7 +189,7 @@ public class MultiplexingDatasource extends AbstractDatasourceWrapper {
       this.wrappedTable = wrappedTable;
     }
 
-    @Nonnull
+    @NotNull
     @Override
     public String getName() {
       return name;

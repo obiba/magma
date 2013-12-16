@@ -2,7 +2,7 @@ package org.obiba.magma.views;
 
 import java.util.Set;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 import org.obiba.magma.Datasource;
 import org.obiba.magma.Disposable;
@@ -15,7 +15,6 @@ import org.obiba.magma.Variable;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 
 import edu.umd.cs.findbugs.annotations.Nullable;
@@ -23,18 +22,18 @@ import edu.umd.cs.findbugs.annotations.Nullable;
 @SuppressWarnings("UnusedDeclaration")
 public class DefaultViewManagerImpl implements ViewManager, Initialisable, Disposable {
 
-  @Nonnull
+  @NotNull
   private final Set<ViewAwareDatasource> viewAwareDatasources = Sets.newHashSet();
 
-  @Nonnull
+  @NotNull
   private final ViewPersistenceStrategy viewPersistenceStrategy;
 
-  public DefaultViewManagerImpl(@Nonnull ViewPersistenceStrategy viewPersistenceStrategy) {
+  public DefaultViewManagerImpl(@NotNull ViewPersistenceStrategy viewPersistenceStrategy) {
     this.viewPersistenceStrategy = viewPersistenceStrategy;
   }
 
   @Override
-  public Datasource decorate(@Nonnull Datasource datasource) {
+  public Datasource decorate(@NotNull Datasource datasource) {
     Set<View> views = viewPersistenceStrategy.readViews(datasource.getName());
     ViewAwareDatasource viewAwareDatasource = new ViewAwareDatasource(datasource, views);
 
@@ -47,7 +46,7 @@ public class DefaultViewManagerImpl implements ViewManager, Initialisable, Dispo
 
   @SuppressWarnings("ConstantConditions")
   @Override
-  public void addView(@Nonnull String datasourceName, @Nonnull View view, @Nullable String comment) {
+  public void addView(@NotNull String datasourceName, @NotNull View view, @Nullable String comment) {
     Preconditions.checkArgument(!Strings.isNullOrEmpty(datasourceName), "datasourceName cannot be null or empty.");
     Preconditions.checkArgument(view != null, "view cannot be null.");
 
@@ -75,7 +74,7 @@ public class DefaultViewManagerImpl implements ViewManager, Initialisable, Dispo
   }
 
   @Override
-  public void removeView(@Nonnull String datasourceName, @Nonnull String viewName) {
+  public void removeView(@NotNull String datasourceName, @NotNull String viewName) {
     Preconditions.checkArgument(!Strings.isNullOrEmpty(datasourceName), "datasourceName cannot be null or empty.");
 
     ViewAwareDatasource viewAwareDatasource = getViewAwareFromName(datasourceName);
@@ -95,13 +94,13 @@ public class DefaultViewManagerImpl implements ViewManager, Initialisable, Dispo
   }
 
   @Override
-  public void removeAllViews(@Nonnull String datasourceName) {
+  public void removeAllViews(@NotNull String datasourceName) {
     Preconditions.checkArgument(!Strings.isNullOrEmpty(datasourceName), "datasourceName cannot be null or empty.");
     viewPersistenceStrategy.removeViews(datasourceName);
   }
 
   @Override
-  public boolean hasView(@Nonnull String datasourceName, @Nonnull String viewName) {
+  public boolean hasView(@NotNull String datasourceName, @NotNull String viewName) {
     Preconditions.checkArgument(!Strings.isNullOrEmpty(datasourceName), "datasourceName cannot be null or empty.");
     ViewAwareDatasource viewAwareDatasource = getViewAwareFromName(datasourceName);
     if(viewAwareDatasource == null) throw new NoSuchDatasourceException(datasourceName);
@@ -121,7 +120,7 @@ public class DefaultViewManagerImpl implements ViewManager, Initialisable, Dispo
    * @throws NoSuchValueTableException if a View with the supplied viewName does not exist in datasourceName
    */
   @Override
-  public View getView(@Nonnull String datasourceName, @Nonnull String viewName) {
+  public View getView(@NotNull String datasourceName, @NotNull String viewName) {
     Preconditions.checkArgument(!Strings.isNullOrEmpty(datasourceName), "datasourceName cannot be null or empty.");
     ViewAwareDatasource viewAwareDatasource = getViewAwareFromName(datasourceName);
     if(viewAwareDatasource == null) throw new NoSuchDatasourceException(datasourceName);
@@ -131,12 +130,12 @@ public class DefaultViewManagerImpl implements ViewManager, Initialisable, Dispo
   }
 
   @Override
-  public void addViews(@Nonnull String datasource, Set<View> views, @Nullable String comment) {
+  public void addViews(@NotNull String datasource, Set<View> views, @Nullable String comment) {
     Preconditions.checkArgument(!Strings.isNullOrEmpty(datasource), "datasource cannot be null or empty.");
     viewPersistenceStrategy.writeViews(datasource, views, comment);
   }
 
-  private ViewAwareDatasource getViewAwareFromName(@Nonnull String datasourceName) {
+  private ViewAwareDatasource getViewAwareFromName(@NotNull String datasourceName) {
     for(ViewAwareDatasource viewAwareDatasource : viewAwareDatasources) {
       if(viewAwareDatasource.getName().equals(datasourceName)) return viewAwareDatasource;
     }

@@ -110,15 +110,14 @@ public class TextMethods {
 
   @Nullable
   private static Locale getLocaleArgument(@Nullable Object... args) {
-    Locale locale = null;
     if(args != null && args.length > 0) {
       Object localeArg = args[0];
       Value localeValue = localeArg instanceof ScriptableValue
           ? ((ScriptableValue) localeArg).getValue()
           : LocaleType.get().valueOf(localeArg);
-      locale = (Locale) localeValue.getValue();
+      return localeValue.isNull() ? null : (Locale) localeValue.getValue();
     }
-    return locale;
+    return null;
   }
 
   /**
@@ -508,6 +507,8 @@ public class TextMethods {
    */
   @Nullable
   private static Integer asJsIndex(Value value) {
+    if(value.isNull()) return null;
+
     Number asNumber = null;
     if(value.getValueType() == IntegerType.get()) {
       asNumber = (Number) value.getValue();
@@ -535,17 +536,18 @@ public class TextMethods {
   private static ScriptableValue transformValue(ScriptableValue sv,
       com.google.common.base.Function<Value, Value> valueFunction) {
 
-    if(sv.getValue().isNull()) {
-      return sv.getValue().isSequence()
+    Value value = sv.getValue();
+    if(value.isNull()) {
+      return value.isSequence()
           ? new ScriptableValue(sv, TextType.get().nullSequence())
-          : new ScriptableValue(sv, valueFunction.apply(sv.getValue()));
+          : new ScriptableValue(sv, valueFunction.apply(value));
     }
 
-    if(sv.getValue().isSequence()) {
+    if(value.isSequence()) {
       return new ScriptableValue(sv, TextType.get()
-          .sequenceOf(Lists.newArrayList(Iterables.transform(sv.getValue().asSequence().getValue(), valueFunction))));
+          .sequenceOf(Lists.newArrayList(Iterables.transform(value.asSequence().getValue(), valueFunction))));
     }
-    return new ScriptableValue(sv, valueFunction.apply(sv.getValue()));
+    return new ScriptableValue(sv, valueFunction.apply(value));
   }
 
 }

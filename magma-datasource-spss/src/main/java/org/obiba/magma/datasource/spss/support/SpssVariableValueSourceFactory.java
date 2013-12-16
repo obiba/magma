@@ -13,8 +13,8 @@ import java.io.IOException;
 import java.util.Locale;
 import java.util.Set;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
 
 import org.obiba.magma.Attribute;
 import org.obiba.magma.Category;
@@ -42,13 +42,13 @@ public class SpssVariableValueSourceFactory implements VariableValueSourceFactor
   //
   // Data members
   //
-  @Nonnull
+  @NotNull
   private final SPSSFile spssFile;
 
-  @Nonnull
+  @NotNull
   private final String entityType;
 
-  @Nonnull
+  @NotNull
   private final String locale;
 
   /**
@@ -56,8 +56,8 @@ public class SpssVariableValueSourceFactory implements VariableValueSourceFactor
    * @throws IOException
    * @throws SPSSFileException
    */
-  public SpssVariableValueSourceFactory(@Nonnull SPSSFile spssFile, @Nonnull String entityType,
-      @Nonnull String locale) {
+  public SpssVariableValueSourceFactory(@NotNull SPSSFile spssFile, @NotNull String entityType,
+      @NotNull String locale) {
     this.spssFile = spssFile;
     this.entityType = entityType;
     this.locale = locale;
@@ -107,7 +107,7 @@ public class SpssVariableValueSourceFactory implements VariableValueSourceFactor
   }
 
   @SuppressWarnings("ChainOfInstanceofChecks")
-  private Variable createVariableBuilder(int variableIndex, @Nonnull SPSSVariable spssVariable)
+  private Variable createVariableBuilder(int variableIndex, @NotNull SPSSVariable spssVariable)
       throws SpssInvalidCharacterException {
     String variableName = spssVariable.getName();
     validate(variableName);
@@ -121,7 +121,7 @@ public class SpssVariableValueSourceFactory implements VariableValueSourceFactor
     return builder.build();
   }
 
-  private void addLabel(@Nonnull Variable.Builder builder, @Nonnull SPSSVariable spssVariable)
+  private void addLabel(@NotNull Variable.Builder builder, @NotNull SPSSVariable spssVariable)
       throws SpssInvalidCharacterException {
     String label = spssVariable.getLabel();
 
@@ -141,7 +141,7 @@ public class SpssVariableValueSourceFactory implements VariableValueSourceFactor
     return attributeBuilder.build();
   }
 
-  private void addAttributes(Variable.Builder builder, @Nonnull SPSSVariable spssVariable)
+  private void addAttributes(Variable.Builder builder, @NotNull SPSSVariable spssVariable)
       throws SpssInvalidCharacterException {
     builder.addAttribute(createAttribute("measure", spssVariable.getMeasureLabel()))
         .addAttribute(createAttribute("width", spssVariable.getLength()))

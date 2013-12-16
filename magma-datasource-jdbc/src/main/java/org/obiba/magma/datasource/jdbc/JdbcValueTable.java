@@ -16,8 +16,8 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.SortedSet;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
 
 import org.obiba.magma.Attribute;
 import org.obiba.magma.Category;
@@ -99,7 +99,7 @@ class JdbcValueTable extends AbstractValueTable {
         : getDatasource().getSettings().getDefaultEntityType();
   }
 
-  @Nonnull
+  @NotNull
   @Override
   public JdbcDatasource getDatasource() {
     return (JdbcDatasource) super.getDatasource();
@@ -118,20 +118,20 @@ class JdbcValueTable extends AbstractValueTable {
     return NullTimestamps.get();
   }
 
-  @Nonnull
+  @NotNull
   @Override
   public Timestamps getTimestamps() {
     if(hasCreatedTimestampColumn() && hasUpdatedTimestampColumn()) {
       return new Timestamps() {
 
-        @Nonnull
+        @NotNull
         @Override
         public Value getLastUpdate() {
           String sql = "SELECT MAX(" + getUpdatedTimestampColumnName() + ") FROM " + escapedSqlTableName;
           return DateTimeType.get().valueOf(getDatasource().getJdbcTemplate().queryForObject(sql, Date.class));
         }
 
-        @Nonnull
+        @NotNull
         @Override
         public Value getCreated() {
           String sql = "SELECT MIN(" + getCreatedTimestampColumnName() + ") FROM " + escapedSqlTableName;
@@ -395,7 +395,7 @@ class JdbcValueTable extends AbstractValueTable {
       this.updatedTimestampColumnName = updatedTimestampColumnName;
     }
 
-    @Nonnull
+    @NotNull
     @Override
     public Value getLastUpdate() {
       String sql = appendIdentifierColumns(
@@ -403,7 +403,7 @@ class JdbcValueTable extends AbstractValueTable {
       return DateTimeType.get().valueOf(executeQuery(sql));
     }
 
-    @Nonnull
+    @NotNull
     @Override
     public Value getCreated() {
       String sql = appendIdentifierColumns(
@@ -506,14 +506,14 @@ class JdbcValueTable extends AbstractValueTable {
       return variable;
     }
 
-    @Nonnull
+    @NotNull
     @Override
     public Value getValue(ValueSet valueSet) {
       JdbcValueSet jdbcValueSet = (JdbcValueSet) valueSet;
       return jdbcValueSet.getValue(variable);
     }
 
-    @Nonnull
+    @NotNull
     @Override
     public ValueType getValueType() {
       return variable.getValueType();

@@ -1,5 +1,7 @@
 package org.obiba.magma.math;
 
+import java.util.Objects;
+
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.obiba.magma.Category;
 import org.obiba.magma.Value;
@@ -32,8 +34,8 @@ public class ExcludeMissingDescriptiveStatisticsProvider extends AbstractDescrip
     if(value.isNull()) {
       return true;
     }
-    for(Category c : variable.getCategories()) {
-      if(c.isMissing() && value.toString().equals(c.getName())) {
+    for(Category category : variable.getCategories()) {
+      if(category.isMissing() && Objects.equals(value.toString(), category.getName())) {
         return true;
       }
     }

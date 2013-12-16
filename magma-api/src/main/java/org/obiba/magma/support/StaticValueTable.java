@@ -3,8 +3,8 @@ package org.obiba.magma.support;
 import java.util.Map;
 import java.util.Set;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
 
 import org.obiba.magma.Datasource;
 import org.obiba.magma.NoSuchValueSetException;
@@ -87,13 +87,13 @@ public class StaticValueTable extends AbstractValueTable {
   public void addVariable(final Variable variable) {
     addVariableValueSource(new VariableValueSource() {
 
-      @Nonnull
+      @NotNull
       @Override
       public ValueType getValueType() {
         return variable.getValueType();
       }
 
-      @Nonnull
+      @NotNull
       @Override
       public Value getValue(ValueSet valueSet) {
         Object value = table.get(valueSet.getVariableEntity().getIdentifier()).get(variable.getName());
@@ -122,13 +122,13 @@ public class StaticValueTable extends AbstractValueTable {
           return Variable.Builder.newVariable(variable, type, entityType).build();
         }
 
-        @Nonnull
+        @NotNull
         @Override
         public Value getValue(ValueSet valueSet) {
           return type.valueOf(table.get(valueSet.getVariableEntity().getIdentifier()).get(variable));
         }
 
-        @Nonnull
+        @NotNull
         @Override
         public ValueType getValueType() {
           return type;
@@ -159,7 +159,7 @@ public class StaticValueTable extends AbstractValueTable {
     return this;
   }
 
-  @Nonnull
+  @NotNull
   @Override
   public Timestamps getTimestamps() {
     return NullTimestamps.get();

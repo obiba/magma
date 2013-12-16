@@ -13,8 +13,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
 
 import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.Value;
@@ -40,7 +40,7 @@ public abstract class CSVAwareValueType extends AbstractValueType {
    * When the original {@code value} contains a {@code "}, it is escaped by adding another {@code "}, as per the CSV
    * standard.
    */
-  @Nonnull
+  @NotNull
   @Override
   public ValueSequence sequenceOf(@Nullable String string) {
     if(string == null) {

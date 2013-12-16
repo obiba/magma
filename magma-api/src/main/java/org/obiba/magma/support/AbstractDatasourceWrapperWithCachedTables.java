@@ -14,7 +14,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 import org.obiba.magma.Datasource;
 import org.obiba.magma.NoSuchValueTableException;
@@ -29,7 +29,7 @@ public abstract class AbstractDatasourceWrapperWithCachedTables extends Abstract
 
   private final Map<String, ValueTable> valueTablesCache = new LinkedHashMap<>(100);
 
-  protected AbstractDatasourceWrapperWithCachedTables(@Nonnull Datasource wrapped) {
+  protected AbstractDatasourceWrapperWithCachedTables(@NotNull Datasource wrapped) {
     super(wrapped);
   }
 

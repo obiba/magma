@@ -9,8 +9,8 @@
  ******************************************************************************/
 package org.obiba.magma.beans;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
 
 import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.Value;
@@ -55,14 +55,14 @@ public class BeanPropertyVariableValueSource implements VariableValueSource {
     return variable;
   }
 
-  @Nonnull
+  @NotNull
   @Override
   public ValueType getValueType() {
     return variable.getValueType();
   }
 
   @Override
-  @Nonnull
+  @NotNull
   public Value getValue(ValueSet valueSet) {
     Object bean = ((BeanValueSet) valueSet).resolve(beanClass, valueSet, variable);
 

@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
@@ -123,8 +123,8 @@ public class ExcelDatasource extends AbstractDatasource {
   }
 
   @Override
-  @Nonnull
-  public ValueTableWriter createWriter(@Nonnull String name, @Nonnull String entityType) {
+  @NotNull
+  public ValueTableWriter createWriter(@NotNull String name, @NotNull String entityType) {
     ExcelValueTable valueTable = null;
     if(hasValueTable(name)) {
       valueTable = (ExcelValueTable) getValueTable(name);
@@ -394,7 +394,7 @@ public class ExcelDatasource extends AbstractDatasource {
   }
 
   @Override
-  @Nonnull
+  @NotNull
   public Timestamps getTimestamps() {
     return new ExcelTimestamps(excelFile);
   }

@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 import org.obiba.magma.Datasource;
 import org.obiba.magma.Initialisable;
@@ -44,7 +44,7 @@ public class JoinTable implements ValueTable, Initialisable {
 
   private static final int DEFAULT_ENTITY_COUNT = 5000;
 
-  @Nonnull
+  @NotNull
   private final List<ValueTable> tables;
 
   /**
@@ -55,13 +55,13 @@ public class JoinTable implements ValueTable, Initialisable {
   /**
    * Cached map of variable names to tables.
    */
-  @Nonnull
+  @NotNull
   private transient final Multimap<JoinableVariable, ValueTable> variableTables = ArrayListMultimap.create();
 
   /**
    * Map first found JoinableVariable by its name
    */
-  @Nonnull
+  @NotNull
   private transient final Map<String, JoinableVariable> joinableVariablesByName = Maps.newHashMap();
 
   // An arbitrary number to initialise the LinkedHashSet with a capacity close to the actual value
@@ -77,12 +77,12 @@ public class JoinTable implements ValueTable, Initialisable {
     this(new ArrayList<ValueTable>());
   }
 
-  public JoinTable(@Nonnull List<ValueTable> tables) {
+  public JoinTable(@NotNull List<ValueTable> tables) {
     this(tables, true);
   }
 
   @SuppressWarnings("ConstantConditions")
-  public JoinTable(@Nonnull List<ValueTable> tables, boolean validateEntityTypes) {
+  public JoinTable(@NotNull List<ValueTable> tables, boolean validateEntityTypes) {
     if(tables == null) throw new IllegalArgumentException("null tables");
     if(tables.isEmpty()) throw new IllegalArgumentException("empty tables");
 
@@ -98,13 +98,13 @@ public class JoinTable implements ValueTable, Initialisable {
     //analyseVariables();
   }
 
-  @Nonnull
+  @NotNull
   private Multimap<JoinableVariable, ValueTable> getVariableTables() {
     if(!variableAnalysed) analyseVariables();
     return variableTables;
   }
 
-  @Nonnull
+  @NotNull
   public Map<String, JoinableVariable> getJoinableVariablesByName() {
     if(!variableAnalysed) analyseVariables();
     return joinableVariablesByName;
@@ -128,13 +128,13 @@ public class JoinTable implements ValueTable, Initialisable {
     variableAnalysed = true;
   }
 
-  @Nonnull
+  @NotNull
   public List<ValueTable> getTables() {
     // don't analyse variables here as it is called very often
     return tables;
   }
 
-  @Nonnull
+  @NotNull
   @Override
   @SuppressWarnings({ "NullableProblems", "ConstantConditions" })
   @edu.umd.cs.findbugs.annotations.SuppressWarnings("NP_NONNULL_RETURN_VIOLATION")
@@ -148,7 +148,7 @@ public class JoinTable implements ValueTable, Initialisable {
     return getTables().get(0).getEntityType();
   }
 
-  @Nonnull
+  @NotNull
   @Override
   public String getName() {
     return buildJoinTableName();
@@ -289,8 +289,8 @@ public class JoinTable implements ValueTable, Initialisable {
     return unionOfVariables;
   }
 
-  @Nonnull
-  private synchronized List<ValueTable> getTablesWithVariable(@Nonnull JoinableVariable joinableVariable)
+  @NotNull
+  private synchronized List<ValueTable> getTablesWithVariable(@NotNull JoinableVariable joinableVariable)
       throws NoSuchVariableException {
 
     Collection<ValueTable> cachedTables = getVariableTables().get(joinableVariable);
@@ -304,7 +304,7 @@ public class JoinTable implements ValueTable, Initialisable {
     return filteredList;
   }
 
-  @Nonnull
+  @NotNull
   @Override
   public Timestamps getTimestamps() {
     return new UnionTimestamps(getTables());
@@ -323,14 +323,14 @@ public class JoinTable implements ValueTable, Initialisable {
 
   static class JoinedValueSet extends ValueSetBean {
 
-    @Nonnull
+    @NotNull
     private final Map<String, ValueSet> valueSetsByTable = Maps.newHashMap();
 
-    JoinedValueSet(@Nonnull ValueTable table, @Nonnull VariableEntity entity) {
+    JoinedValueSet(@NotNull ValueTable table, @NotNull VariableEntity entity) {
       super(table, entity);
     }
 
-    @Nonnull
+    @NotNull
     @Override
     public Timestamps getTimestamps() {
       return new UnionTimestamps(valueSetsByTable.values());
@@ -354,15 +354,15 @@ public class JoinTable implements ValueTable, Initialisable {
 
   private static class JoinedVariableValueSource extends AbstractVariableValueSourceWrapper {
 
-    @Nonnull
+    @NotNull
     private final List<ValueTable> owners;
 
-    private JoinedVariableValueSource(@Nonnull List<ValueTable> owners, @Nonnull VariableValueSource wrapped) {
+    private JoinedVariableValueSource(@NotNull List<ValueTable> owners, @NotNull VariableValueSource wrapped) {
       super(wrapped);
       this.owners = owners;
     }
 
-    @Nonnull
+    @NotNull
     @Override
     public Value getValue(ValueSet valueSet) {
       for(ValueSet joinedValueSet : ((JoinedValueSet) valueSet).getInnerTableValueSets(owners)) {
@@ -394,30 +394,30 @@ public class JoinTable implements ValueTable, Initialisable {
 
   private static class JoinableVariable {
 
-    @Nonnull
+    @NotNull
     private final String name;
 
-    @Nonnull
+    @NotNull
     private final ValueType valueType;
 
     private final boolean repeatable;
 
-    private JoinableVariable(@Nonnull String name, @Nonnull ValueType valueType, boolean repeatable) {
+    private JoinableVariable(@NotNull String name, @NotNull ValueType valueType, boolean repeatable) {
       this.name = name;
       this.valueType = valueType;
       this.repeatable = repeatable;
     }
 
-    private JoinableVariable(@Nonnull Variable variable) {
+    private JoinableVariable(@NotNull Variable variable) {
       this(variable.getName(), variable.getValueType(), variable.isRepeatable());
     }
 
-    @Nonnull
+    @NotNull
     public String getName() {
       return name;
     }
 
-    @Nonnull
+    @NotNull
     public ValueType getValueType() {
       return valueType;
     }

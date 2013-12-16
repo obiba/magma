@@ -4,7 +4,7 @@ import java.lang.ref.WeakReference;
 import java.util.Collections;
 import java.util.Set;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 import org.obiba.magma.Datasource;
 import org.obiba.magma.MagmaEngine;
@@ -29,7 +29,7 @@ public class NullValueTable implements ValueTable {
   private NullValueTable() {
   }
 
-  @Nonnull
+  @NotNull
   @Override
   @SuppressWarnings("ConstantConditions")
   @edu.umd.cs.findbugs.annotations.SuppressWarnings("NP_NONNULL_RETURN_VIOLATION")
@@ -37,7 +37,7 @@ public class NullValueTable implements ValueTable {
     return null;
   }
 
-  @Nonnull
+  @NotNull
   @Override
   @SuppressWarnings("ConstantConditions")
   @edu.umd.cs.findbugs.annotations.SuppressWarnings("NP_NONNULL_RETURN_VIOLATION")
@@ -105,7 +105,7 @@ public class NullValueTable implements ValueTable {
     throw new NoSuchVariableException("null", variableName);
   }
 
-  @Nonnull
+  @NotNull
   @Override
   public Timestamps getTimestamps() {
     return NullTimestamps.get();
@@ -123,7 +123,7 @@ public class NullValueTable implements ValueTable {
 
   @SuppressWarnings("ConstantConditions")
   @edu.umd.cs.findbugs.annotations.SuppressWarnings("NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE")
-  @Nonnull
+  @NotNull
   public static NullValueTable get() {
     if(instance == null || instance.get() == null) {
       instance = MagmaEngine.get().registerInstance(new NullValueTable());

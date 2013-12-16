@@ -14,6 +14,7 @@ import java.util.Locale;
 
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
+import javax.validation.constraints.NotNull;
 
 import org.hibernate.annotations.Columns;
 import org.hibernate.annotations.Parent;
@@ -69,8 +70,12 @@ public class AttributeState implements Attribute, Serializable {
     this.value = value;
   }
 
+  @NotNull
   @Override
   public Locale getLocale() {
+    if(locale == null) {
+      throw new NullPointerException("Locale is null");
+    }
     return locale;
   }
 

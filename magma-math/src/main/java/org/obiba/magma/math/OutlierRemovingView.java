@@ -2,8 +2,8 @@ package org.obiba.magma.math;
 
 import java.util.Map;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
 
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueSet;
@@ -73,7 +73,7 @@ public class OutlierRemovingView extends View {
     OutlierRemovingVariableValueSource source = variableName == null ? null : sources.get(variableName);
     if(source == null) {
       source = new OutlierRemovingVariableValueSource(getWrappedValueTable(), from, statisticsProvider) {
-        @Nonnull
+        @NotNull
         @Override
         public Value getValue(ValueSet valueSet) {
           return super.getValue(getValueSetMappingFunction().unapply(valueSet));

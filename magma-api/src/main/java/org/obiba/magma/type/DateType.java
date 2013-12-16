@@ -7,13 +7,14 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
 
 import org.obiba.magma.MagmaDate;
 import org.obiba.magma.MagmaEngine;
 import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.Value;
+import org.obiba.magma.support.ValueComparator;
 
 public class DateType extends AbstractValueType {
 
@@ -56,7 +57,7 @@ public class DateType extends AbstractValueType {
 
   @SuppressWarnings("ConstantConditions")
   @edu.umd.cs.findbugs.annotations.SuppressWarnings("NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE")
-  @Nonnull
+  @NotNull
   public static DateType get() {
     if(instance == null || instance.get() == null) {
       instance = MagmaEngine.get().registerInstance(new DateType());
@@ -79,14 +80,14 @@ public class DateType extends AbstractValueType {
     return MagmaDate.class;
   }
 
-  @Nonnull
+  @NotNull
   @Override
   public String getName() {
     return "date";
   }
 
   @Override
-  public boolean acceptsJavaClass(@Nonnull Class<?> clazz) {
+  public boolean acceptsJavaClass(@NotNull Class<?> clazz) {
     // MAGMA-166: Although the API states that this method should return true for Date instances, it conflicts with
     // DateTimeType.
     // There is a loss of precision if we map Date instances to this ValueType, so it is safer to not accept these
@@ -97,7 +98,7 @@ public class DateType extends AbstractValueType {
     // Calendar.class.isAssignableFrom(clazz);
   }
 
-  @Nonnull
+  @NotNull
   @Override
   public Value valueOf(@Nullable String string) {
     if(string == null) {
@@ -122,7 +123,7 @@ public class DateType extends AbstractValueType {
     }
   }
 
-  @Nonnull
+  @NotNull
   @Override
   public Value valueOf(@Nullable Object object) {
     if(object == null) {
@@ -146,17 +147,15 @@ public class DateType extends AbstractValueType {
       return valueOf((String) object);
     }
     if(type.equals(Value.class)) {
-      return valueOf(((Value) object).getValue());
+      Value value = (Value) object;
+      return value.isNull() ? nullValue() : valueOf(value.getValue());
     }
     return valueOf(object.toString());
   }
 
   @Override
   public int compare(Value o1, Value o2) {
-    if (o1.isNull() && o2.isNull()) return 0;
-    if (o1.isNull()) return -1;
-    if (o2.isNull()) return 1;
-    return ((MagmaDate) o1.getValue()).compareTo((MagmaDate) o2.getValue());
+    return ValueComparator.INSTANCE.compare(o1, o2);
   }
 
   /**

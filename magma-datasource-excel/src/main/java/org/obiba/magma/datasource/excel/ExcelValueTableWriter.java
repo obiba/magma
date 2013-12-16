@@ -2,7 +2,7 @@ package org.obiba.magma.datasource.excel;
 
 import java.io.IOException;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
@@ -28,9 +28,9 @@ public class ExcelValueTableWriter implements ValueTableWriter {
     return new ExcelVariableWriter();
   }
 
-  @Nonnull
+  @NotNull
   @Override
-  public ValueSetWriter writeValueSet(@Nonnull VariableEntity entity) {
+  public ValueSetWriter writeValueSet(@NotNull VariableEntity entity) {
     return new ExcelValueSetWriter(entity);
   }
 
@@ -52,7 +52,7 @@ public class ExcelValueTableWriter implements ValueTableWriter {
     }
 
     @Override
-    public void writeVariable(@Nonnull Variable variable) {
+    public void writeVariable(@NotNull Variable variable) {
       VariableConverter converter = valueTable.getVariableConverter();
 
       // prepare the header rows
@@ -72,7 +72,7 @@ public class ExcelValueTableWriter implements ValueTableWriter {
     }
 
     @Override
-    public void removeVariable(@Nonnull Variable variable) {
+    public void removeVariable(@NotNull Variable variable) {
       throw new UnsupportedOperationException("Variable cannot be removed from a Excel file");
     }
 
@@ -123,7 +123,7 @@ public class ExcelValueTableWriter implements ValueTableWriter {
     }
 
     @Override
-    public void writeValue(@Nonnull Variable variable, Value value) {
+    public void writeValue(@NotNull Variable variable, Value value) {
       // Will create the column if it doesn't exist.
       int variableColumn = valueTable.getVariableColumn(variable);
       ExcelUtil.setCellValue(entityRow.createCell(variableColumn), value);

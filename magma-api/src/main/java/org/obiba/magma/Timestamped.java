@@ -1,6 +1,6 @@
 package org.obiba.magma;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 import com.google.common.base.Function;
 
@@ -14,7 +14,7 @@ public interface Timestamped {
     }
   };
 
-  @Nonnull
+  @NotNull
   Timestamps getTimestamps();
 
 }

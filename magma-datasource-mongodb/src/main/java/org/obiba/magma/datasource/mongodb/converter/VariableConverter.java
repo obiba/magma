@@ -151,7 +151,7 @@ public class VariableConverter {
     return BasicDBObjectBuilder.start()//
         .add("namespace", attribute.getNamespace()) //
         .add("name", attribute.getName())//
-        .add("locale", attribute.getLocale() == null ? null : attribute.getLocale().toString()) //
+        .add("locale", attribute.isLocalised() ? attribute.getLocale().toString() : null) //
         .add("value", attribute.getValue().toString()).get();
   }
 

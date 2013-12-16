@@ -12,7 +12,7 @@ package org.obiba.magma.datasource.mongodb;
 
 import java.util.List;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 import org.bson.BSONObject;
 import org.json.JSONException;
@@ -106,17 +106,17 @@ class MongoDBValueSet implements ValueSet {
     }
   }
 
-  @Nonnull
+  @NotNull
   @Override
   public Timestamps getTimestamps() {
     return new Timestamps() {
-      @Nonnull
+      @NotNull
       @Override
       public Value getLastUpdate() {
         return getTimestamp("updated");
       }
 
-      @Nonnull
+      @NotNull
       @Override
       public Value getCreated() {
         return getTimestamp("created");
@@ -129,7 +129,7 @@ class MongoDBValueSet implements ValueSet {
     };
   }
 
-  @Nonnull
+  @NotNull
   private BSONObject getDBObject() {
     if(object == null) {
       DBObject template = BasicDBObjectBuilder.start("_id", entity.getIdentifier()).get();

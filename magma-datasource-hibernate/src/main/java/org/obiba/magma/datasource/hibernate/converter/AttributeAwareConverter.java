@@ -1,5 +1,7 @@
 package org.obiba.magma.datasource.hibernate.converter;
 
+import java.util.Locale;
+
 import org.obiba.magma.Attribute;
 import org.obiba.magma.AttributeAware;
 import org.obiba.magma.AttributeAwareBuilder;
@@ -12,10 +14,11 @@ public class AttributeAwareConverter {
   public void addAttributes(AttributeAware attributeAware, AbstractAttributeAwareEntity hibernateEntity) {
     for(Attribute attr : attributeAware.getAttributes()) {
       AttributeState as;
-      if(hibernateEntity.hasAttribute(attr.getName(), attr.getLocale())) {
-        as = hibernateEntity.getAttribute(attr.getName(), attr.getLocale());
+      Locale locale = attr.isLocalised() ? attr.getLocale() : null;
+      if(hibernateEntity.hasAttribute(attr.getName(), locale)) {
+        as = hibernateEntity.getAttribute(attr.getName(), locale);
       } else {
-        as = new AttributeState(attr.getName(), attr.getNamespace(), attr.getLocale(), attr.getValue());
+        as = new AttributeState(attr.getName(), attr.getNamespace(), locale, attr.getValue());
         hibernateEntity.addAttribute(as);
       }
       as.setValue(attr.getValue());

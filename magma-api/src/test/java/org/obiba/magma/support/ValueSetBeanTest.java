@@ -1,6 +1,6 @@
 package org.obiba.magma.support;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -52,7 +52,7 @@ public class ValueSetBeanTest {
         return ENTITY;
       }
 
-      @Nonnull
+      @NotNull
       @Override
       public Timestamps getTimestamps() {
         return createMock(Timestamps.class);
@@ -75,7 +75,7 @@ public class ValueSetBeanTest {
         return null;
       }
 
-      @Nonnull
+      @NotNull
       @Override
       public Timestamps getTimestamps() {
         return createMock(Timestamps.class);

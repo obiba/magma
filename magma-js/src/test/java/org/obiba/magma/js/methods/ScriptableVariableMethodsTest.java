@@ -45,8 +45,7 @@ public class ScriptableVariableMethodsTest extends AbstractJsTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void repeatableWithNullValue() {
-    Variable variable = null;
-    Object value = evaluate("repeatable()", variable);
+    Object value = evaluate("repeatable()", (Variable) null);
     Assert.assertEquals(value, null);
   }
 

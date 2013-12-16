@@ -8,8 +8,8 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.SortedSet;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
 
 import org.hibernate.FetchMode;
 import org.hibernate.Query;
@@ -115,7 +115,7 @@ class HibernateVariableValueSourceFactory implements VariableValueSourceFactory 
       return variable;
     }
 
-    @Nonnull
+    @NotNull
     @Override
     public Value getValue(ValueSet valueSet) {
       HibernateValueSet hibernateValueSet = (HibernateValueSet) valueSet;
@@ -156,7 +156,7 @@ class HibernateVariableValueSourceFactory implements VariableValueSourceFactory 
       };
     }
 
-    @Nonnull
+    @NotNull
     @Override
     public ValueType getValueType() {
       return getVariable().getValueType();

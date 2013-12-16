@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ContextAction;
@@ -47,10 +47,10 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
 
   private static final Logger log = LoggerFactory.getLogger(JavascriptValueSource.class);
 
-  @Nonnull
+  @NotNull
   private final ValueType type;
 
-  @Nonnull
+  @NotNull
   private final String script;
 
   private String scriptName = "customScript";
@@ -59,7 +59,7 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
   @SuppressWarnings("TransientFieldInNonSerializableClass")
   private transient Script compiledScript;
 
-  public JavascriptValueSource(@Nonnull ValueType type, @Nonnull String script) {
+  public JavascriptValueSource(@NotNull ValueType type, @NotNull String script) {
     //noinspection ConstantConditions
     if(type == null) throw new IllegalArgumentException("type cannot be null");
     //noinspection ConstantConditions
@@ -76,12 +76,12 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
     scriptName = name;
   }
 
-  @Nonnull
+  @NotNull
   public String getScript() {
     return script;
   }
 
-  @Nonnull
+  @NotNull
   @Override
   public Value getValue(ValueSet valueSet) {
     if(getValueType() == null) {
@@ -96,7 +96,7 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
     return value;
   }
 
-  @Nonnull
+  @NotNull
   @Override
   public VectorSource asVectorSource() {
     return this;
@@ -114,7 +114,7 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
     return (Iterable<Value>) ContextFactory.getGlobal().call(new ValueVectorEvaluationContextAction(entities));
   }
 
-  @Nonnull
+  @NotNull
   @Override
   public ValueType getValueType() {
     return type;

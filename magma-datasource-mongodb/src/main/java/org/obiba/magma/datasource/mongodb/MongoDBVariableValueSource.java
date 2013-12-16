@@ -13,8 +13,8 @@ package org.obiba.magma.datasource.mongodb;
 import java.util.Iterator;
 import java.util.SortedSet;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
 
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueSet;
@@ -48,7 +48,7 @@ public class MongoDBVariableValueSource implements VariableValueSource, VectorSo
   @Override
   public Variable getVariable() {
     Value updatedTimestamp = table.getTimestamps().getLastUpdate();
-    if (lastUpdated == null || !lastUpdated.equals(updatedTimestamp)) {
+    if(lastUpdated == null || !lastUpdated.equals(updatedTimestamp)) {
       lastUpdated = updatedTimestamp;
       DBObject template = BasicDBObjectBuilder.start("_id", name).get();
       variable = VariableConverter.unmarshall(table.getVariablesCollection().findOne(template));
@@ -56,7 +56,7 @@ public class MongoDBVariableValueSource implements VariableValueSource, VectorSo
     return variable;
   }
 
-  @Nonnull
+  @NotNull
   @Override
   public ValueType getValueType() {
     return getVariable().getValueType();
@@ -76,7 +76,7 @@ public class MongoDBVariableValueSource implements VariableValueSource, VectorSo
     };
   }
 
-  @Nonnull
+  @NotNull
   @Override
   public Value getValue(ValueSet valueSet) {
     MongoDBValueSet vs = (MongoDBValueSet) valueSet;

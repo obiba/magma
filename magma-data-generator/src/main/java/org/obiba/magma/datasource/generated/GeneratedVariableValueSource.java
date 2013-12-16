@@ -2,8 +2,8 @@ package org.obiba.magma.datasource.generated;
 
 import java.util.List;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
 
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueSet;
@@ -57,7 +57,7 @@ abstract class GeneratedVariableValueSource implements VariableValueSource {
     return null;
   }
 
-  @Nonnull
+  @NotNull
   @Override
   public Value getValue(ValueSet valueSet) {
     if(shouldGenerate(valueSet)) {
@@ -85,7 +85,7 @@ abstract class GeneratedVariableValueSource implements VariableValueSource {
     return getValueType().nullValue();
   }
 
-  @Nonnull
+  @NotNull
   @Override
   public ValueType getValueType() {
     return getVariable().getValueType();
@@ -94,7 +94,8 @@ abstract class GeneratedVariableValueSource implements VariableValueSource {
   protected boolean shouldGenerate(ValueSet valueSet) {
     if(condition != null) {
       try {
-        return (Boolean) condition.getValue(valueSet).getValue();
+        Value value = condition.getValue(valueSet);
+        return value.isNull() ? false : (Boolean) value.getValue();
       } catch(RuntimeException e) {
         log.warn("Error evaluating condition for variable {}", getVariable().getName());
       }

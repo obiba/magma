@@ -8,8 +8,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
 
 import org.obiba.magma.MagmaRuntimeException;
 
@@ -25,7 +25,7 @@ public class DatasourceParsingException extends MagmaRuntimeException {
 
   private final String key;
 
-  @Nonnull
+  @NotNull
   private final List<Object> parameters;
 
   private List<DatasourceParsingException> children;
@@ -57,7 +57,7 @@ public class DatasourceParsingException extends MagmaRuntimeException {
     return key;
   }
 
-  @Nonnull
+  @NotNull
   public List<Object> getParameters() {
     return parameters;
   }

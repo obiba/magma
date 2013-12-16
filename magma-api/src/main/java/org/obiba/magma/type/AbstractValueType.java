@@ -3,8 +3,8 @@ package org.obiba.magma.type;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
 
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueConverter;
@@ -40,32 +40,32 @@ public abstract class AbstractValueType implements ValueType {
     return false;
   }
 
-  @Nonnull
+  @NotNull
   @Override
   public Value nullValue() {
     return nullValue;
   }
 
-  @Nonnull
+  @NotNull
   @Override
   public ValueSequence nullSequence() {
     return nullSequence;
 
   }
 
-  @Nonnull
+  @NotNull
   @Override
   public Value valueOf(@Nullable ValueLoader loader) {
     return Factory.newValue(this, loader);
   }
 
-  @Nonnull
+  @NotNull
   @Override
   public ValueSequence sequenceOf(@Nullable Iterable<Value> values) {
     return Factory.newSequence(this, values);
   }
 
-  @Nonnull
+  @NotNull
   @Override
   public ValueSequence sequenceOf(@Nullable String string) {
     if(string == null) {
@@ -88,10 +88,10 @@ public abstract class AbstractValueType implements ValueType {
     return sequenceOf(values);
   }
 
-  @Nonnull
+  @NotNull
   @SuppressWarnings("IfMayBeConditional")
   @Override
-  public Value convert(@Nonnull Value value) {
+  public Value convert(@NotNull Value value) {
     if(value.getValueType() == this) {
       return value;
     }

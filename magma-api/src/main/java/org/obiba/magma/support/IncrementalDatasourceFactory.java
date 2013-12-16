@@ -9,7 +9,7 @@
  */
 package org.obiba.magma.support;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 import org.obiba.magma.AbstractDatasourceFactory;
 import org.obiba.magma.Datasource;
@@ -19,20 +19,20 @@ import org.obiba.magma.MagmaEngine;
 
 public class IncrementalDatasourceFactory extends AbstractDatasourceFactory implements Initialisable {
 
-  @Nonnull
+  @NotNull
   private final DatasourceFactory wrappedFactory;
 
-  @Nonnull
+  @NotNull
   private final String destinationDatasourceName;
 
-  public IncrementalDatasourceFactory(@Nonnull DatasourceFactory wrappedFactory,
-      @Nonnull String destinationDatasourceName) {
+  public IncrementalDatasourceFactory(@NotNull DatasourceFactory wrappedFactory,
+      @NotNull String destinationDatasourceName) {
     this.wrappedFactory = wrappedFactory;
     this.destinationDatasourceName = destinationDatasourceName;
   }
 
   @Override
-  public void setName(@Nonnull String name) {
+  public void setName(@NotNull String name) {
     wrappedFactory.setName(name);
   }
 
@@ -41,7 +41,7 @@ public class IncrementalDatasourceFactory extends AbstractDatasourceFactory impl
     return wrappedFactory.getName();
   }
 
-  @Nonnull
+  @NotNull
   @Override
   protected Datasource internalCreate() {
     return new IncrementalDatasource(wrappedFactory.create(),

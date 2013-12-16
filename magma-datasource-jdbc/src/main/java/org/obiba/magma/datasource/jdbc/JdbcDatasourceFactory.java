@@ -1,7 +1,7 @@
 package org.obiba.magma.datasource.jdbc;
 
-import javax.annotation.Nonnull;
 import javax.sql.DataSource;
+import javax.validation.constraints.NotNull;
 
 import org.obiba.magma.AbstractDatasourceFactory;
 import org.obiba.magma.Datasource;
@@ -12,17 +12,17 @@ public class JdbcDatasourceFactory extends AbstractDatasourceFactory {
 
   private DataSource dataSource;
 
-  @Nonnull
+  @NotNull
   @Override
   public Datasource internalCreate() {
     return new JdbcDatasource(getName(), dataSource, datasourceSettings);
   }
 
-  public void setDataSource(@Nonnull DataSource dataSource) {
+  public void setDataSource(@NotNull DataSource dataSource) {
     this.dataSource = dataSource;
   }
 
-  public void setDatasourceSettings(@Nonnull JdbcDatasourceSettings datasourceSettings) {
+  public void setDatasourceSettings(@NotNull JdbcDatasourceSettings datasourceSettings) {
     this.datasourceSettings = datasourceSettings;
   }
 }

@@ -1,6 +1,7 @@
 package org.obiba.magma.type;
 
 import org.obiba.magma.Value;
+import org.obiba.magma.support.ValueComparator;
 
 public abstract class AbstractNumberType extends AbstractValueType {
 
@@ -26,13 +27,8 @@ public abstract class AbstractNumberType extends AbstractValueType {
   }
 
   @Override
-  @SuppressWarnings({ "rawtypes", "unchecked" })
   public int compare(Value o1, Value o2) {
-    Comparable l1 = (Comparable) o1.getValue();
-    Comparable l2 = (Comparable) o2.getValue();
-    if(l1 == l2) return 0;
-    if(l1 == null) return -1;
-    if(l2 == null) return 1;
-    return l1.compareTo(l2);
+    return ValueComparator.INSTANCE.compare(o1, o2);
   }
+
 }

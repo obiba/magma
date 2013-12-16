@@ -6,8 +6,8 @@ import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Set;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
 
 import org.obiba.magma.Datasource;
 import org.obiba.magma.Initialisable;
@@ -31,10 +31,10 @@ import com.google.common.collect.Sets;
 
 public abstract class AbstractValueTable implements ValueTable, Initialisable {
 
-  @Nonnull
+  @NotNull
   private final Datasource datasource;
 
-  @Nonnull
+  @NotNull
   protected String name;
 
   private final Set<VariableValueSource> sources = Sets.newLinkedHashSet();
@@ -42,7 +42,7 @@ public abstract class AbstractValueTable implements ValueTable, Initialisable {
   private VariableEntityProvider variableEntityProvider;
 
   @SuppressWarnings("ConstantConditions")
-  public AbstractValueTable(@Nonnull Datasource datasource, @Nonnull String name,
+  public AbstractValueTable(@NotNull Datasource datasource, @NotNull String name,
       @Nullable VariableEntityProvider variableEntityProvider) {
     if(datasource == null) throw new IllegalArgumentException("datasource cannot be null");
     if(name == null) throw new IllegalArgumentException("name cannot be null");
@@ -56,7 +56,7 @@ public abstract class AbstractValueTable implements ValueTable, Initialisable {
   }
 
   @Override
-  @Nonnull
+  @NotNull
   public String getName() {
     return name;
   }
@@ -72,7 +72,7 @@ public abstract class AbstractValueTable implements ValueTable, Initialisable {
   }
 
   @Override
-  @Nonnull
+  @NotNull
   public Datasource getDatasource() {
     return datasource;
   }

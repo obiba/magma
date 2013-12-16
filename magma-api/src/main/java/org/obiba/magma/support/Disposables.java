@@ -1,7 +1,7 @@
 package org.obiba.magma.support;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
 
 import org.obiba.magma.Disposable;
 import org.obiba.magma.MagmaRuntimeException;
@@ -22,7 +22,7 @@ public final class Disposables {
     }
   }
 
-  public static void silentlyDispose(@Nonnull Object... disposable) {
+  public static void silentlyDispose(@NotNull Object... disposable) {
     try {
       dispose(disposable);
     } catch(RuntimeException e) {
@@ -48,19 +48,19 @@ public final class Disposables {
     }
   }
 
-  public static void dispose(@Nonnull Disposable... disposables) {
+  public static void dispose(@NotNull Disposable... disposables) {
     for(Disposable o : disposables) {
       dispose(o);
     }
   }
 
-  public static void dispose(@Nonnull Object... disposables) {
+  public static void dispose(@NotNull Object... disposables) {
     for(Object o : disposables) {
       dispose(o);
     }
   }
 
-  public static void dispose(@Nonnull Iterable<?> disposables) {
+  public static void dispose(@NotNull Iterable<?> disposables) {
     for(Object o : disposables) {
       dispose(o);
     }

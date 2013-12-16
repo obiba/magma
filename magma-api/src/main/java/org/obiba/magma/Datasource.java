@@ -2,7 +2,7 @@ package org.obiba.magma;
 
 import java.util.Set;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 import com.google.common.base.Predicate;
 
@@ -32,8 +32,8 @@ public interface Datasource extends Initialisable, Disposable, AttributeAware, T
 
   boolean canDrop();
 
-  @Nonnull
-  ValueTableWriter createWriter(@Nonnull String tableName, @Nonnull String entityType);
+  @NotNull
+  ValueTableWriter createWriter(@NotNull String tableName, @NotNull String entityType);
 
   void setAttributeValue(String name, Value value);
 

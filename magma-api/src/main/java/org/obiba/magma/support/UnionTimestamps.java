@@ -2,7 +2,7 @@ package org.obiba.magma.support;
 
 import java.util.Arrays;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 import org.obiba.magma.Timestamped;
 import org.obiba.magma.Timestamps;
@@ -21,13 +21,13 @@ public class UnionTimestamps implements Timestamps {
     timestamps = Iterables.transform(timestampeds, Timestamped.ToTimestamps);
   }
 
-  @Nonnull
+  @NotNull
   @Override
   public Value getCreated() {
     return getTimestamp(ExtractCreatedFunction.INSTANCE, true);
   }
 
-  @Nonnull
+  @NotNull
   @Override
   public Value getLastUpdate() {
     return getTimestamp(ExtractLastUpdateFunction.INSTANCE, false);

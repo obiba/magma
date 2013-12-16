@@ -9,15 +9,15 @@
  ******************************************************************************/
 package org.obiba.magma;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
 
 /**
  * Defines the contract for obtaining a particular {@link Value} from a {@code ValueSet}.
  */
 public interface ValueSource {
 
-  @Nonnull
+  @NotNull
   ValueType getValueType();
 
   /**
@@ -28,7 +28,7 @@ public interface ValueSource {
    * @throws IllegalArgumentException when the provided valueSet is for a entityType different than the variable's
    * entityType
    */
-  @Nonnull
+  @NotNull
   Value getValue(ValueSet valueSet);
 
   @Nullable

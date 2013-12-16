@@ -2,7 +2,7 @@ package org.obiba.magma.views;
 
 import java.util.Set;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 import org.obiba.magma.NoSuchValueSetException;
 import org.obiba.magma.NoSuchVariableException;
@@ -157,7 +157,7 @@ public abstract class AbstractTransformingValueTableWrapper extends AbstractValu
           .getVariable(getVariableNameMappingFunction().apply(getWrapped().getVariable().getName()));
     }
 
-    @Nonnull
+    @NotNull
     @Override
     public Value getValue(ValueSet valueSet) {
       return getWrapped().getValue(getValueSetMappingFunction().unapply(valueSet));

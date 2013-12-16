@@ -1,6 +1,6 @@
 package org.obiba.magma.security;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 import org.obiba.magma.Datasource;
 import org.obiba.magma.NoSuchVariableException;
@@ -30,7 +30,7 @@ public class SecuredValueTable extends AbstractValueTableWrapper {
     this.table = table;
   }
 
-  @Nonnull
+  @NotNull
   @Override
   public Datasource getDatasource() {
     return securedDatasource;

@@ -24,6 +24,7 @@ import com.google.common.collect.Sets;
 public class SpringContextScanningDatasource extends AbstractDatasource {
 
   @Autowired
+  @SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
   private Set<ValueTableFactoryBeanProvider> valueTableFactoryBeanProviders;
 
   @Autowired

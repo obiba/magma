@@ -7,8 +7,8 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.SortedSet;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
 
 import org.obiba.magma.Attribute;
 import org.obiba.magma.AttributeAwareBuilder;
@@ -352,10 +352,7 @@ class LimesurveyValueTable extends AbstractValueTable {
 
   @Nullable
   private LimeQuestion getParentQuestion(LimeQuestion limeQuestion) {
-    if(limeQuestion.hasParentId()) {
-      return mapQuestions.get(limeQuestion.getParentQid());
-    }
-    return null;
+    return limeQuestion.hasParentId() ? mapQuestions.get(limeQuestion.getParentQid()) : null;
   }
 
   private boolean hasSubQuestions(final LimeQuestion limeQuestion) {
@@ -376,7 +373,7 @@ class LimesurveyValueTable extends AbstractValueTable {
     }));
   }
 
-  @Nonnull
+  @NotNull
   @Override
   public LimesurveyDatasource getDatasource() {
     return (LimesurveyDatasource) super.getDatasource();
@@ -396,7 +393,7 @@ class LimesurveyValueTable extends AbstractValueTable {
     return new LimesurveyValueSet(this, entity).getTimestamps();
   }
 
-  @Nonnull
+  @NotNull
   @Override
   public Timestamps getTimestamps() {
     return new LimesurveyTimestamps(this);
@@ -414,13 +411,13 @@ class LimesurveyValueTable extends AbstractValueTable {
       this.variable = variable;
     }
 
-    @Nonnull
+    @NotNull
     @Override
     public ValueType getValueType() {
       return variable.getValueType();
     }
 
-    @Nonnull
+    @NotNull
     @Override
     public Value getValue(ValueSet valueSet) {
       LimesurveyValueSet limesurveyValueSet = (LimesurveyValueSet) valueSet;

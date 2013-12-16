@@ -11,8 +11,8 @@ package org.obiba.magma.support;
 
 import java.util.Map;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
 
 import org.obiba.magma.Datasource;
 import org.obiba.magma.NoSuchValueSetException;
@@ -24,7 +24,6 @@ import org.obiba.magma.VariableEntity;
 import org.obiba.magma.transform.BijectiveFunction;
 import org.obiba.magma.type.DateTimeType;
 import org.obiba.magma.views.AbstractTransformingValueTableWrapper;
-import org.obiba.magma.views.View;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,7 +48,7 @@ public class IncrementalValueTable extends AbstractTransformingValueTableWrapper
     private Factory() {
     }
 
-    public static ValueTable create(@Nonnull ValueTable sourceTable, @Nullable ValueTable destinationTable) {
+    public static ValueTable create(@NotNull ValueTable sourceTable, @Nullable ValueTable destinationTable) {
       return destinationTable == null ? sourceTable : new IncrementalValueTable(sourceTable, destinationTable);
     }
 
@@ -64,13 +63,13 @@ public class IncrementalValueTable extends AbstractTransformingValueTableWrapper
 
   }
 
-  @Nonnull
+  @NotNull
   private final ValueTable sourceTable;
 
-  @Nonnull
+  @NotNull
   private final ValueTable destinationTable;
 
-  private IncrementalValueTable(ValueTable sourceTable, @Nonnull ValueTable destinationTable) {
+  private IncrementalValueTable(ValueTable sourceTable, @NotNull ValueTable destinationTable) {
     this.sourceTable = sourceTable;
     this.destinationTable = destinationTable;
     variableEntityMappingFunction = new IncrementalFunction();

@@ -9,7 +9,7 @@ import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Set;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 import org.obiba.magma.AbstractAttributeAware;
 import org.obiba.magma.Attribute;
@@ -36,7 +36,7 @@ public abstract class AbstractDatasource extends AbstractAttributeAware implemen
 
   private final ListMultimap<String, Attribute> attributes = LinkedListMultimap.create();
 
-  protected AbstractDatasource(@Nonnull String name, @Nonnull String type) {
+  protected AbstractDatasource(@NotNull String name, @NotNull String type) {
     Preconditions.checkNotNull(name, "name cannot be null");
     Preconditions.checkNotNull(type, "type cannot be null");
     this.name = name;
@@ -114,9 +114,9 @@ public abstract class AbstractDatasource extends AbstractAttributeAware implemen
     onDispose();
   }
 
-  @Nonnull
+  @NotNull
   @Override
-  public ValueTableWriter createWriter(@Nonnull String tableName, @Nonnull String entityType) {
+  public ValueTableWriter createWriter(@NotNull String tableName, @NotNull String entityType) {
     throw new UnsupportedOperationException("createWriter() is not supported by datasource of type " + getType());
   }
 
@@ -138,7 +138,7 @@ public abstract class AbstractDatasource extends AbstractAttributeAware implemen
   }
 
   @Override
-  public void dropTable(@Nonnull String tableName) {
+  public void dropTable(@NotNull String tableName) {
     throw new UnsupportedOperationException("cannot drop table");
   }
 
@@ -162,7 +162,7 @@ public abstract class AbstractDatasource extends AbstractAttributeAware implemen
     throw new UnsupportedOperationException("cannot drop datasource");
   }
 
-  @Nonnull
+  @NotNull
   @Override
   public Timestamps getTimestamps() {
     return new UnionTimestamps(getValueTables());

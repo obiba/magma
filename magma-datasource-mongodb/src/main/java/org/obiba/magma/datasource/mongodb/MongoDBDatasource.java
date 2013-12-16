@@ -13,7 +13,7 @@ package org.obiba.magma.datasource.mongodb;
 import java.util.Date;
 import java.util.Set;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 import org.bson.BSONObject;
 import org.obiba.magma.MagmaRuntimeException;
@@ -54,7 +54,7 @@ public class MongoDBDatasource extends AbstractDatasource {
 
   private static final String VALUE_TABLE_COLLECTION = "value_table";
 
-  @Nonnull
+  @NotNull
   private final MongoDBFactory mongoDBFactory;
 
   /**
@@ -63,7 +63,7 @@ public class MongoDBDatasource extends AbstractDatasource {
    * @param name
    * @param mongoURI
    */
-  public MongoDBDatasource(@Nonnull String name, @Nonnull MongoDBFactory mongoDBFactory) {
+  public MongoDBDatasource(@NotNull String name, @NotNull MongoDBFactory mongoDBFactory) {
     super(name, TYPE);
     this.mongoDBFactory = mongoDBFactory;
   }
@@ -72,7 +72,7 @@ public class MongoDBDatasource extends AbstractDatasource {
     return mongoDBFactory.getDB();
   }
 
-  @Nonnull
+  @NotNull
   MongoDBFactory getMongoDBFactory() {
     return mongoDBFactory;
   }
@@ -127,7 +127,7 @@ public class MongoDBDatasource extends AbstractDatasource {
   }
 
   @Override
-  public void dropTable(@Nonnull String tableName) {
+  public void dropTable(@NotNull String tableName) {
     MongoDBValueTable valueTable = (MongoDBValueTable) getValueTable(tableName);
     valueTable.drop();
     removeValueTable(tableName);
@@ -169,9 +169,9 @@ public class MongoDBDatasource extends AbstractDatasource {
     getDatasourceCollection().remove(BasicDBObjectBuilder.start().add("_id", getName()).get());
   }
 
-  @Nonnull
+  @NotNull
   @Override
-  public ValueTableWriter createWriter(@Nonnull String tableName, @Nonnull String entityType) {
+  public ValueTableWriter createWriter(@NotNull String tableName, @NotNull String entityType) {
     MongoDBValueTable valueTable = null;
     if(getValueTableNames().isEmpty()) {
       // make sure datasource document exists
@@ -220,13 +220,13 @@ public class MongoDBDatasource extends AbstractDatasource {
           return (BSONObject) asDBObject().get(TIMESTAMPS_FIELD);
         }
 
-        @Nonnull
+        @NotNull
         @Override
         public Value getLastUpdate() {
           return DateTimeType.get().valueOf(getTimestampsObject().get(TIMESTAMPS_UPDATED_FIELD));
         }
 
-        @Nonnull
+        @NotNull
         @Override
         public Value getCreated() {
           return DateTimeType.get().valueOf(getTimestampsObject().get(TIMESTAMPS_CREATED_FIELD));

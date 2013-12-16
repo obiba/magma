@@ -2,7 +2,7 @@ package org.obiba.magma.datasource.fs;
 
 import java.util.Date;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 import org.obiba.magma.Timestamps;
 import org.obiba.magma.Value;
@@ -12,21 +12,21 @@ import de.schlichtherle.io.File;
 
 public class FsTimestamps implements Timestamps {
 
-  @Nonnull
+  @NotNull
   private final File valueTableDirectory;
 
-  public FsTimestamps(@Nonnull File valueTableDirectory) {
+  public FsTimestamps(@NotNull File valueTableDirectory) {
     this.valueTableDirectory = valueTableDirectory;
   }
 
-  @Nonnull
+  @NotNull
   @Override
   public Value getCreated() {
     // Not currently possible to read a file creation timestamp. Coming in JDK 7 NIO.
     return DateTimeType.get().nullValue();
   }
 
-  @Nonnull
+  @NotNull
   @Override
   public Value getLastUpdate() {
     return valueTableDirectory.exists()

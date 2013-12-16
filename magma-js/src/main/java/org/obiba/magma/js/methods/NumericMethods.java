@@ -463,9 +463,8 @@ public class NumericMethods {
         newValues.add(lookupGroup(ctx, thisObj, value, boundaries, outliers));
       }
       return new ScriptableValue(thisObj, TextType.get().sequenceOf(newValues));
-    } else {
-      return new ScriptableValue(thisObj, lookupGroup(ctx, thisObj, currentValue, boundaries, outliers));
     }
+    return new ScriptableValue(thisObj, lookupGroup(ctx, thisObj, currentValue, boundaries, outliers));
   }
 
   /**
@@ -556,7 +555,9 @@ public class NumericMethods {
    * @return
    */
   private static String formatNumberValue(Value value) {
+    if(value.isNull()) return null;
     String str = value.toString();
+    if(str == null) return null;
     return str.endsWith(".0") ? str.substring(0, str.length() - 2) : str;
   }
 
@@ -624,8 +625,8 @@ public class NumericMethods {
     }
     if(obj instanceof ScriptableValue) {
       ScriptableValue sv = (ScriptableValue) obj;
-      if(sv.getValue().isNull()) return null;
-      return ((Number) sv.getValue().getValue()).doubleValue();
+      Value value = sv.getValue();
+      return value.isNull() ? null : ((Number) value.getValue()).doubleValue();
     }
     if(obj instanceof String) {
       return Double.valueOf((String) obj);
@@ -650,20 +651,23 @@ public class NumericMethods {
 
   static BigDecimal asBigDecimal(ScriptableValue scriptableValue) {
     if(scriptableValue == null) throw new IllegalArgumentException("value cannot be null");
-    if(scriptableValue.getValue().isNull()) {
+    Value value = scriptableValue.getValue();
+    if(value.isNull()) {
       // Throw a runtime exception if the null value provided in scriptableValue argument is not convertible to decimal.
       // This is to manipulate the null value only created by a "Number" Type.
       ValueType.Factory.converterFor(scriptableValue.getValueType(), DecimalType.get());
       return null;
     }
     if(scriptableValue.getValueType().isNumeric()) {
-      return new BigDecimal(((Number) scriptableValue.getValue().getValue()).doubleValue());
+      return new BigDecimal(((Number) value.getValue()).doubleValue());
     }
-    Value value = DecimalType.get().convert(scriptableValue.getValue());
-    return new BigDecimal((Double) value.getValue());
+    Value decimalValue = DecimalType.get().convert(value);
+    return new BigDecimal((Double) decimalValue.getValue());
   }
 
   static Double sum(ValueSequence valueSequence) {
+    if(valueSequence.isNull()) return null;
+
     double sum = 0;
     for(Value v : valueSequence.getValue()) {
       if(v.isNull()) {
@@ -685,6 +689,8 @@ public class NumericMethods {
   }
 
   static Double stddev(ValueSequence valueSequence) {
+    if(valueSequence.isNull()) return null;
+
     Double avg = average(valueSequence);
     if(avg == null) return null;
 

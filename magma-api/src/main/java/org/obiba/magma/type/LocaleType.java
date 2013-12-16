@@ -4,8 +4,8 @@ import java.io.Serializable;
 import java.lang.ref.WeakReference;
 import java.util.Locale;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
 
 import org.obiba.magma.MagmaEngine;
 import org.obiba.magma.Value;
@@ -23,7 +23,7 @@ public class LocaleType extends AbstractValueType {
 
   @SuppressWarnings("ConstantConditions")
   @edu.umd.cs.findbugs.annotations.SuppressWarnings("NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE")
-  @Nonnull
+  @NotNull
   public static LocaleType get() {
     if(instance == null || instance.get() == null) {
       instance = MagmaEngine.get().registerInstance(new LocaleType());
@@ -31,7 +31,7 @@ public class LocaleType extends AbstractValueType {
     return instance.get();
   }
 
-  @Nonnull
+  @NotNull
   @Override
   public String getName() {
     return "locale";
@@ -43,7 +43,7 @@ public class LocaleType extends AbstractValueType {
   }
 
   @Override
-  public boolean acceptsJavaClass(@Nonnull Class<?> clazz) {
+  public boolean acceptsJavaClass(@NotNull Class<?> clazz) {
     return Locale.class.isAssignableFrom(clazz);
   }
 
@@ -57,7 +57,7 @@ public class LocaleType extends AbstractValueType {
     return false;
   }
 
-  @Nonnull
+  @NotNull
   @Override
   public Value valueOf(@Nullable Object object) {
     if(object == null) {
@@ -73,7 +73,7 @@ public class LocaleType extends AbstractValueType {
     throw new IllegalArgumentException("Cannot construct " + getClass().getSimpleName() + " from type " + type + ".");
   }
 
-  @Nonnull
+  @NotNull
   @Override
   public Value valueOf(@Nullable String string) {
     if(string == null) {

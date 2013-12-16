@@ -13,7 +13,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 import org.obiba.magma.Datasource;
 import org.obiba.magma.datasource.spss.SpssValueTable;
@@ -24,24 +24,24 @@ import com.google.common.base.Strings;
 
 public class SpssValueTableFactory {
 
-  @Nonnull
+  @NotNull
   private final Datasource datasource;
 
-  @Nonnull
+  @NotNull
   private final String entityType;
 
-  @Nonnull
+  @NotNull
   private final File file;
 
-  @Nonnull
+  @NotNull
   private final String characterSet;
 
   private final String locale;
 
   private final String name;
 
-  public SpssValueTableFactory(@Nonnull Datasource datasource, @Nonnull String entityType, @Nonnull File file,
-      @Nonnull String characterSet, @Nonnull String locale) {
+  public SpssValueTableFactory(@NotNull Datasource datasource, @NotNull String entityType, @NotNull File file,
+      @NotNull String characterSet, @NotNull String locale) {
     this.datasource = datasource;
     this.entityType = entityType;
     this.file = file;
@@ -52,7 +52,8 @@ public class SpssValueTableFactory {
 
   public SpssValueTable create() {
     try {
-      SPSSFile spssFile = new SPSSFile(file, Strings.isNullOrEmpty(characterSet) ? null : Charset.forName(characterSet));
+      SPSSFile spssFile = new SPSSFile(file,
+          Strings.isNullOrEmpty(characterSet) ? null : Charset.forName(characterSet));
       spssFile.logFlag = false;
 
       return new SpssValueTable(datasource, name, entityType, locale, spssFile);

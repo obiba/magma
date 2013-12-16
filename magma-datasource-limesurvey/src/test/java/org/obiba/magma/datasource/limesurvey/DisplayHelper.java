@@ -70,14 +70,14 @@ public class DisplayHelper {
   private static void displayMetadata(Variable variable) {
     System.out.print("Var '" + variable.getName() + "' " + variable.getValueType().getName() + " ");
     for(Attribute attr : variable.getAttributes()) {
-      System.out.print(attr.getName() + (attr.getLocale() == null ? "" : attr.getLocale()) + "=" + attr.getValue() +
+      System.out.print(attr.getName() + (attr.isLocalised() ? attr.getLocale() : "") + "=" + attr.getValue() +
           ", ");
     }
     System.out.println();
     for(Category c : variable.getCategories()) {
       System.out.print("    Cat '" + c.getName() + "' ");
       for(Attribute attr : c.getAttributes()) {
-        System.out.print(" " + attr.getName() + (attr.getLocale() == null ? "" : attr.getLocale()) + "=" +
+        System.out.print(" " + attr.getName() + (attr.isLocalised() ? attr.getLocale() : "") + "=" +
             attr.getValue() + ", ");
       }
       System.out.println();

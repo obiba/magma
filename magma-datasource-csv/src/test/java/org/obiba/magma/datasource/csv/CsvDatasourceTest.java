@@ -247,7 +247,7 @@ public class CsvDatasourceTest extends AbstractMagmaTest {
       String identifier = valueSet.getVariableEntity().getIdentifier();
       Value value = table.getValue(favouriteIcecream, valueSet);
       if("1".equals(identifier) || "2".equals(identifier)) {
-        assertThat(value.getValue(), nullValue());
+        assertThat(value.isNull(), is(true));
       }
     }
   }

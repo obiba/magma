@@ -5,8 +5,8 @@ import java.io.Serializable;
 import java.lang.ref.WeakReference;
 import java.util.List;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
 
 import org.obiba.magma.MagmaEngine;
 import org.obiba.magma.Value;
@@ -28,7 +28,7 @@ public class BinaryType extends AbstractValueType {
 
   @edu.umd.cs.findbugs.annotations.SuppressWarnings("NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE")
   @SuppressWarnings("ConstantConditions")
-  @Nonnull
+  @NotNull
   public static BinaryType get() {
     if(instance == null || instance.get() == null) {
       instance = MagmaEngine.get().registerInstance(new BinaryType());
@@ -36,7 +36,7 @@ public class BinaryType extends AbstractValueType {
     return instance.get();
   }
 
-  @Nonnull
+  @NotNull
   @Override
   public String getName() {
     return "binary";
@@ -48,7 +48,7 @@ public class BinaryType extends AbstractValueType {
   }
 
   @Override
-  public boolean acceptsJavaClass(@Nonnull Class<?> clazz) {
+  public boolean acceptsJavaClass(@NotNull Class<?> clazz) {
     return byte[].class.isAssignableFrom(clazz);
   }
 
@@ -67,7 +67,7 @@ public class BinaryType extends AbstractValueType {
     return Base64.encodeBytes((byte[]) object);
   }
 
-  @Nonnull
+  @NotNull
   @Override
   public Value valueOf(@Nullable String string) {
     if(string == null) {
@@ -80,7 +80,7 @@ public class BinaryType extends AbstractValueType {
     }
   }
 
-  @Nonnull
+  @NotNull
   @Override
   public Value valueOf(@Nullable Object object) {
     // input type is expected to be byte[]

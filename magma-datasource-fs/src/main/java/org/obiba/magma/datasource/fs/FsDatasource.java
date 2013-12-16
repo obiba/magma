@@ -11,8 +11,8 @@ import java.nio.charset.Charset;
 import java.util.LinkedList;
 import java.util.Set;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
 
 import org.obiba.magma.Attribute;
 import org.obiba.magma.MagmaEngine;
@@ -47,6 +47,7 @@ import de.schlichtherle.io.FileOutputStream;
 /**
  * Implements a {@code Datasource} on top of an archive file in the local file system.
  */
+@SuppressWarnings("OverlyCoupledClass")
 public class FsDatasource extends AbstractDatasource {
 
   /**
@@ -117,8 +118,8 @@ public class FsDatasource extends AbstractDatasource {
   }
 
   @Override
-  @Nonnull
-  public ValueTableWriter createWriter(@Nonnull String name, @Nonnull String entityType) {
+  @NotNull
+  public ValueTableWriter createWriter(@NotNull String name, @NotNull String entityType) {
     FsValueTable valueTable = null;
     if(hasValueTable(name)) {
       valueTable = (FsValueTable) getValueTable(name);

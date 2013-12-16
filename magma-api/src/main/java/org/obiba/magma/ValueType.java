@@ -3,8 +3,8 @@ package org.obiba.magma;
 import java.io.Serializable;
 import java.util.Comparator;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
 
 /**
  * Provides a common interface for all types of values available in the {@code MagmaEngine}. Through this interface,
@@ -56,30 +56,30 @@ public interface ValueType extends Serializable, Comparator<Value> {
      * @throws IllegalArgumentException when {@code value} is null.
      */
     @SuppressWarnings("ConstantConditions")
-    @Nonnull
-    public static Value newValue(@Nonnull Serializable value) {
+    @NotNull
+    public static Value newValue(@NotNull Serializable value) {
       if(value == null) {
         throw new IllegalArgumentException("cannot determine ValueType for null object");
       }
       return forClass(value.getClass()).valueOf(value);
     }
 
-    @Nonnull
-    public static Value newValue(@Nonnull ValueType type, @Nullable Serializable value) {
+    @NotNull
+    public static Value newValue(@NotNull ValueType type, @Nullable Serializable value) {
       return new Value(type, value);
     }
 
-    @Nonnull
-    public static Value newValue(@Nonnull ValueType type, @Nullable ValueLoader valueLoader) {
+    @NotNull
+    public static Value newValue(@NotNull ValueType type, @Nullable ValueLoader valueLoader) {
       return new Value(type, valueLoader);
     }
 
-    @Nonnull
-    public static ValueSequence newSequence(@Nonnull ValueType type, @Nullable Iterable<Value> values) {
+    @NotNull
+    public static ValueSequence newSequence(@NotNull ValueType type, @Nullable Iterable<Value> values) {
       return new ValueSequence(type, values);
     }
 
-    @Nonnull
+    @NotNull
     public static ValueConverter converterFor(ValueType from, ValueType to) {
       return MagmaEngine.get().getValueTypeFactory().converterFor(from, to);
     }
@@ -91,7 +91,7 @@ public interface ValueType extends Serializable, Comparator<Value> {
    *
    * @return this type's unique name
    */
-  @Nonnull
+  @NotNull
   String getName();
 
   /**
@@ -109,7 +109,7 @@ public interface ValueType extends Serializable, Comparator<Value> {
    * @param clazz the type to check
    * @return true if the {@link #valueOf(Object)} can be called with an instance of the specified class.
    */
-  boolean acceptsJavaClass(@Nonnull Class<?> clazz);
+  boolean acceptsJavaClass(@NotNull Class<?> clazz);
 
   /**
    * Returns true if this type represents a date, time or both.
@@ -138,7 +138,7 @@ public interface ValueType extends Serializable, Comparator<Value> {
    *
    * @return a {@code Value} instance for null.
    */
-  @Nonnull
+  @NotNull
   Value nullValue();
 
   /**
@@ -147,7 +147,7 @@ public interface ValueType extends Serializable, Comparator<Value> {
    *
    * @return a {@code ValueSequence} instance for null
    */
-  @Nonnull
+  @NotNull
   ValueSequence nullSequence();
 
   /**
@@ -160,8 +160,8 @@ public interface ValueType extends Serializable, Comparator<Value> {
    * @param value the value to convert
    * @return a {@code Value} instance of this {@code ValueType}
    */
-  @Nonnull
-  Value convert(@Nonnull Value value);
+  @NotNull
+  Value convert(@NotNull Value value);
 
   /**
    * Returns a string representation of the {@code value}. The string returned can be passed to the
@@ -181,7 +181,7 @@ public interface ValueType extends Serializable, Comparator<Value> {
    * calling {@link #nullValue()}
    * @return a {@code Value} instance after converting its string representation.
    */
-  @Nonnull
+  @NotNull
   Value valueOf(@Nullable String string);
 
   /**
@@ -197,10 +197,10 @@ public interface ValueType extends Serializable, Comparator<Value> {
    * {@link #nullValue()}
    * @return a {@code Value} instance for the specified object.
    */
-  @Nonnull
+  @NotNull
   Value valueOf(@Nullable Object object);
 
-  @Nonnull
+  @NotNull
   Value valueOf(@Nullable ValueLoader loader);
 
   /**
@@ -210,10 +210,10 @@ public interface ValueType extends Serializable, Comparator<Value> {
    * case, the return value is that of calling {@link #nullSequence()}
    * @return a {@code ValueSequence} instance containing {@code values}
    */
-  @Nonnull
+  @NotNull
   ValueSequence sequenceOf(@Nullable Iterable<Value> values);
 
-  @Nonnull
+  @NotNull
   ValueSequence sequenceOf(@Nullable String values);
 
 }

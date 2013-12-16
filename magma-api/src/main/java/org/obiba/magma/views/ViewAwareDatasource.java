@@ -3,7 +3,7 @@ package org.obiba.magma.views;
 import java.util.Map;
 import java.util.Set;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 import org.obiba.magma.Datasource;
 import org.obiba.magma.NoSuchValueTableException;
@@ -54,9 +54,9 @@ public class ViewAwareDatasource extends AbstractDatasourceWrapper {
     Disposables.dispose(getWrappedDatasource(), views);
   }
 
-  @Nonnull
+  @NotNull
   @Override
-  public ValueTableWriter createWriter(@Nonnull String tableName, @Nonnull String entityType) {
+  public ValueTableWriter createWriter(@NotNull String tableName, @NotNull String entityType) {
     if(hasView(tableName)) {
       throw new UnsupportedOperationException("Cannot write to a View");
     }
@@ -92,7 +92,7 @@ public class ViewAwareDatasource extends AbstractDatasourceWrapper {
     }
   }
 
-  @Nonnull
+  @NotNull
   @Override
   public boolean canRenameTable(String name) {
     return hasView(name) || getWrappedDatasource().canRenameTable(name);
@@ -112,7 +112,7 @@ public class ViewAwareDatasource extends AbstractDatasourceWrapper {
     final Timestamps ts = super.getTimestamps();
     ImmutableSet.Builder<Timestamped> builder = ImmutableSet.builder();
     builder.addAll(getViews()).add(new Timestamped() {
-      @Nonnull
+      @NotNull
       @Override
       public Timestamps getTimestamps() {
         return ts;
@@ -181,17 +181,17 @@ public class ViewAwareDatasource extends AbstractDatasourceWrapper {
   }
 
   private class ViewAwareDatasourceTimestamped implements Timestamped {
-    @Nonnull
+    @NotNull
     @Override
     public Timestamps getTimestamps() {
       return new Timestamps() {
-        @Nonnull
+        @NotNull
         @Override
         public Value getLastUpdate() {
           return lastUpdate;
         }
 
-        @Nonnull
+        @NotNull
         @Override
         public Value getCreated() {
           return DateTimeType.get().nullValue();

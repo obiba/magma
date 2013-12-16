@@ -11,13 +11,14 @@ package org.obiba.magma.type;
 
 import java.lang.ref.WeakReference;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
 
 import org.obiba.magma.Coordinate;
 import org.obiba.magma.MagmaEngine;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueSequence;
+import org.obiba.magma.support.ValueComparator;
 
 public class PointType extends JSONAwareValueType {
 
@@ -32,7 +33,7 @@ public class PointType extends JSONAwareValueType {
 
   @SuppressWarnings("ConstantConditions")
   @edu.umd.cs.findbugs.annotations.SuppressWarnings("NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE")
-  @Nonnull
+  @NotNull
   public static PointType get() {
     if(instance == null || instance.get() == null) {
       instance = MagmaEngine.get().registerInstance(new PointType());
@@ -40,7 +41,7 @@ public class PointType extends JSONAwareValueType {
     return instance.get();
   }
 
-  @Nonnull
+  @NotNull
   @Override
   public String getName() {
     return "point";
@@ -52,7 +53,7 @@ public class PointType extends JSONAwareValueType {
   }
 
   @Override
-  public boolean acceptsJavaClass(@Nonnull Class<?> clazz) {
+  public boolean acceptsJavaClass(@NotNull Class<?> clazz) {
     return Coordinate.class.isAssignableFrom(clazz);
   }
 
@@ -71,7 +72,7 @@ public class PointType extends JSONAwareValueType {
     return true;
   }
 
-  @Nonnull
+  @NotNull
   @Override
   public Value valueOf(@Nullable String string) {
     if(string == null) {
@@ -80,7 +81,7 @@ public class PointType extends JSONAwareValueType {
     return Factory.newValue(this, Coordinate.getCoordinateFrom(string));
   }
 
-  @Nonnull
+  @NotNull
   @Override
   public Value valueOf(@Nullable Object object) {
     if(object == null) {
@@ -89,15 +90,9 @@ public class PointType extends JSONAwareValueType {
     return Factory.newValue(this, Coordinate.getCoordinateFrom(object));
   }
 
-  @SuppressWarnings({ "unchecked", "rawtypes" })
   @Override
   public int compare(Value o1, Value o2) {
-    Comparable coordinate1 = (Comparable) o1.getValue();
-    Comparable coordinate2 = (Comparable) o2.getValue();
-    if(coordinate1 == coordinate2) return 0;
-    if(coordinate1 == null) return -1;
-    if(coordinate2 == null) return 1;
-    return coordinate1.compareTo(coordinate2);
+    return ValueComparator.INSTANCE.compare(o1, o2);
   }
 
   @Nullable
