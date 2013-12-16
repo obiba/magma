@@ -24,6 +24,7 @@ import org.obiba.magma.VariableValueSourceFactory;
 
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
+import com.google.common.base.Predicates;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
@@ -119,12 +120,15 @@ public abstract class AbstractValueTable implements ValueTable, Initialisable {
 
   @Override
   public Set<Variable> getVariables() {
-    return ImmutableSet.copyOf(Iterables.transform(getSources(), new Function<VariableValueSource, Variable>() {
+    // Filter null
+    Iterable<Variable> transform = Iterables.transform(getSources(), new Function<VariableValueSource, Variable>() {
       @Override
       public Variable apply(VariableValueSource from) {
         return from.getVariable();
       }
-    }));
+    });
+
+    return ImmutableSet.copyOf(Iterables.filter(transform, Predicates.not(Predicates.isNull())));
   }
 
   @Override
