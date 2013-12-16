@@ -197,7 +197,9 @@ public abstract class AbstractDatasource extends AbstractAttributeAware implemen
   }
 
   @Override
-  public int hashCode() {return Objects.hash(name);}
+  public int hashCode() {
+    return Objects.hash(name);
+  }
 
   @Override
   public boolean equals(Object obj) {
