@@ -350,7 +350,7 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
   public Set<VariableEntity> getVariableEntities() {
     // do not use Guava functional stuff to avoid multiple iterations over entities
     Set<VariableEntity> entities = Sets.newLinkedHashSet();
-    if (hasVariables()) {
+    if(hasVariables()) {
       for(VariableEntity entity : super.getVariableEntities()) {
         // transform super.getVariableEntities() using getVariableEntityMappingFunction()
         // (which may modified entity identifiers)
@@ -431,8 +431,8 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
   }
 
   private boolean hasVariables() {
-    return (select != null && !(select instanceof NoneClause)) ||
-        (variables != null && variables.getVariableValueSources().iterator().hasNext());
+    return select != null && !(select instanceof NoneClause) ||
+        variables != null && variables.getVariableValueSources().iterator().hasNext();
   }
 
   protected class ViewVariableValueSource extends AbstractVariableValueSourceWrapper {
