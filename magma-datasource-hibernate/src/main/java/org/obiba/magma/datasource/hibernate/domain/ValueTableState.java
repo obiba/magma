@@ -70,6 +70,10 @@ public class ValueTableState extends AbstractTimestampedEntity {
     return name;
   }
 
+  public void setName(String name) {
+    this.name = name;
+  }
+
   @SuppressWarnings("UnusedDeclaration")
   public DatasourceState getDatasource() {
     return datasource;
