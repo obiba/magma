@@ -164,8 +164,8 @@ public class PolygonType extends JSONAwareValueType {
     return Factory.newValue(this, (Serializable) polygon);
   }
 
-  @SuppressWarnings("unchecked")
   @Override
+  @SuppressWarnings({ "unchecked", "PMD.NcssMethodCount" })
   public int compare(Value o1, Value o2) {
     if(o1.isNull() && o2.isNull()) return 0;
     if(o1.isNull()) return -1;
