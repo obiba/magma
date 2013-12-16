@@ -156,5 +156,4 @@ class VariableBean extends AbstractAttributeAware implements Variable, Serializa
     return Objects.toStringHelper(this).add("name", name).add("valueType", valueType).add("repeatable", repeatable)
         .add("entityType", entityType).toString();
   }
-
 }
