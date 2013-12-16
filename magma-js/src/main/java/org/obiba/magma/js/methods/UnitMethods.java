@@ -3,6 +3,8 @@ package org.obiba.magma.js.methods;
 import java.text.ParsePosition;
 import java.util.ResourceBundle;
 
+import javax.annotation.Nullable;
+
 import org.jscience.physics.unit.PhysicsUnit;
 import org.jscience.physics.unit.format.SymbolMap;
 import org.jscience.physics.unit.format.UCUMFormat;
@@ -127,6 +129,7 @@ public class UnitMethods {
     return SI.ONE;
   }
 
+  @Nullable
   private static String asString(Object arg) {
     if(arg == null) return null;
     if(arg instanceof String) return (String) arg;

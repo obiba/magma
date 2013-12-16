@@ -447,7 +447,7 @@ public class ValueSequenceMethods {
     if(valueSequence.getSize() > 0) {
       StringBuilder buffer = new StringBuilder(prefix);
       for(int i = 0; i < valueSequence.getSize(); i++) {
-        buffer.append(valueSequence.get(i).toString());
+        buffer.append(valueSequence.get(i));
         if(i < valueSequence.getSize() - 1) {
           buffer.append(delimiter);
         }

@@ -70,8 +70,7 @@ public class CsvLine {
       String strValue = null;
       String variableName = entry.getKey();
       if(valueMap.containsKey(variableName)) {
-        Value value = valueMap.get(variableName);
-        strValue = value.toString();
+        strValue = valueMap.get(variableName).toString();
       }
       line[entry.getValue()] = strValue;
     }

@@ -15,10 +15,11 @@ public class AttributeAwareConverter {
     for(Attribute attr : attributeAware.getAttributes()) {
       AttributeState as;
       Locale locale = attr.isLocalised() ? attr.getLocale() : null;
+      String namespace = attr.hasNamespace() ? attr.getNamespace() : null;
       if(hibernateEntity.hasAttribute(attr.getName(), locale)) {
         as = hibernateEntity.getAttribute(attr.getName(), locale);
       } else {
-        as = new AttributeState(attr.getName(), attr.getNamespace(), locale, attr.getValue());
+        as = new AttributeState(attr.getName(), namespace, locale, attr.getValue());
         hibernateEntity.addAttribute(as);
       }
       as.setValue(attr.getValue());

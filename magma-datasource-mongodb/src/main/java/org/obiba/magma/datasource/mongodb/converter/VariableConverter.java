@@ -149,7 +149,7 @@ public class VariableConverter {
   @SuppressWarnings("ConstantConditions")
   private static DBObject marshall(Attribute attribute) {
     return BasicDBObjectBuilder.start()//
-        .add("namespace", attribute.getNamespace()) //
+        .add("namespace", attribute.hasNamespace() ? attribute.getNamespace() : null) //
         .add("name", attribute.getName())//
         .add("locale", attribute.isLocalised() ? attribute.getLocale().toString() : null) //
         .add("value", attribute.getValue().toString()).get();
