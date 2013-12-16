@@ -95,6 +95,7 @@ public final class Booleans {
    * @param op2 second operand
    * @return true, false or null (see truth table)
    */
+  @SuppressWarnings("ConstantConditions")
   @edu.umd.cs.findbugs.annotations.SuppressWarnings(value = "NP_BOOLEAN_RETURN_NULL",
       justification = "Clients expect ternaryAnd to return null as a valid value.")
   public static Boolean ternaryAnd(@Nullable Boolean op1, @Nullable Boolean op2) {
@@ -114,6 +115,7 @@ public final class Booleans {
    * @param op2 second operand
    * @return true, false or null (see truth table)
    */
+  @SuppressWarnings("ConstantConditions")
   @edu.umd.cs.findbugs.annotations.SuppressWarnings(value = "NP_BOOLEAN_RETURN_NULL",
       justification = "Clients expect ternaryOr to return null as a valid value.")
   public static Boolean ternaryOr(@Nullable Boolean op1, @Nullable Boolean op2) {

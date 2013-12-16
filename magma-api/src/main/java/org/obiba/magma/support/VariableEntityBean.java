@@ -1,22 +1,22 @@
 package org.obiba.magma.support;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 import org.obiba.magma.VariableEntity;
 
 public class VariableEntityBean implements VariableEntity {
 
-  @Nonnull
+  @NotNull
   private final String entityType;
 
-  @Nonnull
+  @NotNull
   private final String entityIdentifier;
 
   @SuppressWarnings("TransientFieldInNonSerializableClass")
   private transient volatile int hashCode = 0;
 
   @SuppressWarnings("ConstantConditions")
-  public VariableEntityBean(@Nonnull String entityType, @Nonnull String entityIdentifier) {
+  public VariableEntityBean(@NotNull String entityType, @NotNull String entityIdentifier) {
     if(entityType == null) throw new IllegalArgumentException("entityType cannot be null");
     if(entityIdentifier == null) throw new IllegalArgumentException("entityIdentifier cannot be null");
     if(entityIdentifier.trim().isEmpty()) throw new IllegalArgumentException("entityIdentifier cannot be empty");
@@ -26,13 +26,13 @@ public class VariableEntityBean implements VariableEntity {
   }
 
   @Override
-  @Nonnull
+  @NotNull
   public String getIdentifier() {
     return entityIdentifier;
   }
 
   @Override
-  @Nonnull
+  @NotNull
   public String getType() {
     return entityType;
   }

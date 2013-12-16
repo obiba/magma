@@ -2,7 +2,6 @@ package org.obiba.magma.support;
 
 import org.obiba.magma.Variable;
 import org.obiba.magma.type.BooleanType;
-import org.obiba.magma.type.PointType;
 
 /**
  * Determines the nature of a variable by inspecting its {@code ValueType} and any associated {@code Category} instance.

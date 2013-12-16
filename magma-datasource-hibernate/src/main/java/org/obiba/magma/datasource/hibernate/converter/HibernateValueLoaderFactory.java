@@ -11,8 +11,8 @@ package org.obiba.magma.datasource.hibernate.converter;
 
 import java.io.Serializable;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
 
 import org.hibernate.Query;
 import org.hibernate.Session;
@@ -89,7 +89,7 @@ public class HibernateValueLoaderFactory implements ValueLoaderFactory {
       return valueRef == null || valueRef.isNull();
     }
 
-    @Nonnull
+    @NotNull
     @Override
     @SuppressWarnings("ConstantConditions")
     @edu.umd.cs.findbugs.annotations.SuppressWarnings("NP_NULL_ON_SOME_PATH")
@@ -97,7 +97,7 @@ public class HibernateValueLoaderFactory implements ValueLoaderFactory {
       if(value == null) {
         if(BinaryType.get().equals(valueRef.getValueType())) {
           log.trace("Loading binary from value_set_value table (Base64)");
-          value = (byte[]) valueRef.getValue();
+          value = valueRef.isNull() ? null : (byte[]) valueRef.getValue();
         } else {
           log.trace("Loading binary from value_set_binary_value table");
           Session session = sessionFactory.getCurrentSession();
@@ -124,8 +124,7 @@ public class HibernateValueLoaderFactory implements ValueLoaderFactory {
       if(valueRef == null) return 0;
       if(BinaryType.get().equals(valueRef.getValueType())) {
         log.trace("Loading binary from value_set_value table (Base64)");
-        value = (byte[]) valueRef.getValue();
-        return value == null ? 0 : value.length;
+        return valueRef.isNull() ? 0 : ((byte[]) valueRef.getValue()).length;
       }
       Query query = sessionFactory.getCurrentSession()
           .createSQLQuery("SELECT binaryValue.size FROM value_set_binary_value binaryValue " + //

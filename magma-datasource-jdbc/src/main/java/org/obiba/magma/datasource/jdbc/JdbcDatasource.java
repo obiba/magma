@@ -9,9 +9,9 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.sql.DataSource;
+import javax.validation.constraints.NotNull;
 
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.ValueTableWriter;
@@ -59,7 +59,7 @@ public class JdbcDatasource extends AbstractDatasource {
   private DatabaseSnapshot snapshot;
 
   @SuppressWarnings("ConstantConditions")
-  public JdbcDatasource(String name, @Nonnull DataSource datasource, @Nonnull JdbcDatasourceSettings settings) {
+  public JdbcDatasource(String name, @NotNull DataSource datasource, @NotNull JdbcDatasourceSettings settings) {
     super(name, TYPE);
     if(settings == null) throw new IllegalArgumentException("null settings");
     if(datasource == null) throw new IllegalArgumentException("null datasource");
@@ -81,9 +81,9 @@ public class JdbcDatasource extends AbstractDatasource {
    * Note: Newly created tables have a single entity identifier column, "entity_id".
    */
   @SuppressWarnings({ "AssignmentToMethodParameter", "PMD.AvoidReassigningParameters" })
-  @Nonnull
+  @NotNull
   @Override
-  public ValueTableWriter createWriter(@Nonnull String tableName, @Nonnull String entityType) {
+  public ValueTableWriter createWriter(@NotNull String tableName, @NotNull String entityType) {
     //noinspection ConstantConditions
     if(entityType == null) {
       entityType = settings.getDefaultEntityType();

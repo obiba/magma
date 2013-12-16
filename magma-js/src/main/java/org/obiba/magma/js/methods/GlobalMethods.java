@@ -8,8 +8,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
 
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
@@ -507,8 +507,8 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
     return predicate;
   }
 
-  private static Variable getVariableFromOccurrenceGroup(@Nullable ValueTable valueTable, @Nonnull Variable variable,
-      @Nonnull String select) {
+  private static Variable getVariableFromOccurrenceGroup(@Nullable ValueTable valueTable, @NotNull Variable variable,
+      @NotNull String select) {
     List<Variable> variables = getVariablesFromOccurrenceGroup(valueTable, variable, select);
     if(variables.size() != 1) {
       throw new IllegalArgumentException(
@@ -520,7 +520,7 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
   }
 
   private static List<Variable> getVariablesFromOccurrenceGroup(@Nullable ValueTable valueTable,
-      @Nonnull Variable variable, String select) {
+      @NotNull Variable variable, String select) {
     ImmutableList.Builder<Variable> builder = ImmutableList.builder();
 
     if(variable.getOccurrenceGroup() == null || valueTable == null) {
@@ -590,7 +590,9 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
       Object rval = criteriaFunction
           .call(ctx, scope, thisObj, new ScriptableValue[] { new ScriptableValue(thisObj, input) });
       if(rval instanceof ScriptableValue) {
-        rval = ((ScriptableValue) rval).getValue().getValue();
+        Value value = ((ScriptableValue) rval).getValue();
+        if(value.isNull()) return false;
+        rval = value.getValue();
       }
       return rval == null ? false : (Boolean) rval;
     }
@@ -601,10 +603,10 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
    */
   private static final class ValuePredicate implements Predicate<Value> {
 
-    @Nonnull
+    @NotNull
     private final Value criteriaValue;
 
-    private ValuePredicate(@Nonnull Value criteriaValue) {
+    private ValuePredicate(@NotNull Value criteriaValue) {
       this.criteriaValue = criteriaValue;
     }
 

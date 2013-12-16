@@ -12,7 +12,7 @@ package org.obiba.magma.datasource.spss;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueTable;
@@ -36,7 +36,7 @@ public class SpssValueSet extends ValueSetBean {
     loadVariables();
   }
 
-  @Nonnull
+  @NotNull
   @Override
   public SpssValueTable getValueTable() {
     return (SpssValueTable) super.getValueTable();

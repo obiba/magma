@@ -86,7 +86,8 @@ public abstract class AttributeAwareBuilder<T extends AttributeAwareBuilder<?>> 
         public boolean apply(Attribute input) {
           return input != null //
               && attribute.getName().equals(input.getName()) //
-              && attribute.getLocale().equals(input.getLocale());
+              && (!attribute.isLocalised() && !input.isLocalised() ||
+              attribute.isLocalised() && input.isLocalised() && attribute.getLocale().equals(input.getLocale()));
         }
       });
       attrs.remove(attributeToRemove.getName(), attributeToRemove);

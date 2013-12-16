@@ -2,8 +2,8 @@ package org.obiba.magma;
 
 import java.io.Serializable;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
 
 public class Value implements Serializable, Comparable<Value> {
 
@@ -11,38 +11,41 @@ public class Value implements Serializable, Comparable<Value> {
 
   private static final Serializable NULL = "org.obiba.magma.Value.NULL".intern();
 
-  @Nonnull
+  @NotNull
   private final ValueType valueType;
 
-  @Nonnull
+  @NotNull
   private final ValueLoader valueLoader;
 
   private transient int hashCode;
 
-  Value(@Nonnull ValueType valueType, @Nullable Serializable value) {
+  Value(@NotNull ValueType valueType, @Nullable Serializable value) {
     this(valueType, new StaticValueLoader(value));
   }
 
   @SuppressWarnings({ "NullableProblems", "ConstantConditions" })
-  Value(@Nonnull ValueType valueType, @Nullable ValueLoader valueLoader) {
+  Value(@NotNull ValueType valueType, @Nullable ValueLoader valueLoader) {
     if(valueType == null) throw new IllegalArgumentException("valueType cannot be null");
     this.valueType = valueType;
     this.valueLoader = valueLoader == null ? new StaticValueLoader(null) : valueLoader;
   }
 
-  @Nonnull
+  @NotNull
   public Value copy() {
     return valueType.valueOf(valueLoader.getValue());
   }
 
-  @Nonnull
+  @NotNull
   public ValueType getValueType() {
     return valueType;
   }
 
-  @Nullable
+  @NotNull
   public Object getValue() {
-    return isNull() ? null : valueLoader.getValue();
+    if(isNull()) {
+      throw new NullPointerException("Value is null");
+    }
+    return valueLoader.getValue();
   }
 
   public boolean isNull() {
@@ -78,7 +81,7 @@ public class Value implements Serializable, Comparable<Value> {
    * @return
    */
   @SuppressWarnings("ClassReferencesSubclass")
-  @Nonnull
+  @NotNull
   public ValueSequence asSequence() {
     throw new IllegalStateException("value is not a sequence");
   }
@@ -133,7 +136,7 @@ public class Value implements Serializable, Comparable<Value> {
 
     private static final long serialVersionUID = 8195664792459648506L;
 
-    @Nonnull
+    @NotNull
     private final Serializable value;
 
     public StaticValueLoader(@Nullable Serializable value) {
@@ -146,7 +149,7 @@ public class Value implements Serializable, Comparable<Value> {
     }
 
     @Override
-    @Nonnull
+    @NotNull
     public Object getValue() {
       return value;
     }

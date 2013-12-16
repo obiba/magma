@@ -32,7 +32,9 @@ public class GeoMethods {
 
     ScriptableValue sv = (ScriptableValue) thisObj;
     Value value = sv.getValue();
-
+    if(value.isNull()) {
+      return new ScriptableValue(thisObj, DecimalType.get().nullSequence());
+    }
     if(value.isSequence()) {
       Collection<Value> values = new ArrayList<>();
       for(Value val : value.asSequence().getValue()) {
@@ -40,11 +42,10 @@ public class GeoMethods {
         values.add(DecimalType.get().valueOf(longitude));
       }
       return new ScriptableValue(thisObj, DecimalType.get().sequenceOf(values));
-    } else {
-      Value newValue = PointType.get().valueOf(value.toString());
-      Double longitude = ((Coordinate) newValue.getValue()).getLongitude();
-      return new ScriptableValue(thisObj, DecimalType.get().valueOf(longitude));
     }
+    Value newValue = PointType.get().valueOf(value.toString());
+    Double longitude = ((Coordinate) newValue.getValue()).getLongitude();
+    return new ScriptableValue(thisObj, DecimalType.get().valueOf(longitude));
   }
 
   /**
@@ -53,11 +54,15 @@ public class GeoMethods {
    *   $('Point').latitude()
    * </pre>
    */
+  @SuppressWarnings("StaticMethodOnlyUsedInOneClass")
   public static ScriptableValue latitude(Context ctx, Scriptable thisObj, @Nullable Object[] args,
       @Nullable Function funObj) {
 
     ScriptableValue sv = (ScriptableValue) thisObj;
     Value value = sv.getValue();
+    if(value.isNull()) {
+      return new ScriptableValue(thisObj, DecimalType.get().nullSequence());
+    }
     if(value.isSequence()) {
       Collection<Value> values = new ArrayList<>();
       for(Value val : value.asSequence().getValue()) {
@@ -65,11 +70,10 @@ public class GeoMethods {
         values.add(DecimalType.get().valueOf(latitude));
       }
       return new ScriptableValue(thisObj, DecimalType.get().sequenceOf(values));
-    } else {
-      Value newValue = PointType.get().valueOf(value.toString());
-      Double latitude = ((Coordinate) newValue.getValue()).getLatitude();
-      return new ScriptableValue(thisObj, DecimalType.get().valueOf(latitude));
     }
+    Value newValue = PointType.get().valueOf(value.toString());
+    Double latitude = ((Coordinate) newValue.getValue()).getLatitude();
+    return new ScriptableValue(thisObj, DecimalType.get().valueOf(latitude));
   }
 
 }

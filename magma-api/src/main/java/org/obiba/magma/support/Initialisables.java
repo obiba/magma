@@ -1,6 +1,6 @@
 package org.obiba.magma.support;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 import org.obiba.magma.Initialisable;
 import org.obiba.magma.MagmaRuntimeException;
@@ -9,7 +9,7 @@ public final class Initialisables {
 
   private Initialisables() {}
 
-  public static void initialise(@Nonnull Initialisable initialisable) {
+  public static void initialise(@NotNull Initialisable initialisable) {
     try {
       initialisable.initialise();
     } catch(MagmaRuntimeException e) {
@@ -25,19 +25,19 @@ public final class Initialisables {
     }
   }
 
-  public static void initialise(@Nonnull Initialisable... initialisable) {
+  public static void initialise(@NotNull Initialisable... initialisable) {
     for(Initialisable o : initialisable) {
       initialise(o);
     }
   }
 
-  public static void initialise(@Nonnull Object... initialisable) {
+  public static void initialise(@NotNull Object... initialisable) {
     for(Object o : initialisable) {
       initialise(o);
     }
   }
 
-  public static void initialise(@Nonnull Iterable<?> initialisables) {
+  public static void initialise(@NotNull Iterable<?> initialisables) {
     for(Object o : initialisables) {
       initialise(o);
     }

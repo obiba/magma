@@ -45,7 +45,8 @@ public abstract class AbstractAttributeAwareEntity extends AbstractTimestampedEn
     for(AttributeState ha : attributeMap.get(name)) {
       if(locale != null && ha.isLocalised() && locale.equals(ha.getLocale())) {
         return ha;
-      } else if(locale == null && !ha.isLocalised()) {
+      }
+      if(locale == null && !ha.isLocalised()) {
         return ha;
       }
     }

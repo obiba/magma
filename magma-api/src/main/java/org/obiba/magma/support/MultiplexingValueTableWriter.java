@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.Set;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 import org.obiba.magma.Datasource;
 import org.obiba.magma.Value;
@@ -37,9 +37,9 @@ public class MultiplexingValueTableWriter implements ValueTableWriter {
     this.strategy = strategy;
   }
 
-  @Nonnull
+  @NotNull
   @Override
-  public ValueSetWriter writeValueSet(@Nonnull VariableEntity entity) {
+  public ValueSetWriter writeValueSet(@NotNull VariableEntity entity) {
     return new MultiplexedValueSetWriter(entity);
   }
 
@@ -74,7 +74,7 @@ public class MultiplexingValueTableWriter implements ValueTableWriter {
     private final Map<ValueTableWriter, VariableWriter> writers = Maps.newHashMap();
 
     @Override
-    public void writeVariable(@Nonnull Variable variable) {
+    public void writeVariable(@NotNull Variable variable) {
       ValueTableWriter vtw = lookupWriter(strategy.multiplexVariable(variable));
       VariableWriter writer = writers.get(vtw);
       if(writer == null) {
@@ -85,7 +85,7 @@ public class MultiplexingValueTableWriter implements ValueTableWriter {
     }
 
     @Override
-    public void removeVariable(@Nonnull Variable variable) {
+    public void removeVariable(@NotNull Variable variable) {
       throw new UnsupportedOperationException("Variable cannot be removed from a Multiplexing table");
     }
 
@@ -116,7 +116,7 @@ public class MultiplexingValueTableWriter implements ValueTableWriter {
     }
 
     @Override
-    public void writeValue(@Nonnull Variable variable, Value value) {
+    public void writeValue(@NotNull Variable variable, Value value) {
       String tableName = strategy.multiplexValueSet(entity, variable);
       tables.add(tableName);
       ValueTableWriter vtw = lookupWriter(tableName);

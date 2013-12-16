@@ -2,8 +2,8 @@ package org.obiba.magma.math;
 
 import java.util.SortedSet;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
 
 import org.apache.commons.math3.stat.descriptive.StatisticalSummary;
 import org.apache.commons.math3.stat.descriptive.StatisticalSummaryValues;
@@ -57,7 +57,7 @@ public class OutlierRemovingVariableValueSource extends AbstractVariableValueSou
     this.valueTable = valueTable;
   }
 
-  @Nonnull
+  @NotNull
   @Override
   public Value getValue(ValueSet valueSet) {
     Value value = getWrapped().getValue(valueSet);

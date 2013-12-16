@@ -11,8 +11,8 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
 
 import org.obiba.magma.Datasource;
 import org.obiba.magma.Value;
@@ -66,12 +66,12 @@ public class MultithreadedDatasourceCopier {
       return this;
     }
 
-    public Builder withCopier(@Nonnull DatasourceCopier.Builder copier) {
+    public Builder withCopier(@NotNull DatasourceCopier.Builder copier) {
       this.copier.copier = copier;
       return this;
     }
 
-    public Builder from(@Nonnull ValueTable source) {
+    public Builder from(@NotNull ValueTable source) {
       copier.sourceTable = source;
       if(copier.destinationName == null) {
         copier.destinationName = source.getName();
@@ -107,7 +107,7 @@ public class MultithreadedDatasourceCopier {
 
   private int concurrentReaders = 3;
 
-  @Nonnull
+  @NotNull
   private DatasourceCopier.Builder copier = DatasourceCopier.Builder.newCopier();
 
   private ValueTable sourceTable;
@@ -116,7 +116,7 @@ public class MultithreadedDatasourceCopier {
 
   private Datasource destinationDatasource;
 
-  @Nonnull
+  @NotNull
   private VariableValueSource sources[];
 
   private Variable variables[];

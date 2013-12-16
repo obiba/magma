@@ -1,7 +1,7 @@
 package org.obiba.magma.datasource.csv;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
 
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueSet;
@@ -30,13 +30,13 @@ public class CsvVariableValueSource implements VariableValueSource {
     return variable;
   }
 
-  @Nonnull
+  @NotNull
   @Override
   public ValueType getValueType() {
     return variable.getValueType();
   }
 
-  @Nonnull
+  @NotNull
   @Override
   public Value getValue(ValueSet valueSet) {
     return ((CsvValueSet) valueSet).getValue(variable);

@@ -14,8 +14,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
 
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.ValueTableWriter;
@@ -107,9 +107,9 @@ public class CsvDatasource extends AbstractDatasource {
     return this;
   }
 
-  @Nonnull
+  @NotNull
   @Override
-  public ValueTableWriter createWriter(@Nonnull String tableName, @Nonnull String entityType) {
+  public ValueTableWriter createWriter(@NotNull String tableName, @NotNull String entityType) {
     if(!hasValueTable(tableName)) {
       throw new DatasourceParsingException(
           "Cannot create writer. A table with the name " + tableName + " does not exist.", "CsvCannotCreateWriter",

@@ -20,6 +20,8 @@ import org.hibernate.type.AbstractType;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueType;
 
+import com.google.common.base.Strings;
+
 /**
  * A Hibernate Type for persisting {@code Value} instances. The strategy uses 3 columns:
  * <ul>
@@ -99,8 +101,8 @@ public class ValueHibernateType extends AbstractType {
     Value value = (Value) obj;
     st.setString(index, value.getValueType().getName());
     st.setBoolean(index + 1, value.isSequence());
-    String stringValue = value.toString();
-    st.setClob(index + 2, new StringReader(stringValue), stringValue == null ? 0 : stringValue.length());
+    String stringValue = Strings.nullToEmpty(value.isNull() ? null : value.toString());
+    st.setClob(index + 2, new StringReader(stringValue), stringValue.length());
   }
 
   @Override

@@ -419,9 +419,8 @@ public class DateTimeMethods {
         newValues.add(after(value, args));
       }
       return new ScriptableValue(thisObj, BooleanType.get().sequenceOf(newValues));
-    } else {
-      return new ScriptableValue(thisObj, after(currentValue, args));
     }
+    return new ScriptableValue(thisObj, after(currentValue, args));
   }
 
   private static Value after(Value value, Object... args) {
@@ -568,9 +567,8 @@ public class DateTimeMethods {
         newValues.add(add(value, args));
       }
       return new ScriptableValue(thisObj, DateTimeType.get().sequenceOf(newValues));
-    } else {
-      return new ScriptableValue(thisObj, add(currentValue, args));
     }
+    return new ScriptableValue(thisObj, add(currentValue, args));
   }
 
   private static Value add(Value cvalue, Object... args) {
@@ -579,7 +577,9 @@ public class DateTimeMethods {
       int argument = 0;
       if(args[0] instanceof ScriptableValue) {
         Value value = ((ScriptableValue) args[0]).getValue();
-        argument = Integer.parseInt(value.getValue().toString());
+        if(!value.isNull()) {
+          argument = Integer.parseInt(value.getValue().toString());
+        }
       } else {
         argument = ((Number) args[0]).intValue();
       }

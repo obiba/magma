@@ -386,7 +386,7 @@ public class SpssDatasourceTest {
       assertThat(valueTable.getEntityType(), is("Participant"));
 
       for(Category category : variable.getCategories()) {
-        assertThat(category.getAttribute("label").getLocale(), is(nullValue()));
+        assertThat(category.getAttribute("label").isLocalised(), is(false));
       }
     } catch(Exception e) {
       fail();

@@ -14,8 +14,8 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.SortedSet;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
 
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueSet;
@@ -43,13 +43,13 @@ public class SpssVariableValueSource implements VariableValueSource, VectorSourc
     return variable;
   }
 
-  @Nonnull
+  @NotNull
   @Override
   public ValueType getValueType() {
     return variable.getValueType();
   }
 
-  @Nonnull
+  @NotNull
   @Override
   public Value getValue(ValueSet valueSet) {
     SpssValueSet spssValueSet = (SpssValueSet) valueSet;

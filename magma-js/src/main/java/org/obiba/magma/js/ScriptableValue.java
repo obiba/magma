@@ -4,8 +4,8 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
 
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ScriptRuntime;
@@ -36,7 +36,7 @@ public class ScriptableValue extends ScriptableObject {
 
   static final String VALUE_CLASS_NAME = "Value";
 
-  @Nonnull
+  @NotNull
   private Value value;
 
   private String unit;
@@ -50,7 +50,7 @@ public class ScriptableValue extends ScriptableObject {
 
   }
 
-  public ScriptableValue(Scriptable scope, @Nonnull Value value, @Nullable String unit) {
+  public ScriptableValue(Scriptable scope, @NotNull Value value, @Nullable String unit) {
     super(scope, ScriptableObject.getClassPrototype(scope, VALUE_CLASS_NAME));
     //noinspection ConstantConditions
     if(value == null) {
@@ -60,7 +60,7 @@ public class ScriptableValue extends ScriptableObject {
     this.unit = unit;
   }
 
-  public ScriptableValue(Scriptable scope, @Nonnull Value value) {
+  public ScriptableValue(Scriptable scope, @NotNull Value value) {
     this(scope, value, null);
   }
 
@@ -83,10 +83,10 @@ public class ScriptableValue extends ScriptableObject {
     if(value.isSequence()) {
       return value.asSequence().toString();
     }
-    Object defaultValue = value.getValue();
     if(value.isNull()) {
-      return Context.toObject(defaultValue, this);
+      return Context.toObject(null, this);
     }
+    Object defaultValue = value.getValue();
     if(value.getValueType().isDateTime()) {
       double jsDate;
       //noinspection ConstantConditions
@@ -144,7 +144,7 @@ public class ScriptableValue extends ScriptableObject {
     return dpolygon;
   }
 
-  @Nonnull
+  @NotNull
   public Value getValue() {
     return value;
   }

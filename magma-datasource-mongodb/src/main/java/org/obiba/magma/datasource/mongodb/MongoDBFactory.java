@@ -4,8 +4,8 @@ import java.io.Serializable;
 import java.net.URI;
 import java.net.UnknownHostException;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
 
 import org.obiba.magma.MagmaRuntimeException;
 
@@ -20,7 +20,7 @@ public class MongoDBFactory implements Serializable {
 
   private static final long serialVersionUID = 2264861208658330136L;
 
-  @Nonnull
+  @NotNull
   private final String connectionURI;
 
   @Nullable
@@ -35,21 +35,21 @@ public class MongoDBFactory implements Serializable {
   @Nullable
   private transient GridFS gridFS;
 
-  public MongoDBFactory(@Nonnull URI uri) {
+  public MongoDBFactory(@NotNull URI uri) {
     this(uri.toString());
   }
 
-  public MongoDBFactory(@Nonnull String connectionURI) {
+  public MongoDBFactory(@NotNull String connectionURI) {
     Preconditions.checkArgument(!Strings.isNullOrEmpty(connectionURI), "connectionURI cannot be null or empty");
     this.connectionURI = connectionURI;
   }
 
-  @Nonnull
+  @NotNull
   public String getConnectionURI() {
     return connectionURI;
   }
 
-  @Nonnull
+  @NotNull
   public MongoClientURI getMongoClientURI() {
     if(mongoClientURI == null) {
       mongoClientURI = new MongoClientURI(connectionURI);
@@ -57,7 +57,7 @@ public class MongoDBFactory implements Serializable {
     return mongoClientURI;
   }
 
-  @Nonnull
+  @NotNull
   public MongoClient getMongoClient() {
     if(mongoClient == null) {
       try {
@@ -69,7 +69,7 @@ public class MongoDBFactory implements Serializable {
     return mongoClient;
   }
 
-  @Nonnull
+  @NotNull
   public DB getDB() {
     if(db == null) {
       db = getMongoClient().getDB(getMongoClientURI().getDatabase());
@@ -77,7 +77,7 @@ public class MongoDBFactory implements Serializable {
     return db;
   }
 
-  @Nonnull
+  @NotNull
   public GridFS getGridFS() {
     if(gridFS == null) {
       gridFS = new GridFS(getDB());

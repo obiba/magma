@@ -355,6 +355,7 @@ public class TextMethodsTest extends AbstractJsTest {
     ScriptableValue date = TextMethods.datetime(getCurrentContext(), value, new Object[] { "MM/dd/yy h:mm a" }, null);
     String str = date.getValue().toString();
     // exclude timezone from the test
+    assertNotNull(str);
     assertEquals("2012-10-23T22:59:00.000", str.substring(0, str.lastIndexOf('-')));
   }
 

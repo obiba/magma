@@ -1,13 +1,10 @@
 package org.obiba.magma.datasource.generated;
 
-import org.obiba.magma.AttributeAware;
 import org.obiba.magma.Value;
+import org.obiba.magma.ValueSet;
 import org.obiba.magma.ValueSource;
-import org.obiba.magma.ValueType;
 import org.obiba.magma.Variable;
-import org.obiba.magma.js.JavascriptValueSource;
 import org.obiba.magma.support.Initialisables;
-import org.obiba.magma.support.NullValueSource;
 import org.obiba.magma.type.DecimalType;
 import org.obiba.magma.type.IntegerType;
 
@@ -66,8 +63,8 @@ class NumericValueGenerator extends AbstractMissingValueVariableValueGenerator {
     return makeSource(variable, variable.getValueType(), scriptAttributes);
   }
 
-  private Number getMinimum(GeneratedValueSet gvs) {
-    Value minimumValue = minimum.getValue(gvs);
+  private Number getMinimum(ValueSet valueSet) {
+    Value minimumValue = minimum.getValue(valueSet);
     Number min = MIN_VALUE;
     try {
       min = minimumValue.isNull() ? MIN_VALUE : (Number) minimumValue.getValue();
@@ -77,8 +74,8 @@ class NumericValueGenerator extends AbstractMissingValueVariableValueGenerator {
     return min;
   }
 
-  private Number getMaximum(GeneratedValueSet gvs) {
-    Value maximumValue = maximum.getValue(gvs);
+  private Number getMaximum(ValueSet valueSet) {
+    Value maximumValue = maximum.getValue(valueSet);
     Number max = MAX_VALUE;
     try {
       max = maximumValue.isNull() ? MIN_VALUE : (Number) maximumValue.getValue();
@@ -88,19 +85,19 @@ class NumericValueGenerator extends AbstractMissingValueVariableValueGenerator {
     return max;
   }
 
-  private Value getMeanValue(GeneratedValueSet gvs) {
+  private Value getMeanValue(ValueSet valueSet) {
     try {
-      return mean.getValue(gvs);
-    } catch (Exception e) {
+      return mean.getValue(valueSet);
+    } catch(Exception e) {
       //e.printStackTrace();
       return mean.getValueType().nullValue();
     }
   }
 
-  private Value getStdDevValue(GeneratedValueSet gvs) {
+  private Value getStdDevValue(ValueSet valueSet) {
     try {
-      return stddev.getValue(gvs);
-    } catch (Exception e) {
+      return stddev.getValue(valueSet);
+    } catch(Exception e) {
       //e.printStackTrace();
       return stddev.getValueType().nullValue();
     }

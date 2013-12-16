@@ -15,7 +15,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 import org.obiba.magma.Attribute;
 import org.obiba.magma.Category;
@@ -83,9 +83,9 @@ class JdbcValueTableWriter implements ValueTableWriter {
     this.valueTable = valueTable;
   }
 
-  @Nonnull
+  @NotNull
   @Override
-  public ValueSetWriter writeValueSet(@Nonnull VariableEntity entity) {
+  public ValueSetWriter writeValueSet(@NotNull VariableEntity entity) {
     return new JdbcValueSetWriter(entity);
   }
 
@@ -107,7 +107,7 @@ class JdbcValueTableWriter implements ValueTableWriter {
     protected List<Change> changes = new ArrayList<>();
 
     @Override
-    public void writeVariable(@Nonnull Variable variable) {
+    public void writeVariable(@NotNull Variable variable) {
       if(!valueTable.isForEntityType(variable.getEntityType())) {
         throw new InvalidParameterException(
             "Wrong entity type for variable '" + variable.getName() + "': " + valueTable.getEntityType() +
@@ -120,7 +120,7 @@ class JdbcValueTableWriter implements ValueTableWriter {
     }
 
     @Override
-    public void removeVariable(@Nonnull Variable variable) {
+    public void removeVariable(@NotNull Variable variable) {
       throw new UnsupportedOperationException("Variable removal not implemented yet");
     }
 
@@ -251,7 +251,7 @@ class JdbcValueTableWriter implements ValueTableWriter {
     }
 
     @Override
-    public void removeVariable(@Nonnull Variable variable) {
+    public void removeVariable(@NotNull Variable variable) {
       throw new UnsupportedOperationException("Variable removal not implemented yet");
     }
   }
@@ -270,7 +270,7 @@ class JdbcValueTableWriter implements ValueTableWriter {
     }
 
     @Override
-    public void writeValue(@Nonnull Variable variable, Value value) {
+    public void writeValue(@NotNull Variable variable, Value value) {
       Object columnValue = null;
       if(!value.isNull()) {
         if(value.isSequence()) {

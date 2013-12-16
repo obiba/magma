@@ -5,7 +5,7 @@ import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 import org.obiba.magma.Initialisable;
 import org.obiba.magma.MagmaRuntimeException;
@@ -94,7 +94,7 @@ public class VariablesClause implements ListClause, Initialisable {
   private class JsVariableWriter implements VariableWriter {
 
     @Override
-    public void writeVariable(@Nonnull Variable variable) {
+    public void writeVariable(@NotNull Variable variable) {
       // update or add variable
       Set<Variable> variableSet = new LinkedHashSet<>();
       boolean updated = false;
@@ -115,7 +115,7 @@ public class VariablesClause implements ListClause, Initialisable {
     }
 
     @Override
-    public void removeVariable(@Nonnull Variable variable) {
+    public void removeVariable(@NotNull Variable variable) {
       // update or add variable
       Set<Variable> variableSet = new LinkedHashSet<>();
       for(Variable var : variables) {

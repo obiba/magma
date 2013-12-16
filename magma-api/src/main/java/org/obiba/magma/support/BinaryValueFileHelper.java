@@ -76,6 +76,7 @@ public class BinaryValueFileHelper {
    * @param path
    * @return
    */
+  @SuppressWarnings("StaticMethodOnlyUsedInOneClass")
   public static long readValueSize(@Nullable File parent, String path) {
     try {
       File file = new File(path);
@@ -117,7 +118,7 @@ public class BinaryValueFileHelper {
 
   /**
    * @return <code>true</code> if and only if the file or directory is
-   *         successfully deleted; <code>false</code> otherwise
+   * successfully deleted; <code>false</code> otherwise
    * @see java.io.File#delete()
    */
   private static boolean removeFileValue(File parent, String name, String extension) {

@@ -9,7 +9,7 @@
  */
 package org.obiba.magma;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 /**
  * Listener to events on ValueTable
@@ -18,22 +18,25 @@ public interface ValueTableUpdateListener {
 
   /**
    * Called when a value table is being renamed.
+   *
    * @param newName
    */
-  void onRename(@Nonnull ValueTable vt, String newName);
+  void onRename(@NotNull ValueTable vt, String newName);
 
   /**
    * Called when a variable is being renamed.
+   *
    * @param vt
    * @param v
    * @param newName
    */
-  void onRename(@Nonnull ValueTable vt, Variable v, String newName);
+  void onRename(@NotNull ValueTable vt, Variable v, String newName);
 
   /**
    * Called when a value table is deleted.
+   *
    * @param vt
    */
-  void onDelete(@Nonnull ValueTable vt);
+  void onDelete(@NotNull ValueTable vt);
 
 }

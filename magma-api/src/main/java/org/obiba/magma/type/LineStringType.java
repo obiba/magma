@@ -15,8 +15,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -41,7 +41,7 @@ public class LineStringType extends JSONAwareValueType {
 
   @SuppressWarnings("ConstantConditions")
   @edu.umd.cs.findbugs.annotations.SuppressWarnings("NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE")
-  @Nonnull
+  @NotNull
   public static LineStringType get() {
     if(instance == null || instance.get() == null) {
       instance = MagmaEngine.get().registerInstance(new LineStringType());
@@ -49,7 +49,7 @@ public class LineStringType extends JSONAwareValueType {
     return instance.get();
   }
 
-  @Nonnull
+  @NotNull
   @Override
   public String getName() {
     return "linestring";
@@ -63,7 +63,7 @@ public class LineStringType extends JSONAwareValueType {
   }
 
   @Override
-  public boolean acceptsJavaClass(@Nonnull Class<?> clazz) {
+  public boolean acceptsJavaClass(@NotNull Class<?> clazz) {
     List<Coordinate> line;
     line = new ArrayList<>();
     return line.getClass().isAssignableFrom(clazz);
@@ -84,7 +84,7 @@ public class LineStringType extends JSONAwareValueType {
     return true;
   }
 
-  @Nonnull
+  @NotNull
   @Override
   public Value valueOf(@Nullable String string) {
     if(string == null) {
@@ -117,7 +117,7 @@ public class LineStringType extends JSONAwareValueType {
     return Factory.newValue(this, (Serializable) line);
   }
 
-  @Nonnull
+  @NotNull
   @Override
   public Value valueOf(@Nullable Object object) {
     if(object == null) {
@@ -148,9 +148,12 @@ public class LineStringType extends JSONAwareValueType {
   @SuppressWarnings("unchecked")
   @Override
   public int compare(Value o1, Value o2) {
+    if(o1.isNull() && o2.isNull()) return 0;
+    if(o1.isNull()) return -1;
+    if(o2.isNull()) return 1;
+
     Iterable<Coordinate> line1 = (Iterable<Coordinate>) o1.getValue();
     Iterable<Coordinate> line2 = (Iterable<Coordinate>) o2.getValue();
-
     if(Iterables.size(line1) == Iterables.size(line2)) {
       if(Iterables.elementsEqual(line1, line2)) return 0;
       return -1;

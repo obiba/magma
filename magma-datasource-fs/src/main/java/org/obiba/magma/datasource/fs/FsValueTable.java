@@ -6,8 +6,8 @@ import java.io.ObjectInputStream;
 import java.io.Reader;
 import java.io.Writer;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
 
 import org.obiba.magma.Disposable;
 import org.obiba.magma.Initialisable;
@@ -81,7 +81,7 @@ class FsValueTable extends AbstractValueTable implements Initialisable, Disposab
     variableEntityProvider.dispose();
   }
 
-  @Nonnull
+  @NotNull
   @Override
   public FsDatasource getDatasource() {
     return (FsDatasource) super.getDatasource();
@@ -148,13 +148,13 @@ class FsValueTable extends AbstractValueTable implements Initialisable, Disposab
       return variable;
     }
 
-    @Nonnull
+    @NotNull
     @Override
     public ValueType getValueType() {
       return variable.getValueType();
     }
 
-    @Nonnull
+    @NotNull
     @Override
     public Value getValue(ValueSet valueSet) {
       return ((LazyValueSet) valueSet).getValueSet().getValue(variable);
@@ -199,7 +199,7 @@ class FsValueTable extends AbstractValueTable implements Initialisable, Disposab
 
   }
 
-  @Nonnull
+  @NotNull
   @Override
   public Timestamps getTimestamps() {
     return new FsTimestamps(valueTableEntry);

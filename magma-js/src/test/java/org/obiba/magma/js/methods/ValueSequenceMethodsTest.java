@@ -5,6 +5,7 @@ import java.util.Collections;
 
 import javax.annotation.Nullable;
 
+import org.hamcrest.core.Is;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mozilla.javascript.Context;
@@ -23,6 +24,8 @@ import org.obiba.magma.type.TextType;
 import com.google.common.collect.Iterables;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
 @SuppressWarnings({ "AssignmentToMethodParameter", "PMD.AvoidReassigningParameters" })
@@ -311,8 +314,12 @@ public class ValueSequenceMethodsTest extends AbstractJsTest {
       expectedSum = expectedSum.longValue();
     }
     ScriptableValue result = evaluate("avg()", valueToSum);
-    Assert.assertNotNull(result);
-    Assert.assertEquals(expectedSum, result.getValue().getValue());
+    assertNotNull(result);
+    if(expectedSum == null) {
+      assertThat(result.getValue().isNull(), Is.is(true));
+    } else {
+      assertThat(result.getValue().getValue(), Is.<Object>is(expectedSum));
+    }
   }
 
   // stddev
@@ -359,8 +366,12 @@ public class ValueSequenceMethodsTest extends AbstractJsTest {
       expected = expected.longValue();
     }
     ScriptableValue result = evaluate("stddev()", testValue);
-    Assert.assertNotNull(result);
-    Assert.assertEquals(expected, result.getValue().getValue());
+    assertNotNull(result);
+    if(expected == null) {
+      assertThat(result.getValue().isNull(), Is.is(true));
+    } else {
+      assertThat(result.getValue().getValue(), Is.<Object>is(expected));
+    }
   }
 
   // sum
@@ -407,8 +418,12 @@ public class ValueSequenceMethodsTest extends AbstractJsTest {
       expectedSum = expectedSum.longValue();
     }
     ScriptableValue result = evaluate("sum()", valueToSum);
-    Assert.assertNotNull(result);
-    Assert.assertEquals(expectedSum, result.getValue().getValue());
+    assertNotNull(result);
+    if(expectedSum == null) {
+      assertThat(result.getValue().isNull(), Is.is(true));
+    } else {
+      assertThat(result.getValue().getValue(), Is.<Object>is(expectedSum));
+    }
   }
 
   // push
@@ -448,7 +463,7 @@ public class ValueSequenceMethodsTest extends AbstractJsTest {
 
   private void assertPushIs(Value valueToPushInto, String push, Value expected) {
     ScriptableValue result = evaluate("push(" + push + ")", valueToPushInto);
-    Assert.assertNotNull(result);
+    assertNotNull(result);
     if(expected.isNull()) {
       Assert.assertTrue(result.getValue().isNull());
     } else {
@@ -495,11 +510,11 @@ public class ValueSequenceMethodsTest extends AbstractJsTest {
 
   private void assertJoinIs(Value valueToJoin, String args, Value expected) {
     ScriptableValue result = evaluate("join(" + args + ")", valueToJoin);
-    Assert.assertNotNull(result);
+    assertNotNull(result);
     if(expected.isNull()) {
       Assert.assertTrue(result.getValue().isNull());
     } else {
-      Assert.assertEquals(expected.getValue(), result.getValue().getValue());
+      assertEquals(expected.getValue(), result.getValue().getValue());
     }
   }
 
@@ -551,7 +566,7 @@ public class ValueSequenceMethodsTest extends AbstractJsTest {
 
   private void assertZipIs(Value valueToZip, String args, Value expected) {
     ScriptableValue result = evaluate("zip(" + args + ")", valueToZip);
-    Assert.assertNotNull(result);
+    assertNotNull(result);
     if(expected.isNull()) {
       Assert.assertTrue(result.getValue().isNull());
     } else {

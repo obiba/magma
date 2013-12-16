@@ -1,13 +1,13 @@
 package org.obiba.magma;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 public interface Timestamps {
 
-  @Nonnull
+  @NotNull
   Value getLastUpdate();
 
-  @Nonnull
+  @NotNull
   Value getCreated();
 
 }

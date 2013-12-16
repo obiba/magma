@@ -28,7 +28,7 @@ public final class Rhino {
    */
   @Nullable
   public static Object fixRhinoNumber(@Nullable Object value) {
-    if(value == null) return value;
+    if(value == null) return null;
 
     Object newValue = value;
     if(value instanceof Double) {

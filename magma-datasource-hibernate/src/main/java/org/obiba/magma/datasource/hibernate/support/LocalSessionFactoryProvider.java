@@ -2,9 +2,9 @@ package org.obiba.magma.datasource.hibernate.support;
 
 import java.util.Properties;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.sql.DataSource;
+import javax.validation.constraints.NotNull;
 
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Environment;
@@ -31,7 +31,7 @@ public class LocalSessionFactoryProvider implements SessionFactoryProvider, Init
 
   }
 
-  public LocalSessionFactoryProvider(@Nonnull DataSource dataSource, @Nullable String dialect) {
+  public LocalSessionFactoryProvider(@NotNull DataSource dataSource, @Nullable String dialect) {
     this.dataSource = dataSource;
     this.dialect = dialect;
   }

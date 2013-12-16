@@ -57,7 +57,7 @@ public class JavascriptVariableTransformer implements VariableTransformer {
         if(value instanceof ScriptableValue) {
           ScriptableValue scriptable = (ScriptableValue) value;
           if(scriptable.getValueType().equals(TextType.get())) {
-            return scriptable.getValue().getValue();
+            return scriptable.getValue().isNull() ? null : scriptable.getValue().getValue();
           }
         }
         return null;

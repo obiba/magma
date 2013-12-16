@@ -76,6 +76,8 @@ ext {
 
       truezip: 'de.schlichtherle.io:truezip:6.6',
 
+      validation: 'javax.validation:validation-api:1.1.0.Final',
+
       xstream: 'com.thoughtworks.xstream:xstream:1.4.5'
 
   ]

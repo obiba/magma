@@ -16,6 +16,7 @@ import java.security.spec.X509EncodedKeySpec;
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
 
+import org.obiba.magma.AttributeAware;
 import org.obiba.magma.Datasource;
 import org.obiba.magma.NoSuchAttributeException;
 import org.obiba.magma.Value;
@@ -86,7 +87,7 @@ public class EncryptedSecretKeyDatasourceEncryptionStrategy implements Datasourc
   // Methods
   //
 
-  private AlgorithmParameters getAlgorithmParameters(Datasource datasource, String algorithm)
+  private AlgorithmParameters getAlgorithmParameters(AttributeAware datasource, String algorithm)
       throws IOException, NoSuchAlgorithmException {
     AlgorithmParameters algorithmParameters = null;
 
@@ -95,15 +96,17 @@ public class EncryptedSecretKeyDatasourceEncryptionStrategy implements Datasourc
     if(datasource.hasAttribute(CipherAttributeConstants.CIPHER_ALGORITHM_PARAMETERS)) {
       Value value = datasource.getAttribute(CipherAttributeConstants.CIPHER_ALGORITHM_PARAMETERS).getValue();
       algorithmParameters = AlgorithmParameters.getInstance(algorithm);
-      algorithmParameters.init((byte[]) value.getValue());
+      algorithmParameters.init((byte[]) (value.isNull() ? null : value.getValue()));
     }
 
     return algorithmParameters;
   }
 
-  private SecretKey getSecretKey(Datasource datasource) throws MagmaCryptRuntimeException, GeneralSecurityException {
+  private SecretKey getSecretKey(AttributeAware datasource)
+      throws MagmaCryptRuntimeException, GeneralSecurityException {
     String algorithm = datasource.getAttributeStringValue(CipherAttributeConstants.SECRET_KEY_ALGORITHM);
-    byte[] wrappedKey = (byte[]) datasource.getAttribute(CipherAttributeConstants.SECRET_KEY).getValue().getValue();
+    Value value = datasource.getAttribute(CipherAttributeConstants.SECRET_KEY).getValue();
+    byte[] wrappedKey = (byte[]) (value.isNull() ? null : value.getValue());
     PrivateKey privateKey = getPrivateKey(datasource);
 
     Cipher cipher = Cipher.getInstance(privateKey.getAlgorithm());
@@ -111,7 +114,7 @@ public class EncryptedSecretKeyDatasourceEncryptionStrategy implements Datasourc
     return (SecretKey) cipher.unwrap(wrappedKey, algorithm, Cipher.SECRET_KEY);
   }
 
-  private PrivateKey getPrivateKey(Datasource datasource)
+  private PrivateKey getPrivateKey(AttributeAware datasource)
       throws NoSuchKeyException, NoSuchAlgorithmException, InvalidKeySpecException {
     KeyPair keyPair = keyProvider.getKeyPair(getPublicKey(datasource));
     return keyPair.getPrivate();
@@ -125,10 +128,11 @@ public class EncryptedSecretKeyDatasourceEncryptionStrategy implements Datasourc
    * @throws NoSuchAlgorithmException
    * @throws InvalidKeySpecException
    */
-  private PublicKey getPublicKey(Datasource datasource) throws NoSuchAlgorithmException, InvalidKeySpecException {
+  private PublicKey getPublicKey(AttributeAware datasource) throws NoSuchAlgorithmException, InvalidKeySpecException {
     String algorithm = datasource.getAttributeStringValue(CipherAttributeConstants.PUBLIC_KEY_ALGORITHM);
     String format = datasource.getAttributeStringValue(CipherAttributeConstants.PUBLIC_KEY_FORMAT);
-    byte[] encodedKey = (byte[]) datasource.getAttribute(CipherAttributeConstants.PUBLIC_KEY).getValue().getValue();
+    Value value = datasource.getAttribute(CipherAttributeConstants.PUBLIC_KEY).getValue();
+    byte[] encodedKey = (byte[]) (value.isNull() ? null : value.getValue());
 
     EncodedKeySpec keySpec = getEncodedKeySpec(format, encodedKey);
     KeyFactory keyFactory = KeyFactory.getInstance(algorithm);

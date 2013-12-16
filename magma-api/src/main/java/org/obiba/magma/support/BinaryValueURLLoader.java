@@ -12,7 +12,7 @@ package org.obiba.magma.support;
 import java.io.InputStream;
 import java.net.URL;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.ValueLoader;
@@ -43,7 +43,7 @@ public class BinaryValueURLLoader implements ValueLoader {
     return url == null || url.isEmpty();
   }
 
-  @Nonnull
+  @NotNull
   @Override
   @edu.umd.cs.findbugs.annotations.SuppressWarnings("EI_EXPOSE_REP")
   public Object getValue() {

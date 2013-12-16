@@ -1,6 +1,6 @@
 package org.obiba.magma.datasource.hibernate.support;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 import org.obiba.magma.AbstractDatasourceFactory;
 import org.obiba.magma.Datasource;
@@ -14,7 +14,7 @@ import org.obiba.magma.support.Initialisables;
 @SuppressWarnings("UnusedDeclaration")
 public class HibernateDatasourceFactory extends AbstractDatasourceFactory implements Initialisable, Disposable {
 
-  @Nonnull
+  @NotNull
   private SessionFactoryProvider sessionFactoryProvider;
 
   /**
@@ -24,22 +24,22 @@ public class HibernateDatasourceFactory extends AbstractDatasourceFactory implem
       justification = "Needed by XStream")
   public HibernateDatasourceFactory() { }
 
-  public HibernateDatasourceFactory(String name, @Nonnull SessionFactoryProvider sessionFactoryProvider) {
+  public HibernateDatasourceFactory(String name, @NotNull SessionFactoryProvider sessionFactoryProvider) {
     setName(name);
     this.sessionFactoryProvider = sessionFactoryProvider;
   }
 
-  @Nonnull
+  @NotNull
   @Override
   public Datasource internalCreate() {
     return new HibernateDatasource(getName(), sessionFactoryProvider.getSessionFactory());
   }
 
-  public void setSessionFactoryProvider(@Nonnull SessionFactoryProvider sessionFactoryProvider) {
+  public void setSessionFactoryProvider(@NotNull SessionFactoryProvider sessionFactoryProvider) {
     this.sessionFactoryProvider = sessionFactoryProvider;
   }
 
-  @Nonnull
+  @NotNull
   public SessionFactoryProvider getSessionFactoryProvider() {
     return sessionFactoryProvider;
   }

@@ -281,11 +281,12 @@ public class ValueSequenceMethods {
     ScriptableValue sv = (ScriptableValue) thisObj;
     ValueType targetType = sv.getValueType();
     Iterable<Value> sequence;
-    if(sv.getValue().isNull()) {
+    Value svValue = sv.getValue();
+    if(svValue.isNull()) {
       return new ScriptableValue(thisObj, targetType.nullSequence());
     }
 
-    sequence = sv.getValue().isSequence() ? sv.getValue().asSequence().getValue() : ImmutableList.of(sv.getValue());
+    sequence = svValue.isSequence() ? svValue.asSequence().getValue() : ImmutableList.of(svValue);
 
     for(Object argument : args) {
       Value value = argument instanceof ScriptableValue //

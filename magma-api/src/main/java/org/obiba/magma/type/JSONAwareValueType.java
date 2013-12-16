@@ -12,8 +12,8 @@ package org.obiba.magma.type;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -41,7 +41,7 @@ public abstract class JSONAwareValueType extends AbstractValueType {
    * When the original {@code value} contains a {@code "}, it is escaped by adding another {@code "}, as per the CSV
    * standard.
    */
-  @Nonnull
+  @NotNull
   @Override
   public ValueSequence sequenceOf(@Nullable String string) {
     if(string == null) {

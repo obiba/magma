@@ -13,8 +13,8 @@ package org.obiba.magma.datasource.mongodb;
 import java.io.IOException;
 import java.util.Date;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
 
 import org.bson.BSONObject;
 import org.bson.types.ObjectId;
@@ -44,7 +44,7 @@ class MongoDBValueTableWriter implements ValueTableWriter {
 
   private final MongoDBValueTable table;
 
-  MongoDBValueTableWriter(@Nonnull MongoDBValueTable table) {
+  MongoDBValueTableWriter(@NotNull MongoDBValueTable table) {
     this.table = table;
   }
 
@@ -53,9 +53,9 @@ class MongoDBValueTableWriter implements ValueTableWriter {
     return new MongoDBVariableWriter();
   }
 
-  @Nonnull
+  @NotNull
   @Override
-  public ValueSetWriter writeValueSet(@Nonnull VariableEntity entity) {
+  public ValueSetWriter writeValueSet(@NotNull VariableEntity entity) {
     return new MongoDBValueSetWriter(entity);
   }
 
@@ -91,7 +91,7 @@ class MongoDBValueTableWriter implements ValueTableWriter {
     }
 
     @Override
-    public void writeValue(@Nonnull Variable variable, Value value) {
+    public void writeValue(@NotNull Variable variable, Value value) {
       String field = VariableConverter.normalizeFieldName(variable.getName());
       if(BinaryType.get().equals(value.getValueType())) {
         DBObject fileMetadata = getValueSetObject().containsField(field)
@@ -182,7 +182,7 @@ class MongoDBValueTableWriter implements ValueTableWriter {
   private class MongoDBVariableWriter implements ValueTableWriter.VariableWriter {
 
     @Override
-    public void writeVariable(@Nonnull Variable variable) {
+    public void writeVariable(@NotNull Variable variable) {
       if(table.getVariablesCollection().findOne(BasicDBObjectBuilder.start("_id", variable.getName()).get()) == null) {
         table.addVariableValueSource(new MongoDBVariableValueSource(table, variable.getName()));
       }
@@ -194,7 +194,7 @@ class MongoDBValueTableWriter implements ValueTableWriter {
     }
 
     @Override
-    public void removeVariable(@Nonnull Variable variable) {
+    public void removeVariable(@NotNull Variable variable) {
       DBCollection variablesCollection = table.getVariablesCollection();
       DBObject varObj = variablesCollection.findOne(BasicDBObjectBuilder.start("_id", variable.getName()).get());
       if(varObj == null) return;
@@ -209,7 +209,7 @@ class MongoDBValueTableWriter implements ValueTableWriter {
       updateLastUpdate();
     }
 
-    private void removeVariableValues(@Nonnull Variable variable) {
+    private void removeVariableValues(@NotNull Variable variable) {
       DBCollection valueSetCollection = table.getValueSetCollection();
       DBCursor cursor = valueSetCollection.find();
       String field = VariableConverter.normalizeFieldName(variable.getName());

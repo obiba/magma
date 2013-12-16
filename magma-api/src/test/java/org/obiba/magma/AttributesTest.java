@@ -11,42 +11,45 @@ package org.obiba.magma;
 
 import java.util.Locale;
 
-import org.junit.Assert;
 import org.junit.Test;
 import org.obiba.magma.test.AbstractMagmaTest;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 
 public class AttributesTest extends AbstractMagmaTest {
 
   @Test
   public void test_decodeFromHeader_handlesNameOnly() {
     Attribute attribute = Attributes.decodeFromHeader("label").build();
-    Assert.assertEquals("label", attribute.getName());
-    Assert.assertNull(attribute.getNamespace());
-    Assert.assertNull(attribute.getLocale());
+    assertEquals("label", attribute.getName());
+    assertNull(attribute.getNamespace());
+    assertFalse(attribute.isLocalised());
   }
 
   @Test
   public void test_decodeFromHeader_handlesNameAndLocale() {
     Attribute attribute = Attributes.decodeFromHeader("label:en").build();
-    Assert.assertEquals("label", attribute.getName());
-    Assert.assertNull(attribute.getNamespace());
-    Assert.assertEquals(new Locale("en"), attribute.getLocale());
+    assertEquals("label", attribute.getName());
+    assertNull(attribute.getNamespace());
+    assertEquals(new Locale("en"), attribute.getLocale());
   }
 
   @Test
   public void test_decodeFromHeader_handlesNamespaceAndNameAndLocale() {
     Attribute attribute = Attributes.decodeFromHeader("rdf::label:en").build();
-    Assert.assertEquals("label", attribute.getName());
-    Assert.assertEquals("rdf", attribute.getNamespace());
-    Assert.assertEquals(new Locale("en"), attribute.getLocale());
+    assertEquals("label", attribute.getName());
+    assertEquals("rdf", attribute.getNamespace());
+    assertEquals(new Locale("en"), attribute.getLocale());
   }
 
   @Test
   public void test_decodeFromHeader_handlesNamespaceAndName() {
     Attribute attribute = Attributes.decodeFromHeader("rdf::label").build();
-    Assert.assertEquals("label", attribute.getName());
-    Assert.assertEquals("rdf", attribute.getNamespace());
-    Assert.assertNull(attribute.getLocale());
+    assertEquals("label", attribute.getName());
+    assertEquals("rdf", attribute.getNamespace());
+    assertFalse(attribute.isLocalised());
   }
 
   @Test
@@ -71,7 +74,7 @@ public class AttributesTest extends AbstractMagmaTest {
   }
 
   private void assertHeader(String expectedHeader, Attribute attribute) {
-    Assert.assertEquals(expectedHeader, Attributes.encodeForHeader(attribute));
+    assertEquals(expectedHeader, Attributes.encodeForHeader(attribute));
   }
 
 }

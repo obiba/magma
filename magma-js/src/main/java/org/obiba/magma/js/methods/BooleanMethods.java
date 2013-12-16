@@ -366,8 +366,14 @@ public class BooleanMethods {
 
   private static ScriptableValue numericEquals(Scriptable thisObj, ScriptableValue firstOperand,
       ScriptableValue secondOperand) {
-    Number firstNumber = (Number) firstOperand.getValue().getValue();
-    Number secondNumber = (Number) secondOperand.getValue().getValue();
+    Value firstOperandValue = firstOperand.getValue();
+    Value secondOperandValue = secondOperand.getValue();
+    if(firstOperandValue.isNull() || secondOperandValue.isNull()) {
+      return new ScriptableValue(thisObj,
+          BooleanType.get().valueOf(firstOperandValue.isNull() && secondOperandValue.isNull()));
+    }
+    Number firstNumber = (Number) firstOperandValue.getValue();
+    Number secondNumber = (Number) secondOperandValue.getValue();
     if(firstOperand.getValueType().equals(IntegerType.get()) &&
         secondOperand.getValueType().equals(IntegerType.get())) {
       return new ScriptableValue(thisObj, BooleanType.get().valueOf(Objects.equal(firstNumber, secondNumber)));
@@ -387,15 +393,19 @@ public class BooleanMethods {
 
   private static ScriptableValue booleanEquals(Scriptable thisObj, ScriptableValue firstOperand,
       ScriptableValue secondOperand) {
-    Boolean firstBoolean = (Boolean) firstOperand.getValue().getValue();
-    Boolean secondBoolean = (Boolean) secondOperand.getValue().getValue();
+    Value firstOperandValue = firstOperand.getValue();
+    Boolean firstBoolean = firstOperandValue.isNull() ? false : (Boolean) firstOperandValue.getValue();
+    Value secondOperandValue = secondOperand.getValue();
+    Boolean secondBoolean = secondOperandValue.isNull() ? false : (Boolean) secondOperandValue.getValue();
     return new ScriptableValue(thisObj, BooleanType.get().valueOf(Objects.equal(firstBoolean, secondBoolean)));
   }
 
   private static ScriptableValue textEquals(Scriptable thisObj, ScriptableValue firstOperand,
       ScriptableValue secondOperand) {
-    String firstString = (String) firstOperand.getValue().getValue();
-    String secondString = (String) secondOperand.getValue().getValue();
+    Value firstOperandValue = firstOperand.getValue();
+    String firstString = firstOperandValue.isNull() ? null : (String) firstOperandValue.getValue();
+    Value secondOperandValue = secondOperand.getValue();
+    String secondString = secondOperandValue.isNull() ? null : (String) secondOperandValue.getValue();
     return new ScriptableValue(thisObj, BooleanType.get().valueOf(Objects.equal(firstString, secondString)));
   }
 

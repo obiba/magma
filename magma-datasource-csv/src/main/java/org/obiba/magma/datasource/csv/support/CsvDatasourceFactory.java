@@ -4,7 +4,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 import org.obiba.magma.AbstractDatasourceFactory;
 import org.obiba.magma.Datasource;
@@ -91,7 +91,7 @@ public class CsvDatasourceFactory extends AbstractDatasourceFactory {
     return tables == null ? tables = new ArrayList<>() : tables;
   }
 
-  @Nonnull
+  @NotNull
   @Override
   protected Datasource internalCreate() {
     CsvDatasource datasource = bundle != null && bundle.isDirectory()

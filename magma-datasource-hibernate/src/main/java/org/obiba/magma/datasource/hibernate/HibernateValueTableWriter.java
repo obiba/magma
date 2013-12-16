@@ -8,8 +8,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
 
 import org.hibernate.FlushMode;
 import org.hibernate.LockMode;
@@ -77,9 +77,9 @@ class HibernateValueTableWriter implements ValueTableWriter {
     context = valueTable.createContext();
   }
 
-  @Nonnull
+  @NotNull
   @Override
-  public ValueSetWriter writeValueSet(@Nonnull VariableEntity entity) {
+  public ValueSetWriter writeValueSet(@NotNull VariableEntity entity) {
     return new HibernateValueSetWriter(entity);
   }
 
@@ -103,7 +103,7 @@ class HibernateValueTableWriter implements ValueTableWriter {
     }
 
     @Override
-    public void writeVariable(@Nonnull Variable variable) {
+    public void writeVariable(@NotNull Variable variable) {
       //noinspection ConstantConditions
       checkArgument(variable != null, "variable cannot be null");
       checkArgument(valueTable.isForEntityType(variable.getEntityType()),
@@ -120,7 +120,7 @@ class HibernateValueTableWriter implements ValueTableWriter {
     }
 
     @Override
-    public void removeVariable(@Nonnull Variable variable) {
+    public void removeVariable(@NotNull Variable variable) {
 
       errorOccurred = true;
 
@@ -179,14 +179,14 @@ class HibernateValueTableWriter implements ValueTableWriter {
 
     private final ValueSetState valueSetState;
 
-    @Nonnull
+    @NotNull
     private final VariableEntity entity;
 
     private final boolean isNewValueSet;
 
     private final Map<String, ValueSetValue> values;
 
-    private HibernateValueSetWriter(@Nonnull VariableEntity entity) {
+    private HibernateValueSetWriter(@NotNull VariableEntity entity) {
       //noinspection ConstantConditions
       if(entity == null) throw new IllegalArgumentException("entity cannot be null");
       this.entity = entity;
@@ -215,7 +215,7 @@ class HibernateValueTableWriter implements ValueTableWriter {
 
     @Override
     @SuppressWarnings("PMD.NcssMethodCount")
-    public void writeValue(@Nonnull Variable variable, @Nonnull Value value) {
+    public void writeValue(@NotNull Variable variable, @NotNull Value value) {
       //noinspection ConstantConditions
       if(variable == null) throw new IllegalArgumentException("variable cannot be null");
       //noinspection ConstantConditions
@@ -281,9 +281,11 @@ class HibernateValueTableWriter implements ValueTableWriter {
     private void writeBinaryValue(ValueSetValue valueSetValue, Value value, boolean isUpdate) {
       if(value.isSequence()) {
         List<Value> sequenceValues = Lists.newArrayList();
-        int occurrence = 0;
-        for(Value valueOccurrence : value.asSequence().getValue()) {
-          sequenceValues.add(createBinaryValue(valueSetValue, valueOccurrence, occurrence++, isUpdate));
+        if(!value.isNull()) {
+          int occurrence = 0;
+          for(Value valueOccurrence : value.asSequence().getValue()) {
+            sequenceValues.add(createBinaryValue(valueSetValue, valueOccurrence, occurrence++, isUpdate));
+          }
         }
         valueSetValue.setValue(TextType.get().sequenceOf(sequenceValues));
       } else {
@@ -295,7 +297,7 @@ class HibernateValueTableWriter implements ValueTableWriter {
       ValueSetBinaryValue binaryValue = isUpdate ? findBinaryValue(valueSetValue, occurrence) : null;
       if(binaryValue == null) {
         binaryValue = createBinaryValue(valueSetValue, inputValue, occurrence);
-      } else if(inputValue.getValue() == null) {
+      } else if(inputValue.isNull()) {
         session.delete(binaryValue);
       }
       if(binaryValue == null) {
@@ -316,10 +318,9 @@ class HibernateValueTableWriter implements ValueTableWriter {
 
     @Nullable
     private ValueSetBinaryValue createBinaryValue(ValueSetValue valueSetValue, Value value, int occurrence) {
-      Object bytes = value.getValue();
-      if(bytes == null) return null;
+      if(value.isNull() || value.getValue() == null) return null;
       ValueSetBinaryValue binaryValue = new ValueSetBinaryValue(valueSetValue, occurrence);
-      binaryValue.setValue((byte[]) bytes);
+      binaryValue.setValue((byte[]) value.getValue());
       return binaryValue;
     }
 

@@ -1,6 +1,9 @@
 package org.obiba.magma.filter;
 
+import java.util.Objects;
+
 import org.obiba.magma.Initialisable;
+import org.obiba.magma.Value;
 import org.obiba.magma.Variable;
 
 import com.thoughtworks.xstream.annotations.XStreamAlias;
@@ -38,7 +41,9 @@ public class VariableAttributeFilter extends AbstractFilter<Variable> implements
   @Override
   protected Boolean runFilter(Variable item) {
     initialise();
-    return item.hasAttribute(attributeName) && item.getAttribute(attributeName).getValue().toString().equals(value);
+    if(!item.hasAttribute(attributeName)) return false;
+    Value attrValue = item.getAttribute(attributeName).getValue();
+    return !attrValue.isNull() && Objects.equals(attrValue.toString(), value);
   }
 
   public static class Builder extends AbstractFilter.Builder {

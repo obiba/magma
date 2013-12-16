@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 import org.obiba.magma.AbstractAttributeAware;
 import org.obiba.magma.Attribute;
@@ -124,15 +124,15 @@ public class StaticDatasource extends AbstractAttributeAware implements Datasour
     attributes.clear();
   }
 
-  @Nonnull
+  @NotNull
   @Override
   public Timestamps getTimestamps() {
     return new UnionTimestamps(getValueTables());
   }
 
-  @Nonnull
+  @NotNull
   @Override
-  public ValueTableWriter createWriter(@Nonnull String tableName, @Nonnull String entityType) {
+  public ValueTableWriter createWriter(@NotNull String tableName, @NotNull String entityType) {
     //noinspection ConstantConditions
     if(tableName == null) throw new IllegalArgumentException("tableName cannot be null");
     //noinspection ConstantConditions
@@ -194,20 +194,20 @@ public class StaticDatasource extends AbstractAttributeAware implements Datasour
         }
 
         @Override
-        public void writeVariable(@Nonnull Variable variable) {
+        public void writeVariable(@NotNull Variable variable) {
           table.addVariable(Variable.Builder.sameAs(variable).build());
         }
 
         @Override
-        public void removeVariable(@Nonnull Variable variable) {
+        public void removeVariable(@NotNull Variable variable) {
           table.removeVariable(variable.getName());
         }
       };
     }
 
-    @Nonnull
+    @NotNull
     @Override
-    public ValueSetWriter writeValueSet(@Nonnull final VariableEntity entity) {
+    public ValueSetWriter writeValueSet(@NotNull final VariableEntity entity) {
       if(!table.hasVariableEntity(entity)) {
         table.addVariableEntity(entity);
       }
@@ -218,7 +218,7 @@ public class StaticDatasource extends AbstractAttributeAware implements Datasour
         }
 
         @Override
-        public void writeValue(@Nonnull Variable variable, Value value) {
+        public void writeValue(@NotNull Variable variable, Value value) {
           table.addValues(entity.getIdentifier(), variable, value);
         }
       };

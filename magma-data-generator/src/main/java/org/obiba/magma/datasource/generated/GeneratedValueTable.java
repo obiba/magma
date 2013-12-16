@@ -6,8 +6,8 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
 
 import org.apache.commons.math3.random.JDKRandomGenerator;
 import org.apache.commons.math3.random.RandomGenerator;
@@ -43,7 +43,7 @@ public class GeneratedValueTable implements ValueTable {
 
   private final Map<String, VariableValueSource> generators;
 
-  @Nonnull
+  @NotNull
   private final Value timestamp;
 
   public GeneratedValueTable(@Nullable Datasource ds, Collection<Variable> dictionary, int entities) {
@@ -69,7 +69,7 @@ public class GeneratedValueTable implements ValueTable {
     }
   }
 
-  @Nonnull
+  @NotNull
   @Override
   public Datasource getDatasource() {
     return datasource;
@@ -80,24 +80,24 @@ public class GeneratedValueTable implements ValueTable {
     return dictionary.iterator().next().getEntityType();
   }
 
-  @Nonnull
+  @NotNull
   @Override
   public String getName() {
     return "generated";
   }
 
-  @Nonnull
+  @NotNull
   @Override
   public Timestamps getTimestamps() {
     return new Timestamps() {
 
-      @Nonnull
+      @NotNull
       @Override
       public Value getLastUpdate() {
         return timestamp;
       }
 
-      @Nonnull
+      @NotNull
       @Override
       public Value getCreated() {
         return timestamp;

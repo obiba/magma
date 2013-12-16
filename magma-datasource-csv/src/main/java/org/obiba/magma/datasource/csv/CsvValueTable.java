@@ -15,8 +15,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
 
 import org.obiba.magma.Datasource;
 import org.obiba.magma.Disposable;
@@ -265,7 +265,7 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
     buildDataLineIndex();
   }
 
-  @Nonnull
+  @NotNull
   @VisibleForTesting
   @SuppressWarnings({ "OverlyLongMethod", "PMD.NcssMethodCount" })
   Map<Integer, CsvIndexEntry> buildVariableLineIndex() throws IOException {
@@ -308,7 +308,7 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
     return lineNumberMap;
   }
 
-  @Nonnull
+  @NotNull
   @SuppressWarnings({ "OverlyLongMethod", "PMD.NcssMethodCount" })
   Map<Integer, CsvIndexEntry> buildDataLineIndex() throws IOException {
 
@@ -390,7 +390,7 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
     }
   }
 
-  public void clear(@Nonnull File file, CsvIndexEntry indexEntry) throws IOException {
+  public void clear(@NotNull File file, CsvIndexEntry indexEntry) throws IOException {
     RandomAccessFile raf = new RandomAccessFile(file, "rws");
     try {
       int length = (int) (indexEntry.getEnd() - indexEntry.getStart());
@@ -464,7 +464,7 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
 
   }
 
-  private long getLastByte(@Nonnull File file) throws IOException {
+  private long getLastByte(@NotNull File file) throws IOException {
     RandomAccessFile raf = new RandomAccessFile(file, "r");
     try {
       return raf.length();
@@ -487,7 +487,7 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
     return getLastByte(variableFile);
   }
 
-  private char getLastCharacter(@Nonnull File file) throws IOException {
+  private char getLastCharacter(@NotNull File file) throws IOException {
     RandomAccessFile raf = new RandomAccessFile(file, "r");
     try {
       raf.seek(raf.length() - 1);
@@ -513,7 +513,7 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
     return getLastCharacter(variableFile);
   }
 
-  private void addNewline(@Nonnull File file) throws IOException {
+  private void addNewline(@NotNull File file) throws IOException {
     RandomAccessFile raf = new RandomAccessFile(file, "rws");
     try {
       raf.seek(raf.length());
@@ -608,7 +608,7 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
     this.isDataFileEmpty = isDataFileEmpty;
   }
 
-  @Nonnull
+  @NotNull
   @Override
   public Timestamps getTimestamps() {
     return timestamps;

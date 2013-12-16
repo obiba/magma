@@ -4,8 +4,8 @@ import java.io.Serializable;
 import java.util.Comparator;
 import java.util.List;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
 
 import org.obiba.magma.type.BinaryType;
 import org.obiba.magma.type.LocaleType;
@@ -22,7 +22,7 @@ public class ValueSequence extends Value {
 
   private static final long serialVersionUID = -1965362009370797808L;
 
-  ValueSequence(@Nonnull ValueType valueType, @Nullable Iterable<Value> values) {
+  ValueSequence(@NotNull ValueType valueType, @Nullable Iterable<Value> values) {
     super(valueType, (Serializable) values);
   }
 
@@ -31,19 +31,19 @@ public class ValueSequence extends Value {
     return true;
   }
 
-  @Nonnull
+  @NotNull
   @Override
   public ValueSequence asSequence() {
     return this;
   }
 
-  @Nonnull
+  @NotNull
   @Override
   public Value copy() {
     return getValueType().sequenceOf(getValue());
   }
 
-  @Nullable
+  @NotNull
   @Override
   @SuppressWarnings("unchecked")
   public Iterable<Value> getValue() {
@@ -99,10 +99,9 @@ public class ValueSequence extends Value {
    *
    * @return
    */
-  @Nonnull
+  @NotNull
   public List<Value> getValues() {
-    Iterable<Value> value = getValue();
-    return value == null ? ImmutableList.<Value>of() : ImmutableList.copyOf(value);
+    return isNull() ? ImmutableList.<Value>of() : ImmutableList.copyOf(getValue());
   }
 
   /**
@@ -122,8 +121,7 @@ public class ValueSequence extends Value {
    * @param value
    * @return
    */
-  public boolean contains(@Nonnull Value value) {
-    List<Value> values = getValues();
-    return values.contains(value);
+  public boolean contains(@NotNull Value value) {
+    return getValues().contains(value);
   }
 }

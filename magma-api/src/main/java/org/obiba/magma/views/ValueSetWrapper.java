@@ -3,7 +3,7 @@
  */
 package org.obiba.magma.views;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 import org.obiba.magma.Timestamps;
 import org.obiba.magma.ValueSet;
@@ -15,13 +15,13 @@ public class ValueSetWrapper implements ValueSet {
 
 //  private static final Logger log = LoggerFactory.getLogger(ValueSetWrapper.class);
 
-  @Nonnull
+  @NotNull
   private final TransformingValueTable mappingTable;
 
-  @Nonnull
+  @NotNull
   private final ValueSet wrapped;
 
-  ValueSetWrapper(@Nonnull TransformingValueTable mappingTable, @Nonnull ValueSet wrapped) {
+  ValueSetWrapper(@NotNull TransformingValueTable mappingTable, @NotNull ValueSet wrapped) {
     this.mappingTable = mappingTable;
     this.wrapped = wrapped;
   }
@@ -40,7 +40,7 @@ public class ValueSetWrapper implements ValueSet {
     return wrapped;
   }
 
-  @Nonnull
+  @NotNull
   @Override
   public Timestamps getTimestamps() {
     return wrapped.getTimestamps();

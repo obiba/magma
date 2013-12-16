@@ -4,7 +4,7 @@ import java.util.Collection;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 import org.obiba.magma.Datasource;
 import org.obiba.magma.NoSuchValueSetException;
@@ -40,7 +40,7 @@ public class BeanValueTable extends AbstractValueTable {
         return entity;
       }
 
-      @Nonnull
+      @NotNull
       @Override
       public Timestamps getTimestamps() {
         return BeanValueTable.this.getTimestamps();
@@ -92,7 +92,7 @@ public class BeanValueTable extends AbstractValueTable {
     super.addVariableValueSources(factory);
   }
 
-  @Nonnull
+  @NotNull
   @Override
   public Timestamps getTimestamps() {
     return NullTimestamps.get();

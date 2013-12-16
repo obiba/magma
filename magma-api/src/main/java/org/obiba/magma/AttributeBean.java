@@ -3,6 +3,8 @@ package org.obiba.magma;
 import java.io.Serializable;
 import java.util.Locale;
 
+import javax.validation.constraints.NotNull;
+
 import com.google.common.base.Objects;
 
 class AttributeBean implements Attribute, Serializable {
@@ -34,8 +36,12 @@ class AttributeBean implements Attribute, Serializable {
     return namespace != null && !namespace.isEmpty();
   }
 
+  @NotNull
   @Override
   public Locale getLocale() {
+    if(locale == null) {
+      throw new NullPointerException("Locale is null");
+    }
     return locale;
   }
 

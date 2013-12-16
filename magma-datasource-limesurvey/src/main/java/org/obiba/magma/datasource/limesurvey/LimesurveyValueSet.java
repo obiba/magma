@@ -4,7 +4,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Map;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueTable;
@@ -35,11 +35,9 @@ class LimesurveyValueSet extends ValueSetBean {
       LimesurveyValueTable limeValueTable = getValueTable();
       cache = Maps.newHashMap();
       String id = getVariableEntity().getIdentifier();
-      StringBuilder sql = new StringBuilder();
-      sql.append("SELECT * FROM ").append(limeValueTable.quoteAndPrefix("survey_" + limeValueTable.getSid()))
-          .append(" WHERE token = ?");
       getValueTable().getDatasource().getJdbcTemplate()
-          .query(sql.toString(), new Object[] { id }, new ResultSetExtractor<Void>() {
+          .query("SELECT * FROM " + limeValueTable.quoteAndPrefix("survey_" + limeValueTable.getSid()) +
+              " WHERE token = ?", new Object[] { id }, new ResultSetExtractor<Void>() {
             @Override
             public Void extractData(ResultSet rs) throws SQLException, DataAccessException {
               if(rs.next()) {
@@ -55,7 +53,7 @@ class LimesurveyValueSet extends ValueSetBean {
     }
   }
 
-  @Nonnull
+  @NotNull
   @Override
   public LimesurveyValueTable getValueTable() {
     return (LimesurveyValueTable) super.getValueTable();

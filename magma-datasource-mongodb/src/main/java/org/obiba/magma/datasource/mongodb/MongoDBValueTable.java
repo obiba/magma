@@ -12,8 +12,8 @@ package org.obiba.magma.datasource.mongodb;
 
 import java.util.Date;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
 
 import org.bson.BSONObject;
 import org.bson.types.ObjectId;
@@ -40,11 +40,11 @@ public class MongoDBValueTable extends AbstractValueTable {
 
   private static final String VALUE_SET_SUFFIX = "_value_set";
 
-  public MongoDBValueTable(@Nonnull Datasource datasource, @Nonnull String name) {
+  public MongoDBValueTable(@NotNull Datasource datasource, @NotNull String name) {
     this(datasource, name, null);
   }
 
-  public MongoDBValueTable(@Nonnull Datasource datasource, @Nonnull String name, @Nullable String entityType) {
+  public MongoDBValueTable(@NotNull Datasource datasource, @NotNull String name, @Nullable String entityType) {
     super(datasource, name);
     setVariableEntityProvider(new MongoDBVariableEntityProvider(this, entityType));
     // ensure corresponding document is stored
@@ -149,13 +149,13 @@ public class MongoDBValueTable extends AbstractValueTable {
         return (BSONObject) asDBObject().get(MongoDBDatasource.TIMESTAMPS_FIELD);
       }
 
-      @Nonnull
+      @NotNull
       @Override
       public Value getLastUpdate() {
         return DateTimeType.get().valueOf(getTimestampsObject().get(MongoDBDatasource.TIMESTAMPS_UPDATED_FIELD));
       }
 
-      @Nonnull
+      @NotNull
       @Override
       public Value getCreated() {
         return DateTimeType.get().valueOf(getTimestampsObject().get(MongoDBDatasource.TIMESTAMPS_CREATED_FIELD));

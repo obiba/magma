@@ -38,7 +38,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 import static org.obiba.core.util.FileUtil.getFileFromResource;
@@ -220,14 +219,17 @@ public class CsvValueTableWriterTest extends AbstractMagmaTest {
       Value coffeeValue = table.getValue(verifyCoffeeVariable, valueSet);
       Value teaValue = table.getValue(verifyTeaVariable, valueSet);
       Value biscuitValue = table.getValue(verifyBiscuitVariable, valueSet);
-      if("1".equals(identifier)) {
-        assertThat(coffeeValue.getValue().toString(), is("Second Cup"));
-        assertThat(teaValue.getValue().toString(), is("Earl Grey"));
-        assertThat(biscuitValue.getValue().toString(), is("cheese"));
-      } else if("2".equals(identifier)) {
-        assertThat(coffeeValue.getValue(), nullValue());
-        assertThat(teaValue.getValue().toString(), is("Orange Pekoe"));
-        assertThat(biscuitValue.getValue(), nullValue());
+      switch(identifier) {
+        case "1":
+          assertThat(coffeeValue.getValue().toString(), is("Second Cup"));
+          assertThat(teaValue.getValue().toString(), is("Earl Grey"));
+          assertThat(biscuitValue.getValue().toString(), is("cheese"));
+          break;
+        case "2":
+          assertThat(coffeeValue.isNull(), is(true));
+          assertThat(teaValue.getValue().toString(), is("Orange Pekoe"));
+          assertThat(biscuitValue.isNull(), is(true));
+          break;
       }
     }
   }

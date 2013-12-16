@@ -8,8 +8,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
 
 import org.hibernate.Criteria;
 import org.hibernate.FetchMode;
@@ -71,7 +71,7 @@ class HibernateValueTable extends AbstractValueTable {
     readVariables();
   }
 
-  @Nonnull
+  @NotNull
   @Override
   public HibernateDatasource getDatasource() {
     return (HibernateDatasource) super.getDatasource();
@@ -122,13 +122,13 @@ class HibernateValueTable extends AbstractValueTable {
     for(final Object[] row : (List<Object[]>) query.list()) {
       valueSetTimestamps.put((String) row[0], new Timestamps() {
 
-        @Nonnull
+        @NotNull
         @Override
         public Value getCreated() {
           return DateTimeType.get().valueOf(row[1]);
         }
 
-        @Nonnull
+        @NotNull
         @Override
         public Value getLastUpdate() {
           return DateTimeType.get().valueOf(row[2]);
@@ -137,7 +137,7 @@ class HibernateValueTable extends AbstractValueTable {
     }
   }
 
-  @Nonnull
+  @NotNull
   @Override
   public Timestamps getTimestamps() {
     return createTimestamps(getValueTableState());
@@ -153,13 +153,13 @@ class HibernateValueTable extends AbstractValueTable {
   private static Timestamps createTimestamps(@Nullable final Timestamped timestamped) {
     return timestamped == null ? NullTimestamps.get() : new Timestamps() {
 
-      @Nonnull
+      @NotNull
       @Override
       public Value getLastUpdate() {
         return DateTimeType.get().valueOf(timestamped.getUpdated());
       }
 
-      @Nonnull
+      @NotNull
       @Override
       public Value getCreated() {
         return DateTimeType.get().valueOf(timestamped.getCreated());
@@ -250,7 +250,7 @@ class HibernateValueTable extends AbstractValueTable {
       return valueSetState;
     }
 
-    @Nonnull
+    @NotNull
     @Override
     public Timestamps getTimestamps() {
       return createTimestamps(getValueSetState());

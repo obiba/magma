@@ -1,6 +1,6 @@
 package org.obiba.magma.support;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 import org.obiba.magma.Timestamps;
 import org.obiba.magma.ValueSet;
@@ -9,14 +9,14 @@ import org.obiba.magma.VariableEntity;
 
 public class ValueSetBean implements ValueSet {
 
-  @Nonnull
+  @NotNull
   private final ValueTable table;
 
-  @Nonnull
+  @NotNull
   private final VariableEntity entity;
 
   @SuppressWarnings("ConstantConditions")
-  public ValueSetBean(@Nonnull ValueTable table, @Nonnull VariableEntity entity) {
+  public ValueSetBean(@NotNull ValueTable table, @NotNull VariableEntity entity) {
     if(table == null) throw new IllegalArgumentException("table cannot be null");
     if(entity == null) throw new IllegalArgumentException("entity cannot be null");
     this.table = table;
@@ -27,20 +27,20 @@ public class ValueSetBean implements ValueSet {
     this(valueSet.getValueTable(), valueSet.getVariableEntity());
   }
 
-  @Nonnull
+  @NotNull
   @Override
   public Timestamps getTimestamps() {
     return getValueTable().getTimestamps();
   }
 
   @Override
-  @Nonnull
+  @NotNull
   public ValueTable getValueTable() {
     return table;
   }
 
   @Override
-  @Nonnull
+  @NotNull
   public VariableEntity getVariableEntity() {
     return entity;
   }

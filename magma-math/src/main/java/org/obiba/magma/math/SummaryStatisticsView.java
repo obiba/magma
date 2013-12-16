@@ -4,8 +4,8 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Set;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
 
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.obiba.magma.Datasource;
@@ -64,7 +64,7 @@ public class SummaryStatisticsView extends AbstractValueTable implements Initial
         new StatVariableValueSource("Skewness"), new StatVariableValueSource("Kurtosis")));
   }
 
-  @Nonnull
+  @NotNull
   @Override
   public Timestamps getTimestamps() {
     return NullTimestamps.get();
@@ -120,7 +120,7 @@ public class SummaryStatisticsView extends AbstractValueTable implements Initial
       return Variable.Builder.newVariable(statName, DecimalType.get(), getEntityType()).build();
     }
 
-    @Nonnull
+    @NotNull
     @Override
     public Value getValue(ValueSet valueSet) {
       try {
@@ -130,7 +130,7 @@ public class SummaryStatisticsView extends AbstractValueTable implements Initial
       }
     }
 
-    @Nonnull
+    @NotNull
     @Override
     public ValueType getValueType() {
       return DecimalType.get();

@@ -1,6 +1,6 @@
 package org.obiba.magma.support;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 import org.obiba.magma.ValueTable;
 
@@ -12,21 +12,21 @@ public final class EntitiesPredicate {
 
   public static class DefaultEntitiesPredicate implements Predicate<ValueTable> {
     @Override
-    public boolean apply(@Nonnull ValueTable value) {
+    public boolean apply(@NotNull ValueTable value) {
       return true;
     }
   }
 
   public static class NonViewEntitiesPredicate implements Predicate<ValueTable> {
     @Override
-    public boolean apply(@Nonnull ValueTable valueTable) {
+    public boolean apply(@NotNull ValueTable valueTable) {
       return !valueTable.isView() && !valueTable.getVariableEntities().isEmpty();
     }
   }
 
   public static class ViewsOnlyEntitiesPredicate implements Predicate<ValueTable> {
     @Override
-    public boolean apply(@Nonnull ValueTable valueTable) {
+    public boolean apply(@NotNull ValueTable valueTable) {
       return valueTable.isView() && !valueTable.getVariableEntities().isEmpty();
     }
   }

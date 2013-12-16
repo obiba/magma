@@ -1,7 +1,7 @@
 package org.obiba.magma.datasource.excel;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
 
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueSet;
@@ -23,7 +23,7 @@ public class ExcelVariableValueSource implements VariableValueSource {
     return variable;
   }
 
-  @Nonnull
+  @NotNull
   @Override
   public ValueType getValueType() {
     return variable.getValueType();
@@ -35,7 +35,7 @@ public class ExcelVariableValueSource implements VariableValueSource {
     return null;
   }
 
-  @Nonnull
+  @NotNull
   @Override
   public Value getValue(ValueSet valueSet) {
     throw new UnsupportedOperationException();

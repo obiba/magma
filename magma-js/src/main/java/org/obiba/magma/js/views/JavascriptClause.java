@@ -93,7 +93,7 @@ public class JavascriptClause implements Initialisable, SelectClause, WhereClaus
         if(value instanceof ScriptableValue) {
           ScriptableValue scriptable = (ScriptableValue) value;
           if(scriptable.getValueType().equals(BooleanType.get())) {
-            return scriptable.getValue().getValue();
+            return scriptable.getValue().isNull() ? null : scriptable.getValue().getValue();
           }
         }
         return false;
@@ -129,7 +129,7 @@ public class JavascriptClause implements Initialisable, SelectClause, WhereClaus
         if(value instanceof ScriptableValue) {
           ScriptableValue scriptable = (ScriptableValue) value;
           if(scriptable.getValueType().equals(BooleanType.get())) {
-            return scriptable.getValue().getValue();
+            return scriptable.getValue().isNull() ? null : scriptable.getValue().getValue();
           }
         }
         return false;

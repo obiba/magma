@@ -4,8 +4,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
 
 import org.obiba.magma.support.Disposables;
 import org.obiba.magma.support.Initialisables;
@@ -65,7 +65,7 @@ public class DefaultDatasourceRegistry implements DatasourceRegistry, Disposable
 
   @SuppressWarnings("ConstantConditions")
   @Override
-  public void addDecorator(@Nonnull Decorator<Datasource> decorator) {
+  public void addDecorator(@NotNull Decorator<Datasource> decorator) {
     if(decorator == null) throw new MagmaRuntimeException("decorator cannot be null.");
     Initialisables.initialise(decorator);
     decorators.add(decorator);

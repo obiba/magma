@@ -15,7 +15,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 import org.obiba.magma.Datasource;
 import org.obiba.magma.Disposable;
@@ -65,18 +65,18 @@ public class SpssValueTable extends AbstractValueTable implements Disposable {
     return new SpssValueSet(this, entity, spssFile);
   }
 
-  @Nonnull
+  @NotNull
   @Override
   public Timestamps getTimestamps() {
     return new Timestamps() {
-      @Nonnull
+      @NotNull
       @Override
       public Value getLastUpdate() {
         Date lastModified = new Date(spssFile.file.lastModified());
         return DateTimeType.get().valueOf(lastModified);
       }
 
-      @Nonnull
+      @NotNull
       @Override
       public Value getCreated() {
         // Not currently possible to read a file creation timestamp. Coming in JDK 7 NIO.

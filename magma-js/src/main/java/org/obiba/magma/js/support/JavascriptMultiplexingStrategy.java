@@ -16,6 +16,7 @@ import org.mozilla.javascript.ContextAction;
 import org.mozilla.javascript.ContextFactory;
 import org.mozilla.javascript.Script;
 import org.mozilla.javascript.Scriptable;
+import org.obiba.magma.Value;
 import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.js.MagmaContext;
@@ -81,7 +82,8 @@ public class JavascriptMultiplexingStrategy implements DatasourceCopier.Multiple
         if(value instanceof ScriptableValue) {
           ScriptableValue scriptable = (ScriptableValue) value;
           if(scriptable.getValueType().equals(TextType.get())) {
-            return scriptable.getValue().getValue();
+            Value scriptableValue = scriptable.getValue();
+            return scriptableValue.isNull() ? null : scriptableValue.getValue();
           }
         }
         return null;

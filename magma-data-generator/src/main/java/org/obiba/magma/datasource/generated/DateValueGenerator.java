@@ -37,8 +37,8 @@ class DateValueGenerator extends AbstractMissingValueVariableValueGenerator {
   }
 
   protected Value getValue(GeneratedValueSet gvs, Value minimumValue, Value maximumValue) {
-    long min = minimumValue.isNull() ? DEFAULT_MIN_DATE : getTime(minimumValue);
-    long max = maximumValue.isNull() ? DEFAULT_MAX_DATE : getTime(maximumValue);
+    long min = getTime(minimumValue, DEFAULT_MIN_DATE);
+    long max = getTime(maximumValue, DEFAULT_MAX_DATE);
     return getValueType().valueOf(new Date(min == max ? min : gvs.dataGenerator.nextLong(min, max)));
   }
 
@@ -48,8 +48,10 @@ class DateValueGenerator extends AbstractMissingValueVariableValueGenerator {
         : new NullValueSource(variable.getValueType());
   }
 
-  @SuppressWarnings("ConstantConditions")
-  private long getTime(Value value) {
+  private long getTime(Value value, long defaultValue) {
+    if(value.isNull()) {
+      return defaultValue;
+    }
     if(value.getValueType() == DateTimeType.get()) {
       return ((Date) value.getValue()).getTime();
     }

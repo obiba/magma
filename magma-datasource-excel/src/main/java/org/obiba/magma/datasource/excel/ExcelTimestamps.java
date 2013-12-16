@@ -3,7 +3,7 @@ package org.obiba.magma.datasource.excel;
 import java.io.File;
 import java.util.Date;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 import org.obiba.magma.Timestamps;
 import org.obiba.magma.Value;
@@ -17,14 +17,14 @@ public class ExcelTimestamps implements Timestamps {
     this.excelFile = excelFile;
   }
 
-  @Nonnull
+  @NotNull
   @Override
   public Value getCreated() {
     // Not currently possible to read a file creation timestamp. Coming in JDK 7 NIO.
     return DateTimeType.get().nullValue();
   }
 
-  @Nonnull
+  @NotNull
   @Override
   public Value getLastUpdate() {
     return excelFile != null && excelFile.exists()

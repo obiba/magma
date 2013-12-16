@@ -2,7 +2,7 @@ package org.obiba.magma.support;
 
 import java.lang.ref.WeakReference;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 import org.obiba.magma.MagmaEngine;
 import org.obiba.magma.Timestamps;
@@ -20,7 +20,7 @@ public class NullTimestamps implements Timestamps {
 
   @SuppressWarnings("ConstantConditions")
   @edu.umd.cs.findbugs.annotations.SuppressWarnings("NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE")
-  @Nonnull
+  @NotNull
   public static NullTimestamps get() {
     if(instance == null || instance.get() == null) {
       instance = MagmaEngine.get().registerInstance(new NullTimestamps());
@@ -28,13 +28,13 @@ public class NullTimestamps implements Timestamps {
     return instance.get();
   }
 
-  @Nonnull
+  @NotNull
   @Override
   public Value getCreated() {
     return DateTimeType.get().nullValue();
   }
 
-  @Nonnull
+  @NotNull
   @Override
   public Value getLastUpdate() {
     return DateTimeType.get().nullValue();

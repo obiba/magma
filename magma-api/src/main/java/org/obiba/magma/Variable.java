@@ -14,8 +14,8 @@ import java.util.Collection;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
@@ -124,7 +124,7 @@ public interface Variable extends AttributeAware {
 
   boolean areAllCategoriesMissing();
 
-  String getVariableReference(@Nonnull ValueTable table);
+  String getVariableReference(@NotNull ValueTable table);
 
   /**
    * A builder for {@code Variable} instances. This uses the builder pattern for constructing {@code Variable}
@@ -135,7 +135,7 @@ public interface Variable extends AttributeAware {
     private VariableBean variable = new VariableBean();
 
     @SuppressWarnings("ConstantConditions")
-    public Builder(@Nonnull String name, @Nonnull ValueType type, @Nonnull String entityType) {
+    public Builder(@NotNull String name, @NotNull ValueType type, @NotNull String entityType) {
       if(name == null) throw new IllegalArgumentException("name cannot be null");
       if(type == null) throw new IllegalArgumentException("type cannot be null");
       if(entityType == null) throw new IllegalArgumentException("entityType cannot be null");
@@ -275,14 +275,14 @@ public interface Variable extends AttributeAware {
     }
 
     @SuppressWarnings("ConstantConditions")
-    public Builder name(@Nonnull String name) {
+    public Builder name(@NotNull String name) {
       if(name == null) throw new IllegalArgumentException("name cannot be null");
       variable.name = name;
       return this;
     }
 
     @SuppressWarnings("ConstantConditions")
-    public Builder type(@Nonnull ValueType type) {
+    public Builder type(@NotNull ValueType type) {
       if(type == null) throw new IllegalArgumentException("type cannot be null");
       variable.valueType = type;
       return this;
@@ -449,5 +449,4 @@ public interface Variable extends AttributeAware {
     void visit(Builder builder);
 
   }
-
 }

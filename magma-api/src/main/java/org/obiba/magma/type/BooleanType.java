@@ -2,11 +2,12 @@ package org.obiba.magma.type;
 
 import java.lang.ref.WeakReference;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
 
 import org.obiba.magma.MagmaEngine;
 import org.obiba.magma.Value;
+import org.obiba.magma.support.ValueComparator;
 
 public class BooleanType extends AbstractValueType {
 
@@ -26,7 +27,7 @@ public class BooleanType extends AbstractValueType {
 
   @SuppressWarnings("ConstantConditions")
   @edu.umd.cs.findbugs.annotations.SuppressWarnings("NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE")
-  @Nonnull
+  @NotNull
   public static BooleanType get() {
     if(instance == null || instance.get() == null) {
       instance = MagmaEngine.get().registerInstance(new BooleanType());
@@ -49,18 +50,18 @@ public class BooleanType extends AbstractValueType {
     return Boolean.class;
   }
 
-  @Nonnull
+  @NotNull
   @Override
   public String getName() {
     return "boolean";
   }
 
   @Override
-  public boolean acceptsJavaClass(@Nonnull Class<?> clazz) {
+  public boolean acceptsJavaClass(@NotNull Class<?> clazz) {
     return Boolean.class.isAssignableFrom(clazz) || boolean.class.isAssignableFrom(clazz);
   }
 
-  @Nonnull
+  @NotNull
   @Override
   public Value valueOf(@Nullable String string) {
     if(string == null) {
@@ -73,7 +74,7 @@ public class BooleanType extends AbstractValueType {
         "Cannot construct " + getClass().getSimpleName() + " from type String with value '" + string + "'");
   }
 
-  @Nonnull
+  @NotNull
   @Override
   public Value valueOf(@Nullable Object object) {
     if(object == null) {
@@ -126,6 +127,6 @@ public class BooleanType extends AbstractValueType {
 
   @Override
   public int compare(Value o1, Value o2) {
-    return ((Boolean) o1.getValue()).compareTo((Boolean) o2.getValue());
+    return ValueComparator.INSTANCE.compare(o1, o2);
   }
 }

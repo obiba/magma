@@ -67,6 +67,7 @@ public class DigestOutputStreamWrapper implements OutputStreamWrapper {
     }
 
     @Override
+    @SuppressWarnings("ResultOfMethodCallIgnored")
     public void close() throws IOException {
       super.close();
       ByteArrayInputStream bais = new ByteArrayInputStream(getMessageDigest().digest());

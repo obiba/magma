@@ -9,7 +9,7 @@
  */
 package org.obiba.magma.support;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 import org.obiba.magma.AbstractDatasourceFactory;
 import org.obiba.magma.Datasource;
@@ -18,18 +18,18 @@ import org.obiba.magma.Initialisable;
 
 public class BatchDatasourceFactory extends AbstractDatasourceFactory implements Initialisable {
 
-  @Nonnull
+  @NotNull
   private final DatasourceFactory wrappedFactory;
 
   private final int limit;
 
-  public BatchDatasourceFactory(@Nonnull DatasourceFactory wrappedFactory, int limit) {
+  public BatchDatasourceFactory(@NotNull DatasourceFactory wrappedFactory, int limit) {
     this.wrappedFactory = wrappedFactory;
     this.limit = limit;
   }
 
   @Override
-  public void setName(@Nonnull String name) {
+  public void setName(@NotNull String name) {
     wrappedFactory.setName(name);
   }
 
@@ -38,7 +38,7 @@ public class BatchDatasourceFactory extends AbstractDatasourceFactory implements
     return wrappedFactory.getName();
   }
 
-  @Nonnull
+  @NotNull
   @Override
   protected Datasource internalCreate() {
     return new BatchDatasource(wrappedFactory.create(), limit);

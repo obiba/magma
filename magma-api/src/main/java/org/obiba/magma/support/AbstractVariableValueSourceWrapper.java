@@ -9,8 +9,8 @@
  */
 package org.obiba.magma.support;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
 
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueSet;
@@ -25,16 +25,16 @@ import org.obiba.magma.VectorSource;
  */
 public abstract class AbstractVariableValueSourceWrapper implements VariableValueSourceWrapper {
 
-  @Nonnull
+  @NotNull
   private final VariableValueSource wrapped;
 
   @SuppressWarnings("ConstantConditions")
-  public AbstractVariableValueSourceWrapper(@Nonnull VariableValueSource wrapped) {
+  public AbstractVariableValueSourceWrapper(@NotNull VariableValueSource wrapped) {
     if(wrapped == null) throw new IllegalArgumentException("wrapped VariableValueSource cannot be null");
     this.wrapped = wrapped;
   }
 
-  @Nonnull
+  @NotNull
   @Override
   public VariableValueSource getWrapped() {
     return wrapped;
@@ -45,14 +45,14 @@ public abstract class AbstractVariableValueSourceWrapper implements VariableValu
     return wrapped.getVariable();
   }
 
-  @Nonnull
+  @NotNull
   @Override
   public ValueType getValueType() {
     return wrapped.getValueType();
   }
 
   @Override
-  @Nonnull
+  @NotNull
   public Value getValue(ValueSet valueSet) {
     return wrapped.getValue(valueSet);
   }

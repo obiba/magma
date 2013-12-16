@@ -7,7 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.Value;
@@ -32,9 +32,9 @@ public class CsvValueTableWriter implements ValueTableWriter {
     this.valueTable = valueTable;
   }
 
-  @Nonnull
+  @NotNull
   @Override
-  public ValueSetWriter writeValueSet(@Nonnull VariableEntity entity) {
+  public ValueSetWriter writeValueSet(@NotNull VariableEntity entity) {
     return new CsvValueSetWriter(entity);
   }
 
@@ -50,7 +50,7 @@ public class CsvValueTableWriter implements ValueTableWriter {
   private class CsvVariableWriter implements VariableWriter {
 
     @Override
-    public void writeVariable(@Nonnull Variable variable) {
+    public void writeVariable(@NotNull Variable variable) {
       try {
 
         VariableConverter variableConverter = valueTable.getVariableConverter();
@@ -73,7 +73,7 @@ public class CsvValueTableWriter implements ValueTableWriter {
     }
 
     @Override
-    public void removeVariable(@Nonnull Variable variable) {
+    public void removeVariable(@NotNull Variable variable) {
       throw new UnsupportedOperationException("Variable cannot be removed from a CSV file");
     }
 
@@ -97,12 +97,12 @@ public class CsvValueTableWriter implements ValueTableWriter {
 
   private class CsvValueSetWriter implements ValueSetWriter {
 
-    @Nonnull
+    @NotNull
     private final VariableEntity entity;
 
     private final CsvLine csvLine;
 
-    private CsvValueSetWriter(@Nonnull VariableEntity entity) {
+    private CsvValueSetWriter(@NotNull VariableEntity entity) {
       this.entity = entity;
       if(valueTable.getParentFile() == null) {
         throw new IllegalArgumentException("valueTable.getParentFile() cannot be null");
@@ -120,7 +120,7 @@ public class CsvValueTableWriter implements ValueTableWriter {
     }
 
     @Override
-    public void writeValue(@Nonnull Variable variable, Value value) {
+    public void writeValue(@NotNull Variable variable, Value value) {
       csvLine.setValue(variable, value);
     }
 

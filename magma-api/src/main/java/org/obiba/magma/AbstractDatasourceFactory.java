@@ -1,6 +1,6 @@
 package org.obiba.magma;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 public abstract class AbstractDatasourceFactory implements DatasourceFactory {
   //
@@ -12,7 +12,7 @@ public abstract class AbstractDatasourceFactory implements DatasourceFactory {
 
   private String name;
 
-  @Nonnull
+  @NotNull
   protected abstract Datasource internalCreate();
 
   //
@@ -21,7 +21,7 @@ public abstract class AbstractDatasourceFactory implements DatasourceFactory {
 
   @SuppressWarnings("ConstantConditions")
   @Override
-  public void setName(@Nonnull String name) {
+  public void setName(@NotNull String name) {
     if(name == null) throw new IllegalArgumentException("Datasource name cannot be null.");
     this.name = name;
   }

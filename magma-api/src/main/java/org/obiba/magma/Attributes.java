@@ -30,8 +30,10 @@ public final class Attributes {
       // AttributeBean is immutable.
       return attribute;
     }
-    return Attribute.Builder.newAttribute(attribute.getName()).withNamespace(attribute.getNamespace())
-        .withValue(attribute.getValue()).withLocale(attribute.getLocale()).build();
+    Attribute.Builder builder = Attribute.Builder.newAttribute(attribute.getName())
+        .withNamespace(attribute.getNamespace()).withValue(attribute.getValue());
+    if(attribute.isLocalised()) builder.withLocale(attribute.getLocale());
+    return builder.build();
   }
 
   /**

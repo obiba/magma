@@ -7,8 +7,8 @@ import java.util.LinkedHashSet;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
 
 import org.obiba.magma.type.AnyToTextValueConverter;
 import org.obiba.magma.type.BinaryType;
@@ -71,7 +71,7 @@ class ValueTypeFactory {
     return Collections.unmodifiableSet(types);
   }
 
-  @Nonnull
+  @NotNull
   ValueConverter converterFor(final ValueType from, final ValueType to) {
     try {
       return Iterables.find(converters, new Predicate<ValueConverter>() {

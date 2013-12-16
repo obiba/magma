@@ -3,8 +3,8 @@ package org.obiba.magma.datasource.mongodb;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
 
 import org.bson.types.ObjectId;
 import org.json.JSONException;
@@ -52,7 +52,7 @@ public class MongoDBValueLoaderFactory implements ValueLoaderFactory {
       return valueRef == null || valueRef.isNull();
     }
 
-    @Nonnull
+    @NotNull
     @Override
     public Object getValue() {
       if(value == null) {
@@ -87,8 +87,9 @@ public class MongoDBValueLoaderFactory implements ValueLoaderFactory {
 
     @Override
     public long getLength() {
+      if(valueRef.isNull()) return 0;
       try {
-        JSONObject properties = new JSONObject((String)valueRef.getValue());
+        JSONObject properties = new JSONObject((String) valueRef.getValue());
         return properties.has(GRID_FILE_SIZE) ? properties.getLong(GRID_FILE_SIZE) : 0;
       } catch(JSONException e) {
         throw new MagmaRuntimeException("Cannot retrieve grid file size for " + valueRef.getValue(), e);

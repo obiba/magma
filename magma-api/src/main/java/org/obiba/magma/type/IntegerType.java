@@ -3,8 +3,8 @@ package org.obiba.magma.type;
 import java.lang.ref.WeakReference;
 import java.math.BigInteger;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
 
 import org.obiba.magma.MagmaEngine;
 import org.obiba.magma.MagmaRuntimeException;
@@ -25,7 +25,7 @@ public class IntegerType extends AbstractNumberType {
 
   @SuppressWarnings("ConstantConditions")
   @edu.umd.cs.findbugs.annotations.SuppressWarnings("NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE")
-  @Nonnull
+  @NotNull
   public static IntegerType get() {
     if(instance == null || instance.get() == null) {
       instance = MagmaEngine.get().registerInstance(new IntegerType());
@@ -38,20 +38,20 @@ public class IntegerType extends AbstractNumberType {
     return Long.class;
   }
 
-  @Nonnull
+  @NotNull
   @Override
   public String getName() {
     return "integer";
   }
 
   @Override
-  public boolean acceptsJavaClass(@Nonnull Class<?> clazz) {
+  public boolean acceptsJavaClass(@NotNull Class<?> clazz) {
     return Integer.class.isAssignableFrom(clazz) || int.class.isAssignableFrom(clazz) ||
         Long.class.isAssignableFrom(clazz) || long.class.isAssignableFrom(clazz) ||
         BigInteger.class.isAssignableFrom(clazz);
   }
 
-  @Nonnull
+  @NotNull
   @Override
   public Value valueOf(@Nullable String string) {
     try {
@@ -61,7 +61,7 @@ public class IntegerType extends AbstractNumberType {
     }
   }
 
-  @Nonnull
+  @NotNull
   @Override
   public Value valueOf(@Nullable Object object) {
     if(object == null) {

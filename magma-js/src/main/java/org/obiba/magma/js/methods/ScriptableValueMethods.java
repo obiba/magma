@@ -1,9 +1,5 @@
 package org.obiba.magma.js.methods;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-
 import javax.annotation.Nullable;
 
 import org.mozilla.javascript.Context;
@@ -12,10 +8,7 @@ import org.mozilla.javascript.Scriptable;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueSequence;
 import org.obiba.magma.ValueType;
-import org.obiba.magma.js.MagmaJsEvaluationRuntimeException;
 import org.obiba.magma.js.ScriptableValue;
-import org.obiba.magma.type.DateTimeType;
-import org.obiba.magma.type.DateType;
 import org.obiba.magma.type.IntegerType;
 import org.obiba.magma.type.TextType;
 import org.slf4j.Logger;
@@ -76,8 +69,6 @@ public class ScriptableValueMethods {
     // Perform a ValueType conversion
     return new ScriptableValue(thisObj, ValueType.Factory.forName(args[0].toString()).convert(sv.getValue()));
   }
-
-
 
   /**
    * Get the value length: length of the string representation (default) or number of bytes for a binary value.

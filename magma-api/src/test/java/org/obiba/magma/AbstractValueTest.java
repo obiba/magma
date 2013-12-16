@@ -9,12 +9,12 @@
  ******************************************************************************/
 package org.obiba.magma;
 
+import org.junit.Assert;
 import org.junit.Test;
 import org.obiba.magma.test.AbstractMagmaTest;
 import org.obiba.magma.type.TextType;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
 
 public abstract class AbstractValueTest extends AbstractMagmaTest {
@@ -40,7 +40,6 @@ public abstract class AbstractValueTest extends AbstractMagmaTest {
   @Test
   public void test_getValue_returnsTheValue() {
     Value value = testValue();
-
     assertThat(value.getValue(), is(testObject()));
   }
 
@@ -49,7 +48,12 @@ public abstract class AbstractValueTest extends AbstractMagmaTest {
     Value value = TextType.get().nullValue();
 
     assertThat(value.isNull(), is(true));
-    assertThat(value.getValue(), nullValue());
+
+    try {
+      value.getValue();
+      Assert.fail("Should throw NullPointerException");
+    } catch(NullPointerException ignored) {
+    }
   }
 
   @Test

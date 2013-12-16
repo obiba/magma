@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.Writer;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueTableWriter;
@@ -25,9 +25,9 @@ class FsValueTableWriter implements ValueTableWriter {
     this.xstream = xstream;
   }
 
-  @Nonnull
+  @NotNull
   @Override
-  public ValueSetWriter writeValueSet(@Nonnull VariableEntity entity) {
+  public ValueSetWriter writeValueSet(@NotNull VariableEntity entity) {
     String entry = valueTable.getVariableEntityProvider().addEntity(entity);
     try {
       return new XStreamValueSetWriter(valueTable.createWriter(entry),
@@ -66,7 +66,7 @@ class FsValueTableWriter implements ValueTableWriter {
     @edu.umd.cs.findbugs.annotations.SuppressWarnings(value = "DMI_NONSERIALIZABLE_OBJECT_WRITTEN",
         justification = "XStream implementation of ObjectOutputStream does not expect or require objects to implement the Serializable marker interface. http://xstream.codehaus.org/faq.html#Serialization")
     @Override
-    public void writeVariable(@Nonnull Variable variable) {
+    public void writeVariable(@NotNull Variable variable) {
       try {
         oos.writeObject(variable);
       } catch(IOException e) {
@@ -75,7 +75,7 @@ class FsValueTableWriter implements ValueTableWriter {
     }
 
     @Override
-    public void removeVariable(@Nonnull Variable variable) {
+    public void removeVariable(@NotNull Variable variable) {
       throw new UnsupportedOperationException("Variable cannot be removed from a XML file");
     }
   }
@@ -101,7 +101,7 @@ class FsValueTableWriter implements ValueTableWriter {
     }
 
     @Override
-    public void writeValue(@Nonnull Variable variable, Value value) {
+    public void writeValue(@NotNull Variable variable, Value value) {
       valueSet.setValue(variable, value);
     }
   }

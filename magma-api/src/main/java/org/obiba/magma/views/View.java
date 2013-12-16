@@ -6,8 +6,8 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
 
 import org.obiba.magma.Datasource;
 import org.obiba.magma.Disposable;
@@ -47,19 +47,19 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
 
   private String name;
 
-  @Nonnull
+  @NotNull
   private ValueTable from;
 
-  @Nonnull
+  @NotNull
   private SelectClause select;
 
-  @Nonnull
+  @NotNull
   private WhereClause where;
 
   /**
    * A list of derived variables. Mutually exclusive with "select".
    */
-  @Nonnull
+  @NotNull
   private ListClause variables;
 
   private Value created;
@@ -85,8 +85,8 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
   @SuppressWarnings("ConstantConditions")
   @edu.umd.cs.findbugs.annotations.SuppressWarnings(value = "NP_NONNULL_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR",
       justification = "Needed by XStream")
-  public View(String name, @Nonnull SelectClause selectClause, @Nonnull WhereClause whereClause,
-      @Nonnull ValueTable... from) {
+  public View(String name, @NotNull SelectClause selectClause, @NotNull WhereClause whereClause,
+      @NotNull ValueTable... from) {
     Preconditions.checkArgument(selectClause != null, "null selectClause");
     Preconditions.checkArgument(whereClause != null, "null whereClause");
     Preconditions.checkArgument(from != null && from.length > 0, "null or empty table list");
@@ -128,17 +128,17 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
     this.name = name;
   }
 
-  @Nonnull
+  @NotNull
   public SelectClause getSelectClause() {
     return select;
   }
 
-  @Nonnull
+  @NotNull
   public WhereClause getWhereClause() {
     return where;
   }
 
-  @Nonnull
+  @NotNull
   public ListClause getListClause() {
     return variables;
   }
@@ -151,24 +151,24 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
     return !(getListClause() instanceof NoneClause);
   }
 
-  @Nonnull
+  @NotNull
   @Override
   public Datasource getDatasource() {
     return viewDatasource == null ? getWrappedValueTable().getDatasource() : viewDatasource;
   }
 
   @Override
-  @Nonnull
+  @NotNull
   public ValueTable getWrappedValueTable() {
     return from;
   }
 
-  @Nonnull
+  @NotNull
   @Override
   public Timestamps getTimestamps() {
     return new Timestamps() {
 
-      @Nonnull
+      @NotNull
       @Override
       public Value getLastUpdate() {
         if(updated == null || updated.isNull()) {
@@ -178,7 +178,7 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
         return !fromUpdate.isNull() && updated.compareTo(fromUpdate) < 0 ? fromUpdate : updated;
       }
 
-      @Nonnull
+      @NotNull
       @Override
       public Value getCreated() {
         return created == null || created.isNull() ? getWrappedValueTable().getTimestamps().getCreated() : created;
@@ -370,26 +370,26 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
     viewDatasource = datasource;
   }
 
-  @Nonnull
+  @NotNull
   @Override
   public String getName() {
     return name;
   }
 
   @SuppressWarnings("ConstantConditions")
-  public void setSelectClause(@Nonnull SelectClause selectClause) {
+  public void setSelectClause(@NotNull SelectClause selectClause) {
     Preconditions.checkArgument(selectClause != null, "null selectClause");
     select = selectClause;
   }
 
   @SuppressWarnings("ConstantConditions")
-  public void setWhereClause(@Nonnull WhereClause whereClause) {
+  public void setWhereClause(@NotNull WhereClause whereClause) {
     Preconditions.checkArgument(whereClause != null, "null whereClause");
     where = whereClause;
   }
 
   @SuppressWarnings("ConstantConditions")
-  public void setListClause(@Nonnull ListClause listClause) {
+  public void setListClause(@NotNull ListClause listClause) {
     Preconditions.checkArgument(listClause != null, "null listClause");
     variables = listClause;
   }
@@ -441,7 +441,7 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
       super(wrapped);
     }
 
-    @Nonnull
+    @NotNull
     @Override
     public Value getValue(ValueSet valueSet) {
       return getWrapped().getValue(getValueSetMappingFunction().unapply(valueSet));
@@ -458,20 +458,20 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
 
     private final View view;
 
-    public Builder(String name, @Nonnull ValueTable... from) {
+    public Builder(String name, @NotNull ValueTable... from) {
       view = new View(name, from);
     }
 
-    public static Builder newView(String name, @Nonnull ValueTable... from) {
+    public static Builder newView(String name, @NotNull ValueTable... from) {
       return new Builder(name, from);
     }
 
-    public Builder select(@Nonnull SelectClause selectClause) {
+    public Builder select(@NotNull SelectClause selectClause) {
       view.setSelectClause(selectClause);
       return this;
     }
 
-    public Builder where(@Nonnull WhereClause whereClause) {
+    public Builder where(@NotNull WhereClause whereClause) {
       view.setWhereClause(whereClause);
       return this;
     }

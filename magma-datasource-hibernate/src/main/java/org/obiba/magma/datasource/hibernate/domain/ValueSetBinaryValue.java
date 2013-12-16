@@ -9,7 +9,6 @@
  */
 package org.obiba.magma.datasource.hibernate.domain;
 
-import javax.annotation.Nonnull;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.Lob;
@@ -18,6 +17,7 @@ import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
+import javax.validation.constraints.NotNull;
 
 import org.hibernate.annotations.Index;
 import org.obiba.core.domain.AbstractEntity;
@@ -58,7 +58,7 @@ public class ValueSetBinaryValue extends AbstractEntity {
   public ValueSetBinaryValue() {
   }
 
-  public ValueSetBinaryValue(@Nonnull ValueSetValue valueSetValue, int occurrence) {
+  public ValueSetBinaryValue(@NotNull ValueSetValue valueSetValue, int occurrence) {
     //noinspection ConstantConditions
     if(valueSetValue == null) throw new IllegalArgumentException("valueSetValue cannot be null");
     valueSet = valueSetValue.getValueSet();
@@ -85,7 +85,7 @@ public class ValueSetBinaryValue extends AbstractEntity {
 
   @SuppressWarnings("MethodCanBeVariableArityMethod")
   @edu.umd.cs.findbugs.annotations.SuppressWarnings("EI_EXPOSE_REP2")
-  public void setValue(@Nonnull byte[] value) {
+  public void setValue(@NotNull byte[] value) {
     //noinspection ConstantConditions
     if(value == null) {
       throw new IllegalArgumentException("cannot persist null values");

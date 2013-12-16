@@ -58,10 +58,8 @@ public class LimesurveyElementProviderJdbc implements LimesurveyElementProvider 
 
   @Override
   public Map<Integer, LimeAttributes> queryAttributes() {
-    StringBuilder sqlAttr = new StringBuilder();
-    sqlAttr.append("SELECT qid, attribute, value ");
-    sqlAttr.append("FROM ").append(datasource.quoteAndPrefix("question_attributes")).append(" ");
-    SqlRowSet sqlRowSet = datasource.getJdbcTemplate().queryForRowSet(sqlAttr.toString());
+    SqlRowSet sqlRowSet = datasource.getJdbcTemplate()
+        .queryForRowSet("SELECT qid, attribute, value FROM " + datasource.quoteAndPrefix("question_attributes"));
     while(sqlRowSet.next()) {
       int qid = sqlRowSet.getInt("qid");
       String key = sqlRowSet.getString("attribute");
@@ -72,22 +70,20 @@ public class LimesurveyElementProviderJdbc implements LimesurveyElementProvider 
         mapAttributes.put(qid, LimeAttributes.create().attribute(key, value));
       }
     }
-    StringBuilder sqlHelp = new StringBuilder();
-    sqlHelp.append("SELECT qid, help, language ");
-    sqlHelp.append("FROM ").append(datasource.quoteAndPrefix("questions")).append("");
-    datasource.getJdbcTemplate().query(sqlHelp.toString(), new RowCallbackHandler() {
-      @Override
-      public void processRow(ResultSet rs) throws SQLException {
-        String help = rs.getString("help");
-        int qid = rs.getInt("qid");
-        String key = "help:" + rs.getString("language");
-        if(mapAttributes.containsKey(qid)) {
-          mapAttributes.get(qid).attribute(key, help);
-        } else {
-          mapAttributes.put(qid, LimeAttributes.create().attribute(key, help));
-        }
-      }
-    });
+    datasource.getJdbcTemplate()
+        .query("SELECT qid, help, language FROM " + datasource.quoteAndPrefix("questions"), new RowCallbackHandler() {
+          @Override
+          public void processRow(ResultSet rs) throws SQLException {
+            String help = rs.getString("help");
+            int qid = rs.getInt("qid");
+            String key = "help:" + rs.getString("language");
+            if(mapAttributes.containsKey(qid)) {
+              mapAttributes.get(qid).attribute(key, help);
+            } else {
+              mapAttributes.put(qid, LimeAttributes.create().attribute(key, help));
+            }
+          }
+        });
     return mapAttributes;
   }
 

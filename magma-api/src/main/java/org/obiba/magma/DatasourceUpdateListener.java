@@ -9,7 +9,7 @@
  */
 package org.obiba.magma;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 /**
  * Listener to events on Datasource.
@@ -19,6 +19,6 @@ public interface DatasourceUpdateListener {
   /**
    * Called when a datasource is deleted.
    */
-  void onDelete(@Nonnull Datasource datasource);
+  void onDelete(@NotNull Datasource datasource);
 
 }
