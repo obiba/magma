@@ -871,7 +871,7 @@ public class HibernateDatasourceTest {
   private void assertSameCategories(Variable expected, Variable actual) {
     List<Category> expectedCategories = Lists.newArrayList(expected.getCategories());
     List<Category> actualCategories = Lists.newArrayList(actual.getCategories());
-    Assert.assertEquals("Category count mismatch", expectedCategories.size(), actualCategories.size());
+    assertEquals("Category count mismatch", expectedCategories.size(), actualCategories.size());
     for(int i = 0; i < expectedCategories.size(); i++) {
       assertThat("Category name mismatch at index " + i, actualCategories.get(i).getName(),
           is(expectedCategories.get(i).getName()));
@@ -887,8 +887,7 @@ public class HibernateDatasourceTest {
   }
 
   private HibernateDatasource getDatasource() {
-    HibernateDatasource datasource = (HibernateDatasource) MagmaEngine.get().getDatasource(DATASOURCE);
-    return datasource;
+    return (HibernateDatasource) MagmaEngine.get().getDatasource(DATASOURCE);
   }
 
   private void cleanlyRemoveDatasource(final boolean drop) {
