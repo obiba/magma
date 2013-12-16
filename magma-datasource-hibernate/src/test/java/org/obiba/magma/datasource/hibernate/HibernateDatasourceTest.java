@@ -769,19 +769,6 @@ public class HibernateDatasourceTest {
       }
     });
 
-    // Initialise should not add new valueTables
-    transactionTemplate.execute(new TransactionCallbackWithoutResult() {
-      @Override
-      protected void doInTransactionWithoutResult(TransactionStatus status) {
-        try {
-          HibernateDatasource ds = getDatasource();
-        } catch(Exception e) {
-          fail(e.getMessage());
-          throw new RuntimeException(e);
-        }
-      }
-    });
-
     transactionTemplate.execute(new TransactionCallbackWithoutResult() {
       @Override
       protected void doInTransactionWithoutResult(TransactionStatus status) {
@@ -812,8 +799,6 @@ public class HibernateDatasourceTest {
           ValueTable generatedValueTable = new GeneratedValueTable(ds, variables, 50);
           MagmaEngine.get().addDatasource(ds);
           DatasourceCopier.Builder.newCopier().build().copy(generatedValueTable, TABLE, ds);
-
-          Set<ValueTable> vt = ds.getValueTables();
         } catch(Exception e) {
           fail(e.getMessage());
           throw new RuntimeException(e);
