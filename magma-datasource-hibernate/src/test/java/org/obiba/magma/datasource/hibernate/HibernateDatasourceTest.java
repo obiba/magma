@@ -59,7 +59,6 @@ import static org.hamcrest.core.IsInstanceOf.instanceOf;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -649,11 +648,29 @@ public class HibernateDatasourceTest {
     });
   }
 
+  private Date getDatasourceCreated() {
+    return transactionTemplate.execute(new TransactionCallback<Date>() {
+      @Override
+      public Date doInTransaction(TransactionStatus status) {
+        return (Date) getDatasource().getTimestamps().getCreated().getValue();
+      }
+    });
+  }
+
   private Date getDatasourceLastUpdate() {
     return transactionTemplate.execute(new TransactionCallback<Date>() {
       @Override
       public Date doInTransaction(TransactionStatus status) {
         return (Date) getDatasource().getTimestamps().getLastUpdate().getValue();
+      }
+    });
+  }
+
+  private Date getTableCreated(final String tableName) {
+    return transactionTemplate.execute(new TransactionCallback<Date>() {
+      @Override
+      public Date doInTransaction(TransactionStatus status) {
+        return (Date) getDatasource().getValueTable(tableName).getTimestamps().getCreated().getValue();
       }
     });
   }
@@ -805,19 +822,19 @@ public class HibernateDatasourceTest {
     });
 
     final String NEW_NAME = "new_table";
-    final Value[] created = new Value[3];
-    final Value[] updated = new Value[3];
+    final Date[] created = new Date[3];
+    final Date[] updated = new Date[3];
 
     transactionTemplate.execute(new TransactionCallbackWithoutResult() {
       @Override
       protected void doInTransactionWithoutResult(TransactionStatus status) {
         try {
           HibernateDatasource ds = getDatasource();
-          created[0] = ds.getTimestamps().getCreated();
-          created[1] = ds.getValueTable(TABLE).getTimestamps().getCreated();
+          created[0] = getDatasourceCreated();
+          created[1] = getTableCreated(TABLE);
 
-          updated[0] = ds.getTimestamps().getLastUpdate();
-          updated[1] = ds.getValueTable(TABLE).getTimestamps().getLastUpdate();
+          updated[0] = getDatasourceLastUpdate();
+          updated[1] = getTableLastUpdate(TABLE);
 
           ds.renameTable(TABLE, NEW_NAME);
         } catch(Exception e) {
@@ -832,16 +849,15 @@ public class HibernateDatasourceTest {
       protected void doInTransactionWithoutResult(TransactionStatus status) {
         try {
           HibernateDatasource ds = getDatasource();
-          ds.getValueTable(NEW_NAME);
           ds.getValueTable(NEW_NAME).getVariable("Test Variable");
 
           // Created timestamps have not changed
-          assertTrue(created[0].compareTo(ds.getTimestamps().getCreated()) == 0);
-          assertTrue(created[1].compareTo(ds.getValueTable(NEW_NAME).getTimestamps().getCreated()) == 0);
+          assertThat(created[0], DateMatchers.sameMillisecond(getDatasourceCreated()));
+          assertThat(created[1], DateMatchers.sameMillisecond(getTableCreated(NEW_NAME)));
 
           // LastUpdated timestamps have changed
-          assertTrue(updated[0].compareTo(ds.getTimestamps().getLastUpdate()) < 0);
-          assertTrue(updated[1].compareTo(ds.getValueTable(NEW_NAME).getTimestamps().getLastUpdate()) < 0);
+          assertThat(updated[0], DateMatchers.before(getDatasourceLastUpdate()));
+          assertThat(updated[1], DateMatchers.before(getTableLastUpdate(NEW_NAME)));
         } catch(Exception e) {
           fail(e.getMessage());
           throw new RuntimeException(e);
