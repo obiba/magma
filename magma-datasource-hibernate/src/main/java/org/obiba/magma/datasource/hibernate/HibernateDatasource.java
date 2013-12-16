@@ -33,7 +33,6 @@ import org.obiba.magma.datasource.hibernate.domain.DatasourceState;
 import org.obiba.magma.datasource.hibernate.domain.ValueTableState;
 import org.obiba.magma.datasource.hibernate.domain.VariableState;
 import org.obiba.magma.support.AbstractDatasource;
-import org.obiba.magma.support.Initialisables;
 import org.obiba.magma.support.UnionTimestamps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -273,21 +272,12 @@ public class HibernateDatasource extends AbstractDatasource {
   public void renameTable(String tableName, String newName) {
     if(canRenameTable(newName)) throw new MagmaRuntimeException("A table already exists with the name: " + newName);
 
-    HibernateValueTable valueTable = (HibernateValueTable) getValueTable(tableName);
-
     log.info("Renaming table {} to {}", tableName, newName);
-
-    valueTable.setName(newName);
-    ValueTableState valueTableState = valueTable.getValueTableState();
-
-    HibernateValueTable newTable = new HibernateValueTable(this, valueTableState);
-    newTable.setName(newName);
-
-    Initialisables.initialise(newTable);
-    addValueTable(newTable);
-    dropTable(tableName);
-
+    ((HibernateValueTable) getValueTable(tableName)).setName(newName);
     updateDatasourceLastUpdate();
+
+//    removeValueTable(tableName);
+//    getSessionFactory().getCurrentSession().refresh(this);
   }
 
   /**

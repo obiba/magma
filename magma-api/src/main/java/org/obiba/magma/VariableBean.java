@@ -106,16 +106,6 @@ class VariableBean extends AbstractAttributeAware implements Variable, Serializa
   }
 
   @Override
-  public boolean equals(Object o) {
-    return o instanceof Variable && ((Variable) o).getName().equals(name);
-  }
-
-  @Override
-  public int hashCode() {
-    return name.hashCode();
-  }
-
-  @Override
   public boolean isMissingValue(Value value) {
     if(value.isNull() || !hasCategories()) {
       return value.isNull();
@@ -156,4 +146,5 @@ class VariableBean extends AbstractAttributeAware implements Variable, Serializa
     return Objects.toStringHelper(this).add("name", name).add("valueType", valueType).add("repeatable", repeatable)
         .add("entityType", entityType).toString();
   }
+
 }
