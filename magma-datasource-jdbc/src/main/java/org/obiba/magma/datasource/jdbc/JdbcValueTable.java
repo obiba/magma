@@ -21,6 +21,7 @@ import javax.validation.constraints.NotNull;
 
 import org.obiba.magma.Attribute;
 import org.obiba.magma.Category;
+import org.obiba.magma.Datasource;
 import org.obiba.magma.Initialisable;
 import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.NoSuchValueSetException;
@@ -49,7 +50,6 @@ import liquibase.database.structure.Column;
 import liquibase.database.structure.DatabaseSnapshot;
 import liquibase.database.structure.Table;
 
-@SuppressWarnings("TypeMayBeWeakened")
 class JdbcValueTable extends AbstractValueTable {
 
   private final JdbcValueTableSettings settings;
@@ -64,7 +64,7 @@ class JdbcValueTable extends AbstractValueTable {
 
   private String escapedCategoriesSqlTableName;
 
-  JdbcValueTable(JdbcDatasource datasource, JdbcValueTableSettings settings) {
+  JdbcValueTable(Datasource datasource, JdbcValueTableSettings settings) {
     super(datasource, settings.getMagmaTableName());
     this.settings = settings;
 
@@ -94,9 +94,9 @@ class JdbcValueTable extends AbstractValueTable {
 
   @Override
   public String getEntityType() {
-    return settings.getEntityType() != null
-        ? settings.getEntityType()
-        : getDatasource().getSettings().getDefaultEntityType();
+    return settings.getEntityType() == null
+        ? getDatasource().getSettings().getDefaultEntityType()
+        : settings.getEntityType();
   }
 
   @NotNull
@@ -303,6 +303,7 @@ class JdbcValueTable extends AbstractValueTable {
       return attr.build();
     }
 
+    @Nullable
     private String mayNotHaveColumn(ResultSet rs, String column) {
       try {
         return rs.getString(column);
@@ -369,12 +370,11 @@ class JdbcValueTable extends AbstractValueTable {
 
   private String buildEntityIdentifier(ResultSet rs) throws SQLException {
     StringBuilder entityIdentifier = new StringBuilder();
-
     for(int i = 1; i <= getSettings().getEntityIdentifierColumns().size(); i++) {
       if(i > 1) {
         entityIdentifier.append('-');
       }
-      entityIdentifier.append(rs.getObject(i).toString());
+      entityIdentifier.append(rs.getObject(i));
     }
 
     return entityIdentifier.toString();
@@ -556,7 +556,8 @@ class JdbcValueTable extends AbstractValueTable {
 
       private boolean closed = false;
 
-      private ValueIterator(Connection connection, SortedSet<VariableEntity> entities) throws SQLException {
+      @edu.umd.cs.findbugs.annotations.SuppressWarnings("SQL_PREPARED_STATEMENT_GENERATED_FROM_NONCONSTANT_STRING")
+      private ValueIterator(Connection connection, Set<VariableEntity> entities) throws SQLException {
         this.connection = connection;
         String column = getEntityIdentifierColumnsSql();
         statement = connection.prepareStatement("SELECT " + column + "," + columnName +
@@ -590,9 +591,9 @@ class JdbcValueTable extends AbstractValueTable {
             value = variable.getValueType().valueOf(rs.getObject(columnName));
           }
           closeCursorIfNecessary();
-          return value != null
-              ? value
-              : getVariable().isRepeatable() ? getValueType().nullSequence() : getValueType().nullValue();
+          return value == null //
+              ? getVariable().isRepeatable() ? getValueType().nullSequence() : getValueType().nullValue() //
+              : value;
         } catch(SQLException e) {
           throw new RuntimeException(e);
         }

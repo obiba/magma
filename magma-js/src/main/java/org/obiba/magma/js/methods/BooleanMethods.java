@@ -394,9 +394,9 @@ public class BooleanMethods {
   private static ScriptableValue booleanEquals(Scriptable thisObj, ScriptableValue firstOperand,
       ScriptableValue secondOperand) {
     Value firstOperandValue = firstOperand.getValue();
-    Boolean firstBoolean = firstOperandValue.isNull() ? false : (Boolean) firstOperandValue.getValue();
     Value secondOperandValue = secondOperand.getValue();
-    Boolean secondBoolean = secondOperandValue.isNull() ? false : (Boolean) secondOperandValue.getValue();
+    Boolean firstBoolean = firstOperandValue.isNull() ? Boolean.FALSE : (Boolean) firstOperandValue.getValue();
+    Boolean secondBoolean = secondOperandValue.isNull() ? Boolean.FALSE : (Boolean) secondOperandValue.getValue();
     return new ScriptableValue(thisObj, BooleanType.get().valueOf(Objects.equal(firstBoolean, secondBoolean)));
   }
 
@@ -422,10 +422,9 @@ public class BooleanMethods {
   }
 
   private static ScriptableValue buildValue(Scriptable scope, @Nullable Boolean value) {
-    if(value == null) {
-      return new ScriptableValue(scope, BooleanType.get().nullValue());
-    }
-    return new ScriptableValue(scope, value ? BooleanType.get().trueValue() : BooleanType.get().falseValue());
+    return value == null
+        ? new ScriptableValue(scope, BooleanType.get().nullValue())
+        : new ScriptableValue(scope, value ? BooleanType.get().trueValue() : BooleanType.get().falseValue());
   }
 
   private static ScriptableValue not(Context ctx, Scriptable thisObj, Function funObj) {
