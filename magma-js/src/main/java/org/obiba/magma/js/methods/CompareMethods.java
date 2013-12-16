@@ -40,8 +40,9 @@ public class CompareMethods {
   public static ScriptableValue compare(Context ctx, Scriptable thisObj, Object[] args, @Nullable Function funObj)
       throws MagmaJsEvaluationRuntimeException {
     ScriptableValue firstOperand = (ScriptableValue) thisObj;
-    if(firstOperand.getValue().isNull())
+    if(firstOperand.getValue().isNull()) {
       throw new MagmaJsEvaluationRuntimeException("Cannot invoke compare() with null argument.");
+    }
     if(args != null && args.length > 0 && args[0] instanceof ScriptableValue &&
         !((ScriptableValue) args[0]).getValue().isNull()) {
       ScriptableValue secondOperand = (ScriptableValue) args[0];
@@ -101,9 +102,9 @@ public class CompareMethods {
   private static ScriptableValue booleanCompare(Scriptable thisObj, ScriptableValue firstOperand,
       ScriptableValue secondOperand) {
     Value firstOperandValue = firstOperand.getValue();
-    Boolean firstBoolean = firstOperandValue.isNull() ? false : (Boolean) firstOperandValue.getValue();
+    Boolean firstBoolean = firstOperandValue.isNull() ? Boolean.FALSE : (Boolean) firstOperandValue.getValue();
     Value secondOperandValue = secondOperand.getValue();
-    Boolean secondBoolean = secondOperandValue.isNull() ? false : (Boolean) secondOperandValue.getValue();
+    Boolean secondBoolean = secondOperandValue.isNull() ? Boolean.FALSE : (Boolean) secondOperandValue.getValue();
     return new ScriptableValue(thisObj, IntegerType.get().valueOf(firstBoolean.compareTo(secondBoolean)));
   }
 
