@@ -275,9 +275,6 @@ public class HibernateDatasource extends AbstractDatasource {
     log.info("Renaming table {} to {}", tableName, newName);
     ((HibernateValueTable) getValueTable(tableName)).setName(newName);
     updateDatasourceLastUpdate();
-
-//    removeValueTable(tableName);
-//    getSessionFactory().getCurrentSession().refresh(this);
   }
 
   /**
