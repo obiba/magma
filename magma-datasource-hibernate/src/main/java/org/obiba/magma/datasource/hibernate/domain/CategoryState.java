@@ -15,6 +15,7 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "category")
+@SuppressWarnings("UnusedDeclaration")
 public class CategoryState extends AbstractAttributeAwareEntity implements Timestamped {
 
   private static final long serialVersionUID = 1L;
@@ -27,10 +28,7 @@ public class CategoryState extends AbstractAttributeAwareEntity implements Times
   @Column(nullable = false)
   private boolean missing;
 
-  @SuppressWarnings("UnusedDeclaration")
-  public CategoryState() {
-
-  }
+  public CategoryState() { }
 
   public CategoryState(String name, String code, boolean missing) {
     this.name = name;
@@ -42,13 +40,10 @@ public class CategoryState extends AbstractAttributeAwareEntity implements Times
     return code;
   }
 
-  @SuppressWarnings("UnusedDeclaration")
-
   public void setCode(String code) {
     this.code = code;
   }
 
-  @SuppressWarnings("UnusedDeclaration")
   public void setMissing(Boolean missing) {
     this.missing = missing;
   }

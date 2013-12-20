@@ -25,18 +25,19 @@ import org.obiba.core.domain.AbstractEntity;
  * member uses {@link @Version} and can be used for optimistic locking. Additionally the subclass will also receive the
  * generated 'id' field from the parent {@link AbstractEntity} class.
  */
-@SuppressWarnings("serial")
 @MappedSuperclass
 public abstract class AbstractTimestampedEntity extends AbstractEntity implements Timestamped {
 
-  @SuppressWarnings("FieldMayBeFinal")
+  private static final long serialVersionUID = 9121648752351099987L;
+
   @Temporal(TemporalType.TIMESTAMP)
   @Column(insertable = true, updatable = false, nullable = false)
+  @SuppressWarnings("FieldMayBeFinal")
   private Date created = new Date();
 
-  @SuppressWarnings("UnusedDeclaration")
   @Version
   @Column(nullable = false)
+  @SuppressWarnings("UnusedDeclaration")
   private Date updated;
 
   @Override

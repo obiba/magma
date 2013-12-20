@@ -28,11 +28,11 @@ class CategoricalValueGenerator extends AbstractMissingValueVariableValueGenerat
     }
   }
 
-  private Integer getQuantity(Category c) {
-    String qStr = getAttributeStringValue(c, "quantity", "weight");
+  private Integer getQuantity(Category category) {
+    String qStr = getAttributeStringValue(category, "quantity", "weight");
     Integer quantity = null;
     if(qStr == null) {
-      qStr = getAttributeStringValue(c, "%", "percentage", "pct", "prevalence", "prev");
+      qStr = getAttributeStringValue(category, "%", "percentage", "pct", "prevalence", "prev");
       if(qStr != null) {
         quantity = new Double(qStr).intValue() * 100;
       }

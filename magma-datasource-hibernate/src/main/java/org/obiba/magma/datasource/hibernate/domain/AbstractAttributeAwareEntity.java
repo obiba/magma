@@ -23,11 +23,12 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.Multimap;
 
-@SuppressWarnings("serial")
 @MappedSuperclass
 public abstract class AbstractAttributeAwareEntity extends AbstractTimestampedEntity {
 
-  @ElementCollection
+  private static final long serialVersionUID = 8238201229433337449L;
+
+  @ElementCollection // always cascaded
   private List<AttributeState> attributes;
 
   @Transient

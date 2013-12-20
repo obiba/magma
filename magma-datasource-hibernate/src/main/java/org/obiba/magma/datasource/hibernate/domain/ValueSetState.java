@@ -34,7 +34,8 @@ import com.google.common.collect.Sets;
         query = "SELECT id FROM ValueSetState WHERE valueTable.id = :valueTableId"),
     @NamedQuery(name = "setLastUpdateForTableId",
         query = "UPDATE ValueSetState SET updated = :updated WHERE valueTable.id = :valueTableId"),
-    @NamedQuery(name = "deleteValueSetStates",
+    @NamedQuery(name = "deleteEmptyValueSets",
+        query = "DELETE FROM ValueSetState WHERE id NOT IN (SELECT DISTINCT(id.valueSet.id) from ValueSetValue)"), @NamedQuery(name = "deleteValueSetStates",
         query = "DELETE FROM ValueSetState WHERE id IN (:valueTableIds)") })
 public class ValueSetState extends AbstractTimestampedEntity {
 

@@ -85,7 +85,7 @@ class HibernateVariableValueSourceFactory implements VariableValueSourceFactory 
 
     private Variable variable;
 
-    HibernateVariableValueSource(VariableState state, boolean unmarshall) {
+    HibernateVariableValueSource(@NotNull VariableState state, boolean unmarshall) {
       if(state == null) throw new IllegalArgumentException("state cannot be null");
 
       name = state.getName();
@@ -94,10 +94,6 @@ class HibernateVariableValueSourceFactory implements VariableValueSourceFactory 
       if(unmarshall) {
         unmarshall(state);
       }
-    }
-
-    public Serializable getVariableId() {
-      return variableId;
     }
 
     public VariableState getVariableState() {

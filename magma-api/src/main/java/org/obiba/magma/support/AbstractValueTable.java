@@ -136,8 +136,8 @@ public abstract class AbstractValueTable implements ValueTable, Initialisable {
     try {
       return Iterables.find(getSources(), new Predicate<VariableValueSource>() {
         @Override
-        public boolean apply(VariableValueSource input) {
-          return input.getVariable().getName().equals(variableName);
+        public boolean apply(VariableValueSource variableValueSource) {
+          return variableValueSource.getVariable().getName().equals(variableName);
         }
       });
     } catch(NoSuchElementException e) {

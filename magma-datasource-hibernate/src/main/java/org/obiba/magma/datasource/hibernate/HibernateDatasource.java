@@ -152,7 +152,7 @@ public class HibernateDatasource extends AbstractDatasource {
     deleteTableVariables(tableFullName, tableState, session);
 
     session.delete(tableState);
-    log.debug("Dropped table '{}' in {}", tableFullName, stopwatch.stop());
+    log.debug("Dropped table '{}' in {}", tableFullName, stopwatch);
 
     // force datasource timestamp update
     updateDatasourceLastUpdate();
@@ -165,7 +165,7 @@ public class HibernateDatasource extends AbstractDatasource {
     for(VariableState v : variables) {
       session.delete(v);
     }
-    log.debug("Deleted {} variables from {} in {}", variables.size(), tableFullName, stopwatch.stop());
+    log.debug("Deleted {} variables from {} in {}", variables.size(), tableFullName, stopwatch);
   }
 
   private void updateDatasourceLastUpdate() {
@@ -186,24 +186,23 @@ public class HibernateDatasource extends AbstractDatasource {
     sessionFactory.getCurrentSession().delete(getDatasourceState());
   }
 
-  @SuppressWarnings("ReuseOfLocalVariable")
   private void deleteValueSets(String tableFullName, @SuppressWarnings("TypeMayBeWeakened") Session session,
       Collection<?> valueSetIds) {
     if(valueSetIds.isEmpty()) return;
     Stopwatch stopwatch = Stopwatch.createStarted();
-    int deleted = session.getNamedQuery("deleteValueSetBinaryValues").setParameterList("valueSetIds", valueSetIds)
-        .executeUpdate();
-    log.debug("Deleted {} binaries from {} in {}", deleted, tableFullName, stopwatch.stop());
+    int nbDeletedBinaries = session.getNamedQuery("deleteValueSetBinaryValues")
+        .setParameterList("valueSetIds", valueSetIds).executeUpdate();
+    log.debug("Deleted {} binaries from {} in {}", nbDeletedBinaries, tableFullName, stopwatch.stop());
 
     stopwatch.start();
-    deleted = session.getNamedQuery("deleteValueSetValues").setParameterList("valueSetIds", valueSetIds)
+    int nbDeletedValues = session.getNamedQuery("deleteValueSetValues").setParameterList("valueSetIds", valueSetIds)
         .executeUpdate();
-    log.debug("Deleted {} values from {} in {}", deleted, tableFullName, stopwatch.stop());
+    log.debug("Deleted {} values from {} in {}", nbDeletedValues, tableFullName, stopwatch.stop());
 
     stopwatch.start();
-    deleted = session.getNamedQuery("deleteValueSetStates").setParameterList("valueTableIds", valueSetIds)
-        .executeUpdate();
-    log.debug("Deleted {} valueSets from {} in {}", deleted, tableFullName, stopwatch.stop());
+    int nbDeletedValueSets = session.getNamedQuery("deleteValueSetStates")
+        .setParameterList("valueTableIds", valueSetIds).executeUpdate();
+    log.debug("Deleted {} valueSets from {} in {}", nbDeletedValueSets, tableFullName, stopwatch.stop());
   }
 
   @Override
