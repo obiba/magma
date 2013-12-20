@@ -2,11 +2,9 @@ package org.obiba.magma.datasource.hibernate;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Set;
 import java.util.SortedSet;
 
-import org.hamcrest.core.Is;
-import org.hamcrest.core.IsNull;
+import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.junit.After;
 import org.junit.Assert;
@@ -28,6 +26,11 @@ import org.obiba.magma.VariableValueSource;
 import org.obiba.magma.VectorSource;
 import org.obiba.magma.datasource.generated.BinaryValueGenerator;
 import org.obiba.magma.datasource.generated.GeneratedValueTable;
+import org.obiba.magma.datasource.hibernate.domain.DatasourceState;
+import org.obiba.magma.datasource.hibernate.domain.ValueSetState;
+import org.obiba.magma.datasource.hibernate.domain.ValueSetValue;
+import org.obiba.magma.datasource.hibernate.domain.ValueTableState;
+import org.obiba.magma.datasource.hibernate.domain.VariableState;
 import org.obiba.magma.support.DatasourceCopier;
 import org.obiba.magma.support.Initialisables;
 import org.obiba.magma.type.BinaryType;
@@ -53,11 +56,11 @@ import com.google.common.collect.Sets;
 
 import uk.co.it.modular.hamcrest.date.DateMatchers;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
+import static org.hamcrest.collection.IsEmptyCollection.empty;
+import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsInstanceOf.instanceOf;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.hamcrest.core.IsNull.notNullValue;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
@@ -103,51 +106,40 @@ public class HibernateDatasourceTest {
   @Test
   public void test_transactional_table_creation() {
 
-    transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+    transactionTemplate.execute(new TransactionCallbackFailOnException() {
       @Override
-      protected void doInTransactionWithoutResult(TransactionStatus status) {
-        try {
-          HibernateDatasource ds = createDatasource();
+      protected void doAction(TransactionStatus status) throws Exception {
 
-          MagmaEngine.get().addDatasource(ds);
-          ValueTableWriter vtWriter = ds.createWriter(TABLE, PARTICIPANT);
-          vtWriter.close();
+        HibernateDatasource ds = createDatasource();
 
-          assertThat(ds.hasValueTable(TABLE), is(true));
-          assertThat(ds.getValueTable(TABLE), notNullValue());
+        MagmaEngine.get().addDatasource(ds);
+        ValueTableWriter vtWriter = ds.createWriter(TABLE, PARTICIPANT);
+        vtWriter.close();
 
-          // Make sure the table is not visible outside this transaction.
-          new TestThread() {
-            @Override
-            public void test() {
-              // Assert that the datasource does not have the value table
-              assertThat(MagmaEngine.get().getDatasource(DATASOURCE).hasValueTable(TABLE), is(false));
-            }
-          }.assertNoException();
+        assertThat(ds.hasValueTable(TABLE), is(true));
+        assertThat(ds.getValueTable(TABLE), notNullValue());
 
-        } catch(Exception e) {
-          fail(e.getMessage());
-          log.error("Exception", e);
-          throw new RuntimeException(e);
-        }
+        // Make sure the table is not visible outside this transaction.
+        new TestThread() {
+          @Override
+          public void test() {
+            // Assert that the datasource does not have the value table
+            assertThat(MagmaEngine.get().getDatasource(DATASOURCE).hasValueTable(TABLE), is(false));
+          }
+        }.assertNoException();
       }
     });
 
     // Make sure the table is visible outside this transaction.
-    transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+    transactionTemplate.execute(new TransactionCallbackFailOnException() {
       @Override
-      protected void doInTransactionWithoutResult(TransactionStatus status) {
-        try {
-          new TestThread() {
-            @Override
-            public void test() {
-              assertThat(MagmaEngine.get().getDatasource(DATASOURCE).hasValueTable(TABLE), is(true));
-            }
-          }.assertNoException();
-        } catch(InterruptedException e) {
-          fail(e.getMessage());
-          throw new RuntimeException(e);
-        }
+      protected void doAction(TransactionStatus status) throws Exception {
+        new TestThread() {
+          @Override
+          public void test() {
+            assertThat(MagmaEngine.get().getDatasource(DATASOURCE).hasValueTable(TABLE), is(true));
+          }
+        }.assertNoException();
       }
     });
   }
@@ -155,50 +147,40 @@ public class HibernateDatasourceTest {
   @Test
   public void test_table_and_variables_persisted() {
 
-    transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+    transactionTemplate.execute(new TransactionCallbackFailOnException() {
       @Override
-      protected void doInTransactionWithoutResult(TransactionStatus status) {
-        try {
-          HibernateDatasource ds = createDatasource();
+      protected void doAction(TransactionStatus status) throws Exception {
+        HibernateDatasource ds = createDatasource();
 
-          MagmaEngine.get().addDatasource(ds);
+        MagmaEngine.get().addDatasource(ds);
 
-          ValueTableWriter tableWriter = ds.createWriter(TABLE, PARTICIPANT);
+        ValueTableWriter tableWriter = ds.createWriter(TABLE, PARTICIPANT);
 
-          // Test that the table is visible
-          Assert.assertTrue(ds.hasValueTable(TABLE));
+        // Test that the table is visible
+        assertThat(ds.hasValueTable(TABLE), is(true));
 
-          // Write variables and assert that they are visible.
-          VariableWriter variableWriter = tableWriter.writeVariables();
-          variableWriter.writeVariable(Variable.Builder.newVariable("Var1", TextType.get(), PARTICIPANT).build());
-          assertNotNull(ds.getValueTable(TABLE).getVariable("Var1"));
-          variableWriter.writeVariable(Variable.Builder.newVariable("Var2", IntegerType.get(), PARTICIPANT).build());
-          assertNotNull(ds.getValueTable(TABLE).getVariable("Var2"));
-          variableWriter.close();
-          tableWriter.close();
-        } catch(Exception e) {
-          fail(e.getMessage());
-          throw new RuntimeException(e);
-        }
+        // Write variables and assert that they are visible.
+        VariableWriter variableWriter = tableWriter.writeVariables();
+        variableWriter.writeVariable(Variable.Builder.newVariable("Var1", TextType.get(), PARTICIPANT).build());
+        assertThat(ds.getValueTable(TABLE).getVariable("Var1"), notNullValue());
+        variableWriter.writeVariable(Variable.Builder.newVariable("Var2", IntegerType.get(), PARTICIPANT).build());
+        assertThat(ds.getValueTable(TABLE).getVariable("Var2"), notNullValue());
+        variableWriter.close();
+        tableWriter.close();
       }
     });
 
     cleanlyRemoveDatasource(false);
 
     // Re-create same datasource and assert that everything is still there.
-    transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+    transactionTemplate.execute(new TransactionCallbackFailOnException() {
       @Override
-      protected void doInTransactionWithoutResult(TransactionStatus status) {
-        try {
-          HibernateDatasource ds = createDatasource();
-          MagmaEngine.get().addDatasource(ds);
-          assertNotNull(ds.getValueTable(TABLE));
-          assertNotNull(ds.getValueTable(TABLE).getVariable("Var1"));
-          assertNotNull(ds.getValueTable(TABLE).getVariable("Var2"));
-        } catch(Exception e) {
-          fail(e.getMessage());
-          throw new RuntimeException(e);
-        }
+      protected void doAction(TransactionStatus status) throws Exception {
+        HibernateDatasource ds = createDatasource();
+        MagmaEngine.get().addDatasource(ds);
+        assertThat(ds.getValueTable(TABLE), notNullValue());
+        assertThat(ds.getValueTable(TABLE).getVariable("Var1"), notNullValue());
+        assertThat(ds.getValueTable(TABLE).getVariable("Var2"), notNullValue());
       }
     });
 
@@ -211,62 +193,46 @@ public class HibernateDatasourceTest {
     final Variable changedState = Variable.Builder.newVariable("Var1", TextType.get(), PARTICIPANT)
         .addCategory("C3", "3").addCategory("C1", "1").addCategory("C4", "4").addCategory("C2", "2").build();
 
-    transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+    transactionTemplate.execute(new TransactionCallbackFailOnException() {
       @Override
-      protected void doInTransactionWithoutResult(TransactionStatus status) {
-        try {
-          HibernateDatasource ds = createDatasource();
+      protected void doAction(TransactionStatus status) throws Exception {
+        HibernateDatasource ds = createDatasource();
 
-          MagmaEngine.get().addDatasource(ds);
+        MagmaEngine.get().addDatasource(ds);
 
-          ValueTableWriter vtWriter = ds.createWriter(TABLE, PARTICIPANT);
+        ValueTableWriter vtWriter = ds.createWriter(TABLE, PARTICIPANT);
 
-          // Write variables and assert that they are visible.
-          VariableWriter vw = vtWriter.writeVariables();
-          vw.writeVariable(initialState);
-          vw.close();
-          vtWriter.close();
-        } catch(Exception e) {
-          fail(e.getMessage());
-          throw new RuntimeException(e);
-        }
+        // Write variables and assert that they are visible.
+        VariableWriter vw = vtWriter.writeVariables();
+        vw.writeVariable(initialState);
+        vw.close();
+        vtWriter.close();
       }
     });
 
-    transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+    transactionTemplate.execute(new TransactionCallbackFailOnException() {
       @Override
-      protected void doInTransactionWithoutResult(TransactionStatus status) {
-        try {
+      protected void doAction(TransactionStatus status) throws Exception {
+        HibernateDatasource ds = getDatasource();
 
-          HibernateDatasource ds = getDatasource();
+        Variable v = ds.getValueTable(TABLE).getVariable("Var1");
+        assertSameCategories(initialState, v);
 
-          Variable v = ds.getValueTable(TABLE).getVariable("Var1");
-          assertSameCategories(initialState, v);
-
-          ValueTableWriter vtWriter = ds.createWriter(TABLE, PARTICIPANT);
-          // Write variables and assert that they are visible.
-          VariableWriter vw = vtWriter.writeVariables();
-          vw.writeVariable(changedState);
-          vw.close();
-          vtWriter.close();
-        } catch(Exception e) {
-          fail(e.getMessage());
-          throw new RuntimeException(e);
-        }
+        ValueTableWriter vtWriter = ds.createWriter(TABLE, PARTICIPANT);
+        // Write variables and assert that they are visible.
+        VariableWriter vw = vtWriter.writeVariables();
+        vw.writeVariable(changedState);
+        vw.close();
+        vtWriter.close();
       }
     });
 
-    transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+    transactionTemplate.execute(new TransactionCallbackFailOnException() {
       @Override
-      protected void doInTransactionWithoutResult(TransactionStatus status) {
-        try {
-          HibernateDatasource ds = getDatasource();
-          Variable v = ds.getValueTable(TABLE).getVariable("Var1");
-          assertSameCategories(changedState, v);
-        } catch(Exception e) {
-          fail(e.getMessage());
-          throw new RuntimeException(e);
-        }
+      protected void doAction(TransactionStatus status) throws Exception {
+        HibernateDatasource ds = getDatasource();
+        Variable v = ds.getValueTable(TABLE).getVariable("Var1");
+        assertSameCategories(changedState, v);
       }
     });
 
@@ -275,23 +241,18 @@ public class HibernateDatasourceTest {
   @Test
   public void test_write() {
 
-    transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+    transactionTemplate.execute(new TransactionCallbackFailOnException() {
       @Override
-      protected void doInTransactionWithoutResult(TransactionStatus status) {
-        try {
-          HibernateDatasource ds = createDatasource();
+      protected void doAction(TransactionStatus status) throws Exception {
+        HibernateDatasource ds = createDatasource();
 
-          ImmutableSet<Variable> variables = ImmutableSet.of( //
-              Variable.Builder.newVariable("Test Variable", IntegerType.get(), PARTICIPANT).build(), //
-              Variable.Builder.newVariable("Other Variable", DecimalType.get(), PARTICIPANT).build());
+        ImmutableSet<Variable> variables = ImmutableSet.of( //
+            Variable.Builder.newVariable("Test Variable", IntegerType.get(), PARTICIPANT).build(), //
+            Variable.Builder.newVariable("Other Variable", DecimalType.get(), PARTICIPANT).build());
 
-          ValueTable generatedValueTable = new GeneratedValueTable(ds, variables, 50);
-          MagmaEngine.get().addDatasource(ds);
-          DatasourceCopier.Builder.newCopier().build().copy(generatedValueTable, ds);
-        } catch(Exception e) {
-          fail(e.getMessage());
-          throw new RuntimeException(e);
-        }
+        ValueTable generatedValueTable = new GeneratedValueTable(ds, variables, 50);
+        MagmaEngine.get().addDatasource(ds);
+        DatasourceCopier.Builder.newCopier().build().copy(generatedValueTable, ds);
       }
     });
 
@@ -307,49 +268,38 @@ public class HibernateDatasourceTest {
         Variable.Builder.newVariable("Test DateTime", DateTimeType.get(), PARTICIPANT).build(), //
         Variable.Builder.newVariable("Other Variable", DecimalType.get(), PARTICIPANT).build());
 
-    transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+    transactionTemplate.execute(new TransactionCallbackFailOnException() {
       @Override
-      protected void doInTransactionWithoutResult(TransactionStatus status) {
-        try {
-          HibernateDatasource ds = createDatasource();
-
-          ValueTable generatedValueTable = new GeneratedValueTable(ds, variables, 50);
-          MagmaEngine.get().addDatasource(ds);
-          DatasourceCopier.Builder.newCopier().build().copy(generatedValueTable, "NewTable", ds);
-        } catch(Exception e) {
-          fail(e.getMessage());
-          throw new RuntimeException(e);
-        }
+      protected void doAction(TransactionStatus status) throws Exception {
+        HibernateDatasource ds = createDatasource();
+        ValueTable generatedValueTable = new GeneratedValueTable(ds, variables, 50);
+        MagmaEngine.get().addDatasource(ds);
+        DatasourceCopier.Builder.newCopier().build().copy(generatedValueTable, "NewTable", ds);
       }
     });
 
-    transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+    transactionTemplate.execute(new TransactionCallbackFailOnException() {
       @Override
-      protected void doInTransactionWithoutResult(TransactionStatus status) {
-        try {
-          HibernateDatasource ds = getDatasource();
-          ValueTable valueTable = ds.getValueTable("NewTable");
+      protected void doAction(TransactionStatus status) throws Exception {
+        HibernateDatasource ds = getDatasource();
+        ValueTable valueTable = ds.getValueTable("NewTable");
 
-          for(Variable variable : variables) {
-            VariableValueSource valueSource = valueTable.getVariableValueSource(variable.getName());
-            assertThat(valueSource, notNullValue());
-            assertThat(valueSource.asVectorSource(), notNullValue());
+        for(Variable variable : variables) {
+          VariableValueSource valueSource = valueTable.getVariableValueSource(variable.getName());
+          assertThat(valueSource, notNullValue());
+          assertThat(valueSource.asVectorSource(), notNullValue());
 
-            SortedSet<VariableEntity> entities = Sets.newTreeSet(valueTable.getVariableEntities());
-            VectorSource vectorSource = valueSource.asVectorSource();
-            assertThat(vectorSource, notNullValue());
-            //noinspection ConstantConditions
-            Iterable<Value> values = vectorSource.getValues(entities);
-            assertThat(values, notNullValue());
-            assertThat(Iterables.size(values), is(entities.size()));
-            for(Value value : values) {
-              assertThat(value, notNullValue());
-              assertThat(value.isSequence(), is(variable.isRepeatable()));
-            }
+          SortedSet<VariableEntity> entities = Sets.newTreeSet(valueTable.getVariableEntities());
+          VectorSource vectorSource = valueSource.asVectorSource();
+          assertThat(vectorSource, notNullValue());
+          //noinspection ConstantConditions
+          Iterable<Value> values = vectorSource.getValues(entities);
+          assertThat(values, notNullValue());
+          assertThat(Iterables.size(values), is(entities.size()));
+          for(Value value : values) {
+            assertThat(value, notNullValue());
+            assertThat(value.isSequence(), is(variable.isRepeatable()));
           }
-        } catch(Exception e) {
-          fail(e.getMessage());
-          throw new RuntimeException(e);
         }
       }
     });
@@ -363,62 +313,48 @@ public class HibernateDatasourceTest {
         Variable.Builder.newVariable("Test Binary", BinaryType.get(), PARTICIPANT).build(),
         Variable.Builder.newVariable("Test Repeatable Binary", BinaryType.get(), PARTICIPANT).repeatable().build());
 
-    transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+    transactionTemplate.execute(new TransactionCallbackFailOnException() {
       @Override
-      protected void doInTransactionWithoutResult(TransactionStatus status) {
-        try {
-          HibernateDatasource ds = createDatasource();
-
-          ValueTable generatedValueTable = new GeneratedValueTable(ds, variables, 1);
-          MagmaEngine.get().addDatasource(ds);
-          DatasourceCopier.Builder.newCopier().build().copy(generatedValueTable, "NewTable", ds);
-        } catch(Exception e) {
-          fail(e.getMessage());
-          throw new RuntimeException(e);
-        }
+      protected void doAction(TransactionStatus status) throws Exception {
+        HibernateDatasource ds = createDatasource();
+        ValueTable generatedValueTable = new GeneratedValueTable(ds, variables, 1);
+        MagmaEngine.get().addDatasource(ds);
+        DatasourceCopier.Builder.newCopier().build().copy(generatedValueTable, "NewTable", ds);
       }
     });
 
-    transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+    transactionTemplate.execute(new TransactionCallbackFailOnException() {
       @Override
-      protected void doInTransactionWithoutResult(TransactionStatus status) {
-        try {
-          HibernateDatasource ds = getDatasource();
-          ValueTable valueTable = ds.getValueTable("NewTable");
+      protected void doAction(TransactionStatus status) throws Exception {
+        HibernateDatasource ds = getDatasource();
+        ValueTable valueTable = ds.getValueTable("NewTable");
 
-          for(Variable variable : variables) {
+        for(Variable variable : variables) {
 
-            VariableValueSource valueSource = valueTable.getVariableValueSource(variable.getName());
-            assertThat(valueSource, notNullValue());
-            assertThat(valueSource.asVectorSource(), notNullValue());
+          VariableValueSource valueSource = valueTable.getVariableValueSource(variable.getName());
+          assertThat(valueSource, notNullValue());
+          assertThat(valueSource.asVectorSource(), notNullValue());
 
-            SortedSet<VariableEntity> entities = Sets.newTreeSet(valueTable.getVariableEntities());
-            VectorSource vectorSource = valueSource.asVectorSource();
-            assertThat(vectorSource, notNullValue());
-            Iterable<Value> values = vectorSource.getValues(entities);
-            assertThat(values, notNullValue());
-            assertThat(Iterables.size(values), is(entities.size()));
-            long length = BinaryValueGenerator.getLength();
-            for(Value value : values) {
-              assertThat(value.isNull(), is(false));
-              assertThat(value.isSequence(), is(variable.isRepeatable()));
-              if(value.isSequence()) {
-                for(Value v : value.asSequence().getValue()) {
-                  assertThat(v.getValue(), instanceOf(byte[].class));
-                  assertThat(v.getLength(), is(length));
-                }
-              } else {
-                assertThat(value.getValue(), instanceOf(byte[].class));
-                assertThat(value.getLength(), is(length));
+          SortedSet<VariableEntity> entities = Sets.newTreeSet(valueTable.getVariableEntities());
+          VectorSource vectorSource = valueSource.asVectorSource();
+          assertThat(vectorSource, notNullValue());
+          Iterable<Value> values = vectorSource.getValues(entities);
+          assertThat(values, notNullValue());
+          assertThat(Iterables.size(values), is(entities.size()));
+          long length = BinaryValueGenerator.getLength();
+          for(Value value : values) {
+            assertThat(value.isNull(), is(false));
+            assertThat(value.isSequence(), is(variable.isRepeatable()));
+            if(value.isSequence()) {
+              for(Value v : value.asSequence().getValue()) {
+                assertThat(v.getValue(), instanceOf(byte[].class));
+                assertThat(v.getLength(), is(length));
               }
+            } else {
+              assertThat(value.getValue(), instanceOf(byte[].class));
+              assertThat(value.getLength(), is(length));
             }
           }
-        } catch(RuntimeException e) {
-          fail(e.getMessage());
-          throw e;
-        } catch(Exception e) {
-          fail(e.getMessage());
-          throw new RuntimeException(e);
         }
       }
     });
@@ -433,64 +369,49 @@ public class HibernateDatasourceTest {
         Variable.Builder.newVariable("Test Variable", IntegerType.get(), PARTICIPANT).build(), //
         Variable.Builder.newVariable("Other Variable", DecimalType.get(), PARTICIPANT).build());
 
-    transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+    transactionTemplate.execute(new TransactionCallbackFailOnException() {
       @Override
-      protected void doInTransactionWithoutResult(TransactionStatus status) {
-        try {
-          HibernateDatasource ds = createDatasource();
-          ValueTable generatedValueTable = new GeneratedValueTable(ds, variables, 5);
-          MagmaEngine.get().addDatasource(ds);
-          DatasourceCopier.Builder.newCopier().build().copy(generatedValueTable, "NewTable", ds);
-        } catch(Exception e) {
-          fail(e.getMessage());
-          throw new RuntimeException(e);
-        }
+      protected void doAction(TransactionStatus status) throws Exception {
+        HibernateDatasource ds = createDatasource();
+        ValueTable generatedValueTable = new GeneratedValueTable(ds, variables, 5);
+        MagmaEngine.get().addDatasource(ds);
+        DatasourceCopier.Builder.newCopier().build().copy(generatedValueTable, "NewTable", ds);
       }
     });
 
     Thread.sleep(1000);
 
-    transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+    transactionTemplate.execute(new TransactionCallbackFailOnException() {
       @Override
-      protected void doInTransactionWithoutResult(TransactionStatus status) {
-        try {
-          HibernateDatasource ds = getDatasource();
-          ValueTable generatedValueTable = new GeneratedValueTable(ds, variables, 50);
-          MagmaEngine.get().addDatasource(ds);
-          DatasourceCopier.Builder.newCopier().build().copy(generatedValueTable, "NewTable", ds);
-        } catch(Exception e) {
-          fail(e.getMessage());
-          throw new RuntimeException(e);
-        }
+      protected void doAction(TransactionStatus status) throws Exception {
+        HibernateDatasource ds = getDatasource();
+        ValueTable generatedValueTable = new GeneratedValueTable(ds, variables, 50);
+        MagmaEngine.get().addDatasource(ds);
+        DatasourceCopier.Builder.newCopier().build().copy(generatedValueTable, "NewTable", ds);
       }
     });
 
     Thread.sleep(1000);
 
-    transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+    transactionTemplate.execute(new TransactionCallbackFailOnException() {
       @Override
-      protected void doInTransactionWithoutResult(TransactionStatus status) {
-        try {
-          HibernateDatasource ds = getDatasource();
-          ValueTable table = ds.getValueTable("NewTable");
-          Date lastValueSetUpdate = null;
-          for(ValueSet valueSet : table.getValueSets()) {
-            Date lastUpdate = (Date) valueSet.getTimestamps().getLastUpdate().getValue();
-            if(lastValueSetUpdate == null || lastValueSetUpdate.before(lastUpdate)) {
-              lastValueSetUpdate = lastUpdate;
-            }
+      protected void doAction(TransactionStatus status) throws Exception {
+        HibernateDatasource ds = getDatasource();
+        ValueTable table = ds.getValueTable("NewTable");
+        Date lastValueSetUpdate = null;
+        for(ValueSet valueSet : table.getValueSets()) {
+          Date lastUpdate = (Date) valueSet.getTimestamps().getLastUpdate().getValue();
+          if(lastValueSetUpdate == null || lastValueSetUpdate.before(lastUpdate)) {
+            lastValueSetUpdate = lastUpdate;
           }
-          Date tableCreated = (Date) table.getTimestamps().getCreated().getValue();
-          Date tableLastUpdate = (Date) table.getTimestamps().getLastUpdate().getValue();
-
-          assertThat(lastValueSetUpdate, DateMatchers.sameOrBefore(tableLastUpdate));
-
-          assertThat("Table create date should be before last update", tableCreated,
-              DateMatchers.before(tableLastUpdate));
-        } catch(Exception e) {
-          fail(e.getMessage());
-          throw new RuntimeException(e);
         }
+        Date tableCreated = (Date) table.getTimestamps().getCreated().getValue();
+        Date tableLastUpdate = (Date) table.getTimestamps().getLastUpdate().getValue();
+
+        assertThat(lastValueSetUpdate, DateMatchers.sameOrBefore(tableLastUpdate));
+
+        assertThat("Table create date should be before last update", tableCreated,
+            DateMatchers.before(tableLastUpdate));
       }
     });
 
@@ -499,20 +420,14 @@ public class HibernateDatasourceTest {
   @Test
   public void test_timestamps_adding_variable() throws Exception {
 
-    transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+    transactionTemplate.execute(new TransactionCallbackFailOnException() {
       @Override
-      protected void doInTransactionWithoutResult(TransactionStatus status) {
-        try {
-          HibernateDatasource ds = createDatasource();
-          ValueTable generatedValueTable = new GeneratedValueTable(ds,
-              ImmutableSet.of(Variable.Builder.newVariable("Test Variable", IntegerType.get(), PARTICIPANT).build()),
-              1);
-          MagmaEngine.get().addDatasource(ds);
-          DatasourceCopier.Builder.newCopier().build().copy(generatedValueTable, TABLE, ds);
-        } catch(Exception e) {
-          fail(e.getMessage());
-          throw new RuntimeException(e);
-        }
+      protected void doAction(TransactionStatus status) throws Exception {
+        HibernateDatasource ds = createDatasource();
+        ValueTable generatedValueTable = new GeneratedValueTable(ds,
+            ImmutableSet.of(Variable.Builder.newVariable("Test Variable", IntegerType.get(), PARTICIPANT).build()), 1);
+        MagmaEngine.get().addDatasource(ds);
+        DatasourceCopier.Builder.newCopier().build().copy(generatedValueTable, TABLE, ds);
       }
     });
 
@@ -522,23 +437,16 @@ public class HibernateDatasourceTest {
     Date tableLastUpdate = getTableLastUpdate(TABLE);
 
     // add new variable
-    transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+    transactionTemplate.execute(new TransactionCallbackFailOnException() {
       @Override
-      protected void doInTransactionWithoutResult(TransactionStatus status) {
-        try {
-          HibernateDatasource ds = getDatasource();
+      protected void doAction(TransactionStatus status) throws Exception {
+        HibernateDatasource ds = getDatasource();
 
-          ValueTableWriter tableWriter = ds.createWriter(TABLE, PARTICIPANT);
-          VariableWriter variableWriter = tableWriter.writeVariables();
-          variableWriter
-              .writeVariable(Variable.Builder.newVariable("New Variable", TextType.get(), PARTICIPANT).build());
-          variableWriter.close();
-          tableWriter.close();
-
-        } catch(Exception e) {
-          fail(e.getMessage());
-          throw new RuntimeException(e);
-        }
+        ValueTableWriter tableWriter = ds.createWriter(TABLE, PARTICIPANT);
+        VariableWriter variableWriter = tableWriter.writeVariables();
+        variableWriter.writeVariable(Variable.Builder.newVariable("New Variable", TextType.get(), PARTICIPANT).build());
+        variableWriter.close();
+        tableWriter.close();
       }
     });
 
@@ -552,18 +460,13 @@ public class HibernateDatasourceTest {
 
     final Variable variable = Variable.Builder.newVariable("Test Variable", IntegerType.get(), PARTICIPANT).build();
 
-    transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+    transactionTemplate.execute(new TransactionCallbackFailOnException() {
       @Override
-      protected void doInTransactionWithoutResult(TransactionStatus status) {
-        try {
-          HibernateDatasource ds = createDatasource();
-          ValueTable generatedValueTable = new GeneratedValueTable(ds, ImmutableSet.of(variable), 1);
-          MagmaEngine.get().addDatasource(ds);
-          DatasourceCopier.Builder.newCopier().build().copy(generatedValueTable, TABLE, ds);
-        } catch(Exception e) {
-          fail(e.getMessage());
-          throw new RuntimeException(e);
-        }
+      protected void doAction(TransactionStatus status) throws Exception {
+        HibernateDatasource ds = createDatasource();
+        ValueTable generatedValueTable = new GeneratedValueTable(ds, ImmutableSet.of(variable), 1);
+        MagmaEngine.get().addDatasource(ds);
+        DatasourceCopier.Builder.newCopier().build().copy(generatedValueTable, TABLE, ds);
       }
     });
 
@@ -573,22 +476,15 @@ public class HibernateDatasourceTest {
     Date tableLastUpdate = getTableLastUpdate(TABLE);
 
     // remove variable
-    transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+    transactionTemplate.execute(new TransactionCallbackFailOnException() {
       @Override
-      protected void doInTransactionWithoutResult(TransactionStatus status) {
-        try {
-          HibernateDatasource ds = getDatasource();
-
-          ValueTableWriter tableWriter = ds.createWriter(TABLE, PARTICIPANT);
-          VariableWriter variableWriter = tableWriter.writeVariables();
-          variableWriter.removeVariable(variable);
-          variableWriter.close();
-          tableWriter.close();
-
-        } catch(Exception e) {
-          fail(e.getMessage());
-          throw new RuntimeException(e);
-        }
+      protected void doAction(TransactionStatus status) throws Exception {
+        HibernateDatasource ds = getDatasource();
+        ValueTableWriter tableWriter = ds.createWriter(TABLE, PARTICIPANT);
+        VariableWriter variableWriter = tableWriter.writeVariables();
+        variableWriter.removeVariable(variable);
+        variableWriter.close();
+        tableWriter.close();
       }
     });
 
@@ -602,18 +498,13 @@ public class HibernateDatasourceTest {
 
     final Variable variable = Variable.Builder.newVariable("Test Variable", IntegerType.get(), PARTICIPANT).build();
 
-    transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+    transactionTemplate.execute(new TransactionCallbackFailOnException() {
       @Override
-      protected void doInTransactionWithoutResult(TransactionStatus status) {
-        try {
-          HibernateDatasource ds = createDatasource();
-          ValueTable generatedValueTable = new GeneratedValueTable(ds, ImmutableSet.of(variable), 1);
-          MagmaEngine.get().addDatasource(ds);
-          DatasourceCopier.Builder.newCopier().build().copy(generatedValueTable, TABLE, ds);
-        } catch(Exception e) {
-          fail(e.getMessage());
-          throw new RuntimeException(e);
-        }
+      protected void doAction(TransactionStatus status) throws Exception {
+        HibernateDatasource ds = createDatasource();
+        ValueTable generatedValueTable = new GeneratedValueTable(ds, ImmutableSet.of(variable), 1);
+        MagmaEngine.get().addDatasource(ds);
+        DatasourceCopier.Builder.newCopier().build().copy(generatedValueTable, TABLE, ds);
       }
     });
 
@@ -622,16 +513,11 @@ public class HibernateDatasourceTest {
     Date datasourceLastUpdate = getDatasourceStateLastUpdate();
 
     // drop table
-    transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+    transactionTemplate.execute(new TransactionCallbackFailOnException() {
       @Override
-      protected void doInTransactionWithoutResult(TransactionStatus status) {
-        try {
-          HibernateDatasource ds = getDatasource();
-          ds.dropTable(TABLE);
-        } catch(Exception e) {
-          fail(e.getMessage());
-          throw new RuntimeException(e);
-        }
+      protected void doAction(TransactionStatus status) throws Exception {
+        HibernateDatasource ds = getDatasource();
+        ds.dropTable(TABLE);
       }
     });
 
@@ -685,101 +571,135 @@ public class HibernateDatasourceTest {
   }
 
   @Test
+  public void test_drop_table() {
+
+    transactionTemplate.execute(new TransactionCallbackFailOnException() {
+      @Override
+      protected void doAction(TransactionStatus status) throws Exception {
+        HibernateDatasource ds = createDatasource();
+        ImmutableSet<Variable> variables = ImmutableSet.of(//
+            Variable.Builder.newVariable("Test Variable", IntegerType.get(), PARTICIPANT).build(), //
+            Variable.Builder.newVariable("Other Variable", DecimalType.get(), PARTICIPANT).build());
+
+        ValueTable generatedValueTable = new GeneratedValueTable(ds, variables, 50);
+        MagmaEngine.get().addDatasource(ds);
+        DatasourceCopier.Builder.newCopier().build().copy(generatedValueTable, TABLE, ds);
+      }
+    });
+
+    transactionTemplate.execute(new TransactionCallbackFailOnException() {
+      @Override
+      protected void doAction(TransactionStatus status) throws Exception {
+        HibernateDatasource ds = getDatasource();
+        assertThat(ds.canDropTable(TABLE), is(true));
+        ds.dropTable(TABLE);
+      }
+    });
+
+    transactionTemplate.execute(new TransactionCallbackFailOnException() {
+      @Override
+      @SuppressWarnings("unchecked")
+      protected void doAction(TransactionStatus status) throws Exception {
+        HibernateDatasource ds = getDatasource();
+        try {
+          ds.getValueTable(TABLE);
+          fail("Should throw NoSuchValueTableException");
+        } catch(NoSuchValueTableException ignored) {
+        }
+
+        Session session = ds.getSessionFactory().getCurrentSession();
+        assertEmptyJpaEntities(session, ValueTableState.class);
+        assertEmptyJpaEntities(session, VariableState.class);
+        assertEmptyJpaEntities(session, ValueSetState.class);
+        assertEmptyJpaEntities(session, ValueSetValue.class);
+      }
+    });
+  }
+
+  @Test
   public void test_remove_variable() {
 
-    transactionTemplate.execute(new TransactionCallbackWithoutResult() {
-      @Override
-      protected void doInTransactionWithoutResult(TransactionStatus status) {
-        try {
-          HibernateDatasource ds = createDatasource();
-          ImmutableSet<Variable> variables = ImmutableSet.of(//
-              Variable.Builder.newVariable("Test Variable", IntegerType.get(), PARTICIPANT).build(), //
-              Variable.Builder.newVariable("Other Variable", DecimalType.get(), PARTICIPANT).build());
+    final Variable variable = Variable.Builder.newVariable("Variable 1", IntegerType.get(), PARTICIPANT).build();
 
-          ValueTable generatedValueTable = new GeneratedValueTable(ds, variables, 50);
-          MagmaEngine.get().addDatasource(ds);
-          DatasourceCopier.Builder.newCopier().build().copy(generatedValueTable, TABLE, ds);
-        } catch(Exception e) {
-          fail(e.getMessage());
-          throw new RuntimeException(e);
-        }
+    transactionTemplate.execute(new TransactionCallbackFailOnException() {
+      @Override
+      protected void doAction(TransactionStatus status) throws Exception {
+        HibernateDatasource ds = createDatasource();
+        ImmutableSet<Variable> variables = ImmutableSet.of(variable);
+
+        ValueTable generatedValueTable = new GeneratedValueTable(ds, variables, 10);
+        MagmaEngine.get().addDatasource(ds);
+        DatasourceCopier.Builder.newCopier().build().copy(generatedValueTable, TABLE, ds);
       }
     });
 
-    transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+    transactionTemplate.execute(new TransactionCallbackFailOnException() {
       @Override
-      protected void doInTransactionWithoutResult(TransactionStatus status) {
-        try {
-          HibernateDatasource ds = getDatasource();
-          ValueTable table = ds.getValueTable(TABLE);
-          Variable variable = table.getVariable("Test Variable");
+      @SuppressWarnings("unchecked")
+      protected void doAction(TransactionStatus status) throws Exception {
+        HibernateDatasource ds = getDatasource();
+        ValueTable table = ds.getValueTable(TABLE);
+        Variable found = table.getVariable(variable.getName());
 
-          assertThat(Iterables.size(table.getVariables()), Is.is(2));
-          assertThat(variable, IsNull.notNullValue());
-          assertThat(table.getVariable("Other Variable"), IsNull.notNullValue());
+        assertThat(Iterables.size(table.getVariables()), is(1));
+        assertThat(found, notNullValue());
 
-          ValueTableWriter.VariableWriter variableWriter = ds.createWriter(TABLE, PARTICIPANT).writeVariables();
-          variableWriter.removeVariable(variable);
-        } catch(Exception e) {
-          fail(e.getMessage());
-          throw new RuntimeException(e);
-        }
+        Session session = ds.getSessionFactory().getCurrentSession();
+        assertJpaEntitiesHasSize(session, VariableState.class, 1);
+        assertJpaEntitiesHasSize(session, ValueSetValue.class, 10);
+
+        ValueTableWriter.VariableWriter variableWriter = ds.createWriter(TABLE, PARTICIPANT).writeVariables();
+        variableWriter.removeVariable(found);
       }
     });
 
-    transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+    transactionTemplate.execute(new TransactionCallbackFailOnException() {
       @Override
-      protected void doInTransactionWithoutResult(TransactionStatus status) {
+      @SuppressWarnings("unchecked")
+      protected void doAction(TransactionStatus status) throws Exception {
+        HibernateDatasource ds = getDatasource();
         try {
-          try {
-            HibernateDatasource ds = getDatasource();
-            ds.getValueTable(TABLE).getVariable("Test Variable");
-            fail("Should throw NoSuchVariableException");
-          } catch(NoSuchVariableException ignored) {
-          }
-        } catch(Exception e) {
-          fail(e.getMessage());
-          throw new RuntimeException(e);
+          ds.getValueTable(TABLE).getVariable(variable.getName());
+          fail("Should throw NoSuchVariableException");
+        } catch(NoSuchVariableException ignored) {
         }
+
+        Session session = ds.getSessionFactory().getCurrentSession();
+        assertEmptyJpaEntities(session, VariableState.class);
+        assertEmptyJpaEntities(session, ValueSetState.class);
+        assertEmptyJpaEntities(session, ValueSetValue.class);
       }
     });
-
-    //TODO check in database that values were removed
-
   }
 
   @Test
   public void test_initialise_datasource() {
-    transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+    transactionTemplate.execute(new TransactionCallbackFailOnException() {
       @Override
-      protected void doInTransactionWithoutResult(TransactionStatus status) {
-        try {
-          HibernateDatasource ds = createDatasource();
-          ImmutableSet<Variable> variables = ImmutableSet.of(//
-              Variable.Builder.newVariable("Test Variable", IntegerType.get(), PARTICIPANT).build(), //
-              Variable.Builder.newVariable("Other Variable", DecimalType.get(), PARTICIPANT).build());
+      protected void doAction(TransactionStatus status) throws Exception {
+        HibernateDatasource ds = createDatasource();
+        ImmutableSet<Variable> variables = ImmutableSet.of(//
+            Variable.Builder.newVariable("Test Variable", IntegerType.get(), PARTICIPANT).build(), //
+            Variable.Builder.newVariable("Other Variable", DecimalType.get(), PARTICIPANT).build());
 
-          ValueTable generatedValueTable = new GeneratedValueTable(ds, variables, 50);
-          MagmaEngine.get().addDatasource(ds);
-          DatasourceCopier.Builder.newCopier().build().copy(generatedValueTable, TABLE, ds);
-        } catch(Exception e) {
-          fail(e.getMessage());
-          throw new RuntimeException(e);
-        }
+        ValueTable generatedValueTable = new GeneratedValueTable(ds, variables, 50);
+        MagmaEngine.get().addDatasource(ds);
+        DatasourceCopier.Builder.newCopier().build().copy(generatedValueTable, TABLE, ds);
       }
     });
 
-    transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+    transactionTemplate.execute(new TransactionCallbackFailOnException() {
       @Override
-      protected void doInTransactionWithoutResult(TransactionStatus status) {
-        try {
-          HibernateDatasource ds = getDatasource();
-          Set<ValueTable> vt = ds.getValueTables();
-          assertEquals(1, vt.size());
-        } catch(Exception e) {
-          fail(e.getMessage());
-          throw new RuntimeException(e);
-        }
+      @SuppressWarnings("unchecked")
+      protected void doAction(TransactionStatus status) throws Exception {
+        HibernateDatasource ds = getDatasource();
+        assertThat(ds.getValueTables(), hasSize(1));
+
+        Session session = ds.getSessionFactory().getCurrentSession();
+        assertJpaEntitiesHasSize(session, DatasourceState.class, 1);
+        assertJpaEntitiesHasSize(session, ValueTableState.class, 1);
+        assertJpaEntitiesHasSize(session, VariableState.class, 2);
+        assertJpaEntitiesHasSize(session, ValueSetValue.class, 100);
       }
     });
   }
@@ -787,22 +707,17 @@ public class HibernateDatasourceTest {
   @Test
   public void test_rename_table() throws InterruptedException {
 
-    transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+    transactionTemplate.execute(new TransactionCallbackFailOnException() {
       @Override
-      protected void doInTransactionWithoutResult(TransactionStatus status) {
-        try {
-          HibernateDatasource ds = createDatasource();
-          ImmutableSet<Variable> variables = ImmutableSet.of(//
-              Variable.Builder.newVariable("Test Variable", IntegerType.get(), PARTICIPANT).build(), //
-              Variable.Builder.newVariable("Other Variable", DecimalType.get(), PARTICIPANT).build());
+      protected void doAction(TransactionStatus status) throws Exception {
+        HibernateDatasource ds = createDatasource();
+        ImmutableSet<Variable> variables = ImmutableSet.of(//
+            Variable.Builder.newVariable("Test Variable", IntegerType.get(), PARTICIPANT).build(), //
+            Variable.Builder.newVariable("Other Variable", DecimalType.get(), PARTICIPANT).build());
 
-          ValueTable generatedValueTable = new GeneratedValueTable(ds, variables, 50);
-          MagmaEngine.get().addDatasource(ds);
-          DatasourceCopier.Builder.newCopier().build().copy(generatedValueTable, TABLE, ds);
-        } catch(Exception e) {
-          fail(e.getMessage());
-          throw new RuntimeException(e);
-        }
+        ValueTable generatedValueTable = new GeneratedValueTable(ds, variables, 50);
+        MagmaEngine.get().addDatasource(ds);
+        DatasourceCopier.Builder.newCopier().build().copy(generatedValueTable, TABLE, ds);
       }
     });
 
@@ -810,59 +725,44 @@ public class HibernateDatasourceTest {
     final Date[] created = new Date[3];
     final Date[] updated = new Date[3];
 
-    transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+    transactionTemplate.execute(new TransactionCallbackFailOnException() {
       @Override
-      protected void doInTransactionWithoutResult(TransactionStatus status) {
-        try {
-          HibernateDatasource ds = getDatasource();
-          created[0] = getDatasourceCreated();
-          created[1] = getTableCreated(TABLE);
+      protected void doAction(TransactionStatus status) throws Exception {
+        HibernateDatasource ds = getDatasource();
+        created[0] = getDatasourceCreated();
+        created[1] = getTableCreated(TABLE);
 
-          updated[0] = getDatasourceLastUpdate();
-          updated[1] = getTableLastUpdate(TABLE);
+        updated[0] = getDatasourceLastUpdate();
+        updated[1] = getTableLastUpdate(TABLE);
 
-          ds.renameTable(TABLE, NEW_NAME);
-        } catch(Exception e) {
-          fail(e.getMessage());
-          throw new RuntimeException(e);
-        }
+        ds.renameTable(TABLE, NEW_NAME);
       }
     });
 
-    transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+    transactionTemplate.execute(new TransactionCallbackFailOnException() {
       @Override
-      protected void doInTransactionWithoutResult(TransactionStatus status) {
-        try {
-          HibernateDatasource ds = getDatasource();
-          ds.getValueTable(NEW_NAME).getVariable("Test Variable");
+      protected void doAction(TransactionStatus status) throws Exception {
+        HibernateDatasource ds = getDatasource();
+        ds.getValueTable(NEW_NAME).getVariable("Test Variable");
 
-          // Created timestamps have not changed
-          assertThat(created[0], DateMatchers.sameMillisecond(getDatasourceCreated()));
-          assertThat(created[1], DateMatchers.sameMillisecond(getTableCreated(NEW_NAME)));
+        // Created timestamps have not changed
+        assertThat(created[0], DateMatchers.sameMillisecond(getDatasourceCreated()));
+        assertThat(created[1], DateMatchers.sameMillisecond(getTableCreated(NEW_NAME)));
 
-          // LastUpdated timestamps have changed
-          assertThat(updated[0], DateMatchers.before(getDatasourceLastUpdate()));
-          assertThat(updated[1], DateMatchers.before(getTableLastUpdate(NEW_NAME)));
-        } catch(Exception e) {
-          fail(e.getMessage());
-          throw new RuntimeException(e);
-        }
+        // LastUpdated timestamps have changed
+        assertThat(updated[0], DateMatchers.before(getDatasourceLastUpdate()));
+        assertThat(updated[1], DateMatchers.before(getTableLastUpdate(NEW_NAME)));
       }
     });
 
-    transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+    transactionTemplate.execute(new TransactionCallbackFailOnException() {
       @Override
-      protected void doInTransactionWithoutResult(TransactionStatus status) {
+      protected void doAction(TransactionStatus status) throws Exception {
         try {
-          try {
-            HibernateDatasource ds = getDatasource();
-            ds.getValueTable(TABLE);
-            fail("Should fail with NoSuchValueTableException");
-          } catch(NoSuchValueTableException ignored) {
-          }
-        } catch(Exception e) {
-          fail(e.getMessage());
-          throw new RuntimeException(e);
+          HibernateDatasource ds = getDatasource();
+          ds.getValueTable(TABLE);
+          fail("Should fail with NoSuchValueTableException");
+        } catch(NoSuchValueTableException ignored) {
         }
       }
     });
@@ -871,7 +771,7 @@ public class HibernateDatasourceTest {
   private void assertSameCategories(Variable expected, Variable actual) {
     List<Category> expectedCategories = Lists.newArrayList(expected.getCategories());
     List<Category> actualCategories = Lists.newArrayList(actual.getCategories());
-    assertEquals("Category count mismatch", expectedCategories.size(), actualCategories.size());
+    assertThat("Category count mismatch", actualCategories, hasSize(expectedCategories.size()));
     for(int i = 0; i < expectedCategories.size(); i++) {
       assertThat("Category name mismatch at index " + i, actualCategories.get(i).getName(),
           is(expectedCategories.get(i).getName()));
@@ -888,6 +788,15 @@ public class HibernateDatasourceTest {
 
   private HibernateDatasource getDatasource() {
     return (HibernateDatasource) MagmaEngine.get().getDatasource(DATASOURCE);
+  }
+
+  private void assertEmptyJpaEntities(@SuppressWarnings("TypeMayBeWeakened") Session session, Class<?> entityClass) {
+    assertThat((List<?>) session.createCriteria(entityClass).list(), empty());
+  }
+
+  private void assertJpaEntitiesHasSize(@SuppressWarnings("TypeMayBeWeakened") Session session, Class<?> entityClass,
+      int expectedSize) {
+    assertThat((List<?>) session.createCriteria(entityClass).list(), hasSize(expectedSize));
   }
 
   private void cleanlyRemoveDatasource(final boolean drop) {
@@ -907,7 +816,6 @@ public class HibernateDatasourceTest {
         }
       }
     });
-
   }
 
   private abstract static class TestThread extends Thread {
@@ -931,6 +839,21 @@ public class HibernateDatasourceTest {
 
     abstract protected void test() throws Throwable;
 
+  }
+
+  private abstract static class TransactionCallbackFailOnException extends TransactionCallbackWithoutResult {
+
+    protected abstract void doAction(TransactionStatus status) throws Exception;
+
+    @Override
+    protected void doInTransactionWithoutResult(TransactionStatus status) {
+      try {
+        doAction(status);
+      } catch(Exception e) {
+        fail(e.getMessage());
+        throw new RuntimeException(e);
+      }
+    }
   }
 
 }

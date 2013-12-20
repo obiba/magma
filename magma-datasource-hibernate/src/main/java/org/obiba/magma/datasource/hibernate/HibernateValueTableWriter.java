@@ -152,6 +152,8 @@ class HibernateValueTableWriter implements ValueTableWriter {
 
       transaction.removeSource(valueSourceFactory.createSource(variableState));
 
+      session.delete(variableState);
+
       errorOccurred = false;
 
       dirty = true;
