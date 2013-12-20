@@ -26,6 +26,7 @@ import org.hibernate.annotations.IndexColumn;
 
 @Entity
 @Table(name = "value_table", uniqueConstraints = @UniqueConstraint(columnNames = { "datasource_id", "name" }))
+@SuppressWarnings("UnusedDeclaration")
 public class ValueTableState extends AbstractTimestampedEntity {
 
   private static final long serialVersionUID = 1L;
@@ -47,9 +48,7 @@ public class ValueTableState extends AbstractTimestampedEntity {
   @JoinColumn(name = "value_table_id", nullable = false)
   private List<VariableState> variables;
 
-  @SuppressWarnings("UnusedDeclaration")
-  public ValueTableState() {
-  }
+  public ValueTableState() { }
 
   public ValueTableState(String name, String entityType, DatasourceState datasource) {
     this.name = name;
@@ -61,7 +60,6 @@ public class ValueTableState extends AbstractTimestampedEntity {
     return entityType;
   }
 
-  @SuppressWarnings("UnusedDeclaration")
   public void setEntityType(String entityType) {
     this.entityType = entityType;
   }
@@ -74,7 +72,6 @@ public class ValueTableState extends AbstractTimestampedEntity {
     this.name = name;
   }
 
-  @SuppressWarnings("UnusedDeclaration")
   public DatasourceState getDatasource() {
     return datasource;
   }

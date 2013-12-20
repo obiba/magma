@@ -74,7 +74,7 @@ public class AttributeState implements Attribute, Serializable {
   @Override
   public Locale getLocale() {
     if(locale == null) {
-      throw new NullPointerException("Locale is null");
+      throw new NullPointerException("Locale is null for attribute " + name);
     }
     return locale;
   }
@@ -88,7 +88,7 @@ public class AttributeState implements Attribute, Serializable {
   @Override
   public String getNamespace() {
     if(namespace == null) {
-      throw new NullPointerException("Namespace is null");
+      throw new NullPointerException("Namespace is null for attribute " + name);
     }
     return namespace;
   }

@@ -45,12 +45,12 @@ abstract class AbstractMissingValueVariableValueGenerator extends GeneratedVaria
   protected abstract Value nonMissingValue(Variable variable, GeneratedValueSet gvs);
 
   protected ValueSource makeSource(AttributeAware attributeAware, ValueType type, String... scriptAttributes) {
-    String script = getAttributeStringValue(attributeAware,scriptAttributes);
-    return script == null ? new NullValueSource(type) :new JavascriptValueSource(type, script);
+    String script = getAttributeStringValue(attributeAware, scriptAttributes);
+    return script == null ? new NullValueSource(type) : new JavascriptValueSource(type, script);
   }
 
   protected String getAttributeStringValue(AttributeAware attributeAware, String... scriptAttributes) {
-    for (String scriptAttribute : scriptAttributes) {
+    for(String scriptAttribute : scriptAttributes) {
       if(attributeAware.hasAttribute(scriptAttribute)) {
         return attributeAware.getAttributeStringValue(scriptAttribute);
       }

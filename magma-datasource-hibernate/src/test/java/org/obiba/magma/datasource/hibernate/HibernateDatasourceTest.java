@@ -26,6 +26,7 @@ import org.obiba.magma.VariableValueSource;
 import org.obiba.magma.VectorSource;
 import org.obiba.magma.datasource.generated.BinaryValueGenerator;
 import org.obiba.magma.datasource.generated.GeneratedValueTable;
+import org.obiba.magma.datasource.hibernate.domain.CategoryState;
 import org.obiba.magma.datasource.hibernate.domain.DatasourceState;
 import org.obiba.magma.datasource.hibernate.domain.ValueSetState;
 import org.obiba.magma.datasource.hibernate.domain.ValueSetValue;
@@ -617,9 +618,13 @@ public class HibernateDatasourceTest {
   }
 
   @Test
-  public void test_remove_variable() {
+  public void test_remove_last_variable() {
 
-    final Variable variable = Variable.Builder.newVariable("Variable 1", IntegerType.get(), PARTICIPANT).build();
+    final Variable variable = Variable.Builder.newVariable("Variable 1", IntegerType.get(), PARTICIPANT)
+        .addCategory("1", "One", false) //
+        .addCategory("2", "Two", false) //
+        .addAttribute("att1", "1") //
+        .build();
 
     transactionTemplate.execute(new TransactionCallbackFailOnException() {
       @Override
@@ -646,10 +651,11 @@ public class HibernateDatasourceTest {
 
         Session session = ds.getSessionFactory().getCurrentSession();
         assertJpaEntitiesHasSize(session, VariableState.class, 1);
+        assertJpaEntitiesHasSize(session, ValueSetState.class, 10);
         assertJpaEntitiesHasSize(session, ValueSetValue.class, 10);
+        assertJpaEntitiesHasSize(session, CategoryState.class, 2);
 
-        ValueTableWriter.VariableWriter variableWriter = ds.createWriter(TABLE, PARTICIPANT).writeVariables();
-        variableWriter.removeVariable(found);
+        ds.createWriter(TABLE, PARTICIPANT).writeVariables().removeVariable(found);
       }
     });
 
@@ -665,9 +671,10 @@ public class HibernateDatasourceTest {
         }
 
         Session session = ds.getSessionFactory().getCurrentSession();
-        assertEmptyJpaEntities(session, VariableState.class);
-        assertEmptyJpaEntities(session, ValueSetState.class);
         assertEmptyJpaEntities(session, ValueSetValue.class);
+        assertEmptyJpaEntities(session, ValueSetState.class);
+        assertEmptyJpaEntities(session, CategoryState.class);
+        assertEmptyJpaEntities(session, VariableState.class);
       }
     });
   }

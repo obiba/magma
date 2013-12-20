@@ -40,6 +40,7 @@ import org.obiba.magma.datasource.hibernate.type.ValueTypeHibernateType;
         "left outer join vs.values as vsv with vsv.id.variable.id = :variableId " + //
         "where vs.valueTable.id = :valueTableId " + //
         "order by vs.variableEntity.identifier")
+@SuppressWarnings("UnusedDeclaration")
 public class VariableState extends AbstractAttributeAwareEntity implements Timestamped {
 
   private static final long serialVersionUID = 1L;
@@ -76,9 +77,7 @@ public class VariableState extends AbstractAttributeAwareEntity implements Times
   @Column(nullable = false)
   private boolean repeatable;
 
-  @SuppressWarnings("UnusedDeclaration")
-  public VariableState() {
-  }
+  public VariableState() { }
 
   public VariableState(ValueTableState valueTable, Variable variable) {
     this.valueTable = valueTable;
@@ -174,7 +173,7 @@ public class VariableState extends AbstractAttributeAwareEntity implements Times
   }
 
   public List<CategoryState> getCategories() {
-    return categories != null ? categories : (categories = new ArrayList<>());
+    return categories == null ? (categories = new ArrayList<>()) : categories;
   }
 
   public void addCategory(CategoryState state) {

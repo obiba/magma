@@ -126,22 +126,26 @@ class HibernateValueTableWriter implements ValueTableWriter {
 
       VariableState variableState = valueTable.getVariableState(variable);
 
-      int deleted = session.getNamedQuery("deleteVariableValueSetValues") //
+      int nbDeletedValues = session.getNamedQuery("deleteVariableValueSetValues") //
           .setParameter("variableId", variableState.getId()) //
           .executeUpdate();
-      log.debug("Deleted {} value from {}", deleted, valueTable.getName());
+      log.debug("Deleted {} value from {}", nbDeletedValues, valueTable.getName());
 
       if(variable.getValueType().equals(BinaryType.get())) {
         List<?> valueSetIds = session.getNamedQuery("findValueSetIdsByTableId") //
             .setParameter("valueTableId", valueTable.getValueTableId()) //
             .list();
 
-        int binariesDeleted = session.getNamedQuery("deleteVariableBinaryValues") //
+        int nbBinariesDeleted = session.getNamedQuery("deleteVariableBinaryValues") //
             .setParameterList("valueSetIds", valueSetIds) //
             .setParameter("variableId", variableState.getId()) //
             .executeUpdate();
-        log.debug("Deleted {} binaries from {}", binariesDeleted, valueTable.getName());
+        log.debug("Deleted {} binaries from {}", nbBinariesDeleted, valueTable.getName());
       }
+
+      // delete empty value sets
+      int nbEmptyValueSets = session.getNamedQuery("deleteEmptyValueSets").executeUpdate();
+      log.debug("Deleted {} empty value sets from {}", nbEmptyValueSets, valueTable.getName());
 
       // update all value sets last update
       int updated = session.getNamedQuery("setLastUpdateForTableId") //
@@ -152,6 +156,11 @@ class HibernateValueTableWriter implements ValueTableWriter {
 
       transaction.removeSource(valueSourceFactory.createSource(variableState));
 
+//      ValueTableState tableState = valueTable.getValueTableState();
+//      tableState.getVariables().remove(variableState);
+//      variableState.setValueTable(null);
+//      session.save(tableState);
+//      session.save(variableState);
       session.delete(variableState);
 
       errorOccurred = false;

@@ -21,6 +21,7 @@ import org.obiba.magma.type.DateTimeType;
 
 @Entity
 @Table(name = "datasource", uniqueConstraints = { @UniqueConstraint(columnNames = "name") })
+@SuppressWarnings("UnusedDeclaration")
 public class DatasourceState extends AbstractAttributeAwareEntity implements Timestamped, org.obiba.magma.Timestamped {
 
   private static final long serialVersionUID = 1L;
@@ -28,8 +29,7 @@ public class DatasourceState extends AbstractAttributeAwareEntity implements Tim
   @Column(nullable = false)
   private String name;
 
-  public DatasourceState() {
-  }
+  public DatasourceState() { }
 
   public DatasourceState(String name) {
     this.name = name;

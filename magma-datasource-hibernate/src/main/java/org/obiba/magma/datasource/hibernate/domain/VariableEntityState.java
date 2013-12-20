@@ -15,9 +15,11 @@ import javax.persistence.UniqueConstraint;
 
 import org.obiba.magma.VariableEntity;
 
-@SuppressWarnings("UnusedDeclaration")
+import com.google.common.collect.ComparisonChain;
+
 @Entity
 @Table(name = "variable_entity", uniqueConstraints = { @UniqueConstraint(columnNames = { "type", "identifier" }) })
+@SuppressWarnings("UnusedDeclaration")
 public class VariableEntityState extends AbstractTimestampedEntity implements VariableEntity {
 
   private static final long serialVersionUID = 1L;
@@ -70,9 +72,11 @@ public class VariableEntityState extends AbstractTimestampedEntity implements Va
   }
 
   @Override
-  public int compareTo(VariableEntity o) {
-    int compare = type.compareTo(o.getType());
-    return compare == 0 ? identifier.compareTo(o.getIdentifier()) : compare;
+  public int compareTo(VariableEntity other) {
+    return ComparisonChain.start() //
+        .compare(type, other.getType()) //
+        .compare(identifier, other.getIdentifier()) //
+        .result();
   }
 
 }
