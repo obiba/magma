@@ -152,7 +152,7 @@ public class HibernateDatasource extends AbstractDatasource {
     deleteTableVariables(tableFullName, tableState, session);
 
     session.delete(tableState);
-    log.info("Dropped table '{}' in {}", tableFullName, stopwatch.stop());
+    log.debug("Dropped table '{}' in {}", tableFullName, stopwatch.stop());
 
     // force datasource timestamp update
     updateDatasourceLastUpdate();
