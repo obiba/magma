@@ -11,6 +11,8 @@ package org.obiba.magma.datasource.hibernate.domain;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 @Entity
@@ -19,6 +21,10 @@ import javax.persistence.Table;
 public class CategoryState extends AbstractAttributeAwareEntity implements Timestamped {
 
   private static final long serialVersionUID = 1L;
+
+  @ManyToOne(optional = false)
+  @JoinColumn(name = "variable_id", nullable = false)
+  private VariableState variable;
 
   @Column(nullable = false)
   private String name;
@@ -34,6 +40,14 @@ public class CategoryState extends AbstractAttributeAwareEntity implements Times
     this.name = name;
     this.code = code;
     this.missing = missing;
+  }
+
+  public VariableState getVariable() {
+    return variable;
+  }
+
+  public void setVariable(VariableState variable) {
+    this.variable = variable;
   }
 
   public String getCode() {

@@ -4,6 +4,12 @@ import com.google.common.collect.ListMultimap;
 
 public interface Category extends AttributeAware {
 
+  String getName();
+
+  String getCode();
+
+  boolean isMissing();
+
   class Builder extends AttributeAwareBuilder<Builder> {
 
     private final CategoryBean category;
@@ -99,11 +105,5 @@ public interface Category extends AttributeAware {
     void visit(Builder builder);
 
   }
-
-  String getName();
-
-  String getCode();
-
-  boolean isMissing();
 
 }
