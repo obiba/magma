@@ -12,6 +12,7 @@ package org.obiba.magma.datasource.hibernate.domain;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.Nullable;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -19,12 +20,12 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
+import javax.persistence.OrderColumn;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.IndexColumn;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 import org.obiba.magma.ValueType;
@@ -49,14 +50,11 @@ public class VariableState extends AbstractAttributeAwareEntity implements Times
   private String name;
 
   @ManyToOne(optional = false)
-  @JoinColumn(name = "value_table_id", insertable = false, updatable = false)
+  @JoinColumn(name = "value_table_id", nullable = false, updatable = false)
   private ValueTableState valueTable;
 
-  @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-  // Creates a column to store the category's index within the list
-  @IndexColumn(name = "category_index", nullable = false)
-  // Used to prevent an association table from being created
-  @JoinColumn(name = "variable_id", nullable = false)
+  @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "variable")
+  @OrderColumn(name = "category_index")
   private List<CategoryState> categories;
 
   @Column(nullable = false)
@@ -177,9 +175,19 @@ public class VariableState extends AbstractAttributeAwareEntity implements Times
   }
 
   public void addCategory(CategoryState state) {
-    getCategories().add(state);
+    if(getCategories().add(state)) state.setVariable(this);
   }
 
+  public void addCategory(int index, CategoryState state) {
+    getCategories().add(index, state);
+    state.setVariable(this);
+  }
+
+  public void removeCategory(CategoryState categoryState) {
+    if(getCategories().remove(categoryState)) categoryState.setVariable(null);
+  }
+
+  @Nullable
   public CategoryState getCategory(String categoryName) {
     for(CategoryState state : getCategories()) {
       if(categoryName.equals(state.getName())) {

@@ -68,7 +68,7 @@ public abstract class AbstractValueTable implements ValueTable, Initialisable {
 
   @Override
   public boolean isForEntityType(String entityType) {
-    return getEntityType().equals(entityType);
+    return Objects.equals(getEntityType(), entityType);
   }
 
   @Override

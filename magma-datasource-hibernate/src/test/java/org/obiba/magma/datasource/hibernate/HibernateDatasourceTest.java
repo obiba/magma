@@ -107,7 +107,7 @@ public class HibernateDatasourceTest {
   @Test
   public void test_transactional_table_creation() {
 
-    transactionTemplate.execute(new TransactionCallbackFailOnException() {
+    transactionTemplate.execute(new TransactionCallbackRuntimeException() {
       @Override
       protected void doAction(TransactionStatus status) throws Exception {
 
@@ -132,7 +132,7 @@ public class HibernateDatasourceTest {
     });
 
     // Make sure the table is visible outside this transaction.
-    transactionTemplate.execute(new TransactionCallbackFailOnException() {
+    transactionTemplate.execute(new TransactionCallbackRuntimeException() {
       @Override
       protected void doAction(TransactionStatus status) throws Exception {
         new TestThread() {
@@ -148,7 +148,7 @@ public class HibernateDatasourceTest {
   @Test
   public void test_table_and_variables_persisted() {
 
-    transactionTemplate.execute(new TransactionCallbackFailOnException() {
+    transactionTemplate.execute(new TransactionCallbackRuntimeException() {
       @Override
       protected void doAction(TransactionStatus status) throws Exception {
         HibernateDatasource ds = createDatasource();
@@ -174,7 +174,7 @@ public class HibernateDatasourceTest {
     cleanlyRemoveDatasource(false);
 
     // Re-create same datasource and assert that everything is still there.
-    transactionTemplate.execute(new TransactionCallbackFailOnException() {
+    transactionTemplate.execute(new TransactionCallbackRuntimeException() {
       @Override
       protected void doAction(TransactionStatus status) throws Exception {
         HibernateDatasource ds = createDatasource();
@@ -194,7 +194,7 @@ public class HibernateDatasourceTest {
     final Variable changedState = Variable.Builder.newVariable("Var1", TextType.get(), PARTICIPANT)
         .addCategory("C3", "3").addCategory("C1", "1").addCategory("C4", "4").addCategory("C2", "2").build();
 
-    transactionTemplate.execute(new TransactionCallbackFailOnException() {
+    transactionTemplate.execute(new TransactionCallbackRuntimeException() {
       @Override
       protected void doAction(TransactionStatus status) throws Exception {
         HibernateDatasource ds = createDatasource();
@@ -211,7 +211,7 @@ public class HibernateDatasourceTest {
       }
     });
 
-    transactionTemplate.execute(new TransactionCallbackFailOnException() {
+    transactionTemplate.execute(new TransactionCallbackRuntimeException() {
       @Override
       protected void doAction(TransactionStatus status) throws Exception {
         HibernateDatasource ds = getDatasource();
@@ -228,7 +228,7 @@ public class HibernateDatasourceTest {
       }
     });
 
-    transactionTemplate.execute(new TransactionCallbackFailOnException() {
+    transactionTemplate.execute(new TransactionCallbackRuntimeException() {
       @Override
       protected void doAction(TransactionStatus status) throws Exception {
         HibernateDatasource ds = getDatasource();
@@ -242,7 +242,7 @@ public class HibernateDatasourceTest {
   @Test
   public void test_write() {
 
-    transactionTemplate.execute(new TransactionCallbackFailOnException() {
+    transactionTemplate.execute(new TransactionCallbackRuntimeException() {
       @Override
       protected void doAction(TransactionStatus status) throws Exception {
         HibernateDatasource ds = createDatasource();
@@ -269,7 +269,7 @@ public class HibernateDatasourceTest {
         Variable.Builder.newVariable("Test DateTime", DateTimeType.get(), PARTICIPANT).build(), //
         Variable.Builder.newVariable("Other Variable", DecimalType.get(), PARTICIPANT).build());
 
-    transactionTemplate.execute(new TransactionCallbackFailOnException() {
+    transactionTemplate.execute(new TransactionCallbackRuntimeException() {
       @Override
       protected void doAction(TransactionStatus status) throws Exception {
         HibernateDatasource ds = createDatasource();
@@ -279,7 +279,7 @@ public class HibernateDatasourceTest {
       }
     });
 
-    transactionTemplate.execute(new TransactionCallbackFailOnException() {
+    transactionTemplate.execute(new TransactionCallbackRuntimeException() {
       @Override
       protected void doAction(TransactionStatus status) throws Exception {
         HibernateDatasource ds = getDatasource();
@@ -314,7 +314,7 @@ public class HibernateDatasourceTest {
         Variable.Builder.newVariable("Test Binary", BinaryType.get(), PARTICIPANT).build(),
         Variable.Builder.newVariable("Test Repeatable Binary", BinaryType.get(), PARTICIPANT).repeatable().build());
 
-    transactionTemplate.execute(new TransactionCallbackFailOnException() {
+    transactionTemplate.execute(new TransactionCallbackRuntimeException() {
       @Override
       protected void doAction(TransactionStatus status) throws Exception {
         HibernateDatasource ds = createDatasource();
@@ -324,7 +324,7 @@ public class HibernateDatasourceTest {
       }
     });
 
-    transactionTemplate.execute(new TransactionCallbackFailOnException() {
+    transactionTemplate.execute(new TransactionCallbackRuntimeException() {
       @Override
       protected void doAction(TransactionStatus status) throws Exception {
         HibernateDatasource ds = getDatasource();
@@ -362,7 +362,6 @@ public class HibernateDatasourceTest {
 
   }
 
-  @SuppressWarnings("ConstantConditions")
   @Test
   public void test_timestamps_adding_data() throws Exception {
 
@@ -370,7 +369,7 @@ public class HibernateDatasourceTest {
         Variable.Builder.newVariable("Test Variable", IntegerType.get(), PARTICIPANT).build(), //
         Variable.Builder.newVariable("Other Variable", DecimalType.get(), PARTICIPANT).build());
 
-    transactionTemplate.execute(new TransactionCallbackFailOnException() {
+    transactionTemplate.execute(new TransactionCallbackRuntimeException() {
       @Override
       protected void doAction(TransactionStatus status) throws Exception {
         HibernateDatasource ds = createDatasource();
@@ -382,7 +381,7 @@ public class HibernateDatasourceTest {
 
     Thread.sleep(1000);
 
-    transactionTemplate.execute(new TransactionCallbackFailOnException() {
+    transactionTemplate.execute(new TransactionCallbackRuntimeException() {
       @Override
       protected void doAction(TransactionStatus status) throws Exception {
         HibernateDatasource ds = getDatasource();
@@ -394,7 +393,7 @@ public class HibernateDatasourceTest {
 
     Thread.sleep(1000);
 
-    transactionTemplate.execute(new TransactionCallbackFailOnException() {
+    transactionTemplate.execute(new TransactionCallbackRuntimeException() {
       @Override
       protected void doAction(TransactionStatus status) throws Exception {
         HibernateDatasource ds = getDatasource();
@@ -421,7 +420,7 @@ public class HibernateDatasourceTest {
   @Test
   public void test_timestamps_adding_variable() throws Exception {
 
-    transactionTemplate.execute(new TransactionCallbackFailOnException() {
+    transactionTemplate.execute(new TransactionCallbackRuntimeException() {
       @Override
       protected void doAction(TransactionStatus status) throws Exception {
         HibernateDatasource ds = createDatasource();
@@ -438,7 +437,7 @@ public class HibernateDatasourceTest {
     Date tableLastUpdate = getTableLastUpdate(TABLE);
 
     // add new variable
-    transactionTemplate.execute(new TransactionCallbackFailOnException() {
+    transactionTemplate.execute(new TransactionCallbackRuntimeException() {
       @Override
       protected void doAction(TransactionStatus status) throws Exception {
         HibernateDatasource ds = getDatasource();
@@ -461,7 +460,7 @@ public class HibernateDatasourceTest {
 
     final Variable variable = Variable.Builder.newVariable("Test Variable", IntegerType.get(), PARTICIPANT).build();
 
-    transactionTemplate.execute(new TransactionCallbackFailOnException() {
+    transactionTemplate.execute(new TransactionCallbackRuntimeException() {
       @Override
       protected void doAction(TransactionStatus status) throws Exception {
         HibernateDatasource ds = createDatasource();
@@ -477,7 +476,7 @@ public class HibernateDatasourceTest {
     Date tableLastUpdate = getTableLastUpdate(TABLE);
 
     // remove variable
-    transactionTemplate.execute(new TransactionCallbackFailOnException() {
+    transactionTemplate.execute(new TransactionCallbackRuntimeException() {
       @Override
       protected void doAction(TransactionStatus status) throws Exception {
         HibernateDatasource ds = getDatasource();
@@ -499,7 +498,7 @@ public class HibernateDatasourceTest {
 
     final Variable variable = Variable.Builder.newVariable("Test Variable", IntegerType.get(), PARTICIPANT).build();
 
-    transactionTemplate.execute(new TransactionCallbackFailOnException() {
+    transactionTemplate.execute(new TransactionCallbackRuntimeException() {
       @Override
       protected void doAction(TransactionStatus status) throws Exception {
         HibernateDatasource ds = createDatasource();
@@ -514,7 +513,7 @@ public class HibernateDatasourceTest {
     Date datasourceLastUpdate = getDatasourceStateLastUpdate();
 
     // drop table
-    transactionTemplate.execute(new TransactionCallbackFailOnException() {
+    transactionTemplate.execute(new TransactionCallbackRuntimeException() {
       @Override
       protected void doAction(TransactionStatus status) throws Exception {
         HibernateDatasource ds = getDatasource();
@@ -572,9 +571,58 @@ public class HibernateDatasourceTest {
   }
 
   @Test
+  public void test_drop_datasource() {
+
+    transactionTemplate.execute(new TransactionCallbackRuntimeException() {
+      @Override
+      protected void doAction(TransactionStatus status) throws Exception {
+        HibernateDatasource ds = createDatasource();
+        ds.setAttributeValue("test", TextType.get().valueOf("att1"));
+        ImmutableSet<Variable> variables = ImmutableSet.of(//
+            Variable.Builder.newVariable("Test Variable", IntegerType.get(), PARTICIPANT).build(), //
+            Variable.Builder.newVariable("Other Variable", DecimalType.get(), PARTICIPANT).build());
+
+        ValueTable generatedValueTable = new GeneratedValueTable(ds, variables, 10);
+        MagmaEngine.get().addDatasource(ds);
+        DatasourceCopier.Builder.newCopier().build().copy(generatedValueTable, TABLE, ds);
+      }
+    });
+
+    transactionTemplate.execute(new TransactionCallbackRuntimeException() {
+      @Override
+      protected void doAction(TransactionStatus status) throws Exception {
+        HibernateDatasource ds = getDatasource();
+        assertThat(ds.getAttributes(), hasSize(1));
+        assertThat(ds.canDrop(), is(true));
+
+        Session session = ds.getSessionFactory().getCurrentSession();
+        assertJpaEntitiesHasSize(session, DatasourceState.class, 1);
+        assertJpaEntitiesHasSize(session, ValueTableState.class, 1);
+        assertJpaEntitiesHasSize(session, VariableState.class, 2);
+        assertJpaEntitiesHasSize(session, ValueSetState.class, 10);
+        assertJpaEntitiesHasSize(session, ValueSetValue.class, 20);
+
+        ds.drop();
+      }
+    });
+
+    transactionTemplate.execute(new TransactionCallbackRuntimeException() {
+      @Override
+      protected void doAction(TransactionStatus status) throws Exception {
+        Session session = getDatasource().getSessionFactory().getCurrentSession();
+        assertEmptyJpaEntities(session, DatasourceState.class);
+        assertEmptyJpaEntities(session, ValueTableState.class);
+        assertEmptyJpaEntities(session, VariableState.class);
+        assertEmptyJpaEntities(session, ValueSetState.class);
+        assertEmptyJpaEntities(session, ValueSetValue.class);
+      }
+    });
+  }
+
+  @Test
   public void test_drop_table() {
 
-    transactionTemplate.execute(new TransactionCallbackFailOnException() {
+    transactionTemplate.execute(new TransactionCallbackRuntimeException() {
       @Override
       protected void doAction(TransactionStatus status) throws Exception {
         HibernateDatasource ds = createDatasource();
@@ -582,24 +630,31 @@ public class HibernateDatasourceTest {
             Variable.Builder.newVariable("Test Variable", IntegerType.get(), PARTICIPANT).build(), //
             Variable.Builder.newVariable("Other Variable", DecimalType.get(), PARTICIPANT).build());
 
-        ValueTable generatedValueTable = new GeneratedValueTable(ds, variables, 50);
+        ValueTable generatedValueTable = new GeneratedValueTable(ds, variables, 10);
         MagmaEngine.get().addDatasource(ds);
         DatasourceCopier.Builder.newCopier().build().copy(generatedValueTable, TABLE, ds);
       }
     });
 
-    transactionTemplate.execute(new TransactionCallbackFailOnException() {
+    transactionTemplate.execute(new TransactionCallbackRuntimeException() {
       @Override
       protected void doAction(TransactionStatus status) throws Exception {
         HibernateDatasource ds = getDatasource();
         assertThat(ds.canDropTable(TABLE), is(true));
+
+        Session session = ds.getSessionFactory().getCurrentSession();
+        assertJpaEntitiesHasSize(session, DatasourceState.class, 1);
+        assertJpaEntitiesHasSize(session, ValueTableState.class, 1);
+        assertJpaEntitiesHasSize(session, VariableState.class, 2);
+        assertJpaEntitiesHasSize(session, ValueSetState.class, 10);
+        assertJpaEntitiesHasSize(session, ValueSetValue.class, 20);
+
         ds.dropTable(TABLE);
       }
     });
 
-    transactionTemplate.execute(new TransactionCallbackFailOnException() {
+    transactionTemplate.execute(new TransactionCallbackRuntimeException() {
       @Override
-      @SuppressWarnings("unchecked")
       protected void doAction(TransactionStatus status) throws Exception {
         HibernateDatasource ds = getDatasource();
         try {
@@ -609,6 +664,7 @@ public class HibernateDatasourceTest {
         }
 
         Session session = ds.getSessionFactory().getCurrentSession();
+        assertJpaEntitiesHasSize(session, DatasourceState.class, 1);
         assertEmptyJpaEntities(session, ValueTableState.class);
         assertEmptyJpaEntities(session, VariableState.class);
         assertEmptyJpaEntities(session, ValueSetState.class);
@@ -626,7 +682,7 @@ public class HibernateDatasourceTest {
         .addAttribute("att1", "1") //
         .build();
 
-    transactionTemplate.execute(new TransactionCallbackFailOnException() {
+    transactionTemplate.execute(new TransactionCallbackRuntimeException() {
       @Override
       protected void doAction(TransactionStatus status) throws Exception {
         HibernateDatasource ds = createDatasource();
@@ -638,15 +694,15 @@ public class HibernateDatasourceTest {
       }
     });
 
-    transactionTemplate.execute(new TransactionCallbackFailOnException() {
+    transactionTemplate.execute(new TransactionCallbackRuntimeException() {
       @Override
-      @SuppressWarnings("unchecked")
       protected void doAction(TransactionStatus status) throws Exception {
         HibernateDatasource ds = getDatasource();
         ValueTable table = ds.getValueTable(TABLE);
         Variable found = table.getVariable(variable.getName());
 
         assertThat(Iterables.size(table.getVariables()), is(1));
+
         assertThat(found, notNullValue());
 
         Session session = ds.getSessionFactory().getCurrentSession();
@@ -659,9 +715,8 @@ public class HibernateDatasourceTest {
       }
     });
 
-    transactionTemplate.execute(new TransactionCallbackFailOnException() {
+    transactionTemplate.execute(new TransactionCallbackRuntimeException() {
       @Override
-      @SuppressWarnings("unchecked")
       protected void doAction(TransactionStatus status) throws Exception {
         HibernateDatasource ds = getDatasource();
         try {
@@ -681,7 +736,7 @@ public class HibernateDatasourceTest {
 
   @Test
   public void test_initialise_datasource() {
-    transactionTemplate.execute(new TransactionCallbackFailOnException() {
+    transactionTemplate.execute(new TransactionCallbackRuntimeException() {
       @Override
       protected void doAction(TransactionStatus status) throws Exception {
         HibernateDatasource ds = createDatasource();
@@ -695,9 +750,8 @@ public class HibernateDatasourceTest {
       }
     });
 
-    transactionTemplate.execute(new TransactionCallbackFailOnException() {
+    transactionTemplate.execute(new TransactionCallbackRuntimeException() {
       @Override
-      @SuppressWarnings("unchecked")
       protected void doAction(TransactionStatus status) throws Exception {
         HibernateDatasource ds = getDatasource();
         assertThat(ds.getValueTables(), hasSize(1));
@@ -706,6 +760,7 @@ public class HibernateDatasourceTest {
         assertJpaEntitiesHasSize(session, DatasourceState.class, 1);
         assertJpaEntitiesHasSize(session, ValueTableState.class, 1);
         assertJpaEntitiesHasSize(session, VariableState.class, 2);
+        assertJpaEntitiesHasSize(session, ValueSetState.class, 50);
         assertJpaEntitiesHasSize(session, ValueSetValue.class, 100);
       }
     });
@@ -714,7 +769,7 @@ public class HibernateDatasourceTest {
   @Test
   public void test_rename_table() throws InterruptedException {
 
-    transactionTemplate.execute(new TransactionCallbackFailOnException() {
+    transactionTemplate.execute(new TransactionCallbackRuntimeException() {
       @Override
       protected void doAction(TransactionStatus status) throws Exception {
         HibernateDatasource ds = createDatasource();
@@ -732,7 +787,7 @@ public class HibernateDatasourceTest {
     final Date[] created = new Date[3];
     final Date[] updated = new Date[3];
 
-    transactionTemplate.execute(new TransactionCallbackFailOnException() {
+    transactionTemplate.execute(new TransactionCallbackRuntimeException() {
       @Override
       protected void doAction(TransactionStatus status) throws Exception {
         HibernateDatasource ds = getDatasource();
@@ -746,7 +801,7 @@ public class HibernateDatasourceTest {
       }
     });
 
-    transactionTemplate.execute(new TransactionCallbackFailOnException() {
+    transactionTemplate.execute(new TransactionCallbackRuntimeException() {
       @Override
       protected void doAction(TransactionStatus status) throws Exception {
         HibernateDatasource ds = getDatasource();
@@ -762,7 +817,7 @@ public class HibernateDatasourceTest {
       }
     });
 
-    transactionTemplate.execute(new TransactionCallbackFailOnException() {
+    transactionTemplate.execute(new TransactionCallbackRuntimeException() {
       @Override
       protected void doAction(TransactionStatus status) throws Exception {
         try {
@@ -844,11 +899,11 @@ public class HibernateDatasourceTest {
       Assert.assertNull(threadException);
     }
 
-    abstract protected void test() throws Throwable;
+    abstract protected void test();
 
   }
 
-  private abstract static class TransactionCallbackFailOnException extends TransactionCallbackWithoutResult {
+  private abstract static class TransactionCallbackRuntimeException extends TransactionCallbackWithoutResult {
 
     protected abstract void doAction(TransactionStatus status) throws Exception;
 
@@ -857,7 +912,6 @@ public class HibernateDatasourceTest {
       try {
         doAction(status);
       } catch(Exception e) {
-        fail(e.getMessage());
         throw new RuntimeException(e);
       }
     }

@@ -60,7 +60,7 @@ public class VariableConverter extends AttributeAwareConverter implements Hibern
       if(currentCategoryIndex == -1) {
         // Category does not exist
         categoryState = new CategoryState(category.getName(), category.getCode(), category.isMissing());
-        variableState.getCategories().add(categoryIndex, categoryState);
+        variableState.addCategory(categoryIndex, categoryState);
       } else {
         categoryState = variableState.getCategories().get(currentCategoryIndex);
         if(categoryIndex != currentCategoryIndex) {

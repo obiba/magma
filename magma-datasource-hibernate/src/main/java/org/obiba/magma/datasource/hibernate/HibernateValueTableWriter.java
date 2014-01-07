@@ -17,6 +17,7 @@ import org.hibernate.LockOptions;
 import org.hibernate.Session;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.obiba.core.domain.IEntity;
 import org.obiba.core.service.impl.hibernate.AssociationCriteria;
 import org.obiba.core.service.impl.hibernate.AssociationCriteria.Operation;
 import org.obiba.magma.MagmaRuntimeException;
@@ -126,6 +127,21 @@ class HibernateValueTableWriter implements ValueTableWriter {
 
       VariableState variableState = valueTable.getVariableState(variable);
 
+      deleteVariableValues(variable, variableState);
+
+      transaction.removeSource(valueSourceFactory.createSource(variableState));
+
+      // I don't know why variable delete does not work but I had to manually delete categories (with attributes)
+      // and variable (with attributes) using native SQL and HQL...
+      deleteVariableCategories(variableState);
+      deleteVariable(variableState);
+
+      errorOccurred = false;
+
+      dirty = true;
+    }
+
+    private void deleteVariableValues(Variable variable, IEntity variableState) {
       int nbDeletedValues = session.getNamedQuery("deleteVariableValueSetValues") //
           .setParameter("variableId", variableState.getId()) //
           .executeUpdate();
@@ -153,19 +169,26 @@ class HibernateValueTableWriter implements ValueTableWriter {
           .setParameter("valueTableId", valueTable.getValueTableId()) //
           .executeUpdate();
       log.debug("Updated lastUpdate for {} value sets for {}", updated, valueTable.getName());
+    }
 
-      transaction.removeSource(valueSourceFactory.createSource(variableState));
+    private void deleteVariableCategories(IEntity variableState) {
+      session.createSQLQuery("delete from category_state_attributes a where a.category_state in " + //
+          "(select c.id from category c where c.variable_id = " + variableState.getId() + ")") //
+          .executeUpdate();
 
-//      ValueTableState tableState = valueTable.getValueTableState();
-//      tableState.getVariables().remove(variableState);
-//      variableState.setValueTable(null);
-//      session.save(tableState);
-//      session.save(variableState);
-      session.delete(variableState);
+      int deletedCategories = session.createQuery("delete CategoryState c where c.variable = :variable")
+          .setEntity("variable", variableState).executeUpdate();
+      log.debug("Deleted {} categories", deletedCategories);
+    }
 
-      errorOccurred = false;
+    private void deleteVariable(VariableState variableState) {
+      session.createSQLQuery("delete from variable_state_attributes where variable_state = " + variableState.getId())
+          .executeUpdate();
 
-      dirty = true;
+      int deletedVariables = session
+          .createQuery("delete VariableState v where v.valueTable = :table and v.name = :name")
+          .setEntity("table", variableState.getValueTable()).setString("name", variableState.getName()).executeUpdate();
+      log.debug("Deleted {} variables", deletedVariables);
     }
 
     @Override
