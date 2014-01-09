@@ -20,12 +20,12 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
-import javax.persistence.OrderColumn;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.IndexColumn;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 import org.obiba.magma.ValueType;
@@ -54,7 +54,7 @@ public class VariableState extends AbstractAttributeAwareEntity implements Times
   private ValueTableState valueTable;
 
   @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "variable")
-  @OrderColumn(name = "category_index")
+  @IndexColumn(name = "category_index", nullable = false)
   private List<CategoryState> categories;
 
   @Column(nullable = false)
