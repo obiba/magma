@@ -19,9 +19,10 @@ import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
-import javax.persistence.OrderColumn;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
+
+import org.hibernate.annotations.IndexColumn;
 
 @Entity
 @Table(name = "value_table", uniqueConstraints = @UniqueConstraint(columnNames = { "datasource_id", "name" }))
@@ -41,7 +42,7 @@ public class ValueTableState extends AbstractTimestampedEntity {
   private DatasourceState datasource;
 
   @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true, mappedBy = "valueTable")
-  @OrderColumn(name = "variable_index")
+  @IndexColumn(name = "variable_index", nullable = false)
   private List<VariableState> variables;
 
   public ValueTableState() { }
