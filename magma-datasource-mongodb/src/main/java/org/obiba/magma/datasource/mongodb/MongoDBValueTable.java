@@ -68,7 +68,9 @@ public class MongoDBValueTable extends AbstractValueTable {
   }
 
   DBCollection getVariablesCollection() {
-    return getDB().getCollection(getId() + VARIABLE_SUFFIX);
+    DBCollection collection = getDB().getCollection(getId() + VARIABLE_SUFFIX);
+    collection.ensureIndex("name");
+    return collection;
   }
 
   DBCollection getValueSetCollection() {
@@ -141,6 +143,7 @@ public class MongoDBValueTable extends AbstractValueTable {
     return new MongoDBValueSet(this, entity);
   }
 
+  @NotNull
   @Override
   public Timestamps getTimestamps() {
     return new Timestamps() {
@@ -169,6 +172,10 @@ public class MongoDBValueTable extends AbstractValueTable {
     getVariablesCollection().drop();
     getValueTableCollection().remove(BasicDBObjectBuilder.start().add("_id", getIdAsObjectId()).get());
     ((MongoDBDatasource) getDatasource()).setLastUpdate(new Date());
+  }
+
+  DBObject findVariable(String variableName) {
+    return getVariablesCollection().findOne(BasicDBObjectBuilder.start("name", variableName).get());
   }
 
 }

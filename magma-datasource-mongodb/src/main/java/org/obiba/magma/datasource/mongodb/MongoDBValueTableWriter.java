@@ -92,7 +92,7 @@ class MongoDBValueTableWriter implements ValueTableWriter {
 
     @Override
     public void writeValue(@NotNull Variable variable, Value value) {
-      String field = VariableConverter.normalizeFieldName(variable.getName());
+      String field = table.findVariable(variable.getName()).get("_id").toString();
       if(BinaryType.get().equals(value.getValueType())) {
         DBObject fileMetadata = getValueSetObject().containsField(field)
             ? updateBinary(variable, value, field)
@@ -103,6 +103,7 @@ class MongoDBValueTableWriter implements ValueTableWriter {
       }
     }
 
+    @Nullable
     private DBObject updateBinary(Variable variable, Value value, String field) {
       removeFile(variable, field);
       return value.isNull() ? null : createBinary(variable, value);
@@ -123,6 +124,7 @@ class MongoDBValueTableWriter implements ValueTableWriter {
       }
     }
 
+    @Nullable
     private DBObject createBinary(Variable variable, Value value) {
       if(value.isNull()) {
         return null;
@@ -183,7 +185,7 @@ class MongoDBValueTableWriter implements ValueTableWriter {
 
     @Override
     public void writeVariable(@NotNull Variable variable) {
-      if(table.getVariablesCollection().findOne(BasicDBObjectBuilder.start("_id", variable.getName()).get()) == null) {
+      if(table.findVariable(variable.getName()) == null) {
         table.addVariableValueSource(new MongoDBVariableValueSource(table, variable.getName()));
       }
       // insert or update
@@ -195,24 +197,23 @@ class MongoDBValueTableWriter implements ValueTableWriter {
 
     @Override
     public void removeVariable(@NotNull Variable variable) {
-      DBCollection variablesCollection = table.getVariablesCollection();
-      DBObject varObj = variablesCollection.findOne(BasicDBObjectBuilder.start("_id", variable.getName()).get());
+      DBObject varObj = table.findVariable(variable.getName());
       if(varObj == null) return;
 
       // remove from the variable collection
       table.removeVariableValueSource(variable.getName());
-      variablesCollection.remove(varObj);
+      table.getVariablesCollection().remove(varObj);
 
       // remove associated values from the value set collection
-      removeVariableValues(variable);
+      removeVariableValues((MongoDBVariable) variable);
 
       updateLastUpdate();
     }
 
-    private void removeVariableValues(@NotNull Variable variable) {
+    private void removeVariableValues(@NotNull MongoDBVariable variable) {
       DBCollection valueSetCollection = table.getValueSetCollection();
       DBCursor cursor = valueSetCollection.find();
-      String field = VariableConverter.normalizeFieldName(variable.getName());
+      String field = variable.getId();
       while(cursor.hasNext()) {
         DBObject valueSetObject = cursor.next();
         if(variable.getValueType().equals(BinaryType.get())) {
