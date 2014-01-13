@@ -12,11 +12,14 @@ package org.obiba.magma.datasource.mongodb.converter;
 
 import java.util.Collection;
 
+import javax.annotation.Nullable;
+
 import org.bson.BSONObject;
 import org.obiba.magma.Attribute;
 import org.obiba.magma.Category;
 import org.obiba.magma.ValueType;
 import org.obiba.magma.Variable;
+import org.obiba.magma.datasource.mongodb.MongoDBVariable;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
@@ -28,17 +31,7 @@ public class VariableConverter {
 
   private VariableConverter() {}
 
-  /**
-   * See <a href="http://docs.mongodb.org/manual/reference/limits/">MongoDB Limits and Thresholds</a>.
-   *
-   * @param name
-   * @return
-   */
-  public static String normalizeFieldName(String name) {
-    return name.replaceAll("[.$]", "_");
-  }
-
-  public static Variable unmarshall(BSONObject object) {
+  public static MongoDBVariable unmarshall(BSONObject object) {
     ValueType valueType = ValueType.Factory.forName(getFieldAsString(object, "valueType"));
     Variable.Builder builder = Variable.Builder
         .newVariable(getFieldAsString(object, "name"), valueType, getFieldAsString(object, "entityType")) //
@@ -56,7 +49,7 @@ public class VariableConverter {
       builder.addAttributes(unmarshallAttributes((Iterable<?>) object.get("attributes")));
     }
 
-    return builder.build();
+    return new MongoDBVariable(builder.build(), object.get("_id").toString());
   }
 
   private static Iterable<Category> unmarshallCategories(Iterable<?> cats) {
@@ -91,6 +84,7 @@ public class VariableConverter {
     return list.build();
   }
 
+  @Nullable
   private static String getFieldAsString(BSONObject object, String key) {
     if(!object.containsField(key)) return null;
     Object value = object.get(key);
@@ -104,7 +98,7 @@ public class VariableConverter {
   }
 
   public static DBObject marshall(Variable variable) {
-    BasicDBObjectBuilder builder = BasicDBObjectBuilder.start("_id", variable.getName()) //
+    BasicDBObjectBuilder builder = BasicDBObjectBuilder.start() //
         .add("name", variable.getName()) //
         .add("valueType", variable.getValueType().getName()) //
         .add("entityType", variable.getEntityType()) //
@@ -146,11 +140,10 @@ public class VariableConverter {
     return builder.get();
   }
 
-  @SuppressWarnings("ConstantConditions")
   private static DBObject marshall(Attribute attribute) {
-    return BasicDBObjectBuilder.start()//
+    return BasicDBObjectBuilder.start() //
         .add("namespace", attribute.hasNamespace() ? attribute.getNamespace() : null) //
-        .add("name", attribute.getName())//
+        .add("name", attribute.getName()) //
         .add("locale", attribute.isLocalised() ? attribute.getLocale().toString() : null) //
         .add("value", attribute.getValue().toString()).get();
   }

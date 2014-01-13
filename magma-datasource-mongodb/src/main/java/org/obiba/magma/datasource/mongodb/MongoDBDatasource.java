@@ -33,16 +33,11 @@ import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
-import com.mongodb.DBPort;
 import com.mongodb.WriteConcern;
 
 public class MongoDBDatasource extends AbstractDatasource {
 
   public static final String TYPE = "mongodb";
-
-  static final String DEFAULT_HOST = "localhost";
-
-  static final int DEFAULT_PORT = DBPort.PORT;
 
   static final String TIMESTAMPS_FIELD = "_timestamps";
 
@@ -78,8 +73,7 @@ public class MongoDBDatasource extends AbstractDatasource {
   }
 
   DBCollection getValueTableCollection() {
-    DB db = getDB();
-    DBCollection coll = db.getCollection(VALUE_TABLE_COLLECTION);
+    DBCollection coll = getDB().getCollection(VALUE_TABLE_COLLECTION);
     coll.ensureIndex("datasource");
     coll.ensureIndex("name");
     return coll;
@@ -157,6 +151,7 @@ public class MongoDBDatasource extends AbstractDatasource {
   }
 
   @Override
+  @SuppressWarnings("MethodReturnAlwaysConstant")
   public boolean canDrop() {
     return true;
   }
@@ -204,6 +199,7 @@ public class MongoDBDatasource extends AbstractDatasource {
     return new MongoDBValueTable(this, tableName);
   }
 
+  @NotNull
   @Override
   public Timestamps getTimestamps() {
     ImmutableSet.Builder<Timestamped> builder = ImmutableSet.builder();
@@ -212,6 +208,7 @@ public class MongoDBDatasource extends AbstractDatasource {
   }
 
   private class MongoDBDatasourceTimestamped implements Timestamped {
+    @NotNull
     @Override
     public Timestamps getTimestamps() {
       return new Timestamps() {

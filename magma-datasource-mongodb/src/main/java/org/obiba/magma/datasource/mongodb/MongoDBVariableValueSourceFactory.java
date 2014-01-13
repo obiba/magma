@@ -31,14 +31,13 @@ public class MongoDBVariableValueSourceFactory implements VariableValueSourceFac
   @Override
   public Set<VariableValueSource> createSources() {
     ImmutableSet.Builder<VariableValueSource> builder = ImmutableSet.builder();
-    try(DBCursor cursor = table.getVariablesCollection()
+    try(DBCursor variableCursor = table.getVariablesCollection()
         .find(new BasicDBObject(), BasicDBObjectBuilder.start("_id", 1).get())) {
-      while(cursor.hasNext()) {
-        String name = cursor.next().get("_id").toString();
+      while(variableCursor.hasNext()) {
+        String name = variableCursor.next().get("name").toString();
         builder.add(new MongoDBVariableValueSource(table, name));
       }
     }
-
     return builder.build();
   }
 

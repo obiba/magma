@@ -20,6 +20,7 @@ import org.obiba.magma.MagmaDate;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueType;
 import org.obiba.magma.Variable;
+import org.obiba.magma.datasource.mongodb.MongoDBVariable;
 import org.obiba.magma.type.LineStringType;
 import org.obiba.magma.type.LocaleType;
 import org.obiba.magma.type.PointType;
@@ -47,9 +48,8 @@ public class ValueConverter {
     return marshall(value);
   }
 
-  public static Value unmarshall(Variable variable, BSONObject object) {
-    return unmarshall(variable.getValueType(), variable.isRepeatable(),
-        VariableConverter.normalizeFieldName(variable.getName()), object);
+  public static Value unmarshall(MongoDBVariable variable, BSONObject object) {
+    return unmarshall(variable.getValueType(), variable.isRepeatable(), variable.getId(), object);
   }
 
   public static Value unmarshall(ValueType type, boolean repeatable, String field, BSONObject object) {

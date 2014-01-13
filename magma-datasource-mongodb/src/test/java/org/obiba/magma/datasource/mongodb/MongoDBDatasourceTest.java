@@ -42,6 +42,7 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.mongodb.MongoClient;
 
+import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.notNullValue;
 import static org.junit.Assert.assertThat;
@@ -90,7 +91,7 @@ public class MongoDBDatasourceTest {
     DatasourceCopier copier = DatasourceCopier.Builder.newCopier().build();
     copier.copy(onyx, ds);
 
-    assertThat(ds.getValueTable("AnkleBrachial").getVariableEntities().size(), is(20));
+    assertThat(ds.getValueTable("AnkleBrachial").getVariableEntities(), hasSize(20));
     assertThat(Iterables.size(ds.getValueTable("AnkleBrachial").getVariables()), is(21));
   }
 

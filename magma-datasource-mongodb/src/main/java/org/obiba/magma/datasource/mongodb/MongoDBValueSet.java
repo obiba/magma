@@ -25,10 +25,8 @@ import org.obiba.magma.ValueLoaderFactory;
 import org.obiba.magma.ValueSet;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.ValueType;
-import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.datasource.mongodb.converter.ValueConverter;
-import org.obiba.magma.datasource.mongodb.converter.VariableConverter;
 import org.obiba.magma.type.BinaryType;
 import org.obiba.magma.type.DateTimeType;
 import org.obiba.magma.type.TextType;
@@ -64,19 +62,19 @@ class MongoDBValueSet implements ValueSet {
     return entity;
   }
 
-  Value getValue(Variable variable) {
+  Value getValue(MongoDBVariable variable) {
     BSONObject valueObject = getDBObject();
     ValueType valueType = variable.getValueType();
     return valueType.equals(BinaryType.get())
-        ? getBinaryValue(valueObject, variable)
+        ? getBinaryValue(variable, valueObject)
         : ValueConverter.unmarshall(variable, valueObject);
   }
 
   @SuppressWarnings("unchecked")
-  private Value getBinaryValue(BSONObject valueObject, Variable variable) {
+  private Value getBinaryValue(MongoDBVariable variable, BSONObject valueObject) {
     ValueLoaderFactory factory = new MongoDBValueLoaderFactory(valueTable.getMongoDBFactory());
-    String field = VariableConverter.normalizeFieldName(variable.getName());
-    BSONObject fileMetadata = (BSONObject) valueObject.get(field);
+
+    BSONObject fileMetadata = (BSONObject) valueObject.get(variable.getId());
     if(fileMetadata == null) {
       return TextType.get().nullValue();
     }

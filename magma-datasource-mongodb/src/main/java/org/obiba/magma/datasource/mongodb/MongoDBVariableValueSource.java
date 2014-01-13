@@ -19,7 +19,6 @@ import javax.validation.constraints.NotNull;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueSet;
 import org.obiba.magma.ValueType;
-import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.VariableValueSource;
 import org.obiba.magma.VectorSource;
@@ -36,7 +35,7 @@ public class MongoDBVariableValueSource implements VariableValueSource, VectorSo
 
   private final String name;
 
-  private Variable variable;
+  private MongoDBVariable variable;
 
   private Value lastUpdated = null;
 
@@ -46,12 +45,11 @@ public class MongoDBVariableValueSource implements VariableValueSource, VectorSo
   }
 
   @Override
-  public Variable getVariable() {
+  public MongoDBVariable getVariable() {
     Value updatedTimestamp = table.getTimestamps().getLastUpdate();
     if(lastUpdated == null || !lastUpdated.equals(updatedTimestamp)) {
       lastUpdated = updatedTimestamp;
-      DBObject template = BasicDBObjectBuilder.start("_id", name).get();
-      variable = VariableConverter.unmarshall(table.getVariablesCollection().findOne(template));
+      variable = VariableConverter.unmarshall(table.findVariable(name));
     }
     return variable;
   }
@@ -67,7 +65,6 @@ public class MongoDBVariableValueSource implements VariableValueSource, VectorSo
     if(entities.isEmpty()) {
       return ImmutableList.of();
     }
-
     return new Iterable<Value>() {
       @Override
       public Iterator<Value> iterator() {
@@ -101,8 +98,8 @@ public class MongoDBVariableValueSource implements VariableValueSource, VectorSo
 
     private final Iterator<VariableEntity> entities;
 
-    private ValueIterator(Variable variable, Iterator<VariableEntity> entities) {
-      field = VariableConverter.normalizeFieldName(variable.getName());
+    private ValueIterator(MongoDBVariable variable, Iterator<VariableEntity> entities) {
+      field = variable.getId();
       type = variable.getValueType();
       repeatable = variable.isRepeatable();
       fields = BasicDBObjectBuilder.start(field, 1).get();
