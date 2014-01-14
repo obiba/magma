@@ -85,7 +85,7 @@ public class MongoDBValueTable extends AbstractValueTable {
           .add("datasource", getDatasource().getName()) //
           .add("name", getName()) //
           .get());
-      // create DBObject if not foubd
+      // create DBObject if not found
       if(dbObject == null) {
         dbObject = BasicDBObjectBuilder.start() //
             .add("datasource", getDatasource().getName()) //
@@ -149,18 +149,18 @@ public class MongoDBValueTable extends AbstractValueTable {
   public Timestamps getTimestamps() {
     return new Timestamps() {
 
-      private final BSONObject tableObject = (BSONObject) asDBObject().get(MongoDBDatasource.TIMESTAMPS_FIELD);
+      private final BSONObject timestampsObject = (BSONObject) asDBObject().get(MongoDBDatasource.TIMESTAMPS_FIELD);
 
       @NotNull
       @Override
       public Value getLastUpdate() {
-        return DateTimeType.get().valueOf(tableObject.get(MongoDBDatasource.TIMESTAMPS_UPDATED_FIELD));
+        return DateTimeType.get().valueOf(timestampsObject.get(MongoDBDatasource.TIMESTAMPS_UPDATED_FIELD));
       }
 
       @NotNull
       @Override
       public Value getCreated() {
-        return DateTimeType.get().valueOf(tableObject.get(MongoDBDatasource.TIMESTAMPS_CREATED_FIELD));
+        return DateTimeType.get().valueOf(timestampsObject.get(MongoDBDatasource.TIMESTAMPS_CREATED_FIELD));
       }
     };
   }
@@ -171,6 +171,7 @@ public class MongoDBValueTable extends AbstractValueTable {
     getVariablesCollection().drop();
     getValueTableCollection().remove(BasicDBObjectBuilder.start().add("_id", getIdAsObjectId()).get());
     ((MongoDBDatasource) getDatasource()).setLastUpdate(new Date());
+    dbObject = null;
   }
 
   DBObject findVariable(String variableName) {
