@@ -13,8 +13,9 @@ buildscript {
     maven { url 'http://repo.obiba.org/obiba-gradle-plugins-release' }
   }
   dependencies {
-    classpath 'org.jfrog.buildinfo:build-info-extractor-gradle:2.1.0'
-    classpath 'com.github.ben-manes:gradle-versions-plugin:0.4'
+    classpath 'org.jfrog.buildinfo:build-info-extractor-gradle:latest.release'
+    classpath 'com.github.ben-manes:gradle-versions-plugin:latest.release'
+    classpath 'net.ltgt.gradle:gradle-errorprone-plugin:latest.release'
 //    classpath 'net.saliman:gradle-cobertura-plugin:2.1.0'
   }
 }
@@ -25,6 +26,7 @@ allprojects {
   apply plugin: 'maven'
   apply plugin: 'maven-publish'
   apply plugin: 'artifactory-publish'
+  apply plugin: 'errorprone'
 
   group = 'org.obiba.magma'
 

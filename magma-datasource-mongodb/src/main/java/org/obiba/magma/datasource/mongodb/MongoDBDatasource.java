@@ -211,22 +211,21 @@ public class MongoDBDatasource extends AbstractDatasource {
     @NotNull
     @Override
     public Timestamps getTimestamps() {
+
       return new Timestamps() {
 
-        private BSONObject getTimestampsObject() {
-          return (BSONObject) asDBObject().get(TIMESTAMPS_FIELD);
-        }
+        private final BSONObject timestampsObject = (BSONObject) asDBObject().get(TIMESTAMPS_FIELD);
 
         @NotNull
         @Override
         public Value getLastUpdate() {
-          return DateTimeType.get().valueOf(getTimestampsObject().get(TIMESTAMPS_UPDATED_FIELD));
+          return DateTimeType.get().valueOf(timestampsObject.get(TIMESTAMPS_UPDATED_FIELD));
         }
 
         @NotNull
         @Override
         public Value getCreated() {
-          return DateTimeType.get().valueOf(getTimestampsObject().get(TIMESTAMPS_CREATED_FIELD));
+          return DateTimeType.get().valueOf(timestampsObject.get(TIMESTAMPS_CREATED_FIELD));
         }
       };
     }
