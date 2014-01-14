@@ -148,20 +148,18 @@ public class MongoDBValueTable extends AbstractValueTable {
   public Timestamps getTimestamps() {
     return new Timestamps() {
 
-      private BSONObject getTimestampsObject() {
-        return (BSONObject) asDBObject().get(MongoDBDatasource.TIMESTAMPS_FIELD);
-      }
+      private final BSONObject tableObject = (BSONObject) asDBObject().get(MongoDBDatasource.TIMESTAMPS_FIELD);
 
       @NotNull
       @Override
       public Value getLastUpdate() {
-        return DateTimeType.get().valueOf(getTimestampsObject().get(MongoDBDatasource.TIMESTAMPS_UPDATED_FIELD));
+        return DateTimeType.get().valueOf(tableObject.get(MongoDBDatasource.TIMESTAMPS_UPDATED_FIELD));
       }
 
       @NotNull
       @Override
       public Value getCreated() {
-        return DateTimeType.get().valueOf(getTimestampsObject().get(MongoDBDatasource.TIMESTAMPS_CREATED_FIELD));
+        return DateTimeType.get().valueOf(tableObject.get(MongoDBDatasource.TIMESTAMPS_CREATED_FIELD));
       }
     };
   }
