@@ -52,6 +52,8 @@ public class MongoDBDatasource extends AbstractDatasource {
   @NotNull
   private final MongoDBFactory mongoDBFactory;
 
+  private DBObject dbObject;
+
   /**
    * See <a href="http://docs.mongodb.org/manual/reference/connection-string">MongoDB connection string specifications</a>.
    *
@@ -84,25 +86,24 @@ public class MongoDBDatasource extends AbstractDatasource {
   }
 
   DBObject asDBObject() {
-    DBObject dsObject = getDatasourceCollection().findOne(BasicDBObjectBuilder.start() //
-        .add("_id", getName()) //
-        .get());
-
-    if(dsObject == null) {
-      dsObject = BasicDBObjectBuilder.start() //
+    if(dbObject == null) {
+      dbObject = getDatasourceCollection().findOne(BasicDBObjectBuilder.start() //
           .add("_id", getName()) //
-          .add(TIMESTAMPS_FIELD, createTimestampsObject()).get();
-      getDatasourceCollection().insert(dsObject, WriteConcern.ACKNOWLEDGED);
+          .get());
+      if(dbObject == null) {
+        dbObject = BasicDBObjectBuilder.start() //
+            .add("_id", getName()) //
+            .add(TIMESTAMPS_FIELD, createTimestampsObject()).get();
+        getDatasourceCollection().insert(dbObject, WriteConcern.ACKNOWLEDGED);
+      }
     }
-
-    return dsObject;
+    return dbObject;
   }
 
   void setLastUpdate(Date date) {
-    DBObject dsObject = asDBObject();
-    BSONObject timestamps = (BSONObject) dsObject.get(TIMESTAMPS_FIELD);
-    timestamps.put("updated", date);
-    getDatasourceCollection().save(dsObject);
+    ((BSONObject) asDBObject().get(TIMESTAMPS_FIELD)).put("updated", date);
+    getDatasourceCollection().save(asDBObject());
+
   }
 
   static DBObject createTimestampsObject() {
@@ -138,11 +139,9 @@ public class MongoDBDatasource extends AbstractDatasource {
 
     MongoDBValueTable valueTable = (MongoDBValueTable) getValueTable(tableName);
 
-    DBObject obj = valueTable.asDBObject();
-    obj.put("name", newName);
-    BSONObject timestamps = (BSONObject) obj.get(TIMESTAMPS_FIELD);
-    timestamps.put("updated", new Date());
-    getValueTableCollection().save(obj, WriteConcern.ACKNOWLEDGED);
+    valueTable.asDBObject().put("name", newName);
+    ((BSONObject) valueTable.asDBObject().get(TIMESTAMPS_FIELD)).put("updated", new Date());
+    getValueTableCollection().save(valueTable.asDBObject(), WriteConcern.ACKNOWLEDGED);
     removeValueTable(valueTable);
 
     MongoDBValueTable newTable = new MongoDBValueTable(this, newName);
