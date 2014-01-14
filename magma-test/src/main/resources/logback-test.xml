@@ -32,7 +32,6 @@
 
   <root level="info">
     <appender-ref ref="console"/>
-    <appender-ref ref="benchmark"/>
   </root>
 
 </configuration>
