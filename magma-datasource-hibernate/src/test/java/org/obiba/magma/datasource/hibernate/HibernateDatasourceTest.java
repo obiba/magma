@@ -674,6 +674,70 @@ public class HibernateDatasourceTest {
   }
 
   @Test
+  public void test_remove_variable() {
+
+    final ImmutableSet<Variable> variables = ImmutableSet.of(//
+        Variable.Builder.newVariable("Variable to delete", IntegerType.get(), PARTICIPANT) //
+            .addCategory("1", "One", false) //
+            .build(), //
+        Variable.Builder.newVariable("Other Variable", IntegerType.get(), PARTICIPANT) //
+            .addCategory("2", "Two", false) //
+            .build());
+
+    transactionTemplate.execute(new TransactionCallbackRuntimeExceptions() {
+      @Override
+      protected void doAction(TransactionStatus status) throws Exception {
+        HibernateDatasource ds = createDatasource();
+        ValueTable generatedValueTable = new GeneratedValueTable(ds, variables, 10);
+        MagmaEngine.get().addDatasource(ds);
+        DatasourceCopier.Builder.newCopier().build().copy(generatedValueTable, TABLE, ds);
+      }
+    });
+
+    transactionTemplate.execute(new TransactionCallbackRuntimeExceptions() {
+      @Override
+      protected void doAction(TransactionStatus status) throws Exception {
+        HibernateDatasource ds = getDatasource();
+        ValueTable table = ds.getValueTable(TABLE);
+
+        assertThat(Iterables.size(table.getVariables()), is(2));
+
+        Session session = ds.getSessionFactory().getCurrentSession();
+        assertJpaEntitiesHasSize(session, VariableState.class, 2);
+        assertJpaEntitiesHasSize(session, ValueSetState.class, 10);
+        assertJpaEntitiesHasSize(session, ValueSetValue.class, 20);
+        assertJpaEntitiesHasSize(session, CategoryState.class, 2);
+
+        ds.createWriter(TABLE, PARTICIPANT).writeVariables().removeVariable(table.getVariable("Variable to delete"));
+      }
+    });
+
+    transactionTemplate.execute(new TransactionCallbackRuntimeExceptions() {
+      @Override
+      protected void doAction(TransactionStatus status) throws Exception {
+        HibernateDatasource ds = getDatasource();
+        try {
+          ds.getValueTable(TABLE).getVariable("Variable to delete");
+          fail("Should throw NoSuchVariableException");
+        } catch(NoSuchVariableException ignored) {
+        }
+
+        Variable found = ds.getValueTable(TABLE).getVariable("Other Variable");
+
+        assertThat(found, notNullValue());
+        assertThat(found.getCategories(), hasSize(1));
+
+        Session session = ds.getSessionFactory().getCurrentSession();
+        assertJpaEntitiesHasSize(session, VariableState.class, 1);
+        assertJpaEntitiesHasSize(session, ValueSetState.class, 10);
+        assertJpaEntitiesHasSize(session, ValueSetValue.class, 10);
+        assertJpaEntitiesHasSize(session, CategoryState.class, 1);
+
+      }
+    });
+  }
+
+  @Test
   public void test_remove_last_variable() {
 
     final Variable variable = Variable.Builder.newVariable("Variable 1", IntegerType.get(), PARTICIPANT)
@@ -786,6 +850,8 @@ public class HibernateDatasourceTest {
     final String NEW_NAME = "new_table";
     final Date[] created = new Date[3];
     final Date[] updated = new Date[3];
+
+    Thread.sleep(500);
 
     transactionTemplate.execute(new TransactionCallbackRuntimeExceptions() {
       @Override

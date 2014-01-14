@@ -172,11 +172,11 @@ class HibernateValueTableWriter implements ValueTableWriter {
     }
 
     private void deleteVariableCategories(IEntity variableState) {
-      session.createSQLQuery("delete from category_state_attributes a where a.category_state in " + //
+      session.createSQLQuery("delete from category_state_attributes where category_state in " + //
           "(select c.id from category c where c.variable_id = " + variableState.getId() + ")") //
           .executeUpdate();
 
-      int deletedCategories = session.createQuery("delete CategoryState c where c.variable = :variable")
+      int deletedCategories = session.createQuery("delete CategoryState where variable = :variable")
           .setEntity("variable", variableState).executeUpdate();
       log.debug("Deleted {} categories", deletedCategories);
     }
@@ -185,8 +185,7 @@ class HibernateValueTableWriter implements ValueTableWriter {
       session.createSQLQuery("delete from variable_state_attributes where variable_state = " + variableState.getId())
           .executeUpdate();
 
-      int deletedVariables = session
-          .createQuery("delete VariableState v where v.valueTable = :table and v.name = :name")
+      int deletedVariables = session.createQuery("delete VariableState where valueTable = :table and name = :name")
           .setEntity("table", variableState.getValueTable()).setString("name", variableState.getName()).executeUpdate();
       log.debug("Deleted {} variables", deletedVariables);
     }
