@@ -59,7 +59,7 @@ public class MongoDBDatasourceTest {
 
   private static final String PARTICIPANT = "Participant";
 
-  private static final String ONYX_DATA_ZIP = "20-onyx-data.zip";
+  private static final String ONYX_DATA_5_ZIP = "5-onyx-data.zip";
 
   @Before
   public void before() {
@@ -85,14 +85,27 @@ public class MongoDBDatasourceTest {
 
   @Test
   public void testWriters() throws IOException {
-    FsDatasource onyx = new FsDatasource("onyx", FileUtil.getFileFromResource(ONYX_DATA_ZIP));
+    FsDatasource onyx = new FsDatasource("onyx", FileUtil.getFileFromResource(ONYX_DATA_5_ZIP));
     DatasourceFactory factory = new MongoDBDatasourceFactory("ds-" + DB_TEST, DB_URL);
     Datasource ds = factory.create();
     Initialisables.initialise(ds, onyx);
 
     DatasourceCopier.Builder.newCopier().build().copy(onyx, ds);
-    assertThat(ds.getValueTable("AnkleBrachial").getVariableEntities(), hasSize(20));
+    assertThat(ds.getValueTable("AnkleBrachial").getVariableEntities(), hasSize(5));
     assertThat(size(ds.getValueTable("AnkleBrachial").getVariables()), is(21));
+  }
+
+  @Test
+  public void testRestartMagma() throws IOException {
+    FsDatasource onyx = new FsDatasource("onyx", FileUtil.getFileFromResource(ONYX_DATA_5_ZIP));
+    Datasource datasource1 = new MongoDBDatasourceFactory("ds-" + DB_TEST, DB_URL).create();
+    Initialisables.initialise(datasource1, onyx);
+    DatasourceCopier.Builder.newCopier().build().copy(onyx, datasource1);
+
+    Datasource datasource2 = new MongoDBDatasourceFactory("ds-" + DB_TEST, DB_URL).create();
+    Initialisables.initialise(datasource2);
+    assertThat(datasource2.getValueTable("AnkleBrachial").getVariableEntities(), hasSize(5));
+    assertThat(size(datasource2.getValueTable("AnkleBrachial").getVariables()), is(21));
   }
 
   @Test
