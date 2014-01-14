@@ -2,6 +2,7 @@ package org.obiba.magma.datasource.mongodb;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.Set;
 
 import org.junit.After;
 import org.junit.Assume;
@@ -36,12 +37,15 @@ import org.obiba.magma.type.PointType;
 import org.obiba.magma.type.PolygonType;
 import org.obiba.magma.type.TextType;
 import org.obiba.magma.xstream.MagmaXStreamExtension;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Charsets;
-import com.google.common.collect.Iterables;
+import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
 import com.mongodb.MongoClient;
 
+import static com.google.common.collect.Iterables.size;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.notNullValue;
@@ -51,6 +55,8 @@ import static org.junit.Assert.fail;
 @SuppressWarnings({ "UnusedAssignment", "OverlyCoupledClass" })
 public class MongoDBDatasourceTest {
 
+  private static final Logger benchmarkLog = LoggerFactory.getLogger("benchmark");
+
   private static final String DB_TEST = "magma-test";
 
   private static final String DB_URL = "mongodb://localhost/" + DB_TEST;
@@ -58,6 +64,10 @@ public class MongoDBDatasourceTest {
   private static final String TABLE_TEST = "TABLE";
 
   private static final String PARTICIPANT = "Participant";
+
+  private static final String ONYX_DATA_ZIP = "20-onyx-data.zip";
+
+  private static final String FNAC_ZIP = "FNAC.zip";
 
   @Before
   public void before() {
@@ -83,16 +93,42 @@ public class MongoDBDatasourceTest {
 
   @Test
   public void testWriters() throws IOException {
-    FsDatasource onyx = new FsDatasource("onyx", FileUtil.getFileFromResource("20-onyx-data.zip"));
+    FsDatasource onyx = new FsDatasource("onyx", FileUtil.getFileFromResource(ONYX_DATA_ZIP));
     DatasourceFactory factory = new MongoDBDatasourceFactory("ds-" + DB_TEST, DB_URL);
     Datasource ds = factory.create();
     Initialisables.initialise(ds, onyx);
 
-    DatasourceCopier copier = DatasourceCopier.Builder.newCopier().build();
-    copier.copy(onyx, ds);
-
+    DatasourceCopier.Builder.newCopier().build().copy(onyx, ds);
     assertThat(ds.getValueTable("AnkleBrachial").getVariableEntities(), hasSize(20));
-    assertThat(Iterables.size(ds.getValueTable("AnkleBrachial").getVariables()), is(21));
+    assertThat(size(ds.getValueTable("AnkleBrachial").getVariables()), is(21));
+  }
+
+  @Test
+  public void benchmark() throws IOException {
+    FsDatasource onyx = new FsDatasource("onyx", FileUtil.getFileFromResource(ONYX_DATA_ZIP));
+    DatasourceFactory factory = new MongoDBDatasourceFactory("ds-" + DB_TEST, DB_URL);
+    Datasource ds = factory.create();
+    Initialisables.initialise(ds, onyx);
+
+    Stopwatch stopwatch = Stopwatch.createStarted();
+    DatasourceCopier.Builder.newCopier().build().copy(onyx, ds);
+    benchmarkLog.info("Import {} in {}", ONYX_DATA_ZIP, stopwatch);
+
+    Set<ValueTable> valueTables = ds.getValueTables();
+    benchmarkLog.info("Load {} tables in {}", valueTables.size(), stopwatch);
+
+    for(ValueTable valueTable : valueTables) {
+      Iterable<Variable> variables = valueTable.getVariables();
+      benchmarkLog.info("{}: load {} variables in {}", valueTable.getName(), size(variables), stopwatch);
+      Iterable<ValueSet> valueSets = valueTable.getValueSets();
+      benchmarkLog.info("{}: load {} valueSets in {}", valueTable.getName(), size(valueSets), stopwatch);
+      for(Variable variable : variables) {
+        for(ValueSet valueSet : valueSets) {
+          valueTable.getValue(variable, valueSet);
+        }
+      }
+      benchmarkLog.info("{}: load values in {}", valueTable.getName(), stopwatch);
+    }
   }
 
   @Test
@@ -235,7 +271,7 @@ public class MongoDBDatasourceTest {
     ValueSet valueSet = table.getValueSet(new VariableEntityBean(PARTICIPANT, "1"));
     Variable textVariable = table.getVariable(generateVariableName(BinaryType.get()));
 
-    assertThat(Iterables.size(table.getVariables()), is(2));
+    assertThat(size(table.getVariables()), is(2));
     assertThat(textVariable, notNullValue());
     assertThat(table.getVariable(generateVariableName(IntegerType.get())), notNullValue());
 
