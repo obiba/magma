@@ -40,6 +40,8 @@ public class MongoDBValueTable extends AbstractValueTable {
 
   private static final String VALUE_SET_SUFFIX = "_value_set";
 
+  private DBObject dbObject;
+
   public MongoDBValueTable(@NotNull Datasource datasource, @NotNull String name) {
     this(datasource, name, null);
   }
@@ -78,28 +80,27 @@ public class MongoDBValueTable extends AbstractValueTable {
   }
 
   DBObject asDBObject() {
-    DBObject tableObject = getValueTableCollection().findOne(BasicDBObjectBuilder.start() //
-        .add("datasource", getDatasource().getName()) //
-        .add("name", getName()) //
-        .get());
-
-    if(tableObject == null) {
-      tableObject = BasicDBObjectBuilder.start() //
+    if(dbObject == null) {
+      dbObject = getValueTableCollection().findOne(BasicDBObjectBuilder.start() //
           .add("datasource", getDatasource().getName()) //
           .add("name", getName()) //
-          .add("entityType", getEntityType()) //
-          .add(MongoDBDatasource.TIMESTAMPS_FIELD, MongoDBDatasource.createTimestampsObject()).get();
-      getValueTableCollection().insert(tableObject, WriteConcern.ACKNOWLEDGED);
+          .get());
+      // create DBObject if not foubd
+      if(dbObject == null) {
+        dbObject = BasicDBObjectBuilder.start() //
+            .add("datasource", getDatasource().getName()) //
+            .add("name", getName()) //
+            .add("entityType", getEntityType()) //
+            .add(MongoDBDatasource.TIMESTAMPS_FIELD, MongoDBDatasource.createTimestampsObject()).get();
+        getValueTableCollection().insert(dbObject, WriteConcern.ACKNOWLEDGED);
+      }
     }
-
-    return tableObject;
+    return dbObject;
   }
 
   void setLastUpdate(Date date) {
-    DBObject tableObject = asDBObject();
-    BSONObject timestamps = (BSONObject) tableObject.get(MongoDBDatasource.TIMESTAMPS_FIELD);
-    timestamps.put("updated", date);
-    getValueTableCollection().save(tableObject);
+    ((BSONObject) asDBObject().get(MongoDBDatasource.TIMESTAMPS_FIELD)).put("updated", date);
+    getValueTableCollection().save(asDBObject());
     ((MongoDBDatasource) getDatasource()).setLastUpdate(date);
   }
 

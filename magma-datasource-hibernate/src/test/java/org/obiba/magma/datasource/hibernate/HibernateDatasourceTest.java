@@ -903,18 +903,4 @@ public class HibernateDatasourceTest {
 
   }
 
-  private abstract static class TransactionCallbackRuntimeExceptions extends TransactionCallbackWithoutResult {
-
-    protected abstract void doAction(TransactionStatus status) throws Exception;
-
-    @Override
-    protected void doInTransactionWithoutResult(TransactionStatus status) {
-      try {
-        doAction(status);
-      } catch(Exception e) {
-        throw new RuntimeException(e);
-      }
-    }
-  }
-
 }

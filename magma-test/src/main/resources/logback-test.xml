@@ -26,6 +26,7 @@
 
   <logger name="benchmark" additivity="false" level="info">
     <appender-ref ref="benchmark"/>
+    <appender-ref ref="console"/>
   </logger>
 
   <!--<logger name="org.obiba" level="debug"/>-->

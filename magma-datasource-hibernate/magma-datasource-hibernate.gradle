@@ -10,6 +10,7 @@ dependencies {
   compile(libraries.json)
 
   testCompile project(':magma-data-generator')
+  testCompile project(':magma-datasource-fs')
   testCompile(libraries.spring_test)
   testCompile(libraries.hibernate_ehcache)
   testCompile(libraries.javassist)
