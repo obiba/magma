@@ -16,9 +16,7 @@ import org.obiba.magma.support.VariableEntityBean;
 import org.obiba.magma.type.BooleanType;
 import org.obiba.magma.type.TextType;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.nullValue;
-import static org.junit.Assert.assertThat;
+import static org.fest.assertions.api.Assertions.assertThat;
 
 public class JavaScriptFilterTest {
 
@@ -51,19 +49,19 @@ public class JavaScriptFilterTest {
   @Test
   public void testSimpleScriptReturnsTrue() throws Exception {
     JavaScriptFilter filter = JavaScriptFilter.Builder.newFilter().javascript("4 > 3;").include().build();
-    assertThat(filter.runFilter(valueSetMock), is(true));
+    assertThat(filter.runFilter(valueSetMock)).isTrue();
   }
 
   @Test
   public void testSimpleScriptReturnsFalse() throws Exception {
     JavaScriptFilter filter = JavaScriptFilter.Builder.newFilter().javascript("2 > 3;").include().build();
-    assertThat(filter.runFilter(valueSetMock), is(false));
+    assertThat(filter.runFilter(valueSetMock)).isFalse();
   }
 
   @Test
   public void testNullReturnValueSameAsFalse() throws Exception {
     JavaScriptFilter filter = JavaScriptFilter.Builder.newFilter().javascript("null;").exclude().build();
-    assertThat(filter.runFilter(valueSetMock), nullValue());
+    assertThat(filter.runFilter(valueSetMock)).isNull();
   }
 
   @Test
@@ -86,7 +84,7 @@ public class JavaScriptFilterTest {
     EasyMock.expect(tableMock.getValueSet((VariableEntity) EasyMock.anyObject())).andReturn(valueSet).anyTimes();
     EasyMock.replay(mockSource, tableMock);
 
-    assertThat(filter.runFilter(valueSet), is(true));
+    assertThat(filter.runFilter(valueSet)).isTrue();
   }
 
   @Test
@@ -109,7 +107,7 @@ public class JavaScriptFilterTest {
     EasyMock.expect(tableMock.getValueSet((VariableEntity) EasyMock.anyObject())).andReturn(valueSet).anyTimes();
     EasyMock.replay(mockSource, tableMock);
 
-    assertThat(filter.runFilter(valueSet), is(false));
+    assertThat(filter.runFilter(valueSet)).isFalse();
   }
 
   @Test
@@ -132,7 +130,7 @@ public class JavaScriptFilterTest {
     EasyMock.expect(tableMock.getValueSet((VariableEntity) EasyMock.anyObject())).andReturn(valueSet).anyTimes();
     EasyMock.replay(mockSource, tableMock);
 
-    assertThat(filter.runFilter(valueSet), is(true));
+    assertThat(filter.runFilter(valueSet)).isTrue();
   }
 
   @Test
@@ -155,7 +153,7 @@ public class JavaScriptFilterTest {
     EasyMock.expect(tableMock.getValueSet((VariableEntity) EasyMock.anyObject())).andReturn(valueSet).anyTimes();
     EasyMock.replay(mockSource, tableMock);
 
-    assertThat(filter.runFilter(valueSet), is(false));
+    assertThat(filter.runFilter(valueSet)).isFalse();
   }
 
   @Test
@@ -178,7 +176,7 @@ public class JavaScriptFilterTest {
     EasyMock.expect(tableMock.getValueSet((VariableEntity) EasyMock.anyObject())).andReturn(valueSet).anyTimes();
     EasyMock.replay(mockSource, tableMock);
 
-    assertThat(filter.runFilter(valueSet), is(true));
+    assertThat(filter.runFilter(valueSet)).isTrue();
   }
 
   @Test
@@ -201,7 +199,7 @@ public class JavaScriptFilterTest {
     EasyMock.expect(tableMock.getValueSet((VariableEntity) EasyMock.anyObject())).andReturn(valueSet).anyTimes();
     EasyMock.replay(mockSource, tableMock);
 
-    assertThat(filter.runFilter(valueSet), is(false));
+    assertThat(filter.runFilter(valueSet)).isFalse();
   }
 
 }

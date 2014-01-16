@@ -1,13 +1,15 @@
 package org.obiba.magma.js.views;
 
 import org.junit.Test;
+import org.obiba.magma.Initialisable;
 import org.obiba.magma.ValueSet;
 import org.obiba.magma.Variable;
 import org.obiba.magma.js.AbstractJsTest;
+import org.obiba.magma.views.SelectClause;
+import org.obiba.magma.views.WhereClause;
 
 import static org.easymock.EasyMock.createMock;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.fest.assertions.api.Assertions.assertThat;
 
 public class JavascriptClauseTest extends AbstractJsTest {
 
@@ -20,7 +22,7 @@ public class JavascriptClauseTest extends AbstractJsTest {
   public void test_StringCtor() {
     String script = "the script";
     JavascriptClause clause = new JavascriptClause(script);
-    assertThat(clause.getScript(), is(script));
+    assertThat(clause.getScript()).isEqualTo(script);
   }
 
   @Test
@@ -28,13 +30,13 @@ public class JavascriptClauseTest extends AbstractJsTest {
     JavascriptClause clause = new JavascriptClause();
     String script = "the New Script";
     clause.setScript(script);
-    assertThat(clause.getScript(), is(script));
+    assertThat(clause.getScript()).isEqualTo(script);
   }
 
   @Test
   public void test_getScriptName_returnsDefaultName() {
     JavascriptClause clause = new JavascriptClause();
-    assertThat(clause.getScriptName(), is("customScript"));
+    assertThat(clause.getScriptName()).isEqualTo("customScript");
   }
 
   @Test
@@ -42,18 +44,18 @@ public class JavascriptClauseTest extends AbstractJsTest {
     JavascriptClause clause = new JavascriptClause();
     String newName = "My Script";
     clause.setScriptName(newName);
-    assertThat(clause.getScriptName(), is(newName));
+    assertThat(clause.getScriptName()).isEqualTo(newName);
   }
 
   @Test(expected = NullPointerException.class)
   public void test_initialise_throwsNullPointerWhenScriptIsNull() {
-    JavascriptClause clause = new JavascriptClause();
+    Initialisable clause = new JavascriptClause();
     clause.initialise();
   }
 
   @Test(expected = IllegalStateException.class)
   public void test_select_throwsIllegalStateException() {
-    JavascriptClause clause = new JavascriptClause();
+    SelectClause clause = new JavascriptClause();
     clause.select(null);
   }
 
@@ -84,7 +86,7 @@ public class JavascriptClauseTest extends AbstractJsTest {
 
   @Test(expected = IllegalStateException.class)
   public void test_where_throwsIllegalStateException() {
-    JavascriptClause clause = new JavascriptClause();
+    WhereClause clause = new JavascriptClause();
     clause.where(null);
   }
 
@@ -117,13 +119,13 @@ public class JavascriptClauseTest extends AbstractJsTest {
     JavascriptClause clause = new JavascriptClause(script);
     clause.initialise();
     boolean selected = clause.select(createMock(Variable.class));
-    assertThat(selected, is(expected));
+    assertThat(selected).isEqualTo(expected);
   }
 
   private void assertWhere(String script, boolean expected) {
     JavascriptClause clause = new JavascriptClause(script);
     clause.initialise();
     boolean selected = clause.where(createMock(ValueSet.class));
-    assertThat(selected, is(expected));
+    assertThat(selected).isEqualTo(expected);
   }
 }

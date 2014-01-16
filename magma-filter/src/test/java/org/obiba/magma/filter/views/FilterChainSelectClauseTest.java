@@ -3,12 +3,13 @@ package org.obiba.magma.filter.views;
 import org.junit.Test;
 import org.obiba.magma.Variable;
 import org.obiba.magma.filter.FilterChain;
+import org.obiba.magma.views.SelectClause;
 
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.verify;
-import static org.junit.Assert.assertEquals;
+import static org.fest.assertions.api.Assertions.assertThat;
 
 public class FilterChainSelectClauseTest {
   //
@@ -24,14 +25,14 @@ public class FilterChainSelectClauseTest {
     expect(filterChainMock.filter(variableMock)).andReturn(variableMock);
     replay(filterChainMock);
 
-    FilterChainSelectClause filterChainSelectClause = new FilterChainSelectClause(filterChainMock);
+    SelectClause filterChainSelectClause = new FilterChainSelectClause(filterChainMock);
     boolean result = filterChainSelectClause.select(variableMock);
 
     // Verify behaviour.
     verify(filterChainMock);
 
     // Verify state.
-    assertEquals(true, result);
+    assertThat(result).isTrue();
   }
 
   @SuppressWarnings("unchecked")
@@ -43,13 +44,14 @@ public class FilterChainSelectClauseTest {
     expect(filterChainMock.filter(variableMock)).andReturn(null);
     replay(filterChainMock);
 
-    FilterChainSelectClause filterChainSelectClause = new FilterChainSelectClause(filterChainMock);
+    SelectClause filterChainSelectClause = new FilterChainSelectClause(filterChainMock);
     boolean result = filterChainSelectClause.select(variableMock);
 
     // Verify behaviour.
     verify(filterChainMock);
 
     // Verify state.
-    assertEquals(false, result);
+    assertThat(result).isFalse();
+
   }
 }

@@ -6,8 +6,7 @@ import org.obiba.magma.ValueType;
 
 import com.google.common.collect.ImmutableList;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.fest.assertions.api.Assertions.assertThat;
 
 public class DecimalTypeTest extends BaseValueTypeTest {
 
@@ -39,7 +38,7 @@ public class DecimalTypeTest extends BaseValueTypeTest {
   @Test
   public void testTrim() {
     Double result = (Double) getValueType().valueOf(" 1 ").getValue();
-    assertThat(result.intValue(), is(1));
+    assertThat(result.intValue()).isEqualTo(1);
   }
 
   @Test
@@ -47,13 +46,13 @@ public class DecimalTypeTest extends BaseValueTypeTest {
     Value leftValue = getValueType().valueOf(42);
     Value rightValue = getValueType().nullValue();
     int result = getValueType().compare(leftValue, rightValue);
-    assertThat(result, is(1));
+    assertThat(result).isEqualTo(1);
   }
 
   @Test
   public void testComma() {
     Double result = (Double) getValueType().valueOf("1,2").getValue();
-    assertThat(result, is(1.2));
+    assertThat(result).isEqualTo(1.2);
   }
 
 }

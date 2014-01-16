@@ -25,10 +25,7 @@ import com.google.common.collect.Lists;
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.replay;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.fest.assertions.api.Assertions.assertThat;
 import static org.obiba.magma.views.JoinTableTest.MockValueTableBuilder.newTableMock;
 import static org.obiba.magma.views.JoinTableTest.MockVariableBuilder.newVariableMock;
 
@@ -87,7 +84,7 @@ public class JoinTableTest extends AbstractMagmaTest {
         .withMockTable(newTableMock())//
         .withMockTable(newTableMock()).build();
 
-    assertEquals(null, joinTable.getDatasource());
+    assertThat(joinTable.getDatasource()).isNull();
   }
 
   @Test
@@ -96,7 +93,7 @@ public class JoinTableTest extends AbstractMagmaTest {
         .withMockTable(newTableMock())//
         .withMockTable(newTableMock()).build();
 
-    assertEquals(PARTICIPANT_ENTITY_TYPE, joinTable.getEntityType());
+    assertThat(joinTable.getEntityType()).isEqualTo(PARTICIPANT_ENTITY_TYPE);
   }
 
   @Test
@@ -105,8 +102,8 @@ public class JoinTableTest extends AbstractMagmaTest {
         .withMockTable(newTableMock())//
         .withMockTable(newTableMock()).build();
 
-    assertTrue(joinTable.isForEntityType(PARTICIPANT_ENTITY_TYPE));
-    assertFalse(joinTable.isForEntityType("someOtherType"));
+    assertThat(joinTable.isForEntityType(PARTICIPANT_ENTITY_TYPE)).isTrue();
+    assertThat(joinTable.isForEntityType("someOtherType")).isFalse();
   }
 
   @Test
@@ -115,7 +112,7 @@ public class JoinTableTest extends AbstractMagmaTest {
         .withMockTable(newTableMock().withName("first"))//
         .withMockTable(newTableMock().withName("second")).build();
 
-    assertEquals("first-second", joinTable.getName());
+    assertThat(joinTable.getName()).isEqualTo("first-second");
   }
 
   @Test
@@ -126,16 +123,16 @@ public class JoinTableTest extends AbstractMagmaTest {
         .withMockTable(newTableMock().withVariables("var5", "var6")).build();
 
     Iterable<Variable> variables = joinTable.getVariables();
-    assertNotNull(variables);
+    assertThat(variables).isNotNull();
 
     Collection<String> variableNameList = new ArrayList<>();
     for(Variable variable : variables) {
       variableNameList.add(variable.getName());
     }
 
-    assertEquals(6, variableNameList.size());
+    assertThat(variableNameList).hasSize(6);
     for(String variableName : new String[] { "var1", "var2", "var3", "var4", "var5", "var6" }) {
-      assertTrue(variableName, variableNameList.contains(variableName));
+      assertThat(variableNameList).contains(variableName);
     }
   }
 
@@ -146,12 +143,12 @@ public class JoinTableTest extends AbstractMagmaTest {
         .withMockTable(newTableMock().withVariables("var2", "var3", "var4"))//
         .withMockTable(newTableMock().withVariables("var5", "var6")).build();
 
-    assertEquals("var1", joinTable.getVariable("var1").getName());
-    assertEquals("var2", joinTable.getVariable("var2").getName());
-    assertEquals("var3", joinTable.getVariable("var3").getName());
-    assertEquals("var4", joinTable.getVariable("var4").getName());
-    assertEquals("var5", joinTable.getVariable("var5").getName());
-    assertEquals("var6", joinTable.getVariable("var6").getName());
+    assertThat(joinTable.getVariable("var1").getName()).isEqualTo("var1");
+    assertThat(joinTable.getVariable("var2").getName()).isEqualTo("var2");
+    assertThat(joinTable.getVariable("var3").getName()).isEqualTo("var3");
+    assertThat(joinTable.getVariable("var4").getName()).isEqualTo("var4");
+    assertThat(joinTable.getVariable("var5").getName()).isEqualTo("var5");
+    assertThat(joinTable.getVariable("var6").getName()).isEqualTo("var6");
   }
 
   @Test(expected = NoSuchVariableException.class)
@@ -170,7 +167,7 @@ public class JoinTableTest extends AbstractMagmaTest {
         .withMockTable(newTableMock().withEntities("1", "2")).build();
 
     Iterable<ValueSet> valueSets = joinTable.getValueSets();
-    assertEquals(2, Iterables.size(valueSets));
+    assertThat(valueSets).hasSize(2);
   }
 
   @Test
@@ -179,19 +176,19 @@ public class JoinTableTest extends AbstractMagmaTest {
         .withMockTable(newTableMock().expectHasValueSet("1", true)) //
         .withMockTable(newTableMock()).build();
 
-    assertEquals(true, joinTable.hasValueSet(newEntity("1")));
+    assertThat(joinTable.hasValueSet(newEntity("1"))).isTrue();
 
     joinTable = JoinTableBuilder.newBuilder() //
         .withMockTable(newTableMock().expectHasValueSet("1", false)) //
         .withMockTable(newTableMock().expectHasValueSet("1", true)).build();
 
-    assertEquals(true, joinTable.hasValueSet(newEntity("1")));
+    assertThat(joinTable.hasValueSet(newEntity("1"))).isTrue();
 
     joinTable = JoinTableBuilder.newBuilder() //
         .withMockTable(newTableMock().expectHasValueSet("3", false)) //
         .withMockTable(newTableMock().expectHasValueSet("3", false)).build();
 
-    assertEquals(false, joinTable.hasValueSet(newEntity("3")));
+    assertThat(joinTable.hasValueSet(newEntity("3"))).isFalse();
   }
 
   @Test(expected = NoSuchValueSetException.class)
@@ -209,12 +206,12 @@ public class JoinTableTest extends AbstractMagmaTest {
         .withMockTable(newTableMock().expectHasValueSet("1", true)) //
         .withMockTable(newTableMock()).build();
 
-    assertNotNull(joinTable.getValueSet(newEntity("1")));
+    assertThat(joinTable.getValueSet(newEntity("1"))).isNotNull();
 
     joinTable = JoinTableBuilder.newBuilder() //
         .withMockTable(newTableMock().expectHasValueSet("2", false)) //
         .withMockTable(newTableMock().expectHasValueSet("2", true)).build();
-    assertNotNull(joinTable.getValueSet(newEntity("2")));
+    assertThat(joinTable.getValueSet(newEntity("2"))).isNotNull();
   }
 
   //TODO testGetValue but hard to test with mockups
@@ -235,7 +232,7 @@ public class JoinTableTest extends AbstractMagmaTest {
 //
 //    Value value = joinTable.getValue(var1, new JoinTable.JoinedValueSet(table1, entity1));
 //    assertNotNull(value);
-//    assertEquals("1-1", value.toString());
+//    assertThat("1-1", value.toString());
 //  }
 
   private static VariableEntity newEntity(String entityIdentifier) {

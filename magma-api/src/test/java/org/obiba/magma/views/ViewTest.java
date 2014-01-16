@@ -30,10 +30,7 @@ import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.verify;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.fest.assertions.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 
 @SuppressWarnings({ "PMD.NcssMethodCount", "OverlyLongMethod", "OverlyCoupledClass" })
@@ -57,7 +54,7 @@ public class ViewTest extends AbstractMagmaTest {
     verify(valueTableMock);
 
     // Verify state.
-    assertTrue(result);
+    assertThat(result).isTrue();
   }
 
   @Test
@@ -79,7 +76,7 @@ public class ViewTest extends AbstractMagmaTest {
     verify(valueTableMock, whereClauseMock);
 
     // Verify state.
-    assertTrue(result);
+    assertThat(result).isTrue();
   }
 
   @Test
@@ -101,7 +98,7 @@ public class ViewTest extends AbstractMagmaTest {
     verify(valueTableMock, whereClauseMock);
 
     // Verify state.
-    assertFalse(result);
+    assertThat(result).isFalse();
   }
 
   @Test
@@ -121,9 +118,9 @@ public class ViewTest extends AbstractMagmaTest {
     verify(valueTableMock);
 
     // Verify state.
-    assertNotNull(viewValueSet);
-    assertNotNull(viewValueSet.getValueTable());
-    assertEquals("view", viewValueSet.getValueTable().getName());
+    assertThat(viewValueSet).isNotNull();
+    assertThat(viewValueSet.getValueTable()).isNotNull();
+    assertThat(viewValueSet.getValueTable().getName()).isEqualTo("view");
   }
 
   @Test
@@ -148,7 +145,7 @@ public class ViewTest extends AbstractMagmaTest {
     verify(valueTableMock);
 
     // Verify state.
-    assertNotNull(result);
+    assertThat(result).isNotNull();
   }
 
   @Test
@@ -174,7 +171,7 @@ public class ViewTest extends AbstractMagmaTest {
     verify(valueTableMock);
 
     // Verify state.
-    assertNotNull(result);
+    assertThat(result).isNotNull();
   }
 
   @Test(expected = NoSuchValueSetException.class)
@@ -217,10 +214,10 @@ public class ViewTest extends AbstractMagmaTest {
     verify(valueTableMock);
 
     // Verify state.
-    assertNotNull(result);
-    assertEquals(2, Iterables.size(result));
-    assertTrue(containsValueSet(result, valueSetFoo));
-    assertTrue(containsValueSet(result, valueSetBar));
+    assertThat(result).isNotNull();
+    assertThat(result).hasSize(2);
+    assertThat(containsValueSet(result, valueSetFoo)).isTrue();
+    assertThat(containsValueSet(result, valueSetBar)).isTrue();
   }
 
   @Test
@@ -247,10 +244,10 @@ public class ViewTest extends AbstractMagmaTest {
     verify(valueTableMock, whereClauseMock);
 
     // Verify state.
-    assertNotNull(result);
-    assertEquals(2, Iterables.size(result));
-    assertTrue(containsValueSet(result, valueSetFoo));
-    assertTrue(containsValueSet(result, valueSetBar));
+    assertThat(result).isNotNull();
+    assertThat(result).hasSize(2);
+    assertThat(containsValueSet(result, valueSetFoo)).isTrue();
+    assertThat(containsValueSet(result, valueSetBar)).isTrue();
   }
 
   @Test
@@ -278,9 +275,9 @@ public class ViewTest extends AbstractMagmaTest {
     verify(valueTableMock, whereClauseMock);
 
     // Verify state.
-    assertNotNull(result);
-    assertEquals(1, Iterables.size(result));
-    assertTrue(containsValueSet(result, valueSetInclude));
+    assertThat(result).isNotNull();
+    assertThat(result).hasSize(1);
+    assertThat(containsValueSet(result, valueSetInclude)).isTrue();
   }
 
   @Test
@@ -303,8 +300,8 @@ public class ViewTest extends AbstractMagmaTest {
     verify(valueTableMock);
 
     // Verify state.
-    assertNotNull(result);
-    assertEquals(variable.getName(), result.getName());
+    assertThat(result).isNotNull();
+    assertThat(variable.getName()).isEqualTo(result.getName());
   }
 
   @Test
@@ -329,8 +326,8 @@ public class ViewTest extends AbstractMagmaTest {
     verify(valueTableMock, selectClauseMock);
 
     // Verify state.
-    assertNotNull(result);
-    assertEquals(variable.getName(), result.getName());
+    assertThat(result).isNotNull();
+    assertThat(variable.getName()).isEqualTo(result.getName());
   }
 
   @Test(expected = NoSuchVariableException.class)
@@ -370,10 +367,10 @@ public class ViewTest extends AbstractMagmaTest {
     verify(valueTableMock);
 
     // Verify state.
-    assertNotNull(result);
-    assertEquals(2, Iterables.size(result));
-    assertTrue(containsVariable(result, variableFoo));
-    assertTrue(containsVariable(result, variableBar));
+    assertThat(result).isNotNull();
+    assertThat(result).hasSize(2);
+    assertThat(containsVariable(result, variableFoo)).isTrue();
+    assertThat(containsVariable(result, variableBar)).isTrue();
   }
 
   @Test
@@ -398,10 +395,10 @@ public class ViewTest extends AbstractMagmaTest {
     verify(valueTableMock, selectClauseMock);
 
     // Verify state.
-    assertNotNull(result);
-    assertEquals(2, Iterables.size(result));
-    assertTrue(containsVariable(result, variableFoo));
-    assertTrue(containsVariable(result, variableBar));
+    assertThat(result).isNotNull();
+    assertThat(result).hasSize(2);
+    assertThat(containsVariable(result, variableFoo)).isTrue();
+    assertThat(containsVariable(result, variableBar)).isTrue();
   }
 
   @Test
@@ -427,9 +424,9 @@ public class ViewTest extends AbstractMagmaTest {
     verify(valueTableMock, selectClauseMock);
 
     // Verify state.
-    assertNotNull(result);
-    assertEquals(1, Iterables.size(result));
-    assertTrue(containsVariable(result, variableInclude));
+    assertThat(result).isNotNull();
+    assertThat(result).hasSize(1);
+    assertThat(containsVariable(result, variableInclude)).isTrue();
   }
 
   @Test
@@ -455,8 +452,8 @@ public class ViewTest extends AbstractMagmaTest {
     verify(valueTableMock);
 
     // Verify state.
-    assertNotNull(result);
-    assertEquals("someValue", value.getValue().toString());
+    assertThat(result).isNotNull();
+    assertThat(value.getValue().toString()).isEqualTo("someValue");
   }
 
   @Test
@@ -484,8 +481,8 @@ public class ViewTest extends AbstractMagmaTest {
     verify(valueTableMock, whereClauseMock);
 
     // Verify state.
-    assertNotNull(result);
-    assertEquals("someValue", value.getValue().toString());
+    assertThat(result).isNotNull();
+    assertThat(value.getValue().toString()).isEqualTo("someValue");
   }
 
   @Test(expected = NoSuchValueSetException.class)
@@ -527,8 +524,8 @@ public class ViewTest extends AbstractMagmaTest {
     verify(valueTableMock, listClauseMock);
 
     // Verify state.
-    assertNotNull(result);
-    assertEquals(1, Iterables.size(result));
+    assertThat(result).isNotNull();
+    assertThat(result).hasSize(1);
   }
 
   @Test
@@ -548,7 +545,7 @@ public class ViewTest extends AbstractMagmaTest {
     verify(valueTableMock);
 
     // Verify state.
-    assertNotNull(result);
+    assertThat(result).isNotNull();
   }
 
   @Test(expected = IncompatibleEntityTypeException.class)

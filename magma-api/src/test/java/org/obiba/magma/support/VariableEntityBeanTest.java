@@ -3,8 +3,7 @@ package org.obiba.magma.support;
 import org.junit.Test;
 import org.obiba.magma.VariableEntity;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.fest.assertions.api.Assertions.assertThat;
 
 public class VariableEntityBeanTest {
 
@@ -35,41 +34,41 @@ public class VariableEntityBeanTest {
   @Test
   public void test_getters() {
     VariableEntity veb = new VariableEntityBean("type", "1");
-    assertThat(veb.getType(), is("type"));
-    assertThat(veb.getIdentifier(), is("1"));
+    assertThat(veb.getType()).isEqualTo("type");
+    assertThat(veb.getIdentifier()).isEqualTo("1");
   }
 
   @Test
   public void test_equals_same_instance() {
     VariableEntityBean veb = new VariableEntityBean("type", "1");
-    assertThat(veb.equals(veb), is(true));
+    assertThat(veb.equals(veb)).isTrue();
   }
 
   @Test
   public void test_equals_notEquivalent() {
     VariableEntityBean lhs = new VariableEntityBean("type", "1");
     VariableEntityBean rhs = new VariableEntityBean("type", "2");
-    assertThat(lhs.equals(rhs), is(false));
+    assertThat(lhs.equals(rhs)).isFalse();
   }
 
   @Test
   public void test_equals_hashCode_equivalent() {
     VariableEntityBean lhs = new VariableEntityBean("type", "1");
     VariableEntityBean rhs = new VariableEntityBean("type", "1");
-    assertThat(lhs.equals(rhs), is(true));
-    assertThat(lhs.hashCode() == rhs.hashCode(), is(true));
+    assertThat(lhs.equals(rhs)).isTrue();
+    assertThat(lhs.hashCode() == rhs.hashCode()).isTrue();
   }
 
   @Test
   public void test_equals_otherType() {
     VariableEntityBean lhs = new VariableEntityBean("type", "1");
-    assertThat(lhs.equals(new Object()), is(false));
+    assertThat(lhs.equals(new Object())).isFalse();
   }
 
   @Test
   public void test_toString_containsTypeAndIdentifier() {
     VariableEntityBean veb = new VariableEntityBean("type", "1234");
-    assertThat(veb.toString().contains("type"), is(true));
-    assertThat(veb.toString().contains("1234"), is(true));
+    assertThat(veb.toString().contains("type")).isTrue();
+    assertThat(veb.toString().contains("1234")).isTrue();
   }
 }

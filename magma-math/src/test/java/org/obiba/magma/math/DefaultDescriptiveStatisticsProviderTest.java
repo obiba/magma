@@ -19,9 +19,7 @@ import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.verify;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.junit.Assert.assertThat;
+import static org.fest.assertions.api.Assertions.assertThat;
 
 public class DefaultDescriptiveStatisticsProviderTest extends AbstractMagmaTest {
 
@@ -50,7 +48,7 @@ public class DefaultDescriptiveStatisticsProviderTest extends AbstractMagmaTest 
     DescriptiveStatisticsProvider defaultProvider = new DefaultDescriptiveStatisticsProvider();
     DescriptiveStatistics ds = defaultProvider.compute(mockSource, emptySet);
 
-    assertThat(ds, notNullValue());
+    assertThat(ds).isNotNull();
     verify(mockSource);
   }
 
@@ -67,7 +65,7 @@ public class DefaultDescriptiveStatisticsProviderTest extends AbstractMagmaTest 
     DescriptiveStatisticsProvider defaultProvider = new DefaultDescriptiveStatisticsProvider();
     DescriptiveStatistics ds = defaultProvider.compute(mockSource, emptySet);
 
-    assertThat(ds, notNullValue());
+    assertThat(ds).isNotNull();
 
     verify(mockSource, mockVector);
   }
@@ -86,8 +84,8 @@ public class DefaultDescriptiveStatisticsProviderTest extends AbstractMagmaTest 
     DescriptiveStatisticsProvider defaultProvider = new DefaultDescriptiveStatisticsProvider();
     DescriptiveStatistics ds = defaultProvider.compute(mockSource, emptySet);
 
-    assertThat(ds, notNullValue());
-    assertThat(ds.getN(), is(5l));
+    assertThat(ds).isNotNull();
+    assertThat(ds.getN()).isEqualTo(5l);
 
     verify(mockSource, mockVector);
   }
