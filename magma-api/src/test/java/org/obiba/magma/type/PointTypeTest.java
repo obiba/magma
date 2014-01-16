@@ -19,8 +19,7 @@ import org.obiba.magma.ValueType;
 
 import com.google.common.collect.ImmutableList;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.fest.assertions.api.Assertions.assertThat;
 
 @SuppressWarnings("ConstantConditions")
 public class PointTypeTest extends BaseValueTypeTest {
@@ -53,51 +52,51 @@ public class PointTypeTest extends BaseValueTypeTest {
   @Test
   public void testParseGoogleMapCoordinates() {
     Coordinate result = (Coordinate) getValueType().valueOf("41.12,-71.34").getValue();
-    assertThat(result.getLatitude(), is(41.12));
-    assertThat(result.getLongitude(), is(-71.34));
+    assertThat(result.getLatitude()).isEqualTo(41.12);
+    assertThat(result.getLongitude()).isEqualTo(-71.34);
   }
 
   @Test
   public void testParseGoogleMapCoordinates2() {
     Coordinate result = (Coordinate) getValueType().valueOf(" 41.12 , -71.34 ").getValue();
-    assertThat(result.getLatitude(), is(41.12));
-    assertThat(result.getLongitude(), is(-71.34));
+    assertThat(result.getLatitude()).isEqualTo(41.12);
+    assertThat(result.getLongitude()).isEqualTo(-71.34);
   }
 
   @Test
   public void testParseGeoJSONCoordinates() {
     Coordinate result = (Coordinate) getValueType().valueOf("[-71.34,41.12]").getValue();
-    assertThat(result.getLatitude(), is(41.12));
-    assertThat(result.getLongitude(), is(-71.34));
+    assertThat(result.getLatitude()).isEqualTo(41.12);
+    assertThat(result.getLongitude()).isEqualTo(-71.34);
   }
 
   @Test
   public void testJSONCoordinates() {
     Coordinate result1 = (Coordinate) getValueType().valueOf("{\"lat\" : 41.12,\"lon\" : -71.34 }").getValue();
-    assertThat(result1.getLatitude(), is(41.12));
-    assertThat(result1.getLongitude(), is(-71.34));
+    assertThat(result1.getLatitude()).isEqualTo(41.12);
+    assertThat(result1.getLongitude()).isEqualTo(-71.34);
   }
 
   @Test
   public void testJSONCoordinates2() {
     Coordinate result2 = (Coordinate) getValueType().valueOf("{\"latitude\" : 41.12,\"longitude\" : -71.34 }")
         .getValue();
-    assertThat(result2.getLatitude(), is(41.12));
-    assertThat(result2.getLongitude(), is(-71.34));
+    assertThat(result2.getLatitude()).isEqualTo(41.12);
+    assertThat(result2.getLongitude()).isEqualTo(-71.34);
   }
 
   @Test
   public void testJSONCoordinates3() {
     Coordinate result3 = (Coordinate) getValueType().valueOf("{\"lt\" : 41.12,\"lg\" : -71.34 }").getValue();
-    assertThat(result3.getLatitude(), is(41.12));
-    assertThat(result3.getLongitude(), is(-71.34));
+    assertThat(result3.getLatitude()).isEqualTo(41.12);
+    assertThat(result3.getLongitude()).isEqualTo(-71.34);
   }
 
   @Test
   public void testJSONCoordinates4() {
     Coordinate result4 = (Coordinate) getValueType().valueOf("{\"lat\" : 41.12,\"lng\" : -71.34 }").getValue();
-    assertThat(result4.getLatitude(), is(41.12));
-    assertThat(result4.getLongitude(), is(-71.34));
+    assertThat(result4.getLatitude()).isEqualTo(41.12);
+    assertThat(result4.getLongitude()).isEqualTo(-71.34);
 
   }
 
@@ -105,8 +104,8 @@ public class PointTypeTest extends BaseValueTypeTest {
   public void testValueOfCoordinateInstance() {
     Coordinate coordinate = new Coordinate(-71.34, 41.12);
     Coordinate result = (Coordinate) getValueType().valueOf(coordinate).getValue();
-    assertThat(result.getLatitude(), is(41.12));
-    assertThat(result.getLongitude(), is(-71.34));
+    assertThat(result.getLatitude()).isEqualTo(41.12);
+    assertThat(result.getLongitude()).isEqualTo(-71.34);
   }
 
   @Test(expected = IllegalArgumentException.class)
@@ -150,16 +149,16 @@ public class PointTypeTest extends BaseValueTypeTest {
   public void testJSONArray() throws JSONException {
     JSONArray array = new JSONArray("[-71.34,41.12]");
     Coordinate result = (Coordinate) getValueType().valueOf(array).getValue();
-    assertThat(result.getLatitude(), is(41.12));
-    assertThat(result.getLongitude(), is(-71.34));
+    assertThat(result.getLatitude()).isEqualTo(41.12);
+    assertThat(result.getLongitude()).isEqualTo(-71.34);
   }
 
   @Test
   public void testJSONObject() throws JSONException {
     JSONObject o = new JSONObject("{\"lat\" : 41.12,\"lon\" : -71.34 }");
     Coordinate result = (Coordinate) getValueType().valueOf(o).getValue();
-    assertThat(result.getLatitude(), is(41.12));
-    assertThat(result.getLongitude(), is(-71.34));
+    assertThat(result.getLatitude()).isEqualTo(41.12);
+    assertThat(result.getLongitude()).isEqualTo(-71.34);
   }
 
 }

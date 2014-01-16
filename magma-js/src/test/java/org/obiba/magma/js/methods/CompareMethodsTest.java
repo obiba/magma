@@ -10,10 +10,7 @@ import org.obiba.magma.type.DecimalType;
 import org.obiba.magma.type.IntegerType;
 import org.obiba.magma.type.TextType;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.lessThan;
-import static org.junit.Assert.assertThat;
+import static org.fest.assertions.api.Assertions.assertThat;
 
 public class CompareMethodsTest extends AbstractJsTest {
 
@@ -25,7 +22,7 @@ public class CompareMethodsTest extends AbstractJsTest {
     ScriptableValue integerZero = newValue(IntegerType.get().valueOf(0));
     ScriptableValue result = CompareMethods
         .compare(Context.getCurrentContext(), integerSeven, new Object[] { integerZero }, null);
-    assertThat(result.getValue(), is(IntegerType.get().valueOf(1)));
+    assertThat(result.getValue()).isEqualTo(IntegerType.get().valueOf(1));
   }
 
   @Test
@@ -34,7 +31,7 @@ public class CompareMethodsTest extends AbstractJsTest {
     ScriptableValue decimalFourteen = newValue(DecimalType.get().valueOf(14.0));
     ScriptableValue result = CompareMethods
         .compare(Context.getCurrentContext(), integerSeven, new Object[] { decimalFourteen }, null);
-    assertThat(result.getValue(), is(IntegerType.get().valueOf(-1)));
+    assertThat(result.getValue()).isEqualTo(IntegerType.get().valueOf(-1));
   }
 
   @Test
@@ -43,7 +40,7 @@ public class CompareMethodsTest extends AbstractJsTest {
     ScriptableValue decimalFourteen = newValue(DecimalType.get().valueOf(14.0));
     ScriptableValue result = CompareMethods
         .compare(Context.getCurrentContext(), decimalFourteen, new Object[] { integerSeven }, null);
-    assertThat(result.getValue(), is(IntegerType.get().valueOf(1)));
+    assertThat(result.getValue()).isEqualTo(IntegerType.get().valueOf(1));
   }
 
   @Test
@@ -52,7 +49,7 @@ public class CompareMethodsTest extends AbstractJsTest {
     ScriptableValue decimalFourteen = newValue(DecimalType.get().valueOf(14.02));
     ScriptableValue result = CompareMethods
         .compare(Context.getCurrentContext(), decimalFourteen, new Object[] { decimalSeven }, null);
-    assertThat(result.getValue(), is(IntegerType.get().valueOf(1)));
+    assertThat(result.getValue()).isEqualTo(IntegerType.get().valueOf(1));
   }
 
   @Test
@@ -61,7 +58,7 @@ public class CompareMethodsTest extends AbstractJsTest {
     ScriptableValue trueTwo = newValue(BooleanType.get().trueValue());
     ScriptableValue result = CompareMethods
         .compare(Context.getCurrentContext(), trueOne, new Object[] { trueTwo }, null);
-    assertThat(result.getValue(), is(IntegerType.get().valueOf(0)));
+    assertThat(result.getValue()).isEqualTo(IntegerType.get().valueOf(0));
   }
 
   @Test
@@ -70,7 +67,7 @@ public class CompareMethodsTest extends AbstractJsTest {
     ScriptableValue falseTwo = newValue(BooleanType.get().falseValue());
     ScriptableValue result = CompareMethods
         .compare(Context.getCurrentContext(), trueOne, new Object[] { falseTwo }, null);
-    assertThat(result.getValue(), is(IntegerType.get().valueOf(1)));
+    assertThat(result.getValue()).isEqualTo(IntegerType.get().valueOf(1));
   }
 
   @Test
@@ -79,7 +76,7 @@ public class CompareMethodsTest extends AbstractJsTest {
     ScriptableValue balloon = newValue(TextType.get().valueOf("Balloon"));
     ScriptableValue result = CompareMethods
         .compare(Context.getCurrentContext(), aardvark, new Object[] { balloon }, null);
-    assertThat(result.getValue(), is(IntegerType.get().valueOf(-1)));
+    assertThat(result.getValue()).isEqualTo(IntegerType.get().valueOf(-1));
   }
 
   @Test
@@ -87,7 +84,7 @@ public class CompareMethodsTest extends AbstractJsTest {
     ScriptableValue zoom = newValue(TextType.get().valueOf("Zoom"));
     ScriptableValue air = newValue(TextType.get().valueOf("Air"));
     ScriptableValue result = CompareMethods.compare(Context.getCurrentContext(), zoom, new Object[] { air }, null);
-    assertThat((Long) result.getValue().getValue(), greaterThan(0L));
+    assertThat((Long) result.getValue().getValue()).isGreaterThan(0L);
   }
 
   @Test(expected = MagmaJsEvaluationRuntimeException.class)
@@ -112,7 +109,7 @@ public class CompareMethodsTest extends AbstractJsTest {
     ScriptableValue smallAardvark = newValue(TextType.get().valueOf("aardvark"));
     ScriptableValue result = CompareMethods
         .compareNoCase(Context.getCurrentContext(), bigAardvark, new Object[] { smallAardvark }, null);
-    assertThat(result.getValue(), is(IntegerType.get().valueOf(0)));
+    assertThat(result.getValue()).isEqualTo(IntegerType.get().valueOf(0));
   }
 
   @Test
@@ -121,6 +118,6 @@ public class CompareMethodsTest extends AbstractJsTest {
     ScriptableValue carrot = newValue(TextType.get().valueOf("carrot"));
     ScriptableValue result = CompareMethods
         .compareNoCase(Context.getCurrentContext(), bigAardvark, new Object[] { carrot }, null);
-    assertThat((Long) result.getValue().getValue(), lessThan(0L));
+    assertThat((Long) result.getValue().getValue()).isLessThan(0L);
   }
 }

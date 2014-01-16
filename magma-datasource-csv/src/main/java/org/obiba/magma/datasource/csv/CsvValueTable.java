@@ -32,7 +32,6 @@ import org.obiba.magma.VariableEntity;
 import org.obiba.magma.VariableValueSource;
 import org.obiba.magma.datasource.csv.converter.VariableConverter;
 import org.obiba.magma.datasource.csv.support.BufferedReaderEolSupport;
-import org.obiba.magma.lang.Closeables;
 import org.obiba.magma.support.AbstractValueTable;
 import org.obiba.magma.support.DatasourceParsingException;
 import org.obiba.magma.support.VariableEntityBean;
@@ -129,15 +128,12 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
     if(indexEntry == null) {
       throw new NoSuchValueSetException(this, entity);
     }
-    Reader reader = getCsvDatasource().getReader(dataFile);
-    try {
+    try(Reader reader = getCsvDatasource().getReader(dataFile)) {
       CSVReader csvReader = getCsvDatasource().getCsvReader(reader);
       skipSafely(reader, indexEntry.getStart());
       return new CsvValueSet(this, entity, dataHeaderMap, csvReader.readNext());
     } catch(IOException e) {
       throw new MagmaRuntimeException(e);
-    } finally {
-      Closeables.closeQuietly(reader);
     }
   }
 
@@ -177,8 +173,7 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
   }
 
   private void initialiseVariablesFromVariablesFile() throws IOException {
-    CSVReader variableReader = getCsvDatasource().getCsvReader(variableFile);
-    try {
+    try(CSVReader variableReader = getCsvDatasource().getCsvReader(variableFile)) {
       @SuppressWarnings("ConstantConditions")
       String[] line = variableReader.readNext();
       if(line == null) {
@@ -186,8 +181,6 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
       } else {
         initialiseVariablesFromLines(variableReader, line);
       }
-    } finally {
-      Closeables.closeQuietly(variableReader);
     }
   }
 
@@ -276,8 +269,7 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
     }
 
     CSVParser parser = getCsvDatasource().getCsvParser();
-    BufferedReaderEolSupport reader = new BufferedReaderEolSupport(getCsvDatasource().getReader(variableFile));
-    try {
+    try(BufferedReaderEolSupport reader = new BufferedReaderEolSupport(getCsvDatasource().getReader(variableFile))) {
       int line = 0;
       int innerline = 0;
       long start = 0;
@@ -299,8 +291,6 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
         }
         line++;
       }
-    } finally {
-      Closeables.closeQuietly(reader);
     }
 
     if(log.isTraceEnabled()) traceLineNumberMap(lineNumberMap, variableFile);
@@ -319,8 +309,8 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
     }
 
     CSVParser parser = getCsvDatasource().getCsvParser();
-    BufferedReaderEolSupport reader = new BufferedReaderEolSupport(getCsvDatasource().getReader(dataFile));
-    try {
+
+    try(BufferedReaderEolSupport reader = new BufferedReaderEolSupport(getCsvDatasource().getReader(dataFile))) {
       int line = 0;
       int innerline = 0;
       long start = 0;
@@ -338,7 +328,7 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
           long cursorPosition = reader.getCursorPosition();
 
           int lineNumber = line - innerline;
-          if(lineNumber>= getCsvDatasource().getFirstRow()) {
+          if(lineNumber >= getCsvDatasource().getFirstRow()) {
             log.trace("[{}:{}] {}", dataFile.getName(), lineNumber, nextLine);
             String identifier = multiLineValues.get(0);
             if(Strings.isNullOrEmpty(identifier)) {
@@ -348,7 +338,7 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
             CsvIndexEntry indexEntry = new CsvIndexEntry(start, cursorPosition);
             lineNumberMap.put(lineNumber, indexEntry);
             entityIndex.put(new VariableEntityBean(entityType, identifier), indexEntry);
-          } else if (!dataHeaderMapInitialized) {
+          } else if(!dataHeaderMapInitialized) {
             // first line(s) is headers = entity_id + variable names
             for(int i = 1; i < values.length; i++) {
               dataHeaderMap.put(values[i].trim(), i);
@@ -361,8 +351,6 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
         }
         line++;
       }
-    } finally {
-      Closeables.closeQuietly(reader);
     }
 
     if(log.isTraceEnabled()) traceLineNumberMap(lineNumberMap, dataFile);
@@ -377,29 +365,23 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
     for(Map.Entry<Integer, T> entry : lineNumberMap.entrySet()) {
       CsvIndexEntry indexEntry = entry.getValue();
       log.trace("{}: {}", entry.getKey(), indexEntry);
-      Reader reader = getCsvDatasource().getReader(file);
-      try {
+      try(Reader reader = getCsvDatasource().getReader(file)) {
         CSVReader csvReader = getCsvDatasource().getCsvReader(reader);
         skipSafely(reader, indexEntry.getStart());
         log.trace("   '{}'", Arrays.toString(csvReader.readNext()));
       } catch(IOException e) {
         throw new MagmaRuntimeException(e);
-      } finally {
-        Closeables.closeQuietly(reader);
       }
     }
   }
 
   public void clear(@NotNull File file, CsvIndexEntry indexEntry) throws IOException {
-    RandomAccessFile raf = new RandomAccessFile(file, "rws");
-    try {
+    try(RandomAccessFile raf = new RandomAccessFile(file, "rws")) {
       int length = (int) (indexEntry.getEnd() - indexEntry.getStart());
       byte[] fill = new byte[length];
       Arrays.fill(fill, BLANKING_CHARACTER);
       raf.seek(indexEntry.getStart());
       raf.write(fill);
-    } finally {
-      Closeables.closeQuietly(raf);
     }
   }
 
@@ -465,11 +447,8 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
   }
 
   private long getLastByte(@NotNull File file) throws IOException {
-    RandomAccessFile raf = new RandomAccessFile(file, "r");
-    try {
+    try(RandomAccessFile raf = new RandomAccessFile(file, "r")) {
       return raf.length();
-    } finally {
-      Closeables.closeQuietly(raf);
     }
   }
 
@@ -488,12 +467,9 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
   }
 
   private char getLastCharacter(@NotNull File file) throws IOException {
-    RandomAccessFile raf = new RandomAccessFile(file, "r");
-    try {
+    try(RandomAccessFile raf = new RandomAccessFile(file, "r")) {
       raf.seek(raf.length() - 1);
       return (char) raf.read();
-    } finally {
-      Closeables.closeQuietly(raf);
     }
   }
 
@@ -514,12 +490,9 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
   }
 
   private void addNewline(@NotNull File file) throws IOException {
-    RandomAccessFile raf = new RandomAccessFile(file, "rws");
-    try {
+    try(RandomAccessFile raf = new RandomAccessFile(file, "rws")) {
       raf.seek(raf.length());
       raf.writeChar(NEWLINE_CHARACTER);
-    } finally {
-      Closeables.closeQuietly(raf);
     }
   }
 

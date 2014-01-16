@@ -21,6 +21,7 @@ import org.obiba.magma.ValueType;
 import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.datasource.fs.FsDatasource;
+import org.obiba.magma.datasource.generated.GeneratedValueTable;
 import org.obiba.magma.support.DatasourceCopier;
 import org.obiba.magma.support.Initialisables;
 import org.obiba.magma.support.VariableEntityBean;
@@ -38,14 +39,11 @@ import org.obiba.magma.type.TextType;
 import org.obiba.magma.xstream.MagmaXStreamExtension;
 
 import com.google.common.base.Charsets;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.mongodb.MongoClient;
 
-import static com.google.common.collect.Iterables.size;
-import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
-import static org.hamcrest.core.Is.is;
-import static org.hamcrest.core.IsNull.notNullValue;
-import static org.junit.Assert.assertThat;
+import static org.fest.assertions.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 
 @SuppressWarnings({ "UnusedAssignment", "OverlyCoupledClass" })
@@ -84,19 +82,19 @@ public class MongoDBDatasourceTest {
   }
 
   @Test
-  public void testWriters() throws IOException {
+  public void test_writers() throws IOException {
     FsDatasource onyx = new FsDatasource("onyx", FileUtil.getFileFromResource(ONYX_DATA_5_ZIP));
     DatasourceFactory factory = new MongoDBDatasourceFactory("ds-" + DB_TEST, DB_URL);
     Datasource ds = factory.create();
     Initialisables.initialise(ds, onyx);
 
     DatasourceCopier.Builder.newCopier().build().copy(onyx, ds);
-    assertThat(ds.getValueTable("AnkleBrachial").getVariableEntities(), hasSize(5));
-    assertThat(size(ds.getValueTable("AnkleBrachial").getVariables()), is(21));
+    assertThat(ds.getValueTable("AnkleBrachial").getVariableEntities()).hasSize(5);
+    assertThat(ds.getValueTable("AnkleBrachial").getVariables()).hasSize(21);
   }
 
   @Test
-  public void testRestartMagma() throws IOException {
+  public void test_restart_magma() throws IOException {
     FsDatasource onyx = new FsDatasource("onyx", FileUtil.getFileFromResource(ONYX_DATA_5_ZIP));
     Datasource datasource1 = new MongoDBDatasourceFactory("ds-" + DB_TEST, DB_URL).create();
     Initialisables.initialise(datasource1, onyx);
@@ -104,12 +102,12 @@ public class MongoDBDatasourceTest {
 
     Datasource datasource2 = new MongoDBDatasourceFactory("ds-" + DB_TEST, DB_URL).create();
     Initialisables.initialise(datasource2);
-    assertThat(datasource2.getValueTable("AnkleBrachial").getVariableEntities(), hasSize(5));
-    assertThat(size(datasource2.getValueTable("AnkleBrachial").getVariables()), is(21));
+    assertThat(datasource2.getValueTable("AnkleBrachial").getVariableEntities()).hasSize(5);
+    assertThat(datasource2.getValueTable("AnkleBrachial").getVariables()).hasSize(21);
   }
 
   @Test
-  public void testIntegerSequenceWriter() throws IOException {
+  public void test_integer_sequence_writer() throws IOException {
     Datasource ds = createDatasource();
     int id = 1;
     testWriteReadValue(ds, id++, IntegerType.get().sequenceOf("1,2,3,4"));
@@ -117,7 +115,7 @@ public class MongoDBDatasourceTest {
   }
 
   @Test
-  public void testTextWriter() throws IOException {
+  public void test_text_writer() throws IOException {
     Datasource ds = createDatasource();
     int id = 1;
     testWriteReadValue(ds, id++, TextType.get().valueOf("Il était déjà mort..."));
@@ -126,7 +124,7 @@ public class MongoDBDatasourceTest {
   }
 
   @Test
-  public void testIntegerWriter() throws IOException {
+  public void test_integer_writer() throws IOException {
     Datasource ds = createDatasource();
     int id = 1;
     testWriteReadValue(ds, id++, IntegerType.get().valueOf("1"));
@@ -137,7 +135,7 @@ public class MongoDBDatasourceTest {
   }
 
   @Test
-  public void testDecimalWriter() throws IOException {
+  public void test_decimal_writer() throws IOException {
     Datasource ds = createDatasource();
     int id = 1;
     testWriteReadValue(ds, id++, DecimalType.get().valueOf("1.2"));
@@ -148,7 +146,7 @@ public class MongoDBDatasourceTest {
   }
 
   @Test
-  public void testDateWriter() throws IOException {
+  public void test_date_writer() throws IOException {
     Datasource ds = createDatasource();
     int id = 1;
     testWriteReadValue(ds, id++, DateType.get().valueOf("1973-01-15"));
@@ -156,7 +154,7 @@ public class MongoDBDatasourceTest {
   }
 
   @Test
-  public void testDateTimeWriter() throws IOException {
+  public void test_dateTime_writer() throws IOException {
     Datasource ds = createDatasource();
     int id = 1;
     testWriteReadValue(ds, id++, DateTimeType.get().valueOf("1973-01-15 11:03:14"));
@@ -164,7 +162,7 @@ public class MongoDBDatasourceTest {
   }
 
   @Test
-  public void testBooleanWriter() throws IOException {
+  public void test_boolean_writer() throws IOException {
     Datasource ds = createDatasource();
     int id = 1;
     testWriteReadValue(ds, id++, BooleanType.get().valueOf(true));
@@ -173,7 +171,7 @@ public class MongoDBDatasourceTest {
   }
 
   @Test
-  public void testLocaleWriter() throws IOException {
+  public void test_locale_writer() throws IOException {
     Datasource ds = createDatasource();
     int id = 1;
     testWriteReadValue(ds, id++, LocaleType.get().valueOf("ca_FR"));
@@ -182,7 +180,7 @@ public class MongoDBDatasourceTest {
   }
 
   @Test
-  public void testBinaryWriter() throws IOException {
+  public void test_binary_writer() throws IOException {
     Datasource ds = createDatasource();
     int id = 1;
     testWriteReadValue(ds, id++, BinaryType.get().valueOf("coucou".getBytes(Charsets.UTF_8)));
@@ -191,7 +189,7 @@ public class MongoDBDatasourceTest {
   }
 
   @Test
-  public void testBinarySequenceWriter() throws IOException {
+  public void test_binary_sequence_writer() throws IOException {
     Datasource ds = createDatasource();
 
     Collection<Value> sequence = Lists.newArrayList();
@@ -203,7 +201,7 @@ public class MongoDBDatasourceTest {
   }
 
   @Test
-  public void testPointWriter() throws IOException {
+  public void test_point_writer() throws IOException {
     Datasource ds = createDatasource();
     int id = 1;
     testWriteReadValue(ds, id++, PointType.get().valueOf("[30.1,40.2]"));
@@ -211,7 +209,7 @@ public class MongoDBDatasourceTest {
   }
 
   @Test
-  public void testLineStringWriter() throws IOException {
+  public void test_line_string_writer() throws IOException {
     Datasource ds = createDatasource();
     int id = 1;
     testWriteReadValue(ds, id++, LineStringType.get().valueOf("[[30.1,40.2],[21.3,44.55]]"));
@@ -219,7 +217,7 @@ public class MongoDBDatasourceTest {
   }
 
   @Test
-  public void testPolygonWriter() throws IOException {
+  public void test_polygon_writer() throws IOException {
     Datasource ds = createDatasource();
     int id = 1;
     testWriteReadValue(ds, id++, PolygonType.get().valueOf("[[[30.1,40.2],[21.3,44.55],[30.1,40.2]]]"));
@@ -230,7 +228,7 @@ public class MongoDBDatasourceTest {
 
   @SuppressWarnings({ "ReuseOfLocalVariable", "OverlyLongMethod", "PMD.NcssMethodCount" })
   @Test
-  public void testRemoveVariable() throws IOException {
+  public void test_remove_variable() throws IOException {
     Datasource ds = createDatasource();
     int id = 1;
     testWriteReadValue(ds, id++, BinaryType.get().valueOf("tutu".getBytes(Charsets.UTF_8)));
@@ -248,9 +246,9 @@ public class MongoDBDatasourceTest {
     ValueSet valueSet = table.getValueSet(new VariableEntityBean(PARTICIPANT, "1"));
     Variable textVariable = table.getVariable(generateVariableName(BinaryType.get()));
 
-    assertThat(size(table.getVariables()), is(2));
-    assertThat(textVariable, notNullValue());
-    assertThat(table.getVariable(generateVariableName(IntegerType.get())), notNullValue());
+    assertThat(table.getVariables()).hasSize(2);
+    assertThat(textVariable).isNotNull();
+    assertThat(table.getVariable(generateVariableName(IntegerType.get()))).isNotNull();
 
     Value tableLastUpdate = table.getTimestamps().getLastUpdate();
     Value valueSetLastUpdate = valueSet.getTimestamps().getLastUpdate();
@@ -260,11 +258,11 @@ public class MongoDBDatasourceTest {
 
     int tableLastUpdateCompare = ds.getValueTable(TABLE_TEST).getTimestamps().getLastUpdate()
         .compareTo(tableLastUpdate);
-    assertThat(tableLastUpdateCompare > 0, is(true));
+    assertThat(tableLastUpdateCompare).isGreaterThan(0);
 
     int valueSetLastUpdateCompare = table.getValueSet(new VariableEntityBean(PARTICIPANT, "1")).getTimestamps()
         .getLastUpdate().compareTo(valueSetLastUpdate);
-    assertThat(valueSetLastUpdateCompare > 0, is(true));
+    assertThat(valueSetLastUpdateCompare).isGreaterThan(0);
 
     try {
       table.getVariable(textVariable.getName());
@@ -274,6 +272,36 @@ public class MongoDBDatasourceTest {
 
     //TODO check in mongo that values were removed
 
+  }
+
+  @Test
+  public void test_update_variable() throws IOException {
+
+    ImmutableSet<Variable> variables = ImmutableSet.of(//
+        Variable.Builder.newVariable("Variable to update", IntegerType.get(), PARTICIPANT) //
+            .unit("kg").addCategory("1", "One", false) //
+            .build(), //
+        Variable.Builder.newVariable("Other Variable", IntegerType.get(), PARTICIPANT) //
+            .addCategory("2", "Two", false) //
+            .build());
+
+    Datasource ds = createDatasource();
+    ValueTable generatedValueTable = new GeneratedValueTable(ds, variables, 10);
+    MagmaEngine.get().addDatasource(ds);
+    DatasourceCopier.Builder.newCopier().build().copy(generatedValueTable, TABLE_TEST, ds);
+
+    Variable newVariable = Variable.Builder.newVariable("Variable to update", IntegerType.get(), PARTICIPANT) //
+        .unit("g").addCategory("1", "One", false) //
+        .addCategory("2", "Two", false) //
+        .build();
+    try(ValueTableWriter tableWriter = ds.createWriter(TABLE_TEST, PARTICIPANT);
+        ValueTableWriter.VariableWriter variableWriter = tableWriter.writeVariables()) {
+      variableWriter.writeVariable(newVariable);
+    }
+
+    Variable variable = ds.getValueTable(TABLE_TEST).getVariable("Variable to update");
+    assertThat(variable.getUnit()).isEqualTo(newVariable.getUnit());
+    assertThat(variable.getCategories()).hasSize(newVariable.getCategories().size());
   }
 
   private Datasource createDatasource() {
@@ -296,15 +324,15 @@ public class MongoDBDatasourceTest {
     readValue(ds, entity, variable, value);
   }
 
-  private void writeValue(Datasource ds, VariableEntity entity, Variable variable, Value value) throws IOException {
-    ValueTableWriter tableWriter = ds.createWriter(TABLE_TEST, variable.getEntityType());
-    ValueTableWriter.VariableWriter variableWriter = tableWriter.writeVariables();
-    variableWriter.writeVariable(variable);
-    variableWriter.close();
-    ValueTableWriter.ValueSetWriter valueSetWriter = tableWriter.writeValueSet(entity);
-    valueSetWriter.writeValue(variable, value);
-    valueSetWriter.close();
-    tableWriter.close();
+  private void writeValue(Datasource ds, VariableEntity entity, Variable variable, Value value) {
+    try(ValueTableWriter tableWriter = ds.createWriter(TABLE_TEST, variable.getEntityType())) {
+      try(ValueTableWriter.VariableWriter variableWriter = tableWriter.writeVariables()) {
+        variableWriter.writeVariable(variable);
+      }
+      try(ValueTableWriter.ValueSetWriter valueSetWriter = tableWriter.writeValueSet(entity)) {
+        valueSetWriter.writeValue(variable, value);
+      }
+    }
   }
 
   private void readValue(Datasource ds, VariableEntity entity, Variable variable, Value expected) {
@@ -312,22 +340,22 @@ public class MongoDBDatasourceTest {
     ValueSet valueSet = table.getValueSet(entity);
     Value value = table.getValue(variable, valueSet);
 
-    assertThat(table.getEntityType(), is(variable.getEntityType()));
-    assertThat(table.getVariable(variable.getName()).getValueType(), is(variable.getValueType()));
+    assertThat(table.getEntityType()).isEqualTo(variable.getEntityType());
+    assertThat(table.getVariable(variable.getName()).getValueType()).isEqualTo(variable.getValueType());
     if(expected.isSequence()) {
       ValueSequence valueSequence = value.asSequence();
       ValueSequence expectedSequence = expected.asSequence();
       int expectedSize = expectedSequence.getSize();
-      assertThat(valueSequence.getSize(), is(expectedSize));
+      assertThat(valueSequence.getSize()).isEqualTo(expectedSize);
       for(int i = 0; i < expectedSize; i++) {
         Value valueItem = valueSequence.get(i);
         Value expectedItem = expectedSequence.get(i);
-        assertThat(valueItem.isNull(), is(expectedItem.isNull()));
-        assertThat(valueItem.toString(), is(expectedItem.toString()));
+        assertThat(valueItem.isNull()).isEqualTo(expectedItem.isNull());
+        assertThat(valueItem.toString()).isEqualTo(expectedItem.toString());
       }
     } else {
-      assertThat(value.isNull(), is(expected.isNull()));
-      assertThat(value.toString(), is(expected.toString()));
+      assertThat(value.isNull()).isEqualTo(expected.isNull());
+      assertThat(value.toString()).isEqualTo(expected.toString());
     }
   }
 }

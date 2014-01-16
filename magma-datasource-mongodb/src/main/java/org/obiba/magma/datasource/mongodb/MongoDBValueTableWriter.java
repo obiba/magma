@@ -10,7 +10,6 @@
 
 package org.obiba.magma.datasource.mongodb;
 
-import java.io.IOException;
 import java.util.Date;
 
 import javax.annotation.Nullable;
@@ -60,7 +59,7 @@ class MongoDBValueTableWriter implements ValueTableWriter {
   }
 
   @Override
-  public void close() throws IOException {
+  public void close() {
     updateLastUpdate();
   }
 
@@ -158,7 +157,7 @@ class MongoDBValueTableWriter implements ValueTableWriter {
     }
 
     @Override
-    public void close() throws IOException {
+    public void close() {
       updateValueSetLastUpdate();
     }
 
@@ -185,11 +184,15 @@ class MongoDBValueTableWriter implements ValueTableWriter {
 
     @Override
     public void writeVariable(@NotNull Variable variable) {
-      if(table.findVariable(variable.getName()) == null) {
+      DBObject existingDbObject = table.findVariable(variable.getName());
+      if(existingDbObject == null) {
         table.addVariableValueSource(new MongoDBVariableValueSource(table, variable.getName()));
       }
       // insert or update
       DBObject varObject = VariableConverter.marshall(variable);
+      if(existingDbObject != null) {
+        varObject.put("_id", existingDbObject.get("_id"));
+      }
       table.getVariablesCollection().save(varObject);
 
       updateLastUpdate();
@@ -247,7 +250,7 @@ class MongoDBValueTableWriter implements ValueTableWriter {
     }
 
     @Override
-    public void close() throws IOException {
+    public void close() {
     }
   }
 

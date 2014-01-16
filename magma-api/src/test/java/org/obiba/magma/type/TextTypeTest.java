@@ -8,9 +8,7 @@ import org.obiba.magma.ValueType;
 
 import com.google.common.collect.ImmutableList;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.junit.Assert.assertThat;
+import static org.fest.assertions.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 
 public class TextTypeTest extends BaseValueTypeTest {
@@ -95,15 +93,15 @@ public class TextTypeTest extends BaseValueTypeTest {
 
   @SuppressWarnings("ConstantConditions")
   private void assertSequence(ValueSequence sequence, String... strings) {
-    assertThat(sequence, notNullValue());
-    assertThat(sequence.getValues().size(), is(strings.length));
+    assertThat(sequence).isNotNull();
+    assertThat(sequence.getValues()).hasSize(strings.length);
     int index = 0;
     for(Value value : sequence.getValue()) {
       String string = strings[index];
       if(string == null) {
-        assertThat(value.isNull(), is(true));
+        assertThat(value.isNull()).isTrue();
       } else {
-        assertThat((String) value.getValue(), is(string));
+        assertThat((String) value.getValue()).isEqualTo(string);
       }
       index++;
     }

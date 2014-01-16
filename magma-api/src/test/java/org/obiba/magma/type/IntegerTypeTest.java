@@ -6,8 +6,7 @@ import org.obiba.magma.ValueType;
 
 import com.google.common.collect.ImmutableList;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.fest.assertions.api.Assertions.assertThat;
 
 public class IntegerTypeTest extends BaseValueTypeTest {
 
@@ -55,7 +54,7 @@ public class IntegerTypeTest extends BaseValueTypeTest {
     Value leftValue = getValueType().valueOf(40);
     Value rightValue = getValueType().valueOf(42);
     int result = getValueType().compare(leftValue, rightValue);
-    assertThat(result, is(-1));
+    assertThat(result).isEqualTo(-1);
   }
 
   @Test
@@ -63,7 +62,7 @@ public class IntegerTypeTest extends BaseValueTypeTest {
     Value leftValue = getValueType().valueOf(44);
     Value rightValue = getValueType().valueOf(42);
     int result = getValueType().compare(leftValue, rightValue);
-    assertThat(result, is(1));
+    assertThat(result).isEqualTo(1);
   }
 
   @Test
@@ -71,7 +70,7 @@ public class IntegerTypeTest extends BaseValueTypeTest {
     Value leftValue = getValueType().valueOf(42);
     Value rightValue = getValueType().valueOf(42);
     int result = getValueType().compare(leftValue, rightValue);
-    assertThat(result, is(0));
+    assertThat(result).isEqualTo(0);
   }
 
   @Test
@@ -79,13 +78,13 @@ public class IntegerTypeTest extends BaseValueTypeTest {
     Value leftValue = getValueType().valueOf(42);
     Value rightValue = getValueType().nullValue();
     int result = getValueType().compare(leftValue, rightValue);
-    assertThat(result, is(1));
+    assertThat(result).isEqualTo(1);
   }
 
   @Test
   public void testTrim() {
     Long result = (Long) getValueType().valueOf(" 1 ").getValue();
     //noinspection ConstantConditions
-    assertThat(result.intValue(), is(1));
+    assertThat(result.intValue()).isEqualTo(1);
   }
 }

@@ -7,11 +7,9 @@ import org.junit.Test;
 import org.obiba.magma.ValueSet;
 import org.obiba.magma.ValueTable;
 
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.fest.assertions.api.Assertions.assertThat;
 
 public class BatchDatasourceTest {
 
@@ -20,7 +18,7 @@ public class BatchDatasourceTest {
   @Before
   public void setup() {
     originalEntities = Sets.newLinkedHashSet();
-    for (int i = 1; i <= 100; i++) {
+    for(int i = 1; i <= 100; i++) {
       originalEntities.add("" + i);
     }
   }
@@ -33,16 +31,16 @@ public class BatchDatasourceTest {
     BatchDatasource batchDs = new BatchDatasource(originalDs, 50);
     Initialisables.initialise(originalDs, batchDs);
 
-    assertThat(batchDs.getValueTables().size(), is(1));
+    assertThat(batchDs.getValueTables()).hasSize(1);
     ValueTable batchedTable = batchDs.getValueTables().iterator().next();
-    assertThat(batchedTable.getName(), is("table"));
-    assertThat(batchedTable.getEntityType(), is("Participant"));
+    assertThat(batchedTable.getName()).isEqualTo("table");
+    assertThat(batchedTable.getEntityType()).isEqualTo("Participant");
     Iterable<ValueSet> batchedValueSets = batchedTable.getValueSets();
-    assertThat(Iterables.size(batchedValueSets), is(50));
-    assertThat(batchedTable.hasValueSet(new VariableEntityBean("Participant", "1")), is(true));
-    assertThat(batchedTable.hasValueSet(new VariableEntityBean("Participant", "50")), is(true));
-    assertThat(batchedTable.hasValueSet(new VariableEntityBean("Participant","51")), is(false));
-    assertThat(batchedTable.hasValueSet(new VariableEntityBean("Participant","100")), is(false));
+    assertThat(batchedValueSets).hasSize(50);
+    assertThat(batchedTable.hasValueSet(new VariableEntityBean("Participant", "1"))).isTrue();
+    assertThat(batchedTable.hasValueSet(new VariableEntityBean("Participant", "50"))).isTrue();
+    assertThat(batchedTable.hasValueSet(new VariableEntityBean("Participant", "51"))).isFalse();
+    assertThat(batchedTable.hasValueSet(new VariableEntityBean("Participant", "100"))).isFalse();
   }
 
   @Test
@@ -51,16 +49,15 @@ public class BatchDatasourceTest {
     originalDs.addValueTable(new StaticValueTable(originalDs, "table", originalEntities));
     BatchDatasource batchDs = new BatchDatasource(originalDs, 50);
     Initialisables.initialise(originalDs, batchDs);
-    assertThat(originalDs.hasEntities(new EntitiesPredicate.NonViewEntitiesPredicate()), is(true));
+    assertThat(originalDs.hasEntities(new EntitiesPredicate.NonViewEntitiesPredicate())).isTrue();
   }
-
 
   @Test
   public void testHasNoEntities() {
     StaticDatasource originalDs = new StaticDatasource("original");
     BatchDatasource batchDs = new BatchDatasource(originalDs, 50);
     Initialisables.initialise(originalDs, batchDs);
-    assertThat(originalDs.hasEntities(new EntitiesPredicate.NonViewEntitiesPredicate()), is(false));
+    assertThat(originalDs.hasEntities(new EntitiesPredicate.NonViewEntitiesPredicate())).isFalse();
   }
 
 }

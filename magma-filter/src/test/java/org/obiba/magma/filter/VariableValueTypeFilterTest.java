@@ -8,8 +8,7 @@ import org.obiba.magma.Variable;
 import org.obiba.magma.type.BinaryType;
 import org.obiba.magma.type.TextType;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.fest.assertions.api.Assertions.assertThat;
 
 public class VariableValueTypeFilterTest {
 
@@ -32,15 +31,15 @@ public class VariableValueTypeFilterTest {
   @Test
   public void test_filter_filtersType() {
     VariableValueTypeFilter filter = new VariableValueTypeFilter("text");
-    assertThat(filter.runFilter(textVariable), is(true));
-    assertThat(filter.runFilter(binaryVariable), is(false));
+    assertThat(filter.runFilter(textVariable)).isTrue();
+    assertThat(filter.runFilter(binaryVariable)).isFalse();
   }
 
   @Test
   public void test_filter_ignoresCase() {
     VariableValueTypeFilter filter = new VariableValueTypeFilter("TEXT");
-    assertThat(filter.runFilter(textVariable), is(true));
-    assertThat(filter.runFilter(binaryVariable), is(false));
+    assertThat(filter.runFilter(textVariable)).isTrue();
+    assertThat(filter.runFilter(binaryVariable)).isFalse();
   }
 
 }

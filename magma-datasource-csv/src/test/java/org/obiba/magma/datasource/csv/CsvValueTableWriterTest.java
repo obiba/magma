@@ -37,9 +37,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
+import static org.fest.assertions.api.Assertions.assertThat;
 import static org.obiba.core.util.FileUtil.getFileFromResource;
 import static org.obiba.magma.datasource.csv.CsvValueTable.DEFAULT_ENTITY_TYPE;
 
@@ -83,8 +81,8 @@ public class CsvValueTableWriterTest extends AbstractMagmaTest {
 
     for(ValueSet valueSet : table.getValueSets()) {
       Value value = table.getValue(variable, valueSet);
-      assertNotNull(value.getValue());
-      assertThat(value.getValue().toString(), is("Second Cup"));
+      assertThat(value.getValue()).isNotNull();
+      assertThat(value.getValue().toString()).isEqualTo("Second Cup");
     }
   }
 
@@ -116,7 +114,7 @@ public class CsvValueTableWriterTest extends AbstractMagmaTest {
 
     ValueTable vt = readDs.getValueTable("test-table");
 
-    assertThat(vt.getEntityType(), is("entityType"));
+    assertThat(vt.getEntityType()).isEqualTo("entityType");
   }
 
   @Ignore
@@ -219,14 +217,14 @@ public class CsvValueTableWriterTest extends AbstractMagmaTest {
       Value biscuitValue = table.getValue(verifyBiscuitVariable, valueSet);
       switch(identifier) {
         case "1":
-          assertThat(coffeeValue.getValue().toString(), is("Second Cup"));
-          assertThat(teaValue.getValue().toString(), is("Earl Grey"));
-          assertThat(biscuitValue.getValue().toString(), is("cheese"));
+          assertThat(coffeeValue.getValue().toString()).isEqualTo("Second Cup");
+          assertThat(teaValue.getValue().toString()).isEqualTo("Earl Grey");
+          assertThat(biscuitValue.getValue().toString()).isEqualTo("cheese");
           break;
         case "2":
-          assertThat(coffeeValue.isNull(), is(true));
-          assertThat(teaValue.getValue().toString(), is("Orange Pekoe"));
-          assertThat(biscuitValue.isNull(), is(true));
+          assertThat(coffeeValue.isNull()).isTrue();
+          assertThat(teaValue.getValue().toString()).isEqualTo("Orange Pekoe");
+          assertThat(biscuitValue.isNull()).isTrue();
           break;
       }
     }
@@ -290,9 +288,9 @@ public class CsvValueTableWriterTest extends AbstractMagmaTest {
       Value teaValue = table.getValue(verifyTeaVariable, valueSet);
       Value biscuitValue = table.getValue(verifyBiscuitVariable, valueSet);
       if("1".equals(identifier)) {
-        assertThat(coffeeValue.getValue().toString(), is("Second Cup"));
-        assertThat(teaValue.getValue().toString(), is("Orange Pekoe"));
-        assertThat(biscuitValue.getValue().toString(), is("cheese"));
+        assertThat(coffeeValue.getValue().toString()).isEqualTo("Second Cup");
+        assertThat(teaValue.getValue().toString()).isEqualTo("Orange Pekoe");
+        assertThat(biscuitValue.getValue().toString()).isEqualTo("cheese");
       }
     }
   }
@@ -321,8 +319,8 @@ public class CsvValueTableWriterTest extends AbstractMagmaTest {
     writer.close();
     datasource.dispose();
     datasource.initialise();
-    assertThat(readValue(datasource.getValueTable(tableName), new VariableEntityBean(entityName, "2"), cityVariable),
-        is(cityValueVancouver));
+    assertThat(readValue(datasource.getValueTable(tableName), new VariableEntityBean(entityName, "2"), cityVariable))
+        .isEqualTo(cityValueVancouver);
     datasource.dispose();
   }
 
@@ -355,8 +353,8 @@ public class CsvValueTableWriterTest extends AbstractMagmaTest {
     writer.close();
 
     assertThat(
-        readValue(datasource.getValueTable(tableName), new VariableEntityBean(DEFAULT_ENTITY_TYPE, "2"), cityVariable),
-        is(cityValueVancouver));
+        readValue(datasource.getValueTable(tableName), new VariableEntityBean(DEFAULT_ENTITY_TYPE, "2"), cityVariable))
+        .isEqualTo(cityValueVancouver);
     datasource.dispose();
   }
 
@@ -389,8 +387,8 @@ public class CsvValueTableWriterTest extends AbstractMagmaTest {
     writer.close();
 
     assertThat(
-        readValue(datasource.getValueTable(tableName), new VariableEntityBean(DEFAULT_ENTITY_TYPE, "3"), cityVariable),
-        is(TextType.get().valueOf("Moncton")));
+        readValue(datasource.getValueTable(tableName), new VariableEntityBean(DEFAULT_ENTITY_TYPE, "3"), cityVariable))
+        .isEqualTo(TextType.get().valueOf("Moncton"));
     datasource.dispose();
   }
 
@@ -464,7 +462,7 @@ public class CsvValueTableWriterTest extends AbstractMagmaTest {
     writer.close();
     datasource.dispose();
     datasource.initialise();
-    assertThat(datasource.getValueTable(tableName).getVariable("coffee").getValueType().getName(), is("text"));
+    assertThat(datasource.getValueTable(tableName).getVariable("coffee").getValueType().getName()).isEqualTo("text");
     datasource.dispose();
   }
 
@@ -485,7 +483,7 @@ public class CsvValueTableWriterTest extends AbstractMagmaTest {
     writer.close();
     datasource.dispose();
     datasource.initialise();
-    assertThat(datasource.getValueTable(tableName).getVariable("var2").getValueType().getName(), is("text"));
+    assertThat(datasource.getValueTable(tableName).getVariable("var2").getValueType().getName()).isEqualTo("text");
     datasource.dispose();
   }
 
@@ -507,7 +505,7 @@ public class CsvValueTableWriterTest extends AbstractMagmaTest {
     writer.close();
     datasource.dispose();
     datasource.initialise();
-    assertThat(datasource.getValueTable(tableName).getVariable("var2").getValueType().getName(), is("text"));
+    assertThat(datasource.getValueTable(tableName).getVariable("var2").getValueType().getName()).isEqualTo("text");
     datasource.dispose();
   }
 
@@ -545,9 +543,9 @@ public class CsvValueTableWriterTest extends AbstractMagmaTest {
     String fileContent = FileUtils.readFileToString(dataFile);
     log.debug("\n=====\n{}=====", fileContent);
 
-    assertThat(fileContent, is("\"entity_id\",\"name\",\"children\"\n" +
+    assertThat(fileContent).isEqualTo("\"entity_id\",\"name\",\"children\"\n" +
         "\"1\",\"Julius\n" +
-        "Caesar\",\"\"\"Julia\"\",\"\"Caesarion\"\",\"\"Gaius\\\\Julius Caesar \"\"\"\"Octavianus\"\"\"\"\"\",,\"\"Marcus Junius\"\"\"\" Brutus\"\"\"\n"));
+        "Caesar\",\"\"\"Julia\"\",\"\"Caesarion\"\",\"\"Gaius\\\\Julius Caesar \"\"\"\"Octavianus\"\"\"\"\"\",,\"\"Marcus Junius\"\"\"\" Brutus\"\"\"\n");
 
     datasource.dispose();
 
@@ -569,19 +567,19 @@ public class CsvValueTableWriterTest extends AbstractMagmaTest {
 
   private void assertJuliusCaesarChildren(ValueTable table, Variable children, VariableEntity entity) {
     Value value = table.getValue(children, table.getValueSet(entity));
-    assertThat(value.isSequence(), is(true));
+    assertThat(value.isSequence()).isTrue();
     ValueSequence valueSequence = value.asSequence();
-    assertThat((String) valueSequence.get(0).getValue(), is("Julia"));
-    assertThat((String) valueSequence.get(1).getValue(), is("Caesarion"));
-    assertThat((String) valueSequence.get(2).getValue(), is("Gaius\\\\Julius Caesar \"Octavianus\""));
-    assertThat(valueSequence.get(3).isNull(), is(true));
-    assertThat((String) valueSequence.get(4).getValue(), is("Marcus Junius\" Brutus"));
+    assertThat((String) valueSequence.get(0).getValue()).isEqualTo("Julia");
+    assertThat((String) valueSequence.get(1).getValue()).isEqualTo("Caesarion");
+    assertThat((String) valueSequence.get(2).getValue()).isEqualTo("Gaius\\\\Julius Caesar \"Octavianus\"");
+    assertThat(valueSequence.get(3).isNull()).isTrue();
+    assertThat((String) valueSequence.get(4).getValue()).isEqualTo("Marcus Junius\" Brutus");
   }
 
   private void assertJuliusCaesarName(ValueTable table, Variable name, VariableEntity entity) {
     Value value = table.getValue(name, table.getValueSet(entity));
-    assertThat(value.isSequence(), is(false));
-    assertThat((String) value.getValue(), is("Julius\nCaesar"));
+    assertThat(value.isSequence()).isFalse();
+    assertThat((String) value.getValue()).isEqualTo("Julius\nCaesar");
   }
 
   private File createTempDirectory(String suffix) throws IOException {

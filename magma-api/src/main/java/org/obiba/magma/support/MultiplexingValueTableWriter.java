@@ -1,6 +1,5 @@
 package org.obiba.magma.support;
 
-import java.io.IOException;
 import java.util.Map;
 import java.util.Set;
 
@@ -49,7 +48,7 @@ public class MultiplexingValueTableWriter implements ValueTableWriter {
   }
 
   @Override
-  public void close() throws IOException {
+  public void close() {
     for(ValueTableWriter writer : writers.values()) {
       writer.close();
     }
@@ -90,7 +89,7 @@ public class MultiplexingValueTableWriter implements ValueTableWriter {
     }
 
     @Override
-    public void close() throws IOException {
+    public void close() {
       for(VariableWriter vw : writers.values()) {
         vw.close();
       }
@@ -130,7 +129,7 @@ public class MultiplexingValueTableWriter implements ValueTableWriter {
     }
 
     @Override
-    public void close() throws IOException {
+    public void close() {
       for(ValueSetWriter vsw : writers.values()) {
         vsw.close();
       }

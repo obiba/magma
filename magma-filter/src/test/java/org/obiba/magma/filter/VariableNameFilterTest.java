@@ -7,8 +7,7 @@ import org.obiba.magma.MagmaEngine;
 import org.obiba.magma.ValueType;
 import org.obiba.magma.Variable;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.fest.assertions.api.Assertions.assertThat;
 
 public class VariableNameFilterTest {
 
@@ -49,31 +48,31 @@ public class VariableNameFilterTest {
   @Test
   public void testPrefixSuccess() throws Exception {
     VariableNameFilter filter = new VariableNameFilter("Admin", null);
-    assertThat(filter.runFilter(variable), is(true));
+    assertThat(filter.runFilter(variable)).isTrue();
   }
 
   @Test
   public void testPrefixFailure() throws Exception {
     VariableNameFilter filter = new VariableNameFilter("NothingToMatchHere", null);
-    assertThat(filter.runFilter(variable), is(false));
+    assertThat(filter.runFilter(variable)).isFalse();
   }
 
   @Test
   public void testRegexMatchSuccessOne() throws Exception {
     VariableNameFilter filter = new VariableNameFilter(null, "Admin.*Name");
-    assertThat(filter.runFilter(variable), is(true));
+    assertThat(filter.runFilter(variable)).isTrue();
   }
 
   @Test
   public void testRegexMatchSuccessTwo() throws Exception {
     VariableNameFilter filter = new VariableNameFilter(null, "^.dmin.*N.*$");
-    assertThat(filter.runFilter(variable), is(true));
+    assertThat(filter.runFilter(variable)).isTrue();
   }
 
   @Test
   public void testRegexMatchFailure() throws Exception {
     VariableNameFilter filter = new VariableNameFilter(null, "No.*Match");
-    assertThat(filter.runFilter(variable), is(false));
+    assertThat(filter.runFilter(variable)).isFalse();
   }
 
 }

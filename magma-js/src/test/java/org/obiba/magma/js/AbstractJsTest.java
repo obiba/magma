@@ -14,9 +14,7 @@ import org.obiba.magma.MagmaEngine;
 import org.obiba.magma.Value;
 import org.obiba.magma.Variable;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.junit.Assert.assertThat;
+import static org.fest.assertions.api.Assertions.assertThat;
 
 public abstract class AbstractJsTest {
 
@@ -79,9 +77,7 @@ public abstract class AbstractJsTest {
           MagmaContext context = MagmaContext.asMagmaContext(ctx);
           // Don't pollute the global scope
           Scriptable scope = newValue(value, unit);
-
           Script compiledScript = context.compileString(script, "", 1, null);
-
           return compiledScript.exec(ctx, scope);
         }
       });
@@ -94,10 +90,10 @@ public abstract class AbstractJsTest {
     }
   }
 
-  protected void assertMethod(String script, Value value, Object expected) {
+  protected void assertMethod(String script, Value value, Value expected) {
     ScriptableValue result = evaluate(script, value);
-    assertThat(result, notNullValue());
-    assertThat(result.getValue(), notNullValue());
-    assertThat(result.getValue(), is(expected));
+    assertThat(result).isNotNull();
+    assertThat(result.getValue()).isNotNull();
+    assertThat(result.getValue()).isEqualTo(expected);
   }
 }

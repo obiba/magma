@@ -1,6 +1,5 @@
 package org.obiba.magma.js.views;
 
-import java.io.IOException;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -128,7 +127,7 @@ public class VariablesClause implements ListClause, Initialisable {
     }
 
     @Override
-    public void close() throws IOException {
+    public void close() {
     }
   }
 

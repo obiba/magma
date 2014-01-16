@@ -19,7 +19,6 @@ import java.security.NoSuchAlgorithmException;
 
 import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.datasource.fs.OutputStreamWrapper;
-import org.obiba.magma.lang.Closeables;
 
 import de.schlichtherle.io.File;
 
@@ -70,11 +69,8 @@ public class DigestOutputStreamWrapper implements OutputStreamWrapper {
     @SuppressWarnings("ResultOfMethodCallIgnored")
     public void close() throws IOException {
       super.close();
-      ByteArrayInputStream bais = new ByteArrayInputStream(getMessageDigest().digest());
-      try {
+      try(ByteArrayInputStream bais = new ByteArrayInputStream(getMessageDigest().digest())) {
         digestEntry.catFrom(bais);
-      } finally {
-        Closeables.closeQuietly(bais);
       }
     }
   }

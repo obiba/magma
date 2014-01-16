@@ -44,7 +44,7 @@ public class CsvValueTableWriter implements ValueTableWriter {
   }
 
   @Override
-  public void close() throws IOException {
+  public void close() {
   }
 
   private class CsvVariableWriter implements VariableWriter {
@@ -90,7 +90,7 @@ public class CsvValueTableWriter implements ValueTableWriter {
     }
 
     @Override
-    public void close() throws IOException {
+    public void close() {
       // Not used.
     }
   }
@@ -125,36 +125,40 @@ public class CsvValueTableWriter implements ValueTableWriter {
     }
 
     @Override
-    public void close() throws IOException {
+    public void close() {
 
-      if(valueTable.isDataFileEmpty()) {
-        writeTableWithoutData();
-      } else {
-        // Test header is a subset
-        List<String> extraHeaders = getExtraHeadersFromNewValueSet(getExistingHeaderMap(), csvLine.getHeaderMap());
-        if(extraHeaders.size() != 0) {
-          StringBuilder sb = new StringBuilder();
-          for(String header : extraHeaders) {
-            sb.append(header).append(" ");
+      try {
+        if(valueTable.isDataFileEmpty()) {
+          writeTableWithoutData();
+        } else {
+          // Test header is a subset
+          List<String> extraHeaders = getExtraHeadersFromNewValueSet(getExistingHeaderMap(), csvLine.getHeaderMap());
+          if(extraHeaders.size() != 0) {
+            StringBuilder sb = new StringBuilder();
+            for(String header : extraHeaders) {
+              sb.append(header).append(" ");
+            }
+            throw new MagmaRuntimeException("Cannot update the CSV ValueTable [" + valueTable.getName() +
+                "]. The new ValueSet (record) included the following unexpected Variables (fields): " + sb.toString());
           }
-          throw new MagmaRuntimeException("Cannot update the CSV ValueTable [" + valueTable.getName() +
-              "]. The new ValueSet (record) included the following unexpected Variables (fields): " + sb.toString());
+
+          if(valueTable.hasValueSet(entity)) {
+            // Delete existing value set.
+            valueTable.clearEntity(entity);
+          }
+          // Set existing header
+          csvLine.setHeaderMap(getExistingHeaderMap());
         }
 
-        if(valueTable.hasValueSet(entity)) {
-          // Delete existing value set.
-          valueTable.clearEntity(entity);
-        }
-        // Set existing header
-        csvLine.setHeaderMap(getExistingHeaderMap());
+        // Writer Value set. Throw exception if doesn't match header
+        long lastByte = valueTable.getDataLastByte();
+        String[] line = csvLine.getLine();
+        writeValueToCsv(line);
+        // Update index
+        valueTable.updateDataIndex(entity, lastByte, line);
+      } catch(IOException e) {
+        throw new RuntimeException(e);
       }
-
-      // Writer Value set. Throw exception if doesn't match header
-      long lastByte = valueTable.getDataLastByte();
-      String[] line = csvLine.getLine();
-      writeValueToCsv(line);
-      // Update index
-      valueTable.updateDataIndex(entity, lastByte, line);
     }
 
     private void writeTableWithoutData() throws IOException {

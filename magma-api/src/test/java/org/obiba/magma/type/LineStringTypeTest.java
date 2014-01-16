@@ -20,8 +20,7 @@ import org.obiba.magma.ValueType;
 
 import com.google.common.collect.ImmutableList;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.fest.assertions.api.Assertions.assertThat;
 
 @SuppressWarnings({ "unchecked", "ConstantConditions" })
 public class LineStringTypeTest extends BaseValueTypeTest {
@@ -60,9 +59,9 @@ public class LineStringTypeTest extends BaseValueTypeTest {
   public void testValidLine() {
     List<Coordinate> result = (List<Coordinate>) getValueType()
         .valueOf("[[100.0, 0.0], [101.0, 0.0], [101.0, 1.0], [100.0, 1.0], [100.0, 0.0]]").getValue();
-    assertThat(result.size(), is(5));
-    assertThat(result.get(0).getLatitude(), is(0.0));
-    assertThat(result.get(0).getLongitude(), is(100.0));
+    assertThat(result).hasSize(5);
+    assertThat(result.get(0).getLatitude()).isEqualTo(0.0);
+    assertThat(result.get(0).getLongitude()).isEqualTo(100.0);
   }
 
   @Test
@@ -70,9 +69,9 @@ public class LineStringTypeTest extends BaseValueTypeTest {
     List<Coordinate> result = (List<Coordinate>) getValueType().valueOf(
         "[{\"lat\" : 41.12,\"lon\" : -72.34}, {\"lat\" : 41.12,\"lon\" :" +
             " -71.34}, {\"lat\" : 41.12,\"lon\" : -70.34}]").getValue();
-    assertThat(result.size(), is(3));
-    assertThat(result.get(0).getLatitude(), is(41.12));
-    assertThat(result.get(0).getLongitude(), is(-72.34));
+    assertThat(result).hasSize(3);
+    assertThat(result.get(0).getLatitude()).isEqualTo(41.12);
+    assertThat(result.get(0).getLongitude()).isEqualTo(-72.34);
   }
 
   @Test(expected = MagmaRuntimeException.class)
@@ -85,7 +84,7 @@ public class LineStringTypeTest extends BaseValueTypeTest {
     Collection<Object> c = new ArrayList<>();
     c.add(new Coordinate(0.0, 0.1));
     c.add(new Coordinate(1.0, 1.1));
-    assertThat(((List<Coordinate>) getValueType().valueOf(c).getValue()).get(0).getLongitude(), is(0.0));
+    assertThat(((List<Coordinate>) getValueType().valueOf(c).getValue()).get(0).getLongitude()).isEqualTo(0.0);
   }
 
   @Test(expected = MagmaRuntimeException.class)
@@ -95,7 +94,7 @@ public class LineStringTypeTest extends BaseValueTypeTest {
     c.add("MagmaRuntime");
     c.add("Exception");
     c.add(new Coordinate(1.0, 1.1));
-    assertThat(((List<Coordinate>) getValueType().valueOf(c).getValue()).get(0).getLongitude(), is(0.0));
+    assertThat(((List<Coordinate>) getValueType().valueOf(c).getValue()).get(0).getLongitude()).isEqualTo(0.0);
   }
 
   @Test(expected = MagmaRuntimeException.class)
