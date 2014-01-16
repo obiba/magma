@@ -1,6 +1,5 @@
 package org.obiba.magma.datasource.jdbc;
 
-import java.io.IOException;
 import java.util.TreeSet;
 
 import javax.sql.DataSource;
@@ -35,12 +34,7 @@ import org.springframework.test.context.support.DirtiesContextTestExecutionListe
 import org.springframework.test.context.transaction.TransactionConfiguration;
 import org.springframework.test.context.transaction.TransactionalTestExecutionListener;
 
-import com.google.common.collect.Iterables;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.fest.assertions.api.Assertions.assertThat;
 
 @SuppressWarnings({ "ReuseOfLocalVariable", "OverlyLongMethod", "PMD.NcssMethodCount" })
 @RunWith(value = SpringJUnit4ClassRunner.class)
@@ -82,14 +76,14 @@ public class JdbcDatasourceTest extends AbstractMagmaTest {
     Variable bdVar2 = valueTable.getVariable("BD_2");
 
     // Verify variable attributes.
-    assertTrue(bdVar.hasAttribute("description"));
-    assertEquals("BD description", bdVar.getAttributeValue("description").toString());
-    assertTrue(bdVar2.hasAttribute("description"));
-    assertEquals("BD_2 description", bdVar2.getAttributeValue("description").toString());
+    assertThat(bdVar.hasAttribute("description")).isTrue();
+    assertThat(bdVar.getAttributeValue("description").toString()).isEqualTo("BD description");
+    assertThat(bdVar2.hasAttribute("description")).isTrue();
+    assertThat(bdVar2.getAttributeValue("description").toString()).isEqualTo("BD_2 description");
 
     // Verify categories.
-    assertTrue(hasCategory(bdVar, "PNA", "88"));
-    assertTrue(hasCategory(bdVar, "DNK", "99"));
+    assertThat(hasCategory(bdVar, "PNA", "88")).isTrue();
+    assertThat(hasCategory(bdVar, "DNK", "99")).isTrue();
 
     jdbcDatasource.dispose();
   }
@@ -109,15 +103,15 @@ public class JdbcDatasourceTest extends AbstractMagmaTest {
     VectorSource bdVar2 = valueTable.getVariableValueSource("BD_2").asVectorSource();
 
     // Verify variable attributes.
-    assertNotNull(bdVar);
-    assertNotNull(bdVar2);
+    assertThat(bdVar).isNotNull();
+    assertThat(bdVar2).isNotNull();
 
     Iterable<Value> values = bdVar.getValues(new TreeSet<>(valueTable.getVariableEntities()));
 
-    assertTrue(Iterables.size(values) == 2);
+    assertThat(values).hasSize(2);
 
     values = bdVar2.getValues(new TreeSet<>(valueTable.getVariableEntities()));
-    assertTrue(Iterables.size(values) == 2);
+    assertThat(values).hasSize(2);
 
     jdbcDatasource.dispose();
   }
@@ -163,11 +157,11 @@ public class JdbcDatasourceTest extends AbstractMagmaTest {
     ValueTable t = jdbcDatasource.getValueTables().iterator().next();
     Timestamps ts = t.getTimestamps();
 
-    assertNotNull(ts);
-    assertNotNull(ts.getCreated());
-    assertEquals(false, ts.getCreated().isNull());
-    assertNotNull(ts.getLastUpdate());
-    assertEquals(false, ts.getLastUpdate().isNull());
+    assertThat(ts).isNotNull();
+    assertThat(ts.getCreated()).isNotNull();
+    assertThat(ts.getCreated().isNull()).isFalse();
+    assertThat(ts.getLastUpdate()).isNotNull();
+    assertThat(ts.getLastUpdate().isNull()).isFalse();
 
     jdbcDatasource.dispose();
   }
@@ -177,82 +171,50 @@ public class JdbcDatasourceTest extends AbstractMagmaTest {
   //
 
   private void testCreateDatasourceFromExistingDatabase(JdbcDatasource jdbcDatasource) {
-    assertNotNull(jdbcDatasource);
-    assertEquals("my-datasource", jdbcDatasource.getName());
+    assertThat(jdbcDatasource).isNotNull();
+    assertThat(jdbcDatasource.getName()).isEqualTo("my-datasource");
 
-    assertEquals(1, jdbcDatasource.getValueTables().size());
-    assertTrue(jdbcDatasource.hasValueTable("BONE_DENSITY"));
+    assertThat(jdbcDatasource.getValueTables()).hasSize(1);
+    assertThat(jdbcDatasource.hasValueTable("BONE_DENSITY")).isTrue();
     ValueTable bdTable = jdbcDatasource.getValueTable("BONE_DENSITY");
-    assertEquals("Participant", bdTable.getEntityType());
+    assertThat(bdTable.getEntityType()).isEqualTo("Participant");
 
-    // Check variables.
-    int variableCount = 0;
-    for(Variable variable : bdTable.getVariables()) {
-      variableCount++;
-    }
-    assertEquals(2, variableCount);
-
-    // Check entities and value sets.
-    int valueSetCount = 0;
-    for(ValueSet valueSet : bdTable.getValueSets()) {
-      valueSetCount++;
-    }
-    assertEquals(2, valueSetCount);
+    assertThat(bdTable.getVariables()).hasSize(2);
+    assertThat(bdTable.getValueSets()).hasSize(2);
     VariableEntity entity1234_2 = new VariableEntityBean(bdTable.getEntityType(), "1234-2");
     VariableEntity entity1234_3 = new VariableEntityBean(bdTable.getEntityType(), "1234-3");
-    assertTrue(bdTable.hasValueSet(entity1234_2));
-    assertTrue(bdTable.hasValueSet(entity1234_3));
+    assertThat(bdTable.hasValueSet(entity1234_2)).isTrue();
+    assertThat(bdTable.hasValueSet(entity1234_3)).isTrue();
 
     // Check variable values.
     ValueSet vs1234_2 = bdTable.getValueSet(entity1234_2);
-    assertEquals(IntegerType.get().valueOf(64), bdTable.getValue(bdTable.getVariable("BD"), vs1234_2));
-    assertEquals(IntegerType.get().valueOf(65), bdTable.getValue(bdTable.getVariable("BD_2"), vs1234_2));
+    assertThat(bdTable.getValue(bdTable.getVariable("BD"), vs1234_2)).isEqualTo(IntegerType.get().valueOf(64));
+    assertThat(bdTable.getValue(bdTable.getVariable("BD_2"), vs1234_2)).isEqualTo(IntegerType.get().valueOf(65));
     ValueSet vs1234_3 = bdTable.getValueSet(entity1234_3);
-    assertEquals(IntegerType.get().valueOf(65), bdTable.getValue(bdTable.getVariable("BD"), vs1234_3));
-    assertEquals(IntegerType.get().valueOf(65), bdTable.getValue(bdTable.getVariable("BD_2"), vs1234_3));
+    assertThat(bdTable.getValue(bdTable.getVariable("BD"), vs1234_3)).isEqualTo(IntegerType.get().valueOf(65));
+    assertThat(bdTable.getValue(bdTable.getVariable("BD_2"), vs1234_3)).isEqualTo(IntegerType.get().valueOf(65));
   }
 
   private void testCreateDatasourceFromScratch(JdbcDatasource jdbcDatasource) {
     // Create a new ValueTable.
-    ValueTableWriter tableWriter = jdbcDatasource.createWriter("my_table", "Participant");
-    try {
-      assertNotNull(tableWriter);
-      assertEquals("my-datasource-nodb", jdbcDatasource.getName());
-      assertTrue(jdbcDatasource.hasValueTable("my_table"));
+    try(ValueTableWriter tableWriter = jdbcDatasource.createWriter("my_table", "Participant")) {
+      assertThat(tableWriter).isNotNull();
+      assertThat(jdbcDatasource.getName()).isEqualTo("my-datasource-nodb");
+      assertThat(jdbcDatasource.hasValueTable("my_table")).isTrue();
 
       // Write some variables.
-      VariableWriter variableWriter = tableWriter.writeVariables();
-      try {
+      try(VariableWriter variableWriter = tableWriter.writeVariables()) {
         variableWriter.writeVariable(Variable.Builder.newVariable("my_var1", IntegerType.get(), "Participant").build());
         variableWriter.writeVariable(Variable.Builder.newVariable("my_var2", DecimalType.get(), "Participant").build());
-      } finally {
-        try {
-          variableWriter.close();
-        } catch(IOException ex) {
-          fail("Failed to close variableWriter");
-        }
       }
 
       // Write a value set.
       VariableEntity myEntity1 = new VariableEntityBean("Participant", "1");
-      ValueSetWriter valueSetWriter = tableWriter.writeValueSet(myEntity1);
-      try {
+      try(ValueSetWriter valueSetWriter = tableWriter.writeValueSet(myEntity1)) {
         Variable myVar1 = jdbcDatasource.getValueTable("my_table").getVariable("my_var1");
         Variable myVar2 = jdbcDatasource.getValueTable("my_table").getVariable("my_var2");
         valueSetWriter.writeValue(myVar1, IntegerType.get().valueOf(77));
         valueSetWriter.writeValue(myVar2, IntegerType.get().valueOf(78));
-      } finally {
-        try {
-          valueSetWriter.close();
-        } catch(IOException ex) {
-          fail("Failed to close valueSetWriter");
-        }
-      }
-    } finally {
-      try {
-        tableWriter.close();
-      } catch(IOException ex) {
-        fail("Failed to close tableWriter");
       }
     }
   }

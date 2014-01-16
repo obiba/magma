@@ -17,22 +17,21 @@ import org.obiba.magma.type.TextType;
 
 import com.google.common.collect.ImmutableList;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.fest.assertions.api.Assertions.assertThat;
 
 public class ValueSequenceTest extends AbstractValueTest {
 
   @Test
   public void test_isSequence() {
     Value value = testValue();
-    assertThat(value.isSequence(), is(true));
+    assertThat(value.isSequence()).isTrue();
   }
 
   @Test
   public void test_asSequence() {
     Value value = testValue();
     ValueSequence sequence = value.asSequence();
-    assertThat(value == sequence, is(true));
+    assertThat(value == sequence).isTrue();
   }
 
   @Test
@@ -40,8 +39,8 @@ public class ValueSequenceTest extends AbstractValueTest {
     ValueSequence value = testValue();
     ValueSequence sorted = value.sort();
 
-    assertThat(value == sorted, is(false));
-    assertThat(sorted.getValue(), is((Object) ImmutableList.copyOf(Values.asValues(TextType.get(), "B", "C", "a"))));
+    assertThat(value == sorted).isFalse();
+    assertThat(sorted.getValue()).isEqualTo(ImmutableList.copyOf(Values.asValues(TextType.get(), "B", "C", "a")));
   }
 
   @Test
@@ -55,22 +54,22 @@ public class ValueSequenceTest extends AbstractValueTest {
       }
     });
 
-    assertThat(value == sorted, is(false));
-    assertThat(sorted.getValue(), is((Object) ImmutableList.copyOf(Values.asValues(TextType.get(), "a", "B", "C"))));
+    assertThat(value == sorted).isFalse();
+    assertThat(sorted.getValue()).isEqualTo(ImmutableList.copyOf(Values.asValues(TextType.get(), "a", "B", "C")));
   }
 
   @Test
   public void test_getSize() {
     ValueSequence value = testValue();
-    assertThat(value.getSize(), is(3));
+    assertThat(value.getSize()).isEqualTo(3);
   }
 
   @Test
   public void test_get() {
     ValueSequence value = testValue();
-    assertThat(value.get(0), is(TextType.get().valueOf("C")));
-    assertThat(value.get(1), is(TextType.get().valueOf("B")));
-    assertThat(value.get(2), is(TextType.get().valueOf("a")));
+    assertThat(value.get(0)).isEqualTo(TextType.get().valueOf("C"));
+    assertThat(value.get(1)).isEqualTo(TextType.get().valueOf("B"));
+    assertThat(value.get(2)).isEqualTo(TextType.get().valueOf("a"));
   }
 
   @Test(expected = RuntimeException.class)
@@ -82,11 +81,10 @@ public class ValueSequenceTest extends AbstractValueTest {
   @Test
   public void test_contains() {
     ValueSequence value = testValue();
-    assertThat(value.contains(TextType.get().valueOf("C")), is(true));
-    assertThat(value.contains(TextType.get().valueOf("B")), is(true));
-    assertThat(value.contains(TextType.get().valueOf("a")), is(true));
-
-    assertThat(value.contains(TextType.get().valueOf("CBa")), is(false));
+    assertThat(value.contains(TextType.get().valueOf("C"))).isTrue();
+    assertThat(value.contains(TextType.get().valueOf("B"))).isTrue();
+    assertThat(value.contains(TextType.get().valueOf("a"))).isTrue();
+    assertThat(value.contains(TextType.get().valueOf("CBa"))).isFalse();
   }
 
   @Override

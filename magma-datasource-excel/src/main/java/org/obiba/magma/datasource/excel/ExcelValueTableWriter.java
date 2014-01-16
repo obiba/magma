@@ -1,7 +1,5 @@
 package org.obiba.magma.datasource.excel;
 
-import java.io.IOException;
-
 import javax.validation.constraints.NotNull;
 
 import org.apache.poi.ss.usermodel.Cell;
@@ -35,7 +33,7 @@ public class ExcelValueTableWriter implements ValueTableWriter {
   }
 
   @Override
-  public void close() throws IOException {
+  public void close() {
   }
 
   private class ExcelVariableWriter implements VariableWriter {
@@ -107,7 +105,7 @@ public class ExcelValueTableWriter implements ValueTableWriter {
     }
 
     @Override
-    public void close() throws IOException {
+    public void close() {
     }
 
   }
@@ -130,7 +128,7 @@ public class ExcelValueTableWriter implements ValueTableWriter {
     }
 
     @Override
-    public void close() throws IOException {
+    public void close() {
     }
 
   }

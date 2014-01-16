@@ -6,7 +6,6 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 
-import org.junit.Assert;
 import org.junit.Test;
 import org.mozilla.javascript.Context;
 import org.obiba.magma.Value;
@@ -22,9 +21,7 @@ import org.obiba.magma.type.TextType;
 
 import com.google.common.collect.ImmutableList;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.junit.Assert.assertThat;
+import static org.fest.assertions.api.Assertions.assertThat;
 
 @SuppressWarnings({ "MagicConstant", "ReuseOfLocalVariable" })
 public class DateTimeMethodTest extends AbstractJsTest {
@@ -66,12 +63,13 @@ public class DateTimeMethodTest extends AbstractJsTest {
   @Test
   public void test_quarter_acceptsNull() {
     ScriptableValue value = evaluate("quarter()", DateType.get().nullValue());
-    Assert.assertNotNull(value);
-    assertThat(value.getValue(), is(IntegerType.get().nullValue()));
+    assertThat(value).isNotNull();
+    assertThat(value.getValue()).isEqualTo(IntegerType.get().nullValue());
 
     value = evaluate("quarter()", DateTimeType.get().nullValue());
-    Assert.assertNotNull(value);
-    assertThat(value.getValue(), is(IntegerType.get().nullValue()));
+    assertThat(value).isNotNull();
+
+    assertThat(value.getValue()).isEqualTo(IntegerType.get().nullValue());
   }
 
   @Test
@@ -99,33 +97,33 @@ public class DateTimeMethodTest extends AbstractJsTest {
     }
 
     ScriptableValue result = evaluate("semester()", DateType.get().sequenceOf(values));
-    assertThat(result.getValue().isSequence(), is(true));
+    assertThat(result.getValue().isSequence()).isTrue();
   }
 
   @Test
   public void test_semester_acceptsNull() {
     ScriptableValue value = evaluate("semester()", DateType.get().nullValue());
-    Assert.assertNotNull(value);
-    assertThat(value.getValue(), is(IntegerType.get().nullValue()));
+    assertThat(value).isNotNull();
+    assertThat(value.getValue()).isEqualTo(IntegerType.get().nullValue());
 
     value = evaluate("semester()", DateTimeType.get().nullValue());
-    Assert.assertNotNull(value);
-    assertThat(value.getValue(), is(IntegerType.get().nullValue()));
+    assertThat(value).isNotNull();
+    assertThat(value.getValue()).isEqualTo(IntegerType.get().nullValue());
   }
 
   @Test
   public void test_semester_acceptsNullSequence() {
     ScriptableValue value = evaluate("semester()", DateType.get().nullSequence());
-    Assert.assertNotNull(value);
-    assertThat(value.getValue().isNull(), is(true));
-    assertThat(value.getValue().isSequence(), is(true));
-    assertThat(value.getValue().asSequence(), is(IntegerType.get().nullSequence()));
+    assertThat(value).isNotNull();
+    assertThat(value.getValue().isNull()).isTrue();
+    assertThat(value.getValue().isSequence()).isTrue();
+    assertThat(value.getValue().asSequence()).isEqualTo(IntegerType.get().nullSequence());
 
     value = evaluate("semester()", DateTimeType.get().nullSequence());
-    Assert.assertNotNull(value);
-    assertThat(value.getValue().isNull(), is(true));
-    assertThat(value.getValue().isSequence(), is(true));
-    assertThat(value.getValue().asSequence(), is(IntegerType.get().nullSequence()));
+    assertThat(value).isNotNull();
+    assertThat(value.getValue().isNull()).isTrue();
+    assertThat(value.getValue().isSequence()).isTrue();
+    assertThat(value.getValue().asSequence()).isEqualTo(IntegerType.get().nullSequence());
   }
 
   @Test
@@ -173,12 +171,12 @@ public class DateTimeMethodTest extends AbstractJsTest {
   @Test
   public void test_weekend_acceptsNull() {
     ScriptableValue value = evaluate("weekend()", DateType.get().nullValue());
-    Assert.assertNotNull(value);
-    assertThat(value.getValue(), is(BooleanType.get().nullValue()));
+    assertThat(value).isNotNull();
+    assertThat(value.getValue()).isEqualTo(BooleanType.get().nullValue());
 
     value = evaluate("weekend()", DateTimeType.get().nullValue());
-    Assert.assertNotNull(value);
-    assertThat(value.getValue(), is(BooleanType.get().nullValue()));
+    assertThat(value).isNotNull();
+    assertThat(value.getValue()).isEqualTo(BooleanType.get().nullValue());
   }
 
   @Test
@@ -196,12 +194,12 @@ public class DateTimeMethodTest extends AbstractJsTest {
   @Test
   public void test_weekday_acceptsNull() {
     ScriptableValue value = evaluate("weekday()", DateType.get().nullValue());
-    Assert.assertNotNull(value);
-    assertThat(value.getValue(), is(BooleanType.get().nullValue()));
+    assertThat(value).isNotNull();
+    assertThat(value.getValue()).isEqualTo(BooleanType.get().nullValue());
 
     value = evaluate("weekday()", DateTimeType.get().nullValue());
-    Assert.assertNotNull(value);
-    assertThat(value.getValue(), is(BooleanType.get().nullValue()));
+    assertThat(value).isNotNull();
+    assertThat(value.getValue()).isEqualTo(BooleanType.get().nullValue());
   }
 
   @Test
@@ -263,7 +261,7 @@ public class DateTimeMethodTest extends AbstractJsTest {
   public void test_format_acceptsNULLDateNULL() {
     ScriptableValue value = newValue(DateType.get().nullValue());
     ScriptableValue result = evaluate("format()", value.getValue());
-    Assert.assertEquals(TextType.get().nullValue(), result.getValue());
+    assertThat(result.getValue()).isEqualTo(TextType.get().nullValue());
   }
 
   @Test
@@ -272,8 +270,8 @@ public class DateTimeMethodTest extends AbstractJsTest {
     ScriptableValue nullDate = newValue(DateTimeType.get().nullValue());
     ScriptableValue result = (ScriptableValue) DateTimeMethods
         .after(Context.getCurrentContext(), now, new ScriptableValue[] { nullDate }, null);
-    Assert.assertNotNull(result);
-    Assert.assertEquals(BooleanType.get().nullValue(), result.getValue());
+    assertThat(result).isNotNull();
+    assertThat(result.getValue()).isEqualTo(BooleanType.get().nullValue());
   }
 
   @Test
@@ -282,20 +280,20 @@ public class DateTimeMethodTest extends AbstractJsTest {
     ScriptableValue nullDate = newValue(DateTimeType.get().nullValue());
     ScriptableValue result = (ScriptableValue) DateTimeMethods
         .after(Context.getCurrentContext(), nullDate, new ScriptableValue[] { now }, null);
-    Assert.assertNotNull(result);
-    Assert.assertEquals(BooleanType.get().nullValue(), result.getValue());
+    assertThat(result).isNotNull();
+    assertThat(result.getValue()).isEqualTo(BooleanType.get().nullValue());
   }
 
   @Test
   public void test_after() throws Exception {
     ScriptableValue value = evaluate("after(newValue('2011-11-01', 'date'))", DateType.get().valueOf(new Date()));
-    Assert.assertNotNull(value);
-    Assert.assertEquals(BooleanType.get().trueValue(), value.getValue());
+    assertThat(value).isNotNull();
+    assertThat(value.getValue()).isEqualTo(BooleanType.get().trueValue());
 
     value = evaluate("after(newValue('2011-11-01', 'date'), newValue('2011-11-01T10:00:00-0000', 'datetime'))",
         DateType.get().valueOf(new Date()));
-    Assert.assertNotNull(value);
-    Assert.assertEquals(BooleanType.get().trueValue(), value.getValue());
+    assertThat(value).isNotNull();
+    assertThat(value.getValue()).isEqualTo(BooleanType.get().trueValue());
   }
 
   private Value makeDayOfWeek(ValueType valueType, int dayOfWeek) {
@@ -308,12 +306,12 @@ public class DateTimeMethodTest extends AbstractJsTest {
 
   private void testWeekendOrWeekdayMethod(String script, int dayOfWeek, boolean expected) {
     ScriptableValue value = evaluate(script, makeDayOfWeek(DateType.get(), dayOfWeek));
-    Assert.assertNotNull(value);
-    assertThat(value.getValue(), is(BooleanType.get().valueOf(expected)));
+    assertThat(value).isNotNull();
+    assertThat(value.getValue()).isEqualTo(BooleanType.get().valueOf(expected));
 
     value = evaluate(script, makeDayOfWeek(DateTimeType.get(), dayOfWeek));
-    Assert.assertNotNull(value);
-    assertThat(value.getValue(), is(BooleanType.get().valueOf(expected)));
+    assertThat(value).isNotNull();
+    assertThat(value.getValue()).isEqualTo(BooleanType.get().valueOf(expected));
   }
 
   /**
@@ -333,16 +331,16 @@ public class DateTimeMethodTest extends AbstractJsTest {
   }
 
   private void assertIntegerResult(ScriptableValue result, int expectedValue, boolean sequence) {
-    assertThat(result, notNullValue());
-    assertThat(result.getValue(), notNullValue());
-    assertThat(result.getValueType(), is((ValueType) IntegerType.get()));
-    assertThat(result.getValue().isSequence(), is(sequence));
+    assertThat(result).isNotNull();
+    assertThat(result.getValue()).isNotNull();
+    assertThat(result.getValueType()).isEqualTo(IntegerType.get());
+    assertThat(result.getValue().isSequence()).isEqualTo(sequence);
     if(sequence) {
       ValueSequence seq = result.getValue().asSequence();
-      assertThat(seq.getSize(), is(1));
-      assertThat((Long) seq.get(0).getValue(), is((long) expectedValue));
+      assertThat(seq.getSize()).isEqualTo(1);
+      assertThat((Long) seq.get(0).getValue()).isEqualTo((long) expectedValue);
     } else {
-      assertThat((Long) result.getValue().getValue(), is((long) expectedValue));
+      assertThat((Long) result.getValue().getValue()).isEqualTo((long) expectedValue);
     }
   }
 
@@ -364,16 +362,16 @@ public class DateTimeMethodTest extends AbstractJsTest {
   }
 
   private void assertFormatResult(Value result, String expected, boolean sequence) {
-    Assert.assertNotNull(result);
-    assertThat(result.isSequence(), is(sequence));
-    Assert.assertEquals(TextType.get(), result.getValueType());
+    assertThat(result).isNotNull();
+    assertThat(result.isSequence()).isEqualTo(sequence);
+    assertThat(result.getValueType()).isEqualTo(TextType.get());
 
     if(sequence) {
       ValueSequence seq = result.asSequence();
-      assertThat(seq.getSize(), is(1));
-      assertThat(seq.get(0).getValue().toString(), is(expected));
+      assertThat(seq.getSize()).isEqualTo(1);
+      assertThat(seq.get(0).getValue().toString()).isEqualTo(expected);
     } else {
-      Assert.assertEquals(expected, result.toString());
+      assertThat(expected).isEqualTo(result.toString());
     }
   }
 }

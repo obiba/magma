@@ -12,8 +12,7 @@ import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.verify;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.fest.assertions.api.Assertions.assertThat;
 
 public class SameAsVariableValueSourceTest extends AbstractJsTest {
 
@@ -21,7 +20,7 @@ public class SameAsVariableValueSourceTest extends AbstractJsTest {
   public void testGetScriptWithExplicitScriptProvided() throws Exception {
     ValueTable valueTableMock = createMock(ValueTable.class);
     SameAsVariableValueSource source = new SameAsVariableValueSource(buildSexWithScript(), valueTableMock);
-    assertThat(source.getScript(), is("$('ExistingVariable.SEX')"));
+    assertThat(source.getScript()).isEqualTo("$('ExistingVariable.SEX')");
   }
 
   @Test
@@ -29,7 +28,7 @@ public class SameAsVariableValueSourceTest extends AbstractJsTest {
     ValueTable valueTableMock = createMock(ValueTable.class);
     SameAsVariableValueSource source = new SameAsVariableValueSource(buildSexWithOutScriptNoCategories(),
         valueTableMock);
-    assertThat(source.getScript(), is("$('HealthQuestionnaireIdentification.SEX')"));
+    assertThat(source.getScript()).isEqualTo("$('HealthQuestionnaireIdentification.SEX')");
   }
 
   @Test
@@ -44,12 +43,12 @@ public class SameAsVariableValueSourceTest extends AbstractJsTest {
     replay(valueTableMock);
     Variable variable = source.getVariable();
 
-    assertThat("number of attributes", variable.getAttributes().size(), is(4)); // Attributes not overridden
-    assertThat("number of categories", variable.getCategories().size(), is(2)); // Categories not overridden
-    assertThat(variable.getAttribute("label").getValue(), is(TextType.get().valueOf("Sex")));
+    assertThat(variable.getAttributes()).hasSize(4); // Attributes not overridden
+    assertThat(variable.getCategories()).hasSize(2); // Categories not overridden
+    assertThat(variable.getAttribute("label").getValue()).isEqualTo(TextType.get().valueOf("Sex"));
     // Special case "sameAs" attribute appears regardless
-    assertThat(variable.getAttribute("sameAs").getValue(),
-        is(TextType.get().valueOf("HealthQuestionnaireIdentification.SEX")));
+    assertThat(variable.getAttribute("sameAs").getValue())
+        .isEqualTo(TextType.get().valueOf("HealthQuestionnaireIdentification.SEX"));
     verify(valueTableMock);
   }
 
@@ -64,14 +63,15 @@ public class SameAsVariableValueSourceTest extends AbstractJsTest {
     replay(valueTableMock);
     Variable variable = source.getVariable();
 
-    assertThat("number of attributes", variable.getAttributes().size(), is(5));
-    assertThat("number of categories", variable.getCategories().size(), is(2)); // Categories not overridden
-    assertThat(variable.getAttribute("sameAs").getValue(),
-        is(TextType.get().valueOf("HealthQuestionnaireIdentification.SEX")));
-    assertThat(variable.getAttribute("script").getValue(), is(TextType.get().valueOf("$('ExistingVariable.SEX')")));
-    assertThat(variable.getAttribute("label").getValue(), is(TextType.get().valueOf("Sex")));
-    assertThat(variable.getAttribute("write").getValue(), is(TextType.get().valueOf("pen")));
-    assertThat(variable.getAttribute("read").getValue(), is(TextType.get().valueOf("paper")));
+    assertThat(variable.getAttributes()).hasSize(5);
+    assertThat(variable.getCategories()).hasSize(2); // Categories not overridden
+    assertThat(variable.getAttribute("sameAs").getValue())
+        .isEqualTo(TextType.get().valueOf("HealthQuestionnaireIdentification.SEX"));
+    assertThat(variable.getAttribute("script").getValue())
+        .isEqualTo(TextType.get().valueOf("$('ExistingVariable.SEX')"));
+    assertThat(variable.getAttribute("label").getValue()).isEqualTo(TextType.get().valueOf("Sex"));
+    assertThat(variable.getAttribute("write").getValue()).isEqualTo(TextType.get().valueOf("pen"));
+    assertThat(variable.getAttribute("read").getValue()).isEqualTo(TextType.get().valueOf("paper"));
     verify(valueTableMock);
   }
 

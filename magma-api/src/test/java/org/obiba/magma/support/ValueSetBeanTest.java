@@ -10,8 +10,7 @@ import org.obiba.magma.ValueTable;
 import org.obiba.magma.VariableEntity;
 
 import static org.easymock.EasyMock.createMock;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.fest.assertions.api.Assertions.assertThat;
 
 public class ValueSetBeanTest {
 
@@ -86,8 +85,8 @@ public class ValueSetBeanTest {
   @Test
   public void test_getters() {
     ValueSet vsb = new ValueSetBean(mockTable, ENTITY);
-    assertThat(vsb.getValueTable(), is(mockTable));
-    assertThat(vsb.getVariableEntity(), is(ENTITY));
+    assertThat(vsb.getValueTable()).isEqualTo(mockTable);
+    assertThat(vsb.getVariableEntity()).isEqualTo(ENTITY);
   }
 
   @Test
@@ -95,7 +94,7 @@ public class ValueSetBeanTest {
     ValueSetBean vsb = new ValueSetBean(mockTable, ENTITY);
     String str = vsb.toString();
     // We can't mock toString()
-    assertThat(str.contains("EasyMock"), is(true));
-    assertThat(str.contains(ENTITY.toString()), is(true));
+    assertThat(str.contains("EasyMock")).isTrue();
+    assertThat(str.contains(ENTITY.toString())).isTrue();
   }
 }

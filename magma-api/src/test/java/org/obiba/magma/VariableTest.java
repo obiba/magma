@@ -4,14 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-import org.junit.Assert;
 import org.junit.Test;
 import org.obiba.magma.test.AbstractMagmaTest;
 import org.obiba.magma.type.IntegerType;
 import org.obiba.magma.type.TextType;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.fest.assertions.api.Assertions.assertThat;
 
 @SuppressWarnings({ "PMD.NcssMethodCount", "OverlyLongMethod" })
 public class VariableTest extends AbstractMagmaTest {
@@ -45,30 +43,30 @@ public class VariableTest extends AbstractMagmaTest {
   public void test_isMissingValue_TextType() {
     Variable v = Variable.Builder.newVariable("name", TextType.get(), "entityType").addCategory("YES", null, false)
         .addCategory("DNK", null, true).build();
-    Assert.assertFalse(v.isMissingValue(TextType.get().valueOf("YES")));
+    assertThat(v.isMissingValue(TextType.get().valueOf("YES"))).isFalse();
     // Accepts unknown categories
-    Assert.assertFalse(v.isMissingValue(TextType.get().valueOf("No such category")));
-    Assert.assertTrue(v.isMissingValue(TextType.get().valueOf("DNK")));
-    Assert.assertTrue(v.isMissingValue(TextType.get().nullValue()));
+    assertThat(v.isMissingValue(TextType.get().valueOf("No such category"))).isFalse();
+    assertThat(v.isMissingValue(TextType.get().valueOf("DNK"))).isTrue();
+    assertThat(v.isMissingValue(TextType.get().nullValue())).isTrue();
   }
 
   @Test
   public void test_isMissingValue_IntegerType() {
     Variable v = Variable.Builder.newVariable("name", IntegerType.get(), "entityType").addCategory("1", null, false)
         .addCategory("8888", null, true).build();
-    Assert.assertFalse(v.isMissingValue(IntegerType.get().valueOf(1)));
+    assertThat(v.isMissingValue(IntegerType.get().valueOf(1))).isFalse();
     // Accepts unknown categories
-    Assert.assertFalse(v.isMissingValue(IntegerType.get().valueOf(2)));
-    Assert.assertTrue(v.isMissingValue(IntegerType.get().valueOf(8888)));
-    Assert.assertTrue(v.isMissingValue(IntegerType.get().nullValue()));
+    assertThat(v.isMissingValue(IntegerType.get().valueOf(2))).isFalse();
+    assertThat(v.isMissingValue(IntegerType.get().valueOf(8888))).isTrue();
+    assertThat(v.isMissingValue(IntegerType.get().nullValue())).isTrue();
   }
 
   @Test
   public void test_isMissingValue_withoutCategories() {
     Variable v = Variable.Builder.newVariable("name", IntegerType.get(), "entityType").build();
     // Accepts unknown categories
-    Assert.assertFalse(v.isMissingValue(IntegerType.get().valueOf(1)));
-    Assert.assertTrue(v.isMissingValue(IntegerType.get().nullValue()));
+    assertThat(v.isMissingValue(IntegerType.get().valueOf(1))).isFalse();
+    assertThat(v.isMissingValue(IntegerType.get().nullValue())).isTrue();
   }
 
   @Test
@@ -88,10 +86,10 @@ public class VariableTest extends AbstractMagmaTest {
     derivedBuilder.overrideWith(override);
     Variable derived = derivedBuilder.build();
 
-    assertThat(derived.getAttribute("A.1").getValue(), is(TextType.get().valueOf("Hello")));
-    assertThat(derived.getAttribute("A.2").getValue(), is(TextType.get().valueOf("Earth")));
-    assertThat(derived.getAttribute("A.3").getValue(), is(TextType.get().valueOf("How goes?")));
-    assertThat(derived.getAttributes().size(), is(3));
+    assertThat(derived.getAttribute("A.1").getValue()).isEqualTo(TextType.get().valueOf("Hello"));
+    assertThat(derived.getAttribute("A.2").getValue()).isEqualTo(TextType.get().valueOf("Earth"));
+    assertThat(derived.getAttribute("A.3").getValue()).isEqualTo(TextType.get().valueOf("How goes?"));
+    assertThat(derived.getAttributes()).hasSize(3);
   }
 
   @Test
@@ -115,12 +113,12 @@ public class VariableTest extends AbstractMagmaTest {
     derivedBuilder.overrideWith(override);
     Variable derived = derivedBuilder.build();
 
-    assertThat(derived.getAttribute("A.1").getValue(), is(TextType.get().valueOf("Hello")));
-    assertThat(derived.getAttribute("A.2").getValue(), is(TextType.get().valueOf("Earth")));
-    assertThat(derived.getAttribute("A.3").getValue(), is(TextType.get().valueOf("How goes?")));
-    assertThat(derived.getAttribute("A.4").getValue(), is(TextType.get().valueOf("Mars")));
-    assertThat(derived.getAttributes("A.5").size(), is(2));
-    assertThat(derived.getAttributes().size(), is(6));
+    assertThat(derived.getAttribute("A.1").getValue()).isEqualTo(TextType.get().valueOf("Hello"));
+    assertThat(derived.getAttribute("A.2").getValue()).isEqualTo(TextType.get().valueOf("Earth"));
+    assertThat(derived.getAttribute("A.3").getValue()).isEqualTo(TextType.get().valueOf("How goes?"));
+    assertThat(derived.getAttribute("A.4").getValue()).isEqualTo(TextType.get().valueOf("Mars"));
+    assertThat(derived.getAttributes("A.5")).hasSize(2);
+    assertThat(derived.getAttributes()).hasSize(6);
   }
 
   @Test
@@ -140,14 +138,14 @@ public class VariableTest extends AbstractMagmaTest {
     Variable derived = derivedBuilder.build();
 
     // Overridden
-    assertThat(derived.getName(), is("override"));
-    assertThat(derived.getValueType(), is((ValueType) TextType.get()));
-    assertThat(derived.getEntityType(), is("Workstation"));
+    assertThat(derived.getName()).isEqualTo("override");
+    assertThat(derived.getValueType()).isEqualTo(TextType.get());
+    assertThat(derived.getEntityType()).isEqualTo("Workstation");
     // Not overridden
-    assertThat(derived.getMimeType(), is("text/html"));
-    assertThat(derived.getOccurrenceGroup(), is("group"));
-    assertThat(derived.getUnit(), is("kg"));
-    assertThat(derived.isRepeatable(), is(true));
+    assertThat(derived.getMimeType()).isEqualTo("text/html");
+    assertThat(derived.getOccurrenceGroup()).isEqualTo("group");
+    assertThat(derived.getUnit()).isEqualTo("kg");
+    assertThat(derived.isRepeatable()).isTrue();
   }
 
   @Test
@@ -170,14 +168,14 @@ public class VariableTest extends AbstractMagmaTest {
     Variable derived = derivedBuilder.build();
 
     // Overridden
-    assertThat(derived.getName(), is("override"));
-    assertThat(derived.getValueType(), is((ValueType) TextType.get()));
-    assertThat(derived.getEntityType(), is("Workstation"));
-    assertThat(derived.getMimeType(), is("image/png"));
-    assertThat(derived.getOccurrenceGroup(), is("occurrenceGroup"));
-    assertThat(derived.getUnit(), is("cm"));
+    assertThat(derived.getName()).isEqualTo("override");
+    assertThat(derived.getValueType()).isEqualTo(TextType.get());
+    assertThat(derived.getEntityType()).isEqualTo("Workstation");
+    assertThat(derived.getMimeType()).isEqualTo("image/png");
+    assertThat(derived.getOccurrenceGroup()).isEqualTo("occurrenceGroup");
+    assertThat(derived.getUnit()).isEqualTo("cm");
     // Not overridden
-    assertThat(derived.isRepeatable(), is(true));
+    assertThat(derived.isRepeatable()).isTrue();
   }
 
   @Test
@@ -206,16 +204,16 @@ public class VariableTest extends AbstractMagmaTest {
     derivedBuilder.overrideWith(override);
     Variable derived = derivedBuilder.build();
 
-    assertThat(derived.hasCategories(), is(true));
+    assertThat(derived.hasCategories()).isTrue();
     List<Category> categories = new ArrayList<>(derived.getCategories());
-    assertThat(categories.size(), is(1));
+    assertThat(categories).hasSize(1);
     Category category = categories.get(0);
-    assertThat(category.getAttribute("label", Locale.ENGLISH).getValue(),
-        is(TextType.get().valueOf("Prefer not to answer")));
-    assertThat(category.getAttribute("label", Locale.FRENCH).getValue(),
-        is(TextType.get().valueOf("Préfère ne pas répondre")));
-    assertThat(category.getAttribute("A.1", Locale.ENGLISH).getValue(), is(TextType.get().valueOf("World")));
-    assertThat(category.getAttribute("A.2").getValue(), is(TextType.get().valueOf("Earth")));
-    assertThat("number of attributes", category.getAttributes().size(), is(4));
+    assertThat(category.getAttribute("label", Locale.ENGLISH).getValue())
+        .isEqualTo(TextType.get().valueOf("Prefer not to answer"));
+    assertThat(category.getAttribute("label", Locale.FRENCH).getValue())
+        .isEqualTo(TextType.get().valueOf("Préfère ne pas répondre"));
+    assertThat(category.getAttribute("A.1", Locale.ENGLISH).getValue()).isEqualTo(TextType.get().valueOf("World"));
+    assertThat(category.getAttribute("A.2").getValue()).isEqualTo(TextType.get().valueOf("Earth"));
+    assertThat(category.getAttributes()).hasSize(4);
   }
 }

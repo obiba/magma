@@ -23,8 +23,7 @@ import org.obiba.magma.js.ScriptableValue;
 import org.obiba.magma.type.DecimalType;
 import org.obiba.magma.type.PointType;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.fest.assertions.api.Assertions.assertThat;
 
 public class GeoMethodsTest extends AbstractJsTest {
 
@@ -35,9 +34,9 @@ public class GeoMethodsTest extends AbstractJsTest {
 
     ScriptableValue longitude = GeoMethods
         .longitude(Context.getCurrentContext(), scriptableValue, new Object[] { }, null);
-    assertThat(longitude.getValue().isNull(), is(false));
-    assertThat((DecimalType) longitude.getValue().getValueType(), is(DecimalType.get()));
-    assertThat((Double) longitude.getValue().getValue(), is(-112.6185));
+    assertThat(longitude.getValue().isNull()).isFalse();
+    assertThat((DecimalType) longitude.getValue().getValueType()).isEqualTo(DecimalType.get());
+    assertThat((Double) longitude.getValue().getValue()).isEqualTo(-112.6185);
   }
 
   @Test
@@ -47,9 +46,9 @@ public class GeoMethodsTest extends AbstractJsTest {
 
     ScriptableValue latitude = GeoMethods
         .latitude(Context.getCurrentContext(), scriptableValue, new Object[] { }, null);
-    assertThat(latitude.getValue().isNull(), is(false));
-    assertThat((DecimalType) latitude.getValue().getValueType(), is(DecimalType.get()));
-    assertThat((Double) latitude.getValue().getValue(), is(49.7167));
+    assertThat(latitude.getValue().isNull()).isFalse();
+    assertThat((DecimalType) latitude.getValue().getValueType()).isEqualTo(DecimalType.get());
+    assertThat((Double) latitude.getValue().getValue()).isEqualTo(49.7167);
   }
 
   @Test(expected = MagmaRuntimeException.class)
@@ -66,7 +65,7 @@ public class GeoMethodsTest extends AbstractJsTest {
       values.add(PointType.get().valueOf(coordinate));
     }
     ScriptableValue result = evaluate("longitude()", DecimalType.get().sequenceOf(values));
-    assertThat(result.getValue().isSequence(), is(true));
+    assertThat(result.getValue().isSequence()).isTrue();
   }
 
 }

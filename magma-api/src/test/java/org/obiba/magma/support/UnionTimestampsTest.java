@@ -16,8 +16,7 @@ import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.verify;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.fest.assertions.api.Assertions.assertThat;
 
 public class UnionTimestampsTest extends AbstractMagmaTest {
 
@@ -102,9 +101,9 @@ public class UnionTimestampsTest extends AbstractMagmaTest {
     Timestamps joinTimestamps = new UnionTimestamps(ImmutableList.of(firstTimestamped, secondTimestamped));
 
     if(useCreatedTimestamps) {
-      assertThat(joinTimestamps.getCreated(), is(expectedTimestamp));
+      assertThat(joinTimestamps.getCreated()).isEqualTo(expectedTimestamp);
     } else {
-      assertThat(joinTimestamps.getLastUpdate(), is(expectedTimestamp));
+      assertThat(joinTimestamps.getLastUpdate()).isEqualTo(expectedTimestamp);
     }
     verify(firstTimestamped, secondTimestamped, timestampsOne, timestampsTwo);
   }

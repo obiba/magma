@@ -14,8 +14,7 @@ import org.junit.Test;
 import org.obiba.magma.test.AbstractMagmaTest;
 import org.obiba.magma.type.TextType;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.fest.assertions.api.Assertions.assertThat;
 
 public abstract class AbstractValueTest extends AbstractMagmaTest {
 
@@ -33,21 +32,20 @@ public abstract class AbstractValueTest extends AbstractMagmaTest {
   public void test_copy_returnsACopyThatIsEqual() {
     Value value = testValue();
     Value copy = value.copy();
-
-    assertThat(copy, is(value));
+    assertThat(copy).isEqualTo(value);
   }
 
   @Test
   public void test_getValue_returnsTheValue() {
     Value value = testValue();
-    assertThat(value.getValue(), is(testObject()));
+    assertThat(value.getValue()).isEqualTo(testObject());
   }
 
   @Test
   public void test_getValue_returnsNullWhenIsNullIsTrue() {
     Value value = TextType.get().nullValue();
 
-    assertThat(value.isNull(), is(true));
+    assertThat(value.isNull()).isTrue();
 
     try {
       value.getValue();
@@ -61,13 +59,13 @@ public abstract class AbstractValueTest extends AbstractMagmaTest {
     Value value = testValue();
     Value another = testValue();
 
-    assertThat(value.equals(value), is(true));
-    assertThat(value.equals(another), is(true));
-    assertThat(another.equals(value), is(true));
+    assertThat(value.equals(value)).isTrue();
+    assertThat(value.equals(another)).isTrue();
+    assertThat(another.equals(value)).isTrue();
 
     //noinspection ObjectEqualsNull
-    assertThat(value.equals(null), is(false));
-    assertThat(value.equals(testObject()), is(false));
+    assertThat(value.equals(null)).isFalse();
+    assertThat(value.equals(testObject())).isFalse();
   }
 
   @Test
@@ -75,8 +73,8 @@ public abstract class AbstractValueTest extends AbstractMagmaTest {
     Value value = testValue();
     Value another = testValue();
 
-    assertThat(value.equals(another), is(true));
-    assertThat(value.hashCode() == another.hashCode(), is(true));
+    assertThat(value.equals(another)).isTrue();
+    assertThat(value.hashCode() == another.hashCode()).isTrue();
   }
 
   abstract protected Value testValue();

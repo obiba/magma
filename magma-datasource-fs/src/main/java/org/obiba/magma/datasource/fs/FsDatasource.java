@@ -28,7 +28,6 @@ import org.obiba.magma.datasource.fs.output.ChainedOutputStreamWrapper;
 import org.obiba.magma.datasource.fs.output.CipherOutputStreamWrapper;
 import org.obiba.magma.datasource.fs.output.DigestOutputStreamWrapper;
 import org.obiba.magma.datasource.fs.output.NullOutputStreamWrapper;
-import org.obiba.magma.lang.Closeables;
 import org.obiba.magma.support.AbstractDatasource;
 import org.obiba.magma.type.BooleanType;
 import org.obiba.magma.type.TextType;
@@ -167,30 +166,24 @@ public class FsDatasource extends AbstractDatasource {
 
   @SuppressWarnings("unchecked")
   protected void readAttributes() {
-    Reader reader = null;
-    try {
-      Iterable<Attribute> attributes = (Iterable<Attribute>) getXStreamInstance().fromXML(
-          reader = new InputStreamReader(new FileInputStream(new File(datasourceArchive, "metadata.xml")), CHARSET));
+    try(Reader reader = new InputStreamReader(new FileInputStream(new File(datasourceArchive, "metadata.xml")),
+        CHARSET)) {
+      Iterable<Attribute> attributes = (Iterable<Attribute>) getXStreamInstance().fromXML(reader);
       for(Attribute a : attributes) {
         getInstanceAttributes().put(a.getName(), a);
       }
-    } catch(FileNotFoundException e) {
+    } catch(IOException e) {
       throw new MagmaRuntimeException(e);
-    } finally {
-      Closeables.closeQuietly(reader);
     }
   }
 
   protected void writeAttributes() {
-    Writer writer = null;
-    try {
-      getXStreamInstance().toXML(new LinkedList<>(getInstanceAttributes().values()),
-          writer = new OutputStreamWriter(new FileOutputStream(new File(datasourceArchive, "metadata.xml")), CHARSET));
+    try(Writer writer = new OutputStreamWriter(new FileOutputStream(new File(datasourceArchive, "metadata.xml")),
+        CHARSET)) {
+      getXStreamInstance().toXML(new LinkedList<>(getInstanceAttributes().values()), writer);
       instanceAttributesModified = false;
-    } catch(FileNotFoundException e) {
+    } catch(IOException e) {
       throw new MagmaRuntimeException(e);
-    } finally {
-      Closeables.closeQuietly(writer);
     }
   }
 
@@ -229,26 +222,20 @@ public class FsDatasource extends AbstractDatasource {
   @Nullable
   <T> T readEntry(File entry, InputCallback<T> callback) {
     if(entry.exists()) {
-      Reader reader = null;
-      try {
-        return callback.readEntry(reader = createReader(entry));
+      try(Reader reader = createReader(entry)) {
+        return callback.readEntry(reader);
       } catch(IOException e) {
         throw new MagmaRuntimeException(e);
-      } finally {
-        Closeables.closeQuietly(reader);
       }
     }
     return null;
   }
 
   <T> T writeEntry(File file, OutputCallback<T> callback) {
-    Writer writer = null;
-    try {
-      return callback.writeEntry(writer = createWriter(file));
+    try(Writer writer = createWriter(file)) {
+      return callback.writeEntry(writer);
     } catch(IOException e) {
       throw new MagmaRuntimeException(e);
-    } finally {
-      Closeables.closeQuietly(writer);
     }
   }
 

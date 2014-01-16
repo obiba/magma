@@ -4,7 +4,6 @@
 package org.obiba.magma.datasource.jdbc;
 
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.security.InvalidParameterException;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -97,7 +96,7 @@ class JdbcValueTableWriter implements ValueTableWriter {
   }
 
   @Override
-  public void close() throws IOException {
+  public void close() {
     valueTable.getDatasource().databaseChanged();
     valueTable.tableChanged();
   }
@@ -125,7 +124,7 @@ class JdbcValueTableWriter implements ValueTableWriter {
     }
 
     @Override
-    public void close() throws IOException {
+    public void close() {
       Iterable<BlobTypeVisitor> visitors = ImmutableList.of(new BlobTypeVisitor());
       valueTable.getDatasource().doWithDatabase(new ChangeDatabaseCallback(changes, visitors));
     }
@@ -288,7 +287,7 @@ class JdbcValueTableWriter implements ValueTableWriter {
     }
 
     @Override
-    public void close() throws IOException {
+    public void close() {
       if(columnValueMap.size() != 0) {
         JdbcTemplate jdbcTemplate = valueTable.getDatasource().getJdbcTemplate();
 

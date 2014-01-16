@@ -11,7 +11,6 @@ package org.obiba.magma;
 
 import java.util.Locale;
 
-import org.junit.Assert;
 import org.junit.Test;
 import org.obiba.magma.test.AbstractMagmaTest;
 import org.obiba.magma.type.BinaryType;
@@ -25,8 +24,7 @@ import org.obiba.magma.type.TextType;
 
 import com.google.common.collect.ImmutableList;
 
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
+import static org.fest.assertions.api.Assertions.assertThat;
 
 public class ValueTypeTest extends AbstractMagmaTest {
 
@@ -35,7 +33,7 @@ public class ValueTypeTest extends AbstractMagmaTest {
     for(ValueType type : ImmutableList
         .of(TextType.get(), IntegerType.get(), DateType.get(), DateTimeType.get(), BinaryType.get(),
             BooleanType.get())) {
-      Assert.assertTrue(type == ValueType.Factory.forName(type.getName()));
+      assertThat(type == ValueType.Factory.forName(type.getName())).isTrue();
     }
   }
 
@@ -56,7 +54,7 @@ public class ValueTypeTest extends AbstractMagmaTest {
 
   @Test
   public void test_factory_newValue() {
-    assertThat(TextType.get().valueOf("A Value"), is(ValueType.Factory.newValue("A Value")));
+    assertThat(TextType.get().valueOf("A Value")).isEqualTo(ValueType.Factory.newValue("A Value"));
   }
 
   @SuppressWarnings("ConstantConditions")
@@ -68,7 +66,7 @@ public class ValueTypeTest extends AbstractMagmaTest {
 
   private void testForClass(ValueType type, Class<?>... validClasses) {
     for(Class<?> c : validClasses) {
-      Assert.assertTrue(type == ValueType.Factory.forClass(c));
+      assertThat(type == ValueType.Factory.forClass(c)).isTrue();
     }
   }
 }

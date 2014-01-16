@@ -1,6 +1,5 @@
 package org.obiba.magma.datasource.nil;
 
-import java.io.IOException;
 import java.util.Collections;
 import java.util.Set;
 
@@ -47,7 +46,7 @@ public class NullDatasource extends AbstractDatasource {
       return new ValueSetWriter() {
 
         @Override
-        public void close() throws IOException {
+        public void close() {
         }
 
         @Override
@@ -61,7 +60,7 @@ public class NullDatasource extends AbstractDatasource {
       return new VariableWriter() {
 
         @Override
-        public void close() throws IOException {
+        public void close() {
         }
 
         @Override
@@ -75,7 +74,7 @@ public class NullDatasource extends AbstractDatasource {
     }
 
     @Override
-    public void close() throws IOException {
+    public void close() {
     }
 
   }

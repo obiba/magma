@@ -11,8 +11,7 @@ import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.verify;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.fest.assertions.api.Assertions.assertThat;
 
 public class MagmaEngineTest {
 
@@ -42,7 +41,7 @@ public class MagmaEngineTest {
     replay(datasourceOne, datasourceTwo);
     magmaEngine.addDatasource(datasourceOne);
     magmaEngine.addDatasource(datasourceTwo);
-    assertThat(magmaEngine.getDatasources().size(), is(2));
+    assertThat(magmaEngine.getDatasources()).hasSize(2);
     magmaEngine.shutdown();
     verify(datasourceOne, datasourceTwo);
   }
@@ -60,7 +59,7 @@ public class MagmaEngineTest {
     replay(datasourceOne);
     magmaEngine.addDatasource(datasourceOne);
     magmaEngine.addDatasource(datasourceOne);
-    assertThat(magmaEngine.getDatasources().size(), is(1));
+    assertThat(magmaEngine.getDatasources()).hasSize(1);
     magmaEngine.shutdown();
     verify(datasourceOne);
   }
@@ -78,7 +77,7 @@ public class MagmaEngineTest {
     try {
       magmaEngine.addDatasource(datasourceTwo);
     } finally {
-      assertThat(magmaEngine.getDatasources().size(), is(1));
+      assertThat(magmaEngine.getDatasources()).hasSize(1);
       magmaEngine.shutdown();
       verify(datasourceOne, datasourceTwo);
     }
@@ -92,10 +91,10 @@ public class MagmaEngineTest {
 
     replay(factory);
     String uid = magmaEngine.addTransientDatasource(factory);
-    assertThat(magmaEngine.hasTransientDatasource(uid), is(true));
-    assertThat(magmaEngine.hasTransientDatasource("foo"), is(false));
+    assertThat(magmaEngine.hasTransientDatasource(uid)).isTrue();
+    assertThat(magmaEngine.hasTransientDatasource("foo")).isFalse();
     magmaEngine.removeTransientDatasource(uid);
-    assertThat(magmaEngine.hasTransientDatasource(uid), is(false));
+    assertThat(magmaEngine.hasTransientDatasource(uid)).isFalse();
     magmaEngine.shutdown();
     verify(factory);
   }
@@ -113,8 +112,8 @@ public class MagmaEngineTest {
     replay(factory, datasource);
     String uid = magmaEngine.addTransientDatasource(factory);
     Datasource created = magmaEngine.getTransientDatasourceInstance(uid);
-    Assert.assertNotNull(created);
-    assertThat(created.getName(), is(uid));
+    assertThat(created).isNotNull();
+    assertThat(created.getName()).isEqualTo(uid);
     magmaEngine.shutdown();
     verify(factory, datasource);
   }

@@ -47,7 +47,7 @@ class FsValueTableWriter implements ValueTableWriter {
   }
 
   @Override
-  public void close() throws IOException {
+  public void close() {
   }
 
   private class XStreamVariableWriter implements VariableWriter {
@@ -59,8 +59,12 @@ class FsValueTableWriter implements ValueTableWriter {
     }
 
     @Override
-    public void close() throws IOException {
-      oos.close();
+    public void close() {
+      try {
+        oos.close();
+      } catch(IOException e) {
+        throw new RuntimeException(e);
+      }
     }
 
     @edu.umd.cs.findbugs.annotations.SuppressWarnings(value = "DMI_NONSERIALIZABLE_OBJECT_WRITTEN",
@@ -92,11 +96,14 @@ class FsValueTableWriter implements ValueTableWriter {
     }
 
     @Override
-    public void close() throws IOException {
+    public void close() {
       try {
         xstream.toXML(valueSet, os);
       } finally {
-        os.close();
+        try {
+          os.close();
+        } catch(IOException ignored) {
+        }
       }
     }
 
