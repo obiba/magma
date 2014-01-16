@@ -16,8 +16,8 @@ public class AttributeAwareConverter {
       AttributeState as;
       Locale locale = attr.isLocalised() ? attr.getLocale() : null;
       String namespace = attr.hasNamespace() ? attr.getNamespace() : null;
-      if(hibernateEntity.hasAttribute(attr.getName(), locale)) {
-        as = hibernateEntity.getAttribute(attr.getName(), locale);
+      if(hibernateEntity.hasAttribute(attr.getName(), namespace, locale)) {
+        as = hibernateEntity.getAttribute(attr.getName(), namespace, locale);
       } else {
         as = new AttributeState(attr.getName(), namespace, locale, attr.getValue());
         hibernateEntity.addAttribute(as);
