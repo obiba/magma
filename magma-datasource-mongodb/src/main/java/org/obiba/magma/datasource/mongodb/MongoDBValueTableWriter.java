@@ -184,11 +184,15 @@ class MongoDBValueTableWriter implements ValueTableWriter {
 
     @Override
     public void writeVariable(@NotNull Variable variable) {
-      if(table.findVariable(variable.getName()) == null) {
+      DBObject existingDbObject = table.findVariable(variable.getName());
+      if(existingDbObject == null) {
         table.addVariableValueSource(new MongoDBVariableValueSource(table, variable.getName()));
       }
       // insert or update
       DBObject varObject = VariableConverter.marshall(variable);
+      if(existingDbObject != null) {
+        varObject.put("_id", existingDbObject.get("_id"));
+      }
       table.getVariablesCollection().save(varObject);
 
       updateLastUpdate();

@@ -299,11 +299,9 @@ public class MongoDBDatasourceTest {
       variableWriter.writeVariable(newVariable);
     }
 
-    ValueTable table = ds.getValueTable(TABLE_TEST);
-    Variable variable = table.getVariable("Variable to update");
-
+    Variable variable = ds.getValueTable(TABLE_TEST).getVariable("Variable to update");
     assertThat(variable.getUnit()).isEqualTo(newVariable.getUnit());
-    assertThat(variable.getCategories()).isEqualTo(newVariable.getCategories());
+    assertThat(variable.getCategories()).hasSize(newVariable.getCategories().size());
   }
 
   private Datasource createDatasource() {
