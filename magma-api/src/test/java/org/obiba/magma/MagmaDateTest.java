@@ -12,11 +12,9 @@ package org.obiba.magma;
 import java.util.Calendar;
 import java.util.Date;
 
-import org.hamcrest.Matchers;
-import org.junit.Assert;
 import org.junit.Test;
 
-import static org.hamcrest.CoreMatchers.is;
+import static org.fest.assertions.api.Assertions.assertThat;
 
 public class MagmaDateTest {
 
@@ -24,9 +22,9 @@ public class MagmaDateTest {
   public void test_ctor_calendar() {
     Calendar c = Calendar.getInstance();
     MagmaDate magmaDate = new MagmaDate(c);
-    Assert.assertThat(magmaDate.getYear(), is(c.get(Calendar.YEAR)));
-    Assert.assertThat(magmaDate.getMonth(), is(c.get(Calendar.MONTH)));
-    Assert.assertThat(magmaDate.getDayOfMonth(), is(c.get(Calendar.DAY_OF_MONTH)));
+    assertThat(magmaDate.getYear()).isEqualTo(c.get(Calendar.YEAR));
+    assertThat(magmaDate.getMonth()).isEqualTo(c.get(Calendar.MONTH));
+    assertThat(magmaDate.getDayOfMonth()).isEqualTo(c.get(Calendar.DAY_OF_MONTH));
   }
 
   @Test(expected = IllegalArgumentException.class)
@@ -38,9 +36,9 @@ public class MagmaDateTest {
   public void test_ctor_date() {
     Calendar c = Calendar.getInstance();
     MagmaDate magmaDate = new MagmaDate(c.getTime());
-    Assert.assertThat(magmaDate.getYear(), is(c.get(Calendar.YEAR)));
-    Assert.assertThat(magmaDate.getMonth(), is(c.get(Calendar.MONTH)));
-    Assert.assertThat(magmaDate.getDayOfMonth(), is(c.get(Calendar.DAY_OF_MONTH)));
+    assertThat(magmaDate.getYear()).isEqualTo(c.get(Calendar.YEAR));
+    assertThat(magmaDate.getMonth()).isEqualTo(c.get(Calendar.MONTH));
+    assertThat(magmaDate.getDayOfMonth()).isEqualTo(c.get(Calendar.DAY_OF_MONTH));
   }
 
   @Test(expected = IllegalArgumentException.class)
@@ -51,17 +49,17 @@ public class MagmaDateTest {
   @Test
   public void test_ctor_values() {
     MagmaDate magmaDate = new MagmaDate(3048, 5, 26);
-    Assert.assertThat(magmaDate.getYear(), is(3048));
-    Assert.assertThat(magmaDate.getMonth(), is(5));
-    Assert.assertThat(magmaDate.getDayOfMonth(), is(26));
+    assertThat(magmaDate.getYear()).isEqualTo(3048);
+    assertThat(magmaDate.getMonth()).isEqualTo(5);
+    assertThat(magmaDate.getDayOfMonth()).isEqualTo(26);
   }
 
   @Test
   public void test_comparable_equal() {
     MagmaDate one = new MagmaDate(3048, 5, 26);
     MagmaDate two = new MagmaDate(3048, 5, 26);
-    Assert.assertThat(one.compareTo(two), is(0));
-    Assert.assertThat(two.compareTo(one), is(0));
+    assertThat(one.compareTo(two)).isEqualTo(0);
+    assertThat(two.compareTo(one)).isEqualTo(0);
   }
 
   @Test
@@ -97,22 +95,22 @@ public class MagmaDateTest {
 
   private void assertHashCode(MagmaDate lhs, MagmaDate rhs) {
     if(lhs.equals(rhs)) {
-      Assert.assertThat(lhs.hashCode() == rhs.hashCode(), is(true));
+      assertThat(lhs.hashCode() == rhs.hashCode()).isEqualTo(true);
     }
   }
 
   private void assertEqual(MagmaDate lhs, MagmaDate rhs) {
-    Assert.assertThat(lhs.equals(rhs), is(true));
-    Assert.assertThat(rhs.equals(lhs), is(true));
+    assertThat(lhs.equals(rhs)).isTrue();
+    assertThat(rhs.equals(lhs)).isTrue();
   }
 
   private void assertNotEqual(MagmaDate lhs, MagmaDate rhs) {
-    Assert.assertThat(lhs.equals(rhs), is(false));
-    Assert.assertThat(rhs.equals(lhs), is(false));
+    assertThat(lhs.equals(rhs)).isFalse();
+    assertThat(rhs.equals(lhs)).isFalse();
   }
 
   private void assertLessThan(MagmaDate less, MagmaDate more) {
-    Assert.assertThat(less.compareTo(more), is(Matchers.lessThan(0)));
-    Assert.assertThat(more.compareTo(less), is(Matchers.greaterThan(0)));
+    assertThat(less.compareTo(more)).isLessThan(0);
+    assertThat(more.compareTo(less)).isGreaterThan(0);
   }
 }
