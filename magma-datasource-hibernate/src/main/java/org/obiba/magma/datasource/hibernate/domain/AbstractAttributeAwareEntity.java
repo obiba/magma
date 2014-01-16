@@ -42,7 +42,7 @@ public abstract class AbstractAttributeAwareEntity extends AbstractTimestampedEn
     this.attributes = attributes;
   }
 
-  public AttributeState getAttribute(String namespace, String name, Locale locale) {
+  public AttributeState getAttribute(String name, String namespace, Locale locale) {
     for(AttributeState ha : attributeMap.get(name)) {
       if(namespace == null && !ha.hasNamespace() ||
           namespace != null && ha.hasNamespace() && namespace.equals(ha.getNamespace())) {
@@ -77,7 +77,7 @@ public abstract class AbstractAttributeAwareEntity extends AbstractTimestampedEn
     }
   }
 
-  public boolean hasAttribute(String namespace, String name, Locale locale) {
+  public boolean hasAttribute(String name, String namespace, Locale locale) {
     if(hasAttribute(name)) {
       for(AttributeState ha : getAttributeMap().get(name)) {
         if(namespace == null && !ha.hasNamespace() ||
