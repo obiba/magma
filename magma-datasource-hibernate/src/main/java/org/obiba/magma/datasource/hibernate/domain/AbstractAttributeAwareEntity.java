@@ -42,13 +42,15 @@ public abstract class AbstractAttributeAwareEntity extends AbstractTimestampedEn
     this.attributes = attributes;
   }
 
-  public AttributeState getAttribute(String name, Locale locale) {
+  public AttributeState getAttribute(String namespace, String name, Locale locale) {
     for(AttributeState ha : attributeMap.get(name)) {
-      if(locale != null && ha.isLocalised() && locale.equals(ha.getLocale())) {
-        return ha;
-      }
-      if(locale == null && !ha.isLocalised()) {
-        return ha;
+      if(namespace == null && !ha.hasNamespace() ||
+          namespace != null && ha.hasNamespace() && namespace.equals(ha.getNamespace())) {
+        if(locale != null && ha.isLocalised() && locale.equals(ha.getLocale())) {
+          return ha;
+        } else if(locale == null && !ha.isLocalised()) {
+          return ha;
+        }
       }
     }
     throw new NoSuchAttributeException(name, getClass().getName());
@@ -75,14 +77,17 @@ public abstract class AbstractAttributeAwareEntity extends AbstractTimestampedEn
     }
   }
 
-  public boolean hasAttribute(String name, Locale locale) {
+  public boolean hasAttribute(String namespace, String name, Locale locale) {
     if(hasAttribute(name)) {
       for(AttributeState ha : getAttributeMap().get(name)) {
-        if(locale == null && !ha.isLocalised()) {
-          return true;
-        }
-        if(locale != null && ha.isLocalised() && locale.equals(ha.getLocale())) {
-          return true;
+        if(namespace == null && !ha.hasNamespace() ||
+            namespace != null && ha.hasNamespace() && namespace.equals(ha.getNamespace())) {
+          if(locale == null && !ha.isLocalised()) {
+            return true;
+          }
+          if(locale != null && ha.isLocalised() && locale.equals(ha.getLocale())) {
+            return true;
+          }
         }
       }
     }
