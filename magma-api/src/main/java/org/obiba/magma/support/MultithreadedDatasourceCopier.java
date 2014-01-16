@@ -324,19 +324,11 @@ public class MultithreadedDatasourceCopier {
     @Override
     public void run() {
       DatasourceCopier datasourceCopier = copier.build();
-      ValueTableWriter tableWriter = datasourceCopier
-          .innerValueTableWriter(sourceTable, destinationName, destinationDatasource);
-      try {
+      try(ValueTableWriter tableWriter = datasourceCopier
+          .innerValueTableWriter(sourceTable, destinationName, destinationDatasource)) {
         VariableEntityValues values = null;
         while((values = next()) != null) {
           copyValue(datasourceCopier, tableWriter, values);
-        }
-      } finally {
-        log.debug("Writer finished.");
-        try {
-          tableWriter.close();
-        } catch(IOException e) {
-          throw new RuntimeException(e);
         }
       }
     }
@@ -344,17 +336,10 @@ public class MultithreadedDatasourceCopier {
     @SuppressWarnings("ThrowFromFinallyBlock")
     private void copyValue(DatasourceCopier datasourceCopier, ValueTableWriter tableWriter,
         VariableEntityValues values) {
-      ValueSetWriter writer = tableWriter.writeValueSet(values.valueSet.getVariableEntity());
-      try {
+      try(ValueSetWriter writer = tableWriter.writeValueSet(values.valueSet.getVariableEntity())) {
         // Copy the ValueSet to the destinationDatasource
         log.trace("Dequeued entity {}", values.valueSet.getVariableEntity().getIdentifier());
         datasourceCopier.copyValues(sourceTable, destinationName, values.valueSet, variables, values.values, writer);
-      } finally {
-        try {
-          writer.close();
-        } catch(IOException e) {
-          throw new RuntimeException(e);
-        }
       }
       entitiesCopied++;
       printProgress();

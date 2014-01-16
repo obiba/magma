@@ -1,6 +1,5 @@
 package org.obiba.magma.datasource.jdbc;
 
-import java.io.IOException;
 import java.util.TreeSet;
 
 import javax.sql.DataSource;
@@ -40,7 +39,6 @@ import com.google.common.collect.Iterables;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 @SuppressWarnings({ "ReuseOfLocalVariable", "OverlyLongMethod", "PMD.NcssMethodCount" })
 @RunWith(value = SpringJUnit4ClassRunner.class)
@@ -185,19 +183,8 @@ public class JdbcDatasourceTest extends AbstractMagmaTest {
     ValueTable bdTable = jdbcDatasource.getValueTable("BONE_DENSITY");
     assertEquals("Participant", bdTable.getEntityType());
 
-    // Check variables.
-    int variableCount = 0;
-    for(Variable variable : bdTable.getVariables()) {
-      variableCount++;
-    }
-    assertEquals(2, variableCount);
-
-    // Check entities and value sets.
-    int valueSetCount = 0;
-    for(ValueSet valueSet : bdTable.getValueSets()) {
-      valueSetCount++;
-    }
-    assertEquals(2, valueSetCount);
+    assertEquals(2, Iterables.size(bdTable.getVariables()));
+    assertEquals(2, Iterables.size(bdTable.getValueSets()));
     VariableEntity entity1234_2 = new VariableEntityBean(bdTable.getEntityType(), "1234-2");
     VariableEntity entity1234_3 = new VariableEntityBean(bdTable.getEntityType(), "1234-3");
     assertTrue(bdTable.hasValueSet(entity1234_2));
@@ -214,45 +201,24 @@ public class JdbcDatasourceTest extends AbstractMagmaTest {
 
   private void testCreateDatasourceFromScratch(JdbcDatasource jdbcDatasource) {
     // Create a new ValueTable.
-    ValueTableWriter tableWriter = jdbcDatasource.createWriter("my_table", "Participant");
-    try {
+    try(ValueTableWriter tableWriter = jdbcDatasource.createWriter("my_table", "Participant")) {
       assertNotNull(tableWriter);
       assertEquals("my-datasource-nodb", jdbcDatasource.getName());
       assertTrue(jdbcDatasource.hasValueTable("my_table"));
 
       // Write some variables.
-      VariableWriter variableWriter = tableWriter.writeVariables();
-      try {
+      try(VariableWriter variableWriter = tableWriter.writeVariables()) {
         variableWriter.writeVariable(Variable.Builder.newVariable("my_var1", IntegerType.get(), "Participant").build());
         variableWriter.writeVariable(Variable.Builder.newVariable("my_var2", DecimalType.get(), "Participant").build());
-      } finally {
-        try {
-          variableWriter.close();
-        } catch(IOException ex) {
-          fail("Failed to close variableWriter");
-        }
       }
 
       // Write a value set.
       VariableEntity myEntity1 = new VariableEntityBean("Participant", "1");
-      ValueSetWriter valueSetWriter = tableWriter.writeValueSet(myEntity1);
-      try {
+      try(ValueSetWriter valueSetWriter = tableWriter.writeValueSet(myEntity1)) {
         Variable myVar1 = jdbcDatasource.getValueTable("my_table").getVariable("my_var1");
         Variable myVar2 = jdbcDatasource.getValueTable("my_table").getVariable("my_var2");
         valueSetWriter.writeValue(myVar1, IntegerType.get().valueOf(77));
         valueSetWriter.writeValue(myVar2, IntegerType.get().valueOf(78));
-      } finally {
-        try {
-          valueSetWriter.close();
-        } catch(IOException ex) {
-          fail("Failed to close valueSetWriter");
-        }
-      }
-    } finally {
-      try {
-        tableWriter.close();
-      } catch(IOException ex) {
-        fail("Failed to close tableWriter");
       }
     }
   }
