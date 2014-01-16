@@ -1,26 +1,35 @@
 package org.obiba.magma;
 
-import java.io.Closeable;
-
 import javax.validation.constraints.NotNull;
 
-public interface ValueTableWriter extends Closeable {
+public interface ValueTableWriter extends AutoCloseable {
 
   VariableWriter writeVariables();
 
   @NotNull
   ValueSetWriter writeValueSet(@NotNull VariableEntity entity);
 
-  interface VariableWriter extends Closeable {
+  @Override
+  void close();
+
+  interface VariableWriter extends AutoCloseable {
 
     void writeVariable(@NotNull Variable variable);
 
     void removeVariable(@NotNull Variable variable);
+
+    @Override
+    void close();
+
   }
 
-  interface ValueSetWriter extends Closeable {
+  interface ValueSetWriter extends AutoCloseable {
 
     void writeValue(@NotNull Variable variable, Value value);
+
+    @Override
+    void close();
+
   }
 
 }

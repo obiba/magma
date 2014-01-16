@@ -9,7 +9,6 @@
  ******************************************************************************/
 package org.obiba.magma.support;
 
-import java.io.IOException;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -182,7 +181,7 @@ public class StaticDatasource extends AbstractAttributeAware implements Datasour
     }
 
     @Override
-    public void close() throws IOException {
+    public void close() {
     }
 
     @Override
@@ -190,7 +189,7 @@ public class StaticDatasource extends AbstractAttributeAware implements Datasour
       return new VariableWriter() {
 
         @Override
-        public void close() throws IOException {
+        public void close() {
         }
 
         @Override
@@ -214,7 +213,7 @@ public class StaticDatasource extends AbstractAttributeAware implements Datasour
       return new ValueSetWriter() {
 
         @Override
-        public void close() throws IOException {
+        public void close() {
         }
 
         @Override

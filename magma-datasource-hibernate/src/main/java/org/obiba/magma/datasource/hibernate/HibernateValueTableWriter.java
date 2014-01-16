@@ -3,7 +3,6 @@
  */
 package org.obiba.magma.datasource.hibernate;
 
-import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -90,7 +89,7 @@ class HibernateValueTableWriter implements ValueTableWriter {
   }
 
   @Override
-  public void close() throws IOException {
+  public void close() {
   }
 
   private void updateTableLastUpdate() {
@@ -191,7 +190,7 @@ class HibernateValueTableWriter implements ValueTableWriter {
     }
 
     @Override
-    public void close() throws IOException {
+    public void close() {
       if(!errorOccurred) {
 
         if(dirty) {
@@ -368,7 +367,7 @@ class HibernateValueTableWriter implements ValueTableWriter {
     }
 
     @Override
-    public void close() throws IOException {
+    public void close() {
       if(!errorOccurred) {
         if(isNewValueSet) {
           // Make the entity visible within this transaction
