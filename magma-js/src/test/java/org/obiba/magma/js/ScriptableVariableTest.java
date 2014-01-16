@@ -1,14 +1,13 @@
 package org.obiba.magma.js;
 
 import org.easymock.EasyMock;
-import org.junit.Assert;
 import org.junit.Test;
 import org.obiba.magma.Variable;
 import org.obiba.magma.type.BooleanType;
 import org.obiba.magma.type.DecimalType;
 import org.obiba.magma.type.TextType;
 
-import static org.hamcrest.CoreMatchers.is;
+import static org.fest.assertions.api.Assertions.assertThat;
 
 public class ScriptableVariableTest extends AbstractJsTest {
 
@@ -18,8 +17,8 @@ public class ScriptableVariableTest extends AbstractJsTest {
     EasyMock.expect(mockVariable.getName()).andReturn("my-variable");
     EasyMock.replay(mockVariable);
     Object obj = evaluate("name()", mockVariable);
-    Assert.assertTrue(obj instanceof ScriptableValue);
-    Assert.assertEquals("my-variable", ((ScriptableValue) obj).getValue().getValue());
+    assertThat(obj).isInstanceOf(ScriptableValue.class);
+    assertThat("my-variable").isEqualTo(((ScriptableValue) obj).getValue().getValue().toString());
   }
 
   @Test
@@ -29,8 +28,8 @@ public class ScriptableVariableTest extends AbstractJsTest {
     EasyMock.expect(mockVariable.getAttributeValue("an-attribute")).andReturn(BooleanType.get().trueValue());
     EasyMock.replay(mockVariable);
     Object obj = evaluate("attribute('an-attribute')", mockVariable);
-    Assert.assertTrue(obj instanceof ScriptableValue);
-    Assert.assertEquals(BooleanType.get().trueValue(), ((ScriptableValue) obj).getValue());
+    assertThat(obj).isInstanceOf(ScriptableValue.class);
+    assertThat(((ScriptableValue) obj).getValue()).isEqualTo(BooleanType.get().trueValue());
   }
 
   @Test
@@ -39,7 +38,7 @@ public class ScriptableVariableTest extends AbstractJsTest {
     EasyMock.expect(mockVariable.getValueType()).andReturn(DecimalType.get());
     EasyMock.replay(mockVariable);
     Object obj = evaluate("type()", mockVariable);
-    Assert.assertTrue(obj instanceof ScriptableValue);
-    Assert.assertThat(((ScriptableValue) obj).getValue(), is(TextType.get().valueOf(DecimalType.get().getName())));
+    assertThat(obj).isInstanceOf(ScriptableValue.class);
+    assertThat(((ScriptableValue) obj).getValue()).isEqualTo(TextType.get().valueOf(DecimalType.get().getName()));
   }
 }

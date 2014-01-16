@@ -7,9 +7,8 @@ import java.util.Random;
 import org.junit.Test;
 import org.obiba.magma.math.stat.IntervalFrequency.Interval;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.junit.Assert.assertThat;
+import static org.fest.assertions.api.Assertions.assertThat;
+import static org.junit.Assert.fail;
 
 public class IntervalFrequencyTest {
 
@@ -21,7 +20,7 @@ public class IntervalFrequencyTest {
     for(Interval freq : freqs.intervals()) {
       n += freq.getFreq();
     }
-    assertThat(n, is(150000l));
+    assertThat(n).isEqualTo(150000l);
   }
 
   @Test
@@ -36,7 +35,7 @@ public class IntervalFrequencyTest {
     }
     // Round the result to 2 decimal places: 0.998 => 1.00
     totalArea = totalArea.setScale(2, RoundingMode.HALF_EVEN).stripTrailingZeros();
-    assertThat(totalArea, is(BigDecimal.ONE));
+    assertThat(totalArea).isEqualTo(BigDecimal.ONE);
   }
 
   @Test
@@ -49,7 +48,7 @@ public class IntervalFrequencyTest {
   public void test_add_limitCaseRoundedLower() {
     // 12345.67 is rounded to 6 significant digits
     IntervalFrequency freqs = new IntervalFrequency(12345.67, 765432.1, 10);
-    assertThat(freqs.intervals().first().getLower() < 12345.67, is(true));
+    assertThat(freqs.intervals().first().getLower() < 12345.67).isTrue();
   }
 
   @Test
@@ -62,7 +61,7 @@ public class IntervalFrequencyTest {
   public void test_add_limitCaseRoundedUpper() {
     // 12345.67 is rounded to 6 significant digits
     IntervalFrequency freqs = new IntervalFrequency(0, 12345.67, 10);
-    assertThat(freqs.intervals().last().getUpper() > 12345.67, is(true));
+    assertThat(freqs.intervals().last().getUpper() > 12345.67).isTrue();
   }
 
   @Test
@@ -76,9 +75,9 @@ public class IntervalFrequencyTest {
       density += freq.getDensity();
       densityPct += freq.getDensityPct();
     }
-    assertThat(n, is(0l));
-    assertThat(density, is(0d));
-    assertThat(densityPct, is(0d));
+    assertThat(n).isEqualTo(0l);
+    assertThat(density).isEqualTo(0d);
+    assertThat(densityPct).isEqualTo(0d);
   }
 
   @Test(expected = IllegalArgumentException.class)
@@ -118,7 +117,7 @@ public class IntervalFrequencyTest {
         bound = freq.getUpper();
         BigDecimal.valueOf(bound).toBigIntegerExact();
       } catch(ArithmeticException e) {
-        assertThat("bound is not an exact integer value:" + bound, true, is(false));
+        fail("bound is not an exact integer value:" + bound);
       }
     }
   }
@@ -127,14 +126,13 @@ public class IntervalFrequencyTest {
   public void test_ctor_integerRoundingWillNotMakeIntervalSizeSmallerThanOne() {
     IntervalFrequency freqs = new IntervalFrequency(40, 41, 10, true);
     Interval i = freqs.intervals().first();
-    assertThat(i.getUpper() - i.getLower(), is(1d));
+    assertThat(i.getUpper() - i.getLower()).isEqualTo(1d);
   }
 
   @Test
   public void test_toString_returnsAString() {
     IntervalFrequency freqs = newRandomDistribution(1000);
-    String toString = freqs.toString();
-    assertThat(toString, notNullValue());
+    assertThat(freqs.toString()).isNotNull();
   }
 
   @Test
@@ -150,11 +148,11 @@ public class IntervalFrequencyTest {
     double lowerThanMax = Math.nextAfter(max, Double.NEGATIVE_INFINITY);
     double higherThanMax = Math.nextAfter(max, Double.POSITIVE_INFINITY);
 
-    assertThat(interval.contains(higherThanMin), is(true));
-    assertThat(interval.contains(lowerThanMin), is(false));
+    assertThat(interval.contains(higherThanMin)).isTrue();
+    assertThat(interval.contains(lowerThanMin)).isFalse();
 
-    assertThat(interval.contains(lowerThanMax), is(true));
-    assertThat(interval.contains(higherThanMax), is(false));
+    assertThat(interval.contains(lowerThanMax)).isTrue();
+    assertThat(interval.contains(higherThanMax)).isFalse();
   }
 
   @Test
@@ -165,17 +163,17 @@ public class IntervalFrequencyTest {
     for(Interval interval : first.intervals()) {
       Interval other = second.intervals().tailSet(interval).first();
       // Tests equals
-      assertThat(other, is(interval));
+      assertThat(other).isEqualTo(interval);
       // Tests hashCode
-      assertThat(other.hashCode(), is(interval.hashCode()));
+      assertThat(other.hashCode()).isEqualTo(interval.hashCode());
     }
 
     // Other equals tests
     Interval equals = first.intervals().first();
     //noinspection ObjectEqualsNull
-    assertThat(equals.equals(null), is(false));
-    assertThat(equals.equals(equals), is(true));
-    assertThat(equals.equals(new Object()), is(false));
+    assertThat(equals.equals(null)).isFalse();
+    assertThat(equals.equals(equals)).isTrue();
+    assertThat(equals.equals(new Object())).isFalse();
   }
 
   /**

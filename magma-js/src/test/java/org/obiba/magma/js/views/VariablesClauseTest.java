@@ -13,7 +13,6 @@ import org.obiba.magma.NoSuchVariableException;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueSet;
 import org.obiba.magma.ValueTable;
-import org.obiba.magma.ValueType;
 import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.VariableValueSource;
@@ -23,15 +22,11 @@ import org.obiba.magma.type.DateTimeType;
 import org.obiba.magma.type.IntegerType;
 import org.obiba.magma.type.TextType;
 
-import com.google.common.collect.Iterables;
-
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.verify;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.junit.Assert.assertThat;
+import static org.fest.assertions.api.Assertions.assertThat;
 
 @SuppressWarnings({ "OverlyLongMethod", "PMD.NcssMethodCount" })
 public class VariablesClauseTest extends AbstractJsTest {
@@ -109,8 +104,8 @@ public class VariablesClauseTest extends AbstractJsTest {
     clause.setValueTable(createMock(ValueTable.class));
     clause.initialise();
     Iterable<VariableValueSource> sources = clause.getVariableValueSources();
-    assertThat(sources, notNullValue());
-    assertThat(Iterables.size(sources), is(0));
+    assertThat(sources).isNotNull();
+    assertThat(sources).isEmpty();
   }
 
   @Test(expected = IllegalStateException.class)
@@ -157,13 +152,13 @@ public class VariablesClauseTest extends AbstractJsTest {
 
     VariableValueSource variableValueSource_generic128 = clause.getVariableValueSource("GENERIC_128");
 
-    assertThat(variableValueSource_generic128, is(notNullValue()));
+    assertThat(variableValueSource_generic128).isNotNull();
 
     Value result = variableValueSource_generic128.getValue(valueSet);
     verify(valueSet, table, variableValueSource, variable);
 
-    assertThat(result.getValueType(), is((ValueType) IntegerType.get()));
-    assertThat(result, is(IntegerType.get().valueOf(1955)));
+    assertThat(result.getValueType()).isEqualTo(IntegerType.get());
+    assertThat(result).isEqualTo(IntegerType.get().valueOf(1955));
   }
 
   @Test
@@ -180,14 +175,14 @@ public class VariablesClauseTest extends AbstractJsTest {
     VariableValueSource variableValueSource = clause.getVariableValueSource("GENERIC_128");
     Variable variable = variableValueSource.getVariable();
     verify(valueTableMock);
-    assertThat(variable.getAttribute("label").getLocale(), is(Locale.CANADA));
-    assertThat(variable.getAttribute("label").getValue(), is(TextType.get().valueOf("Birth Year")));
-    assertThat(variable.getAttribute("URI").getValue(),
-        is(TextType.get().valueOf("http://www.datashaper.org/owl/2009/10/generic.owl#GENERIC_128")));
-    assertThat(variable.getAttribute("script").getValue(),
-        is(TextType.get().valueOf("$('Admin.Participant.birthDate').year()")));
-    assertThat(variable.getName(), is("GENERIC_128"));
-    assertThat(variable.getEntityType(), is("Participant"));
+    assertThat(variable.getAttribute("label").getLocale()).isEqualTo(Locale.CANADA);
+    assertThat(variable.getAttribute("label").getValue()).isEqualTo(TextType.get().valueOf("Birth Year"));
+    assertThat(variable.getAttribute("URI").getValue())
+        .isEqualTo(TextType.get().valueOf("http://www.datashaper.org/owl/2009/10/generic.owl#GENERIC_128"));
+    assertThat(variable.getAttribute("script").getValue())
+        .isEqualTo(TextType.get().valueOf("$('Admin.Participant.birthDate').year()"));
+    assertThat(variable.getName()).isEqualTo("GENERIC_128");
+    assertThat(variable.getEntityType()).isEqualTo("Participant");
 
   }
 
@@ -217,13 +212,13 @@ public class VariablesClauseTest extends AbstractJsTest {
     Initialisables.initialise(clause);
     VariableValueSource variableValueSource = clause.getVariableValueSource("GENERIC_129");
 
-    assertThat(variableValueSource, is(notNullValue()));
+    assertThat(variableValueSource).isNotNull();
 
     Value result = variableValueSource.getValue(valueSetMock);
     verify(valueSetMock, valueTableMock, variableValueSourceMock, mockVariable);
 
-    assertThat(result.getValueType(), is((ValueType) IntegerType.get()));
-    assertThat(result, is(IntegerType.get().valueOf(5)));
+    assertThat(result.getValueType()).isEqualTo(IntegerType.get());
+    assertThat(result).isEqualTo(IntegerType.get().valueOf(5));
   }
 
   @Test
@@ -242,12 +237,12 @@ public class VariablesClauseTest extends AbstractJsTest {
     Variable variable = variableValueSource.getVariable();
 
     verify(valueTableMock);
-    assertThat(variable.getAttribute("sameAs").getValue(),
-        is(TextType.get().valueOf("HealthQuestionnaireIdentification.SEX")));
-    assertThat(variable.getAttribute("script").getValue(),
-        is(TextType.get().valueOf("$('HealthQuestionnaireIdentification.SEX')")));
-    assertThat(variable.getName(), is("GENERIC_129"));
-    assertThat(variable.getEntityType(), is("Participant"));
+    assertThat(variable.getAttribute("sameAs").getValue())
+        .isEqualTo(TextType.get().valueOf("HealthQuestionnaireIdentification.SEX"));
+    assertThat(variable.getAttribute("script").getValue())
+        .isEqualTo(TextType.get().valueOf("$('HealthQuestionnaireIdentification.SEX')"));
+    assertThat(variable.getName()).isEqualTo("GENERIC_129");
+    assertThat(variable.getEntityType()).isEqualTo("Participant");
   }
 
   @Test
@@ -268,11 +263,11 @@ public class VariablesClauseTest extends AbstractJsTest {
     VariableValueSource variableValueSource = clause.getVariableValueSource("GENERIC_300");
     Variable variable = variableValueSource.getVariable();
     verify(valueTableMock);
-    assertThat(variable.getAttribute("sameAs").getValue(),
-        is(TextType.get().valueOf("HealthQuestionnaireIdentification.SEX")));
-    assertThat(variable.getAttribute("stage").getValue(), is(TextType.get().valueOf("HealthQuestionnaire")));
-    assertThat(variable.getName(), is("GENERIC_300"));
-    assertThat(variable.getEntityType(), is("Participant"));
+    assertThat(variable.getAttribute("sameAs").getValue())
+        .isEqualTo(TextType.get().valueOf("HealthQuestionnaireIdentification.SEX"));
+    assertThat(variable.getAttribute("stage").getValue()).isEqualTo(TextType.get().valueOf("HealthQuestionnaire"));
+    assertThat(variable.getName()).isEqualTo("GENERIC_300");
+    assertThat(variable.getEntityType()).isEqualTo("Participant");
 
   }
 

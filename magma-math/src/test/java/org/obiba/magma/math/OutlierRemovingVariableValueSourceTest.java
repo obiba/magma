@@ -15,6 +15,7 @@ import org.obiba.magma.ValueTable;
 import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.VariableValueSource;
+import org.obiba.magma.VariableValueSourceWrapper;
 import org.obiba.magma.VectorSource;
 import org.obiba.magma.support.Values;
 import org.obiba.magma.type.IntegerType;
@@ -25,8 +26,7 @@ import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.verify;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.fest.assertions.api.Assertions.assertThat;
 
 public class OutlierRemovingVariableValueSourceTest {
 
@@ -82,10 +82,10 @@ public class OutlierRemovingVariableValueSourceTest {
     expect(mockSource.getValueType()).andReturn(testVariable.getValueType()).anyTimes();
     expect(mockSource.asVectorSource()).andReturn(mockVector).anyTimes();
     replay(mockSource);
-    OutlierRemovingVariableValueSource testedSource = new OutlierRemovingVariableValueSource(mockTable, mockSource);
-    assertThat(testedSource.getVariable(), is(testVariable));
-    assertThat(testedSource.getValueType(), is(testVariable.getValueType()));
-    assertThat(testedSource.getWrapped(), is(mockSource));
+    VariableValueSourceWrapper testedSource = new OutlierRemovingVariableValueSource(mockTable, mockSource);
+    assertThat(testedSource.getVariable()).isEqualTo(testVariable);
+    assertThat(testedSource.getValueType()).isEqualTo(testVariable.getValueType());
+    assertThat(testedSource.getWrapped()).isEqualTo(mockSource);
     verify(mockSource);
   }
 
@@ -98,7 +98,7 @@ public class OutlierRemovingVariableValueSourceTest {
 
     ValueSource testedSource = new OutlierRemovingVariableValueSource(mockTable, mockSource,
         new DefaultDescriptiveStatisticsProvider());
-    assertThat(testedSource.getValue(mockValueSet), is(testValue));
+    assertThat(testedSource.getValue(mockValueSet)).isEqualTo(testValue);
 
     verify(mockSource);
   }
@@ -112,7 +112,7 @@ public class OutlierRemovingVariableValueSourceTest {
 
     ValueSource testedSource = new OutlierRemovingVariableValueSource(mockTable, mockSource,
         new DefaultDescriptiveStatisticsProvider());
-    assertThat(testedSource.getValue(mockValueSet), is(IntegerType.get().nullValue()));
+    assertThat(testedSource.getValue(mockValueSet)).isEqualTo(IntegerType.get().nullValue());
 
     verify(mockSource);
   }
@@ -134,7 +134,7 @@ public class OutlierRemovingVariableValueSourceTest {
 
     ValueSource testedSource = new OutlierRemovingVariableValueSource(mockTable, mockSource, mockProvider);
 
-    assertThat(Iterables.elementsEqual(testedSource.asVectorSource().getValues(emptySet), expectedValues), is(true));
+    assertThat(Iterables.elementsEqual(testedSource.asVectorSource().getValues(emptySet), expectedValues)).isTrue();
 
     verify(mockSource);
   }
@@ -146,7 +146,7 @@ public class OutlierRemovingVariableValueSourceTest {
 
     ValueSource testedSource = new OutlierRemovingVariableValueSource(mockTable, mockSource,
         new DefaultDescriptiveStatisticsProvider());
-    assertThat(testedSource.getValue(mockValueSet), is(IntegerType.get().nullValue()));
+    assertThat(testedSource.getValue(mockValueSet)).isEqualTo(IntegerType.get().nullValue());
 
     verify(mockSource);
 

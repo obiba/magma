@@ -156,7 +156,7 @@ public class SpssDatasourceTest {
     dsFactory.setFile(getResourceFile("org/obiba/magma/datasource/spss/RobotChicken.sav"));
     Datasource ds = dsFactory.create();
     ds.initialise();
-    assertThat(ds.getValueTable("RobotChicken").getVariable("VarQuarterly").getValueType().getClass())
+    assertThat(ds.getValueTable("RobotChicken").getVariable("VarQuarterly").getValueType())
         .isInstanceOf(TextType.class);
   }
 
@@ -165,8 +165,7 @@ public class SpssDatasourceTest {
     dsFactory.setFile(getResourceFile("org/obiba/magma/datasource/spss/RobotChicken.sav"));
     Datasource ds = dsFactory.create();
     ds.initialise();
-    assertThat(ds.getValueTable("RobotChicken").getVariable("VarCurrency").getValueType().getClass())
-        .isInstanceOf(TextType.class);
+    assertThat(ds.getValueTable("RobotChicken").getVariable("VarCurrency").getValueType()).isInstanceOf(TextType.class);
   }
 
   @Test

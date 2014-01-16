@@ -6,8 +6,7 @@ import org.junit.Test;
 import org.obiba.magma.ValueSet;
 import org.obiba.magma.VariableValueSource;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.fest.assertions.api.Assertions.assertThat;
 
 public class ExcludeAllFilterTest {
 
@@ -24,26 +23,26 @@ public class ExcludeAllFilterTest {
   @Test
   public void testValueSetFilterAlwaysReturnsTrue() throws Exception {
     ExcludeAllFilter<ValueSet> filter = ExcludeAllFilter.Builder.newFilter().buildForValueSet();
-    assertThat(filter.runFilter(valueSetMock), is(true));
+    assertThat(filter.runFilter(valueSetMock)).isTrue();
   }
 
   @Test
   public void testValueSetFilterIsAlwaysTheExcludeType() throws Exception {
     ExcludeAllFilter<ValueSet> filter = ExcludeAllFilter.Builder.newFilter().buildForValueSet();
     StateEnvelope<ValueSet> stateEnvelope = new StateEnvelope<>(valueSetMock);
-    assertThat(filter.doIt(stateEnvelope).getState(), is(FilterState.OUT));
+    assertThat(filter.doIt(stateEnvelope).getState()).isEqualTo(FilterState.OUT);
   }
 
   @Test
   public void testVariableValueSourceFilterAlwaysReturnsTrue() throws Exception {
     ExcludeAllFilter<VariableValueSource> filter = ExcludeAllFilter.Builder.newFilter().buildForVariableValueSource();
-    assertThat(filter.runFilter(variableValueSourceMock), is(true));
+    assertThat(filter.runFilter(variableValueSourceMock)).isTrue();
   }
 
   @Test
   public void testVariableValueSourceFilterIsAlwaysTheExcludeType() throws Exception {
     ExcludeAllFilter<VariableValueSource> filter = ExcludeAllFilter.Builder.newFilter().buildForVariableValueSource();
     StateEnvelope<VariableValueSource> stateEnvelope = new StateEnvelope<>(variableValueSourceMock);
-    assertThat(filter.doIt(stateEnvelope).getState(), is(FilterState.OUT));
+    assertThat(filter.doIt(stateEnvelope).getState()).isEqualTo(FilterState.OUT);
   }
 }

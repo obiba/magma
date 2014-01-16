@@ -12,15 +12,14 @@ package org.obiba.magma;
 import org.junit.Test;
 import org.obiba.magma.type.TextType;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.fest.assertions.api.Assertions.assertThat;
 
 public class ValueTest extends AbstractValueTest {
 
   @Test(expected = RuntimeException.class)
   public void test_asSequence_throwsExceptionWhenNotASequence() {
     Value value = testValue();
-    assertThat(value.isSequence(), is(false));
+    assertThat(value.isSequence()).isFalse();
     value.asSequence();
   }
 

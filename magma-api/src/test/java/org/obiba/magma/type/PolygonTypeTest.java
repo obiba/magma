@@ -20,8 +20,7 @@ import org.obiba.magma.ValueType;
 
 import com.google.common.collect.ImmutableList;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.fest.assertions.api.Assertions.assertThat;
 
 @SuppressWarnings({ "unchecked", "ConstantConditions" })
 public class PolygonTypeTest extends BaseValueTypeTest {
@@ -65,8 +64,8 @@ public class PolygonTypeTest extends BaseValueTypeTest {
   public void testParseOneShapePolygonGeoJSONPoints() {
     List<List<Coordinate>> result = (List<List<Coordinate>>) getValueType()
         .valueOf("[[[100.0, 0.0], [101.0, 0.0], [101.0, 1.0], [100.0, 1.0], [100.0, 0.0]  ]]").getValue();
-    assertThat(result.size(), is(1));
-    assertThat(result.get(0).size(), is(5));
+    assertThat(result).hasSize(1);
+    assertThat(result.get(0)).hasSize(5);
   }
 
   @Test
@@ -76,17 +75,17 @@ public class PolygonTypeTest extends BaseValueTypeTest {
             "{\"lat\" : 101.0,\"lon\" : 1.0 }, {\"lat\" : 100.0,\"lon\" : 1.0 }, {\"lat\" : 100.0,\"lon\" : 0.0 } ]," +
             " [ {\"lat\" : 100.2,\"lon\" : 0.2 }, {\"lat\" : 100.8,\"lon\" : 0.2 }, {\"lat\" : 100.8,\"lon\" : 0.8 }," +
             " {\"lat\" : 100.2,\"lon\" : 0.8 }, {\"lat\" : 100.2,\"lon\" : 0.2 } ]]").getValue();
-    assertThat(result.size(), is(2));
-    assertThat(result.get(0).size(), is(5));
-    assertThat(result.get(0).size(), is(5));
+    assertThat(result).hasSize(2);
+    assertThat(result.get(0)).hasSize(5);
+    assertThat(result.get(0)).hasSize(5);
   }
 
   @Test
   public void testParseOneShapePolygonJSONPoints() {
     List<List<Coordinate>> result = (List<List<Coordinate>>) getValueType()
         .valueOf("[[[100.0, 0.0], [101.0, 0.0], [101.0, 1.0], [100.0, 1.0], [100.0, 0.0]  ]]").getValue();
-    assertThat(result.size(), is(1));
-    assertThat(result.get(0).size(), is(5));
+    assertThat(result).hasSize(1);
+    assertThat(result.get(0)).hasSize(5);
   }
 
   @Test
@@ -102,11 +101,11 @@ public class PolygonTypeTest extends BaseValueTypeTest {
 
     List<List<Coordinate>> result = (List<List<Coordinate>>) getValueType().valueOf(polygon).getValue();
 
-    assertThat(polygon.size(), is(1));
-    assertThat(polygon.get(0).size(), is(5));
-    assertThat(result.get(0).get(0).getLongitude(), is(100.0));
-    assertThat(result.get(0).get(1).getLongitude(), is(101.0));
-    assertThat(result.get(0).get(2).getLongitude(), is(101.0));
+    assertThat(polygon).hasSize(1);
+    assertThat(polygon.get(0)).hasSize(5);
+    assertThat(result.get(0).get(0).getLongitude()).isEqualTo(100.0);
+    assertThat(result.get(0).get(1).getLongitude()).isEqualTo(101.0);
+    assertThat(result.get(0).get(2).getLongitude()).isEqualTo(101.0);
   }
 
   @Test
@@ -122,13 +121,13 @@ public class PolygonTypeTest extends BaseValueTypeTest {
 
     List<List<Coordinate>> result = (List<List<Coordinate>>) getValueType().valueOf(polygon).getValue();
 
-    assertThat(polygon.size(), is(1));
-    assertThat(polygon.get(0).size(), is(5));
-    assertThat(result.get(0).get(0).getLongitude(), is(100.0));
-    assertThat(result.get(0).get(1).getLongitude(), is(101.0));
-    assertThat(result.get(0).get(2).getLongitude(), is(101.0));
-    assertThat(result.get(0).get(1).getLatitude(), is(0.0));
-    assertThat(result.get(0).get(2).getLatitude(), is(1.0));
+    assertThat(polygon).hasSize(1);
+    assertThat(polygon.get(0)).hasSize(5);
+    assertThat(result.get(0).get(0).getLongitude()).isEqualTo(100.0);
+    assertThat(result.get(0).get(1).getLongitude()).isEqualTo(101.0);
+    assertThat(result.get(0).get(2).getLongitude()).isEqualTo(101.0);
+    assertThat(result.get(0).get(1).getLatitude()).isEqualTo(0.0);
+    assertThat(result.get(0).get(2).getLatitude()).isEqualTo(1.0);
   }
 
   @Test
@@ -145,9 +144,9 @@ public class PolygonTypeTest extends BaseValueTypeTest {
 
     List<List<Coordinate>> result = (List<List<Coordinate>>) getValueType().valueOf(polygon).getValue();
 
-    assertThat(result.size(), is(1));
-    assertThat(result.get(0).size(), is(5));
-    assertThat(result.get(0).get(0).getLongitude(), is(100.0));
+    assertThat(result).hasSize(1);
+    assertThat(result.get(0)).hasSize(5);
+    assertThat(result.get(0).get(0).getLongitude()).isEqualTo(100.0);
   }
 
   @Test
@@ -160,10 +159,10 @@ public class PolygonTypeTest extends BaseValueTypeTest {
     List<List<Coordinate>> result = (List<List<Coordinate>>) getValueType().valueOf(s).getValue();
 
     assert result != null;
-    assertThat(result.size(), is(2));
-    assertThat(result.get(0).size(), is(5));
-    assertThat(result.get(1).size(), is(5));
-    assertThat(result.get(0).get(0).getLatitude(), is(100.0));
+    assertThat(result).hasSize(2);
+    assertThat(result.get(0)).hasSize(5);
+    assertThat(result.get(1)).hasSize(5);
+    assertThat(result.get(0).get(0).getLatitude()).isEqualTo(100.0);
   }
 
   @Test(expected = MagmaRuntimeException.class)
@@ -194,13 +193,13 @@ public class PolygonTypeTest extends BaseValueTypeTest {
 
   @Test(expected = MagmaRuntimeException.class)
   public void testNullPolygon() {
-    assertThat(getValueType().valueOf("[[]]").isNull(), is(true));
+    assertThat(getValueType().valueOf("[[]]").isNull()).isTrue();
   }
 
   @Test(expected = MagmaRuntimeException.class)
   public void testNullPolygon2() {
     List<List<Coordinate>> result = new ArrayList<>();
-    assertThat(getValueType().valueOf(result).isNull(), is(true));
+    assertThat(getValueType().valueOf(result).isNull()).isTrue();
   }
 
   @Test(expected = IllegalArgumentException.class)
@@ -222,7 +221,7 @@ public class PolygonTypeTest extends BaseValueTypeTest {
   public void testCompareIdenticalPolygons() {
     String s1 = "[[[100.0, 0.0], [101.0, 0.0], [101.0, 1.0], [100.0, 1.0], [100.0, 0.0]  ]]";
     String s2 = "[[[100.0, 0.0], [101.0, 0.0], [101.0, 1.0], [100.0, 1.0], [100.0, 0.0]  ]]";
-    assertThat(getValueType().compare(getValueType().valueOf(s1), getValueType().valueOf(s2)), is(0));
+    assertThat(getValueType().compare(getValueType().valueOf(s1), getValueType().valueOf(s2))).isEqualTo(0);
   }
 
   @Test
@@ -232,14 +231,14 @@ public class PolygonTypeTest extends BaseValueTypeTest {
     String s2 = "[[[0.0,0.0] , [0.1,0.0] , [0.1,0.1] , [0.0,0.1] , [0.0,0.0]] , " +
         "[[100.0, 0.0], [101.0, 0.0], [101.0, 1.0], [100.0, 1.0], [100.0, 0.0]]]";
 
-    assertThat(getValueType().compare(getValueType().valueOf(s1), getValueType().valueOf(s2)), is(0));
+    assertThat(getValueType().compare(getValueType().valueOf(s1), getValueType().valueOf(s2))).isEqualTo(0);
   }
 
   @Test
   public void testComparePolygons() {
     String s1 = "[[[100.0, 0.0], [101.0, 0.0], [101.0, 1.0], [100.0, 1.0], [100.0, 0.0]  ]]";
     String s2 = "[[[100.0, 0.0], [101.0, 1.0], [101.0, 0.0], [100.0, 1.0], [100.0, 0.0]  ]]";
-    assertThat(getValueType().compare(getValueType().valueOf(s1), getValueType().valueOf(s2)), is(-1));
+    assertThat(getValueType().compare(getValueType().valueOf(s1), getValueType().valueOf(s2))).isEqualTo(-1);
   }
 
   @Test
@@ -248,6 +247,6 @@ public class PolygonTypeTest extends BaseValueTypeTest {
         "[[0.0,0.0] , [0.1,0.0] , [0.1,0.1] , [0.0,0.1] , [0.0,0.0] ]]";
     String s2 = "[[[100.0, 0.0], [101.0, 1.0], [101.0, 0.0], [100.0, 1.0], [100.0, 0.0]]]";
 
-    assertThat(getValueType().compare(getValueType().valueOf(s1), getValueType().valueOf(s2)), is(1));
+    assertThat(getValueType().compare(getValueType().valueOf(s1), getValueType().valueOf(s2))).isEqualTo(1);
   }
 }

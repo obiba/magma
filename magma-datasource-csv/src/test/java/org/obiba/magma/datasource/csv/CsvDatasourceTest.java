@@ -6,7 +6,6 @@ import java.util.Locale;
 import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
-import org.junit.Assert;
 import org.junit.Test;
 import org.obiba.magma.Category;
 import org.obiba.magma.NoSuchValueSetException;
@@ -29,16 +28,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Iterables;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.hamcrest.CoreMatchers.nullValue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.fest.assertions.api.Assertions.assertThat;
+import static org.junit.Assert.fail;
 import static org.obiba.core.util.FileUtil.getFileFromResource;
 import static org.obiba.magma.datasource.csv.CsvValueTable.DEFAULT_ENTITY_TYPE;
 
@@ -50,15 +42,15 @@ public class CsvDatasourceTest extends AbstractMagmaTest {
 
   @Test
   public void test_separators() {
-    assertEquals(Quote.SINGLE, Quote.fromString("'"));
-    assertEquals(Quote.DOUBLE, Quote.fromString("\""));
-    assertEquals('|', Quote.fromString("|").getCharacter());
+    assertThat(Quote.fromString("'")).isEqualTo(Quote.SINGLE);
+    assertThat(Quote.fromString("\"")).isEqualTo(Quote.DOUBLE);
+    assertThat(Quote.fromString("|").getCharacter()).isEqualTo('|');
 
-    assertEquals(Separator.COMMA, Separator.fromString(","));
-    assertEquals(Separator.SEMICOLON, Separator.fromString(";"));
-    assertEquals(Separator.COLON, Separator.fromString(":"));
-    assertEquals(Separator.TAB, Separator.fromString("\t"));
-    assertEquals('|', Separator.fromString("|").getCharacter());
+    assertThat(Separator.fromString(",")).isEqualTo(Separator.COMMA);
+    assertThat(Separator.fromString(";")).isEqualTo(Separator.SEMICOLON);
+    assertThat(Separator.fromString(":")).isEqualTo(Separator.COLON);
+    assertThat(Separator.fromString("\t")).isEqualTo(Separator.TAB);
+    assertThat(Separator.fromString("|").getCharacter()).isEqualTo('|');
   }
 
   @Test
@@ -74,7 +66,7 @@ public class CsvDatasourceTest extends AbstractMagmaTest {
         .put("sample-semicolon.csv", ";").put("sample-colon.csv", ":").put("sample-tab.csv", "tab")
         .put("sample-pipe.csv", "|").put("sample-space.csv", " ").build();
     File[] files = samples.listFiles();
-    assertThat(files, notNullValue());
+    assertThat(files).isNotNull();
     //noinspection ConstantConditions
     for(File sample : files) {
       String fileName = sample.getName();
@@ -89,7 +81,7 @@ public class CsvDatasourceTest extends AbstractMagmaTest {
         throw e;
       }
       ValueTable valueTable = datasource.getValueTable(reference.getName());
-      assertThat(valueTable.getVariableEntities().size(), is(16));
+      assertThat(valueTable.getVariableEntities()).hasSize(16);
       for(Variable v : valueTable.getVariables()) {
         for(ValueSet vs : valueTable.getValueSets()) {
           valueTable.getVariableValueSource(v.getName()).getValue(vs);
@@ -106,49 +98,49 @@ public class CsvDatasourceTest extends AbstractMagmaTest {
         getFileFromResource("Table1/variables.csv"), //
         getFileFromResource("Table1/data.csv"));
     datasource.initialise();
-    assertThat(datasource.getValueTableNames().size(), is(1));
+    assertThat(datasource.getValueTableNames()).hasSize(1);
 
     ValueTable table = datasource.getValueTable("Table1");
-    assertThat(table, notNullValue());
-    assertThat(table.getEntityType(), is("Participant"));
+    assertThat(table).isNotNull();
+    assertThat(table.getEntityType()).isEqualTo("Participant");
 
     Variable var = table.getVariable("var1");
-    assertThat(var, notNullValue());
-    assertThat(var.getValueType().getName(), is("text"));
-    assertEquals("Participant", var.getEntityType());
-    assertNull(var.getMimeType());
-    assertNull(var.getUnit());
-    assertNull(var.getOccurrenceGroup());
-    assertFalse(var.isRepeatable());
+    assertThat(var).isNotNull();
+    assertThat(var.getValueType().getName()).isEqualTo("text");
+    assertThat(var.getEntityType()).isEqualTo("Participant");
+    assertThat(var.getMimeType()).isNull();
+    assertThat(var.getUnit()).isNull();
+    assertThat(var.getOccurrenceGroup()).isNull();
+    assertThat(var.isRepeatable()).isFalse();
 
-    assertEquals(4, var.getCategories().size());
+    assertThat(var.getCategories()).hasSize(4);
     for(Category category : var.getCategories()) {
       String label = category.getAttribute("label", Locale.ENGLISH).getValue().toString();
       String categoryName = category.getName();
       switch(categoryName) {
         case "Y":
-          assertEquals("yes", label);
+          assertThat(label).isEqualTo("yes");
           break;
         case "N":
-          assertEquals("no", label);
+          assertThat(label).isEqualTo("no");
           break;
         case "PNA":
-          assertEquals("prefer not to answer", label);
+          assertThat(label).isEqualTo("prefer not to answer");
           break;
         case "DNK":
-          assertEquals("don't know", label);
+          assertThat(label).isEqualTo("don't know");
           break;
         default:
-          Assert.fail();
+          fail();
           break;
       }
     }
 
-    assertEquals(3, var.getAttributes().size());
-    assertTrue(var.hasAttribute("label"));
-    assertEquals("Hello I'm variable one", var.getAttribute("label", Locale.ENGLISH).getValue().toString());
-    assertEquals("ns1", var.getAttribute("ns1", "attr").getValue().toString());
-    assertEquals("ns2", var.getAttribute("ns2", "attr", Locale.ENGLISH).getValue().toString());
+    assertThat(var.getAttributes()).hasSize(3);
+    assertThat(var.hasAttribute("label")).isTrue();
+    assertThat(var.getAttribute("label", Locale.ENGLISH).getValue().toString()).isEqualTo("Hello I'm variable one");
+    assertThat(var.getAttribute("ns1", "attr").getValue().toString()).isEqualTo("ns1");
+    assertThat(var.getAttribute("ns2", "attr", Locale.ENGLISH).getValue().toString()).isEqualTo("ns2");
   }
 
   @SuppressWarnings("IfStatementWithTooManyBranches")
@@ -158,11 +150,11 @@ public class CsvDatasourceTest extends AbstractMagmaTest {
         getFileFromResource("Table1/variables.csv"), //
         getFileFromResource("Table1/data.csv"));
     datasource.initialise();
-    assertThat(datasource.getValueTableNames().size(), is(1));
+    assertThat(datasource.getValueTableNames()).hasSize(1);
 
     ValueTable table = datasource.getValueTable("Table1");
-    assertThat(table, notNullValue());
-    assertThat(table.getEntityType(), is("Participant"));
+    assertThat(table).isNotNull();
+    assertThat(table.getEntityType()).isEqualTo("Participant");
 
     Variable var = table.getVariable("var1");
 
@@ -170,22 +162,22 @@ public class CsvDatasourceTest extends AbstractMagmaTest {
       String identifier = valueSet.getVariableEntity().getIdentifier();
       Value value = table.getValue(var, valueSet);
       log.debug("var1[{}]={}", identifier, value);
-      assertEquals("text", value.getValueType().getName());
+      assertThat(value.getValueType().getName()).isEqualTo("text");
       switch(identifier) {
         case "1":
-          assertEquals("Y", value.getValue());
+          assertThat(value.getValue()).isEqualTo("Y");
           break;
         case "2":
-          assertEquals("N", value.getValue());
+          assertThat(value.getValue()).isEqualTo("N");
           break;
         case "3":
-          assertEquals("PNA", value.getValue());
+          assertThat(value.getValue()).isEqualTo("PNA");
           break;
         case "4":
-          assertEquals("DNK", value.getValue());
+          assertThat(value.getValue()).isEqualTo("DNK");
           break;
         default:
-          Assert.fail();
+          fail();
           break;
       }
     }
@@ -198,7 +190,7 @@ public class CsvDatasourceTest extends AbstractMagmaTest {
         getFileFromResource("TableDataOnly/data.csv"));
     datasource.initialise();
 
-    assertThat(datasource.getValueTableNames().size(), is(1));
+    assertThat(datasource.getValueTableNames()).hasSize(1);
   }
 
   @Test
@@ -208,7 +200,7 @@ public class CsvDatasourceTest extends AbstractMagmaTest {
         getFileFromResource("TableDataOnly/data.csv"));
     datasource.initialise();
 
-    assertThat(datasource.getValueTable("TableDataOnly"), notNullValue());
+    assertThat(datasource.getValueTable("TableDataOnly")).isNotNull();
   }
 
   @Test
@@ -219,7 +211,7 @@ public class CsvDatasourceTest extends AbstractMagmaTest {
     datasource.initialise();
     ValueTable table = datasource.getValueTable("TableDataOnly");
 
-    assertThat(table.getEntityType(), is(DEFAULT_ENTITY_TYPE));
+    assertThat(table.getEntityType()).isEqualTo(DEFAULT_ENTITY_TYPE);
   }
 
   @Test
@@ -230,7 +222,7 @@ public class CsvDatasourceTest extends AbstractMagmaTest {
     datasource.initialise();
     ValueTable table = datasource.getValueTable("TableDataOnly");
 
-    assertThat(table.getVariable("FavouriteIcecream"), notNullValue());
+    assertThat(table.getVariable("FavouriteIcecream")).isNotNull();
   }
 
   @Test
@@ -247,7 +239,7 @@ public class CsvDatasourceTest extends AbstractMagmaTest {
       String identifier = valueSet.getVariableEntity().getIdentifier();
       Value value = table.getValue(favouriteIcecream, valueSet);
       if("1".equals(identifier) || "2".equals(identifier)) {
-        assertThat(value.isNull(), is(true));
+        assertThat(value.isNull()).isTrue();
       }
     }
   }
@@ -261,7 +253,7 @@ public class CsvDatasourceTest extends AbstractMagmaTest {
     ValueTable table = datasource.getValueTable("TableDataOnly");
 
     for(Variable variable : table.getVariables()) {
-      assertThat(variable.getValueType().getName(), is(TextType.get().getName()));
+      assertThat(variable.getValueType().getName()).isEqualTo(TextType.get().getName());
     }
   }
 
@@ -272,7 +264,7 @@ public class CsvDatasourceTest extends AbstractMagmaTest {
     datasource.initialise();
 
     ValueTable table = datasource.getValueTable("TableDataOnly");
-    assertThat(table.getVariableEntities().size(), is(4));
+    assertThat(table.getVariableEntities()).hasSize(4);
   }
 
   @Test
@@ -282,11 +274,11 @@ public class CsvDatasourceTest extends AbstractMagmaTest {
     datasource.initialise();
 
     ValueTable table = datasource.getValueTable("TableDataOnly");
-    assertThat(Iterables.size(table.getVariables()), is(5));
+    assertThat(table.getVariables()).hasSize(5);
 
     //noinspection TypeMayBeWeakened
     CsvValueTable cvsValueTable = (CsvValueTable) table;
-    assertThat(cvsValueTable.getVariables().size(), is(5));
+    assertThat(cvsValueTable.getVariables()).hasSize(5);
   }
 
   @SuppressWarnings("IfStatementWithTooManyBranches")
@@ -301,11 +293,11 @@ public class CsvDatasourceTest extends AbstractMagmaTest {
     CsvDatasource datasource = new CsvDatasource("csv-datasource2").addValueTable(refTable, //
         getFileFromResource("Table1/data2.csv"));
     datasource.initialise();
-    assertThat(datasource.getValueTableNames().size(), is(1));
+    assertThat(datasource.getValueTableNames()).hasSize(1);
 
     ValueTable table = datasource.getValueTable("Table1");
-    assertThat(table, notNullValue());
-    assertThat(table.getEntityType(), is("Participant"));
+    assertThat(table).isNotNull();
+    assertThat(table.getEntityType()).isEqualTo("Participant");
 
     Variable var = table.getVariable("var2");
 
@@ -313,22 +305,22 @@ public class CsvDatasourceTest extends AbstractMagmaTest {
       String identifier = valueSet.getVariableEntity().getIdentifier();
       Value value = table.getValue(var, valueSet);
       log.debug("var2[{}]={}", identifier, value);
-      assertEquals("integer", value.getValueType().getName());
+      assertThat(value.getValueType().getName()).isEqualTo("integer");
       switch(identifier) {
         case "5":
-          assertEquals(15l, value.getValue());
+          assertThat(value.getValue()).isEqualTo(15l);
           break;
         case "6":
-          assertEquals(16l, value.getValue());
+          assertThat(value.getValue()).isEqualTo(16l);
           break;
         case "7":
-          assertEquals(17l, value.getValue());
+          assertThat(value.getValue()).isEqualTo(17l);
           break;
         case "8":
-          assertEquals(18l, value.getValue());
+          assertThat(value.getValue()).isEqualTo(18l);
           break;
         default:
-          assertFalse(true);
+          fail();
           break;
       }
     }
@@ -345,10 +337,11 @@ public class CsvDatasourceTest extends AbstractMagmaTest {
     ValueTable table = datasource.getValueTable(tableName);
     Variable variable = table.getVariable("var2");
 
-    assertThat(variable.getValueType().getName(), is(IntegerType.get().getName()));
-    assertThat(variable.getEntityType(), is(DEFAULT_ENTITY_TYPE));
-    assertThat(variable.getAttribute("label", Locale.ENGLISH).getValue().toString(), is("Hello I'm variable two"));
-    assertThat(variable.getMimeType(), nullValue());
+    assertThat(variable.getValueType().getName()).isEqualTo(IntegerType.get().getName());
+    assertThat(variable.getEntityType()).isEqualTo(DEFAULT_ENTITY_TYPE);
+    assertThat(variable.getAttribute("label", Locale.ENGLISH).getValue().toString())
+        .isEqualTo("Hello I'm variable two");
+    assertThat(variable.getMimeType()).isNull();
     datasource.dispose();
   }
 
@@ -358,7 +351,7 @@ public class CsvDatasourceTest extends AbstractMagmaTest {
     CsvDatasource datasource = new TempTableBuilder(tableName).addVariables(getFileFromResource("Table1/variables.csv"))
         .buildCsvDatasource("csv-datasource");
 
-    assertThat(((AbstractValueTable) datasource.getValueTable(tableName)).getVariables().size(), is(2));
+    assertThat(((AbstractValueTable) datasource.getValueTable(tableName)).getVariables()).hasSize(2);
   }
 
   @Test
@@ -367,14 +360,14 @@ public class CsvDatasourceTest extends AbstractMagmaTest {
         getFileFromResource("Participants/variables.csv"), //
         getFileFromResource("Participants/data.csv"));
     datasource.initialise();
-    assertThat(datasource.getValueTableNames().size(), is(1));
+    assertThat(datasource.getValueTableNames()).hasSize(1);
 
     ValueTable table = datasource.getValueTable("Participants");
-    assertThat(table, notNullValue());
-    assertThat(table.getEntityType(), is(DEFAULT_ENTITY_TYPE));
+    assertThat(table).isNotNull();
+    assertThat(table.getEntityType()).isEqualTo(DEFAULT_ENTITY_TYPE);
 
     Variable var = table.getVariable("Admin.Action.actionType");
-    assertTrue(var.isRepeatable());
+    assertThat(var.isRepeatable()).isTrue();
 
     int count = 0;
     for(ValueSet valueSet : table.getValueSets()) {
@@ -383,12 +376,12 @@ public class CsvDatasourceTest extends AbstractMagmaTest {
         String identifier = valueSet.getVariableEntity().getIdentifier();
         Value value = table.getValue(var, valueSet);
         log.info("Admin.Action.actionType[{}]={}", identifier, value);
-        assertThat(value.getValueType().getName(), is("text"));
-        assertThat(value.isSequence(), is(true));
-        assertThat(value.asSequence().getSize(), is(33));
+        assertThat(value.getValueType().getName()).isEqualTo("text");
+        assertThat(value.isSequence()).isTrue();
+        assertThat(value.asSequence().getSize()).isEqualTo(33);
       }
     }
-    assertThat(count, is(2));
+    assertThat(count).isEqualTo(2);
   }
 
   @Test
@@ -402,14 +395,14 @@ public class CsvDatasourceTest extends AbstractMagmaTest {
     datasource.setFirstRow(1);
     datasource.initialise();
 
-    assertThat(datasource.getValueTableNames().size(), is(1));
+    assertThat(datasource.getValueTableNames()).hasSize(1);
 
     ValueTable table = datasource.getValueTable("Participants");
-    assertThat(table, notNullValue());
-    assertThat(table.getEntityType(), is(DEFAULT_ENTITY_TYPE));
+    assertThat(table).isNotNull();
+    assertThat(table.getEntityType()).isEqualTo(DEFAULT_ENTITY_TYPE);
 
     Variable var = table.getVariable("Admin.Action.comment");
-    assertThat(var.isRepeatable(), is(true));
+    assertThat(var.isRepeatable()).isTrue();
 
     int count = 0;
     for(ValueSet valueSet : table.getValueSets()) {
@@ -417,20 +410,20 @@ public class CsvDatasourceTest extends AbstractMagmaTest {
       String identifier = valueSet.getVariableEntity().getIdentifier();
       Value value = table.getValue(var, valueSet);
       log.info("Admin.Action.comment[{}]={}", identifier, value);
-      assertThat(value, notNullValue());
-      assertThat(value.getValueType().getName(), is("text"));
-      assertThat(value.isSequence(), is(true));
+      assertThat(value).isNotNull();
+      assertThat(value.getValueType().getName()).isEqualTo("text");
+      assertThat(value.isSequence()).isTrue();
 
       ValueSequence seq = value.asSequence();
       if(count == 1) {
-        assertThat(seq.getSize(), is(33));
-        assertThat(seq.get(22).toString(), is("sample collection by Val\ndata entry by Evan"));
+        assertThat(seq.getSize()).isEqualTo(33);
+        assertThat(seq.get(22).toString()).isEqualTo("sample collection by Val\ndata entry by Evan");
       } else if(count == 2) {
-        assertThat(seq.get(5).toString(), is("Unable to draw from left arm due to vein rolling upon puncture. " +
-            "Ct refused puncture to right arm. Saliva kit complete"));
+        assertThat(seq.get(5).toString()).isEqualTo("Unable to draw from left arm due to vein rolling upon puncture. " +
+            "Ct refused puncture to right arm. Saliva kit complete");
       }
     }
-    assertThat(count, is(2));
+    assertThat(count).isEqualTo(2);
   }
 
   @Test
@@ -461,7 +454,7 @@ public class CsvDatasourceTest extends AbstractMagmaTest {
   private void assertCharSetValue(ValueTable table, Variable var, String identifier, String expected) {
     Value value = table.getValue(var, table.getValueSet(new VariableEntityBean("Drug", identifier)));
     log.info("{} : {}", identifier, value.toString());
-    assertThat(value.toString(), is(expected));
+    assertThat(value.toString()).isEqualTo(expected);
   }
 
   @SuppressWarnings("ReuseOfLocalVariable")
@@ -479,46 +472,46 @@ public class CsvDatasourceTest extends AbstractMagmaTest {
 
     VariableEntity entity1 = new VariableEntityBean(DEFAULT_ENTITY_TYPE, "1");
     Value value = table.getValue(name, table.getValueSet(entity1));
-    assertThat(value.isSequence(), is(false));
-    assertThat((String) value.getValue(), is("Julius\nCaesar"));
+    assertThat(value.isSequence()).isFalse();
+    assertThat((String) value.getValue()).isEqualTo("Julius\nCaesar");
 
     value = table.getValue(children, table.getValueSet(entity1));
-    assertThat(value.isSequence(), is(true));
+    assertThat(value.isSequence()).isTrue();
     ValueSequence valueSequence = value.asSequence();
-    assertThat((String) valueSequence.get(0).getValue(), is("Julia"));
-    assertThat((String) valueSequence.get(1).getValue(), is("Caesarion"));
-    assertThat((String) valueSequence.get(2).getValue(), is("Gaius\\\\Julius Caesar \"Octavianus\""));
-    assertThat(valueSequence.get(3).isNull(), is(true));
-    assertThat((String) valueSequence.get(4).getValue(), is("Marcus Junius\" Brutus"));
+    assertThat((String) valueSequence.get(0).getValue()).isEqualTo("Julia");
+    assertThat((String) valueSequence.get(1).getValue()).isEqualTo("Caesarion");
+    assertThat((String) valueSequence.get(2).getValue()).isEqualTo("Gaius\\\\Julius Caesar \"Octavianus\"");
+    assertThat(valueSequence.get(3).isNull()).isTrue();
+    assertThat((String) valueSequence.get(4).getValue()).isEqualTo("Marcus Junius\" Brutus");
 
     VariableEntity entity2 = new VariableEntityBean(DEFAULT_ENTITY_TYPE, "2");
 
     value = table.getValue(name, table.getValueSet(entity2));
-    assertThat(value.isSequence(), is(false));
-    assertThat((String) value.getValue(), is("Cleopatra\\\\\"VII"));
+    assertThat(value.isSequence()).isFalse();
+    assertThat((String) value.getValue()).isEqualTo("Cleopatra\\\\\"VII");
 
     value = table.getValue(children, table.getValueSet(entity2));
-    assertThat(value.isSequence(), is(true));
+    assertThat(value.isSequence()).isTrue();
     valueSequence = value.asSequence();
-    assertThat((String) valueSequence.get(0).getValue(), is("Ptolemy XV"));
-    assertThat(valueSequence.get(1).isNull(), is(true));
-    assertThat((String) valueSequence.get(2).getValue(), is("Caesarion"));
-    assertThat((String) valueSequence.get(3).getValue(), is("Alexander Helios"));
-    assertThat((String) valueSequence.get(4).getValue(), is("Cleopatra Selene"));
-    assertThat((String) valueSequence.get(5).getValue(), is("Ptolemy XVI Philadelphus"));
+    assertThat((String) valueSequence.get(0).getValue()).isEqualTo("Ptolemy XV");
+    assertThat(valueSequence.get(1).isNull()).isTrue();
+    assertThat((String) valueSequence.get(2).getValue()).isEqualTo("Caesarion");
+    assertThat((String) valueSequence.get(3).getValue()).isEqualTo("Alexander Helios");
+    assertThat((String) valueSequence.get(4).getValue()).isEqualTo("Cleopatra Selene");
+    assertThat((String) valueSequence.get(5).getValue()).isEqualTo("Ptolemy XVI Philadelphus");
 
     value = table.getValue(name, table.getValueSet(new VariableEntityBean(DEFAULT_ENTITY_TYPE, "3")));
-    assertThat(value.isSequence(), is(false));
-    assertThat((String) value.getValue(), is("Clau\\dius"));
+    assertThat(value.isSequence()).isFalse();
+    assertThat((String) value.getValue()).isEqualTo("Clau\\dius");
 
     try {
       table.getValue(name, table.getValueSet(new VariableEntityBean(DEFAULT_ENTITY_TYPE, "4")));
     } catch(NoSuchValueSetException e) {
-      Assert.fail("Should throw NoSuchValueSetException for Participant 4");
+      fail("Should throw NoSuchValueSetException for Participant 4");
     }
     try {
       table.getValue(name, table.getValueSet(new VariableEntityBean(DEFAULT_ENTITY_TYPE, "5")));
-      Assert.fail("Should throw NoSuchValueSetException for Participant 5");
+      fail("Should throw NoSuchValueSetException for Participant 5");
     } catch(NoSuchValueSetException e) {
     }
   }
@@ -543,11 +536,11 @@ public class CsvDatasourceTest extends AbstractMagmaTest {
         .addValueTable("Table1", dataFile, DEFAULT_ENTITY_TYPE);
     datasource.initialise();
 
-    assertThat(datasource.getValueTableNames().size(), is(1));
+    assertThat(datasource.getValueTableNames()).hasSize(1);
 
     ValueTable table = datasource.getValueTable("Table1");
-    assertThat(table, notNullValue());
-    assertThat(table.getEntityType(), is(DEFAULT_ENTITY_TYPE));
+    assertThat(table).isNotNull();
+    assertThat(table.getEntityType()).isEqualTo(DEFAULT_ENTITY_TYPE);
 
     assertEolVariable(table, "Name");
     assertEolVariable(table, "Complete name");
@@ -561,49 +554,49 @@ public class CsvDatasourceTest extends AbstractMagmaTest {
 
   private void assertEolVariable(ValueTable table, String name) {
     Variable variable = table.getVariable(name);
-    assertThat(variable, notNullValue());
-    assertThat(variable.getName(), is(name));
-    assertThat(variable.getValueType().getName(), is("text"));
-    assertThat(variable.getEntityType(), is(DEFAULT_ENTITY_TYPE));
-    assertThat(variable.getMimeType(), nullValue());
-    assertThat(variable.getUnit(), nullValue());
-    assertThat(variable.getOccurrenceGroup(), nullValue());
-    assertThat(variable.isRepeatable(), is(false));
+    assertThat(variable).isNotNull();
+    assertThat(variable.getName()).isEqualTo(name);
+    assertThat(variable.getValueType().getName()).isEqualTo("text");
+    assertThat(variable.getEntityType()).isEqualTo(DEFAULT_ENTITY_TYPE);
+    assertThat(variable.getMimeType()).isNull();
+    assertThat(variable.getUnit()).isNull();
+    assertThat(variable.getOccurrenceGroup()).isNull();
+    assertThat(variable.isRepeatable()).isFalse();
   }
 
   @SuppressWarnings("ReuseOfLocalVariable")
   private void assertEolValue(ValueTable table, String entityId, String name, String completeName) {
     VariableEntity entity = new VariableEntityBean(DEFAULT_ENTITY_TYPE, entityId);
     Value value = table.getValue(table.getVariable("Name"), table.getValueSet(entity));
-    assertThat(value.isSequence(), is(false));
-    assertThat((String) value.getValue(), is(name));
+    assertThat(value.isSequence()).isFalse();
+    assertThat((String) value.getValue()).isEqualTo(name);
 
     value = table.getValue(table.getVariable("Complete name"), table.getValueSet(entity));
-    assertThat(value.isSequence(), is(false));
-    assertThat((String) value.getValue(), is(completeName));
+    assertThat(value.isSequence()).isFalse();
+    assertThat((String) value.getValue()).isEqualTo(completeName);
   }
 
   static void assertEmperors(CsvDatasource datasource, ValueTable table, Variable name, Variable children) {
-    assertThat(datasource.getValueTableNames().size(), is(1));
+    assertThat(datasource.getValueTableNames()).hasSize(1);
 
-    assertThat(table, notNullValue());
-    assertThat(table.getEntityType(), is(DEFAULT_ENTITY_TYPE));
+    assertThat(table).isNotNull();
+    assertThat(table.getEntityType()).isEqualTo(DEFAULT_ENTITY_TYPE);
 
-    assertThat(name, notNullValue());
-    assertThat(name.getValueType().getName(), is("text"));
-    assertThat(name.getEntityType(), is(DEFAULT_ENTITY_TYPE));
-    assertThat(name.getMimeType(), nullValue());
-    assertThat(name.getUnit(), nullValue());
-    assertThat(name.getOccurrenceGroup(), nullValue());
-    assertThat(name.isRepeatable(), is(false));
+    assertThat(name).isNotNull();
+    assertThat(name.getValueType().getName()).isEqualTo("text");
+    assertThat(name.getEntityType()).isEqualTo(DEFAULT_ENTITY_TYPE);
+    assertThat(name.getMimeType()).isNull();
+    assertThat(name.getUnit()).isNull();
+    assertThat(name.getOccurrenceGroup()).isNull();
+    assertThat(name.isRepeatable()).isFalse();
 
-    assertThat(children, notNullValue());
-    assertThat(children.getValueType().getName(), is("text"));
-    assertThat(children.getEntityType(), is(DEFAULT_ENTITY_TYPE));
-    assertThat(children.getMimeType(), nullValue());
-    assertThat(children.getUnit(), nullValue());
-    assertThat(children.getOccurrenceGroup(), nullValue());
-    assertThat(children.isRepeatable(), is(true));
+    assertThat(children).isNotNull();
+    assertThat(children.getValueType().getName()).isEqualTo("text");
+    assertThat(children.getEntityType()).isEqualTo(DEFAULT_ENTITY_TYPE);
+    assertThat(children.getMimeType()).isNull();
+    assertThat(children.getUnit()).isNull();
+    assertThat(children.getOccurrenceGroup()).isNull();
+    assertThat(children.isRepeatable()).isTrue();
   }
 
   @Test
@@ -652,7 +645,7 @@ public class CsvDatasourceTest extends AbstractMagmaTest {
     File empty = getFileFromResource("empty.csv");
     CsvDatasource datasource = new CsvDatasource("csv-datasource").addValueTable("NoEntities", empty, (File) null);
     datasource.initialise();
-    assertThat(datasource.hasEntities(new EntitiesPredicate.NonViewEntitiesPredicate()), is(false));
+    assertThat(datasource.hasEntities(new EntitiesPredicate.NonViewEntitiesPredicate())).isFalse();
   }
 
   @Test
@@ -661,7 +654,7 @@ public class CsvDatasourceTest extends AbstractMagmaTest {
     File variables = new File(samples, "variables.csv");
     CsvDatasource datasource = new CsvDatasource("csv-datasource").addValueTable("HasEntities", variables, (File) null);
     datasource.initialise();
-    assertThat(datasource.hasEntities(new EntitiesPredicate.NonViewEntitiesPredicate()), is(false));
+    assertThat(datasource.hasEntities(new EntitiesPredicate.NonViewEntitiesPredicate())).isFalse();
   }
 
   @Test
@@ -670,6 +663,6 @@ public class CsvDatasourceTest extends AbstractMagmaTest {
         getFileFromResource("Table1/variables.csv"), //
         getFileFromResource("Table1/data.csv"));
     datasource.initialise();
-    assertThat(datasource.hasEntities(new EntitiesPredicate.NonViewEntitiesPredicate()), is(true));
+    assertThat(datasource.hasEntities(new EntitiesPredicate.NonViewEntitiesPredicate())).isTrue();
   }
 }
