@@ -261,8 +261,7 @@ public class ExcelDatasource extends AbstractDatasource {
       if(tableHeader != null) {
         tableName = ExcelUtil.getCellValueAsString(variableRow.getCell(headerMapVariables.get(tableHeader)));
         if(tableName.trim().isEmpty()) {
-          errors.add(new ExcelDatasourceParsingException("Table name is required", //
-              "TableNameRequired", getVariablesSheet().getSheetName(), i + 1));
+          continue; // ignore empty rows
         }
       }
       if(!valueTablesMapOnInit.containsKey(tableName)) {
