@@ -1,11 +1,12 @@
 package org.obiba.magma.type;
 
-import org.junit.Assert;
 import org.junit.Test;
-import org.obiba.magma.Value;
 
 import com.google.common.collect.ImmutableList;
 
+import static org.fest.assertions.api.Assertions.assertThat;
+
+@SuppressWarnings("ReuseOfLocalVariable")
 public class BooleanTypeTest extends BaseValueTypeTest {
 
   @Override
@@ -35,38 +36,30 @@ public class BooleanTypeTest extends BaseValueTypeTest {
 
   @Test
   public void test_valueOf_Boolean() {
-    Value value = getValueType().valueOf(Boolean.TRUE);
-    Assert.assertEquals(getValueType().trueValue(), value);
-    value = getValueType().valueOf(Boolean.FALSE);
-    Assert.assertEquals(getValueType().falseValue(), value);
-    value = getValueType().valueOf((Boolean) null);
-    Assert.assertEquals(value.isNull(), true);
+    assertThat(getValueType().valueOf(Boolean.TRUE)).isEqualTo(getValueType().trueValue());
+    assertThat(getValueType().valueOf(Boolean.FALSE)).isEqualTo(getValueType().falseValue());
+    assertThat(getValueType().valueOf((Boolean) null).isNull()).isTrue();
   }
 
   @Test
   public void test_valueOf_string() {
-    Value value = getValueType().valueOf((Object) "false");
-    Assert.assertEquals(getValueType().falseValue(), value);
-    value = getValueType().valueOf((Object) "true");
-    Assert.assertEquals(getValueType().trueValue(), value);
+    assertThat(getValueType().valueOf((Object) "false")).isEqualTo(getValueType().falseValue());
+    assertThat(getValueType().valueOf((Object) "true")).isEqualTo(getValueType().trueValue());
   }
 
   @Test
   public void test_not_true() {
-    Value value = getValueType().not(getValueType().trueValue());
-    Assert.assertEquals(getValueType().falseValue(), value);
+    assertThat(getValueType().not(getValueType().trueValue())).isEqualTo(getValueType().falseValue());
   }
 
   @Test
   public void test_not_false() {
-    Value value = getValueType().not(getValueType().falseValue());
-    Assert.assertEquals(getValueType().trueValue(), value);
+    assertThat(getValueType().not(getValueType().falseValue())).isEqualTo(getValueType().trueValue());
   }
 
   @Test
   public void test_not_null() {
-    Value value = getValueType().not(getValueType().nullValue());
-    Assert.assertEquals(getValueType().nullValue(), value);
+    assertThat(getValueType().not(getValueType().nullValue())).isEqualTo(getValueType().nullValue());
   }
 
   @Test(expected = IllegalArgumentException.class)

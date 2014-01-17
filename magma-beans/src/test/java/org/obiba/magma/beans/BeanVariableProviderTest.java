@@ -18,7 +18,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.easymock.EasyMock;
-import org.junit.Assert;
 import org.junit.Test;
 import org.obiba.magma.Category;
 import org.obiba.magma.Value;
@@ -32,6 +31,8 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
+
+import static org.fest.assertions.api.Assertions.assertThat;
 
 /**
  *
@@ -58,9 +59,8 @@ public class BeanVariableProviderTest extends AbstractMagmaTest {
     bvp.setProperties(properties);
     Iterator<String> i = types.iterator();
     for(VariableValueSource source : bvp.createSources()) {
-      String type = i.next();
-      Assert.assertEquals("wrong type for property " + source.getVariable().getName(), type,
-          source.getValueType().getName());
+      assertThat(i.next()).isEqualTo(source.getValueType().getName())
+          .overridingErrorMessage("wrong type for property " + source.getVariable().getName());
     }
   }
 
@@ -72,12 +72,11 @@ public class BeanVariableProviderTest extends AbstractMagmaTest {
 
     Set<VariableValueSource> sources = assertVariablesFromProperties(bvp, properties);
     Set<Category> categories = Iterables.get(sources, 0).getVariable().getCategories();
-    Assert.assertNotNull(categories);
-    Assert.assertTrue(categories.size() > 0);
-
+    assertThat(categories).isNotNull();
+    assertThat(categories).isNotEmpty();
     for(Category c : categories) {
       TestEnum e = TestEnum.valueOf(c.getName());
-      Assert.assertNotNull(e);
+      assertThat(e).isNotNull();
     }
   }
 
@@ -150,9 +149,10 @@ public class BeanVariableProviderTest extends AbstractMagmaTest {
 
     for(VariableValueSource source : variableValueSources) {
       Value value = source.getValue(bvs);
-      Assert.assertNotNull("Value cannot be null " + source.getVariable().getName(), value);
-      Assert.assertNotNull("ValueType cannot be null " + source.getVariable().getName(), value.getValueType());
-      Assert.assertNotNull("Value's value cannot be null " + source.getVariable().getName(), value.getValue());
+      String name = source.getVariable().getName();
+      assertThat(value).isNotNull().overridingErrorMessage("Value cannot be null " + name);
+      assertThat(value.getValueType()).isNotNull().overridingErrorMessage("ValueType cannot be null " + name);
+      assertThat(value.getValue()).isNotNull().overridingErrorMessage("Value's value cannot be null " + name);
     }
   }
 
@@ -181,9 +181,10 @@ public class BeanVariableProviderTest extends AbstractMagmaTest {
 
     for(VariableValueSource source : variableValueSources) {
       Value value = source.getValue(bvs);
-      Assert.assertNotNull("Value cannot be null " + source.getVariable().getName(), value);
-      Assert.assertNotNull("ValueType cannot be null " + source.getVariable().getName(), value.getValueType());
-      Assert.assertNotNull("Value's value cannot be null " + source.getVariable().getName(), value.getValue());
+      String name = source.getVariable().getName();
+      assertThat(value).isNotNull().overridingErrorMessage("Value cannot be null " + name);
+      assertThat(value.getValueType()).isNotNull().overridingErrorMessage("ValueType cannot be null " + name);
+      assertThat(value.getValue()).isNotNull().overridingErrorMessage("Value's value cannot be null " + name);
     }
   }
 
@@ -205,11 +206,10 @@ public class BeanVariableProviderTest extends AbstractMagmaTest {
 
     for(VariableValueSource source : variableValueSources) {
       Value value = source.getValue(bvs);
-      Assert.assertNotNull("Value cannot be null " + source.getVariable().getName(), value);
-      Assert.assertNotNull("ValueType cannot be null " + source.getVariable().getName(), value.getValueType());
-
-      // The value's value should be null
-      Assert.assertTrue("Value's value should be null " + source.getVariable().getName(), value.isNull());
+      String name = source.getVariable().getName();
+      assertThat(value).isNotNull().overridingErrorMessage("Value cannot be null " + name);
+      assertThat(value.getValueType()).isNotNull().overridingErrorMessage("ValueType cannot be null " + name);
+      assertThat(value.isNull()).isTrue().overridingErrorMessage("Value's value should be null " + name);
     }
   }
 
@@ -222,11 +222,11 @@ public class BeanVariableProviderTest extends AbstractMagmaTest {
       Collection<String> properties, Map<String, String> nameOverride) {
     Set<VariableValueSource> variables = bvp.createSources();
     // There are no more and no less than what was specified
-    Assert.assertEquals(properties.size(), variables.size());
+    assertThat(properties.size()).isEqualTo(variables.size());
     Collection<String> nameSet = nameOverride != null ? nameOverride.values() : properties;
     for(VariableValueSource variableValueSource : variables) {
       String variableName = variableValueSource.getVariable().getName();
-      Assert.assertTrue("Unexpected variable name " + variableName, nameSet.contains(variableName));
+      assertThat(nameSet).contains(variableName).overridingErrorMessage("Unexpected variable name " + variableName);
     }
     return variables;
   }

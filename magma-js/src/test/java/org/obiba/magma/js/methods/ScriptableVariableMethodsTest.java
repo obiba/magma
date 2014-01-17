@@ -1,6 +1,5 @@
 package org.obiba.magma.js.methods;
 
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mozilla.javascript.NativeObject;
@@ -15,6 +14,7 @@ import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.verify;
+import static org.fest.assertions.api.Assertions.assertThat;
 
 public class ScriptableVariableMethodsTest extends AbstractJsTest {
 
@@ -40,13 +40,13 @@ public class ScriptableVariableMethodsTest extends AbstractJsTest {
     prototype
         .defineFunctionProperties(new String[] { "name", "attribute", "repeatable" }, ScriptableVariableMethods.class,
             ScriptableObject.DONTENUM);
-    Assert.assertEquals(prototype, actual);
+    assertThat(actual).isEqualTo(prototype);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void repeatableWithNullValue() {
     Object value = evaluate("repeatable()", (Variable) null);
-    Assert.assertEquals(value, null);
+    assertThat(value).isNull();
   }
 
   @Test

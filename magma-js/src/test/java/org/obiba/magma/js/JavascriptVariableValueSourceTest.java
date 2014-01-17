@@ -1,7 +1,6 @@
 package org.obiba.magma.js;
 
 import org.easymock.EasyMock;
-import org.junit.Assert;
 import org.junit.Test;
 import org.obiba.magma.Datasource;
 import org.obiba.magma.Value;
@@ -13,6 +12,8 @@ import org.obiba.magma.VariableValueSource;
 import org.obiba.magma.support.ValueSetBean;
 import org.obiba.magma.support.VariableEntityBean;
 import org.obiba.magma.type.TextType;
+
+import static org.fest.assertions.api.Assertions.assertThat;
 
 @SuppressWarnings({ "OverlyLongMethod", "PMD.NcssMethodCount" })
 public class JavascriptVariableValueSourceTest extends AbstractJsTest {
@@ -44,9 +45,9 @@ public class JavascriptVariableValueSourceTest extends AbstractJsTest {
     EasyMock.replay(mockSource, mockTable);
     Value value = source.getValue(valueSet);
 
-    Assert.assertNotNull(value);
-    Assert.assertFalse(value.isNull());
-    Assert.assertEquals("The Value", value.toString());
+    assertThat(value).isNotNull();
+    assertThat(value.isNull()).isFalse();
+    assertThat(value.toString()).isEqualTo("The Value");
   }
 
   @Test
@@ -82,11 +83,9 @@ public class JavascriptVariableValueSourceTest extends AbstractJsTest {
     EasyMock.replay(mockSource, mockDatasource, mockTable, mockTable2);
 
     Value value = source.getValue(valueSet);
-
-    Assert.assertNotNull(value);
-    Assert.assertFalse(value.isNull());
-    Assert.assertEquals("The Value", value.toString());
-
+    assertThat(value).isNotNull();
+    assertThat(value.isNull()).isFalse();
+    assertThat(value.toString()).isEqualTo("The Value");
   }
 
 }
