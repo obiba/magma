@@ -276,6 +276,7 @@ public class MongoDBDatasourceTest {
   }
 
   @Test
+  @SuppressWarnings({ "OverlyLongMethod", "PMD.NcssMethodCount" })
   public void test_update_variable() throws IOException {
 
     Variable variable1 = Variable.Builder.newVariable("Variable to update", IntegerType.get(), PARTICIPANT) //
