@@ -3,13 +3,14 @@ package org.obiba.magma.type;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueSequence;
 import org.obiba.magma.ValueType;
 import org.obiba.magma.test.AbstractMagmaTest;
+
+import static org.fest.assertions.api.Assertions.assertThat;
 
 public abstract class BaseValueTypeTest extends AbstractMagmaTest {
 
@@ -33,72 +34,72 @@ public abstract class BaseValueTypeTest extends AbstractMagmaTest {
 
   @Before
   public void validateTestInstance() {
-    Assert.assertNotNull(getValueType());
-    Assert.assertNotNull(getObjectForType());
+    assertThat(getValueType()).isNotNull();
+    assertThat(getObjectForType()).isNotNull();
   }
 
   @Test
   public void testNameIsNotEmpty() {
-    Assert.assertNotNull(getValueType().getName());
-    Assert.assertTrue(getValueType().getName().length() > 0);
+    assertThat(getValueType().getName()).isNotNull();
+    assertThat(getValueType().getName().length() > 0).isTrue();
   }
 
   @Test
   public void testJavaTypeNotEmpty() {
     Class<?> javaClass = getValueType().getJavaClass();
-    Assert.assertNotNull(javaClass);
-    Assert.assertTrue(getValueType().acceptsJavaClass(javaClass));
+    assertThat(javaClass).isNotNull();
+    assertThat(getValueType().acceptsJavaClass(javaClass)).isTrue();
   }
 
   @Test
   public void testNullValueNotNull() {
     Value nullValue = getValueType().nullValue();
-    Assert.assertNotNull(nullValue);
-    Assert.assertTrue(nullValue.isNull());
+    assertThat(nullValue).isNotNull();
+    assertThat(nullValue.isNull()).isTrue();
   }
 
   @Test
   public void testToStringOfNullValue() {
     Value nullValue = getValueType().nullValue();
     String nullString = nullValue.toString();
-    Assert.assertNull(nullString);
+    assertThat(nullString).isNull();
   }
 
   @Test
   public void testValueOfNullString() {
     Value nullValue = getValueType().valueOf((String) null);
-    Assert.assertNotNull(nullValue);
-    Assert.assertTrue(nullValue.isNull());
+    assertThat(nullValue).isNotNull();
+    assertThat(nullValue.isNull()).isTrue();
   }
 
   @Test
   public void testValueOfNullObject() {
     Value nullValue = getValueType().valueOf((Object) null);
-    Assert.assertNotNull(nullValue);
-    Assert.assertTrue(nullValue.isNull());
+    assertThat(nullValue).isNotNull();
+    assertThat(nullValue.isNull()).isTrue();
   }
 
   @Test
   public void testValueFromObjectIsNotNull() {
     Object valueObject = getObjectForType();
     Value value = getValueType().valueOf(valueObject);
-    Assert.assertNotNull(value);
-    Assert.assertFalse(value.isNull());
-    Assert.assertFalse(value.isSequence());
+    assertThat(value).isNotNull();
+    assertThat(value.isNull()).isFalse();
+    assertThat(value.isSequence()).isFalse();
   }
 
   @Test
   public void testValueObjectIsEqual() {
     Object valueObject = getObjectForType();
     Value value = getValueType().valueOf(valueObject);
-    Assert.assertEquals(valueObject, value.getValue());
+    assertThat(valueObject).isEqualTo(value.getValue());
   }
 
   @Test
   public void testToStringOfValueObjectIsNotNull() {
     Object valueObject = getObjectForType();
     Value value = getValueType().valueOf(valueObject);
-    Assert.assertNotNull(value.toString());
+    assertThat(value.toString()).isNotNull();
   }
 
   @Test
@@ -108,8 +109,8 @@ public abstract class BaseValueTypeTest extends AbstractMagmaTest {
     String strValue = value.toString();
     Value valueOf = getValueType().valueOf(strValue);
 
-    Assert.assertNotNull(valueOf);
-    Assert.assertEquals(value, valueOf);
+    assertThat(valueOf).isNotNull();
+    assertThat(value).isEqualTo(valueOf);
   }
 
   @Test
@@ -119,8 +120,8 @@ public abstract class BaseValueTypeTest extends AbstractMagmaTest {
     String strValue = sequence.toString();
     Value valueOf = getValueType().sequenceOf(strValue);
 
-    Assert.assertNotNull(valueOf);
-    Assert.assertEquals(sequence, valueOf);
+    assertThat(valueOf).isNotNull();
+    assertThat(sequence).isEqualTo((ValueSequence) valueOf);
   }
 
   @Test(expected = NullPointerException.class)
@@ -142,23 +143,23 @@ public abstract class BaseValueTypeTest extends AbstractMagmaTest {
 
   @Test
   public void test_isNumeric() {
-    Assert.assertEquals(isNumeric(), getValueType().isNumeric());
+    assertThat(isNumeric()).isEqualTo(getValueType().isNumeric());
   }
 
   @Test
   public void test_isDateTime() {
-    Assert.assertEquals(isDateTime(), getValueType().isDateTime());
+    assertThat(isDateTime()).isEqualTo(getValueType().isDateTime());
   }
 
   @Test
   public void test_acceptsJavaClass() {
     for(Class<?> validClass : validClasses()) {
-      Assert.assertTrue(getValueType().acceptsJavaClass(validClass));
+      assertThat(getValueType().acceptsJavaClass(validClass)).isTrue();
     }
   }
 
   @Test
   public void test_acceptsJavaClass_doesNotAcceptInvalidClass() {
-    Assert.assertFalse(getValueType().acceptsJavaClass(NullPointerException.class));
+    assertThat(getValueType().acceptsJavaClass(NullPointerException.class)).isFalse();
   }
 }

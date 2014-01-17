@@ -2,7 +2,6 @@ package org.obiba.magma.js;
 
 import java.util.Date;
 
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mozilla.javascript.EvaluatorException;
@@ -18,10 +17,12 @@ import org.obiba.magma.type.TextType;
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.replay;
+import static org.fest.assertions.api.Assertions.assertThat;
+import static org.junit.Assert.fail;
 
 public class JavascriptValueSourceTest extends AbstractJsTest {
 
-  ValueSet mockValueSet;
+  private ValueSet mockValueSet;
 
   @Before
   public void setup() {
@@ -37,7 +38,7 @@ public class JavascriptValueSourceTest extends AbstractJsTest {
     source.initialise();
 
     Value value = source.getValue(mockValueSet);
-    Assert.assertEquals((double) 1, value.getValue());
+    assertThat(value.getValue()).isEqualTo(1);
   }
 
   @Test
@@ -46,14 +47,14 @@ public class JavascriptValueSourceTest extends AbstractJsTest {
     source.initialise();
 
     Value value = source.getValue(mockValueSet);
-    Assert.assertNotNull(value);
-    Assert.assertFalse(value.isNull());
-    Assert.assertEquals(DateTimeType.get(), value.getValueType());
+    assertThat(value).isNotNull();
+    assertThat(value.isNull()).isFalse();
+    assertThat(value.getValueType()).isEqualTo(DateTimeType.get());
 
     Date dateValue = (Date) value.getValue();
     Date now = new Date();
     // Make sure both dates are within 1 second of one-another
-    Assert.assertTrue(now.getTime() - dateValue.getTime() < 1000);
+    assertThat(now.getTime() - dateValue.getTime()).isLessThan(1000);
   }
 
   @Test
@@ -64,13 +65,11 @@ public class JavascriptValueSourceTest extends AbstractJsTest {
     source.setScriptName("Bogus");
     try {
       source.initialise();
-      Assert.assertTrue("Exception was expected", false);
+      fail("Exception was expected");
     } catch(EvaluatorException e) {
-      Assert.assertEquals("Bogus", e.sourceName());
-      Assert.assertEquals(2, e.lineNumber());
-      Assert.assertEquals("ERROR!", e.lineSource());
-    } catch(RuntimeException e) {
-      Assert.assertTrue("Unexpected exception type " + e.getClass(), false);
+      assertThat(e.sourceName()).isEqualTo("Bogus");
+      assertThat(e.lineNumber()).isEqualTo(2);
+      assertThat(e.lineSource()).isEqualTo("ERROR!");
     }
   }
 
@@ -80,7 +79,7 @@ public class JavascriptValueSourceTest extends AbstractJsTest {
     source.initialise();
 
     Value value = source.getValue(mockValueSet);
-    Assert.assertEquals("1", value.getValue());
+    assertThat(value.getValue()).isEqualTo("1");
   }
 
 }

@@ -1,31 +1,25 @@
 package org.obiba.magma.datasource.excel.support;
 
-import java.util.Arrays;
-
-import org.junit.Assert;
 import org.junit.Test;
+
+import static java.util.Arrays.asList;
+import static org.fest.assertions.api.Assertions.assertThat;
+import static org.obiba.magma.datasource.excel.support.ExcelUtil.findNormalizedHeader;
+import static org.obiba.magma.datasource.excel.support.VariableConverter.VALUE_TYPE;
 
 public class VariableConverterTest {
 
   @Test
   public void testFindNormalizedHeader() {
-    Assert.assertEquals("Value Type",
-        ExcelUtil.findNormalizedHeader(Arrays.asList("Name", "Value Type"), VariableConverter.VALUE_TYPE));
-    Assert.assertEquals("Value_Type",
-        ExcelUtil.findNormalizedHeader(Arrays.asList("Name", "Value_Type"), VariableConverter.VALUE_TYPE));
-    Assert.assertEquals("Value-Type",
-        ExcelUtil.findNormalizedHeader(Arrays.asList("Name", "Value-Type"), VariableConverter.VALUE_TYPE));
-    Assert.assertEquals("value type",
-        ExcelUtil.findNormalizedHeader(Arrays.asList("Name", "value type"), VariableConverter.VALUE_TYPE));
-    Assert.assertEquals("value_type",
-        ExcelUtil.findNormalizedHeader(Arrays.asList("Name", "value_type"), VariableConverter.VALUE_TYPE));
-    Assert.assertEquals("value-type",
-        ExcelUtil.findNormalizedHeader(Arrays.asList("Name", "value-type"), VariableConverter.VALUE_TYPE));
-    Assert.assertEquals("valuetype",
-        ExcelUtil.findNormalizedHeader(Arrays.asList("Name", "valuetype"), VariableConverter.VALUE_TYPE));
-    Assert.assertEquals("VALUE_TYPE",
-        ExcelUtil.findNormalizedHeader(Arrays.asList("Name", "VALUE_TYPE"), VariableConverter.VALUE_TYPE));
-    Assert.assertNull(ExcelUtil.findNormalizedHeader(Arrays.asList("Name", "Data Type"), VariableConverter.VALUE_TYPE));
+    assertThat(findNormalizedHeader(asList("Name", "Value Type"), VALUE_TYPE)).isEqualTo("Value Type");
+    assertThat(findNormalizedHeader(asList("Name", "Value_Type"), VALUE_TYPE)).isEqualTo("Value_Type");
+    assertThat(findNormalizedHeader(asList("Name", "Value-Type"), VALUE_TYPE)).isEqualTo("Value-Type");
+    assertThat(findNormalizedHeader(asList("Name", "value type"), VALUE_TYPE)).isEqualTo("value type");
+    assertThat(findNormalizedHeader(asList("Name", "value_type"), VALUE_TYPE)).isEqualTo("value_type");
+    assertThat(findNormalizedHeader(asList("Name", "value-type"), VALUE_TYPE)).isEqualTo("value-type");
+    assertThat(findNormalizedHeader(asList("Name", "valuetype"), VALUE_TYPE)).isEqualTo("valuetype");
+    assertThat(findNormalizedHeader(asList("Name", "VALUE_TYPE"), VALUE_TYPE)).isEqualTo("VALUE_TYPE");
+    assertThat(findNormalizedHeader(asList("Name", "Data Type"), VALUE_TYPE)).isNull();
   }
 
 }
