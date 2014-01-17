@@ -113,6 +113,9 @@ public interface Variable extends AttributeAware {
    */
   Set<Category> getCategories();
 
+  @Nullable
+  Category getCategory(String categoryName);
+
   /**
    * Returns true when {@code value} is equal to a {@code Category} marked as {@code missing} or when
    * {@code Value#isNull} returns true

@@ -165,6 +165,12 @@ public class MongoDBVariable implements Variable {
     return variable.hasCategories();
   }
 
+  @Nullable
+  @Override
+  public Category getCategory(String categoryName) {
+    return variable.getCategory(categoryName);
+  }
+
   @Override
   public Set<Category> getCategories() {
     return variable.getCategories();

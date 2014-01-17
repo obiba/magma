@@ -6,6 +6,7 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
+import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 
 import com.google.common.base.Function;
@@ -93,6 +94,17 @@ class VariableBean extends AbstractAttributeAware implements Variable, Serializa
   @Override
   public Set<Category> getCategories() {
     return Collections.unmodifiableSet(categories);
+  }
+
+  @Nullable
+  @Override
+  public Category getCategory(String categoryName) {
+    for(Category category : categories) {
+      if(Objects.equal(category.getName(), categoryName)) {
+        return category;
+      }
+    }
+    return null;
   }
 
   @Override

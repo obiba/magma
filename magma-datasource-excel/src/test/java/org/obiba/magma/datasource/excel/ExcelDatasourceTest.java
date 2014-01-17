@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.List;
+import java.util.Locale;
 
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -303,6 +304,54 @@ public class ExcelDatasourceTest extends AbstractMagmaTest {
     datasource2 = new ExcelDatasource("long2", testFile);
     datasource2.initialise();
     assertLongTableNames(datasource2);
+  }
+
+  @Test
+  @SuppressWarnings("ConstantConditions")
+  public void test_read_user_defined_with_empty_rows() {
+    Datasource datasource = new ExcelDatasource("empty-rows",
+        FileUtil.getFileFromResource("org/obiba/magma/datasource/excel/empty-rows.xls"));
+    datasource.initialise();
+
+    ValueTable table = datasource.getValueTable("table1");
+    assertThat(table).isNotNull();
+    assertThat(table.getEntityType()).isEqualTo("Participant");
+    assertThat(table.getVariables()).hasSize(2);
+
+    Variable var1 = table.getVariable("var1");
+    assertThat(var1.getValueType()).isEqualTo(TextType.get());
+    assertThat(var1.getAttributes()).hasSize(1);
+    assertThat(var1.getAttribute("label").getLocale()).isEqualTo(Locale.ENGLISH);
+    assertThat(var1.getAttribute("label").getValue().toString()).isEqualTo("Variable 1");
+    assertThat(var1.getEntityType()).isEqualTo("Participant");
+    assertThat(var1.getUnit()).isNull();
+    assertThat(var1.getMimeType()).isNull();
+    assertThat(var1.isRepeatable()).isFalse();
+    assertThat(var1.getOccurrenceGroup()).isNull();
+    assertThat(var1.getCategories()).hasSize(2);
+
+    Category cat1 = var1.getCategory("cat1");
+    assertThat(cat1).isNotNull();
+    assertThat(cat1.getCode()).isNull();
+    assertThat(cat1.isMissing()).isFalse();
+    assertThat(cat1.getAttributes()).hasSize(1);
+    assertThat(cat1.getAttribute("label").getLocale()).isEqualTo(Locale.ENGLISH);
+    assertThat(cat1.getAttribute("label").getValue().toString()).isEqualTo("Categorie 1");
+
+    Category cat2 = var1.getCategory("cat2");
+    assertThat(cat2).isNotNull();
+    assertThat(cat2.getCode()).isNull();
+    assertThat(cat2.isMissing()).isFalse();
+    assertThat(cat2.getAttributes()).hasSize(1);
+    assertThat(cat2.getAttribute("label").getLocale()).isEqualTo(Locale.ENGLISH);
+    assertThat(cat2.getAttribute("label").getValue().toString()).isEqualTo("Categorie 2");
+
+    Variable var2 = table.getVariable("var2");
+    assertThat(var2.getValueType()).isEqualTo(TextType.get());
+    assertThat(var2.getAttributes()).hasSize(1);
+    assertThat(var2.getAttribute("label").getLocale()).isEqualTo(Locale.ENGLISH);
+    assertThat(var2.getAttribute("label").getValue().toString()).isEqualTo("Variable 2");
+    assertThat(var2.getCategories()).isEmpty();
   }
 
   private void assertLongTableNames(ExcelDatasource datasource) {
