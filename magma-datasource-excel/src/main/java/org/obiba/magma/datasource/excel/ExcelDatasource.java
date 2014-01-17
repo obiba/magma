@@ -198,20 +198,12 @@ public class ExcelDatasource extends AbstractDatasource {
   @Override
   protected void onDispose() {
     // Write the workbook (datasource) to file/OutputStream if any of them is defined
-    OutputStream out = null;
-    try {
-      out = excelFile == null ? excelOutput : new FileOutputStream(excelFile);
+    try(OutputStream out = excelFile == null ? excelOutput : new FileOutputStream(excelFile)) {
       if(out != null) {
         writeWorkbook(out);
       }
     } catch(Exception e) {
       throw new MagmaRuntimeException("Could not write to excel output stream", e);
-    } finally {
-      try {
-        if(out != null) out.close();
-      } catch(IOException e) {
-        log.warn("Could not close the excel output stream", e);
-      }
     }
   }
 
@@ -261,8 +253,7 @@ public class ExcelDatasource extends AbstractDatasource {
       if(tableHeader != null) {
         tableName = ExcelUtil.getCellValueAsString(variableRow.getCell(headerMapVariables.get(tableHeader)));
         if(tableName.trim().isEmpty()) {
-          errors.add(new ExcelDatasourceParsingException("Table name is required", //
-              "TableNameRequired", getVariablesSheet().getSheetName(), i + 1));
+          continue; // ignore rows without table name
         }
       }
       if(!valueTablesMapOnInit.containsKey(tableName)) {
