@@ -49,38 +49,38 @@ public class ExcelDatasourceTest extends AbstractMagmaTest {
     assertThat(table.getEntityType()).isEqualTo("Participant");
     assertThat(table.getVariables()).hasSize(4);
 
-    Variable var = table.getVariable("Var1");
-    assertThat(var.getValueType()).isEqualTo(IntegerType.get());
-    assertThat(var.getEntityType()).isEqualTo("Participant");
-    assertThat(var.getUnit()).isNull();
-    assertThat(var.getMimeType()).isNull();
-    assertThat(var.isRepeatable()).isFalse();
-    assertThat(var.getOccurrenceGroup()).isNull();
+    Variable variable = table.getVariable("Var1");
+    assertThat(variable.getValueType()).isEqualTo(IntegerType.get());
+    assertThat(variable.getEntityType()).isEqualTo("Participant");
+    assertThat(variable.getUnit()).isNull();
+    assertThat(variable.getMimeType()).isNull();
+    assertThat(variable.isRepeatable()).isFalse();
+    assertThat(variable.getOccurrenceGroup()).isNull();
 
-    assertThat(var.getAttributes()).hasSize(1);
-    assertThat(var.getAttributeStringValue("foo")).isEqualTo("bar");
+    assertThat(variable.getAttributes()).hasSize(1);
+    assertThat(variable.getAttributeStringValue("foo")).isEqualTo("bar");
 
-    assertThat(var.getCategories()).hasSize(2);
-    for(Category cat : var.getCategories()) {
-      assertThat(cat.getCode()).isNull();
-      assertThat(cat.isMissing()).isFalse();
+    assertThat(variable.getCategories()).hasSize(2);
+    for(Category category : variable.getCategories()) {
+      assertThat(category.getCode()).isNull();
+      assertThat(category.isMissing()).isFalse();
 
-      if("C1".equals(cat.getName())) {
-        assertThat(cat.getAttributes()).hasSize(1);
-        assertThat(cat.getAttributeStringValue("toto")).isEqualTo("tata");
+      if("C1".equals(category.getName())) {
+        assertThat(category.getAttributes()).hasSize(1);
+        assertThat(category.getAttributeStringValue("toto")).isEqualTo("tata");
       } else {
-        assertThat(cat.getAttributes()).isEmpty();
+        assertThat(category.getAttributes()).isEmpty();
       }
     }
 
-    var = table.getVariable("Var2");
-    assertThat(var.getValueType()).isEqualTo(IntegerType.get());
-    assertThat(var.getAttributes()).isEmpty();
-    assertThat(var.getCategories()).isEmpty();
-    var = table.getVariable("Var3");
-    assertThat(var.getValueType()).isEqualTo(TextType.get());
-    var = table.getVariable("Var4");
-    assertThat(var.getValueType()).isEqualTo(TextType.get());
+    variable = table.getVariable("Var2");
+    assertThat(variable.getValueType()).isEqualTo(IntegerType.get());
+    assertThat(variable.getAttributes()).isEmpty();
+    assertThat(variable.getCategories()).isEmpty();
+    variable = table.getVariable("Var3");
+    assertThat(variable.getValueType()).isEqualTo(TextType.get());
+    variable = table.getVariable("Var4");
+    assertThat(variable.getValueType()).isEqualTo(TextType.get());
   }
 
   @Test
@@ -128,14 +128,12 @@ public class ExcelDatasourceTest extends AbstractMagmaTest {
     ValueTable table = datasource.getValueTable(ExcelDatasource.DEFAULT_TABLE_NAME);
     assertThat(table).isNotNull();
     assertThat(table.getVariables()).hasSize(3);
-    Variable variable = table.getVariable("Var1");
-    assertThat(variable.getCategories()).hasSize(3);
+    assertThat(table.getVariable("Var1").getCategories()).hasSize(3);
 
     // test that writing variable & category when some columns are missing does not fail
     Variable testVariable = Variable.Builder.newVariable("test-variable", TextType.get(), "Participant")
         .addCategories("test-category").build();
     writeVariableToDatasource(datasource, ExcelDatasource.DEFAULT_TABLE_NAME, testVariable);
-
   }
 
   @Test
@@ -159,9 +157,6 @@ public class ExcelDatasourceTest extends AbstractMagmaTest {
     Variable testVariable = Variable.Builder.newVariable("test-variable", TextType.get(), "Participant")
         .addCategories("test-category").build();
     writeVariableToDatasource(datasource, "Table1", testVariable);
-
-    // datasource.dispose();
-
   }
 
   @Test
@@ -250,15 +245,15 @@ public class ExcelDatasourceTest extends AbstractMagmaTest {
   public void test_strings_can_be_written_OPAL_238() throws IOException {
     File tmp = createTempFile(".xlsx");
 
-    Workbook w = new XSSFWorkbook();
-    Sheet s = w.createSheet();
-    int i = 0;
+    Workbook workbook = new XSSFWorkbook();
+    Sheet sheet = workbook.createSheet();
+    int rowIndex = 0;
     for(String str : readStrings("org/obiba/magma/datasource/excel/opal-238-strings.txt")) {
-      s.createRow(i++).createCell(0).setCellValue(str);
+      sheet.createRow(rowIndex++).createCell(0).setCellValue(str);
     }
 
     try(FileOutputStream outputStream = new FileOutputStream(tmp)) {
-      w.write(outputStream);
+      workbook.write(outputStream);
     }
     try(FileInputStream inputStream = new FileInputStream(tmp)) {
       new XSSFWorkbook(inputStream);
@@ -294,11 +289,12 @@ public class ExcelDatasourceTest extends AbstractMagmaTest {
     ExcelDatasource datasource2 = new ExcelDatasource("long2", testFile);
     datasource2.initialise();
 
-    for(ValueTable vt : datasource.getValueTables()) {
-      ValueTableWriter vtWriter = datasource2.createWriter(vt.getName(), vt.getEntityType());
-      VariableWriter vWriter = vtWriter.writeVariables();
-      for(Variable v : vt.getVariables()) {
-        vWriter.writeVariable(v);
+    for(ValueTable table : datasource.getValueTables()) {
+      try(ValueTableWriter tableWriter = datasource2.createWriter(table.getName(), table.getEntityType());
+          VariableWriter variableWriter = tableWriter.writeVariables()) {
+        for(Variable variable : table.getVariables()) {
+          variableWriter.writeVariable(variable);
+        }
       }
     }
 
@@ -310,19 +306,19 @@ public class ExcelDatasourceTest extends AbstractMagmaTest {
   }
 
   private void assertLongTableNames(ExcelDatasource datasource) {
-    ValueTable vt = datasource.getValueTable("ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEF");
-    assertThat(vt).isNotNull();
-    assertThat(vt.getEntityType()).isEqualTo("Participant");
-    assertThat(vt.getVariable("FATHER_COUNTRY_BIRTH_LONG")).isNotNull();
-    assertThat(vt.getVariable("FATHER_COUNTRY_BIRTH_SHORT")).isNotNull();
-    assertThat(vt.getVariable("MOTHER_COUNTRY_BIRTH_LONG")).isNotNull();
-    assertThat(vt.getVariable("MOTHER_COUNTRY_BIRTH_SHORT")).isNotNull();
+    ValueTable table = datasource.getValueTable("ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEF");
+    assertThat(table).isNotNull();
+    assertThat(table.getEntityType()).isEqualTo("Participant");
+    assertThat(table.getVariable("FATHER_COUNTRY_BIRTH_LONG")).isNotNull();
+    assertThat(table.getVariable("FATHER_COUNTRY_BIRTH_SHORT")).isNotNull();
+    assertThat(table.getVariable("MOTHER_COUNTRY_BIRTH_LONG")).isNotNull();
+    assertThat(table.getVariable("MOTHER_COUNTRY_BIRTH_SHORT")).isNotNull();
 
-    vt = datasource.getValueTable("ABCDEFGHIJKLMNOPQRSTUVWXYZABCDE");
-    assertThat(vt).isNotNull();
-    assertThat(vt.getEntityType()).isEqualTo("Participant");
-    assertThat(vt.getVariable("GENERIC_132")).isNotNull();
-    assertThat(vt.getVariable("GENERIC_134")).isNotNull();
+    table = datasource.getValueTable("ABCDEFGHIJKLMNOPQRSTUVWXYZABCDE");
+    assertThat(table).isNotNull();
+    assertThat(table.getEntityType()).isEqualTo("Participant");
+    assertThat(table.getVariable("GENERIC_132")).isNotNull();
+    assertThat(table.getVariable("GENERIC_134")).isNotNull();
 
     assertThat(datasource.getValueTableNames()).hasSize(2);
   }
