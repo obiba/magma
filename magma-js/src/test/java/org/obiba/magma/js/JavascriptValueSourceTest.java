@@ -38,7 +38,7 @@ public class JavascriptValueSourceTest extends AbstractJsTest {
     source.initialise();
 
     Value value = source.getValue(mockValueSet);
-    assertThat(value.getValue()).isEqualTo(1);
+    assertThat(value.getValue()).isEqualTo(1d);
   }
 
   @Test
