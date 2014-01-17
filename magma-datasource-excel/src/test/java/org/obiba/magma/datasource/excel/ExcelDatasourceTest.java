@@ -344,11 +344,10 @@ public class ExcelDatasourceTest extends AbstractMagmaTest {
 
   private void writeVariableToDatasource(Datasource datasource, String tableName, Variable testVariable)
       throws IOException {
-    ValueTableWriter writer = datasource.createWriter(tableName, "Participant");
-    VariableWriter vw = writer.writeVariables();
-    vw.writeVariable(testVariable);
-    vw.close();
-    writer.close();
+    try(ValueTableWriter tableWriter = datasource.createWriter(tableName, "Participant");
+        VariableWriter variableWriter = tableWriter.writeVariables()) {
+      variableWriter.writeVariable(testVariable);
+    }
   }
 
   private void assertDatasourceParsingException(String expectedKey, String expectedParameters,
