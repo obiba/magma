@@ -2,6 +2,7 @@ package org.obiba.magma.datasource.mongodb;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.List;
 
 import org.junit.After;
 import org.junit.Assume;
@@ -277,31 +278,42 @@ public class MongoDBDatasourceTest {
   @Test
   public void test_update_variable() throws IOException {
 
-    ImmutableSet<Variable> variables = ImmutableSet.of(//
-        Variable.Builder.newVariable("Variable to update", IntegerType.get(), PARTICIPANT) //
-            .unit("kg").addCategory("1", "One", false) //
-            .build(), //
-        Variable.Builder.newVariable("Other Variable", IntegerType.get(), PARTICIPANT) //
-            .addCategory("2", "Two", false) //
-            .build());
+    Variable variable1 = Variable.Builder.newVariable("Variable to update", IntegerType.get(), PARTICIPANT) //
+        .unit("kg").addCategory("1", "One", false) //
+        .build();
+    Variable variable2 = Variable.Builder.newVariable("Variable 2", IntegerType.get(), PARTICIPANT) //
+        .addCategory("2", "Two", false) //
+        .build();
+    Variable variable3 = Variable.Builder.newVariable("Variable 3", IntegerType.get(), PARTICIPANT) //
+        .build();
+    ImmutableSet<Variable> variables = ImmutableSet.of(variable1, variable2, variable3);
 
-    Datasource ds = createDatasource();
-    ValueTable generatedValueTable = new GeneratedValueTable(ds, variables, 10);
-    MagmaEngine.get().addDatasource(ds);
-    DatasourceCopier.Builder.newCopier().build().copy(generatedValueTable, TABLE_TEST, ds);
+    Datasource datasource1 = createDatasource();
+    ValueTable generatedValueTable = new GeneratedValueTable(datasource1, variables, 10);
+    MagmaEngine.get().addDatasource(datasource1);
+    DatasourceCopier.Builder.newCopier().build().copy(generatedValueTable, TABLE_TEST, datasource1);
 
     Variable newVariable = Variable.Builder.newVariable("Variable to update", IntegerType.get(), PARTICIPANT) //
         .unit("g").addCategory("1", "One", false) //
         .addCategory("2", "Two", false) //
         .build();
-    try(ValueTableWriter tableWriter = ds.createWriter(TABLE_TEST, PARTICIPANT);
+    try(ValueTableWriter tableWriter = datasource1.createWriter(TABLE_TEST, PARTICIPANT);
         ValueTableWriter.VariableWriter variableWriter = tableWriter.writeVariables()) {
       variableWriter.writeVariable(newVariable);
     }
 
-    Variable variable = ds.getValueTable(TABLE_TEST).getVariable("Variable to update");
+    Datasource datasource2 = createDatasource();
+    ValueTable table = datasource2.getValueTable(TABLE_TEST);
+    assertThat(table.getVariables()).hasSize(3);
+
+    Variable variable = table.getVariable("Variable to update");
     assertThat(variable.getUnit()).isEqualTo(newVariable.getUnit());
     assertThat(variable.getCategories()).hasSize(newVariable.getCategories().size());
+
+    List<Variable> foundVariables = Lists.newArrayList(table.getVariables());
+    assertThat(foundVariables.indexOf(newVariable)).isEqualTo(0);
+    assertThat(foundVariables.indexOf(variable2)).isEqualTo(1);
+    assertThat(foundVariables.indexOf(variable3)).isEqualTo(2);
   }
 
   private Datasource createDatasource() {

@@ -1,5 +1,6 @@
 package org.obiba.magma.datasource.hibernate;
 
+import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 import java.util.SortedSet;
@@ -879,6 +880,61 @@ public class HibernateDatasourceTest {
           fail("Should fail with NoSuchValueTableException");
         } catch(NoSuchValueTableException ignored) {
         }
+      }
+    });
+  }
+
+  @Test
+  public void test_update_variable() throws IOException {
+
+    Variable variable1 = Variable.Builder.newVariable("Variable to update", IntegerType.get(), PARTICIPANT) //
+        .unit("kg").addCategory("1", "One", false) //
+        .build();
+    final Variable variable2 = Variable.Builder.newVariable("Other Variable", IntegerType.get(), PARTICIPANT) //
+        .addCategory("2", "Two", false) //
+        .build();
+    final ImmutableSet<Variable> variables = ImmutableSet.of(variable1, variable2);
+
+    transactionTemplate.execute(new TransactionCallbackRuntimeExceptions() {
+      @Override
+      protected void doAction(TransactionStatus status) throws Exception {
+        HibernateDatasource ds = createDatasource();
+        ValueTable generatedValueTable = new GeneratedValueTable(ds, variables, 5);
+        MagmaEngine.get().addDatasource(ds);
+        DatasourceCopier.Builder.newCopier().build().copy(generatedValueTable, TABLE, ds);
+      }
+    });
+
+    final Variable newVariable = Variable.Builder.newVariable("Variable to update", IntegerType.get(), PARTICIPANT) //
+        .unit("g").addCategory("1", "One", false) //
+        .addCategory("2", "Two", false) //
+        .build();
+
+    transactionTemplate.execute(new TransactionCallbackRuntimeExceptions() {
+      @Override
+      protected void doAction(TransactionStatus status) throws Exception {
+        HibernateDatasource ds = getDatasource();
+        try(ValueTableWriter tableWriter = ds.createWriter(TABLE, PARTICIPANT);
+            ValueTableWriter.VariableWriter variableWriter = tableWriter.writeVariables()) {
+          variableWriter.writeVariable(newVariable);
+        }
+      }
+    });
+
+    transactionTemplate.execute(new TransactionCallbackRuntimeExceptions() {
+      @Override
+      protected void doAction(TransactionStatus status) throws Exception {
+        HibernateDatasource ds = getDatasource();
+        ValueTable table = ds.getValueTable(TABLE);
+        assertThat(table.getVariables()).hasSize(2);
+
+        Variable variable = table.getVariable("Variable to update");
+        assertThat(variable.getUnit()).isEqualTo(newVariable.getUnit());
+        assertThat(variable.getCategories()).hasSize(newVariable.getCategories().size());
+
+        List<Variable> foundVariables = Lists.newArrayList(table.getVariables());
+        assertThat(foundVariables.indexOf(newVariable)).isEqualTo(0);
+        assertThat(foundVariables.indexOf(variable2)).isEqualTo(1);
       }
     });
   }
