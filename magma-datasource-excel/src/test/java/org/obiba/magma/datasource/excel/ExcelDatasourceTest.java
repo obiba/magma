@@ -9,7 +9,6 @@ import java.util.List;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.junit.Assert;
 import org.junit.Test;
 import org.obiba.core.util.FileUtil;
 import org.obiba.magma.Category;
@@ -27,8 +26,9 @@ import org.obiba.magma.type.IntegerType;
 import org.obiba.magma.type.TextType;
 
 import com.google.common.base.Charsets;
-import com.google.common.collect.Iterables;
 import com.google.common.io.Files;
+
+import static org.fest.assertions.api.Assertions.assertThat;
 
 @SuppressWarnings({ "OverlyLongMethod", "ReuseOfLocalVariable", "ResultOfMethodCallIgnored", "PMD.NcssMethodCount" })
 @edu.umd.cs.findbugs.annotations.SuppressWarnings("RV_RETURN_VALUE_IGNORED_BAD_PRACTICE")
@@ -40,47 +40,47 @@ public class ExcelDatasourceTest extends AbstractMagmaTest {
    */
   @Test
   public void testReadUserDefined() {
-    ExcelDatasource datasource = new ExcelDatasource("user-defined",
+    Datasource datasource = new ExcelDatasource("user-defined",
         FileUtil.getFileFromResource("org/obiba/magma/datasource/excel/user-defined.xls"));
     datasource.initialise();
 
     ValueTable table = datasource.getValueTable("Table1");
-    Assert.assertNotNull(table);
-    Assert.assertEquals("Participant", table.getEntityType());
-    Assert.assertEquals(4, countVariables(table));
+    assertThat(table).isNotNull();
+    assertThat(table.getEntityType()).isEqualTo("Participant");
+    assertThat(table.getVariables()).hasSize(4);
 
     Variable var = table.getVariable("Var1");
-    Assert.assertEquals(IntegerType.get(), var.getValueType());
-    Assert.assertEquals("Participant", var.getEntityType());
-    Assert.assertNull(var.getUnit());
-    Assert.assertNull(var.getMimeType());
-    Assert.assertFalse(var.isRepeatable());
-    Assert.assertNull(var.getOccurrenceGroup());
+    assertThat(var.getValueType()).isEqualTo(IntegerType.get());
+    assertThat(var.getEntityType()).isEqualTo("Participant");
+    assertThat(var.getUnit()).isNull();
+    assertThat(var.getMimeType()).isNull();
+    assertThat(var.isRepeatable()).isFalse();
+    assertThat(var.getOccurrenceGroup()).isNull();
 
-    Assert.assertEquals(1, var.getAttributes().size());
-    Assert.assertEquals("bar", var.getAttributeStringValue("foo"));
+    assertThat(var.getAttributes()).hasSize(1);
+    assertThat(var.getAttributeStringValue("foo")).isEqualTo("bar");
 
-    Assert.assertEquals(2, var.getCategories().size());
+    assertThat(var.getCategories()).hasSize(2);
     for(Category cat : var.getCategories()) {
-      Assert.assertNull(cat.getCode());
-      Assert.assertFalse(cat.isMissing());
+      assertThat(cat.getCode()).isNull();
+      assertThat(cat.isMissing()).isFalse();
 
       if("C1".equals(cat.getName())) {
-        Assert.assertEquals(1, cat.getAttributes().size());
-        Assert.assertEquals("tata", cat.getAttributeStringValue("toto"));
+        assertThat(cat.getAttributes()).hasSize(1);
+        assertThat(cat.getAttributeStringValue("toto")).isEqualTo("tata");
       } else {
-        Assert.assertEquals(0, cat.getAttributes().size());
+        assertThat(cat.getAttributes()).isEmpty();
       }
     }
 
     var = table.getVariable("Var2");
-    Assert.assertEquals(IntegerType.get(), var.getValueType());
-    Assert.assertEquals(0, var.getAttributes().size());
-    Assert.assertEquals(0, var.getCategories().size());
+    assertThat(var.getValueType()).isEqualTo(IntegerType.get());
+    assertThat(var.getAttributes()).isEmpty();
+    assertThat(var.getCategories()).isEmpty();
     var = table.getVariable("Var3");
-    Assert.assertEquals(TextType.get(), var.getValueType());
+    assertThat(var.getValueType()).isEqualTo(TextType.get());
     var = table.getVariable("Var4");
-    Assert.assertEquals(TextType.get(), var.getValueType());
+    assertThat(var.getValueType()).isEqualTo(TextType.get());
   }
 
   @Test
@@ -94,9 +94,9 @@ public class ExcelDatasourceTest extends AbstractMagmaTest {
       // dpe.printTree();
       // System.out.println("******");
       // dpe.printList();
-      Assert.assertTrue(dpe.hasChildren());
+      assertThat(dpe.hasChildren()).isTrue();
       List<DatasourceParsingException> errors = dpe.getChildrenAsList();
-      Assert.assertEquals(15, errors.size());
+      assertThat(errors).hasSize(15);
       assertDatasourceParsingException("DuplicateCategoryName", "[Categories, 4, Table1, Var1, C2]", errors.get(0));
       assertDatasourceParsingException("CategoryNameRequired", "[Categories, 5, Table1, Var1]", errors.get(1));
       assertDatasourceParsingException("DuplicateCategoryName", "[Categories, 7, Table1, Var2, C1]", errors.get(2));
@@ -120,16 +120,16 @@ public class ExcelDatasourceTest extends AbstractMagmaTest {
 
   @Test
   public void testReadWriteUserDefinedNoTableColumn() throws IOException {
-    ExcelDatasource datasource = new ExcelDatasource("user-defined-no-table-column",
+    Datasource datasource = new ExcelDatasource("user-defined-no-table-column",
         FileUtil.getFileFromResource("org/obiba/magma/datasource/excel/user-defined-no-table-column.xls"));
     datasource.initialise();
 
-    Assert.assertEquals(1, datasource.getValueTables().size());
+    assertThat(datasource.getValueTables()).hasSize(1);
     ValueTable table = datasource.getValueTable(ExcelDatasource.DEFAULT_TABLE_NAME);
-    Assert.assertNotNull(table);
-    Assert.assertEquals(3, countVariables(table));
+    assertThat(table).isNotNull();
+    assertThat(table.getVariables()).hasSize(3);
     Variable variable = table.getVariable("Var1");
-    Assert.assertEquals(3, variable.getCategories().size());
+    assertThat(variable.getCategories()).hasSize(3);
 
     // test that writing variable & category when some columns are missing does not fail
     Variable testVariable = Variable.Builder.newVariable("test-variable", TextType.get(), "Participant")
@@ -140,20 +140,20 @@ public class ExcelDatasourceTest extends AbstractMagmaTest {
 
   @Test
   public void testReadWriteUserDefinedNoMeta() throws IOException {
-    ExcelDatasource datasource = new ExcelDatasource("user-defined-no-meta",
+    Datasource datasource = new ExcelDatasource("user-defined-no-meta",
         FileUtil.getFileFromResource("org/obiba/magma/datasource/excel/user-defined-no-meta.xls"));
     datasource.initialise();
 
-    Assert.assertEquals(1, datasource.getValueTables().size());
+    assertThat(datasource.getValueTables()).hasSize(1);
     ValueTable table = datasource.getValueTable("Table1");
-    Assert.assertNotNull(table);
-    Assert.assertEquals(2, countVariables(table));
+    assertThat(table).isNotNull();
+    assertThat(table.getVariables()).hasSize(2);
     Variable variable = table.getVariable("Var1");
-    Assert.assertEquals(TextType.get(), variable.getValueType());
-    Assert.assertEquals(0, variable.getCategories().size());
+    assertThat(variable.getValueType()).isEqualTo(TextType.get());
+    assertThat(variable.getCategories()).isEmpty();
     variable = table.getVariable("Var2");
-    Assert.assertEquals(TextType.get(), variable.getValueType());
-    Assert.assertEquals(0, variable.getCategories().size());
+    assertThat(variable.getValueType()).isEqualTo(TextType.get());
+    assertThat(variable.getCategories()).isEmpty();
 
     // test that writing variable & category when some columns are missing does not fail
     Variable testVariable = Variable.Builder.newVariable("test-variable", TextType.get(), "Participant")
@@ -166,23 +166,23 @@ public class ExcelDatasourceTest extends AbstractMagmaTest {
 
   @Test
   public void testReadUserDefinedMixedMeta() throws IOException {
-    ExcelDatasource datasource = new ExcelDatasource("user-defined-mixed-meta",
+    Datasource datasource = new ExcelDatasource("user-defined-mixed-meta",
         FileUtil.getFileFromResource("org/obiba/magma/datasource/excel/user-defined-mixed-meta.xls"));
     datasource.initialise();
 
-    Assert.assertEquals(1, datasource.getValueTables().size());
+    assertThat(datasource.getValueTables()).hasSize(1);
     ValueTable table = datasource.getValueTable("Table1");
-    Assert.assertNotNull(table);
-    Assert.assertEquals(3, countVariables(table));
+    assertThat(table).isNotNull();
+    assertThat(table.getVariables()).hasSize(3);
     Variable variable = table.getVariable("Var1");
-    Assert.assertEquals(IntegerType.get(), variable.getValueType());
-    Assert.assertEquals(2, variable.getCategories().size());
+    assertThat(variable.getValueType()).isEqualTo(IntegerType.get());
+    assertThat(variable.getCategories()).hasSize(2);
     variable = table.getVariable("Var2");
-    Assert.assertEquals(IntegerType.get(), variable.getValueType());
-    Assert.assertEquals(0, variable.getCategories().size());
+    assertThat(variable.getValueType()).isEqualTo(IntegerType.get());
+    assertThat(variable.getCategories()).isEmpty();
     variable = table.getVariable("Var3");
-    Assert.assertEquals(TextType.get(), variable.getValueType());
-    Assert.assertEquals(0, variable.getCategories().size());
+    assertThat(variable.getValueType()).isEqualTo(TextType.get());
+    assertThat(variable.getCategories()).isEmpty();
 
   }
 
@@ -198,9 +198,9 @@ public class ExcelDatasourceTest extends AbstractMagmaTest {
         // dpe.printTree();
         // // System.out.println("******");
         // dpe.printList();
-        Assert.assertTrue(dpe.hasChildren());
+        assertThat(dpe.hasChildren()).isTrue();
         List<DatasourceParsingException> errors = dpe.getChildrenAsList();
-        Assert.assertEquals(8, errors.size());
+        assertThat(errors).hasSize(8);
       }
     }
   }
@@ -218,8 +218,8 @@ public class ExcelDatasourceTest extends AbstractMagmaTest {
 
     datasource = new ExcelDatasource("test", tmpExcelFile);
     datasource.initialise();
-    Assert.assertNotNull(datasource.getValueTable("test-table"));
-    Assert.assertNotNull(datasource.getValueTable("test-table").getVariable("test-variable"));
+    assertThat(datasource.getValueTable("test-table")).isNotNull();
+    assertThat(datasource.getValueTable("test-table").getVariable("test-variable")).isNotNull();
 
     Disposables.silentlyDispose(datasource);
     tmpExcelFile.delete();
@@ -244,7 +244,7 @@ public class ExcelDatasourceTest extends AbstractMagmaTest {
 
     datasource = new ExcelDatasource("test", tmpExcelFile);
     datasource.initialise();
-    Assert.assertEquals(1, Iterables.size(datasource.getValueTable("test-table").getVariables()));
+    assertThat(datasource.getValueTable("test-table").getVariables()).hasSize(1);
 
     Disposables.silentlyDispose(datasource);
     tmpExcelFile.delete();
@@ -315,20 +315,20 @@ public class ExcelDatasourceTest extends AbstractMagmaTest {
 
   private void assertLongTableNames(ExcelDatasource datasource) {
     ValueTable vt = datasource.getValueTable("ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEF");
-    Assert.assertNotNull(vt);
-    Assert.assertEquals("Participant", vt.getEntityType());
-    Assert.assertNotNull(vt.getVariable("FATHER_COUNTRY_BIRTH_LONG"));
-    Assert.assertNotNull(vt.getVariable("FATHER_COUNTRY_BIRTH_SHORT"));
-    Assert.assertNotNull(vt.getVariable("MOTHER_COUNTRY_BIRTH_LONG"));
-    Assert.assertNotNull(vt.getVariable("MOTHER_COUNTRY_BIRTH_SHORT"));
+    assertThat(vt).isNotNull();
+    assertThat(vt.getEntityType()).isEqualTo("Participant");
+    assertThat(vt.getVariable("FATHER_COUNTRY_BIRTH_LONG")).isNotNull();
+    assertThat(vt.getVariable("FATHER_COUNTRY_BIRTH_SHORT")).isNotNull();
+    assertThat(vt.getVariable("MOTHER_COUNTRY_BIRTH_LONG")).isNotNull();
+    assertThat(vt.getVariable("MOTHER_COUNTRY_BIRTH_SHORT")).isNotNull();
 
     vt = datasource.getValueTable("ABCDEFGHIJKLMNOPQRSTUVWXYZABCDE");
-    Assert.assertNotNull(vt);
-    Assert.assertEquals("Participant", vt.getEntityType());
-    Assert.assertNotNull(vt.getVariable("GENERIC_132"));
-    Assert.assertNotNull(vt.getVariable("GENERIC_134"));
+    assertThat(vt).isNotNull();
+    assertThat(vt.getEntityType()).isEqualTo("Participant");
+    assertThat(vt.getVariable("GENERIC_132")).isNotNull();
+    assertThat(vt.getVariable("GENERIC_134")).isNotNull();
 
-    Assert.assertEquals(2, datasource.getValueTableNames().size());
+    assertThat(datasource.getValueTableNames()).hasSize(2);
   }
 
   private Iterable<String> readStrings(String filename) throws IOException {
@@ -353,11 +353,8 @@ public class ExcelDatasourceTest extends AbstractMagmaTest {
 
   private void assertDatasourceParsingException(String expectedKey, String expectedParameters,
       DatasourceParsingException dpe) {
-    Assert.assertEquals(expectedKey, dpe.getKey());
-    Assert.assertEquals(expectedParameters, dpe.getParameters().toString());
+    assertThat(dpe.getKey()).isEqualTo(expectedKey);
+    assertThat(dpe.getParameters().toString()).isEqualTo(expectedParameters);
   }
 
-  private int countVariables(ValueTable table) {
-    return Iterables.size(table.getVariables());
-  }
 }
