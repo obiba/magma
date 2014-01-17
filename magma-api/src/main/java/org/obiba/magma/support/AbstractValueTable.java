@@ -2,6 +2,7 @@ package org.obiba.magma.support;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Set;
@@ -27,6 +28,7 @@ import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
 public abstract class AbstractValueTable implements ValueTable, Initialisable {
@@ -155,8 +157,18 @@ public abstract class AbstractValueTable implements ValueTable, Initialisable {
   }
 
   protected void addVariableValueSources(Collection<VariableValueSource> sourcesToAdd) {
-    removeVariableValueSources(sourcesToAdd);
-    sources.addAll(sourcesToAdd);
+    List<VariableValueSource> list = Lists.newArrayList(sources);
+    for(VariableValueSource variableValueSource : sourcesToAdd) {
+      int index = list.indexOf(variableValueSource);
+      if(index >= 0) {
+        list.remove(index);
+        list.add(index, variableValueSource);
+      } else {
+        list.add(variableValueSource);
+      }
+    }
+    sources.clear();
+    sources.addAll(list);
   }
 
   protected void addVariableValueSource(VariableValueSource source) {

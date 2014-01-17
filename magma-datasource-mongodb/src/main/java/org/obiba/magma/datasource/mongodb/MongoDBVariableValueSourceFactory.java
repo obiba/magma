@@ -17,6 +17,7 @@ import org.obiba.magma.VariableValueSourceFactory;
 
 import com.google.common.collect.ImmutableSet;
 import com.mongodb.BasicDBObject;
+import com.mongodb.BasicDBObjectBuilder;
 import com.mongodb.DBCursor;
 
 public class MongoDBVariableValueSourceFactory implements VariableValueSourceFactory {
@@ -30,7 +31,8 @@ public class MongoDBVariableValueSourceFactory implements VariableValueSourceFac
   @Override
   public Set<VariableValueSource> createSources() {
     ImmutableSet.Builder<VariableValueSource> builder = ImmutableSet.builder();
-    try(DBCursor variableCursor = table.getVariablesCollection().find(new BasicDBObject())) {
+    try(DBCursor variableCursor = table.getVariablesCollection().find(new BasicDBObject())
+        .sort(BasicDBObjectBuilder.start().add("_id", 1).get())) {
       while(variableCursor.hasNext()) {
         builder.add(new MongoDBVariableValueSource(table, variableCursor.next().get("name").toString()));
       }
