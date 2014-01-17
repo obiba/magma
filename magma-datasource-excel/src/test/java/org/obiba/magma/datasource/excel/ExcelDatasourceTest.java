@@ -39,7 +39,7 @@ public class ExcelDatasourceTest extends AbstractMagmaTest {
    * http://wiki.obiba.org/confluence/display/CAG/Excel+Datasource+Improvements
    */
   @Test
-  public void testReadUserDefined() {
+  public void test_read_user_defined() {
     Datasource datasource = new ExcelDatasource("user-defined",
         FileUtil.getFileFromResource("org/obiba/magma/datasource/excel/user-defined.xls"));
     datasource.initialise();
@@ -84,7 +84,7 @@ public class ExcelDatasourceTest extends AbstractMagmaTest {
   }
 
   @Test
-  public void testReadUserDefinedBogus() {
+  public void test_read_user_defined_bogus() {
 
     Initialisable datasource = new ExcelDatasource("user-defined-bogus",
         FileUtil.getFileFromResource("org/obiba/magma/datasource/excel/user-defined-bogus.xls"));
@@ -119,7 +119,7 @@ public class ExcelDatasourceTest extends AbstractMagmaTest {
   }
 
   @Test
-  public void testReadWriteUserDefinedNoTableColumn() throws IOException {
+  public void test_read_write_user_defined_without_table_column() throws IOException {
     Datasource datasource = new ExcelDatasource("user-defined-no-table-column",
         FileUtil.getFileFromResource("org/obiba/magma/datasource/excel/user-defined-no-table-column.xls"));
     datasource.initialise();
@@ -139,7 +139,7 @@ public class ExcelDatasourceTest extends AbstractMagmaTest {
   }
 
   @Test
-  public void testReadWriteUserDefinedNoMeta() throws IOException {
+  public void test_read_write_user_defined_without_meta() throws IOException {
     Datasource datasource = new ExcelDatasource("user-defined-no-meta",
         FileUtil.getFileFromResource("org/obiba/magma/datasource/excel/user-defined-no-meta.xls"));
     datasource.initialise();
@@ -165,7 +165,7 @@ public class ExcelDatasourceTest extends AbstractMagmaTest {
   }
 
   @Test
-  public void testReadUserDefinedMixedMeta() throws IOException {
+  public void test_read_user_defined_mixed_meta() throws IOException {
     Datasource datasource = new ExcelDatasource("user-defined-mixed-meta",
         FileUtil.getFileFromResource("org/obiba/magma/datasource/excel/user-defined-mixed-meta.xls"));
     datasource.initialise();
@@ -187,7 +187,7 @@ public class ExcelDatasourceTest extends AbstractMagmaTest {
   }
 
   @Test
-  public void testReadUserDefinedBogusNoTableColumn() {
+  public void test_read_user_defined_bogus_without_table_column() {
     Initialisable datasource = new ExcelDatasource("user-defined-bogus-no-table-column",
         FileUtil.getFileFromResource("org/obiba/magma/datasource/excel/user-defined-bogus-no-table-column.xls"));
     try {
@@ -195,9 +195,6 @@ public class ExcelDatasourceTest extends AbstractMagmaTest {
     } catch(MagmaRuntimeException e) {
       if(e.getCause() instanceof DatasourceParsingException) {
         DatasourceParsingException dpe = (DatasourceParsingException) e.getCause();
-        // dpe.printTree();
-        // // System.out.println("******");
-        // dpe.printList();
         assertThat(dpe.hasChildren()).isTrue();
         List<DatasourceParsingException> errors = dpe.getChildrenAsList();
         assertThat(errors).hasSize(8);
@@ -206,7 +203,7 @@ public class ExcelDatasourceTest extends AbstractMagmaTest {
   }
 
   @Test
-  public void testWriteVariableIsReadBack() throws IOException {
+  public void test_write_variable_is_read_back() throws IOException {
     File tmpExcelFile = createTempFile(".xlsx");
 
     Variable testVariable = Variable.Builder.newVariable("test-variable", TextType.get(), "Participant").build();
@@ -225,9 +222,8 @@ public class ExcelDatasourceTest extends AbstractMagmaTest {
     tmpExcelFile.delete();
   }
 
-  // Test for OPAL-232
   @Test
-  public void testWriteVariableMultipleTimes() throws IOException {
+  public void test_write_variable_multiple_times_OPAL_232() throws IOException {
     File tmpExcelFile = createTempFile(".xlsx");
 
     Variable testVariable = Variable.Builder.newVariable("test-variable", TextType.get(), "Participant").build();
@@ -251,7 +247,7 @@ public class ExcelDatasourceTest extends AbstractMagmaTest {
   }
 
   @Test
-  public void test_OPAL_238_strings_can_be_written() throws IOException {
+  public void test_strings_can_be_written_OPAL_238() throws IOException {
     File tmp = createTempFile(".xlsx");
 
     Workbook w = new XSSFWorkbook();
@@ -272,14 +268,14 @@ public class ExcelDatasourceTest extends AbstractMagmaTest {
   }
 
   @Test
-  public void testCreateDatasourceOnEmptyExcelFile() {
+  public void test_create_datasource_on_empty_excel_file() {
     Initialisable datasource = new ExcelDatasource("empty",
         FileUtil.getFileFromResource("org/obiba/magma/datasource/excel/empty.xls"));
     datasource.initialise();
   }
 
   @Test
-  public void testReadLongTableNames() {
+  public void test_read_long_table_names() {
     ExcelDatasource datasource = new ExcelDatasource("long",
         FileUtil.getFileFromResource("org/obiba/magma/datasource/excel/long-table-names.xlsx"));
     datasource.initialise();
@@ -288,7 +284,7 @@ public class ExcelDatasourceTest extends AbstractMagmaTest {
   }
 
   @Test
-  public void testWriteLongTableNames() {
+  public void test_write_long_table_names() {
     Datasource datasource = new ExcelDatasource("long",
         FileUtil.getFileFromResource("org/obiba/magma/datasource/excel/long-table-names.xlsx"));
     datasource.initialise();
