@@ -1,6 +1,5 @@
 package org.obiba.magma.xstream;
 
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.obiba.magma.Value;
@@ -9,6 +8,8 @@ import org.obiba.magma.support.VariableEntityBean;
 import org.obiba.magma.type.TextType;
 
 import com.thoughtworks.xstream.XStream;
+
+import static org.fest.assertions.api.Assertions.assertThat;
 
 public class XStreamValueSetTest extends AbstractMagmaXStreamTest {
 
@@ -22,7 +23,7 @@ public class XStreamValueSetTest extends AbstractMagmaXStreamTest {
   @Test
   public void testEmptyValueSet() {
     XStreamValueSet valueSet = new XStreamValueSet("testTable", new VariableEntityBean("TestType", "id"));
-    Assert.assertTrue(valueSet.getValue(testVariable).isNull());
+    assertThat(valueSet.getValue(testVariable).isNull()).isTrue();
   }
 
   @Test
@@ -33,7 +34,7 @@ public class XStreamValueSetTest extends AbstractMagmaXStreamTest {
     valueSet.setValue(testVariable, testValue);
 
     Value value = valueSet.getValue(testVariable);
-    Assert.assertEquals(testValue, value);
+    assertThat(testValue).isEqualTo(value);
   }
 
   @Test
@@ -49,6 +50,6 @@ public class XStreamValueSetTest extends AbstractMagmaXStreamTest {
     XStreamValueSet unmarshalled = (XStreamValueSet) xstream.fromXML(xml);
 
     Value value = unmarshalled.getValue(testVariable);
-    Assert.assertEquals(testValue, value);
+    assertThat(testValue).isEqualTo(value);
   }
 }

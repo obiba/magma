@@ -3,9 +3,9 @@ package org.obiba.magma.xstream.converter;
 import java.util.Locale;
 import java.util.Set;
 
-import org.junit.Assert;
 import org.junit.Test;
 import org.obiba.magma.Attribute;
+import org.obiba.magma.AttributeAware;
 import org.obiba.magma.Category;
 import org.obiba.magma.Variable;
 import org.obiba.magma.test.AbstractMagmaTest;
@@ -15,6 +15,8 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.thoughtworks.xstream.XStream;
+
+import static org.fest.assertions.api.Assertions.assertThat;
 
 public class VariableConverterTest extends AbstractMagmaTest {
 
@@ -27,9 +29,9 @@ public class VariableConverterTest extends AbstractMagmaTest {
     String xml = xstream.toXML(v);
     Variable unmarshalled = (Variable) xstream.fromXML(xml);
 
-    Assert.assertEquals(v.getName(), unmarshalled.getName());
-    Assert.assertEquals(v.getValueType(), unmarshalled.getValueType());
-    Assert.assertEquals(v.getEntityType(), unmarshalled.getEntityType());
+    assertThat(v.getName()).isEqualTo(unmarshalled.getName());
+    assertThat(v.getValueType()).isEqualTo(unmarshalled.getValueType());
+    assertThat(v.getEntityType()).isEqualTo(unmarshalled.getEntityType());
   }
 
   @Test
@@ -47,18 +49,18 @@ public class VariableConverterTest extends AbstractMagmaTest {
         .build();
 
     String xml = xstream.toXML(v);
-    Variable unmarshalled = (Variable) xstream.fromXML(xml);
-    Assert.assertTrue(unmarshalled.hasAttribute("firstAttribute"));
-    Assert.assertEquals("firstValue", unmarshalled.getAttribute("firstAttribute").getValue().toString());
+    AttributeAware unmarshalled = (AttributeAware) xstream.fromXML(xml);
+    assertThat(unmarshalled.hasAttribute("firstAttribute")).isTrue();
+    assertThat(unmarshalled.getAttribute("firstAttribute").getValue().toString()).isEqualTo("firstValue");
 
-    Assert.assertTrue(unmarshalled.hasAttribute("secondAttribute"));
-    Assert.assertTrue(unmarshalled.getAttribute("secondAttribute").isLocalised());
-    Assert.assertEquals("secondValue",
-        unmarshalled.getAttribute("secondAttribute", Locale.ENGLISH).getValue().toString());
+    assertThat(unmarshalled.hasAttribute("secondAttribute")).isTrue();
+    assertThat(unmarshalled.getAttribute("secondAttribute").isLocalised()).isTrue();
+    assertThat(unmarshalled.getAttribute("secondAttribute", Locale.ENGLISH).getValue().toString())
+        .isEqualTo("secondValue");
 
-    Assert.assertTrue(unmarshalled.hasAttribute("ns1", "namespaced"));
-    Assert.assertTrue(unmarshalled.hasAttribute("ns1", "namespaced"));
-    Assert.assertEquals("ns1", unmarshalled.getAttribute("ns1", "namespaced").getValue().toString());
+    assertThat(unmarshalled.hasAttribute("ns1", "namespaced")).isTrue();
+    assertThat(unmarshalled.hasAttribute("ns1", "namespaced")).isTrue();
+    assertThat(unmarshalled.getAttribute("ns1", "namespaced").getValue().toString()).isEqualTo("ns1");
   }
 
   @Test
@@ -77,14 +79,14 @@ public class VariableConverterTest extends AbstractMagmaTest {
                 .build()).build();
     String xml = xstream.toXML(v);
     Variable unmarshalled = (Variable) xstream.fromXML(xml);
-    Assert.assertNotNull(unmarshalled.getCategories());
+    assertThat(unmarshalled.getCategories()).isNotNull();
 
-    Assert.assertTrue(Iterables.any(unmarshalled.getCategories(), new Predicate<Category>() {
+    assertThat(Iterables.any(unmarshalled.getCategories(), new Predicate<Category>() {
       @Override
       public boolean apply(Category input) {
         return names.contains(input.getName());
       }
-    }));
+    })).isTrue();
   }
 
   protected Variable.Builder newVariable() {
