@@ -131,23 +131,7 @@ public class CsvValueTableWriter implements ValueTableWriter {
         if(valueTable.isDataFileEmpty()) {
           writeTableWithoutData();
         } else {
-          // Test header is a subset
-          List<String> extraHeaders = getExtraHeadersFromNewValueSet(getExistingHeaderMap(), csvLine.getHeaderMap());
-          if(extraHeaders.size() != 0) {
-            StringBuilder sb = new StringBuilder();
-            for(String header : extraHeaders) {
-              sb.append(header).append(" ");
-            }
-            throw new MagmaRuntimeException("Cannot update the CSV ValueTable [" + valueTable.getName() +
-                "]. The new ValueSet (record) included the following unexpected Variables (fields): " + sb.toString());
-          }
-
-          if(valueTable.hasValueSet(entity)) {
-            // Delete existing value set.
-            valueTable.clearEntity(entity);
-          }
-          // Set existing header
-          csvLine.setHeaderMap(getExistingHeaderMap());
+          writeTableWithData();
         }
 
         // Writer Value set. Throw exception if doesn't match header
@@ -177,6 +161,25 @@ public class CsvValueTableWriter implements ValueTableWriter {
       getExistingHeaderMap();
       valueTable.setDataHeaderMap(csvLine.getHeaderMap());
       valueTable.setDataFileEmpty(false);
+    }
+
+    private void writeTableWithData() throws IOException {// Test header is a subset
+      List<String> extraHeaders = getExtraHeadersFromNewValueSet(getExistingHeaderMap(), csvLine.getHeaderMap());
+      if(extraHeaders.size() != 0) {
+        StringBuilder sb = new StringBuilder();
+        for(String header : extraHeaders) {
+          sb.append(header).append(" ");
+        }
+        throw new MagmaRuntimeException("Cannot update the CSV ValueTable [" + valueTable.getName() +
+            "]. The new ValueSet (record) included the following unexpected Variables (fields): " + sb.toString());
+      }
+
+      if(valueTable.hasValueSet(entity)) {
+        // Delete existing value set.
+        valueTable.clearEntity(entity);
+      }
+      // Set existing header
+      csvLine.setHeaderMap(getExistingHeaderMap());
     }
 
     private void writeValueToCsv(String... strings) throws IOException {
