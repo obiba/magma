@@ -1,7 +1,6 @@
 package org.obiba.magma.xstream.converter;
 
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.obiba.magma.MagmaEngine;
@@ -9,6 +8,8 @@ import org.obiba.magma.Value;
 import org.obiba.magma.type.TextType;
 
 import com.thoughtworks.xstream.XStream;
+
+import static org.fest.assertions.api.Assertions.assertThat;
 
 public class ValueConverterTest {
 
@@ -29,12 +30,9 @@ public class ValueConverterTest {
   @Test
   public void testNotNullValue() {
     Value value = TextType.get().valueOf("The Value");
-
     String xml = xstream.toXML(value);
     Value unmarshalled = (Value) xstream.fromXML(xml);
-
-    Assert.assertEquals(value, unmarshalled);
-
+    assertThat(value).isEqualTo(unmarshalled);
   }
 
   @Test
@@ -44,9 +42,8 @@ public class ValueConverterTest {
     String xml = xstream.toXML(value);
     Value unmarshalled = (Value) xstream.fromXML(xml);
 
-    Assert.assertEquals(value, unmarshalled);
-    Assert.assertTrue(unmarshalled.isNull());
-
+    assertThat(value).isEqualTo(unmarshalled);
+    assertThat(unmarshalled.isNull()).isTrue();
   }
 
 }

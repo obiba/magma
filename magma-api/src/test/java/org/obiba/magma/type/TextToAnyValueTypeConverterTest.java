@@ -9,12 +9,13 @@
  ******************************************************************************/
 package org.obiba.magma.type;
 
-import org.junit.Assert;
 import org.junit.Test;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueConverter;
 import org.obiba.magma.ValueType;
 import org.obiba.magma.test.AbstractMagmaTest;
+
+import static org.fest.assertions.api.Assertions.assertThat;
 
 @SuppressWarnings("ConstantConditions")
 public class TextToAnyValueTypeConverterTest extends AbstractMagmaTest {
@@ -22,21 +23,21 @@ public class TextToAnyValueTypeConverterTest extends AbstractMagmaTest {
   @Test
   public void test_converterFor_returnsAConverter() {
     ValueConverter converter = ValueType.Factory.converterFor(TextType.get(), BooleanType.get());
-    Assert.assertNotNull(converter);
+    assertThat(converter).isNotNull();
   }
 
   @Test
   public void test_convert_true_boolean_text_to_boolean() {
     Value value = TextType.get().valueOf("trUe");
     Value converted = BooleanType.get().convert(value);
-    Assert.assertTrue((Boolean) converted.getValue());
+    assertThat((Boolean) converted.getValue()).isTrue();
   }
 
   @Test
   public void test_convert_false_boolean_text_to_boolean() {
     Value value = TextType.get().valueOf("fAlse");
     Value converted = BooleanType.get().convert(value);
-    Assert.assertTrue(!((Boolean) converted.getValue()));
+    assertThat((Boolean) converted.getValue()).isFalse();
   }
 
   @Test(expected = IllegalArgumentException.class)
@@ -49,7 +50,7 @@ public class TextToAnyValueTypeConverterTest extends AbstractMagmaTest {
   public void test_convert_1_text_to_long() {
     Value value = TextType.get().valueOf("1");
     Value converted = IntegerType.get().convert(value);
-    Assert.assertTrue((Long) converted.getValue() == 1);
+    assertThat((Long) converted.getValue() == 1).isTrue();
   }
 
   @Test
@@ -57,6 +58,6 @@ public class TextToAnyValueTypeConverterTest extends AbstractMagmaTest {
   public void test_convert_1_text_to_decimal() {
     Value value = TextType.get().valueOf("1.1");
     Value converted = DecimalType.get().convert(value);
-    Assert.assertTrue((Double) converted.getValue() == 1.1);
+    assertThat((Double) converted.getValue() == 1.1).isTrue();
   }
 }

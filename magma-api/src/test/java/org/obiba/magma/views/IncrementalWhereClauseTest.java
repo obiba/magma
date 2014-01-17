@@ -12,7 +12,6 @@ package org.obiba.magma.views;
 import javax.validation.constraints.NotNull;
 
 import org.easymock.EasyMock;
-import org.junit.Assert;
 import org.junit.Test;
 import org.obiba.magma.Timestamps;
 import org.obiba.magma.Value;
@@ -23,6 +22,8 @@ import org.obiba.magma.support.VariableEntityBean;
 import org.obiba.magma.test.AbstractMagmaTest;
 import org.obiba.magma.type.DateTimeType;
 
+import static org.fest.assertions.api.Assertions.assertThat;
+
 /**
  *
  */
@@ -32,20 +33,17 @@ public class IncrementalWhereClauseTest extends AbstractMagmaTest {
 
   @Test
   public void test_where_includesMoreRecent() {
-    boolean include = test("2011-11-25T12:30Z", "2011-11-24T12:30Z");
-    Assert.assertTrue(include);
+    assertThat(test("2011-11-25T12:30Z", "2011-11-24T12:30Z")).isTrue();
   }
 
   @Test
   public void test_where_excludesLessRecent() {
-    boolean include = test("2011-11-25T12:30Z", "2011-11-26T12:30Z");
-    Assert.assertFalse(include);
+    assertThat(test("2011-11-25T12:30Z", "2011-11-26T12:30Z")).isFalse();
   }
 
   @Test
   public void test_where_includesNoDestinationValueSet() {
-    boolean include = test("2011-11-25T12:30Z", null);
-    Assert.assertTrue(include);
+    assertThat(test("2011-11-25T12:30Z", null)).isTrue();
   }
 
   private boolean test(String source, String other) {
@@ -57,7 +55,7 @@ public class IncrementalWhereClauseTest extends AbstractMagmaTest {
 
     EasyMock.replay(destination);
 
-    IncrementalWhereClause clause = new IncrementalWhereClause(destination);
+    WhereClause clause = new IncrementalWhereClause(destination);
 
     boolean include = clause.where(mockValueSet(source));
 

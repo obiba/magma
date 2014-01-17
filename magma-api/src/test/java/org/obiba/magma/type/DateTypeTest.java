@@ -6,13 +6,14 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
-import org.junit.Assert;
 import org.junit.Test;
 import org.obiba.magma.MagmaDate;
 import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.Value;
 
 import com.google.common.collect.ImmutableList;
+
+import static org.fest.assertions.api.Assertions.assertThat;
 
 public class DateTypeTest extends BaseValueTypeTest {
 
@@ -46,14 +47,14 @@ public class DateTypeTest extends BaseValueTypeTest {
     DateType dt = DateType.get();
 
     // MAGMA-166
-    // Assert.assertTrue(dt.acceptsJavaClass(java.sql.Date.class));
+    // assertThat((dt.acceptsJavaClass(java.sql.Date.class))).isTrue();
 
     Date dateValue = new Date();
     Value value = dt.valueOf(new java.sql.Date(dateValue.getTime()));
-    Assert.assertEquals(new MagmaDate(dateValue), value.getValue());
+    assertThat(new MagmaDate(dateValue)).isEqualTo((MagmaDate) value.getValue());
 
     // Make sure the type was normalized
-    Assert.assertTrue(value.getValue().getClass().equals(dt.getJavaClass()));
+    assertThat(value.getValue()).isInstanceOf(dt.getJavaClass());
   }
 
   @Test
@@ -61,14 +62,14 @@ public class DateTypeTest extends BaseValueTypeTest {
     DateType dt = DateType.get();
 
     // MAGMA-166
-    // Assert.assertTrue(dt.acceptsJavaClass(Timestamp.class));
+    // assertThat((dt.acceptsJavaClass(Timestamp.class))).isTrue();
 
     Date dateValue = new Date();
     Value value = dt.valueOf(new Timestamp(dateValue.getTime()));
-    Assert.assertEquals(new MagmaDate(dateValue), value.getValue());
+    assertThat(new MagmaDate(dateValue)).isEqualTo((MagmaDate) value.getValue());
 
     // Make sure the type was normalized
-    Assert.assertTrue(value.getValue().getClass().equals(dt.getJavaClass()));
+    assertThat(value.getValue()).isInstanceOf(dt.getJavaClass());
   }
 
   @Test
@@ -76,30 +77,26 @@ public class DateTypeTest extends BaseValueTypeTest {
     DateTimeType dt = DateTimeType.get();
 
     // MAGMA-166
-    // Assert.assertTrue(dt.acceptsJavaClass(Calendar.class));
-    // Assert.assertTrue(dt.acceptsJavaClass(GregorianCalendar.class));
+    // assertThat((dt.acceptsJavaClass(Calendar.class))).isTrue();
+    // assertThat((dt.acceptsJavaClass(GregorianCalendar.class))).isTrue();
 
     Calendar calendar = GregorianCalendar.getInstance();
     Date dateValue = calendar.getTime();
     Value value = dt.valueOf(calendar);
-    Assert.assertEquals(dateValue, value.getValue());
+    assertThat(dateValue).isEqualTo((Date) value.getValue());
   }
 
   @Test
   public void testValueOfDateValue() {
     Value val = DateType.get().valueOf(new Date());
-
-    Value conv = DateType.get().valueOf(val);
-    Assert.assertEquals(val, conv);
+    assertThat(val).isEqualTo(DateType.get().valueOf(val));
   }
 
   @Test
   public void testValueOfTextValue() {
     Date now = new Date();
     Value val = TextType.get().valueOf(new SimpleDateFormat("yyyy-MM-dd").format(now));
-
-    Value conv = DateType.get().valueOf(val);
-    Assert.assertEquals(val.toString(), conv.toString());
+    assertThat(val.toString()).isEqualTo(DateType.get().valueOf(val).toString());
   }
 
   @Test
@@ -150,13 +147,12 @@ public class DateTypeTest extends BaseValueTypeTest {
   @Test
   public void test_toString_nullValueReturnsNull() {
     String s = getValueType().toString((Object) null);
-    Assert.assertNull(s);
+    assertThat(s).isNull();
   }
 
   @Test
   public void test_now_returnsNewDate() {
-    Value now = getValueType().now();
-    Assert.assertEquals(new MagmaDate(new Date()), now.getValue());
+    assertThat(getValueType().now().getValue()).isEqualTo(new MagmaDate(new Date()));
   }
 
   private void assertValueOfUsingDateFormat(String dateFormat) {
@@ -164,6 +160,6 @@ public class DateTypeTest extends BaseValueTypeTest {
     Date dateValue = new Date();
     String dateStr = new SimpleDateFormat(dateFormat).format(dateValue);
     Value value = dt.valueOf(dateStr);
-    Assert.assertEquals(new MagmaDate(dateValue), value.getValue());
+    assertThat(value.getValue()).isEqualTo(new MagmaDate(dateValue));
   }
 }

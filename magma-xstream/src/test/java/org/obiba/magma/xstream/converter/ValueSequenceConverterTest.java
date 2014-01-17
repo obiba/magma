@@ -1,7 +1,6 @@
 package org.obiba.magma.xstream.converter;
 
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.obiba.magma.MagmaEngine;
@@ -12,9 +11,11 @@ import org.obiba.magma.type.TextType;
 import com.google.common.collect.ImmutableList;
 import com.thoughtworks.xstream.XStream;
 
+import static org.fest.assertions.api.Assertions.assertThat;
+
 public class ValueSequenceConverterTest {
 
-  XStream xstream;
+  private XStream xstream;
 
   @Before
   public void startYourEngine() {
@@ -37,9 +38,9 @@ public class ValueSequenceConverterTest {
     String xml = xstream.toXML(value);
     Value unmarshalled = (Value) xstream.fromXML(xml);
 
-    Assert.assertEquals(value, unmarshalled);
-    Assert.assertTrue(unmarshalled.isSequence());
-    Assert.assertEquals(2, unmarshalled.asSequence().getValues().size());
+    assertThat(value).isEqualTo(unmarshalled);
+    assertThat(unmarshalled.isSequence()).isTrue();
+    assertThat(unmarshalled.asSequence().getValues()).hasSize(2);
   }
 
   @Test
@@ -49,9 +50,8 @@ public class ValueSequenceConverterTest {
     String xml = xstream.toXML(value);
     Value unmarshalled = (Value) xstream.fromXML(xml);
 
-    Assert.assertEquals(value, unmarshalled);
-    Assert.assertTrue(unmarshalled.isNull());
-
+    assertThat(value).isEqualTo(unmarshalled);
+    assertThat(unmarshalled.isNull()).isTrue();
   }
 
 }

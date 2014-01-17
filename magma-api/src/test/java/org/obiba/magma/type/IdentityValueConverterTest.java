@@ -9,35 +9,36 @@
  ******************************************************************************/
 package org.obiba.magma.type;
 
-import org.junit.Assert;
 import org.junit.Test;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueConverter;
 import org.obiba.magma.ValueType;
 import org.obiba.magma.test.AbstractMagmaTest;
 
+import static org.fest.assertions.api.Assertions.assertThat;
+
 public class IdentityValueConverterTest extends AbstractMagmaTest {
 
   @Test
   public void test_converterFor_returnsAConverter() {
     ValueConverter converter = ValueType.Factory.converterFor(DecimalType.get(), DecimalType.get());
-    Assert.assertNotNull(converter);
+    assertThat(converter).isNotNull();
   }
 
   @Test
   public void test_converterFor_returnsAnIdentityConverter() {
     ValueConverter converter = ValueType.Factory.converterFor(DecimalType.get(), DecimalType.get());
-    Assert.assertNotNull(converter);
+    assertThat(converter).isNotNull();
     Value value = DecimalType.get().valueOf(1);
     Value converted = converter.convert(value, DecimalType.get());
     // Should be the same instance
-    Assert.assertTrue(value == converted);
+    assertThat(value == converted).isTrue();
   }
 
   @Test
   public void test_convert_fromValueType() {
     Value value = DecimalType.get().valueOf(1);
     Value converted = DecimalType.get().convert(value);
-    Assert.assertTrue(value == converted);
+    assertThat(value == converted).isTrue();
   }
 }
