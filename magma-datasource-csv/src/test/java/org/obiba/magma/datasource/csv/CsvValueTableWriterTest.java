@@ -139,7 +139,7 @@ public class CsvValueTableWriterTest extends AbstractMagmaTest {
     // This existing datasource has the following header: entity_id,FirstName,LastName,Sex,City,FavouriteIcecream
     CsvDatasource datasource = new CsvDatasource("csv-datasource").addValueTable("TableDataOnly", //
         null, //
-        getFileFromResource("TableDataOnly/data.csv"));
+        getFileFromResource("org/obiba/magma/datasource/csv/TableDataOnly/data.csv"));
     datasource.initialise();
 
     // Attempt to add a new ValueSet containing a new Variable "coffee". Expect this to fail.
@@ -296,7 +296,8 @@ public class CsvValueTableWriterTest extends AbstractMagmaTest {
       throws Exception {
     String tableName = "TableDataOnly";
     String entityName = "Participant";
-    CsvDatasource datasource = new TempTableBuilder(tableName).addData(getFileFromResource("TableDataOnly/data.csv"))
+    CsvDatasource datasource = new TempTableBuilder(tableName)
+        .addData(getFileFromResource("org/obiba/magma/datasource/csv/TableDataOnly/data.csv"))
         .buildCsvDatasource("csv-datasource");
 
     Variable cityVariable = Variable.Builder.newVariable("City", TextType.get(), "Participant").build();
@@ -323,7 +324,8 @@ public class CsvValueTableWriterTest extends AbstractMagmaTest {
   @Test
   public void test_writing_data_only_modifying_multiple_value_sets_and_reading_back_from_datasource() throws Exception {
     String tableName = "TableDataOnly";
-    CsvDatasource datasource = new TempTableBuilder(tableName).addData(getFileFromResource("TableDataOnly/data.csv"))
+    CsvDatasource datasource = new TempTableBuilder(tableName)
+        .addData(getFileFromResource("org/obiba/magma/datasource/csv/TableDataOnly/data.csv"))
         .buildCsvDatasource("csv-datasource");
 
     Variable cityVariable = Variable.Builder.newVariable("City", TextType.get(), "Participant").build();
@@ -358,7 +360,8 @@ public class CsvValueTableWriterTest extends AbstractMagmaTest {
   public void test_writing_data_only_modifying_multiple_wide_byte_value_sets_and_reading_back_from_datasource()
       throws Exception {
     String tableName = "TableDataOnly";
-    CsvDatasource datasource = new TempTableBuilder(tableName).addData(getFileFromResource("TableDataOnly/data.csv"))
+    CsvDatasource datasource = new TempTableBuilder(tableName)
+        .addData(getFileFromResource("org/obiba/magma/datasource/csv/TableDataOnly/data.csv"))
         .buildCsvDatasource("csv-datasource");
 
     Variable cityVariable = Variable.Builder.newVariable("City", TextType.get(), "Participant").build();

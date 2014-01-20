@@ -187,7 +187,7 @@ public class CsvDatasourceTest extends AbstractMagmaTest {
   public void test_reading_data_only_table_has_only_one_table() throws Exception {
     CsvDatasource datasource = new CsvDatasource("csv-datasource").addValueTable("TableDataOnly", //
         null, //
-        getFileFromResource("TableDataOnly/data.csv"));
+        getFileFromResource("org/obiba/magma/datasource/csv/TableDataOnly/data.csv"));
     datasource.initialise();
 
     assertThat(datasource.getValueTableNames()).hasSize(1);
@@ -197,7 +197,7 @@ public class CsvDatasourceTest extends AbstractMagmaTest {
   public void test_reading_data_only_table_is_not_null() throws Exception {
     CsvDatasource datasource = new CsvDatasource("csv-datasource").addValueTable("TableDataOnly", //
         null, //
-        getFileFromResource("TableDataOnly/data.csv"));
+        getFileFromResource("org/obiba/magma/datasource/csv/TableDataOnly/data.csv"));
     datasource.initialise();
 
     assertThat(datasource.getValueTable("TableDataOnly")).isNotNull();
@@ -207,7 +207,7 @@ public class CsvDatasourceTest extends AbstractMagmaTest {
   public void test_reading_data_only_table_entity_type_is_default_participant() throws Exception {
     CsvDatasource datasource = new CsvDatasource("csv-datasource").addValueTable("TableDataOnly", //
         null, //
-        getFileFromResource("TableDataOnly/data.csv"));
+        getFileFromResource("org/obiba/magma/datasource/csv/TableDataOnly/data.csv"));
     datasource.initialise();
     ValueTable table = datasource.getValueTable("TableDataOnly");
 
@@ -218,7 +218,7 @@ public class CsvDatasourceTest extends AbstractMagmaTest {
   public void test_reading_data_only_favourite_ice_cream_variable_exists() throws Exception {
     CsvDatasource datasource = new CsvDatasource("csv-datasource").addValueTable("TableDataOnly", //
         null, //
-        getFileFromResource("TableDataOnly/data.csv"));
+        getFileFromResource("org/obiba/magma/datasource/csv/TableDataOnly/data.csv"));
     datasource.initialise();
     ValueTable table = datasource.getValueTable("TableDataOnly");
 
@@ -229,7 +229,7 @@ public class CsvDatasourceTest extends AbstractMagmaTest {
   public void test_reading_single_data_only_table_null_ice_cream_value() throws Exception {
     CsvDatasource datasource = new CsvDatasource("csv-datasource").addValueTable("TableDataOnly", //
         null, //
-        getFileFromResource("TableDataOnly/data.csv"));
+        getFileFromResource("org/obiba/magma/datasource/csv/TableDataOnly/data.csv"));
     datasource.initialise();
     ValueTable table = datasource.getValueTable("TableDataOnly");
 
@@ -248,7 +248,7 @@ public class CsvDatasourceTest extends AbstractMagmaTest {
   public void test_reading_data_only_value_type_is_text() throws Exception {
     CsvDatasource datasource = new CsvDatasource("csv-datasource").addValueTable("TableDataOnly", //
         null, //
-        getFileFromResource("TableDataOnly/data.csv"));
+        getFileFromResource("org/obiba/magma/datasource/csv/TableDataOnly/data.csv"));
     datasource.initialise();
     ValueTable table = datasource.getValueTable("TableDataOnly");
 
@@ -260,7 +260,7 @@ public class CsvDatasourceTest extends AbstractMagmaTest {
   @Test
   public void test_value_table_get_variable_entities() throws Exception {
     CsvDatasource datasource = new CsvDatasource("csv-datasource").addValueTable("TableDataOnly", //
-        null, getFileFromResource("TableDataOnly/data.csv"));
+        null, getFileFromResource("org/obiba/magma/datasource/csv/TableDataOnly/data.csv"));
     datasource.initialise();
 
     ValueTable table = datasource.getValueTable("TableDataOnly");
@@ -270,7 +270,7 @@ public class CsvDatasourceTest extends AbstractMagmaTest {
   @Test
   public void test_value_table_get_variables() throws Exception {
     CsvDatasource datasource = new CsvDatasource("csv-datasource").addValueTable("TableDataOnly", //
-        null, getFileFromResource("TableDataOnly/data.csv"));
+        null, getFileFromResource("org/obiba/magma/datasource/csv/TableDataOnly/data.csv"));
     datasource.initialise();
 
     ValueTable table = datasource.getValueTable("TableDataOnly");
@@ -603,7 +603,7 @@ public class CsvDatasourceTest extends AbstractMagmaTest {
   public void test_OPAL_1811() throws Exception {
     CsvDatasource datasource = new CsvDatasource("csv-datasource").addValueTable("TableDataOnly", //
         null, //
-        getFileFromResource("TableDataOnly/study3.csv"));
+        getFileFromResource("org/obiba/magma/datasource/csv/TableDataOnly/study3.csv"));
     datasource.initialise();
   }
 
