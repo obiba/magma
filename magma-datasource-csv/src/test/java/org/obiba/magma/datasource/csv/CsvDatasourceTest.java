@@ -357,8 +357,8 @@ public class CsvDatasourceTest extends AbstractMagmaTest {
   @Test
   public void test_repeatable_data_read() {
     CsvDatasource datasource = new CsvDatasource("csv-datasource").addValueTable("Participants", //
-        getFileFromResource("Participants/variables.csv"), //
-        getFileFromResource("Participants/data.csv"));
+        getFileFromResource("org/obiba/magma/datasource/csv/Participants/variables.csv"), //
+        getFileFromResource("org/obiba/magma/datasource/csv/Participants/data.csv"));
     datasource.initialise();
     assertThat(datasource.getValueTableNames()).hasSize(1);
 
@@ -387,8 +387,8 @@ public class CsvDatasourceTest extends AbstractMagmaTest {
   @Test
   public void test_multiline_data_read() {
     CsvDatasource datasource = new CsvDatasource("csv-datasource").addValueTable("Participants", //
-        getFileFromResource("Participants/variables.csv"), //
-        getFileFromResource("Participants/data.csv"));
+        getFileFromResource("org/obiba/magma/datasource/csv/Participants/variables.csv"), //
+        getFileFromResource("org/obiba/magma/datasource/csv/Participants/data.csv"));
     datasource.setQuote(Quote.DOUBLE);
     datasource.setSeparator(Separator.COMMA);
     datasource.setCharacterSet("UTF-8");
