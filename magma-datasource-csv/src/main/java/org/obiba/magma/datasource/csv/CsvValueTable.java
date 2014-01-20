@@ -153,28 +153,36 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
   }
 
   private void initialiseVariables() throws IOException {
+    initialiseVariablesFromDataFile();
     if(refTable == null) {
       if(variableFile != null && variableFile.exists()) {
-        initialiseVariablesFromVariablesFile();
-      } else {
-        initialiseVariablesFromDataFile();
+        updateDataVariablesFromVariablesFile();
       }
     } else {
-      initialiseVariablesFromRefTable();
+      updateDataVariablesFromRefTable();
     }
   }
 
-  private void initialiseVariablesFromRefTable() throws IOException {
-    entityType = refTable.getEntityType();
-    for(Variable var : refTable.getVariables()) {
-      addVariableValueSource(new CsvVariableValueSource(var));
+  private void initialiseVariablesFromDataFile() throws IOException {
+    if(dataFile != null) {
+      // Obtain the variable names from the first line of the data file. Header line is = entity_id + variable names
+      try(CSVReader dataHeaderReader = getCsvDatasource().getCsvReader(dataFile)) {
+        String[] line = dataHeaderReader.readNext();
+        if(line != null) {
+          // skip first header as it's the participant ID
+          for(int i = 1; i < line.length; i++) {
+            String variableName = line[i].trim();
+            addVariableValueSource(new CsvVariableValueSource(
+                Variable.Builder.newVariable(variableName, TextType.get(), entityType).build()));
+          }
+        }
+      }
     }
-    missingVariableNames = getMissingVariableNames();
+    isVariablesFileEmpty = true;
   }
 
-  private void initialiseVariablesFromVariablesFile() throws IOException {
+  private void updateDataVariablesFromVariablesFile() throws IOException {
     try(CSVReader variableReader = getCsvDatasource().getCsvReader(variableFile)) {
-      @SuppressWarnings("ConstantConditions")
       String[] line = variableReader.readNext();
       if(line == null) {
         initialiseVariablesFromEmptyFile();
@@ -182,6 +190,17 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
         initialiseVariablesFromLines(variableReader, line);
       }
     }
+  }
+
+  private void initialiseVariablesFromEmptyFile() {
+    if(variableConverter == null) {
+      String[] defaultVariablesHeader = ((CsvDatasource) getDatasource()).getDefaultVariablesHeader();
+      log.debug(
+          "A variables.csv file or header was not explicitly provided for the table {}. Use the default header {}.",
+          getName(), defaultVariablesHeader);
+      variableConverter = new VariableConverter(defaultVariablesHeader);
+    }
+    isVariablesFileEmpty = true;
   }
 
   private void initialiseVariablesFromLines(CSVReader variableReader, String... line) throws IOException {
@@ -203,38 +222,28 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
       Variable var = variableConverter.unmarshal(nextLine);
       entityType = var.getEntityType();
 
-      variableNameIndex.put(var.getName(), lineIndex.get(count));
-      addVariableValueSource(new CsvVariableValueSource(var));
+      String variableName = var.getName();
+      variableNameIndex.put(variableName, lineIndex.get(count));
+
+      // update only variable that was in data file
+      if(hasVariable(variableName)) {
+        removeVariableValueSource(variableName);
+        addVariableValueSource(new CsvVariableValueSource(var));
+      }
       nextLine = variableReader.readNext();
     }
   }
 
-  private void initialiseVariablesFromEmptyFile() {
-    if(variableConverter == null) {
-      String[] defaultVariablesHeader = ((CsvDatasource) getDatasource()).getDefaultVariablesHeader();
-      log.debug(
-          "A variables.csv file or header was not explicitly provided for the table {}. Use the default header {}.",
-          getName(), defaultVariablesHeader);
-      variableConverter = new VariableConverter(defaultVariablesHeader);
-    }
-    isVariablesFileEmpty = true;
-  }
-
-  private void initialiseVariablesFromDataFile() throws IOException {
-    if(dataFile != null) {
-      // Obtain the variable names from the first line of the data file. Header line is = entity_id + variable names
-      try(CSVReader dataHeaderReader = getCsvDatasource().getCsvReader(dataFile)) {
-        String[] line = dataHeaderReader.readNext();
-        if(line != null) {
-          for(int i = 1; i < line.length; i++) {
-            String variableName = line[i].trim();
-            Variable.Builder variableBuilder = Variable.Builder.newVariable(variableName, TextType.get(), entityType);
-            addVariableValueSource(new CsvVariableValueSource(variableBuilder.build()));
-          }
-        }
+  private void updateDataVariablesFromRefTable() throws IOException {
+    entityType = refTable.getEntityType();
+    for(Variable var : refTable.getVariables()) {
+      // update only variable that was in data file
+      if(hasVariable(var.getName())) {
+        removeVariableValueSource(var.getName());
+        addVariableValueSource(new CsvVariableValueSource(var));
       }
     }
-    isVariablesFileEmpty = true;
+    missingVariableNames = getMissingVariableNames();
   }
 
   @Nullable
