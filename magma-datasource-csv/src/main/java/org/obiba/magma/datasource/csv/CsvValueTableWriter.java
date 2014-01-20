@@ -78,21 +78,20 @@ public class CsvValueTableWriter implements ValueTableWriter {
     }
 
     private void writeVariableToCsv(String... strings) throws IOException {
-      CSVWriter writer = valueTable.getVariableWriter();
-      if(writer == null) {
-        throw new DatasourceParsingException(
-            "Cannot create variable writer. Table " + valueTable.getName() + " does not have variable file.",
-            "CsvCannotCreateWriter", valueTable.getName());
+      try(CSVWriter writer = valueTable.getVariableWriter()) {
+        if(writer == null) {
+          throw new DatasourceParsingException(
+              "Cannot create variable writer. Table " + valueTable.getName() + " does not have variable file.",
+              "CsvCannotCreateWriter", valueTable.getName());
+        }
+        log.trace("write '{}'", Arrays.toString(strings));
+        writer.writeNext(strings);
       }
-      log.trace("write '{}'", Arrays.toString(strings));
-      writer.writeNext(strings);
-      writer.close();
     }
 
     @Override
-    public void close() {
-      // Not used.
-    }
+    public void close() {}
+
   }
 
   private class CsvValueSetWriter implements ValueSetWriter {
@@ -183,15 +182,15 @@ public class CsvValueTableWriter implements ValueTableWriter {
     }
 
     private void writeValueToCsv(String... strings) throws IOException {
-      CSVWriter writer = valueTable.getValueWriter();
-      if(writer == null) {
-        throw new DatasourceParsingException(
-            "Cannot create data writer. Table " + valueTable.getName() + " does not have data file.",
-            "CsvCannotCreateWriter", valueTable.getName());
+      try(CSVWriter writer = valueTable.getValueWriter()) {
+        if(writer == null) {
+          throw new DatasourceParsingException(
+              "Cannot create data writer. Table " + valueTable.getName() + " does not have data file.",
+              "CsvCannotCreateWriter", valueTable.getName());
+        }
+        log.trace("write '{}'", Arrays.toString(strings));
+        writer.writeNext(strings);
       }
-      log.trace("write '{}'", Arrays.toString(strings));
-      writer.writeNext(strings);
-      writer.close();
     }
 
     private Map<String, Integer> getExistingHeaderMap() {

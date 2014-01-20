@@ -106,8 +106,7 @@ public class HibernateDatasourceTest {
         HibernateDatasource ds = createDatasource();
 
         MagmaEngine.get().addDatasource(ds);
-        ValueTableWriter vtWriter = ds.createWriter(TABLE, PARTICIPANT);
-        vtWriter.close();
+        ds.createWriter(TABLE, PARTICIPANT).close();
 
         assertThat(ds.hasValueTable(TABLE)).isTrue();
         assertThat(ds.getValueTable(TABLE)).isNotNull();

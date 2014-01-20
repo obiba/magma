@@ -223,16 +223,14 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
   private void initialiseVariablesFromDataFile() throws IOException {
     if(dataFile != null) {
       // Obtain the variable names from the first line of the data file. Header line is = entity_id + variable names
-      CSVReader dataHeaderReader = getCsvDatasource().getCsvReader(dataFile);
-
-      @SuppressWarnings("ConstantConditions")
-      String[] line = dataHeaderReader.readNext();
-      dataHeaderReader.close();
-      if(line != null) {
-        for(int i = 1; i < line.length; i++) {
-          String variableName = line[i].trim();
-          Variable.Builder variableBuilder = Variable.Builder.newVariable(variableName, TextType.get(), entityType);
-          addVariableValueSource(new CsvVariableValueSource(variableBuilder.build()));
+      try(CSVReader dataHeaderReader = getCsvDatasource().getCsvReader(dataFile)) {
+        String[] line = dataHeaderReader.readNext();
+        if(line != null) {
+          for(int i = 1; i < line.length; i++) {
+            String variableName = line[i].trim();
+            Variable.Builder variableBuilder = Variable.Builder.newVariable(variableName, TextType.get(), entityType);
+            addVariableValueSource(new CsvVariableValueSource(variableBuilder.build()));
+          }
         }
       }
     }
@@ -643,17 +641,17 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
   private List<String> getMissingVariableNames() throws IOException {
     List<String> missingVariables = new ArrayList<>();
     // Obtain the variable names from the first line of the data file. Header line is = entity_id + variable names
-    CSVReader dataHeaderReader = getCsvDatasource().getCsvReader(dataFile);
-    if(dataHeaderReader != null) {
-      String[] line = dataHeaderReader.readNext();
-      dataHeaderReader.close();
-      if(line != null) {
-        for(int i = 1; i < line.length; i++) {
-          String variableName = line[i].trim();
-          try {
-            getVariableValueSource(variableName);
-          } catch(NoSuchVariableException e) {
-            missingVariables.add(variableName);
+    try(CSVReader dataHeaderReader = getCsvDatasource().getCsvReader(dataFile)) {
+      if(dataHeaderReader != null) {
+        String[] line = dataHeaderReader.readNext();
+        if(line != null) {
+          for(int i = 1; i < line.length; i++) {
+            String variableName = line[i].trim();
+            try {
+              getVariableValueSource(variableName);
+            } catch(NoSuchVariableException e) {
+              missingVariables.add(variableName);
+            }
           }
         }
       }

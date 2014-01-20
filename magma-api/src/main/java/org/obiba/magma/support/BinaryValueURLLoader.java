@@ -51,9 +51,9 @@ public class BinaryValueURLLoader implements ValueLoader {
       try {
         log.debug("Loading binary from: {}", url);
         URL u = new URL(url);
-        InputStream in = u.openStream();
-        value = ByteStreams.toByteArray(in);
-        in.close();
+        try(InputStream in = u.openStream()) {
+          value = ByteStreams.toByteArray(in);
+        }
         log.debug("Binary loaded from: {}", url);
       } catch(Exception e) {
         value = null;

@@ -86,11 +86,11 @@ class FsValueTableWriter implements ValueTableWriter {
 
   private class XStreamValueSetWriter implements ValueSetWriter {
 
-    Writer os;
+    private final Writer os;
 
-    XStreamValueSet valueSet;
+    private final XStreamValueSet valueSet;
 
-    XStreamValueSetWriter(Writer os, XStreamValueSet valueSet) throws IOException {
+    private XStreamValueSetWriter(Writer os, XStreamValueSet valueSet) throws IOException {
       this.os = os;
       this.valueSet = valueSet;
     }

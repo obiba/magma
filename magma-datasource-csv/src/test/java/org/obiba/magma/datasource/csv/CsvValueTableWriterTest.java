@@ -63,12 +63,10 @@ public class CsvValueTableWriterTest extends AbstractMagmaTest {
     Variable testVariable = Variable.Builder.newVariable("test-variable", TextType.get(), "Participant").build();
     Value secondCup = TextType.get().valueOf("Second Cup");
 
-    ValueTableWriter writer = datasource.createWriter("TableDataOnly", "Participant");
-    ValueTableWriter.ValueSetWriter vsw = writer.writeValueSet(variableEntity);
-    vsw.writeValue(testVariable, secondCup);
-    vsw.close();
-
-    writer.close();
+    try(ValueTableWriter tableWriter = datasource.createWriter("TableDataOnly", "Participant");
+        ValueTableWriter.ValueSetWriter valueSetWriter = tableWriter.writeValueSet(variableEntity)) {
+      valueSetWriter.writeValue(testVariable, secondCup);
+    }
 
     CsvDatasource readDatasource = new CsvDatasource("read-csv-datasource").addValueTable("TableDataOnly", //
         null, //
@@ -149,11 +147,10 @@ public class CsvValueTableWriterTest extends AbstractMagmaTest {
     Variable testVariable = Variable.Builder.newVariable("coffee", TextType.get(), "Participant").build();
     Value secondCup = TextType.get().valueOf("Second Cup");
 
-    ValueTableWriter writer = datasource.createWriter("TableDataOnly", "Participant");
-    ValueTableWriter.ValueSetWriter vsw = writer.writeValueSet(variableEntity);
-    vsw.writeValue(testVariable, secondCup);
-    vsw.close();
-    writer.close();
+    try(ValueTableWriter tableWriter = datasource.createWriter("TableDataOnly", "Participant");
+        ValueTableWriter.ValueSetWriter valueSetWriter = tableWriter.writeValueSet(variableEntity)) {
+      valueSetWriter.writeValue(testVariable, secondCup);
+    }
   }
 
   @Test
@@ -176,13 +173,12 @@ public class CsvValueTableWriterTest extends AbstractMagmaTest {
     Variable biscuitVariable = Variable.Builder.newVariable("biscuit", TextType.get(), "Participant").build();
     Value cheese = TextType.get().valueOf("cheese");
 
-    ValueTableWriter writer = setupDatasource.createWriter("TableDataOnly", "Participant");
-    ValueTableWriter.ValueSetWriter vsw = writer.writeValueSet(variableEntity);
-    vsw.writeValue(coffeeVariable, secondCup);
-    vsw.writeValue(teaVariable, earlGrey);
-    vsw.writeValue(biscuitVariable, cheese);
-    vsw.close();
-    writer.close();
+    try(ValueTableWriter tableWriter = setupDatasource.createWriter("TableDataOnly", "Participant");
+        ValueTableWriter.ValueSetWriter valueSetWriter = tableWriter.writeValueSet(variableEntity)) {
+      valueSetWriter.writeValue(coffeeVariable, secondCup);
+      valueSetWriter.writeValue(teaVariable, earlGrey);
+      valueSetWriter.writeValue(biscuitVariable, cheese);
+    }
 
     CsvDatasource writeDatasource = new CsvDatasource("csv-datasource").addValueTable("TableDataOnly", //
         null, //
