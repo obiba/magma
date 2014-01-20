@@ -80,15 +80,15 @@ class FsVariableEntityProvider implements VariableEntityProvider, Initialisable,
       valueTable.writeEntry(ENTITIES_NAME, new OutputCallback<Void>() {
         @Override
         public Void writeEntry(Writer writer) throws IOException {
-          ObjectOutputStream oos = xstream.createObjectOutputStream(writer, "entities");
-          oos.writeObject(entityType);
-          Map<String, String> entries = Maps.newHashMap();
-          for(Map.Entry<VariableEntity, String> entry : entityToFile.entrySet()) {
-            entries.put(entry.getKey().getIdentifier(), entry.getValue());
+          try(ObjectOutputStream oos = xstream.createObjectOutputStream(writer, "entities")) {
+            oos.writeObject(entityType);
+            Map<String, String> entries = Maps.newHashMap();
+            for(Map.Entry<VariableEntity, String> entry : entityToFile.entrySet()) {
+              entries.put(entry.getKey().getIdentifier(), entry.getValue());
+            }
+            oos.writeObject(entries);
+            return null;
           }
-          oos.writeObject(entries);
-          oos.close();
-          return null;
         }
       });
     }

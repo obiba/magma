@@ -58,10 +58,10 @@ public class BinaryValueFileHelper {
         file = new File(parent, path);
       }
       log.debug("Loading binary from: {}", file.getAbsolutePath());
-      FileInputStream fin = new FileInputStream(file);
-      value = new byte[(int) file.length()];
-      fin.read(value);
-      fin.close();
+      try(FileInputStream fin = new FileInputStream(file)) {
+        value = new byte[(int) file.length()];
+        fin.read(value);
+      }
       log.debug("Binary loaded from: {}", file.getAbsolutePath());
     } catch(Exception e) {
       throw new MagmaRuntimeException("File cannot be read: " + path, e);
@@ -164,9 +164,9 @@ public class BinaryValueFileHelper {
       if(!parent.exists()) parent.mkdirs();
 
       tmpFile.createNewFile();
-      FileOutputStream out = new FileOutputStream(tmpFile);
-      out.write((byte[]) value.getValue());
-      out.close();
+      try(FileOutputStream out = new FileOutputStream(tmpFile)) {
+        out.write((byte[]) value.getValue());
+      }
 
       if(file.exists()) file.delete();
 

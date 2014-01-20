@@ -70,18 +70,12 @@ public class MongoDBValueLoaderFactory implements ValueLoaderFactory {
     }
 
     private byte[] getByteArray(String fileId) {
-      ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-      try {
+      try(ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
         GridFSDBFile file = mongoDBFactory.getGridFS().findOne(new ObjectId(fileId));
         file.writeTo(outputStream);
         return outputStream.toByteArray();
       } catch(IOException e) {
         throw new MagmaRuntimeException("Cannot retrieve content of gridFsFile [" + fileId + "]", e);
-      } finally {
-        try {
-          outputStream.close();
-        } catch(IOException ignored) {
-        }
       }
     }
 
