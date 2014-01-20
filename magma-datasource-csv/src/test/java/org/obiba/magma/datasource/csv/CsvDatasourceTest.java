@@ -644,7 +644,7 @@ public class CsvDatasourceTest extends AbstractMagmaTest {
 
   @Test
   public void test_has_no_entities_on_empty_file() {
-    File empty = getFileFromResource("empty.csv");
+    File empty = getFileFromResource("org/obiba/magma/datasource/csv/empty.csv");
     CsvDatasource datasource = new CsvDatasource("csv-datasource").addValueTable("NoEntities", empty, (File) null);
     datasource.initialise();
     assertThat(datasource.hasEntities(new EntitiesPredicate.NonViewEntitiesPredicate())).isFalse();
