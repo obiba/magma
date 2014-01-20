@@ -95,8 +95,8 @@ public class CsvDatasourceTest extends AbstractMagmaTest {
   @Test
   public void test_table_variable_read() {
     CsvDatasource datasource = new CsvDatasource("csv-datasource").addValueTable("Table1", //
-        getFileFromResource("Table1/variables.csv"), //
-        getFileFromResource("Table1/data.csv"));
+        getFileFromResource("org/obiba/magma/datasource/csv/Table1/variables.csv"), //
+        getFileFromResource("org/obiba/magma/datasource/csv/Table1/data.csv"));
     datasource.initialise();
     assertThat(datasource.getValueTableNames()).hasSize(1);
 
@@ -147,8 +147,8 @@ public class CsvDatasourceTest extends AbstractMagmaTest {
   @Test
   public void test_table_data_read() {
     CsvDatasource datasource = new CsvDatasource("csv-datasource").addValueTable("Table1", //
-        getFileFromResource("Table1/variables.csv"), //
-        getFileFromResource("Table1/data.csv"));
+        getFileFromResource("org/obiba/magma/datasource/csv/Table1/variables.csv"), //
+        getFileFromResource("org/obiba/magma/datasource/csv/Table1/data.csv"));
     datasource.initialise();
     assertThat(datasource.getValueTableNames()).hasSize(1);
 
@@ -285,13 +285,13 @@ public class CsvDatasourceTest extends AbstractMagmaTest {
   @Test
   public void test_refTable_data_read() {
     CsvDatasource refDatasource = new CsvDatasource("csv-datasource1").addValueTable("Table1", //
-        getFileFromResource("Table1/variables.csv"), //
-        getFileFromResource("Table1/data.csv"));
+        getFileFromResource("org/obiba/magma/datasource/csv/Table1/variables.csv"), //
+        getFileFromResource("org/obiba/magma/datasource/csv/Table1/data.csv"));
     refDatasource.initialise();
     ValueTable refTable = refDatasource.getValueTable("Table1");
 
     CsvDatasource datasource = new CsvDatasource("csv-datasource2").addValueTable(refTable, //
-        getFileFromResource("Table1/data2.csv"));
+        getFileFromResource("org/obiba/magma/datasource/csv/Table1/data2.csv"));
     datasource.initialise();
     assertThat(datasource.getValueTableNames()).hasSize(1);
 
@@ -331,7 +331,8 @@ public class CsvDatasourceTest extends AbstractMagmaTest {
   @Test
   public void test_reading_variables_confirm_var_metadata() throws Exception {
     String tableName = "TableVariablesOnly";
-    CsvDatasource datasource = new TempTableBuilder(tableName).addVariables(getFileFromResource("Table1/variables.csv"))
+    CsvDatasource datasource = new TempTableBuilder(tableName)
+        .addVariables(getFileFromResource("org/obiba/magma/datasource/csv/Table1/variables.csv"))
         .buildCsvDatasource("csv-datasource");
 
     ValueTable table = datasource.getValueTable(tableName);
@@ -348,7 +349,8 @@ public class CsvDatasourceTest extends AbstractMagmaTest {
   @Test
   public void test_reading_variables_get_variables() throws Exception {
     String tableName = "TableVariablesOnly";
-    CsvDatasource datasource = new TempTableBuilder(tableName).addVariables(getFileFromResource("Table1/variables.csv"))
+    CsvDatasource datasource = new TempTableBuilder(tableName)
+        .addVariables(getFileFromResource("org/obiba/magma/datasource/csv/Table1/variables.csv"))
         .buildCsvDatasource("csv-datasource");
 
     assertThat(((AbstractValueTable) datasource.getValueTable(tableName)).getVariables()).hasSize(2);
@@ -461,8 +463,8 @@ public class CsvDatasourceTest extends AbstractMagmaTest {
   @Test
   public void test_escaped_characters() {
     CsvDatasource datasource = new CsvDatasource("csv-datasource").addValueTable("Table1", //
-        getFileFromResource("Table1/escaped-variables.csv"), //
-        getFileFromResource("Table1/escaped-data.csv"));
+        getFileFromResource("org/obiba/magma/datasource/csv/Table1/escaped-variables.csv"), //
+        getFileFromResource("org/obiba/magma/datasource/csv/Table1/escaped-data.csv"));
     datasource.initialise();
 
     ValueTable table = datasource.getValueTable("Table1");
@@ -660,8 +662,8 @@ public class CsvDatasourceTest extends AbstractMagmaTest {
   @Test
   public void test_has_entities() {
     CsvDatasource datasource = new CsvDatasource("csv-datasource").addValueTable("Table1", //
-        getFileFromResource("Table1/variables.csv"), //
-        getFileFromResource("Table1/data.csv"));
+        getFileFromResource("org/obiba/magma/datasource/csv/Table1/variables.csv"), //
+        getFileFromResource("org/obiba/magma/datasource/csv/Table1/data.csv"));
     datasource.initialise();
     assertThat(datasource.hasEntities(new EntitiesPredicate.NonViewEntitiesPredicate())).isTrue();
   }

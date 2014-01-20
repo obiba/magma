@@ -394,28 +394,32 @@ public class CsvValueTableWriterTest extends AbstractMagmaTest {
   @Test(expected = MagmaRuntimeException.class)
   public void test_writing_variables_header_in_file_without_required_name_causes_error() throws Exception {
     String tableName = "TableVariablesOnly";
-    new TempTableBuilder(tableName).addVariables(getFileFromResource("Table1/variables_with_no_name.csv"))
+    new TempTableBuilder(tableName)
+        .addVariables(getFileFromResource("org/obiba/magma/datasource/csv/Table1/variables_with_no_name.csv"))
         .buildCsvDatasource("csv-datasource");
   }
 
   @Test(expected = MagmaRuntimeException.class)
   public void test_writing_variables_header_in_file_without_required_type_causes_error() throws Exception {
     String tableName = "TableVariablesOnly";
-    new TempTableBuilder(tableName).addVariables(getFileFromResource("Table1/variables_with_no_type.csv"))
+    new TempTableBuilder(tableName)
+        .addVariables(getFileFromResource("org/obiba/magma/datasource/csv/Table1/variables_with_no_type.csv"))
         .buildCsvDatasource("csv-datasource");
   }
 
   @Test(expected = MagmaRuntimeException.class)
   public void test_writing_variables_header_in_file_without_required_entity_type_causes_error() throws Exception {
     String tableName = "TableVariablesOnly";
-    new TempTableBuilder(tableName).addVariables(getFileFromResource("Table1/variables_with_no_entityType.csv"))
+    new TempTableBuilder(tableName)
+        .addVariables(getFileFromResource("org/obiba/magma/datasource/csv/Table1/variables_with_no_entityType.csv"))
         .buildCsvDatasource("csv-datasource");
   }
 
   @Test
   public void test_writing_variables_minimal_header_is_valid() throws Exception {
     String tableName = "TableVariablesOnly";
-    new TempTableBuilder(tableName).addVariables(getFileFromResource("Table1/variables_minimal_header.csv"))
+    new TempTableBuilder(tableName)
+        .addVariables(getFileFromResource("org/obiba/magma/datasource/csv/Table1/variables_minimal_header.csv"))
         .buildCsvDatasource("csv-datasource");
   }
 
@@ -450,7 +454,8 @@ public class CsvValueTableWriterTest extends AbstractMagmaTest {
   @Test
   public void test_writing_variables_adding_variables_to_an_existing_file() throws Exception {
     String tableName = "TableVariablesOnly";
-    CsvDatasource datasource = new TempTableBuilder(tableName).addVariables(getFileFromResource("Table1/variables.csv"))
+    CsvDatasource datasource = new TempTableBuilder(tableName)
+        .addVariables(getFileFromResource("org/obiba/magma/datasource/csv/Table1/variables.csv"))
         .buildCsvDatasource("csv-datasource");
 
     Variable variable = Variable.Builder.newVariable("coffee", TextType.get(), DEFAULT_ENTITY_TYPE)
@@ -468,7 +473,8 @@ public class CsvValueTableWriterTest extends AbstractMagmaTest {
   @Test
   public void test_writing_variables_updating_variable() throws Exception {
     String tableName = "TableVariablesOnly";
-    CsvDatasource datasource = new TempTableBuilder(tableName).addVariables(getFileFromResource("Table1/variables.csv"))
+    CsvDatasource datasource = new TempTableBuilder(tableName)
+        .addVariables(getFileFromResource("org/obiba/magma/datasource/csv/Table1/variables.csv"))
         .buildCsvDatasource("csv-datasource");
 
     Variable variable = Variable.Builder.newVariable("var2", TextType.get(), DEFAULT_ENTITY_TYPE)
@@ -489,7 +495,8 @@ public class CsvValueTableWriterTest extends AbstractMagmaTest {
   @Test
   public void test_writing_variables_updating_wide_byte_variable() throws Exception {
     String tableName = "TableVariablesOnly";
-    CsvDatasource datasource = new TempTableBuilder(tableName).addVariables(getFileFromResource("Table1/variables.csv"))
+    CsvDatasource datasource = new TempTableBuilder(tableName)
+        .addVariables(getFileFromResource("org/obiba/magma/datasource/csv/Table1/variables.csv"))
         .buildCsvDatasource("csv-datasource");
 
     Variable variable = Variable.Builder.newVariable("var2", TextType.get(), DEFAULT_ENTITY_TYPE)
@@ -516,7 +523,8 @@ public class CsvValueTableWriterTest extends AbstractMagmaTest {
     dataFile.deleteOnExit();
 
     CsvDatasource datasource = new CsvDatasource("csv-datasource")
-        .addValueTable("Table1", getFileFromResource("Table1/escaped-variables.csv"), dataFile);
+        .addValueTable("Table1", getFileFromResource("org/obiba/magma/datasource/csv/Table1/escaped-variables.csv"),
+            dataFile);
     datasource.initialise();
 
     ValueTable table = datasource.getValueTable("Table1");
@@ -549,7 +557,8 @@ public class CsvValueTableWriterTest extends AbstractMagmaTest {
     datasource.dispose();
 
     datasource = new CsvDatasource("csv-datasource")
-        .addValueTable("Table1", getFileFromResource("Table1/escaped-variables.csv"), dataFile);
+        .addValueTable("Table1", getFileFromResource("org/obiba/magma/datasource/csv/Table1/escaped-variables.csv"),
+            dataFile);
     datasource.initialise();
 
     table = datasource.getValueTable("Table1");
