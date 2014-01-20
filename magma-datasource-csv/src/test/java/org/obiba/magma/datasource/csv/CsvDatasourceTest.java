@@ -55,7 +55,7 @@ public class CsvDatasourceTest extends AbstractMagmaTest {
 
   @Test
   public void test_supports_any_separator() {
-    File samples = getFileFromResource("separators");
+    File samples = getFileFromResource("org/obiba/magma/datasource/csv/separators");
     File variables = new File(samples, "variables.csv");
 
     CsvDatasource ds = new CsvDatasource("variables").addValueTable("variables", variables, (File) null);
@@ -650,7 +650,7 @@ public class CsvDatasourceTest extends AbstractMagmaTest {
 
   @Test
   public void test_has_no_entities() {
-    File samples = getFileFromResource("separators");
+    File samples = getFileFromResource("org/obiba/magma/datasource/csv/separators");
     File variables = new File(samples, "variables.csv");
     CsvDatasource datasource = new CsvDatasource("csv-datasource").addValueTable("HasEntities", variables, (File) null);
     datasource.initialise();
