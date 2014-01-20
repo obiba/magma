@@ -436,7 +436,7 @@ public class CsvDatasourceTest extends AbstractMagmaTest {
     log.info("Test {}", encoding);
 
     CsvDatasource datasource = new CsvDatasource("csv-datasource")
-        .addValueTable("Drugs", getFileFromResource("medications/" + filename), "Drug");
+        .addValueTable("Drugs", getFileFromResource("org/obiba/magma/datasource/csv/medications/" + filename), "Drug");
     datasource.setQuote(Quote.DOUBLE);
     datasource.setSeparator(Separator.COMMA);
     datasource.setCharacterSet(encoding);
