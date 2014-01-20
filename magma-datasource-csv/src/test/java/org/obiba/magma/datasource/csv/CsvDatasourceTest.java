@@ -57,15 +57,19 @@ public class CsvDatasourceTest extends AbstractMagmaTest {
   @Test
   public void test_supports_any_separator() {
     File samples = getFileFromResource("org/obiba/magma/datasource/csv/separators");
-    File variables = new File(samples, "variables.csv");
 
-    CsvDatasource ds = new CsvDatasource("variables").addValueTable("variables", variables, (File) null);
+    CsvDatasource ds = new CsvDatasource("variables")
+        .addValueTable("variables", new File(samples, "variables.csv"), new File(samples, "sample-comma.csv"));
     ds.initialise();
     ValueTable reference = ds.getValueTable("variables");
 
-    Map<String, String> separators = ImmutableMap.<String, String>builder().put("sample-comma.csv", ",")
-        .put("sample-semicolon.csv", ";").put("sample-colon.csv", ":").put("sample-tab.csv", "tab")
-        .put("sample-pipe.csv", "|").put("sample-space.csv", " ").build();
+    Map<String, String> separators = ImmutableMap.<String, String>builder() //
+        .put("sample-comma.csv", ",") //
+        .put("sample-semicolon.csv", ";") //
+        .put("sample-colon.csv", ":") //
+        .put("sample-tab.csv", "tab") //
+        .put("sample-pipe.csv", "|") //
+        .put("sample-space.csv", " ").build();
     File[] files = samples.listFiles();
     assertThat(files).isNotNull();
     //noinspection ConstantConditions
@@ -75,12 +79,7 @@ public class CsvDatasourceTest extends AbstractMagmaTest {
       CsvDatasource datasource = new CsvDatasource("csv-datasource");
       datasource.setSeparator(Separator.fromString(separators.get(fileName)));
       datasource.addValueTable(reference, sample);
-      try {
-        datasource.initialise();
-      } catch(DatasourceParsingException e) {
-        e.printList();
-        throw e;
-      }
+      datasource.initialise();
       ValueTable valueTable = datasource.getValueTable(reference.getName());
       assertThat(valueTable.getVariableEntities()).hasSize(16);
       for(Variable v : valueTable.getVariables()) {
@@ -261,8 +260,7 @@ public class CsvDatasourceTest extends AbstractMagmaTest {
         null, getFileFromResource("org/obiba/magma/datasource/csv/TableDataOnly/data.csv"));
     datasource.initialise();
 
-    ValueTable table = datasource.getValueTable("TableDataOnly");
-    assertThat(table.getVariableEntities()).hasSize(4);
+    assertThat(datasource.getValueTable("TableDataOnly").getVariableEntities()).hasSize(4);
   }
 
   @Test
@@ -270,13 +268,7 @@ public class CsvDatasourceTest extends AbstractMagmaTest {
     CsvDatasource datasource = new CsvDatasource("csv-datasource").addValueTable("TableDataOnly", //
         null, getFileFromResource("org/obiba/magma/datasource/csv/TableDataOnly/data.csv"));
     datasource.initialise();
-
-    ValueTable table = datasource.getValueTable("TableDataOnly");
-    assertThat(table.getVariables()).hasSize(5);
-
-    //noinspection TypeMayBeWeakened
-    CsvValueTable cvsValueTable = (CsvValueTable) table;
-    assertThat(cvsValueTable.getVariables()).hasSize(5);
+    assertThat(datasource.getValueTable("TableDataOnly").getVariables()).hasSize(5);
   }
 
   @Test
@@ -330,6 +322,7 @@ public class CsvDatasourceTest extends AbstractMagmaTest {
     String tableName = "TableVariablesOnly";
     CsvDatasource datasource = new TempTableBuilder(tableName)
         .addVariables(getFileFromResource("org/obiba/magma/datasource/csv/Table1/variables.csv"))
+        .addData(getFileFromResource("org/obiba/magma/datasource/csv/Table1/data.csv"))
         .buildCsvDatasource("csv-datasource");
 
     ValueTable table = datasource.getValueTable(tableName);
@@ -348,9 +341,20 @@ public class CsvDatasourceTest extends AbstractMagmaTest {
     String tableName = "TableVariablesOnly";
     CsvDatasource datasource = new TempTableBuilder(tableName)
         .addVariables(getFileFromResource("org/obiba/magma/datasource/csv/Table1/variables.csv"))
+        .addData(getFileFromResource("org/obiba/magma/datasource/csv/Table1/data.csv"))
         .buildCsvDatasource("csv-datasource");
 
     assertThat(((AbstractValueTable) datasource.getValueTable(tableName)).getVariables()).hasSize(2);
+  }
+
+  @Test
+  public void test_reading_variables_get_variables_without_data() throws Exception {
+    String tableName = "TableVariablesOnly";
+    CsvDatasource datasource = new TempTableBuilder(tableName)
+        .addVariables(getFileFromResource("org/obiba/magma/datasource/csv/Table1/variables.csv"))
+        .buildCsvDatasource("csv-datasource");
+
+    assertThat(((AbstractValueTable) datasource.getValueTable(tableName)).getVariables()).isEmpty();
   }
 
   @Test

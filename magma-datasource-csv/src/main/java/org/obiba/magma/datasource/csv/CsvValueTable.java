@@ -172,8 +172,9 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
           // skip first header as it's the participant ID
           for(int i = 1; i < line.length; i++) {
             String variableName = line[i].trim();
-            addVariableValueSource(new CsvVariableValueSource(
-                Variable.Builder.newVariable(variableName, TextType.get(), entityType).build()));
+            addVariableValueSource(new CsvVariableValueSource(Variable.Builder
+                .newVariable(variableName, TextType.get(), entityType == null ? DEFAULT_ENTITY_TYPE : entityType)
+                .build()));
           }
         }
       }
