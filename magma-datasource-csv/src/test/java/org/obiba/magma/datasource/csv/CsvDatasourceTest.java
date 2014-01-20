@@ -615,7 +615,7 @@ public class CsvDatasourceTest extends AbstractMagmaTest {
 
   @Test(expected = DatasourceParsingException.class)
   public void test_missing_name_header() {
-    File samples = getFileFromResource("exceptions");
+    File samples = getFileFromResource("org/obiba/magma/datasource/csv/exceptions");
     File variables = new File(samples, "missing-name-variables.csv");
 
     CsvDatasource ds = new CsvDatasource("variables").addValueTable("variables", variables, (File) null);
@@ -624,7 +624,7 @@ public class CsvDatasourceTest extends AbstractMagmaTest {
 
   @Test(expected = DatasourceParsingException.class)
   public void test_missing_value_type_header() {
-    File samples = getFileFromResource("exceptions");
+    File samples = getFileFromResource("org/obiba/magma/datasource/csv/exceptions");
     File variables = new File(samples, "missing-valueType-variables.csv");
 
     CsvDatasource ds = new CsvDatasource("variables").addValueTable("variables", variables, (File) null);
@@ -633,7 +633,7 @@ public class CsvDatasourceTest extends AbstractMagmaTest {
 
   @Test(expected = DatasourceParsingException.class)
   public void test_missing_entity_type_header() {
-    File samples = getFileFromResource("exceptions");
+    File samples = getFileFromResource("org/obiba/magma/datasource/csv/exceptions");
     File variables = new File(samples, "missing-entityType-variables.csv");
 
     CsvDatasource ds = new CsvDatasource("variables").addValueTable("variables", variables, (File) null);
