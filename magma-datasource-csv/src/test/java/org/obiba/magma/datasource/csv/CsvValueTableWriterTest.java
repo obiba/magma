@@ -189,11 +189,10 @@ public class CsvValueTableWriterTest extends AbstractMagmaTest {
 
     Value orangePekoe = TextType.get().valueOf("Orange Pekoe");
 
-    ValueTableWriter testWriter = writeDatasource.createWriter("TableDataOnly", "Participant");
-    ValueTableWriter.ValueSetWriter valueSetWriter = testWriter.writeValueSet(participantTwoEntity);
-    valueSetWriter.writeValue(teaVariable, orangePekoe);
-    valueSetWriter.close();
-    testWriter.close();
+    try(ValueTableWriter tableWriter = writeDatasource.createWriter("TableDataOnly", "Participant");
+        ValueTableWriter.ValueSetWriter valueSetWriter = tableWriter.writeValueSet(participantTwoEntity)) {
+      valueSetWriter.writeValue(teaVariable, orangePekoe);
+    }
 
     CsvDatasource readDatasource = new CsvDatasource("read-datasource").addValueTable("TableDataOnly", //
         null, //
@@ -227,71 +226,6 @@ public class CsvValueTableWriterTest extends AbstractMagmaTest {
   }
 
   @Test
-  public void test_writing_data_only_modifying_value_set() throws Exception {
-    File tempDir = new TempTableBuilder("TableDataOnly").addData().build();
-
-    CsvDatasource datasource = new CsvDatasource("setup-datasource").addValueTable("TableDataOnly", //
-        null, new File(tempDir.getCanonicalFile() + "/TableDataOnly", "data.csv"));
-    datasource.initialise();
-
-    VariableEntity variableEntity = new VariableEntityBean("Participant", "1");
-
-    Variable coffeeVariable = Variable.Builder.newVariable("coffee", TextType.get(), "Participant").build();
-    Value secondCup = TextType.get().valueOf("Second Cup");
-
-    Variable teaVariable = Variable.Builder.newVariable("tea", TextType.get(), "Participant").build();
-    Value earlGrey = TextType.get().valueOf("Earl Grey");
-
-    Variable biscuitVariable = Variable.Builder.newVariable("biscuit", TextType.get(), "Participant").build();
-    Value cheese = TextType.get().valueOf("cheese");
-
-    ValueTableWriter writer = datasource.createWriter("TableDataOnly", "Participant");
-    ValueTableWriter.ValueSetWriter vsw = writer.writeValueSet(variableEntity);
-    vsw.writeValue(coffeeVariable, secondCup);
-    vsw.writeValue(teaVariable, earlGrey);
-    vsw.writeValue(biscuitVariable, cheese);
-    vsw.close();
-    writer.close();
-    datasource.dispose();
-
-    CsvDatasource writeDatasource = new CsvDatasource("csv-datasource").addValueTable("TableDataOnly", //
-        null, //
-        new File(tempDir.getCanonicalFile() + "/TableDataOnly", "data.csv"));
-    writeDatasource.initialise();
-
-    Value orangePekoe = TextType.get().valueOf("Orange Pekoe");
-
-    ValueTableWriter testWriter = writeDatasource.createWriter("TableDataOnly", "Participant");
-    ValueTableWriter.ValueSetWriter valueSetWriter = testWriter.writeValueSet(variableEntity);
-    valueSetWriter.writeValue(teaVariable, orangePekoe);
-    valueSetWriter.close();
-    testWriter.close();
-
-    CsvDatasource readDatasource = new CsvDatasource("read-datasource").addValueTable("TableDataOnly", //
-        null, //
-        new File(tempDir.getCanonicalFile() + "/TableDataOnly", "data.csv"));
-    readDatasource.initialise();
-
-    ValueTable table = readDatasource.getValueTable("TableDataOnly");
-
-    Variable verifyCoffeeVariable = table.getVariable("coffee");
-    Variable verifyTeaVariable = table.getVariable("tea");
-    Variable verifyBiscuitVariable = table.getVariable("biscuit");
-
-    for(ValueSet valueSet : table.getValueSets()) {
-      String identifier = valueSet.getVariableEntity().getIdentifier();
-      Value coffeeValue = table.getValue(verifyCoffeeVariable, valueSet);
-      Value teaValue = table.getValue(verifyTeaVariable, valueSet);
-      Value biscuitValue = table.getValue(verifyBiscuitVariable, valueSet);
-      if("1".equals(identifier)) {
-        assertThat(coffeeValue.getValue().toString()).isEqualTo("Second Cup");
-        assertThat(teaValue.getValue().toString()).isEqualTo("Orange Pekoe");
-        assertThat(biscuitValue.getValue().toString()).isEqualTo("cheese");
-      }
-    }
-  }
-
-  @Test
   public void test_writing_data_only_modifying_multiple_value_sets_and_reading_back_from_reinitialized_datasource()
       throws Exception {
     String tableName = "TableDataOnly";
@@ -305,15 +239,14 @@ public class CsvValueTableWriterTest extends AbstractMagmaTest {
 
     Map<Variable, Value> values = Maps.newHashMap();
 
-    ValueTableWriter writer = datasource.createWriter(tableName, entityName);
+    try(ValueTableWriter writer = datasource.createWriter(tableName, entityName)) {
+      values.put(cityVariable, cityValueVancouver);
+      writeValueSet(new VariableEntityBean(DEFAULT_ENTITY_TYPE, "4"), writer, values);
 
-    values.put(cityVariable, cityValueVancouver);
-    writeValueSet(new VariableEntityBean(DEFAULT_ENTITY_TYPE, "4"), writer, values);
+      values.put(cityVariable, cityValueVancouver);
+      writeValueSet(new VariableEntityBean(DEFAULT_ENTITY_TYPE, "2"), writer, values);
+    }
 
-    values.put(cityVariable, cityValueVancouver);
-    writeValueSet(new VariableEntityBean(DEFAULT_ENTITY_TYPE, "2"), writer, values);
-
-    writer.close();
     datasource.dispose();
     datasource.initialise();
     assertThat(readValue(datasource.getValueTable(tableName), new VariableEntityBean(entityName, "2"), cityVariable))
@@ -334,21 +267,20 @@ public class CsvValueTableWriterTest extends AbstractMagmaTest {
     VariableEntity entity2 = new VariableEntityBean(DEFAULT_ENTITY_TYPE, "2");
 
     Map<Variable, Value> values = Maps.newHashMap();
-    ValueTableWriter writer = datasource.createWriter(tableName, DEFAULT_ENTITY_TYPE);
+    try(ValueTableWriter writer = datasource.createWriter(tableName, DEFAULT_ENTITY_TYPE)) {
 
-    values.put(cityVariable, cityValueVancouver);
-    writeValueSet(new VariableEntityBean(DEFAULT_ENTITY_TYPE, "4"), writer, values);
+      values.put(cityVariable, cityValueVancouver);
+      writeValueSet(new VariableEntityBean(DEFAULT_ENTITY_TYPE, "4"), writer, values);
 
-    values.put(cityVariable, TextType.get().valueOf("Moncton"));
-    writeValueSet(entity2, writer, values);
+      values.put(cityVariable, TextType.get().valueOf("Moncton"));
+      writeValueSet(entity2, writer, values);
 
-    values.put(cityVariable, TextType.get().valueOf("Regina"));
-    writeValueSet(entity2, writer, values);
+      values.put(cityVariable, TextType.get().valueOf("Regina"));
+      writeValueSet(entity2, writer, values);
 
-    values.put(cityVariable, cityValueVancouver);
-    writeValueSet(entity2, writer, values);
-
-    writer.close();
+      values.put(cityVariable, cityValueVancouver);
+      writeValueSet(entity2, writer, values);
+    }
 
     assertThat(
         readValue(datasource.getValueTable(tableName), new VariableEntityBean(DEFAULT_ENTITY_TYPE, "2"), cityVariable))
@@ -370,20 +302,19 @@ public class CsvValueTableWriterTest extends AbstractMagmaTest {
     Map<Variable, Value> values = Maps.newHashMap();
     VariableEntity entity2 = new VariableEntityBean(DEFAULT_ENTITY_TYPE, "2");
 
-    ValueTableWriter writer = datasource.createWriter(tableName, DEFAULT_ENTITY_TYPE);
-    // Write wide byte line
-    values.put(cityVariable, wideByteCityName);
-    writeValueSet(entity2, writer, values);
+    try(ValueTableWriter writer = datasource.createWriter(tableName, DEFAULT_ENTITY_TYPE)) {
+      // Write wide byte line
+      values.put(cityVariable, wideByteCityName);
+      writeValueSet(entity2, writer, values);
 
-    // Write line after wide byte line. This one is in danger of being partially overwritten during an update.
-    values.put(cityVariable, TextType.get().valueOf("Moncton"));
-    writeValueSet(new VariableEntityBean(DEFAULT_ENTITY_TYPE, "3"), writer, values);
+      // Write line after wide byte line. This one is in danger of being partially overwritten during an update.
+      values.put(cityVariable, TextType.get().valueOf("Moncton"));
+      writeValueSet(new VariableEntityBean(DEFAULT_ENTITY_TYPE, "3"), writer, values);
 
-    // Update the wide byte line (2) to ensure that line (3) is not affected.
-    values.put(cityVariable, TextType.get().valueOf("Regina"));
-    writeValueSet(entity2, writer, values);
-
-    writer.close();
+      // Update the wide byte line (2) to ensure that line (3) is not affected.
+      values.put(cityVariable, TextType.get().valueOf("Regina"));
+      writeValueSet(entity2, writer, values);
+    }
 
     assertThat(
         readValue(datasource.getValueTable(tableName), new VariableEntityBean(DEFAULT_ENTITY_TYPE, "3"), cityVariable))
@@ -432,9 +363,9 @@ public class CsvValueTableWriterTest extends AbstractMagmaTest {
     Variable variable = Variable.Builder.newVariable("coffee", TextType.get(), DEFAULT_ENTITY_TYPE)
         .addAttribute("label", "Please indicated your favourite coffee vendor.").build();
 
-    ValueTableWriter writer = datasource.createWriter(tableName, DEFAULT_ENTITY_TYPE);
-    writeVariable(writer, variable);
-    writer.close();
+    try(ValueTableWriter writer = datasource.createWriter(tableName, DEFAULT_ENTITY_TYPE)) {
+      writeVariable(writer, variable);
+    }
   }
 
   @Test
@@ -446,81 +377,16 @@ public class CsvValueTableWriterTest extends AbstractMagmaTest {
     Variable variable = Variable.Builder.newVariable("coffee", TextType.get(), DEFAULT_ENTITY_TYPE)
         .addAttribute("label", "Please indicated your favourite coffee vendor.").build();
 
-    ValueTableWriter writer = datasource.createWriter(tableName, DEFAULT_ENTITY_TYPE);
-    writeVariable(writer, variable);
-    writer.close();
-  }
-
-  @Test
-  public void test_writing_variables_adding_variables_to_an_existing_file() throws Exception {
-    String tableName = "TableVariablesOnly";
-    CsvDatasource datasource = new TempTableBuilder(tableName)
-        .addVariables(getFileFromResource("org/obiba/magma/datasource/csv/Table1/variables.csv"))
-        .buildCsvDatasource("csv-datasource");
-
-    Variable variable = Variable.Builder.newVariable("coffee", TextType.get(), DEFAULT_ENTITY_TYPE)
-        .addAttribute("label", "Please indicated your favourite coffee vendor.").build();
-
-    ValueTableWriter writer = datasource.createWriter(tableName, DEFAULT_ENTITY_TYPE);
-    writeVariable(writer, variable);
-    writer.close();
-    datasource.dispose();
-    datasource.initialise();
-    assertThat(datasource.getValueTable(tableName).getVariable("coffee").getValueType().getName()).isEqualTo("text");
-    datasource.dispose();
-  }
-
-  @Test
-  public void test_writing_variables_updating_variable() throws Exception {
-    String tableName = "TableVariablesOnly";
-    CsvDatasource datasource = new TempTableBuilder(tableName)
-        .addVariables(getFileFromResource("org/obiba/magma/datasource/csv/Table1/variables.csv"))
-        .buildCsvDatasource("csv-datasource");
-
-    Variable variable = Variable.Builder.newVariable("var2", TextType.get(), DEFAULT_ENTITY_TYPE)
-        .addAttribute("label", "Please indicated your favourite coffee vendor.").build();
-    Variable variable2 = Variable.Builder.newVariable("var2", TextType.get(), DEFAULT_ENTITY_TYPE).build();
-
-    ValueTableWriter writer = datasource.createWriter(tableName, DEFAULT_ENTITY_TYPE);
-    writeVariable(writer, variable);
-    writeVariable(writer, variable2);
-    writeVariable(writer, variable);
-    writer.close();
-    datasource.dispose();
-    datasource.initialise();
-    assertThat(datasource.getValueTable(tableName).getVariable("var2").getValueType().getName()).isEqualTo("text");
-    datasource.dispose();
-  }
-
-  @Test
-  public void test_writing_variables_updating_wide_byte_variable() throws Exception {
-    String tableName = "TableVariablesOnly";
-    CsvDatasource datasource = new TempTableBuilder(tableName)
-        .addVariables(getFileFromResource("org/obiba/magma/datasource/csv/Table1/variables.csv"))
-        .buildCsvDatasource("csv-datasource");
-
-    Variable variable = Variable.Builder.newVariable("var2", TextType.get(), DEFAULT_ENTITY_TYPE)
-        .addAttribute("label", "sugg�r�").build();
-    Variable variable2 = Variable.Builder.newVariable("var2", TextType.get(), DEFAULT_ENTITY_TYPE).build();
-
-    ValueTableWriter writer = datasource.createWriter(tableName, DEFAULT_ENTITY_TYPE);
-    writeVariable(writer, variable);
-    writeVariable(writer, variable2);
-    writeVariable(writer, variable);
-    writeVariable(writer, variable);
-    writer.close();
-    datasource.dispose();
-    datasource.initialise();
-    assertThat(datasource.getValueTable(tableName).getVariable("var2").getValueType().getName()).isEqualTo("text");
-    datasource.dispose();
+    try(ValueTableWriter writer = datasource.createWriter(tableName, DEFAULT_ENTITY_TYPE)) {
+      writeVariable(writer, variable);
+    }
   }
 
   @SuppressWarnings("ReuseOfLocalVariable")
   @Test
   public void test_writing_escaped_characters() throws Exception {
 
-    File dataFile = File.createTempFile("magma", "test-escaped");
-    dataFile.deleteOnExit();
+    File dataFile = getFileFromResource("org/obiba/magma/datasource/csv/Table1/no-data.csv");
 
     CsvDatasource datasource = new CsvDatasource("csv-datasource")
         .addValueTable("Table1", getFileFromResource("org/obiba/magma/datasource/csv/Table1/escaped-variables.csv"),
@@ -533,16 +399,15 @@ public class CsvValueTableWriterTest extends AbstractMagmaTest {
 
     CsvDatasourceTest.assertEmperors(datasource, table, name, children);
 
-    ValueTableWriter writer = datasource.createWriter(table.getName(), table.getEntityType());
-
     VariableEntity entity = new VariableEntityBean(DEFAULT_ENTITY_TYPE, "1");
 
-    Map<Variable, Value> values = Maps.newHashMap();
-    values.put(name, TextType.get().valueOf("Julius\nCaesar"));
-    values.put(children,
-        getSequenceOf("Julia", "Caesarion", "Gaius\\\\Julius Caesar \"Octavianus\"", null, "Marcus Junius\" Brutus"));
-    writeValueSet(entity, writer, values);
-    writer.close();
+    try(ValueTableWriter writer = datasource.createWriter(table.getName(), table.getEntityType())) {
+      Map<Variable, Value> values = Maps.newHashMap();
+      values.put(name, TextType.get().valueOf("Julius\nCaesar"));
+      values.put(children,
+          getSequenceOf("Julia", "Caesarion", "Gaius\\\\Julius Caesar \"Octavianus\"", null, "Marcus Junius\" Brutus"));
+      writeValueSet(entity, writer, values);
+    }
 
     assertJuliusCaesarName(table, name, entity);
     assertJuliusCaesarChildren(table, children, entity);
@@ -570,7 +435,6 @@ public class CsvValueTableWriterTest extends AbstractMagmaTest {
     assertJuliusCaesarChildren(table, children, entity);
 
     datasource.dispose();
-
   }
 
   private void assertJuliusCaesarChildren(ValueTable table, Variable children, VariableEntity entity) {
@@ -599,26 +463,25 @@ public class CsvValueTableWriterTest extends AbstractMagmaTest {
   }
 
   private void writeVariableToDatasource(Datasource datasource, Variable testVariable) throws IOException {
-    ValueTableWriter writer = datasource.createWriter("test-table", "entityType");
-    ValueTableWriter.VariableWriter vw = writer.writeVariables();
-    vw.writeVariable(testVariable);
-    vw.close();
-    writer.close();
+    try(ValueTableWriter tableWriter = datasource.createWriter("test-table", "entityType");
+        ValueTableWriter.VariableWriter variableWriter = tableWriter.writeVariables()) {
+      variableWriter.writeVariable(testVariable);
+    }
   }
 
   private void writeValueSet(VariableEntity variableEntity, ValueTableWriter valueTableWriter,
       Map<Variable, Value> values) throws IOException {
-    ValueTableWriter.ValueSetWriter valueSetWriter = valueTableWriter.writeValueSet(variableEntity);
-    for(Map.Entry<Variable, Value> entry : values.entrySet()) {
-      valueSetWriter.writeValue(entry.getKey(), entry.getValue());
+    try(ValueTableWriter.ValueSetWriter valueSetWriter = valueTableWriter.writeValueSet(variableEntity)) {
+      for(Map.Entry<Variable, Value> entry : values.entrySet()) {
+        valueSetWriter.writeValue(entry.getKey(), entry.getValue());
+      }
     }
-    valueSetWriter.close();
   }
 
   private void writeVariable(ValueTableWriter valueTableWriter, Variable variable) throws IOException {
-    ValueTableWriter.VariableWriter variableWriter = valueTableWriter.writeVariables();
-    variableWriter.writeVariable(variable);
-    variableWriter.close();
+    try(ValueTableWriter.VariableWriter variableWriter = valueTableWriter.writeVariables()) {
+      variableWriter.writeVariable(variable);
+    }
   }
 
   private Value getSequenceOf(String... values) {
