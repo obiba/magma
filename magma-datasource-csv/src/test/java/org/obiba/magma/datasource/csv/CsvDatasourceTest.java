@@ -9,6 +9,7 @@ import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 import org.obiba.magma.Category;
 import org.obiba.magma.NoSuchValueSetException;
+import org.obiba.magma.NoSuchVariableException;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueSequence;
 import org.obiba.magma.ValueSet;
@@ -91,7 +92,6 @@ public class CsvDatasourceTest extends AbstractMagmaTest {
     }
   }
 
-  @SuppressWarnings("IfStatementWithTooManyBranches")
   @Test
   public void test_table_variable_read() {
     CsvDatasource datasource = new CsvDatasource("csv-datasource").addValueTable("Table1", //
@@ -143,7 +143,6 @@ public class CsvDatasourceTest extends AbstractMagmaTest {
     assertThat(var.getAttribute("ns2", "attr", Locale.ENGLISH).getValue().toString()).isEqualTo("ns2");
   }
 
-  @SuppressWarnings("IfStatementWithTooManyBranches")
   @Test
   public void test_table_data_read() {
     CsvDatasource datasource = new CsvDatasource("csv-datasource").addValueTable("Table1", //
@@ -189,7 +188,6 @@ public class CsvDatasourceTest extends AbstractMagmaTest {
         null, //
         getFileFromResource("org/obiba/magma/datasource/csv/TableDataOnly/data.csv"));
     datasource.initialise();
-
     assertThat(datasource.getValueTableNames()).hasSize(1);
   }
 
@@ -281,7 +279,6 @@ public class CsvDatasourceTest extends AbstractMagmaTest {
     assertThat(cvsValueTable.getVariables()).hasSize(5);
   }
 
-  @SuppressWarnings("IfStatementWithTooManyBranches")
   @Test
   public void test_refTable_data_read() {
     CsvDatasource refDatasource = new CsvDatasource("csv-datasource1").addValueTable("Table1", //
@@ -522,17 +519,14 @@ public class CsvDatasourceTest extends AbstractMagmaTest {
   @Test
   public void test_end_of_line() throws IOException {
 
-    StringBuilder sb = new StringBuilder();
-    sb.append("entity_id,Name,\"Complete name\"\n");
-    sb.append("1,Augustus,\"GAIVS IVLIVS \nCAESAR OCTAVIANVS\"\n");
-    sb.append("2,Tiberius,\"TIBERIVS IVLIVS CAESAR AVGVSTVS\"\r");
-    sb.append("3,Caligula,\"GAIVS IVLIVS CAESAR AVGVSTVS GERMANICVS\"\r\n");
-    sb.append("4,Claudius,\"TIBERIVS CLAVDIVS CAESAR AVGVSTVS GERMANICVS\"\n\n");
-    sb.append("5,Nero,\"NERO CLAVDIVS CAESAR AVGVSTVS GERMANICVS\"");
-
     File dataFile = File.createTempFile("magma", "test-eol");
     dataFile.deleteOnExit();
-    FileUtils.writeStringToFile(dataFile, sb.toString(), "utf-8");
+    FileUtils.writeStringToFile(dataFile, "entity_id,Name,\"Complete name\"\n" + //
+        "1,Augustus,\"GAIVS IVLIVS \nCAESAR OCTAVIANVS\"\n" + //
+        "2,Tiberius,\"TIBERIVS IVLIVS CAESAR AVGVSTVS\"\r" + //
+        "3,Caligula,\"GAIVS IVLIVS CAESAR AVGVSTVS GERMANICVS\"\r\n" + //
+        "4,Claudius,\"TIBERIVS CLAVDIVS CAESAR AVGVSTVS GERMANICVS\"\n\n" + //
+        "5,Nero,\"NERO CLAVDIVS CAESAR AVGVSTVS GERMANICVS\"", "utf-8");
 
     CsvDatasource datasource = new CsvDatasource("csv-datasource")
         .addValueTable("Table1", dataFile, DEFAULT_ENTITY_TYPE);
@@ -666,5 +660,23 @@ public class CsvDatasourceTest extends AbstractMagmaTest {
         getFileFromResource("org/obiba/magma/datasource/csv/Table1/data.csv"));
     datasource.initialise();
     assertThat(datasource.hasEntities(new EntitiesPredicate.NonViewEntitiesPredicate())).isTrue();
+  }
+
+  @Test
+  public void test_import_data_for_subset_of_variables_OPAL_2243() throws IOException {
+    CsvDatasource datasource = new CsvDatasource("csv-datasource").addValueTable("Table1", //
+        getFileFromResource("org/obiba/magma/datasource/csv/Table1/variables.csv"), //
+        getFileFromResource("org/obiba/magma/datasource/csv/Table1/data-with-only-one-variable.csv"));
+    datasource.initialise();
+
+    ValueTable table = datasource.getValueTable("Table1");
+    assertThat(table.getVariables()).hasSize(1);
+    assertThat(table.getVariable("var2")).isNotNull();
+    try {
+      table.getVariable("var1");
+      fail("Should throw NoSuchVariableException");
+    } catch(NoSuchVariableException ignored) {
+    }
+    assertThat(table.getVariableEntities()).hasSize(4);
   }
 }
