@@ -171,7 +171,7 @@ class HibernateValueTableWriter implements ValueTableWriter {
     }
 
     private void deleteVariableCategories(IEntity variableState) {
-      session.createSQLQuery("delete from category_state_attributes where category_state in " + //
+      session.createSQLQuery("delete from category_state_attributes where category_state_id in " + //
           "(select c.id from category c where c.variable_id = " + variableState.getId() + ")") //
           .executeUpdate();
 
@@ -181,7 +181,7 @@ class HibernateValueTableWriter implements ValueTableWriter {
     }
 
     private void deleteVariable(VariableState variableState) {
-      session.createSQLQuery("delete from variable_state_attributes where variable_state = " + variableState.getId())
+      session.createSQLQuery("delete from variable_state_attributes where variable_state_id = " + variableState.getId())
           .executeUpdate();
 
       int deletedVariables = session.createQuery("delete VariableState where valueTable = :table and name = :name")
@@ -350,7 +350,7 @@ class HibernateValueTableWriter implements ValueTableWriter {
 
     @Nullable
     private ValueSetBinaryValue createBinaryValue(ValueSetValue valueSetValue, Value value, int occurrence) {
-      if(value.isNull() || value.getValue() == null) return null;
+      if(value.isNull()) return null;
       ValueSetBinaryValue binaryValue = new ValueSetBinaryValue(valueSetValue, occurrence);
       binaryValue.setValue((byte[]) value.getValue());
       return binaryValue;
