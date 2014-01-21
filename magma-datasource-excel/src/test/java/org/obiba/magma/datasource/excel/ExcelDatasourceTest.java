@@ -40,7 +40,7 @@ public class ExcelDatasourceTest extends AbstractMagmaTest {
    * http://wiki.obiba.org/confluence/display/CAG/Excel+Datasource+Improvements
    */
   @Test
-  public void test_read_user_defined() {
+  public void test_read() {
     Datasource datasource = new ExcelDatasource("user-defined",
         FileUtil.getFileFromResource("org/obiba/magma/datasource/excel/user-defined.xls"));
     datasource.initialise();
@@ -85,7 +85,7 @@ public class ExcelDatasourceTest extends AbstractMagmaTest {
   }
 
   @Test
-  public void test_read_user_defined_bogus() {
+  public void test_read_bogus() {
 
     Initialisable datasource = new ExcelDatasource("user-defined-bogus",
         FileUtil.getFileFromResource("org/obiba/magma/datasource/excel/user-defined-bogus.xls"));
@@ -120,7 +120,7 @@ public class ExcelDatasourceTest extends AbstractMagmaTest {
   }
 
   @Test
-  public void test_read_write_user_defined_without_table_column() throws IOException {
+  public void test_read_write_without_table_column() throws IOException {
     Datasource datasource = new ExcelDatasource("user-defined-no-table-column",
         FileUtil.getFileFromResource("org/obiba/magma/datasource/excel/user-defined-no-table-column.xls"));
     datasource.initialise();
@@ -138,7 +138,7 @@ public class ExcelDatasourceTest extends AbstractMagmaTest {
   }
 
   @Test
-  public void test_read_write_user_defined_without_meta() throws IOException {
+  public void test_read_write_without_meta() throws IOException {
     Datasource datasource = new ExcelDatasource("user-defined-no-meta",
         FileUtil.getFileFromResource("org/obiba/magma/datasource/excel/user-defined-no-meta.xls"));
     datasource.initialise();
@@ -161,7 +161,7 @@ public class ExcelDatasourceTest extends AbstractMagmaTest {
   }
 
   @Test
-  public void test_read_user_defined_mixed_meta() throws IOException {
+  public void test_read_mixed_meta() throws IOException {
     Datasource datasource = new ExcelDatasource("user-defined-mixed-meta",
         FileUtil.getFileFromResource("org/obiba/magma/datasource/excel/user-defined-mixed-meta.xls"));
     datasource.initialise();
@@ -183,7 +183,7 @@ public class ExcelDatasourceTest extends AbstractMagmaTest {
   }
 
   @Test
-  public void test_read_user_defined_bogus_without_table_column() {
+  public void test_read_bogus_without_table_column() {
     Initialisable datasource = new ExcelDatasource("user-defined-bogus-no-table-column",
         FileUtil.getFileFromResource("org/obiba/magma/datasource/excel/user-defined-bogus-no-table-column.xls"));
     try {
@@ -308,7 +308,7 @@ public class ExcelDatasourceTest extends AbstractMagmaTest {
 
   @Test
   @SuppressWarnings("ConstantConditions")
-  public void test_read_user_defined_with_empty_rows() {
+  public void test_read_empty_rows() {
     Datasource datasource = new ExcelDatasource("empty-rows",
         FileUtil.getFileFromResource("org/obiba/magma/datasource/excel/empty-rows.xls"));
     datasource.initialise();
