@@ -110,7 +110,7 @@ public class JoinTable implements ValueTable, Initialisable {
     return joinableVariablesByName;
   }
 
-  private synchronized void analyseVariables() {
+  public synchronized void analyseVariables() {
     if(variableAnalysed) return;
     for(ValueTable table : tables) {
       for(Variable variable : table.getVariables()) {
@@ -258,7 +258,6 @@ public class JoinTable implements ValueTable, Initialisable {
         ((Initialisable) table).initialise();
       }
     }
-    //analyseVariables();
   }
 
   private String buildJoinTableName() {
