@@ -258,7 +258,7 @@ public class JoinTable implements ValueTable, Initialisable {
         ((Initialisable) table).initialise();
       }
     }
-    analyseVariables();
+    //analyseVariables();
   }
 
   private String buildJoinTableName() {
