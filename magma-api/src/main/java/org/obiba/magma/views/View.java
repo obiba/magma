@@ -265,6 +265,9 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
 
   @Override
   public Iterable<Variable> getVariables() {
+    if (from instanceof JoinTable) {
+      ((JoinTable)from).analyseVariables();
+    }
     return isViewOfDerivedVariables() ? getListVariables() : getSelectVariables();
   }
 
