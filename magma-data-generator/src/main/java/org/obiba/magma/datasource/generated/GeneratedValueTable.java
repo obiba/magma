@@ -202,4 +202,14 @@ public class GeneratedValueTable implements ValueTable {
     return (datasource == null ? "" : datasource.getName()) + "." + getName();
   }
 
+  @Override
+  public int getVariableCount() {
+    return Iterables.size(getVariables());
+  }
+
+  @Override
+  public int getValueSetCount() {
+    return Iterables.size(getValueSets());
+  }
+
 }

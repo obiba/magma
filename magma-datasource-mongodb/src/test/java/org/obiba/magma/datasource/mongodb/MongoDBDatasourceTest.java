@@ -1,6 +1,7 @@
 package org.obiba.magma.datasource.mongodb;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -103,8 +104,10 @@ public class MongoDBDatasourceTest {
 
     Datasource datasource2 = new MongoDBDatasourceFactory("ds-" + DB_TEST, DB_URL).create();
     Initialisables.initialise(datasource2);
-    assertThat(datasource2.getValueTable("AnkleBrachial").getVariableEntities()).hasSize(5);
-    assertThat(datasource2.getValueTable("AnkleBrachial").getVariables()).hasSize(21);
+    ValueTable valueTable = datasource2.getValueTable("AnkleBrachial");
+    assertThat(valueTable.getVariableEntities()).hasSize(5);
+    assertThat(valueTable.getVariables()).hasSize(21);
+    assertThat(valueTable.getVariableCount()).isEqualTo(21);
   }
 
   @Test
@@ -315,6 +318,37 @@ public class MongoDBDatasourceTest {
     assertThat(foundVariables.indexOf(newVariable)).isEqualTo(0);
     assertThat(foundVariables.indexOf(variable2)).isEqualTo(1);
     assertThat(foundVariables.indexOf(variable3)).isEqualTo(2);
+  }
+
+  @Test
+  public void test_count_variables() throws IOException {
+
+    List<Variable> variables = new ArrayList<>();
+    for(int i = 0; i < 100; i++) {
+      variables.add(Variable.Builder.newVariable("Variable " + i, IntegerType.get(), PARTICIPANT).build());
+    }
+
+    Datasource ds1 = createDatasource();
+    ValueTable generatedValueTable = new GeneratedValueTable(ds1, variables, 50);
+    MagmaEngine.get().addDatasource(ds1);
+    DatasourceCopier.Builder.newCopier().build().copy(generatedValueTable, "table1", ds1);
+
+    assertThat(createDatasource().getValueTable("table1").getVariableCount()).isEqualTo(100);
+  }
+
+  @Test
+  public void test_count_valueSets() throws InterruptedException, IOException {
+
+    ImmutableSet<Variable> variables = ImmutableSet.of(//
+        Variable.Builder.newVariable("Test Variable", IntegerType.get(), PARTICIPANT).build(), //
+        Variable.Builder.newVariable("Other Variable", DecimalType.get(), PARTICIPANT).build());
+
+    Datasource ds = createDatasource();
+    ValueTable generatedValueTable = new GeneratedValueTable(ds, variables, 100);
+    MagmaEngine.get().addDatasource(ds);
+    DatasourceCopier.Builder.newCopier().build().copy(generatedValueTable, "table1", ds);
+
+    assertThat(createDatasource().getValueTable("table1").getValueSetCount()).isEqualTo(100);
   }
 
   private Datasource createDatasource() {

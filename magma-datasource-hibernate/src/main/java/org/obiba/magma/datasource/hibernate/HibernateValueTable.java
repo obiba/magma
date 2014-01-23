@@ -16,6 +16,8 @@ import org.hibernate.FetchMode;
 import org.hibernate.LockMode;
 import org.hibernate.LockOptions;
 import org.hibernate.Query;
+import org.hibernate.criterion.Projections;
+import org.hibernate.criterion.Restrictions;
 import org.obiba.core.service.impl.hibernate.AssociationCriteria;
 import org.obiba.core.service.impl.hibernate.AssociationCriteria.Operation;
 import org.obiba.magma.Datasource;
@@ -141,6 +143,24 @@ class HibernateValueTable extends AbstractValueTable {
   @Override
   public Timestamps getTimestamps() {
     return createTimestamps(getValueTableState());
+  }
+
+  @Override
+  public int getVariableCount() {
+    return ((Number) getDatasource().getSessionFactory().getCurrentSession() //
+        .createCriteria(VariableState.class) //
+        .setProjection(Projections.rowCount())  //
+        .add(Restrictions.eq("valueTable", getValueTableState())) //
+        .uniqueResult()).intValue();
+  }
+
+  @Override
+  public int getValueSetCount() {
+    return ((Number) getDatasource().getSessionFactory().getCurrentSession() //
+        .createCriteria(ValueSetState.class) //
+        .setProjection(Projections.rowCount())  //
+        .add(Restrictions.eq("valueTable", getValueTableState())) //
+        .uniqueResult()).intValue();
   }
 
   public void setName(String name) {

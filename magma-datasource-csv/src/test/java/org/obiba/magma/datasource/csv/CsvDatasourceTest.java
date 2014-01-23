@@ -18,7 +18,6 @@ import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.datasource.csv.support.Quote;
 import org.obiba.magma.datasource.csv.support.Separator;
-import org.obiba.magma.support.AbstractValueTable;
 import org.obiba.magma.support.DatasourceParsingException;
 import org.obiba.magma.support.EntitiesPredicate;
 import org.obiba.magma.support.VariableEntityBean;
@@ -268,7 +267,9 @@ public class CsvDatasourceTest extends AbstractMagmaTest {
     CsvDatasource datasource = new CsvDatasource("csv-datasource").addValueTable("TableDataOnly", //
         null, getFileFromResource("org/obiba/magma/datasource/csv/TableDataOnly/data.csv"));
     datasource.initialise();
-    assertThat(datasource.getValueTable("TableDataOnly").getVariables()).hasSize(5);
+    ValueTable valueTable = datasource.getValueTable("TableDataOnly");
+    assertThat(valueTable.getVariables()).hasSize(5);
+    assertThat(valueTable.getVariableCount()).isEqualTo(5);
   }
 
   @Test
@@ -344,7 +345,9 @@ public class CsvDatasourceTest extends AbstractMagmaTest {
         .addData(getFileFromResource("org/obiba/magma/datasource/csv/Table1/data.csv"))
         .buildCsvDatasource("csv-datasource");
 
-    assertThat(((AbstractValueTable) datasource.getValueTable(tableName)).getVariables()).hasSize(2);
+    ValueTable valueTable = datasource.getValueTable(tableName);
+    assertThat(valueTable.getVariables()).hasSize(2);
+    assertThat(valueTable.getVariableCount()).isEqualTo(2);
   }
 
   @Test
@@ -354,7 +357,9 @@ public class CsvDatasourceTest extends AbstractMagmaTest {
         .addVariables(getFileFromResource("org/obiba/magma/datasource/csv/Table1/variables.csv"))
         .buildCsvDatasource("csv-datasource");
 
-    assertThat(((AbstractValueTable) datasource.getValueTable(tableName)).getVariables()).isEmpty();
+    ValueTable valueTable = datasource.getValueTable(tableName);
+    assertThat(valueTable.getVariables()).isEmpty();
+    assertThat(valueTable.getVariableCount()).isEqualTo(0);
   }
 
   @Test
@@ -675,6 +680,7 @@ public class CsvDatasourceTest extends AbstractMagmaTest {
 
     ValueTable table = datasource.getValueTable("Table1");
     assertThat(table.getVariables()).hasSize(1);
+    assertThat(table.getVariableCount()).isEqualTo(1);
     assertThat(table.getVariable("var2")).isNotNull();
     try {
       table.getVariable("var1");

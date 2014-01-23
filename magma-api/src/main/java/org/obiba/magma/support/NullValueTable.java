@@ -20,6 +20,7 @@ import org.obiba.magma.VariableValueSource;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Iterables;
 
 public class NullValueTable implements ValueTable {
 
@@ -119,6 +120,16 @@ public class NullValueTable implements ValueTable {
   @Override
   public String getTableReference() {
     return null;
+  }
+
+  @Override
+  public int getVariableCount() {
+    return Iterables.size(getVariables());
+  }
+
+  @Override
+  public int getValueSetCount() {
+    return Iterables.size(getValueSets());
   }
 
   @SuppressWarnings("ConstantConditions")

@@ -23,7 +23,6 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
 
 @SuppressWarnings("UnusedDeclaration")
 public class DatasourceCopier {
@@ -155,8 +154,7 @@ public class DatasourceCopier {
     Stopwatch stopwatch = null;
     if(log.isDebugEnabled()) {
       stopwatch = Stopwatch.createStarted();
-      log.debug("  --> {} variables, {} valueSets", Lists.newArrayList(sourceTable.getVariables()).size(),
-          Lists.newArrayList(sourceTable.getValueSets()).size());
+      log.debug("  --> {} variables, {} valueSets", sourceTable.getVariableCount(), sourceTable.getValueSetCount());
     }
     try(ValueTableWriter tableWriter = innerValueTableWriter(sourceTable, destinationTableName, destination)) {
       copy(sourceTable, destination.getValueTable(destinationTableName), tableWriter);
