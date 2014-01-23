@@ -178,4 +178,13 @@ public class MongoDBValueTable extends AbstractValueTable {
     return getVariablesCollection().findOne(BasicDBObjectBuilder.start("name", variableName).get());
   }
 
+  @Override
+  public int getVariableCount() {
+    return (int) getVariablesCollection().count();
+  }
+
+  @Override
+  public int getValueSetCount() {
+    return (int) getValueSetCollection().count();
+  }
 }

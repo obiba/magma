@@ -22,6 +22,8 @@ public interface ValueTable extends Timestamped {
 
   Iterable<ValueSet> getValueSets();
 
+  int getValueSetCount();
+
   ValueSet getValueSet(VariableEntity entity) throws NoSuchValueSetException;
 
   Timestamps getValueSetTimestamps(VariableEntity entity) throws NoSuchValueSetException;
@@ -29,6 +31,8 @@ public interface ValueTable extends Timestamped {
   boolean hasVariable(String name);
 
   Iterable<Variable> getVariables();
+
+  int getVariableCount();
 
   Variable getVariable(String name) throws NoSuchVariableException;
 
@@ -39,4 +43,5 @@ public interface ValueTable extends Timestamped {
   boolean isView();
 
   String getTableReference();
+
 }

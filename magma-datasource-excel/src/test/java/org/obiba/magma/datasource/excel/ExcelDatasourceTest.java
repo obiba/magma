@@ -49,6 +49,7 @@ public class ExcelDatasourceTest extends AbstractMagmaTest {
     assertThat(table).isNotNull();
     assertThat(table.getEntityType()).isEqualTo("Participant");
     assertThat(table.getVariables()).hasSize(4);
+    assertThat(table.getVariableCount()).isEqualTo(4);
 
     Variable variable = table.getVariable("Var1");
     assertThat(variable.getValueType()).isEqualTo(IntegerType.get());
@@ -129,6 +130,7 @@ public class ExcelDatasourceTest extends AbstractMagmaTest {
     ValueTable table = datasource.getValueTable(ExcelDatasource.DEFAULT_TABLE_NAME);
     assertThat(table).isNotNull();
     assertThat(table.getVariables()).hasSize(3);
+    assertThat(table.getVariableCount()).isEqualTo(3);
     assertThat(table.getVariable("Var1").getCategories()).hasSize(3);
 
     // test that writing variable & category when some columns are missing does not fail
@@ -147,6 +149,7 @@ public class ExcelDatasourceTest extends AbstractMagmaTest {
     ValueTable table = datasource.getValueTable("Table1");
     assertThat(table).isNotNull();
     assertThat(table.getVariables()).hasSize(2);
+    assertThat(table.getVariableCount()).isEqualTo(2);
     Variable variable = table.getVariable("Var1");
     assertThat(variable.getValueType()).isEqualTo(TextType.get());
     assertThat(variable.getCategories()).isEmpty();
@@ -170,6 +173,7 @@ public class ExcelDatasourceTest extends AbstractMagmaTest {
     ValueTable table = datasource.getValueTable("Table1");
     assertThat(table).isNotNull();
     assertThat(table.getVariables()).hasSize(3);
+    assertThat(table.getVariableCount()).isEqualTo(3);
     Variable variable = table.getVariable("Var1");
     assertThat(variable.getValueType()).isEqualTo(IntegerType.get());
     assertThat(variable.getCategories()).hasSize(2);
@@ -236,7 +240,9 @@ public class ExcelDatasourceTest extends AbstractMagmaTest {
 
     datasource = new ExcelDatasource("test", tmpExcelFile);
     datasource.initialise();
-    assertThat(datasource.getValueTable("test-table").getVariables()).hasSize(1);
+    ValueTable valueTable = datasource.getValueTable("test-table");
+    assertThat(valueTable.getVariables()).hasSize(1);
+    assertThat(valueTable.getVariableCount()).isEqualTo(1);
 
     Disposables.silentlyDispose(datasource);
     tmpExcelFile.delete();
@@ -317,6 +323,7 @@ public class ExcelDatasourceTest extends AbstractMagmaTest {
     assertThat(table).isNotNull();
     assertThat(table.getEntityType()).isEqualTo("Participant");
     assertThat(table.getVariables()).hasSize(2);
+    assertThat(table.getVariableCount()).isEqualTo(2);
 
     Variable var1 = table.getVariable("var1");
     assertThat(var1.getValueType()).isEqualTo(TextType.get());

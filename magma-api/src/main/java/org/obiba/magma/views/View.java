@@ -211,6 +211,16 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
   }
 
   @Override
+  public int getVariableCount() {
+    return Iterables.size(getVariables());
+  }
+
+  @Override
+  public int getValueSetCount() {
+    return Iterables.size(getValueSets());
+  }
+
+  @Override
   public boolean hasValueSet(@Nullable VariableEntity entity) {
     if(entity == null) return false;
 

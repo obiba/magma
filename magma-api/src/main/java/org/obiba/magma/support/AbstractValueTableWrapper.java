@@ -115,4 +115,14 @@ public abstract class AbstractValueTableWrapper implements ValueTableWrapper {
     return getWrappedValueTable().getTableReference();
   }
 
+  @Override
+  public int getVariableCount() {
+    return getWrappedValueTable().getVariableCount();
+  }
+
+  @Override
+  public int getValueSetCount() {
+    return getWrappedValueTable().getValueSetCount();
+  }
+
 }

@@ -1,6 +1,7 @@
 package org.obiba.magma.datasource.hibernate;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.SortedSet;
@@ -934,6 +935,59 @@ public class HibernateDatasourceTest {
         List<Variable> foundVariables = Lists.newArrayList(table.getVariables());
         assertThat(foundVariables.indexOf(newVariable)).isEqualTo(0);
         assertThat(foundVariables.indexOf(variable2)).isEqualTo(1);
+      }
+    });
+  }
+
+  @Test
+  public void test_count_variables() {
+
+    final List<Variable> variables = new ArrayList<>();
+    for(int i = 0; i < 100; i++) {
+      variables.add(Variable.Builder.newVariable("Variable " + i, IntegerType.get(), PARTICIPANT).build());
+    }
+
+    transactionTemplate.execute(new TransactionCallbackRuntimeExceptions() {
+      @Override
+      protected void doAction(TransactionStatus status) throws Exception {
+        HibernateDatasource ds = createDatasource();
+        ValueTable generatedValueTable = new GeneratedValueTable(ds, variables, 50);
+        MagmaEngine.get().addDatasource(ds);
+        DatasourceCopier.Builder.newCopier().build().copy(generatedValueTable, TABLE, ds);
+      }
+    });
+
+    transactionTemplate.execute(new TransactionCallbackRuntimeExceptions() {
+      @Override
+      protected void doAction(TransactionStatus status) throws Exception {
+        HibernateDatasource ds = getDatasource();
+        assertThat(ds.getValueTable(TABLE).getVariableCount()).isEqualTo(100);
+      }
+    });
+  }
+
+  @Test
+  public void test_count_valueSets() {
+
+    final ImmutableSet<Variable> variables = ImmutableSet.of(//
+        Variable.Builder.newVariable("Test Variable", IntegerType.get(), PARTICIPANT).build(), //
+        Variable.Builder.newVariable("Other Variable", DecimalType.get(), PARTICIPANT).build());
+
+    transactionTemplate.execute(new TransactionCallbackRuntimeExceptions() {
+      @Override
+      protected void doAction(TransactionStatus status) throws Exception {
+        HibernateDatasource ds = createDatasource();
+        ValueTable generatedValueTable = new GeneratedValueTable(ds, variables, 100);
+        MagmaEngine.get().addDatasource(ds);
+        DatasourceCopier.Builder.newCopier().build().copy(generatedValueTable, TABLE, ds);
+      }
+    });
+
+    transactionTemplate.execute(new TransactionCallbackRuntimeExceptions() {
+      @Override
+      protected void doAction(TransactionStatus status) throws Exception {
+        HibernateDatasource ds = getDatasource();
+        assertThat(ds.getValueTable(TABLE).getValueSetCount()).isEqualTo(100);
       }
     });
   }
