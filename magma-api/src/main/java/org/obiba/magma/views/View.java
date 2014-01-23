@@ -221,6 +221,11 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
   }
 
   @Override
+  public int getVariableEntityCount() {
+    return Iterables.size(getVariableEntities());
+  }
+
+  @Override
   public boolean hasValueSet(@Nullable VariableEntity entity) {
     if(entity == null) return false;
 
@@ -275,8 +280,8 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
 
   @Override
   public Iterable<Variable> getVariables() {
-    if (from instanceof JoinTable) {
-      ((JoinTable)from).analyseVariables();
+    if(from instanceof JoinTable) {
+      ((JoinTable) from).analyseVariables();
     }
     return isViewOfDerivedVariables() ? getListVariables() : getSelectVariables();
   }

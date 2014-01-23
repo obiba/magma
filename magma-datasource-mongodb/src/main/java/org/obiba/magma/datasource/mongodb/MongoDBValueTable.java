@@ -187,4 +187,9 @@ public class MongoDBValueTable extends AbstractValueTable {
   public int getValueSetCount() {
     return (int) getValueSetCollection().count();
   }
+
+  @Override
+  public int getVariableEntityCount() {
+    return (int) getValueSetCollection().count();
+  }
 }

@@ -331,6 +331,11 @@ public class JoinTable implements ValueTable, Initialisable {
     return Iterables.size(getValueSets());
   }
 
+  @Override
+  public int getVariableEntityCount() {
+    return Iterables.size(getVariableEntities());
+  }
+
   static class JoinedValueSet extends ValueSetBean {
 
     @NotNull
