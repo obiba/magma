@@ -156,6 +156,11 @@ public class GeneratedValueTable implements ValueTable {
   }
 
   @Override
+  public int getVariableEntityCount() {
+    return Iterables.size(getVariableEntities());
+  }
+
+  @Override
   public VariableValueSource getVariableValueSource(String variableName) throws NoSuchVariableException {
     return generators.get(variableName);
   }

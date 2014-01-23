@@ -18,6 +18,8 @@ public interface ValueTable extends Timestamped {
 
   Set<VariableEntity> getVariableEntities();
 
+  int getVariableEntityCount();
+
   boolean hasValueSet(VariableEntity entity);
 
   Iterable<ValueSet> getValueSets();

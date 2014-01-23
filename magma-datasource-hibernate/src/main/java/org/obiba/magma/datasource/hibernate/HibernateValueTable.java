@@ -163,6 +163,11 @@ class HibernateValueTable extends AbstractValueTable {
         .uniqueResult()).intValue();
   }
 
+  @Override
+  public int getVariableEntityCount() {
+    return getValueSetCount();
+  }
+
   public void setName(String name) {
     ValueTableState tableState = getValueTableState();
     tableState.setName(name);

@@ -228,6 +228,11 @@ public abstract class AbstractValueTable implements ValueTable, Initialisable {
   }
 
   @Override
+  public int getVariableEntityCount() {
+    return getVariableEntities().size();
+  }
+
+  @Override
   public int hashCode() {return Objects.hash(datasource, name);}
 
   @Override
