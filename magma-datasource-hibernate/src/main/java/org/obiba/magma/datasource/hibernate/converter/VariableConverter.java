@@ -11,8 +11,12 @@ import org.obiba.magma.Variable;
 import org.obiba.magma.Variable.Builder;
 import org.obiba.magma.datasource.hibernate.domain.CategoryState;
 import org.obiba.magma.datasource.hibernate.domain.VariableState;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class VariableConverter extends AttributeAwareConverter implements HibernateConverter<VariableState, Variable> {
+
+  private static final Logger log = LoggerFactory.getLogger(VariableConverter.class);
 
   public static VariableConverter getInstance() {
     return new VariableConverter();
@@ -24,6 +28,11 @@ public class VariableConverter extends AttributeAwareConverter implements Hibern
   @Nullable
   public VariableState getStateForVariable(Variable variable, HibernateMarshallingContext context) {
     for(VariableState state : context.getValueTable().getVariables()) {
+      log.debug("state: {}", state);
+      log.debug("  name: {}", state.getName());
+      log.debug("variable: {}", variable);
+      log.debug("  name: {}", variable.getName());
+
       if(state.getName().equals(variable.getName())) return state;
     }
     return null;
@@ -69,6 +78,7 @@ public class VariableConverter extends AttributeAwareConverter implements Hibern
           variableState.getCategories().set(currentCategoryIndex, previousCategory);
         }
       }
+      categoryState.setMissing(category.isMissing());
       setAttributes(category, categoryState);
       categoryIndex++;
     }
