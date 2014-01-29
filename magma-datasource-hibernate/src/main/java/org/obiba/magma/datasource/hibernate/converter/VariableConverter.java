@@ -69,6 +69,7 @@ public class VariableConverter extends AttributeAwareConverter implements Hibern
           variableState.getCategories().set(currentCategoryIndex, previousCategory);
         }
       }
+      categoryState.setMissing(category.isMissing());
       setAttributes(category, categoryState);
       categoryIndex++;
     }
