@@ -29,6 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Function;
+import com.google.common.base.Stopwatch;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
@@ -87,9 +88,9 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
     if(compiledScript == null) {
       initialise();
     }
-    long start = System.currentTimeMillis();
+    Stopwatch stopwatch = Stopwatch.createStarted();
     Value value = (Value) ContextFactory.getGlobal().call(new ValueSetEvaluationContextAction(valueSet));
-    log.trace("Evaluation of {}: {}ms", getScriptName(), System.currentTimeMillis() - start);
+    log.trace("Evaluation of {} in {}", getScriptName(), stopwatch);
     return value;
   }
 

@@ -3,6 +3,7 @@ package org.obiba.magma.js.methods;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -31,6 +32,7 @@ import org.obiba.magma.js.MagmaContext;
 import org.obiba.magma.js.MagmaJsEvaluationRuntimeException;
 import org.obiba.magma.js.ScriptableValue;
 import org.obiba.magma.js.ScriptableVariable;
+import org.obiba.magma.support.MagmaEngineReferenceResolver;
 import org.obiba.magma.support.MagmaEngineVariableResolver;
 import org.obiba.magma.support.VariableEntityBean;
 import org.obiba.magma.type.DateTimeType;
@@ -303,13 +305,12 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
     // Test whether this is a vector-oriented evaluation or a ValueSet-oriented evaluation
     if(context.has(VectorCache.class)) {
       return valuesForVector(context, thisObj, source);
-    } else {
-      ValueSet valueSet = context.peek(ValueSet.class);
-      // The ValueSet is the one of the "from" table of the view
-      ValueSet viewValueSet = view.getValueSetMappingFunction().apply(valueSet);
-      Value value = source.getValue(viewValueSet);
-      return new ScriptableValue(thisObj, value, source.getVariable().getUnit());
     }
+    ValueSet valueSet = context.peek(ValueSet.class);
+    // The ValueSet is the one of the "from" table of the view
+    ValueSet viewValueSet = view.getValueSetMappingFunction().apply(valueSet);
+    Value value = source.getValue(viewValueSet);
+    return new ScriptableValue(thisObj, value, source.getVariable().getUnit());
   }
 
   private static ScriptableValue valueFromContext(MagmaContext context, Scriptable thisObj, String name) {
@@ -317,8 +318,14 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
 
     MagmaEngineVariableResolver reference = MagmaEngineVariableResolver.valueOf(name);
 
-    // Find the named source
+    ReferenceResolverCounter resolverCounter = context.has(ReferenceResolverCounter.class) ? context
+        .pop(ReferenceResolverCounter.class) : new ReferenceResolverCounter();
+    resolverCounter.addResolver(reference);
+    context.push(ReferenceResolverCounter.class, resolverCounter);
+
     VariableValueSource source = reference.resolveSource(valueTable);
+
+    log.info("getValue for {}: {}", source.getVariable().getName(), resolverCounter.getNbResolvers());
 
     // Test whether this is a vector-oriented evaluation or a ValueSet-oriented evaluation
     return context.has(VectorCache.class)
@@ -337,7 +344,7 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
   }
 
   private static ScriptableValue valueForValueSet(MagmaContext context, Scriptable thisObj,
-      MagmaEngineVariableResolver reference, VariableValueSource source) {
+      MagmaEngineVariableResolver reference, VariableValueSource variableSource) {
     ValueSet valueSet = context.peek(ValueSet.class);
     // Tests whether this valueSet is in the same table as the referenced ValueTable
     if(reference.isJoin(valueSet)) {
@@ -347,12 +354,13 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
       } catch(NoSuchValueSetException e) {
         // Entity does not have a ValueSet in joined collection
         // Return a null value
-        return new ScriptableValue(thisObj, source.getValueType().nullValue(), source.getVariable().getUnit());
+        return new ScriptableValue(thisObj, variableSource.getValueType().nullValue(),
+            variableSource.getVariable().getUnit());
       }
     }
 
-    Value value = source.getValue(valueSet);
-    return new ScriptableValue(thisObj, value, source.getVariable().getUnit());
+    Value value = variableSource.getValue(valueSet);
+    return new ScriptableValue(thisObj, value, variableSource.getVariable().getUnit());
   }
 
   /**
@@ -614,5 +622,19 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
     public boolean apply(@Nullable Value input) {
       return Objects.equal(input, criteriaValue);
     }
+  }
+
+  private static class ReferenceResolverCounter {
+
+    private final Collection<MagmaEngineReferenceResolver> resolvers = new ArrayList<>();
+
+    private void addResolver(MagmaEngineReferenceResolver resolver) {
+      resolvers.add(resolver);
+    }
+
+    private int getNbResolvers() {
+      return resolvers.size();
+    }
+
   }
 }

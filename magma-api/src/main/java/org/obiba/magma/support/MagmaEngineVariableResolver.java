@@ -60,25 +60,22 @@ public class MagmaEngineVariableResolver extends MagmaEngineReferenceResolver {
   public static MagmaEngineVariableResolver valueOf(String name) {
     MagmaEngineVariableResolver reference = new MagmaEngineVariableResolver();
     // Is this a fully qualified name?
-    if(name.indexOf(':') < 0) {
-      // No
-      reference.setVariableName(name);
-    } else {
-      // Yes
-      String parts[] = name.split(":");
-
+    if(name.contains(":")) {
+      String[] parts = name.split(":");
       String tableReference = parts[0];
       if(parts.length > 1) { // Handle 'datasourceName.ValueTableName:' case.
         reference.setVariableName(parts[1]);
       }
 
-      if(tableReference.indexOf('.') < 0) {
-        reference.setTableName(tableReference);
+      if(tableReference.contains(".")) {
+        String[] tableParts = tableReference.split("\\.");
+        reference.setDatasourceName(tableParts[0]);
+        reference.setTableName(tableParts[1]);
       } else {
-        parts = tableReference.split("\\.");
-        reference.setDatasourceName(parts[0]);
-        reference.setTableName(parts[1]);
+        reference.setTableName(tableReference);
       }
+    } else {
+      reference.setVariableName(name);
     }
     return reference;
   }
