@@ -1,8 +1,9 @@
 package org.obiba.magma.security;
 
+import java.io.Serializable;
 import java.util.concurrent.Callable;
 
-public interface Authorizer {
+public interface Authorizer extends Serializable {
 
   boolean isPermitted(String permission);
 
