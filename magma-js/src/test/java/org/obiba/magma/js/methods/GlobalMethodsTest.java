@@ -6,6 +6,7 @@ import java.util.Collection;
 import org.junit.Test;
 import org.mozilla.javascript.NativeArray;
 import org.obiba.core.util.FileUtil;
+import org.obiba.magma.Datasource;
 import org.obiba.magma.MagmaEngine;
 import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.Value;
@@ -109,34 +110,62 @@ public class GlobalMethodsTest extends AbstractJsTest {
     CsvDatasource datasource = new CsvDatasource("ds").addValueTable("table", //
         FileUtil.getFileFromResource("org/obiba/magma/js/variables.csv"), //
         FileUtil.getFileFromResource("org/obiba/magma/js/data.csv"));
-    MagmaEngine.get().addDatasource(datasource);
-
-    ValueTable table = datasource.getValueTable("table");
-    Variable tableVariable = table.getVariable("var1");
-
-    Variable viewVariable = new Variable.Builder("viewVariable", TextType.get(), "Participant")
-        .addAttribute("script", "$('ds.table:var1')").build();
 
     ViewManager viewManager = new DefaultViewManagerImpl(new MemoryViewPersistenceStrategy());
-    viewManager.decorate(datasource);
+    Datasource viewAwareDatasource = viewManager.decorate(datasource);
+    MagmaEngine.get().addDatasource(viewAwareDatasource);
+
+    ValueTable table = viewAwareDatasource.getValueTable("table");
+    Variable tableVariable = table.getVariable("var1");
+
+    Variable viewVariable = new Variable.Builder("viewVariable", TextType.get(), table.getEntityType())
+        .addAttribute("script", "$('ds.table:var1')").build();
 
     View viewTemplate = View.Builder.newView("view", table).list(new VariablesClause()).build();
     try(VariableWriter variableWriter = viewTemplate.getListClause().createWriter()) {
       variableWriter.writeVariable(viewVariable);
     }
-    viewManager.addView(datasource.getName(), viewTemplate, null);
+    viewManager.addView("ds", viewTemplate, null);
 
     Collection<String> tableValues = new ArrayList<>();
-    for(ValueSet valueSet : datasource.getValueTable("table").getValueSets()) {
+    for(ValueSet valueSet : viewAwareDatasource.getValueTable("table").getValueSets()) {
       tableValues.add(table.getValue(tableVariable, valueSet).toString());
     }
 
     Collection<String> viewValues = new ArrayList<>();
-    View view = viewManager.getView(datasource.getName(), "view");
+    View view = viewManager.getView("ds", "view");
     for(ValueSet valueSet : view.getValueSets()) {
       viewValues.add(view.getValue(viewVariable, valueSet).toString());
     }
     assertThat(tableValues).isEqualTo(viewValues);
+  }
+
+  @Test
+  public void test_$_recursive_error() {
+    CsvDatasource datasource = new CsvDatasource("ds").addValueTable("table", //
+        FileUtil.getFileFromResource("org/obiba/magma/js/variables.csv"), //
+        FileUtil.getFileFromResource("org/obiba/magma/js/data.csv"));
+
+    ViewManager viewManager = new DefaultViewManagerImpl(new MemoryViewPersistenceStrategy());
+    Datasource viewAwareDatasource = viewManager.decorate(datasource);
+    MagmaEngine.get().addDatasource(viewAwareDatasource);
+
+    ValueTable table = viewAwareDatasource.getValueTable("table");
+
+    Variable viewVariable = new Variable.Builder("viewVariable", TextType.get(), table.getEntityType())
+        .addAttribute("script", "$('ds.view:viewVariable')").build();
+
+    View viewTemplate = View.Builder.newView("view", table).list(new VariablesClause()).build();
+    try(VariableWriter variableWriter = viewTemplate.getListClause().createWriter()) {
+      variableWriter.writeVariable(viewVariable);
+    }
+    viewManager.addView("ds", viewTemplate, null);
+
+    View view = viewManager.getView("ds", "view");
+    for(ValueSet valueSet : view.getValueSets()) {
+      Value value = view.getValue(viewVariable, valueSet);
+      log.debug("value: {}", value);
+    }
   }
 
 }

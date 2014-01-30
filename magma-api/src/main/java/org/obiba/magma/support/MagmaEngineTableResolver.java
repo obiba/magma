@@ -37,12 +37,12 @@ public class MagmaEngineTableResolver extends MagmaEngineReferenceResolver {
    */
   public static MagmaEngineTableResolver valueOf(String name) {
     MagmaEngineTableResolver resolver = new MagmaEngineTableResolver();
-    if(name.indexOf('.') < 0) {
-      resolver.setTableName(name);
-    } else {
+    if(name.contains(".")) {
       String[] parts = name.split("\\.");
       resolver.setDatasourceName(parts[0]);
       resolver.setTableName(parts[1]);
+    } else {
+      resolver.setTableName(name);
     }
     return resolver;
   }

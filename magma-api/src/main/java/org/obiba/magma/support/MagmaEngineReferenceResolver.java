@@ -1,5 +1,7 @@
 package org.obiba.magma.support;
 
+import java.util.Objects;
+
 import javax.annotation.Nullable;
 
 import org.obiba.magma.Datasource;
@@ -89,5 +91,20 @@ public abstract class MagmaEngineReferenceResolver {
 
   void setVariableName(String variableName) {
     this.variableName = variableName;
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(datasourceName, tableName, variableName);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if(this == obj) return true;
+    if(obj == null || getClass() != obj.getClass()) return false;
+    MagmaEngineReferenceResolver other = (MagmaEngineReferenceResolver) obj;
+    return Objects.equals(datasourceName, other.datasourceName) && //
+        Objects.equals(tableName, other.tableName) && //
+        Objects.equals(variableName, other.variableName);
   }
 }
