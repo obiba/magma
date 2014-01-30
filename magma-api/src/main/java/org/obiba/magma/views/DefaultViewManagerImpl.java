@@ -11,6 +11,7 @@ import org.obiba.magma.Initialisable;
 import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.NoSuchDatasourceException;
 import org.obiba.magma.NoSuchValueTableException;
+import org.obiba.magma.ValueTable;
 import org.obiba.magma.Variable;
 
 import com.google.common.base.Preconditions;
@@ -19,7 +20,6 @@ import com.google.common.collect.Sets;
 
 import edu.umd.cs.findbugs.annotations.Nullable;
 
-@SuppressWarnings("UnusedDeclaration")
 public class DefaultViewManagerImpl implements ViewManager, Initialisable, Disposable {
 
   @NotNull
@@ -38,57 +38,57 @@ public class DefaultViewManagerImpl implements ViewManager, Initialisable, Dispo
     ViewAwareDatasource viewAwareDatasource = new ViewAwareDatasource(datasource, views);
 
     // register the viewAware and make sure there is only one with the datasource name...
-    if(getViewAwareFromName(datasource.getName()) == null) {
+    try {
+      getViewAwareDatasource(datasource.getName());
+    } catch(NoSuchDatasourceException e) {
       viewAwareDatasources.add(viewAwareDatasource);
     }
     return viewAwareDatasource;
   }
 
-  @SuppressWarnings("ConstantConditions")
   @Override
   public void addView(@NotNull String datasourceName, @NotNull View view, @Nullable String comment) {
     Preconditions.checkArgument(!Strings.isNullOrEmpty(datasourceName), "datasourceName cannot be null or empty.");
+    //noinspection ConstantConditions
     Preconditions.checkArgument(view != null, "view cannot be null.");
-
-    ViewAwareDatasource viewAwareDatasource = getViewAwareFromName(datasourceName);
-    if(viewAwareDatasource == null) throw new NoSuchDatasourceException(datasourceName);
-
     Preconditions.checkArgument(!Strings.isNullOrEmpty(view.getName()), "view name cannot be null or empty.");
+
+    ViewAwareDatasource datasource = getViewAwareDatasource(datasourceName);
 
     // Check that variables have the same entity type as the from table
     view.initialise();
-    for(Variable v : view.getVariables()) {
-      if(!view.getEntityType().equals(v.getEntityType())) {
-        throw new IncompatibleEntityTypeException(view.getEntityType(), v.getEntityType());
-      }
-    }
-
-    viewAwareDatasource.addView(view);
+    validateVariablesEntityType(view);
+    datasource.addView(view);
     try {
-      viewPersistenceStrategy.writeView(viewAwareDatasource.getName(), view, comment);
+      viewPersistenceStrategy.writeView(datasource.getName(), view, comment);
     } catch(RuntimeException e) {
       // rollback
-      viewAwareDatasource.removeView(view.getName());
+      datasource.removeView(view.getName());
       throw e;
+    }
+  }
+
+  private void validateVariablesEntityType(ValueTable view) {
+    for(Variable variable : view.getVariables()) {
+      if(!view.getEntityType().equals(variable.getEntityType())) {
+        throw new IncompatibleEntityTypeException(view.getEntityType(), variable.getEntityType());
+      }
     }
   }
 
   @Override
   public void removeView(@NotNull String datasourceName, @NotNull String viewName) {
     Preconditions.checkArgument(!Strings.isNullOrEmpty(datasourceName), "datasourceName cannot be null or empty.");
-
-    ViewAwareDatasource viewAwareDatasource = getViewAwareFromName(datasourceName);
-    if(viewAwareDatasource == null) throw new NoSuchDatasourceException(datasourceName);
-
     Preconditions.checkArgument(!Strings.isNullOrEmpty(viewName), "viewName cannot be null or empty.");
 
-    View view = viewAwareDatasource.getView(viewName);
-    viewAwareDatasource.removeView(viewName);
+    ViewAwareDatasource datasource = getViewAwareDatasource(datasourceName);
+    View view = datasource.getView(viewName);
+    datasource.removeView(viewName);
     try {
-      viewPersistenceStrategy.removeView(viewAwareDatasource.getName(), viewName);
+      viewPersistenceStrategy.removeView(datasource.getName(), viewName);
     } catch(RuntimeException e) {
       // rollback
-      viewAwareDatasource.addView(view);
+      datasource.addView(view);
       throw e;
     }
   }
@@ -102,11 +102,8 @@ public class DefaultViewManagerImpl implements ViewManager, Initialisable, Dispo
   @Override
   public boolean hasView(@NotNull String datasourceName, @NotNull String viewName) {
     Preconditions.checkArgument(!Strings.isNullOrEmpty(datasourceName), "datasourceName cannot be null or empty.");
-    ViewAwareDatasource viewAwareDatasource = getViewAwareFromName(datasourceName);
-    if(viewAwareDatasource == null) throw new NoSuchDatasourceException(datasourceName);
     Preconditions.checkArgument(!Strings.isNullOrEmpty(viewName), "viewName cannot be null or empty.");
-
-    return viewAwareDatasource.hasView(viewName);
+    return getViewAwareDatasource(datasourceName).hasView(viewName);
   }
 
   /**
@@ -122,11 +119,8 @@ public class DefaultViewManagerImpl implements ViewManager, Initialisable, Dispo
   @Override
   public View getView(@NotNull String datasourceName, @NotNull String viewName) {
     Preconditions.checkArgument(!Strings.isNullOrEmpty(datasourceName), "datasourceName cannot be null or empty.");
-    ViewAwareDatasource viewAwareDatasource = getViewAwareFromName(datasourceName);
-    if(viewAwareDatasource == null) throw new NoSuchDatasourceException(datasourceName);
     Preconditions.checkArgument(!Strings.isNullOrEmpty(viewName), "viewName cannot be null or empty.");
-
-    return viewAwareDatasource.getView(viewName);
+    return getViewAwareDatasource(datasourceName).getView(viewName);
   }
 
   @Override
@@ -135,11 +129,14 @@ public class DefaultViewManagerImpl implements ViewManager, Initialisable, Dispo
     viewPersistenceStrategy.writeViews(datasource, views, comment);
   }
 
-  private ViewAwareDatasource getViewAwareFromName(@NotNull String datasourceName) {
-    for(ViewAwareDatasource viewAwareDatasource : viewAwareDatasources) {
-      if(viewAwareDatasource.getName().equals(datasourceName)) return viewAwareDatasource;
+  @NotNull
+  private ViewAwareDatasource getViewAwareDatasource(@NotNull String datasourceName) throws NoSuchDatasourceException {
+    for(ViewAwareDatasource datasource : viewAwareDatasources) {
+      if(datasource.getName().equals(datasourceName)) {
+        return datasource;
+      }
     }
-    return null;
+    throw new NoSuchDatasourceException(datasourceName);
   }
 
   @Override

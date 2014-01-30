@@ -9,4 +9,6 @@ dependencies {
   }
 
   testCompile project(':magma-xstream')
+  testCompile project(':magma-datasource-csv')
+  testCompile(libraries.obiba_core)
 }

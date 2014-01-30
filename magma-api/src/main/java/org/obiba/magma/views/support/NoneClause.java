@@ -2,6 +2,8 @@ package org.obiba.magma.views.support;
 
 import java.util.Collections;
 
+import javax.validation.constraints.NotNull;
+
 import org.obiba.magma.NoSuchVariableException;
 import org.obiba.magma.ValueSet;
 import org.obiba.magma.ValueTable;
@@ -27,6 +29,7 @@ public final class NoneClause implements SelectClause, WhereClause, ListClause {
     return false;
   }
 
+  @NotNull
   @Override
   public VariableValueSource getVariableValueSource(String name) throws NoSuchVariableException {
     throw new NoSuchVariableException("VariableValueSource [" + name + "] not found.");

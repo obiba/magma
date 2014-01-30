@@ -5,7 +5,6 @@ import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.SortedSet;
 
 import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
@@ -19,12 +18,10 @@ import org.obiba.magma.Timestamps;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueSet;
 import org.obiba.magma.ValueTable;
-import org.obiba.magma.ValueType;
 import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.VariableValueSource;
 import org.obiba.magma.VariableValueSourceWrapper;
-import org.obiba.magma.VectorSource;
 import org.obiba.magma.support.AbstractValueTableWrapper;
 import org.obiba.magma.support.AbstractVariableValueSourceWrapper;
 import org.obiba.magma.support.Disposables;
@@ -229,6 +226,7 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
   }
 
   @Override
+  @SuppressWarnings("ChainOfInstanceofChecks")
   public boolean hasValueSet(@Nullable VariableEntity entity) {
     if(entity == null) return false;
 
@@ -452,8 +450,7 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
   }
 
   private boolean hasVariables() {
-    return select != null && !(select instanceof NoneClause) ||
-        variables != null && variables.getVariableValueSources().iterator().hasNext();
+    return !(select instanceof NoneClause) || variables.getVariableValueSources().iterator().hasNext();
   }
 
   protected class ViewVariableValueSource extends AbstractVariableValueSourceWrapper {
