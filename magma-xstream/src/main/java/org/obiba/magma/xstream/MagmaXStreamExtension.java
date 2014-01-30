@@ -8,6 +8,8 @@ import com.google.common.collect.ImmutableMap;
 
 public class MagmaXStreamExtension implements MagmaEngineExtension {
 
+  private static final long serialVersionUID = 4697988112637998169L;
+
   private final transient XStreamFactory currentFactory = new DefaultXStreamFactory();
 
   private final transient Map<String, ? extends XStreamFactory> compatibleFactories = ImmutableMap

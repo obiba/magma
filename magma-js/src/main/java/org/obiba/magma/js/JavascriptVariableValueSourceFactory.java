@@ -9,6 +9,7 @@
  ******************************************************************************/
 package org.obiba.magma.js;
 
+import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -50,7 +51,7 @@ public class JavascriptVariableValueSourceFactory implements VariableValueSource
     return sources.build();
   }
 
-  public void setVariables(Set<Variable> variables) {
+  public void setVariables(Collection<Variable> variables) {
     this.variables = new LinkedHashSet<>();
     if(variables != null) {
       this.variables.addAll(variables);

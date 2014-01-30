@@ -8,6 +8,8 @@ import org.obiba.magma.MagmaEngineExtension;
  */
 public class MagmaJsExtension implements MagmaEngineExtension {
 
+  private static final long serialVersionUID = 2071830136892020358L;
+
   private transient MagmaContextFactory magmaContextFactory = new MagmaContextFactory();
 
   public void setMagmaContextFactory(MagmaContextFactory magmaContextFactory) {

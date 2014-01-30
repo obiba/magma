@@ -46,7 +46,8 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
-@SuppressWarnings({ "IfMayBeConditional", "ChainOfInstanceofChecks", "OverlyCoupledClass" })
+@SuppressWarnings(
+    { "IfMayBeConditional", "ChainOfInstanceofChecks", "OverlyCoupledClass", "StaticMethodOnlyUsedInOneClass" })
 public final class GlobalMethods extends AbstractGlobalMethodProvider {
 
   private static final Logger log = LoggerFactory.getLogger(GlobalMethods.class);
@@ -143,7 +144,6 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
    *
    * @return an instance of {@code ScriptableValue}
    */
-  @SuppressWarnings("UnusedDeclaration")
   public static Scriptable $(Context ctx, Scriptable thisObj, Object[] args, Function funObj) {
     if(args.length != 1) {
       throw new IllegalArgumentException("$() expects exactly one argument: a variable name.");
@@ -157,8 +157,8 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
   }
 
   /**
-   * Allows invoking {@code VariableValueSource#getValue(ValueSet)} and returns a {@code ScriptableValue}. Accessed as $this
-   * in javascript. Argument is expected to be the name of a variable from the current view.
+   * Allows invoking {@code VariableValueSource#getValue(ValueSet)} and returns a {@code ScriptableValue}.
+   * Accessed as $this in javascript. Argument is expected to be the name of a variable from the current view.
    * <p/>
    * <pre>
    *   $this('SMOKER_STATUS')
@@ -234,7 +234,7 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
    * $var('DO_YOU_SMOKE')
    * </pre>
    *
-   * @return an instalce of {@code ScriptableVariable}
+   * @return an instance of {@code ScriptableVariable}
    */
   public static Scriptable $var(Context ctx, Scriptable thisObj, Object[] args, Function funObj) {
     if(args.length != 1) {
@@ -292,7 +292,7 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
     return thisObj;
   }
 
-  private static ScriptableValue valueFromViewContext(MagmaContext context, Scriptable thisObj, String name) {
+  private static Scriptable valueFromViewContext(MagmaContext context, Scriptable thisObj, String name) {
     View view = context.peek(View.class);
 
     MagmaEngineVariableResolver reference = MagmaEngineVariableResolver.valueOf(name);

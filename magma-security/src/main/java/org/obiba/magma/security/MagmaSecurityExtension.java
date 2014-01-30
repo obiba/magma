@@ -6,12 +6,12 @@ import org.obiba.magma.MagmaEngine;
 import org.obiba.magma.MagmaEngineExtension;
 import org.obiba.magma.security.shiro.ShiroAuthorizer;
 import org.obiba.magma.support.Initialisables;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class MagmaSecurityExtension implements MagmaEngineExtension {
 
-  private static final Logger log = LoggerFactory.getLogger(MagmaSecurityExtension.class);
+//  private static final Logger log = LoggerFactory.getLogger(MagmaSecurityExtension.class);
+
+  private static final long serialVersionUID = 8901321475619160822L;
 
   private final Authorizer authorizer = new ShiroAuthorizer();
 

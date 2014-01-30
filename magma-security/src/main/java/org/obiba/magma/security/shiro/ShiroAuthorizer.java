@@ -11,6 +11,8 @@ import org.slf4j.LoggerFactory;
 
 public class ShiroAuthorizer implements Authorizer {
 
+  private static final long serialVersionUID = -3683635184800703377L;
+
   private static final Logger log = LoggerFactory.getLogger(ShiroAuthorizer.class);
 
   @Override
