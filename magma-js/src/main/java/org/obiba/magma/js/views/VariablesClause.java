@@ -24,7 +24,7 @@ import org.obiba.magma.views.ListClause;
  */
 public class VariablesClause implements ListClause, Initialisable {
 
-  private Set<Variable> variables;
+  private Set<Variable> variables = new LinkedHashSet<>();
 
   @SuppressWarnings("TransientFieldInNonSerializableClass")
   private transient ValueTable valueTable;
@@ -36,16 +36,18 @@ public class VariablesClause implements ListClause, Initialisable {
   private transient boolean initialised = false;
 
   public void setVariables(Collection<Variable> variables) {
-    this.variables = new LinkedHashSet<>();
+    this.variables.clear();
     if(variables != null) {
       this.variables.addAll(variables);
     }
   }
 
+  @NotNull
   @Override
   public VariableValueSource getVariableValueSource(String name) throws NoSuchVariableException {
-    if(!initialised)
+    if(!initialised) {
       throw new IllegalStateException("The initialise() method must be called before getVariableValueSource().");
+    }
     for(VariableValueSource variableValueSource : variableValueSources) {
       if(variableValueSource.getVariable().getName().equals(name)) {
         return variableValueSource;
@@ -56,15 +58,17 @@ public class VariablesClause implements ListClause, Initialisable {
 
   @Override
   public Iterable<VariableValueSource> getVariableValueSources() {
-    if(!initialised)
+    if(!initialised) {
       throw new IllegalStateException("The initialise() method must be called before getVariableValueSources().");
+    }
     return variableValueSources;
   }
 
   @Override
   public void initialise() {
-    if(valueTable == null)
+    if(valueTable == null) {
       throw new IllegalStateException("The setValueTable() method must be called before initialise().");
+    }
     JavascriptVariableValueSourceFactory factory = new JavascriptVariableValueSourceFactory();
     factory.setVariables(variables);
     factory.setValueTable(valueTable);
@@ -80,7 +84,8 @@ public class VariablesClause implements ListClause, Initialisable {
   }
 
   @Override
-  public void setValueTable(ValueTable valueTable) {
+  public void setValueTable(@NotNull ValueTable valueTable) {
+    //noinspection ConstantConditions
     if(valueTable == null) throw new IllegalArgumentException("valueTable cannot be null");
     this.valueTable = valueTable;
   }

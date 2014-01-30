@@ -92,7 +92,6 @@ public class ViewAwareDatasource extends AbstractDatasourceWrapper {
     }
   }
 
-  @NotNull
   @Override
   public boolean canRenameTable(String name) {
     return hasView(name) || getWrappedDatasource().canRenameTable(name);
@@ -107,6 +106,7 @@ public class ViewAwareDatasource extends AbstractDatasourceWrapper {
     }
   }
 
+  @NotNull
   @Override
   public Timestamps getTimestamps() {
     final Timestamps ts = super.getTimestamps();
@@ -168,7 +168,8 @@ public class ViewAwareDatasource extends AbstractDatasourceWrapper {
     return views.get(name) != null;
   }
 
-  public View getView(String name) {
+  @NotNull
+  public View getView(String name) throws NoSuchValueTableException {
     View view = views.get(name);
     if(view != null) {
       return view;

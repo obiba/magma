@@ -84,9 +84,6 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
   @NotNull
   @Override
   public Value getValue(ValueSet valueSet) {
-    if(getValueType() == null) {
-      throw new IllegalStateException("valueType must be set before calling getValue().");
-    }
     if(compiledScript == null) {
       initialise();
     }
@@ -105,9 +102,6 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
   @Override
   @SuppressWarnings("unchecked")
   public Iterable<Value> getValues(SortedSet<VariableEntity> entities) {
-    if(getValueType() == null) {
-      throw new IllegalStateException("valueType must be set before calling getValue().");
-    }
     if(compiledScript == null) {
       initialise();
     }
@@ -123,10 +117,6 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
   @Override
   public void initialise() throws EvaluatorException {
     final String script1 = getScript();
-    //noinspection ConstantConditions
-    if(script1 == null) {
-      throw new NullPointerException("script cannot be null");
-    }
     compiledScript = (Script) ContextFactory.getGlobal().call(new ContextAction() {
       @Override
       public Object run(Context cx) {
@@ -272,10 +262,7 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
     }
 
     SortedSet<VariableEntity> getEntities(MagmaContext context) {
-      if(entities == null) {
-        return new TreeSet<>(context.peek(ValueTable.class).getVariableEntities());
-      }
-      return entities;
+      return entities == null ? new TreeSet<>(context.peek(ValueTable.class).getVariableEntities()) : entities;
     }
 
     @Override

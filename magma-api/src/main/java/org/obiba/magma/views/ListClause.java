@@ -1,5 +1,7 @@
 package org.obiba.magma.views;
 
+import javax.validation.constraints.NotNull;
+
 import org.obiba.magma.NoSuchVariableException;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.ValueTableWriter.VariableWriter;
@@ -27,6 +29,7 @@ public interface ListClause {
    * @throws NoSuchVariableException If a {@code Variable} (and thus a {@code VariableValueSource) does not exist with
    * the provided name.
    */
+  @NotNull
   VariableValueSource getVariableValueSource(String name) throws NoSuchVariableException;
 
   /**
