@@ -3,10 +3,8 @@ package org.obiba.magma.security;
 import java.util.ArrayList;
 import java.util.concurrent.Callable;
 
-import org.apache.shiro.subject.ExecutionException;
 import org.obiba.magma.Datasource;
 import org.obiba.magma.MagmaEngine;
-import org.obiba.magma.NoSuchDatasourceException;
 import org.obiba.magma.NoSuchValueTableException;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.support.AbstractDatasourceWrapper;
