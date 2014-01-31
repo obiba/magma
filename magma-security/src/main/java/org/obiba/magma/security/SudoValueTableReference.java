@@ -8,10 +8,10 @@ import org.obiba.magma.MagmaEngine;
 import org.obiba.magma.NoSuchDatasourceException;
 import org.obiba.magma.NoSuchValueTableException;
 import org.obiba.magma.ValueTable;
-import org.obiba.magma.security.permissions.Permissions;
+import org.obiba.magma.support.AbstractDatasourceWrapper;
+import org.obiba.magma.support.StaticDatasource;
 import org.obiba.magma.support.StaticValueTable;
 import org.obiba.magma.support.ValueTableReference;
-import org.obiba.magma.support.ValueTableWrapper;
 
 /**
  * An implementation of {@link ValueTableReference} that uses super user privileges to access the referenced table.
@@ -23,11 +23,11 @@ public class SudoValueTableReference extends ValueTableReference {
 
   private final Authorizer authz;
 
+  private Datasource wrappedDatasource;
+
   public SudoValueTableReference(Authorizer authz, String reference) {
     super(reference);
     this.authz = authz;
-    Permissions.DatasourcePermissionBuilder.forDatasource(getResolver().getDatasourceName())
-        .table(getResolver().getTableName()).read().build();
   }
 
   @Override
@@ -42,31 +42,33 @@ public class SudoValueTableReference extends ValueTableReference {
    * @return
    */
   protected ValueTable sudo() {
-    return authz.silentSudo(new Callable<ValueTable>() {
-
-      @Override
-      public ValueTable call() throws Exception {
-        try {
-          return unwrap(getResolver().resolveTable());
-        } catch(NoSuchValueTableException e1) {
-          return getDummyValueTable();
-        }
+    try {
+      if(wrappedDatasource == null) {
+        wrappedDatasource = authz.silentSudo(new DatasourceCallable());
       }
-
-      // OPAL-1821
-      private ValueTable getDummyValueTable() {
-        try {
-          Datasource ds = MagmaEngine.get().getDatasource(getResolver().getDatasourceName());
-          return new StaticValueTable(ds, getResolver().getTableName(), new ArrayList<String>(), "?");
-        } catch(NoSuchDatasourceException e2) {
-          return new StaticValueTable(getDatasource(), getResolver().getTableName(), new ArrayList<String>(), "?");
-        }
-      }
-    });
+      return wrappedDatasource.getValueTable(getResolver().getTableName());
+    } catch(NoSuchValueTableException e1) {
+      return getDummyValueTable(wrappedDatasource);
+    } catch(NoSuchDatasourceException e2) {
+      Datasource ds = new StaticDatasource(getResolver().getDatasourceName());
+      return getDummyValueTable(ds);
+    }
   }
 
-  protected ValueTable unwrap(ValueTable table) {
-    return table instanceof SecuredValueTable ? ((ValueTableWrapper) table).getWrappedValueTable() : table;
+  // OPAL-1821
+  private ValueTable getDummyValueTable(Datasource ds) {
+    return new StaticValueTable(ds, getResolver().getTableName(), new ArrayList<String>(), "?");
+  }
+
+  private class DatasourceCallable implements Callable<Datasource> {
+    @Override
+    public Datasource call() throws Exception {
+      return unwrap(MagmaEngine.get().getDatasource(getResolver().getDatasourceName()));
+    }
+
+    private Datasource unwrap(Datasource ds) {
+      return ds instanceof SecuredDatasource ? ((AbstractDatasourceWrapper) ds).getWrappedDatasource() : ds;
+    }
   }
 
 }
