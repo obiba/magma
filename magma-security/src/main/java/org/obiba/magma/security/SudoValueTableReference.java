@@ -52,7 +52,7 @@ public class SudoValueTableReference extends ValueTableReference {
       return wrappedDatasource.getValueTable(getResolver().getTableName());
     } catch(NoSuchValueTableException e1) {
       return getDummyValueTable(wrappedDatasource);
-    } catch(NoSuchDatasourceException e2) {
+    } catch(RuntimeException e2) {
       Datasource ds = new StaticDatasource(getResolver().getDatasourceName());
       return getDummyValueTable(ds);
     }
