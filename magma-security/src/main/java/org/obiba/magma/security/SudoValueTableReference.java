@@ -3,6 +3,7 @@ package org.obiba.magma.security;
 import java.util.ArrayList;
 import java.util.concurrent.Callable;
 
+import org.apache.shiro.subject.ExecutionException;
 import org.obiba.magma.Datasource;
 import org.obiba.magma.MagmaEngine;
 import org.obiba.magma.NoSuchDatasourceException;
@@ -12,6 +13,8 @@ import org.obiba.magma.support.AbstractDatasourceWrapper;
 import org.obiba.magma.support.StaticDatasource;
 import org.obiba.magma.support.StaticValueTable;
 import org.obiba.magma.support.ValueTableReference;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * An implementation of {@link ValueTableReference} that uses super user privileges to access the referenced table.
@@ -20,6 +23,8 @@ import org.obiba.magma.support.ValueTableReference;
  * is no longer secured.
  */
 public class SudoValueTableReference extends ValueTableReference {
+
+  private static final Logger log = LoggerFactory.getLogger(SudoValueTableReference.class);
 
   private final Authorizer authz;
 
@@ -48,8 +53,10 @@ public class SudoValueTableReference extends ValueTableReference {
       }
       return wrappedDatasource.getValueTable(getResolver().getTableName());
     } catch(NoSuchValueTableException e1) {
+      log.error("No such value table: {}. {}", getReference(), e1.getMessage());
       return getDummyValueTable(wrappedDatasource);
-    } catch(NoSuchDatasourceException e2) {
+    } catch(RuntimeException e2) {
+      log.error("No such datasource for value table: {}. {}", getReference(), e2.getMessage());
       Datasource ds = new StaticDatasource(getResolver().getDatasourceName());
       return getDummyValueTable(ds);
     }
