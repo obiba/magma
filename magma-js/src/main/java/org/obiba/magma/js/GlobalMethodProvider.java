@@ -3,6 +3,8 @@ package org.obiba.magma.js;
 import java.lang.reflect.Method;
 import java.util.Collection;
 
+import javax.validation.constraints.NotNull;
+
 import org.obiba.magma.js.methods.AbstractGlobalMethodProvider;
 
 /**
@@ -24,6 +26,6 @@ public interface GlobalMethodProvider {
    * @param method the Java method to rename.
    * @return the name of the JavaScript method.
    */
-  String getJavaScriptMethodName(Method method);
+  String getJavaScriptMethodName(@NotNull Method method);
 
 }

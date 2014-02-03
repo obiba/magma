@@ -6,6 +6,8 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
+import javax.validation.constraints.NotNull;
+
 import org.obiba.magma.js.GlobalMethodProvider;
 
 import com.google.common.base.Predicate;
@@ -42,10 +44,11 @@ public abstract class AbstractGlobalMethodProvider implements GlobalMethodProvid
    * returned.
    */
   @Override
-  public String getJavaScriptMethodName(Method method) {
+  public String getJavaScriptMethodName(@NotNull Method method) {
+    //noinspection ConstantConditions
     if(method == null) throw new IllegalArgumentException("method cannot be null");
     String name = getMethodNameMap().get(method.getName());
-    return name != null ? name : method.getName();
+    return name == null ? method.getName() : name;
   }
 
   /**
