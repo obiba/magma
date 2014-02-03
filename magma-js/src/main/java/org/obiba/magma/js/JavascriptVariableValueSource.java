@@ -9,7 +9,6 @@ import org.mozilla.javascript.Scriptable;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.Variable;
 import org.obiba.magma.VariableValueSource;
-import org.obiba.magma.support.MagmaEngineVariableResolver;
 import org.obiba.magma.support.ValueTableWrapper;
 import org.obiba.magma.views.View;
 
@@ -106,11 +105,6 @@ public class JavascriptVariableValueSource extends JavascriptValueSource impleme
 
     public ReferenceNode(@NotNull String variableRef) {
       this.variableRef = variableRef;
-    }
-
-    public ReferenceNode(@NotNull MagmaEngineVariableResolver variableResolver) {
-      this(Variable.Reference.getReference(variableResolver.getDatasourceName(), variableResolver.getTableName(),
-          variableResolver.getVariableName()));
     }
 
     public void setCaller(@NotNull ReferenceNode caller) throws CircularVariableDependencyRuntimeException {

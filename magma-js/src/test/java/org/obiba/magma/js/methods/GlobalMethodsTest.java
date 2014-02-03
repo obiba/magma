@@ -121,8 +121,7 @@ public class GlobalMethodsTest extends AbstractJsTest {
     ValueTable table = viewAwareDatasource.getValueTable("table");
     Variable kgWeight = table.getVariable("weight");
 
-    Variable lbsWeight = new Variable.Builder("weight_in_lbs", IntegerType.get(), table.getEntityType())
-        .addAttribute("script", "$('ds.table:weight') * 2.2").build();
+    Variable lbsWeight = createIntVariable("weight_in_lbs", "$('ds.table:weight') * 2.2");
 
     View viewTemplate = View.Builder.newView("view", table).list(new VariablesClause()).build();
     try(VariableWriter variableWriter = viewTemplate.getListClause().createWriter()) {
@@ -257,7 +256,7 @@ public class GlobalMethodsTest extends AbstractJsTest {
   }
 
   @Test
-  public void test_this() {
+  public void test_$this() {
     CsvDatasource datasource = new CsvDatasource("ds").addValueTable("table", //
         FileUtil.getFileFromResource("org/obiba/magma/js/variables.csv"), //
         FileUtil.getFileFromResource("org/obiba/magma/js/data.csv"));
@@ -269,10 +268,8 @@ public class GlobalMethodsTest extends AbstractJsTest {
     ValueTable table = viewAwareDatasource.getValueTable("table");
     Variable kgWeight = table.getVariable("weight");
 
-    Variable kgWeightRef = new Variable.Builder("weight_in_kg", IntegerType.get(), table.getEntityType())
-        .addAttribute("script", "$('ds.table:weight')").build();
-    Variable lbsWeight = new Variable.Builder("weight_in_lbs", IntegerType.get(), table.getEntityType())
-        .addAttribute("script", "$this('weight_in_kg') * 2.2").build();
+    Variable kgWeightRef = createIntVariable("weight_in_kg", "$('ds.table:weight')");
+    Variable lbsWeight = createIntVariable("weight_in_lbs", "$this('weight_in_kg') * 2.2");
 
     View viewTemplate = View.Builder.newView("view", table).list(new VariablesClause()).build();
     try(VariableWriter variableWriter = viewTemplate.getListClause().createWriter()) {
@@ -299,7 +296,40 @@ public class GlobalMethodsTest extends AbstractJsTest {
   }
 
   @Test
-  public void test_this_inside_this() {
+  public void test_$this_self_reference() {
+    CsvDatasource datasource = new CsvDatasource("ds").addValueTable("table", //
+        FileUtil.getFileFromResource("org/obiba/magma/js/variables.csv"), //
+        FileUtil.getFileFromResource("org/obiba/magma/js/data.csv"));
+
+    ViewManager viewManager = new DefaultViewManagerImpl(new MemoryViewPersistenceStrategy());
+    Datasource viewAwareDatasource = viewManager.decorate(datasource);
+    MagmaEngine.get().addDatasource(viewAwareDatasource);
+
+    ValueTable table = viewAwareDatasource.getValueTable("table");
+
+    Variable circular = createIntVariable("circular", "$this('circular')");
+    View viewTemplate = View.Builder.newView("view", table).list(new VariablesClause()).build();
+    try(VariableWriter variableWriter = viewTemplate.getListClause().createWriter()) {
+      variableWriter.writeVariable(circular);
+    }
+    viewManager.addView("ds", viewTemplate, null);
+
+    try {
+      View view = viewManager.getView("ds", "view");
+      for(ValueSet valueSet : view.getValueSets()) {
+        view.getValue(circular, valueSet);
+      }
+      fail("Should throw CircularVariableDependencyRuntimeException");
+    } catch(Exception e) {
+      Throwable cause = e.getCause();
+      assertThat(cause).isNotNull();
+      assertThat(cause).isInstanceOf(CircularVariableDependencyRuntimeException.class);
+      assertThat(((CircularVariableDependencyRuntimeException) cause).getVariableRef()).isEqualTo("ds.view:circular");
+    }
+  }
+
+  @Test
+  public void test_inner_$this() {
 
   }
 
