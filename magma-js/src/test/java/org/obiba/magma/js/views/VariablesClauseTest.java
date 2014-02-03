@@ -90,6 +90,7 @@ public class VariablesClauseTest extends AbstractJsTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void test_setValueTable_ThrowsIllegalArgumentWhenNull() {
+    //noinspection ConstantConditions
     new VariablesClause().setValueTable(null);
   }
 
@@ -133,6 +134,7 @@ public class VariablesClauseTest extends AbstractJsTest {
     VariableValueSource variableValueSource = createMock(VariableValueSource.class);
     Variable variable = createMock(Variable.class);
 
+    expect(table.getTableReference()).andReturn("table").anyTimes();
     expect(valueSet.getValueTable()).andReturn(table).anyTimes();
     expect(valueSet.getVariableEntity()).andReturn(createMock(VariableEntity.class));
     expect(table.getVariable("HealthQuestionnaireIdentification.SEX"))
@@ -188,34 +190,34 @@ public class VariablesClauseTest extends AbstractJsTest {
 
   @Test
   public void testSameAsWithExplicitScriptValue() throws Exception {
-    ValueTable valueTableMock = createMock(ValueTable.class);
-    ValueSet valueSetMock = createMock(ValueSet.class);
-    VariableValueSource variableValueSourceMock = createMock(VariableValueSource.class);
-    Variable mockVariable = createMock(Variable.class);
+    ValueTable table = createMock(ValueTable.class);
+    ValueSet valueSet = createMock(ValueSet.class);
+    VariableValueSource variableSource = createMock(VariableValueSource.class);
+    Variable variable = createMock(Variable.class);
 
-    expect(valueSetMock.getValueTable()).andReturn(valueTableMock).anyTimes();
-    expect(valueSetMock.getVariableEntity()).andReturn(createMock(VariableEntity.class)).anyTimes();
-    expect(valueTableMock.getVariable("HealthQuestionnaireIdentification.SEX"))
+    expect(table.getTableReference()).andReturn("table").anyTimes();
+    expect(valueSet.getValueTable()).andReturn(table).anyTimes();
+    expect(valueSet.getVariableEntity()).andReturn(createMock(VariableEntity.class)).anyTimes();
+    expect(table.getVariable("HealthQuestionnaireIdentification.SEX"))
         .andReturn(buildHealthQuestionnaireIdentificationSex()).once();
-    expect(valueTableMock.getVariableValueSource("HealthQuestionnaireIdentification.SEX"))
-        .andReturn(variableValueSourceMock).once();
-    expect(valueTableMock.isView()).andReturn(false).atLeastOnce();
-    expect(variableValueSourceMock.getValue(valueSetMock)).andReturn(healthQuestionnaireIdentificationSexValue).once();
-    expect(variableValueSourceMock.getVariable()).andReturn(mockVariable).once();
-    expect(mockVariable.getUnit()).andReturn(null).once();
+    expect(table.getVariableValueSource("HealthQuestionnaireIdentification.SEX")).andReturn(variableSource).once();
+    expect(table.isView()).andReturn(false).atLeastOnce();
+    expect(variableSource.getValue(valueSet)).andReturn(healthQuestionnaireIdentificationSexValue).once();
+    expect(variableSource.getVariable()).andReturn(variable).once();
+    expect(variable.getUnit()).andReturn(null).once();
 
-    replay(valueSetMock, valueTableMock, variableValueSourceMock, mockVariable);
+    replay(valueSet, table, variableSource, variable);
 
     VariablesClause clause = new VariablesClause();
-    clause.setValueTable(valueTableMock);
+    clause.setValueTable(table);
     clause.setVariables(variables);
     Initialisables.initialise(clause);
     VariableValueSource variableValueSource = clause.getVariableValueSource("GENERIC_129");
 
     assertThat(variableValueSource).isNotNull();
 
-    Value result = variableValueSource.getValue(valueSetMock);
-    verify(valueSetMock, valueTableMock, variableValueSourceMock, mockVariable);
+    Value result = variableValueSource.getValue(valueSet);
+    verify(valueSet, table, variableSource, variable);
 
     assertThat(result.getValueType()).isEqualTo(IntegerType.get());
     assertThat(result).isEqualTo(IntegerType.get().valueOf(5));
