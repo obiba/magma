@@ -14,11 +14,10 @@ import org.obiba.magma.type.DecimalType;
 import org.obiba.magma.type.IntegerType;
 import org.obiba.magma.type.TextType;
 
-import static org.easymock.EasyMock.createMock;
-import static org.easymock.EasyMock.expect;
-import static org.easymock.EasyMock.replay;
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class JavascriptValueSourceTest extends AbstractJsTest {
 
@@ -26,10 +25,9 @@ public class JavascriptValueSourceTest extends AbstractJsTest {
 
   @Before
   public void setup() {
-    mockValueSet = createMock(ValueSet.class);
-    expect(mockValueSet.getValueTable()).andReturn(createMock(ValueTable.class)).anyTimes();
-    expect(mockValueSet.getVariableEntity()).andReturn(createMock(VariableEntity.class)).anyTimes();
-    replay(mockValueSet);
+    mockValueSet = mock(ValueSet.class);
+    when(mockValueSet.getValueTable()).thenReturn(mock(ValueTable.class));
+    when(mockValueSet.getVariableEntity()).thenReturn(mock(VariableEntity.class));
   }
 
   @Test
@@ -64,7 +62,7 @@ public class JavascriptValueSourceTest extends AbstractJsTest {
     source.setScriptName("Bogus");
     try {
       source.initialise();
-      fail("Exception was expected");
+      fail("EvaluatorException was expected");
     } catch(EvaluatorException e) {
       assertThat(e.sourceName()).isEqualTo("Bogus");
       assertThat(e.lineNumber()).isEqualTo(2);
