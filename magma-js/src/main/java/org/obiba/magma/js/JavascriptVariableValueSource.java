@@ -13,6 +13,7 @@ import org.obiba.magma.support.MagmaEngineVariableResolver;
 import org.obiba.magma.support.ValueTableWrapper;
 import org.obiba.magma.views.View;
 
+import com.google.common.base.Objects;
 import com.google.common.collect.Sets;
 
 public class JavascriptVariableValueSource extends JavascriptValueSource implements VariableValueSource {
@@ -65,16 +66,21 @@ public class JavascriptVariableValueSource extends JavascriptValueSource impleme
   @Override
   protected void enterContext(MagmaContext context, Scriptable scope) {
     super.enterContext(context, scope);
+    ReferenceNode referenceNode = null;
     if(valueTable == null) {
-      context.push(ReferenceNode.class, new ReferenceNode(variable.getName()));
+      referenceNode = new ReferenceNode(variable.getName());
     } else {
       context.push(ValueTable.class, getValueTable());
       if(valueTable.isView()) {
         context.push(View.class, (View) valueTable);
       }
-      context.push(ReferenceNode.class, new ReferenceNode(variable.getVariableReference(valueTable)));
+      referenceNode = new ReferenceNode(variable.getVariableReference(valueTable));
     }
     context.push(Variable.class, variable);
+
+    if(!context.has(ReferenceNode.class)) {
+      context.push(ReferenceNode.class, referenceNode);
+    }
   }
 
   @Override
@@ -145,6 +151,10 @@ public class JavascriptVariableValueSource extends JavascriptValueSource impleme
       return variableRef.hashCode();
     }
 
+    @Override
+    public String toString() {
+      return Objects.toStringHelper(this).omitNullValues().addValue(variableRef).add("caller", caller).toString();
+    }
   }
 
 }
