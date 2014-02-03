@@ -30,7 +30,6 @@ import org.obiba.magma.js.CircularVariableDependencyRuntimeException;
 import org.obiba.magma.js.JavascriptValueSource.VectorCache;
 import org.obiba.magma.js.MagmaContext;
 import org.obiba.magma.js.MagmaJsEvaluationRuntimeException;
-import org.obiba.magma.js.MagmaJsRuntimeException;
 import org.obiba.magma.js.ScriptableValue;
 import org.obiba.magma.js.ScriptableVariable;
 import org.obiba.magma.support.MagmaEngineVariableResolver;
@@ -335,13 +334,12 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
   }
 
   private static void checkCircularDependencies(MagmaContext context, ReferenceNode callee)
-  throws CircularVariableDependencyRuntimeException {
-    if(!context.has(ReferenceNode.class)) {
-      throw new MagmaJsRuntimeException("No ReferenceNode in context");
+      throws CircularVariableDependencyRuntimeException {
+    if(context.has(ReferenceNode.class)) {
+      ReferenceNode caller = context.peek(ReferenceNode.class);
+      callee.setCaller(caller);
+      context.push(ReferenceNode.class, callee);
     }
-    ReferenceNode caller = context.peek(ReferenceNode.class);
-    callee.setCaller(caller);
-    context.push(ReferenceNode.class, callee);
   }
 
   private static ScriptableValue valuesForVector(MagmaContext context, Scriptable thisObj, VariableValueSource source) {
