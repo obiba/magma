@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.junit.Test;
 import org.mozilla.javascript.NativeArray;
+import org.mozilla.javascript.WrappedException;
 import org.obiba.core.util.FileUtil;
 import org.obiba.magma.Datasource;
 import org.obiba.magma.MagmaEngine;
@@ -25,8 +26,6 @@ import org.obiba.magma.views.DefaultViewManagerImpl;
 import org.obiba.magma.views.MemoryViewPersistenceStrategy;
 import org.obiba.magma.views.View;
 import org.obiba.magma.views.ViewManager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
@@ -36,7 +35,7 @@ import static org.obiba.magma.ValueTableWriter.VariableWriter;
 @SuppressWarnings({ "OverlyLongMethod", "PMD.NcssMethodCount", "OverlyCoupledClass" })
 public class GlobalMethodsTest extends AbstractJsTest {
 
-  private static final Logger log = LoggerFactory.getLogger(GlobalMethodsTest.class);
+//  private static final Logger log = LoggerFactory.getLogger(GlobalMethodsTest.class);
 
   @Test
   public void test_newValue_inferred_int() throws Exception {
@@ -204,8 +203,8 @@ public class GlobalMethodsTest extends AbstractJsTest {
       for(ValueSet valueSet : view.getValueSets()) {
         view.getValue(circular, valueSet);
       }
-      fail("Should throw CircularVariableDependencyRuntimeException");
-    } catch(Exception e) {
+      fail("Should throw WrappedException");
+    } catch(WrappedException e) {
       Throwable cause = e.getCause();
       assertThat(cause).isNotNull();
       assertThat(cause).isInstanceOf(CircularVariableDependencyRuntimeException.class);
@@ -246,8 +245,8 @@ public class GlobalMethodsTest extends AbstractJsTest {
       for(ValueSet valueSet : view.getValueSets()) {
         view.getValue(varA, valueSet);
       }
-      fail("Should throw CircularVariableDependencyRuntimeException");
-    } catch(Exception e) {
+      fail("Should throw WrappedException");
+    } catch(WrappedException e) {
       Throwable cause = e.getCause();
       assertThat(cause).isNotNull();
       assertThat(cause).isInstanceOf(CircularVariableDependencyRuntimeException.class);
@@ -319,8 +318,8 @@ public class GlobalMethodsTest extends AbstractJsTest {
       for(ValueSet valueSet : view.getValueSets()) {
         view.getValue(circular, valueSet);
       }
-      fail("Should throw CircularVariableDependencyRuntimeException");
-    } catch(Exception e) {
+      fail("Should throw WrappedException");
+    } catch(WrappedException e) {
       Throwable cause = e.getCause();
       assertThat(cause).isNotNull();
       assertThat(cause).isInstanceOf(CircularVariableDependencyRuntimeException.class);
@@ -391,8 +390,8 @@ public class GlobalMethodsTest extends AbstractJsTest {
       for(ValueSet valueSet : view.getValueSets()) {
         view.getValue(varA, valueSet);
       }
-      fail("Should throw CircularVariableDependencyRuntimeException");
-    } catch(Exception e) {
+      fail("Should throw WrappedException");
+    } catch(WrappedException e) {
       Throwable cause = e.getCause();
       assertThat(cause).isNotNull();
       assertThat(cause).isInstanceOf(CircularVariableDependencyRuntimeException.class);
