@@ -452,4 +452,18 @@ public interface Variable extends AttributeAware {
     void visit(Builder builder);
 
   }
+
+  class Reference {
+
+    private Reference() {}
+
+    public static String getReference(@NotNull ValueTable table, Variable variable) {
+      return table.getTableReference() + ":" + variable.getName();
+    }
+
+    public static String getReference(String datasource, String table, String variable) {
+      return ValueTable.Reference.getReference(datasource, table) + ":" + variable;
+    }
+
+  }
 }

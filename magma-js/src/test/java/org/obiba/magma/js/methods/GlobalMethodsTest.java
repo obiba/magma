@@ -16,6 +16,7 @@ import org.obiba.magma.ValueTable;
 import org.obiba.magma.Variable;
 import org.obiba.magma.datasource.csv.CsvDatasource;
 import org.obiba.magma.js.AbstractJsTest;
+import org.obiba.magma.js.CircularVariableDependencyRuntimeException;
 import org.obiba.magma.js.ScriptableValue;
 import org.obiba.magma.js.views.VariablesClause;
 import org.obiba.magma.type.IntegerType;
@@ -28,6 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static org.fest.assertions.api.Assertions.assertThat;
+import static org.junit.Assert.fail;
 import static org.mozilla.javascript.Context.getCurrentContext;
 import static org.obiba.magma.ValueTableWriter.VariableWriter;
 
@@ -141,7 +143,7 @@ public class GlobalMethodsTest extends AbstractJsTest {
   }
 
   @Test
-  public void test_$_recursive_error() {
+  public void test_$_basic_recursive_error() {
     CsvDatasource datasource = new CsvDatasource("ds").addValueTable("table", //
         FileUtil.getFileFromResource("org/obiba/magma/js/variables.csv"), //
         FileUtil.getFileFromResource("org/obiba/magma/js/data.csv"));
@@ -152,8 +154,8 @@ public class GlobalMethodsTest extends AbstractJsTest {
 
     ValueTable table = viewAwareDatasource.getValueTable("table");
 
-    Variable viewVariable = new Variable.Builder("viewVariable", TextType.get(), table.getEntityType())
-        .addAttribute("script", "$('ds.view:viewVariable')").build();
+    Variable viewVariable = new Variable.Builder("circular", TextType.get(), table.getEntityType())
+        .addAttribute("script", "$('ds.view:circular')").build();
 
     View viewTemplate = View.Builder.newView("view", table).list(new VariablesClause()).build();
     try(VariableWriter variableWriter = viewTemplate.getListClause().createWriter()) {
@@ -161,11 +163,22 @@ public class GlobalMethodsTest extends AbstractJsTest {
     }
     viewManager.addView("ds", viewTemplate, null);
 
-    View view = viewManager.getView("ds", "view");
-    for(ValueSet valueSet : view.getValueSets()) {
-      Value value = view.getValue(viewVariable, valueSet);
-      log.debug("value: {}", value);
+    try {
+      View view = viewManager.getView("ds", "view");
+      for(ValueSet valueSet : view.getValueSets()) {
+        view.getValue(viewVariable, valueSet);
+      }
+      fail("Should throw CircularVariableDependencyRuntimeException");
+    } catch(Exception e) {
+      Throwable cause = e.getCause();
+      assertThat(cause).isNotNull();
+      assertThat(cause).isInstanceOf(CircularVariableDependencyRuntimeException.class);
     }
+  }
+
+  @Test
+  public void test_this_inside_this() {
+
   }
 
 }

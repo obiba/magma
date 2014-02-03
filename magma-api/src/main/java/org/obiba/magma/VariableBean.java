@@ -145,7 +145,6 @@ class VariableBean extends AbstractAttributeAware implements Variable, Serializa
           return getValueType().valueOf(input.getName());
         }
       });
-
     }
     return categoriesAsValue;
   }
@@ -160,7 +159,7 @@ class VariableBean extends AbstractAttributeAware implements Variable, Serializa
 
   @Override
   public String getVariableReference(@NotNull ValueTable table) {
-    return table.getTableReference() + ":" + getName();
+    return Variable.Reference.getReference(table, this);
   }
 
   @Override

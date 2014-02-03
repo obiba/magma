@@ -1,3 +1,4 @@
-name,valueType,entityType,mimeType,unit,repeatable,occurrenceGroup,categories:en,label:en,ns1::attr,ns2::attr:en
-var1,text,Participant,,,,,Y=yes;N=no;PNA=prefer not to answer;DNK=don't know,"Hello I'm variable one","ns1","ns2"
-var2,integer,Participant,,,,,,"Hello I'm variable two","ns1","ns2"
+name,valueType,entityType,mimeType,unit,repeatable,occurrenceGroup
+age,integer,Participant,,,,
+weight,integer,Participant,,kg,,
+height,integer,Participant,,cm,,

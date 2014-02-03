@@ -1,5 +1,7 @@
 package org.obiba.magma.js;
 
+import java.util.Collection;
+
 import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 
@@ -7,8 +9,11 @@ import org.mozilla.javascript.Scriptable;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.Variable;
 import org.obiba.magma.VariableValueSource;
+import org.obiba.magma.support.MagmaEngineVariableResolver;
 import org.obiba.magma.support.ValueTableWrapper;
 import org.obiba.magma.views.View;
+
+import com.google.common.collect.Sets;
 
 public class JavascriptVariableValueSource extends JavascriptValueSource implements VariableValueSource {
 
@@ -52,32 +57,94 @@ public class JavascriptVariableValueSource extends JavascriptValueSource impleme
 
   @Nullable
   public ValueTable getValueTable() {
-    if(valueTable != null && valueTable.isView()) return ((ValueTableWrapper) valueTable).getWrappedValueTable();
-    return valueTable;
+    return valueTable != null && valueTable.isView()
+        ? ((ValueTableWrapper) valueTable).getWrappedValueTable()
+        : valueTable;
   }
 
   @Override
-  protected void enterContext(MagmaContext ctx, Scriptable scope) {
-    super.enterContext(ctx, scope);
-    if(valueTable != null) {
-      ctx.push(ValueTable.class, getValueTable());
+  protected void enterContext(MagmaContext context, Scriptable scope) {
+    super.enterContext(context, scope);
+    if(valueTable == null) {
+      context.push(ReferenceNode.class, new ReferenceNode(variable.getName()));
+    } else {
+      context.push(ValueTable.class, getValueTable());
       if(valueTable.isView()) {
-        ctx.push(View.class, (View) valueTable);
+        context.push(View.class, (View) valueTable);
       }
+      context.push(ReferenceNode.class, new ReferenceNode(variable.getVariableReference(valueTable)));
     }
-    ctx.push(Variable.class, variable);
+    context.push(Variable.class, variable);
   }
 
   @Override
-  protected void exitContext(MagmaContext ctx) {
-    super.exitContext(ctx);
+  protected void exitContext(MagmaContext context) {
+    super.exitContext(context);
     if(valueTable != null) {
-      ctx.pop(ValueTable.class);
+      context.pop(ValueTable.class);
       if(valueTable.isView()) {
-        ctx.pop(View.class);
+        context.pop(View.class);
       }
     }
-    ctx.pop(Variable.class);
+    context.pop(Variable.class);
+    context.pop(ReferenceNode.class);
+  }
+
+  public static class ReferenceNode {
+
+    @NotNull
+    private final String variableRef;
+
+    @Nullable
+    private ReferenceNode caller;
+
+    public ReferenceNode(@NotNull String variableRef) {
+      this.variableRef = variableRef;
+    }
+
+    public ReferenceNode(@NotNull MagmaEngineVariableResolver variableResolver) {
+      this(Variable.Reference.getReference(variableResolver.getDatasourceName(), variableResolver.getTableName(),
+          variableResolver.getVariableName()));
+    }
+
+    public void setCaller(@NotNull ReferenceNode caller) throws CircularVariableDependencyRuntimeException {
+      checkCircularDependencies(caller, Sets.newHashSet(this));
+      this.caller = caller;
+    }
+
+    private void checkCircularDependencies(@Nullable ReferenceNode node, Collection<ReferenceNode> callers)
+        throws CircularVariableDependencyRuntimeException {
+      if(node == null) return;
+      if(callers.contains(node)) {
+        throw new CircularVariableDependencyRuntimeException(node);
+      }
+      callers.add(node);
+      checkCircularDependencies(node.getCaller(), callers);
+    }
+
+    @NotNull
+    public String getVariableRef() {
+      return variableRef;
+    }
+
+    @Nullable
+    public ReferenceNode getCaller() {
+      return caller;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      if(this == o) return true;
+      if(!(o instanceof ReferenceNode)) return false;
+      ReferenceNode that = (ReferenceNode) o;
+      return variableRef.equals(that.variableRef);
+    }
+
+    @Override
+    public int hashCode() {
+      return variableRef.hashCode();
+    }
+
   }
 
 }

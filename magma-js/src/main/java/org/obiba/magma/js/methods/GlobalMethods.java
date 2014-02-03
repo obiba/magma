@@ -3,7 +3,6 @@ package org.obiba.magma.js.methods;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -27,12 +26,13 @@ import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.VariableValueSource;
 import org.obiba.magma.VectorSource;
+import org.obiba.magma.js.CircularVariableDependencyRuntimeException;
 import org.obiba.magma.js.JavascriptValueSource.VectorCache;
 import org.obiba.magma.js.MagmaContext;
 import org.obiba.magma.js.MagmaJsEvaluationRuntimeException;
+import org.obiba.magma.js.MagmaJsRuntimeException;
 import org.obiba.magma.js.ScriptableValue;
 import org.obiba.magma.js.ScriptableVariable;
-import org.obiba.magma.support.MagmaEngineReferenceResolver;
 import org.obiba.magma.support.MagmaEngineVariableResolver;
 import org.obiba.magma.support.VariableEntityBean;
 import org.obiba.magma.type.DateTimeType;
@@ -47,6 +47,8 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+
+import static org.obiba.magma.js.JavascriptVariableValueSource.ReferenceNode;
 
 @SuppressWarnings(
     { "IfMayBeConditional", "ChainOfInstanceofChecks", "OverlyCoupledClass", "StaticMethodOnlyUsedInOneClass" })
@@ -314,23 +316,26 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
   }
 
   private static ScriptableValue valueFromContext(MagmaContext context, Scriptable thisObj, String name) {
-    ValueTable valueTable = context.peek(ValueTable.class);
-
     MagmaEngineVariableResolver reference = MagmaEngineVariableResolver.valueOf(name);
+    checkCircularDependencies(context, reference);
 
-    ReferenceResolverCounter resolverCounter = context.has(ReferenceResolverCounter.class) ? context
-        .pop(ReferenceResolverCounter.class) : new ReferenceResolverCounter();
-    resolverCounter.addResolver(reference);
-    context.push(ReferenceResolverCounter.class, resolverCounter);
-
+    ValueTable valueTable = context.peek(ValueTable.class);
     VariableValueSource source = reference.resolveSource(valueTable);
-
-    log.info("getValue for {}: {}", source.getVariable().getName(), resolverCounter.getNbResolvers());
-
     // Test whether this is a vector-oriented evaluation or a ValueSet-oriented evaluation
     return context.has(VectorCache.class)
         ? valuesForVector(context, thisObj, source)
         : valueForValueSet(context, thisObj, reference, source);
+  }
+
+  private static void checkCircularDependencies(MagmaContext context, MagmaEngineVariableResolver reference)
+      throws CircularVariableDependencyRuntimeException {
+    if(!context.has(ReferenceNode.class)) {
+      throw new MagmaJsRuntimeException("No ReferenceNode in context");
+    }
+    ReferenceNode caller = context.peek(ReferenceNode.class);
+    ReferenceNode callee = new ReferenceNode(reference);
+    callee.setCaller(caller);
+    context.push(ReferenceNode.class, callee);
   }
 
   private static ScriptableValue valuesForVector(MagmaContext context, Scriptable thisObj, VariableValueSource source) {
@@ -622,19 +627,5 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
     public boolean apply(@Nullable Value input) {
       return Objects.equal(input, criteriaValue);
     }
-  }
-
-  private static class ReferenceResolverCounter {
-
-    private final Collection<MagmaEngineReferenceResolver> resolvers = new ArrayList<>();
-
-    private void addResolver(MagmaEngineReferenceResolver resolver) {
-      resolvers.add(resolver);
-    }
-
-    private int getNbResolvers() {
-      return resolvers.size();
-    }
-
   }
 }
