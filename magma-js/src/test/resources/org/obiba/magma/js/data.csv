@@ -1,5 +1,4 @@
-entity_id,var1,var2
-1,Y,11
-2,N,12
-3,PNA,13
-4,DNK,14
+entity_id,age,weight,height
+1,40,75,180
+2,30,70,175
+3,35,95,185

@@ -46,4 +46,14 @@ public interface ValueTable extends Timestamped {
 
   String getTableReference();
 
+  class Reference {
+
+    private Reference() {}
+
+    public static String getReference(String datasource, String table) {
+      return datasource + "." + table;
+    }
+
+  }
+
 }

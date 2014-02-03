@@ -157,13 +157,11 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
       Scriptable scope = context.newLocalScope();
 
       enterContext(context, scope);
-      Object result = null;
       try {
-        result = eval(context, scope);
+        return eval(context, scope);
       } finally {
         exitContext(context);
       }
-      return result;
     }
 
     void enterContext(MagmaContext context, Scriptable scope) {
