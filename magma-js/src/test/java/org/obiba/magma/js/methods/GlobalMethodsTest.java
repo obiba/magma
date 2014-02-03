@@ -1,7 +1,7 @@
 package org.obiba.magma.js.methods;
 
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.List;
 
 import org.junit.Test;
 import org.mozilla.javascript.NativeArray;
@@ -33,6 +33,7 @@ import static org.junit.Assert.fail;
 import static org.mozilla.javascript.Context.getCurrentContext;
 import static org.obiba.magma.ValueTableWriter.VariableWriter;
 
+@SuppressWarnings({ "OverlyLongMethod", "PMD.NcssMethodCount", "OverlyCoupledClass" })
 public class GlobalMethodsTest extends AbstractJsTest {
 
   private static final Logger log = LoggerFactory.getLogger(GlobalMethodsTest.class);
@@ -118,32 +119,36 @@ public class GlobalMethodsTest extends AbstractJsTest {
     MagmaEngine.get().addDatasource(viewAwareDatasource);
 
     ValueTable table = viewAwareDatasource.getValueTable("table");
-    Variable tableVariable = table.getVariable("var1");
+    Variable kgWeight = table.getVariable("weight");
 
-    Variable viewVariable = new Variable.Builder("viewVariable", TextType.get(), table.getEntityType())
-        .addAttribute("script", "$('ds.table:var1')").build();
+    Variable lbsWeight = new Variable.Builder("weight_in_lbs", IntegerType.get(), table.getEntityType())
+        .addAttribute("script", "$('ds.table:weight') * 2.2").build();
 
     View viewTemplate = View.Builder.newView("view", table).list(new VariablesClause()).build();
     try(VariableWriter variableWriter = viewTemplate.getListClause().createWriter()) {
-      variableWriter.writeVariable(viewVariable);
+      variableWriter.writeVariable(lbsWeight);
     }
     viewManager.addView("ds", viewTemplate, null);
 
-    Collection<String> tableValues = new ArrayList<>();
+    List<Long> tableValues = new ArrayList<>();
     for(ValueSet valueSet : viewAwareDatasource.getValueTable("table").getValueSets()) {
-      tableValues.add(table.getValue(tableVariable, valueSet).toString());
+      tableValues.add((Long) table.getValue(kgWeight, valueSet).getValue());
     }
 
-    Collection<String> viewValues = new ArrayList<>();
+    List<Long> viewValues = new ArrayList<>();
     View view = viewManager.getView("ds", "view");
     for(ValueSet valueSet : view.getValueSets()) {
-      viewValues.add(view.getValue(viewVariable, valueSet).toString());
+      viewValues.add((Long) view.getValue(lbsWeight, valueSet).getValue());
     }
-    assertThat(tableValues).isEqualTo(viewValues);
+    for(int i = 0; i < viewValues.size(); i++) {
+      Long kg = tableValues.get(i);
+      Long lbs = viewValues.get(i);
+      assertThat(lbs).isEqualTo((long) (kg * 2.2));
+    }
   }
 
   @Test
-  public void test_$_basic_recursive_error() {
+  public void test_$_dependencies() {
     CsvDatasource datasource = new CsvDatasource("ds").addValueTable("table", //
         FileUtil.getFileFromResource("org/obiba/magma/js/variables.csv"), //
         FileUtil.getFileFromResource("org/obiba/magma/js/data.csv"));
@@ -154,31 +159,110 @@ public class GlobalMethodsTest extends AbstractJsTest {
 
     ValueTable table = viewAwareDatasource.getValueTable("table");
 
-    Variable viewVariable = new Variable.Builder("circular", TextType.get(), table.getEntityType())
-        .addAttribute("script", "$('ds.view:circular')").build();
+    Variable varA = createIntVariable("A", "$('ds.view:B') + $('ds.view:C')");
+    Variable varB = createIntVariable("B", "10");
+    Variable varC = createIntVariable("C", "$('ds.view:D') * 10");
+    Variable varD = createIntVariable("D", "$('ds.view:E') + 5");
+    Variable varE = createIntVariable("E", "5");
 
     View viewTemplate = View.Builder.newView("view", table).list(new VariablesClause()).build();
     try(VariableWriter variableWriter = viewTemplate.getListClause().createWriter()) {
-      variableWriter.writeVariable(viewVariable);
+      variableWriter.writeVariable(varA);
+      variableWriter.writeVariable(varB);
+      variableWriter.writeVariable(varC);
+      variableWriter.writeVariable(varD);
+      variableWriter.writeVariable(varE);
+    }
+    viewManager.addView("ds", viewTemplate, null);
+
+    View view = viewManager.getView("ds", "view");
+    for(ValueSet valueSet : view.getValueSets()) {
+      view.getValue(varA, valueSet);
+    }
+  }
+
+  @Test
+  public void test_$_self_reference() {
+    CsvDatasource datasource = new CsvDatasource("ds").addValueTable("table", //
+        FileUtil.getFileFromResource("org/obiba/magma/js/variables.csv"), //
+        FileUtil.getFileFromResource("org/obiba/magma/js/data.csv"));
+
+    ViewManager viewManager = new DefaultViewManagerImpl(new MemoryViewPersistenceStrategy());
+    Datasource viewAwareDatasource = viewManager.decorate(datasource);
+    MagmaEngine.get().addDatasource(viewAwareDatasource);
+
+    ValueTable table = viewAwareDatasource.getValueTable("table");
+
+    Variable circular = createIntVariable("circular", "$('ds.view:circular')");
+    View viewTemplate = View.Builder.newView("view", table).list(new VariablesClause()).build();
+    try(VariableWriter variableWriter = viewTemplate.getListClause().createWriter()) {
+      variableWriter.writeVariable(circular);
     }
     viewManager.addView("ds", viewTemplate, null);
 
     try {
       View view = viewManager.getView("ds", "view");
       for(ValueSet valueSet : view.getValueSets()) {
-        view.getValue(viewVariable, valueSet);
+        view.getValue(circular, valueSet);
       }
       fail("Should throw CircularVariableDependencyRuntimeException");
     } catch(Exception e) {
       Throwable cause = e.getCause();
       assertThat(cause).isNotNull();
       assertThat(cause).isInstanceOf(CircularVariableDependencyRuntimeException.class);
+      assertThat(((CircularVariableDependencyRuntimeException) cause).getVariableRef()).isEqualTo("ds.view:circular");
+    }
+  }
+
+  @Test
+  public void test_$_circular_dependencies() {
+    CsvDatasource datasource = new CsvDatasource("ds").addValueTable("table", //
+        FileUtil.getFileFromResource("org/obiba/magma/js/variables.csv"), //
+        FileUtil.getFileFromResource("org/obiba/magma/js/data.csv"));
+
+    ViewManager viewManager = new DefaultViewManagerImpl(new MemoryViewPersistenceStrategy());
+    Datasource viewAwareDatasource = viewManager.decorate(datasource);
+    MagmaEngine.get().addDatasource(viewAwareDatasource);
+
+    ValueTable table = viewAwareDatasource.getValueTable("table");
+
+    Variable varA = createIntVariable("A", "$('ds.view:B') + $('ds.view:C')");
+    Variable varB = createIntVariable("B", "10");
+    Variable varC = createIntVariable("C", "$('ds.view:D') * 10");
+    Variable varD = createIntVariable("D", "$('ds.view:E') + 5");
+    Variable varE = createIntVariable("E", "$('ds.view:A')");
+
+    View viewTemplate = View.Builder.newView("view", table).list(new VariablesClause()).build();
+    try(VariableWriter variableWriter = viewTemplate.getListClause().createWriter()) {
+      variableWriter.writeVariable(varA);
+      variableWriter.writeVariable(varB);
+      variableWriter.writeVariable(varC);
+      variableWriter.writeVariable(varD);
+      variableWriter.writeVariable(varE);
+    }
+    viewManager.addView("ds", viewTemplate, null);
+
+    try {
+      View view = viewManager.getView("ds", "view");
+      for(ValueSet valueSet : view.getValueSets()) {
+        view.getValue(varA, valueSet);
+      }
+      fail("Should throw CircularVariableDependencyRuntimeException");
+    } catch(Exception e) {
+      Throwable cause = e.getCause();
+      assertThat(cause).isNotNull();
+      assertThat(cause).isInstanceOf(CircularVariableDependencyRuntimeException.class);
+      assertThat(((CircularVariableDependencyRuntimeException) cause).getVariableRef()).isEqualTo("ds.view:A");
     }
   }
 
   @Test
   public void test_this_inside_this() {
 
+  }
+
+  private static Variable createIntVariable(String name, String script) {
+    return new Variable.Builder(name, IntegerType.get(), "Participant").addAttribute("script", script).build();
   }
 
 }
