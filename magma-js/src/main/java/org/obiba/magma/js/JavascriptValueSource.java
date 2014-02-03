@@ -117,11 +117,10 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
 
   @Override
   public void initialise() throws EvaluatorException {
-    final String script1 = getScript();
     compiledScript = (Script) ContextFactory.getGlobal().call(new ContextAction() {
       @Override
-      public Object run(Context cx) {
-        return cx.compileString(script1, getScriptName(), 1, null);
+      public Object run(Context context) {
+        return context.compileString(getScript(), getScriptName(), 1, null);
       }
     });
   }

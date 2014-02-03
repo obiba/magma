@@ -257,6 +257,48 @@ public class GlobalMethodsTest extends AbstractJsTest {
   }
 
   @Test
+  public void test_this() {
+    CsvDatasource datasource = new CsvDatasource("ds").addValueTable("table", //
+        FileUtil.getFileFromResource("org/obiba/magma/js/variables.csv"), //
+        FileUtil.getFileFromResource("org/obiba/magma/js/data.csv"));
+
+    ViewManager viewManager = new DefaultViewManagerImpl(new MemoryViewPersistenceStrategy());
+    Datasource viewAwareDatasource = viewManager.decorate(datasource);
+    MagmaEngine.get().addDatasource(viewAwareDatasource);
+
+    ValueTable table = viewAwareDatasource.getValueTable("table");
+    Variable kgWeight = table.getVariable("weight");
+
+    Variable kgWeightRef = new Variable.Builder("weight_in_kg", IntegerType.get(), table.getEntityType())
+        .addAttribute("script", "$('ds.table:weight')").build();
+    Variable lbsWeight = new Variable.Builder("weight_in_lbs", IntegerType.get(), table.getEntityType())
+        .addAttribute("script", "$this('weight_in_kg') * 2.2").build();
+
+    View viewTemplate = View.Builder.newView("view", table).list(new VariablesClause()).build();
+    try(VariableWriter variableWriter = viewTemplate.getListClause().createWriter()) {
+      variableWriter.writeVariable(kgWeightRef);
+      variableWriter.writeVariable(lbsWeight);
+    }
+    viewManager.addView("ds", viewTemplate, null);
+
+    List<Long> tableValues = new ArrayList<>();
+    for(ValueSet valueSet : viewAwareDatasource.getValueTable("table").getValueSets()) {
+      tableValues.add((Long) table.getValue(kgWeight, valueSet).getValue());
+    }
+
+    List<Long> viewValues = new ArrayList<>();
+    View view = viewManager.getView("ds", "view");
+    for(ValueSet valueSet : view.getValueSets()) {
+      viewValues.add((Long) view.getValue(lbsWeight, valueSet).getValue());
+    }
+    for(int i = 0; i < viewValues.size(); i++) {
+      Long kg = tableValues.get(i);
+      Long lbs = viewValues.get(i);
+      assertThat(lbs).isEqualTo((long) (kg * 2.2));
+    }
+  }
+
+  @Test
   public void test_this_inside_this() {
 
   }
