@@ -301,6 +301,10 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
 
     MagmaEngineVariableResolver reference = MagmaEngineVariableResolver.valueOf(name);
 
+    ReferenceNode referenceNode = new ReferenceNode(
+        Variable.Reference.getReference(view.getDatasource().getName(), view.getName(), reference.getVariableName()));
+    checkCircularDependencies(context, referenceNode);
+
     // Find the named source, which is in this context a view variable value source.
     VariableValueSource source = reference.resolveSource(view);
 
@@ -317,7 +321,10 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
 
   private static ScriptableValue valueFromContext(MagmaContext context, Scriptable thisObj, String name) {
     MagmaEngineVariableResolver reference = MagmaEngineVariableResolver.valueOf(name);
-    checkCircularDependencies(context, reference);
+
+    ReferenceNode referenceNode = new ReferenceNode(Variable.Reference
+        .getReference(reference.getDatasourceName(), reference.getTableName(), reference.getVariableName()));
+    checkCircularDependencies(context, referenceNode);
 
     ValueTable valueTable = context.peek(ValueTable.class);
     VariableValueSource source = reference.resolveSource(valueTable);
@@ -327,13 +334,12 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
         : valueForValueSet(context, thisObj, reference, source);
   }
 
-  private static void checkCircularDependencies(MagmaContext context, MagmaEngineVariableResolver reference)
-      throws CircularVariableDependencyRuntimeException {
+  private static void checkCircularDependencies(MagmaContext context, ReferenceNode callee)
+  throws CircularVariableDependencyRuntimeException {
     if(!context.has(ReferenceNode.class)) {
       throw new MagmaJsRuntimeException("No ReferenceNode in context");
     }
     ReferenceNode caller = context.peek(ReferenceNode.class);
-    ReferenceNode callee = new ReferenceNode(reference);
     callee.setCaller(caller);
     context.push(ReferenceNode.class, callee);
   }
