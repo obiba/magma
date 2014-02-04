@@ -111,13 +111,15 @@ public class ViewAwareDatasource extends AbstractDatasourceWrapper {
   public Timestamps getTimestamps() {
     final Timestamps ts = super.getTimestamps();
     ImmutableSet.Builder<Timestamped> builder = ImmutableSet.builder();
-    builder.addAll(getViews()).add(new Timestamped() {
-      @NotNull
-      @Override
-      public Timestamps getTimestamps() {
-        return ts;
-      }
-    }).add(new ViewAwareDatasourceTimestamped());
+    builder.addAll(getViews()) //
+        .add(new Timestamped() {
+          @NotNull
+          @Override
+          public Timestamps getTimestamps() {
+            return ts;
+          }
+        }) //
+        .add(new ViewAwareDatasourceTimestamped());
     return new UnionTimestamps(builder.build());
   }
 

@@ -76,6 +76,7 @@ class LimesurveyValueTable extends AbstractValueTable {
     }
   }
 
+  @NotNull
   @Override
   protected LimesurveyVariableEntityProvider getVariableEntityProvider() {
     return (LimesurveyVariableEntityProvider) super.getVariableEntityProvider();

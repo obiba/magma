@@ -46,7 +46,7 @@ public class MagmaEngine implements DatasourceRegistry {
   public MagmaEngine() {
     if(instance != null) {
       throw new IllegalStateException(
-          "MagmaEngine already instanciated. Only one instance of MagmaEngine should be instantiated.");
+          "MagmaEngine already instantiated. Only one instance of MagmaEngine should be instantiated.");
     }
     instance = this;
 
@@ -57,13 +57,13 @@ public class MagmaEngine implements DatasourceRegistry {
   @NotNull
   public static MagmaEngine get() {
     if(instance == null) {
-      log.warn("Instanciating a new MagmaEngine without any extensions.");
+      log.warn("Instantiating a new MagmaEngine without any extensions.");
       new MagmaEngine();
     }
     return instance;
   }
 
-  public static boolean isInstanciated() {
+  public static boolean isInstantiated() {
     return instance != null;
   }
 
