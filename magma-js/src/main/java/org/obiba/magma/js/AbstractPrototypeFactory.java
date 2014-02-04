@@ -10,8 +10,6 @@ import org.mozilla.javascript.FunctionObject;
 import org.mozilla.javascript.NativeObject;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
@@ -20,7 +18,7 @@ import com.google.common.collect.Iterables;
 
 public abstract class AbstractPrototypeFactory {
 
-  private static final Logger log = LoggerFactory.getLogger(AbstractPrototypeFactory.class);
+//  private static final Logger log = LoggerFactory.getLogger(AbstractPrototypeFactory.class);
 
   private static final Set<String> EXCLUDED_METHODS = ImmutableSet
       .of("wait", "toString", "getClass", "equals", "hashCode", "notify", "notifyAll", "$$YJP$$wait");
@@ -54,7 +52,7 @@ public abstract class AbstractPrototypeFactory {
         }));
 
     for(Method method : methods) {
-      log.trace("Define JS method {}", method.getName());
+//      log.trace("Define JS method {}", method.getName());
       scriptableObject.defineProperty(method.getName(), new FunctionObject(method.getName(), method, scriptableObject),
           ScriptableObject.DONTENUM);
     }

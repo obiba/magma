@@ -11,6 +11,7 @@ import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ScriptRuntime;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
+import org.mozilla.javascript.Undefined;
 import org.obiba.magma.Coordinate;
 import org.obiba.magma.MagmaDate;
 import org.obiba.magma.Value;
@@ -53,9 +54,7 @@ public class ScriptableValue extends ScriptableObject {
   public ScriptableValue(Scriptable scope, @NotNull Value value, @Nullable String unit) {
     super(scope, ScriptableObject.getClassPrototype(scope, VALUE_CLASS_NAME));
     //noinspection ConstantConditions
-    if(value == null) {
-      throw new NullPointerException("value cannot be null");
-    }
+    if(value == null) throw new IllegalArgumentException("value cannot be null");
     this.value = value;
     this.unit = unit;
   }
@@ -83,31 +82,30 @@ public class ScriptableValue extends ScriptableObject {
     if(value.isSequence()) {
       return value.asSequence().toString();
     }
-    if(value.isNull()) {
-      return Context.toObject(null, this);
-    }
-    Object defaultValue = value.getValue();
-    if(value.getValueType().isDateTime()) {
-      double jsDate;
-      //noinspection ConstantConditions
-      jsDate = value.getValueType() == DateType.get()
-          ? ((MagmaDate) defaultValue).asDate().getTime()
-          : ((Date) defaultValue).getTime();
+    ValueType valueType = value.getValueType();
+    boolean isNull = value.isNull();
+    if(valueType.isDateTime()) {
+      if(isNull) {
+        return Context.toObject(null, this);
+      }
+      double jsDate = valueType == DateType.get()
+          ? ((MagmaDate) value.getValue()).asDate().getTime()
+          : ((Date) value.getValue()).getTime();
       return Context.toObject(ScriptRuntime.wrapNumber(jsDate), this);
     }
-    if(value.getValueType().isGeo()) {
-      return getGeoDefaultValue(value.getValueType(), defaultValue);
+    if(valueType.isGeo()) {
+      return isNull ? Context.toObject(null, this) : getGeoDefaultValue(valueType, value.getValue());
     }
-    if(value.getValueType().isNumeric()) {
-      return Context.toNumber(defaultValue);
+    if(valueType.isNumeric()) {
+      return Context.toNumber(isNull ? Undefined.instance : value.getValue());
     }
-    if(value.getValueType().equals(BooleanType.get())) {
-      return Context.toBoolean(defaultValue);
+    if(valueType.equals(BooleanType.get())) {
+      return Context.toBoolean(isNull ? null : value.getValue());
     }
-    if(value.getValueType().equals(TextType.get())) {
-      return Context.toString(defaultValue);
+    if(valueType.equals(TextType.get())) {
+      return Context.toString(isNull ? null : value.getValue());
     }
-    return defaultValue;
+    return value.getValue();
   }
 
   @SuppressWarnings("unchecked")
@@ -135,12 +133,10 @@ public class ScriptableValue extends ScriptableObject {
 
   private double[][][] getPolygonDefaultValue(Collection<List<Coordinate>> polygon) {
     double[][][] dpolygon = new double[polygon.size()][][];
-
     int i = 0;
     for(List<Coordinate> line : polygon) {
       dpolygon[i++] = getLineDefaultValue(line);
     }
-
     return dpolygon;
   }
 
@@ -154,10 +150,9 @@ public class ScriptableValue extends ScriptableObject {
   }
 
   public boolean contains(Value testValue) {
-    if(getValue().isSequence()) {
-      return getValue().asSequence().contains(testValue);
-    }
-    return getValue().equals(testValue);
+    return getValue().isSequence() //
+        ? getValue().asSequence().contains(testValue) //
+        : getValue().equals(testValue);
   }
 
   /*

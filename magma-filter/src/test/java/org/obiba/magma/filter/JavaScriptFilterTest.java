@@ -1,6 +1,5 @@
 package org.obiba.magma.filter;
 
-import org.easymock.EasyMock;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -17,6 +16,9 @@ import org.obiba.magma.type.BooleanType;
 import org.obiba.magma.type.TextType;
 
 import static org.fest.assertions.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class JavaScriptFilterTest {
 
@@ -25,10 +27,9 @@ public class JavaScriptFilterTest {
   @Before
   public void setUp() throws Exception {
     new MagmaEngine().extend(new MagmaJsExtension());
-    valueSetMock = EasyMock.createMock(ValueSet.class);
-    EasyMock.expect(valueSetMock.getValueTable()).andReturn(EasyMock.createMock(ValueTable.class));
-    EasyMock.expect(valueSetMock.getVariableEntity()).andReturn(EasyMock.createMock(VariableEntity.class));
-    EasyMock.replay(valueSetMock);
+    valueSetMock = mock(ValueSet.class);
+    when(valueSetMock.getValueTable()).thenReturn(mock(ValueTable.class));
+    when(valueSetMock.getVariableEntity()).thenReturn(mock(VariableEntity.class));
   }
 
   @After
@@ -36,6 +37,7 @@ public class JavaScriptFilterTest {
     MagmaEngine.get().shutdown();
   }
 
+  @SuppressWarnings("ConstantConditions")
   @Test(expected = IllegalArgumentException.class)
   public void testJavaScriptNotAllowed() throws Exception {
     new JavaScriptFilter(null);
@@ -72,17 +74,15 @@ public class JavaScriptFilterTest {
     Variable variable = Variable.Builder.newVariable("Admin.Interview.exported", BooleanType.get(), "Participant")
         .build();
 
-    VariableValueSource mockSource = EasyMock.createMock(VariableValueSource.class);
-    EasyMock.expect(mockSource.getVariable()).andReturn(variable).anyTimes();
-    EasyMock.expect(mockSource.getValue((ValueSet) EasyMock.anyObject())).andReturn(BooleanType.get().valueOf("TRUE"))
-        .anyTimes();
+    VariableValueSource mockSource = mock(VariableValueSource.class);
+    when(mockSource.getVariable()).thenReturn(variable);
+    when(mockSource.getValue((ValueSet) any())).thenReturn(BooleanType.get().valueOf("TRUE"));
 
-    ValueTable tableMock = EasyMock.createMock(ValueTable.class);
+    ValueTable tableMock = mock(ValueTable.class);
     ValueSet valueSet = new ValueSetBean(tableMock, new VariableEntityBean("Participant", "1234"));
-    EasyMock.expect(tableMock.getName()).andReturn("collectionName").anyTimes();
-    EasyMock.expect(tableMock.getVariableValueSource("Admin.Interview.exported")).andReturn(mockSource).anyTimes();
-    EasyMock.expect(tableMock.getValueSet((VariableEntity) EasyMock.anyObject())).andReturn(valueSet).anyTimes();
-    EasyMock.replay(mockSource, tableMock);
+    when(tableMock.getName()).thenReturn("collectionName");
+    when(tableMock.getVariableValueSource("Admin.Interview.exported")).thenReturn(mockSource);
+    when(tableMock.getValueSet((VariableEntity) any())).thenReturn(valueSet);
 
     assertThat(filter.runFilter(valueSet)).isTrue();
   }
@@ -95,17 +95,15 @@ public class JavaScriptFilterTest {
     Variable variable = Variable.Builder.newVariable("Admin.Interview.exported", BooleanType.get(), "Participant")
         .build();
 
-    VariableValueSource mockSource = EasyMock.createMock(VariableValueSource.class);
-    EasyMock.expect(mockSource.getVariable()).andReturn(variable).anyTimes();
-    EasyMock.expect(mockSource.getValue((ValueSet) EasyMock.anyObject())).andReturn(BooleanType.get().valueOf("TRUE"))
-        .anyTimes();
+    VariableValueSource mockSource = mock(VariableValueSource.class);
+    when(mockSource.getVariable()).thenReturn(variable);
+    when(mockSource.getValue((ValueSet) any())).thenReturn(BooleanType.get().valueOf("TRUE"));
 
-    ValueTable tableMock = EasyMock.createMock(ValueTable.class);
+    ValueTable tableMock = mock(ValueTable.class);
     ValueSet valueSet = new ValueSetBean(tableMock, new VariableEntityBean("Participant", "1234"));
-    EasyMock.expect(tableMock.getName()).andReturn("collectionName").anyTimes();
-    EasyMock.expect(tableMock.getVariableValueSource("Admin.Interview.exported")).andReturn(mockSource).anyTimes();
-    EasyMock.expect(tableMock.getValueSet((VariableEntity) EasyMock.anyObject())).andReturn(valueSet).anyTimes();
-    EasyMock.replay(mockSource, tableMock);
+    when(tableMock.getName()).thenReturn("collectionName");
+    when(tableMock.getVariableValueSource("Admin.Interview.exported")).thenReturn(mockSource);
+    when(tableMock.getValueSet((VariableEntity) any())).thenReturn(valueSet);
 
     assertThat(filter.runFilter(valueSet)).isFalse();
   }
@@ -118,17 +116,15 @@ public class JavaScriptFilterTest {
     Variable variable = Variable.Builder.newVariable("Admin.Interview.exported", BooleanType.get(), "Participant")
         .build();
 
-    VariableValueSource mockSource = EasyMock.createMock(VariableValueSource.class);
-    EasyMock.expect(mockSource.getVariable()).andReturn(variable).anyTimes();
-    EasyMock.expect(mockSource.getValue((ValueSet) EasyMock.anyObject())).andReturn(TextType.get().valueOf("CLOSED"))
-        .anyTimes();
+    VariableValueSource mockSource = mock(VariableValueSource.class);
+    when(mockSource.getVariable()).thenReturn(variable);
+    when(mockSource.getValue((ValueSet) any())).thenReturn(TextType.get().valueOf("CLOSED"));
 
-    ValueTable tableMock = EasyMock.createMock(ValueTable.class);
+    ValueTable tableMock = mock(ValueTable.class);
     ValueSet valueSet = new ValueSetBean(tableMock, new VariableEntityBean("Participant", "1234"));
-    EasyMock.expect(tableMock.getName()).andReturn("collectionName").anyTimes();
-    EasyMock.expect(tableMock.getVariableValueSource("Participant.Interview.status")).andReturn(mockSource).anyTimes();
-    EasyMock.expect(tableMock.getValueSet((VariableEntity) EasyMock.anyObject())).andReturn(valueSet).anyTimes();
-    EasyMock.replay(mockSource, tableMock);
+    when(tableMock.getName()).thenReturn("collectionName");
+    when(tableMock.getVariableValueSource("Participant.Interview.status")).thenReturn(mockSource);
+    when(tableMock.getValueSet((VariableEntity) any())).thenReturn(valueSet);
 
     assertThat(filter.runFilter(valueSet)).isTrue();
   }
@@ -141,17 +137,15 @@ public class JavaScriptFilterTest {
     Variable variable = Variable.Builder.newVariable("Admin.Interview.exported", BooleanType.get(), "Participant")
         .build();
 
-    VariableValueSource mockSource = EasyMock.createMock(VariableValueSource.class);
-    EasyMock.expect(mockSource.getVariable()).andReturn(variable).anyTimes();
-    EasyMock.expect(mockSource.getValue((ValueSet) EasyMock.anyObject()))
-        .andReturn(TextType.get().valueOf("IN_PROGRESS")).anyTimes();
+    VariableValueSource mockSource = mock(VariableValueSource.class);
+    when(mockSource.getVariable()).thenReturn(variable);
+    when(mockSource.getValue((ValueSet) any())).thenReturn(TextType.get().valueOf("IN_PROGRESS"));
 
-    ValueTable tableMock = EasyMock.createMock(ValueTable.class);
+    ValueTable tableMock = mock(ValueTable.class);
     ValueSet valueSet = new ValueSetBean(tableMock, new VariableEntityBean("Participant", "1234"));
-    EasyMock.expect(tableMock.getName()).andReturn("collectionName").anyTimes();
-    EasyMock.expect(tableMock.getVariableValueSource("Participant.Interview.status")).andReturn(mockSource).anyTimes();
-    EasyMock.expect(tableMock.getValueSet((VariableEntity) EasyMock.anyObject())).andReturn(valueSet).anyTimes();
-    EasyMock.replay(mockSource, tableMock);
+    when(tableMock.getName()).thenReturn("collectionName");
+    when(tableMock.getVariableValueSource("Participant.Interview.status")).thenReturn(mockSource);
+    when(tableMock.getValueSet((VariableEntity) any())).thenReturn(valueSet);
 
     assertThat(filter.runFilter(valueSet)).isFalse();
   }
@@ -164,17 +158,15 @@ public class JavaScriptFilterTest {
     Variable variable = Variable.Builder.newVariable("Admin.Interview.exported", BooleanType.get(), "Participant")
         .build();
 
-    VariableValueSource mockSource = EasyMock.createMock(VariableValueSource.class);
-    EasyMock.expect(mockSource.getVariable()).andReturn(variable).anyTimes();
-    EasyMock.expect(mockSource.getValue((ValueSet) EasyMock.anyObject()))
-        .andReturn(TextType.get().valueOf("IN_PROGRESS")).anyTimes();
+    VariableValueSource mockSource = mock(VariableValueSource.class);
+    when(mockSource.getVariable()).thenReturn(variable);
+    when(mockSource.getValue((ValueSet) any())).thenReturn(TextType.get().valueOf("IN_PROGRESS"));
 
-    ValueTable tableMock = EasyMock.createMock(ValueTable.class);
+    ValueTable tableMock = mock(ValueTable.class);
     ValueSet valueSet = new ValueSetBean(tableMock, new VariableEntityBean("Participant", "1234"));
-    EasyMock.expect(tableMock.getName()).andReturn("collectionName").anyTimes();
-    EasyMock.expect(tableMock.getVariableValueSource("Participant.Interview.status")).andReturn(mockSource).anyTimes();
-    EasyMock.expect(tableMock.getValueSet((VariableEntity) EasyMock.anyObject())).andReturn(valueSet).anyTimes();
-    EasyMock.replay(mockSource, tableMock);
+    when(tableMock.getName()).thenReturn("collectionName");
+    when(tableMock.getVariableValueSource("Participant.Interview.status")).thenReturn(mockSource);
+    when(tableMock.getValueSet((VariableEntity) any())).thenReturn(valueSet);
 
     assertThat(filter.runFilter(valueSet)).isTrue();
   }
@@ -187,17 +179,15 @@ public class JavaScriptFilterTest {
     Variable variable = Variable.Builder.newVariable("Admin.Interview.exported", BooleanType.get(), "Participant")
         .build();
 
-    VariableValueSource mockSource = EasyMock.createMock(VariableValueSource.class);
-    EasyMock.expect(mockSource.getVariable()).andReturn(variable).anyTimes();
-    EasyMock.expect(mockSource.getValue((ValueSet) EasyMock.anyObject()))
-        .andReturn(TextType.get().valueOf("IN_PROGRESS")).anyTimes();
+    VariableValueSource mockSource = mock(VariableValueSource.class);
+    when(mockSource.getVariable()).thenReturn(variable);
+    when(mockSource.getValue((ValueSet) any())).thenReturn(TextType.get().valueOf("IN_PROGRESS"));
 
-    ValueTable tableMock = EasyMock.createMock(ValueTable.class);
+    ValueTable tableMock = mock(ValueTable.class);
     ValueSet valueSet = new ValueSetBean(tableMock, new VariableEntityBean("Participant", "1234"));
-    EasyMock.expect(tableMock.getName()).andReturn("collectionName").anyTimes();
-    EasyMock.expect(tableMock.getVariableValueSource("Participant.Interview.status")).andReturn(mockSource).anyTimes();
-    EasyMock.expect(tableMock.getValueSet((VariableEntity) EasyMock.anyObject())).andReturn(valueSet).anyTimes();
-    EasyMock.replay(mockSource, tableMock);
+    when(tableMock.getName()).thenReturn("collectionName");
+    when(tableMock.getVariableValueSource("Participant.Interview.status")).thenReturn(mockSource);
+    when(tableMock.getValueSet((VariableEntity) any())).thenReturn(valueSet);
 
     assertThat(filter.runFilter(valueSet)).isFalse();
   }

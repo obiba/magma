@@ -80,13 +80,13 @@ public class JavascriptClause implements Initialisable, SelectClause, WhereClaus
 
     return (Boolean) ContextFactory.getGlobal().call(new ContextAction() {
       @Override
+      @SuppressWarnings("ChainOfInstanceofChecks")
       public Object run(Context ctx) {
         MagmaContext context = MagmaContext.asMagmaContext(ctx);
         // Don't pollute the global scope
         Scriptable scope = new ScriptableVariable(context.newLocalScope(), variable);
 
         Object value = compiledScript.exec(ctx, scope);
-
         if(value instanceof Boolean) {
           return value;
         }
@@ -114,6 +114,7 @@ public class JavascriptClause implements Initialisable, SelectClause, WhereClaus
 
     return (Boolean) ContextFactory.getGlobal().call(new ContextAction() {
       @Override
+      @SuppressWarnings("ChainOfInstanceofChecks")
       public Object run(Context ctx) {
         MagmaContext context = MagmaContext.asMagmaContext(ctx);
         // Don't pollute the global scope

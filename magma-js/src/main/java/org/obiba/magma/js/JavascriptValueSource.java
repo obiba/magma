@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 
 import org.mozilla.javascript.Context;
@@ -33,6 +34,8 @@ import com.google.common.base.Stopwatch;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
+
+import static org.obiba.magma.js.JavascriptVariableValueSource.ReferenceNode;
 
 /**
  * A {@code ValueSource} implementation that uses a JavaScript script to evaluate the {@code Value} to return.
@@ -90,7 +93,7 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
     }
     Stopwatch stopwatch = Stopwatch.createStarted();
     Value value = (Value) ContextFactory.getGlobal().call(new ValueSetEvaluationContextAction(valueSet));
-    log.trace("Evaluation of {} in {}", getScriptName(), stopwatch);
+    log.trace("ValueSet evaluation of {} in {}", getScriptName(), stopwatch);
     return value;
   }
 
@@ -106,7 +109,11 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
     if(compiledScript == null) {
       initialise();
     }
-    return (Iterable<Value>) ContextFactory.getGlobal().call(new ValueVectorEvaluationContextAction(entities));
+    Stopwatch stopwatch = Stopwatch.createStarted();
+    Iterable<Value> values = (Iterable<Value>) ContextFactory.getGlobal()
+        .call(new ValueVectorEvaluationContextAction(entities));
+    log.trace("Vector evaluation of {} in {}", getScriptName(), stopwatch);
+    return values;
   }
 
   @NotNull
@@ -123,6 +130,15 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
         return context.compileString(getScript(), getScriptName(), 1, null);
       }
     });
+  }
+
+  public void validateScript() throws EvaluatorException {
+    if(compiledScript == null) {
+      initialise();
+    }
+    Stopwatch stopwatch = Stopwatch.createStarted();
+    ContextFactory.getGlobal().call(new ValidationEvaluationContextAction());
+    log.trace("Validation evaluation of {} in {}", getScriptName(), stopwatch);
   }
 
   protected boolean isSequence() {
@@ -147,6 +163,10 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
   protected void exitContext(MagmaContext ctx) {
   }
 
+  public enum EvaluationType {
+    VALUE_SET, VECTOR, VALIDATION
+  }
+
   private abstract class AbstractEvaluationContextAction implements ContextAction {
 
     @Override
@@ -155,10 +175,13 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
       // Don't pollute the global scope
       Scriptable scope = context.newLocalScope();
 
+      log.trace(">>> enter context for {}", getScript());
       enterContext(context, scope);
       try {
+        log.trace("eval {}", getScript());
         return eval(context, scope);
       } finally {
+        log.trace("<<< exit context for {}", getScript());
         exitContext(context);
       }
     }
@@ -228,6 +251,7 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
 
     @Override
     void enterContext(MagmaContext context, Scriptable scope) {
+      context.push(EvaluationType.class, EvaluationType.VALUE_SET);
       context.push(ValueSet.class, valueSet);
       context.push(ValueTable.class, valueSet.getValueTable());
       context.push(VariableEntity.class, valueSet.getVariableEntity());
@@ -239,6 +263,8 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
       context.pop(VariableEntity.class);
       context.pop(ValueTable.class);
       context.pop(ValueSet.class);
+      context.pop(EvaluationType.class);
+      if(context.has(ReferenceNode.class)) context.pop(ReferenceNode.class);
       super.exitContext(context);
     }
 
@@ -251,11 +277,12 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
 
   private final class ValueVectorEvaluationContextAction extends AbstractEvaluationContextAction {
 
+    @Nullable
     private final SortedSet<VariableEntity> entities;
 
     private final VectorCache vectorCache = new VectorCache();
 
-    ValueVectorEvaluationContextAction(SortedSet<VariableEntity> entities) {
+    ValueVectorEvaluationContextAction(@Nullable SortedSet<VariableEntity> entities) {
       this.entities = entities;
     }
 
@@ -265,6 +292,7 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
 
     @Override
     void enterContext(MagmaContext context, Scriptable scope) {
+      context.push(EvaluationType.class, EvaluationType.VECTOR);
       super.enterContext(context, scope);
       context.push(SortedSet.class, getEntities(context));
       context.push(VectorCache.class, vectorCache);
@@ -275,27 +303,32 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
       super.exitContext(context);
       context.pop(SortedSet.class);
       context.pop(VectorCache.class);
+      context.pop(EvaluationType.class);
+      if(context.has(ReferenceNode.class)) context.pop(ReferenceNode.class);
     }
 
     @Override
     Object eval(final MagmaContext context, final Scriptable scope) {
       return Iterables.transform(getEntities(context), new Function<VariableEntity, Value>() {
         @Override
-        public Value apply(VariableEntity from) {
+        public Value apply(VariableEntity variableEntity) {
+          log.trace("*** Process entity {}", variableEntity);
           try {
-            // We have to set the current thread's context because this code will be executed outside of the
-            // ContextAction.
+            // We have to set the current thread's context because this code will be executed outside of the ContextAction
             ContextFactory.getGlobal().enterContext(context);
+            if(context.has(ReferenceNode.class)) context.pop(ReferenceNode.class);
             JavascriptValueSource.this.enterContext(context, scope);
+            context.push(EvaluationType.class, EvaluationType.VECTOR);
             context.push(VectorCache.class, vectorCache);
             context.push(SortedSet.class, entities);
-            context.push(VariableEntity.class, from);
+            context.push(VariableEntity.class, variableEntity);
             return asValue(compiledScript.exec(context, scope));
           } finally {
             JavascriptValueSource.this.exitContext(context);
             context.pop(VectorCache.class).next();
             context.pop(SortedSet.class);
             context.pop(VariableEntity.class);
+            context.pop(EvaluationType.class);
             Context.exit();
           }
         }
@@ -304,9 +337,31 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
 
   }
 
+  private final class ValidationEvaluationContextAction extends AbstractEvaluationContextAction {
+
+    @Override
+    void enterContext(MagmaContext context, Scriptable scope) {
+      context.push(EvaluationType.class, EvaluationType.VALIDATION);
+      super.enterContext(context, scope);
+    }
+
+    @Override
+    void exitContext(MagmaContext context) {
+      context.pop(EvaluationType.class);
+      if(context.has(ReferenceNode.class)) context.pop(ReferenceNode.class);
+      super.exitContext(context);
+    }
+
+    @Override
+    Object eval(MagmaContext context, Scriptable scope) {
+      return asValue(compiledScript.exec(context, scope));
+    }
+
+  }
+
   public static class VectorCache {
 
-    Map<VectorSource, VectorHolder> vectors = Maps.newHashMap();
+    private final Map<VectorSource, VectorHolder> vectors = Maps.newHashMap();
 
     // Holds the current "row" of the evaluation.
     private int index = 0;
