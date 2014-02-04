@@ -3,27 +3,9 @@
 
   <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
     <encoder>
-      <pattern>%date - %-5level - %logger:%line - %message%n</pattern>
+      <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger:%line - %message%n</pattern>
     </encoder>
   </appender>
-
-  <appender name="benchmark" class="ch.qos.logback.core.rolling.RollingFileAppender">
-    <file>target/benchmark.log</file>
-    <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
-      <fileNamePattern>benchmark-%i.log</fileNamePattern>
-      <maxIndex>10</maxIndex>
-    </rollingPolicy>
-    <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
-      <maxFileSize>10MB</maxFileSize>
-    </triggeringPolicy>
-    <encoder>
-      <pattern>%date - %logger - %message%n</pattern>
-    </encoder>
-  </appender>
-
-  <logger name="benchmark" additivity="false" level="info">
-    <appender-ref ref="benchmark"/>
-  </logger>
 
   <!--<logger name="org.obiba" level="debug"/>-->
 
