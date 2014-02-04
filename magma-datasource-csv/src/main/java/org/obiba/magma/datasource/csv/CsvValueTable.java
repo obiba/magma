@@ -47,7 +47,7 @@ import au.com.bytecode.opencsv.CSVParser;
 import au.com.bytecode.opencsv.CSVReader;
 import au.com.bytecode.opencsv.CSVWriter;
 
-@SuppressWarnings({ "OverlyCoupledClass" })
+@SuppressWarnings({ "OverlyCoupledClass", "OverlyComplexClass" })
 public class CsvValueTable extends AbstractValueTable implements Initialisable, Disposable {
 
   public static final String DEFAULT_ENTITY_TYPE = "Participant";
@@ -72,9 +72,9 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
 
   private VariableConverter variableConverter;
 
-  private final LinkedHashMap<VariableEntity, CsvIndexEntry> entityIndex = new LinkedHashMap<>();
+  private final Map<VariableEntity, CsvIndexEntry> entityIndex = new LinkedHashMap<>();
 
-  private final LinkedHashMap<String, CsvIndexEntry> variableNameIndex = new LinkedHashMap<>();
+  private final Map<String, CsvIndexEntry> variableNameIndex = new LinkedHashMap<>();
 
   private boolean isLastDataCharacterNewline;
 
@@ -112,6 +112,7 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
     timestamps = new CsvTimestamps(variableFile, dataFile);
   }
 
+  @NotNull
   @Override
   protected VariableEntityProvider getVariableEntityProvider() {
     return variableEntityProvider;
