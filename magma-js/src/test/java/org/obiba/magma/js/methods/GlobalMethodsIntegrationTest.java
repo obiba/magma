@@ -2,6 +2,7 @@ package org.obiba.magma.js.methods;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.TreeSet;
 
@@ -27,6 +28,7 @@ import org.obiba.magma.js.CircularVariableDependencyRuntimeException;
 import org.obiba.magma.js.JavascriptValueSource;
 import org.obiba.magma.js.views.VariablesClause;
 import org.obiba.magma.support.DatasourceCopier;
+import org.obiba.magma.type.DecimalType;
 import org.obiba.magma.type.IntegerType;
 import org.obiba.magma.views.DefaultViewManagerImpl;
 import org.obiba.magma.views.MemoryViewPersistenceStrategy;
@@ -472,7 +474,6 @@ public class GlobalMethodsIntegrationTest extends AbstractJsTest {
     ValueTable table = datasource.getValueTable(TABLE);
 
     Variable kgWeight = table.getVariable("weight");
-
     Variable kgWeightRef = createIntVariable("weight_in_kg", "$('ds.table:weight')");
     Variable lbsWeight = createIntVariable("weight_in_lbs", "$this('weight_in_kg') * 2.2");
 
@@ -505,32 +506,42 @@ public class GlobalMethodsIntegrationTest extends AbstractJsTest {
     Datasource datasource = getTestDatasource();
     ValueTable table = datasource.getValueTable(TABLE);
 
-    Variable kgWeightRef = createIntVariable("weight_in_kg", "$('ds.table:weight')");
-    Variable lbsWeight = createIntVariable("weight_in_lbs", "$this('weight_in_kg') * 2.2");
+    Collection<Variable> variables = Lists.newArrayList( //
+        createIntVariable("weight_in_kg", "$('ds.table:weight')"), //
+        createIntVariable("height_in_cm", "$('ds.table:height')"), //
+        createDecimalVariable("bmi_1", "$this('weight_in_kg') / ($this('height_in_cm').pow(2))"), //
+        createIntVariable("weight_in_lbs", "$this('weight_in_kg') * 2.2"), //
+        createIntVariable("height_in_inches", "$this('height_in_cm') * 0.4"), //
+        createDecimalVariable("bmi_2", "($this('weight_in_lbs') / ($this('height_in_inches').pow(2))) * 703"));
 
     View viewTemplate = View.Builder.newView("view", table).list(new VariablesClause()).build();
     try(ValueTableWriter.VariableWriter variableWriter = viewTemplate.getListClause().createWriter()) {
-      variableWriter.writeVariable(kgWeightRef);
-      variableWriter.writeVariable(lbsWeight);
+      for(Variable variable : variables) {
+        variableWriter.writeVariable(variable);
+      }
     }
     viewManager.addView(DATASOURCE, viewTemplate, null);
 
-    VectorSource tableVectorSource = table.getVariableValueSource("weight").asVectorSource();
-    assertThat(tableVectorSource).isNotNull();
-    //noinspection ConstantConditions
-    List<Value> tableValues = Lists
-        .newArrayList(tableVectorSource.getValues(new TreeSet<>(table.getVariableEntities())));
-
     View view = viewManager.getView(DATASOURCE, "view");
-    VectorSource viewVectorSource = view.getVariableValueSource("weight_in_lbs").asVectorSource();
-    assertThat(viewVectorSource).isNotNull();
-    int i = 0;
-    //noinspection ConstantConditions
-    for(Value viewValue : viewVectorSource.getValues(new TreeSet<>(view.getVariableEntities()))) {
-      Long kg = (Long) tableValues.get(i++).getValue();
-      Long lbs = (Long) viewValue.getValue();
-      assertThat(lbs).isEqualTo((long) (kg * 2.2));
+
+    for(ValueSet valueSet : view.getValueSets()) {
+      for(Variable variable : variables) {
+        log.info("{}: {}", variable.getName(), view.getValue(variable, valueSet));
+      }
     }
+
+//    VectorSource bmi1VectorSource = view.getVariableValueSource("bmi_1").asVectorSource();
+//    assertThat(bmi1VectorSource).isNotNull();
+//    SortedSet<VariableEntity> entities = new TreeSet<>(view.getVariableEntities());
+//    for(Value viewValue : bmi1VectorSource.getValues(entities)) {
+//      log.info("bmi 1: {}", viewValue.getValue());
+//    }
+//
+//    VectorSource bmi2VectorSource = view.getVariableValueSource("bmi_2").asVectorSource();
+//    assertThat(bmi2VectorSource).isNotNull();
+//    for(Value viewValue : bmi2VectorSource.getValues(entities)) {
+//      log.info("bmi 2: {}", viewValue.getValue());
+//    }
   }
 
   @Test
@@ -717,6 +728,10 @@ public class GlobalMethodsIntegrationTest extends AbstractJsTest {
 
   private static Variable createIntVariable(String name, String script) {
     return new Variable.Builder(name, IntegerType.get(), PARTICIPANT).addAttribute("script", script).build();
+  }
+
+  private static Variable createDecimalVariable(String name, String script) {
+    return new Variable.Builder(name, DecimalType.get(), PARTICIPANT).addAttribute("script", script).build();
   }
 
 }
