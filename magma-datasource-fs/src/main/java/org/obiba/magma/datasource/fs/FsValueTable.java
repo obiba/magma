@@ -92,6 +92,7 @@ class FsValueTable extends AbstractValueTable implements Initialisable, Disposab
     return new LazyValueSet(this, entity);
   }
 
+  @NotNull
   @Override
   public FsVariableEntityProvider getVariableEntityProvider() {
     return variableEntityProvider;

@@ -188,11 +188,13 @@ public abstract class AbstractValueTable implements ValueTable, Initialisable {
     sources.removeAll(sourcesToAdd);
   }
 
-  protected void setVariableEntityProvider(VariableEntityProvider variableEntityProvider) {
+  protected void setVariableEntityProvider(@NotNull VariableEntityProvider variableEntityProvider) {
+    //noinspection ConstantConditions
     if(variableEntityProvider == null) throw new IllegalArgumentException("variableEntityProvider cannot be null");
     this.variableEntityProvider = variableEntityProvider;
   }
 
+  @NotNull
   protected VariableEntityProvider getVariableEntityProvider() {
     if(variableEntityProvider == null) throw new IllegalArgumentException("variableEntityProvider cannot be null");
     return variableEntityProvider;

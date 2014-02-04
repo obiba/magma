@@ -135,10 +135,11 @@ public class DatasourceCopier {
       return;
     }
 
-    int nbTables = source.getValueTables().size();
+    Set<ValueTable> tables = source.getValueTables();
+    int nbTables = tables.size();
     log.info("Copying Datasource '{}' to '{}' ({} tables)", source.getName(), destination.getName(), nbTables);
     int i = 1;
-    for(ValueTable table : source.getValueTables()) {
+    for(ValueTable table : tables) {
       log.debug("Copy table {} / {}", i++, nbTables);
       copy(table, destination);
     }

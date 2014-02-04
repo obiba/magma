@@ -23,6 +23,7 @@ public class JavaScriptFilter extends AbstractFilter<ValueSet> implements Initia
   private boolean initialised;
 
   JavaScriptFilter(String javascript) {
+    if(javascript == null) throw new IllegalArgumentException("The argument [javascript] cannot be null.");
     this.javascript = javascript;
     initialise();
   }
@@ -30,15 +31,10 @@ public class JavaScriptFilter extends AbstractFilter<ValueSet> implements Initia
   @Override
   public synchronized void initialise() {
     if(initialised) return;
-    validateArguments(javascript);
     javascriptSource = new JavascriptValueSource(BooleanType.get(), javascript);
     javascriptSource.setScriptName(SCRIPT_NAME);
     javascriptSource.initialise();
     initialised = true;
-  }
-
-  private void validateArguments(String javascript) {
-    if(javascript == null) throw new IllegalArgumentException("The argument [javascript] cannot be null.");
   }
 
   @edu.umd.cs.findbugs.annotations.SuppressWarnings(value = "NP_BOOLEAN_RETURN_NULL",
@@ -52,6 +48,7 @@ public class JavaScriptFilter extends AbstractFilter<ValueSet> implements Initia
     return (Boolean) value.getValue();
   }
 
+  @SuppressWarnings("ParameterHidesMemberVariable")
   public static class Builder extends AbstractFilter.Builder {
 
     private String javascript;
