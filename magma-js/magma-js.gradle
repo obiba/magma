@@ -9,6 +9,8 @@ dependencies {
   }
 
   testCompile project(':magma-xstream')
-  testCompile project(':magma-datasource-csv')
+  testCompile project(':magma-data-generator')
+  testCompile project(':magma-datasource-mongodb')
+  testCompile(libraries.spring_test)
   testCompile(libraries.obiba_core)
 }

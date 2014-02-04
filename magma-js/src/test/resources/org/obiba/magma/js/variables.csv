@@ -1,4 +1,0 @@
-name,valueType,entityType,mimeType,unit,repeatable,occurrenceGroup
-age,integer,Participant,,,,
-weight,integer,Participant,,kg,,
-height,integer,Participant,,cm,,

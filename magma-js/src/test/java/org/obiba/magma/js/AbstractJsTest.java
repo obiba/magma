@@ -19,13 +19,13 @@ import static org.fest.assertions.api.Assertions.assertThat;
 public abstract class AbstractJsTest {
 
   @Before
-  public void startYourEngine() {
+  public void before() {
     newEngine().extend(new MagmaJsExtension());
     Context.enter();
   }
 
   @After
-  public void stopYourEngine() {
+  public void after() {
     Context.exit();
     MagmaEngine.get().shutdown();
   }
