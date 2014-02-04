@@ -1,5 +1,7 @@
 package org.obiba.magma.filter;
 
+import javax.validation.constraints.NotNull;
+
 import org.obiba.magma.Initialisable;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueSet;
@@ -22,7 +24,8 @@ public class JavaScriptFilter extends AbstractFilter<ValueSet> implements Initia
   @XStreamOmitField
   private boolean initialised;
 
-  JavaScriptFilter(String javascript) {
+  JavaScriptFilter(@NotNull String javascript) {
+    //noinspection ConstantConditions
     if(javascript == null) throw new IllegalArgumentException("The argument [javascript] cannot be null.");
     this.javascript = javascript;
     initialise();
@@ -44,8 +47,9 @@ public class JavaScriptFilter extends AbstractFilter<ValueSet> implements Initia
     initialise();
     Value value = javascriptSource.getValue(item);
     // JavaScript can return null.
-    if(value.isNull() || value.equals(BooleanType.get().nullValue())) return null;
-    return (Boolean) value.getValue();
+    return value.isNull() || value.equals(BooleanType.get().nullValue()) //
+        ? null  //
+        : (Boolean) value.getValue();
   }
 
   @SuppressWarnings("ParameterHidesMemberVariable")

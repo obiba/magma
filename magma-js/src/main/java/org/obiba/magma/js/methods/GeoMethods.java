@@ -14,7 +14,7 @@ import org.obiba.magma.js.ScriptableValue;
 import org.obiba.magma.type.DecimalType;
 import org.obiba.magma.type.PointType;
 
-@SuppressWarnings("ConstantConditions")
+@SuppressWarnings("StaticMethodOnlyUsedInOneClass")
 public class GeoMethods {
 
   private GeoMethods() {
@@ -54,7 +54,6 @@ public class GeoMethods {
    *   $('Point').latitude()
    * </pre>
    */
-  @SuppressWarnings("StaticMethodOnlyUsedInOneClass")
   public static ScriptableValue latitude(Context ctx, Scriptable thisObj, @Nullable Object[] args,
       @Nullable Function funObj) {
 

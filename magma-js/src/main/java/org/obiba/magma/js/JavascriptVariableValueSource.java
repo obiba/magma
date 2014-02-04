@@ -92,7 +92,6 @@ public class JavascriptVariableValueSource extends JavascriptValueSource impleme
       }
     }
     context.pop(Variable.class);
-    context.pop(ReferenceNode.class);
   }
 
   public static class ReferenceNode {

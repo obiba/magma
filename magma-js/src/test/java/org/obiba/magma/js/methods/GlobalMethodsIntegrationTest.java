@@ -18,11 +18,13 @@ import org.obiba.magma.ValueSet;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.ValueTableWriter;
 import org.obiba.magma.Variable;
+import org.obiba.magma.VariableValueSourceWrapper;
 import org.obiba.magma.VectorSource;
 import org.obiba.magma.datasource.generated.GeneratedValueTable;
 import org.obiba.magma.datasource.mongodb.MongoDBDatasourceFactory;
 import org.obiba.magma.js.AbstractJsTest;
 import org.obiba.magma.js.CircularVariableDependencyRuntimeException;
+import org.obiba.magma.js.JavascriptValueSource;
 import org.obiba.magma.js.views.VariablesClause;
 import org.obiba.magma.support.DatasourceCopier;
 import org.obiba.magma.type.IntegerType;
@@ -107,6 +109,110 @@ public class GlobalMethodsIntegrationTest extends AbstractJsTest {
     DatasourceCopier.Builder.newCopier().build().copy(generatedValueTable, TABLE, datasource);
 
     return viewAwareDatasource;
+  }
+
+  @Test
+  @Ignore
+  public void test_$_validation() throws Exception {
+    Datasource datasource = getTestDatasource();
+    ValueTable table = datasource.getValueTable(TABLE);
+
+    Variable lbsWeight = createIntVariable("weight_in_lbs", "$('ds.table:weight') * 2.2");
+
+    View viewTemplate = View.Builder.newView("view", table).list(new VariablesClause()).build();
+    try(ValueTableWriter.VariableWriter variableWriter = viewTemplate.getListClause().createWriter()) {
+      variableWriter.writeVariable(lbsWeight);
+    }
+    viewManager.addView(DATASOURCE, viewTemplate, null);
+
+    View view = viewManager.getView(DATASOURCE, "view");
+
+    VariableValueSourceWrapper variableSource = (VariableValueSourceWrapper) view
+        .getVariableValueSource("weight_in_lbs");
+    ((JavascriptValueSource) variableSource.getWrapped()).validateScript();
+  }
+
+  @Test
+  @Ignore
+  public void test_$_validation_with_self_reference() throws Exception {
+    Datasource datasource = getTestDatasource();
+    ValueTable table = datasource.getValueTable(TABLE);
+
+    Variable circular = createIntVariable("circular", "$('ds.view:circular')");
+
+    View viewTemplate = View.Builder.newView("view", table).list(new VariablesClause()).build();
+    try(ValueTableWriter.VariableWriter variableWriter = viewTemplate.getListClause().createWriter()) {
+      variableWriter.writeVariable(circular);
+    }
+    viewManager.addView(DATASOURCE, viewTemplate, null);
+
+    View view = viewManager.getView(DATASOURCE, "view");
+    VariableValueSourceWrapper variableSource = (VariableValueSourceWrapper) view.getVariableValueSource("circular");
+    try {
+      ((JavascriptValueSource) variableSource.getWrapped()).validateScript();
+      fail("Should throw WrappedException");
+    } catch(WrappedException e) {
+      Throwable cause = e.getCause();
+      assertThat(cause).isNotNull();
+      assertThat(cause).isInstanceOf(CircularVariableDependencyRuntimeException.class);
+      assertThat(((CircularVariableDependencyRuntimeException) cause).getVariableRef()).isEqualTo("ds.view:circular");
+    }
+  }
+
+  @Test
+  @Ignore
+  public void test_$_validation_with_valid_dependencies() throws Exception {
+    Datasource datasource = getTestDatasource();
+    ValueTable table = datasource.getValueTable(TABLE);
+
+    Variable varA = createIntVariable("A", "$('ds.view:B') + $('ds.view:C')");
+    Variable varB = createIntVariable("B", "10");
+    Variable varC = createIntVariable("C", "$('ds.view:D') * 10");
+    Variable varD = createIntVariable("D", "$('ds.view:E') + 5");
+    Variable varE = createIntVariable("E", "5");
+
+    View viewTemplate = View.Builder.newView("view", table).list(new VariablesClause()).build();
+    try(ValueTableWriter.VariableWriter variableWriter = viewTemplate.getListClause().createWriter()) {
+      variableWriter.writeVariable(varA);
+      variableWriter.writeVariable(varB);
+      variableWriter.writeVariable(varC);
+      variableWriter.writeVariable(varD);
+      variableWriter.writeVariable(varE);
+    }
+    viewManager.addView(DATASOURCE, viewTemplate, null);
+
+    View view = viewManager.getView(DATASOURCE, "view");
+
+    VariableValueSourceWrapper variableSource = (VariableValueSourceWrapper) view.getVariableValueSource("A");
+    ((JavascriptValueSource) variableSource.getWrapped()).validateScript();
+  }
+
+  @Test
+  @Ignore
+  public void test_$_validation_with_circular_dependencies() throws Exception {
+    Datasource datasource = getTestDatasource();
+    ValueTable table = datasource.getValueTable(TABLE);
+
+    Variable varA = createIntVariable("A", "$('ds.view:B') + $('ds.view:C')");
+    Variable varB = createIntVariable("B", "10");
+    Variable varC = createIntVariable("C", "$('ds.view:D') * 10");
+    Variable varD = createIntVariable("D", "$('ds.view:E') + 5");
+    Variable varE = createIntVariable("E", "$('ds.view:A')");
+
+    View viewTemplate = View.Builder.newView("view", table).list(new VariablesClause()).build();
+    try(ValueTableWriter.VariableWriter variableWriter = viewTemplate.getListClause().createWriter()) {
+      variableWriter.writeVariable(varA);
+      variableWriter.writeVariable(varB);
+      variableWriter.writeVariable(varC);
+      variableWriter.writeVariable(varD);
+      variableWriter.writeVariable(varE);
+    }
+    viewManager.addView(DATASOURCE, viewTemplate, null);
+
+    View view = viewManager.getView(DATASOURCE, "view");
+
+    ((JavascriptValueSource) ((VariableValueSourceWrapper) view.getVariableValueSource("A")).getWrapped())
+        .validateScript();
   }
 
   @Test
@@ -200,7 +306,6 @@ public class GlobalMethodsIntegrationTest extends AbstractJsTest {
   }
 
   @Test
-  @Ignore
   public void test_$_vector_with_valid_dependencies() throws Exception {
     Datasource datasource = getTestDatasource();
     ValueTable table = datasource.getValueTable(TABLE);
@@ -257,6 +362,7 @@ public class GlobalMethodsIntegrationTest extends AbstractJsTest {
   }
 
   @Test
+  @Ignore
   public void test_$_vector_with_self_reference() throws Exception {
     Datasource datasource = getTestDatasource();
     ValueTable table = datasource.getValueTable(TABLE);
