@@ -9,6 +9,7 @@ import java.io.Writer;
 import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 
+import org.obiba.magma.AbstractVariableValueSource;
 import org.obiba.magma.Disposable;
 import org.obiba.magma.Initialisable;
 import org.obiba.magma.MagmaRuntimeException;
@@ -136,7 +137,7 @@ class FsValueTable extends AbstractValueTable implements Initialisable, Disposab
 
   }
 
-  private static class FsVariableValueSource implements VariableValueSource {
+  private static class FsVariableValueSource extends AbstractVariableValueSource implements VariableValueSource {
 
     private final Variable variable;
 

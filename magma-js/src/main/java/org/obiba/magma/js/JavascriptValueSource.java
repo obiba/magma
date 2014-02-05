@@ -312,8 +312,9 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
       return Iterables.transform(getEntities(context), new Function<VariableEntity, Value>() {
         @Override
         public Value apply(VariableEntity variableEntity) {
-          log.trace("*** Process entity {}", variableEntity);
+          Stopwatch stopwatch = Stopwatch.createStarted();
           try {
+            log.trace("Start {} eval", variableEntity);
             // We have to set the current thread's context because this code will be executed outside of the ContextAction
             ContextFactory.getGlobal().enterContext(context);
             if(context.has(ReferenceNode.class)) context.pop(ReferenceNode.class);
@@ -330,6 +331,7 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
             context.pop(VariableEntity.class);
             context.pop(EvaluationType.class);
             Context.exit();
+            log.trace("Finish {} eval in {}", variableEntity, stopwatch);
           }
         }
       });

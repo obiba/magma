@@ -63,4 +63,9 @@ public abstract class AbstractVariableValueSourceWrapper implements VariableValu
     return wrapped.asVectorSource();
   }
 
+  @Override
+  public String getName() {
+    return wrapped.getName();
+  }
+
 }

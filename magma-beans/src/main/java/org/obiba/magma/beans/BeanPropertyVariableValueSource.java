@@ -12,6 +12,7 @@ package org.obiba.magma.beans;
 import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 
+import org.obiba.magma.AbstractVariableValueSource;
 import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueSet;
@@ -32,7 +33,7 @@ import com.google.common.collect.Iterables;
 /**
  * Connects a {@code Variable} to a bean property.
  */
-public class BeanPropertyVariableValueSource implements VariableValueSource {
+public class BeanPropertyVariableValueSource extends AbstractVariableValueSource implements VariableValueSource {
 
   private final Variable variable;
 

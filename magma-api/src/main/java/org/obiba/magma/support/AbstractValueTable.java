@@ -2,8 +2,9 @@ package org.obiba.magma.support;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.NoSuchElementException;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
@@ -24,12 +25,10 @@ import org.obiba.magma.VariableValueSource;
 import org.obiba.magma.VariableValueSourceFactory;
 
 import com.google.common.base.Function;
-import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 
 public abstract class AbstractValueTable implements ValueTable, Initialisable {
 
@@ -39,7 +38,7 @@ public abstract class AbstractValueTable implements ValueTable, Initialisable {
   @NotNull
   protected String name;
 
-  private final Set<VariableValueSource> sources = Sets.newLinkedHashSet();
+  private final Map<String, VariableValueSource> sources = new LinkedHashMap<>();
 
   private VariableEntityProvider variableEntityProvider;
 
@@ -102,12 +101,7 @@ public abstract class AbstractValueTable implements ValueTable, Initialisable {
 
   @Override
   public boolean hasVariable(String variableName) {
-    for(VariableValueSource source : getSources()) {
-      if(source.getVariable().getName().equals(variableName)) {
-        return true;
-      }
-    }
-    return false;
+    return sources.containsKey(variableName);
   }
 
   @Override
@@ -122,29 +116,23 @@ public abstract class AbstractValueTable implements ValueTable, Initialisable {
 
   @Override
   public Set<Variable> getVariables() {
-    // Filter null
-    Iterable<Variable> transform = Iterables.transform(getSources(), new Function<VariableValueSource, Variable>() {
+    Iterable<Variable> variables = Iterables.transform(getSources(), new Function<VariableValueSource, Variable>() {
       @Override
       public Variable apply(VariableValueSource from) {
         return from.getVariable();
       }
     });
-
-    return ImmutableSet.copyOf(Iterables.filter(transform, Predicates.not(Predicates.isNull())));
+    // Filter null
+    return ImmutableSet.copyOf(Iterables.filter(variables, Predicates.not(Predicates.isNull())));
   }
 
   @Override
-  public VariableValueSource getVariableValueSource(final String variableName) throws NoSuchVariableException {
-    try {
-      return Iterables.find(getSources(), new Predicate<VariableValueSource>() {
-        @Override
-        public boolean apply(VariableValueSource variableValueSource) {
-          return variableValueSource.getVariable().getName().equals(variableName);
-        }
-      });
-    } catch(NoSuchElementException e) {
+  public VariableValueSource getVariableValueSource(String variableName) throws NoSuchVariableException {
+    VariableValueSource variableValueSource = sources.get(variableName);
+    if(variableValueSource == null) {
       throw new NoSuchVariableException(getName(), variableName);
     }
+    return variableValueSource;
   }
 
   @Override
@@ -153,11 +141,13 @@ public abstract class AbstractValueTable implements ValueTable, Initialisable {
   }
 
   protected void addVariableValueSources(VariableValueSourceFactory factory) {
-    sources.addAll(factory.createSources());
+    for(VariableValueSource variableValueSource : factory.createSources()) {
+      sources.put(variableValueSource.getName(), variableValueSource);
+    }
   }
 
   protected void addVariableValueSources(Collection<VariableValueSource> sourcesToAdd) {
-    List<VariableValueSource> list = Lists.newArrayList(sources);
+    List<VariableValueSource> list = Lists.newArrayList(sources.values());
     for(VariableValueSource variableValueSource : sourcesToAdd) {
       int index = list.indexOf(variableValueSource);
       if(index >= 0) {
@@ -168,24 +158,23 @@ public abstract class AbstractValueTable implements ValueTable, Initialisable {
       }
     }
     sources.clear();
-    sources.addAll(list);
-  }
-
-  protected void addVariableValueSource(VariableValueSource source) {
-    sources.add(source);
-  }
-
-  protected void removeVariableValueSource(String variableName) {
-    try {
-      VariableValueSource vvs = getVariableValueSource(variableName);
-      getSources().remove(vvs);
-    } catch(NoSuchVariableException ex) {
-      // ignore
+    for(VariableValueSource variableValueSource : list) {
+      sources.put(variableValueSource.getName(), variableValueSource);
     }
   }
 
-  protected void removeVariableValueSources(Collection<VariableValueSource> sourcesToAdd) {
-    sources.removeAll(sourcesToAdd);
+  protected void addVariableValueSource(VariableValueSource source) {
+    sources.put(source.getName(), source);
+  }
+
+  protected void removeVariableValueSource(String variableName) {
+    sources.remove(variableName);
+  }
+
+  protected void removeVariableValueSources(Iterable<VariableValueSource> sourcesToRemove) {
+    for(VariableValueSource variableValueSource : sourcesToRemove) {
+      removeVariableValueSource(variableValueSource.getVariable().getName());
+    }
   }
 
   protected void setVariableEntityProvider(@NotNull VariableEntityProvider variableEntityProvider) {
@@ -201,7 +190,11 @@ public abstract class AbstractValueTable implements ValueTable, Initialisable {
   }
 
   protected Set<VariableValueSource> getSources() {
-    return sources;
+    return ImmutableSet.copyOf(sources.values());
+  }
+
+  protected void clearSources() {
+    sources.clear();
   }
 
   @Override

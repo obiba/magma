@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.SortedSet;
 import java.util.TreeSet;
 
 import org.junit.Assume;
@@ -19,6 +20,7 @@ import org.obiba.magma.ValueSet;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.ValueTableWriter;
 import org.obiba.magma.Variable;
+import org.obiba.magma.VariableEntity;
 import org.obiba.magma.VariableValueSourceWrapper;
 import org.obiba.magma.VectorSource;
 import org.obiba.magma.datasource.generated.GeneratedValueTable;
@@ -38,6 +40,7 @@ import org.obiba.magma.xstream.MagmaXStreamExtension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
 import com.mongodb.MongoClient;
 
@@ -89,6 +92,7 @@ public class GlobalMethodsIntegrationTest extends AbstractJsTest {
     try {
       MongoClient client = new MongoClient();
       client.dropDatabase(MONGO_DB_TEST);
+      client.close();
       return true;
     } catch(Exception e) {
       return false;
@@ -542,6 +546,64 @@ public class GlobalMethodsIntegrationTest extends AbstractJsTest {
 //    for(Value viewValue : bmi2VectorSource.getValues(entities)) {
 //      log.info("bmi 2: {}", viewValue.getValue());
 //    }
+  }
+
+  @Test
+  public void test_$this_value_set_performance() throws Exception {
+    Datasource datasource = getTestDatasource();
+    ValueTable table = datasource.getValueTable(TABLE);
+
+    Collection<Variable> variables = Lists.newArrayList( //
+        createIntVariable("A", "$('ds.table:weight')"), //
+        createIntVariable("B", "$this('A')"), //
+        createIntVariable("C", "$this('B')"));
+
+    View viewTemplate = View.Builder.newView("view", table).list(new VariablesClause()).build();
+    try(ValueTableWriter.VariableWriter variableWriter = viewTemplate.getListClause().createWriter()) {
+      for(Variable variable : variables) {
+        variableWriter.writeVariable(variable);
+      }
+    }
+    viewManager.addView(DATASOURCE, viewTemplate, null);
+
+    View view = viewManager.getView(DATASOURCE, "view");
+
+    Variable varC = view.getVariable("C");
+    Stopwatch stopwatch = Stopwatch.createStarted();
+    for(ValueSet valueSet : view.getValueSets()) {
+      view.getValue(varC, valueSet).getValue();
+    }
+    log.info("Load value sets in {}", stopwatch);
+  }
+
+  @Test
+  public void test_$this_vector_performance() throws Exception {
+    Datasource datasource = getTestDatasource();
+    ValueTable table = datasource.getValueTable(TABLE);
+
+    Collection<Variable> variables = Lists.newArrayList( //
+        createIntVariable("A", "$('ds.table:weight')"), //
+        createIntVariable("B", "$this('A')"), //
+        createIntVariable("C", "$this('B')"));
+
+    View viewTemplate = View.Builder.newView("view", table).list(new VariablesClause()).build();
+    try(ValueTableWriter.VariableWriter variableWriter = viewTemplate.getListClause().createWriter()) {
+      for(Variable variable : variables) {
+        variableWriter.writeVariable(variable);
+      }
+    }
+    viewManager.addView(DATASOURCE, viewTemplate, null);
+
+    View view = viewManager.getView(DATASOURCE, "view");
+    Stopwatch stopwatch = Stopwatch.createStarted();
+    SortedSet<VariableEntity> entities = new TreeSet<>(view.getVariableEntities());
+    log.info("Load {} entities in {}", entities.size(), stopwatch);
+    stopwatch.reset();
+    //noinspection ConstantConditions
+    for(Value viewValue : view.getVariableValueSource("C").asVectorSource().getValues(entities)) {
+      viewValue.getValue();
+    }
+    log.info("Load vector in {}", stopwatch);
   }
 
   @Test

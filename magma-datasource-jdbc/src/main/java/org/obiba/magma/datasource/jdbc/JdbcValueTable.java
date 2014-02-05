@@ -19,6 +19,7 @@ import java.util.SortedSet;
 import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 
+import org.obiba.magma.AbstractVariableValueSource;
 import org.obiba.magma.Attribute;
 import org.obiba.magma.Category;
 import org.obiba.magma.Datasource;
@@ -197,7 +198,7 @@ class JdbcValueTable extends AbstractValueTable {
   }
 
   private void initialiseVariableValueSources() {
-    getSources().clear();
+    clearSources();
 
     if(getDatasource().getSettings().isUseMetadataTables()) {
       if(!metadataTablesExist()) {
@@ -467,7 +468,7 @@ class JdbcValueTable extends AbstractValueTable {
 
   }
 
-  class JdbcVariableValueSource implements VariableValueSource, VectorSource {
+  class JdbcVariableValueSource extends AbstractVariableValueSource implements VariableValueSource, VectorSource {
     //
     // Instance Variables
     //
