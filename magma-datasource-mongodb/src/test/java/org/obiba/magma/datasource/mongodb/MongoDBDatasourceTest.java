@@ -71,6 +71,7 @@ public class MongoDBDatasourceTest {
     try {
       MongoClient client = new MongoClient();
       client.dropDatabase(DB_TEST);
+      client.close();
       new MagmaEngine().extend(new MagmaXStreamExtension());
       return true;
     } catch(Exception e) {

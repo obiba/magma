@@ -32,7 +32,6 @@ import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
 import com.mongodb.WriteConcern;
-import com.mongodb.gridfs.GridFS;
 
 public class MongoDBValueTable extends AbstractValueTable {
 
@@ -57,26 +56,28 @@ public class MongoDBValueTable extends AbstractValueTable {
     return ((MongoDBDatasource) getDatasource()).getMongoDBFactory();
   }
 
-  DB getDB() {
-    return getMongoDBFactory().getDB();
-  }
-
-  GridFS getGridFS() {
-    return getMongoDBFactory().getGridFS();
-  }
-
   DBCollection getValueTableCollection() {
     return ((MongoDBDatasource) getDatasource()).getValueTableCollection();
   }
 
   DBCollection getVariablesCollection() {
-    DBCollection collection = getDB().getCollection(getId() + VARIABLE_SUFFIX);
-    collection.ensureIndex("name");
-    return collection;
+    return getMongoDBFactory().execute(new MongoDBFactory.MongoDBCallback<DBCollection>() {
+      @Override
+      public DBCollection doWithDB(DB db) {
+        DBCollection collection = db.getCollection(getId() + VARIABLE_SUFFIX);
+        collection.ensureIndex("name");
+        return collection;
+      }
+    });
   }
 
   DBCollection getValueSetCollection() {
-    return getDB().getCollection(getId() + VALUE_SET_SUFFIX);
+    return getMongoDBFactory().execute(new MongoDBFactory.MongoDBCallback<DBCollection>() {
+      @Override
+      public DBCollection doWithDB(DB db) {
+        return db.getCollection(getId() + VALUE_SET_SUFFIX);
+      }
+    });
   }
 
   DBObject asDBObject() {
