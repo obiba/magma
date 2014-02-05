@@ -17,7 +17,6 @@ import org.obiba.magma.VariableValueSource;
 import org.obiba.magma.js.JavascriptVariableValueSourceFactory;
 import org.obiba.magma.support.Initialisables;
 import org.obiba.magma.views.ListClause;
-import org.obiba.magma.views.View;
 
 /**
  * This implementation of {@link ListClause} will contain {@link Variable}s with a "script" attribute and/or a "sameAs"
@@ -26,7 +25,7 @@ import org.obiba.magma.views.View;
  */
 public class VariablesClause implements ListClause, Initialisable {
 
-  private Set<Variable> variables;
+  private Set<Variable> variables = new LinkedHashSet<Variable>();
 
   @SuppressWarnings("TransientFieldInNonSerializableClass")
   private transient ValueTable valueTable;
@@ -38,7 +37,7 @@ public class VariablesClause implements ListClause, Initialisable {
   private transient boolean initialised = false;
 
   public void setVariables(Collection<Variable> variables) {
-    this.variables = new LinkedHashSet<Variable>();
+    this.variables.clear();
     if(variables != null) {
       this.variables.addAll(variables);
     }
