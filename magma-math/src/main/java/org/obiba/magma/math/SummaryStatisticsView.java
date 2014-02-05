@@ -145,6 +145,7 @@ public class SummaryStatisticsView extends AbstractValueTable implements Initial
 
   private class AggregateVariableEntityProvider implements VariableEntityProvider {
 
+    @NotNull
     @Override
     public String getEntityType() {
       return "Variable";

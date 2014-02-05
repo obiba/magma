@@ -10,6 +10,8 @@ import java.text.NumberFormat;
 import java.util.Map;
 import java.util.Set;
 
+import javax.validation.constraints.NotNull;
+
 import org.obiba.magma.Disposable;
 import org.obiba.magma.Initialisable;
 import org.obiba.magma.MagmaRuntimeException;
@@ -94,6 +96,7 @@ class FsVariableEntityProvider implements VariableEntityProvider, Initialisable,
     }
   }
 
+  @NotNull
   @Override
   public String getEntityType() {
     return entityType;
@@ -105,7 +108,7 @@ class FsVariableEntityProvider implements VariableEntityProvider, Initialisable,
   }
 
   @Override
-  public boolean isForEntityType(String entityType) {
+  public boolean isForEntityType(@SuppressWarnings("ParameterHidesMemberVariable") String entityType) {
     return getEntityType().equals(entityType);
   }
 

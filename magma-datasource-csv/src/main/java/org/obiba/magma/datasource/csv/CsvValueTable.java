@@ -419,12 +419,14 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
 
   private class CSVVariableEntityProvider implements VariableEntityProvider {
 
+    @NotNull
     private final String entityType;
 
-    private CSVVariableEntityProvider(String entityType) {
+    private CSVVariableEntityProvider(@NotNull String entityType) {
       this.entityType = entityType;
     }
 
+    @NotNull
     @Override
     public String getEntityType() {
       return entityType;

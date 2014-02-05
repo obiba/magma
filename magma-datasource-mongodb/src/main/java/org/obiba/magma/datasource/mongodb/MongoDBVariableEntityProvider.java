@@ -12,6 +12,9 @@ package org.obiba.magma.datasource.mongodb;
 
 import java.util.Set;
 
+import javax.validation.constraints.NotNull;
+
+import org.obiba.magma.Value;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.support.VariableEntityBean;
 import org.obiba.magma.support.VariableEntityProvider;
@@ -26,11 +29,16 @@ class MongoDBVariableEntityProvider implements VariableEntityProvider {
 
   private final MongoDBValueTable table;
 
+  private Set<VariableEntity> cachedEntities;
+
+  private Value lastUpdated;
+
   MongoDBVariableEntityProvider(MongoDBValueTable table, String entityType) {
     this.table = table;
     this.entityType = entityType;
   }
 
+  @NotNull
   @Override
   public String getEntityType() {
     if(entityType == null) {
@@ -41,11 +49,20 @@ class MongoDBVariableEntityProvider implements VariableEntityProvider {
 
   @Override
   public boolean isForEntityType(@SuppressWarnings("ParameterHidesMemberVariable") String entityType) {
-    return this.entityType.equals(entityType);
+    return getEntityType().equals(entityType);
   }
 
   @Override
   public Set<VariableEntity> getVariableEntities() {
+    Value tableLastUpdate = table.getTimestamps().getLastUpdate();
+    if(lastUpdated == null || !lastUpdated.equals(tableLastUpdate)) {
+      lastUpdated = tableLastUpdate;
+      cachedEntities = loadEntities();
+    }
+    return cachedEntities;
+  }
+
+  private Set<VariableEntity> loadEntities() {
     ImmutableSet.Builder<VariableEntity> builder = ImmutableSet.builder();
     try(DBCursor cursor = table.getValueSetCollection().find(new BasicDBObject())) {
       while(cursor.hasNext()) {

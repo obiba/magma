@@ -344,12 +344,14 @@ public class ExcelValueTable extends AbstractValueTable implements Initialisable
 
   private class ExcelVariableEntityProvider implements VariableEntityProvider {
 
+    @NotNull
     private final String entityType;
 
-    private ExcelVariableEntityProvider(String entityType) {
+    private ExcelVariableEntityProvider(@Nullable String entityType) {
       this.entityType = entityType == null || entityType.trim().isEmpty() ? "Participant" : entityType.trim();
     }
 
+    @NotNull
     @Override
     public String getEntityType() {
       return entityType;
