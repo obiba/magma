@@ -30,7 +30,6 @@ import org.obiba.magma.js.CircularVariableDependencyRuntimeException;
 import org.obiba.magma.js.JavascriptValueSource;
 import org.obiba.magma.js.views.VariablesClause;
 import org.obiba.magma.support.DatasourceCopier;
-import org.obiba.magma.type.DecimalType;
 import org.obiba.magma.type.IntegerType;
 import org.obiba.magma.views.DefaultViewManagerImpl;
 import org.obiba.magma.views.MemoryViewPersistenceStrategy;
@@ -49,15 +48,13 @@ import static org.junit.Assert.fail;
 import static org.obiba.magma.Variable.Builder.newVariable;
 
 @SuppressWarnings({ "OverlyLongMethod", "PMD.NcssMethodCount", "OverlyCoupledClass" })
-public class GlobalMethodsIntegrationTest extends AbstractJsTest {
+public class GlobalMethodsMongoDbTest extends AbstractJsTest {
 
-  private static final Logger log = LoggerFactory.getLogger(GlobalMethodsIntegrationTest.class);
+  private static final Logger log = LoggerFactory.getLogger(GlobalMethodsMongoDbTest.class);
 
   private static final String MONGO_DB_TEST = "magma-test";
 
   private static final String MONGO_DB_URL = "mongodb://localhost/" + MONGO_DB_TEST;
-
-  private static final String PARTICIPANT = "Participant";
 
   private static final String DATASOURCE = "ds";
 
@@ -107,7 +104,7 @@ public class GlobalMethodsIntegrationTest extends AbstractJsTest {
         newVariable(VARIABLE_AGE, IntegerType.get(), PARTICIPANT).build(), //
         newVariable(VARIABLE_WEIGHT, IntegerType.get(), PARTICIPANT).unit("kg").build(), //
         newVariable(VARIABLE_HEIGHT, IntegerType.get(), PARTICIPANT).unit("cm").build());
-    ValueTable generatedValueTable = new GeneratedValueTable(datasource, variables, 50);
+    ValueTable generatedValueTable = new GeneratedValueTable(datasource, variables, 200);
 
     Datasource viewAwareDatasource = viewManager.decorate(datasource);
     MagmaEngine.get().addDatasource(viewAwareDatasource);
@@ -787,14 +784,6 @@ public class GlobalMethodsIntegrationTest extends AbstractJsTest {
       assertThat(cause).isInstanceOf(CircularVariableDependencyRuntimeException.class);
       assertThat(((CircularVariableDependencyRuntimeException) cause).getVariableRef()).isEqualTo("ds.view:A");
     }
-  }
-
-  private static Variable createIntVariable(String name, String script) {
-    return new Variable.Builder(name, IntegerType.get(), PARTICIPANT).addAttribute("script", script).build();
-  }
-
-  private static Variable createDecimalVariable(String name, String script) {
-    return new Variable.Builder(name, DecimalType.get(), PARTICIPANT).addAttribute("script", script).build();
   }
 
 }
