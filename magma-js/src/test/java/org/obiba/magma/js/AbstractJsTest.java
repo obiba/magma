@@ -27,6 +27,10 @@ public abstract class AbstractJsTest {
   @After
   public void after() {
     Context.exit();
+    shutdownEngine();
+  }
+
+  protected void shutdownEngine() {
     MagmaEngine.get().shutdown();
   }
 

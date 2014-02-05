@@ -7,10 +7,12 @@ import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import org.hibernate.SessionFactory;
 import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mozilla.javascript.WrappedException;
 import org.obiba.magma.Datasource;
 import org.obiba.magma.DatasourceFactory;
@@ -24,12 +26,14 @@ import org.obiba.magma.VariableEntity;
 import org.obiba.magma.VariableValueSourceWrapper;
 import org.obiba.magma.VectorSource;
 import org.obiba.magma.datasource.generated.GeneratedValueTable;
+import org.obiba.magma.datasource.hibernate.HibernateDatasource;
 import org.obiba.magma.datasource.mongodb.MongoDBDatasourceFactory;
 import org.obiba.magma.js.AbstractJsTest;
 import org.obiba.magma.js.CircularVariableDependencyRuntimeException;
 import org.obiba.magma.js.JavascriptValueSource;
 import org.obiba.magma.js.views.VariablesClause;
 import org.obiba.magma.support.DatasourceCopier;
+import org.obiba.magma.support.Initialisables;
 import org.obiba.magma.type.DecimalType;
 import org.obiba.magma.type.IntegerType;
 import org.obiba.magma.views.DefaultViewManagerImpl;
@@ -39,6 +43,12 @@ import org.obiba.magma.views.ViewManager;
 import org.obiba.magma.xstream.MagmaXStreamExtension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionCallbackWithoutResult;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
@@ -48,10 +58,12 @@ import static org.fest.assertions.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 import static org.obiba.magma.Variable.Builder.newVariable;
 
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration("/test-context.xml")
 @SuppressWarnings({ "OverlyLongMethod", "PMD.NcssMethodCount", "OverlyCoupledClass" })
-public class GlobalMethodsIntegrationTest extends AbstractJsTest {
+public class GlobalMethodsHibernateTest extends AbstractJsTest {
 
-  private static final Logger log = LoggerFactory.getLogger(GlobalMethodsIntegrationTest.class);
+  private static final Logger log = LoggerFactory.getLogger(GlobalMethodsHibernateTest.class);
 
   private static final String MONGO_DB_TEST = "magma-test";
 
@@ -71,6 +83,16 @@ public class GlobalMethodsIntegrationTest extends AbstractJsTest {
 
   private ViewManager viewManager;
 
+  @Autowired
+  private SessionFactory sessionFactory;
+
+  @Autowired
+  private TransactionTemplate transactionTemplate;
+
+  public GlobalMethodsHibernateTest() {
+    System.setProperty("net.sf.ehcache.skipUpdateCheck", "true");
+  }
+
   @Before
   @Override
   public void before() {
@@ -79,6 +101,7 @@ public class GlobalMethodsIntegrationTest extends AbstractJsTest {
     Assume.assumeTrue(setupMongoDB());
 
     viewManager = new DefaultViewManagerImpl(new MemoryViewPersistenceStrategy());
+    cleanlyRemoveHibernateDatasource(true);
   }
 
   @Override
@@ -86,6 +109,16 @@ public class GlobalMethodsIntegrationTest extends AbstractJsTest {
     MagmaEngine magmaEngine = super.newEngine();
     magmaEngine.extend(new MagmaXStreamExtension());
     return magmaEngine;
+  }
+
+  @Override
+  protected void shutdownEngine() {
+    transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+      @Override
+      protected void doInTransactionWithoutResult(TransactionStatus status) {
+        MagmaEngine.get().shutdown();
+      }
+    });
   }
 
   private boolean setupMongoDB() {
@@ -97,6 +130,31 @@ public class GlobalMethodsIntegrationTest extends AbstractJsTest {
     } catch(Exception e) {
       return false;
     }
+  }
+
+  private void cleanlyRemoveHibernateDatasource(final boolean drop) {
+
+    transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+      @Override
+      protected void doInTransactionWithoutResult(TransactionStatus status) {
+        try {
+          if(drop) {
+            HibernateDatasource datasource = createHibernateDatasource();
+            MagmaEngine.get().addDatasource(datasource);
+            datasource.drop();
+          }
+          MagmaEngine.get().removeDatasource(MagmaEngine.get().getDatasource(DATASOURCE));
+        } catch(Throwable e) {
+          log.warn("Cannot remove datasource", e);
+        }
+      }
+    });
+  }
+
+  private HibernateDatasource createHibernateDatasource() {
+    HibernateDatasource datasource = new HibernateDatasource(DATASOURCE, sessionFactory);
+    Initialisables.initialise(datasource);
+    return datasource;
   }
 
   private Datasource getTestDatasource() throws IOException {

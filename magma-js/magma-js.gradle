@@ -11,6 +11,11 @@ dependencies {
   testCompile project(':magma-xstream')
   testCompile project(':magma-data-generator')
   testCompile project(':magma-datasource-mongodb')
+  testCompile project(':magma-datasource-hibernate')
   testCompile(libraries.spring_test)
   testCompile(libraries.obiba_core)
+  testCompile(libraries.hibernate_ehcache)
+  testCompile(libraries.javassist)
+  testCompile(libraries.hsqldb)
+  testCompile(libraries.mysql_connector_java)
 }
