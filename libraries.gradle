@@ -35,6 +35,8 @@ ext {
 
       javassist: 'javassist:javassist:3.12.1.GA',
 
+      janino: 'janino:janino:2.5.10',
+
       jscience_physics: 'org.jscience:jscience-physics:5.0-r53p01',
 
       json: 'org.json:json:20090211',

@@ -176,6 +176,7 @@ subprojects { subProject ->
     testCompile(libraries.jcl_slf4j)
     testCompile(libraries.junit)
     testCompile(libraries.logback_classic)
+    testCompile(libraries.janino)
     testCompile(libraries.mockito)
 
     pmd 'net.sourceforge.pmd:pmd:5.0.5'
