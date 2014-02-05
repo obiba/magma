@@ -4,6 +4,8 @@ import javax.validation.constraints.NotNull;
 
 import org.obiba.magma.VariableEntity;
 
+import com.google.common.collect.ComparisonChain;
+
 public class VariableEntityBean implements VariableEntity {
 
   @NotNull
@@ -39,11 +41,10 @@ public class VariableEntityBean implements VariableEntity {
 
   @Override
   public int compareTo(VariableEntity that) {
-    if(that == null) {
-      throw new IllegalArgumentException();
-    }
-    int compare = entityType.compareTo(that.getType());
-    return compare == 0 ? entityIdentifier.compareTo(that.getIdentifier()) : compare;
+    return ComparisonChain.start() //
+        .compare(entityType, that.getType()) //
+        .compare(entityIdentifier, that.getIdentifier()) //
+        .result();
   }
 
   @Override

@@ -15,6 +15,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 
 import org.obiba.magma.Datasource;
@@ -123,14 +124,16 @@ public class SpssValueTable extends AbstractValueTable implements Disposable {
 
   private class SpssVariableEntityProvider implements VariableEntityProvider {
 
+    @NotNull
     private final String entityType;
 
     private Set<VariableEntity> variableEntities;
 
-    private SpssVariableEntityProvider(String entityType) {
+    private SpssVariableEntityProvider(@Nullable String entityType) {
       this.entityType = entityType == null || entityType.trim().isEmpty() ? "Participant" : entityType.trim();
     }
 
+    @NotNull
     @Override
     public String getEntityType() {
       return entityType;

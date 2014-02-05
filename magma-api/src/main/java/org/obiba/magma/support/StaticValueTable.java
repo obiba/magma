@@ -60,6 +60,7 @@ public class StaticValueTable extends AbstractValueTable {
         return ImmutableSet.copyOf(StaticValueTable.this.entities);
       }
 
+      @NotNull
       @Override
       public String getEntityType() {
         return StaticValueTable.this.entityType;
