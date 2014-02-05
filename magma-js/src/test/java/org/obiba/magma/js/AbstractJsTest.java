@@ -13,10 +13,14 @@ import org.mozilla.javascript.WrappedException;
 import org.obiba.magma.MagmaEngine;
 import org.obiba.magma.Value;
 import org.obiba.magma.Variable;
+import org.obiba.magma.type.DecimalType;
+import org.obiba.magma.type.IntegerType;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 
 public abstract class AbstractJsTest {
+
+  protected static final String PARTICIPANT = "Participant";
 
   @Before
   public void before() {
@@ -99,5 +103,13 @@ public abstract class AbstractJsTest {
     assertThat(result).isNotNull();
     assertThat(result.getValue()).isNotNull();
     assertThat(result.getValue()).isEqualTo(expected);
+  }
+
+  protected static Variable createIntVariable(String name, String script) {
+    return new Variable.Builder(name, IntegerType.get(), PARTICIPANT).addAttribute("script", script).build();
+  }
+
+  protected static Variable createDecimalVariable(String name, String script) {
+    return new Variable.Builder(name, DecimalType.get(), PARTICIPANT).addAttribute("script", script).build();
   }
 }
