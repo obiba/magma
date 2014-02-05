@@ -8,6 +8,7 @@ import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
+import org.obiba.magma.AbstractVariableValueSource;
 import org.obiba.magma.Datasource;
 import org.obiba.magma.Initialisable;
 import org.obiba.magma.NoSuchValueSetException;
@@ -86,9 +87,8 @@ public class SummaryStatisticsView extends AbstractValueTable implements Initial
 
     protected AggregateValueSet(VariableEntity entity) {
       super(SummaryStatisticsView.this, entity);
-      String name = entity.getIdentifier();
-      ds = statsProvider
-          .compute(valueTable.getVariableValueSource(name), Sets.newTreeSet(valueTable.getVariableEntities()));
+      ds = statsProvider.compute(valueTable.getVariableValueSource(entity.getIdentifier()),
+          Sets.newTreeSet(valueTable.getVariableEntities()));
     }
 
     DescriptiveStatistics getStats() {
@@ -97,7 +97,7 @@ public class SummaryStatisticsView extends AbstractValueTable implements Initial
 
   }
 
-  private class StatVariableValueSource implements VariableValueSource {
+  private class StatVariableValueSource extends AbstractVariableValueSource implements VariableValueSource {
 
     private final String statName;
 

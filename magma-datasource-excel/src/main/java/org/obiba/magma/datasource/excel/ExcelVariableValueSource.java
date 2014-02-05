@@ -3,6 +3,7 @@ package org.obiba.magma.datasource.excel;
 import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 
+import org.obiba.magma.AbstractVariableValueSource;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueSet;
 import org.obiba.magma.ValueType;
@@ -10,7 +11,7 @@ import org.obiba.magma.Variable;
 import org.obiba.magma.VariableValueSource;
 import org.obiba.magma.VectorSource;
 
-public class ExcelVariableValueSource implements VariableValueSource {
+public class ExcelVariableValueSource extends AbstractVariableValueSource implements VariableValueSource {
 
   private final Variable variable;
 

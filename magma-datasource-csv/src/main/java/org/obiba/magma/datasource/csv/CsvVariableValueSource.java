@@ -3,6 +3,7 @@ package org.obiba.magma.datasource.csv;
 import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 
+import org.obiba.magma.AbstractVariableValueSource;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueSet;
 import org.obiba.magma.ValueType;
@@ -17,7 +18,7 @@ import org.obiba.magma.VectorSource;
  * <li>When the variables provided are a reference from another table</li>
  * </ol>
  */
-public class CsvVariableValueSource implements VariableValueSource {
+public class CsvVariableValueSource extends AbstractVariableValueSource implements VariableValueSource {
 
   private final Variable variable;
 

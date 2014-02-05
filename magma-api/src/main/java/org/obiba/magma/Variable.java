@@ -170,21 +170,21 @@ public interface Variable extends AttributeAware {
     }
 
     public static Builder sameAs(Variable variable, boolean sameCategories) {
-      Builder b = newVariable(variable.getName(), variable.getValueType(), variable.getEntityType())
+      Builder builder = newVariable(variable.getName(), variable.getValueType(), variable.getEntityType())
           .unit(variable.getUnit()).mimeType(variable.getMimeType())
           .referencedEntityType(variable.getReferencedEntityType());
       if(variable.isRepeatable()) {
-        b.repeatable().occurrenceGroup(variable.getOccurrenceGroup());
+        builder.repeatable().occurrenceGroup(variable.getOccurrenceGroup());
       }
       for(Attribute a : variable.getAttributes()) {
-        b.addAttribute(a);
+        builder.addAttribute(a);
       }
       if(sameCategories) {
         for(Category c : variable.getCategories()) {
-          b.addCategory(c);
+          builder.addCategory(c);
         }
       }
-      return b;
+      return builder;
     }
 
     public static Builder sameAs(Variable variable) {

@@ -6,6 +6,7 @@ import java.util.Set;
 import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 
+import org.obiba.magma.AbstractVariableValueSource;
 import org.obiba.magma.Datasource;
 import org.obiba.magma.NoSuchValueSetException;
 import org.obiba.magma.Timestamps;
@@ -14,7 +15,6 @@ import org.obiba.magma.ValueSet;
 import org.obiba.magma.ValueType;
 import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
-import org.obiba.magma.VariableValueSource;
 import org.obiba.magma.VectorSource;
 
 import com.google.common.base.Function;
@@ -86,7 +86,7 @@ public class StaticValueTable extends AbstractValueTable {
   }
 
   public void addVariable(final Variable variable) {
-    addVariableValueSource(new VariableValueSource() {
+    addVariableValueSource(new AbstractVariableValueSource() {
 
       @NotNull
       @Override
@@ -116,7 +116,7 @@ public class StaticValueTable extends AbstractValueTable {
 
   public void addVariables(final ValueType type, String... variables) {
     for(final String variable : variables) {
-      addVariableValueSource(new VariableValueSource() {
+      addVariableValueSource(new AbstractVariableValueSource() {
 
         @Override
         public Variable getVariable() {

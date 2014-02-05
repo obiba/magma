@@ -5,6 +5,7 @@ import java.util.List;
 import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 
+import org.obiba.magma.AbstractVariableValueSource;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueSet;
 import org.obiba.magma.ValueSource;
@@ -20,7 +21,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
 
-abstract class GeneratedVariableValueSource implements VariableValueSource {
+abstract class GeneratedVariableValueSource extends AbstractVariableValueSource implements VariableValueSource {
 
   private final static Logger log = LoggerFactory.getLogger(GeneratedVariableValueSource.class);
 

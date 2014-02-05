@@ -17,6 +17,7 @@ import java.util.SortedSet;
 import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 
+import org.obiba.magma.AbstractVariableValueSource;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueSet;
 import org.obiba.magma.ValueType;
@@ -27,7 +28,7 @@ import org.obiba.magma.VectorSource;
 import org.obiba.magma.datasource.spss.support.SpssVariableValueFactory;
 import org.opendatafoundation.data.spss.SPSSVariable;
 
-public class SpssVariableValueSource implements VariableValueSource, VectorSource {
+public class SpssVariableValueSource extends AbstractVariableValueSource implements VariableValueSource, VectorSource {
 
   private final Variable variable;
 

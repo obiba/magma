@@ -29,7 +29,6 @@ import org.obiba.magma.ValueSet;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
-import org.obiba.magma.VariableValueSource;
 import org.obiba.magma.datasource.csv.converter.VariableConverter;
 import org.obiba.magma.datasource.csv.support.BufferedReaderEolSupport;
 import org.obiba.magma.support.AbstractValueTable;
@@ -414,8 +413,7 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
       clear(variableFile, indexEntry);
       variableNameIndex.remove(variable.getName());
       // Remove the associated VariableValueSource.
-      VariableValueSource vvs = getVariableValueSource(variable.getName());
-      getSources().remove(vvs);
+      removeVariableValueSource(variable.getName());
     }
   }
 

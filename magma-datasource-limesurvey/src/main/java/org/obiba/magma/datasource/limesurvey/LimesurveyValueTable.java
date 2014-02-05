@@ -10,6 +10,7 @@ import java.util.SortedSet;
 import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 
+import org.obiba.magma.AbstractVariableValueSource;
 import org.obiba.magma.Attribute;
 import org.obiba.magma.AttributeAwareBuilder;
 import org.obiba.magma.Category;
@@ -87,7 +88,7 @@ class LimesurveyValueTable extends AbstractValueTable {
   }
 
   private void initialiseVariableValueSources() {
-    getSources().clear();
+    clearSources();
     mapQuestions = elementProvider.queryQuestions();
     mapAnswers = elementProvider.queryExplicitAnswers();
     buildImplicitAnswers();
@@ -400,7 +401,7 @@ class LimesurveyValueTable extends AbstractValueTable {
     return new LimesurveyTimestamps(this);
   }
 
-  class LimesurveyVariableValueSource implements VariableValueSource, VectorSource {
+  class LimesurveyVariableValueSource extends AbstractVariableValueSource implements VariableValueSource, VectorSource {
 
     private Variable variable;
 

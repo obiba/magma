@@ -38,7 +38,6 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 
 @SuppressWarnings("OverlyCoupledClass")
 public class View extends AbstractValueTableWrapper implements Initialisable, Disposable, TransformingValueTable {
@@ -368,7 +367,7 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
   @Override
   public Set<VariableEntity> getVariableEntities() {
     // do not use Guava functional stuff to avoid multiple iterations over entities
-    Set<VariableEntity> entities = Sets.newLinkedHashSet();
+    ImmutableSet.Builder<VariableEntity> builder = ImmutableSet.builder();
     if(hasVariables()) {
       for(VariableEntity entity : super.getVariableEntities()) {
         // transform super.getVariableEntities() using getVariableEntityMappingFunction()
@@ -378,11 +377,11 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
         // filter the resulting entities to remove the ones for which hasValueSet() is false
         // (usually due to a where clause)
         if(hasValueSet(entity)) {
-          entities.add(entity);
+          builder.add(entity);
         }
       }
     }
-    return ImmutableSet.copyOf(entities);
+    return builder.build();
   }
 
   public void setDatasource(ViewAwareDatasource datasource) {

@@ -41,6 +41,11 @@ public class JavascriptVariableValueSource extends JavascriptValueSource impleme
   }
 
   @Override
+  public String getName() {
+    return variable.getName();
+  }
+
+  @Override
   public Variable getVariable() {
     return variable;
   }

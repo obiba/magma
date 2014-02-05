@@ -21,6 +21,7 @@ import org.obiba.core.domain.IEntity;
 import org.obiba.core.service.SortingClause;
 import org.obiba.core.service.impl.hibernate.AssociationCriteria;
 import org.obiba.core.service.impl.hibernate.AssociationCriteria.Operation;
+import org.obiba.magma.AbstractVariableValueSource;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueLoaderFactory;
 import org.obiba.magma.ValueSet;
@@ -55,8 +56,8 @@ class HibernateVariableValueSourceFactory implements VariableValueSourceFactory 
     Set<VariableValueSource> sources = new LinkedHashSet<>();
     @SuppressWarnings("unchecked")
     Iterable<VariableState> variables = (List<VariableState>) AssociationCriteria
-        .create(VariableState.class, getCurrentSession())
-        .add("valueTable", Operation.eq, valueTable.getValueTableState()) //
+        .create(VariableState.class, getCurrentSession()).add("valueTable", Operation.eq,
+            valueTable.getValueTableState()) //
         .addSortingClauses(SortingClause.create("id")) //
         .getCriteria().setFetchMode("categories", FetchMode.JOIN).list();
     for(VariableState v : variables) {
@@ -77,7 +78,7 @@ class HibernateVariableValueSourceFactory implements VariableValueSourceFactory 
     return valueTable.getDatasource().getSessionFactory().getCurrentSession();
   }
 
-  class HibernateVariableValueSource implements VariableValueSource, VectorSource {
+  class HibernateVariableValueSource extends AbstractVariableValueSource implements VariableValueSource, VectorSource {
 
     private final String name;
 
