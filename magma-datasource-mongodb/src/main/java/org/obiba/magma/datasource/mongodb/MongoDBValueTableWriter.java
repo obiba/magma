@@ -112,7 +112,7 @@ class MongoDBValueTableWriter implements ValueTableWriter {
     private void removeFile(Variable variable, String field) {
       BSONObject binaryValueMetaData = (BSONObject) getValueSetObject().get(field);
       if(binaryValueMetaData != null) {
-        GridFS gridFS = table.getGridFS();
+        GridFS gridFS = table.getMongoDBFactory().getGridFS();
         if(variable.isRepeatable()) {
           for(BSONObject obj : (Iterable<BSONObject>) binaryValueMetaData) {
             gridFS.remove((ObjectId) obj.get("_id"));
@@ -150,7 +150,7 @@ class MongoDBValueTableWriter implements ValueTableWriter {
           .add("entity", entity.getIdentifier());
       if(occurrence != null) metaDataBuilder.add("occurrence", occurrence);
 
-      GridFSInputFile gridFSFile = table.getGridFS().createFile((byte[]) value.getValue());
+      GridFSInputFile gridFSFile = table.getMongoDBFactory().getGridFS().createFile((byte[]) value.getValue());
       gridFSFile.setMetaData(metaDataBuilder.get());
       gridFSFile.save();
       return getBinaryValueMetadata(gridFSFile, occurrence);
@@ -245,7 +245,7 @@ class MongoDBValueTableWriter implements ValueTableWriter {
 
     private void removeFile(BSONObject fileMetadata) {
       if(fileMetadata.containsField(GRID_FILE_ID)) {
-        table.getGridFS().remove(new ObjectId((String) fileMetadata.get(GRID_FILE_ID)));
+        table.getMongoDBFactory().getGridFS().remove(new ObjectId((String) fileMetadata.get(GRID_FILE_ID)));
       }
     }
 

@@ -65,24 +65,30 @@ public class MongoDBDatasource extends AbstractDatasource {
     this.mongoDBFactory = mongoDBFactory;
   }
 
-  DB getDB() {
-    return mongoDBFactory.getDB();
-  }
-
   @NotNull
   MongoDBFactory getMongoDBFactory() {
     return mongoDBFactory;
   }
 
   DBCollection getValueTableCollection() {
-    DBCollection coll = getDB().getCollection(VALUE_TABLE_COLLECTION);
-    coll.ensureIndex("datasource");
-    coll.ensureIndex("name");
-    return coll;
+    return mongoDBFactory.execute(new MongoDBFactory.MongoDBCallback<DBCollection>() {
+      @Override
+      public DBCollection doWithDB(DB db) {
+        DBCollection collection = db.getCollection(VALUE_TABLE_COLLECTION);
+        collection.ensureIndex("datasource");
+        collection.ensureIndex("name");
+        return collection;
+      }
+    });
   }
 
   DBCollection getDatasourceCollection() {
-    return getDB().getCollection(DATASOURCE_COLLECTION);
+    return mongoDBFactory.execute(new MongoDBFactory.MongoDBCallback<DBCollection>() {
+      @Override
+      public DBCollection doWithDB(DB db) {
+        return db.getCollection(DATASOURCE_COLLECTION);
+      }
+    });
   }
 
   DBObject asDBObject() {
@@ -107,13 +113,19 @@ public class MongoDBDatasource extends AbstractDatasource {
   }
 
   static DBObject createTimestampsObject() {
-    return BasicDBObjectBuilder.start().add(TIMESTAMPS_CREATED_FIELD, new Date())
+    return BasicDBObjectBuilder.start() //
+        .add(TIMESTAMPS_CREATED_FIELD, new Date()) //
         .add(TIMESTAMPS_UPDATED_FIELD, new Date()).get();
   }
 
   @Override
   protected void onInitialise() {
     mongoDBFactory.getMongoClient();
+  }
+
+  @Override
+  protected void onDispose() {
+    mongoDBFactory.close();
   }
 
   @Override

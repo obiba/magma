@@ -29,12 +29,6 @@ public class MongoDBFactory implements Serializable {
   @Nullable
   private transient MongoClient mongoClient;
 
-  @Nullable
-  private transient DB db;
-
-  @Nullable
-  private transient GridFS gridFS;
-
   public MongoDBFactory(@NotNull URI uri) {
     this(uri.toString());
   }
@@ -69,19 +63,29 @@ public class MongoDBFactory implements Serializable {
     return mongoClient;
   }
 
-  @NotNull
-  public DB getDB() {
-    if(db == null) {
-      db = getMongoClient().getDB(getMongoClientURI().getDatabase());
+  public void close() {
+    if(mongoClient != null) {
+      mongoClient.close();
+      mongoClient = null;
     }
-    return db;
   }
 
   @NotNull
   public GridFS getGridFS() {
-    if(gridFS == null) {
-      gridFS = new GridFS(getDB());
-    }
-    return gridFS;
+    return execute(new MongoDBCallback<GridFS>() {
+      @Override
+      public GridFS doWithDB(DB db) {
+        return new GridFS(db);
+      }
+    });
   }
+
+  public <T> T execute(MongoDBCallback<T> callback) {
+    return callback.doWithDB(getMongoClient().getDB(getMongoClientURI().getDatabase()));
+  }
+
+  public interface MongoDBCallback<T> {
+    T doWithDB(DB db);
+  }
+
 }
