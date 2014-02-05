@@ -26,7 +26,6 @@ import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.VariableValueSource;
 import org.obiba.magma.VectorSource;
-import org.obiba.magma.js.CircularVariableDependencyRuntimeException;
 import org.obiba.magma.js.JavascriptValueSource.VectorCache;
 import org.obiba.magma.js.MagmaContext;
 import org.obiba.magma.js.MagmaJsEvaluationRuntimeException;
@@ -48,7 +47,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import static org.obiba.magma.js.JavascriptValueSource.EvaluationType;
-import static org.obiba.magma.js.JavascriptVariableValueSource.ReferenceNode;
 
 @SuppressWarnings(
     { "IfMayBeConditional", "ChainOfInstanceofChecks", "OverlyCoupledClass", "StaticMethodOnlyUsedInOneClass" })
@@ -301,9 +299,9 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
 
     MagmaEngineVariableResolver reference = MagmaEngineVariableResolver.valueOf(name);
 
-    ReferenceNode referenceNode = new ReferenceNode(
-        Variable.Reference.getReference(view.getDatasource().getName(), view.getName(), reference.getVariableName()));
-    checkCircularDependencies(context, referenceNode);
+//    ReferenceNode referenceNode = new ReferenceNode(
+//        Variable.Reference.getReference(view.getDatasource().getName(), view.getName(), reference.getVariableName()));
+//    checkCircularDependencies(context, referenceNode);
 
     // Find the named source, which is in this context a view variable value source.
     VariableValueSource source = reference.resolveSource(view);
@@ -339,10 +337,10 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
 //        return new ScriptableValue(thisObj, variableSource.getValueType().nullValue(),
 //            variableSource.getVariable().getUnit());
       case VALUE_SET:
-        ReferenceNode referenceNode = new ReferenceNode(Variable.Reference
-            .getReference(reference.getDatasourceName(), reference.getTableName(), reference.getVariableName()));
-        log.trace("Check dependencies for {}", referenceNode.getVariableRef());
-        checkCircularDependencies(context, referenceNode);
+//        ReferenceNode referenceNode = new ReferenceNode(Variable.Reference
+//            .getReference(reference.getDatasourceName(), reference.getTableName(), reference.getVariableName()));
+//        log.trace("Check dependencies for {}", referenceNode.getVariableRef());
+//        checkCircularDependencies(context, referenceNode);
         return valueForValueSet(context, thisObj, reference, variableSource);
       case VECTOR:
         return valuesForVector(context, thisObj, variableSource);
@@ -351,14 +349,14 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
     }
   }
 
-  private static void checkCircularDependencies(MagmaContext context, ReferenceNode callee)
-      throws CircularVariableDependencyRuntimeException {
-    if(context.has(ReferenceNode.class)) {
-      ReferenceNode caller = context.peek(ReferenceNode.class);
-      callee.setCaller(caller);
-      context.push(ReferenceNode.class, callee);
-    }
-  }
+//  private static void checkCircularDependencies(MagmaContext context, ReferenceNode callee)
+//      throws CircularVariableDependencyRuntimeException {
+//    if(context.has(ReferenceNode.class)) {
+//      ReferenceNode caller = context.peek(ReferenceNode.class);
+//      callee.setCaller(caller);
+//      context.push(ReferenceNode.class, callee);
+//    }
+//  }
 
   private static ScriptableValue valuesForVector(MagmaContext context, Scriptable thisObj, VariableValueSource source) {
     VectorSource vectorSource = source.asVectorSource();
