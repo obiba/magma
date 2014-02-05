@@ -18,7 +18,7 @@ import com.google.common.collect.Iterables;
 public abstract class AbstractPrototypeFactory {
 
   private final Set<String> excluded = ImmutableSet
-      .of("wait", "toString", "getClass", "equals", "hashCode", "notify", "notifyAll");
+      .of("wait", "toString", "getClass", "equals", "hashCode", "notify", "notifyAll", "$$YJP$$wait");
 
   private final Set<Class<?>> methodProviders = new HashSet<Class<?>>();
 
