@@ -1,9 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
 
+  <!--<evaluator name="variableBuilder">-->
+  <!--<expression>logger.contains("org.obiba.magma.Variable")</expression>-->
+  <!--</evaluator>-->
+
   <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
     <encoder>
       <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger:%line - %message%n</pattern>
+      <!--<pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger:%line - %message%n%caller{10, variableBuilder}</pattern>-->
     </encoder>
   </appender>
 
