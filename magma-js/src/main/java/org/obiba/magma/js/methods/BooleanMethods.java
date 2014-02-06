@@ -31,7 +31,7 @@ import com.google.common.collect.Lists;
  * . Note that other methods that use {@code BooleanType} may be defined elsewhere.
  */
 @SuppressWarnings(
-    { "UnusedDeclaration", "IfStatementWithTooManyBranches", "ChainOfInstanceofChecks", "IfMayBeConditional" })
+    { "UnusedDeclaration", "ChainOfInstanceofChecks" })
 public class BooleanMethods {
 
   private BooleanMethods() {

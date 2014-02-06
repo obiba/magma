@@ -13,7 +13,6 @@ import org.obiba.magma.type.TextType;
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mozilla.javascript.Context.getCurrentContext;
 
-@SuppressWarnings({ "OverlyLongMethod", "PMD.NcssMethodCount", "OverlyCoupledClass" })
 public class GlobalMethodsTest extends AbstractJsTest {
 
 //  private static final Logger log = LoggerFactory.getLogger(GlobalMethodsTest.class);

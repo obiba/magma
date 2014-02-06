@@ -40,7 +40,9 @@ public class VariablesClauseTest extends AbstractJsTest {
   private Value healthQuestionnaireIdentificationSexValue;
 
   @Before
-  public void setUp() throws Exception {
+  @Override
+  public void before() {
+    super.before();
     Variable yearVariable = buildYear();
     Variable sex = buildSexWithSameAsAndScript();
 

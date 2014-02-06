@@ -8,6 +8,7 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
+import org.mozilla.javascript.Callable;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.Scriptable;
@@ -168,7 +169,7 @@ public class ValueSequenceMethods {
       ValueSequence sortedValueSequence = null;
       if(args != null && args.length > 0 && args[0] instanceof Function) {
         // Sort using a custom Comparator (javascript function)
-        final Function func = (Function) args[0];
+        final Callable func = (Callable) args[0];
         sortedValueSequence = valueSequence.sort(new Comparator<Value>() {
           @Override
           public int compare(Value o1, Value o2) {

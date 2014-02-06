@@ -51,11 +51,11 @@ public abstract class AbstractJsTest {
     return new MagmaEngine();
   }
 
-  public ScriptableValue newValue(Value value, @Nullable String unit) {
+  protected ScriptableValue newValue(Value value, @Nullable String unit) {
     return new ScriptableValue(getSharedScope(), value, unit);
   }
 
-  public ScriptableValue newValue(Value value) {
+  protected ScriptableValue newValue(Value value) {
     return newValue(value, null);
   }
 

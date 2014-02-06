@@ -92,7 +92,6 @@ public class UnitMethods {
       throw new MagmaJsEvaluationRuntimeException(String.format("unit %s cannot be converted to %s", source, target));
     }
 
-    //noinspection ConstantConditions
     double sourceValue = (Double) DecimalType.get().convert(value.getValue()).getValue();
 
     double newValue = source.getConverterTo(target).convert(sourceValue);
@@ -100,6 +99,7 @@ public class UnitMethods {
     return new ScriptableValue(value, DecimalType.get().valueOf(newValue), target.toString());
   }
 
+  @SuppressWarnings("ChainOfInstanceofChecks")
   public static Unit<?> extractUnit(Object value) {
     if(value == null) return SI.ONE;
     if(value instanceof ScriptableValue) return extractUnit((ScriptableValue) value);

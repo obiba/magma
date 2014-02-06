@@ -66,7 +66,6 @@ public class DateTimeMethods {
         return new ScriptableValue(thisObj, IntegerType.get().nullSequence());
       }
       Collection<Value> newValues = new ArrayList<>();
-      //noinspection ConstantConditions
       for(Value value : currentValue.asSequence().getValue()) {
         newValues.add(quarter(value));
       }
@@ -107,7 +106,6 @@ public class DateTimeMethods {
         return new ScriptableValue(thisObj, IntegerType.get().nullSequence());
       }
       Collection<Value> newValues = new ArrayList<>();
-      //noinspection ConstantConditions
       for(Value value : currentValue.asSequence().getValue()) {
         newValues.add(semester(value));
       }
@@ -155,7 +153,6 @@ public class DateTimeMethods {
         return new ScriptableValue(thisObj, BooleanType.get().nullSequence());
       }
       Collection<Value> newValues = new ArrayList<>();
-      //noinspection ConstantConditions
       for(Value value : currentValue.asSequence().getValue()) {
         newValues.add(weekday(value));
       }
@@ -188,7 +185,6 @@ public class DateTimeMethods {
         return new ScriptableValue(thisObj, BooleanType.get().nullSequence());
       }
       Collection<Value> newValues = new ArrayList<>();
-      //noinspection ConstantConditions
       for(Value value : currentValue.asSequence().getValue()) {
         newValues.add(weekend(value));
       }
@@ -322,7 +318,6 @@ public class DateTimeMethods {
         return new ScriptableValue(thisObj, IntegerType.get().nullSequence());
       }
       Collection<Value> newValues = new ArrayList<>();
-      //noinspection ConstantConditions
       for(Value value : currentValue.asSequence().getValue()) {
         newValues.add(timeValue(value));
       }
@@ -354,7 +349,6 @@ public class DateTimeMethods {
         return new ScriptableValue(thisObj, TextType.get().nullSequence());
       }
       Collection<Value> newValues = new ArrayList<>();
-      //noinspection ConstantConditions
       for(Value value : currentValue.asSequence().getValue()) {
         newValues.add(format(value, args));
       }
@@ -414,7 +408,6 @@ public class DateTimeMethods {
         return new ScriptableValue(thisObj, BooleanType.get().nullSequence());
       }
       Collection<Value> newValues = new ArrayList<>();
-      //noinspection ConstantConditions
       for(Value value : currentValue.asSequence().getValue()) {
         newValues.add(after(value, args));
       }
@@ -458,7 +451,6 @@ public class DateTimeMethods {
       }
     } else if(value.getValueType() == DateType.get()) {
       if(!value.isNull()) {
-        //noinspection ConstantConditions
         return ((MagmaDate) value.getValue()).asDate();
       }
     } else {
@@ -476,7 +468,6 @@ public class DateTimeMethods {
    * @param value
    * @return
    */
-  @SuppressWarnings("ConstantConditions")
   @Nullable
   private static Calendar asCalendar(Value value) {
     if(value.getValueType() == DateTimeType.get()) {
@@ -506,7 +497,6 @@ public class DateTimeMethods {
    * @param field
    * @return
    */
-  @SuppressWarnings("MagicConstant")
   private static Scriptable asScriptable(Scriptable scope, Scriptable sv, int field) {
     Value currentValue = ((ScriptableValue) sv).getValue();
 
@@ -521,13 +511,11 @@ public class DateTimeMethods {
     }
   }
 
-  @SuppressWarnings("MagicConstant")
   private static Scriptable asScriptable(Scriptable scope, ValueSequence currentValue, int field) {
     if(currentValue.isNull()) {
       return new ScriptableValue(scope, IntegerType.get().nullSequence());
     }
     Collection<Value> newValues = new ArrayList<>();
-    //noinspection ConstantConditions
     for(Value value : currentValue.asSequence().getValue()) {
       Calendar c = asCalendar(value);
       if(c != null) {
@@ -562,7 +550,6 @@ public class DateTimeMethods {
         return new ScriptableValue(thisObj, DateTimeType.get().nullSequence());
       }
       Collection<Value> newValues = new ArrayList<>();
-      //noinspection ConstantConditions
       for(Value value : currentValue.asSequence().getValue()) {
         newValues.add(add(value, args));
       }

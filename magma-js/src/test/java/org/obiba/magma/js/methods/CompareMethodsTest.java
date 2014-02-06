@@ -14,8 +14,6 @@ import static org.fest.assertions.api.Assertions.assertThat;
 
 public class CompareMethodsTest extends AbstractJsTest {
 
-  // compare
-
   @Test
   public void testIntegerCompareInteger() throws Exception {
     ScriptableValue integerSeven = newValue(IntegerType.get().valueOf(7));

@@ -21,10 +21,8 @@ import org.obiba.magma.type.TextType;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 
-@SuppressWarnings({ "AssignmentToMethodParameter", "PMD.AvoidReassigningParameters" })
+@SuppressWarnings({ "AssignmentToMethodParameter", "PMD.AvoidReassigningParameters", "ReuseOfLocalVariable" })
 public class ValueSequenceMethodsTest extends AbstractJsTest {
-
-  // first()
 
   @Test
   public void testFirstOfOne() throws Exception {
@@ -594,11 +592,11 @@ public class ValueSequenceMethodsTest extends AbstractJsTest {
     }
   }
 
-  public MyScriptableValueCustomSortAsc newValueAsc(Value value) {
+  private MyScriptableValueCustomSortAsc newValueAsc(Value value) {
     return new MyScriptableValueCustomSortAsc(getSharedScope(), value);
   }
 
-  public MyScriptableValueCustomSortDesc newValueDesc(Value value) {
+  private MyScriptableValueCustomSortDesc newValueDesc(Value value) {
     return new MyScriptableValueCustomSortDesc(getSharedScope(), value);
   }
 }
