@@ -97,6 +97,11 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
     return value;
   }
 
+  @Override
+  public boolean supportVectorSource() {
+    return true;
+  }
+
   @NotNull
   @Override
   public VectorSource asVectorSource() {

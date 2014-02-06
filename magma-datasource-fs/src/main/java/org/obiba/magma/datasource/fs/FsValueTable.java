@@ -6,7 +6,6 @@ import java.io.ObjectInputStream;
 import java.io.Reader;
 import java.io.Writer;
 
-import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 
 import org.obiba.magma.AbstractVariableValueSource;
@@ -162,10 +161,15 @@ class FsValueTable extends AbstractValueTable implements Initialisable, Disposab
       return ((LazyValueSet) valueSet).getValueSet().getValue(variable);
     }
 
-    @Nullable
+    @Override
+    public boolean supportVectorSource() {
+      return false;
+    }
+
+    @NotNull
     @Override
     public VectorSource asVectorSource() {
-      return null;
+      throw new MagmaRuntimeException("FS Datasource does not support vector source");
     }
 
   }

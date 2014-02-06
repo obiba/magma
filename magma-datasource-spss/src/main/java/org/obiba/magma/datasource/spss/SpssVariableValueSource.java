@@ -9,12 +9,11 @@
  */
 package org.obiba.magma.datasource.spss;
 
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
-import java.util.Set;
 import java.util.SortedSet;
 
-import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 
 import org.obiba.magma.AbstractVariableValueSource;
@@ -57,7 +56,12 @@ public class SpssVariableValueSource extends AbstractVariableValueSource impleme
     return spssValueSet.getValue(variable);
   }
 
-  @Nullable
+  @Override
+  public boolean supportVectorSource() {
+    return true;
+  }
+
+  @NotNull
   @Override
   public VectorSource asVectorSource() {
     return this;
@@ -81,7 +85,7 @@ public class SpssVariableValueSource extends AbstractVariableValueSource impleme
 
     private final Iterator<VariableEntity> entitiesIterator;
 
-    private ValuesIterator(Set<VariableEntity> entities) {
+    private ValuesIterator(Collection<VariableEntity> entities) {
       entitiesIterator = entities.iterator();
     }
 

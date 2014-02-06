@@ -3,7 +3,6 @@ package org.obiba.magma.support;
 import java.util.Collections;
 import java.util.SortedSet;
 
-import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 
 import org.obiba.magma.Value;
@@ -33,7 +32,12 @@ public final class NullValueSource implements ValueSource, VectorSource {
     return valueType.nullValue();
   }
 
-  @Nullable
+  @Override
+  public boolean supportVectorSource() {
+    return true;
+  }
+
+  @NotNull
   @Override
   public VectorSource asVectorSource() {
     return this;

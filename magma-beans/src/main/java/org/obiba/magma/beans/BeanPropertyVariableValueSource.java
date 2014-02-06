@@ -20,7 +20,7 @@ import org.obiba.magma.ValueType;
 import org.obiba.magma.Variable;
 import org.obiba.magma.VariableValueSource;
 import org.obiba.magma.VectorSource;
-import org.springframework.beans.BeanWrapper;
+import org.obiba.magma.VectorSourceNotSupportedException;
 import org.springframework.beans.InvalidPropertyException;
 import org.springframework.beans.NullValueInNestedPathException;
 import org.springframework.beans.PropertyAccessorFactory;
@@ -66,7 +66,6 @@ public class BeanPropertyVariableValueSource extends AbstractVariableValueSource
   @NotNull
   public Value getValue(ValueSet valueSet) {
     Object bean = ((BeanValueSet) valueSet).resolve(beanClass, valueSet, variable);
-
     if(bean == null) {
       return variable.isRepeatable() ? getValueType().nullSequence() : getValueType().nullValue();
     }
@@ -75,27 +74,33 @@ public class BeanPropertyVariableValueSource extends AbstractVariableValueSource
       Iterable<Value> values = Iterables.transform((Iterable<?>) bean, new Function<Object, Value>() {
         @Override
         public Value apply(Object bean) {
-          Object object = getPropertyValue(propertyPath, PropertyAccessorFactory.forBeanPropertyAccess(bean));
+          Object object = getPropertyValue(bean);
           return getValueType().valueOf(object);
         }
       });
       return getValueType().sequenceOf(ImmutableList.copyOf(values));
-    } else {
-      Object object = getPropertyValue(propertyPath, PropertyAccessorFactory.forBeanPropertyAccess(bean));
-      return getValueType().valueOf(object);
     }
+
+    Object object = getPropertyValue(bean);
+    return getValueType().valueOf(object);
+
   }
 
-  @Nullable
+  @Override
+  public boolean supportVectorSource() {
+    return false;
+  }
+
+  @NotNull
   @Override
   public VectorSource asVectorSource() {
-    return null;
+    throw new VectorSourceNotSupportedException(getClass());
   }
 
   @Nullable
-  protected Object getPropertyValue(String propertyPath, BeanWrapper bw) {
+  protected Object getPropertyValue(Object bean) {
     try {
-      return bw.getPropertyValue(propertyPath);
+      return PropertyAccessorFactory.forBeanPropertyAccess(bean).getPropertyValue(propertyPath);
     } catch(NullValueInNestedPathException e) {
       return null;
     } catch(InvalidPropertyException e) {

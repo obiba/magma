@@ -3,7 +3,6 @@ package org.obiba.magma.support;
 import java.util.Map;
 import java.util.Set;
 
-import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 
 import org.obiba.magma.AbstractVariableValueSource;
@@ -12,10 +11,12 @@ import org.obiba.magma.NoSuchValueSetException;
 import org.obiba.magma.Timestamps;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueSet;
+import org.obiba.magma.ValueSource;
 import org.obiba.magma.ValueType;
 import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.VectorSource;
+import org.obiba.magma.VectorSourceNotSupportedException;
 
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableSet;
@@ -31,8 +32,6 @@ public class StaticValueTable extends AbstractValueTable {
   private final Set<VariableEntity> entities;
 
   private final Map<String, Map<String, Object>> table = Maps.newHashMap();
-
-  private String name;
 
   public StaticValueTable(Datasource datasource, String name, Iterable<String> entities, String entityType) {
     super(datasource, name);
@@ -102,10 +101,16 @@ public class StaticValueTable extends AbstractValueTable {
         return value instanceof Value ? (Value) value : getValueType().valueOf(value);
       }
 
-      @Nullable
       @Override
+      public boolean supportVectorSource() {
+        return false;
+      }
+
+      @NotNull
+      @Override
+      @SuppressWarnings("unchecked")
       public VectorSource asVectorSource() {
-        return null;
+        throw new VectorSourceNotSupportedException((Class<? extends ValueSource>) getClass());
       }
 
       @Override
@@ -136,10 +141,16 @@ public class StaticValueTable extends AbstractValueTable {
           return type;
         }
 
-        @Nullable
         @Override
+        public boolean supportVectorSource() {
+          return false;
+        }
+
+        @NotNull
+        @Override
+        @SuppressWarnings("unchecked")
         public VectorSource asVectorSource() {
-          return null;
+          throw new VectorSourceNotSupportedException((Class<? extends ValueSource>) getClass());
         }
       });
     }

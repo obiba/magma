@@ -9,7 +9,6 @@
  ******************************************************************************/
 package org.obiba.magma;
 
-import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 
 /**
@@ -31,7 +30,9 @@ public interface ValueSource {
   @NotNull
   Value getValue(ValueSet valueSet);
 
-  @Nullable
-  VectorSource asVectorSource();
+  boolean supportVectorSource();
+
+  @NotNull
+  VectorSource asVectorSource() throws VectorSourceNotSupportedException;
 
 }

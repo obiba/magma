@@ -2,9 +2,14 @@ package org.obiba.magma.datasource.limesurvey;
 
 import java.util.Map;
 
+import javax.annotation.Nullable;
+
 import org.obiba.magma.Attribute;
 
 public abstract class LimeLocalizableEntity {
+
+  @Nullable
+  private String name;
 
   private final LimeAttributes localizableAttributes;
 
@@ -12,18 +17,17 @@ public abstract class LimeLocalizableEntity {
     localizableAttributes = LimeAttributes.create();
   }
 
-  public LimeLocalizableEntity(String name) {
+  public LimeLocalizableEntity(@Nullable String name) {
     this();
     this.name = name;
   }
 
-  private String name;
-
+  @Nullable
   public String getName() {
     return name;
   }
 
-  public void setName(String name) {
+  public void setName(@Nullable String name) {
     this.name = name;
   }
 

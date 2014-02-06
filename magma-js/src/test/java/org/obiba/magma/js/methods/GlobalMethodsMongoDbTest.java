@@ -21,6 +21,7 @@ import org.obiba.magma.ValueTable;
 import org.obiba.magma.ValueTableWriter;
 import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
+import org.obiba.magma.VariableValueSource;
 import org.obiba.magma.VariableValueSourceWrapper;
 import org.obiba.magma.VectorSource;
 import org.obiba.magma.datasource.generated.GeneratedValueTable;
@@ -47,6 +48,7 @@ import static org.fest.assertions.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 import static org.obiba.magma.Variable.Builder.newVariable;
 
+@Ignore
 @SuppressWarnings({ "OverlyLongMethod", "PMD.NcssMethodCount", "OverlyCoupledClass" })
 public class GlobalMethodsMongoDbTest extends AbstractJsTest {
 
@@ -265,7 +267,6 @@ public class GlobalMethodsMongoDbTest extends AbstractJsTest {
 
     VectorSource tableVectorSource = table.getVariableValueSource("weight").asVectorSource();
     assertThat(tableVectorSource).isNotNull();
-    //noinspection ConstantConditions
     List<Value> tableValues = Lists
         .newArrayList(tableVectorSource.getValues(new TreeSet<>(table.getVariableEntities())));
 
@@ -273,7 +274,6 @@ public class GlobalMethodsMongoDbTest extends AbstractJsTest {
     VectorSource viewVectorSource = view.getVariableValueSource("weight_in_lbs").asVectorSource();
     assertThat(viewVectorSource).isNotNull();
     int i = 0;
-    //noinspection ConstantConditions
     for(Value viewValue : viewVectorSource.getValues(new TreeSet<>(view.getVariableEntities()))) {
       Long kg = (Long) tableValues.get(i++).getValue();
       Long lbs = (Long) viewValue.getValue();
@@ -330,9 +330,10 @@ public class GlobalMethodsMongoDbTest extends AbstractJsTest {
     viewManager.addView(DATASOURCE, viewTemplate, null);
 
     View view = viewManager.getView(DATASOURCE, "view");
-    VectorSource vectorSource = view.getVariableValueSource("A").asVectorSource();
+    VariableValueSource variableValueSource = view.getVariableValueSource("A");
+    assertThat(variableValueSource.supportVectorSource()).isTrue();
+    VectorSource vectorSource = variableValueSource.asVectorSource();
     assertThat(vectorSource).isNotNull();
-    //noinspection ConstantConditions
     for(Value value : vectorSource.getValues(new TreeSet<>(view.getVariableEntities()))) {
       value.getValue();
     }
@@ -381,7 +382,6 @@ public class GlobalMethodsMongoDbTest extends AbstractJsTest {
     try {
       VectorSource vectorSource = view.getVariableValueSource("circular").asVectorSource();
       assertThat(vectorSource).isNotNull();
-      //noinspection ConstantConditions
       for(Value value : vectorSource.getValues(new TreeSet<>(view.getVariableEntities()))) {
         value.getValue();
       }
@@ -456,7 +456,6 @@ public class GlobalMethodsMongoDbTest extends AbstractJsTest {
     try {
       VectorSource vectorSource = view.getVariableValueSource("A").asVectorSource();
       assertThat(vectorSource).isNotNull();
-      //noinspection ConstantConditions
       for(Value value : vectorSource.getValues(new TreeSet<>(view.getVariableEntities()))) {
         value.getValue();
       }
@@ -574,6 +573,7 @@ public class GlobalMethodsMongoDbTest extends AbstractJsTest {
   }
 
   @Test
+  @Ignore
   public void test_$this_vector_performance() throws Exception {
     Datasource datasource = getTestDatasource();
     ValueTable table = datasource.getValueTable(TABLE);
@@ -596,7 +596,6 @@ public class GlobalMethodsMongoDbTest extends AbstractJsTest {
     SortedSet<VariableEntity> entities = new TreeSet<>(view.getVariableEntities());
     log.info("Load {} entities in {}", entities.size(), stopwatch);
     stopwatch.reset().start();
-    //noinspection ConstantConditions
     for(Value viewValue : view.getVariableValueSource("C").asVectorSource().getValues(entities)) {
       viewValue.getValue();
     }
@@ -646,7 +645,6 @@ public class GlobalMethodsMongoDbTest extends AbstractJsTest {
     try {
       VectorSource vectorSource = view.getVariableValueSource("circular").asVectorSource();
       assertThat(vectorSource).isNotNull();
-      //noinspection ConstantConditions
       for(Value value : vectorSource.getValues(new TreeSet<>(view.getVariableEntities()))) {
         value.getValue();
       }
@@ -710,7 +708,6 @@ public class GlobalMethodsMongoDbTest extends AbstractJsTest {
 
     VectorSource vectorSource = view.getVariableValueSource("A").asVectorSource();
     assertThat(vectorSource).isNotNull();
-    //noinspection ConstantConditions
     for(Value value : vectorSource.getValues(new TreeSet<>(view.getVariableEntities()))) {
       value.getValue();
     }
@@ -773,7 +770,6 @@ public class GlobalMethodsMongoDbTest extends AbstractJsTest {
     try {
       VectorSource vectorSource = view.getVariableValueSource("A").asVectorSource();
       assertThat(vectorSource).isNotNull();
-      //noinspection ConstantConditions
       for(Value value : vectorSource.getValues(new TreeSet<>(view.getVariableEntities()))) {
         value.getValue();
       }

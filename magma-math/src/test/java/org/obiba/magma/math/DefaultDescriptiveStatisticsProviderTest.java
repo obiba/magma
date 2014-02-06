@@ -15,15 +15,13 @@ import org.obiba.magma.type.DecimalType;
 
 import com.google.common.collect.ImmutableList;
 
-import static org.easymock.EasyMock.createMock;
-import static org.easymock.EasyMock.expect;
-import static org.easymock.EasyMock.replay;
-import static org.easymock.EasyMock.verify;
 import static org.fest.assertions.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class DefaultDescriptiveStatisticsProviderTest extends AbstractMagmaTest {
 
-  SortedSet<VariableEntity> emptySet = new TreeSet<>();
+  private final SortedSet<VariableEntity> emptySet = new TreeSet<>();
 
   @Test(expected = IllegalArgumentException.class)
   public void test_compute_nullSource() {
@@ -34,52 +32,45 @@ public class DefaultDescriptiveStatisticsProviderTest extends AbstractMagmaTest 
   @Test(expected = IllegalArgumentException.class)
   public void test_compute_nullSet() {
     DescriptiveStatisticsProvider defaultProvider = new DefaultDescriptiveStatisticsProvider();
-    VariableValueSource mockSource = createMock(VariableValueSource.class);
+    VariableValueSource mockSource = mock(VariableValueSource.class);
     defaultProvider.compute(mockSource, null);
   }
 
   @Test
   public void test_compute_handlesNullVectorSource() {
-    VariableValueSource mockSource = createMock(VariableValueSource.class);
-    expect(mockSource.asVectorSource()).andReturn(null);
-
-    replay(mockSource);
+    VariableValueSource mockSource = mock(VariableValueSource.class);
+    when(mockSource.asVectorSource()).thenReturn(null);
 
     DescriptiveStatisticsProvider defaultProvider = new DefaultDescriptiveStatisticsProvider();
     DescriptiveStatistics ds = defaultProvider.compute(mockSource, emptySet);
 
     assertThat(ds).isNotNull();
-    verify(mockSource);
   }
 
   @Test
   public void test_compute_obtainsVectorOverCorrectSetOfEntities() {
-    VariableValueSource mockSource = createMock(VariableValueSource.class);
-    VectorSource mockVector = createMock(VectorSource.class);
+    VariableValueSource mockSource = mock(VariableValueSource.class);
+    VectorSource mockVector = mock(VectorSource.class);
 
-    expect(mockSource.asVectorSource()).andReturn(mockVector);
-    expect(mockVector.getValues(emptySet)).andReturn(ImmutableList.<Value>of());
-
-    replay(mockSource, mockVector);
+    when(mockSource.supportVectorSource()).thenReturn(true);
+    when(mockSource.asVectorSource()).thenReturn(mockVector);
+    when(mockVector.getValues(emptySet)).thenReturn(ImmutableList.<Value>of());
 
     DescriptiveStatisticsProvider defaultProvider = new DefaultDescriptiveStatisticsProvider();
     DescriptiveStatistics ds = defaultProvider.compute(mockSource, emptySet);
 
     assertThat(ds).isNotNull();
-
-    verify(mockSource, mockVector);
   }
 
   @Test
   public void test_compute_excludesNullValues() {
-    VariableValueSource mockSource = createMock(VariableValueSource.class);
-    VectorSource mockVector = createMock(VectorSource.class);
+    VariableValueSource mockSource = mock(VariableValueSource.class);
+    VectorSource mockVector = mock(VectorSource.class);
 
-    expect(mockSource.asVectorSource()).andReturn(mockVector);
-    expect(mockVector.getValues(emptySet))
-        .andReturn(Values.asValues(DecimalType.get(), 2d, 4d, 6d, 8d, null, null, 10d));
-
-    replay(mockSource, mockVector);
+    when(mockSource.supportVectorSource()).thenReturn(true);
+    when(mockSource.asVectorSource()).thenReturn(mockVector);
+    when(mockVector.getValues(emptySet))
+        .thenReturn(Values.asValues(DecimalType.get(), 2d, 4d, 6d, 8d, null, null, 10d));
 
     DescriptiveStatisticsProvider defaultProvider = new DefaultDescriptiveStatisticsProvider();
     DescriptiveStatistics ds = defaultProvider.compute(mockSource, emptySet);
@@ -87,7 +78,6 @@ public class DefaultDescriptiveStatisticsProviderTest extends AbstractMagmaTest 
     assertThat(ds).isNotNull();
     assertThat(ds.getN()).isEqualTo(5l);
 
-    verify(mockSource, mockVector);
   }
 
 }

@@ -2,7 +2,6 @@ package org.obiba.magma.math;
 
 import java.util.SortedSet;
 
-import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 
 import org.apache.commons.math3.stat.descriptive.StatisticalSummary;
@@ -36,23 +35,25 @@ import com.google.common.collect.Sets;
  */
 public class OutlierRemovingVariableValueSource extends AbstractVariableValueSourceWrapper implements VectorSource {
 
+  @NotNull
   private final ValueTable valueTable;
 
+  @NotNull
   private final DescriptiveStatisticsProvider statisticsProvider;
 
   private transient StatisticalSummary variableStatistics;
 
-  public OutlierRemovingVariableValueSource(ValueTable valueTable, VariableValueSource wrappedSource) {
+  public OutlierRemovingVariableValueSource(@NotNull ValueTable valueTable,
+      @NotNull VariableValueSource wrappedSource) {
     this(valueTable, wrappedSource, new ExcludeMissingDescriptiveStatisticsProvider());
   }
 
-  public OutlierRemovingVariableValueSource(ValueTable valueTable, VariableValueSource wrappedSource,
-      DescriptiveStatisticsProvider statisticsProvider) {
+  @SuppressWarnings("ConstantConditions")
+  public OutlierRemovingVariableValueSource(@NotNull ValueTable valueTable, @NotNull VariableValueSource wrappedSource,
+      @NotNull DescriptiveStatisticsProvider statisticsProvider) {
     super(wrappedSource);
     if(statisticsProvider == null) throw new IllegalArgumentException("statisticsProvider cannot be null");
     if(valueTable == null) throw new IllegalArgumentException("valueTable cannot be null");
-    if(wrappedSource.asVectorSource() == null)
-      throw new IllegalArgumentException("wrappedSource cannot provide vectors");
     this.statisticsProvider = statisticsProvider;
     this.valueTable = valueTable;
   }
@@ -64,7 +65,7 @@ public class OutlierRemovingVariableValueSource extends AbstractVariableValueSou
     return isOutlier(value) ? valueForOutlier(value) : value;
   }
 
-  @Nullable
+  @NotNull
   @Override
   public VectorSource asVectorSource() {
     return this;

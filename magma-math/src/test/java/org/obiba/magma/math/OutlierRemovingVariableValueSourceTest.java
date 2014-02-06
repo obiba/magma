@@ -22,25 +22,23 @@ import org.obiba.magma.type.IntegerType;
 
 import com.google.common.collect.Iterables;
 
-import static org.easymock.EasyMock.createMock;
-import static org.easymock.EasyMock.expect;
-import static org.easymock.EasyMock.replay;
-import static org.easymock.EasyMock.verify;
 import static org.fest.assertions.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class OutlierRemovingVariableValueSourceTest {
 
-  ValueTable mockTable = createMock(ValueTable.class);
+  private final ValueTable mockTable = mock(ValueTable.class);
 
-  VariableValueSource mockSource = createMock(VariableValueSource.class);
+  private final VariableValueSource mockSource = mock(VariableValueSource.class);
 
-  VectorSource mockVector = createMock(VectorSource.class);
+  private final VectorSource mockVector = mock(VectorSource.class);
 
-  ValueSet mockValueSet = createMock(ValueSet.class);
+  private final ValueSet mockValueSet = mock(ValueSet.class);
 
-  SortedSet<VariableEntity> emptySet = new TreeSet<>();
+  private final SortedSet<VariableEntity> emptySet = new TreeSet<>();
 
-  Variable testVariable;
+  private Variable testVariable;
 
   @Before
   public void startYourEngine() {
@@ -53,68 +51,60 @@ public class OutlierRemovingVariableValueSourceTest {
     MagmaEngine.get().shutdown();
   }
 
+  @SuppressWarnings("ConstantConditions")
   @Test(expected = IllegalArgumentException.class)
   public void test_ctor_throwsIllegalArgumentNullTable() {
     new OutlierRemovingVariableValueSource(null, mockSource);
   }
 
+  @SuppressWarnings("ConstantConditions")
   @Test(expected = IllegalArgumentException.class)
   public void test_ctor_throwsIllegalArgumentNullSource() {
     new OutlierRemovingVariableValueSource(mockTable, null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
-  public void test_ctor_throwsIllegalArgumentNullVectorSource() {
-    expect(mockSource.asVectorSource()).andReturn(null).anyTimes();
-    new OutlierRemovingVariableValueSource(mockTable, mockSource);
-  }
-
+  @SuppressWarnings("ConstantConditions")
   @Test(expected = IllegalArgumentException.class)
   public void test_ctor_throwsIllegalArgumentNullStatsProvider() {
-    expect(mockSource.asVectorSource()).andReturn(mockVector).anyTimes();
-    replay(mockSource);
+    when(mockSource.supportVectorSource()).thenReturn(true);
+    when(mockSource.asVectorSource()).thenReturn(mockVector);
     new OutlierRemovingVariableValueSource(mockTable, mockSource, null);
   }
 
   @Test
   public void test_getters_delegates() {
-    expect(mockSource.getVariable()).andReturn(testVariable).anyTimes();
-    expect(mockSource.getValueType()).andReturn(testVariable.getValueType()).anyTimes();
-    expect(mockSource.asVectorSource()).andReturn(mockVector).anyTimes();
-    replay(mockSource);
+    when(mockSource.getVariable()).thenReturn(testVariable);
+    when(mockSource.getValueType()).thenReturn(testVariable.getValueType());
+    when(mockSource.supportVectorSource()).thenReturn(true);
+    when(mockSource.asVectorSource()).thenReturn(mockVector);
     VariableValueSourceWrapper testedSource = new OutlierRemovingVariableValueSource(mockTable, mockSource);
     assertThat(testedSource.getVariable()).isEqualTo(testVariable);
     assertThat(testedSource.getValueType()).isEqualTo(testVariable.getValueType());
     assertThat(testedSource.getWrapped()).isEqualTo(mockSource);
-    verify(mockSource);
   }
 
   @Test
   public void test_getValue_returnsNonOutlierAsIs() {
     // Make a non-outlier value to test
     Value testValue = IntegerType.get().valueOf(1);
-    expect(mockSource.getValue(mockValueSet)).andReturn(testValue).anyTimes();
+    when(mockSource.getValue(mockValueSet)).thenReturn(testValue);
     setupForStatsCompute(Values.asValues(IntegerType.get(), 1, 2, 3, 4));
 
     ValueSource testedSource = new OutlierRemovingVariableValueSource(mockTable, mockSource,
         new DefaultDescriptiveStatisticsProvider());
     assertThat(testedSource.getValue(mockValueSet)).isEqualTo(testValue);
-
-    verify(mockSource);
   }
 
   @Test
   public void test_getValue_returnsNullForOutliers() {
     // Make an outlier value to test
     Value testValue = IntegerType.get().valueOf(1000);
-    expect(mockSource.getValue(mockValueSet)).andReturn(testValue).anyTimes();
+    when(mockSource.getValue(mockValueSet)).thenReturn(testValue);
     setupForStatsCompute(Values.asValues(IntegerType.get(), 1, 2, 3, 4));
 
     ValueSource testedSource = new OutlierRemovingVariableValueSource(mockTable, mockSource,
         new DefaultDescriptiveStatisticsProvider());
     assertThat(testedSource.getValue(mockValueSet)).isEqualTo(IntegerType.get().nullValue());
-
-    verify(mockSource);
   }
 
   @Test
@@ -127,37 +117,31 @@ public class OutlierRemovingVariableValueSourceTest {
 
     Iterable<Value> testValues = Values.asValues(IntegerType.get(), 1, 2, 3, 4, 10000, -1000);
     Iterable<Value> expectedValues = Values.asValues(IntegerType.get(), 1, 2, 3, 4, null, null);
-    DescriptiveStatisticsProvider mockProvider = createMock(DescriptiveStatisticsProvider.class);
-    expect(mockProvider.compute(mockSource, emptySet)).andReturn(ds);
-    replay(mockProvider);
+    DescriptiveStatisticsProvider mockProvider = mock(DescriptiveStatisticsProvider.class);
+    when(mockProvider.compute(mockSource, emptySet)).thenReturn(ds);
     setupForStatsCompute(testValues);
 
     ValueSource testedSource = new OutlierRemovingVariableValueSource(mockTable, mockSource, mockProvider);
 
     assertThat(Iterables.elementsEqual(testedSource.asVectorSource().getValues(emptySet), expectedValues)).isTrue();
-
-    verify(mockSource);
   }
 
   @Test
   public void test_getValue_nullsNotAffected() {
-    expect(mockSource.getValue(mockValueSet)).andReturn(IntegerType.get().nullValue()).anyTimes();
+    when(mockSource.getValue(mockValueSet)).thenReturn(IntegerType.get().nullValue());
     setupForStatsCompute(Values.asValues(IntegerType.get(), 1, 2, 3, 4));
 
     ValueSource testedSource = new OutlierRemovingVariableValueSource(mockTable, mockSource,
         new DefaultDescriptiveStatisticsProvider());
     assertThat(testedSource.getValue(mockValueSet)).isEqualTo(IntegerType.get().nullValue());
-
-    verify(mockSource);
-
   }
 
   private void setupForStatsCompute(Iterable<Value> values) {
-    expect(mockSource.asVectorSource()).andReturn(mockVector).anyTimes();
-    expect(mockSource.getValueType()).andReturn(IntegerType.get()).anyTimes();
-    expect(mockTable.getVariableEntities()).andReturn(emptySet).anyTimes();
-    expect(mockVector.getValues(emptySet)).andReturn(values).anyTimes();
-    replay(mockSource, mockTable, mockVector);
+    when(mockSource.supportVectorSource()).thenReturn(true);
+    when(mockSource.asVectorSource()).thenReturn(mockVector);
+    when(mockSource.getValueType()).thenReturn(IntegerType.get());
+    when(mockTable.getVariableEntities()).thenReturn(emptySet);
+    when(mockVector.getValues(emptySet)).thenReturn(values);
   }
 
 }

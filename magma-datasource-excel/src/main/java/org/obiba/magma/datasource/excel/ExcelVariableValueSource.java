@@ -1,6 +1,5 @@
 package org.obiba.magma.datasource.excel;
 
-import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 
 import org.obiba.magma.AbstractVariableValueSource;
@@ -10,6 +9,7 @@ import org.obiba.magma.ValueType;
 import org.obiba.magma.Variable;
 import org.obiba.magma.VariableValueSource;
 import org.obiba.magma.VectorSource;
+import org.obiba.magma.VectorSourceNotSupportedException;
 
 public class ExcelVariableValueSource extends AbstractVariableValueSource implements VariableValueSource {
 
@@ -30,10 +30,15 @@ public class ExcelVariableValueSource extends AbstractVariableValueSource implem
     return variable.getValueType();
   }
 
-  @Nullable
+  @Override
+  public boolean supportVectorSource() {
+    return false;
+  }
+
+  @NotNull
   @Override
   public VectorSource asVectorSource() {
-    return null;
+    throw new VectorSourceNotSupportedException(getClass());
   }
 
   @NotNull

@@ -277,12 +277,11 @@ public class HibernateDatasourceTest {
         for(Variable variable : variables) {
           VariableValueSource valueSource = valueTable.getVariableValueSource(variable.getName());
           assertThat(valueSource).isNotNull();
-          assertThat(valueSource.asVectorSource()).isNotNull();
-
-          SortedSet<VariableEntity> entities = Sets.newTreeSet(valueTable.getVariableEntities());
+          assertThat(valueSource.supportVectorSource()).isTrue();
           VectorSource vectorSource = valueSource.asVectorSource();
           assertThat(vectorSource).isNotNull();
-          //noinspection ConstantConditions
+
+          SortedSet<VariableEntity> entities = Sets.newTreeSet(valueTable.getVariableEntities());
           Iterable<Value> values = vectorSource.getValues(entities);
           assertThat(values).isNotNull();
           assertThat(values).hasSize(entities.size());
@@ -323,11 +322,11 @@ public class HibernateDatasourceTest {
 
           VariableValueSource valueSource = valueTable.getVariableValueSource(variable.getName());
           assertThat(valueSource).isNotNull();
-          assertThat(valueSource.asVectorSource()).isNotNull();
-
-          SortedSet<VariableEntity> entities = Sets.newTreeSet(valueTable.getVariableEntities());
+          assertThat(valueSource.supportVectorSource()).isTrue();
           VectorSource vectorSource = valueSource.asVectorSource();
           assertThat(vectorSource).isNotNull();
+
+          SortedSet<VariableEntity> entities = Sets.newTreeSet(valueTable.getVariableEntities());
           Iterable<Value> values = vectorSource.getValues(entities);
           assertThat(values).isNotNull();
           assertThat(values).hasSize(entities.size());
@@ -728,8 +727,8 @@ public class HibernateDatasourceTest {
   @Test
   public void test_remove_last_variable() {
 
-    final Variable variable = Variable.Builder.newVariable("Variable 1", IntegerType.get(), PARTICIPANT)
-        .addCategory("1", "One", false) //
+    final Variable variable = Variable.Builder.newVariable("Variable 1", IntegerType.get(), PARTICIPANT).addCategory(
+        "1", "One", false) //
         .addCategory("2", "Two", false) //
         .addAttribute("att1", "1") //
         .build();

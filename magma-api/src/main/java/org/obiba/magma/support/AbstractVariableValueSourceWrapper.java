@@ -9,7 +9,6 @@
  */
 package org.obiba.magma.support;
 
-import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 
 import org.obiba.magma.Value;
@@ -57,7 +56,12 @@ public abstract class AbstractVariableValueSourceWrapper implements VariableValu
     return wrapped.getValue(valueSet);
   }
 
-  @Nullable
+  @Override
+  public boolean supportVectorSource() {
+    return wrapped.supportVectorSource();
+  }
+
+  @NotNull
   @Override
   public VectorSource asVectorSource() {
     return wrapped.asVectorSource();

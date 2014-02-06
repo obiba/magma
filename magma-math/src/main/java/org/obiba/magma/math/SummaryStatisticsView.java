@@ -4,7 +4,6 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Set;
 
-import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
@@ -21,6 +20,7 @@ import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.VariableValueSource;
 import org.obiba.magma.VectorSource;
+import org.obiba.magma.VectorSourceNotSupportedException;
 import org.obiba.magma.support.AbstractValueTable;
 import org.obiba.magma.support.NullTimestamps;
 import org.obiba.magma.support.ValueSetBean;
@@ -136,10 +136,15 @@ public class SummaryStatisticsView extends AbstractValueTable implements Initial
       return DecimalType.get();
     }
 
-    @Nullable
+    @Override
+    public boolean supportVectorSource() {
+      return false;
+    }
+
+    @NotNull
     @Override
     public VectorSource asVectorSource() {
-      return null;
+      throw new VectorSourceNotSupportedException(getClass());
     }
   }
 
