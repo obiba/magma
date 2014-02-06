@@ -21,7 +21,7 @@ import static org.fest.assertions.api.Assertions.assertThat;
 
 @SuppressWarnings({ "ReuseOfLocalVariable", "OverlyLongMethod", "PMD.NcssMethodCount" })
 public class BooleanMethodsTest extends AbstractJsTest {
-  // Any
+
   @Test
   public void testAny() {
     assertMethod("any('CAT1', 'CAT2')", TextType.get().valueOf("CAT2"), BooleanType.get().trueValue());

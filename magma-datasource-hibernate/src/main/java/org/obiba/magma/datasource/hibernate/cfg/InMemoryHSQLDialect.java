@@ -1,6 +1,4 @@
-package org.obiba.magma.datasource.hibernate;
-
-import org.obiba.magma.datasource.hibernate.cfg.MagmaHSQLDialect;
+package org.obiba.magma.datasource.hibernate.cfg;
 
 /**
  * Workaround for schemaExport ERROR when using in-memory database (H2) - drop constraint issue HHH000389

@@ -28,15 +28,13 @@ import com.google.common.collect.ImmutableSet;
  */
 public class JavascriptVariableValueSourceFactory implements VariableValueSourceFactory {
 
-  private Set<Variable> variables;
+  private final Collection<Variable> variables = new LinkedHashSet<>();
 
   private ValueTable valueTable;
 
   @Override
   public Set<VariableValueSource> createSources() {
-    return variables != null && variables.size() > 0
-        ? createSourcesFromVariables()
-        : ImmutableSet.<VariableValueSource>of();
+    return variables.size() > 0 ? createSourcesFromVariables() : ImmutableSet.<VariableValueSource>of();
   }
 
   private Set<VariableValueSource> createSourcesFromVariables() {
@@ -52,7 +50,7 @@ public class JavascriptVariableValueSourceFactory implements VariableValueSource
   }
 
   public void setVariables(Collection<Variable> variables) {
-    this.variables = new LinkedHashSet<>();
+    this.variables.clear();
     if(variables != null) {
       this.variables.addAll(variables);
     }

@@ -360,7 +360,8 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
   private static ScriptableValue valuesForVector(MagmaContext context, Scriptable thisObj, VariableValueSource source) {
     // Load the vector
     VectorCache cache = context.peek(VectorCache.class);
-    return new ScriptableValue(thisObj, cache.get(context, source.asVectorSource()), source.getVariable().getUnit());
+    Value value = cache.get(context, source.asVectorSource());
+    return new ScriptableValue(thisObj, value, source.getVariable().getUnit());
   }
 
   private static ScriptableValue valueForValueSet(MagmaContext context, Scriptable thisObj,
@@ -580,15 +581,15 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
     if(index < 0) return;
 
     for(Variable var : variables) {
-      ScriptableValue svalue = valueFromContext(context, thisObj, var.getName());
-      Value val = var.getValueType().nullValue();
-      if(!svalue.getValue().isNull()) {
-        ValueSequence valSeq = svalue.getValue().asSequence();
+      ScriptableValue scriptableValue = valueFromContext(context, thisObj, var.getName());
+      Value value = var.getValueType().nullValue();
+      if(!scriptableValue.getValue().isNull()) {
+        ValueSequence valSeq = scriptableValue.getValue().asSequence();
         if(index < valSeq.getSize()) {
-          val = valSeq.get(index);
+          value = valSeq.get(index);
         }
       }
-      addVariableValue(valueMap, var, val);
+      addVariableValue(valueMap, var, value);
     }
   }
 

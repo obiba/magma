@@ -24,6 +24,7 @@ public abstract class AbstractJsTest {
 
   @Before
   public void before() {
+    MagmaEngine.get().shutdown();
     newEngine().extend(new MagmaJsExtension());
     Context.enter();
   }

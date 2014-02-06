@@ -47,6 +47,7 @@ abstract class GeneratedVariableValueSource extends AbstractVariableValueSource 
     }
   }
 
+  @NotNull
   @Override
   public Variable getVariable() {
     return variable;

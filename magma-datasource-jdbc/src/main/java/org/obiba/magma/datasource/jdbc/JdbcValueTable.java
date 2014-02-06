@@ -44,6 +44,7 @@ import org.obiba.magma.support.VariableEntityBean;
 import org.obiba.magma.type.DateTimeType;
 import org.springframework.jdbc.core.RowMapper;
 
+import liquibase.change.ChangeWithColumns;
 import liquibase.change.ColumnConfig;
 import liquibase.change.ConstraintsConfig;
 import liquibase.change.CreateTableChange;
@@ -51,6 +52,7 @@ import liquibase.database.structure.Column;
 import liquibase.database.structure.DatabaseSnapshot;
 import liquibase.database.structure.Table;
 
+@SuppressWarnings("OverlyCoupledClass")
 class JdbcValueTable extends AbstractValueTable {
 
   private final JdbcValueTableSettings settings;
@@ -77,7 +79,7 @@ class JdbcValueTable extends AbstractValueTable {
     setVariableEntityProvider(new JdbcVariableEntityProvider(getEntityType()));
   }
 
-  JdbcValueTable(JdbcDatasource datasource, Table table, String entityType) {
+  JdbcValueTable(Datasource datasource, Table table, String entityType) {
     this(datasource, new JdbcValueTableSettings(table.getName(), NameConverter.toMagmaName(table.getName()), entityType,
         getEntityIdentifierColumns(table)));
   }
@@ -339,12 +341,12 @@ class JdbcValueTable extends AbstractValueTable {
     getDatasource().doWithDatabase(new ChangeDatabaseCallback(ctc));
   }
 
-  private void createTimestampColumns(CreateTableChange ctc) {
+  private void createTimestampColumns(ChangeWithColumns changeWithColumns) {
     if(hasCreatedTimestampColumn()) {
-      ctc.addColumn(createTimestampColumn(getCreatedTimestampColumnName()));
+      changeWithColumns.addColumn(createTimestampColumn(getCreatedTimestampColumnName()));
     }
     if(hasUpdatedTimestampColumn()) {
-      ctc.addColumn(createTimestampColumn(getUpdatedTimestampColumnName()));
+      changeWithColumns.addColumn(createTimestampColumn(getUpdatedTimestampColumnName()));
     }
   }
 
@@ -502,6 +504,7 @@ class JdbcValueTable extends AbstractValueTable {
     // VariableValueSource Methods
     //
 
+    @NotNull
     @Override
     public Variable getVariable() {
       return variable;
@@ -563,7 +566,7 @@ class JdbcValueTable extends AbstractValueTable {
       private boolean closed = false;
 
       @edu.umd.cs.findbugs.annotations.SuppressWarnings("SQL_PREPARED_STATEMENT_GENERATED_FROM_NONCONSTANT_STRING")
-      private ValueIterator(Connection connection, Set<VariableEntity> entities) throws SQLException {
+      private ValueIterator(Connection connection, Iterable<VariableEntity> entities) throws SQLException {
         this.connection = connection;
         String column = getEntityIdentifierColumnsSql();
         statement = connection.prepareStatement("SELECT " + column + "," + columnName +

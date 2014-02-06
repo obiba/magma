@@ -42,6 +42,7 @@ public class OutlierRemovingView extends View {
     this.statisticsProvider = statisticsProvider;
   }
 
+  @NotNull
   @Override
   public BijectiveFunction<VariableValueSource, VariableValueSource> getVariableValueSourceMappingFunction() {
     return function;

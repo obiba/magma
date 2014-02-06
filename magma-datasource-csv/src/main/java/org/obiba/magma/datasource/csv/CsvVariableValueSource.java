@@ -26,6 +26,7 @@ public class CsvVariableValueSource extends AbstractVariableValueSource implemen
     this.variable = variable;
   }
 
+  @NotNull
   @Override
   public Variable getVariable() {
     return variable;

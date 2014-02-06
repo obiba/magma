@@ -51,6 +51,7 @@ public class BeanPropertyVariableValueSource extends AbstractVariableValueSource
     this.propertyPath = propertyPath;
   }
 
+  @NotNull
   @Override
   public Variable getVariable() {
     return variable;

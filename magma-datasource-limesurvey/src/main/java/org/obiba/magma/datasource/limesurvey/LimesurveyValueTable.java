@@ -267,18 +267,18 @@ class LimesurveyValueTable extends AbstractValueTable {
 
   @Nullable
   private Variable.Builder buildVariable(LimeQuestion question) {
-    Variable.Builder vb;
+    Variable.Builder builder;
     // do not create variable for parent question
     if(!hasSubQuestions(question)) {
       String variableName = question.getName();
       if(question.hasParentId()) {
         LimeQuestion parentQuestion = getParentQuestion(question);
         String hierarchicalVariableName = parentQuestion.getName() + " [" + variableName + "]";
-        vb = build(parentQuestion, hierarchicalVariableName);
+        builder = build(parentQuestion, hierarchicalVariableName);
       } else {
-        vb = build(question, variableName);
+        builder = build(question, variableName);
       }
-      return vb;
+      return builder;
     }
     // question has subquestion then return null
     return null;
@@ -437,6 +437,7 @@ class LimesurveyValueTable extends AbstractValueTable {
       return this;
     }
 
+    @NotNull
     @Override
     public Variable getVariable() {
       return variable;
@@ -479,7 +480,7 @@ class LimesurveyValueTable extends AbstractValueTable {
 
       private SqlRowSet rows;
 
-      private ValueIterator(Set<VariableEntity> entities, SqlRowSet rows) {
+      private ValueIterator(Iterable<VariableEntity> entities, SqlRowSet rows) {
         idsIterator = entities.iterator();
         if(!Iterables.isEmpty(entities)) {
           this.rows = rows;

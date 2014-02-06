@@ -337,6 +337,7 @@ class HibernateValueTable extends AbstractValueTable {
      */
     @Override
     public Set<VariableEntity> getVariableEntities() {
+      //TODO cache these entities instead of recreating an ImmutableSet each time
       if(getDatasource().hasTableTransaction(getName())) {
         return ImmutableSet.copyOf(
             Iterables.concat(entities, getDatasource().getTableTransaction(getName()).getUncommittedEntities()));

@@ -17,12 +17,13 @@ import com.google.common.collect.Sets;
 
 public class JavascriptVariableValueSource extends JavascriptValueSource implements VariableValueSource {
 
+  @NotNull
   private final Variable variable;
 
   @Nullable
   private final ValueTable valueTable;
 
-  public JavascriptVariableValueSource(Variable variable, @Nullable ValueTable valueTable) {
+  public JavascriptVariableValueSource(@NotNull Variable variable, @Nullable ValueTable valueTable) {
     super(variable.getValueType(), "");
     this.variable = variable;
     this.valueTable = valueTable;
@@ -40,11 +41,13 @@ public class JavascriptVariableValueSource extends JavascriptValueSource impleme
         : "";
   }
 
+  @NotNull
   @Override
   public String getName() {
     return variable.getName();
   }
 
+  @NotNull
   @Override
   public Variable getVariable() {
     return variable;
@@ -97,6 +100,19 @@ public class JavascriptVariableValueSource extends JavascriptValueSource impleme
       }
     }
     context.pop(Variable.class);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hashCode(variable, valueTable);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if(this == obj) return true;
+    if(obj == null || getClass() != obj.getClass()) return false;
+    JavascriptVariableValueSource other = (JavascriptVariableValueSource) obj;
+    return Objects.equal(variable, other.variable) && Objects.equal(valueTable, other.valueTable);
   }
 
   public static class ReferenceNode {

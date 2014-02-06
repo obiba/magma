@@ -109,11 +109,13 @@ public abstract class AbstractTransformingValueTableWrapper extends AbstractValu
         .apply(super.getVariableValueSource(getVariableNameMappingFunction().unapply(variableName)));
   }
 
+  @NotNull
   @Override
   public BijectiveFunction<VariableEntity, VariableEntity> getVariableEntityMappingFunction() {
     return BijectiveFunctions.identity();
   }
 
+  @NotNull
   @Override
   public BijectiveFunction<ValueSet, ValueSet> getValueSetMappingFunction() {
     return new BijectiveFunction<ValueSet, ValueSet>() {
@@ -130,6 +132,7 @@ public abstract class AbstractTransformingValueTableWrapper extends AbstractValu
     };
   }
 
+  @NotNull
   @Override
   public BijectiveFunction<VariableValueSource, VariableValueSource> getVariableValueSourceMappingFunction() {
     return new BijectiveFunction<VariableValueSource, VariableValueSource>() {
@@ -151,6 +154,7 @@ public abstract class AbstractTransformingValueTableWrapper extends AbstractValu
       super(wrapped);
     }
 
+    @NotNull
     @Override
     public Variable getVariable() {
       return AbstractTransformingValueTableWrapper.this

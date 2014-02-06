@@ -6,6 +6,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.Assume;
 import org.junit.Before;
@@ -48,7 +49,6 @@ import static org.fest.assertions.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 import static org.obiba.magma.Variable.Builder.newVariable;
 
-@Ignore
 @SuppressWarnings({ "OverlyLongMethod", "PMD.NcssMethodCount", "OverlyCoupledClass" })
 public class GlobalMethodsMongoDbTest extends AbstractJsTest {
 
@@ -67,6 +67,8 @@ public class GlobalMethodsMongoDbTest extends AbstractJsTest {
   private static final String VARIABLE_WEIGHT = "weight";
 
   private static final String VARIABLE_HEIGHT = "height";
+
+  private static final int NB_ENTITIES = 1000;
 
   private ViewManager viewManager;
 
@@ -106,7 +108,7 @@ public class GlobalMethodsMongoDbTest extends AbstractJsTest {
         newVariable(VARIABLE_AGE, IntegerType.get(), PARTICIPANT).build(), //
         newVariable(VARIABLE_WEIGHT, IntegerType.get(), PARTICIPANT).unit("kg").build(), //
         newVariable(VARIABLE_HEIGHT, IntegerType.get(), PARTICIPANT).unit("cm").build());
-    ValueTable generatedValueTable = new GeneratedValueTable(datasource, variables, 200);
+    ValueTable generatedValueTable = new GeneratedValueTable(datasource, variables, NB_ENTITIES);
 
     Datasource viewAwareDatasource = viewManager.decorate(datasource);
     MagmaEngine.get().addDatasource(viewAwareDatasource);
@@ -340,6 +342,7 @@ public class GlobalMethodsMongoDbTest extends AbstractJsTest {
   }
 
   @Test
+  @Ignore
   public void test_$_value_set_with_self_reference() throws Exception {
     Datasource datasource = getTestDatasource();
     ValueTable table = datasource.getValueTable(TABLE);
@@ -395,6 +398,7 @@ public class GlobalMethodsMongoDbTest extends AbstractJsTest {
   }
 
   @Test
+  @Ignore
   public void test_$_value_set_with_circular_dependencies() throws Exception {
     Datasource datasource = getTestDatasource();
     ValueTable table = datasource.getValueTable(TABLE);
@@ -501,35 +505,30 @@ public class GlobalMethodsMongoDbTest extends AbstractJsTest {
     }
   }
 
-  @Test
-  public void test_$this_vector() throws Exception {
-    Datasource datasource = getTestDatasource();
-    ValueTable table = datasource.getValueTable(TABLE);
-
-    Collection<Variable> variables = Lists.newArrayList( //
-        createIntVariable("weight_in_kg", "$('ds.table:weight')"), //
-        createIntVariable("height_in_cm", "$('ds.table:height')"), //
-        createDecimalVariable("bmi_1", "$this('weight_in_kg') / ($this('height_in_cm').pow(2))"), //
-        createIntVariable("weight_in_lbs", "$this('weight_in_kg') * 2.2"), //
-        createIntVariable("height_in_inches", "$this('height_in_cm') * 0.4"), //
-        createDecimalVariable("bmi_2", "($this('weight_in_lbs') / ($this('height_in_inches').pow(2))) * 703"));
-
-    View viewTemplate = View.Builder.newView("view", table).list(new VariablesClause()).build();
-    try(ValueTableWriter.VariableWriter variableWriter = viewTemplate.getListClause().createWriter()) {
-      for(Variable variable : variables) {
-        variableWriter.writeVariable(variable);
-      }
-    }
-    viewManager.addView(DATASOURCE, viewTemplate, null);
-
-    View view = viewManager.getView(DATASOURCE, "view");
-
-    for(ValueSet valueSet : view.getValueSets()) {
-      for(Variable variable : variables) {
-        log.info("{}: {}", variable.getName(), view.getValue(variable, valueSet));
-      }
-    }
-
+//  @Test
+//  public void test_$this_vector() throws Exception {
+//    Datasource datasource = getTestDatasource();
+//    ValueTable table = datasource.getValueTable(TABLE);
+//
+//    Collection<Variable> variables = Lists.newArrayList( //
+//        createIntVariable("weight_in_kg", "$('ds.table:weight')"), //
+//        createIntVariable("height_in_cm", "$('ds.table:height')"), //
+//        createDecimalVariable("bmi_1", "$this('weight_in_kg') / ($this('height_in_cm') * $this('height_in_cm'))"), //
+//        createIntVariable("weight_in_lbs", "$this('weight_in_kg') * 2.2"), //
+//        createIntVariable("height_in_inches", "$this('height_in_cm') * 0.4"), //
+//        createDecimalVariable("bmi_2",
+//            "($this('weight_in_lbs') / ($this('height_in_inches') * $this('height_in_inches'))) * 703"));
+//
+//    View viewTemplate = View.Builder.newView("view", table).list(new VariablesClause()).build();
+//    try(ValueTableWriter.VariableWriter variableWriter = viewTemplate.getListClause().createWriter()) {
+//      for(Variable variable : variables) {
+//        variableWriter.writeVariable(variable);
+//      }
+//    }
+//    viewManager.addView(DATASOURCE, viewTemplate, null);
+//
+//    View view = viewManager.getView(DATASOURCE, "view");
+//
 //    VectorSource bmi1VectorSource = view.getVariableValueSource("bmi_1").asVectorSource();
 //    assertThat(bmi1VectorSource).isNotNull();
 //    SortedSet<VariableEntity> entities = new TreeSet<>(view.getVariableEntities());
@@ -542,7 +541,7 @@ public class GlobalMethodsMongoDbTest extends AbstractJsTest {
 //    for(Value viewValue : bmi2VectorSource.getValues(entities)) {
 //      log.info("bmi 2: {}", viewValue.getValue());
 //    }
-  }
+//  }
 
   @Test
   public void test_$this_value_set_performance() throws Exception {
@@ -565,15 +564,16 @@ public class GlobalMethodsMongoDbTest extends AbstractJsTest {
     View view = viewManager.getView(DATASOURCE, "view");
 
     Variable varC = view.getVariable("C");
+
     Stopwatch stopwatch = Stopwatch.createStarted();
     for(ValueSet valueSet : view.getValueSets()) {
       view.getValue(varC, valueSet).getValue();
     }
-    log.info("Load value sets in {}", stopwatch);
+    log.info("Load {} value sets in {}", NB_ENTITIES, stopwatch.stop());
+    assertThat(stopwatch.elapsed(TimeUnit.SECONDS)).isLessThan(1);
   }
 
   @Test
-  @Ignore
   public void test_$this_vector_performance() throws Exception {
     Datasource datasource = getTestDatasource();
     ValueTable table = datasource.getValueTable(TABLE);
@@ -599,11 +599,14 @@ public class GlobalMethodsMongoDbTest extends AbstractJsTest {
     for(Value viewValue : view.getVariableValueSource("C").asVectorSource().getValues(entities)) {
       viewValue.getValue();
     }
-    log.info("Load vector in {}", stopwatch);
+    log.info("Load vector for {} entities in {}", NB_ENTITIES, stopwatch.stop());
+    assertThat(stopwatch.elapsed(TimeUnit.SECONDS)).isLessThan(1);
+
     datasource.dispose();
   }
 
   @Test
+  @Ignore
   public void test_$this_value_set_with_self_reference() throws Exception {
     Datasource datasource = getTestDatasource();
     ValueTable table = datasource.getValueTable(TABLE);
@@ -630,6 +633,7 @@ public class GlobalMethodsMongoDbTest extends AbstractJsTest {
   }
 
   @Test
+  @Ignore
   public void test_$this_vector_with_self_reference() throws Exception {
     Datasource datasource = getTestDatasource();
     ValueTable table = datasource.getValueTable(TABLE);
@@ -714,6 +718,7 @@ public class GlobalMethodsMongoDbTest extends AbstractJsTest {
   }
 
   @Test
+  @Ignore
   public void test_$this_value_set_with_circular_dependencies() throws Exception {
     Datasource datasource = getTestDatasource();
     ValueTable table = datasource.getValueTable(TABLE);

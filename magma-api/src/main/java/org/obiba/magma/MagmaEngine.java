@@ -67,7 +67,8 @@ public class MagmaEngine implements DatasourceRegistry {
     return instance != null;
   }
 
-  public MagmaEngine extend(MagmaEngineExtension extension) {
+  public MagmaEngine extend(@NotNull MagmaEngineExtension extension) {
+    //noinspection ConstantConditions
     if(extension == null) throw new IllegalArgumentException("extension cannot be null");
     if(!hasExtension(extension.getClass())) {
       Initialisables.initialise(extension);
