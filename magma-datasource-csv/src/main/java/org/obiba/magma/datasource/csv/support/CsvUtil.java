@@ -58,10 +58,7 @@ public class CsvUtil {
     for(Variable variable : table.getVariables()) {
       for(Attribute attribute : variable.getAttributes()) {
         //noinspection NonConstantStringShouldBeStringBuffer
-        String header = attribute.getName();
-        if (attribute.hasNamespace()) {
-          header = attribute.getNamespace() + "::" + header;
-        }
+        String header = (attribute.hasNamespace() ? attribute.getNamespace() + "::" : "") + attribute.getName();
         if(attribute.isLocalised()) {
           header += ":" + attribute.getLocale();
         }
