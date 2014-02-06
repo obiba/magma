@@ -14,7 +14,7 @@ import org.obiba.magma.type.IntegerType;
 import org.obiba.magma.type.TextType;
 
 @SuppressWarnings(
-    { "IfStatementWithTooManyBranches", "UnusedParameters", "IfMayBeConditional", "StaticMethodOnlyUsedInOneClass" })
+    { "UnusedParameters", "StaticMethodOnlyUsedInOneClass" })
 public class CompareMethods {
 
   private CompareMethods() {
@@ -98,7 +98,6 @@ public class CompareMethods {
         IntegerType.get().valueOf(((Double) firstNumber).compareTo((Double) secondNumber)));
   }
 
-  @SuppressWarnings("TypeMayBeWeakened")
   private static ScriptableValue booleanCompare(Scriptable thisObj, ScriptableValue firstOperand,
       ScriptableValue secondOperand) {
     Value firstOperandValue = firstOperand.getValue();
@@ -108,7 +107,6 @@ public class CompareMethods {
     return new ScriptableValue(thisObj, IntegerType.get().valueOf(firstBoolean.compareTo(secondBoolean)));
   }
 
-  @SuppressWarnings("TypeMayBeWeakened")
   private static ScriptableValue textCompare(Scriptable thisObj, ScriptableValue firstOperand,
       ScriptableValue secondOperand) {
     Value firstOperandValue = firstOperand.getValue();

@@ -8,6 +8,7 @@ import java.util.Date;
 import java.util.Locale;
 
 import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
 
 import org.mozilla.javascript.Callable;
 import org.mozilla.javascript.Context;
@@ -338,10 +339,9 @@ public class TextMethods {
         newValues.add(lookupValue(ctx, thisObj, value, returnType, valueMap, defaultValue, nullValue));
       }
       return new ScriptableValue(thisObj, returnType.sequenceOf(newValues));
-    } else {
-      return new ScriptableValue(thisObj,
-          lookupValue(ctx, thisObj, currentValue, returnType, valueMap, defaultValue, nullValue));
     }
+    return new ScriptableValue(thisObj,
+        lookupValue(ctx, thisObj, currentValue, returnType, valueMap, defaultValue, nullValue));
   }
 
   /**
@@ -430,9 +430,8 @@ public class TextMethods {
     Object value = args[1];
     if(value instanceof ScriptableValue) {
       return ((ScriptableValue) value).getValue();
-    } else {
-      return valueType.valueOf(value);
     }
+    return valueType.valueOf(value);
   }
 
   /**
@@ -451,9 +450,8 @@ public class TextMethods {
     Object value = args[2];
     if(value instanceof ScriptableValue) {
       return ((ScriptableValue) value).getValue();
-    } else {
-      return valueType.valueOf(value);
     }
+    return valueType.valueOf(value);
   }
 
   /**
@@ -534,7 +532,7 @@ public class TextMethods {
    * @return
    */
   private static ScriptableValue transformValue(ScriptableValue sv,
-      com.google.common.base.Function<Value, Value> valueFunction) {
+      @NotNull com.google.common.base.Function<Value, Value> valueFunction) {
 
     Value value = sv.getValue();
     if(value.isNull()) {

@@ -18,11 +18,11 @@ import static org.fest.assertions.api.Assertions.assertThat;
 
 public class ScriptableVariableMethodsTest extends AbstractJsTest {
 
-  ValueSet mockValueSet;
-
   @Before
-  public void setup() {
-    mockValueSet = createMock(ValueSet.class);
+  @Override
+  public void before() {
+    super.before();
+    ValueSet mockValueSet = createMock(ValueSet.class);
     expect(mockValueSet.getValueTable()).andReturn(createMock(ValueTable.class)).anyTimes();
     expect(mockValueSet.getVariableEntity()).andReturn(createMock(VariableEntity.class)).anyTimes();
     replay(mockValueSet);
@@ -56,7 +56,6 @@ public class ScriptableVariableMethodsTest extends AbstractJsTest {
     replay(mockVariable);
     evaluate("repeatable()", mockVariable);
     verify(mockVariable);
-
   }
 
   @Test
@@ -66,7 +65,6 @@ public class ScriptableVariableMethodsTest extends AbstractJsTest {
     replay(mockVariable);
     evaluate("occurrenceGroup()", mockVariable);
     verify(mockVariable);
-
   }
 
   @Test

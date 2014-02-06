@@ -23,7 +23,7 @@ import com.google.common.collect.ImmutableList;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 
-@SuppressWarnings({ "MagicConstant", "ReuseOfLocalVariable" })
+@SuppressWarnings({ "ReuseOfLocalVariable" })
 public class DateTimeMethodTest extends AbstractJsTest {
 
   @Test

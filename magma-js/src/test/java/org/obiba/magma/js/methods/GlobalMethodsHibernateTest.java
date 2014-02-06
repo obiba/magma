@@ -50,7 +50,7 @@ import static org.obiba.magma.Variable.Builder.newVariable;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("/test-context.xml")
-@SuppressWarnings({ "OverlyLongMethod", "PMD.NcssMethodCount", "OverlyCoupledClass" })
+@SuppressWarnings({ "OverlyLongMethod", "PMD.NcssMethodCount" })
 public class GlobalMethodsHibernateTest extends AbstractJsTest {
 
   private static final Logger log = LoggerFactory.getLogger(GlobalMethodsHibernateTest.class);

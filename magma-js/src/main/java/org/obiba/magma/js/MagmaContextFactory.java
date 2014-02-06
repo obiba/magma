@@ -5,6 +5,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Set;
 
+import javax.validation.constraints.NotNull;
+
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ContextAction;
 import org.mozilla.javascript.ContextFactory;
@@ -27,11 +29,13 @@ public class MagmaContextFactory extends ContextFactory implements Initialisable
    */
   private ScriptableObject sharedScope;
 
+  @NotNull
   private ScriptableValuePrototypeFactory scriptableValuePrototypeFactory = new ScriptableValuePrototypeFactory();
 
   private final ScriptableVariablePrototypeFactory scriptableVariablePrototypeFactory
       = new ScriptableVariablePrototypeFactory();
 
+  @NotNull
   private Set<GlobalMethodProvider> globalMethodProviders = Collections.emptySet();
 
   @Override
@@ -47,16 +51,19 @@ public class MagmaContextFactory extends ContextFactory implements Initialisable
     return sharedScope;
   }
 
-  public void setGlobalMethodProviders(Collection<GlobalMethodProvider> globalMethodProviders) {
+  public void setGlobalMethodProviders(@NotNull Collection<GlobalMethodProvider> globalMethodProviders) {
+    //noinspection ConstantConditions
     if(globalMethodProviders == null) throw new IllegalArgumentException("globalMethodProviders cannot be null");
     this.globalMethodProviders = ImmutableSet.copyOf(globalMethodProviders);
   }
 
+  @NotNull
   public ScriptableValuePrototypeFactory getScriptableValuePrototypeFactory() {
     return scriptableValuePrototypeFactory;
   }
 
-  public void setScriptableValuePrototypeFactory(ScriptableValuePrototypeFactory factory) {
+  public void setScriptableValuePrototypeFactory(@NotNull ScriptableValuePrototypeFactory factory) {
+    //noinspection ConstantConditions
     if(factory == null) throw new IllegalArgumentException("factory cannot be null");
     scriptableValuePrototypeFactory = factory;
   }

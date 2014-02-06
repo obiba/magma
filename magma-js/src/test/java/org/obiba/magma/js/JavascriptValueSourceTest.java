@@ -24,7 +24,9 @@ public class JavascriptValueSourceTest extends AbstractJsTest {
   private ValueSet mockValueSet;
 
   @Before
-  public void setup() {
+  @Override
+  public void before() {
+    super.before();
     mockValueSet = mock(ValueSet.class);
     when(mockValueSet.getValueTable()).thenReturn(mock(ValueTable.class));
     when(mockValueSet.getVariableEntity()).thenReturn(mock(VariableEntity.class));
