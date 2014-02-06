@@ -320,24 +320,34 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
           Stopwatch stopwatch = Stopwatch.createStarted();
           try {
             log.trace("Start {} eval", variableEntity);
-            // We have to set the current thread's context because this code will be executed outside of the ContextAction
-            ContextFactory.getGlobal().enterContext(context);
-            if(context.has(ReferenceNode.class)) context.pop(ReferenceNode.class);
-            JavascriptValueSource.this.enterContext(context, scope);
-            context.push(EvaluationType.class, EvaluationType.VECTOR);
-            context.push(VectorCache.class, vectorCache);
-            context.push(SortedSet.class, entities);
-            context.push(VariableEntity.class, variableEntity);
+            initContext(variableEntity);
             return asValue(compiledScript.exec(context, scope));
           } finally {
-            JavascriptValueSource.this.exitContext(context);
-            context.pop(VectorCache.class).next();
-            context.pop(SortedSet.class);
-            context.pop(VariableEntity.class);
-            context.pop(EvaluationType.class);
-            Context.exit();
+            cleanContext();
             log.trace("Finish {} eval in {}", variableEntity, stopwatch);
           }
+        }
+
+        /**
+         * We have to set the current thread's context because this code will be executed outside of the ContextAction
+         */
+        private void initContext(VariableEntity variableEntity) {
+          ContextFactory.getGlobal().enterContext(context);
+          if(context.has(ReferenceNode.class)) context.pop(ReferenceNode.class);
+          JavascriptValueSource.this.enterContext(context, scope);
+          context.push(EvaluationType.class, EvaluationType.VECTOR);
+          context.push(VectorCache.class, vectorCache);
+          context.push(SortedSet.class, entities);
+          context.push(VariableEntity.class, variableEntity);
+        }
+
+        private void cleanContext() {
+          JavascriptValueSource.this.exitContext(context);
+          context.pop(VectorCache.class).next();
+          context.pop(SortedSet.class);
+          context.pop(VariableEntity.class);
+          context.pop(EvaluationType.class);
+          Context.exit();
         }
       });
     }
