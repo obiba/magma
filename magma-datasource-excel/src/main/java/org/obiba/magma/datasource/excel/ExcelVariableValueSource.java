@@ -19,6 +19,7 @@ public class ExcelVariableValueSource extends AbstractVariableValueSource implem
     this.variable = variable;
   }
 
+  @NotNull
   @Override
   public Variable getVariable() {
     return variable;

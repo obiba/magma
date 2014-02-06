@@ -24,8 +24,6 @@ import org.obiba.magma.VariableEntity;
 import org.obiba.magma.transform.BijectiveFunction;
 import org.obiba.magma.type.DateTimeType;
 import org.obiba.magma.views.AbstractTransformingValueTableWrapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Maps;
 
@@ -34,7 +32,7 @@ import com.google.common.collect.Maps;
  */
 public class IncrementalValueTable extends AbstractTransformingValueTableWrapper {
 
-  private static final Logger log = LoggerFactory.getLogger(IncrementalValueTable.class);
+//  private static final Logger log = LoggerFactory.getLogger(IncrementalValueTable.class);
 
   private final IncrementalFunction variableEntityMappingFunction;
 
@@ -69,12 +67,13 @@ public class IncrementalValueTable extends AbstractTransformingValueTableWrapper
   @NotNull
   private final ValueTable destinationTable;
 
-  private IncrementalValueTable(ValueTable sourceTable, @NotNull ValueTable destinationTable) {
+  private IncrementalValueTable(@NotNull ValueTable sourceTable, @NotNull ValueTable destinationTable) {
     this.sourceTable = sourceTable;
     this.destinationTable = destinationTable;
     variableEntityMappingFunction = new IncrementalFunction();
   }
 
+  @NotNull
   @Override
   public BijectiveFunction<VariableEntity, VariableEntity> getVariableEntityMappingFunction() {
     return variableEntityMappingFunction;

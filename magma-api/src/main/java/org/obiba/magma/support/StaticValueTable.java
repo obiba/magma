@@ -113,6 +113,7 @@ public class StaticValueTable extends AbstractValueTable {
         throw new VectorSourceNotSupportedException((Class<? extends ValueSource>) getClass());
       }
 
+      @NotNull
       @Override
       public Variable getVariable() {
         return variable;
@@ -124,6 +125,7 @@ public class StaticValueTable extends AbstractValueTable {
     for(final String variable : variables) {
       addVariableValueSource(new AbstractVariableValueSource() {
 
+        @NotNull
         @Override
         public Variable getVariable() {
           return Variable.Builder.newVariable(variable, type, entityType).build();

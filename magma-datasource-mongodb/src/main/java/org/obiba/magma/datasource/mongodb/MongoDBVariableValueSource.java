@@ -43,11 +43,13 @@ public class MongoDBVariableValueSource implements VariableValueSource, VectorSo
     this.name = name;
   }
 
+  @NotNull
   @Override
   public String getName() {
     return name;
   }
 
+  @NotNull
   @Override
   public MongoDBVariable getVariable() {
     Value tableLastUpdate = table.getTimestamps().getLastUpdate();

@@ -3,6 +3,7 @@ package org.obiba.magma.support;
 import java.util.Set;
 
 import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
 
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.VariableEntity;
@@ -33,6 +34,7 @@ public class BatchValueTable extends AbstractTransformingValueTableWrapper {
     return wrapped;
   }
 
+  @NotNull
   @Override
   public BijectiveFunction<VariableEntity, VariableEntity> getVariableEntityMappingFunction() {
     return variableEntityMappingFunction;

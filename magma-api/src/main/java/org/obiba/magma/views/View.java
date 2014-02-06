@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.SortedSet;
 
 import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
@@ -18,10 +19,12 @@ import org.obiba.magma.Timestamps;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueSet;
 import org.obiba.magma.ValueTable;
+import org.obiba.magma.ValueType;
 import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.VariableValueSource;
 import org.obiba.magma.VariableValueSourceWrapper;
+import org.obiba.magma.VectorSource;
 import org.obiba.magma.support.AbstractValueTableWrapper;
 import org.obiba.magma.support.AbstractVariableValueSourceWrapper;
 import org.obiba.magma.support.Disposables;
@@ -38,6 +41,7 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 
 @SuppressWarnings("OverlyCoupledClass")
 public class View extends AbstractValueTableWrapper implements Initialisable, Disposable, TransformingValueTable {
@@ -66,8 +70,8 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
   private Value updated;
 
   // need to be transient because of XML serialization of Views
-  @SuppressWarnings("TransientFieldInNonSerializableClass")
   @Nullable
+  @SuppressWarnings("TransientFieldInNonSerializableClass")
   private transient ViewAwareDatasource viewDatasource;
 
   /**
@@ -348,7 +352,8 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
   }
 
   private VariableValueSource getListClauseVariableValueSource(String variableName) {
-    return getVariableValueSourceMappingFunction().apply(getListClause().getVariableValueSource(variableName));
+    VariableValueSource variableValueSource = getListClause().getVariableValueSource(variableName);
+    return getVariableValueSourceMappingFunction().apply(variableValueSource);
   }
 
   @Override
@@ -413,11 +418,13 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
     variables = listClause;
   }
 
+  @NotNull
   @Override
   public BijectiveFunction<VariableEntity, VariableEntity> getVariableEntityMappingFunction() {
     return BijectiveFunctions.identity();
   }
 
+  @NotNull
   @Override
   public BijectiveFunction<ValueSet, ValueSet> getValueSetMappingFunction() {
     return new BijectiveFunction<ValueSet, ValueSet>() {
@@ -434,6 +441,7 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
     };
   }
 
+  @NotNull
   @Override
   public BijectiveFunction<VariableValueSource, VariableValueSource> getVariableValueSourceMappingFunction() {
     return new BijectiveFunction<VariableValueSource, VariableValueSource>() {
@@ -465,26 +473,56 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
       return getWrapped().getValue(getValueSetMappingFunction().unapply(valueSet));
     }
 
-//    @Nullable
-//    @Override
-//    public VectorSource asVectorSource() {
-//      final VectorSource wrapped = super.asVectorSource();
-//      return new VectorSource() {
-//        @Override
-//        public ValueType getValueType() {
-//          return wrapped.getValueType();
-//        }
-//
-//        @Override
-//        public Iterable<Value> getValues(SortedSet<VariableEntity> entities) {
-//          SortedSet<VariableEntity> wrappedEntities = Sets.newTreeSet();
-//          for (VariableEntity entity : entities) {
-//            wrappedEntities.add(getVariableEntityMappingFunction().unapply(entity));
-//          }
-//          return wrapped.getValues(wrappedEntities);
-//        }
-//      };
-//    }
+    @NotNull
+    @Override
+    public VectorSource asVectorSource() {
+      return new ViewVectorSource(super.asVectorSource());
+    }
+
+    private class ViewVectorSource implements VectorSource {
+
+      private final VectorSource wrapped;
+
+      private SortedSet<VariableEntity> mappedEntities;
+
+      private ViewVectorSource(VectorSource wrapped) {
+        this.wrapped = wrapped;
+      }
+
+      @Override
+      public ValueType getValueType() {
+        return wrapped.getValueType();
+      }
+
+      @Override
+      public Iterable<Value> getValues(SortedSet<VariableEntity> entities) {
+        return wrapped.getValues(getMappedEntities(entities));
+      }
+
+      private SortedSet<VariableEntity> getMappedEntities(Iterable<VariableEntity> entities) {
+        if(mappedEntities == null) {
+          mappedEntities = Sets.newTreeSet();
+          for(VariableEntity entity : entities) {
+            mappedEntities.add(getVariableEntityMappingFunction().unapply(entity));
+          }
+        }
+        return mappedEntities;
+      }
+
+      @Override
+      @SuppressWarnings("SimplifiableIfStatement")
+      public boolean equals(Object obj) {
+        if(this == obj) return true;
+        if(obj == null || getClass() != obj.getClass()) return false;
+        return wrapped.equals(((ViewVectorSource) obj).wrapped);
+      }
+
+      @Override
+      public int hashCode() {
+        return wrapped.hashCode();
+      }
+    }
+
   }
 
   //

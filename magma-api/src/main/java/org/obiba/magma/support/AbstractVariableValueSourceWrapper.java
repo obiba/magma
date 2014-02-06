@@ -39,6 +39,7 @@ public abstract class AbstractVariableValueSourceWrapper implements VariableValu
     return wrapped;
   }
 
+  @NotNull
   @Override
   public Variable getVariable() {
     return wrapped.getVariable();
@@ -67,6 +68,7 @@ public abstract class AbstractVariableValueSourceWrapper implements VariableValu
     return wrapped.asVectorSource();
   }
 
+  @NotNull
   @Override
   public String getName() {
     return wrapped.getName();

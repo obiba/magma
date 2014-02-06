@@ -101,6 +101,7 @@ class HibernateVariableValueSourceFactory implements VariableValueSourceFactory 
       return (VariableState) getCurrentSession().get(VariableState.class, ensureVariableId());
     }
 
+    @NotNull
     @Override
     public synchronized Variable getVariable() {
       if(variable == null) {

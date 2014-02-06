@@ -115,6 +115,7 @@ public class SummaryStatisticsView extends AbstractValueTable implements Initial
       });
     }
 
+    @NotNull
     @Override
     public Variable getVariable() {
       return Variable.Builder.newVariable(statName, DecimalType.get(), getEntityType()).build();

@@ -5,11 +5,11 @@ import java.util.Collection;
 import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.concurrent.TimeUnit;
 
 import org.hibernate.SessionFactory;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.obiba.magma.Datasource;
@@ -19,6 +19,8 @@ import org.obiba.magma.ValueTable;
 import org.obiba.magma.ValueTableWriter;
 import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
+import org.obiba.magma.VariableValueSource;
+import org.obiba.magma.VectorSource;
 import org.obiba.magma.datasource.generated.GeneratedValueTable;
 import org.obiba.magma.datasource.hibernate.HibernateDatasource;
 import org.obiba.magma.js.AbstractJsTest;
@@ -43,9 +45,9 @@ import org.springframework.transaction.support.TransactionTemplate;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
 
+import static org.fest.assertions.api.Assertions.assertThat;
 import static org.obiba.magma.Variable.Builder.newVariable;
 
-@Ignore
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("/test-context.xml")
 @SuppressWarnings({ "OverlyLongMethod", "PMD.NcssMethodCount", "OverlyCoupledClass" })
@@ -134,7 +136,7 @@ public class GlobalMethodsHibernateTest extends AbstractJsTest {
         newVariable(VARIABLE_AGE, IntegerType.get(), PARTICIPANT).build(), //
         newVariable(VARIABLE_WEIGHT, IntegerType.get(), PARTICIPANT).unit("kg").build(), //
         newVariable(VARIABLE_HEIGHT, IntegerType.get(), PARTICIPANT).unit("cm").build());
-    ValueTable generatedValueTable = new GeneratedValueTable(datasource, variables, 200);
+    ValueTable generatedValueTable = new GeneratedValueTable(datasource, variables, 500);
 
     Datasource viewAwareDatasource = viewManager.decorate(datasource);
     MagmaEngine.get().addDatasource(viewAwareDatasource);
@@ -149,7 +151,6 @@ public class GlobalMethodsHibernateTest extends AbstractJsTest {
   }
 
   @Test
-  @Ignore
   public void test_$this_vector_performance() throws Exception {
 
     transactionTemplate.execute(new TransactionCallbackWithoutResult() {
@@ -176,10 +177,14 @@ public class GlobalMethodsHibernateTest extends AbstractJsTest {
         SortedSet<VariableEntity> entities = new TreeSet<>(view.getVariableEntities());
         log.info("Load {} entities in {}", entities.size(), stopwatch);
         stopwatch.reset().start();
-        for(Value viewValue : view.getVariableValueSource("C").asVectorSource().getValues(entities)) {
+        VariableValueSource variableValueSource = view.getVariableValueSource("C");
+        VectorSource vectorSource = variableValueSource.asVectorSource();
+        Iterable<Value> values = vectorSource.getValues(entities);
+        for(Value viewValue : values) {
           viewValue.getValue();
         }
-        log.info("Load vector in {}", stopwatch);
+        log.info("Load vector in {}", stopwatch.stop());
+        assertThat(stopwatch.elapsed(TimeUnit.SECONDS)).isLessThan(1);
       }
     });
   }

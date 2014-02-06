@@ -21,6 +21,7 @@ public class DatasourceTableClause extends VariablesClause implements Disposable
 
   private String table;
 
+  @SuppressWarnings("TransientFieldInNonSerializableClass")
   private transient Datasource source;
 
   public void setTable(String table) {

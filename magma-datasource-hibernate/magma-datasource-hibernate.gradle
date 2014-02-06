@@ -16,5 +16,4 @@ dependencies {
   testCompile(libraries.javassist)
   testCompile(libraries.hsqldb)
   testCompile(libraries.mysql_connector_java)
-  testCompile(libraries.postgresql)
 }

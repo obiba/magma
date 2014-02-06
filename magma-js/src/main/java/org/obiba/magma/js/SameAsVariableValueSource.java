@@ -26,6 +26,7 @@ public class SameAsVariableValueSource extends JavascriptVariableValueSource {
     return super.getVariable().getAttribute(SAME_AS_ATTRIBUTE_NAME).getValue().toString();
   }
 
+  @NotNull
   @Override
   public Variable getVariable() {
     Variable original = getValueTable().getVariable(getSameAs());

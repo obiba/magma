@@ -140,10 +140,11 @@ class FsValueTable extends AbstractValueTable implements Initialisable, Disposab
 
     private final Variable variable;
 
-    FsVariableValueSource(Variable variable) {
+    private FsVariableValueSource(Variable variable) {
       this.variable = variable;
     }
 
+    @NotNull
     @Override
     public Variable getVariable() {
       return variable;

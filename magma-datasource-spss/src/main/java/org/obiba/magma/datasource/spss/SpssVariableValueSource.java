@@ -38,6 +38,7 @@ public class SpssVariableValueSource extends AbstractVariableValueSource impleme
     this.spssVariable = spssVariable;
   }
 
+  @NotNull
   @Override
   public Variable getVariable() {
     return variable;
