@@ -468,26 +468,26 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
       return getWrapped().getValue(getValueSetMappingFunction().unapply(valueSet));
     }
 
-    @Nullable
-    @Override
-    public VectorSource asVectorSource() {
-      final VectorSource wrapped = super.asVectorSource();
-      return new VectorSource() {
-        @Override
-        public ValueType getValueType() {
-          return wrapped.getValueType();
-        }
-
-        @Override
-        public Iterable<Value> getValues(SortedSet<VariableEntity> entities) {
-          SortedSet<VariableEntity> wrappedEntities = Sets.newTreeSet();
-          for (VariableEntity entity : entities) {
-            wrappedEntities.add(getVariableEntityMappingFunction().unapply(entity));
-          }
-          return wrapped.getValues(wrappedEntities);
-        }
-      };
-    }
+//    @Nullable
+//    @Override
+//    public VectorSource asVectorSource() {
+//      final VectorSource wrapped = super.asVectorSource();
+//      return new VectorSource() {
+//        @Override
+//        public ValueType getValueType() {
+//          return wrapped.getValueType();
+//        }
+//
+//        @Override
+//        public Iterable<Value> getValues(SortedSet<VariableEntity> entities) {
+//          SortedSet<VariableEntity> wrappedEntities = Sets.newTreeSet();
+//          for (VariableEntity entity : entities) {
+//            wrappedEntities.add(getVariableEntityMappingFunction().unapply(entity));
+//          }
+//          return wrapped.getValues(wrappedEntities);
+//        }
+//      };
+//    }
   }
 
   //
