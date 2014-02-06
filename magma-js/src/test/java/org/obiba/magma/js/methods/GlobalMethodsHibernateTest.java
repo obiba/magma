@@ -63,7 +63,7 @@ public class GlobalMethodsHibernateTest extends AbstractJsTest {
   @Override
   public void before() {
     super.before();
-    provider = newMysqlProvider();
+    provider = newHsqlProvider("globalMethods-test");
     viewManager = new DefaultViewManagerImpl(new MemoryViewPersistenceStrategy());
   }
 
@@ -81,16 +81,26 @@ public class GlobalMethodsHibernateTest extends AbstractJsTest {
     return magmaEngine;
   }
 
-  private LocalSessionFactoryProvider newMysqlProvider() {
-    LocalSessionFactoryProvider newProvider = new LocalSessionFactoryProvider("com.mysql.jdbc.Driver",
-        "jdbc:mysql://localhost:3306/magma_test?characterEncoding=UTF-8", "root", "1234",
-        "org.hibernate.dialect.MySQL5InnoDBDialect");
+  private LocalSessionFactoryProvider newHsqlProvider(String testName) {
+    LocalSessionFactoryProvider newProvider = new LocalSessionFactoryProvider("org.hsqldb.jdbcDriver",
+        "jdbc:hsqldb:mem:" + testName + ";shutdown=true", "sa", "", "org.hibernate.dialect.HSQLDialect");
     Properties p = new Properties();
     p.setProperty(Environment.CACHE_PROVIDER, "org.hibernate.cache.HashtableCacheProvider");
     newProvider.setProperties(p);
     newProvider.initialise();
     return newProvider;
   }
+
+//  private LocalSessionFactoryProvider newMysqlProvider() {
+//    LocalSessionFactoryProvider newProvider = new LocalSessionFactoryProvider("com.mysql.jdbc.Driver",
+//        "jdbc:mysql://localhost:3306/magma_test?characterEncoding=UTF-8", "root", "1234",
+//        "org.hibernate.dialect.MySQL5InnoDBDialect");
+//    Properties p = new Properties();
+//    p.setProperty(Environment.CACHE_PROVIDER, "org.hibernate.cache.HashtableCacheProvider");
+//    newProvider.setProperties(p);
+//    newProvider.initialise();
+//    return newProvider;
+//  }
 
   private Datasource getGeneratedDatasource() {
     HibernateDatasource datasource = new HibernateDatasource(DATASOURCE, provider.getSessionFactory());
