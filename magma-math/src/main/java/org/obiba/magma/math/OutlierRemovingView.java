@@ -92,10 +92,7 @@ public class OutlierRemovingView extends View {
 
     @Override
     public VariableValueSource apply(VariableValueSource from) {
-      if(canRemoveOutliers(from)) {
-        return cacheLookup(from);
-      }
-      return new ViewVariableValueSource(from);
+      return canRemoveOutliers(from) ? cacheLookup(from) : new ViewVariableValueSource(from);
     }
   }
 
