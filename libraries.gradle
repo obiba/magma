@@ -24,7 +24,7 @@ ext {
 
       findbugs_annotation: 'net.sourceforge.findbugs:annotations:1.3.2',
 
-      guava: 'com.google.guava:guava:15.0',
+      guava: 'com.google.guava:guava:16.0',
 
       hibernate_core: "org.hibernate:hibernate-core:${hibernateVersion}",
       hibernate_ehcache: "org.hibernate:hibernate-ehcache:${hibernateVersion}",
