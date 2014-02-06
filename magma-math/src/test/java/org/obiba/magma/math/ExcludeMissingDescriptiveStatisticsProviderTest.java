@@ -18,17 +18,15 @@ import org.obiba.magma.type.IntegerType;
 
 import com.google.common.collect.ImmutableList;
 
-import static org.easymock.EasyMock.createMock;
-import static org.easymock.EasyMock.expect;
-import static org.easymock.EasyMock.replay;
-import static org.easymock.EasyMock.verify;
 import static org.fest.assertions.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class ExcludeMissingDescriptiveStatisticsProviderTest {
 
-  SortedSet<VariableEntity> emptySet = new TreeSet<>();
+  private final SortedSet<VariableEntity> emptySet = new TreeSet<>();
 
-  Variable testVariable;
+  private Variable testVariable;
 
   @Before
   public void startYourEngine() {
@@ -44,48 +42,40 @@ public class ExcludeMissingDescriptiveStatisticsProviderTest {
 
   @Test
   public void test_compute_handlesNullVectorSource() {
-    VariableValueSource mockSource = createMock(VariableValueSource.class);
-    expect(mockSource.asVectorSource()).andReturn(null);
-
-    replay(mockSource);
+    VariableValueSource mockSource = mock(VariableValueSource.class);
+    when(mockSource.supportVectorSource()).thenReturn(false);
 
     DescriptiveStatisticsProvider provider = new ExcludeMissingDescriptiveStatisticsProvider();
     DescriptiveStatistics ds = provider.compute(mockSource, emptySet);
 
     assertThat(ds).isNotNull();
-    verify(mockSource);
   }
 
   @Test
   public void test_compute_obtainsVectorOverCorrectSetOfEntities() {
-    VariableValueSource mockSource = createMock(VariableValueSource.class);
-    VectorSource mockVector = createMock(VectorSource.class);
+    VariableValueSource mockSource = mock(VariableValueSource.class);
+    VectorSource mockVector = mock(VectorSource.class);
 
-    expect(mockSource.asVectorSource()).andReturn(mockVector);
-    expect(mockVector.getValues(emptySet)).andReturn(ImmutableList.<Value>of());
-
-    replay(mockSource, mockVector);
+    when(mockSource.asVectorSource()).thenReturn(mockVector);
+    when(mockVector.getValues(emptySet)).thenReturn(ImmutableList.<Value>of());
 
     DescriptiveStatisticsProvider provider = new ExcludeMissingDescriptiveStatisticsProvider();
     DescriptiveStatistics ds = provider.compute(mockSource, emptySet);
 
     assertThat(ds).isNotNull();
 
-    verify(mockSource, mockVector);
   }
 
   @Test
   public void test_compute_excludesNullValues() {
-    VariableValueSource mockSource = createMock(VariableValueSource.class);
-    VectorSource mockVector = createMock(VectorSource.class);
+    VariableValueSource mockSource = mock(VariableValueSource.class);
+    VectorSource mockVector = mock(VectorSource.class);
 
-    expect(mockSource.asVectorSource()).andReturn(mockVector);
-    expect(mockSource.getVariable()).andReturn(testVariable).anyTimes();
+    when(mockSource.supportVectorSource()).thenReturn(true);
+    when(mockSource.asVectorSource()).thenReturn(mockVector);
+    when(mockSource.getVariable()).thenReturn(testVariable);
 
-    expect(mockVector.getValues(emptySet))
-        .andReturn(Values.asValues(IntegerType.get(), 1, 2, 2, 88, null, null, 88, 2));
-
-    replay(mockSource, mockVector);
+    when(mockVector.getValues(emptySet)).thenReturn(Values.asValues(IntegerType.get(), 1, 2, 2, 88, null, null, 88, 2));
 
     DescriptiveStatisticsProvider provider = new ExcludeMissingDescriptiveStatisticsProvider();
     DescriptiveStatistics ds = provider.compute(mockSource, emptySet);
@@ -94,7 +84,6 @@ public class ExcludeMissingDescriptiveStatisticsProviderTest {
 
     assertThat(ds.getN()).isEqualTo(4l);
 
-    verify(mockSource, mockVector);
   }
 
 }

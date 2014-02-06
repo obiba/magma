@@ -13,7 +13,6 @@ package org.obiba.magma.datasource.mongodb;
 import java.util.Iterator;
 import java.util.SortedSet;
 
-import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 
 import org.obiba.magma.Value;
@@ -84,7 +83,12 @@ public class MongoDBVariableValueSource implements VariableValueSource, VectorSo
     return ((MongoDBValueSet) valueSet).getValue(getVariable());
   }
 
-  @Nullable
+  @Override
+  public boolean supportVectorSource() {
+    return true;
+  }
+
+  @NotNull
   @Override
   public VectorSource asVectorSource() {
     return this;

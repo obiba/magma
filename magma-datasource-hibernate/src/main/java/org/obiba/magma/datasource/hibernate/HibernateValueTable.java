@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Set;
 
 import javax.annotation.Nullable;
@@ -23,6 +24,7 @@ import org.obiba.core.service.impl.hibernate.AssociationCriteria.Operation;
 import org.obiba.magma.Datasource;
 import org.obiba.magma.Initialisable;
 import org.obiba.magma.NoSuchValueSetException;
+import org.obiba.magma.NoSuchVariableException;
 import org.obiba.magma.Timestamps;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueSet;
@@ -45,6 +47,7 @@ import org.obiba.magma.type.DateTimeType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
@@ -118,8 +121,8 @@ class HibernateValueTable extends AbstractValueTable {
     valueSetTimestamps = Maps.newHashMap();
     Query query = getDatasource().getSessionFactory().getCurrentSession().createSQLQuery(
         "SELECT ve.identifier, vs.created, vs.updated FROM value_set vs, variable_entity ve " +
-            "WHERE ve.id = vs.variable_entity_id AND vs.value_table_id = :value_table_id AND ve.type = :entity_type")
-        .setParameter("value_table_id", valueTableId) //
+            "WHERE ve.id = vs.variable_entity_id AND vs.value_table_id = :value_table_id AND ve.type = :entity_type").setParameter(
+        "value_table_id", valueTableId) //
         .setParameter("entity_type", getEntityType());
     for(final Object[] row : (List<Object[]>) query.list()) {
       valueSetTimestamps.put((String) row[0], new Timestamps() {
@@ -192,6 +195,30 @@ class HibernateValueTable extends AbstractValueTable {
     };
   }
 
+  @Override
+  public VariableValueSource getVariableValueSource(final String variableName) throws NoSuchVariableException {
+    try {
+      return Iterables.find(getSources(), new Predicate<VariableValueSource>() {
+        @Override
+        public boolean apply(VariableValueSource variableValueSource) {
+          return variableValueSource.getVariable().getName().equals(variableName);
+        }
+      });
+    } catch(NoSuchElementException e) {
+      throw new NoSuchVariableException(getName(), variableName);
+    }
+  }
+
+  @Override
+  public boolean hasVariable(String variableName) {
+    for(VariableValueSource source : getSources()) {
+      if(source.getVariable().getName().equals(variableName)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   /**
    * Overridden to include uncommitted sources when a transaction exists on this table and is visible in the current
    * session.
@@ -229,7 +256,7 @@ class HibernateValueTable extends AbstractValueTable {
     addVariableValueSources(uncommittedSources);
   }
 
-  void commitRemovedSources(Collection<VariableValueSource> uncommittedRemovedSources) {
+  void commitRemovedSources(Iterable<VariableValueSource> uncommittedRemovedSources) {
     removeVariableValueSources(uncommittedRemovedSources);
   }
 

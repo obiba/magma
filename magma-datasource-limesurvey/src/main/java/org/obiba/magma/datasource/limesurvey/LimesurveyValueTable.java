@@ -177,8 +177,8 @@ class LimesurveyValueTable extends AbstractValueTable {
 
   private void buildFileCountIfNecessary(LimeQuestion question) {
     if(question.getLimesurveyType() == LimesurveyType.FILE_UPLOAD) {
-      String name = question.getName() + " [filecount]";
-      Variable.Builder fileCountVb = Variable.Builder.newVariable(name, IntegerType.get(), PARTICIPANT);
+      Variable.Builder fileCountVb = Variable.Builder
+          .newVariable(question.getName() + " [filecount]", IntegerType.get(), PARTICIPANT);
       VariableValueSource fileCount = new LimesurveyQuestionVariableValueSource(fileCountVb, question, "_filecount");
       addLimesurveyVariableValueSource(fileCount);
     }
@@ -256,11 +256,11 @@ class LimesurveyValueTable extends AbstractValueTable {
   }
 
   private void addLimesurveyVariableValueSource(VariableValueSource vvs) {
-    String name = vvs.getVariable().getName();
-    if(!names.add(name)) {
+    String variableName = vvs.getVariable().getName();
+    if(!names.add(variableName)) {
       exception.addChild(
-          new LimesurveyParsingException("'" + getName() + "' contains duplicated variable names: " + name,
-              "LimeDuplicateVariableName", getName(), name));
+          new LimesurveyParsingException("'" + getName() + "' contains duplicated variable names: " + variableName,
+              "LimeDuplicateVariableName", getName(), variableName));
     }
     addVariableValueSource(vvs);
   }
@@ -426,7 +426,12 @@ class LimesurveyValueTable extends AbstractValueTable {
       return limesurveyValueSet.getValue(getVariable().getValueType(), getLimesurveyVariableField());
     }
 
-    @Nullable
+    @Override
+    public boolean supportVectorSource() {
+      return true;
+    }
+
+    @NotNull
     @Override
     public VectorSource asVectorSource() {
       return this;

@@ -8,7 +8,6 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.SortedSet;
 
-import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 
 import org.hibernate.FetchMode;
@@ -87,6 +86,7 @@ class HibernateVariableValueSourceFactory implements VariableValueSourceFactory 
     private Variable variable;
 
     HibernateVariableValueSource(@NotNull VariableState state, boolean unmarshall) {
+      //noinspection ConstantConditions
       if(state == null) throw new IllegalArgumentException("state cannot be null");
 
       name = state.getName();
@@ -134,7 +134,12 @@ class HibernateVariableValueSourceFactory implements VariableValueSourceFactory 
           : BinaryType.get().valueOfReference(factory, val);
     }
 
-    @Nullable
+    @Override
+    public boolean supportVectorSource() {
+      return true;
+    }
+
+    @NotNull
     @Override
     public VectorSource asVectorSource() {
       return this;

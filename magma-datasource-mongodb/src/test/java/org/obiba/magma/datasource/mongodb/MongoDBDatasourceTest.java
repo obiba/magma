@@ -112,7 +112,7 @@ public class MongoDBDatasourceTest {
   }
 
   @Test
-  public void test_integer_sequence_writer() throws IOException {
+  public void test_integer_sequence_writer() throws Exception {
     Datasource ds = createDatasource();
     int id = 1;
     testWriteReadValue(ds, id++, IntegerType.get().sequenceOf("1,2,3,4"));
@@ -120,7 +120,7 @@ public class MongoDBDatasourceTest {
   }
 
   @Test
-  public void test_text_writer() throws IOException {
+  public void test_text_writer() throws Exception {
     Datasource ds = createDatasource();
     int id = 1;
     testWriteReadValue(ds, id++, TextType.get().valueOf("Il était déjà mort..."));
@@ -129,7 +129,7 @@ public class MongoDBDatasourceTest {
   }
 
   @Test
-  public void test_integer_writer() throws IOException {
+  public void test_integer_writer() throws Exception {
     Datasource ds = createDatasource();
     int id = 1;
     testWriteReadValue(ds, id++, IntegerType.get().valueOf("1"));
@@ -140,7 +140,7 @@ public class MongoDBDatasourceTest {
   }
 
   @Test
-  public void test_decimal_writer() throws IOException {
+  public void test_decimal_writer() throws Exception {
     Datasource ds = createDatasource();
     int id = 1;
     testWriteReadValue(ds, id++, DecimalType.get().valueOf("1.2"));
@@ -151,7 +151,7 @@ public class MongoDBDatasourceTest {
   }
 
   @Test
-  public void test_date_writer() throws IOException {
+  public void test_date_writer() throws Exception {
     Datasource ds = createDatasource();
     int id = 1;
     testWriteReadValue(ds, id++, DateType.get().valueOf("1973-01-15"));
@@ -159,7 +159,7 @@ public class MongoDBDatasourceTest {
   }
 
   @Test
-  public void test_dateTime_writer() throws IOException {
+  public void test_dateTime_writer() throws Exception {
     Datasource ds = createDatasource();
     int id = 1;
     testWriteReadValue(ds, id++, DateTimeType.get().valueOf("1973-01-15 11:03:14"));
@@ -167,7 +167,7 @@ public class MongoDBDatasourceTest {
   }
 
   @Test
-  public void test_boolean_writer() throws IOException {
+  public void test_boolean_writer() throws Exception {
     Datasource ds = createDatasource();
     int id = 1;
     testWriteReadValue(ds, id++, BooleanType.get().valueOf(true));
@@ -176,7 +176,7 @@ public class MongoDBDatasourceTest {
   }
 
   @Test
-  public void test_locale_writer() throws IOException {
+  public void test_locale_writer() throws Exception {
     Datasource ds = createDatasource();
     int id = 1;
     testWriteReadValue(ds, id++, LocaleType.get().valueOf("ca_FR"));
@@ -185,7 +185,7 @@ public class MongoDBDatasourceTest {
   }
 
   @Test
-  public void test_binary_writer() throws IOException {
+  public void test_binary_writer() throws Exception {
     Datasource ds = createDatasource();
     int id = 1;
     testWriteReadValue(ds, id++, BinaryType.get().valueOf("coucou".getBytes(Charsets.UTF_8)));
@@ -194,7 +194,7 @@ public class MongoDBDatasourceTest {
   }
 
   @Test
-  public void test_binary_sequence_writer() throws IOException {
+  public void test_binary_sequence_writer() throws Exception {
     Datasource ds = createDatasource();
 
     Collection<Value> sequence = Lists.newArrayList();
@@ -206,7 +206,7 @@ public class MongoDBDatasourceTest {
   }
 
   @Test
-  public void test_point_writer() throws IOException {
+  public void test_point_writer() throws Exception {
     Datasource ds = createDatasource();
     int id = 1;
     testWriteReadValue(ds, id++, PointType.get().valueOf("[30.1,40.2]"));
@@ -214,7 +214,7 @@ public class MongoDBDatasourceTest {
   }
 
   @Test
-  public void test_line_string_writer() throws IOException {
+  public void test_line_string_writer() throws Exception {
     Datasource ds = createDatasource();
     int id = 1;
     testWriteReadValue(ds, id++, LineStringType.get().valueOf("[[30.1,40.2],[21.3,44.55]]"));
@@ -222,7 +222,7 @@ public class MongoDBDatasourceTest {
   }
 
   @Test
-  public void test_polygon_writer() throws IOException {
+  public void test_polygon_writer() throws Exception {
     Datasource ds = createDatasource();
     int id = 1;
     testWriteReadValue(ds, id++, PolygonType.get().valueOf("[[[30.1,40.2],[21.3,44.55],[30.1,40.2]]]"));
@@ -233,7 +233,7 @@ public class MongoDBDatasourceTest {
 
   @SuppressWarnings({ "ReuseOfLocalVariable", "OverlyLongMethod", "PMD.NcssMethodCount" })
   @Test
-  public void test_remove_variable() throws IOException {
+  public void test_remove_variable() throws Exception {
     Datasource ds = createDatasource();
     int id = 1;
     testWriteReadValue(ds, id++, BinaryType.get().valueOf("tutu".getBytes(Charsets.UTF_8)));
@@ -363,12 +363,13 @@ public class MongoDBDatasourceTest {
     return type.getName().toUpperCase();
   }
 
-  private void testWriteReadValue(Datasource ds, int identifier, Value value) throws IOException {
+  private void testWriteReadValue(Datasource ds, int identifier, Value value) throws Exception {
     VariableEntity entity = new VariableEntityBean("Participant", Integer.toString(identifier));
     Variable variable = Variable.Builder
         .newVariable(generateVariableName(value.getValueType()), value.getValueType(), entity.getType())
         .repeatable(value.isSequence()).build();
     writeValue(ds, entity, variable, value);
+    Thread.sleep(10);
     readValue(ds, entity, variable, value);
   }
 

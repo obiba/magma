@@ -25,7 +25,6 @@ import org.obiba.magma.ValueType;
 import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.VariableValueSource;
-import org.obiba.magma.VectorSource;
 import org.obiba.magma.js.JavascriptValueSource.VectorCache;
 import org.obiba.magma.js.MagmaContext;
 import org.obiba.magma.js.MagmaJsEvaluationRuntimeException;
@@ -359,13 +358,9 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
 //  }
 
   private static ScriptableValue valuesForVector(MagmaContext context, Scriptable thisObj, VariableValueSource source) {
-    VectorSource vectorSource = source.asVectorSource();
-    if(vectorSource == null) {
-      throw new IllegalArgumentException("source cannot provide vectors (" + source.getClass().getName() + ")");
-    }
     // Load the vector
     VectorCache cache = context.peek(VectorCache.class);
-    return new ScriptableValue(thisObj, cache.get(context, vectorSource), source.getVariable().getUnit());
+    return new ScriptableValue(thisObj, cache.get(context, source.asVectorSource()), source.getVariable().getUnit());
   }
 
   private static ScriptableValue valueForValueSet(MagmaContext context, Scriptable thisObj,

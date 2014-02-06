@@ -6,7 +6,6 @@ import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.obiba.magma.Value;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.VariableValueSource;
-import org.obiba.magma.VectorSource;
 
 /**
  * Abstract implementation of {@code DescriptiveStatisticsProvider} extending classes should implement {@code
@@ -21,9 +20,8 @@ public abstract class AbstractDescriptiveStatisticsProvider implements Descripti
     if(entities == null) throw new IllegalArgumentException("entities cannot be null");
 
     DescriptiveStatistics ds = new DescriptiveStatistics();
-    VectorSource vector = valueSource.asVectorSource();
-    if(vector != null) {
-      for(Value value : vector.getValues(entities)) {
+    if(valueSource.supportVectorSource()) {
+      for(Value value : valueSource.asVectorSource().getValues(entities)) {
         processValue(valueSource, value, ds);
       }
     }

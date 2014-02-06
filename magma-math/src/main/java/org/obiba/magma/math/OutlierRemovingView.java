@@ -8,7 +8,7 @@ import javax.validation.constraints.NotNull;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueSet;
 import org.obiba.magma.VariableValueSource;
-import org.obiba.magma.support.AbstractVariableValueSourceWrapper;
+import org.obiba.magma.VariableValueSourceWrapper;
 import org.obiba.magma.transform.BijectiveFunction;
 import org.obiba.magma.views.View;
 
@@ -56,7 +56,7 @@ public class OutlierRemovingView extends View {
    * @return
    */
   protected boolean canRemoveOutliers(@Nullable VariableValueSource source) {
-    return source != null && source.asVectorSource() != null //
+    return source != null && source.supportVectorSource() //
         && !source.getVariable().isRepeatable() //
         && source.getValueType().isNumeric();
   }
@@ -87,7 +87,7 @@ public class OutlierRemovingView extends View {
   private final class WrappingFunction implements BijectiveFunction<VariableValueSource, VariableValueSource> {
     @Override
     public VariableValueSource unapply(VariableValueSource from) {
-      return ((AbstractVariableValueSourceWrapper) from).getWrapped();
+      return ((VariableValueSourceWrapper) from).getWrapped();
     }
 
     @Override

@@ -520,7 +520,12 @@ class JdbcValueTable extends AbstractValueTable {
       return variable.getValueType();
     }
 
-    @Nullable
+    @Override
+    public boolean supportVectorSource() {
+      return true;
+    }
+
+    @NotNull
     @Override
     public VectorSource asVectorSource() {
       return this;

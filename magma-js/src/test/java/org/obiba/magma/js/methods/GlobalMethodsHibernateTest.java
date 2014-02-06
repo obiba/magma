@@ -9,6 +9,7 @@ import java.util.TreeSet;
 import org.hibernate.SessionFactory;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.obiba.magma.Datasource;
@@ -44,6 +45,7 @@ import com.google.common.collect.Lists;
 
 import static org.obiba.magma.Variable.Builder.newVariable;
 
+@Ignore
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("/test-context.xml")
 @SuppressWarnings({ "OverlyLongMethod", "PMD.NcssMethodCount", "OverlyCoupledClass" })
@@ -147,6 +149,7 @@ public class GlobalMethodsHibernateTest extends AbstractJsTest {
   }
 
   @Test
+  @Ignore
   public void test_$this_vector_performance() throws Exception {
 
     transactionTemplate.execute(new TransactionCallbackWithoutResult() {
@@ -173,7 +176,6 @@ public class GlobalMethodsHibernateTest extends AbstractJsTest {
         SortedSet<VariableEntity> entities = new TreeSet<>(view.getVariableEntities());
         log.info("Load {} entities in {}", entities.size(), stopwatch);
         stopwatch.reset().start();
-        //noinspection ConstantConditions
         for(Value viewValue : view.getVariableValueSource("C").asVectorSource().getValues(entities)) {
           viewValue.getValue();
         }
