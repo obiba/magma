@@ -313,43 +313,55 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
     }
 
     @Override
-    Object eval(final MagmaContext context, final Scriptable scope) {
-      return Iterables.transform(getEntities(context), new Function<VariableEntity, Value>() {
-        @Override
-        public Value apply(VariableEntity variableEntity) {
-          Stopwatch stopwatch = Stopwatch.createStarted();
-          try {
-            log.trace("Start {} eval", variableEntity);
-            initContext(variableEntity);
-            return asValue(compiledScript.exec(context, scope));
-          } finally {
-            cleanContext();
-            log.trace("Finish {} eval in {}", variableEntity, stopwatch);
-          }
-        }
+    Object eval(MagmaContext context, Scriptable scope) {
+      return Iterables.transform(getEntities(context), new VectorEvaluationFunction(context, scope));
+    }
 
-        /**
-         * We have to set the current thread's context because this code will be executed outside of the ContextAction
-         */
-        private void initContext(VariableEntity variableEntity) {
-          ContextFactory.getGlobal().enterContext(context);
-          if(context.has(ReferenceNode.class)) context.pop(ReferenceNode.class);
-          JavascriptValueSource.this.enterContext(context, scope);
-          context.push(EvaluationType.class, EvaluationType.VECTOR);
-          context.push(VectorCache.class, vectorCache);
-          context.push(SortedSet.class, entities);
-          context.push(VariableEntity.class, variableEntity);
-        }
+    private class VectorEvaluationFunction implements Function<VariableEntity, Value> {
 
-        private void cleanContext() {
-          JavascriptValueSource.this.exitContext(context);
-          context.pop(VectorCache.class).next();
-          context.pop(SortedSet.class);
-          context.pop(VariableEntity.class);
-          context.pop(EvaluationType.class);
-          Context.exit();
+      private final MagmaContext context;
+
+      private final Scriptable scope;
+
+      private VectorEvaluationFunction(MagmaContext context, Scriptable scope) {
+        this.context = context;
+        this.scope = scope;
+      }
+
+      @Override
+      public Value apply(VariableEntity variableEntity) {
+        log.trace("Start {} eval", variableEntity);
+        Stopwatch stopwatch = Stopwatch.createStarted();
+        try {
+          initContext(variableEntity);
+          return asValue(compiledScript.exec(context, scope));
+        } finally {
+          cleanContext();
+          log.trace("Finish {} eval in {}", variableEntity, stopwatch);
         }
-      });
+      }
+
+      /**
+       * We have to set the current thread's context because this code will be executed outside of the ContextAction
+       */
+      private void initContext(VariableEntity variableEntity) {
+        ContextFactory.getGlobal().enterContext(context);
+        if(context.has(ReferenceNode.class)) context.pop(ReferenceNode.class);
+        JavascriptValueSource.this.enterContext(context, scope);
+        context.push(EvaluationType.class, EvaluationType.VECTOR);
+        context.push(VectorCache.class, vectorCache);
+        context.push(SortedSet.class, entities);
+        context.push(VariableEntity.class, variableEntity);
+      }
+
+      private void cleanContext() {
+        JavascriptValueSource.this.exitContext(context);
+        context.pop(VectorCache.class).next();
+        context.pop(SortedSet.class);
+        context.pop(VariableEntity.class);
+        context.pop(EvaluationType.class);
+        Context.exit();
+      }
     }
 
   }
