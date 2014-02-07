@@ -55,7 +55,7 @@ class MongoDBVariableEntityProvider implements VariableEntityProvider {
   @Override
   public Set<VariableEntity> getVariableEntities() {
     Value tableLastUpdate = table.getTimestamps().getLastUpdate();
-    if(lastUpdated == null || !lastUpdated.equals(tableLastUpdate)) {
+    if(cachedEntities == null || lastUpdated == null || !lastUpdated.equals(tableLastUpdate)) {
       lastUpdated = tableLastUpdate;
       cachedEntities = loadEntities();
     }
