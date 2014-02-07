@@ -1,7 +1,7 @@
 package org.obiba.magma.js.views;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.Collection;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 import javax.validation.constraints.NotNull;
@@ -24,7 +24,7 @@ import org.obiba.magma.views.ListClause;
  */
 public class VariablesClause implements ListClause, Initialisable {
 
-  private final Map<String, Variable> variables = new LinkedHashMap<>();
+  private Set<Variable> variables = new LinkedHashSet<>();
 
   @SuppressWarnings("TransientFieldInNonSerializableClass")
   private transient ValueTable valueTable;
@@ -35,12 +35,10 @@ public class VariablesClause implements ListClause, Initialisable {
   @SuppressWarnings("TransientFieldInNonSerializableClass")
   private transient boolean initialised = false;
 
-  public void setVariables(Iterable<Variable> variables) {
+  public void setVariables(Collection<Variable> variables) {
     this.variables.clear();
     if(variables != null) {
-      for(Variable variable : variables) {
-        this.variables.put(variable.getName(), variable);
-      }
+      this.variables.addAll(variables);
     }
   }
 
@@ -72,13 +70,14 @@ public class VariablesClause implements ListClause, Initialisable {
       throw new IllegalStateException("The setValueTable() method must be called before initialise().");
     }
     JavascriptVariableValueSourceFactory factory = new JavascriptVariableValueSourceFactory();
-    factory.setVariables(variables.values());
+    factory.setVariables(variables);
     factory.setValueTable(valueTable);
     variableValueSources = factory.createSources();
-    for(VariableValueSource variableValueSource : variableValueSources) {
+    for(VariableValueSource vvs : variableValueSources) {
       try {
-        Initialisables.initialise(variableValueSource);
+        Initialisables.initialise(vvs);
       } catch(MagmaRuntimeException ignored) {
+
       }
     }
     initialised = true;
@@ -100,12 +99,36 @@ public class VariablesClause implements ListClause, Initialisable {
 
     @Override
     public void writeVariable(@NotNull Variable variable) {
-      variables.put(variable.getName(), variable);
+      // update or add variable
+      Set<Variable> variableSet = new LinkedHashSet<>();
+      boolean updated = false;
+      for(Variable var : variables) {
+        if(var.getName().equals(variable.getName())) {
+          variableSet.add(variable);
+          updated = true;
+        } else {
+          variableSet.add(var);
+        }
+      }
+
+      if(!updated) {
+        variableSet.add(variable);
+      }
+
+      variables = variableSet;
     }
 
     @Override
     public void removeVariable(@NotNull Variable variable) {
-      variables.remove(variable.getName());
+      // update or add variable
+      Set<Variable> variableSet = new LinkedHashSet<>();
+      for(Variable var : variables) {
+        if(!var.getName().equals(variable.getName())) {
+          variableSet.add(var);
+        }
+      }
+
+      variables = variableSet;
     }
 
     @Override
