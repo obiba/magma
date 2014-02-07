@@ -36,7 +36,6 @@ class NumericValueGenerator extends AbstractMissingValueVariableValueGenerator {
     return getInteger(gvs, getMinimum(gvs), getMaximum(gvs));
   }
 
-  @SuppressWarnings("ConstantConditions")
   protected Value getInteger(GeneratedValueSet gvs, Number min, Number max) {
     Value meanValue = getMeanValue(gvs);
     Value stddevValue = getStdDevValue(gvs);
@@ -51,12 +50,12 @@ class NumericValueGenerator extends AbstractMissingValueVariableValueGenerator {
       }
       throw new IllegalStateException();
     }
-    double v = gvs.dataGenerator
+    double value = gvs.dataGenerator
         .nextGaussian(((Number) meanValue.getValue()).doubleValue(), ((Number) stddevValue.getValue()).doubleValue());
     // Make sure value is between absolute min and max
-    v = Math.min(v, max.doubleValue());
-    v = Math.max(v, min.doubleValue());
-    return getValueType().valueOf(v);
+    value = Math.min(value, max.doubleValue());
+    value = Math.max(value, min.doubleValue());
+    return getValueType().valueOf(value);
   }
 
   private ValueSource makeSource(Variable variable, String... scriptAttributes) {
@@ -64,32 +63,27 @@ class NumericValueGenerator extends AbstractMissingValueVariableValueGenerator {
   }
 
   private Number getMinimum(ValueSet valueSet) {
-    Value minimumValue = minimum.getValue(valueSet);
-    Number min = MIN_VALUE;
     try {
-      min = minimumValue.isNull() ? MIN_VALUE : (Number) minimumValue.getValue();
-    } catch(Exception e) {
-      //e.printStackTrace();
+      Value minimumValue = minimum.getValue(valueSet);
+      return minimumValue.isNull() ? MIN_VALUE : (Number) minimumValue.getValue();
+    } catch(Exception ignored) {
+      return MIN_VALUE;
     }
-    return min;
   }
 
   private Number getMaximum(ValueSet valueSet) {
-    Value maximumValue = maximum.getValue(valueSet);
-    Number max = MAX_VALUE;
     try {
-      max = maximumValue.isNull() ? MIN_VALUE : (Number) maximumValue.getValue();
-    } catch(Exception e) {
-      //e.printStackTrace();
+      Value maximumValue = maximum.getValue(valueSet);
+      return maximumValue.isNull() ? MIN_VALUE : (Number) maximumValue.getValue();
+    } catch(Exception ignored) {
+      return MAX_VALUE;
     }
-    return max;
   }
 
   private Value getMeanValue(ValueSet valueSet) {
     try {
       return mean.getValue(valueSet);
     } catch(Exception e) {
-      //e.printStackTrace();
       return mean.getValueType().nullValue();
     }
   }
@@ -98,7 +92,6 @@ class NumericValueGenerator extends AbstractMissingValueVariableValueGenerator {
     try {
       return stddev.getValue(valueSet);
     } catch(Exception e) {
-      //e.printStackTrace();
       return stddev.getValueType().nullValue();
     }
   }

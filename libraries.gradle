@@ -1,14 +1,14 @@
 ext {
 
   hibernateVersion = '4.2.7.SP1'
-  slf4jVersion = '1.7.5'
+  slf4jVersion = '1.7.6'
   springVersion = '3.2.4.RELEASE'
 
   libraries = [
 
       catch_exception: 'com.googlecode.catch-exception:catch-exception:1.2.0',
 
-      cglib_nodep: 'cglib:cglib-nodep:3.0',
+      cglib_nodep: 'cglib:cglib-nodep:3.1',
 
       commons_dbcp: 'commons-dbcp:commons-dbcp:1.4',
 
@@ -24,14 +24,14 @@ ext {
 
       findbugs_annotation: 'net.sourceforge.findbugs:annotations:1.3.2',
 
-      guava: 'com.google.guava:guava:16.0',
+      guava: 'com.google.guava:guava:16.0.1',
 
       hibernate_core: "org.hibernate:hibernate-core:${hibernateVersion}",
       hibernate_ehcache: "org.hibernate:hibernate-ehcache:${hibernateVersion}",
 
       hsqldb: 'org.hsqldb:hsqldb:2.3.1',
 
-      httpclient: 'org.apache.httpcomponents:httpclient:4.3.1',
+      httpclient: 'org.apache.httpcomponents:httpclient:4.3.2',
 
       javassist: 'javassist:javassist:3.12.1.GA',
 
@@ -39,21 +39,21 @@ ext {
 
       jscience_physics: 'org.jscience:jscience-physics:5.0-r53p01',
 
-      json: 'org.json:json:20090211',
+      json: 'org.json:json:20140107',
 
-      jsr305: 'com.google.code.findbugs:jsr305:2.0.2',
+      jsr305: 'com.google.code.findbugs:jsr305:2.0.3',
 
       junit: 'junit:junit:4.11',
 
       liquibase_core: 'org.liquibase:liquibase-core:1.9.4',
 
-      logback_classic: 'ch.qos.logback:logback-classic:1.0.13',
+      logback_classic: 'ch.qos.logback:logback-classic:1.1.1',
 
       mockito: 'org.mockito:mockito-all:1.9.5',
 
-      mongodb_java_driver: 'org.mongodb:mongo-java-driver:2.11.3',
+      mongodb_java_driver: 'org.mongodb:mongo-java-driver:2.11.4',
 
-      mysql_connector_java: 'mysql:mysql-connector-java:5.1.26',
+      mysql_connector_java: 'mysql:mysql-connector-java:5.1.29',
 
       obiba_core: 'org.obiba:obiba-core:1.5-SNAPSHOT',
 
@@ -65,8 +65,8 @@ ext {
 
       rhino_js: 'org.mozilla:rhino:1.7R4',
 
-      shiro_core: 'org.apache.shiro:shiro-core:1.1.0',
-      shiro_extras: 'eu.flatwhite.shiro:shiro-extras:1.0.1-obiba',
+      shiro_core: 'org.apache.shiro:shiro-core:1.2.2',
+      shiro_extras: 'eu.flatwhite.shiro:shiro-extras:1.0.2-obiba',
 
       slf4j_api: "org.slf4j:slf4j-api:${slf4jVersion}",
       jcl_slf4j: "org.slf4j:jcl-over-slf4j:${slf4jVersion}",
@@ -83,7 +83,7 @@ ext {
 
       validation: 'javax.validation:validation-api:1.1.0.Final',
 
-      xstream: 'com.thoughtworks.xstream:xstream:1.4.5'
+      xstream: 'com.thoughtworks.xstream:xstream:1.4.6'
 
   ]
 }
