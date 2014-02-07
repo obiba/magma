@@ -157,6 +157,7 @@ public class SummaryStatisticsView extends AbstractValueTable implements Initial
       return "Variable";
     }
 
+    @NotNull
     @Override
     public Set<VariableEntity> getVariableEntities() {
       return ImmutableSet.copyOf(Iterables

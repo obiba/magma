@@ -102,6 +102,7 @@ class FsVariableEntityProvider implements VariableEntityProvider, Initialisable,
     return entityType;
   }
 
+  @NotNull
   @Override
   public Set<VariableEntity> getVariableEntities() {
     return entityToFile.keySet();

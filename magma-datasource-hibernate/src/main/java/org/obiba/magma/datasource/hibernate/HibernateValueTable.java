@@ -335,6 +335,7 @@ class HibernateValueTable extends AbstractValueTable {
      * Returns the set of entities in this table. Will also include uncommitted entities when a transaction is active
      * for this table in the current session.
      */
+    @NotNull
     @Override
     public Set<VariableEntity> getVariableEntities() {
       //TODO cache these entities instead of recreating an ImmutableSet each time

@@ -6,6 +6,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
+import javax.validation.constraints.NotNull;
+
 import org.obiba.magma.Datasource;
 import org.obiba.magma.Initialisable;
 import org.obiba.magma.VariableEntity;
@@ -59,6 +61,7 @@ public class LimesurveyVariableEntityProvider extends AbstractVariableEntityProv
     entities = Sets.newHashSet(entityList);
   }
 
+  @NotNull
   @Override
   public Set<VariableEntity> getVariableEntities() {
     return Collections.unmodifiableSet(entities);

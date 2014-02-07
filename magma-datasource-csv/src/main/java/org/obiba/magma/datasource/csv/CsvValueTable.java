@@ -432,6 +432,7 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
       return entityType;
     }
 
+    @NotNull
     @Override
     public Set<VariableEntity> getVariableEntities() {
       return entityIndex.keySet();
