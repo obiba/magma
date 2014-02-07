@@ -144,6 +144,7 @@ public class SpssValueTable extends AbstractValueTable implements Disposable {
       return getEntityType().equals(anEntityType);
     }
 
+    @NotNull
     @Override
     public Set<VariableEntity> getVariableEntities() {
 

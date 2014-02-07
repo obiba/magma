@@ -52,6 +52,7 @@ class MongoDBVariableEntityProvider implements VariableEntityProvider {
     return getEntityType().equals(entityType);
   }
 
+  @NotNull
   @Override
   public Set<VariableEntity> getVariableEntities() {
     Value tableLastUpdate = table.getTimestamps().getLastUpdate();

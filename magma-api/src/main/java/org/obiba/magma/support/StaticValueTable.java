@@ -54,6 +54,7 @@ public class StaticValueTable extends AbstractValueTable {
         return getEntityType().equals(type);
       }
 
+      @NotNull
       @Override
       public Set<VariableEntity> getVariableEntities() {
         return ImmutableSet.copyOf(StaticValueTable.this.entities);

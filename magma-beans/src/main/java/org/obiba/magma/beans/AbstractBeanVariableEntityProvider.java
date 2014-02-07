@@ -2,6 +2,8 @@ package org.obiba.magma.beans;
 
 import java.util.Set;
 
+import javax.validation.constraints.NotNull;
+
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.support.AbstractVariableEntityProvider;
 import org.obiba.magma.support.VariableEntityBean;
@@ -23,6 +25,7 @@ public abstract class AbstractBeanVariableEntityProvider<T> extends AbstractVari
     return entityIdentifierPropertyPath;
   }
 
+  @NotNull
   @Override
   public Set<VariableEntity> getVariableEntities() {
     ImmutableSet.Builder<VariableEntity> builder = new ImmutableSet.Builder<>();

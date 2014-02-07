@@ -357,17 +357,16 @@ public class ExcelValueTable extends AbstractValueTable implements Initialisable
       return entityType;
     }
 
+    @NotNull
     @Override
     public Set<VariableEntity> getVariableEntities() {
       ImmutableSet.Builder<VariableEntity> entitiesBuilder = ImmutableSet.builder();
-
       if(valueTableSheet != null) {
         for(int i = 1; i < valueTableSheet.getPhysicalNumberOfRows(); i++) {
           Cell cell = valueTableSheet.getRow(i).getCell(0);
           entitiesBuilder.add(new VariableEntityBean(entityType, ExcelUtil.getCellValueAsString(cell)));
         }
       }
-
       return entitiesBuilder.build();
     }
 

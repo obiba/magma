@@ -13,5 +13,6 @@ public interface VariableEntityProvider {
 
   boolean isForEntityType(String entityType);
 
+  @NotNull
   Set<VariableEntity> getVariableEntities();
 }

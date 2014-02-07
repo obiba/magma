@@ -463,6 +463,7 @@ class JdbcValueTable extends AbstractValueTable {
       entities.addAll(results);
     }
 
+    @NotNull
     @Override
     public Set<VariableEntity> getVariableEntities() {
       return Collections.unmodifiableSet(entities);
