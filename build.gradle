@@ -14,7 +14,7 @@ buildscript {
   }
   dependencies {
     classpath 'org.jfrog.buildinfo:build-info-extractor-gradle:latest.release'
-    classpath 'com.github.ben-manes:gradle-versions-plugin:latest.release'
+    classpath 'com.github.ben-manes:gradle-versions-plugin:0.5-beta-1'
     classpath 'net.ltgt.gradle:gradle-errorprone-plugin:latest.release'
 //    classpath 'net.saliman:gradle-cobertura-plugin:2.1.0'
   }

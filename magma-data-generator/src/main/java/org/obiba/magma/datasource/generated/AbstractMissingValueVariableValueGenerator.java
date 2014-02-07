@@ -2,6 +2,9 @@ package org.obiba.magma.datasource.generated;
 
 import java.util.List;
 
+import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
+
 import org.obiba.magma.AttributeAware;
 import org.obiba.magma.Category;
 import org.obiba.magma.Value;
@@ -44,11 +47,13 @@ abstract class AbstractMissingValueVariableValueGenerator extends GeneratedVaria
 
   protected abstract Value nonMissingValue(Variable variable, GeneratedValueSet gvs);
 
+  @NotNull
   protected ValueSource makeSource(AttributeAware attributeAware, ValueType type, String... scriptAttributes) {
     String script = getAttributeStringValue(attributeAware, scriptAttributes);
     return script == null ? new NullValueSource(type) : new JavascriptValueSource(type, script);
   }
 
+  @Nullable
   protected String getAttributeStringValue(AttributeAware attributeAware, String... scriptAttributes) {
     for(String scriptAttribute : scriptAttributes) {
       if(attributeAware.hasAttribute(scriptAttribute)) {
