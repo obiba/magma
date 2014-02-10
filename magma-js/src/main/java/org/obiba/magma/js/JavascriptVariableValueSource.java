@@ -68,11 +68,12 @@ public class JavascriptVariableValueSource extends JavascriptValueSource impleme
         : valueTable;
   }
 
-  public void validateScript() throws EvaluatorException, CircularVariableDependencyRuntimeException {
+  @Override
+  public void initialise() throws EvaluatorException {
     if(valueTable == null) {
       throw new MagmaJsEvaluationRuntimeException("Cannot validate script with null table for " + variable.getName());
     }
-    initialise();
+    super.initialise();
     VariableScriptValidator.validateScript(variable, valueTable);
   }
 

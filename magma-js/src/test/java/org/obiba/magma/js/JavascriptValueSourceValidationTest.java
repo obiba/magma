@@ -143,8 +143,8 @@ public class JavascriptValueSourceValidationTest extends AbstractJsTest {
 
     View view = viewManager.getView(DATASOURCE, "view");
 
-    getJavascriptValueSource(view, "bmi_metric").validateScript();
-    getJavascriptValueSource(view, "bmi").validateScript();
+    getJavascriptValueSource(view, "bmi_metric").initialise();
+    getJavascriptValueSource(view, "bmi").initialise();
   }
 
   @Test
@@ -170,7 +170,7 @@ public class JavascriptValueSourceValidationTest extends AbstractJsTest {
 
     View view = viewManager.getView(DATASOURCE, "view");
     try {
-      getJavascriptValueSource(view, "A").validateScript();
+      getJavascriptValueSource(view, "A").initialise();
       fail("Should throw CircularVariableDependencyRuntimeException");
     } catch(CircularVariableDependencyRuntimeException e) {
       assertThat(e.getVariableRef()).isEqualTo("ds.view:A");
@@ -199,7 +199,7 @@ public class JavascriptValueSourceValidationTest extends AbstractJsTest {
     viewManager.addView(DATASOURCE, viewTemplate, null);
 
     View view = viewManager.getView(DATASOURCE, "view");
-    getJavascriptValueSource(view, "A").validateScript();
+    getJavascriptValueSource(view, "A").initialise();
   }
 
   @Test
@@ -216,7 +216,7 @@ public class JavascriptValueSourceValidationTest extends AbstractJsTest {
 
     View view = viewManager.getView(DATASOURCE, "view");
     try {
-      getJavascriptValueSource(view, "circular").validateScript();
+      getJavascriptValueSource(view, "circular").initialise();
       fail("Should throw CircularVariableDependencyRuntimeException");
     } catch(CircularVariableDependencyRuntimeException e) {
       assertThat(e.getVariableRef()).isEqualTo("ds.view:circular");

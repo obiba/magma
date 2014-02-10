@@ -10,7 +10,6 @@ import java.util.concurrent.TimeUnit;
 
 import org.junit.Assume;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.obiba.magma.Datasource;
 import org.obiba.magma.DatasourceFactory;
@@ -141,7 +140,9 @@ public class GlobalMethodsMongoDbTest extends AbstractJsTest {
     for(ValueSet valueSet : view.getValueSets()) {
       viewValues.add((Long) view.getValue(lbsWeight, valueSet).getValue());
     }
-    for(int i = 0; i < viewValues.size(); i++) {
+    assertThat(tableValues.size()).isEqualTo(viewValues.size()).isEqualTo(NB_ENTITIES);
+
+    for(int i = 0; i < NB_ENTITIES; i++) {
       Long kg = tableValues.get(i);
       Long lbs = viewValues.get(i);
       assertThat(lbs).isEqualTo((long) (kg * 2.2));
@@ -310,7 +311,6 @@ public class GlobalMethodsMongoDbTest extends AbstractJsTest {
   }
 
   @Test
-  @Ignore
   public void test_$this_vector() throws Exception {
     Datasource datasource = getTestDatasource();
     ValueTable table = datasource.getValueTable(TABLE);
