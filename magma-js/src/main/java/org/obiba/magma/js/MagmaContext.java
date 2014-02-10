@@ -6,12 +6,10 @@ import java.util.Stack;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class MagmaContext extends Context {
 
-  private static final Logger log = LoggerFactory.getLogger(MagmaContext.class);
+//  private static final Logger log = LoggerFactory.getLogger(MagmaContext.class);
 
   MagmaContext(MagmaContextFactory factory) {
     super(factory);
@@ -68,13 +66,6 @@ public class MagmaContext extends Context {
       putThreadLocal(type, stack);
     }
     stack.push(value);
-    if(log.isTraceEnabled() && type.equals(JavascriptVariableValueSource.ReferenceNode.class)) {
-      log.trace("Push {}: {}", type.getSimpleName(), value);
-      int i = 0;
-      for(T item : stack) {
-        log.trace("  stack {}: {}", i++, item);
-      }
-    }
   }
 
   /**
@@ -92,15 +83,7 @@ public class MagmaContext extends Context {
     }
 
     try {
-      T pop = stack.pop();
-      if(log.isTraceEnabled() && type.equals(JavascriptVariableValueSource.ReferenceNode.class)) {
-        log.trace("Pop {}: {}", type.getSimpleName(), pop);
-        int i = 0;
-        for(T item : stack) {
-          log.trace("  stack {}: {}", i++, item);
-        }
-      }
-      return pop;
+      return stack.pop();
     } catch(EmptyStackException e) {
       throw new IllegalStateException("Cannot pop stack for type " + type.getName());
     }

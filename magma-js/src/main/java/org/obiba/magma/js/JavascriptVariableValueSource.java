@@ -1,10 +1,9 @@
 package org.obiba.magma.js;
 
-import java.util.Collection;
-
 import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 
+import org.mozilla.javascript.EvaluatorException;
 import org.mozilla.javascript.Scriptable;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.Variable;
@@ -13,7 +12,6 @@ import org.obiba.magma.support.ValueTableWrapper;
 import org.obiba.magma.views.View;
 
 import com.google.common.base.Objects;
-import com.google.common.collect.Sets;
 
 public class JavascriptVariableValueSource extends JavascriptValueSource implements VariableValueSource {
 
@@ -70,24 +68,24 @@ public class JavascriptVariableValueSource extends JavascriptValueSource impleme
         : valueTable;
   }
 
+  public void validateScript() throws EvaluatorException, CircularVariableDependencyRuntimeException {
+    if(valueTable == null) {
+      throw new MagmaJsEvaluationRuntimeException("Cannot validate script with null table for " + variable.getName());
+    }
+    initialise();
+    VariableScriptValidator.validateScript(variable, valueTable);
+  }
+
   @Override
   protected void enterContext(MagmaContext context, Scriptable scope) {
     super.enterContext(context, scope);
-    ReferenceNode referenceNode = null;
-    if(valueTable == null) {
-      referenceNode = new ReferenceNode(variable.getName());
-    } else {
+    if(valueTable != null) {
       context.push(ValueTable.class, getValueTable());
       if(valueTable.isView()) {
         context.push(View.class, (View) valueTable);
       }
-      referenceNode = new ReferenceNode(variable.getVariableReference(valueTable));
     }
     context.push(Variable.class, variable);
-
-    if(!context.has(ReferenceNode.class)) {
-      context.push(ReferenceNode.class, referenceNode);
-    }
   }
 
   @Override
@@ -113,62 +111,6 @@ public class JavascriptVariableValueSource extends JavascriptValueSource impleme
     if(obj == null || getClass() != obj.getClass()) return false;
     JavascriptVariableValueSource other = (JavascriptVariableValueSource) obj;
     return Objects.equal(variable, other.variable) && Objects.equal(valueTable, other.valueTable);
-  }
-
-  public static class ReferenceNode {
-
-    @NotNull
-    private final String variableRef;
-
-    @Nullable
-    private ReferenceNode caller;
-
-    public ReferenceNode(@NotNull String variableRef) {
-      this.variableRef = variableRef;
-    }
-
-    public void setCaller(@NotNull ReferenceNode caller) throws CircularVariableDependencyRuntimeException {
-      checkCircularDependencies(caller, Sets.newHashSet(this));
-      this.caller = caller;
-    }
-
-    private void checkCircularDependencies(@Nullable ReferenceNode node, Collection<ReferenceNode> callers)
-        throws CircularVariableDependencyRuntimeException {
-      if(node == null) return;
-      if(callers.contains(node)) {
-        throw new CircularVariableDependencyRuntimeException(node);
-      }
-      callers.add(node);
-      checkCircularDependencies(node.getCaller(), callers);
-    }
-
-    @NotNull
-    public String getVariableRef() {
-      return variableRef;
-    }
-
-    @Nullable
-    public ReferenceNode getCaller() {
-      return caller;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-      if(this == o) return true;
-      if(!(o instanceof ReferenceNode)) return false;
-      ReferenceNode that = (ReferenceNode) o;
-      return variableRef.equals(that.variableRef);
-    }
-
-    @Override
-    public int hashCode() {
-      return variableRef.hashCode();
-    }
-
-    @Override
-    public String toString() {
-      return Objects.toStringHelper(this).omitNullValues().addValue(variableRef).add("caller", caller).toString();
-    }
   }
 
 }

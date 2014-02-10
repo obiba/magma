@@ -33,7 +33,7 @@ public class JavascriptValueSourceTest extends AbstractJsTest {
   }
 
   @Test
-  public void testSimpleScript() {
+  public void test_simple_script() {
     JavascriptValueSource source = new JavascriptValueSource(DecimalType.get(), "1");
     source.initialise();
 
@@ -42,7 +42,7 @@ public class JavascriptValueSourceTest extends AbstractJsTest {
   }
 
   @Test
-  public void testEngineMethod() {
+  public void test_engine_method() {
     JavascriptValueSource source = new JavascriptValueSource(DateTimeType.get(), "now()");
     source.initialise();
 
@@ -57,7 +57,7 @@ public class JavascriptValueSourceTest extends AbstractJsTest {
   }
 
   @Test
-  public void testCompileError() {
+  public void test_compile_error() {
     // Error is on second line of script
     String script = "var i = 1+1;\nERROR!";
     JavascriptValueSource source = new JavascriptValueSource(IntegerType.get(), script);
@@ -73,7 +73,7 @@ public class JavascriptValueSourceTest extends AbstractJsTest {
   }
 
   @Test
-  public void test_Opal1110() {
+  public void test_OPAL_1110() {
     JavascriptValueSource source = new JavascriptValueSource(TextType.get(), "1");
     source.initialise();
 

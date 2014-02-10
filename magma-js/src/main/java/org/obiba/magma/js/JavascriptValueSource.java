@@ -35,8 +35,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
 
-import static org.obiba.magma.js.JavascriptVariableValueSource.ReferenceNode;
-
 /**
  * A {@code ValueSource} implementation that uses a JavaScript script to evaluate the {@code Value} to return.
  * <p/>
@@ -63,10 +61,9 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
   @SuppressWarnings("TransientFieldInNonSerializableClass")
   private transient Script compiledScript;
 
+  @SuppressWarnings("ConstantConditions")
   public JavascriptValueSource(@NotNull ValueType type, @NotNull String script) {
-    //noinspection ConstantConditions
     if(type == null) throw new IllegalArgumentException("type cannot be null");
-    //noinspection ConstantConditions
     if(script == null) throw new IllegalArgumentException("script cannot be null");
     this.type = type;
     this.script = script;
@@ -137,15 +134,6 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
     });
   }
 
-  public void validateScript() throws EvaluatorException {
-    if(compiledScript == null) {
-      initialise();
-    }
-    Stopwatch stopwatch = Stopwatch.createStarted();
-    ContextFactory.getGlobal().call(new ValidationEvaluationContextAction());
-    log.trace("Validation evaluation of {} in {}", getScriptName(), stopwatch);
-  }
-
   protected boolean isSequence() {
     return false;
   }
@@ -168,10 +156,6 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
   protected void exitContext(MagmaContext ctx) {
   }
 
-  public enum EvaluationType {
-    VALUE_SET, VECTOR, VALIDATION
-  }
-
   private abstract class AbstractEvaluationContextAction implements ContextAction {
 
     @Override
@@ -180,13 +164,10 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
       // Don't pollute the global scope
       Scriptable scope = context.newLocalScope();
 
-      log.trace(">>> enter context for {}", getScript());
       enterContext(context, scope);
       try {
-        log.trace("eval {}", getScript());
         return eval(context, scope);
       } finally {
-        log.trace("<<< exit context for {}", getScript());
         exitContext(context);
       }
     }
@@ -256,7 +237,6 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
 
     @Override
     void enterContext(MagmaContext context, Scriptable scope) {
-      context.push(EvaluationType.class, EvaluationType.VALUE_SET);
       context.push(ValueSet.class, valueSet);
       context.push(ValueTable.class, valueSet.getValueTable());
       context.push(VariableEntity.class, valueSet.getVariableEntity());
@@ -268,8 +248,6 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
       context.pop(VariableEntity.class);
       context.pop(ValueTable.class);
       context.pop(ValueSet.class);
-      context.pop(EvaluationType.class);
-      if(context.has(ReferenceNode.class)) context.pop(ReferenceNode.class);
       super.exitContext(context);
     }
 
@@ -297,7 +275,6 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
 
     @Override
     void enterContext(MagmaContext context, Scriptable scope) {
-      context.push(EvaluationType.class, EvaluationType.VECTOR);
       super.enterContext(context, scope);
       context.push(SortedSet.class, getEntities(context));
       context.push(VectorCache.class, vectorCache);
@@ -308,8 +285,6 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
       super.exitContext(context);
       context.pop(SortedSet.class);
       context.pop(VectorCache.class);
-      context.pop(EvaluationType.class);
-      if(context.has(ReferenceNode.class)) context.pop(ReferenceNode.class);
     }
 
     @Override
@@ -330,7 +305,6 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
 
       @Override
       public Value apply(VariableEntity variableEntity) {
-        log.trace("Start {} eval", variableEntity);
         Stopwatch stopwatch = Stopwatch.createStarted();
         try {
           initContext(variableEntity);
@@ -346,9 +320,7 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
        */
       private void initContext(VariableEntity variableEntity) {
         ContextFactory.getGlobal().enterContext(context);
-        if(context.has(ReferenceNode.class)) context.pop(ReferenceNode.class);
         JavascriptValueSource.this.enterContext(context, scope);
-        context.push(EvaluationType.class, EvaluationType.VECTOR);
         context.push(VectorCache.class, vectorCache);
         context.push(SortedSet.class, entities);
         context.push(VariableEntity.class, variableEntity);
@@ -359,31 +331,8 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
         context.pop(VectorCache.class).next();
         context.pop(SortedSet.class);
         context.pop(VariableEntity.class);
-        context.pop(EvaluationType.class);
         Context.exit();
       }
-    }
-
-  }
-
-  private final class ValidationEvaluationContextAction extends AbstractEvaluationContextAction {
-
-    @Override
-    void enterContext(MagmaContext context, Scriptable scope) {
-      context.push(EvaluationType.class, EvaluationType.VALIDATION);
-      super.enterContext(context, scope);
-    }
-
-    @Override
-    void exitContext(MagmaContext context) {
-      context.pop(EvaluationType.class);
-      if(context.has(ReferenceNode.class)) context.pop(ReferenceNode.class);
-      super.exitContext(context);
-    }
-
-    @Override
-    Object eval(MagmaContext context, Scriptable scope) {
-      return asValue(compiledScript.exec(context, scope));
     }
 
   }
