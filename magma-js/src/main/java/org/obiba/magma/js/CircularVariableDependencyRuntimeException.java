@@ -6,9 +6,9 @@ public class CircularVariableDependencyRuntimeException extends MagmaJsEvaluatio
 
   private final String variableRef;
 
-  public CircularVariableDependencyRuntimeException(JavascriptVariableValueSource.ReferenceNode node) {
-    super("Circular dependency for variable '" + node.getVariableRef() + "'");
-    variableRef = node.getVariableRef();
+  public CircularVariableDependencyRuntimeException(String variableRef) {
+    super("Circular dependency for variable '" + variableRef + "'");
+    this.variableRef = variableRef;
   }
 
   public String getVariableRef() {

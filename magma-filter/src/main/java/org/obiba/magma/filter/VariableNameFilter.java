@@ -34,16 +34,14 @@ public class VariableNameFilter extends AbstractFilter<Variable> implements Init
   @Override
   public void initialise() {
     if(initialised) return;
-    validateArguments(prefix, match);
+    if(prefix == null && match == null) {
+      throw new IllegalArgumentException("The arguments [prefix] and [match] cannot both be null.");
+    }
+    if(prefix != null && match != null) {
+      throw new IllegalArgumentException("The arguments [prefix] and [match] cannot both have values.");
+    }
     if(match != null) matchPattern = Pattern.compile(match);
     initialised = true;
-  }
-
-  private void validateArguments(String prefix, String match) {
-    if(prefix == null && match == null)
-      throw new IllegalArgumentException("The arguments [prefix] and [match] cannot both be null.");
-    if(prefix != null && match != null)
-      throw new IllegalArgumentException("The arguments [prefix] and [match] cannot both have values.");
   }
 
   @Override
@@ -55,10 +53,10 @@ public class VariableNameFilter extends AbstractFilter<Variable> implements Init
       Matcher matcher = matchPattern.matcher(item.getName());
       if(matcher.matches()) return Boolean.TRUE;
     }
-
     return Boolean.FALSE;
   }
 
+  @SuppressWarnings("ParameterHidesMemberVariable")
   public static class Builder extends AbstractFilter.Builder {
 
     private String prefix;

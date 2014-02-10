@@ -45,8 +45,6 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
-import static org.obiba.magma.js.JavascriptValueSource.EvaluationType;
-
 @SuppressWarnings(
     { "IfMayBeConditional", "ChainOfInstanceofChecks", "OverlyCoupledClass", "StaticMethodOnlyUsedInOneClass" })
 public final class GlobalMethods extends AbstractGlobalMethodProvider {
@@ -298,10 +296,6 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
 
     MagmaEngineVariableResolver reference = MagmaEngineVariableResolver.valueOf(name);
 
-//    ReferenceNode referenceNode = new ReferenceNode(
-//        Variable.Reference.getReference(view.getDatasource().getName(), view.getName(), reference.getVariableName()));
-//    checkCircularDependencies(context, referenceNode);
-
     // Find the named source, which is in this context a view variable value source.
     VariableValueSource source = reference.resolveSource(view);
 
@@ -317,45 +311,15 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
   }
 
   private static ScriptableValue valueFromContext(MagmaContext context, Scriptable thisObj, String name) {
-    // default to ValueSet-oriented evaluation
-    EvaluationType evaluationType = context.has(EvaluationType.class)
-        ? context.peek(EvaluationType.class)
-        : EvaluationType.VALUE_SET;
-
     ValueTable valueTable = context.peek(ValueTable.class);
     MagmaEngineVariableResolver reference = MagmaEngineVariableResolver.valueOf(name);
     VariableValueSource variableSource = reference.resolveSource(valueTable);
 
     // Test whether this is a vector-oriented evaluation or a ValueSet-oriented evaluation
-    switch(evaluationType) {
-//      case VALIDATION:
-//        ReferenceNode referenceNode = new ReferenceNode(Variable.Reference
-//            .getReference(reference.getDatasourceName(), reference.getTableName(), reference.getVariableName()));
-//        log.trace("Check dependencies for {}", referenceNode.getVariableRef());
-//        checkCircularDependencies(context, referenceNode);
-//        return new ScriptableValue(thisObj, variableSource.getValueType().nullValue(),
-//            variableSource.getVariable().getUnit());
-      case VALUE_SET:
-//        ReferenceNode referenceNode = new ReferenceNode(Variable.Reference
-//            .getReference(reference.getDatasourceName(), reference.getTableName(), reference.getVariableName()));
-//        log.trace("Check dependencies for {}", referenceNode.getVariableRef());
-//        checkCircularDependencies(context, referenceNode);
-        return valueForValueSet(context, thisObj, reference, variableSource);
-      case VECTOR:
-        return valuesForVector(context, thisObj, variableSource);
-      default:
-        throw new MagmaJsEvaluationRuntimeException("Unsupported evaluation type: " + evaluationType);
-    }
+    return context.has(VectorCache.class)
+        ? valuesForVector(context, thisObj, variableSource)
+        : valueForValueSet(context, thisObj, reference, variableSource);
   }
-
-//  private static void checkCircularDependencies(MagmaContext context, ReferenceNode callee)
-//      throws CircularVariableDependencyRuntimeException {
-//    if(context.has(ReferenceNode.class)) {
-//      ReferenceNode caller = context.peek(ReferenceNode.class);
-//      callee.setCaller(caller);
-//      context.push(ReferenceNode.class, callee);
-//    }
-//  }
 
   private static ScriptableValue valuesForVector(MagmaContext context, Scriptable thisObj, VariableValueSource source) {
     // Load the vector

@@ -12,7 +12,6 @@ import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.mozilla.javascript.WrappedException;
 import org.obiba.magma.Datasource;
 import org.obiba.magma.DatasourceFactory;
 import org.obiba.magma.MagmaEngine;
@@ -23,13 +22,10 @@ import org.obiba.magma.ValueTableWriter;
 import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.VariableValueSource;
-import org.obiba.magma.VariableValueSourceWrapper;
 import org.obiba.magma.VectorSource;
 import org.obiba.magma.datasource.generated.GeneratedValueTable;
 import org.obiba.magma.datasource.mongodb.MongoDBDatasourceFactory;
 import org.obiba.magma.js.AbstractJsTest;
-import org.obiba.magma.js.CircularVariableDependencyRuntimeException;
-import org.obiba.magma.js.JavascriptValueSource;
 import org.obiba.magma.js.views.VariablesClause;
 import org.obiba.magma.support.DatasourceCopier;
 import org.obiba.magma.type.IntegerType;
@@ -46,7 +42,6 @@ import com.google.common.collect.Lists;
 import com.mongodb.MongoClient;
 
 import static org.fest.assertions.api.Assertions.assertThat;
-import static org.junit.Assert.fail;
 import static org.obiba.magma.Variable.Builder.newVariable;
 
 @SuppressWarnings({ "OverlyLongMethod", "PMD.NcssMethodCount", "OverlyCoupledClass" })
@@ -68,7 +63,7 @@ public class GlobalMethodsMongoDbTest extends AbstractJsTest {
 
   private static final String VARIABLE_HEIGHT = "height";
 
-  private static final int NB_ENTITIES = 1000;
+  private static final int NB_ENTITIES = 500;
 
   private ViewManager viewManager;
 
@@ -105,9 +100,12 @@ public class GlobalMethodsMongoDbTest extends AbstractJsTest {
     Datasource datasource = factory.create();
 
     List<Variable> variables = Lists.newArrayList( //
-        newVariable(VARIABLE_AGE, IntegerType.get(), PARTICIPANT).build(), //
-        newVariable(VARIABLE_WEIGHT, IntegerType.get(), PARTICIPANT).unit("kg").build(), //
-        newVariable(VARIABLE_HEIGHT, IntegerType.get(), PARTICIPANT).unit("cm").build());
+        newVariable(VARIABLE_AGE, IntegerType.get(), PARTICIPANT).addAttribute("min", "25").addAttribute("max", "90")
+            .build(), //
+        newVariable(VARIABLE_WEIGHT, IntegerType.get(), PARTICIPANT).unit("kg").addAttribute("min", "50")
+            .addAttribute("max", "120").build(), //
+        newVariable(VARIABLE_HEIGHT, IntegerType.get(), PARTICIPANT).unit("cm").addAttribute("min", "150")
+            .addAttribute("max", "200").build());
     ValueTable generatedValueTable = new GeneratedValueTable(datasource, variables, NB_ENTITIES);
 
     Datasource viewAwareDatasource = viewManager.decorate(datasource);
@@ -116,110 +114,6 @@ public class GlobalMethodsMongoDbTest extends AbstractJsTest {
     DatasourceCopier.Builder.newCopier().build().copy(generatedValueTable, TABLE, datasource);
 
     return viewAwareDatasource;
-  }
-
-  @Test
-  @Ignore
-  public void test_$_validation() throws Exception {
-    Datasource datasource = getTestDatasource();
-    ValueTable table = datasource.getValueTable(TABLE);
-
-    Variable lbsWeight = createIntVariable("weight_in_lbs", "$('ds.table:weight') * 2.2");
-
-    View viewTemplate = View.Builder.newView("view", table).list(new VariablesClause()).build();
-    try(ValueTableWriter.VariableWriter variableWriter = viewTemplate.getListClause().createWriter()) {
-      variableWriter.writeVariable(lbsWeight);
-    }
-    viewManager.addView(DATASOURCE, viewTemplate, null);
-
-    View view = viewManager.getView(DATASOURCE, "view");
-
-    VariableValueSourceWrapper variableSource = (VariableValueSourceWrapper) view
-        .getVariableValueSource("weight_in_lbs");
-    ((JavascriptValueSource) variableSource.getWrapped()).validateScript();
-  }
-
-  @Test
-  @Ignore
-  public void test_$_validation_with_self_reference() throws Exception {
-    Datasource datasource = getTestDatasource();
-    ValueTable table = datasource.getValueTable(TABLE);
-
-    Variable circular = createIntVariable("circular", "$('ds.view:circular')");
-
-    View viewTemplate = View.Builder.newView("view", table).list(new VariablesClause()).build();
-    try(ValueTableWriter.VariableWriter variableWriter = viewTemplate.getListClause().createWriter()) {
-      variableWriter.writeVariable(circular);
-    }
-    viewManager.addView(DATASOURCE, viewTemplate, null);
-
-    View view = viewManager.getView(DATASOURCE, "view");
-    VariableValueSourceWrapper variableSource = (VariableValueSourceWrapper) view.getVariableValueSource("circular");
-    try {
-      ((JavascriptValueSource) variableSource.getWrapped()).validateScript();
-      fail("Should throw WrappedException");
-    } catch(WrappedException e) {
-      Throwable cause = e.getCause();
-      assertThat(cause).isNotNull();
-      assertThat(cause).isInstanceOf(CircularVariableDependencyRuntimeException.class);
-      assertThat(((CircularVariableDependencyRuntimeException) cause).getVariableRef()).isEqualTo("ds.view:circular");
-    }
-  }
-
-  @Test
-  @Ignore
-  public void test_$_validation_with_valid_dependencies() throws Exception {
-    Datasource datasource = getTestDatasource();
-    ValueTable table = datasource.getValueTable(TABLE);
-
-    Variable varA = createIntVariable("A", "$('ds.view:B') + $('ds.view:C')");
-    Variable varB = createIntVariable("B", "10");
-    Variable varC = createIntVariable("C", "$('ds.view:D') * 10");
-    Variable varD = createIntVariable("D", "$('ds.view:E') + 5");
-    Variable varE = createIntVariable("E", "5");
-
-    View viewTemplate = View.Builder.newView("view", table).list(new VariablesClause()).build();
-    try(ValueTableWriter.VariableWriter variableWriter = viewTemplate.getListClause().createWriter()) {
-      variableWriter.writeVariable(varA);
-      variableWriter.writeVariable(varB);
-      variableWriter.writeVariable(varC);
-      variableWriter.writeVariable(varD);
-      variableWriter.writeVariable(varE);
-    }
-    viewManager.addView(DATASOURCE, viewTemplate, null);
-
-    View view = viewManager.getView(DATASOURCE, "view");
-
-    VariableValueSourceWrapper variableSource = (VariableValueSourceWrapper) view.getVariableValueSource("A");
-    ((JavascriptValueSource) variableSource.getWrapped()).validateScript();
-  }
-
-  @Test
-  @Ignore
-  public void test_$_validation_with_circular_dependencies() throws Exception {
-    Datasource datasource = getTestDatasource();
-    ValueTable table = datasource.getValueTable(TABLE);
-
-    Variable varA = createIntVariable("A", "$('ds.view:B') + $('ds.view:C')");
-    Variable varB = createIntVariable("B", "10");
-    Variable varC = createIntVariable("C", "$('ds.view:D') * 10");
-    Variable varD = createIntVariable("D", "$('ds.view:E') + 5");
-    Variable varE = createIntVariable("E", "$('ds.view:A')");
-
-    View viewTemplate = View.Builder.newView("view", table).list(new VariablesClause()).build();
-    try(ValueTableWriter.VariableWriter variableWriter = viewTemplate.getListClause().createWriter()) {
-      variableWriter.writeVariable(varA);
-      variableWriter.writeVariable(varB);
-      variableWriter.writeVariable(varC);
-      variableWriter.writeVariable(varD);
-      variableWriter.writeVariable(varE);
-    }
-    viewManager.addView(DATASOURCE, viewTemplate, null);
-
-    View view = viewManager.getView(DATASOURCE, "view");
-
-    ((JavascriptValueSource) ((VariableValueSourceWrapper) view.getVariableValueSource("A")).getWrapped())
-        .validateScript();
   }
 
   @Test
@@ -342,138 +236,7 @@ public class GlobalMethodsMongoDbTest extends AbstractJsTest {
   }
 
   @Test
-  @Ignore
-  public void test_$_value_set_with_self_reference() throws Exception {
-    Datasource datasource = getTestDatasource();
-    ValueTable table = datasource.getValueTable(TABLE);
-
-    Variable circular = createIntVariable("circular", "$('ds.view:circular')");
-    View viewTemplate = View.Builder.newView("view", table).list(new VariablesClause()).build();
-    try(ValueTableWriter.VariableWriter variableWriter = viewTemplate.getListClause().createWriter()) {
-      variableWriter.writeVariable(circular);
-    }
-    viewManager.addView(DATASOURCE, viewTemplate, null);
-
-    View view = viewManager.getView(DATASOURCE, "view");
-    try {
-      for(ValueSet valueSet : view.getValueSets()) {
-        view.getValue(circular, valueSet);
-      }
-      fail("Should throw WrappedException");
-    } catch(WrappedException e) {
-      Throwable cause = e.getCause();
-      assertThat(cause).isNotNull();
-      assertThat(cause).isInstanceOf(CircularVariableDependencyRuntimeException.class);
-      assertThat(((CircularVariableDependencyRuntimeException) cause).getVariableRef()).isEqualTo("ds.view:circular");
-    }
-  }
-
-  @Test
-  @Ignore
-  public void test_$_vector_with_self_reference() throws Exception {
-    Datasource datasource = getTestDatasource();
-    ValueTable table = datasource.getValueTable(TABLE);
-
-    Variable circular = createIntVariable("circular", "$('ds.view:circular')");
-    View viewTemplate = View.Builder.newView("view", table).list(new VariablesClause()).build();
-    try(ValueTableWriter.VariableWriter variableWriter = viewTemplate.getListClause().createWriter()) {
-      variableWriter.writeVariable(circular);
-    }
-    viewManager.addView(DATASOURCE, viewTemplate, null);
-
-    View view = viewManager.getView(DATASOURCE, "view");
-    try {
-      VectorSource vectorSource = view.getVariableValueSource("circular").asVectorSource();
-      assertThat(vectorSource).isNotNull();
-      for(Value value : vectorSource.getValues(new TreeSet<>(view.getVariableEntities()))) {
-        value.getValue();
-      }
-      fail("Should throw WrappedException");
-    } catch(WrappedException e) {
-      Throwable cause = e.getCause();
-      assertThat(cause).isNotNull();
-      assertThat(cause).isInstanceOf(CircularVariableDependencyRuntimeException.class);
-      assertThat(((CircularVariableDependencyRuntimeException) cause).getVariableRef()).isEqualTo("ds.view:circular");
-    }
-  }
-
-  @Test
-  @Ignore
-  public void test_$_value_set_with_circular_dependencies() throws Exception {
-    Datasource datasource = getTestDatasource();
-    ValueTable table = datasource.getValueTable(TABLE);
-
-    Variable varA = createIntVariable("A", "$('ds.view:B') + $('ds.view:C')");
-    Variable varB = createIntVariable("B", "10");
-    Variable varC = createIntVariable("C", "$('ds.view:D') * 10");
-    Variable varD = createIntVariable("D", "$('ds.view:E') + 5");
-    Variable varE = createIntVariable("E", "$('ds.view:A')");
-
-    View viewTemplate = View.Builder.newView("view", table).list(new VariablesClause()).build();
-    try(ValueTableWriter.VariableWriter variableWriter = viewTemplate.getListClause().createWriter()) {
-      variableWriter.writeVariable(varA);
-      variableWriter.writeVariable(varB);
-      variableWriter.writeVariable(varC);
-      variableWriter.writeVariable(varD);
-      variableWriter.writeVariable(varE);
-    }
-    viewManager.addView(DATASOURCE, viewTemplate, null);
-
-    View view = viewManager.getView(DATASOURCE, "view");
-    try {
-      for(ValueSet valueSet : view.getValueSets()) {
-        view.getValue(varA, valueSet);
-      }
-      fail("Should throw WrappedException");
-    } catch(WrappedException e) {
-      Throwable cause = e.getCause();
-      assertThat(cause).isNotNull();
-      assertThat(cause).isInstanceOf(CircularVariableDependencyRuntimeException.class);
-      assertThat(((CircularVariableDependencyRuntimeException) cause).getVariableRef()).isEqualTo("ds.view:A");
-    }
-
-  }
-
-  @Test
-  @Ignore
-  public void test_$_vector_with_circular_dependencies() throws Exception {
-    Datasource datasource = getTestDatasource();
-    ValueTable table = datasource.getValueTable(TABLE);
-
-    Variable varA = createIntVariable("A", "$('ds.view:B') + $('ds.view:C')");
-    Variable varB = createIntVariable("B", "10");
-    Variable varC = createIntVariable("C", "$('ds.view:D') * 10");
-    Variable varD = createIntVariable("D", "$('ds.view:E') + 5");
-    Variable varE = createIntVariable("E", "$('ds.view:A')");
-
-    View viewTemplate = View.Builder.newView("view", table).list(new VariablesClause()).build();
-    try(ValueTableWriter.VariableWriter variableWriter = viewTemplate.getListClause().createWriter()) {
-      variableWriter.writeVariable(varA);
-      variableWriter.writeVariable(varB);
-      variableWriter.writeVariable(varC);
-      variableWriter.writeVariable(varD);
-      variableWriter.writeVariable(varE);
-    }
-    viewManager.addView(DATASOURCE, viewTemplate, null);
-
-    View view = viewManager.getView(DATASOURCE, "view");
-    try {
-      VectorSource vectorSource = view.getVariableValueSource("A").asVectorSource();
-      assertThat(vectorSource).isNotNull();
-      for(Value value : vectorSource.getValues(new TreeSet<>(view.getVariableEntities()))) {
-        value.getValue();
-      }
-      fail("Should throw WrappedException");
-    } catch(WrappedException e) {
-      Throwable cause = e.getCause();
-      assertThat(cause).isNotNull();
-      assertThat(cause).isInstanceOf(CircularVariableDependencyRuntimeException.class);
-      assertThat(((CircularVariableDependencyRuntimeException) cause).getVariableRef()).isEqualTo("ds.view:A");
-    }
-  }
-
-  @Test
-  public void test_$this_value_set() throws Exception {
+  public void test_$this_simple_algo_value_set() throws Exception {
     Datasource datasource = getTestDatasource();
     ValueTable table = datasource.getValueTable(TABLE);
 
@@ -505,43 +268,93 @@ public class GlobalMethodsMongoDbTest extends AbstractJsTest {
     }
   }
 
-//  @Test
-//  public void test_$this_vector() throws Exception {
-//    Datasource datasource = getTestDatasource();
-//    ValueTable table = datasource.getValueTable(TABLE);
-//
-//    Collection<Variable> variables = Lists.newArrayList( //
-//        createIntVariable("weight_in_kg", "$('ds.table:weight')"), //
-//        createIntVariable("height_in_cm", "$('ds.table:height')"), //
-//        createDecimalVariable("bmi_1", "$this('weight_in_kg') / ($this('height_in_cm') * $this('height_in_cm'))"), //
-//        createIntVariable("weight_in_lbs", "$this('weight_in_kg') * 2.2"), //
-//        createIntVariable("height_in_inches", "$this('height_in_cm') * 0.4"), //
-//        createDecimalVariable("bmi_2",
-//            "($this('weight_in_lbs') / ($this('height_in_inches') * $this('height_in_inches'))) * 703"));
-//
-//    View viewTemplate = View.Builder.newView("view", table).list(new VariablesClause()).build();
-//    try(ValueTableWriter.VariableWriter variableWriter = viewTemplate.getListClause().createWriter()) {
-//      for(Variable variable : variables) {
-//        variableWriter.writeVariable(variable);
-//      }
-//    }
-//    viewManager.addView(DATASOURCE, viewTemplate, null);
-//
-//    View view = viewManager.getView(DATASOURCE, "view");
-//
-//    VectorSource bmi1VectorSource = view.getVariableValueSource("bmi_1").asVectorSource();
-//    assertThat(bmi1VectorSource).isNotNull();
-//    SortedSet<VariableEntity> entities = new TreeSet<>(view.getVariableEntities());
-//    for(Value viewValue : bmi1VectorSource.getValues(entities)) {
-//      log.info("bmi 1: {}", viewValue.getValue());
-//    }
-//
-//    VectorSource bmi2VectorSource = view.getVariableValueSource("bmi_2").asVectorSource();
-//    assertThat(bmi2VectorSource).isNotNull();
-//    for(Value viewValue : bmi2VectorSource.getValues(entities)) {
-//      log.info("bmi 2: {}", viewValue.getValue());
-//    }
-//  }
+  @Test
+  public void test_$this_bmi_value_set() throws Exception {
+    Datasource datasource = getTestDatasource();
+    ValueTable table = datasource.getValueTable(TABLE);
+
+    Variable weight_in_kg = createIntVariable("weight_in_kg", "$('ds.table:weight')");
+    Variable height_in_cm = createIntVariable("height_in_cm", "$('ds.table:height')");
+    Variable height_in_m = createDecimalVariable("height_in_m", "$this('height_in_cm') / 100");
+    Variable weight_in_lbs = createIntVariable("weight_in_lbs", "$this('weight_in_kg') * 2.20462");
+    Variable height_in_inches = createIntVariable("height_in_inches", "$this('height_in_cm') * 0.393701");
+    Variable bmi_metric = createDecimalVariable("bmi_metric",
+        "$this('weight_in_kg') / ($this('height_in_m') * $this('height_in_m'))");
+    Variable bmi = createDecimalVariable("bmi",
+        "$this('weight_in_lbs') / ($this('height_in_inches') * $this('height_in_inches')) * 703");
+
+    Collection<Variable> variables = Lists
+        .newArrayList(weight_in_kg, height_in_cm, height_in_m, bmi_metric, weight_in_lbs, height_in_inches, bmi);
+
+    View viewTemplate = View.Builder.newView("view", table).list(new VariablesClause()).build();
+    try(ValueTableWriter.VariableWriter variableWriter = viewTemplate.getListClause().createWriter()) {
+      for(Variable variable : variables) {
+        variableWriter.writeVariable(variable);
+      }
+    }
+    viewManager.addView(DATASOURCE, viewTemplate, null);
+
+    View view = viewManager.getView(DATASOURCE, "view");
+    for(ValueSet valueSet : view.getValueSets()) {
+//      log.debug("weight_in_kg: {}", view.getValue(weight_in_kg, valueSet));
+//      log.debug("weight_in_lbs: {}", view.getValue(weight_in_lbs, valueSet));
+//      log.debug("height_in_cm: {}", view.getValue(height_in_cm, valueSet));
+//      log.debug("height_in_m: {}", view.getValue(height_in_m, valueSet));
+//      log.debug("height_in_inches {}", view.getValue(height_in_inches, valueSet));
+//      log.debug("bmi_metric: {}", view.getValue(bmi_metric, valueSet));
+//      log.debug("bmi: {}", view.getValue(bmi, valueSet));
+      double bmiValue = (double) view.getValue(bmi, valueSet).getValue();
+      double bmiMetricValue = (double) view.getValue(bmi_metric, valueSet).getValue();
+      assertThat(Math.abs(bmiValue - bmiMetricValue)).isLessThan(2);
+    }
+  }
+
+  @Test
+  @Ignore
+  public void test_$this_vector() throws Exception {
+    Datasource datasource = getTestDatasource();
+    ValueTable table = datasource.getValueTable(TABLE);
+
+    Variable weight_in_kg = createIntVariable("weight_in_kg", "$('ds.table:weight')");
+    Variable height_in_cm = createIntVariable("height_in_cm", "$('ds.table:height')");
+    Variable height_in_m = createDecimalVariable("height_in_m", "$this('height_in_cm') / 100");
+    Variable weight_in_lbs = createIntVariable("weight_in_lbs", "$this('weight_in_kg') * 2.20462");
+    Variable height_in_inches = createIntVariable("height_in_inches", "$this('height_in_cm') * 0.393701");
+    Variable bmi_metric = createDecimalVariable("bmi_metric",
+        "$this('weight_in_kg') / ($this('height_in_m') * $this('height_in_m'))");
+    Variable bmi = createDecimalVariable("bmi",
+        "$this('weight_in_lbs') / ($this('height_in_inches') * $this('height_in_inches')) * 703");
+
+    Collection<Variable> variables = Lists
+        .newArrayList(weight_in_kg, height_in_cm, height_in_m, bmi_metric, weight_in_lbs, height_in_inches, bmi);
+
+    View viewTemplate = View.Builder.newView("view", table).list(new VariablesClause()).build();
+    try(ValueTableWriter.VariableWriter variableWriter = viewTemplate.getListClause().createWriter()) {
+      for(Variable variable : variables) {
+        variableWriter.writeVariable(variable);
+      }
+    }
+    viewManager.addView(DATASOURCE, viewTemplate, null);
+
+    View view = viewManager.getView(DATASOURCE, "view");
+
+    SortedSet<VariableEntity> entities = new TreeSet<>(view.getVariableEntities());
+
+    List<Double> bmiValues = new ArrayList<>();
+    for(Value viewValue : view.getVariableValueSource("bmi").asVectorSource().getValues(entities)) {
+      bmiValues.add((Double) viewValue.getValue());
+    }
+
+    List<Double> bmiMetricValues = new ArrayList<>();
+    for(Value viewValue : view.getVariableValueSource("bmi_metric").asVectorSource().getValues(entities)) {
+      bmiMetricValues.add((Double) viewValue.getValue());
+    }
+
+    assertThat(bmiValues.size()).isEqualTo(bmiMetricValues.size()).isEqualTo(NB_ENTITIES);
+    for(int i = 0; i < NB_ENTITIES; i++) {
+      assertThat(Math.abs(bmiValues.get(i) - bmiMetricValues.get(i))).isLessThan(2);
+    }
+  }
 
   @Test
   public void test_$this_value_set_performance() throws Exception {
@@ -606,62 +419,6 @@ public class GlobalMethodsMongoDbTest extends AbstractJsTest {
   }
 
   @Test
-  @Ignore
-  public void test_$this_value_set_with_self_reference() throws Exception {
-    Datasource datasource = getTestDatasource();
-    ValueTable table = datasource.getValueTable(TABLE);
-
-    Variable circular = createIntVariable("circular", "$this('circular')");
-    View viewTemplate = View.Builder.newView("view", table).list(new VariablesClause()).build();
-    try(ValueTableWriter.VariableWriter variableWriter = viewTemplate.getListClause().createWriter()) {
-      variableWriter.writeVariable(circular);
-    }
-    viewManager.addView(DATASOURCE, viewTemplate, null);
-
-    try {
-      View view = viewManager.getView(DATASOURCE, "view");
-      for(ValueSet valueSet : view.getValueSets()) {
-        view.getValue(circular, valueSet);
-      }
-      fail("Should throw WrappedException");
-    } catch(WrappedException e) {
-      Throwable cause = e.getCause();
-      assertThat(cause).isNotNull();
-      assertThat(cause).isInstanceOf(CircularVariableDependencyRuntimeException.class);
-      assertThat(((CircularVariableDependencyRuntimeException) cause).getVariableRef()).isEqualTo("ds.view:circular");
-    }
-  }
-
-  @Test
-  @Ignore
-  public void test_$this_vector_with_self_reference() throws Exception {
-    Datasource datasource = getTestDatasource();
-    ValueTable table = datasource.getValueTable(TABLE);
-
-    Variable circular = createIntVariable("circular", "$this('circular')");
-    View viewTemplate = View.Builder.newView("view", table).list(new VariablesClause()).build();
-    try(ValueTableWriter.VariableWriter variableWriter = viewTemplate.getListClause().createWriter()) {
-      variableWriter.writeVariable(circular);
-    }
-    viewManager.addView(DATASOURCE, viewTemplate, null);
-
-    View view = viewManager.getView(DATASOURCE, "view");
-    try {
-      VectorSource vectorSource = view.getVariableValueSource("circular").asVectorSource();
-      assertThat(vectorSource).isNotNull();
-      for(Value value : vectorSource.getValues(new TreeSet<>(view.getVariableEntities()))) {
-        value.getValue();
-      }
-      fail("Should throw WrappedException");
-    } catch(WrappedException e) {
-      Throwable cause = e.getCause();
-      assertThat(cause).isNotNull();
-      assertThat(cause).isInstanceOf(CircularVariableDependencyRuntimeException.class);
-      assertThat(((CircularVariableDependencyRuntimeException) cause).getVariableRef()).isEqualTo("ds.view:circular");
-    }
-  }
-
-  @Test
   public void test_$this_value_set_with_inner_$this() throws Exception {
     Datasource datasource = getTestDatasource();
     ValueTable table = datasource.getValueTable(TABLE);
@@ -714,76 +471,6 @@ public class GlobalMethodsMongoDbTest extends AbstractJsTest {
     assertThat(vectorSource).isNotNull();
     for(Value value : vectorSource.getValues(new TreeSet<>(view.getVariableEntities()))) {
       value.getValue();
-    }
-  }
-
-  @Test
-  @Ignore
-  public void test_$this_value_set_with_circular_dependencies() throws Exception {
-    Datasource datasource = getTestDatasource();
-    ValueTable table = datasource.getValueTable(TABLE);
-
-    Variable varA = createIntVariable("A", "$this('B') + $this('C') + $this('D')");
-    Variable varB = createIntVariable("B", "1");
-    Variable varC = createIntVariable("C", "10");
-    Variable varD = createIntVariable("D", "$this('A') * 5");
-
-    View viewTemplate = View.Builder.newView("view", table).list(new VariablesClause()).build();
-    try(ValueTableWriter.VariableWriter variableWriter = viewTemplate.getListClause().createWriter()) {
-      variableWriter.writeVariable(varA);
-      variableWriter.writeVariable(varB);
-      variableWriter.writeVariable(varC);
-      variableWriter.writeVariable(varD);
-    }
-    viewManager.addView(DATASOURCE, viewTemplate, null);
-
-    View view = viewManager.getView(DATASOURCE, "view");
-    try {
-      for(ValueSet valueSet : view.getValueSets()) {
-        view.getValue(varA, valueSet);
-      }
-      fail("Should throw WrappedException");
-    } catch(WrappedException e) {
-      Throwable cause = e.getCause();
-      assertThat(cause).isNotNull();
-      assertThat(cause).isInstanceOf(CircularVariableDependencyRuntimeException.class);
-      assertThat(((CircularVariableDependencyRuntimeException) cause).getVariableRef()).isEqualTo("ds.view:A");
-    }
-  }
-
-  @Test
-  @Ignore
-  public void test_$this_vector_with_circular_dependencies() throws Exception {
-    Datasource datasource = getTestDatasource();
-    ValueTable table = datasource.getValueTable(TABLE);
-
-    Variable varA = createIntVariable("A", "$this('B') + $this('C') + $this('D')");
-    Variable varB = createIntVariable("B", "1");
-    Variable varC = createIntVariable("C", "10");
-    Variable varD = createIntVariable("D", "$this('A') * 5");
-
-    View viewTemplate = View.Builder.newView("view", table).list(new VariablesClause()).build();
-    try(ValueTableWriter.VariableWriter variableWriter = viewTemplate.getListClause().createWriter()) {
-      variableWriter.writeVariable(varA);
-      variableWriter.writeVariable(varB);
-      variableWriter.writeVariable(varC);
-      variableWriter.writeVariable(varD);
-    }
-    viewManager.addView(DATASOURCE, viewTemplate, null);
-
-    View view = viewManager.getView(DATASOURCE, "view");
-    try {
-      VectorSource vectorSource = view.getVariableValueSource("A").asVectorSource();
-      assertThat(vectorSource).isNotNull();
-      for(Value value : vectorSource.getValues(new TreeSet<>(view.getVariableEntities()))) {
-        value.getValue();
-      }
-      fail("Should throw WrappedException");
-    } catch(WrappedException e) {
-      Throwable cause = e.getCause();
-      assertThat(cause).isNotNull();
-      assertThat(cause).isInstanceOf(CircularVariableDependencyRuntimeException.class);
-      assertThat(((CircularVariableDependencyRuntimeException) cause).getVariableRef()).isEqualTo("ds.view:A");
     }
   }
 
