@@ -30,7 +30,7 @@ import static org.mockito.Mockito.anyObject;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-@SuppressWarnings("OverlyCoupledClass")
+@SuppressWarnings({ "PMD.NcssMethodCount", "OverlyLongMethod", "OverlyCoupledClass" })
 public class ViewTest extends AbstractMagmaTest {
 
   @Test

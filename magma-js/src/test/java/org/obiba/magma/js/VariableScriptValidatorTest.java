@@ -40,7 +40,7 @@ import static org.fest.assertions.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 import static org.obiba.magma.Variable.Builder.newVariable;
 
-@SuppressWarnings("OverlyCoupledClass")
+@SuppressWarnings({ "PMD.NcssMethodCount", "OverlyLongMethod", "OverlyCoupledClass" })
 public class VariableScriptValidatorTest extends AbstractJsTest {
 
   private static final Logger log = LoggerFactory.getLogger(VariableScriptValidatorTest.class);
