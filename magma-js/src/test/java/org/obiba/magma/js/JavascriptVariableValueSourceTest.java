@@ -1,6 +1,5 @@
 package org.obiba.magma.js;
 
-import org.easymock.EasyMock;
 import org.junit.Test;
 import org.obiba.magma.Datasource;
 import org.obiba.magma.Value;
@@ -14,35 +13,34 @@ import org.obiba.magma.support.VariableEntityBean;
 import org.obiba.magma.type.TextType;
 
 import static org.fest.assertions.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
-@SuppressWarnings({ "OverlyLongMethod", "PMD.NcssMethodCount" })
 public class JavascriptVariableValueSourceTest extends AbstractJsTest {
 
   @Test
   public void testVariableLookup() {
     // Build the javascript variable that returns AnotherVariable's value
-    Variable.Builder builder = Variable.Builder.newVariable("JavascriptVariable", TextType.get(), "Participant");
-    Variable variable = builder.extend(JavascriptVariableBuilder.class).setScript("$('AnotherVariable')").build();
-    JavascriptVariableValueSource source = new JavascriptVariableValueSource(variable);
-
-    source.initialise();
+    Variable variable = Variable.Builder.newVariable("JavascriptVariable", TextType.get(), "Participant")
+        .extend(JavascriptVariableBuilder.class).setScript("$('AnotherVariable')").build();
 
     // Create the VariableValueSource for AnotherVariable
     Variable anotherVariable = Variable.Builder.newVariable("AnotherVariable", TextType.get(), "Participant").build();
 
-    VariableValueSource mockSource = EasyMock.createMock(VariableValueSource.class);
-    EasyMock.expect(mockSource.getVariable()).andReturn(anotherVariable).anyTimes();
-    EasyMock.expect(mockSource.getValue((ValueSet) EasyMock.anyObject())).andReturn(TextType.get().valueOf("The Value"))
-        .anyTimes();
+    VariableValueSource mockSource = mock(VariableValueSource.class);
+    when(mockSource.getVariable()).thenReturn(anotherVariable);
+    when(mockSource.getValue(any(ValueSet.class))).thenReturn(TextType.get().valueOf("The Value"));
 
-    ValueTable mockTable = EasyMock.createMock(ValueTable.class);
+    ValueTable mockTable = mock(ValueTable.class);
     ValueSet valueSet = new ValueSetBean(mockTable, new VariableEntityBean("Participant", "1234"));
-    EasyMock.expect(mockTable.getName()).andReturn("my-table").anyTimes();
-    EasyMock.expect(mockTable.getDatasource()).andReturn(null).anyTimes();
-    EasyMock.expect(mockTable.getVariableValueSource("AnotherVariable")).andReturn(mockSource).anyTimes();
-    EasyMock.expect(mockTable.getValueSet((VariableEntity) EasyMock.anyObject())).andReturn(valueSet).anyTimes();
+    when(mockTable.getName()).thenReturn("my-table");
+    when(mockTable.getDatasource()).thenReturn(null);
+    when(mockTable.getVariableValueSource("AnotherVariable")).thenReturn(mockSource);
+    when(mockTable.getValueSet(any(VariableEntity.class))).thenReturn(valueSet);
 
-    EasyMock.replay(mockSource, mockTable);
+    JavascriptVariableValueSource source = new JavascriptVariableValueSource(variable, mockTable);
+    source.initialise();
     Value value = source.getValue(valueSet);
 
     assertThat(value).isNotNull();
@@ -54,34 +52,29 @@ public class JavascriptVariableValueSourceTest extends AbstractJsTest {
   public void test_relativeReference() {
 
     // Build the javascript variable that returns AnotherVariable's value
-    Variable.Builder builder = Variable.Builder.newVariable("JavascriptVariable", TextType.get(), "Participant");
-    Variable variable = builder.extend(JavascriptVariableBuilder.class).setScript("$('anotherTable:AnotherVariable')")
-        .build();
-    JavascriptVariableValueSource source = new JavascriptVariableValueSource(variable);
-
-    source.initialise();
+    Variable variable = Variable.Builder.newVariable("JavascriptVariable", TextType.get(), "Participant")
+        .extend(JavascriptVariableBuilder.class).setScript("$('anotherTable:AnotherVariable')").build();
 
     // Create the VariableValueSource for AnotherVariable
     Variable anotherVariable = Variable.Builder.newVariable("AnotherVariable", TextType.get(), "Participant").build();
 
-    VariableValueSource mockSource = EasyMock.createMock(VariableValueSource.class);
-    EasyMock.expect(mockSource.getVariable()).andReturn(anotherVariable).anyTimes();
-    EasyMock.expect(mockSource.getValue((ValueSet) EasyMock.anyObject())).andReturn(TextType.get().valueOf("The Value"))
-        .anyTimes();
+    VariableValueSource mockSource = mock(VariableValueSource.class);
+    when(mockSource.getVariable()).thenReturn(anotherVariable);
+    when(mockSource.getValue(any(ValueSet.class))).thenReturn(TextType.get().valueOf("The Value"));
 
-    Datasource mockDatasource = EasyMock.createMock(Datasource.class);
-    ValueTable mockTable = EasyMock.createMock(ValueTable.class);
+    Datasource mockDatasource = mock(Datasource.class);
+    ValueTable mockTable = mock(ValueTable.class);
     ValueSet valueSet = new ValueSetBean(mockTable, new VariableEntityBean("Participant", "1234"));
-    EasyMock.expect(mockTable.getName()).andReturn("my-table").anyTimes();
-    EasyMock.expect(mockTable.getDatasource()).andReturn(mockDatasource).anyTimes();
+    when(mockTable.getName()).thenReturn("my-table");
+    when(mockTable.getDatasource()).thenReturn(mockDatasource);
 
-    ValueTable mockTable2 = EasyMock.createMock(ValueTable.class);
-    EasyMock.expect(mockDatasource.getValueTable("anotherTable")).andReturn(mockTable2).anyTimes();
-    EasyMock.expect(mockTable2.getVariableValueSource("AnotherVariable")).andReturn(mockSource).anyTimes();
-    EasyMock.expect(mockTable2.getValueSet((VariableEntity) EasyMock.anyObject())).andReturn(valueSet).anyTimes();
+    ValueTable mockTable2 = mock(ValueTable.class);
+    when(mockDatasource.getValueTable("anotherTable")).thenReturn(mockTable2);
+    when(mockTable2.getVariableValueSource("AnotherVariable")).thenReturn(mockSource);
+    when(mockTable2.getValueSet(any(VariableEntity.class))).thenReturn(valueSet);
 
-    EasyMock.replay(mockSource, mockDatasource, mockTable, mockTable2);
-
+    JavascriptVariableValueSource source = new JavascriptVariableValueSource(variable, mockTable);
+    source.initialise();
     Value value = source.getValue(valueSet);
     assertThat(value).isNotNull();
     assertThat(value.isNull()).isFalse();

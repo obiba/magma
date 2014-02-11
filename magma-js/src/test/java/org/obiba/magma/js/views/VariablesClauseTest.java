@@ -22,18 +22,19 @@ import org.obiba.magma.type.DateTimeType;
 import org.obiba.magma.type.IntegerType;
 import org.obiba.magma.type.TextType;
 
-import static org.easymock.EasyMock.createMock;
-import static org.easymock.EasyMock.expect;
-import static org.easymock.EasyMock.replay;
-import static org.easymock.EasyMock.verify;
 import static org.fest.assertions.api.Assertions.assertThat;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @SuppressWarnings({ "OverlyLongMethod", "PMD.NcssMethodCount" })
 public class VariablesClauseTest extends AbstractJsTest {
 
-  private Set<Variable> variables;
+  private final static Date NINETEEN_FIFTY_FIVE = constructDate(1955);
 
-  private final Date nineteenFiftyFive = constructDate(1955);
+  private Set<Variable> variables;
 
   private Value adminParticipantBirthDateValue;
 
@@ -50,7 +51,7 @@ public class VariablesClauseTest extends AbstractJsTest {
     variables.add(yearVariable);
     variables.add(sex);
 
-    adminParticipantBirthDateValue = DateTimeType.get().valueOf(nineteenFiftyFive);
+    adminParticipantBirthDateValue = DateTimeType.get().valueOf(NINETEEN_FIFTY_FIVE);
     healthQuestionnaireIdentificationSexValue = IntegerType.get().valueOf(5);
   }
 
@@ -104,7 +105,7 @@ public class VariablesClauseTest extends AbstractJsTest {
   @Test
   public void test_getVariablesValueSources_ReturnsEmptyIterable() {
     VariablesClause clause = new VariablesClause();
-    clause.setValueTable(createMock(ValueTable.class));
+    clause.setValueTable(mock(ValueTable.class));
     clause.initialise();
     Iterable<VariableValueSource> sources = clause.getVariableValueSources();
     assertThat(sources).isNotNull();
@@ -119,7 +120,7 @@ public class VariablesClauseTest extends AbstractJsTest {
   @Test(expected = NoSuchVariableException.class)
   public void test_getVariablesValueSource_ThrowsNoSuchVariableException() {
     VariablesClause clause = new VariablesClause();
-    clause.setValueTable(createMock(ValueTable.class));
+    clause.setValueTable(mock(ValueTable.class));
     clause.initialise();
     clause.getVariableValueSource("test");
   }
@@ -131,24 +132,23 @@ public class VariablesClauseTest extends AbstractJsTest {
 
   @Test
   public void testScriptValue() throws Exception {
-    ValueTable table = createMock(ValueTable.class);
-    ValueSet valueSet = createMock(ValueSet.class);
-    VariableValueSource variableValueSource = createMock(VariableValueSource.class);
-    Variable variable = createMock(Variable.class);
+    ValueTable table = mock(ValueTable.class);
+    ValueSet valueSet = mock(ValueSet.class);
+    VariableValueSource variableValueSource = mock(VariableValueSource.class);
+    Variable variable = mock(Variable.class);
 
-    expect(table.getTableReference()).andReturn("table").anyTimes();
-    expect(valueSet.getValueTable()).andReturn(table).anyTimes();
-    expect(valueSet.getVariableEntity()).andReturn(createMock(VariableEntity.class));
-    expect(table.getVariable("HealthQuestionnaireIdentification.SEX"))
-        .andReturn(buildHealthQuestionnaireIdentificationSex()).anyTimes();
+    when(table.getTableReference()).thenReturn("table");
+    when(valueSet.getValueTable()).thenReturn(table);
+    when(valueSet.getVariableEntity()).thenReturn(mock(VariableEntity.class));
+    when(table.getVariable("HealthQuestionnaireIdentification.SEX"))
+        .thenReturn(buildHealthQuestionnaireIdentificationSex());
 
-    expect(table.getVariableValueSource("Admin.Participant.birthDate")).andReturn(variableValueSource).once();
-    expect(variableValueSource.getValue(valueSet)).andReturn(adminParticipantBirthDateValue).once();
-    expect(variableValueSource.getVariable()).andReturn(variable).once();
-    expect(table.isView()).andReturn(false).atLeastOnce();
-    expect(variable.getUnit()).andReturn(null).once();
+    when(table.getVariableValueSource("Admin.Participant.birthDate")).thenReturn(variableValueSource);
+    when(variableValueSource.getValue(valueSet)).thenReturn(adminParticipantBirthDateValue);
+    when(variableValueSource.getVariable()).thenReturn(variable);
+    when(table.isView()).thenReturn(false);
+    when(variable.getUnit()).thenReturn(null);
 
-    replay(valueSet, table, variableValueSource, variable);
     VariablesClause clause = new VariablesClause();
     clause.setVariables(variables);
     clause.setValueTable(table);
@@ -159,7 +159,10 @@ public class VariablesClauseTest extends AbstractJsTest {
     assertThat(variableValueSource_generic128).isNotNull();
 
     Value result = variableValueSource_generic128.getValue(valueSet);
-    verify(valueSet, table, variableValueSource, variable);
+
+    verify(variableValueSource).getValue(valueSet);
+    verify(variable).getUnit();
+    verify(table, atLeastOnce()).isView();
 
     assertThat(result.getValueType()).isEqualTo(IntegerType.get());
     assertThat(result).isEqualTo(IntegerType.get().valueOf(1955));
@@ -167,18 +170,19 @@ public class VariablesClauseTest extends AbstractJsTest {
 
   @Test
   public void testScriptVariable() throws Exception {
-    ValueTable valueTableMock = createMock(ValueTable.class);
-    expect(valueTableMock.getVariable("HealthQuestionnaireIdentification.SEX"))
-        .andReturn(buildHealthQuestionnaireIdentificationSex()).anyTimes();
-    expect(valueTableMock.isView()).andReturn(false).atLeastOnce();
-    replay(valueTableMock);
+    ValueTable valueTableMock = mock(ValueTable.class);
+    when(valueTableMock.getVariable("HealthQuestionnaireIdentification.SEX"))
+        .thenReturn(buildHealthQuestionnaireIdentificationSex());
+    when(valueTableMock.isView()).thenReturn(false);
     VariablesClause clause = new VariablesClause();
     clause.setValueTable(valueTableMock);
     clause.setVariables(variables);
     Initialisables.initialise(clause);
     VariableValueSource variableValueSource = clause.getVariableValueSource("GENERIC_128");
     Variable variable = variableValueSource.getVariable();
-    verify(valueTableMock);
+
+    verify(valueTableMock, atLeastOnce()).isView();
+
     assertThat(variable.getAttribute("label").getLocale()).isEqualTo(Locale.CANADA);
     assertThat(variable.getAttribute("label").getValue()).isEqualTo(TextType.get().valueOf("Birth Year"));
     assertThat(variable.getAttribute("URI").getValue())
@@ -192,23 +196,21 @@ public class VariablesClauseTest extends AbstractJsTest {
 
   @Test
   public void testSameAsWithExplicitScriptValue() throws Exception {
-    ValueTable table = createMock(ValueTable.class);
-    ValueSet valueSet = createMock(ValueSet.class);
-    VariableValueSource variableSource = createMock(VariableValueSource.class);
-    Variable variable = createMock(Variable.class);
+    ValueTable table = mock(ValueTable.class);
+    ValueSet valueSet = mock(ValueSet.class);
+    VariableValueSource variableSource = mock(VariableValueSource.class);
+    Variable variable = mock(Variable.class);
 
-    expect(table.getTableReference()).andReturn("table").anyTimes();
-    expect(valueSet.getValueTable()).andReturn(table).anyTimes();
-    expect(valueSet.getVariableEntity()).andReturn(createMock(VariableEntity.class)).anyTimes();
-    expect(table.getVariable("HealthQuestionnaireIdentification.SEX"))
-        .andReturn(buildHealthQuestionnaireIdentificationSex()).once();
-    expect(table.getVariableValueSource("HealthQuestionnaireIdentification.SEX")).andReturn(variableSource).once();
-    expect(table.isView()).andReturn(false).atLeastOnce();
-    expect(variableSource.getValue(valueSet)).andReturn(healthQuestionnaireIdentificationSexValue).once();
-    expect(variableSource.getVariable()).andReturn(variable).once();
-    expect(variable.getUnit()).andReturn(null).once();
-
-    replay(valueSet, table, variableSource, variable);
+    when(table.getTableReference()).thenReturn("table");
+    when(valueSet.getValueTable()).thenReturn(table);
+    when(valueSet.getVariableEntity()).thenReturn(mock(VariableEntity.class));
+    when(table.getVariable("HealthQuestionnaireIdentification.SEX"))
+        .thenReturn(buildHealthQuestionnaireIdentificationSex());
+    when(table.getVariableValueSource("HealthQuestionnaireIdentification.SEX")).thenReturn(variableSource);
+    when(table.isView()).thenReturn(false);
+    when(variableSource.getValue(valueSet)).thenReturn(healthQuestionnaireIdentificationSexValue);
+    when(variableSource.getVariable()).thenReturn(variable);
+    when(variable.getUnit()).thenReturn(null);
 
     VariablesClause clause = new VariablesClause();
     clause.setValueTable(table);
@@ -219,7 +221,11 @@ public class VariablesClauseTest extends AbstractJsTest {
     assertThat(variableValueSource).isNotNull();
 
     Value result = variableValueSource.getValue(valueSet);
-    verify(valueSet, table, variableSource, variable);
+
+    verify(table).getVariable("HealthQuestionnaireIdentification.SEX");
+    verify(variableSource).getValue(valueSet);
+    verify(variable).getUnit();
+    verify(table, atLeastOnce()).isView();
 
     assertThat(result.getValueType()).isEqualTo(IntegerType.get());
     assertThat(result).isEqualTo(IntegerType.get().valueOf(5));
@@ -228,11 +234,10 @@ public class VariablesClauseTest extends AbstractJsTest {
   @Test
   public void testThatDerivedVariableWithSameAsAndScriptAttributesOverridesExistingVariableAttributes()
       throws Exception {
-    ValueTable valueTableMock = createMock(ValueTable.class);
-    expect(valueTableMock.getVariable("HealthQuestionnaireIdentification.SEX"))
-        .andReturn(buildHealthQuestionnaireIdentificationSex()).times(2);
-    expect(valueTableMock.isView()).andReturn(false).atLeastOnce();
-    replay(valueTableMock);
+    ValueTable valueTableMock = mock(ValueTable.class);
+    when(valueTableMock.getVariable("HealthQuestionnaireIdentification.SEX"))
+        .thenReturn(buildHealthQuestionnaireIdentificationSex());
+    when(valueTableMock.isView()).thenReturn(false);
     VariablesClause clause = new VariablesClause();
     clause.setValueTable(valueTableMock);
     clause.setVariables(variables);
@@ -240,7 +245,9 @@ public class VariablesClauseTest extends AbstractJsTest {
     VariableValueSource variableValueSource = clause.getVariableValueSource("GENERIC_129");
     Variable variable = variableValueSource.getVariable();
 
-    verify(valueTableMock);
+    verify(valueTableMock, times(2)).getVariable("HealthQuestionnaireIdentification.SEX");
+    verify(valueTableMock, atLeastOnce()).isView();
+
     assertThat(variable.getAttribute("sameAs").getValue())
         .isEqualTo(TextType.get().valueOf("HealthQuestionnaireIdentification.SEX"));
     assertThat(variable.getAttribute("script").getValue())
@@ -255,18 +262,20 @@ public class VariablesClauseTest extends AbstractJsTest {
     Collection<Variable> variableSet = new HashSet<>();
     variableSet.add(buildSexWithSameAs());
 
-    ValueTable valueTableMock = createMock(ValueTable.class);
-    expect(valueTableMock.getVariable("HealthQuestionnaireIdentification.SEX"))
-        .andReturn(buildHealthQuestionnaireIdentificationSex()).times(2);
-    expect(valueTableMock.isView()).andReturn(false).atLeastOnce();
-    replay(valueTableMock);
+    ValueTable valueTableMock = mock(ValueTable.class);
+    when(valueTableMock.getVariable("HealthQuestionnaireIdentification.SEX"))
+        .thenReturn(buildHealthQuestionnaireIdentificationSex());
+    when(valueTableMock.isView()).thenReturn(false);
     VariablesClause clause = new VariablesClause();
     clause.setValueTable(valueTableMock);
     clause.setVariables(variableSet);
     Initialisables.initialise(clause);
     VariableValueSource variableValueSource = clause.getVariableValueSource("GENERIC_300");
     Variable variable = variableValueSource.getVariable();
-    verify(valueTableMock);
+
+    verify(valueTableMock, times(2)).getVariable("HealthQuestionnaireIdentification.SEX");
+    verify(valueTableMock, atLeastOnce()).isView();
+
     assertThat(variable.getAttribute("sameAs").getValue())
         .isEqualTo(TextType.get().valueOf("HealthQuestionnaireIdentification.SEX"));
     assertThat(variable.getAttribute("stage").getValue()).isEqualTo(TextType.get().valueOf("HealthQuestionnaire"));

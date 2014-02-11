@@ -43,25 +43,11 @@ public class IntegrationDatasource extends AbstractDatasource {
   protected ValueTable initialiseValueTable(String tableName) {
 
     ImmutableSet.Builder<VariableValueSource> sources = new ImmutableSet.Builder<>();
-
     BeanVariableValueSourceFactory<Participant> variables = new BeanVariableValueSourceFactory<>("Participant",
         Participant.class);
     variables.setProperties(
         ImmutableSet.of("barcode", "firstName", "lastName", "gender", "interview.startDate", "interview.endDate"));
     sources.addAll(variables.createSources());
-
-    sources.add(new JavascriptVariableValueSource(
-        Variable.Builder.newVariable("fullName", TextType.get(), "Participant").extend(JavascriptVariableBuilder.class)
-            .setScript("$('firstName') + ' ' + $('lastName')").build()));
-    sources.add(new JavascriptVariableValueSource(
-        Variable.Builder.newVariable("interviewYear", IntegerType.get(), "Participant")
-            .extend(JavascriptVariableBuilder.class).setScript("$('interview.startDate').year()").build()));
-    sources.add(new JavascriptVariableValueSource(
-        Variable.Builder.newVariable("isMale", BooleanType.get(), "Participant").extend(JavascriptVariableBuilder.class)
-            .setScript("$('gender').any('Male')").build()));
-    sources.add(new JavascriptVariableValueSource(
-        Variable.Builder.newVariable("isFemale", BooleanType.get(), "Participant")
-            .extend(JavascriptVariableBuilder.class).setScript("$('gender').any('Female')").build()));
 
     BeanVariableValueSourceFactory<Action> actionFactory = new BeanVariableValueSourceFactory<>("Participant",
         Action.class);
@@ -82,6 +68,20 @@ public class IntegrationDatasource extends AbstractDatasource {
     BeanValueTable table = new BeanValueTable(this, tableName, provider);
     table.addResolver(new ParticipantBeanResolver());
     table.addResolver(new ActionBeanResolver());
+
+    sources.add(new JavascriptVariableValueSource(
+        Variable.Builder.newVariable("fullName", TextType.get(), "Participant").extend(JavascriptVariableBuilder.class)
+            .setScript("$('firstName') + ' ' + $('lastName')").build(), table));
+    sources.add(new JavascriptVariableValueSource(
+        Variable.Builder.newVariable("interviewYear", IntegerType.get(), "Participant")
+            .extend(JavascriptVariableBuilder.class).setScript("$('interview.startDate').year()").build(), table));
+    sources.add(new JavascriptVariableValueSource(
+        Variable.Builder.newVariable("isMale", BooleanType.get(), "Participant").extend(JavascriptVariableBuilder.class)
+            .setScript("$('gender').any('Male')").build(), table));
+    sources.add(new JavascriptVariableValueSource(
+        Variable.Builder.newVariable("isFemale", BooleanType.get(), "Participant")
+            .extend(JavascriptVariableBuilder.class).setScript("$('gender').any('Female')").build(), table));
+
     table.addVariableValueSources(sources.build());
     return table;
   }

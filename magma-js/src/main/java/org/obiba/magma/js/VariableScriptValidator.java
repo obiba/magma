@@ -9,16 +9,21 @@ import java.util.regex.Pattern;
 import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 
+import org.mozilla.javascript.CompilerEnvirons;
+import org.mozilla.javascript.Parser;
+import org.mozilla.javascript.ast.AstRoot;
 import org.obiba.magma.AttributeAware;
 import org.obiba.magma.MagmaEngine;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.Variable;
 import org.obiba.magma.support.MagmaEngineVariableResolver;
+import org.obiba.magma.support.ValueTableWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Objects;
+import com.google.common.base.Preconditions;
 import com.google.common.base.Stopwatch;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
@@ -38,23 +43,41 @@ class VariableScriptValidator {
 
   //  private static final Pattern $JOIN_CALL = Pattern.compile("(\\$join\\((['\"](([\\d\\w.:]*))['\"])*\\))");
 
-  private VariableScriptValidator() {}
+  private static final CompilerEnvirons COMPILER_ENVIRONS = new CompilerEnvirons();
 
-  @SuppressWarnings("StaticMethodOnlyUsedInOneClass")
-  public static void validateScript(@NotNull Variable variable, @NotNull ValueTable table)
-      throws CircularVariableDependencyRuntimeException {
+  static {
+    COMPILER_ENVIRONS.setRecordingLocalJsDocComments(false);
+    COMPILER_ENVIRONS.setAllowSharpComments(false);
+    COMPILER_ENVIRONS.setRecordingComments(false);
+  }
+
+  @NotNull
+  private final Variable variable;
+
+  @NotNull
+  private final ValueTable table;
+
+  VariableScriptValidator(@NotNull Variable variable, @NotNull ValueTable table) {
+    //noinspection ConstantConditions
+    Preconditions.checkArgument(table != null, "Cannot validate script with null table/view for " + variable.getName());
+    this.variable = variable;
+    this.table = table;
+  }
+
+  public void validateScript() throws CircularVariableDependencyRuntimeException {
 
     Stopwatch stopwatch = Stopwatch.createStarted();
     getVariableRefNode(new VariableRefNode(variable.getVariableReference(table), table, getScript(variable)));
-    log.trace("Script validation of {} in {}", variable.getName(), stopwatch);
+    log.debug("Script validation of {} in {}", variable.getName(), stopwatch);
   }
 
   private static void getVariableRefNode(@NotNull VariableRefNode callerNode) {
-    if(Strings.isNullOrEmpty(callerNode.getScript())) {
+    String script = callerNode.getScript();
+    if(Strings.isNullOrEmpty(script)) {
       log.trace("{} has no script", callerNode.getVariableRef());
     } else {
-      log.trace("Analyze {} script: {}", callerNode.getVariableRef(), callerNode.getScript());
-      for(VariableRefCall variableRefCall : parseScript(callerNode.getScript())) {
+      log.trace("Analyze {} script: {}", callerNode.getVariableRef(), script);
+      for(VariableRefCall variableRefCall : parseScript(script)) {
         VariableRefNode calleeNode = asNode(variableRefCall, callerNode.getValueTable());
         callerNode.addCallee(calleeNode);
         getVariableRefNode(calleeNode);
@@ -63,12 +86,18 @@ class VariableScriptValidator {
   }
 
   @VisibleForTesting
-  static Set<VariableRefCall> parseScript(CharSequence script) {
+  static Set<VariableRefCall> parseScript(String script) {
+    String clearScript = clearScriptComments(script);
     ImmutableSet.Builder<VariableRefCall> builder = ImmutableSet.builder();
-    parseSingleArgGlobalMethod(script, $_CALL, "$", builder);
-    parseSingleArgGlobalMethod(script, $THIS_CALL, "$this", builder);
-    parseSingleArgGlobalMethod(script, $VAR_CALL, "$var", builder);
+    parseSingleArgGlobalMethod(clearScript, $_CALL, "$", builder);
+    parseSingleArgGlobalMethod(clearScript, $THIS_CALL, "$this", builder);
+    parseSingleArgGlobalMethod(clearScript, $VAR_CALL, "$var", builder);
     return builder.build();
+  }
+
+  private static String clearScriptComments(String script) {
+    AstRoot node = new Parser(COMPILER_ENVIRONS).parse(script, "script", 1);
+    return node.toSource();
   }
 
   private static void parseSingleArgGlobalMethod(CharSequence script, Pattern pattern, String method,
@@ -87,6 +116,12 @@ class VariableScriptValidator {
     switch(variableRefCall.getMethod()) {
       case "$":
         if(reference.getDatasourceName() == null || reference.getTableName() == null) {
+          if(table.isView()) {
+            ValueTable wrappedTable = ((ValueTableWrapper) table).getWrappedValueTable();
+            Variable variable = reference.resolveSource(wrappedTable).getVariable();
+            return new VariableRefNode(Variable.Reference.getReference(wrappedTable, variable), wrappedTable,
+                getScript(variable));
+          }
           Variable variable = reference.resolveSource(table).getVariable();
           return new VariableRefNode(Variable.Reference.getReference(table, variable), table, getScript(variable));
         }

@@ -18,17 +18,13 @@ public class JavascriptVariableValueSource extends JavascriptValueSource impleme
   @NotNull
   private final Variable variable;
 
-  @Nullable
+  @NotNull
   private final ValueTable valueTable;
 
-  public JavascriptVariableValueSource(@NotNull Variable variable, @Nullable ValueTable valueTable) {
+  public JavascriptVariableValueSource(@NotNull Variable variable, @NotNull ValueTable valueTable) {
     super(variable.getValueType(), "");
     this.variable = variable;
     this.valueTable = valueTable;
-  }
-
-  public JavascriptVariableValueSource(Variable variable) {
-    this(variable, null);
   }
 
   @NotNull
@@ -63,28 +59,21 @@ public class JavascriptVariableValueSource extends JavascriptValueSource impleme
 
   @Nullable
   public ValueTable getValueTable() {
-    return valueTable != null && valueTable.isView()
-        ? ((ValueTableWrapper) valueTable).getWrappedValueTable()
-        : valueTable;
+    return valueTable.isView() ? ((ValueTableWrapper) valueTable).getWrappedValueTable() : valueTable;
   }
 
   @Override
   public void initialise() throws EvaluatorException {
-    if(valueTable == null) {
-      throw new MagmaJsEvaluationRuntimeException("Cannot validate script with null table for " + variable.getName());
-    }
     super.initialise();
-    VariableScriptValidator.validateScript(variable, valueTable);
+    new VariableScriptValidator(variable, valueTable).validateScript();
   }
 
   @Override
   protected void enterContext(MagmaContext context, Scriptable scope) {
     super.enterContext(context, scope);
-    if(valueTable != null) {
-      context.push(ValueTable.class, getValueTable());
-      if(valueTable.isView()) {
-        context.push(View.class, (View) valueTable);
-      }
+    context.push(ValueTable.class, getValueTable());
+    if(valueTable.isView()) {
+      context.push(View.class, (View) valueTable);
     }
     context.push(Variable.class, variable);
   }
@@ -92,11 +81,9 @@ public class JavascriptVariableValueSource extends JavascriptValueSource impleme
   @Override
   protected void exitContext(MagmaContext context) {
     super.exitContext(context);
-    if(valueTable != null) {
-      context.pop(ValueTable.class);
-      if(valueTable.isView()) {
-        context.pop(View.class);
-      }
+    context.pop(ValueTable.class);
+    if(valueTable.isView()) {
+      context.pop(View.class);
     }
     context.pop(Variable.class);
   }

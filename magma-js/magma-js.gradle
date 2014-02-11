@@ -12,6 +12,7 @@ dependencies {
   testCompile project(':magma-data-generator')
   testCompile project(':magma-datasource-mongodb')
   testCompile project(':magma-datasource-hibernate')
+  testCompile project(':magma-datasource-fs')
   testCompile(libraries.spring_test)
   testCompile(libraries.obiba_core)
   testCompile(libraries.hibernate_ehcache)

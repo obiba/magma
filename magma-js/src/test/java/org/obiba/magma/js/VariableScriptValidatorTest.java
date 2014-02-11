@@ -8,6 +8,7 @@ import java.util.Set;
 import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
+import org.obiba.core.util.FileUtil;
 import org.obiba.magma.Datasource;
 import org.obiba.magma.DatasourceFactory;
 import org.obiba.magma.MagmaEngine;
@@ -15,28 +16,34 @@ import org.obiba.magma.ValueTable;
 import org.obiba.magma.ValueTableWriter;
 import org.obiba.magma.Variable;
 import org.obiba.magma.VariableValueSourceWrapper;
+import org.obiba.magma.datasource.fs.FsDatasource;
 import org.obiba.magma.datasource.generated.GeneratedValueTable;
 import org.obiba.magma.datasource.mongodb.MongoDBDatasourceFactory;
 import org.obiba.magma.js.views.VariablesClause;
 import org.obiba.magma.support.DatasourceCopier;
+import org.obiba.magma.support.Initialisables;
 import org.obiba.magma.type.IntegerType;
 import org.obiba.magma.views.DefaultViewManagerImpl;
 import org.obiba.magma.views.MemoryViewPersistenceStrategy;
 import org.obiba.magma.views.View;
 import org.obiba.magma.views.ViewManager;
 import org.obiba.magma.xstream.MagmaXStreamExtension;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
 import com.mongodb.MongoClient;
+import com.thoughtworks.xstream.XStream;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 import static org.obiba.magma.Variable.Builder.newVariable;
 
 @SuppressWarnings("OverlyCoupledClass")
-public class JavascriptValueSourceValidationTest extends AbstractJsTest {
+public class VariableScriptValidatorTest extends AbstractJsTest {
 
-//  private static final Logger log = LoggerFactory.getLogger(JavascriptValueSourceValidationTest.class);
+  private static final Logger log = LoggerFactory.getLogger(VariableScriptValidatorTest.class);
 
   private static final String MONGO_DB_TEST = "magma-test";
 
@@ -220,6 +227,34 @@ public class JavascriptValueSourceValidationTest extends AbstractJsTest {
       fail("Should throw CircularVariableDependencyRuntimeException");
     } catch(CircularVariableDependencyRuntimeException e) {
       assertThat(e.getVariableRef()).isEqualTo("ds.view:circular");
+    }
+  }
+
+  @Test
+  public void test_FNAC() throws Exception {
+
+    DatasourceFactory factory = new MongoDBDatasourceFactory(DATASOURCE, MONGO_DB_URL);
+    Datasource datasource = factory.create();
+    Datasource viewAwareDatasource = viewManager.decorate(datasource);
+    MagmaEngine.get().addDatasource(viewAwareDatasource);
+
+    Datasource fsDatasource = new FsDatasource("fs", FileUtil.getFileFromResource("FNAC.zip"));
+    Initialisables.initialise(fsDatasource);
+
+    DatasourceCopier.Builder.newCopier().build().copy(fsDatasource, datasource);
+
+    XStream xstream = MagmaEngine.get().getExtension(MagmaXStreamExtension.class).getXStreamFactory().createXStream();
+    View viewTemplate = (View) xstream.fromXML(FileUtil.getFileFromResource("HOP.xml"));
+
+    viewManager.addView(DATASOURCE, viewTemplate, null);
+
+    View view = viewManager.getView(DATASOURCE, "HOP");
+
+    Stopwatch stopwatch = Stopwatch.createUnstarted();
+    for(Variable variable : view.getVariables()) {
+      stopwatch.reset().start();
+      getJavascriptValueSource(view, variable.getName()).initialise();
+      log.debug("Validate {} script in {}", variable.getName(), stopwatch);
     }
   }
 
