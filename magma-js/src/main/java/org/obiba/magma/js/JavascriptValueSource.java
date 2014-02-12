@@ -85,9 +85,7 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
   @NotNull
   @Override
   public Value getValue(ValueSet valueSet) {
-    if(compiledScript == null) {
-      initialise();
-    }
+    initialiseIfNot();
     Stopwatch stopwatch = Stopwatch.createStarted();
     Value value = (Value) ContextFactory.getGlobal().call(new ValueSetEvaluationContextAction(valueSet));
     log.trace("ValueSet evaluation of {} in {}", getScriptName(), stopwatch);
@@ -108,9 +106,7 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
   @Override
   @SuppressWarnings("unchecked")
   public Iterable<Value> getValues(SortedSet<VariableEntity> entities) {
-    if(compiledScript == null) {
-      initialise();
-    }
+    initialiseIfNot();
     Stopwatch stopwatch = Stopwatch.createStarted();
     Iterable<Value> values = (Iterable<Value>) ContextFactory.getGlobal()
         .call(new ValueVectorEvaluationContextAction(entities));
@@ -132,6 +128,12 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
         return context.compileString(getScript(), getScriptName(), 1, null);
       }
     });
+  }
+
+  protected void initialiseIfNot() throws EvaluatorException {
+    if(compiledScript == null) {
+      initialise();
+    }
   }
 
   protected boolean isSequence() {

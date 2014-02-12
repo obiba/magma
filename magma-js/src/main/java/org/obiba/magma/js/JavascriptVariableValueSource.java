@@ -1,17 +1,24 @@
 package org.obiba.magma.js;
 
+import java.util.SortedSet;
+
 import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 
 import org.mozilla.javascript.EvaluatorException;
 import org.mozilla.javascript.Scriptable;
+import org.obiba.magma.Value;
+import org.obiba.magma.ValueSet;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.Variable;
+import org.obiba.magma.VariableEntity;
 import org.obiba.magma.VariableValueSource;
 import org.obiba.magma.support.ValueTableWrapper;
 import org.obiba.magma.views.View;
 
 import com.google.common.base.Objects;
+
+import static org.obiba.magma.js.JavascriptVariableBuilder.SCRIPT_ATTRIBUTE_NAME;
 
 public class JavascriptVariableValueSource extends JavascriptValueSource implements VariableValueSource {
 
@@ -30,8 +37,8 @@ public class JavascriptVariableValueSource extends JavascriptValueSource impleme
   @NotNull
   @Override
   public String getScript() {
-    return variable.hasAttribute(JavascriptVariableBuilder.SCRIPT_ATTRIBUTE_NAME) //
-        ? variable.getAttributeStringValue(JavascriptVariableBuilder.SCRIPT_ATTRIBUTE_NAME) //
+    return variable.hasAttribute(SCRIPT_ATTRIBUTE_NAME) //
+        ? variable.getAttributeStringValue(SCRIPT_ATTRIBUTE_NAME) //
         : "";
   }
 
@@ -62,9 +69,21 @@ public class JavascriptVariableValueSource extends JavascriptValueSource impleme
     return valueTable.isView() ? ((ValueTableWrapper) valueTable).getWrappedValueTable() : valueTable;
   }
 
+  @NotNull
   @Override
-  public void initialise() throws EvaluatorException {
-    super.initialise();
+  public Value getValue(ValueSet valueSet) {
+    validateScript();
+    return super.getValue(valueSet);
+  }
+
+  @Override
+  public Iterable<Value> getValues(SortedSet<VariableEntity> entities) {
+    validateScript();
+    return super.getValues(entities);
+  }
+
+  public void validateScript() throws EvaluatorException {
+    initialiseIfNot();
     new VariableScriptValidator(variable, valueTable).validateScript();
   }
 

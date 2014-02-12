@@ -23,7 +23,6 @@ public abstract class AbstractAttributeAware implements AttributeAware {
     return noNamespaceAttributes().containsKey(name);
   }
 
-  @SuppressWarnings("ConstantConditions")
   @Override
   public boolean hasAttribute(String name, Locale locale) {
     if(noNamespaceAttributes().containsKey(name)) {
@@ -42,7 +41,6 @@ public abstract class AbstractAttributeAware implements AttributeAware {
     return name == null || nm.containsKey(name);
   }
 
-  @SuppressWarnings("ConstantConditions")
   @Override
   public boolean hasAttribute(String namespace, String name, Locale locale) {
     for(Attribute attribute : namespaceAttributes(namespace).get(name)) {
