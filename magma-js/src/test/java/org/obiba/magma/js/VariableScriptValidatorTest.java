@@ -150,8 +150,8 @@ public class VariableScriptValidatorTest extends AbstractJsTest {
 
     View view = viewManager.getView(DATASOURCE, "view");
 
-    getJavascriptValueSource(view, "bmi_metric").initialise();
-    getJavascriptValueSource(view, "bmi").initialise();
+    validateJavascriptValueSource(view, "bmi_metric");
+    validateJavascriptValueSource(view, "bmi");
   }
 
   @Test
@@ -177,7 +177,7 @@ public class VariableScriptValidatorTest extends AbstractJsTest {
 
     View view = viewManager.getView(DATASOURCE, "view");
     try {
-      getJavascriptValueSource(view, "A").initialise();
+      validateJavascriptValueSource(view, "A");
       fail("Should throw CircularVariableDependencyRuntimeException");
     } catch(CircularVariableDependencyRuntimeException e) {
       assertThat(e.getVariableRef()).isEqualTo("ds.view:A");
@@ -206,7 +206,7 @@ public class VariableScriptValidatorTest extends AbstractJsTest {
     viewManager.addView(DATASOURCE, viewTemplate, null);
 
     View view = viewManager.getView(DATASOURCE, "view");
-    getJavascriptValueSource(view, "A").initialise();
+    validateJavascriptValueSource(view, "A");
   }
 
   @Test
@@ -223,7 +223,7 @@ public class VariableScriptValidatorTest extends AbstractJsTest {
 
     View view = viewManager.getView(DATASOURCE, "view");
     try {
-      getJavascriptValueSource(view, "circular").initialise();
+      validateJavascriptValueSource(view, "circular");
       fail("Should throw CircularVariableDependencyRuntimeException");
     } catch(CircularVariableDependencyRuntimeException e) {
       assertThat(e.getVariableRef()).isEqualTo("ds.view:circular");
@@ -253,14 +253,14 @@ public class VariableScriptValidatorTest extends AbstractJsTest {
     Stopwatch stopwatch = Stopwatch.createUnstarted();
     for(Variable variable : view.getVariables()) {
       stopwatch.reset().start();
-      getJavascriptValueSource(view, variable.getName()).initialise();
+      validateJavascriptValueSource(view, variable.getName());
       log.debug("Validate {} script in {}", variable.getName(), stopwatch);
     }
   }
 
-  private JavascriptVariableValueSource getJavascriptValueSource(ValueTable view, String variableName) {
-    return (JavascriptVariableValueSource) ((VariableValueSourceWrapper) view.getVariableValueSource(variableName))
-        .getWrapped();
+  private void validateJavascriptValueSource(ValueTable view, String variableName) {
+    ((JavascriptVariableValueSource) ((VariableValueSourceWrapper) view.getVariableValueSource(variableName))
+        .getWrapped()).validateScript();
   }
 
 }
