@@ -10,4 +10,11 @@ public class MagmaJsEvaluationRuntimeException extends MagmaRuntimeException {
     super(message);
   }
 
+  public MagmaJsEvaluationRuntimeException(String message, Throwable cause) {
+    super(message, cause);
+  }
+
+  public MagmaJsEvaluationRuntimeException(Throwable cause) {
+    super(cause);
+  }
 }

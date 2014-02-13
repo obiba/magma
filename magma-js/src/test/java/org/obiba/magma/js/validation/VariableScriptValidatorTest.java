@@ -1,9 +1,10 @@
-package org.obiba.magma.js;
+package org.obiba.magma.js.validation;
 
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeSet;
 
 import org.junit.Assume;
 import org.junit.Before;
@@ -12,6 +13,9 @@ import org.obiba.core.util.FileUtil;
 import org.obiba.magma.Datasource;
 import org.obiba.magma.DatasourceFactory;
 import org.obiba.magma.MagmaEngine;
+import org.obiba.magma.NoSuchVariableException;
+import org.obiba.magma.Value;
+import org.obiba.magma.ValueSet;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.ValueTableWriter;
 import org.obiba.magma.Variable;
@@ -19,6 +23,8 @@ import org.obiba.magma.VariableValueSourceWrapper;
 import org.obiba.magma.datasource.fs.FsDatasource;
 import org.obiba.magma.datasource.generated.GeneratedValueTable;
 import org.obiba.magma.datasource.mongodb.MongoDBDatasourceFactory;
+import org.obiba.magma.js.AbstractJsTest;
+import org.obiba.magma.js.JavascriptVariableValueSource;
 import org.obiba.magma.js.views.VariablesClause;
 import org.obiba.magma.support.DatasourceCopier;
 import org.obiba.magma.support.Initialisables;
@@ -101,7 +107,7 @@ public class VariableScriptValidatorTest extends AbstractJsTest {
             .addAttribute("max", "120").build(), //
         newVariable(VARIABLE_HEIGHT, IntegerType.get(), PARTICIPANT).unit("cm").addAttribute("min", "150")
             .addAttribute("max", "200").build());
-    ValueTable generatedValueTable = new GeneratedValueTable(datasource, variables, 1);
+    ValueTable generatedValueTable = new GeneratedValueTable(datasource, variables, 10);
 
     Datasource viewAwareDatasource = viewManager.decorate(datasource);
     MagmaEngine.get().addDatasource(viewAwareDatasource);
@@ -124,7 +130,7 @@ public class VariableScriptValidatorTest extends AbstractJsTest {
   }
 
   @Test
-  public void test_validate_script() throws Exception {
+  public void test_validate_bmi_script() throws Exception {
     Datasource datasource = getTestDatasource();
     ValueTable table = datasource.getValueTable(TABLE);
 
@@ -160,11 +166,12 @@ public class VariableScriptValidatorTest extends AbstractJsTest {
     Datasource datasource = getTestDatasource();
     ValueTable table = datasource.getValueTable(TABLE);
 
-    Variable varA = createIntVariable("A", "$('ds.view:B') + $('ds.view:C')");
-    Variable varB = createIntVariable("B", "10");
+    Variable varA = createIntVariable("A", "$('ds.view:B') + $('ds.view:F') + $('ds.view:C')");
+    Variable varB = createIntVariable("B", "$('ds.view:F')");
     Variable varC = createIntVariable("C", "$('ds.view:D') * 10");
     Variable varD = createIntVariable("D", "$('ds.view:E') + 5");
     Variable varE = createIntVariable("E", "$('ds.view:A')");
+    Variable varF = createIntVariable("F", "10");
 
     View viewTemplate = View.Builder.newView("view", table).list(new VariablesClause()).build();
     try(ValueTableWriter.VariableWriter variableWriter = viewTemplate.getListClause().createWriter()) {
@@ -173,6 +180,7 @@ public class VariableScriptValidatorTest extends AbstractJsTest {
       variableWriter.writeVariable(varC);
       variableWriter.writeVariable(varD);
       variableWriter.writeVariable(varE);
+      variableWriter.writeVariable(varF);
     }
     viewManager.addView(DATASOURCE, viewTemplate, null);
 
@@ -180,7 +188,7 @@ public class VariableScriptValidatorTest extends AbstractJsTest {
     try {
       validateJavascriptValueSource(view, "A");
       fail("Should throw CircularVariableDependencyRuntimeException");
-    } catch(CircularVariableDependencyRuntimeException e) {
+    } catch(CircularVariableDependencyException e) {
       assertThat(e.getVariableRef()).isEqualTo("ds.view:A");
     }
   }
@@ -226,8 +234,46 @@ public class VariableScriptValidatorTest extends AbstractJsTest {
     try {
       validateJavascriptValueSource(view, "circular");
       fail("Should throw CircularVariableDependencyRuntimeException");
-    } catch(CircularVariableDependencyRuntimeException e) {
+    } catch(CircularVariableDependencyException e) {
       assertThat(e.getVariableRef()).isEqualTo("ds.view:circular");
+    }
+  }
+
+  @Test
+  public void test_validate_with_missing_variable() throws Exception {
+    Datasource datasource = getTestDatasource();
+    ValueTable table = datasource.getValueTable(TABLE);
+
+    Variable var = createIntVariable("var", "$('non-existing')");
+    View viewTemplate = View.Builder.newView("view", table).list(new VariablesClause()).build();
+    try(ValueTableWriter.VariableWriter variableWriter = viewTemplate.getListClause().createWriter()) {
+      variableWriter.writeVariable(var);
+    }
+    viewManager.addView(DATASOURCE, viewTemplate, null);
+
+    View view = viewManager.getView(DATASOURCE, "view");
+    try {
+      validateJavascriptValueSource(view, "var");
+      fail("Should throw VariableScriptValidationException");
+    } catch(VariableScriptValidationException e) {
+      assertThat(e.getCause()).isNotNull().isInstanceOf(NoSuchVariableException.class);
+    }
+
+    try {
+      for(ValueSet valueSet : view.getValueSets()) {
+        view.getValue(var, valueSet).getValue();
+      }
+    } catch(VariableScriptValidationException e) {
+      assertThat(e.getCause()).isNotNull().isInstanceOf(NoSuchVariableException.class);
+    }
+
+    try {
+      for(Value value : view.getVariableValueSource("var").asVectorSource()
+          .getValues(new TreeSet<>(view.getVariableEntities()))) {
+        value.getValue();
+      }
+    } catch(VariableScriptValidationException e) {
+      assertThat(e.getCause()).isNotNull().isInstanceOf(NoSuchVariableException.class);
     }
   }
 

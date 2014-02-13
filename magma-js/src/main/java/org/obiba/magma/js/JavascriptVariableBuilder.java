@@ -15,7 +15,7 @@ import org.obiba.magma.Variable.Builder;
  */
 public class JavascriptVariableBuilder extends Builder {
 
-  static final String SCRIPT_ATTRIBUTE_NAME = "script";
+  public static final String SCRIPT_ATTRIBUTE_NAME = "script";
 
   public JavascriptVariableBuilder(Builder builder) {
     super(builder);

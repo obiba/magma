@@ -9,7 +9,9 @@ import java.util.Set;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.obiba.magma.MagmaDate;
 import org.obiba.magma.NoSuchVariableException;
+import org.obiba.magma.Timestamps;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueSet;
 import org.obiba.magma.ValueTable;
@@ -19,6 +21,7 @@ import org.obiba.magma.VariableValueSource;
 import org.obiba.magma.js.AbstractJsTest;
 import org.obiba.magma.support.Initialisables;
 import org.obiba.magma.type.DateTimeType;
+import org.obiba.magma.type.DateType;
 import org.obiba.magma.type.IntegerType;
 import org.obiba.magma.type.TextType;
 
@@ -149,6 +152,10 @@ public class VariablesClauseTest extends AbstractJsTest {
     when(table.isView()).thenReturn(false);
     when(variable.getUnit()).thenReturn(null);
 
+    Timestamps tableTimestamps = mock(Timestamps.class);
+    when(tableTimestamps.getLastUpdate()).thenReturn(DateType.get().valueOf(new MagmaDate(new Date())));
+    when(table.getTimestamps()).thenReturn(tableTimestamps);
+
     VariablesClause clause = new VariablesClause();
     clause.setVariables(variables);
     clause.setValueTable(table);
@@ -211,6 +218,10 @@ public class VariablesClauseTest extends AbstractJsTest {
     when(variableSource.getValue(valueSet)).thenReturn(healthQuestionnaireIdentificationSexValue);
     when(variableSource.getVariable()).thenReturn(variable);
     when(variable.getUnit()).thenReturn(null);
+
+    Timestamps tableTimestamps = mock(Timestamps.class);
+    when(tableTimestamps.getLastUpdate()).thenReturn(DateType.get().valueOf(new MagmaDate(new Date())));
+    when(table.getTimestamps()).thenReturn(tableTimestamps);
 
     VariablesClause clause = new VariablesClause();
     clause.setValueTable(table);

@@ -1,7 +1,11 @@
 package org.obiba.magma.js;
 
+import java.util.Date;
+
 import org.junit.Test;
 import org.obiba.magma.Datasource;
+import org.obiba.magma.MagmaDate;
+import org.obiba.magma.Timestamps;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueSet;
 import org.obiba.magma.ValueTable;
@@ -10,6 +14,7 @@ import org.obiba.magma.VariableEntity;
 import org.obiba.magma.VariableValueSource;
 import org.obiba.magma.support.ValueSetBean;
 import org.obiba.magma.support.VariableEntityBean;
+import org.obiba.magma.type.DateType;
 import org.obiba.magma.type.TextType;
 
 import static org.fest.assertions.api.Assertions.assertThat;
@@ -40,6 +45,10 @@ public class JavascriptVariableValueSourceTest extends AbstractJsTest {
     when(mockTable.getVariableValueSource("AnotherVariable")).thenReturn(mockSource);
     when(mockTable.getValueSet(any(VariableEntity.class))).thenReturn(valueSet);
 
+    Timestamps tableTimestamps = mock(Timestamps.class);
+    when(tableTimestamps.getLastUpdate()).thenReturn(DateType.get().valueOf(new MagmaDate(new Date())));
+    when(mockTable.getTimestamps()).thenReturn(tableTimestamps);
+
     JavascriptVariableValueSource source = new JavascriptVariableValueSource(variable, mockTable);
     source.initialise();
     Value value = source.getValue(valueSet);
@@ -68,6 +77,10 @@ public class JavascriptVariableValueSourceTest extends AbstractJsTest {
     ValueSet valueSet = new ValueSetBean(mockTable, new VariableEntityBean("Participant", "1234"));
     when(mockTable.getName()).thenReturn("my-table");
     when(mockTable.getDatasource()).thenReturn(mockDatasource);
+
+    Timestamps tableTimestamps = mock(Timestamps.class);
+    when(tableTimestamps.getLastUpdate()).thenReturn(DateType.get().valueOf(new MagmaDate(new Date())));
+    when(mockTable.getTimestamps()).thenReturn(tableTimestamps);
 
     ValueTable mockTable2 = mock(ValueTable.class);
     when(mockDatasource.getValueTable("anotherTable")).thenReturn(mockTable2);
