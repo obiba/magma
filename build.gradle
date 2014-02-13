@@ -3,7 +3,7 @@ apply plugin: 'versions'
 apply from: 'libraries.gradle'
 
 task wrapper(type: Wrapper) {
-  gradleVersion = '1.11'
+  gradleVersion = '1.10'
 }
 
 buildscript {

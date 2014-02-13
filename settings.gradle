@@ -20,6 +20,7 @@ include ':magma-api',
     ':magma-datasource-mongodb',
     ':magma-security',
     ':magma-data-generator',
+    ':magma-data-generator:magma-generated-samples',
     ':magma-test'
 
 // allow us to rename sub-projects’ build files
