@@ -84,7 +84,7 @@ public class JavascriptVariableValueSource extends JavascriptValueSource impleme
 
   public void validateScript() throws EvaluatorException {
     initialiseIfNot();
-    new VariableScriptValidator(variable, valueTable).validateScript();
+    // new VariableScriptValidator(variable, valueTable).validateScript();
   }
 
   @Override
