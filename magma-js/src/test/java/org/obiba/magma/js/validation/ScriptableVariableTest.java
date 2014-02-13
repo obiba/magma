@@ -1,8 +1,10 @@
-package org.obiba.magma.js;
+package org.obiba.magma.js.validation;
 
 import org.easymock.EasyMock;
 import org.junit.Test;
 import org.obiba.magma.Variable;
+import org.obiba.magma.js.AbstractJsTest;
+import org.obiba.magma.js.ScriptableValue;
 import org.obiba.magma.type.BooleanType;
 import org.obiba.magma.type.DecimalType;
 import org.obiba.magma.type.TextType;

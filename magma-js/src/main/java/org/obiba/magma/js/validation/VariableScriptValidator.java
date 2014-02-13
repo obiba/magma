@@ -1,5 +1,6 @@
-package org.obiba.magma.js;
+package org.obiba.magma.js.validation;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -16,6 +17,7 @@ import org.obiba.magma.AttributeAware;
 import org.obiba.magma.MagmaEngine;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.Variable;
+import org.obiba.magma.js.MagmaJsEvaluationRuntimeException;
 import org.obiba.magma.support.MagmaEngineVariableResolver;
 import org.obiba.magma.support.ValueTableWrapper;
 import org.slf4j.Logger;
@@ -26,20 +28,21 @@ import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Stopwatch;
 import com.google.common.base.Strings;
+import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableSet;
 
 import static org.obiba.magma.js.JavascriptVariableBuilder.SCRIPT_ATTRIBUTE_NAME;
 
 @SuppressWarnings("ConstantNamingConvention")
-class VariableScriptValidator {
+public class VariableScriptValidator {
 
   private static final Logger log = LoggerFactory.getLogger(VariableScriptValidator.class);
 
-  private static final Pattern $_CALL = Pattern.compile("\\$\\(['\"](([\\d\\w.:]*))['\"]\\)");
+  private static final Pattern $_CALL = Pattern.compile("\\$\\(['\"](([\\d\\w.:\\-_]*))['\"]\\)");
 
-  private static final Pattern $THIS_CALL = Pattern.compile("\\$this\\(['\"](([\\d\\w.:]*))['\"]\\)");
+  private static final Pattern $THIS_CALL = Pattern.compile("\\$this\\(['\"](([\\d\\w.:\\-_]*))['\"]\\)");
 
-  private static final Pattern $VAR_CALL = Pattern.compile("\\$var\\(['\"](([\\d\\w.:]*))['\"]\\)");
+  private static final Pattern $VAR_CALL = Pattern.compile("\\$var\\(['\"](([\\d\\w.:\\-_]*))['\"]\\)");
 
   //  private static final Pattern $JOIN_CALL = Pattern.compile("(\\$join\\((['\"](([\\d\\w.:]*))['\"])*\\))");
 
@@ -57,17 +60,21 @@ class VariableScriptValidator {
   @NotNull
   private final ValueTable table;
 
-  VariableScriptValidator(@NotNull Variable variable, @NotNull ValueTable table) {
+  public VariableScriptValidator(@NotNull Variable variable, @NotNull ValueTable table) {
     //noinspection ConstantConditions
     Preconditions.checkArgument(table != null, "Cannot validate script with null table/view for " + variable.getName());
     this.variable = variable;
     this.table = table;
   }
 
-  public void validateScript() throws CircularVariableDependencyRuntimeException {
-
+  public void validateScript() throws VariableScriptValidationException {
     Stopwatch stopwatch = Stopwatch.createStarted();
-    getVariableRefNode(new VariableRefNode(variable.getVariableReference(table), table, getScript(variable)));
+    try {
+      getVariableRefNode(new VariableRefNode(variable.getVariableReference(table), table, getScript(variable)));
+    } catch(Exception e) {
+      Throwables.propagateIfInstanceOf(e, CircularVariableDependencyException.class);
+      throw new VariableScriptValidationException(e);
+    }
     log.debug("Script validation of {} in {}", variable.getName(), stopwatch);
   }
 
@@ -191,18 +198,22 @@ class VariableScriptValidator {
 
   }
 
-  private static class VariableRefNode {
+  static class VariableRefNode implements Serializable {
+
+    private static final long serialVersionUID = -6622597054116817497L;
 
     @NotNull
     private final String variableRef;
 
     @NotNull
-    private final ValueTable valueTable;
+    private transient final ValueTable valueTable;
 
     @Nullable
     private final String script;
 
     private final Set<VariableRefNode> callers = new HashSet<>();
+
+    private final Set<VariableRefNode> callees = new HashSet<>();
 
     VariableRefNode(@NotNull String variableRef, @NotNull ValueTable valueTable, @Nullable String script) {
       this.variableRef = variableRef;
@@ -219,6 +230,10 @@ class VariableScriptValidator {
       return callers;
     }
 
+    public Set<VariableRefNode> getCallees() {
+      return callees;
+    }
+
     @Nullable
     public String getScript() {
       return script;
@@ -229,16 +244,17 @@ class VariableScriptValidator {
       return valueTable;
     }
 
-    public void addCallee(@NotNull VariableRefNode callee) throws CircularVariableDependencyRuntimeException {
+    public void addCallee(@NotNull VariableRefNode callee) throws CircularVariableDependencyException {
       callee.callers.add(this);
+      callees.add(callee);
       checkCircularDependencies(callee, new HashSet<VariableRefNode>());
     }
 
     private static void checkCircularDependencies(@Nullable VariableRefNode node,
-        Collection<VariableRefNode> callersList) throws CircularVariableDependencyRuntimeException {
+        Collection<VariableRefNode> callersList) throws CircularVariableDependencyException {
       if(node == null) return;
       if(callersList.contains(node)) {
-        throw new CircularVariableDependencyRuntimeException(node.getVariableRef());
+        throw new CircularVariableDependencyException(node);
       }
       callersList.add(node);
       for(VariableRefNode caller : node.getCallers()) {
