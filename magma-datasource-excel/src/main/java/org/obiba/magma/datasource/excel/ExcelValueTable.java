@@ -266,10 +266,6 @@ public class ExcelValueTable extends AbstractValueTable implements Initialisable
           errors.add(new ExcelDatasourceParsingException("Unidentified variable for a category",
               "CategoryVariableNameRequired", ExcelDatasource.CATEGORIES_SHEET, categoryRow.getRowNum() + 1,
               getName()));
-        } else if(!variableNames.contains(variableName)) {
-          errors.add(new ExcelDatasourceParsingException("Unidentified variable name: " + variableName,
-              "UnidentifiedVariableName", ExcelDatasource.CATEGORIES_SHEET, categoryRow.getRowNum() + 1, getName(),
-              variableName));
         }
       }
     }
