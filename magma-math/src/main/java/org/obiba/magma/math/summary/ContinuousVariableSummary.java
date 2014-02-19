@@ -245,7 +245,7 @@ public class ContinuousVariableSummary extends AbstractVariableSummary implement
 
     @SuppressWarnings("MagicNumber")
     private void compute() {
-      log.trace("Start compute continuous {}", summary.variable);
+      log.trace("Start compute continuous {}", summary.variable.getName());
       double variance = summary.descriptiveStats.getVariance();
       if(Double.isNaN(variance) || Double.isInfinite(variance) || variance <= 0) return;
 

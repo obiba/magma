@@ -12,11 +12,8 @@ package org.obiba.magma.math.summary;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.obiba.magma.MagmaEngine;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.Variable;
@@ -25,6 +22,7 @@ import org.obiba.magma.VariableValueSource;
 import org.obiba.magma.VectorSource;
 import org.obiba.magma.support.NullTimestamps;
 import org.obiba.magma.support.Values;
+import org.obiba.magma.test.AbstractMagmaTest;
 import org.obiba.magma.type.TextType;
 
 import com.google.common.collect.ImmutableList;
@@ -36,17 +34,7 @@ import static org.mockito.Mockito.when;
 /**
  *
  */
-public class CategoricalVariableSummaryTest {
-
-  @BeforeClass
-  public static void before() {
-    new MagmaEngine();
-  }
-
-  @AfterClass
-  public static void after() {
-    MagmaEngine.get().shutdown();
-  }
+public class CategoricalVariableSummaryTest extends AbstractMagmaTest {
 
   @Test
   public void test_withTextType() {

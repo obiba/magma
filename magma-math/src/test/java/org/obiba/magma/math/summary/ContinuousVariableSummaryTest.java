@@ -13,11 +13,8 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.obiba.magma.MagmaEngine;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.Variable;
@@ -25,6 +22,7 @@ import org.obiba.magma.VariableEntity;
 import org.obiba.magma.VariableValueSource;
 import org.obiba.magma.VectorSource;
 import org.obiba.magma.support.Values;
+import org.obiba.magma.test.AbstractMagmaTest;
 import org.obiba.magma.type.IntegerType;
 
 import static org.fest.assertions.api.Assertions.assertThat;
@@ -34,17 +32,7 @@ import static org.mockito.Mockito.when;
 /**
  *
  */
-public class ContinuousVariableSummaryTest {
-
-  @BeforeClass
-  public static void before() {
-    new MagmaEngine();
-  }
-
-  @AfterClass
-  public static void after() {
-    MagmaEngine.get().shutdown();
-  }
+public class ContinuousVariableSummaryTest extends AbstractMagmaTest {
 
   @Test
   public void test_compute_integerType() {
