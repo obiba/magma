@@ -8,7 +8,6 @@ import java.util.TreeSet;
 
 import org.junit.Assume;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.obiba.core.util.FileUtil;
 import org.obiba.magma.Datasource;
@@ -47,7 +46,6 @@ import static org.fest.assertions.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 import static org.obiba.magma.Variable.Builder.newVariable;
 
-@Ignore
 @SuppressWarnings({ "PMD.NcssMethodCount", "OverlyLongMethod", "OverlyCoupledClass" })
 public class VariableScriptValidatorTest extends AbstractJsTest {
 
@@ -255,17 +253,17 @@ public class VariableScriptValidatorTest extends AbstractJsTest {
     View view = viewManager.getView(DATASOURCE, "view");
     try {
       validateJavascriptValueSource(view, "var");
-      fail("Should throw VariableScriptValidationException");
-    } catch(VariableScriptValidationException e) {
-      assertThat(e.getCause()).isNotNull().isInstanceOf(NoSuchVariableException.class);
+      fail("Should throw NoSuchVariableException");
+    } catch(NoSuchVariableException e) {
+      assertThat(e.getName()).isEqualTo("non-existing");
     }
 
     try {
       for(ValueSet valueSet : view.getValueSets()) {
         view.getValue(var, valueSet).getValue();
       }
-    } catch(VariableScriptValidationException e) {
-      assertThat(e.getCause()).isNotNull().isInstanceOf(NoSuchVariableException.class);
+    } catch(NoSuchVariableException e) {
+      assertThat(e.getName()).isEqualTo("non-existing");
     }
 
     try {
@@ -273,8 +271,8 @@ public class VariableScriptValidatorTest extends AbstractJsTest {
           .getValues(new TreeSet<>(view.getVariableEntities()))) {
         value.getValue();
       }
-    } catch(VariableScriptValidationException e) {
-      assertThat(e.getCause()).isNotNull().isInstanceOf(NoSuchVariableException.class);
+    } catch(NoSuchVariableException e) {
+      assertThat(e.getName()).isEqualTo("non-existing");
     }
   }
 

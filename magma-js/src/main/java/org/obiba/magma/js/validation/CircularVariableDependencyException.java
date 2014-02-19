@@ -1,8 +1,10 @@
 package org.obiba.magma.js.validation;
 
+import org.obiba.magma.js.MagmaJsEvaluationRuntimeException;
+
 import static org.obiba.magma.js.validation.VariableScriptValidator.VariableRefNode;
 
-public class CircularVariableDependencyException extends VariableScriptValidationException {
+public class CircularVariableDependencyException extends MagmaJsEvaluationRuntimeException {
 
   private static final long serialVersionUID = 6224713591897743417L;
 
