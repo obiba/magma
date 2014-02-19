@@ -194,7 +194,7 @@ public class GeneratedValueTable implements ValueTable {
     while(id.length() < length) {
       id.append(0).append(id);
     }
-    return new VariableEntityBean("", id.toString());
+    return new VariableEntityBean(getEntityType(), id.toString());
   }
 
   @Override
