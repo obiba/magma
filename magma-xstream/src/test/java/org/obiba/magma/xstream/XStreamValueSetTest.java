@@ -16,7 +16,9 @@ public class XStreamValueSetTest extends AbstractMagmaXStreamTest {
   private Variable testVariable;
 
   @Before
-  public void initialise() {
+  @Override
+  public void before() {
+    super.before();
     testVariable = Variable.Builder.newVariable("TestVar", TextType.get(), "TestType").build();
   }
 

@@ -29,7 +29,7 @@ import static org.fest.assertions.api.Assertions.assertThat;
  */
 public class IncrementalWhereClauseTest extends AbstractMagmaTest {
 
-  VariableEntity entity = new VariableEntityBean("P", "123");
+  private final VariableEntity entity = new VariableEntityBean("P", "123");
 
   @Test
   public void test_where_includesMoreRecent() {

@@ -7,12 +7,12 @@ import org.obiba.magma.MagmaEngine;
 public abstract class AbstractMagmaTest {
 
   @Before
-  public void startYourEngine() {
+  public void before() {
     new MagmaEngine();
   }
 
   @After
-  public void stopYourEngine() {
+  public void after() {
     MagmaEngine.get().shutdown();
   }
 }

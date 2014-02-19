@@ -4,16 +4,15 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.obiba.magma.MagmaEngine;
 import org.obiba.magma.Value;
 import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.VariableValueSource;
 import org.obiba.magma.VectorSource;
 import org.obiba.magma.support.Values;
+import org.obiba.magma.test.AbstractMagmaTest;
 import org.obiba.magma.type.IntegerType;
 
 import com.google.common.collect.ImmutableList;
@@ -22,22 +21,18 @@ import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class ExcludeMissingDescriptiveStatisticsProviderTest {
+public class ExcludeMissingDescriptiveStatisticsProviderTest extends AbstractMagmaTest {
 
   private final SortedSet<VariableEntity> emptySet = new TreeSet<>();
 
   private Variable testVariable;
 
   @Before
-  public void startYourEngine() {
-    new MagmaEngine();
+  @Override
+  public void before() {
+    super.before();
     testVariable = Variable.Builder.newVariable("test-variable", IntegerType.get(), "test").addCategories("1", "2")
         .addCategory("88", "88", true).build();
-  }
-
-  @After
-  public void stopYourEngine() {
-    MagmaEngine.get().shutdown();
   }
 
   @Test
