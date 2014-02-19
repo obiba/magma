@@ -356,12 +356,12 @@ public class JoinTable implements ValueTable, Initialisable {
     synchronized Iterable<ValueSet> getInnerTableValueSets(Iterable<ValueTable> valueTables) {
       List<ValueSet> valueSets = Lists.newArrayList();
       for(ValueTable valueTable : valueTables) {
-        if(valueSetsByTable.containsKey(valueTable.getName())) {
-          ValueSet valueSet = valueSetsByTable.get(valueTable.getName());
+        if(valueSetsByTable.containsKey(valueTable.getTableReference())) {
+          ValueSet valueSet = valueSetsByTable.get(valueTable.getTableReference());
           if(valueSet != null) valueSets.add(valueSet);
         } else if(valueTable.hasValueSet(getVariableEntity())) {
           ValueSet valueSet = valueTable.getValueSet(getVariableEntity());
-          valueSetsByTable.put(valueTable.getName(), valueSet);
+          valueSetsByTable.put(valueTable.getTableReference(), valueSet);
           valueSets.add(valueSet);
         }
       }
@@ -377,7 +377,10 @@ public class JoinTable implements ValueTable, Initialisable {
     @NotNull
     private final String variableName;
 
-    private JoinedVariableValueSource(@NotNull String variableName, @NotNull List<ValueTable> owners, @NotNull VariableValueSource wrapped) {
+    private VectorSource vectorSource;
+
+    private JoinedVariableValueSource(@NotNull String variableName, @NotNull List<ValueTable> owners,
+        @NotNull VariableValueSource wrapped) {
       super(wrapped);
       this.variableName = variableName;
       this.owners = owners;
@@ -400,8 +403,8 @@ public class JoinTable implements ValueTable, Initialisable {
 
     @Override
     public boolean supportVectorSource() {
-      for (ValueTable table : owners) {
-        if (!table.getVariableValueSource(variableName).supportVectorSource()) {
+      for(ValueTable table : owners) {
+        if(!table.getVariableValueSource(variableName).supportVectorSource()) {
           return false;
         }
       }
@@ -410,8 +413,10 @@ public class JoinTable implements ValueTable, Initialisable {
 
     @Override
     public VectorSource asVectorSource() {
-      return super.asVectorSource();
-      //return new JoinedVectorSource(variableName, owners, getWrapped().getVariable().getValueType());
+      if(vectorSource == null) {
+        vectorSource = new JoinedVectorSource(getVariable(), owners);
+      }
+      return vectorSource;
     }
 
     @Override
@@ -440,23 +445,19 @@ public class JoinTable implements ValueTable, Initialisable {
     private final List<ValueTable> owners;
 
     @NotNull
-    private final String variableName;
-
-    @NotNull
-    private final ValueType valueType;
+    private final Variable variable;
 
     @NotNull
     private final Map<String, VectorSource> vectorSourcesByTable = Maps.newHashMap();
 
-    private JoinedVectorSource(String variableName, List<ValueTable> owners, ValueType valueType) {
+    private JoinedVectorSource(Variable variable, List<ValueTable> owners) {
       this.owners = owners;
-      this.variableName = variableName;
-      this.valueType = valueType;
+      this.variable = variable;
     }
 
     @Override
     public ValueType getValueType() {
-      return valueType;
+      return variable.getValueType();
     }
 
     @Override
@@ -465,22 +466,22 @@ public class JoinTable implements ValueTable, Initialisable {
       values.ensureCapacity(entities.size());
 
       List<Iterator<Value>> vectors = Lists.newArrayList();
-      for (ValueTable table : owners) {
+      for(ValueTable table : owners) {
         vectors.add(getValues(entities, table).iterator());
       }
 
       // merge vectors
-      for (VariableEntity entity : entities) {
+      for(VariableEntity entity : entities) {
         boolean found = false;
-        for (Iterator<Value> vector : vectors) {
+        for(Iterator<Value> vector : vectors) {
           Value value = vector.next();
-          if (!found && !value.isNull()) {
+          if(!found && !value.isNull()) {
             values.add(value);
             found = true;
           }
         }
-        if (!found) {
-          values.add(getValueType().nullValue());
+        if(!found) {
+          values.add(variable.isRepeatable() ? getValueType().nullSequence() : getValueType().nullValue());
         }
       }
 
@@ -488,11 +489,11 @@ public class JoinTable implements ValueTable, Initialisable {
     }
 
     private Iterable<Value> getValues(SortedSet<VariableEntity> entities, ValueTable table) {
-      if (!vectorSourcesByTable.containsKey(table.getName())) {
-        VectorSource vSource = table.getVariableValueSource(variableName).asVectorSource();
-        vectorSourcesByTable.put(table.getName(), vSource);
+      if(!vectorSourcesByTable.containsKey(table.getTableReference())) {
+        VectorSource vSource = table.getVariableValueSource(variable.getName()).asVectorSource();
+        vectorSourcesByTable.put(table.getTableReference(), vSource);
       }
-      return vectorSourcesByTable.get(table.getName()).getValues(entities);
+      return vectorSourcesByTable.get(table.getTableReference()).getValues(entities);
     }
   }
 
