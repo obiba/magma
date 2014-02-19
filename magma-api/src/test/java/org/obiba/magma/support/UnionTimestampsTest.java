@@ -25,7 +25,9 @@ public class UnionTimestampsTest extends AbstractMagmaTest {
   private Value lateValue;
 
   @Before
+  @Override
   public void before() {
+    super.before();
     earlyValue = DateTimeType.get().valueOf(new Date(1000L));
     lateValue = DateTimeType.get().valueOf(new Date(4000000000L));
   }

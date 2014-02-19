@@ -33,7 +33,9 @@ public abstract class BaseValueTypeTest extends AbstractMagmaTest {
   }
 
   @Before
-  public void validateTestInstance() {
+  @Override
+  public void before() {
+    super.before();
     assertThat(getValueType()).isNotNull();
     assertThat(getObjectForType()).isNotNull();
   }
