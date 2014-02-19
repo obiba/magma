@@ -3,6 +3,7 @@ package org.obiba.magma.datasource.hibernate;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.SortedSet;
 
@@ -10,6 +11,7 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.obiba.magma.Category;
@@ -35,6 +37,7 @@ import org.obiba.magma.datasource.hibernate.domain.ValueTableState;
 import org.obiba.magma.datasource.hibernate.domain.VariableState;
 import org.obiba.magma.support.DatasourceCopier;
 import org.obiba.magma.support.Initialisables;
+import org.obiba.magma.support.VariableEntityBean;
 import org.obiba.magma.type.BinaryType;
 import org.obiba.magma.type.DateTimeType;
 import org.obiba.magma.type.DateType;
@@ -52,6 +55,7 @@ import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
@@ -285,9 +289,70 @@ public class HibernateDatasourceTest {
           Iterable<Value> values = vectorSource.getValues(entities);
           assertThat(values).isNotNull();
           assertThat(values).hasSize(entities.size());
-          for(Value value : values) {
+          Iterator<Value> valuesIter = values.iterator();
+          for(VariableEntity entity : entities) {
+            Value value = valuesIter.next();
             assertThat(value).isNotNull();
             assertThat(value.isSequence()).isEqualTo(variable.isRepeatable());
+            assertThat(value).isEqualTo(valueTable.getValue(variable, valueTable.getValueSet(entity)));
+          }
+        }
+      }
+    });
+  }
+
+  @Test
+  @Ignore
+  public void test_vector_source_with_additional_entity() {
+
+    final ImmutableSet<Variable> variables = ImmutableSet.of(//
+        Variable.Builder.newVariable("Test Variable", IntegerType.get(), PARTICIPANT).build(), //
+        Variable.Builder.newVariable("Test Repeatable", TextType.get(), PARTICIPANT).repeatable().build(), //
+        Variable.Builder.newVariable("Test Date", DateType.get(), PARTICIPANT).build(), //
+        Variable.Builder.newVariable("Test DateTime", DateTimeType.get(), PARTICIPANT).build(), //
+        Variable.Builder.newVariable("Other Variable", DecimalType.get(), PARTICIPANT).build());
+
+    transactionTemplate.execute(new TransactionCallbackRuntimeExceptions() {
+      @Override
+      protected void doAction(TransactionStatus status) throws Exception {
+        HibernateDatasource ds = createDatasource();
+        ValueTable generatedValueTable = new GeneratedValueTable(ds, variables, 50);
+        MagmaEngine.get().addDatasource(ds);
+        DatasourceCopier.Builder.newCopier().build().copy(generatedValueTable, "NewTable", ds);
+      }
+    });
+
+    transactionTemplate.execute(new TransactionCallbackRuntimeExceptions() {
+      @Override
+      protected void doAction(TransactionStatus status) throws Exception {
+        HibernateDatasource ds = getDatasource();
+        ValueTable valueTable = ds.getValueTable("NewTable");
+
+        for(Variable variable : variables) {
+          VariableValueSource valueSource = valueTable.getVariableValueSource(variable.getName());
+          assertThat(valueSource).isNotNull();
+          assertThat(valueSource.supportVectorSource()).isTrue();
+          VectorSource vectorSource = valueSource.asVectorSource();
+          assertThat(vectorSource).isNotNull();
+
+          VariableEntity unexpected = new VariableEntityBean(valueTable.getEntityType(), "0000000");
+
+          SortedSet<VariableEntity> entities = Sets
+              .newTreeSet(Iterables.concat(Sets.newHashSet(unexpected), valueTable.getVariableEntities()));
+          Iterable<Value> values = vectorSource.getValues(entities);
+          assertThat(values).isNotNull();
+          assertThat(values).hasSize(entities.size());
+          Iterator<Value> valuesIter = values.iterator();
+          for(VariableEntity entity : entities) {
+            log.info("Entity={}", entity);
+            Value value = valuesIter.next();
+            assertThat(value).isNotNull();
+            assertThat(value.isSequence()).isEqualTo(variable.isRepeatable());
+            if(valueTable.hasValueSet(entity)) {
+              assertThat(value).isEqualTo(valueTable.getValue(variable, valueTable.getValueSet(entity)));
+            } else {
+              assertThat(value.isNull()).isTrue();
+            }
           }
         }
       }
@@ -727,8 +792,8 @@ public class HibernateDatasourceTest {
   @Test
   public void test_remove_last_variable() {
 
-    final Variable variable = Variable.Builder.newVariable("Variable 1", IntegerType.get(), PARTICIPANT).addCategory(
-        "1", "One", false) //
+    final Variable variable = Variable.Builder.newVariable("Variable 1", IntegerType.get(), PARTICIPANT)
+        .addCategory("1", "One", false) //
         .addCategory("2", "Two", false) //
         .addAttribute("att1", "1") //
         .build();
