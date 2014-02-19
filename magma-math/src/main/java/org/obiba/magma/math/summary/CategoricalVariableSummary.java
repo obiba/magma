@@ -221,7 +221,7 @@ public class CategoricalVariableSummary extends AbstractVariableSummary implemen
     }
 
     private void compute() {
-      log.trace("Start compute categorical {}", summary.variable);
+      log.trace("Start compute categorical {}", summary.variable.getName());
       long max = 0;
       Iterator<String> concat = summary.distinct //
           ? freqNames(summary.frequencyDist)  // category names, null values and distinct values
