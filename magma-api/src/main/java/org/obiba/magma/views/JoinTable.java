@@ -10,6 +10,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.SortedSet;
 
 import javax.validation.constraints.NotNull;
 
@@ -25,6 +26,7 @@ import org.obiba.magma.ValueType;
 import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.VariableValueSource;
+import org.obiba.magma.VectorSource;
 import org.obiba.magma.support.AbstractVariableValueSourceWrapper;
 import org.obiba.magma.support.UnionTimestamps;
 import org.obiba.magma.support.ValueSetBean;
@@ -225,7 +227,7 @@ public class JoinTable implements ValueTable, Initialisable {
     if(table == null) {
       throw new NoSuchVariableException(variableName);
     }
-    return new JoinedVariableValueSource(tablesWithVariable, table.getVariableValueSource(variableName));
+    return new JoinedVariableValueSource(variableName, tablesWithVariable, table.getVariableValueSource(variableName));
   }
 
   @Override
@@ -372,19 +374,44 @@ public class JoinTable implements ValueTable, Initialisable {
     @NotNull
     private final List<ValueTable> owners;
 
-    private JoinedVariableValueSource(@NotNull List<ValueTable> owners, @NotNull VariableValueSource wrapped) {
+    @NotNull
+    private final String variableName;
+
+    private JoinedVariableValueSource(@NotNull String variableName, @NotNull List<ValueTable> owners, @NotNull VariableValueSource wrapped) {
       super(wrapped);
+      this.variableName = variableName;
       this.owners = owners;
+    }
+
+    private VariableValueSource getWrapped(ValueTable table) {
+      return table.getVariableValueSource(variableName);
     }
 
     @NotNull
     @Override
     public Value getValue(ValueSet valueSet) {
+      // get inner value sets
       for(ValueSet joinedValueSet : ((JoinedValueSet) valueSet).getInnerTableValueSets(owners)) {
-        Value value = getWrapped().getValue(joinedValueSet);
+        Value value = getWrapped(joinedValueSet.getValueTable()).getValue(joinedValueSet);
         if(!value.isNull()) return value;
       }
       return getVariable().isRepeatable() ? getValueType().nullSequence() : getValueType().nullValue();
+    }
+
+    @Override
+    public boolean supportVectorSource() {
+      for (ValueTable table : owners) {
+        if (!table.getVariableValueSource(variableName).supportVectorSource()) {
+          return false;
+        }
+      }
+      return true;
+    }
+
+    @Override
+    public VectorSource asVectorSource() {
+      return super.asVectorSource();
+      //return new JoinedVectorSource(variableName, owners, getWrapped().getVariable().getValueType());
     }
 
     @Override
@@ -405,6 +432,68 @@ public class JoinTable implements ValueTable, Initialisable {
       return result;
     }
 
+  }
+
+  private static class JoinedVectorSource implements VectorSource {
+
+    @NotNull
+    private final List<ValueTable> owners;
+
+    @NotNull
+    private final String variableName;
+
+    @NotNull
+    private final ValueType valueType;
+
+    @NotNull
+    private final Map<String, VectorSource> vectorSourcesByTable = Maps.newHashMap();
+
+    private JoinedVectorSource(String variableName, List<ValueTable> owners, ValueType valueType) {
+      this.owners = owners;
+      this.variableName = variableName;
+      this.valueType = valueType;
+    }
+
+    @Override
+    public ValueType getValueType() {
+      return valueType;
+    }
+
+    @Override
+    public Iterable<Value> getValues(SortedSet<VariableEntity> entities) {
+      ArrayList<Value> values = Lists.newArrayList();
+      values.ensureCapacity(entities.size());
+
+      List<Iterator<Value>> vectors = Lists.newArrayList();
+      for (ValueTable table : owners) {
+        vectors.add(getValues(entities, table).iterator());
+      }
+
+      // merge vectors
+      for (VariableEntity entity : entities) {
+        boolean found = false;
+        for (Iterator<Value> vector : vectors) {
+          Value value = vector.next();
+          if (!found && !value.isNull()) {
+            values.add(value);
+            found = true;
+          }
+        }
+        if (!found) {
+          values.add(getValueType().nullValue());
+        }
+      }
+
+      return values;
+    }
+
+    private Iterable<Value> getValues(SortedSet<VariableEntity> entities, ValueTable table) {
+      if (!vectorSourcesByTable.containsKey(table.getName())) {
+        VectorSource vSource = table.getVariableValueSource(variableName).asVectorSource();
+        vectorSourcesByTable.put(table.getName(), vSource);
+      }
+      return vectorSourcesByTable.get(table.getName()).getValues(entities);
+    }
   }
 
   private static class JoinableVariable {
