@@ -13,6 +13,7 @@ import org.obiba.magma.ValueTable;
 import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.VariableValueSource;
+import org.obiba.magma.js.validation.VariableScriptValidator;
 import org.obiba.magma.support.ValueTableWrapper;
 import org.obiba.magma.views.View;
 import org.slf4j.Logger;
@@ -90,15 +91,15 @@ public class JavascriptVariableValueSource extends JavascriptValueSource impleme
   }
 
   public void validateScript() throws EvaluatorException {
-//    Value tableLastUpdate = valueTable.getTimestamps().getLastUpdate();
-//    if(lastScriptValidation == null || !lastScriptValidation.equals(tableLastUpdate)) {
-//      log.trace("Validate {} script", variable.getName());
-//      initialiseIfNot();
-//      new VariableScriptValidator(variable, valueTable).validateScript();
-//      lastScriptValidation = valueTable.getTimestamps().getLastUpdate();
-//    } else {
-//      log.trace("Skip {} script validation", variable.getName());
-//    }
+    Value tableLastUpdate = valueTable.getTimestamps().getLastUpdate();
+    if(lastScriptValidation == null || !lastScriptValidation.equals(tableLastUpdate)) {
+      log.trace("Validate {} script", variable.getName());
+      initialiseIfNot();
+      new VariableScriptValidator(variable, valueTable).validateScript();
+      lastScriptValidation = valueTable.getTimestamps().getLastUpdate();
+    } else {
+      log.trace("Skip {} script validation", variable.getName());
+    }
   }
 
   @Override

@@ -28,7 +28,6 @@ import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Stopwatch;
 import com.google.common.base.Strings;
-import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableSet;
 
 import static org.obiba.magma.js.JavascriptVariableBuilder.SCRIPT_ATTRIBUTE_NAME;
@@ -67,14 +66,9 @@ public class VariableScriptValidator {
     this.table = table;
   }
 
-  public void validateScript() throws VariableScriptValidationException {
+  public void validateScript() throws CircularVariableDependencyException {
     Stopwatch stopwatch = Stopwatch.createStarted();
-    try {
-      getVariableRefNode(new VariableRefNode(variable.getVariableReference(table), table, getScript(variable)));
-    } catch(Exception e) {
-      Throwables.propagateIfInstanceOf(e, CircularVariableDependencyException.class);
-      throw new VariableScriptValidationException(e);
-    }
+    getVariableRefNode(new VariableRefNode(variable.getVariableReference(table), table, getScript(variable)));
     log.debug("Script validation of {} in {}", variable.getName(), stopwatch);
   }
 
