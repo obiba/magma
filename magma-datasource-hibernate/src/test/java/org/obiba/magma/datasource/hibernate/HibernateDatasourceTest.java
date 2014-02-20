@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.SortedSet;
+import java.util.TreeSet;
 
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -1052,6 +1053,39 @@ public class HibernateDatasourceTest {
       protected void doAction(TransactionStatus status) throws Exception {
         HibernateDatasource ds = getDatasource();
         assertThat(ds.getValueTable(TABLE).getValueSetCount()).isEqualTo(100);
+      }
+    });
+  }
+
+  @Test
+  public void test_getValues() throws IOException {
+    final ImmutableSet<Variable> variables = ImmutableSet.of(//
+        Variable.Builder.newVariable("V1", BinaryType.get(), PARTICIPANT).build()); //
+
+    transactionTemplate.execute(new TransactionCallbackRuntimeExceptions() {
+      @Override
+      protected void doAction(TransactionStatus status) throws Exception {
+        HibernateDatasource ds = createDatasource();
+        ValueTable generatedValueTable = new GeneratedValueTable(ds, variables, 1);
+        MagmaEngine.get().addDatasource(ds);
+        DatasourceCopier.Builder.newCopier().build().copy(generatedValueTable, TABLE, ds);
+      }
+    });
+
+    transactionTemplate.execute(new TransactionCallbackRuntimeExceptions() {
+      @Override
+      protected void doAction(TransactionStatus status) throws Exception {
+        HibernateDatasource ds = getDatasource();
+
+        VariableValueSource v1 = ds.getValueTable(TABLE).getVariableValueSource("V1");
+        assertThat(v1.getValueType().getName().equals(BinaryType.get().getName()));
+
+        TreeSet<VariableEntity> entities = Sets.newTreeSet(ds.getValueTable(TABLE).getVariableEntities());
+        Iterable<Value> values = v1.asVectorSource().getValues(entities);
+        for(Value value : values) {
+          assertThat(value.getValue()).isNotNull();
+          assertThat(value.getValueType().getName()).isEqualTo(BinaryType.get().getName());
+        }
       }
     });
   }
