@@ -12,7 +12,6 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.obiba.magma.Category;
@@ -1058,7 +1057,8 @@ public class HibernateDatasourceTest {
   }
 
   @Test
-  public void test_getValues() throws IOException {
+  // See http://jira.obiba.org/jira/browse/OPAL-2423
+  public void test_get_binary_values_as_vector() throws IOException {
     final ImmutableSet<Variable> variables = ImmutableSet.of(//
         Variable.Builder.newVariable("V1", BinaryType.get(), PARTICIPANT).build()); //
 
@@ -1077,11 +1077,11 @@ public class HibernateDatasourceTest {
       protected void doAction(TransactionStatus status) throws Exception {
         HibernateDatasource ds = getDatasource();
 
-        VariableValueSource v1 = ds.getValueTable(TABLE).getVariableValueSource("V1");
-        assertThat(v1.getValueType().getName().equals(BinaryType.get().getName()));
+        VariableValueSource variableValueSource = ds.getValueTable(TABLE).getVariableValueSource("V1");
+        assertThat(variableValueSource.getValueType().getName().equals(BinaryType.get().getName()));
 
         TreeSet<VariableEntity> entities = Sets.newTreeSet(ds.getValueTable(TABLE).getVariableEntities());
-        Iterable<Value> values = v1.asVectorSource().getValues(entities);
+        Iterable<Value> values = variableValueSource.asVectorSource().getValues(entities);
         for(Value value : values) {
           assertThat(value.getValue()).isNotNull();
           assertThat(value.getValueType().getName()).isEqualTo(BinaryType.get().getName());
