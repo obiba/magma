@@ -4,10 +4,14 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.TreeSet;
+
+import javax.annotation.Nullable;
 
 import org.junit.After;
 import org.junit.Assume;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.obiba.core.util.FileUtil;
 import org.obiba.magma.Datasource;
@@ -22,6 +26,7 @@ import org.obiba.magma.ValueTableWriter;
 import org.obiba.magma.ValueType;
 import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
+import org.obiba.magma.VariableValueSource;
 import org.obiba.magma.datasource.fs.FsDatasource;
 import org.obiba.magma.datasource.generated.GeneratedValueTable;
 import org.obiba.magma.support.DatasourceCopier;
@@ -41,8 +46,11 @@ import org.obiba.magma.type.TextType;
 import org.obiba.magma.xstream.MagmaXStreamExtension;
 
 import com.google.common.base.Charsets;
+import com.google.common.base.Function;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import com.mongodb.MongoClient;
 
 import static org.fest.assertions.api.Assertions.assertThat;
@@ -350,6 +358,62 @@ public class MongoDBDatasourceTest {
     DatasourceCopier.Builder.newCopier().build().copy(generatedValueTable, "table1", ds);
 
     assertThat(createDatasource().getValueTable("table1").getValueSetCount()).isEqualTo(100);
+  }
+
+  @Test
+  @Ignore
+  // See http://jira.obiba.org/jira/browse/OPAL-2423
+  public void test_get_binary_values_as_vector() throws IOException {
+    Variable variable1 = Variable.Builder.newVariable("V1", BinaryType.get(), PARTICIPANT) //
+        .build();
+    ImmutableSet<Variable> variables = ImmutableSet.of(variable1);
+
+    Datasource datasource1 = createDatasource();
+    ValueTable generatedValueTable = new GeneratedValueTable(datasource1, variables, 1);
+    MagmaEngine.get().addDatasource(datasource1);
+    DatasourceCopier.Builder.newCopier().build().copy(generatedValueTable, TABLE_TEST, datasource1);
+
+    VariableValueSource variableValueSource = MagmaEngine.get().getDatasource(datasource1.getName())
+        .getValueTable(TABLE_TEST).getVariableValueSource("V1");
+    assertThat(variableValueSource.getValueType().getName().equals(BinaryType.get().getName()));
+
+    TreeSet<VariableEntity> entities = Sets.newTreeSet(generatedValueTable.getVariableEntities());
+    Iterable<Value> values = variableValueSource.asVectorSource().getValues(entities);
+    for(Value value : values) {
+      assertThat(value.getValue()).isNotNull();
+      assertThat(value.getValueType().getName()).isEqualTo(BinaryType.get().getName());
+    }
+  }
+
+  @Test
+  public void test_get_values_null_non_null() throws IOException {
+    Variable variable1 = Variable.Builder.newVariable("V1", BinaryType.get(), PARTICIPANT) //
+        .build();
+    ImmutableSet<Variable> variables = ImmutableSet.of(variable1);
+
+    Datasource datasource1 = createDatasource();
+    ValueTable generatedValueTable = new GeneratedValueTable(datasource1, variables, 1);
+    MagmaEngine.get().addDatasource(datasource1);
+    DatasourceCopier.Builder.newCopier().build().copy(generatedValueTable, TABLE_TEST, datasource1);
+
+    final ValueTable valueTable = MagmaEngine.get().getDatasource(datasource1.getName()).getValueTable(TABLE_TEST);
+    TreeSet<VariableEntity> entities = Sets.newTreeSet(valueTable.getVariableEntities());
+    final Variable variable = MagmaEngine.get().getDatasource(datasource1.getName()).getValueTable(TABLE_TEST)
+        .getVariable("V1");
+
+    Iterable<Value> values = Iterables.transform(entities, new Function<VariableEntity, Value>() {
+      @Nullable
+      @Override
+      public Value apply(@Nullable VariableEntity input) {
+        ValueSet valueSet = valueTable.getValueSet(input);
+        Value value = valueTable.getValue(variable, valueSet);
+        return value;
+      }
+    });
+
+    for(Value value : values) {
+      assertThat(value).isNotNull();
+    }
   }
 
   private Datasource createDatasource() {
