@@ -362,7 +362,8 @@ public class MongoDBDatasourceTest {
 
   @Test
   @Ignore
-  public void test_get_values_as_vector() throws IOException {
+  // See http://jira.obiba.org/jira/browse/OPAL-2423
+  public void test_get_binary_values_as_vector() throws IOException {
     Variable variable1 = Variable.Builder.newVariable("V1", BinaryType.get(), PARTICIPANT) //
         .build();
     ImmutableSet<Variable> variables = ImmutableSet.of(variable1);
@@ -372,12 +373,12 @@ public class MongoDBDatasourceTest {
     MagmaEngine.get().addDatasource(datasource1);
     DatasourceCopier.Builder.newCopier().build().copy(generatedValueTable, TABLE_TEST, datasource1);
 
-    VariableValueSource v1 = MagmaEngine.get().getDatasource(datasource1.getName()).getValueTable(TABLE_TEST)
-        .getVariableValueSource("V1");
-    assertThat(v1.getValueType().getName().equals(BinaryType.get().getName()));
+    VariableValueSource variableValueSource = MagmaEngine.get().getDatasource(datasource1.getName())
+        .getValueTable(TABLE_TEST).getVariableValueSource("V1");
+    assertThat(variableValueSource.getValueType().getName().equals(BinaryType.get().getName()));
 
     TreeSet<VariableEntity> entities = Sets.newTreeSet(generatedValueTable.getVariableEntities());
-    Iterable<Value> values = v1.asVectorSource().getValues(entities);
+    Iterable<Value> values = variableValueSource.asVectorSource().getValues(entities);
     for(Value value : values) {
       assertThat(value.getValue()).isNotNull();
       assertThat(value.getValueType().getName()).isEqualTo(BinaryType.get().getName());
