@@ -40,6 +40,11 @@ public abstract class AbstractValueType implements ValueType {
     return false;
   }
 
+  @Override
+  public boolean isBinary() {
+    return false;
+  }
+
   @NotNull
   @Override
   public Value nullValue() {

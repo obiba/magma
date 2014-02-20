@@ -133,6 +133,13 @@ public interface ValueType extends Serializable, Comparator<Value> {
   boolean isGeo();
 
   /**
+   * Returns true if this type represents a binary.
+   *
+   * @return true if this type represents a binary
+   */
+  boolean isBinary();
+
+  /**
    * Returns a {@code Value} instance that represents the null value for this type. Calling {@link Value#isNull()} on
    * the returned instance will return true.
    *
