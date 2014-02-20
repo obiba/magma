@@ -121,7 +121,7 @@ public class CategoricalVariableSummary extends AbstractVariableSummary implemen
   }
 
   @SuppressWarnings("ParameterHidesMemberVariable")
-  public static class Builder implements VariableSummaryBuilder<CategoricalVariableSummary> {
+  public static class Builder implements VariableSummaryBuilder<CategoricalVariableSummary, Builder> {
 
     private final CategoricalVariableSummary summary;
 
@@ -137,6 +137,7 @@ public class CategoricalVariableSummary extends AbstractVariableSummary implemen
       summary = new CategoricalVariableSummary(variable);
     }
 
+    @Override
     public Builder addValue(@NotNull Value value) {
       if(addedTable) {
         throw new IllegalStateException("Cannot add value for variable " + summary.variable.getName() +
@@ -147,6 +148,7 @@ public class CategoricalVariableSummary extends AbstractVariableSummary implemen
       return this;
     }
 
+    @Override
     public Builder addTable(@NotNull ValueTable table, @NotNull ValueSource valueSource) {
       if(addedValue) {
         throw new IllegalStateException("Cannot add table for variable " + summary.variable.getName() +

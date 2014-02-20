@@ -4,6 +4,8 @@ import java.util.SortedSet;
 
 import javax.validation.constraints.NotNull;
 
+import org.obiba.magma.Value;
+import org.obiba.magma.ValueSource;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
@@ -80,12 +82,16 @@ public abstract class AbstractVariableSummary implements VariableSummary {
     return limit;
   }
 
-  public interface VariableSummaryBuilder<TVariableSummary extends VariableSummary> {
+  public interface VariableSummaryBuilder<TVariableSummary extends VariableSummary, TVariableSummaryBuilder extends VariableSummaryBuilder<TVariableSummary, TVariableSummaryBuilder>> {
 
     TVariableSummary build();
 
     @NotNull
     Variable getVariable();
+
+    TVariableSummaryBuilder addTable(@NotNull ValueTable table, @NotNull ValueSource variableValueSource);
+
+    TVariableSummaryBuilder addValue(@NotNull Value value);
   }
 
 }

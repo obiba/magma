@@ -101,7 +101,7 @@ public class DefaultVariableSummary extends AbstractVariableSummary implements S
   }
 
   @SuppressWarnings("ParameterHidesMemberVariable")
-  public static class Builder implements VariableSummaryBuilder<DefaultVariableSummary> {
+  public static class Builder implements VariableSummaryBuilder<DefaultVariableSummary, Builder> {
 
     private final DefaultVariableSummary summary;
 
@@ -117,6 +117,7 @@ public class DefaultVariableSummary extends AbstractVariableSummary implements S
       summary = new DefaultVariableSummary(variable);
     }
 
+    @Override
     public Builder addValue(@NotNull Value value) {
       if(addedTable) {
         throw new IllegalStateException("Cannot add value for variable " + summary.variable.getName() +
@@ -127,6 +128,7 @@ public class DefaultVariableSummary extends AbstractVariableSummary implements S
       return this;
     }
 
+    @Override
     public Builder addTable(@NotNull ValueTable table, @NotNull ValueSource valueSource) {
       if(addedValue) {
         throw new IllegalStateException("Cannot add table for variable " + summary.variable.getName() +
