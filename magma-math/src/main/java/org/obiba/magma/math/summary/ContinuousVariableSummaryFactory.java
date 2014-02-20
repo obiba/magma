@@ -1,5 +1,6 @@
 package org.obiba.magma.math.summary;
 
+import java.util.Collection;
 import java.util.List;
 
 import javax.validation.constraints.NotNull;
@@ -7,6 +8,8 @@ import javax.validation.constraints.NotNull;
 import org.obiba.magma.ValueSource;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.Variable;
+
+import com.google.common.base.Joiner;
 
 import static org.obiba.magma.math.summary.ContinuousVariableSummary.Distribution;
 
@@ -30,11 +33,11 @@ public class ContinuousVariableSummaryFactory extends AbstractVariableSummaryFac
 
   @SuppressWarnings("PMD.ExcessiveParameterList")
   public static String getCacheKey(Variable variable, ValueTable table, Distribution distribution,
-      List<Double> percentiles, int intervals, Integer offset, Integer limit) {
-    String key = variable.getVariableReference(table) + "." + distribution + "." + intervals;
-    if(percentiles != null) key += "." + percentiles.hashCode();
-    if(offset != null) key += "." + offset;
-    if(limit != null) key += "." + limit;
+      Collection<Double> percentiles, int intervals, Integer offset, Integer limit) {
+    String key = variable.getVariableReference(table) + ";d=" + distribution + ";i=" + intervals;
+    if(percentiles != null && percentiles.size() > 0) key += ";p=" + Joiner.on(",").skipNulls().join(percentiles);
+    if(offset != null) key += ";o=" + offset;
+    if(limit != null) key += ";l=" + limit;
     return key;
   }
 
@@ -115,7 +118,9 @@ public class ContinuousVariableSummaryFactory extends AbstractVariableSummaryFac
     }
 
     public Builder percentiles(List<Double> percentiles) {
-      factory.percentiles = percentiles;
+      factory.percentiles = percentiles == null || percentiles.isEmpty()
+          ? ContinuousVariableSummary.DEFAULT_PERCENTILES
+          : percentiles;
       return this;
     }
 

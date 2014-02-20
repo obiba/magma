@@ -22,9 +22,9 @@ public class CategoricalVariableSummaryFactory extends AbstractVariableSummaryFa
 
   public static String getCacheKey(Variable variable, ValueTable table, boolean distinct, Integer offset,
       Integer limit) {
-    String key = variable.getVariableReference(table) + "." + distinct;
-    if(offset != null) key += "." + offset;
-    if(limit != null) key += "." + limit;
+    String key = variable.getVariableReference(table) + ";d=" + distinct;
+    if(offset != null) key += ";o=" + offset;
+    if(limit != null) key += ";l=" + limit;
     return key;
   }
 

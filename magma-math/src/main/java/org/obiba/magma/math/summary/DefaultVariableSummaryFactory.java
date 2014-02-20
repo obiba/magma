@@ -21,8 +21,8 @@ public class DefaultVariableSummaryFactory extends AbstractVariableSummaryFactor
   @SuppressWarnings("PMD.ExcessiveParameterList")
   public static String getCacheKey(Variable variable, ValueTable table, Integer offset, Integer limit) {
     String key = variable.getVariableReference(table);
-    if(offset != null) key += "." + offset;
-    if(limit != null) key += "." + limit;
+    if(offset != null) key += ";o=" + offset;
+    if(limit != null) key += ";l=" + limit;
     return key;
   }
 
