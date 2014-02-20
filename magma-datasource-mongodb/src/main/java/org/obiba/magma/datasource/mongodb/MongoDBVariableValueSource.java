@@ -11,6 +11,7 @@
 package org.obiba.magma.datasource.mongodb;
 
 import java.util.Iterator;
+import java.util.Map;
 import java.util.SortedSet;
 
 import javax.validation.constraints.NotNull;
@@ -25,7 +26,10 @@ import org.obiba.magma.datasource.mongodb.converter.ValueConverter;
 import org.obiba.magma.datasource.mongodb.converter.VariableConverter;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Maps;
+import com.mongodb.BasicDBObject;
 import com.mongodb.BasicDBObjectBuilder;
+import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 
 public class MongoDBVariableValueSource implements VariableValueSource, VectorSource {
@@ -108,12 +112,17 @@ public class MongoDBVariableValueSource implements VariableValueSource, VectorSo
 
     private final Iterator<VariableEntity> entities;
 
+    private final DBCursor cursor;
+
+    private final Map<String, Value> valueMap = Maps.newHashMap();
+
     private ValueIterator(MongoDBVariable variable, Iterator<VariableEntity> entities) {
       field = variable.getId();
       type = variable.getValueType();
       repeatable = variable.isRepeatable();
       fields = BasicDBObjectBuilder.start(field, 1).get();
       this.entities = entities;
+      cursor = table.getValueSetCollection().find(new BasicDBObject(), fields);
     }
 
     @Override
@@ -124,9 +133,19 @@ public class MongoDBVariableValueSource implements VariableValueSource, VectorSo
     @Override
     public Value next() {
       VariableEntity entity = entities.next();
-      DBObject template = BasicDBObjectBuilder.start("_id", entity.getIdentifier()).get();
-      return ValueConverter
-          .unmarshall(type, repeatable, field, table.getValueSetCollection().findOne(template, fields));
+
+      if(valueMap.containsKey(entity.getIdentifier())) return valueMap.get(entity.getIdentifier());
+
+      boolean found = false;
+      while(cursor.hasNext() && !found) {
+        DBObject obj = cursor.next();
+        String id = obj.get("_id").toString();
+        valueMap.put(id, ValueConverter.unmarshall(type, repeatable, field, obj));
+        found = id.equals(entity.getIdentifier());
+      }
+
+      if(valueMap.containsKey(entity.getIdentifier())) return valueMap.get(entity.getIdentifier());
+      return ValueConverter.unmarshall(type, repeatable, field, null);
     }
 
     @Override
