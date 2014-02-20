@@ -302,7 +302,6 @@ public class HibernateDatasourceTest {
   }
 
   @Test
-  @Ignore
   public void test_vector_source_with_additional_entity() {
 
     final ImmutableSet<Variable> variables = ImmutableSet.of(//
@@ -344,8 +343,9 @@ public class HibernateDatasourceTest {
           assertThat(values).hasSize(entities.size());
           Iterator<Value> valuesIter = values.iterator();
           for(VariableEntity entity : entities) {
-            log.info("Entity={}", entity);
+
             Value value = valuesIter.next();
+            log.info("Entity={} Value={}", entity, value);
             assertThat(value).isNotNull();
             assertThat(value.isSequence()).isEqualTo(variable.isRepeatable());
             if(valueTable.hasValueSet(entity)) {

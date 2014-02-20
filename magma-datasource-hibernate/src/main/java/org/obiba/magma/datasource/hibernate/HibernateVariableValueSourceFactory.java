@@ -4,7 +4,7 @@ import java.io.Serializable;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.NoSuchElementException;
+import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
 
@@ -38,6 +38,7 @@ import org.obiba.magma.datasource.hibernate.domain.VariableState;
 import org.obiba.magma.type.BinaryType;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Maps;
 
 class HibernateVariableValueSourceFactory implements VariableValueSourceFactory {
 
@@ -55,8 +56,8 @@ class HibernateVariableValueSourceFactory implements VariableValueSourceFactory 
     Set<VariableValueSource> sources = new LinkedHashSet<>();
     @SuppressWarnings("unchecked")
     Iterable<VariableState> variables = (List<VariableState>) AssociationCriteria
-        .create(VariableState.class, getCurrentSession()).add("valueTable", Operation.eq,
-            valueTable.getValueTableState()) //
+        .create(VariableState.class, getCurrentSession())
+        .add("valueTable", Operation.eq, valueTable.getValueTableState()) //
         .addSortingClauses(SortingClause.create("id")) //
         .getCriteria().setFetchMode("categories", FetchMode.JOIN).list();
     for(VariableState v : variables) {
@@ -213,11 +214,13 @@ class HibernateVariableValueSourceFactory implements VariableValueSourceFactory 
 
       private boolean closed;
 
-      private final Iterator<VariableEntity> resultEntities;
+      private final Iterator<VariableEntity> entities;
 
-      private ValueIterator(Iterator<VariableEntity> resultEntities) {
+      private final Map<String, Value> valueMap = Maps.newHashMap();
 
-        this.resultEntities = resultEntities;
+      private ValueIterator(Iterator<VariableEntity> entities) {
+
+        this.entities = entities;
         Query query = getCurrentSession().getNamedQuery("allValues") //
             .setParameter("valueTableId", valueTable.getValueTableState().getId()) //
             .setParameter("variableId", ensureVariableId());
@@ -227,30 +230,34 @@ class HibernateVariableValueSourceFactory implements VariableValueSourceFactory 
 
       @Override
       public boolean hasNext() {
-        return resultEntities.hasNext();
+        return entities.hasNext();
       }
 
       @Override
       public Value next() {
-        if(!hasNext()) {
-          throw new NoSuchElementException();
-        }
+        VariableEntity entity = entities.next();
 
-        String nextEntity = resultEntities.next().getIdentifier();
+        if(valueMap.containsKey(entity.getIdentifier())) return valueMap.get(entity.getIdentifier());
 
+        boolean found = false;
         // Scroll until we find the required entity or reach the end of the results
-        while(hasNextResults && !results.getString(0).equals(nextEntity)) {
+        while(hasNextResults && !found) {
+          String id = results.getString(0);
+          Value value = getValue((Serializable) results.get(2), (Value) results.get(1));
+          valueMap.put(id, value);
+          if(entity.getIdentifier().equals(id)) {
+            found = true;
+          }
           hasNextResults = results.next();
         }
 
-        Value value = null;
-        Serializable valueSetId = null;
-        if(hasNextResults) {
-          value = (Value) results.get(1);
-          valueSetId = (Serializable) results.get(2);
-        }
         closeCursorIfNecessary();
 
+        if(valueMap.containsKey(entity.getIdentifier())) return valueMap.get(entity.getIdentifier());
+        return getVariable().isRepeatable() ? getValueType().nullSequence() : getValueType().nullValue();
+      }
+
+      private Value getValue(Serializable valueSetId, Value value) {
         if(value == null) {
           return getVariable().isRepeatable() ? getValueType().nullSequence() : getValueType().nullValue();
         }
@@ -262,6 +269,7 @@ class HibernateVariableValueSourceFactory implements VariableValueSourceFactory 
               ? BinaryType.get().sequenceOfReferences(factory, value)
               : BinaryType.get().valueOfReference(factory, value);
         }
+
         return value;
       }
 
