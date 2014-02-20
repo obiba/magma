@@ -48,8 +48,7 @@ public class ContinuousVariableSummary extends AbstractVariableSummary implement
 
   public static final int DEFAULT_INTERVALS = 10;
 
-  private static final ImmutableList<Double> DEFAULT_PERCENTILES = ImmutableList
-      .of(0.05d, 0.5d, 5d, 10d, 15d, 20d, 25d, 30d, 35d, 40d, 45d, 50d, 55d, 60d, 65d, 70d, 75d, 80d, 85d, 90d, 95d,
+  static final ImmutableList<Double> DEFAULT_PERCENTILES = ImmutableList.of(0.05d, 0.5d, 5d, 10d, 15d, 20d, 25d, 30d, 35d, 40d, 45d, 50d, 55d, 60d, 65d, 70d, 75d, 80d, 85d, 90d, 95d,
           99.5d, 99.95d);
 
   @NotNull
@@ -80,7 +79,7 @@ public class ContinuousVariableSummary extends AbstractVariableSummary implement
   @Override
   public String getCacheKey(ValueTable table) {
     return ContinuousVariableSummaryFactory
-        .getCacheKey(variable, table, distribution, percentiles, intervals, getOffset(), getLimit());
+        .getCacheKey(variable, table, distribution, defaultPercentiles, intervals, getOffset(), getLimit());
   }
 
   private ContinuousVariableSummary(@NotNull Variable variable, @NotNull Distribution distribution) {
