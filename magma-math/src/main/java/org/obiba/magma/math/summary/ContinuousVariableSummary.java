@@ -162,7 +162,7 @@ public class ContinuousVariableSummary extends AbstractVariableSummary implement
   }
 
   @SuppressWarnings("ParameterHidesMemberVariable")
-  public static class Builder implements VariableSummaryBuilder<ContinuousVariableSummary> {
+  public static class Builder implements VariableSummaryBuilder<ContinuousVariableSummary, Builder> {
 
     private final ContinuousVariableSummary summary;
 
@@ -196,6 +196,7 @@ public class ContinuousVariableSummary extends AbstractVariableSummary implement
       return this;
     }
 
+    @Override
     public Builder addValue(@NotNull Value value) {
       if(addedTable) {
         throw new IllegalStateException("Cannot add value for variable " + summary.getVariable().getName() +
@@ -206,6 +207,7 @@ public class ContinuousVariableSummary extends AbstractVariableSummary implement
       return this;
     }
 
+    @Override
     public Builder addTable(@NotNull ValueTable table, @NotNull ValueSource variableValueSource) {
       if(addedValue) {
         throw new IllegalStateException("Cannot add table for variable " + summary.getVariable().getName() +

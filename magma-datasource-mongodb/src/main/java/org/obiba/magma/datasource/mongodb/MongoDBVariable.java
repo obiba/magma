@@ -15,6 +15,8 @@ import org.obiba.magma.ValueTable;
 import org.obiba.magma.ValueType;
 import org.obiba.magma.Variable;
 
+import com.google.common.base.Objects;
+
 public class MongoDBVariable implements Variable {
 
   private final String id;
@@ -191,4 +193,8 @@ public class MongoDBVariable implements Variable {
     return variable.getVariableReference(table);
   }
 
+  @Override
+  public String toString() {
+    return Objects.toStringHelper(this).add("id", id).addValue(variable).toString();
+  }
 }
