@@ -63,6 +63,11 @@ public class BinaryType extends AbstractValueType {
   }
 
   @Override
+  public boolean isBinary() {
+    return true;
+  }
+
+  @Override
   protected String toString(Object object) {
     return Base64.encodeBytes((byte[]) object);
   }
