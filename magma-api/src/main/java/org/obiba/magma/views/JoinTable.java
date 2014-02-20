@@ -61,6 +61,12 @@ public class JoinTable implements ValueTable, Initialisable {
   private transient final Multimap<JoinableVariable, ValueTable> variableTables = ArrayListMultimap.create();
 
   /**
+   * Map of variable value sources.
+   */
+  @NotNull
+  private transient final Map<String, JoinedVariableValueSource> variableValueSourceMap = Maps.newHashMap();
+
+  /**
    * Map first found JoinableVariable by its name
    */
   @NotNull
@@ -217,17 +223,22 @@ public class JoinTable implements ValueTable, Initialisable {
   public VariableValueSource getVariableValueSource(String variableName) throws NoSuchVariableException {
     if(!variableAnalysed) analyseVariables();
 
-    // find first variable with this name
-    JoinableVariable joinableVariable = getJoinableVariablesByName().get(variableName);
-    if(joinableVariable == null) {
-      throw new NoSuchVariableException(variableName);
+    if(!variableValueSourceMap.containsKey(variableName)) {
+      // find first variable with this name
+      JoinableVariable joinableVariable = getJoinableVariablesByName().get(variableName);
+      if(joinableVariable == null) {
+        throw new NoSuchVariableException(variableName);
+      }
+      List<ValueTable> tablesWithVariable = getTablesWithVariable(joinableVariable);
+      ValueTable table = Iterables.getFirst(tablesWithVariable, null);
+      if(table == null) {
+        throw new NoSuchVariableException(variableName);
+      }
+      variableValueSourceMap.put(variableName,
+          new JoinedVariableValueSource(variableName, tablesWithVariable, table.getVariableValueSource(variableName)));
     }
-    List<ValueTable> tablesWithVariable = getTablesWithVariable(joinableVariable);
-    ValueTable table = Iterables.getFirst(tablesWithVariable, null);
-    if(table == null) {
-      throw new NoSuchVariableException(variableName);
-    }
-    return new JoinedVariableValueSource(variableName, tablesWithVariable, table.getVariableValueSource(variableName));
+
+    return variableValueSourceMap.get(variableName);
   }
 
   @Override
