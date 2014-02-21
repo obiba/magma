@@ -237,7 +237,7 @@ class HibernateVariableValueSourceFactory implements VariableValueSourceFactory 
       public Value next() {
         VariableEntity entity = entities.next();
 
-        if(valueMap.containsKey(entity.getIdentifier())) return valueMap.get(entity.getIdentifier());
+        if(valueMap.containsKey(entity.getIdentifier())) return getValueFromMap(entity);
 
         boolean found = false;
         // Scroll until we find the required entity or reach the end of the results
@@ -253,8 +253,19 @@ class HibernateVariableValueSourceFactory implements VariableValueSourceFactory 
 
         closeCursorIfNecessary();
 
-        if(valueMap.containsKey(entity.getIdentifier())) return valueMap.get(entity.getIdentifier());
+        if(valueMap.containsKey(entity.getIdentifier())) return getValueFromMap(entity);
         return getVariable().isRepeatable() ? getValueType().nullSequence() : getValueType().nullValue();
+      }
+
+      /**
+       * No duplicate of entities, so remove value from map once get.
+       * @param entity
+       * @return
+       */
+      private Value getValueFromMap(VariableEntity entity) {
+        Value value = valueMap.get(entity.getIdentifier());
+        valueMap.remove(entity.getIdentifier());
+        return value;
       }
 
       private Value getValue(Serializable valueSetId, Value value) {

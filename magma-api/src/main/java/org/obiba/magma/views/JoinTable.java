@@ -380,7 +380,7 @@ public class JoinTable implements ValueTable, Initialisable {
     }
   }
 
-  private static class JoinedVariableValueSource extends AbstractVariableValueSourceWrapper {
+  private static class JoinedVariableValueSource extends AbstractVariableValueSourceWrapper implements VectorSource {
 
     @NotNull
     private final List<ValueTable> owners;
@@ -424,10 +424,7 @@ public class JoinTable implements ValueTable, Initialisable {
 
     @Override
     public VectorSource asVectorSource() {
-      if(vectorSource == null) {
-        vectorSource = new JoinedVectorSource(getVariable(), owners);
-      }
-      return vectorSource;
+      return this;
     }
 
     @Override
@@ -448,9 +445,23 @@ public class JoinTable implements ValueTable, Initialisable {
       return result;
     }
 
+    @Override
+    public Iterable<Value> getValues(final SortedSet<VariableEntity> entities) {
+      return new Iterable<Value>() {
+        @Override
+        public Iterator<Value> iterator() {
+          return new ValueIterator(entities, owners, getVariable());
+        }
+      };
+    }
   }
 
-  private static class JoinedVectorSource implements VectorSource {
+  private static class ValueIterator implements Iterator<Value> {
+
+    @NotNull
+    private final SortedSet<VariableEntity> entities;
+
+    private final Iterator<VariableEntity> entitiesIterator;
 
     @NotNull
     private final List<ValueTable> owners;
@@ -458,53 +469,51 @@ public class JoinTable implements ValueTable, Initialisable {
     @NotNull
     private final Variable variable;
 
-    @NotNull
-    private final Map<String, VectorSource> vectorSourcesByTable = Maps.newHashMap();
+    private List<Iterator<Value>> valueIterators = Lists.newArrayList();
 
-    private JoinedVectorSource(Variable variable, List<ValueTable> owners) {
+    private ValueIterator(SortedSet<VariableEntity> entities, List<ValueTable> owners, Variable variable) {
+      this.entities = entities;
       this.owners = owners;
       this.variable = variable;
+      entitiesIterator = entities.iterator();
     }
 
     @Override
-    public ValueType getValueType() {
-      return variable.getValueType();
+    public boolean hasNext() {
+      return entitiesIterator.hasNext();
     }
 
     @Override
-    public Iterable<Value> getValues(SortedSet<VariableEntity> entities) {
-      ArrayList<Value> values = Lists.newArrayList();
-      values.ensureCapacity(entities.size());
-
-      List<Iterator<Value>> vectors = Lists.newArrayList();
-      for(ValueTable table : owners) {
-        vectors.add(getValues(entities, table).iterator());
-      }
-
-      // merge vectors
-      for(VariableEntity entity : entities) {
-        boolean found = false;
-        for(Iterator<Value> vector : vectors) {
-          Value value = vector.next();
-          if(!found && !value.isNull()) {
-            values.add(value);
-            found = true;
-          }
-        }
-        if(!found) {
-          values.add(variable.isRepeatable() ? getValueType().nullSequence() : getValueType().nullValue());
+    public Value next() {
+      // get the value iterator for each table
+      if(valueIterators.isEmpty()) {
+        for(ValueTable table : owners) {
+          VectorSource vSource = table.getVariableValueSource(variable.getName()).asVectorSource();
+          valueIterators.add(vSource.getValues(entities).iterator());
         }
       }
 
-      return values;
+      // increment each value iterators and find first not null value
+      entitiesIterator.next();
+      Value joinedValue = null;
+      for(Iterator<Value> vector : valueIterators) {
+        Value value = vector.next();
+        if(joinedValue == null && !value.isNull()) {
+          joinedValue = value;
+        }
+      }
+      if(joinedValue == null) {
+        joinedValue = variable.isRepeatable()
+            ? variable.getValueType().nullSequence()
+            : variable.getValueType().nullValue();
+      }
+
+      return joinedValue;
     }
 
-    private Iterable<Value> getValues(SortedSet<VariableEntity> entities, ValueTable table) {
-      if(!vectorSourcesByTable.containsKey(table.getTableReference())) {
-        VectorSource vSource = table.getVariableValueSource(variable.getName()).asVectorSource();
-        vectorSourcesByTable.put(table.getTableReference(), vSource);
-      }
-      return vectorSourcesByTable.get(table.getTableReference()).getValues(entities);
+    @Override
+    public void remove() {
+      throw new UnsupportedOperationException();
     }
   }
 
