@@ -106,7 +106,7 @@ public class JavascriptVariableValueSource extends JavascriptValueSource impleme
   protected void enterContext(MagmaContext context, Scriptable scope) {
     super.enterContext(context, scope);
     context.push(ValueTable.class, getValueTable());
-    if(valueTable.isView()) {
+    if(valueTable.isView() && valueTable instanceof View) {
       context.push(View.class, (View) valueTable);
     }
     context.push(Variable.class, variable);
