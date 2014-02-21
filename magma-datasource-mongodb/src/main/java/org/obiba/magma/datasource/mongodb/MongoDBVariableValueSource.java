@@ -134,7 +134,7 @@ public class MongoDBVariableValueSource implements VariableValueSource, VectorSo
     public Value next() {
       VariableEntity entity = entities.next();
 
-      if(valueMap.containsKey(entity.getIdentifier())) return valueMap.get(entity.getIdentifier());
+      if(valueMap.containsKey(entity.getIdentifier())) return getValueFromMap(entity);
 
       boolean found = false;
       while(cursor.hasNext() && !found) {
@@ -144,8 +144,19 @@ public class MongoDBVariableValueSource implements VariableValueSource, VectorSo
         found = id.equals(entity.getIdentifier());
       }
 
-      if(valueMap.containsKey(entity.getIdentifier())) return valueMap.get(entity.getIdentifier());
+      if(valueMap.containsKey(entity.getIdentifier())) return getValueFromMap(entity);
       return ValueConverter.unmarshall(type, repeatable, field, null);
+    }
+
+    /**
+     * No duplicate of entities, so remove value from map once get.
+     * @param entity
+     * @return
+     */
+    private Value getValueFromMap(VariableEntity entity) {
+      Value value = valueMap.get(entity.getIdentifier());
+      valueMap.remove(entity.getIdentifier());
+      return value;
     }
 
     @Override
