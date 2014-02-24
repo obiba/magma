@@ -24,12 +24,14 @@ import org.junit.Test;
 import org.obiba.magma.Category;
 import org.obiba.magma.Datasource;
 import org.obiba.magma.MagmaEngine;
+import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.NoSuchVariableException;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.datasource.spss.support.SpssDatasourceFactory;
+import org.obiba.magma.datasource.spss.support.SpssDatasourceParsingException;
 import org.obiba.magma.support.DatasourceParsingException;
 import org.obiba.magma.support.EntitiesPredicate;
 import org.obiba.magma.type.DecimalType;
@@ -327,6 +329,45 @@ public class SpssDatasourceTest {
     Datasource ds = dsFactory.create();
     ds.initialise();
     assertThat(ds.hasEntities(new EntitiesPredicate.NonViewEntitiesPredicate())).isTrue();
+  }
+
+  @Test(expected = SpssDatasourceParsingException.class)
+  public void testInvalidVariableValueCharset() throws URISyntaxException {
+    dsFactory.setFile(getResourceFile("org/obiba/magma/datasource/spss/invalid-var-value.sav"));
+    Datasource ds = dsFactory.create();
+    ds.initialise();
+    ValueTable valueTable = ds.getValueTable("invalid-var-value");
+    assertThat(valueTable).isNotNull();
+    Iterator<VariableEntity> iterator = valueTable.getVariableEntities().iterator();
+
+    if(iterator.hasNext()) {
+      SpssValueSet valueSet = (SpssValueSet) valueTable.getValueSet(iterator.next());
+      valueSet.getValue(ds.getValueTable("invalid-var-value").getVariable("var1"));
+    }
+  }
+
+  @Test(expected = DatasourceParsingException.class)
+  public void testInvalidVariableCategoryValueCharset() throws URISyntaxException {
+    dsFactory.setFile(getResourceFile("org/obiba/magma/datasource/spss/invalid-category-value.sav"));
+    Datasource ds = dsFactory.create();
+    ds.initialise();
+  }
+
+  @Test
+  public void testInvalidVariableValueType() throws URISyntaxException {
+    dsFactory.setFile(getResourceFile("org/obiba/magma/datasource/spss/invalid-variable-value-type.sav"));
+    Datasource ds = dsFactory.create();
+    ds.initialise();
+    ValueTable valueTable = ds.getValueTable("invalid-variable-value-type");
+    assertThat(valueTable).isNotNull();
+    Iterator<VariableEntity> iterator = valueTable.getVariableEntities().iterator();
+
+    if(iterator.hasNext()) {
+      SpssValueSet valueSet = (SpssValueSet) valueTable.getValueSet(iterator.next());
+      Value v = valueSet.getValue(ds.getValueTable("invalid-variable-value-type").getVariable("var1"));
+      System.out.println(v.getValue());
+    }
+
   }
 
   @SuppressWarnings("ConstantConditions")
