@@ -27,8 +27,10 @@ public class SpssVariableValueFactory extends SpssValueFactory {
     try {
       return createValue();
     } catch(SpssInvalidCharacterException e) {
-      throw new DatasourceParsingException("Failed to create variable", "InvalidCharsetCharacter", variableIndex,
-          e.getSource());
+      String variableName = spssVariable.getName();
+
+      throw new SpssDatasourceParsingException("Invalid characters in variable value.",e, variableIndex,
+          variableName, "InvalidCharsetCharacter", variableIndex, e.getSource());
     }
   }
 
@@ -37,7 +39,9 @@ public class SpssVariableValueFactory extends SpssValueFactory {
     try {
       return spssVariable.getValueAsString(variableIndex, new FileFormatInfo(FileFormatInfo.Format.ASCII));
     } catch(SPSSFileException e) {
-      throw new DatasourceParsingException(e.getMessage(), "TableDefinitionErrors", spssVariable.getName());
+      String variableName = spssVariable.getName();
+      throw new SpssDatasourceParsingException("Failed to create variable: " + e.getMessage(), variableIndex,
+          variableName, "TableDefinitionErrors", variableName);
     }
   }
 }
