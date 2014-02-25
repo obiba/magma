@@ -220,7 +220,7 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
 
   @Override
   public int getValueSetCount() {
-    return Iterables.size(getValueSets());
+    return getVariableEntityCount();
   }
 
   @Override

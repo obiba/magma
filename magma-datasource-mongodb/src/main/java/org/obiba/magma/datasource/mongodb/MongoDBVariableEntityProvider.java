@@ -21,7 +21,9 @@ import org.obiba.magma.support.VariableEntityProvider;
 
 import com.google.common.collect.ImmutableSet;
 import com.mongodb.BasicDBObject;
+import com.mongodb.BasicDBObjectBuilder;
 import com.mongodb.DBCursor;
+import com.mongodb.DBObject;
 
 class MongoDBVariableEntityProvider implements VariableEntityProvider {
 
@@ -65,9 +67,10 @@ class MongoDBVariableEntityProvider implements VariableEntityProvider {
 
   private Set<VariableEntity> loadEntities() {
     ImmutableSet.Builder<VariableEntity> builder = ImmutableSet.builder();
-    try(DBCursor cursor = table.getValueSetCollection().find(new BasicDBObject())) {
+    try(DBCursor cursor = table.getValueSetCollection().find(new BasicDBObject(), BasicDBObjectBuilder.start("_id", 1).get())) {
       while(cursor.hasNext()) {
-        builder.add(new VariableEntityBean(getEntityType(), cursor.next().get("_id").toString()));
+        DBObject next = cursor.next();
+        builder.add(new VariableEntityBean(getEntityType(), next.get("_id").toString()));
       }
     }
     return builder.build();
