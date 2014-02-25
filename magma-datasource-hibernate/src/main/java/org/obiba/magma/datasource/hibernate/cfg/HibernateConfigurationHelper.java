@@ -15,6 +15,7 @@ import org.obiba.magma.datasource.hibernate.domain.VariableState;
 
 import com.google.common.collect.ImmutableSet;
 
+@SuppressWarnings("StaticMethodOnlyUsedInOneClass")
 public class HibernateConfigurationHelper {
 
   private final static Set<Class<?>> ANNOTATED_TYPES = new ImmutableSet.Builder<Class<?>>()

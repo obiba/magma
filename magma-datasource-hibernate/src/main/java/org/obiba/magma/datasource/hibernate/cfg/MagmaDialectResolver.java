@@ -12,7 +12,6 @@ package org.obiba.magma.datasource.hibernate.cfg;
 import org.hibernate.dialect.Dialect;
 import org.hibernate.dialect.HSQLDialect;
 import org.hibernate.dialect.MySQL5Dialect;
-import org.hibernate.dialect.MySQL5InnoDBDialect;
 import org.hibernate.engine.jdbc.dialect.internal.StandardDialectResolver;
 import org.hibernate.engine.jdbc.dialect.spi.DialectResolutionInfo;
 
@@ -30,7 +29,7 @@ public class MagmaDialectResolver extends StandardDialectResolver {
   @SuppressWarnings("ChainOfInstanceofChecks")
   public Dialect resolveDialect(DialectResolutionInfo info) {
     Dialect dialect = super.resolveDialect(info);
-    if(dialect instanceof MySQL5Dialect) return new MySQL5InnoDBDialect();
+    if(dialect instanceof MySQL5Dialect) return new MySQL5InnoDbUtf8Dialect();
     if(dialect instanceof HSQLDialect) return new MagmaHSQLDialect();
     return dialect;
   }
