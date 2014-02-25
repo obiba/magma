@@ -388,8 +388,6 @@ public class JoinTable implements ValueTable, Initialisable {
     @NotNull
     private final String variableName;
 
-    private VectorSource vectorSource;
-
     private JoinedVariableValueSource(@NotNull String variableName, @NotNull List<ValueTable> owners,
         @NotNull VariableValueSource wrapped) {
       super(wrapped);
