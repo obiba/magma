@@ -10,6 +10,7 @@ public class SpringBeanSessionFactoryProvider implements SessionFactoryProvider 
   private String beanName;
 
   @Autowired
+  @SuppressWarnings("TransientFieldInNonSerializableClass")
   private transient BeanFactory beanFactory;
 
   // Public ctor for XStream de-ser.

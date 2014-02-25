@@ -8,10 +8,10 @@ import java.lang.reflect.AnnotatedElement;
 import javax.sql.DataSource;
 
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.TestContext;
 import org.springframework.test.context.TestExecutionListener;
-import org.springframework.test.jdbc.SimpleJdbcTestUtils;
+import org.springframework.test.jdbc.JdbcTestUtils;
 
 public class SchemaTestExecutionListener implements TestExecutionListener {
   //
@@ -57,13 +57,12 @@ public class SchemaTestExecutionListener implements TestExecutionListener {
     DataSource dataSource = (DataSource) testContext.getApplicationContext()
         .getBean(testSchemaAnnotation.dataSourceBean());
     String sqlScript = before ? testSchemaAnnotation.beforeSchema() : testSchemaAnnotation.afterSchema();
-    if(sqlScript.length() != 0) {
+    if(!sqlScript.isEmpty()) {
       String schemaLocation = testSchemaAnnotation.schemaLocation();
-      if(schemaLocation.length() != 0) {
+      if(!schemaLocation.isEmpty()) {
         sqlScript = schemaLocation + "/" + sqlScript;
       }
-
-      SimpleJdbcTestUtils.executeSqlScript(new SimpleJdbcTemplate(dataSource), new ClassPathResource(sqlScript), true);
+      JdbcTestUtils.executeSqlScript(new JdbcTemplate(dataSource), new ClassPathResource(sqlScript), true);
     }
   }
 }

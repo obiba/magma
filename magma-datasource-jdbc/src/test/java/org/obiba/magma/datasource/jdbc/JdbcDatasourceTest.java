@@ -37,8 +37,8 @@ import org.springframework.test.context.transaction.TransactionalTestExecutionLi
 import static org.fest.assertions.api.Assertions.assertThat;
 
 @SuppressWarnings({ "ReuseOfLocalVariable", "OverlyLongMethod", "PMD.NcssMethodCount" })
-@RunWith(value = SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = { "/test-spring-context.xml" })
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration("/test-spring-context.xml")
 @TransactionConfiguration
 @TestExecutionListeners({ DependencyInjectionTestExecutionListener.class, DirtiesContextTestExecutionListener.class,
     TransactionalTestExecutionListener.class, SchemaTestExecutionListener.class,
@@ -230,4 +230,5 @@ public class JdbcDatasourceTest extends AbstractMagmaTest {
     }
     return false;
   }
+
 }

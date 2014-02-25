@@ -23,11 +23,11 @@
     <property name="packagesToScan" value="org.obiba.magma.datasource.hibernate.domain"/>
     <property name="hibernateProperties">
       <props>
-        <prop key="hibernate.dialect">${jdbc.dialect}</prop>
         <prop key="hibernate.hbm2ddl.auto">create</prop>
         <prop key="hibernate.cache.use_query_cache">true</prop>
         <prop key="hibernate.cache.use_second_level_cache">true</prop>
         <prop key="hibernate.cache.region.factory_class">org.hibernate.cache.ehcache.EhCacheRegionFactory</prop>
+        <prop key="hibernate.dialect_resolvers">org.obiba.magma.datasource.hibernate.cfg.MagmaDialectResolver</prop>
       </props>
     </property>
   </bean>

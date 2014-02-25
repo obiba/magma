@@ -13,6 +13,7 @@ import org.obiba.magma.Initialisable;
 import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.datasource.hibernate.SessionFactoryProvider;
 import org.obiba.magma.datasource.hibernate.cfg.HibernateConfigurationHelper;
+import org.obiba.magma.datasource.hibernate.cfg.MagmaDialectResolver;
 import org.springframework.orm.hibernate4.LocalSessionFactoryBuilder;
 
 public class LocalSessionFactoryProvider implements SessionFactoryProvider, Initialisable {
@@ -48,6 +49,7 @@ public class LocalSessionFactoryProvider implements SessionFactoryProvider, Init
     builder.setProperty(Environment.USE_SECOND_LEVEL_CACHE, "true");
     builder.setProperty(Environment.USE_QUERY_CACHE, "true");
     builder.setProperty(Environment.CACHE_REGION_FACTORY, "org.hibernate.cache.ehcache.SingletonEhCacheRegionFactory");
+    builder.setProperty(Environment.DIALECT_RESOLVERS, MagmaDialectResolver.class.getName());
     if(jtaTransactionManager != null) builder.setJtaTransactionManager(jtaTransactionManager);
 
     // we want to store byte[] as oid instead of bytea.
