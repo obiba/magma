@@ -33,7 +33,7 @@ public class SpssDatasourceParsingException extends DatasourceParsingException {
   }
 
   public SpssDatasourceParsingException metadataInfo(String variableName, int variableIndex) {
-    variableInfo = String.format(" (Metadata info: variable='%s' @ row='%d')", variableName, variableIndex);
+    variableInfo = String.format(" (Variable info: name='%s' @ row='%d')", variableName, variableIndex);
     return this;
   }
 
