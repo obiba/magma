@@ -4,31 +4,42 @@ import javax.annotation.Nullable;
 
 import org.obiba.magma.support.DatasourceParsingException;
 
+import com.google.common.base.Strings;
+
 public class SpssDatasourceParsingException extends DatasourceParsingException {
 
   private static final long serialVersionUID = -3197572243597757771L;
+  private String variableInfo;
+  private String extraInfo;
 
   public SpssDatasourceParsingException(String message, String messageKey, @Nullable Object... parameters) {
     super(message, messageKey, parameters);
   }
 
-  public SpssDatasourceParsingException(String message, SpssInvalidCharacterException e, int variableIndex,
-      String variableName, String messageKey, Object... parameters) {
-    this(message + buildInvalidCharacterInfo(e) + buildVariableInfo(variableIndex, variableName), messageKey,
-        parameters);
+  @Override
+  public String getMessage() {
+    return super.getMessage() + (Strings.isNullOrEmpty(variableInfo) ? "" : variableInfo) +
+        (Strings.isNullOrEmpty(extraInfo) ? "" : extraInfo);
   }
 
-  public SpssDatasourceParsingException(String message, int variableIndex, String variableName, String messageKey,
-      Object... parameters) {
-    this(message + buildVariableInfo(variableIndex, variableName), messageKey, parameters);
+  public SpssDatasourceParsingException extraInfo(SpssInvalidCharacterException e) {
+    extraInfo = String.format(" (String with invalid characters: '%s')", e.getSource());
+    return this;
   }
 
-  private static String buildVariableInfo(int variableIndex, String variableName) {
-    return " (row: '" + variableIndex + "' variable: '" + variableName +"')";
+  public SpssDatasourceParsingException extraInfo(String extra) {
+    extraInfo = String.format(" ('%s')", extra);
+    return this;
   }
 
-  private static String buildInvalidCharacterInfo(SpssInvalidCharacterException e) {
-    return " (invalid string '" + e.getSource() + "')";
+  public SpssDatasourceParsingException metadataInfo(String variableName, int variableIndex) {
+    variableInfo = String.format(" (Metadata info: variable='%s' @ row='%d')", variableName, variableIndex);
+    return this;
+  }
+
+  public SpssDatasourceParsingException dataInfo(String variableName, int variableIndex) {
+    variableInfo = String.format(" (Data info: variable='%s' @ row='%d')", variableName, variableIndex);
+    return this;
   }
 
 }

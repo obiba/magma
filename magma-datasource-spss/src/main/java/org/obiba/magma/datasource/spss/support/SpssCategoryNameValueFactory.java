@@ -30,9 +30,10 @@ public class SpssCategoryNameValueFactory extends SpssValueFactory {
       return createValue();
     } catch(SpssInvalidCharacterException e) {
       String variableName = spssVariable.getName();
-      throw new SpssDatasourceParsingException(
-          "Invalid characters found for category '" + category + "'.", e, variableIndex, variableName,
-          "InvalidCategoryCharsetCharacter", variableIndex, variableName, e.getSource());
+      int index = variableIndex + 1;
+      throw new SpssDatasourceParsingException("Invalid characters found for category '" + category,
+          "InvalidCategoryCharsetCharacter", index, variableName, e).metadataInfo(variableName, index)
+          .extraInfo(e);
     }
   }
 

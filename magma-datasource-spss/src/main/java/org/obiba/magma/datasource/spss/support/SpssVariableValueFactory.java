@@ -9,6 +9,7 @@
  */
 package org.obiba.magma.datasource.spss.support;
 
+import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueType;
 import org.obiba.magma.support.DatasourceParsingException;
@@ -28,9 +29,12 @@ public class SpssVariableValueFactory extends SpssValueFactory {
       return createValue();
     } catch(SpssInvalidCharacterException e) {
       String variableName = spssVariable.getName();
-
-      throw new SpssDatasourceParsingException("Invalid characters in variable value.",e, variableIndex,
-          variableName, "InvalidCharsetCharacter", variableIndex, e.getSource());
+      throw new SpssDatasourceParsingException("Invalid characters in variable value.", "InvalidCharsetCharacter",
+          variableIndex, e.getSource()).dataInfo(variableName, variableIndex).extraInfo(e);
+    } catch(MagmaRuntimeException e) {
+      String variableName = spssVariable.getName();
+      throw new SpssDatasourceParsingException("Failed to create variable value", "InvalidCharsetCharacter",
+          variableIndex).dataInfo(variableName, variableIndex).extraInfo(e.getMessage());
     }
   }
 
@@ -40,8 +44,8 @@ public class SpssVariableValueFactory extends SpssValueFactory {
       return spssVariable.getValueAsString(variableIndex, new FileFormatInfo(FileFormatInfo.Format.ASCII));
     } catch(SPSSFileException e) {
       String variableName = spssVariable.getName();
-      throw new SpssDatasourceParsingException("Failed to create variable: " + e.getMessage(), variableIndex,
-          variableName, "TableDefinitionErrors", variableName);
+      throw new SpssDatasourceParsingException("Failed to retieve variable value.", "TableDefinitionErrors",
+          variableName).dataInfo(variableName, variableIndex).extraInfo(e.getMessage());
     }
   }
 }

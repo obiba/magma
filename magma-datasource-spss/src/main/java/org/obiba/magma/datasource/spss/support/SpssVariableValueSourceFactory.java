@@ -73,8 +73,8 @@ public class SpssVariableValueSourceFactory implements VariableValueSourceFactor
       } catch(SpssInvalidCharacterException e) {
         String variableName = spssVariable.getName();
         int variableIndex = i + 1;
-        throw new SpssDatasourceParsingException("Failed to create variable value source.", e, variableIndex, variableName,
-            "InvalidCharsetCharacter", variableIndex, e.getSource());
+        throw new SpssDatasourceParsingException("Failed to create variable value source.", "InvalidCharsetCharacter",
+            variableIndex, e.getSource()).metadataInfo(variableName, variableIndex).extraInfo(e);
       }
     }
 
