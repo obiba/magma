@@ -30,12 +30,14 @@ import org.obiba.magma.ValueTable;
 import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.datasource.spss.support.SpssDatasourceFactory;
+import org.obiba.magma.datasource.spss.support.SpssDatasourceParsingException;
 import org.obiba.magma.support.DatasourceParsingException;
 import org.obiba.magma.support.EntitiesPredicate;
 import org.obiba.magma.type.DecimalType;
 import org.obiba.magma.type.TextType;
 
 import static org.fest.assertions.api.Assertions.assertThat;
+import static org.junit.Assert.fail;
 
 public class SpssDatasourceTest {
 
@@ -54,21 +56,21 @@ public class SpssDatasourceTest {
   }
 
   @Test
-  public void createDatasourceWithValidFile() throws Exception {
+  public void testCreateDatasourceWithValidFile() throws Exception {
     dsFactory.setFile(getResourceFile("org/obiba/magma/datasource/spss/DatabaseTest.sav"));
     Datasource ds = dsFactory.create();
     assertThat(SpssDatasourceFactory.DEFAULT_DATASOURCE_NAME).isEqualTo(ds.getName());
   }
 
   @Test
-  public void createDatasourceWithInvalidFile() throws Exception {
+  public void textCreateDatasourceWithInvalidFile() throws Exception {
     dsFactory.setFile(getResourceFile("org/obiba/magma/datasource/spss/DatabaseTest.sav"));
     Datasource ds = dsFactory.create();
     assertThat(SpssDatasourceFactory.DEFAULT_DATASOURCE_NAME).isEqualTo(ds.getName());
   }
 
   @Test
-  public void createDatasourceWithTwoFiles() throws Exception {
+  public void testCreateDatasourceWithTwoFiles() throws Exception {
     File file1 = getResourceFile("org/obiba/magma/datasource/spss/DatabaseTest.sav");
     File file2 = getResourceFile("org/obiba/magma/datasource/spss/StringCategories.sav");
 
@@ -80,7 +82,7 @@ public class SpssDatasourceTest {
   }
 
   @Test
-  public void initilizeDatasourceWithValidFile() throws Exception {
+  public void testInitilizeDatasourceWithValidFile() throws Exception {
     dsFactory.setFile(getResourceFile("org/obiba/magma/datasource/spss/DatabaseTest.sav"));
     Datasource ds = dsFactory.create();
     ds.initialise();
@@ -88,22 +90,22 @@ public class SpssDatasourceTest {
   }
 
   @Test(expected = DatasourceParsingException.class)
-  public void initilizeDatasourceWithInvalidFile() throws Exception {
+  public void testInitilizeDatasourceWithInvalidFile() throws Exception {
     dsFactory.setFile("org/obiba/magma/datasource/spss/DatabaseTest");
     Datasource ds = dsFactory.create();
     ds.initialise();
   }
 
   @Test
-  public void getValueTableDatasourceWithValidFile() throws Exception {
-    dsFactory.setFile(getResourceFile("org/obiba/magma/datasource/spss/StringCategories.sav"));
+  public void testGetValueTableDatasourceWithValidFile() throws Exception {
+    dsFactory.setFile(getResourceFile("org/obiba/magma/datasource/spss/DatabaseTest.sav"));
     Datasource ds = dsFactory.create();
     ds.initialise();
-    assertThat(ds.getValueTable("StringCategories")).isNotNull();
+    assertThat(ds.getValueTable("DatabaseTest")).isNotNull();
   }
 
   @Test
-  public void getValueTableDatasourceWithColonFileName() throws Exception {
+  public void testGetValueTableDatasourceWithColonFileName() throws Exception {
     dsFactory.setFile(getResourceFile("org/obiba/magma/datasource/spss/Database:Test.sav"));
     Datasource ds = dsFactory.create();
     ds.initialise();
@@ -111,7 +113,7 @@ public class SpssDatasourceTest {
   }
 
   @Test
-  public void getVariableFromValueTable() throws Exception {
+  public void testGetVariableFromValueTable() throws Exception {
     dsFactory.setFile(getResourceFile("org/obiba/magma/datasource/spss/DatabaseTest.sav"));
     Datasource ds = dsFactory.create();
     ds.initialise();
@@ -119,57 +121,57 @@ public class SpssDatasourceTest {
   }
 
   @Test
-  public void getVariableFromValueTableWithFrenchChars() throws Exception {
-    dsFactory.setFile(getResourceFile("org/obiba/magma/datasource/spss/dictionnaire_variablesT4-simple.sav"));
+  public void testGetVariableFromValueTableWithFrenchChars() throws Exception {
+    dsFactory.setFile(getResourceFile("org/obiba/magma/datasource/spss/dictionnaire_variables-french-characters.sav"));
     Datasource ds = dsFactory.create();
     ds.initialise();
-    assertThat(ds.getValueTable("dictionnaire_variablesT4-simple").getVariable("ETATCIT4")).isNotNull();
+    assertThat(ds.getValueTable("dictionnaire_variables-french-characters").getVariable("ETATCIT4")).isNotNull();
   }
 
   @Test(expected = NoSuchVariableException.class)
-  public void getVariableInUpperCaseFromValueTable() throws Exception {
-    dsFactory.setFile(getResourceFile("org/obiba/magma/datasource/spss/DatabaseTest.sav"));
-    Datasource ds = dsFactory.create();
-    ds.initialise();
-    assertThat(ds.getValueTable("DatabaseTest").getVariable("RACE")).isNotNull();
-  }
-
-  @Test(expected = NoSuchVariableException.class)
-  public void getInvalidVariableFromValueTable() throws Exception {
+  public void testGetInvalidVariableFromValueTable() throws Exception {
     dsFactory.setFile(getResourceFile("org/obiba/magma/datasource/spss/DatabaseTest.sav"));
     Datasource ds = dsFactory.create();
     ds.initialise();
     assertThat(ds.getValueTable("DatabaseTest").getVariable("blabla")).isNotNull();
   }
 
-  @Test
-  public void getDecimalVariableTypeFromValueTable() throws Exception {
-    dsFactory.setFile(getResourceFile("org/obiba/magma/datasource/spss/RobotChicken.sav"));
+  @Test(expected = NoSuchVariableException.class)
+  public void testGetVariableInUpperCaseFromValueTable() throws Exception {
+    dsFactory.setFile(getResourceFile("org/obiba/magma/datasource/spss/DatabaseTest.sav"));
     Datasource ds = dsFactory.create();
     ds.initialise();
-    assertThat(ds.getValueTable("RobotChicken").getVariable("VarDecimal").getValueType())
+    assertThat(ds.getValueTable("DatabaseTest").getVariable("RACE")).isNotNull();
+  }
+
+  @Test
+  public void testGetDecimalVariableTypeFromValueTable() throws Exception {
+    dsFactory.setFile(getResourceFile("org/obiba/magma/datasource/spss/spss-variable-types.sav"));
+    Datasource ds = dsFactory.create();
+    ds.initialise();
+    assertThat(ds.getValueTable("spss-variable-types").getVariable("VarDecimal").getValueType())
         .isInstanceOf(DecimalType.class);
   }
 
   @Test
-  public void getQYDVariableTypeFromValueTable() throws Exception {
-    dsFactory.setFile(getResourceFile("org/obiba/magma/datasource/spss/RobotChicken.sav"));
+  public void testGetQYDVariableTypeFromValueTable() throws Exception {
+    dsFactory.setFile(getResourceFile("org/obiba/magma/datasource/spss/spss-variable-types.sav"));
     Datasource ds = dsFactory.create();
     ds.initialise();
-    assertThat(ds.getValueTable("RobotChicken").getVariable("VarQuarterly").getValueType())
+    assertThat(ds.getValueTable("spss-variable-types").getVariable("VarQuarterly").getValueType())
         .isInstanceOf(TextType.class);
   }
 
   @Test
-  public void getCustomCurrencyVariableTypeFromValueTable() throws Exception {
-    dsFactory.setFile(getResourceFile("org/obiba/magma/datasource/spss/RobotChicken.sav"));
+  public void testGetCustomCurrencyVariableTypeFromValueTable() throws Exception {
+    dsFactory.setFile(getResourceFile("org/obiba/magma/datasource/spss/spss-variable-types.sav"));
     Datasource ds = dsFactory.create();
     ds.initialise();
-    assertThat(ds.getValueTable("RobotChicken").getVariable("VarCurrency").getValueType()).isInstanceOf(TextType.class);
+    assertThat(ds.getValueTable("spss-variable-types").getVariable("VarCurrency").getValueType()).isInstanceOf(TextType.class);
   }
 
   @Test
-  public void getVariableEntitiesVariableEntityProvider() throws Exception {
+  public void testGetVariableEntitiesVariableEntityProvider() throws Exception {
     dsFactory.setFile(getResourceFile("org/obiba/magma/datasource/spss/DatabaseTest.sav"));
     Datasource ds = dsFactory.create();
     ds.initialise();
@@ -181,7 +183,7 @@ public class SpssDatasourceTest {
   }
 
   @Test
-  public void getValueSetForGivenEntity() throws Exception {
+  public void testGetValueSetForGivenEntity() throws Exception {
     dsFactory.setFile(getResourceFile("org/obiba/magma/datasource/spss/DatabaseTest.sav"));
     Datasource ds = dsFactory.create();
     ds.initialise();
@@ -198,27 +200,27 @@ public class SpssDatasourceTest {
       assertThat(value.compareTo(expected)).isEqualTo(0);
     }
   }
+//  TODO comment out until we find a large file.
+//  @Test
+//  public void testGetValueSetForGivenEntityLargeDatasource() throws Exception {
+//    dsFactory.setFile(getResourceFile("org/obiba/magma/datasource/spss/large-file.sav"));
+//    Datasource ds = dsFactory.create();
+//    ds.initialise();
+//    ValueTable valueTable = ds.getValueTable("large-file");
+//    Iterator<VariableEntity> iterator = valueTable.getVariableEntities().iterator();
+//
+//    if(iterator.hasNext()) {
+//      SpssValueSet valueSet = (SpssValueSet) valueTable.getValueSet(iterator.next());
+//      Value value = valueSet.getValue(ds.getValueTable("large-file").getVariable("id"));
+//      assertThat(value).isNotNull();
+//      assertThat(value.isNull()).isFalse();
+//      Value expected = TextType.get().valueOf("var001");
+//      assertThat(value.compareTo(expected)).isEqualTo(0);
+//    }
+//  }
 
   @Test
-  public void getValueSetForGivenEntityLargeDatasource() throws Exception {
-    dsFactory.setFile(getResourceFile("org/obiba/magma/datasource/spss/DatabaseTest.sav"));
-    Datasource ds = dsFactory.create();
-    ds.initialise();
-    ValueTable valueTable = ds.getValueTable("DatabaseTest");
-    Iterator<VariableEntity> iterator = valueTable.getVariableEntities().iterator();
-
-    if(iterator.hasNext()) {
-      SpssValueSet valueSet = (SpssValueSet) valueTable.getValueSet(iterator.next());
-      Value value = valueSet.getValue(ds.getValueTable("DatabaseTest").getVariable("race"));
-      assertThat(value).isNotNull();
-      assertThat(value.isNull()).isFalse();
-      Value expected = DecimalType.get().valueOf(4.0);
-      assertThat(value.compareTo(expected)).isEqualTo(0);
-    }
-  }
-
-  @Test
-  public void getStringVariableCategories() throws Exception {
+  public void testGetStringVariableCategories() throws Exception {
     dsFactory.setFile(getResourceFile("org/obiba/magma/datasource/spss/StringCategories.sav"));
     Datasource ds = dsFactory.create();
     ds.initialise();
@@ -327,6 +329,123 @@ public class SpssDatasourceTest {
     Datasource ds = dsFactory.create();
     ds.initialise();
     assertThat(ds.hasEntities(new EntitiesPredicate.NonViewEntitiesPredicate())).isTrue();
+  }
+
+  @Test
+  public void testInvalidVariableValueCharset() throws URISyntaxException {
+    try {
+      dsFactory.setFile(getResourceFile("org/obiba/magma/datasource/spss/invalid-var-value.sav"));
+      Datasource ds = dsFactory.create();
+      ds.initialise();
+      ValueTable valueTable = ds.getValueTable("invalid-var-value");
+      assertThat(valueTable).isNotNull();
+      Iterator<VariableEntity> iterator = valueTable.getVariableEntities().iterator();
+
+      if(iterator.hasNext()) {
+        SpssValueSet valueSet = (SpssValueSet) valueTable.getValueSet(iterator.next());
+        valueSet.getValue(ds.getValueTable("invalid-var-value").getVariable("var1"));
+      }
+      fail("Must have thrown DatasourceParsingException");
+    } catch(SpssDatasourceParsingException e) {
+      assertThat(e.getMessage()).startsWith("Invalid characters in variable value")
+          .contains("(Data info: variable='var1'").contains("String with invalid characters");
+    }
+
+  }
+
+  @Test
+  public void testInvalidVariableCategoryValueCharset() throws URISyntaxException {
+    try {
+      dsFactory.setFile(getResourceFile("org/obiba/magma/datasource/spss/invalid-category-value.sav"));
+      Datasource ds = dsFactory.create();
+      ds.initialise();
+    } catch(DatasourceParsingException e) {
+      assertThat(e.hasChildren()).isTrue();
+      for(DatasourceParsingException ch : e.getChildren()) {
+        assertThat(ch.getMessage()).startsWith("Failed to create variable value source.")
+            .contains("(Variable info: name='var1'").contains("(String with invalid characters");
+      }
+    }
+  }
+
+  @Test
+  public void testInvalidVariableCategoryNameCharset() throws URISyntaxException {
+    try {
+      dsFactory.setFile(getResourceFile("org/obiba/magma/datasource/spss/invalid-category-name.sav"));
+      Datasource ds = dsFactory.create();
+      ds.initialise();
+      fail("Must have thrown DatasourceParsingException");
+    } catch(DatasourceParsingException e) {
+      assertThat(e.hasChildren()).isTrue();
+      for(DatasourceParsingException ch : e.getChildren()) {
+        assertThat(ch.getMessage()).startsWith("Invalid characters found for category")
+            .contains("(Variable info: name='var1'").contains("String with invalid characters");
+      }
+    }
+  }
+
+  @Test(expected = NullPointerException.class)
+  public void testVariableValueOverflow() throws URISyntaxException {
+    dsFactory.setFile(getResourceFile("org/obiba/magma/datasource/spss/variable-value-overflow.sav"));
+    Datasource ds = dsFactory.create();
+    ds.initialise();
+    ValueTable valueTable = ds.getValueTable("variable-value-overflow");
+    assertThat(valueTable).isNotNull();
+    Iterator<VariableEntity> iterator = valueTable.getVariableEntities().iterator();
+
+    if(iterator.hasNext()) {
+      SpssValueSet valueSet = (SpssValueSet) valueTable.getValueSet(iterator.next());
+      Value v = valueSet.getValue(ds.getValueTable("variable-value-overflow").getVariable("var1"));
+      v.getValue();
+    }
+
+  }
+
+  @Test
+  public void testInvalidEntityVariable() throws URISyntaxException {
+    try {
+      dsFactory.setFile(getResourceFile("org/obiba/magma/datasource/spss/invalid-entity-variable.sav"));
+      Datasource ds = dsFactory.create();
+      ds.initialise();
+      ValueTable valueTable = ds.getValueTable("invalid-entity-variable");
+      assertThat(valueTable).isNotNull();
+      valueTable.getVariableEntities().iterator();
+      fail("Must have thrown DatasourceParsingException");
+    } catch(SpssDatasourceParsingException e) {
+      assertThat(e.getMessage()).startsWith("Invalid characters in variable value")
+          .contains("(Data info: variable='var1'").contains("String with invalid characters");
+    }
+
+  }
+
+  @Test
+  public void testInvalidVariableAttribute() throws Exception {
+    try {
+      dsFactory.addFile(getResourceFile("org/obiba/magma/datasource/spss/invalid-variable-attribute.sav"));
+      Datasource ds = dsFactory.create();
+      ds.initialise();
+    } catch(DatasourceParsingException e) {
+      assertThat(e.hasChildren()).isTrue();
+      for(DatasourceParsingException ch : e.getChildren()) {
+        assertThat(ch.getMessage()).startsWith("Failed to create variable value source.")
+            .contains("(Variable info: name='var1'").contains("String with invalid characters");
+      }
+    }
+  }
+
+  @Test
+  public void testInvalidMissingValue() throws Exception {
+    try {
+      dsFactory.addFile(getResourceFile("org/obiba/magma/datasource/spss/invalid-missing-value.sav"));
+      Datasource ds = dsFactory.create();
+      ds.initialise();
+    } catch(DatasourceParsingException e) {
+      assertThat(e.hasChildren()).isTrue();
+      for(DatasourceParsingException ch : e.getChildren()) {
+        assertThat(ch.getMessage()).startsWith("Invalid characters found for category")
+            .contains("(Variable info: name='var1'").contains("String with invalid characters");
+      }
+    }
   }
 
   @SuppressWarnings("ConstantConditions")
