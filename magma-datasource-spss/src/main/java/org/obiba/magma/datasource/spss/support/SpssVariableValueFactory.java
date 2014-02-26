@@ -33,8 +33,8 @@ public class SpssVariableValueFactory extends SpssValueFactory {
           variableIndex, e.getSource()).dataInfo(variableName, variableIndex).extraInfo(e);
     } catch(MagmaRuntimeException e) {
       String variableName = spssVariable.getName();
-      throw new SpssDatasourceParsingException("Failed to create variable value", "InvalidCharsetCharacter",
-          variableIndex).dataInfo(variableName, variableIndex).extraInfo(e.getMessage());
+      throw new SpssDatasourceParsingException("Failed to create variable value", "SpssFailedToCreateVariable",
+          variableName, variableIndex).dataInfo(variableName, variableIndex).extraInfo(e.getMessage());
     }
   }
 
@@ -44,8 +44,8 @@ public class SpssVariableValueFactory extends SpssValueFactory {
       return spssVariable.getValueAsString(variableIndex, new FileFormatInfo(FileFormatInfo.Format.ASCII));
     } catch(SPSSFileException e) {
       String variableName = spssVariable.getName();
-      throw new SpssDatasourceParsingException("Failed to retieve variable value.", "TableDefinitionErrors",
-          variableName).dataInfo(variableName, variableIndex).extraInfo(e.getMessage());
+      throw new SpssDatasourceParsingException("Failed to retieve variable value.", "SpssFailedToCreateVariable",
+          variableName, variableIndex).dataInfo(variableName, variableIndex).extraInfo(e.getMessage());
     }
   }
 }

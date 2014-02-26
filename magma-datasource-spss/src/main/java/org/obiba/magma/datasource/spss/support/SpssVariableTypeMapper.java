@@ -49,11 +49,11 @@ public class SpssVariableTypeMapper {
       case SCIENTIFIC: // scientific notation
         return DecimalType.get();
 
-      case ADATE: // Date in mm/dd/yy or mm/dd/yyyy
       case EDATE: // Date in dd.mm.yy or dd.mm.yyyy
       case SDATE: // Date in yyyy/mm/dd or yy/mm/dd (?)
         return DateType.get();
 
+      case ADATE: // Date in mm/dd/yy or mm/dd/yyyy
       case DATETIME: // DateTime in dd-mmm-yyyy hh:mm, dd-mmm-yyyy hh:mm:ss or dd-mmm-yyyy hh:mm:ss.ss
       case DATE: // Date dd-mmm-yyyy or dd-mmm-yy
       case TIME: // Time in hh:mm, hh:mm:ss or hh:mm:ss.ss

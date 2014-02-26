@@ -26,7 +26,7 @@ public final class CharacterSetValidator {
 
     for(int i = 0; i < source.length(); i++) {
       if(!isPrintableChar(source.charAt(i))) {
-        throw new SpssInvalidCharacterException("String contains a non-printable character'", source);
+        throw new SpssInvalidCharacterException("String contains a non-printable character.", source);
       }
     }
 
