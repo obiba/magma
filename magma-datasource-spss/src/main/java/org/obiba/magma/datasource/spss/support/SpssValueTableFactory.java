@@ -59,7 +59,7 @@ public class SpssValueTableFactory {
       return new SpssValueTable(datasource, name, entityType, locale, spssFile);
     } catch(IOException e) {
       String fileName = file.getName();
-      throw new DatasourceParsingException("Failed to create ValueTable, could not open file " + fileName,
+      throw new DatasourceParsingException("Could not open file " + fileName + " to create ValueTable.", e,
           "FailedToOpenFile", fileName);
     }
   }

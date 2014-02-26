@@ -20,7 +20,9 @@ import java.util.Set;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.obiba.magma.Category;
 import org.obiba.magma.Datasource;
 import org.obiba.magma.MagmaEngine;
@@ -32,6 +34,7 @@ import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.datasource.spss.support.SpssDatasourceFactory;
 import org.obiba.magma.datasource.spss.support.SpssDatasourceParsingException;
+import org.obiba.magma.datasource.spss.support.SpssInvalidCharacterException;
 import org.obiba.magma.support.DatasourceParsingException;
 import org.obiba.magma.support.EntitiesPredicate;
 import org.obiba.magma.type.DecimalType;
@@ -353,6 +356,13 @@ public class SpssDatasourceTest {
     ds.initialise();
   }
 
+  @Test(expected = DatasourceParsingException.class)
+  public void testInvalidVariableCategoryNameCharset() throws URISyntaxException {
+    dsFactory.setFile(getResourceFile("org/obiba/magma/datasource/spss/invalid-category-name.sav"));
+    Datasource ds = dsFactory.create();
+    ds.initialise();
+  }
+
   @Test
   public void testInvalidVariableValueType() throws URISyntaxException {
     dsFactory.setFile(getResourceFile("org/obiba/magma/datasource/spss/invalid-variable-value-type.sav"));
@@ -362,9 +372,74 @@ public class SpssDatasourceTest {
     assertThat(valueTable).isNotNull();
     Iterator<VariableEntity> iterator = valueTable.getVariableEntities().iterator();
 
+    while(iterator.hasNext()) {
+      try{
+        SpssValueSet valueSet = (SpssValueSet) valueTable.getValueSet(iterator.next());
+        Value v = valueSet.getValue(ds.getValueTable("invalid-variable-value-type").getVariable("var1"));
+        System.out.println(v.getValue());
+      } catch(DatasourceParsingException e) {
+        System.out.println(e);
+        for (DatasourceParsingException ch : e.getChildren()) {
+          System.out.println(ch);
+        }
+      }
+    }
+
+  }
+
+  @Test(expected = NullPointerException.class)
+  public void testVariableValueOverflow() throws URISyntaxException {
+    dsFactory.setFile(getResourceFile("org/obiba/magma/datasource/spss/variable-value-overflow.sav"));
+    Datasource ds = dsFactory.create();
+    ds.initialise();
+    ValueTable valueTable = ds.getValueTable("variable-value-overflow");
+    assertThat(valueTable).isNotNull();
+    Iterator<VariableEntity> iterator = valueTable.getVariableEntities().iterator();
+
     if(iterator.hasNext()) {
       SpssValueSet valueSet = (SpssValueSet) valueTable.getValueSet(iterator.next());
-      Value v = valueSet.getValue(ds.getValueTable("invalid-variable-value-type").getVariable("var1"));
+      Value v = valueSet.getValue(ds.getValueTable("variable-value-overflow").getVariable("var1"));
+      v.getValue();
+    }
+
+  }
+
+  @Test(expected = SpssDatasourceParsingException.class)
+  public void testInvalidEntityVariable() throws URISyntaxException {
+    try{
+    dsFactory.setFile(getResourceFile("org/obiba/magma/datasource/spss/invalid-entity-variable.sav"));
+    Datasource ds = dsFactory.create();
+    ds.initialise();
+    ValueTable valueTable = ds.getValueTable("invalid-entity-variable");
+    assertThat(valueTable).isNotNull();
+    valueTable.getVariableEntities().iterator();
+    }catch(SpssDatasourceParsingException e){
+      System.out.println(e);
+      throw e;
+    }
+
+  }
+
+  @Test(expected = DatasourceParsingException.class)
+  public void testInvalidVariableAttribute() throws Exception {
+    dsFactory.addFile(getResourceFile("org/obiba/magma/datasource/spss/invalid-variable-attribute.sav"));
+    Datasource ds = dsFactory.create();
+    ds.initialise();
+  }
+
+
+  @Test
+  public void test() throws URISyntaxException {
+    dsFactory.setFile(getResourceFile("org/obiba/magma/datasource/spss/OV0169_forOPAL_feb2014.sav"));
+    Datasource ds = dsFactory.create();
+    ds.initialise();
+    ValueTable valueTable = ds.getValueTable("OV0169_forOPAL_feb2014");
+    assertThat(valueTable).isNotNull();
+    Iterator<VariableEntity> iterator = valueTable.getVariableEntities().iterator();
+
+    while(iterator.hasNext()) {
+      SpssValueSet valueSet = (SpssValueSet) valueTable.getValueSet(iterator.next());
+      Value v = valueSet.getValue(ds.getValueTable("OV0169_forOPAL_feb2014").getVariable("GEBDAT"));
       System.out.println(v.getValue());
     }
 

@@ -105,7 +105,7 @@ public class SpssValueTable extends AbstractValueTable implements Disposable {
       spssFile.loadMetadata();
     } catch(Exception e) {
       String fileName = spssFile.file.getName();
-      throw new DatasourceParsingException("Failed load meta date in file " + fileName, e, "SpssFailedToLoadMetadata",
+      throw new DatasourceParsingException("Failed load meta data in file " + fileName, e, "SpssFailedToLoadMetadata",
           fileName);
     }
   }
@@ -164,17 +164,16 @@ public class SpssValueTable extends AbstractValueTable implements Disposable {
           Value identifierValue = new SpssVariableValueFactory(i, entityVariable, valueType).create();
 
           if(identifierValue.isNull()) {
-            throw new SpssDatasourceParsingException("Empty entity identifier found.", i, entityVariable.getName(),
-                "SpssEmptyIdentifier", entityVariable.getName(), i);
+            throw new SpssDatasourceParsingException("Empty entity identifier found.", "SpssEmptyIdentifier",
+                entityVariable.getName(), i).dataInfo(entityVariable.getName(), i);
           }
 
           String identifier = identifierValue.getValue().toString();
 
           if(entityIdentifiers.contains(identifier)) {
             String variableName = entityVariable.getName();
-            int variableIndex = i;
             throw new SpssDatasourceParsingException("Duplicated entity identifier '" + identifier + "' found.",
-                variableIndex, variableName, "SpssDuplicateEntity", identifier, variableIndex, variableName);
+                "SpssDuplicateEntity", identifier, i, variableName).dataInfo(variableName, i);
           }
 
           entitiesBuilder.add(new SpssVariableEntity(entityType, identifier, i));
@@ -200,8 +199,8 @@ public class SpssValueTable extends AbstractValueTable implements Disposable {
 
         spssFile.loadData();
       } catch(Exception e) {
-        //TODO provide better exception
-        throw new DatasourceParsingException(e.getMessage(), "SpssFailedToLoadData", spssFile.file.getName());
+        String fileName = spssFile.file.getName();
+        throw new DatasourceParsingException("Failed load data in file " + fileName, e, "SpssFailedToLoadData", fileName);
       }
     }
 
