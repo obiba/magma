@@ -33,6 +33,7 @@ import org.obiba.magma.datasource.spss.support.SpssDatasourceFactory;
 import org.obiba.magma.datasource.spss.support.SpssDatasourceParsingException;
 import org.obiba.magma.support.DatasourceParsingException;
 import org.obiba.magma.support.EntitiesPredicate;
+import org.obiba.magma.type.DateType;
 import org.obiba.magma.type.DecimalType;
 import org.obiba.magma.type.TextType;
 
@@ -167,7 +168,8 @@ public class SpssDatasourceTest {
     dsFactory.setFile(getResourceFile("org/obiba/magma/datasource/spss/spss-variable-types.sav"));
     Datasource ds = dsFactory.create();
     ds.initialise();
-    assertThat(ds.getValueTable("spss-variable-types").getVariable("VarCurrency").getValueType()).isInstanceOf(TextType.class);
+    assertThat(ds.getValueTable("spss-variable-types").getVariable("VarCurrency").getValueType())
+        .isInstanceOf(TextType.class);
   }
 
   @Test
@@ -200,6 +202,7 @@ public class SpssDatasourceTest {
       assertThat(value.compareTo(expected)).isEqualTo(0);
     }
   }
+
 //  TODO comment out until we find a large file.
 //  @Test
 //  public void testGetValueSetForGivenEntityLargeDatasource() throws Exception {
@@ -445,6 +448,32 @@ public class SpssDatasourceTest {
         assertThat(ch.getMessage()).startsWith("Invalid characters found for category")
             .contains("(Variable info: name='var1'").contains("String with invalid characters");
       }
+    }
+  }
+
+  @Test
+  public void testConvertADateToMagmaDate() throws Exception {
+    dsFactory.addFile(getResourceFile("org/obiba/magma/datasource/spss/date-value-types.sav"));
+    Datasource ds = dsFactory.create();
+    ds.initialise();
+    ValueTable valueTable = ds.getValueTable("date-value-types");
+    assertThat(valueTable).isNotNull();
+    Iterator<VariableEntity> iterator = valueTable.getVariableEntities().iterator();
+
+    if(iterator.hasNext()) {
+      SpssValueSet valueSet = (SpssValueSet) valueTable.getValueSet(iterator.next());
+      assertThat(valueSet.getValue(valueTable.getVariable("var1")).compareTo(DateType.get().valueOf("2013-4-15")))
+          .isEqualTo(0);
+      assertThat(valueSet.getValue(valueTable.getVariable("var2")).compareTo(DateType.get().valueOf("2012-12-30")))
+          .isEqualTo(0);
+      assertThat(valueSet.getValue(valueTable.getVariable("var3")).compareTo(DateType.get().valueOf("2014-03-12")))
+          .isEqualTo(0);
+      assertThat(valueSet.getValue(valueTable.getVariable("var4")).compareTo(DateType.get().valueOf("2010-09-23")))
+          .isEqualTo(0);
+      assertThat(valueSet.getValue(valueTable.getVariable("var5")).compareTo(DateType.get().valueOf("2010-03-12")))
+          .isEqualTo(0);
+      assertThat(valueSet.getValue(valueTable.getVariable("var6")).compareTo(DateType.get().valueOf("2010-02-12")))
+          .isEqualTo(0);
     }
   }
 
