@@ -12,7 +12,6 @@ package org.obiba.magma.datasource.spss.support;
 import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueType;
-import org.obiba.magma.support.DatasourceParsingException;
 import org.opendatafoundation.data.FileFormatInfo;
 import org.opendatafoundation.data.spss.SPSSFileException;
 import org.opendatafoundation.data.spss.SPSSVariable;
@@ -41,8 +40,9 @@ public class SpssVariableValueFactory extends SpssValueFactory {
   @Override
   protected String getValue() {
     try {
-      return spssVariable.getValueAsString(variableIndex, new FileFormatInfo(FileFormatInfo.Format.ASCII));
-    } catch(SPSSFileException e) {
+      String value = spssVariable.getValueAsString(variableIndex, new FileFormatInfo(FileFormatInfo.Format.ASCII));
+      return SpssVariableValueConverter.convert(spssVariable, value);
+    } catch(SPSSFileException | SpssValueConversionException e) {
       String variableName = spssVariable.getName();
       throw new SpssDatasourceParsingException("Failed to retieve variable value.", "SpssFailedToCreateVariable",
           variableName, variableIndex).dataInfo(variableName, variableIndex).extraInfo(e.getMessage());
