@@ -459,31 +459,21 @@ public class SpssDatasourceTest {
     ValueTable valueTable = ds.getValueTable("date-value-types");
     assertThat(valueTable).isNotNull();
     Iterator<VariableEntity> iterator = valueTable.getVariableEntities().iterator();
-    Value v;
 
     if(iterator.hasNext()) {
       SpssValueSet valueSet = (SpssValueSet) valueTable.getValueSet(iterator.next());
-
-      v = valueSet.getValue(ds.getValueTable("date-value-types").getVariable("var1"));
-      assertThat(v.compareTo(DateType.get().valueOf("2013-4-15"))).isEqualTo(0);
-
-      v = valueSet.getValue(ds.getValueTable("date-value-types").getVariable("var2"));
-      assertThat(v.compareTo(DateType.get().valueOf("2012-12-30"))).isEqualTo(0);
-
-      v = valueSet.getValue(ds.getValueTable("date-value-types").getVariable("var3"));
-      assertThat(v.compareTo(DateType.get().valueOf("2014-03-12"))).isEqualTo(0);
-
-      v = valueSet.getValue(ds.getValueTable("date-value-types").getVariable("var4"));
-      assertThat(v.compareTo(DateType.get().valueOf("2010-09-23"))).isEqualTo(0);
-
-      v = valueSet.getValue(ds.getValueTable("date-value-types").getVariable("var5"));
-      assertThat(v.compareTo(DateType.get().valueOf("2010-03-12"))).isEqualTo(0);
-
-      v = valueSet.getValue(ds.getValueTable("date-value-types").getVariable("var5"));
-      assertThat(v.compareTo(DateType.get().valueOf("2010-03-12"))).isEqualTo(0);
-
-      v = valueSet.getValue(ds.getValueTable("date-value-types").getVariable("var6"));
-      assertThat(v.compareTo(DateType.get().valueOf("2010-02-12"))).isEqualTo(0);
+      assertThat(valueSet.getValue(valueTable.getVariable("var1")).compareTo(DateType.get().valueOf("2013-4-15")))
+          .isEqualTo(0);
+      assertThat(valueSet.getValue(valueTable.getVariable("var2")).compareTo(DateType.get().valueOf("2012-12-30")))
+          .isEqualTo(0);
+      assertThat(valueSet.getValue(valueTable.getVariable("var3")).compareTo(DateType.get().valueOf("2014-03-12")))
+          .isEqualTo(0);
+      assertThat(valueSet.getValue(valueTable.getVariable("var4")).compareTo(DateType.get().valueOf("2010-09-23")))
+          .isEqualTo(0);
+      assertThat(valueSet.getValue(valueTable.getVariable("var5")).compareTo(DateType.get().valueOf("2010-03-12")))
+          .isEqualTo(0);
+      assertThat(valueSet.getValue(valueTable.getVariable("var6")).compareTo(DateType.get().valueOf("2010-02-12")))
+          .isEqualTo(0);
     }
   }
 
