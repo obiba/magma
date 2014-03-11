@@ -55,7 +55,7 @@ ext {
 
       mysql_connector_java: 'mysql:mysql-connector-java:5.1.29',
 
-      obiba_core: 'org.obiba:obiba-core:1.5-SNAPSHOT',
+      obiba_core: 'org.obiba:obiba-core:1.5.0',
 
       opencsv: 'net.sf.opencsv:opencsv:2.3',
 
