@@ -11,6 +11,7 @@ package org.obiba.magma.datasource.spss.support;
 
 import java.io.IOException;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 
 import javax.annotation.Nullable;
@@ -50,16 +51,21 @@ public class SpssVariableValueSourceFactory implements VariableValueSourceFactor
   @NotNull
   private final String locale;
 
+  private final Map<String, Integer> identifierToVariableIndex;
+
   /**
+   *
    * @param spssFile
+   * @param entityToVariableIndex
    * @throws IOException
    * @throws SPSSFileException
    */
-  public SpssVariableValueSourceFactory(@NotNull SPSSFile spssFile, @NotNull String entityType,
-      @NotNull String locale) {
+  public SpssVariableValueSourceFactory(@NotNull SPSSFile spssFile, @NotNull String entityType, @NotNull String locale,
+      Map<String, Integer> map) {
     this.spssFile = spssFile;
     this.entityType = entityType;
     this.locale = locale;
+    identifierToVariableIndex = map;
   }
 
   @Override
@@ -69,7 +75,8 @@ public class SpssVariableValueSourceFactory implements VariableValueSourceFactor
     for(int i = 1; i < spssFile.getVariableCount(); i++) {
       SPSSVariable spssVariable = spssFile.getVariable(i);
       try {
-        sources.add(new SpssVariableValueSource(createVariableBuilder(i, spssVariable), spssVariable));
+        sources.add(new SpssVariableValueSource(createVariableBuilder(i, spssVariable), spssVariable,
+            identifierToVariableIndex));
       } catch(SpssInvalidCharacterException e) {
         String variableName = spssVariable.getName();
         // In the dictionary the first row is reserved for entity variable

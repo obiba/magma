@@ -12,7 +12,9 @@ package org.obiba.magma.datasource.spss;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import javax.annotation.Nullable;
@@ -32,6 +34,7 @@ import org.obiba.magma.datasource.spss.support.SpssVariableValueFactory;
 import org.obiba.magma.datasource.spss.support.SpssVariableValueSourceFactory;
 import org.obiba.magma.support.AbstractValueTable;
 import org.obiba.magma.support.DatasourceParsingException;
+import org.obiba.magma.support.VariableEntityBean;
 import org.obiba.magma.support.VariableEntityProvider;
 import org.obiba.magma.type.DateTimeType;
 import org.opendatafoundation.data.spss.SPSSFile;
@@ -49,6 +52,8 @@ public class SpssValueTable extends AbstractValueTable implements Disposable {
 
   private final String locale;
 
+  private Map<String, Integer> entityToVariableIndex = new HashMap<>();
+
   public SpssValueTable(Datasource datasource, String name, String entityType, String locale, SPSSFile spssFile) {
     super(datasource, name);
     this.spssFile = spssFile;
@@ -64,7 +69,7 @@ public class SpssValueTable extends AbstractValueTable implements Disposable {
 
   @Override
   public ValueSet getValueSet(VariableEntity entity) throws NoSuchValueSetException {
-    return new SpssValueSet(this, entity, spssFile);
+    return new SpssValueSet(this, entity, spssFile, entityToVariableIndex);
   }
 
   @NotNull
@@ -93,7 +98,7 @@ public class SpssValueTable extends AbstractValueTable implements Disposable {
 
   private void initializeVariableSources() {
     loadMetadata();
-    addVariableValueSources(new SpssVariableValueSourceFactory(spssFile, getEntityType(), locale));
+    addVariableValueSources(new SpssVariableValueSourceFactory(spssFile, getEntityType(), locale, entityToVariableIndex));
   }
 
   private void loadMetadata() {
@@ -176,7 +181,8 @@ public class SpssValueTable extends AbstractValueTable implements Disposable {
                 "SpssDuplicateEntity", identifier, i, variableName).dataInfo(variableName, i);
           }
 
-          entitiesBuilder.add(new SpssVariableEntity(entityType, identifier, i));
+          entityToVariableIndex.put(identifier, i);
+          entitiesBuilder.add(new VariableEntityBean(entityType, identifier));
           entityIdentifiers.add(identifier);
         }
 
