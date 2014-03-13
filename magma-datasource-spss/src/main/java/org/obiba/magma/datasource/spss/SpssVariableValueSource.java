@@ -11,6 +11,7 @@ package org.obiba.magma.datasource.spss;
 
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.SortedSet;
 
@@ -33,9 +34,13 @@ public class SpssVariableValueSource extends AbstractVariableValueSource impleme
 
   private final SPSSVariable spssVariable;
 
-  public SpssVariableValueSource(Variable variable, SPSSVariable spssVariable) {
+  private final Map<String, Integer> identifierToVariableIndex;
+
+  public SpssVariableValueSource(Variable variable, SPSSVariable spssVariable,
+      Map<String, Integer> map) {
     this.variable = variable;
     this.spssVariable = spssVariable;
+    identifierToVariableIndex = map;
   }
 
   @NotNull
@@ -101,8 +106,9 @@ public class SpssVariableValueSource extends AbstractVariableValueSource impleme
         throw new NoSuchElementException();
       }
 
-      SpssVariableEntity variableEntity = (SpssVariableEntity) entitiesIterator.next();
-      return new SpssVariableValueFactory(variableEntity.getVariableIndex(), spssVariable, variable.getValueType())
+      VariableEntity variableEntity = entitiesIterator.next();
+      int variableIndex = identifierToVariableIndex.get(variableEntity.getIdentifier());
+      return new SpssVariableValueFactory(variableIndex, spssVariable, variable.getValueType())
           .create();
     }
 
