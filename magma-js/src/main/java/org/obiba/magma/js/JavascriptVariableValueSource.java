@@ -95,7 +95,8 @@ public class JavascriptVariableValueSource extends JavascriptValueSource impleme
     if(lastScriptValidation == null || !lastScriptValidation.equals(tableLastUpdate)) {
       log.trace("Validate {} script", variable.getName());
       initialiseIfNot();
-      new VariableScriptValidator(variable, valueTable).validateScript();
+      //OPAL-2546 commented until this issue is resolved
+      //new VariableScriptValidator(variable, valueTable).validateScript();
       lastScriptValidation = valueTable.getTimestamps().getLastUpdate();
     } else {
       log.trace("Skip {} script validation", variable.getName());
