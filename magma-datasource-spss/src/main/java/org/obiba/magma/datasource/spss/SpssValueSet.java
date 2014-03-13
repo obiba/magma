@@ -30,9 +30,13 @@ public class SpssValueSet extends ValueSetBean {
 
   private final SPSSFile spssFile;
 
-  public SpssValueSet(ValueTable table, VariableEntity entity, SPSSFile spssFile) {
+  private final Map<String, Integer> identifierToVariableIndex;
+
+  public SpssValueSet(ValueTable table, VariableEntity entity, SPSSFile spssFile,
+      Map<String, Integer> map) {
     super(table, entity);
     this.spssFile = spssFile;
+    identifierToVariableIndex = map;
     loadVariables();
   }
 
@@ -51,8 +55,8 @@ public class SpssValueSet extends ValueSetBean {
   //
 
   private void loadVariables() {
-    SpssVariableEntity variableEntity = (SpssVariableEntity) getVariableEntity();
-    int variableIndex = variableEntity.getVariableIndex();
+    VariableEntity variableEntity = getVariableEntity();
+    int variableIndex = identifierToVariableIndex.get(variableEntity.getIdentifier());
 
     for(int i = 1; i < spssFile.getVariableCount(); i++) {
       SPSSVariable spssVariable = spssFile.getVariable(i);
