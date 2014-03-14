@@ -25,7 +25,7 @@ allprojects {
   apply plugin: 'maven-publish'
   apply plugin: 'artifactory-publish'
   apply plugin: 'errorprone'
-  //apply plugin: "jacoco"
+  apply plugin: "jacoco"
 
   group = 'org.obiba.magma'
 
