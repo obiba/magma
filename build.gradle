@@ -1,5 +1,6 @@
 apply plugin: 'idea'
 apply plugin: 'versions'
+apply plugin: 'sonar-runner'
 apply from: 'libraries.gradle'
 
 task wrapper(type: Wrapper) {
@@ -24,8 +25,7 @@ allprojects {
   apply plugin: 'maven-publish'
   apply plugin: 'artifactory-publish'
   apply plugin: 'errorprone'
-  apply plugin: "jacoco"
-
+  //apply plugin: "jacoco"
 
   group = 'org.obiba.magma'
 
@@ -154,6 +154,12 @@ allprojects {
       repository {
         repoKey = 'libs-releases'
       }
+    }
+  }
+
+  sonarRunner {
+    sonarProperties {
+      property 'sonar.sourceEncoding', 'UTF-8'
     }
   }
 
