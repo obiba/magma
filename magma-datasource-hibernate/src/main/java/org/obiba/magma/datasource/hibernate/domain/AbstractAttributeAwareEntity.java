@@ -9,11 +9,10 @@
  */
 package org.obiba.magma.datasource.hibernate.domain;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-import javax.persistence.ElementCollection;
+import javax.annotation.Nullable;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.Transient;
 
@@ -28,37 +27,33 @@ public abstract class AbstractAttributeAwareEntity extends AbstractTimestampedEn
 
   private static final long serialVersionUID = 8238201229433337449L;
 
-  @ElementCollection // always cascaded
-  private List<AttributeState> attributes;
-
   @Transient
   private Multimap<String, AttributeState> attributeMap;
 
-  public List<AttributeState> getAttributes() {
-    return attributes == null ? (attributes = new ArrayList<>()) : attributes;
-  }
+  public abstract List<AttributeState> getAttributes();
 
-  public void setAttributes(List<AttributeState> attributes) {
-    this.attributes = attributes;
-  }
+  public abstract void setAttributes(List<AttributeState> attributes);
 
-  public AttributeState getAttribute(String name, String namespace, Locale locale) {
-    for(AttributeState ha : attributeMap.get(name)) {
-      if(namespace == null && !ha.hasNamespace() ||
-          namespace != null && ha.hasNamespace() && namespace.equals(ha.getNamespace())) {
-        if(locale != null && ha.isLocalised() && locale.equals(ha.getLocale())) {
-          return ha;
-        } else if(locale == null && !ha.isLocalised()) {
-          return ha;
+  public AttributeState getAttribute(String name, @Nullable String namespace, @Nullable Locale locale) {
+    if(hasAttribute(name)) {
+      for(AttributeState attribute : getAttributeMap().get(name)) {
+        if(namespace == null && !attribute.hasNamespace() ||
+            namespace != null && attribute.hasNamespace() && namespace.equals(attribute.getNamespace())) {
+          if(locale != null && attribute.isLocalised() && locale.equals(attribute.getLocale())) {
+            return attribute;
+          }
+          if(locale == null && !attribute.isLocalised()) {
+            return attribute;
+          }
         }
       }
     }
     throw new NoSuchAttributeException(name, getClass().getName());
   }
 
-  public void addAttribute(AttributeState ha) {
-    getAttributeMap().put(ha.getName(), ha);
-    getAttributes().add(ha);
+  public void addAttribute(AttributeState attribute) {
+    getAttributeMap().put(attribute.getName(), attribute);
+    getAttributes().add(attribute);
   }
 
   public boolean hasAttribute(String name) {
@@ -77,15 +72,15 @@ public abstract class AbstractAttributeAwareEntity extends AbstractTimestampedEn
     }
   }
 
-  public boolean hasAttribute(String name, String namespace, Locale locale) {
+  public boolean hasAttribute(String name, @Nullable String namespace, @Nullable Locale locale) {
     if(hasAttribute(name)) {
-      for(AttributeState ha : getAttributeMap().get(name)) {
-        if(namespace == null && !ha.hasNamespace() ||
-            namespace != null && ha.hasNamespace() && namespace.equals(ha.getNamespace())) {
-          if(locale == null && !ha.isLocalised()) {
+      for(AttributeState attribute : getAttributeMap().get(name)) {
+        if(namespace == null && !attribute.hasNamespace() ||
+            namespace != null && attribute.hasNamespace() && namespace.equals(attribute.getNamespace())) {
+          if(locale == null && !attribute.isLocalised()) {
             return true;
           }
-          if(locale != null && ha.isLocalised() && locale.equals(ha.getLocale())) {
+          if(locale != null && attribute.isLocalised() && locale.equals(attribute.getLocale())) {
             return true;
           }
         }
@@ -97,8 +92,8 @@ public abstract class AbstractAttributeAwareEntity extends AbstractTimestampedEn
   private Multimap<String, AttributeState> getAttributeMap() {
     if(attributeMap == null) {
       attributeMap = LinkedListMultimap.create();
-      for(AttributeState ha : getAttributes()) {
-        attributeMap.put(ha.getName(), ha);
+      for(AttributeState attribute : getAttributes()) {
+        attributeMap.put(attribute.getName(), attribute);
       }
     }
     return attributeMap;
