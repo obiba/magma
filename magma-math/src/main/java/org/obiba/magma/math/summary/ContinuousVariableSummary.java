@@ -10,7 +10,9 @@
 package org.obiba.magma.math.summary;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -32,8 +34,10 @@ import org.obiba.magma.type.IntegerType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
@@ -50,6 +54,14 @@ public class ContinuousVariableSummary extends AbstractVariableSummary implement
 
   static final ImmutableList<Double> DEFAULT_PERCENTILES = ImmutableList.of(0.05d, 0.5d, 5d, 10d, 15d, 20d, 25d, 30d, 35d, 40d, 45d, 50d, 55d, 60d, 65d, 70d, 75d, 80d, 85d, 90d, 95d,
           99.5d, 99.95d);
+
+  public static final String NULL_NAME = "N/A";
+
+  public static final String NOT_NULL_NAME = "NOT_NULL";
+
+  private final org.apache.commons.math3.stat.Frequency frequencyDist = new org.apache.commons.math3.stat.Frequency();
+
+  private final Collection<Frequency> frequencies = new ArrayList<>();
 
   @NotNull
   private final Distribution distribution;
@@ -160,6 +172,40 @@ public class ContinuousVariableSummary extends AbstractVariableSummary implement
 
   }
 
+  @NotNull
+  public Iterable<Frequency> getFrequencies() {
+    return ImmutableList.copyOf(frequencies);
+  }
+
+  public static class Frequency implements Serializable {
+
+    private static final long serialVersionUID = -2876592652764310324L;
+
+    private final String value;
+
+    private final long freq;
+
+    private final double pct;
+
+    public Frequency(String value, long freq, double pct) {
+      this.value = value;
+      this.freq = freq;
+      this.pct = pct;
+    }
+
+    public String getValue() {
+      return value;
+    }
+
+    public long getFreq() {
+      return freq;
+    }
+
+    public double getPct() {
+      return pct;
+    }
+  }
+
   @SuppressWarnings("ParameterHidesMemberVariable")
   public static class Builder implements VariableSummaryBuilder<ContinuousVariableSummary, Builder> {
 
@@ -240,8 +286,25 @@ public class ContinuousVariableSummary extends AbstractVariableSummary implement
           }
         } else {
           summary.descriptiveStats.addValue(((Number) value.getValue()).doubleValue());
+          summary.frequencyDist.addValue(value.isNull() ? NULL_NAME : NOT_NULL_NAME);
         }
       }
+      if(value.isNull()) {
+        summary.frequencyDist.addValue(NULL_NAME);
+      }
+    }
+
+    /**
+     * Returns an iterator of frequencyDist names
+     */
+    private Iterator<String> freqNames(org.apache.commons.math3.stat.Frequency freq) {
+      return Iterators.transform(freq.valuesIterator(), new Function<Comparable<?>, String>() {
+
+        @Override
+        public String apply(Comparable<?> input) {
+          return input.toString();
+        }
+      });
     }
 
     @SuppressWarnings("MagicNumber")
@@ -267,6 +330,15 @@ public class ContinuousVariableSummary extends AbstractVariableSummary implement
         if(realDistribution != null) {
           summary.distributionPercentiles.add(realDistribution.inverseCumulativeProbability(p / 100d));
         }
+      }
+
+      Iterator<String> concat = freqNames(summary.frequencyDist);
+
+      // Iterate over all values (N/A and NOT_EMPTY)
+      while(concat.hasNext()) {
+        String value = concat.next();
+        summary.frequencies.add(new Frequency(value, summary.frequencyDist.getCount(value),
+            Double.isNaN(summary.frequencyDist.getPct(value)) ? 0.0 : summary.frequencyDist.getPct(value)));
       }
     }
 
