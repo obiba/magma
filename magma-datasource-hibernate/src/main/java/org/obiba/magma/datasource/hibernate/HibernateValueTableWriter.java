@@ -207,6 +207,7 @@ class HibernateValueTableWriter implements ValueTableWriter {
 
   private class HibernateValueSetWriter implements ValueSetWriter {
 
+    @SuppressWarnings("TypeMayBeWeakened")
     private final VariableEntityConverter entityConverter = new VariableEntityConverter();
 
     private final ValueSetState valueSetState;
