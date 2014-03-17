@@ -47,6 +47,7 @@ import static org.fest.assertions.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 import static org.obiba.magma.Variable.Builder.newVariable;
 
+@Ignore
 @SuppressWarnings({ "PMD.NcssMethodCount", "OverlyLongMethod", "OverlyCoupledClass" })
 @Ignore
 public class VariableScriptValidatorTest extends AbstractJsTest {
