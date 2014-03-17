@@ -16,6 +16,7 @@ import javax.annotation.Nullable;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.Transient;
 
+import org.obiba.magma.Attribute;
 import org.obiba.magma.NoSuchAttributeException;
 
 import com.google.common.collect.ImmutableList;
@@ -37,18 +38,22 @@ public abstract class AbstractAttributeAwareEntity extends AbstractTimestampedEn
   public AttributeState getAttribute(String name, @Nullable String namespace, @Nullable Locale locale) {
     if(hasAttribute(name)) {
       for(AttributeState attribute : getAttributeMap().get(name)) {
-        if(namespace == null && !attribute.hasNamespace() ||
-            namespace != null && attribute.hasNamespace() && namespace.equals(attribute.getNamespace())) {
-          if(locale != null && attribute.isLocalised() && locale.equals(attribute.getLocale())) {
-            return attribute;
-          }
-          if(locale == null && !attribute.isLocalised()) {
-            return attribute;
-          }
+        if(isSameNamespace(attribute, namespace) && isSameLocale(attribute, locale)) {
+          return attribute;
         }
       }
     }
     throw new NoSuchAttributeException(name, getClass().getName());
+  }
+
+  private boolean isSameNamespace(Attribute attribute, @Nullable String namespace) {
+    return namespace == null && !attribute.hasNamespace() ||
+        namespace != null && attribute.hasNamespace() && namespace.equals(attribute.getNamespace());
+  }
+
+  private boolean isSameLocale(Attribute attribute, @Nullable Locale locale) {
+    return locale == null && !attribute.isLocalised() ||
+        locale != null && attribute.isLocalised() && locale.equals(attribute.getLocale());
   }
 
   public void addAttribute(AttributeState attribute) {
@@ -73,20 +78,12 @@ public abstract class AbstractAttributeAwareEntity extends AbstractTimestampedEn
   }
 
   public boolean hasAttribute(String name, @Nullable String namespace, @Nullable Locale locale) {
-    if(hasAttribute(name)) {
-      for(AttributeState attribute : getAttributeMap().get(name)) {
-        if(namespace == null && !attribute.hasNamespace() ||
-            namespace != null && attribute.hasNamespace() && namespace.equals(attribute.getNamespace())) {
-          if(locale == null && !attribute.isLocalised()) {
-            return true;
-          }
-          if(locale != null && attribute.isLocalised() && locale.equals(attribute.getLocale())) {
-            return true;
-          }
-        }
-      }
+    try {
+      getAttribute(name, namespace, locale);
+      return true;
+    } catch(NoSuchAttributeException e) {
+      return false;
     }
-    return false;
   }
 
   private Multimap<String, AttributeState> getAttributeMap() {
