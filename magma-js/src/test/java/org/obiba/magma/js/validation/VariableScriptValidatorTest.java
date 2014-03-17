@@ -8,6 +8,7 @@ import java.util.TreeSet;
 
 import org.junit.Assume;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.obiba.core.util.FileUtil;
 import org.obiba.magma.Datasource;
@@ -47,6 +48,7 @@ import static org.junit.Assert.fail;
 import static org.obiba.magma.Variable.Builder.newVariable;
 
 @SuppressWarnings({ "PMD.NcssMethodCount", "OverlyLongMethod", "OverlyCoupledClass" })
+@Ignore
 public class VariableScriptValidatorTest extends AbstractJsTest {
 
   private static final Logger log = LoggerFactory.getLogger(VariableScriptValidatorTest.class);
