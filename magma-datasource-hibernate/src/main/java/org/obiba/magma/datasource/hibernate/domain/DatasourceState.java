@@ -9,8 +9,14 @@
  */
 package org.obiba.magma.datasource.hibernate.domain;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.persistence.CollectionTable;
 import javax.persistence.Column;
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
+import javax.persistence.JoinColumn;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
@@ -28,6 +34,10 @@ public class DatasourceState extends AbstractAttributeAwareEntity implements Tim
 
   @Column(nullable = false)
   private String name;
+
+  @ElementCollection // always cascaded
+  @CollectionTable(name = "datasource_attributes", joinColumns = @JoinColumn(name = "datasource_id"))
+  private List<AttributeState> attributes;
 
   public DatasourceState() { }
 
@@ -56,5 +66,15 @@ public class DatasourceState extends AbstractAttributeAwareEntity implements Tim
         return DateTimeType.get().valueOf(DatasourceState.this.getCreated());
       }
     };
+  }
+
+  @Override
+  public List<AttributeState> getAttributes() {
+    return attributes == null ? (attributes = new ArrayList<>()) : attributes;
+  }
+
+  @Override
+  public void setAttributes(List<AttributeState> attributes) {
+    this.attributes = attributes;
   }
 }

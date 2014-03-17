@@ -9,7 +9,12 @@
  */
 package org.obiba.magma.datasource.hibernate.domain;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.persistence.CollectionTable;
 import javax.persistence.Column;
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -33,6 +38,10 @@ public class CategoryState extends AbstractAttributeAwareEntity implements Times
 
   @Column(nullable = false)
   private boolean missing;
+
+  @ElementCollection // always cascaded
+  @CollectionTable(name = "category_attributes", joinColumns = @JoinColumn(name = "category_id"))
+  private List<AttributeState> attributes;
 
   public CategoryState() { }
 
@@ -68,6 +77,16 @@ public class CategoryState extends AbstractAttributeAwareEntity implements Times
 
   public boolean isMissing() {
     return missing;
+  }
+
+  @Override
+  public List<AttributeState> getAttributes() {
+    return attributes == null ? (attributes = new ArrayList<>()) : attributes;
+  }
+
+  @Override
+  public void setAttributes(List<AttributeState> attributes) {
+    this.attributes = attributes;
   }
 
 }
