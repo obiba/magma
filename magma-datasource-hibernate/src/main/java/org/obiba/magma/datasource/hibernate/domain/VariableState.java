@@ -14,7 +14,9 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 import javax.persistence.CascadeType;
+import javax.persistence.CollectionTable;
 import javax.persistence.Column;
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -74,6 +76,10 @@ public class VariableState extends AbstractAttributeAwareEntity implements Times
 
   @Column(nullable = false)
   private boolean repeatable;
+
+  @ElementCollection // always cascaded
+  @CollectionTable(name = "variable_attributes", joinColumns = @JoinColumn(name = "variable_id"))
+  private List<AttributeState> attributes;
 
   public VariableState() { }
 
@@ -206,5 +212,15 @@ public class VariableState extends AbstractAttributeAwareEntity implements Times
       index++;
     }
     return -1;
+  }
+
+  @Override
+  public List<AttributeState> getAttributes() {
+    return attributes == null ? (attributes = new ArrayList<>()) : attributes;
+  }
+
+  @Override
+  public void setAttributes(List<AttributeState> attributes) {
+    this.attributes = attributes;
   }
 }
