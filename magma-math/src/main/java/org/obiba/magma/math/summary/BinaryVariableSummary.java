@@ -198,17 +198,12 @@ public class BinaryVariableSummary extends AbstractVariableSummary implements Se
 
     private void compute() {
       log.trace("Start compute default summary {}", summary.variable);
-      long max = 0;
       Iterator<String> concat = freqNames(summary.frequencyDist);
 
       // Iterate over all category names including or not distinct values.
       // The loop will also determine the mode of the distribution (most frequent value)
       while(concat.hasNext()) {
         String value = concat.next();
-        long count = summary.frequencyDist.getCount(value);
-        if(count > max) {
-          max = count;
-        }
         summary.frequencies.add(new Frequency(value, summary.frequencyDist.getCount(value),
             Double.isNaN(summary.frequencyDist.getPct(value)) ? 0.0 : summary.frequencyDist.getPct(value)));
       }

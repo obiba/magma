@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 OBiBa. All rights reserved.
+ * Copyright (c) 2014 OBiBa. All rights reserved.
  *
  * This program and the accompanying materials
  * are made available under the terms of the GNU Public License v3.0.
@@ -11,31 +11,37 @@ package org.obiba.magma.math.summary;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Iterator;
+import java.util.List;
 
+import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 
 import org.obiba.magma.Value;
+import org.obiba.magma.ValueSet;
 import org.obiba.magma.ValueSource;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.Variable;
+import org.obiba.magma.VariableEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Iterators;
 
 /**
  *
  */
-public class DefaultVariableSummary extends AbstractVariableSummary implements Serializable {
+public class TextVariableSummary extends AbstractVariableSummary implements Serializable {
 
   private static final long serialVersionUID = 203198842420473154L;
 
-  private static final Logger log = LoggerFactory.getLogger(DefaultVariableSummary.class);
+  private static final Logger log = LoggerFactory.getLogger(TextVariableSummary.class);
 
   public static final String NULL_NAME = "N/A";
 
@@ -47,15 +53,15 @@ public class DefaultVariableSummary extends AbstractVariableSummary implements S
 
   private boolean empty = true;
 
-  private final Collection<Frequency> frequencies = new ArrayList<>();
+  private final List<Frequency> frequencies = new ArrayList<>();
 
-  private DefaultVariableSummary(@NotNull Variable variable) {
+  private TextVariableSummary(@NotNull Variable variable) {
     super(variable);
   }
 
   @Override
   public String getCacheKey(ValueTable table) {
-    return DefaultVariableSummaryFactory.getCacheKey(variable, table, getOffset(), getLimit());
+    return TextVariableSummaryFactory.getCacheKey(variable, table, getOffset(), getLimit());
   }
 
   @NotNull
@@ -101,9 +107,9 @@ public class DefaultVariableSummary extends AbstractVariableSummary implements S
   }
 
   @SuppressWarnings("ParameterHidesMemberVariable")
-  public static class Builder implements VariableSummaryBuilder<DefaultVariableSummary, Builder> {
+  public static class Builder implements VariableSummaryBuilder<TextVariableSummary, Builder> {
 
-    private final DefaultVariableSummary summary;
+    private final TextVariableSummary summary;
 
     @NotNull
     private final Variable variable;
@@ -114,7 +120,7 @@ public class DefaultVariableSummary extends AbstractVariableSummary implements S
 
     public Builder(@NotNull Variable variable) {
       this.variable = variable;
-      summary = new DefaultVariableSummary(variable);
+      summary = new TextVariableSummary(variable);
     }
 
     @Override
@@ -140,14 +146,23 @@ public class DefaultVariableSummary extends AbstractVariableSummary implements S
       return this;
     }
 
-    private void add(@NotNull ValueTable table, @NotNull ValueSource variableValueSource) {
+    private void add(@NotNull final ValueTable table, @NotNull ValueSource variableValueSource) {
       //noinspection ConstantConditions
       Preconditions.checkArgument(table != null, "table cannot be null");
       //noinspection ConstantConditions
       Preconditions.checkArgument(variableValueSource != null, "variableValueSource cannot be null");
 
-      if(!variableValueSource.supportVectorSource()) return;
-      for(Value value : variableValueSource.asVectorSource().getValues(summary.getVariableEntities(table))) {
+      Iterable<Value> values = Iterables.transform(table.getVariableEntities(), new Function<VariableEntity, Value>() {
+        @Nullable
+        @Override
+        public Value apply(@Nullable VariableEntity input) {
+          ValueSet valueSet = table.getValueSet(input);
+          Value value = table.getValue(variable, valueSet);
+          return value;
+        }
+      });
+
+      for(Value value : values) {
         add(value);
       }
     }
@@ -166,7 +181,7 @@ public class DefaultVariableSummary extends AbstractVariableSummary implements S
           }
         }
       } else {
-        summary.frequencyDist.addValue(value.isNull() ? NULL_NAME : NOT_NULL_NAME);
+        summary.frequencyDist.addValue(value.isNull() ? NULL_NAME : value.toString());
       }
     }
 
@@ -185,20 +200,23 @@ public class DefaultVariableSummary extends AbstractVariableSummary implements S
 
     private void compute() {
       log.trace("Start compute default summary {}", summary.variable);
-      long max = 0;
       Iterator<String> concat = freqNames(summary.frequencyDist);
 
-      // Iterate over all values.
+      // Iterate over all category names including or not distinct values.
       // The loop will also determine the mode of the distribution (most frequent value)
       while(concat.hasNext()) {
         String value = concat.next();
-        long count = summary.frequencyDist.getCount(value);
-        if(count > max) {
-          max = count;
-        }
         summary.frequencies.add(new Frequency(value, summary.frequencyDist.getCount(value),
             Double.isNaN(summary.frequencyDist.getPct(value)) ? 0.0 : summary.frequencyDist.getPct(value)));
       }
+
+      Collections.sort(summary.frequencies, new Comparator<Frequency>() {
+        @Override
+        public int compare(Frequency o1, Frequency o2) {
+          return (int) (o2.getFreq() - o1.getFreq());
+        }
+      });
+
       summary.n = summary.frequencyDist.getSumFreq();
     }
 
@@ -210,7 +228,7 @@ public class DefaultVariableSummary extends AbstractVariableSummary implements S
 
     @Override
     @NotNull
-    public DefaultVariableSummary build() {
+    public TextVariableSummary build() {
       compute();
       return summary;
     }
@@ -222,5 +240,4 @@ public class DefaultVariableSummary extends AbstractVariableSummary implements S
     }
 
   }
-
 }
