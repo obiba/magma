@@ -313,6 +313,12 @@ public class ContinuousVariableSummary extends AbstractVariableSummary implement
       double variance = summary.descriptiveStats.getVariance();
       if(Double.isNaN(variance) || Double.isInfinite(variance) || variance <= 0) return;
 
+      computeIntervalFrequencies();
+      computeDistributionPercentiles();
+      computeFrequencies();
+    }
+
+    private void computeIntervalFrequencies() {
       IntervalFrequency intervalFrequency = new IntervalFrequency(summary.descriptiveStats.getMin(),
           summary.descriptiveStats.getMax(), summary.intervals,
           summary.getVariable().getValueType() == IntegerType.get());
@@ -323,7 +329,9 @@ public class ContinuousVariableSummary extends AbstractVariableSummary implement
       for(IntervalFrequency.Interval interval : intervalFrequency.intervals()) {
         summary.intervalFrequencies.add(interval);
       }
+    }
 
+    private void computeDistributionPercentiles() {
       RealDistribution realDistribution = summary.distribution.getDistribution(summary.descriptiveStats);
       for(Double p : summary.defaultPercentiles) {
         summary.percentiles.add(summary.descriptiveStats.getPercentile(p));
@@ -331,7 +339,9 @@ public class ContinuousVariableSummary extends AbstractVariableSummary implement
           summary.distributionPercentiles.add(realDistribution.inverseCumulativeProbability(p / 100d));
         }
       }
+    }
 
+    private void computeFrequencies() {
       Iterator<String> concat = freqNames(summary.frequencyDist);
 
       // Iterate over all values (N/A and NOT_EMPTY)
