@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import javax.validation.constraints.NotNull;
 
@@ -32,6 +33,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 /**
  *
@@ -60,6 +62,8 @@ public class CategoricalVariableSummary extends AbstractVariableSummary implemen
   private boolean empty = true;
 
   private final Collection<Frequency> frequencies = new ArrayList<>();
+
+  private long otherFrequency;
 
   private CategoricalVariableSummary(@NotNull Variable variable) {
     super(variable);
@@ -95,6 +99,10 @@ public class CategoricalVariableSummary extends AbstractVariableSummary implemen
     return empty;
   }
 
+  public long getOtherFrequency() {
+    return otherFrequency;
+  }
+
   public static class Frequency implements Serializable {
 
     private static final long serialVersionUID = -2876592652764310324L;
@@ -105,10 +113,13 @@ public class CategoricalVariableSummary extends AbstractVariableSummary implemen
 
     private final double pct;
 
-    public Frequency(String value, long freq, double pct) {
+    private final boolean missing;
+
+    public Frequency(String value, long freq, double pct, boolean missing) {
       this.value = value;
       this.freq = freq;
       this.pct = pct;
+      this.missing = missing;
     }
 
     public String getValue() {
@@ -121,6 +132,10 @@ public class CategoricalVariableSummary extends AbstractVariableSummary implemen
 
     public double getPct() {
       return pct;
+    }
+
+    public boolean isMissing() {
+      return missing;
     }
   }
 
@@ -233,16 +248,26 @@ public class CategoricalVariableSummary extends AbstractVariableSummary implemen
       }));
     }
 
+    private Map<String, Category> getCategoriesByName() {
+      return Maps.uniqueIndex(variable.getCategories(), new Function<Category, String>() {
+        @Override
+        public String apply(Category input) {
+          return input.getName();
+        }
+      });
+    }
+
     private void compute() {
       log.trace("Start compute categorical {}", summary.variable.getName());
       long max = 0;
       Iterator<String> concat = summary.distinct //
           ? freqNames(summary.frequencyDist)  // category names, null values and distinct values
-          : Iterators.concat(categoryNames().iterator(), ImmutableList.of(NULL_NAME).iterator(),
-              ImmutableList.of(OTHER_NAME).iterator()); // category names and null values
+          : Iterators.concat(categoryNames().iterator(),
+              ImmutableList.of(NULL_NAME).iterator()); // category names and null values
 
       // Iterate over all category names including or not distinct values.
       // The loop will also determine the mode of the distribution (most frequent value)
+      Map<String, Category> categoriesByName = getCategoriesByName();
       while(concat.hasNext()) {
         String value = concat.next();
         long count = summary.frequencyDist.getCount(value);
@@ -250,9 +275,17 @@ public class CategoricalVariableSummary extends AbstractVariableSummary implemen
           max = count;
           summary.mode = value;
         }
+
+        boolean notMissing = variable.getValueType().equals(BooleanType.get())
+            ? value.equals(BooleanType.get().trueValue().toString()) ||
+            value.equals(BooleanType.get().falseValue().toString())
+            : categoriesByName.containsKey(value) && !categoriesByName.get(value).isMissing();
+
         summary.frequencies.add(new Frequency(value, summary.frequencyDist.getCount(value),
-            Double.isNaN(summary.frequencyDist.getPct(value)) ? 0.0 : summary.frequencyDist.getPct(value)));
+            Double.isNaN(summary.frequencyDist.getPct(value)) ? 0.0 : summary.frequencyDist.getPct(value),
+            !notMissing));
       }
+      summary.otherFrequency = summary.frequencyDist.getCount(OTHER_NAME);
       summary.n = summary.frequencyDist.getSumFreq();
     }
 

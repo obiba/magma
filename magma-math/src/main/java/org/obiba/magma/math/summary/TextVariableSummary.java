@@ -87,10 +87,13 @@ public class TextVariableSummary extends AbstractVariableSummary implements Seri
 
     private final double pct;
 
-    public Frequency(String value, long freq, double pct) {
+    private final boolean missing;
+
+    public Frequency(String value, long freq, double pct, boolean missing) {
       this.value = value;
       this.freq = freq;
       this.pct = pct;
+      this.missing = missing;
     }
 
     public String getValue() {
@@ -103,6 +106,10 @@ public class TextVariableSummary extends AbstractVariableSummary implements Seri
 
     public double getPct() {
       return pct;
+    }
+
+    public boolean isMissing() {
+      return missing;
     }
   }
 
@@ -207,7 +214,8 @@ public class TextVariableSummary extends AbstractVariableSummary implements Seri
       while(concat.hasNext()) {
         String value = concat.next();
         summary.frequencies.add(new Frequency(value, summary.frequencyDist.getCount(value),
-            Double.isNaN(summary.frequencyDist.getPct(value)) ? 0.0 : summary.frequencyDist.getPct(value)));
+            Double.isNaN(summary.frequencyDist.getPct(value)) ? 0.0 : summary.frequencyDist.getPct(value),
+            value.equals(NULL_NAME)));
       }
 
       Collections.sort(summary.frequencies, new Comparator<Frequency>() {
