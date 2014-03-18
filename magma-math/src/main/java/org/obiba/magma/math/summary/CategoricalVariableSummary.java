@@ -13,6 +13,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 
 import javax.validation.constraints.NotNull;
 
@@ -30,6 +31,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Iterators;
+import com.google.common.collect.Lists;
 
 /**
  *
@@ -41,6 +43,8 @@ public class CategoricalVariableSummary extends AbstractVariableSummary implemen
   private static final Logger log = LoggerFactory.getLogger(CategoricalVariableSummary.class);
 
   public static final String NULL_NAME = "N/A";
+
+  private static final String OTHER_NAME = "OTHER_VALUES";
 
   private final org.apache.commons.math3.stat.Frequency frequencyDist = new org.apache.commons.math3.stat.Frequency();
 
@@ -143,7 +147,7 @@ public class CategoricalVariableSummary extends AbstractVariableSummary implemen
         throw new IllegalStateException("Cannot add value for variable " + summary.variable.getName() +
             " because values where previously added from the whole table with addTable().");
       }
-      add(value);
+      add(value, categoryNames());
       addedValue = true;
       return this;
     }
@@ -167,11 +171,11 @@ public class CategoricalVariableSummary extends AbstractVariableSummary implemen
       Preconditions.checkArgument(variableValueSource != null, "variableValueSource cannot be null");
       if(!variableValueSource.supportVectorSource()) return;
       for(Value value : variableValueSource.asVectorSource().getValues(summary.getVariableEntities(table))) {
-        add(value);
+        add(value, categoryNames());
       }
     }
 
-    private void add(@NotNull Value value) {
+    private void add(@NotNull Value value, List<String> categoryNames) {
       //noinspection ConstantConditions
       Preconditions.checkArgument(value != null, "value cannot be null");
 
@@ -181,11 +185,18 @@ public class CategoricalVariableSummary extends AbstractVariableSummary implemen
           summary.frequencyDist.addValue(NULL_NAME);
         } else {
           for(Value v : value.asSequence().getValue()) {
-            add(v);
+            add(v, categoryNames);
           }
         }
       } else {
-        summary.frequencyDist.addValue(value.isNull() ? NULL_NAME : value.toString());
+        if(value.isNull()) {
+          summary.frequencyDist.addValue(NULL_NAME);
+        } else if(summary.distinct || categoryNames.contains(value.toString())) {
+          summary.frequencyDist.addValue(value.toString());
+        } else {
+          summary.frequencyDist.addValue(OTHER_NAME);
+        }
+
       }
     }
 
@@ -205,21 +216,21 @@ public class CategoricalVariableSummary extends AbstractVariableSummary implemen
     /**
      * Returns an iterator of category names
      */
-    private Iterator<String> categoryNames() {
+    private List<String> categoryNames() {
       if(variable.getValueType().equals(BooleanType.get())) {
         return ImmutableList.<String>builder() //
             .add(BooleanType.get().trueValue().toString()) //
-            .add(BooleanType.get().falseValue().toString()).build().iterator();
+            .add(BooleanType.get().falseValue().toString()).build();
       }
 
-      return Iterables.transform(variable.getCategories(), new Function<Category, String>() {
+      return Lists.newArrayList(Iterables.transform(variable.getCategories(), new Function<Category, String>() {
 
         @Override
         public String apply(Category from) {
           return from.getName();
         }
 
-      }).iterator();
+      }));
     }
 
     private void compute() {
@@ -227,7 +238,8 @@ public class CategoricalVariableSummary extends AbstractVariableSummary implemen
       long max = 0;
       Iterator<String> concat = summary.distinct //
           ? freqNames(summary.frequencyDist)  // category names, null values and distinct values
-          : Iterators.concat(categoryNames(), ImmutableList.of(NULL_NAME).iterator()); // category names and null values
+          : Iterators.concat(categoryNames().iterator(), ImmutableList.of(NULL_NAME).iterator(),
+              ImmutableList.of(OTHER_NAME).iterator()); // category names and null values
 
       // Iterate over all category names including or not distinct values.
       // The loop will also determine the mode of the distribution (most frequent value)
