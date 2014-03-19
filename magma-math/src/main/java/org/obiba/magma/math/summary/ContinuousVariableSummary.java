@@ -52,7 +52,8 @@ public class ContinuousVariableSummary extends AbstractVariableSummary implement
 
   public static final int DEFAULT_INTERVALS = 10;
 
-  static final ImmutableList<Double> DEFAULT_PERCENTILES = ImmutableList.of(0.05d, 0.5d, 5d, 10d, 15d, 20d, 25d, 30d, 35d, 40d, 45d, 50d, 55d, 60d, 65d, 70d, 75d, 80d, 85d, 90d, 95d,
+  static final ImmutableList<Double> DEFAULT_PERCENTILES = ImmutableList
+      .of(0.05d, 0.5d, 5d, 10d, 15d, 20d, 25d, 30d, 35d, 40d, 45d, 50d, 55d, 60d, 65d, 70d, 75d, 80d, 85d, 90d, 95d,
           99.5d, 99.95d);
 
   public static final String NULL_NAME = "N/A";
@@ -286,18 +287,27 @@ public class ContinuousVariableSummary extends AbstractVariableSummary implement
     private void add(@NotNull Value value) {
       //noinspection ConstantConditions
       Preconditions.checkArgument(value != null, "value cannot be null");
-      if(!value.isNull() && !summary.missing.contains(value)) {
+      if(value.isNull()) {
+        summary.frequencyDist.addValue(NULL_NAME);
+      } else {
         if(value.isSequence()) {
           for(Value v : value.asSequence().getValue()) {
             add(v);
           }
         } else {
-          summary.descriptiveStats.addValue(((Number) value.getValue()).doubleValue());
-          summary.frequencyDist.addValue(value.isNull() ? NULL_NAME : NOT_NULL_NAME);
+          if(!summary.missing.contains(value)) {
+            summary.descriptiveStats.addValue(((Number) value.getValue()).doubleValue());
+          }
+
+          // A continuous variable can have missing categories
+          if(value.isNull()) {
+            summary.frequencyDist.addValue(NULL_NAME);
+          } else if(summary.missing.contains(value)) {
+            summary.frequencyDist.addValue(value.toString());
+          } else {
+            summary.frequencyDist.addValue(NOT_NULL_NAME);
+          }
         }
-      }
-      if(value.isNull()) {
-        summary.frequencyDist.addValue(NULL_NAME);
       }
     }
 
@@ -346,7 +356,7 @@ public class ContinuousVariableSummary extends AbstractVariableSummary implement
         String value = concat.next();
         summary.frequencies.add(new Frequency(value, summary.frequencyDist.getCount(value),
             Double.isNaN(summary.frequencyDist.getPct(value)) ? 0.0 : summary.frequencyDist.getPct(value),
-            value.equals(NULL_NAME)));
+            !value.equals(NOT_NULL_NAME)));
       }
     }
 
