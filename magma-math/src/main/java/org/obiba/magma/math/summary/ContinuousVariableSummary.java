@@ -278,7 +278,7 @@ public class ContinuousVariableSummary extends AbstractVariableSummary implement
       Preconditions.checkArgument(variableValueSource != null, "variableValueSource cannot be null");
 
       if(!variableValueSource.supportVectorSource()) return;
-      for(Value value : variableValueSource.asVectorSource().getValues(summary.getVariableEntities(table))) {
+      for(Value value : variableValueSource.asVectorSource().getValues(summary.getFilteredVariableEntities(table))) {
         add(value);
       }
     }
