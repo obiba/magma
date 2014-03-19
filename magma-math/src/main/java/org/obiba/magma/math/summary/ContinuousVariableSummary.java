@@ -356,7 +356,7 @@ public class ContinuousVariableSummary extends AbstractVariableSummary implement
         String value = concat.next();
         summary.frequencies.add(new Frequency(value, summary.frequencyDist.getCount(value),
             Double.isNaN(summary.frequencyDist.getPct(value)) ? 0.0 : summary.frequencyDist.getPct(value),
-            !value.equals(NOT_NULL_NAME)));
+            !NOT_NULL_NAME.equals(value)));
       }
     }
 
