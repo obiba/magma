@@ -191,16 +191,20 @@ public class GeoVariableSummary extends AbstractVariableSummary implements Seria
         summary.frequencyDist.addValue(value.isNull() ? NULL_NAME : NOT_NULL_NAME);
 
         if(!value.isNull()) {
-          if(value.getValueType() == PointType.get()) {
-            coords.add((Coordinate) value.getValue());
-          } else if(value.getValueType() == LineStringType.get()) {
-            coords.addAll((Collection<Coordinate>) value.getValue());
-          } else if(value.getValueType() == PolygonType.get()) {
-            Collection<List<Coordinate>> coordinateList = (Collection<java.util.List<Coordinate>>) value.getValue();
-            for(List<Coordinate> coordinate : coordinateList) {
-              coords.addAll(coordinate);
-            }
-          }
+          getCoordinates(value);
+        }
+      }
+    }
+
+    private void getCoordinates(Value value) {
+      if(value.getValueType() == PointType.get()) {
+        coords.add((Coordinate) value.getValue());
+      } else if(value.getValueType() == LineStringType.get()) {
+        coords.addAll((Collection<Coordinate>) value.getValue());
+      } else if(value.getValueType() == PolygonType.get()) {
+        Collection<List<Coordinate>> coordinateList = (Collection<List<Coordinate>>) value.getValue();
+        for(List<Coordinate> coordinate : coordinateList) {
+          coords.addAll(coordinate);
         }
       }
     }
