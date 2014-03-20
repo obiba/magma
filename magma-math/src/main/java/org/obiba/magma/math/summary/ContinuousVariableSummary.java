@@ -52,7 +52,8 @@ public class ContinuousVariableSummary extends AbstractVariableSummary implement
 
   public static final int DEFAULT_INTERVALS = 10;
 
-  static final ImmutableList<Double> DEFAULT_PERCENTILES = ImmutableList.of(0.05d, 0.5d, 5d, 10d, 15d, 20d, 25d, 30d, 35d, 40d, 45d, 50d, 55d, 60d, 65d, 70d, 75d, 80d, 85d, 90d, 95d,
+  static final ImmutableList<Double> DEFAULT_PERCENTILES = ImmutableList
+      .of(0.05d, 0.5d, 5d, 10d, 15d, 20d, 25d, 30d, 35d, 40d, 45d, 50d, 55d, 60d, 65d, 70d, 75d, 80d, 85d, 90d, 95d,
           99.5d, 99.95d);
 
   public static final String NULL_NAME = "N/A";
@@ -187,10 +188,13 @@ public class ContinuousVariableSummary extends AbstractVariableSummary implement
 
     private final double pct;
 
-    public Frequency(String value, long freq, double pct) {
+    private boolean missing;
+
+    public Frequency(String value, long freq, double pct, boolean missing) {
       this.value = value;
       this.freq = freq;
       this.pct = pct;
+      this.missing = missing;
     }
 
     public String getValue() {
@@ -203,6 +207,10 @@ public class ContinuousVariableSummary extends AbstractVariableSummary implement
 
     public double getPct() {
       return pct;
+    }
+
+    public boolean isMissing() {
+      return missing;
     }
   }
 
@@ -271,7 +279,7 @@ public class ContinuousVariableSummary extends AbstractVariableSummary implement
       Preconditions.checkArgument(variableValueSource != null, "variableValueSource cannot be null");
 
       if(!variableValueSource.supportVectorSource()) return;
-      for(Value value : variableValueSource.asVectorSource().getValues(summary.getVariableEntities(table))) {
+      for(Value value : variableValueSource.asVectorSource().getValues(summary.getFilteredVariableEntities(table))) {
         add(value);
       }
     }
@@ -279,18 +287,27 @@ public class ContinuousVariableSummary extends AbstractVariableSummary implement
     private void add(@NotNull Value value) {
       //noinspection ConstantConditions
       Preconditions.checkArgument(value != null, "value cannot be null");
-      if(!value.isNull() && !summary.missing.contains(value)) {
+      if(value.isNull()) {
+        summary.frequencyDist.addValue(NULL_NAME);
+      } else {
         if(value.isSequence()) {
           for(Value v : value.asSequence().getValue()) {
             add(v);
           }
         } else {
-          summary.descriptiveStats.addValue(((Number) value.getValue()).doubleValue());
-          summary.frequencyDist.addValue(value.isNull() ? NULL_NAME : NOT_NULL_NAME);
+          if(!summary.missing.contains(value)) {
+            summary.descriptiveStats.addValue(((Number) value.getValue()).doubleValue());
+          }
+
+          // A continuous variable can have missing categories
+          if(value.isNull()) {
+            summary.frequencyDist.addValue(NULL_NAME);
+          } else if(summary.missing.contains(value)) {
+            summary.frequencyDist.addValue(value.toString());
+          } else {
+            summary.frequencyDist.addValue(NOT_NULL_NAME);
+          }
         }
-      }
-      if(value.isNull()) {
-        summary.frequencyDist.addValue(NULL_NAME);
       }
     }
 
@@ -348,7 +365,8 @@ public class ContinuousVariableSummary extends AbstractVariableSummary implement
       while(concat.hasNext()) {
         String value = concat.next();
         summary.frequencies.add(new Frequency(value, summary.frequencyDist.getCount(value),
-            Double.isNaN(summary.frequencyDist.getPct(value)) ? 0.0 : summary.frequencyDist.getPct(value)));
+            Double.isNaN(summary.frequencyDist.getPct(value)) ? 0.0 : summary.frequencyDist.getPct(value),
+            !NOT_NULL_NAME.equals(value)));
       }
     }
 

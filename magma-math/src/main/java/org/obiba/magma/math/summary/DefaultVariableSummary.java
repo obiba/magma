@@ -81,10 +81,13 @@ public class DefaultVariableSummary extends AbstractVariableSummary implements S
 
     private final double pct;
 
-    public Frequency(String value, long freq, double pct) {
+    private final boolean missing;
+
+    public Frequency(String value, long freq, double pct, boolean missing) {
       this.value = value;
       this.freq = freq;
       this.pct = pct;
+      this.missing = missing;
     }
 
     public String getValue() {
@@ -97,6 +100,10 @@ public class DefaultVariableSummary extends AbstractVariableSummary implements S
 
     public double getPct() {
       return pct;
+    }
+
+    public boolean isMissing() {
+      return missing;
     }
   }
 
@@ -147,7 +154,7 @@ public class DefaultVariableSummary extends AbstractVariableSummary implements S
       Preconditions.checkArgument(variableValueSource != null, "variableValueSource cannot be null");
 
       if(!variableValueSource.supportVectorSource()) return;
-      for(Value value : variableValueSource.asVectorSource().getValues(summary.getVariableEntities(table))) {
+      for(Value value : variableValueSource.asVectorSource().getValues(summary.getFilteredVariableEntities(table))) {
         add(value);
       }
     }
@@ -197,7 +204,8 @@ public class DefaultVariableSummary extends AbstractVariableSummary implements S
           max = count;
         }
         summary.frequencies.add(new Frequency(value, summary.frequencyDist.getCount(value),
-            Double.isNaN(summary.frequencyDist.getPct(value)) ? 0.0 : summary.frequencyDist.getPct(value)));
+            Double.isNaN(summary.frequencyDist.getPct(value)) ? 0.0 : summary.frequencyDist.getPct(value),
+            value.equals(NULL_NAME)));
       }
       summary.n = summary.frequencyDist.getSumFreq();
     }

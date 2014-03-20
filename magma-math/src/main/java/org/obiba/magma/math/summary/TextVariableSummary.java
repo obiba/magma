@@ -16,22 +16,18 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 
-import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 
 import org.obiba.magma.Value;
-import org.obiba.magma.ValueSet;
 import org.obiba.magma.ValueSource;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.Variable;
-import org.obiba.magma.VariableEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Iterators;
 
 /**
@@ -87,10 +83,13 @@ public class TextVariableSummary extends AbstractVariableSummary implements Seri
 
     private final double pct;
 
-    public Frequency(String value, long freq, double pct) {
+    private final boolean missing;
+
+    public Frequency(String value, long freq, double pct, boolean missing) {
       this.value = value;
       this.freq = freq;
       this.pct = pct;
+      this.missing = missing;
     }
 
     public String getValue() {
@@ -103,6 +102,10 @@ public class TextVariableSummary extends AbstractVariableSummary implements Seri
 
     public double getPct() {
       return pct;
+    }
+
+    public boolean isMissing() {
+      return missing;
     }
   }
 
@@ -146,23 +149,14 @@ public class TextVariableSummary extends AbstractVariableSummary implements Seri
       return this;
     }
 
-    private void add(@NotNull final ValueTable table, @NotNull ValueSource variableValueSource) {
+    private void add(@NotNull ValueTable table, @NotNull ValueSource variableValueSource) {
       //noinspection ConstantConditions
       Preconditions.checkArgument(table != null, "table cannot be null");
       //noinspection ConstantConditions
       Preconditions.checkArgument(variableValueSource != null, "variableValueSource cannot be null");
 
-      Iterable<Value> values = Iterables.transform(table.getVariableEntities(), new Function<VariableEntity, Value>() {
-        @Nullable
-        @Override
-        public Value apply(@Nullable VariableEntity input) {
-          ValueSet valueSet = table.getValueSet(input);
-          Value value = table.getValue(variable, valueSet);
-          return value;
-        }
-      });
-
-      for(Value value : values) {
+      if(!variableValueSource.supportVectorSource()) return;
+      for(Value value : variableValueSource.asVectorSource().getValues(summary.getFilteredVariableEntities(table))) {
         add(value);
       }
     }
@@ -207,7 +201,8 @@ public class TextVariableSummary extends AbstractVariableSummary implements Seri
       while(concat.hasNext()) {
         String value = concat.next();
         summary.frequencies.add(new Frequency(value, summary.frequencyDist.getCount(value),
-            Double.isNaN(summary.frequencyDist.getPct(value)) ? 0.0 : summary.frequencyDist.getPct(value)));
+            Double.isNaN(summary.frequencyDist.getPct(value)) ? 0.0 : summary.frequencyDist.getPct(value),
+            value.equals(NULL_NAME)));
       }
 
       Collections.sort(summary.frequencies, new Comparator<Frequency>() {
