@@ -98,7 +98,8 @@ public class SpssValueTable extends AbstractValueTable implements Disposable {
 
   private void initializeVariableSources() {
     loadMetadata();
-    addVariableValueSources(new SpssVariableValueSourceFactory(spssFile, getEntityType(), locale, entityToVariableIndex));
+    addVariableValueSources(
+        new SpssVariableValueSourceFactory(spssFile, getEntityType(), locale, entityToVariableIndex));
   }
 
   private void loadMetadata() {
@@ -164,8 +165,8 @@ public class SpssValueTable extends AbstractValueTable implements Disposable {
       return variableEntities;
     }
 
-    private ImmutableSet<VariableEntity> getVariableEntitiesInternal() {Collection<String>
-        entityIdentifiers = new HashSet<>();
+    private ImmutableSet<VariableEntity> getVariableEntitiesInternal() {
+      Collection<String> entityIdentifiers = new HashSet<>();
       ImmutableSet.Builder<VariableEntity> entitiesBuilder = ImmutableSet.builder();
       SPSSVariable entityVariable = spssFile.getVariable(0);
       int numberOfObservations = entityVariable.getNumberOfObservations();
@@ -208,7 +209,8 @@ public class SpssValueTable extends AbstractValueTable implements Disposable {
         spssFile.loadData();
       } catch(Exception e) {
         String fileName = spssFile.file.getName();
-        throw new DatasourceParsingException("Failed load data in file " + fileName, e, "SpssFailedToLoadData", fileName);
+        throw new DatasourceParsingException("Failed load data in file " + fileName, e, "SpssFailedToLoadData",
+            fileName);
       }
     }
 
