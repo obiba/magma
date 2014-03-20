@@ -19,7 +19,11 @@ import org.opendatafoundation.data.spss.SPSSVariable;
 public class SpssVariableValueFactory extends SpssValueFactory {
 
   public SpssVariableValueFactory(int variableIndex, SPSSVariable spssVariable, ValueType valueType) {
-    super(variableIndex, spssVariable, valueType);
+    this(variableIndex, spssVariable, valueType, false);
+  }
+
+  public SpssVariableValueFactory(int variableIndex, SPSSVariable spssVariable, ValueType valueType, boolean withValidation) {
+    super(variableIndex, spssVariable, valueType, withValidation);
   }
 
   @Override

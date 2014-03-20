@@ -20,7 +20,7 @@ public class SpssCategoryNameValueFactory extends SpssValueFactory {
 
   public SpssCategoryNameValueFactory(String category, int variableIndex, SPSSVariable spssVariable,
       ValueType valueType) {
-    super(variableIndex, spssVariable, valueType);
+    super(variableIndex, spssVariable, valueType, true);
     this.category = category;
   }
 

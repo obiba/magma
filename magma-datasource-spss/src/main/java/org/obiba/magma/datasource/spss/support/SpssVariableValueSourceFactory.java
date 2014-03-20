@@ -135,7 +135,6 @@ public class SpssVariableValueSourceFactory implements VariableValueSourceFactor
     String label = spssVariable.getLabel();
 
     if(!Strings.isNullOrEmpty(label)) {
-      validate(label);
       builder.addAttribute(addLabelAttribute(label));
     }
   }
