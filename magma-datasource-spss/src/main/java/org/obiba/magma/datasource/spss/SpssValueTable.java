@@ -173,7 +173,7 @@ public class SpssValueTable extends AbstractValueTable implements Disposable {
       ValueType valueType = SpssVariableTypeMapper.map(entityVariable);
 
       for(int i = 1; i <= numberOfObservations; i++) {
-        Value identifierValue = new SpssVariableValueFactory(i, entityVariable, valueType).create();
+        Value identifierValue = new SpssVariableValueFactory(i, entityVariable, valueType, true).create();
 
         if(identifierValue.isNull()) {
           throw new SpssDatasourceParsingException("Empty entity identifier found.", "SpssEmptyIdentifier",

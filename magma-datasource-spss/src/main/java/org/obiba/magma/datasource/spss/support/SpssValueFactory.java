@@ -18,6 +18,8 @@ import static org.obiba.magma.datasource.spss.support.CharacterSetValidator.vali
 
 public abstract class SpssValueFactory {
 
+  protected final boolean withValidation;
+
   protected final int variableIndex;
 
   protected final SPSSVariable spssVariable;
@@ -26,10 +28,11 @@ public abstract class SpssValueFactory {
 
   private SpssTypeFormatter valueFormatter;
 
-  public SpssValueFactory(int variableIndex, SPSSVariable spssVariable, ValueType valueType) {
+  public SpssValueFactory(int variableIndex, SPSSVariable spssVariable, ValueType valueType, boolean withValidation) {
     this.variableIndex = variableIndex;
     this.spssVariable = spssVariable;
     this.valueType = valueType;
+    this.withValidation = withValidation;
     initializeVariableTypeFormatter();
   }
 
@@ -37,6 +40,9 @@ public abstract class SpssValueFactory {
 
   protected Value createValue() throws SpssInvalidCharacterException {
     String value = getValue();
+    if (withValidation) {
+      validate(value);
+    }
     return valueType.valueOf(valueFormatter.format(value));
   }
 

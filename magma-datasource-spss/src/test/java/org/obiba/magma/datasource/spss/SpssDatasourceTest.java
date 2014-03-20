@@ -339,12 +339,9 @@ public class SpssDatasourceTest {
         SpssValueSet valueSet = (SpssValueSet) valueTable.getValueSet(iterator.next());
         valueSet.getValue(ds.getValueTable("invalid-var-value").getVariable("var1"));
       }
-      fail("Must have thrown DatasourceParsingException");
     } catch(SpssDatasourceParsingException e) {
-      assertThat(e.getMessage()).startsWith("Invalid characters in variable value")
-          .contains("(Data info: variable='var1'").contains("String with invalid characters");
+      fail("Must have thrown DatasourceParsingException");
     }
-
   }
 
   @Test
