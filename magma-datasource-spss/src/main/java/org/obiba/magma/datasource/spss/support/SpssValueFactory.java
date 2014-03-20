@@ -37,7 +37,6 @@ public abstract class SpssValueFactory {
 
   protected Value createValue() throws SpssInvalidCharacterException {
     String value = getValue();
-    validate(value);
     return valueType.valueOf(valueFormatter.format(value));
   }
 
