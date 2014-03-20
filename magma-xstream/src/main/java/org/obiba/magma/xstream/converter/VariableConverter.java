@@ -86,7 +86,11 @@ public class VariableConverter extends AbstractAttributeAwareConverter {
         .newVariable(reader.getAttribute("name"), ValueType.Factory.forName(reader.getAttribute("valueType")),
             reader.getAttribute("entityType"));
     if(reader.getAttribute("repeatable") != null) {
-      builder.repeatable().occurrenceGroup(reader.getAttribute("occurrenceGroup"));
+      try {
+        if (Boolean.parseBoolean(reader.getAttribute("repeatable"))) {
+          builder.repeatable().occurrenceGroup(reader.getAttribute("occurrenceGroup"));
+        }
+      } catch(Exception e) {}
     }
     if(reader.getAttribute("unit") != null) {
       builder.unit(reader.getAttribute("unit"));
