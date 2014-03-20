@@ -98,7 +98,8 @@ public class SpssValueTable extends AbstractValueTable implements Disposable {
 
   private void initializeVariableSources() {
     loadMetadata();
-    addVariableValueSources(new SpssVariableValueSourceFactory(spssFile, getEntityType(), locale, entityToVariableIndex));
+    addVariableValueSources(
+        new SpssVariableValueSourceFactory(spssFile, getEntityType(), locale, entityToVariableIndex));
   }
 
   private void loadMetadata() {
@@ -158,39 +159,41 @@ public class SpssValueTable extends AbstractValueTable implements Disposable {
 
       if(variableEntities == null) {
         loadData();
-
-        Collection<String> entityIdentifiers = new HashSet<>();
-        ImmutableSet.Builder<VariableEntity> entitiesBuilder = ImmutableSet.builder();
-        SPSSVariable entityVariable = spssFile.getVariable(0);
-        int numberOfObservations = entityVariable.getNumberOfObservations();
-        ValueType valueType = SpssVariableTypeMapper.map(entityVariable);
-
-        for(int i = 1; i <= numberOfObservations; i++) {
-          Value identifierValue = new SpssVariableValueFactory(i, entityVariable, valueType).create();
-
-          if(identifierValue.isNull()) {
-            throw new SpssDatasourceParsingException("Empty entity identifier found.", "SpssEmptyIdentifier",
-                entityVariable.getName(), i).dataInfo(entityVariable.getName(), i);
-          }
-
-          String identifier = identifierValue.getValue().toString();
-
-          if(entityIdentifiers.contains(identifier)) {
-            String variableName = entityVariable.getName();
-            throw new SpssDatasourceParsingException("Duplicated entity identifier '" + identifier + "' found.",
-                "SpssDuplicateEntity", identifier, i, variableName).dataInfo(variableName, i);
-          }
-
-          entityToVariableIndex.put(identifier, i);
-          entitiesBuilder.add(new VariableEntityBean(entityType, identifier));
-          entityIdentifiers.add(identifier);
-        }
-
-        variableEntities = entitiesBuilder.build();
-
+        variableEntities = getVariableEntitiesInternal();
       }
 
       return variableEntities;
+    }
+
+    private ImmutableSet<VariableEntity> getVariableEntitiesInternal() {
+      Collection<String> entityIdentifiers = new HashSet<>();
+      ImmutableSet.Builder<VariableEntity> entitiesBuilder = ImmutableSet.builder();
+      SPSSVariable entityVariable = spssFile.getVariable(0);
+      int numberOfObservations = entityVariable.getNumberOfObservations();
+      ValueType valueType = SpssVariableTypeMapper.map(entityVariable);
+
+      for(int i = 1; i <= numberOfObservations; i++) {
+        Value identifierValue = new SpssVariableValueFactory(i, entityVariable, valueType).create();
+
+        if(identifierValue.isNull()) {
+          throw new SpssDatasourceParsingException("Empty entity identifier found.", "SpssEmptyIdentifier",
+              entityVariable.getName(), i).dataInfo(entityVariable.getName(), i);
+        }
+
+        String identifier = identifierValue.getValue().toString();
+
+        if(entityIdentifiers.contains(identifier)) {
+          String variableName = entityVariable.getName();
+          throw new SpssDatasourceParsingException("Duplicated entity identifier '" + identifier + "' found.",
+              "SpssDuplicateEntity", identifier, i, variableName).dataInfo(variableName, i);
+        }
+
+        entityToVariableIndex.put(identifier, i);
+        entitiesBuilder.add(new VariableEntityBean(entityType, identifier));
+        entityIdentifiers.add(identifier);
+      }
+
+      return entitiesBuilder.build();
     }
 
     private void loadData() {
@@ -206,7 +209,8 @@ public class SpssValueTable extends AbstractValueTable implements Disposable {
         spssFile.loadData();
       } catch(Exception e) {
         String fileName = spssFile.file.getName();
-        throw new DatasourceParsingException("Failed load data in file " + fileName, e, "SpssFailedToLoadData", fileName);
+        throw new DatasourceParsingException("Failed load data in file " + fileName, e, "SpssFailedToLoadData",
+            fileName);
       }
     }
 
