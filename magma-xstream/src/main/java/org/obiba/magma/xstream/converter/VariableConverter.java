@@ -98,6 +98,13 @@ public class VariableConverter extends AbstractAttributeAwareConverter {
     if(reader.getAttribute("mimeType") != null) {
       builder.mimeType(reader.getAttribute("mimeType"));
     }
+    unmarshalChildren(reader, context, builder);
+
+    return builder.build();
+  }
+
+  private void unmarshalChildren(HierarchicalStreamReader reader, UnmarshallingContext context,
+      Variable.Builder builder) {
     while(reader.hasMoreChildren()) {
       reader.moveDown();
       if(isAttributesNode(reader.getNodeName())) {
@@ -110,8 +117,6 @@ public class VariableConverter extends AbstractAttributeAwareConverter {
       }
       reader.moveUp();
     }
-
-    return builder.build();
   }
 
   @Override
