@@ -3,6 +3,6 @@ description = 'math'
 dependencies {
   compile project(':magma-api')
   compile(libraries.commons_math)
-    compile(group: 'com.vividsolutions', name: 'jts', version: '1.13')
-    compile(group: 'org.opensphere', name: 'concave_hull', version: '0.1')
+  compile(group: 'com.vividsolutions', name: 'jts', version: '1.13')
+  compile(group: 'org.opensphere', name: 'concave_hull', version: '0.1')
 }
