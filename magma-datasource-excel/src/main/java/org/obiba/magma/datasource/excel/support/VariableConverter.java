@@ -514,7 +514,7 @@ public class VariableConverter {
   @Nullable
   private Cell getCategoryCell(Row row, String header) {
     Integer idx = getCategoryHeaderIndex(header);
-    return idx == null ? null : row.getCell(idx, Row.CREATE_NULL_AS_BLANK);
+    return idx == null || row == null ? null : row.getCell(idx, Row.CREATE_NULL_AS_BLANK);
   }
 
   /**
@@ -526,7 +526,7 @@ public class VariableConverter {
    */
   private String getCategoryCellValue(Row row, String header) {
     Integer idx = getCategoryHeaderIndex(header);
-    return idx != null ? getCellValueAsString(row.getCell(idx)).trim() : "";
+    return idx != null && row != null ? getCellValueAsString(row.getCell(idx)).trim() : "";
   }
 
   /**

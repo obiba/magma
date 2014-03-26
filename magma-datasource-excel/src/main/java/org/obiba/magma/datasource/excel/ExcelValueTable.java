@@ -320,7 +320,7 @@ public class ExcelValueTable extends AbstractValueTable implements Initialisable
 
     for(int rowIndex = 1; rowIndex < categoryRowCount; rowIndex++) {
       Row categoryRow = categoriesSheet.getRow(rowIndex);
-      if(converter.getCategoryTableName(categoryRow).equals(getName())) {
+      if(categoryRow != null && converter.getCategoryTableName(categoryRow).equals(getName())) {
         String variableName = converter.getCategoryVariableName(categoryRow);
         if(variableName.length() != 0) {
           List<Integer> categoryRows = variableCategoryRows.get(getName() + "." + variableName);
