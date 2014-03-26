@@ -25,6 +25,7 @@ import org.obiba.magma.Variable;
 import org.obiba.magma.type.LineStringType;
 import org.obiba.magma.type.PointType;
 import org.obiba.magma.type.PolygonType;
+import org.opensphere.geometry.algorithm.ConcaveHull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,8 +33,9 @@ import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterators;
-import com.vividsolutions.jts.algorithm.ConvexHull;
+import com.vividsolutions.jts.geom.GeometryCollection;
 import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.Point;
 
 /**
  *
@@ -240,7 +242,7 @@ public class GeoVariableSummary extends AbstractVariableSummary implements Seria
             value.equals(NULL_NAME)));
       }
       summary.n = summary.frequencyDist.getSumFreq();
-      summary.coordinates.addAll(getConvexHull(coords));
+      summary.coordinates.addAll(getConcaveHull(coords));
     }
 
     public Builder filter(Integer offset, Integer limit) {
@@ -262,31 +264,37 @@ public class GeoVariableSummary extends AbstractVariableSummary implements Seria
       return variable;
     }
 
-    private static List<Coordinate> getConvexHull(List<Coordinate> coordinates) {
+    private static Collection<Coordinate> getConcaveHull(List<Coordinate> coordinates) {
+      // adjust the treshold to have more or less lines... Lower treshold means more complex polygon
+      GeometryCollection geometryCollection = getGeometryCollection(coordinates);
+      ConcaveHull concaveHull = new ConcaveHull(geometryCollection, 2);
 
-      com.vividsolutions.jts.geom.Coordinate[] coordinatesArray = new com.vividsolutions.jts.geom.Coordinate[coordinates
-          .size()];
-
-      // From Magma Coordinate to JTS coordinate
-      for(int i = 0; i < coordinates.size(); i++) {
-        Coordinate coordinate = coordinates.get(i);
-        coordinatesArray[i] = new com.vividsolutions.jts.geom.Coordinate(coordinate.getLongitude(),
-            coordinate.getLatitude());
-      }
-
-      // Calculate Convex Hull
-      ConvexHull convexHull = new ConvexHull(coordinatesArray, new GeometryFactory());
-      com.vividsolutions.jts.geom.Coordinate[] coordinatesConvex = convexHull.getConvexHull().getCoordinates();
+      com.vividsolutions.jts.geom.Coordinate[] coordinatesConcave = concaveHull.getConcaveHull().getCoordinates();
 
       // From JTS Coordinate to Magma Coordinate
-      List<Coordinate> result = new ArrayList<>();
-      for(com.vividsolutions.jts.geom.Coordinate aCoordinatesConvex : coordinatesConvex) {
+      Collection<Coordinate> result = new ArrayList<>();
+      for(com.vividsolutions.jts.geom.Coordinate aCoordinatesConvex : coordinatesConcave) {
         result.add(new Coordinate(aCoordinatesConvex.x, aCoordinatesConvex.y));
       }
 
       return result;
     }
-  }
 
+    private static GeometryCollection getGeometryCollection(List<Coordinate> coordinates) {
+
+      Point[] coordinatesArray = new Point[coordinates.size()];
+
+      // From Magma Coordinate to JTS coordinate
+      GeometryFactory factory = new GeometryFactory();
+      for(int i = 0; i < coordinates.size(); i++) {
+        Coordinate coordinate = coordinates.get(i);
+        coordinatesArray[i] = factory.createPoint(
+            new com.vividsolutions.jts.geom.Coordinate(coordinate.getLongitude(), coordinate.getLatitude()));
+      }
+
+      // Calculate Concave Hull
+      return new GeometryCollection(coordinatesArray, factory);
+    }
+  }
 }
 
