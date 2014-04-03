@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 OBiBa. All rights reserved.
+ * Copyright (c) 2013 OBiBa. All rights reserved.
  *
  * This program and the accompanying materials
  * are made available under the terms of the GNU Public License v3.0.
@@ -13,13 +13,19 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 
 import javax.validation.constraints.NotNull;
 
+import org.obiba.magma.Coordinate;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueSource;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.Variable;
+import org.obiba.magma.type.LineStringType;
+import org.obiba.magma.type.PointType;
+import org.obiba.magma.type.PolygonType;
+import org.opensphere.geometry.algorithm.ConcaveHull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,15 +33,18 @@ import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterators;
+import com.vividsolutions.jts.geom.GeometryCollection;
+import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.Point;
 
 /**
  *
  */
-public class BinaryVariableSummary extends AbstractVariableSummary implements Serializable {
+public class GeoVariableSummary extends AbstractVariableSummary implements Serializable {
 
   private static final long serialVersionUID = 203198842420473154L;
 
-  private static final Logger log = LoggerFactory.getLogger(BinaryVariableSummary.class);
+  private static final Logger log = LoggerFactory.getLogger(GeoVariableSummary.class);
 
   public static final String NULL_NAME = "N/A";
 
@@ -49,13 +58,13 @@ public class BinaryVariableSummary extends AbstractVariableSummary implements Se
 
   private final Collection<Frequency> frequencies = new ArrayList<>();
 
-  private BinaryVariableSummary(@NotNull Variable variable) {
+  private GeoVariableSummary(@NotNull Variable variable) {
     super(variable);
   }
 
   @Override
   public String getCacheKey(ValueTable table) {
-    return BinaryVariableSummaryFactory.getCacheKey(variable, table, getOffset(), getLimit());
+    return GeoVariableSummaryFactory.getCacheKey(variable, table, getOffset(), getLimit());
   }
 
   @NotNull
@@ -71,6 +80,12 @@ public class BinaryVariableSummary extends AbstractVariableSummary implements Se
     return empty;
   }
 
+  public ArrayList<Coordinate> getCoordinates() {
+    return coordinates;
+  }
+
+  public ArrayList<Coordinate> coordinates = new ArrayList<>();
+
   public static class Frequency implements Serializable {
 
     private static final long serialVersionUID = -2876592652764310324L;
@@ -81,10 +96,13 @@ public class BinaryVariableSummary extends AbstractVariableSummary implements Se
 
     private final double pct;
 
-    public Frequency(String value, long freq, double pct) {
+    private final boolean missing;
+
+    public Frequency(String value, long freq, double pct, boolean missing) {
       this.value = value;
       this.freq = freq;
       this.pct = pct;
+      this.missing = missing;
     }
 
     public String getValue() {
@@ -98,12 +116,18 @@ public class BinaryVariableSummary extends AbstractVariableSummary implements Se
     public double getPct() {
       return pct;
     }
+
+    public boolean isMissing() {
+      return missing;
+    }
   }
 
   @SuppressWarnings("ParameterHidesMemberVariable")
-  public static class Builder implements VariableSummaryBuilder<BinaryVariableSummary, Builder> {
+  public static class Builder implements VariableSummaryBuilder<GeoVariableSummary, Builder> {
 
-    private final BinaryVariableSummary summary;
+    public ArrayList<Coordinate> coords = new ArrayList<>();
+
+    private final GeoVariableSummary summary;
 
     @NotNull
     private final Variable variable;
@@ -114,7 +138,7 @@ public class BinaryVariableSummary extends AbstractVariableSummary implements Se
 
     public Builder(@NotNull Variable variable) {
       this.variable = variable;
-      summary = new BinaryVariableSummary(variable);
+      summary = new GeoVariableSummary(variable);
     }
 
     @Override
@@ -145,6 +169,7 @@ public class BinaryVariableSummary extends AbstractVariableSummary implements Se
       Preconditions.checkArgument(table != null, "table cannot be null");
       //noinspection ConstantConditions
       Preconditions.checkArgument(variableValueSource != null, "variableValueSource cannot be null");
+
       if(!variableValueSource.supportVectorSource()) return;
       for(Value value : variableValueSource.asVectorSource().getValues(summary.getFilteredVariableEntities(table))) {
         add(value);
@@ -166,6 +191,23 @@ public class BinaryVariableSummary extends AbstractVariableSummary implements Se
         }
       } else {
         summary.frequencyDist.addValue(value.isNull() ? NULL_NAME : NOT_NULL_NAME);
+
+        if(!value.isNull()) {
+          getCoordinates(value);
+        }
+      }
+    }
+
+    private void getCoordinates(Value value) {
+      if(value.getValueType() == PointType.get()) {
+        coords.add((Coordinate) value.getValue());
+      } else if(value.getValueType() == LineStringType.get()) {
+        coords.addAll((Collection<Coordinate>) value.getValue());
+      } else if(value.getValueType() == PolygonType.get()) {
+        Collection<List<Coordinate>> coordinateList = (Collection<List<Coordinate>>) value.getValue();
+        for(List<Coordinate> coordinate : coordinateList) {
+          coords.addAll(coordinate);
+        }
       }
     }
 
@@ -184,16 +226,23 @@ public class BinaryVariableSummary extends AbstractVariableSummary implements Se
 
     private void compute() {
       log.trace("Start compute default summary {}", summary.variable);
+      long max = 0;
       Iterator<String> concat = freqNames(summary.frequencyDist);
 
-      // Iterate over all category names including or not distinct values.
+      // Iterate over all values.
       // The loop will also determine the mode of the distribution (most frequent value)
       while(concat.hasNext()) {
         String value = concat.next();
+        long count = summary.frequencyDist.getCount(value);
+        if(count > max) {
+          max = count;
+        }
         summary.frequencies.add(new Frequency(value, summary.frequencyDist.getCount(value),
-            Double.isNaN(summary.frequencyDist.getPct(value)) ? 0.0 : summary.frequencyDist.getPct(value)));
+            Double.isNaN(summary.frequencyDist.getPct(value)) ? 0.0 : summary.frequencyDist.getPct(value),
+            value.equals(NULL_NAME)));
       }
       summary.n = summary.frequencyDist.getSumFreq();
+      summary.coordinates.addAll(getConcaveHull(coords));
     }
 
     public Builder filter(Integer offset, Integer limit) {
@@ -204,7 +253,7 @@ public class BinaryVariableSummary extends AbstractVariableSummary implements Se
 
     @Override
     @NotNull
-    public BinaryVariableSummary build() {
+    public GeoVariableSummary build() {
       compute();
       return summary;
     }
@@ -215,6 +264,37 @@ public class BinaryVariableSummary extends AbstractVariableSummary implements Se
       return variable;
     }
 
-  }
+    private static Collection<Coordinate> getConcaveHull(List<Coordinate> coordinates) {
+      // adjust the treshold to have more or less lines... Lower treshold means more complex polygon
+      GeometryCollection geometryCollection = getGeometryCollection(coordinates);
+      ConcaveHull concaveHull = new ConcaveHull(geometryCollection, 2);
 
+      com.vividsolutions.jts.geom.Coordinate[] coordinatesConcave = concaveHull.getConcaveHull().getCoordinates();
+
+      // From JTS Coordinate to Magma Coordinate
+      Collection<Coordinate> result = new ArrayList<>();
+      for(com.vividsolutions.jts.geom.Coordinate aCoordinatesConvex : coordinatesConcave) {
+        result.add(new Coordinate(aCoordinatesConvex.x, aCoordinatesConvex.y));
+      }
+
+      return result;
+    }
+
+    private static GeometryCollection getGeometryCollection(List<Coordinate> coordinates) {
+
+      Point[] coordinatesArray = new Point[coordinates.size()];
+
+      // From Magma Coordinate to JTS coordinate
+      GeometryFactory factory = new GeometryFactory();
+      for(int i = 0; i < coordinates.size(); i++) {
+        Coordinate coordinate = coordinates.get(i);
+        coordinatesArray[i] = factory.createPoint(
+            new com.vividsolutions.jts.geom.Coordinate(coordinate.getLongitude(), coordinate.getLatitude()));
+      }
+
+      // Calculate Concave Hull
+      return new GeometryCollection(coordinatesArray, factory);
+    }
+  }
 }
+

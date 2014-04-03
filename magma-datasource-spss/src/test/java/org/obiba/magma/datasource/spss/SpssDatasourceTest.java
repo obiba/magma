@@ -309,15 +309,6 @@ public class SpssDatasourceTest {
     valueTable.getVariableEntities();
   }
 
-  @Test(expected = DatasourceParsingException.class)
-  public void testInvalidEntityDueToVariableValueOverflow() throws Exception {
-    dsFactory.setFile(getResourceFile("org/obiba/magma/datasource/spss/OverflowVarValue.sav"));
-    Datasource ds = dsFactory.create();
-    ds.initialise();
-    ValueTable valueTable = ds.getValueTable("OverflowVarValue");
-    valueTable.getVariableEntities();
-  }
-
   @Test
   public void testHasNoEntities() throws Exception {
     dsFactory.setFile(getResourceFile("org/obiba/magma/datasource/spss/empty.sav"));
@@ -348,12 +339,9 @@ public class SpssDatasourceTest {
         SpssValueSet valueSet = (SpssValueSet) valueTable.getValueSet(iterator.next());
         valueSet.getValue(ds.getValueTable("invalid-var-value").getVariable("var1"));
       }
-      fail("Must have thrown DatasourceParsingException");
     } catch(SpssDatasourceParsingException e) {
-      assertThat(e.getMessage()).startsWith("Invalid characters in variable value")
-          .contains("(Data info: variable='var1'").contains("String with invalid characters");
+      fail("Must have thrown DatasourceParsingException");
     }
-
   }
 
   @Test
@@ -385,23 +373,6 @@ public class SpssDatasourceTest {
             .contains("(Variable info: name='var1'").contains("String with invalid characters");
       }
     }
-  }
-
-  @Test(expected = NullPointerException.class)
-  public void testVariableValueOverflow() throws URISyntaxException {
-    dsFactory.setFile(getResourceFile("org/obiba/magma/datasource/spss/variable-value-overflow.sav"));
-    Datasource ds = dsFactory.create();
-    ds.initialise();
-    ValueTable valueTable = ds.getValueTable("variable-value-overflow");
-    assertThat(valueTable).isNotNull();
-    Iterator<VariableEntity> iterator = valueTable.getVariableEntities().iterator();
-
-    if(iterator.hasNext()) {
-      SpssValueSet valueSet = (SpssValueSet) valueTable.getValueSet(iterator.next());
-      Value v = valueSet.getValue(ds.getValueTable("variable-value-overflow").getVariable("var1"));
-      v.getValue();
-    }
-
   }
 
   @Test

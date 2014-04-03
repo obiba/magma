@@ -86,7 +86,11 @@ public class VariableConverter extends AbstractAttributeAwareConverter {
         .newVariable(reader.getAttribute("name"), ValueType.Factory.forName(reader.getAttribute("valueType")),
             reader.getAttribute("entityType"));
     if(reader.getAttribute("repeatable") != null) {
-      builder.repeatable().occurrenceGroup(reader.getAttribute("occurrenceGroup"));
+      try {
+        if (Boolean.parseBoolean(reader.getAttribute("repeatable"))) {
+          builder.repeatable().occurrenceGroup(reader.getAttribute("occurrenceGroup"));
+        }
+      } catch(Exception e) {}
     }
     if(reader.getAttribute("unit") != null) {
       builder.unit(reader.getAttribute("unit"));
@@ -94,6 +98,13 @@ public class VariableConverter extends AbstractAttributeAwareConverter {
     if(reader.getAttribute("mimeType") != null) {
       builder.mimeType(reader.getAttribute("mimeType"));
     }
+    unmarshalChildren(reader, context, builder);
+
+    return builder.build();
+  }
+
+  private void unmarshalChildren(HierarchicalStreamReader reader, UnmarshallingContext context,
+      Variable.Builder builder) {
     while(reader.hasMoreChildren()) {
       reader.moveDown();
       if(isAttributesNode(reader.getNodeName())) {
@@ -106,8 +117,6 @@ public class VariableConverter extends AbstractAttributeAwareConverter {
       }
       reader.moveUp();
     }
-
-    return builder.build();
   }
 
   @Override

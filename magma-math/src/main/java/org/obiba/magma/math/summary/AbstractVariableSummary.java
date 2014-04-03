@@ -35,11 +35,10 @@ public abstract class AbstractVariableSummary implements VariableSummary {
     variableName = variable.getName();
   }
 
-  protected SortedSet<VariableEntity> getVariableEntities(@NotNull ValueTable table) {
+  protected SortedSet<VariableEntity> getFilteredVariableEntities(@NotNull ValueTable table) {
     if(offset == null && limit == null) return Sets.newTreeSet(table.getVariableEntities());
 
-    Iterable<VariableEntity> entities;
-    entities = Sets.newTreeSet(table.getVariableEntities());
+    Iterable<VariableEntity> entities = Sets.newTreeSet(table.getVariableEntities());
     // Apply offset then limit (in that order)
     if(offset != null) {
       entities = Iterables.skip(entities, offset);
