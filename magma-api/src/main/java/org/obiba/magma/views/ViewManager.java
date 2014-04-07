@@ -18,6 +18,8 @@ public interface ViewManager extends Decorator<Datasource> {
 
   void removeAllViews(@NotNull String datasourceName);
 
+  void unregisterDatasource(@NotNull String datasourceName);
+
   boolean hasView(@NotNull String datasourceName, @NotNull String viewName);
 
   View getView(@NotNull String datasourceName, @NotNull String viewName);
