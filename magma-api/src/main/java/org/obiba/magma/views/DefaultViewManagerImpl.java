@@ -36,13 +36,10 @@ public class DefaultViewManagerImpl implements ViewManager, Initialisable, Dispo
   public Datasource decorate(@NotNull Datasource datasource) {
     Set<View> views = viewPersistenceStrategy.readViews(datasource.getName());
     ViewAwareDatasource viewAwareDatasource = new ViewAwareDatasource(datasource, views);
+    // remove an older viewAware datasource with the same name and possibly different types
+    unregisterDatasource(datasource.getName());
+    viewAwareDatasources.add(viewAwareDatasource);
 
-    // register the viewAware and make sure there is only one with the datasource name...
-    try {
-      getViewAwareDatasource(datasource.getName());
-    } catch(NoSuchDatasourceException e) {
-      viewAwareDatasources.add(viewAwareDatasource);
-    }
     return viewAwareDatasource;
   }
 
@@ -97,6 +94,16 @@ public class DefaultViewManagerImpl implements ViewManager, Initialisable, Dispo
   public void removeAllViews(@NotNull String datasourceName) {
     Preconditions.checkArgument(!Strings.isNullOrEmpty(datasourceName), "datasourceName cannot be null or empty.");
     viewPersistenceStrategy.removeViews(datasourceName);
+  }
+
+  @Override
+  public void unregisterDatasource(@NotNull String datasourceName) {
+    Preconditions.checkArgument(!Strings.isNullOrEmpty(datasourceName), "datasourceName cannot be null or empty.");
+    try {
+      ViewAwareDatasource viewAwareDatasource = getViewAwareDatasource(datasourceName);
+      viewAwareDatasources.remove(viewAwareDatasource);
+    } catch(NoSuchDatasourceException e) {
+    }
   }
 
   @Override
