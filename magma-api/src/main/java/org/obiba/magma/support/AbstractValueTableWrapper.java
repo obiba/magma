@@ -1,10 +1,15 @@
 package org.obiba.magma.support;
 
+import java.io.Serializable;
+import java.util.Date;
 import java.util.Set;
 
+import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 
 import org.obiba.magma.Datasource;
+import org.obiba.magma.MagmaCacheExtension;
+import org.obiba.magma.MagmaEngine;
 import org.obiba.magma.NoSuchValueSetException;
 import org.obiba.magma.NoSuchVariableException;
 import org.obiba.magma.Timestamps;
@@ -14,8 +19,14 @@ import org.obiba.magma.ValueTable;
 import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.VariableValueSource;
+import org.springframework.cache.Cache;
 
 public abstract class AbstractValueTableWrapper implements ValueTableWrapper {
+
+
+  @Nullable
+  @SuppressWarnings("TransientFieldInNonSerializableClass")
+  private transient VariableEntitiesCache variableEntitiesCache;
 
   @Override
   public abstract ValueTable getWrappedValueTable();
@@ -44,6 +55,36 @@ public abstract class AbstractValueTableWrapper implements ValueTableWrapper {
 
   @Override
   public Set<VariableEntity> getVariableEntities() {
+    Value tableWrapperLastUpdate = getTimestamps().getLastUpdate();
+    VariableEntitiesCache eCache = getVariableEntitiesCache();
+    if(eCache == null || !eCache.isUpToDate(tableWrapperLastUpdate)) {
+      eCache = new VariableEntitiesCache(loadVariableEntities(), tableWrapperLastUpdate);
+      if(MagmaEngine.get().hasExtension(MagmaCacheExtension.class)) {
+        MagmaCacheExtension cacheExtension = MagmaEngine.get().getExtension(MagmaCacheExtension.class);
+        if (cacheExtension.hasVariableEntitiesCache()) {
+          cacheExtension.getVariableEntitiesCache().put(getTableReference(), eCache);
+        } else {
+          variableEntitiesCache = eCache;
+        }
+      } else {
+        variableEntitiesCache = eCache;
+      }
+    }
+    return eCache.getEntities();
+  }
+
+  private VariableEntitiesCache getVariableEntitiesCache() {
+    if(MagmaEngine.get().hasExtension(MagmaCacheExtension.class)) {
+      MagmaCacheExtension cacheExtension = MagmaEngine.get().getExtension(MagmaCacheExtension.class);
+      if (!cacheExtension.hasVariableEntitiesCache()) return variableEntitiesCache;
+      Cache.ValueWrapper wrapper = cacheExtension.getVariableEntitiesCache().get(getTableReference());
+      return wrapper == null ? variableEntitiesCache : (VariableEntitiesCache) wrapper.get();
+    } else {
+      return variableEntitiesCache;
+    }
+  }
+
+  protected Set<VariableEntity> loadVariableEntities() {
     return getWrappedValueTable().getVariableEntities();
   }
 
@@ -128,5 +169,34 @@ public abstract class AbstractValueTableWrapper implements ValueTableWrapper {
   @Override
   public int getVariableEntityCount() {
     return getWrappedValueTable().getVariableEntityCount();
+  }
+
+  //
+  // Cache
+  //
+  public static class VariableEntitiesCache implements Serializable {
+
+    private static final long serialVersionUID = 69918333951801112L;
+
+    private Set<VariableEntity> entities;
+
+    private long lastUpdate;
+
+    public VariableEntitiesCache(Set<VariableEntity> entities, Value lastUpdate) {
+      this(entities, ((Date)lastUpdate.getValue()).getTime());
+    }
+
+    public VariableEntitiesCache(Set<VariableEntity> entities, long lastUpdate) {
+      this.entities = entities;
+      this.lastUpdate = lastUpdate;
+    }
+
+    public boolean isUpToDate(Value updated) {
+      return lastUpdate == ((Date)updated.getValue()).getTime();
+    }
+
+    public Set<VariableEntity> getEntities() {
+      return entities;
+    }
   }
 }

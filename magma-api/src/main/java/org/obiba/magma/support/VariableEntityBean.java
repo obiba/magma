@@ -1,12 +1,16 @@
 package org.obiba.magma.support;
 
+import java.io.Serializable;
+
 import javax.validation.constraints.NotNull;
 
 import org.obiba.magma.VariableEntity;
 
 import com.google.common.collect.ComparisonChain;
 
-public class VariableEntityBean implements VariableEntity {
+public class VariableEntityBean implements VariableEntity, Serializable {
+
+  private static final long serialVersionUID = 345393053905353342L;
 
   @NotNull
   private final String entityType;
