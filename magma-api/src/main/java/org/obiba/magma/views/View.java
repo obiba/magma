@@ -74,6 +74,10 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
   @SuppressWarnings("TransientFieldInNonSerializableClass")
   private transient ViewAwareDatasource viewDatasource;
 
+  @Nullable
+  @SuppressWarnings("TransientFieldInNonSerializableClass")
+  private transient EntitiesCache entitiesCache;
+
   /**
    * No-arg constructor for XStream.
    */
@@ -372,6 +376,14 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
 
   @Override
   public Set<VariableEntity> getVariableEntities() {
+    Value viewLastUpdate = getTimestamps().getLastUpdate();
+    if(entitiesCache == null || !entitiesCache.isUpToDate(viewLastUpdate)) {
+      entitiesCache = new EntitiesCache(loadEntities(), viewLastUpdate);
+    }
+    return entitiesCache.getEntities();
+  }
+
+  private Set<VariableEntity> loadEntities() {
     // do not use Guava functional stuff to avoid multiple iterations over entities
     ImmutableSet.Builder<VariableEntity> builder = ImmutableSet.builder();
     if(hasVariables()) {
@@ -523,6 +535,33 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
       }
     }
 
+  }
+
+  //
+  // Cache
+  //
+  public static class EntitiesCache {
+
+    private Set<VariableEntity> entities;
+
+    private Value lastUpdate;
+
+    public EntitiesCache(Set<VariableEntity> entities, Value lastUpdate) {
+      this.entities = entities;
+      this.lastUpdate = lastUpdate;
+    }
+
+    public boolean isUpToDate(Value updated) {
+      return lastUpdate.equals(updated);
+    }
+
+    public Set<VariableEntity> getEntities() {
+      return entities;
+    }
+
+    public Value getLastUpdate() {
+      return lastUpdate;
+    }
   }
 
   //
