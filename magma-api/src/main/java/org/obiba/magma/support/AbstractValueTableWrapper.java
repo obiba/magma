@@ -1,5 +1,7 @@
 package org.obiba.magma.support;
 
+import java.io.Serializable;
+import java.util.Date;
 import java.util.Set;
 
 import javax.validation.constraints.NotNull;
@@ -14,6 +16,8 @@ import org.obiba.magma.ValueTable;
 import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.VariableValueSource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public abstract class AbstractValueTableWrapper implements ValueTableWrapper {
 

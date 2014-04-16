@@ -209,7 +209,7 @@ public abstract class AbstractValueTable implements ValueTable, Initialisable {
 
   @Override
   public String getTableReference() {
-    return ValueTable.Reference.getReference(getDatasource().getName(), getName());
+    return ValueTable.Reference.getReference(getDatasource() == null ? "null" : getDatasource().getName(), getName());
   }
 
   @Override

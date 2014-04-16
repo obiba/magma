@@ -6,6 +6,8 @@ import java.util.Set;
 import javax.validation.constraints.NotNull;
 
 import org.obiba.magma.Datasource;
+import org.obiba.magma.MagmaCacheExtension;
+import org.obiba.magma.MagmaEngine;
 import org.obiba.magma.NoSuchValueTableException;
 import org.obiba.magma.Timestamped;
 import org.obiba.magma.Timestamps;
@@ -151,6 +153,7 @@ public class ViewAwareDatasource extends AbstractDatasourceWrapper {
   public synchronized void removeView(String name) {
     if(views.containsKey(name)) {
       View view = views.get(name);
+      evictVariableEntitiesCache(view);
       views.remove(name);
       Disposables.dispose(view);
       lastUpdate = DateTimeType.get().now();
@@ -160,9 +163,19 @@ public class ViewAwareDatasource extends AbstractDatasourceWrapper {
   public synchronized void renameView(String name, String newName) {
     if(views.containsKey(name)) {
       View view = views.remove(name);
+      evictVariableEntitiesCache(view);
       view.setName(newName);
       views.put(newName, view);
       lastUpdate = DateTimeType.get().now();
+    }
+  }
+
+  private void evictVariableEntitiesCache(View view) {
+    if (MagmaEngine.get().hasExtension(MagmaCacheExtension.class)) {
+      MagmaCacheExtension cacheExtension = MagmaEngine.get().getExtension(MagmaCacheExtension.class);
+      if (cacheExtension.hasVariableEntitiesCache()) {
+        cacheExtension.getVariableEntitiesCache().evict(view.getTableReference());
+      }
     }
   }
 
