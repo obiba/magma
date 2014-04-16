@@ -34,6 +34,19 @@ public class BatchValueTable extends AbstractTransformingValueTableWrapper {
     return wrapped;
   }
 
+  @Override
+  public int getVariableEntityCount() {
+    // get the exact batch size
+    if (getVariableEntityMappingFunction() instanceof BatchFunction) {
+      BatchFunction batchFunction = (BatchFunction) getVariableEntityMappingFunction();
+      if (!batchFunction.isApplied()) {
+        getVariableEntities();
+      }
+      return batchFunction.getCount();
+    }
+    return super.getVariableEntityCount();
+  }
+
   @NotNull
   @Override
   public BijectiveFunction<VariableEntity, VariableEntity> getVariableEntityMappingFunction() {
@@ -46,8 +59,18 @@ public class BatchValueTable extends AbstractTransformingValueTableWrapper {
 
     private final Set<VariableEntity> entities = Sets.newHashSet();
 
+    private boolean applied = false;
+
     private BatchFunction(int limit) {
       this.limit = limit;
+    }
+
+    private boolean isApplied() {
+      return applied;
+    }
+
+    public int getCount() {
+      return entities.size();
     }
 
     @Override
@@ -58,6 +81,7 @@ public class BatchValueTable extends AbstractTransformingValueTableWrapper {
     @Nullable
     @Override
     public VariableEntity apply(@Nullable VariableEntity input) {
+      applied = true;
       if(entities.size() < limit) {
         entities.add(input);
         return input;
