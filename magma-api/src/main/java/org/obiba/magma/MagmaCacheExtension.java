@@ -5,6 +5,8 @@ import org.springframework.cache.CacheManager;
 
 public class MagmaCacheExtension implements MagmaEngineExtension {
 
+  private static final long serialVersionUID = -6089615244332195129L;
+
   private transient CacheManager cacheManager;
 
   public MagmaCacheExtension() {
