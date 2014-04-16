@@ -13,6 +13,8 @@ import javax.validation.constraints.NotNull;
 import org.obiba.magma.Datasource;
 import org.obiba.magma.Disposable;
 import org.obiba.magma.Initialisable;
+import org.obiba.magma.MagmaCacheExtension;
+import org.obiba.magma.MagmaEngine;
 import org.obiba.magma.NoSuchValueSetException;
 import org.obiba.magma.NoSuchVariableException;
 import org.obiba.magma.Timestamps;
@@ -29,12 +31,16 @@ import org.obiba.magma.support.AbstractValueTableWrapper;
 import org.obiba.magma.support.AbstractVariableValueSourceWrapper;
 import org.obiba.magma.support.Disposables;
 import org.obiba.magma.support.Initialisables;
+import org.obiba.magma.support.VariableEntitiesCache;
 import org.obiba.magma.transform.BijectiveFunction;
 import org.obiba.magma.transform.BijectiveFunctions;
 import org.obiba.magma.transform.TransformingValueTable;
 import org.obiba.magma.type.DateTimeType;
 import org.obiba.magma.views.support.AllClause;
 import org.obiba.magma.views.support.NoneClause;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.cache.Cache;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
@@ -46,7 +52,7 @@ import com.google.common.collect.Sets;
 @SuppressWarnings("OverlyCoupledClass")
 public class View extends AbstractValueTableWrapper implements Initialisable, Disposable, TransformingValueTable {
 
-//  private static final Logger log = LoggerFactory.getLogger(View.class);
+  private static final Logger log = LoggerFactory.getLogger(View.class);
 
   private String name;
 
@@ -73,6 +79,10 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
   @Nullable
   @SuppressWarnings("TransientFieldInNonSerializableClass")
   private transient ViewAwareDatasource viewDatasource;
+
+  @Nullable
+  @SuppressWarnings("TransientFieldInNonSerializableClass")
+  private transient VariableEntitiesCache variableEntitiesCache;
 
   /**
    * No-arg constructor for XStream.
@@ -371,11 +381,47 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
   }
 
   @Override
+  public Set<VariableEntity> getVariableEntities() {
+    Value tableWrapperLastUpdate = getTimestamps().getLastUpdate();
+    VariableEntitiesCache eCache = getVariableEntitiesCache();
+    if(eCache == null || !eCache.isUpToDate(tableWrapperLastUpdate)) {
+      eCache = new VariableEntitiesCache(loadVariableEntities(), tableWrapperLastUpdate);
+      if(MagmaEngine.get().hasExtension(MagmaCacheExtension.class)) {
+        MagmaCacheExtension cacheExtension = MagmaEngine.get().getExtension(MagmaCacheExtension.class);
+        if(cacheExtension.hasVariableEntitiesCache()) {
+          cacheExtension.getVariableEntitiesCache().put(getTableCacheKey(), eCache);
+        } else {
+          variableEntitiesCache = eCache;
+        }
+      } else {
+        variableEntitiesCache = eCache;
+      }
+    }
+    return eCache.getEntities();
+  }
+
+  protected String getTableCacheKey() {
+    String key = getTableReference() + ";class=" + getClass().getName();
+    log.info("tableCacheKey={}", key);
+    return key;
+  }
+
+  private VariableEntitiesCache getVariableEntitiesCache() {
+    if(MagmaEngine.get().hasExtension(MagmaCacheExtension.class)) {
+      MagmaCacheExtension cacheExtension = MagmaEngine.get().getExtension(MagmaCacheExtension.class);
+      if(!cacheExtension.hasVariableEntitiesCache()) return variableEntitiesCache;
+      Cache.ValueWrapper wrapper = cacheExtension.getVariableEntitiesCache().get(getTableCacheKey());
+      return wrapper == null ? variableEntitiesCache : (VariableEntitiesCache) wrapper.get();
+    } else {
+      return variableEntitiesCache;
+    }
+  }
+
   protected Set<VariableEntity> loadVariableEntities() {
     // do not use Guava functional stuff to avoid multiple iterations over entities
     ImmutableSet.Builder<VariableEntity> builder = ImmutableSet.builder();
     if(hasVariables()) {
-      for(VariableEntity entity : super.loadVariableEntities()) {
+      for(VariableEntity entity : super.getVariableEntities()) {
         // transform super.getVariableEntities() using getVariableEntityMappingFunction()
         // (which may modified entity identifiers)
         entity = getVariableEntityMappingFunction().apply(entity);
