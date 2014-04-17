@@ -402,7 +402,7 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
 
   protected String getTableCacheKey() {
     String key = getTableReference() + ";class=" + getClass().getName();
-    log.info("tableCacheKey={}", key);
+    log.debug("tableCacheKey={}", key);
     return key;
   }
 
