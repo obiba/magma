@@ -6,6 +6,7 @@ import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.subject.Subject;
 import org.obiba.magma.security.Authorizer;
+import org.obiba.shiro.authc.SudoAuthToken;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

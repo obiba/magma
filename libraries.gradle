@@ -3,6 +3,7 @@ ext {
   hibernateVersion = '4.3.1.Final'
   slf4jVersion = '1.7.6'
   springVersion = '4.0.2.RELEASE'
+  obibaCommonsVersion = '1.6-SNAPSHOT'
 
   libraries = [
 
@@ -55,7 +56,8 @@ ext {
 
       mysql_connector_java: 'mysql:mysql-connector-java:5.1.29',
 
-      obiba_core: 'org.obiba:obiba-core:1.5.0',
+      obiba_core: "org.obiba.commons:obiba-core:${obibaCommonsVersion}",
+      obiba_shiro: "org.obiba.commons:obiba-shiro:${obibaCommonsVersion}",
 
       opencsv: 'net.sf.opencsv:opencsv:2.3',
 
@@ -66,7 +68,7 @@ ext {
       rhino_js: 'org.mozilla:rhino:1.7R4',
 
       shiro_core: 'org.apache.shiro:shiro-core:1.2.2',
-      shiro_extras: 'eu.flatwhite.shiro:shiro-extras:1.0.2-obiba',
+      shiro_extras: 'eu.flatwhite.shiro:shiro-extras:1.0.3-obiba',
 
       slf4j_api: "org.slf4j:slf4j-api:${slf4jVersion}",
       jcl_slf4j: "org.slf4j:jcl-over-slf4j:${slf4jVersion}",

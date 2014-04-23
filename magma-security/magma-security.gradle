@@ -2,6 +2,7 @@ description = 'security'
 
 dependencies {
   compile project(':magma-api')
+  compile(libraries.obiba_shiro)
   compile(libraries.shiro_core)
   compile(libraries.shiro_extras) {
     exclude(module: 'jcl-over-slf4j')
