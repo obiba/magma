@@ -3,4 +3,5 @@ description = 'api'
 dependencies {
     compile(libraries.opencsv)
     compile(libraries.json)
+    compile(libraries.spring_context)
 }
