@@ -55,7 +55,7 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
    * Set of methods to be exposed as top-level methods (ones that can be invoked anywhere)
    */
   private static final Set<String> GLOBAL_METHODS = ImmutableSet
-      .of("$", "$this", "$join", "now", "log", "$var", "$id", "$group", "$groups", "newValue", "newSequence");
+      .of("$", "$val", "$value", "$this", "$join", "now", "log", "$var", "$variable", "$id", "$identifier", "$group", "$groups", "newValue", "newSequence");
 
   @Override
   protected Set<String> getExposedMethods() {
@@ -144,6 +144,14 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
    * @return an instance of {@code ScriptableValue}
    */
   public static Scriptable $(Context ctx, Scriptable thisObj, Object[] args, Function funObj) {
+    return $value(ctx, thisObj, args, funObj);
+  }
+
+  public static Scriptable $val(Context ctx, Scriptable thisObj, Object[] args, Function funObj) {
+    return $value(ctx, thisObj, args, funObj);
+  }
+
+  public static Scriptable $value(Context ctx, Scriptable thisObj, Object[] args, Function funObj) {
     if(args.length != 1) {
       throw new IllegalArgumentException("$() expects exactly one argument: a variable name.");
     }
@@ -236,6 +244,10 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
    * @return an instance of {@code ScriptableVariable}
    */
   public static Scriptable $var(Context ctx, Scriptable thisObj, Object[] args, Function funObj) {
+    return $variable(ctx, thisObj, args, funObj);
+  }
+
+  public static Scriptable $variable(Context ctx, Scriptable thisObj, Object[] args, Function funObj) {
     if(args.length != 1) {
       throw new IllegalArgumentException("$var() expects exactly one argument: a variable name.");
     }
@@ -256,6 +268,10 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
    * @return an instance of {@code ScriptableValue}
    */
   public static Scriptable $id(Context ctx, Scriptable thisObj, Object[] args, Function funObj) {
+    return $identifier(ctx, thisObj, args, funObj);
+  }
+
+  public static Scriptable $identifier(Context ctx, Scriptable thisObj, Object[] args, Function funObj) {
     MagmaContext context = MagmaContext.asMagmaContext(ctx);
     VariableEntity entity = context.peek(VariableEntity.class);
     return new ScriptableValue(thisObj, TextType.get().valueOf(entity.getIdentifier()));
