@@ -12,6 +12,7 @@ import org.obiba.magma.Variable;
 import org.obiba.magma.VariableValueSource;
 import org.obiba.magma.views.ListClause;
 import org.obiba.magma.views.SelectClause;
+import org.obiba.magma.views.View;
 import org.obiba.magma.views.WhereClause;
 
 /**
@@ -26,6 +27,11 @@ public final class NoneClause implements SelectClause, WhereClause, ListClause {
 
   @Override
   public boolean where(ValueSet valueSet) {
+    return false;
+  }
+
+  @Override
+  public boolean where(ValueSet valueSet, View view) {
     return false;
   }
 

@@ -14,11 +14,13 @@ import org.obiba.magma.ValueSet;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.ValueType;
 import org.obiba.magma.Variable;
+import org.obiba.magma.VariableEntity;
 import org.obiba.magma.js.MagmaContext;
 import org.obiba.magma.js.ScriptableValue;
 import org.obiba.magma.js.ScriptableVariable;
 import org.obiba.magma.type.BooleanType;
 import org.obiba.magma.views.SelectClause;
+import org.obiba.magma.views.View;
 import org.obiba.magma.views.WhereClause;
 
 public class JavascriptClause implements Initialisable, SelectClause, WhereClause {
@@ -107,6 +109,11 @@ public class JavascriptClause implements Initialisable, SelectClause, WhereClaus
 
   @Override
   public boolean where(final ValueSet valueSet) {
+    return where(valueSet, null);
+  }
+
+  @Override
+  public boolean where(final ValueSet valueSet, final View view) {
     if(compiledScript == null) {
       throw new IllegalStateException("script hasn't been compiled. Call initialise() before calling where().");
     }
@@ -120,17 +127,20 @@ public class JavascriptClause implements Initialisable, SelectClause, WhereClaus
         // Don't pollute the global scope
         Scriptable scope = context.newLocalScope();
 
-        enterContext(context, scope, valueSet);
+        enterContext(context, scope, valueSet, view);
         Object value = compiledScript.exec(ctx, scope);
-        exitContext(context);
+        exitContext(context, valueSet, view);
 
         if(value instanceof Boolean) {
           return value;
         }
         if(value instanceof ScriptableValue) {
           ScriptableValue scriptable = (ScriptableValue) value;
-          if(scriptable.getValueType().equals(BooleanType.get())) {
-            return scriptable.getValue().isNull() ? null : scriptable.getValue().getValue();
+          if (scriptable.getValue().isNull()) return false;
+          try {
+            return BooleanType.get().valueOf(scriptable.getValue().getValue()).getValue();
+          } catch (Exception e) {
+            return false;
           }
         }
         return false;
@@ -205,13 +215,22 @@ public class JavascriptClause implements Initialisable, SelectClause, WhereClaus
    * @param valueSet the current {@code ValueSet}
    */
   protected void enterContext(MagmaContext ctx, @SuppressWarnings("UnusedParameters") Scriptable scope,
-      ValueSet valueSet) {
+      ValueSet valueSet, View view) {
     ctx.push(ValueSet.class, valueSet);
-    ctx.push(ValueTable.class, valueSet.getValueTable());
+    ctx.push(VariableEntity.class, valueSet.getVariableEntity());
+    ValueTable valueTable = valueSet.getValueTable();
+    ctx.push(ValueTable.class, valueTable);
+    if(view != null) {
+      ctx.push(View.class, view);
+    }
   }
 
-  protected void exitContext(MagmaContext ctx) {
+  protected void exitContext(MagmaContext ctx, ValueSet valueSet, View view) {
     ctx.pop(ValueSet.class);
+    ctx.pop(VariableEntity.class);
     ctx.pop(ValueTable.class);
+    if(view != null) {
+      ctx.pop(View.class);
+    }
   }
 }

@@ -3,12 +3,17 @@ package org.obiba.magma.js.views;
 import org.junit.Test;
 import org.obiba.magma.Initialisable;
 import org.obiba.magma.ValueSet;
+import org.obiba.magma.ValueTable;
 import org.obiba.magma.Variable;
+import org.obiba.magma.VariableEntity;
 import org.obiba.magma.js.AbstractJsTest;
 import org.obiba.magma.views.SelectClause;
 import org.obiba.magma.views.WhereClause;
 
 import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.replay;
+import static org.easymock.EasyMock.verify;
 import static org.fest.assertions.api.Assertions.assertThat;
 
 public class JavascriptClauseTest extends AbstractJsTest {
@@ -125,7 +130,14 @@ public class JavascriptClauseTest extends AbstractJsTest {
   private void assertWhere(String script, boolean expected) {
     JavascriptClause clause = new JavascriptClause(script);
     clause.initialise();
-    boolean selected = clause.where(createMock(ValueSet.class));
+    ValueSet valueSetMock = createMock(ValueSet.class);
+    VariableEntity entityMock = createMock(VariableEntity.class);
+    ValueTable valueTableMock = createMock(ValueTable.class);
+    expect(valueSetMock.getVariableEntity()).andReturn(entityMock);
+    expect(valueSetMock.getValueTable()).andReturn(valueTableMock);
+    replay(valueSetMock);
+    boolean selected = clause.where(valueSetMock);
     assertThat(selected).isEqualTo(expected);
+    verify(valueSetMock);
   }
 }

@@ -254,7 +254,7 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
       if(getWhereClause() instanceof NoneClause) return false;
 
       ValueSet valueSet = super.getValueSet(unmapped);
-      hasValueSet = getWhereClause().where(valueSet);
+      hasValueSet = getWhereClause().where(valueSet, this);
     }
     return hasValueSet;
   }
@@ -264,7 +264,7 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
     // do not use Guava functional stuff to avoid multiple iterations over valueSets
     List<ValueSet> valueSets = Lists.newArrayList();
     for(ValueSet valueSet : super.getValueSets()) {
-      if(getWhereClause().where(valueSet)) { // taking into account the WhereClause
+      if(getWhereClause().where(valueSet, this)) { // taking into account the WhereClause
         // replacing each ValueSet with one that points at the current View
         valueSet = getValueSetMappingFunction().apply(valueSet);
         // result of transformation might have returned a non-mappable entity
@@ -282,7 +282,7 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
     if(unmapped == null) throw new NoSuchValueSetException(this, entity);
 
     ValueSet valueSet = super.getValueSet(unmapped);
-    if(!getWhereClause().where(valueSet)) throw new NoSuchValueSetException(this, entity);
+    if(!getWhereClause().where(valueSet, this)) throw new NoSuchValueSetException(this, entity);
 
     return getValueSetMappingFunction().apply(valueSet);
   }
@@ -351,7 +351,7 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
     if(isViewOfDerivedVariables()) {
       return getListClauseValue(variable, valueSet);
     }
-    if(!getWhereClause().where(valueSet)) {
+    if(!getWhereClause().where(valueSet, this)) {
       throw new NoSuchValueSetException(this, valueSet.getVariableEntity());
     }
     return super.getValue(variable, getValueSetMappingFunction().unapply(valueSet));

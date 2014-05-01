@@ -53,9 +53,9 @@ public class ViewTest extends AbstractMagmaTest {
 
     when(valueTableMock.hasValueSet(variableEntity)).thenReturn(true);
     when(valueTableMock.getValueSet(variableEntity)).thenReturn(valueSet);
-    when(whereClauseMock.where(valueSet)).thenReturn(true);
 
     View view = View.Builder.newView("view", valueTableMock).where(whereClauseMock).build();
+    when(whereClauseMock.where(valueSet, view)).thenReturn(true);
     assertThat(view.hasValueSet(variableEntity)).isTrue();
   }
 
@@ -113,9 +113,9 @@ public class ViewTest extends AbstractMagmaTest {
     ValueSet valueSet = new ValueSetBean(valueTableMock, variableEntity);
 
     when(valueTableMock.getValueSet(variableEntity)).thenReturn(valueSet);
-    when(whereClauseMock.where(valueSet)).thenReturn(true);
 
     View view = View.Builder.newView("view", valueTableMock).where(whereClauseMock).build();
+    when(whereClauseMock.where(valueSet, view)).thenReturn(true);
     assertThat(view.getValueSet(variableEntity)).isNotNull();
   }
 
@@ -171,7 +171,7 @@ public class ViewTest extends AbstractMagmaTest {
     valueSets.add(valueSetBar);
 
     when(valueTableMock.getValueSets()).thenReturn(valueSets);
-    when(whereClauseMock.where((ValueSet) anyObject())).thenReturn(true);
+    when(whereClauseMock.where((ValueSet) anyObject(), (View) anyObject())).thenReturn(true);
 
     View view = View.Builder.newView("view", valueTableMock).where(whereClauseMock).build();
     Iterable<ValueSet> result = view.getValueSets();
@@ -197,10 +197,11 @@ public class ViewTest extends AbstractMagmaTest {
     valueSets.add(valueSetExclude);
 
     when(valueTableMock.getValueSets()).thenReturn(valueSets);
-    when(whereClauseMock.where(valueSetInclude)).thenReturn(true);
-    when(whereClauseMock.where(valueSetExclude)).thenReturn(false);
 
     View view = View.Builder.newView("view", valueTableMock).where(whereClauseMock).build();
+    when(whereClauseMock.where(valueSetInclude, view)).thenReturn(true);
+    when(whereClauseMock.where(valueSetExclude, view)).thenReturn(false);
+
     Iterable<ValueSet> result = view.getValueSets();
 
     // Verify state.
@@ -346,7 +347,7 @@ public class ViewTest extends AbstractMagmaTest {
     Value value = TextType.get().valueOf("someValue");
 
     when(valueTableMock.getValue((Variable) anyObject(), (ValueSet) anyObject())).thenReturn(value);
-    when(whereClauseMock.where((ValueSet) anyObject())).thenReturn(true);
+    when(whereClauseMock.where((ValueSet) anyObject(), (View) anyObject())).thenReturn(true);
 
     View view = View.Builder.newView("view", valueTableMock).where(whereClauseMock).build();
     Value result = view.getValue(variable, new ValueSetWrapper(view, valueSet));

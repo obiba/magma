@@ -24,6 +24,11 @@ class CachingWhereClause implements WhereClause {
 
   @Override
   public boolean where(ValueSet valueSet) {
+    return where(valueSet, null);
+  }
+
+  @Override
+  public boolean where(ValueSet valueSet, View view) {
     if(cache.containsKey(valueSet)) {
       return cache.get(valueSet);
     }
@@ -31,5 +36,4 @@ class CachingWhereClause implements WhereClause {
     cache.put(valueSet, where);
     return where;
   }
-
 }

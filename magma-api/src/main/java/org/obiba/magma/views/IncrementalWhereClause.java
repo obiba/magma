@@ -74,6 +74,11 @@ public class IncrementalWhereClause implements WhereClause {
 
   @Override
   public boolean where(ValueSet valueSet) {
+    return where(valueSet, null);
+  }
+
+  @Override
+  public boolean where(ValueSet valueSet, View view) {
     boolean include = false;
 
     destinationTable = getDestinationTable();
