@@ -119,33 +119,7 @@ public class JavascriptClause implements Initialisable, SelectClause, WhereClaus
     }
     if(valueSet == null) throw new IllegalArgumentException("valueSet cannot be null");
 
-    return (Boolean) ContextFactory.getGlobal().call(new ContextAction() {
-      @Override
-      @SuppressWarnings("ChainOfInstanceofChecks")
-      public Object run(Context ctx) {
-        MagmaContext context = MagmaContext.asMagmaContext(ctx);
-        // Don't pollute the global scope
-        Scriptable scope = context.newLocalScope();
-
-        enterContext(context, scope, valueSet, view);
-        Object value = compiledScript.exec(ctx, scope);
-        exitContext(context, valueSet, view);
-
-        if(value instanceof Boolean) {
-          return value;
-        }
-        if(value instanceof ScriptableValue) {
-          ScriptableValue scriptable = (ScriptableValue) value;
-          if (scriptable.getValue().isNull()) return false;
-          try {
-            return BooleanType.get().valueOf(scriptable.getValue().getValue()).getValue();
-          } catch (Exception e) {
-            return false;
-          }
-        }
-        return false;
-      }
-    });
+    return (Boolean) ContextFactory.getGlobal().call(new WhereContextAction(valueSet, view));
   }
 
   //
@@ -231,6 +205,46 @@ public class JavascriptClause implements Initialisable, SelectClause, WhereClaus
     ctx.pop(ValueTable.class);
     if(view != null) {
       ctx.pop(View.class);
+    }
+  }
+
+  private class WhereContextAction implements ContextAction {
+    private final ValueSet valueSet;
+
+    private final View view;
+
+    WhereContextAction(ValueSet valueSet, View view) {
+      this.valueSet = valueSet;
+      this.view = view;
+    }
+
+    @Override
+    @SuppressWarnings("ChainOfInstanceofChecks")
+    public Object run(Context ctx) {
+      MagmaContext context = MagmaContext.asMagmaContext(ctx);
+      // Don't pollute the global scope
+      Scriptable scope = context.newLocalScope();
+
+      enterContext(context, scope, valueSet, view);
+      Object value = compiledScript.exec(ctx, scope);
+      exitContext(context, valueSet, view);
+
+      if(value instanceof Boolean) {
+        return value;
+      }
+      if(value instanceof ScriptableValue) {
+        return getValue((ScriptableValue) value);
+      }
+      return false;
+    }
+
+    private Object getValue(ScriptableValue scriptable) {
+      if (scriptable.getValue().isNull()) return false;
+      try {
+        return BooleanType.get().valueOf(scriptable.getValue().getValue()).getValue();
+      } catch (Exception e) {
+        return false;
+      }
     }
   }
 }
