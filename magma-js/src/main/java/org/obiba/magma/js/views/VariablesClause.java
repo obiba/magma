@@ -53,7 +53,7 @@ public class VariablesClause implements ListClause, Initialisable {
         return variableValueSource;
       }
     }
-    throw new NoSuchVariableException("The VariableValueSource '" + name + "' does not exist.");
+    throw new NoSuchVariableException(name);
   }
 
   @Override
