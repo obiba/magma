@@ -381,7 +381,7 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
   }
 
   @Override
-  public Set<VariableEntity> getVariableEntities() {
+  public synchronized Set<VariableEntity> getVariableEntities() {
     Value tableWrapperLastUpdate = getTimestamps().getLastUpdate();
     VariableEntitiesCache eCache = getVariableEntitiesCache();
     if(eCache == null || !eCache.isUpToDate(tableWrapperLastUpdate)) {
