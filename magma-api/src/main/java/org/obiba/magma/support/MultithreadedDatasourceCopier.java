@@ -15,6 +15,7 @@ import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 
 import org.obiba.magma.Datasource;
+import org.obiba.magma.DatasourceCopierProgressListener;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueSet;
 import org.obiba.magma.ValueTable;
@@ -63,6 +64,11 @@ public class MultithreadedDatasourceCopier {
 
     public Builder withReaderListener(ReaderListener readerListener) {
       copier.readerListener = readerListener;
+      return this;
+    }
+
+    public Builder withProgressListener(@Nullable DatasourceCopierProgressListener progressListener) {
+      if(progressListener != null) copier.progressListeners.add(progressListener);
       return this;
     }
 
@@ -131,6 +137,8 @@ public class MultithreadedDatasourceCopier {
   private int nextPercentIncrement = 0;
 
   private ReaderListener readerListener;
+
+  private List<DatasourceCopierProgressListener> progressListeners = Lists.newArrayList();
 
   @edu.umd.cs.findbugs.annotations.SuppressWarnings(value = "NP_NONNULL_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR",
       justification = "Fields will be populated by Builder")
@@ -352,6 +360,9 @@ public class MultithreadedDatasourceCopier {
           int percentComplete = (int) (entitiesCopied / (double) entitiesToCopy * 100);
           if(percentComplete >= nextPercentIncrement) {
             log.info("Copy {}% complete.", percentComplete);
+            for(DatasourceCopierProgressListener listener : progressListeners) {
+              listener.status(sourceTable.getName(), entitiesCopied, entitiesToCopy, percentComplete);
+            }
             nextPercentIncrement = percentComplete + 1;
           }
         }
