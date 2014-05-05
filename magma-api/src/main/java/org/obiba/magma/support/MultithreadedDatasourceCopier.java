@@ -138,7 +138,7 @@ public class MultithreadedDatasourceCopier {
 
   private ReaderListener readerListener;
 
-  private List<DatasourceCopierProgressListener> progressListeners = Lists.newArrayList();
+  private final List<DatasourceCopierProgressListener> progressListeners = Lists.newArrayList();
 
   @edu.umd.cs.findbugs.annotations.SuppressWarnings(value = "NP_NONNULL_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR",
       justification = "Fields will be populated by Builder")
@@ -356,7 +356,7 @@ public class MultithreadedDatasourceCopier {
     @SuppressWarnings("NumericCastThatLosesPrecision")
     private void printProgress() {
       try {
-        if(log.isInfoEnabled() && entitiesToCopy > 0) {
+        if(entitiesToCopy > 0) {
           int percentComplete = (int) (entitiesCopied / (double) entitiesToCopy * 100);
           if(percentComplete >= nextPercentIncrement) {
             log.info("Copy {}% complete.", percentComplete);

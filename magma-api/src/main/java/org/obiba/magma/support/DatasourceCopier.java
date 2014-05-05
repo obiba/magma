@@ -5,9 +5,13 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.Collection;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
 
+import javax.annotation.Nullable;
+
 import org.obiba.magma.Datasource;
+import org.obiba.magma.DatasourceCopierProgressListener;
 import org.obiba.magma.MagmaEngine;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueSet;
@@ -23,6 +27,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 
 @SuppressWarnings("UnusedDeclaration")
 public class DatasourceCopier {
@@ -73,6 +78,11 @@ public class DatasourceCopier {
       return this;
     }
 
+    public Builder withProgressListener(@Nullable DatasourceCopierProgressListener progressListener) {
+      if(progressListener != null) withListener(new DatasourceCopyProgressListener(progressListener));
+      return this;
+    }
+
     public Builder withLoggingListener() {
       copier.listeners.add(new LoggingListener());
       return this;
@@ -95,6 +105,49 @@ public class DatasourceCopier {
 
     public DatasourceCopier build() {
       return new DatasourceCopier(copier);
+    }
+
+    private static class DatasourceCopyProgressListener implements DatasourceCopyValueSetEventListener {
+
+      private final DatasourceCopierProgressListener progressListener;
+
+      private long entitiesToCopy = 0;
+
+      private long entitiesCopied = 0;
+
+      private int nextPercentIncrement = 0;
+
+      private DatasourceCopyProgressListener(DatasourceCopierProgressListener progressListener) {
+        this.progressListener = progressListener;
+      }
+
+      @Override
+      public void onValueSetCopy(ValueTable source, ValueSet valueSet) {
+        if (entitiesToCopy == 0) {
+          entitiesToCopy = source.getValueSetCount();
+        }
+      }
+
+      @Override
+      public void onValueSetCopied(ValueTable source, ValueSet valueSet, String... tables) {
+        entitiesCopied++;
+        printProgress(source);
+      }
+
+      private void printProgress(ValueTable source) {
+        try {
+          if(entitiesToCopy > 0) {
+            int percentComplete = (int) (entitiesCopied / (double) entitiesToCopy * 100);
+            if(percentComplete >= nextPercentIncrement) {
+              log.info("Copy {}% complete.", percentComplete);
+              progressListener.status(source.getName(), entitiesCopied, entitiesToCopy, percentComplete);
+              nextPercentIncrement = percentComplete + 1;
+            }
+          }
+        } catch(RuntimeException e) {
+          // Ignore
+        }
+      }
     }
   }
 
