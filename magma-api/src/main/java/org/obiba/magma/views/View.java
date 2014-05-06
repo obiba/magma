@@ -42,6 +42,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cache.Cache;
 
+import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableSet;
@@ -289,7 +290,21 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
 
   @Override
   public Timestamps getValueSetTimestamps(VariableEntity entity) throws NoSuchValueSetException {
-    return getValueSet(entity).getTimestamps();
+    VariableEntity unmapped = getVariableEntityMappingFunction().unapply(entity);
+    if(unmapped == null) throw new NoSuchValueSetException(this, entity);
+
+    return super.getValueSetTimestamps(unmapped);
+  }
+
+  @Override
+  public Iterable<Timestamps> getValueSetTimestamps(SortedSet<VariableEntity> entities) {
+    return Iterables.transform(entities, new Function<VariableEntity, Timestamps>() {
+      @Nullable
+      @Override
+      public Timestamps apply(@Nullable VariableEntity input) {
+        return getValueSetTimestamps(input);
+      }
+    });
   }
 
   @Override

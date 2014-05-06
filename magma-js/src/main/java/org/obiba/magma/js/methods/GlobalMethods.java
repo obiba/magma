@@ -17,6 +17,7 @@ import org.mozilla.javascript.NativeArray;
 import org.mozilla.javascript.NativeObject;
 import org.mozilla.javascript.Scriptable;
 import org.obiba.magma.NoSuchValueSetException;
+import org.obiba.magma.Timestamps;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueSequence;
 import org.obiba.magma.ValueSet;
@@ -31,6 +32,7 @@ import org.obiba.magma.js.MagmaJsEvaluationRuntimeException;
 import org.obiba.magma.js.ScriptableValue;
 import org.obiba.magma.js.ScriptableVariable;
 import org.obiba.magma.support.MagmaEngineVariableResolver;
+import org.obiba.magma.support.NullTimestamps;
 import org.obiba.magma.support.VariableEntityBean;
 import org.obiba.magma.type.DateTimeType;
 import org.obiba.magma.type.TextType;
@@ -55,7 +57,7 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
    * Set of methods to be exposed as top-level methods (ones that can be invoked anywhere)
    */
   private static final Set<String> GLOBAL_METHODS = ImmutableSet
-      .of("$", "$val", "$value", "$this", "$join", "now", "log", "$var", "$variable", "$id", "$identifier", "$group", "$groups", "newValue", "newSequence");
+      .of("$", "$val", "$value", "$created", "$lastupdate", "$this", "$join", "now", "log", "$var", "$variable", "$id", "$identifier", "$group", "$groups", "newValue", "newSequence");
 
   @Override
   protected Set<String> getExposedMethods() {
@@ -144,16 +146,22 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
    * @return an instance of {@code ScriptableValue}
    */
   public static Scriptable $(Context ctx, Scriptable thisObj, Object[] args, Function funObj) {
+    if(args.length != 1) {
+      throw new IllegalArgumentException("$() expects exactly one argument: a variable name.");
+    }
     return $value(ctx, thisObj, args, funObj);
   }
 
   public static Scriptable $val(Context ctx, Scriptable thisObj, Object[] args, Function funObj) {
+    if(args.length != 1) {
+      throw new IllegalArgumentException("$val() expects exactly one argument: a variable name.");
+    }
     return $value(ctx, thisObj, args, funObj);
   }
 
   public static Scriptable $value(Context ctx, Scriptable thisObj, Object[] args, Function funObj) {
     if(args.length != 1) {
-      throw new IllegalArgumentException("$() expects exactly one argument: a variable name.");
+      throw new IllegalArgumentException("$value() expects exactly one argument: a variable name.");
     }
 
     MagmaContext context = MagmaContext.asMagmaContext(ctx);
@@ -162,6 +170,43 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
 
     return valueFromContext(context, thisObj, name);
   }
+
+  /**
+   * Get the value set creation timestamp.
+   * <p/>
+   * <pre>
+   *   $created()
+   * </pre>
+   *
+   * @param ctx
+   * @param thisObj
+   * @param args
+   * @param funObj
+   * @return
+   */
+  public static Scriptable $created(Context ctx, Scriptable thisObj, Object[] args, Function funObj) {
+    MagmaContext context = MagmaContext.asMagmaContext(ctx);
+    return new ScriptableValue(thisObj, timestampsFromContext(context).getCreated());
+  }
+
+  /**
+   * Get the value set last update timestamp.
+   * <p/>
+   * <pre>
+   *   $lastupdate()
+   * </pre>
+   *
+   * @param ctx
+   * @param thisObj
+   * @param args
+   * @param funObj
+   * @return
+   */
+  public static Scriptable $lastupdate(Context ctx, Scriptable thisObj, Object[] args, Function funObj) {
+    MagmaContext context = MagmaContext.asMagmaContext(ctx);
+    return new ScriptableValue(thisObj, timestampsFromContext(context).getLastUpdate());
+  }
+
 
   /**
    * Allows invoking {@code VariableValueSource#getValue(ValueSet)} and returns a {@code ScriptableValue}.
@@ -324,6 +369,18 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
     ValueSet viewValueSet = view.getValueSetMappingFunction().apply(valueSet);
     Value value = source.getValue(viewValueSet);
     return new ScriptableValue(thisObj, value, source.getVariable().getUnit());
+  }
+
+  private static Timestamps timestampsFromContext(MagmaContext context) {
+    // Test whether this is a vector-oriented evaluation or a ValueSet-oriented evaluation
+    if (context.has(VectorCache.class)) {
+      ValueTable valueTable = context.peek(ValueTable.class);
+      VectorCache cache = context.peek(VectorCache.class);
+      return cache.get(context, valueTable);
+    } else {
+      ValueSet valueSet = context.peek(ValueSet.class);
+      return valueSet.getTimestamps();
+    }
   }
 
   private static ScriptableValue valueFromContext(MagmaContext context, Scriptable thisObj, String name) {

@@ -1,6 +1,7 @@
 package org.obiba.magma;
 
 import java.util.Set;
+import java.util.SortedSet;
 
 import javax.validation.constraints.NotNull;
 
@@ -29,6 +30,8 @@ public interface ValueTable extends Timestamped {
   ValueSet getValueSet(VariableEntity entity) throws NoSuchValueSetException;
 
   Timestamps getValueSetTimestamps(VariableEntity entity) throws NoSuchValueSetException;
+
+  Iterable<Timestamps> getValueSetTimestamps(SortedSet<VariableEntity> entities);
 
   boolean hasVariable(String name);
 

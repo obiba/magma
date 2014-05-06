@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.SortedSet;
 
 import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
@@ -205,6 +206,17 @@ public abstract class AbstractValueTable implements ValueTable, Initialisable {
   @Override
   public Timestamps getValueSetTimestamps(VariableEntity entity) throws NoSuchValueSetException {
     return getValueSet(entity).getTimestamps();
+  }
+
+  @Override
+  public Iterable<Timestamps> getValueSetTimestamps(SortedSet<VariableEntity> entities) {
+    return Iterables.transform(entities, new Function<VariableEntity, Timestamps>() {
+      @Nullable
+      @Override
+      public Timestamps apply(@Nullable VariableEntity input) {
+        return getValueSetTimestamps(input);
+      }
+    });
   }
 
   @Override
