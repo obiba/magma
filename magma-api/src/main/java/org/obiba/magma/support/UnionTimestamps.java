@@ -1,6 +1,7 @@
 package org.obiba.magma.support;
 
 import java.util.Arrays;
+import java.util.Collection;
 
 import javax.validation.constraints.NotNull;
 
@@ -19,6 +20,10 @@ public class UnionTimestamps implements Timestamps {
 
   public UnionTimestamps(Iterable<? extends Timestamped> timestampeds) {
     timestamps = Iterables.transform(timestampeds, Timestamped.ToTimestamps);
+  }
+
+  public UnionTimestamps(Collection<Timestamps> timestamps) {
+    this.timestamps = timestamps;
   }
 
   @NotNull

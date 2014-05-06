@@ -3,6 +3,7 @@ package org.obiba.magma.support;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.Set;
+import java.util.SortedSet;
 
 import javax.validation.constraints.NotNull;
 
@@ -59,6 +60,11 @@ public abstract class AbstractValueTableWrapper implements ValueTableWrapper {
   @Override
   public Timestamps getValueSetTimestamps(VariableEntity entity) throws NoSuchValueSetException {
     return getWrappedValueTable().getValueSetTimestamps(entity);
+  }
+
+  @Override
+  public Iterable<Timestamps> getValueSetTimestamps(SortedSet<VariableEntity> entities) {
+    return getWrappedValueTable().getValueSetTimestamps(entities);
   }
 
   @Override

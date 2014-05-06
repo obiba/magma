@@ -19,6 +19,7 @@ import org.mozilla.javascript.Script;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.Undefined;
 import org.obiba.magma.Initialisable;
+import org.obiba.magma.Timestamps;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueSet;
 import org.obiba.magma.ValueSource;
@@ -341,7 +342,9 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
 
   public static class VectorCache {
 
-    private final Map<VectorSource, VectorHolder> vectors = Maps.newHashMap();
+    private final Map<VectorSource, VectorHolder<Value>> vectors = Maps.newHashMap();
+
+    private VectorHolder<Timestamps> timestampsVector;
 
     // Holds the current "row" of the evaluation.
     private int index = 0;
@@ -353,26 +356,33 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
     // Returns the value of the current "row" for the specified vector
     @SuppressWarnings("unchecked")
     public Value get(MagmaContext context, VectorSource source) {
-      VectorHolder holder = vectors.get(source);
+      VectorHolder<Value> holder = vectors.get(source);
       if(holder == null) {
-        holder = new VectorHolder(source.getValues(context.peek(SortedSet.class)).iterator());
+        holder = new VectorHolder<>(source.getValues(context.peek(SortedSet.class)).iterator());
         vectors.put(source, holder);
       }
       return holder.get(index);
     }
+
+    public Timestamps get(MagmaContext context, ValueTable table) {
+      if (timestampsVector == null) {
+        timestampsVector = new VectorHolder<>(table.getValueSetTimestamps(context.peek(SortedSet.class)).iterator());
+      }
+      return timestampsVector.get(index);
+    }
   }
 
-  private static class VectorHolder {
+  private static class VectorHolder<T> {
 
-    private final Iterator<Value> values;
+    private final Iterator<T> values;
 
     // The index of the value returned by values.next();
     private int nextIndex = 0;
 
     // Value of nextIndex - 1 (null after vector)
-    private Value currentValue;
+    private T currentValue;
 
-    VectorHolder(Iterator<Value> values) {
+    VectorHolder(Iterator<T> values) {
       this.values = values;
     }
 
@@ -389,7 +399,7 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
      * <pre>
      * vectors for VAR2 and VAR3 are not incremented at the same "rate" as VAR1.
      */
-    Value get(int index) {
+    T get(int index) {
       if(index < 0) throw new IllegalArgumentException("index must be >= 0");
       // Increment the iterator until we reach the requested row
       while(nextIndex <= index) {

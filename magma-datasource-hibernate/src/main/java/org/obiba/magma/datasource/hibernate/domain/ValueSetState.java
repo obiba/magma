@@ -32,6 +32,8 @@ import com.google.common.collect.Sets;
 @NamedQueries({ //
     @NamedQuery(name = "findValueSetIdsByTableId",
         query = "SELECT id FROM ValueSetState WHERE valueTable.id = :valueTableId"),
+    @NamedQuery(name = "findValueSetTimestampsByTableId",
+        query = "SELECT id, created, updated FROM ValueSetState WHERE valueTable.id = :valueTableId"),
     @NamedQuery(name = "setLastUpdateForTableId",
         query = "UPDATE ValueSetState SET updated = :updated WHERE valueTable.id = :valueTableId"),
     @NamedQuery(name = "deleteEmptyValueSets",

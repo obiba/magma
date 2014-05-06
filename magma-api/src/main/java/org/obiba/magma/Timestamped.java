@@ -14,6 +14,19 @@ public interface Timestamped {
     }
   };
 
+  Function<Timestamps, Timestamped> ToTimestamped = new Function<Timestamps, Timestamped>() {
+
+    @Override
+    public Timestamped apply(final Timestamps from) {
+      return from == null ? null : new Timestamped() {
+        @Override
+        public Timestamps getTimestamps() {
+          return from;
+        }
+      };
+    }
+  };
+
   @NotNull
   Timestamps getTimestamps();
 

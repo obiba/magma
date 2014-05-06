@@ -11,6 +11,9 @@
 package org.obiba.magma.datasource.mongodb;
 
 import java.util.Date;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.SortedSet;
 
 import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
@@ -20,16 +23,23 @@ import org.bson.types.ObjectId;
 import org.obiba.magma.Datasource;
 import org.obiba.magma.NoSuchValueSetException;
 import org.obiba.magma.Timestamps;
+import org.obiba.magma.TimestampsBean;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueSet;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.VariableValueSource;
+import org.obiba.magma.datasource.mongodb.converter.ValueConverter;
 import org.obiba.magma.support.AbstractValueTable;
+import org.obiba.magma.support.NullTimestamps;
 import org.obiba.magma.type.DateTimeType;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Maps;
+import com.mongodb.BasicDBObject;
 import com.mongodb.BasicDBObjectBuilder;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
+import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 import com.mongodb.WriteConcern;
 
@@ -138,6 +148,20 @@ public class MongoDBValueTable extends AbstractValueTable {
   }
 
   @Override
+  public Iterable<Timestamps> getValueSetTimestamps(final SortedSet<VariableEntity> entities) {
+
+    if(entities.isEmpty()) {
+      return ImmutableList.of();
+    }
+    return new Iterable<Timestamps>() {
+      @Override
+      public Iterator<Timestamps> iterator() {
+        return new TimestampsIterator(entities.iterator());
+      }
+    };
+  }
+
+  @Override
   public ValueSet getValueSet(VariableEntity entity) throws NoSuchValueSetException {
     if(!hasValueSet(entity)) {
       throw new NoSuchValueSetException(this, entity);
@@ -192,5 +216,64 @@ public class MongoDBValueTable extends AbstractValueTable {
   @Override
   public int getVariableEntityCount() {
     return (int) getValueSetCollection().count();
+  }
+
+  private class TimestampsIterator implements Iterator<Timestamps> {
+
+    private final Iterator<VariableEntity> entities;
+
+    private final DBCursor cursor;
+
+    private final Map<String, Timestamps> timestampsMap = Maps.newHashMap();
+
+    private TimestampsIterator(Iterator<VariableEntity> entities) {
+      this.entities = entities;
+      DBObject fields = BasicDBObjectBuilder.start(MongoDBDatasource.TIMESTAMPS_FIELD, 1).get();
+      cursor = getValueSetCollection().find(new BasicDBObject(), fields);
+    }
+
+    @Override
+    public boolean hasNext() {
+      return entities.hasNext();
+    }
+
+    @Override
+    public Timestamps next() {
+      VariableEntity entity = entities.next();
+
+      if(timestampsMap.containsKey(entity.getIdentifier())) return getTimestampsFromMap(entity);
+
+      boolean found = false;
+      while(cursor.hasNext() && !found) {
+        DBObject obj = cursor.next();
+        String id = obj.get("_id").toString();
+        BSONObject timestamps = (BSONObject) obj.get(MongoDBDatasource.TIMESTAMPS_FIELD);
+        timestampsMap.put(id,
+            new TimestampsBean(ValueConverter.unmarshall(DateTimeType.get(), timestamps.get("created")),
+                ValueConverter.unmarshall(DateTimeType.get(), timestamps.get("updated")))
+        );
+        found = id.equals(entity.getIdentifier());
+      }
+
+      if(timestampsMap.containsKey(entity.getIdentifier())) return getTimestampsFromMap(entity);
+      return NullTimestamps.get();
+    }
+
+    /**
+     * No duplicate of entities, so remove timestamps from map once get.
+     *
+     * @param entity
+     * @return
+     */
+    private Timestamps getTimestampsFromMap(VariableEntity entity) {
+      Timestamps value = timestampsMap.get(entity.getIdentifier());
+      timestampsMap.remove(entity.getIdentifier());
+      return value;
+    }
+
+    @Override
+    public void remove() {
+      throw new UnsupportedOperationException();
+    }
   }
 }

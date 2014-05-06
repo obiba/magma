@@ -3,11 +3,13 @@ package org.obiba.magma.datasource.hibernate;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
+import java.util.SortedSet;
 
 import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
@@ -17,6 +19,9 @@ import org.hibernate.FetchMode;
 import org.hibernate.LockMode;
 import org.hibernate.LockOptions;
 import org.hibernate.Query;
+import org.hibernate.ScrollMode;
+import org.hibernate.ScrollableResults;
+import org.hibernate.Session;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.obiba.core.service.impl.hibernate.AssociationCriteria;
@@ -26,6 +31,7 @@ import org.obiba.magma.Initialisable;
 import org.obiba.magma.NoSuchValueSetException;
 import org.obiba.magma.NoSuchVariableException;
 import org.obiba.magma.Timestamps;
+import org.obiba.magma.TimestampsBean;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueSet;
 import org.obiba.magma.Variable;
@@ -48,6 +54,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Predicate;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
@@ -114,6 +121,19 @@ class HibernateValueTable extends AbstractValueTable {
     }
 
     return cachedTimestamps == null ? NullTimestamps.get() : cachedTimestamps;
+  }
+
+  @Override
+  public Iterable<Timestamps> getValueSetTimestamps(final SortedSet<VariableEntity> entities) {
+    if(entities.isEmpty()) {
+      return ImmutableList.of();
+    }
+    return new Iterable<Timestamps>() {
+      @Override
+      public Iterator<Timestamps> iterator() {
+        return new TimestampsIterator(entities.iterator());
+      }
+    };
   }
 
   @SuppressWarnings("unchecked")
@@ -344,6 +364,87 @@ class HibernateValueTable extends AbstractValueTable {
             Iterables.concat(entities, getDatasource().getTableTransaction(getName()).getUncommittedEntities()));
       }
       return Collections.unmodifiableSet(entities);
+    }
+  }
+
+  private class TimestampsIterator implements Iterator<Timestamps> {
+    private final ScrollableResults results;
+
+    private boolean hasNextResults;
+
+    private boolean closed;
+
+    private final Iterator<VariableEntity> entities;
+
+    private final Map<String, Timestamps> timestampsMap = Maps.newHashMap();
+
+    private TimestampsIterator(Iterator<VariableEntity> entities) {
+      this.entities = entities;
+      Query query = getCurrentSession().getNamedQuery("findValueSetTimestampsByTableId") //
+          .setParameter("valueTableId", getValueTableState().getId());
+      results = query.scroll(ScrollMode.FORWARD_ONLY);
+      hasNextResults = results.next();
+    }
+
+    private Session getCurrentSession() {
+      return getDatasource().getSessionFactory().getCurrentSession();
+    }
+
+    @Override
+    public boolean hasNext() {
+      return entities.hasNext();
+    }
+
+    @Override
+    public Timestamps next() {
+      VariableEntity entity = entities.next();
+
+      if(timestampsMap.containsKey(entity.getIdentifier())) return getTimestampsFromMap(entity);
+
+      boolean found = false;
+      // Scroll until we find the required entity or reach the end of the results
+      while(hasNextResults && !found) {
+        String id = results.getString(0);
+        Value created = DateTimeType.get().valueOf(results.getDate(1));
+        Value updated = DateTimeType.get().valueOf(results.getDate(2));
+
+        timestampsMap.put(id, new TimestampsBean(created, updated));
+        if(entity.getIdentifier().equals(id)) {
+          found = true;
+        }
+        hasNextResults = results.next();
+      }
+
+      closeCursorIfNecessary();
+
+      if(timestampsMap.containsKey(entity.getIdentifier())) return getTimestampsFromMap(entity);
+      return NullTimestamps.get();
+    }
+
+    @Override
+    public void remove() {
+      throw new UnsupportedOperationException();
+    }
+
+    /**
+     * No duplicate of entities, so remove value from map once get.
+     * @param entity
+     * @return
+     */
+    private Timestamps getTimestampsFromMap(VariableEntity entity) {
+      Timestamps value = timestampsMap.get(entity.getIdentifier());
+      timestampsMap.remove(entity.getIdentifier());
+      return value;
+    }
+
+    private void closeCursorIfNecessary() {
+      if(!closed) {
+        // Close the cursor if we don't have any more results or no more entities to return
+        if(!hasNextResults || !hasNext()) {
+          closed = true;
+          results.close();
+        }
+      }
     }
   }
 }

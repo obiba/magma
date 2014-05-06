@@ -28,6 +28,7 @@ import org.obiba.magma.VariableEntity;
 import org.obiba.magma.VariableValueSource;
 import org.obiba.magma.VectorSource;
 import org.obiba.magma.support.AbstractVariableValueSourceWrapper;
+import org.obiba.magma.support.NullTimestamps;
 import org.obiba.magma.support.UnionTimestamps;
 import org.obiba.magma.support.ValueSetBean;
 
@@ -127,7 +128,8 @@ public class JoinTable implements ValueTable, Initialisable {
         if(existing != null && !existing.equals(joinableVariable)) {
           throw new IllegalArgumentException(
               "Cannot have variables with same name and different value type or repeatability: '" +
-                  buildJoinTableName() + "." + variable.getName() + "'");
+                  buildJoinTableName() + "." + variable.getName() + "'"
+          );
         }
         variableTables.put(joinableVariable, table);
         joinableVariablesByName.put(variable.getName(), joinableVariable);
@@ -178,6 +180,16 @@ public class JoinTable implements ValueTable, Initialisable {
   @Override
   public Timestamps getValueSetTimestamps(VariableEntity entity) throws NoSuchValueSetException {
     return getValueSet(entity).getTimestamps();
+  }
+
+  @Override
+  public Iterable<Timestamps> getValueSetTimestamps(final SortedSet<VariableEntity> entities) {
+    return new Iterable<Timestamps>() {
+      @Override
+      public Iterator<Timestamps> iterator() {
+        return new TimestampsIterator(entities, getTables());
+      }
+    };
   }
 
   @Override
@@ -452,6 +464,7 @@ public class JoinTable implements ValueTable, Initialisable {
         }
       };
     }
+
   }
 
   private static class ValueIterator implements Iterator<Value> {
@@ -507,6 +520,54 @@ public class JoinTable implements ValueTable, Initialisable {
       }
 
       return joinedValue;
+    }
+
+    @Override
+    public void remove() {
+      throw new UnsupportedOperationException();
+    }
+  }
+
+  private static class TimestampsIterator implements Iterator<Timestamps> {
+
+    @NotNull
+    private final SortedSet<VariableEntity> entities;
+
+    private final Iterator<VariableEntity> entitiesIterator;
+
+    @NotNull
+    private final List<ValueTable> owners;
+
+    private List<Iterator<Timestamps>> timestampsIterators = Lists.newArrayList();
+
+    private TimestampsIterator(SortedSet<VariableEntity> entities, List<ValueTable> owners) {
+      this.entities = entities;
+      this.owners = owners;
+      entitiesIterator = entities.iterator();
+    }
+
+    @Override
+    public boolean hasNext() {
+      return entitiesIterator.hasNext();
+    }
+
+    @Override
+    public Timestamps next() {
+      // get the value iterator for each table
+      if(timestampsIterators.isEmpty()) {
+        for(ValueTable table : owners) {
+          timestampsIterators.add(table.getValueSetTimestamps(entities).iterator());
+        }
+      }
+
+      // increment each timestamps iterator and make a union of them
+      entitiesIterator.next();
+      ImmutableList.Builder<Timestamps> timestamps = ImmutableList.builder();
+      for(Iterator<Timestamps> iterator : timestampsIterators) {
+        Timestamps ts = iterator.next();
+        timestamps.add(ts == null ? NullTimestamps.get() : ts);
+      }
+      return new UnionTimestamps(timestamps.build());
     }
 
     @Override
