@@ -366,9 +366,6 @@ public class JoinTable implements ValueTable, Initialisable {
     @NotNull
     private final Map<String, ValueSet> valueSetsByTable = Maps.newHashMap();
 
-    @NotNull
-    private final Map<String, Timestamps> timestampsByTable = Maps.newHashMap();
-
     JoinedValueSet(@NotNull ValueTable table, @NotNull VariableEntity entity) {
       super(table, entity);
     }
@@ -378,13 +375,8 @@ public class JoinTable implements ValueTable, Initialisable {
     public Timestamps getTimestamps() {
       List<Timestamps> timestampses = Lists.newArrayList();
       for(ValueTable valueTable : ((JoinTable) getValueTable()).getTables()) {
-        if (timestampsByTable.containsKey(valueTable.getTableReference())) {
-          timestampses.add(timestampsByTable.get(valueTable.getTableReference()));
-        }
-        else if(valueTable.hasValueSet(getVariableEntity())) {
-          Timestamps timestamps = valueTable.getValueSetTimestamps(getVariableEntity());
-          timestampsByTable.put(valueTable.getTableReference(), timestamps);
-          timestampses.add(timestamps);
+        if(valueTable.hasValueSet(getVariableEntity())) {
+          timestampses.add(valueTable.getValueSetTimestamps(getVariableEntity()));
         }
       }
       return new UnionTimestamps(timestampses);
