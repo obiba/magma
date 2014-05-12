@@ -28,6 +28,7 @@ import org.obiba.magma.support.UnionTimestamps;
 import org.obiba.magma.type.DateTimeType;
 
 import com.google.common.collect.ImmutableSet;
+import com.mongodb.BasicDBObject;
 import com.mongodb.BasicDBObjectBuilder;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
@@ -86,7 +87,9 @@ public class MongoDBDatasource extends AbstractDatasource {
     return mongoDBFactory.execute(new MongoDBFactory.MongoDBCallback<DBCollection>() {
       @Override
       public DBCollection doWithDB(DB db) {
-        return db.getCollection(DATASOURCE_COLLECTION);
+        DBCollection collection =  db.getCollection(DATASOURCE_COLLECTION);
+        collection.ensureIndex("name");
+        return collection;
       }
     });
   }
@@ -94,11 +97,11 @@ public class MongoDBDatasource extends AbstractDatasource {
   DBObject asDBObject() {
     if(dbObject == null) {
       dbObject = getDatasourceCollection().findOne(BasicDBObjectBuilder.start() //
-          .add("_id", getName()) //
+          .add("name", getName()) //
           .get());
       if(dbObject == null) {
         dbObject = BasicDBObjectBuilder.start() //
-            .add("_id", getName()) //
+            .add("name", getName()) //
             .add(TIMESTAMPS_FIELD, createTimestampsObject()).get();
         getDatasourceCollection().insert(dbObject, WriteConcern.ACKNOWLEDGED);
       }

@@ -63,11 +63,11 @@ public class MongoDBValueTable extends AbstractValueTable {
   }
 
   MongoDBFactory getMongoDBFactory() {
-    return ((MongoDBDatasource) getDatasource()).getMongoDBFactory();
+    return getMongoDBDatasource().getMongoDBFactory();
   }
 
   DBCollection getValueTableCollection() {
-    return ((MongoDBDatasource) getDatasource()).getValueTableCollection();
+    return getMongoDBDatasource().getValueTableCollection();
   }
 
   DBCollection getVariablesCollection() {
@@ -93,13 +93,13 @@ public class MongoDBValueTable extends AbstractValueTable {
   DBObject asDBObject() {
     if(dbObject == null) {
       dbObject = getValueTableCollection().findOne(BasicDBObjectBuilder.start() //
-          .add("datasource", getDatasource().getName()) //
+          .add("datasource", getMongoDBDatasource().asDBObject().get("_id")) //
           .add("name", getName()) //
           .get());
       // create DBObject if not found
       if(dbObject == null) {
         dbObject = BasicDBObjectBuilder.start() //
-            .add("datasource", getDatasource().getName()) //
+            .add("datasource", getMongoDBDatasource().asDBObject().get("_id")) //
             .add("name", getName()) //
             .add("entityType", getEntityType()) //
             .add(MongoDBDatasource.TIMESTAMPS_FIELD, MongoDBDatasource.createTimestampsObject()).get();
@@ -112,7 +112,7 @@ public class MongoDBValueTable extends AbstractValueTable {
   void setLastUpdate(Date date) {
     ((BSONObject) asDBObject().get(MongoDBDatasource.TIMESTAMPS_FIELD)).put("updated", date);
     getValueTableCollection().save(asDBObject());
-    ((MongoDBDatasource) getDatasource()).setLastUpdate(date);
+    getMongoDBDatasource().setLastUpdate(date);
   }
 
   private String getId() {
@@ -195,7 +195,7 @@ public class MongoDBValueTable extends AbstractValueTable {
     getValueSetCollection().drop();
     getVariablesCollection().drop();
     getValueTableCollection().remove(BasicDBObjectBuilder.start().add("_id", getIdAsObjectId()).get());
-    ((MongoDBDatasource) getDatasource()).setLastUpdate(new Date());
+    getMongoDBDatasource().setLastUpdate(new Date());
     dbObject = null;
   }
 
@@ -216,6 +216,10 @@ public class MongoDBValueTable extends AbstractValueTable {
   @Override
   public int getVariableEntityCount() {
     return (int) getValueSetCollection().count();
+  }
+
+  private MongoDBDatasource getMongoDBDatasource() {
+    return ((MongoDBDatasource) getDatasource());
   }
 
   private class TimestampsIterator implements Iterator<Timestamps> {
