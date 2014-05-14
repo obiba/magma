@@ -6,13 +6,15 @@ import javax.validation.constraints.NotNull;
 
 import org.obiba.magma.Datasource;
 import org.obiba.magma.Decorator;
+import org.obiba.magma.views.support.VariableOperationContext;
 
 import edu.umd.cs.findbugs.annotations.Nullable;
 
 @SuppressWarnings("UnusedDeclaration")
 public interface ViewManager extends Decorator<Datasource> {
 
-  void addView(@NotNull String datasourceName, @NotNull View view, @Nullable String comment);
+  void addView(@NotNull String datasourceName, @NotNull View view, @Nullable String comment, @Nullable
+      VariableOperationContext context);
 
   void removeView(@NotNull String datasourceName, @NotNull String viewName);
 

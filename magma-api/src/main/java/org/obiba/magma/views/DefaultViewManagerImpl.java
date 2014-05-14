@@ -13,6 +13,7 @@ import org.obiba.magma.NoSuchDatasourceException;
 import org.obiba.magma.NoSuchValueTableException;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.Variable;
+import org.obiba.magma.views.support.VariableOperationContext;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
@@ -44,7 +45,8 @@ public class DefaultViewManagerImpl implements ViewManager, Initialisable, Dispo
   }
 
   @Override
-  public void addView(@NotNull String datasourceName, @NotNull View view, @Nullable String comment) {
+  public void addView(@NotNull String datasourceName, @NotNull View view, @Nullable String comment, @Nullable
+      VariableOperationContext context) {
     Preconditions.checkArgument(!Strings.isNullOrEmpty(datasourceName), "datasourceName cannot be null or empty.");
     //noinspection ConstantConditions
     Preconditions.checkArgument(view != null, "view cannot be null.");
@@ -57,7 +59,7 @@ public class DefaultViewManagerImpl implements ViewManager, Initialisable, Dispo
     validateVariablesEntityType(view);
     datasource.addView(view);
     try {
-      viewPersistenceStrategy.writeView(datasource.getName(), view, comment);
+      viewPersistenceStrategy.writeView(datasource.getName(), view, comment, context);
     } catch(RuntimeException e) {
       // rollback
       datasource.removeView(view.getName());
@@ -133,7 +135,7 @@ public class DefaultViewManagerImpl implements ViewManager, Initialisable, Dispo
   @Override
   public void addViews(@NotNull String datasource, Set<View> views, @Nullable String comment) {
     Preconditions.checkArgument(!Strings.isNullOrEmpty(datasource), "datasource cannot be null or empty.");
-    viewPersistenceStrategy.writeViews(datasource, views, comment);
+    viewPersistenceStrategy.writeViews(datasource, views, comment, null);
   }
 
   @NotNull

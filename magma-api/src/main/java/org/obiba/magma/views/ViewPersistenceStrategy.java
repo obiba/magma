@@ -6,6 +6,7 @@ import javax.validation.constraints.NotNull;
 
 import org.obiba.magma.Disposable;
 import org.obiba.magma.Initialisable;
+import org.obiba.magma.views.support.VariableOperationContext;
 
 import edu.umd.cs.findbugs.annotations.Nullable;
 
@@ -17,7 +18,8 @@ public interface ViewPersistenceStrategy extends Initialisable, Disposable {
    * @param datasourceName
    * @param views
    */
-  void writeViews(@NotNull String datasourceName, @NotNull Set<View> views, @Nullable String comment);
+  void writeViews(@NotNull String datasourceName, @NotNull Set<View> views, @Nullable String comment,
+      @Nullable VariableOperationContext context);
 
   /**
    * Add or update the view for the datasource.
@@ -25,7 +27,8 @@ public interface ViewPersistenceStrategy extends Initialisable, Disposable {
    * @param datasourceName
    * @param view
    */
-  void writeView(@NotNull String datasourceName, @NotNull View view, @Nullable String comment);
+  void writeView(@NotNull String datasourceName, @NotNull View view, @Nullable String comment, @Nullable
+      VariableOperationContext context);
 
   /**
    * Remove a specified view of a datasource. Silently ignore if no such view exists.

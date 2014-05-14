@@ -8,6 +8,8 @@ import java.util.Set;
 
 import javax.validation.constraints.NotNull;
 
+import org.obiba.magma.views.support.VariableOperationContext;
+
 import edu.umd.cs.findbugs.annotations.Nullable;
 
 /**
@@ -27,7 +29,8 @@ public class MemoryViewPersistenceStrategy implements ViewPersistenceStrategy {
   }
 
   @Override
-  public void writeViews(@NotNull String datasourceName, @NotNull Set<View> views, @Nullable String comment) {
+  public void writeViews(@NotNull String datasourceName, @NotNull Set<View> views, @Nullable String comment, @Nullable
+  VariableOperationContext context) {
     Map<String, View> datasourceViews = getSafeDatasourceViews(datasourceName);
     for(View view : views) {
       datasourceViews.put(view.getName(), view);
@@ -35,7 +38,8 @@ public class MemoryViewPersistenceStrategy implements ViewPersistenceStrategy {
   }
 
   @Override
-  public void writeView(@NotNull String datasourceName, @NotNull View view, @Nullable String comment) {
+  public void   writeView(@NotNull String datasourceName, @NotNull View view, @Nullable String comment, @Nullable
+      VariableOperationContext context) {
     Map<String, View> datasourceViews = getSafeDatasourceViews(datasourceName);
     datasourceViews.put(view.getName(), view);
   }

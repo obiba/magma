@@ -434,7 +434,7 @@ public class ViewTest extends AbstractMagmaTest {
     when(valueTableMock.getEntityType()).thenReturn("NotMartian");
 
     manager.decorate(datasourceMock);
-    manager.addView("datasource", view, null);
+    manager.addView("datasource", view, null, null);
   }
 
   //
