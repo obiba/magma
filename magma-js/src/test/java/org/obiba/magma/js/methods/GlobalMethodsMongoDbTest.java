@@ -128,7 +128,7 @@ public class GlobalMethodsMongoDbTest extends AbstractJsTest {
     try(ValueTableWriter.VariableWriter variableWriter = viewTemplate.getListClause().createWriter()) {
       variableWriter.writeVariable(lbsWeight);
     }
-    viewManager.addView(DATASOURCE, viewTemplate, null);
+    viewManager.addView(DATASOURCE, viewTemplate, null, null);
 
     List<Long> tableValues = new ArrayList<>();
     for(ValueSet valueSet : table.getValueSets()) {
@@ -160,7 +160,7 @@ public class GlobalMethodsMongoDbTest extends AbstractJsTest {
     try(ValueTableWriter.VariableWriter variableWriter = viewTemplate.getListClause().createWriter()) {
       variableWriter.writeVariable(lbsWeight);
     }
-    viewManager.addView(DATASOURCE, viewTemplate, null);
+    viewManager.addView(DATASOURCE, viewTemplate, null, null);
 
     VectorSource tableVectorSource = table.getVariableValueSource("weight").asVectorSource();
     assertThat(tableVectorSource).isNotNull();
@@ -197,7 +197,7 @@ public class GlobalMethodsMongoDbTest extends AbstractJsTest {
       variableWriter.writeVariable(varD);
       variableWriter.writeVariable(varE);
     }
-    viewManager.addView(DATASOURCE, viewTemplate, null);
+    viewManager.addView(DATASOURCE, viewTemplate, null, null);
 
     View view = viewManager.getView(DATASOURCE, "view");
     for(ValueSet valueSet : view.getValueSets()) {
@@ -224,7 +224,7 @@ public class GlobalMethodsMongoDbTest extends AbstractJsTest {
       variableWriter.writeVariable(varD);
       variableWriter.writeVariable(varE);
     }
-    viewManager.addView(DATASOURCE, viewTemplate, null);
+    viewManager.addView(DATASOURCE, viewTemplate, null, null);
 
     View view = viewManager.getView(DATASOURCE, "view");
     VariableValueSource variableValueSource = view.getVariableValueSource("A");
@@ -250,7 +250,7 @@ public class GlobalMethodsMongoDbTest extends AbstractJsTest {
       variableWriter.writeVariable(kgWeightRef);
       variableWriter.writeVariable(lbsWeight);
     }
-    viewManager.addView(DATASOURCE, viewTemplate, null);
+    viewManager.addView(DATASOURCE, viewTemplate, null, null);
 
     List<Long> tableValues = new ArrayList<>();
     for(ValueSet valueSet : table.getValueSets()) {
@@ -293,7 +293,7 @@ public class GlobalMethodsMongoDbTest extends AbstractJsTest {
         variableWriter.writeVariable(variable);
       }
     }
-    viewManager.addView(DATASOURCE, viewTemplate, null);
+    viewManager.addView(DATASOURCE, viewTemplate, null, null);
 
     View view = viewManager.getView(DATASOURCE, "view");
     for(ValueSet valueSet : view.getValueSets()) {
@@ -334,7 +334,7 @@ public class GlobalMethodsMongoDbTest extends AbstractJsTest {
         variableWriter.writeVariable(variable);
       }
     }
-    viewManager.addView(DATASOURCE, viewTemplate, null);
+    viewManager.addView(DATASOURCE, viewTemplate, null, null);
 
     View view = viewManager.getView(DATASOURCE, "view");
 
@@ -372,7 +372,7 @@ public class GlobalMethodsMongoDbTest extends AbstractJsTest {
         variableWriter.writeVariable(variable);
       }
     }
-    viewManager.addView(DATASOURCE, viewTemplate, null);
+    viewManager.addView(DATASOURCE, viewTemplate, null, null);
 
     View view = viewManager.getView(DATASOURCE, "view");
 
@@ -402,7 +402,7 @@ public class GlobalMethodsMongoDbTest extends AbstractJsTest {
         variableWriter.writeVariable(variable);
       }
     }
-    viewManager.addView(DATASOURCE, viewTemplate, null);
+    viewManager.addView(DATASOURCE, viewTemplate, null, null);
 
     View view = viewManager.getView(DATASOURCE, "view");
     Stopwatch stopwatch = Stopwatch.createStarted();
@@ -435,7 +435,7 @@ public class GlobalMethodsMongoDbTest extends AbstractJsTest {
       variableWriter.writeVariable(varC);
       variableWriter.writeVariable(varD);
     }
-    viewManager.addView(DATASOURCE, viewTemplate, null);
+    viewManager.addView(DATASOURCE, viewTemplate, null, null);
 
     View view = viewManager.getView(DATASOURCE, "view");
     for(ValueSet valueSet : view.getValueSets()) {
@@ -460,7 +460,7 @@ public class GlobalMethodsMongoDbTest extends AbstractJsTest {
       variableWriter.writeVariable(varC);
       variableWriter.writeVariable(varD);
     }
-    viewManager.addView(DATASOURCE, viewTemplate, null);
+    viewManager.addView(DATASOURCE, viewTemplate, null, null);
 
     View view = viewManager.getView(DATASOURCE, "view");
     for(ValueSet valueSet : view.getValueSets()) {

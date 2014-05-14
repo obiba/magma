@@ -170,7 +170,7 @@ public class GlobalMethodsHibernateTest extends AbstractJsTest {
             variableWriter.writeVariable(variable);
           }
         }
-        viewManager.addView(DATASOURCE, viewTemplate, null);
+        viewManager.addView(DATASOURCE, viewTemplate, null, null);
 
         View view = viewManager.getView(DATASOURCE, "view");
         Stopwatch stopwatch = Stopwatch.createStarted();

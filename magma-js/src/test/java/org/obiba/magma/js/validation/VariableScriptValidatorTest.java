@@ -154,7 +154,7 @@ public class VariableScriptValidatorTest extends AbstractJsTest {
         variableWriter.writeVariable(variable);
       }
     }
-    viewManager.addView(DATASOURCE, viewTemplate, null);
+    viewManager.addView(DATASOURCE, viewTemplate, null, null);
 
     View view = viewManager.getView(DATASOURCE, "view");
 
@@ -183,7 +183,7 @@ public class VariableScriptValidatorTest extends AbstractJsTest {
       variableWriter.writeVariable(varE);
       variableWriter.writeVariable(varF);
     }
-    viewManager.addView(DATASOURCE, viewTemplate, null);
+    viewManager.addView(DATASOURCE, viewTemplate, null, null);
 
     View view = viewManager.getView(DATASOURCE, "view");
     try {
@@ -213,7 +213,7 @@ public class VariableScriptValidatorTest extends AbstractJsTest {
       variableWriter.writeVariable(varD);
       variableWriter.writeVariable(varE);
     }
-    viewManager.addView(DATASOURCE, viewTemplate, null);
+    viewManager.addView(DATASOURCE, viewTemplate, null, null);
 
     View view = viewManager.getView(DATASOURCE, "view");
     validateJavascriptValueSource(view, "A");
@@ -229,7 +229,7 @@ public class VariableScriptValidatorTest extends AbstractJsTest {
     try(ValueTableWriter.VariableWriter variableWriter = viewTemplate.getListClause().createWriter()) {
       variableWriter.writeVariable(circular);
     }
-    viewManager.addView(DATASOURCE, viewTemplate, null);
+    viewManager.addView(DATASOURCE, viewTemplate, null, null);
 
     View view = viewManager.getView(DATASOURCE, "view");
     try {
@@ -250,7 +250,7 @@ public class VariableScriptValidatorTest extends AbstractJsTest {
     try(ValueTableWriter.VariableWriter variableWriter = viewTemplate.getListClause().createWriter()) {
       variableWriter.writeVariable(var);
     }
-    viewManager.addView(DATASOURCE, viewTemplate, null);
+    viewManager.addView(DATASOURCE, viewTemplate, null, null);
 
     View view = viewManager.getView(DATASOURCE, "view");
     try {
@@ -294,7 +294,7 @@ public class VariableScriptValidatorTest extends AbstractJsTest {
     XStream xstream = MagmaEngine.get().getExtension(MagmaXStreamExtension.class).getXStreamFactory().createXStream();
     View viewTemplate = (View) xstream.fromXML(FileUtil.getFileFromResource("HOP.xml"));
 
-    viewManager.addView(DATASOURCE, viewTemplate, null);
+    viewManager.addView(DATASOURCE, viewTemplate, null, null);
 
     View view = viewManager.getView(DATASOURCE, "HOP");
 
