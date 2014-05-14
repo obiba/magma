@@ -15,6 +15,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.obiba.magma.NoSuchViewException;
 import org.obiba.magma.Variable;
 import org.obiba.magma.views.View;
 
@@ -39,15 +40,14 @@ public class VariableOperationContext {
     String viewName = view.getName();
 
     if (viewOperations.containsKey(viewName)) {
-      Map<Operation, Collection<Variable>> operations = viewOperations.get(viewName);
-      if (operations != null && operations.size() > 0) return operations;
+      return viewOperations.get(viewName);
     }
 
-    return null;
+    throw new NoSuchViewException(view.getName());
   }
 
   public boolean hasOperations(View view) {
-    return getOperations(view) != null;
+    return viewOperations.containsKey(view.getName());
   }
 
   private void addOperation(View view, Operation operation, Variable variable) {
