@@ -1,0 +1,11 @@
+.idea/
+*.iml
+target/
+out/
+build/
+.classpath
+.project
+atlassian-ide-plugin.xml
+*.jnl
+.gradle
+*.log

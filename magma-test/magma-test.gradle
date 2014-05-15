@@ -1,0 +1,7 @@
+description = 'test'
+
+dependencies {
+    compile project(':magma-api')
+    compile(libraries.junit)
+    compile(libraries.fest)
+}

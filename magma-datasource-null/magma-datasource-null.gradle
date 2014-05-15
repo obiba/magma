@@ -1,0 +1,7 @@
+description = 'Magma Null Datasource'
+
+dependencies {
+  compile project(':magma-api')
+
+
+}

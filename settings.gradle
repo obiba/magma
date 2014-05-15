@@ -1,0 +1,36 @@
+rootProject.name = 'magma'
+
+include ':magma-api',
+    ':magma-beans',
+    ':magma-js',
+    ':magma-xstream',
+    ':magma-integration',
+    ':magma-filter',
+    ':magma-spring',
+    ':magma-crypt',
+    ':magma-math',
+    ':magma-datasource-fs',
+    ':magma-datasource-hibernate',
+    ':magma-datasource-jdbc',
+    ':magma-datasource-limesurvey',
+    ':magma-datasource-excel',
+    ':magma-datasource-null',
+    ':magma-datasource-csv',
+    ':magma-datasource-spss',
+    ':magma-datasource-mongodb',
+    ':magma-security',
+    ':magma-data-generator',
+    ':magma-data-generator:magma-generated-samples',
+    ':magma-test'
+
+// allow us to rename sub-projects’ build files
+setBuildFileName(rootProject)
+
+def setBuildFileName(project) {
+  project.children.each { childProject ->
+    childProject.buildFileName = "${childProject.name}.gradle"
+    assert childProject.projectDir.isDirectory()
+    assert childProject.buildFile.isFile()
+    setBuildFileName(childProject)
+  }
+}

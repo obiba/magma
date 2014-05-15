@@ -1,0 +1,7 @@
+description = 'crypt'
+
+dependencies {
+  compile project(':magma-api')
+
+
+}

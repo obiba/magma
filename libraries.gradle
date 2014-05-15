@@ -1,0 +1,91 @@
+ext {
+
+  hibernateVersion = '4.3.1.Final'
+  slf4jVersion = '1.7.6'
+  springVersion = '4.0.2.RELEASE'
+  obibaCommonsVersion = '1.6.0'
+
+  libraries = [
+
+      catch_exception: 'com.googlecode.catch-exception:catch-exception:1.2.0',
+
+      cglib_nodep: 'cglib:cglib-nodep:3.1',
+
+      commons_dbcp: 'commons-dbcp:commons-dbcp:1.4',
+
+      commons_io: 'commons-io:commons-io:2.4',
+
+      commons_math: 'org.apache.commons:commons-math3:3.2',
+
+      dbunit: 'org.dbunit:dbunit:2.4.9',
+
+      easymock: 'org.easymock:easymock:3.2',
+
+      fest: 'org.easytesting:fest-assert-core:2.0M10',
+
+      findbugs_annotation: 'net.sourceforge.findbugs:annotations:1.3.2',
+
+      guava: 'com.google.guava:guava:16.0.1',
+
+      hibernate_core: "org.hibernate:hibernate-core:${hibernateVersion}",
+      hibernate_ehcache: "org.hibernate:hibernate-ehcache:${hibernateVersion}",
+
+      hsqldb: 'org.hsqldb:hsqldb:2.3.1',
+
+      httpclient: 'org.apache.httpcomponents:httpclient:4.3.2',
+
+      javassist: 'javassist:javassist:3.12.1.GA',
+
+      janino: 'janino:janino:2.5.10',
+
+      jscience_physics: 'org.jscience:jscience-physics:5.0-r53p01',
+
+      json: 'org.json:json:20140107',
+
+      jsr305: 'com.google.code.findbugs:jsr305:2.0.3',
+
+      junit: 'junit:junit:4.11',
+
+      liquibase_core: 'org.liquibase:liquibase-core:1.9.4',
+
+      logback_classic: 'ch.qos.logback:logback-classic:1.1.1',
+
+      mockito: 'org.mockito:mockito-all:1.9.5',
+
+      mongodb_java_driver: 'org.mongodb:mongo-java-driver:2.11.4',
+
+      mysql_connector_java: 'mysql:mysql-connector-java:5.1.29',
+
+      obiba_core: "org.obiba.commons:obiba-core:${obibaCommonsVersion}",
+      obiba_shiro: "org.obiba.commons:obiba-shiro:${obibaCommonsVersion}",
+
+      opencsv: 'net.sf.opencsv:opencsv:2.3',
+
+      poi_ooxml: 'org.apache.poi:poi-ooxml:3.9',
+
+      postgresql: 'org.postgresql:postgresql:9.2-1003-jdbc4',
+
+      rhino_js: 'org.mozilla:rhino:1.7R4',
+
+      shiro_core: 'org.apache.shiro:shiro-core:1.2.2',
+      shiro_extras: 'eu.flatwhite.shiro:shiro-extras:1.0.3-obiba',
+
+      slf4j_api: "org.slf4j:slf4j-api:${slf4jVersion}",
+      jcl_slf4j: "org.slf4j:jcl-over-slf4j:${slf4jVersion}",
+
+      spring_beans: "org.springframework:spring-beans:${springVersion}",
+      spring_context: "org.springframework:spring-context:${springVersion}",
+      spring_jdbc: "org.springframework:spring-jdbc:${springVersion}",
+      spring_orm: "org.springframework:spring-orm:${springVersion}",
+      spring_test: "org.springframework:spring-test:${springVersion}",
+
+      spssreader: 'org.opendatafoundation:spssreader:1.2.0',
+
+      truezip: 'de.schlichtherle.io:truezip:6.6',
+
+      validation: 'javax.validation:validation-api:1.1.0.Final',
+
+      xstream: 'com.thoughtworks.xstream:xstream:1.4.6'
+
+  ]
+}

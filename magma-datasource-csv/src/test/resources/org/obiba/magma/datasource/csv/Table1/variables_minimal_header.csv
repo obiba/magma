@@ -1,0 +1,3 @@
+name,valueType,entityType
+var1,text,Participant
+var2,integer,Participant

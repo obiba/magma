@@ -1,0 +1,8 @@
+description = 'Magma SPSS Datasource'
+
+dependencies {
+  compile project(':magma-api')
+  compile(libraries.spssreader)
+
+
+}

@@ -1,0 +1,12 @@
+description = 'data generator'
+
+dependencies {
+  compile project(':magma-api')
+  compile project(':magma-js')
+  compile project(':magma-datasource-excel')
+  compile project(':magma-datasource-csv')
+  compile(libraries.commons_math)
+
+  testCompile project(':magma-datasource-fs')
+  testCompile(libraries.obiba_core)
+}

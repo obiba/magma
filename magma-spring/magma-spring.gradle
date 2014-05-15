@@ -1,0 +1,8 @@
+description = 'spring'
+
+dependencies {
+  compile project(':magma-api')
+  compile project(':magma-beans')
+  compile(libraries.spring_beans)
+  compile(libraries.spring_context)
+}

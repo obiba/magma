@@ -1,0 +1,15 @@
+description = 'Generated samples config'
+
+dependencies {
+  compile project(':magma-api')
+  compile project(':magma-xstream')
+  compile project(':magma-data-generator')
+  compile project(':magma-datasource-mongodb')
+  compile project(':magma-datasource-hibernate')
+  compile project(':magma-datasource-fs')
+
+  compile(libraries.obiba_core)
+  compile(libraries.hibernate_ehcache)
+  compile(libraries.javassist)
+  compile(libraries.mysql_connector_java)
+}

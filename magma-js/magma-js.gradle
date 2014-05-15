@@ -1,0 +1,22 @@
+description = 'js'
+
+dependencies {
+  compile project(':magma-api')
+  compile(libraries.rhino_js)
+  compile(libraries.jscience_physics) {
+    exclude(module: 'core')
+    exclude(module: 'org.osgi.compendium')
+  }
+
+  testCompile project(':magma-xstream')
+  testCompile project(':magma-data-generator')
+  testCompile project(':magma-datasource-mongodb')
+  testCompile project(':magma-datasource-hibernate')
+  testCompile project(':magma-datasource-fs')
+  testCompile(libraries.spring_test)
+  testCompile(libraries.obiba_core)
+  testCompile(libraries.hibernate_ehcache)
+  testCompile(libraries.javassist)
+  testCompile(libraries.hsqldb)
+  testCompile(libraries.mysql_connector_java)
+}

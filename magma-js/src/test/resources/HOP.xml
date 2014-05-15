@@ -1,0 +1,3067 @@
+<org.obiba.magma.views.View>
+  <name>HOP</name>
+  <from class="org.obiba.magma.support.ValueTableReference">
+    <reference>ds.FNAC</reference>
+  </from>
+  <select class="org.obiba.magma.views.support.NoneClause"/>
+  <where class="org.obiba.magma.views.support.AllClause"/>
+  <variables class="org.obiba.magma.js.views.VariablesClause">
+    <variables class="linked-hash-set">
+      <variable name="HLTH_OBESE_STRICT" valueType="integer" entityType="Participant" unit="" mimeType="">
+        <attributes>
+          <attribute name="label" valueType="text" locale="en">Healthy and obese (strict criteria)</attribute>
+          <attribute name="description" namespace="maelstrom" valueType="text" locale="en">Indicator of whether the
+            participant is healthy and obese using the strict metabolic syndrome criteria. To be considered as healthy
+            obese the participant must have a BMI of more than 30 and not show any metabolic syndromes (using the strict
+            criteria) or have a diagnosis of any targeted cariadovascular diseases, diabetes, or hypertension.
+          </attribute>
+          <attribute name="comment" namespace="maelstrom" valueType="text" locale="en"></attribute>
+          <attribute name="essence" namespace="maelstrom" valueType="text" locale="en">Occurrence/Status/Named
+            category
+          </attribute>
+          <attribute name="measure" namespace="maelstrom" valueType="text" locale="en">Binary</attribute>
+          <attribute name="period" namespace="maelstrom" valueType="text" locale="en">Currently</attribute>
+          <attribute name="target" namespace="maelstrom" valueType="text" locale="en">Participant</attribute>
+          <attribute name="script" valueType="text">$this(&apos;PM_BMI_CATEGORIAL&apos;).any(&apos;3&apos;)
+            .and($this(&apos;METABSYNDR_NBR_STRICT&apos;).any(&apos;0&apos;))
+            .and($this(&apos;DIS_CVA&apos;).any(&apos;0&apos;))
+            .and($this(&apos;DIS_DIAB&apos;).any(&apos;0&apos;))
+            .and($this(&apos;DIS_HBP&apos;).any(&apos;0&apos;))
+            .and($this(&apos;DIS_AMI&apos;).any(&apos;0&apos;))
+            .and($this(&apos;MEDI_DIAB&apos;).any(&apos;0&apos;))
+            .and($this(&apos;MEDI_HBP&apos;).any(&apos;0&apos;))
+            .and($this(&apos;MEDI_LPD&apos;).any(&apos;0&apos;))
+            //.and($this(&apos;MEDI_NAME_LPD_FIBR_NICO&apos;).any(&apos;0&apos;))
+            .map({
+            &apos;true&apos;: 1,
+            &apos;false&apos;: 0
+            }, 9)
+          </attribute>
+          <attribute name="status" namespace="maelstrom" valueType="text">complete</attribute>
+        </attributes>
+        <categories>
+          <category name="0">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Not healthy and obese</attribute>
+            </attributes>
+          </category>
+          <category name="1">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Healthy and obese</attribute>
+            </attributes>
+          </category>
+          <category name="9" missing="true">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Missing</attribute>
+            </attributes>
+          </category>
+        </categories>
+      </variable>
+      <variable name="HLTH_OBESE_MODERATE" valueType="integer" entityType="Participant" unit="" mimeType="">
+        <attributes>
+          <attribute name="label" valueType="text" locale="en">Healthy and obese (moderate criteria)</attribute>
+          <attribute name="description" namespace="maelstrom" valueType="text" locale="en">Indicator of whether the
+            participant is healthy and obese using the moderate metabolic syndrome criteria. To be considered as healthy
+            obese the participant must have a BMI of more than 30 and not show any metabolic syndromes (using the
+            moderate criteria) or have a diagnosis of any targeted cariadovascular diseases, diabetes, or hypertension.
+          </attribute>
+          <attribute name="comment" namespace="maelstrom" valueType="text" locale="en"></attribute>
+          <attribute name="essence" namespace="maelstrom" valueType="text" locale="en">Occurrence/Status/Named
+            category
+          </attribute>
+          <attribute name="measure" namespace="maelstrom" valueType="text" locale="en">Binary</attribute>
+          <attribute name="period" namespace="maelstrom" valueType="text" locale="en">Currently</attribute>
+          <attribute name="target" namespace="maelstrom" valueType="text" locale="en">Participant</attribute>
+          <attribute name="status" namespace="maelstrom" valueType="text">complete</attribute>
+          <attribute name="script" valueType="text">$this(&apos;PM_BMI_CATEGORIAL&apos;).any(&apos;3&apos;)
+            .and($this(&apos;METABSYNDR_NBR_MODERATE&apos;).any(&apos;0&apos;))
+            .and($this(&apos;DIS_CVA&apos;).any(&apos;0&apos;))
+            .and($this(&apos;DIS_DIAB&apos;).any(&apos;0&apos;))
+            .and($this(&apos;DIS_HBP&apos;).any(&apos;0&apos;))
+            .and($this(&apos;DIS_AMI&apos;).any(&apos;0&apos;))
+            .and($this(&apos;MEDI_DIAB&apos;).any(&apos;0&apos;))
+            .and($this(&apos;MEDI_HBP&apos;).any(&apos;0&apos;))
+            .and($this(&apos;MEDI_LPD&apos;).any(&apos;0&apos;))
+            //.and($this(&apos;MEDI_NAME_LPD_FIBR_NICO&apos;).any(&apos;0&apos;))
+            .map({
+            &apos;true&apos;:1,
+            &apos;false&apos;:0
+            },9)
+          </attribute>
+        </attributes>
+        <categories>
+          <category name="0">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Not healthy and obese</attribute>
+            </attributes>
+          </category>
+          <category name="1">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Healthy and obese</attribute>
+            </attributes>
+          </category>
+          <category name="9" missing="true">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Missing</attribute>
+            </attributes>
+          </category>
+        </categories>
+      </variable>
+      <variable name="PM_BMI_CONTINUOUS" valueType="decimal" entityType="Participant" unit="" mimeType="">
+        <attributes>
+          <attribute name="label" valueType="text" locale="en">Body Mass Index (continuous)</attribute>
+          <attribute name="description" namespace="maelstrom" valueType="text" locale="en">Body Mass Index calculated
+            using measured weight and height (Mass in Kg / (Height in M)2).
+          </attribute>
+          <attribute name="comment" namespace="maelstrom" valueType="text" locale="en"></attribute>
+          <attribute name="essence" namespace="maelstrom" valueType="text" locale="en">Date/Time/Onset/Duration
+          </attribute>
+          <attribute name="measure" namespace="maelstrom" valueType="text" locale="en">Continuous</attribute>
+          <attribute name="period" namespace="maelstrom" valueType="text" locale="en">Currently</attribute>
+          <attribute name="target" namespace="maelstrom" valueType="text" locale="en">Participant</attribute>
+          <attribute name="script" valueType="text">$this(&apos;PM_WEIGHT_MEASURE&apos;).div($this(&apos;PM_HEIGHT_MEASURE&apos;).unit(&apos;cm&apos;).toUnit(&apos;m&apos;).pow(2))</attribute>
+          <attribute name="status" namespace="maelstrom" valueType="text">complete</attribute>
+        </attributes>
+        <categories>
+          <category name="999" missing="true">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Missing</attribute>
+            </attributes>
+          </category>
+        </categories>
+      </variable>
+      <variable name="PM_HEIGHT_MEASURE" valueType="decimal" entityType="Participant" unit="" mimeType="">
+        <attributes>
+          <attribute name="label" valueType="text" locale="en">Measured Standing Height</attribute>
+          <attribute name="description" namespace="maelstrom" valueType="text" locale="en">The vertical measurement or
+            distance from the foot to the head of the participant when he/she is standing. Must be measured and not
+            self-reported. Unit: cm
+          </attribute>
+          <attribute name="comment" namespace="maelstrom" valueType="text" locale="en"></attribute>
+          <attribute name="anthropometric_structures" namespace="maelstrom" valueType="text" locale="en">Standing
+            Height
+          </attribute>
+          <attribute name="data_source" namespace="maelstrom" valueType="text" locale="en">Physical Measure</attribute>
+          <attribute name="essence" namespace="maelstrom" valueType="text" locale="en">Quantity/Frequency</attribute>
+          <attribute name="measure" namespace="maelstrom" valueType="text" locale="en">Continuous</attribute>
+          <attribute name="period" namespace="maelstrom" valueType="text" locale="en">Currently</attribute>
+          <attribute name="target" namespace="maelstrom" valueType="text" locale="en">Participant</attribute>
+          <attribute name="script" valueType="text">$(&apos;PITUUS&apos;).unit(&apos;m&apos;).toUnit(&apos;cm&apos;);
+          </attribute>
+          <attribute name="status" namespace="maelstrom" valueType="text">complete</attribute>
+        </attributes>
+        <categories>
+          <category name="999" missing="true">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Missing</attribute>
+            </attributes>
+          </category>
+        </categories>
+      </variable>
+      <variable name="PM_WEIGHT_MEASURE" valueType="decimal" entityType="Participant" unit="" mimeType="">
+        <attributes>
+          <attribute name="label" valueType="text" locale="en">Measured Weight</attribute>
+          <attribute name="description" namespace="maelstrom" valueType="text" locale="en">Weight of the participant.
+            Must be measured and not self-reported. Unit: Kg
+          </attribute>
+          <attribute name="comment" namespace="maelstrom" valueType="text" locale="en"></attribute>
+          <attribute name="anthropometric_structures" namespace="maelstrom" valueType="text" locale="en">Weight
+          </attribute>
+          <attribute name="data_source" namespace="maelstrom" valueType="text" locale="en">Physical Measure</attribute>
+          <attribute name="essence" namespace="maelstrom" valueType="text" locale="en">Quantity/Frequency</attribute>
+          <attribute name="measure" namespace="maelstrom" valueType="text" locale="en">Continuous</attribute>
+          <attribute name="period" namespace="maelstrom" valueType="text" locale="en">Currently</attribute>
+          <attribute name="target" namespace="maelstrom" valueType="text" locale="en">Participant</attribute>
+          <attribute name="status" namespace="maelstrom" valueType="text">complete</attribute>
+          <attribute name="script" valueType="text">$(&apos;PAINO&apos;);</attribute>
+        </attributes>
+        <categories>
+          <category name="999" missing="true">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Missing</attribute>
+            </attributes>
+          </category>
+        </categories>
+      </variable>
+      <variable name="METABSYNDR_NBR_STRICT" valueType="integer" entityType="Participant" unit="" mimeType="">
+        <attributes>
+          <attribute name="label" valueType="text" locale="en">Number of targeted metabolic syndromes (strict
+            criteria)
+          </attribute>
+          <attribute name="description" namespace="maelstrom" valueType="text" locale="en">The number of metabolic
+            syndromes present in the participant using strict criteria (i.e. (1) Blood pressure ≥ 130 mmHg systolic, or
+            ≥85 mmHg diastolic, or treatment for elevated BP; (2) Fasting blood glucose ≥ 6.1, or medical treatment for
+            diabetes; (3) HDL cholesterol  &lt; 1.03 mmol/l (men) or &lt; 1.30 mmol/l (women) - in non-SI units: &lt; 40
+            mg/dl (men) or &lt; 50 mg/dl (women); (4) Triglycerides ≥ 1.7 mmol/l (≥ 150 mg/dl), or on medication for
+            elevated triglycerides.
+             
+          </attribute>
+          <attribute name="comment" namespace="maelstrom" valueType="text" locale="en"></attribute>
+          <attribute name="essence" namespace="maelstrom" valueType="text" locale="en">Occurrence/Status/Named
+            category
+          </attribute>
+          <attribute name="measure" namespace="maelstrom" valueType="text" locale="en">Categorical ordered</attribute>
+          <attribute name="period" namespace="maelstrom" valueType="text" locale="en">Currently</attribute>
+          <attribute name="target" namespace="maelstrom" valueType="text" locale="en">Participant</attribute>
+          <attribute name="script" valueType="text">// High Blood Pressure
+            var PM_DIASTOLIC_MEASURE = $this(&apos;PM_DIASTOLIC_MEASURE&apos;).group([85], [999]).map({
+            &apos;-85&apos;: &apos;0&apos;,
+            &apos;85+&apos;: &apos;1&apos;,
+            &apos;999&apos;: &apos;9&apos;
+            },9);
+            var PM_SYSTOLIC_MEASURE = $this(&apos;PM_SYSTOLIC_MEASURE&apos;).group([130], [999]).map({
+            &apos;-130&apos;: &apos;0&apos;,
+            &apos;130+&apos;: &apos;1&apos;,
+            &apos;999&apos;: &apos;9&apos;
+            },9);
+            var MEDI_HBP = $this(&apos;MEDI_HBP&apos;).map({&apos;0&apos;:0,&apos;1&apos;:1},9,9);
+            var hbp;
+            if (PM_DIASTOLIC_MEASURE.any(&apos;9&apos;)
+            .and(PM_SYSTOLIC_MEASURE.any(&apos;9&apos;))
+            .and(MEDI_HBP.any(&apos;9&apos;)).value()) {
+            hbp = newValue(&apos;9&apos;);
+            } else {
+            hbp = PM_DIASTOLIC_MEASURE.any(&apos;1&apos;)
+            .or(PM_SYSTOLIC_MEASURE.any(&apos;1&apos;))
+            .or(MEDI_HBP.any(&apos;1&apos;))
+            .map({
+            &apos;false&apos;:0,
+            &apos;true&apos;:1},9);
+            }
+
+            // Diabete
+            /*var LAB_GLUC = $this(&apos;LAB_GLUC&apos;).group([6.1], [99]).map({
+            &apos;-6.1&apos;: &apos;0&apos;,
+            &apos;6.1+&apos;: &apos;1&apos;,
+            &apos;99&apos;: &apos;9&apos;
+            },9);*/
+            var MEDI_DIAB = $this(&apos;MEDI_DIAB&apos;).map({&apos;0&apos;:0,&apos;1&apos;:1},9,9);
+            var diab;
+            if (MEDI_DIAB.any(&apos;9&apos;).value()) {
+            diab = newValue(&apos;9&apos;);
+            } else {
+            diab = MEDI_DIAB.any(&apos;1&apos;)
+            .map({
+            &apos;false&apos;:0,
+            &apos;true&apos;:1},9);
+            }
+
+            // Cholesterol
+            var GENDER = $this(&apos;GENDER&apos;);
+            var LAB_HDL = $this(&apos;LAB_HDL&apos;);
+            var LAB_HDL_M = LAB_HDL.group([1.03], [99]).map({
+            &apos;-1.03&apos;: &apos;1&apos;,
+            &apos;1.03+&apos;: &apos;0&apos;,
+            &apos;99&apos;: &apos;9&apos;
+            },9);
+            var LAB_HDL_F = LAB_HDL.group([1.3], [99]).map({
+            &apos;-1.3&apos;: &apos;1&apos;,
+            &apos;1.3+&apos;: &apos;0&apos;,
+            &apos;99&apos;: &apos;9&apos;
+            },9);
+            var chol = GENDER.map({
+            &apos;0&apos;:LAB_HDL_M,
+            &apos;1&apos;:LAB_HDL_F,
+            &apos;9&apos;:9},9);
+
+            // Triglyceride
+            var LAB_TRIG = $this(&apos;LAB_TRIG&apos;).group([1.7], [99]).map({
+            &apos;-1.7&apos;: &apos;0&apos;,
+            &apos;1.7+&apos;: &apos;1&apos;,
+            &apos;99&apos;: &apos;9&apos;
+            },9);
+            var MEDI_LPD = $this(&apos;MEDI_LPD&apos;).map({&apos;0&apos;:0,&apos;1&apos;:1},9,9);
+            var MEDI_NAME_LPD_FIBR_NICO = $this(&apos;MEDI_NAME_LPD_FIBR_NICO&apos;).map({&apos;0&apos;:0,&apos;1&apos;:1},9,9);
+            var tri;
+            if (LAB_TRIG.any(&apos;9&apos;).and(MEDI_LPD.any(&apos;9&apos;)).and(MEDI_NAME_LPD_FIBR_NICO.any(&apos;9&apos;)).value())
+            {
+            tri = newValue(&apos;9&apos;);
+            } else {
+            tri = LAB_TRIG.any(&apos;1&apos;)
+            .or(MEDI_LPD.any(&apos;1&apos;))
+            .or(MEDI_NAME_LPD_FIBR_NICO.any(&apos;1&apos;))
+            .map({
+            &apos;false&apos;:0,
+            &apos;true&apos;:1},9);
+            }
+
+            // Syndrom count
+            var val = 0;
+            if (hbp.any(&apos;9&apos;).and(diab.any(&apos;9&apos;)).and(chol.any(&apos;9&apos;)).and(tri.any(&apos;9&apos;)).value())
+            {
+            // all syndrom info are missing
+            val = 9;
+            }
+            else {
+            if (hbp.any(&apos;1&apos;).value()) { val = 1; }
+            if (diab.any(&apos;1&apos;).value()) { val += 1; }
+            if (chol.any(&apos;1&apos;).value()) { val += 1; }
+            if (tri.any(&apos;1&apos;).value()) { val += 1; }
+            }
+            val;
+          </attribute>
+          <attribute name="status" namespace="maelstrom" valueType="text">complete</attribute>
+        </attributes>
+        <categories>
+          <category name="0">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">No metabolic syndromes present</attribute>
+            </attributes>
+          </category>
+          <category name="1">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">One metabolic syndrome present</attribute>
+            </attributes>
+          </category>
+          <category name="2">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Two metabolic syndromes present</attribute>
+            </attributes>
+          </category>
+          <category name="3">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Three metabolic syndromes present</attribute>
+            </attributes>
+          </category>
+          <category name="4">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">All four metabolic syndromes present</attribute>
+            </attributes>
+          </category>
+          <category name="9" missing="true">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Missing</attribute>
+            </attributes>
+          </category>
+        </categories>
+      </variable>
+      <variable name="METABSYNDR_NBR_MODERATE" valueType="integer" entityType="Participant" unit="" mimeType="">
+        <attributes>
+          <attribute name="label" valueType="text" locale="en">Number of targeted metabolic syndromes (moderate
+            criteria)
+          </attribute>
+          <attribute name="description" namespace="maelstrom" valueType="text" locale="en">The number of metabolic
+            syndromes present in the participant using moderate criteria (i.e. (1) Blood pressure ≥ 140 mmHg systolic,
+            or ≥90 mmHg diastolic, or treatment for elevated BP; (2) Fasting blood glucose ≥ 7, or medical treatment for
+            diabetes; (3) HDL cholesterol  &lt; 1.03 mmol/l (men) or &lt; 1.30 mmol/l (women) - in non-SI units: &lt; 40
+            mg/dl (men) or &lt; 50 mg/dl (women); (4) Triglycerides ≥ 1.7 mmol/l (≥ 150 mg/dl), or on medication for
+            elevated triglycerides.
+          </attribute>
+          <attribute name="comment" namespace="maelstrom" valueType="text" locale="en"></attribute>
+          <attribute name="essence" namespace="maelstrom" valueType="text" locale="en">Occurrence/Status/Named
+            category
+          </attribute>
+          <attribute name="measure" namespace="maelstrom" valueType="text" locale="en">Categorical ordered</attribute>
+          <attribute name="period" namespace="maelstrom" valueType="text" locale="en">Currently</attribute>
+          <attribute name="target" namespace="maelstrom" valueType="text" locale="en">Participant</attribute>
+          <attribute name="script" valueType="text">// High Blood Pressure
+            var PM_DIASTOLIC_MEASURE = $this(&apos;PM_DIASTOLIC_MEASURE&apos;).group([90], [999]).map({
+            &apos;-90&apos;: &apos;0&apos;,
+            &apos;90+&apos;: &apos;1&apos;,
+            &apos;999&apos;: &apos;9&apos;
+            },9);
+            var PM_SYSTOLIC_MEASURE = $this(&apos;PM_SYSTOLIC_MEASURE&apos;).group([140], [999]).map({
+            &apos;-140&apos;: &apos;0&apos;,
+            &apos;140+&apos;: &apos;1&apos;,
+            &apos;999&apos;: &apos;9&apos;
+            },9);
+            var MEDI_HBP = $this(&apos;MEDI_HBP&apos;).map({&apos;0&apos;:0,&apos;1&apos;:1},9,9);
+            var hbp;
+            if (PM_DIASTOLIC_MEASURE.any(&apos;9&apos;)
+            .and(PM_SYSTOLIC_MEASURE.any(&apos;9&apos;))
+            .and(MEDI_HBP.any(&apos;9&apos;)).value()) {
+            hbp = newValue(&apos;9&apos;);
+            } else {
+            hbp = PM_DIASTOLIC_MEASURE.any(&apos;1&apos;)
+            .or(PM_SYSTOLIC_MEASURE.any(&apos;1&apos;))
+            .or(MEDI_HBP.any(&apos;1&apos;))
+            .map({
+            &apos;false&apos;:0,
+            &apos;true&apos;:1},9);
+            }
+
+            // Diabete
+            /*var LAB_GLUC = $this(&apos;LAB_GLUC&apos;).group([7], [99]).map({
+            &apos;-7&apos;: &apos;0&apos;,
+            &apos;7+&apos;: &apos;1&apos;,
+            &apos;99&apos;: &apos;9&apos;
+            },9);*/
+            var MEDI_DIAB = $this(&apos;MEDI_DIAB&apos;).map({&apos;0&apos;:0,&apos;1&apos;:1},9,9);
+            var diab;
+            if (MEDI_DIAB.any(&apos;9&apos;).value()) {
+            diab = newValue(&apos;9&apos;);
+            } else {
+            diab = MEDI_DIAB.any(&apos;1&apos;)
+            .map({
+            &apos;false&apos;:0,
+            &apos;true&apos;:1},9);
+            }
+
+            // Cholesterol
+            var GENDER = $this(&apos;GENDER&apos;);
+            var LAB_HDL = $this(&apos;LAB_HDL&apos;);
+            var LAB_HDL_M = LAB_HDL.group([1.03], [99]).map({
+            &apos;-1.03&apos;: &apos;1&apos;,
+            &apos;1.03+&apos;: &apos;0&apos;,
+            &apos;99&apos;: &apos;9&apos;
+            },9);
+            var LAB_HDL_F = LAB_HDL.group([1.3], [99]).map({
+            &apos;-1.3&apos;: &apos;1&apos;,
+            &apos;1.3+&apos;: &apos;0&apos;,
+            &apos;99&apos;: &apos;9&apos;
+            },9);
+            var chol = GENDER.map({
+            &apos;0&apos;:LAB_HDL_M,
+            &apos;1&apos;:LAB_HDL_F,
+            &apos;9&apos;:9},9);
+
+            // Triglyceride
+            var LAB_TRIG = $this(&apos;LAB_TRIG&apos;).group([1.7], [99]).map({
+            &apos;-1.7&apos;: &apos;0&apos;,
+            &apos;1.7+&apos;: &apos;1&apos;,
+            &apos;99&apos;: &apos;9&apos;
+            },9);
+            var MEDI_LPD = $this(&apos;MEDI_LPD&apos;).map({&apos;0&apos;:0,&apos;1&apos;:1},9,9);
+            var MEDI_NAME_LPD_FIBR_NICO = $this(&apos;MEDI_NAME_LPD_FIBR_NICO&apos;).map({&apos;0&apos;:0,&apos;1&apos;:1},9,9);
+            var tri;
+            if (LAB_TRIG.any(&apos;9&apos;).and(MEDI_LPD.any(&apos;9&apos;)).and(MEDI_NAME_LPD_FIBR_NICO.any(&apos;9&apos;)).value())
+            {
+            tri = newValue(&apos;9&apos;);
+            } else {
+            tri = LAB_TRIG.any(&apos;1&apos;)
+            .or(MEDI_LPD.any(&apos;1&apos;))
+            .or(MEDI_NAME_LPD_FIBR_NICO.any(&apos;1&apos;))
+            .map({
+            &apos;false&apos;:0,
+            &apos;true&apos;:1},9);
+            }
+
+            // Syndrom count
+            var val = 0;
+            if (hbp.any(&apos;9&apos;).and(diab.any(&apos;9&apos;)).and(chol.any(&apos;9&apos;)).and(tri.any(&apos;9&apos;)).value())
+            {
+            // all syndrom info are missing
+            val = 9;
+            }
+            else {
+            if (hbp.any(&apos;1&apos;).value()) { val = 1; }
+            if (diab.any(&apos;1&apos;).value()) { val += 1; }
+            if (chol.any(&apos;1&apos;).value()) { val += 1; }
+            if (tri.any(&apos;1&apos;).value()) { val += 1; }
+            }
+            val;
+          </attribute>
+          <attribute name="status" namespace="maelstrom" valueType="text">complete</attribute>
+        </attributes>
+        <categories>
+          <category name="0">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">No metabolic syndromes present</attribute>
+            </attributes>
+          </category>
+          <category name="1">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">One metabolic syndrome present</attribute>
+            </attributes>
+          </category>
+          <category name="2">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Two metabolic syndromes present</attribute>
+            </attributes>
+          </category>
+          <category name="3">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Three metabolic syndromes present</attribute>
+            </attributes>
+          </category>
+          <category name="4">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">All four metabolic syndromes present</attribute>
+            </attributes>
+          </category>
+          <category name="9" missing="true">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Missing</attribute>
+            </attributes>
+          </category>
+        </categories>
+      </variable>
+      <variable name="LAB_GLUC_FASTING" valueType="decimal" entityType="Participant" unit="" mimeType="">
+        <attributes>
+          <attribute name="description" namespace="maelstrom" valueType="text" locale="en">Laboratory measurement of
+            fasting glucose. Unit mmol/L
+          </attribute>
+          <attribute name="comment" namespace="maelstrom" valueType="text" locale="en"></attribute>
+          <attribute name="data_source" namespace="maelstrom" valueType="text" locale="en">Sample</attribute>
+          <attribute name="essence" namespace="maelstrom" valueType="text" locale="en">Quantity/Frequency</attribute>
+          <attribute name="measure" namespace="maelstrom" valueType="text" locale="en">Continuous</attribute>
+          <attribute name="period" namespace="maelstrom" valueType="text" locale="en">Currently</attribute>
+          <attribute name="target" namespace="maelstrom" valueType="text" locale="en">Participant</attribute>
+          <attribute name="script" valueType="text">$(&apos;sl_gluk_0h&apos;).whenNull(99)</attribute>
+          <attribute name="label" valueType="text" locale="en">Fasting Glucose</attribute>
+          <attribute name="status" namespace="maelstrom" valueType="text">complete</attribute>
+        </attributes>
+        <categories>
+          <category name="99" missing="true">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Missing</attribute>
+            </attributes>
+          </category>
+        </categories>
+      </variable>
+      <variable name="LAB_TSC" valueType="decimal" entityType="Participant" unit="" mimeType="">
+        <attributes>
+          <attribute name="label" valueType="text" locale="en">Total Serum Cholesterol</attribute>
+          <attribute name="description" namespace="maelstrom" valueType="text" locale="en">Laboratory measurement of
+            total serum cholesterol. Unit: mmol/L
+          </attribute>
+          <attribute name="comment" namespace="maelstrom" valueType="text" locale="en"></attribute>
+          <attribute name="data_source" namespace="maelstrom" valueType="text" locale="en">Sample</attribute>
+          <attribute name="essence" namespace="maelstrom" valueType="text" locale="en">Quantity/Frequency</attribute>
+          <attribute name="measure" namespace="maelstrom" valueType="text" locale="en">Continuous</attribute>
+          <attribute name="period" namespace="maelstrom" valueType="text" locale="en">Currently</attribute>
+          <attribute name="target" namespace="maelstrom" valueType="text" locale="en">Participant</attribute>
+          <attribute name="status" namespace="maelstrom" valueType="text">complete</attribute>
+          <attribute name="script" valueType="text">var val = $(&apos;KOL&apos;);
+            if (val.isNull().value()) {
+            val = 9;
+            }
+            val;
+          </attribute>
+        </attributes>
+        <categories>
+          <category name="9" missing="true">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Missing</attribute>
+            </attributes>
+          </category>
+        </categories>
+      </variable>
+      <variable name="LAB_TRIG" valueType="decimal" entityType="Participant" unit="" mimeType="">
+        <attributes>
+          <attribute name="label" valueType="text" locale="en">Triglycerides</attribute>
+          <attribute name="description" namespace="maelstrom" valueType="text" locale="en">Laboratory measurement of
+            triglycerides. Unit: mmol/L
+          </attribute>
+          <attribute name="comment" namespace="maelstrom" valueType="text" locale="en"></attribute>
+          <attribute name="data_source" namespace="maelstrom" valueType="text" locale="en">Sample</attribute>
+          <attribute name="essence" namespace="maelstrom" valueType="text" locale="en">Quantity/Frequency</attribute>
+          <attribute name="measure" namespace="maelstrom" valueType="text" locale="en">Continuous</attribute>
+          <attribute name="period" namespace="maelstrom" valueType="text" locale="en">Currently</attribute>
+          <attribute name="target" namespace="maelstrom" valueType="text" locale="en">Participant</attribute>
+          <attribute name="status" namespace="maelstrom" valueType="text">complete</attribute>
+          <attribute name="script" valueType="text">var val = $(&apos;TRIG&apos;);
+            if (val.isNull().value()) {
+            val = 99;
+            }
+            val;
+          </attribute>
+        </attributes>
+        <categories>
+          <category name="99" missing="true">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Missing</attribute>
+            </attributes>
+          </category>
+        </categories>
+      </variable>
+      <variable name="DIS_CVA" valueType="integer" entityType="Participant" unit="" mimeType="">
+        <attributes>
+          <attribute name="label" valueType="text" locale="en">History of Stroke</attribute>
+          <attribute name="description" namespace="maelstrom" valueType="text" locale="en">Occurence of stroke at any
+            point during the life of the participant. Can be collected using an assessment item asking about the history
+            of stroke or from a list of disease history using ICD-10 Codes I60-I69 (Please make a note to indicate which
+            coding is used for diagnosis if other than ICD-10)
+          </attribute>
+          <attribute name="comment" namespace="maelstrom" valueType="text" locale="en"></attribute>
+          <attribute name="data_source" namespace="maelstrom" valueType="text" locale="en">Questionnaire</attribute>
+          <attribute name="disease_history" namespace="maelstrom" valueType="text" locale="en">Diseases of the
+            circulatory system
+          </attribute>
+          <attribute name="essence" namespace="maelstrom" valueType="text" locale="en">Occurrence/Status/Named
+            category
+          </attribute>
+          <attribute name="measure" namespace="maelstrom" valueType="text" locale="en">Binary</attribute>
+          <attribute name="period" namespace="maelstrom" valueType="text" locale="en">Through all life</attribute>
+          <attribute name="target" namespace="maelstrom" valueType="text" locale="en">Participant</attribute>
+          <attribute name="status" namespace="maelstrom" valueType="text">complete</attribute>
+          <attribute name="script" valueType="text">$(&apos;Q16A&apos;).map({
+            &apos;1&apos;: &apos;0&apos;,
+            &apos;2&apos;: &apos;1&apos;
+            },
+            &apos;9&apos;,
+            &apos;9&apos;);
+          </attribute>
+        </attributes>
+        <categories>
+          <category name="0">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Never had stroke</attribute>
+            </attributes>
+          </category>
+          <category name="1">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Ever had stroke</attribute>
+            </attributes>
+          </category>
+          <category name="9" missing="true">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Missing</attribute>
+            </attributes>
+          </category>
+        </categories>
+      </variable>
+      <variable name="DIS_DIAB" valueType="integer" entityType="Participant" unit="" mimeType="">
+        <attributes>
+          <attribute name="label" valueType="text" locale="en">History of Diabetes</attribute>
+          <attribute name="description" namespace="maelstrom" valueType="text" locale="en">Occurrence of diabetes at any
+            point during the life of the participant (not including gestational). Can be collected using an assessment
+            item asking about the history of diabetes specifically, or from a list of disease history using ICD-10 Codes
+            E10-E16 (Please make a note to indicate which coding is used for diagnosis if other than ICD-10)
+          </attribute>
+          <attribute name="comment" namespace="maelstrom" valueType="text" locale="en"></attribute>
+          <attribute name="data_source" namespace="maelstrom" valueType="text" locale="en">Questionnaire</attribute>
+          <attribute name="disease_history" namespace="maelstrom" valueType="text" locale="en">Endocrine</attribute>
+          <attribute name="essence" namespace="maelstrom" valueType="text" locale="en">Occurrence/Status/Named
+            category
+          </attribute>
+          <attribute name="measure" namespace="maelstrom" valueType="text" locale="en">Binary</attribute>
+          <attribute name="period" namespace="maelstrom" valueType="text" locale="en">Through all life</attribute>
+          <attribute name="target" namespace="maelstrom" valueType="text" locale="en">Participant</attribute>
+          <attribute name="status" namespace="maelstrom" valueType="text">complete</attribute>
+          <attribute name="script" valueType="text">$(&apos;FR07_38&apos;).map({
+            &apos;1&apos;: &apos;0&apos;,
+            &apos;2&apos;: &apos;0&apos;,
+            &apos;3&apos;: &apos;1&apos;,
+            &apos;4&apos;: &apos;1&apos;,
+            &apos;5&apos;: &apos;1&apos;,
+            &apos;6&apos;: &apos;0&apos;
+            },
+            &apos;9&apos;,
+            &apos;9&apos;);
+          </attribute>
+        </attributes>
+        <categories>
+          <category name="0">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Never had diabetes</attribute>
+            </attributes>
+          </category>
+          <category name="1">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Ever had diabetes</attribute>
+            </attributes>
+          </category>
+          <category name="9" missing="true">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Missing</attribute>
+            </attributes>
+          </category>
+        </categories>
+      </variable>
+      <variable name="DIS_DIAB_TYPE" valueType="integer" entityType="Participant" unit="" mimeType="">
+        <attributes>
+          <attribute name="label" valueType="text" locale="en">Type of Diabetes</attribute>
+          <attribute name="description" namespace="maelstrom" valueType="text" locale="en">Type of diabetes diagnosed.
+            Whether the participant had type 1, type 2, or gestational diabetes.
+          </attribute>
+          <attribute name="comment" namespace="maelstrom" valueType="text" locale="en"></attribute>
+          <attribute name="data_source" namespace="maelstrom" valueType="text" locale="en">Questionnaire</attribute>
+          <attribute name="disease_history" namespace="maelstrom" valueType="text" locale="en">Endocrine</attribute>
+          <attribute name="essence" namespace="maelstrom" valueType="text" locale="en">Occurrence/Status/Named
+            category
+          </attribute>
+          <attribute name="measure" namespace="maelstrom" valueType="text" locale="en">Categorical nominal</attribute>
+          <attribute name="period" namespace="maelstrom" valueType="text" locale="en">Through all life</attribute>
+          <attribute name="target" namespace="maelstrom" valueType="text" locale="en">Participant</attribute>
+          <attribute name="status" namespace="maelstrom" valueType="text">complete</attribute>
+          <attribute name="script" valueType="text">$(&apos;FR07_38&apos;).map({
+            &apos;1&apos;: &apos;9&apos;,
+            &apos;2&apos;: &apos;9&apos;,
+            &apos;3&apos;: &apos;0&apos;,
+            &apos;4&apos;: &apos;1&apos;,
+            &apos;5&apos;: &apos;9&apos;,
+            &apos;6&apos;: &apos;2&apos;
+            },
+            &apos;9&apos;,
+            &apos;9&apos;);
+          </attribute>
+        </attributes>
+        <categories>
+          <category name="0">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Diabetes mellitus type 1</attribute>
+            </attributes>
+          </category>
+          <category name="1">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Diabetes mellitus type 2</attribute>
+            </attributes>
+          </category>
+          <category name="2">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Gestational diabetes</attribute>
+            </attributes>
+          </category>
+          <category name="9" missing="true">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Missing</attribute>
+            </attributes>
+          </category>
+        </categories>
+      </variable>
+      <variable name="DIS_HBP" valueType="integer" entityType="Participant" unit="" mimeType="">
+        <attributes>
+          <attribute name="label" valueType="text" locale="en">History of Hypertension</attribute>
+          <attribute name="description" namespace="maelstrom" valueType="text" locale="en">Occurrence of high blood
+            pressure at any point during the life of the participant. Can be collected using an assessment item asking
+            about the history of hypertension specifically, or from a list of disease history using ICD-10 Codes I10-I15
+            (Please make a note to indicate which coding is used for diagnosis if other than ICD-10)
+          </attribute>
+          <attribute name="comment" namespace="maelstrom" valueType="text" locale="en"></attribute>
+          <attribute name="data_source" namespace="maelstrom" valueType="text" locale="en">Questionnaire</attribute>
+          <attribute name="disease_history" namespace="maelstrom" valueType="text" locale="en">Diseases of the
+            circulatory system
+          </attribute>
+          <attribute name="essence" namespace="maelstrom" valueType="text" locale="en">Occurrence/Status/Named
+            category
+          </attribute>
+          <attribute name="measure" namespace="maelstrom" valueType="text" locale="en">Binary</attribute>
+          <attribute name="period" namespace="maelstrom" valueType="text" locale="en">Through all life</attribute>
+          <attribute name="target" namespace="maelstrom" valueType="text" locale="en">Participant</attribute>
+          <attribute name="status" namespace="maelstrom" valueType="text">complete</attribute>
+          <attribute name="script" valueType="text">$(&apos;Q17A&apos;).map({
+            &apos;1&apos;: &apos;0&apos;,
+            &apos;2&apos;: &apos;1&apos;
+            },
+            &apos;9&apos;,
+            &apos;9&apos;);
+          </attribute>
+        </attributes>
+        <categories>
+          <category name="0">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Never had high blood pressure</attribute>
+            </attributes>
+          </category>
+          <category name="1">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Ever had high blood pressure</attribute>
+            </attributes>
+          </category>
+          <category name="9" missing="true">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Missing</attribute>
+            </attributes>
+          </category>
+        </categories>
+      </variable>
+      <variable name="DIS_AMI" valueType="integer" entityType="Participant" unit="" mimeType="">
+        <attributes>
+          <attribute name="label" valueType="text" locale="en">History of Myocardial Infarction</attribute>
+          <attribute name="description" namespace="maelstrom" valueType="text" locale="en">Occurrence of myocardial
+            infarction at any point during the life of the participant. Can be collected using an assessment item asking
+            abour myocardial infarction or heart attack or from a list of disease history using ICD-10 Codes I20-I22
+            (Please make a note to indicate which coding is used for diagnosis if other than ICD-10)
+          </attribute>
+          <attribute name="comment" namespace="maelstrom" valueType="text" locale="en"></attribute>
+          <attribute name="data_source" namespace="maelstrom" valueType="text" locale="en">Questionnaire</attribute>
+          <attribute name="disease_history" namespace="maelstrom" valueType="text" locale="en">Diseases of the
+            circulatory system
+          </attribute>
+          <attribute name="essence" namespace="maelstrom" valueType="text" locale="en">Occurrence/Status/Named
+            category
+          </attribute>
+          <attribute name="measure" namespace="maelstrom" valueType="text" locale="en">Binary</attribute>
+          <attribute name="period" namespace="maelstrom" valueType="text" locale="en">Through all life</attribute>
+          <attribute name="target" namespace="maelstrom" valueType="text" locale="en">Participant</attribute>
+          <attribute name="status" namespace="maelstrom" valueType="text">complete</attribute>
+          <attribute name="script" valueType="text">$(&apos;Q15A&apos;).map({
+            &apos;1&apos;: &apos;0&apos;,
+            &apos;2&apos;: &apos;1&apos;
+            },
+            &apos;9&apos;,
+            &apos;9&apos;);
+          </attribute>
+        </attributes>
+        <categories>
+          <category name="0">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Never had myocardial infarction</attribute>
+            </attributes>
+          </category>
+          <category name="1">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Ever had myocardial infarction</attribute>
+            </attributes>
+          </category>
+          <category name="9" missing="true">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Missing</attribute>
+            </attributes>
+          </category>
+        </categories>
+      </variable>
+      <variable name="MEDI_HBP" valueType="integer" entityType="Participant" unit="" mimeType="">
+        <attributes>
+          <attribute name="label" valueType="text" locale="en">Current Use of Antihypertensive Medication (from
+            categorical assessment item)
+          </attribute>
+          <attribute name="description" namespace="maelstrom" valueType="text" locale="en">Indicator of whether the
+            participant currently uses antihypertensive medication. Self-reported by a question targeting the use of
+            antihypertensive medication.
+          </attribute>
+          <attribute name="comment" namespace="maelstrom" valueType="text" locale="en"></attribute>
+          <attribute name="data_source" namespace="maelstrom" valueType="text" locale="en">Questionnaire</attribute>
+          <attribute name="essence" namespace="maelstrom" valueType="text" locale="en">Occurrence/Status/Named
+            category
+          </attribute>
+          <attribute name="measure" namespace="maelstrom" valueType="text" locale="en">Binary</attribute>
+          <attribute name="medication" namespace="maelstrom" valueType="text" locale="en">Cardiovascular system
+          </attribute>
+          <attribute name="period" namespace="maelstrom" valueType="text" locale="en">Currently</attribute>
+          <attribute name="target" namespace="maelstrom" valueType="text" locale="en">Participant</attribute>
+          <attribute name="status" namespace="maelstrom" valueType="text">complete</attribute>
+          <attribute name="script" valueType="text">$(&apos;Q30&apos;).map({
+            &apos;1&apos;: &apos;0&apos;,
+            &apos;2&apos;: &apos;0&apos;,
+            &apos;3&apos;: &apos;0&apos;,
+            &apos;4&apos;: &apos;0&apos;,
+            &apos;5&apos;: &apos;1&apos;,
+            &apos;6&apos;: &apos;1&apos;
+            },
+            &apos;9&apos;,
+            &apos;9&apos;);
+          </attribute>
+        </attributes>
+        <categories>
+          <category name="0">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Not currently using antihypertensive medication
+              </attribute>
+            </attributes>
+          </category>
+          <category name="1">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Currently using antihypertensive medication
+              </attribute>
+            </attributes>
+          </category>
+          <category name="9" missing="true">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Missing</attribute>
+            </attributes>
+          </category>
+        </categories>
+      </variable>
+      <variable name="MEDI_NAME_HBP" valueType="integer" entityType="Participant" unit="" mimeType="">
+        <attributes>
+          <attribute name="label" valueType="text" locale="en">Current Use of Antihypertensive Medication (from
+            medication list)
+          </attribute>
+          <attribute name="description" namespace="maelstrom" valueType="text" locale="en">Indicator of whether the
+            participant currently uses antihypertensive medication. Extracted from a list of medication using the
+            following ATC Codes or equivalent in other classifications: C02, C03, C04, C07, C08, C09
+          </attribute>
+          <attribute name="status" namespace="maelstrom" valueType="text">undetermined</attribute>
+          <attribute name="comment" namespace="maelstrom" valueType="text" locale="en"></attribute>
+          <attribute name="data_source" namespace="maelstrom" valueType="text" locale="en">Questionnaire</attribute>
+          <attribute name="essence" namespace="maelstrom" valueType="text" locale="en">Occurrence/Status/Named
+            category
+          </attribute>
+          <attribute name="measure" namespace="maelstrom" valueType="text" locale="en">Open text</attribute>
+          <attribute name="medication" namespace="maelstrom" valueType="text" locale="en">Cardiovascular system
+          </attribute>
+          <attribute name="period" namespace="maelstrom" valueType="text" locale="en">Currently</attribute>
+          <attribute name="target" namespace="maelstrom" valueType="text" locale="en">Participant</attribute>
+        </attributes>
+        <categories>
+          <category name="0">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Not currently using antihypertensive medication
+              </attribute>
+            </attributes>
+          </category>
+          <category name="1">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Currently using antihypertensive medication
+              </attribute>
+            </attributes>
+          </category>
+          <category name="9" missing="true">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Missing</attribute>
+            </attributes>
+          </category>
+        </categories>
+      </variable>
+      <variable name="MEDI_DIAB" valueType="integer" entityType="Participant" unit="" mimeType="">
+        <attributes>
+          <attribute name="label" valueType="text" locale="en">Current Use of Glucose Lowering Medication (from
+            categorical assessment item)
+          </attribute>
+          <attribute name="description" namespace="maelstrom" valueType="text" locale="en">Indicator of whether the
+            participant currently uses glucose lowering medication. Self-reported by a question targeting the use of
+            glucose lowering medication or medication to treat diabetes.
+          </attribute>
+          <attribute name="comment" namespace="maelstrom" valueType="text" locale="en"></attribute>
+          <attribute name="data_source" namespace="maelstrom" valueType="text" locale="en">Questionnaire</attribute>
+          <attribute name="essence" namespace="maelstrom" valueType="text" locale="en">Occurrence/Status/Named
+            category
+          </attribute>
+          <attribute name="measure" namespace="maelstrom" valueType="text" locale="en">Binary</attribute>
+          <attribute name="medication" namespace="maelstrom" valueType="text" locale="en">Alimentary tract and
+            metabolism
+          </attribute>
+          <attribute name="period" namespace="maelstrom" valueType="text" locale="en">Currently</attribute>
+          <attribute name="target" namespace="maelstrom" valueType="text" locale="en">Participant</attribute>
+          <attribute name="derivedFrom" namespace="opal" valueType="text">
+            /datasource/finrisk/table/Finrisk2007/variable/Q38
+          </attribute>
+          <attribute name="script" valueType="text">$(&apos;Q38&apos;).map({
+            &apos;1&apos;: &apos;0&apos;,
+            &apos;2&apos;: &apos;1&apos;,
+            &apos;3&apos;: &apos;1&apos;,
+            &apos;4&apos;: &apos;1&apos;
+            },
+            &apos;9&apos;,
+            &apos;9&apos;);
+          </attribute>
+          <attribute name="status" namespace="maelstrom" valueType="text">complete</attribute>
+        </attributes>
+        <categories>
+          <category name="0">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Not currently using glucose lowering medication
+              </attribute>
+            </attributes>
+          </category>
+          <category name="1">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Currently using glucose lowering medication
+              </attribute>
+            </attributes>
+          </category>
+          <category name="9" missing="true">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Missing</attribute>
+            </attributes>
+          </category>
+        </categories>
+      </variable>
+      <variable name="HOUSEHOLD_INCOME" valueType="integer" entityType="Participant" unit="" mimeType="">
+        <attributes>
+          <attribute name="description" namespace="maelstrom" valueType="text" locale="en">UNDER DEVELOPMENT
+            Average annual income, after taxes deduction, of the participant&apos;s entire household (in Euros).
+            Phase 2 variable
+             
+          </attribute>
+          <attribute name="status" namespace="maelstrom" valueType="text">undetermined</attribute>
+          <attribute name="comment" namespace="maelstrom" valueType="text" locale="en"></attribute>
+          <attribute name="data_source" namespace="maelstrom" valueType="text" locale="en">Questionnaire</attribute>
+          <attribute name="essence" namespace="maelstrom" valueType="text" locale="en">Occurrence/Status/Named
+            category
+          </attribute>
+          <attribute name="measure" namespace="maelstrom" valueType="text" locale="en">Categorical ordered</attribute>
+          <attribute name="period" namespace="maelstrom" valueType="text" locale="en">Currently</attribute>
+          <attribute name="sociodemographic_characteristics" namespace="maelstrom" valueType="text" locale="en">
+            Household
+          </attribute>
+          <attribute name="target" namespace="maelstrom" valueType="text" locale="en">Participant</attribute>
+          <attribute name="label" valueType="text" locale="en">Net Household Income (Phase 2)</attribute>
+          <attribute name="script" valueType="text">null</attribute>
+        </attributes>
+      </variable>
+      <variable name="HOUSEHOLD_NUM_PPL" valueType="integer" entityType="Participant" unit="" mimeType="">
+        <attributes>
+          <attribute name="description" namespace="maelstrom" valueType="text" locale="en">Number of people who live
+            with the participant in the same household (including the participant).
+            Phase 2 variable
+          </attribute>
+          <attribute name="comment" namespace="maelstrom" valueType="text" locale="en"></attribute>
+          <attribute name="data_source" namespace="maelstrom" valueType="text" locale="en">Questionnaire</attribute>
+          <attribute name="essence" namespace="maelstrom" valueType="text" locale="en">Quantity/Frequency</attribute>
+          <attribute name="measure" namespace="maelstrom" valueType="text" locale="en">Continuous</attribute>
+          <attribute name="period" namespace="maelstrom" valueType="text" locale="en">Currently</attribute>
+          <attribute name="sociodemographic_characteristics" namespace="maelstrom" valueType="text" locale="en">
+            Household
+          </attribute>
+          <attribute name="target" namespace="maelstrom" valueType="text" locale="en">Participant</attribute>
+          <attribute name="status" namespace="maelstrom" valueType="text">complete</attribute>
+          <attribute name="script" valueType="text">$(&apos;k13&apos;)</attribute>
+          <attribute name="label" valueType="text" locale="en">Number of People in the Household (Phase 2)</attribute>
+        </attributes>
+        <categories>
+          <category name="99" missing="true">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Missing</attribute>
+            </attributes>
+          </category>
+        </categories>
+      </variable>
+      <variable name="EDU_POST_SEC_COMPLETED" valueType="integer" entityType="Participant" unit="" mimeType="">
+        <attributes>
+          <attribute name="description" namespace="maelstrom" valueType="text" locale="en">Indicator of whether the
+            participant completed at least some elements of post-secondary (non-tertiary) education using UNESCO
+            Revision of the International Standard Classification of Education, 2011
+            (ISCED-2011; http://www.uis.unesco.org/Education/Documents/UNESCO_GC_36C-19_ISCED_EN.pdf). Educational
+            programmes classified as &quot;post-secondary non-tertiary&quot; are not considered as tertiary education
+            and are typically  vocational and terminal programmes that prepare for the labour market. They are referred
+            to in many ways across the world and encompass technician diplomas, primary professional education,
+            post-secondary non-tertiary vocational, and préparation aux carrières administratives. For international
+            comparability purposes the term “post-secondary non-tertiary” is used.
+            Phase 2 variable
+          </attribute>
+          <attribute name="comment" namespace="maelstrom" valueType="text" locale="en"></attribute>
+          <attribute name="data_source" namespace="maelstrom" valueType="text" locale="en">Questionnaire</attribute>
+          <attribute name="essence" namespace="maelstrom" valueType="text" locale="en">Occurrence/Status/Named
+            category
+          </attribute>
+          <attribute name="measure" namespace="maelstrom" valueType="text" locale="en">Binary</attribute>
+          <attribute name="period" namespace="maelstrom" valueType="text" locale="en">Currently</attribute>
+          <attribute name="target" namespace="maelstrom" valueType="text" locale="en">Participant</attribute>
+          <attribute name="status" namespace="maelstrom" valueType="text">complete</attribute>
+          <attribute name="script" valueType="text">$(&apos;FR02_3&apos;).map({
+            &apos;1&apos;: &apos;0&apos;,
+            &apos;2&apos;: &apos;0&apos;,
+            &apos;3&apos;: &apos;0&apos;,
+            &apos;4&apos;: &apos;0&apos;,
+            &apos;5&apos;: &apos;1&apos;,
+            &apos;6&apos;: &apos;1&apos;,
+            &apos;7&apos;: &apos;1&apos;
+            },
+            &apos;9&apos;,
+            &apos;9&apos;);
+          </attribute>
+          <attribute name="sociodemographic_characteristics" namespace="maelstrom" valueType="text" locale="en">
+            Education Level
+          </attribute>
+          <attribute name="label" valueType="text" locale="en">Some Elements of Post-Secondary Non-Tertiary Education
+            Completed (Phase 2)
+          </attribute>
+        </attributes>
+        <categories>
+          <category name="0">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Did not complete post-secondary education</attribute>
+            </attributes>
+          </category>
+          <category name="1">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">At least some elements of post-secondary education
+                completed
+              </attribute>
+            </attributes>
+          </category>
+          <category name="9" missing="true">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Missing</attribute>
+            </attributes>
+          </category>
+        </categories>
+      </variable>
+      <variable name="EDU_TERTIARY_COMPLETED" valueType="integer" entityType="Participant" unit="" mimeType="">
+        <attributes>
+          <attribute name="description" namespace="maelstrom" valueType="text" locale="en">Indicator of whether the
+            participant completed at least some elements of tertiary education using UNESCO Revision of the
+            International Standard Classification of Education, 2011
+            (ISCED-2011; http://www.uis.unesco.org/Education/Documents/UNESCO_GC_36C-19_ISCED_EN.pdf). Here, &quot;tertiary
+            education&quot; combines levels 5 through 8 of ISCED (Short-cycle tertiary, Bachelor or equivalent, Master
+            or equivalent, Doctoral or equivalent). Educational programmes classified as &quot;tertiary education&quot;
+            are referred to in many ways across the world, and encompass master craftsman programme, (higher) technical
+            education, community college education, technician or advanced/higher vocational training, associate degree,
+            bachelor programme, licence, first university cycle, master programmes, magister, PhD, DPhil, D.Lit, D.Sc,
+            LL.D, and Doctorate. For international comparability purposes the term “tertiary” is used.
+            Phase 2 variable
+          </attribute>
+          <attribute name="comment" namespace="maelstrom" valueType="text" locale="en"></attribute>
+          <attribute name="data_source" namespace="maelstrom" valueType="text" locale="en">Questionnaire</attribute>
+          <attribute name="essence" namespace="maelstrom" valueType="text" locale="en">Occurrence/Status/Named
+            category
+          </attribute>
+          <attribute name="measure" namespace="maelstrom" valueType="text" locale="en">Binary</attribute>
+          <attribute name="period" namespace="maelstrom" valueType="text" locale="en">Currently</attribute>
+          <attribute name="sociodemographic_characteristics" namespace="maelstrom" valueType="text" locale="en">
+            Education Level
+          </attribute>
+          <attribute name="target" namespace="maelstrom" valueType="text" locale="en">Participant</attribute>
+          <attribute name="status" namespace="maelstrom" valueType="text">complete</attribute>
+          <attribute name="script" valueType="text">$(&apos;FR02_3&apos;).map({
+            &apos;1&apos;: &apos;0&apos;,
+            &apos;2&apos;: &apos;0&apos;,
+            &apos;3&apos;: &apos;0&apos;,
+            &apos;4&apos;: &apos;0&apos;,
+            &apos;5&apos;: &apos;0&apos;,
+            &apos;6&apos;: &apos;1&apos;,
+            &apos;7&apos;: &apos;1&apos;
+            },
+            &apos;9&apos;,
+            &apos;9&apos;);
+          </attribute>
+          <attribute name="label" valueType="text" locale="en">Some Elements of Tertiary Education Completed (Phase 2)
+          </attribute>
+        </attributes>
+        <categories>
+          <category name="0">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Did not complete first stage of tertiary education
+              </attribute>
+            </attributes>
+          </category>
+          <category name="1">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">At least first stage of tertiary education
+              </attribute>
+            </attributes>
+          </category>
+          <category name="9" missing="true">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Missing</attribute>
+            </attributes>
+          </category>
+        </categories>
+      </variable>
+      <variable name="EDU_SECONDARY_COMPLETED" valueType="integer" entityType="Participant" unit="" mimeType="">
+        <attributes>
+          <attribute name="description" namespace="maelstrom" valueType="text" locale="en">Indicator of whether the
+            participant completed at least some elements of secondary education/second stage of basic education using
+            UNESCO Revision of the International Standard Classification of Education, 2011
+            (ISCED-2011; http://www.uis.unesco.org/Education/Documents/UNESCO_GC_36C-19_ISCED_EN.pdf). Here, &quot;secondary
+            education&quot; combines levels 2 and 3 of ISCED (Lower and Upper Secondary). Educational programmes
+            classified as &quot;secondary education&quot; are referred to in many ways across the world and encompass
+            secondary school (upper and lower grades), junior/senior secondary school, middle school, junior high
+            school, and high school. For international comparability purposes the term “secondary education” is used.
+            Phase 2 variable 
+          </attribute>
+          <attribute name="comment" namespace="maelstrom" valueType="text" locale="en"></attribute>
+          <attribute name="data_source" namespace="maelstrom" valueType="text" locale="en">Questionnaire</attribute>
+          <attribute name="essence" namespace="maelstrom" valueType="text" locale="en">Occurrence/Status/Named
+            category
+          </attribute>
+          <attribute name="measure" namespace="maelstrom" valueType="text" locale="en">Binary</attribute>
+          <attribute name="period" namespace="maelstrom" valueType="text" locale="en">Currently</attribute>
+          <attribute name="sociodemographic_characteristics" namespace="maelstrom" valueType="text" locale="en">
+            Education Level
+          </attribute>
+          <attribute name="target" namespace="maelstrom" valueType="text" locale="en">Participant</attribute>
+          <attribute name="status" namespace="maelstrom" valueType="text">complete</attribute>
+          <attribute name="script" valueType="text">$(&apos;FR02_3&apos;).map({
+            &apos;1&apos;: &apos;0&apos;,
+            &apos;2&apos;: &apos;1&apos;,
+            &apos;3&apos;: &apos;1&apos;,
+            &apos;4&apos;: &apos;1&apos;,
+            &apos;5&apos;: &apos;1&apos;,
+            &apos;6&apos;: &apos;1&apos;,
+            &apos;7&apos;: &apos;1&apos;
+            },
+            &apos;9&apos;,
+            &apos;9&apos;);
+          </attribute>
+          <attribute name="label" valueType="text" locale="en">Secondary Education Completed (Phase 2)</attribute>
+        </attributes>
+        <categories>
+          <category name="0">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Did not complete secondary education</attribute>
+            </attributes>
+          </category>
+          <category name="1">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">At least secondary education completed</attribute>
+            </attributes>
+          </category>
+          <category name="9" missing="true">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Missing</attribute>
+            </attributes>
+          </category>
+        </categories>
+      </variable>
+      <variable name="EDU_PRIMARY_COMPLETED" valueType="integer" entityType="Participant" unit="" mimeType="">
+        <attributes>
+          <attribute name="description" namespace="maelstrom" valueType="text" locale="en">Indicator of whether the
+            participant completed at least some elements of primary education using UNESCO Revision of the International
+            Standard Classification of Education, 2011
+            (ISCED-2011; http://www.uis.unesco.org/Education/Documents/UNESCO_GC_36C-19_ISCED_EN.pdf). Educational
+            programmes classified as &quot;primary education&quot; are referred to in many ways across the world, and
+            encompass elementary education and basic education (stage 1/lower grades). For international comparability
+            purposes the term “primary” is used.
+            Phase 2 variable
+          </attribute>
+          <attribute name="comment" namespace="maelstrom" valueType="text" locale="en"></attribute>
+          <attribute name="data_source" namespace="maelstrom" valueType="text" locale="en">Questionnaire</attribute>
+          <attribute name="essence" namespace="maelstrom" valueType="text" locale="en">Occurrence/Status/Named
+            category
+          </attribute>
+          <attribute name="measure" namespace="maelstrom" valueType="text" locale="en">Binary</attribute>
+          <attribute name="period" namespace="maelstrom" valueType="text" locale="en">Currently</attribute>
+          <attribute name="sociodemographic_characteristics" namespace="maelstrom" valueType="text" locale="en">
+            Education Level
+          </attribute>
+          <attribute name="target" namespace="maelstrom" valueType="text" locale="en">Participant</attribute>
+          <attribute name="status" namespace="maelstrom" valueType="text">complete</attribute>
+          <attribute name="script" valueType="text">$(&apos;FR02_3&apos;).map({
+            &apos;1&apos;: &apos;1&apos;,
+            &apos;2&apos;: &apos;1&apos;,
+            &apos;3&apos;: &apos;1&apos;,
+            &apos;4&apos;: &apos;1&apos;,
+            &apos;5&apos;: &apos;1&apos;,
+            &apos;6&apos;: &apos;1&apos;,
+            &apos;7&apos;: &apos;1&apos;
+            },
+            &apos;9&apos;,
+            &apos;9&apos;);
+          </attribute>
+          <attribute name="label" valueType="text" locale="en">Primary Education Completed (Phase 2)</attribute>
+        </attributes>
+        <categories>
+          <category name="0">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Did not complete primary education</attribute>
+            </attributes>
+          </category>
+          <category name="1">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">At least primary education completed</attribute>
+            </attributes>
+          </category>
+          <category name="9" missing="true">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Missing</attribute>
+            </attributes>
+          </category>
+        </categories>
+      </variable>
+      <variable name="WORK_JOB_ISCO88" valueType="integer" entityType="Participant" unit="" mimeType="">
+        <attributes>
+          <attribute name="description" namespace="maelstrom" valueType="text" locale="en">Participant&apos;s current
+            job title based on the International Standard Classification of Occupations
+            (ISCO-88; http://www.ilo.org/public/english/bureau/stat/isco/isco88/index.htm).The ten major groups at the
+            top level of the ISCO-88 are used to classify occupations.
+            Phase 2 variable
+          </attribute>
+          <attribute name="status" namespace="maelstrom" valueType="text">undetermined</attribute>
+          <attribute name="comment" namespace="maelstrom" valueType="text" locale="en"></attribute>
+          <attribute name="data_source" namespace="maelstrom" valueType="text" locale="en">Questionnaire</attribute>
+          <attribute name="essence" namespace="maelstrom" valueType="text" locale="en">Occurrence/Status/Named
+            category
+          </attribute>
+          <attribute name="measure" namespace="maelstrom" valueType="text" locale="en">Categorical nominal</attribute>
+          <attribute name="period" namespace="maelstrom" valueType="text" locale="en">Currently</attribute>
+          <attribute name="sociodemographic_characteristics" namespace="maelstrom" valueType="text" locale="en">Working
+            Status
+          </attribute>
+          <attribute name="target" namespace="maelstrom" valueType="text" locale="en">Participant</attribute>
+          <attribute name="script" valueType="text">null</attribute>
+          <attribute name="label" valueType="text" locale="en">Current Job Title (ISCO 88) (Phase 2)</attribute>
+        </attributes>
+        <categories>
+          <category name="1">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Legistlator, senior officials and managers
+              </attribute>
+            </attributes>
+          </category>
+          <category name="2">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Professionals</attribute>
+            </attributes>
+          </category>
+          <category name="3">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Technicians and associate professional</attribute>
+            </attributes>
+          </category>
+          <category name="4">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Clerks</attribute>
+            </attributes>
+          </category>
+          <category name="5">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Service workers and shop and maket sales workers
+              </attribute>
+            </attributes>
+          </category>
+          <category name="6">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Skilled agricultural and fishery workers</attribute>
+            </attributes>
+          </category>
+          <category name="7">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Craft and related trades workers</attribute>
+            </attributes>
+          </category>
+          <category name="8">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Plant and machine operators and assemblers
+              </attribute>
+            </attributes>
+          </category>
+          <category name="9">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Elementary occupations</attribute>
+            </attributes>
+          </category>
+          <category name="10">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Armed forces</attribute>
+            </attributes>
+          </category>
+          <category name="99" missing="true">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Missing</attribute>
+            </attributes>
+          </category>
+        </categories>
+      </variable>
+      <variable name="WORK_STATUS_EVER" valueType="integer" entityType="Participant" unit="" mimeType="">
+        <attributes>
+          <attribute name="description" namespace="maelstrom" valueType="text" locale="en">Indicator of whether the
+            participant has ever had paid employement or been self employed.
+            Phase 2 variable
+          </attribute>
+          <attribute name="comment" namespace="maelstrom" valueType="text" locale="en"></attribute>
+          <attribute name="data_source" namespace="maelstrom" valueType="text" locale="en">Questionnaire</attribute>
+          <attribute name="essence" namespace="maelstrom" valueType="text" locale="en">Occurrence/Status/Named
+            category
+          </attribute>
+          <attribute name="measure" namespace="maelstrom" valueType="text" locale="en">Binary</attribute>
+          <attribute name="period" namespace="maelstrom" valueType="text" locale="en">Currently</attribute>
+          <attribute name="sociodemographic_characteristics" namespace="maelstrom" valueType="text" locale="en">Working
+            Status
+          </attribute>
+          <attribute name="target" namespace="maelstrom" valueType="text" locale="en">Participant</attribute>
+          <attribute name="status" namespace="maelstrom" valueType="text">impossible</attribute>
+          <attribute name="script" valueType="text">null</attribute>
+          <attribute name="label" valueType="text" locale="en">Ever Employed Status (Phase 2)</attribute>
+        </attributes>
+        <categories>
+          <category name="0">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Never been employed</attribute>
+            </attributes>
+          </category>
+          <category name="1">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Ever been employed</attribute>
+            </attributes>
+          </category>
+          <category name="9" missing="true">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Missing</attribute>
+            </attributes>
+          </category>
+        </categories>
+      </variable>
+      <variable name="WORK_STUDENT" valueType="integer" entityType="Participant" unit="" mimeType="">
+        <attributes>
+          <attribute name="description" namespace="maelstrom" valueType="text" locale="en">Indicator of whether the
+            participant is currently a student.
+            Phase 2 variable
+          </attribute>
+          <attribute name="comment" namespace="maelstrom" valueType="text" locale="en"></attribute>
+          <attribute name="data_source" namespace="maelstrom" valueType="text" locale="en">Questionnaire</attribute>
+          <attribute name="essence" namespace="maelstrom" valueType="text" locale="en">Occurrence/Status/Named
+            category
+          </attribute>
+          <attribute name="measure" namespace="maelstrom" valueType="text" locale="en">Binary</attribute>
+          <attribute name="period" namespace="maelstrom" valueType="text" locale="en">Currently</attribute>
+          <attribute name="sociodemographic_characteristics" namespace="maelstrom" valueType="text" locale="en">Working
+            Status
+          </attribute>
+          <attribute name="target" namespace="maelstrom" valueType="text" locale="en">Participant</attribute>
+          <attribute name="status" namespace="maelstrom" valueType="text">complete</attribute>
+          <attribute name="script" valueType="text">$(&apos;FR07_11&apos;).map({
+            &apos;1&apos;: &apos;0&apos;,
+            &apos;2&apos;: &apos;0&apos;,
+            &apos;3&apos;: &apos;0&apos;,
+            &apos;4&apos;: &apos;0&apos;,
+            &apos;5&apos;: &apos;0&apos;,
+            &apos;6&apos;: &apos;1&apos;,
+            &apos;7&apos;: &apos;0&apos;,
+            &apos;8&apos;: &apos;0&apos;,
+            &apos;9&apos;: &apos;0&apos;,
+            &apos;10&apos;: &apos;0&apos;,
+            &apos;11&apos;: &apos;0&apos;,
+            &apos;12&apos;: &apos;0&apos;,
+            &apos;13&apos;: &apos;0&apos;,
+            &apos;14&apos;: &apos;0&apos;
+            },
+            9,
+            9);
+          </attribute>
+          <attribute name="label" valueType="text" locale="en">Student Status (Phase 2)</attribute>
+        </attributes>
+        <categories>
+          <category name="0">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Not a student</attribute>
+            </attributes>
+          </category>
+          <category name="1">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Student</attribute>
+            </attributes>
+          </category>
+          <category name="9" missing="true">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Missing</attribute>
+            </attributes>
+          </category>
+        </categories>
+      </variable>
+      <variable name="WORK_WEEK_HOURS_NUM" valueType="decimal" entityType="Participant" unit="" mimeType="">
+        <attributes>
+          <attribute name="description" namespace="maelstrom" valueType="text" locale="en">Average number of working
+            hours of the participant per week.
+            Phase 2 variable
+          </attribute>
+          <attribute name="comment" namespace="maelstrom" valueType="text" locale="en"></attribute>
+          <attribute name="data_source" namespace="maelstrom" valueType="text" locale="en">Questionnaire</attribute>
+          <attribute name="essence" namespace="maelstrom" valueType="text" locale="en">Quantity/Frequency</attribute>
+          <attribute name="measure" namespace="maelstrom" valueType="text" locale="en">Continuous</attribute>
+          <attribute name="period" namespace="maelstrom" valueType="text" locale="en">Currently</attribute>
+          <attribute name="sociodemographic_characteristics" namespace="maelstrom" valueType="text" locale="en">Working
+            Status
+          </attribute>
+          <attribute name="target" namespace="maelstrom" valueType="text" locale="en">Participant</attribute>
+          <attribute name="status" namespace="maelstrom" valueType="text">impossible</attribute>
+          <attribute name="script" valueType="text">null</attribute>
+          <attribute name="label" valueType="text" locale="en">Number of Working Hours of the Participant on Average in
+            a Typical Week (Phase 2)
+          </attribute>
+        </attributes>
+        <categories>
+          <category name="999" missing="true">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Missing</attribute>
+            </attributes>
+          </category>
+        </categories>
+      </variable>
+      <variable name="ALC_CURRENT_QTY_TOTAL" valueType="decimal" entityType="Participant" unit="" mimeType="">
+        <attributes>
+          <attribute name="label" valueType="text" locale="en">Current Quantity of Total Alcohol Consumed in Wine, Beer
+            and Liquors per week (Phase 2)
+          </attribute>
+          <attribute name="description" namespace="maelstrom" valueType="text" locale="en">UNDER DEVELOPMENT
+            Milligrams of alcohol consumed on average per week. Current quantity of total alcohol taken = (Current
+            quantity of wine taken * Average quantity of alcohol in a glass (size) of red wine) + (Current quantity of
+            beer taken * Average quantity of alcohol in a bottle (size) of beer) + (Current quantity of liquor taken *
+            Average quantity of alcohol in a measure (size) of liquor).
+            Phase 2 variable
+          </attribute>
+          <attribute name="status" namespace="maelstrom" valueType="text">undetermined</attribute>
+          <attribute name="comment" namespace="maelstrom" valueType="text" locale="en"></attribute>
+          <attribute name="data_source" namespace="maelstrom" valueType="text" locale="en">Questionnaire</attribute>
+          <attribute name="essence" namespace="maelstrom" valueType="text" locale="en">Quantity/Frequency</attribute>
+          <attribute name="life_habits_behaviours" namespace="maelstrom" valueType="text" locale="en">Alcohol Use
+          </attribute>
+          <attribute name="measure" namespace="maelstrom" valueType="text" locale="en">Continuous</attribute>
+          <attribute name="period" namespace="maelstrom" valueType="text" locale="en">Currently</attribute>
+          <attribute name="target" namespace="maelstrom" valueType="text" locale="en">Participant</attribute>
+        </attributes>
+      </variable>
+      <variable name="WORK_STATUS_CURRENT" valueType="integer" entityType="Participant" unit="" mimeType="">
+        <attributes>
+          <attribute name="description" namespace="maelstrom" valueType="text" locale="en">Indicator of whether the
+            participant is currently in paid employment or is self-employed.
+            Phase 2 variable
+          </attribute>
+          <attribute name="comment" namespace="maelstrom" valueType="text" locale="en"></attribute>
+          <attribute name="data_source" namespace="maelstrom" valueType="text" locale="en">Questionnaire</attribute>
+          <attribute name="essence" namespace="maelstrom" valueType="text" locale="en">Occurrence/Status/Named
+            category
+          </attribute>
+          <attribute name="measure" namespace="maelstrom" valueType="text" locale="en">Binary</attribute>
+          <attribute name="period" namespace="maelstrom" valueType="text" locale="en">Currently</attribute>
+          <attribute name="sociodemographic_characteristics" namespace="maelstrom" valueType="text" locale="en">Working
+            Status
+          </attribute>
+          <attribute name="target" namespace="maelstrom" valueType="text" locale="en">Participant</attribute>
+          <attribute name="status" namespace="maelstrom" valueType="text">complete</attribute>
+          <attribute name="script" valueType="text">$(&apos;FR07_11&apos;).map({
+            &apos;1&apos;: &apos;1&apos;,
+            &apos;2&apos;: &apos;1&apos;,
+            &apos;3&apos;: &apos;1&apos;,
+            &apos;4&apos;: &apos;1&apos;,
+            &apos;5&apos;: &apos;1&apos;,
+            &apos;6&apos;: &apos;0&apos;,
+            &apos;7&apos;: &apos;0&apos;,
+            &apos;8&apos;: &apos;0&apos;,
+            &apos;9&apos;: &apos;0&apos;,
+            &apos;10&apos;: &apos;0&apos;,
+            &apos;11&apos;: &apos;0&apos;,
+            &apos;12&apos;: &apos;0&apos;,
+            &apos;13&apos;: &apos;0&apos;,
+            &apos;14&apos;: &apos;0&apos;
+            },
+            &apos;9&apos;,
+            &apos;9&apos;);
+          </attribute>
+          <attribute name="label" valueType="text" locale="en">Employment Status (Phase 2)</attribute>
+        </attributes>
+        <categories>
+          <category name="0">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">No paid employment or not self-employed</attribute>
+            </attributes>
+          </category>
+          <category name="1">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Paid employment or self-employed</attribute>
+            </attributes>
+          </category>
+          <category name="9" missing="true">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Missing</attribute>
+            </attributes>
+          </category>
+        </categories>
+      </variable>
+      <variable name="WORK_RETIRED" valueType="integer" entityType="Participant" unit="" mimeType="">
+        <attributes>
+          <attribute name="description" namespace="maelstrom" valueType="text" locale="en">Indicator of whether the
+            participant is currently retired.
+            Phase 2 variable
+          </attribute>
+          <attribute name="comment" namespace="maelstrom" valueType="text" locale="en"></attribute>
+          <attribute name="data_source" namespace="maelstrom" valueType="text" locale="en">Questionnaire</attribute>
+          <attribute name="essence" namespace="maelstrom" valueType="text" locale="en">Occurrence/Status/Named
+            category
+          </attribute>
+          <attribute name="measure" namespace="maelstrom" valueType="text" locale="en">Binary</attribute>
+          <attribute name="period" namespace="maelstrom" valueType="text" locale="en">Currently</attribute>
+          <attribute name="sociodemographic_characteristics" namespace="maelstrom" valueType="text" locale="en">Working
+            Status
+          </attribute>
+          <attribute name="target" namespace="maelstrom" valueType="text" locale="en">Participant</attribute>
+          <attribute name="status" namespace="maelstrom" valueType="text">complete</attribute>
+          <attribute name="script" valueType="text">$(&apos;FR07_11&apos;).map({
+            &apos;1&apos;: &apos;0&apos;,
+            &apos;2&apos;: &apos;0&apos;,
+            &apos;3&apos;: &apos;0&apos;,
+            &apos;4&apos;: &apos;0&apos;,
+            &apos;5&apos;: &apos;0&apos;,
+            &apos;6&apos;: &apos;0&apos;,
+            &apos;7&apos;: &apos;0&apos;,
+            &apos;8&apos;: &apos;0&apos;,
+            &apos;9&apos;: &apos;0&apos;,
+            &apos;10&apos;: &apos;0&apos;,
+            &apos;11&apos;: &apos;0&apos;,
+            &apos;12&apos;: &apos;1&apos;,
+            &apos;13&apos;: &apos;0&apos;,
+            &apos;14&apos;: &apos;0&apos;
+            },
+            &apos;9&apos;,
+            &apos;9&apos;);
+          </attribute>
+          <attribute name="label" valueType="text" locale="en">Retirement Status (Phase 2)</attribute>
+        </attributes>
+        <categories>
+          <category name="0">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Not retired</attribute>
+            </attributes>
+          </category>
+          <category name="1">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Retired</attribute>
+            </attributes>
+          </category>
+          <category name="9" missing="true">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Missing</attribute>
+            </attributes>
+          </category>
+        </categories>
+      </variable>
+      <variable name="MARITAL_STATUS" valueType="integer" entityType="Participant" unit="" mimeType="">
+        <attributes>
+          <attribute name="description" namespace="maelstrom" valueType="text" locale="en">Current marital status.
+            Phase 2 variable
+          </attribute>
+          <attribute name="comment" namespace="maelstrom" valueType="text" locale="en"></attribute>
+          <attribute name="data_source" namespace="maelstrom" valueType="text" locale="en">Questionnaire</attribute>
+          <attribute name="essence" namespace="maelstrom" valueType="text" locale="en">Occurrence/Status/Named
+            category
+          </attribute>
+          <attribute name="measure" namespace="maelstrom" valueType="text" locale="en">Categorical nominal</attribute>
+          <attribute name="period" namespace="maelstrom" valueType="text" locale="en">Currently</attribute>
+          <attribute name="sociodemographic_characteristics" namespace="maelstrom" valueType="text" locale="en">
+            Marital/Partner Status
+          </attribute>
+          <attribute name="target" namespace="maelstrom" valueType="text" locale="en">Participant</attribute>
+          <attribute name="status" namespace="maelstrom" valueType="text">complete</attribute>
+          <attribute name="script" valueType="text">$(&apos;KY2&apos;).map({
+            &apos;1&apos;: &apos;1&apos;,
+            &apos;2&apos;: &apos;1&apos;,
+            &apos;3&apos;: &apos;4&apos;,
+            &apos;4&apos;: &apos;2&apos;,
+            &apos;5&apos;: &apos;3&apos;
+            },
+            &apos;9&apos;,
+            &apos;9&apos;);
+          </attribute>
+          <attribute name="label" valueType="text" locale="en">Marital Status (Phase 2)</attribute>
+        </attributes>
+        <categories>
+          <category name="1">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Married and/or living with a partner</attribute>
+            </attributes>
+          </category>
+          <category name="2">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Divorced or separated</attribute>
+            </attributes>
+          </category>
+          <category name="3">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Widowed</attribute>
+            </attributes>
+          </category>
+          <category name="4">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Single</attribute>
+            </attributes>
+          </category>
+          <category name="9" missing="true">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Missing</attribute>
+            </attributes>
+          </category>
+        </categories>
+      </variable>
+      <variable name="SMK_CIG_CURRENT" valueType="integer" entityType="Participant" unit="" mimeType="">
+        <attributes>
+          <attribute name="description" namespace="maelstrom" valueType="text" locale="en">Indicator of whether the
+            participant currently smokes cigarettes. Current is defined as today and up to the last 12 months. 
+            Phase 2 variable
+          </attribute>
+          <attribute name="comment" namespace="maelstrom" valueType="text" locale="en"></attribute>
+          <attribute name="data_source" namespace="maelstrom" valueType="text" locale="en">Questionnaire</attribute>
+          <attribute name="essence" namespace="maelstrom" valueType="text" locale="en">Occurrence/Status/Named
+            category
+          </attribute>
+          <attribute name="life_habits_behaviours" namespace="maelstrom" valueType="text" locale="en">Tobacco Use
+          </attribute>
+          <attribute name="measure" namespace="maelstrom" valueType="text" locale="en">Binary</attribute>
+          <attribute name="period" namespace="maelstrom" valueType="text" locale="en">Currently</attribute>
+          <attribute name="target" namespace="maelstrom" valueType="text" locale="en">Participant</attribute>
+          <attribute name="label" valueType="text" locale="en">Current Cigarette Smoker (Phase 2)</attribute>
+          <attribute name="script" valueType="text">null</attribute>
+          <attribute name="status" namespace="maelstrom" valueType="text">impossible</attribute>
+        </attributes>
+        <categories>
+          <category name="0">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Not a current cigarette smoker</attribute>
+            </attributes>
+          </category>
+          <category name="1">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Current cigarette smoker</attribute>
+            </attributes>
+          </category>
+          <category name="9" missing="true">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Missing</attribute>
+            </attributes>
+          </category>
+        </categories>
+      </variable>
+      <variable name="SMK_CIG_CURRENT_QTY" valueType="integer" entityType="Participant" unit="" mimeType="">
+        <attributes>
+          <attribute name="description" namespace="maelstrom" valueType="text" locale="en">Current average number of
+            cigarettes smoked per week. Current is defined as today and up to the last 12 months.
+            Phase 2 variable
+          </attribute>
+          <attribute name="comment" namespace="maelstrom" valueType="text" locale="en"></attribute>
+          <attribute name="data_source" namespace="maelstrom" valueType="text" locale="en">Questionnaire</attribute>
+          <attribute name="essence" namespace="maelstrom" valueType="text" locale="en">Quantity/Frequency</attribute>
+          <attribute name="life_habits_behaviours" namespace="maelstrom" valueType="text" locale="en">Tobacco Use
+          </attribute>
+          <attribute name="measure" namespace="maelstrom" valueType="text" locale="en">Continuous</attribute>
+          <attribute name="period" namespace="maelstrom" valueType="text" locale="en">Currently</attribute>
+          <attribute name="target" namespace="maelstrom" valueType="text" locale="en">Participant</attribute>
+          <attribute name="status" namespace="maelstrom" valueType="text">complete</attribute>
+          <attribute name="script" valueType="text">var val = $(&apos;TUPI1&apos;).multiply(7);
+            if (val.isNull().value()) {
+            val = 999;
+            }
+            val;
+          </attribute>
+          <attribute name="label" valueType="text" locale="en">Current Quantity of Cigarettes Smoked (Phase 2)
+          </attribute>
+        </attributes>
+        <categories>
+          <category name="999" missing="true">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Missing</attribute>
+            </attributes>
+          </category>
+        </categories>
+      </variable>
+      <variable name="SMK_TBC_EVER" valueType="integer" entityType="Participant" unit="" mimeType="">
+        <attributes>
+          <attribute name="description" namespace="maelstrom" valueType="text" locale="en">Indicator of whether the
+            participant has ever smoked tobacco. 
+            Phase 2 variable
+          </attribute>
+          <attribute name="comment" namespace="maelstrom" valueType="text" locale="en"></attribute>
+          <attribute name="data_source" namespace="maelstrom" valueType="text" locale="en">Questionnaire</attribute>
+          <attribute name="essence" namespace="maelstrom" valueType="text" locale="en">Occurrence/Status/Named
+            category
+          </attribute>
+          <attribute name="life_habits_behaviours" namespace="maelstrom" valueType="text" locale="en">Tobacco Use
+          </attribute>
+          <attribute name="measure" namespace="maelstrom" valueType="text" locale="en">Binary</attribute>
+          <attribute name="period" namespace="maelstrom" valueType="text" locale="en">Through all life</attribute>
+          <attribute name="target" namespace="maelstrom" valueType="text" locale="en">Participant</attribute>
+          <attribute name="status" namespace="maelstrom" valueType="text">complete</attribute>
+          <attribute name="script" valueType="text">$(&apos;Q67&apos;).map({
+            &apos;1&apos;: &apos;0&apos;,
+            &apos;2&apos;: &apos;1&apos;
+            },
+            &apos;9&apos;,
+            &apos;9&apos;);
+          </attribute>
+          <attribute name="label" valueType="text" locale="en">Ever Smoked Tobacco (Phase 2)</attribute>
+        </attributes>
+        <categories>
+          <category name="0">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Never smoked tobacco</attribute>
+            </attributes>
+          </category>
+          <category name="1">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Ever smoked tobacco</attribute>
+            </attributes>
+          </category>
+          <category name="9" missing="true">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Missing</attribute>
+            </attributes>
+          </category>
+        </categories>
+      </variable>
+      <variable name="LIVING_PARTNER" valueType="integer" entityType="Participant" unit="" mimeType="">
+        <attributes>
+          <attribute name="description" namespace="maelstrom" valueType="text" locale="en">Indicator of whether the
+            participant is currently living with a spouse or a partner in a common household.
+            Phase 2 variable 
+          </attribute>
+          <attribute name="comment" namespace="maelstrom" valueType="text" locale="en"></attribute>
+          <attribute name="data_source" namespace="maelstrom" valueType="text" locale="en">Questionnaire</attribute>
+          <attribute name="essence" namespace="maelstrom" valueType="text" locale="en">Occurrence/Status/Named
+            category
+          </attribute>
+          <attribute name="measure" namespace="maelstrom" valueType="text" locale="en">Binary</attribute>
+          <attribute name="period" namespace="maelstrom" valueType="text" locale="en">Currently</attribute>
+          <attribute name="sociodemographic_characteristics" namespace="maelstrom" valueType="text" locale="en">
+            Marital/Partner Status
+          </attribute>
+          <attribute name="target" namespace="maelstrom" valueType="text" locale="en">Participant</attribute>
+          <attribute name="status" namespace="maelstrom" valueType="text">complete</attribute>
+          <attribute name="script" valueType="text">$(&apos;KY2&apos;).map({
+            &apos;1&apos;: &apos;1&apos;,
+            &apos;2&apos;: &apos;1&apos;,
+            &apos;3&apos;: &apos;0&apos;,
+            &apos;4&apos;: &apos;0&apos;,
+            &apos;5&apos;: &apos;0&apos;
+            },
+            &apos;9&apos;,
+            &apos;9&apos;);
+          </attribute>
+          <attribute name="label" valueType="text" locale="en">Living with Partner (Phase 2)</attribute>
+        </attributes>
+        <categories>
+          <category name="0">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Not currently living with a spouse or a partner
+              </attribute>
+            </attributes>
+          </category>
+          <category name="1">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Currently living with a spouse or a partner
+              </attribute>
+            </attributes>
+          </category>
+          <category name="9" missing="true">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Missing</attribute>
+            </attributes>
+          </category>
+        </categories>
+      </variable>
+      <variable name="SMK_CIG_EVER" valueType="integer" entityType="Participant" unit="" mimeType="">
+        <attributes>
+          <attribute name="description" namespace="maelstrom" valueType="text" locale="en">Indicator of whether the
+            participant has ever smoked cigarettes. 
+            Phase 2 variable
+          </attribute>
+          <attribute name="status" namespace="maelstrom" valueType="text">undetermined</attribute>
+          <attribute name="comment" namespace="maelstrom" valueType="text" locale="en"></attribute>
+          <attribute name="data_source" namespace="maelstrom" valueType="text" locale="en">Questionnaire</attribute>
+          <attribute name="essence" namespace="maelstrom" valueType="text" locale="en">Occurrence/Status/Named
+            category
+          </attribute>
+          <attribute name="life_habits_behaviours" namespace="maelstrom" valueType="text" locale="en">Tobacco Use
+          </attribute>
+          <attribute name="measure" namespace="maelstrom" valueType="text" locale="en">Binary</attribute>
+          <attribute name="period" namespace="maelstrom" valueType="text" locale="en">Through all life</attribute>
+          <attribute name="target" namespace="maelstrom" valueType="text" locale="en">Participant</attribute>
+          <attribute name="label" valueType="text" locale="en">Ever Smoked Cigarettes (Phase 2)</attribute>
+          <attribute name="script" valueType="text">null</attribute>
+        </attributes>
+        <categories>
+          <category name="0">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Never smoked cigarettes</attribute>
+            </attributes>
+          </category>
+          <category name="1">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Ever smoked cigarettes</attribute>
+            </attributes>
+          </category>
+          <category name="9" missing="true">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Missing</attribute>
+            </attributes>
+          </category>
+        </categories>
+      </variable>
+      <variable name="MEDI_LPD" valueType="integer" entityType="Participant" unit="" mimeType="">
+        <attributes>
+          <attribute name="label" valueType="text" locale="en">Current Use of Lipid Lowering Medication (from
+            categorical assessment item)
+          </attribute>
+          <attribute name="description" namespace="maelstrom" valueType="text" locale="en">Indicator of whether the
+            participant currently uses lipid lowering medication. Self-reported by a question targeting the use of lipid
+            lowering medication.
+          </attribute>
+          <attribute name="comment" namespace="maelstrom" valueType="text" locale="en"></attribute>
+          <attribute name="data_source" namespace="maelstrom" valueType="text" locale="en">Questionnaire</attribute>
+          <attribute name="essence" namespace="maelstrom" valueType="text" locale="en">Occurrence/Status/Named
+            category
+          </attribute>
+          <attribute name="measure" namespace="maelstrom" valueType="text" locale="en">Binary</attribute>
+          <attribute name="medication" namespace="maelstrom" valueType="text" locale="en">Cardiovascular system
+          </attribute>
+          <attribute name="period" namespace="maelstrom" valueType="text" locale="en">Currently</attribute>
+          <attribute name="target" namespace="maelstrom" valueType="text" locale="en">Participant</attribute>
+          <attribute name="status" namespace="maelstrom" valueType="text">complete</attribute>
+          <attribute name="script" valueType="text">$(&apos;K34&apos;).map({
+            &apos;1&apos;: &apos;0&apos;,
+            &apos;2&apos;: &apos;1&apos;
+            },
+            &apos;9&apos;,
+            &apos;9&apos;);
+          </attribute>
+        </attributes>
+        <categories>
+          <category name="0">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Not currently using lipid lowering medication
+              </attribute>
+            </attributes>
+          </category>
+          <category name="1">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Currently using lipid lowering medication</attribute>
+            </attributes>
+          </category>
+          <category name="9" missing="true">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Missing</attribute>
+            </attributes>
+          </category>
+        </categories>
+      </variable>
+      <variable name="MEDI_NAME_DIAB" valueType="integer" entityType="Participant" unit="" mimeType="">
+        <attributes>
+          <attribute name="label" valueType="text" locale="en">Current Use of Glucose Lowering Medication (from
+            medication list)
+          </attribute>
+          <attribute name="description" namespace="maelstrom" valueType="text" locale="en">Indicator of whether the
+            participant currently uses glucose lowering medication. Extracted from a list of medication using the
+            following ATC Codes or equivalent in other classifications: A10
+          </attribute>
+          <attribute name="comment" namespace="maelstrom" valueType="text" locale="en"></attribute>
+          <attribute name="data_source" namespace="maelstrom" valueType="text" locale="en">Questionnaire</attribute>
+          <attribute name="essence" namespace="maelstrom" valueType="text" locale="en">Occurrence/Status/Named
+            category
+          </attribute>
+          <attribute name="measure" namespace="maelstrom" valueType="text" locale="en">Open text</attribute>
+          <attribute name="medication" namespace="maelstrom" valueType="text" locale="en">Alimentary tract and
+            metabolism
+          </attribute>
+          <attribute name="period" namespace="maelstrom" valueType="text" locale="en">Currently</attribute>
+          <attribute name="target" namespace="maelstrom" valueType="text" locale="en">Participant</attribute>
+          <attribute name="status" namespace="maelstrom" valueType="text">complete</attribute>
+          <attribute name="script" valueType="text">$(&apos;Q38&apos;).map({
+            &apos;1&apos;: &apos;0&apos;,
+            &apos;2&apos;: &apos;1&apos;,
+            &apos;3&apos;: &apos;1&apos;,
+            &apos;4&apos;: &apos;1&apos;
+            },
+            &apos;9&apos;,
+            &apos;9&apos;);
+          </attribute>
+        </attributes>
+        <categories>
+          <category name="0">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Not currently using glucose lowering medication
+              </attribute>
+            </attributes>
+          </category>
+          <category name="1">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Currently using glucose lowering medication
+              </attribute>
+            </attributes>
+          </category>
+          <category name="9" missing="true">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Missing</attribute>
+            </attributes>
+          </category>
+        </categories>
+      </variable>
+      <variable name="MEDI_NAME_LPD" valueType="integer" entityType="Participant" unit="" mimeType="">
+        <attributes>
+          <attribute name="label" valueType="text" locale="en">Current Use of Lipid Lowering Medication (from medication
+            list)
+          </attribute>
+          <attribute name="description" namespace="maelstrom" valueType="text" locale="en">Indicator of whether the
+            participant currently uses lipid lowering medication. Extracted from a list of medication using the
+            following ATC Codes or equivalent in other classifications: C10
+          </attribute>
+          <attribute name="status" namespace="maelstrom" valueType="text">undetermined</attribute>
+          <attribute name="comment" namespace="maelstrom" valueType="text" locale="en"></attribute>
+          <attribute name="data_source" namespace="maelstrom" valueType="text" locale="en">Questionnaire</attribute>
+          <attribute name="essence" namespace="maelstrom" valueType="text" locale="en">Occurrence/Status/Named
+            category
+          </attribute>
+          <attribute name="measure" namespace="maelstrom" valueType="text" locale="en">Open text</attribute>
+          <attribute name="medication" namespace="maelstrom" valueType="text" locale="en">Cardiovascular system
+          </attribute>
+          <attribute name="period" namespace="maelstrom" valueType="text" locale="en">Currently</attribute>
+          <attribute name="target" namespace="maelstrom" valueType="text" locale="en">Participant</attribute>
+        </attributes>
+        <categories>
+          <category name="0">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Not currently using lipid lowering medication
+              </attribute>
+            </attributes>
+          </category>
+          <category name="1">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Currently using lipid lowering medication</attribute>
+            </attributes>
+          </category>
+          <category name="9" missing="true">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Missing</attribute>
+            </attributes>
+          </category>
+        </categories>
+      </variable>
+      <variable name="RES_CNTRY" valueType="integer" entityType="Participant" unit="" mimeType="">
+        <attributes>
+          <attribute name="label" valueType="text" locale="en">Current Country of Residence</attribute>
+          <attribute name="description" namespace="maelstrom" valueType="text" locale="en">Country where the participant
+            currently lives.
+          </attribute>
+          <attribute name="status" namespace="maelstrom" valueType="text">undetermined</attribute>
+          <attribute name="comment" namespace="maelstrom" valueType="text" locale="en"></attribute>
+          <attribute name="data_source" namespace="maelstrom" valueType="text" locale="en">Questionnaire</attribute>
+          <attribute name="essence" namespace="maelstrom" valueType="text" locale="en">Occurrence/Status/Named
+            category
+          </attribute>
+          <attribute name="measure" namespace="maelstrom" valueType="text" locale="en">Categorical nominal</attribute>
+          <attribute name="period" namespace="maelstrom" valueType="text" locale="en">Currently</attribute>
+          <attribute name="sociodemographic_characteristics" namespace="maelstrom" valueType="text" locale="en">
+            Residence
+          </attribute>
+          <attribute name="target" namespace="maelstrom" valueType="text" locale="en">Participant</attribute>
+        </attributes>
+        <categories>
+          <category name="0">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">United Kingdom</attribute>
+            </attributes>
+          </category>
+          <category name="1">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Germany</attribute>
+            </attributes>
+          </category>
+          <category name="2">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Netherlands</attribute>
+            </attributes>
+          </category>
+          <category name="3">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Finland</attribute>
+            </attributes>
+          </category>
+          <category name="4">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Estonia</attribute>
+            </attributes>
+          </category>
+          <category name="5">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Other</attribute>
+            </attributes>
+          </category>
+          <category name="9" missing="true">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Missing</attribute>
+            </attributes>
+          </category>
+        </categories>
+      </variable>
+      <variable name="PM_HIP_SIZE" valueType="decimal" entityType="Participant" unit="" mimeType="">
+        <attributes>
+          <attribute name="label" valueType="text" locale="en">Hip Circumference</attribute>
+          <attribute name="description" namespace="maelstrom" valueType="text" locale="en">Measured distance around the
+            hips. Unit: cm
+          </attribute>
+          <attribute name="comment" namespace="maelstrom" valueType="text" locale="en"></attribute>
+          <attribute name="anthropometric_structures" namespace="maelstrom" valueType="text" locale="en">Hip
+            Circumference
+          </attribute>
+          <attribute name="data_source" namespace="maelstrom" valueType="text" locale="en">Physical Measure</attribute>
+          <attribute name="essence" namespace="maelstrom" valueType="text" locale="en">Quantity/Frequency</attribute>
+          <attribute name="measure" namespace="maelstrom" valueType="text" locale="en">Continuous</attribute>
+          <attribute name="period" namespace="maelstrom" valueType="text" locale="en">Currently</attribute>
+          <attribute name="target" namespace="maelstrom" valueType="text" locale="en">Participant</attribute>
+          <attribute name="status" namespace="maelstrom" valueType="text">complete</attribute>
+          <attribute name="script" valueType="text">$(&apos;LANTIO&apos;)</attribute>
+        </attributes>
+        <categories>
+          <category name="999" missing="true">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Missing</attribute>
+            </attributes>
+          </category>
+        </categories>
+      </variable>
+      <variable name="GENDER" valueType="integer" entityType="Participant" unit="" mimeType="">
+        <attributes>
+          <attribute name="label" valueType="text" locale="en">Gender</attribute>
+          <attribute name="description" namespace="maelstrom" valueType="text" locale="en">Gender of the participant
+          </attribute>
+          <attribute name="comment" namespace="maelstrom" valueType="text" locale="en"></attribute>
+          <attribute name="data_source" namespace="maelstrom" valueType="text" locale="en">Questionnaire</attribute>
+          <attribute name="essence" namespace="maelstrom" valueType="text" locale="en">Occurrence/Status/Named
+            category
+          </attribute>
+          <attribute name="measure" namespace="maelstrom" valueType="text" locale="en">Binary</attribute>
+          <attribute name="period" namespace="maelstrom" valueType="text" locale="en">Through all life</attribute>
+          <attribute name="sociodemographic_characteristics" namespace="maelstrom" valueType="text" locale="en">Gender
+          </attribute>
+          <attribute name="target" namespace="maelstrom" valueType="text" locale="en">Participant</attribute>
+          <attribute name="status" namespace="maelstrom" valueType="text">complete</attribute>
+          <attribute name="script" valueType="text">$(&apos;SUKUP&apos;).map({
+            &apos;1&apos;: &apos;0&apos;,
+            &apos;2&apos;: &apos;1&apos;
+            },
+            &apos;9&apos;,
+            &apos;9&apos;);
+          </attribute>
+        </attributes>
+        <categories>
+          <category name="0">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Male</attribute>
+            </attributes>
+          </category>
+          <category name="1">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Female</attribute>
+            </attributes>
+          </category>
+          <category name="9" missing="true">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Missing</attribute>
+            </attributes>
+          </category>
+        </categories>
+      </variable>
+      <variable name="AGE_DOB" valueType="integer" entityType="Participant" unit="" mimeType="">
+        <attributes>
+          <attribute name="label" valueType="text" locale="en">Birth Year</attribute>
+          <attribute name="description" namespace="maelstrom" valueType="text" locale="en">Year of birth
+          </attribute>
+          <attribute name="comment" namespace="maelstrom" valueType="text" locale="en"></attribute>
+          <attribute name="data_source" namespace="maelstrom" valueType="text" locale="en">Questionnaire</attribute>
+          <attribute name="essence" namespace="maelstrom" valueType="text" locale="en">Date/Time/Onset/Duration
+          </attribute>
+          <attribute name="measure" namespace="maelstrom" valueType="text" locale="en">Continuous</attribute>
+          <attribute name="period" namespace="maelstrom" valueType="text" locale="en">Through all life</attribute>
+          <attribute name="sociodemographic_characteristics" namespace="maelstrom" valueType="text" locale="en">
+            Age/Birth Date
+          </attribute>
+          <attribute name="target" namespace="maelstrom" valueType="text" locale="en">Participant</attribute>
+          <attribute name="status" namespace="maelstrom" valueType="text">complete</attribute>
+          <attribute name="script" valueType="text">$(&apos;SVUOSI&apos;)</attribute>
+        </attributes>
+        <categories>
+          <category name="9999" missing="true">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Missing</attribute>
+            </attributes>
+          </category>
+        </categories>
+      </variable>
+      <variable name="BRLOCA_CNTRY" valueType="integer" entityType="Participant" unit="" mimeType="">
+        <attributes>
+          <attribute name="label" valueType="text" locale="en">Country of Birth</attribute>
+          <attribute name="description" namespace="maelstrom" valueType="text" locale="en">Country where the participant
+            was born reclassified into seven categories using United Nations macro geographical regions, and subregions.
+            (http://unstats.un.org/unsd/methods/m49/m49regin.htm)
+          </attribute>
+          <attribute name="comment" namespace="maelstrom" valueType="text" locale="en"></attribute>
+          <attribute name="data_source" namespace="maelstrom" valueType="text" locale="en">Questionnaire</attribute>
+          <attribute name="essence" namespace="maelstrom" valueType="text" locale="en">Occurrence/Status/Named
+            category
+          </attribute>
+          <attribute name="measure" namespace="maelstrom" valueType="text" locale="en">Categorical nominal</attribute>
+          <attribute name="period" namespace="maelstrom" valueType="text" locale="en">Currently</attribute>
+          <attribute name="sociodemographic_characteristics" namespace="maelstrom" valueType="text" locale="en">Birth
+            Location
+          </attribute>
+          <attribute name="target" namespace="maelstrom" valueType="text" locale="en">Participant</attribute>
+          <attribute name="status" namespace="maelstrom" valueType="text">complete</attribute>
+          <attribute name="script" valueType="text">$(&apos;FR07_13_laani&apos;).map({
+            &apos;1&apos;: &apos;1&apos;,
+            &apos;2&apos;: &apos;1&apos;,
+            &apos;3&apos;: &apos;1&apos;,
+            &apos;4&apos;: &apos;1&apos;,
+            &apos;5&apos;: &apos;1&apos;,
+            &apos;6&apos;: &apos;1&apos;
+            },
+            &apos;9&apos;,
+            &apos;9&apos;);
+          </attribute>
+        </attributes>
+        <categories>
+          <category name="0">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Eastern Europe</attribute>
+            </attributes>
+          </category>
+          <category name="1">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Northern Europe</attribute>
+            </attributes>
+          </category>
+          <category name="2">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Southern Europe</attribute>
+            </attributes>
+          </category>
+          <category name="3">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Western Europe</attribute>
+            </attributes>
+          </category>
+          <category name="4">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Asia</attribute>
+            </attributes>
+          </category>
+          <category name="5">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Latin America and the Caribbean</attribute>
+            </attributes>
+          </category>
+          <category name="6">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">North America</attribute>
+            </attributes>
+          </category>
+          <category name="7">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Oceania</attribute>
+            </attributes>
+          </category>
+          <category name="9" missing="true">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Missing</attribute>
+            </attributes>
+          </category>
+        </categories>
+      </variable>
+      <variable name="PM_DIASTOLIC_MEASURE" valueType="decimal" entityType="Participant" unit="" mimeType="">
+        <attributes>
+          <attribute name="label" valueType="text" locale="en">Measured Diastolic Blood Pressure</attribute>
+          <attribute name="description" namespace="maelstrom" valueType="text" locale="en">Measured diastolic blood
+            pressure. Participant must be at rest when measurement is taken. Unit: mmHg
+          </attribute>
+          <attribute name="comment" namespace="maelstrom" valueType="text" locale="en"></attribute>
+          <attribute name="body_functions" namespace="maelstrom" valueType="text" locale="en">Blood Pressure Functions
+          </attribute>
+          <attribute name="data_source" namespace="maelstrom" valueType="text" locale="en">Physical Measure</attribute>
+          <attribute name="essence" namespace="maelstrom" valueType="text" locale="en">Quantity/Frequency</attribute>
+          <attribute name="measure" namespace="maelstrom" valueType="text" locale="en">Continuous</attribute>
+          <attribute name="period" namespace="maelstrom" valueType="text" locale="en">Currently</attribute>
+          <attribute name="target" namespace="maelstrom" valueType="text" locale="en">Participant</attribute>
+          <attribute name="status" namespace="maelstrom" valueType="text">complete</attribute>
+          <attribute name="script" valueType="text">$(&apos;DIAS1&apos;).plus($(&apos;DIAS2&apos;)).plus($(&apos;DIAS3&apos;)).div(3)</attribute>
+        </attributes>
+        <categories>
+          <category name="999" missing="true">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Missing</attribute>
+            </attributes>
+          </category>
+        </categories>
+      </variable>
+      <variable name="RES_REG" valueType="text" entityType="Participant" unit="" mimeType="">
+        <attributes>
+          <attribute name="label" valueType="text" locale="en">Current Region of Residence</attribute>
+          <attribute name="description" namespace="maelstrom" valueType="text" locale="en">Region (province, state,
+            territory, etc.) where the participant currently lives.
+          </attribute>
+          <attribute name="status" namespace="maelstrom" valueType="text">undetermined</attribute>
+          <attribute name="comment" namespace="maelstrom" valueType="text" locale="en"></attribute>
+          <attribute name="data_source" namespace="maelstrom" valueType="text" locale="en">Questionnaire</attribute>
+          <attribute name="essence" namespace="maelstrom" valueType="text" locale="en">Occurrence/Status/Named
+            category
+          </attribute>
+          <attribute name="measure" namespace="maelstrom" valueType="text" locale="en">Open text</attribute>
+          <attribute name="period" namespace="maelstrom" valueType="text" locale="en">Currently</attribute>
+          <attribute name="sociodemographic_characteristics" namespace="maelstrom" valueType="text" locale="en">
+            Residence
+          </attribute>
+          <attribute name="target" namespace="maelstrom" valueType="text" locale="en">Participant</attribute>
+        </attributes>
+        <categories>
+          <category name="9" missing="true">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Missing</attribute>
+            </attributes>
+          </category>
+        </categories>
+      </variable>
+      <variable name="SMK_TBC_CURRENT" valueType="integer" entityType="Participant" unit="" mimeType="">
+        <attributes>
+          <attribute name="description" namespace="maelstrom" valueType="text" locale="en">Indicator of whether the
+            participant currently smokes tobacco. Includes use of cigarettes, cigars, pipes and other tobacco products.
+          </attribute>
+          <attribute name="comment" namespace="maelstrom" valueType="text" locale="en"></attribute>
+          <attribute name="data_source" namespace="maelstrom" valueType="text" locale="en">Questionnaire</attribute>
+          <attribute name="essence" namespace="maelstrom" valueType="text" locale="en">Occurrence/Status/Named
+            category
+          </attribute>
+          <attribute name="life_habits_behaviours" namespace="maelstrom" valueType="text" locale="en">Tobacco Use
+          </attribute>
+          <attribute name="measure" namespace="maelstrom" valueType="text" locale="en">Binary</attribute>
+          <attribute name="period" namespace="maelstrom" valueType="text" locale="en">Currently</attribute>
+          <attribute name="target" namespace="maelstrom" valueType="text" locale="en">Participant</attribute>
+          <attribute name="label" valueType="text" locale="en">Current Tobacco Smoker (Phase 2)</attribute>
+          <attribute name="script" valueType="text">null</attribute>
+          <attribute name="status" namespace="maelstrom" valueType="text">complete</attribute>
+        </attributes>
+        <categories>
+          <category name="0">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Non-tobacco smoker</attribute>
+            </attributes>
+          </category>
+          <category name="1">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Tobacco smoker</attribute>
+            </attributes>
+          </category>
+          <category name="9" missing="true">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Missing</attribute>
+            </attributes>
+          </category>
+        </categories>
+      </variable>
+      <variable name="ALC_EVER" valueType="integer" entityType="Participant" unit="" mimeType="">
+        <attributes>
+          <attribute name="description" namespace="maelstrom" valueType="text" locale="en">Indicator of whether the
+            participant ever consumed alcohol.
+            Phase 2 variable
+          </attribute>
+          <attribute name="comment" namespace="maelstrom" valueType="text" locale="en"></attribute>
+          <attribute name="data_source" namespace="maelstrom" valueType="text" locale="en">Questionnaire</attribute>
+          <attribute name="essence" namespace="maelstrom" valueType="text" locale="en">Occurrence/Status/Named
+            category
+          </attribute>
+          <attribute name="life_habits_behaviours" namespace="maelstrom" valueType="text" locale="en">Alcohol Use
+          </attribute>
+          <attribute name="measure" namespace="maelstrom" valueType="text" locale="en">Binary</attribute>
+          <attribute name="period" namespace="maelstrom" valueType="text" locale="en">Through all life</attribute>
+          <attribute name="target" namespace="maelstrom" valueType="text" locale="en">Participant</attribute>
+          <attribute name="status" namespace="maelstrom" valueType="text">complete</attribute>
+          <attribute name="script" valueType="text">$(&apos;Q128A&apos;).map({
+            &apos;1&apos;: &apos;1&apos;,
+            &apos;2&apos;: &apos;1&apos;,
+            &apos;3&apos;: &apos;1&apos;,
+            &apos;4&apos;: &apos;0&apos;
+            },
+            &apos;9&apos;,
+            &apos;9&apos;);
+          </attribute>
+          <attribute name="label" valueType="text" locale="en">Ever Alcohol Consumption (Phase 2)</attribute>
+        </attributes>
+        <categories>
+          <category name="0">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Never consumed alcohol</attribute>
+            </attributes>
+          </category>
+          <category name="1">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Ever consumed alcohol</attribute>
+            </attributes>
+          </category>
+          <category name="9" missing="true">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Missing</attribute>
+            </attributes>
+          </category>
+        </categories>
+      </variable>
+      <variable name="ALC_LIQUOR_CURRENT_QTY" valueType="integer" entityType="Participant" unit="" mimeType="">
+        <attributes>
+          <attribute name="description" namespace="maelstrom" valueType="text" locale="en">Average number of drinks of
+            liquor/spirits consumed by the participant per week.
+            Phase 2 variable
+          </attribute>
+          <attribute name="comment" namespace="maelstrom" valueType="text" locale="en"></attribute>
+          <attribute name="data_source" namespace="maelstrom" valueType="text" locale="en">Questionnaire</attribute>
+          <attribute name="essence" namespace="maelstrom" valueType="text" locale="en">Quantity/Frequency</attribute>
+          <attribute name="life_habits_behaviours" namespace="maelstrom" valueType="text" locale="en">Alcohol Use
+          </attribute>
+          <attribute name="measure" namespace="maelstrom" valueType="text" locale="en">Continuous</attribute>
+          <attribute name="period" namespace="maelstrom" valueType="text" locale="en">Currently</attribute>
+          <attribute name="target" namespace="maelstrom" valueType="text" locale="en">Participant</attribute>
+          <attribute name="status" namespace="maelstrom" valueType="text">complete</attribute>
+          <attribute name="script" valueType="text">$(&apos;FR02_145D&apos;)</attribute>
+          <attribute name="label" valueType="text" locale="en">Current Quantity of Liquor Consumed (Phase 2)</attribute>
+        </attributes>
+        <categories>
+          <category name="99" missing="true">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Missing</attribute>
+            </attributes>
+          </category>
+        </categories>
+      </variable>
+      <variable name="ALC_BEER_CURRENT_QTY" valueType="integer" entityType="Participant" unit="" mimeType="">
+        <attributes>
+          <attribute name="label" valueType="text" locale="en">Current Quantity of Beer Consumed (Phase 2)</attribute>
+          <attribute name="description" namespace="maelstrom" valueType="text" locale="en">Average number of beers
+            consumed by the participant per week.
+            Phase 2 variable
+          </attribute>
+          <attribute name="comment" namespace="maelstrom" valueType="text" locale="en"></attribute>
+          <attribute name="data_source" namespace="maelstrom" valueType="text" locale="en">Questionnaire</attribute>
+          <attribute name="essence" namespace="maelstrom" valueType="text" locale="en">Quantity/Frequency</attribute>
+          <attribute name="life_habits_behaviours" namespace="maelstrom" valueType="text" locale="en">Alcohol Use
+          </attribute>
+          <attribute name="measure" namespace="maelstrom" valueType="text" locale="en">Continuous</attribute>
+          <attribute name="period" namespace="maelstrom" valueType="text" locale="en">Currently</attribute>
+          <attribute name="target" namespace="maelstrom" valueType="text" locale="en">Participant</attribute>
+          <attribute name="status" namespace="maelstrom" valueType="text">complete</attribute>
+          <attribute name="script" valueType="text">$(&apos;FR02_145B&apos;)</attribute>
+        </attributes>
+        <categories>
+          <category name="99" missing="true">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Missing</attribute>
+            </attributes>
+          </category>
+        </categories>
+      </variable>
+      <variable name="ALC_CURRENT" valueType="integer" entityType="Participant" unit="" mimeType="">
+        <attributes>
+          <attribute name="label" valueType="text" locale="en">Current Use of Alcohol (Phase 2)</attribute>
+          <attribute name="description" namespace="maelstrom" valueType="text" locale="en">Indicator of whether the
+            participant currently consumes alcohol.
+            Phase 2 variable
+          </attribute>
+          <attribute name="comment" namespace="maelstrom" valueType="text" locale="en"></attribute>
+          <attribute name="data_source" namespace="maelstrom" valueType="text" locale="en">Questionnaire</attribute>
+          <attribute name="essence" namespace="maelstrom" valueType="text" locale="en">Occurrence/Status/Named
+            category
+          </attribute>
+          <attribute name="life_habits_behaviours" namespace="maelstrom" valueType="text" locale="en">Alcohol Use
+          </attribute>
+          <attribute name="measure" namespace="maelstrom" valueType="text" locale="en">Binary</attribute>
+          <attribute name="period" namespace="maelstrom" valueType="text" locale="en">Currently</attribute>
+          <attribute name="target" namespace="maelstrom" valueType="text" locale="en">Participant</attribute>
+          <attribute name="status" namespace="maelstrom" valueType="text">complete</attribute>
+          <attribute name="script" valueType="text">$(&apos;Q128A&apos;).map({
+            &apos;1&apos;: &apos;1&apos;,
+            &apos;2&apos;: &apos;1&apos;,
+            &apos;3&apos;: &apos;0&apos;,
+            &apos;4&apos;: &apos;0&apos;
+            },
+            &apos;9&apos;,
+            &apos;9&apos;);
+          </attribute>
+        </attributes>
+        <categories>
+          <category name="0">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Does not consume alcohol</attribute>
+            </attributes>
+          </category>
+          <category name="1">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Consumes alcohol</attribute>
+            </attributes>
+          </category>
+          <category name="9" missing="true">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Missing</attribute>
+            </attributes>
+          </category>
+        </categories>
+      </variable>
+      <variable name="ADM_YRINT" valueType="integer" entityType="Participant" unit="" mimeType="">
+        <attributes>
+          <attribute name="label" valueType="text" locale="en">Year of Interview</attribute>
+          <attribute name="description" namespace="maelstrom" valueType="text" locale="en">Year of the interview
+          </attribute>
+          <attribute name="status" namespace="maelstrom" valueType="text">undetermined</attribute>
+          <attribute name="comment" namespace="maelstrom" valueType="text" locale="en"></attribute>
+          <attribute name="data_source" namespace="maelstrom" valueType="text" locale="en">Questionnaire</attribute>
+          <attribute name="essence" namespace="maelstrom" valueType="text" locale="en">Date/Time/Onset/Duration
+          </attribute>
+          <attribute name="measure" namespace="maelstrom" valueType="text" locale="en">Continuous</attribute>
+          <attribute name="period" namespace="maelstrom" valueType="text" locale="en">Currently</attribute>
+          <attribute name="target" namespace="maelstrom" valueType="text" locale="en">Participant</attribute>
+        </attributes>
+        <categories>
+          <category name="9999" missing="true">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Missing</attribute>
+            </attributes>
+          </category>
+        </categories>
+      </variable>
+      <variable name="PM_SYSTOLIC_MEASURE" valueType="integer" entityType="Participant" unit="" mimeType="">
+        <attributes>
+          <attribute name="label" valueType="text" locale="en">Measured Systolic Blood Pressure</attribute>
+          <attribute name="description" namespace="maelstrom" valueType="text" locale="en">Measured systolic blood
+            pressure. Participant must be at rest when measurement is taken. Unit: mmHg
+          </attribute>
+          <attribute name="comment" namespace="maelstrom" valueType="text" locale="en"></attribute>
+          <attribute name="body_functions" namespace="maelstrom" valueType="text" locale="en">Blood Pressure Functions
+          </attribute>
+          <attribute name="data_source" namespace="maelstrom" valueType="text" locale="en">Physical Measure</attribute>
+          <attribute name="essence" namespace="maelstrom" valueType="text" locale="en">Quantity/Frequency</attribute>
+          <attribute name="measure" namespace="maelstrom" valueType="text" locale="en">Continuous</attribute>
+          <attribute name="period" namespace="maelstrom" valueType="text" locale="en">Currently</attribute>
+          <attribute name="target" namespace="maelstrom" valueType="text" locale="en">Participant</attribute>
+          <attribute name="status" namespace="maelstrom" valueType="text">complete</attribute>
+          <attribute name="script" valueType="text">$(&apos;SYS1&apos;).plus($(&apos;SYS2&apos;)).plus($(&apos;SYS3&apos;)).div(3)</attribute>
+        </attributes>
+        <categories>
+          <category name="999" missing="true">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Missing</attribute>
+            </attributes>
+          </category>
+        </categories>
+      </variable>
+      <variable name="PM_WAIST_SIZE" valueType="decimal" entityType="Participant" unit="" mimeType="">
+        <attributes>
+          <attribute name="label" valueType="text" locale="en">Waist Circumference</attribute>
+          <attribute name="description" namespace="maelstrom" valueType="text" locale="en">Measured distance around the
+            waist. Unit:cm
+          </attribute>
+          <attribute name="comment" namespace="maelstrom" valueType="text" locale="en"></attribute>
+          <attribute name="anthropometric_structures" namespace="maelstrom" valueType="text" locale="en">Waist
+            Circumference
+          </attribute>
+          <attribute name="data_source" namespace="maelstrom" valueType="text" locale="en">Physical Measure</attribute>
+          <attribute name="essence" namespace="maelstrom" valueType="text" locale="en">Quantity/Frequency</attribute>
+          <attribute name="measure" namespace="maelstrom" valueType="text" locale="en">Continuous</attribute>
+          <attribute name="period" namespace="maelstrom" valueType="text" locale="en">Currently</attribute>
+          <attribute name="target" namespace="maelstrom" valueType="text" locale="en">Participant</attribute>
+          <attribute name="status" namespace="maelstrom" valueType="text">complete</attribute>
+          <attribute name="script" valueType="text">$(&apos;VYOTARO&apos;)</attribute>
+        </attributes>
+        <categories>
+          <category name="999" missing="true">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Missing</attribute>
+            </attributes>
+          </category>
+        </categories>
+      </variable>
+      <variable name="MEDI_NAME_LPD_FIBR_NICO" valueType="integer" entityType="Participant" unit="" mimeType="">
+        <attributes>
+          <attribute name="label" valueType="text" locale="en">Current Use of Lipid Lowering Medications Fibrates and/or
+            Nicotinic Acid Derivatives (from medication list)
+          </attribute>
+          <attribute name="description" namespace="maelstrom" valueType="text" locale="en">Indicator of whether the
+            participant currently uses the lipid lowering medications fibrates and/or nicotinic acid derivatives.
+             Extracted from a list of medication using the following ATC Codes or equivalent in other classifications:
+            C10AB and C10AD.
+          </attribute>
+          <attribute name="status" namespace="maelstrom" valueType="text">undetermined</attribute>
+          <attribute name="comment" namespace="maelstrom" valueType="text" locale="en"></attribute>
+          <attribute name="data_source" namespace="maelstrom" valueType="text" locale="en">Questionnaire</attribute>
+          <attribute name="essence" namespace="maelstrom" valueType="text" locale="en">Occurrence/Status/Named
+            category
+          </attribute>
+          <attribute name="measure" namespace="maelstrom" valueType="text" locale="en">Open text</attribute>
+          <attribute name="medication" namespace="maelstrom" valueType="text" locale="en">Cardiovascular system
+          </attribute>
+          <attribute name="period" namespace="maelstrom" valueType="text" locale="en">Currently</attribute>
+          <attribute name="target" namespace="maelstrom" valueType="text" locale="en">Participant</attribute>
+        </attributes>
+        <categories>
+          <category name="0">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Not currently using Lipid Lowering Medications
+                Fibrates and/or Nicotinic Acid Derivatives
+              </attribute>
+            </attributes>
+          </category>
+          <category name="1">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Currently using Lipid Lowering Medications Fibrates
+                and/or Nicotinic Acid Derivatives
+              </attribute>
+            </attributes>
+          </category>
+          <category name="9" missing="true">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Missing</attribute>
+            </attributes>
+          </category>
+        </categories>
+      </variable>
+      <variable name="ALC_WINE_CURRENT_QTY" valueType="integer" entityType="Participant" unit="" mimeType="">
+        <attributes>
+          <attribute name="description" namespace="maelstrom" valueType="text" locale="en">Average number of glasses of
+            wine (including red and white wine) consumed by the participant per week.
+            Phase 2 variable
+          </attribute>
+          <attribute name="comment" namespace="maelstrom" valueType="text" locale="en"></attribute>
+          <attribute name="data_source" namespace="maelstrom" valueType="text" locale="en">Questionnaire</attribute>
+          <attribute name="essence" namespace="maelstrom" valueType="text" locale="en">Quantity/Frequency</attribute>
+          <attribute name="life_habits_behaviours" namespace="maelstrom" valueType="text" locale="en">Alcohol Use
+          </attribute>
+          <attribute name="measure" namespace="maelstrom" valueType="text" locale="en">Continuous</attribute>
+          <attribute name="period" namespace="maelstrom" valueType="text" locale="en">Currently</attribute>
+          <attribute name="target" namespace="maelstrom" valueType="text" locale="en">Participant</attribute>
+          <attribute name="status" namespace="maelstrom" valueType="text">complete</attribute>
+          <attribute name="script" valueType="text">$(&apos;FR02_145E&apos;).plus($(&apos;FR02_145F&apos;))</attribute>
+          <attribute name="label" valueType="text" locale="en">Current Quantity of Wine Consumed (Phase 2)</attribute>
+        </attributes>
+        <categories>
+          <category name="99" missing="true">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Missing</attribute>
+            </attributes>
+          </category>
+        </categories>
+      </variable>
+      <variable name="LAB_HDL" valueType="decimal" entityType="Participant" unit="" mimeType="">
+        <attributes>
+          <attribute name="label" valueType="text" locale="en">HDL Cholesterol</attribute>
+          <attribute name="description" namespace="maelstrom" valueType="text" locale="en">Laboratory measurement of HDL
+            cholesterol. Unit: mmol/L
+          </attribute>
+          <attribute name="comment" namespace="maelstrom" valueType="text" locale="en"></attribute>
+          <attribute name="data_source" namespace="maelstrom" valueType="text" locale="en">Sample</attribute>
+          <attribute name="essence" namespace="maelstrom" valueType="text" locale="en">Quantity/Frequency</attribute>
+          <attribute name="measure" namespace="maelstrom" valueType="text" locale="en">Continuous</attribute>
+          <attribute name="period" namespace="maelstrom" valueType="text" locale="en">Currently</attribute>
+          <attribute name="target" namespace="maelstrom" valueType="text" locale="en">Participant</attribute>
+          <attribute name="status" namespace="maelstrom" valueType="text">complete</attribute>
+          <attribute name="script" valueType="text">$(&apos;HDL&apos;)</attribute>
+        </attributes>
+        <categories>
+          <category name="99" missing="true">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Missing</attribute>
+            </attributes>
+          </category>
+        </categories>
+      </variable>
+      <variable name="PM_BMI_CATEGORIAL" valueType="integer" entityType="Participant" unit="" mimeType="">
+        <attributes>
+          <attribute name="label" valueType="text" locale="en">Body Mass Index (categorical)</attribute>
+          <attribute name="description" namespace="maelstrom" valueType="text" locale="en">Body Mass Index calculated
+            using measured weight and and height (Mass in Kg / (Height in M)2) and stratified in 3 categories.
+          </attribute>
+          <attribute name="comment" namespace="maelstrom" valueType="text" locale="en"></attribute>
+          <attribute name="essence" namespace="maelstrom" valueType="text" locale="en">Occurrence/Status/Named
+            category
+          </attribute>
+          <attribute name="measure" namespace="maelstrom" valueType="text" locale="en">Categorical ordered</attribute>
+          <attribute name="period" namespace="maelstrom" valueType="text" locale="en">Currently</attribute>
+          <attribute name="target" namespace="maelstrom" valueType="text" locale="en">Participant</attribute>
+          <attribute name="script" valueType="text">$this(&apos;PM_BMI_CONTINUOUS&apos;).group([0, 25, 30], [999]).map({
+            &apos;0-25&apos;: &apos;1&apos;,
+            &apos;25-30&apos;: &apos;2&apos;,
+            &apos;30+&apos;: &apos;3&apos;,
+            &apos;999&apos;: &apos;9&apos;
+            },
+            9,
+            9)
+          </attribute>
+          <attribute name="status" namespace="maelstrom" valueType="text">complete</attribute>
+        </attributes>
+        <categories>
+          <category name="1">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Less than 25 kg/m2</attribute>
+            </attributes>
+          </category>
+          <category name="2">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">25 to 30 kg/m2</attribute>
+            </attributes>
+          </category>
+          <category name="3">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Over 30 kg/m2</attribute>
+            </attributes>
+          </category>
+          <category name="9" missing="true">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Missing</attribute>
+            </attributes>
+          </category>
+        </categories>
+      </variable>
+      <variable name="EDU_NUMYRS" valueType="integer" entityType="Participant" unit="" mimeType="">
+        <attributes>
+          <attribute name="label" valueType="text" locale="en">Number of Years of Education (Phase 2)</attribute>
+          <attribute name="essence" namespace="maelstrom" valueType="text" locale="en">Quantity/Frequency</attribute>
+          <attribute name="period" namespace="maelstrom" valueType="text" locale="en">Through all life</attribute>
+          <attribute name="measure" namespace="maelstrom" valueType="text" locale="en">Continuous</attribute>
+          <attribute name="data_source" namespace="maelstrom" valueType="text" locale="en">Questionnaire</attribute>
+          <attribute name="sociodemographic_characteristics" namespace="maelstrom" valueType="text" locale="en">
+            Education level
+          </attribute>
+          <attribute name="description" namespace="maelstrom" valueType="text" locale="en">Number of years of education
+            of the participant throughout his/her life.  Based on the education system of each members cohort.
+          </attribute>
+          <attribute name="target" namespace="maelstrom" valueType="text" locale="en">Participant</attribute>
+          <attribute name="derivedFrom" namespace="opal" valueType="text">
+            /datasource/finrisk/table/Finrisk2007/variable/KOULV
+          </attribute>
+          <attribute name="script" valueType="text">$(&apos;KOULV&apos;)</attribute>
+        </attributes>
+        <categories>
+          <category name="99" missing="true">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Missing</attribute>
+            </attributes>
+          </category>
+        </categories>
+      </variable>
+      <variable name="LAB_CR" valueType="decimal" entityType="Participant" unit="" mimeType="">
+        <attributes>
+          <attribute name="label" valueType="text" locale="en">Creatinin (Phase 2)</attribute>
+          <attribute name="essence" namespace="maelstrom" valueType="text" locale="en">Quantity/Frequency</attribute>
+          <attribute name="period" namespace="maelstrom" valueType="text" locale="en">Currently</attribute>
+          <attribute name="measure" namespace="maelstrom" valueType="text" locale="en">Continuous</attribute>
+          <attribute name="data_source" namespace="maelstrom" valueType="text" locale="en">Sample</attribute>
+          <attribute name="description" namespace="maelstrom" valueType="text" locale="en">Laboratory measurement of
+            creatinin.  Unit: mmol/L
+          </attribute>
+          <attribute name="target" namespace="maelstrom" valueType="text" locale="en">Participant</attribute>
+        </attributes>
+        <categories>
+          <category name="99" missing="true">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Missing</attribute>
+            </attributes>
+          </category>
+        </categories>
+      </variable>
+      <variable name="WORK_RETIRED_JOB_ISCO88" valueType="integer" entityType="Participant" unit="" mimeType="">
+        <attributes>
+          <attribute name="label" valueType="text" locale="en">Last Job Title Prior to Retirement (ISCO-88) Phase 2
+          </attribute>
+          <attribute name="essence" namespace="maelstrom" valueType="text" locale="en">Occurrence/Status/Named
+            category
+          </attribute>
+          <attribute name="period" namespace="maelstrom" valueType="text" locale="en">Specific period in the past
+          </attribute>
+          <attribute name="measure" namespace="maelstrom" valueType="text" locale="en">Categorical nominal</attribute>
+          <attribute name="data_source" namespace="maelstrom" valueType="text" locale="en">Questionnaire</attribute>
+          <attribute name="sociodemographic_characteristics" namespace="maelstrom" valueType="text" locale="en">Working
+            status
+          </attribute>
+          <attribute name="description" namespace="maelstrom" valueType="text" locale="en">Title of the last job the
+            participant had prior to retirement based on ISCO-88 classification.
+          </attribute>
+          <attribute name="target" namespace="maelstrom" valueType="text" locale="en">Participant</attribute>
+        </attributes>
+        <categories>
+          <category name="1">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Legislator, senior officials and managers</attribute>
+            </attributes>
+          </category>
+          <category name="2">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Professionals</attribute>
+            </attributes>
+          </category>
+          <category name="3">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Technicians and associate professional</attribute>
+            </attributes>
+          </category>
+          <category name="4">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Clerks</attribute>
+            </attributes>
+          </category>
+          <category name="5">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Service workers and shop and market sales workers
+              </attribute>
+            </attributes>
+          </category>
+          <category name="6">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Skilled agricultural and fishery workers</attribute>
+            </attributes>
+          </category>
+          <category name="7">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Craft and related trades workers</attribute>
+            </attributes>
+          </category>
+          <category name="8">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Plant and machine operators and assemblers
+              </attribute>
+            </attributes>
+          </category>
+          <category name="9">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Elementary occupations</attribute>
+            </attributes>
+          </category>
+          <category name="10">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Armed forces</attribute>
+            </attributes>
+          </category>
+          <category name="99" missing="true">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Missing</attribute>
+            </attributes>
+          </category>
+        </categories>
+      </variable>
+      <variable name="LAB_GLUC_ADJUSTED" valueType="decimal" entityType="Participant" unit="" mimeType="">
+        <attributes>
+          <attribute name="label" valueType="text" locale="en">Adjusted Glucose (bridges fasting and non-fasting
+            glucose) Phase 2
+          </attribute>
+          <attribute name="essence" namespace="maelstrom" valueType="text" locale="en">Quantity/Frequency</attribute>
+          <attribute name="period" namespace="maelstrom" valueType="text" locale="en">Currently</attribute>
+          <attribute name="measure" namespace="maelstrom" valueType="text" locale="en">Continuous</attribute>
+          <attribute name="data_source" namespace="maelstrom" valueType="text" locale="en">Sample</attribute>
+          <attribute name="target" namespace="maelstrom" valueType="text" locale="en">Participant</attribute>
+        </attributes>
+        <categories>
+          <category name="99" missing="true">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Missing</attribute>
+            </attributes>
+          </category>
+        </categories>
+      </variable>
+      <variable name="LAB_GLUC_NONFASTING" valueType="decimal" entityType="Participant" unit="" mimeType="">
+        <attributes>
+          <attribute name="label" valueType="text" locale="en">Non-Fasting Glucose</attribute>
+          <attribute name="essence" namespace="maelstrom" valueType="text" locale="en">Quantity/Frequency</attribute>
+          <attribute name="period" namespace="maelstrom" valueType="text" locale="en">Currently</attribute>
+          <attribute name="measure" namespace="maelstrom" valueType="text" locale="en">Continuous</attribute>
+          <attribute name="data_source" namespace="maelstrom" valueType="text" locale="en">Sample</attribute>
+          <attribute name="description" namespace="maelstrom" valueType="text" locale="en">Laboratory measurement of
+            non-fasting glucose.  Unit mmol/L
+          </attribute>
+          <attribute name="target" namespace="maelstrom" valueType="text" locale="en">Participant</attribute>
+        </attributes>
+        <categories>
+          <category name="99" missing="true">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Missing</attribute>
+            </attributes>
+          </category>
+        </categories>
+      </variable>
+      <variable name="LAB_hsCRP" valueType="decimal" entityType="Participant" unit="" mimeType="">
+        <attributes>
+          <attribute name="label" valueType="text" locale="en">Inflammation Marker (hsCRP) Phase 2</attribute>
+          <attribute name="essence" namespace="maelstrom" valueType="text" locale="en">Quantity/Frequency</attribute>
+          <attribute name="period" namespace="maelstrom" valueType="text" locale="en">Currently</attribute>
+          <attribute name="measure" namespace="maelstrom" valueType="text" locale="en">Continuous</attribute>
+          <attribute name="data_source" namespace="maelstrom" valueType="text" locale="en">Sample</attribute>
+          <attribute name="description" namespace="maelstrom" valueType="text" locale="en">Laboratory measurment of
+            High-sensitivity C-reactive protein (hsCRP).  Unit mmol/L
+          </attribute>
+        </attributes>
+        <categories>
+          <category name="99" missing="true">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Missing</attribute>
+            </attributes>
+          </category>
+        </categories>
+      </variable>
+      <variable name="LAB_mALB" valueType="decimal" entityType="Participant" unit="" mimeType="">
+        <attributes>
+          <attribute name="label" valueType="text" locale="en">Microalbuminuria (Phase 2)</attribute>
+          <attribute name="essence" namespace="maelstrom" valueType="text" locale="en">Quantity/Frequency</attribute>
+          <attribute name="period" namespace="maelstrom" valueType="text" locale="en">Currently</attribute>
+          <attribute name="measure" namespace="maelstrom" valueType="text" locale="en">Continuous</attribute>
+          <attribute name="data_source" namespace="maelstrom" valueType="text" locale="en">Sample</attribute>
+          <attribute name="description" namespace="maelstrom" valueType="text" locale="en">Laboratory measurement of
+            microalbuminuria.  Unit mmol/L
+          </attribute>
+          <attribute name="target" namespace="maelstrom" valueType="text" locale="en">Participant</attribute>
+        </attributes>
+        <categories>
+          <category name="99" missing="true">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Missing</attribute>
+            </attributes>
+          </category>
+        </categories>
+      </variable>
+      <variable name="SMK_CIGAR_CURRENT" valueType="integer" entityType="Participant" unit="" mimeType="">
+        <attributes>
+          <attribute name="life_habits_behaviours" namespace="maelstrom" valueType="text" locale="en">Tobacco use
+          </attribute>
+          <attribute name="label" valueType="text" locale="en">Current Cigar Smoker (Phase 2)</attribute>
+          <attribute name="essence" namespace="maelstrom" valueType="text" locale="en">Occurrence/Status/Named
+            category
+          </attribute>
+          <attribute name="period" namespace="maelstrom" valueType="text" locale="en">Currently</attribute>
+          <attribute name="measure" namespace="maelstrom" valueType="text" locale="en">Binary</attribute>
+          <attribute name="data_source" namespace="maelstrom" valueType="text" locale="en">Questionnaire</attribute>
+          <attribute name="description" namespace="maelstrom" valueType="text" locale="en">Indicator of whether the
+            participant currently smokes cigars.  Current is defined as today and up to the last 12 months.  
+            Phase 2 variable
+          </attribute>
+          <attribute name="target" namespace="maelstrom" valueType="text" locale="en">Participant</attribute>
+          <attribute name="status" namespace="maelstrom" valueType="text" locale="en">Impossible</attribute>
+          <attribute name="script" valueType="text">null</attribute>
+        </attributes>
+        <categories>
+          <category name="0">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Not a current cigar smoker</attribute>
+            </attributes>
+          </category>
+          <category name="1">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Current cigar smoker</attribute>
+            </attributes>
+          </category>
+          <category name="9" missing="true">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Missing</attribute>
+            </attributes>
+          </category>
+        </categories>
+      </variable>
+      <variable name="SMK_PIPE_CURRENT" valueType="integer" entityType="Participant" unit="" mimeType="">
+        <attributes>
+          <attribute name="life_habits_behaviours" namespace="maelstrom" valueType="text" locale="en">Tobacco use
+          </attribute>
+          <attribute name="label" valueType="text" locale="en">Current Pipe Smoker (Phase 2)</attribute>
+          <attribute name="essence" namespace="maelstrom" valueType="text" locale="en">Occurrence/Status/Named
+            category
+          </attribute>
+          <attribute name="period" namespace="maelstrom" valueType="text" locale="en">Currently</attribute>
+          <attribute name="measure" namespace="maelstrom" valueType="text" locale="en">Binary</attribute>
+          <attribute name="data_source" namespace="maelstrom" valueType="text" locale="en">Questionnaire</attribute>
+          <attribute name="description" namespace="maelstrom" valueType="text" locale="en">Indicator of whether the
+            participant currently smokes pipes.  Current is defined as today and up to the last 12 months.
+            Phase 2 Variable.
+          </attribute>
+          <attribute name="target" namespace="maelstrom" valueType="text" locale="en">Participant</attribute>
+          <attribute name="status" namespace="maelstrom" valueType="text" locale="en">Impossible</attribute>
+          <attribute name="script" valueType="text">null</attribute>
+        </attributes>
+        <categories>
+          <category name="0">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Not a current pipe smoker</attribute>
+            </attributes>
+          </category>
+          <category name="1">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Current pipe smoker</attribute>
+            </attributes>
+          </category>
+          <category name="9" missing="true">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Missing</attribute>
+            </attributes>
+          </category>
+        </categories>
+      </variable>
+      <variable name="SMK_TBC_CURRENT_QTY_TOTAL" valueType="decimal" entityType="Participant" unit="" mimeType="">
+        <attributes>
+          <attribute name="life_habits_behaviours" namespace="maelstrom" valueType="text" locale="en">Tobacco use
+          </attribute>
+          <attribute name="label" valueType="text" locale="en">Current Quantity of Total Tobacco Consumed in Cigarettes,
+            Cigarillos and Cigars. (Phase2)
+          </attribute>
+          <attribute name="essence" namespace="maelstrom" valueType="text" locale="en">Quantity/Frequency</attribute>
+          <attribute name="period" namespace="maelstrom" valueType="text" locale="en">Currently</attribute>
+          <attribute name="measure" namespace="maelstrom" valueType="text" locale="en">Continuous</attribute>
+          <attribute name="data_source" namespace="maelstrom" valueType="text" locale="en">Questionnaire</attribute>
+          <attribute name="description" namespace="maelstrom" valueType="text" locale="en">Grams of tobacco consumed on
+            average per day by the participant.  The total amount of tobacco in g/day was calculated by summing daily
+            tobacco usage in grams of cigarettes, cigarillos and cigars.  To note, 1 cigarette= 1 gram of tobacco, 1
+            cigarillo=3 grams tobacco and 1 cigar= 5 grams tobacco.
+          </attribute>
+          <attribute name="target" namespace="maelstrom" valueType="text" locale="en">Participant</attribute>
+          <attribute name="status" namespace="maelstrom" valueType="text" locale="en">undetermined</attribute>
+          <attribute name="script" valueType="text">null</attribute>
+        </attributes>
+        <categories>
+          <category name="999" missing="true">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Missing</attribute>
+            </attributes>
+          </category>
+        </categories>
+      </variable>
+      <variable name="SMK_TBC_CURRENT_QTY_LEVEL" valueType="integer" entityType="Participant" unit="" mimeType="">
+        <attributes>
+          <attribute name="life_habits_behaviours" namespace="maelstrom" valueType="text" locale="en">Tobacco use
+          </attribute>
+          <attribute name="label" valueType="text" locale="en">Level of Current Tobacco Consumption (Phase 2)
+          </attribute>
+          <attribute name="essence" namespace="maelstrom" valueType="text" locale="en">Quantity/Frequency</attribute>
+          <attribute name="period" namespace="maelstrom" valueType="text" locale="en">Currently</attribute>
+          <attribute name="measure" namespace="maelstrom" valueType="text" locale="en">Continuous</attribute>
+          <attribute name="data_source" namespace="maelstrom" valueType="text" locale="en">Questionnaire</attribute>
+          <attribute name="description" namespace="maelstrom" valueType="text" locale="en">Under Development
+            Current quantity of total tobacco consumed per day  of cigarettes, cigarillos and cigars grouped into three
+            levels.: light smoker, moderate smoker and heavy smoker.   Note, 1 cigarette= 1 gram tobacco, 1 cigarillo= 3
+            grams tobacco and 1 cigar=5 grams tobacco.  Also, light smoker is defined as less than 10g/day, moderate
+            smoker as &gt;=15 g/day and heavy as 20 or more g/day.
+          </attribute>
+          <attribute name="target" namespace="maelstrom" valueType="text" locale="en">Participant</attribute>
+          <attribute name="status" namespace="maelstrom" valueType="text" locale="en">undetermined</attribute>
+          <attribute name="script" valueType="text">null</attribute>
+        </attributes>
+        <categories>
+          <category name="999" missing="true">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Missing</attribute>
+            </attributes>
+          </category>
+        </categories>
+      </variable>
+      <variable name="SMK_TBC_EXPOSURE" valueType="integer" entityType="Participant" unit="" mimeType="">
+        <attributes>
+          <attribute name="life_habits_behaviours" namespace="maelstrom" valueType="text" locale="en">Tobacco use
+          </attribute>
+          <attribute name="label" valueType="text" locale="en">Lifetime Exposure to Tobacco (pack/years) Phase 2
+          </attribute>
+          <attribute name="essence" namespace="maelstrom" valueType="text" locale="en">Quantity/Frequency</attribute>
+          <attribute name="period" namespace="maelstrom" valueType="text" locale="en">Through all life</attribute>
+          <attribute name="measure" namespace="maelstrom" valueType="text" locale="en">Continuous</attribute>
+          <attribute name="data_source" namespace="maelstrom" valueType="text" locale="en">Questionnaire</attribute>
+          <attribute name="description" namespace="maelstrom" valueType="text" locale="en">UNDER DEVELOPMENT.
+            Participants lifetime exposure to tobacco.
+          </attribute>
+          <attribute name="target" namespace="maelstrom" valueType="text" locale="en">Participant</attribute>
+          <attribute name="status" namespace="maelstrom" valueType="text" locale="en">Impossible</attribute>
+          <attribute name="script" valueType="text">null</attribute>
+        </attributes>
+        <categories>
+          <category name="999" missing="true">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Missing</attribute>
+            </attributes>
+          </category>
+        </categories>
+      </variable>
+      <variable name="WH_GRAVIDITY" valueType="integer" entityType="Participant" unit="" mimeType="">
+        <attributes>
+          <attribute name="label" valueType="text" locale="en">Gravidity (total number of times a female participant has
+            been pregnant) Phase 2
+          </attribute>
+          <attribute name="essence" namespace="maelstrom" valueType="text" locale="en">Quantity/Frequency</attribute>
+          <attribute name="period" namespace="maelstrom" valueType="text" locale="en">Through all life</attribute>
+          <attribute name="measure" namespace="maelstrom" valueType="text" locale="en">Continuous</attribute>
+          <attribute name="data_source" namespace="maelstrom" valueType="text" locale="en">Questionnaire</attribute>
+          <attribute name="reproductive_history" namespace="maelstrom" valueType="text" locale="en">Parity/Gravidity
+          </attribute>
+          <attribute name="description" namespace="maelstrom" valueType="text" locale="en">Total number of times a
+            female particpant has been pregnant
+          </attribute>
+          <attribute name="target" namespace="maelstrom" valueType="text" locale="en">Participant</attribute>
+          <attribute name="status" namespace="maelstrom" valueType="text" locale="en">Impossible</attribute>
+          <attribute name="script" valueType="text">null</attribute>
+        </attributes>
+        <categories>
+          <category name="99" missing="true">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Missing</attribute>
+            </attributes>
+          </category>
+        </categories>
+      </variable>
+      <variable name="WH_LIVEBIRTHS" valueType="integer" entityType="Participant" unit="" mimeType="">
+        <attributes>
+          <attribute name="label" valueType="text" locale="en">Number of Live Births Mothered (Phase 2)</attribute>
+          <attribute name="essence" namespace="maelstrom" valueType="text" locale="en">Quantity/Frequency</attribute>
+          <attribute name="period" namespace="maelstrom" valueType="text" locale="en">Through all life</attribute>
+          <attribute name="measure" namespace="maelstrom" valueType="text" locale="en">Continuous</attribute>
+          <attribute name="data_source" namespace="maelstrom" valueType="text" locale="en">Questionnaire</attribute>
+          <attribute name="reproductive_history" namespace="maelstrom" valueType="text" locale="en">Parity/Gravidity
+          </attribute>
+          <attribute name="description" namespace="maelstrom" valueType="text" locale="en">Number of living births a
+            female participant has had.
+          </attribute>
+          <attribute name="target" namespace="maelstrom" valueType="text" locale="en">Participant</attribute>
+          <attribute name="status" namespace="maelstrom" valueType="text" locale="en">Impossible</attribute>
+          <attribute name="script" valueType="text">null</attribute>
+        </attributes>
+        <categories>
+          <category name="99" missing="true">
+            <attributes>
+              <attribute name="label" valueType="text" locale="en">Missing</attribute>
+            </attributes>
+          </category>
+        </categories>
+      </variable>
+    </variables>
+  </variables>
+  <created valueType="datetime">2013-02-28T13:39:49.880-0500</created>
+  <updated valueType="datetime">2013-06-27T22:48:44.299-0400</updated>
+</org.obiba.magma.views.View>

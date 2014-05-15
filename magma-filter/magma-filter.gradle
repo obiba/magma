@@ -1,0 +1,9 @@
+description = 'filter'
+
+dependencies {
+  compile project(':magma-api')
+  compile project(':magma-xstream')
+  compile project(':magma-js')
+
+
+}
