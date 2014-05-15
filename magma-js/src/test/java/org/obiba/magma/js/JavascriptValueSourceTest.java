@@ -64,6 +64,7 @@ public class JavascriptValueSourceTest extends AbstractJsTest {
     source.setScriptName("Bogus");
     try {
       source.initialise();
+      source.getValue(null);
       fail("EvaluatorException was expected");
     } catch(EvaluatorException e) {
       assertThat(e.sourceName()).isEqualTo("Bogus");
