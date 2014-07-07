@@ -15,7 +15,7 @@ import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Maps;
 
-class VariableBean extends AbstractAttributeAware implements Variable, Serializable {
+public class VariableBean extends AbstractAttributeAware implements Variable, Serializable {
 
   private static final long serialVersionUID = 1L;
 
