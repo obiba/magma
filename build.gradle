@@ -14,7 +14,7 @@ buildscript {
   dependencies {
     classpath 'org.jfrog.buildinfo:build-info-extractor-gradle:latest.release'
     classpath 'com.github.ben-manes:gradle-versions-plugin:0.5-beta-1'
-    //classpath 'net.ltgt.gradle:gradle-errorprone-plugin:latest.release'
+    classpath 'net.ltgt.gradle:gradle-errorprone-plugin:latest.release'
   }
 }
 
@@ -209,12 +209,12 @@ subprojects { subProject ->
 
   // FindBugs
   if (!JavaVersion.current().isJava8Compatible()) {
-  apply plugin: 'findbugs'
-  findbugs {
-    reportsDir = file("${reporting.baseDir}/findbugs-output")
-    excludeFilter = file(rootProject.file('src/main/resources/findbugs-exclude.xml'))
-    ignoreFailures = true
-  }
+    apply plugin: 'findbugs'
+    findbugs {
+      reportsDir = file("${reporting.baseDir}/findbugs-output")
+      excludeFilter = file(rootProject.file('src/main/resources/findbugs-exclude.xml'))
+      ignoreFailures = true
+    }
   }
 
   // PMD
