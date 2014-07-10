@@ -109,7 +109,14 @@ class MongoDBValueTableWriter implements ValueTableWriter {
     @Override
     public void remove() {
       removed = true;
-      // TODO remove files
+      // remove files if any
+      for (Variable variable : table.getVariables()) {
+        if (BinaryType.get().equals(variable.getValueType())) {
+          String field = ((MongoDBVariable)variable).getId();
+          removeFile(variable, field);
+        }
+      }
+      // then remove value set document
       table.getValueSetCollection().remove(BasicDBObjectBuilder.start("_id", entity.getIdentifier()).get());
     }
 
