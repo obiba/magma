@@ -287,6 +287,11 @@ class JdbcValueTableWriter implements ValueTableWriter {
     }
 
     @Override
+    public void remove() {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
     public void close() {
       if(columnValueMap.size() != 0) {
         JdbcTemplate jdbcTemplate = valueTable.getDatasource().getJdbcTemplate();

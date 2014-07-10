@@ -239,21 +239,10 @@ public class MongoDBDatasourceTest {
     testWriteReadValue(ds, id++, PolygonType.get().nullValue());
   }
 
-  @SuppressWarnings({ "ReuseOfLocalVariable", "OverlyLongMethod", "PMD.NcssMethodCount" })
+  @SuppressWarnings({ "OverlyLongMethod", "PMD.NcssMethodCount" })
   @Test
   public void test_remove_variable() throws Exception {
-    Datasource ds = createDatasource();
-    int id = 1;
-    testWriteReadValue(ds, id++, BinaryType.get().valueOf("tutu".getBytes(Charsets.UTF_8)));
-    testWriteReadValue(ds, id++, BinaryType.get().valueOf(new byte[2]));
-    testWriteReadValue(ds, id++, BinaryType.get().nullValue());
-    testWriteReadValue(ds, id++, BinaryType.get().valueOf("toto".getBytes(Charsets.UTF_8)));
-
-    id = 1;
-    testWriteReadValue(ds, id++, IntegerType.get().valueOf("1"));
-    testWriteReadValue(ds, id++, IntegerType.get().nullValue());
-    testWriteReadValue(ds, id++, IntegerType.get().valueOf(Long.MAX_VALUE));
-    testWriteReadValue(ds, id++, IntegerType.get().valueOf(Long.MIN_VALUE));
+    Datasource ds = prepareDatasource();
 
     ValueTable table = ds.getValueTable(TABLE_TEST);
     ValueSet valueSet = table.getValueSet(new VariableEntityBean(PARTICIPANT, "1"));
@@ -285,6 +274,67 @@ public class MongoDBDatasourceTest {
 
     //TODO check in mongo that values were removed
 
+  }
+
+  @Test
+  public void test_remove_valueset() throws Exception {
+    Datasource ds = prepareDatasource();
+
+    VariableEntity oneEntity = new VariableEntityBean(PARTICIPANT, "1");
+    ValueTable table = ds.getValueTable(TABLE_TEST);
+    assertThat(table.hasValueSet(oneEntity)).isTrue();
+
+    Value tableLastUpdate = table.getTimestamps().getLastUpdate();
+
+    ValueTableWriter.ValueSetWriter valueSetWriter = ds.createWriter(TABLE_TEST, PARTICIPANT).writeValueSet(oneEntity);
+    valueSetWriter.remove();
+    valueSetWriter.close();
+
+    int tableLastUpdateCompare = ds.getValueTable(TABLE_TEST).getTimestamps().getLastUpdate()
+        .compareTo(tableLastUpdate);
+    assertThat(tableLastUpdateCompare).isGreaterThan(0);
+
+    assertThat(table.hasValueSet(oneEntity)).isFalse();
+
+    //TODO check in mongo that values were removed
+  }
+
+  @Test
+  public void test_remove_all_valuesets() throws Exception {
+    Datasource ds = prepareDatasource();
+
+    VariableEntity oneEntity = new VariableEntityBean(PARTICIPANT, "1");
+    ValueTable table = ds.getValueTable(TABLE_TEST);
+    assertThat(table.hasValueSet(oneEntity)).isTrue();
+    assertThat(table.canDropValueSets()).isTrue();
+
+    Value tableLastUpdate = table.getTimestamps().getLastUpdate();
+
+    table.dropValueSets();
+
+    int tableLastUpdateCompare = ds.getValueTable(TABLE_TEST).getTimestamps().getLastUpdate()
+        .compareTo(tableLastUpdate);
+    assertThat(tableLastUpdateCompare).isGreaterThan(0);
+
+    assertThat(table.hasValueSet(oneEntity)).isFalse();
+
+    //TODO check in mongo that values were removed
+  }
+
+  private Datasource prepareDatasource() throws Exception {
+    Datasource ds = createDatasource();
+    int id = 1;
+    testWriteReadValue(ds, id++, BinaryType.get().valueOf("tutu".getBytes(Charsets.UTF_8)));
+    testWriteReadValue(ds, id++, BinaryType.get().valueOf(new byte[2]));
+    testWriteReadValue(ds, id++, BinaryType.get().nullValue());
+    testWriteReadValue(ds, id++, BinaryType.get().valueOf("toto".getBytes(Charsets.UTF_8)));
+
+    id = 1;
+    testWriteReadValue(ds, id++, IntegerType.get().valueOf("1"));
+    testWriteReadValue(ds, id++, IntegerType.get().nullValue());
+    testWriteReadValue(ds, id++, IntegerType.get().valueOf(Long.MAX_VALUE));
+    testWriteReadValue(ds, id++, IntegerType.get().valueOf(Long.MIN_VALUE));
+    return ds;
   }
 
   @Test

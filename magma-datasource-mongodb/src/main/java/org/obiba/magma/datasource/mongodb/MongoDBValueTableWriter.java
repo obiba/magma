@@ -73,6 +73,8 @@ class MongoDBValueTableWriter implements ValueTableWriter {
 
     private DBObject valueSetObject;
 
+    private boolean removed = false;
+
     private MongoDBValueSetWriter(VariableEntity entity) {
       this.entity = entity;
     }
@@ -91,7 +93,9 @@ class MongoDBValueTableWriter implements ValueTableWriter {
 
     @Override
     public void writeValue(@NotNull Variable variable, Value value) {
-      String field = table.findVariable(variable.getName()).get("_id").toString();
+      removed = false;
+      MongoDBVariable varObj = (MongoDBVariable) table.getVariable(variable.getName());
+      String field = varObj.getId();
       if(BinaryType.get().equals(value.getValueType())) {
         DBObject fileMetadata = getValueSetObject().containsField(field)
             ? updateBinary(variable, value, field)
@@ -100,6 +104,13 @@ class MongoDBValueTableWriter implements ValueTableWriter {
       } else {
         getValueSetObject().put(field, ValueConverter.marshall(variable, value));
       }
+    }
+
+    @Override
+    public void remove() {
+      removed = true;
+      // TODO remove files
+      table.getValueSetCollection().remove(BasicDBObjectBuilder.start("_id", entity.getIdentifier()).get());
     }
 
     @Nullable
@@ -158,13 +169,11 @@ class MongoDBValueTableWriter implements ValueTableWriter {
 
     @Override
     public void close() {
-      updateValueSetLastUpdate();
-    }
-
-    private void updateValueSetLastUpdate() {
-      BSONObject timestamps = (BSONObject) getValueSetObject().get(MongoDBDatasource.TIMESTAMPS_FIELD);
-      timestamps.put(MongoDBDatasource.TIMESTAMPS_UPDATED_FIELD, new Date());
-      table.getValueSetCollection().save(getValueSetObject());
+      if(!removed) {
+        BSONObject timestamps = (BSONObject) getValueSetObject().get(MongoDBDatasource.TIMESTAMPS_FIELD);
+        timestamps.put(MongoDBDatasource.TIMESTAMPS_UPDATED_FIELD, new Date());
+        table.getValueSetCollection().save(getValueSetObject());
+      }
       updateLastUpdate();
     }
 

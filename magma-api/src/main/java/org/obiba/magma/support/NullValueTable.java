@@ -80,6 +80,16 @@ public class NullValueTable implements ValueTable {
   }
 
   @Override
+  public boolean canDropValueSets() {
+    return true;
+  }
+
+  @Override
+  public void dropValueSets() {
+
+  }
+
+  @Override
   public Timestamps getValueSetTimestamps(VariableEntity entity) throws NoSuchValueSetException {
     throw new NoSuchValueSetException(this, entity);
   }

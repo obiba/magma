@@ -178,6 +178,21 @@ public class JoinTable implements ValueTable, Initialisable {
   }
 
   @Override
+  public boolean canDropValueSets() {
+    for (ValueTable table : tables) {
+      if (!table.canDropValueSets()) return false;
+    }
+    return true;
+  }
+
+  @Override
+  public void dropValueSets() {
+    for (ValueTable table : tables) {
+      table.dropValueSets();
+    }
+  }
+
+  @Override
   public Timestamps getValueSetTimestamps(VariableEntity entity) throws NoSuchValueSetException {
     return getValueSet(entity).getTimestamps();
   }

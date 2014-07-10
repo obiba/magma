@@ -101,6 +101,17 @@ public abstract class AbstractValueTable implements ValueTable, Initialisable {
   }
 
   @Override
+  public boolean canDropValueSets() {
+    return false;
+  }
+
+  @Override
+  public void dropValueSets() {
+    throw new UnsupportedOperationException(
+        "Cannot drop value sets from a '" + getDatasource().getType() + "' table.");
+  }
+
+  @Override
   public boolean hasVariable(String variableName) {
     return sources.containsKey(variableName);
   }
