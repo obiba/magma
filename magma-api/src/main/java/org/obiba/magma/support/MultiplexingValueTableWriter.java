@@ -129,6 +129,11 @@ public class MultiplexingValueTableWriter implements ValueTableWriter {
     }
 
     @Override
+    public void remove() {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
     public void close() {
       for(ValueSetWriter vsw : writers.values()) {
         vsw.close();

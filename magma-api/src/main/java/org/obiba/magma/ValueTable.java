@@ -29,6 +29,10 @@ public interface ValueTable extends Timestamped {
 
   ValueSet getValueSet(VariableEntity entity) throws NoSuchValueSetException;
 
+  boolean canDropValueSets();
+
+  void dropValueSets();
+
   Timestamps getValueSetTimestamps(VariableEntity entity) throws NoSuchValueSetException;
 
   Iterable<Timestamps> getValueSetTimestamps(SortedSet<VariableEntity> entities);

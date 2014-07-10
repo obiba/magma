@@ -218,6 +218,17 @@ public class MongoDBValueTable extends AbstractValueTable {
     return (int) getValueSetCollection().count();
   }
 
+  @Override
+  public boolean canDropValueSets() {
+    return true;
+  }
+
+  @Override
+  public void dropValueSets() {
+    getValueSetCollection().drop();
+    setLastUpdate(new Date());
+  }
+
   private MongoDBDatasource getMongoDBDatasource() {
     return ((MongoDBDatasource) getDatasource());
   }

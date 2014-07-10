@@ -124,6 +124,11 @@ public class CsvValueTableWriter implements ValueTableWriter {
     }
 
     @Override
+    public void remove() {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
     public void close() {
 
       try {

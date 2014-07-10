@@ -121,6 +121,16 @@ public class GeneratedValueTable implements ValueTable {
   }
 
   @Override
+  public boolean canDropValueSets() {
+    return false;
+  }
+
+  @Override
+  public void dropValueSets() {
+
+  }
+
+  @Override
   public Timestamps getValueSetTimestamps(VariableEntity entity) throws NoSuchValueSetException {
     return getValueSet(entity).getTimestamps();
   }

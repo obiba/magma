@@ -27,6 +27,8 @@ public interface ValueTableWriter extends AutoCloseable {
 
     void writeValue(@NotNull Variable variable, Value value);
 
+    void remove();
+
     @Override
     void close();
 

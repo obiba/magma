@@ -128,6 +128,11 @@ public class ExcelValueTableWriter implements ValueTableWriter {
     }
 
     @Override
+    public void remove() {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
     public void close() {
     }
 

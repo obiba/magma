@@ -175,6 +175,11 @@ public class StaticValueTable extends AbstractValueTable {
     return this;
   }
 
+  public StaticValueTable removeValues(String entity) {
+    if (table.containsKey(entity)) table.remove(entity);
+    return this;
+  }
+
   @NotNull
   @Override
   public Timestamps getTimestamps() {

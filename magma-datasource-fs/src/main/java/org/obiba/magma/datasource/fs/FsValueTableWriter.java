@@ -111,5 +111,10 @@ class FsValueTableWriter implements ValueTableWriter {
     public void writeValue(@NotNull Variable variable, Value value) {
       valueSet.setValue(variable, value);
     }
+
+    @Override
+    public void remove() {
+      throw new UnsupportedOperationException();
+    }
   }
 }
