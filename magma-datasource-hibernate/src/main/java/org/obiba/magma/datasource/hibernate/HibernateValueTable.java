@@ -117,6 +117,8 @@ class HibernateValueTable extends AbstractValueTable {
             .list());
 
     session.buildLockRequest(new LockOptions(LockMode.PESSIMISTIC_FORCE_INCREMENT)).lock(getValueTableState());
+
+    variableEntityProvider.initialise();
   }
 
   @Override
@@ -150,6 +152,17 @@ class HibernateValueTable extends AbstractValueTable {
         return new TimestampsIterator(entities.iterator());
       }
     };
+  }
+
+  void dropValueSet(VariableEntity entity, Serializable valueSetId) {
+    Session session = getDatasource().getSessionFactory().getCurrentSession();
+
+    getDatasource()
+        .deleteValueSets(getDatasource().getName() + "." + getName(), session, Collections.singleton(valueSetId));
+
+    session.buildLockRequest(new LockOptions(LockMode.PESSIMISTIC_FORCE_INCREMENT)).lock(getValueTableState());
+
+    variableEntityProvider.remove(entity);
   }
 
   @SuppressWarnings("unchecked")
@@ -360,6 +373,7 @@ class HibernateValueTable extends AbstractValueTable {
     @Override
     public void initialise() {
       log.debug("Populating entity cache for table {}", getName());
+      entities.clear();
       // get the variable entities that have a value set in the table
       AssociationCriteria criteria = AssociationCriteria
           .create(ValueSetState.class, getDatasource().getSessionFactory().getCurrentSession())
@@ -384,6 +398,10 @@ class HibernateValueTable extends AbstractValueTable {
             Iterables.concat(entities, getDatasource().getTableTransaction(getName()).getUncommittedEntities()));
       }
       return Collections.unmodifiableSet(entities);
+    }
+
+    public void remove(VariableEntity entity) {
+      entities.remove(entity);
     }
   }
 
