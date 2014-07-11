@@ -276,7 +276,7 @@ class HibernateValueTableWriter implements ValueTableWriter {
 
     @Override
     public void remove() {
-      throw new UnsupportedOperationException();
+      valueTable.dropValueSet(entity, valueSetState.getId());
     }
 
     private void createValue(Variable variable, Value value, VariableState variableState) {

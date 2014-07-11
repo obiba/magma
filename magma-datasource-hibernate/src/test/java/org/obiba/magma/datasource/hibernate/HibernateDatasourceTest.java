@@ -16,6 +16,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.obiba.magma.Category;
 import org.obiba.magma.MagmaEngine;
+import org.obiba.magma.NoSuchValueSetException;
 import org.obiba.magma.NoSuchValueTableException;
 import org.obiba.magma.NoSuchVariableException;
 import org.obiba.magma.Value;
@@ -797,6 +798,9 @@ public class HibernateDatasourceTest {
       protected void doAction(TransactionStatus status) throws Exception {
         HibernateDatasource ds = getDatasource();
 
+        assertThat(ds.getValueTable(TABLE).getVariableEntityCount()).isEqualTo(0);
+        assertThat(ds.getValueTable(TABLE).getVariableEntities()).hasSize(0);
+
         Session session = ds.getSessionFactory().getCurrentSession();
         assertJpaEntitiesHasSize(session, DatasourceState.class, 1);
         assertJpaEntitiesHasSize(session, ValueTableState.class, 1);
@@ -867,6 +871,68 @@ public class HibernateDatasourceTest {
         assertJpaEntitiesHasSize(session, ValueSetValue.class, 10);
         assertJpaEntitiesHasSize(session, CategoryState.class, 1);
 
+      }
+    });
+  }
+
+  @Test
+  public void test_remove_valueset() {
+
+    final ImmutableSet<Variable> variables = ImmutableSet.of(//
+        Variable.Builder.newVariable("Variable to delete", IntegerType.get(), PARTICIPANT) //
+            .addCategory("1", "One", false) //
+            .build(), //
+        Variable.Builder.newVariable("Other Variable", IntegerType.get(), PARTICIPANT) //
+            .addCategory("2", "Two", false) //
+            .build());
+
+    final VariableEntity[] entity = new VariableEntity[1];
+
+    transactionTemplate.execute(new TransactionCallbackRuntimeExceptions() {
+      @Override
+      protected void doAction(TransactionStatus status) throws Exception {
+        HibernateDatasource ds = createDatasource();
+        ValueTable generatedValueTable = new GeneratedValueTable(ds, variables, 10);
+        MagmaEngine.get().addDatasource(ds);
+        DatasourceCopier.Builder.newCopier().build().copy(generatedValueTable, TABLE, ds);
+      }
+    });
+
+    transactionTemplate.execute(new TransactionCallbackRuntimeExceptions() {
+      @Override
+      protected void doAction(TransactionStatus status) throws Exception {
+        HibernateDatasource ds = getDatasource();
+        ValueTable table = ds.getValueTable(TABLE);
+
+        assertThat(table.getVariableEntities()).hasSize(10);
+
+        Session session = ds.getSessionFactory().getCurrentSession();
+        assertJpaEntitiesHasSize(session, VariableState.class, 2);
+        assertJpaEntitiesHasSize(session, ValueSetState.class, 10);
+        assertJpaEntitiesHasSize(session, ValueSetValue.class, 20);
+
+        entity[0] = table.getVariableEntities().iterator().next();
+        ds.createWriter(TABLE, PARTICIPANT).writeValueSet(entity[0]).remove();
+      }
+    });
+
+    transactionTemplate.execute(new TransactionCallbackRuntimeExceptions() {
+      @Override
+      protected void doAction(TransactionStatus status) throws Exception {
+        HibernateDatasource ds = getDatasource();
+        ValueTable table = ds.getValueTable(TABLE);
+        try {
+          table.getValueSet(entity[0]);
+          fail("Should throw NoSuchValueSetException");
+        } catch(NoSuchValueSetException ignored) {
+        }
+
+        assertThat(table.getVariableEntities()).hasSize(9);
+
+        Session session = ds.getSessionFactory().getCurrentSession();
+        assertJpaEntitiesHasSize(session, VariableState.class, 2);
+        assertJpaEntitiesHasSize(session, ValueSetState.class, 9);
+        assertJpaEntitiesHasSize(session, ValueSetValue.class, 18);
       }
     });
   }
