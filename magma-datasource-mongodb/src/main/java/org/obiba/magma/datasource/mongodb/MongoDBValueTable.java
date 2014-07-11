@@ -42,6 +42,7 @@ import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 import com.mongodb.WriteConcern;
+import com.mongodb.gridfs.GridFS;
 
 public class MongoDBValueTable extends AbstractValueTable {
 
@@ -192,6 +193,7 @@ public class MongoDBValueTable extends AbstractValueTable {
 
   public void drop() {
     // drop associated collections
+    dropFiles();
     getValueSetCollection().drop();
     getVariablesCollection().drop();
     getValueTableCollection().remove(BasicDBObjectBuilder.start().add("_id", getIdAsObjectId()).get());
@@ -225,12 +227,24 @@ public class MongoDBValueTable extends AbstractValueTable {
 
   @Override
   public void dropValueSets() {
+    dropFiles();
     getValueSetCollection().drop();
     setLastUpdate(new Date());
   }
 
   private MongoDBDatasource getMongoDBDatasource() {
     return ((MongoDBDatasource) getDatasource());
+  }
+
+  /**
+   * Drop the files from the {@link com.mongodb.gridfs.GridFS} for this table.
+   */
+  private void dropFiles() {
+    GridFS gridFS = getMongoDBDatasource().getMongoDBFactory().getGridFS();
+    BasicDBObjectBuilder metaDataQuery = BasicDBObjectBuilder.start() //
+        .add("metadata.datasource", getDatasource().getName()) //
+        .add("metadata.table", getName());
+    gridFS.remove(metaDataQuery.get());
   }
 
   private class TimestampsIterator implements Iterator<Timestamps> {
