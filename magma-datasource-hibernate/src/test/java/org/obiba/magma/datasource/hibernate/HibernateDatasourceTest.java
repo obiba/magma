@@ -577,6 +577,39 @@ public class HibernateDatasourceTest {
     assertThat(datasourceLastUpdate).isBefore(getDatasourceLastUpdate());
   }
 
+  @Test
+  public void test_timestamps_removing_table_valuesets() throws Exception {
+
+    final Variable variable = Variable.Builder.newVariable("Test Variable", IntegerType.get(), PARTICIPANT).build();
+
+    transactionTemplate.execute(new TransactionCallbackRuntimeExceptions() {
+      @Override
+      protected void doAction(TransactionStatus status) throws Exception {
+        HibernateDatasource ds = createDatasource();
+        ValueTable generatedValueTable = new GeneratedValueTable(ds, ImmutableSet.of(variable), 1);
+        MagmaEngine.get().addDatasource(ds);
+        DatasourceCopier.Builder.newCopier().build().copy(generatedValueTable, TABLE, ds);
+      }
+    });
+
+    Thread.sleep(1000);
+
+    Date datasourceLastUpdate = getDatasourceStateLastUpdate();
+    Date tableLastUpdate = getTableLastUpdate(TABLE);
+
+    // drop table value sets
+    transactionTemplate.execute(new TransactionCallbackRuntimeExceptions() {
+      @Override
+      protected void doAction(TransactionStatus status) throws Exception {
+        HibernateDatasource ds = getDatasource();
+        ds.getValueTable(TABLE).dropValueSets();
+      }
+    });
+
+    assertThat(tableLastUpdate).isBefore(getTableLastUpdate(TABLE));
+    assertThat(datasourceLastUpdate).isBefore(getDatasourceLastUpdate());
+  }
+
   private Date getDatasourceStateLastUpdate() {
     return transactionTemplate.execute(new TransactionCallback<Date>() {
       @Override
@@ -726,6 +759,55 @@ public class HibernateDatasourceTest {
   }
 
   @Test
+  public void test_drop_table_valuesets() {
+
+    transactionTemplate.execute(new TransactionCallbackRuntimeExceptions() {
+      @Override
+      protected void doAction(TransactionStatus status) throws Exception {
+        HibernateDatasource ds = createDatasource();
+        ImmutableSet<Variable> variables = ImmutableSet.of(//
+            Variable.Builder.newVariable("Test Variable", IntegerType.get(), PARTICIPANT).build(), //
+            Variable.Builder.newVariable("Other Variable", DecimalType.get(), PARTICIPANT).build());
+
+        ValueTable generatedValueTable = new GeneratedValueTable(ds, variables, 10);
+        MagmaEngine.get().addDatasource(ds);
+        DatasourceCopier.Builder.newCopier().build().copy(generatedValueTable, TABLE, ds);
+      }
+    });
+
+    transactionTemplate.execute(new TransactionCallbackRuntimeExceptions() {
+      @Override
+      protected void doAction(TransactionStatus status) throws Exception {
+        HibernateDatasource ds = getDatasource();
+        assertThat(ds.getValueTable(TABLE).canDropValueSets()).isTrue();
+
+        Session session = ds.getSessionFactory().getCurrentSession();
+        assertJpaEntitiesHasSize(session, DatasourceState.class, 1);
+        assertJpaEntitiesHasSize(session, ValueTableState.class, 1);
+        assertJpaEntitiesHasSize(session, VariableState.class, 2);
+        assertJpaEntitiesHasSize(session, ValueSetState.class, 10);
+        assertJpaEntitiesHasSize(session, ValueSetValue.class, 20);
+
+        ds.getValueTable(TABLE).dropValueSets();
+      }
+    });
+
+    transactionTemplate.execute(new TransactionCallbackRuntimeExceptions() {
+      @Override
+      protected void doAction(TransactionStatus status) throws Exception {
+        HibernateDatasource ds = getDatasource();
+
+        Session session = ds.getSessionFactory().getCurrentSession();
+        assertJpaEntitiesHasSize(session, DatasourceState.class, 1);
+        assertJpaEntitiesHasSize(session, ValueTableState.class, 1);
+        assertJpaEntitiesHasSize(session, VariableState.class, 2);
+        assertEmptyJpaEntities(session, ValueSetState.class);
+        assertEmptyJpaEntities(session, ValueSetValue.class);
+      }
+    });
+  }
+
+  @Test
   public void test_remove_variable() {
 
     final ImmutableSet<Variable> variables = ImmutableSet.of(//
@@ -792,8 +874,8 @@ public class HibernateDatasourceTest {
   @Test
   public void test_remove_last_variable() {
 
-    final Variable variable = Variable.Builder.newVariable("Variable 1", IntegerType.get(), PARTICIPANT)
-        .addCategory("1", "One", false) //
+    final Variable variable = Variable.Builder.newVariable("Variable 1", IntegerType.get(), PARTICIPANT).addCategory(
+        "1", "One", false) //
         .addCategory("2", "Two", false) //
         .addAttribute("att1", "1") //
         .build();
