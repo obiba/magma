@@ -186,7 +186,7 @@ public class HibernateDatasource extends AbstractDatasource {
     sessionFactory.getCurrentSession().delete(getDatasourceState());
   }
 
-  private void deleteValueSets(String tableFullName, @SuppressWarnings("TypeMayBeWeakened") Session session,
+  void deleteValueSets(String tableFullName, @SuppressWarnings("TypeMayBeWeakened") Session session,
       Collection<?> valueSetIds) {
     if(valueSetIds.isEmpty()) return;
     Stopwatch stopwatch = Stopwatch.createStarted();

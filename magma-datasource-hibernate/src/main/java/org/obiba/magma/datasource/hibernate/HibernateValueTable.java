@@ -104,6 +104,22 @@ class HibernateValueTable extends AbstractValueTable {
   }
 
   @Override
+  public boolean canDropValueSets() {
+    return true;
+  }
+
+  @Override
+  public void dropValueSets() {
+    Session session = getDatasource().getSessionFactory().getCurrentSession();
+
+    getDatasource().deleteValueSets(getDatasource().getName() + "." + getName(), session,
+        session.getNamedQuery("findValueSetIdsByTableId").setParameter("valueTableId", getValueTableState().getId())
+            .list());
+
+    session.buildLockRequest(new LockOptions(LockMode.PESSIMISTIC_FORCE_INCREMENT)).lock(getValueTableState());
+  }
+
+  @Override
   public Timestamps getValueSetTimestamps(VariableEntity entity) throws NoSuchValueSetException {
     if(valueSetTimestamps == null) {
       cacheValueSetTimestamps();
@@ -428,6 +444,7 @@ class HibernateValueTable extends AbstractValueTable {
 
     /**
      * No duplicate of entities, so remove value from map once get.
+     *
      * @param entity
      * @return
      */
