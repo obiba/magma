@@ -32,7 +32,6 @@ import org.obiba.magma.js.MagmaJsEvaluationRuntimeException;
 import org.obiba.magma.js.ScriptableValue;
 import org.obiba.magma.js.ScriptableVariable;
 import org.obiba.magma.support.MagmaEngineVariableResolver;
-import org.obiba.magma.support.NullTimestamps;
 import org.obiba.magma.support.VariableEntityBean;
 import org.obiba.magma.type.DateTimeType;
 import org.obiba.magma.type.TextType;
@@ -57,7 +56,8 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
    * Set of methods to be exposed as top-level methods (ones that can be invoked anywhere)
    */
   private static final Set<String> GLOBAL_METHODS = ImmutableSet
-      .of("$", "$val", "$value", "$created", "$lastupdate", "$this", "$join", "now", "log", "$var", "$variable", "$id", "$identifier", "$group", "$groups", "newValue", "newSequence");
+      .of("$", "$val", "$value", "$created", "$lastupdate", "$this", "$join", "now", "log", "$var", "$variable", "$id",
+          "$identifier", "$group", "$groups", "newValue", "newSequence");
 
   @Override
   protected Set<String> getExposedMethods() {
@@ -207,7 +207,6 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
     return new ScriptableValue(thisObj, timestampsFromContext(context).getLastUpdate());
   }
 
-
   /**
    * Allows invoking {@code VariableValueSource#getValue(ValueSet)} and returns a {@code ScriptableValue}.
    * Accessed as $this in javascript. Argument is expected to be the name of a variable from the current view.
@@ -266,15 +265,19 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
     VariableValueSource joinedSource = reference.resolveSource(valueTable);
 
     // Default value is null if joined table has no valueSet (equivalent to a LEFT JOIN)
-    Value value = joinedSource.getVariable().isRepeatable()
+    Value value = identifier.isSequence()
         ? joinedSource.getValueType().nullSequence()
         : joinedSource.getValueType().nullValue();
-    if(!identifier.isNull()) {
-      @SuppressWarnings("ConstantConditions")
-      VariableEntity entity = new VariableEntityBean(joinedTable.getEntityType(), identifier.toString());
-      if(joinedTable.hasValueSet(entity)) {
-        value = joinedSource.getValue(joinedTable.getValueSet(entity));
+    if(identifier.isSequence()) {
+      if(identifier.asSequence().getSize() > 0) {
+        List<Value> joinedValues = Lists.newArrayList();
+        for(Value id : identifier.asSequence().getValue()) {
+          joinedValues.add(getJoinedValue(joinedTable, joinedSource, id));
+        }
+        value = joinedSource.getValueType().sequenceOf(joinedValues);
       }
+    } else {
+      value = getJoinedValue(joinedTable, joinedSource, identifier);
     }
     return new ScriptableValue(thisObj, value, joinedSource.getVariable().getUnit());
   }
@@ -352,6 +355,39 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
     return thisObj;
   }
 
+  //
+  // Private methods
+  //
+
+  private static Value getJoinedValue(ValueTable joinedTable, VariableValueSource joinedSource, Value identifier) {
+    Value value = joinedSource.getVariable().isRepeatable()
+        ? joinedSource.getValueType().nullSequence()
+        : joinedSource.getValueType().nullValue();
+    if(!identifier.isNull()) {
+      VariableEntity entity = new VariableEntityBean(joinedTable.getEntityType(), identifier.toString());
+      if(joinedTable.hasValueSet(entity)) {
+        value = ensureValueNotSequence(joinedSource.getValue(joinedTable.getValueSet(entity)));
+      }
+    }
+    return value;
+  }
+
+  /**
+   * Make the value flat, in order to not have sequence of values that are value sequences.
+   * @param value
+   * @return
+   */
+  private static Value ensureValueNotSequence(Value value) {
+    if (value.isSequence() && !value.asSequence().isNull()) {
+      if (value.asSequence().getSize()>1) {
+        value = TextType.get().valueOf(value.asSequence());
+      } else {
+        value = TextType.get().valueOf(value.asSequence().get(0));
+      }
+    }
+    return value;
+  }
+
   private static Scriptable valueFromViewContext(MagmaContext context, Scriptable thisObj, String name) {
     View view = context.peek(View.class);
 
@@ -373,7 +409,7 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
 
   private static Timestamps timestampsFromContext(MagmaContext context) {
     // Test whether this is a vector-oriented evaluation or a ValueSet-oriented evaluation
-    if (context.has(VectorCache.class)) {
+    if(context.has(VectorCache.class)) {
       ValueTable valueTable = context.peek(ValueTable.class);
       VectorCache cache = context.peek(VectorCache.class);
       return cache.get(context, valueTable);
