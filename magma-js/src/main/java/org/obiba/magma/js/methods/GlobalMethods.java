@@ -264,22 +264,8 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
     ValueTable joinedTable = reference.resolveTable(valueTable);
     VariableValueSource joinedSource = reference.resolveSource(valueTable);
 
-    // Default value is null if joined table has no valueSet (equivalent to a LEFT JOIN)
-    Value value = identifier.isSequence()
-        ? joinedSource.getValueType().nullSequence()
-        : joinedSource.getValueType().nullValue();
-    if(identifier.isSequence()) {
-      if(identifier.asSequence().getSize() > 0) {
-        List<Value> joinedValues = Lists.newArrayList();
-        for(Value id : identifier.asSequence().getValue()) {
-          joinedValues.add(getJoinedValue(joinedTable, joinedSource, id));
-        }
-        value = joinedSource.getValueType().sequenceOf(joinedValues);
-      }
-    } else {
-      value = getJoinedValue(joinedTable, joinedSource, identifier);
-    }
-    return new ScriptableValue(thisObj, value, joinedSource.getVariable().getUnit());
+    return new ScriptableValue(thisObj, getJoinedValue(joinedTable, joinedSource, identifier),
+        joinedSource.getVariable().getUnit());
   }
 
   /**
@@ -359,8 +345,45 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
   // Private methods
   //
 
+  /**
+   * Get a joined value where identifier can be a sequence of identifiers.
+   *
+   * @param joinedTable
+   * @param joinedSource
+   * @param identifier
+   * @return
+   */
   private static Value getJoinedValue(ValueTable joinedTable, VariableValueSource joinedSource, Value identifier) {
-    Value value = joinedSource.getVariable().isRepeatable()
+    // Default value is null if joined table has no valueSet (equivalent to a LEFT JOIN)
+    Value value = identifier.isSequence()
+        ? joinedSource.getValueType().nullSequence()
+        : joinedSource.getValueType().nullValue();
+    if(identifier.isSequence()) {
+      if(identifier.asSequence().getSize() > 0) {
+        List<Value> joinedValues = Lists.newArrayList();
+        for(Value id : identifier.asSequence().getValue()) {
+          joinedValues.add(getSingleJoinedValue(joinedTable, joinedSource, id));
+        }
+        value = joinedSource.getValueType().sequenceOf(joinedValues);
+      }
+    } else {
+      value = getSingleJoinedValue(joinedTable, joinedSource, identifier);
+    }
+
+    return value;
+  }
+
+  /**
+   * Get a joined value where identifier must not be a sequence of identifiers.
+   *
+   * @param joinedTable
+   * @param joinedSource
+   * @param identifier
+   * @return
+   */
+  private static Value getSingleJoinedValue(ValueTable joinedTable, VariableValueSource joinedSource,
+      Value identifier) {
+    Value value = identifier.isSequence()
         ? joinedSource.getValueType().nullSequence()
         : joinedSource.getValueType().nullValue();
     if(!identifier.isNull()) {
@@ -374,18 +397,20 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
 
   /**
    * Make the value flat, in order to not have sequence of values that are value sequences.
+   *
    * @param value
    * @return
    */
   private static Value ensureValueNotSequence(Value value) {
-    if (value.isSequence() && !value.asSequence().isNull()) {
-      if (value.asSequence().getSize()>1) {
-        value = TextType.get().valueOf(value.asSequence());
+    Value rval = value;
+    if(value.isSequence() && !value.asSequence().isNull()) {
+      if(value.asSequence().getSize() > 1) {
+        rval = TextType.get().valueOf(value.asSequence());
       } else {
-        value = TextType.get().valueOf(value.asSequence().get(0));
+        rval = TextType.get().valueOf(value.asSequence().get(0));
       }
     }
-    return value;
+    return rval;
   }
 
   private static Scriptable valueFromViewContext(MagmaContext context, Scriptable thisObj, String name) {
