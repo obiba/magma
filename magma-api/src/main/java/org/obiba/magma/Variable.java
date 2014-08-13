@@ -99,6 +99,14 @@ public interface Variable extends AttributeAware {
   String getReferencedEntityType();
 
   /**
+   * Get the index (or position) of this variable in the list of variables of a table. Default value is 0, in which case
+   * the natural order should apply.
+   *
+   * @return
+   */
+  int getIndex();
+
+  /**
    * Returns true if this variable has at least on {@code Category}
    *
    * @return
@@ -172,7 +180,7 @@ public interface Variable extends AttributeAware {
     public static Builder sameAs(Variable variable, boolean sameCategories) {
       Builder builder = newVariable(variable.getName(), variable.getValueType(), variable.getEntityType())
           .unit(variable.getUnit()).mimeType(variable.getMimeType())
-          .referencedEntityType(variable.getReferencedEntityType());
+          .referencedEntityType(variable.getReferencedEntityType()).index(variable.getIndex());
       if(variable.isRepeatable()) {
         builder.repeatable().occurrenceGroup(variable.getOccurrenceGroup());
       }
@@ -327,6 +335,20 @@ public interface Variable extends AttributeAware {
 
     public Builder referencedEntityType(String entityType) {
       variable.referencedEntityType = entityType;
+      return this;
+    }
+
+    public Builder index(Integer index) {
+      variable.index = index == null ? 0 : index;
+      return this;
+    }
+
+    public Builder index(String index) {
+      try {
+        index(Integer.valueOf(index));
+      } catch(NumberFormatException e) {
+        // ignored
+      }
       return this;
     }
 

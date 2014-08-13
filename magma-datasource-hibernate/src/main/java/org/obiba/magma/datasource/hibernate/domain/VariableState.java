@@ -70,6 +70,9 @@ public class VariableState extends AbstractAttributeAwareEntity implements Times
 
   private String unit;
 
+  @Column(name = "weight")
+  private Integer index;
+
   @Type(type = "value_type")
   @Column(nullable = false)
   private ValueType valueType;
@@ -102,6 +105,7 @@ public class VariableState extends AbstractAttributeAwareEntity implements Times
     referencedEntityType = variable.getReferencedEntityType();
     unit = variable.getUnit();
     repeatable = variable.isRepeatable();
+    index = variable.getIndex();
   }
 
   public String getName() {
@@ -150,6 +154,14 @@ public class VariableState extends AbstractAttributeAwareEntity implements Times
 
   public void setReferencedEntityType(String referencedEntityType) {
     this.referencedEntityType = referencedEntityType;
+  }
+
+  public Integer getIndex() {
+    return index;
+  }
+
+  public void setIndex(Integer index) {
+    this.index = index;
   }
 
   public String getUnit() {

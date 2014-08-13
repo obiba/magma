@@ -71,6 +71,10 @@ public class ExcelUtil {
     cell.setCellValue(value);
   }
 
+  public static void setCellValue(@NotNull Cell cell, ValueType valueType, Integer value) {
+    cell.setCellValue(value);
+  }
+
   public static void setCellValue(@NotNull Cell cell, ValueType valueType, @Nullable String value) {
     if(cell == null) throw new IllegalArgumentException("Cell cannot be null before setting a value");
     String validated = value;

@@ -163,6 +163,11 @@ public class MongoDBVariable implements Variable {
   }
 
   @Override
+  public int getIndex() {
+    return variable.getIndex();
+  }
+
+  @Override
   public boolean hasCategories() {
     return variable.hasCategories();
   }

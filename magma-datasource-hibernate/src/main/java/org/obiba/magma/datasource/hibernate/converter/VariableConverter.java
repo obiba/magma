@@ -93,7 +93,9 @@ public class VariableConverter extends AttributeAwareConverter implements Hibern
     Variable.Builder builder = Variable.Builder
         .newVariable(jpaObject.getName(), jpaObject.getValueType(), jpaObject.getEntityType());
     builder.mimeType(jpaObject.getMimeType()).occurrenceGroup(jpaObject.getOccurrenceGroup())
-        .referencedEntityType(jpaObject.getReferencedEntityType()).unit(jpaObject.getUnit());
+        .referencedEntityType(jpaObject.getReferencedEntityType()).unit(jpaObject.getUnit())
+        .index(jpaObject.getIndex());
+
     if(jpaObject.isRepeatable()) {
       builder.repeatable();
     }

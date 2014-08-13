@@ -70,6 +70,12 @@ public class VariableConverter extends AbstractAttributeAwareConverter {
       writer.addAttribute("mimeType", variable.getMimeType());
     }
 
+    if(variable.getReferencedEntityType()!= null) {
+      writer.addAttribute("referencedEntityType", variable.getReferencedEntityType());
+    }
+
+    writer.addAttribute("index", Integer.toString(variable.getIndex()));
+
     if(variable.isRepeatable()) {
       writer.addAttribute("repeatable", "true");
       if(variable.getOccurrenceGroup() != null) {
@@ -97,6 +103,12 @@ public class VariableConverter extends AbstractAttributeAwareConverter {
     }
     if(reader.getAttribute("mimeType") != null) {
       builder.mimeType(reader.getAttribute("mimeType"));
+    }
+    if(reader.getAttribute("referencedEntityType") != null) {
+      builder.referencedEntityType(reader.getAttribute("referencedEntityType"));
+    }
+    if(reader.getAttribute("index") != null) {
+      builder.index(reader.getAttribute("index"));
     }
     unmarshalChildren(reader, context, builder);
 

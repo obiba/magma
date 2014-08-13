@@ -121,6 +121,7 @@ public class SpssVariableValueSourceFactory implements VariableValueSourceFactor
     String variableName = spssVariable.getName();
     validate(variableName);
     Variable.Builder builder = Variable.Builder.newVariable(variableName, TextType.get(), entityType);
+    builder.index(variableIndex);
     addAttributes(builder, spssVariable);
     addLabel(builder, spssVariable);
     ValueType valueType = SpssVariableTypeMapper.map(spssVariable);

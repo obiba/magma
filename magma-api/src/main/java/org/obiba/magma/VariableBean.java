@@ -35,6 +35,8 @@ public class VariableBean extends AbstractAttributeAware implements Variable, Se
 
   boolean repeatable;
 
+  int index = 0;
+
   /**
    * Use a linked hash set to keep insertion order
    */
@@ -89,6 +91,11 @@ public class VariableBean extends AbstractAttributeAware implements Variable, Se
   @Override
   public String getOccurrenceGroup() {
     return occurrenceGroup;
+  }
+
+  @Override
+  public int getIndex() {
+    return index;
   }
 
   @Override

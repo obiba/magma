@@ -21,6 +21,7 @@ import org.obiba.magma.Variable;
 import org.obiba.magma.datasource.excel.ExcelDatasource;
 import org.obiba.magma.datasource.excel.ExcelValueTable;
 import org.obiba.magma.type.BooleanType;
+import org.obiba.magma.type.IntegerType;
 import org.obiba.magma.type.TextType;
 
 import com.google.common.collect.Lists;
@@ -42,6 +43,8 @@ public class VariableConverter {
 
   public static final String UNIT = "unit";
 
+  public static final String INDEX = "index";
+
   public static final String REPEATABLE = "repeatable";
 
   public static final String OCCURRENCE_GROUP = "occurrenceGroup";
@@ -60,7 +63,8 @@ public class VariableConverter {
       MIME_TYPE, //
       UNIT, //
       REPEATABLE, //
-      OCCURRENCE_GROUP);
+      OCCURRENCE_GROUP, //
+      INDEX);
 
   public static final List<String> reservedCategoryHeaders = Lists.newArrayList(TABLE, //
       VARIABLE, //
@@ -141,6 +145,7 @@ public class VariableConverter {
     Variable.Builder builder = Variable.Builder.newVariable(name, valueType, entityType);
     unmarshallMimeType(variableRow, builder);
     unmarshallUnit(variableRow, builder);
+    unmarshallIndex(variableRow, builder);
     unmarshallOccurrenceGroup(variableRow, builder);
     unmarshallRepeatable(variableRow, builder);
     unmarshallReferencedEntityType(variableRow, builder);
@@ -175,6 +180,17 @@ public class VariableConverter {
     String unit = getVariableCellValue(variableRow, UNIT).trim();
     if(unit.length() > 0) {
       builder.unit(unit);
+    }
+  }
+
+  private void unmarshallIndex(Row variableRow, Variable.Builder builder) {
+    String index = getVariableCellValue(variableRow, INDEX).trim();
+    if(index.length() > 0) {
+      try {
+        builder.index(Integer.valueOf(index));
+      } catch(NumberFormatException e) {
+        // ignore
+      }
     }
   }
 
@@ -321,6 +337,7 @@ public class VariableConverter {
         .setCellValue(getVariableCell(variableRow, OCCURRENCE_GROUP), TextType.get(), variable.getOccurrenceGroup());
     ExcelUtil.setCellValue(getVariableCell(variableRow, ENTITY_TYPE), TextType.get(), variable.getEntityType());
     ExcelUtil.setCellValue(getVariableCell(variableRow, UNIT), TextType.get(), variable.getUnit());
+    ExcelUtil.setCellValue(getVariableCell(variableRow, INDEX), IntegerType.get(), variable.getIndex());
     ExcelUtil.setCellValue(getVariableCell(variableRow, REPEATABLE), BooleanType.get(), variable.isRepeatable());
     ExcelUtil.setCellValue(getVariableCell(variableRow, VALUE_TYPE), TextType.get(), variable.getValueType().getName());
     ExcelUtil.setCellValue(getVariableCell(variableRow, REFERENCED_ENTITY_TYPE), TextType.get(),

@@ -33,13 +33,13 @@ public class VariableConverter {
 
   public static MongoDBVariable unmarshall(BSONObject object) {
     ValueType valueType = ValueType.Factory.forName(getFieldAsString(object, "valueType"));
-    Variable.Builder builder = Variable.Builder
-        .newVariable(getFieldAsString(object, "name"), valueType, getFieldAsString(object, "entityType")) //
+    Variable.Builder builder = Variable.Builder.newVariable(getFieldAsString(object, "name"), valueType,
+        getFieldAsString(object, "entityType")) //
         .repeatable(getFieldAsBoolean(object, "repeatable")) //
         .mimeType(getFieldAsString(object, "mimeType")) //
         .referencedEntityType(getFieldAsString(object, "referencedEntityType")) //
         .occurrenceGroup(getFieldAsString(object, "occurrenceGroup")) //
-        .unit(getFieldAsString(object, "unit"));
+        .unit(getFieldAsString(object, "unit")).index(getFieldAsInteger(object, "index"));
 
     if(object.containsField("categories")) {
       builder.addCategories(unmarshallCategories((Iterable<?>) object.get("categories")));
@@ -97,6 +97,16 @@ public class VariableConverter {
     return value == null ? false : Boolean.valueOf(value.toString());
   }
 
+  private static Integer getFieldAsInteger(BSONObject object, String key) {
+    if(!object.containsField(key)) return null;
+    Object value = object.get(key);
+    try {
+      return value == null ? null : Integer.valueOf(value.toString());
+    } catch(NumberFormatException e) {
+      return null;
+    }
+  }
+
   public static DBObject marshall(Variable variable) {
     BasicDBObjectBuilder builder = BasicDBObjectBuilder.start() //
         .add("name", variable.getName()) //
@@ -106,7 +116,7 @@ public class VariableConverter {
         .add("repeatable", variable.isRepeatable()) //
         .add("occurrenceGroup", variable.getOccurrenceGroup()) //
         .add("referencedEntityType", variable.getReferencedEntityType()) //
-        .add("unit", variable.getUnit());
+        .add("unit", variable.getUnit()).add("index", variable.getIndex());
 
     if(variable.hasCategories()) {
       Collection<Object> list = new BasicDBList();

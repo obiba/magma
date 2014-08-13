@@ -43,6 +43,8 @@ public class VariableConverter {
 
   public static final String UNIT = "unit";
 
+  public static final String INDEX = "index";
+
   public static final String CATEGORIES = "categories";
 
   public static final String LABEL = "label";
@@ -54,7 +56,8 @@ public class VariableConverter {
       MIME_TYPE, //
       UNIT, //
       REPEATABLE, //
-      OCCURRENCE_GROUP);
+      OCCURRENCE_GROUP, //
+      INDEX);
 
   public static final List<String> categoriesReservedAttributeNames = Lists
       .newArrayList("table", "variable", "name", "code", "missing");
@@ -99,6 +102,7 @@ public class VariableConverter {
     String unit = getValueAt(csvVar, UNIT);
     String repeatable = getValueAt(csvVar, REPEATABLE);
     String occurrenceGroup = getValueAt(csvVar, OCCURRENCE_GROUP);
+    String index = getValueAt(csvVar, INDEX);
 
     log.debug("name={} valueType={} entityType={} mimeType={}", name, valueType, entityType, mimeType);
 
@@ -107,6 +111,14 @@ public class VariableConverter {
 
     if(Boolean.parseBoolean(repeatable)) {
       builder.repeatable();
+    }
+
+    if(index != null) {
+      try {
+        builder.index(Integer.valueOf(index));
+      } catch(NumberFormatException e) {
+        // ignore
+      }
     }
 
     // attributes and categories
