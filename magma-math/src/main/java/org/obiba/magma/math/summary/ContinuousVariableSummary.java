@@ -328,11 +328,12 @@ public class ContinuousVariableSummary extends AbstractVariableSummary implement
     private void compute() {
       log.trace("Start compute continuous {}", summary.variable.getName());
       double variance = summary.descriptiveStats.getVariance();
+      computeFrequencies();
       if(Double.isNaN(variance) || Double.isInfinite(variance) || variance <= 0) return;
 
       computeIntervalFrequencies();
       computeDistributionPercentiles();
-      computeFrequencies();
+      //computeFrequencies();
     }
 
     private void computeIntervalFrequencies() {
