@@ -110,7 +110,7 @@ public class DefaultDatasourceRegistry implements DatasourceRegistry, Disposable
   @Override
   public void removeDatasource(Datasource datasource) {
     datasources.remove(datasource.getName());
-    Disposables.dispose(datasource);
+    Disposables.silentlyDispose(datasource);
   }
 
   /**
@@ -151,12 +151,12 @@ public class DefaultDatasourceRegistry implements DatasourceRegistry, Disposable
   public void removeTransientDatasource(@Nullable String uid) {
     DatasourceFactory factory = transientDatasourceFactories.get(uid);
     if(factory != null) {
-      Disposables.dispose(factory);
+      Disposables.silentlyDispose(factory);
       transientDatasourceFactories.remove(uid);
     }
     Datasource datasource = transientDatasources.get(uid);
     if(datasource != null) {
-      Disposables.dispose(datasource);
+      Disposables.silentlyDispose(datasource);
       transientDatasources.remove(uid);
     }
   }
