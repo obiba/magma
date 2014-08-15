@@ -58,6 +58,10 @@ class HibernateDatasourceSynchronization implements Synchronization {
     }
   }
 
+  public boolean isClosed() {
+    return !session.isOpen();
+  }
+
   protected void commit() {
 
   }
@@ -69,5 +73,6 @@ class HibernateDatasourceSynchronization implements Synchronization {
   protected Session getSession() {
     return session;
   }
+
 
 }

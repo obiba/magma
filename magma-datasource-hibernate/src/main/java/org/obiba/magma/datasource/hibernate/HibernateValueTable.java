@@ -358,6 +358,10 @@ class HibernateValueTable extends AbstractValueTable {
     }
   }
 
+  void refreshEntityProvider() {
+    ((HibernateVariableEntityProvider)getVariableEntityProvider()).initialise();
+  }
+
   public class HibernateVariableEntityProvider extends AbstractVariableEntityProvider implements Initialisable {
 
     private final Set<VariableEntity> entities = new LinkedHashSet<>();
