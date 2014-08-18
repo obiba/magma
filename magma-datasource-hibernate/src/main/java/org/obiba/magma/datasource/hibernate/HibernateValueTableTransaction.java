@@ -67,9 +67,6 @@ class HibernateValueTableTransaction extends HibernateDatasourceSynchronization 
     if(createTableTransaction) {
       valueTable.getDatasource().commitValueTable(valueTable);
     }
-
-    // OPAL-2656
-    valueTable.refreshEntityProvider();
   }
 
   @Override
@@ -78,9 +75,6 @@ class HibernateValueTableTransaction extends HibernateDatasourceSynchronization 
     uncommittedEntities.clear();
     uncommittedSources.clear();
     uncommittedRemovedSources.clear();
-
-    // OPAL-2656
-    valueTable.refreshEntityProvider();
   }
 
   /**
