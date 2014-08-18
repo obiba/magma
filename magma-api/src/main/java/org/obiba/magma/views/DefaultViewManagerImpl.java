@@ -1,5 +1,7 @@
 package org.obiba.magma.views;
 
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
 
 import javax.validation.constraints.NotNull;
@@ -17,14 +19,14 @@ import org.obiba.magma.views.support.VariableOperationContext;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
-import com.google.common.collect.Sets;
 
 import edu.umd.cs.findbugs.annotations.Nullable;
 
 public class DefaultViewManagerImpl implements ViewManager, Initialisable, Disposable {
 
   @NotNull
-  private final Set<ViewAwareDatasource> viewAwareDatasources = Sets.newHashSet();
+  private final Set<ViewAwareDatasource> viewAwareDatasources = Collections
+      .synchronizedSet(new HashSet<ViewAwareDatasource>());
 
   @NotNull
   private final ViewPersistenceStrategy viewPersistenceStrategy;
@@ -45,8 +47,8 @@ public class DefaultViewManagerImpl implements ViewManager, Initialisable, Dispo
   }
 
   @Override
-  public void addView(@NotNull String datasourceName, @NotNull View view, @Nullable String comment, @Nullable
-      VariableOperationContext context) {
+  public void addView(@NotNull String datasourceName, @NotNull View view, @Nullable String comment,
+      @Nullable VariableOperationContext context) {
     Preconditions.checkArgument(!Strings.isNullOrEmpty(datasourceName), "datasourceName cannot be null or empty.");
     //noinspection ConstantConditions
     Preconditions.checkArgument(view != null, "view cannot be null.");
