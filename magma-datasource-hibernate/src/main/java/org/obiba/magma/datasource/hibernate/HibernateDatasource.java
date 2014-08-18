@@ -363,12 +363,6 @@ public class HibernateDatasource extends AbstractDatasource {
     return tableTx;
   }
 
-  synchronized void removeTableTransaction(HibernateValueTable valueTable) {
-    if(hasTableTransaction(valueTable.getName())) {
-      lookupTableTransactions().remove(valueTable);
-    }
-  }
-
   /**
    * Returns the list of {@code HibernateValueTableTransaction} associated with the current
    * {@code org.hibernate.Transaction}. Within one Hibernate transaction, several value tables may be affected, as such,
