@@ -5,6 +5,7 @@ import java.util.concurrent.Callable;
 
 import org.obiba.magma.Datasource;
 import org.obiba.magma.MagmaEngine;
+import org.obiba.magma.NoSuchDatasourceException;
 import org.obiba.magma.NoSuchValueTableException;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.support.AbstractDatasourceWrapper;
@@ -50,13 +51,15 @@ public class SudoValueTableReference extends ValueTableReference {
         wrappedDatasource = authz.silentSudo(new DatasourceCallable());
       }
       return wrappedDatasource.getValueTable(getResolver().getTableName());
-    } catch(NoSuchValueTableException e1) {
-      log.error("No such value table: {}. {}", getReference(), e1.getMessage());
+    } catch(NoSuchValueTableException e) {
+      log.error("No such value table: {}. {}", getReference(), e.getMessage());
       return getDummyValueTable(wrappedDatasource);
-    } catch(RuntimeException e2) {
-      log.error("No such datasource for value table: {}. {}", getReference(), e2.getMessage());
-      Datasource ds = new StaticDatasource(getResolver().getDatasourceName());
-      return getDummyValueTable(ds);
+    } catch (NoSuchDatasourceException e) {
+      log.error("No such datasource for value table: {}. {}", getReference(), e.getMessage());
+      return getDummyValueTable(new StaticDatasource(getResolver().getDatasourceName()));
+    } catch(RuntimeException e) {
+      log.error("Unexpected error in value table '{}' lookup: {}", getReference(), e.getMessage(), e);
+      return getDummyValueTable(new StaticDatasource(getResolver().getDatasourceName()));
     }
   }
 
