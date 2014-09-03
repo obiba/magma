@@ -47,6 +47,21 @@ public class DefaultViewManagerImpl implements ViewManager, Initialisable, Dispo
   }
 
   @Override
+  public void release(Datasource datasource) {
+    if (datasource == null) return;
+    ViewAwareDatasource viewAwareDatasource = null;
+    for (ViewAwareDatasource ds : viewAwareDatasources) {
+      if (ds.getName().equals(datasource.getName())) {
+        viewAwareDatasource = ds;
+        break;
+      }
+    }
+    if (viewAwareDatasource != null) {
+      viewAwareDatasources.remove(viewAwareDatasource);
+    }
+  }
+
+  @Override
   public void addView(@NotNull String datasourceName, @NotNull View view, @Nullable String comment,
       @Nullable VariableOperationContext context) {
     Preconditions.checkArgument(!Strings.isNullOrEmpty(datasourceName), "datasourceName cannot be null or empty.");

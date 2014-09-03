@@ -34,6 +34,10 @@ public class MagmaSecurityExtension implements MagmaEngineExtension {
         return new SecuredDatasourceRegistry(authorizer, object);
       }
 
+      @Override
+      public void release(DatasourceRegistry object) {
+
+      }
     });
 
   }
