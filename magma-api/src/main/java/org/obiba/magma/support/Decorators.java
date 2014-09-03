@@ -46,5 +46,9 @@ public final class Decorators {
       return object;
     }
 
+    @Override
+    public void release(Object object) {
+      
+    }
   }
 }

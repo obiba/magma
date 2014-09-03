@@ -101,6 +101,12 @@ public class DefaultDatasourceRegistry implements DatasourceRegistry, Disposable
     return decorated;
   }
 
+  private void releaseDatasource(Datasource datasource) {
+    for(Decorator<Datasource> decorator : decorators) {
+      decorator.release(datasource);
+    }
+  }
+
   @Override
   public Datasource addDatasource(DatasourceFactory factory) {
     Initialisables.initialise(factory);
@@ -109,6 +115,7 @@ public class DefaultDatasourceRegistry implements DatasourceRegistry, Disposable
 
   @Override
   public void removeDatasource(Datasource datasource) {
+    releaseDatasource(datasource);
     datasources.remove(datasource.getName());
     Disposables.silentlyDispose(datasource);
   }
@@ -156,6 +163,7 @@ public class DefaultDatasourceRegistry implements DatasourceRegistry, Disposable
     }
     Datasource datasource = transientDatasources.get(uid);
     if(datasource != null) {
+      releaseDatasource(datasource);
       Disposables.silentlyDispose(datasource);
       transientDatasources.remove(uid);
     }
