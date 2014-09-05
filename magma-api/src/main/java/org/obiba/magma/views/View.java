@@ -10,6 +10,7 @@ import java.util.SortedSet;
 import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 
+import org.obiba.magma.Attribute;
 import org.obiba.magma.Datasource;
 import org.obiba.magma.Disposable;
 import org.obiba.magma.Initialisable;
@@ -47,6 +48,8 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.LinkedListMultimap;
+import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
@@ -75,6 +78,8 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
   private Value created;
 
   private Value updated;
+
+  private final ListMultimap<String, Attribute> attributes = LinkedListMultimap.create();
 
   // need to be transient because of XML serialization of Views
   @Nullable
@@ -136,6 +141,11 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
   @Override
   public void dispose() {
     Disposables.silentlyDispose(getWrappedValueTable(), getSelectClause(), getWhereClause(), getListClause());
+  }
+
+  @Override
+  protected ListMultimap<String, Attribute> getInstanceAttributes() {
+    return attributes;
   }
 
   public void setName(String name) {

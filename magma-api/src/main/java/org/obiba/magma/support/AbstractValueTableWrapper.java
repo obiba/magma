@@ -5,6 +5,9 @@ import java.util.SortedSet;
 
 import javax.validation.constraints.NotNull;
 
+import org.obiba.magma.AbstractAttributeAware;
+import org.obiba.magma.Attribute;
+import org.obiba.magma.AttributeAwareBuilder;
 import org.obiba.magma.Datasource;
 import org.obiba.magma.NoSuchValueSetException;
 import org.obiba.magma.NoSuchVariableException;
@@ -16,7 +19,10 @@ import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.VariableValueSource;
 
-public abstract class AbstractValueTableWrapper implements ValueTableWrapper {
+import com.google.common.collect.LinkedListMultimap;
+import com.google.common.collect.ListMultimap;
+
+public abstract class AbstractValueTableWrapper extends AbstractAttributeAware implements ValueTableWrapper {
 
   @Override
   public abstract ValueTable getWrappedValueTable();
@@ -144,5 +150,11 @@ public abstract class AbstractValueTableWrapper implements ValueTableWrapper {
   @Override
   public int getVariableEntityCount() {
     return getWrappedValueTable().getVariableEntityCount();
+  }
+
+  @Override
+  protected ListMultimap<String, Attribute> getInstanceAttributes() {
+    ListMultimap<String, Attribute> attributes = LinkedListMultimap.create();
+    return AttributeAwareBuilder.overrideAttributes(attributes, getWrappedValueTable().getAttributes());
   }
 }

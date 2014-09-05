@@ -8,6 +8,8 @@ import java.util.SortedSet;
 import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 
+import org.obiba.magma.AbstractAttributeAware;
+import org.obiba.magma.Attribute;
 import org.obiba.magma.Datasource;
 import org.obiba.magma.MagmaEngine;
 import org.obiba.magma.NoSuchValueSetException;
@@ -24,11 +26,15 @@ import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.LinkedListMultimap;
+import com.google.common.collect.ListMultimap;
 
-public class NullValueTable implements ValueTable {
+public class NullValueTable extends AbstractAttributeAware implements ValueTable {
 
   @SuppressWarnings("StaticNonFinalField")
   private static WeakReference<NullValueTable> instance = MagmaEngine.get().registerInstance(new NullValueTable());
+
+  private final ListMultimap<String, Attribute> attributes = LinkedListMultimap.create();
 
   private NullValueTable() {
   }
@@ -39,6 +45,11 @@ public class NullValueTable implements ValueTable {
   @edu.umd.cs.findbugs.annotations.SuppressWarnings("NP_NONNULL_RETURN_VIOLATION")
   public String getName() {
     return null;
+  }
+
+  @Override
+  protected ListMultimap<String, Attribute> getInstanceAttributes() {
+    return attributes;
   }
 
   @NotNull
@@ -160,6 +171,8 @@ public class NullValueTable implements ValueTable {
   public int getVariableEntityCount() {
     return Iterables.size(getVariableEntities());
   }
+
+
 
   @SuppressWarnings("ConstantConditions")
   @edu.umd.cs.findbugs.annotations.SuppressWarnings("NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE")

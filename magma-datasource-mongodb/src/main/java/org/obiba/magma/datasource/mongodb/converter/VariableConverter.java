@@ -12,8 +12,6 @@ package org.obiba.magma.datasource.mongodb.converter;
 
 import java.util.Collection;
 
-import javax.annotation.Nullable;
-
 import org.bson.BSONObject;
 import org.obiba.magma.Attribute;
 import org.obiba.magma.Category;
@@ -21,13 +19,12 @@ import org.obiba.magma.ValueType;
 import org.obiba.magma.Variable;
 import org.obiba.magma.datasource.mongodb.MongoDBVariable;
 
-import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObjectBuilder;
 import com.mongodb.DBObject;
 
-public class VariableConverter {
+public class VariableConverter extends AttributeAwareConverter {
 
   private VariableConverter() {}
 
@@ -64,47 +61,6 @@ public class VariableConverter {
       list.add(catBuilder.build());
     }
     return list.build();
-  }
-
-  private static Iterable<Attribute> unmarshallAttributes(Iterable<?> attributes) {
-    ImmutableList.Builder<Attribute> list = ImmutableList.builder();
-    for(Object o : attributes) {
-      BSONObject attr = (BSONObject) o;
-      String value = getFieldAsString(attr, "value");
-      if(!Strings.isNullOrEmpty(value)) {
-        Attribute.Builder attrBuilder = Attribute.Builder.newAttribute(attr.get("name").toString()) //
-            .withNamespace(getFieldAsString(attr, "namespace")).withValue(value);
-
-        String locale = getFieldAsString(attr, "locale");
-        if(!Strings.isNullOrEmpty(locale)) attrBuilder.withLocale(locale);
-
-        list.add(attrBuilder.build());
-      }
-    }
-    return list.build();
-  }
-
-  @Nullable
-  private static String getFieldAsString(BSONObject object, String key) {
-    if(!object.containsField(key)) return null;
-    Object value = object.get(key);
-    return value == null ? null : value.toString();
-  }
-
-  private static boolean getFieldAsBoolean(BSONObject object, String key) {
-    if(!object.containsField(key)) return false;
-    Object value = object.get(key);
-    return value == null ? false : Boolean.valueOf(value.toString());
-  }
-
-  private static Integer getFieldAsInteger(BSONObject object, String key) {
-    if(!object.containsField(key)) return null;
-    Object value = object.get(key);
-    try {
-      return value == null ? null : Integer.valueOf(value.toString());
-    } catch(NumberFormatException e) {
-      return null;
-    }
   }
 
   public static DBObject marshall(Variable variable) {
@@ -150,12 +106,5 @@ public class VariableConverter {
     return builder.get();
   }
 
-  private static DBObject marshall(Attribute attribute) {
-    return BasicDBObjectBuilder.start() //
-        .add("namespace", attribute.hasNamespace() ? attribute.getNamespace() : null) //
-        .add("name", attribute.getName()) //
-        .add("locale", attribute.isLocalised() ? attribute.getLocale().toString() : null) //
-        .add("value", attribute.getValue().toString()).get();
-  }
 
 }

@@ -12,6 +12,8 @@ import javax.validation.constraints.NotNull;
 
 import org.apache.commons.math3.random.JDKRandomGenerator;
 import org.apache.commons.math3.random.RandomGenerator;
+import org.obiba.magma.AbstractAttributeAware;
+import org.obiba.magma.Attribute;
 import org.obiba.magma.Datasource;
 import org.obiba.magma.NoSuchValueSetException;
 import org.obiba.magma.NoSuchVariableException;
@@ -29,10 +31,12 @@ import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.LinkedListMultimap;
+import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
-public class GeneratedValueTable implements ValueTable {
+public class GeneratedValueTable extends AbstractAttributeAware implements ValueTable {
 
   private final Datasource datasource;
 
@@ -43,6 +47,8 @@ public class GeneratedValueTable implements ValueTable {
   private final RandomGenerator randomGenerator;
 
   private final Map<String, VariableValueSource> generators;
+
+  private final ListMultimap<String, Attribute> attributes = LinkedListMultimap.create();
 
   @NotNull
   private final Value timestamp;
@@ -239,4 +245,8 @@ public class GeneratedValueTable implements ValueTable {
     return Iterables.size(getValueSets());
   }
 
+  @Override
+  protected ListMultimap<String, Attribute> getInstanceAttributes() {
+    return attributes;
+  }
 }

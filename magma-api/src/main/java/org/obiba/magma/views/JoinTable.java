@@ -14,6 +14,9 @@ import java.util.SortedSet;
 
 import javax.validation.constraints.NotNull;
 
+import org.obiba.magma.AbstractAttributeAware;
+import org.obiba.magma.Attribute;
+import org.obiba.magma.AttributeAwareBuilder;
 import org.obiba.magma.Datasource;
 import org.obiba.magma.Initialisable;
 import org.obiba.magma.NoSuchValueSetException;
@@ -38,12 +41,14 @@ import com.google.common.base.Predicates;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.LinkedListMultimap;
+import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
 
 @SuppressWarnings({ "UnusedDeclaration", "TransientFieldInNonSerializableClass" })
-public class JoinTable implements ValueTable, Initialisable {
+public class JoinTable extends AbstractAttributeAware implements ValueTable, Initialisable {
 
   private static final int DEFAULT_ENTITY_COUNT = 5000;
 
@@ -374,6 +379,21 @@ public class JoinTable implements ValueTable, Initialisable {
   @Override
   public int getVariableEntityCount() {
     return Iterables.size(getVariableEntities());
+  }
+
+  /**
+   * Join the attributes of the underlying tables.
+   * @return
+   */
+  @Override
+  protected ListMultimap<String, Attribute> getInstanceAttributes() {
+    ListMultimap<String, Attribute> attributes = LinkedListMultimap.create();
+
+    for (ValueTable table : tables) {
+      AttributeAwareBuilder.overrideAttributes(attributes, table.getAttributes());
+    }
+
+    return attributes;
   }
 
   static class JoinedValueSet extends ValueSetBean {

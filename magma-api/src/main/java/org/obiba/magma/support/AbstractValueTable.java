@@ -12,6 +12,8 @@ import java.util.SortedSet;
 import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 
+import org.obiba.magma.AbstractAttributeAware;
+import org.obiba.magma.Attribute;
 import org.obiba.magma.Datasource;
 import org.obiba.magma.Initialisable;
 import org.obiba.magma.NoSuchValueSetException;
@@ -29,9 +31,11 @@ import com.google.common.base.Function;
 import com.google.common.base.Predicates;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.LinkedListMultimap;
+import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Lists;
 
-public abstract class AbstractValueTable implements ValueTable, Initialisable {
+public abstract class AbstractValueTable extends AbstractAttributeAware implements ValueTable, Initialisable {
 
   @NotNull
   private final Datasource datasource;
@@ -42,6 +46,8 @@ public abstract class AbstractValueTable implements ValueTable, Initialisable {
   private final Map<String, VariableValueSource> sources = new LinkedHashMap<>();
 
   private VariableEntityProvider variableEntityProvider;
+
+  private final ListMultimap<String, Attribute> attributes = LinkedListMultimap.create();
 
   @SuppressWarnings("ConstantConditions")
   public AbstractValueTable(@NotNull Datasource datasource, @NotNull String name,
@@ -248,6 +254,11 @@ public abstract class AbstractValueTable implements ValueTable, Initialisable {
   @Override
   public int getVariableEntityCount() {
     return getVariableEntities().size();
+  }
+
+  @Override
+  protected ListMultimap<String, Attribute> getInstanceAttributes() {
+    return attributes;
   }
 
   @Override
