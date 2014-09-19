@@ -373,7 +373,7 @@ public class HibernateDatasource extends AbstractDatasource {
    * @return list of {@code HibernateValueTableTransaction} associated with the current
    * {@code org.hibernate.Transaction}
    */
-  private Collection<HibernateValueTableTransaction> lookupTableTransactions() {
+  private synchronized Collection<HibernateValueTableTransaction> lookupTableTransactions() {
 
     Session currentSession;
     try {
@@ -397,7 +397,7 @@ public class HibernateDatasource extends AbstractDatasource {
     }
   }
 
-  private synchronized void autoCleanSyncMap() {
+  private void autoCleanSyncMap() {
     for (Map.Entry<Transaction, List<HibernateValueTableTransaction>> entry : syncMap.entrySet()) {
       List<HibernateValueTableTransaction> txs = entry.getValue();
       if (txs.size() > 0) {
