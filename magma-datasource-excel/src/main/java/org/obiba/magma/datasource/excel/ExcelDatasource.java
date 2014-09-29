@@ -248,10 +248,13 @@ public class ExcelDatasource extends AbstractDatasource {
 
     for(int i = 1; i < getVariablesSheet().getPhysicalNumberOfRows(); i++) {
       Row variableRow = getVariablesSheet().getRow(i);
+      if (variableRow == null) continue;
       String tableHeader = ExcelUtil.findNormalizedHeader(headerMapVariables.keySet(), VariableConverter.TABLE);
       String tableName = DEFAULT_TABLE_NAME;
       if(tableHeader != null) {
-        tableName = ExcelUtil.getCellValueAsString(variableRow.getCell(headerMapVariables.get(tableHeader)));
+        Integer idx = headerMapVariables.get(tableHeader);
+        Cell cell = variableRow.getCell(idx);
+        tableName = ExcelUtil.getCellValueAsString(cell);
         if(tableName.trim().isEmpty()) {
           continue; // ignore rows without table name
         }

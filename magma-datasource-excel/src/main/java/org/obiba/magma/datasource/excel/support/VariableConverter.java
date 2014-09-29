@@ -470,6 +470,7 @@ public class VariableConverter {
    * @return empty string if no such cell
    */
   private String getVariableCellValue(Row row, String header) {
+    if (row == null) return "";
     Integer idx = getVariableHeaderIndex(header);
     return idx != null ? getCellValueAsString(row.getCell(idx)).trim() : "";
   }
