@@ -6,7 +6,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -40,6 +39,7 @@ import org.obiba.magma.support.AbstractDatasource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
 /**
@@ -244,34 +244,33 @@ public class ExcelDatasource extends AbstractDatasource {
 
   private List<ExcelDatasourceParsingException> readValueTablesFromVariableSheet(
       Map<String, Integer> headerMapVariables, Collection<String> sheetNames) {
-    List<ExcelDatasourceParsingException> errors = new ArrayList<>();
-
     for(int i = 1; i < getVariablesSheet().getPhysicalNumberOfRows(); i++) {
       Row variableRow = getVariablesSheet().getRow(i);
-      if (variableRow == null) continue;
-      String tableHeader = ExcelUtil.findNormalizedHeader(headerMapVariables.keySet(), VariableConverter.TABLE);
-      String tableName = DEFAULT_TABLE_NAME;
-      if(tableHeader != null) {
-        Integer idx = headerMapVariables.get(tableHeader);
-        Cell cell = variableRow.getCell(idx);
-        tableName = ExcelUtil.getCellValueAsString(cell);
-        if(tableName.trim().isEmpty()) {
-          continue; // ignore rows without table name
-        }
-      }
-      if(!valueTablesMapOnInit.containsKey(tableName)) {
-        String entityTypeHeader = ExcelUtil
-            .findNormalizedHeader(headerMapVariables.keySet(), VariableConverter.ENTITY_TYPE);
-        String entityType = "Participant";
-        if(entityTypeHeader != null) {
-          entityType = ExcelUtil.getCellValueAsString(variableRow.getCell(headerMapVariables.get(entityTypeHeader)));
-        }
-        valueTablesMapOnInit.put(tableName, new ExcelValueTable(this, tableName, entityType));
-        sheetNames.add(getSheetName(tableName));
+      readValueTablesFromVariableRow(headerMapVariables, sheetNames, variableRow);
+    }
+    return Lists.newArrayList();
+  }
+
+  private void readValueTablesFromVariableRow(Map<String, Integer> headerMapVariables, Collection<String> sheetNames, Row variableRow) {
+    if (variableRow == null) return;
+    String tableHeader = ExcelUtil.findNormalizedHeader(headerMapVariables.keySet(), VariableConverter.TABLE);
+    String tableName = DEFAULT_TABLE_NAME;
+    if(tableHeader != null) {
+      tableName = ExcelUtil.getCellValueAsString(variableRow.getCell(headerMapVariables.get(tableHeader)));
+      if(tableName.trim().isEmpty()) {
+        return; // ignore rows without table name
       }
     }
-
-    return errors;
+    if(!valueTablesMapOnInit.containsKey(tableName)) {
+      String entityTypeHeader = ExcelUtil
+          .findNormalizedHeader(headerMapVariables.keySet(), VariableConverter.ENTITY_TYPE);
+      String entityType = "Participant";
+      if(entityTypeHeader != null) {
+        entityType = ExcelUtil.getCellValueAsString(variableRow.getCell(headerMapVariables.get(entityTypeHeader)));
+      }
+      valueTablesMapOnInit.put(tableName, new ExcelValueTable(this, tableName, entityType));
+      sheetNames.add(getSheetName(tableName));
+    }
   }
 
   @Override
