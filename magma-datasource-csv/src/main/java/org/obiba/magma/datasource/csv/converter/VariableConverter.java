@@ -93,6 +93,7 @@ public class VariableConverter {
           "CsvVariablesHeaderMustContainEntityType");
   }
 
+  @SuppressWarnings({ "PMD.NcssMethodCount", "OverlyLongMethod" })
   public Variable unmarshal(String... csvVar) {
     String name = getValueAt(csvVar, NAME);
     String valueType = getValueAt(csvVar, VALUE_TYPE);
