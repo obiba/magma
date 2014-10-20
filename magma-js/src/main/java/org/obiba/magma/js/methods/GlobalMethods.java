@@ -362,12 +362,12 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
       if(identifier.asSequence().getSize() > 0) {
         List<Value> joinedValues = Lists.newArrayList();
         for(Value id : identifier.asSequence().getValue()) {
-          joinedValues.add(getSingleJoinedValue(joinedTable, joinedSource, id));
+          joinedValues.add(getSingleJoinedValue(joinedTable, joinedSource, id, false));
         }
         value = joinedSource.getValueType().sequenceOf(joinedValues);
       }
     } else {
-      value = getSingleJoinedValue(joinedTable, joinedSource, identifier);
+      value = getSingleJoinedValue(joinedTable, joinedSource, identifier, true);
     }
 
     return value;
@@ -379,17 +379,19 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
    * @param joinedTable
    * @param joinedSource
    * @param identifier
+   * @param allowSequence
    * @return
    */
   private static Value getSingleJoinedValue(ValueTable joinedTable, VariableValueSource joinedSource,
-      Value identifier) {
+      Value identifier, boolean allowSequence) {
     Value value = identifier.isSequence()
         ? joinedSource.getValueType().nullSequence()
         : joinedSource.getValueType().nullValue();
     if(!identifier.isNull()) {
       VariableEntity entity = new VariableEntityBean(joinedTable.getEntityType(), identifier.toString());
       if(joinedTable.hasValueSet(entity)) {
-        value = ensureValueNotSequence(joinedSource.getValue(joinedTable.getValueSet(entity)));
+        value = joinedSource.getValue(joinedTable.getValueSet(entity));
+        value = allowSequence ? value : ensureValueNotSequence(value);
       }
     }
     return value;
