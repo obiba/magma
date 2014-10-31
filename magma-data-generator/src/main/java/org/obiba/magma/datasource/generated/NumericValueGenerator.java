@@ -74,7 +74,7 @@ class NumericValueGenerator extends AbstractMissingValueVariableValueGenerator {
   private Number getMaximum(ValueSet valueSet) {
     try {
       Value maximumValue = maximum.getValue(valueSet);
-      return maximumValue.isNull() ? MIN_VALUE : (Number) maximumValue.getValue();
+      return maximumValue.isNull() ? MAX_VALUE : (Number) maximumValue.getValue();
     } catch(Exception ignored) {
       return MAX_VALUE;
     }
@@ -82,7 +82,13 @@ class NumericValueGenerator extends AbstractMissingValueVariableValueGenerator {
 
   private Value getMeanValue(ValueSet valueSet) {
     try {
-      return mean.getValue(valueSet);
+      Value meanValue = mean.getValue(valueSet);
+      if (!meanValue.isNull()) return meanValue;
+
+      Number min = getMinimum(valueSet);
+      Number max = getMaximum(valueSet);
+      double meanDouble = (min.longValue() + max.longValue())/2;
+      return DecimalType.get().valueOf(new Double(meanDouble));
     } catch(Exception e) {
       return mean.getValueType().nullValue();
     }

@@ -33,46 +33,68 @@ public class FsGenerator {
 
   private static final Logger log = LoggerFactory.getLogger(FsGenerator.class);
 
-  private static final int NB_ENTITIES_MIN = 1000;
+  private static final int NB_ENTITIES_MIN = 500;
 
-  private static final int NB_ENTITIES_MAX = 5000;
+  private static final int NB_ENTITIES_MAX = 1000;
 
   private FsGenerator() {}
 
   public static void main(String... args) throws Exception {
     new MagmaEngine().extend(new MagmaXStreamExtension());
 
-    File workingDir = new File("");
-    log.info("Zip file lookup in {}", workingDir.getAbsolutePath());
-
-    for (File zipFile : workingDir.listFiles(new FileFilter() {
-      @Override
-      public boolean accept(File pathname) {
-        return pathname.getName().endsWith(".zip");
+    if (args == null || args.length == 0) {
+      generate(new File(System.getProperty("user.dir")));
+    } else {
+      for (String arg : args) {
+        File inputFile = new File(arg);
+        if (inputFile.exists()) {
+          generate(inputFile);
+        }
       }
-    })) {
-      generate(zipFile, randInt(NB_ENTITIES_MIN, NB_ENTITIES_MAX));
     }
 
     MagmaEngine.get().shutdown();
   }
 
+  public static void generate(File inputFile) throws Exception {
+    log.info("Zip file lookup in {}", inputFile.getAbsolutePath());
+
+    if (inputFile.isDirectory()) {
+      for (File zipFile : inputFile.listFiles(new FileFilter() {
+        @Override
+        public boolean accept(File pathname) {
+          return pathname.getName().endsWith(".zip");
+        }
+      })) {
+        generate(zipFile, randInt(NB_ENTITIES_MIN, NB_ENTITIES_MAX));
+      }
+    } else if (inputFile.getName().endsWith(".zip")) {
+      generate(inputFile, randInt(NB_ENTITIES_MIN, NB_ENTITIES_MAX));
+    }
+  }
+
   public static void generate(File zipFile, int nbEntities) throws Exception {
     File generatedFolder = new File(zipFile.getParentFile(), "generated");
-    generatedFolder.mkdirs();
-    Datasource datasource = new FsDatasource("ds", new File(generatedFolder, zipFile.getName()));
-    Datasource fsDatasource = new FsDatasource("fs", zipFile);
+    if (!generatedFolder.exists() && !generatedFolder.mkdirs()) {
+      throw new RuntimeException("Cannot create directory: " + generatedFolder.getAbsolutePath());
+    }
+    Datasource targetDatasource = new FsDatasource("target", new File(generatedFolder, zipFile.getName()));
+    Datasource fsDatasource = new FsDatasource("source", zipFile);
 
-    Initialisables.initialise(datasource, fsDatasource);
+    Initialisables.initialise(targetDatasource, fsDatasource);
 
     for (ValueTable table : fsDatasource.getValueTables()) {
       Stopwatch stopwatch = Stopwatch.createStarted();
-      ValueTable generatedValueTable = new GeneratedValueTable(datasource, Lists.newArrayList(table.getVariables()), nbEntities);
-      DatasourceCopier.Builder.newCopier().build().copy(generatedValueTable, "FNAC", datasource);
-      log.info("Data generated for {} {} in {}", zipFile.getName(), table.getName(), stopwatch);
+      ValueTable toCopy = table;
+      if (table.getValueSetCount() == 0) {
+        toCopy = new GeneratedValueTable(targetDatasource, Lists.newArrayList(table.getVariables()),
+            nbEntities);
+      }
+      DatasourceCopier.Builder.newCopier().build().copy(toCopy, table.getName(), targetDatasource);
+      log.info("Data generated and copied for {} ({}) in {}", table.getName(), zipFile.getName(), stopwatch);
     }
 
-    Disposables.dispose(datasource, fsDatasource);
+    Disposables.dispose(targetDatasource, fsDatasource);
   }
 
   /**
