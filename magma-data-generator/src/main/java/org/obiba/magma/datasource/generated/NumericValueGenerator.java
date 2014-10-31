@@ -10,7 +10,7 @@ import org.obiba.magma.type.IntegerType;
 
 class NumericValueGenerator extends AbstractMissingValueVariableValueGenerator {
 
-  private static final long MIN_VALUE = -100;
+  private static final long MIN_VALUE = 0;
 
   private static final long MAX_VALUE = 100;
 
