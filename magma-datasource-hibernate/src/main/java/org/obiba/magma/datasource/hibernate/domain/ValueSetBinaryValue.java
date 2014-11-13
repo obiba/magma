@@ -33,7 +33,7 @@ import org.obiba.core.domain.AbstractEntity;
     @NamedQuery(name = "deleteValueSetBinaryValues",
         query = "DELETE FROM ValueSetBinaryValue WHERE valueSet.id IN (:valueSetIds)"),
     @NamedQuery(name = "deleteVariableBinaryValues",
-        query = "DELETE FROM ValueSetBinaryValue WHERE valueSet.id IN (:valueSetIds) AND variable = :variableId") })
+        query = "DELETE FROM ValueSetBinaryValue WHERE valueSet.id IN (:valueSetIds) AND variable.id = :variableId") })
 public class ValueSetBinaryValue extends AbstractEntity {
 
   private static final long serialVersionUID = -7767999255949547929L;
