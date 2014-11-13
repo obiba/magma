@@ -226,7 +226,13 @@ class MongoDBValueTableWriter implements ValueTableWriter {
       // remove associated values from the value set collection
       removeVariableValues((MongoDBVariable) variable);
 
+      if (table.getVariableCount() == 0) {
+        table.getValueSetCollection().remove(BasicDBObjectBuilder.start().get());
+      }
+
       updateLastUpdate();
+
+
     }
 
     private void removeVariableValues(@NotNull MongoDBVariable variable) {
