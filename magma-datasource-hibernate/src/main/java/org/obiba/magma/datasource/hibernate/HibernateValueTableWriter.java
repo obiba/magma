@@ -135,6 +135,10 @@ class HibernateValueTableWriter implements ValueTableWriter {
       deleteVariableCategories(variableState);
       deleteVariable(variableState);
 
+      if (valueTable.getVariableCount() == 0) {
+        valueTable.refreshEntityProvider();
+      }
+
       errorOccurred = false;
 
       dirty = true;
