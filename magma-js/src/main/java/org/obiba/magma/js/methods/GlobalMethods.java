@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -33,6 +34,7 @@ import org.obiba.magma.js.ScriptableValue;
 import org.obiba.magma.js.ScriptableVariable;
 import org.obiba.magma.support.MagmaEngineVariableResolver;
 import org.obiba.magma.support.VariableEntityBean;
+import org.obiba.magma.type.BooleanType;
 import org.obiba.magma.type.DateTimeType;
 import org.obiba.magma.type.TextType;
 import org.obiba.magma.views.View;
@@ -239,16 +241,21 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
 
   /**
    * Allows joining a variable value to another variable value that provides a entity identifier. Accessed as $join in
-   * javascript.
+   * javascript. The treament of value sequences of value sequences is optional:
+   * <ul>
+   *   <li>keep the occurrence order and therefore the values of a sequence are turned into a csv string,</li>
+   *   <li>flatten the value sequence tree into a squence of unique values.</li>
+   * </ul>
    * <p/>
    * <pre>
    *   $join('medications.Drugs:BRAND_NAME','MEDICATION_1')
+   *   $join('test.tbl:SEQ','VARSEQ', true)
    * </pre>
    *
    * @return an instance of {@code ScriptableValue}
    */
   public static Scriptable $join(Context ctx, Scriptable thisObj, Object[] args, Function funObj) {
-    if(args.length != 2) {
+    if(args.length < 2) {
       throw new IllegalArgumentException(
           "$join() expects exactly two arguments: the reference the variable to be joined and the name of the variable holding entity identifiers.");
     }
@@ -256,6 +263,12 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
     MagmaContext context = MagmaContext.asMagmaContext(ctx);
     String joinedName = (String) args[0];
     String name = (String) args[1];
+    boolean flat = false;
+    if (args.length == 3) {
+      try {
+        flat = (Boolean) BooleanType.get().valueOf(args[2]).getValue();
+      } catch (Exception ignore) {}
+    }
     ValueTable valueTable = context.peek(ValueTable.class);
     Value identifier = valueFromContext(context, thisObj, name).getValue();
 
@@ -264,7 +277,7 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
     ValueTable joinedTable = reference.resolveTable(valueTable);
     VariableValueSource joinedSource = reference.resolveSource(valueTable);
 
-    return new ScriptableValue(thisObj, getJoinedValue(joinedTable, joinedSource, identifier),
+    return new ScriptableValue(thisObj, getJoinedValue(joinedTable, joinedSource, identifier, flat),
         joinedSource.getVariable().getUnit());
   }
 
@@ -351,9 +364,10 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
    * @param joinedTable
    * @param joinedSource
    * @param identifier
+   * @param flat Flatten the value sequence tree into a sequence of unique values
    * @return
    */
-  private static Value getJoinedValue(ValueTable joinedTable, VariableValueSource joinedSource, Value identifier) {
+  private static Value getJoinedValue(ValueTable joinedTable, VariableValueSource joinedSource, Value identifier, boolean flat) {
     // Default value is null if joined table has no valueSet (equivalent to a LEFT JOIN)
     Value value = identifier.isSequence()
         ? joinedSource.getValueType().nullSequence()
@@ -362,9 +376,12 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
       if(identifier.asSequence().getSize() > 0) {
         List<Value> joinedValues = Lists.newArrayList();
         for(Value id : identifier.asSequence().getValue()) {
-          joinedValues.add(getSingleJoinedValue(joinedTable, joinedSource, id, false));
+          joinedValues.add(getSingleJoinedValue(joinedTable, joinedSource, id, flat));
         }
         value = joinedSource.getValueType().sequenceOf(joinedValues);
+        if (flat) {
+          value = value.getValueType().sequenceOf(new HashSet<>(getAllSingleValues(value.asSequence())));
+        }
       }
     } else {
       value = getSingleJoinedValue(joinedTable, joinedSource, identifier, true);
@@ -413,6 +430,27 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
       }
     }
     return rval;
+  }
+
+  /**
+   * Recursively gets all the values in the given sequence
+   * @param seq
+   * @return list of values
+   */
+  public static List<Value> getAllSingleValues(ValueSequence seq) {
+    List<Value> list = new ArrayList<>();
+    extractSingleValues(seq, list);
+    return list;
+  }
+
+  private static void extractSingleValues(ValueSequence seq, List<Value> toAdd) {
+    for (Value v: seq.getValues()) {
+      if (v.isSequence()) {
+        extractSingleValues((ValueSequence)v, toAdd);
+      } else {
+        toAdd.add(v);
+      }
+    }
   }
 
   private static Scriptable valueFromViewContext(MagmaContext context, Scriptable thisObj, String name) {
