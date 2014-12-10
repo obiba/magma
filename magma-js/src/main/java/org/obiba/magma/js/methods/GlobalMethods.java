@@ -12,6 +12,7 @@ import java.util.Set;
 import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 
+import org.mozilla.javascript.ConsString;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.NativeArray;
@@ -87,7 +88,7 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
    * @return an instance of {@code ScriptableValue}
    */
   public static ScriptableValue newValue(Context cx, Scriptable thisObj, Object[] args, Function funObj) {
-    Object value = args[0];
+    Object value = ensurePrimitiveValue(args[0]);
     Value v = args.length > 1
         ? ValueType.Factory.forName((String) args[1]).valueOf(value)
         : ValueType.Factory.newValue((Serializable) value);
@@ -111,11 +112,12 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
   public static ScriptableValue newSequence(Context cx, Scriptable thisObj, Object[] args, Function funObj) {
     Object value = args[0];
     ValueType valueType = args.length > 1 ? ValueType.Factory.forName((String) args[1]) : null;
-    List<Value> values = null;
+    List<Value> values;
     if(value instanceof NativeArray) {
       values = nativeArrayToValueList(valueType, (NativeArray) value);
     } else {
       values = new ArrayList<>();
+      value = ensurePrimitiveValue(value);
       values.add(valueType == null ? ValueType.Factory.newValue((Serializable) value) : valueType.valueOf(value));
     }
     if(valueType == null) {
@@ -130,10 +132,23 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
   private static List<Value> nativeArrayToValueList(@Nullable ValueType valueType, NativeArray nativeArray) {
     List<Value> newValues = new ArrayList<>();
     for(long i = 0; i < nativeArray.getLength(); i++) {
-      Serializable serializable = (Serializable) nativeArray.get(i);
+      Object value = ensurePrimitiveValue(nativeArray.get(i));
+      Serializable serializable = (Serializable) value;
       newValues.add(valueType == null ? ValueType.Factory.newValue(serializable) : valueType.valueOf(serializable));
     }
     return newValues;
+  }
+
+  private static Object ensurePrimitiveValue(Object value) {
+    Object rvalue = value;
+
+    if (value instanceof ScriptableValue) {
+      rvalue = ((ScriptableValue) value).getValue().getValue();
+    } else if (value instanceof ConsString) {
+      rvalue = value.toString();
+    }
+
+    return rvalue;
   }
 
   /**
