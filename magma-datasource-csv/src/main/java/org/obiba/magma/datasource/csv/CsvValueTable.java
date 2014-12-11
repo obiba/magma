@@ -108,6 +108,7 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
     super(datasource, refTable.getName());
     this.refTable = refTable;
     this.dataFile = dataFile;
+    entityType = refTable.getEntityType();
     timestamps = new CsvTimestamps(variableFile, dataFile);
   }
 
