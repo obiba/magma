@@ -155,11 +155,13 @@ class HibernateValueTableWriter implements ValueTableWriter {
             .setParameter("valueTableId", valueTable.getValueTableId()) //
             .list();
 
-        int nbBinariesDeleted = session.getNamedQuery("deleteVariableBinaryValues") //
-            .setParameterList("valueSetIds", valueSetIds) //
-            .setParameter("variableId", variableState.getId()) //
-            .executeUpdate();
-        log.debug("Deleted {} binaries from {}", nbBinariesDeleted, valueTable.getName());
+        if (valueSetIds != null && !valueSetIds.isEmpty()) {
+          int nbBinariesDeleted = session.getNamedQuery("deleteVariableBinaryValues") //
+              .setParameterList("valueSetIds", valueSetIds) //
+              .setParameter("variableId", variableState.getId()) //
+              .executeUpdate();
+          log.debug("Deleted {} binaries from {}", nbBinariesDeleted, valueTable.getName());
+        }
       }
 
       // delete empty value sets
