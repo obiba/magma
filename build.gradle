@@ -194,7 +194,7 @@ subprojects { subProject ->
     testCompile(libraries.janino)
     testCompile(libraries.mockito)
 
-    pmd 'net.sourceforge.pmd:pmd:5.2.3'
+    pmd 'net.sourceforge.pmd:pmd:5.0.5'
   }
 
   test {
