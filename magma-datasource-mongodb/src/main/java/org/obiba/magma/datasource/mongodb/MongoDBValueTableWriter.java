@@ -133,10 +133,10 @@ class MongoDBValueTableWriter implements ValueTableWriter {
         GridFS gridFS = table.getMongoDBFactory().getGridFS();
         if(variable.isRepeatable()) {
           for(BSONObject obj : (Iterable<BSONObject>) binaryValueMetaData) {
-            gridFS.remove((ObjectId) obj.get("_id"));
+            gridFS.remove(new ObjectId((String) obj.get(GRID_FILE_ID)));
           }
         } else {
-          gridFS.remove((ObjectId) binaryValueMetaData.get("_id"));
+          gridFS.remove(new ObjectId((String) binaryValueMetaData.get(GRID_FILE_ID)));
         }
       }
     }
