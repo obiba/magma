@@ -343,6 +343,9 @@ class HibernateValueTableWriter implements ValueTableWriter {
         binaryValue = createBinaryValue(valueSetValue, inputValue, occurrence);
       } else if(inputValue.isNull()) {
         session.delete(binaryValue);
+      } else {
+        // update
+        binaryValue.setValue((byte[]) inputValue.getValue());
       }
       if(binaryValue == null) {
         // can be null if empty byte[]
