@@ -17,8 +17,10 @@ import java.util.Random;
 import org.obiba.magma.Datasource;
 import org.obiba.magma.MagmaEngine;
 import org.obiba.magma.ValueTable;
+import org.obiba.magma.datasource.excel.ExcelDatasource;
 import org.obiba.magma.datasource.fs.FsDatasource;
 import org.obiba.magma.datasource.generated.GeneratedValueTable;
+import org.obiba.magma.js.MagmaJsExtension;
 import org.obiba.magma.support.DatasourceCopier;
 import org.obiba.magma.support.Disposables;
 import org.obiba.magma.support.Initialisables;
@@ -33,14 +35,14 @@ public class FsGenerator {
 
   private static final Logger log = LoggerFactory.getLogger(FsGenerator.class);
 
-  private static final int NB_ENTITIES_MIN = 500;
+  private static final int NB_ENTITIES_MIN = 1000;
 
-  private static final int NB_ENTITIES_MAX = 1000;
+  private static final int NB_ENTITIES_MAX = 2000;
 
   private FsGenerator() {}
 
   public static void main(String... args) throws Exception {
-    new MagmaEngine().extend(new MagmaXStreamExtension());
+    new MagmaEngine().extend(new MagmaXStreamExtension()).extend(new MagmaJsExtension());
 
     if (args == null || args.length == 0) {
       generate(new File(System.getProperty("user.dir")));
@@ -57,44 +59,61 @@ public class FsGenerator {
   }
 
   public static void generate(File inputFile) throws Exception {
-    log.info("Zip file lookup in {}", inputFile.getAbsolutePath());
+    log.info("Input file lookup in {}", inputFile.getAbsolutePath());
 
     if (inputFile.isDirectory()) {
-      for (File zipFile : inputFile.listFiles(new FileFilter() {
+      for (File sourceFile : inputFile.listFiles(new FileFilter() {
         @Override
         public boolean accept(File pathname) {
-          return pathname.getName().endsWith(".zip");
+          return pathname.getName().endsWith(".zip") || pathname.getName().endsWith(".xlsx");
         }
       })) {
-        generate(zipFile, randInt(NB_ENTITIES_MIN, NB_ENTITIES_MAX));
+        generate(sourceFile, randInt(NB_ENTITIES_MIN, NB_ENTITIES_MAX));
       }
     } else if (inputFile.getName().endsWith(".zip")) {
       generate(inputFile, randInt(NB_ENTITIES_MIN, NB_ENTITIES_MAX));
     }
   }
 
-  public static void generate(File zipFile, int nbEntities) throws Exception {
-    File generatedFolder = new File(zipFile.getParentFile(), "generated");
-    if (!generatedFolder.exists() && !generatedFolder.mkdirs()) {
-      throw new RuntimeException("Cannot create directory: " + generatedFolder.getAbsolutePath());
+  public static void generate(File sourceFile, int nbEntities) throws Exception {
+    File generatedFolder = getDestinationFolder(sourceFile);
+
+    String destinationFileName = sourceFile.getName();
+    Datasource fsDatasource;
+    if (sourceFile.getName().endsWith(".zip")) {
+      fsDatasource = new FsDatasource("source", sourceFile);
+    } else {
+      fsDatasource = new ExcelDatasource("source", sourceFile);
+      destinationFileName = sourceFile.getName().replace(".xlsx","") + ".zip";
     }
-    Datasource targetDatasource = new FsDatasource("target", new File(generatedFolder, zipFile.getName()));
-    Datasource fsDatasource = new FsDatasource("source", zipFile);
+    Datasource targetDatasource = new FsDatasource("target", new File(generatedFolder, destinationFileName));
 
-    Initialisables.initialise(targetDatasource, fsDatasource);
+    generate(fsDatasource, targetDatasource, nbEntities);
+  }
 
-    for (ValueTable table : fsDatasource.getValueTables()) {
+  private static void generate(Datasource source, Datasource target, int nbEntities)  throws Exception {
+    Initialisables.initialise(target, source);
+
+    for (ValueTable table : source.getValueTables()) {
       Stopwatch stopwatch = Stopwatch.createStarted();
       ValueTable toCopy = table;
       if (table.getValueSetCount() == 0) {
-        toCopy = new GeneratedValueTable(targetDatasource, Lists.newArrayList(table.getVariables()),
+        toCopy = new GeneratedValueTable(target, Lists.newArrayList(table.getVariables()),
             nbEntities);
       }
-      DatasourceCopier.Builder.newCopier().build().copy(toCopy, table.getName(), targetDatasource);
-      log.info("Data generated and copied for {} ({}) in {}", table.getName(), zipFile.getName(), stopwatch);
+      DatasourceCopier.Builder.newCopier().build().copy(toCopy, table.getName(), target);
+      log.info("Data generated and copied for {} ({}) in {}", table.getName(), source.getName(), stopwatch);
     }
 
-    Disposables.dispose(targetDatasource, fsDatasource);
+    Disposables.dispose(target, source);
+  }
+
+  private static File getDestinationFolder(File sourceFile) {
+    File generatedFolder = new File(sourceFile.getParentFile(), "generated");
+    if (!generatedFolder.exists() && !generatedFolder.mkdirs()) {
+      throw new RuntimeException("Cannot create directory: " + generatedFolder.getAbsolutePath());
+    }
+    return generatedFolder;
   }
 
   /**
