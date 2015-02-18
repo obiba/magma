@@ -20,6 +20,7 @@ public class ShiroAuthorizer implements Authorizer {
   public boolean isPermitted(String permission) {
     boolean p = SecurityUtils.getSubject().isPermitted(permission);
     log.debug(String.format("isPermitted(%s, %s)==%s", SecurityUtils.getSubject().getPrincipal(), permission, p));
+    SecurityUtils.getSubject().getSession().touch();
     return p;
   }
 
