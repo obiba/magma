@@ -72,7 +72,11 @@ class MongoDBValueSet implements ValueSet {
 
   @SuppressWarnings("unchecked")
   private Value getBinaryValue(MongoDBVariable variable, BSONObject valueObject) {
-    ValueLoaderFactory factory = new MongoDBValueLoaderFactory(valueTable.getMongoDBFactory());
+    return getBinaryValue(valueTable.getMongoDBFactory(), variable, valueObject);
+  }
+
+  public static Value getBinaryValue(MongoDBFactory mongoDBFactory, MongoDBVariable variable, BSONObject valueObject) {
+    ValueLoaderFactory factory = new MongoDBValueLoaderFactory(mongoDBFactory);
 
     BSONObject fileMetadata = (BSONObject) valueObject.get(variable.getId());
     if(fileMetadata == null) {
@@ -89,7 +93,7 @@ class MongoDBValueSet implements ValueSet {
     return BinaryType.get().valueOfReference(factory, getBinaryMetadata(fileMetadata));
   }
 
-  private Value getBinaryMetadata(BSONObject valueObject) {
+  private static Value getBinaryMetadata(BSONObject valueObject) {
     if(!valueObject.containsField(GRID_FILE_ID)) {
       return TextType.get().nullValue();
     }
