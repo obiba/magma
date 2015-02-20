@@ -16,6 +16,7 @@ import java.util.SortedSet;
 
 import javax.validation.constraints.NotNull;
 
+import org.bson.BSONObject;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueSet;
 import org.obiba.magma.ValueType;
@@ -24,6 +25,7 @@ import org.obiba.magma.VariableValueSource;
 import org.obiba.magma.VectorSource;
 import org.obiba.magma.datasource.mongodb.converter.ValueConverter;
 import org.obiba.magma.datasource.mongodb.converter.VariableConverter;
+import org.obiba.magma.type.BinaryType;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
@@ -140,12 +142,19 @@ public class MongoDBVariableValueSource implements VariableValueSource, VectorSo
       while(cursor.hasNext() && !found) {
         DBObject obj = cursor.next();
         String id = obj.get("_id").toString();
-        valueMap.put(id, ValueConverter.unmarshall(type, repeatable, field, obj));
+        Value value = variable.getValueType().equals(BinaryType.get())
+            ? getBinaryValue(obj)
+            : ValueConverter.unmarshall(type, repeatable, field, obj);
+        valueMap.put(id, value);
         found = id.equals(entity.getIdentifier());
       }
 
       if(valueMap.containsKey(entity.getIdentifier())) return getValueFromMap(entity);
       return ValueConverter.unmarshall(type, repeatable, field, null);
+    }
+
+    private Value getBinaryValue(BSONObject valueObject) {
+      return MongoDBValueSet.getBinaryValue(table.getMongoDBFactory(), variable, valueObject);
     }
 
     /**
