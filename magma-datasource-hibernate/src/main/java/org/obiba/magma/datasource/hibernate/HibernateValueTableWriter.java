@@ -243,6 +243,7 @@ class HibernateValueTableWriter implements ValueTableWriter {
         state = new ValueSetState(valueTable.getValueTableState(), variableEntityState);
         // Persists the ValueSet
         session.save(state);
+        session.refresh(state); //OPAL-2635
         values = Maps.newHashMap();
         isNewValueSet = true;
       } else {

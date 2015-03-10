@@ -21,6 +21,7 @@ public class VariableEntityConverter implements HibernateConverter<VariableEntit
     if(variableEntityState == null) {
       variableEntityState = new VariableEntityState(variableEntity.getIdentifier(), variableEntity.getType());
       context.getSessionFactory().getCurrentSession().save(variableEntityState);
+      context.getSessionFactory().getCurrentSession().refresh(variableEntityState); //OPAL-2635
     }
 
     return variableEntityState;
