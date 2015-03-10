@@ -24,6 +24,7 @@ public class ValueTableConverter implements HibernateConverter<ValueTableState, 
       valueTableState = new ValueTableState(valueTable.getName(), valueTable.getEntityType(),
           context.getDatasourceState());
       context.getSessionFactory().getCurrentSession().save(valueTableState);
+      context.getSessionFactory().getCurrentSession().refresh(valueTableState); //OPAL-2635
     }
 
     return valueTableState;
