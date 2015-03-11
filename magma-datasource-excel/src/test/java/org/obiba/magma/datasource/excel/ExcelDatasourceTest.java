@@ -6,6 +6,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -93,33 +94,24 @@ public class ExcelDatasourceTest extends AbstractMagmaTest {
     try {
       datasource.initialise();
     } catch(DatasourceParsingException dpe) {
-      // dpe.printTree();
-      // System.out.println("******");
-      // dpe.printList();
       assertThat(dpe.hasChildren()).isTrue();
       List<DatasourceParsingException> errors = dpe.getChildrenAsList();
-      assertThat(errors).hasSize(14);
+      assertThat(errors).hasSize(10);
       assertDatasourceParsingException("DuplicateCategoryName", "[Categories, 4, Table1, Var1, C2]", errors.get(0));
       assertDatasourceParsingException("CategoryNameRequired", "[Categories, 5, Table1, Var1]", errors.get(1));
       assertDatasourceParsingException("DuplicateCategoryName", "[Categories, 7, Table1, Var2, C1]", errors.get(2));
       assertDatasourceParsingException("VariableNameRequired", "[Variables, 6, Table1]", errors.get(3));
       assertDatasourceParsingException("DuplicateVariableName", "[Variables, 7, Table1, Var1]", errors.get(4));
-      assertDatasourceParsingException("VariableNameCannotContainColon", "[Variables, 8, Table1, Foo:Bar]",
-          errors.get(5));
+      assertDatasourceParsingException("VariableNameCannotContainColon", "[Variables, 8, Table1, Foo:Bar]", errors.get(5));
       assertDatasourceParsingException("UnknownValueType", "[Variables, 9, Table1, Var5, Numerical]", errors.get(6));
       assertDatasourceParsingException("CategoryVariableNameRequired", "[Categories, 9, Table1]", errors.get(7));
       assertDatasourceParsingException("CategoryVariableNameRequired", "[Categories, 10, Table1]", errors.get(8));
-      assertDatasourceParsingException("DuplicateColumns", "[Table1, 1, Table1, Var2]", errors.get(9));
-      assertDatasourceParsingException("DuplicateColumns", "[Table1, 1, Table1, Var6]", errors.get(10));
-      assertDatasourceParsingException("VariableNameCannotContainColon", "[Table1, 1, Table1, Toto:Tata]",
-          errors.get(11));
-      assertDatasourceParsingException("VariableNameRequired", "[Table1, 1, Table1]", errors.get(12));
-      assertDatasourceParsingException("VariableNameRequired", "[Variables, 10, Table2]", errors.get(13));
+      assertDatasourceParsingException("VariableNameRequired", "[Variables, 10, Table2]", errors.get(9));
     }
   }
 
   @Test
-  public void test_read_write_without_table_column() throws IOException {
+  public void test_read_without_table_column() throws IOException {
     Datasource datasource = new ExcelDatasource("user-defined-no-table-column",
         FileUtil.getFileFromResource("org/obiba/magma/datasource/excel/user-defined-no-table-column.xls"));
     datasource.initialise();
@@ -130,11 +122,6 @@ public class ExcelDatasourceTest extends AbstractMagmaTest {
     assertThat(table.getVariables()).hasSize(3);
     assertThat(table.getVariableCount()).isEqualTo(3);
     assertThat(table.getVariable("Var1").getCategories()).hasSize(3);
-
-    // test that writing variable & category when some columns are missing does not fail
-    Variable testVariable = Variable.Builder.newVariable("test-variable", TextType.get(), "Participant")
-        .addCategories("test-category").build();
-    writeVariableToDatasource(datasource, ExcelDatasource.DEFAULT_TABLE_NAME, testVariable);
   }
 
   @Test
@@ -142,23 +129,7 @@ public class ExcelDatasourceTest extends AbstractMagmaTest {
     Datasource datasource = new ExcelDatasource("user-defined-no-meta",
         FileUtil.getFileFromResource("org/obiba/magma/datasource/excel/user-defined-no-meta.xls"));
     datasource.initialise();
-
-    assertThat(datasource.getValueTables()).hasSize(1);
-    ValueTable table = datasource.getValueTable("Table1");
-    assertThat(table).isNotNull();
-    assertThat(table.getVariables()).hasSize(2);
-    assertThat(table.getVariableCount()).isEqualTo(2);
-    Variable variable = table.getVariable("Var1");
-    assertThat(variable.getValueType()).isEqualTo(TextType.get());
-    assertThat(variable.getCategories()).isEmpty();
-    variable = table.getVariable("Var2");
-    assertThat(variable.getValueType()).isEqualTo(TextType.get());
-    assertThat(variable.getCategories()).isEmpty();
-
-    // test that writing variable & category when some columns are missing does not fail
-    Variable testVariable = Variable.Builder.newVariable("test-variable", TextType.get(), "Participant")
-        .addCategories("test-category").build();
-    writeVariableToDatasource(datasource, "Table1", testVariable);
+    assertThat(datasource.getValueTables()).hasSize(0);
   }
 
   @Test
@@ -170,18 +141,14 @@ public class ExcelDatasourceTest extends AbstractMagmaTest {
     assertThat(datasource.getValueTables()).hasSize(1);
     ValueTable table = datasource.getValueTable("Table1");
     assertThat(table).isNotNull();
-    assertThat(table.getVariables()).hasSize(3);
-    assertThat(table.getVariableCount()).isEqualTo(3);
+    assertThat(table.getVariables()).hasSize(2);
+    assertThat(table.getVariableCount()).isEqualTo(2);
     Variable variable = table.getVariable("Var1");
     assertThat(variable.getValueType()).isEqualTo(IntegerType.get());
     assertThat(variable.getCategories()).hasSize(2);
     variable = table.getVariable("Var2");
     assertThat(variable.getValueType()).isEqualTo(IntegerType.get());
     assertThat(variable.getCategories()).isEmpty();
-    variable = table.getVariable("Var3");
-    assertThat(variable.getValueType()).isEqualTo(TextType.get());
-    assertThat(variable.getCategories()).isEmpty();
-
   }
 
   @Test
@@ -198,52 +165,6 @@ public class ExcelDatasourceTest extends AbstractMagmaTest {
         assertThat(errors).hasSize(8);
       }
     }
-  }
-
-  @Test
-  public void test_write_variable_is_read_back() throws IOException {
-    File tmpExcelFile = createTempFile(".xlsx");
-
-    Variable testVariable = Variable.Builder.newVariable("test-variable", TextType.get(), "Participant").build();
-
-    ExcelDatasource datasource = new ExcelDatasource("test", tmpExcelFile);
-    datasource.initialise();
-    writeVariableToDatasource(datasource, "test-table", testVariable);
-    datasource.dispose();
-
-    datasource = new ExcelDatasource("test", tmpExcelFile);
-    datasource.initialise();
-    assertThat(datasource.getValueTable("test-table")).isNotNull();
-    assertThat(datasource.getValueTable("test-table").getVariable("test-variable")).isNotNull();
-
-    Disposables.silentlyDispose(datasource);
-    tmpExcelFile.delete();
-  }
-
-  @Test
-  public void test_write_variable_multiple_times_OPAL_232() throws IOException {
-    File tmpExcelFile = createTempFile(".xlsx");
-
-    Variable testVariable = Variable.Builder.newVariable("test-variable", TextType.get(), "Participant").build();
-
-    ExcelDatasource datasource = new ExcelDatasource("test", tmpExcelFile);
-    datasource.initialise();
-    writeVariableToDatasource(datasource, "test-table", testVariable);
-    datasource.dispose();
-
-    datasource = new ExcelDatasource("test", tmpExcelFile);
-    datasource.initialise();
-    writeVariableToDatasource(datasource, "test-table", testVariable);
-    datasource.dispose();
-
-    datasource = new ExcelDatasource("test", tmpExcelFile);
-    datasource.initialise();
-    ValueTable valueTable = datasource.getValueTable("test-table");
-    assertThat(valueTable.getVariables()).hasSize(1);
-    assertThat(valueTable.getVariableCount()).isEqualTo(1);
-
-    Disposables.silentlyDispose(datasource);
-    tmpExcelFile.delete();
   }
 
   @Test
@@ -280,34 +201,10 @@ public class ExcelDatasourceTest extends AbstractMagmaTest {
         FileUtil.getFileFromResource("org/obiba/magma/datasource/excel/long-table-names.xlsx"));
     datasource.initialise();
 
+    Set<String> c = datasource.getVariablesCustomAttributeNames();
+
+    assertThat(c.size()).isEqualTo(22);
     assertLongTableNames(datasource);
-  }
-
-  @Test
-  public void test_write_long_table_names() {
-    Datasource datasource = new ExcelDatasource("long",
-        FileUtil.getFileFromResource("org/obiba/magma/datasource/excel/long-table-names.xlsx"));
-    datasource.initialise();
-
-    File testFile = new File("target/long-table-names.xlsx");
-    if(testFile.exists()) testFile.delete();
-    ExcelDatasource datasource2 = new ExcelDatasource("long2", testFile);
-    datasource2.initialise();
-
-    for(ValueTable table : datasource.getValueTables()) {
-      try(ValueTableWriter tableWriter = datasource2.createWriter(table.getName(), table.getEntityType());
-          VariableWriter variableWriter = tableWriter.writeVariables()) {
-        for(Variable variable : table.getVariables()) {
-          variableWriter.writeVariable(variable);
-        }
-      }
-    }
-
-    datasource2.dispose();
-
-    datasource2 = new ExcelDatasource("long2", testFile);
-    datasource2.initialise();
-    assertLongTableNames(datasource2);
   }
 
   @Test
