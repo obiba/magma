@@ -14,7 +14,6 @@ import javax.validation.constraints.NotNull;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ContextAction;
 import org.mozilla.javascript.ContextFactory;
-import org.mozilla.javascript.EvaluatorException;
 import org.mozilla.javascript.Script;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.Undefined;
@@ -122,17 +121,22 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
   }
 
   @Override
-  public void initialise() throws EvaluatorException {
+  public void initialise() {
   }
 
-  protected void initialiseIfNot() throws EvaluatorException {
+  protected void initialiseIfNot() {
     if(compiledScript == null) {
-      compiledScript = (Script) ContextFactory.getGlobal().call(new ContextAction() {
-        @Override
-        public Object run(Context context) {
-          return context.compileString(getScript(), getScriptName(), 1, null);
-        }
-      });
+      try {
+        compiledScript = (Script) ContextFactory.getGlobal().call(new ContextAction() {
+          @Override
+          public Object run(Context context) {
+            return context.compileString(getScript(), getScriptName(), 1, null);
+          }
+        });
+      } catch(Exception e) {
+        log.error("Script compilation failed: {}", getScript(), e);
+        throw new MagmaJsRuntimeException("Script compilation failed: " + e.getMessage(), e);
+      }
     }
   }
 
