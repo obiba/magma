@@ -66,10 +66,12 @@ public class JavascriptValueSourceTest extends AbstractJsTest {
       source.initialise();
       source.getValue(null);
       fail("EvaluatorException was expected");
-    } catch(EvaluatorException e) {
-      assertThat(e.sourceName()).isEqualTo("Bogus");
-      assertThat(e.lineNumber()).isEqualTo(2);
-      assertThat(e.lineSource()).isEqualTo("ERROR!");
+    } catch(MagmaJsRuntimeException e) {
+      assertThat(e.getCause() instanceof EvaluatorException);
+      EvaluatorException cause = (EvaluatorException)e.getCause();
+      assertThat(cause.sourceName()).isEqualTo("Bogus");
+      assertThat(cause.lineNumber()).isEqualTo(2);
+      assertThat(cause.lineSource()).isEqualTo("ERROR!");
     }
   }
 

@@ -57,9 +57,9 @@ public class MongoDBVariableValueSource implements VariableValueSource, VectorSo
 
   @NotNull
   @Override
-  public MongoDBVariable getVariable() {
+  public synchronized MongoDBVariable getVariable() {
     Value tableLastUpdate = table.getTimestamps().getLastUpdate();
-    if(lastUpdated == null || !lastUpdated.equals(tableLastUpdate)) {
+    if(variable == null || lastUpdated == null || !lastUpdated.equals(tableLastUpdate)) {
       lastUpdated = tableLastUpdate;
       variable = VariableConverter.unmarshall(table.findVariable(name));
     }

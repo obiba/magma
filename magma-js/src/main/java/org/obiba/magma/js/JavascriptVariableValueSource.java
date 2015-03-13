@@ -13,7 +13,6 @@ import org.obiba.magma.ValueTable;
 import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.VariableValueSource;
-import org.obiba.magma.js.validation.VariableScriptValidator;
 import org.obiba.magma.support.ValueTableWrapper;
 import org.obiba.magma.views.View;
 import org.slf4j.Logger;
@@ -97,7 +96,7 @@ public class JavascriptVariableValueSource extends JavascriptValueSource impleme
       initialiseIfNot();
       //OPAL-2546 commented until this issue is resolved
       //new VariableScriptValidator(variable, valueTable).validateScript();
-      lastScriptValidation = valueTable.getTimestamps().getLastUpdate();
+      lastScriptValidation = tableLastUpdate;
     } else {
       log.trace("Skip {} script validation", variable.getName());
     }
