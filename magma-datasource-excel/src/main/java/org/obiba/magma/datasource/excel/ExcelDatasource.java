@@ -2,6 +2,7 @@ package org.obiba.magma.datasource.excel;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -53,6 +54,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.Timestamps;
 import org.obiba.magma.ValueTable;
+import org.obiba.magma.ValueTableWriter;
 import org.obiba.magma.datasource.excel.support.ExcelDatasourceParsingException;
 import org.obiba.magma.datasource.excel.support.ExcelUtil;
 import org.obiba.magma.datasource.excel.support.NameConverter;
@@ -158,7 +160,11 @@ public class ExcelDatasource extends AbstractDatasource {
 
   private void createWorbookFromFile(){
     if(excelFile.exists()) {
-      tryCreateWorkbookFromFile();
+      try (InputStream input = new FileInputStream(excelFile)) {
+        createWorkbookFromInputStream(input);
+      } catch(IOException e) {
+        throw new MagmaRuntimeException("Exception reading excel spreadsheet " + excelFile.getName(), e);
+      }
     } else {
       if(excelFile.getName().endsWith("xls"))
         log.warn(
@@ -168,20 +174,26 @@ public class ExcelDatasource extends AbstractDatasource {
     }
   }
 
-  private void tryCreateWorkbookFromFile() {
-    try (InputStream inpOrig = new FileInputStream(excelFile);
-         InputStream inp = !inpOrig.markSupported() ? new PushbackInputStream(inpOrig, 8) : inpOrig) {
-        if(POIFSFileSystem.hasPOIFSHeader(inp)) {
-          createHSSFWorkbook(inp);
-        } else if(POIXMLDocument.hasOOXMLHeader(inp)) {
-          createXSSFWorkbook(inp);
-        } else {
-          excelWorkbook = WorkbookFactory.create(inp);
-        }
+  private void createWorkbookFromInputStream() {
+    createWorkbookFromInputStream(excelInput);
+  }
+
+  private void createWorkbookFromInputStream(InputStream inpOrig) {
+    try(InputStream inp = !inpOrig.markSupported() ? new PushbackInputStream(inpOrig, 8) : inpOrig) {
+      if(POIFSFileSystem.hasPOIFSHeader(inp)) {
+        createHSSFWorkbook(inp);
+      } else if(POIXMLDocument.hasOOXMLHeader(inp)) {
+        createXSSFWorkbook(inp);
+      } else {
+        excelWorkbook = WorkbookFactory.create(inpOrig);
+      }
     } catch(IOException e) {
       throw new MagmaRuntimeException("Exception reading excel spreadsheet " + excelFile.getName(), e);
     } catch(OpenXML4JException | SAXException e) {
       throw new MagmaRuntimeException("Invalid excel spreadsheet format " + excelFile.getName(), e);
+    } catch(IllegalArgumentException e) {
+      throw new MagmaRuntimeException(
+          "Invalid excel spreadsheet format from input stream (neither an OLE2 stream nor an OOXML stream).");
     }
   }
 
@@ -221,16 +233,48 @@ public class ExcelDatasource extends AbstractDatasource {
     }
   }
 
-  private void createWorkbookFromInputStream() {
-    try {
-      excelWorkbook = WorkbookFactory.create(excelInput);
-    } catch(IllegalArgumentException e) {
-      throw new MagmaRuntimeException(
-          "Invalid excel spreadsheet format from input stream (neither an OLE2 stream nor an OOXML stream).");
-    } catch(InvalidFormatException e) {
-      throw new MagmaRuntimeException("Invalid excel spreadsheet format from input stream.");
-    } catch(IOException e) {
-      throw new MagmaRuntimeException("Exception reading excel spreadsheet from input stream.");
+  /**
+   * Set the output stream to which the Excel workbook will be persisted at datasource disposal.
+   *
+   * @param excelOutput
+   */
+  public void setExcelOutput(OutputStream excelOutput) {
+    this.excelOutput = excelOutput;
+  }
+
+  @Override
+  @NotNull
+  public ValueTableWriter createWriter(@NotNull String name, @NotNull String entityType) {
+    ExcelValueTable valueTable = null;
+
+    if(hasValueTable(name)) {
+      valueTable = (ExcelValueTable) getValueTable(name);
+    } else {
+      addValueTable(valueTable = new ExcelValueTable(this, name, entityType));
+    }
+
+    return new ExcelValueTableWriter(valueTable);
+  }
+
+  /**
+   * Write the Excel workbook into provided output stream.
+   *
+   * @param excelOutputStream
+   * @throws IOException
+   */
+  private void writeWorkbook(OutputStream excelOutputStream) throws IOException {
+    excelWorkbook.write(excelOutputStream);
+  }
+
+  @Override
+  protected void onDispose() {
+    // Write the workbook (datasource) to file/OutputStream if any of them is defined
+    try(OutputStream out = excelFile == null ? excelOutput : new FileOutputStream(excelFile)) {
+      if(out != null) {
+        writeWorkbook(out);
+      }
+    } catch(Exception e) {
+      throw new MagmaRuntimeException("Could not write to excel output stream", e);
     }
   }
 
