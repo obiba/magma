@@ -35,9 +35,9 @@ public class FsGenerator {
 
   private static final Logger log = LoggerFactory.getLogger(FsGenerator.class);
 
-  private static final int NB_ENTITIES_MIN = 1000;
+  private static final int NB_ENTITIES_MIN = 100;
 
-  private static final int NB_ENTITIES_MAX = 2000;
+  private static final int NB_ENTITIES_MAX = 200;
 
   private FsGenerator() {}
 
@@ -68,14 +68,14 @@ public class FsGenerator {
           return pathname.getName().endsWith(".zip") || pathname.getName().endsWith(".xlsx");
         }
       })) {
-        generate(sourceFile, randInt(NB_ENTITIES_MIN, NB_ENTITIES_MAX));
+        doGenerate(sourceFile);
       }
     } else if (inputFile.getName().endsWith(".zip")) {
-      generate(inputFile, randInt(NB_ENTITIES_MIN, NB_ENTITIES_MAX));
+      doGenerate(inputFile);
     }
   }
 
-  public static void generate(File sourceFile, int nbEntities) throws Exception {
+  private static void doGenerate(File sourceFile) throws Exception {
     File generatedFolder = getDestinationFolder(sourceFile);
 
     String destinationFileName = sourceFile.getName();
@@ -88,10 +88,10 @@ public class FsGenerator {
     }
     Datasource targetDatasource = new FsDatasource("target", new File(generatedFolder, destinationFileName));
 
-    generate(fsDatasource, targetDatasource, nbEntities);
+    doGenerate(fsDatasource, targetDatasource);
   }
 
-  private static void generate(Datasource source, Datasource target, int nbEntities)  throws Exception {
+  private static void doGenerate(Datasource source, Datasource target)  throws Exception {
     Initialisables.initialise(target, source);
 
     for (ValueTable table : source.getValueTables()) {
@@ -99,7 +99,7 @@ public class FsGenerator {
       ValueTable toCopy = table;
       if (table.getValueSetCount() == 0) {
         toCopy = new GeneratedValueTable(target, Lists.newArrayList(table.getVariables()),
-            nbEntities);
+            randInt(NB_ENTITIES_MIN, NB_ENTITIES_MAX));
       }
       DatasourceCopier.Builder.newCopier().build().copy(toCopy, table.getName(), target);
       log.info("Data generated and copied for {} ({}) in {}", table.getName(), source.getName(), stopwatch);
