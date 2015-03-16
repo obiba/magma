@@ -53,7 +53,6 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.Timestamps;
 import org.obiba.magma.ValueTable;
-import org.obiba.magma.ValueTableWriter;
 import org.obiba.magma.datasource.excel.support.ExcelDatasourceParsingException;
 import org.obiba.magma.datasource.excel.support.ExcelUtil;
 import org.obiba.magma.datasource.excel.support.NameConverter;
@@ -157,58 +156,53 @@ public class ExcelDatasource extends AbstractDatasource {
     createExcelStyles();
   }
 
-  private void createWorbookFromFile() {
+  private void createWorbookFromFile(){
     if(excelFile.exists()) {
-      InputStream inp = null;
+      tryCreateWorkbookFromFile();
+    } else {
+      if(excelFile.getName().endsWith("xls"))
+        log.warn(
+            "Creating an ExcelDatasource using Excel 97 format which only supports 256 columns. This may not be sufficient for large amounts of variables. Specify a filename with an extension other than 'xls' to use Excel 2007 format.");
 
-      try {
-        inp = new FileInputStream(excelFile);
+      excelWorkbook = excelFile.getName().endsWith("xls") ? new HSSFWorkbook() : new XSSFWorkbook();
+    }
+  }
 
-        if (!inp.markSupported()) {
-          inp = new PushbackInputStream(inp, 8);
-        }
-
-        if (POIFSFileSystem.hasPOIFSHeader(inp)) {
-          POIFSFileSystem poifs = new POIFSFileSystem(inp);
-          try (InputStream din = poifs.createDocumentInputStream("Workbook")) {
-            HSSFRequest req = new HSSFRequest();
-            excelWorkbook = new HSSFWorkbook();
-            req.addListenerForAllRecords(new SheetExtractorListener(excelWorkbook, VARIABLES_SHEET, CATEGORIES_SHEET));
-            HSSFEventFactory factory = new HSSFEventFactory();
-            factory.processEvents(req, din);
-          }
-        } else if (POIXMLDocument.hasOOXMLHeader(inp)) {
-          excelWorkbook = new XSSFWorkbook();
-          OPCPackage container = OPCPackage.open(inp);
-          ReadOnlySharedStringsTable strings = new ReadOnlySharedStringsTable(container);
-          XSSFReader reader = new XSSFReader(container);
-          parseSheets(reader, strings, excelWorkbook, VARIABLES_SHEET, CATEGORIES_SHEET);
+  private void tryCreateWorkbookFromFile() {
+    try (InputStream inpOrig = new FileInputStream(excelFile);
+         InputStream inp = !inpOrig.markSupported() ? new PushbackInputStream(inpOrig, 8) : inpOrig) {
+        if(POIFSFileSystem.hasPOIFSHeader(inp)) {
+          createHSSFWorkbook(inp);
+        } else if(POIXMLDocument.hasOOXMLHeader(inp)) {
+          createXSSFWorkbook(inp);
         } else {
           excelWorkbook = WorkbookFactory.create(inp);
         }
-      } catch(IOException e) {
-        throw new MagmaRuntimeException("Exception reading excel spreadsheet " + excelFile.getName(), e);
-      } catch(OpenXML4JException | SAXException e) {
-        throw new MagmaRuntimeException("Invalid excel spreadsheet format " + excelFile.getName(), e);
-      } finally {
-        try {
-          if (inp != null) inp.close();
-        } catch(IOException e) {
-          //ignore
-        }
-      }
-
-    } else {
-      if(excelFile.getName().endsWith("xls")) {
-        // Excel 97 format. Supports up to 256 columns only.
-        log.warn(
-            "Creating an ExcelDatasource using Excel 97 format which only supports 256 columns. This may not be sufficient for large amounts of variables. Specify a filename with an extension other than 'xls' to use Excel 2007 format.");
-        excelWorkbook = new HSSFWorkbook();
-      } else {
-        // Create a XSSFWorkbook to support more than 256 columns and 64K rows.
-        excelWorkbook = new XSSFWorkbook();
-      }
+    } catch(IOException e) {
+      throw new MagmaRuntimeException("Exception reading excel spreadsheet " + excelFile.getName(), e);
+    } catch(OpenXML4JException | SAXException e) {
+      throw new MagmaRuntimeException("Invalid excel spreadsheet format " + excelFile.getName(), e);
     }
+  }
+
+  private void createHSSFWorkbook(InputStream inp) throws IOException {
+    POIFSFileSystem poifs = new POIFSFileSystem(inp);
+
+    try (InputStream din = poifs.createDocumentInputStream("Workbook")) {
+      HSSFRequest req = new HSSFRequest();
+      excelWorkbook = new HSSFWorkbook();
+      req.addListenerForAllRecords(new SheetExtractorListener(excelWorkbook, VARIABLES_SHEET, CATEGORIES_SHEET));
+      HSSFEventFactory factory = new HSSFEventFactory();
+      factory.processEvents(req, din);
+    }
+  }
+
+  private void createXSSFWorkbook(InputStream inp) throws IOException, SAXException, OpenXML4JException {
+    excelWorkbook = new XSSFWorkbook();
+    OPCPackage container = OPCPackage.open(inp);
+    ReadOnlySharedStringsTable strings = new ReadOnlySharedStringsTable(container);
+    XSSFReader reader = new XSSFReader(container);
+    parseSheets(reader, strings, excelWorkbook, VARIABLES_SHEET, CATEGORIES_SHEET);
   }
 
   private void parseSheets(XSSFReader reader, ReadOnlySharedStringsTable strings, Workbook excelWorkbook, String... sheetNames) throws SAXException, IOException,
@@ -451,11 +445,12 @@ public class ExcelDatasource extends AbstractDatasource {
 
   private String colToName(int colNum) {
     String colName = "";
+    int colNumTemp = colNum;
 
     do {
-      colName = String.valueOf(Character.toChars('A' + (colNum % 26))) + colName;
-      colNum = Math.floorDiv(colNum, 26) - 1;
-    } while (colNum >= 0);
+      colName = String.valueOf(Character.toChars('A' + (colNumTemp % 26))) + colName;
+      colNumTemp = Math.floorDiv(colNumTemp, 26) - 1;
+    } while (colNumTemp >= 0);
 
     return  colName;
   }
@@ -504,6 +499,7 @@ public class ExcelDatasource extends AbstractDatasource {
     }
 
     @Override
+    @SuppressWarnings({ "PMD.NcssMethodCount", "OverlyLongMethod" })
     public void startElement(String uri, String localName, String name, Attributes attributes) throws SAXException {
       if ("inlineStr".equals(name) || "v".equals(name)) {
         vIsOpen = true;
@@ -552,6 +548,7 @@ public class ExcelDatasource extends AbstractDatasource {
     }
 
     @Override
+    @SuppressWarnings({ "PMD.NcssMethodCount", "OverlyLongMethod" })
     public void endElement(String uri, String localName, String name) throws SAXException {
       String thisStr;
 
@@ -583,7 +580,7 @@ public class ExcelDatasource extends AbstractDatasource {
               thisStr = rtss.toString();
             }
             catch (NumberFormatException ex) {
-              throw new RuntimeException("Failed to parse SST index '" + sstIndex + "': " + ex.toString());
+              throw new MagmaRuntimeException("Failed to parse SST index '" + sstIndex + "': " + ex.toString());
             }
 
             break;
@@ -648,6 +645,7 @@ public class ExcelDatasource extends AbstractDatasource {
      * @param record
      */
     @Override
+    @SuppressWarnings({ "PMD.NcssMethodCount", "OverlyLongMethod" })
     public void processRecord(Record record) {
       switch(record.getSid()) {
         case BOFRecord.sid:
@@ -655,9 +653,8 @@ public class ExcelDatasource extends AbstractDatasource {
 
           if (bof.getType() == bof.TYPE_WORKBOOK)
           {
-            System.out.println("Encountered workbook");
+            //ignore
           } else if (bof.getType() == bof.TYPE_WORKSHEET) {
-            System.out.println("Encountered sheet reference");
             sheet = sheets.poll();
           }
 
