@@ -91,6 +91,8 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
 
   private final CsvTimestamps timestamps;
 
+  private int duplicateIdCount = 0;
+
   public CsvValueTable(Datasource datasource, String name, File dataFile, String entityType) {
     this(datasource, name, null, dataFile, entityType);
   }
@@ -264,7 +266,8 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
   }
 
   private void initialiseData() throws IOException {
-    buildDataLineIndex();
+    Map<Integer, CsvIndexEntry> map = buildDataLineIndex();
+    this.duplicateIdCount = map.size() - entityIndex.size();
   }
 
   @NotNull
@@ -670,6 +673,10 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
       }
     }
     return missingVariables;
+  }
+
+  public int getDuplicateIdCount() {
+    return duplicateIdCount;
   }
 
 }
