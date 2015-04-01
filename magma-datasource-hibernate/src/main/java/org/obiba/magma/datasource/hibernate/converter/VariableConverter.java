@@ -24,6 +24,7 @@ public class VariableConverter extends AttributeAwareConverter implements Hibern
   @Nullable
   public VariableState getStateForVariable(Variable variable, HibernateMarshallingContext context) {
     for(VariableState state : context.getValueTable().getVariables()) {
+      if (state == null) continue; //MAGMA-255
       if(state.getName().equals(variable.getName())) return state;
     }
     return null;
