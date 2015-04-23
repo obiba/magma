@@ -47,7 +47,7 @@ allprojects {
   buildDir = 'target'
 
   repositories {
-    maven { url 'http://repo.obiba.org/repo' }
+    maven { url 'https://repo.obiba.org/repo' }
     mavenCentral()
     mavenLocal()
   }
