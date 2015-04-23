@@ -213,6 +213,8 @@ public interface Variable extends AttributeAware {
       if(override.getMimeType() != null) variable.mimeType = override.getMimeType();
       if(override.getOccurrenceGroup() != null) variable.occurrenceGroup = override.getOccurrenceGroup();
       if(override.getUnit() != null) variable.unit = override.getUnit();
+      variable.repeatable = override.isRepeatable();
+      variable.index = override.getIndex();
       variable.attributes = (LinkedListMultimap<String, Attribute>) overrideAttributes(getAttributes(),
           override.getAttributes());
       for(Category category : override.getCategories()) {

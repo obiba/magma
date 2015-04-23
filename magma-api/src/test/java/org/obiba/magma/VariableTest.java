@@ -128,6 +128,7 @@ public class VariableTest extends AbstractMagmaTest {
     variableBuilder.occurrenceGroup("group");
     variableBuilder.unit("kg");
     variableBuilder.repeatable();
+    variableBuilder.index(10);
     Variable variable = variableBuilder.build();
 
     Variable.Builder overrideBuilder = Variable.Builder.newVariable("override", TextType.get(), "Workstation");
@@ -145,7 +146,8 @@ public class VariableTest extends AbstractMagmaTest {
     assertThat(derived.getMimeType()).isEqualTo("text/html");
     assertThat(derived.getOccurrenceGroup()).isEqualTo("group");
     assertThat(derived.getUnit()).isEqualTo("kg");
-    assertThat(derived.isRepeatable()).isTrue();
+    assertThat(derived.isRepeatable()).isFalse();
+    assertThat(derived.getIndex()).isEqualTo(0);
   }
 
   @Test
@@ -175,7 +177,7 @@ public class VariableTest extends AbstractMagmaTest {
     assertThat(derived.getOccurrenceGroup()).isEqualTo("occurrenceGroup");
     assertThat(derived.getUnit()).isEqualTo("cm");
     // Not overridden
-    assertThat(derived.isRepeatable()).isTrue();
+    assertThat(derived.isRepeatable()).isFalse();
   }
 
   @Test
