@@ -9,7 +9,7 @@ task wrapper(type: Wrapper) {
 
 buildscript {
   repositories {
-    maven { url 'http://repo.obiba.org/obiba-gradle-plugins-release' }
+    maven { url 'https://repo.obiba.org/obiba-gradle-plugins-release' }
   }
   dependencies {
     classpath 'org.jfrog.buildinfo:build-info-extractor-gradle:latest.release'
@@ -147,7 +147,7 @@ allprojects {
 
   // configure artifactory plugin
   artifactory {
-    contextUrl = 'http://repo.obiba.org'
+    contextUrl = 'https://repo.obiba.org'
     publish {
       repository {
         // these settings are overridden by Artifactory Jenkins plugin
@@ -160,7 +160,7 @@ allprojects {
       }
     }
     resolve {
-      contextUrl = 'http://repo.obiba.org'
+      contextUrl = 'https://repo.obiba.org'
       repository {
         repoKey = 'libs-releases'
       }
