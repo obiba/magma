@@ -19,6 +19,11 @@ public class SchemaTestExecutionListener implements TestExecutionListener {
   //
 
   @Override
+  public void beforeTestClass(TestContext testContext) throws Exception {
+
+  }
+
+  @Override
   public void prepareTestInstance(TestContext testContext) throws Exception {
     handleElement(testContext, testContext.getTestClass(), true);
   }
@@ -31,6 +36,11 @@ public class SchemaTestExecutionListener implements TestExecutionListener {
   @Override
   public void afterTestMethod(TestContext testContext) throws Exception {
     handleElement(testContext, testContext.getTestMethod(), false);
+  }
+
+  @Override
+  public void afterTestClass(TestContext testContext) throws Exception {
+
   }
 
   //
