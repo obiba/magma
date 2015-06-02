@@ -29,16 +29,20 @@ public class JavascriptVariableValueSource extends JavascriptValueSource impleme
   @NotNull
   private final Variable variable;
 
-  @NotNull
+  @Nullable
   private final ValueTable valueTable;
 
   @Nullable
   private Value lastScriptValidation;
 
-  public JavascriptVariableValueSource(@NotNull Variable variable, @NotNull ValueTable valueTable) {
+  public JavascriptVariableValueSource(@NotNull Variable variable, @Nullable ValueTable valueTable) {
     super(variable.getValueType(), "");
     this.variable = variable;
     this.valueTable = valueTable;
+  }
+
+  public JavascriptVariableValueSource(@NotNull Variable variable) {
+    this(variable, null);
   }
 
   @NotNull
@@ -73,7 +77,7 @@ public class JavascriptVariableValueSource extends JavascriptValueSource impleme
 
   @Nullable
   public ValueTable getValueTable() {
-    return valueTable.isView() ? ((ValueTableWrapper) valueTable).getWrappedValueTable() : valueTable;
+    return valueTable != null && valueTable.isView() ? ((ValueTableWrapper) valueTable).getWrappedValueTable() : valueTable;
   }
 
   @NotNull
@@ -90,24 +94,31 @@ public class JavascriptVariableValueSource extends JavascriptValueSource impleme
   }
 
   public void validateScript() throws EvaluatorException {
-    Value tableLastUpdate = valueTable.getTimestamps().getLastUpdate();
-    if(lastScriptValidation == null || !lastScriptValidation.equals(tableLastUpdate)) {
+    if (valueTable == null) {
       log.trace("Validate {} script", variable.getName());
       initialiseIfNot();
-      //OPAL-2546 commented until this issue is resolved
-      //new VariableScriptValidator(variable, valueTable).validateScript();
-      lastScriptValidation = tableLastUpdate;
     } else {
-      log.trace("Skip {} script validation", variable.getName());
+      Value tableLastUpdate = valueTable.getTimestamps().getLastUpdate();
+      if(lastScriptValidation == null || !lastScriptValidation.equals(tableLastUpdate)) {
+        log.trace("Validate {} script", variable.getName());
+        initialiseIfNot();
+        //OPAL-2546 commented until this issue is resolved
+        //new VariableScriptValidator(variable, valueTable).validateScript();
+        lastScriptValidation = tableLastUpdate;
+      } else {
+        log.trace("Skip {} script validation", variable.getName());
+      }
     }
   }
 
   @Override
   protected void enterContext(MagmaContext context, Scriptable scope) {
     super.enterContext(context, scope);
-    context.push(ValueTable.class, getValueTable());
-    if(valueTable.isView() && valueTable instanceof View) {
-      context.push(View.class, (View) valueTable);
+    if (valueTable != null) {
+      context.push(ValueTable.class, getValueTable());
+      if(valueTable.isView() && valueTable instanceof View) {
+        context.push(View.class, (View) valueTable);
+      }
     }
     context.push(Variable.class, variable);
   }
@@ -115,9 +126,11 @@ public class JavascriptVariableValueSource extends JavascriptValueSource impleme
   @Override
   protected void exitContext(MagmaContext context) {
     super.exitContext(context);
-    context.pop(ValueTable.class);
-    if(valueTable.isView()) {
-      context.pop(View.class);
+    if (valueTable != null) {
+      context.pop(ValueTable.class);
+      if(valueTable.isView()) {
+        context.pop(View.class);
+      }
     }
     context.pop(Variable.class);
   }
