@@ -1,6 +1,7 @@
 package org.obiba.magma.support;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
 
 import javax.validation.constraints.NotNull;
@@ -9,11 +10,13 @@ import org.obiba.magma.Datasource;
 import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.NoSuchValueTableException;
 import org.obiba.magma.ValueTable;
+import org.obiba.magma.VariableEntity;
 import org.springframework.cache.Cache;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Supplier;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
 public class CachedDatasource extends AbstractDatasourceWrapper {
@@ -22,6 +25,15 @@ public class CachedDatasource extends AbstractDatasourceWrapper {
   public CachedDatasource(@NotNull Datasource wrapped, @NotNull Cache cache) {
     super(wrapped);
     this.cache = cache;
+  }
+
+  @Override
+  public Datasource getWrappedDatasource() {
+    Datasource wrapped = super.getWrappedDatasource();
+
+    if (wrapped == null) throw new MagmaRuntimeException("wrapped value not initialized");
+
+    return wrapped;
   }
 
   @Override
@@ -45,18 +57,37 @@ public class CachedDatasource extends AbstractDatasourceWrapper {
 
   @Override
   public ValueTable getValueTable(final String tableName) throws NoSuchValueTableException {
-    return new CachedValueTable(this, getWrappedDatasource().getValueTable(tableName), cache);
+    return new CachedValueTable(this, tableName, cache);
   }
 
   @Override
   public Set<ValueTable> getValueTables() {
+    List<String> valueTableNames = getCached(getCacheKey("getValueTables"), new Supplier<List<String>>() {
+      @Override
+      public List<String> get() {
+        List<String> res = Lists.newArrayList();
+
+        for(ValueTable table : getWrappedDatasource().getValueTables()) {
+          res.add(table.getName());
+        }
+
+        return res;
+      }
+    });
+
     Set<ValueTable> res = Sets.newHashSet();
 
-    for(ValueTable table : getWrappedDatasource().getValueTables()) {
-      res.add(new CachedValueTable(this, table, cache));
+    for(String tableName : valueTableNames) {
+      res.add(new CachedValueTable(this, tableName, cache));
     }
 
     return res;
+  }
+
+  public void evictValues(VariableEntity variableEntity) {
+    for (ValueTable valueTable: getValueTables()) {
+      ((CachedValueTable)valueTable).evictValues(variableEntity);
+    }
   }
 
   private <T> T getCached(Object key, Supplier<T> supplier) {

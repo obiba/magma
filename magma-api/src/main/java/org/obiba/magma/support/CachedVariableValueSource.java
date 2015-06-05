@@ -4,11 +4,12 @@ import java.util.Arrays;
 
 import javax.validation.constraints.NotNull;
 
+import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueSet;
-import org.obiba.magma.ValueTable;
 import org.obiba.magma.ValueType;
 import org.obiba.magma.Variable;
+import org.obiba.magma.VariableEntity;
 import org.obiba.magma.VariableValueSource;
 import org.obiba.magma.VectorSource;
 import org.springframework.cache.Cache;
@@ -17,15 +18,23 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Supplier;
 import com.google.common.collect.Iterables;
 
-public class CachedVariableValueSource extends AbstractVariableValueSourceWrapper {
+public class CachedVariableValueSource implements VariableValueSource {
 
   private Cache cache;
-  private ValueTable table;
+  private CachedValueTable table;
+  private VariableValueSource wrapped;
+  private String name;
 
-  public CachedVariableValueSource(@NotNull VariableValueSource wrapped, @NotNull ValueTable table, @NotNull Cache cache) {
-    super(wrapped);
+  public CachedVariableValueSource(@NotNull CachedValueTable table, String variableName, @NotNull Cache cache) {
     this.cache = cache;
     this.table = table;
+    this.name = variableName;
+
+    try {
+      wrapped = table.getWrappedValueTable().getVariableValueSource(variableName);
+    } catch(MagmaRuntimeException ex) {
+      //ignore
+    }
   }
 
   @NotNull
@@ -74,13 +83,19 @@ public class CachedVariableValueSource extends AbstractVariableValueSourceWrappe
   @NotNull
   @Override
   public VectorSource asVectorSource() {
-    return new CachedVectorSource(getWrapped().asVectorSource(), getWrapped(), cache);
+    return new CachedVectorSource(this, cache);
   }
 
   @NotNull
   @Override
   public String getName() {
-    return getWrapped().getName();
+    return name;
+  }
+
+  public void evictValues(VariableEntity variableEntity) {
+    cache.evict(getCacheKey("getValue", table.getName(), variableEntity.getIdentifier()));
+
+    ((CachedVectorSource)asVectorSource()).evictValues(variableEntity);
   }
 
   private <T> T getCached(Object key, Supplier<T> supplier) {
@@ -89,6 +104,12 @@ public class CachedVariableValueSource extends AbstractVariableValueSourceWrappe
 
   private String getCacheKey(Object... parts) {
     return Joiner
-        .on(".").join(Iterables.concat(Arrays.asList(table.getName(), getWrapped().getName()), Arrays.asList(parts)));
+        .on(".").join(Iterables.concat(Arrays.asList(table.getName(), name), Arrays.asList(parts)));
+  }
+
+  public VariableValueSource getWrapped() {
+    if (wrapped == null) throw new MagmaRuntimeException("wrapped value not initialized.");
+
+    return wrapped;
   }
 }

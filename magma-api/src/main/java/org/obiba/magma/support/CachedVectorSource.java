@@ -7,27 +7,33 @@ import java.util.SortedSet;
 
 import javax.validation.constraints.NotNull;
 
+import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueType;
 import org.obiba.magma.VariableEntity;
-import org.obiba.magma.VariableValueSource;
 import org.obiba.magma.VectorSource;
 import org.springframework.cache.Cache;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Supplier;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 
 public class CachedVectorSource implements VectorSource {
 
   private Cache cache;
   private VectorSource wrapped;
-  private VariableValueSource variableValueSource;
+  private CachedVariableValueSource variableValueSource;
 
-  public CachedVectorSource(@NotNull VectorSource wrapped, @NotNull VariableValueSource variableValueSource, @NotNull Cache cache) {
+  public CachedVectorSource(@NotNull CachedVariableValueSource variableValueSource, @NotNull Cache cache) {
     this.cache = cache;
-    this.wrapped = wrapped;
     this.variableValueSource = variableValueSource;
+
+    try {
+      this.wrapped = variableValueSource.getWrapped().asVectorSource();
+    } catch(MagmaRuntimeException ex) {
+      //ignore
+    }
   }
 
   @Override
@@ -42,22 +48,40 @@ public class CachedVectorSource implements VectorSource {
 
   @Override
   public Iterable<Value> getValues(final SortedSet<VariableEntity> entities) {
-    List<String> ids = new ArrayList<>();
+    boolean missing = true;
+    List<Value> res = new ArrayList<>();
 
-    for(VariableEntity ve : entities) {
-      ids.add(ve.getIdentifier());
+    for(VariableEntity variableEntity : entities) {
+      Cache.ValueWrapper valueWrapper = cache.get(getCacheKey("getValues", variableEntity.getIdentifier()));
+
+      if (valueWrapper == null) {
+        missing = false;
+        break;
+      }
+
+      res.add((Value)valueWrapper.get());
     }
 
-    return getCached(getCacheKey("getValues", Joiner.on(".").join(ids)), new Supplier<Iterable<Value>>() {
-      @Override
-      public Iterable<Value> get() {
-        return getWrapped().getValues(entities);
-      }
-    });
+    if (!missing) return res;
+
+    ArrayList<Value> values = Lists.newArrayList(getWrapped().getValues(entities));
+    ArrayList<VariableEntity> variableEntities = Lists.newArrayList(entities);
+
+    for(int i = 0; i < variableEntities.size(); i++) {
+      cache.put(getCacheKey("getValues", variableEntities.get(i).getIdentifier()), values.get(i));
+    }
+
+    return values;
   }
 
   public VectorSource getWrapped() {
+    if (wrapped == null) throw new MagmaRuntimeException("wrapped value not initialized");
+
     return wrapped;
+  }
+
+  public void evictValues(VariableEntity variableEntity) {
+    cache.evict(getCacheKey("getValue", variableEntity.getIdentifier()));
   }
 
   private <T> T getCached(Object key, Supplier<T> supplier) {
