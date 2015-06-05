@@ -1,9 +1,11 @@
 package org.obiba.magma;
 
+import java.io.Serializable;
+
 import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.ListMultimap;
 
-class CategoryBean extends AbstractAttributeAware implements Category {
+class CategoryBean extends AbstractAttributeAware implements Category, Serializable {
 
   ListMultimap<String, Attribute> attributes = LinkedListMultimap.create();
 
