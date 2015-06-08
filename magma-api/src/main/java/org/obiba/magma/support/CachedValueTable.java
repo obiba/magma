@@ -9,6 +9,7 @@ import java.util.SortedSet;
 import javax.validation.constraints.NotNull;
 
 import org.obiba.magma.Datasource;
+import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.NoSuchValueSetException;
 import org.obiba.magma.NoSuchVariableException;
 import org.obiba.magma.Timestamps;
@@ -26,20 +27,34 @@ import com.google.common.base.Supplier;
 import com.google.common.collect.Iterables;
 
 
-public class CachedValueTable extends AbstractValueTableWrapper {
+public class CachedValueTable implements ValueTable {
 
   private Cache cache;
   private ValueTable wrapped;
-  private Datasource datasource;
+  private CachedDatasource datasource;
+  private String name;
 
-  public CachedValueTable(@NotNull Datasource datasource, @NotNull ValueTable wrapped, @NotNull Cache cache) {
+  public CachedValueTable(@NotNull CachedDatasource datasource, @NotNull String tableName, @NotNull Cache cache) {
+    this.name = tableName;
     this.datasource = datasource;
-    this.wrapped = wrapped;
     this.cache = cache;
+
+    try {
+      wrapped = datasource.getWrappedDatasource().getValueTable(tableName);
+    } catch( MagmaRuntimeException ex) {
+      //ignore
+    }
   }
 
   @Override
+  public String getName() {
+    return name;
+  }
+
   public ValueTable getWrappedValueTable() {
+    if (this.wrapped == null)
+      throw new MagmaRuntimeException("wrapped value not initialized.");
+
     return this.wrapped;
   }
 
@@ -81,20 +96,35 @@ public class CachedValueTable extends AbstractValueTableWrapper {
 
   @Override
   public ValueSet getValueSet(final VariableEntity entity) throws NoSuchValueSetException {
-    return new CachedValueSet(this, entity, getWrappedValueTable().getValueSet(entity), cache);
+    return new CachedValueSet(this, entity, cache);
+  }
+
+  @Override
+  public boolean canDropValueSets() {
+    return getCached(getCacheKey("canDropValueSets"), new Supplier<Boolean>() {
+      @Override
+      public Boolean get() {
+        return getWrappedValueTable().canDropValueSets();
+      }
+    });
+  }
+
+  @Override
+  public void dropValueSets() {
+    getWrappedValueTable().canDropValueSets();
   }
 
   @Override
   public Timestamps getValueSetTimestamps(final VariableEntity entity) throws NoSuchValueSetException {
-    return new CachedTimestamps(getWrappedValueTable().getValueSetTimestamps(entity), getValueSet(entity), cache);
+    return new CachedTimestamps(new CachedValueSet(this, entity, cache), cache);
   }
 
   @Override
   public Iterable<Timestamps> getValueSetTimestamps(final SortedSet<VariableEntity> entities) {
     List<String> ids = new ArrayList<>();
 
-    for(VariableEntity ve : entities) {
-      ids.add(ve.getIdentifier());
+    for(VariableEntity variableEntity : entities) {
+      ids.add(variableEntity.getIdentifier());
     }
 
     return getCached(getCacheKey("getValueSetTimestamps", Joiner.on(".").join(ids)), new Supplier<Iterable<Timestamps>>() {
@@ -107,10 +137,19 @@ public class CachedValueTable extends AbstractValueTableWrapper {
 
   @Override
   public Iterable<ValueSet> getValueSets() {
+
+    Set<VariableEntity> variableEntities = getCached(getCacheKey("getValueSets"),
+        new Supplier<Set<VariableEntity>>() {
+          @Override
+          public Set<VariableEntity> get() {
+            return getVariableEntities();
+          }
+        });
+
     List<ValueSet> res = new ArrayList<>();
 
-    for(ValueSet valueSet: getWrappedValueTable().getValueSets()) {
-      res.add(new CachedValueSet(this, valueSet.getVariableEntity(), valueSet, cache));
+    for(VariableEntity variableEntity: variableEntities) {
+      res.add(new CachedValueSet(this, variableEntity, cache));
     }
 
     return res;
@@ -148,7 +187,7 @@ public class CachedValueTable extends AbstractValueTableWrapper {
 
   @Override
   public VariableValueSource getVariableValueSource(String variableName) throws NoSuchVariableException {
-    return new CachedVariableValueSource(getWrappedValueTable().getVariableValueSource(variableName), this, cache);
+    return new CachedVariableValueSource(this, variableName, cache);
   }
 
   @Override
@@ -174,7 +213,7 @@ public class CachedValueTable extends AbstractValueTableWrapper {
   @NotNull
   @Override
   public Timestamps getTimestamps() {
-    return new CachedTimestamps(getWrappedValueTable().getTimestamps(), this, cache);
+    return new CachedTimestamps(this, cache);
   }
 
   @Override
@@ -229,14 +268,27 @@ public class CachedValueTable extends AbstractValueTableWrapper {
 
   @Override
   public int hashCode() {
-    return Objects.hashCode(wrapped.getName());
+    return Objects.hashCode(name);
   }
 
   @Override
   public boolean equals(Object other) {
     if (!(other instanceof CachedValueTable)) return false;
 
-    return Objects.equal(wrapped.getName(), ((CachedValueTable)other).getName());
+    return Objects.equal(name, ((CachedValueTable)other).getName());
+  }
+
+  public void evictValues(VariableEntity variableEntity) {
+    try {
+      for(Variable va : getVariables()) {
+        cache.evict(getCacheKey("getValue", va.getName(), name, variableEntity.getIdentifier()));
+
+        CachedVariableValueSource vs = (CachedVariableValueSource) getVariableValueSource(va.getName());
+        vs.evictValues(variableEntity);
+      }
+    } catch(MagmaRuntimeException ex) {
+      //ignore
+    }
   }
 
   private <T> T getCached(Object key, Supplier<T> supplier) {
@@ -244,6 +296,6 @@ public class CachedValueTable extends AbstractValueTableWrapper {
   }
 
   private String getCacheKey(Object... parts) {
-    return Joiner.on(".").join(Iterables.concat(Arrays.asList(datasource.getName(), getName()), Arrays.asList(parts)));
+    return Joiner.on(".").join(Iterables.concat(Arrays.asList(datasource.getName(), name), Arrays.asList(parts)));
   }
 }

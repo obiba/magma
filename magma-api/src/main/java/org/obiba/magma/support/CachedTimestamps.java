@@ -4,6 +4,7 @@ import java.util.Arrays;
 
 import javax.validation.constraints.NotNull;
 
+import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.Timestamps;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueSet;
@@ -21,16 +22,24 @@ public class CachedTimestamps implements Timestamps {
   private Cache cache;
   private Timestamps wrapped;
 
-  public CachedTimestamps(@NotNull Timestamps wrapped, @NotNull ValueSet valueSet, @NotNull Cache cache) {
+  public CachedTimestamps(@NotNull CachedValueSet valueSet, @NotNull Cache cache) {
     this.valueSet = valueSet;
     this.cache = cache;
-    this.wrapped = wrapped;
+    try {
+      this.wrapped = valueSet.getWrapped().getTimestamps();
+    } catch(MagmaRuntimeException ex) {
+      //ignore
+    }
   }
 
-  public CachedTimestamps(@NotNull Timestamps wrapped, @NotNull ValueTable table, @NotNull Cache cache) {
+  public CachedTimestamps(@NotNull CachedValueTable table, @NotNull Cache cache) {
     this.table = table;
     this.cache = cache;
-    this.wrapped = wrapped;
+    try {
+      this.wrapped = table.getWrappedValueTable().getTimestamps();
+    } catch( MagmaRuntimeException ex) {
+      //ignore
+    }
   }
 
   @Override
@@ -54,6 +63,8 @@ public class CachedTimestamps implements Timestamps {
   }
 
   public Timestamps getWrapped() {
+    if (wrapped == null) throw new MagmaRuntimeException("Wrapped value not initialized.");
+
     return wrapped;
   }
 
