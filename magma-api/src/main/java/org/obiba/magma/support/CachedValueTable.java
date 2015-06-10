@@ -282,6 +282,7 @@ public class CachedValueTable implements ValueTable {
     try {
       for(Variable va : getVariables()) {
         cache.evict(getCacheKey("getValue", va.getName(), name, variableEntity.getIdentifier()));
+        cache.evict(getCacheKey("hasValueSet", variableEntity.getIdentifier()));
 
         CachedVariableValueSource vs = (CachedVariableValueSource) getVariableValueSource(va.getName());
         vs.evictValues(variableEntity);
