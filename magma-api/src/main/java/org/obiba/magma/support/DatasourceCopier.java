@@ -5,7 +5,6 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.Collection;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Set;
 
 import javax.annotation.Nullable;
@@ -27,7 +26,6 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
 
 @SuppressWarnings("UnusedDeclaration")
 public class DatasourceCopier {
@@ -211,7 +209,7 @@ public class DatasourceCopier {
       log.debug("  --> {} variables, {} valueSets", sourceTable.getVariableCount(), sourceTable.getValueSetCount());
     }
     try(ValueTableWriter tableWriter = innerValueTableWriter(sourceTable, destinationTableName, destination)) {
-      copy(sourceTable, destination.getValueTable(destinationTableName), tableWriter);
+      copy(sourceTable, destinationTableName, tableWriter);
     }
     if(log.isDebugEnabled()) {
       //noinspection ConstantConditions
@@ -219,20 +217,20 @@ public class DatasourceCopier {
     }
   }
 
-  private void copy(ValueTable sourceTable, ValueTable destinationTable, ValueTableWriter tableWriter)
+  private void copy(ValueTable sourceTable, String destinationTableName, ValueTableWriter tableWriter)
       throws IOException {
-    copyMetadata(sourceTable, destinationTable.getName(), tableWriter);
-    copyValues(sourceTable, destinationTable, tableWriter);
+    copyMetadata(sourceTable, destinationTableName, tableWriter);
+    copyValues(sourceTable, destinationTableName, tableWriter);
   }
 
-  private void copyValues(ValueTable sourceTable, ValueTable destinationTable, ValueTableWriter tableWriter)
+  private void copyValues(ValueTable sourceTable, String destinationTableName, ValueTableWriter tableWriter)
       throws IOException {
     if(!copyValues) return;
 
     log.debug("Copy values from {} {}", sourceTable.getClass(), sourceTable.getName());
     for(ValueSet valueSet : sourceTable.getValueSets()) {
       try(ValueSetWriter valueSetWriter = tableWriter.writeValueSet(valueSet.getVariableEntity())) {
-        copyValues(sourceTable, valueSet, destinationTable.getName(), valueSetWriter);
+        copyValues(sourceTable, valueSet, destinationTableName, valueSetWriter);
       }
     }
   }
