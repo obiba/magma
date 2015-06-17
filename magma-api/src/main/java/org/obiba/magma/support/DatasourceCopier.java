@@ -209,7 +209,12 @@ public class DatasourceCopier {
       log.debug("  --> {} variables, {} valueSets", sourceTable.getVariableCount(), sourceTable.getValueSetCount());
     }
     try(ValueTableWriter tableWriter = innerValueTableWriter(sourceTable, destinationTableName, destination)) {
-      copy(sourceTable, destinationTableName, tableWriter);
+      String destTableName = destinationTableName;
+      if (destination.hasValueTable(destinationTableName)) {
+        // case there is a table renaming that applies (?)
+        destTableName = destination.getValueTable(destinationTableName).getName();
+      }
+      copy(sourceTable, destTableName, tableWriter);
     }
     if(log.isDebugEnabled()) {
       //noinspection ConstantConditions
