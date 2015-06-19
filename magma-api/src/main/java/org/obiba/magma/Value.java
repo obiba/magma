@@ -145,7 +145,7 @@ public class Value implements Serializable, Comparable<Value> {
 
     @Override
     public boolean isNull() {
-      return value == NULL;
+      return value == null || NULL.equals(value);
     }
 
     @Override
