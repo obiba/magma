@@ -5,14 +5,18 @@ import javax.validation.constraints.NotNull;
 import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.Timestamps;
 import org.obiba.magma.ValueSet;
+import org.obiba.magma.ValueSetWrapper;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.VariableEntity;
 import org.springframework.cache.Cache;
 
-public class CachedValueSet implements ValueSet {
+public class CachedValueSet implements ValueSet, ValueSetWrapper {
   private ValueSet wrapped;
+
   private Cache cache;
+
   private CachedValueTable table;
+
   private VariableEntity variableEntity;
 
   public CachedValueSet(@NotNull CachedValueTable table, @NotNull VariableEntity variableEntity, @NotNull Cache cache) {
@@ -20,8 +24,8 @@ public class CachedValueSet implements ValueSet {
     this.variableEntity = variableEntity;
     this.cache = cache;
 
-    try{
-      this.wrapped = table.getWrappedValueTable().getValueSet(variableEntity);
+    try {
+      wrapped = table.getWrappedValueTable().getValueSet(variableEntity);
     } catch(MagmaRuntimeException ex) {
       //ignore
     }
@@ -42,10 +46,9 @@ public class CachedValueSet implements ValueSet {
     return new CachedTimestamps(this, cache);
   }
 
+  @Override
   public ValueSet getWrapped() {
-    if (this.wrapped == null)
-      throw new MagmaRuntimeException("wrapped value not initialized.");
-
+    if(wrapped == null) throw new MagmaRuntimeException("wrapped value not initialized.");
     return wrapped;
   }
 }

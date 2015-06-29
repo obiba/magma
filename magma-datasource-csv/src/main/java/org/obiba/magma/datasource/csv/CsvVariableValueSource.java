@@ -5,6 +5,7 @@ import javax.validation.constraints.NotNull;
 import org.obiba.magma.AbstractVariableValueSource;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueSet;
+import org.obiba.magma.ValueSetWrapper;
 import org.obiba.magma.ValueType;
 import org.obiba.magma.Variable;
 import org.obiba.magma.VariableValueSource;
@@ -41,6 +42,9 @@ public class CsvVariableValueSource extends AbstractVariableValueSource implemen
   @NotNull
   @Override
   public Value getValue(ValueSet valueSet) {
+    if (valueSet instanceof ValueSetWrapper) {
+      return ((CsvValueSet) ((ValueSetWrapper) valueSet).getWrapped()).getValue(variable);
+    }
     return ((CsvValueSet) valueSet).getValue(variable);
   }
 
