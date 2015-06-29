@@ -41,6 +41,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableSet;
 
 import au.com.bytecode.opencsv.CSVParser;
 import au.com.bytecode.opencsv.CSVReader;
@@ -120,7 +121,7 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
 
   @Override
   public Set<VariableEntity> getVariableEntities() {
-    return Collections.unmodifiableSet(variableEntityProvider.getVariableEntities());
+    return ImmutableSet.copyOf(variableEntityProvider.getVariableEntities());
   }
 
   @Override
@@ -129,13 +130,7 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
     if(indexEntry == null) {
       throw new NoSuchValueSetException(this, entity);
     }
-    try(Reader reader = getCsvDatasource().getReader(dataFile)) {
-      CSVReader csvReader = getCsvDatasource().getCsvReader(reader);
-      skipSafely(reader, indexEntry.getStart());
-      return new CsvValueSet(this, entity, dataHeaderMap, csvReader.readNext());
-    } catch(IOException e) {
-      throw new MagmaRuntimeException(e);
-    }
+    return new CsvValueSet(this, entity, dataHeaderMap, indexEntry.getStart());
   }
 
   @Override
@@ -261,6 +256,14 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
   @Nullable
   File getParentFile() {
     return dataFile == null ? null : dataFile.getParentFile();
+  }
+
+  CSVReader getCsvReader(Reader reader) {
+    return getCsvDatasource().getCsvReader(reader);
+  }
+
+  Reader getDataReader() {
+    return getCsvDatasource().getReader(dataFile);
   }
 
   private void initialiseData() throws IOException {
@@ -622,7 +625,7 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
    * throws an IOException if the number of bytes actually skipped is not identical to the number of requested bytes to
    * skip.
    */
-  private void skipSafely(Reader reader, long skip) throws IOException {
+  void skipSafely(Reader reader, long skip) throws IOException {
     if(reader.skip(skip) != skip) throw new IOException("error seeking in file");
   }
 
