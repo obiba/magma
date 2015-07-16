@@ -7,7 +7,7 @@ import java.sql.Timestamp;
 import java.util.Date;
 
 import liquibase.change.ColumnConfig;
-import liquibase.change.UpdateDataChange;
+import liquibase.change.core.UpdateDataChange;
 
 public class UpdateDataChangeBuilder {
 

@@ -1,33 +1,31 @@
 package org.obiba.magma.datasource.jdbc.support;
 
-import java.util.Collection;
+import java.util.Set;
+
+import com.google.common.collect.ImmutableSet;
 
 import liquibase.database.Database;
-import liquibase.database.sql.visitor.SqlVisitor;
+import liquibase.sql.visitor.AbstractSqlVisitor;
 
-public class MySqlEngineVisitor implements SqlVisitor {
+public class MySqlEngineVisitor extends AbstractSqlVisitor {
 
   @Override
-  public String getTagName() {
+  public String modifySql(String sql, Database database) {
+    if("mysql".equals(database.getShortName()) && sql.toLowerCase().startsWith("create table") &&
+        !sql.toLowerCase().contains("engine=")) {
+      return sql + "ENGINE=InnoDB";
+    }
+
+    return sql;
+  }
+
+  @Override
+  public String getName() {
     return MySqlEngineVisitor.class.getSimpleName();
   }
 
   @Override
-  @SuppressWarnings({ "unchecked", "rawtypes" })
-  public void setApplicableDbms(Collection applicableDbms) {
-    // no-op
-  }
-
-  @Override
-  public boolean isApplicable(Database database) {
-    return "mysql".equals(database.getTypeName());
-  }
-
-  @Override
-  public String modifySql(String sql, Database database) {
-    if(sql.toLowerCase().startsWith("create table") && !sql.toLowerCase().contains("engine=")) {
-      return sql + "ENGINE=InnoDB";
-    }
-    return sql;
+  public Set<String> getApplicableDbms() {
+    return ImmutableSet.of("mysql");
   }
 }

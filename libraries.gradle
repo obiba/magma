@@ -46,7 +46,7 @@ ext {
 
       junit: 'junit:junit:4.12',
 
-      liquibase_core: 'org.liquibase:liquibase-core:1.9.4',
+      liquibase_core: 'org.liquibase:liquibase-core:3.4.0',
 
       logback_classic: 'ch.qos.logback:logback-classic:1.1.2',
 

@@ -47,10 +47,11 @@ import org.springframework.jdbc.core.RowMapper;
 import liquibase.change.ChangeWithColumns;
 import liquibase.change.ColumnConfig;
 import liquibase.change.ConstraintsConfig;
-import liquibase.change.CreateTableChange;
-import liquibase.database.structure.Column;
-import liquibase.database.structure.DatabaseSnapshot;
-import liquibase.database.structure.Table;
+import liquibase.change.core.CreateTableChange;
+import liquibase.structure.core.Column;
+import liquibase.snapshot.DatabaseSnapshot;
+import liquibase.structure.core.PrimaryKey;
+import liquibase.structure.core.Table;
 
 @SuppressWarnings("OverlyCoupledClass")
 class JdbcValueTable extends AbstractValueTable {
@@ -71,11 +72,12 @@ class JdbcValueTable extends AbstractValueTable {
     super(datasource, settings.getMagmaTableName());
     this.settings = settings;
 
-    if(getDatasource().getDatabaseSnapshot().getTable(settings.getSqlTableName()) == null) {
+    if(getDatasource().getDatabaseSnapshot().get(new Table(null, null, settings.getSqlTableName())) == null) {
       createSqlTable(settings.getSqlTableName());
       getDatasource().databaseChanged();
     }
-    table = getDatasource().getDatabaseSnapshot().getTable(settings.getSqlTableName());
+
+    table = getDatasource().getDatabaseSnapshot().get(new Table(null, null, settings.getSqlTableName()));
     setVariableEntityProvider(new JdbcVariableEntityProvider(getEntityType()));
   }
 
@@ -159,7 +161,7 @@ class JdbcValueTable extends AbstractValueTable {
   }
 
   void tableChanged() {
-    table = getDatasource().getDatabaseSnapshot().getTable(settings.getSqlTableName());
+    table = getDatasource().getDatabaseSnapshot().get(new Table(null, null, settings.getSqlTableName()));
     initialise();
   }
 
@@ -191,11 +193,14 @@ class JdbcValueTable extends AbstractValueTable {
 
   static List<String> getEntityIdentifierColumns(Table table) {
     List<String> entityIdentifierColumns = new ArrayList<>();
+    PrimaryKey pk = table.getPrimaryKey();
+
     for(Column column : table.getColumns()) {
-      if(column.isPrimaryKey()) {
+      if(pk != null && pk.getColumns().contains(column)) {
         entityIdentifierColumns.add(column.getName());
       }
     }
+
     return entityIdentifierColumns;
   }
 
@@ -265,7 +270,7 @@ class JdbcValueTable extends AbstractValueTable {
 
       builder.addAttributes(
           getDatasource().getJdbcTemplate().query("SELECT * FROM " + escapedVariableAttributesSqlTableName +
-              " WHERE value_table = ? AND variable_name = ?", new Object[] { getSqlName(), variableName },
+                  " WHERE value_table = ? AND variable_name = ?", new Object[] { getSqlName(), variableName },
               new AttributeRowMapper()));
     }
 
@@ -279,13 +284,13 @@ class JdbcValueTable extends AbstractValueTable {
       builder.addCategories(getDatasource().getJdbcTemplate()
           .query("SELECT * FROM " + escapedCategoriesSqlTableName + " WHERE value_table = ? AND variable_name = ?",
               new Object[] { getSqlName(), variableName }, new RowMapper<Category>() {
-            @Override
-            public Category mapRow(ResultSet rs, int rowNum) throws SQLException {
-              String categoryName = rs.getString("name");
-              String categoryCode = rs.getString("code");
-              return Category.Builder.newCategory(categoryName).withCode(categoryCode).build();
-            }
-          }));
+                @Override
+                public Category mapRow(ResultSet rs, int rowNum) throws SQLException {
+                  String categoryName = rs.getString("name");
+                  String categoryCode = rs.getString("code");
+                  return Category.Builder.newCategory(categoryName).withCode(categoryCode).build();
+                }
+              }));
     }
   }
 
@@ -318,9 +323,9 @@ class JdbcValueTable extends AbstractValueTable {
 
   private boolean metadataTablesExist() {
     DatabaseSnapshot snapshot = getDatasource().getDatabaseSnapshot();
-    return snapshot.getTable(JdbcValueTableWriter.VARIABLE_METADATA_TABLE) != null &&
-        snapshot.getTable(JdbcValueTableWriter.ATTRIBUTE_METADATA_TABLE) != null &&
-        snapshot.getTable(JdbcValueTableWriter.CATEGORY_METADATA_TABLE) != null;
+    return snapshot.get(new Table(null, null, JdbcValueTableWriter.VARIABLE_METADATA_TABLE)) != null &&
+        snapshot.get(new Table(null, null, JdbcValueTableWriter.ATTRIBUTE_METADATA_TABLE)) != null &&
+        snapshot.get(new Table(null, null, JdbcValueTableWriter.CATEGORY_METADATA_TABLE)) != null;
   }
 
   private void createSqlTable(String sqlTableName) {
@@ -485,8 +490,8 @@ class JdbcValueTable extends AbstractValueTable {
     //
 
     JdbcVariableValueSource(String entityType, Column column) {
-      variable = Variable.Builder.newVariable(column.getName(), SqlTypes.valueTypeFor(column.getDataType()), entityType)
-          .build();
+      variable = Variable.Builder
+          .newVariable(column.getName(), SqlTypes.valueTypeFor(column.getType().getDataTypeId()), entityType).build();
       columnName = column.getName();
     }
 

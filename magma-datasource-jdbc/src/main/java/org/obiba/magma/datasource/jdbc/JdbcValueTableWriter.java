@@ -38,10 +38,12 @@ import org.springframework.util.Assert;
 
 import com.google.common.collect.ImmutableList;
 
-import liquibase.change.AddColumnChange;
+import liquibase.change.AddColumnConfig;
+import liquibase.change.core.AddColumnChange;
 import liquibase.change.Change;
-import liquibase.change.ColumnConfig;
-import liquibase.change.ModifyColumnChange;
+import liquibase.change.core.ModifyDataTypeChange;
+import liquibase.structure.core.Column;
+import liquibase.structure.core.Table;
 
 class JdbcValueTableWriter implements ValueTableWriter {
 
@@ -131,32 +133,32 @@ class JdbcValueTableWriter implements ValueTableWriter {
 
     protected void doWriteVariable(Variable variable) {
       String columnName = NameConverter.toSqlName(variable.getName());
-      ColumnConfig column = new ColumnConfig();
-      column.setName(columnName);
-
-      if(variable.isRepeatable()) {
-        column.setType(SqlTypes.sqlTypeFor(TextType.get(), SqlTypes.TEXT_TYPE_HINT_LARGE));
-      } else {
-        column.setType(SqlTypes.sqlTypeFor(variable.getValueType(),
-            variable.getValueType().equals(TextType.get()) ? SqlTypes.TEXT_TYPE_HINT_MEDIUM : null));
-      }
+      String dataType = variable.isRepeatable()
+          ? SqlTypes.sqlTypeFor(TextType.get(), SqlTypes.TEXT_TYPE_HINT_LARGE)
+          : SqlTypes.sqlTypeFor(variable.getValueType(),
+              variable.getValueType().equals(TextType.get()) ? SqlTypes.TEXT_TYPE_HINT_MEDIUM : null);
 
       if(variableExists(variable)) {
-        ModifyColumnChange modifyColumnChange = new ModifyColumnChange();
-        modifyColumnChange.setTableName(valueTable.getSqlName());
-        modifyColumnChange.addColumn(column);
-        changes.add(modifyColumnChange);
+        ModifyDataTypeChange modifyDataTypeChange = new ModifyDataTypeChange();
+        modifyDataTypeChange.setTableName(valueTable.getSqlName());
+        modifyDataTypeChange.setColumnName(columnName);
+        modifyDataTypeChange.setNewDataType(dataType);
+        changes.add(modifyDataTypeChange);
       } else {
         AddColumnChange addColumnChange = new AddColumnChange();
         addColumnChange.setTableName(valueTable.getSqlName());
-        addColumnChange.addColumn(column);
+        AddColumnConfig ac = new AddColumnConfig();
+        ac.setName(columnName);
+        ac.setType(dataType);
+        addColumnChange.addColumn(ac);
         changes.add(addColumnChange);
       }
     }
 
     protected boolean variableExists(Variable variable) {
       String columnName = NameConverter.toSqlName(variable.getName());
-      return valueTable.getDatasource().getDatabaseSnapshot().getColumn(valueTable.getSqlName(), columnName) != null;
+      return valueTable.getDatasource().getDatabaseSnapshot()
+          .get(new Column(Table.class, null, null, valueTable.getSqlName(), columnName)) != null;
     }
   }
 

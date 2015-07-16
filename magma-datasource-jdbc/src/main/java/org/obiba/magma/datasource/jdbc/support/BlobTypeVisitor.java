@@ -1,39 +1,33 @@
 package org.obiba.magma.datasource.jdbc.support;
 
-import java.util.Collection;
+import java.util.Set;
+
+import com.google.common.collect.ImmutableSet;
 
 import liquibase.database.Database;
-import liquibase.database.sql.visitor.SqlVisitor;
+import liquibase.sql.visitor.AbstractSqlVisitor;
 
 /**
  * Modifies occurrences of "BLOB" to vendor-specific types.
  */
-public class BlobTypeVisitor implements SqlVisitor {
-  //
-  // SqlVisitor Methods
-  //
+public class BlobTypeVisitor extends AbstractSqlVisitor {
 
   @Override
-  public String getTagName() {
+  public String modifySql(String sql, Database database) {
+    if("mysql".equals(database.getShortName())) {
+      return sql.replaceAll("BLOB", "LONGBLOB");
+    }
+
+    return sql;
+  }
+
+  @Override
+  public String getName() {
     return BlobTypeVisitor.class.getSimpleName();
   }
 
   @Override
-  @SuppressWarnings({ "unchecked", "rawtypes" })
-  public void setApplicableDbms(Collection applicableDbms) {
-    // no-op
-  }
-
-  @Override
-  public boolean isApplicable(Database database) {
-    return "mysql".equals(database.getTypeName());
-  }
-
-  @Override
-  public String modifySql(String sql, Database database) {
-    if("mysql".equals(database.getTypeName())) {
-      return sql.replaceAll("BLOB", "LONGBLOB");
-    }
-    return sql;
+  public Set<String> getApplicableDbms() {
+    return ImmutableSet.of("mysql");
   }
 }
