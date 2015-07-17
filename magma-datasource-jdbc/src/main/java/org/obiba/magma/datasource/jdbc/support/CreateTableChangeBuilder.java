@@ -5,7 +5,7 @@ package org.obiba.magma.datasource.jdbc.support;
 
 import liquibase.change.ColumnConfig;
 import liquibase.change.ConstraintsConfig;
-import liquibase.change.CreateTableChange;
+import liquibase.change.core.CreateTableChange;
 
 public class CreateTableChangeBuilder {
 
