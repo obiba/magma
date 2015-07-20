@@ -32,9 +32,6 @@ public class JdbcDatasourceSettings {
    */
   private String defaultUpdatedTimestampColumnName;
 
-  public JdbcDatasourceSettings() {
-  }
-
   //
   // Constructors
   //

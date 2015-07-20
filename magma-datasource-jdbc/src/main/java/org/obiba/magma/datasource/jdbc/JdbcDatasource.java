@@ -30,6 +30,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 
 import liquibase.change.Change;
+import liquibase.change.core.RenameTableChange;
 import liquibase.database.Database;
 import liquibase.database.DatabaseFactory;
 import liquibase.database.jvm.JdbcConnection;
@@ -77,6 +78,43 @@ public class JdbcDatasource extends AbstractDatasource {
   //
   // AbstractDatasource Methods
   //
+  @Override
+  public boolean canDropTable(String tableName) {
+    return hasValueTable(tableName);
+  }
+
+  @Override
+  public void dropTable(@NotNull String tableName) {
+    JdbcValueTable valueTable = (JdbcValueTable)getValueTable(tableName);
+    valueTable.drop();
+    removeValueTable(tableName);
+  }
+
+  @Override
+  public boolean canRenameTable(String tableName) {
+    return hasValueTable(tableName);
+  }
+
+  @Override
+  public void renameTable(String tableName, String newName) {
+    final RenameTableChange renameTableChange = new RenameTableChange();
+    renameTableChange.setOldTableName(tableName);
+    renameTableChange.setNewTableName(newName);
+
+    doWithDatabase(new ChangeDatabaseCallback(renameTableChange));
+  }
+
+  @Override
+  public boolean canDrop() {
+    return true;
+  }
+
+  @Override
+  public void drop() {
+    for(ValueTable valueTable : getValueTables()) {
+      dropTable(valueTable.getName());
+    }
+  }
 
   /**
    * Returns a {@link ValueTableWriter} for writing to a new or existing {@link JdbcValueTable}.
@@ -98,11 +136,13 @@ public class JdbcDatasource extends AbstractDatasource {
     } else {
       // Create a new JdbcValueTable. This will create the SQL table if it does not exist.
       JdbcValueTableSettings tableSettings = settings.getTableSettingsForMagmaTable(tableName);
+
       if(tableSettings == null) {
         tableSettings = new JdbcValueTableSettings(NameConverter.toSqlName(tableName), tableName, entityType,
             Arrays.asList("entity_id"));
         settings.getTableSettings().add(tableSettings);
       }
+
       table = new JdbcValueTable(this, tableSettings);
       addValueTable(table);
     }
@@ -125,22 +165,25 @@ public class JdbcDatasource extends AbstractDatasource {
   protected Set<String> getValueTableNames() {
     Set<String> names = new LinkedHashSet<>();
     for(Table table : getDatabaseSnapshot().get(Table.class)) {
+      String tableName = table.getName();
       // Ignore tables with "reserved" names (i.e., the metadata tables).
-      if(!RESERVED_NAMES.contains(table.getName().toLowerCase())) {
+      if(!RESERVED_NAMES.contains(tableName.toLowerCase())) {
         // If a set of mapped tables has been defined, only include the tables in that set.
-        if(settings.getMappedTables().isEmpty() || settings.getMappedTables().contains(table.getName())) {
-          JdbcValueTableSettings tableSettings = settings.getTableSettingsForSqlTable(table.getName());
+        if(settings.getMappedTables().isEmpty() || settings.getMappedTables().contains(tableName)) {
+          JdbcValueTableSettings tableSettings = settings.getTableSettingsForSqlTable(tableName);
+
           if(tableSettings != null) {
             names.add(tableSettings.getMagmaTableName());
           } else {
             // Only add the table if it has a primary key
             if(!JdbcValueTable.getEntityIdentifierColumns(table).isEmpty()) {
-              names.add(NameConverter.toMagmaName(table.getName()));
+              names.add(NameConverter.toMagmaName(tableName));
             }
           }
         }
       }
     }
+
     return names;
   }
 
@@ -176,6 +219,7 @@ public class JdbcDatasource extends AbstractDatasource {
         }
       });
     }
+
     return snapshot;
   }
 

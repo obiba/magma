@@ -16,4 +16,5 @@ dependencies {
     exclude(module: 'junit-addons')
     exclude(module: 'slf4j-nop')
   }
+  testCompile(libraries.mysql_connector_java)
 }

@@ -144,6 +144,7 @@ public abstract class AbstractValueTable implements ValueTable, Initialisable {
     if(variableValueSource == null) {
       throw new NoSuchVariableException(getName(), variableName);
     }
+
     return variableValueSource;
   }
 

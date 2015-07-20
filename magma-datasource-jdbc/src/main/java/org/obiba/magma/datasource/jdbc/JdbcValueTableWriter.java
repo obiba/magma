@@ -36,12 +36,19 @@ import org.springframework.jdbc.support.lob.DefaultLobHandler;
 import org.springframework.jdbc.support.lob.LobCreator;
 import org.springframework.util.Assert;
 
+import com.google.common.base.Function;
+import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
 
 import liquibase.change.AddColumnConfig;
+import liquibase.change.ColumnConfig;
 import liquibase.change.core.AddColumnChange;
 import liquibase.change.Change;
+import liquibase.change.core.DeleteDataChange;
+import liquibase.change.core.DropColumnChange;
 import liquibase.change.core.ModifyDataTypeChange;
+import liquibase.change.core.UpdateDataChange;
 import liquibase.structure.core.Column;
 import liquibase.structure.core.Table;
 
@@ -49,6 +56,8 @@ class JdbcValueTableWriter implements ValueTableWriter {
 
   @SuppressWarnings("unused")
   private static final Logger log = LoggerFactory.getLogger(JdbcValueTableWriter.class);
+
+  private final SimpleDateFormat timestampDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
   static final String VARIABLE_METADATA_TABLE = "variables";
 
@@ -103,6 +112,10 @@ class JdbcValueTableWriter implements ValueTableWriter {
     valueTable.tableChanged();
   }
 
+  private String formattedDate(Date date) {
+    return timestampDateFormat.format(date);
+  }
+
   private class JdbcVariableWriter implements VariableWriter {
 
     protected List<Change> changes = new ArrayList<>();
@@ -122,7 +135,23 @@ class JdbcValueTableWriter implements ValueTableWriter {
 
     @Override
     public void removeVariable(@NotNull Variable variable) {
-      throw new UnsupportedOperationException("Variable removal not implemented yet");
+      Variable existingVariable = valueTable.getVariable(variable.getName());
+
+      DropColumnChange dcc = new DropColumnChange();
+      dcc.setTableName(valueTable.getSqlName());
+      dcc.setColumnName(NameConverter.toSqlName(existingVariable.getName()));
+      changes.add(dcc);
+
+      if(valueTable.hasUpdatedTimestampColumn()) {
+        UpdateDataChange udc = new UpdateDataChange();
+        udc.setTableName(valueTable.getSqlName());
+        ColumnConfig col = new ColumnConfig();
+        col.setName(valueTable.getUpdatedTimestampColumnName());
+        col.setValueDate(formattedDate(new Date()));
+        udc.addColumn(col);
+
+        changes.add(udc);
+      }
     }
 
     @Override
@@ -177,28 +206,18 @@ class JdbcValueTableWriter implements ValueTableWriter {
         "DELETE FROM " + CATEGORY_METADATA_TABLE + " WHERE value_table = ? AND variable_name = ?";
 
     //
-    // Constructors
-    //
-
-    JdbcMetadataVariableWriter() {
-    }
-
-    //
     // JdbcVariableWriter Methods
     //
 
     @Override
     protected void doWriteVariable(Variable variable) {
-      boolean variableExists = variableExists(variable);
-
       String variableSqlName = NameConverter.toSqlName(variable.getName());
 
       // For an EXISTING variable, delete the existing metadata.
+      boolean variableExists = variableExists(variable);
+
       if(variableExists) {
-        JdbcTemplate jdbcTemplate = valueTable.getDatasource().getJdbcTemplate();
-        jdbcTemplate.update(DELETE_VARIABLE_SQL, valueTable.getSqlName(), variableSqlName);
-        jdbcTemplate.update(DELETE_VARIABLE_ATTRIBUTES_SQL, valueTable.getSqlName(), variableSqlName);
-        jdbcTemplate.update(DELETE_VARIABLE_CATEGORIES_SQL, valueTable.getSqlName(), variableSqlName);
+        deleteVariableMetadata(variableSqlName);
       }
 
       // For ALL variables (existing and new), insert the new metadata.
@@ -213,6 +232,7 @@ class JdbcValueTableWriter implements ValueTableWriter {
       if(variable.hasAttributes()) {
         writeAttributes(variable);
       }
+
       if(variable.hasCategories()) {
         writeCategories(variable);
       }
@@ -223,9 +243,22 @@ class JdbcValueTableWriter implements ValueTableWriter {
       }
     }
 
+    @Override
+    public void removeVariable(@NotNull Variable variable) {
+      super.removeVariable(variable);
+      deleteVariableMetadata(NameConverter.toSqlName(variable.getName()));
+    }
+
     //
     // Methods
     //
+
+    private void deleteVariableMetadata(String variableSqlName) {
+      JdbcTemplate jdbcTemplate = valueTable.getDatasource().getJdbcTemplate();
+      jdbcTemplate.update(DELETE_VARIABLE_SQL, valueTable.getSqlName(), variableSqlName);
+      jdbcTemplate.update(DELETE_VARIABLE_ATTRIBUTES_SQL, valueTable.getSqlName(), variableSqlName);
+      jdbcTemplate.update(DELETE_VARIABLE_CATEGORIES_SQL, valueTable.getSqlName(), variableSqlName);
+    }
 
     private void writeAttributes(Variable variable) {
       for(Attribute attribute : variable.getAttributes()) {
@@ -250,16 +283,9 @@ class JdbcValueTableWriter implements ValueTableWriter {
         changes.add(builder.build());
       }
     }
-
-    @Override
-    public void removeVariable(@NotNull Variable variable) {
-      throw new UnsupportedOperationException("Variable removal not implemented yet");
-    }
   }
 
   private class JdbcValueSetWriter implements ValueSetWriter {
-
-    private final SimpleDateFormat timestampDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     private final VariableEntity entity;
 
@@ -290,30 +316,33 @@ class JdbcValueTableWriter implements ValueTableWriter {
 
     @Override
     public void remove() {
-      throw new UnsupportedOperationException();
+      columnValueMap.clear();
     }
 
     @Override
     public void close() {
-      if(columnValueMap.size() != 0) {
-        JdbcTemplate jdbcTemplate = valueTable.getDatasource().getJdbcTemplate();
+      JdbcTemplate jdbcTemplate = valueTable.getDatasource().getJdbcTemplate();
 
-        jdbcTemplate.execute(valueTable.hasValueSet(entity) ? getUpdateSql() : getInsertSql(),
-            new AbstractLobCreatingPreparedStatementCallback(new DefaultLobHandler()) {
-              @Override
-              protected void setValues(PreparedStatement ps, LobCreator lobCreator) throws SQLException {
-                int index = 1;
-                for(Map.Entry<String, Object> entry : columnValueMap.entrySet()) {
-                  if(entry.getValue() instanceof byte[]) {
-                    lobCreator.setBlobAsBinaryStream(ps, index++, new ByteArrayInputStream((byte[]) entry.getValue()),
-                        ((byte[]) entry.getValue()).length);
-                  } else {
-                    ps.setObject(index++, entry.getValue());
-                  }
+      if(columnValueMap.size() == 0) {
+        jdbcTemplate.execute(getDeleteSql());
+        return;
+      }
+
+      jdbcTemplate.execute(valueTable.hasValueSet(entity) ? getUpdateSql() : getInsertSql(),
+          new AbstractLobCreatingPreparedStatementCallback(new DefaultLobHandler()) {
+            @Override
+            protected void setValues(PreparedStatement ps, LobCreator lobCreator) throws SQLException {
+              int index = 1;
+              for(Map.Entry<String, Object> entry : columnValueMap.entrySet()) {
+                if(entry.getValue() instanceof byte[]) {
+                  lobCreator.setBlobAsBinaryStream(ps, index++, new ByteArrayInputStream((byte[]) entry.getValue()),
+                      ((byte[]) entry.getValue()).length);
+                } else {
+                  ps.setObject(index++, entry.getValue());
                 }
               }
-            });
-      }
+            }
+          });
     }
 
     @SuppressWarnings({ "PMD.NcssMethodCount", "OverlyLongMethod" })
@@ -390,6 +419,10 @@ class JdbcValueTableWriter implements ValueTableWriter {
       return sql.toString();
     }
 
+    private String getDeleteSql() {
+      return String.format("DELETE FROM %s %s", valueTable.getSqlName(), getWhereClause());
+    }
+
     private String getWhereClause() {
       StringBuffer whereClause = new StringBuffer();
 
@@ -427,10 +460,6 @@ class JdbcValueTableWriter implements ValueTableWriter {
 
     private void deleteFromEnd(StringBuffer sb, String stringToDelete) {
       sb.delete(sb.length() - stringToDelete.length(), sb.length());
-    }
-
-    private String formattedDate(Date date) {
-      return timestampDateFormat.format(date);
     }
   }
 }
