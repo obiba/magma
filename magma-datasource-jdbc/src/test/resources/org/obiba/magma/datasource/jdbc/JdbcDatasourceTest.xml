@@ -12,6 +12,6 @@
   <categories value_table="BONE_DENSITY" variable_name="BD" name="PNA" code="88" missing="true"/>
   <categories value_table="BONE_DENSITY" variable_name="BD" name="DNK" code="99" missing="true"/>
 
-  <bone_density part_id="1234" visit_id="2" bd="64" bd_2="65"/>
-  <bone_density part_id="1234" visit_id="3" bd="65" bd_2="65"/>
+  <BONE_DENSITY part_id="1234" visit_id="2" bd="64" bd_2="65"/>
+  <BONE_DENSITY part_id="1234" visit_id="3" bd="65" bd_2="65"/>
 </dataset>

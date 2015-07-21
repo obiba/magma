@@ -4,11 +4,14 @@ import java.util.TreeSet;
 
 import javax.sql.DataSource;
 
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.obiba.core.test.spring.Dataset;
 import org.obiba.core.test.spring.DbUnitAwareTestExecutionListener;
 import org.obiba.magma.Category;
+import org.obiba.magma.NoSuchVariableException;
 import org.obiba.magma.Timestamps;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueSet;
@@ -35,6 +38,7 @@ import org.springframework.test.context.transaction.TransactionConfiguration;
 import org.springframework.test.context.transaction.TransactionalTestExecutionListener;
 
 import static org.fest.assertions.api.Assertions.assertThat;
+import static org.fest.assertions.api.Assertions.fail;
 
 @SuppressWarnings({ "ReuseOfLocalVariable", "OverlyLongMethod", "PMD.NcssMethodCount" })
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -44,6 +48,9 @@ import static org.fest.assertions.api.Assertions.assertThat;
     TransactionalTestExecutionListener.class, SchemaTestExecutionListener.class,
     DbUnitAwareTestExecutionListener.class })
 public class JdbcDatasourceTest extends AbstractMagmaTest {
+
+  @Rule
+  public final ExpectedException exception = ExpectedException.none();
 
   @Autowired
   private DataSource dataSource;
@@ -56,7 +63,7 @@ public class JdbcDatasourceTest extends AbstractMagmaTest {
     JdbcDatasource jdbcDatasource = new JdbcDatasource("my-datasource", dataSource, "Participant", false);
     jdbcDatasource.initialise();
 
-    testCreateDatasourceFromExistingDatabase(jdbcDatasource);
+    createDatasourceFromExistingDatabase(jdbcDatasource);
 
     jdbcDatasource.dispose();
   }
@@ -69,7 +76,7 @@ public class JdbcDatasourceTest extends AbstractMagmaTest {
     JdbcDatasource jdbcDatasource = new JdbcDatasource("my-datasource", dataSource, "Participant", true);
     jdbcDatasource.initialise();
 
-    testCreateDatasourceFromExistingDatabase(jdbcDatasource);
+    createDatasourceFromExistingDatabase(jdbcDatasource);
 
     ValueTable valueTable = jdbcDatasource.getValueTable("BONE_DENSITY");
     Variable bdVar = valueTable.getVariable("BD");
@@ -96,7 +103,7 @@ public class JdbcDatasourceTest extends AbstractMagmaTest {
     JdbcDatasource jdbcDatasource = new JdbcDatasource("my-datasource", dataSource, "Participant", false);
     jdbcDatasource.initialise();
 
-    testCreateDatasourceFromExistingDatabase(jdbcDatasource);
+    createDatasourceFromExistingDatabase(jdbcDatasource);
 
     ValueTable valueTable = jdbcDatasource.getValueTable("BONE_DENSITY");
     VectorSource bdVar = valueTable.getVariableValueSource("BD").asVectorSource();
@@ -123,7 +130,7 @@ public class JdbcDatasourceTest extends AbstractMagmaTest {
     JdbcDatasource jdbcDatasource = new JdbcDatasource("my-datasource-nodb", dataSource, "Participant", false);
     jdbcDatasource.initialise();
 
-    testCreateDatasourceFromScratch(jdbcDatasource);
+    createDatasourceFromScratch(jdbcDatasource);
 
     jdbcDatasource.dispose();
   }
@@ -136,7 +143,7 @@ public class JdbcDatasourceTest extends AbstractMagmaTest {
     JdbcDatasource jdbcDatasource = new JdbcDatasource("my-datasource-nodb", dataSource, settings);
     jdbcDatasource.initialise();
 
-    testCreateDatasourceFromScratch(jdbcDatasource);
+    createDatasourceFromScratch(jdbcDatasource);
 
     jdbcDatasource.dispose();
   }
@@ -145,14 +152,10 @@ public class JdbcDatasourceTest extends AbstractMagmaTest {
       afterSchema = "schema-notables.sql")
   @Test
   public void test_Timestamped() {
-    JdbcDatasourceSettings settings = new JdbcDatasourceSettings("Participant", null, null, false);
-    settings.setDefaultCreatedTimestampColumnName("created");
-    settings.setDefaultUpdatedTimestampColumnName("updated");
-
-    JdbcDatasource jdbcDatasource = new JdbcDatasource("my-datasource-nodb", dataSource, settings);
+    JdbcDatasource jdbcDatasource = new JdbcDatasource("my-datasource-nodb", dataSource, getDataSourceSettings());
     jdbcDatasource.initialise();
 
-    testCreateDatasourceFromScratch(jdbcDatasource);
+    createDatasourceFromScratch(jdbcDatasource);
 
     ValueTable t = jdbcDatasource.getValueTables().iterator().next();
     Timestamps ts = t.getTimestamps();
@@ -166,11 +169,89 @@ public class JdbcDatasourceTest extends AbstractMagmaTest {
     jdbcDatasource.dispose();
   }
 
+  @TestSchema(schemaLocation = "org/obiba/magma/datasource/jdbc", beforeSchema = "schema-notables.sql")
+  @Test
+  public void testDropDatasource() {
+    JdbcDatasource jdbcDatasource = new JdbcDatasource("my-datasource-nodb", dataSource, getDataSourceSettings());
+    jdbcDatasource.initialise();
+
+    createDatasourceFromScratch(jdbcDatasource);
+    jdbcDatasource.drop();
+    jdbcDatasource.dispose();
+
+    assertThat(jdbcDatasource.getValueTables()).isEmpty();
+  }
+
+  @TestSchema(schemaLocation = "org/obiba/magma/datasource/jdbc", beforeSchema = "schema-notables.sql")
+  @Test
+  public void testRemoveValueSet() {
+    JdbcDatasource jdbcDatasource = new JdbcDatasource("my-datasource-nodb", dataSource, getDataSourceSettings());
+    jdbcDatasource.initialise();
+
+    createDatasourceFromScratch(jdbcDatasource);
+
+    VariableEntity myEntity1 = new VariableEntityBean("Participant", "1");
+
+    try(ValueTableWriter writer = jdbcDatasource.createWriter("MY_TABLE", "Participant")) {
+      try(ValueSetWriter vsWriter = writer.writeValueSet(myEntity1)) {
+        vsWriter.remove();
+      }
+    }
+
+    ValueTable vt = jdbcDatasource.getValueTable("MY_TABLE");
+    assertThat(vt.getValueSets()).isEmpty();
+  }
+
+  @TestSchema(schemaLocation = "org/obiba/magma/datasource/jdbc", beforeSchema = "schema-notables.sql")
+  @Test
+  public void testRemoveVariable() {
+    JdbcDatasource jdbcDatasource = new JdbcDatasource("my-datasource-nodb", dataSource, getDataSourceSettings());
+    jdbcDatasource.initialise();
+
+    createDatasourceFromScratch(jdbcDatasource);
+
+    try(ValueTableWriter writer = jdbcDatasource.createWriter("MY_TABLE", "Participant")) {
+      try(VariableWriter varWriter = writer.writeVariables()) {
+        varWriter.removeVariable(jdbcDatasource.getValueTable("MY_TABLE").getVariable("MY_VAR1"));
+      }
+    }
+
+    ValueTable vt = jdbcDatasource.getValueTable("MY_TABLE");
+    exception.expect(NoSuchVariableException.class);
+
+    fail(String.format("Variable %s not removed.", vt.getVariable("MY_VAR1")));
+  }
+
+  @TestSchema(schemaLocation = "org/obiba/magma/datasource/jdbc", beforeSchema = "schema-notables.sql",
+      afterSchema = "schema-notables.sql")
+  @Test
+  public void testValueSetCount() {
+    JdbcDatasource jdbcDatasource = new JdbcDatasource("my-datasource-nodb", dataSource, getDataSourceSettings());
+    jdbcDatasource.initialise();
+
+    createDatasourceFromScratch(jdbcDatasource);
+    ValueTable vt = jdbcDatasource.getValueTable("MY_TABLE");
+
+    assertThat(vt.getValueSetCount()).isEqualTo(1);
+    assertThat(vt.getVariableEntityCount()).isEqualTo(1);
+    assertThat(vt.getVariableCount()).isEqualTo(2);
+
+    jdbcDatasource.dispose();
+  }
+
   //
   // Methods
   //
 
-  private void testCreateDatasourceFromExistingDatabase(JdbcDatasource jdbcDatasource) {
+  private JdbcDatasourceSettings getDataSourceSettings() {
+    JdbcDatasourceSettings settings = new JdbcDatasourceSettings("Participant", null, null, false);
+    settings.setDefaultCreatedTimestampColumnName("created");
+    settings.setDefaultUpdatedTimestampColumnName("updated");
+
+    return settings;
+  }
+
+  private void createDatasourceFromExistingDatabase(JdbcDatasource jdbcDatasource) {
     assertThat(jdbcDatasource).isNotNull();
     assertThat(jdbcDatasource.getName()).isEqualTo("my-datasource");
 
@@ -196,24 +277,24 @@ public class JdbcDatasourceTest extends AbstractMagmaTest {
     assertThat(bdTable.getValue(bdTable.getVariable("BD_2"), vs1234_3)).isEqualTo(IntegerType.get().valueOf(65));
   }
 
-  private void testCreateDatasourceFromScratch(JdbcDatasource jdbcDatasource) {
+  private void createDatasourceFromScratch(JdbcDatasource jdbcDatasource) {
     // Create a new ValueTable.
-    try(ValueTableWriter tableWriter = jdbcDatasource.createWriter("my_table", "Participant")) {
+    try(ValueTableWriter tableWriter = jdbcDatasource.createWriter("MY_TABLE", "Participant")) {
       assertThat(tableWriter).isNotNull();
       assertThat(jdbcDatasource.getName()).isEqualTo("my-datasource-nodb");
-      assertThat(jdbcDatasource.hasValueTable("my_table")).isTrue();
+      assertThat(jdbcDatasource.hasValueTable("MY_TABLE")).isTrue();
 
       // Write some variables.
       try(VariableWriter variableWriter = tableWriter.writeVariables()) {
-        variableWriter.writeVariable(Variable.Builder.newVariable("my_var1", IntegerType.get(), "Participant").build());
-        variableWriter.writeVariable(Variable.Builder.newVariable("my_var2", DecimalType.get(), "Participant").build());
+        variableWriter.writeVariable(Variable.Builder.newVariable("MY_VAR1", IntegerType.get(), "Participant").build());
+        variableWriter.writeVariable(Variable.Builder.newVariable("MY_VAR2", DecimalType.get(), "Participant").build());
       }
 
       // Write a value set.
       VariableEntity myEntity1 = new VariableEntityBean("Participant", "1");
       try(ValueSetWriter valueSetWriter = tableWriter.writeValueSet(myEntity1)) {
-        Variable myVar1 = jdbcDatasource.getValueTable("my_table").getVariable("my_var1");
-        Variable myVar2 = jdbcDatasource.getValueTable("my_table").getVariable("my_var2");
+        Variable myVar1 = jdbcDatasource.getValueTable("MY_TABLE").getVariable("MY_VAR1");
+        Variable myVar2 = jdbcDatasource.getValueTable("MY_TABLE").getVariable("MY_VAR2");
         valueSetWriter.writeValue(myVar1, IntegerType.get().valueOf(77));
         valueSetWriter.writeValue(myVar2, IntegerType.get().valueOf(78));
       }
@@ -230,5 +311,4 @@ public class JdbcDatasourceTest extends AbstractMagmaTest {
     }
     return false;
   }
-
 }

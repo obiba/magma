@@ -44,10 +44,13 @@ import org.obiba.magma.support.VariableEntityBean;
 import org.obiba.magma.type.DateTimeType;
 import org.springframework.jdbc.core.RowMapper;
 
+import com.google.common.collect.Lists;
+
 import liquibase.change.ChangeWithColumns;
 import liquibase.change.ColumnConfig;
 import liquibase.change.ConstraintsConfig;
 import liquibase.change.core.CreateTableChange;
+import liquibase.change.core.DropTableChange;
 import liquibase.structure.core.Column;
 import liquibase.snapshot.DatabaseSnapshot;
 import liquibase.structure.core.PrimaryKey;
@@ -152,6 +155,13 @@ class JdbcValueTable extends AbstractValueTable {
   // Methods
   //
 
+  public void drop() {
+    DropTableChange dtt = new DropTableChange();
+    dtt.setTableName(getSqlName());
+
+    getDatasource().doWithDatabase(new ChangeDatabaseCallback(dtt));
+  }
+
   public JdbcValueTableSettings getSettings() {
     return settings;
   }
@@ -225,8 +235,14 @@ class JdbcValueTable extends AbstractValueTable {
         addVariableValueSource(new JdbcVariableValueSource(variable));
       }
     } else {
+      List<String> reserved = Lists.newArrayList(getSettings().getEntityIdentifierColumns());
+
+      if(getCreatedTimestampColumnName() != null) reserved.add(getCreatedTimestampColumnName());
+
+      if(getCreatedTimestampColumnName() != null) reserved.add(getUpdatedTimestampColumnName());
+
       for(Column column : table.getColumns()) {
-        if(!getSettings().getEntityIdentifierColumns().contains(column.getName())) {
+        if(!reserved.contains(column.getName()) && !reserved.contains(column.getName().toLowerCase())) {
           addVariableValueSource(new JdbcVariableValueSource(getEntityType(), column));
         }
       }
@@ -247,9 +263,9 @@ class JdbcValueTable extends AbstractValueTable {
       String units = rs.getString("units");
       boolean isRepeatable = rs.getBoolean("is_repeatable");
       String occurrenceGroup = rs.getString("occurrence_group");
-
       Variable.Builder builder = Variable.Builder.newVariable(variableName, valueType, getEntityType())
           .mimeType(mimeType).unit(units);
+
       if(isRepeatable) {
         builder.repeatable();
         builder.occurrenceGroup(occurrenceGroup);
@@ -490,15 +506,15 @@ class JdbcValueTable extends AbstractValueTable {
     //
 
     JdbcVariableValueSource(String entityType, Column column) {
-      variable = Variable.Builder
-          .newVariable(column.getName(), SqlTypes.valueTypeFor(column.getType().getDataTypeId()), entityType).build();
       columnName = column.getName();
+      variable = Variable.Builder
+          .newVariable(columnName, SqlTypes.valueTypeFor(column.getType().getDataTypeId()), entityType).build();
     }
 
     JdbcVariableValueSource(String entityType, ColumnConfig columnConfig) {
-      variable = Variable.Builder
-          .newVariable(columnConfig.getName(), SqlTypes.valueTypeFor(columnConfig.getType()), entityType).build();
       columnName = columnConfig.getName();
+      variable = Variable.Builder
+          .newVariable(columnName, SqlTypes.valueTypeFor(columnConfig.getType()), entityType).build();
     }
 
     JdbcVariableValueSource(Variable variable) {
