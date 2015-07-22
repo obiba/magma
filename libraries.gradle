@@ -63,7 +63,7 @@ ext {
 
       poi_ooxml: 'org.apache.poi:poi-ooxml:3.9',
 
-      postgresql: 'org.postgresql:postgresql:9.2-1003-jdbc4',
+      postgresql: 'org.postgresql:postgresql:9.4-1201-jdbc41',
 
       rhino_js: 'org.mozilla:rhino:1.7R5',
 

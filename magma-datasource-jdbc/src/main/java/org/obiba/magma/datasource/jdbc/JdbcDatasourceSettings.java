@@ -140,5 +140,4 @@ public class JdbcDatasourceSettings {
   public boolean isUpdatedTimestampColumnNameProvided() {
     return !Strings.isNullOrEmpty(defaultUpdatedTimestampColumnName);
   }
-
 }

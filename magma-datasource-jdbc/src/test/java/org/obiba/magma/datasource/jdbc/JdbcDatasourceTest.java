@@ -37,6 +37,8 @@ import org.springframework.test.context.support.DirtiesContextTestExecutionListe
 import org.springframework.test.context.transaction.TransactionConfiguration;
 import org.springframework.test.context.transaction.TransactionalTestExecutionListener;
 
+import com.google.common.collect.Sets;
+
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.fest.assertions.api.Assertions.fail;
 
@@ -60,7 +62,8 @@ public class JdbcDatasourceTest extends AbstractMagmaTest {
   @Dataset(filenames = "JdbcDatasourceTest-nometa.xml")
   @Test
   public void testCreateDatasourceFromExistingDatabase() {
-    JdbcDatasource jdbcDatasource = new JdbcDatasource("my-datasource", dataSource, "Participant", false);
+    JdbcDatasource jdbcDatasource = new JdbcDatasource("my-datasource", dataSource,
+        new JdbcDatasourceSettings("Participant", Sets.newHashSet("BONE_DENSITY"), null, false));
     jdbcDatasource.initialise();
 
     createDatasourceFromExistingDatabase(jdbcDatasource);
@@ -100,7 +103,8 @@ public class JdbcDatasourceTest extends AbstractMagmaTest {
   @Dataset(filenames = "JdbcDatasourceTest-nometa.xml")
   @Test
   public void test_vectorSource() {
-    JdbcDatasource jdbcDatasource = new JdbcDatasource("my-datasource", dataSource, "Participant", false);
+    JdbcDatasource jdbcDatasource = new JdbcDatasource("my-datasource", dataSource,
+        new JdbcDatasourceSettings("Participant", Sets.newHashSet("BONE_DENSITY"), null, false));
     jdbcDatasource.initialise();
 
     createDatasourceFromExistingDatabase(jdbcDatasource);
@@ -135,7 +139,7 @@ public class JdbcDatasourceTest extends AbstractMagmaTest {
     jdbcDatasource.dispose();
   }
 
-  @TestSchema(schemaLocation = "org/obiba/magma/datasource/jdbc", beforeSchema = "schema-notables.sql",
+  @TestSchema(schemaLocation = "org/obiba/magma/datasource/jdbc", beforeSchema = "schema-meta.sql",
       afterSchema = "schema-notables.sql")
   @Test
   public void testCreateDatasourceFromScratchUsingMetadataTables() {

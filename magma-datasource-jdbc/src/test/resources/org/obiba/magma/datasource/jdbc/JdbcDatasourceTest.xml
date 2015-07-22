@@ -12,6 +12,10 @@
   <categories value_table="BONE_DENSITY" variable_name="BD" name="PNA" code="88" missing="true"/>
   <categories value_table="BONE_DENSITY" variable_name="BD" name="DNK" code="99" missing="true"/>
 
+  <variables_mapping name="BD" sql_name="BD" value_table="BONE_DENSITY"/>
+  <variables_mapping name="BD_2" sql_name="BD_2" value_table="BONE_DENSITY"/>
+  <valuetables_mapping name="BONE_DENSITY" sql_name="BONE_DENSITY"/>
+
   <BONE_DENSITY part_id="1234" visit_id="2" bd="64" bd_2="65"/>
   <BONE_DENSITY part_id="1234" visit_id="3" bd="65" bd_2="65"/>
 </dataset>

@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.obiba.magma.datasource.jdbc.support.NameConverter;
-
 public class JdbcValueTableSettings {
   //
   // Instance Variables
@@ -32,22 +30,23 @@ public class JdbcValueTableSettings {
   //
   // Constructors
   //
-
   public JdbcValueTableSettings() {
   }
 
   public JdbcValueTableSettings(String sqlTableName, String magmaTableName, String entityType,
       List<String> entityIdentifierColumns) {
+
     if(sqlTableName == null) {
       throw new IllegalArgumentException("null sqlTableName");
     }
+
     if(entityIdentifierColumns == null || entityIdentifierColumns.isEmpty()) {
       throw new IllegalArgumentException("null or empty entityIdentityColumns");
     }
 
     this.sqlTableName = sqlTableName;
 
-    this.magmaTableName = magmaTableName != null ? magmaTableName : NameConverter.toMagmaName(sqlTableName);
+    this.magmaTableName = magmaTableName != null ? magmaTableName : sqlTableName;
 
     this.entityType = entityType;
 
@@ -71,7 +70,7 @@ public class JdbcValueTableSettings {
   }
 
   public String getMagmaTableName() {
-    return magmaTableName != null ? magmaTableName : NameConverter.toMagmaName(sqlTableName);
+    return magmaTableName != null ? magmaTableName : sqlTableName;
   }
 
   public void setEntityType(String entityType) {
