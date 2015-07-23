@@ -2,6 +2,7 @@ package org.obiba.magma.support;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.validation.constraints.NotNull;
@@ -15,12 +16,15 @@ import org.springframework.cache.Cache;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Supplier;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
+import com.google.common.collect.Maps;
 
 public class CachedDatasource extends AbstractDatasourceWrapper {
   private Cache cache;
+
+  private final Map<String, ValueTable> cachedValueTablesMap = Maps.newHashMap();
 
   public CachedDatasource(@NotNull Datasource wrapped, @NotNull Cache cache) {
     super(wrapped);
@@ -39,6 +43,7 @@ public class CachedDatasource extends AbstractDatasourceWrapper {
   @Override
   public void initialise() {
     try {
+      cachedValueTablesMap.clear();
       getWrappedDatasource().initialise();
     } catch(MagmaRuntimeException ex) {
       //ignore
@@ -57,11 +62,17 @@ public class CachedDatasource extends AbstractDatasourceWrapper {
 
   @Override
   public ValueTable getValueTable(final String tableName) throws NoSuchValueTableException {
-    return new CachedValueTable(this, tableName, cache);
+    if (cachedValueTablesMap.isEmpty()) getValueTables();
+
+    if (!cachedValueTablesMap.containsKey(tableName)) throw new NoSuchValueTableException(getName(), tableName);
+
+    return cachedValueTablesMap.get(tableName);
   }
 
   @Override
   public Set<ValueTable> getValueTables() {
+    if (!cachedValueTablesMap.isEmpty()) return ImmutableSet.<ValueTable>builder().addAll(cachedValueTablesMap.values()).build();
+
     List<String> valueTableNames = getCached(getCacheKey("getValueTables"), new Supplier<List<String>>() {
       @Override
       public List<String> get() {
@@ -75,13 +86,11 @@ public class CachedDatasource extends AbstractDatasourceWrapper {
       }
     });
 
-    Set<ValueTable> res = Sets.newHashSet();
-
     for(String tableName : valueTableNames) {
-      res.add(new CachedValueTable(this, tableName, cache));
+      cachedValueTablesMap.put(tableName, new CachedValueTable(this, tableName, cache));
     }
 
-    return res;
+    return ImmutableSet.<ValueTable>builder().addAll(cachedValueTablesMap.values()).build();
   }
 
   public void evictValues(VariableEntity variableEntity) {
