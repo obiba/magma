@@ -35,6 +35,10 @@ public class JdbcDatasourceSettings {
   //
   // Constructors
   //
+
+  public JdbcDatasourceSettings() {
+  }
+
   public JdbcDatasourceSettings(@NotNull String defaultEntityType, @Nullable Set<String> mappedTables,
       @Nullable Set<JdbcValueTableSettings> tableSettings, boolean useMetadataTables) {
     //noinspection ConstantConditions
