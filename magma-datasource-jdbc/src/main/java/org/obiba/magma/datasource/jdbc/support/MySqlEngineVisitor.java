@@ -1,7 +1,5 @@
 package org.obiba.magma.datasource.jdbc.support;
 
-import java.util.Set;
-
 import com.google.common.collect.ImmutableSet;
 
 import liquibase.database.Database;
@@ -9,12 +7,16 @@ import liquibase.sql.visitor.AbstractSqlVisitor;
 
 public class MySqlEngineVisitor extends AbstractSqlVisitor {
 
+  public MySqlEngineVisitor() {
+    setApplicableDbms(ImmutableSet.of("mysql"));
+  }
+
   @Override
   public String modifySql(String sql, Database database) {
-    if("mysql".equals(database.getShortName()) && sql.toLowerCase().startsWith("create table") &&
-        !sql.toLowerCase().contains("engine=")) {
-      return sql + "ENGINE=InnoDB";
-    }
+    if(sql.toLowerCase().startsWith("create table") && !sql.toLowerCase().contains("engine="))
+      sql = sql + "ENGINE=InnoDB";
+
+    if(sql.contains("BLOB")) sql = sql.replaceAll("BLOB", "LONGBLOB");
 
     return sql;
   }
@@ -22,10 +24,5 @@ public class MySqlEngineVisitor extends AbstractSqlVisitor {
   @Override
   public String getName() {
     return MySqlEngineVisitor.class.getSimpleName();
-  }
-
-  @Override
-  public Set<String> getApplicableDbms() {
-    return ImmutableSet.of("mysql");
   }
 }
