@@ -36,6 +36,8 @@ import org.obiba.magma.VariableEntity;
 import org.obiba.magma.VariableValueSource;
 import org.obiba.magma.VectorSource;
 import org.obiba.magma.datasource.jdbc.JdbcDatasource.ChangeDatabaseCallback;
+import org.obiba.magma.datasource.jdbc.support.CreateIndexChangeBuilder;
+import org.obiba.magma.datasource.jdbc.support.CreateTableChangeBuilder;
 import org.obiba.magma.support.AbstractValueTable;
 import org.obiba.magma.support.AbstractVariableEntityProvider;
 import org.obiba.magma.support.Initialisables;
@@ -49,12 +51,10 @@ import com.google.common.collect.HashBiMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
-import liquibase.change.AddColumnConfig;
 import liquibase.change.Change;
 import liquibase.change.ChangeWithColumns;
 import liquibase.change.ColumnConfig;
 import liquibase.change.ConstraintsConfig;
-import liquibase.change.core.CreateIndexChange;
 import liquibase.change.core.CreateTableChange;
 import liquibase.change.core.DropTableChange;
 import liquibase.structure.core.Column;
@@ -305,8 +305,8 @@ class JdbcValueTable extends AbstractValueTable {
     private void addVariableCategories(String variableName, Variable.Builder builder) {
       builder.addCategories(getDatasource().getJdbcTemplate().query(String
               .format("SELECT name, code FROM %s WHERE value_table = ? AND variable_name = ?",
-                  escapedCategoriesSqlTableName), new Object[] { getName(), variableName },
-          new RowMapper<Category>() {
+                  escapedCategoriesSqlTableName), new Object[] { getName(), variableName }, new RowMapper<Category>() {
+
             @Override
             public Category mapRow(ResultSet rs, int rowNum) throws SQLException {
               String categoryName = rs.getString("name");
@@ -353,35 +353,20 @@ class JdbcValueTable extends AbstractValueTable {
   }
 
   private void createSqlTable(String sqlTableName) {
-    CreateTableChange ctc = new CreateTableChange();
-    ctc.setTableName(sqlTableName);
-
-    ColumnConfig column = new ColumnConfig();
-    column.setName(JdbcValueTableWriter.ENTITY_ID_COLUMN);
-    column.setType("VARCHAR(255)");
-    ConstraintsConfig constraints = new ConstraintsConfig();
-    constraints.setPrimaryKey(true);
-    column.setConstraints(constraints);
-    ctc.addColumn(column);
+    CreateTableChange ctc = CreateTableChangeBuilder.newBuilder().tableName(sqlTableName) //
+        .withColumn(JdbcValueTableWriter.ENTITY_ID_COLUMN, "VARCHAR(255)").primaryKey() //
+        .build();
     createTimestampColumns(ctc);
-
-    List<Change> changes = Lists.newArrayList();
-    changes.add(ctc);
+    List<Change> changes = Lists.<Change>newArrayList(ctc);
 
     if(hasCreatedTimestampColumn()) {
-      CreateIndexChange cic = new CreateIndexChange();
-      cic.setIndexName("idx_created");
-      cic.setTableName(sqlTableName);
-      cic.addColumn(new AddColumnConfig(new Column(getCreatedTimestampColumnName())));
-      changes.add(cic);
+      changes.add(CreateIndexChangeBuilder.newBuilder().name("idx_created").table(sqlTableName)
+          .withColumn(getCreatedTimestampColumnName()).build());
     }
 
     if(hasUpdatedTimestampColumn()) {
-      CreateIndexChange cic = new CreateIndexChange();
-      cic.setIndexName("idx_updated");
-      cic.setTableName(sqlTableName);
-      cic.addColumn(new AddColumnConfig(new Column(getUpdatedTimestampColumnName())));
-      changes.add(cic);
+      changes.add(CreateIndexChangeBuilder.newBuilder().name("idx_updated").table(sqlTableName)
+          .withColumn(getUpdatedTimestampColumnName()).build());
     }
 
     getDatasource().doWithDatabase(new ChangeDatabaseCallback(changes));

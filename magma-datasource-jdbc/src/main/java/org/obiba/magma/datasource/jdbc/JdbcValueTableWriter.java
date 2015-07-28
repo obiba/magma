@@ -26,6 +26,7 @@ import org.obiba.magma.ValueTableWriter;
 import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.datasource.jdbc.JdbcDatasource.ChangeDatabaseCallback;
+import org.obiba.magma.datasource.jdbc.support.AddColumnChangeBuilder;
 import org.obiba.magma.datasource.jdbc.support.InsertDataChangeBuilder;
 import org.obiba.magma.type.LocaleType;
 import org.obiba.magma.type.TextType;
@@ -41,7 +42,6 @@ import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Iterables;
 
-import liquibase.change.AddColumnConfig;
 import liquibase.change.ColumnConfig;
 import liquibase.change.core.AddColumnChange;
 import liquibase.change.Change;
@@ -177,27 +177,33 @@ class JdbcValueTableWriter implements ValueTableWriter {
               variable.getValueType().equals(TextType.get()) ? SqlTypes.TEXT_TYPE_HINT_MEDIUM : null);
 
       if(variableExists(variable)) {
-        ModifyDataTypeChange modifyDataTypeChange = new ModifyDataTypeChange();
-        modifyDataTypeChange.setTableName(valueTable.getSqlName());
-        modifyDataTypeChange.setColumnName(columnName);
-        modifyDataTypeChange.setNewDataType(dataType);
-        changes.add(modifyDataTypeChange);
+        modifyColumn(columnName, dataType);
       } else {
-        columnName = generateColumnName();
-        AddColumnChange addColumnChange = new AddColumnChange();
-        addColumnChange.setTableName(valueTable.getSqlName());
-        AddColumnConfig ac = new AddColumnConfig();
-        ac.setName(columnName);
-        ac.setType(dataType);
-        addColumnChange.addColumn(ac);
-
-        InsertDataChange idc = InsertDataChangeBuilder.newBuilder().tableName(JdbcDatasource.VARIABLES_MAPPING)
-            .withColumn("sql_name", columnName).withColumn("name", variable.getName())
-            .withColumn("value_table", valueTable.getName()).build();
-
-        changes.add(addColumnChange);
-        changes.add(idc);
+        addNewColumn(variable.getName(), dataType);
       }
+    }
+
+    private void modifyColumn(String columnName, String dataType) {
+      ModifyDataTypeChange modifyDataTypeChange = new ModifyDataTypeChange();
+      modifyDataTypeChange.setTableName(valueTable.getSqlName());
+      modifyDataTypeChange.setColumnName(columnName);
+      modifyDataTypeChange.setNewDataType(dataType);
+      changes.add(modifyDataTypeChange);
+    }
+
+    private void addNewColumn(String variableName, String dataType) {
+      String columnName = generateColumnName();
+
+      AddColumnChange addColumnChange = AddColumnChangeBuilder.newBuilder()//
+          .table(valueTable.getSqlName())//
+          .column(columnName, dataType).build();
+
+      InsertDataChange idc = InsertDataChangeBuilder.newBuilder().tableName(JdbcDatasource.VARIABLES_MAPPING)
+          .withColumn("sql_name", columnName).withColumn("name", variableName)
+          .withColumn("value_table", valueTable.getName()).build();
+
+      changes.add(addColumnChange);
+      changes.add(idc);
     }
 
     private String generateColumnName() {
@@ -284,8 +290,7 @@ class JdbcValueTableWriter implements ValueTableWriter {
       for(Attribute attribute : variable.getAttributes()) {
         InsertDataChangeBuilder builder = new InsertDataChangeBuilder();
         builder.tableName(ATTRIBUTE_METADATA_TABLE).withColumn(VALUE_TABLE_COLUMN, valueTable.getName())
-            .withColumn(VARIABLE_NAME_COLUMN, variable.getName())
-            .withColumn(ATTRIBUTE_NAME_COLUMN, attribute.getName())
+            .withColumn(VARIABLE_NAME_COLUMN, variable.getName()).withColumn(ATTRIBUTE_NAME_COLUMN, attribute.getName())
             .withColumn(ATTRIBUTE_LOCALE_COLUMN, attribute.isLocalised() ? attribute.getLocale().toString() : "")
             .withColumn(ATTRIBUTE_NAMESPACE_COLUMN, attribute.hasNamespace() ? attribute.getNamespace() : "")
             .withColumn(ATTRIBUTE_VALUE_COLUMN, attribute.getValue().toString());
@@ -297,8 +302,8 @@ class JdbcValueTableWriter implements ValueTableWriter {
       for(Category category : variable.getCategories()) {
         InsertDataChangeBuilder builder = new InsertDataChangeBuilder();
         builder.tableName(CATEGORY_METADATA_TABLE).withColumn(VALUE_TABLE_COLUMN, valueTable.getName())
-            .withColumn(VARIABLE_NAME_COLUMN, variable.getName())
-            .withColumn(CATEGORY_NAME_COLUMN, category.getName()).withColumn(CATEGORY_CODE_COLUMN, category.getCode())
+            .withColumn(VARIABLE_NAME_COLUMN, variable.getName()).withColumn(CATEGORY_NAME_COLUMN, category.getName())
+            .withColumn(CATEGORY_CODE_COLUMN, category.getCode())
             .withColumn(CATEGORY_MISSING_COLUMN, category.isMissing());
         changes.add(builder.build());
       }
