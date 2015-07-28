@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import com.google.common.base.Strings;
+
 public class JdbcValueTableSettings {
   //
   // Instance Variables
@@ -83,6 +85,7 @@ public class JdbcValueTableSettings {
 
   public void setEntityIdentifierColumns(List<String> entityIdentifierColumns) {
     this.entityIdentifierColumns = new ArrayList<>();
+
     if(entityIdentifierColumns != null) {
       this.entityIdentifierColumns.addAll(entityIdentifierColumns);
     }
@@ -109,10 +112,10 @@ public class JdbcValueTableSettings {
   }
 
   public boolean isCreatedTimestampColumnNameProvided() {
-    return createdTimestampColumnName != null && !"".equals(createdTimestampColumnName);
+    return !Strings.isNullOrEmpty(createdTimestampColumnName);
   }
 
   public boolean isUpdatedTimestampColumnNameProvided() {
-    return updatedTimestampColumnName != null && !"".equals(updatedTimestampColumnName);
+    return !Strings.isNullOrEmpty(updatedTimestampColumnName);
   }
 }

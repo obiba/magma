@@ -19,7 +19,7 @@ import org.springframework.jdbc.core.RowMapper;
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.base.Predicates;
-import com.google.common.collect.ImmutableList;
+import com.google.common.base.Strings;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -91,8 +91,8 @@ public class JdbcValueSet extends ValueSetBean {
   }
 
   private List<String> getNonBinaryColumns() {
-    return ImmutableList
-        .copyOf(Iterables.filter(Iterables.transform(getValueTable().getVariables(), new Function<Variable, String>() {
+    List<String> columns = Lists.newArrayList(
+        Iterables.filter(Iterables.transform(getValueTable().getVariables(), new Function<Variable, String>() {
           @Nullable
           @Override
           public String apply(@Nullable Variable input) {
@@ -101,6 +101,16 @@ public class JdbcValueSet extends ValueSetBean {
             return getValueTable().getVariableSqlName(input.getName());
           }
         }), Predicates.notNull()));
+
+    String created = getValueTable().getCreatedTimestampColumnName();
+
+    if(!Strings.isNullOrEmpty(created)) columns.add(created);
+
+    String updated = getValueTable().getUpdatedTimestampColumnName();
+
+    if(!Strings.isNullOrEmpty(updated)) columns.add(updated);
+
+    return columns;
   }
 
   private <T> List<T> loadValues(List<String> columnNames, RowMapper<T> rowMapper) {
@@ -115,8 +125,8 @@ public class JdbcValueSet extends ValueSetBean {
         }));
 
     StringBuilder sql = new StringBuilder();
-    sql.append(String
-        .format("SELECT %s FROM %s WHERE %s", Joiner.on(", ").join(columnNames), sqlTableName, whereClause));
+    sql.append(
+        String.format("SELECT %s FROM %s WHERE %s", Joiner.on(", ").join(columnNames), sqlTableName, whereClause));
     String[] entityIdentifierColumnValues = getVariableEntity().getIdentifier().split("-");
 
     return getValueTable().getDatasource().getJdbcTemplate()
@@ -125,11 +135,25 @@ public class JdbcValueSet extends ValueSetBean {
 
   public Value getCreated() {
     loadResultSetCache();
-    return resultSetCache.get(getValueTable().getCreatedTimestampColumnName());
+
+    if(!getValueTable().hasCreatedTimestampColumn()) return null;
+
+    String createdColName = getValueTable().getCreatedTimestampColumnName();
+
+    if(resultSetCache.containsKey(createdColName)) return resultSetCache.get(createdColName);
+
+    return null;
   }
 
   public Value getUpdated() {
     loadResultSetCache();
-    return resultSetCache.get(getValueTable().getUpdatedTimestampColumnName());
+
+    if(!getValueTable().hasUpdatedTimestampColumn()) return null;
+
+    String updatedColName = getValueTable().getUpdatedTimestampColumnName();
+
+    if(resultSetCache.containsKey(updatedColName)) return resultSetCache.get(updatedColName);
+
+    return null;
   }
 }

@@ -116,7 +116,7 @@ class JdbcValueTableWriter implements ValueTableWriter {
     return timestampDateFormat.format(date);
   }
 
-  private String getVariableName(String variableName) {
+  private String getVariableSqlName(String variableName) {
     return valueTable.getVariableSqlName(variableName);
   }
 
@@ -143,7 +143,7 @@ class JdbcValueTableWriter implements ValueTableWriter {
 
       DropColumnChange dcc = new DropColumnChange();
       dcc.setTableName(valueTable.getSqlName());
-      dcc.setColumnName(getVariableName(existingVariable.getName()));
+      dcc.setColumnName(getVariableSqlName(existingVariable.getName()));
       changes.add(dcc);
 
       if(valueTable.hasUpdatedTimestampColumn()) {
@@ -159,8 +159,8 @@ class JdbcValueTableWriter implements ValueTableWriter {
 
       JdbcTemplate jdbcTemplate = valueTable.getDatasource().getJdbcTemplate();
       jdbcTemplate
-          .update(String.format("DELETE FROM %s WHERE name = ? AND  value_table = ?", JdbcDatasource.VARIABLES_MAPPING),
-              valueTable.getSqlName(), getVariableName(variable.getName()));
+          .update(String.format("DELETE FROM %s WHERE value_table = ? AND name = ?", JdbcDatasource.VARIABLES_MAPPING),
+              valueTable.getName(), variable.getName());
     }
 
     @Override
@@ -170,7 +170,7 @@ class JdbcValueTableWriter implements ValueTableWriter {
     }
 
     protected void doWriteVariable(Variable variable) {
-      String columnName = getVariableName(variable.getName());
+      String columnName = getVariableSqlName(variable.getName());
       String dataType = variable.isRepeatable()
           ? SqlTypes.sqlTypeFor(TextType.get(), SqlTypes.TEXT_TYPE_HINT_LARGE)
           : SqlTypes.sqlTypeFor(variable.getValueType(),
@@ -205,7 +205,7 @@ class JdbcValueTableWriter implements ValueTableWriter {
     }
 
     protected boolean variableExists(Variable variable) {
-      String columnName = getVariableName(variable.getName());
+      String columnName = getVariableSqlName(variable.getName());
 
       return valueTable.getDatasource().getDatabaseSnapshot()
           .get(new Column(Table.class, null, null, valueTable.getSqlName(), columnName)) != null;
@@ -232,18 +232,16 @@ class JdbcValueTableWriter implements ValueTableWriter {
 
     @Override
     protected void doWriteVariable(Variable variable) {
-      String variableSqlName = getVariableName(variable.getName());
-
       boolean variableExists = variableExists(variable);
 
       if(variableExists) {
-        deleteVariableMetadata(variableSqlName);
+        deleteVariableMetadata(variable.getName());
       }
 
       InsertDataChangeBuilder builder = new InsertDataChangeBuilder();
       builder.tableName(VARIABLE_METADATA_TABLE) //
           .withColumn(VALUE_TABLE_COLUMN, valueTable.getName()) //
-          .withColumn("name", variableSqlName) //
+          .withColumn("name", variable.getName()) //
           .withColumn(VALUE_TYPE_COLUMN, variable.getValueType().getName()) //
           .withColumn("mime_type", variable.getMimeType())//
           .withColumn("units", variable.getUnit()) //
@@ -268,25 +266,25 @@ class JdbcValueTableWriter implements ValueTableWriter {
     @Override
     public void removeVariable(@NotNull Variable variable) {
       super.removeVariable(variable);
-      deleteVariableMetadata(getVariableName(variable.getName()));
+      deleteVariableMetadata(variable.getName());
     }
 
     //
     // Methods
     //
 
-    private void deleteVariableMetadata(String variableSqlName) {
+    private void deleteVariableMetadata(String variableName) {
       JdbcTemplate jdbcTemplate = valueTable.getDatasource().getJdbcTemplate();
-      jdbcTemplate.update(DELETE_VARIABLE_SQL, valueTable.getSqlName(), variableSqlName);
-      jdbcTemplate.update(DELETE_VARIABLE_ATTRIBUTES_SQL, valueTable.getSqlName(), variableSqlName);
-      jdbcTemplate.update(DELETE_VARIABLE_CATEGORIES_SQL, valueTable.getSqlName(), variableSqlName);
+      jdbcTemplate.update(DELETE_VARIABLE_SQL, valueTable.getName(), variableName);
+      jdbcTemplate.update(DELETE_VARIABLE_ATTRIBUTES_SQL, valueTable.getName(), variableName);
+      jdbcTemplate.update(DELETE_VARIABLE_CATEGORIES_SQL, valueTable.getName(), variableName);
     }
 
     private void writeAttributes(Variable variable) {
       for(Attribute attribute : variable.getAttributes()) {
         InsertDataChangeBuilder builder = new InsertDataChangeBuilder();
-        builder.tableName(ATTRIBUTE_METADATA_TABLE).withColumn(VALUE_TABLE_COLUMN, valueTable.getSqlName())
-            .withColumn(VARIABLE_NAME_COLUMN, getVariableName(variable.getName()))
+        builder.tableName(ATTRIBUTE_METADATA_TABLE).withColumn(VALUE_TABLE_COLUMN, valueTable.getName())
+            .withColumn(VARIABLE_NAME_COLUMN, variable.getName())
             .withColumn(ATTRIBUTE_NAME_COLUMN, attribute.getName())
             .withColumn(ATTRIBUTE_LOCALE_COLUMN, attribute.isLocalised() ? attribute.getLocale().toString() : "")
             .withColumn(ATTRIBUTE_NAMESPACE_COLUMN, attribute.hasNamespace() ? attribute.getNamespace() : "")
@@ -298,8 +296,8 @@ class JdbcValueTableWriter implements ValueTableWriter {
     private void writeCategories(Variable variable) {
       for(Category category : variable.getCategories()) {
         InsertDataChangeBuilder builder = new InsertDataChangeBuilder();
-        builder.tableName(CATEGORY_METADATA_TABLE).withColumn(VALUE_TABLE_COLUMN, valueTable.getSqlName())
-            .withColumn(VARIABLE_NAME_COLUMN, getVariableName(variable.getName()))
+        builder.tableName(CATEGORY_METADATA_TABLE).withColumn(VALUE_TABLE_COLUMN, valueTable.getName())
+            .withColumn(VARIABLE_NAME_COLUMN, variable.getName())
             .withColumn(CATEGORY_NAME_COLUMN, category.getName()).withColumn(CATEGORY_CODE_COLUMN, category.getCode())
             .withColumn(CATEGORY_MISSING_COLUMN, category.isMissing());
         changes.add(builder.build());
@@ -333,7 +331,8 @@ class JdbcValueTableWriter implements ValueTableWriter {
           }
         }
       }
-      columnValueMap.put(getVariableName(variable.getName()), columnValue);
+
+      columnValueMap.put(getVariableSqlName(variable.getName()), columnValue);
     }
 
     @Override
