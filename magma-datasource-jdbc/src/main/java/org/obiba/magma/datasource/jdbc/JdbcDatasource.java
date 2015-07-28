@@ -44,6 +44,7 @@ import liquibase.database.Database;
 import liquibase.database.DatabaseFactory;
 import liquibase.database.DatabaseList;
 import liquibase.database.jvm.JdbcConnection;
+import liquibase.exception.DatabaseException;
 import liquibase.exception.LiquibaseException;
 import liquibase.snapshot.SnapshotControl;
 import liquibase.snapshot.SnapshotGeneratorFactory;
@@ -240,7 +241,7 @@ public class JdbcDatasource extends AbstractDatasource {
 
     return tableSettings != null
         ? new JdbcValueTable(this, tableSettings)
-        : new JdbcValueTable(this, getDatabaseSnapshot().get(newTable(sqlTableName)), settings.getDefaultEntityType());
+        : new JdbcValueTable(this, tableName, getDatabaseSnapshot().get(newTable(sqlTableName)), settings.getDefaultEntityType());
   }
 
   //
@@ -310,14 +311,20 @@ public class JdbcDatasource extends AbstractDatasource {
       @Nullable
       @Override
       public T doInConnection(Connection con) throws SQLException, DataAccessException {
-        try {
-          Database database = DatabaseFactory.getInstance().findCorrectDatabaseImplementation(new JdbcConnection(con));
-          T res = databaseCallback.doInDatabase(database);
-          database.commit();
+        Database database = null;
 
-          return res;
+        try {
+          database = DatabaseFactory.getInstance().findCorrectDatabaseImplementation(new JdbcConnection(con));
+
+          return databaseCallback.doInDatabase(database);
         } catch(LiquibaseException e) {
           throw new SQLException(e);
+        } finally {
+          if(database != null) try {
+            database.commit();
+          } catch(DatabaseException e) {
+            //ignore
+          }
         }
       }
     });

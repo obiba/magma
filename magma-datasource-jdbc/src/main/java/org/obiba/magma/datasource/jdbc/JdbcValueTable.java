@@ -101,9 +101,9 @@ class JdbcValueTable extends AbstractValueTable {
     escapedCategoriesSqlTableName = JdbcValueTableWriter.CATEGORY_METADATA_TABLE;
   }
 
-  JdbcValueTable(Datasource datasource, Table table, String entityType) {
+  JdbcValueTable(Datasource datasource, String tableName, Table table, String entityType) {
     this(datasource,
-        new JdbcValueTableSettings(table.getName(), table.getName(), entityType, getEntityIdentifierColumns(table)));
+        new JdbcValueTableSettings(table.getName(), tableName, entityType, getEntityIdentifierColumns(table)));
   }
 
   //
@@ -247,7 +247,7 @@ class JdbcValueTable extends AbstractValueTable {
 
       List<Variable> results = getDatasource().getJdbcTemplate().query(String.format(
           "SELECT name, value_type, mime_type, units, is_repeatable, occurrence_group FROM %s WHERE value_table = ?",
-          escapedVariablesSqlTableName), new Object[] { getSqlName() }, new VariableRowMapper());
+          escapedVariablesSqlTableName), new Object[] { getName() }, new VariableRowMapper());
 
       for(Variable variable : results) {
         addVariableValueSource(new JdbcVariableValueSource(variable));
@@ -298,14 +298,14 @@ class JdbcValueTable extends AbstractValueTable {
     private void addVariableAttributes(String variableName, Variable.Builder builder) {
       builder.addAttributes(
           getDatasource().getJdbcTemplate().query("SELECT * FROM " + escapedVariableAttributesSqlTableName +
-                  " WHERE value_table = ? AND variable_name = ?", new Object[] { getSqlName(), variableName },
+                  " WHERE value_table = ? AND variable_name = ?", new Object[] { getName(), variableName },
               new AttributeRowMapper()));
     }
 
     private void addVariableCategories(String variableName, Variable.Builder builder) {
       builder.addCategories(getDatasource().getJdbcTemplate().query(String
               .format("SELECT name, code FROM %s WHERE value_table = ? AND variable_name = ?",
-                  escapedCategoriesSqlTableName), new Object[] { getSqlName(), variableName },
+                  escapedCategoriesSqlTableName), new Object[] { getName(), variableName },
           new RowMapper<Category>() {
             @Override
             public Category mapRow(ResultSet rs, int rowNum) throws SQLException {
