@@ -13,12 +13,14 @@ public class MySqlEngineVisitor extends AbstractSqlVisitor {
 
   @Override
   public String modifySql(String sql, Database database) {
+    StringBuilder sb = new StringBuilder(sql);
+
     if(sql.toLowerCase().startsWith("create table") && !sql.toLowerCase().contains("engine="))
-      sql = sql + "ENGINE=InnoDB";
+      sb.append("ENGINE=InnoDB");
 
-    if(sql.contains("BLOB")) sql = sql.replaceAll("BLOB", "LONGBLOB");
+    if(sql.contains("BLOB")) return sb.toString().replaceAll("BLOB", "LONGBLOB");
 
-    return sql;
+    return sb.toString();
   }
 
   @Override
