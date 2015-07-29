@@ -11,6 +11,7 @@
 package org.obiba.magma.datasource.mongodb;
 
 import java.util.Date;
+import java.util.List;
 
 import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
@@ -25,6 +26,8 @@ import org.obiba.magma.datasource.mongodb.converter.ValueConverter;
 import org.obiba.magma.datasource.mongodb.converter.VariableConverter;
 import org.obiba.magma.type.BinaryType;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObjectBuilder;
 import com.mongodb.DBCollection;
@@ -43,8 +46,27 @@ class MongoDBValueTableWriter implements ValueTableWriter {
 
   private final MongoDBValueTable table;
 
+  private final List<DBObject> batch = Lists.newArrayList();
+
+  private int batchSize = 1;
+
   MongoDBValueTableWriter(@NotNull MongoDBValueTable table) {
     this.table = table;
+  }
+
+  MongoDBValueTableWriter(@NotNull MongoDBValueTable table, int batchSize) {
+    this(table);
+    setBatchSize(batchSize);
+  }
+
+  public int getBatchSize() {
+    return this.batchSize;
+  }
+
+  public void setBatchSize(int batchSize) {
+    if(batchSize < 1 || batchSize > 1000) throw new IllegalArgumentException("bulk size be between 1 and 1000");
+
+    this.batchSize = batchSize;
   }
 
   @Override
@@ -60,6 +82,17 @@ class MongoDBValueTableWriter implements ValueTableWriter {
 
   @Override
   public void close() {
+    List<DBObject> toSave = null;
+
+    synchronized(table) {
+      if(!batch.isEmpty()) {
+        toSave = ImmutableList.copyOf(batch);
+        batch.clear();
+      }
+    }
+
+    if(toSave != null) table.getValueSetCollection().insert(batch);
+
     updateLastUpdate();
   }
 
@@ -110,9 +143,9 @@ class MongoDBValueTableWriter implements ValueTableWriter {
     public void remove() {
       removed = true;
       // remove files if any
-      for (Variable variable : table.getVariables()) {
-        if (BinaryType.get().equals(variable.getValueType())) {
-          String field = ((MongoDBVariable)variable).getId();
+      for(Variable variable : table.getVariables()) {
+        if(BinaryType.get().equals(variable.getValueType())) {
+          String field = ((MongoDBVariable) variable).getId();
           removeFile(variable, field);
         }
       }
@@ -179,8 +212,29 @@ class MongoDBValueTableWriter implements ValueTableWriter {
       if(!removed) {
         BSONObject timestamps = (BSONObject) getValueSetObject().get(MongoDBDatasource.TIMESTAMPS_FIELD);
         timestamps.put(MongoDBDatasource.TIMESTAMPS_UPDATED_FIELD, new Date());
-        table.getValueSetCollection().save(getValueSetObject());
+
+
+        if(batchSize == 1) {
+          table.getValueSetCollection().save(getValueSetObject());
+        } else {
+          List<DBObject> toSave = null;
+
+          synchronized(table) {
+            if(batch.size() >= batchSize) {
+              toSave = ImmutableList.copyOf(batch);
+              batch.clear();
+            }
+          }
+
+          if(toSave != null) {
+            table.getValueSetCollection().insert(toSave);
+          } else {
+            batch.add(getValueSetObject());
+            return;
+          }
+        }
       }
+
       updateLastUpdate();
     }
 
@@ -226,13 +280,11 @@ class MongoDBValueTableWriter implements ValueTableWriter {
       // remove associated values from the value set collection
       removeVariableValues((MongoDBVariable) variable);
 
-      if (table.getVariableCount() == 0) {
+      if(table.getVariableCount() == 0) {
         table.getValueSetCollection().remove(BasicDBObjectBuilder.start().get());
       }
 
       updateLastUpdate();
-
-
     }
 
     private void removeVariableValues(@NotNull MongoDBVariable variable) {

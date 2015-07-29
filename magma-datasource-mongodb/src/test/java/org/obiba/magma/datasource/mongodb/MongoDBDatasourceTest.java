@@ -239,6 +239,31 @@ public class MongoDBDatasourceTest {
     testWriteReadValue(ds, id++, PolygonType.get().nullValue());
   }
 
+  @Test
+  public void test_batch_writer() throws Exception {
+    Datasource ds = createDatasource();
+    Variable variable = Variable.Builder.newVariable("BATCHTEST", TextType.get(), "Participant").repeatable(false)
+        .build();
+
+    try(ValueTableWriter tableWriter = ds.createWriter(TABLE_TEST, variable.getEntityType())) {
+      try(ValueTableWriter.VariableWriter variableWriter = tableWriter.writeVariables()) {
+        variableWriter.writeVariable(variable);
+      }
+    }
+
+    try(ValueTableWriter tableWriter = ds.createWriter(TABLE_TEST, variable.getEntityType())) {
+      ((MongoDBValueTableWriter) tableWriter).setBatchSize(500);
+
+      for(int i = 0; i < 100000; i++) {
+        VariableEntity entity = new VariableEntityBean("Participant", Integer.toString(i));
+
+        try(ValueTableWriter.ValueSetWriter valueSetWriter = tableWriter.writeValueSet(entity)) {
+          valueSetWriter.writeValue(variable, TextType.get().valueOf("test value " + i));
+        }
+      }
+    }
+  }
+
   @SuppressWarnings({ "OverlyLongMethod", "PMD.NcssMethodCount" })
   @Test
   public void test_remove_variable() throws Exception {
