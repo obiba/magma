@@ -26,6 +26,8 @@ import com.google.common.collect.Lists;
 @SuppressWarnings("UnusedDeclaration")
 public class ConcurrentValueTableReader {
 
+  private static final int BUFFER_SIZE = 200;
+
   private static final Logger log = LoggerFactory.getLogger(ConcurrentValueTableReader.class);
 
   private boolean ignoreReadErrors = false;
@@ -46,8 +48,9 @@ public class ConcurrentValueTableReader {
 
   private BlockingQueue<VariableEntityValues> writeQueue;
 
-  private ConcurrentValueTableReader() {
+  private int bufferSize = BUFFER_SIZE;
 
+  private ConcurrentValueTableReader() {
   }
 
   public void read() {
@@ -59,14 +62,14 @@ public class ConcurrentValueTableReader {
         .toArray(variablesFilter == null ? valueTable.getVariables() : variablesFilter, Variable.class);
 
     VariableValueSource[] variableValueSources = getVariableValueSources();
-
     List<VariableEntity> entities = ImmutableList
         .copyOf(entitiesFilter == null ? valueTable.getVariableEntities() : entitiesFilter);
 
     // A queue containing all entities to read the values for.
     // Once this is empty, and all readers are done, then  reading is over.
     BlockingQueue<VariableEntity> readQueue = new LinkedBlockingDeque<>(entities);
-    writeQueue = new LinkedBlockingDeque<>();
+    writeQueue = new LinkedBlockingDeque<>(bufferSize);
+
     try {
       callback.onBegin(entities, variables);
       List<Future<?>> readers = entities.isEmpty()
@@ -103,9 +106,11 @@ public class ConcurrentValueTableReader {
   }
 
   private void flushQueue() {
-    VariableEntityValues values = null;
+    VariableEntityValues values;
+
     while((values = writeQueue.poll()) != null) {
       callback.onValues(values.getEntity(), variables, values.getValues());
+      log.trace("write onCallback for entity {}", values.getEntity().getIdentifier());
     }
   }
 
@@ -276,6 +281,12 @@ public class ConcurrentValueTableReader {
 
     public Builder withReaders(int readers) {
       reader.nbConcurrentReaders = readers;
+      return this;
+    }
+
+    public Builder withBufferSize(int bufferSize) {
+      reader.bufferSize = bufferSize;
+
       return this;
     }
 
