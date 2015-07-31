@@ -45,6 +45,8 @@ public class MongoDBDatasourceFactory extends AbstractDatasourceFactory {
 
   private String options;
 
+  private int batchSize = 1;
+
   public MongoDBDatasourceFactory(@NotNull String name, @NotNull String url) {
     this(name, url, null, null, null);
   }
@@ -61,7 +63,10 @@ public class MongoDBDatasourceFactory extends AbstractDatasourceFactory {
   @NotNull
   @Override
   protected Datasource internalCreate() {
-    return new MongoDBDatasource(getName(), getMongoDBFactory());
+    MongoDBDatasource datasource = new MongoDBDatasource(getName(), getMongoDBFactory());
+    datasource.setBatchSize(batchSize);
+
+    return datasource;
   }
 
   public MongoDBFactory getMongoDBFactory() {
@@ -142,4 +147,11 @@ public class MongoDBDatasourceFactory extends AbstractDatasourceFactory {
     return prop;
   }
 
+  public int getBatchSize() {
+    return batchSize;
+  }
+
+  public void setBatchSize(int batchSize) {
+    this.batchSize = batchSize;
+  }
 }

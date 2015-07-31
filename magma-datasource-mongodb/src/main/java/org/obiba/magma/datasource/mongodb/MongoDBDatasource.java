@@ -28,7 +28,6 @@ import org.obiba.magma.support.UnionTimestamps;
 import org.obiba.magma.type.DateTimeType;
 
 import com.google.common.collect.ImmutableSet;
-import com.mongodb.BasicDBObject;
 import com.mongodb.BasicDBObjectBuilder;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
@@ -54,6 +53,8 @@ public class MongoDBDatasource extends AbstractDatasource {
   private final MongoDBFactory mongoDBFactory;
 
   private DBObject dbObject;
+
+  private int batchSize = 1;
 
   /**
    * See <a href="http://docs.mongodb.org/manual/reference/connection-string">MongoDB connection string specifications</a>.
@@ -192,7 +193,8 @@ public class MongoDBDatasource extends AbstractDatasource {
       addValueTable(valueTable = new MongoDBValueTable(this, tableName, entityType));
       setLastUpdate(new Date());
     }
-    return new MongoDBValueTableWriter(valueTable);
+
+    return new MongoDBValueTableWriter(valueTable, batchSize);
   }
 
   @Override
@@ -219,6 +221,14 @@ public class MongoDBDatasource extends AbstractDatasource {
     ImmutableSet.Builder<Timestamped> builder = ImmutableSet.builder();
     builder.addAll(getValueTables()).add(new MongoDBDatasourceTimestamped());
     return new UnionTimestamps(builder.build());
+  }
+
+  public int getBatchSize() {
+    return batchSize;
+  }
+
+  public void setBatchSize(int batchSize) {
+    this.batchSize = batchSize;
   }
 
   private class MongoDBDatasourceTimestamped implements Timestamped {
