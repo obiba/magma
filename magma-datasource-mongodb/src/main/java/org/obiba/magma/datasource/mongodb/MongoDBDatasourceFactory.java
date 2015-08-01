@@ -152,6 +152,9 @@ public class MongoDBDatasourceFactory extends AbstractDatasourceFactory {
   }
 
   public void setBatchSize(int batchSize) {
+    if (batchSize < 1 || batchSize > MongoDBDatasource.MAX_BATCH_SIZE)
+      throw new IllegalArgumentException("batchSize");
+
     this.batchSize = batchSize;
   }
 }

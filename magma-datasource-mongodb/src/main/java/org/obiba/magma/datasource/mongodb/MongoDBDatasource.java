@@ -39,6 +39,8 @@ public class MongoDBDatasource extends AbstractDatasource {
 
   public static final String TYPE = "mongodb";
 
+  public static final int MAX_BATCH_SIZE = 1000;
+
   static final String TIMESTAMPS_FIELD = "_timestamps";
 
   static final String TIMESTAMPS_CREATED_FIELD = "created";
@@ -194,7 +196,7 @@ public class MongoDBDatasource extends AbstractDatasource {
       setLastUpdate(new Date());
     }
 
-    return new MongoDBValueTableWriter(valueTable, batchSize);
+    return new MongoDBValueTableWriter(valueTable);
   }
 
   @Override
@@ -228,6 +230,9 @@ public class MongoDBDatasource extends AbstractDatasource {
   }
 
   public void setBatchSize(int batchSize) {
+    if (batchSize < 1 || batchSize > MAX_BATCH_SIZE)
+      throw new IllegalArgumentException(String.format("batchSize should be between 1 and %s", MAX_BATCH_SIZE));
+
     this.batchSize = batchSize;
   }
 
