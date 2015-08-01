@@ -48,25 +48,8 @@ class MongoDBValueTableWriter implements ValueTableWriter {
 
   private final List<DBObject> batch = Lists.newArrayList();
 
-  private int batchSize = 1;
-
   MongoDBValueTableWriter(@NotNull MongoDBValueTable table) {
     this.table = table;
-  }
-
-  MongoDBValueTableWriter(@NotNull MongoDBValueTable table, int batchSize) {
-    this(table);
-    setBatchSize(batchSize);
-  }
-
-  public int getBatchSize() {
-    return this.batchSize;
-  }
-
-  public void setBatchSize(int batchSize) {
-    if(batchSize < 1 || batchSize > 1000) throw new IllegalArgumentException("bulk size be between 1 and 1000");
-
-    this.batchSize = batchSize;
   }
 
   @Override
@@ -91,7 +74,7 @@ class MongoDBValueTableWriter implements ValueTableWriter {
       }
     }
 
-    if(toSave != null) table.getValueSetCollection().insert(batch);
+    if(toSave != null) table.getValueSetCollection().insert(toSave);
 
     updateLastUpdate();
   }
@@ -213,6 +196,7 @@ class MongoDBValueTableWriter implements ValueTableWriter {
         BSONObject timestamps = (BSONObject) getValueSetObject().get(MongoDBDatasource.TIMESTAMPS_FIELD);
         timestamps.put(MongoDBDatasource.TIMESTAMPS_UPDATED_FIELD, new Date());
 
+        int batchSize = ((MongoDBDatasource)table.getDatasource()).getBatchSize();
 
         if(batchSize == 1) {
           table.getValueSetCollection().save(getValueSetObject());

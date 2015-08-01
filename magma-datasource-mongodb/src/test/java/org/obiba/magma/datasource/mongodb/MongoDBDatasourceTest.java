@@ -252,9 +252,9 @@ public class MongoDBDatasourceTest {
     }
 
     try(ValueTableWriter tableWriter = ds.createWriter(TABLE_TEST, variable.getEntityType())) {
-      ((MongoDBValueTableWriter) tableWriter).setBatchSize(500);
+      ((MongoDBValueTableWriter) tableWriter).setBatchSize(100);
 
-      for(int i = 0; i < 100000; i++) {
+      for(int i = 0; i < 999; i++) {
         VariableEntity entity = new VariableEntityBean("Participant", Integer.toString(i));
 
         try(ValueTableWriter.ValueSetWriter valueSetWriter = tableWriter.writeValueSet(entity)) {
