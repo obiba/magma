@@ -242,6 +242,7 @@ public class MongoDBDatasourceTest {
   @Test
   public void test_batch_writer() throws Exception {
     Datasource ds = createDatasource();
+    ((MongoDBDatasource)ds).setBatchSize(1000);
     Variable variable = Variable.Builder.newVariable("BATCHTEST", TextType.get(), "Participant").repeatable(false)
         .build();
 
@@ -252,7 +253,6 @@ public class MongoDBDatasourceTest {
     }
 
     try(ValueTableWriter tableWriter = ds.createWriter(TABLE_TEST, variable.getEntityType())) {
-      ((MongoDBValueTableWriter) tableWriter).setBatchSize(100);
 
       for(int i = 0; i < 999; i++) {
         VariableEntity entity = new VariableEntityBean("Participant", Integer.toString(i));
