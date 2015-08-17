@@ -51,7 +51,6 @@ import static org.obiba.magma.Variable.Builder.newVariable;
 @Ignore
 @SuppressWarnings({ "PMD.NcssMethodCount", "OverlyLongMethod", "OverlyCoupledClass" })
 public class VariableScriptValidatorTest extends AbstractJsTest {
-
   private static final Logger log = LoggerFactory.getLogger(VariableScriptValidatorTest.class);
 
   private static final String MONGO_DB_TEST = "magma-test";
@@ -320,5 +319,4 @@ public class VariableScriptValidatorTest extends AbstractJsTest {
     ((JavascriptVariableValueSource) ((VariableValueSourceWrapper) view.getVariableValueSource(variableName))
         .getWrapped()).validateScript();
   }
-
 }

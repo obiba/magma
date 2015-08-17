@@ -58,6 +58,7 @@ public class GeneratedValueTable implements ValueTable {
     randomGenerator = new JDKRandomGenerator();
     randomGenerator.setSeed(seed);
     timestamp = DateTimeType.get().now();
+
     while(this.entities.size() < entities) {
       VariableEntity entity = generateEntity();
       if(!this.entities.contains(entity)) this.entities.add(entity);
@@ -65,6 +66,7 @@ public class GeneratedValueTable implements ValueTable {
 
     VariableValueGeneratorFactory factory = new DefaultVariableValueGeneratorFactory();
     generators = Maps.newHashMap();
+
     for(Variable v : this.dictionary) {
       generators.put(v.getName(), factory.newGenerator(v));
     }

@@ -165,11 +165,13 @@ public class GlobalMethodsHibernateTest extends AbstractJsTest {
             createIntVariable("C", "$this('B')"));
 
         View viewTemplate = View.Builder.newView("view", table).list(new VariablesClause()).build();
+
         try(ValueTableWriter.VariableWriter variableWriter = viewTemplate.getListClause().createWriter()) {
           for(Variable variable : variables) {
             variableWriter.writeVariable(variable);
           }
         }
+
         viewManager.addView(DATASOURCE, viewTemplate, null, null);
 
         View view = viewManager.getView(DATASOURCE, "view");
@@ -188,5 +190,4 @@ public class GlobalMethodsHibernateTest extends AbstractJsTest {
       }
     });
   }
-
 }

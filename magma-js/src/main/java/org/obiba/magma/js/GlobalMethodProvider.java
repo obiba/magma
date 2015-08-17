@@ -5,12 +5,10 @@ import java.util.Collection;
 
 import javax.validation.constraints.NotNull;
 
-import org.obiba.magma.js.methods.AbstractGlobalMethodProvider;
-
 /**
  * Provides global JavaScript extension methods.
  * <p/>
- * Consider extending {@link AbstractGlobalMethodProvider} instead of implementing this interface directly.
+ * Consider extending {@link org.obiba.magma.js.methods.AbstractGlobalMethodProvider} instead of implementing this interface directly.
  */
 public interface GlobalMethodProvider {
 

@@ -9,9 +9,6 @@ import org.jscience.physics.unit.PhysicsUnit;
 import org.jscience.physics.unit.format.SymbolMap;
 import org.jscience.physics.unit.format.UCUMFormat;
 import org.jscience.physics.unit.system.SI;
-import org.mozilla.javascript.Context;
-import org.mozilla.javascript.Function;
-import org.mozilla.javascript.Scriptable;
 import org.obiba.magma.js.MagmaJsEvaluationRuntimeException;
 import org.obiba.magma.js.ScriptableValue;
 import org.obiba.magma.type.DecimalType;
@@ -44,14 +41,15 @@ public class UnitMethods {
    * $('HEIGHT').unit('cm').unit().any('cm') // returns true
    * </pre>
    */
-  public static ScriptableValue unit(Context ctx, Scriptable thisObj, Object[] args, Function funObj)
+  public static ScriptableValue unit(ScriptableValue thisObj, Object[] args)
       throws MagmaJsEvaluationRuntimeException {
-    ScriptableValue value = (ScriptableValue) thisObj;
+    ScriptableValue value = thisObj;
+
     if(args.length == 1) {
       String newUnit = asString(args[0]);
-      return new ScriptableValue(value, value.getValue(), newUnit);
+      return new ScriptableValue(value.getValue(), newUnit);
     }
-    return new ScriptableValue(value, TextType.get().valueOf(value.getUnit()));
+    return new ScriptableValue(TextType.get().valueOf(value.getUnit()));
   }
 
   /**
@@ -63,15 +61,15 @@ public class UnitMethods {
    * </pre>
    */
   @SuppressWarnings("unchecked")
-  public static ScriptableValue toUnit(Context ctx, Scriptable thisObj, Object[] args, Function funObj)
+  public static ScriptableValue toUnit(ScriptableValue thisObj, Object[] args)
       throws MagmaJsEvaluationRuntimeException {
-    ScriptableValue value = (ScriptableValue) thisObj;
+    ScriptableValue value = thisObj;
 
     @SuppressWarnings("rawtypes")
     Unit target = extractUnit(args[0]);
 
     if(value.getValue().isNull()) {
-      return new ScriptableValue(thisObj, value.getValue(), target.toString());
+      return new ScriptableValue(value.getValue(), target.toString());
     }
 
     Unit<?> source = extractUnit(value);
@@ -96,7 +94,7 @@ public class UnitMethods {
 
     double newValue = source.getConverterTo(target).convert(sourceValue);
 
-    return new ScriptableValue(value, DecimalType.get().valueOf(newValue), target.toString());
+    return new ScriptableValue(DecimalType.get().valueOf(newValue), target.toString());
   }
 
   @SuppressWarnings("ChainOfInstanceofChecks")
@@ -132,11 +130,14 @@ public class UnitMethods {
   @Nullable
   private static String asString(Object arg) {
     if(arg == null) return null;
+
     if(arg instanceof String) return (String) arg;
+
     if(arg instanceof ScriptableValue) {
       ScriptableValue value = (ScriptableValue) arg;
       return value.getValue().toString();
     }
+
     return arg.toString();
   }
 }

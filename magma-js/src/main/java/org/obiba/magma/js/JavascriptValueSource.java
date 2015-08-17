@@ -6,17 +6,21 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.SortedSet;
-import java.util.TreeSet;
 
-import javax.annotation.Nullable;
+import javax.script.Compilable;
+import javax.script.CompiledScript;
+import javax.script.ScriptContext;
+import javax.script.ScriptEngine;
+import javax.script.ScriptException;
 import javax.validation.constraints.NotNull;
 
-import org.mozilla.javascript.Context;
-import org.mozilla.javascript.ContextAction;
-import org.mozilla.javascript.ContextFactory;
-import org.mozilla.javascript.Script;
-import org.mozilla.javascript.Scriptable;
-import org.mozilla.javascript.Undefined;
+import com.google.common.base.Function;
+import com.google.common.base.Throwables;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import jdk.nashorn.api.scripting.ScriptObjectMirror;
 import org.obiba.magma.Initialisable;
 import org.obiba.magma.Timestamps;
 import org.obiba.magma.Value;
@@ -29,11 +33,7 @@ import org.obiba.magma.VectorSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Function;
-import com.google.common.base.Stopwatch;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Maps;
+import static com.google.common.base.Throwables.propagate;
 
 /**
  * A {@code ValueSource} implementation that uses a JavaScript script to evaluate the {@code Value} to return.
@@ -59,7 +59,7 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
 
   // need to be transient because of XML serialization
   @SuppressWarnings("TransientFieldInNonSerializableClass")
-  private transient Script compiledScript;
+  private transient CompiledScript compiledScript;
 
   @SuppressWarnings("ConstantConditions")
   public JavascriptValueSource(@NotNull ValueType type, @NotNull String script) {
@@ -86,10 +86,27 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
   @Override
   public Value getValue(ValueSet valueSet) {
     initialiseIfNot();
-    Stopwatch stopwatch = Stopwatch.createStarted();
-    Value value = (Value) ContextFactory.getGlobal().call(new ValueSetEvaluationContextAction(valueSet));
-    log.trace("ValueSet evaluation of {} in {}", getScriptName(), stopwatch);
+    MagmaContext context = MagmaContextFactory.createContext();
+    context.setAttribute(ScriptEngine.FILENAME, getScriptName(), ScriptContext.ENGINE_SCOPE);
+    //context.setBindings(new SimpleBindings(), ScriptContext.ENGINE_SCOPE);
+    Map<Object, Object> shared = getShared();
+    shared.put(ValueSet.class, valueSet);
+    shared.put(ValueTable.class, valueSet.getValueTable());
+    shared.put(VariableEntity.class, valueSet.getVariableEntity());
+
+    Value value = context.exec(() -> {
+      try {
+        return asValue(compiledScript.eval(context));
+      } catch (ScriptException e) {
+        throw Throwables.propagate(e);
+      }
+    }, shared);
+
     return value;
+  }
+
+  protected Map<Object, Object> getShared() {
+    return Maps.newHashMap();
   }
 
   @Override
@@ -107,11 +124,39 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
   @SuppressWarnings("unchecked")
   public Iterable<Value> getValues(SortedSet<VariableEntity> entities) {
     initialiseIfNot();
-    Stopwatch stopwatch = Stopwatch.createStarted();
-    Iterable<Value> values = (Iterable<Value>) ContextFactory.getGlobal()
-        .call(new ValueVectorEvaluationContextAction(entities));
-    log.trace("Vector evaluation of {} in {}", getScriptName(), stopwatch);
-    return values;
+    Map<Object, Object> shared = getShared();
+    shared.put(SortedSet.class, entities);
+    final VectorCache vectorCache = new VectorCache();
+    shared.put(VectorCache.class, vectorCache);
+    MagmaContext context = MagmaContextFactory.createContext();
+
+    return context.exec(() -> {
+      Iterable<Value> values = Iterables.transform(entities, new VectorEvaluationFunction(context, vectorCache));
+      return Lists.newArrayList(values);
+    }, shared);
+  }
+
+  private class VectorEvaluationFunction implements Function<VariableEntity, Value> {
+    private final MagmaContext context;
+    private final VectorCache vectorCache;
+
+    private VectorEvaluationFunction(MagmaContext context, VectorCache vectorCache) {
+      this.context = context;
+      this.vectorCache = vectorCache;
+    }
+
+    @Override
+    public Value apply(VariableEntity variableEntity) {
+      try {
+        context.push(VariableEntity.class, variableEntity);
+        return asValue(compiledScript.eval(context));
+      } catch(ScriptException e) {
+        throw propagate(e);
+      } finally {
+        context.pop(VariableEntity.class);
+        vectorCache.next();
+      }
+    }
   }
 
   @NotNull
@@ -124,229 +169,84 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
   public void initialise() {
   }
 
-  protected void initialiseIfNot() {
+  protected synchronized void initialiseIfNot() {
     if(compiledScript == null) {
       try {
-        compiledScript = (Script) ContextFactory.getGlobal().call(new ContextAction() {
-          @Override
-          public Object run(Context context) {
-            String optLevel = System.getProperty("rhino.opt.level");
-            if (optLevel != null) {
-              try {
-                context.setOptimizationLevel(Integer.parseInt(optLevel));
-              } catch(Exception e) {}
-            }
-            return context.compileString(getScript(), getScriptName(), 1, null);
-          }
-        });
-      } catch(Exception e) {
+        compiledScript = ((Compilable) MagmaContextFactory.getEngine()).compile(getScript());
+      } catch (Exception e) {
         log.error("Script compilation failed: {}", getScript(), e);
+
+        if (e instanceof ScriptException) {
+          ScriptException se = (ScriptException) e;
+          e = new ScriptException(se.getMessage(), getScriptName(), se.getLineNumber(), se.getColumnNumber());
+        }
+
         throw new MagmaJsRuntimeException("Script compilation failed: " + e.getMessage(), e);
       }
     }
   }
 
+  Value asValue(Object value) {
+    Value result;
+
+    if(value == null || (value instanceof ScriptObjectMirror && ScriptObjectMirror.isUndefined(value))) {
+      result = isSequence() ? getValueType().nullSequence() : getValueType().nullValue();
+    } else if(value instanceof ScriptableValue) {
+      ScriptableValue scriptableValue = (ScriptableValue) value;
+
+      if(scriptableValue.getValue().isSequence() != isSequence()) {
+        throw new MagmaJsRuntimeException(
+            "The returned value is " + (isSequence() ? "" : "not ") + "expected to be a value sequence.");
+      }
+      result = scriptableValue.getValue();
+    } else if(value instanceof ScriptObjectMirror) {
+      value = ((ScriptObjectMirror)value).getSlot(0);
+
+      if(ScriptObjectMirror.isUndefined(value)) {
+        result = isSequence() ? getValueType().nullSequence() : getValueType().nullValue();
+      } else {
+        result = isSequence() ? asValueSequence(value) : getValueType().valueOf(value);
+      }
+    } else {
+      result = isSequence() ? asValueSequence(value) : getValueType().valueOf(value);
+    }
+
+    if(result.getValueType() != getValueType()) {
+      // Convert types
+      try {
+        result = getValueType().convert(result);
+      } catch(RuntimeException e) {
+        throw new MagmaJsRuntimeException(
+            "Cannot convert value '" + result + "' to type '" + getValueType().getName() + "'", e);
+      }
+    }
+
+    return result;
+  }
+
+  Value asValueSequence(Object value) {
+    Value result;
+
+    if(value.getClass().isArray()) {
+      int length = Array.getLength(value);
+      Collection<Value> values = new ArrayList<>(length);
+
+      for(int i = 0; i < length; i++) {
+        Object v = Array.get(value, i);
+        values.add(getValueType().valueOf(v));
+      }
+
+      result = getValueType().sequenceOf(values);
+    } else {
+      // Build a singleton sequence
+      result = getValueType().sequenceOf(ImmutableList.of(getValueType().valueOf(value)));
+    }
+
+    return result;
+  }
+
   protected boolean isSequence() {
     return false;
-  }
-
-  /**
-   * This method is invoked before evaluating the script. It provides a chance for derived classes to initialise values
-   * within the context. This method will add the current {@code ValueSet} as a {@code ThreadLocal} variable with
-   * {@code ValueSet#class} as its key. This allows other classes to have access to the current {@code ValueSet} during
-   * the script's execution.
-   * <p/>
-   * Classes overriding this method must call their super class' method
-   *
-   * @param ctx the current context
-   * @param scope the scope of execution of this script
-   * @param valueSet the current {@code ValueSet}
-   */
-  protected void enterContext(MagmaContext ctx, Scriptable scope) {
-  }
-
-  protected void exitContext(MagmaContext ctx) {
-  }
-
-  private abstract class AbstractEvaluationContextAction implements ContextAction {
-
-    @Override
-    public Object run(Context ctx) {
-      MagmaContext context = MagmaContext.asMagmaContext(ctx);
-      // Don't pollute the global scope
-      Scriptable scope = context.newLocalScope();
-
-      enterContext(context, scope);
-      try {
-        return eval(context, scope);
-      } finally {
-        exitContext(context);
-      }
-    }
-
-    void enterContext(MagmaContext context, Scriptable scope) {
-      JavascriptValueSource.this.enterContext(context, scope);
-    }
-
-    void exitContext(MagmaContext context) {
-      JavascriptValueSource.this.exitContext(context);
-    }
-
-    abstract Object eval(MagmaContext context, Scriptable scope);
-
-    Value asValue(Object value) {
-      Value result = null;
-      if(value == null || value instanceof Undefined) {
-        result = isSequence() ? getValueType().nullSequence() : getValueType().nullValue();
-      } else if(value instanceof ScriptableValue) {
-        ScriptableValue scriptableValue = (ScriptableValue) value;
-        if(scriptableValue.getValue().isSequence() != isSequence()) {
-          throw new MagmaJsRuntimeException(
-              "The returned value is " + (isSequence() ? "" : "not ") + "expected to be a value sequence.");
-        }
-        result = scriptableValue.getValue();
-      } else {
-        result = isSequence() ? asValueSequence(value) : getValueType().valueOf(Rhino.fixRhinoNumber(value));
-      }
-
-      if(result.getValueType() != getValueType()) {
-        // Convert types
-        try {
-          result = getValueType().convert(result);
-        } catch(RuntimeException e) {
-          throw new MagmaJsRuntimeException(
-              "Cannot convert value '" + result + "' to type '" + getValueType().getName() + "'", e);
-        }
-      }
-      return result;
-    }
-
-    Value asValueSequence(Object value) {
-      Value result = null;
-      if(value.getClass().isArray()) {
-        int length = Array.getLength(value);
-        Collection<Value> values = new ArrayList<>(length);
-        for(int i = 0; i < length; i++) {
-          Object v = Rhino.fixRhinoNumber(Array.get(value, i));
-          values.add(getValueType().valueOf(v));
-        }
-        result = getValueType().sequenceOf(values);
-      } else {
-        // Build a singleton sequence
-        result = getValueType().sequenceOf(ImmutableList.of(getValueType().valueOf(Rhino.fixRhinoNumber(value))));
-      }
-      return result;
-    }
-  }
-
-  private final class ValueSetEvaluationContextAction extends AbstractEvaluationContextAction {
-
-    private final ValueSet valueSet;
-
-    ValueSetEvaluationContextAction(ValueSet valueSet) {
-      this.valueSet = valueSet;
-    }
-
-    @Override
-    void enterContext(MagmaContext context, Scriptable scope) {
-      context.push(ValueSet.class, valueSet);
-      context.push(ValueTable.class, valueSet.getValueTable());
-      context.push(VariableEntity.class, valueSet.getVariableEntity());
-      super.enterContext(context, scope);
-    }
-
-    @Override
-    void exitContext(MagmaContext context) {
-      context.pop(VariableEntity.class);
-      context.pop(ValueTable.class);
-      context.pop(ValueSet.class);
-      super.exitContext(context);
-    }
-
-    @Override
-    Object eval(MagmaContext context, Scriptable scope) {
-      return asValue(compiledScript.exec(context, scope));
-    }
-
-  }
-
-  private final class ValueVectorEvaluationContextAction extends AbstractEvaluationContextAction {
-
-    @Nullable
-    private final SortedSet<VariableEntity> entities;
-
-    private final VectorCache vectorCache = new VectorCache();
-
-    ValueVectorEvaluationContextAction(@Nullable SortedSet<VariableEntity> entities) {
-      this.entities = entities;
-    }
-
-    SortedSet<VariableEntity> getEntities(MagmaContext context) {
-      return entities == null ? new TreeSet<>(context.peek(ValueTable.class).getVariableEntities()) : entities;
-    }
-
-    @Override
-    void enterContext(MagmaContext context, Scriptable scope) {
-      super.enterContext(context, scope);
-      context.push(SortedSet.class, getEntities(context));
-      context.push(VectorCache.class, vectorCache);
-    }
-
-    @Override
-    void exitContext(MagmaContext context) {
-      super.exitContext(context);
-      context.pop(SortedSet.class);
-      context.pop(VectorCache.class);
-    }
-
-    @Override
-    Object eval(MagmaContext context, Scriptable scope) {
-      return Iterables.transform(getEntities(context), new VectorEvaluationFunction(context, scope));
-    }
-
-    private class VectorEvaluationFunction implements Function<VariableEntity, Value> {
-
-      private final MagmaContext context;
-
-      private final Scriptable scope;
-
-      private VectorEvaluationFunction(MagmaContext context, Scriptable scope) {
-        this.context = context;
-        this.scope = scope;
-      }
-
-      @Override
-      public Value apply(VariableEntity variableEntity) {
-        Stopwatch stopwatch = Stopwatch.createStarted();
-        try {
-          initContext(variableEntity);
-          return asValue(compiledScript.exec(context, scope));
-        } finally {
-          cleanContext();
-          log.trace("Finish {} eval in {}", variableEntity, stopwatch);
-        }
-      }
-
-      /**
-       * We have to set the current thread's context because this code will be executed outside of the ContextAction
-       */
-      private void initContext(VariableEntity variableEntity) {
-        ContextFactory.getGlobal().enterContext(context);
-        JavascriptValueSource.this.enterContext(context, scope);
-        context.push(VectorCache.class, vectorCache);
-        context.push(SortedSet.class, entities);
-        context.push(VariableEntity.class, variableEntity);
-      }
-
-      private void cleanContext() {
-        JavascriptValueSource.this.exitContext(context);
-        context.pop(VectorCache.class).next();
-        context.pop(SortedSet.class);
-        context.pop(VariableEntity.class);
-        Context.exit();
-      }
-    }
-
   }
 
   public static class VectorCache {
@@ -364,18 +264,23 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
 
     // Returns the value of the current "row" for the specified vector
     @SuppressWarnings("unchecked")
-    public Value get(MagmaContext context, VectorSource source) {
+    public Value get(ScriptContext context, VectorSource source) {
       VectorHolder<Value> holder = vectors.get(source);
+
       if(holder == null) {
-        holder = new VectorHolder<>(source.getValues(context.peek(SortedSet.class)).iterator());
+        holder = new VectorHolder<>(
+            source.getValues((SortedSet<VariableEntity>) ((MagmaContext)context).get(SortedSet.class)).iterator());
         vectors.put(source, holder);
       }
+
       return holder.get(index);
     }
 
-    public Timestamps get(MagmaContext context, ValueTable table) {
-      if (timestampsVector == null) {
-        timestampsVector = new VectorHolder<>(table.getValueSetTimestamps(context.peek(SortedSet.class)).iterator());
+    public Timestamps get(ScriptContext context, ValueTable table) {
+      if(timestampsVector == null) {
+        timestampsVector = new VectorHolder<>(
+            table.getValueSetTimestamps((SortedSet<VariableEntity>) ((MagmaContext)context).get(SortedSet.class))
+                .iterator());
       }
       return timestampsVector.get(index);
     }
@@ -412,9 +317,11 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
       if(index < 0) throw new IllegalArgumentException("index must be >= 0");
       // Increment the iterator until we reach the requested row
       while(nextIndex <= index) {
+        if(!values.hasNext()) break;
         currentValue = values.next();
         nextIndex++;
       }
+
       return currentValue;
     }
   }

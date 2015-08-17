@@ -1,11 +1,6 @@
 package org.obiba.magma.js.methods;
 
-import javax.annotation.Nullable;
-
-import org.mozilla.javascript.Context;
-import org.mozilla.javascript.Function;
-import org.mozilla.javascript.Scriptable;
-import org.mozilla.javascript.ScriptableObject;
+import jdk.nashorn.api.scripting.ScriptObjectMirror;
 import org.obiba.magma.Value;
 import org.obiba.magma.js.ScriptableValue;
 import org.obiba.magma.js.ScriptableVariable;
@@ -20,93 +15,84 @@ public class ScriptableVariableMethods {
 
   private ScriptableVariableMethods() {}
 
-  public static ScriptableObject defineMethods(@Nullable ScriptableObject prototype) {
-    if(prototype == null) throw new IllegalArgumentException("thisObj cannot be null");
-    prototype
-        .defineFunctionProperties(new String[] { "name", "attribute", "repeatable" }, ScriptableVariableMethods.class,
-            ScriptableObject.DONTENUM);
-    return prototype;
-  }
-
-  public static ScriptableValue name(Context ctx, Scriptable thisObj, Object[] args, Function funObj) {
-    ScriptableVariable sv = (ScriptableVariable) thisObj;
+  public static ScriptableValue name(ScriptableVariable sv, Object[] args) {
     if(sv == null) throw new IllegalArgumentException("thisObj cannot be null");
-    return new ScriptableValue(thisObj, TextType.get().valueOf(sv.getVariable().getName()));
+
+    return new ScriptableValue(TextType.get().valueOf(sv.getVariable().getName()));
   }
 
-  public static ScriptableValue type(Context ctx, Scriptable thisObj, Object[] args, Function funObj) {
-    ScriptableVariable sv = (ScriptableVariable) thisObj;
+  public static ScriptableValue type(ScriptableVariable sv, Object[] args) {
     if(sv == null) throw new IllegalArgumentException("thisObj cannot be null");
-    return new ScriptableValue(thisObj, TextType.get().valueOf(sv.getVariable().getValueType().getName()));
+
+    return new ScriptableValue(TextType.get().valueOf(sv.getVariable().getValueType().getName()));
   }
 
-  public static ScriptableValue attribute(Context ctx, Scriptable thisObj, Object[] args, Function funObj) {
-    ScriptableVariable sv = (ScriptableVariable) thisObj;
-    String attributeName = (String) args[0];
+  public static ScriptableValue attribute(ScriptableVariable sv, Object[] args) {
+    String attributeName = args[0] instanceof ScriptObjectMirror ? (String)((ScriptObjectMirror) args[0]).getSlot(0) : (String) args[0];
     Value value = sv.getVariable().hasAttribute(attributeName)
         ? sv.getVariable().getAttributeValue(attributeName)
         : TextType.get().nullValue();
-    return new ScriptableValue(thisObj, value);
+
+    return new ScriptableValue(value);
   }
 
-  public static ScriptableValue repeatable(Context ctx, Scriptable thisObj, Object[] args, Function funObj) {
-    ScriptableVariable sv = (ScriptableVariable) thisObj;
+  public static ScriptableValue repeatable(ScriptableVariable sv, Object[] args) {
     if(sv == null) throw new IllegalArgumentException("thisObj cannot be null");
-    return new ScriptableValue(thisObj, BooleanType.get().valueOf(sv.getVariable().isRepeatable()));
+
+    return new ScriptableValue(BooleanType.get().valueOf(sv.getVariable().isRepeatable()));
   }
 
-  public static ScriptableValue occurrenceGroup(Context ctx, Scriptable thisObj, Object[] args, Function funObj) {
-    ScriptableVariable sv = (ScriptableVariable) thisObj;
+  public static ScriptableValue occurrenceGroup(ScriptableVariable sv, Object[] args) {
     if(sv == null) throw new IllegalArgumentException("thisObj cannot be null");
-    return new ScriptableValue(thisObj, TextType.get().valueOf(sv.getVariable().getOccurrenceGroup()));
+
+    return new ScriptableValue(TextType.get().valueOf(sv.getVariable().getOccurrenceGroup()));
   }
 
-  public static ScriptableValue entityType(Context ctx, Scriptable thisObj, Object[] args, Function funObj) {
-    ScriptableVariable sv = (ScriptableVariable) thisObj;
+  public static ScriptableValue entityType(ScriptableVariable sv, Object[] args) {
     if(sv == null) throw new IllegalArgumentException("thisObj cannot be null");
-    return new ScriptableValue(thisObj, TextType.get().valueOf(sv.getVariable().getEntityType()));
+
+    return new ScriptableValue(TextType.get().valueOf(sv.getVariable().getEntityType()));
   }
 
-  public static ScriptableValue refEntityType(Context ctx, Scriptable thisObj, Object[] args, Function funObj) {
-    ScriptableVariable sv = (ScriptableVariable) thisObj;
+  public static ScriptableValue refEntityType(ScriptableVariable sv, Object[] args) {
     if(sv == null) throw new IllegalArgumentException("thisObj cannot be null");
-    return new ScriptableValue(thisObj, TextType.get().valueOf(sv.getVariable().getReferencedEntityType()));
+
+    return new ScriptableValue(TextType.get().valueOf(sv.getVariable().getReferencedEntityType()));
   }
 
-  public static ScriptableValue mimeType(Context ctx, Scriptable thisObj, Object[] args, Function funObj) {
-    ScriptableVariable sv = (ScriptableVariable) thisObj;
+  public static ScriptableValue mimeType(ScriptableVariable sv, Object[] args) {
     if(sv == null) throw new IllegalArgumentException("thisObj cannot be null");
-    return new ScriptableValue(thisObj, TextType.get().valueOf(sv.getVariable().getMimeType()));
+
+    return new ScriptableValue(TextType.get().valueOf(sv.getVariable().getMimeType()));
   }
 
-  public static ScriptableValue unit(Context ctx, Scriptable thisObj, Object[] args, Function funObj) {
-    ScriptableVariable sv = (ScriptableVariable) thisObj;
+  public static ScriptableValue unit(ScriptableVariable sv, Object[] args) {
     if(sv == null) throw new IllegalArgumentException("thisObj cannot be null");
-    return new ScriptableValue(thisObj, TextType.get().valueOf(sv.getVariable().getUnit()));
+
+    return new ScriptableValue(TextType.get().valueOf(sv.getVariable().getUnit()));
   }
 
-  public static ScriptableValue nature(Context ctx, Scriptable thisObj, Object[] args, Function funObj) {
-    ScriptableVariable sv = (ScriptableVariable) thisObj;
+  public static ScriptableValue nature(ScriptableVariable sv, Object[] args) {
     if(sv == null) throw new IllegalArgumentException("thisObj cannot be null");
-    return new ScriptableValue(thisObj, TextType.get().valueOf(VariableNature.getNature(sv.getVariable()).toString()));
+
+    return new ScriptableValue(TextType.get().valueOf(VariableNature.getNature(sv.getVariable()).toString()));
   }
 
-  public static ScriptableValue isNumeric(Context ctx, Scriptable thisObj, Object[] args, Function funObj) {
-    ScriptableVariable sv = (ScriptableVariable) thisObj;
+  public static ScriptableValue isNumeric(ScriptableVariable sv, Object[] args) {
     if(sv == null) throw new IllegalArgumentException("thisObj cannot be null");
-    return new ScriptableValue(thisObj, BooleanType.get().valueOf(sv.getVariable().getValueType().isNumeric()));
+
+    return new ScriptableValue(BooleanType.get().valueOf(sv.getVariable().getValueType().isNumeric()));
   }
 
-  public static ScriptableValue isDateTime(Context ctx, Scriptable thisObj, Object[] args, Function funObj) {
-    ScriptableVariable sv = (ScriptableVariable) thisObj;
+  public static ScriptableValue isDateTime(ScriptableVariable sv, Object[] args) {
     if(sv == null) throw new IllegalArgumentException("thisObj cannot be null");
-    return new ScriptableValue(thisObj, BooleanType.get().valueOf(sv.getVariable().getValueType().isDateTime()));
+
+    return new ScriptableValue(BooleanType.get().valueOf(sv.getVariable().getValueType().isDateTime()));
   }
 
-  public static ScriptableValue isGeo(Context ctx, Scriptable thisObj, Object[] args, Function funObj) {
-    ScriptableVariable sv = (ScriptableVariable) thisObj;
+  public static ScriptableValue isGeo(ScriptableVariable sv, Object[] args) {
     if(sv == null) throw new IllegalArgumentException("thisObj cannot be null");
-    return new ScriptableValue(thisObj, BooleanType.get().valueOf(sv.getVariable().getValueType().isGeo()));
-  }
 
+    return new ScriptableValue(BooleanType.get().valueOf(sv.getVariable().getValueType().isGeo()));
+  }
 }

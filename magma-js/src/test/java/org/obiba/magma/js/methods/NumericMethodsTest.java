@@ -1,7 +1,7 @@
 package org.obiba.magma.js.methods;
 
 import org.junit.Test;
-import org.mozilla.javascript.Context;
+
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueType;
 import org.obiba.magma.js.AbstractJsTest;
@@ -23,7 +23,7 @@ public class NumericMethodsTest extends AbstractJsTest {
     ScriptableValue integerOne = newValue(IntegerType.get().valueOf(1));
     ScriptableValue integerTwo = newValue(IntegerType.get().valueOf(2));
     ScriptableValue result = NumericMethods
-        .plus(Context.getCurrentContext(), integerOne, new Object[] { integerTwo }, null);
+        .plus(integerOne, new Object[] { integerTwo });
     assertThat(result.getValue()).isEqualTo(IntegerType.get().valueOf(3));
   }
 
@@ -38,7 +38,7 @@ public class NumericMethodsTest extends AbstractJsTest {
     ScriptableValue integerOne = newValue(IntegerType.get().valueOf(1));
     ScriptableValue nullTwo = newValue(IntegerType.get().nullValue());
     ScriptableValue result = NumericMethods
-        .plus(Context.getCurrentContext(), integerOne, new Object[] { nullTwo }, null);
+        .plus(integerOne, new Object[] { nullTwo });
     assertThat(result.getValue()).isEqualTo(IntegerType.get().nullValue());
   }
 
@@ -47,7 +47,7 @@ public class NumericMethodsTest extends AbstractJsTest {
     ScriptableValue nullOne = newValue(IntegerType.get().nullValue());
     ScriptableValue integerTwo = newValue(IntegerType.get().valueOf(1));
     ScriptableValue result = NumericMethods
-        .plus(Context.getCurrentContext(), nullOne, new Object[] { integerTwo }, null);
+        .plus(nullOne, new Object[] { integerTwo });
     assertThat(result.getValue()).isEqualTo(IntegerType.get().nullValue());
   }
 
@@ -56,7 +56,7 @@ public class NumericMethodsTest extends AbstractJsTest {
     ScriptableValue decimalOne = newValue(DecimalType.get().valueOf(1.5));
     ScriptableValue nullTwo = newValue(DecimalType.get().nullValue());
     ScriptableValue result = NumericMethods
-        .plus(Context.getCurrentContext(), decimalOne, new Object[] { nullTwo }, null);
+        .plus(decimalOne, new Object[] { nullTwo });
     assertThat(result.getValue()).isEqualTo(DecimalType.get().nullValue());
   }
 
@@ -65,7 +65,7 @@ public class NumericMethodsTest extends AbstractJsTest {
     ScriptableValue nullOne = newValue(DecimalType.get().nullValue());
     ScriptableValue decimalTwo = newValue(DecimalType.get().valueOf(1.5));
     ScriptableValue result = NumericMethods
-        .plus(Context.getCurrentContext(), nullOne, new Object[] { decimalTwo }, null);
+        .plus(nullOne, new Object[] { decimalTwo });
     assertThat(result.getValue()).isEqualTo(DecimalType.get().nullValue());
   }
 
@@ -74,7 +74,7 @@ public class NumericMethodsTest extends AbstractJsTest {
     ScriptableValue decimalOne = newValue(DecimalType.get().valueOf(1.5));
     ScriptableValue integerTwo = newValue(IntegerType.get().valueOf(2));
     ScriptableValue result = NumericMethods
-        .plus(Context.getCurrentContext(), decimalOne, new Object[] { integerTwo }, null);
+        .plus(decimalOne, new Object[] { integerTwo });
     assertThat(result.getValue()).isEqualTo(DecimalType.get().valueOf(3.5));
   }
 
@@ -83,7 +83,7 @@ public class NumericMethodsTest extends AbstractJsTest {
     ScriptableValue integerOne = newValue(IntegerType.get().valueOf(2));
     ScriptableValue decimalTwo = newValue(DecimalType.get().valueOf(1.5));
     ScriptableValue result = NumericMethods
-        .plus(Context.getCurrentContext(), integerOne, new Object[] { decimalTwo }, null);
+        .plus(integerOne, new Object[] { decimalTwo });
     assertThat(result.getValue()).isEqualTo(DecimalType.get().valueOf(3.5));
   }
 
@@ -94,7 +94,7 @@ public class NumericMethodsTest extends AbstractJsTest {
     ScriptableValue integerOne = newValue(IntegerType.get().valueOf(1));
     ScriptableValue integerTwo = newValue(IntegerType.get().valueOf(2));
     ScriptableValue result = NumericMethods
-        .minus(Context.getCurrentContext(), integerOne, new Object[] { integerTwo }, null);
+        .minus(integerOne, new Object[] { integerTwo });
     assertThat(result.getValue()).isEqualTo(IntegerType.get().valueOf(-1));
   }
 
@@ -103,7 +103,7 @@ public class NumericMethodsTest extends AbstractJsTest {
     ScriptableValue integerOne = newValue(IntegerType.get().valueOf(1));
     ScriptableValue nullTwo = newValue(IntegerType.get().nullValue());
     ScriptableValue result = NumericMethods
-        .minus(Context.getCurrentContext(), integerOne, new Object[] { nullTwo }, null);
+        .minus(integerOne, new Object[] { nullTwo });
     assertThat(result.getValue()).isEqualTo(IntegerType.get().nullValue());
   }
 
@@ -112,7 +112,7 @@ public class NumericMethodsTest extends AbstractJsTest {
     ScriptableValue nullOne = newValue(IntegerType.get().nullValue());
     ScriptableValue integerTwo = newValue(IntegerType.get().valueOf(1));
     ScriptableValue result = NumericMethods
-        .minus(Context.getCurrentContext(), nullOne, new Object[] { integerTwo }, null);
+        .minus(nullOne, new Object[] { integerTwo });
     assertThat(result.getValue()).isEqualTo(IntegerType.get().nullValue());
   }
 
@@ -121,7 +121,7 @@ public class NumericMethodsTest extends AbstractJsTest {
     ScriptableValue decimalOne = newValue(DecimalType.get().valueOf(1.5));
     ScriptableValue integerTwo = newValue(IntegerType.get().valueOf(2));
     ScriptableValue result = NumericMethods
-        .minus(Context.getCurrentContext(), decimalOne, new Object[] { integerTwo }, null);
+        .minus(decimalOne, new Object[] { integerTwo });
     assertThat(result.getValue()).isEqualTo(DecimalType.get().valueOf(-0.5));
   }
 
@@ -130,7 +130,7 @@ public class NumericMethodsTest extends AbstractJsTest {
     ScriptableValue integerOne = newValue(IntegerType.get().valueOf(2));
     ScriptableValue decimalTwo = newValue(DecimalType.get().valueOf(1.5));
     ScriptableValue result = NumericMethods
-        .minus(Context.getCurrentContext(), integerOne, new Object[] { decimalTwo }, null);
+        .minus(integerOne, new Object[] { decimalTwo });
     assertThat(result.getValue()).isEqualTo(DecimalType.get().valueOf(0.5));
   }
 
@@ -141,7 +141,7 @@ public class NumericMethodsTest extends AbstractJsTest {
     ScriptableValue integerOne = newValue(IntegerType.get().valueOf(1));
     ScriptableValue integerTwo = newValue(IntegerType.get().valueOf(2));
     ScriptableValue result = NumericMethods
-        .multiply(Context.getCurrentContext(), integerOne, new Object[] { integerTwo }, null);
+        .multiply(integerOne, new Object[] { integerTwo });
     assertThat(result.getValue()).isEqualTo(IntegerType.get().valueOf(2));
   }
 
@@ -150,7 +150,7 @@ public class NumericMethodsTest extends AbstractJsTest {
     ScriptableValue integerOne = newValue(IntegerType.get().valueOf(1));
     ScriptableValue nullTwo = newValue(IntegerType.get().nullValue());
     ScriptableValue result = NumericMethods
-        .multiply(Context.getCurrentContext(), integerOne, new Object[] { nullTwo }, null);
+        .multiply(integerOne, new Object[] { nullTwo });
     assertThat(result.getValue()).isEqualTo(IntegerType.get().nullValue());
   }
 
@@ -159,7 +159,7 @@ public class NumericMethodsTest extends AbstractJsTest {
     ScriptableValue nullOne = newValue(IntegerType.get().nullValue());
     ScriptableValue integerTwo = newValue(IntegerType.get().valueOf(1));
     ScriptableValue result = NumericMethods
-        .multiply(Context.getCurrentContext(), nullOne, new Object[] { integerTwo }, null);
+        .multiply(nullOne, new Object[] { integerTwo });
     assertThat(result.getValue()).isEqualTo(IntegerType.get().nullValue());
   }
 
@@ -168,7 +168,7 @@ public class NumericMethodsTest extends AbstractJsTest {
     ScriptableValue decimalOne = newValue(DecimalType.get().valueOf(1.5));
     ScriptableValue integerTwo = newValue(IntegerType.get().valueOf(2));
     ScriptableValue result = NumericMethods
-        .multiply(Context.getCurrentContext(), decimalOne, new Object[] { integerTwo }, null);
+        .multiply(decimalOne, new Object[] { integerTwo });
     assertThat(result.getValue()).isEqualTo(IntegerType.get().valueOf(3.0));
   }
 
@@ -177,7 +177,7 @@ public class NumericMethodsTest extends AbstractJsTest {
     ScriptableValue integerOne = newValue(IntegerType.get().valueOf(2));
     ScriptableValue decimalTwo = newValue(DecimalType.get().valueOf(1.5));
     ScriptableValue result = NumericMethods
-        .multiply(Context.getCurrentContext(), integerOne, new Object[] { decimalTwo }, null);
+        .multiply(integerOne, new Object[] { decimalTwo });
     assertThat(result.getValue()).isEqualTo(IntegerType.get().valueOf(3));
   }
 
@@ -199,7 +199,7 @@ public class NumericMethodsTest extends AbstractJsTest {
     ScriptableValue integerOne = newValue(IntegerType.get().valueOf(7));
     ScriptableValue integerTwo = newValue(IntegerType.get().valueOf(2));
     ScriptableValue result = NumericMethods
-        .div(Context.getCurrentContext(), integerOne, new Object[] { integerTwo }, null);
+        .div(integerOne, new Object[] { integerTwo });
     assertThat(result.getValue()).isEqualTo(DecimalType.get().valueOf(3.5));
   }
 
@@ -220,7 +220,7 @@ public class NumericMethodsTest extends AbstractJsTest {
     ScriptableValue integerOne = newValue(IntegerType.get().valueOf(1));
     ScriptableValue nullTwo = newValue(IntegerType.get().nullValue());
     ScriptableValue result = NumericMethods
-        .div(Context.getCurrentContext(), integerOne, new Object[] { nullTwo }, null);
+        .div(integerOne, new Object[] { nullTwo });
     assertThat(result.getValue()).isEqualTo(IntegerType.get().nullValue());
   }
 
@@ -229,7 +229,7 @@ public class NumericMethodsTest extends AbstractJsTest {
     ScriptableValue nullOne = newValue(IntegerType.get().nullValue());
     ScriptableValue integerTwo = newValue(IntegerType.get().valueOf(1));
     ScriptableValue result = NumericMethods
-        .div(Context.getCurrentContext(), nullOne, new Object[] { integerTwo }, null);
+        .div(nullOne, new Object[] { integerTwo });
     assertThat(result.getValue()).isEqualTo(IntegerType.get().nullValue());
   }
 
@@ -238,7 +238,7 @@ public class NumericMethodsTest extends AbstractJsTest {
     ScriptableValue decimalOne = newValue(DecimalType.get().valueOf(1.5));
     ScriptableValue nullTwo = newValue(IntegerType.get().nullValue());
     ScriptableValue result = NumericMethods
-        .div(Context.getCurrentContext(), decimalOne, new Object[] { nullTwo }, null);
+        .div(decimalOne, new Object[] { nullTwo });
     assertThat(result.getValue()).isEqualTo(DecimalType.get().nullValue());
   }
 
@@ -247,7 +247,7 @@ public class NumericMethodsTest extends AbstractJsTest {
     ScriptableValue nullOne = newValue(IntegerType.get().nullValue());
     ScriptableValue decimalTwo = newValue(DecimalType.get().valueOf(1.5));
     ScriptableValue result = NumericMethods
-        .div(Context.getCurrentContext(), nullOne, new Object[] { decimalTwo }, null);
+        .div(nullOne, new Object[] { decimalTwo });
     assertThat(result.getValue()).isEqualTo(IntegerType.get().nullValue());
   }
 
@@ -256,7 +256,7 @@ public class NumericMethodsTest extends AbstractJsTest {
     ScriptableValue decimalOne = newValue(DecimalType.get().valueOf(7.0));
     ScriptableValue integerTwo = newValue(IntegerType.get().valueOf(2));
     ScriptableValue result = NumericMethods
-        .div(Context.getCurrentContext(), decimalOne, new Object[] { integerTwo }, null);
+        .div(decimalOne, new Object[] { integerTwo });
     assertThat(result.getValue()).isEqualTo(DecimalType.get().valueOf(3.5));
   }
 
@@ -265,7 +265,7 @@ public class NumericMethodsTest extends AbstractJsTest {
     ScriptableValue integerOne = newValue(IntegerType.get().valueOf(7));
     ScriptableValue decimalTwo = newValue(DecimalType.get().valueOf(2.0));
     ScriptableValue result = NumericMethods
-        .div(Context.getCurrentContext(), integerOne, new Object[] { decimalTwo }, null);
+        .div(integerOne, new Object[] { decimalTwo });
     assertThat(result.getValue()).isEqualTo(DecimalType.get().valueOf(3.5));
   }
 
@@ -274,7 +274,7 @@ public class NumericMethodsTest extends AbstractJsTest {
     ScriptableValue integerOne = newValue(IntegerType.get().valueOf(7));
     ScriptableValue integerTwo = newValue(IntegerType.get().valueOf(0));
     ScriptableValue result = NumericMethods
-        .div(Context.getCurrentContext(), integerOne, new Object[] { integerTwo }, null);
+        .div(integerOne, new Object[] { integerTwo });
     assertThat(result.getValue()).isEqualTo(DecimalType.get().nullValue());
   }
 
@@ -296,7 +296,7 @@ public class NumericMethodsTest extends AbstractJsTest {
     ScriptableValue nullOne = newValue(IntegerType.get().nullValue());
     ScriptableValue integerTwo = newValue(IntegerType.get().valueOf(2));
     ScriptableValue result = NumericMethods
-        .gt(Context.getCurrentContext(), nullOne, new ScriptableValue[] { integerTwo }, null);
+        .gt(nullOne, new ScriptableValue[] { integerTwo });
     assertThat(result.getValue()).isEqualTo(BooleanType.get().nullValue());
   }
 
@@ -305,7 +305,7 @@ public class NumericMethodsTest extends AbstractJsTest {
     ScriptableValue integerOne = newValue(IntegerType.get().valueOf(2));
     ScriptableValue nullTwo = newValue(IntegerType.get().nullValue());
     ScriptableValue result = NumericMethods
-        .gt(Context.getCurrentContext(), integerOne, new ScriptableValue[] { nullTwo }, null);
+        .gt(integerOne, new ScriptableValue[] { nullTwo });
     assertThat(result.getValue()).isEqualTo(BooleanType.get().nullValue());
   }
 
@@ -314,7 +314,7 @@ public class NumericMethodsTest extends AbstractJsTest {
     ScriptableValue integerTwo = newValue(IntegerType.get().valueOf(2));
     ScriptableValue integerThree = newValue(IntegerType.get().valueOf(3));
     ScriptableValue result = NumericMethods
-        .gt(Context.getCurrentContext(), integerTwo, new ScriptableValue[] { integerThree }, null);
+        .gt(integerTwo, new ScriptableValue[] { integerThree });
     assertThat(result.getValue()).isEqualTo(BooleanType.get().falseValue());
   }
 
@@ -323,7 +323,7 @@ public class NumericMethodsTest extends AbstractJsTest {
     ScriptableValue decimalTwo = newValue(DecimalType.get().valueOf(2.0));
     ScriptableValue integerOne = newValue(IntegerType.get().valueOf(1));
     ScriptableValue result = NumericMethods
-        .gt(Context.getCurrentContext(), decimalTwo, new ScriptableValue[] { integerOne }, null);
+        .gt(decimalTwo, new ScriptableValue[] { integerOne });
     assertThat(result.getValue()).isEqualTo(BooleanType.get().trueValue());
   }
 
@@ -349,7 +349,7 @@ public class NumericMethodsTest extends AbstractJsTest {
     ScriptableValue nullOne = newValue(IntegerType.get().nullValue());
     ScriptableValue integerTwo = newValue(IntegerType.get().valueOf(2));
     ScriptableValue result = NumericMethods
-        .ge(Context.getCurrentContext(), nullOne, new ScriptableValue[] { integerTwo }, null);
+        .ge(nullOne, new ScriptableValue[] { integerTwo });
     assertThat(result.getValue()).isEqualTo(BooleanType.get().nullValue());
   }
 
@@ -358,7 +358,7 @@ public class NumericMethodsTest extends AbstractJsTest {
     ScriptableValue integerOne = newValue(IntegerType.get().valueOf(2));
     ScriptableValue nullTwo = newValue(IntegerType.get().nullValue());
     ScriptableValue result = NumericMethods
-        .ge(Context.getCurrentContext(), integerOne, new ScriptableValue[] { nullTwo }, null);
+        .ge(integerOne, new ScriptableValue[] { nullTwo });
     assertThat(result.getValue()).isEqualTo(BooleanType.get().nullValue());
   }
 
@@ -367,7 +367,7 @@ public class NumericMethodsTest extends AbstractJsTest {
     ScriptableValue integerTwo = newValue(IntegerType.get().valueOf(2));
     ScriptableValue integer2 = newValue(IntegerType.get().valueOf(2));
     ScriptableValue result = NumericMethods
-        .ge(Context.getCurrentContext(), integerTwo, new ScriptableValue[] { integer2 }, null);
+        .ge(integerTwo, new ScriptableValue[] { integer2 });
     assertThat(result.getValue()).isEqualTo(BooleanType.get().trueValue());
   }
 
@@ -376,7 +376,7 @@ public class NumericMethodsTest extends AbstractJsTest {
     ScriptableValue decimalTwo = newValue(DecimalType.get().valueOf(2.0));
     ScriptableValue integerTwo = newValue(IntegerType.get().valueOf(2));
     ScriptableValue result = NumericMethods
-        .ge(Context.getCurrentContext(), decimalTwo, new ScriptableValue[] { integerTwo }, null);
+        .ge(decimalTwo, new ScriptableValue[] { integerTwo });
     assertThat(result.getValue()).isEqualTo(BooleanType.get().trueValue());
   }
 
@@ -387,7 +387,7 @@ public class NumericMethodsTest extends AbstractJsTest {
     ScriptableValue nullOne = newValue(IntegerType.get().nullValue());
     ScriptableValue integerTwo = newValue(IntegerType.get().valueOf(2));
     ScriptableValue result = NumericMethods
-        .lt(Context.getCurrentContext(), nullOne, new ScriptableValue[] { integerTwo }, null);
+        .lt(nullOne, new ScriptableValue[] { integerTwo });
     assertThat(result.getValue()).isEqualTo(BooleanType.get().nullValue());
   }
 
@@ -396,7 +396,7 @@ public class NumericMethodsTest extends AbstractJsTest {
     ScriptableValue integerOne = newValue(IntegerType.get().valueOf(2));
     ScriptableValue nullTwo = newValue(IntegerType.get().nullValue());
     ScriptableValue result = NumericMethods
-        .lt(Context.getCurrentContext(), integerOne, new ScriptableValue[] { nullTwo }, null);
+        .lt(integerOne, new ScriptableValue[] { nullTwo });
     assertThat(result.getValue()).isEqualTo(BooleanType.get().nullValue());
   }
 
@@ -405,7 +405,7 @@ public class NumericMethodsTest extends AbstractJsTest {
     ScriptableValue integerTwo = newValue(IntegerType.get().valueOf(2));
     ScriptableValue integerThree = newValue(IntegerType.get().valueOf(3));
     ScriptableValue result = NumericMethods
-        .lt(Context.getCurrentContext(), integerTwo, new ScriptableValue[] { integerThree }, null);
+        .lt(integerTwo, new ScriptableValue[] { integerThree });
     assertThat(result.getValue()).isEqualTo(BooleanType.get().trueValue());
   }
 
@@ -414,7 +414,7 @@ public class NumericMethodsTest extends AbstractJsTest {
     ScriptableValue decimalTwo = newValue(DecimalType.get().valueOf(2.0));
     ScriptableValue integerOne = newValue(IntegerType.get().valueOf(1));
     ScriptableValue result = NumericMethods
-        .lt(Context.getCurrentContext(), decimalTwo, new ScriptableValue[] { integerOne }, null);
+        .lt(decimalTwo, new ScriptableValue[] { integerOne });
     assertThat(result.getValue()).isEqualTo(BooleanType.get().falseValue());
   }
 
@@ -425,7 +425,7 @@ public class NumericMethodsTest extends AbstractJsTest {
     ScriptableValue nullOne = newValue(IntegerType.get().nullValue());
     ScriptableValue integerTwo = newValue(IntegerType.get().valueOf(2));
     ScriptableValue result = NumericMethods
-        .le(Context.getCurrentContext(), nullOne, new ScriptableValue[] { integerTwo }, null);
+        .le(nullOne, new ScriptableValue[] { integerTwo });
     assertThat(result.getValue()).isEqualTo(BooleanType.get().nullValue());
   }
 
@@ -434,7 +434,7 @@ public class NumericMethodsTest extends AbstractJsTest {
     ScriptableValue integerOne = newValue(IntegerType.get().valueOf(2));
     ScriptableValue nullTwo = newValue(IntegerType.get().nullValue());
     ScriptableValue result = NumericMethods
-        .le(Context.getCurrentContext(), integerOne, new ScriptableValue[] { nullTwo }, null);
+        .le(integerOne, new ScriptableValue[] { nullTwo });
     assertThat(result.getValue()).isEqualTo(BooleanType.get().nullValue());
   }
 
@@ -443,7 +443,7 @@ public class NumericMethodsTest extends AbstractJsTest {
     ScriptableValue integerTwo = newValue(IntegerType.get().valueOf(2));
     ScriptableValue integer2 = newValue(IntegerType.get().valueOf(2));
     ScriptableValue result = NumericMethods
-        .ge(Context.getCurrentContext(), integerTwo, new ScriptableValue[] { integer2 }, null);
+        .ge(integerTwo, new ScriptableValue[] { integer2 });
     assertThat(result.getValue()).isEqualTo(BooleanType.get().trueValue());
   }
 
@@ -452,7 +452,7 @@ public class NumericMethodsTest extends AbstractJsTest {
     ScriptableValue decimalTwo = newValue(DecimalType.get().valueOf(2.0));
     ScriptableValue integerTwo = newValue(IntegerType.get().valueOf(2));
     ScriptableValue result = NumericMethods
-        .ge(Context.getCurrentContext(), decimalTwo, new ScriptableValue[] { integerTwo }, null);
+        .ge(decimalTwo, new ScriptableValue[] { integerTwo });
     assertThat(result.getValue()).isEqualTo(BooleanType.get().trueValue());
   }
 
@@ -519,43 +519,43 @@ public class NumericMethodsTest extends AbstractJsTest {
 
   @Test
   public void test_log_evaluates_base_10_logarithm_null_value() {
-    ScriptableValue result = evaluate("log()", DecimalType.get().nullValue());
+    ScriptableValue result = NumericMethods.log(newValue(DecimalType.get().nullValue()), new Object[] {});
     assertThat(result.getValue()).isEqualTo(DecimalType.get().nullValue());
   }
 
   @Test
   public void test_log_evaluatesBase10Logarithm() {
-    ScriptableValue result = evaluate("log()", DecimalType.get().valueOf(10));
+    ScriptableValue result = NumericMethods.log(newValue(DecimalType.get().valueOf(10)), new Object[] {});
     assertThat(result.getValue()).isEqualTo(IntegerType.get().valueOf(1));
 
-    result = evaluate("log()", DecimalType.get().valueOf(100));
+    result = NumericMethods.log(newValue(DecimalType.get().valueOf(100)), new Object[] {});
     assertThat(result.getValue()).isEqualTo(IntegerType.get().valueOf(2));
 
-    result = evaluate("log()", DecimalType.get().valueOf(1));
+    result = NumericMethods.log(newValue(DecimalType.get().valueOf(1)), new Object[] {});
     assertThat(result.getValue()).isEqualTo(IntegerType.get().valueOf(0));
 
-    result = evaluate("log()", DecimalType.get().valueOf(42));
+    result = NumericMethods.log(newValue(DecimalType.get().valueOf(42)), new Object[] {});
     assertThat(result.getValue()).isEqualTo(DecimalType.get().valueOf(Math.log10(42)));
   }
 
   @Test
   public void test_log_differentBaseThan10() {
-    ScriptableValue result = evaluate("log(2)", DecimalType.get().valueOf(2));
+    ScriptableValue result = NumericMethods.log(newValue(DecimalType.get().valueOf(2)), new Object[] {2});
     assertThat(result.getValue()).isEqualTo(IntegerType.get().valueOf(1));
 
-    result = evaluate("log(2)", DecimalType.get().valueOf(4));
+    result = NumericMethods.log(newValue(DecimalType.get().valueOf(4)), new Object[] {2});
     assertThat(result.getValue()).isEqualTo(IntegerType.get().valueOf(2));
 
-    result = evaluate("log(2)", DecimalType.get().valueOf(1));
+    result = NumericMethods.log(newValue(DecimalType.get().valueOf(1)), new Object[] {2});
     assertThat(result.getValue()).isEqualTo(IntegerType.get().valueOf(0));
 
-    result = evaluate("log(2)", DecimalType.get().valueOf(1024));
+    result = NumericMethods.log(newValue(DecimalType.get().valueOf(1024)), new Object[] {2});
     assertThat(result.getValue()).isEqualTo(IntegerType.get().valueOf(10));
   }
 
   @Test
   public void test_log_acceptsIntegerType() {
-    ScriptableValue result = evaluate("log()", IntegerType.get().valueOf(1));
+    ScriptableValue result = NumericMethods.log(newValue(IntegerType.get().valueOf(1)), new Object[] {});
     assertThat(result.getValue()).isEqualTo(IntegerType.get().valueOf(0));
   }
 
@@ -563,7 +563,7 @@ public class NumericMethodsTest extends AbstractJsTest {
 
   @Test
   public void test_pow_evaluates_power_null_value() {
-    ScriptableValue result = evaluate("log()", DecimalType.get().nullValue());
+    ScriptableValue result = NumericMethods.pow(newValue(DecimalType.get().nullValue()), new Object[] {});
     assertThat(result.getValue()).isEqualTo(DecimalType.get().nullValue());
   }
 
@@ -603,7 +603,7 @@ public class NumericMethodsTest extends AbstractJsTest {
 
   @Test
   public void test_root_evaluates_root_null_value() {
-    ScriptableValue result = evaluate("log()", DecimalType.get().nullValue());
+    ScriptableValue result = NumericMethods.log(newValue(DecimalType.get().nullValue()), new Object[] { });
     assertThat(result.getValue()).isEqualTo(DecimalType.get().nullValue());
   }
 

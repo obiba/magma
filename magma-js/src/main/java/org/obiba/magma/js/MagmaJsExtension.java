@@ -1,6 +1,8 @@
 package org.obiba.magma.js;
 
-import org.mozilla.javascript.ContextFactory;
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineManager;
+
 import org.obiba.magma.MagmaEngineExtension;
 
 /**
@@ -23,12 +25,6 @@ public class MagmaJsExtension implements MagmaEngineExtension {
 
   @Override
   public void initialise() {
-    // Set MagmaContextFactory as the global factory. We can only do this if it hasn't been done already.
-    if(!ContextFactory.hasExplicitGlobal()) {
-      ContextFactory.initGlobal(magmaContextFactory);
-      // Initialise the shared scope
-      magmaContextFactory.initialise();
-    }
-
+    this.magmaContextFactory.initialise();
   }
 }

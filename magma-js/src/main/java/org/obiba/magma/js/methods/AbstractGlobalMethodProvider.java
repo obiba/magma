@@ -8,12 +8,10 @@ import java.util.Set;
 
 import javax.validation.constraints.NotNull;
 
-import org.obiba.magma.js.GlobalMethodProvider;
-
-import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
+import org.obiba.magma.js.GlobalMethodProvider;
 
 /**
  * An implementation of {@code GlobalMethodProvider} that provides some methods from this class. Extending classes are
@@ -30,11 +28,8 @@ public abstract class AbstractGlobalMethodProvider implements GlobalMethodProvid
    */
   @Override
   public Collection<Method> getJavaScriptExtensionMethods() {
-    return ImmutableList.copyOf(Iterables.filter(Arrays.asList(getClass().getMethods()), new Predicate<Method>() {
-      @Override
-      public boolean apply(Method input) {
-        return getExposedMethods().contains(input.getName());
-      }
+    return ImmutableList.copyOf(Iterables.filter(Arrays.asList(getClass().getMethods()), input -> {
+      return getExposedMethods().contains(input.getName());
     }));
   }
 
@@ -67,5 +62,4 @@ public abstract class AbstractGlobalMethodProvider implements GlobalMethodProvid
   protected Map<String, String> getMethodNameMap() {
     return ImmutableMap.of();
   }
-
 }

@@ -3,19 +3,27 @@ package org.obiba.magma.js;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 
-import org.mozilla.javascript.Context;
-import org.mozilla.javascript.ScriptRuntime;
-import org.mozilla.javascript.Scriptable;
-import org.mozilla.javascript.ScriptableObject;
-import org.mozilla.javascript.Undefined;
+import com.google.common.collect.Maps;
+import jdk.nashorn.api.scripting.JSObject;
 import org.obiba.magma.Coordinate;
 import org.obiba.magma.MagmaDate;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueType;
+import org.obiba.magma.js.methods.BooleanMethods;
+import org.obiba.magma.js.methods.CompareMethods;
+import org.obiba.magma.js.methods.DateTimeMethods;
+import org.obiba.magma.js.methods.GeoMethods;
+import org.obiba.magma.js.methods.NumericMethods;
+import org.obiba.magma.js.methods.ScriptableValueMethods;
+import org.obiba.magma.js.methods.TextMethods;
+import org.obiba.magma.js.methods.UnitMethods;
+import org.obiba.magma.js.methods.ValueSequenceMethods;
 import org.obiba.magma.type.BooleanType;
 import org.obiba.magma.type.DateType;
 import org.obiba.magma.type.LineStringType;
@@ -23,44 +31,27 @@ import org.obiba.magma.type.PointType;
 import org.obiba.magma.type.PolygonType;
 import org.obiba.magma.type.TextType;
 
+
 /**
  * A {@code Scriptable} implementation for {@code Value} objects.
- * <p/>
- * Methods available on the {@code ScriptableValue} instances are built by the {@code ScriptableValuePrototypeFactory}.
+ * <p>
  * It allows extending the methods of {@code ScriptableValue}.
- *
- * @see ScriptableValuePrototypeFactory
  */
-public class ScriptableValue extends ScriptableObject {
-
-  private static final long serialVersionUID = -4342110775412157728L;
-
-  static final String VALUE_CLASS_NAME = "Value";
+public class ScriptableValue extends Scriptable {
 
   @NotNull
   private Value value;
 
   private String unit;
 
-  /**
-   * No-arg ctor for building the prototype
-   */
-  @edu.umd.cs.findbugs.annotations.SuppressWarnings(value = "NP_NONNULL_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR",
-      justification = "Needed by ScriptableValuePrototypeFactory")
-  ScriptableValue() {
-
-  }
-
-  public ScriptableValue(Scriptable scope, @NotNull Value value, @Nullable String unit) {
-    super(scope, ScriptableObject.getClassPrototype(scope, VALUE_CLASS_NAME));
-    //noinspection ConstantConditions
+  public ScriptableValue(@NotNull Value value, @Nullable String unit) {
     if(value == null) throw new IllegalArgumentException("value cannot be null");
     this.value = value;
     this.unit = unit;
   }
 
-  public ScriptableValue(Scriptable scope, @NotNull Value value) {
-    this(scope, value, null);
+  public ScriptableValue(@NotNull Value value) {
+    this(value, null);
   }
 
   public boolean hasUnit() {
@@ -71,40 +62,44 @@ public class ScriptableValue extends ScriptableObject {
     return unit;
   }
 
-  @Override
-  public String getClassName() {
-    return VALUE_CLASS_NAME;
-  }
-
   @Nullable
-  @Override
   public Object getDefaultValue(Class<?> typeHint) {
     if(value.isSequence()) {
       return value.asSequence().toString();
     }
+
     ValueType valueType = value.getValueType();
     boolean isNull = value.isNull();
+
     if(valueType.isDateTime()) {
+
       if(isNull) {
-        return Context.toObject(null, this);
+        return null;
       }
+
       double jsDate = valueType == DateType.get()
           ? ((MagmaDate) value.getValue()).asDate().getTime()
           : ((Date) value.getValue()).getTime();
-      return Context.toObject(ScriptRuntime.wrapNumber(jsDate), this);
+
+      return jsDate;
     }
+
     if(valueType.isGeo()) {
-      return isNull ? Context.toObject(null, this) : getGeoDefaultValue(valueType, value.getValue());
+      return isNull ? null : getGeoDefaultValue(valueType, value.getValue());
     }
+
     if(valueType.isNumeric()) {
-      return Context.toNumber(isNull ? Undefined.instance : value.getValue());
+      return isNull ? null : value.getValue();
     }
+
     if(valueType.equals(BooleanType.get())) {
-      return Context.toBoolean(isNull ? null : value.getValue());
+      return isNull ? null : value.getValue();
     }
+
     if(valueType.equals(TextType.get())) {
-      return Context.toString(isNull ? null : value.getValue());
+      return isNull ? null : value.getValue();
     }
+
     return value.getValue();
   }
 
@@ -155,14 +150,42 @@ public class ScriptableValue extends ScriptableObject {
         : getValue().equals(testValue);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see java.lang.Object#toString()
-   */
   @Nullable
   @Override
   public String toString() {
     return getValue().toString();
+  }
+
+  @Override
+  public boolean hasMember(String name) {
+    return getMembers().containsKey(name);
+  }
+
+  @Override
+  public Object getMember(final String name) {
+    return getMembers().get(name);
+  }
+
+  @Override
+  public Set<String> keySet() {
+    return getMembers().keySet();
+  }
+
+  private static Map<String, JSObject> members = Maps.newConcurrentMap();
+
+  static {
+    addMethodProvider(members, BooleanMethods.class);
+    addMethodProvider(members, DateTimeMethods.class);
+    addMethodProvider(members, TextMethods.class);
+    addMethodProvider(members, ScriptableValueMethods.class);
+    addMethodProvider(members, ValueSequenceMethods.class);
+    addMethodProvider(members, NumericMethods.class);
+    addMethodProvider(members, CompareMethods.class);
+    addMethodProvider(members, UnitMethods.class);
+    addMethodProvider(members, GeoMethods.class);
+  }
+
+  public static Map<String, JSObject> getMembers() {
+    return members;
   }
 }

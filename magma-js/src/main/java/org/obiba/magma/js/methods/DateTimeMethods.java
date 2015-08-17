@@ -9,9 +9,6 @@ import java.util.GregorianCalendar;
 
 import javax.annotation.Nullable;
 
-import org.mozilla.javascript.Context;
-import org.mozilla.javascript.Function;
-import org.mozilla.javascript.Scriptable;
 import org.obiba.magma.MagmaDate;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueSequence;
@@ -37,8 +34,8 @@ public class DateTimeMethods {
    *   $('Date').year()
    * </pre>
    */
-  public static Scriptable year(Context cx, Scriptable thisObj, Object[] args, Function funObj) {
-    return asScriptable(thisObj, thisObj, Calendar.YEAR);
+  public static ScriptableValue year(ScriptableValue thisObj, Object[] args) {
+    return asScriptable(thisObj, Calendar.YEAR);
   }
 
   /**
@@ -48,8 +45,8 @@ public class DateTimeMethods {
    *   $('Date').month()
    * </pre>
    */
-  public static Scriptable month(Context cx, Scriptable thisObj, Object[] args, Function funObj) {
-    return asScriptable(thisObj, thisObj, Calendar.MONTH);
+  public static ScriptableValue month(ScriptableValue thisObj, Object[] args) {
+    return asScriptable(thisObj, Calendar.MONTH);
   }
 
   /**
@@ -59,19 +56,19 @@ public class DateTimeMethods {
    *   $('Date').quarter()
    * </pre>
    */
-  public static Scriptable quarter(Context cx, Scriptable thisObj, Object[] args, Function funObj) {
+  public static ScriptableValue quarter(ScriptableValue thisObj, Object[] args) {
     Value currentValue = ((ScriptableValue) thisObj).getValue();
     if(currentValue.isSequence()) {
       if(currentValue.isNull()) {
-        return new ScriptableValue(thisObj, IntegerType.get().nullSequence());
+        return new ScriptableValue(IntegerType.get().nullSequence());
       }
       Collection<Value> newValues = new ArrayList<>();
       for(Value value : currentValue.asSequence().getValue()) {
         newValues.add(quarter(value));
       }
-      return new ScriptableValue(thisObj, IntegerType.get().sequenceOf(newValues));
+      return new ScriptableValue(IntegerType.get().sequenceOf(newValues));
     } else {
-      return new ScriptableValue(thisObj, quarter(currentValue));
+      return new ScriptableValue(quarter(currentValue));
     }
   }
 
@@ -99,19 +96,19 @@ public class DateTimeMethods {
    *   $('Date').semester()
    * </pre>
    */
-  public static Scriptable semester(Context cx, Scriptable thisObj, Object[] args, Function funObj) {
+  public static ScriptableValue semester(ScriptableValue thisObj, Object[] args) {
     Value currentValue = ((ScriptableValue) thisObj).getValue();
     if(currentValue.isSequence()) {
       if(currentValue.isNull()) {
-        return new ScriptableValue(thisObj, IntegerType.get().nullSequence());
+        return new ScriptableValue(IntegerType.get().nullSequence());
       }
       Collection<Value> newValues = new ArrayList<>();
       for(Value value : currentValue.asSequence().getValue()) {
         newValues.add(semester(value));
       }
-      return new ScriptableValue(thisObj, IntegerType.get().sequenceOf(newValues));
+      return new ScriptableValue(IntegerType.get().sequenceOf(newValues));
     } else {
-      return new ScriptableValue(thisObj, semester(currentValue));
+      return new ScriptableValue(semester(currentValue));
     }
   }
 
@@ -135,8 +132,8 @@ public class DateTimeMethods {
    *   $('Date').dayOfWeek()
    * </pre>
    */
-  public static Scriptable dayOfWeek(Context cx, Scriptable thisObj, Object[] args, Function funObj) {
-    return asScriptable(thisObj, thisObj, Calendar.DAY_OF_WEEK);
+  public static ScriptableValue dayOfWeek(ScriptableValue thisObj, Object[] args) {
+    return asScriptable(thisObj, Calendar.DAY_OF_WEEK);
   }
 
   /**
@@ -146,19 +143,19 @@ public class DateTimeMethods {
    *   $('Date').weekday()
    * </pre>
    */
-  public static Scriptable weekday(Context cx, Scriptable thisObj, Object[] args, Function funObj) {
+  public static ScriptableValue weekday(ScriptableValue thisObj, Object[] args) {
     Value currentValue = ((ScriptableValue) thisObj).getValue();
     if(currentValue.isSequence()) {
       if(currentValue.isNull()) {
-        return new ScriptableValue(thisObj, BooleanType.get().nullSequence());
+        return new ScriptableValue(BooleanType.get().nullSequence());
       }
       Collection<Value> newValues = new ArrayList<>();
       for(Value value : currentValue.asSequence().getValue()) {
         newValues.add(weekday(value));
       }
-      return new ScriptableValue(thisObj, BooleanType.get().sequenceOf(newValues));
+      return new ScriptableValue( BooleanType.get().sequenceOf(newValues));
     } else {
-      return new ScriptableValue(thisObj, weekday(currentValue));
+      return new ScriptableValue(weekday(currentValue));
     }
   }
 
@@ -178,19 +175,19 @@ public class DateTimeMethods {
    *   $('Date').weekend()
    * </pre>
    */
-  public static Scriptable weekend(Context cx, Scriptable thisObj, Object[] args, Function funObj) {
+  public static ScriptableValue weekend(ScriptableValue thisObj, Object[] args) {
     Value currentValue = ((ScriptableValue) thisObj).getValue();
     if(currentValue.isSequence()) {
       if(currentValue.isNull()) {
-        return new ScriptableValue(thisObj, BooleanType.get().nullSequence());
+        return new ScriptableValue(BooleanType.get().nullSequence());
       }
       Collection<Value> newValues = new ArrayList<>();
       for(Value value : currentValue.asSequence().getValue()) {
         newValues.add(weekend(value));
       }
-      return new ScriptableValue(thisObj, BooleanType.get().sequenceOf(newValues));
+      return new ScriptableValue(BooleanType.get().sequenceOf(newValues));
     } else {
-      return new ScriptableValue(thisObj, weekend(currentValue));
+      return new ScriptableValue(weekend(currentValue));
     }
   }
 
@@ -210,8 +207,8 @@ public class DateTimeMethods {
    *   $('Date').dayOfMonth()
    * </pre>
    */
-  public static Scriptable dayOfMonth(Context cx, Scriptable thisObj, Object[] args, Function funObj) {
-    return asScriptable(thisObj, thisObj, Calendar.DAY_OF_MONTH);
+  public static ScriptableValue dayOfMonth(ScriptableValue thisObj, Object[] args) {
+    return asScriptable(thisObj, Calendar.DAY_OF_MONTH);
   }
 
   /**
@@ -221,8 +218,8 @@ public class DateTimeMethods {
    *   $('Date').dayOfYear()
    * </pre>
    */
-  public static Scriptable dayOfYear(Context cx, Scriptable thisObj, Object[] args, Function funObj) {
-    return asScriptable(thisObj, thisObj, Calendar.DAY_OF_YEAR);
+  public static ScriptableValue dayOfYear(ScriptableValue thisObj, Object[] args) {
+    return asScriptable(thisObj, Calendar.DAY_OF_YEAR);
   }
 
   /**
@@ -232,8 +229,8 @@ public class DateTimeMethods {
    *   $('Date').weekOfYear()
    * </pre>
    */
-  public static Scriptable weekOfYear(Context cx, Scriptable thisObj, Object[] args, Function funObj) {
-    return asScriptable(thisObj, thisObj, Calendar.WEEK_OF_YEAR);
+  public static ScriptableValue weekOfYear(ScriptableValue thisObj, Object[] args) {
+    return asScriptable(thisObj, Calendar.WEEK_OF_YEAR);
   }
 
   /**
@@ -243,8 +240,8 @@ public class DateTimeMethods {
    *   $('Date').weekOfMonth()
    * </pre>
    */
-  public static Scriptable weekOfMonth(Context cx, Scriptable thisObj, Object[] args, Function funObj) {
-    return asScriptable(thisObj, thisObj, Calendar.WEEK_OF_MONTH);
+  public static ScriptableValue weekOfMonth(ScriptableValue thisObj, Object[] args) {
+    return asScriptable(thisObj, Calendar.WEEK_OF_MONTH);
   }
 
   /**
@@ -254,8 +251,8 @@ public class DateTimeMethods {
    *   $('Date').hourOfDay()
    * </pre>
    */
-  public static Scriptable hourOfDay(Context cx, Scriptable thisObj, Object[] args, Function funObj) {
-    return asScriptable(thisObj, thisObj, Calendar.HOUR_OF_DAY);
+  public static ScriptableValue hourOfDay(ScriptableValue thisObj, Object[] args) {
+    return asScriptable(thisObj, Calendar.HOUR_OF_DAY);
   }
 
   /**
@@ -266,8 +263,8 @@ public class DateTimeMethods {
    *   $('Date').hour()
    * </pre>
    */
-  public static Scriptable hour(Context cx, Scriptable thisObj, Object[] args, Function funObj) {
-    return asScriptable(thisObj, thisObj, Calendar.HOUR);
+  public static ScriptableValue hour(ScriptableValue thisObj, Object[] args) {
+    return asScriptable(thisObj, Calendar.HOUR);
   }
 
   /**
@@ -277,8 +274,8 @@ public class DateTimeMethods {
    *   $('Date').minute()
    * </pre>
    */
-  public static Scriptable minute(Context cx, Scriptable thisObj, Object[] args, Function funObj) {
-    return asScriptable(thisObj, thisObj, Calendar.MINUTE);
+  public static ScriptableValue minute(ScriptableValue thisObj, Object[] args) {
+    return asScriptable(thisObj, Calendar.MINUTE);
   }
 
   /**
@@ -288,8 +285,8 @@ public class DateTimeMethods {
    *   $('Date').second()
    * </pre>
    */
-  public static Scriptable second(Context cx, Scriptable thisObj, Object[] args, Function funObj) {
-    return asScriptable(thisObj, thisObj, Calendar.SECOND);
+  public static ScriptableValue second(ScriptableValue thisObj, Object[] args) {
+    return asScriptable(thisObj, Calendar.SECOND);
   }
 
   /**
@@ -299,8 +296,8 @@ public class DateTimeMethods {
    *   $('Date').millisecond()
    * </pre>
    */
-  public static Scriptable millisecond(Context cx, Scriptable thisObj, Object[] args, Function funObj) {
-    return asScriptable(thisObj, thisObj, Calendar.MILLISECOND);
+  public static ScriptableValue millisecond(ScriptableValue thisObj, Object[] args) {
+    return asScriptable(thisObj, Calendar.MILLISECOND);
   }
 
   /**
@@ -310,20 +307,20 @@ public class DateTimeMethods {
    *   $('Date').time()
    * </pre>
    */
-  public static Scriptable time(Context cx, Scriptable thisObj, Object[] args, Function funObj) {
+  public static ScriptableValue time(ScriptableValue thisObj, Object[] args) {
     Value currentValue = ((ScriptableValue) thisObj).getValue();
 
     if(currentValue.isSequence()) {
       if(currentValue.isNull()) {
-        return new ScriptableValue(thisObj, IntegerType.get().nullSequence());
+        return new ScriptableValue(IntegerType.get().nullSequence());
       }
       Collection<Value> newValues = new ArrayList<>();
       for(Value value : currentValue.asSequence().getValue()) {
         newValues.add(timeValue(value));
       }
-      return new ScriptableValue(thisObj, TextType.get().sequenceOf(newValues));
+      return new ScriptableValue(TextType.get().sequenceOf(newValues));
     } else {
-      return new ScriptableValue(thisObj, timeValue(currentValue));
+      return new ScriptableValue(timeValue(currentValue));
     }
   }
 
@@ -342,19 +339,22 @@ public class DateTimeMethods {
    *
    * @see java.text.SimpleDateFormat
    */
-  public static Scriptable format(Context cx, Scriptable thisObj, Object[] args, Function funObj) {
-    Value currentValue = ((ScriptableValue) thisObj).getValue();
+  public static ScriptableValue format(ScriptableValue thisObj, Object[] args) {
+    Value currentValue = thisObj.getValue();
     if(currentValue.isSequence()) {
       if(currentValue.isNull()) {
-        return new ScriptableValue(thisObj, TextType.get().nullSequence());
+        return new ScriptableValue(TextType.get().nullSequence());
       }
+
       Collection<Value> newValues = new ArrayList<>();
+
       for(Value value : currentValue.asSequence().getValue()) {
         newValues.add(format(value, args));
       }
-      return new ScriptableValue(thisObj, TextType.get().sequenceOf(newValues));
+
+      return new ScriptableValue(TextType.get().sequenceOf(newValues));
     } else {
-      return new ScriptableValue(thisObj, format(currentValue, args));
+      return new ScriptableValue(format(currentValue, args));
     }
   }
 
@@ -371,6 +371,7 @@ public class DateTimeMethods {
 
     SimpleDateFormat format = null;
     Object arg = args[0];
+
     if(arg instanceof ScriptableValue) {
       ScriptableValue operand = (ScriptableValue) arg;
       if(operand.getValue().isSequence()) {
@@ -397,23 +398,23 @@ public class DateTimeMethods {
    *   $('Date').after($('OtherDate'), $('SomeOtherDate'))
    * </pre>
    */
-  public static Scriptable after(Context cx, Scriptable thisObj, Object[] args, @Nullable Function funObj) {
+  public static ScriptableValue after(ScriptableValue thisObj, Object[] args) {
     if(args == null || args.length == 0) {
-      return new ScriptableValue(thisObj, BooleanType.get().falseValue());
+      return new ScriptableValue(BooleanType.get().falseValue());
     }
 
     Value currentValue = ((ScriptableValue) thisObj).getValue();
     if(currentValue.isSequence()) {
       if(currentValue.isNull()) {
-        return new ScriptableValue(thisObj, BooleanType.get().nullSequence());
+        return new ScriptableValue(BooleanType.get().nullSequence());
       }
       Collection<Value> newValues = new ArrayList<>();
       for(Value value : currentValue.asSequence().getValue()) {
         newValues.add(after(value, args));
       }
-      return new ScriptableValue(thisObj, BooleanType.get().sequenceOf(newValues));
+      return new ScriptableValue(BooleanType.get().sequenceOf(newValues));
     }
-    return new ScriptableValue(thisObj, after(currentValue, args));
+    return new ScriptableValue(after(currentValue, args));
   }
 
   private static Value after(Value value, Object... args) {
@@ -492,28 +493,27 @@ public class DateTimeMethods {
   /**
    * Given a {@code ScriptableValue}, this method extracts a {@code field} from the Calendar.
    *
-   * @param scope
    * @param sv
    * @param field
    * @return
    */
-  private static Scriptable asScriptable(Scriptable scope, Scriptable sv, int field) {
+  private static ScriptableValue asScriptable(ScriptableValue sv, int field) {
     Value currentValue = ((ScriptableValue) sv).getValue();
 
     if(currentValue.isSequence()) {
-      return asScriptable(scope, currentValue.asSequence(), field);
+      return asScriptable(currentValue.asSequence(), field);
     } else {
       Calendar c = asCalendar(currentValue);
       if(c != null) {
-        return asScriptable(scope, c.get(field));
+        return asScriptable(c.get(field));
       }
-      return new ScriptableValue(scope, IntegerType.get().nullValue());
+      return new ScriptableValue(IntegerType.get().nullValue());
     }
   }
 
-  private static Scriptable asScriptable(Scriptable scope, ValueSequence currentValue, int field) {
+  private static ScriptableValue asScriptable(ValueSequence currentValue, int field) {
     if(currentValue.isNull()) {
-      return new ScriptableValue(scope, IntegerType.get().nullSequence());
+      return new ScriptableValue(IntegerType.get().nullSequence());
     }
     Collection<Value> newValues = new ArrayList<>();
     for(Value value : currentValue.asSequence().getValue()) {
@@ -524,11 +524,11 @@ public class DateTimeMethods {
         newValues.add(IntegerType.get().nullValue());
       }
     }
-    return new ScriptableValue(scope, IntegerType.get().sequenceOf(newValues));
+    return new ScriptableValue(IntegerType.get().sequenceOf(newValues));
   }
 
-  private static Scriptable asScriptable(Scriptable scope, int value) {
-    return new ScriptableValue(scope, IntegerType.get().valueOf(value));
+  private static ScriptableValue asScriptable(int value) {
+    return new ScriptableValue(IntegerType.get().valueOf(value));
   }
 
   /**
@@ -539,7 +539,7 @@ public class DateTimeMethods {
    *   $('Date').add(-4) // Subtracts 4 days.
    * </pre>
    */
-  public static Scriptable add(Context cx, Scriptable thisObj, Object[] args, Function funObj) {
+  public static ScriptableValue add(ScriptableValue thisObj, Object[] args) {
     if(args.length != 1) {
       throw new UnsupportedOperationException(".add() expects exactly one integer argument: days to add.");
     }
@@ -547,15 +547,15 @@ public class DateTimeMethods {
     Value currentValue = ((ScriptableValue) thisObj).getValue();
     if(currentValue.isSequence()) {
       if(currentValue.isNull()) {
-        return new ScriptableValue(thisObj, DateTimeType.get().nullSequence());
+        return new ScriptableValue(DateTimeType.get().nullSequence());
       }
       Collection<Value> newValues = new ArrayList<>();
       for(Value value : currentValue.asSequence().getValue()) {
         newValues.add(add(value, args));
       }
-      return new ScriptableValue(thisObj, DateTimeType.get().sequenceOf(newValues));
+      return new ScriptableValue(DateTimeType.get().sequenceOf(newValues));
     }
-    return new ScriptableValue(thisObj, add(currentValue, args));
+    return new ScriptableValue(add(currentValue, args));
   }
 
   private static Value add(Value cvalue, Object... args) {

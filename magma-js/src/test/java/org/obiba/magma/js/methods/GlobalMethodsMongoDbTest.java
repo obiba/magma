@@ -180,7 +180,9 @@ public class GlobalMethodsMongoDbTest extends AbstractJsTest {
     View view = viewManager.getView(DATASOURCE, "view");
     VectorSource viewVectorSource = view.getVariableValueSource("weight_in_lbs").asVectorSource();
     assertThat(viewVectorSource).isNotNull();
+
     int i = 0;
+
     for(Value viewValue : viewVectorSource.getValues(new TreeSet<>(view.getVariableEntities()))) {
       Long kg = (Long) tableValues.get(i++).getValue();
       Long lbs = (Long) viewValue.getValue();
@@ -479,9 +481,9 @@ public class GlobalMethodsMongoDbTest extends AbstractJsTest {
 
     VectorSource vectorSource = view.getVariableValueSource("A").asVectorSource();
     assertThat(vectorSource).isNotNull();
+
     for(Value value : vectorSource.getValues(new TreeSet<>(view.getVariableEntities()))) {
       value.getValue();
     }
   }
-
 }

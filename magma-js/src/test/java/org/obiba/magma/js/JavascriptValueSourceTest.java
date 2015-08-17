@@ -2,6 +2,8 @@ package org.obiba.magma.js;
 
 import java.util.Date;
 
+import javax.script.ScriptException;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.mozilla.javascript.EvaluatorException;
@@ -61,17 +63,18 @@ public class JavascriptValueSourceTest extends AbstractJsTest {
     // Error is on second line of script
     String script = "var i = 1+1;\nERROR!";
     JavascriptValueSource source = new JavascriptValueSource(IntegerType.get(), script);
+
     source.setScriptName("Bogus");
+
     try {
       source.initialise();
       source.getValue(null);
       fail("EvaluatorException was expected");
     } catch(MagmaJsRuntimeException e) {
       assertThat(e.getCause() instanceof EvaluatorException);
-      EvaluatorException cause = (EvaluatorException)e.getCause();
-      assertThat(cause.sourceName()).isEqualTo("Bogus");
-      assertThat(cause.lineNumber()).isEqualTo(2);
-      assertThat(cause.lineSource()).isEqualTo("ERROR!");
+      ScriptException cause = (ScriptException)e.getCause();
+      assertThat(cause.getFileName()).isEqualTo("Bogus");
+      assertThat(cause.getLineNumber()).isEqualTo(2);
     }
   }
 

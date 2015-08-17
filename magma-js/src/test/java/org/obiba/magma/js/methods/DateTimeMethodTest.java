@@ -7,7 +7,6 @@ import java.util.Collection;
 import java.util.Date;
 
 import org.junit.Test;
-import org.mozilla.javascript.Context;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueSequence;
 import org.obiba.magma.ValueType;
@@ -269,7 +268,7 @@ public class DateTimeMethodTest extends AbstractJsTest {
     ScriptableValue now = newValue(DateTimeType.get().valueOf(new Date()));
     ScriptableValue nullDate = newValue(DateTimeType.get().nullValue());
     ScriptableValue result = (ScriptableValue) DateTimeMethods
-        .after(Context.getCurrentContext(), now, new ScriptableValue[] { nullDate }, null);
+        .after(now, new ScriptableValue[] { nullDate });
     assertThat(result).isNotNull();
     assertThat(result.getValue()).isEqualTo(BooleanType.get().nullValue());
   }
@@ -279,7 +278,7 @@ public class DateTimeMethodTest extends AbstractJsTest {
     ScriptableValue now = newValue(DateTimeType.get().valueOf(new Date()));
     ScriptableValue nullDate = newValue(DateTimeType.get().nullValue());
     ScriptableValue result = (ScriptableValue) DateTimeMethods
-        .after(Context.getCurrentContext(), nullDate, new ScriptableValue[] { now }, null);
+        .after(nullDate, new ScriptableValue[] { now });
     assertThat(result).isNotNull();
     assertThat(result.getValue()).isEqualTo(BooleanType.get().nullValue());
   }

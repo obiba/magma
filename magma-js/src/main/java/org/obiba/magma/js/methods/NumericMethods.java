@@ -7,13 +7,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import javax.annotation.Nullable;
-
+import jdk.nashorn.api.scripting.ScriptUtils;
 import org.jscience.physics.unit.system.SI;
-import org.mozilla.javascript.Context;
-import org.mozilla.javascript.Function;
-import org.mozilla.javascript.NativeArray;
-import org.mozilla.javascript.Scriptable;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueSequence;
 import org.obiba.magma.ValueType;
@@ -217,9 +212,9 @@ public class NumericMethods {
    * @throws MagmaJsEvaluationRuntimeException if operands are not ScriptableValue Objects of IntegerType or
    * DecimalType.
    */
-  public static ScriptableValue plus(Context ctx, Scriptable thisObj, Object[] args, @Nullable Function funObj)
+  public static ScriptableValue plus(ScriptableValue thisObj, Object[] args)
       throws MagmaJsEvaluationRuntimeException {
-    return operate((ScriptableValue) thisObj, args, Ops.PLUS);
+    return operate(thisObj, args, Ops.PLUS);
   }
 
   /**
@@ -234,9 +229,9 @@ public class NumericMethods {
    * @throws MagmaJsEvaluationRuntimeException if operands are not ScriptableValue Objects of IntegerType or
    * DecimalType.
    */
-  public static ScriptableValue minus(Context ctx, Scriptable thisObj, Object[] args, @Nullable Function funObj)
+  public static ScriptableValue minus(ScriptableValue thisObj, Object[] args)
       throws MagmaJsEvaluationRuntimeException {
-    return operate((ScriptableValue) thisObj, args, Ops.MINUS);
+    return operate(thisObj, args, Ops.MINUS);
   }
 
   /**
@@ -251,9 +246,9 @@ public class NumericMethods {
    * @throws MagmaJsEvaluationRuntimeException if operands are not ScriptableValue Objects of IntegerType or
    * DecimalType.
    */
-  public static ScriptableValue multiply(Context ctx, Scriptable thisObj, Object[] args, @Nullable Function funObj)
+  public static ScriptableValue multiply(ScriptableValue thisObj, Object[] args)
       throws MagmaJsEvaluationRuntimeException {
-    return operate((ScriptableValue) thisObj, args, Ops.MULTIPLY);
+    return operate(thisObj, args, Ops.MULTIPLY);
   }
 
   /**
@@ -267,9 +262,9 @@ public class NumericMethods {
    * @throws MagmaJsEvaluationRuntimeException if operands are not ScriptableValue Objects of IntegerType or
    * DecimalType.
    */
-  public static ScriptableValue div(Context ctx, Scriptable thisObj, Object[] args, @Nullable Function funObj)
+  public static ScriptableValue div(ScriptableValue thisObj, Object[] args)
       throws MagmaJsEvaluationRuntimeException {
-    return operate((ScriptableValue) thisObj, args, Ops.DIVIDE);
+    return operate(thisObj, args, Ops.DIVIDE);
   }
 
   /**
@@ -283,9 +278,9 @@ public class NumericMethods {
    * @throws MagmaJsEvaluationRuntimeException if operands are not ScriptableValue Objects of IntegerType or
    * DecimalType.
    */
-  public static ScriptableValue gt(Context ctx, Scriptable thisObj, Object[] args, @Nullable Function funObj)
+  public static ScriptableValue gt(ScriptableValue thisObj, Object[] args)
       throws MagmaJsEvaluationRuntimeException {
-    return new ScriptableValue(thisObj, compare((ScriptableValue) thisObj, args, Comps.GT));
+    return new ScriptableValue(compare( thisObj, args, Comps.GT));
   }
 
   /**
@@ -299,9 +294,9 @@ public class NumericMethods {
    * @throws MagmaJsEvaluationRuntimeException if operands are not ScriptableValue Objects of IntegerType or
    * DecimalType.
    */
-  public static ScriptableValue ge(Context ctx, Scriptable thisObj, Object[] args, @Nullable Function funObj)
+  public static ScriptableValue ge(ScriptableValue thisObj, Object[] args)
       throws MagmaJsEvaluationRuntimeException {
-    return new ScriptableValue(thisObj, compare((ScriptableValue) thisObj, args, Comps.GE));
+    return new ScriptableValue(compare(thisObj, args, Comps.GE));
   }
 
   /**
@@ -315,9 +310,9 @@ public class NumericMethods {
    * @throws MagmaJsEvaluationRuntimeException if operands are not ScriptableValue Objects of IntegerType or
    * DecimalType.
    */
-  public static ScriptableValue lt(Context ctx, Scriptable thisObj, Object[] args, @Nullable Function funObj)
+  public static ScriptableValue lt(ScriptableValue thisObj, Object[] args)
       throws MagmaJsEvaluationRuntimeException {
-    return new ScriptableValue(thisObj, compare((ScriptableValue) thisObj, args, Comps.LT));
+    return new ScriptableValue(compare(thisObj, args, Comps.LT));
   }
 
   /**
@@ -331,9 +326,9 @@ public class NumericMethods {
    * @throws MagmaJsEvaluationRuntimeException if operands are not ScriptableValue Objects of IntegerType or
    * DecimalType.
    */
-  public static ScriptableValue le(Context ctx, Scriptable thisObj, Object[] args, @Nullable Function funObj)
+  public static ScriptableValue le(ScriptableValue thisObj, Object[] args)
       throws MagmaJsEvaluationRuntimeException {
-    return new ScriptableValue(thisObj, compare((ScriptableValue) thisObj, args, Comps.LE));
+    return new ScriptableValue(compare( thisObj, args, Comps.LE));
   }
 
   /**
@@ -343,9 +338,9 @@ public class NumericMethods {
    *   $('NumberVarOne').abs()
    * </pre>
    */
-  public static ScriptableValue abs(Context ctx, Scriptable thisObj, Object[] args, Function funObj)
+  public static ScriptableValue abs(ScriptableValue thisObj, Object[] args)
       throws MagmaJsEvaluationRuntimeException {
-    return operate((ScriptableValue) thisObj, args, Unary.ABS);
+    return operate(thisObj, args, Unary.ABS);
   }
 
   /**
@@ -355,9 +350,9 @@ public class NumericMethods {
    *   $('NumberVarOne').ln()
    * </pre>
    */
-  public static ScriptableValue ln(Context ctx, Scriptable thisObj, Object[] args, Function funObj)
+  public static ScriptableValue ln(ScriptableValue thisObj, Object[] args)
       throws MagmaJsEvaluationRuntimeException {
-    return operate((ScriptableValue) thisObj, args, Unary.LN);
+    return operate(thisObj, args, Unary.LN);
   }
 
   /**
@@ -368,9 +363,9 @@ public class NumericMethods {
    *   $('NumberVarOne').log(2) // log base 2
    * </pre>
    */
-  public static ScriptableValue log(Context ctx, Scriptable thisObj, Object[] args, Function funObj)
+  public static ScriptableValue log(ScriptableValue thisObj, Object[] args)
       throws MagmaJsEvaluationRuntimeException {
-    return operate((ScriptableValue) thisObj, args, Unary.LOG);
+    return operate(thisObj, args, Unary.LOG);
   }
 
   /**
@@ -381,9 +376,9 @@ public class NumericMethods {
    *   $('NumberVarOne').pow(-2)
    * </pre>
    */
-  public static ScriptableValue pow(Context ctx, Scriptable thisObj, Object[] args, Function funObj)
+  public static ScriptableValue pow(ScriptableValue thisObj, Object[] args)
       throws MagmaJsEvaluationRuntimeException {
-    return operate((ScriptableValue) thisObj, args, Unary.POW);
+    return operate( thisObj, args, Unary.POW);
   }
 
   /**
@@ -395,19 +390,19 @@ public class NumericMethods {
    *   $('NumberVarOne').root(42) // arbitrary root
    * </pre>
    */
-  public static ScriptableValue root(Context ctx, Scriptable thisObj, Object[] args, Function funObj)
+  public static ScriptableValue root(ScriptableValue thisObj, Object[] args)
       throws MagmaJsEvaluationRuntimeException {
-    return operate((ScriptableValue) thisObj, args, Unary.ROOT);
+    return operate( thisObj, args, Unary.ROOT);
   }
 
-  public static ScriptableValue sqroot(Context ctx, Scriptable thisObj, Object[] args, Function funObj)
+  public static ScriptableValue sqroot(ScriptableValue thisObj, Object[] args)
       throws MagmaJsEvaluationRuntimeException {
-    return operate((ScriptableValue) thisObj, new Object[] { 2 }, Unary.ROOT);
+    return operate( thisObj, new Object[] { 2 }, Unary.ROOT);
   }
 
-  public static ScriptableValue cbroot(Context ctx, Scriptable thisObj, Object[] args, Function funObj)
+  public static ScriptableValue cbroot(ScriptableValue thisObj, Object[] args)
       throws MagmaJsEvaluationRuntimeException {
-    return operate((ScriptableValue) thisObj, new Object[] { 3 }, Unary.ROOT);
+    return operate( thisObj, new Object[] { 3 }, Unary.ROOT);
   }
 
   /**
@@ -433,38 +428,31 @@ public class NumericMethods {
    *  });
    * </pre>
    *
-   * @param ctx
    * @param thisObj
    * @param args
    * @return funObj
    */
-  public static ScriptableValue group(Context ctx, Scriptable thisObj, Object[] args, Function funObj) {
-
-    if(args == null || args.length < 1 || !(args[0] instanceof NativeArray)) {
+  public static ScriptableValue group(ScriptableValue thisObj, Object[] args) {
+    if(args == null || args.length < 1 || args.length > 2)
       throw new MagmaJsEvaluationRuntimeException("illegal arguments to group()");
-    }
 
-    if(args.length == 2 && !(args[1] instanceof NativeArray)) {
-      throw new MagmaJsEvaluationRuntimeException("illegal arguments to group()");
-    }
-
-    ScriptableValue sv = (ScriptableValue) thisObj;
-    Value currentValue = sv.getValue();
-
-    List<Value> boundaries = boundaryValues(sv.getValueType(), args);
-    List<Value> outliers = outlierValues(sv.getValueType(), args);
+    Value currentValue = thisObj.getValue();
+    List<Value> boundaries = boundaryValues(thisObj.getValueType(), args);
+    List<Value> outliers = outlierValues(thisObj.getValueType(), args);
 
     if(currentValue.isSequence()) {
-      if(currentValue.isNull()) {
-        return new ScriptableValue(thisObj, TextType.get().nullSequence());
-      }
+      if(currentValue.isNull()) return new ScriptableValue(TextType.get().nullSequence());
+
       Collection<Value> newValues = new ArrayList<>();
+
       for(Value value : currentValue.asSequence().getValue()) {
-        newValues.add(lookupGroup(ctx, thisObj, value, boundaries, outliers));
+        newValues.add(lookupGroup(thisObj, value, boundaries, outliers));
       }
-      return new ScriptableValue(thisObj, TextType.get().sequenceOf(newValues));
+
+      return new ScriptableValue(TextType.get().sequenceOf(newValues));
     }
-    return new ScriptableValue(thisObj, lookupGroup(ctx, thisObj, currentValue, boundaries, outliers));
+
+    return new ScriptableValue(lookupGroup(thisObj, currentValue, boundaries, outliers));
   }
 
   /**
@@ -496,32 +484,33 @@ public class NumericMethods {
    * group() method.
    *
    * @param valueType
-   * @param args
    * @return
    */
   private static List<Value> nativeArrayToValueList(ValueType valueType, Object array) {
-    NativeArray a = (NativeArray) array;
+    Object[] a = (Object[])ScriptUtils.convert(array, Object[].class);
     List<Value> newValues = new ArrayList<>();
     Value newValue;
-    for(int index = 0; index < (int) a.getLength(); index++) {
-      newValue = valueType.valueOf(a.get(index, a));
+
+    for(int index = 0; index < a.length; index++) {
+      newValue = valueType.valueOf(a[index]);
       newValues.add(index, newValue);
     }
+
     Collections.sort(newValues);
+
     return newValues;
   }
 
   /**
    * Lookup {@code value} within {@code boundaries} and return the corresponding group of type integer
    *
-   * @param ctx
    * @param thisObj
    * @param value
    * @param boundaries
    * @param outliers
    * @return
    */
-  private static Value lookupGroup(Context ctx, Scriptable thisObj, Value value, Iterable<Value> boundaries,
+  private static Value lookupGroup(ScriptableValue thisObj, Value value, Iterable<Value> boundaries,
       Collection<Value> outliers) {
     if(outliers != null && outliers.contains(value)) {
       return TextType.get().convert(value);
@@ -568,6 +557,7 @@ public class NumericMethods {
   static Value compare(ScriptableValue thisObj, Object args[], Comps comparator) {
     BigDecimal value = asBigDecimal(thisObj);
     if(value == null) return BooleanType.get().nullValue();
+
     for(Object argument : args) {
       BigDecimal rhs = asBigDecimal(argument);
       if(rhs == null) return BooleanType.get().nullValue();
@@ -581,40 +571,40 @@ public class NumericMethods {
   static ScriptableValue operate(ScriptableValue thisObj, Object args[], Unary operation) {
     try {
       BigDecimal value = asBigDecimal(thisObj);
-      if(value == null) return new ScriptableValue(thisObj, thisObj.getValueType().nullValue());
+      if(value == null) return new ScriptableValue(thisObj.getValueType().nullValue());
       value = operation.operate(value, args);
       Unit<?> unit = operation.operate(UnitMethods.extractUnit(thisObj), args);
       try {
         long longValue = value.longValueExact();
-        return new ScriptableValue(thisObj, IntegerType.get().valueOf(longValue), unit.toString());
+        return new ScriptableValue(IntegerType.get().valueOf(longValue), unit.toString());
       } catch(ArithmeticException e) {
-        return new ScriptableValue(thisObj, DecimalType.get().valueOf(value.doubleValue()), unit.toString());
+        return new ScriptableValue(DecimalType.get().valueOf(value.doubleValue()), unit.toString());
       }
     } catch(ArithmeticException e) {
-      return new ScriptableValue(thisObj, DecimalType.get().nullValue());
+      return new ScriptableValue(DecimalType.get().nullValue());
     }
   }
 
   static ScriptableValue operate(ScriptableValue thisObj, Object args[], Ops operation) {
     try {
       BigDecimal value = asBigDecimal(thisObj);
-      if(value == null) return new ScriptableValue(thisObj, thisObj.getValueType().nullValue());
+      if(value == null) return new ScriptableValue(thisObj.getValueType().nullValue());
       Unit<?> unit = UnitMethods.extractUnit(thisObj);
       for(Object argument : args) {
         BigDecimal rhs = asBigDecimal(argument);
-        if(rhs == null) return new ScriptableValue(thisObj, thisObj.getValueType().nullValue());
+        if(rhs == null) return new ScriptableValue(thisObj.getValueType().nullValue());
         value = operation.operate(value, rhs);
         unit = operation.operate(unit, UnitMethods.extractUnit(argument));
       }
 
       try {
         long longValue = value.longValueExact();
-        return new ScriptableValue(thisObj, IntegerType.get().valueOf(longValue), unit.toString());
+        return new ScriptableValue(IntegerType.get().valueOf(longValue), unit.toString());
       } catch(ArithmeticException e) {
-        return new ScriptableValue(thisObj, DecimalType.get().valueOf(value.doubleValue()), unit.toString());
+        return new ScriptableValue(DecimalType.get().valueOf(value.doubleValue()), unit.toString());
       }
     } catch(ArithmeticException e) {
-      return new ScriptableValue(thisObj, DecimalType.get().nullValue());
+      return new ScriptableValue(DecimalType.get().nullValue());
     }
   }
 
@@ -624,7 +614,7 @@ public class NumericMethods {
       return ((Number) obj).doubleValue();
     }
     if(obj instanceof ScriptableValue) {
-      ScriptableValue sv = (ScriptableValue) obj;
+      ScriptableValue sv =  (ScriptableValue)obj;
       Value value = sv.getValue();
       return value.isNull() ? null : ((Number) value.getValue()).doubleValue();
     }

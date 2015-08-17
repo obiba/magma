@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import org.junit.Test;
-import org.mozilla.javascript.Context;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueType;
 import org.obiba.magma.js.AbstractJsTest;
@@ -62,7 +61,7 @@ public class BooleanMethodsTest extends AbstractJsTest {
     }
 
     // Verify that the ValueSequence contains all the specified "odd" values.
-    ScriptableValue result = BooleanMethods.all(Context.getCurrentContext(), value, args.toArray(), null);
+    ScriptableValue result = BooleanMethods.all(value, args.toArray());
     assertThat(result).isNotNull();
     assertThat(result.getValue()).isEqualTo(BooleanType.get().trueValue());
   }
@@ -124,7 +123,7 @@ public class BooleanMethodsTest extends AbstractJsTest {
     ScriptableValue value = newValue(BooleanType.get().trueValue());
     ScriptableValue arg = newValue(BooleanType.get().trueValue());
     ScriptableValue result = BooleanMethods
-        .and(Context.getCurrentContext(), value, new ScriptableValue[] { arg }, null);
+        .and(value, new ScriptableValue[] { arg });
     assertThat(result).isNotNull();
     assertThat(result.getValue()).isEqualTo(BooleanType.get().trueValue());
   }
@@ -134,7 +133,7 @@ public class BooleanMethodsTest extends AbstractJsTest {
     ScriptableValue value = newValue(BooleanType.get().trueValue());
     ScriptableValue arg = newValue(BooleanType.get().falseValue());
     ScriptableValue result = BooleanMethods
-        .and(Context.getCurrentContext(), value, new ScriptableValue[] { arg }, null);
+        .and(value, new ScriptableValue[] { arg });
     assertThat(result).isNotNull();
     assertThat(result.getValue()).isEqualTo(BooleanType.get().falseValue());
   }
@@ -144,7 +143,7 @@ public class BooleanMethodsTest extends AbstractJsTest {
     ScriptableValue value = newValue(BooleanType.get().trueValue());
     ScriptableValue arg = newValue(BooleanType.get().nullValue());
     ScriptableValue result = BooleanMethods
-        .and(Context.getCurrentContext(), value, new ScriptableValue[] { arg }, null);
+        .and(value, new ScriptableValue[] { arg });
     assertThat(result).isNotNull();
     assertThat(result.getValue()).isEqualTo(BooleanType.get().nullValue());
   }
@@ -154,7 +153,7 @@ public class BooleanMethodsTest extends AbstractJsTest {
     ScriptableValue value = newValue(BooleanType.get().falseValue());
     ScriptableValue arg = newValue(BooleanType.get().nullValue());
     ScriptableValue result = BooleanMethods
-        .and(Context.getCurrentContext(), value, new ScriptableValue[] { arg }, null);
+        .and(value, new ScriptableValue[] { arg });
     assertThat(result).isNotNull();
     assertThat(result.getValue()).isEqualTo(BooleanType.get().falseValue());
   }
@@ -164,7 +163,7 @@ public class BooleanMethodsTest extends AbstractJsTest {
     ScriptableValue value = newValue(BooleanType.get().nullValue());
     ScriptableValue arg = newValue(BooleanType.get().nullValue());
     ScriptableValue result = BooleanMethods
-        .and(Context.getCurrentContext(), value, new ScriptableValue[] { arg }, null);
+        .and(value, new ScriptableValue[] { arg });
     assertThat(result).isNotNull();
     assertThat(result.getValue()).isEqualTo(BooleanType.get().nullValue());
   }
@@ -175,7 +174,7 @@ public class BooleanMethodsTest extends AbstractJsTest {
     ScriptableValue arg1 = newValue(BooleanType.get().trueValue());
     ScriptableValue arg2 = newValue(BooleanType.get().falseValue());
     ScriptableValue result = BooleanMethods
-        .and(Context.getCurrentContext(), value, new ScriptableValue[] { arg1, arg2 }, null);
+        .and(value, new ScriptableValue[] { arg1, arg2 });
     assertThat(result).isNotNull();
     assertThat(result.getValue()).isEqualTo(BooleanType.get().falseValue());
   }
@@ -197,7 +196,7 @@ public class BooleanMethodsTest extends AbstractJsTest {
   @Test
   public void test_andNullARGReturnsTrue() {
     ScriptableValue value = newValue(BooleanType.get().trueValue());
-    ScriptableValue result = BooleanMethods.and(Context.getCurrentContext(), value, null, null);
+    ScriptableValue result = BooleanMethods.and(value, null);
     assertThat(result).isNotNull();
     assertThat(result.getValue()).isEqualTo(BooleanType.get().trueValue());
   }
@@ -211,18 +210,18 @@ public class BooleanMethodsTest extends AbstractJsTest {
       values.add(TextType.get().valueOf("CAT" + i));
     }
     ScriptableValue nonEmptySequence = newValue(ValueType.Factory.newSequence(TextType.get(), values));
-    ScriptableValue result = BooleanMethods.empty(Context.getCurrentContext(), nonEmptySequence, null, null);
+    ScriptableValue result = BooleanMethods.empty(nonEmptySequence, null);
     assertThat(result).isNotNull();
     assertThat(result.getValue()).isEqualTo(BooleanType.get().falseValue());
 
     // Verify that empty() returns TRUE on an empty sequence.
     ScriptableValue emptySequence = newValue(ValueType.Factory.newSequence(TextType.get(), new ArrayList<Value>()));
-    result = BooleanMethods.empty(Context.getCurrentContext(), emptySequence, null, null);
+    result = BooleanMethods.empty(emptySequence, null);
     assertThat(result).isNotNull();
     assertThat(result.getValue()).isEqualTo(BooleanType.get().trueValue());
 
     emptySequence = newValue(TextType.get().nullSequence());
-    result = BooleanMethods.empty(Context.getCurrentContext(), emptySequence, null, null);
+    result = BooleanMethods.empty(emptySequence, null);
     assertThat(result).isNotNull();
     assertThat(result.getValue()).isEqualTo(BooleanType.get().nullValue());
   }
@@ -234,7 +233,7 @@ public class BooleanMethodsTest extends AbstractJsTest {
     ScriptableValue trueOne = newValue(BooleanType.get().trueValue());
     ScriptableValue trueTwo = newValue(BooleanType.get().trueValue());
     ScriptableValue result = BooleanMethods
-        .or(Context.getCurrentContext(), trueOne, new ScriptableValue[] { trueTwo }, null);
+        .or(trueOne, new ScriptableValue[] { trueTwo });
     assertThat(result.getValue()).isEqualTo(BooleanType.get().trueValue());
   }
 
@@ -243,7 +242,7 @@ public class BooleanMethodsTest extends AbstractJsTest {
     ScriptableValue trueOne = newValue(BooleanType.get().trueValue());
     ScriptableValue falseTwo = newValue(BooleanType.get().falseValue());
     ScriptableValue result = BooleanMethods
-        .or(Context.getCurrentContext(), trueOne, new ScriptableValue[] { falseTwo }, null);
+        .or(trueOne, new ScriptableValue[] { falseTwo });
     assertThat(result.getValue()).isEqualTo(BooleanType.get().trueValue());
   }
 
@@ -252,7 +251,7 @@ public class BooleanMethodsTest extends AbstractJsTest {
     ScriptableValue falseOne = newValue(BooleanType.get().falseValue());
     ScriptableValue trueTwo = newValue(BooleanType.get().trueValue());
     ScriptableValue result = BooleanMethods
-        .or(Context.getCurrentContext(), falseOne, new ScriptableValue[] { trueTwo }, null);
+        .or(falseOne, new ScriptableValue[] { trueTwo });
     assertThat(result.getValue()).isEqualTo(BooleanType.get().trueValue());
   }
 
@@ -261,7 +260,7 @@ public class BooleanMethodsTest extends AbstractJsTest {
     ScriptableValue falseOne = newValue(BooleanType.get().falseValue());
     ScriptableValue falseTwo = newValue(BooleanType.get().falseValue());
     ScriptableValue result = BooleanMethods
-        .or(Context.getCurrentContext(), falseOne, new ScriptableValue[] { falseTwo }, null);
+        .or(falseOne, new ScriptableValue[] { falseTwo });
     assertThat(result.getValue()).isEqualTo(BooleanType.get().falseValue());
   }
 
@@ -270,7 +269,7 @@ public class BooleanMethodsTest extends AbstractJsTest {
     ScriptableValue trueOne = newValue(BooleanType.get().trueValue());
     ScriptableValue nullTwo = newValue(BooleanType.get().nullValue());
     ScriptableValue result = BooleanMethods
-        .or(Context.getCurrentContext(), trueOne, new ScriptableValue[] { nullTwo }, null);
+        .or(trueOne, new ScriptableValue[] { nullTwo });
     assertThat(result.getValue()).isEqualTo(BooleanType.get().trueValue());
   }
 
@@ -279,7 +278,7 @@ public class BooleanMethodsTest extends AbstractJsTest {
     ScriptableValue nullOne = newValue(BooleanType.get().nullValue());
     ScriptableValue trueTwo = newValue(BooleanType.get().trueValue());
     ScriptableValue result = BooleanMethods
-        .or(Context.getCurrentContext(), nullOne, new ScriptableValue[] { trueTwo }, null);
+        .or(nullOne, new ScriptableValue[] { trueTwo });
     assertThat(result.getValue()).isEqualTo(BooleanType.get().trueValue());
   }
 
@@ -288,7 +287,7 @@ public class BooleanMethodsTest extends AbstractJsTest {
     ScriptableValue nullOne = newValue(BooleanType.get().nullValue());
     ScriptableValue nullTwo = newValue(BooleanType.get().nullValue());
     ScriptableValue result = BooleanMethods
-        .or(Context.getCurrentContext(), nullOne, new ScriptableValue[] { nullTwo }, null);
+        .or(nullOne, new ScriptableValue[] { nullTwo });
     assertThat(result.getValue()).isEqualTo(BooleanType.get().nullValue());
   }
 
@@ -297,7 +296,7 @@ public class BooleanMethodsTest extends AbstractJsTest {
     ScriptableValue falseOne = newValue(BooleanType.get().falseValue());
     ScriptableValue nullTwo = newValue(BooleanType.get().nullValue());
     ScriptableValue result = BooleanMethods
-        .or(Context.getCurrentContext(), falseOne, new ScriptableValue[] { nullTwo }, null);
+        .or(falseOne, new ScriptableValue[] { nullTwo });
     assertThat(result.getValue()).isEqualTo(BooleanType.get().nullValue());
   }
 
@@ -306,7 +305,7 @@ public class BooleanMethodsTest extends AbstractJsTest {
     ScriptableValue nullOne = newValue(BooleanType.get().nullValue());
     ScriptableValue falseTwo = newValue(BooleanType.get().falseValue());
     ScriptableValue result = BooleanMethods
-        .or(Context.getCurrentContext(), nullOne, new ScriptableValue[] { falseTwo }, null);
+        .or(nullOne, new ScriptableValue[] { falseTwo });
     assertThat(result.getValue()).isEqualTo(BooleanType.get().nullValue());
   }
 
@@ -331,7 +330,7 @@ public class BooleanMethodsTest extends AbstractJsTest {
     ScriptableValue integerTwo = newValue(IntegerType.get().valueOf(2));
     ScriptableValue integer2 = newValue(IntegerType.get().valueOf(2));
     ScriptableValue result = BooleanMethods
-        .eq(Context.getCurrentContext(), integerTwo, new ScriptableValue[] { integer2 }, null);
+        .eq(integerTwo, new ScriptableValue[] { integer2 });
     assertThat(result.getValue()).isEqualTo(BooleanType.get().trueValue());
   }
 
@@ -340,7 +339,7 @@ public class BooleanMethodsTest extends AbstractJsTest {
     ScriptableValue decimalTwo = newValue(DecimalType.get().valueOf(2.0));
     ScriptableValue integerTwo = newValue(IntegerType.get().valueOf(2));
     ScriptableValue result = BooleanMethods
-        .eq(Context.getCurrentContext(), integerTwo, new ScriptableValue[] { decimalTwo }, null);
+        .eq(integerTwo, new ScriptableValue[] { decimalTwo });
     assertThat(result.getValue()).isEqualTo(BooleanType.get().trueValue());
   }
 
@@ -349,7 +348,7 @@ public class BooleanMethodsTest extends AbstractJsTest {
     ScriptableValue decimalTwo = newValue(DecimalType.get().valueOf(4.0));
     ScriptableValue integerTwo = newValue(IntegerType.get().valueOf(2));
     ScriptableValue result = BooleanMethods
-        .eq(Context.getCurrentContext(), integerTwo, new ScriptableValue[] { decimalTwo }, null);
+        .eq(integerTwo, new ScriptableValue[] { decimalTwo });
     assertThat(result.getValue()).isEqualTo(BooleanType.get().falseValue());
   }
 
@@ -358,7 +357,7 @@ public class BooleanMethodsTest extends AbstractJsTest {
     ScriptableValue decimalTwo = newValue(DecimalType.get().valueOf(2.0));
     ScriptableValue integerTwo = newValue(IntegerType.get().valueOf(2));
     ScriptableValue result = BooleanMethods
-        .eq(Context.getCurrentContext(), decimalTwo, new ScriptableValue[] { integerTwo }, null);
+        .eq(decimalTwo, new ScriptableValue[] { integerTwo });
     assertThat(result.getValue()).isEqualTo(BooleanType.get().trueValue());
   }
 
@@ -367,7 +366,7 @@ public class BooleanMethodsTest extends AbstractJsTest {
     ScriptableValue decimalTwo = newValue(DecimalType.get().valueOf(4.0));
     ScriptableValue integerTwo = newValue(IntegerType.get().valueOf(2));
     ScriptableValue result = BooleanMethods
-        .eq(Context.getCurrentContext(), decimalTwo, new ScriptableValue[] { integerTwo }, null);
+        .eq(decimalTwo, new ScriptableValue[] { integerTwo });
     assertThat(result.getValue()).isEqualTo(BooleanType.get().falseValue());
   }
 
@@ -375,7 +374,7 @@ public class BooleanMethodsTest extends AbstractJsTest {
   public void testDecimalFourEqualsDecimalTwoEqualsTrue() throws Exception {
     ScriptableValue decimalTwo = newValue(DecimalType.get().valueOf(2.0));
     ScriptableValue result = BooleanMethods
-        .eq(Context.getCurrentContext(), decimalTwo, new ScriptableValue[] { decimalTwo }, null);
+        .eq(decimalTwo, new ScriptableValue[] { decimalTwo });
     assertThat(result.getValue()).isEqualTo(BooleanType.get().trueValue());
   }
 
@@ -384,7 +383,7 @@ public class BooleanMethodsTest extends AbstractJsTest {
     ScriptableValue decimalTwo = newValue(DecimalType.get().valueOf(2.0));
     ScriptableValue decimalTwoPointTwo = newValue(DecimalType.get().valueOf(2.2));
     ScriptableValue result = BooleanMethods
-        .eq(Context.getCurrentContext(), decimalTwo, new ScriptableValue[] { decimalTwoPointTwo }, null);
+        .eq(decimalTwo, new ScriptableValue[] { decimalTwoPointTwo });
     assertThat(result.getValue()).isEqualTo(BooleanType.get().falseValue());
   }
 
@@ -432,7 +431,7 @@ public class BooleanMethodsTest extends AbstractJsTest {
     ScriptableValue booleanTrueOne = newValue(BooleanType.get().trueValue());
     ScriptableValue booleanTrueTwo = newValue(BooleanType.get().trueValue());
     ScriptableValue result = BooleanMethods
-        .eq(Context.getCurrentContext(), booleanTrueOne, new ScriptableValue[] { booleanTrueTwo }, null);
+        .eq(booleanTrueOne, new ScriptableValue[] { booleanTrueTwo });
     assertThat(result.getValue()).isEqualTo(BooleanType.get().trueValue());
   }
 
@@ -441,7 +440,7 @@ public class BooleanMethodsTest extends AbstractJsTest {
     ScriptableValue booleanTrueOne = newValue(BooleanType.get().trueValue());
     ScriptableValue booleanFalseTwo = newValue(BooleanType.get().falseValue());
     ScriptableValue result = BooleanMethods
-        .eq(Context.getCurrentContext(), booleanTrueOne, new ScriptableValue[] { booleanFalseTwo }, null);
+        .eq(booleanTrueOne, new ScriptableValue[] { booleanFalseTwo });
     assertThat(result.getValue()).isEqualTo(BooleanType.get().falseValue());
   }
 
@@ -449,7 +448,7 @@ public class BooleanMethodsTest extends AbstractJsTest {
   public void testTextFooEqualsTextBarEqualsFalse() throws Exception {
     ScriptableValue foo = newValue(TextType.get().valueOf("foo"));
     ScriptableValue bar = newValue(TextType.get().valueOf("bar"));
-    ScriptableValue result = BooleanMethods.eq(Context.getCurrentContext(), foo, new ScriptableValue[] { bar }, null);
+    ScriptableValue result = BooleanMethods.eq(foo, new ScriptableValue[] { bar });
     assertThat(result.getValue()).isEqualTo(BooleanType.get().falseValue());
   }
 
@@ -458,7 +457,7 @@ public class BooleanMethodsTest extends AbstractJsTest {
     ScriptableValue fooOne = newValue(TextType.get().valueOf("foo"));
     ScriptableValue fooTwo = newValue(TextType.get().valueOf("foo"));
     ScriptableValue result = BooleanMethods
-        .eq(Context.getCurrentContext(), fooOne, new ScriptableValue[] { fooTwo }, null);
+        .eq(fooOne, new ScriptableValue[] { fooTwo });
     assertThat(result.getValue()).isEqualTo(BooleanType.get().trueValue());
   }
 
@@ -466,21 +465,21 @@ public class BooleanMethodsTest extends AbstractJsTest {
   public void testDateTimeEqualsDateTimeEqualsTrue() {
     ScriptableValue dateTime = newValue(DateTimeType.get().now());
     ScriptableValue resultDateTime = BooleanMethods
-        .eq(Context.getCurrentContext(), dateTime, new Object[] { dateTime }, null);
+        .eq(dateTime, new Object[] { dateTime });
     assertThat(resultDateTime.getValue()).isEqualTo(BooleanType.get().trueValue());
   }
 
   @Test
   public void testDateEqualsDateEqualsTrue() {
     ScriptableValue date = newValue(DateType.get().now());
-    ScriptableValue resultDate = BooleanMethods.eq(Context.getCurrentContext(), date, new Object[] { date }, null);
+    ScriptableValue resultDate = BooleanMethods.eq(date, new Object[] { date });
     assertThat(resultDate.getValue()).isEqualTo(BooleanType.get().trueValue());
   }
 
   @Test
   public void testEqualsArgsNULLFirstOperand() {
     ScriptableValue date = newValue(DateType.get().now());
-    ScriptableValue resultDate = BooleanMethods.eq(Context.getCurrentContext(), date, null, null);
+    ScriptableValue resultDate = BooleanMethods.eq(date, null);
     assertThat(resultDate.getValue()).isEqualTo(BooleanType.get().falseValue());
   }
 
@@ -488,7 +487,7 @@ public class BooleanMethodsTest extends AbstractJsTest {
   public void textEqualsMockDataType() {
     ScriptableValue text = newValue(TextType.get().valueOf("foo"));
     ScriptableValue date = newValue(DateType.get().now());
-    ScriptableValue resultDate = BooleanMethods.eq(Context.getCurrentContext(), date, new Object[] { text }, null);
+    ScriptableValue resultDate = BooleanMethods.eq(date, new Object[] { text });
     assertThat(resultDate.getValue()).isEqualTo(DateType.get().now());
   }
 
@@ -560,10 +559,10 @@ public class BooleanMethodsTest extends AbstractJsTest {
     assertThat(result.getValue()).isEqualTo(TextType.get().valueOf("patate"));
 
     result = evaluate("whenNull(newValue(1))", TextType.get().nullValue());
-    assertThat(result.getValue().getValueType()).isEqualTo(DecimalType.get());
+    assertThat(result.getValue().getValueType()).isEqualTo(IntegerType.get());
 
     result = evaluate("whenNull(1)", TextType.get().nullValue());
-    assertThat(result.getValue()).isEqualTo(TextType.get().valueOf("1.0"));
+    assertThat(result.getValue()).isEqualTo(TextType.get().valueOf("1"));
   }
 
   @Test
@@ -572,7 +571,7 @@ public class BooleanMethodsTest extends AbstractJsTest {
     assertThat(result.getValue()).isEqualTo(IntegerType.get().valueOf(1));
 
     result = evaluate("whenNull(newValue(1))", IntegerType.get().nullValue());
-    assertThat(result.getValue().getValueType()).isEqualTo(DecimalType.get());
+    assertThat(result.getValue().getValueType()).isEqualTo(IntegerType.get());
 
     result = evaluate("whenNull('1')", IntegerType.get().nullValue());
     assertThat(result.getValue()).isEqualTo(IntegerType.get().valueOf(1));
@@ -587,7 +586,7 @@ public class BooleanMethodsTest extends AbstractJsTest {
     assertThat(result.getValue()).isEqualTo(DecimalType.get().valueOf(1));
 
     result = evaluate("whenNull(newValue(1))", DecimalType.get().nullValue());
-    assertThat(result.getValue().getValueType()).isEqualTo(DecimalType.get());
+    assertThat(result.getValue().getValueType()).isEqualTo(IntegerType.get());
 
     result = evaluate("whenNull('1')", DecimalType.get().nullValue());
     assertThat(result.getValue()).isEqualTo(DecimalType.get().valueOf(1));
@@ -610,5 +609,4 @@ public class BooleanMethodsTest extends AbstractJsTest {
     assertThat(result.getValue().asSequence().getSize()).isEqualTo(1);
     assertThat(result.getValue().asSequence().get(0)).isEqualTo(TextType.get().valueOf("patate"));
   }
-
 }

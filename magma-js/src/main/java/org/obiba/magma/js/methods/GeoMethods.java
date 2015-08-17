@@ -5,9 +5,6 @@ import java.util.Collection;
 
 import javax.annotation.Nullable;
 
-import org.mozilla.javascript.Context;
-import org.mozilla.javascript.Function;
-import org.mozilla.javascript.Scriptable;
 import org.obiba.magma.Coordinate;
 import org.obiba.magma.Value;
 import org.obiba.magma.js.ScriptableValue;
@@ -18,7 +15,6 @@ import org.obiba.magma.type.PointType;
 public class GeoMethods {
 
   private GeoMethods() {
-
   }
 
   /**
@@ -27,13 +23,11 @@ public class GeoMethods {
    *   $('Point').longitude()
    * </pre>
    */
-  public static ScriptableValue longitude(Context ctx, Scriptable thisObj, @Nullable Object[] args,
-      @Nullable Function funObj) {
-
-    ScriptableValue sv = (ScriptableValue) thisObj;
+  public static ScriptableValue longitude(ScriptableValue thisObj, @Nullable Object[] args) {
+    ScriptableValue sv = thisObj;
     Value value = sv.getValue();
     if(value.isNull()) {
-      return new ScriptableValue(thisObj, DecimalType.get().nullSequence());
+      return new ScriptableValue(DecimalType.get().nullSequence());
     }
     if(value.isSequence()) {
       Collection<Value> values = new ArrayList<>();
@@ -41,11 +35,11 @@ public class GeoMethods {
         Double longitude = ((Coordinate) val.getValue()).getLongitude();
         values.add(DecimalType.get().valueOf(longitude));
       }
-      return new ScriptableValue(thisObj, DecimalType.get().sequenceOf(values));
+      return new ScriptableValue(DecimalType.get().sequenceOf(values));
     }
     Value newValue = PointType.get().valueOf(value.toString());
     Double longitude = ((Coordinate) newValue.getValue()).getLongitude();
-    return new ScriptableValue(thisObj, DecimalType.get().valueOf(longitude));
+    return new ScriptableValue(DecimalType.get().valueOf(longitude));
   }
 
   /**
@@ -54,13 +48,11 @@ public class GeoMethods {
    *   $('Point').latitude()
    * </pre>
    */
-  public static ScriptableValue latitude(Context ctx, Scriptable thisObj, @Nullable Object[] args,
-      @Nullable Function funObj) {
-
-    ScriptableValue sv = (ScriptableValue) thisObj;
+  public static ScriptableValue latitude(ScriptableValue thisObj, @Nullable Object[] args) {
+    ScriptableValue sv = thisObj;
     Value value = sv.getValue();
     if(value.isNull()) {
-      return new ScriptableValue(thisObj, DecimalType.get().nullSequence());
+      return new ScriptableValue(DecimalType.get().nullSequence());
     }
     if(value.isSequence()) {
       Collection<Value> values = new ArrayList<>();
@@ -68,11 +60,10 @@ public class GeoMethods {
         Double latitude = ((Coordinate) val.getValue()).getLatitude();
         values.add(DecimalType.get().valueOf(latitude));
       }
-      return new ScriptableValue(thisObj, DecimalType.get().sequenceOf(values));
+      return new ScriptableValue(DecimalType.get().sequenceOf(values));
     }
     Value newValue = PointType.get().valueOf(value.toString());
     Double latitude = ((Coordinate) newValue.getValue()).getLatitude();
-    return new ScriptableValue(thisObj, DecimalType.get().valueOf(latitude));
+    return new ScriptableValue(DecimalType.get().valueOf(latitude));
   }
-
 }

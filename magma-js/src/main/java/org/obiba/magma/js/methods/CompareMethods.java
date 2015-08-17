@@ -1,10 +1,5 @@
 package org.obiba.magma.js.methods;
 
-import javax.annotation.Nullable;
-
-import org.mozilla.javascript.Context;
-import org.mozilla.javascript.Function;
-import org.mozilla.javascript.Scriptable;
 import org.obiba.magma.Value;
 import org.obiba.magma.js.MagmaJsEvaluationRuntimeException;
 import org.obiba.magma.js.ScriptableValue;
@@ -37,7 +32,7 @@ public class CompareMethods {
    * @throws MagmaJsEvaluationRuntimeException if operands are not ScriptableValue Objects of a numeric type,
    * BooleanType or TextType. Also thrown if operands are null.
    */
-  public static ScriptableValue compare(Context ctx, Scriptable thisObj, Object[] args, @Nullable Function funObj)
+  public static ScriptableValue compare(ScriptableValue thisObj, Object[] args)
       throws MagmaJsEvaluationRuntimeException {
     ScriptableValue firstOperand = (ScriptableValue) thisObj;
     if(firstOperand.getValue().isNull()) {
@@ -64,65 +59,65 @@ public class CompareMethods {
         "Cannot invoke compare() with null argument or argument that is not a ScriptableValue.");
   }
 
-  private static ScriptableValue numericCompare(Scriptable thisObj, ScriptableValue firstOperand,
+  private static ScriptableValue numericCompare(ScriptableValue thisObj, ScriptableValue firstOperand,
       ScriptableValue secondOperand) {
     Value firstOperandValue = firstOperand.getValue();
     Value secondOperandValue = secondOperand.getValue();
     if(firstOperandValue.isNull() && secondOperandValue.isNull()) {
-      return new ScriptableValue(thisObj, IntegerType.get().valueOf(0));
+      return new ScriptableValue(IntegerType.get().valueOf(0));
     }
     if(firstOperandValue.isNull()) {
-      return new ScriptableValue(thisObj, IntegerType.get().valueOf(-1));
+      return new ScriptableValue(IntegerType.get().valueOf(-1));
     }
     if(secondOperandValue.isNull()) {
-      return new ScriptableValue(thisObj, IntegerType.get().valueOf(1));
+      return new ScriptableValue(IntegerType.get().valueOf(1));
     }
     Number firstNumber = (Number) firstOperandValue.getValue();
     Number secondNumber = (Number) secondOperandValue.getValue();
     if(firstOperand.getValueType().equals(IntegerType.get()) &&
         secondOperand.getValueType().equals(IntegerType.get())) {
-      return new ScriptableValue(thisObj,
+      return new ScriptableValue(
           IntegerType.get().valueOf(((Long) firstNumber).compareTo((Long) secondNumber)));
     }
     if(firstOperand.getValueType().equals(IntegerType.get()) &&
         secondOperand.getValueType().equals(DecimalType.get())) {
-      return new ScriptableValue(thisObj,
+      return new ScriptableValue(
           IntegerType.get().valueOf(Double.compare(firstNumber.doubleValue(), (Double) secondNumber)));
     }
     if(firstOperand.getValueType().equals(DecimalType.get()) &&
         secondOperand.getValueType().equals(IntegerType.get())) {
-      return new ScriptableValue(thisObj,
+      return new ScriptableValue(
           IntegerType.get().valueOf(Double.compare((Double) firstNumber, secondNumber.doubleValue())));
     }
-    return new ScriptableValue(thisObj,
+    return new ScriptableValue(
         IntegerType.get().valueOf(((Double) firstNumber).compareTo((Double) secondNumber)));
   }
 
-  private static ScriptableValue booleanCompare(Scriptable thisObj, ScriptableValue firstOperand,
+  private static ScriptableValue booleanCompare(ScriptableValue thisObj, ScriptableValue firstOperand,
       ScriptableValue secondOperand) {
     Value firstOperandValue = firstOperand.getValue();
     Boolean firstBoolean = firstOperandValue.isNull() ? Boolean.FALSE : (Boolean) firstOperandValue.getValue();
     Value secondOperandValue = secondOperand.getValue();
     Boolean secondBoolean = secondOperandValue.isNull() ? Boolean.FALSE : (Boolean) secondOperandValue.getValue();
-    return new ScriptableValue(thisObj, IntegerType.get().valueOf(firstBoolean.compareTo(secondBoolean)));
+    return new ScriptableValue(IntegerType.get().valueOf(firstBoolean.compareTo(secondBoolean)));
   }
 
-  private static ScriptableValue textCompare(Scriptable thisObj, ScriptableValue firstOperand,
+  private static ScriptableValue textCompare(ScriptableValue thisObj, ScriptableValue firstOperand,
       ScriptableValue secondOperand) {
     Value firstOperandValue = firstOperand.getValue();
     Value secondOperandValue = secondOperand.getValue();
     if(firstOperandValue.isNull() && secondOperandValue.isNull()) {
-      return new ScriptableValue(thisObj, IntegerType.get().valueOf(0));
+      return new ScriptableValue(IntegerType.get().valueOf(0));
     }
     if(firstOperandValue.isNull()) {
-      return new ScriptableValue(thisObj, IntegerType.get().valueOf(-1));
+      return new ScriptableValue(IntegerType.get().valueOf(-1));
     }
     if(secondOperandValue.isNull()) {
-      return new ScriptableValue(thisObj, IntegerType.get().valueOf(1));
+      return new ScriptableValue(IntegerType.get().valueOf(1));
     }
     String firstString = (String) firstOperandValue.getValue();
     String secondString = (String) secondOperandValue.getValue();
-    return new ScriptableValue(thisObj, IntegerType.get().valueOf(firstString.compareTo(secondString)));
+    return new ScriptableValue(IntegerType.get().valueOf(firstString.compareTo(secondString)));
   }
 
   /**
@@ -139,7 +134,7 @@ public class CompareMethods {
    * @throws MagmaJsEvaluationRuntimeException if operands are not ScriptableValue Objects of TextType. Also thrown if
    * operands are null.
    */
-  public static ScriptableValue compareNoCase(Context ctx, Scriptable thisObj, Object[] args, @Nullable Function funObj)
+  public static ScriptableValue compareNoCase(ScriptableValue thisObj, Object[] args)
       throws MagmaJsEvaluationRuntimeException {
     ScriptableValue firstOperand = (ScriptableValue) thisObj;
     Value firstOperandValue = firstOperand.getValue();
@@ -153,7 +148,7 @@ public class CompareMethods {
         String firstString = (String) firstOperandValue.getValue();
         Value secondOperandValue = secondOperand.getValue();
         String secondString = secondOperandValue.isNull() ? null : (String) secondOperandValue.getValue();
-        return new ScriptableValue(thisObj, IntegerType.get().valueOf(firstString.compareToIgnoreCase(secondString)));
+        return new ScriptableValue(IntegerType.get().valueOf(firstString.compareToIgnoreCase(secondString)));
       }
       throw new MagmaJsEvaluationRuntimeException(
           "Cannot invoke compareNoCase() with arguments of type '" + firstOperand.getValueType().getName() +

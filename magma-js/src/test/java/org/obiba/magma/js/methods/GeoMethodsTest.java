@@ -33,7 +33,7 @@ public class GeoMethodsTest extends AbstractJsTest {
     ScriptableValue scriptableValue = newValue(value);
 
     ScriptableValue longitude = GeoMethods
-        .longitude(Context.getCurrentContext(), scriptableValue, new Object[] { }, null);
+        .longitude(scriptableValue, new Object[] { });
     assertThat(longitude.getValue().isNull()).isFalse();
     assertThat((DecimalType) longitude.getValue().getValueType()).isEqualTo(DecimalType.get());
     assertThat((Double) longitude.getValue().getValue()).isEqualTo(-112.6185);
@@ -45,7 +45,7 @@ public class GeoMethodsTest extends AbstractJsTest {
     ScriptableValue scriptableValue = newValue(value);
 
     ScriptableValue latitude = GeoMethods
-        .latitude(Context.getCurrentContext(), scriptableValue, new Object[] { }, null);
+        .latitude(scriptableValue, new Object[] { });
     assertThat(latitude.getValue().isNull()).isFalse();
     assertThat((DecimalType) latitude.getValue().getValueType()).isEqualTo(DecimalType.get());
     assertThat((Double) latitude.getValue().getValue()).isEqualTo(49.7167);
@@ -54,7 +54,7 @@ public class GeoMethodsTest extends AbstractJsTest {
   @Test(expected = MagmaRuntimeException.class)
   public void testStringLongitude() {
     ScriptableValue scriptableValue = newValue(ValueType.Factory.newValue("test"));
-    GeoMethods.longitude(Context.getCurrentContext(), scriptableValue, new Object[] { }, null);
+    GeoMethods.longitude(scriptableValue, new Object[] { });
   }
 
   @Test

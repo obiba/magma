@@ -2,9 +2,6 @@ package org.obiba.magma.js.methods;
 
 import javax.annotation.Nullable;
 
-import org.mozilla.javascript.Context;
-import org.mozilla.javascript.Function;
-import org.mozilla.javascript.Scriptable;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueSequence;
 import org.obiba.magma.ValueType;
@@ -38,11 +35,11 @@ public class ScriptableValueMethods {
    *   }
    * </pre>
    */
-  public static Object value(Context ctx, Scriptable thisObj, Object[] args, Function funObj) {
-    ScriptableValue sv = (ScriptableValue) thisObj;
+  public static Object value(ScriptableValue sv, Object[] args) {
     if(sv.getValue().isNull()) {
       return null;
     }
+
     return sv.getDefaultValue(null);
   }
 
@@ -55,29 +52,27 @@ public class ScriptableValueMethods {
    * <p/>
    * Performs a {@code ValueType} conversion and returns a new {@code ScriptableValue} of the requested type.
    */
-  public static ScriptableValue type(Context ctx, Scriptable thisObj, Object[] args, Function funObj) {
-    ScriptableValue sv = (ScriptableValue) thisObj;
+  public static ScriptableValue type(ScriptableValue sv, Object[] args) {
     ValueType valueType = sv.getValueType();
 
     // Return the ValueType name
     if(args.length == 0) {
-      return new ScriptableValue(thisObj, TextType.get().valueOf(valueType.getName()));
+      return new ScriptableValue(TextType.get().valueOf(valueType.getName()));
     }
     if(args.length > 1) {
       log.warn("{} extra parameters were passed to the javascript method. These will be ignored.", args.length - 1);
     }
     // Perform a ValueType conversion
-    return new ScriptableValue(thisObj, ValueType.Factory.forName(args[0].toString()).convert(sv.getValue()));
+    return new ScriptableValue(ValueType.Factory.forName(args[0].toString()).convert(sv.getValue()));
   }
 
   /**
    * Get the value length: length of the string representation (default) or number of bytes for a binary value.
    * If it is a sequence, a sequence of each value length is returned.
    */
-  public static ScriptableValue length(Context ctx, Scriptable thisObj, @Nullable Object[] args,
-      @Nullable Function funObj) {
-    ScriptableValue sv = (ScriptableValue) thisObj;
+  public static ScriptableValue length(ScriptableValue sv, @Nullable Object[] args) {
     Value value = sv.getValue();
+
     if(value.isSequence()) {
       ValueSequence valueSequence = value.asSequence();
       Value rval = valueSequence.isNull()
@@ -93,21 +88,22 @@ public class ScriptableValueMethods {
                       : IntegerType.get().valueOf(input.getLength());
                 }
               })));
-      return new ScriptableValue(sv, rval);
+      return new ScriptableValue(rval);
     }
+
     Value rval = value.isNull() ? IntegerType.get().nullValue() : IntegerType.get().valueOf(value.getLength());
-    return new ScriptableValue(thisObj, rval);
+
+    return new ScriptableValue(rval);
   }
 
   /**
    * Transform a Value into a ValueSequence
    */
-  public static ScriptableValue asSequence(Context cx, Scriptable thisObj, Object[] args, Function funObj) {
-    ScriptableValue sv = (ScriptableValue) thisObj;
+  public static ScriptableValue asSequence(ScriptableValue sv, Object[] args) {
     Value value = sv.getValue();
+
     return value.isSequence()
         ? sv
-        : new ScriptableValue(thisObj, value.getValueType().sequenceOf(Lists.newArrayList(value)));
+        : new ScriptableValue(value.getValueType().sequenceOf(Lists.newArrayList(value)));
   }
-
 }
