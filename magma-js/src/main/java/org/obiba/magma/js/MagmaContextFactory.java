@@ -1,99 +1,145 @@
 package org.obiba.magma.js;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Set;
 
+import javax.script.Bindings;
+import javax.script.ScriptContext;
+import javax.script.ScriptEngine;
 import javax.validation.constraints.NotNull;
 
-import org.mozilla.javascript.Context;
-import org.mozilla.javascript.ContextAction;
-import org.mozilla.javascript.ContextFactory;
-import org.mozilla.javascript.FunctionObject;
-import org.mozilla.javascript.Scriptable;
-import org.mozilla.javascript.ScriptableObject;
-import org.obiba.magma.Initialisable;
-import org.obiba.magma.js.methods.GlobalMethods;
-
+import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
+import jdk.nashorn.api.scripting.AbstractJSObject;
+import jdk.nashorn.api.scripting.NashornScriptEngineFactory;
+import org.obiba.magma.Initialisable;
+import org.obiba.magma.js.methods.GlobalMethods;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Creates instances of {@code MagmaContext}
  */
-public class MagmaContextFactory extends ContextFactory implements Initialisable {
+public class MagmaContextFactory implements Initialisable {
+  private static final Logger log = LoggerFactory.getLogger(MagmaContextFactory.class);
 
-  /**
-   * The global scope shared by all evaluated scripts. Should contain top-level functions and prototypes.
-   */
-  private ScriptableObject sharedScope;
+  static ScriptEngine engine;
 
-  @NotNull
-  private ScriptableValuePrototypeFactory scriptableValuePrototypeFactory = new ScriptableValuePrototypeFactory();
-
-  private final ScriptableVariablePrototypeFactory scriptableVariablePrototypeFactory
-      = new ScriptableVariablePrototypeFactory();
+  static NashornScriptEngineFactory factory;
 
   @NotNull
-  private Set<GlobalMethodProvider> globalMethodProviders = Collections.emptySet();
+  private static Set<GlobalMethodProvider> globalMethodProviders = Collections.emptySet();
 
-  @Override
-  protected Context makeContext() {
-    return new MagmaContext(this);
+  public static ScriptEngine getEngine() {
+    return engine;
   }
 
-  public ScriptableObject sharedScope() {
-    if(sharedScope == null) {
-      throw new MagmaJsRuntimeException(
-          "Shared scope not initialised. Make sure the MagmaJsExtension has been added to the MagmaEngine before evaluating scripts.");
+  private final static ThreadLocal<MagmaContext> magmaContext = new ThreadLocal<MagmaContext>() {
+    @Override
+    protected MagmaContext initialValue() {
+      MagmaContext ctx = new MagmaContext();
+      ctx.setBindings(engine.createBindings(), ScriptContext.GLOBAL_SCOPE);
+      initBindings(ctx, ctx.getBindings(ScriptContext.GLOBAL_SCOPE));
+
+      return ctx;
     }
-    return sharedScope;
+  };
+
+  private final static ThreadLocal<Scriptable> scriptableContext = new ThreadLocal<Scriptable>() { };
+
+  public static Scriptable getScriptableContext() {
+    return scriptableContext.get();
   }
 
-  public void setGlobalMethodProviders(@NotNull Collection<GlobalMethodProvider> globalMethodProviders) {
-    //noinspection ConstantConditions
+  private static void setScriptableContext(Scriptable value) {
+    scriptableContext.set(value);
+  }
+
+  private final static ThreadLocal<MagmaContext> scriptableValueContext = new ThreadLocal<MagmaContext>() {
+    @Override
+    protected MagmaContext initialValue() {
+      final MagmaContext context = new MagmaContext();
+      Bindings bindings = engine.createBindings();
+      context.setBindings(bindings, ScriptContext.GLOBAL_SCOPE);
+      initBindings(context, context.getBindings(ScriptContext.GLOBAL_SCOPE));
+      bindings.putAll(ScriptableValue.getMembers());
+
+      return context;
+    }
+  };
+
+  private final static ThreadLocal<MagmaContext> scriptableVariableContext = new ThreadLocal<MagmaContext>() {
+    @Override
+    protected MagmaContext initialValue() {
+      final MagmaContext context = new MagmaContext();
+      Bindings bindings = engine.createBindings();
+      context.setBindings(bindings, ScriptContext.GLOBAL_SCOPE);
+      initBindings(context, context.getBindings(ScriptContext.GLOBAL_SCOPE));
+      bindings.putAll(ScriptableVariable.getMembers());
+
+      return context;
+    }
+  };
+
+  public static void setGlobalMethodProviders(@NotNull Collection<GlobalMethodProvider> globalMethodProviders) {
     if(globalMethodProviders == null) throw new IllegalArgumentException("globalMethodProviders cannot be null");
-    this.globalMethodProviders = ImmutableSet.copyOf(globalMethodProviders);
+    MagmaContextFactory.globalMethodProviders = ImmutableSet.copyOf(globalMethodProviders);
   }
 
-  @NotNull
-  public ScriptableValuePrototypeFactory getScriptableValuePrototypeFactory() {
-    return scriptableValuePrototypeFactory;
+  public static MagmaContext createContext() {
+    return magmaContext.get();
   }
 
-  public void setScriptableValuePrototypeFactory(@NotNull ScriptableValuePrototypeFactory factory) {
-    //noinspection ConstantConditions
-    if(factory == null) throw new IllegalArgumentException("factory cannot be null");
-    scriptableValuePrototypeFactory = factory;
+  public static MagmaContext createContext(Scriptable value) {
+    MagmaContext context;
+
+    if(value instanceof ScriptableValue)
+      context = scriptableValueContext.get();
+    else if (value instanceof ScriptableVariable)
+      context = scriptableVariableContext.get();
+    else
+      throw new IllegalArgumentException("value");
+
+    setScriptableContext(value);
+
+    return context;
+  }
+
+  private static void initBindings(ScriptContext ctx, Bindings gb) {
+    Iterables.concat(Lists.newArrayList(new GlobalMethods()), globalMethodProviders).forEach(p -> {
+      Collection<Method> methods = p.getJavaScriptExtensionMethods();
+
+      for(final Method method : methods) {
+        gb.put(method.getName(), new AbstractJSObject() {
+          @Override
+          public Object call(Object thiz, Object... args) {
+            try {
+              return method.invoke(null, ctx, args);
+            } catch(IllegalAccessException | InvocationTargetException e) {
+              Throwables.propagateIfInstanceOf(e.getCause(), MagmaJsEvaluationRuntimeException.class);
+              throw Throwables.propagate(e);
+            }
+          }
+
+          @Override
+          public boolean isFunction() {
+            return true;
+          }
+        });
+      }
+    });
   }
 
   @Override
   public void initialise() {
-    sharedScope = (ScriptableObject) ContextFactory.getGlobal().call(new ContextAction() {
-      @Override
-      public Object run(Context cx) {
-        ScriptableObject scriptableObject = cx.initStandardObjects(null, true);
-
-        // Register Global methods
-        for(GlobalMethodProvider provider : Iterables
-            .concat(ImmutableSet.of(new GlobalMethods()), globalMethodProviders)) {
-          for(Method globalMethod : provider.getJavaScriptExtensionMethods()) {
-            String name = provider.getJavaScriptMethodName(globalMethod);
-            FunctionObject fo = new FunctionObject(name, globalMethod, scriptableObject);
-            scriptableObject.defineProperty(name, fo, ScriptableObject.DONTENUM);
-          }
-        }
-
-        Scriptable valuePrototype = scriptableValuePrototypeFactory.buildPrototype();
-        ScriptableObject.putProperty(scriptableObject, valuePrototype.getClassName(), valuePrototype);
-
-        Scriptable variablePrototype = scriptableVariablePrototypeFactory.buildPrototype();
-        ScriptableObject.putProperty(scriptableObject, variablePrototype.getClassName(), variablePrototype);
-
-        scriptableObject.sealObject();
-        return scriptableObject;
-      }
-    });
+    synchronized(this) {
+      factory = new NashornScriptEngineFactory();
+      engine = factory.getScriptEngine();
+    }
   }
 }

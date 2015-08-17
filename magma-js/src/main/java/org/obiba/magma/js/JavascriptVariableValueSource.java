@@ -1,12 +1,13 @@
 package org.obiba.magma.js;
 
+import java.util.Map;
 import java.util.SortedSet;
 
 import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 
-import org.mozilla.javascript.EvaluatorException;
-import org.mozilla.javascript.Scriptable;
+import com.google.common.base.Objects;
+import com.google.common.collect.Maps;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueSet;
 import org.obiba.magma.ValueTable;
@@ -17,8 +18,6 @@ import org.obiba.magma.support.ValueTableWrapper;
 import org.obiba.magma.views.View;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.base.Objects;
 
 import static org.obiba.magma.js.JavascriptVariableBuilder.SCRIPT_ATTRIBUTE_NAME;
 
@@ -88,17 +87,36 @@ public class JavascriptVariableValueSource extends JavascriptValueSource impleme
   }
 
   @Override
+  protected Map<Object, Object> getShared() {
+    Map<Object, Object> shared = Maps.newHashMap();
+
+    if (valueTable != null) {
+      shared.put(ValueTable.class, getValueTable());
+
+      if(valueTable.isView() && valueTable instanceof View) {
+        shared.put(View.class, valueTable);
+      }
+    }
+
+    shared.put(Variable.class, variable);
+
+    return shared;
+  }
+
+  @Override
   public Iterable<Value> getValues(SortedSet<VariableEntity> entities) {
     validateScript();
+
     return super.getValues(entities);
   }
 
-  public void validateScript() throws EvaluatorException {
+  public void validateScript() {
     if (valueTable == null) {
       log.trace("Validate {} script", variable.getName());
       initialiseIfNot();
     } else {
       Value tableLastUpdate = valueTable.getTimestamps().getLastUpdate();
+
       if(lastScriptValidation == null || !lastScriptValidation.equals(tableLastUpdate)) {
         log.trace("Validate {} script", variable.getName());
         initialiseIfNot();
@@ -109,30 +127,6 @@ public class JavascriptVariableValueSource extends JavascriptValueSource impleme
         log.trace("Skip {} script validation", variable.getName());
       }
     }
-  }
-
-  @Override
-  protected void enterContext(MagmaContext context, Scriptable scope) {
-    super.enterContext(context, scope);
-    if (valueTable != null) {
-      context.push(ValueTable.class, getValueTable());
-      if(valueTable.isView() && valueTable instanceof View) {
-        context.push(View.class, (View) valueTable);
-      }
-    }
-    context.push(Variable.class, variable);
-  }
-
-  @Override
-  protected void exitContext(MagmaContext context) {
-    super.exitContext(context);
-    if (valueTable != null) {
-      context.pop(ValueTable.class);
-      if(valueTable.isView()) {
-        context.pop(View.class);
-      }
-    }
-    context.pop(Variable.class);
   }
 
   @Override
@@ -147,5 +141,4 @@ public class JavascriptVariableValueSource extends JavascriptValueSource impleme
     JavascriptVariableValueSource other = (JavascriptVariableValueSource) obj;
     return Objects.equal(variable, other.variable) && Objects.equal(valueTable, other.valueTable);
   }
-
 }

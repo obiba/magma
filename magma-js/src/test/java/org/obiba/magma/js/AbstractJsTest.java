@@ -1,20 +1,19 @@
 package org.obiba.magma.js;
 
 import javax.annotation.Nullable;
+import javax.script.Compilable;
+import javax.script.CompiledScript;
+import javax.script.ScriptException;
 
 import org.junit.After;
 import org.junit.Before;
-import org.mozilla.javascript.Context;
-import org.mozilla.javascript.ContextAction;
-import org.mozilla.javascript.ContextFactory;
-import org.mozilla.javascript.Script;
-import org.mozilla.javascript.Scriptable;
-import org.mozilla.javascript.WrappedException;
 import org.obiba.magma.MagmaEngine;
 import org.obiba.magma.Value;
 import org.obiba.magma.Variable;
 import org.obiba.magma.type.DecimalType;
 import org.obiba.magma.type.IntegerType;
+
+import com.google.common.base.Throwables;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 
@@ -26,12 +25,10 @@ public abstract class AbstractJsTest {
   public void before() {
     MagmaEngine.get().shutdown();
     newEngine().extend(new MagmaJsExtension());
-    Context.enter();
   }
 
   @After
   public void after() {
-    Context.exit();
     shutdownEngine();
   }
 
@@ -40,11 +37,7 @@ public abstract class AbstractJsTest {
   }
 
   protected MagmaContext getMagmaContext() {
-    return MagmaContext.asMagmaContext(Context.getCurrentContext());
-  }
-
-  protected Scriptable getSharedScope() {
-    return getMagmaContext().sharedScope();
+    return new MagmaContext();
   }
 
   protected MagmaEngine newEngine() {
@@ -52,7 +45,7 @@ public abstract class AbstractJsTest {
   }
 
   protected ScriptableValue newValue(Value value, @Nullable String unit) {
-    return new ScriptableValue(getSharedScope(), value, unit);
+    return new ScriptableValue(value, unit);
   }
 
   protected ScriptableValue newValue(Value value) {
@@ -60,18 +53,15 @@ public abstract class AbstractJsTest {
   }
 
   protected Object evaluate(final String script, final Variable variable) {
-    return ContextFactory.getGlobal().call(new ContextAction() {
-      @Override
-      public Object run(Context ctx) {
-        MagmaContext context = MagmaContext.asMagmaContext(ctx);
-        // Don't pollute the global scope
-        Scriptable scope = new ScriptableVariable(context.newLocalScope(), variable);
+    ScriptableVariable scope = new ScriptableVariable(variable);
+    CompiledScript compiledScript;
 
-        Script compiledScript = context.compileString(script, "", 1, null);
-
-        return compiledScript.exec(ctx, scope);
-      }
-    });
+    try {
+      compiledScript = ((Compilable) MagmaContextFactory.getEngine()).compile(script);
+      return compiledScript.eval(MagmaContextFactory.createContext(scope));
+    } catch(ScriptException e) {
+      throw Throwables.propagate(e);
+    }
   }
 
   protected ScriptableValue evaluate(String script, Value value) {
@@ -79,23 +69,13 @@ public abstract class AbstractJsTest {
   }
 
   protected ScriptableValue evaluate(final String script, final Value value, @Nullable final String unit) {
+    MagmaContext context = MagmaContextFactory.createContext(newValue(value, unit));
+
     try {
-      return (ScriptableValue) ContextFactory.getGlobal().call(new ContextAction() {
-        @Override
-        public Object run(Context ctx) {
-          MagmaContext context = MagmaContext.asMagmaContext(ctx);
-          // Don't pollute the global scope
-          Scriptable scope = newValue(value, unit);
-          Script compiledScript = context.compileString(script, "", 1, null);
-          return compiledScript.exec(ctx, scope);
-        }
-      });
-    } catch(WrappedException e) {
-      Throwable cause = e.getWrappedException();
-      if(cause instanceof RuntimeException) {
-        throw (RuntimeException) cause;
-      }
-      throw new RuntimeException(cause);
+      CompiledScript compiledScript = ((Compilable) MagmaContextFactory.getEngine()).compile(script);
+      return (ScriptableValue) compiledScript.eval(context);
+    } catch(ScriptException e) {
+      throw Throwables.propagate(e);
     }
   }
 

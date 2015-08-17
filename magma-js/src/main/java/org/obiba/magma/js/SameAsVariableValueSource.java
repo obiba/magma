@@ -35,5 +35,4 @@ public class SameAsVariableValueSource extends JavascriptVariableValueSource {
     Variable derived = super.getVariable();
     return Variable.Builder.sameAs(original).overrideWith(derived).build();
   }
-
 }

@@ -2,8 +2,6 @@ package org.obiba.magma.js.methods;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.mozilla.javascript.NativeObject;
-import org.mozilla.javascript.ScriptableObject;
 import org.obiba.magma.ValueSet;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.Variable;
@@ -16,6 +14,7 @@ import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.verify;
 import static org.fest.assertions.api.Assertions.assertThat;
 
+
 public class ScriptableVariableMethodsTest extends AbstractJsTest {
 
   @Before
@@ -26,21 +25,6 @@ public class ScriptableVariableMethodsTest extends AbstractJsTest {
     expect(mockValueSet.getValueTable()).andReturn(createMock(ValueTable.class)).anyTimes();
     expect(mockValueSet.getVariableEntity()).andReturn(createMock(VariableEntity.class)).anyTimes();
     replay(mockValueSet);
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void testDefineMethodsForNull() {
-    ScriptableVariableMethods.defineMethods(null);
-  }
-
-  @Test
-  public void defineMethodsForDefinedness() {
-    ScriptableObject prototype = new NativeObject();
-    ScriptableObject actual = ScriptableVariableMethods.defineMethods(prototype);
-    prototype
-        .defineFunctionProperties(new String[] { "name", "attribute", "repeatable" }, ScriptableVariableMethods.class,
-            ScriptableObject.DONTENUM);
-    assertThat(actual).isEqualTo(prototype);
   }
 
   @Test(expected = IllegalArgumentException.class)

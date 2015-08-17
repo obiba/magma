@@ -5,10 +5,8 @@ import java.util.Collections;
 
 import javax.annotation.Nullable;
 
+import jdk.nashorn.api.scripting.AbstractJSObject;
 import org.junit.Test;
-import org.mozilla.javascript.Context;
-import org.mozilla.javascript.FunctionObject;
-import org.mozilla.javascript.Scriptable;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueSequence;
 import org.obiba.magma.js.AbstractJsTest;
@@ -28,7 +26,7 @@ public class ValueSequenceMethodsTest extends AbstractJsTest {
   public void testFirstOfOne() throws Exception {
     ValueSequence valueSequence = TextType.get().sequenceOf("A");
     ScriptableValue scriptableValue = newValue(valueSequence);
-    ScriptableValue result = ValueSequenceMethods.first(Context.getCurrentContext(), scriptableValue, null, null);
+    ScriptableValue result = ValueSequenceMethods.first(scriptableValue, null);
     assertThat(result.getValue()).isEqualTo(valueSequence.get(0));
   }
 
@@ -36,7 +34,7 @@ public class ValueSequenceMethodsTest extends AbstractJsTest {
   public void testFirstOfTwo() throws Exception {
     ValueSequence valueSequence = TextType.get().sequenceOf("\"A\", \"B\"");
     ScriptableValue scriptableValue = newValue(valueSequence);
-    ScriptableValue result = ValueSequenceMethods.first(Context.getCurrentContext(), scriptableValue, null, null);
+    ScriptableValue result = ValueSequenceMethods.first(scriptableValue, null);
     assertThat(result.getValue()).isEqualTo(valueSequence.get(0));
   }
 
@@ -44,14 +42,14 @@ public class ValueSequenceMethodsTest extends AbstractJsTest {
   public void testFirstOnNonSequence() throws Exception {
     Value value = TextType.get().valueOf("A-Value");
     ScriptableValue scriptableValue = newValue(value);
-    ScriptableValue result = ValueSequenceMethods.first(Context.getCurrentContext(), scriptableValue, null, null);
+    ScriptableValue result = ValueSequenceMethods.first(scriptableValue, null);
     assertThat(result.getValue()).isEqualTo(value);
   }
 
   @Test
   public void testFirstOnNullOperand() throws Exception {
     ScriptableValue scriptableValue = newValue(TextType.get().nullValue());
-    ScriptableValue result = ValueSequenceMethods.first(Context.getCurrentContext(), scriptableValue, null, null);
+    ScriptableValue result = ValueSequenceMethods.first(scriptableValue, null);
     assertThat(result.getValue()).isEqualTo(scriptableValue.getValue());
   }
 
@@ -59,7 +57,7 @@ public class ValueSequenceMethodsTest extends AbstractJsTest {
   public void testFirstOfNone() throws Exception {
     ValueSequence valueSequence = TextType.get().sequenceOf(new ArrayList<Value>());
     ScriptableValue scriptableValue = newValue(valueSequence);
-    ScriptableValue result = ValueSequenceMethods.first(Context.getCurrentContext(), scriptableValue, null, null);
+    ScriptableValue result = ValueSequenceMethods.first(scriptableValue, null);
     assertThat(result.getValue()).isEqualTo(TextType.get().nullValue());
   }
 
@@ -69,7 +67,7 @@ public class ValueSequenceMethodsTest extends AbstractJsTest {
   public void testLastOfOne() throws Exception {
     ValueSequence valueSequence = TextType.get().sequenceOf("A");
     ScriptableValue scriptableValue = newValue(valueSequence);
-    ScriptableValue result = ValueSequenceMethods.last(Context.getCurrentContext(), scriptableValue, null, null);
+    ScriptableValue result = ValueSequenceMethods.last(scriptableValue, null);
     assertThat(result.getValue()).isEqualTo(valueSequence.get(0));
   }
 
@@ -77,7 +75,7 @@ public class ValueSequenceMethodsTest extends AbstractJsTest {
   public void testLastOfTwo() throws Exception {
     ValueSequence valueSequence = TextType.get().sequenceOf("\"A\", \"B\"");
     ScriptableValue scriptableValue = newValue(valueSequence);
-    ScriptableValue result = ValueSequenceMethods.last(Context.getCurrentContext(), scriptableValue, null, null);
+    ScriptableValue result = ValueSequenceMethods.last(scriptableValue, null);
     assertThat(result.getValue()).isEqualTo(valueSequence.get(1));
   }
 
@@ -85,14 +83,14 @@ public class ValueSequenceMethodsTest extends AbstractJsTest {
   public void testLastOnNonSequence() throws Exception {
     Value value = TextType.get().valueOf("A-Value");
     ScriptableValue scriptableValue = newValue(value);
-    ScriptableValue result = ValueSequenceMethods.last(Context.getCurrentContext(), scriptableValue, null, null);
+    ScriptableValue result = ValueSequenceMethods.last(scriptableValue, null);
     assertThat(result.getValue()).isEqualTo(value);
   }
 
   @Test
   public void testLastOnNullOperand() throws Exception {
     ScriptableValue scriptableValue = newValue(TextType.get().nullValue());
-    ScriptableValue result = ValueSequenceMethods.last(Context.getCurrentContext(), scriptableValue, null, null);
+    ScriptableValue result = ValueSequenceMethods.last(scriptableValue, null);
     assertThat(result.getValue()).isEqualTo(scriptableValue.getValue());
   }
 
@@ -100,7 +98,7 @@ public class ValueSequenceMethodsTest extends AbstractJsTest {
   public void testLastOfNone() throws Exception {
     ValueSequence valueSequence = TextType.get().sequenceOf(new ArrayList<Value>());
     ScriptableValue scriptableValue = newValue(valueSequence);
-    ScriptableValue result = ValueSequenceMethods.last(Context.getCurrentContext(), scriptableValue, null, null);
+    ScriptableValue result = ValueSequenceMethods.last(scriptableValue, null);
     assertThat(result.getValue()).isEqualTo(TextType.get().nullValue());
   }
 
@@ -110,7 +108,7 @@ public class ValueSequenceMethodsTest extends AbstractJsTest {
   public void testSizeOfOne() throws Exception {
     ValueSequence valueSequence = TextType.get().sequenceOf("A");
     ScriptableValue scriptableValue = newValue(valueSequence);
-    ScriptableValue result = ValueSequenceMethods.size(Context.getCurrentContext(), scriptableValue, null, null);
+    ScriptableValue result = ValueSequenceMethods.size(scriptableValue, null);
     assertThat(result.getValue()).isEqualTo(IntegerType.get().valueOf(valueSequence.getSize()));
   }
 
@@ -118,7 +116,7 @@ public class ValueSequenceMethodsTest extends AbstractJsTest {
   public void testSizeOfTwo() throws Exception {
     ValueSequence valueSequence = TextType.get().sequenceOf("\"A\", \"B\"");
     ScriptableValue scriptableValue = newValue(valueSequence);
-    ScriptableValue result = ValueSequenceMethods.size(Context.getCurrentContext(), scriptableValue, null, null);
+    ScriptableValue result = ValueSequenceMethods.size(scriptableValue, null);
     assertThat(result.getValue()).isEqualTo(IntegerType.get().valueOf(valueSequence.getSize()));
   }
 
@@ -126,14 +124,14 @@ public class ValueSequenceMethodsTest extends AbstractJsTest {
   public void testSizeOnNonSequence() throws Exception {
     Value value = TextType.get().valueOf("A-Value");
     ScriptableValue scriptableValue = newValue(value);
-    ScriptableValue result = ValueSequenceMethods.size(Context.getCurrentContext(), scriptableValue, null, null);
+    ScriptableValue result = ValueSequenceMethods.size(scriptableValue, null);
     assertThat(result.getValue()).isEqualTo(IntegerType.get().valueOf(1));
   }
 
   @Test
   public void testSizeOnNullOperand() throws Exception {
     ScriptableValue scriptableValue = newValue(TextType.get().nullValue());
-    ScriptableValue result = ValueSequenceMethods.size(Context.getCurrentContext(), scriptableValue, null, null);
+    ScriptableValue result = ValueSequenceMethods.size(scriptableValue, null);
     assertThat(result.getValue()).isEqualTo(IntegerType.get().nullValue());
   }
 
@@ -141,7 +139,7 @@ public class ValueSequenceMethodsTest extends AbstractJsTest {
   public void testSizeOfNone() throws Exception {
     ValueSequence valueSequence = TextType.get().sequenceOf(new ArrayList<Value>());
     ScriptableValue scriptableValue = newValue(valueSequence);
-    ScriptableValue result = ValueSequenceMethods.size(Context.getCurrentContext(), scriptableValue, null, null);
+    ScriptableValue result = ValueSequenceMethods.size(scriptableValue, null);
     assertThat(result.getValue()).isEqualTo(IntegerType.get().valueOf(valueSequence.getSize()));
   }
 
@@ -152,7 +150,7 @@ public class ValueSequenceMethodsTest extends AbstractJsTest {
     ValueSequence valueSequence = TextType.get().sequenceOf("\"A\", \"B\"");
     ScriptableValue scriptableValue = newValue(valueSequence);
     ScriptableValue result = ValueSequenceMethods
-        .valueAt(Context.getCurrentContext(), scriptableValue, new Object[] { 0 }, null);
+        .valueAt(scriptableValue, new Object[] { 0 });
     assertThat(result.getValue()).isEqualTo(valueSequence.get(0));
   }
 
@@ -161,7 +159,7 @@ public class ValueSequenceMethodsTest extends AbstractJsTest {
     ValueSequence valueSequence = TextType.get().sequenceOf("\"A\", \"B\"");
     ScriptableValue scriptableValue = newValue(valueSequence);
     ScriptableValue result = ValueSequenceMethods
-        .valueAt(Context.getCurrentContext(), scriptableValue, new Object[] { 1 }, null);
+        .valueAt(scriptableValue, new Object[] { 1 });
     assertThat(result.getValue()).isEqualTo(valueSequence.get(1));
   }
 
@@ -170,7 +168,7 @@ public class ValueSequenceMethodsTest extends AbstractJsTest {
     ValueSequence valueSequence = TextType.get().sequenceOf("\"A\", \"B\"");
     ScriptableValue scriptableValue = newValue(valueSequence);
     ScriptableValue result = ValueSequenceMethods
-        .valueAt(Context.getCurrentContext(), scriptableValue, new Object[] { 2 }, null);
+        .valueAt(scriptableValue, new Object[] { 2 });
     assertThat(result.getValue()).isEqualTo(TextType.get().nullValue());
   }
 
@@ -179,7 +177,7 @@ public class ValueSequenceMethodsTest extends AbstractJsTest {
     ValueSequence valueSequence = TextType.get().sequenceOf("\"A\", \"B\"");
     ScriptableValue scriptableValue = newValue(valueSequence);
     ScriptableValue result = ValueSequenceMethods
-        .valueAt(Context.getCurrentContext(), scriptableValue, new Object[] { "One" }, null);
+        .valueAt(scriptableValue, new Object[] { "One" });
     assertThat(result.getValue()).isEqualTo(TextType.get().nullValue());
   }
 
@@ -188,7 +186,7 @@ public class ValueSequenceMethodsTest extends AbstractJsTest {
     ValueSequence valueSequence = TextType.get().nullSequence();
     ScriptableValue scriptableValue = newValue(valueSequence);
     ScriptableValue result = ValueSequenceMethods
-        .valueAt(Context.getCurrentContext(), scriptableValue, new Object[] { 2 }, null);
+        .valueAt(scriptableValue, new Object[] { 2 });
     assertThat(result.getValue()).isEqualTo(TextType.get().nullValue());
   }
 
@@ -198,7 +196,7 @@ public class ValueSequenceMethodsTest extends AbstractJsTest {
   public void testSortTextNaturalOrder() throws Exception {
     ValueSequence valueSequence = TextType.get().sequenceOf("\"D\", \"C\", \"A\", \"B\"");
     ScriptableValue scriptableValue = newValue(valueSequence);
-    valueSequence = ValueSequenceMethods.sort(Context.getCurrentContext(), scriptableValue, null, null).getValue()
+    valueSequence = ValueSequenceMethods.sort(scriptableValue, null).getValue()
         .asSequence();
     assertThat(valueSequence.getValues().get(0)).isEqualTo(TextType.get().valueOf("A"));
     assertThat(valueSequence.getValues().get(1)).isEqualTo(TextType.get().valueOf("B"));
@@ -210,7 +208,7 @@ public class ValueSequenceMethodsTest extends AbstractJsTest {
   public void testSortIntegerNaturalOrder() throws Exception {
     ValueSequence valueSequence = IntegerType.get().sequenceOf("4,3,1,2");
     ScriptableValue scriptableValue = newValue(valueSequence);
-    valueSequence = ValueSequenceMethods.sort(Context.getCurrentContext(), scriptableValue, null, null).getValue()
+    valueSequence = ValueSequenceMethods.sort(scriptableValue, null).getValue()
         .asSequence();
     assertThat(valueSequence.getValues().get(0)).isEqualTo(IntegerType.get().valueOf(1));
     assertThat(valueSequence.getValues().get(1)).isEqualTo(IntegerType.get().valueOf(2));
@@ -223,11 +221,21 @@ public class ValueSequenceMethodsTest extends AbstractJsTest {
     ValueSequence valueSequence = IntegerType.get().sequenceOf("4,3,1,2");
 
     MyScriptableValueCustomSortDesc scriptableValue = newValueDesc(valueSequence);
-    FunctionObject funObj = new FunctionObject("sort",
-        scriptableValue.getClass().getMethod("sort", new Class[] { ScriptableValue.class, ScriptableValue.class }),
-        scriptableValue);
+    AbstractJSObject funObj = new AbstractJSObject() {
+      @Override
+      public Object call(Object var1, Object... var2) {
+        return scriptableValue.sort((ScriptableValue) var2[0], (ScriptableValue) var2[1]);
+      }
+
+      @Override
+      public boolean isFunction() {
+        return true;
+      }
+    };
+
     valueSequence = ValueSequenceMethods
-        .sort(Context.getCurrentContext(), scriptableValue, new Object[] { funObj }, null).getValue().asSequence();
+        .sort(scriptableValue, new Object[] { funObj }).getValue().asSequence();
+
     assertThat(valueSequence.getValues().get(0)).isEqualTo(IntegerType.get().valueOf(4));
     assertThat(valueSequence.getValues().get(1)).isEqualTo(IntegerType.get().valueOf(3));
     assertThat(valueSequence.getValues().get(2)).isEqualTo(IntegerType.get().valueOf(2));
@@ -237,13 +245,21 @@ public class ValueSequenceMethodsTest extends AbstractJsTest {
   @Test
   public void testSortIntegerAscendingUsingSortFunction() throws Exception {
     ValueSequence valueSequence = IntegerType.get().sequenceOf("4,3,1,2");
-
     MyScriptableValueCustomSortAsc scriptableValue = newValueAsc(valueSequence);
-    FunctionObject funObj = new FunctionObject("sort",
-        scriptableValue.getClass().getMethod("sort", new Class[] { ScriptableValue.class, ScriptableValue.class }),
-        scriptableValue);
-    valueSequence = ValueSequenceMethods
-        .sort(Context.getCurrentContext(), scriptableValue, new Object[] { funObj }, null).getValue().asSequence();
+    AbstractJSObject funObj = new AbstractJSObject() {
+      @Override
+      public Object call(Object var1, Object... var2) {
+        return scriptableValue.sort((ScriptableValue) var2[0], (ScriptableValue) var2[1]);
+      }
+
+      @Override
+      public boolean isFunction() {
+        return true;
+      }
+    };
+    valueSequence = ValueSequenceMethods.sort(
+        scriptableValue, new Object[] { funObj }).getValue().asSequence();
+
     assertThat(valueSequence.getValues().get(0)).isEqualTo(IntegerType.get().valueOf(1));
     assertThat(valueSequence.getValues().get(1)).isEqualTo(IntegerType.get().valueOf(2));
     assertThat(valueSequence.getValues().get(2)).isEqualTo(IntegerType.get().valueOf(3));
@@ -416,7 +432,6 @@ public class ValueSequenceMethodsTest extends AbstractJsTest {
       assertThat(result.getValue().getValue()).isEqualTo(expectedSum);
     }
   }
-
   // push
 
   @Test
@@ -571,8 +586,8 @@ public class ValueSequenceMethodsTest extends AbstractJsTest {
   @SuppressWarnings("serial")
   private static class MyScriptableValueCustomSortAsc extends ScriptableValue {
 
-    private MyScriptableValueCustomSortAsc(Scriptable scope, Value value) {
-      super(scope, value);
+    private MyScriptableValueCustomSortAsc(Value value) {
+      super(value);
     }
 
     public int sort(ScriptableValue value1, ScriptableValue value2) {
@@ -583,8 +598,8 @@ public class ValueSequenceMethodsTest extends AbstractJsTest {
   @SuppressWarnings("serial")
   private static class MyScriptableValueCustomSortDesc extends ScriptableValue {
 
-    private MyScriptableValueCustomSortDesc(Scriptable scope, Value value) {
-      super(scope, value);
+    private MyScriptableValueCustomSortDesc(Value value) {
+      super(value);
     }
 
     public int sort(ScriptableValue value1, ScriptableValue value2) {
@@ -593,10 +608,10 @@ public class ValueSequenceMethodsTest extends AbstractJsTest {
   }
 
   private MyScriptableValueCustomSortAsc newValueAsc(Value value) {
-    return new MyScriptableValueCustomSortAsc(getSharedScope(), value);
+    return new MyScriptableValueCustomSortAsc(value);
   }
 
   private MyScriptableValueCustomSortDesc newValueDesc(Value value) {
-    return new MyScriptableValueCustomSortDesc(getSharedScope(), value);
+    return new MyScriptableValueCustomSortDesc(value);
   }
 }

@@ -1,17 +1,17 @@
 package org.obiba.magma.js.methods;
 
 import org.junit.Test;
-import org.mozilla.javascript.NativeArray;
 import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueSequence;
 import org.obiba.magma.js.AbstractJsTest;
+import org.obiba.magma.js.MagmaContext;
+import org.obiba.magma.js.MagmaContextFactory;
 import org.obiba.magma.js.ScriptableValue;
 import org.obiba.magma.type.IntegerType;
 import org.obiba.magma.type.TextType;
 
 import static org.fest.assertions.api.Assertions.assertThat;
-import static org.mozilla.javascript.Context.getCurrentContext;
 
 public class GlobalMethodsTest extends AbstractJsTest {
 
@@ -19,7 +19,7 @@ public class GlobalMethodsTest extends AbstractJsTest {
 
   @Test
   public void test_newValue_inferred_int() throws Exception {
-    ScriptableValue sv = GlobalMethods.newValue(getCurrentContext(), getSharedScope(), new Object[] { 1 }, null);
+    ScriptableValue sv = GlobalMethods.newValue(MagmaContextFactory.createContext(), new Object[] { 1 });
     assertThat(sv.getValue().isNull()).isFalse();
     assertThat(sv.getValue().isSequence()).isFalse();
     assertThat((IntegerType) sv.getValueType()).isEqualTo(IntegerType.get());
@@ -29,7 +29,7 @@ public class GlobalMethodsTest extends AbstractJsTest {
   @Test
   public void test_newValue_int() throws Exception {
     ScriptableValue sv = GlobalMethods
-        .newValue(getCurrentContext(), getSharedScope(), new Object[] { "1", "integer" }, null);
+        .newValue(MagmaContextFactory.createContext(), new Object[] { "1", "integer" });
     assertThat(sv.getValue().isNull()).isFalse();
     assertThat(sv.getValue().isSequence()).isFalse();
     assertThat((IntegerType) sv.getValueType()).isEqualTo(IntegerType.get());
@@ -38,18 +38,19 @@ public class GlobalMethodsTest extends AbstractJsTest {
 
   @Test(expected = MagmaRuntimeException.class)
   public void test_newValue_wrong_type() throws Exception {
-    GlobalMethods.newValue(getCurrentContext(), getSharedScope(), new Object[] { "qwerty", "integer" }, null);
+    GlobalMethods.newValue(MagmaContextFactory.createContext(), new Object[] { "qwerty", "integer" });
   }
 
   @Test
   public void test_newSequence_int() throws Exception {
+    Object tmp = MagmaContextFactory.getEngine().eval("[1, 2, 3]");
     ScriptableValue sv = GlobalMethods
-        .newSequence(getCurrentContext(), getSharedScope(), new Object[] { new NativeArray(new Object[] { 1, 2, 3 }) },
-            null);
+        .newSequence(MagmaContextFactory.createContext(), new Object[] { tmp });
     assertThat(sv.getValue().isSequence()).isTrue();
     assertThat((IntegerType) sv.getValueType()).isEqualTo(IntegerType.get());
     assertThat(sv.getValue().getLength()).isEqualTo(3);
     ValueSequence sequence = sv.getValue().asSequence();
+
     for(int i = 1; i <= 3; i++) {
       Value value = sequence.get(i - 1);
       assertThat((IntegerType) value.getValueType()).isEqualTo(IntegerType.get());
@@ -57,10 +58,10 @@ public class GlobalMethodsTest extends AbstractJsTest {
     }
   }
 
-  @Test
+ @Test
   public void test_newSequence_String() throws Exception {
-    ScriptableValue sv = GlobalMethods.newSequence(getCurrentContext(), getSharedScope(),
-        new Object[] { new NativeArray(new Object[] { "1", "2", "3" }) }, null);
+    Object tmp = MagmaContextFactory.getEngine().eval("['1', '2', '3']");
+    ScriptableValue sv = GlobalMethods.newSequence(MagmaContextFactory.createContext(), new Object[] { tmp });
     assertThat(sv.getValue().isSequence()).isTrue();
     assertThat((TextType) sv.getValueType()).isEqualTo(TextType.get());
     assertThat(sv.getValue().getLength()).isEqualTo(3l);
@@ -74,8 +75,9 @@ public class GlobalMethodsTest extends AbstractJsTest {
 
   @Test
   public void test_newSequence_with_int_type() throws Exception {
-    ScriptableValue sv = GlobalMethods.newSequence(getCurrentContext(), getSharedScope(),
-        new Object[] { new NativeArray(new Object[] { "1", "2", "3" }), "integer" }, null);
+    Object tmp = MagmaContextFactory.getEngine().eval("['1', '2', '3']");
+    ScriptableValue sv = GlobalMethods
+        .newSequence(MagmaContextFactory.createContext(), new Object[] { tmp, "integer" });
     assertThat(sv.getValue().isSequence()).isTrue();
     assertThat((IntegerType) sv.getValueType()).isEqualTo(IntegerType.get());
     assertThat(sv.getValue().getLength()).isEqualTo(3l);
@@ -86,5 +88,4 @@ public class GlobalMethodsTest extends AbstractJsTest {
       assertThat((Long) value.getValue()).isEqualTo((long) i);
     }
   }
-
 }

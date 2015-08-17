@@ -198,6 +198,7 @@ subprojects { subProject ->
   }
 
   test {
+    //exclude '**/*'
     testLogging.showStandardStreams = true
   }
 

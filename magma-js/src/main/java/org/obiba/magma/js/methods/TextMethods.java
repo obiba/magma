@@ -6,21 +6,24 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Locale;
+import java.util.regex.Pattern;
 
 import javax.annotation.Nullable;
+import javax.script.Compilable;
+import javax.script.CompiledScript;
+import javax.script.ScriptContext;
+import javax.script.ScriptException;
+import javax.script.SimpleScriptContext;
 import javax.validation.constraints.NotNull;
 
-import org.mozilla.javascript.Callable;
-import org.mozilla.javascript.Context;
-import org.mozilla.javascript.Function;
-import org.mozilla.javascript.NativeObject;
-import org.mozilla.javascript.RegExpProxy;
-import org.mozilla.javascript.ScriptRuntime;
-import org.mozilla.javascript.Scriptable;
+import com.google.common.base.Throwables;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
+import jdk.nashorn.api.scripting.ScriptObjectMirror;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueType;
+import org.obiba.magma.js.MagmaContextFactory;
 import org.obiba.magma.js.MagmaJsEvaluationRuntimeException;
-import org.obiba.magma.js.Rhino;
 import org.obiba.magma.js.ScriptableValue;
 import org.obiba.magma.type.BooleanType;
 import org.obiba.magma.type.DateTimeType;
@@ -28,9 +31,6 @@ import org.obiba.magma.type.DateType;
 import org.obiba.magma.type.IntegerType;
 import org.obiba.magma.type.LocaleType;
 import org.obiba.magma.type.TextType;
-
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
 
 /**
  * Methods of the {@code ScriptableValue} javascript class that returns {@code ScriptableValue} of {@code BooleanType}
@@ -46,19 +46,13 @@ public class TextMethods {
    *   $('TextVar').trim()
    * </pre>
    */
-  public static ScriptableValue trim(Context ctx, Scriptable thisObj, @Nullable Object[] args,
-      @Nullable Function funObj) {
-    com.google.common.base.Function<Value, Value> trimFunction = new com.google.common.base.Function<Value, Value>() {
-
-      @SuppressWarnings("ConstantConditions")
-      @Override
-      public Value apply(Value input) {
-        if(input == null || input.isNull()) return TextType.get().nullValue();
-        return TextType.get().valueOf(input.toString().trim());
-      }
+  public static ScriptableValue trim(ScriptableValue thisObj, @Nullable Object[] args) {
+    com.google.common.base.Function<Value, Value> trimFunction = input -> {
+      if(input == null || input.isNull()) return TextType.get().nullValue();
+      return TextType.get().valueOf(input.toString().trim());
     };
 
-    return transformValue((ScriptableValue) thisObj, trimFunction);
+    return transformValue(thisObj, trimFunction);
   }
 
   /**
@@ -67,22 +61,16 @@ public class TextMethods {
    *   $('TextVar').upperCase('fr')
    * </pre>
    */
-  public static ScriptableValue upperCase(Context ctx, Scriptable thisObj, @Nullable Object[] args,
-      @Nullable Function funObj) {
+  public static ScriptableValue upperCase(ScriptableValue thisObj, @Nullable Object[] args) {
     final Locale locale = getLocaleArgument(args);
-    com.google.common.base.Function<Value, Value> caseFunction = new com.google.common.base.Function<Value, Value>() {
-
-      @Override
-      @SuppressWarnings("ConstantConditions")
-      public Value apply(Value input) {
-        if(input == null || input.isNull()) return TextType.get().nullValue();
-        String stringValue = input.toString();
-        stringValue = locale == null ? stringValue.toUpperCase() : stringValue.toUpperCase(locale);
-        return TextType.get().valueOf(stringValue);
-      }
+    com.google.common.base.Function<Value, Value> caseFunction = input -> {
+      if(input == null || input.isNull()) return TextType.get().nullValue();
+      String stringValue = input.toString();
+      stringValue = locale == null ? stringValue.toUpperCase() : stringValue.toUpperCase(locale);
+      return TextType.get().valueOf(stringValue);
     };
 
-    return transformValue((ScriptableValue) thisObj, caseFunction);
+    return transformValue(thisObj, caseFunction);
   }
 
   /**
@@ -91,22 +79,16 @@ public class TextMethods {
    *   $('TextVar').lowerCase('fr')
    * </pre>
    */
-  public static ScriptableValue lowerCase(Context ctx, Scriptable thisObj, @Nullable Object[] args,
-      @Nullable Function funObj) {
+  public static ScriptableValue lowerCase(ScriptableValue thisObj, @Nullable Object[] args) {
     final Locale locale = getLocaleArgument(args);
-    com.google.common.base.Function<Value, Value> caseFunction = new com.google.common.base.Function<Value, Value>() {
-
-      @Override
-      @SuppressWarnings("ConstantConditions")
-      public Value apply(Value input) {
-        if(input == null || input.isNull()) return TextType.get().nullValue();
-        String stringValue = input.toString();
-        stringValue = locale == null ? stringValue.toLowerCase() : stringValue.toLowerCase(locale);
-        return TextType.get().valueOf(stringValue);
-      }
+    com.google.common.base.Function<Value, Value> caseFunction = input -> {
+      if(input == null || input.isNull()) return TextType.get().nullValue();
+      String stringValue = input.toString();
+      stringValue = locale == null ? stringValue.toLowerCase() : stringValue.toLowerCase(locale);
+      return TextType.get().valueOf(stringValue);
     };
 
-    return transformValue((ScriptableValue) thisObj, caseFunction);
+    return transformValue(thisObj, caseFunction);
   }
 
   @Nullable
@@ -127,9 +109,8 @@ public class TextMethods {
    *   $('TextVar').capitalize(':;_.,(')
    * </pre>
    */
-  public static ScriptableValue capitalize(Context ctx, Scriptable thisObj, @Nullable Object[] args,
-      @Nullable Function funObj) {
-    return transformValue((ScriptableValue) thisObj, new CapitalizeFunction(getDelim(args)));
+  public static ScriptableValue capitalize(ScriptableValue thisObj, @Nullable Object[] args) {
+    return transformValue(thisObj, new CapitalizeFunction(getDelim(args)));
   }
 
   private static class CapitalizeFunction implements com.google.common.base.Function<Value, Value> {
@@ -183,63 +164,66 @@ public class TextMethods {
     return sb.toString();
   }
 
+  private static CompiledScript compiledReplaceScript;
+
+  static {
+    try {
+      compiledReplaceScript = ((Compilable) MagmaContextFactory.getEngine()).compile("val.replace(re, newVal)");
+    } catch (ScriptException e) {
+      throw Throwables.propagate(e);
+    }
+  }
+
   /**
    * <pre>
    *   $('TextVar').replace('regex', '$1')
    * </pre>
    *
-   * @see https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/String/replace
+   * @see //developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/String/replace
    */
-  public static ScriptableValue replace(final Context ctx, final Scriptable thisObj, final Object[] args,
-      @Nullable Function funObj) {
-    com.google.common.base.Function<Value, Value> replaceFunction
-        = new com.google.common.base.Function<Value, Value>() {
+  public static ScriptableValue replace(ScriptableValue thisObj, final Object[] args) {
+    com.google.common.base.Function<Value, Value> replaceFunction = input -> {
+          String stringValue = input == null || input.isNull() ? null : input.toString();
+          ScriptContext ctx = new SimpleScriptContext();
+          ctx.setAttribute("val", stringValue, ScriptContext.ENGINE_SCOPE);
+          ctx.setAttribute("re", args[0], ScriptContext.ENGINE_SCOPE);
+          ctx.setAttribute("newVal", args[1], ScriptContext.ENGINE_SCOPE);
+          Object result;
 
-      @Override
-      public Value apply(Value input) {
-        String stringValue = input == null || input.isNull() ? null : input.toString();
+          try {
+            result = compiledReplaceScript.eval(ctx);
+          } catch(ScriptException e) {
+            throw Throwables.propagate(e);
+          }
 
-        // Delegate to Javascript's String.replace method
-        String result = (String) ScriptRuntime.checkRegExpProxy(ctx)
-            .action(ctx, thisObj, ScriptRuntime.toObject(ctx, thisObj, stringValue), args, RegExpProxy.RA_REPLACE);
+          return TextType.get().valueOf(result);
+        };
 
-        return TextType.get().valueOf(result);
-      }
-    };
-    return transformValue((ScriptableValue) thisObj, replaceFunction);
+    return transformValue(thisObj, replaceFunction);
   }
-
   /**
    * <pre>
    *   $('TextVar').matches('regex1', 'regex2', ...)
    * </pre>
    */
-  public static ScriptableValue matches(final Context ctx, final Scriptable thisObj, final Object[] args,
-      @Nullable Function funObj) {
-    com.google.common.base.Function<Value, Value> matchesFunction
-        = new com.google.common.base.Function<Value, Value>() {
+  public static ScriptableValue matches(ScriptableValue thisObj, final Object[] args) {
+    com.google.common.base.Function<Value, Value> matchesFunction = input -> {
+      String stringValue = input == null || input.isNull() ? null : input.toString();
+      boolean matches = false;
 
-      @Override
-      public Value apply(Value input) {
-        String stringValue = input == null || input.isNull() ? null : input.toString();
+      if(stringValue != null) {
+        for(Object arg : args) {
+          Object result = arg instanceof String ? Pattern.compile((String)arg).matcher(stringValue).find() :
+              ((ScriptObjectMirror) arg).callMember("test", stringValue);
 
-        // Delegate to Javascript's String.replace method
-        boolean matches = false;
-        if(stringValue != null) {
-          for(Object arg : args) {
-            Object result = ScriptRuntime.checkRegExpProxy(ctx)
-                .action(ctx, thisObj, ScriptRuntime.toObject(ctx, thisObj, stringValue), new Object[] { arg },
-                    RegExpProxy.RA_MATCH);
-            if(result != null) {
-              matches = true;
-            }
-          }
+          if(result.equals(Boolean.TRUE)) matches = true;
         }
-
-        return BooleanType.get().valueOf(matches);
       }
+
+      return BooleanType.get().valueOf(matches);
     };
-    return transformValue((ScriptableValue) thisObj, matchesFunction);
+
+    return transformValue(thisObj, matchesFunction);
   }
 
   /**
@@ -252,27 +236,22 @@ public class TextMethods {
    *   $('Var').concat('SomeValue')
    * </pre>
    */
-  public static ScriptableValue concat(Context ctx, Scriptable thisObj, final Object[] args,
-      @Nullable Function funObj) {
-    com.google.common.base.Function<Value, Value> concatFunction = new com.google.common.base.Function<Value, Value>() {
-
-      @Override
-      public Value apply(Value input) {
-        String stringValue = input == null || input.isNull() ? null : input.toString();
-        StringBuilder sb = new StringBuilder();
-        sb.append(stringValue);
-        if(args != null) {
-          for(Object arg : args) {
-            if(arg instanceof ScriptableValue) {
-              arg = arg.toString();
-            }
-            sb.append(arg);
+  public static ScriptableValue concat(ScriptableValue thisObj, final Object[] args) {
+    com.google.common.base.Function<Value, Value> concatFunction = input -> {
+      String stringValue = input == null || input.isNull() ? null : input.toString();
+      StringBuilder sb = new StringBuilder();
+      sb.append(stringValue);
+      if(args != null) {
+        for(Object arg : args) {
+          if(arg instanceof ScriptableValue) {
+            arg = arg.toString();
           }
+          sb.append(arg);
         }
-        return TextType.get().valueOf(sb.toString());
       }
+      return TextType.get().valueOf(sb.toString());
     };
-    return transformValue((ScriptableValue) thisObj, concatFunction);
+    return transformValue(thisObj, concatFunction);
   }
 
   /**
@@ -308,19 +287,17 @@ public class TextMethods {
    *   }
    * </pre>
    *
-   * @param ctx
    * @param thisObj
    * @param args
-   * @param funObj
    * @return
    */
-  public static ScriptableValue map(Context ctx, Scriptable thisObj, Object[] args, Function funObj) {
-    if(args == null || args.length < 1 || !(args[0] instanceof NativeObject)) {
+  public static ScriptableValue map(ScriptableValue thisObj, Object[] args) {
+    if(args == null || args.length < 1) {
       throw new MagmaJsEvaluationRuntimeException("illegal arguments to map()");
     }
 
-    ScriptableValue sv = (ScriptableValue) thisObj;
-    Scriptable valueMap = (Scriptable) args[0];
+    ScriptableValue sv = thisObj;
+    ScriptObjectMirror valueMap = (ScriptObjectMirror)args[0];
 
     // This could be determined by looking at the mapped values (if all ints, then 'integer', else 'text', etc.)
     ValueType returnType = TextType.get();
@@ -331,17 +308,17 @@ public class TextMethods {
     Value currentValue = sv.getValue();
     if(currentValue.isSequence()) {
       if(currentValue.isNull()) {
-        return new ScriptableValue(thisObj, returnType.nullSequence());
+        return new ScriptableValue( returnType.nullSequence());
       }
       Collection<Value> newValues = new ArrayList<>();
       //noinspection ConstantConditions
       for(Value value : currentValue.asSequence().getValue()) {
-        newValues.add(lookupValue(ctx, thisObj, value, returnType, valueMap, defaultValue, nullValue));
+        newValues.add(lookupValue(thisObj, value, returnType, valueMap, defaultValue, nullValue));
       }
-      return new ScriptableValue(thisObj, returnType.sequenceOf(newValues));
+      return new ScriptableValue( returnType.sequenceOf(newValues));
     }
-    return new ScriptableValue(thisObj,
-        lookupValue(ctx, thisObj, currentValue, returnType, valueMap, defaultValue, nullValue));
+    return new ScriptableValue(
+        lookupValue(thisObj, currentValue, returnType, valueMap, defaultValue, nullValue));
   }
 
   /**
@@ -350,14 +327,12 @@ public class TextMethods {
    *   $('VAR').date('MM/dd/yy')
    * </pre>
    *
-   * @param ctx
    * @param thisObj
    * @param args
-   * @param funObj
    * @return
    */
-  public static ScriptableValue date(Context ctx, Scriptable thisObj, Object[] args, Function funObj) {
-    ScriptableValue sv = (ScriptableValue) thisObj;
+  public static ScriptableValue date(ScriptableValue thisObj, Object[] args) {
+    ScriptableValue sv = thisObj;
 
     // Return the ValueType name
     if(args.length == 0 || args[0] == null) {
@@ -372,14 +347,12 @@ public class TextMethods {
    *   $('VAR').date('MM/dd/yy HH:mm')
    * </pre>
    *
-   * @param ctx
    * @param thisObj
    * @param args
-   * @param funObj
    * @return
    */
-  public static ScriptableValue datetime(Context ctx, Scriptable thisObj, Object[] args, Function funObj) {
-    ScriptableValue sv = (ScriptableValue) thisObj;
+  public static ScriptableValue datetime(ScriptableValue thisObj, Object[] args) {
+    ScriptableValue sv = thisObj;
 
     // Return the ValueType name
     if(args.length == 0 || args[0] == null) {
@@ -388,29 +361,25 @@ public class TextMethods {
     return getDateValue(thisObj, DateTimeType.get(), sv.getValue(), args[0].toString());
   }
 
-  private static ScriptableValue getDateValue(Scriptable thisObj, final ValueType dateType, Value value,
+  private static ScriptableValue getDateValue(ScriptableValue thisObj, final ValueType dateType, Value value,
       String formatArg) {
     final SimpleDateFormat format = new SimpleDateFormat(formatArg);
-    com.google.common.base.Function<Value, Value> dateFunction = new com.google.common.base.Function<Value, Value>() {
+    com.google.common.base.Function<Value, Value> dateFunction = input -> {
+      if(input == null || input.isNull()) return dateType.nullValue();
 
-      @Override
-      public Value apply(Value input) {
-        if(input == null || input.isNull()) return dateType.nullValue();
+      String inputStr = input.toString();
 
-        String inputStr = input.toString();
+      if(inputStr == null || inputStr.trim().isEmpty()) return dateType.nullValue();
 
-        if(inputStr == null || inputStr.trim().isEmpty()) return dateType.nullValue();
-
-        try {
-          Date date = format.parse(inputStr);
-          return dateType.valueOf(date);
-        } catch(ParseException e) {
-          throw new MagmaJsEvaluationRuntimeException(
-              "date/datetime format '" + format.toPattern() + "' fails to parse: '" + inputStr + "'");
-        }
+      try {
+        Date date = format.parse(inputStr);
+        return dateType.valueOf(date);
+      } catch(ParseException e) {
+        throw new MagmaJsEvaluationRuntimeException(
+            "date/datetime format '" + format.toPattern() + "' fails to parse: '" + inputStr + "'");
       }
     };
-    return transformValue((ScriptableValue) thisObj, dateFunction);
+    return transformValue(thisObj, dateFunction);
   }
 
   /**
@@ -457,7 +426,6 @@ public class TextMethods {
   /**
    * Lookup {@code value} in {@code valueMap} and return the mapped value of type {@code returnType}
    *
-   * @param ctx
    * @param thisObj
    * @param value
    * @param returnType
@@ -465,36 +433,27 @@ public class TextMethods {
    * @return
    */
   @SuppressWarnings("PMD.ExcessiveParameterList")
-  private static Value lookupValue(Context ctx, Scriptable thisObj, Value value, ValueType returnType,
-      Scriptable valueMap, Value defaultValue, Value nullValue) {
+  private static Value lookupValue(ScriptableValue thisObj, Value value, ValueType returnType,
+      ScriptObjectMirror valueMap, Value defaultValue, Value nullValue) {
 
     if(value.isNull()) return nullValue;
 
     // MAGMA-163: lookup using string and index-based keys
     String asName = value.toString();
-    Object newValue = valueMap.get(asName, null);
-    if(newValue == NativeObject.NOT_FOUND) {
-      // Not found, try converting the input to an Integer and use an indexed-lookup if it works
-      Integer index = asJsIndex(value);
-      if(index != null) {
-        newValue = valueMap.get(index, null);
-      }
-    }
+    Object newValue = valueMap.get(asName);
 
-    if(newValue == null) return returnType.nullValue();
+    if(newValue == null && valueMap.keySet().contains(asName)) return returnType.nullValue();
 
-    if(newValue == NativeObject.NOT_FOUND) return defaultValue;
+    if(newValue == null) return defaultValue;
 
-    if(newValue instanceof Function) {
-      Callable valueFunction = (Callable) newValue;
-      Object evaluatedValue = valueFunction
-          .call(ctx, thisObj, thisObj, new Object[] { new ScriptableValue(thisObj, value) });
+    if(newValue instanceof ScriptObjectMirror && ((ScriptObjectMirror)newValue).isFunction()) {
+      Object evaluatedValue = ((ScriptObjectMirror)newValue).call(thisObj, thisObj, new Object[] { new ScriptableValue(value) });
       newValue = evaluatedValue instanceof ScriptableValue
-          ? ((ScriptableValue) evaluatedValue).getValue().getValue()
+          ? ((ScriptableValue)evaluatedValue).getValue().getValue()
           : evaluatedValue;
     }
 
-    return returnType.valueOf(Rhino.fixRhinoNumber(newValue));
+    return returnType.valueOf(newValue);
   }
 
   /**
@@ -533,19 +492,19 @@ public class TextMethods {
    */
   private static ScriptableValue transformValue(ScriptableValue sv,
       @NotNull com.google.common.base.Function<Value, Value> valueFunction) {
-
     Value value = sv.getValue();
+
     if(value.isNull()) {
       return value.isSequence()
-          ? new ScriptableValue(sv, TextType.get().nullSequence())
-          : new ScriptableValue(sv, valueFunction.apply(value));
+          ? new ScriptableValue(TextType.get().nullSequence())
+          : new ScriptableValue(valueFunction.apply(value));
     }
 
     if(value.isSequence()) {
-      return new ScriptableValue(sv, TextType.get()
+      return new ScriptableValue(TextType.get()
           .sequenceOf(Lists.newArrayList(Iterables.transform(value.asSequence().getValue(), valueFunction))));
     }
-    return new ScriptableValue(sv, valueFunction.apply(value));
-  }
 
+    return new ScriptableValue(valueFunction.apply(value));
+  }
 }

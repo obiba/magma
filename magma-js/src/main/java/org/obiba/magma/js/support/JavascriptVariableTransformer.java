@@ -9,30 +9,30 @@
  ******************************************************************************/
 package org.obiba.magma.js.support;
 
-import javax.annotation.Nullable;
+import javax.script.Compilable;
+import javax.script.CompiledScript;
+import javax.script.ScriptException;
 
-import org.mozilla.javascript.Context;
-import org.mozilla.javascript.ContextAction;
-import org.mozilla.javascript.ContextFactory;
-import org.mozilla.javascript.Script;
-import org.mozilla.javascript.Scriptable;
 import org.obiba.magma.Variable;
 import org.obiba.magma.js.MagmaContext;
+import org.obiba.magma.js.MagmaContextFactory;
 import org.obiba.magma.js.ScriptableValue;
-import org.obiba.magma.js.ScriptableVariable;
 import org.obiba.magma.support.DatasourceCopier.VariableTransformer;
 import org.obiba.magma.type.TextType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
  */
 public class JavascriptVariableTransformer implements VariableTransformer {
+  private static final Logger log = LoggerFactory.getLogger(JavascriptVariableTransformer.class);
 
   private static final String SCRIPT_NAME = "customScript";
 
   private final String script;
 
-  private Script compiledScript;
+  private CompiledScript compiledScript;
 
   public JavascriptVariableTransformer(String script) {
     this.script = script;
@@ -41,28 +41,28 @@ public class JavascriptVariableTransformer implements VariableTransformer {
 
   @Override
   public Variable transform(final Variable variable) {
-    String newName = (String) ContextFactory.getGlobal().call(new ContextAction() {
-      @Nullable
-      @Override
-      public Object run(Context ctx) {
-        MagmaContext context = MagmaContext.asMagmaContext(ctx);
-        // Don't pollute the global scope
-        Scriptable scope = new ScriptableVariable(context.newLocalScope(), variable);
+    String newName = null;
+    Object value = null;
+    MagmaContext magmaContext = MagmaContextFactory.createContext();
 
-        Object value = compiledScript.exec(ctx, scope);
-
-        if(value instanceof String) {
-          return value;
-        }
-        if(value instanceof ScriptableValue) {
-          ScriptableValue scriptable = (ScriptableValue) value;
-          if(scriptable.getValueType().equals(TextType.get())) {
-            return scriptable.getValue().isNull() ? null : scriptable.getValue().getValue();
-          }
-        }
-        return null;
+    value = magmaContext.exec(()-> {
+      try {
+        return compiledScript.eval(magmaContext);
+      } catch(ScriptException e) {
+        e.printStackTrace();
       }
+      return null;
     });
+
+    if(value instanceof String) {
+      newName = (String)value;
+    }
+
+    ScriptableValue tmp =(ScriptableValue)value;
+
+    if(tmp.getValueType().equals(TextType.get())) {
+      newName = tmp.getValue().isNull() ? null : (String)tmp.getValue().getValue();
+    }
 
     return Variable.Builder.sameAs(variable).name(newName != null ? newName : variable.getName()).build();
   }
@@ -72,12 +72,11 @@ public class JavascriptVariableTransformer implements VariableTransformer {
       throw new NullPointerException("script cannot be null");
     }
 
-    compiledScript = (Script) ContextFactory.getGlobal().call(new ContextAction() {
-      @Override
-      public Object run(Context cx) {
-        return cx.compileString(getScript(), getScriptName(), 1, null);
-      }
-    });
+    try {
+      compiledScript = ((Compilable)MagmaContextFactory.getEngine()).compile(getScript());
+    } catch(ScriptException e) {
+      e.printStackTrace();
+    }
   }
 
   public String getScriptName() {

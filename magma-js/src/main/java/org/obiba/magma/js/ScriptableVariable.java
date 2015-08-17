@@ -1,36 +1,23 @@
 package org.obiba.magma.js;
 
-import org.mozilla.javascript.Scriptable;
-import org.mozilla.javascript.ScriptableObject;
+import java.util.Map;
+import java.util.Set;
+
+import com.google.common.collect.Maps;
+import jdk.nashorn.api.scripting.JSObject;
 import org.obiba.magma.Variable;
+import org.obiba.magma.js.methods.ScriptableVariableMethods;
 
 /**
  * A {@code Scriptable} implementation for {@code Variable} objects.
  */
-public class ScriptableVariable extends ScriptableObject {
-
-  private static final long serialVersionUID = -4342110775412157728L;
-
-  private static final String VARIABLE_CLASS_NAME = "Variable";
+public class ScriptableVariable extends Scriptable {
 
   private final Variable variable;
 
-  /**
-   * No-arg ctor for building the prototype
-   */
-  public ScriptableVariable() {
-    variable = null;
-  }
-
-  public ScriptableVariable(Scriptable scope, Variable variable) {
-    super(scope, ScriptableObject.getClassPrototype(scope, VARIABLE_CLASS_NAME));
+  public ScriptableVariable(Variable variable) {
     if(variable == null) throw new IllegalArgumentException("variable cannot be null");
     this.variable = variable;
-  }
-
-  @Override
-  public String getClassName() {
-    return VARIABLE_CLASS_NAME;
   }
 
   @Override
@@ -40,5 +27,25 @@ public class ScriptableVariable extends ScriptableObject {
 
   public Variable getVariable() {
     return variable;
+  }
+
+  @Override
+  public Object getMember(final String name) {
+    return getMembers().get(name);
+  }
+
+  @Override
+  public Set<String> keySet() {
+    return getMembers().keySet();
+  }
+
+  private static Map<String, JSObject> members = Maps.newConcurrentMap();
+
+  static {
+    addMethodProvider(members, ScriptableVariableMethods.class);
+  }
+
+  public static Map<String, JSObject> getMembers() {
+    return members;
   }
 }
