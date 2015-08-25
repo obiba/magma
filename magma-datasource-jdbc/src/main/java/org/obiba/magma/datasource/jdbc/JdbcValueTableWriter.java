@@ -14,7 +14,6 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
@@ -28,6 +27,7 @@ import org.obiba.magma.VariableEntity;
 import org.obiba.magma.datasource.jdbc.JdbcDatasource.ChangeDatabaseCallback;
 import org.obiba.magma.datasource.jdbc.support.AddColumnChangeBuilder;
 import org.obiba.magma.datasource.jdbc.support.InsertDataChangeBuilder;
+import org.obiba.magma.datasource.jdbc.support.TableUtils;
 import org.obiba.magma.type.LocaleType;
 import org.obiba.magma.type.TextType;
 import org.slf4j.Logger;
@@ -61,7 +61,7 @@ class JdbcValueTableWriter implements ValueTableWriter {
 
   static final String VARIABLE_METADATA_TABLE = "variables";
 
-  static final String ATTRIBUTE_METADATA_TABLE = "variable_attributes";
+  static final String VARIABLE_ATTRIBUTE_METADATA_TABLE = "variable_attributes";
 
   static final String CATEGORY_METADATA_TABLE = "categories";
 
@@ -80,8 +80,6 @@ class JdbcValueTableWriter implements ValueTableWriter {
   static final String ATTRIBUTE_VALUE_COLUMN = "attribute_value";
 
   static final String CATEGORY_NAME_COLUMN = "name";
-
-  static final String CATEGORY_CODE_COLUMN = "code";
 
   static final String CATEGORY_MISSING_COLUMN = "missing";
 
@@ -192,7 +190,7 @@ class JdbcValueTableWriter implements ValueTableWriter {
     }
 
     private void addNewColumn(String variableName, String dataType) {
-      String columnName = generateColumnName();
+      String columnName = generateColumnName(variableName);
 
       AddColumnChange addColumnChange = AddColumnChangeBuilder.newBuilder()//
           .table(valueTable.getSqlName())//
@@ -206,8 +204,8 @@ class JdbcValueTableWriter implements ValueTableWriter {
       changes.add(idc);
     }
 
-    private String generateColumnName() {
-      return String.format("var_%s", UUID.randomUUID().toString().replace("-", ""));
+    private String generateColumnName(String variableName) {
+      return String.format("%s", TableUtils.normalize(variableName));
     }
 
     protected boolean variableExists(Variable variable) {
@@ -227,7 +225,7 @@ class JdbcValueTableWriter implements ValueTableWriter {
         "DELETE FROM " + VARIABLE_METADATA_TABLE + " WHERE value_table = ? AND name = ?";
 
     private static final String DELETE_VARIABLE_ATTRIBUTES_SQL = //
-        "DELETE FROM " + ATTRIBUTE_METADATA_TABLE + " WHERE value_table = ? AND variable_name = ?";
+        "DELETE FROM " + VARIABLE_ATTRIBUTE_METADATA_TABLE + " WHERE value_table = ? AND variable_name = ?";
 
     private static final String DELETE_VARIABLE_CATEGORIES_SQL = //
         "DELETE FROM " + CATEGORY_METADATA_TABLE + " WHERE value_table = ? AND variable_name = ?";
@@ -289,7 +287,7 @@ class JdbcValueTableWriter implements ValueTableWriter {
     private void writeAttributes(Variable variable) {
       for(Attribute attribute : variable.getAttributes()) {
         InsertDataChangeBuilder builder = new InsertDataChangeBuilder();
-        builder.tableName(ATTRIBUTE_METADATA_TABLE).withColumn(VALUE_TABLE_COLUMN, valueTable.getName())
+        builder.tableName(VARIABLE_ATTRIBUTE_METADATA_TABLE).withColumn(VALUE_TABLE_COLUMN, valueTable.getName())
             .withColumn(VARIABLE_NAME_COLUMN, variable.getName()).withColumn(ATTRIBUTE_NAME_COLUMN, attribute.getName())
             .withColumn(ATTRIBUTE_LOCALE_COLUMN, attribute.isLocalised() ? attribute.getLocale().toString() : "")
             .withColumn(ATTRIBUTE_NAMESPACE_COLUMN, attribute.hasNamespace() ? attribute.getNamespace() : "")
@@ -303,7 +301,6 @@ class JdbcValueTableWriter implements ValueTableWriter {
         InsertDataChangeBuilder builder = new InsertDataChangeBuilder();
         builder.tableName(CATEGORY_METADATA_TABLE).withColumn(VALUE_TABLE_COLUMN, valueTable.getName())
             .withColumn(VARIABLE_NAME_COLUMN, variable.getName()).withColumn(CATEGORY_NAME_COLUMN, category.getName())
-            .withColumn(CATEGORY_CODE_COLUMN, category.getCode())
             .withColumn(CATEGORY_MISSING_COLUMN, category.isMissing());
         changes.add(builder.build());
       }
