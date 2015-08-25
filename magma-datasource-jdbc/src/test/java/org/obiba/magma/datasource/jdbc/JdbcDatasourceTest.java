@@ -92,8 +92,8 @@ public class JdbcDatasourceTest extends AbstractMagmaTest {
     assertThat(bdVar2.getAttributeValue("description").toString()).isEqualTo("BD_2 description");
 
     // Verify categories.
-    assertThat(hasCategory(bdVar, "PNA", "88")).isTrue();
-    assertThat(hasCategory(bdVar, "DNK", "99")).isTrue();
+    assertThat(hasCategory(bdVar, "PNA")).isTrue();
+    assertThat(hasCategory(bdVar, "DNK")).isTrue();
 
     jdbcDatasource.dispose();
   }
@@ -305,10 +305,10 @@ public class JdbcDatasourceTest extends AbstractMagmaTest {
     }
   }
 
-  private boolean hasCategory(Variable variable, String categoryName, String categoryCode) {
+  private boolean hasCategory(Variable variable, String categoryName) {
     if(variable.hasCategories()) {
       for(Category category : variable.getCategories()) {
-        if(category.getName().equals(categoryName) && category.getCode().equals(categoryCode)) {
+        if(category.getName().equals(categoryName)) {
           return true;
         }
       }

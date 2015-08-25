@@ -97,7 +97,7 @@ class JdbcValueTable extends AbstractValueTable {
     table = getDatasource().getDatabaseSnapshot().get(newTable(settings.getSqlTableName()));
     setVariableEntityProvider(new JdbcVariableEntityProvider(getEntityType()));
     escapedVariablesSqlTableName = JdbcValueTableWriter.VARIABLE_METADATA_TABLE;
-    escapedVariableAttributesSqlTableName = JdbcValueTableWriter.ATTRIBUTE_METADATA_TABLE;
+    escapedVariableAttributesSqlTableName = JdbcValueTableWriter.VARIABLE_ATTRIBUTE_METADATA_TABLE;
     escapedCategoriesSqlTableName = JdbcValueTableWriter.CATEGORY_METADATA_TABLE;
   }
 
@@ -179,6 +179,17 @@ class JdbcValueTable extends AbstractValueTable {
     DropTableChange dtt = new DropTableChange();
     dtt.setTableName(getSqlName());
     getDatasource().doWithDatabase(new ChangeDatabaseCallback(dtt));
+    if (getDatasource().getSettings().isUseMetadataTables()) {
+      getDatasource().getJdbcTemplate()
+          .update(String.format("DELETE FROM %s WHERE value_table = ?", JdbcValueTableWriter.CATEGORY_METADATA_TABLE),
+              getName());
+      getDatasource().getJdbcTemplate().update(
+          String.format("DELETE FROM %s WHERE value_table = ?", JdbcValueTableWriter.VARIABLE_ATTRIBUTE_METADATA_TABLE),
+          getName());
+      getDatasource().getJdbcTemplate()
+          .update(String.format("DELETE FROM %s WHERE value_table = ?", JdbcValueTableWriter.VARIABLE_METADATA_TABLE),
+              getName());
+    }
     getDatasource().getJdbcTemplate()
         .update(String.format("DELETE FROM %s WHERE value_table = ?", JdbcDatasource.VARIABLES_MAPPING), getName());
     getDatasource().getJdbcTemplate()
@@ -304,14 +315,13 @@ class JdbcValueTable extends AbstractValueTable {
 
     private void addVariableCategories(String variableName, Variable.Builder builder) {
       builder.addCategories(getDatasource().getJdbcTemplate().query(String
-              .format("SELECT name, code FROM %s WHERE value_table = ? AND variable_name = ?",
+              .format("SELECT name FROM %s WHERE value_table = ? AND variable_name = ?",
                   escapedCategoriesSqlTableName), new Object[] { getName(), variableName }, new RowMapper<Category>() {
 
             @Override
             public Category mapRow(ResultSet rs, int rowNum) throws SQLException {
               String categoryName = rs.getString("name");
-              String categoryCode = rs.getString("code");
-              return Category.Builder.newCategory(categoryName).withCode(categoryCode).build();
+              return Category.Builder.newCategory(categoryName).build();
             }
           }));
     }
@@ -348,7 +358,7 @@ class JdbcValueTable extends AbstractValueTable {
     DatabaseSnapshot snapshot = getDatasource().getDatabaseSnapshot();
 
     return snapshot.get(newTable(JdbcValueTableWriter.VARIABLE_METADATA_TABLE)) != null &&
-        snapshot.get(newTable(JdbcValueTableWriter.ATTRIBUTE_METADATA_TABLE)) != null &&
+        snapshot.get(newTable(JdbcValueTableWriter.VARIABLE_ATTRIBUTE_METADATA_TABLE)) != null &&
         snapshot.get(newTable(JdbcValueTableWriter.CATEGORY_METADATA_TABLE)) != null;
   }
 
