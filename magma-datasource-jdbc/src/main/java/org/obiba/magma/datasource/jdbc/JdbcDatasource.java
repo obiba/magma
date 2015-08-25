@@ -22,6 +22,7 @@ import org.obiba.magma.datasource.jdbc.support.CreateTableChangeBuilder;
 import org.obiba.magma.datasource.jdbc.support.InsertDataChangeBuilder;
 import org.obiba.magma.datasource.jdbc.support.MySqlEngineVisitor;
 import org.obiba.magma.support.AbstractDatasource;
+import org.obiba.magma.support.Initialisables;
 import org.obiba.magma.type.TextType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -161,6 +162,7 @@ public class JdbcDatasource extends AbstractDatasource {
       }
 
       table = new JdbcValueTable(this, tableSettings);
+      Initialisables.initialise(table);
       addValueTable(table);
 
       InsertDataChange idc = InsertDataChangeBuilder.newBuilder() //
