@@ -1,20 +1,18 @@
 <dataset>
-  <variables value_table="BONE_DENSITY" name="BD" value_type="integer" is_repeatable="false"/>
-  <variables value_table="BONE_DENSITY" name="BD_2" value_type="integer" is_repeatable="false"/>
+  <variables datasource="my-datasource" value_table="BONE_DENSITY" name="BD" value_type="integer" is_repeatable="false" sql_name="BD"/>
+  <variables datasource="my-datasource" value_table="BONE_DENSITY" name="BD_2" value_type="integer" is_repeatable="false" sql_name="BD_2"/>
 
-  <variable_attributes value_table="BONE_DENSITY" variable_name="BD" attribute_name="description" attribute_locale=""
-      attribute_value="BD description"/>
-  <variable_attributes value_table="BONE_DENSITY" variable_name="BD_2" attribute_name="description"
-      attribute_locale="en" attribute_value="BD_2 description"/>
-  <variable_attributes value_table="BONE_DENSITY" variable_name="BD_2" attribute_name="description"
-      attribute_locale="fr" attribute_value="fr:BD_2 description"/>
+  <variable_attributes datasource="my-datasource" value_table="BONE_DENSITY" variable="BD" name="description" locale=""
+      value="BD description"/>
+  <variable_attributes datasource="my-datasource" value_table="BONE_DENSITY" variable="BD_2" name="description"
+      locale="en" value="BD_2 description"/>
+  <variable_attributes datasource="my-datasource" value_table="BONE_DENSITY" variable="BD_2" name="description"
+      locale="fr" value="fr:BD_2 description"/>
 
-  <categories value_table="BONE_DENSITY" variable_name="BD" name="PNA" code="88" missing="true"/>
-  <categories value_table="BONE_DENSITY" variable_name="BD" name="DNK" code="99" missing="true"/>
+  <categories datasource="my-datasource" value_table="BONE_DENSITY" variable="BD" name="PNA" missing="true"/>
+  <categories datasource="my-datasource" value_table="BONE_DENSITY" variable="BD" name="DNK" missing="true"/>
 
-  <variables_mapping name="BD" sql_name="BD" value_table="BONE_DENSITY"/>
-  <variables_mapping name="BD_2" sql_name="BD_2" value_table="BONE_DENSITY"/>
-  <valuetables_mapping name="BONE_DENSITY" sql_name="BONE_DENSITY"/>
+  <value_tables datasource="my-datasource" name="BONE_DENSITY" sql_name="BONE_DENSITY" entity_type="Participant"/>
 
   <BONE_DENSITY part_id="1234" visit_id="2" bd="64" bd_2="65"/>
   <BONE_DENSITY part_id="1234" visit_id="3" bd="65" bd_2="65"/>

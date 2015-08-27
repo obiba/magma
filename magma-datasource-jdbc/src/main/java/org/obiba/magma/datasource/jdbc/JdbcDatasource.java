@@ -54,22 +54,17 @@ import liquibase.sql.visitor.SqlVisitor;
 import liquibase.statement.SqlStatement;
 import liquibase.structure.core.Table;
 
-import static org.obiba.magma.datasource.jdbc.JdbcValueTableWriter.VARIABLE_ATTRIBUTE_METADATA_TABLE;
-import static org.obiba.magma.datasource.jdbc.JdbcValueTableWriter.CATEGORY_METADATA_TABLE;
-import static org.obiba.magma.datasource.jdbc.JdbcValueTableWriter.VARIABLE_METADATA_TABLE;
+import static org.obiba.magma.datasource.jdbc.JdbcValueTableWriter.*;
 import static org.obiba.magma.datasource.jdbc.support.TableUtils.newTable;
 
 public class JdbcDatasource extends AbstractDatasource {
 
   private static final Logger log = LoggerFactory.getLogger(JdbcDatasource.class);
 
-  public static final String VALUETABLES_MAPPING = "valuetables_mapping";
-
   public static final String VARIABLES_MAPPING = "variables_mapping";
 
   private static final Set<String> RESERVED_NAMES = ImmutableSet
-      .of(VALUETABLES_MAPPING, VARIABLES_MAPPING, VARIABLE_METADATA_TABLE, VARIABLE_ATTRIBUTE_METADATA_TABLE,
-          CATEGORY_METADATA_TABLE);
+      .of(VARIABLES_TABLE, VARIABLE_ATTRIBUTES_TABLE, CATEGORIES_TABLE);
 
   private static final String TYPE = "jdbc";
 
@@ -104,8 +99,10 @@ public class JdbcDatasource extends AbstractDatasource {
 
   @Override
   public void dropTable(@NotNull String tableName) {
-    ((JdbcValueTable) getValueTable(tableName)).drop();
-    removeValueTable(tableName);
+    JdbcValueTable table = (JdbcValueTable) getValueTable(tableName);
+    table.drop();
+    removeValueTable(table);
+    valueTableMap.remove(tableName);
   }
 
   @Override
@@ -129,8 +126,8 @@ public class JdbcDatasource extends AbstractDatasource {
   public void drop() {
     for(ValueTable valueTable : ImmutableList.copyOf(getValueTables())) {
       dropTable(valueTable.getName());
-      valueTableMap.remove(valueTable.getName());
     }
+    // TODO drop datasource info if any
   }
 
   /**
@@ -164,12 +161,17 @@ public class JdbcDatasource extends AbstractDatasource {
       Initialisables.initialise(table);
       addValueTable(table);
 
-      InsertDataChange idc = InsertDataChangeBuilder.newBuilder() //
-          .tableName(JdbcDatasource.VALUETABLES_MAPPING) //
-          .withColumn("sql_name", tableSettings.getSqlTableName()) //
-          .withColumn("name", tableName).build();
+      if (getSettings().isUseMetadataTables()) {
+        InsertDataChange idc = InsertDataChangeBuilder.newBuilder() //
+            .tableName(VALUE_TABLES_TABLE) //
+            .withColumn(DATASOURCE_COLUMN, getName()) //
+            .withColumn(NAME_COLUMN, tableName) //
+            .withColumn(ENTITY_TYPE_COLUMN, tableSettings.getEntityType()) //
+            .withColumn(SQL_NAME_COLUMN, tableSettings.getSqlTableName()) //
+            .build();
 
-      doWithDatabase(new ChangeDatabaseCallback(idc));
+        doWithDatabase(new ChangeDatabaseCallback(idc));
+      }
     }
 
     return new JdbcValueTableWriter(table);
@@ -177,24 +179,6 @@ public class JdbcDatasource extends AbstractDatasource {
 
   @Override
   protected void onInitialise() {
-    List<Change> changes = new ArrayList<>();
-
-    if(getDatabaseSnapshot().get(newTable(VALUETABLES_MAPPING)) == null) {
-      CreateTableChangeBuilder builder = new CreateTableChangeBuilder();
-      builder.tableName(VALUETABLES_MAPPING).withColumn("name", "VARCHAR(255)").primaryKey()
-          .withColumn("sql_name", "VARCHAR(255)").notNull();
-      changes.add(builder.build());
-    }
-
-    if(getDatabaseSnapshot().get(newTable(VARIABLES_MAPPING)) == null) {
-      CreateTableChangeBuilder builder = new CreateTableChangeBuilder();
-      builder.tableName(VARIABLES_MAPPING).withColumn("name", "VARCHAR(255)").primaryKey()
-          .withColumn("value_table", "VARCHAR(255)").primaryKey().withColumn("sql_name", "VARCHAR(255)").notNull();
-      changes.add(builder.build());
-    }
-
-    doWithDatabase(new ChangeDatabaseCallback(changes));
-
     if(getSettings().isUseMetadataTables()) {
       createMetadataTablesIfNotPresent();
     }
@@ -208,8 +192,36 @@ public class JdbcDatasource extends AbstractDatasource {
   protected Set<String> getValueTableNames() {
     if(!getValueTableMap().isEmpty()) return getValueTableMap().keySet();
 
+    Set<String> names = getSettings().isUseMetadataTables()
+        ? getRegisteredValueTableNames()
+        : getObservedValueTableNames();
+
+    for(String name : names) {
+      getValueTableMap().put(name, name);
+    }
+
+    return names;
+  }
+
+  @NotNull
+  private Set<String> getRegisteredValueTableNames() {
     Set<String> names = new LinkedHashSet<>();
 
+    names.addAll(
+        getJdbcTemplate().query(String.format("SELECT " + NAME_COLUMN + ", " + SQL_NAME_COLUMN + " FROM %s WHERE " +
+            DATASOURCE_COLUMN + " = ?", VALUE_TABLES_TABLE), new Object[] { getName() }, new RowMapper<String>() {
+          @Override
+          public String mapRow(ResultSet rs, int rowNum) throws SQLException {
+            return rs.getString(NAME_COLUMN);
+          }
+        }));
+
+    return names;
+  }
+
+  @NotNull
+  private Set<String> getObservedValueTableNames() {
+    Set<String> names = new LinkedHashSet<>();
     for(Table table : getDatabaseSnapshot().get(Table.class)) {
       String tableName = table.getName();
 
@@ -227,11 +239,6 @@ public class JdbcDatasource extends AbstractDatasource {
         }
       }
     }
-
-    for(String name : names) {
-      getValueTableMap().put(name, name);
-    }
-
     return names;
   }
 
@@ -242,7 +249,8 @@ public class JdbcDatasource extends AbstractDatasource {
 
     return tableSettings != null
         ? new JdbcValueTable(this, tableSettings)
-        : new JdbcValueTable(this, tableName, getDatabaseSnapshot().get(newTable(sqlTableName)), settings.getDefaultEntityType());
+        : new JdbcValueTable(this, tableName, getDatabaseSnapshot().get(newTable(sqlTableName)),
+            settings.getDefaultEntityType());
   }
 
   //
@@ -257,15 +265,15 @@ public class JdbcDatasource extends AbstractDatasource {
     if(valueTableMap == null) {
       valueTableMap = new HashMap<>();
 
-      if(getDatabaseSnapshot().get(newTable(VALUETABLES_MAPPING)) != null) {
-        List<Map.Entry<String, String>> entries = getJdbcTemplate()
-            .query(String.format("SELECT name, sql_name FROM %s", VALUETABLES_MAPPING),
-                new RowMapper<Map.Entry<String, String>>() {
-                  @Override
-                  public Map.Entry<String, String> mapRow(ResultSet rs, int rowNum) throws SQLException {
-                    return Maps.immutableEntry(rs.getString("name"), rs.getString("sql_name"));
-                  }
-                });
+      if(getSettings().isUseMetadataTables()) {
+        List<Map.Entry<String, String>> entries = getJdbcTemplate().query(String
+                .format("SELECT " + NAME_COLUMN + ", " + SQL_NAME_COLUMN + " FROM %s WHERE " + DATASOURCE_COLUMN + " = '%s'",
+                    VALUE_TABLES_TABLE, getName()), new RowMapper<Map.Entry<String, String>>() {
+              @Override
+              public Map.Entry<String, String> mapRow(ResultSet rs, int rowNum) throws SQLException {
+                return Maps.immutableEntry(rs.getString(NAME_COLUMN), rs.getString(SQL_NAME_COLUMN));
+              }
+            });
 
         ImmutableMap.Builder<String, String> builder = ImmutableMap.builder();
 
@@ -333,39 +341,79 @@ public class JdbcDatasource extends AbstractDatasource {
 
   private void createMetadataTablesIfNotPresent() {
     List<Change> changes = new ArrayList<>();
-
-    if(getDatabaseSnapshot().get(newTable(VARIABLE_METADATA_TABLE)) == null) {
-      CreateTableChangeBuilder builder = new CreateTableChangeBuilder();
-      builder.tableName(VARIABLE_METADATA_TABLE).withColumn(JdbcValueTableWriter.VALUE_TABLE_COLUMN, "VARCHAR(255)")
-          .primaryKey().withColumn("name", "VARCHAR(255)").primaryKey()
-          .withColumn(JdbcValueTableWriter.VALUE_TYPE_COLUMN, "VARCHAR(255)").notNull()
-          .withColumn("mime_type", "VARCHAR(255)").withColumn("units", "VARCHAR(255)")
-          .withColumn("is_repeatable", "BOOLEAN").withColumn("occurrence_group", "VARCHAR(255)");
-      changes.add(builder.build());
-    }
-
-    if(getDatabaseSnapshot().get(newTable(VARIABLE_ATTRIBUTE_METADATA_TABLE)) == null) {
-      CreateTableChangeBuilder builder = new CreateTableChangeBuilder();
-      builder.tableName(VARIABLE_ATTRIBUTE_METADATA_TABLE).withColumn(JdbcValueTableWriter.VALUE_TABLE_COLUMN, "VARCHAR(255)")
-          .primaryKey().withColumn(JdbcValueTableWriter.VARIABLE_NAME_COLUMN, "VARCHAR(255)").primaryKey()
-          .withColumn(JdbcValueTableWriter.ATTRIBUTE_NAME_COLUMN, "VARCHAR(255)").primaryKey()
-          .withColumn(JdbcValueTableWriter.ATTRIBUTE_LOCALE_COLUMN, "VARCHAR(20)").primaryKey()
-          .withColumn(JdbcValueTableWriter.ATTRIBUTE_NAMESPACE_COLUMN, "VARCHAR(20)").primaryKey()
-          .withColumn(JdbcValueTableWriter.ATTRIBUTE_VALUE_COLUMN,
-              SqlTypes.sqlTypeFor(TextType.get(), SqlTypes.TEXT_TYPE_HINT_MEDIUM));
-      changes.add(builder.build());
-    }
-
-    if(getDatabaseSnapshot().get(newTable(CATEGORY_METADATA_TABLE)) == null) {
-      CreateTableChangeBuilder builder = new CreateTableChangeBuilder();
-      builder.tableName(CATEGORY_METADATA_TABLE).withColumn(JdbcValueTableWriter.VALUE_TABLE_COLUMN, "VARCHAR(255)")
-          .primaryKey().withColumn(JdbcValueTableWriter.VARIABLE_NAME_COLUMN, "VARCHAR(255)").primaryKey()
-          .withColumn(JdbcValueTableWriter.CATEGORY_NAME_COLUMN, "VARCHAR(255)").primaryKey()
-          .withColumn(JdbcValueTableWriter.CATEGORY_MISSING_COLUMN, "BOOLEAN").notNull();
-      changes.add(builder.build());
-    }
-
+    createDatasourceMetadataTablesIfNotPresent(changes);
+    createVariableMetadataTablesIfNotPresent(changes);
+    createCategoryMetadataTablesIfNotPresent(changes);
     doWithDatabase(new ChangeDatabaseCallback(changes));
+  }
+
+  private void createDatasourceMetadataTablesIfNotPresent(List<Change> changes) {
+    if(getDatabaseSnapshot().get(newTable(VALUE_TABLES_TABLE)) == null) {
+      CreateTableChangeBuilder builder = new CreateTableChangeBuilder();
+      builder.tableName(VALUE_TABLES_TABLE) //
+          .withColumn(DATASOURCE_COLUMN, "VARCHAR(255)").primaryKey() //
+          .withColumn(NAME_COLUMN, "VARCHAR(255)").primaryKey() //
+          .withColumn(ENTITY_TYPE_COLUMN, "VARCHAR(255)").notNull() //
+          .withColumn(SQL_NAME_COLUMN, "VARCHAR(255)").notNull();
+      changes.add(builder.build());
+    }
+  }
+
+  private void createVariableMetadataTablesIfNotPresent(List<Change> changes) {
+    if(getDatabaseSnapshot().get(newTable(VARIABLES_TABLE)) == null) {
+      CreateTableChangeBuilder builder = new CreateTableChangeBuilder();
+      builder.tableName(VARIABLES_TABLE) //
+          .withColumn(DATASOURCE_COLUMN, "VARCHAR(255)").primaryKey() //
+          .withColumn(VALUE_TABLE_COLUMN, "VARCHAR(255)").primaryKey() //
+          .withColumn(NAME_COLUMN, "VARCHAR(255)").primaryKey() //
+          .withColumn(VALUE_TYPE_COLUMN, "VARCHAR(255)").notNull() //
+          .withColumn("mime_type", "VARCHAR(255)") //
+          .withColumn("units", "VARCHAR(255)") //
+          .withColumn("is_repeatable", "BOOLEAN") //
+          .withColumn("occurrence_group", "VARCHAR(255)") //
+          .withColumn(SQL_NAME_COLUMN, "VARCHAR(255)").notNull();
+      changes.add(builder.build());
+    }
+
+    if(getDatabaseSnapshot().get(newTable(VARIABLE_ATTRIBUTES_TABLE)) == null) {
+      CreateTableChangeBuilder builder = new CreateTableChangeBuilder();
+      builder.tableName(VARIABLE_ATTRIBUTES_TABLE) //
+          .withColumn(DATASOURCE_COLUMN, "VARCHAR(255)") //
+          .withColumn(VALUE_TABLE_COLUMN, "VARCHAR(255)") //
+          .withColumn(VARIABLE_COLUMN, "VARCHAR(255)") //
+          .withColumn(NAMESPACE_COLUMN, "VARCHAR(20)") //
+          .withColumn(NAME_COLUMN, "VARCHAR(255)") //
+          .withColumn(LOCALE_COLUMN, "VARCHAR(20)") //
+          .withColumn(VALUE_COLUMN, SqlTypes.sqlTypeFor(TextType.get(), SqlTypes.TEXT_TYPE_HINT_MEDIUM));
+      changes.add(builder.build());
+    }
+  }
+
+  private void createCategoryMetadataTablesIfNotPresent(List<Change> changes) {
+    if(getDatabaseSnapshot().get(newTable(CATEGORIES_TABLE)) == null) {
+      CreateTableChangeBuilder builder = new CreateTableChangeBuilder();
+      builder.tableName(CATEGORIES_TABLE) //
+          .withColumn(DATASOURCE_COLUMN, "VARCHAR(255)").primaryKey() //
+          .withColumn(VALUE_TABLE_COLUMN, "VARCHAR(255)").primaryKey() //
+          .withColumn(VARIABLE_COLUMN, "VARCHAR(255)").primaryKey() //
+          .withColumn(NAME_COLUMN, "VARCHAR(255)").primaryKey() //
+          .withColumn(MISSING_COLUMN, "BOOLEAN").notNull();
+      changes.add(builder.build());
+    }
+
+    if(getDatabaseSnapshot().get(newTable(CATEGORY_ATTRIBUTES_TABLE)) == null) {
+      CreateTableChangeBuilder builder = new CreateTableChangeBuilder();
+      builder.tableName(CATEGORY_ATTRIBUTES_TABLE) //
+          .withColumn(DATASOURCE_COLUMN, "VARCHAR(255)") //
+          .withColumn(VALUE_TABLE_COLUMN, "VARCHAR(255)") //
+          .withColumn(VARIABLE_COLUMN, "VARCHAR(255)") //
+          .withColumn(CATEGORY_COLUMN, "VARCHAR(255)") //
+          .withColumn(NAMESPACE_COLUMN, "VARCHAR(20)") //
+          .withColumn(NAME_COLUMN, "VARCHAR(255)") //
+          .withColumn(LOCALE_COLUMN, "VARCHAR(20)") //
+          .withColumn(VALUE_COLUMN, SqlTypes.sqlTypeFor(TextType.get(), SqlTypes.TEXT_TYPE_HINT_MEDIUM));
+      changes.add(builder.build());
+    }
   }
 
   /**
