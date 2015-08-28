@@ -204,7 +204,7 @@ class JdbcValueTableWriter implements ValueTableWriter {
     }
 
     private String generateColumnName(String variableName) {
-      return String.format("%s", TableUtils.normalize(variableName));
+      return String.format("%s", TableUtils.normalize(variableName, 64));
     }
 
     protected boolean variableExists(Variable variable) {
