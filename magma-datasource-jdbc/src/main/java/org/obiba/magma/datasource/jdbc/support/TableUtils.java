@@ -1,5 +1,8 @@
 package org.obiba.magma.datasource.jdbc.support;
 
+import java.text.Normalizer;
+import java.util.regex.Pattern;
+
 import liquibase.structure.core.Table;
 
 public class TableUtils {
@@ -13,7 +16,13 @@ public class TableUtils {
   }
 
   public static String normalize(String name, int limit) {
-    String normalized = name.replaceAll("[^0-9a-zA-Z\\$_]", "");
+    String normalized = deAccent(name).replaceAll("[^0-9a-zA-Z\\$_]", "");
     return limit > 0 && normalized.length() > limit ? normalized.substring(0, limit - 1) : normalized;
+  }
+
+  private static String deAccent(String str) {
+    String nfdNormalizedString = Normalizer.normalize(str, Normalizer.Form.NFD);
+    Pattern pattern = Pattern.compile("\\p{InCombiningDiacriticalMarks}+");
+    return pattern.matcher(nfdNormalizedString).replaceAll("");
   }
 }

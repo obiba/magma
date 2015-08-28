@@ -9,6 +9,7 @@ public class TableUtilsTest {
   @Test
   public void testNormalizeChars() {
     assertThat(TableUtils.normalize("'a 1/A.B$4")).isEqualTo("a1AB$4");
+    assertThat(TableUtils.normalize("'médecin")).isEqualTo("medecin");
   }
 
   @Test
