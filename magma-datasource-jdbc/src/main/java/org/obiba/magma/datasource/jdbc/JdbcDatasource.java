@@ -258,7 +258,7 @@ public class JdbcDatasource extends AbstractDatasource {
   //
 
   private String generateTableName(String tableName) {
-    return String.format("vt_%s", TableUtils.normalize(tableName));
+    return String.format("%s_%s", TableUtils.normalize(getName()), TableUtils.normalize(tableName));
   }
 
   private Map<String, String> getValueTableMap() {
