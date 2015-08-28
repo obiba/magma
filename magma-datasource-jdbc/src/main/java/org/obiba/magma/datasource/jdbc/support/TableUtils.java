@@ -9,7 +9,11 @@ public class TableUtils {
   }
 
   public static String normalize(String name) {
+    return normalize(name, -1);
+  }
+
+  public static String normalize(String name, int limit) {
     String normalized = name.replaceAll("[^0-9a-zA-Z\\$_]", "");
-    return normalized.length() > 64 ? normalized.substring(0, 63) : normalized;
+    return limit > 0 && normalized.length() > limit ? normalized.substring(0, limit - 1) : normalized;
   }
 }
