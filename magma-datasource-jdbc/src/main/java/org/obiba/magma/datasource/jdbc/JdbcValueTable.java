@@ -72,8 +72,6 @@ class JdbcValueTable extends AbstractValueTable {
 
   private Table table;
 
-  private String escapedSqlTableName;
-
   private BiMap<String, String> variableMap;
 
   JdbcValueTable(Datasource datasource, JdbcValueTableSettings settings) {
@@ -135,28 +133,7 @@ class JdbcValueTable extends AbstractValueTable {
   @NotNull
   @Override
   public Timestamps getTimestamps() {
-    if(hasCreatedTimestampColumn() && hasUpdatedTimestampColumn()) {
-      return new Timestamps() {
-
-        @NotNull
-        @Override
-        public Value getLastUpdate() {
-          String sql = String.format("SELECT MAX(%s) FROM %s", getUpdatedTimestampColumnName(), escapedSqlTableName);
-
-          return DateTimeType.get().valueOf(getDatasource().getJdbcTemplate().queryForObject(sql, Date.class));
-        }
-
-        @NotNull
-        @Override
-        public Value getCreated() {
-          String sql = String.format("SELECT MIN(%s) FROM %s", getCreatedTimestampColumnName(), escapedSqlTableName);
-
-          return DateTimeType.get().valueOf(getDatasource().getJdbcTemplate().queryForObject(sql, Date.class));
-        }
-
-      };
-    }
-    return NullTimestamps.get();
+    return new JdbcValueTableTimestamps(this);
   }
 
   //
@@ -169,19 +146,19 @@ class JdbcValueTable extends AbstractValueTable {
     getDatasource().doWithDatabase(new ChangeDatabaseCallback(dtt));
     if(getDatasource().getSettings().isUseMetadataTables()) {
       getDatasource().getJdbcTemplate().update(String
-          .format("DELETE FROM %s WHERE " + DATASOURCE_COLUMN + " = ? AND " + VALUE_TABLE_COLUMN + " = ?",
-              JdbcValueTableWriter.CATEGORY_ATTRIBUTES_TABLE), getDatasource().getName(), getName());
+          .format("DELETE FROM %s WHERE %s = ? AND %s = ?", CATEGORY_ATTRIBUTES_TABLE, DATASOURCE_COLUMN,
+              VALUE_TABLE_COLUMN), getDatasource().getName(), getName());
       getDatasource().getJdbcTemplate().update(String
-          .format("DELETE FROM %s WHERE " + DATASOURCE_COLUMN + " = ? AND " + VALUE_TABLE_COLUMN + " = ?",
-              JdbcValueTableWriter.CATEGORIES_TABLE), getDatasource().getName(), getName());
+              .format("DELETE FROM %s WHERE %s = ? AND %s = ?", CATEGORIES_TABLE, DATASOURCE_COLUMN,
+                  VALUE_TABLE_COLUMN), getDatasource().getName(), getName());
       getDatasource().getJdbcTemplate().update(String
-          .format("DELETE FROM %s WHERE " + DATASOURCE_COLUMN + " = ? AND " + VALUE_TABLE_COLUMN + " = ?",
-              JdbcValueTableWriter.VARIABLE_ATTRIBUTES_TABLE), getDatasource().getName(), getName());
+          .format("DELETE FROM %s WHERE %s = ? AND %s = ?", VARIABLE_ATTRIBUTES_TABLE, DATASOURCE_COLUMN,
+              VALUE_TABLE_COLUMN), getDatasource().getName(), getName());
       getDatasource().getJdbcTemplate().update(String
-          .format("DELETE FROM %s WHERE " + DATASOURCE_COLUMN + " = ? AND " + VALUE_TABLE_COLUMN + " = ?",
-              JdbcValueTableWriter.VARIABLES_TABLE), getDatasource().getName(), getName());
-      getDatasource().getJdbcTemplate().update(String
-          .format("DELETE FROM %s WHERE " + DATASOURCE_COLUMN + " = ? AND " + NAME_COLUMN + " = ?", VALUE_TABLES_TABLE),
+              .format("DELETE FROM %s WHERE %s = ? AND %s = ?", VARIABLES_TABLE, DATASOURCE_COLUMN, VALUE_TABLE_COLUMN),
+          getDatasource().getName(), getName());
+      getDatasource().getJdbcTemplate().update(
+          String.format("DELETE FROM %s WHERE %s = ? AND %s = ?", VALUE_TABLES_TABLE, DATASOURCE_COLUMN, NAME_COLUMN),
           getDatasource().getName(), getName());
     }
   }
@@ -247,7 +224,7 @@ class JdbcValueTable extends AbstractValueTable {
       }
 
       List<Variable> results = getDatasource().getJdbcTemplate().query(String.format("SELECT * FROM %s WHERE " +
-                  DATASOURCE_COLUMN + " = ? AND " + VALUE_TABLE_COLUMN + " = ?", VARIABLES_TABLE),
+              DATASOURCE_COLUMN + " = ? AND " + VALUE_TABLE_COLUMN + " = ?", VARIABLES_TABLE),
           new Object[] { getDatasource().getName(), getName() }, new VariableRowMapper());
 
       for(Variable variable : results) {
@@ -298,18 +275,16 @@ class JdbcValueTable extends AbstractValueTable {
     }
 
     private void addVariableAttributes(String variableName, Variable.Builder builder) {
-      builder.addAttributes(getDatasource().getJdbcTemplate().query("SELECT * FROM " + VARIABLE_ATTRIBUTES_TABLE +
-                  " WHERE " + DATASOURCE_COLUMN + " = ? AND " + VALUE_TABLE_COLUMN + " = ? AND " + VARIABLE_COLUMN +
-                  " = ?", new Object[] { getDatasource().getName(), getName(), variableName },
-              new AttributeRowMapper()));
+      builder.addAttributes(getDatasource().getJdbcTemplate().query(String
+              .format("SELECT * FROM %s WHERE %s = ? AND %s = ? AND %s = ? ", VARIABLE_ATTRIBUTES_TABLE,
+                  DATASOURCE_COLUMN, VALUE_TABLE_COLUMN, VARIABLE_COLUMN),
+          new Object[] { getDatasource().getName(), getName(), variableName }, new AttributeRowMapper()));
     }
 
     private void addVariableCategories(final String variableName, Variable.Builder builder) {
-      builder.addCategories(getDatasource().getJdbcTemplate().query(String.format(
-              "SELECT " + NAME_COLUMN + ", " + MISSING_COLUMN + " FROM %s WHERE " + DATASOURCE_COLUMN + " = ? AND " +
-                  VALUE_TABLE_COLUMN +
-                  " = ? AND " +
-                  VARIABLE_COLUMN + " = ?", CATEGORIES_TABLE),
+      builder.addCategories(getDatasource().getJdbcTemplate().query(String
+              .format("SELECT %s, %s FROM %s WHERE %s = ? AND %s= ? AND %s = ?", NAME_COLUMN, MISSING_COLUMN,
+                  CATEGORIES_TABLE, DATASOURCE_COLUMN, VALUE_TABLE_COLUMN, VARIABLE_COLUMN),
           new Object[] { getDatasource().getName(), getName(), variableName }, new RowMapper<Category>() {
 
             @Override
@@ -324,11 +299,10 @@ class JdbcValueTable extends AbstractValueTable {
     }
 
     private void addVariableCategoryAtributes(String variableName, String categoryName, Category.Builder builder) {
-      builder.addAttributes(getDatasource().getJdbcTemplate().query("SELECT * FROM " + CATEGORY_ATTRIBUTES_TABLE +
-                  " WHERE " + DATASOURCE_COLUMN + " = ? AND " + VALUE_TABLE_COLUMN + " = ? AND " + VARIABLE_COLUMN +
-                  " = ? AND " + CATEGORY_COLUMN + " = ?",
-              new Object[] { getDatasource().getName(), getName(), variableName, categoryName },
-              new AttributeRowMapper()));
+      builder.addAttributes(getDatasource().getJdbcTemplate().query(String
+              .format("SELECT * FROM %s WHERE %s = ? AND %s = ? AND %s = ? AND %s = ?", CATEGORY_ATTRIBUTES_TABLE,
+                  DATASOURCE_COLUMN, VALUE_TABLE_COLUMN, VARIABLE_COLUMN, CATEGORY_COLUMN),
+          new Object[] { getDatasource().getName(), getName(), variableName, categoryName }, new AttributeRowMapper()));
     }
   }
 
@@ -456,7 +430,7 @@ class JdbcValueTable extends AbstractValueTable {
 
     variableMap = HashBiMap.create();
 
-    if (getDatasource().getSettings().isUseMetadataTables()) {
+    if(getDatasource().getSettings().isUseMetadataTables()) {
       List<Map.Entry<String, String>> res = getDatasource().getJdbcTemplate().query(String.format(
               "SELECT " + NAME_COLUMN + ", " + SQL_NAME_COLUMN + " FROM %s WHERE " + DATASOURCE_COLUMN + " = ? AND " +
                   VALUE_TABLE_COLUMN + " = ?", VARIABLES_TABLE), new Object[] { getDatasource().getName(), getName() },
@@ -492,7 +466,7 @@ class JdbcValueTable extends AbstractValueTable {
     @Override
     public Value getLastUpdate() {
       String sql = appendIdentifierColumns(
-          String.format("SELECT MAX(%s) FROM %s", updatedTimestampColumnName, escapedSqlTableName));
+          String.format("SELECT MAX(%s) FROM %s", updatedTimestampColumnName, getSqlName()));
       return DateTimeType.get().valueOf(executeQuery(sql));
     }
 
@@ -500,7 +474,7 @@ class JdbcValueTable extends AbstractValueTable {
     @Override
     public Value getCreated() {
       String sql = appendIdentifierColumns(
-          String.format("SELECT MIN(%s) FROM %s", updatedTimestampColumnName, escapedSqlTableName));
+          String.format("SELECT MIN(%s) FROM %s", updatedTimestampColumnName, getSqlName()));
       return DateTimeType.get().valueOf(executeQuery(sql));
     }
 
@@ -535,20 +509,14 @@ class JdbcValueTable extends AbstractValueTable {
     @Override
     public void initialise() {
       entities = new LinkedHashSet<>();
-
-      if(escapedSqlTableName == null) {
-        escapedSqlTableName = getSqlName();
-      }
-
       List<VariableEntity> results = getDatasource().getJdbcTemplate()
-          .query(String.format("SELECT %s FROM %s", getEntityIdentifierColumnsSql(), escapedSqlTableName),
+          .query(String.format("SELECT %s FROM %s", getEntityIdentifierColumnsSql(), getSqlName()),
               new RowMapper<VariableEntity>() {
                 @Override
                 public VariableEntity mapRow(ResultSet rs, int rowNum) throws SQLException {
                   return new VariableEntityBean(JdbcValueTable.this.getEntityType(), buildEntityIdentifier(rs));
                 }
               });
-
       entities.addAll(results);
     }
 
@@ -660,7 +628,7 @@ class JdbcValueTable extends AbstractValueTable {
         this.connection = connection;
         String column = getEntityIdentifierColumnsSql();
         statement = connection.prepareStatement(
-            String.format("SELECT %s, %s FROM %s ORDER BY %s", column, columnName, escapedSqlTableName, column));
+            String.format("SELECT %s, %s FROM %s ORDER BY %s", column, columnName, getSqlName(), column));
         rs = statement.executeQuery();
         hasNextResults = rs.next();
         resultEntities = entities.iterator();

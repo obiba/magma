@@ -7,11 +7,11 @@ import org.obiba.magma.Value;
 import org.obiba.magma.ValueSet;
 import org.obiba.magma.type.DateTimeType;
 
-public class JdbcTimestamps implements Timestamps {
+public class JdbcValueSetTimestamps implements Timestamps {
 
   private final JdbcValueSet valueSet;
 
-  public JdbcTimestamps(ValueSet valueSet) {
+  public JdbcValueSetTimestamps(ValueSet valueSet) {
     this.valueSet = (JdbcValueSet) valueSet;
   }
 
