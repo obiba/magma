@@ -127,7 +127,6 @@ public class JdbcDatasource extends AbstractDatasource {
     for(ValueTable valueTable : ImmutableList.copyOf(getValueTables())) {
       dropTable(valueTable.getName());
     }
-    // TODO drop datasource info if any
   }
 
   /**
