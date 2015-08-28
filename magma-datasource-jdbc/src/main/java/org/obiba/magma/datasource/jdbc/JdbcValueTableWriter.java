@@ -58,8 +58,6 @@ class JdbcValueTableWriter implements ValueTableWriter {
 
   private final SimpleDateFormat timestampDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
-  static final String DATASOURCES_TABLE = "datasources";
-
   static final String VALUE_TABLES_TABLE = "value_tables";
 
   static final String VARIABLES_TABLE = "variables";
@@ -95,6 +93,10 @@ class JdbcValueTableWriter implements ValueTableWriter {
   static final String ENTITY_ID_COLUMN = "entity_id";
 
   static final String ENTITY_TYPE_COLUMN = "entity_type";
+
+  static final String CREATED_COLUMN = "created";
+
+  static final String UPDATED_COLUMN = "updated";
 
   private final JdbcValueTable valueTable;
 
@@ -415,7 +417,7 @@ class JdbcValueTableWriter implements ValueTableWriter {
 
     @SuppressWarnings({ "PMD.NcssMethodCount", "OverlyLongMethod" })
     private String getInsertSql() {
-      Date timestamp = new Date(System.currentTimeMillis());
+      java.util.Date timestamp = new java.util.Date();
 
       if(valueTable.hasCreatedTimestampColumn()) {
         columnValueMap.put(valueTable.getCreatedTimestampColumnName(), timestamp);

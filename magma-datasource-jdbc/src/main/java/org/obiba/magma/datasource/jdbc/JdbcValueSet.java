@@ -64,7 +64,7 @@ public class JdbcValueSet extends ValueSetBean {
   @NotNull
   @Override
   public Timestamps getTimestamps() {
-    return new JdbcTimestamps(this);
+    return new JdbcValueSetTimestamps(this);
   }
 
   public Value getValue(Variable variable) {

@@ -5,6 +5,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -158,12 +159,14 @@ public class JdbcDatasource extends AbstractDatasource {
       Initialisables.initialise(table);
       addValueTable(table);
 
-      if (getSettings().isUseMetadataTables()) {
+      if(getSettings().isUseMetadataTables()) {
         InsertDataChange idc = InsertDataChangeBuilder.newBuilder() //
             .tableName(VALUE_TABLES_TABLE) //
             .withColumn(DATASOURCE_COLUMN, getName()) //
             .withColumn(NAME_COLUMN, tableName) //
             .withColumn(ENTITY_TYPE_COLUMN, tableSettings.getEntityType()) //
+            .withColumn(CREATED_COLUMN, new Date()) //
+            .withColumn(UPDATED_COLUMN, new Date()) //
             .withColumn(SQL_NAME_COLUMN, tableSettings.getSqlTableName()) //
             .build();
 
@@ -204,9 +207,9 @@ public class JdbcDatasource extends AbstractDatasource {
   private Set<String> getRegisteredValueTableNames() {
     Set<String> names = new LinkedHashSet<>();
 
-    names.addAll(
-        getJdbcTemplate().query(String.format("SELECT " + NAME_COLUMN + ", " + SQL_NAME_COLUMN + " FROM %s WHERE " +
-            DATASOURCE_COLUMN + " = ?", VALUE_TABLES_TABLE), new Object[] { getName() }, new RowMapper<String>() {
+    names.addAll(getJdbcTemplate().query(String
+            .format("SELECT %s, %s FROM %s WHERE %s = ?", NAME_COLUMN, SQL_NAME_COLUMN, VALUE_TABLES_TABLE,
+                DATASOURCE_COLUMN), new Object[] { getName() }, new RowMapper<String>() {
           @Override
           public String mapRow(ResultSet rs, int rowNum) throws SQLException {
             return rs.getString(NAME_COLUMN);
@@ -264,13 +267,13 @@ public class JdbcDatasource extends AbstractDatasource {
 
       if(getSettings().isUseMetadataTables()) {
         List<Map.Entry<String, String>> entries = getJdbcTemplate().query(String
-                .format("SELECT " + NAME_COLUMN + ", " + SQL_NAME_COLUMN + " FROM %s WHERE " + DATASOURCE_COLUMN + " = '%s'",
-                    VALUE_TABLES_TABLE, getName()), new RowMapper<Map.Entry<String, String>>() {
-              @Override
-              public Map.Entry<String, String> mapRow(ResultSet rs, int rowNum) throws SQLException {
-                return Maps.immutableEntry(rs.getString(NAME_COLUMN), rs.getString(SQL_NAME_COLUMN));
-              }
-            });
+            .format("SELECT %s, %s FROM %s WHERE %s = '%s'", NAME_COLUMN, SQL_NAME_COLUMN, VALUE_TABLES_TABLE,
+                DATASOURCE_COLUMN, getName()), new RowMapper<Map.Entry<String, String>>() {
+          @Override
+          public Map.Entry<String, String> mapRow(ResultSet rs, int rowNum) throws SQLException {
+            return Maps.immutableEntry(rs.getString(NAME_COLUMN), rs.getString(SQL_NAME_COLUMN));
+          }
+        });
 
         ImmutableMap.Builder<String, String> builder = ImmutableMap.builder();
 
@@ -351,6 +354,8 @@ public class JdbcDatasource extends AbstractDatasource {
           .withColumn(DATASOURCE_COLUMN, "VARCHAR(255)").primaryKey() //
           .withColumn(NAME_COLUMN, "VARCHAR(255)").primaryKey() //
           .withColumn(ENTITY_TYPE_COLUMN, "VARCHAR(255)").notNull() //
+          .withColumn(CREATED_COLUMN, "DATETIME").notNull() //
+          .withColumn(UPDATED_COLUMN, "DATETIME").notNull() //
           .withColumn(SQL_NAME_COLUMN, "VARCHAR(255)").notNull();
       changes.add(builder.build());
     }
