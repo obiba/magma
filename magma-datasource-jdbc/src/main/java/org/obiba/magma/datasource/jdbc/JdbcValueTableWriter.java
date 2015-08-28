@@ -258,6 +258,7 @@ class JdbcValueTableWriter implements ValueTableWriter {
           .withColumn("units", variable.getUnit()) //
           .withColumn("is_repeatable", variable.isRepeatable()) //
           .withColumn("occurrence_group", variable.getOccurrenceGroup()) //
+          .withColumn("index", Integer.toString(variable.getIndex())) //
           .withColumn(SQL_NAME_COLUMN, getVariableSqlName(variable.getName()));
 
       changes.add(builder.build());
