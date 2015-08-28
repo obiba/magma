@@ -336,14 +336,14 @@ class JdbcValueTable extends AbstractValueTable {
   private boolean metadataTablesExist() {
     DatabaseSnapshot snapshot = getDatasource().getDatabaseSnapshot();
 
-    return snapshot.get(newTable(JdbcValueTableWriter.VARIABLES_TABLE)) != null &&
-        snapshot.get(newTable(JdbcValueTableWriter.VARIABLE_ATTRIBUTES_TABLE)) != null &&
-        snapshot.get(newTable(JdbcValueTableWriter.CATEGORIES_TABLE)) != null;
+    return snapshot.get(newTable(VARIABLES_TABLE)) != null &&
+        snapshot.get(newTable(VARIABLE_ATTRIBUTES_TABLE)) != null &&
+        snapshot.get(newTable(CATEGORIES_TABLE)) != null;
   }
 
   private void createSqlTable(String sqlTableName) {
     CreateTableChange ctc = CreateTableChangeBuilder.newBuilder().tableName(sqlTableName) //
-        .withColumn(JdbcValueTableWriter.ENTITY_ID_COLUMN, "VARCHAR(255)").primaryKey() //
+        .withColumn(ENTITY_ID_COLUMN, "VARCHAR(255)").primaryKey() //
         .build();
     createTimestampColumns(ctc);
     List<Change> changes = Lists.<Change>newArrayList(ctc);

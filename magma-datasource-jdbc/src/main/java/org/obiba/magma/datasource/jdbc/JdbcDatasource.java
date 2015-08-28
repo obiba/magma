@@ -16,12 +16,14 @@ import javax.annotation.Nullable;
 import javax.sql.DataSource;
 import javax.validation.constraints.NotNull;
 
+import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.ValueTableWriter;
 import org.obiba.magma.datasource.jdbc.support.CreateTableChangeBuilder;
 import org.obiba.magma.datasource.jdbc.support.InsertDataChangeBuilder;
 import org.obiba.magma.datasource.jdbc.support.MySqlEngineVisitor;
 import org.obiba.magma.datasource.jdbc.support.TableUtils;
+import org.obiba.magma.datasource.jdbc.support.UpdateDataChangeBuilder;
 import org.obiba.magma.support.AbstractDatasource;
 import org.obiba.magma.support.Initialisables;
 import org.obiba.magma.type.TextType;
@@ -42,6 +44,7 @@ import com.google.common.collect.Maps;
 
 import liquibase.change.Change;
 import liquibase.change.core.InsertDataChange;
+import liquibase.change.core.RenameTableChange;
 import liquibase.database.Database;
 import liquibase.database.DatabaseFactory;
 import liquibase.database.DatabaseList;
@@ -111,9 +114,29 @@ public class JdbcDatasource extends AbstractDatasource {
 
   @Override
   public void renameTable(String tableName, String newName) {
-    String tableSqlName = getValueTableMap().get(tableName);
-    getValueTableMap().put(newName, tableSqlName);
+    if(hasValueTable(newName)) throw new MagmaRuntimeException("A table already exists with the name: " + newName);
+
+    JdbcValueTable table = (JdbcValueTable) getValueTable(tableName);
+    removeValueTable(table);
+    String sqlName = table.getSqlName();
+    String newSqlName = getSettings().isUseMetadataTables() ? generateSqlTableName(newName) : newName;
     getValueTableMap().remove(tableName);
+    getValueTableMap().put(newName, newSqlName);
+
+    List<Change> changes = Lists.newArrayList();
+    addRenameDataChanges(changes, tableName, newName, newSqlName);
+
+    RenameTableChange rtc = new RenameTableChange();
+    rtc.setOldTableName(sqlName);
+    rtc.setNewTableName(newSqlName);
+    changes.add(rtc);
+
+    doWithDatabase(new ChangeDatabaseCallback(changes));
+    databaseChanged();
+
+    ValueTable vt = initialiseValueTable(newName);
+    Initialisables.initialise(vt);
+    addValueTable(vt);
   }
 
   @Override
@@ -150,7 +173,7 @@ public class JdbcDatasource extends AbstractDatasource {
       JdbcValueTableSettings tableSettings = settings.getTableSettingsForMagmaTable(tableName);
 
       if(tableSettings == null) {
-        tableSettings = new JdbcValueTableSettings(generateTableName(tableName), tableName, entityType,
+        tableSettings = new JdbcValueTableSettings(generateSqlTableName(tableName), tableName, entityType,
             Arrays.asList("entity_id"));
         settings.getTableSettings().add(tableSettings);
       }
@@ -203,18 +226,33 @@ public class JdbcDatasource extends AbstractDatasource {
     return names;
   }
 
+  @Override
+  protected ValueTable initialiseValueTable(String tableName) {
+    JdbcValueTableSettings tableSettings = settings.getTableSettingsForMagmaTable(tableName);
+    String sqlTableName = getValueTableMap().containsKey(tableName) ? getValueTableMap().get(tableName) : tableName;
+
+    return tableSettings != null
+        ? new JdbcValueTable(this, tableSettings)
+        : new JdbcValueTable(this, tableName, getDatabaseSnapshot().get(newTable(sqlTableName)),
+            settings.getDefaultEntityType());
+  }
+
+  //
+  // Methods
+  //
+
   @NotNull
   private Set<String> getRegisteredValueTableNames() {
     Set<String> names = new LinkedHashSet<>();
 
-    names.addAll(getJdbcTemplate().query(String
-            .format("SELECT %s, %s FROM %s WHERE %s = ?", NAME_COLUMN, SQL_NAME_COLUMN, VALUE_TABLES_TABLE,
-                DATASOURCE_COLUMN), new Object[] { getName() }, new RowMapper<String>() {
-          @Override
-          public String mapRow(ResultSet rs, int rowNum) throws SQLException {
-            return rs.getString(NAME_COLUMN);
-          }
-        }));
+    names.addAll(getJdbcTemplate()
+        .query(String.format("SELECT %s FROM %s WHERE %s = ?", NAME_COLUMN, VALUE_TABLES_TABLE, DATASOURCE_COLUMN),
+            new Object[] { getName() }, new RowMapper<String>() {
+              @Override
+              public String mapRow(ResultSet rs, int rowNum) throws SQLException {
+                return rs.getString(NAME_COLUMN);
+              }
+            }));
 
     return names;
   }
@@ -242,22 +280,44 @@ public class JdbcDatasource extends AbstractDatasource {
     return names;
   }
 
-  @Override
-  protected ValueTable initialiseValueTable(String tableName) {
-    JdbcValueTableSettings tableSettings = settings.getTableSettingsForMagmaTable(tableName);
-    String sqlTableName = getValueTableMap().containsKey(tableName) ? getValueTableMap().get(tableName) : tableName;
+  /**
+   * Data changes when a table is renamed.
+   *
+   * @param changes
+   * @param tableName
+   * @param newName
+   * @param newSqlName
+   */
+  private void addRenameDataChanges(List<Change> changes, String tableName, String newName, String newSqlName) {
+    if(!getSettings().isUseMetadataTables()) return;
 
-    return tableSettings != null
-        ? new JdbcValueTable(this, tableSettings)
-        : new JdbcValueTable(this, tableName, getDatabaseSnapshot().get(newTable(sqlTableName)),
-            settings.getDefaultEntityType());
+    String whereClause = String.format("%s = '%s' AND %s = '%s'", DATASOURCE_COLUMN, getName(), NAME_COLUMN, tableName);
+    changes.add(UpdateDataChangeBuilder.newBuilder().tableName(VALUE_TABLES_TABLE) //
+        .withColumn(NAME_COLUMN, newName) //
+        .withColumn(SQL_NAME_COLUMN, newSqlName) //
+        .withColumn(UPDATED_COLUMN, new Date()) //
+        .where(whereClause).build());
+
+    whereClause = String.format("%s = '%s' AND %s = '%s'", DATASOURCE_COLUMN, getName(), VALUE_TABLE_COLUMN, tableName);
+
+    changes.add(UpdateDataChangeBuilder.newBuilder().tableName(VARIABLES_TABLE) //
+        .withColumn(VALUE_TABLE_COLUMN, newName) //
+        .where(whereClause).build());
+
+    changes.add(UpdateDataChangeBuilder.newBuilder().tableName(VARIABLE_ATTRIBUTES_TABLE) //
+        .withColumn(VALUE_TABLE_COLUMN, newName) //
+        .where(whereClause).build());
+
+    changes.add(UpdateDataChangeBuilder.newBuilder().tableName(CATEGORIES_TABLE) //
+        .withColumn(VALUE_TABLE_COLUMN, newName) //
+        .where(whereClause).build());
+
+    changes.add(UpdateDataChangeBuilder.newBuilder().tableName(CATEGORY_ATTRIBUTES_TABLE) //
+        .withColumn(VALUE_TABLE_COLUMN, newName) //
+        .where(whereClause).build());
   }
 
-  //
-  // Methods
-  //
-
-  private String generateTableName(String tableName) {
+  private String generateSqlTableName(String tableName) {
     return String.format("%s_%s", TableUtils.normalize(getName()), TableUtils.normalize(tableName));
   }
 
