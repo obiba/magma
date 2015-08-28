@@ -61,10 +61,8 @@ public class JdbcDatasource extends AbstractDatasource {
 
   private static final Logger log = LoggerFactory.getLogger(JdbcDatasource.class);
 
-  public static final String VARIABLES_MAPPING = "variables_mapping";
-
   private static final Set<String> RESERVED_NAMES = ImmutableSet
-      .of(VARIABLES_TABLE, VARIABLE_ATTRIBUTES_TABLE, CATEGORIES_TABLE);
+      .of(VALUE_TABLES_TABLE, VARIABLES_TABLE, VARIABLE_ATTRIBUTES_TABLE, CATEGORIES_TABLE, CATEGORY_ATTRIBUTES_TABLE);
 
   private static final String TYPE = "jdbc";
 
@@ -370,6 +368,7 @@ public class JdbcDatasource extends AbstractDatasource {
           .withColumn("units", "VARCHAR(255)") //
           .withColumn("is_repeatable", "BOOLEAN") //
           .withColumn("occurrence_group", "VARCHAR(255)") //
+          .withColumn("index", "INT") //
           .withColumn(SQL_NAME_COLUMN, "VARCHAR(255)").notNull();
       changes.add(builder.build());
     }
