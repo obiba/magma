@@ -28,6 +28,7 @@ import org.obiba.magma.datasource.jdbc.JdbcDatasource.ChangeDatabaseCallback;
 import org.obiba.magma.datasource.jdbc.support.AddColumnChangeBuilder;
 import org.obiba.magma.datasource.jdbc.support.InsertDataChangeBuilder;
 import org.obiba.magma.datasource.jdbc.support.TableUtils;
+import org.obiba.magma.datasource.jdbc.support.UpdateDataChangeBuilder;
 import org.obiba.magma.type.LocaleType;
 import org.obiba.magma.type.TextType;
 import org.slf4j.Logger;
@@ -248,6 +249,8 @@ class JdbcValueTableWriter implements ValueTableWriter {
 
       if(variableExists) {
         deleteVariableMetadata(variable.getName());
+      } else {
+        addTableTimestampChange();
       }
 
       InsertDataChangeBuilder builder = new InsertDataChangeBuilder();
@@ -267,15 +270,21 @@ class JdbcValueTableWriter implements ValueTableWriter {
       writeAttributes(variable);
       writeCategories(variable);
 
-      if(!variableExists) {
-        super.doWriteVariable(variable);
-      }
+      super.doWriteVariable(variable);
     }
 
     @Override
     public void removeVariable(@NotNull Variable variable) {
       super.removeVariable(variable);
       deleteVariableMetadata(variable.getName());
+    }
+
+    private void addTableTimestampChange() {
+      changes.add(UpdateDataChangeBuilder.newBuilder().tableName(VALUE_TABLES_TABLE) //
+          .withColumn(UPDATED_COLUMN, new java.util.Date()) //
+          .where(String
+              .format("%s = '%s' AND %s = '%s'", DATASOURCE_COLUMN, valueTable.getDatasource().getName(), NAME_COLUMN,
+                  valueTable.getName())).build());
     }
 
     //
@@ -293,6 +302,7 @@ class JdbcValueTableWriter implements ValueTableWriter {
       jdbcTemplate
           .update(DELETE_VARIABLE_CATEGORY_ATTRIBUTES_SQL, valueTable.getDatasource().getName(), valueTable.getName(),
               variableName);
+      addTableTimestampChange();
     }
 
     private void writeAttributes(Variable variable) {

@@ -302,6 +302,7 @@ public class JdbcDatasource extends AbstractDatasource {
     changes.add(UpdateDataChangeBuilder.newBuilder().tableName(VALUE_TABLES_TABLE) //
         .withColumn(NAME_COLUMN, newName) //
         .withColumn(SQL_NAME_COLUMN, newSqlName) //
+        .withColumn(UPDATED_COLUMN, new Date()) //
         .where(whereClause).build());
 
     whereClause = String.format("%s = '%s' AND %s = '%s'", DATASOURCE_COLUMN, getName(), VALUE_TABLE_COLUMN, tableName);
