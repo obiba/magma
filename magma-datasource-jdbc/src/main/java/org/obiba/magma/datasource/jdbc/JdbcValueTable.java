@@ -144,6 +144,7 @@ class JdbcValueTable extends AbstractValueTable {
     DropTableChange dtt = new DropTableChange();
     dtt.setTableName(getSqlName());
     getDatasource().doWithDatabase(new ChangeDatabaseCallback(dtt));
+    getDatasource().databaseChanged();
     if(getDatasource().getSettings().isUseMetadataTables()) {
       getDatasource().getJdbcTemplate().update(String
           .format("DELETE FROM %s WHERE %s = ? AND %s = ?", CATEGORY_ATTRIBUTES_TABLE, DATASOURCE_COLUMN,
