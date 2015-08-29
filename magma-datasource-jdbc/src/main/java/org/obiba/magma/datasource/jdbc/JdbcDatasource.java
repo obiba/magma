@@ -35,6 +35,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 
 import com.google.common.base.Predicate;
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -230,11 +231,17 @@ public class JdbcDatasource extends AbstractDatasource {
   protected ValueTable initialiseValueTable(String tableName) {
     JdbcValueTableSettings tableSettings = settings.getTableSettingsForMagmaTable(tableName);
     String sqlTableName = getValueTableMap().containsKey(tableName) ? getValueTableMap().get(tableName) : tableName;
+    String entityType = null;
+    if(getSettings().isUseMetadataTables()) {
+      String sql = String.format("SELECT %s FROM %s WHERE %s = ? AND %s = ?", ENTITY_TYPE_COLUMN, VALUE_TABLES_TABLE,
+          DATASOURCE_COLUMN, NAME_COLUMN);
+      entityType = getJdbcTemplate().queryForObject(sql, new Object[] { getName(), tableName }, String.class);
+    }
 
     return tableSettings != null
         ? new JdbcValueTable(this, tableSettings)
         : new JdbcValueTable(this, tableName, getDatabaseSnapshot().get(newTable(sqlTableName)),
-            settings.getDefaultEntityType());
+            Strings.isNullOrEmpty(entityType) ? settings.getDefaultEntityType() : entityType);
   }
 
   //

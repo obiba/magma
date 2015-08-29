@@ -34,7 +34,7 @@ public class JdbcValueTableTimestamps implements Timestamps {
     // Get last updated value set if any
     if(table.hasUpdatedTimestampColumn()) {
       Date latest = getLatestValueSetUpdatedDate();
-      if (latest != null) {
+      if(latest != null) {
         date = date == null ? latest : date.after(latest) ? date : latest;
       }
     }
@@ -61,15 +61,19 @@ public class JdbcValueTableTimestamps implements Timestamps {
   // Private methods
   //
   private Date getMetaUpdatedDate() {
-    String sql = String.format("SELECT %s FROM %s WHERE %s = '%s' AND %s = '%s'", UPDATED_COLUMN, VALUE_TABLES_TABLE,
-        DATASOURCE_COLUMN, table.getDatasource().getName(), NAME_COLUMN, table.getName());
-    return table.getDatasource().getJdbcTemplate().queryForObject(sql, Date.class);
+    String sql = String
+        .format("SELECT %s FROM %s WHERE %s = ? AND %s = ?", UPDATED_COLUMN, VALUE_TABLES_TABLE, DATASOURCE_COLUMN,
+            NAME_COLUMN);
+    return table.getDatasource().getJdbcTemplate()
+        .queryForObject(sql, new Object[] { table.getDatasource().getName(), table.getName() }, Date.class);
   }
 
   private Date getMetaCreatedDate() {
-    String sql = String.format("SELECT %s FROM %s WHERE %s = '%s' AND %s = '%s'", CREATED_COLUMN, VALUE_TABLES_TABLE,
-        DATASOURCE_COLUMN, table.getDatasource().getName(), NAME_COLUMN, table.getName());
-    return table.getDatasource().getJdbcTemplate().queryForObject(sql, Date.class);
+    String sql = String
+        .format("SELECT %s FROM %s WHERE %s = ? AND %s = ?", CREATED_COLUMN, VALUE_TABLES_TABLE, DATASOURCE_COLUMN,
+            NAME_COLUMN);
+    return table.getDatasource().getJdbcTemplate()
+        .queryForObject(sql, new Object[] { table.getDatasource().getName(), table.getName() }, Date.class);
   }
 
   private Date getOldestValueSetCreatedDate() {
