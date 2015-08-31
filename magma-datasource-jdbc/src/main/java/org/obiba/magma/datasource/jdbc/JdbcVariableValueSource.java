@@ -1,0 +1,206 @@
+package org.obiba.magma.datasource.jdbc;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
+import java.util.SortedSet;
+
+import javax.validation.constraints.NotNull;
+
+import org.obiba.magma.AbstractVariableValueSource;
+import org.obiba.magma.Value;
+import org.obiba.magma.ValueSet;
+import org.obiba.magma.ValueType;
+import org.obiba.magma.Variable;
+import org.obiba.magma.VariableEntity;
+import org.obiba.magma.VariableValueSource;
+import org.obiba.magma.VectorSource;
+
+import liquibase.change.ColumnConfig;
+import liquibase.structure.core.Column;
+
+class JdbcVariableValueSource extends AbstractVariableValueSource implements VariableValueSource, VectorSource {
+  //
+  // Instance Variables
+  //
+
+  private final JdbcValueTable valueTable;
+
+  private final Variable variable;
+
+  private final String columnName;
+
+  //
+  // Constructors
+  //
+
+  JdbcVariableValueSource(JdbcValueTable valueTable, Column column) {
+    this.valueTable = valueTable;
+    columnName = column.getName();
+    variable = Variable.Builder
+        .newVariable(valueTable.getVariableName(columnName), SqlTypes.valueTypeFor(column.getType().getDataTypeId()), valueTable.getEntityType())
+        .build();
+  }
+
+  JdbcVariableValueSource(JdbcValueTable valueTable, ColumnConfig columnConfig) {
+    this.valueTable = valueTable;
+    columnName = columnConfig.getName();
+    variable = Variable.Builder
+        .newVariable(valueTable.getVariableName(columnName), SqlTypes.valueTypeFor(columnConfig.getType()), valueTable.getEntityType()).build();
+  }
+
+  JdbcVariableValueSource(JdbcValueTable valueTable, Variable variable) {
+    this.valueTable = valueTable;
+    this.variable = variable;
+    columnName = valueTable.getVariableSqlName(variable.getName());
+  }
+
+  //
+  // VariableValueSource Methods
+  //
+
+  @NotNull
+  @Override
+  public Variable getVariable() {
+    return variable;
+  }
+
+  @NotNull
+  @Override
+  public Value getValue(ValueSet valueSet) {
+    JdbcValueSet jdbcValueSet = (JdbcValueSet) valueSet;
+    return jdbcValueSet.getValue(variable);
+  }
+
+  @NotNull
+  @Override
+  public ValueType getValueType() {
+    return variable.getValueType();
+  }
+
+  @Override
+  public boolean supportVectorSource() {
+    return true;
+  }
+
+  @NotNull
+  @Override
+  public VectorSource asVectorSource() {
+    return this;
+  }
+
+  @Override
+  public Iterable<Value> getValues(final SortedSet<VariableEntity> entities) {
+
+    return new Iterable<Value>() {
+
+      @Override
+      public Iterator<Value> iterator() {
+        try {
+          return new ValueIterator(valueTable.getDatasource().getJdbcTemplate().getDataSource().getConnection(), entities);
+        } catch(SQLException e) {
+          throw new RuntimeException(e);
+        }
+      }
+
+    };
+  }
+
+  private class ValueIterator implements Iterator<Value> {
+
+    private final Connection connection;
+
+    private final PreparedStatement statement;
+
+    private final ResultSet rs;
+
+    private final Iterator<VariableEntity> resultEntities;
+
+    private boolean hasNextResults;
+
+    private boolean closed = false;
+
+    @edu.umd.cs.findbugs.annotations.SuppressWarnings("SQL_PREPARED_STATEMENT_GENERATED_FROM_NONCONSTANT_STRING")
+    private ValueIterator(Connection connection, Iterable<VariableEntity> entities) throws SQLException {
+      this.connection = connection;
+      String column = valueTable.getEntityIdentifierColumnsSql();
+      statement = connection.prepareStatement(
+          String.format("SELECT %s, %s FROM %s ORDER BY %s", column, columnName, valueTable.getSqlName(), column));
+      rs = statement.executeQuery();
+      hasNextResults = rs.next();
+      resultEntities = entities.iterator();
+      closeCursorIfNecessary();
+    }
+
+    @Override
+    public boolean hasNext() {
+      return resultEntities.hasNext();
+    }
+
+    @Override
+    public Value next() {
+      if(!hasNext()) {
+        throw new NoSuchElementException();
+      }
+
+      String nextEntity = resultEntities.next().getIdentifier();
+      try {
+        // Scroll until we find the required entity or reach the end of the results
+        while(hasNextResults && !valueTable.buildEntityIdentifier(rs).equals(nextEntity)) {
+          hasNextResults = rs.next();
+        }
+
+        Value value = null;
+        if(hasNextResults) {
+          value = variable.getValueType().valueOf(rs.getObject(columnName));
+        }
+        closeCursorIfNecessary();
+        return value == null //
+            ? getVariable().isRepeatable() ? getValueType().nullSequence() : getValueType().nullValue() //
+            : value;
+      } catch(SQLException e) {
+        throw new RuntimeException(e);
+      }
+    }
+
+    @Override
+    public void remove() {
+      throw new UnsupportedOperationException();
+    }
+
+    private void closeCursorIfNecessary() {
+      if(!closed) {
+        // Close the cursor if we don't have any more results or no more entities to return
+        if(!hasNextResults || !hasNext()) {
+          closed = true;
+          closeQuietly(rs, statement, connection);
+        }
+      }
+    }
+
+    @SuppressWarnings({ "OverlyStrongTypeCast", "ChainOfInstanceofChecks" })
+    private void closeQuietly(Object... objs) {
+      if(objs != null) {
+        for(Object o : objs) {
+          try {
+            if(o instanceof ResultSet) {
+              ((ResultSet) o).close();
+            }
+            if(o instanceof Statement) {
+              ((Statement) o).close();
+            }
+            if(o instanceof Connection) {
+              ((Connection) o).close();
+            }
+          } catch(SQLException e) {
+            // ignored
+          }
+        }
+      }
+    }
+  }
+}
