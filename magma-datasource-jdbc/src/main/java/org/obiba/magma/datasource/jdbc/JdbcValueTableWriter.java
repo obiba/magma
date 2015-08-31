@@ -132,7 +132,7 @@ class JdbcValueTableWriter implements ValueTableWriter {
     return valueTable.getVariableSqlName(variableName);
   }
 
-  private class JdbcVariableWriter implements VariableWriter {
+  private class JdbcVariableWriter implements ValueTableWriter.VariableWriter {
 
     protected List<Change> changes = new ArrayList<>();
 
@@ -354,7 +354,7 @@ class JdbcValueTableWriter implements ValueTableWriter {
     }
   }
 
-  private class JdbcValueSetWriter implements ValueSetWriter {
+  private class JdbcValueSetWriter implements ValueTableWriter.ValueSetWriter {
 
     private final VariableEntity entity;
 
