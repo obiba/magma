@@ -1,30 +1,19 @@
 package org.obiba.magma.datasource.jdbc;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.Set;
-import java.util.SortedSet;
 
 import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 
-import org.obiba.magma.AbstractVariableValueSource;
 import org.obiba.magma.Attribute;
 import org.obiba.magma.Category;
 import org.obiba.magma.Datasource;
-import org.obiba.magma.Initialisable;
 import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.NoSuchValueSetException;
 import org.obiba.magma.Timestamps;
@@ -33,16 +22,12 @@ import org.obiba.magma.ValueSet;
 import org.obiba.magma.ValueType;
 import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
-import org.obiba.magma.VariableValueSource;
-import org.obiba.magma.VectorSource;
 import org.obiba.magma.datasource.jdbc.JdbcDatasource.ChangeDatabaseCallback;
 import org.obiba.magma.datasource.jdbc.support.CreateIndexChangeBuilder;
 import org.obiba.magma.datasource.jdbc.support.CreateTableChangeBuilder;
 import org.obiba.magma.support.AbstractValueTable;
-import org.obiba.magma.support.AbstractVariableEntityProvider;
 import org.obiba.magma.support.Initialisables;
 import org.obiba.magma.support.NullTimestamps;
-import org.obiba.magma.support.VariableEntityBean;
 import org.obiba.magma.type.DateTimeType;
 import org.springframework.jdbc.core.RowMapper;
 
@@ -84,7 +69,7 @@ class JdbcValueTable extends AbstractValueTable {
     }
 
     table = getDatasource().getDatabaseSnapshot().get(newTable(settings.getSqlTableName()));
-    setVariableEntityProvider(new JdbcVariableEntityProvider(getEntityType()));
+    setVariableEntityProvider(new JdbcVariableEntityProvider(this));
   }
 
   JdbcValueTable(Datasource datasource, String tableName, Table table, String entityType) {
@@ -150,8 +135,8 @@ class JdbcValueTable extends AbstractValueTable {
           .format("DELETE FROM %s WHERE %s = ? AND %s = ?", CATEGORY_ATTRIBUTES_TABLE, DATASOURCE_COLUMN,
               VALUE_TABLE_COLUMN), getDatasource().getName(), getName());
       getDatasource().getJdbcTemplate().update(String
-              .format("DELETE FROM %s WHERE %s = ? AND %s = ?", CATEGORIES_TABLE, DATASOURCE_COLUMN,
-                  VALUE_TABLE_COLUMN), getDatasource().getName(), getName());
+          .format("DELETE FROM %s WHERE %s = ? AND %s = ?", CATEGORIES_TABLE, DATASOURCE_COLUMN, VALUE_TABLE_COLUMN),
+          getDatasource().getName(), getName());
       getDatasource().getJdbcTemplate().update(String
           .format("DELETE FROM %s WHERE %s = ? AND %s = ?", VARIABLE_ATTRIBUTES_TABLE, DATASOURCE_COLUMN,
               VALUE_TABLE_COLUMN), getDatasource().getName(), getName());
@@ -200,7 +185,7 @@ class JdbcValueTable extends AbstractValueTable {
   }
 
   void writeVariableValueSource(Variable source) {
-    addVariableValueSource(new JdbcVariableValueSource(source));
+    addVariableValueSource(new JdbcVariableValueSource(this, source));
   }
 
   static List<String> getEntityIdentifierColumns(Table table) {
@@ -229,7 +214,7 @@ class JdbcValueTable extends AbstractValueTable {
           new Object[] { getDatasource().getName(), getName() }, new VariableRowMapper());
 
       for(Variable variable : results) {
-        addVariableValueSource(new JdbcVariableValueSource(variable));
+        addVariableValueSource(new JdbcVariableValueSource(this, variable));
       }
     } else {
       List<String> reserved = Lists.newArrayList(getSettings().getEntityIdentifierColumns());
@@ -240,7 +225,7 @@ class JdbcValueTable extends AbstractValueTable {
 
       for(Column column : table.getColumns()) {
         if(!reserved.contains(column.getName()) && !reserved.contains(column.getName().toLowerCase())) {
-          addVariableValueSource(new JdbcVariableValueSource(getEntityType(), column));
+          addVariableValueSource(new JdbcVariableValueSource(this, column));
         }
       }
     }
@@ -383,7 +368,7 @@ class JdbcValueTable extends AbstractValueTable {
     return column;
   }
 
-  private String getEntityIdentifierColumnsSql() {
+  String getEntityIdentifierColumnsSql() {
     StringBuilder sql = new StringBuilder();
     List<String> entityIdentifierColumns = getSettings().getEntityIdentifierColumns();
     for(int i = 0; i < entityIdentifierColumns.size(); i++) {
@@ -393,7 +378,7 @@ class JdbcValueTable extends AbstractValueTable {
     return sql.toString();
   }
 
-  private String buildEntityIdentifier(ResultSet rs) throws SQLException {
+  String buildEntityIdentifier(ResultSet rs) throws SQLException {
     StringBuilder entityIdentifier = new StringBuilder();
     for(int i = 1; i <= getSettings().getEntityIdentifierColumns().size(); i++) {
       if(i > 1) {
@@ -499,209 +484,4 @@ class JdbcValueTable extends AbstractValueTable {
     }
   }
 
-  class JdbcVariableEntityProvider extends AbstractVariableEntityProvider implements Initialisable {
-
-    private Set<VariableEntity> entities = new LinkedHashSet<>();
-
-    JdbcVariableEntityProvider(String entityType) {
-      super(entityType);
-    }
-
-    @Override
-    public void initialise() {
-      entities = new LinkedHashSet<>();
-      List<VariableEntity> results = getDatasource().getJdbcTemplate()
-          .query(String.format("SELECT %s FROM %s", getEntityIdentifierColumnsSql(), getSqlName()),
-              new RowMapper<VariableEntity>() {
-                @Override
-                public VariableEntity mapRow(ResultSet rs, int rowNum) throws SQLException {
-                  return new VariableEntityBean(JdbcValueTable.this.getEntityType(), buildEntityIdentifier(rs));
-                }
-              });
-      entities.addAll(results);
-    }
-
-    @NotNull
-    @Override
-    public Set<VariableEntity> getVariableEntities() {
-      return Collections.unmodifiableSet(entities);
-    }
-  }
-
-  class JdbcVariableValueSource extends AbstractVariableValueSource implements VariableValueSource, VectorSource {
-    //
-    // Instance Variables
-    //
-
-    private final Variable variable;
-
-    private final String columnName;
-
-    //
-    // Constructors
-    //
-
-    JdbcVariableValueSource(String entityType, Column column) {
-      columnName = column.getName();
-      variable = Variable.Builder
-          .newVariable(getVariableName(columnName), SqlTypes.valueTypeFor(column.getType().getDataTypeId()), entityType)
-          .build();
-    }
-
-    JdbcVariableValueSource(String entityType, ColumnConfig columnConfig) {
-      columnName = columnConfig.getName();
-      variable = Variable.Builder
-          .newVariable(getVariableName(columnName), SqlTypes.valueTypeFor(columnConfig.getType()), entityType).build();
-    }
-
-    JdbcVariableValueSource(Variable variable) {
-      this.variable = variable;
-      columnName = getVariableSqlName(variable.getName());
-    }
-
-    //
-    // VariableValueSource Methods
-    //
-
-    @NotNull
-    @Override
-    public Variable getVariable() {
-      return variable;
-    }
-
-    @NotNull
-    @Override
-    public Value getValue(ValueSet valueSet) {
-      JdbcValueSet jdbcValueSet = (JdbcValueSet) valueSet;
-      return jdbcValueSet.getValue(variable);
-    }
-
-    @NotNull
-    @Override
-    public ValueType getValueType() {
-      return variable.getValueType();
-    }
-
-    @Override
-    public boolean supportVectorSource() {
-      return true;
-    }
-
-    @NotNull
-    @Override
-    public VectorSource asVectorSource() {
-      return this;
-    }
-
-    @Override
-    public Iterable<Value> getValues(final SortedSet<VariableEntity> entities) {
-
-      return new Iterable<Value>() {
-
-        @Override
-        public Iterator<Value> iterator() {
-          try {
-            return new ValueIterator(getDatasource().getJdbcTemplate().getDataSource().getConnection(), entities);
-          } catch(SQLException e) {
-            throw new RuntimeException(e);
-          }
-        }
-
-      };
-    }
-
-    private class ValueIterator implements Iterator<Value> {
-
-      private final Connection connection;
-
-      private final PreparedStatement statement;
-
-      private final ResultSet rs;
-
-      private final Iterator<VariableEntity> resultEntities;
-
-      private boolean hasNextResults;
-
-      private boolean closed = false;
-
-      @edu.umd.cs.findbugs.annotations.SuppressWarnings("SQL_PREPARED_STATEMENT_GENERATED_FROM_NONCONSTANT_STRING")
-      private ValueIterator(Connection connection, Iterable<VariableEntity> entities) throws SQLException {
-        this.connection = connection;
-        String column = getEntityIdentifierColumnsSql();
-        statement = connection.prepareStatement(
-            String.format("SELECT %s, %s FROM %s ORDER BY %s", column, columnName, getSqlName(), column));
-        rs = statement.executeQuery();
-        hasNextResults = rs.next();
-        resultEntities = entities.iterator();
-        closeCursorIfNecessary();
-      }
-
-      @Override
-      public boolean hasNext() {
-        return resultEntities.hasNext();
-      }
-
-      @Override
-      public Value next() {
-        if(!hasNext()) {
-          throw new NoSuchElementException();
-        }
-
-        String nextEntity = resultEntities.next().getIdentifier();
-        try {
-          // Scroll until we find the required entity or reach the end of the results
-          while(hasNextResults && !buildEntityIdentifier(rs).equals(nextEntity)) {
-            hasNextResults = rs.next();
-          }
-
-          Value value = null;
-          if(hasNextResults) {
-            value = variable.getValueType().valueOf(rs.getObject(columnName));
-          }
-          closeCursorIfNecessary();
-          return value == null //
-              ? getVariable().isRepeatable() ? getValueType().nullSequence() : getValueType().nullValue() //
-              : value;
-        } catch(SQLException e) {
-          throw new RuntimeException(e);
-        }
-      }
-
-      @Override
-      public void remove() {
-        throw new UnsupportedOperationException();
-      }
-
-      private void closeCursorIfNecessary() {
-        if(!closed) {
-          // Close the cursor if we don't have any more results or no more entities to return
-          if(!hasNextResults || !hasNext()) {
-            closed = true;
-            closeQuietly(rs, statement, connection);
-          }
-        }
-      }
-
-      @SuppressWarnings({ "OverlyStrongTypeCast", "ChainOfInstanceofChecks" })
-      private void closeQuietly(Object... objs) {
-        if(objs != null) {
-          for(Object o : objs) {
-            try {
-              if(o instanceof ResultSet) {
-                ((ResultSet) o).close();
-              }
-              if(o instanceof Statement) {
-                ((Statement) o).close();
-              }
-              if(o instanceof Connection) {
-                ((Connection) o).close();
-              }
-            } catch(SQLException e) {
-              // ignored
-            }
-          }
-        }
-      }
-    }
-  }
 }
