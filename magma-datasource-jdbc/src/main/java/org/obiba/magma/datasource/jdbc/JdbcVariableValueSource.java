@@ -6,7 +6,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Iterator;
-import java.util.NoSuchElementException;
+import java.util.Map;
 import java.util.SortedSet;
 
 import javax.validation.constraints.NotNull;
@@ -19,6 +19,8 @@ import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.VariableValueSource;
 import org.obiba.magma.VectorSource;
+
+import com.google.common.collect.Maps;
 
 import liquibase.change.ColumnConfig;
 import liquibase.structure.core.Column;
@@ -42,15 +44,16 @@ class JdbcVariableValueSource extends AbstractVariableValueSource implements Var
     this.valueTable = valueTable;
     columnName = column.getName();
     variable = Variable.Builder
-        .newVariable(valueTable.getVariableName(columnName), SqlTypes.valueTypeFor(column.getType().getDataTypeId()), valueTable.getEntityType())
-        .build();
+        .newVariable(valueTable.getVariableName(columnName), SqlTypes.valueTypeFor(column.getType().getDataTypeId()),
+            valueTable.getEntityType()).build();
   }
 
   JdbcVariableValueSource(JdbcValueTable valueTable, ColumnConfig columnConfig) {
     this.valueTable = valueTable;
     columnName = columnConfig.getName();
     variable = Variable.Builder
-        .newVariable(valueTable.getVariableName(columnName), SqlTypes.valueTypeFor(columnConfig.getType()), valueTable.getEntityType()).build();
+        .newVariable(valueTable.getVariableName(columnName), SqlTypes.valueTypeFor(columnConfig.getType()),
+            valueTable.getEntityType()).build();
   }
 
   JdbcVariableValueSource(JdbcValueTable valueTable, Variable variable) {
@@ -101,7 +104,8 @@ class JdbcVariableValueSource extends AbstractVariableValueSource implements Var
       @Override
       public Iterator<Value> iterator() {
         try {
-          return new ValueIterator(valueTable.getDatasource().getJdbcTemplate().getDataSource().getConnection(), entities);
+          return new ValueIterator(valueTable.getDatasource().getJdbcTemplate().getDataSource().getConnection(),
+              entities);
         } catch(SQLException e) {
           throw new RuntimeException(e);
         }
@@ -118,11 +122,13 @@ class JdbcVariableValueSource extends AbstractVariableValueSource implements Var
 
     private final ResultSet rs;
 
-    private final Iterator<VariableEntity> resultEntities;
+    private final Iterator<VariableEntity> entities;
 
     private boolean hasNextResults;
 
     private boolean closed = false;
+
+    private final Map<String, Value> valueMap = Maps.newHashMap();
 
     @edu.umd.cs.findbugs.annotations.SuppressWarnings("SQL_PREPARED_STATEMENT_GENERATED_FROM_NONCONSTANT_STRING")
     private ValueIterator(Connection connection, Iterable<VariableEntity> entities) throws SQLException {
@@ -132,36 +138,40 @@ class JdbcVariableValueSource extends AbstractVariableValueSource implements Var
           String.format("SELECT %s, %s FROM %s ORDER BY %s", column, columnName, valueTable.getSqlName(), column));
       rs = statement.executeQuery();
       hasNextResults = rs.next();
-      resultEntities = entities.iterator();
+      this.entities = entities.iterator();
       closeCursorIfNecessary();
     }
 
     @Override
     public boolean hasNext() {
-      return resultEntities.hasNext();
+      return entities.hasNext();
     }
 
     @Override
     public Value next() {
-      if(!hasNext()) {
-        throw new NoSuchElementException();
-      }
+      VariableEntity entity = entities.next();
+      String nextId = entity.getIdentifier();
 
-      String nextEntity = resultEntities.next().getIdentifier();
+      if(valueMap.containsKey(nextId)) return getValueFromMap(entity);
+
       try {
         // Scroll until we find the required entity or reach the end of the results
-        while(hasNextResults && !valueTable.buildEntityIdentifier(rs).equals(nextEntity)) {
+        boolean found = false;
+        while(hasNextResults && !found) {
+          String id = valueTable.buildEntityIdentifier(rs);
+          Value value = getValueType().valueOf(rs.getObject(columnName));
+          if(value == null) {
+            value = variable.isRepeatable() ? getValueType().nullSequence() : getValueType().nullValue();
+          }
+          valueMap.put(id, value);
           hasNextResults = rs.next();
+          found = nextId.equals(id);
         }
 
-        Value value = null;
-        if(hasNextResults) {
-          value = variable.getValueType().valueOf(rs.getObject(columnName));
-        }
         closeCursorIfNecessary();
-        return value == null //
-            ? getVariable().isRepeatable() ? getValueType().nullSequence() : getValueType().nullValue() //
-            : value;
+
+        if(valueMap.containsKey(nextId)) return getValueFromMap(entity);
+        return getVariable().isRepeatable() ? getValueType().nullSequence() : getValueType().nullValue();
       } catch(SQLException e) {
         throw new RuntimeException(e);
       }
@@ -180,6 +190,18 @@ class JdbcVariableValueSource extends AbstractVariableValueSource implements Var
           closeQuietly(rs, statement, connection);
         }
       }
+    }
+
+    /**
+     * No duplicate of entities, so remove value from map once get.
+     *
+     * @param entity
+     * @return
+     */
+    private Value getValueFromMap(VariableEntity entity) {
+      Value value = valueMap.get(entity.getIdentifier());
+      valueMap.remove(entity.getIdentifier());
+      return value;
     }
 
     @SuppressWarnings({ "OverlyStrongTypeCast", "ChainOfInstanceofChecks" })
