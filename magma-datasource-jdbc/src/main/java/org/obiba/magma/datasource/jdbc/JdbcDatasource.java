@@ -238,9 +238,13 @@ public class JdbcDatasource extends AbstractDatasource {
       entityType = getJdbcTemplate().queryForObject(sql, new Object[] { getName(), tableName }, String.class);
     }
 
-    return tableSettings != null
-        ? new JdbcValueTable(this, tableSettings)
-        : new JdbcValueTable(this, tableName, getDatabaseSnapshot().get(newTable(sqlTableName)),
+    if (tableSettings != null) return new JdbcValueTable(this, tableSettings);
+
+    Table table = getDatabaseSnapshot().get(newTable(sqlTableName));
+    return table == null
+        ? new JdbcValueTable(this, new JdbcValueTableSettings(generateSqlTableName(tableName), tableName, entityType,
+        Arrays.asList("entity_id")))
+        : new JdbcValueTable(this, tableName, table,
             Strings.isNullOrEmpty(entityType) ? settings.getDefaultEntityType() : entityType);
   }
 

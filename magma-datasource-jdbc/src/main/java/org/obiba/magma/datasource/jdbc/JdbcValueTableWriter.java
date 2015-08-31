@@ -206,7 +206,7 @@ class JdbcValueTableWriter implements ValueTableWriter {
       changes.add(addColumnChange);
     }
 
-    private String generateColumnName(String variableName) {
+    protected String generateColumnName(String variableName) {
       return String.format("%s", TableUtils.normalize(variableName, 64));
     }
 
@@ -264,7 +264,7 @@ class JdbcValueTableWriter implements ValueTableWriter {
           .withColumn("is_repeatable", variable.isRepeatable()) //
           .withColumn("occurrence_group", variable.getOccurrenceGroup()) //
           .withColumn("index", Integer.toString(variable.getIndex())) //
-          .withColumn(SQL_NAME_COLUMN, getVariableSqlName(variable.getName()));
+          .withColumn(SQL_NAME_COLUMN, generateColumnName(variable.getName()));
 
       changes.add(builder.build());
       writeAttributes(variable);
