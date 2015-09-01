@@ -12,7 +12,10 @@ import org.obiba.magma.type.DateTimeType;
 import org.obiba.magma.type.DateType;
 import org.obiba.magma.type.DecimalType;
 import org.obiba.magma.type.IntegerType;
+import org.obiba.magma.type.LineStringType;
 import org.obiba.magma.type.LocaleType;
+import org.obiba.magma.type.PointType;
+import org.obiba.magma.type.PolygonType;
 import org.obiba.magma.type.TextType;
 
 class SqlTypes {
@@ -126,8 +129,17 @@ class SqlTypes {
     if(valueType.equals(LocaleType.get())) {
       return "VARCHAR(255)";
     }
+    if(valueType.equals(PointType.get())) {
+      return "LONGVARCHAR";
+    }
+    if(valueType.equals(LineStringType.get())) {
+      return "LONGVARCHAR";
+    }
+    if(valueType.equals(PolygonType.get())) {
+      return "LONGVARCHAR";
+    }
 
-    throw new MagmaRuntimeException("no sql type for " + valueType);
+    throw new MagmaRuntimeException("No sql type for " + valueType);
   }
 
 }
