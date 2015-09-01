@@ -171,6 +171,7 @@ class JdbcValueTableWriter implements ValueTableWriter {
     @Override
     public void close() {
       valueTable.getDatasource().doWithDatabase(new ChangeDatabaseCallback(changes));
+      valueTable.refreshTable();
       valueTable.refreshVariablesMap();
     }
 
@@ -372,8 +373,8 @@ class JdbcValueTableWriter implements ValueTableWriter {
         } else {
           columnValue = value.getValue();
 
-          // Persist Locale objects as strings.
-          if(value.getValueType() == LocaleType.get()) {
+          // Persist some objects as strings.
+          if(value.getValueType() == LocaleType.get() || value.getValueType().isGeo()) {
             columnValue = value.toString();
           }
         }

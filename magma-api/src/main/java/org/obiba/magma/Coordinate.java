@@ -120,7 +120,7 @@ public class Coordinate implements Comparable<Coordinate>, Serializable {
     if(o.getClass().equals(JSONObject.class)) {
       return getCoordinateFrom((JSONObject) o);
     }
-    throw new IllegalArgumentException("Cannot construct a Coordinate from class " + o.getClass());
+    return getCoordinateFrom(o.toString());
   }
 
   public static Coordinate getCoordinateFrom(JSONObject object) {

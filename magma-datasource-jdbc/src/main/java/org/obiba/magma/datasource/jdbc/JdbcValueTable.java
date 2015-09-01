@@ -154,7 +154,7 @@ class JdbcValueTable extends AbstractValueTable {
   }
 
   void tableChanged() {
-    table = getDatasource().getDatabaseSnapshot().get(newTable(settings.getSqlTableName()));
+    refreshTable();
     initialise();
   }
 
@@ -390,6 +390,11 @@ class JdbcValueTable extends AbstractValueTable {
     if(tmp.containsKey(variableName)) return tmp.get(variableName);
 
     return variableName;
+  }
+
+  public void refreshTable() {
+    getDatasource().databaseChanged();
+    table = getDatasource().getDatabaseSnapshot().get(newTable(settings.getSqlTableName()));
   }
 
   public synchronized void refreshVariablesMap() {

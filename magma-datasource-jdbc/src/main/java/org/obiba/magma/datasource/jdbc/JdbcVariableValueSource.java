@@ -179,11 +179,15 @@ class JdbcVariableValueSource extends AbstractVariableValueSource implements Var
     }
 
     private Value getValueFromResult() throws SQLException {
-      Value value = getValueType().valueOf(rs.getObject(columnName));
-      if(value == null) {
-        value = variable.isRepeatable() ? getValueType().nullSequence() : getValueType().nullValue();
+      Object resObj = rs.getObject(columnName);
+      if(resObj == null) {
+        return variable.isRepeatable() ? getValueType().nullSequence() : getValueType().nullValue();
       }
-      return value;
+      if(variable.isRepeatable()) {
+        return getValueType().sequenceOf(resObj.toString());
+      }
+      return getValueType().valueOf(resObj);
+
     }
 
     private void closeCursorIfNecessary() {

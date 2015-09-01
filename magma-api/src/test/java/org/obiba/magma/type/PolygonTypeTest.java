@@ -202,7 +202,7 @@ public class PolygonTypeTest extends BaseValueTypeTest {
     assertThat(getValueType().valueOf(result).isNull()).isTrue();
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expected = MagmaRuntimeException.class)
   public void testParsePolygonGoogleMapPoints() {
     getValueType().valueOf("[[100.0, 0.0, 101.0, 0.0, 101.0, 1.0, 100.0, 1.0, 100.0, 0.0  ]]").getValue();
   }
