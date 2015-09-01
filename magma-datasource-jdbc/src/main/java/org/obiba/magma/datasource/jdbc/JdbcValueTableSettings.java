@@ -1,12 +1,16 @@
 package org.obiba.magma.datasource.jdbc;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 import com.google.common.base.Strings;
 
 public class JdbcValueTableSettings {
+
+  private static final String ENTITY_ID_COLUMN = "id";
+
   //
   // Instance Variables
   //
@@ -42,17 +46,20 @@ public class JdbcValueTableSettings {
       throw new IllegalArgumentException("null sqlTableName");
     }
 
-    if(entityIdentifierColumns == null || entityIdentifierColumns.isEmpty()) {
-      throw new IllegalArgumentException("null or empty entityIdentityColumns");
-    }
-
     this.sqlTableName = sqlTableName;
 
     this.magmaTableName = magmaTableName != null ? magmaTableName : sqlTableName;
 
     this.entityType = entityType;
 
-    this.entityIdentifierColumns = new ArrayList<>(entityIdentifierColumns);
+    this.entityIdentifierColumns = entityIdentifierColumns == null || entityIdentifierColumns.isEmpty() ? Arrays
+        .asList(ENTITY_ID_COLUMN) : new ArrayList<>(entityIdentifierColumns);
+  }
+
+  public JdbcValueTableSettings(String sqlTableName, String magmaTableName, String entityType,
+      String entityIdColumnName) {
+    this(sqlTableName, magmaTableName, entityType,
+        Arrays.asList(Strings.isNullOrEmpty(entityIdColumnName) ? ENTITY_ID_COLUMN : entityIdColumnName));
   }
 
   //

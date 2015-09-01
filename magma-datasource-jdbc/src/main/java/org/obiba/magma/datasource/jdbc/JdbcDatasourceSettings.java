@@ -23,12 +23,17 @@ public class JdbcDatasourceSettings {
   private boolean useMetadataTables;
 
   /**
-   * The default a column name for creation timestamps
+   * The default column name for entity identification.
+   */
+  private String defaultEntityIdColumnName;
+
+  /**
+   * The default column name for creation timestamps
    */
   private String defaultCreatedTimestampColumnName;
 
   /**
-   * The default a column name for update timestamps
+   * The default column name for update timestamps
    */
   private String defaultUpdatedTimestampColumnName;
 
@@ -115,6 +120,18 @@ public class JdbcDatasourceSettings {
 
   public void setUseMetadataTables(boolean useMetadataTables) {
     this.useMetadataTables = useMetadataTables;
+  }
+
+  public String getDefaultEntityIdColumnName() {
+    return defaultEntityIdColumnName;
+  }
+
+  public void setDefaultEntityIdColumnName(String defaultEntityIdColumnName) {
+    this.defaultEntityIdColumnName = defaultEntityIdColumnName;
+  }
+
+  public boolean isEntityIdColumnNameProvided() {
+    return !Strings.isNullOrEmpty(defaultEntityIdColumnName);
   }
 
   public String getDefaultCreatedTimestampColumnName() {
