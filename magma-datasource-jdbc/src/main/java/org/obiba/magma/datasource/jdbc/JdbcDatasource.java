@@ -123,7 +123,8 @@ public class JdbcDatasource extends AbstractDatasource {
     getValueTableMap().remove(tableName);
     getValueTableMap().put(newName, newSqlName);
 
-    doWithDatabase(new ChangeDatabaseCallback(getTableRenameChanges(tableName, table.getSqlName(), newName, newSqlName)));
+    doWithDatabase(
+        new ChangeDatabaseCallback(getTableRenameChanges(tableName, table.getSqlName(), newName, newSqlName)));
     databaseChanged();
 
     ValueTable vt = initialiseValueTable(newName);
@@ -165,7 +166,8 @@ public class JdbcDatasource extends AbstractDatasource {
       JdbcValueTableSettings tableSettings = settings.getTableSettingsForMagmaTable(tableName);
 
       if(tableSettings == null) {
-        tableSettings = new JdbcValueTableSettings(generateSqlTableName(tableName), tableName, entityType);
+        tableSettings = new JdbcValueTableSettings(generateSqlTableName(tableName), tableName, entityType,
+            settings.getDefaultEntityIdColumnName());
         settings.getTableSettings().add(tableSettings);
       }
 
@@ -227,15 +229,14 @@ public class JdbcDatasource extends AbstractDatasource {
           DATASOURCE_COLUMN, NAME_COLUMN);
       entityType = getJdbcTemplate().queryForObject(sql, new Object[] { getName(), tableName }, String.class);
     }
+    entityType = Strings.isNullOrEmpty(entityType) ? settings.getDefaultEntityType() : entityType;
 
     if(tableSettings != null) return new JdbcValueTable(this, tableSettings);
 
     Table table = getDatabaseSnapshot().get(newTable(sqlTableName));
-    return table == null
-        ? new JdbcValueTable(this,
-        new JdbcValueTableSettings(generateSqlTableName(tableName), tableName, entityType))
-        : new JdbcValueTable(this, tableName, table,
-            Strings.isNullOrEmpty(entityType) ? settings.getDefaultEntityType() : entityType);
+    return table == null ? new JdbcValueTable(this,
+        new JdbcValueTableSettings(generateSqlTableName(tableName), tableName, entityType,
+            settings.getDefaultEntityIdColumnName())) : new JdbcValueTable(this, tableName, table, entityType);
   }
 
   //
