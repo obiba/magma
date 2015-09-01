@@ -171,6 +171,7 @@ class JdbcValueTableWriter implements ValueTableWriter {
     @Override
     public void close() {
       valueTable.getDatasource().doWithDatabase(new ChangeDatabaseCallback(changes));
+      valueTable.refreshTable();
       valueTable.refreshVariablesMap();
     }
 
