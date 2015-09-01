@@ -91,7 +91,7 @@ class JdbcValueTableWriter implements ValueTableWriter {
 
   static final String MISSING_COLUMN = "missing";
 
-  static final String ENTITY_ID_COLUMN = "entity_id";
+  static final String ENTITY_ID_COLUMN = "_id";
 
   static final String ENTITY_TYPE_COLUMN = "entity_type";
 

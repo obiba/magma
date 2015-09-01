@@ -1,6 +1,7 @@
 package org.obiba.magma.datasource.jdbc;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -53,6 +54,10 @@ public class JdbcValueTableSettings {
     this.entityType = entityType;
 
     this.entityIdentifierColumns = new ArrayList<>(entityIdentifierColumns);
+  }
+
+  public JdbcValueTableSettings(String sqlTableName, String magmaTableName, String entityType) {
+    this(sqlTableName, magmaTableName, entityType, Arrays.asList("id"));
   }
 
   //
