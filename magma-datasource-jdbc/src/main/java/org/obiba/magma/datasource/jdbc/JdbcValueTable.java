@@ -37,10 +37,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import liquibase.change.Change;
-import liquibase.change.ChangeWithColumns;
-import liquibase.change.ColumnConfig;
-import liquibase.change.ConstraintsConfig;
-import liquibase.change.core.CreateTableChange;
 import liquibase.change.core.DropTableChange;
 import liquibase.snapshot.DatabaseSnapshot;
 import liquibase.structure.core.Column;
@@ -328,11 +324,12 @@ class JdbcValueTable extends AbstractValueTable {
   }
 
   private void createSqlTable(String sqlTableName) {
-    CreateTableChange ctc = CreateTableChangeBuilder.newBuilder().tableName(sqlTableName) //
-        .withColumn(ENTITY_ID_COLUMN, "VARCHAR(255)").primaryKey() //
-        .build();
+    CreateTableChangeBuilder ctc = CreateTableChangeBuilder.newBuilder().tableName(sqlTableName);
+    for (String idColumn : getSettings().getEntityIdentifierColumns()) {
+      ctc.withColumn(idColumn, "VARCHAR(255)").primaryKey();
+    }
     createTimestampColumns(ctc);
-    List<Change> changes = Lists.<Change>newArrayList(ctc);
+    List<Change> changes = Lists.<Change>newArrayList(ctc.build());
 
     if(hasCreatedTimestampColumn()) {
       changes.add(CreateIndexChangeBuilder.newBuilder().name("idx_created").table(sqlTableName)
@@ -347,25 +344,14 @@ class JdbcValueTable extends AbstractValueTable {
     getDatasource().doWithDatabase(new ChangeDatabaseCallback(changes));
   }
 
-  private void createTimestampColumns(ChangeWithColumns changeWithColumns) {
+  private void createTimestampColumns(CreateTableChangeBuilder changeWithColumns) {
     if(hasCreatedTimestampColumn()) {
-      changeWithColumns.addColumn(createTimestampColumn(getCreatedTimestampColumnName()));
+      changeWithColumns.withColumn(getCreatedTimestampColumnName(), "DATETIME").notNull();
     }
 
     if(hasUpdatedTimestampColumn()) {
-      changeWithColumns.addColumn(createTimestampColumn(getUpdatedTimestampColumnName()));
+      changeWithColumns.withColumn(getUpdatedTimestampColumnName(), "DATETIME").notNull();
     }
-  }
-
-  private ColumnConfig createTimestampColumn(String columnName) {
-    ColumnConfig column = new ColumnConfig();
-    column.setName(columnName);
-    column.setType("DATETIME");
-
-    ConstraintsConfig constraints = new ConstraintsConfig();
-    constraints.setNullable(false);
-    column.setConstraints(constraints);
-    return column;
   }
 
   String getEntityIdentifierColumnsSql() {
