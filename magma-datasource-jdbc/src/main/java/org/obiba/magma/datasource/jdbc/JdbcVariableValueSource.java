@@ -159,11 +159,7 @@ class JdbcVariableValueSource extends AbstractVariableValueSource implements Var
         boolean found = false;
         while(hasNextResults && !found) {
           String id = valueTable.buildEntityIdentifier(rs);
-          Value value = getValueType().valueOf(rs.getObject(columnName));
-          if(value == null) {
-            value = variable.isRepeatable() ? getValueType().nullSequence() : getValueType().nullValue();
-          }
-          valueMap.put(id, value);
+          valueMap.put(id, getValueFromResult());
           hasNextResults = rs.next();
           found = nextId.equals(id);
         }
@@ -180,6 +176,14 @@ class JdbcVariableValueSource extends AbstractVariableValueSource implements Var
     @Override
     public void remove() {
       throw new UnsupportedOperationException();
+    }
+
+    private Value getValueFromResult() throws SQLException {
+      Value value = getValueType().valueOf(rs.getObject(columnName));
+      if(value == null) {
+        value = variable.isRepeatable() ? getValueType().nullSequence() : getValueType().nullValue();
+      }
+      return value;
     }
 
     private void closeCursorIfNecessary() {
