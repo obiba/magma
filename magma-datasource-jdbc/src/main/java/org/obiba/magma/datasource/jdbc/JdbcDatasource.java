@@ -119,20 +119,11 @@ public class JdbcDatasource extends AbstractDatasource {
 
     JdbcValueTable table = (JdbcValueTable) getValueTable(tableName);
     removeValueTable(table);
-    String sqlName = table.getSqlName();
     String newSqlName = getSettings().isUseMetadataTables() ? generateSqlTableName(newName) : newName;
     getValueTableMap().remove(tableName);
     getValueTableMap().put(newName, newSqlName);
 
-    List<Change> changes = Lists.newArrayList();
-    addRenameDataChanges(changes, tableName, newName, newSqlName);
-
-    RenameTableChange rtc = new RenameTableChange();
-    rtc.setOldTableName(sqlName);
-    rtc.setNewTableName(newSqlName);
-    changes.add(rtc);
-
-    doWithDatabase(new ChangeDatabaseCallback(changes));
+    doWithDatabase(new ChangeDatabaseCallback(getTableRenameChanges(tableName, table.getSqlName(), newName, newSqlName)));
     databaseChanged();
 
     ValueTable vt = initialiseValueTable(newName);
@@ -238,12 +229,12 @@ public class JdbcDatasource extends AbstractDatasource {
       entityType = getJdbcTemplate().queryForObject(sql, new Object[] { getName(), tableName }, String.class);
     }
 
-    if (tableSettings != null) return new JdbcValueTable(this, tableSettings);
+    if(tableSettings != null) return new JdbcValueTable(this, tableSettings);
 
     Table table = getDatabaseSnapshot().get(newTable(sqlTableName));
     return table == null
-        ? new JdbcValueTable(this, new JdbcValueTableSettings(generateSqlTableName(tableName), tableName, entityType,
-        Arrays.asList("entity_id")))
+        ? new JdbcValueTable(this,
+        new JdbcValueTableSettings(generateSqlTableName(tableName), tableName, entityType, Arrays.asList("entity_id")))
         : new JdbcValueTable(this, tableName, table,
             Strings.isNullOrEmpty(entityType) ? settings.getDefaultEntityType() : entityType);
   }
@@ -292,15 +283,16 @@ public class JdbcDatasource extends AbstractDatasource {
   }
 
   /**
-   * Data changes when a table is renamed.
+   * Changes when a table is renamed.
    *
-   * @param changes
    * @param tableName
+   * @param sqlName
    * @param newName
    * @param newSqlName
    */
-  private void addRenameDataChanges(List<Change> changes, String tableName, String newName, String newSqlName) {
-    if(!getSettings().isUseMetadataTables()) return;
+  private List<Change> getTableRenameChanges(String tableName, String sqlName, String newName, String newSqlName) {
+    List<Change> changes = Lists.newArrayList();
+    if(!getSettings().isUseMetadataTables()) return changes;
 
     String whereClause = String.format("%s = '%s' AND %s = '%s'", DATASOURCE_COLUMN, getName(), NAME_COLUMN, tableName);
     changes.add(UpdateDataChangeBuilder.newBuilder().tableName(VALUE_TABLES_TABLE) //
@@ -326,6 +318,13 @@ public class JdbcDatasource extends AbstractDatasource {
     changes.add(UpdateDataChangeBuilder.newBuilder().tableName(CATEGORY_ATTRIBUTES_TABLE) //
         .withColumn(VALUE_TABLE_COLUMN, newName) //
         .where(whereClause).build());
+
+    RenameTableChange rtc = new RenameTableChange();
+    rtc.setOldTableName(sqlName);
+    rtc.setNewTableName(newSqlName);
+    changes.add(rtc);
+
+    return changes;
   }
 
   private String generateSqlTableName(String tableName) {
