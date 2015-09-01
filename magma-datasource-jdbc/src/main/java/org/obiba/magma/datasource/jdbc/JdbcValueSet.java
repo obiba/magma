@@ -68,21 +68,53 @@ public class JdbcValueSet extends ValueSetBean {
   }
 
   public Value getValue(Variable variable) {
-    if(variable.getValueType().isBinary()) {
-      List<Map<String, Value>> res = loadValues(
-          Lists.newArrayList(getValueTable().getVariableSqlName(variable.getName())), mapper);
-
-      if(!res.isEmpty()) return res.get(0).get(variable.getName());
-    }
+    if(variable.getValueType().isBinary()) return getBinaryValue(variable);
 
     loadResultSetCache();
 
-    return resultSetCache.get(variable.getName());
+    Value value = convertValue(variable, resultSetCache.get(variable.getName()));
+    resultSetCache.put(variable.getName(), value);
+    return value;
+  }
+
+  private Value getBinaryValue(Variable variable) {
+    List<Map<String, Value>> res = loadValues(
+        Lists.newArrayList(getValueTable().getVariableSqlName(variable.getName())), mapper);
+
+    if(res.isEmpty())
+      return variable.isRepeatable() ? variable.getValueType().nullSequence() : variable.getValueType().nullValue();
+
+    Value value = res.get(0).get(variable.getName());
+    return convertValue(variable, value);
+  }
+
+  /**
+   * Convert the value as loaded from the SQL table  into the expected variable value type (column type
+   * may not match exactly the variable value type).
+   *
+   * @param variable
+   * @param value
+   * @return
+   */
+  private Value convertValue(Variable variable, Value value) {
+    if(value.getValueType() != variable.getValueType()) {
+      return variable.isRepeatable() ? convertToSequence(variable, value) : variable.getValueType().convert(value);
+    }
+    if(variable.isRepeatable() && !value.isSequence()) {
+      return convertToSequence(variable, value);
+    }
+    return value;
+  }
+
+  private Value convertToSequence(Variable variable, Value value) {
+    return value.isNull()
+        ? variable.getValueType().nullSequence()
+        : variable.getValueType().sequenceOf(value.toString());
   }
 
   private synchronized void loadResultSetCache() {
     if(resultSetCache.isEmpty()) {
-      final List<Map<String, Value>> rows = loadValues(getNonBinaryColumns(), mapper);
+      List<Map<String, Value>> rows = loadValues(getNonBinaryColumns(), mapper);
 
       for(Map<String, Value> row : rows) {
         resultSetCache.putAll(row);

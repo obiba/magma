@@ -141,8 +141,7 @@ public class LineStringType extends JSONAwareValueType {
       }
       return Factory.newValue(this, (Serializable) line);
     }
-    throw new IllegalArgumentException(
-        "Cannot construct " + getClass().getSimpleName() + " from type " + object.getClass() + ".");
+    return valueOf(object.toString());
   }
 
   @SuppressWarnings("unchecked")

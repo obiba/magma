@@ -108,7 +108,7 @@ public class PointTypeTest extends BaseValueTypeTest {
     assertThat(result.getLongitude()).isEqualTo(-71.34);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expected = MagmaRuntimeException.class)
   public void testValueOfInvalidCoordinate() {
     Object o = DateType.get();
     getValueType().valueOf(o).getValue();

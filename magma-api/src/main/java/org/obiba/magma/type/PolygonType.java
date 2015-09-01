@@ -140,8 +140,7 @@ public class PolygonType extends JSONAwareValueType {
     if(type.equals(getJavaClass())) {
       return valueOfPolygon((Iterable<?>) object);
     }
-    throw new IllegalArgumentException(
-        "Cannot construct " + getClass().getSimpleName() + " from type " + object.getClass() + ".");
+    return valueOf(object.toString());
   }
 
   private Value valueOfPolygon(Iterable<?> object) {
