@@ -232,33 +232,41 @@ class JdbcValueTable extends AbstractValueTable {
     clearSources();
 
     if(getDatasource().getSettings().isUseMetadataTables()) {
-      if(!metadataTablesExist()) {
-        throw new MagmaRuntimeException("metadata tables not found");
-      }
-
-      String sql = getDatasource().getSettings().isMultipleDatasources()
-          ? String
-          .format("SELECT * FROM %s WHERE %s = ? AND %s = ?", VARIABLES_TABLE, DATASOURCE_COLUMN, VALUE_TABLE_COLUMN)
-          : String.format("SELECT * FROM %s WHERE %s = ?", VARIABLES_TABLE, VALUE_TABLE_COLUMN);
-      Object[] params = getDatasource().getSettings().isMultipleDatasources() ? new Object[] {
-          getDatasource().getName(), getName() } : new Object[] { getName() };
-
-      List<Variable> results = getDatasource().getJdbcTemplate().query(sql, params, new VariableRowMapper());
-
-      for(Variable variable : results) {
-        addVariableValueSource(new JdbcVariableValueSource(this, variable));
-      }
+      initialiseVariableValueSourcesFromMetaData();
     } else {
-      List<String> reserved = Lists.newArrayList(getSettings().getEntityIdentifierColumns());
+      initialiseVariableValueSourcesFromColumns();
+    }
+  }
 
-      if(getCreatedTimestampColumnName() != null) reserved.add(getCreatedTimestampColumnName());
+  private void initialiseVariableValueSourcesFromMetaData() {
+    if(!metadataTablesExist()) {
+      throw new MagmaRuntimeException("metadata tables not found");
+    }
 
-      if(getCreatedTimestampColumnName() != null) reserved.add(getUpdatedTimestampColumnName());
+    String sql = getDatasource().getSettings().isMultipleDatasources()
+        ? String
+        .format("SELECT * FROM %s WHERE %s = ? AND %s = ?", VARIABLES_TABLE, DATASOURCE_COLUMN, VALUE_TABLE_COLUMN)
+        : String.format("SELECT * FROM %s WHERE %s = ?", VARIABLES_TABLE, VALUE_TABLE_COLUMN);
+    Object[] params = getDatasource().getSettings().isMultipleDatasources() ? new Object[] {
+        getDatasource().getName(), getName() } : new Object[] { getName() };
 
-      for(Column column : table.getColumns()) {
-        if(!reserved.contains(column.getName()) && !reserved.contains(column.getName().toLowerCase())) {
-          addVariableValueSource(new JdbcVariableValueSource(this, column));
-        }
+    List<Variable> results = getDatasource().getJdbcTemplate().query(sql, params, new VariableRowMapper());
+
+    for(Variable variable : results) {
+      addVariableValueSource(new JdbcVariableValueSource(this, variable));
+    }
+  }
+
+  private void initialiseVariableValueSourcesFromColumns() {
+    List<String> reserved = Lists.newArrayList(getSettings().getEntityIdentifierColumns());
+
+    if(getCreatedTimestampColumnName() != null) reserved.add(getCreatedTimestampColumnName());
+
+    if(getCreatedTimestampColumnName() != null) reserved.add(getUpdatedTimestampColumnName());
+
+    for(Column column : table.getColumns()) {
+      if(!reserved.contains(column.getName()) && !reserved.contains(column.getName().toLowerCase())) {
+        addVariableValueSource(new JdbcVariableValueSource(this, column));
       }
     }
   }

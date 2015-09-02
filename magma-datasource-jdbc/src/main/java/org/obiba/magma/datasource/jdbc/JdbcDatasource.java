@@ -173,24 +173,27 @@ public class JdbcDatasource extends AbstractDatasource {
       table = new JdbcValueTable(this, tableSettings);
       Initialisables.initialise(table);
       addValueTable(table);
-
-      if(getSettings().isUseMetadataTables()) {
-        InsertDataChangeBuilder idc = InsertDataChangeBuilder.newBuilder() //
-            .tableName(VALUE_TABLES_TABLE);
-
-        if(getSettings().isMultipleDatasources()) idc.withColumn(DATASOURCE_COLUMN, getName());
-
-        idc.withColumn(NAME_COLUMN, tableName) //
-            .withColumn(ENTITY_TYPE_COLUMN, tableSettings.getEntityType()) //
-            .withColumn(CREATED_COLUMN, new Date()) //
-            .withColumn(UPDATED_COLUMN, new Date()) //
-            .withColumn(SQL_NAME_COLUMN, tableSettings.getSqlTableName());
-
-        doWithDatabase(new ChangeDatabaseCallback(idc.build()));
-      }
+      addTableMetaData(tableName, tableSettings);
     }
 
     return new JdbcValueTableWriter(table);
+  }
+
+  private void addTableMetaData(@NotNull String tableName, @NotNull JdbcValueTableSettings tableSettings) {
+    if(!getSettings().isUseMetadataTables()) return;
+    
+    InsertDataChangeBuilder idc = InsertDataChangeBuilder.newBuilder() //
+        .tableName(VALUE_TABLES_TABLE);
+
+    if(getSettings().isMultipleDatasources()) idc.withColumn(DATASOURCE_COLUMN, getName());
+
+    idc.withColumn(NAME_COLUMN, tableName) //
+        .withColumn(ENTITY_TYPE_COLUMN, tableSettings.getEntityType()) //
+        .withColumn(CREATED_COLUMN, new Date()) //
+        .withColumn(UPDATED_COLUMN, new Date()) //
+        .withColumn(SQL_NAME_COLUMN, tableSettings.getSqlTableName());
+
+    doWithDatabase(new ChangeDatabaseCallback(idc.build()));
   }
 
   @Override
