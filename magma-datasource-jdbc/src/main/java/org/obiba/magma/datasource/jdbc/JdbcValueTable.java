@@ -27,10 +27,10 @@ import org.obiba.magma.datasource.jdbc.support.CreateIndexChangeBuilder;
 import org.obiba.magma.datasource.jdbc.support.CreateTableChangeBuilder;
 import org.obiba.magma.support.AbstractValueTable;
 import org.obiba.magma.support.Initialisables;
-import org.obiba.magma.support.NullTimestamps;
 import org.obiba.magma.type.DateTimeType;
 import org.springframework.jdbc.core.RowMapper;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.google.common.collect.Lists;
@@ -105,10 +105,7 @@ class JdbcValueTable extends AbstractValueTable {
 
   @Override
   public Timestamps getValueSetTimestamps(VariableEntity entity) throws NoSuchValueSetException {
-    if(hasCreatedTimestampColumn() && hasUpdatedTimestampColumn()) {
-      return new ValueSetTimestamps(entity, getUpdatedTimestampColumnName());
-    }
-    return NullTimestamps.get();
+    return new ValueSetTimestamps(entity, getCreatedTimestampColumnName(), getUpdatedTimestampColumnName());
   }
 
   @NotNull
@@ -499,26 +496,33 @@ class JdbcValueTable extends AbstractValueTable {
 
     private final VariableEntity entity;
 
+    private final String createdTimestampColumnName;
+
     private final String updatedTimestampColumnName;
 
-    private ValueSetTimestamps(VariableEntity entity, String updatedTimestampColumnName) {
+    private ValueSetTimestamps(VariableEntity entity, String createdTimestampColumnName, String updatedTimestampColumnName) {
       this.entity = entity;
+      this.createdTimestampColumnName = createdTimestampColumnName;
       this.updatedTimestampColumnName = updatedTimestampColumnName;
     }
 
     @NotNull
     @Override
     public Value getLastUpdate() {
+      if (Strings.isNullOrEmpty(updatedTimestampColumnName)) return DateTimeType.get().nullValue();
+
       String sql = appendIdentifierColumns(
-          String.format("SELECT MAX(%s) FROM %s", updatedTimestampColumnName, getSqlName()));
+          String.format("SELECT %s FROM %s", updatedTimestampColumnName, getSqlName()));
       return DateTimeType.get().valueOf(executeQuery(sql));
     }
 
     @NotNull
     @Override
     public Value getCreated() {
+      if (Strings.isNullOrEmpty(createdTimestampColumnName)) return DateTimeType.get().nullValue();
+
       String sql = appendIdentifierColumns(
-          String.format("SELECT MIN(%s) FROM %s", updatedTimestampColumnName, getSqlName()));
+          String.format("SELECT %s FROM %s", createdTimestampColumnName, getSqlName()));
       return DateTimeType.get().valueOf(executeQuery(sql));
     }
 
