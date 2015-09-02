@@ -127,22 +127,53 @@ class JdbcValueTable extends AbstractValueTable {
     getDatasource().doWithDatabase(new ChangeDatabaseCallback(dtt));
     getDatasource().databaseChanged();
     if(getDatasource().getSettings().isUseMetadataTables()) {
-      getDatasource().getJdbcTemplate().update(String
-          .format("DELETE FROM %s WHERE %s = ? AND %s = ?", CATEGORY_ATTRIBUTES_TABLE, DATASOURCE_COLUMN,
-              VALUE_TABLE_COLUMN), getDatasource().getName(), getName());
-      getDatasource().getJdbcTemplate().update(String
-          .format("DELETE FROM %s WHERE %s = ? AND %s = ?", CATEGORIES_TABLE, DATASOURCE_COLUMN, VALUE_TABLE_COLUMN),
-          getDatasource().getName(), getName());
-      getDatasource().getJdbcTemplate().update(String
-          .format("DELETE FROM %s WHERE %s = ? AND %s = ?", VARIABLE_ATTRIBUTES_TABLE, DATASOURCE_COLUMN,
-              VALUE_TABLE_COLUMN), getDatasource().getName(), getName());
-      getDatasource().getJdbcTemplate().update(String
-              .format("DELETE FROM %s WHERE %s = ? AND %s = ?", VARIABLES_TABLE, DATASOURCE_COLUMN, VALUE_TABLE_COLUMN),
-          getDatasource().getName(), getName());
-      getDatasource().getJdbcTemplate().update(
-          String.format("DELETE FROM %s WHERE %s = ? AND %s = ?", VALUE_TABLES_TABLE, DATASOURCE_COLUMN, NAME_COLUMN),
-          getDatasource().getName(), getName());
+      dropCategoriesMetaData();
+      dropVariablesMetaData();
+      dropTableMetaData();
     }
+  }
+
+  private void dropCategoriesMetaData() {
+    Object[] params = getDatasource().getSettings().isMultipleDatasources() ? new Object[] { getDatasource().getName(),
+        getName() } : new Object[] { getName() };
+
+    String sql = getDatasource().getSettings().isMultipleDatasources()
+        ? String.format("DELETE FROM %s WHERE %s = ? AND %s = ?", CATEGORY_ATTRIBUTES_TABLE, DATASOURCE_COLUMN,
+        VALUE_TABLE_COLUMN)
+        : String.format("DELETE FROM %s WHERE %s = ?", CATEGORY_ATTRIBUTES_TABLE, VALUE_TABLE_COLUMN);
+    getDatasource().getJdbcTemplate().update(sql, params);
+
+    sql = getDatasource().getSettings().isMultipleDatasources()
+        ? String
+        .format("DELETE FROM %s WHERE %s = ? AND %s = ?", CATEGORIES_TABLE, DATASOURCE_COLUMN, VALUE_TABLE_COLUMN)
+        : String.format("DELETE FROM %s WHERE %s = ?", CATEGORIES_TABLE, VALUE_TABLE_COLUMN);
+    getDatasource().getJdbcTemplate().update(sql, params);
+  }
+
+  private void dropVariablesMetaData() {
+    Object[] params = getDatasource().getSettings().isMultipleDatasources() ? new Object[] { getDatasource().getName(),
+        getName() } : new Object[] { getName() };
+
+    String sql = getDatasource().getSettings().isMultipleDatasources()
+        ? String.format("DELETE FROM %s WHERE %s = ? AND %s = ?", VARIABLE_ATTRIBUTES_TABLE, DATASOURCE_COLUMN,
+        VALUE_TABLE_COLUMN)
+        : String.format("DELETE FROM %s WHERE %s = ?", VARIABLE_ATTRIBUTES_TABLE, VALUE_TABLE_COLUMN);
+    getDatasource().getJdbcTemplate().update(sql, params);
+
+    sql = getDatasource().getSettings().isMultipleDatasources()
+        ? String
+        .format("DELETE FROM %s WHERE %s = ? AND %s = ?", VARIABLES_TABLE, DATASOURCE_COLUMN, VALUE_TABLE_COLUMN)
+        : String.format("DELETE FROM %s WHERE %s = ?", VARIABLES_TABLE, VALUE_TABLE_COLUMN);
+    getDatasource().getJdbcTemplate().update(sql, params);
+  }
+
+  private void dropTableMetaData() {
+    Object[] params = getDatasource().getSettings().isMultipleDatasources() ? new Object[] { getDatasource().getName(),
+        getName() } : new Object[] { getName() };
+    String sql = getDatasource().getSettings().isMultipleDatasources()
+        ? String.format("DELETE FROM %s WHERE %s = ? AND %s = ?", VALUE_TABLES_TABLE, DATASOURCE_COLUMN, NAME_COLUMN)
+        : String.format("DELETE FROM %s WHERE %s = ?", VALUE_TABLES_TABLE, NAME_COLUMN);
+    getDatasource().getJdbcTemplate().update(sql, params);
   }
 
   public JdbcValueTableSettings getSettings() {
@@ -205,9 +236,14 @@ class JdbcValueTable extends AbstractValueTable {
         throw new MagmaRuntimeException("metadata tables not found");
       }
 
-      List<Variable> results = getDatasource().getJdbcTemplate().query(String.format("SELECT * FROM %s WHERE " +
-              DATASOURCE_COLUMN + " = ? AND " + VALUE_TABLE_COLUMN + " = ?", VARIABLES_TABLE),
-          new Object[] { getDatasource().getName(), getName() }, new VariableRowMapper());
+      String sql = getDatasource().getSettings().isMultipleDatasources()
+          ? String
+          .format("SELECT * FROM %s WHERE %s = ? AND %s = ?", VARIABLES_TABLE, DATASOURCE_COLUMN, VALUE_TABLE_COLUMN)
+          : String.format("SELECT * FROM %s WHERE %s = ?", VARIABLES_TABLE, VALUE_TABLE_COLUMN);
+      Object[] params = getDatasource().getSettings().isMultipleDatasources() ? new Object[] {
+          getDatasource().getName(), getName() } : new Object[] { getName() };
+
+      List<Variable> results = getDatasource().getJdbcTemplate().query(sql, params, new VariableRowMapper());
 
       for(Variable variable : results) {
         addVariableValueSource(new JdbcVariableValueSource(this, variable));
@@ -257,34 +293,50 @@ class JdbcValueTable extends AbstractValueTable {
     }
 
     private void addVariableAttributes(String variableName, Variable.Builder builder) {
-      builder.addAttributes(getDatasource().getJdbcTemplate().query(String
-              .format("SELECT * FROM %s WHERE %s = ? AND %s = ? AND %s = ? ", VARIABLE_ATTRIBUTES_TABLE,
-                  DATASOURCE_COLUMN, VALUE_TABLE_COLUMN, VARIABLE_COLUMN),
-          new Object[] { getDatasource().getName(), getName(), variableName }, new AttributeRowMapper()));
+      String sql = getDatasource().getSettings().isMultipleDatasources()
+          ? String
+          .format("SELECT * FROM %s WHERE %s = ? AND %s = ? AND %s = ? ", VARIABLE_ATTRIBUTES_TABLE, DATASOURCE_COLUMN,
+              VALUE_TABLE_COLUMN, VARIABLE_COLUMN)
+          : String.format("SELECT * FROM %s WHERE %s = ? AND %s = ? ", VARIABLE_ATTRIBUTES_TABLE, VALUE_TABLE_COLUMN,
+              VARIABLE_COLUMN);
+      Object[] params = getDatasource().getSettings().isMultipleDatasources() ? new Object[] {
+          getDatasource().getName(), getName(), variableName } : new Object[] { getName(), variableName };
+      builder.addAttributes(getDatasource().getJdbcTemplate().query(sql, params, new AttributeRowMapper()));
     }
 
     private void addVariableCategories(final String variableName, Variable.Builder builder) {
-      builder.addCategories(getDatasource().getJdbcTemplate().query(String
-              .format("SELECT %s, %s FROM %s WHERE %s = ? AND %s= ? AND %s = ?", NAME_COLUMN, MISSING_COLUMN,
-                  CATEGORIES_TABLE, DATASOURCE_COLUMN, VALUE_TABLE_COLUMN, VARIABLE_COLUMN),
-          new Object[] { getDatasource().getName(), getName(), variableName }, new RowMapper<Category>() {
+      String sql = getDatasource().getSettings().isMultipleDatasources()
+          ? String.format("SELECT %s, %s FROM %s WHERE %s = ? AND %s= ? AND %s = ?", NAME_COLUMN, MISSING_COLUMN,
+          CATEGORIES_TABLE, DATASOURCE_COLUMN, VALUE_TABLE_COLUMN, VARIABLE_COLUMN)
+          : String.format("SELECT %s, %s FROM %s WHERE %s= ? AND %s = ?", NAME_COLUMN, MISSING_COLUMN, CATEGORIES_TABLE,
+              VALUE_TABLE_COLUMN, VARIABLE_COLUMN);
+      Object[] params = getDatasource().getSettings().isMultipleDatasources() ? new Object[] {
+          getDatasource().getName(), getName(), variableName } : new Object[] { getName(), variableName };
 
-            @Override
-            public Category mapRow(ResultSet rs, int rowNum) throws SQLException {
-              String categoryName = rs.getString(NAME_COLUMN);
-              Category.Builder catBuilder = Category.Builder.newCategory(categoryName)
-                  .missing(rs.getBoolean(MISSING_COLUMN));
-              addVariableCategoryAtributes(variableName, categoryName, catBuilder);
-              return catBuilder.build();
-            }
-          }));
+      builder.addCategories(getDatasource().getJdbcTemplate().query(sql, params, new RowMapper<Category>() {
+
+        @Override
+        public Category mapRow(ResultSet rs, int rowNum) throws SQLException {
+          String categoryName = rs.getString(NAME_COLUMN);
+          Category.Builder catBuilder = Category.Builder.newCategory(categoryName)
+              .missing(rs.getBoolean(MISSING_COLUMN));
+          addVariableCategoryAtributes(variableName, categoryName, catBuilder);
+          return catBuilder.build();
+        }
+      }));
     }
 
     private void addVariableCategoryAtributes(String variableName, String categoryName, Category.Builder builder) {
-      builder.addAttributes(getDatasource().getJdbcTemplate().query(String
-              .format("SELECT * FROM %s WHERE %s = ? AND %s = ? AND %s = ? AND %s = ?", CATEGORY_ATTRIBUTES_TABLE,
-                  DATASOURCE_COLUMN, VALUE_TABLE_COLUMN, VARIABLE_COLUMN, CATEGORY_COLUMN),
-          new Object[] { getDatasource().getName(), getName(), variableName, categoryName }, new AttributeRowMapper()));
+      String sql = getDatasource().getSettings().isMultipleDatasources()
+          ? String.format("SELECT * FROM %s WHERE %s = ? AND %s = ? AND %s = ? AND %s = ?", CATEGORY_ATTRIBUTES_TABLE,
+          DATASOURCE_COLUMN, VALUE_TABLE_COLUMN, VARIABLE_COLUMN, CATEGORY_COLUMN)
+          : String.format("SELECT * FROM %s WHERE %s = ? AND %s = ? AND %s = ?", CATEGORY_ATTRIBUTES_TABLE,
+              VALUE_TABLE_COLUMN, VARIABLE_COLUMN, CATEGORY_COLUMN);
+      Object[] params = getDatasource().getSettings().isMultipleDatasources()
+          ? new Object[] { getDatasource().getName(), getName(), variableName, categoryName }
+          : new Object[] { getName(), variableName, categoryName };
+
+      builder.addAttributes(getDatasource().getJdbcTemplate().query(sql, params, new AttributeRowMapper()));
     }
   }
 
@@ -325,7 +377,7 @@ class JdbcValueTable extends AbstractValueTable {
 
   private void createSqlTable(String sqlTableName) {
     CreateTableChangeBuilder ctc = CreateTableChangeBuilder.newBuilder().tableName(sqlTableName);
-    for (String idColumn : getSettings().getEntityIdentifierColumns()) {
+    for(String idColumn : getSettings().getEntityIdentifierColumns()) {
       ctc.withColumn(idColumn, "VARCHAR(255)").primaryKey();
     }
     createTimestampColumns(ctc);
@@ -408,10 +460,17 @@ class JdbcValueTable extends AbstractValueTable {
     variableMap = HashBiMap.create();
 
     if(getDatasource().getSettings().isUseMetadataTables()) {
-      List<Map.Entry<String, String>> res = getDatasource().getJdbcTemplate().query(String.format(
-              "SELECT " + NAME_COLUMN + ", " + SQL_NAME_COLUMN + " FROM %s WHERE " + DATASOURCE_COLUMN + " = ? AND " +
-                  VALUE_TABLE_COLUMN + " = ?", VARIABLES_TABLE), new Object[] { getDatasource().getName(), getName() },
-          new RowMapper<Map.Entry<String, String>>() {
+      String sql = getDatasource().getSettings().isMultipleDatasources()
+          ? String
+          .format("SELECT %s, %s FROM %s WHERE %s = ? AND %s = ?", NAME_COLUMN, SQL_NAME_COLUMN, VARIABLES_TABLE,
+              DATASOURCE_COLUMN, VALUE_TABLE_COLUMN)
+          : String.format("SELECT %s, %s FROM %s WHERE %s = ?", NAME_COLUMN, SQL_NAME_COLUMN, VARIABLES_TABLE,
+              VALUE_TABLE_COLUMN);
+      Object[] params = getDatasource().getSettings().isMultipleDatasources() ? new Object[] {
+          getDatasource().getName(), getName() } : new Object[] { getName() };
+
+      List<Map.Entry<String, String>> res = getDatasource().getJdbcTemplate()
+          .query(sql, params, new RowMapper<Map.Entry<String, String>>() {
             @Override
             public Map.Entry<String, String> mapRow(ResultSet rs, int rowNum) throws SQLException {
               return Maps.immutableEntry(rs.getString(NAME_COLUMN), rs.getString(SQL_NAME_COLUMN));

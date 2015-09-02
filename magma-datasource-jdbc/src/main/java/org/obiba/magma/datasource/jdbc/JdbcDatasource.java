@@ -44,7 +44,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import liquibase.change.Change;
-import liquibase.change.core.InsertDataChange;
 import liquibase.change.core.RenameTableChange;
 import liquibase.database.Database;
 import liquibase.database.DatabaseFactory;
@@ -176,17 +175,18 @@ public class JdbcDatasource extends AbstractDatasource {
       addValueTable(table);
 
       if(getSettings().isUseMetadataTables()) {
-        InsertDataChange idc = InsertDataChangeBuilder.newBuilder() //
-            .tableName(VALUE_TABLES_TABLE) //
-            .withColumn(DATASOURCE_COLUMN, getName()) //
-            .withColumn(NAME_COLUMN, tableName) //
+        InsertDataChangeBuilder idc = InsertDataChangeBuilder.newBuilder() //
+            .tableName(VALUE_TABLES_TABLE);
+
+        if(getSettings().isMultipleDatasources()) idc.withColumn(DATASOURCE_COLUMN, getName());
+
+        idc.withColumn(NAME_COLUMN, tableName) //
             .withColumn(ENTITY_TYPE_COLUMN, tableSettings.getEntityType()) //
             .withColumn(CREATED_COLUMN, new Date()) //
             .withColumn(UPDATED_COLUMN, new Date()) //
-            .withColumn(SQL_NAME_COLUMN, tableSettings.getSqlTableName()) //
-            .build();
+            .withColumn(SQL_NAME_COLUMN, tableSettings.getSqlTableName());
 
-        doWithDatabase(new ChangeDatabaseCallback(idc));
+        doWithDatabase(new ChangeDatabaseCallback(idc.build()));
       }
     }
 
@@ -225,9 +225,14 @@ public class JdbcDatasource extends AbstractDatasource {
     String sqlTableName = getValueTableMap().containsKey(tableName) ? getValueTableMap().get(tableName) : tableName;
     String entityType = null;
     if(getSettings().isUseMetadataTables()) {
-      String sql = String.format("SELECT %s FROM %s WHERE %s = ? AND %s = ?", ENTITY_TYPE_COLUMN, VALUE_TABLES_TABLE,
-          DATASOURCE_COLUMN, NAME_COLUMN);
-      entityType = getJdbcTemplate().queryForObject(sql, new Object[] { getName(), tableName }, String.class);
+      String sql = getSettings().isMultipleDatasources()
+          ? String.format("SELECT %s FROM %s WHERE %s = ? AND %s = ?", ENTITY_TYPE_COLUMN, VALUE_TABLES_TABLE,
+          DATASOURCE_COLUMN, NAME_COLUMN)
+          : String.format("SELECT %s FROM %s WHERE %s = ?", ENTITY_TYPE_COLUMN, VALUE_TABLES_TABLE, NAME_COLUMN);
+      Object[] params = getSettings().isMultipleDatasources()
+          ? new Object[] { getName(), tableName }
+          : new Object[] { tableName };
+      entityType = getJdbcTemplate().queryForObject(sql, params, String.class);
     }
     entityType = Strings.isNullOrEmpty(entityType) ? settings.getDefaultEntityType() : entityType;
 
@@ -247,14 +252,17 @@ public class JdbcDatasource extends AbstractDatasource {
   private Set<String> getRegisteredValueTableNames() {
     Set<String> names = new LinkedHashSet<>();
 
-    names.addAll(getJdbcTemplate()
-        .query(String.format("SELECT %s FROM %s WHERE %s = ?", NAME_COLUMN, VALUE_TABLES_TABLE, DATASOURCE_COLUMN),
-            new Object[] { getName() }, new RowMapper<String>() {
-              @Override
-              public String mapRow(ResultSet rs, int rowNum) throws SQLException {
-                return rs.getString(NAME_COLUMN);
-              }
-            }));
+    String select = getSettings().isMultipleDatasources()
+        ? String
+        .format("SELECT %s FROM %s WHERE %s = '%s'", NAME_COLUMN, VALUE_TABLES_TABLE, DATASOURCE_COLUMN, getName())
+        : String.format("SELECT %s FROM %s", NAME_COLUMN, VALUE_TABLES_TABLE);
+
+    names.addAll(getJdbcTemplate().query(select, new RowMapper<String>() {
+      @Override
+      public String mapRow(ResultSet rs, int rowNum) throws SQLException {
+        return rs.getString(NAME_COLUMN);
+      }
+    }));
 
     return names;
   }
@@ -294,14 +302,18 @@ public class JdbcDatasource extends AbstractDatasource {
     List<Change> changes = Lists.newArrayList();
     if(!getSettings().isUseMetadataTables()) return changes;
 
-    String whereClause = String.format("%s = '%s' AND %s = '%s'", DATASOURCE_COLUMN, getName(), NAME_COLUMN, tableName);
+    String whereClause = getSettings().isMultipleDatasources()
+        ? String.format("%s = '%s' AND %s = '%s'", DATASOURCE_COLUMN, getName(), NAME_COLUMN, tableName)
+        : String.format("%s = '%s'", NAME_COLUMN, tableName);
     changes.add(UpdateDataChangeBuilder.newBuilder().tableName(VALUE_TABLES_TABLE) //
         .withColumn(NAME_COLUMN, newName) //
         .withColumn(SQL_NAME_COLUMN, newSqlName) //
         .withColumn(UPDATED_COLUMN, new Date()) //
         .where(whereClause).build());
 
-    whereClause = String.format("%s = '%s' AND %s = '%s'", DATASOURCE_COLUMN, getName(), VALUE_TABLE_COLUMN, tableName);
+    whereClause = getSettings().isMultipleDatasources()
+        ? String.format("%s = '%s' AND %s = '%s'", DATASOURCE_COLUMN, getName(), VALUE_TABLE_COLUMN, tableName)
+        : String.format("%s = '%s'", VALUE_TABLE_COLUMN, tableName);
 
     changes.add(UpdateDataChangeBuilder.newBuilder().tableName(VARIABLES_TABLE) //
         .withColumn(VALUE_TABLE_COLUMN, newName) //
@@ -336,14 +348,18 @@ public class JdbcDatasource extends AbstractDatasource {
       valueTableMap = new HashMap<>();
 
       if(getSettings().isUseMetadataTables()) {
-        List<Map.Entry<String, String>> entries = getJdbcTemplate().query(String
-            .format("SELECT %s, %s FROM %s WHERE %s = '%s'", NAME_COLUMN, SQL_NAME_COLUMN, VALUE_TABLES_TABLE,
-                DATASOURCE_COLUMN, getName()), new RowMapper<Map.Entry<String, String>>() {
-          @Override
-          public Map.Entry<String, String> mapRow(ResultSet rs, int rowNum) throws SQLException {
-            return Maps.immutableEntry(rs.getString(NAME_COLUMN), rs.getString(SQL_NAME_COLUMN));
-          }
-        });
+        String select = getSettings().isMultipleDatasources()
+            ? String.format("SELECT %s, %s FROM %s WHERE %s = '%s'", NAME_COLUMN, SQL_NAME_COLUMN, VALUE_TABLES_TABLE,
+            DATASOURCE_COLUMN, getName())
+            : String.format("SELECT %s, %s FROM %s", NAME_COLUMN, SQL_NAME_COLUMN, VALUE_TABLES_TABLE);
+
+        List<Map.Entry<String, String>> entries = getJdbcTemplate()
+            .query(select, new RowMapper<Map.Entry<String, String>>() {
+              @Override
+              public Map.Entry<String, String> mapRow(ResultSet rs, int rowNum) throws SQLException {
+                return Maps.immutableEntry(rs.getString(NAME_COLUMN), rs.getString(SQL_NAME_COLUMN));
+              }
+            });
 
         ImmutableMap.Builder<String, String> builder = ImmutableMap.builder();
 
@@ -419,10 +435,12 @@ public class JdbcDatasource extends AbstractDatasource {
 
   private void createDatasourceMetadataTablesIfNotPresent(List<Change> changes) {
     if(getDatabaseSnapshot().get(newTable(VALUE_TABLES_TABLE)) == null) {
-      CreateTableChangeBuilder builder = new CreateTableChangeBuilder();
-      builder.tableName(VALUE_TABLES_TABLE) //
-          .withColumn(DATASOURCE_COLUMN, "VARCHAR(255)").primaryKey() //
-          .withColumn(NAME_COLUMN, "VARCHAR(255)").primaryKey() //
+      CreateTableChangeBuilder builder = new CreateTableChangeBuilder()//
+          .tableName(VALUE_TABLES_TABLE);
+
+      if(getSettings().isMultipleDatasources()) builder.withColumn(DATASOURCE_COLUMN, "VARCHAR(255)").primaryKey();
+
+      builder.withColumn(NAME_COLUMN, "VARCHAR(255)").primaryKey() //
           .withColumn(ENTITY_TYPE_COLUMN, "VARCHAR(255)").notNull() //
           .withColumn(CREATED_COLUMN, "DATETIME").notNull() //
           .withColumn(UPDATED_COLUMN, "DATETIME").notNull() //
@@ -433,10 +451,11 @@ public class JdbcDatasource extends AbstractDatasource {
 
   private void createVariableMetadataTablesIfNotPresent(List<Change> changes) {
     if(getDatabaseSnapshot().get(newTable(VARIABLES_TABLE)) == null) {
-      CreateTableChangeBuilder builder = new CreateTableChangeBuilder();
-      builder.tableName(VARIABLES_TABLE) //
-          .withColumn(DATASOURCE_COLUMN, "VARCHAR(255)").primaryKey() //
-          .withColumn(VALUE_TABLE_COLUMN, "VARCHAR(255)").primaryKey() //
+      CreateTableChangeBuilder builder = new CreateTableChangeBuilder().tableName(VARIABLES_TABLE);
+
+      if(getSettings().isMultipleDatasources()) builder.withColumn(DATASOURCE_COLUMN, "VARCHAR(255)").primaryKey();
+
+      builder.withColumn(VALUE_TABLE_COLUMN, "VARCHAR(255)").primaryKey() //
           .withColumn(NAME_COLUMN, "VARCHAR(255)").primaryKey() //
           .withColumn(VALUE_TYPE_COLUMN, "VARCHAR(255)").notNull() //
           .withColumn("mime_type", "VARCHAR(255)") //
@@ -449,10 +468,12 @@ public class JdbcDatasource extends AbstractDatasource {
     }
 
     if(getDatabaseSnapshot().get(newTable(VARIABLE_ATTRIBUTES_TABLE)) == null) {
-      CreateTableChangeBuilder builder = new CreateTableChangeBuilder();
-      builder.tableName(VARIABLE_ATTRIBUTES_TABLE) //
-          .withColumn(DATASOURCE_COLUMN, "VARCHAR(255)") //
-          .withColumn(VALUE_TABLE_COLUMN, "VARCHAR(255)") //
+      CreateTableChangeBuilder builder = new CreateTableChangeBuilder() //
+          .tableName(VARIABLE_ATTRIBUTES_TABLE);
+
+      if(getSettings().isMultipleDatasources()) builder.withColumn(DATASOURCE_COLUMN, "VARCHAR(255)");
+
+      builder.withColumn(VALUE_TABLE_COLUMN, "VARCHAR(255)") //
           .withColumn(VARIABLE_COLUMN, "VARCHAR(255)") //
           .withColumn(NAMESPACE_COLUMN, "VARCHAR(20)") //
           .withColumn(NAME_COLUMN, "VARCHAR(255)") //
@@ -464,10 +485,12 @@ public class JdbcDatasource extends AbstractDatasource {
 
   private void createCategoryMetadataTablesIfNotPresent(List<Change> changes) {
     if(getDatabaseSnapshot().get(newTable(CATEGORIES_TABLE)) == null) {
-      CreateTableChangeBuilder builder = new CreateTableChangeBuilder();
-      builder.tableName(CATEGORIES_TABLE) //
-          .withColumn(DATASOURCE_COLUMN, "VARCHAR(255)").primaryKey() //
-          .withColumn(VALUE_TABLE_COLUMN, "VARCHAR(255)").primaryKey() //
+      CreateTableChangeBuilder builder = new CreateTableChangeBuilder() //
+          .tableName(CATEGORIES_TABLE);
+
+      if(getSettings().isMultipleDatasources()) builder.withColumn(DATASOURCE_COLUMN, "VARCHAR(255)").primaryKey();
+
+      builder.withColumn(VALUE_TABLE_COLUMN, "VARCHAR(255)").primaryKey() //
           .withColumn(VARIABLE_COLUMN, "VARCHAR(255)").primaryKey() //
           .withColumn(NAME_COLUMN, "VARCHAR(255)").primaryKey() //
           .withColumn(MISSING_COLUMN, "BOOLEAN").notNull();
@@ -475,10 +498,12 @@ public class JdbcDatasource extends AbstractDatasource {
     }
 
     if(getDatabaseSnapshot().get(newTable(CATEGORY_ATTRIBUTES_TABLE)) == null) {
-      CreateTableChangeBuilder builder = new CreateTableChangeBuilder();
-      builder.tableName(CATEGORY_ATTRIBUTES_TABLE) //
-          .withColumn(DATASOURCE_COLUMN, "VARCHAR(255)") //
-          .withColumn(VALUE_TABLE_COLUMN, "VARCHAR(255)") //
+      CreateTableChangeBuilder builder = new CreateTableChangeBuilder() //
+          .tableName(CATEGORY_ATTRIBUTES_TABLE);
+
+      if(getSettings().isMultipleDatasources()) builder.withColumn(DATASOURCE_COLUMN, "VARCHAR(255)");
+
+      builder.withColumn(VALUE_TABLE_COLUMN, "VARCHAR(255)") //
           .withColumn(VARIABLE_COLUMN, "VARCHAR(255)") //
           .withColumn(CATEGORY_COLUMN, "VARCHAR(255)") //
           .withColumn(NAMESPACE_COLUMN, "VARCHAR(20)") //

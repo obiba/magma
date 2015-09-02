@@ -14,13 +14,16 @@ import static org.obiba.magma.datasource.jdbc.JdbcValueTableWriter.VALUE_TABLES_
 
 public class JdbcValueTableTimestamps implements Timestamps {
 
-  private JdbcValueTable table;
+  private final JdbcValueTable table;
 
-  private boolean fromMetaData = false;
+  private final boolean fromMetaData;
+
+  private final boolean withMultipleDatasources;
 
   public JdbcValueTableTimestamps(JdbcValueTable table) {
     this.table = table;
     fromMetaData = table.getDatasource().getSettings().isUseMetadataTables();
+    withMultipleDatasources = table.getDatasource().getSettings().isMultipleDatasources();
   }
 
   @Override
@@ -61,19 +64,27 @@ public class JdbcValueTableTimestamps implements Timestamps {
   // Private methods
   //
   private Date getMetaUpdatedDate() {
-    String sql = String
+    String sql = withMultipleDatasources
+        ? String
         .format("SELECT %s FROM %s WHERE %s = ? AND %s = ?", UPDATED_COLUMN, VALUE_TABLES_TABLE, DATASOURCE_COLUMN,
-            NAME_COLUMN);
-    return table.getDatasource().getJdbcTemplate()
-        .queryForObject(sql, new Object[] { table.getDatasource().getName(), table.getName() }, Date.class);
+            NAME_COLUMN)
+        : String.format("SELECT %s FROM %s WHERE %s = ?", UPDATED_COLUMN, VALUE_TABLES_TABLE, NAME_COLUMN);
+    Object[] params = withMultipleDatasources
+        ? new Object[] { table.getDatasource().getName(), table.getName() }
+        : new Object[] { table.getName() };
+    return table.getDatasource().getJdbcTemplate().queryForObject(sql, params, Date.class);
   }
 
   private Date getMetaCreatedDate() {
-    String sql = String
+    String sql = withMultipleDatasources
+        ? String
         .format("SELECT %s FROM %s WHERE %s = ? AND %s = ?", CREATED_COLUMN, VALUE_TABLES_TABLE, DATASOURCE_COLUMN,
-            NAME_COLUMN);
-    return table.getDatasource().getJdbcTemplate()
-        .queryForObject(sql, new Object[] { table.getDatasource().getName(), table.getName() }, Date.class);
+            NAME_COLUMN)
+        : String.format("SELECT %s FROM %s WHERE %s = ?", CREATED_COLUMN, VALUE_TABLES_TABLE, NAME_COLUMN);
+    Object[] params = withMultipleDatasources
+        ? new Object[] { table.getDatasource().getName(), table.getName() }
+        : new Object[] { table.getName() };
+    return table.getDatasource().getJdbcTemplate().queryForObject(sql, params, Date.class);
   }
 
   private Date getOldestValueSetCreatedDate() {
