@@ -218,25 +218,6 @@ class JdbcValueTableWriter implements ValueTableWriter {
   }
 
   private class JdbcMetadataVariableWriter extends JdbcVariableWriter {
-    //
-    // Constants
-    //
-
-    private static final String DELETE_VARIABLE_SQL = //
-        "DELETE FROM " + VARIABLES_TABLE + " WHERE " + DATASOURCE_COLUMN + " = ? AND " + VALUE_TABLE_COLUMN +
-            " = ? AND " + NAME_COLUMN + " = ?";
-
-    private static final String DELETE_VARIABLE_ATTRIBUTES_SQL = //
-        "DELETE FROM " + VARIABLE_ATTRIBUTES_TABLE + " WHERE " + DATASOURCE_COLUMN + " = ? AND " +
-            VALUE_TABLE_COLUMN + " = ? AND " + VARIABLE_COLUMN + " = ?";
-
-    private static final String DELETE_VARIABLE_CATEGORIES_SQL = //
-        "DELETE FROM " + CATEGORIES_TABLE + " WHERE " + DATASOURCE_COLUMN + " = ? AND " + VALUE_TABLE_COLUMN +
-            " = ? AND " + VARIABLE_COLUMN + " = ?";
-
-    private static final String DELETE_VARIABLE_CATEGORY_ATTRIBUTES_SQL = //
-        "DELETE FROM " + CATEGORY_ATTRIBUTES_TABLE + " WHERE " + DATASOURCE_COLUMN + " = ? AND " +
-            VALUE_TABLE_COLUMN + " = ? AND " + VARIABLE_COLUMN + " = ?";
 
     //
     // JdbcVariableWriter Methods
@@ -252,10 +233,13 @@ class JdbcValueTableWriter implements ValueTableWriter {
         addTableTimestampChange();
       }
 
-      InsertDataChangeBuilder builder = new InsertDataChangeBuilder();
-      builder.tableName(VARIABLES_TABLE) //
-          .withColumn(DATASOURCE_COLUMN, valueTable.getDatasource().getName()) //
-          .withColumn(VALUE_TABLE_COLUMN, valueTable.getName()) //
+      InsertDataChangeBuilder builder = new InsertDataChangeBuilder() //
+          .tableName(VARIABLES_TABLE);
+
+      if(valueTable.getDatasource().getSettings().isMultipleDatasources())
+        builder.withColumn(DATASOURCE_COLUMN, valueTable.getDatasource().getName());
+
+      builder.withColumn(VALUE_TABLE_COLUMN, valueTable.getName()) //
           .withColumn(NAME_COLUMN, variable.getName()) //
           .withColumn(VALUE_TYPE_COLUMN, variable.getValueType().getName()) //
           .withColumn("mime_type", variable.getMimeType())//
@@ -279,11 +263,12 @@ class JdbcValueTableWriter implements ValueTableWriter {
     }
 
     private void addTableTimestampChange() {
+      String whereClause = valueTable.getDatasource().getSettings().isMultipleDatasources() ? String
+          .format("%s = '%s' AND %s = '%s'", DATASOURCE_COLUMN, valueTable.getDatasource().getName(), NAME_COLUMN,
+              valueTable.getName()) : String.format("%s = '%s'", NAME_COLUMN, valueTable.getName());
       changes.add(UpdateDataChangeBuilder.newBuilder().tableName(VALUE_TABLES_TABLE) //
           .withColumn(UPDATED_COLUMN, new java.util.Date()) //
-          .where(String
-              .format("%s = '%s' AND %s = '%s'", DATASOURCE_COLUMN, valueTable.getDatasource().getName(), NAME_COLUMN,
-                  valueTable.getName())).build());
+          .where(whereClause).build());
     }
 
     //
@@ -292,25 +277,51 @@ class JdbcValueTableWriter implements ValueTableWriter {
 
     private void deleteVariableMetadata(String variableName) {
       JdbcTemplate jdbcTemplate = valueTable.getDatasource().getJdbcTemplate();
-      jdbcTemplate
-          .update(DELETE_VARIABLE_SQL, valueTable.getDatasource().getName(), valueTable.getName(), variableName);
-      jdbcTemplate.update(DELETE_VARIABLE_ATTRIBUTES_SQL, valueTable.getDatasource().getName(), valueTable.getName(),
-          variableName);
-      jdbcTemplate.update(DELETE_VARIABLE_CATEGORIES_SQL, valueTable.getDatasource().getName(), valueTable.getName(),
-          variableName);
-      jdbcTemplate
-          .update(DELETE_VARIABLE_CATEGORY_ATTRIBUTES_SQL, valueTable.getDatasource().getName(), valueTable.getName(),
-              variableName);
+      Object[] params = valueTable.getDatasource().getSettings().isMultipleDatasources()
+          ? new Object[] { valueTable.getDatasource().getName(), valueTable.getName(), variableName }
+          : new Object[] { valueTable.getName(), variableName };
+
+      String sql = valueTable.getDatasource().getSettings().isMultipleDatasources()
+          ? String
+          .format("DELETE FROM %s WHERE %s = ? AND %s = ? AND %s = ?", CATEGORY_ATTRIBUTES_TABLE, DATASOURCE_COLUMN,
+              VALUE_TABLE_COLUMN, NAME_COLUMN)
+          : String.format("DELETE FROM %s WHERE %s = ? AND %s = ?", CATEGORY_ATTRIBUTES_TABLE, VALUE_TABLE_COLUMN,
+              NAME_COLUMN);
+      jdbcTemplate.update(sql, params);
+
+      sql = valueTable.getDatasource().getSettings().isMultipleDatasources()
+          ? String.format("DELETE FROM %s WHERE %s = ? AND %s = ? AND %s = ?", CATEGORIES_TABLE, DATASOURCE_COLUMN,
+          VALUE_TABLE_COLUMN, NAME_COLUMN)
+          : String.format("DELETE FROM %s WHERE %s = ? AND %s = ?", CATEGORIES_TABLE, VALUE_TABLE_COLUMN, NAME_COLUMN);
+      jdbcTemplate.update(sql, params);
+
+      sql = valueTable.getDatasource().getSettings().isMultipleDatasources()
+          ? String
+          .format("DELETE FROM %s WHERE %s = ? AND %s = ? AND %s = ?", VARIABLE_ATTRIBUTES_TABLE, DATASOURCE_COLUMN,
+              VALUE_TABLE_COLUMN, NAME_COLUMN)
+          : String.format("DELETE FROM %s WHERE %s = ? AND %s = ?", VARIABLE_ATTRIBUTES_TABLE, VALUE_TABLE_COLUMN,
+              NAME_COLUMN);
+      jdbcTemplate.update(sql, params);
+
+      sql = valueTable.getDatasource().getSettings().isMultipleDatasources()
+          ? String.format("DELETE FROM %s WHERE %s = ? AND %s = ? AND %s = ?", VARIABLES_TABLE, DATASOURCE_COLUMN,
+          VALUE_TABLE_COLUMN, NAME_COLUMN)
+          : String.format("DELETE FROM %s WHERE %s = ? AND %s = ?", VARIABLES_TABLE, VALUE_TABLE_COLUMN, NAME_COLUMN);
+      jdbcTemplate.update(sql, params);
+
       addTableTimestampChange();
     }
 
     private void writeAttributes(Variable variable) {
       if(!variable.hasAttributes()) return;
       for(Attribute attribute : variable.getAttributes()) {
-        InsertDataChangeBuilder builder = new InsertDataChangeBuilder();
-        builder.tableName(VARIABLE_ATTRIBUTES_TABLE) //
-            .withColumn(DATASOURCE_COLUMN, valueTable.getDatasource().getName()) //
-            .withColumn(VALUE_TABLE_COLUMN, valueTable.getName()) //
+        InsertDataChangeBuilder builder = new InsertDataChangeBuilder() //
+            .tableName(VARIABLE_ATTRIBUTES_TABLE);
+
+        if(valueTable.getDatasource().getSettings().isMultipleDatasources())
+          builder.withColumn(DATASOURCE_COLUMN, valueTable.getDatasource().getName());
+
+        builder.withColumn(VALUE_TABLE_COLUMN, valueTable.getName()) //
             .withColumn(VARIABLE_COLUMN, variable.getName()) //
             .withColumn(NAME_COLUMN, attribute.getName()) //
             .withColumn(LOCALE_COLUMN, attribute.isLocalised() ? attribute.getLocale().toString() : "") //
@@ -323,10 +334,13 @@ class JdbcValueTableWriter implements ValueTableWriter {
     private void writeCategories(Variable variable) {
       if(!variable.hasCategories()) return;
       for(Category category : variable.getCategories()) {
-        InsertDataChangeBuilder builder = new InsertDataChangeBuilder();
-        builder.tableName(CATEGORIES_TABLE) //
-            .withColumn(DATASOURCE_COLUMN, valueTable.getDatasource().getName()) //
-            .withColumn(VALUE_TABLE_COLUMN, valueTable.getName()) //
+        InsertDataChangeBuilder builder = new InsertDataChangeBuilder() //
+            .tableName(CATEGORIES_TABLE);
+
+        if(valueTable.getDatasource().getSettings().isMultipleDatasources())
+          builder.withColumn(DATASOURCE_COLUMN, valueTable.getDatasource().getName());
+
+        builder.withColumn(VALUE_TABLE_COLUMN, valueTable.getName()) //
             .withColumn(VARIABLE_COLUMN, variable.getName()) //
             .withColumn(NAME_COLUMN, category.getName()) //
             .withColumn(MISSING_COLUMN, category.isMissing());
@@ -338,10 +352,13 @@ class JdbcValueTableWriter implements ValueTableWriter {
     private void writeCategoryAttributes(Variable variable, Category category) {
       if(!category.hasAttributes()) return;
       for(Attribute attribute : category.getAttributes()) {
-        InsertDataChangeBuilder builder = new InsertDataChangeBuilder();
-        builder.tableName(CATEGORY_ATTRIBUTES_TABLE) //
-            .withColumn(DATASOURCE_COLUMN, valueTable.getDatasource().getName()) //
-            .withColumn(VALUE_TABLE_COLUMN, valueTable.getName()) //
+        InsertDataChangeBuilder builder = new InsertDataChangeBuilder() //
+            .tableName(CATEGORY_ATTRIBUTES_TABLE);
+
+        if(valueTable.getDatasource().getSettings().isMultipleDatasources())
+          builder.withColumn(DATASOURCE_COLUMN, valueTable.getDatasource().getName());
+
+        builder.withColumn(VALUE_TABLE_COLUMN, valueTable.getName()) //
             .withColumn(VARIABLE_COLUMN, variable.getName()) //
             .withColumn(CATEGORY_COLUMN, category.getName()) //
             .withColumn(NAME_COLUMN, attribute.getName()) //
@@ -424,7 +441,6 @@ class JdbcValueTableWriter implements ValueTableWriter {
       };
     }
 
-    @SuppressWarnings({ "PMD.NcssMethodCount", "OverlyLongMethod" })
     private String getInsertSql() {
       java.util.Date timestamp = new java.util.Date();
 

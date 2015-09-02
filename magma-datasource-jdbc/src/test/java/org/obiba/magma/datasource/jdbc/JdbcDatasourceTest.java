@@ -144,6 +144,7 @@ public class JdbcDatasourceTest extends AbstractMagmaTest {
   @Test
   public void testCreateDatasourceFromScratchUsingMetadataTables() {
     JdbcDatasourceSettings settings = new JdbcDatasourceSettings("Participant", null, null, true);
+    settings.setMultipleDatasources(true);
     JdbcDatasource jdbcDatasource = new JdbcDatasource("my-datasource-nodb", dataSource, settings);
     jdbcDatasource.initialise();
 
@@ -249,6 +250,7 @@ public class JdbcDatasourceTest extends AbstractMagmaTest {
 
   private JdbcDatasourceSettings getDataSourceSettings() {
     JdbcDatasourceSettings settings = new JdbcDatasourceSettings("Participant", null, null, false);
+    settings.setMultipleDatasources(true);
     settings.setDefaultCreatedTimestampColumnName("created");
     settings.setDefaultUpdatedTimestampColumnName("updated");
 
