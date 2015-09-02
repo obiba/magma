@@ -273,18 +273,15 @@ public class JdbcDatasource extends AbstractDatasource {
     for(Table table : getDatabaseSnapshot().get(Table.class)) {
       String tableName = table.getName();
 
-      if(!RESERVED_NAMES.contains(tableName.toLowerCase())) {
-        if(settings.getMappedTables().contains(tableName)) {
-          JdbcValueTableSettings tableSettings = settings.getTableSettingsForSqlTable(tableName);
+      if(RESERVED_NAMES.contains(tableName.toLowerCase()) ||
+          !settings.getMappedTables().isEmpty() && !settings.getMappedTables().contains(tableName)) continue;
 
-          if(tableSettings != null) {
-            names.add(tableSettings.getMagmaTableName());
-          } else {
-            if(!JdbcValueTable.getEntityIdentifierColumns(table).isEmpty()) {
-              names.add(tableName);
-            }
-          }
-        }
+      JdbcValueTableSettings tableSettings = settings.getTableSettingsForSqlTable(tableName);
+
+      if(tableSettings != null) {
+        names.add(tableSettings.getMagmaTableName());
+      } else if(!JdbcValueTable.getEntityIdentifierColumns(table).isEmpty()) {
+        names.add(tableName);
       }
     }
     return names;
