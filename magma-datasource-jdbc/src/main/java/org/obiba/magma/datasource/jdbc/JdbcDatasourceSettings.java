@@ -23,6 +23,11 @@ public class JdbcDatasourceSettings {
   private boolean useMetadataTables;
 
   /**
+   * True if meta data tables schema supports multiple datasources.
+   */
+  private boolean multipleDatasources;
+
+  /**
    * The default column name for entity identification.
    */
   private String defaultEntityIdColumnName;
@@ -120,6 +125,14 @@ public class JdbcDatasourceSettings {
 
   public void setUseMetadataTables(boolean useMetadataTables) {
     this.useMetadataTables = useMetadataTables;
+  }
+
+  public boolean isMultipleDatasources() {
+    return multipleDatasources;
+  }
+
+  public void setMultipleDatasources(boolean multipleDatasources) {
+    this.multipleDatasources = multipleDatasources;
   }
 
   public String getDefaultEntityIdColumnName() {
