@@ -340,7 +340,8 @@ public class JdbcDatasource extends AbstractDatasource {
   }
 
   private String generateSqlTableName(String tableName) {
-    return String.format("%s_%s", TableUtils.normalize(getName()), TableUtils.normalize(tableName));
+    return getSettings().isMultipleDatasources() ? String.format("%s_%s", TableUtils.normalize(getName()), TableUtils.normalize(tableName))
+        : TableUtils.normalize(tableName);
   }
 
   private Map<String, String> getValueTableMap() {

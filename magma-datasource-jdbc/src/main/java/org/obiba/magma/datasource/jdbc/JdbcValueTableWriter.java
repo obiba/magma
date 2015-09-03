@@ -409,7 +409,7 @@ class JdbcValueTableWriter implements ValueTableWriter {
     public void close() {
       JdbcTemplate jdbcTemplate = valueTable.getDatasource().getJdbcTemplate();
 
-      if(columnValueMap.size() == 0) {
+      if(columnValueMap.isEmpty()) {
         jdbcTemplate
             .execute(getDeleteSql(), getPreparedStatementCallback(getEntityIdentifierColumnValueMap().entrySet()));
         return;
@@ -417,7 +417,7 @@ class JdbcValueTableWriter implements ValueTableWriter {
 
       jdbcTemplate.execute(valueTable.hasValueSet(entity) ? getUpdateSql() : getInsertSql(),
           getPreparedStatementCallback(
-              Iterables.concat(getEntityIdentifierColumnValueMap().entrySet(), columnValueMap.entrySet())));
+              Iterables.concat(columnValueMap.entrySet(), getEntityIdentifierColumnValueMap().entrySet())));
     }
 
     private <T extends Map.Entry<String, ?>> AbstractLobCreatingPreparedStatementCallback getPreparedStatementCallback(
@@ -452,19 +452,18 @@ class JdbcValueTableWriter implements ValueTableWriter {
         columnValueMap.put(valueTable.getUpdatedTimestampColumnName(), timestamp);
       }
 
+      Map<String, String> entityIdentifierColumnValueMap = getEntityIdentifierColumnValueMap();
       String colNames = Joiner.on(", ")
-          .join(Iterables.concat(getEntityIdentifierColumnValueMap().keySet(), columnValueMap.keySet()));
+          .join(Iterables.concat(columnValueMap.keySet(), entityIdentifierColumnValueMap.keySet()));
       String values = Joiner.on(", ")
-          .join(Collections.nCopies(getEntityIdentifierColumnValueMap().size() + columnValueMap.size(), "?"));
+          .join(Collections.nCopies(entityIdentifierColumnValueMap.size() + columnValueMap.size(), "?"));
 
       return String.format("INSERT INTO %s (%s) VALUES (%s)", valueTable.getSqlName(), colNames, values);
     }
 
     private String getUpdateSql() {
       if(valueTable.hasUpdatedTimestampColumn()) {
-        if(valueTable.hasUpdatedTimestampColumn()) {
-          columnValueMap.put(valueTable.getUpdatedTimestampColumnName(), new Date(System.currentTimeMillis()));
-        }
+        columnValueMap.put(valueTable.getUpdatedTimestampColumnName(), new java.util.Date());
       }
 
       String colNames = Joiner.on(", ")
@@ -487,19 +486,14 @@ class JdbcValueTableWriter implements ValueTableWriter {
     }
 
     private String getWhereClause() {
-      StringBuffer whereClause = new StringBuffer();
-      whereClause.append("WHERE ");
-
-      whereClause.append(Joiner.on(" AND ")
+      return "WHERE " + Joiner.on(" AND ")
           .join(Iterables.transform(getEntityIdentifierColumnValueMap().keySet(), new Function<String, String>() {
             @Nullable
             @Override
             public String apply(String input) {
               return String.format("%s = ?", input);
             }
-          })));
-
-      return whereClause.toString();
+          }));
     }
 
     private Map<String, String> getEntityIdentifierColumnValueMap() {
