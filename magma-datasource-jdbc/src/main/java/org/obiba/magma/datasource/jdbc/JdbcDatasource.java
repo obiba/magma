@@ -49,7 +49,6 @@ import liquibase.database.Database;
 import liquibase.database.DatabaseFactory;
 import liquibase.database.DatabaseList;
 import liquibase.database.jvm.JdbcConnection;
-import liquibase.exception.DatabaseException;
 import liquibase.exception.LiquibaseException;
 import liquibase.snapshot.DatabaseSnapshot;
 import liquibase.snapshot.SnapshotControl;
@@ -415,12 +414,14 @@ public class JdbcDatasource extends AbstractDatasource {
           return databaseCallback.doInDatabase(database);
         } catch(LiquibaseException e) {
           throw new SQLException(e);
-        } finally {
-          if(database != null) try {
-            database.commit();
-          } catch(DatabaseException e) {
-            //ignore
-          }
+          // FIXME why is there this code as it always throws an exception: "Commit can not be set while enrolled in a transaction"
+//        } finally {
+//          if(database != null) try {
+//            database.commit();
+//          } catch(DatabaseException e) {
+//            //ignore
+//            log.warn("Exception on database commit", e);
+//          }
         }
       }
     });
