@@ -226,35 +226,6 @@ public class CsvValueTableWriterTest extends AbstractMagmaTest {
   }
 
   @Test
-  public void test_writing_data_only_modifying_multiple_value_sets_and_reading_back_from_reinitialized_datasource()
-      throws Exception {
-    String tableName = "TableDataOnly";
-    String entityName = "Participant";
-    CsvDatasource datasource = new TempTableBuilder(tableName)
-        .addData(getFileFromResource("org/obiba/magma/datasource/csv/TableDataOnly/data.csv"))
-        .buildCsvDatasource("csv-datasource");
-
-    Variable cityVariable = Variable.Builder.newVariable("City", TextType.get(), "Participant").build();
-    Value cityValueVancouver = TextType.get().valueOf("Vancouver");
-
-    Map<Variable, Value> values = Maps.newHashMap();
-
-    try(ValueTableWriter writer = datasource.createWriter(tableName, entityName)) {
-      values.put(cityVariable, cityValueVancouver);
-      writeValueSet(new VariableEntityBean(DEFAULT_ENTITY_TYPE, "4"), writer, values);
-
-      values.put(cityVariable, cityValueVancouver);
-      writeValueSet(new VariableEntityBean(DEFAULT_ENTITY_TYPE, "2"), writer, values);
-    }
-
-    datasource.dispose();
-    datasource.initialise();
-    assertThat(readValue(datasource.getValueTable(tableName), new VariableEntityBean(entityName, "2"), cityVariable))
-        .isEqualTo(cityValueVancouver);
-    datasource.dispose();
-  }
-
-  @Test
   public void test_writing_data_only_modifying_multiple_value_sets_and_reading_back_from_datasource() throws Exception {
     String tableName = "TableDataOnly";
     CsvDatasource datasource = new TempTableBuilder(tableName)

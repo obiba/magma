@@ -60,7 +60,7 @@ public class CsvValueTableWriter implements ValueTableWriter {
           valueTable.setVariablesFileEmpty(false);
         } else if(valueTable.hasVariable(variable.getName())) {
           // doing an update.
-          valueTable.clearVariable(variable);
+          //valueTable.clearVariable(variable);
         }
 
         String[] line = variableConverter.marshal(variable);
@@ -139,11 +139,10 @@ public class CsvValueTableWriter implements ValueTableWriter {
         }
 
         // Writer Value set. Throw exception if doesn't match header
-        long lastByte = valueTable.getDataLastByte();
         String[] line = csvLine.getLine();
         writeValueToCsv(line);
-        // Update index
-        valueTable.updateDataIndex(entity, lastByte, line);
+        // Update entities index
+        ((CsvVariableEntityProvider)valueTable.getVariableEntityProvider()).add(entity);
       } catch(IOException e) {
         throw new RuntimeException(e);
       }
@@ -180,7 +179,7 @@ public class CsvValueTableWriter implements ValueTableWriter {
 
       if(valueTable.hasValueSet(entity)) {
         // Delete existing value set.
-        valueTable.clearEntity(entity);
+        //valueTable.clearEntity(entity);
       }
       // Set existing header
       csvLine.setHeaderMap(getExistingHeaderMap());
