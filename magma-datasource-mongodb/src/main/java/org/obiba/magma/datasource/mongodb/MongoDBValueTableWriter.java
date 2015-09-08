@@ -18,6 +18,7 @@ import javax.validation.constraints.NotNull;
 
 import org.bson.BSONObject;
 import org.bson.types.ObjectId;
+import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueTableWriter;
 import org.obiba.magma.Variable;
@@ -30,6 +31,8 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObjectBuilder;
+import com.mongodb.BulkWriteOperation;
+import com.mongodb.BulkWriteResult;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
@@ -74,13 +77,26 @@ class MongoDBValueTableWriter implements ValueTableWriter {
       }
     }
 
-    if(toSave != null) table.getValueSetCollection().insert(toSave);
+    if(toSave != null) insertOrReplaceBatch(toSave);
 
     updateLastUpdate();
   }
 
   private void updateLastUpdate() {
     table.setLastUpdate(new Date());
+  }
+
+  private void insertOrReplaceBatch(List<DBObject> toSave) {
+    BulkWriteOperation bulkWriteOperation = table.getValueSetCollection().initializeOrderedBulkOperation();
+
+    for (DBObject obj: toSave)
+    {
+      bulkWriteOperation.find(BasicDBObjectBuilder.start("_id", obj.get("_id")).get())//
+          .upsert()//
+          .replaceOne(obj);
+    }
+
+    bulkWriteOperation.execute();
   }
 
   private class MongoDBValueSetWriter implements ValueTableWriter.ValueSetWriter {
@@ -202,8 +218,11 @@ class MongoDBValueTableWriter implements ValueTableWriter {
           table.getValueSetCollection().save(getValueSetObject());
         } else {
           List<DBObject> toSave = null;
+          DBObject valueSet = getValueSetObject();
 
           synchronized(table) {
+            batch.add(valueSet);
+
             if(batch.size() >= batchSize) {
               toSave = ImmutableList.copyOf(batch);
               batch.clear();
@@ -211,10 +230,7 @@ class MongoDBValueTableWriter implements ValueTableWriter {
           }
 
           if(toSave != null) {
-            table.getValueSetCollection().insert(toSave);
-          } else {
-            batch.add(getValueSetObject());
-            return;
+            insertOrReplaceBatch(toSave);
           }
         }
       }
