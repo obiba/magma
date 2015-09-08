@@ -515,10 +515,10 @@ public class CsvDatasourceTest extends AbstractMagmaTest {
     try {
       table.getValue(name, table.getValueSet(new VariableEntityBean(DEFAULT_ENTITY_TYPE, "4")));
     } catch(NoSuchValueSetException e) {
-      fail("Should throw NoSuchValueSetException for Participant 4");
+      fail("Should not throw NoSuchValueSetException for Participant 4");
     }
     try {
-      table.getValue(name, table.getValueSet(new VariableEntityBean(DEFAULT_ENTITY_TYPE, "5")));
+      table.getValue(name, table.getValueSet(new VariableEntityBean(DEFAULT_ENTITY_TYPE, "6")));
       fail("Should throw NoSuchValueSetException for Participant 5");
     } catch(NoSuchValueSetException e) {
     }
