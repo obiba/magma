@@ -253,7 +253,6 @@ public class MongoDBDatasourceTest {
     }
 
     try(ValueTableWriter tableWriter = ds.createWriter(TABLE_TEST, variable.getEntityType())) {
-
       for(int i = 0; i < 999; i++) {
         VariableEntity entity = new VariableEntityBean("Participant", Integer.toString(i));
 
@@ -262,6 +261,44 @@ public class MongoDBDatasourceTest {
         }
       }
     }
+  }
+
+  @Test
+  public void test_batch_writer_replace_existing() throws Exception {
+    Datasource ds = createDatasource();
+    ((MongoDBDatasource) ds).setBatchSize(1000);
+    Variable variable = Variable.Builder.newVariable("BATCHTEST", TextType.get(), PARTICIPANT).repeatable(false)
+        .build();
+
+    try(ValueTableWriter tableWriter = ds.createWriter(TABLE_TEST, variable.getEntityType())) {
+      try(ValueTableWriter.VariableWriter variableWriter = tableWriter.writeVariables()) {
+        variableWriter.writeVariable(variable);
+      }
+    }
+
+    try(ValueTableWriter tableWriter = ds.createWriter(TABLE_TEST, variable.getEntityType())) {
+      for(int i = 0; i < 999; i++) {
+        VariableEntity entity = new VariableEntityBean(PARTICIPANT, Integer.toString(i));
+
+        try(ValueTableWriter.ValueSetWriter valueSetWriter = tableWriter.writeValueSet(entity)) {
+          valueSetWriter.writeValue(variable, TextType.get().valueOf("test value " + i));
+        }
+      }
+
+      for(int i = 0; i < 999; i++) { //replace existing documents
+        VariableEntity entity = new VariableEntityBean(PARTICIPANT, Integer.toString(i));
+
+        try(ValueTableWriter.ValueSetWriter valueSetWriter = tableWriter.writeValueSet(entity)) {
+          valueSetWriter.writeValue(variable, TextType.get().valueOf("new test value " + i));
+        }
+      }
+    }
+
+    ValueTable table = ds.getValueTable(TABLE_TEST);
+    ValueSet valueSet = table.getValueSet(new VariableEntityBean(PARTICIPANT, "1"));
+    Value value = table.getValue(variable, valueSet);
+
+    assertThat(value.getValue()).isEqualTo("new test value 1");
   }
 
   @SuppressWarnings({ "OverlyLongMethod", "PMD.NcssMethodCount" })
