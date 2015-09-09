@@ -22,7 +22,6 @@ import org.obiba.magma.VectorSource;
 
 import com.google.common.collect.Maps;
 
-import liquibase.change.ColumnConfig;
 import liquibase.structure.core.Column;
 
 class JdbcVariableValueSource extends AbstractVariableValueSource implements VariableValueSource, VectorSource {
@@ -45,14 +44,6 @@ class JdbcVariableValueSource extends AbstractVariableValueSource implements Var
     columnName = column.getName();
     variable = Variable.Builder
         .newVariable(valueTable.getVariableName(columnName), SqlTypes.valueTypeFor(column.getType().getDataTypeId()),
-            valueTable.getEntityType()).build();
-  }
-
-  JdbcVariableValueSource(JdbcValueTable valueTable, ColumnConfig columnConfig) {
-    this.valueTable = valueTable;
-    columnName = columnConfig.getName();
-    variable = Variable.Builder
-        .newVariable(valueTable.getVariableName(columnName), SqlTypes.valueTypeFor(columnConfig.getType()),
             valueTable.getEntityType()).build();
   }
 
