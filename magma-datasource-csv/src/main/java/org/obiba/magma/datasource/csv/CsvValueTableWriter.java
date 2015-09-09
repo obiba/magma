@@ -58,15 +58,10 @@ public class CsvValueTableWriter implements ValueTableWriter {
           // Write Header
           writeVariableToCsv(variableConverter.getHeader());
           valueTable.setVariablesFileEmpty(false);
-        } else if(valueTable.hasVariable(variable.getName())) {
-          // doing an update.
-          //valueTable.clearVariable(variable);
         }
 
         String[] line = variableConverter.marshal(variable);
-        long lastByte = valueTable.getVariablesLastByte();
         writeVariableToCsv(line);
-        valueTable.updateVariableIndex(variable, lastByte, line);
       } catch(IOException e) {
         throw new MagmaRuntimeException(e);
       }
