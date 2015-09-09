@@ -99,8 +99,18 @@ class JdbcValueTableWriter implements ValueTableWriter {
 
   private final JdbcValueTable valueTable;
 
+  private final String ESC_CATEGORY_ATTRIBUTES_TABLE, ESC_DATASOURCE_COLUMN,
+  ESC_VALUE_TABLE_COLUMN, ESC_NAME_COLUMN, ESC_CATEGORIES_TABLE, ESC_VARIABLES_TABLE, ESC_VARIABLE_ATTRIBUTES_TABLE;
+
   JdbcValueTableWriter(JdbcValueTable valueTable) {
     this.valueTable = valueTable;
+    ESC_CATEGORY_ATTRIBUTES_TABLE = valueTable.getDatasource().escapeTableName(CATEGORY_ATTRIBUTES_TABLE);
+    ESC_CATEGORIES_TABLE = valueTable.getDatasource().escapeTableName(CATEGORIES_TABLE);
+    ESC_VARIABLES_TABLE = valueTable.getDatasource().escapeTableName(VARIABLES_TABLE);
+    ESC_VARIABLE_ATTRIBUTES_TABLE = valueTable.getDatasource().escapeTableName(VARIABLE_ATTRIBUTES_TABLE);
+    ESC_DATASOURCE_COLUMN = valueTable.getDatasource().escapeColumnName(DATASOURCE_COLUMN);
+    ESC_VALUE_TABLE_COLUMN = valueTable.getDatasource().escapeColumnName(VALUE_TABLE_COLUMN);
+    ESC_NAME_COLUMN = valueTable.getDatasource().escapeColumnName(NAME_COLUMN);
   }
 
   @NotNull
@@ -264,8 +274,8 @@ class JdbcValueTableWriter implements ValueTableWriter {
 
     private void addTableTimestampChange() {
       String whereClause = valueTable.getDatasource().getSettings().isMultipleDatasources() ? String
-          .format("%s = '%s' AND %s = '%s'", DATASOURCE_COLUMN, valueTable.getDatasource().getName(), NAME_COLUMN,
-              valueTable.getName()) : String.format("%s = '%s'", NAME_COLUMN, valueTable.getName());
+          .format("%s = '%s' AND %s = '%s'", ESC_DATASOURCE_COLUMN, valueTable.getDatasource().getName(), ESC_NAME_COLUMN,
+              valueTable.getName()) : String.format("%s = '%s'", ESC_NAME_COLUMN, valueTable.getName());
       changes.add(UpdateDataChangeBuilder.newBuilder().tableName(VALUE_TABLES_TABLE) //
           .withColumn(UPDATED_COLUMN, new java.util.Date()) //
           .where(whereClause).build());
@@ -283,30 +293,30 @@ class JdbcValueTableWriter implements ValueTableWriter {
 
       String sql = valueTable.getDatasource().getSettings().isMultipleDatasources()
           ? String
-          .format("DELETE FROM %s WHERE %s = ? AND %s = ? AND %s = ?", CATEGORY_ATTRIBUTES_TABLE, DATASOURCE_COLUMN,
-              VALUE_TABLE_COLUMN, NAME_COLUMN)
-          : String.format("DELETE FROM %s WHERE %s = ? AND %s = ?", CATEGORY_ATTRIBUTES_TABLE, VALUE_TABLE_COLUMN,
-              NAME_COLUMN);
+          .format("DELETE FROM %s WHERE %s = ? AND %s = ? AND %s = ?", ESC_CATEGORY_ATTRIBUTES_TABLE, ESC_DATASOURCE_COLUMN,
+              ESC_VALUE_TABLE_COLUMN, ESC_NAME_COLUMN)
+          : String.format("DELETE FROM %s WHERE %s = ? AND %s = ?", ESC_CATEGORY_ATTRIBUTES_TABLE, ESC_VALUE_TABLE_COLUMN,
+              ESC_NAME_COLUMN);
       jdbcTemplate.update(sql, params);
 
       sql = valueTable.getDatasource().getSettings().isMultipleDatasources()
-          ? String.format("DELETE FROM %s WHERE %s = ? AND %s = ? AND %s = ?", CATEGORIES_TABLE, DATASOURCE_COLUMN,
-          VALUE_TABLE_COLUMN, NAME_COLUMN)
-          : String.format("DELETE FROM %s WHERE %s = ? AND %s = ?", CATEGORIES_TABLE, VALUE_TABLE_COLUMN, NAME_COLUMN);
+          ? String.format("DELETE FROM %s WHERE %s = ? AND %s = ? AND %s = ?", ESC_CATEGORIES_TABLE, ESC_DATASOURCE_COLUMN,
+          ESC_VALUE_TABLE_COLUMN, ESC_NAME_COLUMN)
+          : String.format("DELETE FROM %s WHERE %s = ? AND %s = ?", ESC_CATEGORIES_TABLE, ESC_VALUE_TABLE_COLUMN, ESC_NAME_COLUMN);
       jdbcTemplate.update(sql, params);
 
       sql = valueTable.getDatasource().getSettings().isMultipleDatasources()
           ? String
-          .format("DELETE FROM %s WHERE %s = ? AND %s = ? AND %s = ?", VARIABLE_ATTRIBUTES_TABLE, DATASOURCE_COLUMN,
-              VALUE_TABLE_COLUMN, NAME_COLUMN)
-          : String.format("DELETE FROM %s WHERE %s = ? AND %s = ?", VARIABLE_ATTRIBUTES_TABLE, VALUE_TABLE_COLUMN,
-              NAME_COLUMN);
+          .format("DELETE FROM %s WHERE %s = ? AND %s = ? AND %s = ?", ESC_VARIABLE_ATTRIBUTES_TABLE, ESC_DATASOURCE_COLUMN,
+              ESC_VALUE_TABLE_COLUMN, ESC_NAME_COLUMN)
+          : String.format("DELETE FROM %s WHERE %s = ? AND %s = ?", ESC_VARIABLE_ATTRIBUTES_TABLE, ESC_VALUE_TABLE_COLUMN,
+              ESC_NAME_COLUMN);
       jdbcTemplate.update(sql, params);
 
       sql = valueTable.getDatasource().getSettings().isMultipleDatasources()
-          ? String.format("DELETE FROM %s WHERE %s = ? AND %s = ? AND %s = ?", VARIABLES_TABLE, DATASOURCE_COLUMN,
-          VALUE_TABLE_COLUMN, NAME_COLUMN)
-          : String.format("DELETE FROM %s WHERE %s = ? AND %s = ?", VARIABLES_TABLE, VALUE_TABLE_COLUMN, NAME_COLUMN);
+          ? String.format("DELETE FROM %s WHERE %s = ? AND %s = ? AND %s = ?", ESC_VARIABLES_TABLE, ESC_DATASOURCE_COLUMN,
+          ESC_VALUE_TABLE_COLUMN, ESC_NAME_COLUMN)
+          : String.format("DELETE FROM %s WHERE %s = ? AND %s = ?", ESC_VARIABLES_TABLE, ESC_VALUE_TABLE_COLUMN, ESC_NAME_COLUMN);
       jdbcTemplate.update(sql, params);
 
       addTableTimestampChange();
@@ -376,6 +386,12 @@ class JdbcValueTableWriter implements ValueTableWriter {
 
     private final Map<String, Object> columnValueMap;
 
+    private String insertSql;
+
+    private String updateSql;
+
+    private String whereClause;
+
     private JdbcValueSetWriter(VariableEntity entity) {
       this.entity = entity;
       columnValueMap = new LinkedHashMap<>();
@@ -431,8 +447,8 @@ class JdbcValueTableWriter implements ValueTableWriter {
             if(entry.getValue() instanceof byte[]) {
               lobCreator.setBlobAsBinaryStream(ps, index++, new ByteArrayInputStream((byte[]) entry.getValue()),
                   ((byte[]) entry.getValue()).length);
-            } else if(entry.getValue() instanceof Date) {
-              ps.setDate(index++, (Date) entry.getValue());
+            } else if(entry.getValue() instanceof java.util.Date) {
+              ps.setDate(index++, new Date(((java.util.Date) entry.getValue()).getTime()));
             } else {
               ps.setObject(index++, entry.getValue());
             }
@@ -442,58 +458,87 @@ class JdbcValueTableWriter implements ValueTableWriter {
     }
 
     private String getInsertSql() {
-      java.util.Date timestamp = new java.util.Date();
+      if (insertSql == null) {
+        final JdbcDatasource datasource = valueTable.getDatasource();
+        java.util.Date timestamp = new java.util.Date();
 
-      if(valueTable.hasCreatedTimestampColumn()) {
-        columnValueMap.put(valueTable.getCreatedTimestampColumnName(), timestamp);
+        if(valueTable.hasCreatedTimestampColumn()) {
+          columnValueMap.put(valueTable.getCreatedTimestampColumnName(), timestamp);
+        }
+
+        if(valueTable.hasUpdatedTimestampColumn()) {
+          columnValueMap.put(valueTable.getUpdatedTimestampColumnName(), timestamp);
+        }
+
+        Map<String, String> entityIdentifierColumnValueMap = getEntityIdentifierColumnValueMap();
+        String colNames = Joiner.on(", ").join(Iterables
+            .transform(Iterables.concat(columnValueMap.keySet(), entityIdentifierColumnValueMap.keySet()),
+                new Function<String, String>() {
+                  @Nullable
+                  @Override
+                  public String apply(@Nullable String input) {
+                    return datasource.escapeColumnName(input);
+                  }
+                }));
+        String values = Joiner.on(", ")
+            .join(Collections.nCopies(entityIdentifierColumnValueMap.size() + columnValueMap.size(), "?"));
+
+        insertSql = String
+            .format("INSERT INTO %s (%s) VALUES (%s)", datasource.escapeTableName(valueTable.getSqlName()), colNames,
+                values);
       }
 
-      if(valueTable.hasUpdatedTimestampColumn()) {
-        columnValueMap.put(valueTable.getUpdatedTimestampColumnName(), timestamp);
-      }
-
-      Map<String, String> entityIdentifierColumnValueMap = getEntityIdentifierColumnValueMap();
-      String colNames = Joiner.on(", ")
-          .join(Iterables.concat(columnValueMap.keySet(), entityIdentifierColumnValueMap.keySet()));
-      String values = Joiner.on(", ")
-          .join(Collections.nCopies(entityIdentifierColumnValueMap.size() + columnValueMap.size(), "?"));
-
-      return String.format("INSERT INTO %s (%s) VALUES (%s)", valueTable.getSqlName(), colNames, values);
+      return insertSql;
     }
 
     private String getUpdateSql() {
-      if(valueTable.hasUpdatedTimestampColumn()) {
-        columnValueMap.put(valueTable.getUpdatedTimestampColumnName(), new java.util.Date());
+      if(updateSql == null) {
+        final JdbcDatasource datasource = valueTable.getDatasource();
+
+        if(valueTable.hasUpdatedTimestampColumn()) {
+          columnValueMap.put(valueTable.getUpdatedTimestampColumnName(), new java.util.Date());
+        }
+
+        String colNames = Joiner.on(", ")
+            .join(Iterables.transform(columnValueMap.keySet(), new Function<String, String>() {
+              @Nullable
+              @Override
+              public String apply(@Nullable String input) {
+                return String.format("%s = ?", datasource.escapeColumnName(input));
+              }
+            }));
+
+        StringBuffer sql = new StringBuffer();
+        sql.append(String.format("UPDATE %s SET %s %s", datasource.escapeTableName(valueTable.getSqlName()), colNames,
+            getWhereClause()));
+
+        updateSql = sql.toString();
       }
 
-      String colNames = Joiner.on(", ")
-          .join(Iterables.transform(columnValueMap.keySet(), new Function<String, String>() {
-            @Nullable
-            @Override
-            public String apply(@Nullable String input) {
-              return String.format("%s = ?", input);
-            }
-          }));
-
-      StringBuffer sql = new StringBuffer();
-      sql.append(String.format("UPDATE %s SET %s %s", valueTable.getSqlName(), colNames, getWhereClause()));
-
-      return sql.toString();
+      return updateSql;
     }
 
     private String getDeleteSql() {
-      return String.format("DELETE FROM %s %s", valueTable.getSqlName(), getWhereClause());
+      JdbcDatasource datasource = valueTable.getDatasource();
+
+      return String.format("DELETE FROM %s %s", datasource.escapeTableName(valueTable.getSqlName()), getWhereClause());
     }
 
     private String getWhereClause() {
-      return "WHERE " + Joiner.on(" AND ")
-          .join(Iterables.transform(getEntityIdentifierColumnValueMap().keySet(), new Function<String, String>() {
-            @Nullable
-            @Override
-            public String apply(String input) {
-              return String.format("%s = ?", input);
-            }
-          }));
+      if(whereClause == null) {
+        final JdbcDatasource datasource = valueTable.getDatasource();
+
+        whereClause = "WHERE " + Joiner.on(" AND ")
+            .join(Iterables.transform(getEntityIdentifierColumnValueMap().keySet(), new Function<String, String>() {
+              @Nullable
+              @Override
+              public String apply(String input) {
+                return String.format("%s = ?", datasource.escapeColumnName(input));
+              }
+            }));
+      }
+
+      return whereClause;
     }
 
     private Map<String, String> getEntityIdentifierColumnValueMap() {

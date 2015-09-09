@@ -2,6 +2,7 @@
     xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd"
     default-autowire="no">
 
+
   <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
     <property name="driverClassName" value="org.hsqldb.jdbcDriver"/>
     <property name="url" value="jdbc:hsqldb:mem:JdbcDatasourceTest"/>
@@ -9,7 +10,6 @@
     <property name="password" value=""/>
     <property name="defaultAutoCommit" value="true"/>
   </bean>
-
 
 <!--
   <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
@@ -19,7 +19,6 @@
     <property name="password" value="1234" />
   </bean>
 -->
-
 
 <!--
   <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">

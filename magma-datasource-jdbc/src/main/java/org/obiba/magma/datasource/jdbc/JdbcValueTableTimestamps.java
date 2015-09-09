@@ -5,6 +5,7 @@ import java.util.Date;
 import org.obiba.magma.Timestamps;
 import org.obiba.magma.Value;
 import org.obiba.magma.type.DateTimeType;
+import org.springframework.dao.EmptyResultDataAccessException;
 
 import static org.obiba.magma.datasource.jdbc.JdbcValueTableWriter.CREATED_COLUMN;
 import static org.obiba.magma.datasource.jdbc.JdbcValueTableWriter.DATASOURCE_COLUMN;
@@ -20,10 +21,19 @@ public class JdbcValueTableTimestamps implements Timestamps {
 
   private final boolean withMultipleDatasources;
 
+  private final String ESC_CREATED_COLUMN, ESC_UPDATED_COLUMN, ESC_VALUE_TABLES_TABLE, ESC_DATASOURCE_COLUMN,
+      ESC_NAME_COLUMN;
+
   public JdbcValueTableTimestamps(JdbcValueTable table) {
     this.table = table;
     fromMetaData = table.getDatasource().getSettings().isUseMetadataTables();
     withMultipleDatasources = table.getDatasource().getSettings().isMultipleDatasources();
+
+    ESC_CREATED_COLUMN = table.getDatasource().escapeColumnName(CREATED_COLUMN);
+    ESC_UPDATED_COLUMN = table.getDatasource().escapeColumnName(UPDATED_COLUMN);
+    ESC_VALUE_TABLES_TABLE = table.getDatasource().escapeTableName(VALUE_TABLES_TABLE);
+    ESC_DATASOURCE_COLUMN = table.getDatasource().escapeColumnName(DATASOURCE_COLUMN);
+    ESC_NAME_COLUMN = table.getDatasource().escapeColumnName(NAME_COLUMN);
   }
 
   @Override
@@ -66,34 +76,59 @@ public class JdbcValueTableTimestamps implements Timestamps {
   private Date getMetaUpdatedDate() {
     String sql = withMultipleDatasources
         ? String
-        .format("SELECT %s FROM %s WHERE %s = ? AND %s = ?", UPDATED_COLUMN, VALUE_TABLES_TABLE, DATASOURCE_COLUMN,
-            NAME_COLUMN)
-        : String.format("SELECT %s FROM %s WHERE %s = ?", UPDATED_COLUMN, VALUE_TABLES_TABLE, NAME_COLUMN);
+        .format("SELECT %s FROM %s WHERE %s = ? AND %s = ?", ESC_UPDATED_COLUMN, ESC_VALUE_TABLES_TABLE, ESC_DATASOURCE_COLUMN,
+            ESC_NAME_COLUMN)
+        : String.format("SELECT %s FROM %s WHERE %s = ?", ESC_UPDATED_COLUMN, ESC_VALUE_TABLES_TABLE, ESC_NAME_COLUMN);
     Object[] params = withMultipleDatasources
         ? new Object[] { table.getDatasource().getName(), table.getName() }
         : new Object[] { table.getName() };
-    return table.getDatasource().getJdbcTemplate().queryForObject(sql, params, Date.class);
+
+    try {
+      return table.getDatasource().getJdbcTemplate().queryForObject(sql, params, Date.class);
+    } catch(EmptyResultDataAccessException e) {
+      return null;
+    }
   }
 
   private Date getMetaCreatedDate() {
     String sql = withMultipleDatasources
         ? String
-        .format("SELECT %s FROM %s WHERE %s = ? AND %s = ?", CREATED_COLUMN, VALUE_TABLES_TABLE, DATASOURCE_COLUMN,
-            NAME_COLUMN)
-        : String.format("SELECT %s FROM %s WHERE %s = ?", CREATED_COLUMN, VALUE_TABLES_TABLE, NAME_COLUMN);
+        .format("SELECT %s FROM %s WHERE %s = ? AND %s = ?", ESC_CREATED_COLUMN, ESC_VALUE_TABLES_TABLE, ESC_DATASOURCE_COLUMN,
+            ESC_NAME_COLUMN)
+        : String.format("SELECT %s FROM %s WHERE %s = ?", ESC_CREATED_COLUMN, ESC_VALUE_TABLES_TABLE, ESC_NAME_COLUMN);
     Object[] params = withMultipleDatasources
         ? new Object[] { table.getDatasource().getName(), table.getName() }
         : new Object[] { table.getName() };
-    return table.getDatasource().getJdbcTemplate().queryForObject(sql, params, Date.class);
+
+    try {
+      return table.getDatasource().getJdbcTemplate().queryForObject(sql, params, Date.class);
+    } catch(EmptyResultDataAccessException e) {
+      return null;
+    }
   }
 
   private Date getOldestValueSetCreatedDate() {
-    String sql = String.format("SELECT MIN(%s) FROM %s", table.getCreatedTimestampColumnName(), table.getSqlName());
-    return table.getDatasource().getJdbcTemplate().queryForObject(sql, Date.class);
+    JdbcDatasource datasource = table.getDatasource();
+    String sql = String
+        .format("SELECT MIN(%s) FROM %s", datasource.escapeColumnName(table.getCreatedTimestampColumnName()),
+            datasource.escapeTableName(table.getSqlName()));
+    try {
+      return datasource.getJdbcTemplate().queryForObject(sql, Date.class);
+    } catch(EmptyResultDataAccessException e) {
+      return null;
+    }
   }
 
   private Date getLatestValueSetUpdatedDate() {
-    String sql = String.format("SELECT MAX(%s) FROM %s", table.getUpdatedTimestampColumnName(), table.getSqlName());
-    return table.getDatasource().getJdbcTemplate().queryForObject(sql, Date.class);
+    JdbcDatasource datasource = table.getDatasource();
+    String sql = String
+        .format("SELECT MAX(%s) FROM %s", datasource.escapeColumnName(table.getUpdatedTimestampColumnName()),
+            datasource.escapeTableName(table.getSqlName()));
+
+    try {
+      return table.getDatasource().getJdbcTemplate().queryForObject(sql, Date.class);
+    } catch(EmptyResultDataAccessException e) {
+      return null;
+    }
   }
 }
