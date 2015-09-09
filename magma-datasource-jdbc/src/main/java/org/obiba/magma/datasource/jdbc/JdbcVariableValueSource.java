@@ -124,9 +124,11 @@ class JdbcVariableValueSource extends AbstractVariableValueSource implements Var
     @edu.umd.cs.findbugs.annotations.SuppressWarnings("SQL_PREPARED_STATEMENT_GENERATED_FROM_NONCONSTANT_STRING")
     private ValueIterator(Connection connection, Iterable<VariableEntity> entities) throws SQLException {
       this.connection = connection;
-      String column = valueTable.getEntityIdentifierColumnsSql();
+      JdbcDatasource datasource = valueTable.getDatasource();
+      String escapedIdentifierColumns = valueTable.getEntityIdentifierColumnsSql();
       statement = connection.prepareStatement(
-          String.format("SELECT %s, %s FROM %s ORDER BY %s", column, columnName, valueTable.getSqlName(), column));
+          String.format("SELECT %s, %s FROM %s ORDER BY %s", escapedIdentifierColumns,
+              datasource.escapeColumnName(columnName), datasource.escapeTableName(valueTable.getSqlName()), escapedIdentifierColumns));
       rs = statement.executeQuery();
       hasNextResults = rs.next();
       this.entities = entities.iterator();

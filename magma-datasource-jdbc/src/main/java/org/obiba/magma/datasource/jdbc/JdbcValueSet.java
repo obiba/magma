@@ -146,22 +146,32 @@ public class JdbcValueSet extends ValueSetBean {
   }
 
   private <T> List<T> loadValues(List<String> columnNames, RowMapper<T> rowMapper) {
+    final JdbcDatasource datasource = getValueTable().getDatasource();
     List<String> entityIdentifierColumns = getValueTable().getSettings().getEntityIdentifierColumns();
+
     String whereClause = Joiner.on(" AND ")
         .join(Iterables.transform(entityIdentifierColumns, new Function<String, String>() {
           @Nullable
           @Override
           public String apply(String idColName) {
-            return String.format("%s = ?", idColName);
+            return String.format("%s = ?", datasource.escapeColumnName(idColName));
           }
         }));
 
+    Iterable<String> escapedColumnNames = Iterables.transform(columnNames, new Function<String, String>() {
+      @Nullable
+      @Override
+      public String apply(@Nullable String input) {
+        return datasource.escapeColumnName(input);
+      }
+    });
+
     StringBuilder sql = new StringBuilder();
     sql.append(
-        String.format("SELECT %s FROM %s WHERE %s", Joiner.on(", ").join(columnNames), sqlTableName, whereClause));
+        String.format("SELECT %s FROM %s WHERE %s", Joiner.on(", ").join(escapedColumnNames), datasource.escapeTableName(sqlTableName), whereClause));
     String[] entityIdentifierColumnValues = getVariableEntity().getIdentifier().split("-");
 
-    return getValueTable().getDatasource().getJdbcTemplate()
+    return datasource.getJdbcTemplate()
         .query(sql.toString(), entityIdentifierColumnValues, rowMapper);
   }
 

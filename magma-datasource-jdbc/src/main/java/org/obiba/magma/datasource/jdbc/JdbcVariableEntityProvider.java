@@ -13,6 +13,7 @@ import org.obiba.magma.Initialisable;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.support.AbstractVariableEntityProvider;
 import org.obiba.magma.support.VariableEntityBean;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 
 class JdbcVariableEntityProvider extends AbstractVariableEntityProvider implements Initialisable {
@@ -28,16 +29,16 @@ class JdbcVariableEntityProvider extends AbstractVariableEntityProvider implemen
 
   @Override
   public void initialise() {
+    JdbcDatasource datasource = valueTable.getDatasource();
     entities = new LinkedHashSet<>();
-    List<VariableEntity> results = valueTable.getDatasource().getJdbcTemplate()
-        .query(String.format("SELECT %s FROM %s", valueTable.getEntityIdentifierColumnsSql(), valueTable.getSqlName()),
-            new RowMapper<VariableEntity>() {
-              @Override
-              public VariableEntity mapRow(ResultSet rs, int rowNum) throws SQLException {
-                return new VariableEntityBean(valueTable.getEntityType(), valueTable.buildEntityIdentifier(rs));
-              }
-
-            });
+    List<VariableEntity> results = datasource.getJdbcTemplate().query(String
+            .format("SELECT %s FROM %s", valueTable.getEntityIdentifierColumnsSql(),
+                datasource.escapeTableName(valueTable.getSqlName())), new RowMapper<VariableEntity>() {
+          @Override
+          public VariableEntity mapRow(ResultSet rs, int rowNum) throws SQLException {
+            return new VariableEntityBean(valueTable.getEntityType(), valueTable.buildEntityIdentifier(rs));
+          }
+        });
     entities.addAll(results);
   }
 
