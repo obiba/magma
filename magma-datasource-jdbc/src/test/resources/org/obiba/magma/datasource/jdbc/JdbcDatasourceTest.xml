@@ -2,7 +2,7 @@
   <variables datasource="my-datasource" value_table="BONE_DENSITY" name="BD" value_type="integer" is_repeatable="false" sql_name="BD"/>
   <variables datasource="my-datasource" value_table="BONE_DENSITY" name="BD_2" value_type="integer" is_repeatable="false" sql_name="BD_2"/>
 
-  <variable_attributes datasource="my-datasource" value_table="BONE_DENSITY" variable="BD" name="description" locale=""
+  <variable_attributes datasource="my-datasource" value_table="BONE_DENSITY" variable="BD" name="description" locale="en"
       value="BD description"/>
   <variable_attributes datasource="my-datasource" value_table="BONE_DENSITY" variable="BD_2" name="description"
       locale="en" value="BD_2 description"/>
