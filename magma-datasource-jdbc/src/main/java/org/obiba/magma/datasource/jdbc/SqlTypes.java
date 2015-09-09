@@ -26,7 +26,7 @@ class SqlTypes {
   private SqlTypes() {}
 
   @SuppressWarnings({ "PMD.NcssMethodCount", "OverlyLongMethod" })
-  static final ValueType valueTypeFor(int sqlType) {
+  static ValueType valueTypeFor(int sqlType) {
     switch(sqlType) {
       // BinaryType
       case Types.BLOB: // fall through
@@ -69,35 +69,8 @@ class SqlTypes {
     }
   }
 
-  static final ValueType valueTypeFor(String sqlType) {
-    if("VARCHAR".equals(sqlType)) {
-      return TextType.get();
-    }
-    if("BIGINT".equals(sqlType)) {
-      return IntegerType.get();
-    }
-    if("DECIMAL".equals(sqlType)) {
-      return DecimalType.get();
-    }
-    if("DATE".equals(sqlType)) {
-      return DateType.get();
-    }
-    if("TIMESTAMP".equals(sqlType)) {
-      return DateTimeType.get();
-    }
-    if("BLOB".equals(sqlType)) {
-      return BinaryType.get();
-    }
-
-    return TextType.get();
-  }
-
-  static final String sqlTypeFor(ValueType valueType) {
-    return sqlTypeFor(valueType, null);
-  }
-
   @SuppressWarnings({ "PMD.NcssMethodCount", "OverlyLongMethod" })
-  static final String sqlTypeFor(ValueType valueType, @Nullable String hint) {
+  static String sqlTypeFor(ValueType valueType, @Nullable String hint) {
     if(valueType.equals(TextType.get())) {
       // TODO: Formalize the notion of a "hint".
       if(TEXT_TYPE_HINT_MEDIUM.equals(hint)) {
