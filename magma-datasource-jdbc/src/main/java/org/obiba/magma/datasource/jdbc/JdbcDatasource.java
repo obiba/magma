@@ -48,6 +48,7 @@ import liquibase.change.core.RenameTableChange;
 import liquibase.database.Database;
 import liquibase.database.DatabaseFactory;
 import liquibase.database.DatabaseList;
+import liquibase.database.ObjectQuotingStrategy;
 import liquibase.database.jvm.JdbcConnection;
 import liquibase.exception.LiquibaseException;
 import liquibase.snapshot.DatabaseSnapshot;
@@ -55,6 +56,7 @@ import liquibase.snapshot.SnapshotControl;
 import liquibase.snapshot.SnapshotGeneratorFactory;
 import liquibase.sql.visitor.SqlVisitor;
 import liquibase.statement.SqlStatement;
+import liquibase.structure.core.Column;
 import liquibase.structure.core.Table;
 
 import static org.obiba.magma.datasource.jdbc.JdbcValueTableWriter.*;
@@ -77,6 +79,8 @@ public class JdbcDatasource extends AbstractDatasource {
 
   private Map<String, String> valueTableMap;
 
+  private final String ESC_ENTITY_TYPE_COLUMN, ESC_VALUE_TABLES_TABLE, ESC_DATASOURCE_COLUMN, ESC_NAME_COLUMN, ESC_VALUE_TABLE_COLUMN, ESC_SQL_NAME_COLUMN;
+
   @SuppressWarnings("ConstantConditions")
   public JdbcDatasource(String name, @NotNull DataSource datasource, @NotNull JdbcDatasourceSettings settings) {
     super(name, TYPE);
@@ -84,6 +88,13 @@ public class JdbcDatasource extends AbstractDatasource {
     if(datasource == null) throw new IllegalArgumentException("null datasource");
     this.settings = settings;
     jdbcTemplate = new JdbcTemplate(datasource);
+
+    ESC_ENTITY_TYPE_COLUMN = escapeColumnName(ENTITY_TYPE_COLUMN);
+    ESC_VALUE_TABLES_TABLE = escapeTableName(VALUE_TABLES_TABLE);
+    ESC_DATASOURCE_COLUMN = escapeColumnName(DATASOURCE_COLUMN);
+    ESC_NAME_COLUMN = escapeColumnName(NAME_COLUMN);
+    ESC_SQL_NAME_COLUMN = escapeColumnName(SQL_NAME_COLUMN);
+    ESC_VALUE_TABLE_COLUMN = escapeColumnName(VALUE_TABLE_COLUMN);
   }
 
   public JdbcDatasource(String name, DataSource datasource, String defaultEntityType, boolean useMetadataTables) {
@@ -180,7 +191,7 @@ public class JdbcDatasource extends AbstractDatasource {
 
   private void addTableMetaData(@NotNull String tableName, @NotNull JdbcValueTableSettings tableSettings) {
     if(!getSettings().isUseMetadataTables()) return;
-    
+
     InsertDataChangeBuilder idc = InsertDataChangeBuilder.newBuilder() //
         .tableName(VALUE_TABLES_TABLE);
 
@@ -226,21 +237,24 @@ public class JdbcDatasource extends AbstractDatasource {
     JdbcValueTableSettings tableSettings = settings.getTableSettingsForMagmaTable(tableName);
     String sqlTableName = getValueTableMap().containsKey(tableName) ? getValueTableMap().get(tableName) : tableName;
     String entityType = null;
+
     if(getSettings().isUseMetadataTables()) {
       String sql = getSettings().isMultipleDatasources()
-          ? String.format("SELECT %s FROM %s WHERE %s = ? AND %s = ?", ENTITY_TYPE_COLUMN, VALUE_TABLES_TABLE,
-          DATASOURCE_COLUMN, NAME_COLUMN)
-          : String.format("SELECT %s FROM %s WHERE %s = ?", ENTITY_TYPE_COLUMN, VALUE_TABLES_TABLE, NAME_COLUMN);
+          ? String.format("SELECT %s FROM %s WHERE %s = ? AND %s = ?", ESC_ENTITY_TYPE_COLUMN, ESC_VALUE_TABLES_TABLE,
+          ESC_DATASOURCE_COLUMN, ESC_NAME_COLUMN)
+          : String.format("SELECT %s FROM %s WHERE %s = ?", ESC_ENTITY_TYPE_COLUMN, ESC_VALUE_TABLES_TABLE, ESC_NAME_COLUMN);
       Object[] params = getSettings().isMultipleDatasources()
           ? new Object[] { getName(), tableName }
           : new Object[] { tableName };
       entityType = getJdbcTemplate().queryForObject(sql, params, String.class);
     }
+
     entityType = Strings.isNullOrEmpty(entityType) ? settings.getDefaultEntityType() : entityType;
 
     if(tableSettings != null) return new JdbcValueTable(this, tableSettings);
 
     Table table = getDatabaseSnapshot().get(newTable(sqlTableName));
+
     return table == null ? new JdbcValueTable(this,
         new JdbcValueTableSettings(generateSqlTableName(tableName), tableName, entityType,
             settings.getDefaultEntityIdColumnName())) : new JdbcValueTable(this, tableName, table, entityType);
@@ -253,11 +267,10 @@ public class JdbcDatasource extends AbstractDatasource {
   @NotNull
   private Set<String> getRegisteredValueTableNames() {
     Set<String> names = new LinkedHashSet<>();
-
     String select = getSettings().isMultipleDatasources()
         ? String
-        .format("SELECT %s FROM %s WHERE %s = '%s'", NAME_COLUMN, VALUE_TABLES_TABLE, DATASOURCE_COLUMN, getName())
-        : String.format("SELECT %s FROM %s", NAME_COLUMN, VALUE_TABLES_TABLE);
+        .format("SELECT %s FROM %s WHERE %s = '%s'", ESC_NAME_COLUMN, ESC_VALUE_TABLES_TABLE, ESC_DATASOURCE_COLUMN, getName())
+        : String.format("SELECT %s FROM %s", ESC_NAME_COLUMN, ESC_VALUE_TABLES_TABLE);
 
     names.addAll(getJdbcTemplate().query(select, new RowMapper<String>() {
       @Override
@@ -302,8 +315,8 @@ public class JdbcDatasource extends AbstractDatasource {
     if(!getSettings().isUseMetadataTables()) return changes;
 
     String whereClause = getSettings().isMultipleDatasources()
-        ? String.format("%s = '%s' AND %s = '%s'", DATASOURCE_COLUMN, getName(), NAME_COLUMN, tableName)
-        : String.format("%s = '%s'", NAME_COLUMN, tableName);
+        ? String.format("%s = '%s' AND %s = '%s'", ESC_DATASOURCE_COLUMN, getName(), ESC_NAME_COLUMN, tableName)
+        : String.format("%s = '%s'", ESC_NAME_COLUMN, tableName);
     changes.add(UpdateDataChangeBuilder.newBuilder().tableName(VALUE_TABLES_TABLE) //
         .withColumn(NAME_COLUMN, newName) //
         .withColumn(SQL_NAME_COLUMN, newSqlName) //
@@ -311,8 +324,8 @@ public class JdbcDatasource extends AbstractDatasource {
         .where(whereClause).build());
 
     whereClause = getSettings().isMultipleDatasources()
-        ? String.format("%s = '%s' AND %s = '%s'", DATASOURCE_COLUMN, getName(), VALUE_TABLE_COLUMN, tableName)
-        : String.format("%s = '%s'", VALUE_TABLE_COLUMN, tableName);
+        ? String.format("%s = '%s' AND %s = '%s'", ESC_DATASOURCE_COLUMN, getName(), ESC_VALUE_TABLE_COLUMN, tableName)
+        : String.format("%s = '%s'", ESC_VALUE_TABLE_COLUMN, tableName);
 
     changes.add(UpdateDataChangeBuilder.newBuilder().tableName(VARIABLES_TABLE) //
         .withColumn(VALUE_TABLE_COLUMN, newName) //
@@ -339,7 +352,8 @@ public class JdbcDatasource extends AbstractDatasource {
   }
 
   private String generateSqlTableName(String tableName) {
-    return getSettings().isMultipleDatasources() ? String.format("%s_%s", TableUtils.normalize(getName()), TableUtils.normalize(tableName))
+    return getSettings().isMultipleDatasources()
+        ? String.format("%s_%s", TableUtils.normalize(getName()), TableUtils.normalize(tableName))
         : TableUtils.normalize(tableName);
   }
 
@@ -349,9 +363,9 @@ public class JdbcDatasource extends AbstractDatasource {
 
       if(getSettings().isUseMetadataTables()) {
         String select = getSettings().isMultipleDatasources()
-            ? String.format("SELECT %s, %s FROM %s WHERE %s = '%s'", NAME_COLUMN, SQL_NAME_COLUMN, VALUE_TABLES_TABLE,
-            DATASOURCE_COLUMN, getName())
-            : String.format("SELECT %s, %s FROM %s", NAME_COLUMN, SQL_NAME_COLUMN, VALUE_TABLES_TABLE);
+            ? String.format("SELECT %s, %s FROM %s WHERE %s = '%s'", ESC_NAME_COLUMN, ESC_SQL_NAME_COLUMN, ESC_VALUE_TABLES_TABLE,
+            ESC_DATASOURCE_COLUMN, getName())
+            : String.format("SELECT %s, %s FROM %s", ESC_NAME_COLUMN, ESC_SQL_NAME_COLUMN, ESC_VALUE_TABLES_TABLE);
 
         List<Map.Entry<String, String>> entries = getJdbcTemplate()
             .query(select, new RowMapper<Map.Entry<String, String>>() {
@@ -382,10 +396,29 @@ public class JdbcDatasource extends AbstractDatasource {
     return jdbcTemplate;
   }
 
+  public String escapeTableName(final String identifier) {
+    return doWithDatabase(new DatabaseCallback<String>() {
+      @Nullable
+      @Override
+      public String doInDatabase(Database database) throws LiquibaseException {
+        return database.escapeObjectName(identifier, Table.class);
+      }
+    });
+  }
+
+  public String escapeColumnName(final String identifier) {
+    return doWithDatabase(new DatabaseCallback<String>() {
+      @Nullable
+      @Override
+      public String doInDatabase(Database database) throws LiquibaseException {
+        return database.escapeObjectName(identifier, Column.class);
+      }
+    });
+  }
+
   DatabaseSnapshot getDatabaseSnapshot() {
     if(snapshot == null) {
       snapshot = doWithDatabase(new DatabaseCallback<DatabaseSnapshot>() {
-
         @Override
         public DatabaseSnapshot doInDatabase(Database database) throws LiquibaseException {
           return SnapshotGeneratorFactory.getInstance()
@@ -406,22 +439,13 @@ public class JdbcDatasource extends AbstractDatasource {
       @Nullable
       @Override
       public T doInConnection(Connection con) throws SQLException, DataAccessException {
-        Database database = null;
-
         try {
-          database = DatabaseFactory.getInstance().findCorrectDatabaseImplementation(new JdbcConnection(con));
+          Database database = DatabaseFactory.getInstance().findCorrectDatabaseImplementation(new JdbcConnection(con));
+          database.setObjectQuotingStrategy(ObjectQuotingStrategy.QUOTE_ALL_OBJECTS);
 
           return databaseCallback.doInDatabase(database);
         } catch(LiquibaseException e) {
           throw new SQLException(e);
-          // FIXME why is there this code as it always throws an exception: "Commit can not be set while enrolled in a transaction"
-//        } finally {
-//          if(database != null) try {
-//            database.commit();
-//          } catch(DatabaseException e) {
-//            //ignore
-//            log.warn("Exception on database commit", e);
-//          }
         }
       }
     });
@@ -444,8 +468,8 @@ public class JdbcDatasource extends AbstractDatasource {
 
       builder.withColumn(NAME_COLUMN, "VARCHAR(255)").primaryKey() //
           .withColumn(ENTITY_TYPE_COLUMN, "VARCHAR(255)").notNull() //
-          .withColumn(CREATED_COLUMN, "DATETIME").notNull() //
-          .withColumn(UPDATED_COLUMN, "DATETIME").notNull() //
+          .withColumn(CREATED_COLUMN, "TIMESTAMP").notNull() //
+          .withColumn(UPDATED_COLUMN, "TIMESTAMP").notNull() //
           .withColumn(SQL_NAME_COLUMN, "VARCHAR(255)").notNull();
       changes.add(builder.build());
     }

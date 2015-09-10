@@ -76,9 +76,11 @@ class SqlTypes {
       if(TEXT_TYPE_HINT_MEDIUM.equals(hint)) {
         return "LONGVARCHAR"; // ONYX-285
       }
+
       if(TEXT_TYPE_HINT_LARGE.equals(hint)) {
         return "LONGVARCHAR";
       }
+
       return "VARCHAR";
     }
     if(valueType.equals(IntegerType.get())) {
