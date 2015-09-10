@@ -29,7 +29,9 @@ import org.obiba.magma.type.BinaryType;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.mongodb.BasicDBList;
+import com.mongodb.BasicDBObject;
 import com.mongodb.BasicDBObjectBuilder;
+import com.mongodb.BulkWriteOperation;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
@@ -74,13 +76,27 @@ class MongoDBValueTableWriter implements ValueTableWriter {
       }
     }
 
-    if(toSave != null) table.getValueSetCollection().insert(toSave);
-
+    bulkUpsert(toSave);
     updateLastUpdate();
   }
 
   private void updateLastUpdate() {
     table.setLastUpdate(new Date());
+  }
+
+  /**
+   * Perform an insert or update bulk operation.
+   *
+   * @param toSave
+   */
+  private void bulkUpsert(List<DBObject> toSave) {
+    if(toSave == null) return;
+    BulkWriteOperation bulkWriteOperation = table.getValueSetCollection().initializeUnorderedBulkOperation();
+    for(DBObject obj : toSave) {
+      bulkWriteOperation.find(new BasicDBObject("_id", obj.get("_id"))).upsert()
+          .updateOne(new BasicDBObject("$set", obj));
+    }
+    bulkWriteOperation.execute();
   }
 
   private class MongoDBValueSetWriter implements ValueTableWriter.ValueSetWriter {
@@ -190,13 +206,14 @@ class MongoDBValueTableWriter implements ValueTableWriter {
       return getBinaryValueMetadata(gridFSFile, occurrence);
     }
 
+    @SuppressWarnings("OverlyNestedMethod")
     @Override
     public void close() {
       if(!removed) {
         BSONObject timestamps = (BSONObject) getValueSetObject().get(MongoDBDatasource.TIMESTAMPS_FIELD);
         timestamps.put(MongoDBDatasource.TIMESTAMPS_UPDATED_FIELD, new Date());
 
-        int batchSize = ((MongoDBDatasource)table.getDatasource()).getBatchSize();
+        int batchSize = ((MongoDBDatasource) table.getDatasource()).getBatchSize();
 
         if(batchSize == 1) {
           table.getValueSetCollection().save(getValueSetObject());
@@ -211,7 +228,7 @@ class MongoDBValueTableWriter implements ValueTableWriter {
           }
 
           if(toSave != null) {
-            table.getValueSetCollection().insert(toSave);
+            bulkUpsert(toSave);
           } else {
             batch.add(getValueSetObject());
             return;
