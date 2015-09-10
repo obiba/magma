@@ -2,7 +2,6 @@ package org.obiba.magma.datasource.mongodb;
 
 import java.io.Serializable;
 import java.net.URI;
-import java.net.UnknownHostException;
 
 import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
@@ -14,6 +13,7 @@ import com.google.common.base.Strings;
 import com.mongodb.DB;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
+import com.mongodb.MongoException;
 import com.mongodb.gridfs.GridFS;
 
 public class MongoDBFactory implements Serializable {
@@ -56,7 +56,7 @@ public class MongoDBFactory implements Serializable {
     if(mongoClient == null) {
       try {
         mongoClient = new MongoClient(getMongoClientURI());
-      } catch(UnknownHostException e) {
+      } catch(MongoException e) {
         throw new MagmaRuntimeException(e);
       }
     }

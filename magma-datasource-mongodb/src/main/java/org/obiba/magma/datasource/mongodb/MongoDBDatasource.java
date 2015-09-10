@@ -79,8 +79,8 @@ public class MongoDBDatasource extends AbstractDatasource {
       @Override
       public DBCollection doWithDB(DB db) {
         DBCollection collection = db.getCollection(VALUE_TABLE_COLLECTION);
-        collection.ensureIndex("datasource");
-        collection.ensureIndex("name");
+        collection.createIndex("datasource");
+        collection.createIndex("name");
         return collection;
       }
     });
@@ -91,7 +91,7 @@ public class MongoDBDatasource extends AbstractDatasource {
       @Override
       public DBCollection doWithDB(DB db) {
         DBCollection collection =  db.getCollection(DATASOURCE_COLLECTION);
-        collection.ensureIndex("name");
+        collection.createIndex("name");
         return collection;
       }
     });

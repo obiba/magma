@@ -76,7 +76,7 @@ public class MongoDBValueTable extends AbstractValueTable {
       @Override
       public DBCollection doWithDB(DB db) {
         DBCollection collection = db.getCollection(getId() + VARIABLE_SUFFIX);
-        collection.ensureIndex("name");
+        collection.createIndex("name");
         return collection;
       }
     });

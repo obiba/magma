@@ -52,7 +52,7 @@ ext {
 
       mockito: 'org.mockito:mockito-all:1.10.8',
 
-      mongodb_java_driver: 'org.mongodb:mongo-java-driver:2.13.0',
+      mongodb_java_driver: 'org.mongodb:mongo-java-driver:3.0.3',
 
       mysql_connector_java: 'mysql:mysql-connector-java:5.1.36',
 
