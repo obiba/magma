@@ -544,6 +544,7 @@ class JdbcValueTableWriter implements ValueTableWriter {
     private Map<String, String> getEntityIdentifierColumnValueMap() {
       Map<String, String> entityIdentifierColumnValueMap = new LinkedHashMap<>();
       List<String> entityIdentifierColumns = valueTable.getSettings().getEntityIdentifierColumns();
+
       String[] entityIdentifierValues = entityIdentifierColumns.size() > 1
           ? entity.getIdentifier().split("-")
           : new String[] { entity.getIdentifier() };
