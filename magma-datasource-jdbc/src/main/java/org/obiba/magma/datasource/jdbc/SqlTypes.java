@@ -32,6 +32,7 @@ class SqlTypes {
       case Types.BLOB: // fall through
       case Types.LONGVARBINARY: // fall through
       case Types.VARBINARY:
+      case Types.BINARY:
         return BinaryType.get();
 
       // BooleanType
