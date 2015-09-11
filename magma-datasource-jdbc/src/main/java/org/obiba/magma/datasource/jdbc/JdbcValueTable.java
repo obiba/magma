@@ -25,6 +25,7 @@ import org.obiba.magma.VariableEntity;
 import org.obiba.magma.datasource.jdbc.JdbcDatasource.ChangeDatabaseCallback;
 import org.obiba.magma.datasource.jdbc.support.CreateIndexChangeBuilder;
 import org.obiba.magma.datasource.jdbc.support.CreateTableChangeBuilder;
+import org.obiba.magma.datasource.jdbc.support.TableUtils;
 import org.obiba.magma.support.AbstractValueTable;
 import org.obiba.magma.support.Initialisables;
 import org.obiba.magma.type.DateTimeType;
@@ -456,7 +457,7 @@ class JdbcValueTable extends AbstractValueTable {
   String getVariableSqlName(String variableName) {
     if(getVariablesMap().containsKey(variableName)) return getVariablesMap().get(variableName);
 
-    return variableName;
+    return TableUtils.normalize(variableName);
   }
 
   String getVariableName(String variableName) {

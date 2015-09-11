@@ -246,6 +246,40 @@ public class JdbcDatasourceTest extends AbstractMagmaTest {
     jdbcDatasource.dispose();
   }
 
+  @TestSchema(schemaLocation = "org/obiba/magma/datasource/jdbc", beforeSchema = "schema-notables.sql",
+      afterSchema = "schema-notables.sql")
+  @Test
+  public void testColumnsNormalized() {
+    JdbcDatasource jdbcDatasource = new JdbcDatasource("my-datasource-nodb", dataSource, getDataSourceSettings());
+    jdbcDatasource.initialise();
+
+    try(ValueTableWriter tableWriter = jdbcDatasource.createWriter("MY_TABLE", "Participant")) {
+      // Write some variables.
+      try(VariableWriter variableWriter = tableWriter.writeVariables()) {
+        variableWriter.writeVariable(Variable.Builder.newVariable("test.MY_VAR1", IntegerType.get(), "Participant").build());
+        variableWriter.writeVariable(Variable.Builder.newVariable("test.MY_VAR2", DecimalType.get(), "Participant").build());
+      }
+
+      // Write a value set.
+      VariableEntity myEntity1 = new VariableEntityBean("Participant", "1");
+
+      try(ValueSetWriter valueSetWriter = tableWriter.writeValueSet(myEntity1)) {
+        Variable myVar1 = jdbcDatasource.getValueTable("MY_TABLE").getVariable("test.MY_VAR1");
+        Variable myVar2 = jdbcDatasource.getValueTable("MY_TABLE").getVariable("test.MY_VAR2");
+        valueSetWriter.writeValue(myVar1, IntegerType.get().valueOf(77));
+        valueSetWriter.writeValue(myVar2, IntegerType.get().valueOf(78));
+      }
+    }
+
+    ValueTable vt = jdbcDatasource.getValueTable("MY_TABLE");
+
+    assertThat(vt.getValueSetCount()).isEqualTo(1);
+    assertThat(vt.getVariableEntityCount()).isEqualTo(1);
+    assertThat(vt.getVariableCount()).isEqualTo(2);
+
+    jdbcDatasource.dispose();
+  }
+
   //
   // Methods
   //
