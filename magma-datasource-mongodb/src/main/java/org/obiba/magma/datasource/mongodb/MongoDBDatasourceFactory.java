@@ -45,7 +45,7 @@ public class MongoDBDatasourceFactory extends AbstractDatasourceFactory {
 
   private String options;
 
-  private int batchSize = 1;
+  private int batchSize = 100;
 
   public MongoDBDatasourceFactory(@NotNull String name, @NotNull String url) {
     this(name, url, null, null, null);
