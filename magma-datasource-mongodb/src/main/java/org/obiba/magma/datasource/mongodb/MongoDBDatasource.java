@@ -56,7 +56,7 @@ public class MongoDBDatasource extends AbstractDatasource {
 
   private DBObject dbObject;
 
-  private int batchSize = 1;
+  private int batchSize = 100;
 
   /**
    * See <a href="http://docs.mongodb.org/manual/reference/connection-string">MongoDB connection string specifications</a>.
