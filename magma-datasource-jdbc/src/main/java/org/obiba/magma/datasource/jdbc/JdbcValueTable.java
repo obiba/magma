@@ -566,7 +566,11 @@ class JdbcValueTable extends AbstractValueTable {
 
     private Date executeQuery(String sql) {
       String[] entityIdentifierColumnValues = entity.getIdentifier().split("-");
-      return getDatasource().getJdbcTemplate().queryForObject(sql, entityIdentifierColumnValues, Date.class);
+      try {
+        return getDatasource().getJdbcTemplate().queryForObject(sql, entityIdentifierColumnValues, Date.class);
+      } catch (Exception e) {
+        return null;
+      }
     }
   }
 
