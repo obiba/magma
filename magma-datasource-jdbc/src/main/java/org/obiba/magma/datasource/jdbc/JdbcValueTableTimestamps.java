@@ -5,7 +5,6 @@ import java.util.Date;
 import org.obiba.magma.Timestamps;
 import org.obiba.magma.Value;
 import org.obiba.magma.type.DateTimeType;
-import org.springframework.dao.EmptyResultDataAccessException;
 
 import static org.obiba.magma.datasource.jdbc.JdbcValueTableWriter.CREATED_COLUMN;
 import static org.obiba.magma.datasource.jdbc.JdbcValueTableWriter.DATASOURCE_COLUMN;
@@ -85,7 +84,7 @@ public class JdbcValueTableTimestamps implements Timestamps {
 
     try {
       return table.getDatasource().getJdbcTemplate().queryForObject(sql, params, Date.class);
-    } catch(EmptyResultDataAccessException e) {
+    } catch(Exception e) {
       return null;
     }
   }
@@ -102,7 +101,7 @@ public class JdbcValueTableTimestamps implements Timestamps {
 
     try {
       return table.getDatasource().getJdbcTemplate().queryForObject(sql, params, Date.class);
-    } catch(EmptyResultDataAccessException e) {
+    } catch(Exception e) {
       return null;
     }
   }
@@ -114,7 +113,7 @@ public class JdbcValueTableTimestamps implements Timestamps {
             datasource.escapeTableName(table.getSqlName()));
     try {
       return datasource.getJdbcTemplate().queryForObject(sql, Date.class);
-    } catch(EmptyResultDataAccessException e) {
+    } catch(Exception e) {
       return null;
     }
   }
@@ -127,7 +126,7 @@ public class JdbcValueTableTimestamps implements Timestamps {
 
     try {
       return table.getDatasource().getJdbcTemplate().queryForObject(sql, Date.class);
-    } catch(EmptyResultDataAccessException e) {
+    } catch(Exception e) {
       return null;
     }
   }
