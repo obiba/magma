@@ -65,8 +65,8 @@ class JdbcValueTable extends AbstractValueTable {
     super(datasource, settings.getMagmaTableName());
     this.settings = settings;
 
-    if(getDatasource().getDatabaseSnapshot().get(newTable(settings.getSqlTableName())) == null) {
-      createSqlTable(settings.getSqlTableName());
+    if(getDatasource().getDatabaseSnapshot().get(newTable(getSqlName())) == null) {
+      createSqlTable(getSqlName());
       getDatasource().databaseChanged();
     }
 
@@ -77,9 +77,9 @@ class JdbcValueTable extends AbstractValueTable {
     ESC_CATEGORIES_TABLE = getDatasource().escapeTableName(CATEGORIES_TABLE);
     ESC_VARIABLES_TABLE = getDatasource().escapeTableName(VARIABLES_TABLE);
     ESC_VARIABLE_ATTRIBUTES_TABLE = getDatasource().escapeTableName(VARIABLE_ATTRIBUTES_TABLE);
+    ESC_VALUE_TABLES_TABLE = getDatasource().escapeTableName(VALUE_TABLES_TABLE);
     ESC_DATASOURCE_COLUMN= getDatasource().escapeColumnName(DATASOURCE_COLUMN);
     ESC_VALUE_TABLE_COLUMN = getDatasource().escapeColumnName(VALUE_TABLE_COLUMN);
-    ESC_VALUE_TABLES_TABLE = getDatasource().escapeTableName(VALUE_TABLE_COLUMN);
     ESC_NAME_COLUMN = getDatasource().escapeColumnName(NAME_COLUMN);
     ESC_VARIABLE_COLUMN = getDatasource().escapeColumnName(VARIABLE_COLUMN);
     ESC_CATEGORY_COLUMN = getDatasource().escapeColumnName(CATEGORY_COLUMN);
@@ -138,10 +138,12 @@ class JdbcValueTable extends AbstractValueTable {
   //
 
   public void drop() {
-    DropTableChange dtt = new DropTableChange();
-    dtt.setTableName(getSqlName());
-    getDatasource().doWithDatabase(new ChangeDatabaseCallback(dtt));
-    getDatasource().databaseChanged();
+    if(getDatasource().getDatabaseSnapshot().get(newTable(getSqlName())) == null) {
+      DropTableChange dtt = new DropTableChange();
+      dtt.setTableName(getSqlName());
+      getDatasource().doWithDatabase(new ChangeDatabaseCallback(dtt));
+      getDatasource().databaseChanged();
+    }
     if(getDatasource().getSettings().isUseMetadataTables()) {
       dropCategoriesMetaData();
       dropVariablesMetaData();
