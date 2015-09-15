@@ -42,6 +42,10 @@ public class JdbcDatasourceSettings {
    */
   private String defaultUpdatedTimestampColumnName;
 
+  public static final int MAX_BATCH_SIZE = 1000;
+
+  private int batchSize = 100;
+
   //
   // Constructors
   //
@@ -62,6 +66,16 @@ public class JdbcDatasourceSettings {
   //
   // Methods
   //
+
+  public int getBatchSize() {
+    return batchSize;
+  }
+
+  public void setBatchSize(int batchSize) {
+    if(batchSize < 1 || batchSize > MAX_BATCH_SIZE) throw new IllegalArgumentException("Invalid batchSize");
+
+    this.batchSize = batchSize;
+  }
 
   public void setDefaultEntityType(@NotNull String defaultEntityType) {
     this.defaultEntityType = defaultEntityType;
