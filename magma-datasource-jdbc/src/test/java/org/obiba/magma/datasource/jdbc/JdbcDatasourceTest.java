@@ -280,6 +280,46 @@ public class JdbcDatasourceTest extends AbstractMagmaTest {
     jdbcDatasource.dispose();
   }
 
+  @TestSchema(schemaLocation = "org/obiba/magma/datasource/jdbc", beforeSchema = "schema-notables.sql",
+      afterSchema = "schema-notables.sql")
+  @Test
+  public void testBatchUpdate() {
+    JdbcDatasource jdbcDatasource = new JdbcDatasource("my-datasource-nodb", dataSource, getDataSourceSettings());
+    jdbcDatasource.initialise();
+    VariableEntity myEntity1 = new VariableEntityBean("Participant", "1");
+
+    try(ValueTableWriter tableWriter = jdbcDatasource.createWriter("MY_TABLE", "Participant")) {
+      // Write some variables.
+      try(VariableWriter variableWriter = tableWriter.writeVariables()) {
+        variableWriter.writeVariable(Variable.Builder.newVariable("MY_VAR1", IntegerType.get(), "Participant").build());
+        variableWriter.writeVariable(Variable.Builder.newVariable("MY_VAR2", DecimalType.get(), "Participant").build());
+      }
+
+      // Write a value set.
+      try(ValueSetWriter valueSetWriter = tableWriter.writeValueSet(myEntity1)) {
+        Variable myVar1 = jdbcDatasource.getValueTable("MY_TABLE").getVariable("MY_VAR1");
+        Variable myVar2 = jdbcDatasource.getValueTable("MY_TABLE").getVariable("MY_VAR2");
+        valueSetWriter.writeValue(myVar1, IntegerType.get().valueOf(77));
+        valueSetWriter.writeValue(myVar2, IntegerType.get().valueOf(78));
+      }
+    }
+
+    try(ValueTableWriter tableWriter = jdbcDatasource.createWriter("MY_TABLE", "Participant")) {
+      // Update value set.
+      try(ValueSetWriter valueSetWriter = tableWriter.writeValueSet(myEntity1)) {
+        Variable myVar1 = jdbcDatasource.getValueTable("MY_TABLE").getVariable("MY_VAR1");
+        Variable myVar2 = jdbcDatasource.getValueTable("MY_TABLE").getVariable("MY_VAR2");
+        valueSetWriter.writeValue(myVar1, IntegerType.get().valueOf(87));
+        valueSetWriter.writeValue(myVar2, IntegerType.get().valueOf(88));
+      }
+    }
+
+    ValueTable vt = jdbcDatasource.getValueTable("MY_TABLE");
+    assertThat(vt.getValueSetCount()).isEqualTo(1);
+
+    jdbcDatasource.dispose();
+  }
+
   //
   // Methods
   //

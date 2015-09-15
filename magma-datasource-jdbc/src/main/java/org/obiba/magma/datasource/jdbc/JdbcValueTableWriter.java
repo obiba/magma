@@ -34,6 +34,7 @@ import org.obiba.magma.type.TextType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.support.AbstractInterruptibleBatchPreparedStatementSetter;
 import org.springframework.jdbc.core.support.AbstractLobCreatingPreparedStatementCallback;
 import org.springframework.jdbc.support.lob.DefaultLobHandler;
 import org.springframework.jdbc.support.lob.LobCreator;
@@ -41,7 +42,11 @@ import org.springframework.util.Assert;
 
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Multimap;
 
 import liquibase.change.Change;
 import liquibase.change.ColumnConfig;
@@ -99,8 +104,12 @@ class JdbcValueTableWriter implements ValueTableWriter {
 
   private final JdbcValueTable valueTable;
 
-  private final String ESC_CATEGORY_ATTRIBUTES_TABLE, ESC_DATASOURCE_COLUMN,
-  ESC_VALUE_TABLE_COLUMN, ESC_NAME_COLUMN, ESC_CATEGORIES_TABLE, ESC_VARIABLES_TABLE, ESC_VARIABLE_ATTRIBUTES_TABLE;
+  private final Multimap<String, List<Object>> batch = HashMultimap.create();
+
+  private final String ESC_CATEGORY_ATTRIBUTES_TABLE, ESC_DATASOURCE_COLUMN, ESC_VALUE_TABLE_COLUMN, ESC_NAME_COLUMN,
+      ESC_CATEGORIES_TABLE, ESC_VARIABLES_TABLE, ESC_VARIABLE_ATTRIBUTES_TABLE;
+
+  private int batchSize;
 
   JdbcValueTableWriter(JdbcValueTable valueTable) {
     this.valueTable = valueTable;
@@ -111,6 +120,7 @@ class JdbcValueTableWriter implements ValueTableWriter {
     ESC_DATASOURCE_COLUMN = valueTable.getDatasource().escapeColumnName(DATASOURCE_COLUMN);
     ESC_VALUE_TABLE_COLUMN = valueTable.getDatasource().escapeColumnName(VALUE_TABLE_COLUMN);
     ESC_NAME_COLUMN = valueTable.getDatasource().escapeColumnName(NAME_COLUMN);
+    batchSize = valueTable.getDatasource().getSettings().getBatchSize();
   }
 
   @NotNull
@@ -128,8 +138,56 @@ class JdbcValueTableWriter implements ValueTableWriter {
 
   @Override
   public void close() {
+
+    Multimap<String, List<Object>> toSave = null;
+
+    synchronized(valueTable) {
+      if(!batch.isEmpty()) {
+        toSave = ImmutableMultimap.copyOf(batch);
+        batch.clear();
+      }
+    }
+
+    if(toSave != null) batchUpdate(toSave);
+
     valueTable.getDatasource().databaseChanged();
     valueTable.tableChanged();
+  }
+
+  private void batchUpdate(Multimap<String, List<Object>> toSave) {
+    final DefaultLobHandler lobHandler = new DefaultLobHandler();
+
+    for(String sql : toSave.keySet()) {
+      final List<List<Object>> batchValues = Lists.newArrayList(toSave.get(sql));
+
+      int[] res = valueTable.getDatasource().getJdbcTemplate()
+          .batchUpdate(sql, new AbstractInterruptibleBatchPreparedStatementSetter() {
+            @Override
+            protected boolean setValuesIfAvailable(PreparedStatement ps, int i) throws SQLException {
+              int index = 1;
+
+              if(batchValues.size() <= i) {
+                return false;
+              }
+
+              for(Object value : batchValues.get(i)) {
+                if(value instanceof byte[]) {
+                  lobHandler.getLobCreator()
+                      .setBlobAsBinaryStream(ps, index++, new ByteArrayInputStream((byte[]) value),
+                          ((byte[]) value).length);
+                } else if(value instanceof java.util.Date) {
+                  ps.setDate(index++, new Date(((java.util.Date) value).getTime()));
+                } else {
+                  ps.setObject(index++, value);
+                }
+              }
+
+              return true;
+            }
+          });
+
+      log.debug("batchUpdate modified {} rows", res.length);
+    }
   }
 
   private String formattedDate(java.util.Date date) {
@@ -273,9 +331,10 @@ class JdbcValueTableWriter implements ValueTableWriter {
     }
 
     private void addTableTimestampChange() {
-      String whereClause = valueTable.getDatasource().getSettings().isMultipleDatasources() ? String
-          .format("%s = '%s' AND %s = '%s'", ESC_DATASOURCE_COLUMN, valueTable.getDatasource().getName(), ESC_NAME_COLUMN,
-              valueTable.getName()) : String.format("%s = '%s'", ESC_NAME_COLUMN, valueTable.getName());
+      String whereClause = valueTable.getDatasource().getSettings().isMultipleDatasources()
+          ? String.format("%s = '%s' AND %s = '%s'", ESC_DATASOURCE_COLUMN, valueTable.getDatasource().getName(),
+          ESC_NAME_COLUMN, valueTable.getName())
+          : String.format("%s = '%s'", ESC_NAME_COLUMN, valueTable.getName());
       changes.add(UpdateDataChangeBuilder.newBuilder().tableName(VALUE_TABLES_TABLE) //
           .withColumn(UPDATED_COLUMN, new java.util.Date()) //
           .where(whereClause).build());
@@ -431,9 +490,28 @@ class JdbcValueTableWriter implements ValueTableWriter {
         return;
       }
 
-      jdbcTemplate.execute(valueTable.hasValueSet(entity) ? getUpdateSql() : getInsertSql(),
-          getPreparedStatementCallback(
-              Iterables.concat(columnValueMap.entrySet(), getEntityIdentifierColumnValueMap().entrySet())));
+      String sql = valueTable.hasValueSet(entity) ? getUpdateSql() : getInsertSql();
+
+      if(batchSize > 1) {
+        Multimap<String, List<Object>> toSave = null;
+
+        synchronized(valueTable) {
+          batch.put(sql, Lists.newArrayList(Iterables
+              .concat((Iterable) columnValueMap.values(), (Iterable) getEntityIdentifierColumnValueMap().values())));
+
+          if(batch.size() >= batchSize) {
+            toSave = ImmutableMultimap.copyOf(batch);
+            batch.clear();
+          }
+        }
+
+        if(toSave != null) {
+          batchUpdate(toSave);
+        }
+      } else {
+        jdbcTemplate.execute(sql, getPreparedStatementCallback(
+            Iterables.concat(columnValueMap.entrySet(), getEntityIdentifierColumnValueMap().entrySet())));
+      }
     }
 
     private <T extends Map.Entry<String, ?>> AbstractLobCreatingPreparedStatementCallback getPreparedStatementCallback(
@@ -458,7 +536,7 @@ class JdbcValueTableWriter implements ValueTableWriter {
     }
 
     private String getInsertSql() {
-      if (insertSql == null) {
+      if(insertSql == null) {
         final JdbcDatasource datasource = valueTable.getDatasource();
         java.util.Date timestamp = new java.util.Date();
 
@@ -470,7 +548,7 @@ class JdbcValueTableWriter implements ValueTableWriter {
           columnValueMap.put(valueTable.getUpdatedTimestampColumnName(), timestamp);
         }
 
-        Map<String, String> entityIdentifierColumnValueMap = getEntityIdentifierColumnValueMap();
+        Map<String, Object> entityIdentifierColumnValueMap = getEntityIdentifierColumnValueMap();
         String colNames = Joiner.on(", ").join(Iterables
             .transform(Iterables.concat(columnValueMap.keySet(), entityIdentifierColumnValueMap.keySet()),
                 new Function<String, String>() {
@@ -541,8 +619,8 @@ class JdbcValueTableWriter implements ValueTableWriter {
       return whereClause;
     }
 
-    private Map<String, String> getEntityIdentifierColumnValueMap() {
-      Map<String, String> entityIdentifierColumnValueMap = new LinkedHashMap<>();
+    private Map<String, Object> getEntityIdentifierColumnValueMap() {
+      Map<String, Object> entityIdentifierColumnValueMap = new LinkedHashMap<>();
       List<String> entityIdentifierColumns = valueTable.getSettings().getEntityIdentifierColumns();
 
       String[] entityIdentifierValues = entityIdentifierColumns.size() > 1
