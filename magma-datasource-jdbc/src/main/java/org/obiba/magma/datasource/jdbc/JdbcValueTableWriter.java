@@ -20,6 +20,7 @@ import javax.validation.constraints.NotNull;
 
 import org.obiba.magma.Attribute;
 import org.obiba.magma.Category;
+import org.obiba.magma.MagmaDate;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueTableWriter;
 import org.obiba.magma.Variable;
@@ -177,6 +178,8 @@ class JdbcValueTableWriter implements ValueTableWriter {
                           ((byte[]) value).length);
                 } else if(value instanceof java.util.Date) {
                   ps.setDate(index++, new Date(((java.util.Date) value).getTime()));
+                } else if(value instanceof MagmaDate) {
+                  ps.setDate(index++, new Date(((MagmaDate) value).asDate().getTime()));
                 } else {
                   ps.setObject(index++, value);
                 }
