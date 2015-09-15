@@ -585,6 +585,12 @@ public class JdbcDatasource extends AbstractDatasource {
         }
 
         database.execute(change.generateStatements(database), getFilteredVisitors(database));
+
+        try {
+          database.commit(); //explicit commit needed for postgres.
+        } catch(Exception e) {
+          if(!e.getMessage().contains("Commit can not be set while enrolled in a transaction")) throw e;
+        }
       }
 
       return null;
