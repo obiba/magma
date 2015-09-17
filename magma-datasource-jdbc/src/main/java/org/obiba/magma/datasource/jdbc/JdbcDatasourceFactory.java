@@ -5,6 +5,7 @@ import javax.validation.constraints.NotNull;
 
 import org.obiba.magma.AbstractDatasourceFactory;
 import org.obiba.magma.Datasource;
+import org.springframework.transaction.PlatformTransactionManager;
 
 public class JdbcDatasourceFactory extends AbstractDatasourceFactory {
 
@@ -12,10 +13,12 @@ public class JdbcDatasourceFactory extends AbstractDatasourceFactory {
 
   private DataSource dataSource;
 
+  private PlatformTransactionManager txManager;
+
   @NotNull
   @Override
   public Datasource internalCreate() {
-    return new JdbcDatasource(getName(), dataSource, datasourceSettings);
+    return new JdbcDatasource(getName(), dataSource, datasourceSettings, txManager);
   }
 
   public void setDataSource(@NotNull DataSource dataSource) {
@@ -24,5 +27,9 @@ public class JdbcDatasourceFactory extends AbstractDatasourceFactory {
 
   public void setDatasourceSettings(@NotNull JdbcDatasourceSettings datasourceSettings) {
     this.datasourceSettings = datasourceSettings;
+  }
+
+  public void setDataSourceTransactionManager(@NotNull PlatformTransactionManager transactionManager) {
+    this.txManager = transactionManager;
   }
 }

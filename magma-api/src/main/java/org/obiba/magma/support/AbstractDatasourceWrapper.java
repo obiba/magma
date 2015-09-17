@@ -213,4 +213,7 @@ public abstract class AbstractDatasourceWrapper implements Datasource {
   public List<Attribute> getAttributes() {
     return getWrappedDatasource().getAttributes();
   }
+
+  @Override
+  public boolean isTransactional() { return  getWrappedDatasource().isTransactional(); }
 }
