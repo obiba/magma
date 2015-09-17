@@ -33,6 +33,10 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ConnectionCallback;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionDefinition;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import com.google.common.base.Predicate;
 import com.google.common.base.Strings;
@@ -79,16 +83,19 @@ public class JdbcDatasource extends AbstractDatasource {
 
   private Map<String, String> valueTableMap;
 
+  private PlatformTransactionManager txManager;
+
   private final String ESC_ENTITY_TYPE_COLUMN, ESC_VALUE_TABLES_TABLE, ESC_DATASOURCE_COLUMN, ESC_NAME_COLUMN, ESC_VALUE_TABLE_COLUMN, ESC_SQL_NAME_COLUMN;
 
   @SuppressWarnings("ConstantConditions")
-  public JdbcDatasource(String name, @NotNull DataSource datasource, @NotNull JdbcDatasourceSettings settings) {
+  public JdbcDatasource(String name, @NotNull DataSource datasource, @NotNull JdbcDatasourceSettings settings,
+      PlatformTransactionManager txManager) {
     super(name, TYPE);
     if(settings == null) throw new IllegalArgumentException("null settings");
     if(datasource == null) throw new IllegalArgumentException("null datasource");
     this.settings = settings;
     jdbcTemplate = new JdbcTemplate(datasource);
-
+    this.txManager = txManager;
     ESC_ENTITY_TYPE_COLUMN = escapeColumnName(ENTITY_TYPE_COLUMN);
     ESC_VALUE_TABLES_TABLE = escapeTableName(VALUE_TABLES_TABLE);
     ESC_DATASOURCE_COLUMN = escapeColumnName(DATASOURCE_COLUMN);
@@ -97,8 +104,17 @@ public class JdbcDatasource extends AbstractDatasource {
     ESC_VALUE_TABLE_COLUMN = escapeColumnName(VALUE_TABLE_COLUMN);
   }
 
+  public JdbcDatasource(String name, @NotNull DataSource datasource, @NotNull JdbcDatasourceSettings settings) {
+    this(name, datasource, settings, new DataSourceTransactionManager(datasource));
+  }
+
+  public JdbcDatasource(String name, DataSource datasource, String defaultEntityType, boolean useMetadataTables,
+      PlatformTransactionManager txManager) {
+    this(name, datasource, new JdbcDatasourceSettings(defaultEntityType, null, null, useMetadataTables), txManager);
+  }
+
   public JdbcDatasource(String name, DataSource datasource, String defaultEntityType, boolean useMetadataTables) {
-    this(name, datasource, new JdbcDatasourceSettings(defaultEntityType, null, null, useMetadataTables));
+    this(name, datasource, defaultEntityType, useMetadataTables, new DataSourceTransactionManager(datasource));
   }
 
   //
@@ -396,6 +412,13 @@ public class JdbcDatasource extends AbstractDatasource {
     return jdbcTemplate;
   }
 
+  TransactionTemplate getTransactionTemplate() {
+    TransactionTemplate txTemplate = new TransactionTemplate(txManager);
+    txTemplate.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
+
+    return txTemplate;
+  }
+
   public String escapeTableName(final String identifier) {
     return doWithDatabase(new DatabaseCallback<String>() {
       @Nullable
@@ -440,7 +463,8 @@ public class JdbcDatasource extends AbstractDatasource {
       @Override
       public T doInConnection(Connection con) throws SQLException, DataAccessException {
         try {
-          Database database = DatabaseFactory.getInstance().findCorrectDatabaseImplementation(new JdbcConnection(con));
+          Database database = DatabaseFactory.getInstance()
+              .findCorrectDatabaseImplementation(new JdbcConnection(con));
           database.setObjectQuotingStrategy(ObjectQuotingStrategy.QUOTE_ALL_OBJECTS);
 
           return databaseCallback.doInDatabase(database);
@@ -576,7 +600,7 @@ public class JdbcDatasource extends AbstractDatasource {
 
     @Nullable
     @Override
-    public Object doInDatabase(Database database) throws LiquibaseException {
+    public Object doInDatabase(final Database database) throws LiquibaseException {
       for(Change change : changes) {
         if(log.isDebugEnabled()) {
           for(SqlStatement st : change.generateStatements(database)) {

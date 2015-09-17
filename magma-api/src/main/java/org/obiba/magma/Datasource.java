@@ -37,4 +37,5 @@ public interface Datasource extends Initialisable, Disposable, AttributeAware, T
 
   void setAttributeValue(String name, Value value);
 
+  boolean isTransactional();
 }
