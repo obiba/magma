@@ -173,6 +173,11 @@ public abstract class AbstractDatasource extends AbstractAttributeAware implemen
     return attributes;
   }
 
+  @Override
+  public boolean isTransactional() {
+    return false;
+  }
+
   protected void addValueTable(ValueTable vt) {
     valueTables.add(vt);
   }

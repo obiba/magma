@@ -160,6 +160,11 @@ public class StaticDatasource extends AbstractAttributeAware implements Datasour
   }
 
   @Override
+  public boolean isTransactional() {
+    return false;
+  }
+
+  @Override
   public String getName() {
     return name;
   }

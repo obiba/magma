@@ -81,9 +81,7 @@ public class HibernateDatasource extends AbstractDatasource {
   @NotNull
   @Override
   public ValueTableWriter createWriter(@NotNull String tableName, @NotNull String entityType) {
-    //noinspection ConstantConditions
     Preconditions.checkArgument(tableName != null, "tableName cannot be null");
-    //noinspection ConstantConditions
     Preconditions.checkArgument(entityType != null, "entityType cannot be null");
 
     HibernateValueTableTransaction valueTableTransaction;
@@ -106,6 +104,11 @@ public class HibernateDatasource extends AbstractDatasource {
     }
 
     return valueTableTransaction.getTransactionWriter();
+  }
+
+  @Override
+  public boolean isTransactional() {
+    return true;
   }
 
   /**
