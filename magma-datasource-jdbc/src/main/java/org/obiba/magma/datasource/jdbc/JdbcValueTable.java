@@ -30,6 +30,8 @@ import org.obiba.magma.support.AbstractValueTable;
 import org.obiba.magma.support.Initialisables;
 import org.obiba.magma.type.DateTimeType;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.BiMap;
@@ -138,16 +140,22 @@ class JdbcValueTable extends AbstractValueTable {
   //
 
   public void drop() {
-    if(getDatasource().getDatabaseSnapshot().get(newTable(getSqlName())) == null) {
+    if(getDatasource().getDatabaseSnapshot().get(newTable(getSqlName())) != null) {
       DropTableChange dtt = new DropTableChange();
       dtt.setTableName(getSqlName());
       getDatasource().doWithDatabase(new ChangeDatabaseCallback(dtt));
       getDatasource().databaseChanged();
     }
+
     if(getDatasource().getSettings().isUseMetadataTables()) {
-      dropCategoriesMetaData();
-      dropVariablesMetaData();
-      dropTableMetaData();
+      getDatasource().getTransactionTemplate().execute(new TransactionCallbackWithoutResult() {
+        @Override
+        protected void doInTransactionWithoutResult(TransactionStatus status) {
+          dropCategoriesMetaData();
+          dropVariablesMetaData();
+          dropTableMetaData();
+        }
+      });
     }
   }
 
