@@ -10,6 +10,7 @@
 package org.obiba.magma.datasource.hibernate.domain;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.annotation.Nullable;
@@ -202,7 +203,10 @@ public class VariableState extends AbstractAttributeAwareEntity implements Times
   }
 
   public void removeCategory(CategoryState categoryState) {
-    if(getCategories().remove(categoryState)) categoryState.setVariable(null);
+    if(getCategories().remove(categoryState)) {
+      categoryState.setUpdated(new Date());
+      categoryState.setVariable(null);
+    }
   }
 
   @Nullable
