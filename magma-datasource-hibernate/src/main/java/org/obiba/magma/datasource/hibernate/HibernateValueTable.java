@@ -3,6 +3,7 @@ package org.obiba.magma.datasource.hibernate;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -16,8 +17,6 @@ import javax.validation.constraints.NotNull;
 
 import org.hibernate.Criteria;
 import org.hibernate.FetchMode;
-import org.hibernate.LockMode;
-import org.hibernate.LockOptions;
 import org.hibernate.Query;
 import org.hibernate.ScrollMode;
 import org.hibernate.ScrollableResults;
@@ -111,13 +110,10 @@ class HibernateValueTable extends AbstractValueTable {
   @Override
   public void dropValueSets() {
     Session session = getDatasource().getSessionFactory().getCurrentSession();
-
     getDatasource().deleteValueSets(getDatasource().getName() + "." + getName(), session,
         session.getNamedQuery("findValueSetIdsByTableId").setParameter("valueTableId", getValueTableState().getId())
             .list());
-
-    session.buildLockRequest(new LockOptions(LockMode.PESSIMISTIC_FORCE_INCREMENT)).lock(getValueTableState());
-
+    getValueTableState().setUpdated(new Date());
     variableEntityProvider.initialise();
   }
 
@@ -156,12 +152,9 @@ class HibernateValueTable extends AbstractValueTable {
 
   void dropValueSet(VariableEntity entity, Serializable valueSetId) {
     Session session = getDatasource().getSessionFactory().getCurrentSession();
-
     getDatasource()
         .deleteValueSets(getDatasource().getName() + "." + getName(), session, Collections.singleton(valueSetId));
-
-    session.buildLockRequest(new LockOptions(LockMode.PESSIMISTIC_FORCE_INCREMENT)).lock(getValueTableState());
-
+    getValueTableState().setUpdated(new Date());
     variableEntityProvider.remove(entity);
   }
 
@@ -286,11 +279,6 @@ class HibernateValueTable extends AbstractValueTable {
   ValueTableState getValueTableState() {
     return (ValueTableState) getDatasource().getSessionFactory().getCurrentSession()
         .get(ValueTableState.class, valueTableId);
-  }
-
-  ValueTableState getValueTableState(LockMode lock) {
-    return (ValueTableState) getDatasource().getSessionFactory().getCurrentSession()
-        .get(ValueTableState.class, valueTableId, new LockOptions(lock));
   }
 
   HibernateMarshallingContext createContext() {

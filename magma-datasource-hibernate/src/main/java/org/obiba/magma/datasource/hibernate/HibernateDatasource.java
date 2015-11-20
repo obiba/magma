@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -13,8 +14,6 @@ import java.util.concurrent.ConcurrentMap;
 import javax.validation.constraints.NotNull;
 
 import org.hibernate.HibernateException;
-import org.hibernate.LockMode;
-import org.hibernate.LockOptions;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
@@ -175,8 +174,7 @@ public class HibernateDatasource extends AbstractDatasource {
   }
 
   private void updateDatasourceLastUpdate() {
-    sessionFactory.getCurrentSession().buildLockRequest(new LockOptions(LockMode.PESSIMISTIC_FORCE_INCREMENT))
-        .lock(getDatasourceState());
+    getDatasourceState().setUpdated(new Date());
   }
 
   @Override
@@ -416,5 +414,4 @@ public class HibernateDatasource extends AbstractDatasource {
       if (txs.isEmpty()) syncMap.remove(entry.getKey());
     }
   }
-
 }

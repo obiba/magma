@@ -20,7 +20,7 @@ import com.google.common.collect.ComparisonChain;
 @Entity
 @Table(name = "variable_entity", uniqueConstraints = { @UniqueConstraint(columnNames = { "type", "identifier" }) })
 @SuppressWarnings("UnusedDeclaration")
-public class VariableEntityState extends AbstractTimestampedEntity implements VariableEntity {
+public class VariableEntityState extends AbstractTimestampVersionedEntity implements VariableEntity {
 
   private static final long serialVersionUID = 1L;
 
