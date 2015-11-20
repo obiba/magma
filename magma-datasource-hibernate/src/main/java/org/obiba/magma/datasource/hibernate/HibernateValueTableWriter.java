@@ -93,8 +93,7 @@ class HibernateValueTableWriter implements ValueTableWriter {
   }
 
   private void updateTableLastUpdate() {
-    session.buildLockRequest(new LockOptions(LockMode.PESSIMISTIC_FORCE_INCREMENT))
-        .lock(valueTable.getValueTableState());
+    valueTable.getValueTableState().setUpdated(new Date());
   }
 
   private class HibernateVariableWriter implements VariableWriter {
@@ -237,8 +236,9 @@ class HibernateValueTableWriter implements ValueTableWriter {
       ValueSetState state = (ValueSetState) AssociationCriteria.create(ValueSetState.class, session) //
           .add("valueTable", Operation.eq, valueTable.getValueTableState()) //
           .add("variableEntity", Operation.eq, variableEntityState) //
-          .getCriteria().setLockMode(LockMode.PESSIMISTIC_FORCE_INCREMENT) //
+          .getCriteria() //
           .uniqueResult();
+
       if(state == null) {
         state = new ValueSetState(valueTable.getValueTableState(), variableEntityState);
         // Persists the ValueSet
@@ -250,6 +250,8 @@ class HibernateValueTableWriter implements ValueTableWriter {
         values = Maps.newHashMap(state.getValueMap());
         isNewValueSet = false;
       }
+
+      session.buildLockRequest(new LockOptions(LockMode.PESSIMISTIC_FORCE_INCREMENT).setScope(false)).lock(state);
       valueSetState = state;
     }
 

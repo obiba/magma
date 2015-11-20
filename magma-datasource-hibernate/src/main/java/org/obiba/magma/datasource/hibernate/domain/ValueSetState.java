@@ -39,7 +39,7 @@ import com.google.common.collect.Sets;
     @NamedQuery(name = "deleteEmptyValueSets",
         query = "DELETE FROM ValueSetState WHERE id NOT IN (SELECT DISTINCT(id.valueSet.id) from ValueSetValue)"), @NamedQuery(name = "deleteValueSetStates",
         query = "DELETE FROM ValueSetState WHERE id IN (:valueTableIds)") })
-public class ValueSetState extends AbstractTimestampedEntity {
+public class ValueSetState extends AbstractTimestampVersionedEntity {
 
   private static final long serialVersionUID = 1L;
 

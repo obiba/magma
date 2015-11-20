@@ -1,11 +1,11 @@
 package org.obiba.magma.datasource.hibernate;
 
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 import javax.validation.constraints.NotNull;
 
-import org.hibernate.LockMode;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.VariableValueSource;
 
@@ -38,10 +38,6 @@ class HibernateValueTableTransaction extends HibernateDatasourceSynchronization 
     this.valueTable = valueTable;
     createTableTransaction = newTable;
     transactionWriter = new HibernateValueTableWriter(this);
-
-    if(!newTable) {
-      valueTable.getValueTableState(LockMode.PESSIMISTIC_FORCE_INCREMENT);
-    }
   }
 
   public HibernateValueTableWriter getTransactionWriter() {
@@ -64,8 +60,11 @@ class HibernateValueTableTransaction extends HibernateDatasourceSynchronization 
     valueTable.commitEntities(uncommittedEntities);
     valueTable.commitSources(uncommittedSources);
     valueTable.commitRemovedSources(uncommittedRemovedSources);
+
     if(createTableTransaction) {
       valueTable.getDatasource().commitValueTable(valueTable);
+    } else {
+      valueTable.getValueTableState().setUpdated(new Date());
     }
   }
 

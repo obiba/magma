@@ -2,6 +2,7 @@ package org.obiba.magma.datasource.hibernate.converter;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 
 import javax.annotation.Nullable;
 
@@ -48,6 +49,7 @@ public class VariableConverter extends AttributeAwareConverter implements Hibern
 
     setAttributes(magmaObject, variableState);
     marshalCategories(magmaObject, variableState);
+    variableState.setUpdated(new Date());
 
     return variableState;
   }
@@ -71,6 +73,7 @@ public class VariableConverter extends AttributeAwareConverter implements Hibern
         }
       }
       categoryState.setMissing(category.isMissing());
+      categoryState.setUpdated(new Date());
       setAttributes(category, categoryState);
       categoryIndex++;
     }

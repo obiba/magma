@@ -15,16 +15,18 @@ import javax.persistence.Column;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.Version;
 
 import org.obiba.core.domain.AbstractEntity;
 
 /**
  * Persistent entities that extend this class are provided with read-only 'created' and 'updated' timestamp fields.
- * These fields indicate the time that the entity was created and the last time the entity was updated. The subclass will also receive the
- * generated 'id' field from the parent {@link AbstractEntity} class.
+ * These fields indicate the time that the entity was created and the last time the entity was updated. The 'updated'
+ * member uses {@link @Version} and can be used for optimistic locking. Additionally the subclass will also receive the
+ * generated 'id' field from the parent {@link org.obiba.core.domain.AbstractEntity} class.
  */
 @MappedSuperclass
-public abstract class AbstractTimestampedEntity extends AbstractEntity implements Timestamped {
+public abstract class AbstractTimestampVersionedEntity extends AbstractEntity implements Timestamped {
 
   private static final long serialVersionUID = 9121648752351099987L;
 
@@ -33,9 +35,10 @@ public abstract class AbstractTimestampedEntity extends AbstractEntity implement
   @SuppressWarnings("FieldMayBeFinal")
   private Date created = new Date();
 
+  @Version
   @Column(nullable = false)
   @SuppressWarnings("UnusedDeclaration")
-  private Date updated = new Date();
+  private Date updated;
 
   @Override
   public Date getCreated() {
@@ -47,7 +50,4 @@ public abstract class AbstractTimestampedEntity extends AbstractEntity implement
     return new Date(updated.getTime());
   }
 
-  public void setUpdated(Date updated) {
-    this.updated = updated;
-  }
 }
