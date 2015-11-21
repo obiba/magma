@@ -216,6 +216,7 @@ class HibernateValueTable extends AbstractValueTable {
   public void setName(String name) {
     ValueTableState tableState = getValueTableState();
     tableState.setName(name);
+    tableState.setUpdated(new Date());
     getDatasource().getSessionFactory().getCurrentSession().save(tableState);
     this.name = name;
   }
