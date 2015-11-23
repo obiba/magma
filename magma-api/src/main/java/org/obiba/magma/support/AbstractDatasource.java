@@ -3,7 +3,6 @@ package org.obiba.magma.support;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Objects;
@@ -25,6 +24,7 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.ListMultimap;
+import com.google.common.collect.Sets;
 
 public abstract class AbstractDatasource extends AbstractAttributeAware implements Datasource {
 
@@ -32,7 +32,7 @@ public abstract class AbstractDatasource extends AbstractAttributeAware implemen
 
   private final String type;
 
-  private final Set<ValueTable> valueTables = new LinkedHashSet<>(100);
+  private final List<ValueTable> valueTables = new ArrayList<>(100);
 
   private final ListMultimap<String, Attribute> attributes = LinkedListMultimap.create();
 
@@ -55,7 +55,7 @@ public abstract class AbstractDatasource extends AbstractAttributeAware implemen
 
   @Override
   public Set<ValueTable> getValueTables() {
-    return Collections.unmodifiableSet(valueTables);
+    return Collections.unmodifiableSet(Sets.newHashSet(valueTables));
   }
 
   @Override
@@ -179,7 +179,7 @@ public abstract class AbstractDatasource extends AbstractAttributeAware implemen
   }
 
   protected void addValueTable(ValueTable vt) {
-    valueTables.add(vt);
+    if(!valueTables.contains(vt)) valueTables.add(vt);
   }
 
   protected void removeValueTable(String tableName) {
