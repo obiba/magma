@@ -8,6 +8,7 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.concurrent.TimeUnit;
 
+import org.junit.After;
 import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
@@ -23,6 +24,7 @@ import org.obiba.magma.VariableEntity;
 import org.obiba.magma.VariableValueSource;
 import org.obiba.magma.VectorSource;
 import org.obiba.magma.datasource.generated.GeneratedValueTable;
+import org.obiba.magma.test.EmbeddedMongoProcessWrapper;
 import org.obiba.magma.datasource.mongodb.MongoDBDatasourceFactory;
 import org.obiba.magma.js.AbstractJsTest;
 import org.obiba.magma.js.views.VariablesClause;
@@ -38,7 +40,6 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
-import com.mongodb.MongoClient;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.obiba.magma.Variable.Builder.newVariable;
@@ -50,7 +51,9 @@ public class GlobalMethodsMongoDbTest extends AbstractJsTest {
 
   private static final String MONGO_DB_TEST = "magma-test";
 
-  private static final String MONGO_DB_URL = "mongodb://localhost/" + MONGO_DB_TEST;
+  private static final int DB_PORT = 12345;
+
+  private static final String MONGO_DB_URL = "mongodb://localhost:" + DB_PORT + "/" + MONGO_DB_TEST;
 
   private static final String DATASOURCE = "ds";
 
@@ -66,6 +69,8 @@ public class GlobalMethodsMongoDbTest extends AbstractJsTest {
 
   private ViewManager viewManager;
 
+  private EmbeddedMongoProcessWrapper mongo;
+
   @Before
   @Override
   public void before() {
@@ -76,22 +81,28 @@ public class GlobalMethodsMongoDbTest extends AbstractJsTest {
     viewManager = new DefaultViewManagerImpl(new MemoryViewPersistenceStrategy());
   }
 
+  private boolean setupMongoDB() {
+    try {
+      mongo = new EmbeddedMongoProcessWrapper(DB_PORT);
+      mongo.start();
+      return true;
+    } catch(Exception e) {
+      return false;
+    }
+  }
+
+  @After
+  @Override
+  public void after() {
+    super.after();
+    mongo.stop();
+  }
+
   @Override
   protected MagmaEngine newEngine() {
     MagmaEngine magmaEngine = super.newEngine();
     magmaEngine.extend(new MagmaXStreamExtension());
     return magmaEngine;
-  }
-
-  private boolean setupMongoDB() {
-    try {
-      MongoClient client = new MongoClient();
-      client.dropDatabase(MONGO_DB_TEST);
-      client.close();
-      return true;
-    } catch(Exception e) {
-      return false;
-    }
   }
 
   private Datasource getTestDatasource() throws IOException {
