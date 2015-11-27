@@ -60,15 +60,13 @@ import static org.junit.Assert.fail;
 public class MongoDBDatasourceTest {
   private static final String DB_TEST = "magma-test";
 
-  private static final int DB_PORT = 12345;
-
-  private static final String DB_URL = "mongodb://localhost:" + DB_PORT + "/" + DB_TEST;
-
   private static final String TABLE_TEST = "TABLE";
 
   private static final String PARTICIPANT = "Participant";
 
   private static final String ONYX_DATA_5_ZIP = "5-onyx-data.zip";
+
+  private String dbUrl;
 
   private EmbeddedMongoProcessWrapper mongo;
 
@@ -82,6 +80,7 @@ public class MongoDBDatasourceTest {
     try {
       mongo = new EmbeddedMongoProcessWrapper();
       mongo.start();
+      dbUrl = "mongodb://" + mongo.getServerSocketAddress() + '/' + DB_TEST;
       new MagmaEngine().extend(new MagmaXStreamExtension());
       return true;
     } catch(Exception e) {
@@ -98,7 +97,7 @@ public class MongoDBDatasourceTest {
   @Test
   public void test_writers() throws IOException {
     FsDatasource onyx = new FsDatasource("onyx", FileUtil.getFileFromResource(ONYX_DATA_5_ZIP));
-    DatasourceFactory factory = new MongoDBDatasourceFactory("ds-" + DB_TEST, DB_URL);
+    DatasourceFactory factory = new MongoDBDatasourceFactory("ds-" + DB_TEST, dbUrl);
     Datasource ds = factory.create();
     Initialisables.initialise(ds, onyx);
 
@@ -110,11 +109,11 @@ public class MongoDBDatasourceTest {
   @Test
   public void test_restart_magma() throws IOException {
     FsDatasource onyx = new FsDatasource("onyx", FileUtil.getFileFromResource(ONYX_DATA_5_ZIP));
-    Datasource datasource1 = new MongoDBDatasourceFactory("ds-" + DB_TEST, DB_URL).create();
+    Datasource datasource1 = new MongoDBDatasourceFactory("ds-" + DB_TEST, dbUrl).create();
     Initialisables.initialise(datasource1, onyx);
     DatasourceCopier.Builder.newCopier().build().copy(onyx, datasource1);
 
-    Datasource datasource2 = new MongoDBDatasourceFactory("ds-" + DB_TEST, DB_URL).create();
+    Datasource datasource2 = new MongoDBDatasourceFactory("ds-" + DB_TEST, dbUrl).create();
     Initialisables.initialise(datasource2);
     ValueTable valueTable = datasource2.getValueTable("AnkleBrachial");
     assertThat(valueTable.getVariableEntities()).hasSize(5);
@@ -532,7 +531,7 @@ public class MongoDBDatasourceTest {
   }
 
   private Datasource createDatasource() {
-    DatasourceFactory factory = new MongoDBDatasourceFactory("ds-" + DB_TEST, DB_URL);
+    DatasourceFactory factory = new MongoDBDatasourceFactory("ds-" + DB_TEST, dbUrl);
     Datasource ds = factory.create();
     Initialisables.initialise(ds);
     return ds;
