@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
+import org.junit.After;
 import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -23,6 +24,7 @@ import org.obiba.magma.Variable;
 import org.obiba.magma.VariableValueSourceWrapper;
 import org.obiba.magma.datasource.fs.FsDatasource;
 import org.obiba.magma.datasource.generated.GeneratedValueTable;
+import org.obiba.magma.test.EmbeddedMongoProcessWrapper;
 import org.obiba.magma.datasource.mongodb.MongoDBDatasourceFactory;
 import org.obiba.magma.js.AbstractJsTest;
 import org.obiba.magma.js.JavascriptVariableValueSource;
@@ -40,7 +42,6 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
-import com.mongodb.MongoClient;
 import com.thoughtworks.xstream.XStream;
 
 import static org.fest.assertions.api.Assertions.assertThat;
@@ -55,7 +56,9 @@ public class VariableScriptValidatorTest extends AbstractJsTest {
 
   private static final String MONGO_DB_TEST = "magma-test";
 
-  private static final String MONGO_DB_URL = "mongodb://localhost/" + MONGO_DB_TEST;
+  private static final int DB_PORT = 12345;
+
+  private static final String MONGO_DB_URL = "mongodb://localhost:" + DB_PORT + "/" + MONGO_DB_TEST;
 
   private static final String DATASOURCE = "ds";
 
@@ -69,6 +72,8 @@ public class VariableScriptValidatorTest extends AbstractJsTest {
 
   private ViewManager viewManager;
 
+  private EmbeddedMongoProcessWrapper mongo;
+
   @Before
   @Override
   public void before() {
@@ -77,6 +82,13 @@ public class VariableScriptValidatorTest extends AbstractJsTest {
     Assume.assumeTrue(setupMongoDB());
 
     viewManager = new DefaultViewManagerImpl(new MemoryViewPersistenceStrategy());
+  }
+
+  @After
+  @Override
+  public void after() {
+    super.after();
+    mongo.stop();
   }
 
   @Override
@@ -88,9 +100,8 @@ public class VariableScriptValidatorTest extends AbstractJsTest {
 
   private boolean setupMongoDB() {
     try {
-      MongoClient client = new MongoClient();
-      client.dropDatabase(MONGO_DB_TEST);
-      client.close();
+      mongo = new EmbeddedMongoProcessWrapper(DB_PORT);
+      mongo.start();
       return true;
     } catch(Exception e) {
       return false;

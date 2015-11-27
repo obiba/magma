@@ -32,6 +32,7 @@ import org.obiba.magma.datasource.generated.GeneratedValueTable;
 import org.obiba.magma.support.DatasourceCopier;
 import org.obiba.magma.support.Initialisables;
 import org.obiba.magma.support.VariableEntityBean;
+import org.obiba.magma.test.EmbeddedMongoProcessWrapper;
 import org.obiba.magma.type.BinaryType;
 import org.obiba.magma.type.BooleanType;
 import org.obiba.magma.type.DateTimeType;
@@ -51,23 +52,25 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import com.mongodb.MongoClient;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 
 @SuppressWarnings({ "UnusedAssignment", "OverlyCoupledClass" })
 public class MongoDBDatasourceTest {
-
   private static final String DB_TEST = "magma-test";
 
-  private static final String DB_URL = "mongodb://localhost/" + DB_TEST;
+  private static final int DB_PORT = 12345;
+
+  private static final String DB_URL = "mongodb://localhost:" + DB_PORT + "/" + DB_TEST;
 
   private static final String TABLE_TEST = "TABLE";
 
   private static final String PARTICIPANT = "Participant";
 
   private static final String ONYX_DATA_5_ZIP = "5-onyx-data.zip";
+
+  private EmbeddedMongoProcessWrapper mongo;
 
   @Before
   public void before() {
@@ -77,9 +80,8 @@ public class MongoDBDatasourceTest {
 
   private boolean setupMongoDB() {
     try {
-      MongoClient client = new MongoClient();
-      client.dropDatabase(DB_TEST);
-      client.close();
+      mongo = new EmbeddedMongoProcessWrapper();
+      mongo.start();
       new MagmaEngine().extend(new MagmaXStreamExtension());
       return true;
     } catch(Exception e) {
@@ -90,6 +92,7 @@ public class MongoDBDatasourceTest {
   @After
   public void after() {
     MagmaEngine.get().shutdown();
+    mongo.stop();
   }
 
   @Test

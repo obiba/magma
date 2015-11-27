@@ -4,4 +4,5 @@ dependencies {
     compile project(':magma-api')
     compile(libraries.junit)
     compile(libraries.fest)
+    compile(libraries.flapdoodle_embed_mongo)
 }
