@@ -56,10 +56,6 @@ public class VariableScriptValidatorTest extends AbstractJsTest {
 
   private static final String MONGO_DB_TEST = "magma-test";
 
-  private static final int DB_PORT = 12345;
-
-  private static final String MONGO_DB_URL = "mongodb://localhost:" + DB_PORT + "/" + MONGO_DB_TEST;
-
   private static final String DATASOURCE = "ds";
 
   private static final String TABLE = "table";
@@ -73,6 +69,8 @@ public class VariableScriptValidatorTest extends AbstractJsTest {
   private ViewManager viewManager;
 
   private EmbeddedMongoProcessWrapper mongo;
+
+  private String mongoDbUrl;
 
   @Before
   @Override
@@ -100,8 +98,9 @@ public class VariableScriptValidatorTest extends AbstractJsTest {
 
   private boolean setupMongoDB() {
     try {
-      mongo = new EmbeddedMongoProcessWrapper(DB_PORT);
+      mongo = new EmbeddedMongoProcessWrapper();
       mongo.start();
+      mongoDbUrl = "mongodb://" +mongo.getServerSocketAddress() + '/' + MONGO_DB_TEST;
       return true;
     } catch(Exception e) {
       return false;
@@ -109,7 +108,7 @@ public class VariableScriptValidatorTest extends AbstractJsTest {
   }
 
   private Datasource getTestDatasource() throws IOException {
-    DatasourceFactory factory = new MongoDBDatasourceFactory(DATASOURCE, MONGO_DB_URL);
+    DatasourceFactory factory = new MongoDBDatasourceFactory(DATASOURCE, mongoDbUrl);
     Datasource datasource = factory.create();
 
     List<Variable> variables = Lists.newArrayList( //
@@ -292,7 +291,7 @@ public class VariableScriptValidatorTest extends AbstractJsTest {
   @Test
   public void test_FNAC() throws Exception {
 
-    DatasourceFactory factory = new MongoDBDatasourceFactory(DATASOURCE, MONGO_DB_URL);
+    DatasourceFactory factory = new MongoDBDatasourceFactory(DATASOURCE, mongoDbUrl);
     Datasource datasource = factory.create();
     Datasource viewAwareDatasource = viewManager.decorate(datasource);
     MagmaEngine.get().addDatasource(viewAwareDatasource);
