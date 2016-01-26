@@ -1,7 +1,6 @@
 package org.obiba.magma.datasource.hibernate;
 
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 
 import javax.validation.constraints.NotNull;
@@ -63,8 +62,6 @@ class HibernateValueTableTransaction extends HibernateDatasourceSynchronization 
 
     if(createTableTransaction) {
       valueTable.getDatasource().commitValueTable(valueTable);
-    } else {
-      valueTable.getValueTableState().setUpdated(new Date());
     }
   }
 
