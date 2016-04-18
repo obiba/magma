@@ -54,6 +54,7 @@ import liquibase.database.DatabaseFactory;
 import liquibase.database.DatabaseList;
 import liquibase.database.ObjectQuotingStrategy;
 import liquibase.database.jvm.JdbcConnection;
+import liquibase.exception.DatabaseException;
 import liquibase.exception.LiquibaseException;
 import liquibase.snapshot.DatabaseSnapshot;
 import liquibase.snapshot.SnapshotControl;
@@ -85,7 +86,10 @@ public class JdbcDatasource extends AbstractDatasource {
 
   private PlatformTransactionManager txManager;
 
-  private final String ESC_ENTITY_TYPE_COLUMN, ESC_VALUE_TABLES_TABLE, ESC_DATASOURCE_COLUMN, ESC_NAME_COLUMN, ESC_VALUE_TABLE_COLUMN, ESC_SQL_NAME_COLUMN;
+  private Database databaseTmpl;
+
+  private final String ESC_ENTITY_TYPE_COLUMN, ESC_VALUE_TABLES_TABLE, ESC_DATASOURCE_COLUMN, ESC_NAME_COLUMN,
+      ESC_VALUE_TABLE_COLUMN, ESC_SQL_NAME_COLUMN;
 
   @SuppressWarnings("ConstantConditions")
   public JdbcDatasource(String name, @NotNull DataSource datasource, @NotNull JdbcDatasourceSettings settings,
@@ -258,7 +262,8 @@ public class JdbcDatasource extends AbstractDatasource {
       String sql = getSettings().isMultipleDatasources()
           ? String.format("SELECT %s FROM %s WHERE %s = ? AND %s = ?", ESC_ENTITY_TYPE_COLUMN, ESC_VALUE_TABLES_TABLE,
           ESC_DATASOURCE_COLUMN, ESC_NAME_COLUMN)
-          : String.format("SELECT %s FROM %s WHERE %s = ?", ESC_ENTITY_TYPE_COLUMN, ESC_VALUE_TABLES_TABLE, ESC_NAME_COLUMN);
+          : String.format("SELECT %s FROM %s WHERE %s = ?", ESC_ENTITY_TYPE_COLUMN, ESC_VALUE_TABLES_TABLE,
+              ESC_NAME_COLUMN);
       Object[] params = getSettings().isMultipleDatasources()
           ? new Object[] { getName(), tableName }
           : new Object[] { tableName };
@@ -283,10 +288,9 @@ public class JdbcDatasource extends AbstractDatasource {
   @NotNull
   private Set<String> getRegisteredValueTableNames() {
     Set<String> names = new LinkedHashSet<>();
-    String select = getSettings().isMultipleDatasources()
-        ? String
-        .format("SELECT %s FROM %s WHERE %s = '%s'", ESC_NAME_COLUMN, ESC_VALUE_TABLES_TABLE, ESC_DATASOURCE_COLUMN, getName())
-        : String.format("SELECT %s FROM %s", ESC_NAME_COLUMN, ESC_VALUE_TABLES_TABLE);
+    String select = getSettings().isMultipleDatasources() ? String
+        .format("SELECT %s FROM %s WHERE %s = '%s'", ESC_NAME_COLUMN, ESC_VALUE_TABLES_TABLE, ESC_DATASOURCE_COLUMN,
+            getName()) : String.format("SELECT %s FROM %s", ESC_NAME_COLUMN, ESC_VALUE_TABLES_TABLE);
 
     names.addAll(getJdbcTemplate().query(select, new RowMapper<String>() {
       @Override
@@ -379,8 +383,8 @@ public class JdbcDatasource extends AbstractDatasource {
 
       if(getSettings().isUseMetadataTables()) {
         String select = getSettings().isMultipleDatasources()
-            ? String.format("SELECT %s, %s FROM %s WHERE %s = '%s'", ESC_NAME_COLUMN, ESC_SQL_NAME_COLUMN, ESC_VALUE_TABLES_TABLE,
-            ESC_DATASOURCE_COLUMN, getName())
+            ? String.format("SELECT %s, %s FROM %s WHERE %s = '%s'", ESC_NAME_COLUMN, ESC_SQL_NAME_COLUMN,
+            ESC_VALUE_TABLES_TABLE, ESC_DATASOURCE_COLUMN, getName())
             : String.format("SELECT %s, %s FROM %s", ESC_NAME_COLUMN, ESC_SQL_NAME_COLUMN, ESC_VALUE_TABLES_TABLE);
 
         List<Map.Entry<String, String>> entries = getJdbcTemplate()
@@ -463,16 +467,28 @@ public class JdbcDatasource extends AbstractDatasource {
       @Override
       public T doInConnection(Connection con) throws SQLException, DataAccessException {
         try {
-          Database database = DatabaseFactory.getInstance()
-              .findCorrectDatabaseImplementation(new JdbcConnection(con));
+          JdbcConnection jdbcCon = new JdbcConnection(con);
+          Database database = newDatabaseInstance(jdbcCon);
+          database.setConnection(jdbcCon);
           database.setObjectQuotingStrategy(ObjectQuotingStrategy.QUOTE_ALL_OBJECTS);
-
           return databaseCallback.doInDatabase(database);
         } catch(LiquibaseException e) {
+          throw new SQLException(e);
+        } catch(InstantiationException e) {
+          throw new SQLException(e);
+        } catch(IllegalAccessException e) {
           throw new SQLException(e);
         }
       }
     });
+  }
+
+  private synchronized Database newDatabaseInstance(JdbcConnection jdbcCon)
+      throws DatabaseException, IllegalAccessException, InstantiationException {
+    if(databaseTmpl == null) {
+      databaseTmpl = DatabaseFactory.getInstance().findCorrectDatabaseImplementation(jdbcCon);
+    }
+    return databaseTmpl.getClass().newInstance();
   }
 
   private void createMetadataTablesIfNotPresent() {
