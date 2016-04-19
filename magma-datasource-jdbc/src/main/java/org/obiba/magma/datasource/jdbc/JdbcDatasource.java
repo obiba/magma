@@ -54,7 +54,6 @@ import liquibase.database.DatabaseFactory;
 import liquibase.database.DatabaseList;
 import liquibase.database.ObjectQuotingStrategy;
 import liquibase.database.jvm.JdbcConnection;
-import liquibase.exception.DatabaseException;
 import liquibase.exception.LiquibaseException;
 import liquibase.snapshot.DatabaseSnapshot;
 import liquibase.snapshot.SnapshotControl;
@@ -87,6 +86,10 @@ public class JdbcDatasource extends AbstractDatasource {
   private PlatformTransactionManager txManager;
 
   private Database databaseTmpl;
+
+  private Map<String, String> escapedColumnNames = Maps.newConcurrentMap();
+
+  private Map<String, String> escapedTableNames = Maps.newConcurrentMap();
 
   private final String ESC_ENTITY_TYPE_COLUMN, ESC_VALUE_TABLES_TABLE, ESC_DATASOURCE_COLUMN, ESC_NAME_COLUMN,
       ESC_VALUE_TABLE_COLUMN, ESC_SQL_NAME_COLUMN;
@@ -424,23 +427,31 @@ public class JdbcDatasource extends AbstractDatasource {
   }
 
   public String escapeTableName(final String identifier) {
-    return doWithDatabase(new DatabaseCallback<String>() {
-      @Nullable
-      @Override
-      public String doInDatabase(Database database) throws LiquibaseException {
-        return database.escapeObjectName(identifier, Table.class);
-      }
-    });
+    if(!escapedTableNames.containsKey(identifier)) {
+      String escaped = doWithDatabase(new DatabaseCallback<String>() {
+        @Nullable
+        @Override
+        public String doInDatabase(Database database) throws LiquibaseException {
+          return database.escapeObjectName(identifier, Table.class);
+        }
+      });
+      escapedTableNames.put(identifier, escaped);
+    }
+    return escapedTableNames.get(identifier);
   }
 
   public String escapeColumnName(final String identifier) {
-    return doWithDatabase(new DatabaseCallback<String>() {
-      @Nullable
-      @Override
-      public String doInDatabase(Database database) throws LiquibaseException {
-        return database.escapeObjectName(identifier, Column.class);
-      }
-    });
+    if (!escapedColumnNames.containsKey(identifier)) {
+      String escaped = doWithDatabase(new DatabaseCallback<String>() {
+        @Nullable
+        @Override
+        public String doInDatabase(Database database) throws LiquibaseException {
+          return database.escapeObjectName(identifier, Column.class);
+        }
+      });
+      escapedColumnNames.put(identifier, escaped);
+    }
+    return escapedColumnNames.get(identifier);
   }
 
   DatabaseSnapshot getDatabaseSnapshot() {
@@ -474,21 +485,20 @@ public class JdbcDatasource extends AbstractDatasource {
           return databaseCallback.doInDatabase(database);
         } catch(LiquibaseException e) {
           throw new SQLException(e);
-        } catch(InstantiationException e) {
-          throw new SQLException(e);
-        } catch(IllegalAccessException e) {
-          throw new SQLException(e);
         }
       }
     });
   }
 
-  private synchronized Database newDatabaseInstance(JdbcConnection jdbcCon)
-      throws DatabaseException, IllegalAccessException, InstantiationException {
-    if(databaseTmpl == null) {
-      databaseTmpl = DatabaseFactory.getInstance().findCorrectDatabaseImplementation(jdbcCon);
+  private synchronized Database newDatabaseInstance(JdbcConnection jdbcCon) throws SQLException {
+    try {
+      if(databaseTmpl == null) {
+        databaseTmpl = DatabaseFactory.getInstance().findCorrectDatabaseImplementation(jdbcCon);
+      }
+      return databaseTmpl.getClass().newInstance();
+    } catch(Exception e) {
+      throw new SQLException(e);
     }
-    return databaseTmpl.getClass().newInstance();
   }
 
   private void createMetadataTablesIfNotPresent() {
