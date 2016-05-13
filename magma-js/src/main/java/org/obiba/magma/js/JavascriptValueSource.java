@@ -130,6 +130,12 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
         compiledScript = (Script) ContextFactory.getGlobal().call(new ContextAction() {
           @Override
           public Object run(Context context) {
+            String optLevel = System.getProperty("rhino.opt.level");
+            if (optLevel != null) {
+              try {
+                context.setOptimizationLevel(Integer.parseInt(optLevel));
+              } catch(Exception e) {}
+            }
             return context.compileString(getScript(), getScriptName(), 1, null);
           }
         });
