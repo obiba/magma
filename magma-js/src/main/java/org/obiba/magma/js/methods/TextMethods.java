@@ -11,9 +11,7 @@ import java.util.regex.Pattern;
 import javax.annotation.Nullable;
 import javax.script.Compilable;
 import javax.script.CompiledScript;
-import javax.script.ScriptContext;
 import javax.script.ScriptException;
-import javax.script.SimpleScriptContext;
 import javax.validation.constraints.NotNull;
 
 import com.google.common.base.Throwables;
@@ -184,18 +182,7 @@ public class TextMethods {
   public static ScriptableValue replace(ScriptableValue thisObj, final Object[] args) {
     com.google.common.base.Function<Value, Value> replaceFunction = input -> {
           String stringValue = input == null || input.isNull() ? null : input.toString();
-          ScriptContext ctx = new SimpleScriptContext();
-          ctx.setAttribute("val", stringValue, ScriptContext.ENGINE_SCOPE);
-          ctx.setAttribute("re", args[0], ScriptContext.ENGINE_SCOPE);
-          ctx.setAttribute("newVal", args[1], ScriptContext.ENGINE_SCOPE);
-          Object result;
-
-          try {
-            result = compiledReplaceScript.eval(ctx);
-          } catch(ScriptException e) {
-            throw Throwables.propagate(e);
-          }
-
+          Object result = stringValue.replaceAll((String)args[0], (String)args[1]);
           return TextType.get().valueOf(result);
         };
 

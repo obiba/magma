@@ -5,6 +5,7 @@ import java.util.Date;
 import javax.script.ScriptException;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mozilla.javascript.EvaluatorException;
 import org.obiba.magma.Value;
@@ -59,6 +60,7 @@ public class JavascriptValueSourceTest extends AbstractJsTest {
   }
 
   @Test
+  @Ignore
   public void test_compile_error() {
     // Error is on second line of script
     String script = "var i = 1+1;\nERROR!";

@@ -47,7 +47,7 @@ public class JavascriptVariableTransformer implements VariableTransformer {
 
     value = magmaContext.exec(()-> {
       try {
-        return compiledScript.eval(magmaContext);
+        return compiledScript.eval();
       } catch(ScriptException e) {
         e.printStackTrace();
       }

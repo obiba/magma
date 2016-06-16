@@ -88,7 +88,6 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
     initialiseIfNot();
     MagmaContext context = MagmaContextFactory.createContext();
     context.setAttribute(ScriptEngine.FILENAME, getScriptName(), ScriptContext.ENGINE_SCOPE);
-    //context.setBindings(new SimpleBindings(), ScriptContext.ENGINE_SCOPE);
     Map<Object, Object> shared = getShared();
     shared.put(ValueSet.class, valueSet);
     shared.put(ValueTable.class, valueSet.getValueTable());
@@ -96,7 +95,7 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
 
     Value value = context.exec(() -> {
       try {
-        return asValue(compiledScript.eval(context));
+        return asValue(compiledScript.eval());
       } catch (ScriptException e) {
         throw Throwables.propagate(e);
       }
@@ -149,7 +148,7 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
     public Value apply(VariableEntity variableEntity) {
       try {
         context.push(VariableEntity.class, variableEntity);
-        return asValue(compiledScript.eval(context));
+        return asValue(compiledScript.eval());
       } catch(ScriptException e) {
         throw propagate(e);
       } finally {
@@ -172,7 +171,9 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
   protected synchronized void initialiseIfNot() {
     if(compiledScript == null) {
       try {
-        compiledScript = ((Compilable) MagmaContextFactory.getEngine()).compile(getScript());
+        String s = getScript().replace("\t", "\\t").replace("'", "\\'").replace("\"", "\\\"").replace("\n", "\\n");
+        compiledScript = ((Compilable) MagmaContextFactory.getEngine()).compile(String.format("(function() { return eval('%s'); })();", s));
+        //compiledScript = ((Compilable) MagmaContextFactory.getEngine()).compile(getScript());
       } catch (Exception e) {
         log.error("Script compilation failed: {}", getScript(), e);
 

@@ -142,7 +142,7 @@ public class JavascriptClause implements Initialisable, SelectClause, WhereClaus
     MagmaContext magmaContext = MagmaContextFactory.createContext();
     Object value = magmaContext.exec(() -> {
         try {
-          return compiledScript.eval(magmaContext);
+          return compiledScript.eval();
         } catch (ScriptException e) {
           throw Throwables.propagate(e);
         }
@@ -180,7 +180,7 @@ public class JavascriptClause implements Initialisable, SelectClause, WhereClaus
     MagmaContext magmaContext = MagmaContextFactory.createContext();
     Object value = magmaContext.exec(()-> {
       try {
-        return compiledScript.eval(magmaContext);
+        return compiledScript.eval();
       } catch(ScriptException e) {
         e.printStackTrace();
       }

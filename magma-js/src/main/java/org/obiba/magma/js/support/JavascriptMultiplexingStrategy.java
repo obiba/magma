@@ -67,7 +67,7 @@ public class JavascriptMultiplexingStrategy implements DatasourceCopier.Multiple
     MagmaContext magmaContext = MagmaContextFactory.createContext();
     Object value = magmaContext.exec(() -> {
       try {
-        return compiledScript.eval(magmaContext);
+        return compiledScript.eval();
       } catch(ScriptException e) {
         e.printStackTrace();
       }

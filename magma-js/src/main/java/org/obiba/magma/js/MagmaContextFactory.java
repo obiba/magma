@@ -92,7 +92,7 @@ public class MagmaContextFactory implements Initialisable {
   }
 
   public static MagmaContext createContext() {
-    return magmaContext.get();
+    return (MagmaContext) engine.getContext();
   }
 
   public static MagmaContext createContext(Scriptable value) {
@@ -140,6 +140,10 @@ public class MagmaContextFactory implements Initialisable {
     synchronized(this) {
       factory = new NashornScriptEngineFactory();
       engine = factory.getScriptEngine();
+      MagmaContext ctx = new MagmaContext();
+      ctx.setBindings(engine.createBindings(), ScriptContext.GLOBAL_SCOPE);
+      initBindings(ctx, ctx.getBindings(ScriptContext.GLOBAL_SCOPE));
+      engine.setContext(ctx);
     }
   }
 }
