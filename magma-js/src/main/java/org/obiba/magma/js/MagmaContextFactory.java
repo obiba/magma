@@ -15,6 +15,9 @@ import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import groovy.lang.Binding;
+import groovy.lang.Closure;
+import groovy.lang.GroovyShell;
 import jdk.nashorn.api.scripting.AbstractJSObject;
 import jdk.nashorn.api.scripting.NashornScriptEngineFactory;
 import org.obiba.magma.Initialisable;
@@ -32,20 +35,21 @@ public class MagmaContextFactory implements Initialisable {
 
   static NashornScriptEngineFactory factory;
 
+  static GroovyShell shell;
+
   @NotNull
   private static Set<GlobalMethodProvider> globalMethodProviders = Collections.emptySet();
 
-  public static ScriptEngine getEngine() {
-    return engine;
+
+  public static GroovyShell getEngine() {
+    return shell;
   }
 
-  private final static ThreadLocal<MagmaContext> magmaContext = new ThreadLocal<MagmaContext>() {
+  private final static ThreadLocal<MagmaContext>  magmaContext = new ThreadLocal<MagmaContext>() {
     @Override
     protected MagmaContext initialValue() {
       MagmaContext ctx = new MagmaContext();
-      ctx.setBindings(engine.createBindings(), ScriptContext.GLOBAL_SCOPE);
-      initBindings(ctx, ctx.getBindings(ScriptContext.GLOBAL_SCOPE));
-
+      initBinding(ctx);
       return ctx;
     }
   };
@@ -64,11 +68,10 @@ public class MagmaContextFactory implements Initialisable {
     @Override
     protected MagmaContext initialValue() {
       final MagmaContext context = new MagmaContext();
-      Bindings bindings = engine.createBindings();
-      context.setBindings(bindings, ScriptContext.GLOBAL_SCOPE);
-      initBindings(context, context.getBindings(ScriptContext.GLOBAL_SCOPE));
-      bindings.putAll(ScriptableValue.getMembers());
-
+      initBinding(context);
+      ScriptableValue.getMembers().forEach((k, v) ->
+        context.setProperty(k, v)
+      );
       return context;
     }
   };
@@ -77,11 +80,10 @@ public class MagmaContextFactory implements Initialisable {
     @Override
     protected MagmaContext initialValue() {
       final MagmaContext context = new MagmaContext();
-      Bindings bindings = engine.createBindings();
-      context.setBindings(bindings, ScriptContext.GLOBAL_SCOPE);
-      initBindings(context, context.getBindings(ScriptContext.GLOBAL_SCOPE));
-      bindings.putAll(ScriptableVariable.getMembers());
-
+      initBinding(context);
+      ScriptableVariable.getMembers().forEach((k, v) ->
+          context.setProperty(k, v)
+      );
       return context;
     }
   };
@@ -92,7 +94,7 @@ public class MagmaContextFactory implements Initialisable {
   }
 
   public static MagmaContext createContext() {
-    return (MagmaContext) engine.getContext();
+    return magmaContext.get();
   }
 
   public static MagmaContext createContext(Scriptable value) {
@@ -108,6 +110,25 @@ public class MagmaContextFactory implements Initialisable {
     setScriptableContext(value);
 
     return context;
+  }
+
+  private static void initBinding(Binding gb) {
+    Iterables.concat(Lists.newArrayList(new GlobalMethods()), globalMethodProviders).forEach(p -> {
+      Collection<Method> methods = p.getJavaScriptExtensionMethods();
+
+      for(final Method method : methods) {
+        gb.setProperty(method.getName(), new Closure(null) {
+          public Object doCall(Object... args) {
+            try {
+              return method.invoke(null, gb, args);
+            } catch(IllegalAccessException | InvocationTargetException e) {
+              Throwables.propagateIfInstanceOf(e.getCause(), MagmaJsEvaluationRuntimeException.class);
+              throw Throwables.propagate(e);
+            }
+          }
+        });
+      }
+    });
   }
 
   private static void initBindings(ScriptContext ctx, Bindings gb) {
@@ -140,10 +161,7 @@ public class MagmaContextFactory implements Initialisable {
     synchronized(this) {
       factory = new NashornScriptEngineFactory();
       engine = factory.getScriptEngine();
-      MagmaContext ctx = new MagmaContext();
-      ctx.setBindings(engine.createBindings(), ScriptContext.GLOBAL_SCOPE);
-      initBindings(ctx, ctx.getBindings(ScriptContext.GLOBAL_SCOPE));
-      engine.setContext(ctx);
+      shell = new GroovyShell();
     }
   }
 }

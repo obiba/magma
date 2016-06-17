@@ -1,10 +1,10 @@
 package org.obiba.magma.js;
 
 import java.util.Map;
-import java.util.Set;
 
 import com.google.common.collect.Maps;
-import jdk.nashorn.api.scripting.JSObject;
+import groovy.lang.Closure;
+import groovy.lang.ExpandoMetaClass;
 import org.obiba.magma.Variable;
 import org.obiba.magma.js.methods.ScriptableVariableMethods;
 
@@ -29,23 +29,15 @@ public class ScriptableVariable extends Scriptable {
     return variable;
   }
 
-  @Override
-  public Object getMember(final String name) {
-    return getMembers().get(name);
-  }
-
-  @Override
-  public Set<String> keySet() {
-    return getMembers().keySet();
-  }
-
-  private static Map<String, JSObject> members = Maps.newConcurrentMap();
+  private static Map<String, Closure> members = Maps.newConcurrentMap();
 
   static {
-    addMethodProvider(members, ScriptableVariableMethods.class);
+    ExpandoMetaClass expandoMetaClass = new ExpandoMetaClass(ScriptableVariable.class, true, false);
+    addMethodProvider(expandoMetaClass, members, ScriptableVariableMethods.class);
+    expandoMetaClass.initialize();
   }
 
-  public static Map<String, JSObject> getMembers() {
+  public static Map<String, Closure> getMembers() {
     return members;
   }
 }

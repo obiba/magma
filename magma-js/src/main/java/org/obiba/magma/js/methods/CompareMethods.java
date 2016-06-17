@@ -34,7 +34,7 @@ public class CompareMethods {
    */
   public static ScriptableValue compare(ScriptableValue thisObj, Object[] args)
       throws MagmaJsEvaluationRuntimeException {
-    ScriptableValue firstOperand = (ScriptableValue) thisObj;
+    ScriptableValue firstOperand = thisObj;
     if(firstOperand.getValue().isNull()) {
       throw new MagmaJsEvaluationRuntimeException("Cannot invoke compare() with null argument.");
     }
@@ -136,7 +136,7 @@ public class CompareMethods {
    */
   public static ScriptableValue compareNoCase(ScriptableValue thisObj, Object[] args)
       throws MagmaJsEvaluationRuntimeException {
-    ScriptableValue firstOperand = (ScriptableValue) thisObj;
+    ScriptableValue firstOperand = thisObj;
     Value firstOperandValue = firstOperand.getValue();
     if(firstOperandValue.isNull()) {
       throw new MagmaJsEvaluationRuntimeException("Cannot invoke compareNoCase() with null argument.");

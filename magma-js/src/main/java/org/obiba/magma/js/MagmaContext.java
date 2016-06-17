@@ -4,33 +4,24 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.function.Supplier;
 
-import javax.script.SimpleScriptContext;
-
 import com.google.common.collect.Maps;
+import groovy.lang.Binding;
 
 
-public class MagmaContext extends SimpleScriptContext {
-  private ThreadLocal<Map<Object, LinkedList<Object>>> threadLocal = new ThreadLocal<Map<Object, LinkedList<Object>>>() {
-    @Override
-    public Map<Object, LinkedList<Object>> initialValue() {
-      return Maps.newHashMap();
-    }
-  };
+public class MagmaContext extends Binding {
+  Map<Object,LinkedList<Object>> sharedLocal = Maps.newHashMap();
 
   public void push(Object key, Object value) {
-    Map<Object,LinkedList<Object>> sharedLocal = threadLocal.get();
     if(!sharedLocal.containsKey(key)) sharedLocal.put(key, new LinkedList<>());
 
     sharedLocal.get(key).push(value);
   }
 
   public Object get(Object key) {
-    Map<Object,LinkedList<Object>> sharedLocal = threadLocal.get();
     return !sharedLocal.containsKey(key) ? null : sharedLocal.get(key).peek();
   }
 
   public void pop(Object key) {
-    Map<Object,LinkedList<Object>> sharedLocal = threadLocal.get();
     sharedLocal.get(key).pop();
   }
 

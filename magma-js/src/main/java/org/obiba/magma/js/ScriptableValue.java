@@ -4,13 +4,13 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 
 import com.google.common.collect.Maps;
-import jdk.nashorn.api.scripting.JSObject;
+import groovy.lang.Closure;
+import groovy.lang.ExpandoMetaClass;
 import org.obiba.magma.Coordinate;
 import org.obiba.magma.MagmaDate;
 import org.obiba.magma.Value;
@@ -156,36 +156,23 @@ public class ScriptableValue extends Scriptable {
     return getValue().toString();
   }
 
-  @Override
-  public boolean hasMember(String name) {
-    return getMembers().containsKey(name);
-  }
-
-  @Override
-  public Object getMember(final String name) {
-    return getMembers().get(name);
-  }
-
-  @Override
-  public Set<String> keySet() {
-    return getMembers().keySet();
-  }
-
-  private static Map<String, JSObject> members = Maps.newConcurrentMap();
+  private static Map<String, Closure> members = Maps.newConcurrentMap();
 
   static {
-    addMethodProvider(members, BooleanMethods.class);
-    addMethodProvider(members, DateTimeMethods.class);
-    addMethodProvider(members, TextMethods.class);
-    addMethodProvider(members, ScriptableValueMethods.class);
-    addMethodProvider(members, ValueSequenceMethods.class);
-    addMethodProvider(members, NumericMethods.class);
-    addMethodProvider(members, CompareMethods.class);
-    addMethodProvider(members, UnitMethods.class);
-    addMethodProvider(members, GeoMethods.class);
+    ExpandoMetaClass expandoMetaClass = new ExpandoMetaClass(ScriptableValue.class, true, false);
+    addMethodProvider(expandoMetaClass, members, BooleanMethods.class);
+    addMethodProvider(expandoMetaClass, members, DateTimeMethods.class);
+    addMethodProvider(expandoMetaClass, members, TextMethods.class);
+    addMethodProvider(expandoMetaClass, members, ScriptableValueMethods.class);
+    addMethodProvider(expandoMetaClass, members, ValueSequenceMethods.class);
+    addMethodProvider(expandoMetaClass, members, NumericMethods.class);
+    addMethodProvider(expandoMetaClass, members, CompareMethods.class);
+    addMethodProvider(expandoMetaClass, members, UnitMethods.class);
+    addMethodProvider(expandoMetaClass, members, GeoMethods.class);
+    expandoMetaClass.initialize();
   }
 
-  public static Map<String, JSObject> getMembers() {
+  public static Map<String, Closure> getMembers() {
     return members;
   }
 }

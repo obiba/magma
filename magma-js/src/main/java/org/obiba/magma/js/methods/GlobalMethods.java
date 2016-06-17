@@ -10,7 +10,6 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.annotation.Nullable;
-import javax.script.ScriptContext;
 import javax.validation.constraints.NotNull;
 
 import com.google.common.base.Predicate;
@@ -64,7 +63,7 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
    *
    * @return an instance of {@code ScriptableValue} containing the current date and time.
    */
-  public static ScriptableValue now(ScriptContext cx, Object[] args) {
+  public static ScriptableValue now(MagmaContext cx, Object[] args) {
     return new ScriptableValue(DateTimeType.get().valueOf(new Date()));
   }
 
@@ -79,7 +78,7 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
    *
    * @return an instance of {@code ScriptableValue}
    */
-  public static ScriptableValue newValue(ScriptContext cx, Object[] args) {
+  public static ScriptableValue newValue(MagmaContext cx, Object[] args) {
     Object value = ensurePrimitiveValue(args[0]);
     Value v = args.length > 1
         ? ValueType.Factory.forName((String) args[1]).valueOf(value)
@@ -102,7 +101,7 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
    *
    * @return an instance of {@code ScriptableValue}
    */
-  public static ScriptableValue newSequence(ScriptContext cx, Object[] args) {
+  public static ScriptableValue newSequence(MagmaContext cx, Object[] args) {
     Object value = args[0];
     ValueType valueType = args.length > 1 ? ValueType.Factory.forName((String) args[1]) : null;
     List<Value> values;
@@ -160,7 +159,7 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
    *
    * @return an instance of {@code ScriptableValue}
    */
-  public static ScriptableValue $(ScriptContext ctx, Object[] args) {
+  public static ScriptableValue $(MagmaContext ctx, Object[] args) {
     if(args.length != 1) {
       throw new IllegalArgumentException("$() expects exactly one argument: a variable name.");
     }
@@ -168,7 +167,7 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
     return $value(ctx, args);
   }
 
-  public static ScriptableValue $val(ScriptContext ctx, Object[] args) {
+  public static ScriptableValue $val(MagmaContext ctx, Object[] args) {
     if(args.length != 1) {
       throw new IllegalArgumentException("$val() expects exactly one argument: a variable name.");
     }
@@ -176,14 +175,14 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
     return $value(ctx, args);
   }
 
-  public static ScriptableValue $value(ScriptContext ctx, Object[] args) {
+  public static ScriptableValue $value(MagmaContext ctx, Object[] args) {
     if(args.length != 1) {
       throw new IllegalArgumentException("$value() expects exactly one argument: a variable name.");
     }
 
     String name = (String) args[0];
 
-    return valueFromContext((MagmaContext)ctx, name);
+    return valueFromContext(ctx, name);
   }
 
   /**
@@ -197,8 +196,8 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
    * @param args
    * @return
    */
-  public static ScriptableValue $created(ScriptContext ctx, Object[] args) {
-    return new ScriptableValue(timestampsFromContext((MagmaContext)ctx).getCreated());
+  public static ScriptableValue $created(MagmaContext ctx, Object[] args) {
+    return new ScriptableValue(timestampsFromContext(ctx).getCreated());
   }
 
   /**
@@ -212,8 +211,8 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
    * @param args
    * @return
    */
-  public static ScriptableValue $lastupdate(ScriptContext ctx,  Object[] args) {
-    return new ScriptableValue(timestampsFromContext((MagmaContext)ctx).getLastUpdate());
+  public static ScriptableValue $lastupdate(MagmaContext ctx,  Object[] args) {
+    return new ScriptableValue(timestampsFromContext(ctx).getLastUpdate());
   }
 
   /**
@@ -226,12 +225,12 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
    *
    * @return an instance of {@code ScriptableValue}
    */
-  public static ScriptableValue $this(ScriptContext ctx, Object[] args) {
+  public static ScriptableValue $this(MagmaContext ctx, Object[] args) {
     if(args.length != 1) {
       throw new IllegalArgumentException("$this() expects exactly one argument: a variable name.");
     }
 
-    if(((MagmaContext)ctx).get(View.class) == null) {
+    if(ctx.get(View.class) == null) {
       throw new IllegalArgumentException("$this() can only be used in the context of a view.");
     }
 
@@ -242,9 +241,9 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
     }
 
     try {
-      return valueFromViewContext((MagmaContext) ctx, name);
+      return valueFromViewContext(ctx, name);
     } catch(Exception e) {
-      return valueFromViewContext((MagmaContext) ctx, name);
+      return valueFromViewContext(ctx, name);
     }
   }
 
@@ -263,7 +262,7 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
    *
    * @return an instance of {@code ScriptableValue}
    */
-  public static ScriptableValue $join(ScriptContext ctx, Object[] args) {
+  public static ScriptableValue $join(MagmaContext ctx, Object[] args) {
     if(args.length < 2) {
       throw new IllegalArgumentException(
           "$join() expects exactly two arguments: the reference the variable to be joined and the name of the variable holding entity identifiers.");
@@ -278,8 +277,8 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
       } catch (Exception ignore) {}
     }
 
-    ValueTable valueTable = (ValueTable)(((MagmaContext)ctx).get(ValueTable.class));
-    Value identifier = valueFromContext((MagmaContext)ctx, name).getValue();
+    ValueTable valueTable = (ValueTable)(ctx.get(ValueTable.class));
+    Value identifier = valueFromContext(ctx, name).getValue();
 
     // Find the joined named source
     MagmaEngineVariableResolver reference = MagmaEngineVariableResolver.valueOf(joinedName);
@@ -299,18 +298,18 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
    *
    * @return an instance of {@code ScriptableVariable}
    */
-  public static ScriptableVariable $var(ScriptContext ctx, Object[] args) {
+  public static ScriptableVariable $var(MagmaContext ctx, Object[] args) {
     return $variable(ctx, args);
   }
 
-  public static ScriptableVariable $variable(ScriptContext ctx, Object[] args) {
+  public static ScriptableVariable $variable(MagmaContext ctx, Object[] args) {
     if(args.length != 1) {
       throw new IllegalArgumentException("$var() expects exactly one argument: a variable name.");
     }
 
     String name = (String) args[0];
 
-    return new ScriptableVariable(variableFromContext((MagmaContext)ctx, name));
+    return new ScriptableVariable(variableFromContext(ctx, name));
   }
 
   /**
@@ -322,12 +321,12 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
    *
    * @return an instance of {@code ScriptableValue}
    */
-  public static ScriptableValue $id(ScriptContext ctx, Object[] args) {
+  public static ScriptableValue $id(MagmaContext ctx, Object[] args) {
     return $identifier(ctx, args);
   }
 
-  public static ScriptableValue $identifier(ScriptContext ctx, Object[] args) {
-    VariableEntity entity = (VariableEntity) ((MagmaContext)ctx).get(VariableEntity.class);
+  public static ScriptableValue $identifier(MagmaContext ctx, Object[] args) {
+    VariableEntity entity = (VariableEntity) (ctx).get(VariableEntity.class);
 
     return new ScriptableValue(TextType.get().valueOf(entity.getIdentifier()));
   }
@@ -345,7 +344,7 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
    *
    * @return an instance of {@code ScriptableValue}
    */
-  public static ScriptableValue log(ScriptContext ctx, Object[] args) {
+  public static ScriptableValue log(MagmaContext ctx, Object[] args) {
     if(args.length < 1) {
       throw new UnsupportedOperationException(
           "log() expects either one or more arguments. e.g. log('message'), log('var 1 {}', $('var1')), log('var 1 {} var 2 {}', $('var1'), $('var2')).");
@@ -515,9 +514,9 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
     return new ScriptableValue(value, source.getVariable().getUnit());
   }
 
-  private static ScriptableValue valueForValueSet(ScriptContext context,
+  private static ScriptableValue valueForValueSet(MagmaContext context,
       MagmaEngineVariableResolver reference, VariableValueSource variableSource) {
-    ValueSet valueSet = (ValueSet)((MagmaContext)context).get(ValueSet.class);
+    ValueSet valueSet = (ValueSet)(context).get(ValueSet.class);
     // Tests whether this valueSet is in the same table as the referenced ValueTable
     if(reference.isJoin(valueSet)) {
       // Resolve the joined valueSet
@@ -547,7 +546,7 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
    *
    * @return a javascript object that maps variable names to {@code ScriptableValue}
    */
-  /*public static Object $group(ScriptContext ctx, ScriptableValue thisObj, Object[] args)
+  /*public static Object $group(MagmaContext ctx, ScriptableValue thisObj, Object[] args)
       throws MagmaJsEvaluationRuntimeException {
     if(args.length < 2 || args.length > 3) {
       throw new IllegalArgumentException(
@@ -569,7 +568,7 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
     return new ScriptableValue(getGroupValue(ctx, thisObj, name, criteria, select));
   }*/
 
-  /*private static Value getGroupValue(ScriptContext ctx, ScriptableValue thisObj, String name, Object criteria, String select) {
+  /*private static Value getGroupValue(MagmaContext ctx, ScriptableValue thisObj, String name, Object criteria, String select) {
     ScriptableValue sv = valueFromContext(ctx, thisObj, name);
     Variable variable = variableFromContext(ctx, name);
     ValueTable valueTable = valueTableFromContext(ctx);
@@ -611,7 +610,7 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
   /*
   @Deprecated
   @SuppressWarnings({ "OverlyLongMethod", "PMD.NcssMethodCount" })
-  private static Object getGroups(ScriptContext ctx, ScriptableValue thisObj, String name, Object criteria) {
+  private static Object getGroups(MagmaContext ctx, ScriptableValue thisObj, String name, Object criteria) {
     ScriptableValue sv = valueFromContext(ctx, thisObj, name);
     Variable variable = variableFromContext(ctx, name);
 
@@ -674,7 +673,7 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
     return source.getVariable();
   }
 
-  /*private static Predicate<Value> getPredicate(ScriptContext ctx, ScriptableValue scope, ScriptableValue thisObj, Variable variable,
+  /*private static Predicate<Value> getPredicate(MagmaContext ctx, ScriptableValue scope, ScriptableValue thisObj, Variable variable,
       Object criteria) {
     Predicate<Value> predicate;
     if(criteria instanceof ScriptableValue) {
@@ -757,7 +756,7 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
 
     private final ScriptObjectMirror criteriaFunction;
 
-    private FunctionPredicate(ScriptContext ctx, ScriptableValue scope, ScriptableValue thisObj, ScriptObjectMirror criteriaFunction) {
+    private FunctionPredicate(MagmaContext ctx, ScriptableValue scope, ScriptableValue thisObj, ScriptObjectMirror criteriaFunction) {
       this.ctx = ctx;
       this.scope = scope;
       this.thisObj = thisObj;

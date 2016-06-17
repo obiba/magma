@@ -1,10 +1,8 @@
 package org.obiba.magma.js;
 
 import javax.annotation.Nullable;
-import javax.script.Compilable;
-import javax.script.CompiledScript;
-import javax.script.ScriptException;
 
+import groovy.lang.Script;
 import org.junit.After;
 import org.junit.Before;
 import org.obiba.magma.MagmaEngine;
@@ -12,8 +10,6 @@ import org.obiba.magma.Value;
 import org.obiba.magma.Variable;
 import org.obiba.magma.type.DecimalType;
 import org.obiba.magma.type.IntegerType;
-
-import com.google.common.base.Throwables;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 
@@ -54,14 +50,10 @@ public abstract class AbstractJsTest {
 
   protected Object evaluate(final String script, final Variable variable) {
     ScriptableVariable scope = new ScriptableVariable(variable);
-    CompiledScript compiledScript;
-
-    try {
-      compiledScript = ((Compilable) MagmaContextFactory.getEngine()).compile(script);
-      return compiledScript.eval(MagmaContextFactory.createContext(scope));
-    } catch(ScriptException e) {
-      throw Throwables.propagate(e);
-    }
+    Script compiledScript = MagmaContextFactory.getEngine().parse(script);
+    MagmaContext context = MagmaContextFactory.createContext(scope);
+    compiledScript.setBinding(context);
+    return compiledScript.run();
   }
 
   protected ScriptableValue evaluate(String script, Value value) {
@@ -70,13 +62,9 @@ public abstract class AbstractJsTest {
 
   protected ScriptableValue evaluate(final String script, final Value value, @Nullable final String unit) {
     MagmaContext context = MagmaContextFactory.createContext(newValue(value, unit));
-
-    try {
-      CompiledScript compiledScript = ((Compilable) MagmaContextFactory.getEngine()).compile(script);
-      return (ScriptableValue) compiledScript.eval(context);
-    } catch(ScriptException e) {
-      throw Throwables.propagate(e);
-    }
+    Script compiledScript = MagmaContextFactory.getEngine().parse(script);
+    compiledScript.setBinding(context);
+    return (ScriptableValue) compiledScript.run();
   }
 
   protected void assertMethod(String script, Value value, Value expected) {

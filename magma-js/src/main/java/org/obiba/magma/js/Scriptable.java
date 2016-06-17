@@ -5,33 +5,28 @@ import java.lang.reflect.Method;
 import java.util.Map;
 
 import com.google.common.base.Throwables;
-import jdk.nashorn.api.scripting.AbstractJSObject;
-import jdk.nashorn.api.scripting.JSObject;
-import jdk.nashorn.api.scripting.ScriptObjectMirror;
+import groovy.lang.Closure;
+import groovy.lang.ExpandoMetaClass;
 
-public abstract class Scriptable extends AbstractJSObject {
-  protected static void addMethodProvider(Map<String, JSObject> members, Class<?> clazz) {
+public abstract class Scriptable {
+  protected static void addMethodProvider(ExpandoMetaClass expando, Map<String, Closure> members, Class<?> clazz) {
     for(Method m : clazz.getMethods()) {
-      members.put(m.getName(), new AbstractJSObject() {
-        @Override
-        public Object call(Object thiz, Object... args) {
+      Closure closure = new Closure(null) {
+        public Object doCall(Object... args) {
           try {
-            if(thiz == null || ScriptObjectMirror.isUndefined(thiz)) {
-              thiz = MagmaContextFactory.getScriptableContext();
-            }
-
-            return m.invoke(null, thiz, args);
-          } catch(IllegalAccessException | InvocationTargetException e) {
+            Object thiz = this.getDelegate();
+            if(thiz == null) thiz = MagmaContextFactory.getScriptableContext();
+            return m.invoke(null, thiz , args);
+          } catch (IllegalAccessException | InvocationTargetException e) {
             Throwables.propagateIfInstanceOf(e.getCause(), MagmaJsEvaluationRuntimeException.class);
+            throw Throwables.propagate(e);
+          } catch (IllegalArgumentException e) {
             throw Throwables.propagate(e);
           }
         }
-
-        @Override
-        public boolean isFunction() {
-          return true;
-        }
-      });
+      };
+      expando.registerInstanceMethod(m.getName(), closure);
+      members.put(m.getName(), closure);
     }
   }
 }

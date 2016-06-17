@@ -6,20 +6,18 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.SortedSet;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-import javax.script.Compilable;
-import javax.script.CompiledScript;
-import javax.script.ScriptContext;
-import javax.script.ScriptEngine;
 import javax.script.ScriptException;
 import javax.validation.constraints.NotNull;
 
 import com.google.common.base.Function;
-import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import groovy.lang.Script;
 import jdk.nashorn.api.scripting.ScriptObjectMirror;
 import org.obiba.magma.Initialisable;
 import org.obiba.magma.Timestamps;
@@ -32,8 +30,6 @@ import org.obiba.magma.VariableEntity;
 import org.obiba.magma.VectorSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import static com.google.common.base.Throwables.propagate;
 
 /**
  * A {@code ValueSource} implementation that uses a JavaScript script to evaluate the {@code Value} to return.
@@ -52,6 +48,8 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
   @NotNull
   private final ValueType type;
 
+  static Pattern pattern = Pattern.compile("map\\((\\{([^\\}]*)\\})", Pattern.DOTALL);
+
   @NotNull
   private final String script;
 
@@ -59,7 +57,7 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
 
   // need to be transient because of XML serialization
   @SuppressWarnings("TransientFieldInNonSerializableClass")
-  private transient CompiledScript compiledScript;
+  private transient Script compiledScript;
 
   @SuppressWarnings("ConstantConditions")
   public JavascriptValueSource(@NotNull ValueType type, @NotNull String script) {
@@ -87,18 +85,15 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
   public Value getValue(ValueSet valueSet) {
     initialiseIfNot();
     MagmaContext context = MagmaContextFactory.createContext();
-    context.setAttribute(ScriptEngine.FILENAME, getScriptName(), ScriptContext.ENGINE_SCOPE);
+    //context.setAttribute(ScriptEngine.FILENAME, getScriptName(), ScriptContext.ENGINE_SCOPE);
     Map<Object, Object> shared = getShared();
     shared.put(ValueSet.class, valueSet);
     shared.put(ValueTable.class, valueSet.getValueTable());
     shared.put(VariableEntity.class, valueSet.getVariableEntity());
 
     Value value = context.exec(() -> {
-      try {
-        return asValue(compiledScript.eval());
-      } catch (ScriptException e) {
-        throw Throwables.propagate(e);
-      }
+      compiledScript.setBinding(context);
+      return asValue(compiledScript.run());
     }, shared);
 
     return value;
@@ -148,9 +143,8 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
     public Value apply(VariableEntity variableEntity) {
       try {
         context.push(VariableEntity.class, variableEntity);
-        return asValue(compiledScript.eval());
-      } catch(ScriptException e) {
-        throw propagate(e);
+        compiledScript.setBinding(context);
+        return asValue(compiledScript.run());
       } finally {
         context.pop(VariableEntity.class);
         vectorCache.next();
@@ -171,9 +165,11 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
   protected synchronized void initialiseIfNot() {
     if(compiledScript == null) {
       try {
-        String s = getScript().replace("\t", "\\t").replace("'", "\\'").replace("\"", "\\\"").replace("\n", "\\n");
-        compiledScript = ((Compilable) MagmaContextFactory.getEngine()).compile(String.format("(function() { return eval('%s'); })();", s));
-        //compiledScript = ((Compilable) MagmaContextFactory.getEngine()).compile(getScript());
+        String s = getScript().replaceAll("(^|\\s)var\\s", "");
+        Matcher matcher = pattern.matcher(s);
+        if(matcher.find()) s = matcher.replaceAll("map([$2]");
+
+        compiledScript = MagmaContextFactory.getEngine().parse(s);
       } catch (Exception e) {
         log.error("Script compilation failed: {}", getScript(), e);
 
@@ -265,22 +261,22 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
 
     // Returns the value of the current "row" for the specified vector
     @SuppressWarnings("unchecked")
-    public Value get(ScriptContext context, VectorSource source) {
+    public Value get(MagmaContext context, VectorSource source) {
       VectorHolder<Value> holder = vectors.get(source);
 
       if(holder == null) {
         holder = new VectorHolder<>(
-            source.getValues((SortedSet<VariableEntity>) ((MagmaContext)context).get(SortedSet.class)).iterator());
+            source.getValues((SortedSet<VariableEntity>) (context).get(SortedSet.class)).iterator());
         vectors.put(source, holder);
       }
 
       return holder.get(index);
     }
 
-    public Timestamps get(ScriptContext context, ValueTable table) {
+    public Timestamps get(MagmaContext context, ValueTable table) {
       if(timestampsVector == null) {
         timestampsVector = new VectorHolder<>(
-            table.getValueSetTimestamps((SortedSet<VariableEntity>) ((MagmaContext)context).get(SortedSet.class))
+            table.getValueSetTimestamps((SortedSet<VariableEntity>) (context).get(SortedSet.class))
                 .iterator());
       }
       return timestampsVector.get(index);

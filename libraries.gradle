@@ -6,6 +6,7 @@ ext {
   obibaCommonsVersion = '1.7.2'
 
   libraries = [
+      groovy_all: 'org.codehaus.groovy:groovy-all:2.4.7',
 
       catch_exception: 'com.googlecode.catch-exception:catch-exception:1.2.0',
 

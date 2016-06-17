@@ -6,21 +6,16 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Locale;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 import javax.annotation.Nullable;
-import javax.script.Compilable;
-import javax.script.CompiledScript;
-import javax.script.ScriptException;
 import javax.validation.constraints.NotNull;
 
-import com.google.common.base.Throwables;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import jdk.nashorn.api.scripting.ScriptObjectMirror;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueType;
-import org.obiba.magma.js.MagmaContextFactory;
 import org.obiba.magma.js.MagmaJsEvaluationRuntimeException;
 import org.obiba.magma.js.ScriptableValue;
 import org.obiba.magma.type.BooleanType;
@@ -162,16 +157,6 @@ public class TextMethods {
     return sb.toString();
   }
 
-  private static CompiledScript compiledReplaceScript;
-
-  static {
-    try {
-      compiledReplaceScript = ((Compilable) MagmaContextFactory.getEngine()).compile("val.replace(re, newVal)");
-    } catch (ScriptException e) {
-      throw Throwables.propagate(e);
-    }
-  }
-
   /**
    * <pre>
    *   $('TextVar').replace('regex', '$1')
@@ -200,9 +185,7 @@ public class TextMethods {
 
       if(stringValue != null) {
         for(Object arg : args) {
-          Object result = arg instanceof String ? Pattern.compile((String)arg).matcher(stringValue).find() :
-              ((ScriptObjectMirror) arg).callMember("test", stringValue);
-
+          Object result = arg instanceof String ? Pattern.compile((String)arg).matcher(stringValue).find() : null;
           if(result.equals(Boolean.TRUE)) matches = true;
         }
       }
@@ -284,7 +267,7 @@ public class TextMethods {
     }
 
     ScriptableValue sv = thisObj;
-    ScriptObjectMirror valueMap = (ScriptObjectMirror)args[0];
+    Map<String, Object> valueMap = (Map<String, Object>)args[0];
 
     // This could be determined by looking at the mapped values (if all ints, then 'integer', else 'text', etc.)
     ValueType returnType = TextType.get();
@@ -293,6 +276,7 @@ public class TextMethods {
     Value nullValue = nullValue(returnType, args);
 
     Value currentValue = sv.getValue();
+
     if(currentValue.isSequence()) {
       if(currentValue.isNull()) {
         return new ScriptableValue( returnType.nullSequence());
@@ -304,6 +288,7 @@ public class TextMethods {
       }
       return new ScriptableValue( returnType.sequenceOf(newValues));
     }
+
     return new ScriptableValue(
         lookupValue(thisObj, currentValue, returnType, valueMap, defaultValue, nullValue));
   }
@@ -421,7 +406,7 @@ public class TextMethods {
    */
   @SuppressWarnings("PMD.ExcessiveParameterList")
   private static Value lookupValue(ScriptableValue thisObj, Value value, ValueType returnType,
-      ScriptObjectMirror valueMap, Value defaultValue, Value nullValue) {
+      Map<String, Object> valueMap, Value defaultValue, Value nullValue) {
 
     if(value.isNull()) return nullValue;
 
@@ -432,13 +417,6 @@ public class TextMethods {
     if(newValue == null && valueMap.keySet().contains(asName)) return returnType.nullValue();
 
     if(newValue == null) return defaultValue;
-
-    if(newValue instanceof ScriptObjectMirror && ((ScriptObjectMirror)newValue).isFunction()) {
-      Object evaluatedValue = ((ScriptObjectMirror)newValue).call(thisObj, thisObj, new Object[] { new ScriptableValue(value) });
-      newValue = evaluatedValue instanceof ScriptableValue
-          ? ((ScriptableValue)evaluatedValue).getValue().getValue()
-          : evaluatedValue;
-    }
 
     return returnType.valueOf(newValue);
   }

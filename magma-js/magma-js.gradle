@@ -3,6 +3,7 @@ description = 'js'
 dependencies {
   compile project(':magma-api')
   compile(libraries.rhino_js)
+  compile(libraries.groovy_all)
   compile(libraries.jscience_physics) {
     exclude(module: 'core')
     exclude(module: 'org.osgi.compendium')

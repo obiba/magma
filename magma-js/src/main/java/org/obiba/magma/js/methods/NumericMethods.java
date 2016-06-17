@@ -7,7 +7,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import jdk.nashorn.api.scripting.ScriptUtils;
 import org.jscience.physics.unit.system.SI;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueSequence;
@@ -487,7 +486,7 @@ public class NumericMethods {
    * @return
    */
   private static List<Value> nativeArrayToValueList(ValueType valueType, Object array) {
-    Object[] a = (Object[])ScriptUtils.convert(array, Object[].class);
+    Object[] a = ((List)array).toArray(new Object[((List)array).size()]);
     List<Value> newValues = new ArrayList<>();
     Value newValue;
 

@@ -3,12 +3,10 @@ package org.obiba.magma.js.views;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-import javax.script.Compilable;
-import javax.script.CompiledScript;
-import javax.script.ScriptException;
-
-import com.google.common.base.Throwables;
+import groovy.lang.Script;
 import org.obiba.magma.Initialisable;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueSet;
@@ -34,6 +32,7 @@ public class JavascriptClause implements Initialisable, SelectClause, WhereClaus
   //
   // Instance Variables
   //
+  static Pattern pattern = Pattern.compile("map\\((\\{([^\\}]*)\\})", Pattern.DOTALL);
 
   private String scriptName = "customScript";
 
@@ -41,7 +40,7 @@ public class JavascriptClause implements Initialisable, SelectClause, WhereClaus
 
   // need to be transient because of XML serialization
   @SuppressWarnings("TransientFieldInNonSerializableClass")
-  private transient CompiledScript compiledScript;
+  private transient Script compiledScript;
 
   //
   // Constructors
@@ -67,12 +66,11 @@ public class JavascriptClause implements Initialisable, SelectClause, WhereClaus
     if(script == null) {
       throw new NullPointerException("script cannot be null");
     }
+    String s = getScript().replaceAll("(^|\\s)var\\s", "");
+    Matcher matcher = pattern.matcher(s);
+    if(matcher.find()) matcher.replaceAll("map([$2]");
 
-    try {
-      compiledScript = ((Compilable) MagmaContextFactory.getEngine()).compile(getScript());
-    } catch(ScriptException e) {
-      e.printStackTrace();
-    }
+    compiledScript = MagmaContextFactory.getEngine().parse(s);
   }
 
   //
@@ -89,11 +87,8 @@ public class JavascriptClause implements Initialisable, SelectClause, WhereClaus
 
     MagmaContext selectContext = MagmaContextFactory.createContext(new ScriptableVariable(variable));
     Object value = selectContext.exec(() -> {
-      try {
-        return compiledScript.eval(selectContext);
-      } catch(ScriptException e) {
-        throw Throwables.propagate(e);
-      }
+      compiledScript.setBinding(selectContext);
+      return compiledScript.run();
     });
 
     if(value instanceof Boolean) {
@@ -141,12 +136,9 @@ public class JavascriptClause implements Initialisable, SelectClause, WhereClaus
 
     MagmaContext magmaContext = MagmaContextFactory.createContext();
     Object value = magmaContext.exec(() -> {
-        try {
-          return compiledScript.eval();
-        } catch (ScriptException e) {
-          throw Throwables.propagate(e);
-        }
-      }, shared);
+      compiledScript.setBinding(magmaContext);
+      return compiledScript.run();
+    }, shared);
 
     if(value instanceof Boolean) return (boolean) value;
 
@@ -180,12 +172,11 @@ public class JavascriptClause implements Initialisable, SelectClause, WhereClaus
     MagmaContext magmaContext = MagmaContextFactory.createContext();
     Object value = magmaContext.exec(()-> {
       try {
-        return compiledScript.eval();
-      } catch(ScriptException e) {
-        e.printStackTrace();
+        compiledScript.setBinding(magmaContext);
+        return compiledScript.run();
+      } catch (Exception e) {
+        return null;
       }
-
-      return null;
     });
 
     if(value instanceof ScriptableValue) {
