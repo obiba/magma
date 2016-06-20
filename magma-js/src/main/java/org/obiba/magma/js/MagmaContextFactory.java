@@ -20,6 +20,7 @@ import groovy.lang.Closure;
 import groovy.lang.GroovyShell;
 import jdk.nashorn.api.scripting.AbstractJSObject;
 import jdk.nashorn.api.scripting.NashornScriptEngineFactory;
+import org.codehaus.groovy.control.CompilerConfiguration;
 import org.obiba.magma.Initialisable;
 import org.obiba.magma.js.methods.GlobalMethods;
 import org.slf4j.Logger;
@@ -161,7 +162,10 @@ public class MagmaContextFactory implements Initialisable {
     synchronized(this) {
       factory = new NashornScriptEngineFactory();
       engine = factory.getScriptEngine();
-      shell = new GroovyShell();
+      CompilerConfiguration config = new CompilerConfiguration();
+      config.setScriptBaseClass(MagmaScript.class.getName());
+      shell = new GroovyShell(config);
+      //shell = new GroovyShell();
     }
   }
 }
