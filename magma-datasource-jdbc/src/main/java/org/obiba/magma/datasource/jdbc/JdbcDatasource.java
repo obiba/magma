@@ -3,6 +3,10 @@ package org.obiba.magma.datasource.jdbc;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -16,6 +20,29 @@ import javax.annotation.Nullable;
 import javax.sql.DataSource;
 import javax.validation.constraints.NotNull;
 
+import com.google.common.base.Predicate;
+import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import liquibase.change.Change;
+import liquibase.change.core.RenameTableChange;
+import liquibase.database.Database;
+import liquibase.database.DatabaseFactory;
+import liquibase.database.DatabaseList;
+import liquibase.database.ObjectQuotingStrategy;
+import liquibase.database.jvm.JdbcConnection;
+import liquibase.exception.LiquibaseException;
+import liquibase.snapshot.DatabaseSnapshot;
+import liquibase.snapshot.SnapshotControl;
+import liquibase.snapshot.SnapshotGeneratorFactory;
+import liquibase.sql.visitor.SqlVisitor;
+import liquibase.statement.SqlStatement;
+import liquibase.structure.core.Column;
+import liquibase.structure.core.Table;
 import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.ValueTableWriter;
@@ -38,31 +65,6 @@ import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.support.TransactionTemplate;
 
-import com.google.common.base.Predicate;
-import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-
-import liquibase.change.Change;
-import liquibase.change.core.RenameTableChange;
-import liquibase.database.Database;
-import liquibase.database.DatabaseFactory;
-import liquibase.database.DatabaseList;
-import liquibase.database.ObjectQuotingStrategy;
-import liquibase.database.jvm.JdbcConnection;
-import liquibase.exception.LiquibaseException;
-import liquibase.snapshot.DatabaseSnapshot;
-import liquibase.snapshot.SnapshotControl;
-import liquibase.snapshot.SnapshotGeneratorFactory;
-import liquibase.sql.visitor.SqlVisitor;
-import liquibase.statement.SqlStatement;
-import liquibase.structure.core.Column;
-import liquibase.structure.core.Table;
-
 import static org.obiba.magma.datasource.jdbc.JdbcValueTableWriter.*;
 import static org.obiba.magma.datasource.jdbc.support.TableUtils.newTable;
 
@@ -74,6 +76,8 @@ public class JdbcDatasource extends AbstractDatasource {
       .of(VALUE_TABLES_TABLE, VARIABLES_TABLE, VARIABLE_ATTRIBUTES_TABLE, CATEGORIES_TABLE, CATEGORY_ATTRIBUTES_TABLE);
 
   private static final String TYPE = "jdbc";
+
+  public static final String EPOCH = ZonedDateTime.ofInstant(Instant.EPOCH, ZoneId.of("UTC")).format(DateTimeFormatter.ISO_INSTANT);
 
   private final JdbcTemplate jdbcTemplate;
 
@@ -518,8 +522,8 @@ public class JdbcDatasource extends AbstractDatasource {
 
       builder.withColumn(NAME_COLUMN, "VARCHAR(255)").primaryKey() //
           .withColumn(ENTITY_TYPE_COLUMN, "VARCHAR(255)").notNull() //
-          .withColumn(CREATED_COLUMN, "TIMESTAMP").notNull() //
-          .withColumn(UPDATED_COLUMN, "TIMESTAMP").notNull() //
+          .withColumn(CREATED_COLUMN, "TIMESTAMP", EPOCH).notNull() //
+          .withColumn(UPDATED_COLUMN, "TIMESTAMP", EPOCH).notNull() //
           .withColumn(SQL_NAME_COLUMN, "VARCHAR(255)").notNull();
       changes.add(builder.build());
     }
