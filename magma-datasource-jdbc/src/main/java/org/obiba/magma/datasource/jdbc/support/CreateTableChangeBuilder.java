@@ -23,7 +23,12 @@ public class CreateTableChangeBuilder {
   }
 
   public CreateTableChangeBuilder withColumn(String columnName, String columnType) {
-    lastColumn = getColumn(columnName, columnType);
+    withColumn(columnName, columnType, null);
+    return this;
+  }
+
+  public CreateTableChangeBuilder withColumn(String columnName, String columnType, String defaultValue) {
+    lastColumn = getColumn(columnName, columnType, defaultValue);
     createTableChange.addColumn(lastColumn);
     nullable();
     return this;
@@ -57,10 +62,22 @@ public class CreateTableChangeBuilder {
     return constraints;
   }
 
-  private ColumnConfig getColumn(String columnName, String columnType) {
+  private ColumnConfig getColumn(String columnName, String columnType, String defaultValue) {
     ColumnConfig column = new ColumnConfig();
     column.setName(columnName);
     column.setType(columnType);
+
+    if(defaultValue != null) {
+      switch (columnType.toUpperCase()) {
+        case "DATE":
+        case "TIMESTAMP":
+          column.setDefaultValueDate(defaultValue);
+          break;
+        default:
+          column.setDefaultValue(defaultValue);
+      }
+    }
+
     return column;
   }
 }

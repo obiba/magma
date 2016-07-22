@@ -11,6 +11,17 @@ import java.util.Map;
 import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 
+import com.google.common.base.Strings;
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import liquibase.change.Change;
+import liquibase.change.core.DropTableChange;
+import liquibase.snapshot.DatabaseSnapshot;
+import liquibase.structure.core.Column;
+import liquibase.structure.core.PrimaryKey;
+import liquibase.structure.core.Table;
 import org.obiba.magma.Attribute;
 import org.obiba.magma.Category;
 import org.obiba.magma.Datasource;
@@ -32,19 +43,6 @@ import org.obiba.magma.type.DateTimeType;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
-
-import com.google.common.base.Strings;
-import com.google.common.collect.BiMap;
-import com.google.common.collect.HashBiMap;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-
-import liquibase.change.Change;
-import liquibase.change.core.DropTableChange;
-import liquibase.snapshot.DatabaseSnapshot;
-import liquibase.structure.core.Column;
-import liquibase.structure.core.PrimaryKey;
-import liquibase.structure.core.Table;
 
 import static org.obiba.magma.datasource.jdbc.JdbcValueTableWriter.*;
 import static org.obiba.magma.datasource.jdbc.support.TableUtils.newTable;
@@ -432,11 +430,11 @@ class JdbcValueTable extends AbstractValueTable {
 
   private void createTimestampColumns(CreateTableChangeBuilder changeWithColumns) {
     if(hasCreatedTimestampColumn()) {
-      changeWithColumns.withColumn(getCreatedTimestampColumnName(), "TIMESTAMP").notNull();
+      changeWithColumns.withColumn(getCreatedTimestampColumnName(), "TIMESTAMP", JdbcDatasource.EPOCH).notNull();
     }
 
     if(hasUpdatedTimestampColumn()) {
-      changeWithColumns.withColumn(getUpdatedTimestampColumnName(), "TIMESTAMP").notNull();
+      changeWithColumns.withColumn(getUpdatedTimestampColumnName(), "TIMESTAMP", JdbcDatasource.EPOCH).notNull();
     }
   }
 
