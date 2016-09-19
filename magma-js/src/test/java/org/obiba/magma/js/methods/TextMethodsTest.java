@@ -352,7 +352,7 @@ public class TextMethodsTest extends AbstractJsTest {
     // exclude timezone from the test
     assertThat(str).isNotNull();
     //noinspection ConstantConditions
-    assertThat(str.substring(0, str.lastIndexOf('-'))).isEqualTo("2012-10-23T22:59:00.000");
+    assertThat(str.substring(0, str.lastIndexOf(':'))).isEqualTo("2012-10-23T22:59");
   }
 
   @Test
