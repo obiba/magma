@@ -77,7 +77,7 @@ public class JdbcDatasource extends AbstractDatasource {
 
   private static final String TYPE = "jdbc";
 
-  public static final String EPOCH = ZonedDateTime.ofInstant(Instant.EPOCH, ZoneId.of("UTC")).format(DateTimeFormatter.ISO_INSTANT);
+  public static final String EPOCH = ZonedDateTime.ofInstant(Instant.EPOCH, ZoneId.of("UTC")).plusDays(1).format(DateTimeFormatter.ISO_INSTANT);
 
   private final JdbcTemplate jdbcTemplate;
 
