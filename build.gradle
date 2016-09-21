@@ -151,7 +151,7 @@ allprojects {
     publish {
       repository {
         // these settings are overridden by Artifactory Jenkins plugin
-        repoKey = 'libs-snapshot-local'
+        repoKey = version.endsWith('SNAPSHOT') ? 'libs-snapshot-local' : 'libs-release-local'
         username = 'user'
         password = 'password'
       }
