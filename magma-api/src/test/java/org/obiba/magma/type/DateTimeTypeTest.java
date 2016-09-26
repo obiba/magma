@@ -141,6 +141,15 @@ public class DateTimeTypeTest extends BaseValueTypeTest {
     assertThat(new Date(expected.getTimeInMillis())).isEqualTo((Date) value.getValue());
   }
 
+  @Test
+  public void test_iso8601TimeZone() {
+    Calendar expected = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+    expected.clear();
+    expected.set(2011, Calendar.JANUARY, 25, 14, 30, 47);
+    Value value = DateTimeType.get().valueOf("2011-01-25T14:30:47+00:00");
+    assertThat(new Date(expected.getTimeInMillis())).isEqualTo((Date) value.getValue());
+  }
+
   private void assertValueOfUsingDateFormat(String dateFormat) {
     assertValueOfUsingDateFormat(dateFormat, 0);
   }
