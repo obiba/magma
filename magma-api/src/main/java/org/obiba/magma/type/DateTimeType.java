@@ -27,13 +27,16 @@ public class DateTimeType extends AbstractValueType {
   /**
    * Preferred date time format.
    */
-  private static final SimpleDateFormat ISO_8601 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+  private static final SimpleDateFormat ISO_8601 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSX");
 
   /**
    * These are used to support other common date time formats.
    */
   private final SimpleDateFormat[] dateFormats = new SimpleDateFormat[] { //
       ISO_8601, //
+      new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssX"), //
+      new SimpleDateFormat("yyyy-MM-dd'T'HH:mmX"), //
+      new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ"), //
       new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ"), //
       new SimpleDateFormat("yyyy-MM-dd'T'HH:mmZ"), //
       new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSzzz"), //
