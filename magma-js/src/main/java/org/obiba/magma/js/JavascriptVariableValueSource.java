@@ -94,21 +94,8 @@ public class JavascriptVariableValueSource extends JavascriptValueSource impleme
   }
 
   public void validateScript() throws EvaluatorException {
-    if (valueTable == null) {
-      log.trace("Validate {} script", variable.getName());
-      initialiseIfNot();
-    } else {
-      Value tableLastUpdate = valueTable.getTimestamps().getLastUpdate();
-      if(lastScriptValidation == null || !lastScriptValidation.equals(tableLastUpdate)) {
-        log.trace("Validate {} script", variable.getName());
-        initialiseIfNot();
-        //OPAL-2546 commented until this issue is resolved
-        //new VariableScriptValidator(variable, valueTable).validateScript();
-        lastScriptValidation = tableLastUpdate;
-      } else {
-        log.trace("Skip {} script validation", variable.getName());
-      }
-    }
+    log.trace("Validate {} script", variable.getName());
+    initialiseIfNot();
   }
 
   @Override
