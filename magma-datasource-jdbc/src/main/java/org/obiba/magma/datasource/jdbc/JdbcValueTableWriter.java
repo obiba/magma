@@ -110,7 +110,7 @@ class JdbcValueTableWriter implements ValueTableWriter {
 
   private final Multimap<String, List<Object>> batch = HashMultimap.create();
 
-  private final String ESC_CATEGORY_ATTRIBUTES_TABLE, ESC_DATASOURCE_COLUMN, ESC_VALUE_TABLE_COLUMN, ESC_NAME_COLUMN,
+  private final String ESC_CATEGORY_ATTRIBUTES_TABLE, ESC_DATASOURCE_COLUMN, ESC_VALUE_TABLE_COLUMN, ESC_VARIABLE_COLUMN, ESC_NAME_COLUMN,
       ESC_CATEGORIES_TABLE, ESC_VARIABLES_TABLE, ESC_VARIABLE_ATTRIBUTES_TABLE;
 
   private int batchSize;
@@ -123,6 +123,7 @@ class JdbcValueTableWriter implements ValueTableWriter {
     ESC_VARIABLE_ATTRIBUTES_TABLE = valueTable.getDatasource().escapeTableName(VARIABLE_ATTRIBUTES_TABLE);
     ESC_DATASOURCE_COLUMN = valueTable.getDatasource().escapeColumnName(DATASOURCE_COLUMN);
     ESC_VALUE_TABLE_COLUMN = valueTable.getDatasource().escapeColumnName(VALUE_TABLE_COLUMN);
+    ESC_VARIABLE_COLUMN = valueTable.getDatasource().escapeColumnName(VARIABLE_COLUMN);
     ESC_NAME_COLUMN = valueTable.getDatasource().escapeColumnName(NAME_COLUMN);
     batchSize = valueTable.getDatasource().getSettings().getBatchSize();
   }
@@ -375,28 +376,32 @@ class JdbcValueTableWriter implements ValueTableWriter {
           ? new Object[] { getDatasource().getName(), valueTable.getName(), variableName }
           : new Object[] { valueTable.getName(), variableName };
 
+      // Delete category attributes
       String sql = settings.isMultipleDatasources()
           ? String
           .format("DELETE FROM %s WHERE %s = ? AND %s = ? AND %s = ?", ESC_CATEGORY_ATTRIBUTES_TABLE, ESC_DATASOURCE_COLUMN,
-              ESC_VALUE_TABLE_COLUMN, ESC_NAME_COLUMN)
+              ESC_VALUE_TABLE_COLUMN, ESC_VARIABLE_COLUMN)
           : String.format("DELETE FROM %s WHERE %s = ? AND %s = ?", ESC_CATEGORY_ATTRIBUTES_TABLE, ESC_VALUE_TABLE_COLUMN,
-              ESC_NAME_COLUMN);
+          ESC_VARIABLE_COLUMN);
       jdbcTemplate.update(sql, params);
 
+      // Delete categories
       sql = settings.isMultipleDatasources()
           ? String.format("DELETE FROM %s WHERE %s = ? AND %s = ? AND %s = ?", ESC_CATEGORIES_TABLE, ESC_DATASOURCE_COLUMN,
-          ESC_VALUE_TABLE_COLUMN, ESC_NAME_COLUMN)
-          : String.format("DELETE FROM %s WHERE %s = ? AND %s = ?", ESC_CATEGORIES_TABLE, ESC_VALUE_TABLE_COLUMN, ESC_NAME_COLUMN);
+          ESC_VALUE_TABLE_COLUMN, ESC_VARIABLE_COLUMN)
+          : String.format("DELETE FROM %s WHERE %s = ? AND %s = ?", ESC_CATEGORIES_TABLE, ESC_VALUE_TABLE_COLUMN, ESC_VARIABLE_COLUMN);
       jdbcTemplate.update(sql, params);
 
+      // Delete variable attributes
       sql = settings.isMultipleDatasources()
           ? String
           .format("DELETE FROM %s WHERE %s = ? AND %s = ? AND %s = ?", ESC_VARIABLE_ATTRIBUTES_TABLE, ESC_DATASOURCE_COLUMN,
-              ESC_VALUE_TABLE_COLUMN, ESC_NAME_COLUMN)
+              ESC_VALUE_TABLE_COLUMN, ESC_VARIABLE_COLUMN)
           : String.format("DELETE FROM %s WHERE %s = ? AND %s = ?", ESC_VARIABLE_ATTRIBUTES_TABLE, ESC_VALUE_TABLE_COLUMN,
-              ESC_NAME_COLUMN);
+          ESC_VARIABLE_COLUMN);
       jdbcTemplate.update(sql, params);
 
+      // Delete variable
       sql = settings.isMultipleDatasources()
           ? String.format("DELETE FROM %s WHERE %s = ? AND %s = ? AND %s = ?", ESC_VARIABLES_TABLE, ESC_DATASOURCE_COLUMN,
           ESC_VALUE_TABLE_COLUMN, ESC_NAME_COLUMN)
