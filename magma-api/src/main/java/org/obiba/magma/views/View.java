@@ -261,10 +261,14 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
   }
 
   @Override
-  public Iterable<ValueSet> getValueSets() {
+  public Iterable<ValueSet> getValueSets(Iterable<VariableEntity> entities) {
+    List<VariableEntity> unmappedEntities = Lists.newArrayList();
+    for (VariableEntity entity : entities) {
+      unmappedEntities.add(getVariableEntityMappingFunction().unapply(entity));
+    }
     // do not use Guava functional stuff to avoid multiple iterations over valueSets
     List<ValueSet> valueSets = Lists.newArrayList();
-    for(ValueSet valueSet : super.getValueSets()) {
+    for(ValueSet valueSet : super.getValueSets(unmappedEntities)) {
       if(getWhereClause().where(valueSet, this)) { // taking into account the WhereClause
         // replacing each ValueSet with one that points at the current View
         valueSet = getValueSetMappingFunction().apply(valueSet);
@@ -275,17 +279,6 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
       }
     }
     return valueSets;
-  }
-
-  @Override
-  public Iterable<ValueSet> getValueSets(Set<VariableEntity> entities) {
-    return Iterables
-        .transform(entities, new Function<VariableEntity, ValueSet>() {
-          @Override
-          public ValueSet apply(VariableEntity from) {
-            return getValueSet(from);
-          }
-        });
   }
 
   @Override

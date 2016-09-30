@@ -1,9 +1,11 @@
 package org.obiba.magma.views;
 
+import java.util.List;
 import java.util.Set;
 
 import javax.validation.constraints.NotNull;
 
+import com.google.common.collect.*;
 import org.obiba.magma.NoSuchValueSetException;
 import org.obiba.magma.NoSuchVariableException;
 import org.obiba.magma.Value;
@@ -18,10 +20,6 @@ import org.obiba.magma.transform.BijectiveFunctions;
 import org.obiba.magma.transform.TransformingValueTable;
 
 import com.google.common.base.Predicate;
-import com.google.common.collect.BiMap;
-import com.google.common.collect.HashBiMap;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Iterables;
 
 public abstract class AbstractTransformingValueTableWrapper extends AbstractValueTableWrapper
     implements TransformingValueTable {
@@ -78,15 +76,26 @@ public abstract class AbstractTransformingValueTableWrapper extends AbstractValu
 
   @Override
   public Iterable<ValueSet> getValueSets() {
-    // Transform the Iterable, replacing each ValueSet with one that points at the current View.
-    return Iterables
-        .filter(Iterables.transform(super.getValueSets(), getValueSetMappingFunction()), new Predicate<ValueSet>() {
+    List<ValueSet> valueSets = Lists.newArrayList();
+    for (ValueSet valueSet : super.getValueSets()) {
+      valueSets.add(getValueSetMappingFunction().apply(valueSet));
+    }
+    return valueSets;
+  }
 
-          @Override
-          public boolean apply(ValueSet input) {
-            return hasValueSet(input.getVariableEntity());
-          }
-        });
+  @Override
+  public Iterable<ValueSet> getValueSets(Iterable<VariableEntity> entities) {
+    List<VariableEntity> unmappedEntities = Lists.newArrayList();
+    for (VariableEntity entity : entities) {
+      VariableEntity unmapped = getVariableEntityMappingFunction().unapply(entity);
+      if(unmapped == null) throw new NoSuchValueSetException(this, entity);
+      unmappedEntities.add(unmapped);
+    }
+    List<ValueSet> valueSets = Lists.newArrayList();
+    for (ValueSet valueSet : super.getValueSets(unmappedEntities)) {
+      valueSets.add(getValueSetMappingFunction().apply(valueSet));
+    }
+    return valueSets;
   }
 
   @Override

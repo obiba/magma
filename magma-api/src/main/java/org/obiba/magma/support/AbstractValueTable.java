@@ -94,15 +94,20 @@ public abstract class AbstractValueTable implements ValueTable, Initialisable {
     return getValueSets(getVariableEntityProvider().getVariableEntities());
   }
 
+  /**
+   * Simple implementation of the a {@link ValueSet} iterable. A more specific one would
+   * perform batch extractions.
+   *
+   * @param entities
+   * @return
+   */
   @Override
-  public Iterable<ValueSet> getValueSets(Set<VariableEntity> entities) {
-    return Iterables
-        .transform(entities, new Function<VariableEntity, ValueSet>() {
-          @Override
-          public ValueSet apply(VariableEntity from) {
-            return getValueSet(from);
-          }
-        });
+  public Iterable<ValueSet> getValueSets(Iterable<VariableEntity> entities) {
+    List<ValueSet> valueSets = Lists.newArrayList();
+    for (VariableEntity entity : entities) {
+      valueSets.add(getValueSet(entity));
+    }
+    return valueSets;
   }
 
   @Override

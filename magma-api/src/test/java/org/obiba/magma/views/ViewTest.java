@@ -6,17 +6,9 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.junit.Test;
-import org.obiba.magma.Datasource;
-import org.obiba.magma.IncompatibleEntityTypeException;
-import org.obiba.magma.NoSuchValueSetException;
-import org.obiba.magma.NoSuchVariableException;
-import org.obiba.magma.Value;
-import org.obiba.magma.ValueSet;
-import org.obiba.magma.ValueTable;
-import org.obiba.magma.ValueType;
-import org.obiba.magma.Variable;
-import org.obiba.magma.VariableEntity;
-import org.obiba.magma.VariableValueSource;
+import org.mockito.internal.matchers.Null;
+import org.obiba.magma.*;
+import org.obiba.magma.support.NullTimestamps;
 import org.obiba.magma.support.ValueSetBean;
 import org.obiba.magma.support.VariableEntityBean;
 import org.obiba.magma.test.AbstractMagmaTest;
@@ -26,6 +18,7 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 
 import static org.fest.assertions.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.anyObject;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -144,8 +137,10 @@ public class ViewTest extends AbstractMagmaTest {
     ValueSet valueSetBar = new ValueSetBean(valueTableMock, variableEntityBar);
     valueSets.add(valueSetFoo);
     valueSets.add(valueSetBar);
+    Timestamps timestamps = NullTimestamps.get();
 
-    when(valueTableMock.getValueSets()).thenReturn(valueSets);
+    when(valueTableMock.getValueSets(any(Iterable.class))).thenReturn(valueSets);
+    when(valueTableMock.getTimestamps()).thenReturn(timestamps);
 
     View view = View.Builder.newView("view", valueTableMock).build();
     Iterable<ValueSet> result = view.getValueSets();
@@ -170,7 +165,10 @@ public class ViewTest extends AbstractMagmaTest {
     valueSets.add(valueSetFoo);
     valueSets.add(valueSetBar);
 
-    when(valueTableMock.getValueSets()).thenReturn(valueSets);
+    Timestamps timestamps = NullTimestamps.get();
+
+    when(valueTableMock.getValueSets(any(Iterable.class))).thenReturn(valueSets);
+    when(valueTableMock.getTimestamps()).thenReturn(timestamps);
     when(whereClauseMock.where((ValueSet) anyObject(), (View) anyObject())).thenReturn(true);
 
     View view = View.Builder.newView("view", valueTableMock).where(whereClauseMock).build();
@@ -195,8 +193,10 @@ public class ViewTest extends AbstractMagmaTest {
     ValueSet valueSetExclude = new ValueSetBean(valueTableMock, variableEntityExclude);
     valueSets.add(valueSetInclude);
     valueSets.add(valueSetExclude);
+    Timestamps timestamps = NullTimestamps.get();
 
-    when(valueTableMock.getValueSets()).thenReturn(valueSets);
+    when(valueTableMock.getValueSets(any(Iterable.class))).thenReturn(valueSets);
+    when(valueTableMock.getTimestamps()).thenReturn(timestamps);
 
     View view = View.Builder.newView("view", valueTableMock).where(whereClauseMock).build();
     when(whereClauseMock.where(valueSetInclude, view)).thenReturn(true);

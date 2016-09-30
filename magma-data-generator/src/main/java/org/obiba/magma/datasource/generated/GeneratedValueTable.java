@@ -1,15 +1,11 @@
 package org.obiba.magma.datasource.generated;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.Set;
-import java.util.SortedSet;
+import java.util.*;
 
 import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 
+import com.google.common.collect.*;
 import org.apache.commons.math3.random.JDKRandomGenerator;
 import org.apache.commons.math3.random.RandomGenerator;
 import org.obiba.magma.Datasource;
@@ -27,10 +23,6 @@ import org.obiba.magma.type.DateTimeType;
 
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 
 public class GeneratedValueTable implements ValueTable {
 
@@ -152,14 +144,12 @@ public class GeneratedValueTable implements ValueTable {
   }
 
   @Override
-  public Iterable<ValueSet> getValueSets(Set<VariableEntity> entities) {
-    return Iterables.transform(entities, new Function<VariableEntity, ValueSet>() {
-
-      @Override
-      public ValueSet apply(VariableEntity from) {
-        return new GeneratedValueSet(GeneratedValueTable.this, from);
-      }
-    });
+  public Iterable<ValueSet> getValueSets(Iterable<VariableEntity> entities) {
+    List<ValueSet> valueSets = Lists.newArrayList();
+    for (VariableEntity entity : entities) {
+      valueSets.add(new GeneratedValueSet(GeneratedValueTable.this, entity));
+    }
+    return valueSets;
   }
 
   @Override

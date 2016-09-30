@@ -8,6 +8,7 @@ import java.util.SortedSet;
 
 import javax.validation.constraints.NotNull;
 
+import com.google.common.collect.Lists;
 import org.obiba.magma.Datasource;
 import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.NoSuchValueSetException;
@@ -141,14 +142,12 @@ public class CachedValueTable implements ValueTable {
   }
 
   @Override
-  public Iterable<ValueSet> getValueSets(Set<VariableEntity> entities) {
-    List<ValueSet> res = new ArrayList<>();
-
+  public Iterable<ValueSet> getValueSets(Iterable<VariableEntity> entities) {
+    List<ValueSet> valueSets = Lists.newArrayList();
     for(VariableEntity variableEntity: entities) {
-      res.add(new CachedValueSet(this, variableEntity, cache));
+      valueSets.add(new CachedValueSet(this, variableEntity, cache));
     }
-
-    return res;
+    return valueSets;
   }
 
   @Override
