@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
 
+import javax.sql.rowset.Joinable;
 import javax.validation.constraints.NotNull;
 
 import org.obiba.magma.Datasource;
@@ -227,13 +228,12 @@ public class JoinTable implements ValueTable, Initialisable {
   }
 
   @Override
-  public Iterable<ValueSet> getValueSets(Set<VariableEntity> entities) {
-    return Iterables.transform(entities, new Function<VariableEntity, ValueSet>() {
-      @Override
-      public ValueSet apply(VariableEntity from) {
-        return new JoinedValueSet(JoinTable.this, from);
-      }
-    });
+  public Iterable<ValueSet> getValueSets(Iterable<VariableEntity> entities) {
+    List<ValueSet> valueSets = Lists.newArrayList();
+    for (VariableEntity entity : entities) {
+      valueSets.add(new JoinedValueSet(JoinTable.this, entity));
+    }
+    return valueSets;
   }
 
   @Override

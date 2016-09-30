@@ -75,7 +75,7 @@ public class NullValueTable implements ValueTable {
   }
 
   @Override
-  public Iterable<ValueSet> getValueSets(Set<VariableEntity> entities) {
+  public Iterable<ValueSet> getValueSets(Iterable<VariableEntity> entities) {
     return ImmutableList.of();
   }
 
