@@ -25,6 +25,8 @@ public interface ValueTable extends Timestamped {
 
   Iterable<ValueSet> getValueSets();
 
+  Iterable<ValueSet> getValueSets(Set<VariableEntity> entities);
+
   int getValueSetCount();
 
   ValueSet getValueSet(VariableEntity entity) throws NoSuchValueSetException;

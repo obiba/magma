@@ -137,12 +137,14 @@ public class CachedValueTable implements ValueTable {
 
   @Override
   public Iterable<ValueSet> getValueSets() {
+    return getValueSets(getVariableEntities());
+  }
 
-    Set<VariableEntity> variableEntities = getVariableEntities();
-
+  @Override
+  public Iterable<ValueSet> getValueSets(Set<VariableEntity> entities) {
     List<ValueSet> res = new ArrayList<>();
 
-    for(VariableEntity variableEntity: variableEntities) {
+    for(VariableEntity variableEntity: entities) {
       res.add(new CachedValueSet(this, variableEntity, cache));
     }
 

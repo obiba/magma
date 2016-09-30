@@ -75,6 +75,11 @@ public class NullValueTable implements ValueTable {
   }
 
   @Override
+  public Iterable<ValueSet> getValueSets(Set<VariableEntity> entities) {
+    return ImmutableList.of();
+  }
+
+  @Override
   public ValueSet getValueSet(VariableEntity entity) throws NoSuchValueSetException {
     throw new NoSuchValueSetException(this, entity);
   }

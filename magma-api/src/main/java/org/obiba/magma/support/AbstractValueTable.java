@@ -91,8 +91,13 @@ public abstract class AbstractValueTable implements ValueTable, Initialisable {
 
   @Override
   public Iterable<ValueSet> getValueSets() {
+    return getValueSets(getVariableEntityProvider().getVariableEntities());
+  }
+
+  @Override
+  public Iterable<ValueSet> getValueSets(Set<VariableEntity> entities) {
     return Iterables
-        .transform(getVariableEntityProvider().getVariableEntities(), new Function<VariableEntity, ValueSet>() {
+        .transform(entities, new Function<VariableEntity, ValueSet>() {
           @Override
           public ValueSet apply(VariableEntity from) {
             return getValueSet(from);
