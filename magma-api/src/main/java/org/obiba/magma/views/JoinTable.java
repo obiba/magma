@@ -223,7 +223,12 @@ public class JoinTable implements ValueTable, Initialisable {
 
   @Override
   public Iterable<ValueSet> getValueSets() {
-    return Iterables.transform(getVariableEntities(), new Function<VariableEntity, ValueSet>() {
+    return getValueSets(getVariableEntities());
+  }
+
+  @Override
+  public Iterable<ValueSet> getValueSets(Set<VariableEntity> entities) {
+    return Iterables.transform(entities, new Function<VariableEntity, ValueSet>() {
       @Override
       public ValueSet apply(VariableEntity from) {
         return new JoinedValueSet(JoinTable.this, from);

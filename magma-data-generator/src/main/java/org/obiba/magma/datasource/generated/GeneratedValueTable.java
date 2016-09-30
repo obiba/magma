@@ -148,6 +148,11 @@ public class GeneratedValueTable implements ValueTable {
 
   @Override
   public Iterable<ValueSet> getValueSets() {
+    return getValueSets(entities);
+  }
+
+  @Override
+  public Iterable<ValueSet> getValueSets(Set<VariableEntity> entities) {
     return Iterables.transform(entities, new Function<VariableEntity, ValueSet>() {
 
       @Override
@@ -155,7 +160,6 @@ public class GeneratedValueTable implements ValueTable {
         return new GeneratedValueSet(GeneratedValueTable.this, from);
       }
     });
-
   }
 
   @Override

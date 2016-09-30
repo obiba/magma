@@ -278,6 +278,17 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
   }
 
   @Override
+  public Iterable<ValueSet> getValueSets(Set<VariableEntity> entities) {
+    return Iterables
+        .transform(entities, new Function<VariableEntity, ValueSet>() {
+          @Override
+          public ValueSet apply(VariableEntity from) {
+            return getValueSet(from);
+          }
+        });
+  }
+
+  @Override
   public ValueSet getValueSet(VariableEntity entity) throws NoSuchValueSetException {
     VariableEntity unmapped = getVariableEntityMappingFunction().unapply(entity);
     if(unmapped == null) throw new NoSuchValueSetException(this, entity);

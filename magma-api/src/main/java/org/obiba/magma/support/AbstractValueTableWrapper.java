@@ -79,6 +79,11 @@ public abstract class AbstractValueTableWrapper implements ValueTableWrapper {
   }
 
   @Override
+  public Iterable<ValueSet> getValueSets(Set<VariableEntity> entities) {
+    return getWrappedValueTable().getValueSets(entities);
+  }
+
+  @Override
   public boolean hasVariable(String name) {
     return getWrappedValueTable().hasVariable(name);
   }
