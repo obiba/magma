@@ -97,6 +97,7 @@ public class JdbcValueSet extends ValueSetBean {
    * @return
    */
   private Value convertValue(Variable variable, Value value) {
+    if (value == null) return variable.isRepeatable() ? variable.getValueType().nullSequence() : variable.getValueType().nullValue();
     if(value.getValueType() != variable.getValueType()) {
       return variable.isRepeatable() ? convertToSequence(variable, value) : variable.getValueType().convert(value);
     }
