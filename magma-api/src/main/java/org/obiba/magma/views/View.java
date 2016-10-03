@@ -302,13 +302,11 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
 
   @Override
   public Iterable<Timestamps> getValueSetTimestamps(SortedSet<VariableEntity> entities) {
-    return Iterables.transform(entities, new Function<VariableEntity, Timestamps>() {
-      @Nullable
-      @Override
-      public Timestamps apply(@Nullable VariableEntity input) {
-        return getValueSetTimestamps(input);
-      }
-    });
+    List<Timestamps> timestamps = Lists.newArrayList();
+    for (VariableEntity entity : entities) {
+      timestamps.add(getValueSetTimestamps(entity));
+    }
+    return timestamps;
   }
 
   @Override
