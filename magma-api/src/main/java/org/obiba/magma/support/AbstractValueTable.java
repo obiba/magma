@@ -12,7 +12,7 @@ import java.util.SortedSet;
 import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 
-import com.google.common.collect.Sets;
+import com.google.common.collect.*;
 import org.obiba.magma.Datasource;
 import org.obiba.magma.Initialisable;
 import org.obiba.magma.NoSuchValueSetException;
@@ -28,11 +28,10 @@ import org.obiba.magma.VariableValueSourceFactory;
 
 import com.google.common.base.Function;
 import com.google.common.base.Predicates;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
 
 public abstract class AbstractValueTable implements ValueTable, Initialisable {
+
+  protected static final int ENTITY_BATCH_SIZE = 100;
 
   @NotNull
   private final Datasource datasource;
@@ -43,6 +42,8 @@ public abstract class AbstractValueTable implements ValueTable, Initialisable {
   private final Map<String, VariableValueSource> sources = new LinkedHashMap<>();
 
   private VariableEntityProvider variableEntityProvider;
+
+  private int entityBatchSize = ENTITY_BATCH_SIZE;
 
   @SuppressWarnings("ConstantConditions")
   public AbstractValueTable(@NotNull Datasource datasource, @NotNull String name,
@@ -95,20 +96,28 @@ public abstract class AbstractValueTable implements ValueTable, Initialisable {
     return getValueSets(getVariableEntityProvider().getVariableEntities());
   }
 
+  @Override
+  public Iterable<ValueSet> getValueSets(Iterable<VariableEntity> entities) {
+    ImmutableList.Builder<ValueSet> builder = ImmutableList.builder();
+    Iterable<List<VariableEntity>> partitions = Iterables.partition(entities, entityBatchSize);
+    for (List<VariableEntity> partition : partitions) {
+      builder.addAll(getValueSetsBatch(partition));
+    }
+    return builder.build();
+  }
+
   /**
-   * Simple implementation of the a {@link ValueSet} iterable. A more specific one would
-   * perform batch extractions.
+   * Simple implementation of a value set fetcher; a more specific one would fetch value sets in a bulk query.
    *
    * @param entities
    * @return
    */
-  @Override
-  public Iterable<ValueSet> getValueSets(Iterable<VariableEntity> entities) {
-    List<ValueSet> valueSets = Lists.newArrayList();
+  protected List<ValueSet> getValueSetsBatch(List<VariableEntity> entities) {
+    ImmutableList.Builder<ValueSet> builder = ImmutableList.builder();
     for (VariableEntity entity : entities) {
-      valueSets.add(getValueSet(entity));
+      builder.add(getValueSet(entity));
     }
-    return valueSets;
+    return builder.build();
   }
 
   @Override

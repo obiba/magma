@@ -27,7 +27,7 @@ ext {
 
       flapdoodle_embed_mongo: 'de.flapdoodle.embed:de.flapdoodle.embed.mongo:1.50.0',
 
-      guava: 'com.google.guava:guava:19.0-rc1',
+      guava: 'com.google.guava:guava:19.0',
 
       hibernate_core: "org.hibernate:hibernate-core:${hibernateVersion}",
       hibernate_ehcache: "org.hibernate:hibernate-ehcache:${hibernateVersion}",
