@@ -54,17 +54,15 @@ public abstract class AbstractTransformingValueTableWrapper extends AbstractValu
 
   @Override
   public Set<VariableEntity> getVariableEntities() {
-    return ImmutableSet.copyOf(Iterables
-        .filter(Iterables.transform(super.getVariableEntities(), getVariableEntityMappingFunction()),
-            new Predicate<VariableEntity>() {
-
-              @Override
-              public boolean apply(VariableEntity input) {
-                // Only VariableEntities for which hasValueSet() is true (this will usually test the where clause)
-                return hasValueSet(input);
-              }
-
-            }));
+    ImmutableSet.Builder<VariableEntity> builder = ImmutableSet.builder();
+    for (VariableEntity entity : super.getVariableEntities()) {
+      VariableEntity mappedEntity = getVariableEntityMappingFunction().apply(entity);
+      // Only VariableEntities for which hasValueSet() is true (this will usually test the where clause)
+      if (hasValueSet(mappedEntity)) {
+        builder.add(mappedEntity);
+      }
+    }
+    return builder.build();
   }
 
   @Override
@@ -72,15 +70,6 @@ public abstract class AbstractTransformingValueTableWrapper extends AbstractValu
     if(entity == null) return false;
     VariableEntity unmapped = getVariableEntityMappingFunction().unapply(entity);
     return unmapped != null && super.hasValueSet(unmapped);
-  }
-
-  @Override
-  public Iterable<ValueSet> getValueSets() {
-    List<ValueSet> valueSets = Lists.newArrayList();
-    for (ValueSet valueSet : super.getValueSets()) {
-      valueSets.add(getValueSetMappingFunction().apply(valueSet));
-    }
-    return valueSets;
   }
 
   @Override

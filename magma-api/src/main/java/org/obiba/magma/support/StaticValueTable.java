@@ -1,10 +1,12 @@
 package org.obiba.magma.support;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import javax.validation.constraints.NotNull;
 
+import com.google.common.collect.*;
 import org.obiba.magma.AbstractVariableValueSource;
 import org.obiba.magma.Datasource;
 import org.obiba.magma.NoSuchValueSetException;
@@ -19,10 +21,6 @@ import org.obiba.magma.VectorSource;
 import org.obiba.magma.VectorSourceNotSupportedException;
 
 import com.google.common.base.Function;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 
 @SuppressWarnings("UnusedDeclaration")
 public class StaticValueTable extends AbstractValueTable {
@@ -40,13 +38,8 @@ public class StaticValueTable extends AbstractValueTable {
 
     this.entityType = entityType == null ? "" : entityType;
 
-    this.entities = Sets.newLinkedHashSet(Iterables.transform(entities, new Function<String, VariableEntity>() {
+    this.entities = Sets.newLinkedHashSet(asVariableEntities(entities));
 
-      @Override
-      public VariableEntity apply(String from) {
-        return new VariableEntityBean(StaticValueTable.this.entityType, from);
-      }
-    }));
     setVariableEntityProvider(new VariableEntityProvider() {
 
       @Override
@@ -70,6 +63,15 @@ public class StaticValueTable extends AbstractValueTable {
 
   public StaticValueTable(Datasource datasource, String name, Iterable<String> entities) {
     this(datasource, name, entities, "Participant");
+  }
+
+  private Iterable<VariableEntity> asVariableEntities(Iterable<String> entities) {
+    List<VariableEntity> variableEntities = Lists.newArrayList();
+    if (entities == null) return variableEntities;
+    for (String entity : entities) {
+      variableEntities.add(new VariableEntityBean(StaticValueTable.this.entityType, entity));
+    }
+    return variableEntities;
   }
 
   @NotNull

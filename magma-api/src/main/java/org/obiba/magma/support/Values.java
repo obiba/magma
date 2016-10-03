@@ -1,6 +1,7 @@
 package org.obiba.magma.support;
 
 import java.util.Arrays;
+import java.util.List;
 
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueType;
@@ -41,7 +42,12 @@ public final class Values {
    * @return
    */
   public static Iterable<Value> asValues(ValueType type, Object... values) {
-    return Lists.newArrayList(Iterables.transform(Arrays.asList(values), toValueFunction(type)));
+    List<Value> valueList = Lists.newArrayList();
+    if (values == null) return valueList;
+    for (Object value : values) {
+      valueList.add(type.valueOf(value));
+    }
+    return valueList;
   }
 
   /**

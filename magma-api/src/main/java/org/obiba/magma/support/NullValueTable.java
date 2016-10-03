@@ -2,12 +2,14 @@ package org.obiba.magma.support;
 
 import java.lang.ref.WeakReference;
 import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 import java.util.SortedSet;
 
 import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 
+import com.google.common.collect.Lists;
 import org.obiba.magma.Datasource;
 import org.obiba.magma.MagmaEngine;
 import org.obiba.magma.NoSuchValueSetException;
@@ -101,13 +103,11 @@ public class NullValueTable implements ValueTable {
 
   @Override
   public Iterable<Timestamps> getValueSetTimestamps(SortedSet<VariableEntity> entities) {
-    return Iterables.transform(entities, new Function<VariableEntity, Timestamps>() {
-      @Nullable
-      @Override
-      public Timestamps apply(@Nullable VariableEntity input) {
-        return getValueSetTimestamps(input);
-      }
-    });
+    List<Timestamps> timestamps = Lists.newArrayList();
+    for (VariableEntity entity : entities) {
+      timestamps.add(getValueSetTimestamps(entity));
+    }
+    return timestamps;
   }
 
   @Override

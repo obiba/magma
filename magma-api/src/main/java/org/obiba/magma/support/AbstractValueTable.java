@@ -12,6 +12,7 @@ import java.util.SortedSet;
 import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 
+import com.google.common.collect.Sets;
 import org.obiba.magma.Datasource;
 import org.obiba.magma.Initialisable;
 import org.obiba.magma.NoSuchValueSetException;
@@ -138,14 +139,12 @@ public abstract class AbstractValueTable implements ValueTable, Initialisable {
 
   @Override
   public Set<Variable> getVariables() {
-    Iterable<Variable> variables = Iterables.transform(getSources(), new Function<VariableValueSource, Variable>() {
-      @Override
-      public Variable apply(VariableValueSource from) {
-        return from.getVariable();
-      }
-    });
-    // Filter null
-    return ImmutableSet.copyOf(Iterables.filter(variables, Predicates.not(Predicates.isNull())));
+    List<Variable> variables = Lists.newArrayList();
+    for(VariableValueSource source : getSources()) {
+      Variable variable = source.getVariable();
+      if (variable != null) variables.add(variable);
+    }
+    return ImmutableSet.copyOf(variables);
   }
 
   @Override
@@ -232,13 +231,11 @@ public abstract class AbstractValueTable implements ValueTable, Initialisable {
 
   @Override
   public Iterable<Timestamps> getValueSetTimestamps(SortedSet<VariableEntity> entities) {
-    return Iterables.transform(entities, new Function<VariableEntity, Timestamps>() {
-      @Nullable
-      @Override
-      public Timestamps apply(@Nullable VariableEntity input) {
-        return getValueSetTimestamps(input);
-      }
-    });
+    List<Timestamps> timestamps = Lists.newArrayList();
+    for (VariableEntity entity : entities) {
+      timestamps.add(getValueSetTimestamps(entity));
+    }
+    return timestamps;
   }
 
   @Override
