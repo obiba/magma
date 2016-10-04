@@ -60,6 +60,7 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ConnectionCallback;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionDefinition;
@@ -80,6 +81,8 @@ public class JdbcDatasource extends AbstractDatasource {
   public static final String EPOCH = "1970-01-02 00:00:00.000";
 
   private final JdbcTemplate jdbcTemplate;
+
+  private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
   private final JdbcDatasourceSettings settings;
 
@@ -106,6 +109,7 @@ public class JdbcDatasource extends AbstractDatasource {
     if(datasource == null) throw new IllegalArgumentException("null datasource");
     this.settings = settings;
     jdbcTemplate = new JdbcTemplate(datasource);
+    namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(datasource);
     this.txManager = txManager;
     ESC_ENTITY_TYPE_COLUMN = escapeColumnName(ENTITY_TYPE_COLUMN);
     ESC_VALUE_TABLES_TABLE = escapeTableName(VALUE_TABLES_TABLE);
@@ -423,6 +427,10 @@ public class JdbcDatasource extends AbstractDatasource {
     return jdbcTemplate;
   }
 
+  public NamedParameterJdbcTemplate getNamedParameterJdbcTemplate() {
+    return namedParameterJdbcTemplate;
+  }
+
   TransactionTemplate getTransactionTemplate() {
     TransactionTemplate txTemplate = new TransactionTemplate(txManager);
     txTemplate.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
@@ -460,13 +468,8 @@ public class JdbcDatasource extends AbstractDatasource {
 
   DatabaseSnapshot getDatabaseSnapshot() {
     if(snapshot == null) {
-      snapshot = doWithDatabase(new DatabaseCallback<DatabaseSnapshot>() {
-        @Override
-        public DatabaseSnapshot doInDatabase(Database database) throws LiquibaseException {
-          return SnapshotGeneratorFactory.getInstance()
-              .createSnapshot(database.getDefaultSchema(), database, new SnapshotControl(database));
-        }
-      });
+      snapshot = doWithDatabase(database -> SnapshotGeneratorFactory.getInstance()
+          .createSnapshot(database.getDefaultSchema(), database, new SnapshotControl(database)));
     }
 
     return snapshot;

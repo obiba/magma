@@ -102,6 +102,10 @@ public class JdbcValueTableSettings {
     return Collections.unmodifiableList(entityIdentifierColumns);
   }
 
+  public String getEntityIdentifierColumn() {
+    return entityIdentifierColumns.get(0);
+  }
+
   public String getCreatedTimestampColumnName() {
     return createdTimestampColumnName;
   }

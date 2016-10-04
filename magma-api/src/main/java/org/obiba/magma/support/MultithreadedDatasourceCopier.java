@@ -253,18 +253,34 @@ public class MultithreadedDatasourceCopier {
     @Override
     public void run() {
       try {
-        VariableEntity entity = null;
-        while((entity = readQueue.poll()) != null) {
-          copyEntity(entity);
+        List<VariableEntity> entities = Lists.newArrayList();
+        VariableEntity entity;
+        while(entities.size() < ValueTable.ENTITY_BATCH_SIZE && (entity = readQueue.poll()) != null) {
+          if (sourceTable.hasValueSet(entity)) {
+            entities.add(entity);
+          }
+          if (entities.size() == ValueTable.ENTITY_BATCH_SIZE) {
+            for (ValueSet valueSet : sourceTable.getValueSets(entities)) {
+              copyValueSet(valueSet);
+            }
+            entities.clear();
+          }
+        }
+        if (entities.size() > 0) {
+          for (ValueSet valueSet : sourceTable.getValueSets(entities)) {
+            copyValueSet(valueSet);
+          }
         }
       } catch(InterruptedException ignored) {
       }
     }
 
     private void copyEntity(VariableEntity entity) throws InterruptedException {
-      if(!sourceTable.hasValueSet(entity)) return;
+      if (!sourceTable.hasValueSet(entity)) return;
+       copyValueSet(sourceTable.getValueSet(entity));
+    }
 
-      ValueSet valueSet = sourceTable.getValueSet(entity);
+    private void copyValueSet(ValueSet valueSet) throws InterruptedException {
       boolean hasOnlyNullValues = true;
       Value[] values = new Value[sources.length];
 
@@ -275,10 +291,10 @@ public class MultithreadedDatasourceCopier {
       }
 
       if(copyNullValues || !hasOnlyNullValues) {
-        log.trace("Enqueued entity {}", entity.getIdentifier());
+        log.trace("Enqueued entity {}", valueSet.getVariableEntity().getIdentifier());
         writeQueue.put(new VariableEntityValues(valueSet, values));
       } else {
-        log.trace("Skip entity {} because of null values", entity.getIdentifier());
+        log.trace("Skip entity {} because of null values", valueSet.getVariableEntity().getIdentifier());
       }
 
       if(readerListener != null) {

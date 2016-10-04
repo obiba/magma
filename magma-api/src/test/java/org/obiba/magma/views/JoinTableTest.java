@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import com.google.common.collect.ImmutableList;
 import org.junit.Test;
 import org.obiba.magma.NoSuchValueSetException;
 import org.obiba.magma.NoSuchVariableException;
@@ -163,8 +164,10 @@ public class JoinTableTest extends AbstractMagmaTest {
   @Test
   public void testJoinTableValueSetExistsForValueSetInAnyValueTable() {
     JoinTable joinTable = JoinTableBuilder.newBuilder() //
-        .withMockTable(newTableMock().withEntities("1")) //
-        .withMockTable(newTableMock().withEntities("1", "2")).build();
+        .withMockTable(newTableMock().expectHasValueSet("1", true).expectHasValueSet("2", false) //
+            .expectGetValueSets("1").withEntities("1")) //
+        .withMockTable(newTableMock().expectHasValueSet("1", true).expectHasValueSet("2", true) //
+            .expectGetValueSets("1","2").withEntities("1", "2")).build();
 
     Iterable<ValueSet> valueSets = joinTable.getValueSets();
     assertThat(valueSets).hasSize(2);
@@ -230,7 +233,7 @@ public class JoinTableTest extends AbstractMagmaTest {
 //
 //    JoinTable joinTable = JoinTableBuilder.newBuilder().withMockTable(table1).withMockTable(table2).build();
 //
-//    Value value = joinTable.getValue(var1, new JoinTable.JoinedValueSet(table1, entity1));
+//    Value value = joinTable.getValue(var1, new JoinTable.JoinValueSet(table1, entity1));
 //    assertNotNull(value);
 //    assertThat("1-1", value.toString());
 //  }
@@ -313,6 +316,12 @@ public class JoinTableTest extends AbstractMagmaTest {
 
     MockValueTableBuilder expectHasValueSet(String identifier, boolean expect) {
       expect(mock.hasValueSet(new VariableEntityBean(entityType, identifier))).andReturn(expect).anyTimes();
+      return this;
+    }
+
+    MockValueTableBuilder expectGetValueSets(String... identifiers) {
+      List<VariableEntity> entities = Lists.newArrayList(createEntitySet(entityType, identifiers));
+      expect(mock.getValueSets(entities)).andReturn(new ArrayList<>()).anyTimes();
       return this;
     }
 

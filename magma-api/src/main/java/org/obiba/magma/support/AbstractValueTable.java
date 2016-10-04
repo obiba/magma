@@ -1,37 +1,17 @@
 package org.obiba.magma.support;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.SortedSet;
+import java.util.*;
 
 import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 
 import com.google.common.collect.*;
-import org.obiba.magma.Datasource;
-import org.obiba.magma.Initialisable;
-import org.obiba.magma.NoSuchValueSetException;
-import org.obiba.magma.NoSuchVariableException;
-import org.obiba.magma.Timestamps;
-import org.obiba.magma.Value;
-import org.obiba.magma.ValueSet;
-import org.obiba.magma.ValueTable;
-import org.obiba.magma.Variable;
-import org.obiba.magma.VariableEntity;
-import org.obiba.magma.VariableValueSource;
-import org.obiba.magma.VariableValueSourceFactory;
+import org.obiba.magma.*;
 
 import com.google.common.base.Function;
 import com.google.common.base.Predicates;
 
 public abstract class AbstractValueTable implements ValueTable, Initialisable {
-
-  protected static final int ENTITY_BATCH_SIZE = 100;
 
   @NotNull
   private final Datasource datasource;
@@ -98,26 +78,7 @@ public abstract class AbstractValueTable implements ValueTable, Initialisable {
 
   @Override
   public Iterable<ValueSet> getValueSets(Iterable<VariableEntity> entities) {
-    ImmutableList.Builder<ValueSet> builder = ImmutableList.builder();
-    Iterable<List<VariableEntity>> partitions = Iterables.partition(entities, entityBatchSize);
-    for (List<VariableEntity> partition : partitions) {
-      builder.addAll(getValueSetsBatch(partition));
-    }
-    return builder.build();
-  }
-
-  /**
-   * Simple implementation of a value set fetcher; a more specific one would fetch value sets in a bulk query.
-   *
-   * @param entities
-   * @return
-   */
-  protected List<ValueSet> getValueSetsBatch(List<VariableEntity> entities) {
-    ImmutableList.Builder<ValueSet> builder = ImmutableList.builder();
-    for (VariableEntity entity : entities) {
-      builder.add(getValueSet(entity));
-    }
-    return builder.build();
+    return () -> new ValueSetIterator(entities);
   }
 
   @Override
@@ -129,6 +90,22 @@ public abstract class AbstractValueTable implements ValueTable, Initialisable {
   public void dropValueSets() {
     throw new UnsupportedOperationException(
         "Cannot drop value sets from a '" + getDatasource().getType() + "' table.");
+  }
+
+  /**
+   * Simple implementation of a value set fetcher; a more specific one would fetch value sets in a bulk query.
+   *
+   * @param entities
+   * @return
+   */
+  protected ValueSetBatch getValueSetsBatch(final List<VariableEntity> entities) {
+    return () -> {
+      ImmutableList.Builder<ValueSet> builder = ImmutableList.builder();
+      for (VariableEntity entity : entities) {
+        builder.add(getValueSet(entity));
+      }
+      return builder.build();
+    };
   }
 
   @Override
@@ -280,5 +257,32 @@ public abstract class AbstractValueTable implements ValueTable, Initialisable {
     }
     AbstractValueTable other = (AbstractValueTable) obj;
     return Objects.equals(datasource, other.datasource) && Objects.equals(name, other.name);
+  }
+
+  /**
+   * Lazy iterator of value sets: will make batch queries for extracting value sets.
+   */
+  private class ValueSetIterator implements Iterator<ValueSet> {
+
+    private final Iterator<List<VariableEntity>> partitions;
+
+    private Iterator<ValueSet> currentBatch;
+
+    public ValueSetIterator(Iterable<VariableEntity> entities) {
+      this.partitions = Iterables.partition(entities, entityBatchSize).iterator();
+    }
+
+    @Override
+    public boolean hasNext() {
+      return partitions.hasNext() || (currentBatch != null && currentBatch.hasNext());
+    }
+
+    @Override
+    public ValueSet next() {
+      if (currentBatch == null || !currentBatch.hasNext()) {
+        currentBatch = getValueSetsBatch(partitions.next()).getValueSets().iterator();
+      }
+      return currentBatch.next();
+    }
   }
 }
