@@ -7,6 +7,8 @@ import javax.validation.constraints.NotNull;
 
 public interface ValueTable extends Timestamped {
 
+  int ENTITY_BATCH_SIZE = 100;
+
   @NotNull
   String getName();
 

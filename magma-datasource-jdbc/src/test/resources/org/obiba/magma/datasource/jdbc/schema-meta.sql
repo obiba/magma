@@ -13,4 +13,4 @@ create table "variable_attributes"("datasource" varchar(255) not null, "value_ta
 create table "categories"("datasource" varchar(255) not null, "value_table" varchar(255) not null, "variable" varchar(255), "name" varchar(255) not null, "missing" boolean not null, primary key("value_table", "variable", "name"));
 create table "category_attributes"("datasource" varchar(255) not null, "value_table" varchar(255) not null, "variable" varchar(255) not null, "category" varchar(255) not null, "name" varchar(255) not null, "locale" varchar(20) not null, "value" varchar(255), primary key("datasource", "value_table", "variable", "category", "name", "locale"));
 
-create table bone_density(part_id varchar(25) not null, visit_id varchar(25) not null, bd integer, bd_2 integer, primary key(part_id, visit_id));
+create table bone_density(part_id varchar(25) not null, visit_id varchar(25) not null, bd integer, bd_2 integer, primary key(part_id));

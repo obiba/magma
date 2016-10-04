@@ -22,17 +22,7 @@ import liquibase.snapshot.DatabaseSnapshot;
 import liquibase.structure.core.Column;
 import liquibase.structure.core.PrimaryKey;
 import liquibase.structure.core.Table;
-import org.obiba.magma.Attribute;
-import org.obiba.magma.Category;
-import org.obiba.magma.Datasource;
-import org.obiba.magma.MagmaRuntimeException;
-import org.obiba.magma.NoSuchValueSetException;
-import org.obiba.magma.Timestamps;
-import org.obiba.magma.Value;
-import org.obiba.magma.ValueSet;
-import org.obiba.magma.ValueType;
-import org.obiba.magma.Variable;
-import org.obiba.magma.VariableEntity;
+import org.obiba.magma.*;
 import org.obiba.magma.datasource.jdbc.JdbcDatasource.ChangeDatabaseCallback;
 import org.obiba.magma.datasource.jdbc.support.CreateIndexChangeBuilder;
 import org.obiba.magma.datasource.jdbc.support.CreateTableChangeBuilder;
@@ -120,6 +110,11 @@ class JdbcValueTable extends AbstractValueTable {
   @Override
   public ValueSet getValueSet(VariableEntity entity) throws NoSuchValueSetException {
     return new JdbcValueSet(this, entity);
+  }
+
+  @Override
+  protected ValueSetBatch getValueSetsBatch(List<VariableEntity> entities) {
+    return new JdbcValueSetBatch(this, entities);
   }
 
   @Override

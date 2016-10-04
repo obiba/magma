@@ -342,11 +342,11 @@ public class JdbcDatasourceTest extends AbstractMagmaTest {
     ValueTable bdTable = jdbcDatasource.getValueTable("BONE_DENSITY");
     assertThat(bdTable.getEntityType()).isEqualTo("Participant");
 
-    assertThat(bdTable.getVariables()).hasSize(2);
+    assertThat(bdTable.getVariables()).hasSize(3);
     assertThat(bdTable.getValueSets()).hasSize(2);
     assertThat(bdTable.getValueSetCount()).isEqualTo(2);
-    VariableEntity entity1234_2 = new VariableEntityBean(bdTable.getEntityType(), "1234-2");
-    VariableEntity entity1234_3 = new VariableEntityBean(bdTable.getEntityType(), "1234-3");
+    VariableEntity entity1234_2 = new VariableEntityBean(bdTable.getEntityType(), "12342");
+    VariableEntity entity1234_3 = new VariableEntityBean(bdTable.getEntityType(), "12343");
     assertThat(bdTable.hasValueSet(entity1234_2)).isTrue();
     assertThat(bdTable.hasValueSet(entity1234_3)).isTrue();
 
