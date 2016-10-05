@@ -15,7 +15,6 @@ import java.util.SortedSet;
 import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 
-import org.hibernate.FetchMode;
 import org.hibernate.Query;
 import org.hibernate.ScrollMode;
 import org.hibernate.ScrollableResults;
@@ -25,7 +24,6 @@ import org.hibernate.criterion.Restrictions;
 import org.obiba.core.service.impl.hibernate.AssociationCriteria;
 import org.obiba.core.service.impl.hibernate.AssociationCriteria.Operation;
 import org.obiba.magma.*;
-import org.obiba.magma.datasource.hibernate.HibernateVariableValueSourceFactory.HibernateVariableValueSource;
 import org.obiba.magma.datasource.hibernate.converter.HibernateMarshallingContext;
 import org.obiba.magma.datasource.hibernate.domain.Timestamped;
 import org.obiba.magma.datasource.hibernate.domain.ValueSetState;
