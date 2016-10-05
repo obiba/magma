@@ -10,17 +10,17 @@
 
 package org.obiba.magma.datasource.hibernate;
 
-import org.hibernate.Criteria;
-import org.obiba.magma.NoSuchValueSetException;
-import org.obiba.magma.Timestamps;
-import org.obiba.magma.VariableEntity;
+import org.obiba.magma.*;
+import org.obiba.magma.datasource.hibernate.converter.HibernateValueLoaderFactory;
 import org.obiba.magma.datasource.hibernate.domain.ValueSetState;
+import org.obiba.magma.datasource.hibernate.domain.ValueSetValue;
 import org.obiba.magma.support.ValueSetBean;
+import org.obiba.magma.type.BinaryType;
 
 import javax.validation.constraints.NotNull;
 
 /**
- * Created by yannick on 05/10/16.
+ * .
  */
 class HibernateValueSet extends ValueSetBean {
 
@@ -31,6 +31,24 @@ class HibernateValueSet extends ValueSetBean {
   HibernateValueSet(HibernateValueTable table, VariableEntity entity) {
     super(table, entity);
     this.fetcher = new HibernateValueSetFetcher(table);
+  }
+
+  public Value getValue(Variable variable) {
+    ValueSetValue vsv = getValueSetState().getValueMap().get(variable.getName());
+    if(vsv == null) {
+      return variable.isRepeatable() ? variable.getValueType().nullSequence() : variable.getValueType().nullValue();
+    }
+    return variable.getValueType().equals(BinaryType.get()) //
+        ? getBinaryValue(variable, vsv) //
+        : vsv.getValue();
+  }
+
+  private Value getBinaryValue(Variable variable, ValueSetValue vsv) {
+    Value val = vsv.getValue();
+    ValueLoaderFactory factory = new HibernateValueLoaderFactory(((HibernateValueTable) getValueTable()).getDatasource().getSessionFactory(), vsv);
+    return variable.isRepeatable() //
+        ? BinaryType.get().sequenceOfReferences(factory, val) //
+        : BinaryType.get().valueOfReference(factory, val);
   }
 
   synchronized ValueSetState getValueSetState() {
