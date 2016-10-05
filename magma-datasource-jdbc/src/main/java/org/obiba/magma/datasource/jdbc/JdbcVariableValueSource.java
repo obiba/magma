@@ -125,10 +125,10 @@ class JdbcVariableValueSource extends AbstractVariableValueSource implements Var
     private ValueIterator(Connection connection, Iterable<VariableEntity> entities) throws SQLException {
       this.connection = connection;
       JdbcDatasource datasource = valueTable.getDatasource();
-      String escapedIdentifierColumns = valueTable.getEntityIdentifierColumnsSql();
+      String escapedIdentifierColumn = valueTable.getEntityIdentifierColumnSql();
       statement = connection.prepareStatement(
-          String.format("SELECT %s, %s FROM %s ORDER BY %s", escapedIdentifierColumns,
-              datasource.escapeColumnName(columnName), datasource.escapeTableName(valueTable.getSqlName()), escapedIdentifierColumns));
+          String.format("SELECT %s, %s FROM %s ORDER BY %s", escapedIdentifierColumn,
+              datasource.escapeColumnName(columnName), datasource.escapeTableName(valueTable.getSqlName()), escapedIdentifierColumn));
       rs = statement.executeQuery();
       hasNextResults = rs.next();
       this.entities = entities.iterator();
@@ -151,7 +151,7 @@ class JdbcVariableValueSource extends AbstractVariableValueSource implements Var
         // Scroll until we find the required entity or reach the end of the results
         boolean found = false;
         while(hasNextResults && !found) {
-          String id = valueTable.buildEntityIdentifier(rs);
+          String id = valueTable.extractEntityIdentifier(rs);
           valueMap.put(id, getValueFromResult());
           hasNextResults = rs.next();
           found = nextId.equals(id);

@@ -90,9 +90,13 @@ public class JdbcDatasourceSettings {
   }
 
   @NotNull
-  public Collection<String> getMappedTables() {
+  public Set<String> getMappedTables() {
     if(mappedTables == null) mappedTables = new HashSet<>();
     return mappedTables;
+  }
+
+  public boolean hasMappedTables() {
+    return !getMappedTables().isEmpty();
   }
 
   public boolean hasMappedTable(String tableName) {
