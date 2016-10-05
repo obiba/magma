@@ -15,7 +15,6 @@ import java.util.SortedSet;
 import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 
-import org.hibernate.Criteria;
 import org.hibernate.FetchMode;
 import org.hibernate.Query;
 import org.hibernate.ScrollMode;
@@ -25,18 +24,7 @@ import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.obiba.core.service.impl.hibernate.AssociationCriteria;
 import org.obiba.core.service.impl.hibernate.AssociationCriteria.Operation;
-import org.obiba.magma.Datasource;
-import org.obiba.magma.Initialisable;
-import org.obiba.magma.NoSuchValueSetException;
-import org.obiba.magma.NoSuchVariableException;
-import org.obiba.magma.Timestamps;
-import org.obiba.magma.TimestampsBean;
-import org.obiba.magma.Value;
-import org.obiba.magma.ValueSet;
-import org.obiba.magma.Variable;
-import org.obiba.magma.VariableEntity;
-import org.obiba.magma.VariableValueSource;
-import org.obiba.magma.VariableValueSourceFactory;
+import org.obiba.magma.*;
 import org.obiba.magma.datasource.hibernate.HibernateVariableValueSourceFactory.HibernateVariableValueSource;
 import org.obiba.magma.datasource.hibernate.converter.HibernateMarshallingContext;
 import org.obiba.magma.datasource.hibernate.domain.Timestamped;
@@ -46,7 +34,6 @@ import org.obiba.magma.datasource.hibernate.domain.VariableState;
 import org.obiba.magma.support.AbstractValueTable;
 import org.obiba.magma.support.AbstractVariableEntityProvider;
 import org.obiba.magma.support.NullTimestamps;
-import org.obiba.magma.support.ValueSetBean;
 import org.obiba.magma.support.VariableEntityBean;
 import org.obiba.magma.type.DateTimeType;
 import org.slf4j.Logger;
@@ -93,13 +80,12 @@ class HibernateValueTable extends AbstractValueTable {
     if(!hasValueSet(entity)) {
       throw new NoSuchValueSetException(this, entity);
     }
-    AssociationCriteria criteria = AssociationCriteria
-        .create(ValueSetState.class, getDatasource().getSessionFactory().getCurrentSession())
-        .add("valueTable.id", Operation.eq, valueTableId)
-        .add("variableEntity.identifier", Operation.eq, entity.getIdentifier())
-        .add("variableEntity.type", Operation.eq, entity.getType());
+    return new HibernateValueSet(this, entity);
+  }
 
-    return new HibernateValueSet(entity, criteria.getCriteria().setFetchMode("values", FetchMode.JOIN));
+  @Override
+  protected ValueSetBatch getValueSetsBatch(List<VariableEntity> entities) {
+    return new HibernateValueSetBatch(this, entities);
   }
 
   @Override
@@ -142,12 +128,7 @@ class HibernateValueTable extends AbstractValueTable {
     if(entities.isEmpty()) {
       return ImmutableList.of();
     }
-    return new Iterable<Timestamps>() {
-      @Override
-      public Iterator<Timestamps> iterator() {
-        return new TimestampsIterator(entities.iterator());
-      }
-    };
+    return () -> new TimestampsIterator(entities.iterator());
   }
 
   void dropValueSet(VariableEntity entity, Serializable valueSetId) {
@@ -221,7 +202,7 @@ class HibernateValueTable extends AbstractValueTable {
     this.name = name;
   }
 
-  private static Timestamps createTimestamps(@Nullable final Timestamped timestamped) {
+  static Timestamps createTimestamps(@Nullable final Timestamped timestamped) {
     return timestamped == null ? NullTimestamps.get() : new Timestamps() {
 
       @NotNull
@@ -313,38 +294,6 @@ class HibernateValueTable extends AbstractValueTable {
 
   Serializable getValueTableId() {
     return valueTableId;
-  }
-
-  class HibernateValueSet extends ValueSetBean {
-
-    private final Criteria valueSetCriteria;
-
-    private ValueSetState valueSetState;
-
-    HibernateValueSet(VariableEntity entity, Criteria valueSetCriteria) {
-      super(HibernateValueTable.this, entity);
-      this.valueSetCriteria = valueSetCriteria;
-    }
-
-    synchronized ValueSetState getValueSetState() {
-      if(valueSetState == null) {
-        valueSetState = (ValueSetState) valueSetCriteria.uniqueResult();
-        if(valueSetState != null) {
-          // this is important when copying from a HibernateDatasource. Otherwise, they accumulate in the session and
-          // make flushing longer and longer.
-          getDatasource().getSessionFactory().getCurrentSession().evict(valueSetState);
-        } else {
-          throw new NoSuchValueSetException(getValueTable(), getVariableEntity());
-        }
-      }
-      return valueSetState;
-    }
-
-    @NotNull
-    @Override
-    public Timestamps getTimestamps() {
-      return createTimestamps(getValueSetState());
-    }
   }
 
   void refreshEntityProvider() {
