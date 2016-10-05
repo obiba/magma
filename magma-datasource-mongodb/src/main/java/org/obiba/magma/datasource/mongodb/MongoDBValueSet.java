@@ -47,9 +47,12 @@ class MongoDBValueSet implements ValueSet {
 
   private BSONObject object;
 
+  private final MongoDBValueSetFetcher fetcher;
+
   MongoDBValueSet(MongoDBValueTable valueTable, VariableEntity entity) {
     this.valueTable = valueTable;
     this.entity = entity;
+    this.fetcher = new MongoDBValueSetFetcher(valueTable);
   }
 
   @Override
@@ -100,7 +103,7 @@ class MongoDBValueSet implements ValueSet {
     try {
       JSONObject properties = new JSONObject();
       properties.put(GRID_FILE_ID, valueObject.get(GRID_FILE_ID));
-      properties.put(GRID_FILE_SIZE, valueObject.containsField(GRID_FILE_SIZE) ? valueObject.get(GRID_FILE_SIZE) : 0);
+      properties.put(GRID_FILE_SIZE, valueObject.containsField(GRID_FILE_SIZE) ? valueObject.get(GRID_FILE_SIZE) : Integer.valueOf(0));
       properties.put(GRID_FILE_MD5, valueObject.get(GRID_FILE_MD5));
       return TextType.get().valueOf(properties.toString());
     } catch(JSONException e) {
@@ -134,13 +137,16 @@ class MongoDBValueSet implements ValueSet {
   @NotNull
   private BSONObject getDBObject() {
     if(object == null) {
-      DBObject template = BasicDBObjectBuilder.start("_id", entity.getIdentifier()).get();
-      object = valueTable.getValueSetCollection().findOne(template);
+      object = fetcher.getDBObject(entity);
       if(object == null) {
         throw new NoSuchValueSetException(valueTable, entity);
       }
     }
     return object;
+  }
+
+  void setDBObject(BSONObject object) {
+    this.object = object;
   }
 
 }

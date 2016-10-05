@@ -10,24 +10,14 @@
 
 package org.obiba.magma.datasource.mongodb;
 
-import java.util.Date;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.SortedSet;
+import java.util.*;
 
 import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 
 import org.bson.BSONObject;
 import org.bson.types.ObjectId;
-import org.obiba.magma.Datasource;
-import org.obiba.magma.NoSuchValueSetException;
-import org.obiba.magma.Timestamps;
-import org.obiba.magma.TimestampsBean;
-import org.obiba.magma.Value;
-import org.obiba.magma.ValueSet;
-import org.obiba.magma.VariableEntity;
-import org.obiba.magma.VariableValueSource;
+import org.obiba.magma.*;
 import org.obiba.magma.datasource.mongodb.converter.ValueConverter;
 import org.obiba.magma.support.AbstractValueTable;
 import org.obiba.magma.support.NullTimestamps;
@@ -168,6 +158,11 @@ public class MongoDBValueTable extends AbstractValueTable {
       throw new NoSuchValueSetException(this, entity);
     }
     return new MongoDBValueSet(this, entity);
+  }
+
+  @Override
+  protected ValueSetBatch getValueSetsBatch(List<VariableEntity> entities) {
+    return new MongoDBValueSetBatch(this, entities);
   }
 
   @NotNull
