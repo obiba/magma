@@ -77,12 +77,7 @@ public class MongoDBVariableValueSource implements VariableValueSource, VectorSo
     if(entities.isEmpty()) {
       return ImmutableList.of();
     }
-    return new Iterable<Value>() {
-      @Override
-      public Iterator<Value> iterator() {
-        return new ValueIterator(getVariable(), entities.iterator());
-      }
-    };
+    return () -> new ValueIterator(getVariable(), entities.iterator());
   }
 
   @NotNull
