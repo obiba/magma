@@ -30,7 +30,6 @@ import org.obiba.magma.VariableEntity;
 import org.obiba.magma.VariableValueSource;
 import org.obiba.magma.VariableValueSourceFactory;
 import org.obiba.magma.VectorSource;
-import org.obiba.magma.datasource.hibernate.HibernateValueTable.HibernateValueSet;
 import org.obiba.magma.datasource.hibernate.converter.HibernateValueLoaderFactory;
 import org.obiba.magma.datasource.hibernate.converter.VariableConverter;
 import org.obiba.magma.datasource.hibernate.domain.ValueSetValue;
