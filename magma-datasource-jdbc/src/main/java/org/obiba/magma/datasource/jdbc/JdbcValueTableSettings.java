@@ -28,6 +28,8 @@ public class JdbcValueTableSettings {
    */
   private String updatedTimestampColumnName;
 
+  private String entityIdentifiersWhere;
+
   //
   // Constructors
   //
@@ -36,7 +38,7 @@ public class JdbcValueTableSettings {
       throw new IllegalArgumentException("null sqlTableName");
     }
     this.sqlTableName = sqlTableName;
-    this.magmaTableName = magmaTableName != null ? magmaTableName : sqlTableName;
+    this.magmaTableName = Strings.isNullOrEmpty(magmaTableName) ? sqlTableName : magmaTableName;
     this.entityType = entityType;
     this.entityIdentifierColumn = Strings.isNullOrEmpty(entityIdentifierColumn) ? ENTITY_ID_COLUMN : entityIdentifierColumn;
   }
@@ -85,6 +87,10 @@ public class JdbcValueTableSettings {
     this.createdTimestampColumnName = createdTimestampColumnName;
   }
 
+  public boolean hasCreatedTimestampColumnName() {
+    return !Strings.isNullOrEmpty(createdTimestampColumnName);
+  }
+
   public String getUpdatedTimestampColumnName() {
     return updatedTimestampColumnName;
   }
@@ -93,11 +99,19 @@ public class JdbcValueTableSettings {
     this.updatedTimestampColumnName = updatedTimestampColumnName;
   }
 
-  public boolean isCreatedTimestampColumnNameProvided() {
-    return !Strings.isNullOrEmpty(createdTimestampColumnName);
+  public boolean hasUpdatedTimestampColumnName() {
+    return !Strings.isNullOrEmpty(updatedTimestampColumnName);
   }
 
-  public boolean isUpdatedTimestampColumnNameProvided() {
-    return !Strings.isNullOrEmpty(updatedTimestampColumnName);
+  public boolean hasEntityIdentifiersWhere() {
+    return !Strings.isNullOrEmpty(entityIdentifiersWhere);
+  }
+
+  public String getEntityIdentifiersWhere() {
+    return entityIdentifiersWhere;
+  }
+
+  public void setEntityIdentifiersWhere(String entityIdentifiersWhere) {
+    this.entityIdentifiersWhere = entityIdentifiersWhere;
   }
 }

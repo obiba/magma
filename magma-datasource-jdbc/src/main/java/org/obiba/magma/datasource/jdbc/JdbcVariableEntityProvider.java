@@ -14,11 +14,8 @@ import org.obiba.magma.Initialisable;
 import org.obiba.magma.VariableEntity;
 import org.obiba.magma.support.AbstractVariableEntityProvider;
 import org.obiba.magma.support.VariableEntityBean;
-import org.springframework.jdbc.core.RowMapper;
 
 import javax.validation.constraints.NotNull;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -38,10 +35,13 @@ class JdbcVariableEntityProvider extends AbstractVariableEntityProvider implemen
   @Override
   public void initialise() {
     JdbcDatasource datasource = valueTable.getDatasource();
+    String whereStatement = valueTable.getSettings().hasEntityIdentifiersWhere() ? "WHERE " + valueTable.getSettings().getEntityIdentifiersWhere() : "";
     entities = new LinkedHashSet<>();
     List<VariableEntity> results = datasource.getJdbcTemplate().query(String
-            .format("SELECT %s FROM %s", valueTable.getEntityIdentifierColumnSql(),
-                datasource.escapeTableName(valueTable.getSqlName())),
+            .format("SELECT %s FROM %s %s",
+                valueTable.getEntityIdentifierColumnSql(),
+                datasource.escapeTableName(valueTable.getSqlName()),
+                whereStatement),
         (rs, rowNum) -> new VariableEntityBean(valueTable.getEntityType(), valueTable.extractEntityIdentifier(rs)));
     entities.addAll(results);
   }

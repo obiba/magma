@@ -117,6 +117,15 @@ public class JdbcDatasourceSettings {
     return tableSettings;
   }
 
+  public boolean hasTableSettingsForSqlTable(String sqlTableName) {
+    for(JdbcValueTableSettings settings : getTableSettings()) {
+      if(settings.getSqlTableName().equals(sqlTableName)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   @Nullable
   public JdbcValueTableSettings getTableSettingsForSqlTable(String sqlTableName) {
     for(JdbcValueTableSettings settings : getTableSettings()) {
@@ -161,7 +170,7 @@ public class JdbcDatasourceSettings {
     this.defaultEntityIdColumnName = defaultEntityIdColumnName;
   }
 
-  public boolean isEntityIdColumnNameProvided() {
+  public boolean hasEntityIdColumnName() {
     return !Strings.isNullOrEmpty(defaultEntityIdColumnName);
   }
 
@@ -181,11 +190,11 @@ public class JdbcDatasourceSettings {
     this.defaultUpdatedTimestampColumnName = defaultUpdatedTimestampColumnName;
   }
 
-  public boolean isCreatedTimestampColumnNameProvided() {
+  public boolean hasCreatedTimestampColumnName() {
     return !Strings.isNullOrEmpty(defaultCreatedTimestampColumnName);
   }
 
-  public boolean isUpdatedTimestampColumnNameProvided() {
+  public boolean hasUpdatedTimestampColumnName() {
     return !Strings.isNullOrEmpty(defaultUpdatedTimestampColumnName);
   }
 }

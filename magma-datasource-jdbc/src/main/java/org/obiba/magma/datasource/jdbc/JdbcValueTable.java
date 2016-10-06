@@ -224,23 +224,23 @@ class JdbcValueTable extends AbstractValueTable {
   }
 
   boolean hasCreatedTimestampColumn() {
-    return getSettings().isCreatedTimestampColumnNameProvided() ||
-        getDatasource().getSettings().isCreatedTimestampColumnNameProvided();
+    return getSettings().hasCreatedTimestampColumnName() ||
+        getDatasource().getSettings().hasCreatedTimestampColumnName();
   }
 
   String getCreatedTimestampColumnName() {
-    return getSettings().isCreatedTimestampColumnNameProvided()
+    return getSettings().hasCreatedTimestampColumnName()
         ? getSettings().getCreatedTimestampColumnName()
         : getDatasource().getSettings().getDefaultCreatedTimestampColumnName();
   }
 
   boolean hasUpdatedTimestampColumn() {
-    return getSettings().isUpdatedTimestampColumnNameProvided() ||
-        getDatasource().getSettings().isUpdatedTimestampColumnNameProvided();
+    return getSettings().hasUpdatedTimestampColumnName() ||
+        getDatasource().getSettings().hasUpdatedTimestampColumnName();
   }
 
   String getUpdatedTimestampColumnName() {
-    return getSettings().isUpdatedTimestampColumnNameProvided()
+    return getSettings().hasUpdatedTimestampColumnName()
         ? getSettings().getUpdatedTimestampColumnName()
         : getDatasource().getSettings().getDefaultUpdatedTimestampColumnName();
   }

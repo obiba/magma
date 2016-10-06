@@ -330,11 +330,12 @@ public class JdbcDatasource extends AbstractDatasource {
   /**
    * SQL Table (or View) is included if it has not a reserved name and it was filtered in by settings.
    *
-   * @param tableName
+   * @param sqlTableName
    * @return
    */
-  private boolean isTableIncluded(String tableName) {
-    return !RESERVED_NAMES.contains(tableName.toLowerCase()) && (!settings.hasMappedTables() || settings.hasMappedTable(tableName));
+  private boolean isTableIncluded(String sqlTableName) {
+    return !RESERVED_NAMES.contains(sqlTableName.toLowerCase())
+        && (settings.hasTableSettingsForSqlTable(sqlTableName) || !settings.hasMappedTables() || settings.hasMappedTable(sqlTableName));
   }
 
   /**
