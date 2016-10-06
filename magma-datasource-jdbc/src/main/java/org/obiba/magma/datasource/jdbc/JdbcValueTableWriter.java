@@ -175,7 +175,8 @@ class JdbcValueTableWriter implements ValueTableWriter {
       }
     });
   }
-
+  
+  @SuppressWarnings({ "OverlyLongMethod", "PMD.NcssMethodCount" })
   private void batchUpdateInternal(Multimap<String, List<Object>> toSave) {
     final DefaultLobHandler lobHandler = new DefaultLobHandler();
 

@@ -89,19 +89,13 @@ class JdbcVariableValueSource extends AbstractVariableValueSource implements Var
 
   @Override
   public Iterable<Value> getValues(final SortedSet<VariableEntity> entities) {
-
-    return new Iterable<Value>() {
-
-      @Override
-      public Iterator<Value> iterator() {
-        try {
-          return new ValueIterator(valueTable.getDatasource().getJdbcTemplate().getDataSource().getConnection(),
-              entities);
-        } catch(SQLException e) {
-          throw new RuntimeException(e);
-        }
+    return () -> {
+      try {
+        return new ValueIterator(valueTable.getDatasource().getJdbcTemplate().getDataSource().getConnection(),
+            entities);
+      } catch(SQLException e) {
+        throw new RuntimeException(e);
       }
-
     };
   }
 
@@ -126,13 +120,20 @@ class JdbcVariableValueSource extends AbstractVariableValueSource implements Var
       this.connection = connection;
       JdbcDatasource datasource = valueTable.getDatasource();
       String escapedIdentifierColumn = valueTable.getEntityIdentifierColumnSql();
+
       statement = connection.prepareStatement(
-          String.format("SELECT %s, %s FROM %s ORDER BY %s", escapedIdentifierColumn,
-              datasource.escapeColumnName(columnName), datasource.escapeTableName(valueTable.getSqlName()), escapedIdentifierColumn));
+          String.format("SELECT %s, %s FROM %s %s ORDER BY %s", escapedIdentifierColumn,
+              datasource.escapeColumnName(columnName), datasource.escapeTableName(valueTable.getSqlName()),
+              getWhereClause(), escapedIdentifierColumn));
       rs = statement.executeQuery();
       hasNextResults = rs.next();
       this.entities = entities.iterator();
       closeCursorIfNecessary();
+    }
+
+    private String getWhereClause() {
+      if (!valueTable.getSettings().hasEntityIdentifiersWhere()) return "";
+      else return String.format("WHERE %s", valueTable.getSettings().getEntityIdentifiersWhere());
     }
 
     @Override

@@ -53,7 +53,7 @@ class JdbcValueTable extends AbstractValueTable {
     // first, check if it is an existing View
     View view = getDatasource().getDatabaseSnapshot().get(newView(getSqlName()));
     if (view == null) {
-      // if not a view, make sure the SQL tableOrView exists
+      // if not a view, make sure the SQL table exists
       if (getDatasource().getDatabaseSnapshot().get(newTable(getSqlName())) == null) {
         createSqlTable(getSqlName());
         getDatasource().databaseChanged();

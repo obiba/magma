@@ -72,6 +72,21 @@ public class JdbcDatasourceTest extends AbstractMagmaTest {
     jdbcDatasource.dispose();
   }
 
+  @TestSchema(schemaLocation = "org/obiba/magma/datasource/jdbc", beforeSchema = "schema-nometa-where.sql",
+      afterSchema = "schema-notables.sql")
+  @Dataset(filenames = "JdbcDatasourceTest-nometa.xml")
+  @Test
+  public void testCreateDatasourceFromExistingDatabaseWithWhereClause() {
+    JdbcValueTableSettings tableSettings = new JdbcValueTableSettings("BONE_DENSITY", null, "Participant", "PART_ID");
+    JdbcDatasource jdbcDatasource = new JdbcDatasource("my-datasource", dataSource,
+        new JdbcDatasourceSettings("Participant", Sets.newHashSet("BONE_DENSITY"), Sets.newHashSet(tableSettings), false));
+    jdbcDatasource.initialise();
+
+    createDatasourceFromExistingDatabase(jdbcDatasource);
+
+    jdbcDatasource.dispose();
+  }
+
   @TestSchema(schemaLocation = "org/obiba/magma/datasource/jdbc", beforeSchema = "schema-meta.sql",
       afterSchema = "schema-notables.sql")
   @Dataset(filenames = "JdbcDatasourceTest.xml")
@@ -107,6 +122,37 @@ public class JdbcDatasourceTest extends AbstractMagmaTest {
   public void test_vectorSource() {
     JdbcDatasource jdbcDatasource = new JdbcDatasource("my-datasource", dataSource,
         new JdbcDatasourceSettings("Participant", Sets.newHashSet("BONE_DENSITY"), null, false));
+    jdbcDatasource.initialise();
+
+    createDatasourceFromExistingDatabase(jdbcDatasource);
+
+    ValueTable valueTable = jdbcDatasource.getValueTable("BONE_DENSITY");
+    VectorSource bdVar = valueTable.getVariableValueSource("BD").asVectorSource();
+    VectorSource bdVar2 = valueTable.getVariableValueSource("BD_2").asVectorSource();
+
+    // Verify variable attributes.
+    assertThat(bdVar).isNotNull();
+    assertThat(bdVar2).isNotNull();
+
+    Iterable<Value> values = bdVar.getValues(new TreeSet<>(valueTable.getVariableEntities()));
+
+    assertThat(values).hasSize(2);
+
+    values = bdVar2.getValues(new TreeSet<>(valueTable.getVariableEntities()));
+    assertThat(values).hasSize(2);
+
+    jdbcDatasource.dispose();
+  }
+
+  @TestSchema(schemaLocation = "org/obiba/magma/datasource/jdbc", beforeSchema = "schema-nometa-where.sql",
+      afterSchema = "schema-notables.sql")
+  @Dataset(filenames = "JdbcDatasourceTest-nometa-where.xml")
+  @Test
+  public void test_vectorSourceWithWhereClause() {
+    JdbcValueTableSettings tableSettings = new JdbcValueTableSettings("BONE_DENSITY", null, "Participant", "PART_ID");
+    tableSettings.setEntityIdentifiersWhere("VISIT_ID = 2");
+    JdbcDatasource jdbcDatasource = new JdbcDatasource("my-datasource", dataSource,
+        new JdbcDatasourceSettings("Participant", Sets.newHashSet("BONE_DENSITY"), Sets.newHashSet(tableSettings), false));
     jdbcDatasource.initialise();
 
     createDatasourceFromExistingDatabase(jdbcDatasource);

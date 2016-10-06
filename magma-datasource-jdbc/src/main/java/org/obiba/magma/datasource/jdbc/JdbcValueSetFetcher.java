@@ -96,6 +96,9 @@ public class JdbcValueSetFetcher {
     final JdbcDatasource datasource = valueTable.getDatasource();
     String entityIdentifierColumn = valueTable.getSettings().getEntityIdentifierColumn();
     String whereClause = String.format("%s = ?", datasource.escapeColumnName(entityIdentifierColumn));
+    if (valueTable.getSettings().hasEntityIdentifiersWhere()) {
+      whereClause = String.format("%s AND %s", valueTable.getSettings().getEntityIdentifiersWhere(), whereClause);
+    }
 
     Iterable<String> escapedColumnNames = Iterables.transform(columnNames, new Function<String, String>() {
       @Nullable
@@ -121,23 +124,23 @@ public class JdbcValueSetFetcher {
     StringBuilder sql = new StringBuilder();
     sql.append(
         String.format("SELECT %s FROM %s WHERE %s", selectClause, fromClause, whereClause));
-    String[] entityIdentifierColumnValues = entity.getIdentifier().split("-");
-
     return valueTable.getDatasource().getJdbcTemplate()
-        .query(sql.toString(), entityIdentifierColumnValues, mapper);
+        .query(sql.toString(), new String[] { entity.getIdentifier() }, mapper);
   }
 
   private List<Map<String, Value>> loadValues(List<String> columnNames, List<VariableEntity> entities) {
     final JdbcDatasource datasource = valueTable.getDatasource();
-    String entityIdentifierColumn = valueTable.getSettings().getEntityIdentifierColumn();
 
-    String whereClause = String.format("%s IN (:ids)", datasource.escapeColumnName(entityIdentifierColumn));
+    String whereClause = String.format("%s IN (:ids)", valueTable.getEntityIdentifierColumnSql());
+    if (valueTable.getSettings().hasEntityIdentifiersWhere()) {
+      whereClause = String.format("%s AND %s", valueTable.getSettings().getEntityIdentifiersWhere(), whereClause);
+    }
 
     ImmutableList.Builder<String> escapedColumnNames = ImmutableList.builder();
     for (String columnName : columnNames) {
       escapedColumnNames.add(datasource.escapeColumnName(columnName));
     }
-    escapedColumnNames.add(datasource.escapeColumnName(entityIdentifierColumn));
+    escapedColumnNames.add(valueTable.getEntityIdentifierColumnSql());
 
     return queryValues(Joiner.on(", ").join(escapedColumnNames.build()), datasource.escapeTableName(sqlTableName), whereClause, entities);
   }

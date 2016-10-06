@@ -1,0 +1,5 @@
+<dataset>
+  <BONE_DENSITY part_id="12342" visit_id="1" bd="63" bd_2="64"/>
+  <BONE_DENSITY part_id="12342" visit_id="2" bd="64" bd_2="65"/>
+  <BONE_DENSITY part_id="12343" visit_id="2" bd="65" bd_2="65"/>
+</dataset>
