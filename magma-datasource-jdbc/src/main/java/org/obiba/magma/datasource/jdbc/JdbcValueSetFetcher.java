@@ -94,16 +94,8 @@ public class JdbcValueSetFetcher {
    */
   private List<Map<String, Value>> loadValues(List<String> columnNames, VariableEntity entity) {
     final JdbcDatasource datasource = valueTable.getDatasource();
-    List<String> entityIdentifierColumns = valueTable.getSettings().getEntityIdentifierColumns();
-
-    String whereClause = Joiner.on(" AND ")
-        .join(Iterables.transform(entityIdentifierColumns, new Function<String, String>() {
-          @Nullable
-          @Override
-          public String apply(String idColName) {
-            return String.format("%s = ?", datasource.escapeColumnName(idColName));
-          }
-        }));
+    String entityIdentifierColumn = valueTable.getSettings().getEntityIdentifierColumn();
+    String whereClause = String.format("%s = ?", datasource.escapeColumnName(entityIdentifierColumn));
 
     Iterable<String> escapedColumnNames = Iterables.transform(columnNames, new Function<String, String>() {
       @Nullable

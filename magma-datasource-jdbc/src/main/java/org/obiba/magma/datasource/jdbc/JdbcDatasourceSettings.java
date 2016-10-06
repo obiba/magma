@@ -90,9 +90,13 @@ public class JdbcDatasourceSettings {
   }
 
   @NotNull
-  public Collection<String> getMappedTables() {
+  public Set<String> getMappedTables() {
     if(mappedTables == null) mappedTables = new HashSet<>();
     return mappedTables;
+  }
+
+  public boolean hasMappedTables() {
+    return !getMappedTables().isEmpty();
   }
 
   public boolean hasMappedTable(String tableName) {
@@ -111,6 +115,15 @@ public class JdbcDatasourceSettings {
   public Set<JdbcValueTableSettings> getTableSettings() {
     if(tableSettings == null) tableSettings = new HashSet<>();
     return tableSettings;
+  }
+
+  public boolean hasTableSettingsForSqlTable(String sqlTableName) {
+    for(JdbcValueTableSettings settings : getTableSettings()) {
+      if(settings.getSqlTableName().equals(sqlTableName)) {
+        return true;
+      }
+    }
+    return false;
   }
 
   @Nullable
@@ -157,7 +170,7 @@ public class JdbcDatasourceSettings {
     this.defaultEntityIdColumnName = defaultEntityIdColumnName;
   }
 
-  public boolean isEntityIdColumnNameProvided() {
+  public boolean hasEntityIdColumnName() {
     return !Strings.isNullOrEmpty(defaultEntityIdColumnName);
   }
 
@@ -177,11 +190,11 @@ public class JdbcDatasourceSettings {
     this.defaultUpdatedTimestampColumnName = defaultUpdatedTimestampColumnName;
   }
 
-  public boolean isCreatedTimestampColumnNameProvided() {
+  public boolean hasCreatedTimestampColumnName() {
     return !Strings.isNullOrEmpty(defaultCreatedTimestampColumnName);
   }
 
-  public boolean isUpdatedTimestampColumnNameProvided() {
+  public boolean hasUpdatedTimestampColumnName() {
     return !Strings.isNullOrEmpty(defaultUpdatedTimestampColumnName);
   }
 }

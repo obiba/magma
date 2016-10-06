@@ -18,13 +18,7 @@ import java.util.Map;
 import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 
-import org.obiba.magma.Attribute;
-import org.obiba.magma.Category;
-import org.obiba.magma.MagmaDate;
-import org.obiba.magma.Value;
-import org.obiba.magma.ValueTableWriter;
-import org.obiba.magma.Variable;
-import org.obiba.magma.VariableEntity;
+import org.obiba.magma.*;
 import org.obiba.magma.datasource.jdbc.JdbcDatasource.ChangeDatabaseCallback;
 import org.obiba.magma.datasource.jdbc.support.AddColumnChangeBuilder;
 import org.obiba.magma.datasource.jdbc.support.InsertDataChangeBuilder;
@@ -116,6 +110,8 @@ class JdbcValueTableWriter implements ValueTableWriter {
   private int batchSize;
 
   JdbcValueTableWriter(JdbcValueTable valueTable) {
+    if (valueTable.isSQLView()) throw new MagmaRuntimeException("A SQL view cannot be written");
+
     this.valueTable = valueTable;
     ESC_CATEGORY_ATTRIBUTES_TABLE = valueTable.getDatasource().escapeTableName(CATEGORY_ATTRIBUTES_TABLE);
     ESC_CATEGORIES_TABLE = valueTable.getDatasource().escapeTableName(CATEGORIES_TABLE);
@@ -654,19 +650,8 @@ class JdbcValueTableWriter implements ValueTableWriter {
 
     private Map<String, Object> getEntityIdentifierColumnValueMap() {
       Map<String, Object> entityIdentifierColumnValueMap = new LinkedHashMap<>();
-      List<String> entityIdentifierColumns = valueTable.getSettings().getEntityIdentifierColumns();
-
-      String[] entityIdentifierValues = entityIdentifierColumns.size() > 1
-          ? entity.getIdentifier().split("-")
-          : new String[] { entity.getIdentifier() };
-
-      Assert.isTrue(entityIdentifierColumns.size() == entityIdentifierValues.length,
-          "number of entity identifier columns does not match number of entity identifiers");
-
-      for(int i = 0; i < entityIdentifierColumns.size(); i++) {
-        entityIdentifierColumnValueMap.put(entityIdentifierColumns.get(i), entityIdentifierValues[i]);
-      }
-
+      String entityIdentifierColumn = valueTable.getSettings().getEntityIdentifierColumn();
+      entityIdentifierColumnValueMap.put(entityIdentifierColumn, entity.getIdentifier());
       return entityIdentifierColumnValueMap;
     }
   }

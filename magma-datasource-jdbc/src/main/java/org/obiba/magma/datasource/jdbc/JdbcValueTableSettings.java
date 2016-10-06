@@ -1,10 +1,5 @@
 package org.obiba.magma.datasource.jdbc;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-
 import com.google.common.base.Strings;
 
 public class JdbcValueTableSettings {
@@ -21,7 +16,7 @@ public class JdbcValueTableSettings {
 
   private String entityType;
 
-  private List<String> entityIdentifierColumns;
+  private String entityIdentifierColumn;
 
   /**
    * If provided, a column with this name will be populated with creation timestamps.
@@ -33,33 +28,19 @@ public class JdbcValueTableSettings {
    */
   private String updatedTimestampColumnName;
 
+  private String entityIdentifiersWhere;
+
   //
   // Constructors
   //
-  public JdbcValueTableSettings() {
-  }
-
-  public JdbcValueTableSettings(String sqlTableName, String magmaTableName, String entityType,
-      List<String> entityIdentifierColumns) {
-
+  public JdbcValueTableSettings(String sqlTableName, String magmaTableName, String entityType, String entityIdentifierColumn) {
     if(sqlTableName == null) {
       throw new IllegalArgumentException("null sqlTableName");
     }
-
     this.sqlTableName = sqlTableName;
-
-    this.magmaTableName = magmaTableName != null ? magmaTableName : sqlTableName;
-
+    this.magmaTableName = Strings.isNullOrEmpty(magmaTableName) ? sqlTableName : magmaTableName;
     this.entityType = entityType;
-
-    this.entityIdentifierColumns = entityIdentifierColumns == null || entityIdentifierColumns.isEmpty() ? Arrays
-        .asList(ENTITY_ID_COLUMN) : new ArrayList<>(entityIdentifierColumns);
-  }
-
-  public JdbcValueTableSettings(String sqlTableName, String magmaTableName, String entityType,
-      String entityIdColumnName) {
-    this(sqlTableName, magmaTableName, entityType,
-        Arrays.asList(Strings.isNullOrEmpty(entityIdColumnName) ? ENTITY_ID_COLUMN : entityIdColumnName));
+    this.entityIdentifierColumn = Strings.isNullOrEmpty(entityIdentifierColumn) ? ENTITY_ID_COLUMN : entityIdentifierColumn;
   }
 
   //
@@ -90,20 +71,12 @@ public class JdbcValueTableSettings {
     return entityType;
   }
 
-  public void setEntityIdentifierColumns(List<String> entityIdentifierColumns) {
-    this.entityIdentifierColumns = new ArrayList<>();
-
-    if(entityIdentifierColumns != null) {
-      this.entityIdentifierColumns.addAll(entityIdentifierColumns);
-    }
-  }
-
-  public List<String> getEntityIdentifierColumns() {
-    return Collections.unmodifiableList(entityIdentifierColumns);
+  public void setEntityIdentifierColumn(String entityIdentifierColumn) {
+    this.entityIdentifierColumn = entityIdentifierColumn;
   }
 
   public String getEntityIdentifierColumn() {
-    return entityIdentifierColumns.get(0);
+    return entityIdentifierColumn;
   }
 
   public String getCreatedTimestampColumnName() {
@@ -114,6 +87,10 @@ public class JdbcValueTableSettings {
     this.createdTimestampColumnName = createdTimestampColumnName;
   }
 
+  public boolean hasCreatedTimestampColumnName() {
+    return !Strings.isNullOrEmpty(createdTimestampColumnName);
+  }
+
   public String getUpdatedTimestampColumnName() {
     return updatedTimestampColumnName;
   }
@@ -122,11 +99,19 @@ public class JdbcValueTableSettings {
     this.updatedTimestampColumnName = updatedTimestampColumnName;
   }
 
-  public boolean isCreatedTimestampColumnNameProvided() {
-    return !Strings.isNullOrEmpty(createdTimestampColumnName);
+  public boolean hasUpdatedTimestampColumnName() {
+    return !Strings.isNullOrEmpty(updatedTimestampColumnName);
   }
 
-  public boolean isUpdatedTimestampColumnNameProvided() {
-    return !Strings.isNullOrEmpty(updatedTimestampColumnName);
+  public boolean hasEntityIdentifiersWhere() {
+    return !Strings.isNullOrEmpty(entityIdentifiersWhere);
+  }
+
+  public String getEntityIdentifiersWhere() {
+    return entityIdentifiersWhere;
+  }
+
+  public void setEntityIdentifiersWhere(String entityIdentifiersWhere) {
+    this.entityIdentifiersWhere = entityIdentifiersWhere;
   }
 }

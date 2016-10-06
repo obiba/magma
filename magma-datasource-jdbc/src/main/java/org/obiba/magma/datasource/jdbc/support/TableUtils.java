@@ -4,11 +4,16 @@ import java.text.Normalizer;
 import java.util.regex.Pattern;
 
 import liquibase.structure.core.Table;
+import liquibase.structure.core.View;
 
 public class TableUtils {
 
   public static Table newTable(String name) {
     return new Table(null, null, name);
+  }
+
+  public static View newView(String name) {
+    return new View(null, null, name);
   }
 
   public static String normalize(String name) {

@@ -7,6 +7,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
@@ -19,9 +20,7 @@ import com.google.common.collect.Maps;
 import liquibase.change.Change;
 import liquibase.change.core.DropTableChange;
 import liquibase.snapshot.DatabaseSnapshot;
-import liquibase.structure.core.Column;
-import liquibase.structure.core.PrimaryKey;
-import liquibase.structure.core.Table;
+import liquibase.structure.core.*;
 import org.obiba.magma.*;
 import org.obiba.magma.datasource.jdbc.JdbcDatasource.ChangeDatabaseCallback;
 import org.obiba.magma.datasource.jdbc.support.CreateIndexChangeBuilder;
@@ -36,13 +35,13 @@ import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 
 import static org.obiba.magma.datasource.jdbc.JdbcValueTableWriter.*;
 import static org.obiba.magma.datasource.jdbc.support.TableUtils.newTable;
+import static org.obiba.magma.datasource.jdbc.support.TableUtils.newView;
 
-@SuppressWarnings("OverlyCoupledClass")
 class JdbcValueTable extends AbstractValueTable {
 
   private final JdbcValueTableSettings settings;
 
-  private Table table;
+  private Relation tableOrView;
 
   private BiMap<String, String> variableMap;
 
@@ -55,12 +54,19 @@ class JdbcValueTable extends AbstractValueTable {
     super(datasource, settings.getMagmaTableName());
     this.settings = settings;
 
-    if(getDatasource().getDatabaseSnapshot().get(newTable(getSqlName())) == null) {
-      createSqlTable(getSqlName());
-      getDatasource().databaseChanged();
+    // first, check if it is an existing View
+    View view = getDatasource().getDatabaseSnapshot().get(newView(getSqlName()));
+    if (view == null) {
+      // if not a view, make sure the SQL tableOrView exists
+      if (getDatasource().getDatabaseSnapshot().get(newTable(getSqlName())) == null) {
+        createSqlTable(getSqlName());
+        getDatasource().databaseChanged();
+      }
+      tableOrView = getDatasource().getDatabaseSnapshot().get(newTable(getSqlName()));
+    } else {
+      tableOrView = view;
     }
 
-    table = getDatasource().getDatabaseSnapshot().get(newTable(settings.getSqlTableName()));
     setVariableEntityProvider(new JdbcVariableEntityProvider(this));
 
     ESC_CATEGORY_ATTRIBUTES_TABLE = getDatasource().escapeTableName(CATEGORY_ATTRIBUTES_TABLE);
@@ -79,7 +85,12 @@ class JdbcValueTable extends AbstractValueTable {
 
   JdbcValueTable(Datasource datasource, String tableName, Table table, String entityType) {
     this(datasource,
-        new JdbcValueTableSettings(table.getName(), tableName, entityType, getEntityIdentifierColumns(table)));
+        new JdbcValueTableSettings(table.getName(), tableName, entityType, getEntityIdentifierColumn(table)));
+  }
+
+  JdbcValueTable(Datasource datasource, String tableName, View view, String entityType, String entityIdentifierColumn) {
+    this(datasource,
+        new JdbcValueTableSettings(view.getName(), tableName, entityType, entityIdentifierColumn));
   }
 
   //
@@ -131,6 +142,10 @@ class JdbcValueTable extends AbstractValueTable {
   //
   // Methods
   //
+
+  boolean isSQLView() {
+    return tableOrView instanceof View;
+  }
 
   public void drop() {
     if(getDatasource().getDatabaseSnapshot().get(newTable(getSqlName())) != null) {
@@ -209,23 +224,23 @@ class JdbcValueTable extends AbstractValueTable {
   }
 
   boolean hasCreatedTimestampColumn() {
-    return getSettings().isCreatedTimestampColumnNameProvided() ||
-        getDatasource().getSettings().isCreatedTimestampColumnNameProvided();
+    return getSettings().hasCreatedTimestampColumnName() ||
+        getDatasource().getSettings().hasCreatedTimestampColumnName();
   }
 
   String getCreatedTimestampColumnName() {
-    return getSettings().isCreatedTimestampColumnNameProvided()
+    return getSettings().hasCreatedTimestampColumnName()
         ? getSettings().getCreatedTimestampColumnName()
         : getDatasource().getSettings().getDefaultCreatedTimestampColumnName();
   }
 
   boolean hasUpdatedTimestampColumn() {
-    return getSettings().isUpdatedTimestampColumnNameProvided() ||
-        getDatasource().getSettings().isUpdatedTimestampColumnNameProvided();
+    return getSettings().hasUpdatedTimestampColumnName() ||
+        getDatasource().getSettings().hasUpdatedTimestampColumnName();
   }
 
   String getUpdatedTimestampColumnName() {
-    return getSettings().isUpdatedTimestampColumnNameProvided()
+    return getSettings().hasUpdatedTimestampColumnName()
         ? getSettings().getUpdatedTimestampColumnName()
         : getDatasource().getSettings().getDefaultUpdatedTimestampColumnName();
   }
@@ -234,17 +249,16 @@ class JdbcValueTable extends AbstractValueTable {
     addVariableValueSource(new JdbcVariableValueSource(this, source));
   }
 
-  static List<String> getEntityIdentifierColumns(Table table) {
+  static String getEntityIdentifierColumn(Table table) {
     List<String> entityIdentifierColumns = new ArrayList<>();
     PrimaryKey pk = table.getPrimaryKey();
 
-    for(Column column : table.getColumns()) {
-      if(pk != null && pk.getColumns().contains(column)) {
-        entityIdentifierColumns.add(column.getName());
-      }
-    }
+    entityIdentifierColumns.addAll(table.getColumns().stream() //
+        .filter(column -> pk != null && pk.getColumns().contains(column)) //
+        .map(Column::getName) //
+        .collect(Collectors.toList()));
 
-    return entityIdentifierColumns;
+    return entityIdentifierColumns.get(0);
   }
 
   private void initialiseVariableValueSources() {
@@ -277,17 +291,13 @@ class JdbcValueTable extends AbstractValueTable {
   }
 
   private void initialiseVariableValueSourcesFromColumns() {
-    List<String> reserved = Lists.newArrayList(getSettings().getEntityIdentifierColumns());
-
+    List<String> reserved = Lists.newArrayList(getSettings().getEntityIdentifierColumn());
     if(getCreatedTimestampColumnName() != null) reserved.add(getCreatedTimestampColumnName());
-
     if(getCreatedTimestampColumnName() != null) reserved.add(getUpdatedTimestampColumnName());
 
-    for(Column column : table.getColumns()) {
-      if(!reserved.contains(column.getName()) && !reserved.contains(column.getName().toLowerCase())) {
-        addVariableValueSource(new JdbcVariableValueSource(this, column));
-      }
-    }
+    tableOrView.getColumns().stream() //
+        .filter(column -> !reserved.contains(column.getName()) && !reserved.contains(column.getName().toLowerCase())) //
+        .forEach(column -> addVariableValueSource(new JdbcVariableValueSource(this, column)));
   }
 
   private class VariableRowMapper implements RowMapper<Variable> {
@@ -404,9 +414,8 @@ class JdbcValueTable extends AbstractValueTable {
 
   private void createSqlTable(String sqlTableName) {
     CreateTableChangeBuilder ctc = CreateTableChangeBuilder.newBuilder().tableName(sqlTableName);
-    for(String idColumn : getSettings().getEntityIdentifierColumns()) {
-      ctc.withColumn(idColumn, "VARCHAR(255)").primaryKey();
-    }
+    ctc.withColumn(getSettings().getEntityIdentifierColumn(), "VARCHAR(255)").primaryKey();
+
     createTimestampColumns(ctc);
     List<Change> changes = Lists.<Change>newArrayList(ctc.build());
 
@@ -433,28 +442,12 @@ class JdbcValueTable extends AbstractValueTable {
     }
   }
 
-  String getEntityIdentifierColumnsSql() {
-    StringBuilder sql = new StringBuilder();
-    List<String> entityIdentifierColumns = getSettings().getEntityIdentifierColumns();
-
-    for(int i = 0; i < entityIdentifierColumns.size(); i++) {
-      if(i > 0) sql.append(",");
-      sql.append(getDatasource().escapeColumnName(entityIdentifierColumns.get(i)));
-    }
-    return sql.toString();
+  String getEntityIdentifierColumnSql() {
+    return getDatasource().escapeColumnName(getSettings().getEntityIdentifierColumn());
   }
 
-  String buildEntityIdentifier(ResultSet rs) throws SQLException {
-    StringBuilder entityIdentifier = new StringBuilder();
-    for(int i = 1; i <= getSettings().getEntityIdentifierColumns().size(); i++) {
-      if(i > 1) {
-        entityIdentifier.append('-');
-      }
-
-      entityIdentifier.append(rs.getObject(i));
-    }
-
-    return entityIdentifier.toString();
+  String extractEntityIdentifier(ResultSet rs) throws SQLException {
+    return rs.getObject(1).toString();
   }
 
   String getVariableSqlName(String variableName) {
@@ -475,7 +468,10 @@ class JdbcValueTable extends AbstractValueTable {
 
   public void refreshTable() {
     getDatasource().databaseChanged();
-    table = getDatasource().getDatabaseSnapshot().get(newTable(settings.getSqlTableName()));
+    // no need to refresh a view
+    if (tableOrView instanceof Table) {
+      tableOrView = getDatasource().getDatabaseSnapshot().get(newTable(settings.getSqlTableName()));
+    }
   }
 
   public synchronized void refreshVariablesMap() {
@@ -499,12 +495,7 @@ class JdbcValueTable extends AbstractValueTable {
           getDatasource().getName(), getName() } : new Object[] { getName() };
 
       List<Map.Entry<String, String>> res = getDatasource().getJdbcTemplate()
-          .query(sql, params, new RowMapper<Map.Entry<String, String>>() {
-            @Override
-            public Map.Entry<String, String> mapRow(ResultSet rs, int rowNum) throws SQLException {
-              return Maps.immutableEntry(rs.getString(NAME_COLUMN), rs.getString(SQL_NAME_COLUMN));
-            }
-          });
+          .query(sql, params, (rs, rowNum) -> Maps.immutableEntry(rs.getString(NAME_COLUMN), rs.getString(SQL_NAME_COLUMN)));
 
       for(Map.Entry<String, String> e : res) variableMap.put(e.getKey(), e.getValue());
     }
@@ -554,16 +545,7 @@ class JdbcValueTable extends AbstractValueTable {
     private String appendIdentifierColumns(String sql) {
       StringBuilder sb = new StringBuilder(sql);
       sb.append(" WHERE ");
-      List<String> entityIdentifierColumns = getSettings().getEntityIdentifierColumns();
-      int nbIdentifiers = entityIdentifierColumns.size();
-
-      for(int i = 0; i < nbIdentifiers; i++) {
-        sb.append(getDatasource().escapeColumnName(entityIdentifierColumns.get(i))).append(" = ?");
-        if(i < nbIdentifiers - 1) {
-          sb.append(" AND ");
-        }
-      }
-
+      sb.append(getDatasource().escapeColumnName(getSettings().getEntityIdentifierColumn())).append(" = ?");
       return sb.toString();
     }
 

@@ -1,33 +1,8 @@
 package org.obiba.magma.datasource.jdbc;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.annotation.Nullable;
-import javax.sql.DataSource;
-import javax.validation.constraints.NotNull;
-
 import com.google.common.base.Predicate;
 import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
+import com.google.common.collect.*;
 import liquibase.change.Change;
 import liquibase.change.core.RenameTableChange;
 import liquibase.database.Database;
@@ -43,14 +18,11 @@ import liquibase.sql.visitor.SqlVisitor;
 import liquibase.statement.SqlStatement;
 import liquibase.structure.core.Column;
 import liquibase.structure.core.Table;
+import liquibase.structure.core.View;
 import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.ValueTableWriter;
-import org.obiba.magma.datasource.jdbc.support.CreateTableChangeBuilder;
-import org.obiba.magma.datasource.jdbc.support.InsertDataChangeBuilder;
-import org.obiba.magma.datasource.jdbc.support.MySqlEngineVisitor;
-import org.obiba.magma.datasource.jdbc.support.TableUtils;
-import org.obiba.magma.datasource.jdbc.support.UpdateDataChangeBuilder;
+import org.obiba.magma.datasource.jdbc.support.*;
 import org.obiba.magma.support.AbstractDatasource;
 import org.obiba.magma.support.Initialisables;
 import org.obiba.magma.type.TextType;
@@ -66,8 +38,17 @@ import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.support.TransactionTemplate;
 
+import javax.annotation.Nullable;
+import javax.sql.DataSource;
+import javax.validation.constraints.NotNull;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.*;
+
 import static org.obiba.magma.datasource.jdbc.JdbcValueTableWriter.*;
 import static org.obiba.magma.datasource.jdbc.support.TableUtils.newTable;
+import static org.obiba.magma.datasource.jdbc.support.TableUtils.newView;
 
 public class JdbcDatasource extends AbstractDatasource {
 
@@ -158,6 +139,7 @@ public class JdbcDatasource extends AbstractDatasource {
     if(hasValueTable(newName)) throw new MagmaRuntimeException("A table already exists with the name: " + newName);
 
     JdbcValueTable table = (JdbcValueTable) getValueTable(tableName);
+    if (table.isSQLView()) throw new MagmaRuntimeException("A SQL view cannot be renamed");
     removeValueTable(table);
     String newSqlName = getSettings().isUseMetadataTables() ? generateSqlTableName(newName) : newName;
     getValueTableMap().remove(tableName);
@@ -286,10 +268,18 @@ public class JdbcDatasource extends AbstractDatasource {
     if(tableSettings != null) return new JdbcValueTable(this, tableSettings);
 
     Table table = getDatabaseSnapshot().get(newTable(sqlTableName));
+    if (table != null) {
+      return new JdbcValueTable(this, tableName, table, entityType);
+    }
 
-    return table == null ? new JdbcValueTable(this,
-        new JdbcValueTableSettings(generateSqlTableName(tableName), tableName, entityType,
-            settings.getDefaultEntityIdColumnName())) : new JdbcValueTable(this, tableName, table, entityType);
+    View view = getDatabaseSnapshot().get(newView(sqlTableName));
+    if (view != null) {
+      return new JdbcValueTable(this, tableName, view, entityType, settings.getDefaultEntityIdColumnName());
+    }
+
+    return new JdbcValueTable(this,
+          new JdbcValueTableSettings(generateSqlTableName(tableName), tableName, entityType,
+              settings.getDefaultEntityIdColumnName()));
   }
 
   //
@@ -302,35 +292,50 @@ public class JdbcDatasource extends AbstractDatasource {
     String select = getSettings().isMultipleDatasources() ? String
         .format("SELECT %s FROM %s WHERE %s = '%s'", ESC_NAME_COLUMN, ESC_VALUE_TABLES_TABLE, ESC_DATASOURCE_COLUMN,
             getName()) : String.format("SELECT %s FROM %s", ESC_NAME_COLUMN, ESC_VALUE_TABLES_TABLE);
-
-    names.addAll(getJdbcTemplate().query(select, new RowMapper<String>() {
-      @Override
-      public String mapRow(ResultSet rs, int rowNum) throws SQLException {
-        return rs.getString(NAME_COLUMN);
-      }
-    }));
-
+    names.addAll(getJdbcTemplate().query(select, (rs, rowNum) -> rs.getString(NAME_COLUMN)));
     return names;
   }
 
   @NotNull
   private Set<String> getObservedValueTableNames() {
     Set<String> names = new LinkedHashSet<>();
-    for(Table table : getDatabaseSnapshot().get(Table.class)) {
-      String tableName = table.getName();
 
-      if(RESERVED_NAMES.contains(tableName.toLowerCase()) ||
-          !settings.getMappedTables().isEmpty() && !settings.getMappedTables().contains(tableName)) continue;
+    getDatabaseSnapshot().get(Table.class).stream() //
+        .filter(table -> isTableIncluded(table.getName())) //
+        .forEach(table -> {
+          String tableName = table.getName();
+          JdbcValueTableSettings tableSettings = settings.getTableSettingsForSqlTable(tableName);
+          if (tableSettings != null) {
+            names.add(tableSettings.getMagmaTableName());
+          } else if (!Strings.isNullOrEmpty(JdbcValueTable.getEntityIdentifierColumn(table))) {
+            names.add(tableName);
+          }
+        });
 
-      JdbcValueTableSettings tableSettings = settings.getTableSettingsForSqlTable(tableName);
+    getDatabaseSnapshot().get(View.class).stream() //
+        .filter(view -> isTableIncluded(view.getName())) //
+        .forEach(view -> {
+          String viewName = view.getName();
+          JdbcValueTableSettings tableSettings = settings.getTableSettingsForSqlTable(viewName);
+          if (tableSettings != null) {
+            names.add(tableSettings.getMagmaTableName());
+          } else {
+            names.add(viewName);
+          }
+        });
 
-      if(tableSettings != null) {
-        names.add(tableSettings.getMagmaTableName());
-      } else if(!JdbcValueTable.getEntityIdentifierColumns(table).isEmpty()) {
-        names.add(tableName);
-      }
-    }
     return names;
+  }
+
+  /**
+   * SQL Table (or View) is included if it has not a reserved name and it was filtered in by settings.
+   *
+   * @param sqlTableName
+   * @return
+   */
+  private boolean isTableIncluded(String sqlTableName) {
+    return !RESERVED_NAMES.contains(sqlTableName.toLowerCase())
+        && (settings.hasTableSettingsForSqlTable(sqlTableName) || !settings.hasMappedTables() || settings.hasMappedTable(sqlTableName));
   }
 
   /**
@@ -398,20 +403,12 @@ public class JdbcDatasource extends AbstractDatasource {
             ESC_VALUE_TABLES_TABLE, ESC_DATASOURCE_COLUMN, getName())
             : String.format("SELECT %s, %s FROM %s", ESC_NAME_COLUMN, ESC_SQL_NAME_COLUMN, ESC_VALUE_TABLES_TABLE);
 
-        List<Map.Entry<String, String>> entries = getJdbcTemplate()
-            .query(select, new RowMapper<Map.Entry<String, String>>() {
-              @Override
-              public Map.Entry<String, String> mapRow(ResultSet rs, int rowNum) throws SQLException {
-                return Maps.immutableEntry(rs.getString(NAME_COLUMN), rs.getString(SQL_NAME_COLUMN));
-              }
-            });
+        List<Map.Entry<String, String>> entries = getJdbcTemplate() //
+            .query(select,
+                (rs, rowNum) -> Maps.immutableEntry(rs.getString(NAME_COLUMN), rs.getString(SQL_NAME_COLUMN)));
 
         ImmutableMap.Builder<String, String> builder = ImmutableMap.builder();
-
-        for(Map.Entry<String, String> entry : entries) {
-          builder.put(entry);
-        }
-
+        entries.forEach(builder::put);
         valueTableMap.putAll(builder.build());
       }
     }
@@ -419,7 +416,7 @@ public class JdbcDatasource extends AbstractDatasource {
     return valueTableMap;
   }
 
-  public JdbcDatasourceSettings getSettings() {
+  JdbcDatasourceSettings getSettings() {
     return settings;
   }
 
@@ -427,7 +424,7 @@ public class JdbcDatasource extends AbstractDatasource {
     return jdbcTemplate;
   }
 
-  public NamedParameterJdbcTemplate getNamedParameterJdbcTemplate() {
+  NamedParameterJdbcTemplate getNamedParameterJdbcTemplate() {
     return namedParameterJdbcTemplate;
   }
 
@@ -438,7 +435,7 @@ public class JdbcDatasource extends AbstractDatasource {
     return txTemplate;
   }
 
-  public String escapeTableName(final String identifier) {
+  String escapeTableName(final String identifier) {
     if(!escapedTableNames.containsKey(identifier)) {
       String escaped = doWithDatabase(new DatabaseCallback<String>() {
         @Nullable
@@ -452,7 +449,7 @@ public class JdbcDatasource extends AbstractDatasource {
     return escapedTableNames.get(identifier);
   }
 
-  public String escapeColumnName(final String identifier) {
+  String escapeColumnName(final String identifier) {
     if (!escapedColumnNames.containsKey(identifier)) {
       String escaped = doWithDatabase(new DatabaseCallback<String>() {
         @Nullable
