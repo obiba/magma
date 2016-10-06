@@ -30,6 +30,10 @@ public class JdbcValueTableSettings {
 
   private String entityIdentifiersWhere;
 
+  private String excludedColumns;
+
+  private String includedColumns;
+
   //
   // Constructors
   //
@@ -114,4 +118,29 @@ public class JdbcValueTableSettings {
   public void setEntityIdentifiersWhere(String entityIdentifiersWhere) {
     this.entityIdentifiersWhere = entityIdentifiersWhere;
   }
+
+  public String getExcludedColumns() {
+    return excludedColumns;
+  }
+
+  public void setExcludedColumns(String excludedColumns) {
+    this.excludedColumns = excludedColumns;
+  }
+
+  public boolean hasExcludedColumns() {
+    return !Strings.isNullOrEmpty(excludedColumns);
+  }
+
+  public String getIncludedColumns() {
+    return includedColumns;
+  }
+
+  public void setIncludedColumns(String includedColumns) {
+    this.includedColumns = includedColumns;
+  }
+
+  public boolean hasIncludedColumns() {
+    return !Strings.isNullOrEmpty(includedColumns);
+  }
 }
+

@@ -1,17 +1,5 @@
 package org.obiba.magma.datasource.jdbc;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.stream.Collectors;
-
-import javax.annotation.Nullable;
-import javax.validation.constraints.NotNull;
-
 import com.google.common.base.Strings;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
@@ -32,6 +20,14 @@ import org.obiba.magma.type.DateTimeType;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
+
+import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.*;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import static org.obiba.magma.datasource.jdbc.JdbcValueTableWriter.*;
 import static org.obiba.magma.datasource.jdbc.support.TableUtils.newTable;
@@ -295,9 +291,27 @@ class JdbcValueTable extends AbstractValueTable {
     if(getCreatedTimestampColumnName() != null) reserved.add(getCreatedTimestampColumnName());
     if(getCreatedTimestampColumnName() != null) reserved.add(getUpdatedTimestampColumnName());
 
+    Pattern exclusion = Pattern.compile(getSettings().hasExcludedColumns() ? getSettings().getExcludedColumns() : "^$");
+    Pattern inclusion = Pattern.compile(getSettings().hasIncludedColumns() ? getSettings().getIncludedColumns() : ".*");
+
     tableOrView.getColumns().stream() //
-        .filter(column -> !reserved.contains(column.getName()) && !reserved.contains(column.getName().toLowerCase())) //
+        .filter(column -> isColumnIncluded(column, reserved, exclusion, inclusion)) //
         .forEach(column -> addVariableValueSource(new JdbcVariableValueSource(this, column)));
+  }
+
+  /**
+   * Check if the column name is neither reserved, nor excluded and is included.
+   *
+   * @param column
+   * @param reserved
+   * @param exclusion
+   * @param inclusion
+   * @return
+   */
+  private boolean isColumnIncluded(Column column, List<String> reserved, Pattern exclusion, Pattern inclusion) {
+    String name = column.getName();
+    return !reserved.contains(name) && !reserved.contains(name.toLowerCase())
+        && !exclusion.matcher(name).find() && inclusion.matcher(name).find();
   }
 
   private class VariableRowMapper implements RowMapper<Variable> {
