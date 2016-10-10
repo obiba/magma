@@ -1,11 +1,7 @@
 package org.obiba.magma.views;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.SortedSet;
+import java.util.*;
+import java.util.stream.StreamSupport;
 
 import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
@@ -262,22 +258,21 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
 
   @Override
   public Iterable<ValueSet> getValueSets(Iterable<VariableEntity> entities) {
-    List<VariableEntity> unmappedEntities = Lists.newArrayList();
-    for (VariableEntity entity : entities) {
-      unmappedEntities.add(getVariableEntityMappingFunction().unapply(entity));
-    }
+    List<VariableEntity> unmappedEntities = Collections.synchronizedList(Lists.newArrayList());
+    StreamSupport.stream(entities.spliterator(), true) //
+    .forEach(entity -> unmappedEntities.add(getVariableEntityMappingFunction().unapply(entity)));
     // do not use Guava functional stuff to avoid multiple iterations over valueSets
-    List<ValueSet> valueSets = Lists.newArrayList();
-    for(ValueSet valueSet : super.getValueSets(unmappedEntities)) {
-      if(getWhereClause().where(valueSet, this)) { // taking into account the WhereClause
+    List<ValueSet> valueSets = Collections.synchronizedList(Lists.newArrayList());
+    StreamSupport.stream(super.getValueSets(unmappedEntities).spliterator(), true) //
+    .filter(valueSet -> getWhereClause().where(valueSet, this)) // taking into account the WhereClause
+    .forEach(valueSet -> {
         // replacing each ValueSet with one that points at the current View
         valueSet = getValueSetMappingFunction().apply(valueSet);
         // result of transformation might have returned a non-mappable entity
         if(valueSet != null && valueSet.getVariableEntity() != null) {
           valueSets.add(valueSet);
         }
-      }
-    }
+    });
     return valueSets;
   }
 
@@ -318,12 +313,7 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
   }
 
   private Iterable<Variable> getSelectVariables() {
-    return Iterables.filter(super.getVariables(), new Predicate<Variable>() {
-      @Override
-      public boolean apply(Variable input) {
-        return getSelectClause().select(input);
-      }
-    });
+    return Iterables.filter(super.getVariables(), input -> getSelectClause().select(input));
   }
 
   private Iterable<Variable> getListVariables() {
@@ -436,21 +426,22 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
 
   protected Set<VariableEntity> loadVariableEntities() {
     // do not use Guava functional stuff to avoid multiple iterations over entities
-    ImmutableSet.Builder<VariableEntity> builder = ImmutableSet.builder();
+    Set<VariableEntity> entities = Sets.newConcurrentHashSet();
     if(hasVariables()) {
-      for(VariableEntity entity : super.getVariableEntities()) {
-        // transform super.getVariableEntities() using getVariableEntityMappingFunction()
-        // (which may modified entity identifiers)
-        entity = getVariableEntityMappingFunction().apply(entity);
+      StreamSupport.stream(super.getVariableEntities().spliterator(), true) //
+          .forEach(entity -> {
+            // transform super.getVariableEntities() using getVariableEntityMappingFunction()
+            // (which may modified entity identifiers)
+            entity = getVariableEntityMappingFunction().apply(entity);
 
-        // filter the resulting entities to remove the ones for which hasValueSet() is false
-        // (usually due to a where clause)
-        if(hasValueSet(entity)) {
-          builder.add(entity);
-        }
-      }
+            // filter the resulting entities to remove the ones for which hasValueSet() is false
+            // (usually due to a where clause)
+            if(hasValueSet(entity)) {
+              entities.add(entity);
+            }
+          });
     }
-    return builder.build();
+    return entities;
   }
 
   public void setDatasource(ViewAwareDatasource datasource) {
@@ -564,10 +555,9 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
 
       private SortedSet<VariableEntity> getMappedEntities(Iterable<VariableEntity> entities) {
         if(mappedEntities == null) {
-          mappedEntities = Sets.newTreeSet();
-          for(VariableEntity entity : entities) {
-            mappedEntities.add(getVariableEntityMappingFunction().unapply(entity));
-          }
+          mappedEntities = Collections.synchronizedSortedSet(Sets.newTreeSet());
+          StreamSupport.stream(entities.spliterator(), true) //
+           .forEach(entity -> mappedEntities.add(getVariableEntityMappingFunction().unapply(entity)));
         }
         return mappedEntities;
       }
