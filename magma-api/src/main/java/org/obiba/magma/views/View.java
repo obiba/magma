@@ -556,7 +556,7 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
       private SortedSet<VariableEntity> getMappedEntities(Iterable<VariableEntity> entities) {
         if(mappedEntities == null) {
           mappedEntities = Collections.synchronizedSortedSet(Sets.newTreeSet());
-          StreamSupport.stream(entities.spliterator(), true) //
+          StreamSupport.stream(entities.spliterator(), false) // not parallel to preserve entities order
            .forEach(entity -> mappedEntities.add(getVariableEntityMappingFunction().unapply(entity)));
         }
         return mappedEntities;
