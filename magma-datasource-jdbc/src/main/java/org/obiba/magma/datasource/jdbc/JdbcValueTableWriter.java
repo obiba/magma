@@ -478,6 +478,8 @@ class JdbcValueTableWriter implements ValueTableWriter {
 
     private String whereClause;
 
+    private boolean remove;
+
     private JdbcValueSetWriter(VariableEntity entity) {
       this.entity = entity;
       columnValueMap = new LinkedHashMap<>();
@@ -504,12 +506,12 @@ class JdbcValueTableWriter implements ValueTableWriter {
 
     @Override
     public void remove() {
-      columnValueMap.clear();
+      remove = true;
     }
 
     @Override
     public void close() {
-      if(columnValueMap.isEmpty()) {
+      if(remove) {
         getTransactionTemplate().execute(new TransactionCallbackWithoutResult() {
           @Override
           protected void doInTransactionWithoutResult(TransactionStatus status) {
