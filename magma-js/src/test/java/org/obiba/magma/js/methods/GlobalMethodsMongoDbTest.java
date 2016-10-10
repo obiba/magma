@@ -1,13 +1,10 @@
 package org.obiba.magma.js.methods;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
+import com.google.common.collect.Maps;
 import org.junit.After;
 import org.junit.Assume;
 import org.junit.Before;
@@ -140,21 +137,21 @@ public class GlobalMethodsMongoDbTest extends AbstractJsTest {
     }
     viewManager.addView(DATASOURCE, viewTemplate, null, null);
 
-    List<Long> tableValues = new ArrayList<>();
+    Map<String,Long> tableValues = Maps.newHashMap();
     for(ValueSet valueSet : table.getValueSets()) {
-      tableValues.add((Long) table.getValue(kgWeight, valueSet).getValue());
+      tableValues.put(valueSet.getVariableEntity().getIdentifier(), (Long) table.getValue(kgWeight, valueSet).getValue());
     }
 
-    List<Long> viewValues = new ArrayList<>();
+    Map<String, Long> viewValues = Maps.newHashMap();
     View view = viewManager.getView(DATASOURCE, "view");
     for(ValueSet valueSet : view.getValueSets()) {
-      viewValues.add((Long) view.getValue(lbsWeight, valueSet).getValue());
+      viewValues.put(valueSet.getVariableEntity().getIdentifier(), (Long) view.getValue(lbsWeight, valueSet).getValue());
     }
     assertThat(tableValues.size()).isEqualTo(viewValues.size()).isEqualTo(NB_ENTITIES);
 
-    for(int i = 0; i < NB_ENTITIES; i++) {
-      Long kg = tableValues.get(i);
-      Long lbs = viewValues.get(i);
+    for(String id : tableValues.keySet()) {
+      Long kg = tableValues.get(id);
+      Long lbs = viewValues.get(id);
       assertThat(lbs).isEqualTo((long) (kg * 2.2));
     }
   }
@@ -262,19 +259,19 @@ public class GlobalMethodsMongoDbTest extends AbstractJsTest {
     }
     viewManager.addView(DATASOURCE, viewTemplate, null, null);
 
-    List<Long> tableValues = new ArrayList<>();
+    Map<String,Long> tableValues = Maps.newHashMap();
     for(ValueSet valueSet : table.getValueSets()) {
-      tableValues.add((Long) table.getValue(kgWeight, valueSet).getValue());
+      tableValues.put(valueSet.getVariableEntity().getIdentifier(), (Long) table.getValue(kgWeight, valueSet).getValue());
     }
 
-    List<Long> viewValues = new ArrayList<>();
+    Map<String,Long> viewValues = Maps.newHashMap();
     View view = viewManager.getView(DATASOURCE, "view");
     for(ValueSet valueSet : view.getValueSets()) {
-      viewValues.add((Long) view.getValue(lbsWeight, valueSet).getValue());
+      viewValues.put(valueSet.getVariableEntity().getIdentifier(), (Long) view.getValue(lbsWeight, valueSet).getValue());
     }
-    for(int i = 0; i < viewValues.size(); i++) {
-      Long kg = tableValues.get(i);
-      Long lbs = viewValues.get(i);
+    for(String id : tableValues.keySet()) {
+      Long kg = tableValues.get(id);
+      Long lbs = viewValues.get(id);
       assertThat(lbs).isEqualTo((long) (kg * 2.2));
     }
   }
