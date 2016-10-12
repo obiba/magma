@@ -365,15 +365,19 @@ public class JoinTable implements ValueTable, Initialisable {
 
     @Override
     public boolean hasNext() {
-      return partitions.hasNext() || (currentBatch != null && currentBatch.hasNext());
+      synchronized (partitions) {
+        return partitions.hasNext() || (currentBatch != null && currentBatch.hasNext());
+      }
     }
 
     @Override
     public ValueSet next() {
-      if (currentBatch == null || !currentBatch.hasNext()) {
-        currentBatch = getValueSetsBatch(partitions.next()).getValueSets().iterator();
+      synchronized (partitions) {
+        if (currentBatch == null || !currentBatch.hasNext()) {
+          currentBatch = getValueSetsBatch(partitions.next()).getValueSets().iterator();
+        }
+        return currentBatch.next();
       }
-      return currentBatch.next();
     }
 
     private ValueSetBatch getValueSetsBatch(final List<VariableEntity> entities) {

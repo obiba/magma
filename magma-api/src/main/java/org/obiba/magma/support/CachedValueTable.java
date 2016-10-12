@@ -1,31 +1,16 @@
 package org.obiba.magma.support;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
-import java.util.SortedSet;
-
-import javax.validation.constraints.NotNull;
-
-import com.google.common.collect.Lists;
-import org.obiba.magma.Datasource;
-import org.obiba.magma.MagmaRuntimeException;
-import org.obiba.magma.NoSuchValueSetException;
-import org.obiba.magma.NoSuchVariableException;
-import org.obiba.magma.Timestamps;
-import org.obiba.magma.Value;
-import org.obiba.magma.ValueSet;
-import org.obiba.magma.ValueTable;
-import org.obiba.magma.Variable;
-import org.obiba.magma.VariableEntity;
-import org.obiba.magma.VariableValueSource;
-import org.springframework.cache.Cache;
-
 import com.google.common.base.Joiner;
 import com.google.common.base.Objects;
 import com.google.common.base.Supplier;
 import com.google.common.collect.Iterables;
+import org.obiba.magma.*;
+import org.springframework.cache.Cache;
+
+import javax.validation.constraints.NotNull;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 
 public class CachedValueTable implements ValueTable {
@@ -143,11 +128,9 @@ public class CachedValueTable implements ValueTable {
 
   @Override
   public Iterable<ValueSet> getValueSets(Iterable<VariableEntity> entities) {
-    List<ValueSet> valueSets = Lists.newArrayList();
-    for(VariableEntity variableEntity: entities) {
-      valueSets.add(new CachedValueSet(this, variableEntity, cache));
-    }
-    return valueSets;
+    return StreamSupport.stream(entities.spliterator(), false) //
+        .map(entity -> new CachedValueSet(CachedValueTable.this, entity, cache)) //
+        .collect(Collectors.toList());
   }
 
   @Override

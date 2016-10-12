@@ -1,31 +1,14 @@
 package org.obiba.magma;
 
-import javax.validation.constraints.NotNull;
-
 import com.google.common.base.Function;
+
+import javax.validation.constraints.NotNull;
 
 public interface Timestamped {
 
-  Function<Timestamped, Timestamps> ToTimestamps = new Function<Timestamped, Timestamps>() {
+  Function<Timestamped, Timestamps> ToTimestamps = from -> from == null ? null : from.getTimestamps();
 
-    @Override
-    public Timestamps apply(Timestamped from) {
-      return from == null ? null : from.getTimestamps();
-    }
-  };
-
-  Function<Timestamps, Timestamped> ToTimestamped = new Function<Timestamps, Timestamped>() {
-
-    @Override
-    public Timestamped apply(final Timestamps from) {
-      return from == null ? null : new Timestamped() {
-        @Override
-        public Timestamps getTimestamps() {
-          return from;
-        }
-      };
-    }
-  };
+  Function<Timestamps, Timestamped> ToTimestamped = from -> from == null ? null : (Timestamped) () -> from;
 
   @NotNull
   Timestamps getTimestamps();
