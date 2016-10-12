@@ -1,18 +1,17 @@
 package org.obiba.magma.support;
 
-import java.util.Arrays;
-import java.util.Collection;
-
-import javax.validation.constraints.NotNull;
-
+import com.google.common.base.Function;
+import com.google.common.collect.Iterables;
 import org.obiba.magma.Timestamped;
 import org.obiba.magma.Timestamps;
 import org.obiba.magma.Value;
 import org.obiba.magma.type.DateTimeType;
 
-import com.google.common.base.Function;
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
+import javax.validation.constraints.NotNull;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 public class UnionTimestamps implements Timestamps {
 
@@ -43,14 +42,14 @@ public class UnionTimestamps implements Timestamps {
    * on the {@code earliest} argument.
    *
    * @param extractTimestampFunction the function used to extract the timestamp to work with (either created or
-   * lastUpdate)
-   * @param earliest whether to return the earliest value or the latest value
+   *                                 lastUpdate)
+   * @param earliest                 whether to return the earliest value or the latest value
    * @return the earliest/latest timestamp from the set of timestamps. This method never returns null.
    */
   private Value getTimestamp(Function<Timestamps, Value> extractTimestampFunction, boolean earliest) {
     Iterable<Value> created = Iterables.transform(timestamps, extractTimestampFunction);
     Value[] values = Iterables.toArray(getNonNullValues(created), Value.class);
-    if(values.length > 0) {
+    if (values.length > 0) {
       Arrays.sort(values);
       return values[earliest ? 0 : values.length - 1];
     } else {
@@ -65,15 +64,9 @@ public class UnionTimestamps implements Timestamps {
    * @return
    */
   private Iterable<Value> getNonNullValues(Iterable<Value> values) {
-    return Iterables.filter(values, new Predicate<Value>() {
-
-      @Override
-      public boolean apply(Value value) {
-        return value != null && !value.isNull();
-      }
-
-    });
-
+    return StreamSupport.stream(values.spliterator(), false) //
+        .filter(value -> value != null && !value.isNull()) //
+        .collect(Collectors.toList());
   }
 
   private static final class ExtractLastUpdateFunction implements Function<Timestamps, Value> {
