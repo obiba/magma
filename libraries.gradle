@@ -77,6 +77,8 @@ ext {
 
       postgresql: 'org.postgresql:postgresql:9.4-1202-jdbc42',
 
+      rengine: 'net.rforge:REngine:0.6-8.1',
+
       rhino_js: 'org.mozilla:rhino:1.7.7.1',
 
       shiro_core: 'org.apache.shiro:shiro-core:1.2.4',
