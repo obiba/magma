@@ -27,5 +27,6 @@ dependencies {
     exclude(module: 'slf4j-nop')
   }
   testCompile(libraries.mysql_connector_java)
+  testCompile(libraries.mariadb_connector_java)
   testCompile(libraries.postgresql)
 }
