@@ -61,6 +61,7 @@ import org.apache.poi.xssf.model.StylesTable;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFRichTextString;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.obiba.magma.Disposable;
 import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.Timestamps;
 import org.obiba.magma.ValueTable;
@@ -119,6 +120,8 @@ public class ExcelDatasource extends AbstractDatasource {
   private Map<String, CellStyle> excelStyles;
 
   private final Map<String, ExcelValueTable> valueTablesMapOnInit = new LinkedHashMap<>(100);
+
+  private ExcelValueTableWriter excelValueTableWriter;
 
   /**
    * Excel workbook will be read from the provided file if it exists, and will be written in the file at datasource
@@ -255,7 +258,8 @@ public class ExcelDatasource extends AbstractDatasource {
   @Override
   @NotNull
   public ValueTableWriter createWriter(@NotNull String name, @NotNull String entityType) {
-    ExcelValueTable valueTable = null;
+
+    ExcelValueTable valueTable;
 
     if(hasValueTable(name)) {
       valueTable = (ExcelValueTable) getValueTable(name);
@@ -263,7 +267,19 @@ public class ExcelDatasource extends AbstractDatasource {
       addValueTable(valueTable = new ExcelValueTable(this, name, entityType));
     }
 
-    return new ExcelValueTableWriter(valueTable);
+    if (excelValueTableWriter == null)
+      excelValueTableWriter = new ExcelValueTableWriter(valueTable);
+    else
+      excelValueTableWriter = new ExcelValueTableWriter(valueTable, excelValueTableWriter);
+
+    return excelValueTableWriter;
+  }
+
+  @Override
+  public void dispose() {
+    if (excelValueTableWriter != null && excelValueTableWriter.writeVariables() != null)
+      ((Disposable) excelValueTableWriter.writeVariables()).dispose();
+    super.dispose();
   }
 
   /**

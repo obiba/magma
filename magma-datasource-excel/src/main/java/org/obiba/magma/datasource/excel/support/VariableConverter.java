@@ -10,14 +10,8 @@
 
 package org.obiba.magma.datasource.excel.support;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.annotation.Nullable;
-
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -30,12 +24,19 @@ import org.obiba.magma.ValueType;
 import org.obiba.magma.Variable;
 import org.obiba.magma.datasource.excel.ExcelDatasource;
 import org.obiba.magma.datasource.excel.ExcelValueTable;
+import org.obiba.magma.datasource.excel.ExcelValueTableWriter;
 import org.obiba.magma.type.BooleanType;
 import org.obiba.magma.type.IntegerType;
 import org.obiba.magma.type.TextType;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
+import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public class VariableConverter {
 
@@ -97,17 +98,19 @@ public class VariableConverter {
   /**
    * Maps a variable's name to its Row in the variablesSheet
    */
-  private final Map<String, Row> variableRows = Maps.newHashMap();
+  private final Map<String, Row> variableRows;
 
   /**
    * Maps a category's name concatenated with the variable's name to its Row in the variablesSheet
    */
-  private final Map<String, Row> categoryRows = Maps.newHashMap();
+  private final Map<String, Row> categoryRows;
 
   private final ExcelValueTable valueTable;
 
   public VariableConverter(ExcelValueTable valueTable) {
     this.valueTable = valueTable;
+    variableRows = Maps.newHashMap();
+    categoryRows = Maps.newHashMap();
   }
 
   /**
@@ -337,10 +340,13 @@ public class VariableConverter {
   // marshall
   //
 
-  public Row marshall(Variable variable, Row headerRowVariables, Row headerRowCategories) {
+  public Row marshall(ExcelValueTableWriter.VariableWithMetadata itemToWrite) {
+
+    Variable variable = itemToWrite.getVariable();
+
     Row variableRow = getVariableRow(variable);
 
-    ExcelUtil.setCellValue(getVariableCell(variableRow, TABLE), TextType.get(), valueTable.getName());
+    ExcelUtil.setCellValue(getVariableCell(variableRow, TABLE), TextType.get(), itemToWrite.getTableName());
     ExcelUtil.setCellValue(getVariableCell(variableRow, NAME), TextType.get(), variable.getName());
     ExcelUtil.setCellValue(getVariableCell(variableRow, MIME_TYPE), TextType.get(), variable.getMimeType());
     ExcelUtil
@@ -353,10 +359,10 @@ public class VariableConverter {
     ExcelUtil.setCellValue(getVariableCell(variableRow, REFERENCED_ENTITY_TYPE), TextType.get(),
         variable.getReferencedEntityType());
 
-    marshallCustomAttributes(variable, variableRow, headerRowVariables, headerMapVariables);
+    marshallCustomAttributes(variable, variableRow, itemToWrite.getHeaderRowVariables(), headerMapVariables);
 
     for(Category category : variable.getCategories()) {
-      marshallCategory(variable, category, headerRowCategories);
+      marshallCategory(variable, category, itemToWrite.getHeaderRowCategories());
     }
 
     return variableRow;
@@ -381,28 +387,67 @@ public class VariableConverter {
    * @param headerRow
    * @param headerMap
    */
-  private void marshallCustomAttributes(AttributeAware attributeAware, Row attributesRow, Row headerRow,
-      Map<String, Integer> headerMap) {
-    Integer attributeCellIndex;
-    Cell headerCell;
+  private void marshallCustomAttributes(AttributeAware attributeAware, Row attributesRow, Row headerRow, Map<String, Integer> headerMap) {
+
     for(Attribute customAttribute : attributeAware.getAttributes()) {
       String headerValue = Attributes.encodeForHeader(customAttribute);
-      attributeCellIndex = headerMap.get(headerValue);
+      Integer attributeCellIndex = headerMap.get(headerValue);
+
+      ExcelUtil.setCellValue(attributesRow.getCell(attributeCellIndex, Row.CREATE_NULL_AS_BLANK),
+              customAttribute.getValue());
+    }
+  }
+
+  public void createVariablesHeaders(List<Attribute> attributes, Row headerRow) {
+    createHeaders(attributes, headerRow, headerMapVariables);
+  }
+
+  public void createCategoriesHeaders(List<Attribute> attributes, Row headerRow) {
+    createHeaders(attributes, headerRow, headerMapCategories);
+  }
+
+  private void createHeaders(List<Attribute> attributes, Row headerRow, Map<String, Integer> headerMap) {
+
+    List<String> collect = attributes.stream()
+            .map(Attributes::encodeForHeader)
+            .distinct()
+            .sorted(new FullQualifiedAttributeComparator())
+            .collect(Collectors.toList());
+
+    for (String headerValue : collect) {
+      Integer attributeCellIndex = headerMap.get(headerValue);
       if(attributeCellIndex == null) {
         headerMap.put(headerValue, getLastCellNum(headerRow));
         attributeCellIndex = getLastCellNum(headerRow);
-        headerCell = headerRow.createCell(attributeCellIndex);
+        Cell headerCell = headerRow.createCell(attributeCellIndex);
         headerCell.setCellValue(headerValue);
         headerCell.setCellStyle(valueTable.getDatasource().getHeaderCellStyle());
       }
-      ExcelUtil.setCellValue(attributesRow.getCell(attributeCellIndex, Row.CREATE_NULL_AS_BLANK),
-          customAttribute.getValue());
     }
   }
 
   //
   // utility methods
   //
+
+  private class FullQualifiedAttributeComparator implements Comparator<String> {
+
+    private static final String DELIMITER = "::";
+
+    @Override
+    public int compare(String o1, String o2) {
+      if (hasNamespace(o1) == hasNamespace(o2))
+        return o1.compareTo(o2);
+      else if (hasNamespace(o1))
+        return 1;
+      else
+        return -1;
+    }
+
+    private boolean hasNamespace(String o1) {
+      return o1.contains(DELIMITER);
+    }
+  }
 
   /**
    * Returns the {@code Row} from the variable sheet for the specified variable. If no such row currently exists, a new

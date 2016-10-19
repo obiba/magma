@@ -10,11 +10,11 @@
 
 package org.obiba.magma.datasource.excel;
 
-import javax.validation.constraints.NotNull;
-
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
+import org.obiba.magma.Attribute;
+import org.obiba.magma.Disposable;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueTableWriter;
 import org.obiba.magma.Variable;
@@ -23,17 +23,33 @@ import org.obiba.magma.datasource.excel.support.ExcelUtil;
 import org.obiba.magma.datasource.excel.support.VariableConverter;
 import org.obiba.magma.type.TextType;
 
+import javax.validation.constraints.NotNull;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.stream.Collectors;
+
 public class ExcelValueTableWriter implements ValueTableWriter {
 
   private final ExcelValueTable valueTable;
+  private ExcelVariableWriter excelVariableWriter;
+  private List<VariableWithMetadata> variablesWithMetadata = new ArrayList<>();
+
+  public ExcelValueTableWriter(ExcelValueTable valueTable, ExcelValueTableWriter excelValueTableWriter) {
+    this(valueTable);
+    this.variablesWithMetadata = excelValueTableWriter.variablesWithMetadata;
+  }
 
   public ExcelValueTableWriter(ExcelValueTable valueTable) {
     this.valueTable = valueTable;
   }
 
   @Override
-  public VariableWriter writeVariables() {
-    return new ExcelVariableWriter();
+  public ExcelVariableWriter writeVariables() {
+    if (excelVariableWriter == null) {
+      excelVariableWriter = new ExcelVariableWriter();
+    }
+    return excelVariableWriter;
   }
 
   @NotNull
@@ -46,7 +62,7 @@ public class ExcelValueTableWriter implements ValueTableWriter {
   public void close() {
   }
 
-  private class ExcelVariableWriter implements VariableWriter {
+  private class ExcelVariableWriter implements VariableWriter, Disposable {
 
     private ExcelVariableWriter() {
     }
@@ -61,7 +77,6 @@ public class ExcelValueTableWriter implements ValueTableWriter {
 
     @Override
     public void writeVariable(@NotNull Variable variable) {
-      VariableConverter converter = valueTable.getVariableConverter();
 
       // prepare the header rows
       Row headerRowVariables = getVariablesSheet().getRow(0);
@@ -76,7 +91,29 @@ public class ExcelValueTableWriter implements ValueTableWriter {
       }
       updateCategorySheetHeaderRow(headerRowCategories);
 
-      converter.marshall(variable, headerRowVariables, headerRowCategories);
+      variablesWithMetadata.add(new VariableWithMetadata(variable, headerRowVariables, headerRowCategories, valueTable.getName()));
+    }
+
+    @Override
+    public void dispose() {
+
+      VariableConverter converter = valueTable.getVariableConverter();
+
+      List<Attribute> variablesAttributes = variablesWithMetadata.stream()
+              .map(t -> t.getVariable().getAttributes())
+              .flatMap(Collection::stream)
+              .collect(Collectors.toList());
+      List<Attribute> categoriesAttributes = variablesWithMetadata.stream()
+              .flatMap(variableWithMetadata -> variableWithMetadata.getVariable().getCategories().stream())
+              .flatMap(attributes -> attributes.getAttributes().stream())
+              .collect(Collectors.toList());
+
+      converter.createVariablesHeaders(variablesAttributes, getVariablesSheet().getRow(0));
+      converter.createCategoriesHeaders(categoriesAttributes, getCategoriesSheet().getRow(0));
+
+      for (VariableWithMetadata variableWithMetadata : variablesWithMetadata) {
+        converter.marshall(variableWithMetadata);
+      }
     }
 
     @Override
@@ -148,4 +185,34 @@ public class ExcelValueTableWriter implements ValueTableWriter {
 
   }
 
+  public class VariableWithMetadata {
+
+    private Variable variable;
+    private Row headerRowVariables;
+    private Row headerRowCategories;
+    private String tableName;
+
+    VariableWithMetadata(Variable variable, Row headerRowVariables, Row headerRowCategories, String tableName) {
+      this.variable = variable;
+      this.headerRowVariables = headerRowVariables;
+      this.headerRowCategories = headerRowCategories;
+      this.tableName = tableName;
+    }
+
+    public Variable getVariable() {
+      return variable;
+    }
+
+    public Row getHeaderRowVariables() {
+      return headerRowVariables;
+    }
+
+    public Row getHeaderRowCategories() {
+      return headerRowCategories;
+    }
+
+    public String getTableName() {
+      return tableName;
+    }
+  }
 }
