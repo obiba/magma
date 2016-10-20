@@ -12,7 +12,9 @@ package org.obiba.magma.datasource.jdbc;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
@@ -137,13 +139,10 @@ public class JdbcDatasourceSettings {
   }
 
   @Nullable
-  public JdbcValueTableSettings getTableSettingsForSqlTable(String sqlTableName) {
-    for(JdbcValueTableSettings settings : getTableSettings()) {
-      if(settings.getSqlTableName().equals(sqlTableName)) {
-        return settings;
-      }
-    }
-    return null;
+  public List<JdbcValueTableSettings> getTableSettingsForSqlTable(String sqlTableName) {
+    return getTableSettings().stream() //
+    .filter(settings -> settings.getSqlTableName().equals(sqlTableName)) //
+    .collect(Collectors.toList());
   }
 
   @Nullable

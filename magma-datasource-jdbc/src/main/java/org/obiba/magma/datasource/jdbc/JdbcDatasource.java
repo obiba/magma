@@ -314,9 +314,9 @@ public class JdbcDatasource extends AbstractDatasource {
         .filter(table -> isTableIncluded(table.getName())) //
         .forEach(table -> {
           String tableName = table.getName();
-          JdbcValueTableSettings tableSettings = settings.getTableSettingsForSqlTable(tableName);
-          if (tableSettings != null) {
-            names.add(tableSettings.getMagmaTableName());
+          List<JdbcValueTableSettings> tableSettings = settings.getTableSettingsForSqlTable(tableName);
+          if (tableSettings != null && !tableSettings.isEmpty()) {
+            tableSettings.forEach(settings -> names.add(settings.getMagmaTableName()));
           } else if (!Strings.isNullOrEmpty(JdbcValueTable.getEntityIdentifierColumn(table))) {
             names.add(tableName);
           }
@@ -326,9 +326,9 @@ public class JdbcDatasource extends AbstractDatasource {
         .filter(view -> isTableIncluded(view.getName())) //
         .forEach(view -> {
           String viewName = view.getName();
-          JdbcValueTableSettings tableSettings = settings.getTableSettingsForSqlTable(viewName);
-          if (tableSettings != null) {
-            names.add(tableSettings.getMagmaTableName());
+          List<JdbcValueTableSettings> tableSettings = settings.getTableSettingsForSqlTable(viewName);
+          if (tableSettings != null && !tableSettings.isEmpty()) {
+            tableSettings.forEach(settings -> names.add(settings.getMagmaTableName()));
           } else {
             names.add(viewName);
           }
