@@ -67,7 +67,7 @@ public class MagmaEngine implements DatasourceRegistry {
   @NotNull
   public static MagmaEngine get() {
     if(instance == null) {
-      log.warn("Instantiating a new MagmaEngine without any extensions.");
+      log.debug("Instantiating a new MagmaEngine without any extensions.");
       new MagmaEngine();
     }
     return instance;

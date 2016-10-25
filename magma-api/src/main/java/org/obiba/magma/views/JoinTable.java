@@ -38,7 +38,7 @@ public class JoinTable implements ValueTable, Initialisable {
    * Cached map of variable names to tables.
    */
   @NotNull
-  private transient final Multimap<JoinVariable, ValueTable> variableTables = ArrayListMultimap.create();
+  private transient final Multimap<Variable, ValueTable> variableTables = ArrayListMultimap.create();
 
   /**
    * Map of variable value sources.
@@ -50,7 +50,7 @@ public class JoinTable implements ValueTable, Initialisable {
    * Map first found JoinableVariable by its name
    */
   @NotNull
-  private transient final Map<String, JoinVariable> joinableVariablesByName = Maps.newHashMap();
+  private transient final Map<String, Variable> joinableVariablesByName = Maps.newHashMap();
 
   // An arbitrary number to initialise the LinkedHashSet with a capacity close to the actual value
   // See getVariableEntities()
@@ -87,13 +87,13 @@ public class JoinTable implements ValueTable, Initialisable {
   }
 
   @NotNull
-  private Multimap<JoinVariable, ValueTable> getVariableTables() {
+  private Multimap<Variable, ValueTable> getVariableTables() {
     if (!variableAnalysed) analyseVariables();
     return variableTables;
   }
 
   @NotNull
-  public Map<String, JoinVariable> getJoinableVariablesByName() {
+  public Map<String, Variable> getJoinableVariablesByName() {
     if (!variableAnalysed) analyseVariables();
     return joinableVariablesByName;
   }
@@ -102,8 +102,10 @@ public class JoinTable implements ValueTable, Initialisable {
     if (variableAnalysed) return;
     tables.forEach(table ->
         table.getVariables().forEach(variable -> {
-          JoinVariable joinableVariable = new JoinVariable(variable);
-          JoinVariable existing = joinableVariablesByName.get(variable.getName());
+
+          Variable joinableVariable = VariableBean.Builder.newVariable(variable.getName(), variable.getValueType(), variable.getEntityType()) //
+              .repeatable(variable.isRepeatable()).build();
+          Variable existing = joinableVariablesByName.get(variable.getName());
           if (existing != null && !existing.equals(joinableVariable)) {
             throw new IllegalArgumentException(
                 "Cannot have variables with same name and different value type or repeatability: '" +
@@ -222,7 +224,7 @@ public class JoinTable implements ValueTable, Initialisable {
 
     if (!variableValueSourceMap.containsKey(variableName)) {
       // find first variable with this name
-      JoinVariable joinableVariable = getJoinableVariablesByName().get(variableName);
+      Variable joinableVariable = getJoinableVariablesByName().get(variableName);
       if (joinableVariable == null) {
         throw new NoSuchVariableException(variableName);
       }
@@ -232,7 +234,7 @@ public class JoinTable implements ValueTable, Initialisable {
         throw new NoSuchVariableException(variableName);
       }
       variableValueSourceMap.put(variableName,
-          new JoinVariableValueSource(variableName, tablesWithVariable, table.getVariableValueSource(variableName)));
+          new JoinVariableValueSource(joinableVariable, tablesWithVariable));
     }
 
     return variableValueSourceMap.get(variableName);
@@ -300,7 +302,7 @@ public class JoinTable implements ValueTable, Initialisable {
   }
 
   @NotNull
-  private synchronized List<ValueTable> getTablesWithVariable(@NotNull JoinVariable joinableVariable)
+  private synchronized List<ValueTable> getTablesWithVariable(@NotNull Variable joinableVariable)
       throws NoSuchVariableException {
     Collection<ValueTable> cachedTables = getVariableTables().get(joinableVariable);
     if (cachedTables == null) {

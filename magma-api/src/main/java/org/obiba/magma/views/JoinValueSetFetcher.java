@@ -17,7 +17,9 @@ import org.obiba.magma.VariableEntity;
 
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 public class JoinValueSetFetcher {
 
@@ -27,23 +29,28 @@ public class JoinValueSetFetcher {
     this.joinTable = joinTable;
   }
 
-  synchronized Iterable<ValueSet> getInnerTableValueSets(VariableEntity entity) {
+  synchronized List<ValueSet> getInnerTableValueSets(VariableEntity entity) {
     return joinTable.getTables().stream() //
-        .filter(valueTable -> valueTable.hasValueSet(entity)) //
-        .map(valueTable -> valueTable.getValueSet(entity)) //
+        .map(valueTable -> valueTable.hasValueSet(entity) ? valueTable.getValueSet(entity) : null) //
         .collect(Collectors.toList());
   }
 
   synchronized Map<String, List<ValueSet>> getInnerTableValueSets(List<VariableEntity> entities) {
     Map<String, List<ValueSet>> vsMap = Maps.newHashMap();
     joinTable.getTables().forEach(valueTable -> {
-      valueTable.getValueSets(entities.stream() //
+      // take advantage of batch query of each table
+      Map<String, ValueSet> tvs = StreamSupport.stream(valueTable.getValueSets(entities.stream() //
           .filter(e -> valueTable.hasValueSet(e)) //
-          .collect(Collectors.toList())).forEach(vs -> {
-         if (!vsMap.containsKey(vs.getVariableEntity().getIdentifier())) {
-           vsMap.put(vs.getVariableEntity().getIdentifier(), Lists.newArrayList());
-         }
-         vsMap.get(vs.getVariableEntity().getIdentifier()).add(vs);
+          .collect(Collectors.toList())).spliterator(), false)
+          .collect(Collectors.toMap(valueSet -> valueSet.getVariableEntity().getIdentifier(), Function.identity()));
+
+      // fill the holes with null value sets
+      entities.stream().forEach(e -> {
+        ValueSet vs = tvs.containsKey(e.getIdentifier()) ? tvs.get(e.getIdentifier()) : null;
+        if (!vsMap.containsKey(e.getIdentifier())) {
+          vsMap.put(e.getIdentifier(), Lists.newArrayList());
+        }
+        vsMap.get(e.getIdentifier()).add(vs);
       });
     });
     return vsMap;

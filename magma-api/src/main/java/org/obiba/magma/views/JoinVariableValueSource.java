@@ -19,25 +19,24 @@ import java.util.List;
 import java.util.SortedSet;
 
 /**
- * Created by yannick on 04/10/16.
+ *
  */
-public class JoinVariableValueSource extends AbstractVariableValueSourceWrapper implements VectorSource {
+public class JoinVariableValueSource implements VariableValueSource, VectorSource {
+
+  @NotNull
+  private final Variable joinableVariable;
 
   @NotNull
   private final List<ValueTable> owners;
 
-  @NotNull
-  private final String variableName;
-
-  JoinVariableValueSource(@NotNull String variableName, @NotNull List<ValueTable> owners,
-                          @NotNull VariableValueSource wrapped) {
-    super(wrapped);
-    this.variableName = variableName;
+  JoinVariableValueSource(@NotNull Variable joinableVariable, @NotNull List<ValueTable> owners) {
+    this.joinableVariable = joinableVariable;
     this.owners = owners;
   }
 
-  private VariableValueSource getWrapped(ValueTable table) {
-    return table.getVariableValueSource(variableName);
+  @Override
+  public ValueType getValueType() {
+    return joinableVariable.getValueType();
   }
 
   @NotNull
@@ -49,7 +48,7 @@ public class JoinVariableValueSource extends AbstractVariableValueSourceWrapper 
   @Override
   public boolean supportVectorSource() {
     for (ValueTable table : owners) {
-      if (!table.getVariableValueSource(variableName).supportVectorSource()) {
+      if (!table.getVariableValueSource(getName()).supportVectorSource()) {
         return false;
       }
     }
@@ -66,7 +65,7 @@ public class JoinVariableValueSource extends AbstractVariableValueSourceWrapper 
     if (this == that) return true;
     if (that instanceof JoinVariableValueSource) {
       JoinVariableValueSource jvvs = (JoinVariableValueSource) that;
-      return getWrapped().equals(jvvs.getWrapped()) && Iterables.elementsEqual(owners, jvvs.owners);
+      return joinableVariable.equals(jvvs.joinableVariable) && Iterables.elementsEqual(owners, jvvs.owners);
     }
     return super.equals(that);
   }
@@ -75,7 +74,7 @@ public class JoinVariableValueSource extends AbstractVariableValueSourceWrapper 
   public int hashCode() {
     int result = 17;
     result = 37 * result + owners.hashCode();
-    result = 37 * result + getWrapped().hashCode();
+    result = 37 * result + joinableVariable.hashCode();
     return result;
   }
 
@@ -84,4 +83,13 @@ public class JoinVariableValueSource extends AbstractVariableValueSourceWrapper 
     return () -> new JoinValueIterator(entities, owners, getVariable());
   }
 
+  @Override
+  public String getName() {
+    return joinableVariable.getName();
+  }
+
+  @Override
+  public Variable getVariable() {
+    return joinableVariable;
+  }
 }

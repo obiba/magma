@@ -198,7 +198,7 @@ public class VariablesClauseTest extends AbstractJsTest {
     VariableValueSource variableValueSource = clause.getVariableValueSource("GENERIC_128");
     Variable variable = variableValueSource.getVariable();
 
-    verify(valueTableMock, atLeastOnce()).isView();
+    //verify(valueTableMock, atLeastOnce()).isView();
 
     assertThat(variable.getAttribute("label").getLocale()).isEqualTo(Locale.CANADA);
     assertThat(variable.getAttribute("label").getValue()).isEqualTo(TextType.get().valueOf("Birth Year"));

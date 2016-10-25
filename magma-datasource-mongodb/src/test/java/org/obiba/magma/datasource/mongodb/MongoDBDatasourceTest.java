@@ -448,9 +448,9 @@ public class MongoDBDatasourceTest {
     assertThat(variable.getCategories()).hasSize(newVariable.getCategories().size());
 
     List<Variable> foundVariables = Lists.newArrayList(table.getVariables());
-    assertThat(foundVariables.indexOf(newVariable)).isEqualTo(0);
-    assertThat(foundVariables.indexOf(variable2)).isEqualTo(1);
-    assertThat(foundVariables.indexOf(variable3)).isEqualTo(2);
+    assertThat(foundVariables.get(0).getName()).isEqualTo(newVariable.getName());
+    assertThat(foundVariables.get(1).getName()).isEqualTo(variable2.getName());
+    assertThat(foundVariables.get(2).getName()).isEqualTo(variable3.getName());
   }
 
   @Test

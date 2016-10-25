@@ -21,6 +21,8 @@ import java.util.TreeSet;
 import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 
+import com.google.common.base.Predicate;
+import com.google.common.collect.Lists;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ContextAction;
 import org.mozilla.javascript.ContextFactory;
@@ -170,7 +172,6 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
    *
    * @param ctx the current context
    * @param scope the scope of execution of this script
-   * @param valueSet the current {@code ValueSet}
    */
   protected void enterContext(MagmaContext ctx, Scriptable scope) {
   }
@@ -205,16 +206,18 @@ public class JavascriptValueSource implements ValueSource, VectorSource, Initial
     abstract Object eval(MagmaContext context, Scriptable scope);
 
     Value asValue(Object value) {
-      Value result = null;
+      Value result;
       if(value == null || value instanceof Undefined) {
         result = isSequence() ? getValueType().nullSequence() : getValueType().nullValue();
       } else if(value instanceof ScriptableValue) {
         ScriptableValue scriptableValue = (ScriptableValue) value;
-        if(scriptableValue.getValue().isSequence() != isSequence()) {
-          throw new MagmaJsRuntimeException(
-              "The returned value is " + (isSequence() ? "" : "not ") + "expected to be a value sequence.");
-        }
         result = scriptableValue.getValue();
+        if(!result.isSequence() && isSequence()) {
+           result = asValueSequence(result);
+        } else if (result.isSequence() && !isSequence()) {
+          result = result.asSequence().getValues().stream().filter(input -> !input.isNull()) //
+              .findFirst().orElseGet(() -> getValueType().nullValue());
+        }
       } else {
         result = isSequence() ? asValueSequence(value) : getValueType().valueOf(Rhino.fixRhinoNumber(value));
       }

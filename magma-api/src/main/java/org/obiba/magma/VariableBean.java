@@ -136,12 +136,20 @@ public class VariableBean extends AbstractAttributeAware implements Variable, Se
 
   @Override
   public boolean equals(Object o) {
-    return o instanceof Variable && ((Variable) o).getName().equals(name);
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    Variable other = (Variable) o;
+    return Objects.equal(name, other.getName()) && Objects.equal(valueType, other.getValueType()) &&
+        repeatable == other.isRepeatable() && Objects.equal(entityType, other.getEntityType());
   }
 
   @Override
   public int hashCode() {
-    return name.hashCode();
+    return Objects.hashCode(name, valueType, repeatable, entityType);
   }
 
   @Override

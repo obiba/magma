@@ -17,6 +17,7 @@ import javax.validation.constraints.NotNull;
 import java.util.Iterator;
 import java.util.List;
 import java.util.SortedSet;
+import java.util.stream.Collectors;
 
 class JoinValueIterator implements Iterator<Value> {
 
@@ -55,22 +56,10 @@ class JoinValueIterator implements Iterator<Value> {
       }
     }
 
-    // increment each value iterators and find first not null value
+    // increment each value iterators and make a sequence of them
     entitiesIterator.next();
-    Value joinedValue = null;
-    for (Iterator<Value> vector : valueIterators) {
-      Value value = vector.next();
-      if (joinedValue == null && !value.isNull()) {
-        joinedValue = value;
-      }
-    }
-    if (joinedValue == null) {
-      joinedValue = variable.isRepeatable()
-          ? variable.getValueType().nullSequence()
-          : variable.getValueType().nullValue();
-    }
-
-    return joinedValue;
+    List<Value> joinedValues = valueIterators.stream().map(Iterator::next).collect(Collectors.toList());
+    return variable.getValueType().sequenceOf(joinedValues);
   }
 
   @Override

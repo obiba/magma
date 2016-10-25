@@ -73,6 +73,37 @@ public class ValueSequenceMethods {
   }
 
   /**
+   * Returns the first not null Value of the {@link ValueSequence}. Returns null if the operand is null or the ValueSequence
+   * contains no Values or if all Values are null.
+   * <p/>
+   * <pre>
+   *   $('SequenceVar').firstNotNull()
+   * </pre>
+   *
+   * @param ctx
+   * @param thisObj
+   * @param args
+   * @param funObj
+   * @return
+   */
+  public static ScriptableValue firstNotNull(Context ctx, Scriptable thisObj, @Nullable Object[] args,
+                                      @Nullable Function funObj) {
+    ScriptableValue sv = (ScriptableValue) thisObj;
+    if(sv.getValue().isNull()) {
+      return new ScriptableValue(thisObj, sv.getValue());
+    }
+    if(sv.getValue().isSequence()) {
+      ValueSequence valueSequence = sv.getValue().asSequence();
+      return valueSequence.getSize() > 0 //
+          ? new ScriptableValue(thisObj, valueSequence.getValues().stream().filter(value -> !value.isNull())
+          .findFirst().orElse(valueSequence.getValueType().nullValue())) //
+          : new ScriptableValue(thisObj, valueSequence.getValueType().nullValue());
+    } else {
+      return sv;
+    }
+  }
+
+  /**
    * Returns the last Value of the {@link ValueSequence}. Returns null if the operand is null or the ValueSequence
    * contains no Values.
    * <p/>
