@@ -288,6 +288,7 @@ public class ExcelValueTable extends AbstractValueTable implements Initialisable
     int variableRowCount = variablesSheet.getPhysicalNumberOfRows();
 
     Row firstRow = null;
+    int position = 1;
     for(int i = 1; i < variableRowCount; i++) {
       Row variableRow = variablesSheet.getRow(i);
       if(converter.isVariableRow(variableRow)) {
@@ -300,16 +301,16 @@ public class ExcelValueTable extends AbstractValueTable implements Initialisable
               "DuplicateVariableName", ExcelDatasource.VARIABLES_SHEET, variableRow.getRowNum() + 1, getName(), name));
         } else {
           variableNames.add(name);
-          addParsedVariable(errors, variableRow);
+          addParsedVariable(errors, variableRow, position++);
         }
       }
     }
     return firstRow;
   }
 
-  private void addParsedVariable(Collection<ExcelDatasourceParsingException> errors, Row variableRow) {
+  private void addParsedVariable(Collection<ExcelDatasourceParsingException> errors, Row variableRow, int position) {
     try {
-      Variable variable = converter.unmarshall(variableRow);
+      Variable variable = converter.unmarshall(variableRow, position);
       addVariableValueSource(new ExcelVariableValueSource(variable));
     } catch(ExcelDatasourceParsingException pe) {
       errors.add(pe);

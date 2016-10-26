@@ -10,6 +10,7 @@
 
 package org.obiba.magma.datasource.excel.support;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.poi.ss.usermodel.Cell;
@@ -136,7 +137,7 @@ public class VariableConverter {
   // unmarshall
   //
   @SuppressWarnings({ "OverlyLongMethod", "PMD.NcssMethodCount" })
-  public Variable unmarshall(Row variableRow) {
+  public Variable unmarshall(Row variableRow, int position) {
     String tableName = valueTable.getName();
     int rowNum = variableRow.getRowNum();
 
@@ -158,7 +159,7 @@ public class VariableConverter {
     Variable.Builder builder = Variable.Builder.newVariable(name, valueType, entityType);
     unmarshallMimeType(variableRow, builder);
     unmarshallUnit(variableRow, builder);
-    unmarshallIndex(variableRow, builder);
+    unmarshallIndex(variableRow, builder, position);
     unmarshallOccurrenceGroup(variableRow, builder);
     unmarshallRepeatable(variableRow, builder);
     unmarshallReferencedEntityType(variableRow, builder);
@@ -196,14 +197,16 @@ public class VariableConverter {
     }
   }
 
-  private void unmarshallIndex(Row variableRow, Variable.Builder builder) {
+  private void unmarshallIndex(Row variableRow, Variable.Builder builder, int position) {
     String index = getVariableCellValue(variableRow, INDEX).trim();
-    if(index.length() > 0) {
+    if(!Strings.isNullOrEmpty(index)) {
       try {
         builder.index(Integer.valueOf(index));
       } catch(NumberFormatException e) {
-        // ignore
+        builder.index(position);
       }
+    } else {
+      builder.index(position);
     }
   }
 
