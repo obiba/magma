@@ -166,7 +166,7 @@ public class VariableConverter {
     unmarshallReferencedEntityType(variableRow, builder);
     unmarshallCustomAttributes(variableRow, getHeaderMapVariables(), getAttributeNamesVariables(), builder);
     unmarshallCategories(name, builder);
-    variableRows.put(name + "::" + table, variableRow);
+    variableRows.put(keyOfRow(table, name), variableRow);
     return builder.build();
   }
 
@@ -241,7 +241,6 @@ public class VariableConverter {
    *
    * @param variableName
    * @param variableBuilder
-   * @param variableCategoriesCache
    */
   private void unmarshallCategories(String variableName, Variable.Builder variableBuilder) {
     if(getHeaderMapCategories() == null) return;
@@ -458,7 +457,7 @@ public class VariableConverter {
    * one is added and returned.
    */
   private Row getRow(ExcelValueTableWriter.VariableWithMetadata variableWithMetadata) {
-    Row row = variableRows.get(variableWithMetadata.getVariable().getName());
+    Row row = variableRows.get(keyOfRow(variableWithMetadata));
     if(row == null) {
       Sheet variables = valueTable.getDatasource().getVariablesSheet();
       row = variables.createRow(variables.getPhysicalNumberOfRows());
@@ -471,8 +470,8 @@ public class VariableConverter {
     return keyOfRow(variableWithMetadata.getTableName(), variableWithMetadata.getVariable().getName());
   }
 
-  private String keyOfRow(String variableName, String tableName) {
-    return tableName + "::" + variableName;
+  private String keyOfRow(String tableName, String variableName) {
+    return tableName + FullQualifiedAttributeComparator.DELIMITER + variableName;
   }
 
   /**
