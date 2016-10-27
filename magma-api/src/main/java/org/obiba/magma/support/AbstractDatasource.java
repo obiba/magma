@@ -84,7 +84,7 @@ public abstract class AbstractDatasource extends AbstractAttributeAware implemen
   }
 
   @Override
-  public ValueTable getValueTable(final String tableName) throws NoSuchValueTableException {
+  public ValueTable getValueTable(String tableName) throws NoSuchValueTableException {
     try {
       return getValueTables().stream()
               .filter(input -> tableName.equals(input.getName()))
