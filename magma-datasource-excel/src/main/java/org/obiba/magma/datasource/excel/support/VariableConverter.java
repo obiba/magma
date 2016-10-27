@@ -165,7 +165,7 @@ public class VariableConverter {
     unmarshallRepeatable(variableRow, builder);
     unmarshallReferencedEntityType(variableRow, builder);
     unmarshallCustomAttributes(variableRow, getHeaderMapVariables(), getAttributeNamesVariables(), builder);
-    unmarshallCategories(name, builder);
+    unmarshallCategories(tableName, name, builder);
     variableRows.put(keyOfRow(table, name), variableRow);
     return builder.build();
   }
@@ -242,7 +242,7 @@ public class VariableConverter {
    * @param variableName
    * @param variableBuilder
    */
-  private void unmarshallCategories(String variableName, Variable.Builder variableBuilder) {
+  private void unmarshallCategories(String tableName, String variableName, Variable.Builder variableBuilder) {
     if(getHeaderMapCategories() == null) return;
 
     Sheet categoriesSheet = valueTable.getDatasource().getCategoriesSheet();
@@ -253,7 +253,7 @@ public class VariableConverter {
     for(int rowIndex : variableCategoryRows) {
       Row categoryRow = categoriesSheet.getRow(rowIndex);
       if(firstRow == null) firstRow = categoryRow;
-      unmarshallCategories(variableName, variableBuilder, categoryNames, errors, categoryRow);
+      unmarshallCategories(tableName, variableName, variableBuilder, categoryNames, errors, categoryRow);
     }
 
     if(errors.size() > 0) {
@@ -266,7 +266,7 @@ public class VariableConverter {
     }
   }
 
-  private void unmarshallCategories(String variableName, Variable.Builder variableBuilder,
+  private void unmarshallCategories(String tableName, String variableName, Variable.Builder variableBuilder,
       Collection<String> categoryNames, Collection<ExcelDatasourceParsingException> errors, Row categoryRow) {
     try {
       Category category = unmarshallCategory(variableName, categoryRow);
@@ -278,8 +278,7 @@ public class VariableConverter {
       } else {
         categoryNames.add(category.getName());
         variableBuilder.addCategory(category);
-        String key = variableName + category.getName();
-        categoryRows.put(key, categoryRow);
+        categoryRows.put(keyOfRowForCategory(tableName, variableName, category), categoryRow);
       }
     } catch(ExcelDatasourceParsingException pe) {
       errors.add(pe);
@@ -362,35 +361,32 @@ public class VariableConverter {
     ExcelUtil.setCellValue(getVariableCell(variableRow, REFERENCED_ENTITY_TYPE), TextType.get(),
         variable.getReferencedEntityType());
 
-    marshallCustomAttributes(variable, variableRow, variableWithMetadata.getHeaderRowVariables(), headerMapVariables);
-
-    for(Category category : variable.getCategories()) {
-      marshallCategory(variable, category, variableWithMetadata.getHeaderRowCategories());
-    }
+    marshallCustomAttributes(variable, variableRow, headerMapVariables);
+    marshallCategories(variableWithMetadata);
 
     return variableRow;
   }
 
-  private void marshallCategory(Variable variable, Category category, Row headerRowCategories) {
-    Row categoryRow = getCategoryRow(variable, category);
+  private void marshallCategories(ExcelValueTableWriter.VariableWithMetadata variableWithMetadata) {
 
-    ExcelUtil.setCellValue(getCategoryCell(categoryRow, TABLE), TextType.get(), valueTable.getName());
-    ExcelUtil.setCellValue(getCategoryCell(categoryRow, VARIABLE), TextType.get(), variable.getName());
-    ExcelUtil.setCellValue(getCategoryCell(categoryRow, NAME), TextType.get(), category.getName());
-    ExcelUtil.setCellValue(getCategoryCell(categoryRow, CODE), TextType.get(), category.getCode());
-    ExcelUtil.setCellValue(getCategoryCell(categoryRow, MISSING), BooleanType.get(), category.isMissing());
+    for (Category category : variableWithMetadata.getVariable().getCategories()) {
 
-    marshallCustomAttributes(category, categoryRow, headerRowCategories, headerMapCategories);
+      Row categoryRow = getCategoryRow(variableWithMetadata, category);
+
+      ExcelUtil.setCellValue(getCategoryCell(categoryRow, TABLE), TextType.get(), variableWithMetadata.getTableName());
+      ExcelUtil.setCellValue(getCategoryCell(categoryRow, VARIABLE), TextType.get(), variableWithMetadata.getVariable().getName());
+      ExcelUtil.setCellValue(getCategoryCell(categoryRow, NAME), TextType.get(), category.getName());
+      ExcelUtil.setCellValue(getCategoryCell(categoryRow, CODE), TextType.get(), category.getCode());
+      ExcelUtil.setCellValue(getCategoryCell(categoryRow, MISSING), BooleanType.get(), category.isMissing());
+
+      marshallCustomAttributes(category, categoryRow, headerMapCategories);
+    }
   }
 
   /**
    * Writes the custom Attributes of an AttributeAware instance (ex: Variable, Category...) to a Row in an Excel sheet.
-   *
-   * @param attributesRow
-   * @param headerRow
-   * @param headerMap
    */
-  private void marshallCustomAttributes(AttributeAware attributeAware, Row attributesRow, Row headerRow, Map<String, Integer> headerMap) {
+  private void marshallCustomAttributes(AttributeAware attributeAware, Row attributesRow, Map<String, Integer> headerMap) {
 
     for(Attribute customAttribute : attributeAware.getAttributes()) {
       String headerValue = Attributes.encodeForHeader(customAttribute);
@@ -457,17 +453,25 @@ public class VariableConverter {
    * one is added and returned.
    */
   private Row getRow(ExcelValueTableWriter.VariableWithMetadata variableWithMetadata) {
-    Row row = variableRows.get(keyOfRow(variableWithMetadata));
+    Row row = variableRows.get(keyOfRowForVariables(variableWithMetadata));
     if(row == null) {
       Sheet variables = valueTable.getDatasource().getVariablesSheet();
       row = variables.createRow(variables.getPhysicalNumberOfRows());
-      variableRows.put(keyOfRow(variableWithMetadata), row);
+      variableRows.put(keyOfRowForVariables(variableWithMetadata), row);
     }
     return row;
   }
 
-  private String keyOfRow(ExcelValueTableWriter.VariableWithMetadata variableWithMetadata) {
+  private String keyOfRowForVariables(ExcelValueTableWriter.VariableWithMetadata variableWithMetadata) {
     return keyOfRow(variableWithMetadata.getTableName(), variableWithMetadata.getVariable().getName());
+  }
+
+  private String keyOfRowForCategory(ExcelValueTableWriter.VariableWithMetadata variableWithMetadata, Category category) {
+    return keyOfRowForCategory(variableWithMetadata.getTableName(), variableWithMetadata.getVariable().getName(), category);
+  }
+
+  private String keyOfRowForCategory(String tableName, String variableName, Category category) {
+    return keyOfRow(tableName,variableName + category.getName());
   }
 
   private String keyOfRow(String tableName, String variableName) {
@@ -477,17 +481,14 @@ public class VariableConverter {
   /**
    * Returns the {@code Row} from the variable sheet for the specified variable. If no such row currently exists, a new
    * one is added and returned.
-   *
-   * @param variable
-   * @return
    */
-  private Row getCategoryRow(Variable variable, Category category) {
-    String key = variable.getName() + category.getName();
-    Row row = categoryRows.get(key);
+  private Row getCategoryRow(ExcelValueTableWriter.VariableWithMetadata variableWithMetadata, Category category) {
+    String rowKey = keyOfRowForCategory(variableWithMetadata, category);
+    Row row = categoryRows.get(rowKey);
     if(row == null) {
       Sheet categories = valueTable.getDatasource().getCategoriesSheet();
       row = categories.createRow(categories.getPhysicalNumberOfRows());
-      categoryRows.put(key, row);
+      categoryRows.put(rowKey, row);
     }
     return row;
   }
