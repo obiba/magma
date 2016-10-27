@@ -84,14 +84,12 @@ public abstract class AbstractDatasource extends AbstractAttributeAware implemen
   }
 
   @Override
-  public ValueTable getValueTable(final String tableName) throws NoSuchValueTableException {
+  public ValueTable getValueTable(String tableName) throws NoSuchValueTableException {
     try {
-      return Iterables.find(getValueTables(), new Predicate<ValueTable>() {
-        @Override
-        public boolean apply(ValueTable input) {
-          return tableName.equals(input.getName());
-        }
-      });
+      return getValueTables().stream()
+              .filter(input -> tableName.equals(input.getName()))
+              .findFirst()
+              .get();
     } catch(NoSuchElementException e) {
       throw new NoSuchValueTableException(getName(), tableName);
     }
