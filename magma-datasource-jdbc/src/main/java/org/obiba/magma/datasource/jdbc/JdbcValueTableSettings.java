@@ -44,6 +44,8 @@ public class JdbcValueTableSettings {
 
   private String includedColumns;
 
+  private boolean repeatables;
+
   //
   // Constructors
   //
@@ -151,6 +153,14 @@ public class JdbcValueTableSettings {
 
   public boolean hasIncludedColumns() {
     return !Strings.isNullOrEmpty(includedColumns);
+  }
+
+  public void setRepeatables(boolean repeatables) {
+    this.repeatables = repeatables;
+  }
+
+  public boolean isRepeatables() {
+    return repeatables;
   }
 }
 

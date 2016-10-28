@@ -10,6 +10,7 @@
 
 package org.obiba.magma.datasource.jdbc;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.obiba.magma.Timestamps;
 import org.obiba.magma.Value;
@@ -117,6 +118,19 @@ public class JdbcValueSet extends ValueSetBean {
   }
 
   void populateResultSetCache(List<Map<String, Value>> rows) {
-    rows.forEach(row -> resultSetCache.putAll(row));
+    rows.forEach(row -> {
+      row.forEach((key, value) -> {
+        if (resultSetCache.containsKey(key)) {
+          Value current = resultSetCache.get(key);
+          if (current.isSequence()) {
+            ((List<Value>)resultSetCache.get(key).asSequence().getValue()).add(value);
+          } else {
+            resultSetCache.put(key, current.getValueType().sequenceOf(Lists.newArrayList(current, value)));
+          }
+        } else {
+          resultSetCache.put(key, value);
+        }
+      });
+    });
   }
 }

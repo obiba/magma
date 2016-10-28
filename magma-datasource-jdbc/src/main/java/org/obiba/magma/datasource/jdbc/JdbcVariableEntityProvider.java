@@ -38,7 +38,7 @@ class JdbcVariableEntityProvider extends AbstractVariableEntityProvider implemen
     String whereStatement = valueTable.getSettings().hasEntityIdentifiersWhere() ? "WHERE " + valueTable.getSettings().getEntityIdentifiersWhere() : "";
     entities = new LinkedHashSet<>();
     List<VariableEntity> results = datasource.getJdbcTemplate().query(String
-            .format("SELECT %s FROM %s %s",
+            .format("SELECT DISTINCT %s FROM %s %s",
                 valueTable.getEntityIdentifierColumnSql(),
                 datasource.escapeTableName(valueTable.getSqlName()),
                 whereStatement),

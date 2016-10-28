@@ -97,6 +97,22 @@ public class JdbcDatasourceTest extends AbstractMagmaTest {
     jdbcDatasource.dispose();
   }
 
+  @TestSchema(schemaLocation = "org/obiba/magma/datasource/jdbc", beforeSchema = "schema-nometa-repeatables.sql",
+      afterSchema = "schema-notables.sql")
+  @Dataset(filenames = "JdbcDatasourceTest-nometa-repeatables.xml")
+  @Test
+  public void testCreateDatasourceFromExistingDatabaseWithRepeatables() {
+    JdbcValueTableSettings tableSettings = new JdbcValueTableSettings("BONE_DENSITY", null, "Participant", "PART_ID");
+    tableSettings.setRepeatables(true);
+    JdbcDatasource jdbcDatasource = new JdbcDatasource("my-datasource", dataSource,
+        new JdbcDatasourceSettings("Participant", Sets.newHashSet("BONE_DENSITY"), Sets.newHashSet(tableSettings), false));
+    jdbcDatasource.initialise();
+
+    createDatasourceFromExistingDatabase(jdbcDatasource);
+
+    jdbcDatasource.dispose();
+  }
+
   @TestSchema(schemaLocation = "org/obiba/magma/datasource/jdbc", beforeSchema = "schema-meta.sql",
       afterSchema = "schema-notables.sql")
   @Dataset(filenames = "JdbcDatasourceTest.xml")
@@ -408,11 +424,31 @@ public class JdbcDatasourceTest extends AbstractMagmaTest {
 
     // Check variable values.
     ValueSet vs1234_2 = bdTable.getValueSet(entity1234_2);
-    assertThat(bdTable.getValue(bdTable.getVariable("BD"), vs1234_2)).isEqualTo(IntegerType.get().valueOf(64));
-    assertThat(bdTable.getValue(bdTable.getVariable("BD_2"), vs1234_2)).isEqualTo(IntegerType.get().valueOf(65));
     ValueSet vs1234_3 = bdTable.getValueSet(entity1234_3);
-    assertThat(bdTable.getValue(bdTable.getVariable("BD"), vs1234_3)).isEqualTo(IntegerType.get().valueOf(65));
-    assertThat(bdTable.getValue(bdTable.getVariable("BD_2"), vs1234_3)).isEqualTo(IntegerType.get().valueOf(65));
+    Variable bdVar = bdTable.getVariable("BD");
+    if (bdVar.isRepeatable()) {
+      Value value = bdTable.getValue(bdVar, vs1234_2);
+      assertThat(value.isSequence()).isTrue();
+      assertThat(value.asSequence().getSize()).isEqualTo(2);
+      value = bdTable.getValue(bdVar, vs1234_3);
+      assertThat(value.isSequence()).isTrue();
+      assertThat(value.asSequence().getSize()).isEqualTo(3);
+    } else {
+      assertThat(bdTable.getValue(bdVar, vs1234_2)).isEqualTo(IntegerType.get().valueOf(64));
+      assertThat(bdTable.getValue(bdVar, vs1234_3)).isEqualTo(IntegerType.get().valueOf(65));
+    }
+    Variable bd2Var = bdTable.getVariable("BD_2");
+    if (bd2Var.isRepeatable()) {
+      Value value = bdTable.getValue(bd2Var, vs1234_2);
+      assertThat(value.isSequence()).isTrue();
+      assertThat(value.asSequence().getSize()).isEqualTo(2);
+      value = bdTable.getValue(bd2Var, vs1234_3);
+      assertThat(value.isSequence()).isTrue();
+      assertThat(value.asSequence().getSize()).isEqualTo(3);
+    } else {
+      assertThat(bdTable.getValue(bd2Var, vs1234_2)).isEqualTo(IntegerType.get().valueOf(65));
+      assertThat(bdTable.getValue(bd2Var, vs1234_3)).isEqualTo(IntegerType.get().valueOf(65));
+    }
   }
 
   private void createDatasourceFromScratch(JdbcDatasource jdbcDatasource) {

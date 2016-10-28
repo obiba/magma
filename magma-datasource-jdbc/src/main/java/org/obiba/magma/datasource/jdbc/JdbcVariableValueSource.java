@@ -54,7 +54,9 @@ class JdbcVariableValueSource extends AbstractVariableValueSource implements Var
     columnName = column.getName();
     variable = Variable.Builder
         .newVariable(valueTable.getVariableName(columnName), SqlTypes.valueTypeFor(column.getType().getDataTypeId()),
-            valueTable.getEntityType()).build();
+            valueTable.getEntityType()) //
+        .repeatable(valueTable.getSettings().isRepeatables()) //
+        .occurrenceGroup(valueTable.getSettings().isRepeatables() ? valueTable.getSqlName() : null).build();
   }
 
   JdbcVariableValueSource(JdbcValueTable valueTable, Variable variable) {
