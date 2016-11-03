@@ -13,7 +13,7 @@ ext {
   hibernateVersion = '4.3.8.Final'
   slf4jVersion = '1.7.12'
   springVersion = '4.2.1.RELEASE'
-  obibaCommonsVersion = '1.7.2'
+  obibaCommonsVersion = '1.8-SNAPSHOT'
 
   libraries = [
 
