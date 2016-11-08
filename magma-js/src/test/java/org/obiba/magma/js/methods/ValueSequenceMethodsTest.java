@@ -176,11 +176,20 @@ public class ValueSequenceMethodsTest extends AbstractJsTest {
   }
 
   @Test
-  public void testValueIndexOutOfBounds() throws Exception {
+  public void testValueIndexOutOfMaxBound() throws Exception {
     ValueSequence valueSequence = TextType.get().sequenceOf("\"A\", \"B\"");
     ScriptableValue scriptableValue = newValue(valueSequence);
     ScriptableValue result = ValueSequenceMethods
         .valueAt(Context.getCurrentContext(), scriptableValue, new Object[] { 2 }, null);
+    assertThat(result.getValue()).isEqualTo(TextType.get().nullValue());
+  }
+
+  @Test
+  public void testValueIndexOutOfMinBound() throws Exception {
+    ValueSequence valueSequence = TextType.get().sequenceOf("\"A\", \"B\"");
+    ScriptableValue scriptableValue = newValue(valueSequence);
+    ScriptableValue result = ValueSequenceMethods
+        .valueAt(Context.getCurrentContext(), scriptableValue, new Object[] { -1 }, null);
     assertThat(result.getValue()).isEqualTo(TextType.get().nullValue());
   }
 
@@ -200,6 +209,78 @@ public class ValueSequenceMethodsTest extends AbstractJsTest {
     ScriptableValue result = ValueSequenceMethods
         .valueAt(Context.getCurrentContext(), scriptableValue, new Object[] { 2 }, null);
     assertThat(result.getValue()).isEqualTo(TextType.get().nullValue());
+  }
+
+  @Test
+  public void testValueIndexOf() throws Exception {
+    ValueSequence valueSequence = TextType.get().sequenceOf("\"A\", \"B\", \"A\"");
+    ScriptableValue scriptableValue = newValue(valueSequence);
+    ScriptableValue result = ValueSequenceMethods
+        .indexOf(Context.getCurrentContext(), scriptableValue, new Object[] { "A" }, null);
+    assertThat(result.getValue()).isEqualTo(IntegerType.get().valueOf(0));
+    result = ValueSequenceMethods
+        .indexOf(Context.getCurrentContext(), scriptableValue, new Object[] { "B" }, null);
+    assertThat(result.getValue()).isEqualTo(IntegerType.get().valueOf(1));
+    result = ValueSequenceMethods
+        .indexOf(Context.getCurrentContext(), scriptableValue, new Object[] { "C" }, null);
+    assertThat(result.getValue()).isEqualTo(IntegerType.get().valueOf(-1));
+    result = ValueSequenceMethods
+        .indexOf(Context.getCurrentContext(), scriptableValue, new Object[] { }, null);
+    assertThat(result.getValue()).isEqualTo(IntegerType.get().valueOf(-1));
+  }
+
+  @Test
+  public void testNullValueIndexOf() throws Exception {
+    ValueSequence valueSequence = TextType.get().sequenceOf("\"A\",, \"B\"");
+    ScriptableValue scriptableValue = newValue(valueSequence);
+    ScriptableValue result = ValueSequenceMethods
+        .indexOf(Context.getCurrentContext(), scriptableValue, new Object[] { "A" }, null);
+    assertThat(result.getValue()).isEqualTo(IntegerType.get().valueOf(0));
+    result = ValueSequenceMethods
+        .indexOf(Context.getCurrentContext(), scriptableValue, new Object[] { "B" }, null);
+    assertThat(result.getValue()).isEqualTo(IntegerType.get().valueOf(2));
+    result = ValueSequenceMethods
+        .indexOf(Context.getCurrentContext(), scriptableValue, new Object[] { "C" }, null);
+    assertThat(result.getValue()).isEqualTo(IntegerType.get().valueOf(-1));
+    result = ValueSequenceMethods
+        .indexOf(Context.getCurrentContext(), scriptableValue, new Object[] { TextType.get().nullValue() }, null);
+    assertThat(result.getValue()).isEqualTo(IntegerType.get().valueOf(1));
+  }
+
+  @Test
+  public void testValueLastIndexOf() throws Exception {
+    ValueSequence valueSequence = TextType.get().sequenceOf("\"A\", \"B\", \"A\"");
+    ScriptableValue scriptableValue = newValue(valueSequence);
+    ScriptableValue result = ValueSequenceMethods
+        .lastIndexOf(Context.getCurrentContext(), scriptableValue, new Object[] { "A" }, null);
+    assertThat(result.getValue()).isEqualTo(IntegerType.get().valueOf(2));
+    result = ValueSequenceMethods
+        .lastIndexOf(Context.getCurrentContext(), scriptableValue, new Object[] { "B" }, null);
+    assertThat(result.getValue()).isEqualTo(IntegerType.get().valueOf(1));
+    result = ValueSequenceMethods
+        .lastIndexOf(Context.getCurrentContext(), scriptableValue, new Object[] { "C" }, null);
+    assertThat(result.getValue()).isEqualTo(IntegerType.get().valueOf(-1));
+    result = ValueSequenceMethods
+        .lastIndexOf(Context.getCurrentContext(), scriptableValue, new Object[] { }, null);
+    assertThat(result.getValue()).isEqualTo(IntegerType.get().valueOf(-1));
+  }
+
+  @Test
+  public void testNullValueLastIndexOf() throws Exception {
+    ValueSequence valueSequence = TextType.get().sequenceOf("\"A\",, \"B\"");
+    ScriptableValue scriptableValue = newValue(valueSequence);
+    ScriptableValue result = ValueSequenceMethods
+        .lastIndexOf(Context.getCurrentContext(), scriptableValue, new Object[] { "A" }, null);
+    assertThat(result.getValue()).isEqualTo(IntegerType.get().valueOf(0));
+    result = ValueSequenceMethods
+        .lastIndexOf(Context.getCurrentContext(), scriptableValue, new Object[] { "B" }, null);
+    assertThat(result.getValue()).isEqualTo(IntegerType.get().valueOf(2));
+    result = ValueSequenceMethods
+        .lastIndexOf(Context.getCurrentContext(), scriptableValue, new Object[] { "C" }, null);
+    assertThat(result.getValue()).isEqualTo(IntegerType.get().valueOf(-1));
+    result = ValueSequenceMethods
+        .lastIndexOf(Context.getCurrentContext(), scriptableValue, new Object[] { TextType.get().nullValue() }, null);
+    assertThat(result.getValue()).isEqualTo(IntegerType.get().valueOf(1));
   }
 
   // sort()

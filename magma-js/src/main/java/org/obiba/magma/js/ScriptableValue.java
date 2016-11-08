@@ -159,10 +159,40 @@ public class ScriptableValue extends ScriptableObject {
     return getValue().getValueType();
   }
 
+  /**
+   * Check if the value contains or is equal to (if not a sequence) the given value.
+   *
+   * @param testValue
+   * @return
+   */
   public boolean contains(Value testValue) {
     return getValue().isSequence() //
         ? getValue().asSequence().contains(testValue) //
         : getValue().equals(testValue);
+  }
+
+  /**
+   * Get the position of the given value in the sequence or 0 if not a sequence.
+   *
+   * @param testValue
+   * @return -1 if not found
+   */
+  public int indexOf(Value testValue) {
+    return getValue().isSequence() //
+        ? getValue().asSequence().indexOf(testValue) //
+        : getValue().equals(testValue) ? 0 : -1;
+  }
+
+  /**
+   * Get the last position of the given value in the sequence or 0 if not a sequence.
+   *
+   * @param testValue
+   * @return -1 if not found
+   */
+  public int lastIndexOf(Value testValue) {
+    return getValue().isSequence() //
+        ? getValue().asSequence().lastIndexOf(testValue) //
+        : getValue().equals(testValue) ? 0 : -1;
   }
 
   /*

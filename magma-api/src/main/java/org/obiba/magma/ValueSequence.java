@@ -134,4 +134,24 @@ public class ValueSequence extends Value {
   public boolean contains(@NotNull Value value) {
     return getValues().contains(value);
   }
+
+  /**
+   * Get the first position of a {@link Value} in the sequence.
+   *
+   * @param value
+   * @return -1 if not found
+   */
+  public int indexOf(@NotNull Value value) {
+    return getValues().indexOf(value);
+  }
+
+  /**
+   * Get the last position of a {@link Value} in the sequence.
+   *
+   * @param value
+   * @return -1 if not found
+   */
+  public int lastIndexOf(@NotNull Value value) {
+    return getValues().lastIndexOf(value);
+  }
 }

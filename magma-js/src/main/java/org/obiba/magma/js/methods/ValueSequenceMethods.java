@@ -166,7 +166,7 @@ public class ValueSequenceMethods {
     if(sv.getValue().isNull()) {
       return new ScriptableValue(thisObj, sv.getValueType().nullValue());
     }
-    Integer index = null;
+    Integer index;
     if(args != null && args.length > 0 && args[0] instanceof Number) {
       index = ((Number) args[0]).intValue();
     } else {
@@ -174,12 +174,62 @@ public class ValueSequenceMethods {
     }
     if(sv.getValue().isSequence()) {
       ValueSequence valueSequence = sv.getValue().asSequence();
-      return valueSequence.getSize() > index //
+      return valueSequence.getSize() > index && index >= 0 //
           ? new ScriptableValue(thisObj, valueSequence.get(index)) //
           : new ScriptableValue(thisObj, valueSequence.getValueType().nullValue());
     } else {
       return index == 0 ? sv : new ScriptableValue(thisObj, sv.getValueType().nullValue());
     }
+  }
+
+  /**
+   * Get the position of the given value in the sequence. Return -1 value if not found.
+   * <p/>
+   * <pre>
+   *   $('SequenceVar').indexOf(0)
+   * </pre>
+   *
+   * @param ctx
+   * @param thisObj
+   * @param args
+   * @param funObj
+   * @return
+   * @throws MagmaJsEvaluationRuntimeException
+   */
+  public static ScriptableValue indexOf(Context ctx, Scriptable thisObj, Object[] args, @Nullable Function funObj)
+      throws MagmaJsEvaluationRuntimeException {
+    ScriptableValue sv = (ScriptableValue) thisObj;
+    int index = -1;
+    if (args != null && args.length > 0) {
+      Value testValue = sv.getValueType().valueOf(args[0]);
+      index = sv.indexOf(testValue);
+    }
+    return new ScriptableValue(thisObj, IntegerType.get().valueOf(index));
+  }
+
+  /**
+   * Get the last position of the given value in the sequence. Return -1 value if not found.
+   * <p/>
+   * <pre>
+   *   $('SequenceVar').lastIndexOf(0)
+   * </pre>
+   *
+   * @param ctx
+   * @param thisObj
+   * @param args
+   * @param funObj
+   * @return
+   * @throws MagmaJsEvaluationRuntimeException
+   */
+  public static ScriptableValue lastIndexOf(Context ctx, Scriptable thisObj, Object[] args, @Nullable Function funObj)
+      throws MagmaJsEvaluationRuntimeException {
+    ScriptableValue sv = (ScriptableValue) thisObj;
+    int index = -1;
+    if (args != null && args.length > 0) {
+      Value testValue = sv.getValueType().valueOf(args[0]);
+      index = sv.lastIndexOf(testValue);
+    }
+    return new ScriptableValue(thisObj, IntegerType.get().valueOf(index));
   }
 
   /**
