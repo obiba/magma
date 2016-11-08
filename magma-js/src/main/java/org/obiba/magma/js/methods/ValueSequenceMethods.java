@@ -22,6 +22,7 @@ import org.mozilla.javascript.Callable;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.Scriptable;
+import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueSequence;
 import org.obiba.magma.ValueType;
@@ -166,10 +167,16 @@ public class ValueSequenceMethods {
     if(sv.getValue().isNull()) {
       return new ScriptableValue(thisObj, sv.getValueType().nullValue());
     }
-    Integer index;
-    if(args != null && args.length > 0 && args[0] instanceof Number) {
-      index = ((Number) args[0]).intValue();
-    } else {
+    Integer index = null;
+    if(args != null && args.length > 0) {
+      try {
+        index = ((Number) IntegerType.get().valueOf(getRawValue(args[0])).getValue()).intValue();
+      } catch(MagmaRuntimeException e) {
+        // ignore, will be handled after
+      }
+    }
+
+    if (index == null) {
       return new ScriptableValue(thisObj, sv.getValueType().nullValue());
     }
     if(sv.getValue().isSequence()) {
@@ -201,10 +208,22 @@ public class ValueSequenceMethods {
     ScriptableValue sv = (ScriptableValue) thisObj;
     int index = -1;
     if (args != null && args.length > 0) {
-      Value testValue = sv.getValueType().valueOf(args[0]);
+      Value testValue = sv.getValueType().valueOf(getRawValue(args[0]));
       index = sv.indexOf(testValue);
     }
     return new ScriptableValue(thisObj, IntegerType.get().valueOf(index));
+  }
+
+  private static Object getRawValue(Object object) {
+    Object raw = object;
+    if (raw instanceof ScriptableValue) {
+      raw = ((ScriptableValue)raw).getValue();
+    }
+    if (raw instanceof Value) {
+      Value value = (Value)raw;
+      raw = value.isNull() ? null : value.getValue();
+    }
+    return raw;
   }
 
   /**
@@ -226,7 +245,7 @@ public class ValueSequenceMethods {
     ScriptableValue sv = (ScriptableValue) thisObj;
     int index = -1;
     if (args != null && args.length > 0) {
-      Value testValue = sv.getValueType().valueOf(args[0]);
+      Value testValue = sv.getValueType().valueOf(getRawValue(args[0]));
       index = sv.lastIndexOf(testValue);
     }
     return new ScriptableValue(thisObj, IntegerType.get().valueOf(index));
