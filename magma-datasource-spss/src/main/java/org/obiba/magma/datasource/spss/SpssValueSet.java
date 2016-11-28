@@ -10,6 +10,7 @@
 package org.obiba.magma.datasource.spss;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.validation.constraints.NotNull;
@@ -30,13 +31,18 @@ public class SpssValueSet extends ValueSetBean {
 
   private final SPSSFile spssFile;
 
-  private final Map<String, Integer> identifierToVariableIndex;
+  private final List<Integer> valuesIndex;
 
-  public SpssValueSet(ValueTable table, VariableEntity entity, SPSSFile spssFile,
-      Map<String, Integer> map) {
+  private final boolean multilines;
+
+  private final int idVariableIndex;
+
+  public SpssValueSet(ValueTable table, VariableEntity entity, int idVariableIndex, SPSSFile spssFile, List<Integer> valuesIndex, boolean multilines) {
     super(table, entity);
     this.spssFile = spssFile;
-    identifierToVariableIndex = map;
+    this.valuesIndex = valuesIndex;
+    this.multilines = multilines;
+    this.idVariableIndex = idVariableIndex;
     loadVariables();
   }
 
@@ -55,13 +61,12 @@ public class SpssValueSet extends ValueSetBean {
   //
 
   private void loadVariables() {
-    VariableEntity variableEntity = getVariableEntity();
-    int variableIndex = identifierToVariableIndex.get(variableEntity.getIdentifier());
-
-    for(int i = 1; i < spssFile.getVariableCount(); i++) {
-      SPSSVariable spssVariable = spssFile.getVariable(i);
-      row.put(spssVariable.getName(),
-          new SpssVariableValueFactory(variableIndex, spssVariable, SpssVariableTypeMapper.map(spssVariable)).create());
+    for(int i = 0; i < spssFile.getVariableCount(); i++) {
+      if (i != idVariableIndex) {
+        SPSSVariable spssVariable = spssFile.getVariable(i);
+        row.put(spssVariable.getName(),
+            new SpssVariableValueFactory(valuesIndex, spssVariable, SpssVariableTypeMapper.map(spssVariable), false, multilines).create());
+      }
     }
   }
 

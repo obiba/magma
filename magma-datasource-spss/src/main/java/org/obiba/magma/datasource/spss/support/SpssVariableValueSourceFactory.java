@@ -10,6 +10,7 @@
 package org.obiba.magma.datasource.spss.support;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
@@ -51,38 +52,46 @@ public class SpssVariableValueSourceFactory implements VariableValueSourceFactor
   @NotNull
   private final String locale;
 
-  private final Map<String, Integer> identifierToVariableIndex;
+  private final int idVariableIndex;
+
+  private final String occurrenceGroup;
+
+  private final Map<String, List<Integer>> identifierToVariableIndex;
 
   /**
    *
    * @param spssFile
-   * @param entityToVariableIndex
+   * @param identifierToVariableIndex
    * @throws IOException
    * @throws SPSSFileException
    */
-  public SpssVariableValueSourceFactory(@NotNull SPSSFile spssFile, @NotNull String entityType, @NotNull String locale,
-      Map<String, Integer> map) {
+  public SpssVariableValueSourceFactory(@NotNull SPSSFile spssFile, @NotNull String entityType, @NotNull String locale, int idVariableIndex,
+                                        Map<String, List<Integer>> identifierToVariableIndex, String occurrenceGroup) {
     this.spssFile = spssFile;
     this.entityType = entityType;
     this.locale = locale;
-    identifierToVariableIndex = map;
+    this.idVariableIndex = idVariableIndex;
+    this.identifierToVariableIndex = identifierToVariableIndex;
+    this.occurrenceGroup = occurrenceGroup;
   }
 
   @Override
   public Set<VariableValueSource> createSources() {
     Set<VariableValueSource> sources = Sets.newLinkedHashSet();
 
-    for(int i = 1; i < spssFile.getVariableCount(); i++) {
-      SPSSVariable spssVariable = spssFile.getVariable(i);
-      try {
-        sources.add(new SpssVariableValueSource(createVariableBuilder(i, spssVariable), spssVariable,
-            identifierToVariableIndex));
-      } catch(SpssInvalidCharacterException e) {
-        String variableName = spssVariable.getName();
-        // In the dictionary the first row is reserved for entity variable
-        int variableIndex = i + 1;
-        throw new SpssDatasourceParsingException("Failed to create variable value source.", "InvalidCharsetCharacter",
-            variableIndex, e.getSource()).metadataInfo(variableName, variableIndex).extraInfo(e);
+    for(int i = 0; i < spssFile.getVariableCount(); i++) {
+      if (i != idVariableIndex) {
+        SPSSVariable spssVariable = spssFile.getVariable(i);
+        try {
+          sources.add(new SpssVariableValueSource(createVariableBuilder(i, spssVariable), spssVariable,
+              identifierToVariableIndex));
+        } catch(SpssInvalidCharacterException e) {
+          String variableName = spssVariable.getName();
+          // In the dictionary the first row is reserved for entity variable
+          int variableIndex = i + 1;
+          throw new SpssDatasourceParsingException("Failed to create variable.", "InvalidCharsetCharacter",
+              variableIndex, e.getSource()).metadataInfo(variableName, variableIndex).extraInfo(e);
+        }
       }
     }
 
@@ -93,14 +102,13 @@ public class SpssVariableValueSourceFactory implements VariableValueSourceFactor
   // Private methods
   //
 
-  private void initializeCategories(int variableIndex, SPSSVariable variable, ValueType valueType,
-      Variable.Builder builder) throws SpssInvalidCharacterException {
+  private void initializeCategories(SPSSVariable variable, Variable.Builder builder) throws SpssInvalidCharacterException {
     if(variable.categoryMap != null) {
       for(String category : variable.categoryMap.keySet()) {
-        Value categoryName = new SpssCategoryNameValueFactory(category, variableIndex, variable, valueType).create();
         SPSSVariableCategory spssCategory = variable.categoryMap.get(category);
+        validate(category);
         validate(spssCategory.label);
-        builder.addCategory(Category.Builder.newCategory(categoryName.getValue().toString())
+        builder.addCategory(Category.Builder.newCategory(category)
             .addAttribute(addLabelAttribute(spssCategory.label))
             .missing(isCategoryValueMissingCode(variable, spssCategory)).build());
       }
@@ -126,8 +134,11 @@ public class SpssVariableValueSourceFactory implements VariableValueSourceFactor
     addLabel(builder, spssVariable);
     ValueType valueType = SpssVariableTypeMapper.map(spssVariable);
     builder.type(valueType);
-    initializeCategories(variableIndex, spssVariable, valueType, builder);
-
+    initializeCategories(spssVariable, builder);
+    if (!Strings.isNullOrEmpty(occurrenceGroup)) {
+      builder.repeatable();
+      builder.occurrenceGroup(occurrenceGroup);
+    }
     return builder.build();
   }
 

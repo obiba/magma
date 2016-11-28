@@ -9,44 +9,70 @@
  */
 package org.obiba.magma.datasource.spss.support;
 
+import com.google.common.collect.Lists;
+import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.Value;
+import org.obiba.magma.ValueSequence;
 import org.obiba.magma.ValueType;
 import org.obiba.magma.type.TextType;
 import org.opendatafoundation.data.spss.SPSSVariable;
+
+import java.util.List;
 
 import static org.obiba.magma.datasource.spss.support.CharacterSetValidator.validate;
 
 public abstract class SpssValueFactory {
 
-  protected final boolean withValidation;
+  private final boolean withValidation;
 
-  protected final int variableIndex;
+  private final List<Integer> valuesIndex;
 
   protected final SPSSVariable spssVariable;
 
-  protected final ValueType valueType;
+  private final ValueType valueType;
+
+  protected final boolean repeatable;
 
   private SpssTypeFormatter valueFormatter;
 
-  public SpssValueFactory(int variableIndex, SPSSVariable spssVariable, ValueType valueType, boolean withValidation) {
-    this.variableIndex = variableIndex;
+  public SpssValueFactory(List<Integer> valuesIndex, SPSSVariable spssVariable, ValueType valueType, boolean withValidation, boolean repeatable) {
+    this.valuesIndex = valuesIndex;
     this.spssVariable = spssVariable;
     this.valueType = valueType;
     this.withValidation = withValidation;
+    this.repeatable = repeatable;
     initializeVariableTypeFormatter();
   }
 
-  public abstract Value create();
+  public Value create() {
+    if (repeatable) {
+      List<Value> values = Lists.newArrayListWithCapacity(valuesIndex.size());
+      valuesIndex.forEach(index -> values.add(createValue(index)));
+      return valueType.sequenceOf(values);
+    } else {
+      return createValue(valuesIndex.get(0));
+    }
+  }
 
-  protected Value createValue() throws SpssInvalidCharacterException {
-    String value = getValue();
+  private Value createValue(int index) {
+    String value = getValue(index);
     if (withValidation) {
-      validate(value);
+      try {
+        validate(value);
+      } catch(SpssInvalidCharacterException e) {
+        String variableName = spssVariable.getName();
+        throw new SpssDatasourceParsingException("Invalid characters in variable value.", "InvalidCharsetCharacter",
+            index, e.getSource()).dataInfo(variableName, index).extraInfo(e);
+      } catch(MagmaRuntimeException e) {
+        String variableName = spssVariable.getName();
+        throw new SpssDatasourceParsingException("Failed to create variable value", "SpssFailedToCreateVariable",
+            variableName, index).dataInfo(variableName, index).extraInfo(e.getMessage());
+      }
     }
     return valueType.valueOf(valueFormatter.format(value));
   }
 
-  protected abstract String getValue();
+  protected abstract String getValue(int index);
 
   @SuppressWarnings("PMD.NcssMethodCount")
   private void initializeVariableTypeFormatter() {

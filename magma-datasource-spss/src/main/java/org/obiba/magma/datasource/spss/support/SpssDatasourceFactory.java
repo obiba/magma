@@ -44,6 +44,8 @@ public class SpssDatasourceFactory extends AbstractDatasourceFactory {
 
   private String locale;
 
+  private String idVariable;
+
   public void setFile(String path) {
     setFile(new File(path));
   }
@@ -72,6 +74,10 @@ public class SpssDatasourceFactory extends AbstractDatasourceFactory {
     this.locale = locale;
   }
 
+  public void setIdVariable(String idVariable) {
+    this.idVariable = idVariable;
+  }
+
   @Override
   public Datasource create() {
     return internalCreate();
@@ -92,6 +98,6 @@ public class SpssDatasourceFactory extends AbstractDatasourceFactory {
       locale = DEFAULT_LOCALE;
     }
 
-    return new SpssDatasource(getName(), files, characterSet, entityType, locale);
+    return new SpssDatasource(getName(), files, characterSet, entityType, locale, idVariable);
   }
 }

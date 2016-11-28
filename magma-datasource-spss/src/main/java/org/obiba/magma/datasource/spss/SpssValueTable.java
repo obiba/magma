@@ -10,16 +10,14 @@
 package org.obiba.magma.datasource.spss;
 
 import java.io.IOException;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Null;
 
+import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
 import org.obiba.magma.Datasource;
 import org.obiba.magma.Disposable;
 import org.obiba.magma.NoSuchValueSetException;
@@ -52,13 +50,28 @@ public class SpssValueTable extends AbstractValueTable implements Disposable {
 
   private final String locale;
 
-  private Map<String, Integer> entityToVariableIndex = new HashMap<>();
+  private final String idVariable;
 
-  public SpssValueTable(Datasource datasource, String name, String entityType, String locale, SPSSFile spssFile) {
+  private int idVariableIndex = 0;
+
+  private Map<String, List<Integer>> entityToVariableIndex = new HashMap<>();
+
+  public SpssValueTable(Datasource datasource, String name, String entityType, String locale, String idVariable, SPSSFile spssFile) {
     super(datasource, name);
     this.spssFile = spssFile;
     this.locale = locale;
-    setVariableEntityProvider(new SpssVariableEntityProvider(entityType));
+    this.idVariable = idVariable == null || idVariable.trim().isEmpty() ? null : idVariable;
+    loadMetadata();
+    if (this.idVariable != null) {
+      for (int i = 0; i<spssFile.getVariableCount(); i++) {
+        SPSSVariable var = spssFile.getVariable(i);
+        if (var.getName().equals(idVariable)) {
+          idVariableIndex = i;
+          break;
+        }
+      }
+    }
+    setVariableEntityProvider(new SpssVariableEntityProvider(entityType, this.idVariableIndex));
   }
 
   @Override
@@ -69,7 +82,7 @@ public class SpssValueTable extends AbstractValueTable implements Disposable {
 
   @Override
   public ValueSet getValueSet(VariableEntity entity) throws NoSuchValueSetException {
-    return new SpssValueSet(this, entity, spssFile, entityToVariableIndex);
+    return new SpssValueSet(this, entity, idVariableIndex, spssFile, entityToVariableIndex.get(entity.getIdentifier()), isMultilines());
   }
 
   @NotNull
@@ -92,13 +105,16 @@ public class SpssValueTable extends AbstractValueTable implements Disposable {
     };
   }
 
+  public boolean isMultilines() {
+    return ((SpssVariableEntityProvider)getVariableEntityProvider()).isMultilines();
+  }
+
   //
   // Private methods
   //
 
   private void initializeVariableSources() {
-    loadMetadata();
-    addVariableValueSources(new SpssVariableValueSourceFactory(spssFile, getEntityType(), locale, entityToVariableIndex));
+    addVariableValueSources(new SpssVariableValueSourceFactory(spssFile, getEntityType(), locale, idVariableIndex, entityToVariableIndex, isMultilines() ? getName() : null));
   }
 
   private void loadMetadata() {
@@ -135,10 +151,15 @@ public class SpssValueTable extends AbstractValueTable implements Disposable {
     @NotNull
     private final String entityType;
 
+    private final int idVariableIndex;
+
     private Set<VariableEntity> variableEntities;
 
-    private SpssVariableEntityProvider(@Nullable String entityType) {
+    boolean multilines = false;
+
+    private SpssVariableEntityProvider(@Nullable String entityType, int idVariableIndex) {
       this.entityType = entityType == null || entityType.trim().isEmpty() ? "Participant" : entityType.trim();
+      this.idVariableIndex = idVariableIndex;
     }
 
     @NotNull
@@ -155,7 +176,6 @@ public class SpssValueTable extends AbstractValueTable implements Disposable {
     @NotNull
     @Override
     public Set<VariableEntity> getVariableEntities() {
-
       if(variableEntities == null) {
         loadData();
         variableEntities = getVariableEntitiesInternal();
@@ -164,15 +184,21 @@ public class SpssValueTable extends AbstractValueTable implements Disposable {
       return variableEntities;
     }
 
+    public boolean isMultilines() {
+      // make sure entities have been scanned
+      getVariableEntities();
+      return multilines;
+    }
+
     private ImmutableSet<VariableEntity> getVariableEntitiesInternal() {
       Collection<String> entityIdentifiers = new HashSet<>();
       ImmutableSet.Builder<VariableEntity> entitiesBuilder = ImmutableSet.builder();
-      SPSSVariable entityVariable = spssFile.getVariable(0);
+      SPSSVariable entityVariable = spssFile.getVariable(idVariableIndex);
       int numberOfObservations = entityVariable.getNumberOfObservations();
       ValueType valueType = SpssVariableTypeMapper.map(entityVariable);
 
       for(int i = 1; i <= numberOfObservations; i++) {
-        Value identifierValue = new SpssVariableValueFactory(i, entityVariable, valueType, true).create();
+        Value identifierValue = new SpssVariableValueFactory(Lists.newArrayList(i), entityVariable, valueType, true, false).create();
 
         if(identifierValue.isNull()) {
           throw new SpssDatasourceParsingException("Empty entity identifier found.", "SpssEmptyIdentifier",
@@ -182,14 +208,13 @@ public class SpssValueTable extends AbstractValueTable implements Disposable {
         String identifier = identifierValue.getValue().toString();
 
         if(entityIdentifiers.contains(identifier)) {
-          String variableName = entityVariable.getName();
-          throw new SpssDatasourceParsingException("Duplicated entity identifier '" + identifier + "' found.",
-              "SpssDuplicateEntity", identifier, i, variableName).dataInfo(variableName, i);
+          multilines = true;
+          entityToVariableIndex.get(identifier).add(i);
+        } else {
+          entityToVariableIndex.put(identifier, Lists.newArrayList(i));
+          entitiesBuilder.add(new VariableEntityBean(entityType, identifier));
+          entityIdentifiers.add(identifier);
         }
-
-        entityToVariableIndex.put(identifier, i);
-        entitiesBuilder.add(new VariableEntityBean(entityType, identifier));
-        entityIdentifiers.add(identifier);
       }
 
       return entitiesBuilder.build();

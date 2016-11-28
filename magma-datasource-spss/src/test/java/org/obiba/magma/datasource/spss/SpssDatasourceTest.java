@@ -21,18 +21,12 @@ import java.util.Set;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.obiba.magma.Category;
-import org.obiba.magma.Datasource;
-import org.obiba.magma.MagmaEngine;
-import org.obiba.magma.NoSuchVariableException;
-import org.obiba.magma.Value;
-import org.obiba.magma.ValueTable;
-import org.obiba.magma.Variable;
-import org.obiba.magma.VariableEntity;
+import org.obiba.magma.*;
 import org.obiba.magma.datasource.spss.support.SpssDatasourceFactory;
 import org.obiba.magma.datasource.spss.support.SpssDatasourceParsingException;
 import org.obiba.magma.support.DatasourceParsingException;
 import org.obiba.magma.support.EntitiesPredicate;
+import org.obiba.magma.support.VariableEntityBean;
 import org.obiba.magma.type.DateType;
 import org.obiba.magma.type.DecimalType;
 import org.obiba.magma.type.TextType;
@@ -300,13 +294,21 @@ public class SpssDatasourceTest {
     }
   }
 
-  @Test(expected = DatasourceParsingException.class)
+  @Test
   public void testDuplicateIdentifier() throws Exception {
     dsFactory.setFile(getResourceFile("org/obiba/magma/datasource/spss/DuplicateIdentifier.sav"));
     Datasource ds = dsFactory.create();
     ds.initialise();
     ValueTable valueTable = ds.getValueTable("DuplicateIdentifier");
-    valueTable.getVariableEntities();
+    assertThat(valueTable.getVariableEntities().size()).isEqualTo(3);
+    VariableValueSource vvs = valueTable.getVariableValueSource("VAR001");
+    assertThat(vvs.getVariable().isRepeatable()).isTrue();
+    Value v = vvs.getValue(valueTable.getValueSet(new VariableEntityBean("Participant", "2")));
+    assertThat(v.isSequence()).isTrue();
+    assertThat(v.asSequence().getSize()).isEqualTo(2);
+    v = vvs.getValue(valueTable.getValueSet(new VariableEntityBean("Participant", "1")));
+    assertThat(v.isSequence()).isTrue();
+    assertThat(v.asSequence().getSize()).isEqualTo(1);
   }
 
   @Test
@@ -353,7 +355,7 @@ public class SpssDatasourceTest {
     } catch(DatasourceParsingException e) {
       assertThat(e.hasChildren()).isTrue();
       for(DatasourceParsingException ch : e.getChildren()) {
-        assertThat(ch.getMessage()).startsWith("Failed to create variable value source.")
+        assertThat(ch.getMessage()).startsWith("Failed to create variable.")
             .contains("(Variable info: name='var1'").contains("(String with invalid characters");
       }
     }
@@ -369,7 +371,7 @@ public class SpssDatasourceTest {
     } catch(DatasourceParsingException e) {
       assertThat(e.hasChildren()).isTrue();
       for(DatasourceParsingException ch : e.getChildren()) {
-        assertThat(ch.getMessage()).startsWith("Invalid characters found for category")
+        assertThat(ch.getMessage()).startsWith("Failed to create variable.")
             .contains("(Variable info: name='var1'").contains("String with invalid characters");
       }
     }
@@ -385,8 +387,9 @@ public class SpssDatasourceTest {
       assertThat(valueTable).isNotNull();
       valueTable.getVariableEntities().iterator();
       fail("Must have thrown DatasourceParsingException");
-    } catch(SpssDatasourceParsingException e) {
-      assertThat(e.getMessage()).startsWith("Invalid characters in variable value")
+    } catch(DatasourceParsingException e) {
+      assertThat(e.hasChildren()).isTrue();
+      assertThat(e.getChildren().get(0).getMessage()).startsWith("Invalid characters in variable value")
           .contains("(Data info: variable='var1'").contains("String with invalid characters");
     }
 
@@ -416,7 +419,7 @@ public class SpssDatasourceTest {
     } catch(DatasourceParsingException e) {
       assertThat(e.hasChildren()).isTrue();
       for(DatasourceParsingException ch : e.getChildren()) {
-        assertThat(ch.getMessage()).startsWith("Invalid characters found for category")
+        assertThat(ch.getMessage()).startsWith("Failed to create variable.")
             .contains("(Variable info: name='var1'").contains("String with invalid characters");
       }
     }
