@@ -9,47 +9,29 @@
  */
 package org.obiba.magma.datasource.spss.support;
 
-import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueType;
 import org.opendatafoundation.data.FileFormatInfo;
 import org.opendatafoundation.data.spss.SPSSFileException;
 import org.opendatafoundation.data.spss.SPSSVariable;
 
+import java.util.List;
+
 public class SpssVariableValueFactory extends SpssValueFactory {
 
-  public SpssVariableValueFactory(int variableIndex, SPSSVariable spssVariable, ValueType valueType) {
-    this(variableIndex, spssVariable, valueType, false);
-  }
-
-  public SpssVariableValueFactory(int variableIndex, SPSSVariable spssVariable, ValueType valueType, boolean withValidation) {
-    super(variableIndex, spssVariable, valueType, withValidation);
+  public SpssVariableValueFactory(List<Integer> valuesIndex, SPSSVariable spssVariable, ValueType valueType, boolean withValidation, boolean repeatable) {
+    super(valuesIndex, spssVariable, valueType, withValidation, repeatable);
   }
 
   @Override
-  public Value create() {
+  protected String getValue(int index) {
     try {
-      return createValue();
-    } catch(SpssInvalidCharacterException e) {
-      String variableName = spssVariable.getName();
-      throw new SpssDatasourceParsingException("Invalid characters in variable value.", "InvalidCharsetCharacter",
-          variableIndex, e.getSource()).dataInfo(variableName, variableIndex).extraInfo(e);
-    } catch(MagmaRuntimeException e) {
-      String variableName = spssVariable.getName();
-      throw new SpssDatasourceParsingException("Failed to create variable value", "SpssFailedToCreateVariable",
-          variableName, variableIndex).dataInfo(variableName, variableIndex).extraInfo(e.getMessage());
-    }
-  }
-
-  @Override
-  protected String getValue() {
-    try {
-      String value = spssVariable.getValueAsString(variableIndex, new FileFormatInfo(FileFormatInfo.Format.ASCII));
+      String value = spssVariable.getValueAsString(index, new FileFormatInfo(FileFormatInfo.Format.ASCII));
       return SpssVariableValueConverter.convert(spssVariable, value);
     } catch(SPSSFileException | SpssValueConversionException e) {
       String variableName = spssVariable.getName();
       throw new SpssDatasourceParsingException("Failed to retieve variable value.", "SpssFailedToCreateVariable",
-          variableName, variableIndex).dataInfo(variableName, variableIndex).extraInfo(e.getMessage());
+          variableName, index).dataInfo(variableName, index).extraInfo(e.getMessage());
     }
   }
 }
