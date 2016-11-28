@@ -13,6 +13,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 
+import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 
 import org.obiba.magma.Datasource;
@@ -40,13 +41,16 @@ public class SpssValueTableFactory {
 
   private final String name;
 
+  private final String idVariable;
+
   public SpssValueTableFactory(@NotNull Datasource datasource, @NotNull String entityType, @NotNull File file,
-      @NotNull String characterSet, @NotNull String locale) {
+                               @NotNull String characterSet, @NotNull String locale, @Nullable String idVariable) {
     this.datasource = datasource;
     this.entityType = entityType;
     this.file = file;
     this.characterSet = characterSet;
     this.locale = locale;
+    this.idVariable = idVariable;
     name = createValidFileName(file);
   }
 
@@ -56,7 +60,7 @@ public class SpssValueTableFactory {
           Strings.isNullOrEmpty(characterSet) ? null : Charset.forName(characterSet));
       spssFile.logFlag = false;
 
-      return new SpssValueTable(datasource, name, entityType, locale, spssFile);
+      return new SpssValueTable(datasource, name, entityType, locale, idVariable, spssFile);
     } catch(IOException e) {
       String fileName = file.getName();
       throw new DatasourceParsingException("Could not open file " + fileName + " to create ValueTable.", e,

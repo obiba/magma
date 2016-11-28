@@ -9,6 +9,7 @@
  */
 package org.obiba.magma.datasource.spss.support;
 
+import com.google.common.collect.Lists;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueType;
 import org.obiba.magma.support.DatasourceParsingException;
@@ -19,27 +20,27 @@ public class SpssCategoryNameValueFactory extends SpssValueFactory {
   private final String category;
 
   public SpssCategoryNameValueFactory(String category, int variableIndex, SPSSVariable spssVariable,
-      ValueType valueType) {
-    super(variableIndex, spssVariable, valueType, true);
+      ValueType valueType, boolean repeatable) {
+    super(Lists.newArrayList(), spssVariable, valueType, true, repeatable);
     this.category = category;
   }
 
-  @Override
+  /*@Override
   public Value create() {
     try {
       return createValue();
     } catch(SpssInvalidCharacterException e) {
       String variableName = spssVariable.getName();
       // In the dictionary the first row is reserved for entity variable
-      int index = variableIndex + 1;
+      int index = 0 + 1;
       throw new SpssDatasourceParsingException("Invalid characters found for category '" + category,
           "InvalidCategoryCharsetCharacter", index, variableName, e.getSource()).metadataInfo(variableName, index)
           .extraInfo(e);
     }
-  }
+  }*/
 
   @Override
-  protected String getValue() {
+  protected String getValue(int index) {
     return category;
   }
 }

@@ -9,11 +9,7 @@
  */
 package org.obiba.magma.datasource.spss;
 
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.SortedSet;
+import java.util.*;
 
 import javax.validation.constraints.NotNull;
 
@@ -34,13 +30,13 @@ public class SpssVariableValueSource extends AbstractVariableValueSource impleme
 
   private final SPSSVariable spssVariable;
 
-  private final Map<String, Integer> identifierToVariableIndex;
+  private final Map<String, List<Integer>> identifierToVariableIndex;
 
   public SpssVariableValueSource(Variable variable, SPSSVariable spssVariable,
-      Map<String, Integer> map) {
+      Map<String, List<Integer>> identifierToVariableIndex) {
     this.variable = variable;
     this.spssVariable = spssVariable;
-    identifierToVariableIndex = map;
+    this.identifierToVariableIndex = identifierToVariableIndex;
   }
 
   @NotNull
@@ -75,12 +71,7 @@ public class SpssVariableValueSource extends AbstractVariableValueSource impleme
 
   @Override
   public Iterable<Value> getValues(final SortedSet<VariableEntity> entities) {
-    return new Iterable<Value>() {
-      @Override
-      public Iterator<Value> iterator() {
-        return new ValuesIterator(entities);
-      }
-    };
+    return () -> new ValuesIterator(entities);
   }
 
   //
@@ -107,8 +98,8 @@ public class SpssVariableValueSource extends AbstractVariableValueSource impleme
       }
 
       VariableEntity variableEntity = entitiesIterator.next();
-      int variableIndex = identifierToVariableIndex.get(variableEntity.getIdentifier());
-      return new SpssVariableValueFactory(variableIndex, spssVariable, variable.getValueType())
+      List<Integer> valuesIndex = identifierToVariableIndex.get(variableEntity.getIdentifier());
+      return new SpssVariableValueFactory(valuesIndex, spssVariable, variable.getValueType(), false, variable.isRepeatable())
           .create();
     }
 
