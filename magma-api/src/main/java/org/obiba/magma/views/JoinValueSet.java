@@ -28,7 +28,7 @@ class JoinValueSet extends ValueSetBean {
 
   private List<ValueSet> innerValueSets;
 
-  JoinValueSet(@NotNull JoinTable table, @NotNull VariableEntity entity) {
+  public JoinValueSet(@NotNull JoinTable table, @NotNull VariableEntity entity) {
     super(table, entity);
     this.fetcher = new JoinValueSetFetcher(table);
   }
@@ -48,11 +48,13 @@ class JoinValueSet extends ValueSetBean {
     // for each inner value sets and get the value (if the inner table has value set and variable defined)
     // and wrap result in a value sequence
     List<Value> values = getInnerTableValueSets().stream() //
-        .map(joinedValueSet -> joinedValueSet == null || !hasWrappedVariable(joinedValueSet.getValueTable(), variable) ?
+        .filter(joinedValueSet -> hasWrappedVariable(joinedValueSet.getValueTable(), variable)) //
+        .map(joinedValueSet -> joinedValueSet instanceof EmptyValueSet ?
             variable.getValueType().nullValue() :
             getWrappedVariable(joinedValueSet.getValueTable(), variable).getValue(joinedValueSet))
         .collect(Collectors.toList());
-    return variable.getValueType().sequenceOf(values);
+    if (values.isEmpty()) return variable.isRepeatable() ? variable.getValueType().nullSequence() : variable.getValueType().nullValue();
+    return values.size() == 1 ? values.get(0) : variable.getValueType().sequenceOf(values);
   }
 
   private List<ValueSet> getInnerTableValueSets() {

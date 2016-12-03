@@ -31,7 +31,7 @@ public class JoinValueSetFetcher {
 
   synchronized List<ValueSet> getInnerTableValueSets(VariableEntity entity) {
     return joinTable.getTables().stream() //
-        .map(valueTable -> valueTable.hasValueSet(entity) ? valueTable.getValueSet(entity) : null) //
+        .map(valueTable -> valueTable.hasValueSet(entity) ? valueTable.getValueSet(entity) : new EmptyValueSet(valueTable, entity)) //
         .collect(Collectors.toList());
   }
 
@@ -45,8 +45,8 @@ public class JoinValueSetFetcher {
           .collect(Collectors.toMap(valueSet -> valueSet.getVariableEntity().getIdentifier(), Function.identity()));
 
       // fill the holes with null value sets
-      entities.stream().forEach(e -> {
-        ValueSet vs = tvs.containsKey(e.getIdentifier()) ? tvs.get(e.getIdentifier()) : null;
+      entities.forEach(e -> {
+        ValueSet vs = tvs.containsKey(e.getIdentifier()) ? tvs.get(e.getIdentifier()) : new EmptyValueSet(valueTable, e);
         if (!vsMap.containsKey(e.getIdentifier())) {
           vsMap.put(e.getIdentifier(), Lists.newArrayList());
         }
