@@ -103,7 +103,7 @@ public class JdbcDatasourceTest extends AbstractMagmaTest {
   @Test
   public void testCreateDatasourceFromExistingDatabaseWithRepeatables() {
     JdbcValueTableSettings tableSettings = new JdbcValueTableSettings("BONE_DENSITY", null, "Participant", "PART_ID");
-    tableSettings.setRepeatables(true);
+    tableSettings.setMultilines(true);
     JdbcDatasource jdbcDatasource = new JdbcDatasource("my-datasource", dataSource,
         new JdbcDatasourceSettings("Participant", Sets.newHashSet("BONE_DENSITY"), Sets.newHashSet(tableSettings), false));
     jdbcDatasource.initialise();

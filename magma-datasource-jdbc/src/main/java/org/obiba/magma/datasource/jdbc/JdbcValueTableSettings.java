@@ -44,7 +44,7 @@ public class JdbcValueTableSettings {
 
   private String includedColumns;
 
-  private boolean repeatables;
+  private boolean multilines;
 
   //
   // Constructors
@@ -155,12 +155,22 @@ public class JdbcValueTableSettings {
     return !Strings.isNullOrEmpty(includedColumns);
   }
 
-  public void setRepeatables(boolean repeatables) {
-    this.repeatables = repeatables;
+  public void setMultilines(boolean multilines) {
+    this.multilines = multilines;
   }
 
+  public boolean isMultilines() {
+    return multilines;
+  }
+
+  @Deprecated
+  public void setRepeatables(boolean multilines) {
+    setMultilines(multilines);
+  }
+
+  @Deprecated
   public boolean isRepeatables() {
-    return repeatables;
+    return multilines;
   }
 }
 
