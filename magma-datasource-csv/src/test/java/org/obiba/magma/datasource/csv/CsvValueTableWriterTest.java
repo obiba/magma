@@ -225,74 +225,6 @@ public class CsvValueTableWriterTest extends AbstractMagmaTest {
     }
   }
 
-  @Test
-  public void test_writing_data_only_modifying_multiple_value_sets_and_reading_back_from_datasource() throws Exception {
-    String tableName = "TableDataOnly";
-    CsvDatasource datasource = new TempTableBuilder(tableName)
-        .addData(getFileFromResource("org/obiba/magma/datasource/csv/TableDataOnly/data.csv"))
-        .buildCsvDatasource("csv-datasource");
-
-    Variable cityVariable = Variable.Builder.newVariable("City", TextType.get(), "Participant").build();
-    Value cityValueVancouver = TextType.get().valueOf("Vancouver");
-
-    VariableEntity entity2 = new VariableEntityBean(DEFAULT_ENTITY_TYPE, "2");
-
-    Map<Variable, Value> values = Maps.newHashMap();
-    try(ValueTableWriter writer = datasource.createWriter(tableName, DEFAULT_ENTITY_TYPE)) {
-
-      values.put(cityVariable, cityValueVancouver);
-      writeValueSet(new VariableEntityBean(DEFAULT_ENTITY_TYPE, "4"), writer, values);
-
-      values.put(cityVariable, TextType.get().valueOf("Moncton"));
-      writeValueSet(entity2, writer, values);
-
-      values.put(cityVariable, TextType.get().valueOf("Regina"));
-      writeValueSet(entity2, writer, values);
-
-      values.put(cityVariable, cityValueVancouver);
-      writeValueSet(entity2, writer, values);
-    }
-
-    assertThat(
-        readValue(datasource.getValueTable(tableName), new VariableEntityBean(DEFAULT_ENTITY_TYPE, "2"), cityVariable))
-        .isEqualTo(cityValueVancouver);
-    datasource.dispose();
-  }
-
-  @Test
-  public void test_writing_data_only_modifying_multiple_wide_byte_value_sets_and_reading_back_from_datasource()
-      throws Exception {
-    String tableName = "TableDataOnly";
-    CsvDatasource datasource = new TempTableBuilder(tableName)
-        .addData(getFileFromResource("org/obiba/magma/datasource/csv/TableDataOnly/data.csv"))
-        .buildCsvDatasource("csv-datasource");
-
-    Variable cityVariable = Variable.Builder.newVariable("City", TextType.get(), "Participant").build();
-    Value wideByteCityName = TextType.get().valueOf("Sugg�r�");
-
-    Map<Variable, Value> values = Maps.newHashMap();
-    VariableEntity entity2 = new VariableEntityBean(DEFAULT_ENTITY_TYPE, "2");
-
-    try(ValueTableWriter writer = datasource.createWriter(tableName, DEFAULT_ENTITY_TYPE)) {
-      // Write wide byte line
-      values.put(cityVariable, wideByteCityName);
-      writeValueSet(entity2, writer, values);
-
-      // Write line after wide byte line. This one is in danger of being partially overwritten during an update.
-      values.put(cityVariable, TextType.get().valueOf("Moncton"));
-      writeValueSet(new VariableEntityBean(DEFAULT_ENTITY_TYPE, "3"), writer, values);
-
-      // Update the wide byte line (2) to ensure that line (3) is not affected.
-      values.put(cityVariable, TextType.get().valueOf("Regina"));
-      writeValueSet(entity2, writer, values);
-    }
-
-    assertThat(
-        readValue(datasource.getValueTable(tableName), new VariableEntityBean(DEFAULT_ENTITY_TYPE, "3"), cityVariable))
-        .isEqualTo(TextType.get().valueOf("Moncton"));
-    datasource.dispose();
-  }
-
   @Test(expected = MagmaRuntimeException.class)
   public void test_writing_variables_header_in_file_without_required_name_causes_error() throws Exception {
     String tableName = "TableVariablesOnly";
@@ -353,78 +285,6 @@ public class CsvValueTableWriterTest extends AbstractMagmaTest {
     }
   }
 
-  @SuppressWarnings("ReuseOfLocalVariable")
-  @Test
-  public void test_writing_escaped_characters() throws Exception {
-
-    File dataFile = getFileFromResource("org/obiba/magma/datasource/csv/Table1/no-data.csv");
-
-    CsvDatasource datasource = new CsvDatasource("csv-datasource")
-        .addValueTable("Table1", getFileFromResource("org/obiba/magma/datasource/csv/Table1/escaped-variables.csv"),
-            dataFile);
-    datasource.initialise();
-
-    ValueTable table = datasource.getValueTable("Table1");
-    Variable name = table.getVariable("name");
-    Variable children = table.getVariable("children");
-
-    CsvDatasourceTest.assertEmperors(datasource, table, name, children);
-
-    VariableEntity entity = new VariableEntityBean(DEFAULT_ENTITY_TYPE, "1");
-
-    try(ValueTableWriter writer = datasource.createWriter(table.getName(), table.getEntityType())) {
-      Map<Variable, Value> values = Maps.newHashMap();
-      values.put(name, TextType.get().valueOf("Julius\nCaesar"));
-      values.put(children,
-          getSequenceOf("Julia", "Caesarion", "Gaius\\\\Julius Caesar \"Octavianus\"", null, "Marcus Junius\" Brutus"));
-      writeValueSet(entity, writer, values);
-    }
-
-    assertJuliusCaesarName(table, name, entity);
-    assertJuliusCaesarChildren(table, children, entity);
-
-    String fileContent = FileUtils.readFileToString(dataFile);
-    log.debug("\n=====\n{}=====", fileContent);
-
-    assertThat(fileContent).isEqualTo("\"entity_id\",\"name\",\"children\"\n" +
-        "\"1\",\"Julius\n" +
-        "Caesar\",\"\"\"Julia\"\",\"\"Caesarion\"\",\"\"Gaius\\\\Julius Caesar \"\"\"\"Octavianus\"\"\"\"\"\",,\"\"Marcus Junius\"\"\"\" Brutus\"\"\"\n");
-
-    datasource.dispose();
-
-    datasource = new CsvDatasource("csv-datasource")
-        .addValueTable("Table1", getFileFromResource("org/obiba/magma/datasource/csv/Table1/escaped-variables.csv"),
-            dataFile);
-    datasource.initialise();
-
-    table = datasource.getValueTable("Table1");
-    name = table.getVariable("name");
-    children = table.getVariable("children");
-
-    CsvDatasourceTest.assertEmperors(datasource, table, name, children);
-    assertJuliusCaesarName(table, name, entity);
-    assertJuliusCaesarChildren(table, children, entity);
-
-    datasource.dispose();
-  }
-
-  private void assertJuliusCaesarChildren(ValueTable table, Variable children, VariableEntity entity) {
-    Value value = table.getValue(children, table.getValueSet(entity));
-    assertThat(value.isSequence()).isTrue();
-    ValueSequence valueSequence = value.asSequence();
-    assertThat((String) valueSequence.get(0).getValue()).isEqualTo("Julia");
-    assertThat((String) valueSequence.get(1).getValue()).isEqualTo("Caesarion");
-    assertThat((String) valueSequence.get(2).getValue()).isEqualTo("Gaius\\\\Julius Caesar \"Octavianus\"");
-    assertThat(valueSequence.get(3).isNull()).isTrue();
-    assertThat((String) valueSequence.get(4).getValue()).isEqualTo("Marcus Junius\" Brutus");
-  }
-
-  private void assertJuliusCaesarName(ValueTable table, Variable name, VariableEntity entity) {
-    Value value = table.getValue(name, table.getValueSet(entity));
-    assertThat(value.isSequence()).isFalse();
-    assertThat((String) value.getValue()).isEqualTo("Julius\nCaesar");
-  }
-
   private File createTempDirectory(String suffix) throws IOException {
     File dir = File.createTempFile(suffix, "");
     dir.delete();
@@ -440,37 +300,9 @@ public class CsvValueTableWriterTest extends AbstractMagmaTest {
     }
   }
 
-  private void writeValueSet(VariableEntity variableEntity, ValueTableWriter valueTableWriter,
-      Map<Variable, Value> values) throws IOException {
-    try(ValueTableWriter.ValueSetWriter valueSetWriter = valueTableWriter.writeValueSet(variableEntity)) {
-      for(Map.Entry<Variable, Value> entry : values.entrySet()) {
-        valueSetWriter.writeValue(entry.getKey(), entry.getValue());
-      }
-    }
-  }
-
   private void writeVariable(ValueTableWriter valueTableWriter, Variable variable) throws IOException {
     try(ValueTableWriter.VariableWriter variableWriter = valueTableWriter.writeVariables()) {
       variableWriter.writeVariable(variable);
     }
-  }
-
-  private Value getSequenceOf(String... values) {
-    List<Value> list = Lists.newArrayList();
-    for(String str : values) {
-      list.add(TextType.get().valueOf(str));
-    }
-    return TextType.get().sequenceOf(list);
-  }
-
-  @Nullable
-  private Value readValue(ValueTable valueTable, VariableEntity variableEntity, Variable variable) {
-    for(ValueSet valueSet : valueTable.getValueSets()) {
-      Value value = valueTable.getValue(variable, valueSet);
-      if(valueSet.getVariableEntity().equals(variableEntity)) {
-        return value;
-      }
-    }
-    return null;
   }
 }

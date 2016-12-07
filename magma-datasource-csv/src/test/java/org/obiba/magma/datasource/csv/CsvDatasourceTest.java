@@ -200,6 +200,53 @@ public class CsvDatasourceTest extends AbstractMagmaTest {
   }
 
   @Test
+  public void test_reading_data_with_multilines() throws Exception {
+    CsvDatasource datasource = new CsvDatasource("csv-datasource").addValueTable("Multilines", //
+        null, //
+        getFileFromResource("org/obiba/magma/datasource/csv/multilines/data.csv"));
+    datasource.initialise();
+    assertThat(datasource.getValueTableNames()).hasSize(1);
+
+    ValueTable table = datasource.getValueTable("Multilines");
+    assertThat(table).isNotNull();
+    assertThat(table.getEntityType()).isEqualTo("Participant");
+    assertThat(table.getVariableEntities().size()).isEqualTo(4);
+
+    Variable var1 = table.getVariable("var1");
+    assertThat(var1.isRepeatable()).isTrue();
+    Variable var2 = table.getVariable("var2");
+    assertThat(var2.isRepeatable()).isTrue();
+
+    for(ValueSet valueSet : table.getValueSets()) {
+      String identifier = valueSet.getVariableEntity().getIdentifier();
+      Value value1 = table.getValue(var1, valueSet);
+      log.info("var1[{}]={}", identifier, value1);
+      assertThat(value1.isSequence()).isTrue();
+      Value value2 = table.getValue(var2, valueSet);
+      log.info("var2[{}]={}", identifier, value2);
+      assertThat(value2.isSequence()).isTrue();
+    }
+
+    ValueSet vs1 = table.getValueSet(new VariableEntityBean("Participant", "1"));
+    Value value1 = table.getValue(var1, vs1);
+    assertThat(value1.toString()).isEqualTo("\"Y\",\"N\"");
+    Value value2 = table.getValue(var2, vs1);
+    assertThat(value2.toString()).isEqualTo("\"11\",\"21\"");
+    assertThat(value2.asSequence().getSize()).isEqualTo(2);
+    Value value = value2.asSequence().get(0);
+    assertThat(value).isNotNull();
+    assertThat(value.isNull()).isFalse();
+    assertThat(value.isSequence()).isFalse();
+    assertThat(Integer.parseInt(value.toString())).isEqualTo(11);
+    value = value2.asSequence().get(1);
+    assertThat(value).isNotNull();
+    assertThat(value.isNull()).isFalse();
+    assertThat(value.isSequence()).isFalse();
+    assertThat(Integer.parseInt(value.toString())).isEqualTo(21);
+  }
+
+
+  @Test
   public void test_reading_data_only_table_is_not_null() throws Exception {
     CsvDatasource datasource = new CsvDatasource("csv-datasource").addValueTable("TableDataOnly", //
         null, //

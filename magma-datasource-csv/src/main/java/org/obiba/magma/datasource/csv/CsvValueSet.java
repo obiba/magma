@@ -11,10 +11,13 @@
 package org.obiba.magma.datasource.csv;
 
 import java.io.File;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.annotation.Nullable;
 
+import com.google.common.collect.Lists;
 import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueLoaderFactory;
@@ -31,16 +34,32 @@ public class CsvValueSet extends ValueSetBean {
 
   private final Map<String, Integer> headerMap;
 
-  private final String[] line;
+  private final List<String[]> lines;
 
   //
-  public CsvValueSet(CsvValueTable table, VariableEntity entity, Map<String, Integer> headerMap, String[] line) {
+  public CsvValueSet(CsvValueTable table, VariableEntity entity, Map<String, Integer> headerMap, List<String[]> lines) {
     super(table, entity);
     this.headerMap = headerMap;
-    this.line = line;
+    this.lines = lines;
   }
 
   public Value getValue(Variable variable) {
+    if (isMultilines()) {
+      return variable.getValueType().sequenceOf(lines.stream() //
+          .map(line -> getSingleValue(variable, line)) //
+          .collect(Collectors.toList()));
+    } else {
+      return getSingleValue(variable, lines.get(0));
+    }
+  }
+
+  /**
+   * Get the value from a single line.
+   *
+   * @param variable
+   * @return
+   */
+  private Value getSingleValue(Variable variable, String[] line) {
     Value value = variable.getValueType().nullValue();
     if (line == null || line.length == 0) return value;
 
@@ -69,16 +88,20 @@ public class CsvValueSet extends ValueSetBean {
   }
 
   private Value getAnyTypeValue(Variable variable, String strValue) {
-    return variable.isRepeatable() //
+    return variable.isRepeatable() && !isMultilines() //
         ? variable.getValueType().sequenceOf(strValue) //
         : variable.getValueType().valueOf(strValue);
   }
 
   private Value getBinaryValue(Variable variable, String strValue) {
     ValueLoaderFactory factory = new BinaryValueStreamLoaderFactory(getParentFile());
-    return variable.isRepeatable() //
+    return variable.isRepeatable() && !isMultilines() //
         ? BinaryType.get().sequenceOfReferences(factory, strValue) //
         : BinaryType.get().valueOfReference(factory, strValue);
+  }
+
+  private boolean isMultilines() {
+    return ((CsvValueTable)getValueTable()).isMultilines();
   }
 
   @Nullable

@@ -24,6 +24,7 @@ import java.util.Set;
 import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 
+import com.google.common.collect.Lists;
 import org.obiba.magma.Datasource;
 import org.obiba.magma.Disposable;
 import org.obiba.magma.Initialisable;
@@ -77,7 +78,7 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
 
   final Set<VariableEntity> entities = new LinkedHashSet<>();
 
-  private final Map<String, String[]> entityLinesBuffer = new LinkedHashMap<>();
+  private final Map<String, List<String[]>> entityLinesBuffer = new LinkedHashMap<>();
 
   private CSVReader csvDataReader;
 
@@ -90,6 +91,8 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
   private List<String> missingVariableNames = new ArrayList<>();
 
   private final CsvTimestamps timestamps;
+
+  private boolean multilines = false;
 
   public CsvValueTable(Datasource datasource, String name, File dataFile, String entityType) {
     this(datasource, name, null, dataFile, entityType);
@@ -128,21 +131,19 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
     if(!entities.contains(entity)) {
       throw new NoSuchValueSetException(this, entity);
     }
-    // check if line is in the buffer
-    if(entityLinesBuffer.containsKey(entity.getIdentifier())) {
-      String[] line = entityLinesBuffer.get(entity.getIdentifier());
-      entityLinesBuffer.remove(entity.getIdentifier());
-      return new CsvValueSet(this, entity, dataHeaderMap, line);
-    }
     // read line from data file
     return readValueSet(entity);
+  }
+
+  public boolean isMultilines() {
+    return multilines;
   }
 
   @Override
   public void initialise() {
     try {
-      initialiseVariables();
       initialiseEntities();
+      initialiseVariables();
       variableEntityProvider = new CsvVariableEntityProvider(this, entityType);
     } catch(IOException e) {
       throw new DatasourceParsingException("Error occurred initialising csv datasource.", e, "CsvInitialisationError");
@@ -166,33 +167,26 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
    */
   @SuppressWarnings({ "OverlyLongMethod", "PMD.NcssMethodCount" })
   private ValueSet readValueSet(VariableEntity entity) {
-    boolean found = false;
-    String[] line = null;
-    try {
-      boolean firstRead = csvDataReader == null;
-      String[] current = getCsvDataReader().readNext();
-      // skip header
-      if(firstRead) current = getCsvDataReader().readNext();
-      while(current != null && !found) {
-        String id = current.length > 0 ? current[0] : "";
-        if(entity.getIdentifier().equals(id)) {
-          line = current;
-          found = true;
-        } else {
-          // put in the buffer
-          entityLinesBuffer.put(id, current);
+    if (entityLinesBuffer.isEmpty()) {
+      resetCsvDataReader();
+      try {
+        boolean firstRead = csvDataReader == null;
+        String[] current = getCsvDataReader().readNext();
+        // skip header
+        if (firstRead) current = getCsvDataReader().readNext();
+        while (current != null) {
+          String id = current.length > 0 ? current[0] : "";
+          if (!entityLinesBuffer.containsKey(id)) {
+            entityLinesBuffer.put(id, Lists.newArrayList());
+          }
+          entityLinesBuffer.get(id).add(current);
           current = getCsvDataReader().readNext();
         }
+      } catch (IOException e) {
+        throw new MagmaRuntimeException("Failed reading CSV data file", e);
       }
-      if(!found) {
-        // re-read from the start
-        resetCsvDataReader();
-        return getValueSet(entity);
-      }
-    } catch(IOException e) {
-      throw new MagmaRuntimeException("Failed reading CSV data file", e);
     }
-    return new CsvValueSet(this, entity, dataHeaderMap, line);
+    return new CsvValueSet(this, entity, dataHeaderMap, entityLinesBuffer.get(entity.getIdentifier()));
   }
 
   private void initialiseVariables() throws IOException {
@@ -217,8 +211,11 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
         // skip first header as it's the participant ID
         for(int i = 1; i < line.length; i++) {
           String variableName = line[i].trim();
-          addVariableValueSource(new CsvVariableValueSource(Variable.Builder
-              .newVariable(variableName, TextType.get(), entityType == null ? DEFAULT_ENTITY_TYPE : entityType)
+          addVariableValueSource(new CsvVariableValueSource(Variable.Builder //
+              .newVariable(variableName, TextType.get(), entityType == null ? DEFAULT_ENTITY_TYPE : entityType) //
+              .repeatable(multilines) //
+              .occurrenceGroup(multilines ? getName() : null) //
+              .index(i) //
               .build()));
           dataHeaderMap.put(variableName, i);
         }
@@ -439,7 +436,12 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
       String identifier = line[0];
       if(Strings.isNullOrEmpty(identifier)) continue;
       isDataFileEmpty = false;
-      entities.add(new VariableEntityBean(entityType, identifier));
+      VariableEntityBean entity = new VariableEntityBean(entityType, identifier);
+      if (entities.contains(entity)) {
+        multilines = true;
+      } else {
+        entities.add(entity);
+      }
     }
   }
 
