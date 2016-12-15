@@ -11,11 +11,14 @@
 package org.obiba.magma.datasource.csv;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.validation.constraints.NotNull;
 
+import com.google.common.collect.Lists;
 import org.obiba.magma.MagmaRuntimeException;
 import org.obiba.magma.Value;
 import org.obiba.magma.Variable;
@@ -36,15 +39,18 @@ public class CsvLine {
 
   private int index = 1;
 
+  private final boolean multilines;
+
   @NotNull
   private final VariableEntity entity;
 
   @NotNull
   private final File parent;
 
-  public CsvLine(@NotNull VariableEntity entity, @NotNull File parent) {
+  public CsvLine(@NotNull VariableEntity entity, @NotNull File parent, boolean multilines) {
     this.entity = entity;
     this.parent = parent;
+    this.multilines = multilines;
     if(!parent.exists() && !parent.mkdirs()) {
       throw new MagmaRuntimeException("Impossible to create " + parent.getPath() + " directory");
     }
@@ -73,7 +79,17 @@ public class CsvLine {
     return line;
   }
 
-  public String[] getLine() {
+  public List<String[]> getLines() {
+    if (multilines) {
+      return getMultipleLines();
+    } else {
+      List<String[]> lines = Lists.newArrayList();
+      lines.add(getSingleLine());
+      return lines;
+    }
+  }
+
+  private String[] getSingleLine() {
     String[] line = new String[headerMap.size() + 1];
     line[0] = entity.getIdentifier();
     for(Map.Entry<String, Integer> entry : headerMap.entrySet()) {
@@ -81,6 +97,41 @@ public class CsvLine {
       String variableName = entry.getKey();
       if(valueMap.containsKey(variableName)) {
         strValue = valueMap.get(variableName).toString();
+      }
+      line[entry.getValue()] = strValue;
+    }
+    return line;
+  }
+
+  private List<String[]> getMultipleLines() {
+    List<String[]> lines = Lists.newArrayList();
+    // first detect the longest value sequence
+    int length = 1;
+    for (Value value : valueMap.values()) {
+      if (value.isSequence()) length = Math.max(length, value.asSequence().getSize());
+    }
+    for (int i=0; i<length ; i++) {
+      lines.add(getMultipleLinesAt(i));
+    }
+    return lines;
+  }
+
+  private String[] getMultipleLinesAt(int position) {
+    String[] line = new String[headerMap.size() + 1];
+    line[0] = entity.getIdentifier();
+    for(Map.Entry<String, Integer> entry : headerMap.entrySet()) {
+      String strValue = null;
+      String variableName = entry.getKey();
+      if(valueMap.containsKey(variableName)) {
+        Value value = valueMap.get(variableName);
+        if (value.isSequence()) {
+          if (position < value.asSequence().getSize()) {
+            value = value.asSequence().get(position);
+          } else {
+            value = value.getValueType().nullValue();
+          }
+        }
+        strValue = value.toString();
       }
       line[entry.getValue()] = strValue;
     }

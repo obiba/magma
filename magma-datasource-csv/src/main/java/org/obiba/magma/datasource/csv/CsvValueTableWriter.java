@@ -112,7 +112,7 @@ public class CsvValueTableWriter implements ValueTableWriter {
         throw new IllegalArgumentException("valueTable.getParentFile() cannot be null");
       }
       //noinspection ConstantConditions
-      csvLine = new CsvLine(entity, valueTable.getParentFile());
+      csvLine = new CsvLine(entity, valueTable.getParentFile(), valueTable.isMultilines());
 
       // Populate with existing values, if available
       if(valueTable.hasValueSet(entity)) {
@@ -144,8 +144,13 @@ public class CsvValueTableWriter implements ValueTableWriter {
         }
 
         // Writer Value set. Throw exception if doesn't match header
-        String[] line = csvLine.getLine();
-        writeValueToCsv(line);
+        csvLine.getLines().forEach(line -> {
+          try {
+            writeValueToCsv(line);
+          } catch (IOException e) {
+            throw new RuntimeException(e);
+          }
+        });
         // Update entities index
         ((CsvVariableEntityProvider)valueTable.getVariableEntityProvider()).add(entity);
       } catch(IOException e) {
