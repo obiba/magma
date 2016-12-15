@@ -136,7 +136,8 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
   }
 
   public boolean isMultilines() {
-    return multilines;
+    // either detected or configured
+    return multilines || getCsvDatasource().isMultilines();
   }
 
   @Override
@@ -213,8 +214,8 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
           String variableName = line[i].trim();
           addVariableValueSource(new CsvVariableValueSource(Variable.Builder //
               .newVariable(variableName, TextType.get(), entityType == null ? DEFAULT_ENTITY_TYPE : entityType) //
-              .repeatable(multilines) //
-              .occurrenceGroup(multilines ? getName() : null) //
+              .repeatable(isMultilines()) //
+              .occurrenceGroup(isMultilines() ? getName() : null) //
               .index(i) //
               .build()));
           dataHeaderMap.put(variableName, i);

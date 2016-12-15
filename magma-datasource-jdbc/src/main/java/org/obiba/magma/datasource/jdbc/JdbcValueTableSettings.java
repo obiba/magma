@@ -49,46 +49,29 @@ public class JdbcValueTableSettings {
   //
   // Constructors
   //
-  public JdbcValueTableSettings(String sqlTableName, String magmaTableName, String entityType, String entityIdentifierColumn) {
+  private JdbcValueTableSettings(String sqlTableName) {
     if(sqlTableName == null) {
       throw new IllegalArgumentException("null sqlTableName");
     }
     this.sqlTableName = sqlTableName;
-    this.magmaTableName = Strings.isNullOrEmpty(magmaTableName) ? sqlTableName : magmaTableName;
-    this.entityType = entityType;
-    this.entityIdentifierColumn = Strings.isNullOrEmpty(entityIdentifierColumn) ? ENTITY_ID_COLUMN : entityIdentifierColumn;
+    this.magmaTableName = sqlTableName;
+    this.entityType = "Participant";
+    this.entityIdentifierColumn = ENTITY_ID_COLUMN;
   }
 
   //
   // Methods
   //
-
-  public void setSqlTableName(String sqlTableName) {
-    this.sqlTableName = sqlTableName;
-  }
-
   public String getSqlTableName() {
     return sqlTableName;
-  }
-
-  public void setMagmaTableName(String magmaTableName) {
-    this.magmaTableName = magmaTableName;
   }
 
   public String getMagmaTableName() {
     return magmaTableName != null ? magmaTableName : sqlTableName;
   }
 
-  public void setEntityType(String entityType) {
-    this.entityType = entityType;
-  }
-
   public String getEntityType() {
     return entityType;
-  }
-
-  public void setEntityIdentifierColumn(String entityIdentifierColumn) {
-    this.entityIdentifierColumn = entityIdentifierColumn;
   }
 
   public String getEntityIdentifierColumn() {
@@ -99,20 +82,12 @@ public class JdbcValueTableSettings {
     return createdTimestampColumnName;
   }
 
-  public void setCreatedTimestampColumnName(String createdTimestampColumnName) {
-    this.createdTimestampColumnName = createdTimestampColumnName;
-  }
-
   public boolean hasCreatedTimestampColumnName() {
     return !Strings.isNullOrEmpty(createdTimestampColumnName);
   }
 
   public String getUpdatedTimestampColumnName() {
     return updatedTimestampColumnName;
-  }
-
-  public void setUpdatedTimestampColumnName(String updatedTimestampColumnName) {
-    this.updatedTimestampColumnName = updatedTimestampColumnName;
   }
 
   public boolean hasUpdatedTimestampColumnName() {
@@ -127,16 +102,8 @@ public class JdbcValueTableSettings {
     return entityIdentifiersWhere;
   }
 
-  public void setEntityIdentifiersWhere(String entityIdentifiersWhere) {
-    this.entityIdentifiersWhere = entityIdentifiersWhere;
-  }
-
   public String getExcludedColumns() {
     return excludedColumns;
-  }
-
-  public void setExcludedColumns(String excludedColumns) {
-    this.excludedColumns = excludedColumns;
   }
 
   public boolean hasExcludedColumns() {
@@ -147,30 +114,78 @@ public class JdbcValueTableSettings {
     return includedColumns;
   }
 
-  public void setIncludedColumns(String includedColumns) {
-    this.includedColumns = includedColumns;
-  }
-
   public boolean hasIncludedColumns() {
     return !Strings.isNullOrEmpty(includedColumns);
-  }
-
-  public void setMultilines(boolean multilines) {
-    this.multilines = multilines;
   }
 
   public boolean isMultilines() {
     return multilines;
   }
 
-  @Deprecated
-  public void setRepeatables(boolean multilines) {
-    setMultilines(multilines);
+  public static Builder newSettings(String sqlTableName) {
+    return new Builder(sqlTableName);
   }
 
-  @Deprecated
-  public boolean isRepeatables() {
-    return multilines;
+  public static class Builder {
+    private JdbcValueTableSettings settings;
+
+    private Builder(String name) {
+      this.settings = new JdbcValueTableSettings(name);
+    }
+
+    public Builder tableName(String name) {
+      settings.magmaTableName = Strings.isNullOrEmpty(name) ? settings.sqlTableName : name;
+      return this;
+    }
+
+    public Builder entityType(String entityType) {
+      settings.entityType = entityType;
+      return this;
+    }
+
+    public Builder createdTimestampColumn(String name) {
+      settings.createdTimestampColumnName = name;
+      return this;
+    }
+
+    public Builder updatedTimestampColumn(String name) {
+      settings.updatedTimestampColumnName = name;
+      return this;
+    }
+
+    public Builder entityIdentifierColumn(String name) {
+      settings.entityIdentifierColumn = Strings.isNullOrEmpty(name) ? ENTITY_ID_COLUMN : name;
+      return this;
+    }
+
+    public Builder entityIdentifiersWhere(String where) {
+      settings.entityIdentifiersWhere = where;
+      return this;
+    }
+
+    public Builder excludedColumns(String name) {
+      settings.excludedColumns = name;
+      return this;
+    }
+
+    public Builder includedColumns(String name) {
+      settings.includedColumns = name;
+      return this;
+    }
+
+    public Builder multilines() {
+      return multilines(true);
+    }
+
+    public Builder multilines(boolean multilines) {
+      settings.multilines = multilines;
+      return this;
+    }
+
+    public JdbcValueTableSettings build() {
+      return settings;
+    }
   }
+
 }
 

@@ -198,8 +198,10 @@ public class JdbcDatasource extends AbstractDatasource {
       JdbcValueTableSettings tableSettings = settings.getTableSettingsForMagmaTable(tableName);
 
       if(tableSettings == null) {
-        tableSettings = new JdbcValueTableSettings(generateSqlTableName(tableName), tableName, entityType,
-            settings.getDefaultEntityIdColumnName());
+        tableSettings = JdbcValueTableSettings.newSettings(generateSqlTableName(tableName))
+            .tableName(tableName) //
+            .entityType(entityType) //
+            .entityIdentifierColumn(settings.getDefaultEntityIdColumnName()).build();
         settings.getTableSettings().add(tableSettings);
       }
 
@@ -288,8 +290,10 @@ public class JdbcDatasource extends AbstractDatasource {
     }
 
     return new JdbcValueTable(this,
-          new JdbcValueTableSettings(generateSqlTableName(tableName), tableName, entityType,
-              settings.getDefaultEntityIdColumnName()));
+          JdbcValueTableSettings.newSettings(generateSqlTableName(tableName)) //
+              .tableName(tableName) //
+              .entityType(entityType) //
+              .entityIdentifierColumn(settings.getDefaultEntityIdColumnName()).build());
   }
 
   //

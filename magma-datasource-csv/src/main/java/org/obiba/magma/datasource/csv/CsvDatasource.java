@@ -64,6 +64,7 @@ public class CsvDatasource extends AbstractDatasource {
   private String characterSet = DEFAULT_CHARACTER_SET;
 
   private int firstRow = 1;
+  private boolean multilines;
 
   public CsvDatasource(String name) {
     super(name, TYPE);
@@ -235,4 +236,11 @@ public class CsvDatasource extends AbstractDatasource {
     return firstRow;
   }
 
+  public void setMultilines(boolean multilines) {
+    this.multilines = multilines;
+  }
+
+  public boolean isMultilines() {
+    return multilines;
+  }
 }

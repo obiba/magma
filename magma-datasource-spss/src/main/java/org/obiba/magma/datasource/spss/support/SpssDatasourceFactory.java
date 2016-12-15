@@ -46,6 +46,8 @@ public class SpssDatasourceFactory extends AbstractDatasourceFactory {
 
   private String idVariable;
 
+  private boolean multilines = false;
+
   public void setFile(String path) {
     setFile(new File(path));
   }
@@ -78,6 +80,10 @@ public class SpssDatasourceFactory extends AbstractDatasourceFactory {
     this.idVariable = idVariable;
   }
 
+  public void setMultilines(boolean multilines) {
+    this.multilines = multilines;
+  }
+
   @Override
   public Datasource create() {
     return internalCreate();
@@ -98,6 +104,6 @@ public class SpssDatasourceFactory extends AbstractDatasourceFactory {
       locale = DEFAULT_LOCALE;
     }
 
-    return new SpssDatasource(getName(), files, characterSet, entityType, locale, idVariable);
+    return new SpssDatasource(getName(), files, characterSet, entityType, locale, idVariable, multilines);
   }
 }

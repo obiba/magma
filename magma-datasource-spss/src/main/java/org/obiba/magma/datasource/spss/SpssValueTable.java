@@ -106,12 +106,17 @@ public class SpssValueTable extends AbstractValueTable implements Disposable {
   }
 
   public boolean isMultilines() {
-    return ((SpssVariableEntityProvider)getVariableEntityProvider()).isMultilines();
+    // either detected or configured
+    return ((SpssVariableEntityProvider)getVariableEntityProvider()).isMultilines() || getSpssDatasource().isMultilines();
   }
 
   //
   // Private methods
   //
+
+  public SpssDatasource getSpssDatasource() {
+    return (SpssDatasource) super.getDatasource();
+  }
 
   private void initializeVariableSources() {
     addVariableValueSources(new SpssVariableValueSourceFactory(spssFile, getEntityType(), locale, idVariableIndex, entityToVariableIndex, isMultilines() ? getName() : null));
@@ -184,7 +189,7 @@ public class SpssValueTable extends AbstractValueTable implements Disposable {
       return variableEntities;
     }
 
-    public boolean isMultilines() {
+    private boolean isMultilines() {
       // make sure entities have been scanned
       getVariableEntities();
       return multilines;

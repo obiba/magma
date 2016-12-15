@@ -91,12 +91,14 @@ class JdbcValueTable extends AbstractValueTable {
 
   JdbcValueTable(Datasource datasource, String tableName, Table table, String entityType) {
     this(datasource,
-        new JdbcValueTableSettings(table.getName(), tableName, entityType, getEntityIdentifierColumn(table)));
+        JdbcValueTableSettings.newSettings(table.getName()).tableName(tableName).entityType(entityType) //
+            .entityIdentifierColumn(getEntityIdentifierColumn(table)).build());
   }
 
   JdbcValueTable(Datasource datasource, String tableName, View view, String entityType, String entityIdentifierColumn) {
     this(datasource,
-        new JdbcValueTableSettings(view.getName(), tableName, entityType, entityIdentifierColumn));
+        JdbcValueTableSettings.newSettings(view.getName()).tableName(tableName).entityType(entityType) //
+            .entityIdentifierColumn(entityIdentifierColumn).build());
   }
 
   //

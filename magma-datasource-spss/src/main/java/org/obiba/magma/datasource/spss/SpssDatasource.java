@@ -31,19 +31,27 @@ public class SpssDatasource extends AbstractDatasource {
 
   private final String idVariable;
 
+  private final boolean multilines;
+
   private final Map<String, SpssValueTable> valueTablesMapOnInit = new LinkedHashMap<>();
 
   public SpssDatasource(String name, List<File> spssFiles, String characterSet, String entityType, String locale) {
     this(name, spssFiles, characterSet, entityType, locale, null);
   }
 
+
   public SpssDatasource(String name, List<File> spssFiles, String characterSet, String entityType, String locale, String idVariable) {
+    this(name, spssFiles, characterSet, entityType, locale, idVariable, false);
+  }
+
+  public SpssDatasource(String name, List<File> spssFiles, String characterSet, String entityType, String locale, String idVariable, boolean multilines) {
     super(name, "spss");
     this.spssFiles = spssFiles;
     this.characterSet = characterSet;
     this.entityType = entityType;
     this.locale = locale;
     this.idVariable = idVariable;
+    this.multilines = multilines;
   }
 
   @Override
@@ -56,6 +64,10 @@ public class SpssDatasource extends AbstractDatasource {
         valueTablesMapOnInit.put(tableName, factory.create());
       }
     }
+  }
+
+  public boolean isMultilines() {
+    return multilines;
   }
 
   @Override

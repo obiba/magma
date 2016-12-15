@@ -87,7 +87,7 @@ public class JdbcDatasourceTest extends AbstractMagmaTest {
   @Dataset(filenames = "JdbcDatasourceTest-nometa.xml")
   @Test
   public void testCreateDatasourceFromExistingDatabaseWithWhereClause() {
-    JdbcValueTableSettings tableSettings = new JdbcValueTableSettings("BONE_DENSITY", null, "Participant", "PART_ID");
+    JdbcValueTableSettings tableSettings = JdbcValueTableSettings.newSettings("BONE_DENSITY").entityType("Participant").entityIdentifierColumn("PART_ID").build();
     JdbcDatasource jdbcDatasource = new JdbcDatasource("my-datasource", dataSource,
         new JdbcDatasourceSettings("Participant", Sets.newHashSet("BONE_DENSITY"), Sets.newHashSet(tableSettings), false));
     jdbcDatasource.initialise();
@@ -102,8 +102,7 @@ public class JdbcDatasourceTest extends AbstractMagmaTest {
   @Dataset(filenames = "JdbcDatasourceTest-nometa-repeatables.xml")
   @Test
   public void testCreateDatasourceFromExistingDatabaseWithRepeatables() {
-    JdbcValueTableSettings tableSettings = new JdbcValueTableSettings("BONE_DENSITY", null, "Participant", "PART_ID");
-    tableSettings.setMultilines(true);
+    JdbcValueTableSettings tableSettings = JdbcValueTableSettings.newSettings("BONE_DENSITY").entityType("Participant").entityIdentifierColumn("PART_ID").multilines().build();
     JdbcDatasource jdbcDatasource = new JdbcDatasource("my-datasource", dataSource,
         new JdbcDatasourceSettings("Participant", Sets.newHashSet("BONE_DENSITY"), Sets.newHashSet(tableSettings), false));
     jdbcDatasource.initialise();
@@ -175,8 +174,7 @@ public class JdbcDatasourceTest extends AbstractMagmaTest {
   @Dataset(filenames = "JdbcDatasourceTest-nometa-where.xml")
   @Test
   public void test_vectorSourceWithWhereClause() {
-    JdbcValueTableSettings tableSettings = new JdbcValueTableSettings("BONE_DENSITY", null, "Participant", "PART_ID");
-    tableSettings.setEntityIdentifiersWhere("VISIT_ID = 2");
+    JdbcValueTableSettings tableSettings = JdbcValueTableSettings.newSettings("BONE_DENSITY").entityIdentifierColumn("PART_ID").entityIdentifiersWhere("VISIT_ID = 2").build();
     JdbcDatasource jdbcDatasource = new JdbcDatasource("my-datasource", dataSource,
         new JdbcDatasourceSettings("Participant", Sets.newHashSet("BONE_DENSITY"), Sets.newHashSet(tableSettings), false));
     jdbcDatasource.initialise();
