@@ -330,7 +330,7 @@ public class ValueSequenceMethods {
 
   /**
    * Returns the standard deviation of the {@link Value}s contained in the {@link ValueSequence}. Returns null if the
-   * operand is null or the ValueSequence is empty or contains at least one null value or a non-numeric value.
+   * operand is null or the ValueSequence is empty or a non-numeric value.
    * <p/>
    * <pre>
    *   $('SequenceVar').stddev()
@@ -360,7 +360,7 @@ public class ValueSequenceMethods {
 
   /**
    * Returns the sum of the {@link Value}s contained in the {@link ValueSequence}. Returns null if the operand is null
-   * or the ValueSequence is empty or contains at least one null value. This method throws an exception if the operand
+   * or the ValueSequence is empty. This method throws an exception if the operand
    * is non-numeric.
    * <p/>
    * <pre>
@@ -382,6 +382,65 @@ public class ValueSequenceMethods {
     if(sv.getValue().isSequence()) {
       ValueSequence valueSequence = sv.getValue().asSequence();
       return new ScriptableValue(thisObj, sv.getValueType().valueOf(NumericMethods.sum(valueSequence)), sv.getUnit());
+    } else {
+      return sv;
+    }
+  }
+
+  /**
+   * Returns the minimum of the {@link Value}s contained in the {@link ValueSequence}. Returns null if the operand is null
+   * or the ValueSequence is empty. This method throws an exception if the operand
+   * is non-numeric.
+   * <p/>
+   * <pre>
+   *   $('SequenceVar').min()
+   * </pre>
+   *
+   * @throws MagmaJsEvaluationRuntimeException if operand does not contain a ValueSequence of numeric values.
+   */
+  public static ScriptableValue min(Context ctx, Scriptable thisObj, Object[] args, Function funObj)
+      throws MagmaJsEvaluationRuntimeException {
+    ScriptableValue sv = (ScriptableValue) thisObj;
+    if(!sv.getValueType().isNumeric()) {
+      throw new MagmaJsEvaluationRuntimeException(
+          "Operand to min() method must be numeric, but was invoked for '" + sv.getValueType().getName() + "'");
+    }
+    if(sv.getValue().isNull()) {
+      return new ScriptableValue(thisObj, sv.getValueType().nullValue());
+    }
+    if(sv.getValue().isSequence()) {
+      ValueSequence valueSequence = sv.getValue().asSequence();
+      return new ScriptableValue(thisObj, sv.getValueType().valueOf(NumericMethods.min(valueSequence)), sv.getUnit());
+    } else {
+      return sv;
+    }
+  }
+
+
+  /**
+   * Returns the maximum of the {@link Value}s contained in the {@link ValueSequence}. Returns null if the operand is null
+   * or the ValueSequence is empty. This method throws an exception if the operand
+   * is non-numeric.
+   * <p/>
+   * <pre>
+   *   $('SequenceVar').max()
+   * </pre>
+   *
+   * @throws MagmaJsEvaluationRuntimeException if operand does not contain a ValueSequence of numeric values.
+   */
+  public static ScriptableValue max(Context ctx, Scriptable thisObj, Object[] args, Function funObj)
+      throws MagmaJsEvaluationRuntimeException {
+    ScriptableValue sv = (ScriptableValue) thisObj;
+    if(!sv.getValueType().isNumeric()) {
+      throw new MagmaJsEvaluationRuntimeException(
+          "Operand to max() method must be numeric, but was invoked for '" + sv.getValueType().getName() + "'");
+    }
+    if(sv.getValue().isNull()) {
+      return new ScriptableValue(thisObj, sv.getValueType().nullValue());
+    }
+    if(sv.getValue().isSequence()) {
+      ValueSequence valueSequence = sv.getValue().asSequence();
+      return new ScriptableValue(thisObj, sv.getValueType().valueOf(NumericMethods.max(valueSequence)), sv.getUnit());
     } else {
       return sv;
     }

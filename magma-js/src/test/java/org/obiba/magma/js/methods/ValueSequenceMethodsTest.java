@@ -383,8 +383,8 @@ public class ValueSequenceMethodsTest extends AbstractJsTest {
   }
 
   @Test
-  public void test_avg_sequenceContainsNullReturnsNullValue() {
-    assertAvgIs(Values.asSequence(DecimalType.get(), 1, null, 3, 4), null);
+  public void test_avg_sequenceContainsNullReturnsNotNullValue() {
+    assertAvgIs(Values.asSequence(DecimalType.get(), 1, null, 3, 4), 2.0);
   }
 
   @Test
@@ -435,8 +435,8 @@ public class ValueSequenceMethodsTest extends AbstractJsTest {
   }
 
   @Test
-  public void test_stddev_sequenceContainsNullReturnsNullValue() {
-    assertStdDevIs(Values.asSequence(DecimalType.get(), 1, null, 3, 4), null);
+  public void test_stddev_sequenceContainsNullReturnsNotNullValue() {
+    assertStdDevIs(Values.asSequence(DecimalType.get(), 1, null, 3, 4), 1.224744871391589);
   }
 
   @Test
@@ -488,8 +488,8 @@ public class ValueSequenceMethodsTest extends AbstractJsTest {
   }
 
   @Test
-  public void test_sum_sequenceContainsNullReturnsNullValue() {
-    assertSumIs(Values.asSequence(DecimalType.get(), 1, null, 3, 4), null);
+  public void test_sum_sequenceContainsNullReturnsNotNullValue() {
+    assertSumIs(Values.asSequence(DecimalType.get(), 1, null, 3, 4), 8.0);
   }
 
   @Test

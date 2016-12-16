@@ -675,15 +675,42 @@ public class NumericMethods {
     return new BigDecimal((Double) decimalValue.getValue());
   }
 
+  static Double min(ValueSequence valueSequence) {
+    if(valueSequence.isNull()) return null;
+
+    Double min = null;
+    for(Value v : valueSequence.getValue()) {
+      if(!v.isNull()) {
+        double doubleValue = ((Number) v.getValue()).doubleValue();
+        if (min == null) min = doubleValue;
+        else min = Math.min(doubleValue, min);
+      }
+    }
+    return min;
+  }
+
+  static Double max(ValueSequence valueSequence) {
+    if(valueSequence.isNull()) return null;
+
+    Double max = null;
+    for(Value v : valueSequence.getValue()) {
+      if(!v.isNull()) {
+        double doubleValue = ((Number) v.getValue()).doubleValue();
+        if (max == null) max = doubleValue;
+        else max = Math.max(doubleValue, max);
+      }
+    }
+    return max;
+  }
+
   static Double sum(ValueSequence valueSequence) {
     if(valueSequence.isNull()) return null;
 
     double sum = 0;
     for(Value v : valueSequence.getValue()) {
-      if(v.isNull()) {
-        return null;
+      if(!v.isNull()) {
+        sum += ((Number) v.getValue()).doubleValue();
       }
-      sum += ((Number) v.getValue()).doubleValue();
     }
     return sum;
   }
@@ -709,11 +736,10 @@ public class NumericMethods {
 
     double sumDev = 0;
     for(Value v : valueSequence.getValue()) {
-      if(v.isNull()) {
-        return null;
+      if(!v.isNull()) {
+        double d = ((Number) v.getValue()).doubleValue();
+        sumDev += (d - avg) * (d - avg);
       }
-      double d = ((Number) v.getValue()).doubleValue();
-      sumDev += (d - avg) * (d - avg);
     }
 
     return Math.sqrt(sumDev / size);
