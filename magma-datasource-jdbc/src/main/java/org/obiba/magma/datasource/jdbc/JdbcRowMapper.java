@@ -26,11 +26,8 @@ public class JdbcRowMapper implements RowMapper<Map<String, Value>> {
 
   private JdbcValueTable table;
 
-  private final boolean sequences;
-
   public JdbcRowMapper(JdbcValueTable table) {
     this.table = table;
-    this.sequences = table.getSettings().isMultilines();
   }
 
   @Override

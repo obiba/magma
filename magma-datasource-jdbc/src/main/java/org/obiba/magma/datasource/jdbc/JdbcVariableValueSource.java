@@ -55,8 +55,8 @@ class JdbcVariableValueSource extends AbstractVariableValueSource implements Var
     variable = Variable.Builder
         .newVariable(valueTable.getVariableName(columnName), SqlTypes.valueTypeFor(column.getType().getDataTypeId()),
             valueTable.getEntityType()) //
-        .repeatable(valueTable.getSettings().isMultilines()) //
-        .occurrenceGroup(valueTable.getSettings().isMultilines() ? valueTable.getSqlName() : null).build();
+        .repeatable(isMultilines()) //
+        .occurrenceGroup(isMultilines() ? valueTable.getSqlName() : null).build();
   }
 
   JdbcVariableValueSource(JdbcValueTable valueTable, Variable variable) {
@@ -109,6 +109,10 @@ class JdbcVariableValueSource extends AbstractVariableValueSource implements Var
         throw new RuntimeException(e);
       }
     };
+  }
+
+  private boolean isMultilines() {
+    return valueTable.isMultilines();
   }
 
   private class ValueIterator implements Iterator<Value> {

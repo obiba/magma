@@ -74,7 +74,7 @@ public class JdbcDatasourceTest extends AbstractMagmaTest {
   @Test
   public void testCreateDatasourceFromExistingDatabase() {
     JdbcDatasource jdbcDatasource = new JdbcDatasource("my-datasource", dataSource,
-        new JdbcDatasourceSettings("Participant", Sets.newHashSet("BONE_DENSITY"), null, false));
+        JdbcDatasourceSettings.newSettings("Participant").mappedTables(Sets.newHashSet("BONE_DENSITY")).build());
     jdbcDatasource.initialise();
 
     createDatasourceFromExistingDatabase(jdbcDatasource);
@@ -87,9 +87,10 @@ public class JdbcDatasourceTest extends AbstractMagmaTest {
   @Dataset(filenames = "JdbcDatasourceTest-nometa.xml")
   @Test
   public void testCreateDatasourceFromExistingDatabaseWithWhereClause() {
-    JdbcValueTableSettings tableSettings = JdbcValueTableSettings.newSettings("BONE_DENSITY").entityType("Participant").entityIdentifierColumn("PART_ID").build();
+    JdbcValueTableSettings tableSettings = JdbcValueTableSettings.newSettings("BONE_DENSITY").entityType("Participant")
+        .entityIdentifierColumn("PART_ID").build();
     JdbcDatasource jdbcDatasource = new JdbcDatasource("my-datasource", dataSource,
-        new JdbcDatasourceSettings("Participant", Sets.newHashSet("BONE_DENSITY"), Sets.newHashSet(tableSettings), false));
+        JdbcDatasourceSettings.newSettings("Participant").mappedTables(Sets.newHashSet("BONE_DENSITY")).tableSettings(Sets.newHashSet(tableSettings)).build());
     jdbcDatasource.initialise();
 
     createDatasourceFromExistingDatabase(jdbcDatasource);
@@ -101,10 +102,44 @@ public class JdbcDatasourceTest extends AbstractMagmaTest {
       afterSchema = "schema-notables.sql")
   @Dataset(filenames = "JdbcDatasourceTest-nometa-repeatables.xml")
   @Test
-  public void testCreateDatasourceFromExistingDatabaseWithRepeatables() {
-    JdbcValueTableSettings tableSettings = JdbcValueTableSettings.newSettings("BONE_DENSITY").entityType("Participant").entityIdentifierColumn("PART_ID").multilines().build();
+  public void testCreateDatasourceFromExistingDatabaseWithDetectedMultilines() {
+    JdbcValueTableSettings tableSettings = JdbcValueTableSettings.newSettings("BONE_DENSITY").entityType("Participant")
+        .entityIdentifierColumn("PART_ID").build();
     JdbcDatasource jdbcDatasource = new JdbcDatasource("my-datasource", dataSource,
-        new JdbcDatasourceSettings("Participant", Sets.newHashSet("BONE_DENSITY"), Sets.newHashSet(tableSettings), false));
+        JdbcDatasourceSettings.newSettings("Participant").mappedTables(Sets.newHashSet("BONE_DENSITY")).tableSettings(Sets.newHashSet(tableSettings)).build());
+    jdbcDatasource.initialise();
+
+    createDatasourceFromExistingDatabase(jdbcDatasource);
+
+    jdbcDatasource.dispose();
+  }
+
+  @TestSchema(schemaLocation = "org/obiba/magma/datasource/jdbc", beforeSchema = "schema-nometa-repeatables.sql",
+      afterSchema = "schema-notables.sql")
+  @Dataset(filenames = "JdbcDatasourceTest-nometa-repeatables.xml")
+  @Test
+  public void testCreateDatasourceFromExistingDatabaseWithTableMultilines() {
+    JdbcValueTableSettings tableSettings = JdbcValueTableSettings.newSettings("BONE_DENSITY").entityType("Participant")
+        .entityIdentifierColumn("PART_ID").multilines().build();
+    JdbcDatasource jdbcDatasource = new JdbcDatasource("my-datasource", dataSource,
+        JdbcDatasourceSettings.newSettings("Participant").mappedTables(Sets.newHashSet("BONE_DENSITY")).tableSettings(Sets.newHashSet(tableSettings)).build());
+    jdbcDatasource.initialise();
+
+    createDatasourceFromExistingDatabase(jdbcDatasource);
+
+    jdbcDatasource.dispose();
+  }
+
+  @TestSchema(schemaLocation = "org/obiba/magma/datasource/jdbc", beforeSchema = "schema-nometa-repeatables.sql",
+      afterSchema = "schema-notables.sql")
+  @Dataset(filenames = "JdbcDatasourceTest-nometa-repeatables.xml")
+  @Test
+  public void testCreateDatasourceFromExistingDatabaseWithDatasourceMultilines() {
+    JdbcValueTableSettings tableSettings = JdbcValueTableSettings.newSettings("BONE_DENSITY").entityType("Participant")
+        .entityIdentifierColumn("PART_ID").build();
+    JdbcDatasource jdbcDatasource = new JdbcDatasource("my-datasource", dataSource,
+        JdbcDatasourceSettings.newSettings("Participant").mappedTables(Sets.newHashSet("BONE_DENSITY"))
+            .tableSettings(Sets.newHashSet(tableSettings)).multilines().build());
     jdbcDatasource.initialise();
 
     createDatasourceFromExistingDatabase(jdbcDatasource);
@@ -146,7 +181,7 @@ public class JdbcDatasourceTest extends AbstractMagmaTest {
   @Test
   public void test_vectorSource() {
     JdbcDatasource jdbcDatasource = new JdbcDatasource("my-datasource", dataSource,
-        new JdbcDatasourceSettings("Participant", Sets.newHashSet("BONE_DENSITY"), null, false));
+        JdbcDatasourceSettings.newSettings("Participant").mappedTables(Sets.newHashSet("BONE_DENSITY")).build());
     jdbcDatasource.initialise();
 
     createDatasourceFromExistingDatabase(jdbcDatasource);
@@ -176,7 +211,7 @@ public class JdbcDatasourceTest extends AbstractMagmaTest {
   public void test_vectorSourceWithWhereClause() {
     JdbcValueTableSettings tableSettings = JdbcValueTableSettings.newSettings("BONE_DENSITY").entityIdentifierColumn("PART_ID").entityIdentifiersWhere("VISIT_ID = 2").build();
     JdbcDatasource jdbcDatasource = new JdbcDatasource("my-datasource", dataSource,
-        new JdbcDatasourceSettings("Participant", Sets.newHashSet("BONE_DENSITY"), Sets.newHashSet(tableSettings), false));
+        JdbcDatasourceSettings.newSettings("Participant").mappedTables(Sets.newHashSet("BONE_DENSITY")).tableSettings(Sets.newHashSet(tableSettings)).build());
     jdbcDatasource.initialise();
 
     createDatasourceFromExistingDatabase(jdbcDatasource);
@@ -215,8 +250,7 @@ public class JdbcDatasourceTest extends AbstractMagmaTest {
       afterSchema = "schema-notables.sql")
   @Test
   public void testCreateDatasourceFromScratchUsingMetadataTables() {
-    JdbcDatasourceSettings settings = new JdbcDatasourceSettings("Participant", null, null, true);
-    settings.setMultipleDatasources(true);
+    JdbcDatasourceSettings settings = JdbcDatasourceSettings.newSettings("Participant").useMetadataTables().multipleDatasources().build();
     JdbcDatasource jdbcDatasource = new JdbcDatasource("my-datasource-nodb", dataSource, settings);
     jdbcDatasource.initialise();
 
@@ -395,11 +429,8 @@ public class JdbcDatasourceTest extends AbstractMagmaTest {
   //
 
   private JdbcDatasourceSettings getDataSourceSettings() {
-    JdbcDatasourceSettings settings = new JdbcDatasourceSettings("Participant", null, null, false);
-    settings.setMultipleDatasources(true);
-    settings.setDefaultCreatedTimestampColumnName("created");
-    settings.setDefaultUpdatedTimestampColumnName("updated");
-
+    JdbcDatasourceSettings settings = JdbcDatasourceSettings.newSettings("Participant").multipleDatasources()
+        .createdTimestampColumn("created").updatedTimestampColumn("updated").build();
     return settings;
   }
 

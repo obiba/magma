@@ -10,18 +10,19 @@
 
 package org.obiba.magma.datasource.jdbc;
 
-import java.util.Collection;
+import com.google.common.base.Strings;
+
+import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import javax.annotation.Nullable;
-import javax.validation.constraints.NotNull;
-
-import com.google.common.base.Strings;
-
 public class JdbcDatasourceSettings {
+
+  public static final int MAX_BATCH_SIZE = 1000;
+
   //
   // Instance Variables
   //
@@ -54,25 +55,16 @@ public class JdbcDatasourceSettings {
    */
   private String defaultUpdatedTimestampColumnName;
 
-  public static final int MAX_BATCH_SIZE = 1000;
-
   private int batchSize = 100;
+
+  private boolean multilines = false;
 
   //
   // Constructors
   //
 
-  public JdbcDatasourceSettings() {
-  }
-
-  public JdbcDatasourceSettings(@NotNull String defaultEntityType, @Nullable Set<String> mappedTables,
-      @Nullable Set<JdbcValueTableSettings> tableSettings, boolean useMetadataTables) {
-    //noinspection ConstantConditions
-    if(defaultEntityType == null) throw new IllegalArgumentException("null defaultEntityType");
-    this.defaultEntityType = defaultEntityType;
-    setMappedTables(mappedTables);
-    setTableSettings(tableSettings);
-    this.useMetadataTables = useMetadataTables;
+  private JdbcDatasourceSettings(String entityType) {
+    this.defaultEntityType = entityType;
   }
 
   //
@@ -83,27 +75,13 @@ public class JdbcDatasourceSettings {
     return batchSize;
   }
 
-  public void setBatchSize(int batchSize) {
-    if(batchSize < 1 || batchSize > MAX_BATCH_SIZE) throw new IllegalArgumentException("Invalid batchSize");
-
-    this.batchSize = batchSize;
-  }
-
-  public void setDefaultEntityType(@NotNull String defaultEntityType) {
-    this.defaultEntityType = defaultEntityType;
-  }
-
   public String getDefaultEntityType() {
     return defaultEntityType;
   }
 
-  public void setMappedTables(Set<String> mappedTables) {
-    this.mappedTables = mappedTables;
-  }
-
   @NotNull
   public Set<String> getMappedTables() {
-    if(mappedTables == null) mappedTables = new HashSet<>();
+    if (mappedTables == null) mappedTables = new HashSet<>();
     return mappedTables;
   }
 
@@ -115,23 +93,19 @@ public class JdbcDatasourceSettings {
     return getMappedTables().contains(tableName);
   }
 
-  public void setTableSettings(Set<JdbcValueTableSettings> tableSettings) {
-    this.tableSettings = tableSettings;
-  }
-
   public void addTableSettings(JdbcValueTableSettings settings) {
     getTableSettings().add(settings);
   }
 
   @NotNull
   public Set<JdbcValueTableSettings> getTableSettings() {
-    if(tableSettings == null) tableSettings = new HashSet<>();
+    if (tableSettings == null) tableSettings = new HashSet<>();
     return tableSettings;
   }
 
   public boolean hasTableSettingsForSqlTable(String sqlTableName) {
-    for(JdbcValueTableSettings settings : getTableSettings()) {
-      if(settings.getSqlTableName().equals(sqlTableName)) {
+    for (JdbcValueTableSettings settings : getTableSettings()) {
+      if (settings.getSqlTableName().equals(sqlTableName)) {
         return true;
       }
     }
@@ -141,14 +115,14 @@ public class JdbcDatasourceSettings {
   @Nullable
   public List<JdbcValueTableSettings> getTableSettingsForSqlTable(String sqlTableName) {
     return getTableSettings().stream() //
-    .filter(settings -> settings.getSqlTableName().equals(sqlTableName)) //
-    .collect(Collectors.toList());
+        .filter(settings -> settings.getSqlTableName().equals(sqlTableName)) //
+        .collect(Collectors.toList());
   }
 
   @Nullable
   public JdbcValueTableSettings getTableSettingsForMagmaTable(String magmaTableName) {
-    for(JdbcValueTableSettings settings : getTableSettings()) {
-      if(settings.getMagmaTableName().equals(magmaTableName)) {
+    for (JdbcValueTableSettings settings : getTableSettings()) {
+      if (settings.getMagmaTableName().equals(magmaTableName)) {
         return settings;
       }
     }
@@ -159,24 +133,13 @@ public class JdbcDatasourceSettings {
     return useMetadataTables;
   }
 
-  public void setUseMetadataTables(boolean useMetadataTables) {
-    this.useMetadataTables = useMetadataTables;
-  }
 
   public boolean isMultipleDatasources() {
     return multipleDatasources;
   }
 
-  public void setMultipleDatasources(boolean multipleDatasources) {
-    this.multipleDatasources = multipleDatasources;
-  }
-
   public String getDefaultEntityIdColumnName() {
     return defaultEntityIdColumnName;
-  }
-
-  public void setDefaultEntityIdColumnName(String defaultEntityIdColumnName) {
-    this.defaultEntityIdColumnName = defaultEntityIdColumnName;
   }
 
   public boolean hasEntityIdColumnName() {
@@ -187,16 +150,8 @@ public class JdbcDatasourceSettings {
     return defaultCreatedTimestampColumnName;
   }
 
-  public void setDefaultCreatedTimestampColumnName(String defaultCreatedTimestampColumnName) {
-    this.defaultCreatedTimestampColumnName = defaultCreatedTimestampColumnName;
-  }
-
   public String getDefaultUpdatedTimestampColumnName() {
     return defaultUpdatedTimestampColumnName;
-  }
-
-  public void setDefaultUpdatedTimestampColumnName(String defaultUpdatedTimestampColumnName) {
-    this.defaultUpdatedTimestampColumnName = defaultUpdatedTimestampColumnName;
   }
 
   public boolean hasCreatedTimestampColumnName() {
@@ -205,5 +160,87 @@ public class JdbcDatasourceSettings {
 
   public boolean hasUpdatedTimestampColumnName() {
     return !Strings.isNullOrEmpty(defaultUpdatedTimestampColumnName);
+  }
+
+  public boolean isMultilines() {
+    return multilines;
+  }
+
+  public static Builder newSettings(String defaultEntityType) {
+    return new Builder(defaultEntityType);
+  }
+
+  public static class Builder {
+
+    private JdbcDatasourceSettings settings;
+
+    private Builder(String defaultEntityType) {
+      this.settings = new JdbcDatasourceSettings(defaultEntityType);
+    }
+
+    public Builder mappedTables(Set<String> mappedTables) {
+      settings.mappedTables = mappedTables;
+      return this;
+    }
+
+    public Builder multipleDatasources() {
+      return multipleDatasources(true);
+    }
+
+    public Builder multipleDatasources(boolean multipleDatasources) {
+      settings.multipleDatasources = multipleDatasources;
+      return this;
+    }
+
+    public Builder tableSettings(Set<JdbcValueTableSettings> tableSettings) {
+      settings.tableSettings = tableSettings;
+      return this;
+    }
+
+    public Builder useMetadataTables() {
+      useMetadataTables(true);
+      return this;
+    }
+
+    public Builder useMetadataTables(boolean useMetadataTables) {
+      settings.useMetadataTables = useMetadataTables;
+      return this;
+    }
+
+
+    public Builder batchSize(int batchSize) {
+      if (batchSize < 1 || batchSize > MAX_BATCH_SIZE) throw new IllegalArgumentException("Invalid batchSize");
+      settings.batchSize = batchSize;
+      return this;
+    }
+
+    public Builder createdTimestampColumn(String name) {
+      settings.defaultCreatedTimestampColumnName = name;
+      return this;
+    }
+
+    public Builder updatedTimestampColumn(String name) {
+      settings.defaultUpdatedTimestampColumnName = name;
+      return this;
+    }
+
+    public Builder entityIdentifierColumn(String name) {
+      settings.defaultEntityIdColumnName = Strings.isNullOrEmpty(name) ? JdbcValueTableSettings.ENTITY_ID_COLUMN : name;
+      return this;
+    }
+
+    public Builder multilines() {
+      return multilines(true);
+    }
+
+    public Builder multilines(boolean multilines) {
+      settings.multilines = multilines;
+      return this;
+    }
+
+    public JdbcDatasourceSettings build() {
+      if (settings.defaultEntityType == null) throw new IllegalArgumentException("null defaultEntityType");
+      return settings;
+    }
   }
 }

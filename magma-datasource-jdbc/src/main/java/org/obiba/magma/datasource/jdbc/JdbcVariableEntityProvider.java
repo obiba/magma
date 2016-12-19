@@ -27,6 +27,8 @@ class JdbcVariableEntityProvider extends AbstractVariableEntityProvider implemen
 
   private Set<VariableEntity> entities = new LinkedHashSet<>();
 
+  private boolean multilines = false;
+
   JdbcVariableEntityProvider(JdbcValueTable valueTable) {
     super(valueTable.getEntityType());
     this.valueTable = valueTable;
@@ -37,6 +39,10 @@ class JdbcVariableEntityProvider extends AbstractVariableEntityProvider implemen
     JdbcDatasource datasource = valueTable.getDatasource();
     String whereStatement = valueTable.getSettings().hasEntityIdentifiersWhere() ? "WHERE " + valueTable.getSettings().getEntityIdentifiersWhere() : "";
     entities = new LinkedHashSet<>();
+
+    initialiseMultilines(datasource, whereStatement);
+
+    // get the distinct list of entity identifiers
     List<VariableEntity> results = datasource.getJdbcTemplate().query(String
             .format("SELECT DISTINCT %s FROM %s %s",
                 valueTable.getEntityIdentifierColumnSql(),
@@ -50,6 +56,34 @@ class JdbcVariableEntityProvider extends AbstractVariableEntityProvider implemen
   @Override
   public Set<VariableEntity> getVariableEntities() {
     return Collections.unmodifiableSet(entities);
+  }
+
+  public boolean isMultilines() {
+    return multilines;
+  }
+
+  //
+  // Private methods
+  //
+
+  /**
+   * Detect if there are multiple lines per entity.
+   *
+   * @param datasource
+   * @param whereStatement
+   */
+  private void initialiseMultilines(JdbcDatasource datasource, String whereStatement) {
+    long count = datasource.getJdbcTemplate().queryForObject(String.format("SELECT COUNT(%s) FROM %s %s",
+        valueTable.getEntityIdentifierColumnSql(),
+        datasource.escapeTableName(valueTable.getSqlName()),
+        whereStatement), Long.class);
+
+    long distinctCount = datasource.getJdbcTemplate().queryForObject(String.format("SELECT COUNT(DISTINCT %s) FROM %s %s",
+        valueTable.getEntityIdentifierColumnSql(),
+        datasource.escapeTableName(valueTable.getSqlName()),
+        whereStatement), Long.class);
+
+    multilines = count > distinctCount;
   }
 
 }

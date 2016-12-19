@@ -14,7 +14,7 @@ import com.google.common.base.Strings;
 
 public class JdbcValueTableSettings {
 
-  private static final String ENTITY_ID_COLUMN = "id";
+  static final String ENTITY_ID_COLUMN = "id";
 
   //
   // Instance Variables

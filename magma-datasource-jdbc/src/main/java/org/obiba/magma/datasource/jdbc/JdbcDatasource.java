@@ -116,7 +116,8 @@ public class JdbcDatasource extends AbstractDatasource {
 
   public JdbcDatasource(String name, DataSource datasource, String defaultEntityType, boolean useMetadataTables,
       PlatformTransactionManager txManager) {
-    this(name, datasource, new JdbcDatasourceSettings(defaultEntityType, null, null, useMetadataTables), txManager);
+    this(name, datasource,
+        JdbcDatasourceSettings.newSettings(defaultEntityType).useMetadataTables(useMetadataTables).build(), txManager);
   }
 
   public JdbcDatasource(String name, DataSource datasource, String defaultEntityType, boolean useMetadataTables) {

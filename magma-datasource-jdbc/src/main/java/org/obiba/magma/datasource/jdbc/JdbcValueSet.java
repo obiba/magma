@@ -107,7 +107,7 @@ public class JdbcValueSet extends ValueSetBean {
 
   private Value convertToSequence(Variable variable, Value value) {
     if (value.isSequence()) return value;
-    if (getValueTable().getSettings().isMultilines()) {
+    if (getValueTable().isMultilines()) {
       // the observed value is not a sequence because there was only one line read for the entity
       return variable.getValueType().sequenceOf(Lists.newArrayList(value));
     }

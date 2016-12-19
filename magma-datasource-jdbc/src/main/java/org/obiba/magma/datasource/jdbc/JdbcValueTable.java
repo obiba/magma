@@ -108,9 +108,9 @@ class JdbcValueTable extends AbstractValueTable {
   @Override
   public void initialise() {
     super.initialise();
+    Initialisables.initialise(getVariableEntityProvider());
     refreshVariablesMap();
     initialiseVariableValueSources();
-    Initialisables.initialise(getVariableEntityProvider());
   }
 
   @Override
@@ -255,6 +255,12 @@ class JdbcValueTable extends AbstractValueTable {
 
   void writeVariableValueSource(Variable source) {
     addVariableValueSource(new JdbcVariableValueSource(this, source));
+  }
+
+  boolean isMultilines() {
+    // either detected or configured (at table or datasource level)
+    return ((JdbcVariableEntityProvider) getVariableEntityProvider()).isMultilines() || getSettings().isMultilines()
+        || getDatasource().getSettings().isMultilines();
   }
 
   static String getEntityIdentifierColumn(Table table) {

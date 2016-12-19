@@ -185,7 +185,7 @@ public class IntegrationApp {
     JdbcDatasourceFactory jdbcDatasourceFactory = new JdbcDatasourceFactory();
     jdbcDatasourceFactory.setName("jdbc");
     jdbcDatasourceFactory.setDataSource(getDataSource("datasource_jdbc.db"));
-    jdbcDatasourceFactory.setDatasourceSettings(new JdbcDatasourceSettings("Participant", null, null, true));
+    jdbcDatasourceFactory.setDatasourceSettings(JdbcDatasourceSettings.newSettings("Participant").useMetadataTables().build());
     Datasource jd = jdbcDatasourceFactory.create();
     MagmaEngine.get().addDatasource(jd);
     DatasourceCopier.Builder.newCopier().dontCopyNullValues().build().copy(integrationDatasource, jd);
