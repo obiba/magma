@@ -429,7 +429,8 @@ public class JdbcDatasourceTest extends AbstractMagmaTest {
       afterSchema = "schema-notables.sql")
   @Test
   public void testMultilinesWriter() {
-    JdbcDatasource jdbcDatasource = new JdbcDatasource("my-datasource-nodb", dataSource, getDataSourceSettings(true));
+    // specifying useMetadataTables allows to read back the written table (otherwise table is not detected because it has no primary key)
+    JdbcDatasource jdbcDatasource = new JdbcDatasource("my-datasource-nodb", dataSource, getDataSourceSettingsBuilder(true).useMetadataTables().build());
     jdbcDatasource.initialise();
     VariableEntity myEntity1 = new VariableEntityBean("Participant", "1");
 
@@ -452,9 +453,45 @@ public class JdbcDatasourceTest extends AbstractMagmaTest {
       }
     }
 
+    jdbcDatasource.dispose();
+
+    jdbcDatasource = new JdbcDatasource("my-datasource-nodb", dataSource, getDataSourceSettingsBuilder(true).useMetadataTables().build());
+    jdbcDatasource.initialise();
+
     ValueTable vt = jdbcDatasource.getValueTable("MY_TABLE");
     assertThat(vt.getValueSetCount()).isEqualTo(1);
+    assertThat(vt.hasValueSet(myEntity1)).isTrue();
+    ValueSet vs = vt.getValueSet(myEntity1);
 
+    assertThat(vt.hasVariable("MY_VAR1")).isTrue();
+    Variable myVar1 = vt.getVariable("MY_VAR1");
+    assertThat(myVar1.isRepeatable()).isTrue();
+
+    assertThat(vt.hasVariable("MY_VAR2")).isTrue();
+    Variable myVar2 = vt.getVariable("MY_VAR2");
+    assertThat(myVar2.isRepeatable()).isTrue();
+
+    assertThat(vt.hasVariable("MY_VAR3")).isTrue();
+    Variable myVar3 = vt.getVariable("MY_VAR3");
+    assertThat(myVar3.isRepeatable()).isFalse();
+
+    Value val1 = vt.getValue(myVar1, vs);
+    assertThat(val1.isSequence()).isTrue();
+    assertThat(val1.asSequence().getSize()).isEqualTo(3);
+    assertThat(val1.asSequence().get(0).getValue()).isEqualTo(77L);
+    assertThat(val1.asSequence().get(1).getValue()).isEqualTo(78L);
+    assertThat(val1.asSequence().get(2).getValue()).isEqualTo(79L);
+
+    Value val2 = vt.getValue(myVar2, vs);
+    assertThat(val2.isSequence()).isTrue();
+    assertThat(val2.asSequence().getSize()).isEqualTo(3);
+    assertThat(val2.asSequence().get(0).getValue()).isEqualTo(81.0);
+    assertThat(val2.asSequence().get(1).getValue()).isEqualTo(82.0);
+    assertThat(val2.asSequence().get(2).isNull()).isTrue();
+
+    Value val3 = vt.getValue(myVar3, vs);
+    assertThat(val3.isSequence()).isFalse();
+    assertThat(val3.getValue()).isEqualTo("Coucou");
 
     jdbcDatasource.dispose();
   }
@@ -465,13 +502,12 @@ public class JdbcDatasourceTest extends AbstractMagmaTest {
   //
 
   private JdbcDatasourceSettings getDataSourceSettings() {
-    return getDataSourceSettings(false);
+    return getDataSourceSettingsBuilder(false).build();
   }
 
-  private JdbcDatasourceSettings getDataSourceSettings(boolean multilines) {
-    JdbcDatasourceSettings settings = JdbcDatasourceSettings.newSettings("Participant").multipleDatasources()
-        .createdTimestampColumn("created").updatedTimestampColumn("updated").multilines(multilines).build();
-    return settings;
+  private JdbcDatasourceSettings.Builder getDataSourceSettingsBuilder(boolean multilines) {
+    return JdbcDatasourceSettings.newSettings("Participant").multipleDatasources()
+        .createdTimestampColumn("created").updatedTimestampColumn("updated").multilines(multilines);
   }
 
   private void createDatasourceFromExistingDatabase(JdbcDatasource jdbcDatasource) {

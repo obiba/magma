@@ -100,7 +100,7 @@ class JdbcValueTableWriter implements ValueTableWriter {
 
   private final JdbcValueTable valueTable;
 
-  private final Multimap<String, List<Object>> batch = HashMultimap.create();
+  private final List<JdbcOperation> batch = Lists.newArrayList();
 
   private final String ESC_CATEGORY_ATTRIBUTES_TABLE, ESC_DATASOURCE_COLUMN, ESC_VALUE_TABLE_COLUMN, ESC_VARIABLE_COLUMN, ESC_NAME_COLUMN,
       ESC_CATEGORIES_TABLE, ESC_VARIABLES_TABLE, ESC_VARIABLE_ATTRIBUTES_TABLE;
@@ -138,11 +138,11 @@ class JdbcValueTableWriter implements ValueTableWriter {
   @Override
   public void close() {
 
-    Multimap<String, List<Object>> toSave = null;
+    List<JdbcOperation> toSave = null;
 
     synchronized (valueTable) {
       if (!batch.isEmpty()) {
-        toSave = ImmutableMultimap.copyOf(batch);
+        toSave = Lists.newArrayList(batch);
         batch.clear();
       }
     }
@@ -165,21 +165,25 @@ class JdbcValueTableWriter implements ValueTableWriter {
     return this.valueTable.getDatasource().getTransactionTemplate();
   }
 
-  private void batchUpdate(final Multimap<String, List<Object>> toSave) {
+  private void batchUpdate(final List<JdbcOperation> operations) {
     getTransactionTemplate().execute(new TransactionCallbackWithoutResult() {
       @Override
       protected void doInTransactionWithoutResult(TransactionStatus status) {
-        batchUpdateInternal(toSave);
+        batchUpdateInternal(operations);
       }
     });
   }
 
   @SuppressWarnings({"OverlyLongMethod", "PMD.NcssMethodCount"})
-  private void batchUpdateInternal(Multimap<String, List<Object>> toSave) {
+  private void batchUpdateInternal(List<JdbcOperation> operations) {
     final DefaultLobHandler lobHandler = new DefaultLobHandler();
 
-    for (String sql : toSave.keySet()) {
-      final List<List<Object>> batchValues = Lists.newArrayList(toSave.get(sql));
+    List<String> sqls = operations.stream().map(JdbcOperation::getSql).distinct().collect(Collectors.toList());
+
+    for (String sql : sqls) {
+      final List<List<Object>> batchValues = operations.stream()
+          .filter(op -> sql.equals(op.getSql()))
+          .map(JdbcOperation::getParameters).collect(Collectors.toList());
       int[] res = getJdbcTemplate().batchUpdate(sql, new AbstractInterruptibleBatchPreparedStatementSetter() {
         @Override
         protected boolean setValuesIfAvailable(PreparedStatement ps, int i) throws SQLException {
@@ -520,16 +524,16 @@ class JdbcValueTableWriter implements ValueTableWriter {
     private void doInsertOrUpdate() {
       final String sql = valueTable.hasValueSet(entity) ? getUpdateSql() : getInsertSql();
 
-      Multimap<String, List<Object>> toSave = null;
+      List<JdbcOperation> toSave = null;
 
       synchronized (valueTable) {
         jdbcLine.getLines().forEach(values -> {
           values.add(entity.getIdentifier());
-          batch.put(sql, values);
+          batch.add(new JdbcOperation(sql, values));
         });
 
         if (batch.size() >= batchSize) {
-          toSave = ImmutableMultimap.copyOf(batch);
+          toSave = Lists.newArrayList(batch);
           batch.clear();
         }
       }
@@ -583,6 +587,26 @@ class JdbcValueTableWriter implements ValueTableWriter {
       }
 
       return whereClause;
+    }
+  }
+
+  private class JdbcOperation {
+
+    private final String sql;
+
+    private final List<Object> parameters;
+
+    private JdbcOperation(String sql, List<Object> parameters) {
+      this.sql = sql;
+      this.parameters = parameters;
+    }
+
+    public String getSql() {
+      return sql;
+    }
+
+    public List<Object> getParameters() {
+      return parameters;
     }
   }
 }
