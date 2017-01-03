@@ -265,7 +265,7 @@ class JdbcValueTableWriter implements ValueTableWriter {
 
     protected void doWriteVariable(Variable variable) {
       String columnName = getVariableSqlName(variable.getName());
-      String dataType = variable.isRepeatable()
+      String dataType = variable.isRepeatable() && !valueTable.isMultilines()
           ? SqlTypes.sqlTypeFor(TextType.get(), SqlTypes.TEXT_TYPE_HINT_LARGE)
           : SqlTypes.sqlTypeFor(variable.getValueType(),
           variable.getValueType().equals(TextType.get()) ? SqlTypes.TEXT_TYPE_HINT_MEDIUM : null);
@@ -523,9 +523,10 @@ class JdbcValueTableWriter implements ValueTableWriter {
       Multimap<String, List<Object>> toSave = null;
 
       synchronized (valueTable) {
-        List<Object> values = Lists.newArrayList(jdbcLine.getValues());
-        values.add(entity.getIdentifier());
-        batch.put(sql, values);
+        jdbcLine.getLines().forEach(values -> {
+          values.add(entity.getIdentifier());
+          batch.put(sql, values);
+        });
 
         if (batch.size() >= batchSize) {
           toSave = ImmutableMultimap.copyOf(batch);
