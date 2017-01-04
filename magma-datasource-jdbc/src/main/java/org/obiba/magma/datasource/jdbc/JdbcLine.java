@@ -10,29 +10,30 @@
 
 package org.obiba.magma.datasource.jdbc;
 
+import com.google.common.collect.Lists;
 import org.obiba.magma.Value;
 import org.obiba.magma.Variable;
 import org.obiba.magma.VariableEntity;
+import org.obiba.magma.type.DateTimeType;
 import org.obiba.magma.type.LocaleType;
 
-import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
-import java.util.Collection;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * A "line" can be transformed in one or multiple SQL lines.
  */
-public class JdbcLine {
+class JdbcLine {
 
   private final boolean multilines;
 
   @NotNull
   private final VariableEntity entity;
 
-  private final Map<String, Object> columnValueMap;
+  private final List<String> columnNames = Lists.newArrayList();
+
+  private final List<Value> values = Lists.newArrayList();
 
   private final JdbcValueTable valueTable;
 
@@ -40,24 +41,29 @@ public class JdbcLine {
     this.entity = entity;
     this.valueTable = valueTable;
     this.multilines = valueTable.isMultilines();
-    columnValueMap = new LinkedHashMap<>();
     initialize();
   }
 
   void setValue(Variable variable, Value value) {
-    setSingleValue(getVariableSqlName(variable), value);
+    setValue(getVariableSqlName(variable), value);
   }
 
-  Set<String> getColumnNames() {
-    return columnValueMap.keySet();
+  List<String> getColumnNames() {
+    return columnNames;
   }
 
-  Collection<Object> getValues() {
-    return columnValueMap.values();
+  List<List<Object>> getLines() {
+    if (multilines) {
+      return getMultipleLines();
+    } else {
+      List<List<Object>> lines = Lists.newArrayList();
+      lines.add(getSingleLine());
+      return lines;
+    }
   }
 
   int size() {
-    return columnValueMap.size();
+    return getColumnNames().size();
   }
 
   //
@@ -65,7 +71,7 @@ public class JdbcLine {
   //
 
   private void initialize() {
-    java.util.Date timestamp = new java.util.Date();
+    Value timestamp = DateTimeType.get().now();
     if (valueTable.hasValueSet(entity)) {
       if (valueTable.hasUpdatedTimestampColumn()) {
         setValue(valueTable.getUpdatedTimestampColumnName(), timestamp);
@@ -80,12 +86,17 @@ public class JdbcLine {
     }
   }
 
-  private void setValue(String columnName, Object columnValue) {
-    columnValueMap.put(columnName, columnValue);
+  /**
+   * Convert each {@link Value} into a SQL value for a single line (then sequences are turned into CSV strings).
+   * @return
+   */
+  private List<Object> getSingleLine() {
+    return values.stream().map(this::toColumnValue).collect(Collectors.toList());
   }
 
-  private void setSingleValue(String columnName, Value value) {
-    columnValueMap.put(columnName, toColumnValue(value));
+  private void setValue(String columnName, Value value) {
+    columnNames.add(columnName);
+    values.add(value);
   }
 
   private String getVariableSqlName(Variable variable) {
@@ -107,5 +118,32 @@ public class JdbcLine {
       }
     }
     return columnValue;
+  }
+
+  public List<List<Object>> getMultipleLines() {
+    List<List<Object>> lines = Lists.newArrayList();
+    // first detect the longest value sequence
+    int length = values.stream().mapToInt(v -> v.isSequence() ? v.asSequence().getSize() : 1).max().orElse(1);
+
+    for (int i=0; i<length ; i++) {
+      lines.add(getMultipleLinesAt(i));
+    }
+    return lines;
+  }
+
+  private List<Object> getMultipleLinesAt(int position) {
+    List<Object> line = Lists.newArrayListWithExpectedSize(columnNames.size());
+    for (Value value : values) {
+      Value valueAt = value;
+      if (value.isSequence()) {
+        if (position < value.asSequence().getSize()) {
+          valueAt = value.asSequence().get(position);
+        } else {
+          valueAt = value.getValueType().nullValue();
+        }
+      }
+      line.add(toColumnValue(valueAt));
+    }
+    return line;
   }
 }

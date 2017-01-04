@@ -259,8 +259,11 @@ class JdbcValueTable extends AbstractValueTable {
 
   boolean isMultilines() {
     // either detected or configured (at table or datasource level)
-    return ((JdbcVariableEntityProvider) getVariableEntityProvider()).isMultilines() || getSettings().isMultilines()
-        || getDatasource().getSettings().isMultilines();
+    return ((JdbcVariableEntityProvider) getVariableEntityProvider()).isMultilines() || isSettingsMultilines();
+  }
+
+  private boolean isSettingsMultilines() {
+    return getSettings().isMultilines() || getDatasource().getSettings().isMultilines();
   }
 
   static String getEntityIdentifierColumn(Table table) {
@@ -272,7 +275,7 @@ class JdbcValueTable extends AbstractValueTable {
         .map(Column::getName) //
         .collect(Collectors.toList()));
 
-    return entityIdentifierColumns.get(0);
+    return entityIdentifierColumns.isEmpty() ? "" : entityIdentifierColumns.get(0);
   }
 
   private void initialiseVariableValueSources() {
@@ -446,7 +449,7 @@ class JdbcValueTable extends AbstractValueTable {
 
   private void createSqlTable(String sqlTableName) {
     CreateTableChangeBuilder ctc = CreateTableChangeBuilder.newBuilder().tableName(sqlTableName);
-    ctc.withColumn(getSettings().getEntityIdentifierColumn(), "VARCHAR(255)").primaryKey();
+    ctc.withColumn(getSettings().getEntityIdentifierColumn(), "VARCHAR(255)").primaryKey(!isSettingsMultilines());
 
     createTimestampColumns(ctc);
     List<Change> changes = Lists.<Change>newArrayList(ctc.build());

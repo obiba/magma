@@ -55,8 +55,12 @@ public class CreateTableChangeBuilder {
   }
 
   public CreateTableChangeBuilder primaryKey() {
-    getConstraints().setPrimaryKey(true);
-    notNull();
+    return primaryKey(true);
+  }
+
+  public CreateTableChangeBuilder primaryKey(boolean primary) {
+    getConstraints().setPrimaryKey(primary);
+    if (primary) notNull();
     return this;
   }
 
