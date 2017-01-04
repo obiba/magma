@@ -103,18 +103,6 @@ public class JdbcDatasourceTest extends AbstractMagmaTest {
     testCreateDatasourceFromExistingDatabaseWithTableSettings();
   }
 
-  private void testCreateDatasourceFromExistingDatabaseWithTableSettings() {
-    JdbcValueTableSettings tableSettings = JdbcValueTableSettings.newSettings("BONE_DENSITY").entityType("Participant")
-        .entityIdentifierColumn("PART_ID").build();
-    JdbcDatasource jdbcDatasource = new JdbcDatasource("my-datasource", dataSource,
-        JdbcDatasourceSettings.newSettings("Participant").mappedTables(Sets.newHashSet("BONE_DENSITY")).tableSettings(Sets.newHashSet(tableSettings)).build());
-    jdbcDatasource.initialise();
-
-    createDatasourceFromExistingDatabase(jdbcDatasource);
-
-    jdbcDatasource.dispose();
-  }
-
   @TestSchema(schemaLocation = "org/obiba/magma/datasource/jdbc", beforeSchema = "schema-nometa-repeatables.sql",
       afterSchema = "schema-notables.sql")
   @Dataset(filenames = "JdbcDatasourceTest-nometa-repeatables.xml")
@@ -212,7 +200,7 @@ public class JdbcDatasourceTest extends AbstractMagmaTest {
   public void test_vectorSourceWithWhereClause() {
     JdbcValueTableSettings tableSettings = JdbcValueTableSettings.newSettings("BONE_DENSITY").entityIdentifierColumn("PART_ID").entityIdentifiersWhere("VISIT_ID = 2").build();
     JdbcDatasource jdbcDatasource = new JdbcDatasource("my-datasource", dataSource,
-        JdbcDatasourceSettings.newSettings("Participant").mappedTables(Sets.newHashSet("BONE_DENSITY")).tableSettings(Sets.newHashSet(tableSettings)).build());
+        JdbcDatasourceSettings.newSettings("Participant").tableSettings(Sets.newHashSet(tableSettings)).build());
     jdbcDatasource.initialise();
 
     createDatasourceFromExistingDatabase(jdbcDatasource);
@@ -388,39 +376,50 @@ public class JdbcDatasourceTest extends AbstractMagmaTest {
   @TestSchema(schemaLocation = "org/obiba/magma/datasource/jdbc", beforeSchema = "schema-notables.sql",
       afterSchema = "schema-notables.sql")
   @Test
-  public void testBatchUpdate() {
-    JdbcDatasource jdbcDatasource = new JdbcDatasource("my-datasource-nodb", dataSource, getDataSourceSettings());
+  public void testSinglelinesWriterWithMetadataTables() {
+    JdbcDatasource jdbcDatasource = new JdbcDatasource("my-datasource-nodb", dataSource, getDataSourceSettingsBuilder(false).useMetadataTables().build());
     jdbcDatasource.initialise();
+    writeTestValueSet(jdbcDatasource);
+    jdbcDatasource.dispose();
+
+    jdbcDatasource = new JdbcDatasource("my-datasource-nodb", dataSource, getDataSourceSettingsBuilder(false).useMetadataTables().build());
+    jdbcDatasource.initialise();
+
     VariableEntity myEntity1 = new VariableEntityBean("Participant", "1");
-
-    try(ValueTableWriter tableWriter = jdbcDatasource.createWriter("MY_TABLE", "Participant")) {
-      // Write some variables.
-      try(VariableWriter variableWriter = tableWriter.writeVariables()) {
-        variableWriter.writeVariable(Variable.Builder.newVariable("MY_VAR1", IntegerType.get(), "Participant").build());
-        variableWriter.writeVariable(Variable.Builder.newVariable("MY_VAR2", DecimalType.get(), "Participant").build());
-      }
-
-      // Write a value set.
-      try(ValueSetWriter valueSetWriter = tableWriter.writeValueSet(myEntity1)) {
-        Variable myVar1 = jdbcDatasource.getValueTable("MY_TABLE").getVariable("MY_VAR1");
-        Variable myVar2 = jdbcDatasource.getValueTable("MY_TABLE").getVariable("MY_VAR2");
-        valueSetWriter.writeValue(myVar1, IntegerType.get().valueOf(77));
-        valueSetWriter.writeValue(myVar2, IntegerType.get().valueOf(78));
-      }
-    }
-
-    try(ValueTableWriter tableWriter = jdbcDatasource.createWriter("MY_TABLE", "Participant")) {
-      // Update value set.
-      try(ValueSetWriter valueSetWriter = tableWriter.writeValueSet(myEntity1)) {
-        Variable myVar1 = jdbcDatasource.getValueTable("MY_TABLE").getVariable("MY_VAR1");
-        Variable myVar2 = jdbcDatasource.getValueTable("MY_TABLE").getVariable("MY_VAR2");
-        valueSetWriter.writeValue(myVar1, IntegerType.get().valueOf(87));
-        valueSetWriter.writeValue(myVar2, IntegerType.get().valueOf(88));
-      }
-    }
 
     ValueTable vt = jdbcDatasource.getValueTable("MY_TABLE");
     assertThat(vt.getValueSetCount()).isEqualTo(1);
+    assertThat(vt.hasValueSet(myEntity1)).isTrue();
+    ValueSet vs = vt.getValueSet(myEntity1);
+
+    assertThat(vt.hasVariable("MY_VAR1")).isTrue();
+    Variable myVar1 = vt.getVariable("MY_VAR1");
+    assertThat(myVar1.isRepeatable()).isTrue();
+
+    assertThat(vt.hasVariable("MY_VAR2")).isTrue();
+    Variable myVar2 = vt.getVariable("MY_VAR2");
+    assertThat(myVar2.isRepeatable()).isTrue();
+
+    assertThat(vt.hasVariable("MY_VAR3")).isTrue();
+    Variable myVar3 = vt.getVariable("MY_VAR3");
+    assertThat(myVar3.isRepeatable()).isFalse();
+
+    Value val1 = vt.getValue(myVar1, vs);
+    assertThat(val1.isSequence()).isTrue();
+    assertThat(val1.asSequence().getSize()).isEqualTo(3);
+    assertThat(val1.asSequence().get(0).getValue()).isEqualTo(77L);
+    assertThat(val1.asSequence().get(1).getValue()).isEqualTo(78L);
+    assertThat(val1.asSequence().get(2).getValue()).isEqualTo(79L);
+
+    Value val2 = vt.getValue(myVar2, vs);
+    assertThat(val2.isSequence()).isTrue();
+    assertThat(val2.asSequence().getSize()).isEqualTo(2);
+    assertThat(val2.asSequence().get(0).getValue()).isEqualTo(81.0);
+    assertThat(val2.asSequence().get(1).getValue()).isEqualTo(82.0);
+
+    Value val3 = vt.getValue(myVar3, vs);
+    assertThat(val3.isSequence()).isFalse();
+    assertThat(val3.getValue()).isEqualTo("Coucou");
 
     jdbcDatasource.dispose();
   }
@@ -428,35 +427,65 @@ public class JdbcDatasourceTest extends AbstractMagmaTest {
   @TestSchema(schemaLocation = "org/obiba/magma/datasource/jdbc", beforeSchema = "schema-notables.sql",
       afterSchema = "schema-notables.sql")
   @Test
-  public void testMultilinesWriter() {
+  public void testSinglelinesWriterWithoutMetadataTables() {
+    JdbcDatasource jdbcDatasource = new JdbcDatasource("my-datasource-nodb", dataSource, getDataSourceSettingsBuilder(false).build());
+    jdbcDatasource.initialise();
+    writeTestValueSet(jdbcDatasource);
+    jdbcDatasource.dispose();
+
+    JdbcValueTableSettings tableSettings = JdbcValueTableSettings.newSettings("MY_TABLE").build();
+    jdbcDatasource = new JdbcDatasource("my-datasource-nodb", dataSource, getDataSourceSettingsBuilder(false)
+        .tableSettings(Sets.newHashSet(tableSettings)).build());
+    jdbcDatasource.initialise();
+
+    VariableEntity myEntity1 = new VariableEntityBean("Participant", "1");
+
+    ValueTable vt = jdbcDatasource.getValueTable("MY_TABLE");
+    assertThat(vt.getValueSetCount()).isEqualTo(1);
+    assertThat(vt.hasValueSet(myEntity1)).isTrue();
+    ValueSet vs = vt.getValueSet(myEntity1);
+
+    assertThat(vt.hasVariable("MY_VAR1")).isTrue();
+    Variable myVar1 = vt.getVariable("MY_VAR1");
+    assertThat(myVar1.isRepeatable()).isFalse();
+
+    assertThat(vt.hasVariable("MY_VAR2")).isTrue();
+    Variable myVar2 = vt.getVariable("MY_VAR2");
+    assertThat(myVar2.isRepeatable()).isFalse();
+
+    assertThat(vt.hasVariable("MY_VAR3")).isTrue();
+    Variable myVar3 = vt.getVariable("MY_VAR3");
+    assertThat(myVar3.isRepeatable()).isFalse();
+
+    Value val1 = vt.getValue(myVar1, vs);
+    assertThat(val1.isSequence()).isFalse();
+    assertThat(val1.getValue()).isEqualTo("77,78,79");
+
+    Value val2 = vt.getValue(myVar2, vs);
+    assertThat(val2.isSequence()).isFalse();
+    assertThat(val2.getValue()).isEqualTo("81,82");
+
+    Value val3 = vt.getValue(myVar3, vs);
+    assertThat(val3.isSequence()).isFalse();
+    assertThat(val3.getValue()).isEqualTo("Coucou");
+
+    jdbcDatasource.dispose();
+  }
+
+  @TestSchema(schemaLocation = "org/obiba/magma/datasource/jdbc", beforeSchema = "schema-notables.sql",
+      afterSchema = "schema-notables.sql")
+  @Test
+  public void testMultilinesWriterWithMetadataTables() {
     // specifying useMetadataTables allows to read back the written table (otherwise table is not detected because it has no primary key)
     JdbcDatasource jdbcDatasource = new JdbcDatasource("my-datasource-nodb", dataSource, getDataSourceSettingsBuilder(true).useMetadataTables().build());
     jdbcDatasource.initialise();
-    VariableEntity myEntity1 = new VariableEntityBean("Participant", "1");
-
-    try(ValueTableWriter tableWriter = jdbcDatasource.createWriter("MY_TABLE", "Participant")) {
-      // Write some variables.
-      try(VariableWriter variableWriter = tableWriter.writeVariables()) {
-        variableWriter.writeVariable(Variable.Builder.newVariable("MY_VAR1", IntegerType.get(), "Participant").repeatable().build());
-        variableWriter.writeVariable(Variable.Builder.newVariable("MY_VAR2", DecimalType.get(), "Participant").repeatable().build());
-        variableWriter.writeVariable(Variable.Builder.newVariable("MY_VAR3", TextType.get(), "Participant").build());
-      }
-
-      // Write a value set.
-      try(ValueSetWriter valueSetWriter = tableWriter.writeValueSet(myEntity1)) {
-        Variable myVar1 = jdbcDatasource.getValueTable("MY_TABLE").getVariable("MY_VAR1");
-        Variable myVar2 = jdbcDatasource.getValueTable("MY_TABLE").getVariable("MY_VAR2");
-        Variable myVar3 = jdbcDatasource.getValueTable("MY_TABLE").getVariable("MY_VAR3");
-        valueSetWriter.writeValue(myVar1, IntegerType.get().sequenceOf(Ints.asList(77, 78, 79).stream().map(v -> IntegerType.get().valueOf(v)).collect(Collectors.toList())));
-        valueSetWriter.writeValue(myVar2, IntegerType.get().sequenceOf(Ints.asList(81, 82).stream().map(v -> IntegerType.get().valueOf(v)).collect(Collectors.toList())));
-        valueSetWriter.writeValue(myVar3, TextType.get().valueOf("Coucou"));
-      }
-    }
-
+    writeTestValueSet(jdbcDatasource);
     jdbcDatasource.dispose();
 
     jdbcDatasource = new JdbcDatasource("my-datasource-nodb", dataSource, getDataSourceSettingsBuilder(true).useMetadataTables().build());
     jdbcDatasource.initialise();
+
+    VariableEntity myEntity1 = new VariableEntityBean("Participant", "1");
 
     ValueTable vt = jdbcDatasource.getValueTable("MY_TABLE");
     assertThat(vt.getValueSetCount()).isEqualTo(1);
@@ -496,17 +525,108 @@ public class JdbcDatasourceTest extends AbstractMagmaTest {
     jdbcDatasource.dispose();
   }
 
+  @TestSchema(schemaLocation = "org/obiba/magma/datasource/jdbc", beforeSchema = "schema-notables.sql",
+      afterSchema = "schema-notables.sql")
+  @Test
+  public void testMultilinesWriterWithoutMetadataTables() {
+    JdbcDatasource jdbcDatasource = new JdbcDatasource("my-datasource-nodb", dataSource, getDataSourceSettingsBuilder(true).build());
+    jdbcDatasource.initialise();
+    writeTestValueSet(jdbcDatasource);
+    jdbcDatasource.dispose();
+
+    JdbcValueTableSettings tableSettings = JdbcValueTableSettings.newSettings("MY_TABLE").build();
+    jdbcDatasource = new JdbcDatasource("my-datasource-nodb", dataSource, getDataSourceSettingsBuilder(false)
+        .tableSettings(Sets.newHashSet(tableSettings)).build());
+    jdbcDatasource.initialise();
+
+    VariableEntity myEntity1 = new VariableEntityBean("Participant", "1");
+
+    ValueTable vt = jdbcDatasource.getValueTable("MY_TABLE");
+    assertThat(vt.getValueSetCount()).isEqualTo(1);
+    assertThat(vt.hasValueSet(myEntity1)).isTrue();
+    ValueSet vs = vt.getValueSet(myEntity1);
+
+    assertThat(vt.hasVariable("MY_VAR1")).isTrue();
+    Variable myVar1 = vt.getVariable("MY_VAR1");
+    assertThat(myVar1.isRepeatable()).isTrue();
+
+    assertThat(vt.hasVariable("MY_VAR2")).isTrue();
+    Variable myVar2 = vt.getVariable("MY_VAR2");
+    assertThat(myVar2.isRepeatable()).isTrue();
+
+    assertThat(vt.hasVariable("MY_VAR3")).isTrue();
+    Variable myVar3 = vt.getVariable("MY_VAR3");
+    assertThat(myVar3.isRepeatable()).isTrue();
+
+    Value val1 = vt.getValue(myVar1, vs);
+    assertThat(val1.isSequence()).isTrue();
+    assertThat(val1.asSequence().getSize()).isEqualTo(3);
+    assertThat(val1.asSequence().get(0).getValue()).isEqualTo(77L);
+    assertThat(val1.asSequence().get(1).getValue()).isEqualTo(78L);
+    assertThat(val1.asSequence().get(2).getValue()).isEqualTo(79L);
+
+    Value val2 = vt.getValue(myVar2, vs);
+    assertThat(val2.isSequence()).isTrue();
+    assertThat(val2.asSequence().getSize()).isEqualTo(3);
+    assertThat(val2.asSequence().get(0).getValue()).isEqualTo(81.0);
+    assertThat(val2.asSequence().get(1).getValue()).isEqualTo(82.0);
+    assertThat(val2.asSequence().get(2).isNull()).isTrue();
+
+    Value val3 = vt.getValue(myVar3, vs);
+    assertThat(val3.isSequence()).isTrue();
+    assertThat(val3.asSequence().getSize()).isEqualTo(3);
+    assertThat(val3.asSequence().get(0).getValue()).isEqualTo("Coucou");
+    assertThat(val3.asSequence().get(1).getValue()).isEqualTo("Coucou");
+    assertThat(val3.asSequence().get(2).getValue()).isEqualTo("Coucou");
+
+    jdbcDatasource.dispose();
+  }
 
   //
   // Methods
   //
 
+  private void testCreateDatasourceFromExistingDatabaseWithTableSettings() {
+    JdbcValueTableSettings tableSettings = JdbcValueTableSettings.newSettings("BONE_DENSITY").entityType("Participant")
+        .entityIdentifierColumn("PART_ID").build();
+    JdbcDatasource jdbcDatasource = new JdbcDatasource("my-datasource", dataSource,
+        JdbcDatasourceSettings.newSettings("Participant").mappedTables(Sets.newHashSet("BONE_DENSITY")).tableSettings(Sets.newHashSet(tableSettings)).build());
+    jdbcDatasource.initialise();
+
+    createDatasourceFromExistingDatabase(jdbcDatasource);
+
+    jdbcDatasource.dispose();
+  }
+
+  private void writeTestValueSet(JdbcDatasource jdbcDatasource) {
+    VariableEntity myEntity1 = new VariableEntityBean("Participant", "1");
+
+    try(ValueTableWriter tableWriter = jdbcDatasource.createWriter("MY_TABLE", "Participant")) {
+      // Write some variables.
+      try(VariableWriter variableWriter = tableWriter.writeVariables()) {
+        variableWriter.writeVariable(Variable.Builder.newVariable("MY_VAR1", IntegerType.get(), "Participant").repeatable().build());
+        variableWriter.writeVariable(Variable.Builder.newVariable("MY_VAR2", DecimalType.get(), "Participant").repeatable().build());
+        variableWriter.writeVariable(Variable.Builder.newVariable("MY_VAR3", TextType.get(), "Participant").build());
+      }
+
+      // Write a value set.
+      try(ValueSetWriter valueSetWriter = tableWriter.writeValueSet(myEntity1)) {
+        Variable myVar1 = jdbcDatasource.getValueTable("MY_TABLE").getVariable("MY_VAR1");
+        Variable myVar2 = jdbcDatasource.getValueTable("MY_TABLE").getVariable("MY_VAR2");
+        Variable myVar3 = jdbcDatasource.getValueTable("MY_TABLE").getVariable("MY_VAR3");
+        valueSetWriter.writeValue(myVar1, IntegerType.get().sequenceOf(Ints.asList(77, 78, 79).stream().map(v -> IntegerType.get().valueOf(v)).collect(Collectors.toList())));
+        valueSetWriter.writeValue(myVar2, IntegerType.get().sequenceOf(Ints.asList(81, 82).stream().map(v -> IntegerType.get().valueOf(v)).collect(Collectors.toList())));
+        valueSetWriter.writeValue(myVar3, TextType.get().valueOf("Coucou"));
+      }
+    }
+  }
+
   private JdbcDatasourceSettings getDataSourceSettings() {
-    return getDataSourceSettingsBuilder(false).build();
+    return getDataSourceSettingsBuilder(false).multipleDatasources().build();
   }
 
   private JdbcDatasourceSettings.Builder getDataSourceSettingsBuilder(boolean multilines) {
-    return JdbcDatasourceSettings.newSettings("Participant").multipleDatasources()
+    return JdbcDatasourceSettings.newSettings("Participant")
         .createdTimestampColumn("created").updatedTimestampColumn("updated").multilines(multilines);
   }
 
