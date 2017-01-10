@@ -10,30 +10,24 @@
 
 package org.obiba.magma.datasource.jdbc;
 
-import com.google.common.base.Function;
 import com.google.common.base.Joiner;
-import com.google.common.base.Predicates;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import org.obiba.magma.*;
-import org.obiba.magma.support.ValueSetBean;
+import org.obiba.magma.Value;
+import org.obiba.magma.Variable;
+import org.obiba.magma.VariableEntity;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 
-import javax.annotation.Nullable;
-import javax.validation.constraints.NotNull;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Performs the SQL query to get one or more {@link org.obiba.magma.ValueSet}s.
  */
-public class JdbcValueSetFetcher {
+class JdbcValueSetFetcher {
 
   private final JdbcValueTable valueTable;
 
@@ -47,15 +41,15 @@ public class JdbcValueSetFetcher {
     this.mapper = new JdbcRowMapper(valueTable);
   }
 
-  public List<Map<String, Value>> loadNonBinaryVariableValues(List<VariableEntity> entities) {
+  List<Map<String, Value>> loadNonBinaryVariableValues(List<VariableEntity> entities) {
     return loadValues(getNonBinaryColumns(), entities);
   }
 
-  public List<Map<String, Value>> loadNonBinaryVariableValues(VariableEntity entity) {
+  List<Map<String, Value>> loadNonBinaryVariableValues(VariableEntity entity) {
     return loadValues(getNonBinaryColumns(), entity);
   }
 
-  public List<Map<String, Value>> loadVariableValues(Variable variable, VariableEntity entity) {
+  List<Map<String, Value>> loadVariableValues(Variable variable, VariableEntity entity) {
     return loadValues(
         Lists.newArrayList(valueTable.getVariableSqlName(variable.getName())), entity);
   }
@@ -65,16 +59,10 @@ public class JdbcValueSetFetcher {
   //
 
   private List<String> getNonBinaryColumns() {
-    List<String> columns = Lists.newArrayList(
-        Iterables.filter(Iterables.transform(valueTable.getVariables(), new Function<Variable, String>() {
-          @Nullable
-          @Override
-          public String apply(@Nullable Variable input) {
-            if (input.getValueType().isBinary()) return null;
-
-            return valueTable.getVariableSqlName(input.getName());
-          }
-        }), Predicates.notNull()));
+    List<String> columns = valueTable.getVariables().stream()
+        .filter(variable -> !variable.getValueType().isBinary())
+        .map(variable -> valueTable.getVariableSqlName(variable.getName()))
+        .collect(Collectors.toList());
 
     String created = valueTable.getCreatedTimestampColumnName();
     if (!Strings.isNullOrEmpty(created)) columns.add(created);
@@ -100,13 +88,7 @@ public class JdbcValueSetFetcher {
       whereClause = String.format("%s AND %s", valueTable.getSettings().getEntityIdentifiersWhere(), whereClause);
     }
 
-    Iterable<String> escapedColumnNames = Iterables.transform(columnNames, new Function<String, String>() {
-      @Nullable
-      @Override
-      public String apply(@Nullable String input) {
-        return datasource.escapeColumnName(input);
-      }
-    });
+    Iterable<String> escapedColumnNames = columnNames.stream().map(datasource::escapeColumnName).collect(Collectors.toList());
 
     return queryValues(Joiner.on(", ").join(escapedColumnNames), datasource.escapeTableName(sqlTableName), whereClause, entity);
   }
@@ -121,11 +103,9 @@ public class JdbcValueSetFetcher {
    * @return
    */
   private List<Map<String, Value>> queryValues(String selectClause, String fromClause, String whereClause, VariableEntity entity) {
-    StringBuilder sql = new StringBuilder();
-    sql.append(
-        String.format("SELECT %s FROM %s WHERE %s", selectClause, fromClause, whereClause));
+    String sql = String.format("SELECT %s FROM %s WHERE %s", selectClause, fromClause, whereClause);
     return valueTable.getDatasource().getJdbcTemplate()
-        .query(sql.toString(), new String[] { entity.getIdentifier() }, mapper);
+        .query(sql, new String[] { entity.getIdentifier() }, mapper);
   }
 
   private List<Map<String, Value>> loadValues(List<String> columnNames, List<VariableEntity> entities) {
@@ -146,9 +126,7 @@ public class JdbcValueSetFetcher {
   }
 
   private List<Map<String, Value>> queryValues(String selectClause, String fromClause, String whereClause, List<VariableEntity> entities) {
-    StringBuilder sql = new StringBuilder();
-    sql.append(
-        String.format("SELECT %s FROM %s WHERE %s", selectClause, fromClause, whereClause));
+    String sql = String.format("SELECT %s FROM %s WHERE %s", selectClause, fromClause, whereClause);
 
     MapSqlParameterSource parameters = new MapSqlParameterSource();
     ImmutableList.Builder<String> ids = ImmutableList.builder();
@@ -157,6 +135,6 @@ public class JdbcValueSetFetcher {
     }
     parameters.addValue("ids", ids.build());
 
-    return valueTable.getDatasource().getNamedParameterJdbcTemplate().query(sql.toString(), parameters, mapper);
+    return valueTable.getDatasource().getNamedParameterJdbcTemplate().query(sql, parameters, mapper);
   }
 }
