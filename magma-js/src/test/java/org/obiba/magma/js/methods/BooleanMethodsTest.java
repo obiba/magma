@@ -473,6 +473,16 @@ public class BooleanMethodsTest extends AbstractJsTest {
   }
 
   @Test
+  public void testTextSequenceFooEqualsTextFooEqualsFalse() throws Exception {
+    ScriptableValue fooOne = newValue(TextType.get().sequenceOf("foo,foo"));
+    ScriptableValue fooTwo = newValue(TextType.get().valueOf("foo"));
+    ScriptableValue result = BooleanMethods
+        .eq(Context.getCurrentContext(), fooOne, new ScriptableValue[] { fooTwo }, null);
+    assertThat(result.getValue()).isEqualTo(BooleanType.get().falseValue());
+  }
+
+
+  @Test
   public void testDateTimeEqualsDateTimeEqualsTrue() {
     ScriptableValue dateTime = newValue(DateTimeType.get().now());
     ScriptableValue resultDateTime = BooleanMethods

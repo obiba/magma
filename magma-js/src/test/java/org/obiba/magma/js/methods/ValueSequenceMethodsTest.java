@@ -35,6 +35,38 @@ import static org.fest.assertions.api.Assertions.assertThat;
 public class ValueSequenceMethodsTest extends AbstractJsTest {
 
   @Test
+  public void testIsSequence() throws Exception {
+    ValueSequence valueSequence = TextType.get().sequenceOf("A");
+    ScriptableValue scriptableValue = newValue(valueSequence);
+    ScriptableValue result = ValueSequenceMethods.isSequence(Context.getCurrentContext(), scriptableValue, null, null);
+    assertThat(result.getValue().getValue()).isEqualTo(Boolean.TRUE);
+  }
+
+  @Test
+  public void testNullSequenceIsSequence() throws Exception {
+    ValueSequence valueSequence = TextType.get().nullSequence();
+    ScriptableValue scriptableValue = newValue(valueSequence);
+    ScriptableValue result = ValueSequenceMethods.isSequence(Context.getCurrentContext(), scriptableValue, null, null);
+    assertThat(result.getValue().getValue()).isEqualTo(Boolean.TRUE);
+  }
+
+  @Test
+  public void testIsNotSequence() throws Exception {
+    Value value = TextType.get().valueOf("A");
+    ScriptableValue scriptableValue = newValue(value);
+    ScriptableValue result = ValueSequenceMethods.isSequence(Context.getCurrentContext(), scriptableValue, null, null);
+    assertThat(result.getValue().getValue()).isEqualTo(Boolean.FALSE);
+  }
+
+  @Test
+  public void testNullValueIsNotSequence() throws Exception {
+    Value value = TextType.get().nullValue();
+    ScriptableValue scriptableValue = newValue(value);
+    ScriptableValue result = ValueSequenceMethods.isSequence(Context.getCurrentContext(), scriptableValue, null, null);
+    assertThat(result.getValue().getValue()).isEqualTo(Boolean.FALSE);
+  }
+
+  @Test
   public void testFirstOfOne() throws Exception {
     ValueSequence valueSequence = TextType.get().sequenceOf("A");
     ScriptableValue scriptableValue = newValue(valueSequence);

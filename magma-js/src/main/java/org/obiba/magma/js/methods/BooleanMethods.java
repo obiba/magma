@@ -284,6 +284,10 @@ public class BooleanMethods {
       return new ScriptableValue(thisObj, BooleanType.get().falseValue());
     }
 
+    if(firstOperand.getValue().isSequence()) {
+      return new ScriptableValue(thisObj, BooleanType.get().falseValue());
+    }
+
     if(args == null || args.length == 0 || args.length > 0 && args[0] == null) {
       return new ScriptableValue(thisObj, BooleanType.get().falseValue());
     }

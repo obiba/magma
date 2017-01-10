@@ -28,11 +28,7 @@ import org.obiba.magma.ValueSequence;
 import org.obiba.magma.ValueType;
 import org.obiba.magma.js.MagmaJsEvaluationRuntimeException;
 import org.obiba.magma.js.ScriptableValue;
-import org.obiba.magma.type.BinaryType;
-import org.obiba.magma.type.DecimalType;
-import org.obiba.magma.type.IntegerType;
-import org.obiba.magma.type.LocaleType;
-import org.obiba.magma.type.TextType;
+import org.obiba.magma.type.*;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
@@ -45,6 +41,19 @@ import com.google.common.collect.Lists;
 public class ValueSequenceMethods {
 
   private ValueSequenceMethods() {
+  }
+
+  /**
+   * Returns whether the Value is a {@link ValueSequence}.
+   * <p/>
+   * <pre>
+   *   $('SequenceVar').isSequence()
+   * </pre>
+   */
+  public static ScriptableValue isSequence(Context ctx, Scriptable thisObj, @Nullable Object[] args,
+                                      @Nullable Function funObj) {
+    ScriptableValue sv = (ScriptableValue) thisObj;
+    return new ScriptableValue(thisObj, BooleanType.get().valueOf(sv.getValue().isSequence()));
   }
 
   /**
