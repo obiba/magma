@@ -21,6 +21,7 @@ import org.obiba.magma.support.ValueSetBean;
 import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Provide the {@link Value}s for a {@link VariableEntity}. Non binary data are cached, whereas the binary ones are
@@ -81,7 +82,9 @@ public class JdbcValueSet extends ValueSetBean {
     List<Map<String, Value>> res = fetcher.loadVariableValues(variable, getVariableEntity());
     if (res.isEmpty())
       return variable.isRepeatable() ? variable.getValueType().nullSequence() : variable.getValueType().nullValue();
-    Value value = res.get(0).get(variable.getName());
+    Value value = variable.isRepeatable() && getValueTable().isMultilines() ?
+        variable.getValueType().sequenceOf(res.stream().map(m -> m.get(variable.getName())).collect(Collectors.toList()))
+        : res.get(0).get(variable.getName());
     return convertValue(variable, value);
   }
 
