@@ -89,7 +89,9 @@ public class IntegerType extends AbstractNumberType {
   }
 
   private String normalize(String string) {
-    return string.trim();
+    String rval = string.trim();
+    if (rval.length()>2 && rval.endsWith(".0")) return rval.substring(0, rval.length()-2);
+    return rval;
   }
 
 }
