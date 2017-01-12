@@ -59,7 +59,7 @@ class JoinValueIterator implements Iterator<Value> {
     // increment each value iterators and make a sequence of them
     entitiesIterator.next();
     List<Value> joinedValues = valueIterators.stream().map(Iterator::next).collect(Collectors.toList());
-    return variable.getValueType().sequenceOf(joinedValues);
+    return joinedValues.size() == 1 ? joinedValues.get(0) : variable.getValueType().sequenceOf(joinedValues);
   }
 
   @Override
