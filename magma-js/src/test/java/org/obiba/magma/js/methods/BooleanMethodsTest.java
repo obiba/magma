@@ -409,13 +409,25 @@ public class BooleanMethodsTest extends AbstractJsTest {
     assertThat(result.getValue()).isEqualTo(BooleanType.get().trueValue());
     result = evaluate("eq(2.0)", number);
     assertThat(result.getValue()).isEqualTo(BooleanType.get().trueValue());
-    result = evaluate("eq('2.0')", number);
+    result = evaluate("eq('2')", number);
     assertThat(result.getValue()).isEqualTo(BooleanType.get().trueValue());
   }
 
   @Test
   public void test_eq_TextValueEqNotScriptableValueEqualsTrue() throws Exception {
     ScriptableValue result = evaluate("eq('patate')", TextType.get().valueOf("patate"));
+    assertThat(result.getValue()).isEqualTo(BooleanType.get().trueValue());
+  }
+
+  @Test
+  public void test_eq_TextValueSequenceEqNotScriptableValueEqualsTrue() throws Exception {
+    ScriptableValue result = evaluate("eq('patate','pwel')", TextType.get().sequenceOf("patate,pwel"));
+    assertThat(result.getValue()).isEqualTo(BooleanType.get().trueValue());
+  }
+
+  @Test
+  public void test_eq_TextValueSequenceWithNullEqNotScriptableValueEqualsTrue() throws Exception {
+    ScriptableValue result = evaluate("eq('patate',null,'pwel')", TextType.get().sequenceOf("patate,,pwel"));
     assertThat(result.getValue()).isEqualTo(BooleanType.get().trueValue());
   }
 
@@ -434,6 +446,26 @@ public class BooleanMethodsTest extends AbstractJsTest {
   @Test
   public void test_eq_DateValueEqNotScriptableValueEqualsTrue() throws Exception {
     ScriptableValue result = evaluate("eq('2011-01-29')", DateType.get().valueOf("2011-01-29"));
+    assertThat(result.getValue()).isEqualTo(BooleanType.get().trueValue());
+  }
+
+  @Test
+  public void test_eq_IntegerValueEqNotScriptableValueEqualsTrue() throws Exception {
+    ScriptableValue result = evaluate("eq(1)", IntegerType.get().valueOf("1"));
+    assertThat(result.getValue()).isEqualTo(BooleanType.get().trueValue());
+  }
+
+  @Test
+  public void test_eq_IntegerValueSequenceEqNotScriptableValueEqualsTrue() throws Exception {
+    ScriptableValue result = evaluate("eq(1,2,3)", IntegerType.get().sequenceOf("1,2,3"));
+    assertThat(result.getValue()).isEqualTo(BooleanType.get().trueValue());
+  }
+
+  @Test
+  public void test_eq_DecimalValueEqNotScriptableValueEqualsTrue() throws Exception {
+    ScriptableValue result = evaluate("eq(1)", DecimalType.get().valueOf("1.0"));
+    assertThat(result.getValue()).isEqualTo(BooleanType.get().trueValue());
+    result = evaluate("eq(1.1)", DecimalType.get().valueOf("1.1"));
     assertThat(result.getValue()).isEqualTo(BooleanType.get().trueValue());
   }
 
@@ -473,7 +505,7 @@ public class BooleanMethodsTest extends AbstractJsTest {
   }
 
   @Test
-  public void testTextSequenceFooEqualsTextFooEqualsFalse() throws Exception {
+  public void testSequenceEqualsValue() throws Exception {
     ScriptableValue fooOne = newValue(TextType.get().sequenceOf("foo,foo"));
     ScriptableValue fooTwo = newValue(TextType.get().valueOf("foo"));
     ScriptableValue result = BooleanMethods
@@ -481,6 +513,41 @@ public class BooleanMethodsTest extends AbstractJsTest {
     assertThat(result.getValue()).isEqualTo(BooleanType.get().falseValue());
   }
 
+  @Test
+  public void testSequenceEqualsSequence() throws Exception {
+    ScriptableValue fooOne = newValue(TextType.get().sequenceOf("foo,bar"));
+    ScriptableValue fooTwo = newValue(TextType.get().sequenceOf("foo,bar"));
+    ScriptableValue result = BooleanMethods
+        .eq(Context.getCurrentContext(), fooOne, new ScriptableValue[] { fooTwo }, null);
+    assertThat(result.getValue()).isEqualTo(BooleanType.get().trueValue());
+  }
+
+  @Test
+  public void testSequenceNotEqualsSequence() throws Exception {
+    ScriptableValue fooOne = newValue(TextType.get().sequenceOf("foo,foo"));
+    ScriptableValue fooTwo = newValue(TextType.get().sequenceOf("foo"));
+    ScriptableValue result = BooleanMethods
+        .eq(Context.getCurrentContext(), fooOne, new ScriptableValue[] { fooTwo }, null);
+    assertThat(result.getValue()).isEqualTo(BooleanType.get().falseValue());
+  }
+
+  @Test
+  public void testEmptySequenceEqualsEmptySequence() throws Exception {
+    ScriptableValue fooOne = newValue(TextType.get().nullSequence());
+    ScriptableValue fooTwo = newValue(TextType.get().nullSequence());
+    ScriptableValue result = BooleanMethods
+        .eq(Context.getCurrentContext(), fooOne, new ScriptableValue[] { fooTwo }, null);
+    assertThat(result.getValue()).isEqualTo(BooleanType.get().trueValue());
+  }
+
+  @Test
+  public void testEmptySequenceEqualsEmptyValue() throws Exception {
+    ScriptableValue fooOne = newValue(TextType.get().nullSequence());
+    ScriptableValue fooTwo = newValue(TextType.get().nullValue());
+    ScriptableValue result = BooleanMethods
+        .eq(Context.getCurrentContext(), fooOne, new ScriptableValue[] { fooTwo }, null);
+    assertThat(result.getValue()).isEqualTo(BooleanType.get().trueValue());
+  }
 
   @Test
   public void testDateTimeEqualsDateTimeEqualsTrue() {
@@ -504,12 +571,12 @@ public class BooleanMethodsTest extends AbstractJsTest {
     assertThat(resultDate.getValue()).isEqualTo(BooleanType.get().falseValue());
   }
 
-  @Test(expected = MagmaJsEvaluationRuntimeException.class)
+  @Test
   public void textEqualsMockDataType() {
     ScriptableValue text = newValue(TextType.get().valueOf("foo"));
     ScriptableValue date = newValue(DateType.get().now());
     ScriptableValue resultDate = BooleanMethods.eq(Context.getCurrentContext(), date, new Object[] { text }, null);
-    assertThat(resultDate.getValue()).isEqualTo(DateType.get().now());
+    assertThat(resultDate.getValue()).isEqualTo(BooleanType.get().falseValue());
   }
 
   // isNull, isNotNull
