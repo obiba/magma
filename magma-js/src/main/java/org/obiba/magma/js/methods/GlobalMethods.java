@@ -141,10 +141,18 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
 
   private static List<Value> nativeArrayToValueList(@Nullable ValueType valueType, NativeArray nativeArray) {
     List<Value> newValues = new ArrayList<>();
+    ValueType vt = valueType;
+    if (vt == null) {
+      // try to guess the value type from the observed values
+      for(long i = 0; i < nativeArray.getLength(); i++) {
+        vt = inferValueType(nativeArray.get(i));
+        if (vt != null) break;
+      }
+    }
     for(long i = 0; i < nativeArray.getLength(); i++) {
       Object value = ensurePrimitiveValue(nativeArray.get(i));
       Serializable serializable = (Serializable) value;
-      newValues.add(valueType == null ? ValueType.Factory.newValue(serializable) : valueType.valueOf(serializable));
+      newValues.add(vt == null ? ValueType.Factory.newValue(serializable) : vt.valueOf(serializable));
     }
     return newValues;
   }
@@ -153,12 +161,27 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
     Object rvalue = value;
 
     if (value instanceof ScriptableValue) {
-      rvalue = ((ScriptableValue) value).getValue().getValue();
+      Value val = ((ScriptableValue) value).getValue();
+      rvalue = val.isNull() ? null : val.getValue();
     } else if (value instanceof ConsString) {
       rvalue = value.toString();
     }
 
     return rvalue;
+  }
+
+  private static ValueType inferValueType(Object value) {
+    if (value == null) return null;
+
+    if (value instanceof ScriptableValue)
+      return ((ScriptableValue) value).getValue().getValueType();
+
+    Object rvalue = value;
+    if (value instanceof ConsString) {
+      rvalue = value.toString();
+    }
+
+    return ValueType.Factory.newValue((Serializable) rvalue).getValueType();
   }
 
   /**
