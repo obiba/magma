@@ -566,9 +566,43 @@ public class ValueSequenceMethodsTest extends AbstractJsTest {
   }
 
   @Test
+  public void test_append() {
+    assertAppendIs(Values.asSequence(IntegerType.get(), 1, 2, 3), "4", Values.asSequence(IntegerType.get(), 1, 2, 3, 4));
+  }
+
+  @Test
+  public void test_prepend() {
+    assertPrependIs(Values.asSequence(IntegerType.get(), 1, 2, 3), "4", Values.asSequence(IntegerType.get(), 4, 1, 2, 3));
+  }
+
+  @Test
+  public void test_push_nothing() {
+    assertPushIs(Values.asSequence(IntegerType.get(), 1, 2, 3), "", Values.asSequence(IntegerType.get(), 1, 2, 3));
+  }
+
+  @Test
+  public void test_append_nothing() {
+    assertAppendIs(Values.asSequence(IntegerType.get(), 1, 2, 3), "", Values.asSequence(IntegerType.get(), 1, 2, 3));
+  }
+
+  @Test
+  public void test_prepend_nothing() {
+    assertPrependIs(Values.asSequence(IntegerType.get(), 1, 2, 3), "", Values.asSequence(IntegerType.get(), 1, 2, 3));
+  }
+
+  @Test
   public void test_push_multipleValues() {
-    assertPushIs(Values.asSequence(IntegerType.get(), 1, 2, 3), "4,5",
-        Values.asSequence(IntegerType.get(), 1, 2, 3, 4, 5));
+    assertPushIs(Values.asSequence(IntegerType.get(), 1, 2, 3), "4,5", Values.asSequence(IntegerType.get(), 1, 2, 3, 4, 5));
+  }
+
+  @Test
+  public void test_append_multipleValues() {
+    assertAppendIs(Values.asSequence(IntegerType.get(), 1, 2, 3), "4,5", Values.asSequence(IntegerType.get(), 1, 2, 3, 4, 5));
+  }
+
+  @Test
+  public void test_prepend_multipleValues() {
+    assertPrependIs(Values.asSequence(IntegerType.get(), 1, 2, 3), "4,5", Values.asSequence(IntegerType.get(), 4, 5, 1, 2, 3));
   }
 
   @Test
@@ -582,9 +616,28 @@ public class ValueSequenceMethodsTest extends AbstractJsTest {
   }
 
   @Test
+  public void test_append_nullSequence() {
+    assertAppendIs(TextType.get().nullSequence(), "'foo'", Values.asSequence(TextType.get(), "foo"));
+  }
+
+  @Test
+  public void test_prepend_nullSequence() {
+    assertPrependIs(TextType.get().nullSequence(), "'foo'", Values.asSequence(TextType.get(), "foo"));
+  }
+
+  @Test
   public void test_push_acceptsNullArgument() {
-    assertPushIs(Values.asSequence(IntegerType.get(), 1, 2, 3), "null",
-        Values.asSequence(IntegerType.get(), 1, 2, 3, null));
+    assertPushIs(Values.asSequence(IntegerType.get(), 1, 2, 3), "null", Values.asSequence(IntegerType.get(), 1, 2, 3, null));
+  }
+
+  @Test
+  public void test_append_acceptsNullArgument() {
+    assertAppendIs(Values.asSequence(IntegerType.get(), 1, 2, 3), "null", Values.asSequence(IntegerType.get(), 1, 2, 3, null));
+  }
+
+  @Test
+  public void test_prepend_acceptsNullArgument() {
+    assertPrependIs(Values.asSequence(IntegerType.get(), 1, 2, 3), "null", Values.asSequence(IntegerType.get(), null, 1, 2, 3));
   }
 
   @Test
@@ -593,8 +646,32 @@ public class ValueSequenceMethodsTest extends AbstractJsTest {
         Values.asSequence(TextType.get(), "this is not a sequence", "neither is this"));
   }
 
+  @Test
+  public void test_append_acceptsNonSequenceOperand() {
+    assertAppendIs(TextType.get().valueOf("this is not a sequence"), "'neither is this'",
+        Values.asSequence(TextType.get(), "this is not a sequence", "neither is this"));
+  }
+
+  @Test
+  public void test_prepend_acceptsNonSequenceOperand() {
+    assertPrependIs(TextType.get().valueOf("this is not a sequence"), "'neither is this'",
+        Values.asSequence(TextType.get(), "neither is this", "this is not a sequence"));
+  }
+
   private void assertPushIs(Value valueToPushInto, String push, Value expected) {
-    ScriptableValue result = evaluate("push(" + push + ")", valueToPushInto);
+    assertPendIs("push", valueToPushInto, push, expected);
+  }
+
+  private void assertAppendIs(Value valueToPushInto, String push, Value expected) {
+    assertPendIs("append", valueToPushInto, push, expected);
+  }
+
+  private void assertPrependIs(Value valueToPushInto, String push, Value expected) {
+    assertPendIs("prepend", valueToPushInto, push, expected);
+  }
+
+  private void assertPendIs(String pendMethod, Value valueToPushInto, String push, Value expected) {
+    ScriptableValue result = evaluate(pendMethod + "(" + push + ")", valueToPushInto);
     assertThat(result).isNotNull();
 
     if(expected.isNull()) {
