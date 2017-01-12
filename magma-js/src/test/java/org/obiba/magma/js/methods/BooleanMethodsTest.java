@@ -420,6 +420,12 @@ public class BooleanMethodsTest extends AbstractJsTest {
   }
 
   @Test
+  public void test_eq_TextValueEqNotScriptableValueSequenceEqualsTrue() throws Exception {
+    ScriptableValue result = evaluate("eq('patate','pwel')", TextType.get().valueOf("patate"));
+    assertThat(result.getValue()).isEqualTo(BooleanType.get().falseValue());
+  }
+
+  @Test
   public void test_eq_TextValueSequenceEqNotScriptableValueEqualsTrue() throws Exception {
     ScriptableValue result = evaluate("eq('patate','pwel')", TextType.get().sequenceOf("patate,pwel"));
     assertThat(result.getValue()).isEqualTo(BooleanType.get().trueValue());
@@ -458,6 +464,12 @@ public class BooleanMethodsTest extends AbstractJsTest {
   @Test
   public void test_eq_IntegerValueSequenceEqNotScriptableValueEqualsTrue() throws Exception {
     ScriptableValue result = evaluate("eq(1,2,3)", IntegerType.get().sequenceOf("1,2,3"));
+    assertThat(result.getValue()).isEqualTo(BooleanType.get().trueValue());
+  }
+
+  @Test
+  public void test_eq_OneIntegerValueSequenceEqNotScriptableValueEqualsTrue() throws Exception {
+    ScriptableValue result = evaluate("eq(1)", IntegerType.get().sequenceOf("1"));
     assertThat(result.getValue()).isEqualTo(BooleanType.get().trueValue());
   }
 

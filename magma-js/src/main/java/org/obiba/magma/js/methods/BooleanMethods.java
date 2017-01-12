@@ -259,8 +259,7 @@ public class BooleanMethods {
 
   /**
    * Returns a new {@link ScriptableValue} of the {@link BooleanType} indicating if the first parameter is equal to the
-   * second parameter. If either parameters are null, then false is returned. Both parameters must either both be
-   * numeric, both be BooleanType or both be TextType.
+   * second parameter.
    * <p/>
    * <pre>
    *   $('NumberVarOne').eq($('NumberVarTwo'))
@@ -307,9 +306,14 @@ public class BooleanMethods {
     if (firstOperand.isNull() && secondOperand.isNull()) return BooleanType.get().trueValue();
 
     if (firstOperand.isSequence()) {
-      if (!secondOperand.isSequence()) return BooleanType.get().falseValue();
+      if (!secondOperand.isSequence())
+        return eqValueSequence(firstOperand.asSequence(), secondOperand.getValueType().sequenceOf(Lists.newArrayList(secondOperand)));
       return eqValueSequence(firstOperand.asSequence(), secondOperand.asSequence());
     }
+
+    if (secondOperand.isSequence())
+      return eqValueSequence(firstOperand.getValueType().sequenceOf(Lists.newArrayList(firstOperand)), secondOperand.asSequence());
+
 
     if(firstOperand.getValueType().isNumeric() && secondOperand.getValueType().isNumeric()) {
       return numericEquals(firstOperand, secondOperand);
