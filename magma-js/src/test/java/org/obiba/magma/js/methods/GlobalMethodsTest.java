@@ -46,6 +46,15 @@ public class GlobalMethodsTest extends AbstractJsTest {
     assertThat((Long) sv.getValue().getValue()).isEqualTo(1l);
   }
 
+  @Test
+  public void test_newValue_null_int() throws Exception {
+    ScriptableValue sv = GlobalMethods
+        .newValue(getCurrentContext(), getSharedScope(), new Object[] { null, "integer" }, null);
+    assertThat(sv.getValue().isNull()).isTrue();
+    assertThat(sv.getValue().isSequence()).isFalse();
+    assertThat((IntegerType) sv.getValueType()).isEqualTo(IntegerType.get());
+  }
+
   @Test(expected = MagmaRuntimeException.class)
   public void test_newValue_wrong_type() throws Exception {
     GlobalMethods.newValue(getCurrentContext(), getSharedScope(), new Object[] { "qwerty", "integer" }, null);
@@ -58,7 +67,7 @@ public class GlobalMethodsTest extends AbstractJsTest {
             null);
     assertThat(sv.getValue().isSequence()).isTrue();
     assertThat((IntegerType) sv.getValueType()).isEqualTo(IntegerType.get());
-    assertThat(sv.getValue().getLength()).isEqualTo(3);
+    assertThat(sv.getValue().asSequence().getSize()).isEqualTo(3);
     ValueSequence sequence = sv.getValue().asSequence();
     for(int i = 1; i <= 3; i++) {
       Value value = sequence.get(i - 1);
@@ -73,7 +82,7 @@ public class GlobalMethodsTest extends AbstractJsTest {
         new Object[] { new NativeArray(new Object[] { "1", "2", "3" }) }, null);
     assertThat(sv.getValue().isSequence()).isTrue();
     assertThat((TextType) sv.getValueType()).isEqualTo(TextType.get());
-    assertThat(sv.getValue().getLength()).isEqualTo(3l);
+    assertThat(sv.getValue().asSequence().getSize()).isEqualTo(3);
     ValueSequence sequence = sv.getValue().asSequence();
     for(int i = 1; i <= 3; i++) {
       Value value = sequence.get(i - 1);
@@ -88,7 +97,7 @@ public class GlobalMethodsTest extends AbstractJsTest {
         new Object[] { new NativeArray(new Object[] { "1", "2", "3" }), "integer" }, null);
     assertThat(sv.getValue().isSequence()).isTrue();
     assertThat((IntegerType) sv.getValueType()).isEqualTo(IntegerType.get());
-    assertThat(sv.getValue().getLength()).isEqualTo(3l);
+    assertThat(sv.getValue().asSequence().getSize()).isEqualTo(3);
     ValueSequence sequence = sv.getValue().asSequence();
     for(int i = 1; i <= 3; i++) {
       Value value = sequence.get(i - 1);
@@ -97,4 +106,77 @@ public class GlobalMethodsTest extends AbstractJsTest {
     }
   }
 
+  @Test
+  public void test_newSequence_String_with_empty_array() throws Exception {
+    ScriptableValue sv = GlobalMethods.newSequence(getCurrentContext(), getSharedScope(),
+        new Object[] { new NativeArray(new Object[] {}), "text" }, null);
+    assertThat(sv.getValue().isSequence()).isTrue();
+    assertThat((TextType) sv.getValueType()).isEqualTo(TextType.get());
+    assertThat(sv.getValue().asSequence().getSize()).isEqualTo(0);
+  }
+
+  @Test
+  public void test_newSequence_String_with_null() throws Exception {
+    ScriptableValue sv = GlobalMethods.newSequence(getCurrentContext(), getSharedScope(),
+        new Object[] { new NativeArray(new Object[] { "1", "2", "3", null }) }, null);
+    assertThat(sv.getValue().isSequence()).isTrue();
+    assertThat((TextType) sv.getValueType()).isEqualTo(TextType.get());
+    assertThat(sv.getValue().asSequence().getSize()).isEqualTo(4);
+    ValueSequence sequence = sv.getValue().asSequence();
+    for(int i = 1; i <= 3; i++) {
+      Value value = sequence.get(i - 1);
+      assertThat((TextType) value.getValueType()).isEqualTo(TextType.get());
+      assertThat((String) value.getValue()).isEqualTo(String.valueOf(i));
+    }
+    assertThat((TextType) sequence.get(3).getValueType()).isEqualTo(TextType.get());
+    assertThat(sequence.get(3).isNull()).isTrue();
+  }
+
+  @Test
+  public void test_newSequence_String_with_null_value_only() throws Exception {
+    ScriptableValue sv = GlobalMethods.newSequence(getCurrentContext(), getSharedScope(),
+        new Object[] { new NativeArray(new Object[] {
+          GlobalMethods.newValue(getCurrentContext(), getSharedScope(), new Object[] { null, "text" }, null) }) }, null);
+    assertThat(sv.getValue().isSequence()).isTrue();
+    assertThat((TextType) sv.getValueType()).isEqualTo(TextType.get());
+    assertThat(sv.getValue().asSequence().getSize()).isEqualTo(1);
+    ValueSequence sequence = sv.getValue().asSequence();
+    assertThat((TextType) sequence.get(0).getValueType()).isEqualTo(TextType.get());
+    assertThat(sequence.get(0).isNull()).isTrue();
+  }
+
+  @Test
+  public void test_newSequence_String_with_null_only() throws Exception {
+    ScriptableValue sv = GlobalMethods.newSequence(getCurrentContext(), getSharedScope(),
+        new Object[] { new NativeArray(new Object[] { null }), "text" }, null);
+    assertThat(sv.getValue().isSequence()).isTrue();
+    assertThat((TextType) sv.getValueType()).isEqualTo(TextType.get());
+    assertThat(sv.getValue().asSequence().getSize()).isEqualTo(1);
+    ValueSequence sequence = sv.getValue().asSequence();
+    assertThat((TextType) sequence.get(0).getValueType()).isEqualTo(TextType.get());
+    assertThat(sequence.get(0).isNull()).isTrue();
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void test_newSequence_String_with_null_only_and_no_value_type() throws Exception {
+    GlobalMethods.newSequence(getCurrentContext(), getSharedScope(),
+        new Object[] { new NativeArray(new Object[] { null }) }, null);
+  }
+
+  @Test
+  public void test_newSequence_String_with_null_and_value_type() throws Exception {
+    ScriptableValue sv = GlobalMethods.newSequence(getCurrentContext(), getSharedScope(),
+        new Object[] { new NativeArray(new Object[] { "1", "2", "3", null }), "text" }, null);
+    assertThat(sv.getValue().isSequence()).isTrue();
+    assertThat((TextType) sv.getValueType()).isEqualTo(TextType.get());
+    assertThat(sv.getValue().asSequence().getSize()).isEqualTo(4);
+    ValueSequence sequence = sv.getValue().asSequence();
+    for(int i = 1; i <= 3; i++) {
+      Value value = sequence.get(i - 1);
+      assertThat((TextType) value.getValueType()).isEqualTo(TextType.get());
+      assertThat((String) value.getValue()).isEqualTo(String.valueOf(i));
+    }
+    assertThat((TextType) sequence.get(3).getValueType()).isEqualTo(TextType.get());
+    assertThat(sequence.get(3).isNull()).isTrue();
+  }
 }

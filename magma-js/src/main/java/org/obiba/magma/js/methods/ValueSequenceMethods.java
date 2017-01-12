@@ -10,14 +10,9 @@
 
 package org.obiba.magma.js.methods;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.List;
-
-import javax.annotation.Nullable;
-
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import org.mozilla.javascript.Callable;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
@@ -30,9 +25,12 @@ import org.obiba.magma.js.MagmaJsEvaluationRuntimeException;
 import org.obiba.magma.js.ScriptableValue;
 import org.obiba.magma.type.*;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
+import javax.annotation.Nullable;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.List;
 
 /**
  * JavaScript methods that operate on {@link ValueSequence} objects wrapped in {@link ScriptableValue} objects.
@@ -455,6 +453,31 @@ public class ValueSequenceMethods {
     }
   }
 
+  /**
+   * Push a value to a value to produce a value sequence. Also accepts a value sequence as input, in which case, both sequences
+   * are concatenated to produce a single one (it does not produce a sequence of sequence).
+   *
+   * <p>If the value being added is not of the same type as the sequence, it will be converted to the
+   * sequence's type. If the conversion fails, an exception is thrown.</p>
+   *
+   * <p>If the sequence is null, this method returns a null sequence. If the sequence is empty, this method returns a
+   * new sequence containing the parameter(s). If the parameter is null, a null value is appended.</p>
+   *
+   * <pre>
+   *   // Add a value to a sequence, then compute the average of the resulting sequence
+   *   $('BloodPressure:Measure.RES_PULSE').push($('StandingHeight:FIRST_RES_PULSE')).avg();
+   *
+   *   // Aadd several values to a value (or a value sequence)
+   *   $('VARX').push(1, 2, 3)
+   * </pre>
+   *
+   * @param ctx
+   * @param thisObj
+   * @param args
+   * @param funObj
+   * @return
+   * @throws MagmaJsEvaluationRuntimeException
+   */
   public static ScriptableValue push(Context ctx, Scriptable thisObj, Object[] args, Function funObj)
       throws MagmaJsEvaluationRuntimeException {
     ScriptableValue sv = (ScriptableValue) thisObj;
@@ -489,11 +512,107 @@ public class ValueSequenceMethods {
   }
 
   /**
+   * Append a value to a value to produce a value sequence. Also accepts a value sequence as input, in which case, both sequences
+   * are concatenated to produce a single one (it does not produce a sequence of sequence).
+   *
+   * <p>If the value being added is not of the same type as the sequence, it will be converted to the
+   * sequence's type. If the conversion fails, an exception is thrown.</p>
+   *
+   * <p>If the sequence is null or empty, this method returns a
+   * new sequence containing the parameter(s). If the parameter is null, a null value is appended.</p>
+   *
+   * <pre>
+   *   // Append a value to a sequence, then compute the average of the resulting sequence
+   *   $('BloodPressure:Measure.RES_PULSE').append($('StandingHeight:FIRST_RES_PULSE')).avg();
+   *
+   *   // Append several values to a value (or a value sequence)
+   *   $('VARX').append(1, 2, 3)
+   * </pre>
+   *
+   * @param ctx
+   * @param thisObj
+   * @param args
+   * @param funObj
+   * @return
+   * @throws MagmaJsEvaluationRuntimeException
+   */
+  public static ScriptableValue append(Context ctx, Scriptable thisObj, Object[] args, Function funObj)
+      throws MagmaJsEvaluationRuntimeException {
+    return pendValue(thisObj, args, true);
+  }
+
+
+  /**
+   * Prepend a value to a value to produce a value sequence. Also accepts a value sequence as input, in which case, both sequences
+   * are concatenated to produce a single one (it does not produce a sequence of sequence).
+   *
+   * <p>If the value being added is not of the same type as the sequence, it will be converted to the
+   * sequence's type. If the conversion fails, an exception is thrown.</p>
+   *
+   * <p>If the sequence is null or empty, this method returns a
+   * new sequence containing the parameter(s). If the parameter is null, a null value is appended.</p>
+   *
+   * <pre>
+   *   // Prepend a value to a sequence, then compute the average of the resulting sequence
+   *   $('BloodPressure:Measure.RES_PULSE').prepend($('StandingHeight:FIRST_RES_PULSE')).avg();
+   *
+   *   // Prepend several values to a value (or a value sequence)
+   *   $('VARX').prepend(1, 2, 3)
+   * </pre>
+   *
+   * @param ctx
+   * @param thisObj
+   * @param args
+   * @param funObj
+   * @return
+   * @throws MagmaJsEvaluationRuntimeException
+   */
+  public static ScriptableValue prepend(Context ctx, Scriptable thisObj, Object[] args, Function funObj)
+      throws MagmaJsEvaluationRuntimeException {
+    return pendValue(thisObj, args, false);
+  }
+
+  private static ScriptableValue pendValue(Scriptable thisObj, Object[] args, boolean append) {
+    ScriptableValue sv = (ScriptableValue) thisObj;
+    ValueType targetType = sv.getValueType();
+    Iterable<Value> sequence;
+    Value svValue = sv.getValue();
+
+    sequence = svValue.isSequence() ?
+        svValue.isNull() ? Lists.newArrayList() : svValue.asSequence().getValue() :
+        ImmutableList.of(svValue);
+
+    List<Value> pendSequence = Lists.newArrayList();
+
+    for (Object argument : args) {
+      Value value = argument instanceof ScriptableValue //
+          ? ((ScriptableValue) argument).getValue() //
+          : targetType.valueOf(argument);
+
+      if (value.getValueType() != targetType) {
+        value = targetType.convert(value);
+      }
+
+      if (value.isSequence()) {
+        if (!value.isNull()) value.asSequence().getValue().forEach(pendSequence::add);
+      } else {
+        pendSequence.add(value);
+      }
+    }
+
+    sequence = append ?
+        Iterables.concat(sequence, pendSequence) :
+        Iterables.concat(pendSequence, sequence);
+
+    return new ScriptableValue(thisObj, targetType.sequenceOf(Lists.newArrayList(sequence)));
+  }
+
+  /**
    * Returns a sequence of values, where each value is the transformation of a tuple of values, the i-th tuple contains
    * the i-th element from each of the argument sequences. The returned list length is the length of the longest
    * argument sequence (shortest argument sequence values are null). Not sequential arguments have their value repeated
    * in each tuple.
-   * <p/>
+   *
    * <pre>
    *   // returns "a1, b2, c3"
    *   $('SequenceVarAZ').zip($('SequenceVar19'), function(o1,o2) {
