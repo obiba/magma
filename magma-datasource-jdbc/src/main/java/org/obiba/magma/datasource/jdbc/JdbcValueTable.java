@@ -278,6 +278,11 @@ class JdbcValueTable extends AbstractValueTable {
     return entityIdentifierColumns.isEmpty() ? "" : entityIdentifierColumns.get(0);
   }
 
+  static boolean hasEntityIdentifierColumn(Relation tableOrView, String defaultEntityIdColumnName) {
+    return tableOrView.getColumn(defaultEntityIdColumnName) != null;
+  }
+
+
   private void initialiseVariableValueSources() {
     clearSources();
 

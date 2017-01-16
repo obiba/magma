@@ -65,6 +65,7 @@ public class JdbcDatasourceSettings {
 
   private JdbcDatasourceSettings(String entityType) {
     this.defaultEntityType = entityType;
+    this.defaultEntityIdColumnName = JdbcValueTableSettings.ENTITY_ID_COLUMN;
   }
 
   //

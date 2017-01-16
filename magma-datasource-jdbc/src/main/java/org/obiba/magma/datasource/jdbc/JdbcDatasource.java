@@ -322,7 +322,8 @@ public class JdbcDatasource extends AbstractDatasource {
           List<JdbcValueTableSettings> tableSettings = settings.getTableSettingsForSqlTable(tableName);
           if (tableSettings != null && !tableSettings.isEmpty()) {
             tableSettings.forEach(settings -> names.add(settings.getMagmaTableName()));
-          } else if (!Strings.isNullOrEmpty(JdbcValueTable.getEntityIdentifierColumn(table))) {
+          } else if (JdbcValueTable.hasEntityIdentifierColumn(table, getSettings().getDefaultEntityIdColumnName())
+              || !Strings.isNullOrEmpty(JdbcValueTable.getEntityIdentifierColumn(table))) {
             names.add(tableName);
           }
         });
@@ -334,7 +335,7 @@ public class JdbcDatasource extends AbstractDatasource {
           List<JdbcValueTableSettings> tableSettings = settings.getTableSettingsForSqlTable(viewName);
           if (tableSettings != null && !tableSettings.isEmpty()) {
             tableSettings.forEach(settings -> names.add(settings.getMagmaTableName()));
-          } else {
+          } else if (JdbcValueTable.hasEntityIdentifierColumn(view, getSettings().getDefaultEntityIdColumnName())) {
             names.add(viewName);
           }
         });
