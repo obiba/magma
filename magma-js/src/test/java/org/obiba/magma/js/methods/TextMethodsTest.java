@@ -64,9 +64,22 @@ public class TextMethodsTest extends AbstractJsTest {
     ScriptableValue value = newValue(TextType.get().sequenceOf("\"Value\",\"Patate\""));
     ScriptableValue result = TextMethods.matches(getCurrentContext(), value, new Object[] { "lue" }, null);
     assertThat(result).isNotNull();
+    assertThat(result.getValueType()).isEqualTo(BooleanType.get());
     assertThat(result.getValue().asSequence().getSize()).isEqualTo(2);
+    assertThat(result.getValue().asSequence().get(0).getValueType()).isEqualTo(BooleanType.get());
     assertThat(result.getValue().asSequence().get(0)).isEqualTo(BooleanType.get().valueOf(true));
+    assertThat(result.getValue().asSequence().get(1).getValueType()).isEqualTo(BooleanType.get());
     assertThat(result.getValue().asSequence().get(1)).isEqualTo(BooleanType.get().valueOf(false));
+  }
+
+  @Test
+  public void testMatchesNullValueSequence() {
+    ScriptableValue value = newValue(TextType.get().nullSequence());
+    ScriptableValue result = TextMethods.matches(getCurrentContext(), value, new Object[] { "lue" }, null);
+    assertThat(result).isNotNull();
+    assertThat(result.getValueType()).isEqualTo(BooleanType.get());
+    assertThat(result.getValue().isNull()).isTrue();
+    assertThat(result.getValue().asSequence().getSize()).isEqualTo(0);
   }
 
   @Test
