@@ -58,13 +58,18 @@ public class TextMethods {
    */
   public static ScriptableValue trim(Context ctx, Scriptable thisObj, @Nullable Object[] args,
       @Nullable Function funObj) {
-    com.google.common.base.Function<Value, Value> trimFunction = new com.google.common.base.Function<Value, Value>() {
+    ValueFunction trimFunction = new ValueFunction() {
 
       @SuppressWarnings("ConstantConditions")
       @Override
       public Value apply(Value input) {
         if(input == null || input.isNull()) return TextType.get().nullValue();
         return TextType.get().valueOf(input.toString().trim());
+      }
+
+      @Override
+      public ValueType getValueType() {
+        return TextType.get();
       }
     };
 
@@ -80,7 +85,7 @@ public class TextMethods {
   public static ScriptableValue upperCase(Context ctx, Scriptable thisObj, @Nullable Object[] args,
       @Nullable Function funObj) {
     final Locale locale = getLocaleArgument(args);
-    com.google.common.base.Function<Value, Value> caseFunction = new com.google.common.base.Function<Value, Value>() {
+    ValueFunction caseFunction = new ValueFunction() {
 
       @Override
       @SuppressWarnings("ConstantConditions")
@@ -89,6 +94,11 @@ public class TextMethods {
         String stringValue = input.toString();
         stringValue = locale == null ? stringValue.toUpperCase() : stringValue.toUpperCase(locale);
         return TextType.get().valueOf(stringValue);
+      }
+
+      @Override
+      public ValueType getValueType() {
+        return TextType.get();
       }
     };
 
@@ -104,7 +114,7 @@ public class TextMethods {
   public static ScriptableValue lowerCase(Context ctx, Scriptable thisObj, @Nullable Object[] args,
       @Nullable Function funObj) {
     final Locale locale = getLocaleArgument(args);
-    com.google.common.base.Function<Value, Value> caseFunction = new com.google.common.base.Function<Value, Value>() {
+    ValueFunction caseFunction = new ValueFunction() {
 
       @Override
       @SuppressWarnings("ConstantConditions")
@@ -113,6 +123,11 @@ public class TextMethods {
         String stringValue = input.toString();
         stringValue = locale == null ? stringValue.toLowerCase() : stringValue.toLowerCase(locale);
         return TextType.get().valueOf(stringValue);
+      }
+
+      @Override
+      public ValueType getValueType() {
+        return TextType.get();
       }
     };
 
@@ -142,7 +157,7 @@ public class TextMethods {
     return transformValue((ScriptableValue) thisObj, new CapitalizeFunction(getDelim(args)));
   }
 
-  private static class CapitalizeFunction implements com.google.common.base.Function<Value, Value> {
+  private static class CapitalizeFunction implements ValueFunction {
 
     private final String delim;
 
@@ -168,6 +183,11 @@ public class TextMethods {
         }
       }
       return TextType.get().valueOf(new String(buffer));
+    }
+
+    @Override
+    public ValueType getValueType() {
+      return TextType.get();
     }
 
     private boolean isDelimiter(char ch, @Nullable String delimiters) {
@@ -197,13 +217,10 @@ public class TextMethods {
    * <pre>
    *   $('TextVar').replace('regex', '$1')
    * </pre>
-   *
-   * @see https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/String/replace
    */
   public static ScriptableValue replace(final Context ctx, final Scriptable thisObj, final Object[] args,
       @Nullable Function funObj) {
-    com.google.common.base.Function<Value, Value> replaceFunction
-        = new com.google.common.base.Function<Value, Value>() {
+    ValueFunction replaceFunction = new ValueFunction() {
 
       @Override
       public Value apply(Value input) {
@@ -214,6 +231,11 @@ public class TextMethods {
             .action(ctx, thisObj, ScriptRuntime.toObject(ctx, thisObj, stringValue), args, RegExpProxy.RA_REPLACE);
 
         return TextType.get().valueOf(result);
+      }
+
+      @Override
+      public ValueType getValueType() {
+        return TextType.get();
       }
     };
     return transformValue((ScriptableValue) thisObj, replaceFunction);
@@ -226,8 +248,7 @@ public class TextMethods {
    */
   public static ScriptableValue matches(final Context ctx, final Scriptable thisObj, final Object[] args,
       @Nullable Function funObj) {
-    com.google.common.base.Function<Value, Value> matchesFunction
-        = new com.google.common.base.Function<Value, Value>() {
+    ValueFunction matchesFunction = new ValueFunction() {
 
       @Override
       public Value apply(Value input) {
@@ -248,6 +269,11 @@ public class TextMethods {
 
         return BooleanType.get().valueOf(matches);
       }
+
+      @Override
+      public ValueType getValueType() {
+        return BooleanType.get();
+      }
     };
     return transformValue((ScriptableValue) thisObj, matchesFunction);
   }
@@ -264,7 +290,7 @@ public class TextMethods {
    */
   public static ScriptableValue concat(Context ctx, Scriptable thisObj, final Object[] args,
       @Nullable Function funObj) {
-    com.google.common.base.Function<Value, Value> concatFunction = new com.google.common.base.Function<Value, Value>() {
+    ValueFunction concatFunction = new ValueFunction() {
 
       @Override
       public Value apply(Value input) {
@@ -280,6 +306,11 @@ public class TextMethods {
           }
         }
         return TextType.get().valueOf(sb.toString());
+      }
+
+      @Override
+      public ValueType getValueType() {
+        return TextType.get();
       }
     };
     return transformValue((ScriptableValue) thisObj, concatFunction);
@@ -401,7 +432,7 @@ public class TextMethods {
   private static ScriptableValue getDateValue(Scriptable thisObj, final ValueType dateType, Value value,
       String formatArg) {
     final SimpleDateFormat format = new SimpleDateFormat(formatArg);
-    com.google.common.base.Function<Value, Value> dateFunction = new com.google.common.base.Function<Value, Value>() {
+    ValueFunction dateFunction = new ValueFunction() {
 
       @Override
       public Value apply(Value input) {
@@ -418,6 +449,11 @@ public class TextMethods {
           throw new MagmaJsEvaluationRuntimeException(
               "date/datetime format '" + format.toPattern() + "' fails to parse: '" + inputStr + "'");
         }
+      }
+
+      @Override
+      public ValueType getValueType() {
+        return dateType;
       }
     };
     return transformValue((ScriptableValue) thisObj, dateFunction);
@@ -542,17 +578,17 @@ public class TextMethods {
    * @return
    */
   private static ScriptableValue transformValue(ScriptableValue sv,
-      @NotNull com.google.common.base.Function<Value, Value> valueFunction) {
+      @NotNull ValueFunction valueFunction) {
 
     Value value = sv.getValue();
     if(value.isNull()) {
       return value.isSequence()
-          ? new ScriptableValue(sv, TextType.get().nullSequence())
+          ? new ScriptableValue(sv, valueFunction.getValueType().nullSequence())
           : new ScriptableValue(sv, valueFunction.apply(value));
     }
 
     if(value.isSequence()) {
-      return new ScriptableValue(sv, TextType.get()
+      return new ScriptableValue(sv, valueFunction.getValueType()
           .sequenceOf(Lists.newArrayList(Iterables.transform(value.asSequence().getValue(), valueFunction))));
     }
     return new ScriptableValue(sv, valueFunction.apply(value));
