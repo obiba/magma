@@ -17,6 +17,7 @@ import com.google.common.collect.*;
 import org.obiba.magma.*;
 import org.obiba.magma.support.UnionTimestamps;
 
+import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -28,6 +29,8 @@ public class JoinTable implements ValueTable, Initialisable {
 
   @NotNull
   private final List<ValueTable> tables;
+
+  private final List<String> innerTableReferences;
 
   /**
    * Cached set of all variables of all tables in the join (i.e., the union).
@@ -71,6 +74,14 @@ public class JoinTable implements ValueTable, Initialisable {
 
   @SuppressWarnings("ConstantConditions")
   public JoinTable(@NotNull List<ValueTable> tables, boolean validateEntityTypes) {
+    this(tables, null, validateEntityTypes);
+  }
+
+  public JoinTable(@NotNull List<ValueTable> tables, @Nullable List<String> innerTableReferences) {
+    this(tables, innerTableReferences, true);
+  }
+
+  public JoinTable(@NotNull List<ValueTable> tables, @Nullable List<String> innerTableReferences, boolean validateEntityTypes) {
     if (tables == null) throw new IllegalArgumentException("null tables");
     if (tables.isEmpty()) throw new IllegalArgumentException("empty tables");
 
@@ -83,13 +94,7 @@ public class JoinTable implements ValueTable, Initialisable {
       }
     }
     this.tables = ImmutableList.copyOf(tables);
-    //analyseVariables();
-  }
-
-  @NotNull
-  private Multimap<Variable, ValueTable> getVariableTables() {
-    if (!variableAnalysed) analyseVariables();
-    return variableTables;
+    this.innerTableReferences = innerTableReferences == null ? Lists.newArrayList() : innerTableReferences;
   }
 
   @NotNull
@@ -123,6 +128,11 @@ public class JoinTable implements ValueTable, Initialisable {
   public List<ValueTable> getTables() {
     // don't analyse variables here as it is called very often
     return tables;
+  }
+
+  @NotNull
+  public List<String> getInnerTableReferences() {
+    return innerTableReferences;
   }
 
   @NotNull
@@ -187,7 +197,7 @@ public class JoinTable implements ValueTable, Initialisable {
 
     // Set the initial capacity to the number of entities we saw in the previous call to this method
     Set<VariableEntity> entities = Collections.synchronizedSet(Sets.newLinkedHashSetWithExpectedSize(lastEntityCount));
-    getTables().parallelStream().forEach(table -> entities.addAll(table.getVariableEntities()));
+    getOuterTables().forEach(table -> entities.addAll(table.getVariableEntities()));
     // Remember this value so that next time around, the set is initialised with a capacity closer to the actual value.
     lastEntityCount = entities.size();
     return entities;
@@ -250,7 +260,7 @@ public class JoinTable implements ValueTable, Initialisable {
   public boolean hasValueSet(VariableEntity entity) {
     if (!variableAnalysed) analyseVariables();
 
-    for (ValueTable table : getTables()) {
+    for (ValueTable table : getOuterTables()) {
       if (table.hasValueSet(entity)) {
         return true;
       }
@@ -270,49 +280,6 @@ public class JoinTable implements ValueTable, Initialisable {
         ((Initialisable) table).initialise();
       }
     }
-  }
-
-  private String buildJoinTableName() {
-    StringBuilder sb = new StringBuilder();
-    for (Iterator<ValueTable> it = getTables().iterator(); it.hasNext(); ) {
-      sb.append(it.next().getName());
-      if (it.hasNext()) sb.append('-');
-    }
-    return sb.toString();
-  }
-
-  private synchronized Iterable<Variable> unionOfVariables() {
-    if (unionOfVariables == null) {
-      unionOfVariables = new LinkedHashSet<>();
-
-      if (!variableAnalysed) analyseVariables();
-
-      Collection<String> unionOfVariableNames = new LinkedHashSet<>();
-      for (ValueTable table : getTables()) {
-        for (Variable variable : table.getVariables()) {
-          // Add returns true if the set did not already contain the value
-          if (unionOfVariableNames.add(variable.getName())) {
-            unionOfVariables.add(variable);
-          }
-        }
-      }
-    }
-
-    return unionOfVariables;
-  }
-
-  @NotNull
-  private synchronized List<ValueTable> getTablesWithVariable(@NotNull Variable joinableVariable)
-      throws NoSuchVariableException {
-    Collection<ValueTable> cachedTables = getVariableTables().get(joinableVariable);
-    if (cachedTables == null) {
-      throw new NoSuchVariableException(joinableVariable.getName());
-    }
-    List<ValueTable> filteredList = cachedTables.stream().filter(t -> t != null).collect(Collectors.toList());
-    if (filteredList.isEmpty()) {
-      throw new NoSuchVariableException(joinableVariable.getName());
-    }
-    return filteredList;
   }
 
   @NotNull
@@ -346,6 +313,71 @@ public class JoinTable implements ValueTable, Initialisable {
   public int getVariableEntityCount() {
     return Iterables.size(getVariableEntities());
   }
+
+  //
+  // Private methods
+  //
+
+  private String buildJoinTableName() {
+    StringBuilder sb = new StringBuilder();
+    for (Iterator<ValueTable> it = getTables().iterator(); it.hasNext(); ) {
+      sb.append(it.next().getName());
+      if (it.hasNext()) sb.append('-');
+    }
+    return sb.toString();
+  }
+
+  private synchronized Iterable<Variable> unionOfVariables() {
+    if (unionOfVariables == null) {
+      unionOfVariables = new LinkedHashSet<>();
+
+      if (!variableAnalysed) analyseVariables();
+
+      Collection<String> unionOfVariableNames = new LinkedHashSet<>();
+      for (ValueTable table : getTables()) {
+        for (Variable variable : table.getVariables()) {
+          // Add returns true if the set did not already contain the value
+          if (unionOfVariableNames.add(variable.getName())) {
+            unionOfVariables.add(variable);
+          }
+        }
+      }
+    }
+
+    return unionOfVariables;
+  }
+
+  @NotNull
+  private Multimap<Variable, ValueTable> getVariableTables() {
+    if (!variableAnalysed) analyseVariables();
+    return variableTables;
+  }
+
+  @NotNull
+  private synchronized List<ValueTable> getTablesWithVariable(@NotNull Variable joinableVariable)
+      throws NoSuchVariableException {
+    Collection<ValueTable> cachedTables = getVariableTables().get(joinableVariable);
+    if (cachedTables == null) {
+      throw new NoSuchVariableException(joinableVariable.getName());
+    }
+    List<ValueTable> filteredList = cachedTables.stream().filter(t -> t != null).collect(Collectors.toList());
+    if (filteredList.isEmpty()) {
+      throw new NoSuchVariableException(joinableVariable.getName());
+    }
+    return filteredList;
+  }
+
+  /**
+   * Get the list of tables that contribute to the entity list.
+   * @return
+   */
+  private List<ValueTable> getOuterTables() {
+    return tables.stream().filter(table -> !innerTableReferences.contains(table.getTableReference())).collect(Collectors.toList());
+  }
+
+  //
+  // Private classes
+  //
 
   private class ValueSetIterator implements Iterator<ValueSet> {
 

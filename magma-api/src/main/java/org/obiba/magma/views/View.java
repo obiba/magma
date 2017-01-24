@@ -102,16 +102,28 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
     setListClause(new NoneClause());
   }
 
+  public View(String name, ValueTable... from) {
+    this(name, new AllClause(), new AllClause(), null, from);
+  }
+
+  public View(String name, String[] innerFrom, ValueTable... from) {
+    this(name, new AllClause(), new AllClause(), innerFrom, from);
+  }
+
   @SuppressWarnings("ConstantConditions")
   @edu.umd.cs.findbugs.annotations.SuppressWarnings(value = "NP_NONNULL_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR",
       justification = "Needed by XStream")
-  public View(String name, @NotNull SelectClause selectClause, @NotNull WhereClause whereClause,
+  public View(String name, @NotNull SelectClause selectClause, @NotNull WhereClause whereClause, String[] innerFrom,
       @NotNull ValueTable... from) {
     Preconditions.checkArgument(selectClause != null, "null selectClause");
     Preconditions.checkArgument(whereClause != null, "null whereClause");
     Preconditions.checkArgument(from != null && from.length > 0, "null or empty table list");
     this.name = name;
-    this.from = from.length > 1 ? new JoinTable(Arrays.asList(from)) : from[0];
+    this.from = from.length > 1 ?
+        innerFrom != null ?
+            new JoinTable(Arrays.<ValueTable>asList(from), Arrays.<String>asList(innerFrom))
+            : new JoinTable(Arrays.<ValueTable>asList(from))
+        : from[0];
 
     setSelectClause(selectClause);
     setWhereClause(whereClause);
@@ -119,10 +131,6 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
 
     created = DateTimeType.get().now();
     updated = DateTimeType.get().now();
-  }
-
-  public View(String name, ValueTable... from) {
-    this(name, new AllClause(), new AllClause(), from);
   }
 
   @Override
@@ -595,37 +603,66 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
   @SuppressWarnings({ "UnusedDeclaration", "StaticMethodOnlyUsedInOneClass" })
   public static class Builder {
 
-    private final View view;
+    private final String name;
+
+    private final ValueTable[] from;
+
+    private String[] innerFrom;
+
+    private SelectClause selectClause;
+
+    private WhereClause whereClause;
+
+    private ListClause listClause;
 
     public Builder(String name, @NotNull ValueTable... from) {
-      view = new View(name, from);
+      this.name = name;
+      this.from = from;
     }
 
     public static Builder newView(String name, @NotNull ValueTable... from) {
       return new Builder(name, from);
     }
 
+    public static Builder newView(String name, @NotNull List<ValueTable> from) {
+      return new Builder(name, from.toArray(new ValueTable[from.size()]));
+    }
+
     public Builder select(@NotNull SelectClause selectClause) {
-      view.setSelectClause(selectClause);
+      this.selectClause = selectClause;
+      return this;
+    }
+
+    public Builder innerFrom(String... tableReferences) {
+      this.innerFrom = tableReferences;
+      return this;
+    }
+
+    public Builder innerFrom(List<String> tableReferences) {
+      this.innerFrom = tableReferences.toArray(new String[tableReferences.size()]);
       return this;
     }
 
     public Builder where(@NotNull WhereClause whereClause) {
-      view.setWhereClause(whereClause);
+      this.whereClause = whereClause;
       return this;
     }
 
     public Builder cacheWhere() {
-      view.setWhereClause(new CachingWhereClause(view.where));
+      whereClause = new CachingWhereClause(whereClause);
       return this;
     }
 
     public View build() {
+      View view = new View(name, innerFrom,from);
+      if (selectClause != null) view.setSelectClause(selectClause);
+      if (listClause != null) view.setListClause(listClause);
+      if (whereClause != null) view.setWhereClause(whereClause);
       return view;
     }
 
     public Builder list(ListClause listClause) {
-      view.setListClause(listClause);
+      this.listClause = listClause;
       return this;
     }
   }

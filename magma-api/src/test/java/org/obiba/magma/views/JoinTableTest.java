@@ -10,32 +10,19 @@
 
 package org.obiba.magma.views;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
+import org.fest.util.Strings;
 import org.junit.Test;
-import org.obiba.magma.NoSuchValueSetException;
-import org.obiba.magma.NoSuchVariableException;
-import org.obiba.magma.ValueSet;
-import org.obiba.magma.ValueTable;
-import org.obiba.magma.Variable;
-import org.obiba.magma.VariableEntity;
-import org.obiba.magma.VariableValueSource;
+import org.obiba.magma.*;
 import org.obiba.magma.support.VariableEntityBean;
 import org.obiba.magma.test.AbstractMagmaTest;
 import org.obiba.magma.type.TextType;
 
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
+import java.util.*;
 
-import static org.easymock.EasyMock.createMock;
-import static org.easymock.EasyMock.expect;
-import static org.easymock.EasyMock.replay;
+import static org.easymock.EasyMock.*;
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.obiba.magma.views.JoinTableTest.MockValueTableBuilder.newTableMock;
 import static org.obiba.magma.views.JoinTableTest.MockVariableBuilder.newVariableMock;
@@ -174,9 +161,9 @@ public class JoinTableTest extends AbstractMagmaTest {
   @Test
   public void testJoinTableValueSetExistsForValueSetInAnyValueTable() {
     JoinTable joinTable = JoinTableBuilder.newBuilder() //
-        .withMockTable(newTableMock().expectHasValueSet("1", true).expectHasValueSet("2", false) //
+        .withMockTable(newTableMock("T1").expectHasValueSet("1", true).expectHasValueSet("2", false) //
             .expectGetValueSets("1").withEntities("1")) //
-        .withMockTable(newTableMock().expectHasValueSet("1", true).expectHasValueSet("2", true) //
+        .withMockTable(newTableMock("T2").expectHasValueSet("1", true).expectHasValueSet("2", true) //
             .expectGetValueSets("1","2").withEntities("1", "2")).build();
 
     Iterable<ValueSet> valueSets = joinTable.getValueSets();
@@ -186,22 +173,34 @@ public class JoinTableTest extends AbstractMagmaTest {
   @Test
   public void test_hasValueSet() {
     JoinTable joinTable = JoinTableBuilder.newBuilder() //
-        .withMockTable(newTableMock().expectHasValueSet("1", true)) //
-        .withMockTable(newTableMock()).build();
+        .withMockTable(newTableMock("T1").expectHasValueSet("1", true)) //
+        .withMockTable(newTableMock("T2")).build();
 
     assertThat(joinTable.hasValueSet(newEntity("1"))).isTrue();
 
     joinTable = JoinTableBuilder.newBuilder() //
-        .withMockTable(newTableMock().expectHasValueSet("1", false)) //
-        .withMockTable(newTableMock().expectHasValueSet("1", true)).build();
+        .withMockTable(newTableMock("T1").expectHasValueSet("1", false)) //
+        .withMockTable(newTableMock("T2").expectHasValueSet("1", true)).build();
 
     assertThat(joinTable.hasValueSet(newEntity("1"))).isTrue();
 
     joinTable = JoinTableBuilder.newBuilder() //
-        .withMockTable(newTableMock().expectHasValueSet("3", false)) //
-        .withMockTable(newTableMock().expectHasValueSet("3", false)).build();
+        .withMockTable(newTableMock("T1").expectHasValueSet("3", false)) //
+        .withMockTable(newTableMock("T2").expectHasValueSet("3", false)).build();
 
     assertThat(joinTable.hasValueSet(newEntity("3"))).isFalse();
+  }
+
+  @Test
+  public void test_hasValueSet_withInner() {
+      JoinTable joinTable = JoinTableBuilder.newBuilder() //
+        .withMockTable(newTableMock("T1").expectHasValueSet("1", true).expectHasValueSet("2", false)) //
+        .withMockTable(newTableMock("T2").expectHasValueSet("2", true))
+        .withInnerTable("T2")
+          .build();
+
+    assertThat(joinTable.hasValueSet(newEntity("1"))).isTrue();
+    assertThat(joinTable.hasValueSet(newEntity("2"))).isFalse();
   }
 
   @Test(expected = NoSuchValueSetException.class)
@@ -216,15 +215,27 @@ public class JoinTableTest extends AbstractMagmaTest {
   @Test
   public void test_getValueSet() {
     JoinTable joinTable = JoinTableBuilder.newBuilder() //
-        .withMockTable(newTableMock().expectHasValueSet("1", true)) //
-        .withMockTable(newTableMock()).build();
+        .withMockTable(newTableMock("T1").expectHasValueSet("1", true)) //
+        .withMockTable(newTableMock("T2")).build();
 
     assertThat(joinTable.getValueSet(newEntity("1"))).isNotNull();
 
     joinTable = JoinTableBuilder.newBuilder() //
-        .withMockTable(newTableMock().expectHasValueSet("2", false)) //
-        .withMockTable(newTableMock().expectHasValueSet("2", true)).build();
+        .withMockTable(newTableMock("T1").expectHasValueSet("2", false)) //
+        .withMockTable(newTableMock("T2").expectHasValueSet("2", true)).build();
     assertThat(joinTable.getValueSet(newEntity("2"))).isNotNull();
+  }
+
+
+  @Test(expected = NoSuchValueSetException.class)
+  public void test_getValueSet_withInner() {
+    JoinTable joinTable = JoinTableBuilder.newBuilder() //
+        .withMockTable(newTableMock("T1").expectHasValueSet("1", true).expectHasValueSet("2", false)) //
+        .withMockTable(newTableMock("T2").expectHasValueSet("2", true))
+        .withInnerTable("T2")
+        .build();
+
+    joinTable.getValueSet(newEntity("2"));
   }
 
   //TODO testGetValue but hard to test with mockups
@@ -258,7 +269,9 @@ public class JoinTableTest extends AbstractMagmaTest {
 
   static class JoinTableBuilder {
 
-    private final List<ValueTable> mocks = new ArrayList<>();
+    private final List<ValueTable> mocks = Lists.newArrayList();
+
+    private final List<String> inners = Lists.newArrayList();
 
     static JoinTableBuilder newBuilder() {
       return new JoinTableBuilder();
@@ -273,8 +286,13 @@ public class JoinTableTest extends AbstractMagmaTest {
       return this;
     }
 
+    JoinTableBuilder withInnerTable(String name) {
+      inners.add(name);
+      return this;
+    }
+
     JoinTable build() {
-      return new JoinTable(mocks);
+      return new JoinTable(mocks, inners);
     }
   }
 
@@ -308,20 +326,26 @@ public class JoinTableTest extends AbstractMagmaTest {
     private final Collection<Variable> variables = new HashSet<>();
 
     static MockValueTableBuilder newTableMock() {
-      return newTableMock(PARTICIPANT_ENTITY_TYPE);
+      return newTableMock(null, PARTICIPANT_ENTITY_TYPE);
     }
 
-    static MockValueTableBuilder newTableMock(String entityType) {
+    static MockValueTableBuilder newTableMock(String name) {
+      return newTableMock(name, PARTICIPANT_ENTITY_TYPE);
+    }
+
+    static MockValueTableBuilder newTableMock(String name, String entityType) {
       MockValueTableBuilder builder = new MockValueTableBuilder();
       builder.entityType = entityType;
       expect(builder.mock.getEntityType()).andReturn(entityType).anyTimes();
       expect(builder.mock.isForEntityType(entityType)).andReturn(true).anyTimes();
       expect(builder.mock.getVariables()).andReturn(builder.variables).anyTimes();
+      if (!Strings.isNullOrEmpty(name)) builder.withName(name);
       return builder;
     }
 
     MockValueTableBuilder withName(String name) {
       expect(mock.getName()).andReturn(name).anyTimes();
+      expect(mock.getTableReference()).andReturn(name).anyTimes();
       return this;
     }
 
