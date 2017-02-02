@@ -269,6 +269,15 @@ public abstract class AbstractValueTable implements ValueTable, Initialisable {
     return Objects.equals(datasource, other.datasource) && Objects.equals(name, other.name);
   }
 
+  @Override
+  public int getVariableEntityBatchSize() {
+    return entityBatchSize;
+  }
+
+  protected void setEntityBatchSize(int entityBatchSize) {
+    this.entityBatchSize = entityBatchSize;
+  }
+
   /**
    * Lazy iterator of value sets: will make batch queries for extracting value sets.
    */
@@ -279,7 +288,7 @@ public abstract class AbstractValueTable implements ValueTable, Initialisable {
     private Iterator<ValueSet> currentBatch;
 
     public ValueSetIterator(Iterable<VariableEntity> entities) {
-      this.partitions = Iterables.partition(entities, entityBatchSize).iterator();
+      this.partitions = Iterables.partition(entities, getVariableEntityBatchSize()).iterator();
     }
 
     @Override

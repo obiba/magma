@@ -265,11 +265,11 @@ public class MultithreadedDatasourceCopier {
       try {
         List<VariableEntity> entities = Lists.newArrayList();
         VariableEntity entity;
-        while(entities.size() < ValueTable.ENTITY_BATCH_SIZE && (entity = readQueue.poll()) != null) {
+        while(entities.size() < sourceTable.getVariableEntityBatchSize() && (entity = readQueue.poll()) != null) {
           if (sourceTable.hasValueSet(entity)) {
             entities.add(entity);
           }
-          if (entities.size() == ValueTable.ENTITY_BATCH_SIZE) {
+          if (entities.size() == sourceTable.getVariableEntityBatchSize()) {
             for (ValueSet valueSet : sourceTable.getValueSets(entities)) {
               copyValueSet(valueSet);
             }

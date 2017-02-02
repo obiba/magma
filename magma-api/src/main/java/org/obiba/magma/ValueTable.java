@@ -67,6 +67,10 @@ public interface ValueTable extends Timestamped {
 
   String getTableReference();
 
+  default int getVariableEntityBatchSize() {
+    return ENTITY_BATCH_SIZE;
+  }
+
   class Reference {
 
     private Reference() {}
