@@ -40,6 +40,7 @@ public class JoinTableConverter implements Converter {
     for(ValueTable vt : joinTable.getTables()) {
       if(vt instanceof ValueTableReference) {
         writer.startNode("table");
+        writer.addAttribute("inner", "" + joinTable.getInnerTableReferences().contains(vt.getTableReference()));
         writer.addAttribute("class", ValueTableReference.class.getName());
         context.convertAnother(vt);
         writer.endNode();
@@ -54,12 +55,18 @@ public class JoinTableConverter implements Converter {
   public Object unmarshal(HierarchicalStreamReader reader, UnmarshallingContext context) {
     reader.moveDown();
     List<ValueTable> tables = new ArrayList<>();
+    List<String> innerTableReferences = new ArrayList<>();
     while(reader.hasMoreChildren()) {
       reader.moveDown();
-      tables.add((ValueTable) context.convertAnother(context.currentObject(), ValueTableReference.class));
+      String inner = reader.getAttribute("inner");
+      ValueTable vt = (ValueTable) context.convertAnother(context.currentObject(), ValueTableReference.class);
+      tables.add(vt);
+      if (inner != null && "true".equals(inner)) {
+        innerTableReferences.add(((ValueTableReference)vt).getReference());
+      }
       reader.moveUp();
     }
     reader.moveUp();
-    return new JoinTable(tables, false);
+    return new JoinTable(tables, innerTableReferences,false);
   }
 }
