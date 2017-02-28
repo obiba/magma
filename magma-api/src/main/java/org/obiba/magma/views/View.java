@@ -438,7 +438,7 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
     // do not use Guava functional stuff to avoid multiple iterations over entities
     Set<VariableEntity> entities = Sets.newConcurrentHashSet();
     if(hasVariables()) {
-      StreamSupport.stream(super.getVariableEntities().spliterator(), true) //
+      StreamSupport.stream(super.getVariableEntities().spliterator(), false) //
           .forEach(entity -> {
             // transform super.getVariableEntities() using getVariableEntityMappingFunction()
             // (which may modified entity identifiers)
