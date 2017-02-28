@@ -15,6 +15,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.fest.util.Sets;
 import org.junit.Test;
 import org.mockito.internal.matchers.Null;
 import org.obiba.magma.*;
@@ -42,6 +43,8 @@ public class ViewTest extends AbstractMagmaTest {
     VariableEntity variableEntity = new VariableEntityBean("type", "id1");
 
     when(valueTableMock.hasValueSet(variableEntity)).thenReturn(true);
+    when(valueTableMock.getVariableEntities()).thenReturn(Sets.newLinkedHashSet(variableEntity));
+    when(valueTableMock.getTimestamps()).thenReturn(NullTimestamps.get());
 
     View view = View.Builder.newView("view", valueTableMock).build();
     assertThat(view.hasValueSet(variableEntity)).isTrue();
@@ -56,6 +59,8 @@ public class ViewTest extends AbstractMagmaTest {
 
     when(valueTableMock.hasValueSet(variableEntity)).thenReturn(true);
     when(valueTableMock.getValueSet(variableEntity)).thenReturn(valueSet);
+    when(valueTableMock.getVariableEntities()).thenReturn(Sets.newLinkedHashSet(variableEntity));
+    when(valueTableMock.getTimestamps()).thenReturn(NullTimestamps.get());
 
     View view = View.Builder.newView("view", valueTableMock).where(whereClauseMock).build();
     when(whereClauseMock.where(valueSet, view)).thenReturn(true);
@@ -71,6 +76,7 @@ public class ViewTest extends AbstractMagmaTest {
 
     when(valueTableMock.hasValueSet(variableEntity)).thenReturn(true);
     when(valueTableMock.getValueSet(variableEntity)).thenReturn(valueSet);
+    when(valueTableMock.getTimestamps()).thenReturn(NullTimestamps.get());
     when(whereClauseMock.where(valueSet)).thenReturn(false);
 
     View view = View.Builder.newView("view", valueTableMock).where(whereClauseMock).build();
@@ -196,17 +202,25 @@ public class ViewTest extends AbstractMagmaTest {
     ValueTable valueTableMock = mock(ValueTable.class);
     WhereClause whereClauseMock = mock(WhereClause.class);
 
-    Collection<ValueSet> valueSets = new ArrayList<>();
     VariableEntity variableEntityInclude = new VariableEntityBean("type", "include");
     VariableEntity variableEntityExclude = new VariableEntityBean("type", "exclude");
+    Set<VariableEntity> entities = Sets.newLinkedHashSet(variableEntityInclude, variableEntityExclude);
+
+    Collection<ValueSet> valueSets = new ArrayList<>();
+    Collection<ValueSet> valueSetsIncluded = new ArrayList<>();
     ValueSet valueSetInclude = new ValueSetBean(valueTableMock, variableEntityInclude);
     ValueSet valueSetExclude = new ValueSetBean(valueTableMock, variableEntityExclude);
     valueSets.add(valueSetInclude);
     valueSets.add(valueSetExclude);
-    Timestamps timestamps = NullTimestamps.get();
+    valueSetsIncluded.add(valueSetInclude);
 
-    when(valueTableMock.getValueSets(any(Iterable.class))).thenReturn(valueSets);
-    when(valueTableMock.getTimestamps()).thenReturn(timestamps);
+    when(valueTableMock.getValueSets()).thenReturn(valueSets);
+    when(valueTableMock.getValueSets(any(Iterable.class))).thenReturn(valueSetsIncluded);
+    when(valueTableMock.getVariableEntities()).thenReturn(entities);
+    when(valueTableMock.hasValueSet(any(VariableEntity.class))).thenReturn(true);
+    when(valueTableMock.getValueSet(variableEntityInclude)).thenReturn(valueSetInclude);
+    when(valueTableMock.getValueSet(variableEntityExclude)).thenReturn(valueSetExclude);
+    when(valueTableMock.getTimestamps()).thenReturn(NullTimestamps.get());
 
     View view = View.Builder.newView("view", valueTableMock).where(whereClauseMock).build();
     when(whereClauseMock.where(valueSetInclude, view)).thenReturn(true);
