@@ -227,7 +227,7 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
 
   @Override
   public String getTableReference() {
-    return (getDatasource() == null ? "null" : getDatasource().getName()) + "." + getName();
+    return (viewDatasource == null || getDatasource() == null ? "null" : getDatasource().getName()) + "." + getName();
   }
 
   @Override
@@ -249,32 +249,17 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
   @SuppressWarnings("ChainOfInstanceofChecks")
   public boolean hasValueSet(@Nullable VariableEntity entity) {
     if(entity == null) return false;
-
-    VariableEntity unmapped = getVariableEntityMappingFunction().unapply(entity);
-    if(unmapped == null) return false;
-
-    boolean hasValueSet = super.hasValueSet(unmapped);
-
-    if(hasValueSet) {
-      // Shortcut some WhereClause to prevent loading the ValueSet which may be expensive
-      if(getWhereClause() instanceof AllClause) return true;
-      if(getWhereClause() instanceof NoneClause) return false;
-
-      ValueSet valueSet = super.getValueSet(unmapped);
-      hasValueSet = getWhereClause().where(valueSet, this);
-    }
-    return hasValueSet;
+    return getVariableEntities().contains(entity);
   }
 
   @Override
   public Iterable<ValueSet> getValueSets(Iterable<VariableEntity> entities) {
     List<VariableEntity> unmappedEntities = Collections.synchronizedList(Lists.newArrayList());
-    StreamSupport.stream(entities.spliterator(), true) //
+    StreamSupport.stream(entities.spliterator(), false) //
     .forEach(entity -> unmappedEntities.add(getVariableEntityMappingFunction().unapply(entity)));
     // do not use Guava functional stuff to avoid multiple iterations over valueSets
     List<ValueSet> valueSets = Collections.synchronizedList(Lists.newArrayList());
-    StreamSupport.stream(super.getValueSets(unmappedEntities).spliterator(), true) //
-    .filter(valueSet -> getWhereClause().where(valueSet, this)) // taking into account the WhereClause
+    StreamSupport.stream(super.getValueSets(unmappedEntities).spliterator(), false) //
     .forEach(valueSet -> {
         // replacing each ValueSet with one that points at the current View
         valueSet = getValueSetMappingFunction().apply(valueSet);
@@ -440,14 +425,21 @@ public class View extends AbstractValueTableWrapper implements Initialisable, Di
     if(hasVariables()) {
       StreamSupport.stream(super.getVariableEntities().spliterator(), false) //
           .forEach(entity -> {
-            // transform super.getVariableEntities() using getVariableEntityMappingFunction()
-            // (which may modified entity identifiers)
-            entity = getVariableEntityMappingFunction().apply(entity);
-
             // filter the resulting entities to remove the ones for which hasValueSet() is false
             // (usually due to a where clause)
-            if(hasValueSet(entity)) {
-              entities.add(entity);
+            boolean hasValueSet = true;
+            if(getWhereClause() instanceof AllClause) {
+              hasValueSet = true;
+            } else if(getWhereClause() instanceof NoneClause) {
+              hasValueSet = false;
+            } else {
+              ValueSet valueSet = super.getValueSet(entity);
+              hasValueSet = getWhereClause().where(valueSet, this);
+            }
+
+            if(hasValueSet) {
+              VariableEntity mappedEntity = getVariableEntityMappingFunction().apply(entity);
+              entities.add(mappedEntity);
             }
           });
     }
