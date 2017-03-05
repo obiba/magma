@@ -62,13 +62,14 @@ public class SudoValueTableReference extends ValueTableReference {
       }
       return wrappedDatasource.getValueTable(getResolver().getTableName());
     } catch(NoSuchValueTableException e) {
-      log.error("No such value table: {}. {}", getReference(), e.getMessage());
+      log.warn("No such value table in '{}': {}. {}", getReference(), e.getMessage());
       return getDummyValueTable(wrappedDatasource);
     } catch (NoSuchDatasourceException e) {
-      log.error("No such datasource for value table: {}. {}", getReference(), e.getMessage());
+      log.warn("No such datasource for value table: {}. {}", getReference(), e.getMessage());
       return getDummyValueTable(new StaticDatasource(getResolver().getDatasourceName()));
     } catch(RuntimeException e) {
-      log.error("Unexpected error in value table '{}' lookup: {}", getReference(), e.getMessage(), e);
+      log.warn("Unexpected error in value table '{}' lookup: {}", getReference(), e.getMessage());
+      log.debug("Unexpected error", e);
       return getDummyValueTable(new StaticDatasource(getResolver().getDatasourceName()));
     }
   }
