@@ -168,7 +168,7 @@ public class JoinTable implements ValueTable, Initialisable {
 
   @Override
   public void dropValueSets() {
-    tables.parallelStream().forEach(ValueTable::dropValueSets);
+    tables.forEach(ValueTable::dropValueSets);
   }
 
   @Override
@@ -187,7 +187,7 @@ public class JoinTable implements ValueTable, Initialisable {
 
     // Set the initial capacity to the number of entities we saw in the previous call to this method
     Set<VariableEntity> entities = Collections.synchronizedSet(Sets.newLinkedHashSetWithExpectedSize(lastEntityCount));
-    getTables().parallelStream().forEach(table -> entities.addAll(table.getVariableEntities()));
+    getTables().forEach(table -> entities.addAll(table.getVariableEntities()));
     // Remember this value so that next time around, the set is initialised with a capacity closer to the actual value.
     lastEntityCount = entities.size();
     return entities;
