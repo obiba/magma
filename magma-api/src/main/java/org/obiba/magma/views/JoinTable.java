@@ -178,7 +178,7 @@ public class JoinTable implements ValueTable, Initialisable {
 
   @Override
   public void dropValueSets() {
-    tables.parallelStream().forEach(ValueTable::dropValueSets);
+    tables.forEach(ValueTable::dropValueSets);
   }
 
   @Override
