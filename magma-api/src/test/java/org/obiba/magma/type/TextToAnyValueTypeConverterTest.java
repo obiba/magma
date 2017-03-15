@@ -60,4 +60,11 @@ public class TextToAnyValueTypeConverterTest extends AbstractMagmaTest {
     Value converted = DecimalType.get().convert(value);
     assertThat((Double) converted.getValue() == 1.1).isTrue();
   }
+
+  @Test
+  public void test_convert_date_text_to_date() {
+    Value value = TextType.get().valueOf("1946-10-25");
+    Value converted = DateType.get().convert(value);
+    assertThat(converted.getValueType()).isEqualTo(DateType.get());
+  }
 }

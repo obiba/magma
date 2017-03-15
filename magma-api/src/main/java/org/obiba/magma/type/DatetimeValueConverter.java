@@ -22,7 +22,12 @@ public class DatetimeValueConverter implements ValueConverter {
   public Value convert(Value value, ValueType to) {
     if(value.isNull()) return to.nullValue();
     if(to == DateType.get()) {
-      Date date = (Date) value.getValue();
+      Object dateObject = value.getValue();
+      Date date;
+      if (dateObject instanceof MagmaDate)
+        date = ((MagmaDate)dateObject).asDate();
+      else
+        date = (Date) dateObject;
       return to.valueOf(date);
     }
     if(to == DateTimeType.get()) {

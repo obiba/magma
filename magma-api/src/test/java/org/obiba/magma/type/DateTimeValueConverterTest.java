@@ -21,6 +21,22 @@ public class DateTimeValueConverterTest extends AbstractMagmaTest {
   }
 
   @Test
+  public void test_convert_handlesMagmaDateToDate() {
+    ValueConverter converter = new DatetimeValueConverter();
+    MagmaDate dateValue = new MagmaDate(new Date());
+    Value value = converter.convert(DateType.get().valueOf(dateValue), DateType.get());
+    assertThat((MagmaDate) value.getValue()).isEqualTo(dateValue);
+  }
+
+  @Test
+  public void test_convert_handlesMagmaDateToDateTime() {
+    ValueConverter converter = new DatetimeValueConverter();
+    MagmaDate dateValue = new MagmaDate(new Date());
+    Value value = converter.convert(DateType.get().valueOf(dateValue), DateTimeType.get());
+    assertThat((Date) value.getValue()).isEqualTo(dateValue.asDate());
+  }
+
+  @Test
   @SuppressWarnings("deprecation")
   public void test_convert_handlesDateToDateTime() {
     ValueConverter converter = new DatetimeValueConverter();
