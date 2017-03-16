@@ -12,10 +12,7 @@ package org.obiba.magma.js.methods;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.Locale;
+import java.util.*;
 
 import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
@@ -347,6 +344,10 @@ public class TextMethods {
    *             },
    *    'NORMW': 0
    *   }
+   *
+   * // Can execute function to calculate default value
+   * $('LANGUAGES_SPOKEN').map({'FRENCH':0, 'ENGLISH':1}, function(v){ return 99; });
+   *
    * </pre>
    *
    * @param ctx
@@ -366,8 +367,8 @@ public class TextMethods {
     // This could be determined by looking at the mapped values (if all ints, then 'integer', else 'text', etc.)
     ValueType returnType = TextType.get();
 
-    Value defaultValue = defaultValue(returnType, args);
-    Value nullValue = nullValue(returnType, args);
+    Object defaultArg = args.length < 2 ? null : args[1];
+    Object nullArg = args.length < 3 ? null : args[2];
 
     Value currentValue = sv.getValue();
     if(currentValue.isSequence()) {
@@ -377,12 +378,12 @@ public class TextMethods {
       Collection<Value> newValues = new ArrayList<>();
       //noinspection ConstantConditions
       for(Value value : currentValue.asSequence().getValue()) {
-        newValues.add(lookupValue(ctx, thisObj, value, returnType, valueMap, defaultValue, nullValue));
+        newValues.add(lookupValue(ctx, thisObj, value, returnType, valueMap, defaultArg, nullArg));
       }
       return new ScriptableValue(thisObj, returnType.sequenceOf(newValues));
     }
     return new ScriptableValue(thisObj,
-        lookupValue(ctx, thisObj, currentValue, returnType, valueMap, defaultValue, nullValue));
+        lookupValue(ctx, thisObj, currentValue, returnType, valueMap, defaultArg, nullArg));
   }
 
   /**
@@ -463,41 +464,57 @@ public class TextMethods {
    * Returns the default value to use when the lookup value is not found in the map. This method is used by the map()
    * method.
    *
-   * @param valueType
-   * @param args
+   * @param returnType
+   * @param defaultArg
+   * @param value Currently evaluated value
    * @return
    */
-  private static Value defaultValue(ValueType valueType, Object... args) {
-    if(args.length < 2) {
+  private static Value defaultValue(Context ctx, Scriptable thisObj, ValueType returnType, Object defaultArg, Value value) {
+    if(defaultArg == null) {
       // No default value was specified. Return null.
-      return valueType.nullValue();
+      return returnType.nullValue();
     }
 
-    Object value = args[1];
-    if(value instanceof ScriptableValue) {
-      return ((ScriptableValue) value).getValue();
+    if(defaultArg instanceof ScriptableValue) {
+      return ((ScriptableValue) defaultArg).getValue();
     }
-    return valueType.valueOf(value);
+    Object newValue = defaultArg;
+    if(defaultArg instanceof Function) {
+      Callable valueFunction = (Callable) defaultArg;
+      Object evaluatedValue = valueFunction.call(ctx, thisObj, thisObj,
+          value == null ? new Object[] {} : new Object[] { new ScriptableValue(thisObj, value) });
+      newValue = evaluatedValue instanceof ScriptableValue
+          ? ((ScriptableValue) evaluatedValue).getValue().getValue()
+          : evaluatedValue;
+    }
+    return returnType.valueOf(Rhino.fixRhinoNumber(newValue));
   }
 
   /**
    * Returns the value to use when the lookup value is null. This method is used by the map() method.
    *
-   * @param valueType
-   * @param args
+   * @param returnType
+   * @param nullArg
    * @return
    */
-  private static Value nullValue(ValueType valueType, Object... args) {
-    if(args.length < 3) {
+  private static Value nullValue(Context ctx, Scriptable thisObj, ValueType returnType, Object defaultArg, Object nullArg) {
+    if(nullArg == null) {
       // No value for null was specified. Return what is defined as default value.
-      return defaultValue(valueType, args);
+      return defaultValue(ctx, thisObj, returnType, defaultArg, null);
     }
 
-    Object value = args[2];
-    if(value instanceof ScriptableValue) {
-      return ((ScriptableValue) value).getValue();
+    if(nullArg instanceof ScriptableValue) {
+      return ((ScriptableValue) nullArg).getValue();
     }
-    return valueType.valueOf(value);
+    Object newValue = nullArg;
+    if(nullArg instanceof Function) {
+      Callable valueFunction = (Callable) nullArg;
+      Object evaluatedValue = valueFunction.call(ctx, thisObj, thisObj, new Object[] {});
+      newValue = evaluatedValue instanceof ScriptableValue
+          ? ((ScriptableValue) evaluatedValue).getValue().getValue()
+          : evaluatedValue;
+    }
+    return returnType.valueOf(Rhino.fixRhinoNumber(newValue));
   }
 
   /**
@@ -512,9 +529,9 @@ public class TextMethods {
    */
   @SuppressWarnings("PMD.ExcessiveParameterList")
   private static Value lookupValue(Context ctx, Scriptable thisObj, Value value, ValueType returnType,
-      Scriptable valueMap, Value defaultValue, Value nullValue) {
+      Scriptable valueMap, Object defaultArg, Object nullArg) {
 
-    if(value.isNull()) return nullValue;
+    if(value.isNull()) return nullValue(ctx, thisObj, returnType, defaultArg, nullArg);
 
     // MAGMA-163: lookup using string and index-based keys
     String asName = value.toString();
@@ -529,7 +546,7 @@ public class TextMethods {
 
     if(newValue == null) return returnType.nullValue();
 
-    if(newValue == NativeObject.NOT_FOUND) return defaultValue;
+    if(newValue == NativeObject.NOT_FOUND) return defaultValue(ctx, thisObj, returnType, defaultArg, value);
 
     if(newValue instanceof Function) {
       Callable valueFunction = (Callable) newValue;
