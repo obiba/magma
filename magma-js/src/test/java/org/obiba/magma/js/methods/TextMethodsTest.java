@@ -347,6 +347,27 @@ public class TextMethodsTest extends AbstractJsTest {
   }
 
   @Test
+  public void testMapWithDefaultFunctionMapping() {
+    ScriptableValue value = evaluate("map({'YES':1, 'NO':2},function(value){return value.concat('-0');})",
+        TextType.get().valueOf("PERHAPS"));
+    assertThat(value).isNotNull();
+    assertThat(value.getValue()).isEqualTo(TextType.get().valueOf("PERHAPS-0"));
+
+    value = evaluate("map({'YES':1, 'NO':2},function(value){return value == null ? '0' : value.concat('-0');})",
+        TextType.get().nullValue());
+    assertThat(value).isNotNull();
+    assertThat(value.getValue()).isEqualTo(TextType.get().valueOf("0"));
+  }
+
+  @Test
+  public void testMapWithDefaultAndNullFunctionsMapping() {
+    ScriptableValue value = evaluate("map({'YES':1, 'NO':2},function(value){return value.concat('-0');},function(){return 0;})",
+        TextType.get().nullValue());
+    assertThat(value).isNotNull();
+    assertThat(value.getValue()).isEqualTo(TextType.get().valueOf("0"));
+  }
+
+  @Test
   public void testDateConvertWithFormat() {
     ScriptableValue value = newValue(TextType.get().valueOf("10/23/12"));
     ScriptableValue date = TextMethods.date(getCurrentContext(), value, new Object[] { "MM/dd/yy" }, null);
