@@ -17,7 +17,6 @@ import java.util.*;
 import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 
-import org.mozilla.javascript.Callable;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.NativeObject;
@@ -479,15 +478,28 @@ public class TextMethods {
       return ((ScriptableValue) defaultArg).getValue();
     }
     Object newValue = defaultArg;
-    if(defaultArg instanceof Function) {
-      Callable valueFunction = (Callable) defaultArg;
-      Object evaluatedValue = valueFunction.call(ctx, thisObj, thisObj,
+    if(defaultArg instanceof Function)
+      newValue = callValueFunction(ctx, thisObj, (Function) defaultArg,
           value == null ? new Object[] {} : new Object[] { new ScriptableValue(thisObj, value) });
-      newValue = evaluatedValue instanceof ScriptableValue
-          ? ((ScriptableValue) evaluatedValue).getValue().getValue()
-          : evaluatedValue;
-    }
     return returnType.valueOf(Rhino.fixRhinoNumber(newValue));
+  }
+
+  /**
+   * Call the function with arguments in the given context and return the primitive value.
+   *
+   * @param ctx
+   * @param thisObj
+   * @param valueFunction
+   * @param args
+   * @return
+   */
+  private static Object callValueFunction(Context ctx, Scriptable thisObj, Function valueFunction, Object[] args) {
+    Object evaluatedValue = valueFunction.call(ctx, thisObj, thisObj, args);
+    if (evaluatedValue instanceof ScriptableValue) {
+      Value value = ((ScriptableValue) evaluatedValue).getValue();
+      return value.isNull() ? null : value.getValue();
+    }
+    return evaluatedValue;
   }
 
   /**
@@ -507,13 +519,9 @@ public class TextMethods {
       return ((ScriptableValue) nullArg).getValue();
     }
     Object newValue = nullArg;
-    if(nullArg instanceof Function) {
-      Callable valueFunction = (Callable) nullArg;
-      Object evaluatedValue = valueFunction.call(ctx, thisObj, thisObj, new Object[] {});
-      newValue = evaluatedValue instanceof ScriptableValue
-          ? ((ScriptableValue) evaluatedValue).getValue().getValue()
-          : evaluatedValue;
-    }
+    if(nullArg instanceof Function)
+      newValue = callValueFunction(ctx, thisObj, (Function) nullArg, new Object[] {});
+
     return returnType.valueOf(Rhino.fixRhinoNumber(newValue));
   }
 
@@ -548,14 +556,8 @@ public class TextMethods {
 
     if(newValue == NativeObject.NOT_FOUND) return defaultValue(ctx, thisObj, returnType, defaultArg, value);
 
-    if(newValue instanceof Function) {
-      Callable valueFunction = (Callable) newValue;
-      Object evaluatedValue = valueFunction
-          .call(ctx, thisObj, thisObj, new Object[] { new ScriptableValue(thisObj, value) });
-      newValue = evaluatedValue instanceof ScriptableValue
-          ? ((ScriptableValue) evaluatedValue).getValue().getValue()
-          : evaluatedValue;
-    }
+    if(newValue instanceof Function)
+      newValue = callValueFunction(ctx, thisObj, (Function) newValue, new Object[] { new ScriptableValue(thisObj, value) });
 
     return returnType.valueOf(Rhino.fixRhinoNumber(newValue));
   }
