@@ -146,7 +146,7 @@ public class GlobalMethodsHibernateTest extends AbstractJsTest {
         newVariable(VARIABLE_AGE, IntegerType.get(), PARTICIPANT).build(), //
         newVariable(VARIABLE_WEIGHT, IntegerType.get(), PARTICIPANT).unit("kg").build(), //
         newVariable(VARIABLE_HEIGHT, IntegerType.get(), PARTICIPANT).unit("cm").build());
-    ValueTable generatedValueTable = new GeneratedValueTable(datasource, variables, 500);
+    ValueTable generatedValueTable = new GeneratedValueTable(datasource, variables, 150);
 
     Datasource viewAwareDatasource = viewManager.decorate(datasource);
     MagmaEngine.get().addDatasource(viewAwareDatasource);

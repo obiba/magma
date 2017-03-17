@@ -117,7 +117,11 @@ public abstract class AbstractJsTest {
   }
 
   protected static Variable createIntVariable(String name, String script) {
-    return new Variable.Builder(name, IntegerType.get(), PARTICIPANT).addAttribute("script", script).build();
+    return createIntVariable(name, script, false);
+  }
+
+  protected static Variable createIntVariable(String name, String script, boolean repeatable) {
+    return new Variable.Builder(name, IntegerType.get(), PARTICIPANT).addAttribute("script", script).repeatable(repeatable).build();
   }
 
   protected static Variable createDecimalVariable(String name, String script) {

@@ -92,4 +92,14 @@ public class JoinVariableValueSource implements VariableValueSource, VectorSourc
   public Variable getVariable() {
     return joinableVariable;
   }
+
+  public int getValueTablePosition(String datasourceName, String tableName) {
+    int pos = 0;
+    for (ValueTable table : owners) {
+      if (datasourceName.equals(table.getDatasource().getName()) && tableName.equals(table.getName()))
+        return pos;
+      pos++;
+    }
+    return -1;
+  }
 }

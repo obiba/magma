@@ -11,15 +11,14 @@
 package org.obiba.magma.support;
 
 import java.util.Objects;
+import java.util.Optional;
 
 import javax.annotation.Nullable;
 
-import org.obiba.magma.Datasource;
-import org.obiba.magma.MagmaEngine;
-import org.obiba.magma.NoSuchDatasourceException;
-import org.obiba.magma.NoSuchValueTableException;
-import org.obiba.magma.ValueSet;
-import org.obiba.magma.ValueTable;
+import com.google.common.base.Strings;
+import org.obiba.magma.*;
+import org.obiba.magma.views.JoinTable;
+import org.obiba.magma.views.JoinVariableValueSource;
 
 /**
  * Contains common elements of all MagmaEngineReferenceResovler classes.
@@ -42,6 +41,17 @@ public abstract class MagmaEngineReferenceResolver {
         throw new IllegalStateException("cannot resolve table without a context.");
       }
       return context;
+    }
+
+    // OPAL-2876 optimization: if the context is a join table and if the requested specific table can be found in this join table
+    // then resolved table is the join table
+    if (context instanceof JoinTable && hasDatasourceName() && hasTableName()) {
+      JoinTable joinContext = (JoinTable) context;
+      if (joinContext.hasVariable(variableName)) {
+        int pos = ((JoinVariableValueSource)joinContext.getVariableValueSource(variableName))
+            .getValueTablePosition(getDatasourceName(), getTableName());
+        if (pos>-1) return context;
+      }
     }
 
     Datasource ds = null;
@@ -79,8 +89,16 @@ public abstract class MagmaEngineReferenceResolver {
     return table.getValueSet(context.getVariableEntity());
   }
 
+  public boolean hasDatasourceName() {
+    return !Strings.isNullOrEmpty(datasourceName);
+  }
+
   public String getDatasourceName() {
     return datasourceName;
+  }
+
+  public boolean hasTableName() {
+    return !Strings.isNullOrEmpty(tableName);
   }
 
   public String getTableName() {

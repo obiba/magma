@@ -48,7 +48,7 @@ import org.obiba.magma.support.VariableEntityBean;
 import org.obiba.magma.type.BooleanType;
 import org.obiba.magma.type.DateTimeType;
 import org.obiba.magma.type.TextType;
-import org.obiba.magma.views.View;
+import org.obiba.magma.views.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -511,7 +511,7 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
 
     // Test whether this is a vector-oriented evaluation or a ValueSet-oriented evaluation
     if(context.has(VectorCache.class)) {
-      return valuesForVector(context, thisObj, source);
+      return valuesForVector(context, thisObj, reference, source);
     }
     ValueSet valueSet = context.peek(ValueSet.class);
     // The ValueSet is the one of the "from" table of the view
@@ -539,19 +539,19 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
 
     // Test whether this is a vector-oriented evaluation or a ValueSet-oriented evaluation
     return context.has(VectorCache.class)
-        ? valuesForVector(context, thisObj, variableSource)
+        ? valuesForVector(context, thisObj, reference, variableSource)
         : valueForValueSet(context, thisObj, reference, variableSource);
   }
 
-  private static ScriptableValue valuesForVector(MagmaContext context, Scriptable thisObj, VariableValueSource source) {
+  private static ScriptableValue valuesForVector(MagmaContext context, Scriptable thisObj,
+                                                 MagmaEngineVariableResolver reference, VariableValueSource variableSource) {
     // Load the vector
     VectorCache cache = context.peek(VectorCache.class);
-    Value value = cache.get(context, source.asVectorSource());
-    return new ScriptableValue(thisObj, value, source.getVariable().getUnit());
+    return valueForReference(context, thisObj, reference, variableSource, cache.get(context, variableSource.asVectorSource()));
   }
 
   private static ScriptableValue valueForValueSet(MagmaContext context, Scriptable thisObj,
-      MagmaEngineVariableResolver reference, VariableValueSource variableSource) {
+                                                  MagmaEngineVariableResolver reference, VariableValueSource variableSource) {
     ValueSet valueSet = context.peek(ValueSet.class);
     // Tests whether this valueSet is in the same table as the referenced ValueTable
     if(reference.isJoin(valueSet)) {
@@ -566,23 +566,33 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
       }
     }
 
-    Value value = variableSource.getValue(valueSet);
+    return valueForReference(context, thisObj, reference, variableSource, variableSource.getValue(valueSet));
+  }
+
+  private static ScriptableValue valueForReference(MagmaContext context, Scriptable thisObj,
+                                                  MagmaEngineVariableResolver reference, VariableValueSource variableSource, Value value) {
+    // OPAL-2876 we want the value from a specific table
+    if(value.isSequence() && variableSource instanceof JoinVariableValueSource && reference.hasDatasourceName() && reference.hasTableName()) {
+      int pos = ((JoinVariableValueSource)variableSource).getValueTablePosition(reference.getDatasourceName(), reference.getTableName());
+      return ValueSequenceMethods.valueAt(context, new ScriptableValue(thisObj, value), new Object[] {pos}, null);
+    }
+
     return new ScriptableValue(thisObj, value, variableSource.getVariable().getUnit());
   }
 
-  /**
-   * Get occurrence group matching criteria and returns a map (variable name/{@code ScriptableValue}).
-   * <p/>
-   * <pre>
-   *   $group('StageName','StageA')['StageDuration']
-   *   $group('NumVar', function(value) {
-   *     return value.ge(10);
-   *   })['AnotherVar']
-   *   $group('StageName','StageA', 'StageDuration')
-   * </pre>
-   *
-   * @return a javascript object that maps variable names to {@code ScriptableValue}
-   */
+    /**
+     * Get occurrence group matching criteria and returns a map (variable name/{@code ScriptableValue}).
+     * <p/>
+     * <pre>
+     *   $group('StageName','StageA')['StageDuration']
+     *   $group('NumVar', function(value) {
+     *     return value.ge(10);
+     *   })['AnotherVar']
+     *   $group('StageName','StageA', 'StageDuration')
+     * </pre>
+     *
+     * @return a javascript object that maps variable names to {@code ScriptableValue}
+     */
   public static Object $group(Context ctx, Scriptable thisObj, Object[] args, Function funObj)
       throws MagmaJsEvaluationRuntimeException {
     if(args.length < 2 || args.length > 3) {

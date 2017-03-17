@@ -15,6 +15,7 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import org.junit.After;
 import org.junit.Assume;
 import org.junit.Before;
@@ -62,13 +63,17 @@ public class GlobalMethodsMongoDbTest extends AbstractJsTest {
 
   private static final String TABLE = "table";
 
+  private static final String TABLE2 = "table2";
+
   private static final String VARIABLE_AGE = "age";
 
   private static final String VARIABLE_WEIGHT = "weight";
 
   private static final String VARIABLE_HEIGHT = "height";
 
-  private static final int NB_ENTITIES = 500;
+  private static final int NB_ENTITIES = 150;
+
+  private static final int NB_ENTITIES2 = 200;
 
   private ViewManager viewManager;
 
@@ -123,11 +128,13 @@ public class GlobalMethodsMongoDbTest extends AbstractJsTest {
         newVariable(VARIABLE_HEIGHT, IntegerType.get(), PARTICIPANT).unit("cm").addAttribute("min", "150")
             .addAttribute("max", "200").build());
     ValueTable generatedValueTable = new GeneratedValueTable(datasource, variables, NB_ENTITIES);
+    ValueTable generatedValueTable2 = new GeneratedValueTable(datasource, variables, NB_ENTITIES2);
 
     Datasource viewAwareDatasource = viewManager.decorate(datasource);
     MagmaEngine.get().addDatasource(viewAwareDatasource);
 
     DatasourceCopier.Builder.newCopier().build().copy(generatedValueTable, TABLE, datasource);
+    DatasourceCopier.Builder.newCopier().build().copy(generatedValueTable2, TABLE2, datasource);
 
     return viewAwareDatasource;
   }
@@ -167,6 +174,41 @@ public class GlobalMethodsMongoDbTest extends AbstractJsTest {
   }
 
   @Test
+  public void test_$_join_value_set() throws Exception {
+    Datasource datasource = getTestDatasource();
+    ValueTable table = datasource.getValueTable(TABLE);
+    ValueTable table2 = datasource.getValueTable(TABLE2);
+
+    Variable weight = createIntVariable("weight", "$('weight')", true);
+    Variable weight1 = createIntVariable("weight1", "$('ds.table:weight')");
+    Variable weight2 = createIntVariable("weight2", "$('ds.table2:weight')");
+
+    View viewTemplate = View.Builder.newView("view", table, table2).list(new VariablesClause()).build();
+    try(ValueTableWriter.VariableWriter variableWriter = viewTemplate.getListClause().createWriter()) {
+      variableWriter.writeVariable(weight);
+      variableWriter.writeVariable(weight1);
+      variableWriter.writeVariable(weight2);
+    }
+    viewManager.addView(DATASOURCE, viewTemplate, null, null);
+
+    View view = viewManager.getView(DATASOURCE, "view");
+
+    Set<VariableEntity> allEntities = Sets.newLinkedHashSet();
+    allEntities.addAll(table.getVariableEntities());
+    allEntities.addAll(table2.getVariableEntities());
+    assertThat(view.getValueSetCount()).isEqualTo(allEntities.size());
+
+    for(ValueSet vs : view.getValueSets()) {
+      Value w = view.getValue(weight, vs);
+      Value w1 = view.getValue(weight1, vs);
+      Value w2 = view.getValue(weight2, vs);
+      assertThat(w.isSequence()).isTrue();
+      assertThat(w.asSequence().get(0)).isEqualTo(w1);
+      assertThat(w.asSequence().get(1)).isEqualTo(w2);
+    }
+  }
+
+  @Test
   public void test_$_vector() throws Exception {
     Datasource datasource = getTestDatasource();
     ValueTable table = datasource.getValueTable(TABLE);
@@ -192,6 +234,46 @@ public class GlobalMethodsMongoDbTest extends AbstractJsTest {
       Long kg = (Long) tableValues.get(i++).getValue();
       Long lbs = (Long) viewValue.getValue();
       assertThat(lbs).isEqualTo((long) (kg * 2.2));
+    }
+  }
+
+  @Test
+  public void test_$_join_vector() throws Exception {
+    Datasource datasource = getTestDatasource();
+    ValueTable table = datasource.getValueTable(TABLE);
+    ValueTable table2 = datasource.getValueTable(TABLE2);
+
+    Variable weight = createIntVariable("weight", "$('weight')", true);
+    Variable weight1 = createIntVariable("weight1", "$('ds.table:weight')");
+    Variable weight2 = createIntVariable("weight2", "$('ds.table2:weight')");
+
+    View viewTemplate = View.Builder.newView("view", table, table2).list(new VariablesClause()).build();
+    try(ValueTableWriter.VariableWriter variableWriter = viewTemplate.getListClause().createWriter()) {
+      variableWriter.writeVariable(weight);
+      variableWriter.writeVariable(weight1);
+      variableWriter.writeVariable(weight2);
+    }
+    viewManager.addView(DATASOURCE, viewTemplate, null, null);
+
+    View view = viewManager.getView(DATASOURCE, "view");
+
+
+    VectorSource weightVector = view.getVariableValueSource("weight").asVectorSource();
+    VectorSource weight1Vector = view.getVariableValueSource("weight1").asVectorSource();
+    VectorSource weight2Vector = view.getVariableValueSource("weight2").asVectorSource();
+
+    SortedSet<VariableEntity> entities = Sets.newTreeSet(view.getVariableEntities());
+    Iterator<Value> weightValues = weightVector.getValues(entities).iterator();
+    Iterator<Value> weight1Values = weight1Vector.getValues(entities).iterator();
+    Iterator<Value> weight2Values = weight2Vector.getValues(entities).iterator();
+
+    for(VariableEntity entity : entities) {
+      Value w = weightValues.next();
+      Value w1 = weight1Values.next();
+      Value w2 = weight2Values.next();
+      assertThat(w.isSequence()).isTrue();
+      assertThat(w.asSequence().get(0)).isEqualTo(w1);
+      assertThat(w.asSequence().get(1)).isEqualTo(w2);
     }
   }
 
