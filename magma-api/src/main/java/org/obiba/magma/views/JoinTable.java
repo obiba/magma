@@ -354,7 +354,7 @@ public class JoinTable implements ValueTable, Initialisable {
   }
 
   @NotNull
-  private synchronized List<ValueTable> getTablesWithVariable(@NotNull Variable joinableVariable)
+  public synchronized List<ValueTable> getTablesWithVariable(@NotNull Variable joinableVariable)
       throws NoSuchVariableException {
     Collection<ValueTable> cachedTables = getVariableTables().get(joinableVariable);
     if (cachedTables == null) {
