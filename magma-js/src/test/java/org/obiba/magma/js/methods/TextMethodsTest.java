@@ -360,6 +360,14 @@ public class TextMethodsTest extends AbstractJsTest {
   }
 
   @Test
+  public void testMapWithDefaultFunctionReturnsNullValueMapping() {
+    ScriptableValue value = evaluate("map({'YES':1, 'NO':2},function(value){return newValue(null, 'text');})",
+        TextType.get().valueOf("PERHAPS"));
+    assertThat(value).isNotNull();
+    assertThat(value.getValue().isNull()).isTrue();
+  }
+
+  @Test
   public void testMapWithDefaultAndNullFunctionsMapping() {
     ScriptableValue value = evaluate("map({'YES':1, 'NO':2},function(value){return value.concat('-0');},function(){return 0;})",
         TextType.get().nullValue());
