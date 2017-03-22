@@ -334,6 +334,7 @@ class JdbcValueTableWriter implements ValueTableWriter {
       builder.withColumn(VALUE_TABLE_COLUMN, valueTable.getName()) //
           .withColumn(NAME_COLUMN, variable.getName()) //
           .withColumn(VALUE_TYPE_COLUMN, variable.getValueType().getName()) //
+          .withColumn("ref_entity_type", variable.getReferencedEntityType())//
           .withColumn("mime_type", variable.getMimeType())//
           .withColumn("units", variable.getUnit()) //
           .withColumn("is_repeatable", variable.isRepeatable()) //
