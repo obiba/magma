@@ -350,13 +350,14 @@ class JdbcValueTable extends AbstractValueTable {
     private Variable buildVariableFromResultSet(ResultSet rs) throws SQLException {
       String variableName = rs.getString("name");
       ValueType valueType = ValueType.Factory.forName(rs.getString("value_type"));
+      String refEntityType = rs.getString("ref_entity_type");
       String mimeType = rs.getString("mime_type");
       String units = rs.getString("units");
       boolean isRepeatable = rs.getBoolean("is_repeatable");
       String occurrenceGroup = rs.getString("occurrence_group");
       int index = rs.getInt("index");
       Variable.Builder builder = Variable.Builder.newVariable(variableName, valueType, getEntityType())
-          .mimeType(mimeType).unit(units).index(index);
+          .referencedEntityType(refEntityType).mimeType(mimeType).unit(units).index(index);
 
       if(isRepeatable) {
         builder.repeatable();

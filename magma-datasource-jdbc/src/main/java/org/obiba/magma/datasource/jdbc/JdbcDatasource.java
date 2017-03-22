@@ -545,7 +545,8 @@ public class JdbcDatasource extends AbstractDatasource {
   }
 
   private void createVariableMetadataTablesIfNotPresent(List<Change> changes) {
-    if(getDatabaseSnapshot().get(newTable(VARIABLES_TABLE)) == null) {
+    Table sqlTable = getDatabaseSnapshot().get(newTable(VARIABLES_TABLE));
+    if(sqlTable == null) {
       CreateTableChangeBuilder builder = new CreateTableChangeBuilder().tableName(VARIABLES_TABLE);
 
       if(getSettings().isMultipleDatasources()) builder.withColumn(DATASOURCE_COLUMN, "VARCHAR(255)").primaryKey();
@@ -553,12 +554,16 @@ public class JdbcDatasource extends AbstractDatasource {
       builder.withColumn(VALUE_TABLE_COLUMN, "VARCHAR(255)").primaryKey() //
           .withColumn(NAME_COLUMN, "VARCHAR(255)").primaryKey() //
           .withColumn(VALUE_TYPE_COLUMN, "VARCHAR(255)").notNull() //
+          .withColumn("ref_entity_type", "VARCHAR(255)") //
           .withColumn("mime_type", "VARCHAR(255)") //
           .withColumn("units", "VARCHAR(255)") //
           .withColumn("is_repeatable", "BOOLEAN") //
           .withColumn("occurrence_group", "VARCHAR(255)") //
           .withColumn("index", "INT") //
           .withColumn(SQL_NAME_COLUMN, "VARCHAR(255)").notNull();
+      changes.add(builder.build());
+    } else if (sqlTable.getColumn("ref_entity_type") == null) { // upgrade because of OPAL-2887
+      AddColumnChangeBuilder builder = new AddColumnChangeBuilder().table(VARIABLES_TABLE).column("ref_entity_type", "VARCHAR(255)");
       changes.add(builder.build());
     }
 
