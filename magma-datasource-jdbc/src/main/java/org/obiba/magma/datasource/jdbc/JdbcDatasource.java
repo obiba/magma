@@ -203,7 +203,6 @@ public class JdbcDatasource extends AbstractDatasource {
             .tableName(tableName) //
             .entityType(entityType) //
             .entityIdentifierColumn(settings.getDefaultEntityIdColumnName()).build();
-        settings.getTableSettings().add(tableSettings);
       }
 
       table = new JdbcValueTable(this, tableSettings);
