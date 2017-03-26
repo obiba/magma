@@ -306,6 +306,10 @@ public class JoinTableTest extends AbstractMagmaTest {
       expect(builder.mock.getName()).andReturn(variableName).anyTimes();
       expect(builder.mock.getValueType()).andReturn(TextType.get()).anyTimes();
       expect(builder.mock.isRepeatable()).andReturn(false).anyTimes();
+      expect(builder.mock.getOccurrenceGroup()).andReturn(null).anyTimes();
+      expect(builder.mock.getReferencedEntityType()).andReturn(null).anyTimes();
+      expect(builder.mock.getMimeType()).andReturn(null).anyTimes();
+      expect(builder.mock.getUnit()).andReturn(null).anyTimes();
       expect(builder.mock.getEntityType()).andReturn("Participant").anyTimes();
       return builder;
     }
