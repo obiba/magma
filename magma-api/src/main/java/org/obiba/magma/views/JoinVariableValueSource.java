@@ -102,4 +102,13 @@ public class JoinVariableValueSource implements VariableValueSource, VectorSourc
     }
     return -1;
   }
+
+  /**
+   * Check if there is more than one variable joined in this variable.
+   *
+   * @return
+   */
+  public boolean isMultiple() {
+    return owners.size() > 1;
+  }
 }
