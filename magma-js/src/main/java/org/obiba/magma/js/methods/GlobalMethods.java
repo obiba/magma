@@ -572,7 +572,8 @@ public final class GlobalMethods extends AbstractGlobalMethodProvider {
   private static ScriptableValue valueForReference(MagmaContext context, Scriptable thisObj,
                                                   MagmaEngineVariableResolver reference, VariableValueSource variableSource, Value value) {
     // OPAL-2876 we want the value from a specific table
-    if(value.isSequence() && variableSource instanceof JoinVariableValueSource && reference.hasDatasourceName() && reference.hasTableName()) {
+    if(value.isSequence() && variableSource instanceof JoinVariableValueSource && ((JoinVariableValueSource)variableSource).isMultiple()
+        && reference.hasDatasourceName() && reference.hasTableName()) {
       int pos = ((JoinVariableValueSource)variableSource).getValueTablePosition(reference.getDatasourceName(), reference.getTableName());
       return ValueSequenceMethods.valueAt(context, new ScriptableValue(thisObj, value), new Object[] {pos}, null);
     }
