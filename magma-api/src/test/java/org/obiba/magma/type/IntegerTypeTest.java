@@ -97,4 +97,23 @@ public class IntegerTypeTest extends BaseValueTypeTest {
     //noinspection ConstantConditions
     assertThat(result.intValue()).isEqualTo(1);
   }
+
+  @Test
+  public void test_valueOf_Value() {
+    Value textValue = TextType.get().valueOf("1");
+    Value value = IntegerType.get().valueOf(textValue);
+    Long result = (Long) value.getValue();
+    assertThat(result).isEqualTo(1);
+  }
+
+  @Test
+  public void test_valueOf_ValueSequence() {
+    Value textValue = TextType.get().sequenceOf("1,2");
+    Value value = IntegerType.get().valueOf(textValue);
+    assertThat(value.isSequence()).isTrue();
+    Long result = (Long) value.asSequence().get(0).getValue();
+    assertThat(result).isEqualTo(1);
+    result = (Long) value.asSequence().get(1).getValue();
+    assertThat(result).isEqualTo(2);
+  }
 }

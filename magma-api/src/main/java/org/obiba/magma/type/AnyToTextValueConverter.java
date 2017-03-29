@@ -23,6 +23,7 @@ public class AnyToTextValueConverter implements ValueConverter {
 
   @Override
   public Value convert(Value value, ValueType to) {
+    if(value == null || value.isNull()) return TextType.get().nullValue();
     return TextType.get().valueOf(value.toString());
   }
 }

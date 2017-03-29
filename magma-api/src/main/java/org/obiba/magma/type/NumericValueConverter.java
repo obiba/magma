@@ -27,7 +27,7 @@ public class NumericValueConverter implements ValueConverter {
   @Override
   public Value convert(Value value, ValueType to) {
     // When converting decimal to integer, this will truncate the decimal places: 0.9 -> 0
-    return value.isNull() ? to.nullValue() : to.valueOf(value.getValue());
+    return value == null || value.isNull() ? to.nullValue() : to.valueOf(value.getValue());
   }
 
 }
