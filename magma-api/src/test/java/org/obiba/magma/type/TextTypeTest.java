@@ -73,7 +73,7 @@ public class TextTypeTest extends BaseValueTypeTest {
 
   @Test
   public void testSequenceOfNullsAndValues() {
-    ValueSequence sequence = TextType.get().sequenceOf("\"\",\"Not Null\",\"\"");
+    ValueSequence sequence = TextType.get().sequenceOf(",\"Not Null\",");
     assertSequence(sequence, null, "Not Null", null);
   }
 
