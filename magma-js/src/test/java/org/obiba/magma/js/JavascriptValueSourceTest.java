@@ -52,6 +52,72 @@ public class JavascriptValueSourceTest extends AbstractJsTest {
   }
 
   @Test
+  public void test_script_newValue() {
+    JavascriptValueSource source = new JavascriptValueSource(DecimalType.get(), "newValue('1')");
+    source.initialise();
+
+    Value value = source.getValue(mockValueSet);
+    assertThat(value.getValue()).isEqualTo(1d);
+  }
+
+  @Test
+  public void test_script_newSequence_to_Value() {
+    JavascriptValueSource source = new JavascriptValueSource(DecimalType.get(), "newSequence(['1','2','3'])");
+    source.initialise();
+
+    Value value = source.getValue(mockValueSet);
+    assertThat(value.getValue()).isEqualTo(1d);
+  }
+
+  @Test
+  public void test_script_newSequence_to_ValueSequence() {
+    JavascriptValueSource source = new JavascriptValueSource(DecimalType.get(), "newSequence(['1',null,'3'])") {
+      @Override
+      protected boolean isSequence() {
+        return true;
+      }
+    };
+    source.initialise();
+
+    Value value = source.getValue(mockValueSet);
+    assertThat(value.isSequence()).isTrue();
+    assertThat(value.asSequence().getSize()).isEqualTo(3);
+    assertThat(value.asSequence().get(0).getValue()).isEqualTo(1d);
+    assertThat(value.asSequence().get(1).isNull()).isTrue();
+  }
+
+  @Test
+  public void test_script_null_to_ValueSequence() {
+    JavascriptValueSource source = new JavascriptValueSource(DecimalType.get(), "null") {
+      @Override
+      protected boolean isSequence() {
+        return true;
+      }
+    };
+    source.initialise();
+
+    Value value = source.getValue(mockValueSet);
+    assertThat(value.isSequence()).isTrue();
+    assertThat(value.asSequence().getSize()).isEqualTo(0);
+  }
+
+  @Test
+  public void test_script_nullValue_to_ValueSequence() {
+    JavascriptValueSource source = new JavascriptValueSource(DecimalType.get(), "newValue(null, 'text')") {
+      @Override
+      protected boolean isSequence() {
+        return true;
+      }
+    };
+    source.initialise();
+
+    Value value = source.getValue(mockValueSet);
+    assertThat(value.isSequence()).isTrue();
+    assertThat(value.asSequence().getSize()).isEqualTo(1);
+    assertThat(value.asSequence().get(0).isNull()).isTrue();
+  }
+
+  @Test
   public void test_engine_method() {
     JavascriptValueSource source = new JavascriptValueSource(DateTimeType.get(), "now()");
     source.initialise();

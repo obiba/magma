@@ -96,6 +96,12 @@ public class BooleanType extends AbstractValueType {
     if(boolean.class.isAssignableFrom(object.getClass())) {
       return valueOf(boolean.class.cast(object));
     }
+    if(object instanceof Value) {
+      return convert((Value)object);
+    }
+    if(object instanceof Value && ((Value)object).isSequence()) {
+      return sequenceOf(((Value)object).asSequence().getValues());
+    }
     return valueOf(object.toString());
   }
 

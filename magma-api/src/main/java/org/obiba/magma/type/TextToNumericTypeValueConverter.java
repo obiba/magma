@@ -25,6 +25,7 @@ public class TextToNumericTypeValueConverter implements ValueConverter {
 
   @Override
   public Value convert(Value value, ValueType to) {
+    if (value == null || value.isNull()) return to.nullValue();
     return to.valueOf(new BigDecimal(value.toString()));
   }
 

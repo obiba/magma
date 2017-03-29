@@ -65,4 +65,23 @@ public class DecimalTypeTest extends BaseValueTypeTest {
     assertThat(result).isEqualTo(1.2);
   }
 
+  @Test
+  public void test_valueOf_Value() {
+    Value textValue = TextType.get().valueOf("1.5");
+    Value value = DecimalType.get().valueOf(textValue);
+    Double result = (Double) value.getValue();
+    assertThat(result).isEqualTo(1.5);
+  }
+
+  @Test
+  public void test_valueOf_ValueSequence() {
+    Value textValue = TextType.get().sequenceOf("1.5,2.2");
+    Value value = DecimalType.get().valueOf(textValue);
+    assertThat(value.isSequence()).isTrue();
+    Double result = (Double) value.asSequence().get(0).getValue();
+    assertThat(result).isEqualTo(1.5);
+    result = (Double) value.asSequence().get(1).getValue();
+    assertThat(result).isEqualTo(2.2);
+  }
+
 }

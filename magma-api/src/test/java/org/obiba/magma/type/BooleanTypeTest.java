@@ -13,6 +13,7 @@ package org.obiba.magma.type;
 import org.junit.Test;
 
 import com.google.common.collect.ImmutableList;
+import org.obiba.magma.Value;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 
@@ -75,5 +76,24 @@ public class BooleanTypeTest extends BaseValueTypeTest {
   @Test(expected = IllegalArgumentException.class)
   public void test_not_onlyAcceptsBoolenType() {
     getValueType().not(TextType.get().valueOf("not a boolean"));
+  }
+
+  @Test
+  public void test_valueOf_Value() {
+    Value textValue = TextType.get().valueOf("true");
+    Value value = BooleanType.get().valueOf(textValue);
+    Boolean result = (Boolean) value.getValue();
+    assertThat(result).isEqualTo(Boolean.TRUE);
+  }
+
+  @Test
+  public void test_valueOf_ValueSequence() {
+    Value textValue = TextType.get().sequenceOf("true,false");
+    Value value = BooleanType.get().valueOf(textValue);
+    assertThat(value.isSequence()).isTrue();
+    Boolean result = (Boolean) value.asSequence().get(0).getValue();
+    assertThat(result).isEqualTo(Boolean.TRUE);
+    result = (Boolean) value.asSequence().get(1).getValue();
+    assertThat(result).isEqualTo(Boolean.FALSE);
   }
 }

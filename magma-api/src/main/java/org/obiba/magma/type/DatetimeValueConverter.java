@@ -30,7 +30,7 @@ public class DatetimeValueConverter implements ValueConverter {
   @SuppressWarnings("ConstantConditions")
   @Override
   public Value convert(Value value, ValueType to) {
-    if(value.isNull()) return to.nullValue();
+    if(value == null || value.isNull()) return to.nullValue();
     if(to == DateType.get()) {
       Object dateObject = value.getValue();
       Date date;
