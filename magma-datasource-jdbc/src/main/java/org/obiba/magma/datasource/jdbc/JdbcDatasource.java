@@ -235,6 +235,8 @@ public class JdbcDatasource extends AbstractDatasource {
   protected void onInitialise() {
     if(getSettings().isUseMetadataTables()) {
       createMetadataTablesIfNotPresent();
+    } else if (getSettings().hasTableSettingsFactories()) {
+      initialiseTableSettings();
     }
   }
 
@@ -518,6 +520,17 @@ public class JdbcDatasource extends AbstractDatasource {
     } catch(Exception e) {
       throw new SQLException(e);
     }
+  }
+
+  private void initialiseTableSettings() {
+
+    getSettings().getTableSettingsFactories().forEach(factory -> {
+      List<String> filters = getJdbcTemplate().query(String
+          .format("SELECT DISTINCT %s FROM %s",
+              escapeColumnName(factory.getEntityIdentifiersFilterColumn()),
+              escapeTableName(factory.getSqlTableName())), (rs, rowNum) -> rs.getObject(1).toString());
+      factory.createSettings(filters, this).forEach(settings -> getSettings().addTableSettings(settings));
+    });
   }
 
   private void createMetadataTablesIfNotPresent() {

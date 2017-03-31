@@ -6,6 +6,7 @@ DROP TABLE IF EXISTS "categories";
 DROP TABLE IF EXISTS "category_attributes";
 DROP TABLE IF EXISTS BONE_DENSITY;
 DROP TABLE IF EXISTS MY_TABLE;
+DROP TABLE IF EXISTS "mydatasourcenodb_MY_TABLE";
 
 create table "value_tables"("datasource" varchar(255) not null, "name" varchar(255) not null, "entity_type" varchar(255) not null, "created" timestamp, "updated" timestamp, "sql_name" varchar(255) not null, primary key("datasource", "name"));
 create table "variables"("datasource" varchar(255) not null, "value_table" varchar(255) not null, "name" varchar(255) not null, "value_type" varchar(255), "ref_entity_type" varchar(255), "mime_type" varchar(255), "units" varchar(255), "is_repeatable" boolean not null, "occurrence_group" varchar(255), "index" int, "sql_name" varchar(255) not null, primary key("datasource", "value_table", "name"));

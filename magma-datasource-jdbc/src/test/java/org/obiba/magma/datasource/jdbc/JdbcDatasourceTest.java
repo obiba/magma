@@ -198,9 +198,10 @@ public class JdbcDatasourceTest extends AbstractMagmaTest {
   @Dataset(filenames = "JdbcDatasourceTest-nometa-where.xml")
   @Test
   public void test_vectorSourceWithWhereClause() {
-    JdbcValueTableSettings tableSettings = JdbcValueTableSettings.newSettings("BONE_DENSITY").entityIdentifierColumn("PART_ID").entityIdentifiersWhere("VISIT_ID = 2").build();
-    JdbcDatasource jdbcDatasource = new JdbcDatasource("my-datasource", dataSource,
-        JdbcDatasourceSettings.newSettings("Participant").tableSettings(Sets.newHashSet(tableSettings)).build());
+    JdbcValueTableSettings tableSettings = JdbcValueTableSettings.newSettings("BONE_DENSITY")
+        .entityIdentifierColumn("PART_ID").entityIdentifiersWhere("VISIT_ID = 2").build();
+    JdbcDatasourceSettings settings = JdbcDatasourceSettings.newSettings("Participant").tableSettings(Sets.newHashSet(tableSettings)).build();
+    JdbcDatasource jdbcDatasource = new JdbcDatasource("my-datasource", dataSource, settings);
     jdbcDatasource.initialise();
 
     createDatasourceFromExistingDatabase(jdbcDatasource);
@@ -220,6 +221,32 @@ public class JdbcDatasourceTest extends AbstractMagmaTest {
     values = bdVar2.getValues(new TreeSet<>(valueTable.getVariableEntities()));
     assertThat(values).hasSize(2);
 
+    jdbcDatasource.dispose();
+  }
+
+  @TestSchema(schemaLocation = "org/obiba/magma/datasource/jdbc", beforeSchema = "schema-nometa-where.sql",
+      afterSchema = "schema-notables.sql")
+  @Dataset(filenames = "JdbcDatasourceTest-nometa-where.xml")
+  @Test
+  public void test_datasourceWithSettingsFactory() {
+    JdbcValueTableSettingsFactory tableSettingsFactory = JdbcValueTableSettingsFactory.newSettings("BONE_DENSITY", "VISIT_ID")
+        .tableName("BD_").entityIdentifierColumn("PART_ID").build();
+    JdbcDatasourceSettings settings = JdbcDatasourceSettings.newSettings("Participant").tableSettingsFactories(Sets.newHashSet(tableSettingsFactory)).build();
+    JdbcDatasource jdbcDatasource = new JdbcDatasource("my-datasource", dataSource, settings);
+    jdbcDatasource.initialise();
+
+    assertThat(jdbcDatasource).isNotNull();
+    assertThat(jdbcDatasource.getName()).isEqualTo("my-datasource");
+
+    assertThat(jdbcDatasource.getValueTables()).hasSize(2);
+    assertThat(jdbcDatasource.hasValueTable("BD_1")).isTrue();
+    assertThat(jdbcDatasource.hasValueTable("BD_2")).isTrue();
+    ValueTable bdTable = jdbcDatasource.getValueTable("BD_1");
+    assertThat(bdTable.getEntityType()).isEqualTo("Participant");
+    assertThat(bdTable.getVariableEntityCount()).isEqualTo(1);
+    bdTable = jdbcDatasource.getValueTable("BD_2");
+    assertThat(bdTable.getEntityType()).isEqualTo("Participant");
+    assertThat(bdTable.getVariableEntityCount()).isEqualTo(2);
     jdbcDatasource.dispose();
   }
 
