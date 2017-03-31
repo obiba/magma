@@ -95,6 +95,58 @@ public class JdbcValueTableSettingsFactory {
     return entityIdentifiersFilterColumn;
   }
 
+  public boolean hasMagmaTableName() {
+    return !Strings.isNullOrEmpty(magmaTableName);
+  }
+
+  public String getMagmaTableName() {
+    return magmaTableName;
+  }
+
+  public String getEntityType() {
+    return entityType;
+  }
+
+  public String getEntityIdentifierColumn() {
+    return entityIdentifierColumn;
+  }
+
+  public String getCreatedTimestampColumnName() {
+    return createdTimestampColumnName;
+  }
+
+  public boolean hasCreatedTimestampColumnName() {
+    return !Strings.isNullOrEmpty(createdTimestampColumnName);
+  }
+
+  public String getUpdatedTimestampColumnName() {
+    return updatedTimestampColumnName;
+  }
+
+  public boolean hasUpdatedTimestampColumnName() {
+    return !Strings.isNullOrEmpty(updatedTimestampColumnName);
+  }
+
+  public String getExcludedColumns() {
+    return excludedColumns;
+  }
+
+  public boolean hasExcludedColumns() {
+    return !Strings.isNullOrEmpty(excludedColumns);
+  }
+
+  public String getIncludedColumns() {
+    return includedColumns;
+  }
+
+  public boolean hasIncludedColumns() {
+    return !Strings.isNullOrEmpty(includedColumns);
+  }
+
+  public boolean isMultilines() {
+    return multilines;
+  }
+
   public static Builder newSettings(String sqlTableName, String entityIdentifiersFilterColumn) {
     return new Builder(sqlTableName, entityIdentifiersFilterColumn);
   }
