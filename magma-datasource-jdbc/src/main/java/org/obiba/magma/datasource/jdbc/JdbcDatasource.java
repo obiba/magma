@@ -523,12 +523,13 @@ public class JdbcDatasource extends AbstractDatasource {
   }
 
   private void initialiseTableSettings() {
-
     getSettings().getTableSettingsFactories().forEach(factory -> {
+      String escFilter =
+          escapeColumnName(factory.getEntityIdentifiersFilterColumn());
       List<String> filters = getJdbcTemplate().query(String
-          .format("SELECT DISTINCT %s FROM %s",
-              escapeColumnName(factory.getEntityIdentifiersFilterColumn()),
-              escapeTableName(factory.getSqlTableName())), (rs, rowNum) -> rs.getObject(1).toString());
+          .format("SELECT DISTINCT %s FROM %s WHERE %s IS NOT NULL",
+              escFilter, escapeTableName(factory.getSqlTableName()), escFilter),
+          (rs, rowNum) -> rs.getObject(1).toString());
       factory.createSettings(filters, this).forEach(settings -> getSettings().addTableSettings(settings));
     });
   }
