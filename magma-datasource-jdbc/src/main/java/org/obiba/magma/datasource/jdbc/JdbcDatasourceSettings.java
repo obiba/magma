@@ -33,6 +33,8 @@ public class JdbcDatasourceSettings {
 
   private Set<JdbcValueTableSettings> tableSettings;
 
+  private Set<JdbcValueTableSettingsFactory> tableSettingsFactories;
+
   private boolean useMetadataTables;
 
   /**
@@ -102,6 +104,19 @@ public class JdbcDatasourceSettings {
   public Set<JdbcValueTableSettings> getTableSettings() {
     if (tableSettings == null) tableSettings = new HashSet<>();
     return tableSettings;
+  }
+
+  public void addTableSettingsFactories(JdbcValueTableSettingsFactory settingsFactory) {
+    getTableSettingsFactories().add(settingsFactory);
+  }
+
+  public boolean hasTableSettingsFactories() {
+    return !getTableSettingsFactories().isEmpty();
+  }
+
+  public Set<JdbcValueTableSettingsFactory> getTableSettingsFactories() {
+    if (tableSettingsFactories == null) tableSettingsFactories = new HashSet<>();
+    return tableSettingsFactories;
   }
 
   public boolean hasTableSettingsForSqlTable(String sqlTableName) {
@@ -195,6 +210,11 @@ public class JdbcDatasourceSettings {
 
     public Builder tableSettings(Set<JdbcValueTableSettings> tableSettings) {
       settings.tableSettings = tableSettings;
+      return this;
+    }
+
+    public Builder tableSettingsFactories(Set<JdbcValueTableSettingsFactory> tableSettingsFactories) {
+      settings.tableSettingsFactories = tableSettingsFactories;
       return this;
     }
 
