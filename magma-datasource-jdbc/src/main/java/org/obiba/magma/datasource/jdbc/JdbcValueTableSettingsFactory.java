@@ -29,6 +29,9 @@ public class JdbcValueTableSettingsFactory {
 
   private String magmaTableName;
 
+  /**
+   * Partitioning criteria: distinct values will be used as where statements for building {@link JdbcValueTableSettings}.
+   */
   private String entityIdentifiersFilterColumn;
 
   private String entityType;
@@ -44,6 +47,8 @@ public class JdbcValueTableSettingsFactory {
    * If provided, a column with this name will be populated with last update timestamps.
    */
   private String updatedTimestampColumnName;
+
+  private String entityIdentifiersWhere;
 
   private String excludedColumns;
 
@@ -77,6 +82,7 @@ public class JdbcValueTableSettingsFactory {
     for (String filter : filters) {
       // build the where criteria
       String where = datasource.escapeColumnName(entityIdentifiersFilterColumn) + " = '" + filter + "'";
+      if (!Strings.isNullOrEmpty(entityIdentifiersWhere)) where = where + " AND " + entityIdentifiersWhere;
       settings.add(JdbcValueTableSettings.newSettings(sqlTableName)
           .tableName(Strings.isNullOrEmpty(magmaTableName) ? filter : magmaTableName + filter)
           .entityType(entityType).createdTimestampColumn(createdTimestampColumnName)
@@ -125,6 +131,14 @@ public class JdbcValueTableSettingsFactory {
 
   public boolean hasUpdatedTimestampColumnName() {
     return !Strings.isNullOrEmpty(updatedTimestampColumnName);
+  }
+
+  public boolean hasEntityIdentifiersWhere() {
+    return !Strings.isNullOrEmpty(entityIdentifiersWhere);
+  }
+
+  public String getEntityIdentifiersWhere() {
+    return entityIdentifiersWhere;
   }
 
   public String getExcludedColumns() {
@@ -180,6 +194,11 @@ public class JdbcValueTableSettingsFactory {
 
     public Builder entityIdentifierColumn(String name) {
       factory.entityIdentifierColumn = Strings.isNullOrEmpty(name) ? ENTITY_ID_COLUMN : name;
+      return this;
+    }
+
+    public Builder entityIdentifiersWhere(String where) {
+      factory.entityIdentifiersWhere = where;
       return this;
     }
 
