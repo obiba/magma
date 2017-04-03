@@ -32,7 +32,7 @@ public class JdbcValueTableSettingsFactory {
   /**
    * Partitioning criteria: distinct values will be used as where statements for building {@link JdbcValueTableSettings}.
    */
-  private String entityIdentifiersFilterColumn;
+  private String tablePartitionColumn;
 
   private String entityType;
 
@@ -59,15 +59,15 @@ public class JdbcValueTableSettingsFactory {
   //
   // Constructors
   //
-  private JdbcValueTableSettingsFactory(String sqlTableName, String entityIdentifiersFilterColumn) {
+  private JdbcValueTableSettingsFactory(String sqlTableName, String tablePartitionColumn) {
     if(Strings.isNullOrEmpty(sqlTableName)) {
       throw new IllegalArgumentException("null or empty sqlTableName");
     }
-    if(Strings.isNullOrEmpty(entityIdentifiersFilterColumn)) {
-      throw new IllegalArgumentException("null or empty entityIdentifiersFilterColumn");
+    if(Strings.isNullOrEmpty(tablePartitionColumn)) {
+      throw new IllegalArgumentException("null or empty tablePartitionColumn");
     }
     this.sqlTableName = sqlTableName;
-    this.entityIdentifiersFilterColumn = entityIdentifiersFilterColumn;
+    this.tablePartitionColumn = tablePartitionColumn;
     this.entityType = "Participant";
     this.entityIdentifierColumn = ENTITY_ID_COLUMN;
   }
@@ -76,12 +76,12 @@ public class JdbcValueTableSettingsFactory {
   // Methods
   //
   @NotNull
-  public Collection<JdbcValueTableSettings> createSettings(List<String> filters, JdbcDatasource datasource) {
+  public Collection<JdbcValueTableSettings> createSettings(List<String> partitionCriteria, JdbcDatasource datasource) {
     List<JdbcValueTableSettings> settings = Lists.newArrayList();
-    if (filters == null || filters.isEmpty()) return settings;
-    for (String filter : filters) {
+    if (partitionCriteria == null || partitionCriteria.isEmpty()) return settings;
+    for (String filter : partitionCriteria) {
       // build the where criteria
-      String where = datasource.escapeColumnName(entityIdentifiersFilterColumn) + " = '" + filter + "'";
+      String where = datasource.escapeColumnName(tablePartitionColumn) + " = '" + filter + "'";
       if (!Strings.isNullOrEmpty(entityIdentifiersWhere)) where = where + " AND " + entityIdentifiersWhere;
       settings.add(JdbcValueTableSettings.newSettings(sqlTableName)
           .tableName(Strings.isNullOrEmpty(magmaTableName) ? filter : magmaTableName + filter)
@@ -97,8 +97,8 @@ public class JdbcValueTableSettingsFactory {
     return sqlTableName;
   }
 
-  public String getEntityIdentifiersFilterColumn() {
-    return entityIdentifiersFilterColumn;
+  public String getTablePartitionColumn() {
+    return tablePartitionColumn;
   }
 
   public boolean hasMagmaTableName() {
@@ -168,8 +168,8 @@ public class JdbcValueTableSettingsFactory {
   public static class Builder {
     private JdbcValueTableSettingsFactory factory;
 
-    private Builder(String name, String entityIdentifiersFilterColumn) {
-      this.factory = new JdbcValueTableSettingsFactory(name, entityIdentifiersFilterColumn);
+    private Builder(String name, String tablePartitionColumn) {
+      this.factory = new JdbcValueTableSettingsFactory(name, tablePartitionColumn);
     }
 
     public Builder tableName(String name) {
