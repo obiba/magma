@@ -41,7 +41,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ConnectionCallback;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -52,7 +51,6 @@ import javax.annotation.Nullable;
 import javax.sql.DataSource;
 import javax.validation.constraints.NotNull;
 import java.sql.Connection;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
 
@@ -524,11 +522,10 @@ public class JdbcDatasource extends AbstractDatasource {
 
   private void initialiseTableSettings() {
     getSettings().getTableSettingsFactories().forEach(factory -> {
-      String escFilter =
-          escapeColumnName(factory.getEntityIdentifiersFilterColumn());
+      String escPartition = escapeColumnName(factory.getTablePartitionColumn());
       List<String> filters = getJdbcTemplate().query(String
           .format("SELECT DISTINCT %s FROM %s WHERE %s IS NOT NULL",
-              escFilter, escapeTableName(factory.getSqlTableName()), escFilter),
+              escPartition, escapeTableName(factory.getSqlTableName()), escPartition),
           (rs, rowNum) -> rs.getObject(1).toString());
       factory.createSettings(filters, this).forEach(settings -> getSettings().addTableSettings(settings));
     });
