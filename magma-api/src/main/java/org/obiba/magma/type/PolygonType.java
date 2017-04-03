@@ -140,6 +140,9 @@ public class PolygonType extends JSONAwareValueType {
     if(type.equals(getJavaClass())) {
       return valueOfPolygon((Iterable<?>) object);
     }
+    if(object instanceof Value) {
+      return convert((Value)object);
+    }
     return valueOf(object.toString());
   }
 

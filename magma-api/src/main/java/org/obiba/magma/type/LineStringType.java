@@ -141,6 +141,9 @@ public class LineStringType extends JSONAwareValueType {
       }
       return Factory.newValue(this, (Serializable) line);
     }
+    if(object instanceof Value) {
+      return convert((Value)object);
+    }
     return valueOf(object.toString());
   }
 
