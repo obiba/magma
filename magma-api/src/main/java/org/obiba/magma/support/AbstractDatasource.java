@@ -191,12 +191,20 @@ public abstract class AbstractDatasource extends AbstractAttributeAware implemen
   }
 
   protected void removeValueTable(String tableName) {
-    removeValueTable(getValueTable(tableName));
+    try {
+      removeValueTable(getValueTable(tableName));
+    } catch (NoSuchValueTableException e) {
+      // ignore
+    }
   }
 
   protected void removeValueTable(ValueTable toRemove) {
+    try {
     valueTables.remove(toRemove);
     Disposables.dispose(toRemove);
+    } catch (NoSuchValueTableException e) {
+      // ignore
+    }
   }
 
   @SuppressWarnings("NoopMethodInAbstractClass")
