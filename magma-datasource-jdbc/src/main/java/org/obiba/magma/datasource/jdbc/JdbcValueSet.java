@@ -129,7 +129,8 @@ public class JdbcValueSet extends ValueSetBean {
   }
 
   void populateResultSetCache(List<Map<String, Value>> rows) {
-    rows.forEach(row -> {
+    if (rows == null) return;
+    rows.forEach(row ->
       row.forEach((key, value) -> {
         if (resultSetCache.containsKey(key)) {
           Value current = resultSetCache.get(key);
@@ -141,7 +142,7 @@ public class JdbcValueSet extends ValueSetBean {
         } else {
           resultSetCache.put(key, value);
         }
-      });
-    });
+      })
+    );
   }
 }
