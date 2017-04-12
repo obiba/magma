@@ -320,9 +320,11 @@ class JdbcValueTable extends AbstractValueTable {
     Pattern exclusion = Pattern.compile(getSettings().hasExcludedColumns() ? getSettings().getExcludedColumns() : "^$");
     Pattern inclusion = Pattern.compile(getSettings().hasIncludedColumns() ? getSettings().getIncludedColumns() : ".*");
 
-    tableOrView.getColumns().stream() //
-        .filter(column -> isColumnIncluded(column, reserved, exclusion, inclusion)) //
-        .forEach(column -> addVariableValueSource(new JdbcVariableValueSource(this, column)));
+    int idx = 1;
+    for (Column column : tableOrView.getColumns().stream() //
+        .filter(column -> isColumnIncluded(column, reserved, exclusion, inclusion)).collect(Collectors.toList())) {
+      addVariableValueSource(new JdbcVariableValueSource(this, column, idx++));
+    }
   }
 
   /**
