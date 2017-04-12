@@ -39,4 +39,13 @@ public interface ValueTableUpdateListener {
    */
   void onDelete(@NotNull ValueTable vt);
 
+  /**
+   * Called when a variable is deleted.
+   *
+   * @param vt
+   * @param v
+   */
+  void onDelete(@NotNull ValueTable vt, Variable v);
+
+
 }
