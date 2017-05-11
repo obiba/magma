@@ -367,7 +367,7 @@ public class TextMethods {
     ValueType returnType = TextType.get();
 
     Object defaultArg = args.length < 2 ? null : args[1];
-    Object nullArg = args.length < 3 ? null : args[2];
+    Object nullArg = args.length < 3 ? null : args[2] == null ? returnType.nullValue() : args[2];
 
     Value currentValue = sv.getValue();
     if(currentValue.isSequence()) {

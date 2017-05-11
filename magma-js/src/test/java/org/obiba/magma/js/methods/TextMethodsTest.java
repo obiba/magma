@@ -313,6 +313,13 @@ public class TextMethodsTest extends AbstractJsTest {
   }
 
   @Test
+  public void testMapWithSimpleMappingAndNullValueWithDefaultValueAndNullValueMap() {
+    ScriptableValue value = evaluate("map({'YES':1, 'NO':2}, 9999, null)", TextType.get().nullValue());
+    assertThat(value).isNotNull();
+    assertThat(value.getValue().isNull()).isTrue();
+  }
+
+  @Test
   public void testMapWithSimpleMappingAndNullValueWithNullSequenceMap() {
     ScriptableValue value = evaluate("map({'YES':1, 'NO':2}, 9999, 8888)", TextType.get().nullSequence());
     assertThat(value).isNotNull();
@@ -324,6 +331,15 @@ public class TextMethodsTest extends AbstractJsTest {
   @Test
   public void testMapWithSimpleMappingAndNullSequenceWithDefaultValueMap() {
     ScriptableValue value = evaluate("map({'YES':1, 'NO':2}, 9999)", TextType.get().nullSequence());
+    assertThat(value).isNotNull();
+    assertThat(value.getValue().isNull()).isTrue();
+    assertThat(value.getValue().isSequence()).isTrue();
+    assertThat(value.getValue().asSequence()).isEqualTo(TextType.get().nullSequence());
+  }
+
+  @Test
+  public void testMapWithSimpleMappingAndNullSequenceWithDefaultValueAndNullValueMap() {
+    ScriptableValue value = evaluate("map({'YES':1, 'NO':2}, 9999, null)", TextType.get().nullSequence());
     assertThat(value).isNotNull();
     assertThat(value.getValue().isNull()).isTrue();
     assertThat(value.getValue().isSequence()).isTrue();
