@@ -75,6 +75,8 @@ ext {
 
       opencsv: 'net.sf.opencsv:opencsv:2.3',
 
+      presto: 'com.facebook.presto:presto-spi:0.180',
+
       poi_ooxml: 'org.apache.poi:poi-ooxml:3.9',
 
       postgresql: 'org.postgresql:postgresql:9.4-1202-jdbc42',
