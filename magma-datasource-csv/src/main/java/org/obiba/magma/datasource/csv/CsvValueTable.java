@@ -213,7 +213,7 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
         for(int i = 1; i < line.length; i++) {
           String variableName = line[i].trim();
           addVariableValueSource(new CsvVariableValueSource(Variable.Builder //
-              .newVariable(variableName, TextType.get(), entityType == null ? DEFAULT_ENTITY_TYPE : entityType) //
+              .newVariable(variableName, getCsvDatasource().getDefaultValueType(), entityType == null ? DEFAULT_ENTITY_TYPE : entityType) //
               .repeatable(isMultilines()) //
               .occurrenceGroup(isMultilines() ? getName() : null) //
               .index(i) //
