@@ -16,6 +16,7 @@ import java.util.List;
 
 import javax.validation.constraints.NotNull;
 
+import com.google.common.base.Strings;
 import org.obiba.magma.AbstractDatasourceFactory;
 import org.obiba.magma.Datasource;
 import org.obiba.magma.ValueTable;
@@ -37,6 +38,8 @@ public class CsvDatasourceFactory extends AbstractDatasourceFactory {
   private int firstRow = 1;
 
   private boolean multilines = false;
+
+  private String defaultValueType;
 
   public void setBundle(File bundle) {
     this.bundle = bundle;
@@ -64,6 +67,10 @@ public class CsvDatasourceFactory extends AbstractDatasourceFactory {
 
   public void setMultilines(boolean multilines) {
     this.multilines = multilines;
+  }
+
+  public void setDefaultValueType(String defaultValueType) {
+    this.defaultValueType = defaultValueType;
   }
 
   public CsvDatasourceFactory addTable(File tableDirectory) {
@@ -113,15 +120,14 @@ public class CsvDatasourceFactory extends AbstractDatasourceFactory {
     CsvDatasource datasource = bundle != null && bundle.isDirectory()
         ? new CsvDatasource(getName(), bundle)
         : new CsvDatasource(getName());
-    if(characterSet != null) {
+    if(!Strings.isNullOrEmpty(characterSet))
       datasource.setCharacterSet(characterSet);
-    }
-    if(quote != null) {
+    if(!Strings.isNullOrEmpty(quote))
       datasource.setQuote(Quote.fromString(quote));
-    }
-    if(separator != null) {
+    if(!Strings.isNullOrEmpty(separator))
       datasource.setSeparator(Separator.fromString(separator));
-    }
+    if(!Strings.isNullOrEmpty(defaultValueType))
+      datasource.setDefaultValueType(defaultValueType);
     datasource.setFirstRow(firstRow);
     datasource.setMultilines(multilines);
 

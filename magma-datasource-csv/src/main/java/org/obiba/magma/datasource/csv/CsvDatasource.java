@@ -29,8 +29,10 @@ import java.util.Set;
 import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 
+import com.google.common.base.Strings;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.ValueTableWriter;
+import org.obiba.magma.ValueType;
 import org.obiba.magma.datasource.csv.support.Quote;
 import org.obiba.magma.datasource.csv.support.Separator;
 import org.obiba.magma.support.AbstractDatasource;
@@ -52,6 +54,8 @@ public class CsvDatasource extends AbstractDatasource {
 
   public static final char DEL_CHAR = (char) 127;
 
+  public static final String DEFAULT_VALUE_TYPE = "text";
+
   private final Map<String, CsvValueTable> valueTables = new HashMap<>();
 
   private String[] defaultVariablesHeader = "name#valueType#entityType#mimeType#unit#occurrenceGroup#repeatable#script"
@@ -64,7 +68,10 @@ public class CsvDatasource extends AbstractDatasource {
   private String characterSet = DEFAULT_CHARACTER_SET;
 
   private int firstRow = 1;
+
   private boolean multilines;
+
+  private ValueType defaultValueType = ValueType.Factory.forName(DEFAULT_VALUE_TYPE);
 
   public CsvDatasource(String name) {
     super(name, TYPE);
@@ -242,5 +249,18 @@ public class CsvDatasource extends AbstractDatasource {
 
   public boolean isMultilines() {
     return multilines;
+  }
+
+  public void setDefaultValueType(String defaultValueType) {
+    if (Strings.isNullOrEmpty(defaultValueType)) return;
+    try {
+      this.defaultValueType = ValueType.Factory.forName(defaultValueType);
+    } catch (IllegalArgumentException e) {
+      this.defaultValueType = ValueType.Factory.forName(DEFAULT_VALUE_TYPE);
+    }
+  }
+
+  public ValueType getDefaultValueType() {
+    return defaultValueType;
   }
 }
