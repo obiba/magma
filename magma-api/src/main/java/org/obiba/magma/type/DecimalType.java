@@ -79,6 +79,11 @@ public class DecimalType extends AbstractNumberType {
       return nullValue();
     }
     Class<?> type = object.getClass();
+    if (Float.class.isAssignableFrom(type)) {
+      Float floatValue = (Float) object;
+      // required to handle extra precision of doubles compared to floats.
+      return Factory.newValue(this, Double.valueOf(floatValue.toString()));
+    }
     if(Number.class.isAssignableFrom(type)) {
       return Factory.newValue(this, ((Number) object).doubleValue());
     }

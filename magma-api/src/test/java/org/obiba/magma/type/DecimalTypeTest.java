@@ -52,6 +52,12 @@ public class DecimalTypeTest extends BaseValueTypeTest {
   }
 
   @Test
+  public void testFloat() {
+    Double result = (Double) getValueType().valueOf(0.123F).getValue();
+    assertThat(result.toString()).isEqualTo("0.123");
+  }
+
+  @Test
   public void test_compare_with_null() throws Exception {
     Value leftValue = getValueType().valueOf(42);
     Value rightValue = getValueType().nullValue();
