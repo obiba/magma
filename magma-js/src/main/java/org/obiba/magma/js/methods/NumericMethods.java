@@ -134,6 +134,16 @@ public class NumericMethods {
         return value.abs();
       }
     },
+    ROUND() {
+      @Override
+      public BigDecimal operate(BigDecimal value, Object... args) {
+        int scale = 2;
+        if (args !=null && args.length>0) {
+          scale = (Integer) args[0];
+        }
+        return value.setScale(scale, BigDecimal.ROUND_HALF_UP);
+      }
+    },
     POW() {
       @Override
       public BigDecimal operate(BigDecimal value, Object... args) {
@@ -356,6 +366,26 @@ public class NumericMethods {
   public static ScriptableValue abs(Context ctx, Scriptable thisObj, Object[] args, Function funObj)
       throws MagmaJsEvaluationRuntimeException {
     return operate((ScriptableValue) thisObj, args, Unary.ABS);
+  }
+
+  /**
+   * Returns the rounded value of the input value (default is 2 decimals).
+   * <p/>
+   * <pre>
+   *   $('NumberVarOne').round()
+   *   $('NumberVarOne').round(4)
+   * </pre>
+   *
+   * @param ctx
+   * @param thisObj
+   * @param args
+   * @param funObj
+   * @return
+   * @throws MagmaJsEvaluationRuntimeException
+   */
+  public static ScriptableValue round(Context ctx, Scriptable thisObj, Object[] args, Function funObj)
+      throws MagmaJsEvaluationRuntimeException {
+    return operate((ScriptableValue) thisObj, args, Unary.ROUND);
   }
 
   /**

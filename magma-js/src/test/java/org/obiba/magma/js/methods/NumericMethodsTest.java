@@ -499,6 +499,39 @@ public class NumericMethodsTest extends AbstractJsTest {
     assertThat(result.getUnit()).isEqualTo("m");
   }
 
+  // round
+
+  @Test
+  public void test_round_withDefaultScale() {
+    ScriptableValue result = evaluate("round()", DecimalType.get().valueOf(1.12345678d));
+    assertThat(result.getValue()).isEqualTo(DecimalType.get().valueOf(1.12d));
+  }
+
+  @Test
+  public void test_round_withScaleUp() {
+    ScriptableValue result = evaluate("round(4)", DecimalType.get().valueOf(1.12345678d));
+    assertThat(result.getValue()).isEqualTo(DecimalType.get().valueOf(1.1235d));
+  }
+
+  @Test
+  public void test_round_withScaleDown() {
+    ScriptableValue result = evaluate("round(4)", DecimalType.get().valueOf(1.1234321d));
+    assertThat(result.getValue()).isEqualTo(DecimalType.get().valueOf(1.1234d));
+  }
+
+  @Test
+  public void test_round_evaluatesRoundNullValue() {
+    ScriptableValue result = evaluate("round()", DecimalType.get().nullValue());
+    assertThat(result.getValue()).isEqualTo(DecimalType.get().nullValue());
+  }
+
+  @Test
+  public void test_round_acceptsIntegerType() {
+    ScriptableValue result = evaluate("round()", IntegerType.get().valueOf(1));
+    assertThat(result.getValue()).isEqualTo(IntegerType.get().valueOf(1));
+  }
+
+
   // ln
 
   @Test
