@@ -56,6 +56,10 @@ public class BooleanTypeTest extends BaseValueTypeTest {
   public void test_valueOf_string() {
     assertThat(getValueType().valueOf((Object) "false")).isEqualTo(getValueType().falseValue());
     assertThat(getValueType().valueOf((Object) "true")).isEqualTo(getValueType().trueValue());
+    assertThat(getValueType().valueOf((Object) "FALSE")).isEqualTo(getValueType().falseValue());
+    assertThat(getValueType().valueOf((Object) "TRUE")).isEqualTo(getValueType().trueValue());
+    assertThat(getValueType().valueOf((Object) "F")).isEqualTo(getValueType().falseValue());
+    assertThat(getValueType().valueOf((Object) "T")).isEqualTo(getValueType().trueValue());
   }
 
   @Test

@@ -78,7 +78,13 @@ public class BooleanType extends AbstractValueType {
       return nullValue();
     }
     if("true".equalsIgnoreCase(string) || "false".equalsIgnoreCase(string)) {
-      return valueOf(Boolean.valueOf(string).booleanValue());
+      return valueOf(Boolean.valueOf(string.toLowerCase()).booleanValue());
+    }
+    if("T".equalsIgnoreCase(string)) {
+      return valueOf(true);
+    }
+    if("F".equalsIgnoreCase(string)) {
+      return valueOf(false);
     }
     throw new IllegalArgumentException(
         "Cannot construct " + getClass().getSimpleName() + " from type String with value '" + string + "'");
