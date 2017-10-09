@@ -125,6 +125,15 @@ public class DateTimeTypeTest extends BaseValueTypeTest {
   }
 
   @Test
+  public void test_valueOfSimpleDateString() {
+    Calendar expected = Calendar.getInstance();
+    expected.clear();
+    expected.set(2011, Calendar.JANUARY, 25, 0, 0, 0);
+    Value value = DateTimeType.get().valueOf("2011-01-25");
+    assertThat(new Date(expected.getTimeInMillis())).isEqualTo((Date) value.getValue());
+  }
+
+  @Test
   public void test_valueOfNoTimeZoneDateFormatStringNoSeconds() {
     Calendar expected = Calendar.getInstance();
     expected.clear();
@@ -139,7 +148,7 @@ public class DateTimeTypeTest extends BaseValueTypeTest {
     expected.clear();
     expected.set(2011, Calendar.JANUARY, 25, 14, 30);
     Value value = DateTimeType.get().valueOf("2011/01/25 14:30");
-    assertThat(new Date(expected.getTimeInMillis())).isEqualTo((Date) value.getValue());
+    assertThat((Date) value.getValue()).isEqualTo(new Date(expected.getTimeInMillis()));
   }
 
   @Test

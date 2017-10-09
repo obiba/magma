@@ -22,6 +22,7 @@ import javax.annotation.Nullable;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.Scriptable;
+import org.mozilla.javascript.ScriptableObject;
 import org.obiba.magma.MagmaDate;
 import org.obiba.magma.Value;
 import org.obiba.magma.ValueSequence;
@@ -426,6 +427,33 @@ public class DateTimeMethods {
     return new ScriptableValue(thisObj, after(currentValue, args));
   }
 
+  /**
+   * Returns true if this Date value is before the specified date value(s)
+   * <p/>
+   * <pre>
+   *   $('Date').before($('OtherDate'))
+   *   $('Date').before($('OtherDate'), $('SomeOtherDate'))
+   * </pre>
+   */
+  public static Scriptable before(Context cx, Scriptable thisObj, Object[] args, @Nullable Function funObj) {
+    if(args == null || args.length == 0) {
+      return new ScriptableValue(thisObj, BooleanType.get().falseValue());
+    }
+
+    Value currentValue = ((ScriptableValue) thisObj).getValue();
+    if(currentValue.isSequence()) {
+      if(currentValue.isNull()) {
+        return new ScriptableValue(thisObj, BooleanType.get().nullSequence());
+      }
+      Collection<Value> newValues = new ArrayList<>();
+      for(Value value : currentValue.asSequence().getValue()) {
+        newValues.add(before(value, args));
+      }
+      return new ScriptableValue(thisObj, BooleanType.get().sequenceOf(newValues));
+    }
+    return new ScriptableValue(thisObj, before(currentValue, args));
+  }
+
   private static Value after(Value value, Object... args) {
     Calendar thisCalendar = asCalendar(value);
     if(thisCalendar == null) {
@@ -433,20 +461,50 @@ public class DateTimeMethods {
     }
 
     for(Object arg : args) {
+      Value operandValue;
       if(arg instanceof ScriptableValue) {
         ScriptableValue operand = (ScriptableValue) arg;
         if(operand.getValue().isSequence()) {
           throw new MagmaJsEvaluationRuntimeException("Operand to after() method must not be a sequence of values.");
         }
-        Calendar c = asCalendar(operand.getValue());
-        if(c == null) {
-          return BooleanType.get().nullValue();
-        }
-        if(thisCalendar.before(c)) {
-          return BooleanType.get().falseValue();
-        }
+        operandValue = operand.getValue();
       } else {
-        throw new MagmaJsEvaluationRuntimeException("Operand to after() method must be a ScriptableValue.");
+        operandValue = value.getValueType().valueOf(arg);
+      }
+      Calendar c = asCalendar(operandValue);
+      if(c == null) {
+        return BooleanType.get().nullValue();
+      }
+      if(c.after(thisCalendar)) {
+        return BooleanType.get().falseValue();
+      }
+    }
+    return BooleanType.get().trueValue();
+  }
+
+  private static Value before(Value value, Object... args) {
+    Calendar thisCalendar = asCalendar(value);
+    if(thisCalendar == null) {
+      return BooleanType.get().nullValue();
+    }
+
+    for(Object arg : args) {
+      Value operandValue;
+      if(arg instanceof ScriptableValue) {
+        ScriptableValue operand = (ScriptableValue) arg;
+        if(operand.getValue().isSequence()) {
+          throw new MagmaJsEvaluationRuntimeException("Operand to before() method must not be a sequence of values.");
+        }
+        operandValue = operand.getValue();
+      } else {
+        operandValue = value.getValueType().valueOf(arg);
+      }
+      Calendar c = asCalendar(operandValue);
+      if(c == null) {
+        return BooleanType.get().nullValue();
+      }
+      if(c.before(thisCalendar)) {
+        return BooleanType.get().falseValue();
       }
     }
     return BooleanType.get().trueValue();

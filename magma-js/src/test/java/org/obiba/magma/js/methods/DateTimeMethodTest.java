@@ -306,6 +306,66 @@ public class DateTimeMethodTest extends AbstractJsTest {
     assertThat(value.getValue()).isEqualTo(BooleanType.get().trueValue());
   }
 
+  @Test
+  public void test_after_string() throws Exception {
+    ScriptableValue value = evaluate("after('2011-11-01')", DateType.get().valueOf(new Date()));
+    assertThat(value).isNotNull();
+    assertThat(value.getValue()).isEqualTo(BooleanType.get().trueValue());
+
+    value = evaluate("after('2011-11-01', '2011-11-01T10:00:00-0000')",
+        DateType.get().valueOf(new Date()));
+    assertThat(value).isNotNull();
+    assertThat(value.getValue()).isEqualTo(BooleanType.get().trueValue());
+  }
+
+  @Test
+  public void test_after_string_datetime() throws Exception {
+    ScriptableValue value = evaluate("after('2011-11-01')", DateTimeType.get().valueOf(new Date()));
+    assertThat(value).isNotNull();
+    assertThat(value.getValue()).isEqualTo(BooleanType.get().trueValue());
+
+    value = evaluate("after('2011-11-01', '2011-11-01T10:00:00-0000')",
+        DateTimeType.get().valueOf(new Date()));
+    assertThat(value).isNotNull();
+    assertThat(value.getValue()).isEqualTo(BooleanType.get().trueValue());
+  }
+
+  @Test
+  public void test_before() throws Exception {
+    ScriptableValue value = evaluate("before(newValue('2110-11-01', 'date'))", DateType.get().valueOf(new Date()));
+    assertThat(value).isNotNull();
+    assertThat(value.getValue()).isEqualTo(BooleanType.get().trueValue());
+
+    value = evaluate("before(newValue('2110-11-01', 'date'), newValue('2110-11-01T10:00:00-0000', 'datetime'))",
+        DateType.get().valueOf(new Date()));
+    assertThat(value).isNotNull();
+    assertThat(value.getValue()).isEqualTo(BooleanType.get().trueValue());
+  }
+
+  @Test
+  public void test_before_string() throws Exception {
+    ScriptableValue value = evaluate("before('2110-11-01')", DateType.get().valueOf(new Date()));
+    assertThat(value).isNotNull();
+    assertThat(value.getValue()).isEqualTo(BooleanType.get().trueValue());
+
+    value = evaluate("before('2110-11-01', '2110-11-01T10:00:00-0000')",
+        DateType.get().valueOf(new Date()));
+    assertThat(value).isNotNull();
+    assertThat(value.getValue()).isEqualTo(BooleanType.get().trueValue());
+  }
+
+  @Test
+  public void test_before_string_datetime() throws Exception {
+    ScriptableValue value = evaluate("before('2110-11-01')", DateTimeType.get().valueOf(new Date()));
+    assertThat(value).isNotNull();
+    assertThat(value.getValue()).isEqualTo(BooleanType.get().trueValue());
+
+    value = evaluate("before('2110-11-01', '2110-11-01T10:00:00-0000')",
+        DateTimeType.get().valueOf(new Date()));
+    assertThat(value).isNotNull();
+    assertThat(value.getValue()).isEqualTo(BooleanType.get().trueValue());
+  }
+
   private Value makeDayOfWeek(ValueType valueType, int dayOfWeek) {
     Calendar calendar = Calendar.getInstance();
     while(calendar.get(Calendar.DAY_OF_WEEK) != dayOfWeek) {
@@ -329,7 +389,7 @@ public class DateTimeMethodTest extends AbstractJsTest {
    *
    * @param script
    * @param field
-   * @param testValue
+   * @param testType
    */
   private void testCalendarFieldMethod(String script, int field, ValueType testType) {
     Calendar testValue = Calendar.getInstance();
