@@ -51,13 +51,17 @@ public class DateTimeType extends AbstractValueType {
       new SimpleDateFormat("yyyy-MM-dd'T'HH:mmZ"), //
       new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSzzz"), //
       new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"), //
-      new SimpleDateFormat("yyyy/MM/dd HH:mm:ss"), //
-      new SimpleDateFormat("yyyy.MM.dd HH:mm:ss"), //
-      new SimpleDateFormat("yyyy MM dd HH:mm:ss"), //
       new SimpleDateFormat("yyyy-MM-dd HH:mm"), //
+      new SimpleDateFormat("yyyy-MM-dd"), //
+      new SimpleDateFormat("yyyy/MM/dd HH:mm:ss"), //
       new SimpleDateFormat("yyyy/MM/dd HH:mm"), //
+      new SimpleDateFormat("yyyy/MM/dd"), //
+      new SimpleDateFormat("yyyy.MM.dd HH:mm:ss"), //
       new SimpleDateFormat("yyyy.MM.dd HH:mm"), //
-      new SimpleDateFormat("yyyy MM dd HH:mm") };
+      new SimpleDateFormat("yyyy.MM.dd"), //
+      new SimpleDateFormat("yyyy MM dd HH:mm:ss"), //
+      new SimpleDateFormat("yyyy MM dd HH:mm"), //
+      new SimpleDateFormat("yyyy MM dd") };
 
   private String dateFormatPatterns = "";
 
