@@ -575,14 +575,91 @@ public class ValueSequenceMethods {
   private static ScriptableValue pendValue(Scriptable thisObj, Object[] args, boolean append) {
     ScriptableValue sv = (ScriptableValue) thisObj;
     ValueType targetType = sv.getValueType();
-    Iterable<Value> sequence;
-    Value svValue = sv.getValue();
+    Iterable<Value> originalSequence = asIterableValues(sv.getValue());
 
-    sequence = svValue.isSequence() ?
-        svValue.isNull() ? Lists.newArrayList() : svValue.asSequence().getValue() :
-        ImmutableList.of(svValue);
+    List<Value> pendSequence = prepareValuesToInsert(thisObj, args);
 
-    List<Value> pendSequence = Lists.newArrayList();
+    Iterable<Value> sequence = append ?
+        Iterables.concat(originalSequence, pendSequence) :
+        Iterables.concat(pendSequence, originalSequence);
+
+    return new ScriptableValue(thisObj, targetType.sequenceOf(Lists.newArrayList(sequence)));
+  }
+
+  /**
+   * Insert a value to a value to produce a value sequence. Also accepts a value sequence as input, in which case, both sequences
+   * are merged to produce a single one (it does not produce a sequence of sequence).
+   *
+   * <p>If the value being added is not of the same type as the sequence, it will be converted to the
+   * sequence's type. If the conversion fails, an exception is thrown.</p>
+   *
+   * <p>If the sequence is null or empty, this method returns a
+   * new sequence containing the parameter(s). If the parameter is null, a null value is appended.</p>
+   *
+   * <pre>
+   *   // Insert a value to a sequence, then compute the average of the resulting sequence
+   *   $('BloodPressure:Measure.RES_PULSE').insertAt(0, $('StandingHeight:FIRST_RES_PULSE')).avg();
+   *
+   *   // Insert several values to a value (or a value sequence)
+   *   $('VARX').insertAt(1, 1, 2, 3)
+   * </pre>
+   *
+   * @param ctx
+   * @param thisObj
+   * @param args
+   * @param funObj
+   * @return
+   * @throws MagmaJsEvaluationRuntimeException
+   */
+  public static ScriptableValue insertAt(Context ctx, Scriptable thisObj, Object[] args, Function funObj)
+      throws MagmaJsEvaluationRuntimeException {
+    if (args == null || args.length<2) throw new IllegalArgumentException("Wrong insertAt() arguments.");
+    int position = ((Number) args[0]).intValue();
+    Object[] argValues = new Object[args.length - 1];
+    for (int i=1;i<args.length; i++) {
+      argValues[i-1] = args[i];
+    }
+    List<Value> insertSequence = prepareValuesToInsert(thisObj, argValues);
+
+    ScriptableValue sv = (ScriptableValue) thisObj;
+    ValueType targetType = sv.getValueType();
+    Iterable<Value> originalSequence = asIterableValues(sv.getValue());
+
+    List<Value> sequence = Lists.newArrayList();
+    int i=0;
+    for (Value value : originalSequence) {
+      if (i == position) {
+        for (Value insertValue : insertSequence) {
+          sequence.add(insertValue);
+        }
+      }
+      sequence.add(value);
+      i++;
+    }
+    while (position>=i) {
+      if (i<position) {
+        sequence.add(targetType.nullValue());
+      }
+      else if (i == position) {
+        for (Value insertValue : insertSequence) {
+          sequence.add(insertValue);
+        }
+      }
+      i++;
+    }
+
+    return new ScriptableValue(thisObj, targetType.sequenceOf(sequence));
+  }
+
+  private static Iterable<Value> asIterableValues(Value value) {
+    if (value.isNull()) return Lists.newArrayList();
+    return value.isSequence() ? value.asSequence().getValue() : ImmutableList.of(value);
+  }
+
+  private static List<Value> prepareValuesToInsert(Scriptable thisObj, Object[] args) {
+    ScriptableValue sv = (ScriptableValue) thisObj;
+    ValueType targetType = sv.getValueType();
+    List<Value> insertSequence = Lists.newArrayList();
 
     for (Object argument : args) {
       Value value = argument instanceof ScriptableValue //
@@ -594,17 +671,12 @@ public class ValueSequenceMethods {
       }
 
       if (value.isSequence()) {
-        if (!value.isNull()) value.asSequence().getValue().forEach(pendSequence::add);
+        if (!value.isNull()) value.asSequence().getValue().forEach(insertSequence::add);
       } else {
-        pendSequence.add(value);
+        insertSequence.add(value);
       }
     }
-
-    sequence = append ?
-        Iterables.concat(sequence, pendSequence) :
-        Iterables.concat(pendSequence, sequence);
-
-    return new ScriptableValue(thisObj, targetType.sequenceOf(Lists.newArrayList(sequence)));
+    return insertSequence;
   }
 
   /**
