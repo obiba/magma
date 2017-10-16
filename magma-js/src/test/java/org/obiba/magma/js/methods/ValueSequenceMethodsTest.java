@@ -15,6 +15,7 @@ import java.util.Collections;
 
 import javax.annotation.Nullable;
 
+import com.google.common.base.Joiner;
 import org.junit.Test;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.FunctionObject;
@@ -576,6 +577,29 @@ public class ValueSequenceMethodsTest extends AbstractJsTest {
   }
 
   @Test
+  public void test_insertAt() {
+    assertInsertAtIs(Values.asSequence(IntegerType.get(), 1, 2, 3), 0, "4", Values.asSequence(IntegerType.get(), 4, 1, 2, 3));
+    assertInsertAtIs(Values.asSequence(IntegerType.get(), 1, 2, 3), 1, "4", Values.asSequence(IntegerType.get(), 1, 4, 2, 3));
+    assertInsertAtIs(Values.asSequence(IntegerType.get(), 1, 2, 3), 2, "4", Values.asSequence(IntegerType.get(), 1, 2, 4, 3));
+    assertInsertAtIs(Values.asSequence(IntegerType.get(), 1, 2, 3), 3, "4", Values.asSequence(IntegerType.get(), 1, 2, 3, 4));
+    assertInsertAtIs(Values.asSequence(IntegerType.get(), 1, 2, 3), 4, "4", Values.asSequence(IntegerType.get(), 1, 2, 3, null, 4));
+    assertInsertAtIs(Values.asSequence(IntegerType.get(), 1, 2, 3), 5, "4", Values.asSequence(IntegerType.get(), 1, 2, 3, null, null, 4));
+    assertInsertAtIs(Values.asSequence(IntegerType.get(), 1, 2, 3), 0, new String[] {"4","5","6"}, Values.asSequence(IntegerType.get(), 4, 5, 6, 1, 2, 3));
+    assertInsertAtIs(Values.asSequence(IntegerType.get(), 1, 2, 3), 1, new String[] {"4","5","6"}, Values.asSequence(IntegerType.get(), 1, 4, 5, 6, 2, 3));
+    assertInsertAtIs(Values.asSequence(IntegerType.get(), 1, 2, 3), 4, new String[] {"4","5","6"}, Values.asSequence(IntegerType.get(), 1, 2, 3, null, 4, 5, 6));
+    assertInsertAtIs(Values.asSequence(IntegerType.get(), 1, 2, 3), 0, new String[] {"4","null","6"}, Values.asSequence(IntegerType.get(), 4, null, 6, 1, 2, 3));
+    assertInsertAtIs(Values.asSequence(IntegerType.get(), 1, 2, 3), 0, "4", Values.asSequence(IntegerType.get(), 4, 1, 2, 3));
+    assertInsertAtIs(IntegerType.get().valueOf(1), 0, "4", Values.asSequence(IntegerType.get(), 4, 1));
+    assertInsertAtIs(IntegerType.get().valueOf(1), 1, "4", Values.asSequence(IntegerType.get(),  1, 4));
+  }
+
+  @Test
+  public void test_insertAt_null() {
+    assertInsertAtIs(IntegerType.get().nullValue(), 0, "4", Values.asSequence(IntegerType.get(),  4));
+    assertInsertAtIs(IntegerType.get().nullSequence(), 0, "4", Values.asSequence(IntegerType.get(),  4));
+  }
+
+  @Test
   public void test_push_nothing() {
     assertPushIs(Values.asSequence(IntegerType.get(), 1, 2, 3), "", Values.asSequence(IntegerType.get(), 1, 2, 3));
   }
@@ -672,6 +696,22 @@ public class ValueSequenceMethodsTest extends AbstractJsTest {
 
   private void assertPendIs(String pendMethod, Value valueToPushInto, String push, Value expected) {
     ScriptableValue result = evaluate(pendMethod + "(" + push + ")", valueToPushInto);
+    assertThat(result).isNotNull();
+
+    if(expected.isNull()) {
+      assertThat(result.getValue().isNull()).isTrue();
+    } else {
+      assertThat(result.getValue().asSequence().getValue()).isEqualTo(expected.asSequence().getValue());
+    }
+  }
+
+  private void assertInsertAtIs(Value valueToPushInto, int position, String push, Value expected) {
+    assertInsertAtIs(valueToPushInto, position, new String[] { push }, expected);
+  }
+
+  private void assertInsertAtIs(Value valueToPushInto, int position, String[] push, Value expected) {
+    String pushes = Joiner.on(",").join(push);
+    ScriptableValue result = evaluate("insertAt(" + position + "," + pushes + ")", valueToPushInto);
     assertThat(result).isNotNull();
 
     if(expected.isNull()) {
