@@ -41,6 +41,8 @@ public class CsvDatasourceFactory extends AbstractDatasourceFactory {
 
   private String defaultValueType;
 
+  private String entityIdName;
+
   public void setBundle(File bundle) {
     this.bundle = bundle;
   }
@@ -71,6 +73,10 @@ public class CsvDatasourceFactory extends AbstractDatasourceFactory {
 
   public void setDefaultValueType(String defaultValueType) {
     this.defaultValueType = defaultValueType;
+  }
+
+  public void setEntityIdName(String entityIdName) {
+    this.entityIdName = entityIdName;
   }
 
   public CsvDatasourceFactory addTable(File tableDirectory) {
@@ -128,6 +134,8 @@ public class CsvDatasourceFactory extends AbstractDatasourceFactory {
       datasource.setSeparator(Separator.fromString(separator));
     if(!Strings.isNullOrEmpty(defaultValueType))
       datasource.setDefaultValueType(defaultValueType);
+    if(!Strings.isNullOrEmpty(entityIdName))
+      datasource.setEntityIdName(entityIdName);
     datasource.setFirstRow(firstRow);
     datasource.setMultilines(multilines);
 
