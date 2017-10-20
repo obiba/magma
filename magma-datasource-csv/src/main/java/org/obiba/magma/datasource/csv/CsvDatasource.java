@@ -30,6 +30,7 @@ import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 
 import com.google.common.base.Strings;
+import com.google.common.collect.Maps;
 import org.obiba.magma.ValueTable;
 import org.obiba.magma.ValueTableWriter;
 import org.obiba.magma.ValueType;
@@ -74,7 +75,10 @@ public class CsvDatasource extends AbstractDatasource {
   private boolean multilines;
 
   private ValueType defaultValueType = ValueType.Factory.forName(DEFAULT_VALUE_TYPE);
+
   private String entityIdName;
+
+  private Map<String,String> entityIdNames = Maps.newHashMap();
 
   public CsvDatasource(String name) {
     super(name, TYPE);
@@ -120,8 +124,12 @@ public class CsvDatasource extends AbstractDatasource {
   }
 
   public CsvDatasource addValueTable(String tableName, @Nullable File variablesFile, @Nullable File dataFile) {
+    return addValueTable(tableName, variablesFile, dataFile, CsvValueTable.DEFAULT_ENTITY_TYPE);
+  }
+
+  public CsvDatasource addValueTable(String tableName, @Nullable File variablesFile, @Nullable File dataFile, String entityType) {
     valueTables
-        .put(tableName, new CsvValueTable(this, tableName, variablesFile, dataFile, CsvValueTable.DEFAULT_ENTITY_TYPE));
+        .put(tableName, new CsvValueTable(this, tableName, variablesFile, dataFile, entityType));
     return this;
   }
 
@@ -268,7 +276,7 @@ public class CsvDatasource extends AbstractDatasource {
   }
 
   /**
-   * Set the name of the column representing the entity ID, used when writing data.
+   * Set the default name of the column representing the entity ID, used when writing data.
    *
    * @param entityIdName
    */
@@ -276,7 +284,24 @@ public class CsvDatasource extends AbstractDatasource {
     this.entityIdName = entityIdName;
   }
 
-  public String getEntityIdName() {
+  private String getEntityIdName() {
     return Strings.isNullOrEmpty(entityIdName) ? DEFAULT_ENTITY_ID_NAME : entityIdName;
+  }
+
+  /**
+   * Set the name of the column representing the entity ID per entity type, used when writing data.
+   *
+   * @param entityIdNames
+   */
+  public void setEntityIdNames(Map<String, String> entityIdNames) {
+    this.entityIdNames = entityIdNames;
+  }
+
+  private Map<String, String> getEntityIdNames() {
+    return entityIdNames == null ? Maps.newHashMap() : entityIdNames;
+  }
+
+  String getEntityIdName(String entityType) {
+    return getEntityIdNames().getOrDefault(entityType, getEntityIdName());
   }
 }
