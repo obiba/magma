@@ -31,8 +31,6 @@ import org.obiba.magma.type.BinaryType;
  */
 public class CsvLine {
 
-  public final static String ENTITY_ID_NAME = "entity_id";
-
   private Map<String, Integer> headerMap;
 
   private final Map<String, Value> valueMap;
@@ -47,7 +45,7 @@ public class CsvLine {
   @NotNull
   private final File parent;
 
-  public CsvLine(@NotNull VariableEntity entity, @NotNull File parent, boolean multilines) {
+  CsvLine(@NotNull VariableEntity entity, @NotNull File parent, boolean multilines) {
     this.entity = entity;
     this.parent = parent;
     this.multilines = multilines;
@@ -58,7 +56,7 @@ public class CsvLine {
     valueMap = new HashMap<>();
   }
 
-  public void setValue(Variable variable, Value value) {
+  void setValue(Variable variable, Value value) {
     if(!headerMap.containsKey(variable.getName())) {
       headerMap.put(variable.getName(), index++);
     }
@@ -69,17 +67,7 @@ public class CsvLine {
     valueMap.put(variable.getName(), valueToWrite);
   }
 
-  @SuppressWarnings("UnusedDeclaration")
-  public String[] getHeader() {
-    String[] line = new String[headerMap.size() + 1];
-    line[0] = ENTITY_ID_NAME;
-    for(Map.Entry<String, Integer> entry : headerMap.entrySet()) {
-      line[entry.getValue()] = entry.getKey();
-    }
-    return line;
-  }
-
-  public List<String[]> getLines() {
+  List<String[]> getLines() {
     if (multilines) {
       return getMultipleLines();
     } else {
@@ -88,6 +76,18 @@ public class CsvLine {
       return lines;
     }
   }
+
+  Map<String, Integer> getHeaderMap() {
+    return headerMap;
+  }
+
+  void setHeaderMap(Map<String, Integer> headerMap) {
+    this.headerMap = headerMap;
+  }
+
+  //
+  // Private methods
+  //
 
   private String[] getSingleLine() {
     String[] line = new String[headerMap.size() + 1];
@@ -136,14 +136,6 @@ public class CsvLine {
       line[entry.getValue()] = strValue;
     }
     return line;
-  }
-
-  public Map<String, Integer> getHeaderMap() {
-    return headerMap;
-  }
-
-  public void setHeaderMap(Map<String, Integer> headerMap) {
-    this.headerMap = headerMap;
   }
 
 }

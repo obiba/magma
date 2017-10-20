@@ -342,7 +342,7 @@ public class CsvValueTable extends AbstractValueTable implements Initialisable, 
 
   public String[] getDataHeaderAsArray() {
     String[] header = new String[dataHeaderMap.size() + 1];
-    header[0] = CsvLine.ENTITY_ID_NAME;
+    header[0] = getCsvDatasource().getEntityIdName();
     for(Map.Entry<String, Integer> entry : dataHeaderMap.entrySet()) {
       header[entry.getValue()] = entry.getKey();
     }

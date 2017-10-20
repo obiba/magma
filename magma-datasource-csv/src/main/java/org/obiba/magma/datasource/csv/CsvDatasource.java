@@ -50,11 +50,13 @@ public class CsvDatasource extends AbstractDatasource {
 
   public static final String DATA_FILE = "data.csv";
 
-  public static final String DEFAULT_CHARACTER_SET = "UTF-8";
+  private static final String DEFAULT_CHARACTER_SET = "UTF-8";
 
-  public static final char DEL_CHAR = (char) 127;
+  private static final char DEL_CHAR = (char) 127;
 
-  public static final String DEFAULT_VALUE_TYPE = "text";
+  private static final String DEFAULT_VALUE_TYPE = "text";
+
+  private static final String DEFAULT_ENTITY_ID_NAME = "entity_id";
 
   private final Map<String, CsvValueTable> valueTables = new HashMap<>();
 
@@ -72,6 +74,7 @@ public class CsvDatasource extends AbstractDatasource {
   private boolean multilines;
 
   private ValueType defaultValueType = ValueType.Factory.forName(DEFAULT_VALUE_TYPE);
+  private String entityIdName;
 
   public CsvDatasource(String name) {
     super(name, TYPE);
@@ -262,5 +265,18 @@ public class CsvDatasource extends AbstractDatasource {
 
   public ValueType getDefaultValueType() {
     return defaultValueType;
+  }
+
+  /**
+   * Set the name of the column representing the entity ID, used when writing data.
+   *
+   * @param entityIdName
+   */
+  public void setEntityIdName(String entityIdName) {
+    this.entityIdName = entityIdName;
+  }
+
+  public String getEntityIdName() {
+    return Strings.isNullOrEmpty(entityIdName) ? DEFAULT_ENTITY_ID_NAME : entityIdName;
   }
 }
