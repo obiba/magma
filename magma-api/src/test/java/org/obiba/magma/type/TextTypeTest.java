@@ -61,6 +61,12 @@ public class TextTypeTest extends BaseValueTypeTest {
 
   @Test
   public void testSequenceOfOneNull() {
+    ValueSequence sequence = TextType.get().sequenceOf("");
+    assertSequence(sequence, new String[] { null });
+  }
+
+  @Test
+  public void testSequenceOfOneNull2() {
     ValueSequence sequence = TextType.get().sequenceOf("\"\"");
     assertSequence(sequence, new String[] { null });
   }
