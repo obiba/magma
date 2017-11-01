@@ -47,13 +47,6 @@ public abstract class CSVAwareValueType extends AbstractValueType {
       return nullSequence();
     }
     Collection<Value> values = new ArrayList<>();
-
-    // Special case for empty string
-    if(string.isEmpty()) {
-      values.add(valueOf(string));
-      return sequenceOf(values);
-    }
-
     try {
       for(String currentValue : getCsvParser().parseLine(string)) {
         values.add(valueOf(currentValue.isEmpty() ? null : currentValue));
